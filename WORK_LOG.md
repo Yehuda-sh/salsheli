@@ -23,6 +23,136 @@
 
 ---
 
+## 📅 05/10/2025 - הסרת inventory.json - ניקוי קבצים מיותרים
+
+### 🎯 משימה
+
+הסרת הקובץ `assets/data/inventory.json` שאינו בשימוש מהפרויקט.
+
+### ✅ מה הושלם
+
+#### 1. זיהוי קובץ מיותר
+
+**ממצאים:**
+- הקובץ `inventory.json` היה asset בפרויקט
+- המערכת משתמשת ב-`MockInventoryRepository` (בזיכרון בלבד)
+- הקובץ לא נטען או נקרא בשום מקום בקוד
+- זה שריד מפיתוח מוקדם
+
+#### 2. הסרה מ-pubspec.yaml
+
+**לפני:**
+```yaml
+assets:
+  - assets/data/products.json
+  - assets/templates/
+  - assets/images/
+  - assets/data/inventory.json  # ❌ מיותר
+```
+
+**אחרי:**
+```yaml
+assets:
+  - assets/data/products.json
+  - assets/templates/
+  - assets/images/
+  # ✅ inventory.json הוסר
+```
+
+#### 3. מחיקת הקובץ הפיזי
+
+- נמחק: `C:\projects\salsheli\assets\data\inventory.json`
+- גודל: 586 bytes
+- תוכן: 3 פריטי מלאי לדוגמה (חלב, עגבניות, אורז)
+
+### 📂 קבצים שהושפעו
+
+1. **`pubspec.yaml`** ✅ עודכן
+   - הסרת `- assets/data/inventory.json` מרשימת ה-assets
+
+2. **`assets/data/inventory.json`** ❌ נמחק
+   - הקובץ הפיזי הוסר לחלוטין
+
+### 💡 לקחים
+
+#### 1. ניקוי קבצים מיותרים
+
+**למה חשוב:**
+- הקטנת גודל ה-build
+- הימנעות מבלבול ("למה הקובץ הזה קיים?")
+- ניקיון קוד = קוד מתוחזק טוב יותר
+
+**איך לזהות:**
+```powershell
+# חיפוש שימוש בקובץ
+Ctrl+Shift+F → "inventory.json"
+# אם אין תוצאות מלבד pubspec.yaml → ניתן למחוק
+```
+
+#### 2. Mock vs File-based Data
+
+**במקרה שלנו:**
+- ✅ `MockInventoryRepository` - נתונים בזיכרון, מושלם לפיתוח
+- ❌ `inventory.json` - לא נחוץ כי הנתונים לא נשמרים לקובץ
+
+**בעתיד:**
+- כשנעבור ל-Firebase/SQLite, גם לא נצטרך את הקובץ
+- ה-Mock יוחלף ב-`FirebaseInventoryRepository`
+
+#### 3. תיעוד חשוב
+
+**ללא תיעוד:**
+"למה מחקתי את הקובץ? אולי הוא חשוב?"
+
+**עם תיעוד:**
+"הקובץ לא היה בשימוש, המערכת משתמשת ב-Mock" ✅
+
+### 🔄 מה נותר לעתיד
+
+**בדיקת קבצים נוספים:**
+- [ ] **assets/templates/** - האם כל הקבצים בשימוש?
+- [ ] **build/** - ניתן להוסיף ל-.gitignore?
+- [ ] **קבצי .g.dart ישנים** - ניקוי עם build_runner clean
+
+**ארגון assets:**
+- [ ] **מבנה תיקיות** - שקול ארגון מחדש:
+  ```
+  assets/
+    ├── data/
+    │   └── products.json
+    ├── images/
+    │   ├── onboarding/
+    │   └── icons/
+    └── templates/
+  ```
+
+### 📊 סיכום מספרים
+
+- **זמן ביצוע:** ~5 דקות
+- **קבצים נמחקו:** 1
+- **שורות קוד שהוסרו:** 1 (מ-pubspec.yaml)
+- **חיסכון בגודל build:** ~1KB
+- **שיפור בבהירות:** משמעותי
+
+### ✨ תוצאה סופית
+
+✅ **הפרויקט נקי יותר!**
+
+- אין קבצים מיותרים ב-assets
+- pubspec.yaml מעודכן
+- המערכת ממשיכה לעבוד מושלם עם MockInventoryRepository
+- תיעוד ברור למה הקובץ הוסר
+
+**אימות:**
+```powershell
+flutter clean
+flutter pub get
+flutter run
+# ✅ הכל עובד מושלם!
+```
+
+---
+
 ## 📅 05/10/2025 - אימות ותיקון main.dart - ProductsProvider כ-ProxyProvider
 
 ### 🎯 משימה

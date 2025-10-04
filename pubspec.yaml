@@ -68,7 +68,6 @@ flutter:
     - assets/data/products.json
     - assets/templates/
     - assets/images/
-    - assets/data/inventory.json
 
   fonts:
     - family: Assistant
