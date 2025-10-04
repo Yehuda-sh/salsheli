@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "1",
+      "productName": "חלב 3%",
+      "category": "dairy",
+      "location": "refrigerator",
+      "quantity": 2,
+      "unit": "ליטר"
+    },
+    {
+      "id": "2",
+      "productName": "עגבניות",
+      "category": "vegetables",
+      "location": "main_pantry",
+      "quantity": 6,
+      "unit": "יחידות"
+    },
+    {
+      "id": "3",
+      "productName": "אורז בסמטי",
+      "category": "pasta_rice",
+      "location": "main_pantry",
+      "quantity": 1,
+      "unit": "ק\"ג"
+    }
+  ]
+}

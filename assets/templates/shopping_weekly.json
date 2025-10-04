@@ -1,0 +1,33 @@
+{
+  "templateName": "קניות שבועיות",
+  "items": [
+    {
+      "barcode": null,
+      "name": "לחם פרנה",
+      "quantity": 1,
+      "unit": "יח'",
+      "estimatedPrice": null
+    },
+    {
+      "barcode": null,
+      "name": "חלב 3%",
+      "quantity": 1,
+      "unit": "ליטר",
+      "estimatedPrice": null
+    },
+    {
+      "barcode": null,
+      "name": "ביצים",
+      "quantity": 12,
+      "unit": "יח'",
+      "estimatedPrice": null
+    },
+    {
+      "barcode": null,
+      "name": "גבינה צהובה",
+      "quantity": 0.5,
+      "unit": "ק״ג",
+      "estimatedPrice": null
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "templateName": "על האש",
+  "items": [
+    {
+      "barcode": null,
+      "name": "פרגיות עוף",
+      "quantity": 1,
+      "unit": "ק״ג",
+      "estimatedPrice": null
+    },
+    {
+      "barcode": null,
+      "name": "קבב בקר",
+      "quantity": 1,
+      "unit": "ק״ג",
+      "estimatedPrice": null
+    },
+    {
+      "barcode": null,
+      "name": "פיתות",
+      "quantity": 6,
+      "unit": "יח'",
+      "estimatedPrice": null
+    },
+    {
+      "barcode": null,
+      "name": "סלט ירקות",
+      "quantity": 1,
+      "unit": "קערה",
+      "estimatedPrice": null
+    },
+    {
+      "barcode": null,
+      "name": "פחמים / מצת",
+      "quantity": 1,
+      "unit": "יח'",
+      "estimatedPrice": null
+    },
+    {
+      "barcode": null,
+      "name": "שתייה קלה",
+      "quantity": 6,
+      "unit": "יח'",
+      "estimatedPrice": null
+    }
+  ]
+}

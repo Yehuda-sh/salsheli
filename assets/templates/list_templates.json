@@ -1,0 +1,41 @@
+{
+  "categories": [
+    {
+      "id": "shopping",
+      "name": "קניות שוטפות",
+      "templateFile": "shopping_weekly.json"
+    },
+    {
+      "id": "event",
+      "name": "אירועים",
+      "templateFile": null
+    },
+    {
+      "id": "pantry",
+      "name": "מזווה",
+      "templateFile": "pantry_basic.json"
+    }
+  ],
+  "subTemplates": [
+    {
+      "parentId": "event",
+      "sub": [
+        {
+          "id": "bbq",
+          "name": "על האש",
+          "templateFile": "event_bbq.json"
+        },
+        {
+          "id": "friends",
+          "name": "ישיבה עם חברים",
+          "templateFile": null
+        },
+        {
+          "id": "birthday",
+          "name": "מסיבת יום הולדת",
+          "templateFile": null
+        }
+      ]
+    }
+  ]
+}

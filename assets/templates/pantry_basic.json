@@ -1,0 +1,33 @@
+{
+  "templateName": "מזווה בסיסי",
+  "items": [
+    {
+      "barcode": null,
+      "name": "קמח",
+      "quantity": 1,
+      "unit": "ק״ג",
+      "estimatedPrice": null
+    },
+    {
+      "barcode": null,
+      "name": "אורז",
+      "quantity": 1,
+      "unit": "ק״ג",
+      "estimatedPrice": null
+    },
+    {
+      "barcode": null,
+      "name": "עדשים",
+      "quantity": 0.5,
+      "unit": "ק״ג",
+      "estimatedPrice": null
+    },
+    {
+      "barcode": null,
+      "name": "קפה נמס",
+      "quantity": 1,
+      "unit": "ק״ג",
+      "estimatedPrice": null
+    }
+  ]
+}

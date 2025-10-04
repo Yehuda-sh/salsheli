@@ -1,0 +1,13 @@
+[
+  { "name": "חלב", "category": "מוצרי חלב", "icon": "🥛", "price": 7.9 },
+  { "name": "לחם", "category": "מאפים", "icon": "🍞", "price": 8.5 },
+  {
+    "name": "גבינה צהובה",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 15.2
+  },
+  { "name": "עגבנייה", "category": "ירקות", "icon": "🍅", "price": 5.4 },
+  { "name": "מלפפון", "category": "ירקות", "icon": "🥒", "price": 4.8 },
+  { "name": "עוף טרי", "category": "בשר", "icon": "🍗", "price": 35.0 }
+]

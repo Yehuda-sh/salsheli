@@ -1,0 +1,12 @@
+{
+  "name": "firebase-products-uploader",
+  "version": "1.0.0",
+  "description": "הורדה והעלאה של מוצרים ל-Firestore",
+  "scripts": {
+    "download": "node download_products.js",
+    "upload": "node upload_to_firebase.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  }
+}
