@@ -123,6 +123,21 @@ class ShoppingListsProvider with ChangeNotifier {
     await loadLists();
   }
 
+  // === Restore List (for Undo) ===
+  Future<void> restoreList(ShoppingList list) async {
+    debugPrint('↩️ ShoppingListsProvider.restoreList()');
+    debugPrint('   משחזר רשימה: ${list.name} (${list.id})');
+    
+    if (_householdId == null) {
+      debugPrint('❌ householdId לא נמצא');
+      throw Exception('❌ householdId לא נמצא');
+    }
+
+    await _repository.saveList(list, _householdId!);
+    debugPrint('✅ רשימה שוחזרה בהצלחה');
+    await loadLists();
+  }
+
   // === Update List ===
   Future<void> updateList(ShoppingList updated) async {
     if (_householdId == null) {

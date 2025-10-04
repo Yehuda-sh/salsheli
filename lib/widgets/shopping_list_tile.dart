@@ -23,12 +23,14 @@ class ShoppingListTile extends StatelessWidget {
   final ShoppingList list;
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
+  final Function(ShoppingList)? onRestore;
 
   const ShoppingListTile({
     super.key,
     required this.list,
     this.onTap,
     this.onDelete,
+    this.onRestore,
   });
 
   /// 🇮🇱 אייקון מותאם לפי סטטוס הרשימה
@@ -61,26 +63,29 @@ class ShoppingListTile extends StatelessWidget {
         child: const Icon(Icons.delete, color: Colors.white),
       ),
       confirmDismiss: (_) async {
-        // מבקש אישור מחיקה עם Undo
-        final scaffold = ScaffoldMessenger.of(context);
-        bool confirm = false;
-
-        final snackBar = SnackBar(
-          content: Text('הרשימה "${list.name}" נמחקה'),
-          action: SnackBarAction(
-            label: 'בטל',
-            onPressed: () {
-              confirm = false;
-            },
-          ),
-          duration: const Duration(seconds: 3),
-        );
-
+        // ✅ שמירת כל הנתונים לפני מחיקה
+        final deletedList = list;
+        
+        // ✅ מחיקה מיידית
         onDelete?.call();
-        scaffold.showSnackBar(snackBar);
-
-        await Future.delayed(const Duration(seconds: 3));
-        return confirm;
+        
+        // ✅ הצגת Snackbar עם אפשרות Undo
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('הרשימה "${deletedList.name}" נמחקה'),
+            action: SnackBarAction(
+              label: 'בטל',
+              onPressed: () {
+                // ✅ שחזור הרשימה
+                onRestore?.call(deletedList);
+              },
+            ),
+            duration: const Duration(seconds: 5),
+          ),
+        );
+        
+        // ✅ מאשר מחיקה מיידית (כבר מחקנו)
+        return true;
       },
       child: Material(
         elevation: 2,

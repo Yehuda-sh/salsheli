@@ -378,17 +378,31 @@ class _ActiveListsCard extends StatelessWidget {
 
   const _ActiveListsCard({required this.lists});
 
-  Future<void> _deleteList(BuildContext context, ShoppingList list) async {
+  Future<void> _deleteList(
+    BuildContext context,
+    ShoppingList list,
+  ) async {
     final provider = context.read<ShoppingListsProvider>();
 
     try {
+      // ✅ שמירת כל הנתונים לפני מחיקה
+      final deletedList = list;
+
+      // ✅ מחיקה מיידית
       await provider.deleteList(list.id);
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('הרשימה "${list.name}" נמחקה'),
-            duration: const Duration(seconds: 3),
+            content: Text('הרשימה "${deletedList.name}" נמחקה'),
+            action: SnackBarAction(
+              label: 'בטל',
+              onPressed: () async {
+                // ✅ שחזור הרשימה
+                await provider.restoreList(deletedList);
+              },
+            ),
+            duration: const Duration(seconds: 5),
           ),
         );
       }
@@ -485,29 +499,6 @@ class _DismissibleListTile extends StatelessWidget {
       child: Dismissible(
         key: Key(list.id),
         direction: DismissDirection.endToStart,
-        confirmDismiss: (direction) async {
-          return await showDialog<bool>(
-                context: context,
-                builder: (dialogContext) => AlertDialog(
-                  title: const Text('מחיקת רשימה'),
-                  content: Text('האם למחוק את "${list.name}"?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(dialogContext, false),
-                      child: const Text('ביטול'),
-                    ),
-                    FilledButton(
-                      onPressed: () => Navigator.pop(dialogContext, true),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: Colors.red,
-                      ),
-                      child: const Text('מחק'),
-                    ),
-                  ],
-                ),
-              ) ??
-              false;
-        },
         onDismissed: (_) => onDelete(),
         background: Container(
           alignment: Alignment.centerLeft,

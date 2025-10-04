@@ -170,13 +170,15 @@ class ShoppingListsScreen extends StatelessWidget {
           onTap: () {
             Navigator.pushNamed(context, '/populate-list', arguments: list);
           },
-          onDelete: () => _confirmDelete(context, provider, list),
+          onDelete: () => provider.deleteList(list.id),
+          onRestore: (deletedList) => provider.restoreList(deletedList),
         );
       },
     ).animate().fadeIn(duration: 300.ms);
   }
 
-  /// 📌 דיאלוג מחיקה
+  /// 📌 דיאלוג מחיקה (לא בשימוש - משתמשים ב-Dismissible של ShoppingListTile)
+  // ignore: unused_element
   Future<void> _confirmDelete(
     BuildContext context,
     ShoppingListsProvider provider,
