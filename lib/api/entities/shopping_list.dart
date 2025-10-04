@@ -1,17 +1,27 @@
 // 📄 File: lib/api/entities/shopping_list.dart
-//
-// ✅ גרסה מלאה עם כל השדות החדשים
+// תיאור: Entity של רשימת קניות מה-API עם פריטים
 
+import 'package:json_annotation/json_annotation.dart';
+
+part 'shopping_list.g.dart';
+
+/// רשימת קניות (API)
+@JsonSerializable(explicitToJson: true)
 class ApiShoppingList {
   final String id;
   final String name;
+  @JsonKey(name: 'updated_date')
   final String? updatedDate;
+  @JsonKey(name: 'household_id')
   final String householdId;
   final String? status;
   final String? type;
   final double? budget;
+  @JsonKey(name: 'is_shared')
   final bool? isShared;
+  @JsonKey(name: 'created_by')
   final String? createdBy;
+  @JsonKey(name: 'shared_with')
   final List<String>? sharedWith;
   final List<ApiReceiptItem>? items;
 
@@ -33,41 +43,10 @@ class ApiShoppingList {
       ? null
       : DateTime.tryParse(updatedDate!);
 
-  factory ApiShoppingList.fromJson(Map<String, dynamic> json) {
-    return ApiShoppingList(
-      id: (json['id'] ?? '').toString(),
-      name: (json['name'] ?? '').toString(),
-      updatedDate: json['updated_date']?.toString(),
-      householdId: (json['household_id'] ?? '').toString(),
-      status: json['status']?.toString(),
-      type: json['type']?.toString(),
-      budget: json['budget'] != null
-          ? (json['budget'] as num).toDouble()
-          : null,
-      isShared: json['is_shared'] as bool?,
-      createdBy: json['created_by']?.toString(),
-      sharedWith: (json['shared_with'] as List<dynamic>?)
-          ?.map((e) => e.toString())
-          .toList(),
-      items: (json['items'] as List<dynamic>?)
-          ?.map((e) => ApiReceiptItem.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
-  }
+  factory ApiShoppingList.fromJson(Map<String, dynamic> json) =>
+      _$ApiShoppingListFromJson(json);
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'name': name,
-    'updated_date': updatedDate,
-    'household_id': householdId,
-    if (status != null) 'status': status,
-    if (type != null) 'type': type,
-    if (budget != null) 'budget': budget,
-    if (isShared != null) 'is_shared': isShared,
-    if (createdBy != null) 'created_by': createdBy,
-    if (sharedWith != null) 'shared_with': sharedWith,
-    if (items != null) 'items': items?.map((e) => e.toJson()).toList(),
-  };
+  Map<String, dynamic> toJson() => _$ApiShoppingListToJson(this);
 
   ApiShoppingList copyWith({
     String? id,
@@ -113,11 +92,14 @@ class ApiShoppingList {
 }
 
 /// פריט ברשימת קניות (API)
+@JsonSerializable(explicitToJson: true)
 class ApiReceiptItem {
   final String id;
   final String name;
   final int quantity;
+  @JsonKey(name: 'unit_price')
   final double unitPrice;
+  @JsonKey(name: 'is_checked')
   final bool? isChecked;
   final String? barcode;
 
@@ -132,26 +114,39 @@ class ApiReceiptItem {
 
   double get totalPrice => quantity * unitPrice;
 
-  factory ApiReceiptItem.fromJson(Map<String, dynamic> json) {
+  factory ApiReceiptItem.fromJson(Map<String, dynamic> json) =>
+      _$ApiReceiptItemFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ApiReceiptItemToJson(this);
+
+  ApiReceiptItem copyWith({
+    String? id,
+    String? name,
+    int? quantity,
+    double? unitPrice,
+    bool? isChecked,
+    String? barcode,
+  }) {
     return ApiReceiptItem(
-      id: (json['id'] ?? '').toString(),
-      name: (json['name'] ?? '').toString(),
-      quantity: (json['quantity'] as num?)?.toInt() ?? 1,
-      unitPrice: (json['unit_price'] as num?)?.toDouble() ?? 0.0,
-      isChecked: json['is_checked'] as bool?,
-      barcode: json['barcode']?.toString(),
+      id: id ?? this.id,
+      name: name ?? this.name,
+      quantity: quantity ?? this.quantity,
+      unitPrice: unitPrice ?? this.unitPrice,
+      isChecked: isChecked ?? this.isChecked,
+      barcode: barcode ?? this.barcode,
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'name': name,
-    'quantity': quantity,
-    'unit_price': unitPrice,
-    if (isChecked != null) 'is_checked': isChecked,
-    if (barcode != null) 'barcode': barcode,
-  };
-
   @override
   String toString() => 'ApiReceiptItem(id: $id, name: $name, qty: $quantity)';
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ApiReceiptItem &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 }

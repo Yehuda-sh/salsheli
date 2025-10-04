@@ -317,8 +317,8 @@ class BadRepository {
 - [ ] פרמטרים nullable עם בדיקות null
 - [ ] Logging מפורט בכל שלב (debugPrint)
 - [ ] Error handling עם try/catch
-- [ ] חישובים אמיתיים (לא Mock) אם יש נתונים זמינים
-- [ ] Fallback values אם אין נתונים
+- [ ] **חישובים אמיתיים (לא Mock) אם יש נתונים זמינים** - חשוב!
+- [ ] Fallback values **רק** אם אין נתונים
 - [ ] תיעוד TODO ברור למה שחסר
 
 #### 📝 דוגמה
@@ -356,6 +356,24 @@ class HomeStatsService {
     }
     // חישוב...
   }
+  
+  // ✅ חישוב אמיתי עם Fallback
+  static double _calculatePreviousSpent(
+    double currentSpent,
+    List<Map<String, dynamic>>? expenseTrend,
+  ) {
+    // אם יש נתונים אמיתיים - השתמש בהם!
+    if (expenseTrend != null && expenseTrend.length >= 2) {
+      final previousMonth = expenseTrend[expenseTrend.length - 2];
+      final value = (previousMonth['value'] as num?)?.toDouble() ?? 0.0;
+      debugPrint('   📊 חישוב אמיתי: הוצאה קודמת = ₪$value');
+      return value;
+    }
+    
+    // Fallback רק אם אין נתונים
+    debugPrint('   ⚠️ אין מגמות - משתמש ב-Fallback (x1.15)');
+    return currentSpent * 1.15;
+  }
 }
 
 // ❌ רע - Service לא נכון
@@ -366,8 +384,36 @@ class BadService {
   double calculateSpent() {
     return receipts.fold(0, (sum, r) => sum + r.total);
   }
+  
+  // ❌ תמיד Mock - אף פעם לא משתמש בנתונים אמיתיים!
+  double calculatePreviousSpent(double current) {
+    return current * 1.15; // ❌ תמיד דמה
+  }
 }
 ```
+
+#### 💡 כלל זהב: חישובים אמיתיים
+
+**עיקרון:** אם יש נתונים אמיתיים זמינים - **השתמש בהם**!
+
+```dart
+// ❌ לא טוב - תמיד דמה
+final previousSpent = totalSpent * 1.15; // תמיד דמה!
+
+// ✅ טוב - אמיתי עם fallback
+if (stats.expenseTrend.length >= 2) {
+  // חישוב מנתונים אמיתיים
+  previousSpent = stats.expenseTrend[...]['value'];
+} else {
+  // fallback רק אם אין נתונים
+  previousSpent = totalSpent * 1.15;
+}
+```
+
+**למה זה חשוב:**
+- משתמשים מצפים לנתונים אמיתיים
+- Mock/Fallback צריך להיות **זמני** בלבד
+- תמיד תעד ב-TODO מה חסר
 
 ---
 
@@ -482,6 +528,341 @@ Future<List<Product>> badLoad() async {
 
   return products; // יקרוס אם data הוא Array!
 }
+```
+
+---
+
+### 8️⃣ Hybrid Repositories (Local + API)
+
+#### ✅ Checklist מהיר
+
+- [ ] יש Repository מקומי (Hive/SharedPreferences)
+- [ ] יש API Repository או Service
+- [ ] יש Fallback Strategy - אם API נכשל → Local או Mock
+- [ ] `initialize()` טוען מקומי תחילה, אח"כ API
+- [ ] עדכונים חלקיים (לא טעינה מחדש של הכל)
+- [ ] Logging מפורט לכל שלב (local/API/fallback)
+- [ ] שמירה אוטומטית למקומי אחרי API
+
+#### 📝 דוגמה
+
+```dart
+// ✅ טוב - Hybrid Repository
+class HybridProductsRepository implements ProductsRepository {
+  final LocalProductsRepository _localRepo;
+  final ProductsApiService _apiService;
+
+  // אתחול: Local תחילה, אח"כ API
+  Future<void> initialize() async {
+    debugPrint('🚀 HybridProductsRepository: מאתחל...');
+    
+    // בדוק אם יש נתונים מקומיים
+    final localProducts = await _localRepo.getAllProducts();
+    
+    if (localProducts.isEmpty) {
+      debugPrint('   📂 DB ריק - טוען מ-API...');
+      try {
+        final apiProducts = await _apiService.getProducts();
+        if (apiProducts.isNotEmpty) {
+          await _localRepo.saveProducts(apiProducts);
+          debugPrint('   ✅ נשמרו ${apiProducts.length} מוצרים מ-API');
+        } else {
+          // Fallback למוצרים דמה
+          await _loadFallbackProducts();
+        }
+      } catch (e) {
+        debugPrint('   ❌ API נכשל: $e');
+        await _loadFallbackProducts();
+      }
+    } else {
+      debugPrint('   ✅ נטענו ${localProducts.length} מוצרים מקומיים');
+    }
+  }
+
+  // עדכון חלקי - רק מחירים
+  Future<void> refreshPrices() async {
+    debugPrint('🔄 מרענן מחירים מ-API...');
+    try {
+      final apiProducts = await _apiService.getProducts();
+      
+      for (final apiProduct in apiProducts) {
+        // עדכן רק מחיר, לא כל המוצר
+        await _localRepo.updatePrice(
+          apiProduct.barcode,
+          apiProduct.price,
+        );
+      }
+      debugPrint('   ✅ ${apiProducts.length} מחירים עודכנו');
+    } catch (e) {
+      debugPrint('   ❌ רענון נכשל: $e');
+    }
+  }
+
+  // Fallback למוצרים דמה
+  Future<void> _loadFallbackProducts() async {
+    debugPrint('   ⚠️ טוען 8 מוצרים דמה (fallback)...');
+    final fallback = [
+      Product(barcode: '001', name: 'חלב 3%', icon: '🥛'),
+      // ... עוד 7 מוצרים
+    ];
+    await _localRepo.saveProducts(fallback);
+    debugPrint('   ✅ נשמרו ${fallback.length} מוצרים דמה');
+  }
+}
+
+// ❌ רע - Hybrid לא נכון
+class BadHybridRepo {
+  // ❌ תמיד API, אין fallback
+  Future<List<Product>> getProducts() async {
+    return await _apiService.getProducts(); // יקרוס אם אין אינטרנט!
+  }
+}
+```
+
+---
+
+### 9️⃣ Hive Models & Local Storage
+
+#### ✅ Checklist מהיר
+
+- [ ] יש `@HiveType(typeId: X)` - typeId ייחודי
+- [ ] כל שדה עם `@HiveField(index)` - index רציף (0,1,2...)
+- [ ] יש `*.g.dart` נוצר עם `build_runner`
+- [ ] TypeAdapter רשום ב-`Hive.registerAdapter()`
+- [ ] Box נפתח לפני שימוש: `Hive.openBox<T>()`
+- [ ] שדות nullable מסומנים נכון
+- [ ] יש `save()` method אם מרחיב HiveObject
+
+#### 📝 דוגמה
+
+```dart
+// ✅ טוב - Hive Model
+import 'package:hive/hive.dart';
+
+part 'product_entity.g.dart';
+
+@HiveType(typeId: 0) // ✅ typeId ייחודי
+class ProductEntity extends HiveObject {
+  @HiveField(0)
+  final String barcode;
+  
+  @HiveField(1)
+  final String name;
+  
+  @HiveField(2)
+  final String? category; // ✅ nullable
+  
+  @HiveField(3)
+  final double? currentPrice; // ✅ נתון דינמי
+  
+  @HiveField(4)
+  final DateTime? lastPriceUpdate;
+
+  ProductEntity({
+    required this.barcode,
+    required this.name,
+    this.category,
+    this.currentPrice,
+    this.lastPriceUpdate,
+  });
+}
+
+// ✅ אתחול נכון
+void main() async {
+  await Hive.initFlutter();
+  
+  // רישום Adapter
+  Hive.registerAdapter(ProductEntityAdapter());
+  
+  // פתיחת Box
+  final box = await Hive.openBox<ProductEntity>('products');
+  
+  runApp(MyApp());
+}
+
+// ❌ רע - Hive לא נכון
+class BadModel {
+  // ❌ חסר @HiveType
+  // ❌ חסר @HiveField
+  final String name;
+  
+  BadModel(this.name);
+}
+```
+
+#### 💡 פקודות Hive חשובות
+
+```powershell
+# יצירת *.g.dart
+dart run build_runner build --delete-conflicting-outputs
+
+# watch mode (אוטומטי)
+dart run build_runner watch
+
+# ניקוי קבצים ישנים
+dart run build_runner clean
+```
+
+---
+
+### 🔟 Undo Pattern with Data Preservation
+
+#### ✅ Checklist מהיר
+
+- [ ] שמירת **כל** הנתונים הנדרשים לביטול **לפני** המחיקה/שינוי
+- [ ] SnackBar עם `SnackBarAction` לביטול
+- [ ] duration של 5+ שניות (זמן לביטול)
+- [ ] פעולת Undo משחזרת את המצב המדויק
+- [ ] Logging של פעולת Undo
+
+#### 📝 דוגמה
+
+```dart
+// ✅ טוב - Undo נכון
+void _deleteCustomLocation(String key, String name, String emoji) {
+  // ⚠️ חשוב! שמור את כל הנתונים לפני מחיקה
+  final savedKey = key;
+  final savedName = name;
+  final savedEmoji = emoji;
+  
+  // מחיקה
+  await provider.deleteLocation(key);
+  debugPrint('🗑️ מחק מיקום: $name');
+  
+  // Snackbar עם Undo
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text('המיקום "$name" נמחק'),
+      action: SnackBarAction(
+        label: 'בטל',
+        onPressed: () async {
+          debugPrint('↩️ Undo: משחזר מיקום $savedName');
+          // שחזור עם הנתונים השמורים
+          await provider.addLocation(
+            savedName,
+            emoji: savedEmoji,
+          );
+        },
+      ),
+      duration: const Duration(seconds: 5),
+    ),
+  );
+}
+
+// ❌ רע - Undo לא נכון
+void _badDelete(String key) {
+  await provider.deleteLocation(key);
+  
+  // ❌ לא שמר name ו-emoji!
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      action: SnackBarAction(
+        label: 'בטל',
+        onPressed: () {
+          // ❌ אין לנו את הנתונים לשחזר!
+          await provider.addLocation('???'); // מה השם? מה האמוג'י?
+        },
+      ),
+    ),
+  );
+}
+```
+
+#### 💡 טיפ חשוב
+
+**שמור תמיד:**
+- ID/Key
+- שם
+- כל שדה מותאם (אייקון, צבע, וכו')
+- אפילו שדות אופציונליים!
+
+---
+
+### 1️⃣1️⃣ Flutter Version-Specific Features
+
+#### ✅ Checklist מהיר
+
+- [ ] **Flutter 3.27+:** השתמש ב-`withValues()` במקום `withOpacity()`
+- [ ] בדוק deprecated APIs בקוד ישן
+- [ ] עדכן syntax לגרסה הנוכחית
+
+#### 📝 דוגמה
+
+```dart
+// ✅ טוב - Flutter 3.27+
+final backgroundColor = Colors.indigo.withValues(alpha: 0.1);
+final textColor = Colors.red.withValues(alpha: 0.5);
+
+// ❌ רע - deprecated
+final backgroundColor = Colors.indigo.withOpacity(0.1); // ⚠️ deprecated
+```
+
+#### 💡 בדיקת גרסה
+
+```powershell
+flutter --version
+# אם < 3.27 → עדכן או השתמש ב-withOpacity
+# אם >= 3.27 → השתמש ב-withValues
+```
+
+---
+
+### 1️⃣2️⃣ i18n & Multi-Language Mappings
+
+#### ✅ Checklist מהיר
+
+- [ ] מיפויים (כמו אמוג'י) תומכים בעברית **וגם** אנגלית
+- [ ] יש Fallback אם Key לא נמצא
+- [ ] לוגיקה דינמית: נסה עברית → נסה אנגלית → fallback
+- [ ] Constants בעברית ובאנגלית מוגדרים בנפרד
+
+#### 📝 דוגמה
+
+```dart
+// ✅ טוב - תמיכה רב-לשונית
+class CategoryEmojiMapper {
+  // מיפוי עברית
+  static const Map<String, String> _hebrew = {
+    'חלבי': '🥛',
+    'ירקות': '🥬',
+    'פירות': '🍎',
+    // ...
+  };
+  
+  // מיפוי אנגלית
+  static const Map<String, String> _english = {
+    'dairy': '🥛',
+    'vegetables': '🥬',
+    'fruits': '🍎',
+    // ...
+  };
+  
+  // לוגיקה דינמית
+  static String getEmoji(String category) {
+    // נסה עברית
+    if (_hebrew.containsKey(category)) {
+      return _hebrew[category]!;
+    }
+    // נסה אנגלית
+    if (_english.containsKey(category)) {
+      return _english[category]!;
+    }
+    // fallback
+    return '📦';
+  }
+}
+
+// שימוש:
+final emoji = CategoryEmojiMapper.getEmoji('חלבי'); // 🥛
+final emoji2 = CategoryEmojiMapper.getEmoji('dairy'); // 🥛
+final emoji3 = CategoryEmojiMapper.getEmoji('unknown'); // 📦
+
+// ❌ רע - רק אנגלית
+static const categoryEmojis = {
+  'dairy': '🥛', // ❌ לא יעבוד עם 'חלבי'
+};
+
+final emoji = categoryEmojis['חלבי'] ?? '📦'; // תמיד fallback!
 ```
 
 ---
@@ -680,6 +1061,7 @@ Service (אם רלוונטי):
    - חפש `debugPrint` = צריך בכל שלב חשוב
    - חפש `if (param == null` = Null safety
    - חפש `TODO` = סמן מה חסר
+   - חפש חישובים אמיתיים (לא תמיד Mock) = אם יש נתונים, השתמש בהם!
 
 7. **אם זה JSON loading:**
    - חפש `is List` או `is Map` = צריך בדיקת סוג
@@ -696,12 +1078,14 @@ Service (אם רלוונטי):
 | ProxyProvider   | lazy: false + update logic + dependencies          | 3-4 דקות  |
 | Screen          | SafeArea + Consumer + Touch Targets                | 3-4 דקות  |
 | Model           | @JsonSerializable + copyWith + final               | 1-2 דקות  |
-| Hive Model      | @HiveType + @HiveField + *.g.dart                  | 2 דקות    |
+| Hive Model      | @HiveType + @HiveField + Adapter + *.g.dart        | 2-3 דקות  |
 | Repository      | Abstract + async + מחזיר מודלים                    | 2 דקות    |
 | Hybrid Repo     | Fallback + Local + API strategy                    | 3-4 דקות  |
-| Service         | Static + Null Safety + Logging + Fallback          | 3 דקות    |
+| Service         | Static + Null Safety + Logging + Real Data         | 3 דקות    |
 | JSON Handler    | Type check (List/Map) + Logging + Error handling   | 2 דקות    |
 | Cache Pattern   | Cache key + Clear logic + Getter                   | 2 דקות    |
+| Undo Pattern    | Data preservation + SnackBar + Duration            | 1-2 דקות  |
+| i18n Mapping    | Hebrew + English + Fallback                        | 1-2 דקות  |
 
 ---
 
@@ -716,6 +1100,6 @@ Service (אם רלוונטי):
 
 ---
 
-**עדכון אחרון:** ספטמבר 2025  
-**גרסה:** 1.0.0  
-**תאימות:** Flutter 3.x, Dart 3.x, Mobile Only (Android & iOS)
+**עדכון אחרון:** אוקטובר 2025  
+**גרסה:** 2.0.0 (כולל Hybrid Repos, Hive, Undo Pattern, i18n)  
+**תאימות:** Flutter 3.27+, Dart 3.x, Mobile Only (Android & iOS)
