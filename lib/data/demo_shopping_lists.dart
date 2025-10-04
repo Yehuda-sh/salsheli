@@ -1,26 +1,93 @@
-// 📄 File: lib/data/demo_shopping_lists.dart - VERSION 2.0
+// 📄 File: lib/data/demo_shopping_lists.dart - VERSION 3.0
 //
 // ✅ שדרוגים:
-// 1. 7 רשימות מגוונות (לא 2!)
-// 2. כולל type (super/pharmacy/other) ו-budget
-// 3. כולל items מלאים לכל רשימה
+// 1. טעינת מוצרים אמיתיים מ-assets/data/products.json
+// 2. 7 רשימות מגוונות עם מוצרים אמיתיים
+// 3. כולל type (super/pharmacy/other) ו-budget
 // 4. סטטוסים שונים (active/completed/archived)
 // 5. רשימות משותפות וסולו
 // 6. תאריכים ריאליסטיים
-// 7. סנכרון עם kListTypes מ-constants.dart
 //
 // 🇮🇱 נתוני דמו לרשימות קניות (לפיתוח/בדיקות בלבד!)
 // 🇬🇧 Demo shopping lists (dev/testing only)
 
+import 'dart:convert';
 import 'dart:math';
+import 'package:flutter/services.dart' show rootBundle;
 import '../api/entities/shopping_list.dart' as api;
 import '../models/shopping_list.dart' as domain;
 import '../models/receipt.dart';
 
-/// in-memory "DB" - ✅ משודרג עם 7 רשימות מגוונות
-final List<api.ApiShoppingList> _storage = [
+/// Cache למוצרים שנטענו מה-JSON
+List<Map<String, dynamic>>? _productsCache;
+
+/// טעינת מוצרים מקובץ JSON
+Future<List<Map<String, dynamic>>> _loadProducts() async {
+  if (_productsCache != null) return _productsCache!;
+
+  try {
+    final jsonString = await rootBundle.loadString('assets/data/products.json');
+    final List<dynamic> jsonList = json.decode(jsonString);
+    _productsCache = jsonList.cast<Map<String, dynamic>>();
+    return _productsCache!;
+  } catch (e) {
+    print('❌ Error loading products.json: $e');
+    return [];
+  }
+}
+
+/// בחירת מוצרים אקראיים לפי קטגוריה
+Future<List<api.ApiShoppingListItem>> _getRandomItems({
+  required int count,
+  List<String>? categories,
+  bool includeChecked = true,
+}) async {
+  final products = await _loadProducts();
+  if (products.isEmpty) return [];
+
+  // סינון לפי קטגוריות (אם צוין)
+  var filtered = products;
+  if (categories != null && categories.isNotEmpty) {
+    filtered = products.where((p) {
+      final cat = p['category'] as String?;
+      return categories.any((c) => cat?.contains(c) ?? false);
+    }).toList();
+  }
+
+  if (filtered.isEmpty) filtered = products;
+
+  // ערבוב ובחירה
+  filtered.shuffle();
+  final selected = filtered.take(count).toList();
+
+  // המרה ל-ApiShoppingListItem
+  return selected.asMap().entries.map((entry) {
+    final index = entry.key;
+    final p = entry.value;
+    
+    return api.ApiShoppingListItem(
+      id: 'item_${p['barcode'] ?? index}',
+      name: p['name'] ?? 'מוצר',
+      quantity: Random().nextInt(3) + 1, // 1-3
+      unitPrice: (p['price'] as num?)?.toDouble() ?? 0.0,
+      isChecked: includeChecked ? (index % 3 == 0) : false, // כל שלישי מסומן
+      barcode: p['barcode'],
+      category: p['category'],
+    );
+  }).toList();
+}
+
+/// אתחול נתוני דמו עם מוצרים אמיתיים
+Future<void> initializeDemoData() async {
+  if (_storage.isNotEmpty) return; // כבר אותחל
+
   // 1️⃣ רשימה פעילה - סופר שבועי (משותפת)
-  api.ApiShoppingList(
+  final superItems = await _getRandomItems(
+    count: 8,
+    categories: ['מוצרי חלב', 'מאפים', 'ירקות', 'פירות'],
+  );
+
+  _storage.add(api.ApiShoppingList(
     id: "list1",
     name: "סופר שבועי",
     householdId: "house1",
@@ -31,47 +98,16 @@ final List<api.ApiShoppingList> _storage = [
     isShared: true,
     createdBy: "yoni_123",
     sharedWith: ["dana_456"],
-    items: [
-      api.ApiReceiptItem(
-        id: "item_1_1",
-        name: "חלב 3%",
-        quantity: 2,
-        unitPrice: 6.90,
-        isChecked: false,
-      ),
-      api.ApiReceiptItem(
-        id: "item_1_2",
-        name: "לחם פרוס",
-        quantity: 1,
-        unitPrice: 5.50,
-        isChecked: true,
-      ),
-      api.ApiReceiptItem(
-        id: "item_1_3",
-        name: "ביצים",
-        quantity: 1,
-        unitPrice: 12.90,
-        isChecked: false,
-      ),
-      api.ApiReceiptItem(
-        id: "item_1_4",
-        name: "גבינה צהובה",
-        quantity: 1,
-        unitPrice: 24.90,
-        isChecked: true,
-      ),
-      api.ApiReceiptItem(
-        id: "item_1_5",
-        name: "עגבניות",
-        quantity: 1,
-        unitPrice: 8.90,
-        isChecked: false,
-      ),
-    ],
-  ),
+    items: superItems,
+  ));
 
   // 2️⃣ רשימת בית מרקחת - פעילה
-  api.ApiShoppingList(
+  final pharmacyItems = await _getRandomItems(
+    count: 5,
+    categories: ['היגיינה אישית', 'מוצרי ניקיון'],
+  );
+
+  _storage.add(api.ApiShoppingList(
     id: "list2",
     name: "בית מרקחת חודשי",
     householdId: "house1",
@@ -82,33 +118,16 @@ final List<api.ApiShoppingList> _storage = [
     isShared: false,
     createdBy: "yoni_123",
     sharedWith: [],
-    items: [
-      api.ApiReceiptItem(
-        id: "item_2_1",
-        name: "ויטמין D",
-        quantity: 1,
-        unitPrice: 42.90,
-        isChecked: false,
-      ),
-      api.ApiReceiptItem(
-        id: "item_2_2",
-        name: "משחת שיניים",
-        quantity: 2,
-        unitPrice: 18.90,
-        isChecked: false,
-      ),
-      api.ApiReceiptItem(
-        id: "item_2_3",
-        name: "סבון נוזלי",
-        quantity: 1,
-        unitPrice: 12.90,
-        isChecked: true,
-      ),
-    ],
-  ),
+    items: pharmacyItems,
+  ));
 
   // 3️⃣ מסיבה - מתוכננת
-  api.ApiShoppingList(
+  final partyItems = await _getRandomItems(
+    count: 6,
+    categories: ['ממתקים וחטיפים', 'משקאות'],
+  );
+
+  _storage.add(api.ApiShoppingList(
     id: "list3",
     name: "מסיבת יום הולדת",
     householdId: "house1",
@@ -119,33 +138,17 @@ final List<api.ApiShoppingList> _storage = [
     isShared: true,
     createdBy: "dana_456",
     sharedWith: ["yoni_123"],
-    items: [
-      api.ApiReceiptItem(
-        id: "item_3_1",
-        name: "עוגה",
-        quantity: 1,
-        unitPrice: 89.00,
-        isChecked: false,
-      ),
-      api.ApiReceiptItem(
-        id: "item_3_2",
-        name: "משקאות קלים",
-        quantity: 6,
-        unitPrice: 5.90,
-        isChecked: false,
-      ),
-      api.ApiReceiptItem(
-        id: "item_3_3",
-        name: "צ'יפס",
-        quantity: 3,
-        unitPrice: 8.90,
-        isChecked: false,
-      ),
-    ],
-  ),
+    items: partyItems,
+  ));
 
   // 4️⃣ רשימה שהושלמה - מוצרי ניקיון
-  api.ApiShoppingList(
+  final cleaningItems = await _getRandomItems(
+    count: 4,
+    categories: ['מוצרי ניקיון'],
+    includeChecked: true, // הכל מסומן
+  );
+
+  _storage.add(api.ApiShoppingList(
     id: "list4",
     name: "מוצרי ניקיון",
     householdId: "house1",
@@ -156,33 +159,16 @@ final List<api.ApiShoppingList> _storage = [
     isShared: true,
     createdBy: "yoni_123",
     sharedWith: ["dana_456"],
-    items: [
-      api.ApiReceiptItem(
-        id: "item_4_1",
-        name: "אקונומיקה",
-        quantity: 1,
-        unitPrice: 12.90,
-        isChecked: true,
-      ),
-      api.ApiReceiptItem(
-        id: "item_4_2",
-        name: "נוזל רצפה",
-        quantity: 1,
-        unitPrice: 15.90,
-        isChecked: true,
-      ),
-      api.ApiReceiptItem(
-        id: "item_4_3",
-        name: "ספוג כלים",
-        quantity: 3,
-        unitPrice: 2.90,
-        isChecked: true,
-      ),
-    ],
-  ),
+    items: cleaningItems.map((item) => item.copyWith(isChecked: true)).toList(),
+  ));
 
   // 5️⃣ חידוש מזווה - פעילה
-  api.ApiShoppingList(
+  final pantryItems = await _getRandomItems(
+    count: 5,
+    categories: ['אורז ופסטה', 'תבלינים ואפייה', 'שמנים ורטבים'],
+  );
+
+  _storage.add(api.ApiShoppingList(
     id: "list5",
     name: "חידוש מזווה",
     householdId: "house1",
@@ -193,33 +179,16 @@ final List<api.ApiShoppingList> _storage = [
     isShared: false,
     createdBy: "yoni_123",
     sharedWith: [],
-    items: [
-      api.ApiReceiptItem(
-        id: "item_5_1",
-        name: "אורז",
-        quantity: 2,
-        unitPrice: 18.90,
-        isChecked: false,
-      ),
-      api.ApiReceiptItem(
-        id: "item_5_2",
-        name: "פסטה",
-        quantity: 3,
-        unitPrice: 7.90,
-        isChecked: false,
-      ),
-      api.ApiReceiptItem(
-        id: "item_5_3",
-        name: "קטשופ",
-        quantity: 1,
-        unitPrice: 12.90,
-        isChecked: true,
-      ),
-    ],
-  ),
+    items: pantryItems,
+  ));
 
   // 6️⃣ רשימה מאורכבת - ישנה
-  api.ApiShoppingList(
+  final holidayItems = await _getRandomItems(
+    count: 6,
+    categories: ['בשר ודגים', 'משקאות'],
+  );
+
+  _storage.add(api.ApiShoppingList(
     id: "list6",
     name: "קניות חג האביב",
     householdId: "house1",
@@ -230,42 +199,35 @@ final List<api.ApiShoppingList> _storage = [
     isShared: true,
     createdBy: "yoni_123",
     sharedWith: ["dana_456"],
-    items: [
-      api.ApiReceiptItem(
-        id: "item_6_1",
-        name: "בשר טחון",
-        quantity: 2,
-        unitPrice: 45.00,
-        isChecked: true,
-      ),
-      api.ApiReceiptItem(
-        id: "item_6_2",
-        name: "יין אדום",
-        quantity: 2,
-        unitPrice: 35.00,
-        isChecked: true,
-      ),
-    ],
-  ),
+    items: holidayItems.map((item) => item.copyWith(isChecked: true)).toList(),
+  ));
 
   // 7️⃣ רשימה ריקה - חדשה
-  api.ApiShoppingList(
+  _storage.add(api.ApiShoppingList(
     id: "list7",
     name: "רשימה חדשה",
     householdId: "house1",
     updatedDate: DateTime.now().toIso8601String(),
     status: "active",
     type: "other",
-    budget: null, // ללא תקציב
+    budget: null,
     isShared: false,
     createdBy: "yoni_123",
     sharedWith: [],
-    items: [], // רשימה ריקה
-  ),
-];
+    items: [],
+  ));
+
+  print('✅ Demo data initialized with ${_storage.length} lists');
+}
+
+/// in-memory "DB" - יאותחל עם מוצרים אמיתיים
+final List<api.ApiShoppingList> _storage = [];
 
 /// רשימות דמו (קריאה בלבד)
-List<api.ApiShoppingList> get kDemoShoppingLists => List.unmodifiable(_storage);
+Future<List<api.ApiShoppingList>> get kDemoShoppingLists async {
+  if (_storage.isEmpty) await initializeDemoData();
+  return List.unmodifiable(_storage);
+}
 
 /// Mock: פילטור רשימות לפי householdId + מיון אופציונלי + עמודות
 Future<List<api.ApiShoppingList>> demoFilter(
@@ -274,6 +236,8 @@ Future<List<api.ApiShoppingList>> demoFilter(
   int? limit,
   int? offset,
 }) async {
+  if (_storage.isEmpty) await initializeDemoData();
+  
   await Future.delayed(const Duration(milliseconds: 250));
   final hid = query['household_id'] as String?;
   final status = query['status'] as String?;
@@ -332,6 +296,8 @@ Future<api.ApiShoppingList> demoCreate({
   String? createdBy,
   List<String> sharedWith = const [],
 }) async {
+  if (_storage.isEmpty) await initializeDemoData();
+  
   await Future.delayed(const Duration(milliseconds: 200));
   final id = 'list_${DateTime.now().millisecondsSinceEpoch}';
   final created = api.ApiShoppingList(
@@ -358,8 +324,10 @@ Future<api.ApiShoppingList?> demoUpdate({
   String? status,
   String? type,
   double? budget,
-  List<api.ApiReceiptItem>? items,
+  List<api.ApiShoppingListItem>? items,
 }) async {
+  if (_storage.isEmpty) await initializeDemoData();
+  
   await Future.delayed(const Duration(milliseconds: 200));
   final i = _storage.indexWhere((e) => e.id == id);
   if (i == -1) return null;
@@ -384,6 +352,8 @@ Future<api.ApiShoppingList?> demoUpdate({
 
 /// מחיקה (דמו)
 Future<bool> demoDelete(String id) async {
+  if (_storage.isEmpty) await initializeDemoData();
+  
   await Future.delayed(const Duration(milliseconds: 150));
   final before = _storage.length;
   _storage.removeWhere((e) => e.id == id);
@@ -431,6 +401,8 @@ Future<List<domain.ShoppingList>> demoFilterAsDomain(
 
 /// ✅ חדש: קבלת רשימה בודדת לפי ID
 Future<api.ApiShoppingList?> demoGetById(String id) async {
+  if (_storage.isEmpty) await initializeDemoData();
+  
   await Future.delayed(const Duration(milliseconds: 100));
   try {
     return _storage.firstWhere((l) => l.id == id);
@@ -440,7 +412,9 @@ Future<api.ApiShoppingList?> demoGetById(String id) async {
 }
 
 /// ✅ חדש: סטטיסטיקות מהירות
-Map<String, int> demoGetStats(String householdId) {
+Future<Map<String, int>> demoGetStats(String householdId) async {
+  if (_storage.isEmpty) await initializeDemoData();
+  
   final lists = _storage.where((l) => l.householdId == householdId).toList();
   
   return {
