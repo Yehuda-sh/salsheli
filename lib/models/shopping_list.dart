@@ -215,25 +215,19 @@ class ShoppingList {
   // ---- API bridging ----
   factory ShoppingList.fromApi(
     api.ApiShoppingList src, {
-    String status = statusActive,
-    String type = typeSuper,
-    double? budget,
-    List<ReceiptItem> items = const [],
-    List<String> sharedWith = const [],
-    bool isShared = false,
-    required String createdBy,
+    List<ReceiptItem>? items,
   }) {
     return ShoppingList(
       id: src.id,
       name: src.name,
       updatedDate: _parseApiDate(src.updatedDate) ?? DateTime.now(),
-      status: status,
-      type: type,
-      budget: budget,
-      isShared: isShared,
-      createdBy: createdBy,
-      sharedWith: List<String>.unmodifiable(sharedWith),
-      items: List<ReceiptItem>.unmodifiable(items),
+      status: src.status ?? statusActive,
+      type: src.type ?? typeSuper,
+      budget: src.budget,
+      isShared: src.isShared ?? false,
+      createdBy: src.createdBy ?? '',
+      sharedWith: List<String>.unmodifiable(src.sharedWith ?? []),
+      items: List<ReceiptItem>.unmodifiable(items ?? []),
     );
   }
 
@@ -242,7 +236,29 @@ class ShoppingList {
       id: id,
       name: name,
       householdId: householdId,
+      createdDate: null, // API יגדיר אוטומטית
       updatedDate: updatedDate.toIso8601String(),
+      status: status,
+      type: type,
+      budget: budget,
+      isShared: isShared,
+      createdBy: createdBy,
+      sharedWith: sharedWith.toList(),
+      items: items.map((item) => _receiptItemToApi(item)).toList(),
+    );
+  }
+
+  // ✅ המרת ReceiptItem ל-ApiShoppingListItem
+  static api.ApiShoppingListItem _receiptItemToApi(ReceiptItem item) {
+    return api.ApiShoppingListItem(
+      id: item.id,
+      name: item.name,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      isChecked: item.isChecked,
+      barcode: item.barcode,
+      category: item.category,
+      unit: item.unit,
     );
   }
 

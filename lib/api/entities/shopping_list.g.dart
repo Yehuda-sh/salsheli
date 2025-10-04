@@ -11,6 +11,7 @@ ApiShoppingList _$ApiShoppingListFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String,
       name: json['name'] as String,
       householdId: json['household_id'] as String,
+      createdDate: json['created_date'] as String?,
       updatedDate: json['updated_date'] as String?,
       status: json['status'] as String?,
       type: json['type'] as String?,
@@ -21,7 +22,7 @@ ApiShoppingList _$ApiShoppingListFromJson(Map<String, dynamic> json) =>
           ?.map((e) => e as String)
           .toList(),
       items: (json['items'] as List<dynamic>?)
-          ?.map((e) => ApiReceiptItem.fromJson(e as Map<String, dynamic>))
+          ?.map((e) => ApiShoppingListItem.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 
@@ -29,6 +30,7 @@ Map<String, dynamic> _$ApiShoppingListToJson(ApiShoppingList instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
+      'created_date': instance.createdDate,
       'updated_date': instance.updatedDate,
       'household_id': instance.householdId,
       'status': instance.status,
@@ -40,17 +42,20 @@ Map<String, dynamic> _$ApiShoppingListToJson(ApiShoppingList instance) =>
       'items': instance.items?.map((e) => e.toJson()).toList(),
     };
 
-ApiReceiptItem _$ApiReceiptItemFromJson(Map<String, dynamic> json) =>
-    ApiReceiptItem(
+ApiShoppingListItem _$ApiShoppingListItemFromJson(Map<String, dynamic> json) =>
+    ApiShoppingListItem(
       id: json['id'] as String,
       name: json['name'] as String,
       quantity: (json['quantity'] as num).toInt(),
       unitPrice: (json['unit_price'] as num).toDouble(),
       isChecked: json['is_checked'] as bool?,
       barcode: json['barcode'] as String?,
+      category: json['category'] as String?,
+      unit: json['unit'] as String?,
     );
 
-Map<String, dynamic> _$ApiReceiptItemToJson(ApiReceiptItem instance) =>
+Map<String, dynamic> _$ApiShoppingListItemToJson(
+        ApiShoppingListItem instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
@@ -58,4 +63,6 @@ Map<String, dynamic> _$ApiReceiptItemToJson(ApiReceiptItem instance) =>
       'unit_price': instance.unitPrice,
       'is_checked': instance.isChecked,
       'barcode': instance.barcode,
+      'category': instance.category,
+      'unit': instance.unit,
     };

@@ -3,10 +3,20 @@
 // 🇮🇱 ישות משתמש אמיתית מה־API.
 // 🇬🇧 User entity as returned from the API.
 
+import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'user.g.dart';
 
+/// משתמש (API Entity)
+/// 
+/// 🎯 משמש לתקשורת עם Firebase/API
+/// 📝 מומר ל-UserEntity (מודל מקומי) דרך mappers
+/// 
+/// **שדות:**
+/// - `id` - מזהה ייחודי
+/// - `email` - כתובת מייל (מנורמלת לאותיות קטנות)
+/// - `householdId` - מזהה משק בית (אופציונלי)
 @JsonSerializable(explicitToJson: true)
 class User {
   final String id;
@@ -25,6 +35,7 @@ class User {
 
   /// JSON → User (with email normalization)
   factory User.fromJson(Map<String, dynamic> json) {
+    debugPrint('📥 User.fromJson: ${json['email']}');
     final user = _$UserFromJson(json);
     // Normalize email after deserialization
     return User(
@@ -35,7 +46,10 @@ class User {
   }
 
   /// User → JSON
-  Map<String, dynamic> toJson() => _$UserToJson(this);
+  Map<String, dynamic> toJson() {
+    debugPrint('📤 User.toJson: $email');
+    return _$UserToJson(this);
+  }
 
   /// Immutable copy
   User copyWith({String? id, String? email, String? householdId}) {

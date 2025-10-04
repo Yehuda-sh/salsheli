@@ -4,11 +4,21 @@
 //     sort order, fallback support, and utilities for hex and JSON parsing.
 
 import 'dart:collection';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-/// קונפיגורציית קטגוריה לתצוגה ולוגיקה.
-/// - color נשמר כ-Color חזק (לא String)
-/// - שמות גם בעברית וגם באנגלית (ל־i18n)
+/// קונפיגורציית קטגוריה לתצוגה ולוגיקה
+/// 
+/// 🎯 מגדיר מראה ומאפיינים לכל קטגוריית מוצר
+/// 📝 משמש בכל האפליקציה לעיצוב והצגה אחידה
+/// 
+/// **תכונות:**
+/// - `id` - מזהה ייחודי (אנגלית, snake_case)
+/// - `nameHe` - שם בעברית
+/// - `nameEn` - שם באנגלית (אופציונלי)
+/// - `emoji` - אימוג'י לתצוגה (🥛, 🥩, וכו')
+/// - `color` - צבע (תמיכה ב-Tailwind tokens ו-HEX)
+/// - `sort` - סדר תצוגה (נמוך = מוקדם יותר)
 @immutable
 class CategoryConfig {
   final String id;
@@ -28,6 +38,7 @@ class CategoryConfig {
   });
 
   factory CategoryConfig.fromJson(Map<String, dynamic> json) {
+    debugPrint('📥 CategoryConfig.fromJson: ${json['id']}');
     return CategoryConfig(
       id: json['id']?.toString() ?? '',
       nameHe: json['name_he']?.toString() ?? '',
@@ -39,6 +50,7 @@ class CategoryConfig {
   }
 
   Map<String, dynamic> toJson() {
+    debugPrint('📤 CategoryConfig.toJson: $id');
     return {
       'id': id,
       'name_he': nameHe,
@@ -89,6 +101,9 @@ class CategoryConfig {
 /// ----------------------------
 /// Tailwind-like tokens → Color
 /// ----------------------------
+/// 
+/// מפה של צבעי Tailwind CSS להמרה נוחה
+/// דוגמאות: 'amber-100', 'slate-200', 'green-50'
 const Map<String, int> _tailwindSwatches = {
   // slate / gray
   'slate-50': 0xFFF8FAFC,
@@ -120,6 +135,17 @@ const Map<String, int> _tailwindSwatches = {
   'blue-300': 0xFF93C5FD,
 };
 
+/// המרת token צבע ל-Flutter Color
+/// 
+/// תומך ב:
+/// - Tailwind tokens (amber-100, slate-200)
+/// - HEX קצר (#RGB, #RGBA)
+/// - HEX מלא (#RRGGBB, #RRGGBBAA)
+/// 
+/// דוגמאות:
+/// - 'amber-100' → Color(0xFFFEF3C7)
+/// - '#FFF' → Color(0xFFFFFFFF)
+/// - '#FF5733' → Color(0xFFFF5733)
 Color _parseColorToken(String token) {
   final t = token.trim().toLowerCase();
 
@@ -157,9 +183,14 @@ Color _parseColorToken(String token) {
   }
 
   // fallback
+  debugPrint('⚠️ _parseColorToken: צבע לא מוכר "$token", משתמש ב-slate-200');
   return const Color(0xFFE5E7EB); // slate-200
 }
 
+/// המרת Color ל-HEX string
+/// 
+/// מחזיר #RRGGBB או #RRGGBBAA (אם יש שקיפות)
+/// דוגמה: Color(0xFFFF5733) → '#FF5733'
 String _colorToHex(Color c) {
   // מחזיר כ־#RRGGBB או #RRGGBBAA אם האלפא != FF
   final rgb = c.value & 0x00FFFFFF;
@@ -237,6 +268,9 @@ final Map<String, CategoryConfig> _categoryConfigsMutable =
     };
 
 /// מפה בלתי־ניתנת לשינוי לשימוש חיצוני
+/// 
+/// 🎯 השתמש בזה כדי לקבל קטגוריות
+/// ❌ אל תשנה ישירות - השתמש ב-copyWith אם צריך
 final Map<String, CategoryConfig> kCategoryConfigs = UnmodifiableMapView(
   _categoryConfigsMutable,
 );
@@ -245,7 +279,9 @@ final Map<String, CategoryConfig> kCategoryConfigs = UnmodifiableMapView(
 @Deprecated('Use kCategoryConfigs instead')
 Map<String, CategoryConfig> get CATEGORY_CONFIG => kCategoryConfigs;
 
-/// רשימה ממוינת לפי sort ואז שם עברית
+/// רשימה ממוינת של קטגוריות לפי sort ואז שם עברית
+/// 
+/// שימושי למסכים עם רשימות/תפריטים של קטגוריות
 List<CategoryConfig> get kCategoriesSorted {
   final list = kCategoryConfigs.values.toList();
   list.sort((a, b) {
@@ -256,7 +292,15 @@ List<CategoryConfig> get kCategoriesSorted {
   return list;
 }
 
-/// קבלת קטגוריה עם fallback בטוח
+/// קבלת קונפיגורציה של קטגוריה לפי ID, עם fallback בטוח
+/// 
+/// אם הקטגוריה לא נמצאה, מחזיר קטגוריית 'אחר' דיפולטיבית
+/// 
+/// דוגמה:
+/// ```dart
+/// final config = categoryById('dairy'); // 🥛 חלב וביצים
+/// final unknown = categoryById('xyz'); // 🛒 אחר
+/// ```
 CategoryConfig categoryById(String id) {
   return kCategoryConfigs[id] ??
       const CategoryConfig(
@@ -269,5 +313,11 @@ CategoryConfig categoryById(String id) {
       );
 }
 
-/// כלי עזר פומבי אם תרצה להשתמש בו במקומות אחרים
+/// כלי עזר פומבי להמרת HEX/Tailwind token ל-Color
+/// 
+/// שימושי אם צריך להמיר צבעים בקוד אחר
+/// 
+/// דוגמאות:
+/// - hexToColor('amber-100') → Color(0xFFFEF3C7)
+/// - hexToColor('#FF5733') → Color(0xFFFF5733)
 Color hexToColor(String token) => _parseColorToken(token);
