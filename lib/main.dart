@@ -109,14 +109,39 @@ void main() async {
           create: (_) => UserContext(repository: MockUserRepository()),
         ),
 
-        // === Products Provider === 🆕 Hybrid Repository
-        ChangeNotifierProvider(
-          lazy: false, // טוען מיד!
-          create: (_) {
+        // === Products Provider === 🆕 Hybrid + ProxyProvider
+        ChangeNotifierProxyProvider<UserContext, ProductsProvider>(
+          lazy: false, // חייב! אחרת לא נוצר עד שמישהו צריך אותו
+          create: (context) {
             debugPrint('\n🏗️ main.dart: יוצר ProductsProvider עם Hybrid...');
-            final provider = ProductsProvider(repository: hybridRepo);
-            debugPrint('✅ main.dart: ProductsProvider נוצר (Hybrid)');
+            final provider = ProductsProvider(
+              repository: hybridRepo,
+              skipInitialLoad: true, // ⚠️ לא לטעון עדיין!
+            );
+            debugPrint('✅ main.dart: ProductsProvider נוצר (skipInitialLoad=true)');
             return provider;
+          },
+          update: (context, userContext, previous) {
+            debugPrint('\n🔄 ProductsProvider.update(): UserContext השתנה');
+            debugPrint('   👤 User: ${userContext.user?.email ?? "guest"}');
+            debugPrint('   🔐 isLoggedIn: ${userContext.isLoggedIn}');
+            
+            if (previous == null) {
+              debugPrint('   ⚠️ previous=null, יוצר ProductsProvider חדש');
+              return ProductsProvider(
+                repository: hybridRepo,
+              );
+            }
+
+            debugPrint('   📊 hasInitialized: ${previous.hasInitialized}');
+
+            // אם המשתמש התחבר - אתחל ו-טען מוצרים
+            if (userContext.isLoggedIn && !previous.hasInitialized) {
+              debugPrint('   ✅ משתמש מחובר + לא אותחל → קורא ל-initializeAndLoad()');
+              previous.initializeAndLoad();
+            }
+
+            return previous;
           },
         ),
 
