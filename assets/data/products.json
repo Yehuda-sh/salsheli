@@ -1,13 +1,3552 @@
 [
-  { "name": "חלב", "category": "מוצרי חלב", "icon": "🥛", "price": 7.9 },
-  { "name": "לחם", "category": "מאפים", "icon": "🍞", "price": 8.5 },
   {
-    "name": "גבינה צהובה",
-    "category": "מוצרי חלב",
-    "icon": "🧀",
-    "price": 15.2
+    "name": "100 קיסמי שיניים עם חוט",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 16.9,
+    "barcode": "7290015968102",
+    "brand": "W.H.J.C.CO",
+    "unit": "יחידה",
+    "store": "שופרסל"
   },
-  { "name": "עגבנייה", "category": "ירקות", "icon": "🍅", "price": 5.4 },
-  { "name": "מלפפון", "category": "ירקות", "icon": "🥒", "price": 4.8 },
-  { "name": "עוף טרי", "category": "בשר", "icon": "🍗", "price": 35.0 }
+  {
+    "name": "10קפסולות קפה עוצמה 10",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 18.9,
+    "barcode": "7296073724865",
+    "brand": "ג'ימוקה גרופ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "10קפסולות קפה עוצמה 15",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 18.9,
+    "barcode": "7296073724858",
+    "brand": "ג'ימוקה גרופ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "12 תחבושות לשתן נורמל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 20.9,
+    "barcode": "7290017088815",
+    "brand": "EUROFIL",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "12ביצים אורגניות+Mאומגה3",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 31.9,
+    "barcode": "7296073229681",
+    "brand": "חוות גבעות עולם",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "200 קיסמי שיניים פלסטיק",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 10.9,
+    "barcode": "7290011505806",
+    "brand": "W.H.J.C.CO",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "2מט.מיקרופייבר גדול VIVI",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 16.9,
+    "barcode": "7296073722168",
+    "brand": "מ.א. מטליות",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "4*64 פרש וואנס ללא בישום",
+    "category": "ירקות",
+    "icon": "🥬",
+    "price": 19.9,
+    "barcode": "7290016321661",
+    "brand": "עלבד משואות יצחק",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "5ב1ג'ל כביסה כחול 2ל LU",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 39.9,
+    "barcode": "7296073723691",
+    "brand": "גליל כימיקלים",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "60מגן תחתון קוטקס נורמל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 24.5,
+    "barcode": "7290111344831",
+    "brand": "---",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "אבקת מרק ירקות אורג200ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 33.9,
+    "barcode": "7290013521408",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "אגרול סיני 400 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 14.9,
+    "barcode": "7296073705154",
+    "brand": "חטיפי אלקיים בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "אדג' ג'ל לריכוך העור198ג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 19.9,
+    "barcode": "7290000560557",
+    "brand": "אנרג'ייזר",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "או בה פרוקומפורט נורמל32",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 26.9,
+    "barcode": "3574661485218",
+    "brand": "ש.שסטוביץ",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "אולוויז מגן וליופק L 52",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 24.9,
+    "barcode": "4015400564324",
+    "brand": "פרוקטר אנד גמבל",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "אולווייז דואו לונג 24יח",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 24.9,
+    "barcode": "8006540822371",
+    "brand": "PROCTER&GAMBLE",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "אורז בסמטי טילדה 1 ק\"ג",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 24.0,
+    "barcode": "5011157630281",
+    "brand": "---",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "אורז פרסי דאווט 1 ק\"ג",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 13.5,
+    "barcode": "7290108509700",
+    "brand": "אל.טי.פודס לימיטד",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "אטריות אורז רחבות400 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 16.5,
+    "barcode": "7290112199768",
+    "brand": "יוניון רטצ'אבורי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "אטריות דקיקות אסם 400 גר",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 8.9,
+    "barcode": "7290000060972",
+    "brand": "פסטה זארה",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "איולי פסטו 250 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 15.9,
+    "barcode": "7296073726296",
+    "brand": "פרסקו חצבה 2006 בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "אייס קפה דיאט 245 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 24.9,
+    "barcode": "7290013144805",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "אל אורדור ריוחה סלקסיון",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 71.9,
+    "barcode": "8430961101935",
+    "brand": "---",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "אל תוש ילדים50מ X-TUSH",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 10.0,
+    "barcode": "7290019489863",
+    "brand": "סאסא קוסמטיקס אגש\"ח בע\"מ",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "אלביב מרכך לרכות  500ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 21.9,
+    "barcode": "3600524163204",
+    "brand": "RAMOUILLET",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "אלף האיים לייט הלמנס305ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 15.9,
+    "barcode": "7290112495761",
+    "brand": "יוניליוור ישראל מזון בעמ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "אנטריקוט דקדק טרי דנבר מ",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 179.9,
+    "barcode": "7290003354559",
+    "brand": "דנוור קאט רעננה",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "בגט גרעינים ללא גלוטן240",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 17.5,
+    "barcode": "7296073389446",
+    "brand": "איתנס יצור עוגות בע\"\\מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "בוטניקל מי פנים ורדים 20",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 27.9,
+    "barcode": "3600542050579",
+    "brand": "קוסמופול",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "בורגר פטריות טבעוני 260",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 26.9,
+    "barcode": "7290019462187",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "בורקס גבינה 4יח 600 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 21.9,
+    "barcode": "7290121010368",
+    "brand": "גידרון תעשיות בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "בזיליקום אדום יחידה",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 7.9,
+    "barcode": "7290000995175",
+    "brand": "קטיף.",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "בייבי ביס טעם בננה 50 גר",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 18.9,
+    "barcode": "7290011618216",
+    "brand": "want-want",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "בייגלה דקים שמנת ובצל300",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 14.9,
+    "barcode": "7290112491794",
+    "brand": "בייגל את בייגל מזון",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "בייגלה פיטנס סלק 150 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 13.9,
+    "barcode": "7290115208245",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "בייגלה קיטו 170 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 22.9,
+    "barcode": "7290014321229",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ביצים 12 יח",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 13.0,
+    "barcode": "7296073227786",
+    "brand": "",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "בירה אלכסנדר בלונד330מ\"ל",
+    "category": "משקאות",
+    "icon": "🥤",
+    "price": 15.9,
+    "barcode": "7290013430083",
+    "brand": "אלכסנדר- בירה ישראלית מע",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "בירה ויינשטפן 330*6 מ\"ל",
+    "category": "משקאות",
+    "icon": "🥤",
+    "price": 64.9,
+    "barcode": "7290011018368",
+    "brand": "ויינשטפן, ת.ד 1155 פרייז",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "בירה מכבי בקבוק חוזר500מ",
+    "category": "משקאות",
+    "icon": "🥤",
+    "price": 9.0,
+    "barcode": "7290005896439",
+    "brand": "",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "בלו דיי משקה אנרגיה250מ",
+    "category": "משקאות",
+    "icon": "🥤",
+    "price": 4.9,
+    "barcode": "5904941751920",
+    "brand": "אקו - ביט",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "במבה 25*10 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 21.5,
+    "barcode": "7290105693341",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "במבה מתוקה 30 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 4.5,
+    "barcode": "7290000066295",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "בסגנון פטה יוונית אורגנו",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 31.9,
+    "barcode": "5292874001909",
+    "brand": "גרין ויה",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "בסיס לפיצה ללא גלוטן300ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 37.9,
+    "barcode": "8008698002025",
+    "brand": "דר שר אי ג'\\י/\\אספי איי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "בצק עלים ללא גלוטן 280 ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 23.9,
+    "barcode": "7290000453316",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "בקבוק לתינוק עם ידית 360",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 32.9,
+    "barcode": "7296073375593",
+    "brand": "LUV.N`CARE",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "בריסטה נוט מילק ש.שועל1ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 17.7,
+    "barcode": "5411188140146",
+    "brand": "אלפרו C.V.A",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ג'אמפ אשכוליות 1.5 ליטר",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 7.9,
+    "barcode": "7290000136455",
+    "brand": "טמפו משקאות בע\"\\ם.",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ג'אמפ מנגו פסיפלורה 1.5ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 7.9,
+    "barcode": "7290000136516",
+    "brand": "טמפו משקאות בעמ",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ג'ל אורנים לניקוי 1ל XPO",
+    "category": "מוצרי ניקיון",
+    "icon": "🧼",
+    "price": 16.9,
+    "barcode": "7290020269096",
+    "brand": "סאסאטק אגש\"ח בע\"מ",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ג'ל כביסה ירוק מרוכז1.5ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 27.9,
+    "barcode": "7290020269126",
+    "brand": "סאסאטק אגש\"ח בע\"מ",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ג'לטין טהור מדגים 14*2 ג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 12.9,
+    "barcode": "835811007494",
+    "brand": "גואנגדונג מיניאנג",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גאודה עיזים 30.60% משקל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 149.0,
+    "barcode": "7290008606639",
+    "brand": "וונדר",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גבינה גרוויר מחיר במשקל",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 169.0,
+    "barcode": "7290008866972",
+    "brand": "גבינות משק יעקבס",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גוורצטרמינר קלאסיק 750 מ",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 37.2,
+    "barcode": "7290017589565",
+    "brand": "יקבי ברקן",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גולף גולד ארוך",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 39.0,
+    "barcode": "72983997",
+    "brand": "",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גל גילוח אדג לעור רגיל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 19.9,
+    "barcode": "7290000560533",
+    "brand": "אנרגייזר",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גל.קרמיסימו ריבת חלב1.33",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 22.9,
+    "barcode": "7290112493927",
+    "brand": "גלידת שטראוס בע\"מ",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גלידה אייס קפה ובננה 475",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 37.5,
+    "barcode": "7290018011737",
+    "brand": "תמרה בע\"מ",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גלידה עוגת גבינה ותות",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 27.9,
+    "barcode": "76840400218",
+    "brand": "מוצרי איכות אמריקאיים בע",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גליליות רושן חלב 140 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 10.9,
+    "barcode": "4823077618161",
+    "brand": "ROSHEN",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גלנמורנג'י 12 שנה 700 מ\"",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 189.9,
+    "barcode": "5010494990300",
+    "brand": "גלנמורנג'י",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גלנפידיך אמריקן אוק 700",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 209.9,
+    "barcode": "5010327399614",
+    "brand": "וויליאם גרנטס",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גרגירי חומוס אורגני500גר",
+    "category": "שמנים ורטבים",
+    "icon": "🫗",
+    "price": 15.9,
+    "barcode": "7296073224402",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גריסים שופרסל 1 ק\"ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 9.5,
+    "barcode": "7296073006152",
+    "brand": "מיה תעשיות מזון",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גרנולה ממותקת בסילאן500ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 25.9,
+    "barcode": "7290001164266",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גרעין אבטיח 240 גרם",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 18.9,
+    "barcode": "7296073706014",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גרעיני דלעת אורגניים300ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 21.9,
+    "barcode": "7296073381709",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "דאו.קרמה רול און ורד 75מ",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 16.9,
+    "barcode": "7290108355451",
+    "brand": "קוסמופארם",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "דגש אבקת מרק בטעם עוף400",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 26.9,
+    "barcode": "7290017894522",
+    "brand": "אף. סי. תבליני הגליל",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "דוגלי בוגר בקר 3 ק\"ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 49.9,
+    "barcode": "7613036105606",
+    "brand": "נסטלה פורינה",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "דוגלי גזע קטן 3 ק\"ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 49.9,
+    "barcode": "7613036105545",
+    "brand": "נסטלה פורינה",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "דלתון כנען מוסקאטו750מ\"ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 54.9,
+    "barcode": "7290004494315",
+    "brand": "יקב דלתון",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "דלתון מרלו אסטייט 750מ\"ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 74.9,
+    "barcode": "7290014503632",
+    "brand": "יקב דלתון בע\"\\מ",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "דניאלה בננה 88 גרם",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 4.4,
+    "barcode": "7290011194215",
+    "brand": "שטראוס בריאות בע\"\\מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "האגיס פרידום דריי מידה 6",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 48.9,
+    "barcode": "7290000197678",
+    "brand": "חוגלה קימברלי",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "הוואי שמפו לחות שיער יבש",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 15.9,
+    "barcode": "7290117860199",
+    "brand": "טרופיקל דגיל בע\"\\מ",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "הייניקן 0% אלכוהול330*6",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 37.9,
+    "barcode": "8712000051099",
+    "brand": "מבשלת היינקן, ריטבלדנברג",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "וויסקי בלנטיין",
+    "category": "משקאות",
+    "icon": "🥤",
+    "price": 89.9,
+    "barcode": "7290005020162",
+    "brand": "",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "וויסקי ג'וני ווקר שחור",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 129.9,
+    "barcode": "5000267024202",
+    "brand": "ג'ון ווקר ובניו",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "וויסקי לוך לומונוד סינגל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 144.9,
+    "barcode": "5016840033219",
+    "brand": "לוך לומונד",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "וולה דלוקס מוס לעיצוב200",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 42.9,
+    "barcode": "4064666518145",
+    "brand": "אינטרספריי",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "וופל בלגי ללא גלוטן 250ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 31.9,
+    "barcode": "7290012208768",
+    "brand": "מאפה פסח",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ווקס חימר לעיצוב שיער150",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 50.9,
+    "barcode": "7290018532362",
+    "brand": "בוקו אס. ואי. מעבדות קוס",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ויולייף קרמי טבעוני 150ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 24.9,
+    "barcode": "5202390021121",
+    "brand": "אפפילד",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "וינסטון קוד חפיסה",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 38.5,
+    "barcode": "7290121290364",
+    "brand": "JTI",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "וניש ג'ל לכביסה לבנה2.75",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 30.9,
+    "barcode": "7290112005656",
+    "brand": "גליל כימיקלים",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ופלים בטעם שוקולד 500 גר",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 12.9,
+    "barcode": "7296073220275",
+    "brand": "מנעמים תעשיות מזון בע\"\\מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "זוג רדידים 7.5 מטר",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 15.9,
+    "barcode": "7290019860440",
+    "brand": "אופל",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "זית ירוק עשבי תיבול 215ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 17.9,
+    "barcode": "7290019233107",
+    "brand": "גרנטה",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ח. תפוחים אורגני",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 21.9,
+    "barcode": "8017938005122",
+    "brand": "",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חוואיג' במיכל 100 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 12.9,
+    "barcode": "7290000134970",
+    "brand": "תבליני טעם וריח",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חומוס גרגרים בתטבילה400ג",
+    "category": "שמנים ורטבים",
+    "icon": "🫗",
+    "price": 17.5,
+    "barcode": "7290112968685",
+    "brand": "סלטי צבר",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חומוסטחינה צבר 400 גרם",
+    "category": "שמנים ורטבים",
+    "icon": "🫗",
+    "price": 17.5,
+    "barcode": "7290109351025",
+    "brand": "סלטי צבר",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חזה בגריל צמחוני99קלוריו",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 39.9,
+    "barcode": "7290111566547",
+    "brand": "טבעול",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חטיף מנגו מיובש בהקפאה20",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 12.9,
+    "barcode": "7290014021716",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חטיף ש.שועל שוק.מריר42*5",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 14.5,
+    "barcode": "7296073448136",
+    "brand": "אפקטבעי בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חטיף ש.שועל+מייפל42*5ג",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 14.5,
+    "barcode": "7296073448129",
+    "brand": "אפקטבעי בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חטיפטף פרינוק תפוח 120 ג",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 6.7,
+    "barcode": "7290015155823",
+    "brand": "פרוטה פודיווין איי.אס",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חטיפי FREE תמר+בוטנים5יח",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 20.9,
+    "barcode": "7290105431516",
+    "brand": "טבעית מוצרים מן הטבע בעמ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חטיפי חלווה שופרסל 250 ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 12.9,
+    "barcode": "7296073066354",
+    "brand": "אחדות",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חלב מועשר1% בקבוק 1ליטר",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 10.0,
+    "barcode": "7290107932134",
+    "brand": "מחלבת יטבתה",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חלב עמיד הומוגני 3% 1 ל'",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 9.9,
+    "barcode": "7290000042503",
+    "brand": "תנובה בע\"מ",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חלבון שוק.לבן עוגיות50",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 14.5,
+    "barcode": "7290019766063",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חליטת ג'ינג'ר ודבש 25שק",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 22.9,
+    "barcode": "7290016372496",
+    "brand": "ויסוצקי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חליטת ורד בר היביסקוס20ש",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 17.9,
+    "barcode": "4009300053163",
+    "brand": "טיקנה ג'י.אמ.בי.אייג'",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חליטת צמחים נענע 20שק",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 17.9,
+    "barcode": "4009300530336",
+    "brand": "טיקנה ג'י.אמ.בי.אייג'",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חלמיש קברנה 750 מ\"ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 59.9,
+    "barcode": "7290019398899",
+    "brand": "כרם מהדרין",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חלת שושנים",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 19.9,
+    "barcode": "7290009399639",
+    "brand": "אסטוניש",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חמאת בוטנים 1 ק\"ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 36.9,
+    "barcode": "7290018857885",
+    "brand": "---",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חסה לבבות אורגנית",
+    "category": "ירקות",
+    "icon": "🥬",
+    "price": 16.9,
+    "barcode": "7290013090171",
+    "brand": "גרין",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חציל אורגני במשקל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 13.9,
+    "barcode": "7290000976679",
+    "brand": "גרין",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "טבעול נקניקיות קוקטייל צ",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 37.9,
+    "barcode": "7290111566776",
+    "brand": "טבעול",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "טבעות תירס ואורז 325 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 33.9,
+    "barcode": "58449779032",
+    "brand": "נייטשר פאת'\\",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "טוסו שוקולד מריר תפוז100",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 16.9,
+    "barcode": "7290119500536",
+    "brand": "אס. סי. אי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "טורטיה חיטה מלאה 320 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 11.9,
+    "barcode": "7290114600927",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "טורטיות פשתן וצ'יה 40*ג8",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 13.9,
+    "barcode": "7296073553298",
+    "brand": "דליברדס יורופ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "יוגורט יופלה אפרסק3% 150",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 6.2,
+    "barcode": "7290000040080",
+    "brand": "תנובה בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "יוגורט לימון מולר 150מ\"ל",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 6.8,
+    "barcode": "7290102390489",
+    "brand": "טרה",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "יוגורט עיזים פ.יער 500מל",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 16.9,
+    "barcode": "7290005416279",
+    "brand": "",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "יין אדום מרלו ארד 750מ",
+    "category": "משקאות",
+    "icon": "🥤",
+    "price": 49.9,
+    "barcode": "7296073707578",
+    "brand": "יקבי ירושלים",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "כדורי שוקולד ל.גלוטן400ג",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 33.9,
+    "barcode": "7290013121684",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "כוסברה כשר יחידה",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 7.9,
+    "barcode": "7290000001616",
+    "brand": "א.מ.תקומה עשבי תיבול",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "כוסמת קלויה 1 ק\"ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 13.9,
+    "barcode": "7296073529439",
+    "brand": "מיה תעשיות מזון",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "כיס תפו\"ע מחיר לפי משקל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 50.0,
+    "barcode": "7290000092218",
+    "brand": "גידרון סהרון",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "כיף מרכך אפרסק 700מ\"ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 13.9,
+    "barcode": "7290108357882",
+    "brand": "קוסמופארם",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "כיף שמפו לברק 7400מל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 13.9,
+    "barcode": "7290108356779",
+    "brand": "קוסמופארם",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "כנפים עוף טרי שלי קג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 13.9,
+    "barcode": "7290006707475",
+    "brand": "עוף טוב",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "לאבנה גלילית 11% 750 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 31.9,
+    "barcode": "7290014762947",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "לה קט מיקס 2.85 ק\"ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 69.9,
+    "barcode": "7290005651069",
+    "brand": "---",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "לה קרמריה תותים",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 25.9,
+    "barcode": "7290106576858",
+    "brand": "---",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "לה קרמריהשוקו וניל פרווה",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 25.9,
+    "barcode": "7290106576957",
+    "brand": "גלידות נסטלה",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "לחמנ.קיטו קמח שקדים100*4",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 36.9,
+    "barcode": "96086000294",
+    "brand": "מצות אביב 2014 מאפה בעמ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "לחמניות המבורגר ל.ג90*4ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 17.9,
+    "barcode": "7296073345107",
+    "brand": "פאלאס",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ליידי ספיד סטיק סגול 65ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 23.5,
+    "barcode": "7290101488323",
+    "brand": "קולגייט-פלמוליב",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "לקריץ מוברק מיקס קופס280",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 15.9,
+    "barcode": "7296073707813",
+    "brand": "דין שיווק",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מאגדת 4 שייק פרי תות260ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 15.9,
+    "barcode": "7290101114659",
+    "brand": "פלקו בעמ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מאגדת יוגורט תות 400 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 38.0,
+    "barcode": "7290018011713",
+    "brand": "תמרה בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מאגדת מנגו פספלורה264 גר",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 32.9,
+    "barcode": "4770237060523",
+    "brand": "פיינה זבדגיס",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מאפה בצק טבעוני פיצה600ג",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 29.9,
+    "barcode": "7290109640785",
+    "brand": "כללי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מאפה דונאטס תות  111 גרם",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 21.5,
+    "barcode": "7290017040554",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מארז ליים אורגני",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 29.9,
+    "barcode": "7290009136951",
+    "brand": "כללי",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מארז קפה רג'ואן 100*2 גר",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 16.9,
+    "barcode": "7290014704725",
+    "brand": "רוני רג'ואן ושות' 1986 ב",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מארז4יח לחמניית חלה קלה",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 17.5,
+    "barcode": "7290003158591",
+    "brand": "גידרון תעשיות בע\"מ",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מבשם בדים750מ LU ROSE",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 16.9,
+    "barcode": "7296073723950",
+    "brand": "גליל כימיקלים",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מדליק פחם 250מל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 10.9,
+    "barcode": "7290012962448",
+    "brand": "S.C.B.V",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מחית מרק ירקות 190 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 7.9,
+    "barcode": "8445291028647",
+    "brand": "נסטלה פולסקה אס.איי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מחית קארי ירוק 400 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 21.9,
+    "barcode": "7290012911415",
+    "brand": "KRS",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מטבעות שוק.חלב 250ג",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 22.9,
+    "barcode": "7290019079736",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מטבעות שוקולד70%מריר250",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 26.9,
+    "barcode": "7290019079705",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מי סאן בנדטו מוגז 1.5ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 3.9,
+    "barcode": "7290005896620",
+    "brand": "אקווה מינרלה סאן בנדטו ב",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מיונז אמיתי 500 גרם MAYO",
+    "category": "שמנים ורטבים",
+    "icon": "🫗",
+    "price": 10.5,
+    "barcode": "7296073629146",
+    "brand": "ר.ס חברה ליבוא ויצור מזו",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מילקי שכבות שוק.וקפה108ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 4.3,
+    "barcode": "7290110557447",
+    "brand": "שטראוס גרופ בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מים בתוספת מינרלים 600מל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 12.9,
+    "barcode": "5060477670002",
+    "brand": "---",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מים מצוננים 2 ליטר",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 10.0,
+    "barcode": "7290009956221",
+    "brand": "כללי",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מיני חלוה ללת\"ס15יח10*גר",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 13.9,
+    "barcode": "7290010328505",
+    "brand": "אחדות בע\"מ א.ת. ברקן",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מיני פריכיות כוסמת 80 גר",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 11.9,
+    "barcode": "7290018371275",
+    "brand": "פרח תעשיות מזון בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מיקס לילד 200גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 16.9,
+    "barcode": "7290019297802",
+    "brand": "דין שיווק",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מכבי שנדי אפרסק 330*6מ\"ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 24.9,
+    "barcode": "7290011133375",
+    "brand": "טמפו משקאות בע\"מ",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מלון גסטין",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 7.9,
+    "barcode": "7290000965611",
+    "brand": "קטיף.",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מלון מובחר",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 7.9,
+    "barcode": "7290000965055",
+    "brand": "קטיף.",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מלפ.בחומץ קטן13-17 540גר",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 14.5,
+    "barcode": "7290002057475",
+    "brand": "קבוצת יבנה",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ממרח חלבה מלאה עשירה350ג",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 16.9,
+    "barcode": "7290011498511",
+    "brand": "שקד תבור",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ממרח חרובים ט.שוקולד350ג",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.9,
+    "barcode": "7290008989473",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ממרח פלפלים קלויים 185 ג",
+    "category": "ירקות",
+    "icon": "🥬",
+    "price": 21.9,
+    "barcode": "7290006724786",
+    "brand": "נני",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ממרח שוקולד ללת\"ס 200 גר",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 23.5,
+    "barcode": "8410342003508",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ממרח שקדים עם זיתים240ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 20.9,
+    "barcode": "7290018593240",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מנה חמה נודלס פיקנטי 71ג",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 8.5,
+    "barcode": "7290000073774",
+    "brand": "PUB FOODS PRESIDENT THAI",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מסיכת קיק ארגניה 500 מ\"ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 44.9,
+    "barcode": "7290016299885",
+    "brand": "---",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מעדן סויה ביו במתיקות200",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 6.7,
+    "barcode": "7290110325305",
+    "brand": "תנובה בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מעדן סויה ביו מעודנת150ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 5.9,
+    "barcode": "7290110329815",
+    "brand": "תנובה",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מעדן סויה שוק.מריר125*4ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 20.9,
+    "barcode": "5411188094159",
+    "brand": "אלפרו C.V.A",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מפות שולחן עבות מניילון",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 10.9,
+    "barcode": "7296073266112",
+    "brand": "בריזה",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מקל מחוזק אפור/אדום יחיד",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 5.9,
+    "barcode": "7296073397403",
+    "brand": "TYF סחר",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מקלוני ירקות כרובית 500",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 39.9,
+    "barcode": "7290118424987",
+    "brand": "טבעול",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מרגרינה בטעם חמאה 200 גר",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 5.9,
+    "barcode": "7290000453897",
+    "brand": "פאקא תעשיות בע\"\\מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מרכך לשיער 700 מ\"ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 14.9,
+    "barcode": "7290019489450",
+    "brand": "סאסא קוסמטיקס",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מרלבורו גולד ארוך חפיסה",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 44.5,
+    "barcode": "7290115190076",
+    "brand": "פיליפ מוריס",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מרלבורו גולד ארוך פאקט",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 440.0,
+    "barcode": "7290115190069",
+    "brand": "פיליפ מוריס",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מרלו הר תבור 750 מ\"ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 44.9,
+    "barcode": "7290103681180",
+    "brand": "מיוצר על ידי יקב תבור",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מרסס מסיר עובש750מ\"ל LU",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 14.9,
+    "barcode": "7296073723936",
+    "brand": "גליל כימיקלים",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מרק היום עוף+אטריות 74ג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 15.3,
+    "barcode": "7290112490759",
+    "brand": "יוניליוור ישראל מזון",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מרק פטריות קנור 400 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 25.9,
+    "barcode": "7290112492982",
+    "brand": "יוניליוור ישראל מזון",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "משולש גבינת רוקפור משקל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 169.0,
+    "barcode": "7290001258040",
+    "brand": "גבינות משק יעקבס",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "משחת אלמקס גוניור 75מ\"ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 17.5,
+    "barcode": "7290102062195",
+    "brand": "קולגייט-פלמוליב",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "משחת אלמקס ילדים 75 מ\"ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 17.5,
+    "barcode": "7290000803067",
+    "brand": "קולגייט-פלמוליב",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "משחת אסטוניש פרימיום",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 19.9,
+    "barcode": "7290109924106",
+    "brand": "אסטוניש",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "משחת שיניים מרידול 75*2מ",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 31.9,
+    "barcode": "8718951288492",
+    "brand": "קולגייט-פלמוליב",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "משטחי החתלה מרופדים 8 יח",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 14.9,
+    "barcode": "7290018071069",
+    "brand": "---",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "משקה חלב צמר גפן מתוק 1ל",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 14.5,
+    "barcode": "7290114313124",
+    "brand": "מילקו תעשיות בעמ",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מתוק וקל זהב 100 שקיות",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 14.9,
+    "barcode": "7290000518251",
+    "brand": "למפדוס",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "נאגטס ירקות ירוקים",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 39.9,
+    "barcode": "7290112965943",
+    "brand": "טבעול תעשיות מזון בע\\\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "נאצ'וס קמח תירס לבן150גר",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 10.9,
+    "barcode": "8002183013572",
+    "brand": "S.P.A PATA",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "נוזל רצפה ורוד 2ל LU",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 19.9,
+    "barcode": "7296073723820",
+    "brand": "גליל כימיקלים",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "נוזל רצפות לבנדר 4ל XPO",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 14.9,
+    "barcode": "7290019841951",
+    "brand": "סאסאטק אגש\"ח בע\"מ",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "נייטשר ואלי צ'ואי בוטן5י",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 22.9,
+    "barcode": "8410076610492",
+    "brand": "ג'נרל מילס",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "נקניקיות \"ביס\" 380 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 12.9,
+    "barcode": "7290000318127",
+    "brand": "יחיעם",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "נקניקיות וינר 1 ק\"ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 29.9,
+    "barcode": "7290000530468",
+    "brand": "זוגלובק",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "נקסט פיין אדג' פאקט",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 330.0,
+    "barcode": "7290115190465",
+    "brand": "",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "נקסט ריסס ארוך פאקט",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 330.0,
+    "barcode": "7290115190526",
+    "brand": "פיליפ מוריס",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "נקסט ריסס קצר פאקט",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 330.0,
+    "barcode": "7290115190540",
+    "brand": "פיליפ מוריס",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "נרות חימום בשקית 50 יחיד",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 11.9,
+    "barcode": "7296073691754",
+    "brand": "FE GAOCHENG SHIJIAZHUANG",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סבון מוצק-חלב ורדים90*4",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 10.9,
+    "barcode": "8693495051156",
+    "brand": "קולגייט-פלמוליב",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סוביניון בלאן P.C 750מ\"ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 49.9,
+    "barcode": "7290004658953",
+    "brand": "יקבי כרמל",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סודה טמפו 1.5*6 ליטר",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 21.9,
+    "barcode": "7290000136790",
+    "brand": "טמפו משקאות בע\"\\מ",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סוללות AA8+AAA4 12 יחידו",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 12.9,
+    "barcode": "7296073693123",
+    "brand": "NINGBO WISE",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סולת תמי 300 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 20.9,
+    "barcode": "7290017907246",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סחוג תימני 250 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 18.5,
+    "barcode": "7290010154005",
+    "brand": "נטו",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סיגרים בשר 1 ק'ג שלושת",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 25.9,
+    "barcode": "7290008343558",
+    "brand": "שלושת האופים בע\"\\מ",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סירופ דיאט לימון 1 ליטר",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 13.9,
+    "barcode": "7290000209517",
+    "brand": "זנלכל בע\"\\מ",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סירופ תפוחים דיאט 750מ\"ל",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 23.9,
+    "barcode": "7290003009183",
+    "brand": "גת",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סכיני ונוס סווירל xl 6יח",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 99.9,
+    "barcode": "7702018401383",
+    "brand": "---",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סלט ביצים 250 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 23.9,
+    "barcode": "7296073725619",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סלט טורקי 360 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 20.9,
+    "barcode": "7290115207507",
+    "brand": "מפעל צבר",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סלט שום כתוש 250 גרם",
+    "category": "ירקות",
+    "icon": "🥬",
+    "price": 18.5,
+    "barcode": "7290010154685",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סלמי גלילי מעושן 400 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 29.9,
+    "barcode": "7290005996009",
+    "brand": "מעדני יחיעם\\n",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סמוזי תפוח תות בננה 100ג",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 7.9,
+    "barcode": "8024985011204",
+    "brand": "נטורה נובה",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ספגטיני מס' MANTANINO 3",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 7.9,
+    "barcode": "7296073706519",
+    "brand": "F.LLI PASTIFICIO",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ספיד סטיק ג'ל ספורט 85 ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 19.9,
+    "barcode": "7290005008481",
+    "brand": "קולגייט-פלמוליב",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ספיד סטיק ירוק רגולר 85ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 23.9,
+    "barcode": "7290105434050",
+    "brand": "קולגייט-פלמוליב",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ספרי הגנה לילד200מ SPF50",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 19.9,
+    "barcode": "7290019489733",
+    "brand": "סאסא-קוסמטיקס אגש\"\\ח בע\\",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ספרינג מיץ תפוחים 1.5 ל'",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 8.9,
+    "barcode": "7290019056607",
+    "brand": "יפאורה תבורי בע\"\\מ",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סקי מעדן גבינה וניל 125ג",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 4.5,
+    "barcode": "7290005838613",
+    "brand": "שטראוס בריאות בע\"\\מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סרקל מרכך ליטר",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 34.9,
+    "barcode": "7290019501411",
+    "brand": "פישר מעבדות פרמצבטיות בע",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "עגבניה תמר אורגנית במשקל",
+    "category": "ירקות",
+    "icon": "🥬",
+    "price": 15.9,
+    "barcode": "7290000099866",
+    "brand": "יבולי בר אורגני",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "עגבניות קצוצות דק 400*3ג",
+    "category": "ירקות",
+    "icon": "🥬",
+    "price": 21.9,
+    "barcode": "7290107973861",
+    "brand": "קונסורזיו קאסאלאסקו",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "עוג.כוסמין מלא שוקולד250",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.9,
+    "barcode": "7290017894317",
+    "brand": "גנדולה ביסקוטי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "עוג.שוקולד+אגוז לוז200ג",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 24.9,
+    "barcode": "7290119040629",
+    "brand": "קפולסקי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "עוג.שוקוציפס לוביטה150ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 9.9,
+    "barcode": "4823077633324",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "עוגיות כוסמין תפוחים230ג",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 27.9,
+    "barcode": "7290013453136",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "עוגיות מלוחות 200 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 24.9,
+    "barcode": "7290119040421",
+    "brand": "קפולסקי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "עוגיות סגנון מרוקאי 350ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 17.9,
+    "barcode": "7290119041053",
+    "brand": "קיראי סחר והשקעות בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "עוגיות סובין שיבולת שועל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 21.9,
+    "barcode": "3760151013287",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "עוגיות צ'יפ שוקולד 200ג",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 24.9,
+    "barcode": "7290119040674",
+    "brand": "קפולסקי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "עוגיות שומשום קריספי 200",
+    "category": "ירקות",
+    "icon": "🥬",
+    "price": 24.9,
+    "barcode": "7290119040728",
+    "brand": "קפולסקי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "עוגת קראנץ פרג 500 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 19.9,
+    "barcode": "7290119040667",
+    "brand": "קיראי סחר והשקעות בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "עלי מיקרו בזיל 60 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 11.9,
+    "barcode": "7296073528623",
+    "brand": "פרסקו חצבה 2006 בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "עלי מיקרו רוקט 60 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 11.9,
+    "barcode": "7296073528647",
+    "brand": "פרסקו חצבה 2006 בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ענב אדום סוויט סלבריישן",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 29.9,
+    "barcode": "7290017593531",
+    "brand": "בננות החוף",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ענבים ירוקים מובחר",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 24.9,
+    "barcode": "7290000966038",
+    "brand": "קטיף.",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פאקט נקסט אדג' פאקט",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 330.0,
+    "barcode": "7290115190441",
+    "brand": "פיליפ מוריס",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פדים קוסמטיים  שלישיה",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 15.9,
+    "barcode": "7290014648913",
+    "brand": "נינגבי הווארד",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פולרטי פירות חטיפי קרח",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 12.9,
+    "barcode": "8002267002270",
+    "brand": "SPA DOLFIN",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פורטובלו למילוי יחידה",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 15.9,
+    "barcode": "7290112841865",
+    "brand": "פטריות ושורשים בע\"מ",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פטריות פורטובלו למילוי",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 39.9,
+    "barcode": "7290000000718",
+    "brand": "קטיף.",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פיטנס חט.דגנים פ.יער6יח",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 18.9,
+    "barcode": "5900020029669",
+    "brand": "סי. פי. פולין",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פיטנס חט.דגנים ק.עוגיות6",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 18.9,
+    "barcode": "5900020018908",
+    "brand": "סי. פי. פולין",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פיירי אורגינל 650מל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 14.5,
+    "barcode": "4084500853553",
+    "brand": "PROCTER&GAMBLE",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פילה בורי טרי שופרסל לקג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 99.9,
+    "barcode": "7290009011050",
+    "brand": "דגת הארץ",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פילה דג ברמונדי טרי קג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 134.9,
+    "barcode": "7290009391985",
+    "brand": "דגת הארץ",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פילה הרינג סקנדינבי",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 31.9,
+    "barcode": "4810168062644",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פילה מקרל מומלח עישון150",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 25.9,
+    "barcode": "5901576059483",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פילה סלמון קפוא צילה",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 59.9,
+    "barcode": "7290001354735",
+    "brand": "---",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פילה עוף טרי ארוז שלי לק",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 44.9,
+    "barcode": "7290000616766",
+    "brand": "עוף עוז",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פיצה מרגריטה ללא גלוטן",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 31.9,
+    "barcode": "7290017040318",
+    "brand": "PAZZAMI\\n",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פלפל חריף סרה 640 גרם",
+    "category": "ירקות",
+    "icon": "🥬",
+    "price": 14.9,
+    "barcode": "8690777204071",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פלפל צהוב אורגני",
+    "category": "ירקות",
+    "icon": "🥬",
+    "price": 24.9,
+    "barcode": "7290000961279",
+    "brand": "",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פלפל רומירו",
+    "category": "ירקות",
+    "icon": "🥬",
+    "price": 28.9,
+    "barcode": "7290000992013",
+    "brand": "",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פלפל שיפקה חריף",
+    "category": "ירקות",
+    "icon": "🥬",
+    "price": 8.9,
+    "barcode": "7296073093169",
+    "brand": "קבוצת יבנה",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פנטן מסיכה לחות מוגבר300",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 32.5,
+    "barcode": "8001841694429",
+    "brand": "PROCTER&GAMBLE",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פנטן מרכך הקסם לחות220מ",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 26.5,
+    "barcode": "8700216506250",
+    "brand": "---",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פנטן מרכך שמן משקם 600מל",
+    "category": "שמנים ורטבים",
+    "icon": "🫗",
+    "price": 22.5,
+    "barcode": "8700216527675",
+    "brand": "---",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פנטן שמפו קלאסי 600 מ\"ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 22.5,
+    "barcode": "8700216527941",
+    "brand": "---",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פסטה 15 בוקטיני 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 9.5,
+    "barcode": "8008857200156",
+    "brand": "פאסטופיציו אנטוניו פאלנט",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פסטה עם כורכום 400 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 15.9,
+    "barcode": "7296073676126",
+    "brand": "PASTIFICIO DI BARI",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פסטה קוסקוס קונגאק 270 ג",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 14.5,
+    "barcode": "7290015129220",
+    "brand": "סצ'ואן סנטאיואן",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פסטה+פיטריות פורצ'יני400",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 15.9,
+    "barcode": "7296073612803",
+    "brand": "פאסטיפיקו",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פסטרמה הודו מהמעשנה",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 29.9,
+    "barcode": "7290000318950",
+    "brand": "מעדני יחיעם (1993) בעמ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פרוט&ווג תפוח אוכמניות",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 13.9,
+    "barcode": "7290019153917",
+    "brand": "יפאורה תבורי בעמ",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פריגת ענבים 500 מ\"ל",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 7.9,
+    "barcode": "7290001594391",
+    "brand": "---",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פריכ.אורז מלא ללת\"מ100 ג",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 14.9,
+    "barcode": "7290017325422",
+    "brand": "פרח תעשיות מזון בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פריכיות תירס+סויה150כשלפ",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 14.9,
+    "barcode": "9322969000022",
+    "brand": "אלגם גיל",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פריניר רוטב לשקשוקה 230ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 6.6,
+    "barcode": "7290016087239",
+    "brand": "פריניר",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פתיבר קוקיז בטעם חמאה155",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 13.5,
+    "barcode": "7290118425496",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "צ'אי קרמל מלוח 25 שק2*ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 25.9,
+    "barcode": "7290018440254",
+    "brand": "ויסוצקי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "צ'ונגו שומשום 600 גרם",
+    "category": "ירקות",
+    "icon": "🥬",
+    "price": 41.9,
+    "barcode": "7290014749245",
+    "brand": "מוצרי עוף טוב",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "צ'ופ-סטיקס חד פעמי יח",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 8.9,
+    "barcode": "7290011996482",
+    "brand": "פוזו ג'ינקינגיאן אימפורט",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "צ'וקטה דבש ומלח ים160ג",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 9.9,
+    "barcode": "7290018894460",
+    "brand": "SRL CO Trading Alka SC",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "צהובה טבעונית צדר 200גר",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 26.9,
+    "barcode": "7290015599054",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "צופסטיקס צפצפה 20 יח",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 8.0,
+    "barcode": "7290010513703",
+    "brand": "",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "צוריסו נקניקיות עוף",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290109580739",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "צימרוני אוזניים מעץ300יח",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 4.9,
+    "barcode": "7290010632787",
+    "brand": "L.Y.Q.TRADI",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "צלחות גדולות חד\"פ 1קג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 24.9,
+    "barcode": "7296073629269",
+    "brand": "L.P",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "צלי כתף טרי קג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 99.9,
+    "barcode": "7290000928388",
+    "brand": "שונות",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "צמד פורטובלו יחידה",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 18.9,
+    "barcode": "7290112841872",
+    "brand": "פטריות ושורשים בע\"מ",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "צמד פטריות מעורב",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 18.9,
+    "barcode": "7290013215369",
+    "brand": "חוות הדרום בע\"מ",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "צנצנת בזוקה ענבים לל\"ס66",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 12.9,
+    "barcode": "7290119382989",
+    "brand": "אסקום קונפקשיין",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "צנצנת מסטיקים מאסט פירות",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 12.9,
+    "barcode": "7290119374298",
+    "brand": "אסקום קונפקשיין",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קבב פטריות טבעוני 360",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 36.9,
+    "barcode": "7290019462446",
+    "brand": "מרינה",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קברנה מרום גליל 750 מ\"ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 45.9,
+    "barcode": "7290000521404",
+    "brand": "יינות סגל",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קברנה סדרה אזורית 750מ\"ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 69.9,
+    "barcode": "7290008804189",
+    "brand": "אגודת הכורמים הקואופרטיב",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קברנה שיראז סדרה אזורית",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 69.9,
+    "barcode": "7290008805964",
+    "brand": "אגודת הכורמים הקואופרטיב",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קואלה קריספ דגני בוקר326",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 33.9,
+    "barcode": "58449860037",
+    "brand": "נייטשר פאת'\\",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קובה סלק 400 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 24.9,
+    "barcode": "7290109580647",
+    "brand": "זוגלובק",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קוטג' +שום שמיר",
+    "category": "ירקות",
+    "icon": "🥬",
+    "price": 7.5,
+    "barcode": "7290000052717",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קולגייט טוטל קלין 2*100",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 31.9,
+    "barcode": "7290111935527",
+    "brand": "קולגייט-פלמוליב",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קוקה קולה קלאסי בק350מ\"ל",
+    "category": "משקאות",
+    "icon": "🥤",
+    "price": 8.9,
+    "barcode": "7290001594025",
+    "brand": "",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קטשופ אורגני ל.גלוטן567ג",
+    "category": "שמנים ורטבים",
+    "icon": "🫗",
+    "price": 24.9,
+    "barcode": "7290013521491",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קמח אורז ללא גלוטן 500 ג",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 13.9,
+    "barcode": "7297488098183",
+    "brand": "דג\"ש",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קמח שקדים 250 גרם",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 28.9,
+    "barcode": "7297488098305",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קמח תפוח אדמה לל\"ג 500 ג",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 13.5,
+    "barcode": "7296073365952",
+    "brand": "נטורל קייקס בע\"\\מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קניידלך מיקס ל.גלוטן130ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 21.9,
+    "barcode": "7297488199781",
+    "brand": "דג\"ש",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קערית אובלית BASIC 25 יח",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 9.9,
+    "barcode": "7296073020400",
+    "brand": "פאלאס",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קפה נמס גולד 200 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 54.9,
+    "barcode": "7613036314114",
+    "brand": "נסטלה אנגליה, טטבורי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קפה נמס עלית 50 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 13.9,
+    "barcode": "7290000176413",
+    "brand": "שטראוס קפה בי.וי.",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קפסולות אספרסו 8 לונגו52",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 20.9,
+    "barcode": "8711000362617",
+    "brand": "ג'ייקובס דאו אגברטס צרפת",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קפסולות לונגו8 נספרסו50ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 18.9,
+    "barcode": "7296073398837",
+    "brand": "דליקה",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קפסולות קפה אינטנסו 13",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 33.9,
+    "barcode": "8000070003774",
+    "brand": "לואיג'י לוואצה אס.פי.אי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קרם הוואי לאחר גילוח120מ",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 20.9,
+    "barcode": "7290000244143",
+    "brand": "טרופיקל דגיל",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קרמה ק.גוף ורד וניל500מל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 25.9,
+    "barcode": "7290108357417",
+    "brand": "קוסמופארם",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קרפרי מגן תחתון מקסיL",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 20.9,
+    "barcode": "3574661487625",
+    "brand": "ג'ונסון אנד ג'ונסון",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "רוט.סויה ללא גלוטן280מ\"ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 15.9,
+    "barcode": "7296073266709",
+    "brand": "DEVELOPMENT YI LIAN",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "רוטב ויניגרט בלסמי 280ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 13.9,
+    "barcode": "7296073646907",
+    "brand": "פרסקו חצבה 2006 בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "רוטב חמוץ מתוק 300 מ \"ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 12.9,
+    "barcode": "7290011996581",
+    "brand": "KRS",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "רוטב צ'ילי מתוק 290 מ\"ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 14.5,
+    "barcode": "7290000061085",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ריקוטה פרסקה 9%",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 23.9,
+    "barcode": "7290011499846",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "רסק תפו\"ע ללת\"ס 113*4 גר",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 8.9,
+    "barcode": "7296073266310",
+    "brand": "FOODS HUIXANG JIANGSU",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "רסק תפוחים טבעי 670 גרם",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 13.9,
+    "barcode": "7290013903594",
+    "brand": "טעמי הגליל",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שוופס מי סודה 1.5 ליטר",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 4.9,
+    "barcode": "7290019056119",
+    "brand": "יפאורה תבורי בע\"\\מ",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שום קלוף בקופסא 190 גרם",
+    "category": "ירקות",
+    "icon": "🥬",
+    "price": 12.9,
+    "barcode": "7296073612926",
+    "brand": "JINXIANG WANXING GARLIC",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שומשום 400 גרם",
+    "category": "ירקות",
+    "icon": "🥬",
+    "price": 12.9,
+    "barcode": "7290001041260",
+    "brand": "מיה תעשיות מזון מ.ת.מ. ב",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שומשום שחור קלוי 100 גרם",
+    "category": "ירקות",
+    "icon": "🥬",
+    "price": 14.9,
+    "barcode": "7290011996642",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שוק.לינדט מילק אג.לוז150",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 34.9,
+    "barcode": "7610400075787",
+    "brand": "לינדט ושפרונגלי קילשברג",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שוקולד חלב מקורמל 98גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 17.9,
+    "barcode": "7290119376582",
+    "brand": "שטראוס גרופ בע\"\\מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שוקולד פרה לבן 100 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 9.9,
+    "barcode": "7290112348548",
+    "brand": "תופינית בע\"\\מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שוקולד צ'יפס מריר 250גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 22.9,
+    "barcode": "7290019079729",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שיפודי במבוק ג'מבו 50 יח",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 6.0,
+    "barcode": "7290013310101",
+    "brand": "כללי",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שיפודי במבוק שטוחים 25יח",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 10.0,
+    "barcode": "7290013310477",
+    "brand": "כללי",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שישיית מב.שיניים סופט6יח",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 9.9,
+    "barcode": "4987176231543",
+    "brand": "פרוקטר & גמבל",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שישיית סכיני ונוס 6 יח",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 95.0,
+    "barcode": "8001090600011",
+    "brand": "PROCTER&GAMBLE",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שמפו להזנה עוצמתית 500מל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 21.9,
+    "barcode": "3600524167080",
+    "brand": "RAMOUILLET",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שמפו לשיער מוחלק500מ פרל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 20.9,
+    "barcode": "7296073363217",
+    "brand": "א.משי תעשיות",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שמפו קרטין נטורל 400 מ\"ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 29.9,
+    "barcode": "7290108355208",
+    "brand": "קוסמופארם",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שניצל תירס 1.25 קג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 51.9,
+    "barcode": "7290109580036",
+    "brand": "זוגלובק",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שניצלוני טופו 400 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 35.9,
+    "barcode": "7290015673662",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שפירא איי.פי.איי 330 מ\"ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 16.9,
+    "barcode": "7290014056053",
+    "brand": "מבשלת שפירא בע\"\\מn\\",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ת.הגנה לפנים לילדZOZO 75",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 19.9,
+    "barcode": "7290019489818",
+    "brand": "סאסא-קוסמטיקס אש\"\\ח בע\"\\",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ת.ניקוי שטיחים600מ XPO",
+    "category": "מוצרי ניקיון",
+    "icon": "🧼",
+    "price": 21.9,
+    "barcode": "7290020269263",
+    "brand": "סאסאטק אגש\"ח בע\"מ",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תה ירוק לימונית+ג'ינגר25",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 27.9,
+    "barcode": "7290006251374",
+    "brand": "ויסוצקי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תה ירוק צ'אי מסאלה 25שק'",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 27.9,
+    "barcode": "7290012413636",
+    "brand": "ויסוצקי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תה ירוק קמומיל 25שק1.5*ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 27.9,
+    "barcode": "7290012413643",
+    "brand": "ויסוצקי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תה ספרינג אפרסק 1.5 ליטר",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 8.9,
+    "barcode": "7290019056478",
+    "brand": "יפאורה תבורי בע\"\\מ",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תחבושות אולוויז 12 יח",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 22.9,
+    "barcode": "8006540993767",
+    "brand": "PROCTER&GAMBLE",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תחליב רחצה כיף עדין 700מ",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 12.9,
+    "barcode": "7290108357691",
+    "brand": "קוסמופארם",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תחליב רחצה מאסקME 700",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 14.9,
+    "barcode": "7296073722694",
+    "brand": "טרופיקל דגיל תעשיות קוסמ",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תערובת לאפיית עוגות כשלפ",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 24.9,
+    "barcode": "7290018928400",
+    "brand": "מולינו",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תערובת לל\"ג לאפיית עוגות",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 24.9,
+    "barcode": "7290015879712",
+    "brand": "כללי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תערובת תיבול לצ'יפס100ג",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 12.9,
+    "barcode": "7290014217119",
+    "brand": "תבליני טעם וריח",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תערובת תיבול פילדלפיה100",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 12.9,
+    "barcode": "7290014217492",
+    "brand": "תבליני טעם וריח",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תפוח אדמה אדום",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 6.9,
+    "barcode": "7290018825433",
+    "brand": "חבל מעון",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תפוח זהוב אורגני במשקל",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 20.9,
+    "barcode": "7290000965765",
+    "brand": "כללי",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תפוח עץ פינקריספי 70",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 22.9,
+    "barcode": "7290000963372",
+    "brand": "קטיף.",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תפוצ'יפס ירקות שורש 45גר",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 8.9,
+    "barcode": "7290110557874",
+    "brand": "פלור פודס בי.וי.",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תרכיז תפוחים 650 מ\"ל",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 29.9,
+    "barcode": "7290014562462",
+    "brand": "",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  }
 ]
