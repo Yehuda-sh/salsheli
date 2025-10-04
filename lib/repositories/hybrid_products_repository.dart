@@ -4,9 +4,12 @@
 // - טוען מוצרים מקומית (מהיר)
 // - מעדכן מחירים מ-API (אופציונלי)
 // - מוסיף מוצרים חדשים אוטומטית
+// 
+// ✅ עדכון חדש: טעינה מ-products.json קודם!
 
 import 'package:flutter/foundation.dart';
 import '../services/published_prices_service.dart';
+import '../helpers/product_loader.dart';  // 🆕 הוספה!
 import 'local_products_repository.dart';
 import 'products_repository.dart';
 import '../models/product_entity.dart';
@@ -24,7 +27,7 @@ class HybridProductsRepository implements ProductsRepository {
   })  : _localRepo = localRepo,
         _apiService = apiService ?? PublishedPricesService();
 
-  /// אתחול - טוען מוצרים מה-API אם ה-DB ריק
+  /// אתחול - טוען מוצרים אם ה-DB ריק
   Future<void> initialize() async {
     if (_isInitialized) {
       debugPrint('⚠️ HybridProductsRepository.initialize: כבר אותחל, מדלג');
@@ -35,31 +38,146 @@ class HybridProductsRepository implements ProductsRepository {
       debugPrint('\n🚀 HybridProductsRepository.initialize() - מתחיל...');
       debugPrint('   📊 בודק מספר מוצרים מקומיים: ${_localRepo.totalProducts}');
 
-      // אם אין מוצרים מקומית - טוען מה-API
+      // 🆕 אם יש פחות מ-100 מוצרים - נמחק וטוען מחדש
+      if (_localRepo.totalProducts > 0 && _localRepo.totalProducts < 100) {
+        debugPrint('   🗑️ מוחק DB ישן (${_localRepo.totalProducts} מוצרים דמה)...');
+        await _localRepo.clearAll();
+        debugPrint('   ✅ DB נמחק - יטען מ-products.json');
+      }
+
+      // אם אין מוצרים מקומית - טוען מקורות שונים
       if (_localRepo.totalProducts == 0) {
-        debugPrint('   ➡️ DB ריק - טוען מה-API...');
+        debugPrint('   ➡️ DB ריק - מתחיל טעינה...');
         await _loadInitialProducts();
       } else {
-        debugPrint('   ✅ נמצאו ${_localRepo.totalProducts} מוצרים מקומית - לא צריך לטעון מה-API');
+        debugPrint('   ✅ נמצאו ${_localRepo.totalProducts} מוצרים מקומית - לא צריך לטעון');
       }
 
       _isInitialized = true;
       debugPrint('✅ HybridProductsRepository.initialize: הושלם בהצלחה\n');
     } catch (e) {
       debugPrint('❌ שגיאה באתחול HybridProductsRepository: $e');
+      _isInitialized = true; // סימון כמוכן למרות השגיאה
     }
   }
 
-  /// טעינת מוצרים ראשונית מה-API (ללא מחירים)
+  /// 🆕 טעינת מוצרים ראשונית - נסיון 1: products.json
   Future<void> _loadInitialProducts() async {
     try {
-      debugPrint('📥 מנסה לטעון מוצרים מ-API...');
+      debugPrint('📥 אסטרטגיית טעינה:');
+      debugPrint('   1️⃣ נסיון ראשון: products.json');
+      debugPrint('   2️⃣ נסיון שני: API');
+      debugPrint('   3️⃣ גיבוי: 8 מוצרים דמה');
+      debugPrint('');
+
+      // 🆕 נסיון 1: טעינה מ-products.json
+      final success = await _loadFromJson();
+      if (success) {
+        debugPrint('✅ טעינה מ-products.json הצליחה!');
+        return;
+      }
+
+      // נסיון 2: טעינה מ-API
+      debugPrint('⚠️ products.json נכשל, מנסה API...');
+      final apiSuccess = await _loadFromAPI();
+      if (apiSuccess) {
+        debugPrint('✅ טעינה מ-API הצליחה!');
+        return;
+      }
+
+      // נסיון 3: fallback
+      debugPrint('⚠️ API נכשל, טוען מוצרים דמה...');
+      await _loadFallbackProducts();
+      debugPrint('✅ טעינת fallback הושלמה');
+      
+    } catch (e) {
+      debugPrint('❌ שגיאה קריטית בטעינת מוצרים: $e');
+      await _loadFallbackProducts();
+    }
+  }
+
+  /// 🆕 טעינה מ-products.json
+  Future<bool> _loadFromJson() async {
+    try {
+      debugPrint('📂 מנסה לטעון מ-products.json...');
+      
+      // קריאה מהקובץ (JSON הוא Array)
+      final productsData = await loadProductsAsList();
+      
+      if (productsData.isEmpty) {
+        debugPrint('⚠️ products.json ריק או לא תקין');
+        return false;
+      }
+
+      debugPrint('📋 נמצאו ${productsData.length} מוצרים ב-JSON');
+
+      // המרה ל-ProductEntity
+      final entities = <ProductEntity>[];
+      int validProducts = 0;
+      int invalidProducts = 0;
+
+      for (final data in productsData) {
+        try {
+          // וידוא שיש ברקוד ושם
+          final barcode = data['barcode']?.toString();
+          final name = data['name']?.toString();
+
+          if (barcode == null || barcode.isEmpty || 
+              name == null || name.isEmpty) {
+            invalidProducts++;
+            continue;
+          }
+
+          entities.add(ProductEntity(
+            barcode: barcode,
+            name: name,
+            category: data['category']?.toString() ?? 'אחר',
+            brand: data['brand']?.toString() ?? '',
+            unit: data['unit']?.toString() ?? '',
+            icon: data['icon']?.toString() ?? '🛒',
+            // ללא מחיר - יתעדכן מ-API אחר כך
+            currentPrice: null,
+            lastPriceStore: null,
+            lastPriceUpdate: null,
+          ));
+          validProducts++;
+        } catch (e) {
+          invalidProducts++;
+          debugPrint('⚠️ שגיאה בהמרת מוצר: $e');
+        }
+      }
+
+      if (entities.isEmpty) {
+        debugPrint('❌ לא נמצאו מוצרים תקינים ב-JSON');
+        return false;
+      }
+
+      // שמירה ב-Hive
+      debugPrint('💾 שומר ${entities.length} מוצרים ב-Hive...');
+      await _localRepo.saveProducts(entities);
+      
+      debugPrint('✅ נשמרו ${entities.length} מוצרים מ-products.json');
+      debugPrint('   ✔️ תקינים: $validProducts');
+      if (invalidProducts > 0) {
+        debugPrint('   ⚠️ נדחו: $invalidProducts');
+      }
+
+      return true;
+    } catch (e) {
+      debugPrint('❌ שגיאה בטעינת products.json: $e');
+      return false;
+    }
+  }
+
+  /// טעינה מ-API
+  Future<bool> _loadFromAPI() async {
+    try {
+      debugPrint('📞 מנסה לטעון מוצרים מ-API...');
       final apiProducts = await _apiService.getProducts(forceRefresh: true);
 
       if (apiProducts.isEmpty) {
-        debugPrint('⚠️ לא נמצאו מוצרים ב-API, טוען fallback מקומי');
-        await _loadFallbackProducts();
-        return;
+        debugPrint('⚠️ לא נמצאו מוצרים ב-API');
+        return false;
       }
 
       // המרה ל-ProductEntity (ללא מחירים)
@@ -80,15 +198,15 @@ class HybridProductsRepository implements ProductsRepository {
       }).toList();
 
       await _localRepo.saveProducts(entities);
-      debugPrint('✅ נשמרו ${entities.length} מוצרים (ללא מחירים)');
+      debugPrint('✅ נשמרו ${entities.length} מוצרים מ-API');
+      return true;
     } catch (e) {
       debugPrint('❌ שגיאה בטעינת מוצרים מ-API: $e');
-      debugPrint('🔄 טוען מוצרים דמה במקום...');
-      await _loadFallbackProducts();
+      return false;
     }
   }
 
-  /// טעינת מוצרים דמה כ-fallback
+  /// טעינת מוצרים דמה כ-fallback (גיבוי אחרון)
   Future<void> _loadFallbackProducts() async {
     final fallbackProducts = [
       ProductEntity(

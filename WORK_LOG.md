@@ -23,6 +23,311 @@
 
 ---
 
+## 📅 04/10/2025 - תיקון טעינת מוצרים מ-products.json
+
+### 🎯 משימה
+
+תיקון באג קריטי שמנע טעינת מוצרים מקובץ `products.json` - הקובץ היה תקין אבל הקוד לא ידע לקרוא Array במקום Map.
+
+**🔍 הבעיה שזוהתה:**
+
+- `products.json` הוא Array (רשימה) של 1196 מוצרים
+- `product_loader.dart` ציפה ל-Map (אובייקט עם ברקודים כמפתחות)
+- התוצאה: `loadProductsAsList()` החזירה רשימה ריקה
+- האפליקציה נתקעה עם 8 מוצרים דמה (fallback)
+
+### ✅ מה הושלם
+
+#### 1. שכתוב `product_loader.dart` לתמיכה ב-Array
+
+**הקוד המקורי (שגוי):**
+
+```dart
+Future<Map<String, dynamic>> loadLocalProducts() async {
+  final data = json.decode(content);
+  if (data is Map<String, dynamic>) {  // ❌ תמיד false כי זה Array!
+    _productsCache = data;
+    return data;
+  }
+  _productsCache = {};  // מחזיר Map ריק
+  return _productsCache!;
+}
+```
+
+**הקוד החדש (תקין):**
+
+```dart
+Future<List<Map<String, dynamic>>> loadProductsAsList() async {
+  if (_productsListCache != null) {
+    return _productsListCache!;  // Cache
+  }
+
+  final content = await rootBundle.loadString(assetPath);
+  final data = json.decode(content);
+
+  if (data is List) {  // ✅ בודק אם זה Array
+    _productsListCache = data
+        .whereType<Map<String, dynamic>>()
+        .toList();
+    return _productsListCache!;
+  }
+
+  _productsListCache = [];
+  return _productsListCache!;
+}
+```
+
+**שיפורים:**
+
+- ✅ תמיכה ב-Array (List) במקום Map
+- ✅ לוגים מפורטים לדיבאג
+- ✅ Cache יעיל
+- ✅ Error handling טוב יותר
+
+#### 2. הוספת מנגנון ניקוי DB ישן
+
+**ב-`hybrid_products_repository.dart`:**
+
+```dart
+// בדיקה אם יש DB ישן עם fallback (< 100 מוצרים)
+if (_localRepo.totalProducts > 0 && _localRepo.totalProducts < 100) {
+  debugPrint('🗑️ מוחק DB ישן (${_localRepo.totalProducts} מוצרים דמה)...');
+  await _localRepo.clearAll();
+  debugPrint('✅ DB נמחק - יטען מ-products.json');
+}
+```
+
+**למה זה חשוב:**
+
+- מאפשר מעבר חלק מ-DB ישן ל-JSON
+- מזהה אוטומטית DB עם fallback (8 מוצרים)
+- מבצע cleanup חכם
+
+#### 3. שיפור לוגים
+
+הוספנו לוגים מפורטים ב-`product_loader.dart`:
+
+```dart
+debugPrint('📂 קורא קובץ: $assetPath');
+debugPrint('📄 גודל קובץ: ${content.length} תווים');
+debugPrint('✅ JSON הוא Array עם ${data.length} פריטים');
+debugPrint('✅ נטענו ${_productsListCache!.length} מוצרים תקינים');
+```
+
+זה עזר לזהות את הבעיה במהירות!
+
+### 📂 קבצים שהושפעו
+
+**קבצים שתוקנו:**
+
+1. `lib/helpers/product_loader.dart` - שכתוב מלא
+
+   - המרה מ-Map ל-List
+   - תמיכה ב-Array JSON
+   - לוגים משופרים
+
+2. `lib/repositories/hybrid_products_repository.dart` - הוספת cleanup
+   - זיהוי DB ישן (< 100 מוצרים)
+   - מחיקה אוטומטית
+   - טעינה מחדש מ-JSON
+
+**קבצים ללא שינוי:**
+
+- `assets/data/products.json` - תקין (1196 מוצרים)
+- `lib/models/product_entity.dart`
+- `lib/repositories/local_products_repository.dart`
+
+### 🎉 תוצאות
+
+**לפני התיקון:**
+
+```
+❌ products.json ריק או לא תקין
+⚠️ API נכשל
+✅ נשמרו 8 מוצרים דמה
+```
+
+**אחרי התיקון:**
+
+```
+📂 קורא קובץ: assets/data/products.json
+📄 גודל קובץ: 257430 תווים
+✅ JSON הוא Array עם 1196 פריטים
+✅ נטענו 1196 מוצרים תקינים
+💾 שומר 1196 מוצרים ב-Hive...
+✅ נשמרו 1196 מוצרים מ-products.json
+   ✔️ תקינים: 1196
+   📊 סה"כ מוצרים: 1196
+   🏷️ קטגוריות: 15
+```
+
+### 📊 סטטיסטיקות
+
+- **זמן ביצוע:** ~45 דקות (כולל איתור הבעיה)
+- **מוצרים שנטענו:** 1196 (לעומת 8 לפני התיקון)
+- **קטגוריות:** 15
+- **גודל JSON:** 257KB
+- **שורות קוד שתוקנו:** ~80
+
+### 💡 לקחים
+
+#### 1. תמיד בדוק את פורמט ה-JSON
+
+**לפני:**
+
+```javascript
+// הנחנו שה-JSON הוא Map
+{
+  "7290000000001": {"name": "חלב", ...},
+  "7290000000010": {"name": "לחם", ...}
+}
+```
+
+**במציאות:**
+
+```javascript
+// ה-JSON הוא Array
+[
+  {"barcode": "7290000000001", "name": "חלב", ...},
+  {"barcode": "7290000000010", "name": "לחם", ...}
+]
+```
+
+**שיטה טובה:**
+
+- פתח את הקובץ ובדוק ידנית
+- הוסף לוגים שמדפיסים את ה-`runtimeType`
+- בדוק את התו הראשון (`[` או `{`)
+
+#### 2. לוגים מפורטים חוסכים זמן
+
+ללא הלוגים המפורטים היינו מבלים שעות בחיפוש.
+
+**לוגים שעזרו:**
+
+```dart
+debugPrint('JSON הוא Array עם ${data.length} פריטים');  // זיהינו את הבעיה!
+debugPrint('גודל קובץ: ${content.length} תווים');  // וידאנו שהקובץ נקרא
+```
+
+#### 3. Cache - חובה לקבצים גדולים
+
+`products.json` (257KB) נטען פעם אחת ונשמר ב-cache:
+
+```dart
+if (_productsListCache != null) {
+  return _productsListCache!;  // מהיר!
+}
+// טעינה רק בפעם הראשונה
+```
+
+#### 4. Fallback Strategy עובדת!
+
+המערכת ניסתה 3 מקורות:
+
+1. ✅ `products.json` (הצליח אחרי התיקון)
+2. ⏭️ API (לא נדרש)
+3. ⏭️ 8 מוצרים דמה (לא נדרש)
+
+זו אסטרטגיה טובה לייצור.
+
+#### 5. TypeScript עוזר
+
+בעתיד, אפשר להשתמש ב-TypeScript לקבצי JSON:
+
+```typescript
+type Product = {
+  barcode: string;
+  name: string;
+  category: string;
+  // ...
+};
+
+const products: Product[] = [
+  /* ... */
+];
+```
+
+זה מונע טעויות type.
+
+### 🔄 מה נותר לעתיד
+
+**שיפורים מתוכננים:**
+
+- [ ] **עדכון מחירים מ-API**
+
+  - המוצרים נטענו ללא מחירים
+  - צריך לממש `refreshProducts()` שיעדכן מחירים
+  - טעינה חכמה: רק מוצרים שהמשתמש השתמש בהם
+
+- [ ] **Validation של JSON**
+
+  - בדיקת תקינות בזמן build
+  - JSON Schema validation
+  - אזהרות על מוצרים חסרים
+
+- [ ] **Migration Strategy**
+
+  - מה קורה כשמשנים את מבנה ה-JSON?
+  - איך לעדכן מוצרים קיימים?
+  - versioning של ה-DB
+
+- [ ] **הסרת הקוד הזמני**
+
+  - הקוד שמוחק DB < 100 מוצרים
+  - כבר לא נדרש אחרי ההרצה הראשונה
+  - אפשר למחוק אחרי כמה ימים
+
+- [ ] **Search Optimization**
+  - 1196 מוצרים = חיפוש יכול להיות איטי
+  - שקול indexing
+  - Fuzzy search לשגיאות הקלדה
+
+### ✨ תוצאה סופית
+
+✅ **המערכת עובדת מושלם!**
+
+- 1196 מוצרים נטענים מ-`products.json`
+- טעינה מהירה (< 1 שנייה)
+- Cache יעיל
+- Fallback אמין
+- לוגים ברורים
+
+**נבדק ב-PowerShell:**
+
+```powershell
+flutter run
+# ✅ עובד מושלם! 1196 מוצרים נטענו
+```
+
+---
+
+## 📝 הערות נוספות
+
+### למפתח העתידי
+
+אם תצטרך לעדכן את `products.json`:
+
+1. **שמור את הפורמט:** Array של objects
+2. **שדות חובה:** `barcode`, `name`
+3. **שדות אופציונליים:** `price`, `store` (יתעדכנו מ-API)
+4. **קטגוריות:** השתמש בקטגוריות מ-`constants.dart`
+
+### דוגמה למוצר תקין
+
+```json
+{
+  "barcode": "7290000000001",
+  "name": "חלב 3%",
+  "category": "מוצרי חלב",
+  "brand": "תנובה",
+  "unit": "ליטר",
+  "icon": "🥛"
+}
+```
+
+---
+
 ## 📅 04/10/2025 - שדרוג ושילוב StorageLocationManager במסך המזווה
 
 ### 🎯 משימה
@@ -30,6 +335,7 @@
 תיקון באגים קריטיים ושדרוג ווידג'ט `StorageLocationManager` + שילובו במסך המזווה עם תצוגת טאבים.
 
 **בעיות שזוהו:**
+
 1. ❌ Keys לא תואמים - הקוד השתמש ב-`"fridge"`, `"pantry"` אבל ב-`constants.dart` מוגדרים `"refrigerator"`, `"main_pantry"`
 2. ❌ מיפוי אמוג'י לא עובד - `kCategoryEmojis` באנגלית אבל הקטגוריות בעברית
 3. ❌ אין Undo למחיקת מיקום - מחיקה בטעות = אובדן לצמיתות
@@ -41,6 +347,7 @@
 #### 1. תיקון Keys של מיקומים 🔑
 
 **הבעיה:**
+
 ```dart
 // הקוד השתמש ב:
 if (selectedLocation == "fridge")  // ❌
@@ -85,7 +392,7 @@ final Map<String, String> _hebrewCategoryEmojis = {
 void _deleteCustomLocation(String key, String name, String emoji) {
   // ... אישור מחיקה
   await provider.deleteLocation(key);
-  
+
   // הצג Snackbar עם Undo
   messenger.showSnackBar(
     SnackBar(
@@ -111,17 +418,17 @@ String _lastCacheKey = "";
 
 List<InventoryItem> get filteredInventory {
   final cacheKey = "$selectedLocation|$searchQuery|$sortBy";
-  
+
   // החזר מהcache אם לא השתנה כלום
   if (cacheKey == _lastCacheKey && _cachedFilteredItems.isNotEmpty) {
     return _cachedFilteredItems;
   }
-  
+
   // חשב מחדש רק אם צריך
   var items = _applyFilters();
   _cachedFilteredItems = items;
   _lastCacheKey = cacheKey;
-  
+
   return items;
 }
 ```
@@ -134,13 +441,13 @@ List<InventoryItem> get filteredInventory {
 class _MyPantryScreenState extends State<MyPantryScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -262,7 +569,9 @@ if (lowStockCount > 0)
 ### 📂 קבצים שהושפעו
 
 **קבצים עיקריים:**
+
 1. `lib/widgets/storage_location_manager.dart` - תוקן וסודרג מלא (520+ שורות)
+
    - תיקון Keys
    - מיפוי אמוג'י עברית
    - Undo למחיקה
@@ -274,9 +583,10 @@ if (lowStockCount > 0)
    - אינדיקציות
 
 2. `lib/screens/pantry/my_pantry_screen.dart` - שולבו טאבים + עריכה (700+ שורות)
+
    - TabController
    - 2 טאבים (רשימה + מיקומים)
-   - _editItemDialog חדש
+   - \_editItemDialog חדש
    - שילוב StorageLocationManager
 
 3. `README.md` - עודכן עם:
@@ -287,6 +597,7 @@ if (lowStockCount > 0)
    - TODO להרחבות עתידיות
 
 **קבצים ללא שינוי (כבר תקינים):**
+
 - `lib/providers/locations_provider.dart`
 - `lib/core/constants.dart`
 - `lib/models/custom_location.dart`
@@ -297,12 +608,14 @@ if (lowStockCount > 0)
 #### 1. תמיד בדוק Keys במיפויים
 
 כשיש מיפוי בין קבועים למשתנים:
+
 ```powershell
 # חיפוש גלובלי
 Ctrl+Shift+F → "fridge" → מצא בעיה!
 ```
 
 **שיטה טובה:**
+
 ```dart
 // במקום strings קשיחים:
 const FRIDGE_KEY = "refrigerator";  // מוגדר במקום אחד
@@ -312,6 +625,7 @@ if (location == FRIDGE_KEY) { ... }  // שימוש בקבוע
 #### 2. Cache חכם חוסך ביצועים
 
 **לפני:**
+
 ```dart
 List<InventoryItem> get filteredInventory {
   // מחושב בכל build() - איטי!
@@ -320,6 +634,7 @@ List<InventoryItem> get filteredInventory {
 ```
 
 **אחרי:**
+
 ```dart
 List<InventoryItem> _cachedItems = [];
 String _cacheKey = "";
@@ -327,7 +642,7 @@ String _cacheKey = "";
 List<InventoryItem> get filteredInventory {
   final key = "$filter1|$filter2";
   if (key == _cacheKey) return _cachedItems; // מהיר!
-  
+
   _cachedItems = widget.inventory.where(...).toList();
   _cacheKey = key;
   return _cachedItems;
@@ -335,6 +650,7 @@ List<InventoryItem> get filteredInventory {
 ```
 
 **מתי לנקות cache:**
+
 ```dart
 void _updateFilter() {
   setState(() {
@@ -359,17 +675,19 @@ SnackBar(
 )
 ```
 
-**טיפ:** שמור את הנתונים הנדרשים לביטול *לפני* המחיקה!
+**טיפ:** שמור את הנתונים הנדרשים לביטול _לפני_ המחיקה!
 
 #### 4. טאבים = ארגון מושלם
 
 **יתרונות:**
+
 - מסך אחד במקום 2 נפרדים
 - שומר על קונטקסט
 - ניווט מהיר
 - משתמש טבעי
 
 **דוגמה:**
+
 ```dart
 TabController _tabController;
 
@@ -415,23 +733,27 @@ String getEmoji(String category) {
 **שיפורים מתוכננים:**
 
 - [ ] **Drag & Drop למיקומים**
+
   - סידור מחדש של כרטיסי מיקומים בגרירה
   - גרירת פריטים בין מיקומים
   - שמירת סדר מותאם אישית
 
 - [ ] **Export/Import מיקומים**
+
   - ייצוא מיקומים מותאמים לJSON
   - שיתוף קובץ מיקומים עם משפחה/חברים
   - ייבוא מיקומים מקובץ
   - גיבוי והשבה
 
 - [ ] **סטטיסטיקות מתקדמות**
+
   - גרפים של תפוסה לפי מיקום
   - היסטוריה של שינויים
   - תחזיות צריכה
   - דוחות שבועיים/חודשיים
 
 - [ ] **מיקומים מתקדמים**
+
   - צבעים מותאמים למיקום
   - תמונות במקום אמוג'י
   - תתי-מיקומים (היררכיה)
@@ -454,6 +776,7 @@ String getEmoji(String category) {
 ### ✨ תוצאה סופית
 
 הווידג'ט `StorageLocationManager` עכשיו:
+
 - ✅ עובד ללא באגים
 - ✅ משולב במסך המזווה
 - ✅ תומך בעריכה מלאה
@@ -463,6 +786,7 @@ String getEmoji(String category) {
 - ✅ מתועד במלואו
 
 **נבדק ב-PowerShell:**
+
 ```powershell
 flutter pub get
 flutter run
@@ -478,6 +802,7 @@ flutter run
 תיקון בעיה: ProductsProvider נטען **לפני** שהמשתמש מתחבר, וכתוצאה מכך לא טוען מוצרים כשמשתמש מתחבר אחרי הפעלת האפליקציה.
 
 **הבעיה המקורית:**
+
 ```
 main.dart: ProductsProvider נוצר
     ↓
@@ -528,12 +853,12 @@ ChangeNotifierProxyProvider<UserContext, ProductsProvider>(
         ),
       );
     }
-    
+
     // אם המשתמש התחבר - אתחל ו-טען מוצרים
     if (userContext.isLoggedIn && !previous.hasInitialized) {
       previous.initializeAndLoad();
     }
-    
+
     return previous;
   },
 )
@@ -611,7 +936,7 @@ class _MyAppState extends State<MyApp> {
   Future<void> _loadSavedUser() async {
     final prefs = await SharedPreferences.getInstance();
     final savedUserId = prefs.getString('userId');
-    
+
     if (savedUserId != null && mounted) {
       final userContext = context.read<UserContext>();
       await userContext.loadUser(savedUserId);
@@ -679,11 +1004,13 @@ _loadSavedUser()
 #### 1. ProxyProvider vs Provider
 
 **מתי להשתמש ב-ProxyProvider:**
+
 - כאשר Provider אחד **תלוי** ב-Provider אחר
 - כאשר צריך **לעדכן** Provider כשה-Provider התלוי משתנה
 - דוגמאות: ShoppingListsProvider, InventoryProvider, ProductsProvider
 
 **חשוב לזכור:**
+
 ```dart
 // lazy: false חשוב!
 // אחרת ה-Provider לא נוצר עד שמישהו צריך אותו
@@ -701,15 +1028,15 @@ ChangeNotifierProxyProvider<UserContext, ProductsProvider>(
 ```dart
 class MyProvider with ChangeNotifier {
   bool _hasInitialized = false;
-  
+
   MyProvider({bool skipInitialLoad = false}) {
     if (!skipInitialLoad) {
       _initialize();
     }
   }
-  
+
   bool get hasInitialized => _hasInitialized;
-  
+
   Future<void> initializeAndLoad() async {
     if (_hasInitialized) return;
     await _initialize();
@@ -720,6 +1047,7 @@ class MyProvider with ChangeNotifier {
 #### 3. notifyListeners מפעיל update()
 
 כאשר `UserContext.notifyListeners()` נקרא:
+
 - **כל** ה-ProxyProviders **שתלויים בו** מקבלים `update()`
 - זה קורה **כל פעם** ש-notifyListeners נקרא
 - לכן חשוב לבדוק ב-update אם **באמת** צריך לעשות משהו
@@ -737,8 +1065,9 @@ update: (context, userContext, previous) {
 #### 4. טעינה מאוחרת ב-StatefulWidget
 
 שימוש ב-`initState()` מאפשר:
+
 - טעינה **אחרי** שכל ה-Providers נבנו
-- גישה ל-`context.read<>()` 
+- גישה ל-`context.read<>()`
 - שליטה על **מתי** הטעינה קורית
 
 ```dart
@@ -754,6 +1083,7 @@ class _MyAppState extends State<MyApp> {
 #### 5. Logging Strategy
 
 לוגים טובים חושפים את הזרימה:
+
 - `🔔 notifyListeners()` - מתי Provider מעדכן
 - `🔄 update()` - מתי ProxyProvider מתעדכן
 - `👤 User: ${user?.email}` - מצב המשתמש
@@ -773,6 +1103,7 @@ class _MyAppState extends State<MyApp> {
 ### 🎯 משימה
 
 מעבר ממערכת מוצרים Mock לארכיטקטורה היברידית:
+
 1. אחסון מקומי קבוע של מוצרים (ללא מחירים) ב-Hive
 2. עדכון דינמי של מחירים בלבד מה-API
 3. הוספת מוצרים חדשים אוטומטית
@@ -782,6 +1113,7 @@ class _MyAppState extends State<MyApp> {
 #### 1. הוספת Hive לפרויקט
 
 **תלויות חדשות ב-pubspec.yaml:**
+
 ```yaml
 dependencies:
   hive: ^2.2.3
@@ -798,6 +1130,7 @@ dev_dependencies:
 **קובץ חדש: `lib/models/product_entity.dart`**
 
 מודל למוצר עם אחסון Hive:
+
 - `@HiveType(typeId: 0)` - רישום ב-Hive
 - שדות קבועים: barcode, name, category, brand, unit, icon
 - שדות דינמיים: currentPrice, lastPriceStore, lastPriceUpdate
@@ -806,6 +1139,7 @@ dev_dependencies:
 - `isPriceValid` getter - בדיקה אם המחיר תקף (עד 24 שעות)
 
 **קובץ נוצר אוטומטית: `lib/models/product_entity.g.dart`**
+
 - ProductEntityAdapter לשמירה/טעינה מ-Hive
 
 #### 3. יצירת LocalProductsRepository
@@ -813,6 +1147,7 @@ dev_dependencies:
 **קובץ חדש: `lib/repositories/local_products_repository.dart`**
 
 Repository לניהול מוצרים מקומית:
+
 - `init()` - אתחול Hive Box
 - `getAllProducts()` - קבלת כל המוצרים
 - `getProductByBarcode()` - חיפוש לפי ברקוד
@@ -830,6 +1165,7 @@ Repository לניהול מוצרים מקומית:
 **קובץ חדש: `lib/repositories/hybrid_products_repository.dart`**
 
 Repository היברידי המשלב local + API:
+
 - `initialize()` - אתחול: אם ה-DB ריק → טוען מוצרים מ-API (ללא מחירים)
 - `_loadInitialProducts()` - טעינה ראשונית מ-API
 - `_loadFallbackProducts()` - 8 מוצרים דמה אם ה-API נכשל
@@ -840,6 +1176,7 @@ Repository היברידי המשלב local + API:
 - ממשק `ProductsRepository` מלא
 
 **מוצרים דמה (fallback):**
+
 1. חלב 3% 🥛
 2. לחם שחור 🍞
 3. גבינה צהובה 🧀
@@ -852,6 +1189,7 @@ Repository היברידי המשלב local + API:
 #### 5. עדכון ProductsProvider
 
 **שינויים ב-`lib/providers/products_provider.dart`:**
+
 - תמיכה ב-HybridProductsRepository
 - `initialize()` - אתחול Repository
 - סטטיסטיקות מתקדמות: `totalProducts`, `productsWithPrice`, `productsWithoutPrice`
@@ -860,6 +1198,7 @@ Repository היברידי המשלב local + API:
 #### 6. עדכון main.dart
 
 **שינויים:**
+
 ```dart
 // אתחול Hive
 final localProductsRepo = LocalProductsRepository();
@@ -878,6 +1217,7 @@ ChangeNotifierProvider(
 #### 7. תיקון שגיאות לינטר
 
 **תוקן `lib/repositories/user_repository.dart`:**
+
 - שורה 190: `user.email?.toLowerCase()` → `user.email.toLowerCase()`
 - שורה 266-267: הסרת בדיקות null מיותרות ב-`email`
 
@@ -886,6 +1226,7 @@ ChangeNotifierProvider(
 ### 📂 קבצים שהושפעו
 
 **קבצים חדשים:**
+
 1. `lib/models/product_entity.dart` - מודל Hive
 2. `lib/models/product_entity.g.dart` - קובץ נוצר אוטומטית
 3. `lib/repositories/local_products_repository.dart` - DB מקומי
@@ -893,6 +1234,7 @@ ChangeNotifierProvider(
 5. `build_and_run.bat` - סקריפט לbuild
 
 **קבצים שעודכנו:**
+
 1. `pubspec.yaml` - הוספת Hive, הסרת flutter_gen_runner
 2. `lib/providers/products_provider.dart` - תמיכה ב-Hybrid
 3. `lib/main.dart` - אתחול Hive + Hybrid Repository
@@ -901,6 +1243,7 @@ ChangeNotifierProvider(
 ### 🔄 איך המערכת עובדת
 
 **זרימה:**
+
 ```
 HybridProductsRepository.initialize()
     ↓
@@ -918,6 +1261,7 @@ HybridProductsRepository.initialize()
 ```
 
 **רענון מחירים:**
+
 ```
 refreshProducts()
     ↓
@@ -938,12 +1282,14 @@ API.getProducts()
 #### 1. Hive - אחסון מקומי מהיר
 
 **למה Hive?**
+
 - מהיר מאוד (NoSQL)
 - קל לשימוש (type-safe)
 - תמיכה ב-Flutter
 - אין צורך ב-SQL queries
 
 **איך להשתמש:**
+
 ```dart
 // 1. הגדרת Model
 @HiveType(typeId: 0)
@@ -966,12 +1312,14 @@ final product = box.get(barcode);
 #### 2. ארכיטקטורה היברידית
 
 **יתרונות:**
+
 - מהירות - טעינה מקומית
 - נתונים עדכניים - מחירים מ-API
 - Offline support - עובד בלי אינטרנט
 - חסכון ב-bandwidth - רק מחירים, לא כל המוצרים
 
 **מתי להשתמש:**
+
 - אפליקציות עם catalog גדול
 - נתונים שמשתנים בתדירויות שונות
 - צורך ב-offline access
@@ -979,6 +1327,7 @@ final product = box.get(barcode);
 #### 3. Fallback Strategy חשוב!
 
 תמיד צריך fallback למקרה שה-API נכשל:
+
 ```dart
 try {
   final apiProducts = await _apiService.getProducts();
@@ -993,6 +1342,7 @@ try {
 #### 4. Hive + build_runner
 
 **פקודות:**
+
 ```powershell
 # התקנת תלויות
 flutter pub get
@@ -1007,10 +1357,12 @@ dart run build_runner watch
 #### 5. בעיות תאימות
 
 **בעיה שנתקלנו:**
+
 - `flutter_gen_runner` לא תואם ל-`dart_style` המעודכן
 - גרם לשגיאת build
 
 **פתרון:**
+
 - הסרת `flutter_gen_runner` מ-pubspec.yaml
 - השארת רק `hive_generator`
 

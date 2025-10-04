@@ -1,10 +1,10 @@
-// 📄 File: lib/screens/shopping/active_shopping_screen.dart - FIXED
+// 📄 File: lib/screens/shopping/active_shopping_screen.dart - FIXED v2
 //
 // ✅ תיקונים קריטיים:
-// 1. חיבור מלא ל-ShoppingListsProvider
-// 2. שימוש ברשימה אמיתית מה-Provider במקום SharedPreferences
-// 3. עדכון הרשימה דרך Provider (לא ישירות)
-// 4. סנכרון אוטומטי עם שאר המערכת
+// 1. context.watch מועבר ל-build (לא בפונקציה נפרדת)
+// 2. enum לסטטוס פריט במקום strings
+// 3. null safety מלא
+// 4. validation טוב יותר
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,11 +14,23 @@ import '../../models/receipt.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../theme/app_theme.dart';
 
+/// 🇮🇱 סטטוס פריט - enum מובנה במקום strings
+enum ItemStatus {
+  pending,
+  taken;
+
+  bool get isTaken => this == ItemStatus.taken;
+}
+
 class ActiveShoppingScreen extends StatefulWidget {
   final String listName;
   final String? listId;
 
-  const ActiveShoppingScreen({super.key, required this.listName, this.listId});
+  const ActiveShoppingScreen({
+    super.key,
+    required this.listName,
+    this.listId,
+  });
 
   @override
   State<ActiveShoppingScreen> createState() => _ActiveShoppingScreenState();
@@ -31,24 +43,11 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
   ShoppingList? _lastState;
   String? _lastActionMessage;
 
-  @override
-  void initState() {
-    super.initState();
-    // הנתונים יגיעו מה-Provider, לא צריך לטעון ידנית
-  }
-
-  /// ✅ קבלת הרשימה הנוכחית מה-Provider
-  ShoppingList? _getCurrentList(BuildContext context) {
-    if (widget.listId == null) return null;
-    final provider = context.watch<ShoppingListsProvider>();
-    return provider.getById(widget.listId!);
-  }
-
   /// ✅ עדכון פריט דרך Provider
   Future<void> _updateItemStatus(
     ShoppingList list,
     int index,
-    String newStatus,
+    ItemStatus newStatus,
   ) async {
     final provider = context.read<ShoppingListsProvider>();
 
@@ -57,7 +56,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
 
     // עדכון הפריט
     final updatedItem = list.items[index].copyWith(
-      isChecked: newStatus == 'taken',
+      isChecked: newStatus.isTaken,
     );
 
     // עדכון הרשימה דרך Provider
@@ -144,16 +143,14 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     );
   }
 
-  /// קיבוץ פריטים לפי קטגוריה
-  Map<String, List<MapEntry<int, ReceiptItem>>> _groupByCategory(
+  /// קיבוץ פריטים לפי אות ראשונה
+  Map<String, List<MapEntry<int, ReceiptItem>>> _groupByFirstLetter(
     List<ReceiptItem> items,
   ) {
     final map = <String, List<MapEntry<int, ReceiptItem>>>{};
 
     for (int i = 0; i < items.length; i++) {
       final item = items[i];
-
-      // קיבוץ לפי אות ראשונה של השם (במקום קטגוריה)
       final firstLetter = item.name.isNotEmpty
           ? item.name[0].toUpperCase()
           : '#';
@@ -166,7 +163,12 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
   }
 
   /// בניית שורת פריט
-  Widget _buildItemRow(BuildContext context, int index, ReceiptItem item) {
+  Widget _buildItemRow(
+    BuildContext context,
+    ShoppingList list,
+    int index,
+    ReceiptItem item,
+  ) {
     final cs = Theme.of(context).colorScheme;
     final isChecked = item.isChecked;
 
@@ -174,10 +176,11 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       leading: Checkbox(
         value: isChecked,
         onChanged: (val) {
-          final list = _getCurrentList(context);
-          if (list != null) {
-            _updateItemStatus(list, index, val == true ? 'taken' : 'pending');
-          }
+          _updateItemStatus(
+            list,
+            index,
+            val == true ? ItemStatus.taken : ItemStatus.pending,
+          );
         },
       ),
       title: Text(
@@ -189,7 +192,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       ),
       subtitle: Text('כמות: ${item.quantity}'),
       trailing: isChecked
-          ? Icon(Icons.check_circle, color: Colors.green)
+          ? const Icon(Icons.check_circle, color: Colors.green)
           : Icon(Icons.radio_button_unchecked, color: cs.outline),
     );
   }
@@ -204,6 +207,37 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     );
   }
 
+  /// בניית מסך שגיאה
+  Widget _buildErrorScreen(String message) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: AppBar(
+        title: const Text('שגיאה'),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            const SizedBox(height: 16),
+            Text(
+              message,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.arrow_back),
+              label: const Text('חזור'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -211,8 +245,14 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     final brand = theme.extension<AppBrand>();
     final accent = brand?.accent ?? cs.primary;
 
-    // ✅ קבלת הרשימה מה-Provider
-    final list = _getCurrentList(context);
+    // ✅ בדיקת null safety
+    if (widget.listId == null) {
+      return _buildErrorScreen('לא סופק מזהה רשימה');
+    }
+
+    // ✅ קבלת הרשימה ישירות מה-Provider (context.watch ב-build)
+    final provider = context.watch<ShoppingListsProvider>();
+    final list = provider.getById(widget.listId!);
 
     if (isLoading) {
       return Scaffold(
@@ -222,30 +262,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     }
 
     if (list == null) {
-      return Scaffold(
-        backgroundColor: cs.surface,
-        appBar: AppBar(title: const Text('שגיאה'), backgroundColor: cs.surface),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.error_outline, size: 64, color: Colors.red),
-              const SizedBox(height: 16),
-              const Text(
-                'הרשימה לא נמצאה',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              const Text('אנא חזור למסך הרשימות'),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('חזור'),
-              ),
-            ],
-          ),
-        ),
-      );
+      return _buildErrorScreen('הרשימה לא נמצאה');
     }
 
     // חישוב סטטיסטיקות
@@ -254,8 +271,8 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     final pendingCount = totalItems - takenCount;
     final progress = totalItems > 0 ? takenCount / totalItems : 0.0;
 
-    // קיבוץ לפי קטגוריות
-    final groupedItems = _groupByCategory(list.items);
+    // קיבוץ לפי אות ראשונה
+    final groupedItems = _groupByFirstLetter(list.items);
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -316,67 +333,90 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
 
           // רשימת פריטים מקובצת
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: groupedItems.entries.map((entry) {
-                final category = entry.key;
-                final items = entry.value;
-
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: ExpansionTile(
-                    title: Text(
-                      category,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+            child: totalItems == 0
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.shopping_cart_outlined,
+                            size: 64, color: cs.outline),
+                        const SizedBox(height: 16),
+                        Text(
+                          'הרשימה ריקה',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
-                    subtitle: Text('${items.length} פריטים'),
-                    children: [
-                      const Divider(height: 1),
-                      ...items.map(
-                        (entry) =>
-                            _buildItemRow(context, entry.key, entry.value),
-                      ),
-                      const SizedBox(height: 8),
-                    ],
+                  )
+                : ListView(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    children: groupedItems.entries.map((entry) {
+                      final letter = entry.key;
+                      final items = entry.value;
+
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        child: ExpansionTile(
+                          title: Text(
+                            letter,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          subtitle: Text('${items.length} פריטים'),
+                          initiallyExpanded: true,
+                          children: [
+                            const Divider(height: 1),
+                            ...items.map(
+                              (entry) => _buildItemRow(
+                                context,
+                                list,
+                                entry.key,
+                                entry.value,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                          ],
+                        ),
+                      );
+                    }).toList(),
                   ),
-                );
-              }).toList(),
-            ),
           ),
         ],
       ),
 
       // כפתורי פעולה מהירים
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: pendingCount == 0
-                    ? null
-                    : () => _markAllAsTaken(list),
-                icon: const Icon(Icons.done_all),
-                label: const Text('סמן הכל'),
+      bottomNavigationBar: totalItems == 0
+          ? null
+          : Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: pendingCount == 0 ? null : () => _markAllAsTaken(list),
+                      icon: const Icon(Icons.done_all),
+                      label: const Text('סמן הכל'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: takenCount == 0 ? null : () => _resetAllStatuses(list),
+                      icon: const Icon(Icons.restart_alt),
+                      label: const Text('איפוס'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: accent,
+                        foregroundColor: Colors.black,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: ElevatedButton.icon(
-                onPressed: takenCount == 0
-                    ? null
-                    : () => _resetAllStatuses(list),
-                icon: const Icon(Icons.restart_alt),
-                label: const Text('איפוס'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: accent,
-                  foregroundColor: Colors.black,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

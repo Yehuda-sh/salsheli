@@ -1,10 +1,10 @@
 // 📄 File: lib/main.dart
 // תיאור: נקודת כניסה ראשית לאפליקציה + הגדרת Providers
 //
-// עדכון חדש:
-// ✅ טעינת משתמש אוטומטית מ-SharedPreferences בהפעלת האפליקציה
-// ✅ UserContext מקבל את ה-userId ומטען את המשתמש מיד
-// ✅ תיקון imports ו-routes
+// ✅ עדכון חדש:
+// - שימוש ב-HybridProductsRepository במקום Firebase
+// - אתחול Hive לפני הרצת האפליקציה
+// - טעינת משתמש אוטומטית מ-SharedPreferences
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -30,7 +30,8 @@ import 'repositories/local_shopping_lists_repository.dart';
 import 'repositories/inventory_repository.dart';
 import 'repositories/receipt_repository.dart';
 import 'repositories/user_repository.dart';
-import 'repositories/firebase_products_repository.dart';
+import 'repositories/local_products_repository.dart';  // 🆕
+import 'repositories/hybrid_products_repository.dart';  // 🆕
 
 // Screens
 import 'screens/index_screen.dart';
@@ -52,7 +53,7 @@ import 'screens/shopping/shopping_summary_screen.dart';
 import 'screens/auth/login_screen.dart' as auth_login;
 import 'screens/auth/register_screen.dart' as auth_register;
 
-// Theme - ✅ תיקון import
+// Theme
 import 'theme/app_theme.dart';
 
 void main() async {
@@ -62,16 +63,43 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // 🔥 Firebase initialization
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  debugPrint('✅ Firebase initialized successfully');
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    debugPrint('✅ Firebase initialized successfully');
+  } catch (e) {
+    debugPrint('⚠️ Firebase initialization failed: $e');
+    debugPrint('   (ממשיך בלי Firebase - נשתמש רק ב-Hive)');
+  }
 
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
     debugPrint('Flutter Error: ${details.exception}');
   };
 
-  // ✅ אתחול FirebaseProductsRepository
-  final firebaseProductsRepo = FirebaseProductsRepository();
+  // 🆕 אתחול Hive + Hybrid Repository
+  debugPrint('\n💾 מאתחל LocalProductsRepository...');
+  final localRepo = LocalProductsRepository();
+  
+  try {
+    await localRepo.init();
+    debugPrint('✅ LocalProductsRepository מוכן');
+    debugPrint('   📊 מוצרים קיימים: ${localRepo.totalProducts}');
+  } catch (e) {
+    debugPrint('❌ שגיאה באתחול LocalProductsRepository: $e');
+    debugPrint('   ממשיך בכל זאת...');
+  }
+
+  // 🆕 יצירת Hybrid Repository
+  debugPrint('\n🔀 יוצר HybridProductsRepository...');
+  final hybridRepo = HybridProductsRepository(
+    localRepo: localRepo,
+  );
+  debugPrint('✅ HybridProductsRepository מוכן');
+
+  debugPrint('\n═══════════════════════════════════════════');
+  debugPrint('🎯 מפעיל את האפליקציה...\n');
 
   runApp(
     MultiProvider(
@@ -81,13 +109,13 @@ void main() async {
           create: (_) => UserContext(repository: MockUserRepository()),
         ),
 
-        // === Products Provider === 🔥 Firebase Repository
+        // === Products Provider === 🆕 Hybrid Repository
         ChangeNotifierProvider(
-          lazy: false, // 🔥 טוען מיד!
+          lazy: false, // טוען מיד!
           create: (_) {
-            debugPrint('\n🏗️ main.dart: יוצר ProductsProvider עם Firebase...');
-            final provider = ProductsProvider(repository: firebaseProductsRepo);
-            debugPrint('✅ main.dart: ProductsProvider נוצר (Firebase)');
+            debugPrint('\n🏗️ main.dart: יוצר ProductsProvider עם Hybrid...');
+            final provider = ProductsProvider(repository: hybridRepo);
+            debugPrint('✅ main.dart: ProductsProvider נוצר (Hybrid)');
             return provider;
           },
         ),
@@ -249,8 +277,6 @@ class _MyAppState extends State<MyApp> {
         '/shopping-lists': (context) => const ShoppingListsScreen(),
       },
       onGenerateRoute: (settings) {
-        // ✅ תיקון: populate-list
-        // ✅ populate-list - מקבל ShoppingList object
         // shopping-summary - מקבל listId
         if (settings.name == '/shopping-summary') {
           final listId = settings.arguments as String?;
@@ -264,7 +290,7 @@ class _MyAppState extends State<MyApp> {
             builder: (_) => ShoppingSummaryScreen(listId: listId),
           );
         }
-        // ✅ תיקון: manage-list - צריך רק list (ShoppingList)
+        // manage-list - צריך רק list (ShoppingList)
         if (settings.name == '/manage-list') {
           final args = settings.arguments as Map<String, dynamic>?;
           final list = args?['list'] as ShoppingList?;
@@ -280,7 +306,7 @@ class _MyAppState extends State<MyApp> {
           );
         }
 
-        // ✅ active-shopping - מקבל listName ו-listId
+        // active-shopping - מקבל listName ו-listId
         if (settings.name == '/active-shopping') {
           final list = settings.arguments as ShoppingList?;
           if (list == null) {
@@ -295,7 +321,7 @@ class _MyAppState extends State<MyApp> {
           );
         }
 
-        // ✅ list-details - מקבל ShoppingList object
+        // list-details - מקבל ShoppingList object
         if (settings.name == '/list-details') {
           final list = settings.arguments as ShoppingList?;
           if (list == null) {
@@ -309,7 +335,7 @@ class _MyAppState extends State<MyApp> {
           );
         }
 
-        // ✅ populate-list - מקבל ShoppingList object
+        // populate-list - מקבל ShoppingList object
         if (settings.name == '/populate-list') {
           final list = settings.arguments as ShoppingList?;
           if (list == null) {

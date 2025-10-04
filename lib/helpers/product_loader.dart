@@ -5,43 +5,80 @@ import 'package:flutter/foundation.dart';
 
 const String kProductsAssetPath = "assets/data/products.json";
 
-Map<String, dynamic>? _productsCache;
+List<Map<String, dynamic>>? _productsListCache;
 
-Future<Map<String, dynamic>> loadLocalProducts([
-  String assetPath = kProductsAssetPath,
-]) async {
-  if (_productsCache != null) return _productsCache!;
-  try {
-    final content = await rootBundle.loadString(assetPath);
-    final data = json.decode(content);
-    if (data is Map<String, dynamic>) {
-      _productsCache = data;
-      return data;
-    }
-  } on FlutterError catch (e) {
-    debugPrint("❌ קובץ מוצרים לא נמצא: $assetPath ($e)");
-  } on FormatException catch (e) {
-    debugPrint("❌ שגיאת פורמט JSON בקובץ מוצרים: $assetPath ($e)");
-  } catch (e) {
-    debugPrint("❌ שגיאה כללית בקריאת קובץ מוצרים: $assetPath ($e)");
-  }
-  _productsCache = {};
-  return _productsCache!;
-}
-
+/// ✅ טעינת products.json (Array של מוצרים)
 Future<List<Map<String, dynamic>>> loadProductsAsList([
   String assetPath = kProductsAssetPath,
 ]) async {
-  final map = await loadLocalProducts(assetPath);
-  return map.values.whereType<Map<String, dynamic>>().toList();
+  // החזרת cache אם קיים
+  if (_productsListCache != null) {
+    debugPrint('📦 משתמש ב-cache: ${_productsListCache!.length} מוצרים');
+    return _productsListCache!;
+  }
+  
+  try {
+    debugPrint('📂 קורא קובץ: $assetPath');
+    final content = await rootBundle.loadString(assetPath);
+    
+    debugPrint('📄 גודל קובץ: ${content.length} תווים');
+    
+    // פרסור JSON
+    final data = json.decode(content);
+    
+    if (data is List) {
+      debugPrint('✅ JSON הוא Array עם ${data.length} פריטים');
+      
+      // המרה לרשימת Map
+      _productsListCache = data
+          .whereType<Map<String, dynamic>>()
+          .toList();
+      
+      debugPrint('✅ נטענו ${_productsListCache!.length} מוצרים תקינים');
+      return _productsListCache!;
+    } else {
+      debugPrint('⚠️ JSON לא Array, זה: ${data.runtimeType}');
+      debugPrint('   תוכן: ${data.toString().substring(0, 100)}...');
+    }
+  } catch (e, stack) {
+    debugPrint("❌ שגיאה בקריאת קובץ מוצרים: $assetPath");
+    debugPrint("   שגיאה: $e");
+    debugPrint("   Stack: $stack");
+  }
+  
+  _productsListCache = [];
+  return _productsListCache!;
 }
 
+/// חיפוש מוצר לפי ברקוד
 Future<Map<String, dynamic>?> getProductByBarcode(String barcode) async {
-  final map = await loadLocalProducts();
-  final p = map[barcode];
-  return (p is Map<String, dynamic>) ? p : null;
+  final products = await loadProductsAsList();
+  
+  try {
+    return products.firstWhere(
+      (p) => p['barcode']?.toString() == barcode,
+    );
+  } catch (e) {
+    return null;
+  }
 }
 
+/// ניקוי cache
 void clearProductsCache() {
-  _productsCache = null;
+  _productsListCache = null;
+  debugPrint('🧹 product_loader cache נוקה');
+}
+
+/// תאימות לאחור - ממיר Array לMap (לפי ברקוד כמפתח)
+@deprecated
+Future<Map<String, dynamic>> loadLocalProducts([
+  String assetPath = kProductsAssetPath,
+]) async {
+  final list = await loadProductsAsList(assetPath);
+  
+  // המרה לMap: {barcode: product}
+  return {
+    for (var item in list) 
+      item['barcode']?.toString() ?? '': item
+  };
 }
