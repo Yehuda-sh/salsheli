@@ -266,6 +266,165 @@ class Mapper {
 
 ---
 
+### Splash/Index Screens
+
+- [ ] סדר בדיקות נכון: `userId` → `seenOnboarding` → `login`
+- [ ] `mounted` checks לפני כל `Navigator`
+- [ ] `try/catch` עם fallback ל-WelcomeScreen
+- [ ] Loading indicator בזמן בדיקה
+
+```dart
+// ✅ טוב - סדר נכון
+Future<void> _checkAndNavigate() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    
+    // 1️⃣ קודם: יש משתמש?
+    final userId = prefs.getString('userId');
+    if (userId != null) {
+      if (mounted) Navigator.pushReplacementNamed(context, '/home');
+      return;
+    }
+    
+    // 2️⃣ שנית: ראה onboarding?
+    final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
+    if (!seenOnboarding) {
+      if (mounted) Navigator.pushReplacement(/* WelcomeScreen */);
+      return;
+    }
+    
+    // 3️⃣ ברירת מחדל
+    if (mounted) Navigator.pushReplacementNamed(context, '/login');
+  } catch (e) {
+    debugPrint('❌ Error in splash: $e');
+    if (mounted) Navigator.pushReplacement(/* WelcomeScreen - fallback */);
+  }
+}
+
+// ❌ רע - סדר הפוך
+if (seenOnboarding) { ... }  // בדק לפני userId!
+if (userId != null) { ... }  // מאוחר מדי
+```
+
+---
+
+### Logging מפורט
+
+- [ ] **Models:** `fromJson`/`toJson` - log מה נטען/נשמר
+- [ ] **Providers:** `notifyListeners()` - log מתי ולמה
+- [ ] **ProxyProvider:** `update()` - log שינויים
+- [ ] **Services:** תוצאות חישובים וfallbacks
+- [ ] **User state:** login/logout/changes
+
+```dart
+// ✅ Models - logging בserialization
+factory User.fromJson(Map<String, dynamic> json) {
+  debugPrint('📥 User.fromJson: ${json["email"]}');
+  return _$UserFromJson(json);
+}
+
+Map<String, dynamic> toJson() {
+  debugPrint('📤 User.toJson: $email');
+  return _$UserToJson(this);
+}
+
+// ✅ Providers - logging בעדכונים
+void updateItems(List<Item> items) {
+  _items = items;
+  debugPrint('🔔 ItemsProvider.notifyListeners: ${items.length} items');
+  notifyListeners();
+}
+
+// ✅ ProxyProvider - logging בupdate
+update: (context, userContext, previous) {
+  debugPrint('🔄 ProductsProvider.update()');
+  debugPrint('   👤 User: ${userContext.user?.email ?? "guest"}');
+  debugPrint('   🔐 isLoggedIn: ${userContext.isLoggedIn}');
+  
+  if (userContext.isLoggedIn && !previous.hasInitialized) {
+    debugPrint('   ✅ Calling initializeAndLoad()');
+    previous.initializeAndLoad();
+  }
+  return previous;
+}
+
+// ✅ Services - logging תוצאות
+static Stats calculate(List<Item> items) {
+  debugPrint('📊 StatsService.calculate()');
+  if (items.isEmpty) {
+    debugPrint('   ⚠️ אין נתונים - fallback');
+    return Stats.empty();
+  }
+  final result = /* חישוב */;
+  debugPrint('   ✅ תוצאה: $result');
+  return result;
+}
+```
+
+---
+
+### Navigation & Async
+
+- [ ] `push` - מוסיף לstack (חזרה אפשרית)
+- [ ] `pushReplacement` - מחליף (אין חזרה)
+- [ ] `pushAndRemoveUntil` - מנקה stack מלא
+- [ ] **Context בDialogs:** שמור `dialogContext` נפרד
+- [ ] סגור dialogs **לפני** async operations
+- [ ] `mounted` check אחרי async
+
+```dart
+// ✅ טוב - Context נכון בDialog
+showDialog(
+  context: context,
+  builder: (dialogContext) => AlertDialog(  // ← dialogContext!
+    actions: [
+      ElevatedButton(
+        onPressed: () async {
+          Navigator.pop(dialogContext);  // סגור קודם!
+          
+          await _performOperation();  // async
+          
+          if (!context.mounted) return;  // בדוק mounted
+          ScaffoldMessenger.of(context).showSnackBar(/* ... */);
+        },
+      ),
+    ],
+  ),
+);
+
+// ❌ רע - context אחרי async
+showDialog(
+  builder: (context) => AlertDialog(
+    actions: [
+      ElevatedButton(
+        onPressed: () async {
+          await _operation();
+          Navigator.pop(context);  // ❌ context עלול להיות invalid!
+        },
+      ),
+    ],
+  ),
+);
+
+// ✅ Back button - double press לצאת
+DateTime? _lastBackPress;
+
+Future<bool> _onWillPop() async {
+  final now = DateTime.now();
+  if (_lastBackPress == null || 
+      now.difference(_lastBackPress!) > Duration(seconds: 2)) {
+    _lastBackPress = now;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('לחץ שוב לצאת')),
+    );
+    return false;
+  }
+  return true;
+}
+```
+
+---
+
 ## 🎨 UI Specifics
 
 **Touch Targets:** 48x48 מינימום  
@@ -280,9 +439,10 @@ class Mapper {
 **Ctrl+F חפש:**
 - `dart:html` → ❌
 - `localStorage` → ❌
-- `Platform.is` → ❌
+- `Platform.is` → ❌ (Windows/macOS/Linux)
 - `debugPrint` → אם אין = ⚠️ חסר logging
 - `TODO` → סמן לעתיד
+- `.withOpacity` → ⚠️ השתמש ב`.withValues` במקום
 
 **שורה ראשונה:** יש `// 📄 File:` ? אם לא = ❌
 
@@ -290,21 +450,28 @@ class Mapper {
 
 **Services:** כל מתודה `static`? אם לא = ❌
 
+**Splash/Index:** סדר `userId` → `seenOnboarding` → `login`? אם לא = ❌
+
+**Dialogs:** יש `dialogContext` נפרד? `Navigator.pop` לפני async? אם לא = ❌
+
 ---
 
 ## 📊 זמני בדיקה
 
-| סוג             | זמן      |
-| --------------- | -------- |
-| Provider        | 2-3 דק'  |
-| Screen          | 3-4 דק'  |
-| Model           | 1-2 דק'  |
-| Hive Model      | 2-3 דק'  |
-| Repository      | 2 דק'    |
-| Service         | 3 דק'    |
-| Cache/JSON/Undo | 1-2 דק'  |
+| סוג                  | זמן      |
+| -------------------- | -------- |
+| Provider             | 2-3 דק'  |
+| Screen               | 3-4 דק'  |
+| Splash/Index Screen  | 2-3 דק'  |
+| Model                | 1-2 דק'  |
+| Hive Model           | 2-3 דק'  |
+| Repository           | 2 דק'    |
+| Service              | 3 דק'    |
+| Cache/JSON/Undo      | 1-2 דק'  |
+| Navigation & Dialogs | 1-2 דק'  |
 
 ---
 
-**גרסה:** 3.0 (מצומצם)  
-**תאימות:** Flutter 3.27+, Mobile Only
+**גרסה:** 3.1 (מורחב)  
+**תאימות:** Flutter 3.27+, Mobile Only  
+**עדכון אחרון:** 05/10/2025
