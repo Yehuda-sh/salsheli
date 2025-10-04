@@ -330,7 +330,7 @@ String guessCategory(String itemName) {
       name.contains('יוגורט') ||
       name.contains('חמאה') ||
       name.contains('שמנת') ||
-      name.contains('קוטג'׳') ||
+      name.contains('קוטג') ||
       name.contains('ביצים') ||
       name.contains('ביצה')) return 'מוצרי חלב';
   
