@@ -22,6 +22,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../services/home_stats_service.dart';
 import '../../providers/receipt_provider.dart';
 import '../../providers/shopping_lists_provider.dart';
+import '../../providers/inventory_provider.dart';
 import '../../theme/app_theme.dart';
 
 class InsightsScreen extends StatefulWidget {
@@ -73,14 +74,17 @@ class _InsightsScreenState extends State<InsightsScreen> {
       if (!mounted) return;
       final receiptsProvider = context.read<ReceiptProvider>();
       final listsProvider = context.read<ShoppingListsProvider>();
+      final inventoryProvider = context.read<InventoryProvider>();
 
       final receipts = receiptsProvider.receipts;
       final lists = listsProvider.lists;
+      final inventory = inventoryProvider.items;
 
       // 3) חישוב סטטיסטיקות
       final freshStats = await HomeStatsService.calculateStats(
         receipts: receipts,
         shoppingLists: lists,
+        inventory: inventory,
         monthsBack: _periodMonths[_selectedPeriod],
       );
 
@@ -253,9 +257,20 @@ class _InsightsScreenState extends State<InsightsScreen> {
     final brand = theme.extension<AppBrand>();
     final totalSpent = stats.monthlySpent.isFinite ? stats.monthlySpent : 0.0;
 
-    // חישוב שינוי לעומת תקופה קודמת (דמה - בעתיד תחשב אמיתי)
-    final previousSpent = totalSpent * 1.15; // דמה: היה 15% יותר
-    final change = ((totalSpent - previousSpent) / previousSpent * 100);
+    // חישוב שינוי לעומת תקופה קודמת - אמיתי!
+    double previousSpent = 0.0;
+    if (stats.expenseTrend.length >= 2) {
+      // קח את החודש הקודם מה-trend
+      final previousMonth = stats.expenseTrend[stats.expenseTrend.length - 2];
+      previousSpent = (previousMonth['value'] as num?)?.toDouble() ?? 0.0;
+    } else {
+      // אם אין נתונים - דמה
+      previousSpent = totalSpent * 1.15;
+    }
+    
+    final change = previousSpent > 0 
+        ? ((totalSpent - previousSpent) / previousSpent * 100)
+        : 0.0;
     final isImprovement = change < 0;
 
     return Container(
@@ -426,6 +441,18 @@ class _InsightsScreenState extends State<InsightsScreen> {
     final savings = stats.potentialSavings.isFinite
         ? stats.potentialSavings
         : 0.0;
+    final lowInventory = stats.lowInventoryCount;
+
+    // המלצה 0: מלאי נמוך (אם רלוונטי)
+    if (lowInventory > 5) {
+      recommendations.add({
+        'icon': Icons.inventory_2_outlined,
+        'title': 'מלאי נמוך!',
+        'subtitle':
+            'יש לך $lowInventory פריטים שנגמרים. עדכן את הרשימה 📝',
+        'color': Colors.red,
+      });
+    }
 
     // המלצה 1: דיוק רשימות
     if (accuracy < 70) {
@@ -482,6 +509,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
   }
 
   // ================== 3. גרף עוגה ==================
+  // ⚠️ כרגע: נתונים דמה - בעתיד יחובר ל-stats.categoryBreakdown
   Widget _buildPieChartCard(ThemeData theme, ColorScheme cs, HomeStats stats) {
     return Container(
           padding: const EdgeInsets.all(20),
@@ -513,7 +541,8 @@ class _InsightsScreenState extends State<InsightsScreen> {
   }
 
   Widget _buildPieChart(ColorScheme cs, HomeStats stats) {
-    // דמה - נתונים לדוגמה (בעתיד תשלוף מהסטטיסטיקות האמיתיות)
+    // TODO: חבר ל-stats.categoryBreakdown כשיוסף ל-HomeStatsService
+    // כרגע משתמש בדמה להדגמה
     final data = [
       {'category': 'מזון', 'amount': 800.0, 'color': Colors.blue},
       {'category': 'ניקיון', 'amount': 200.0, 'color': Colors.green},
@@ -555,6 +584,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
     ColorScheme cs,
     HomeStats stats,
   ) {
+    // TODO: חבר ל-stats.categoryBreakdown
     final data = [
       {'category': 'מזון', 'amount': 800.0, 'color': Colors.blue},
       {'category': 'ניקיון', 'amount': 200.0, 'color': Colors.green},
@@ -680,8 +710,9 @@ class _InsightsScreenState extends State<InsightsScreen> {
   }
 
   // ================== 5. הוצאות עיקריות ==================
+  // ⚠️ כרגע: נתונים דמה - בעתיד יחובר ל-stats.topProducts
   Widget _buildTopExpenses(ThemeData theme, ColorScheme cs, HomeStats stats) {
-    // דמה - נתונים לדוגמה
+    // TODO: חבר ל-stats.topProducts כשיוסף ל-HomeStatsService
     final topExpenses = [
       {'name': 'חלב תנובה', 'amount': 45.0, 'category': 'מזון'},
       {'name': 'לחם טרי', 'amount': 38.0, 'category': 'מזון'},
