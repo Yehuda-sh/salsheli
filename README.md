@@ -276,7 +276,8 @@ State Management באמצעות ChangeNotifier:
 - `prefs_service.dart` - העדפות
 - `receipt_service.dart` + `receipt_service_mock.dart` - קבלות
 - `price_updater.dart` - עדכון מחירים
-- `home_stats_service.dart` - סטטיסטיקות
+- `home_stats_service.dart` - סטטיסטיקות (מחובר לנתונים אמיתיים!)
+- `navigation_service.dart` - ניהול ניווט מרכזי
 
 #### 5. UI
 
@@ -454,14 +455,18 @@ MyPantryScreen
 
 ### ✨ שודרג לאחרונה (04/10/2025)
 
-- ✅ **ניהול מיקומי אחסון מלא** (חדש!)
+- ✅ **HomeStatsService - חיבור למערכות אמיתיות** (חדש!)
+  - חיבור ל-InventoryProvider למלאי נמוך (≤2 יחידות)
+  - חישוב דיוק רשימות אמיתי (השוואת רשימות לקבלות)
+  - Logging מפורט לדיבאג (15+ לוגים)
+  - Null safety משופר בכל המתודות
+  - מוכן לשילוב במסך Home
+- ✅ **ניהול מיקומי אחסון מלא**
   - מיקומי ברירת מחדל (מקרר, מזווה, מקפיא וכו')
   - הוספה/עריכה/מחיקה של מיקומים מותאמים
   - בחירת אמוג'י לכל מיקום (20 אפשרויות)
   - Undo למחיקה (5 שניות)
-  - שמירת מיקומים ב-SharedPreferences
   - LocationsProvider עם ChangeNotifier
-  - CustomLocation Model
 - ✅ **מסך מזווה עם טאבים**
   - טאב רשימה: תצוגה מסורתית
   - טאב מיקומים: ניהול מתקדם עם StorageLocationManager
@@ -469,14 +474,6 @@ MyPantryScreen
   - חיפוש פריטים לפי שם/קטגוריה/מיקום
   - מיון: שם, כמות, קטגוריה
   - Cache לביצועים
-- ✅ **סטטיסטיקות ואזהרות**
-  - ספירת פריטים לפי מיקום
-  - אזהרת מלאי נמוך (⚠️ icon)
-  - אחוזי תפוסה
-- ✅ **UX משופר**
-  - תצוגת רשת/רשימה (נשמרת ב-SharedPreferences)
-  - אייקוני עריכה ומחיקה ברורים
-  - Tooltips עם הסברים
 
 ### קיים מקודם
 

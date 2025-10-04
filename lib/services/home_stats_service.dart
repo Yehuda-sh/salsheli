@@ -6,14 +6,18 @@
 // 📌 Purpose: Service to compute and load aggregated home statistics
 //     (monthly expenses, potential savings, trend charts, list accuracy, inventory status).
 //     Includes caching via SharedPreferences, and flexible support to use real data sources.
+//
+// ✅ עדכון 04/10/2025: חיבור ל-InventoryProvider, logging, List Accuracy אמיתי
 
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 
 import '../models/receipt.dart' as receipt_model;
 import '../models/shopping_list.dart' as shopping_list_model;
+import '../models/inventory_item.dart';
 
 /// מודל סטטיסטיקות לדף הבית
 class HomeStats {
@@ -67,7 +71,9 @@ class HomeStatsService {
         '$_cacheKey.savedAt',
         DateTime.now().millisecondsSinceEpoch,
       );
-    } catch (_) {
+      debugPrint('✅ HomeStatsService: שמור ל-cache בהצלחה');
+    } catch (e) {
+      debugPrint('❌ HomeStatsService: שגיאה בשמירה ל-cache: $e');
       // בולעים – לא קריטי אם המטמון נכשל
     }
   }
@@ -77,9 +83,14 @@ class HomeStatsService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final raw = prefs.getString(_cacheKey);
-      if (raw == null) return null;
+      if (raw == null) {
+        debugPrint('ℹ️ HomeStatsService: אין cache');
+        return null;
+      }
+      debugPrint('✅ HomeStatsService: נטען מ-cache');
       return HomeStats.fromJson(jsonDecode(raw) as Map<String, dynamic>);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('❌ HomeStatsService: שגיאה בטעינה מ-cache: $e');
       return null;
     }
   }
@@ -91,39 +102,67 @@ class HomeStatsService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final savedAtMs = prefs.getInt('$_cacheKey.savedAt');
-      if (savedAtMs == null) return null;
+      if (savedAtMs == null) {
+        debugPrint('ℹ️ HomeStatsService: אין timestamp ב-cache');
+        return null;
+      }
       final savedAt = DateTime.fromMillisecondsSinceEpoch(savedAtMs);
-      if (DateTime.now().difference(savedAt) > ttl) return null;
+      final age = DateTime.now().difference(savedAt);
+      
+      if (age > ttl) {
+        debugPrint('⏰ HomeStatsService: cache ישן (${age.inMinutes} דקות), TTL: ${ttl.inMinutes} דקות');
+        return null;
+      }
+      
+      debugPrint('✅ HomeStatsService: cache תקף (${age.inMinutes} דקות)');
       return loadFromCache();
-    } catch (_) {
+    } catch (e) {
+      debugPrint('❌ HomeStatsService: שגיאה בבדיקת TTL: $e');
       return null;
     }
   }
 
   /// ניקוי המטמון
   static Future<void> clearCache() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_cacheKey);
-    await prefs.remove('$_cacheKey.savedAt');
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_cacheKey);
+      await prefs.remove('$_cacheKey.savedAt');
+      debugPrint('✅ HomeStatsService: cache נמחק');
+    } catch (e) {
+      debugPrint('❌ HomeStatsService: שגיאה במחיקת cache: $e');
+    }
   }
 
   /// חישוב סטטיסטיקות (נשמר למטמון בסיום)
   static Future<HomeStats> calculateStats({
     required List<receipt_model.Receipt> receipts,
     required List<shopping_list_model.ShoppingList> shoppingLists,
+    required List<InventoryItem> inventory, // 🆕 חובה!
     int monthsBack = 4,
   }) async {
+    debugPrint('\n📊 HomeStatsService: מתחיל חישוב סטטיסטיקות...');
+    debugPrint('   📄 קבלות: ${receipts.length}');
+    debugPrint('   📋 רשימות: ${shoppingLists.length}');
+    debugPrint('   📦 מלאי: ${inventory.length}');
+    
     // הגנות בסיס
     if (monthsBack <= 0) monthsBack = 1;
 
     final monthlySpent = _calculateMonthlySpent(receipts);
+    debugPrint('   💰 הוצאה חודשית: ₪${monthlySpent.toStringAsFixed(2)}');
+    
     final expenseTrend = _calculateExpenseTrends(
       receipts,
       monthsBack: monthsBack,
     );
+    debugPrint('   📈 מגמות: ${expenseTrend.length} חודשים');
 
-    final lowInventoryCount = _calculateLowInventoryCount(shoppingLists);
+    final lowInventoryCount = _calculateLowInventoryCount(inventory);
+    debugPrint('   ⚠️ מלאי נמוך: $lowInventoryCount פריטים');
+    
     final listAccuracy = _calculateListAccuracy(shoppingLists, receipts);
+    debugPrint('   🎯 דיוק רשימות: $listAccuracy%');
 
     final stats = HomeStats(
       monthlySpent: monthlySpent,
@@ -134,20 +173,40 @@ class HomeStatsService {
     );
 
     await saveToCache(stats);
+    debugPrint('✅ HomeStatsService: חישוב הושלם\n');
     return stats;
   }
 
-  static double _calculateMonthlySpent(List<receipt_model.Receipt> receipts) {
+  /// חישוב הוצאה חודשית
+  static double _calculateMonthlySpent(List<receipt_model.Receipt>? receipts) {
+    if (receipts == null || receipts.isEmpty) {
+      debugPrint('   ℹ️ _calculateMonthlySpent: אין קבלות');
+      return 0.0;
+    }
+    
     final now = DateTime.now();
-    return receipts
+    final monthlyReceipts = receipts
         .where((r) => r.date.year == now.year && r.date.month == now.month)
-        .fold<double>(0.0, (sum, r) => sum + (r.totalAmount));
+        .toList();
+    
+    if (monthlyReceipts.isEmpty) {
+      debugPrint('   ℹ️ _calculateMonthlySpent: אין קבלות מהחודש הנוכחי');
+      return 0.0;
+    }
+    
+    return monthlyReceipts.fold<double>(0.0, (sum, r) => sum + r.totalAmount);
   }
 
+  /// חישוב מגמות הוצאות
   static List<Map<String, dynamic>> _calculateExpenseTrends(
-    List<receipt_model.Receipt> receipts, {
+    List<receipt_model.Receipt>? receipts, {
     int monthsBack = 4,
   }) {
+    if (receipts == null || receipts.isEmpty) {
+      debugPrint('   ℹ️ _calculateExpenseTrends: אין קבלות');
+      return [];
+    }
+    
     final now = DateTime.now();
     final trends = <Map<String, dynamic>>[];
 
@@ -170,20 +229,78 @@ class HomeStatsService {
     return trends;
   }
 
-  /// חישוב דוגמה למספר מוצרים נמוכים במלאי – החלף בלוגיקה אמיתית מול inventory
-  static int _calculateLowInventoryCount(
-    List<shopping_list_model.ShoppingList> lists,
-  ) {
-    // TODO: לחבר למודל/Provider של Inventory (כשיהיה), למשל לפי תאריך תפוגה/כמות
-    return 0;
+  /// חישוב מספר פריטים נמוכים במלאי (כמות ≤ 2)
+  /// 🆕 עובד עם InventoryProvider אמיתי!
+  static int _calculateLowInventoryCount(List<InventoryItem>? inventory) {
+    if (inventory == null || inventory.isEmpty) {
+      debugPrint('   ℹ️ _calculateLowInventoryCount: אין מלאי');
+      return 0;
+    }
+    
+    final lowItems = inventory.where((item) => item.quantity <= 2).toList();
+    
+    if (lowItems.isNotEmpty) {
+      debugPrint('   ⚠️ פריטים נמוכים:');
+      for (final item in lowItems.take(5)) { // הצג רק 5 ראשונים
+        debugPrint('      • ${item.productName}: ${item.quantity} ${item.unit}');
+      }
+      if (lowItems.length > 5) {
+        debugPrint('      ... ועוד ${lowItems.length - 5}');
+      }
+    }
+    
+    return lowItems.length;
   }
 
-  /// חישוב דוגמה לדיוק הרשימות – החלף בלוגיקה אמיתית (השוואת פריטים מול קבלות)
+  /// חישוב דיוק רשימות - השוואה בין רשימות לקבלות
+  /// 🆕 השוואה אמיתית לפי תאריכים!
   static int _calculateListAccuracy(
-    List<shopping_list_model.ShoppingList> lists,
-    List<receipt_model.Receipt> receipts,
+    List<shopping_list_model.ShoppingList>? lists,
+    List<receipt_model.Receipt>? receipts,
   ) {
-    // TODO: לדוגמה, שיעור פריטים שנכללו ברשימה וגם נקנו בפועל
-    return 100;
+    if (lists == null || lists.isEmpty || receipts == null || receipts.isEmpty) {
+      debugPrint('   ℹ️ _calculateListAccuracy: אין רשימות או קבלות');
+      return 0;
+    }
+    
+    // קח רק רשימות מהחודש האחרון
+    final now = DateTime.now();
+    final thirtyDaysAgo = now.subtract(const Duration(days: 30));
+    
+    final recentLists = lists.where((l) => 
+      l.updatedDate.isAfter(thirtyDaysAgo)
+    ).toList();
+    
+    if (recentLists.isEmpty) {
+      debugPrint('   ℹ️ _calculateListAccuracy: אין רשימות מהחודש האחרון');
+      return 0;
+    }
+    
+    int totalItems = 0;
+    int matchedItems = 0;
+    
+    for (final list in recentLists) {
+      totalItems += list.items.length;
+      
+      for (final item in list.items) {
+        // בדוק אם הפריט נקנה בקבלה (תוך 7 ימים מיצירת הרשימה)
+        final listDate = list.updatedDate;
+        final weekAfterList = listDate.add(const Duration(days: 7));
+        
+        final purchased = receipts.any((r) => 
+          r.date.isAfter(listDate) && 
+          r.date.isBefore(weekAfterList) &&
+          r.items.any((rItem) => rItem.name.contains(item.name))
+        );
+        
+        if (purchased) matchedItems++;
+      }
+    }
+    
+    final accuracy = totalItems > 0 ? ((matchedItems / totalItems) * 100).round() : 0;
+    
+    debugPrint('   🎯 דיוק: $matchedItems/$totalItems פריטים נקנו = $accuracy%');
+    
+    return accuracy;
   }
 }

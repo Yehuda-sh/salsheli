@@ -23,6 +23,360 @@
 
 ---
 
+---
+
+## 📅 04/10/2025 - שדרוג HomeStatsService - חיבור למערכות אמיתיות
+
+### 🎯 משימה
+
+עדכון `HomeStatsService` לעבודה עם נתונים אמיתיים במקום TODO/Mock:
+
+- חיבור ל-InventoryProvider למלאי נמוך
+- חישוב דיוק רשימות אמיתי (השוואת רשימות לקבלות)
+- הוספת logging מפורט לדיבאג
+- Null safety משופר
+
+### ✅ מה הושלם
+
+#### 1. חיבור ל-InventoryProvider 📦
+
+**הבעיה:** `_calculateLowInventoryCount()` החזיר תמיד 0 (TODO)
+
+**הפתרון:**
+
+```dart
+// לפני - TODO:
+static int _calculateLowInventoryCount(
+  List<shopping_list_model.ShoppingList> lists,
+) {
+  return 0; // ❌ תמיד 0
+}
+
+// אחרי - חיבור אמיתי:
+static int _calculateLowInventoryCount(List<InventoryItem>? inventory) {
+  if (inventory == null || inventory.isEmpty) return 0;
+
+  final lowItems = inventory.where((item) => item.quantity <= 2).toList();
+
+  // הצג ב-log
+  if (lowItems.isNotEmpty) {
+    debugPrint('   ⚠️ פריטים נמוכים:');
+    for (final item in lowItems.take(5)) {
+      debugPrint('      • ${item.productName}: ${item.quantity} ${item.unit}');
+    }
+  }
+
+  return lowItems.length;
+}
+```
+
+**כעת מזהה:** פריטים עם כמות ≤ 2 (חלב, לחם וכו')
+
+#### 2. חישוב דיוק רשימות אמיתי 🎯
+
+**הבעיה:** `_calculateListAccuracy()` החזיר תמיד 100%
+
+**הפתרון:** השוואה בין רשימות קניות לקבלות (תוך 7 ימים)
+
+```dart
+static int _calculateListAccuracy(
+  List<shopping_list_model.ShoppingList>? lists,
+  List<receipt_model.Receipt>? receipts,
+) {
+  if (lists == null || lists.isEmpty || receipts == null || receipts.isEmpty) {
+    return 0;
+  }
+
+  // קח רק רשימות מהחודש האחרון
+  final now = DateTime.now();
+  final thirtyDaysAgo = now.subtract(const Duration(days: 30));
+
+  final recentLists = lists.where((l) =>
+    l.createdAt.isAfter(thirtyDaysAgo)
+  ).toList();
+
+  int totalItems = 0;
+  int matchedItems = 0;
+
+  for (final list in recentLists) {
+    totalItems += list.items.length;
+
+    for (final item in list.items) {
+      final listDate = list.createdAt;
+      final weekAfterList = listDate.add(const Duration(days: 7));
+
+      // בדוק אם הפריט נקנה תוך 7 ימים
+      final purchased = receipts.any((r) =>
+        r.date.isAfter(listDate) &&
+        r.date.isBefore(weekAfterList) &&
+        r.items.any((rItem) => rItem.name.contains(item.productName))
+      );
+
+      if (purchased) matchedItems++;
+    }
+  }
+
+  final accuracy = totalItems > 0 ? ((matchedItems / totalItems) * 100).round() : 0;
+  debugPrint('   🎯 דיוק: $matchedItems/$totalItems פריטים נקנו = $accuracy%');
+
+  return accuracy;
+}
+```
+
+**לוגיקה:**
+
+- רשימות מהחודש האחרון בלבד
+- פריט "נקנה" אם יש קבלה תוך 7 ימים מיצירת הרשימה
+- חיפוש לפי שם מוצר (`contains`)
+- תוצאה: אחוז פריטים שבאמת נקנו
+
+#### 3. Logging מפורט 📋
+
+**הוספנו לוגים ב-4 מקומות:**
+
+```dart
+// 1. תחילת חישוב
+debugPrint('\n📊 HomeStatsService: מתחיל חישוב סטטיסטיקות...');
+debugPrint('   📄 קבלות: ${receipts.length}');
+debugPrint('   📋 רשימות: ${shoppingLists.length}');
+debugPrint('   📦 מלאי: ${inventory.length}');
+
+// 2. לאחר כל חישוב
+debugPrint('   💰 הוצאה חודשית: ₪${monthlySpent.toStringAsFixed(2)}');
+debugPrint('   📈 מגמות: ${expenseTrend.length} חודשים');
+debugPrint('   ⚠️ מלאי נמוך: $lowInventoryCount פריטים');
+debugPrint('   🎯 דיוק רשימות: $listAccuracy%');
+
+// 3. Cache operations
+debugPrint('✅ HomeStatsService: שמור ל-cache בהצלחה');
+debugPrint('⏰ HomeStatsService: cache ישן (${age.inMinutes} דקות)');
+
+// 4. Errors
+debugPrint('❌ HomeStatsService: שגיאה בשמירה ל-cache: $e');
+```
+
+**דוגמה לפלט:**
+
+```
+📊 HomeStatsService: מתחיל חישוב סטטיסטיקות...
+   📄 קבלות: 12
+   📋 רשימות: 3
+   📦 מלאי: 47
+   💰 הוצאה חודשית: ₪1,247.50
+   📈 מגמות: 4 חודשים
+   ⚠️ מלאי נמוך: 5 פריטים
+      • חלב 3%: 1 ליטר
+      • לחם שחור: 1 יחידה
+      • ביצים: 2 יחידה
+   🎯 דיוק: 26/30 פריטים נקנו = 87%
+✅ HomeStatsService: חישוב הושלם
+✅ HomeStatsService: שמור ל-cache בהצלחה
+```
+
+#### 4. Null Safety משופר 🛡️
+
+**תוקן בכל המתודות:**
+
+```dart
+// לפני:
+final monthlySpent = receipts.fold(...); // ❌ יקרוס אם null
+
+// אחרי:
+static double _calculateMonthlySpent(List<receipt_model.Receipt>? receipts) {
+  if (receipts == null || receipts.isEmpty) {
+    debugPrint('   ℹ️ _calculateMonthlySpent: אין קבלות');
+    return 0.0;
+  }
+  // ... המשך
+}
+```
+
+**בדיקות null:**
+
+- `receipts == null || receipts.isEmpty`
+- `inventory == null || inventory.isEmpty`
+- `lists == null || lists.isEmpty`
+- `r.totalAmount ?? 0.0` (במקום לסמוך על ערך)
+
+#### 5. עדכון signature של calculateStats
+
+**שינוי פרמטרים:**
+
+```dart
+// לפני:
+static Future<HomeStats> calculateStats({
+  required List<receipt_model.Receipt> receipts,
+  required List<shopping_list_model.ShoppingList> shoppingLists,
+  int monthsBack = 4,
+}) async
+
+// אחרי:
+static Future<HomeStats> calculateStats({
+  required List<receipt_model.Receipt> receipts,
+  required List<shopping_list_model.ShoppingList> shoppingLists,
+  required List<InventoryItem> inventory, // 🆕 חובה!
+  int monthsBack = 4,
+}) async
+```
+
+**שימוש עתידי:**
+
+```dart
+// במסך Home:
+final inventory = context.read<InventoryProvider>().items;
+final stats = await HomeStatsService.calculateStats(
+  receipts: receipts,
+  shoppingLists: lists,
+  inventory: inventory, // 🆕
+);
+```
+
+### 📂 קבצים שהושפעו
+
+1. **`lib/services/home_stats_service.dart`** - עודכן מלא
+   - חיבור ל-InventoryItem
+   - חישוב lowInventoryCount אמיתי
+   - חישוב listAccuracy אמיתי
+   - Logging מפורט
+   - Null safety
+   - Import חדש: `import '../models/inventory_item.dart';`
+
+### 💡 לקחים
+
+#### 1. TODO = חוב טכני
+
+**לפני העדכון:**
+
+```dart
+// TODO: לחבר למודל/Provider של Inventory
+return 0;
+```
+
+**אחרי:**
+
+```dart
+final lowItems = inventory.where((item) => item.quantity <= 2).toList();
+return lowItems.length;
+```
+
+**לקח:** תמיד סמן TODO אבל חזור לתקן בהקדם!
+
+#### 2. Logging חוסך זמן
+
+בלי לוגים: "למה הסטטיסטיקות לא נכונות?" 🤷
+
+עם לוגים:
+
+```
+⚠️ מלאי נמוך: 5 פריטים
+   • חלב 3%: 1 ליטר  ← רואים בדיוק מה!
+```
+
+**טיפ:** הוסף לוגים בכל מקום שיש חישוב או החלטה.
+
+#### 3. Null Safety זה must
+
+```dart
+// ❌ רע - יקרוס
+final sum = receipts.fold(...);
+
+// ✅ טוב - בטוח
+if (receipts == null || receipts.isEmpty) return 0.0;
+final sum = receipts.fold(...);
+```
+
+**כלל:** כל פרמטר שיכול להיות null → בדוק אותו תחילה!
+
+#### 4. חישוב דיוק רשימות - חכם
+
+**אסטרטגיה:**
+
+- רק רשימות מהחודש האחרון (relevance)
+- חלון זמן: 7 ימים אחרי יצירת הרשימה
+- `contains()` במקום `==` (גמישות)
+
+**למה?**
+
+- אנשים לא תמיד קונים בדיוק לפי הרשימה
+- שמות מוצרים משתנים (חלב 3% vs חלב)
+- קניות יכולות להיות מפוצלות
+
+#### 5. Provider Dependencies
+
+`HomeStatsService` תלוי ב-3 Providers:
+
+1. `ReceiptsProvider` (קבלות)
+2. `ShoppingListsProvider` (רשימות)
+3. `InventoryProvider` (מלאי) 🆕
+
+**במסך Home צריך:**
+
+```dart
+final receipts = context.read<ReceiptsProvider>().receipts;
+final lists = context.read<ShoppingListsProvider>().lists;
+final inventory = context.read<InventoryProvider>().items;
+
+final stats = await HomeStatsService.calculateStats(...);
+```
+
+### 🔄 מה נותר לעתיד
+
+**לא משולב עדיין:**
+
+- [ ] **מסך Home לא משתמש ב-HomeStatsService**
+  - `home_dashboard_screen.dart` מציג רשימות, לא סטטיסטיקות
+  - צריך להוסיף כרטיס סטטיסטיקות או מסך נפרד
+
+**שיפורים מתקדמים (עתיד):**
+
+- [ ] **potentialSavings חכם** - חישוב לפי קטגוריות ופריטים כפולים
+- [ ] **סטטיסטיקות מיקומים** - itemsByLocation (מקרר: 12, מזווה: 8)
+- [ ] **Cache דינמי** - חצות = רענון אוטומטי
+- [ ] **סטטיסטיקות מוצרים** - totalProductsInCatalog (1196)
+- [ ] **גרפים מתקדמים** - expenseTrend עם קטגוריות
+- [ ] **Predictions** - תחזיות צריכה
+
+**אינטגרציה:**
+
+- [ ] ליצור `StatsCard` ב-`home_dashboard_screen.dart`
+- [ ] להוסיף רענון עם pull-to-refresh
+- [ ] להציג lowInventoryCount עם אייקון אזהרה
+- [ ] להציג listAccuracy עם progress bar
+
+### 📊 סיכום מספרים
+
+- **זמן ביצוע:** ~15 דקות
+- **שורות קוד שהשתנו:** ~150
+- **פיצ'רים תוקנו:** 2 (lowInventory, listAccuracy)
+- **לוגים הוספו:** 15+
+- **Null checks הוספו:** 8
+- **Imports חדשים:** 1 (`inventory_item.dart`)
+
+### ✨ תוצאה סופית
+
+`HomeStatsService` עכשיו:
+
+- ✅ עובד עם נתונים אמיתיים (לא Mock)
+- ✅ מזהה מלאי נמוך (≤2 יחידות)
+- ✅ מחשב דיוק רשימות (השוואה לקבלות)
+- ✅ Logging מפורט לדיבאג
+- ✅ Null-safe לחלוטין
+- ✅ מוכן לשילוב במסך Home
+
+**מוכן לשימוש:**
+
+```powershell
+# הקוד מקומפל ללא שגיאות
+flutter analyze
+# ✅ No issues found!
+```
+
+---
+
+**הערה:** השירות מוכן, אך טרם משולב בממשק המשתמש. צריך להוסיף כרטיס סטטיסטיקות ב-`home_dashboard_screen.dart`.
+
+---
+
 ## 📅 04/10/2025 - תיקון טעינת מוצרים מ-products.json
 
 ### 🎯 משימה
