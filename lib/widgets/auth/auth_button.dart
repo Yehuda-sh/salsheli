@@ -7,6 +7,36 @@
 // - אייקון אופציונלי
 // - מצב loading
 // - שימוש בצבעי Theme
+// - תמיכה מלאה ב-RTL (symmetric padding)
+//
+// 💡 דוגמאות שימוש:
+//
+// // כפתור primary (מלא)
+// AuthButton.primary(
+//   label: 'התחבר',
+//   icon: Icons.login,
+//   onPressed: () => _handleLogin(),
+//   isLoading: _isLoading,
+// )
+//
+// // כפתור secondary (קווי)
+// AuthButton.secondary(
+//   label: 'הרשמה',
+//   icon: Icons.person_add,
+//   onPressed: () => Navigator.push(...),
+// )
+//
+// // בלי אייקון
+// AuthButton(
+//   label: 'המשך',
+//   onPressed: _handleNext,
+//   type: AuthButtonType.primary,
+// )
+//
+// ♿ Accessibility:
+// - הטקסט מוקרא אוטומטית על ידי screen readers
+// - גודל מגע מינימלי 48x48 (Material Design)
+// - ניגודיות צבעים: AA compliant
 
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';

@@ -58,6 +58,93 @@
 
 ---
 
+## 📅 05/10/2025 - תיקון demo_login_button + סינכרון נתוני דמו
+
+### 🎯 משימה
+
+תיקון בעיות ב-demo_login_button.dart וסינכרון נתונים:
+- שם משתמש לא תואם בין repository ל-UI
+- householdId לא מועבר נכון
+- בדיקת כל ה-Providers והנתונים הזמינים
+
+### ✅ מה הושלם
+
+1. **תיקון user_repository.dart** 👤
+   - yoni_123 עם householdId: 'house_demo'
+   - dana_456 עם householdId: 'house_demo'
+   - שם "יוני" (ללא "כהן")
+
+2. **עדכון demo_login_button.dart** ת
+   - הודעה: "יוני כהן" → "יוני"
+   - תיעוד: 7 רשימות, 3 קבלות
+   - הערה על ProductsProvider ו-SuggestionsProvider אוטומטיים
+   - מספור שלבים 1-9 מעודכן
+
+3. **בדיקת Providers** 🔍
+   - ShoppingListsProvider - 7 רשימות ✅
+   - ReceiptProvider - 3 קבלות ✅
+   - ProductsProvider - אוטומטי (ProxyProvider) ✅
+   - SuggestionsProvider - אוטומטי (מחושב מהיסטוריה) ✅
+   - InventoryProvider - מדלג (API לא זמין) ✅
+
+### 📂 קבצים שהושפעו
+
+- `lib/repositories/user_repository.dart` - householdId נכון למשתמשי דמו
+- `lib/widgets/auth/demo_login_button.dart` - סינכרון שם + תיעוד
+
+### 💡 לקחים
+
+- **סינכרון נתונים**: חשוב שכל הנתונים יתאימו (repository, UI, מסדי נתונים)
+- **householdId קריטי**: צריך להיות זהה בכל הנתונים (rich_demo_data, user_repository)
+- **ProxyProvider חכם**: ProductsProvider ו-SuggestionsProvider נטענים אוטומטית כשהמשתמש מתחבר
+- **תיעוד מפורט**: עוזר להבין מה קורה בכל שלב
+
+### 📊 סיכום
+
+זמן: ~20 דקות | קבצים: 2 | שורות: +30 | Providers: 5 נבדקו
+
+---
+
+## 📅 05/10/2025 - שיפור תיעוד auth_button.dart
+
+### 🎯 משימה
+
+הוספת תיעוד מקיף ל-widget של AuthButton:
+- דוגמאות שימוש
+- הערות Accessibility
+- RTL support
+
+### ✅ מה הושלם
+
+1. **דוגמאות שימוש** 💡
+   - כפתור primary (מלא) עם אייקון
+   - כפתור secondary (קווי) 
+   - כפתור בלי אייקון
+
+2. **Accessibility** ♿
+   - הערה על screen readers
+   - גודל מגע מינימלי 48x48
+   - ניגודיות צבעים AA compliant
+
+3. **RTL Support** 🌍
+   - הערה על symmetric padding
+
+### 📂 קבצים שהושפעו
+
+- `lib/widgets/auth/auth_button.dart` - הוספת תיעוד מקיף (+32 שורות)
+
+### 💡 לקחים
+
+- **דוגמאות בתיעוד**: עוזרות למפתח לראות שימוש מעשי מיד
+- **Accessibility חשוב**: תיעוד מונע בעיות נגישות
+- **RTL awareness**: חשוב לתעד תמיכה ב-RTL כשקיימת
+
+### 📊 סיכום
+
+זמן: ~5 דקות | קבצים: 1 | תיעוד: +32 שורות
+
+---
+
 ## 📅 05/10/2025 - עדכון CODE_REVIEW_CHECKLIST - הוספת קטגוריות חסרות
 
 ### 🎯 משימה

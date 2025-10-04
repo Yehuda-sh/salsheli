@@ -66,8 +66,18 @@ class MockUserRepository implements UserRepository {
 
   void _initializeDemoUsers() {
     debugPrint('🌱 UserRepository: Initializing demo users');
-    _storage['yoni_123'] = UserEntity.demo(id: 'yoni_123', name: 'יוני');
-    _storage['dana_456'] = UserEntity.demo(id: 'dana_456', name: 'דנה');
+    _storage['yoni_123'] = UserEntity.demo(
+      id: 'yoni_123',
+      name: 'יוני',
+      email: 'yoni@example.com',
+      householdId: 'house_demo',
+    );
+    _storage['dana_456'] = UserEntity.demo(
+      id: 'dana_456',
+      name: 'דנה',
+      email: 'dana@example.com',
+      householdId: 'house_demo',
+    );
   }
 
   // === Core Methods ===

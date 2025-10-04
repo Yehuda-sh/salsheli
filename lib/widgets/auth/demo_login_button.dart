@@ -1,10 +1,10 @@
 // 📄 File: lib/widgets/auth/demo_login_button.dart
-// תיאור: כפתור כניסה מהירה עם משתמש דמו (יוני כהן) - משתמש אמיתי מלא
+// תיאור: כפתור כניסה מהירה עם משתמש דמו (יוני) - משתמש אמיתי מלא
 //
-// עדכונים:
-// ✅ הוסר סימון "אורח" - זה משתמש אמיתי
-// ✅ טקסט מעודכן: "התחבר עם חשבון דמו"
-// ✅ הודעת הצלחה: "התחברת בהצלחה כיוני כהן!"
+// עדכונים (05/10/2025):
+// ✅ שם מעודכן: "יוני" (סונכרן עם UserRepository)
+// ✅ householdId נכון: 'house_demo' (זהה בכל הנתונים)
+// ✅ ProductsProvider ו-SuggestionsProvider אוטומטיים (ProxyProvider)
 // ✅ טוען משתמש + היסטוריה מלאה
 
 import 'package:flutter/material.dart';
@@ -20,10 +20,11 @@ import '../../data/rich_demo_data.dart';
 /// כפתור כניסה מהירה למשתמש דמו
 ///
 /// מה הכפתור עושה:
-/// 1. מתחבר כמשתמש יוני כהן (yoni_123) - משתמש אמיתי מלא
-/// 2. טוען את כל נתוני הדמו (רשימות, קבלות, מלאי)
-/// 3. שומר את המשתמש ב-SharedPreferences
-/// 4. מנווט לדף הבית
+/// 1. מתחבר כמשתמש יוני (yoni_123) - משתמש אמיתי מלא
+/// 2. טוען את כל נתוני הדמו (7 רשימות, 3 קבלות)
+/// 3. ProductsProvider ו-SuggestionsProvider נטענים אוטומטית (ProxyProvider)
+/// 4. שומר את המשתמש ב-SharedPreferences
+/// 5. מנווט לדף הבית
 class DemoLoginButton extends StatefulWidget {
   const DemoLoginButton({super.key});
 
@@ -78,22 +79,27 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
         debugPrint('מלאי דמו: מדלג על טעינה (API לא זמין)');
       }
 
-      // 6. שומר ב-SharedPreferences
+      // 6. ProductsProvider ו-SuggestionsProvider יטענו אוטומטית
+      // הם ProxyProviders שמאזינים ל-UserContext ויטענו כשהמשתמש מתחבר
+      debugPrint('🔄 ProductsProvider ו-SuggestionsProvider יטענו אוטומטית דרך ProxyProvider');
+      debugPrint('   (זה קורה אוטומטית ב-main.dart)');
+
+      // 7. שומר ב-SharedPreferences
       await NavigationService.saveUserId(demoUserId);
       await NavigationService.markOnboardingSeen();
 
-      // 7. מציג הודעת הצלחה
+      // 8. מציג הודעת הצלחה
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('✅ התחברת בהצלחה כיוני כהן!'),
+            content: Text('✅ התחברת בהצלחה כיוני!'),
             backgroundColor: Colors.green,
             duration: Duration(seconds: 2),
           ),
         );
       }
 
-      // 8. ניווט לדף הבית
+      // 9. ניווט לדף הבית
       if (mounted) {
         await NavigationService.goToHome(context);
       }
