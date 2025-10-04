@@ -49,6 +49,10 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     int index,
     ItemStatus newStatus,
   ) async {
+    debugPrint('📝 ActiveShoppingScreen: מעדכן פריט $index');
+    debugPrint('   רשימה: ${list.name}');
+    debugPrint('   סטטוס חדש: ${newStatus.name}');
+
     final provider = context.read<ShoppingListsProvider>();
 
     // שמירת מצב לצורך Undo
@@ -59,18 +63,27 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       isChecked: newStatus.isTaken,
     );
 
+    debugPrint('   פריט: ${updatedItem.name}');
+
     // עדכון הרשימה דרך Provider
     await provider.updateItemAt(list.id, index, (_) => updatedItem);
 
+    debugPrint('   ✅ פריט עודכן בהצלחה');
+
     setState(() {
-      _lastActionMessage = 'הפריט עודכן';
+      _lastActionMessage = '${updatedItem.name} ${newStatus.isTaken ? "סומן" : "בוטל"}';
     });
   }
 
   /// ✅ סימון הכל כנלקח
   Future<void> _markAllAsTaken(ShoppingList list) async {
+    debugPrint('✅ ActiveShoppingScreen: מסמן את כל הפריטים כנלקחו');
+    debugPrint('   רשימה: ${list.name}');
+    debugPrint('   סה"כ פריטים: ${list.items.length}');
+
     final provider = context.read<ShoppingListsProvider>();
 
+    // שמירת מצב לצורך Undo
     _lastState = list;
 
     // עדכון כל הפריטים לסטטוס "נלקח"
@@ -82,6 +95,8 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     final updatedList = list.copyWith(items: updatedItems);
     await provider.updateList(updatedList);
 
+    debugPrint('   ✅ כל הפריטים סומנו בהצלחה');
+
     setState(() {
       _lastActionMessage = 'כל הפריטים סומנו כנלקחו';
     });
@@ -91,8 +106,13 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
 
   /// ✅ איפוס כל הסטטוסים
   Future<void> _resetAllStatuses(ShoppingList list) async {
+    debugPrint('🔄 ActiveShoppingScreen: מאפס את כל הסטטוסים');
+    debugPrint('   רשימה: ${list.name}');
+    debugPrint('   סה"כ פריטים: ${list.items.length}');
+
     final provider = context.read<ShoppingListsProvider>();
 
+    // שמירת מצב לצורך Undo
     _lastState = list;
 
     final updatedItems = list.items.map((item) {
@@ -101,6 +121,8 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
 
     final updatedList = list.copyWith(items: updatedItems);
     await provider.updateList(updatedList);
+
+    debugPrint('   ✅ כל הסטטוסים אופסו בהצלחה');
 
     setState(() {
       _lastActionMessage = 'הסטטוסים אופסו';
@@ -111,10 +133,18 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
 
   /// ביטול פעולה אחרונה (Undo)
   Future<void> _undo() async {
-    if (_lastState == null) return;
+    if (_lastState == null) {
+      debugPrint('⚠️ ActiveShoppingScreen: אין מצב קודם לשחזור');
+      return;
+    }
+
+    debugPrint('↩️ ActiveShoppingScreen: מבטל פעולה אחרונה');
+    debugPrint('   רשימה: ${_lastState!.name}');
 
     final provider = context.read<ShoppingListsProvider>();
     await provider.updateList(_lastState!);
+
+    debugPrint('   ✅ הרשימה שוחזרה בהצלחה');
 
     setState(() {
       _lastState = null;
@@ -134,11 +164,14 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
   void _showUndoSnackbar() {
     if (!mounted) return;
 
+    debugPrint('💬 ActiveShoppingScreen: מציג Snackbar');
+    debugPrint('   הודעה: $_lastActionMessage');
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(_lastActionMessage ?? 'הפעולה בוצעה'),
         action: SnackBarAction(label: 'ביטול', onPressed: _undo),
-        duration: const Duration(seconds: 4),
+        duration: const Duration(seconds: 5),  // ✅ 5 שניות
       ),
     );
   }
