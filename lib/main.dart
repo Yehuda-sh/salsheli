@@ -9,7 +9,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -27,8 +26,6 @@ import 'providers/locations_provider.dart';
 
 // Repositories
 import 'repositories/local_shopping_lists_repository.dart';
-import 'repositories/inventory_repository.dart';
-import 'repositories/receipt_repository.dart';
 import 'repositories/user_repository.dart';
 import 'repositories/firebase_user_repository.dart';  // 🔥 Firebase User!
 import 'repositories/firebase_receipt_repository.dart';  // 🔥 Firebase Receipts!
