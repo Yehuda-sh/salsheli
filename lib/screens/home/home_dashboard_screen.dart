@@ -21,6 +21,7 @@ import '../../models/shopping_list.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../providers/suggestions_provider.dart';
 import '../../providers/user_context.dart';
+import '../../providers/receipt_provider.dart';
 import '../../widgets/home/upcoming_shop_card.dart';
 import '../../widgets/home/smart_suggestions_card.dart';
 import '../../widgets/create_list_dialog.dart';
@@ -275,6 +276,8 @@ class _Content extends StatelessWidget {
         const SizedBox(height: 16),
         SmartSuggestionsCard(mostRecentList: mostRecentList),
         const SizedBox(height: 16),
+        const _ReceiptsCard(),
+        const SizedBox(height: 16),
         if (otherLists.isNotEmpty) _ActiveListsCard(lists: otherLists),
       ],
     ).animate().fadeIn(duration: 450.ms, delay: 100.ms);
@@ -369,6 +372,120 @@ class _ImprovedEmptyState extends StatelessWidget {
         ),
       ),
     ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.2, end: 0);
+  }
+}
+
+// ✅ רכיב חדש - ReceiptsCard
+class _ReceiptsCard extends StatelessWidget {
+  const _ReceiptsCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
+    final accent = brand?.accent ?? cs.primary;
+    final receiptProvider = context.watch<ReceiptProvider>();
+
+    final receiptsCount = receiptProvider.receipts.length;
+    final totalAmount = receiptProvider.receipts.fold<double>(
+      0.0,
+      (sum, r) => sum + r.totalAmount,
+    );
+
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: InkWell(
+        onTap: () => Navigator.pushNamed(context, '/receipts'),
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.receipt_long,
+                      color: Colors.orange,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'הקבלות שלי',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: cs.onSurface,
+                      ),
+                    ),
+                  ),
+                  Icon(Icons.chevron_left, color: cs.onSurfaceVariant),
+                ],
+              ),
+              const SizedBox(height: 12),
+              if (receiptProvider.isLoading)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: CircularProgressIndicator(),
+                  ),
+                )
+              else if (receiptsCount == 0)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Text(
+                    'אין קבלות עדיין. התחל להוסיף!',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                )
+              else
+                Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '$receiptsCount קבלות',
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: cs.onSurface,
+                          ),
+                        ),
+                        Text(
+                          '₪${totalAmount.toStringAsFixed(2)}',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    LinearProgressIndicator(
+                      value: receiptsCount / 10,
+                      backgroundColor: cs.surfaceContainerHighest,
+                      color: Colors.orange,
+                      minHeight: 4,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+        ),
+      ),
+    ).animate().fadeIn(duration: 450.ms, delay: 200.ms).slideY(begin: 0.1);
   }
 }
 

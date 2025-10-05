@@ -1,0 +1,99 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // === Helper Functions ===
+    
+    // בדיקה אם המשתמש מחובר
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // בדיקה אם המשתמש הוא הבעלים של הנתונים
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // בדיקה אם המשתמש שייך ל-household
+    function isHouseholdMember(householdId) {
+      return isAuthenticated() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.household_id == householdId;
+    }
+    
+    // === Users Collection ===
+    match /users/{userId} {
+      // משתמש יכול לקרוא ולכתוב רק את הפרופיל שלו
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId);
+      
+      // מנהלים יכולים לקרוא את כל המשתמשים (אופציונלי)
+      // allow read: if isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // === Receipts Collection ===
+    match /receipts/{receiptId} {
+      // קריאה: רק משתמשים מאותו household
+      allow read: if isAuthenticated() && 
+                     isHouseholdMember(resource.data.household_id);
+      
+      // כתיבה: רק משתמשים מאותו household
+      allow create: if isAuthenticated() && 
+                       isHouseholdMember(request.resource.data.household_id);
+      
+      allow update: if isAuthenticated() && 
+                       isHouseholdMember(resource.data.household_id);
+      
+      allow delete: if isAuthenticated() && 
+                       isHouseholdMember(resource.data.household_id);
+    }
+    
+    // === Inventory Collection ===
+    match /inventory/{itemId} {
+      // קריאה: רק משתמשים מאותו household
+      allow read: if isAuthenticated() && 
+                     isHouseholdMember(resource.data.household_id);
+      
+      // כתיבה: רק משתמשים מאותו household
+      allow create: if isAuthenticated() && 
+                       isHouseholdMember(request.resource.data.household_id);
+      
+      allow update: if isAuthenticated() && 
+                       isHouseholdMember(resource.data.household_id);
+      
+      allow delete: if isAuthenticated() && 
+                       isHouseholdMember(resource.data.household_id);
+    }
+    
+    // === Products Collection ===
+    match /products/{productId} {
+      // מוצרים פומביים - כולם יכולים לקרוא
+      allow read: if true;
+      
+      // רק מנהלים יכולים לכתוב
+      allow write: if isAuthenticated() && 
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // === Shopping Lists Collection (אם תרצו להוסיף בעתיד) ===
+    match /shopping_lists/{listId} {
+      // קריאה: רק משתמשים מאותו household
+      allow read: if isAuthenticated() && 
+                     isHouseholdMember(resource.data.household_id);
+      
+      // כתיבה: רק משתמשים מאותו household
+      allow create: if isAuthenticated() && 
+                       isHouseholdMember(request.resource.data.household_id);
+      
+      allow update: if isAuthenticated() && 
+                       isHouseholdMember(resource.data.household_id);
+      
+      allow delete: if isAuthenticated() && 
+                       isHouseholdMember(resource.data.household_id);
+    }
+    
+    // === Deny All Other Collections ===
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -58,6 +58,114 @@
 
 ---
 
+## 📅 05/10/2025 - מעבר קבלות ומלאי ל-Firestore
+
+### 🎯 משימה
+
+פתרון בעיית אחסון קריטית - קבלות ומלאי נמחקים בסגירת האפליקציה!
+- יצירת FirebaseReceiptRepository + FirebaseInventoryRepository
+- עדכון main.dart להשתמש ב-Firebase במקום Mock
+- יצירת Security Rules ו-Indexes ל-Firestore
+- הוספת UI - כרטיס "הקבלות שלי" + מסך קבלות משודרג
+- העלאת Rules + Indexes ל-Firebase
+
+### ✅ מה הושלם
+
+1. **FirebaseReceiptRepository** 📄
+   - CRUD מלא: fetchReceipts, saveReceipt, deleteReceipt
+   - פונקציות בונוס: watchReceipts (real-time), getReceiptById, getReceiptsByStore, getReceiptsByDateRange
+   - Timestamp conversion מובנה
+   - Security: בדיקת household_id לפני מחיקה
+
+2. **FirebaseInventoryRepository** 📦
+   - CRUD מלא: fetchItems, saveItem, deleteItem
+   - פונקציות בונוס: watchInventory (real-time), getItemById, getItemsByLocation, getItemsByCategory, getLowStockItems, updateQuantity
+   - Security: בדיקת household_id לפני פעולות
+
+3. **Security Rules** 🛡️
+   - firestore.rules - הגנה מלאה לפי household_id
+   - רק משתמשים מאותו בית יכולים לגשת לנתונים
+   - מוצרים פומביים (כולם יכולים לקרוא)
+   - הכנה לעתיד: Shopping Lists
+
+4. **Firestore Indexes** 🔍
+   - receipts: household_id + date (DESC)
+   - inventory: household_id + product_name (ASC)
+   - הועלו ל-Firebase - **בבנייה** (2-10 דק')
+
+5. **עדכון main.dart** ⚙️
+   - החלפת MockReceiptRepository → FirebaseReceiptRepository
+   - החלפת MockInventoryRepository → FirebaseInventoryRepository
+   - הוספת logging מפורט
+   - ProxyProvider עם Firebase integration
+
+6. **UI - כרטיס קבלות בדף הבית** 🏠
+   - _ReceiptsCard - מציג כמה קבלות + סכום כולל
+   - לחיצה מובילה למסך קבלות
+   - Progress bar ויזואלי
+   - Empty state: "אין קבלות עדיין. התחל להוסיף!"
+
+7. **UI - מסך קבלות משודרג** 📱
+   - AppBar + FAB לhozzáadת קבלה
+   - Empty state יפה עם אנימציה
+   - רשימת קבלות מעוצבת
+   - הוספת קבלה פשוטה (לחצן אחד)
+
+8. **העלאה ל-Firebase** ☁️
+   - `firebase deploy --only firestore:rules` ✅
+   - `firebase deploy --only firestore:indexes` ✅
+   - Index building בתהליך (צפוי עוד כמה דקות)
+
+### 📂 קבצים שהושפעו
+
+**חדשים (4):**
+- `lib/repositories/firebase_receipt_repository.dart` - Repository מלא לקבלות
+- `lib/repositories/firebase_inventory_repository.dart` - Repository מלא למלאי
+- `firestore.rules` - Security Rules
+- `firestore.indexes.json` - Indexes configuration
+
+**עודכנו (5):**
+- `lib/main.dart` - Firebase Repositories במקום Mock
+- `lib/screens/home/home_dashboard_screen.dart` - +_ReceiptsCard
+- `lib/screens/receipts/receipt_manager_screen.dart` - כפתור הוספה + FAB
+- `firebase.json` - הוספת firestore configuration
+- `.firebaserc` - project configuration
+
+**תיעוד (1):**
+- `FIREBASE_RECEIPTS_INVENTORY.md` - מדריך מלא (~400 שורות)
+
+### 💡 לקחים
+
+- **Firestore Indexes חובה**: queries מורכבים (where + orderBy) דורשים indexes מותאמים אישית
+- **Index Building לוקח זמן**: 2-10 דקות - צריך להמתין לפני שימוש
+- **Timestamp Conversion**: Firestore מחזיר Timestamp objects - המרה ל-ISO8601 לפני fromJson
+- **household_id קריטי**: מאפשר multi-tenancy + security מלאה
+- **Real-time Streams**: watchReceipts/watchInventory מוסיפים ללא עלות נוספת
+- **UI Progressive**: Empty state → Loading → Content - חוויה טובה יותר
+- **Firebase CLI פשוט**: deploy --only מאפשר עדכון סלקטיבי
+
+### 🎯 מה עובד עכשיו
+
+✅ FirebaseReceiptRepository - שמירה עובדת!  
+✅ FirebaseInventoryRepository - נוצר  
+✅ Security Rules - הועלו והופעלו  
+✅ כרטיס "הקבלות שלי" בדף הבית  
+✅ מסך קבלות עם כפתור הוספה  
+✅ יצירת קבלה - עובד!  
+⏳ Indexes - בבנייה (צפוי עוד 5-10 דק')  
+⏳ טעינת קבלות - יעבוד כשה-indexes יהיו Enabled
+
+### 🐛 בעיות שנותרו
+
+- **Indexes בבנייה**: צריך להמתין עד שהסטטוס יהיה "Enabled" ב-Firebase Console
+- **Fetch יכשל**: עד שה-indexes מוכנים, fetchReceipts/fetchItems יכשלו עם "index is building"
+
+### 📊 סיכום
+
+זמן: ~90 דק' | קבצים חדשים: 4 | עודכנו: 5 | שורות: +800 | תיעוד: +400
+
+---
+
 ## 📅 05/10/2025 - תיקון בעיות Firebase + הרצה מוצלחת ראשונה
 
 ### 🎯 משימה

@@ -31,6 +31,8 @@ import 'repositories/inventory_repository.dart';
 import 'repositories/receipt_repository.dart';
 import 'repositories/user_repository.dart';
 import 'repositories/firebase_user_repository.dart';  // 🔥 Firebase User!
+import 'repositories/firebase_receipt_repository.dart';  // 🔥 Firebase Receipts!
+import 'repositories/firebase_inventory_repository.dart';  // 🔥 Firebase Inventory!
 import 'repositories/local_products_repository.dart';
 import 'repositories/firebase_products_repository.dart';  // 🔥 Firebase!
 import 'repositories/hybrid_products_repository.dart';
@@ -225,34 +227,44 @@ void main() async {
             return provider;
           },
         ),
-        // === Inventory ===
+        // === Inventory === 🔥 Firebase!
         ChangeNotifierProxyProvider<UserContext, InventoryProvider>(
-          create: (context) => InventoryProvider(
-            userContext: context.read<UserContext>(),
-            repository: MockInventoryRepository(),
-          ),
-          update: (context, userContext, previous) =>
-              (previous ??
+          create: (context) {
+            debugPrint('📦 main.dart: יוצר InventoryProvider עם Firebase');
+            return InventoryProvider(
+              userContext: context.read<UserContext>(),
+              repository: FirebaseInventoryRepository(),  // 🔥 Firebase!
+            );
+          },
+          update: (context, userContext, previous) {
+            debugPrint('🔄 main.dart: מעדכן InventoryProvider');
+            return (previous ??
                     InventoryProvider(
                       userContext: userContext,
-                      repository: MockInventoryRepository(),
+                      repository: FirebaseInventoryRepository(),  // 🔥 Firebase!
                     ))
-                ..updateUserContext(userContext),
+                ..updateUserContext(userContext);
+          },
         ),
 
-        // === Receipts ===
+        // === Receipts === 🔥 Firebase!
         ChangeNotifierProxyProvider<UserContext, ReceiptProvider>(
-          create: (context) => ReceiptProvider(
-            userContext: context.read<UserContext>(),
-            repository: MockReceiptRepository(),
-          ),
-          update: (context, userContext, previous) =>
-              (previous ??
+          create: (context) {
+            debugPrint('📄 main.dart: יוצר ReceiptProvider עם Firebase');
+            return ReceiptProvider(
+              userContext: context.read<UserContext>(),
+              repository: FirebaseReceiptRepository(),  // 🔥 Firebase!
+            );
+          },
+          update: (context, userContext, previous) {
+            debugPrint('🔄 main.dart: מעדכן ReceiptProvider');
+            return (previous ??
                     ReceiptProvider(
                       userContext: userContext,
-                      repository: MockReceiptRepository(),
+                      repository: FirebaseReceiptRepository(),  // 🔥 Firebase!
                     ))
-                ..updateUserContext(userContext),
+                ..updateUserContext(userContext);
+          },
         ),
 
         // === Suggestions Provider ===

@@ -25,10 +25,64 @@ class _ReceiptManagerScreenState extends State<ReceiptManagerScreen> {
     });
   }
 
+  void _addReceipt() async {
+    final provider = context.read<ReceiptProvider>();
+    
+    try {
+      // יצירת קבלה חדשה עם פרטים ריקים
+      await provider.createReceipt(
+        storeName: 'שופרסל',  // ברירת מחדל
+        date: DateTime.now(),
+        items: [],
+      );
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('קבלה נוצרה בהצלחה! 🎉'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('שגיאה ביצירת קבלה: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ReceiptProvider>();
+    final cs = Theme.of(context).colorScheme;
 
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('הקבלות שלי'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add_circle_outline),
+            onPressed: _addReceipt,
+            tooltip: 'הוסף קבלה',
+          ),
+        ],
+      ),
+      body: _buildBody(provider, cs),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _addReceipt,
+        icon: const Icon(Icons.add),
+        label: const Text('קבלה חדשה'),
+        tooltip: 'הוסף קבלה',
+      ),
+    );
+  }
+
+  Widget _buildBody(ReceiptProvider provider, ColorScheme cs) {
     if (provider.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -41,19 +95,40 @@ class _ReceiptManagerScreenState extends State<ReceiptManagerScreen> {
           padding: const EdgeInsets.all(24),
           children: [
             const SizedBox(height: 40),
-            const Icon(Icons.receipt_long, size: 64, color: Colors.grey),
-            const SizedBox(height: 12),
+            Icon(
+              Icons.receipt_long,
+              size: 80,
+              color: Colors.orange.withValues(alpha: 0.5),
+            ),
+            const SizedBox(height: 16),
             Text(
-              'אין קבלות להצגה',
+              'אין קבלות עדיין',
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleMedium,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 8),
             Text(
-              'סרקו קבלה חדשה או ייבאו מהענן כאשר החיבור יופעל.',
+              'התחל להוסיף קבלות כדי לעקוב אחר ההוצאות שלך!',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 32),
+            Center(
+              child: FilledButton.icon(
+                onPressed: _addReceipt,
+                icon: const Icon(Icons.add),
+                label: const Text('הוסף קבלה ראשונה'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 16,
+                  ),
+                ),
               ),
             ),
           ],
@@ -73,11 +148,38 @@ class _ReceiptManagerScreenState extends State<ReceiptManagerScreen> {
           final r = receipts[index];
           final dateStr = DateFormat("dd/MM/yyyy").format(r.date);
           return Card(
+            margin: const EdgeInsets.only(bottom: 8),
             child: ListTile(
-              leading: const Icon(Icons.receipt_long, color: Colors.orange),
-              title: Text(r.storeName),
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.receipt_long,
+                  color: Colors.orange,
+                ),
+              ),
+              title: Text(
+                r.storeName,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
               subtitle: Text("$dateStr • ${r.items.length} פריטים"),
-              trailing: Text("${r.totalAmount.toStringAsFixed(2)} ₪"),
+              trailing: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    "₪${r.totalAmount.toStringAsFixed(2)}",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.orange,
+                    ),
+                  ),
+                ],
+              ),
               onTap: () {
                 Navigator.push(
                   context,
