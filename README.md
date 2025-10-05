@@ -201,12 +201,12 @@ lib/
 - ✅ Users collection
 - ✅ Receipts collection - **נשמר בענן!**
 - ✅ Inventory collection - **נשמר בענן!**
-- ✅ Products collection (1,778 מוצרים)
+- ✅ Products collection (1,758 מוצרים)
 - ✅ Security Rules
 - ✅ Firestore Indexes
 
 ### 📦 Hybrid Storage
-- ✅ Hive: 1,778 מוצרים מקומיים (cache)
+- ✅ Hive: 1,758 מוצרים מקומיים (cache)
 - ✅ Firestore: Products + Receipts + Inventory
 - ✅ SharedPreferences: Shopping lists (זמני)
 - ✅ Fallback strategy מלאה
@@ -302,7 +302,7 @@ flutter run
 ## 📊 סטטיסטיקות
 
 - **שורות קוד:** ~15,000
-- **מוצרים:** 1,778 (Firestore + Hive)
+- **מוצרים:** 1,758 (Firestore + Hive)
 - **משתמשי דמו:** 3
 - **רשימות זמינות:** 7
 - **סוגי רשימות:** 21
