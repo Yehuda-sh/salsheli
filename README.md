@@ -8,12 +8,14 @@
 
 ## ✨ פיצ'רים
 
-- 📋 רשימות קניות + תבניות
+- 📋 רשימות קניות + תבניות (21 סוגים!)
 - 🏠 ניהול מלאי עם מיקומי אחסון מותאמים
-- 🧾 קבלות ומחירים
-- 📊 תובנות וסטטיסטיקות
-- 🌐 RTL מלא
-- 💾 Hive (מוצרים) + SharedPreferences (העדפות)
+- 🧾 קבלות ומחירים - **נשמר ב-Firestore!**
+- 📊 תובנות וסטטיסטיקות חכמות
+- 🌐 RTL מלא + תמיכה בעברית
+- 🔐 **Firebase Authentication** - התחברות אמיתית
+- ☁️ **Firestore** - סנכרון בענן
+- 💾 Hybrid Storage - Hive (מוצרים) + Firestore (קבלות/מלאי)
 
 ---
 
@@ -24,7 +26,7 @@
 git clone https://github.com/your-username/salsheli.git
 cd salsheli
 
-# 2. Install
+# 2. Install dependencies
 flutter pub get
 
 # 3. Generate code
@@ -37,19 +39,28 @@ flutter run
 **דרישות:**
 - Dart 3.8.1+ (ראה `pubspec.yaml`)
 - Flutter SDK (גרסה תואמת ל-Dart 3.8.1+)
+- Node.js (ליצירת משתמשי דמו)
 
 ---
 
-## 🔥 Firebase Setup
+## 🔥 Firebase - מוכן לשימוש!
 
-הפרויקט משתמש ב-Firebase Core (מוכן לעתיד: Auth, Firestore, Storage).
+הפרויקט משתמש ב-Firebase מלא:
 
-### ✅ קבצי קונפיגורציה קיימים:
-- `lib/firebase_options.dart` - נוצר ע"י FlutterFire CLI
-- `android/app/google-services.json` - תואם ל-Project ID: `salsheli`
+### ✅ מה כבר מוגדר:
+- ✅ `firebase_core: ^3.15.2`
+- ✅ `firebase_auth: ^5.7.0` - אימות משתמשים
+- ✅ `cloud_firestore: ^5.4.4` - מסד נתונים בענן
+- ✅ `lib/firebase_options.dart` - תצורה ל-Android/iOS
+- ✅ `android/app/google-services.json` - Project: `salsheli`
+- ✅ `AuthService` - שירות אימות מלא
+- ✅ `FirebaseUserRepository` - משתמשים ב-Firestore
+- ✅ `FirebaseReceiptRepository` - קבלות ב-Firestore
+- ✅ `FirebaseInventoryRepository` - מלאי ב-Firestore
+- ✅ Security Rules + Indexes
 
-### ❌ חסר - צריך להוסיף:
-- `ios/Runner/GoogleService-Info.plist` - **הורד מ-Firebase Console**
+### ⚠️ חסר - צריך להוסיף:
+- ❌ `ios/Runner/GoogleService-Info.plist` - **הורד מ-Firebase Console**
 
 **ללא הקובץ הזה, האפליקציה לא תעבוד על iOS!**
 
@@ -67,7 +78,203 @@ flutterfire configure
 # 5. העתק ל: ios/Runner/GoogleService-Info.plist
 ```
 
-### 🔍 בדיקת תקינות:
+### 👥 יצירת משתמשי דמו:
+
+```bash
+cd scripts
+npm install
+npm run create-users
+```
+
+זה ייצור 3 משתמשים:
+- yoni@demo.com (Demo123!)
+- sarah@demo.com (Demo123!)
+- danny@demo.com (Demo123!)
+
+---
+
+## 📚 תיעוד חובה לקריאה
+
+| קובץ                      | מטרה                          | מתי לקרוא                |
+| ------------------------- | ----------------------------- | ------------------------ |
+| **WORK_LOG.md**           | 📓 יומן עבודה                 | תחילת כל שיחה            |
+| **CLAUDE_GUIDELINES.md**  | 🤖 הוראות ל-Claude/AI        | עבודה עם AI tools       |
+| **MOBILE_GUIDELINES.md**  | הנחיות טכניות + ארכיטקטורה   | לפני כתיבת קוד חדש       |
+| **CODE_REVIEW_CHECKLIST** | בדיקת קוד מהירה               | לפני כל commit           |
+
+---
+
+## 📂 מבנה הפרויקט
+
+```
+lib/
+├── main.dart                 # Entry point + Firebase initialization
+├── firebase_options.dart     # Firebase configuration
+│
+├── api/entities/            # API models (@JsonSerializable)
+│   ├── user.dart + user.g.dart
+│   └── shopping_list.dart + shopping_list.g.dart
+│
+├── config/                  # Configuration files
+│   ├── category_config.dart
+│   ├── filters_config.dart
+│   └── list_type_mappings.dart
+│
+├── core/                    # Constants
+│   └── constants.dart       # App-wide constants
+│
+├── data/                    # Demo & sample data
+│   ├── demo_shopping_lists.dart
+│   ├── rich_demo_data.dart
+│   └── onboarding_data.dart
+│
+├── helpers/                 # Helper utilities
+│   └── product_loader.dart  # JSON product loading
+│
+├── models/                  # Data models (@JsonSerializable)
+│   ├── user_entity.dart + .g.dart
+│   ├── shopping_list.dart + .g.dart
+│   ├── receipt.dart + .g.dart
+│   ├── inventory_item.dart + .g.dart
+│   ├── suggestion.dart + .g.dart
+│   ├── product_entity.dart + .g.dart (Hive)
+│   └── enums/               # Enum types
+│
+├── providers/               # State management (ChangeNotifier)
+│   ├── user_context.dart            # 👤 User state + Firebase Auth
+│   ├── shopping_lists_provider.dart # 🛒 Shopping lists
+│   ├── receipt_provider.dart        # 🧾 Receipts (Firebase!)
+│   ├── inventory_provider.dart      # 📦 Inventory (Firebase!)
+│   ├── products_provider.dart       # 📦 Products (Hybrid)
+│   ├── suggestions_provider.dart    # 💡 Smart suggestions
+│   └── locations_provider.dart      # 🏺 Storage locations
+│
+├── repositories/           # Data access layer
+│   ├── user_repository.dart
+│   ├── firebase_user_repository.dart       # ✅ Firebase
+│   ├── firebase_receipt_repository.dart    # ✅ Firebase
+│   ├── firebase_inventory_repository.dart  # ✅ Firebase
+│   ├── firebase_products_repository.dart   # ✅ Firebase
+│   ├── hybrid_products_repository.dart     # 🔀 Local + Firestore + API
+│   ├── local_shopping_lists_repository.dart
+│   └── ... (interfaces)
+│
+├── services/               # Business logic
+│   ├── auth_service.dart           # 🔐 Firebase Authentication
+│   ├── home_stats_service.dart     # 📊 Home statistics
+│   ├── local_storage_service.dart
+│   └── ...
+│
+├── screens/                # UI screens
+│   ├── auth/               # Login, Register
+│   ├── home/               # Dashboard
+│   ├── shopping/           # Lists, Active shopping
+│   ├── receipts/           # Receipt management
+│   ├── pantry/             # Inventory
+│   ├── insights/           # Analytics
+│   └── ...
+│
+├── widgets/                # Reusable components
+│   ├── auth/               # Auth widgets
+│   ├── home/               # Home cards
+│   ├── common/             # Shared widgets
+│   └── ...
+│
+└── theme/                  # App theming
+    └── app_theme.dart
+```
+
+**פירוט מלא:** ראה MOBILE_GUIDELINES.md
+
+---
+
+## ✅ מה עובד היום
+
+### 🔐 Firebase Authentication
+- ✅ Email/Password authentication
+- ✅ 3 משתמשי דמו מוכנים
+- ✅ AuthService מלא
+- ✅ authStateChanges listener
+- ✅ Persistent sessions
+
+### ☁️ Firestore Integration
+- ✅ Users collection
+- ✅ Receipts collection - **נשמר בענן!**
+- ✅ Inventory collection - **נשמר בענן!**
+- ✅ Products collection (1,778 מוצרים)
+- ✅ Security Rules
+- ✅ Firestore Indexes
+
+### 📦 Hybrid Storage
+- ✅ Hive: 1,778 מוצרים מקומיים (cache)
+- ✅ Firestore: Products + Receipts + Inventory
+- ✅ SharedPreferences: Shopping lists (זמני)
+- ✅ Fallback strategy מלאה
+
+### 🎨 UI/UX
+- ✅ 21 סוגי רשימות
+- ✅ קנייה פעילה - מסך ליווי בקנייה
+- ✅ מיקומי אחסון מותאמים
+- ✅ RTL מלא
+- ✅ Dark/Light themes
+- ✅ Undo pattern בכל המערכת
+
+### 📊 נתוני דמו
+- ✅ 100+ מוצרים אמיתיים מ-JSON
+- ✅ 7 רשימות קניות דינמיות
+- ✅ 3 קבלות עם מוצרים אמיתיים
+- ✅ מלאי חכם (מזווה, מקרר, וכו')
+
+---
+
+## 📝 TODO - מה נשאר
+
+### 🔴 גבוה
+- [ ] iOS configuration (GoogleService-Info.plist)
+- [ ] העברת Shopping Lists ל-Firestore
+- [ ] Real-time sync לרשימות
+
+### 🟡 בינוני
+- [ ] Receipt OCR
+- [ ] Smart notifications
+- [ ] Barcode scanning improvements
+- [ ] Price tracking מתקדם
+
+### 🟢 נמוך
+- [ ] Tests (Unit/Widget/Integration)
+- [ ] Performance optimization
+- [ ] i18n (English)
+- [ ] Accessibility improvements
+
+---
+
+## 🛠 פקודות שימושיות
+
+```bash
+# Development
+flutter pub get
+dart run build_runner build --delete-conflicting-outputs
+flutter run
+
+# Analysis & Formatting
+flutter analyze
+dart fix --apply
+dart format lib/ -w
+
+# Build for Production
+flutter build apk --release
+flutter build appbundle --release  # Google Play
+flutter build ios --release
+
+# Firebase
+cd scripts
+npm run create-users  # יצירת משתמשי דמו
+npm run upload        # העלאת מוצרים ל-Firestore
+```
+
+---
+
+## 🔍 בדיקת תקינות Firebase
 
 ```bash
 # בדוק שהקבצים קיימים:
@@ -87,185 +294,39 @@ flutter run
 |------|-------|
 | **iOS קורס באתחול** | GoogleService-Info.plist חסר |
 | **Android קורס באתחול** | בדוק google-services.json |
-| **"Project not found"** | ProjectId לא תואם (צריך להיות `salsheli`) |
-| **"Configuration error"** | הרץ `flutterfire configure` מחדש |
-
-### 📦 חבילות Firebase מותקנות:
-
-```yaml
-# pubspec.yaml
-firebase_core: ^4.1.1        # ✅ בשימוש
-cloud_firestore: ^6.0.2      # ⚠️ מותקן, לא בשימוש כרגע
-```
-
-**הערה:** `cloud_firestore` מותקן אבל לא משמש כרגע בקוד. אם לא מתכנן להשתמש - כדאי להסיר כדי להקטין את גודל האפליקציה.
+| **"Project not found"** | ProjectId לא תואם (צריך `salsheli`) |
+| **"Configuration error"** | הרץ `flutterfire configure` |
 
 ---
 
-## 📚 תיעוד חובה לקריאה
+## 📊 סטטיסטיקות
 
-| קובץ                      | מטרה                          | מתי לקרוא                |
-| ------------------------- | ----------------------------- | ------------------------ |
-| **WORK_LOG.md**           | 📓 יומן עבודה                 | תחילת כל שיחה            |
-| **CLAUDE_GUIDELINES.md**  | 🤖 הוראות ל-Claude/AI        | עבודה עם AI tools       |
-| **MOBILE_GUIDELINES.md**  | הנחיות טכניות + ארכיטקטורה   | לפני כתיבת קוד חדש       |
-| **CODE_REVIEW_CHECKLIST** | בדיקת קוד מהירה               | לפני כל commit           |
-
----
-
-## 📂 מבנה
-
-```
-lib/
-├── main.dart                 # Entry point
-├── api/                      # API Entities
-│   └── entities/
-├── config/                   # קבצי תצורה
-│   ├── category_config.dart
-│   └── filters_config.dart
-├── core/                     # קבועים
-│   └── constants.dart
-├── data/                     # נתוני דמו
-│   ├── demo_shopping_lists.dart
-│   ├── rich_demo_data.dart
-│   ├── demo_users.dart
-│   └── ...
-├── gen/                      # Generated files (build_runner)
-│   ├── assets.gen.dart
-│   └── fonts.gen.dart
-├── helpers/                  # Helper functions
-│   └── product_loader.dart
-├── layout/                   # App layout
-│   └── app_layout.dart
-├── models/                   # Data models + *.g.dart
-├── providers/                # State Management (ChangeNotifier)
-├── repositories/             # Data Access Layer
-├── services/                 # Business Logic
-├── screens/                  # UI Screens
-├── theme/                    # ערכות נושא
-│   └── app_theme.dart
-├── utils/                    # כלי עזר
-│   ├── toast.dart
-│   └── color_hex.dart
-└── widgets/                  # Reusable Components
-```
-
-**פירוט מלא:** ראה MOBILE_GUIDELINES.md
+- **שורות קוד:** ~15,000
+- **מוצרים:** 1,778 (Firestore + Hive)
+- **משתמשי דמו:** 3
+- **רשימות זמינות:** 7
+- **סוגי רשימות:** 21
+- **קבלות:** 3 (דמו)
 
 ---
 
-## ✅ מה עובד
-
-### שודרג לאחרונה (05/10/2025)
-- ✅ **נתוני דמו חכמים** - טעינת 100+ מוצרים אמיתיים מ-JSON
-- ✅ **רשימות דינמיות** - 7 רשימות קניות + 3 קבלות עם מוצרים אמיתיים
-- ✅ **Logging מפורט** - ב-Models, Providers, Services (ראה WORK_LOG.md)
-- ✅ **תיעוד מקיף** - auth_button, config files, CODE_REVIEW_CHECKLIST
-
-### עבודות קודמות
-- ✅ **צמצום קבצי תיעוד** - חיסכון של 150k טוקנים
-- ✅ **Undo Pattern** - מחיקה עם ביטול בכל המערכת
-- ✅ **HomeStatsService** - חיבור למערכות אמיתיות
-- ✅ **ניהול מיקומי אחסון** - הוספה/עריכה/מחיקה + Undo
-- ✅ **מסך מזווה עם טאבים** - רשימה + מיקומים
-
-### קיים
-- ✅ CRUD רשימות/מלאי/קבלות
-- ✅ Hybrid Products (Hive + API)
-- ✅ RTL + Theme Light/Dark
-- ✅ Onboarding + ניווט
-
----
-
-## 💾 נתוני דמו
-
-### מוצרים אמיתיים
-- 📦 **100+ מוצרים** מקובץ `assets/data/products.json`
-- 🏪 נתונים אמיתיים מ"שופרסל" (מחירים, ברקודים, קטגוריות)
-- 🎯 בחירה חכמה לפי קטגוריות (מוצרי חלב, ניקיון, וכו')
-- 💾 Cache חכם - טעינה פעם אחת
-- ⚠️ Fallback - תמיד יש תוכנית B
-
-### דמו עשיר (demo_login_button)
-- 👤 **משתמש:** יוני (householdId: 'house_demo')
-- 📋 **7 רשימות קניות** - סופר, בית מרקחת, חומרי ניקיון...
-- 🧾 **3 קבלות** - עם מוצרים אמיתיים ומחירים
-- 🏠 **מלאי חכם** - מזווה, מקרר, מקפיא, אמבטיה
-- 🔄 **Providers אוטומטיים** - ProductsProvider ו-SuggestionsProvider
-
-**קוד:** `lib/data/demo_shopping_lists.dart`, `lib/data/rich_demo_data.dart`
-
----
-
-## 📊 Logging
-
-הפרויקט כולל logging מפורט לצורכי debug:
-
-- **Models:** `debugPrint` ב-`fromJson`/`toJson`
-- **Providers:** logging ב-`notifyListeners()`
-- **ProxyProvider:** logging ב-`update()`
-- **Services:** logging תוצאות + fallbacks
-- **User state:** login/logout changes
-
-**פורמט:** ✅ הצלחה | ⚠️ אזהרה | ❌ שגיאה
-
-**ראה:** CLAUDE_GUIDELINES.md, MOBILE_GUIDELINES.md
-
----
-
-## 📝 TODO
-
-### 🔥 גבוה
-- [ ] Firebase (Auth + Firestore + Storage)
-- [ ] Shared Lists + Realtime Sync
-- [ ] Receipt OCR
-- [ ] Smart Notifications
-
-### 📊 בינוני
-- [ ] גרפים (fl_chart)
-- [ ] Budget Management
-- [ ] Barcode Scanning
-- [ ] Price Tracking
-
-### 🎨 נמוך
-- [ ] Tests (Unit/Widget/Integration)
-- [ ] Performance Optimization
-- [ ] Accessibility
-- [ ] i18n (אנגלית)
-
----
-
-## 🛠 פקודות
-
-```bash
-# Development
-flutter pub get
-dart run build_runner build --delete-conflicting-outputs
-flutter run
-
-# Analysis
-flutter analyze
-dart fix --apply
-dart format lib/ -w
-
-# Build
-flutter build apk --release
-flutter build appbundle --release  # Google Play
-flutter build ios --release
-```
-
----
-
-## 🤝 Contributing
+## 🤝 תרומה לפרויקט
 
 1. Fork + Branch
 2. **קרא MOBILE_GUIDELINES.md** 📚
-3. Commit
-4. **בדוק CODE_REVIEW_CHECKLIST.md** ✅
-5. PR
+3. **קרא CLAUDE_GUIDELINES.md** 🤖
+4. Commit עם תיאור ברור
+5. **בדוק CODE_REVIEW_CHECKLIST.md** ✅
+6. PR
+
+---
+
+## 📄 רישיון
+
+MIT License - ראה LICENSE לפרטים
 
 ---
 
 **עדכון אחרון:** 05/10/2025  
 **גרסה:** 1.0.0+1  
-**Made with ❤️ in Israel**
+**Made with ❤️ in Israel** 🇮🇱
