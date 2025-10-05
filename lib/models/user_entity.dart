@@ -138,6 +138,28 @@ class UserEntity {
     );
   }
 
+  /// 🇮🇱 יצירת משתמש חדש
+  /// 🇬🇧 Create new user
+  factory UserEntity.newUser({
+    required String id,
+    required String email,
+    required String name,
+    String? householdId,
+  }) {
+    return UserEntity(
+      id: id,
+      name: name,
+      email: email,
+      householdId: householdId ?? 'house_$id',
+      joinedAt: DateTime.now(),
+      lastLoginAt: DateTime.now(),
+      preferredStores: const [],
+      favoriteProducts: const [],
+      weeklyBudget: 0.0,
+      isAdmin: true, // משתמש חדש הוא admin של משק הבית שלו
+    );
+  }
+
   // ---- JSON Serialization ----
 
   /// 🇮🇱 יצירה מ-JSON

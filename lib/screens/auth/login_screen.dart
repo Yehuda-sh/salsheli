@@ -40,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  /// ✅ פונקציית Login מתוקנת - עם חיבור מלא
+  /// ✅ פונקציית Login עם Firebase Authentication
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -51,30 +51,32 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final email = _emailController.text.trim();
+      final password = _passwordController.text;
 
-      // 🔹 1. יצירת userId (בדמו - מהאימייל; בפרודקשן - מהשרת)
-      final userId = email.split('@').first;
-
-      // 🔹 2. טעינת המשתמש מה-Repository (או יצירה אוטומטית)
+      // 🔹 1. התחברות דרך Firebase Auth
       final userContext = context.read<UserContext>();
-      await userContext.loadUser(userId);
+      await userContext.signIn(
+        email: email,
+        password: password,
+      );
 
-      // 🔹 3. בדיקה שהמשתמש נטען בהצלחה
+      // 🔹 2. בדיקה שההתחברות הצליחה
       if (!userContext.isLoggedIn) {
-        throw Exception('לא ניתן למצוא או ליצור משתמש');
+        throw Exception('שגיאה בהתחברות');
       }
 
-      // 🔹 4. שמירה ב-SharedPreferences דרך NavigationService
-      await NavigationService.saveUserId(userId);
+      // 🔹 3. שמירה ב-SharedPreferences
+      await NavigationService.saveUserId(userContext.userId!);
       await NavigationService.markOnboardingSeen();
 
-      // 🔹 5. ניווט לדף הבית
+      // 🔹 4. ניווט לדף הבית
       if (mounted) {
+        setState(() => _isLoading = false);
         await NavigationService.goToHome(context);
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'שגיאה בהתחברות: ${e.toString()}';
+        _errorMessage = e.toString().replaceAll('Exception: ', '');
         _isLoading = false;
       });
 

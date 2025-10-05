@@ -43,4 +43,8 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Firebase credentials - DO NOT COMMIT!
 scripts/firebase-service-account.json
+serviceAccountKey.json
+firebase-service-account.json

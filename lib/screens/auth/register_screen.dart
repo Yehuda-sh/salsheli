@@ -45,7 +45,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  /// ✅ פונקציית Register מתוקנת - עם חיבור מלא
+  /// ✅ פונקציית Register עם Firebase Authentication
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -57,37 +57,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
     try {
       final name = _nameController.text.trim();
       final email = _emailController.text.trim();
+      final password = _passwordController.text;
 
-      // 🔹 1. יצירת userId ייחודי
-      final userId =
-          '${email.split('@').first}_${DateTime.now().millisecondsSinceEpoch}';
-
-      // 🔹 2. יצירת משתמש חדש דרך Repository
+      // 🔹 1. רישום דרך Firebase Auth
       final userContext = context.read<UserContext>();
-      await userContext.loadUser(userId);
+      await userContext.signUp(
+        email: email,
+        password: password,
+        name: name,
+      );
 
-      // 🔹 3. עדכון שם המשתמש
-      if (userContext.user != null) {
-        final updatedUser = userContext.user!.copyWith(name: name);
-        await userContext.saveUser(updatedUser);
-      }
-
-      // 🔹 4. בדיקה שהמשתמש נוצר בהצלחה
+      // 🔹 2. בדיקה שהרישום הצליח
       if (!userContext.isLoggedIn) {
-        throw Exception('לא ניתן ליצור משתמש חדש');
+        throw Exception('שגיאה ביצירת החשבון');
       }
 
-      // 🔹 5. שמירה ב-SharedPreferences דרך NavigationService
-      await NavigationService.saveUserId(userId);
+      // 🔹 3. שמירה ב-SharedPreferences
+      await NavigationService.saveUserId(userContext.userId!);
       await NavigationService.markOnboardingSeen();
 
-      // 🔹 6. ניווט לדף הבית
+      // 🔹 4. ניווט לדף הבית
       if (mounted) {
+        setState(() => _isLoading = false);
         await NavigationService.goToHome(context);
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'שגיאה בהרשמה: ${e.toString()}';
+        _errorMessage = e.toString().replaceAll('Exception: ', '');
         _isLoading = false;
       });
 

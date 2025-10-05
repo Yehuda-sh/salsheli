@@ -30,9 +30,13 @@ import 'repositories/local_shopping_lists_repository.dart';
 import 'repositories/inventory_repository.dart';
 import 'repositories/receipt_repository.dart';
 import 'repositories/user_repository.dart';
+import 'repositories/firebase_user_repository.dart';  // 🔥 Firebase User!
 import 'repositories/local_products_repository.dart';
 import 'repositories/firebase_products_repository.dart';  // 🔥 Firebase!
 import 'repositories/hybrid_products_repository.dart';
+
+// Services
+import 'services/auth_service.dart';  // 🔐 Firebase Auth!
 
 // Screens
 import 'screens/index_screen.dart';
@@ -118,9 +122,38 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        // === User Context ===
-        ChangeNotifierProvider(
-          create: (_) => UserContext(repository: MockUserRepository()),
+        // === Auth Service === 🔐
+        Provider(
+          create: (_) {
+            debugPrint('🔐 main.dart: יוצר AuthService');
+            return AuthService();
+          },
+        ),
+
+        // === Firebase User Repository === 🔥
+        Provider<UserRepository>(
+          create: (_) {
+            debugPrint('🔥 main.dart: יוצר FirebaseUserRepository');
+            return FirebaseUserRepository();
+          },
+        ),
+
+        // === User Context === 👤
+        ChangeNotifierProxyProvider2<AuthService, UserRepository, UserContext>(
+          create: (context) {
+            debugPrint('👤 main.dart: יוצר UserContext עם Firebase');
+            return UserContext(
+              repository: context.read<UserRepository>(),
+              authService: context.read<AuthService>(),
+            );
+          },
+          update: (context, authService, repository, previous) {
+            debugPrint('🔄 main.dart: מעדכן UserContext');
+            return previous ?? UserContext(
+              repository: repository,
+              authService: authService,
+            );
+          },
         ),
 
         // === Products Provider === 🆕 Hybrid + ProxyProvider
@@ -270,19 +303,13 @@ class _MyAppState extends State<MyApp> {
   }
 
   /// 👤 טעינת משתמש שמור אחרי שכל ה-Providers נבנו
+  /// 
+  /// ⚠️ לא צריך יותר - AuthService מטפל בזה אוטומטית!
+  /// Firebase Auth שומר את המשתמש בזיכרון ומתחבר אוטומטית
   Future<void> _loadSavedUser() async {
-    debugPrint('👤 MyApp: בודק אם יש משתמש שמור...');
-    final prefs = await SharedPreferences.getInstance();
-    final savedUserId = prefs.getString('userId');
-
-    if (savedUserId != null && mounted) {
-      debugPrint('✅ MyApp: נמצא userId שמור: $savedUserId');
-      final userContext = context.read<UserContext>();
-      await userContext.loadUser(savedUserId);
-      debugPrint('✅ MyApp: משתמש נטען בהצלחה');
-    } else {
-      debugPrint('⚠️ MyApp: אין משתמש שמור');
-    }
+    debugPrint('👤 MyApp: בודק auth state...');
+    debugPrint('   Firebase Auth מטפל בזה אוטומטית דרך authStateChanges');
+    debugPrint('   אין צורך לטעון ידנית!');
   }
 
   @override

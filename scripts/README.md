@@ -1,315 +1,237 @@
-# 📦 סקריפט שמירת מוצרים ממחירון
+# 🔐 הוראות הגדרת Firebase Authentication
 
-סקריפט לשליפת מוצרים ממערכת "מחירון" (מחיר לצרכן) ושמירתם מקומית.
+## 📝 סקירה כללית
 
-## 🎯 מה הסקריפט עושה?
+המערכת עברה מ-Mock Authentication ל-**Firebase Authentication** אמיתי עם 3 משתמשי דמו מוכנים:
 
-1. ✅ מתחבר למערכת מחירון הממשלתית
-2. 📥 מוריד קבצי XML של מחירים (אלפי מוצרים!)
-3. 🔄 מעבד ומסנן את המוצרים
-4. 💾 שומר את כל הנתונים ל-`assets/data/products.json`
-
-## 🚀 הרצה מהירה
-
-```powershell
-# הרץ את הסקריפט
-dart run scripts/fetch_published_products.dart
-```
-
-זהו! הסקריפט יעשה הכל אוטומטית.
+| משתמש | אימייל | סיסמה | UID |
+|------|--------|-------|-----|
+| יוני | yoni@demo.com | Demo123! | yoni_demo_user |
+| שרה | sarah@demo.com | Demo123! | sarah_demo_user |
+| דני | danny@demo.com | Demo123! | danny_demo_user |
 
 ---
 
-## ⚙️ תצורה
+## 🚀 צעדי הגדרה
 
-פתח את `fetch_published_products.dart` ושנה את ההגדרות בראש הקובץ:
+### שלב 1: הורדת Service Account Key
 
-```dart
-// שם רשת (null = כל הרשתות)
-const String? chainName = 'רמי לוי';
+1. פתח את [Firebase Console](https://console.firebase.google.com/)
+2. בחר בפרוייקט שלך
+3. לחץ על ⚙️ **Settings** → **Project Settings**
+4. עבור ל-**Service Accounts**
+5. לחץ על **Generate new private key**
+6. שמור את הקובץ כ-`serviceAccountKey.json` בתיקיית הפרוייקט (root)
 
-// נתיב הקובץ היעד
-const String outputFile = 'assets/data/products.json';
+⚠️ **חשוב:** אל תשתף את הקובץ הזה! הוסף אותו ל-`.gitignore`
 
-// האם לשמור רק ייחודיים (לפי barcode)
-const bool uniqueOnly = true;
+### שלב 2: התקנת תלויות
 
-// מספר מוצרים מקסימלי (null = הכל)
-const int? maxProducts = 5000;
+```bash
+cd scripts
+npm install
+```
 
-// מחיר מינימלי (סינון מוצרים זולים מדי)
-const double minPrice = 0.5;
+### שלב 3: יצירת משתמשי הדמו
+
+```bash
+npm run create-users
+```
+
+או ישירות:
+
+```bash
+node create_demo_users.js
+```
+
+### שלב 4: אימות הצלחה
+
+אחרי הרצת ה-script, אתה אמור לראות:
+
+```
+✅ Created new user with UID: yoni_demo_user
+💾 Creating Firestore document for: יוני
+   ✅ Firestore document created
+✅ Successfully created: יוני
+
+...
+
+🎉 All demo users created successfully!
+
+You can now login with:
+   • יוני: yoni@demo.com / Demo123!
+   • שרה: sarah@demo.com / Demo123!
+   • דני: danny@demo.com / Demo123!
 ```
 
 ---
 
-## 📋 מה נשמר בקובץ?
+## 🧪 בדיקת ההתחברות
 
-כל מוצר כולל:
+### מ-האפליקציה
 
+1. הרץ את האפליקציה: `flutter run`
+2. במסך התחברות:
+   - לחץ על **"בחר משתמש דמו"**
+   - בחר יוני/שרה/דני
+   - לחץ **"התחבר עם חשבון דמו"**
+
+### התחברות ידנית
+
+באפשרותך גם להתחבר ידנית:
+- אימייל: `yoni@demo.com`
+- סיסמה: `Demo123!`
+
+---
+
+## 🔧 פתרון בעיות
+
+### בעיה: "User not found"
+
+**פתרון:**
+```bash
+# וודא שהמשתמשים נוצרו ב-Firebase
+cd scripts
+npm run create-users
+```
+
+### בעיה: "Invalid credential"
+
+**סיבות אפשריות:**
+1. הסיסמה שגויה - וודא שהיא `Demo123!`
+2. המשתמש לא קיים ב-Firebase Auth
+3. Firebase לא מאותחל כראוי
+
+**פתרון:**
+```bash
+# מחק משתמשים קיימים ב-Firebase Console
+# הרץ מחדש את ה-script
+cd scripts
+npm run create-users
+```
+
+### בעיה: "Failed to initialize Firebase Admin"
+
+**פתרון:**
+1. וודא שהורדת את `serviceAccountKey.json`
+2. שם אותו בתיקיית הפרוייקט (root)
+3. וודא שהקובץ תקין (JSON)
+
+---
+
+## 📂 מבנה הקבצים
+
+```
+C:\projects\salsheli\
+│
+├── serviceAccountKey.json         # ⚠️ אל תעלה ל-Git!
+│
+├── lib/
+│   ├── services/
+│   │   └── auth_service.dart      # 🔐 שירות אימות
+│   │
+│   ├── repositories/
+│   │   └── firebase_user_repository.dart  # 🔥 משתמשים ב-Firestore
+│   │
+│   ├── providers/
+│   │   └── user_context.dart      # 👤 מנהל משתמש נוכחי
+│   │
+│   ├── screens/auth/
+│   │   ├── login_screen.dart      # 🔐 מסך התחברות
+│   │   └── register_screen.dart   # 📝 מסך הרשמה
+│   │
+│   └── widgets/auth/
+│       └── demo_login_button.dart # 🚀 כפתור דמו
+│
+└── scripts/
+    ├── package.json
+    └── create_demo_users.js       # 🛠️ יצירת משתמשי דמו
+```
+
+---
+
+## 🔒 אבטחה
+
+### מה נשמר ב-Firebase:
+
+**Authentication:**
+- אימייל
+- סיסמה מוצפנת (Firebase מטפל בזה)
+- שם תצוגה
+- תאריך יצירה
+
+**Firestore (users collection):**
 ```json
 {
-  "name": "חלב 3%",
-  "category": "מוצרי חלב",
-  "icon": "🥛",
-  "price": 7.9,
-  "barcode": "7290000066619",
-  "brand": "תנובה",
-  "unit": "ליטר",
-  "store": "רמי לוי"
+  "id": "yoni_demo_user",
+  "email": "yoni@demo.com",
+  "name": "יוני",
+  "avatar": null,
+  "householdId": "house_demo",
+  "createdAt": "2025-10-05T...",
+  "lastLoginAt": "2025-10-05T..."
 }
 ```
 
-### שדות:
-- **name** - שם המוצר
-- **category** - קטגוריה (מזוהה אוטומטית)
-- **icon** - אייקון לפי הקטגוריה
-- **price** - מחיר במחירון
-- **barcode** - ברקוד (מזהה ייחודי)
-- **brand** - מותג/יצרן
-- **unit** - יחידת מידה
-- **store** - שם הרשת
+### חוקי אבטחה מומלצים:
 
----
-
-## 🎨 קטגוריות נתמכות
-
-הסקריפט מזהה אוטומטית:
-
-| קטגוריה | אייקון | דוגמאות |
-|---------|--------|----------|
-| מוצרי חלב | 🥛 | חלב, גבינה, יוגורט |
-| מאפים | 🍞 | לחם, חלה, בורקס |
-| ירקות | 🥬 | עגבניה, מלפפון, חסה |
-| פירות | 🍎 | תפוח, בננה, תפוז |
-| בשר ודגים | 🥩 | עוף, בשר, דגים |
-| אורז ופסטה | 🍚 | אורז, פסטה, קוסקוס |
-| שמנים ורטבים | 🫗 | שמן, קטשופ, מיונז |
-| תבלינים ואפייה | 🧂 | סוכר, מלח, קמח |
-| ממתקים וחטיפים | 🍫 | שוקולד, ביסלי |
-| משקאות | 🥤 | קוקה קולה, מיצים |
-| מוצרי ניקיון | 🧼 | סבון, מטהר |
-
----
-
-## 🔧 דוגמאות שימוש
-
-### 1. רשת ספציפית
-```dart
-const String? chainName = 'שופרסל';
-```
-
-### 2. כל הרשתות
-```dart
-const String? chainName = null;
-```
-
-### 3. הגבלת מוצרים
-```dart
-const int? maxProducts = 1000; // רק 1000 מוצרים
-```
-
-### 4. ללא הגבלה
-```dart
-const int? maxProducts = null; // כל המוצרים
-```
-
-### 5. כולל כפילויות
-```dart
-const bool uniqueOnly = false; // לא מסנן כפילויות
-```
-
-### 6. שמירה לקובץ אחר
-```dart
-const String outputFile = 'backup/products_full.json';
-```
-
----
-
-## 📊 פלט לדוגמה
-
-```
-🛒 מתחיל שליפת מוצרים ממערכת מחירון...
-
-🔐 מתחבר למערכת...
-✅ התחברות הצליחה
-
-📂 מחפש קבצי מחירים...
-✓ נמצאו 3 קבצים
-
-⬇️  מוריד ומפענח מוצרים...
-✓ פוענחו 12543 מוצרים גולמיים
-
-🔄 מעבד מוצרים...
-   ✓ סוננו מוצרים מתחת ל-₪0.5
-   ✓ הוסרו כפילויות (נותרו 8234 ייחודיים)
-   ✓ הוגבל ל-5000 מוצרים
-✓ עובדו 5000 מוצרים
-
-💾 שומר לקובץ...
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📊 סיכום
-━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📦 סה"כ מוצרים: 5000
-
-📁 מוצרים לפי קטגוריות:
-   🥤 משקאות: 723
-   🛒 אחר: 612
-   🧼 מוצרי ניקיון: 458
-   🥛 מוצרי חלב: 387
-   🍫 ממתקים וחטיפים: 356
-   ...
-
-💰 סטטיסטיקות מחירים:
-   מינימום: ₪0.50
-   מקסימום: ₪389.90
-   ממוצע: ₪12.45
-
-📦 דוגמה ל-5 מוצרים:
-   1. אבוקדו מנגו טבעי 220 גרם (פירות) - ₪23.90
-   2. אבקת כביסה אריאל אוטומט 7 ק"ג (מוצרי ניקיון) - ₪89.90
-   3. אורז בסמטי תערובת אורז לבן וחום 1 ק"ג (אורז ופסטה) - ₪18.90
-   4. אזוב תבלין 12 גרם (תבלינים ואפייה) - ₪5.90
-   5. איטליה זיתי קלמטה ממולאים שום ממולאים 1 ק"ג (שמנים ורטבים) - ₪45.90
-━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-✅ הסתיים בהצלחה!
-📂 הקובץ נשמר ב: assets/data/products.json
-```
-
----
-
-## ⚠️ טיפול בשגיאות
-
-### "התחברות נכשלה"
-- בדוק חיבור לאינטרנט
-- אתר מחירון עשוי להיות לא זמין זמנית
-- נסה שוב מאוחר יותר
-
-### "לא נמצאו קבצים"
-- שנה את `chainName` לרשת אחרת
-- נסה עם `null` (כל הרשתות)
-
-### "שגיאה בפענוח XML"
-- הקובץ עשוי להיות פגום
-- נסה להוריד קובץ אחר מהרשימה
-
-### "אין הרשאת כתיבה"
-- הרץ PowerShell כמנהל
-- ודא שהתיקייה `assets/data` קיימת וניתנת לכתיבה
-
----
-
-## 💡 טיפים
-
-### 1. גיבוי לפני הרצה
-```powershell
-Copy-Item assets/data/products.json assets/data/products_backup.json
-```
-
-### 2. בדיקה מקדימה - שמירה זמנית
-```dart
-const String outputFile = 'test_products.json';
-const int? maxProducts = 100; // רק 100 לבדיקה
-```
-
-### 3. שמירת הכל ללא סינון
-```dart
-const bool uniqueOnly = false;
-const int? maxProducts = null;
-const double minPrice = 0.0;
-```
-
-### 4. רק מוצרי מזון (בערך)
-הסקריפט כבר מסנן מוצרי ניקיון, אבל אם רוצים רק מזון:
-```dart
-// הוסף אחרי guessCategory
-if (category == 'מוצרי ניקיון' || category == 'היגיינה אישית') {
-  continue;
+```javascript
+// Firestore Security Rules
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // users - רק בעלים יכול לקרוא/לכתוב
+    match /users/{userId} {
+      allow read, write: if request.auth != null 
+                          && request.auth.uid == userId;
+    }
+    
+    // shopping_lists - רק חברי משק בית
+    match /shopping_lists/{listId} {
+      allow read, write: if request.auth != null 
+                          && get(/databases/$(database)/documents/users/$(request.auth.uid))
+                             .data.householdId 
+                             == resource.data.householdId;
+    }
+  }
 }
 ```
 
 ---
 
-## 🔍 דיבאג
+## 📚 תיעוד נוסף
 
-### הצגת קישור לקובץ שמורד
-הוסף אחרי שורה 123:
-```dart
-print('קישור: $fileUrl');
-```
-
-### שמירת XML הגולמי
-```dart
-await File('debug.xml').writeAsString(xmlContent);
-```
-
-### ספירת פריטים ב-XML
-```dart
-print('פריטים ב-XML: ${items.length}');
-```
+- [Firebase Authentication Docs](https://firebase.google.com/docs/auth)
+- [Firestore Docs](https://firebase.google.com/docs/firestore)
+- [Security Rules](https://firebase.google.com/docs/firestore/security/get-started)
 
 ---
 
-## 📚 מידע נוסף
+## ✅ סטטוס השינויים
 
-### על מערכת מחירון
-מערכת מחיר לצרכן של משרד הכלכלה מפרסמת מחירים של כל הרשתות הגדולות בישראל.
-
-### רשתות נתמכות
-- רמי לוי
-- שופרסל
-- ויקטורי
-- יינות ביתן
-- עדן טבע מרקט
-- ועוד...
-
-### תדירות עדכון
-המחירים מתעדכנים יומית ברוב הרשתות.
+| קובץ | סטטוס | תיאור |
+|------|-------|-------|
+| `pubspec.yaml` | ✅ | הוספת firebase_auth |
+| `auth_service.dart` | ✅ | שירות אימות חדש |
+| `firebase_user_repository.dart` | ✅ | Repository ל-Firestore |
+| `user_context.dart` | ✅ | עדכון לעבודה עם Firebase |
+| `login_screen.dart` | ✅ | התחברות אמיתית |
+| `register_screen.dart` | ✅ | רישום אמיתי |
+| `demo_login_button.dart` | ✅ | כפתור דמו מעודכן |
+| `main.dart` | ✅ | Providers מעודכנים |
+| `create_demo_users.js` | ✅ | Script יצירת משתמשים |
 
 ---
 
-## ⏱️ זמן ריצה
+## 🎯 הצעדים הבאים
 
-- **התחברות**: ~2-5 שניות
-- **רשימת קבצים**: ~3-10 שניות
-- **הורדה ופענוח**: ~30-120 שניות (תלוי בגודל הקובץ)
-- **עיבוד**: ~5-15 שניות
-- **שמירה**: ~1-3 שניות
-
-**סה"כ**: כ-1-3 דקות בממוצע
+1. ✅ הרץ את ה-script ליצירת משתמשים
+2. ✅ בדוק התחברות באפליקציה
+3. 🔜 הוסף חוקי אבטחה ב-Firestore
+4. 🔜 בדוק תרחישי שימוש שונים
+5. 🔜 הוסף אימות אימייל (אופציונלי)
 
 ---
 
-## 🎓 שאלות נפוצות
-
-**ש: כמה מוצרים יש בממוצע?**  
-ת: רשת בינונית ~10,000-20,000 מוצרים. כל הרשתות: 50,000+
-
-**ש: האם הסקריפט בטוח?**  
-ת: כן, הוא מתחבר רק לשרת הממשלתי הרשמי.
-
-**ש: אפשר להריץ כמה פעמים?**  
-ת: כן, אבל מומלץ לא להפריז (פעם ביום מספיק).
-
-**ש: איפה הברקודים?**  
-ת: ב-`ItemCode` - זה בדרך כלל ברקוד או קוד פנימי של הרשת.
-
-**ש: מה ההבדל בין products.json למחירון?**  
-ת: products.json זה הקטלוג שלך. מחירון זה המקור.
-
----
-
-## 🛠️ דרישות
-
-- Dart SDK
-- חבילות: `http`, `xml`, `archive` (מותקנות דרך `pubspec.yaml`)
-- חיבור לאינטרנט
-
----
-
-## 📝 רישיון
-
-נתוני מחירון הם נחלת הכלל (ממשלתי).
+עודכן: 05/10/2025 | גרסה: 1.0.0

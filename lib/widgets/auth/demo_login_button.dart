@@ -1,30 +1,27 @@
 // 📄 File: lib/widgets/auth/demo_login_button.dart
-// תיאור: כפתור כניסה מהירה עם משתמש דמו (יוני) - משתמש אמיתי מלא
+// תיאור: כפתור כניסה מהירה עם משתמשים אמיתיים מ-Firebase
 //
 // עדכונים (05/10/2025):
-// ✅ שם מעודכן: "יוני" (סונכרן עם UserRepository)
-// ✅ householdId נכון: 'house_demo' (זהה בכל הנתונים)
-// ✅ ProductsProvider ו-SuggestionsProvider אוטומטיים (ProxyProvider)
-// ✅ טוען משתמש + היסטוריה מלאה
+// ✅ שימוש ב-Firebase Authentication
+// ✅ 3 משתמשים מוכנים: יוני, שרה, דני
+// ✅ התחברות אמיתית עם אימייל וסיסמה
+// ✅ טעינה אוטומטית של נתוני דמו
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/user_context.dart';
 import '../../providers/shopping_lists_provider.dart';
-import '../../providers/inventory_provider.dart';
 import '../../providers/receipt_provider.dart';
 import '../../services/navigation_service.dart';
 import '../../data/rich_demo_data.dart';
 
 /// כפתור כניסה מהירה למשתמש דמו
 ///
-/// מה הכפתור עושה:
-/// 1. מתחבר כמשתמש יוני (yoni_123) - משתמש אמיתי מלא
-/// 2. טוען את כל נתוני הדמו (7 רשימות, 3 קבלות)
-/// 3. ProductsProvider ו-SuggestionsProvider נטענים אוטומטית (ProxyProvider)
-/// 4. שומר את המשתמש ב-SharedPreferences
-/// 5. מנווט לדף הבית
+/// 3 משתמשים זמינים:
+/// 1. יוני - yoni@demo.com (סיסמה: Demo123!)
+/// 2. שרה - sarah@demo.com (סיסמה: Demo123!)
+/// 3. דני - danny@demo.com (סיסמה: Demo123!)
 class DemoLoginButton extends StatefulWidget {
   const DemoLoginButton({super.key});
 
@@ -34,25 +31,60 @@ class DemoLoginButton extends StatefulWidget {
 
 class _DemoLoginButtonState extends State<DemoLoginButton> {
   bool _isLoading = false;
+  String _selectedUser = 'yoni'; // ברירת מחדל
 
-  /// טעינת משתמש דמו עם כל ההיסטוריה
+  // משתמשי דמו זמינים
+  final Map<String, Map<String, String>> _demoUsers = {
+    'yoni': {
+      'email': 'yoni@demo.com',
+      'password': 'Demo123!',
+      'name': 'יוני',
+      'householdId': 'house_demo',
+    },
+    'sarah': {
+      'email': 'sarah@demo.com',
+      'password': 'Demo123!',
+      'name': 'שרה',
+      'householdId': 'house_demo',
+    },
+    'danny': {
+      'email': 'danny@demo.com',
+      'password': 'Demo123!',
+      'name': 'דני',
+      'householdId': 'house_demo',
+    },
+  };
+
+  /// טעינת משתמש דמו עם Firebase Authentication
   Future<void> _handleDemoLogin() async {
     setState(() => _isLoading = true);
 
     try {
-      const demoUserId = 'yoni_123';
-      const demoHouseholdId = 'house_demo';
+      final demoUser = _demoUsers[_selectedUser]!;
+      final email = demoUser['email']!;
+      final password = demoUser['password']!;
+      final householdId = demoUser['householdId']!;
 
-      // 1. טוען את המשתמש
+      debugPrint('🔐 DemoLogin: מתחבר כ-${demoUser['name']} ($email)');
+
+      // 1. התחברות עם Firebase Auth
       final userContext = context.read<UserContext>();
-      await userContext.loadUser(demoUserId);
+      await userContext.signIn(
+        email: email,
+        password: password,
+      );
 
       if (!userContext.isLoggedIn) {
-        throw Exception('לא ניתן לטעון משתמש דמו');
+        throw Exception('שגיאה בהתחברות');
       }
 
+      debugPrint('✅ DemoLogin: התחברות הושלמה - ${userContext.userId}');
+
       // 2. טוען את נתוני הדמו העשירים
-      final demoData = await loadRichDemoData(demoUserId, demoHouseholdId);
+      final demoData = await loadRichDemoData(
+        userContext.userId!,
+        householdId,
+      );
 
       // 3. טוען רשימות קניות
       if (mounted) {
@@ -60,6 +92,7 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
         for (var list in demoData['shoppingLists']) {
           await listsProvider.updateList(list);
         }
+        debugPrint('✅ DemoLogin: טען ${demoData['shoppingLists'].length} רשימות');
       }
 
       // 4. טוען קבלות
@@ -69,37 +102,31 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
           for (var receipt in demoData['receipts']) {
             await receiptProvider.updateReceipt(receipt);
           }
+          debugPrint('✅ DemoLogin: טען ${demoData['receipts'].length} קבלות');
         } catch (e) {
-          debugPrint('ReceiptProvider לא זמין: $e');
+          debugPrint('⚠️ DemoLogin: ReceiptProvider לא זמין - $e');
         }
       }
 
-      // 5. מלאי - דילוג (API לא תומך)
-      if (mounted) {
-        debugPrint('מלאי דמו: מדלג על טעינה (API לא זמין)');
-      }
+      // 5. ProductsProvider ו-SuggestionsProvider יטענו אוטומטית (ProxyProvider)
+      debugPrint('🔄 DemoLogin: ProductsProvider יטען אוטומטית');
 
-      // 6. ProductsProvider ו-SuggestionsProvider יטענו אוטומטית
-      // הם ProxyProviders שמאזינים ל-UserContext ויטענו כשהמשתמש מתחבר
-      debugPrint('🔄 ProductsProvider ו-SuggestionsProvider יטענו אוטומטית דרך ProxyProvider');
-      debugPrint('   (זה קורה אוטומטית ב-main.dart)');
-
-      // 7. שומר ב-SharedPreferences
-      await NavigationService.saveUserId(demoUserId);
+      // 6. שומר ב-SharedPreferences
+      await NavigationService.saveUserId(userContext.userId!);
       await NavigationService.markOnboardingSeen();
 
-      // 8. מציג הודעת הצלחה
+      // 7. מציג הודעת הצלחה
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ התחברת בהצלחה כיוני!'),
+          SnackBar(
+            content: Text('✅ התחברת בהצלחה כ${demoUser['name']}!'),
             backgroundColor: Colors.green,
-            duration: Duration(seconds: 2),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
 
-      // 9. ניווט לדף הבית
+      // 8. ניווט לדף הבית
       if (mounted) {
         await NavigationService.goToHome(context);
       }
@@ -109,36 +136,93 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('שגיאה בכניסה: ${e.toString()}'),
+            content: Text('שגיאה: ${e.toString().replaceAll('Exception: ', '')}'),
             backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
+            duration: const Duration(seconds: 4),
           ),
         );
       }
     }
   }
 
+  /// מציג דיאלוג לבחירת משתמש
+  Future<void> _showUserSelectionDialog() async {
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('בחר משתמש דמו'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: _demoUsers.entries.map((entry) {
+            final user = entry.value;
+            return RadioListTile<String>(
+              value: entry.key,
+              groupValue: _selectedUser,
+              title: Text(user['name']!),
+              subtitle: Text(user['email']!),
+              onChanged: (value) => Navigator.pop(context, value),
+            );
+          }).toList(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('ביטול'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null && result != _selectedUser) {
+      setState(() => _selectedUser = result);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return OutlinedButton.icon(
-      onPressed: _isLoading ? null : _handleDemoLogin,
-      icon: _isLoading
-          ? const SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          : const Icon(Icons.rocket_launch_outlined, size: 20),
-      label: Text(
-        _isLoading ? 'טוען...' : 'התחבר עם חשבון דמו',
-        style: const TextStyle(fontSize: 14),
-      ),
-      style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
+    final currentUser = _demoUsers[_selectedUser]!;
+
+    return Column(
+      children: [
+        // כפתור בחירת משתמש
+        OutlinedButton.icon(
+          onPressed: _isLoading ? null : _showUserSelectionDialog,
+          icon: const Icon(Icons.person_outline, size: 20),
+          label: Text(
+            'משתמש נוכחי: ${currentUser['name']}',
+            style: const TextStyle(fontSize: 14),
+          ),
+          style: OutlinedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+            ),
+          ),
         ),
-      ),
+        const SizedBox(height: 8),
+
+        // כפתור התחברות
+        OutlinedButton.icon(
+          onPressed: _isLoading ? null : _handleDemoLogin,
+          icon: _isLoading
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.rocket_launch_outlined, size: 20),
+          label: Text(
+            _isLoading ? 'מתחבר...' : 'התחבר עם חשבון דמו',
+            style: const TextStyle(fontSize: 14),
+          ),
+          style: OutlinedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
