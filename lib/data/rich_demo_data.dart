@@ -9,32 +9,14 @@
 //
 // תיאור: נתוני דמו עשירים למשתמש דמו - רשימות, קבלות, מלאי, היסטוריה
 
-import 'dart:convert';
 import 'dart:math';
-import 'package:flutter/services.dart' show rootBundle;
 import '../models/shopping_list.dart';
 import '../models/receipt.dart';
 import '../models/inventory_item.dart';
 import '../core/constants.dart';
+import '../helpers/product_loader.dart';
 
-/// Cache למוצרים שנטענו מה-JSON
-List<Map<String, dynamic>>? _richDemoProductsCache;
-
-/// טעינת מוצרים מקובץ JSON (cache משותף)
-Future<List<Map<String, dynamic>>> _loadProducts() async {
-  if (_richDemoProductsCache != null) return _richDemoProductsCache!;
-
-  try {
-    final jsonString = await rootBundle.loadString('assets/data/products.json');
-    final List<dynamic> jsonList = json.decode(jsonString);
-    _richDemoProductsCache = jsonList.cast<Map<String, dynamic>>();
-    print('✅ Rich Demo: נטענו ${_richDemoProductsCache!.length} מוצרים');
-    return _richDemoProductsCache!;
-  } catch (e) {
-    print('❌ Rich Demo: Error loading products.json: $e');
-    return [];
-  }
-}
+// ✅ משתמש ב-product_loader.dart (cache משותף)
 
 /// בחירת מוצרים אקראיים לפי קטגוריה
 Future<List<ReceiptItem>> _getRandomReceiptItems({
@@ -42,7 +24,7 @@ Future<List<ReceiptItem>> _getRandomReceiptItems({
   List<String>? categories,
   bool allChecked = false,
 }) async {
-  final products = await _loadProducts();
+  final products = await loadProductsAsList();
   if (products.isEmpty) {
     print('⚠️ Rich Demo: אין מוצרים זמינים, משתמש בפריטים ברירת מחדל');
     return _getFallbackItems(count);
@@ -308,7 +290,7 @@ Future<List<Receipt>> getRichDemoReceipts() async {
 /// === מלאי דמו ===
 /// ✅ מלאי מגוון עם מוצרים אמיתיים מ-JSON
 Future<List<InventoryItem>> getRichDemoInventory() async {
-  final products = await _loadProducts();
+  final products = await loadProductsAsList();
   
   // אם אין מוצרים, החזר מלאי ברירת מחדל
   if (products.isEmpty) {

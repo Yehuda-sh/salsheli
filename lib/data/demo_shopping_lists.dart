@@ -11,30 +11,13 @@
 // 🇮🇱 נתוני דמו לרשימות קניות (לפיתוח/בדיקות בלבד!)
 // 🇬🇧 Demo shopping lists (dev/testing only)
 
-import 'dart:convert';
 import 'dart:math';
-import 'package:flutter/services.dart' show rootBundle;
 import '../api/entities/shopping_list.dart' as api;
 import '../models/shopping_list.dart' as domain;
 import '../models/receipt.dart';
+import '../helpers/product_loader.dart';
 
-/// Cache למוצרים שנטענו מה-JSON
-List<Map<String, dynamic>>? _productsCache;
-
-/// טעינת מוצרים מקובץ JSON
-Future<List<Map<String, dynamic>>> _loadProducts() async {
-  if (_productsCache != null) return _productsCache!;
-
-  try {
-    final jsonString = await rootBundle.loadString('assets/data/products.json');
-    final List<dynamic> jsonList = json.decode(jsonString);
-    _productsCache = jsonList.cast<Map<String, dynamic>>();
-    return _productsCache!;
-  } catch (e) {
-    print('❌ Error loading products.json: $e');
-    return [];
-  }
-}
+// ✅ משתמש ב-product_loader.dart (cache משותף)
 
 /// בחירת מוצרים אקראיים לפי קטגוריה
 Future<List<api.ApiShoppingListItem>> _getRandomItems({
@@ -42,7 +25,7 @@ Future<List<api.ApiShoppingListItem>> _getRandomItems({
   List<String>? categories,
   bool includeChecked = true,
 }) async {
-  final products = await _loadProducts();
+  final products = await loadProductsAsList();
   if (products.isEmpty) return [];
 
   // סינון לפי קטגוריות (אם צוין)

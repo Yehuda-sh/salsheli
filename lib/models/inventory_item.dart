@@ -25,6 +25,7 @@
 //     - Link to Product/PriceData model.
 //
 
+import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'inventory_item.g.dart';
@@ -66,12 +67,29 @@ class InventoryItem {
 
   /// 🇮🇱 יצירה מ־JSON (deserialize).
   /// 🇬🇧 Create from JSON.
-  factory InventoryItem.fromJson(Map<String, dynamic> json) =>
-      _$InventoryItemFromJson(json);
+  factory InventoryItem.fromJson(Map<String, dynamic> json) {
+    debugPrint('📥 InventoryItem.fromJson:');
+    debugPrint('   id: ${json['id']}');
+    debugPrint('   productName: ${json['productName']}');
+    debugPrint('   category: ${json['category']}');
+    debugPrint('   location: ${json['location']}');
+    debugPrint('   quantity: ${json['quantity']}');
+    debugPrint('   unit: ${json['unit']}');
+    return _$InventoryItemFromJson(json);
+  }
 
   /// 🇮🇱 המרה ל־JSON (serialize).
   /// 🇬🇧 Convert to JSON.
-  Map<String, dynamic> toJson() => _$InventoryItemToJson(this);
+  Map<String, dynamic> toJson() {
+    debugPrint('📤 InventoryItem.toJson:');
+    debugPrint('   id: $id');
+    debugPrint('   productName: $productName');
+    debugPrint('   category: $category');
+    debugPrint('   location: $location');
+    debugPrint('   quantity: $quantity');
+    debugPrint('   unit: $unit');
+    return _$InventoryItemToJson(this);
+  }
 
   /// 🇮🇱 יצירת עותק חדש עם עדכונים.
   /// 🇬🇧 Create a new copy with updates.

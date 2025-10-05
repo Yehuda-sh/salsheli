@@ -1,15 +1,83 @@
 // 📄 File: lib/models/suggestion.dart
-// תיאור: מודל להמלצות חכמות על מוצרים שכדאי להוסיף לרשימת הקניות
+//
+// 🇮🇱 מודל המלצות חכמות למוצרים:
+//     - מייצג המלצה למוצר שכדאי להוסיף לרשימת קניות.
+//     - מבוסס על ניתוח מלאי נמוך או היסטוריית קניות.
+//     - כולל עדיפות, סיבה, וכמות מומלצת.
+//     - נתמך ע"י JSON לצורך סנכרון עם שרת ושמירה מקומית.
+//
+// 💡 רעיונות עתידיים:
+//     - למידת מכונה: חיזוי מוצרים לפי עונה ומועדים.
+//     - התראות פרואקטיביות: "חלב עומד להיגמר בעוד יומיים".
+//     - המלצות חכמות: "הוספת עגבניות? אולי גם מלפפון?"
+//     - אינטגרציה עם מבצעים: "יוגורט במבצע בסופר!"
+//     - שיתוף המלצות בין משתמשי משק הבית.
+//
+// 🇬🇧 Smart product suggestions model:
+//     - Represents a product recommendation to add to shopping list.
+//     - Based on low inventory analysis or purchase history.
+//     - Includes priority, reason, and suggested quantity.
+//     - Supports JSON for server sync and local storage.
+//
+// 💡 Future ideas:
+//     - Machine learning: predict products by season and events.
+//     - Proactive alerts: "Milk running out in 2 days".
+//     - Smart suggestions: "Adding tomatoes? Maybe cucumber too?"
+//     - Sales integration: "Yogurt on sale at the supermarket!"
+//     - Share suggestions between household members.
+//
 
+import 'package:flutter/foundation.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'suggestion.g.dart';
+
+/// 🇮🇱 מודל המלצה חכמה למוצר
+/// 🇬🇧 Smart product suggestion model
+@JsonSerializable()
 class Suggestion {
+  /// 🇮🇱 מזהה ייחודי להמלצה
+  /// 🇬🇧 Unique suggestion identifier
   final String id;
+
+  /// 🇮🇱 שם המוצר
+  /// 🇬🇧 Product name
+  @JsonKey(name: 'product_name')
   final String productName;
-  final String reason; // "running_low" | "frequently_bought" | "both"
+
+  /// 🇮🇱 סיבת ההמלצה: "running_low" | "frequently_bought" | "both"
+  /// 🇬🇧 Suggestion reason: "running_low" | "frequently_bought" | "both"
+  @JsonKey(defaultValue: 'frequently_bought')
+  final String reason;
+
+  /// 🇮🇱 קטגוריית המוצר
+  /// 🇬🇧 Product category
+  @JsonKey(defaultValue: 'כללי')
   final String category;
+
+  /// 🇮🇱 כמות מומלצת לקנייה
+  /// 🇬🇧 Suggested quantity to buy
+  @JsonKey(name: 'suggested_quantity', defaultValue: 1)
   final int suggestedQuantity;
+
+  /// 🇮🇱 יחידת מידה (יחידות, ק"ג, ליטר)
+  /// 🇬🇧 Unit of measurement (units, kg, liter)
+  @JsonKey(defaultValue: 'יחידות')
   final String unit;
-  final String priority; // "high" | "medium" | "low"
-  final String source; // "inventory" | "history" | "both"
+
+  /// 🇮🇱 רמת עדיפות: "high" | "medium" | "low"
+  /// 🇬🇧 Priority level: "high" | "medium" | "low"
+  @JsonKey(defaultValue: 'medium')
+  final String priority;
+
+  /// 🇮🇱 מקור ההמלצה: "inventory" | "history" | "both"
+  /// 🇬🇧 Suggestion source: "inventory" | "history" | "both"
+  @JsonKey(defaultValue: 'inventory')
+  final String source;
+
+  /// 🇮🇱 תאריך יצירת ההמלצה
+  /// 🇬🇧 Suggestion creation date
+  @JsonKey(name: 'created_at')
   final DateTime createdAt;
 
   const Suggestion({
@@ -24,39 +92,34 @@ class Suggestion {
     required this.createdAt,
   });
 
-  // המרה מ-JSON
+  // ---- JSON Serialization ----
+
+  /// 🇮🇱 יצירה מ-JSON
+  /// 🇬🇧 Create from JSON
   factory Suggestion.fromJson(Map<String, dynamic> json) {
-    return Suggestion(
-      id: json['id'] as String,
-      productName: json['product_name'] as String,
-      reason: json['reason'] as String? ?? 'frequently_bought',
-      category: json['category'] as String? ?? 'כללי',
-      suggestedQuantity: json['suggested_quantity'] as int? ?? 1,
-      unit: json['unit'] as String? ?? 'יחידות',
-      priority: json['priority'] as String? ?? 'medium',
-      source: json['source'] as String? ?? 'inventory',
-      createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
-          : DateTime.now(),
-    );
+    debugPrint('📥 Suggestion.fromJson:');
+    debugPrint('   id: ${json['id']}');
+    debugPrint('   product_name: ${json['product_name']}');
+    debugPrint('   reason: ${json['reason']}');
+    debugPrint('   priority: ${json['priority']}');
+    return _$SuggestionFromJson(json);
   }
 
-  // המרה ל-JSON
+  /// 🇮🇱 המרה ל-JSON
+  /// 🇬🇧 Convert to JSON
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'product_name': productName,
-      'reason': reason,
-      'category': category,
-      'suggested_quantity': suggestedQuantity,
-      'unit': unit,
-      'priority': priority,
-      'source': source,
-      'created_at': createdAt.toIso8601String(),
-    };
+    debugPrint('📤 Suggestion.toJson:');
+    debugPrint('   id: $id');
+    debugPrint('   product_name: $productName');
+    debugPrint('   reason: $reason');
+    debugPrint('   priority: $priority');
+    return _$SuggestionToJson(this);
   }
 
-  // העתקה עם שינויים
+  // ---- Copy & Update ----
+
+  /// 🇮🇱 יצירת עותק עם שינויים
+  /// 🇬🇧 Create a copy with updates
   Suggestion copyWith({
     String? id,
     String? productName,
@@ -81,7 +144,10 @@ class Suggestion {
     );
   }
 
-  // טקסט תיאור הסיבה
+  // ---- Computed Properties ----
+
+  /// 🇮🇱 טקסט תיאור הסיבה בעברית
+  /// 🇬🇧 Reason description text in Hebrew
   String get reasonText {
     switch (reason) {
       case 'running_low':
@@ -95,17 +161,18 @@ class Suggestion {
     }
   }
 
-  // צבע לפי עדיפות
+  /// 🇮🇱 צבע לפי רמת עדיפות
+  /// 🇬🇧 Color by priority level
   int get priorityColor {
     switch (priority) {
       case 'high':
-        return 0xFFEF5350; // אדום
+        return 0xFFEF5350; // אדום / Red
       case 'medium':
-        return 0xFFFF9800; // כתום
+        return 0xFFFF9800; // כתום / Orange
       case 'low':
-        return 0xFF66BB6A; // ירוק
+        return 0xFF66BB6A; // ירוק / Green
       default:
-        return 0xFF9E9E9E; // אפור
+        return 0xFF9E9E9E; // אפור / Gray
     }
   }
 

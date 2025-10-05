@@ -1,20 +1,46 @@
 // 📄 File: lib/models/custom_location.dart
-// תיאור: מודל למיקום אחסון מותאם אישית
 //
-// מייצג מיקום שהמשתמש הוסיף בעצמו (מעבר למיקומי ברירת המחדל)
+// 🇮🇱 מודל למיקום אחסון מותאם אישית:
+//     - מייצג מיקום שהמשתמש הוסיף בעצמו (מעבר למיקומי ברירת המחדל).
+//     - כולל מזהה ייחודי (key), שם בעברית, ואמוג'י.
+//     - נתמך ע"י JSON לצורך שמירה מקומית.
+//
+// 💡 רעיונות עתידיים:
+//     - הוספת תמיכה בשמות רב-לשוניים (אנגלית, ערבית).
+//     - קטגוריות למיקומים (מטבח, חדר, מחסן).
+//     - סנכרון עם משתמשים אחרים במשק בית.
+//
+// 🇬🇧 Custom storage location model:
+//     - Represents a user-defined location (beyond default locations).
+//     - Includes unique key, Hebrew name, and emoji.
+//     - Supports JSON for local storage.
+//
+// 💡 Future ideas:
+//     - Multi-language support (English, Arabic).
+//     - Location categories (kitchen, room, storage).
+//     - Sync with other household members.
+//
 
 import 'package:flutter/foundation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-/// מודל למיקום אחסון מותאם אישית
+part 'custom_location.g.dart';
+
+/// 🇮🇱 מודל למיקום אחסון מותאם אישית
+/// 🇬🇧 Custom storage location model
+@JsonSerializable()
 @immutable
 class CustomLocation {
-  /// מזהה ייחודי (באנגלית, lowercase, עם underscores)
+  /// 🇮🇱 מזהה ייחודי (באנגלית, lowercase, עם underscores)
+  /// 🇬🇧 Unique identifier (English, lowercase, with underscores)
   final String key;
 
-  /// שם המיקום בעברית
+  /// 🇮🇱 שם המיקום בעברית
+  /// 🇬🇧 Location name in Hebrew
   final String name;
 
-  /// אמוג'י לתצוגה
+  /// 🇮🇱 אמוג'י לתצוגה
+  /// 🇬🇧 Display emoji
   final String emoji;
 
   const CustomLocation({
@@ -23,21 +49,28 @@ class CustomLocation {
     this.emoji = "📍",
   });
 
-  /// יצירה מ-JSON
+  /// 🇮🇱 יצירה מ-JSON
+  /// 🇬🇧 Create from JSON
   factory CustomLocation.fromJson(Map<String, dynamic> json) {
-    return CustomLocation(
-      key: json['key'] as String? ?? '',
-      name: json['name'] as String? ?? '',
-      emoji: json['emoji'] as String? ?? '📍',
-    );
+    debugPrint('📥 CustomLocation.fromJson:');
+    debugPrint('   key: ${json['key']}');
+    debugPrint('   name: ${json['name']}');
+    debugPrint('   emoji: ${json['emoji']}');
+    return _$CustomLocationFromJson(json);
   }
 
-  /// המרה ל-JSON
+  /// 🇮🇱 המרה ל-JSON
+  /// 🇬🇧 Convert to JSON
   Map<String, dynamic> toJson() {
-    return {'key': key, 'name': name, 'emoji': emoji};
+    debugPrint('📤 CustomLocation.toJson:');
+    debugPrint('   key: $key');
+    debugPrint('   name: $name');
+    debugPrint('   emoji: $emoji');
+    return _$CustomLocationToJson(this);
   }
 
-  /// יצירת עותק עם שינויים
+  /// 🇮🇱 יצירת עותק עם שינויים
+  /// 🇬🇧 Create a copy with updates
   CustomLocation copyWith({String? key, String? name, String? emoji}) {
     return CustomLocation(
       key: key ?? this.key,
