@@ -1,6 +1,7 @@
 # 📖 סיכום מהיר - ארכיטקטורה Salsheli
 
 > **תאריך:** 05/10/2025  
+> **עדכון אחרון:** 05/10/2025 (אחרי מעבר ל-Firebase)  
 > **נוצר על ידי:** Claude AI
 
 ---
@@ -11,13 +12,13 @@
 ✅ **כן** - האפליקציה פועלת, אבל רק מקומית (על המכשיר).
 
 **האם Firebase מחובר?**  
-⚠️ **חלקית** - מוגדר אבל לא בשימוש מלא (רק מוצרים).
+✅ **כן!** - Auth, Firestore, Security Rules - הכל עובד!
 
 **איך משתמשים מנוהלים?**  
-❌ **Mock בלבד** - אין אימות אמיתי, הכל מזויף לבדיקות.
+✅ **Firebase Authentication** - 3 משתמשי דמו + אימות אמיתי.
 
 **איך היסטוריית קניות נשמרת?**  
-⚠️ **חלקית** - רשימות נשמרות מקומית, קבלות לא נשמרות בכלל.
+✅ **Firestore** - קבלות, מלאי, ומוצרים נשמרים בענן!
 
 ---
 
@@ -35,11 +36,11 @@
 ✅ products.hive - 1,758 מוצרים עם מחירים
 ```
 
-### זיכרון RAM (נמחק בסגירת אפליקציה!)
+### Firestore (ענן - מסונכרן!)
 ```
-❌ קבלות (receipts) - לא נשמר!
-❌ מלאי (inventory) - לא נשמר!
-❌ פרטי משתמשים - לא נשמר!
+✅ קבלות (receipts) - נשמר ב-Firestore!
+✅ מלאי (inventory) - נשמר ב-Firestore!
+✅ פרטי משתמשים - נשמר ב-Firestore!
 ```
 
 ---
@@ -48,16 +49,27 @@
 
 ### Firestore (מסד נתונים בענן)
 ```
-✅ products collection - 1,758 מוצרים (לא בשימוש!)
-❌ אין users
-❌ אין shopping_lists
-❌ אין receipts
-❌ אין inventory
+✅ products - 1,778 מוצרים
+✅ users - פרטי משתמשים (household_id, email, וכו')
+✅ receipts - קבלות (לפי household)
+✅ inventory - מלאי (לפי household)
+⏳ shopping_lists - בתכנון (עדיין מקומי)
 ```
 
 ### Firebase Authentication
 ```
-❌ לא מחובר כלל!
+✅ Email/Password Authentication
+✅ 3 משתמשי דמו:
+    - yoni@demo.com (Demo123!)
+    - sarah@demo.com (Demo123!)
+    - danny@demo.com (Demo123!)
+✅ authStateChanges - listener אוטומטי
+```
+
+### Security Rules
+```
+✅ Firestore Rules - הגנה לפי household_id
+✅ Indexes - receipts, inventory (בבנייה)
 ```
 
 ---
@@ -67,19 +79,22 @@
 ### 1. התחברות משתמש
 
 ```
-משתמש מזין userId (למשל: "yoni_123")
+משתמש מזין email + password
     ↓
-בדיקה במאגר Mock (נתונים מזויפים בקוד)
+Firebase Authentication - signInWithEmailAndPassword()
     ↓
-אם קיים - החזר נתונים
-אם לא - צור משתמש חדש אוטומטית!
+אם הצליח - קבל UID
     ↓
-שמור userId ב-SharedPreferences
+טען נתוני משתמש מ-Firestore (users/{uid})
+    ↓
+UserContext.signIn() - שמור במצב
+    ↓
+authStateChanges listener מתעדכן
     ↓
 ניווט למסך הבית
 ```
 
-**⚠️ זה לא בטוח!** כל אחד יכול להתחבר עם כל userId.
+**✅ זה בטוח!** רק משתמשים רשומים יכולים להתחבר.
 
 ---
 
@@ -110,14 +125,17 @@ UI מתעדכן
     ↓
 ReceiptProvider.createReceipt()
     ↓
-MockReceiptRepository.saveReceipt()
+FirebaseReceiptRepository.saveReceipt()
     ↓
-שמירה ב-RAM בלבד! (Map בזיכרון)
+שמירה ב-Firestore:
+  households/{household_id}/receipts/{receipt_id}
     ↓
-UI מתעדכן
+Security Rules בודק household_id
+    ↓
+UI מתעדכן (real-time אם יש watchReceipts)
 ```
 
-**❌ בעיה!** בסגירת אפליקציה - כל הקבלות נמחקות!
+**✅ זה עובד!** הקבלות נשמרות לצמיתות בענן!
 
 ---
 
@@ -131,64 +149,77 @@ Providers (ניהול State)
 Repositories (גישה לנתונים)
     ↓
 Data Sources (מקורות נתונים)
-    ├─ SharedPreferences (✅ רשימות)
-    ├─ Hive (✅ מוצרים)
-    ├─ Firebase (⚠️ מוגדר, לא בשימוש)
-    └─ Mock (❌ קבלות, מלאי - נמחק!)
+    ├─ SharedPreferences (✅ רשימות - מקומי)
+    ├─ Hive (✅ מוצרים - cache מקומי)
+    └─ Firebase (✅ בשימוש מלא!)
+        ├─ Authentication (✅ משתמשים)
+        ├─ Firestore/users (✅ פרטי משתמש)
+        ├─ Firestore/products (✅ 1,778 מוצרים)
+        ├─ Firestore/receipts (✅ קבלות)
+        └─ Firestore/inventory (✅ מלאי)
 ```
 
 ---
 
 ## 🐛 בעיות קריטיות
 
-### 1. אין אימות משתמשים אמיתי
+### 1. ~~אין אימות משתמשים אמיתי~~ ✅ תוקן!
 
-**מה קורה היום:**
+**מה היה:**
 ```dart
 // כל userId יעבוד!
 userContext.loadUser('any_random_string');
 ```
 
-**מה צריך:**
+**מה יש עכשיו:**
 ```dart
-// Firebase Auth
-FirebaseAuth.signInWithEmailAndPassword(email, password);
+// Firebase Auth מלא!
+final authService = AuthService();
+await authService.signIn('yoni@demo.com', 'Demo123!');
+// טוען אוטומטית מ-Firestore
 ```
 
 ---
 
-### 2. קבלות ומלאי נמחקים
+### 2. ~~קבלות ומלאי נמחקים~~ ✅ תוקן!
 
-**מה קורה היום:**
+**מה היה:**
 ```dart
 class MockReceiptRepository {
   Map<String, List<Receipt>> _storage = {}; // RAM!
 }
 ```
 
-**סגרת אפליקציה → כל הקבלות נמחקו! 😱**
-
-**מה צריך:**
+**מה יש עכשיו:**
 ```dart
-// שמירה ב-SharedPreferences או Firebase
-await storage.saveJson('receipts', receipts);
+class FirebaseReceiptRepository {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  
+  Future<void> saveReceipt(Receipt receipt) async {
+    await _firestore
+      .collection('households/${receipt.householdId}/receipts')
+      .doc(receipt.id)
+      .set(receipt.toJson());
+  }
+}
 ```
 
 ---
 
-### 3. אין סנכרון בין מכשירים
+### 3. רשימות קניות עדיין מקומיות
 
 **מה קורה היום:**
-- יצרת רשימה על הטלפון? → לא נשמר בשרת
-- רוצה לראות ברשימות באייפד? → לא תראה כלום!
+- קבלות ומלאי → ✅ מסונכרנים בענן!
+- רשימות קניות → ⚠️ עדיין מקומיות (SharedPreferences)
+- רוצה לראות רשימות באייפד? → לא תראה (עדיין לא ב-Firestore)
 
 **מה צריך:**
-- Firebase Firestore
-- Real-time sync
+- העברת shopping_lists ל-Firestore
+- Real-time sync עם `watchLists()`
 
 ---
 
-### 4. iOS לא מוגדר
+### 4. iOS עדיין לא מוגדר
 
 **חסר קובץ:**
 ```
@@ -201,51 +232,92 @@ ios/Runner/GoogleService-Info.plist
 
 ---
 
-## ✅ מה לתקן קודם?
+## ✅ מה עשינו כבר?
+
+### ✅ הושלם!
+
+1. **שמירת קבלות ב-Firestore** ✅
+   ```dart
+   class FirebaseReceiptRepository {
+     Future<void> saveReceipt(Receipt receipt) async {
+       await _firestore
+         .collection('households/${receipt.householdId}/receipts')
+         .doc(receipt.id)
+         .set(receipt.toJson());
+     }
+   }
+   ```
+
+2. **שמירת מלאי ב-Firestore** ✅
+   ```dart
+   class FirebaseInventoryRepository {
+     Future<void> saveItem(InventoryItem item) async {
+       await _firestore
+         .collection('households/${item.householdId}/inventory')
+         .doc(item.id)
+         .set(item.toJson());
+     }
+   }
+   ```
+
+3. **Firebase Authentication** ✅
+   - 3 משתמשי דמו: yoni@demo.com, sarah@demo.com, danny@demo.com
+   - AuthService מלא: signIn, signUp, signOut, resetPassword
+   - authStateChanges listener אוטומטי
+
+4. **Security Rules** ✅
+   ```javascript
+   match /households/{householdId}/receipts/{receiptId} {
+     allow read, write: if request.auth != null &&
+       get(/databases/$(database)/documents/users/$(request.auth.uid))
+         .data.household_id == householdId;
+   }
+   ```
+
+5. **Firestore Indexes** ✅
+   - receipts: household_id + date (DESC)
+   - inventory: household_id + product_name (ASC)
+   - **סטטוס:** בבנייה (2-10 דק')
+
+---
+
+## 🔄 מה נשאר?
 
 ### שבוע 1 - קריטי 🔴
 
-1. **שמירת קבלות:**
-   ```dart
-   class LocalReceiptRepository {
-     Future<void> saveReceipt(...) async {
-       await storage.saveJson('receipts.$householdId', receipts);
-     }
-   }
-   ```
-
-2. **שמירת מלאי:**
-   ```dart
-   class LocalInventoryRepository {
-     Future<void> saveItem(...) async {
-       await storage.saveJson('inventory.$householdId', items);
-     }
-   }
-   ```
-
-3. **iOS configuration:**
-   - הורד GoogleService-Info.plist
+1. **iOS configuration:**
+   - הורד GoogleService-Info.plist מ-Firebase Console
    - העתק ל-ios/Runner/
+
+2. **המתן ל-Indexes:**
+   - בדוק ב-Firebase Console שהסטטוס "Enabled"
+   - לאחר מכן fetchReceipts/fetchInventory יעבדו
 
 ---
 
 ### שבוע 2 - חשוב 🟡
 
-4. **Firebase Authentication:**
-   ```yaml
-   dependencies:
-     firebase_auth: ^5.3.3
-   ```
-
-5. **העברת רשימות ל-Firestore:**
+3. **העברת רשימות ל-Firestore:**
    ```dart
    class FirebaseShoppingListsRepository {
-     Future<void> saveList(...) async {
-       await firestore
-         .collection('households/$householdId/shopping_lists')
+     Future<void> saveList(ShoppingList list) async {
+       await _firestore
+         .collection('households/${list.householdId}/shopping_lists')
          .doc(list.id)
          .set(list.toJson());
      }
+   }
+   ```
+
+4. **Real-time sync לרשימות:**
+   ```dart
+   Stream<List<ShoppingList>> watchLists(String householdId) {
+     return _firestore
+       .collection('households/$householdId/shopping_lists')
+       .snapshots()
+       .map((snapshot) => snapshot.docs
+         .map((doc) => ShoppingList.fromJson(doc.data()))
+         .toList());
    }
    ```
 
@@ -253,20 +325,17 @@ ios/Runner/GoogleService-Info.plist
 
 ### שבוע 3 - נחמד 🟢
 
-6. **Real-time sync:**
+5. **Offline Support:**
    ```dart
-   Stream<List<ShoppingList>> watchLists(String householdId) {
-     return firestore
-       .collection('households/$householdId/shopping_lists')
-       .snapshots()
-       .map(...);
-   }
+   FirebaseFirestore.instance.settings = Settings(
+     persistenceEnabled: true,
+     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+   );
    ```
 
-7. **Security Rules:**
-   ```javascript
-   allow read, write: if request.auth != null;
-   ```
+6. **Testing E2E:**
+   - בדיקות אוטומטיות לכל הזרימות
+   - Unit tests ל-Providers/Repositories
 
 ---
 
@@ -299,11 +368,15 @@ lib/
 │   └── products_provider.dart
 │
 ├── repositories/
-│   ├── user_repository.dart       ← Mock! לא אמיתי!
+│   ├── firebase_user_repository.dart      ← ✅ אמיתי!
 │   ├── local_shopping_lists_repository.dart
-│   ├── receipt_repository.dart    ← Mock! לא נשמר!
-│   ├── inventory_repository.dart  ← Mock! לא נשמר!
-│   └── firebase_products_repository.dart ← לא בשימוש!
+│   ├── firebase_receipt_repository.dart   ← ✅ נשמר ב-Firestore!
+│   ├── firebase_inventory_repository.dart ← ✅ נשמר ב-Firestore!
+│   └── firebase_products_repository.dart  ← ✅ בשימוש!
+│
+├── services/
+│   ├── auth_service.dart          ← ✅ Firebase Authentication!
+│   └── local_storage_service.dart ← SharedPreferences wrapper
 │
 ├── services/
 │   └── local_storage_service.dart ← SharedPreferences wrapper
@@ -325,22 +398,27 @@ ios/Runner/
 ## 🚀 סיכום מהיר
 
 ### עובד ✅
-- אפליקציה פועלת
-- רשימות קניות נשמרות (מקומי)
-- מוצרים זמינים
-- UI/UX טוב
+- ✅ אפליקציה פועלת
+- ✅ Firebase Authentication - 3 משתמשי דמו
+- ✅ קבלות נשמרות ב-Firestore
+- ✅ מלאי נשמר ב-Firestore
+- ✅ 1,778 מוצרים ב-Firestore + Hive
+- ✅ Security Rules + Indexes (בבנייה)
+- ✅ רשימות קניות נשמרות (מקומי)
+- ✅ UI/UX טוב
 
-### לא עובד ❌
-- אין אימות משתמשים
-- קבלות לא נשמרות
-- מלאי לא נשמר
-- אין סנכרון בין מכשירים
-- Firebase לא בשימוש מלא
+### נשאר לתקן ⏳
+- ⏳ Firestore Indexes - בבנייה (2-10 דק')
+- ⏳ iOS configuration - צריך GoogleService-Info.plist
+- ⏳ רשימות קניות - עדיין מקומיות (לא Firestore)
+- ⏳ Real-time sync - רק לאחר העברת רשימות
 
-### מה לעשות 🔧
-1. שמור קבלות ומלאי ב-SharedPreferences (פתרון מהיר)
-2. הוסף Firebase Auth (פתרון נכון)
-3. העבר הכל ל-Firestore (פתרון מלא)
+### מה הלאה 🔧
+1. ✅ ~~קבלות ומלאי~~ - **הושלם!**
+2. ✅ ~~Firebase Auth~~ - **הושלם!**
+3. ⏳ העבר רשימות ל-Firestore - **הבא בתור**
+4. ⏳ iOS configuration
+5. ⏳ Real-time sync מלא
 
 ---
 
