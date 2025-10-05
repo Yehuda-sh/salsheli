@@ -38,6 +38,8 @@ ReceiptItem _$ReceiptItemFromJson(Map<String, dynamic> json) => ReceiptItem(
       isChecked: json['is_checked'] as bool? ?? false,
       barcode: json['barcode'] as String?,
       manufacturer: json['manufacturer'] as String?,
+      category: json['category'] as String?,
+      unit: json['unit'] as String?,
     );
 
 Map<String, dynamic> _$ReceiptItemToJson(ReceiptItem instance) =>
@@ -49,4 +51,6 @@ Map<String, dynamic> _$ReceiptItemToJson(ReceiptItem instance) =>
       'is_checked': instance.isChecked,
       'barcode': instance.barcode,
       'manufacturer': instance.manufacturer,
+      'category': instance.category,
+      'unit': instance.unit,
     };

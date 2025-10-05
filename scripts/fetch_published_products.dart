@@ -33,7 +33,7 @@ const double minPrice = 0.5;
 
 // פרטי חיבור למערכת מחירון
 const String _baseUrl = 'https://url.publishedprices.co.il';
-const String _loginPath = '/login';
+const String _loginPath = '/login/user';  // 🔴 שונה מ-/login!
 const String _filesPath = '/file/d';
 const String _username = 'RamiLevi';
 const String _password = '';
@@ -132,15 +132,16 @@ Future<String?> login() async {
         final sessionCookie = cookies.split(';')[0];
         print('   🍪 Cookie: ${sessionCookie.substring(0, sessionCookie.length > 50 ? 50 : sessionCookie.length)}...');
         
-        // 🆕 נבדוק שה-session עובד - ננסה לגשת לדף הבית
+        // בדיקת session - ננסה לגשת לדף הקבצים
         print('   🔄 בודק את ה-session...');
         final testResponse = await client.get(
-          Uri.parse('$_baseUrl/'),
+          Uri.parse('$_baseUrl$_filesPath'),
           headers: {'Cookie': sessionCookie},
         ).timeout(const Duration(seconds: 10));
         
         if (testResponse.body.contains('Not currently logged in')) {
           print('   ❌ ה-session לא תקף!');
+          print('   💡 בדוק שה-username וה-password נכונים');
           return null;
         } else {
           print('   ✅ ה-session תקף!');
@@ -478,8 +479,8 @@ String getCategoryIcon(String category) {
   return iconMap[category] ?? '🛒';
 }
 
-/// שמירה לקובץ
-Future<void> saveToFile(List<Map<String, dynamic>> products) async {
+/// שמירה חכמה לקובץ - מעדכן מחירים ומוסיף מוצרים חדשים
+Future<void> saveToFile(List<Map<String, dynamic>> newProducts) async {
   final file = File(outputFile);
   
   final dir = file.parent;
@@ -487,10 +488,87 @@ Future<void> saveToFile(List<Map<String, dynamic>> products) async {
     await dir.create(recursive: true);
   }
   
+  print('\n🔄 משתמש במצב עדכון חכם...');
+  
+  // 1. קריאת קובץ קיים (אם יש)
+  Map<String, Map<String, dynamic>> existingProducts = {};
+  
+  if (await file.exists()) {
+    try {
+      final existingJson = await file.readAsString();
+      final List<dynamic> existingList = json.decode(existingJson);
+      
+      // המרה ל-Map לפי barcode (לחיפוש מהיר)
+      for (final p in existingList) {
+        if (p is Map<String, dynamic>) {
+          final barcode = p['barcode']?.toString();
+          if (barcode != null && barcode.isNotEmpty) {
+            existingProducts[barcode] = Map<String, dynamic>.from(p);
+          }
+        }
+      }
+      
+      print('   📦 נטענו ${existingProducts.length} מוצרים קיימים');
+    } catch (e) {
+      print('   ⚠️  לא הצלחתי לקרוא קובץ קיים, יוצר חדש: $e');
+    }
+  } else {
+    print('   📝 קובץ לא קיים - יוצר חדש');
+  }
+  
+  // 2. עדכון והוספה
+  int updatedPrices = 0;
+  int addedProducts = 0;
+  int unchangedProducts = 0;
+  
+  for (final newProduct in newProducts) {
+    final barcode = newProduct['barcode']?.toString();
+    if (barcode == null || barcode.isEmpty) continue;
+    
+    if (existingProducts.containsKey(barcode)) {
+      // מוצר קיים - עדכון מחיר בלבד
+      final existing = existingProducts[barcode]!;
+      final oldPrice = existing['price'] as double? ?? 0.0;
+      final newPrice = newProduct['price'] as double? ?? 0.0;
+      
+      if ((newPrice - oldPrice).abs() > 0.01) {
+        // המחיר השתנה
+        existing['price'] = newPrice;
+        existing['store'] = newProduct['store']; // עדכון גם את החנות
+        updatedPrices++;
+      } else {
+        // המחיר לא השתנה
+        unchangedProducts++;
+      }
+    } else {
+      // מוצר חדש - הוספה
+      existingProducts[barcode] = newProduct;
+      addedProducts++;
+    }
+  }
+  
+  print('   ✅ עודכנו $updatedPrices מחירים');
+  print('   ➕ נוספו $addedProducts מוצרים חדשים');
+  print('   ⏸️  $unchangedProducts מוצרים ללא שינוי');
+  print('   📦 סה"כ ${existingProducts.length} מוצרים בקובץ המעודכן');
+  
+  // 3. המרה חזרה ל-List
+  final finalProducts = existingProducts.values.toList();
+  
+  // 4. מיון לפי שם
+  finalProducts.sort((a, b) {
+    final nameA = a['name']?.toString() ?? '';
+    final nameB = b['name']?.toString() ?? '';
+    return nameA.compareTo(nameB);
+  });
+  
+  // 5. שמירה
   const encoder = JsonEncoder.withIndent('  ');
-  final jsonStr = encoder.convert(products);
+  final jsonStr = encoder.convert(finalProducts);
   
   await file.writeAsString(jsonStr);
+  
+  print('   💾 הקובץ נשמר בהצלחה!');
 }
 
 /// סיכום

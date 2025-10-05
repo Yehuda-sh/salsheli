@@ -1,19 +1,38 @@
-// 📄 File: lib/widgets/create_list_dialog.dart - REFACTORED
+// 📄 File: lib/widgets/create_list_dialog.dart
+// 
+// Purpose: Dialog ליצירת רשימת קניות חדשה עם validation מלא
+// 
+// Features:
+// - Validation למניעת שמות כפולים
+// - Validation לתקציב (חייב > 0)
+// - Preview ויזואלי לסוג הרשימה הנבחר
+// - תמיכה בכל סוגי הרשימות מ-constants.dart (kListTypes)
+// - Logging מלא לכל השלבים
+// - 9 סוגי רשימות: סופר, מרקחת, חומרי בניין, ביגוד, אלקטרוניקה, חיות מחמד, קוסמטיקה, ציוד משרדי, אחר
 //
-// ✅ שיפורים:
-// 1. קריאת listTypes מ-constants.dart במקום hard-coded
-// 2. הוספת validation למניעת שמות כפולים
-// 3. הוספת validation לתקציב (> 0)
-// 4. הוספת preview ויזואלי לסוג הרשימה
+// Dependencies:
+// - ShoppingListsProvider - לבדיקת שמות כפולים
+// - constants.dart - kListTypes (סוגי רשימות + אייקונים)
+//
+// Usage Example:
+// showDialog(
+//   context: context,
+//   builder: (dialogContext) => CreateListDialog(
+//     onCreateList: (data) async {
+//       await context.read<ShoppingListsProvider>().createList(data);
+//     },
+//   ),
+// );
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../core/constants.dart'; // ✅ קריאה מ-constants
+import '../core/constants.dart';
 import '../providers/shopping_lists_provider.dart';
 
 class CreateListDialog extends StatefulWidget {
-  final Function(Map<String, dynamic>) onCreateList;
+  final Future<void> Function(Map<String, dynamic>) onCreateList;
 
   const CreateListDialog({super.key, required this.onCreateList});
 
@@ -27,10 +46,22 @@ class _CreateListDialogState extends State<CreateListDialog> {
   String _name = "";
   String _type = "super";
   double? _budget;
+  bool _isSubmitting = false;
 
-  void _handleSubmit() {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
+  Future<void> _handleSubmit() async {
+    debugPrint('🔵 CreateListDialog._handleSubmit() התחיל');
+
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      debugPrint('   ⚠️ Validation נכשל');
+      return;
+    }
+
     _formKey.currentState?.save();
+    debugPrint(
+      '   📝 שם: "$_name", סוג: "$_type", תקציב: ${_budget ?? "לא הוגדר"}',
+    );
+
+    setState(() => _isSubmitting = true);
 
     final listData = {
       "name": _name,
@@ -39,17 +70,38 @@ class _CreateListDialogState extends State<CreateListDialog> {
       if (_budget != null) "budget": _budget,
     };
 
-    widget.onCreateList(listData);
+    try {
+      debugPrint('   ✅ קורא ל-onCreateList');
+      await widget.onCreateList(listData);
+      debugPrint('   ✅ onCreateList הושלם בהצלחה');
 
-    if (mounted) {
+      if (!mounted) {
+        debugPrint('   ⚠️ Widget לא mounted - לא סוגר Dialog');
+        return;
+      }
+
+      debugPrint('   ✅ סוגר Dialog');
       Navigator.of(context).pop();
+    } catch (e) {
+      debugPrint('   ❌ שגיאה ב-onCreateList: $e');
+
+      if (!mounted) return;
+
+      setState(() => _isSubmitting = false);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('שגיאה ביצירת הרשימה: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final provider = Provider.of<ShoppingListsProvider>(context, listen: false);
+    final provider = context.read<ShoppingListsProvider>();
 
     return AlertDialog(
       title: const Text("יצירת רשימת קניות חדשה", textAlign: TextAlign.right),
@@ -72,7 +124,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
                     return "נא להזין שם רשימה";
                   }
 
-                  // ✅ חדש: בדיקת שם כפול
+                  // בדיקת שם כפול
                   final trimmedName = value.trim();
                   final exists = provider.lists.any(
                     (list) =>
@@ -89,12 +141,13 @@ class _CreateListDialogState extends State<CreateListDialog> {
                 onSaved: (value) => _name = value!.trim(),
                 textDirection: TextDirection.rtl,
                 autofocus: true,
+                enabled: !_isSubmitting,
               ),
               const SizedBox(height: 16),
 
-              // 📋 סוג הרשימה - ✅ משתמש ב-kListTypes מ-constants
+              // 📋 סוג הרשימה
               DropdownButtonFormField<String>(
-                initialValue: _type,
+                value: _type,
                 decoration: const InputDecoration(labelText: "סוג הרשימה"),
                 items: kListTypes.entries.map((entry) {
                   return DropdownMenuItem<String>(
@@ -129,18 +182,25 @@ class _CreateListDialogState extends State<CreateListDialog> {
                     ),
                   );
                 }).toList(),
-                onChanged: (value) => setState(() => _type = value ?? "super"),
+                onChanged: _isSubmitting
+                    ? null
+                    : (value) {
+                        debugPrint('🔄 סוג רשימה שונה ל: $value');
+                        setState(() => _type = value ?? "super");
+                      },
               ),
               const SizedBox(height: 16),
 
-              // ✅ חדש: Preview של הסוג שנבחר
+              // ✨ Preview של הסוג שנבחר
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
+                  color: theme.colorScheme.surfaceContainerHighest.withValues(
+                    alpha: 0.5,
+                  ),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: theme.colorScheme.outline.withOpacity(0.2),
+                    color: theme.colorScheme.outline.withValues(alpha: 0.2),
                   ),
                 ),
                 child: Row(
@@ -151,27 +211,29 @@ class _CreateListDialogState extends State<CreateListDialog> {
                       style: const TextStyle(fontSize: 48),
                     ),
                     const SizedBox(width: 16),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          kListTypes[_type]!["name"]!,
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            kListTypes[_type]!["name"]!,
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        Text(
-                          kListTypes[_type]!["description"]!,
-                          style: theme.textTheme.bodySmall,
-                        ),
-                      ],
+                          Text(
+                            kListTypes[_type]!["description"]!,
+                            style: theme.textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 16),
 
-              // 💰 תקציב - ✅ עם validation משופר
+              // 💰 תקציב
               TextFormField(
                 decoration: const InputDecoration(
                   labelText: "תקציב (אופציונלי)",
@@ -210,6 +272,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
                   }
                 },
                 textDirection: TextDirection.rtl,
+                enabled: !_isSubmitting,
               ),
             ],
           ),
@@ -217,16 +280,26 @@ class _CreateListDialogState extends State<CreateListDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
           child: const Text("בטל"),
         ),
         ElevatedButton(
-          onPressed: _handleSubmit,
+          onPressed: _isSubmitting ? null : _handleSubmit,
           style: ElevatedButton.styleFrom(
             backgroundColor: theme.colorScheme.primary,
             foregroundColor: theme.colorScheme.onPrimary,
+            minimumSize: const Size(48, 48), // ✅ Touch target
           ),
-          child: const Text("צור רשימה"),
+          child: _isSubmitting
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : const Text("צור רשימה"),
         ),
       ],
     );

@@ -302,7 +302,76 @@ const Map<String, Map<String, String>> kListTypes = {
     "description": "תרופות וקוסמטיקה",
     "icon": "💊",
   },
-  "other": {"name": "אחר", "description": "רשימה כללית", "icon": "📝"},
+  "hardware": {
+    "name": "חומרי בניין",
+    "description": "כלים וחומרי בניין",
+    "icon": "🔨",
+  },
+  "clothing": {
+    "name": "ביגוד",
+    "description": "בגדים והנעלה",
+    "icon": "👕",
+  },
+  "electronics": {
+    "name": "אלקטרוניקה",
+    "description": "מוצרי חשמל ואלקטרוניקה",
+    "icon": "💻",
+  },
+  "pets": {
+    "name": "חיות מחמד",
+    "description": "מזון ומוצרים לחיות",
+    "icon": "🐾",
+  },
+  "cosmetics": {
+    "name": "קוסמטיקה",
+    "description": "מוצרי טיפוח ויופי",
+    "icon": "💄",
+  },
+  "stationery": {
+    "name": "ציוד משרדי",
+    "description": "ציוד כתיבה ומשרד",
+    "icon": "✏️",
+  },
+  "toys": {
+    "name": "צעצועים",
+    "description": "משחקים וצעצועים",
+    "icon": "🧸",
+  },
+  "books": {
+    "name": "ספרים",
+    "description": "ספרים ומגזינים",
+    "icon": "📚",
+  },
+  "sports": {
+    "name": "ספורט",
+    "description": "ציוד ספורט וכושר",
+    "icon": "⚽",
+  },
+  "home_decor": {
+    "name": "עיצוב הבית",
+    "description": "ריהוט ואביזרים",
+    "icon": "🏠",
+  },
+  "automotive": {
+    "name": "רכב",
+    "description": "אביזרים ותחזוקה",
+    "icon": "🚗",
+  },
+  "baby": {
+    "name": "תינוקות",
+    "description": "מוצרי תינוקות",
+    "icon": "👶",
+  },
+  "gifts": {
+    "name": "מתנות",
+    "description": "רעיונות למתנות",
+    "icon": "🎁",
+  },
+  "other": {
+    "name": "אחר",
+    "description": "רשימה כללית",
+    "icon": "📝",
+  },
 };
 
 /// קבועי type - להשוואה ב-enum style
@@ -326,6 +395,19 @@ const Map<String, Map<String, String>> kListTypes = {
 class ListType {
   static const String super_ = 'super';
   static const String pharmacy = 'pharmacy';
+  static const String hardware = 'hardware';
+  static const String clothing = 'clothing';
+  static const String electronics = 'electronics';
+  static const String pets = 'pets';
+  static const String cosmetics = 'cosmetics';
+  static const String stationery = 'stationery';
+  static const String toys = 'toys';
+  static const String books = 'books';
+  static const String sports = 'sports';
+  static const String homeDecor = 'home_decor';
+  static const String automotive = 'automotive';
+  static const String baby = 'baby';
+  static const String gifts = 'gifts';
   static const String other = 'other';
 }
 

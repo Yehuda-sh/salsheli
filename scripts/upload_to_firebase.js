@@ -19,21 +19,20 @@ async function uploadProducts() {
     console.log('🚀 מתחיל העלאה ל-Firestore...\n');
 
     // קריאת הקובץ
-    const filePath = path.join(__dirname, 'products.json');
+    const filePath = path.join(__dirname, '..', 'assets', 'data', 'products.json');
     if (!fs.existsSync(filePath)) {
       console.error('❌ הקובץ products.json לא נמצא!');
-      console.log('הרץ קודם: node download_products.js');
+      console.log('נתיב: ' + filePath);
+      console.log('הרץ קודם: dart run scripts/fetch_shufersal_products.dart');
       process.exit(1);
     }
 
     const rawData = fs.readFileSync(filePath, 'utf8');
-    const data = JSON.parse(rawData);
+    const products = JSON.parse(rawData);
     
-    console.log(`📦 נמצאו ${data.count} מוצרים`);
-    console.log(`📅 תאריך יצירה: ${data.generated}\n`);
+    console.log(`📦 נמצאו ${products.length} מוצרים\n`);
 
     // העלאה בבאצ'ים (500 בכל פעם)
-    const products = data.products;
     const batchSize = 500;
     let uploaded = 0;
 
@@ -42,7 +41,7 @@ async function uploadProducts() {
       const chunk = products.slice(i, Math.min(i + batchSize, products.length));
 
       for (const product of chunk) {
-        const docRef = db.collection('products').doc(product.barcode);
+        const docRef = db.collection('products').doc(product.barcode || `product_${uploaded}`);
         batch.set(docRef, {
           ...product,
           lastUpdate: admin.firestore.FieldValue.serverTimestamp()

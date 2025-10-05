@@ -30,8 +30,9 @@ import 'repositories/local_shopping_lists_repository.dart';
 import 'repositories/inventory_repository.dart';
 import 'repositories/receipt_repository.dart';
 import 'repositories/user_repository.dart';
-import 'repositories/local_products_repository.dart';  // 🆕
-import 'repositories/hybrid_products_repository.dart';  // 🆕
+import 'repositories/local_products_repository.dart';
+import 'repositories/firebase_products_repository.dart';  // 🔥 Firebase!
+import 'repositories/hybrid_products_repository.dart';
 
 // Screens
 import 'screens/index_screen.dart';
@@ -91,10 +92,23 @@ void main() async {
     debugPrint('   ממשיך בכל זאת...');
   }
 
-  // 🆕 יצירת Hybrid Repository
+  // 🔥 יצירת Firebase Repository (אופציונלי)
+  FirebaseProductsRepository? firebaseRepo;
+  try {
+    debugPrint('\n🔥 מנסה ליצור FirebaseProductsRepository...');
+    firebaseRepo = FirebaseProductsRepository();
+    debugPrint('✅ FirebaseProductsRepository מוכן (יש גישה ל-Firestore)');
+  } catch (e) {
+    debugPrint('⚠️ FirebaseProductsRepository נכשל: $e');
+    debugPrint('   ממשיך בלי Firebase (רק Local + API)...');
+    firebaseRepo = null;
+  }
+
+  // 🔀 יצירת Hybrid Repository
   debugPrint('\n🔀 יוצר HybridProductsRepository...');
   final hybridRepo = HybridProductsRepository(
     localRepo: localRepo,
+    firebaseRepo: firebaseRepo,  // 🔥 מעביר Firebase!
   );
   debugPrint('✅ HybridProductsRepository מוכן');
 

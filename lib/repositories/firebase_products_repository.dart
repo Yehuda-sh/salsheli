@@ -1,9 +1,47 @@
-// 📄 lib/repositories/firebase_products_repository.dart
+// 📄 File: lib/repositories/firebase_products_repository.dart
 //
-// 🎯 Repository למוצרים מ-Firebase Firestore
-// - טעינה מהירה מ-Firestore
-// - Cache אוטומטי
-// - עדכונים בזמן אמת (אופציונלי)
+// 🇮🇱 Repository למוצרים מ-Firebase Firestore:
+//     - טעינה מהירה מ-Firestore עם cache חכם (1 שעה).
+//     - חיפוש מוצרים לפי שם, ברקוד, קטגוריה.
+//     - אופציה לעדכונים בזמן אמת (עתידי).
+//     - ממירה ProductsRepository.
+//
+// 💾 מצב נוכחי:
+//     ⚠️ לא בשימוש כרגע! הפרויקט משתמש ב-LocalProductsRepository.
+//     לשימוש ב-Firebase:
+//     1. העלה מוצרים ל-Firestore (ראה scripts/upload_to_firebase.js).
+//     2. עדכן main.dart להשתמש ב-FirebaseProductsRepository.
+//     3. ודא ש-firebase_options.dart מוגדר נכון.
+//
+// 💡 רעיונות עתידיים:
+//     - עדכונים בזמן אמת (snapshots).
+//     - סנכרון מחירים אוטומטי מה-API.
+//     - Offline persistence (עבודה בלי אינטרנט).
+//     - סטטיסטיקות: מוצרים פופולריים, חיפושים נפוצים.
+//
+// 🇬🇧 Firebase Firestore products repository:
+//     - Fast loading from Firestore with smart cache (1 hour).
+//     - Search products by name, barcode, category.
+//     - Optional real-time updates (future).
+//     - Implements ProductsRepository interface.
+//
+// 💾 Current state:
+//     ⚠️ Not in use! Project uses LocalProductsRepository.
+//     To use Firebase:
+//     1. Upload products to Firestore (see scripts/upload_to_firebase.js).
+//     2. Update main.dart to use FirebaseProductsRepository.
+//     3. Ensure firebase_options.dart is configured.
+//
+// 💡 Future ideas:
+//     - Real-time updates (snapshots).
+//     - Auto price sync from API.
+//     - Offline persistence.
+//     - Statistics: popular products, common searches.
+//
+// 🔗 Related:
+//     - ProductsRepository (interface)
+//     - LocalProductsRepository (current implementation)
+//     - scripts/upload_to_firebase.js (upload script)
 
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

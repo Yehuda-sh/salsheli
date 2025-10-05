@@ -9,6 +9,7 @@
 import 'package:flutter/foundation.dart';
 import '../repositories/products_repository.dart';
 import '../repositories/hybrid_products_repository.dart';
+import '../config/list_type_mappings.dart'; // ✅ חדש
 
 class ProductsProvider with ChangeNotifier {
   final ProductsRepository _repository;
@@ -25,6 +26,7 @@ class ProductsProvider with ChangeNotifier {
   // Search & Filter
   String _searchQuery = '';
   String? _selectedCategory;
+  String? _selectedListType; // ✅ חדש - סוג הרשימה
 
   ProductsProvider({
     required ProductsRepository repository,
@@ -48,6 +50,7 @@ class ProductsProvider with ChangeNotifier {
   DateTime? get lastUpdated => _lastUpdated;
   String get searchQuery => _searchQuery;
   String? get selectedCategory => _selectedCategory;
+  String? get selectedListType => _selectedListType; // ✅ חדש
   bool get isEmpty => _products.isEmpty;
 
   // 📊 סטטיסטיקות (רק אם זה Hybrid)
@@ -197,7 +200,50 @@ class ProductsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // === Filter by Category ===
+  // === Filter by List Type (NEW) ===
+  void setListType(String? listType) {
+    if (_selectedListType == listType) return;
+    debugPrint('🎯 סינון לפי סוג רשימה: $listType');
+    _selectedListType = listType;
+    
+    // נקה קטגוריה נבחרת כי הקטגוריות הרלוונטיות משתנות
+    _selectedCategory = null;
+    
+    notifyListeners();
+    debugPrint('   נמצאו: ${_getFilteredProducts().length} מוצרים');
+    
+    if (listType != null) {
+      final relevantCategories = ListTypeMappings.getCategoriesForType(listType);
+      debugPrint('   🏷️ קטגוריות רלוונטיות: $relevantCategories');
+    }
+  }
+
+  void clearListType() {
+    debugPrint('🎯 ניקוי סינון סוג רשימה');
+    _selectedListType = null;
+    notifyListeners();
+  }
+
+  // === Get Relevant Categories for Current List Type (NEW) ===
+  List<String> get relevantCategories {
+    if (_selectedListType == null) return _categories;
+    
+    final typeCategories = ListTypeMappings.getCategoriesForType(_selectedListType!);
+    
+    // החזר רק קטגוריות שקיימות במוצרים
+    return _categories.where((cat) {
+      return typeCategories.any(
+        (typeCat) => cat.toLowerCase().contains(typeCat.toLowerCase()) ||
+                     typeCat.toLowerCase().contains(cat.toLowerCase()),
+      );
+    }).toList();
+  }
+
+  // === Get Suggested Stores for Current List Type (NEW) ===
+  List<String> get suggestedStores {
+    if (_selectedListType == null) return [];
+    return ListTypeMappings.getStoresForType(_selectedListType!);
+  }
   void setCategory(String? category) {
     if (_selectedCategory == category) return;
     debugPrint('🏷️ סינון לפי קטגוריה: $category');
@@ -215,6 +261,21 @@ class ProductsProvider with ChangeNotifier {
   // === Get Filtered Products ===
   List<Map<String, dynamic>> _getFilteredProducts() {
     var filtered = List<Map<String, dynamic>>.from(_products);
+
+    // ✅ Filter by list type - סינון לפי סוג הרשימה
+    if (_selectedListType != null) {
+      final relevantCategories = ListTypeMappings.getCategoriesForType(_selectedListType!);
+      
+      filtered = filtered.where((p) {
+        final productCategory = p['category'] as String? ?? '';
+        
+        // בדוק אם הקטגוריה של המוצר תואמת לסוג הרשימה
+        return relevantCategories.any(
+          (typeCat) => productCategory.toLowerCase().contains(typeCat.toLowerCase()) ||
+                       typeCat.toLowerCase().contains(productCategory.toLowerCase()),
+        );
+      }).toList();
+    }
 
     // Filter by category
     if (_selectedCategory != null) {

@@ -58,6 +58,291 @@
 
 ---
 
+## 📅 05/10/2025 - שדרוג Hybrid Repository + Firebase + בדיקת קבצים מיותרים
+
+### 🎯 משימה
+
+מעבר ל-אופציה 3 (Hybrid + Firebase): שדרוג HybridProductsRepository לטעון מ-Firestore בנוסף ל-Local + API.
+- העלאת 1,758 מוצרים ל-Firestore בהצלחה
+- שדרוג HybridProductsRepository לתמוך ב-Firebase
+- עדכון main.dart עם Firebase integration
+- תיקון שגיאות קומפילציה
+- סקירה מקיפה של קבצים מיותרים בפרויקט
+
+### ✅ מה הושלם
+
+1. **העלאת מוצרים ל-Firestore** 🔥
+   - הרצת `npm run upload` מ-`scripts/`
+   - 1,758 מוצרים עלו בהצלחה ל-Firestore
+   - 4 באצ'ים של 500 מוצרים כל אחד
+   - זמן: ~10-20 שניות
+
+2. **שדרוג HybridProductsRepository** 🔀
+   - הוספת import ל-`FirebaseProductsRepository`
+   - הוספת פרמטר `firebaseRepo` (אופציונלי)
+   - יצירת פונקציה `_loadFromFirestore()` מלאה
+   - עדכון אסטרטגיית טעינה: Firestore → JSON → API → Fallback
+   - תיעוד מקיף דו-לשוני (עברית + אנגלית)
+
+3. **עדכון main.dart** 📱
+   - import של `FirebaseProductsRepository`
+   - יצירת `firebaseRepo` עם try/catch (אופציונלי)
+   - העברת `firebaseRepo` ל-`HybridProductsRepository`
+   - logging מפורט לכל שלב
+
+4. **תיקון שגיאות** 🐛
+   - `demo_login_button.dart` - חסר `await` בשורה 58
+   - שגיאת קומפילציה: `Future<Map>` לא תומך ב-`[]`
+   - תוקן: `final demoData = await loadRichDemoData(...)`
+
+5. **בדיקת קבצים מיותרים** 🔍
+   - סריקה מלאה של כל lib/
+   - זוהו 10 קבצים שאינם בשימוש
+   - תיעוד מפורט של כל קובץ + סיבת אי-שימוש
+   - החלטה: נבדוק בהמשך האם למחוק או לשפר
+
+### 📂 קבצים שהושפעו
+
+- `scripts/upload_to_firebase.js` - עדכון לקרוא מ-`assets/data/products.json`
+- `lib/repositories/hybrid_products_repository.dart` - תמיכה ב-Firebase + תיעוד
+- `lib/main.dart` - יצירת FirebaseProductsRepository והעברה ל-Hybrid
+- `lib/widgets/auth/demo_login_button.dart` - תיקון await חסר
+
+### 🗑️ קבצים מיותרים שזוהו (10)
+
+**Data / Config:**
+1. `lib/data/demo_users.dart` - user_repository משתמש ב-UserEntity.demo() ישירות
+2. `lib/data/demo_welcome_slides.dart` - welcome_screen משתמש ב-BenefitTile במקום
+
+**Providers:**
+3. `lib/providers/notifications_provider.dart` - לא מוגדר ב-main.dart
+4. `lib/providers/price_data_provider.dart` - לא מוגדר ב-main.dart
+
+**Repositories:**
+5. `lib/repositories/price_data_repository.dart` - אין provider שמשתמש בו
+6. `lib/repositories/suggestions_repository.dart` - SuggestionsProvider מחשב בעצמו
+
+**Screens:**
+7. `lib/screens/suggestions/smart_suggestions_screen.dart` - לא מיובא/מוגדר
+8. `lib/screens/debug/` - תיקייה ריקה
+
+**Widgets:**
+9. `lib/widgets/video_ad.dart` - לא מיובא (שקול שמירה לעתיד?)
+10. `lib/widgets/demo_ad.dart` - לא מיובא (שקול שמירה לעתיד?)
+
+### 💡 לקחים
+
+- **Firestore + Hybrid = Best of Both**: מהירות Local + סנכרון Cloud
+- **Fallback Strategy חכמה**: 4 שכבות - תמיד יש מוצרים
+- **Async await קריטי**: שגיאות קומפילציה אם חסר
+- **Code Review שיטתי**: מצאנו 10 קבצים מיותרים (~3,500 שורות)
+- **תיעוד מונע בלבול**: ברור מה בשימוש ומה לא
+
+### 🔄 מה נותר לבדיקה
+
+- **בדיקת 10 הקבצים המיותרים**: למחוק או לשפר?
+- **רכיבי פרסומות**: האם לשמור ל-`lib/widgets/future/`?
+- **בדיקת flutter run**: לוודא שהכל עובד עם Firebase
+
+### 📊 סיכום
+
+זמן: ~60 דק' | קבצים: 4 | מוצרים ב-Firestore: 1,758 | קבצים לבדיקה: 10
+
+---
+
+## 📅 05/10/2025 - שימוש ב-fetch_shufersal_products - עדכון חכם
+
+### 🎯 משימה
+
+מעבר מ-fetch_published_products (דורש התחברות) ל-fetch_shufersal_products (פומבי!):
+- בעיות התחברות במחירון הממשלתי
+- שדרוג fetch_shufersal_products לעדכון חכם
+- הורדת 1758 מוצרים משופרסל
+
+### ✅ מה הושלם
+
+1. **בעיות ב-fetch_published_products** ❌
+   - התחברות נכשלת: login path שונה (`/login/user`)
+   - צריך username/password תקינים
+   - המערכת מחזירה "Not currently logged in"
+
+2. **מעבר ל-fetch_shufersal_products** ✅
+   - ללא צורך בהתחברות!
+   - קבצים פומביים מ-Azure Blob Storage
+   - הורדת 3 סניפים (679 מוצרים גולמיים)
+
+3. **שדרוג saveToFile() לעדכון חכם** 🔄
+   - קריאת קובץ קיים (1196 מוצרים)
+   - השוואה לפי barcode
+   - עדכון מחירים בלבד
+   - הוספת 562 מוצרים חדשים
+
+4. **תוצאות מצוינות** 🎉
+   - 1758 מוצרים בסך הכל
+   - 0 מחירים עודכנו (אותם מחירים)
+   - 562 מוצרים חדשים נוספו
+   - 93 מוצרים ללא שינוי
+
+5. **סטטיסטיקה** 📊
+   - מחיר ממוצע: ₪25.28
+   - טווח: ₪3.90 - ₪385.00
+   - קטגוריות: 11 קטגוריות שונות
+
+### 📂 קבצים שהושפעו
+
+- `scripts/fetch_shufersal_products.dart` - שדרוג `saveToFile()` לעדכון חכם
+- `assets/data/products.json` - עודכן עם 1758 מוצרים
+
+### 💡 לקחים
+
+- **פומבי עדיף על התחברות**: שופרסל ללא username/password
+- **מספר סניפים**: 3 סניפים מספיק לגיוון טוב
+- **עדכון חכם עובד**: שומר מוצרים ישנים + מוסיף חדשים
+- **Barcode כמזהה**: מונע כפילויות בין סניפים
+- **Azure Blob**: SAS tokens עובדים מצויין, צריך HTML decode (ל`&amp;` ל-`&`)
+- **זיהוי קטגוריות**: 57% "אחר" - אפשר לשפר
+
+### 🔄 דוגמת פלט
+
+```
+🔄 משתמש במצב עדכון חכם...
+   📦 נטענו 1196 מוצרים קיימים
+   ✅ עודכנו 0 מחירים
+   ➕ נוספו 562 מוצרים חדשים
+   ⏸️  93 מוצרים ללא שינוי
+   📦 סה"כ 1758 מוצרים בקובץ המעודכן
+```
+
+### 🎯 שיפורים עתידיים
+
+- הוספת קטגוריות: תינוקות, כלי בית, חיות מחמד
+- שיפור זיהוי קטגוריות להפחתת "אחר" מ-57%
+- הורדת יותר סניפים אם צריך
+
+### 📊 סיכום
+
+זמן: ~30 דקות | קבצים: 2 | מוצרים: 1196→1758 (+562) | מקור: שופרסל
+
+---
+
+## 📅 05/10/2025 - שדרוג fetch_published_products - עדכון חכם במקום דריסה
+
+### 🎯 משימה
+
+שדרוג `fetch_published_products.dart` לעדכן מחירים במקום לדרוס את כל הקובץ:
+- קריאת `products.json` הקיים לפני עדכון
+- השוואה לפי barcode
+- עדכון מחירים בלבד למוצרים קיימים
+- הוספת מוצרים חדשים
+- שמירת מוצרים ישנים שלא במחירון החדש
+
+### ✅ מה הושלם
+
+1. **קריאת קובץ קיים** 📖
+   - טעינת `products.json` אם קיים
+   - המרה ל-Map לפי barcode (חיפוש O(1))
+   - טיפול בקובץ לא קיים/פגום
+
+2. **עדכון חכם** 🔄
+   - השוואת מחירים: `(newPrice - oldPrice).abs() > 0.01`
+   - עדכון רק אם המחיר השתנה
+   - שמירת כל השדות האחרים (name, category, icon, וכו')
+   - עדכון גם שדה `store`
+
+3. **הוספת מוצרים חדשים** ➕
+   - מוצרים שלא היו במחירון הקודם מתוספים
+   - barcode הוא המזהה הייחודי
+
+4. **שמירת מוצרים ישנים** 💾
+   - מוצרים שלא במחירון החדש נשארים בקובץ
+   - לא נמחקים אוטומטית
+
+5. **דיווח מפורט** 📊
+   - כמה מחירים עודכנו
+   - כמה מוצרים נוספו
+   - כמה מוצרים ללא שינוי
+   - סה"כ מוצרים בקובץ המעודכן
+
+### 📂 קבצים שהושפעו
+
+- `scripts/fetch_published_products.dart` - שדרוג `saveToFile()` לעדכון חכם
+
+### 💡 לקחים
+
+- **אל תדרוס נתונים**: תמיד קרא קודם, עדכן, ואז שמור
+- **Map lookup מהיר**: `Map<barcode, product>` עדיף על `List.firstWhere()`
+- **עדכון חלקי**: שמור רק את מה שהשתנה (מחיר, חנות)
+- **שמירת היסטוריה**: מוצרים ישנים יכולים להיות רלוונטיים
+- **דיווח ברור**: הצג למשתמש מה השתנה (updated, added, unchanged)
+- **Threshold בהשוואה**: `> 0.01` מונע עדכונים מיותרים בגלל דיוק נקודה צפה
+
+### 🔄 דוגמת פלט
+
+```
+🔄 משתמש במצב עדכון חכם...
+   📦 נטענו 5000 מוצרים קיימים
+   ✅ עודכנו 342 מחירים
+   ➕ נוספו 27 מוצרים חדשים
+   ⏸️  4631 מוצרים ללא שינוי
+   📦 סה"כ 5027 מוצרים בקובץ המעודכן
+   💾 הקובץ נשמר בהצלחה!
+```
+
+### 📊 סיכום
+
+זמן: ~15 דקות | קבצים: 1 | שורות: +75 -10 | לוגיקה: דריסה→עדכון חכם
+
+---
+
+## 📅 05/10/2025 - שדרוג product_loader - תיעוד והסרת deprecated code
+
+### 🎯 משימה
+
+בדיקה ושדרוג של `product_loader.dart`:
+- הוספת תיעוד מקיף לראש הקובץ
+- תיעוד מפורט לכל פונקציה
+- הסרת קוד deprecated
+- שיפור logging
+
+### ✅ מה הושלם
+
+1. **תיעוד בראש הקובץ** 📄
+   - Purpose, Dependencies, Usage examples
+   - Used by - איפה הקובץ בשימוש
+   - קוד לדוגמה מעשי
+
+2. **הסרת deprecated code** 🗑️
+   - מחיקת `loadLocalProducts` (לא בשימוש)
+   - זוהה שהפונקציה לא בשימוש בשום מקום בפרויקט
+
+3. **שיפור logging** 📊
+   - הוספת logging ל-`getProductByBarcode`
+   - 🔍 מה מחפשים
+   - ✅ מה נמצא / ⚠️ לא נמצא
+
+4. **תיעוד מפורט לפונקציות** 📚
+   - `loadProductsAsList` - parameters, returns, example
+   - `getProductByBarcode` - parameters, returns, example
+   - `clearProductsCache` - מתי להשתמש, example
+
+### 📂 קבצים שהושפעו
+
+- `lib/helpers/product_loader.dart` - תיעוד מלא + הסרת deprecated + logging
+
+### 💡 לקחים
+
+- **תיעוד בראש חובה**: לפי CODE_REVIEW_CHECKLIST - כל קובץ צריך תיעוד
+- **deprecated = למחוק**: אם קוד לא בשימוש - למחוק, לא להשאיר
+- **Logging בפונקציות עזר**: גם helpers צריכים logging טוב
+- **Examples בתיעוד**: code examples עוזרים למפתח להבין מהר
+- **Used by חשוב**: מסייע להבין את ההשפעה של שינויים
+
+### 📊 סיכום
+
+זמן: ~10 דקות | קבצים: 1 | שורות: +60 -35 | Deprecated: -1 function
+
+---
+
 ## 📅 05/10/2025 - שדרוג Models - Logging ותיעוד דו-לשוני
 
 ### 🎯 משימה

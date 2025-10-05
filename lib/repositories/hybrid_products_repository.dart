@@ -1,22 +1,63 @@
-// 📄 lib/repositories/hybrid_products_repository.dart
+// 📄 File: lib/repositories/hybrid_products_repository.dart
 //
-// 🎯 Repository היברידי - משלב מקומי + API
-// - טוען מוצרים מקומית (מהיר)
-// - מעדכן מחירים מ-API (אופציונלי)
-// - מוסיף מוצרים חדשים אוטומטית
-// 
-// ✅ עדכון חדש: טעינה מ-products.json קודם!
+// 🇮🇱 Repository היברידי - משלב Firestore + Local + API:
+//     - טעינה ראשונית: Firestore (1758 מוצרים!)
+//     - Fallback 1: products.json (מקומי)
+//     - Fallback 2: API (אונליין)
+//     - Fallback 3: 8 מוצרים דמה
+//     - Cache חכם ב-Hive (מהיר!)
+//     - עדכון מחירים מ-API
+//
+// 💾 מצב נוכחי:
+//     ✅ בשימוש! (main.dart)
+//     🔥 Firestore: 1758 מוצרים זמינים
+//     💾 Hive: Cache מהיר
+//     📡 API: עדכוני מחירים
+//
+// 💡 יתרונות:
+//     - מהיר: Hive cache (O(1) lookup)
+//     - מסונכרן: Firestore בין מכשירים
+//     - עובד Offline: אם יש cache
+//     - מחירים עדכניים: מה-API
+//
+// 🇬🇧 Hybrid Repository - combines Firestore + Local + API:
+//     - Primary: Firestore (1758 products!)
+//     - Fallback 1: products.json (local)
+//     - Fallback 2: API (online)
+//     - Fallback 3: 8 demo products
+//     - Smart Hive cache (fast!)
+//     - Price updates from API
+//
+// 💾 Current state:
+//     ✅ In use! (main.dart)
+//     🔥 Firestore: 1758 products available
+//     💾 Hive: Fast cache
+//     📡 API: Price updates
+//
+// 💡 Advantages:
+//     - Fast: Hive cache (O(1) lookup)
+//     - Synced: Firestore across devices
+//     - Works Offline: If cache exists
+//     - Updated prices: From API
+//
+// 🔗 Related:
+//     - FirebaseProductsRepository (Firestore access)
+//     - LocalProductsRepository (Hive storage)
+//     - PublishedPricesService (API price updates)
+//     - products.json (local fallback)
 
 import 'package:flutter/foundation.dart';
 import '../services/published_prices_service.dart';
-import '../helpers/product_loader.dart';  // 🆕 הוספה!
+import '../helpers/product_loader.dart';
 import 'local_products_repository.dart';
+import 'firebase_products_repository.dart';  // 🆕 Firebase!
 import 'products_repository.dart';
 import '../models/product_entity.dart';
 
 class HybridProductsRepository implements ProductsRepository {
   final LocalProductsRepository _localRepo;
   final PublishedPricesService _apiService;
+  final FirebaseProductsRepository? _firebaseRepo;  // 🆕 Firebase!
 
   bool _isInitialized = false;
   bool _isPriceUpdateInProgress = false;
@@ -24,8 +65,10 @@ class HybridProductsRepository implements ProductsRepository {
   HybridProductsRepository({
     required LocalProductsRepository localRepo,
     PublishedPricesService? apiService,
+    FirebaseProductsRepository? firebaseRepo,  // 🆕 אופציונלי!
   })  : _localRepo = localRepo,
-        _apiService = apiService ?? PublishedPricesService();
+        _apiService = apiService ?? PublishedPricesService(),
+        _firebaseRepo = firebaseRepo;
 
   /// אתחול - טוען מוצרים אם ה-DB ריק
   Future<void> initialize() async {
@@ -61,14 +104,26 @@ class HybridProductsRepository implements ProductsRepository {
     }
   }
 
-  /// 🆕 טעינת מוצרים ראשונית - נסיון 1: products.json
+  /// 🆕 טעינת מוצרים ראשונית - אסטרטגיה משולבת
   Future<void> _loadInitialProducts() async {
     try {
       debugPrint('📥 אסטרטגיית טעינה:');
-      debugPrint('   1️⃣ נסיון ראשון: products.json');
-      debugPrint('   2️⃣ נסיון שני: API');
+      debugPrint('   0️⃣ נסיון ראשון: Firestore (1758 מוצרים!)');
+      debugPrint('   1️⃣ נסיון שני: products.json');
+      debugPrint('   2️⃣ נסיון שלישי: API');
       debugPrint('   3️⃣ גיבוי: 8 מוצרים דמה');
       debugPrint('');
+
+      // 🔥 נסיון 0: טעינה מ-Firestore
+      if (_firebaseRepo != null) {
+        final firebaseSuccess = await _loadFromFirestore();
+        if (firebaseSuccess) {
+          debugPrint('✅ טעינה מ-Firestore הצליחה!');
+          return;
+        }
+      } else {
+        debugPrint('⚠️ Firebase לא מוגדר, מדלג לנסיון הבא...');
+      }
 
       // 🆕 נסיון 1: טעינה מ-products.json
       final success = await _loadFromJson();
@@ -85,14 +140,89 @@ class HybridProductsRepository implements ProductsRepository {
         return;
       }
 
-      // נסיון 3: fallback
-      debugPrint('⚠️ API נכשל, טוען מוצרים דמה...');
+      // נסיון 4: fallback
+      debugPrint('⚠️ כל המקורות נכשלו, טוען מוצרים דמה...');
       await _loadFallbackProducts();
       debugPrint('✅ טעינת fallback הושלמה');
       
     } catch (e) {
       debugPrint('❌ שגיאה קריטית בטעינת מוצרים: $e');
       await _loadFallbackProducts();
+    }
+  }
+
+  /// 🔥 טעינה מ-Firestore
+  Future<bool> _loadFromFirestore() async {
+    try {
+      debugPrint('🔥 מנסה לטעון מ-Firestore...');
+      
+      // טעינת כל המוצרים מ-Firestore
+      final firestoreProducts = await _firebaseRepo!.getAllProducts();
+      
+      if (firestoreProducts.isEmpty) {
+        debugPrint('⚠️ Firestore ריק או לא זמין');
+        return false;
+      }
+
+      debugPrint('📋 נמצאו ${firestoreProducts.length} מוצרים ב-Firestore');
+
+      // המרה ל-ProductEntity
+      final entities = <ProductEntity>[];
+      int validProducts = 0;
+      int invalidProducts = 0;
+
+      for (final data in firestoreProducts) {
+        try {
+          // וידוא שיש ברקוד ושם
+          final barcode = data['barcode']?.toString();
+          final name = data['name']?.toString();
+
+          if (barcode == null || barcode.isEmpty || 
+              name == null || name.isEmpty) {
+            invalidProducts++;
+            continue;
+          }
+
+          entities.add(ProductEntity(
+            barcode: barcode,
+            name: name,
+            category: data['category']?.toString() ?? 'אחר',
+            brand: data['brand']?.toString() ?? '',
+            unit: data['unit']?.toString() ?? '',
+            icon: data['icon']?.toString() ?? '🛒',
+            // מחיר אם קיים
+            currentPrice: data['currentPrice'] as double?,
+            lastPriceStore: data['lastPriceStore']?.toString(),
+            lastPriceUpdate: data['lastPriceUpdate'] != null 
+              ? DateTime.tryParse(data['lastPriceUpdate'].toString())
+              : null,
+          ));
+          validProducts++;
+        } catch (e) {
+          invalidProducts++;
+          debugPrint('⚠️ שגיאה בהמרת מוצר מ-Firestore: $e');
+        }
+      }
+
+      if (entities.isEmpty) {
+        debugPrint('❌ לא נמצאו מוצרים תקינים ב-Firestore');
+        return false;
+      }
+
+      // שמירה ב-Hive
+      debugPrint('💾 שומר ${entities.length} מוצרים ב-Hive...');
+      await _localRepo.saveProducts(entities);
+      
+      debugPrint('✅ נשמרו ${entities.length} מוצרים מ-Firestore');
+      debugPrint('   ✔️ תקינים: $validProducts');
+      if (invalidProducts > 0) {
+        debugPrint('   ⚠️ נדחו: $invalidProducts');
+      }
+
+      return true;
+    } catch (e) {
+      debugPrint('❌ שגיאה בטעינת Firestore: $e');
+      return false;
     }
   }
 

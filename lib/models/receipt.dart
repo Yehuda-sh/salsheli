@@ -200,6 +200,12 @@ class ReceiptItem {
   /// יצרן/מותג (אם זמין)
   final String? manufacturer;
 
+  /// קטגוריה (אם זמינה)
+  final String? category;
+
+  /// יחידת מידה (אם זימנה)
+  final String? unit;
+
   const ReceiptItem({
     required this.id,
     required this.name,
@@ -208,6 +214,8 @@ class ReceiptItem {
     this.isChecked = false,
     this.barcode,
     this.manufacturer,
+    this.category,
+    this.unit,
   }) : assert(quantity >= 0, 'Quantity must be >= 0'),
        assert(unitPrice >= 0, 'Unit price must be >= 0');
 
@@ -221,6 +229,8 @@ class ReceiptItem {
     double unitPrice = 0.0,
     String? barcode,
     String? manufacturer,
+    String? category,
+    String? unit,
   }) {
     return ReceiptItem(
       id: const Uuid().v4(),
@@ -229,6 +239,8 @@ class ReceiptItem {
       unitPrice: unitPrice,
       barcode: barcode,
       manufacturer: manufacturer,
+      category: category,
+      unit: unit,
     );
   }
 
@@ -240,6 +252,8 @@ class ReceiptItem {
     bool? isChecked,
     String? barcode,
     String? manufacturer,
+    String? category,
+    String? unit,
   }) {
     return ReceiptItem(
       id: id ?? this.id,
@@ -249,6 +263,8 @@ class ReceiptItem {
       isChecked: isChecked ?? this.isChecked,
       barcode: barcode ?? this.barcode,
       manufacturer: manufacturer ?? this.manufacturer,
+      category: category ?? this.category,
+      unit: unit ?? this.unit,
     );
   }
 

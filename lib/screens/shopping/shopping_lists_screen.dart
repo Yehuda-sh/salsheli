@@ -77,13 +77,14 @@ class ShoppingListsScreen extends StatelessWidget {
       context: context,
       builder: (dialogContext) => CreateListDialog(
         onCreateList: (listData) async {
-          // ✅ סגור את הדיאלוג תחילה
-          Navigator.of(dialogContext).pop();
-
+          debugPrint('🔵 shopping_lists_screen: קיבל נתונים מהדיאלוג');
+          
           // ✅ קבל את כל הנתונים מהדיאלוג
           final name = listData['name'] as String?;
           final type = listData['type'] as String? ?? 'super';
           final budget = listData['budget'] as double?;
+
+          debugPrint('   name: $name, type: $type, budget: $budget');
 
           if (name != null && name.isNotEmpty) {
             try {
@@ -94,9 +95,15 @@ class ShoppingListsScreen extends StatelessWidget {
                 budget: budget,
               );
 
-              // ✅ בדיקת context לפני ניווט
-              if (!context.mounted) return;
+              debugPrint('   ✅ רשימה נוצרה: ${newList.id}');
 
+              // ✅ בדיקת context לפני ניווט
+              if (!context.mounted) {
+                debugPrint('   ⚠️ context לא mounted - מדלג על ניווט');
+                return;
+              }
+
+              debugPrint('   ➡️ ניווט ל-populate-list');
               // ✅ נווט למסך הבא
               Navigator.pushNamed(
                 context,
@@ -104,14 +111,9 @@ class ShoppingListsScreen extends StatelessWidget {
                 arguments: newList,
               );
             } catch (e) {
-              // ✅ טיפול בשגיאות
-              if (!context.mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('שגיאה ביצירת רשימה: $e'),
-                  backgroundColor: Colors.red,
-                ),
-              );
+              debugPrint('   ❌ שגיאה ביצירת רשימה: $e');
+              // השגיאה תוצג ב-Dialog עצמו ב-SnackBar
+              rethrow; // העבר הלאה ל-Dialog לטיפול
             }
           }
         },

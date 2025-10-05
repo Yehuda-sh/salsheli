@@ -52,7 +52,7 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
       }
 
       // 2. טוען את נתוני הדמו העשירים
-      final demoData = loadRichDemoData(demoUserId, demoHouseholdId);
+      final demoData = await loadRichDemoData(demoUserId, demoHouseholdId);
 
       // 3. טוען רשימות קניות
       if (mounted) {

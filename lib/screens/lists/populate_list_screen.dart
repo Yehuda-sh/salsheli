@@ -50,6 +50,11 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final productsProvider = context.read<ProductsProvider>();
+      
+      // ✅ הגדר סינון לפי סוג הרשימה
+      debugPrint('🎯 PopulateListScreen: סוג רשימה = ${widget.list.type}');
+      productsProvider.setListType(widget.list.type);
+      
       if (productsProvider.isEmpty && !productsProvider.isLoading) {
         productsProvider.loadProducts();
       }
@@ -58,6 +63,10 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
 
   @override
   void dispose() {
+    // ✅ נקה סינון כשיוצאים מהמסך
+    final productsProvider = context.read<ProductsProvider>();
+    productsProvider.clearListType();
+    
     _searchController.dispose();
     _customQuantityController.dispose();
     super.dispose();
@@ -112,7 +121,8 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
 
     final productsProvider = context.watch<ProductsProvider>();
     final products = productsProvider.products;
-    final categories = productsProvider.categories;
+    final categories = productsProvider.relevantCategories; // ✅ קטגוריות רלוונטיות
+    final suggestedStores = productsProvider.suggestedStores; // ✅ חנויות מומלצות
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -211,6 +221,49 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
           ),
 
           const SizedBox(height: 12),
+
+          // ✅ חנויות מומלצות (חדש!)
+          if (suggestedStores.isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.store, size: 18, color: accent),
+                      const SizedBox(width: 8),
+                      Text(
+                        'חנויות מומלצות:',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: cs.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: suggestedStores.take(6).map((store) {
+                      return Chip(
+                        avatar: Icon(Icons.storefront, size: 16, color: accent),
+                        label: Text(store),
+                        backgroundColor: accent.withValues(alpha: 0.1),
+                        labelStyle: TextStyle(
+                          fontSize: 12,
+                          color: cs.onSurface,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
 
           // סינון קטגוריות
           if (categories.isNotEmpty)
