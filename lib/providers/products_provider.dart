@@ -1,15 +1,48 @@
-// 📄 lib/providers/products_provider.dart
+// 📄 File: lib/providers/products_provider.dart
 //
-// 🎯 Provider למוצרים - ניהול state של מוצרים
-// - טעינה מקומית (מהירה)
-// - עדכון מחירים מ-API (אופציונלי)
-// - חיפוש וסינון
-// 🐛 עם Logging מפורט לטרמינל
+// 🎯 Purpose: Provider למוצרים - ניהול state מרכזי של כל המוצרים באפליקציה
+//
+// 📦 Dependencies:
+// - ProductsRepository: ממשק לטעינת מוצרים
+// - HybridProductsRepository: מימוש היברידי (Local + Firebase + API)
+// - ListTypeMappings: מיפוי בין סוגי רשימות לקטגוריות
+//
+// ✨ Features:
+// - 📥 טעינה חכמה: Local (מהיר) → Firebase → API → Fallback
+// - 🔄 רענון מחירים: עדכון מחירים מ-API
+// - 🔍 חיפוש: לפי שם, ברקוד, קטגוריה
+// - 🎯 סינון: לפי סוג רשימה, קטגוריה, טקסט
+// - 📊 סטטיסטיקות: כמה מוצרים, עם/בלי מחיר
+// - 💾 Cache: מוצרים נשמרים במטמון לביצועים
+// - 🐛 Logging מפורט: כל פעולה עם debugPrint
+//
+// 📝 Usage:
+// ```dart
+// // בקריאת נתונים:
+// final provider = context.watch<ProductsProvider>();
+// final products = provider.products; // מסונן לפי חיפוש/סינון
+//
+// // בפעולות:
+// context.read<ProductsProvider>().setSearchQuery('חלב');
+// context.read<ProductsProvider>().setListType('weekly_groceries');
+//
+// // חיפוש ספציפי:
+// final product = await provider.getProductByBarcode('1234567890');
+// final product2 = provider.getByName('חלב 3%');
+// ```
+//
+// 🔄 State Flow:
+// 1. Constructor → _initialize() (אם skipInitialLoad=false)
+// 2. loadProducts() → טעינה מ-Repository
+// 3. setSearchQuery/setCategory/setListType → סינון
+// 4. notifyListeners() → UI מתעדכן
+//
+// Version: 2.0 (עם getByName + logging מלא)
 
 import 'package:flutter/foundation.dart';
 import '../repositories/products_repository.dart';
 import '../repositories/hybrid_products_repository.dart';
-import '../config/list_type_mappings.dart'; // ✅ חדש
+import '../config/list_type_mappings.dart';
 
 class ProductsProvider with ChangeNotifier {
   final ProductsRepository _repository;
@@ -55,22 +88,25 @@ class ProductsProvider with ChangeNotifier {
 
   // 📊 סטטיסטיקות (רק אם זה Hybrid)
   int get totalProducts {
-    if (_repository is HybridProductsRepository) {
-      return (_repository as HybridProductsRepository).totalProducts;
+    final repo = _repository;
+    if (repo is HybridProductsRepository) {
+      return repo.totalProducts;
     }
     return _products.length;
   }
 
   int get productsWithPrice {
-    if (_repository is HybridProductsRepository) {
-      return (_repository as HybridProductsRepository).productsWithPrice;
+    final repo = _repository;
+    if (repo is HybridProductsRepository) {
+      return repo.productsWithPrice;
     }
     return _products.where((p) => p['price'] != null).length;
   }
 
   int get productsWithoutPrice {
-    if (_repository is HybridProductsRepository) {
-      return (_repository as HybridProductsRepository).productsWithoutPrice;
+    final repo = _repository;
+    if (repo is HybridProductsRepository) {
+      return repo.productsWithoutPrice;
     }
     return _products.where((p) => p['price'] == null).length;
   }
@@ -82,9 +118,10 @@ class ProductsProvider with ChangeNotifier {
     debugPrint('═══════════════════════════════════════════');
     
     // אתחול Hybrid Repository אם צריך
-    if (_repository is HybridProductsRepository) {
+    final repo = _repository;
+    if (repo is HybridProductsRepository) {
       debugPrint('📞 קורא ל-HybridProductsRepository.initialize()');
-      await (_repository as HybridProductsRepository).initialize();
+      await repo.initialize();
     }
 
     await loadProducts();
@@ -137,6 +174,7 @@ class ProductsProvider with ChangeNotifier {
       debugPrint('   $e');
     } finally {
       _isLoading = false;
+      debugPrint('🔔 ProductsProvider: notifyListeners() - loadProducts הושלם');
       notifyListeners();
       debugPrint('═══════════════════════════════════════════\n');
     }
@@ -180,6 +218,7 @@ class ProductsProvider with ChangeNotifier {
       debugPrint('   $e');
     } finally {
       _isRefreshing = false;
+      debugPrint('🔔 ProductsProvider: notifyListeners() - refreshProducts הושלם');
       notifyListeners();
       debugPrint('═══════════════════════════════════════════\n');
     }
@@ -190,6 +229,7 @@ class ProductsProvider with ChangeNotifier {
     if (_searchQuery == query) return;
     debugPrint('🔍 חיפוש: "$query"');
     _searchQuery = query;
+    debugPrint('🔔 ProductsProvider: notifyListeners() - setSearchQuery');
     notifyListeners();
     debugPrint('   נמצאו: ${_getFilteredProducts().length} מוצרים');
   }
@@ -209,6 +249,7 @@ class ProductsProvider with ChangeNotifier {
     // נקה קטגוריה נבחרת כי הקטגוריות הרלוונטיות משתנות
     _selectedCategory = null;
     
+    debugPrint('🔔 ProductsProvider: notifyListeners() - setListType');
     notifyListeners();
     debugPrint('   נמצאו: ${_getFilteredProducts().length} מוצרים');
     
@@ -248,6 +289,7 @@ class ProductsProvider with ChangeNotifier {
     if (_selectedCategory == category) return;
     debugPrint('🏷️ סינון לפי קטגוריה: $category');
     _selectedCategory = category;
+    debugPrint('🔔 ProductsProvider: notifyListeners() - setCategory');
     notifyListeners();
     debugPrint('   נמצאו: ${_getFilteredProducts().length} מוצרים');
   }
@@ -318,6 +360,44 @@ class ProductsProvider with ChangeNotifier {
     }
   }
 
+  // === Get Product by Name (sync) ===
+  /// חיפוש מוצר לפי שם (מחזיר את ההתאמה הראשונה)
+  /// 
+  /// מחפש התאמה מדויקת, ואם לא מוצא - מחפש התאמה חלקית.
+  /// 
+  /// Returns: Map עם נתוני המוצר או null אם לא נמצא
+  Map<String, dynamic>? getByName(String name) {
+    if (name.isEmpty || _products.isEmpty) return null;
+
+    debugPrint('🔍 חיפוש מוצר לפי שם: "$name"');
+    final lowerName = name.toLowerCase().trim();
+
+    // 1. נסה התאמה מדויקת
+    final exact = _products.firstWhere(
+      (p) => (p['name'] as String).toLowerCase().trim() == lowerName,
+      orElse: () => {},
+    );
+
+    if (exact.isNotEmpty) {
+      debugPrint('   ✅ התאמה מדויקת: ${exact['name']} (${exact['category']})');
+      return exact;
+    }
+
+    // 2. נסה התאמה חלקית
+    final partial = _products.firstWhere(
+      (p) => (p['name'] as String).toLowerCase().contains(lowerName),
+      orElse: () => {},
+    );
+
+    if (partial.isNotEmpty) {
+      debugPrint('   ⚠️ התאמה חלקית: ${partial['name']} (${partial['category']})');
+      return partial;
+    }
+
+    debugPrint('   ❌ לא נמצא מוצר');
+    return null;
+  }
+
   // === Search Products (async) ===
   Future<List<Map<String, dynamic>>> searchProducts(String query) async {
     try {
@@ -363,6 +443,15 @@ class ProductsProvider with ChangeNotifier {
     debugPrint('🗑️ ניקוי כל הסינונים');
     _searchQuery = '';
     _selectedCategory = null;
+    _selectedListType = null;
+    debugPrint('🔔 ProductsProvider: notifyListeners() - clearAll');
     notifyListeners();
+  }
+
+  // === Dispose ===
+  @override
+  void dispose() {
+    debugPrint('👋 ProductsProvider: dispose() - ניקוי משאבים');
+    super.dispose();
   }
 }

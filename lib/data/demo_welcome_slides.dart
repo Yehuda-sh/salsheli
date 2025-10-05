@@ -29,8 +29,8 @@ class WelcomeSlide {
     this.tag,
   });
 
-  /// 🇮🇱 המרה ל־Map לתאימות עם מסכים ישנים שעובדים עם Map<String,String>.
-  /// 🇬🇧 Converts to Map for compatibility with legacy screens using Map<String,String>.
+  /// 🇮🇱 המרה ל־Map לתאימות עם מסכים ישנים שעובדים עם `Map<String,String>`.
+  /// 🇬🇧 Converts to Map for compatibility with legacy screens using `Map<String,String>`.
   Map<String, String> toMap() => {
     "title": title,
     "description": description,
@@ -85,8 +85,8 @@ class DemoWelcomeSlides {
     ),
   ];
 
-  /// 🇮🇱 גרסת Map<String,String> עבור תאימות למסכים קיימים.
-  /// 🇬🇧 Map<String,String> version for backward compatibility with existing screens.
+  /// 🇮🇱 גרסת `Map<String,String>` עבור תאימות למסכים קיימים.
+  /// 🇬🇧 `Map<String,String>` version for backward compatibility with existing screens.
   static const List<Map<String, String>> slides = [
     {
       "title": "קניות חכמות בלי לשכוח",

@@ -5,17 +5,12 @@ import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/suggestion.dart';
-import '../models/inventory_item.dart';
-import '../models/shopping_list.dart';
-import '../models/receipt.dart';
 import 'inventory_provider.dart';
 import 'shopping_lists_provider.dart';
-import 'user_context.dart';
 
 class SuggestionsProvider with ChangeNotifier {
   final InventoryProvider _inventoryProvider;
   final ShoppingListsProvider _listsProvider;
-  UserContext? _userContext;
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -26,10 +21,8 @@ class SuggestionsProvider with ChangeNotifier {
   SuggestionsProvider({
     required InventoryProvider inventoryProvider,
     required ShoppingListsProvider listsProvider,
-    UserContext? userContext,
   }) : _inventoryProvider = inventoryProvider,
-       _listsProvider = listsProvider,
-       _userContext = userContext {
+       _listsProvider = listsProvider {
     // האזנה לשינויים במזווה ורשימות
     _inventoryProvider.addListener(_onDataChanged);
     _listsProvider.addListener(_onDataChanged);

@@ -1,14 +1,32 @@
 // 📄 File: lib/screens/index_screen.dart
-// תיאור: מסך פתיחה ראשוני - בודק מצב משתמש ומנווט למסך המתאים
+// 🎯 Purpose: מסך פתיחה ראשוני - Splash screen שבודק מצב משתמש ומנווט למסך המתאים
 //
-// שינויים:
-// ✅ סדר בדיקות מתוקן: userId לפני seenOnboarding
-// ✅ הוסר עיכוב מלאכותי (800ms)
-// ✅ נוסף טיפול בשגיאות
-// ✅ ניווט פשוט יותר
+// 📋 Flow Logic:
+// 1. userId קיים? → /home (ישר לאפליקציה)
+// 2. seenOnboarding? לא → WelcomeScreen (הצגת יתרונות)
+// 3. אחרת → /login (התחברות)
+//
+// 🔗 Related:
+// - WelcomeScreen - מסך קבלת פנים ראשוני
+// - LoginScreen - מסך התחברות (/login)
+// - HomeScreen - מסך ראשי (/home)
+// - SharedPreferences - אחסון מצב משתמש
+//
+// 💡 Features:
+// - בדיקת סדר נכון (userId קודם!)
+// - Error handling עם fallback
+// - Loading indicator עם הודעה
+// - Accessibility labels
+// - Logging מפורט
+//
+// ⚠️ Critical:
+// - תמיד בודק userId לפני seenOnboarding (MOBILE_GUIDELINES)
+// - mounted checks לפני כל navigation
+// - try/catch עם fallback ל-WelcomeScreen
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../core/constants.dart';
 import 'welcome_screen.dart';
 
 class IndexScreen extends StatefulWidget {
@@ -22,6 +40,7 @@ class _IndexScreenState extends State<IndexScreen> {
   @override
   void initState() {
     super.initState();
+    debugPrint('🚀 IndexScreen.initState()');
     _checkAndNavigate();
   }
 
@@ -86,30 +105,58 @@ class _IndexScreenState extends State<IndexScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  color: cs.primary.withOpacity(0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.shopping_basket_outlined,
-                  size: 36,
-                  color: cs.primary,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Salsheli',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: cs.onSurface,
+              // לוגו עם Accessibility
+              Semantics(
+                label: 'לוגו אפליקציית Salsheli',
+                child: Container(
+                  width: kButtonHeight + 24, // 72
+                  height: kButtonHeight + 24, // 72
+                  decoration: BoxDecoration(
+                    color: cs.primary.withValues(alpha: 0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.shopping_basket_outlined,
+                    size: kButtonHeight - 12, // 36
+                    color: cs.primary,
+                  ),
                 ),
               ),
-              const SizedBox(height: 12),
-              const CircularProgressIndicator(strokeWidth: 3),
+              SizedBox(height: kSpacingMedium),
+              
+              // שם האפליקציה
+              Semantics(
+                header: true,
+                child: Text(
+                  'Salsheli',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: cs.onSurface,
+                  ),
+                ),
+              ),
+              SizedBox(height: kSpacingSmall + 4), // 12
+              
+              // Progress indicator עם accessibility
+              Semantics(
+                label: 'טוען את האפליקציה',
+                child: Column(
+                  children: [
+                    CircularProgressIndicator(
+                      strokeWidth: 3,
+                    ),
+                    SizedBox(height: kSpacingSmall),
+                    Text(
+                      'טוען...',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: cs.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),

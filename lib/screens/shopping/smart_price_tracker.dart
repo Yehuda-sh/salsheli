@@ -1,8 +1,36 @@
-// lib/components/shopping/smart_price_tracker.dart
+// 📄 File: lib/screens/shopping/smart_price_tracker.dart
+// 
+// 🎯 Purpose:
+// Smart price comparison tracker - השוואת מחירים חכמה בין חנויות שונות.
+// מאפשר למשתמש לחפש מוצר ולקבל השוואת מחירים בזמן אמת,
+// ליצור התראות מחיר, ולעקוב אחרי מגמות.
+//
+// 📦 Dependencies:
+// - None (standalone widget)
+//
+// 🔧 Features:
+// - חיפוש מוצרים והשוואת מחירים
+// - התראות מחיר ממוקדות
+// - המלצות על מוצרים פופולריים
+// - סימון "ההצעה הטובה ביותר"
+// - עדכוני זמינות במלאי
+//
+// 📝 Usage:
+// ```dart
+// SmartPriceTracker()
+// ```
+//
+// ⚙️ TODO (Future):
+// - חיבור ל-API אמיתי של מחירון ממשלתי
+// - שמירת היסטוריית מחירים
+// - גרפים של מגמות מחירים
+// - התראות פוש כאשר מחיר יורד
+
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:intl/intl.dart';
 import 'dart:ui' as ui show TextDirection;
+import '../../core/constants.dart';
 
 class PriceResult {
   final String store;
@@ -45,69 +73,86 @@ class _SmartPriceTrackerState extends State<SmartPriceTracker> {
   List<PriceResult> _searchResults = [];
   final List<PriceAlert> _priceAlerts = [];
   bool _isSearching = false;
+  bool _hasError = false;
   String? _lastQuery;
-
-  final List<String> _recommendedProducts = const [
-    "חלב",
-    "לחם",
-    "ביצים",
-    "אורז",
-    "שמן זית",
-    "פסטה",
-    "עגבניות",
-    "מלפפונים",
-  ];
 
   NumberFormat get _nis =>
       NumberFormat.currency(locale: 'he_IL', symbol: '₪', decimalDigits: 2);
 
   @override
+  void initState() {
+    super.initState();
+    debugPrint('📊 SmartPriceTracker.initState()');
+  }
+
+  @override
   void dispose() {
+    debugPrint('🗑️ SmartPriceTracker.dispose()');
     _searchController.dispose();
     super.dispose();
   }
 
   Future<void> _handlePriceSearch(String productName) async {
     final query = productName.trim();
-    if (query.isEmpty) return;
+    if (query.isEmpty) {
+      debugPrint('⚠️ SmartPriceTracker: שאילתת חיפוש ריקה');
+      return;
+    }
+
+    debugPrint('🔍 SmartPriceTracker: מחפש מחירים ל-"$query"');
 
     setState(() {
       _isSearching = true;
+      _hasError = false;
       _lastQuery = query;
     });
 
-    // סימולציית מקור נתונים
-    await Future.delayed(const Duration(milliseconds: 900));
-    final random = Random();
-    final stores = ["שופרסל", "רמי לוי", "יינות ביתן", "יוחננוף", "ויקטורי"];
+    try {
+      // סימולציית מקור נתונים
+      await Future.delayed(const Duration(milliseconds: 900));
+      final random = Random();
+      final stores = kPredefinedStores; // מ-constants.dart
 
-    // בונים תוצאות רנדומליות, ממיינים: קודם זמינות (כן לפני לא), ואז מחיר
-    final results =
-        stores
-            .map(
-              (store) => PriceResult(
-                store: store,
-                price: 5 + random.nextDouble() * 30,
-                inStock: random.nextBool(),
-                lastUpdated: DateTime.now(),
-              ),
-            )
-            .toList()
-          ..sort((a, b) {
-            // זמינות יורדת (true קודם), ואז מחיר עולה
-            if (a.inStock != b.inStock)
-              return (b.inStock ? 1 : 0) - (a.inStock ? 1 : 0);
-            return a.price.compareTo(b.price);
-          });
+      // בונים תוצאות רנדומליות, ממיינים: קודם זמינות (כן לפני לא), ואז מחיר
+      final results = stores
+          .map(
+            (store) => PriceResult(
+              store: store,
+              price: 5 + random.nextDouble() * 30,
+              inStock: random.nextBool(),
+              lastUpdated: DateTime.now(),
+            ),
+          )
+          .toList()
+        ..sort((a, b) {
+          // זמינות יורדת (true קודם), ואז מחיר עולה
+          if (a.inStock != b.inStock) {
+            return (b.inStock ? 1 : 0) - (a.inStock ? 1 : 0);
+          }
+          return a.price.compareTo(b.price);
+        });
 
-    if (!mounted) return;
-    setState(() {
-      _searchResults = results;
-      _isSearching = false;
-    });
+      debugPrint('   ✅ נמצאו ${results.length} תוצאות');
+      debugPrint('   📦 ${results.where((r) => r.inStock).length} במלאי');
+
+      if (!mounted) return;
+      setState(() {
+        _searchResults = results;
+        _isSearching = false;
+      });
+    } catch (e) {
+      debugPrint('   ❌ שגיאה בחיפוש: $e');
+      if (!mounted) return;
+      setState(() {
+        _hasError = true;
+        _isSearching = false;
+      });
+    }
   }
 
   void _handleAddPriceAlert(String productName, double? defaultPrice) async {
+    debugPrint('🔔 SmartPriceTracker: יוצר התראת מחיר ל-"$productName"');
+
     final cs = Theme.of(context).colorScheme;
     final controller = TextEditingController(
       text: defaultPrice != null ? defaultPrice.toStringAsFixed(2) : '',
@@ -115,7 +160,7 @@ class _SmartPriceTrackerState extends State<SmartPriceTracker> {
 
     final target = await showDialog<double>(
       context: context,
-      builder: (ctx) => Directionality(
+      builder: (dialogContext) => Directionality(
         textDirection: ui.TextDirection.rtl,
         child: AlertDialog(
           title: const Text('התראת מחיר'),
@@ -129,17 +174,23 @@ class _SmartPriceTrackerState extends State<SmartPriceTracker> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(ctx),
+              onPressed: () {
+                debugPrint('   ❌ בוטל');
+                Navigator.pop(dialogContext);
+              },
               child: const Text('בטל'),
             ),
             FilledButton(
               onPressed: () {
-                final v = double.tryParse(controller.text.replaceAll(',', '.'));
-                Navigator.pop(ctx, v);
+                final v =
+                    double.tryParse(controller.text.replaceAll(',', '.'));
+                debugPrint('   ✅ נבחר מחיר: ₪${v?.toStringAsFixed(2)}');
+                Navigator.pop(dialogContext, v);
               },
               style: FilledButton.styleFrom(
                 backgroundColor: cs.primary,
                 foregroundColor: cs.onPrimary,
+                minimumSize: const Size(kButtonHeight, kButtonHeight),
               ),
               child: const Text('שמור'),
             ),
@@ -148,7 +199,10 @@ class _SmartPriceTrackerState extends State<SmartPriceTracker> {
       ),
     );
 
-    if (target == null) return;
+    if (target == null || target <= 0) {
+      debugPrint('   ⚠️ מחיר לא תקין או בוטל');
+      return;
+    }
 
     setState(() {
       _priceAlerts.add(
@@ -160,17 +214,21 @@ class _SmartPriceTrackerState extends State<SmartPriceTracker> {
       );
     });
 
+    debugPrint('   ✅ התראה נוספה: $productName < ₪${target.toStringAsFixed(2)}');
+
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("התראת מחיר ל־$productName נוספה!"),
+        backgroundColor: Colors.green,
         behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
       ),
     );
   }
 
   PriceResult? get _bestOfferInStock {
-    // אחרי המיון למעלה, ההצעה הראשונה שבמלאי תהיה “הטובה ביותר”
+    // אחרי המיון למעלה, ההצעה הראשונה שבמלאי תהיה "הטובה ביותר"
     try {
       return _searchResults.firstWhere((r) => r.inStock);
     } catch (_) {
@@ -185,22 +243,31 @@ class _SmartPriceTrackerState extends State<SmartPriceTracker> {
     return Directionality(
       textDirection: ui.TextDirection.rtl,
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(kSpacingMedium),
         children: [
           _buildSearchHeader(cs),
+          const SizedBox(height: kSpacingMedium),
 
-          const SizedBox(height: 16),
-
+          // Loading State
           if (_isSearching) const Center(child: CircularProgressIndicator()),
 
-          if (!_isSearching && _searchResults.isNotEmpty)
+          // Error State
+          if (_hasError && !_isSearching) _buildErrorState(cs),
+
+          // Results
+          if (!_isSearching && !_hasError && _searchResults.isNotEmpty)
             _buildSearchResults(cs),
 
-          const SizedBox(height: 16),
+          // Empty State - אחרי חיפוש שלא מצא כלום
+          if (!_isSearching &&
+              !_hasError &&
+              _searchResults.isEmpty &&
+              _lastQuery != null)
+            _buildEmptyState(cs),
 
+          const SizedBox(height: kSpacingMedium),
           _buildRecommended(cs),
-
-          const SizedBox(height: 16),
+          const SizedBox(height: kSpacingMedium),
 
           if (_priceAlerts.isNotEmpty) _buildAlertsSection(cs),
         ],
@@ -212,7 +279,7 @@ class _SmartPriceTrackerState extends State<SmartPriceTracker> {
     return Card(
       color: cs.tertiaryContainer.withValues(alpha: 0.25),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(kSpacingMedium),
         child: Column(
           children: [
             Row(
@@ -224,14 +291,14 @@ class _SmartPriceTrackerState extends State<SmartPriceTracker> {
                     gradient: LinearGradient(
                       colors: [cs.primary, cs.secondary],
                     ),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(kSpacingSmall),
                   ),
                   child: Icon(Icons.track_changes, color: cs.onPrimary),
                 ),
-                const SizedBox(width: 12),
-                Column(
+                const SizedBox(width: kSpacingMedium - 4),
+                const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text(
                       "מעקב מחירים חכם",
                       style: TextStyle(
@@ -247,7 +314,7 @@ class _SmartPriceTrackerState extends State<SmartPriceTracker> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: kSpacingMedium),
             Row(
               children: [
                 Expanded(
@@ -255,28 +322,107 @@ class _SmartPriceTrackerState extends State<SmartPriceTracker> {
                     controller: _searchController,
                     textInputAction: TextInputAction.search,
                     onSubmitted: _handlePriceSearch,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: "חפש מוצר...",
-                      prefixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.search),
+                      border: const OutlineInputBorder(),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear, size: 20),
+                              tooltip: 'נקה חיפוש',
+                              onPressed: () {
+                                debugPrint('🗑️ SmartPriceTracker: ניקוי חיפוש');
+                                setState(() {
+                                  _searchController.clear();
+                                  _searchResults.clear();
+                                  _lastQuery = null;
+                                  _hasError = false;
+                                });
+                              },
+                            )
+                          : null,
                     ),
+                    onChanged: (_) => setState(() {}),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: kSpacingSmall),
                 ElevatedButton(
-                  onPressed: () {
-                    if (_searchController.text.trim().isNotEmpty) {
-                      _handlePriceSearch(_searchController.text);
-                    }
-                  },
+                  onPressed: _searchController.text.trim().isNotEmpty
+                      ? () => _handlePriceSearch(_searchController.text)
+                      : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: cs.primary,
                     foregroundColor: cs.onPrimary,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+                    minimumSize: const Size(kButtonHeight, kButtonHeight),
                   ),
                   child: const Text("חפש"),
                 ),
               ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(ColorScheme cs) {
+    return Card(
+      color: Colors.red.shade50,
+      child: Padding(
+        padding: const EdgeInsets.all(kSpacingLarge),
+        child: Column(
+          children: [
+            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            const SizedBox(height: kSpacingMedium),
+            const Text(
+              'אופס! משהו השתבש',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: kSpacingSmall),
+            const Text(
+              'לא הצלחנו לטעון את המחירים. נסה שוב מאוחר יותר.',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: kSpacingLarge),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.refresh),
+              label: const Text('נסה שוב'),
+              onPressed: () {
+                if (_lastQuery != null) {
+                  _handlePriceSearch(_lastQuery!);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: cs.primary,
+                foregroundColor: cs.onPrimary,
+                minimumSize: const Size(kButtonHeight * 2, kButtonHeight),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(ColorScheme cs) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(kSpacingLarge),
+        child: Column(
+          children: [
+            const Icon(Icons.search_off, size: 64, color: Colors.grey),
+            const SizedBox(height: kSpacingMedium),
+            Text(
+              'לא נמצאו תוצאות ל"$_lastQuery"',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: kSpacingSmall),
+            const Text(
+              'נסה לחפש מוצר אחר או בחר מהמוצרים המומלצים למטה',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey),
             ),
           ],
         ),
@@ -289,7 +435,7 @@ class _SmartPriceTrackerState extends State<SmartPriceTracker> {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(kSpacingMedium),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -302,36 +448,36 @@ class _SmartPriceTrackerState extends State<SmartPriceTracker> {
                 const Spacer(),
                 if (_lastQuery != null)
                   OutlinedButton.icon(
-                    icon: const Icon(Icons.notifications_active),
+                    icon: const Icon(Icons.notifications_active, size: 18),
                     label: const Text("התראה למחיר"),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: cs.primary,
                       side: BorderSide(color: cs.primary),
+                      minimumSize: const Size(140, kButtonHeight),
                     ),
                     onPressed: () =>
                         _handleAddPriceAlert(_lastQuery!, best?.price),
                   ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: kSpacingMedium - 4),
 
             // רשימת התוצאות
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: _searchResults.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              separatorBuilder: (_, __) => const SizedBox(height: kSpacingSmall),
               itemBuilder: (_, i) {
                 final result = _searchResults[i];
-                final isBest =
-                    best != null &&
+                final isBest = best != null &&
                     result.store == best.store &&
                     result.price == best.price;
 
                 final bg = result.inStock
                     ? (isBest
-                          ? cs.primaryContainer.withValues(alpha: 0.30)
-                          : cs.surfaceVariant.withValues(alpha: 0.35))
+                        ? cs.primaryContainer.withValues(alpha: 0.30)
+                        : cs.surfaceVariant.withValues(alpha: 0.35))
                     : Colors.red.shade50;
 
                 final borderColor = isBest
@@ -339,10 +485,10 @@ class _SmartPriceTrackerState extends State<SmartPriceTracker> {
                     : (result.inStock ? cs.outline : Colors.red.shade200);
 
                 return Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(kSpacingMedium - 4),
                   decoration: BoxDecoration(
                     color: bg,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(kSpacingSmall),
                     border: Border.all(color: borderColor),
                   ),
                   child: Row(
@@ -370,9 +516,8 @@ class _SmartPriceTrackerState extends State<SmartPriceTracker> {
                                     ? Icons.check_circle
                                     : Icons.cancel,
                                 size: 16,
-                                color: result.inStock
-                                    ? Colors.green
-                                    : Colors.red,
+                                color:
+                                    result.inStock ? Colors.green : Colors.red,
                               ),
                               const SizedBox(width: 4),
                               Text(
@@ -410,29 +555,33 @@ class _SmartPriceTrackerState extends State<SmartPriceTracker> {
   Widget _buildRecommended(ColorScheme cs) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(kSpacingMedium),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: const [
+            const Row(
+              children: [
                 Icon(Icons.flash_on, color: Colors.orange),
-                SizedBox(width: 8),
+                SizedBox(width: kSpacingSmall),
                 Text(
                   "מוצרים מומלצים לבדיקה",
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: kSpacingMedium - 4),
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: _recommendedProducts
+              spacing: kSpacingSmall,
+              runSpacing: kSpacingSmall,
+              children: kPopularProducts
                   .map(
                     (product) => ActionChip(
                       label: Text(product),
-                      onPressed: () => _handlePriceSearch(product),
+                      onPressed: () {
+                        debugPrint(
+                            '💡 SmartPriceTracker: נבחר מוצר מומלץ - $product');
+                        _handlePriceSearch(product);
+                      },
                     ),
                   )
                   .toList(),
@@ -447,21 +596,21 @@ class _SmartPriceTrackerState extends State<SmartPriceTracker> {
     return Card(
       color: cs.secondaryContainer.withValues(alpha: 0.25),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(kSpacingMedium),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: const [
+            const Row(
+              children: [
                 Icon(Icons.notifications, color: Colors.blue),
-                SizedBox(width: 8),
+                SizedBox(width: kSpacingSmall),
                 Text(
                   "התראות מחירים פעילות",
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: kSpacingMedium - 4),
             ..._priceAlerts.map(
               (alert) => ListTile(
                 contentPadding: EdgeInsets.zero,

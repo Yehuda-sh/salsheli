@@ -48,11 +48,7 @@ class LocalShoppingListsRepository implements ShoppingListsRepository {
                 .toList()
               ..sort(
                 (a, b) =>
-                    (b.updatedDate ?? DateTime.fromMillisecondsSinceEpoch(0))
-                        .compareTo(
-                          a.updatedDate ??
-                              DateTime.fromMillisecondsSinceEpoch(0),
-                        ),
+                    b.updatedDate.compareTo(a.updatedDate),
               );
 
         _cache[householdId] = lists;
@@ -82,8 +78,7 @@ class LocalShoppingListsRepository implements ShoppingListsRepository {
 
     // deterministic order (newest first)
     lists.sort(
-      (a, b) => (b.updatedDate ?? DateTime.fromMillisecondsSinceEpoch(0))
-          .compareTo(a.updatedDate ?? DateTime.fromMillisecondsSinceEpoch(0)),
+      (a, b) => b.updatedDate.compareTo(a.updatedDate),
     );
 
     // write-through cache

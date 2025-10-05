@@ -1,4 +1,32 @@
-// lib/widgets/add_item_dialog.dart
+// 📄 File: lib/widgets/add_item_dialog.dart
+/// Dialog for adding new inventory items to pantry
+/// 
+/// Features:
+/// - Form validation for all fields
+/// - Barcode scanning simulation (LLM)
+/// - Expiry date picker with Hebrew locale
+/// - Category & location dropdowns
+/// - Optional price estimation
+/// - Quantity +/- buttons
+/// 
+/// Usage:
+/// ```dart
+/// showDialog(
+///   context: context,
+///   builder: (context) => AddItemDialog(
+///     onAddItem: (item) {
+///       inventoryProvider.addItem(item);
+///     },
+///   ),
+/// );
+/// ```
+/// 
+/// Dependencies:
+/// - intl package for date formatting
+/// - Material 3 design
+/// 
+/// Version: 2.0
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:ui' as ui;
@@ -59,7 +87,14 @@ class _AddItemDialogState extends State<AddItemDialog> {
   };
 
   @override
+  void initState() {
+    super.initState();
+    debugPrint('🎨 AddItemDialog.initState');
+  }
+
+  @override
   void dispose() {
+    debugPrint('🗑️ AddItemDialog.dispose');
     _productNameController.dispose();
     _quantityController.dispose();
     _estimatedPriceController.dispose();
@@ -85,17 +120,20 @@ class _AddItemDialogState extends State<AddItemDialog> {
 
     final quantity = _parseQuantitySafe();
     final estimatedPrice = _parsePrice(_estimatedPriceController.text);
+    final productName = _productNameController.text.trim();
+
+    debugPrint('💾 AddItemDialog.saveItem: $productName');
 
     setState(() => isSaving = true);
     FocusScope.of(context).unfocus();
 
     final newItem = {
-      "product_name": _productNameController.text.trim(),
+      "product_name": productName,
       "quantity": quantity,
       "unit": unit,
       "category": category,
       "location": location,
-      "estimated_price": estimatedPrice, // אופציונלי
+      "estimated_price": estimatedPrice,
       "expiry_date": expiryDate != null
           ? DateFormat("yyyy-MM-dd").format(expiryDate!)
           : null,
@@ -110,16 +148,21 @@ class _AddItemDialogState extends State<AddItemDialog> {
     widget.onAddItem(newItem);
 
     if (!mounted) return;
-    Navigator.pop(context);
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text("פריט נשמר בהצלחה ✅")));
+    Navigator.pop(context); // סגור קודם!
+    
+    // SnackBar אחרי סגירה
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("פריט נשמר בהצלחה ✅")),
+    );
 
     if (mounted) setState(() => isSaving = false);
   }
 
   Future<void> scanBarcode() async {
     FocusScope.of(context).unfocus();
+    debugPrint('📷 AddItemDialog.scanBarcode - invoking LLM...');
+    
     final result = await invokeLLM("1234567890");
 
     if (!mounted) return;
@@ -131,10 +174,12 @@ class _AddItemDialogState extends State<AddItemDialog> {
         barcode = "1234567890";
       });
 
+      debugPrint('   ✅ מוצר נמצא: ${result["product_name"]}');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("נמצא מוצר: ${result["product_name"]} ✅")),
       );
     } else {
+      debugPrint('   ❌ מוצר לא נמצא');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("לא נמצא מוצר עם הברקוד הזה")),
       );
@@ -151,6 +196,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
       locale: const Locale("he", "IL"),
     );
     if (picked != null && mounted) {
+      debugPrint('📅 AddItemDialog.pickExpiryDate: ${DateFormat('dd/MM/yyyy').format(picked)}');
       setState(() => expiryDate = picked);
     }
   }
@@ -184,11 +230,17 @@ class _AddItemDialogState extends State<AddItemDialog> {
                 controller: _productNameController,
                 decoration: const InputDecoration(
                   labelText: "שם מוצר",
-                  prefixIcon: Icon(Icons.shopping_bag_outlined),
+                  prefixIcon: Icon(
+                    Icons.shopping_bag_outlined,
+                    semanticLabel: 'שם מוצר', // ✅ accessibility
+                  ),
                 ),
-                validator: (val) => (val == null || val.trim().isEmpty)
-                    ? "חובה למלא שם מוצר"
-                    : null,
+                validator: (val) {
+                  if (val == null || val.trim().isEmpty) {
+                    return "חובה למלא שם מוצר";
+                  }
+                  return null;
+                },
                 textInputAction: TextInputAction.next,
               ),
 
@@ -204,20 +256,24 @@ class _AddItemDialogState extends State<AddItemDialog> {
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: const InputDecoration(
                         labelText: "כמות",
-                        prefixIcon: Icon(Icons.onetwothree),
+                        prefixIcon: Icon(
+                          Icons.onetwothree,
+                          semanticLabel: 'כמות', // ✅ accessibility
+                        ),
                       ),
                       validator: (val) {
                         final q = int.tryParse((val ?? '').trim());
-                        if (q == null || q <= 0)
+                        if (q == null || q <= 0) {
                           return "כמות חייבת להיות חיובית";
+                        }
                         return null;
                       },
                     ),
                   ),
                   const SizedBox(width: 8),
-                  _qtyBtn(icon: Icons.remove, onTap: _decQty, cs: cs),
+                  _qtyBtn(icon: Icons.remove, onTap: _decQty, cs: cs, label: 'הפחת כמות'),
                   const SizedBox(width: 6),
-                  _qtyBtn(icon: Icons.add, onTap: _incQty, cs: cs),
+                  _qtyBtn(icon: Icons.add, onTap: _incQty, cs: cs, label: 'הוסף כמות'),
                 ],
               ),
 
@@ -228,7 +284,10 @@ class _AddItemDialogState extends State<AddItemDialog> {
                 value: unit,
                 decoration: const InputDecoration(
                   labelText: "יחידה",
-                  prefixIcon: Icon(Icons.straighten),
+                  prefixIcon: Icon(
+                    Icons.straighten,
+                    semanticLabel: 'יחידת מדידה', // ✅ accessibility
+                  ),
                 ),
                 items: unitOptions
                     .map((u) => DropdownMenuItem(value: u, child: Text(u)))
@@ -243,7 +302,10 @@ class _AddItemDialogState extends State<AddItemDialog> {
                 value: category,
                 decoration: const InputDecoration(
                   labelText: "קטגוריה",
-                  prefixIcon: Icon(Icons.category_outlined),
+                  prefixIcon: Icon(
+                    Icons.category_outlined,
+                    semanticLabel: 'קטגוריה', // ✅ accessibility
+                  ),
                 ),
                 items: categoryOptions.entries
                     .map(
@@ -261,7 +323,10 @@ class _AddItemDialogState extends State<AddItemDialog> {
                 value: location,
                 decoration: const InputDecoration(
                   labelText: "מיקום",
-                  prefixIcon: Icon(Icons.kitchen_outlined),
+                  prefixIcon: Icon(
+                    Icons.kitchen_outlined,
+                    semanticLabel: 'מיקום אחסון', // ✅ accessibility
+                  ),
                 ),
                 items: locationOptions.entries
                     .map(
@@ -283,14 +348,18 @@ class _AddItemDialogState extends State<AddItemDialog> {
                 textDirection: ui.TextDirection.ltr,
                 decoration: const InputDecoration(
                   labelText: "מחיר מוערך (אופציונלי)",
-                  prefixIcon: Icon(Icons.attach_money),
+                  prefixIcon: Icon(
+                    Icons.attach_money,
+                    semanticLabel: 'מחיר', // ✅ accessibility
+                  ),
                   prefixText: "₪ ",
                 ),
-                // לא חובה; אם מולא – נוודא חיובי
                 validator: (val) {
                   if (val == null || val.trim().isEmpty) return null;
                   final v = _parsePrice(val);
-                  if (v == null) return "נא להזין מחיר חוקי";
+                  if (v == null) {
+                    return "נא להזין מחיר חוקי";
+                  }
                   return null;
                 },
               ),
@@ -302,13 +371,25 @@ class _AddItemDialogState extends State<AddItemDialog> {
                 children: [
                   ElevatedButton.icon(
                     onPressed: scanBarcode,
-                    icon: const Icon(Icons.qr_code_scanner),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(0, 48), // ✅ touch target
+                    ),
+                    icon: const Icon(
+                      Icons.qr_code_scanner,
+                      semanticLabel: 'סרוק ברקוד', // ✅ accessibility
+                    ),
                     label: const Text("סרוק ברקוד"),
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton.icon(
                     onPressed: pickExpiryDate,
-                    icon: const Icon(Icons.calendar_today),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(0, 48), // ✅ touch target
+                    ),
+                    icon: const Icon(
+                      Icons.calendar_today,
+                      semanticLabel: 'תאריך תוקף', // ✅ accessibility
+                    ),
                     label: const Text("תאריך תוקף"),
                   ),
                 ],
@@ -341,10 +422,16 @@ class _AddItemDialogState extends State<AddItemDialog> {
             FocusScope.of(context).unfocus();
             Navigator.pop(context);
           },
+          style: TextButton.styleFrom(
+            minimumSize: const Size(0, 48), // ✅ touch target
+          ),
           child: const Text("ביטול"),
         ),
         ElevatedButton(
           onPressed: isSaving ? null : saveItem,
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(0, 48), // ✅ touch target
+          ),
           child: isSaving
               ? const SizedBox(
                   width: 18,
@@ -364,16 +451,25 @@ class _AddItemDialogState extends State<AddItemDialog> {
     required IconData icon,
     required VoidCallback onTap,
     required ColorScheme cs,
+    required String label, // ✅ accessibility parameter
   }) {
-    return Material(
-      color: cs.primary.withValues(alpha: 0.08),
-      borderRadius: BorderRadius.circular(8),
-      child: InkWell(
+    return SizedBox(
+      width: 48, // ✅ touch target
+      height: 48, // ✅ touch target
+      child: Material(
+        color: cs.primary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Icon(icon, color: cs.primary, size: 18),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: onTap,
+          child: Center(
+            child: Icon(
+              icon, 
+              color: cs.primary, 
+              size: 18,
+              semanticLabel: label, // ✅ accessibility
+            ),
+          ),
         ),
       ),
     );

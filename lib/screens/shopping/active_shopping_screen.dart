@@ -34,6 +34,7 @@ import '../../models/shopping_list.dart';
 import '../../models/receipt.dart';
 import '../../models/enums/shopping_item_status.dart';
 import '../../providers/shopping_lists_provider.dart';
+import '../../providers/products_provider.dart';
 import '../../theme/app_theme.dart';
 
 class ActiveShoppingScreen extends StatefulWidget {
@@ -142,10 +143,12 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     final total = widget.list.items.length;
 
     // קבץ לפי קטגוריה
+    final productsProvider = context.watch<ProductsProvider>();
     final itemsByCategory = <String, List<ReceiptItem>>{};
     for (final item in widget.list.items) {
-      // TODO: בעתיד ניקח את הקטגוריה מ-ProductsProvider
-      final category = 'כללי'; // זמני
+      // שליפת קטגוריה מ-ProductsProvider
+      final product = productsProvider.getByName(item.name);
+      final category = product?['category'] as String? ?? 'כללי';
       itemsByCategory.putIfAbsent(category, () => []).add(item);
     }
 

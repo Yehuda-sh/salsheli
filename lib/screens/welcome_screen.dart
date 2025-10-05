@@ -1,25 +1,41 @@
 // 📄 File: lib/screens/welcome_screen.dart
-// תיאור: מסך קבלת פנים - מציג לוגו, יתרונות, וכפתורי התחברות/הרשמה
+// 🎯 Purpose: מסך קבלת פנים - מציג לוגו, יתרונות, וכפתורי התחברות/הרשמה
 //
-// עדכונים:
-// ✅ תיעוד מלא בראש הקובץ
-// ✅ שימוש ב-NavigationService במקום קריאות ישירות ל-SharedPreferences
-// ✅ שימוש ברכיב BenefitTile משותף
-// ✅ שימוש ברכיב AuthButton משותף
-// ✅ צבע רקע מה-Theme (welcomeBackground)
-// ✅ לוגיקה פשוטה יותר - פונקציה אחת לניווט
+// 📋 Features:
+// - לוגו מעוצב עם אייקון
+// - 3 יתרונות עיקריים (BenefitTile)
+// - כפתורי התחברות/הרשמה (AuthButton)
+// - כפתור דילוג
+// - Social login buttons (demo only)
+// - Logging מלא
+// - Touch targets 48px
+// - Accessibility labels
+//
+// 🔗 Related:
+// - NavigationService - ניווט מרכזי
+// - BenefitTile - רכיב יתרונות משותף
+// - AuthButton - רכיב כפתורי auth משותף
+// - AppTheme - ערכות נושא
+//
+// 🎨 Design:
+// - רקע כהה (welcomeBackground מה-Theme)
+// - טקסט לבן עם אפקטי opacity
+// - ריווחים מ-constants.dart
 
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common/benefit_tile.dart';
 import '../widgets/auth/auth_button.dart';
 import '../services/navigation_service.dart';
+import '../core/constants.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('🏠 WelcomeScreen.build()');
+    
     final theme = Theme.of(context);
     final brand = theme.extension<AppBrand>();
     final accent = brand?.accent ?? theme.colorScheme.primary;
@@ -30,26 +46,29 @@ class WelcomeScreen extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(32),
+            padding: EdgeInsets.all(kSpacingLarge + 8), // 32
             child: Column(
               children: [
-                const SizedBox(height: 40),
+                SizedBox(height: kSpacingLarge + 16), // 40
 
-                // לוגו
-                Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    color: accent.withOpacity(0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.shopping_basket_outlined,
-                    size: 56,
-                    color: accent,
+                // לוגו עם Accessibility
+                Semantics(
+                  label: 'לוגו אפליקציית סל שלי',
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      color: accent.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.shopping_basket_outlined,
+                      size: 56,
+                      color: accent,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: kSpacingLarge),
 
                 // כותרת
                 Text(
@@ -61,7 +80,7 @@ class WelcomeScreen extends StatelessWidget {
                     fontSize: 32,
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: kSpacingSmall + 4), // 12
 
                 // תיאור
                 Text(
@@ -72,9 +91,9 @@ class WelcomeScreen extends StatelessWidget {
                     height: 1.5,
                   ),
                 ),
-                const SizedBox(height: 48),
+                SizedBox(height: kSpacingLarge * 2), // 48
 
-                // רשימת יתרונות (שימוש ברכיב משותף)
+                // רשימת יתרונות
                 const BenefitTile(
                   icon: Icons.checklist_outlined,
                   title: 'רשימות חכמות',
@@ -91,37 +110,55 @@ class WelcomeScreen extends StatelessWidget {
                   subtitle: 'אל תקנו פעמיים—ראו מה כבר יש בבית.',
                 ),
 
-                const SizedBox(height: 48),
+                SizedBox(height: kSpacingLarge * 2), // 48
 
-                // כפתור התחברות (רכיב משותף)
+                // כפתור התחברות
                 AuthButton.primary(
                   label: 'התחברות',
                   icon: Icons.login,
-                  onPressed: () => NavigationService.goToLogin(context),
+                  onPressed: () {
+                    debugPrint('🔐 WelcomeScreen: התחברות נלחץ');
+                    NavigationService.goToLogin(context);
+                  },
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: kSpacingSmall + 4), // 12
 
-                // כפתור הרשמה (רכיב משותף)
+                // כפתור הרשמה
                 AuthButton.secondary(
                   label: 'הרשמה',
                   icon: Icons.app_registration_outlined,
-                  onPressed: () => NavigationService.goToOnboarding(context),
+                  onPressed: () {
+                    debugPrint('📝 WelcomeScreen: הרשמה נלחץ');
+                    NavigationService.goToOnboarding(context);
+                  },
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: kSpacingMedium),
 
-                // כפתור דילוג
-                TextButton(
-                  onPressed: () => NavigationService.skip(context),
-                  child: Text(
-                    'דלג לעכשיו',
-                    style: TextStyle(color: Colors.white60, fontSize: 16),
+                // כפתור דילוג - Touch target 48px
+                Tooltip(
+                  message: 'דלג לעכשיו',
+                  child: SizedBox(
+                    height: kButtonHeight,
+                    child: TextButton(
+                      onPressed: () {
+                        debugPrint('⏭️  WelcomeScreen: דילוג נלחץ');
+                        NavigationService.skip(context);
+                      },
+                      child: const Text(
+                        'דלג לעכשיו',
+                        style: TextStyle(color: Colors.white60, fontSize: 16),
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 32),
+                SizedBox(height: kSpacingLarge + 8), // 32
 
-                // אפשרויות Social Login (דמו בלבד)
-                Text('או התחבר עם:', style: TextStyle(color: Colors.white60)),
-                const SizedBox(height: 16),
+                // אפשרויות Social Login
+                const Text(
+                  'או התחבר עם:',
+                  style: TextStyle(color: Colors.white60),
+                ),
+                SizedBox(height: kSpacingMedium),
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -129,18 +166,24 @@ class WelcomeScreen extends StatelessWidget {
                     _SocialLoginButton(
                       icon: Icons.g_mobiledata,
                       label: 'Google',
-                      onPressed: () => NavigationService.goToLogin(context),
+                      onPressed: () {
+                        debugPrint('🌐 WelcomeScreen: Google login נלחץ');
+                        NavigationService.goToLogin(context);
+                      },
                     ),
-                    const SizedBox(width: 16),
+                    SizedBox(width: kSpacingMedium),
                     _SocialLoginButton(
                       icon: Icons.facebook,
                       label: 'Facebook',
-                      onPressed: () => NavigationService.goToLogin(context),
+                      onPressed: () {
+                        debugPrint('🌐 WelcomeScreen: Facebook login נלחץ');
+                        NavigationService.goToLogin(context);
+                      },
                     ),
                   ],
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: kSpacingLarge),
               ],
             ),
           ),
@@ -150,7 +193,17 @@ class WelcomeScreen extends StatelessWidget {
   }
 }
 
-/// כפתור Social Login פנימי (דמו)
+/// כפתור Social Login פנימי
+///
+/// widget פרטי המשמש להצגת כפתורי התחברות חברתית (Google/Facebook).
+/// כרגע מדובר ב-demo בלבד - מוביל למסך התחברות רגיל.
+///
+/// **תכונות:**
+/// - אייקון + תווית
+/// - עיצוב outlined עם צבעים בהירים
+/// - Border radius מ-constants
+/// - Touch target 48px
+/// - Accessibility labels
 class _SocialLoginButton extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -164,15 +217,27 @@ class _SocialLoginButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return OutlinedButton.icon(
-      onPressed: onPressed,
-      icon: Icon(icon, size: 20),
-      label: Text(label),
-      style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.white70,
-        side: const BorderSide(color: Colors.white30),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return Semantics(
+      button: true,
+      label: 'התחבר עם $label',
+      child: SizedBox(
+        height: kButtonHeight,
+        child: OutlinedButton.icon(
+          onPressed: onPressed,
+          icon: Icon(icon, size: 20),
+          label: Text(label),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: Colors.white70,
+            side: const BorderSide(color: Colors.white30),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: kSpacingSmall + 4, // 12
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(kBorderRadius),
+            ),
+          ),
+        ),
       ),
     );
   }

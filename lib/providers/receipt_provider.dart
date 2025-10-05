@@ -24,7 +24,6 @@
 //
 
 import 'package:flutter/foundation.dart';
-import 'package:uuid/uuid.dart';
 import '../models/receipt.dart';
 import '../repositories/receipt_repository.dart';
 import 'user_context.dart';
@@ -37,8 +36,6 @@ class ReceiptProvider with ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   List<Receipt> _receipts = [];
-
-  static final Uuid _uuid = Uuid();
 
   ReceiptProvider({
     required UserContext userContext,

@@ -1,5 +1,21 @@
-// lib/widgets/add_product_to_catalog_dialog.dart
+// 📄 File: lib/widgets/add_product_to_catalog_dialog.dart
+// 🎯 Purpose: Dialog להוספת מוצר חדש לקטלוג כשלא נמצא בחיפוש
+// 📋 Used by: PopulateListScreen, InventoryScreen
+// 
+// 💡 Features:
+// - טופס מאומת עם 4 שדות (שם, קטגוריה, מותג, גודל)
+// - תמיכה ב-keyboard actions (next/done)
+// - Loading state עם disable buttons
+// - Error handling עם SnackBar
+// - Visual feedback (ירוק להצלחה, אדום לשגיאה)
+// - Accessibility labels
+// - Touch targets 48x48
+//
+// 🔗 Related:
+// - lib/core/constants.dart - kCategoryEmojis
+
 import 'package:flutter/material.dart';
+import '../core/constants.dart';
 
 class AddProductToCatalogDialog extends StatefulWidget {
   final bool open;
@@ -29,25 +45,51 @@ class _AddProductToCatalogDialogState extends State<AddProductToCatalogDialog> {
   String packageSize = '';
   bool isSaving = false;
 
-  final Map<String, String> categories = const {
-    "dry_goods": "מוצרים יבשים",
-    "dairy": "מוצרי חלב",
-    "meat": "בשר ודגים",
-    "vegetables": "ירקות",
-    "fruits": "פירות",
-    "frozen": "מוצרים קפואים",
+  // מיפוי קטגוריות עם אמוג'י מ-constants.dart
+  // כל קטגוריה מכילה: key (אנגלית), name (עברית), emoji
+  final Map<String, Map<String, String>> categories = {
+    "dry_goods": {
+      "name": "מוצרים יבשים",
+      "emoji": kCategoryEmojis['pasta_rice'] ?? '📦',
+    },
+    "dairy": {
+      "name": "מוצרי חלב",
+      "emoji": kCategoryEmojis['dairy'] ?? '🥛',
+    },
+    "meat": {
+      "name": "בשר ודגים",
+      "emoji": kCategoryEmojis['meat'] ?? '🥩',
+    },
+    "vegetables": {
+      "name": "ירקות",
+      "emoji": kCategoryEmojis['vegetables'] ?? '🥬',
+    },
+    "fruits": {
+      "name": "פירות",
+      "emoji": kCategoryEmojis['fruits'] ?? '🍎',
+    },
+    "frozen": {
+      "name": "מוצרים קפואים",
+      "emoji": kCategoryEmojis['frozen'] ?? '🧊',
+    },
   };
 
   @override
   void initState() {
     super.initState();
     name = widget.initialProductName.trim();
+    debugPrint('📝 AddProductDialog.initState: initialName="$name"');
   }
 
   Future<void> _handleSave() async {
+    debugPrint('💾 AddProductDialog._handleSave()');
+    
     final form = _formKey.currentState;
     if (form == null) return;
-    if (!form.validate()) return;
+    if (!form.validate()) {
+      debugPrint('   ⚠️  Validation failed');
+      return;
+    }
 
     form.save();
     setState(() => isSaving = true);
@@ -60,19 +102,26 @@ class _AddProductToCatalogDialogState extends State<AddProductToCatalogDialog> {
         "package_size": packageSize.trim(),
       };
 
+      debugPrint('   📦 Saving: name="$name", category=$category');
       await widget.onSave(newProduct);
+      debugPrint('   ✅ הצלחה');
+      
       if (!mounted) return;
       widget.onOpenChange(false);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("המוצר נשמר בהצלחה ✅")));
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("המוצר נשמר בהצלחה ✅"),
+          backgroundColor: Colors.green, // ✅ Visual feedback - ירוק
+        ),
+      );
     } catch (e) {
-      debugPrint("❌ Failed to save new product: $e");
+      debugPrint("   ❌ Failed to save: $e");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("שגיאה בשמירת המוצר. נסה שוב."),
-            backgroundColor: Colors.redAccent,
+            backgroundColor: Colors.redAccent, // ✅ Visual feedback - אדום
           ),
         );
       }
@@ -100,10 +149,13 @@ class _AddProductToCatalogDialogState extends State<AddProductToCatalogDialog> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Row(
-                  children: const [
-                    Icon(Icons.add_box, color: Colors.blue),
-                    SizedBox(width: 8),
-                    Text(
+                  children: [
+                    Semantics(
+                      label: 'הוספת מוצר לקטלוג',
+                      child: const Icon(Icons.add_box, color: Colors.blue),
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
                       "הוספת מוצר חדש לקטלוג",
                       style: TextStyle(
                         fontSize: 18,
@@ -122,7 +174,7 @@ class _AddProductToCatalogDialogState extends State<AddProductToCatalogDialog> {
                 // 📝 שם מוצר
                 TextFormField(
                   initialValue: name,
-                  autofocus: name.isEmpty, // אם אין שם התחלתי – פוקוס אוטומטי
+                  autofocus: name.isEmpty,
                   textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(
                     labelText: "שם המוצר *",
@@ -135,14 +187,23 @@ class _AddProductToCatalogDialogState extends State<AddProductToCatalogDialog> {
                 ),
                 const SizedBox(height: 16),
 
-                // 📂 קטגוריה
+                // 📂 קטגוריה - עם אמוג'י
                 DropdownButtonFormField<String>(
                   value: category,
                   items: categories.entries
                       .map(
                         (e) => DropdownMenuItem(
                           value: e.key,
-                          child: Text(e.value),
+                          child: Row(
+                            children: [
+                              Text(
+                                e.value['emoji']!,
+                                style: const TextStyle(fontSize: 20),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(e.value['name']!),
+                            ],
+                          ),
                         ),
                       )
                       .toList(),
@@ -183,28 +244,40 @@ class _AddProductToCatalogDialogState extends State<AddProductToCatalogDialog> {
                 ),
                 const SizedBox(height: 24),
 
-                // 🔘 כפתורים
+                // 🔘 כפתורים - Touch targets 48x48
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    OutlinedButton(
-                      onPressed: () => widget.onOpenChange(false),
-                      child: const Text("ביטול"),
+                    Tooltip(
+                      message: 'סגור ללא שמירה',
+                      child: SizedBox(
+                        height: kButtonHeight, // 48px
+                        child: OutlinedButton(
+                          onPressed: () => widget.onOpenChange(false),
+                          child: const Text("ביטול"),
+                        ),
+                      ),
                     ),
                     const SizedBox(width: 8),
-                    ElevatedButton.icon(
-                      onPressed: isSaving ? null : _handleSave,
-                      icon: isSaving
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Icon(Icons.save),
-                      label: Text(isSaving ? "שומר..." : "שמור והוסף לרשימה"),
+                    Tooltip(
+                      message: 'שמור והוסף לרשימה',
+                      child: SizedBox(
+                        height: kButtonHeight, // 48px
+                        child: ElevatedButton.icon(
+                          onPressed: isSaving ? null : _handleSave,
+                          icon: isSaving
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Icon(Icons.save),
+                          label: Text(isSaving ? "שומר..." : "שמור והוסף לרשימה"),
+                        ),
+                      ),
                     ),
                   ],
                 ),

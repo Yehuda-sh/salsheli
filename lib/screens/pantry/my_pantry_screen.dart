@@ -13,7 +13,6 @@ import 'package:provider/provider.dart';
 // Models & Providers
 import '../../models/inventory_item.dart';
 import '../../providers/inventory_provider.dart';
-import '../../providers/locations_provider.dart';
 import '../../widgets/storage_location_manager.dart';
 
 class MyPantryScreen extends StatefulWidget {
@@ -203,7 +202,7 @@ class _MyPantryScreenState extends State<MyPantryScreen>
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
-                  value: selectedLocation,
+                  initialValue: selectedLocation,
                   dropdownColor: const Color(0xFF1E293B),
                   style: const TextStyle(color: Colors.white),
                   decoration: const InputDecoration(
@@ -363,7 +362,7 @@ class _MyPantryScreenState extends State<MyPantryScreen>
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
-                  value: selectedLocation,
+                  initialValue: selectedLocation,
                   dropdownColor: const Color(0xFF1E293B),
                   style: const TextStyle(color: Colors.white),
                   decoration: const InputDecoration(
@@ -514,7 +513,7 @@ class _MyPantryScreenState extends State<MyPantryScreen>
                     )
                   : null,
               filled: true,
-              fillColor: Colors.white.withOpacity(0.1),
+              fillColor: Colors.white.withValues(alpha: 0.1),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
                 borderSide: BorderSide.none,
@@ -527,7 +526,7 @@ class _MyPantryScreenState extends State<MyPantryScreen>
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: Colors.blueGrey.shade800.withOpacity(0.5),
+            color: Colors.blueGrey.shade800.withValues(alpha: 0.5),
             border: Border(
               bottom: BorderSide(color: Colors.blueGrey.shade700),
             ),
@@ -591,7 +590,7 @@ class _MyPantryScreenState extends State<MyPantryScreen>
                     final config = locationConfig[location];
 
                     return Card(
-                      color: Colors.blueGrey.shade800.withOpacity(0.8),
+                      color: Colors.blueGrey.shade800.withValues(alpha: 0.8),
                       margin: const EdgeInsets.only(bottom: 16),
                       child: Column(
                         children: [
@@ -599,7 +598,7 @@ class _MyPantryScreenState extends State<MyPantryScreen>
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               color: (config?["color"] as Color?)
-                                  ?.withOpacity(0.2),
+                                  ?.withValues(alpha: 0.2),
                               borderRadius: const BorderRadius.only(
                                 topLeft: Radius.circular(12),
                                 topRight: Radius.circular(12),

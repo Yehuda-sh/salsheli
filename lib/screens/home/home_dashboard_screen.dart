@@ -410,8 +410,6 @@ class _ReceiptsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final brand = theme.extension<AppBrand>();
-    final accent = brand?.accent ?? cs.primary;
     final receiptProvider = context.watch<ReceiptProvider>();
 
     final receiptsCount = receiptProvider.receipts.length;

@@ -265,8 +265,7 @@ void main() async {
         ),
 
         // === Suggestions Provider ===
-        ChangeNotifierProxyProvider3<
-          UserContext,
+        ChangeNotifierProxyProvider2<
           InventoryProvider,
           ShoppingListsProvider,
           SuggestionsProvider
@@ -274,22 +273,13 @@ void main() async {
           create: (context) => SuggestionsProvider(
             inventoryProvider: context.read<InventoryProvider>(),
             listsProvider: context.read<ShoppingListsProvider>(),
-            userContext: context.read<UserContext>(),
           ),
-          update:
-              (
-                context,
-                userContext,
-                inventoryProvider,
-                listsProvider,
-                previous,
-              ) =>
-                  previous ??
-                  SuggestionsProvider(
-                    inventoryProvider: inventoryProvider,
-                    listsProvider: listsProvider,
-                    userContext: userContext,
-                  ),
+          update: (context, inventoryProvider, listsProvider, previous) =>
+              previous ??
+              SuggestionsProvider(
+                inventoryProvider: inventoryProvider,
+                listsProvider: listsProvider,
+              ),
         ),
       ],
       child: const MyApp(),

@@ -442,6 +442,69 @@ class ListType {
 }
 
 // ========================================
+// מוצרים פופולריים
+// ========================================
+
+/// רשימת מוצרים פופולריים לחיפוש מהיר
+///
+/// 🎯 שימוש: חיפוש מהיר, המלצות, autocomplete
+/// 📝 הערה: מוצרים שימושיים וחוזרים בקניות יומיומיות
+/// 
+/// **דוגמאות שימוש:**
+/// ```dart
+/// // רשימת כפתורים מהירים
+/// for (final product in kPopularProducts)
+///   ElevatedButton(
+///     onPressed: () => search(product),
+///     child: Text(product),
+///   )
+/// 
+/// // בדיקה אם מוצר פופולרי
+/// final isPopular = kPopularProducts.contains(productName);
+/// ```
+const List<String> kPopularProducts = [
+  "חלב",
+  "לחם",
+  "ביצים",
+  "אורז",
+  "שמן זית",
+  "פסטה",
+  "עגבניות",
+  "מלפפונים",
+];
+
+/// מוצרים פופולריים עם מטא-דאטה (אימוג'י, קטגוריה)
+///
+/// 🎯 שימוש: חיפוש חכם עם הצעות מעוצבות
+/// 📝 הערה: כולל אימוג'י וקטגוריה לכל מוצר
+/// 
+/// **דוגמאות שימוש:**
+/// ```dart
+/// // בניית רשימת הצעות
+/// for (final item in kPopularSearches)
+///   ListTile(
+///     leading: Text(item['icon']!),
+///     title: Text(item['name']!),
+///     subtitle: Text(item['category']!),
+///     onTap: () => search(item['name']!),
+///   )
+/// 
+/// // קבלת אימוג'י למוצר
+/// final emoji = kPopularSearches
+///   .firstWhere((item) => item['name'] == 'חלב')['icon'];
+/// ```
+const List<Map<String, String>> kPopularSearches = [
+  {"name": "חלב", "icon": "🥛", "category": "מוצרי חלב"},
+  {"name": "לחם", "icon": "🍞", "category": "מאפים"},
+  {"name": "ביצים", "icon": "🥚", "category": "מזווה"},
+  {"name": "עגבניות", "icon": "🍅", "category": "ירקות"},
+  {"name": "מלפפונים", "icon": "🥒", "category": "ירקות"},
+  {"name": "אורז", "icon": "🍚", "category": "מזווה"},
+  {"name": "שמן זית", "icon": "🫒", "category": "מזווה"},
+  {"name": "פסטה", "icon": "🍝", "category": "מזווה"},
+];
+
+// ========================================
 // 💡 טיפים לשימוש
 // ========================================
 //

@@ -1,5 +1,26 @@
 // 📄 File: lib/widgets/actionable_recommendation.dart
-// תיאור: ווידג'ט להצגת המלצה בודדת עם אפשרות פעולה (הוספה לרשימה/הסרה)
+/// Widget for displaying a single recommendation with action buttons
+/// 
+/// Features:
+/// - Add to shopping list with animation
+/// - Remove recommendation
+/// - Optional pantry button
+/// - Animated entrance (slide + fade)
+/// - Priority-based coloring
+/// 
+/// Usage:
+/// ```dart
+/// ActionableRecommendation(
+///   suggestion: mySuggestion,
+///   onAddToList: () => addToList(mySuggestion),
+///   onRemove: () => removeSuggestion(mySuggestion.id),
+///   showPantryButton: true,
+/// )
+/// ```
+/// 
+/// Dependencies:
+/// - Suggestion model
+/// - Material 3 design
 
 import 'package:flutter/material.dart';
 import '../models/suggestion.dart';
@@ -35,6 +56,8 @@ class _ActionableRecommendationState extends State<ActionableRecommendation>
   @override
   void initState() {
     super.initState();
+    debugPrint('🎨 ActionableRecommendation.initState: ${widget.suggestion.productName}');
+    
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -55,6 +78,7 @@ class _ActionableRecommendationState extends State<ActionableRecommendation>
 
   @override
   void dispose() {
+    debugPrint('🗑️ ActionableRecommendation.dispose: ${widget.suggestion.productName}');
     _controller.dispose();
     super.dispose();
   }
@@ -212,7 +236,7 @@ class _ActionableRecommendationState extends State<ActionableRecommendation>
                           style: ElevatedButton.styleFrom(
                             backgroundColor: cs.primary,
                             foregroundColor: cs.onPrimary,
-                            minimumSize: const Size(0, 40),
+                            minimumSize: const Size(0, 48), // ✅ תוקן ל-48
                           ),
                           icon: _isAdding
                               ? const SizedBox(
@@ -223,7 +247,10 @@ class _ActionableRecommendationState extends State<ActionableRecommendation>
                                     color: Colors.white,
                                   ),
                                 )
-                              : const Icon(Icons.add, size: 18),
+                              : const Icon(Icons.add, 
+                                  size: 18,
+                                  semanticLabel: 'הוסף', // ✅ accessibility
+                                ),
                           label: Text(_isAdding ? 'מוסיף...' : 'הוסף לרשימה'),
                         ),
                       ),
@@ -242,10 +269,13 @@ class _ActionableRecommendationState extends State<ActionableRecommendation>
                             side: BorderSide(
                               color: cs.primary.withOpacity(0.4),
                             ),
-                            minimumSize: const Size(0, 40),
+                            minimumSize: const Size(0, 48), // ✅ תוקן ל-48
                             foregroundColor: cs.primary,
                           ),
-                          icon: const Icon(Icons.kitchen, size: 18),
+                          icon: const Icon(Icons.kitchen, 
+                            size: 18,
+                            semanticLabel: 'מזווה', // ✅ accessibility
+                          ),
                           label: const Text('למזווה'),
                         ),
                       ),
@@ -256,7 +286,10 @@ class _ActionableRecommendationState extends State<ActionableRecommendation>
                     IconButton(
                       tooltip: 'הסר המלצה',
                       onPressed: _handleRemove,
-                      icon: Icon(Icons.close, color: Colors.red.shade400),
+                      icon: Icon(Icons.close, 
+                        color: Colors.red.shade400,
+                        semanticLabel: 'הסר המלצה', // ✅ accessibility
+                      ),
                     ),
                   ],
                 ),
