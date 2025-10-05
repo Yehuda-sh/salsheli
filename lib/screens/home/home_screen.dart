@@ -1,11 +1,30 @@
 // 📄 File: lib/screens/home/home_screen.dart
 //
-// 🇮🇱 מסך הבית הראשי:
-// - ניווט תחתון: דשבורד, רשימות, מזווה, תובנות, הגדרות
-// - יציאה בטוחה (לחיצה כפולה Back) עם הודעה למשתמש ✨
-// - אנימציות fade חלקות בין מסכים ✨
-// - בדג'ים לניווט תחתון (מספר רשימות פעילות)
-// - עטיפה ב-AppLayout לאחידות UI
+// 🇮🇱 **מסך הבית הראשי** - Navigation Shell
+//
+// **מבנה:**
+// - Bottom Navigation Bar עם 5 טאבים
+// - AnimatedSwitcher עם fade transitions (200ms)
+// - Badges דינמיים (מספר רשימות פעילות)
+// - יציאה בטוחה (double-tap back)
+//
+// **Tabs:**
+// 0. 🏠 דשבורד - HomeDashboardScreen
+// 1. 📝 רשימות - ShoppingListsScreen (עם badge)
+// 2. 📦 מזווה - MyPantryScreen
+// 3. 💡 תובנות - InsightsScreen
+// 4. ⚙️ הגדרות - SettingsScreen
+//
+// **Dependencies:**
+// - `AppLayout` - Bottom navigation wrapper
+// - `ShoppingListsProvider` - מספר רשימות פעילות
+//
+// **Behavior:**
+// - Back ← מטאב 1-4: חזרה לדשבורד (tab 0)
+// - Back ← מדשבורד: double-tap ליציאה (2 שניות timeout)
+// - SnackBar feedback: "לחץ שוב לסגירת האפליקציה"
+//
+// **Version:** 2.0 (PopScope + Logging)
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -41,12 +60,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onItemTapped(int index) {
     if (_selectedIndex == index) return;
+    
+    debugPrint('🏠 HomeScreen: מעבר לטאב $_selectedIndex → $index');
     setState(() => _selectedIndex = index);
   }
 
   Future<bool> _onWillPop() async {
     // אם אנחנו לא בטאב הראשון — נחזור אליו במקום לצאת
     if (_selectedIndex != 0) {
+      debugPrint('🏠 HomeScreen: Back מטאב $_selectedIndex → חזרה לדשבורד (0)');
       setState(() => _selectedIndex = 0);
       return false;
     }
@@ -55,8 +77,9 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_lastBackPress == null ||
         now.difference(_lastBackPress!) > const Duration(seconds: 2)) {
       _lastBackPress = now;
+      debugPrint('🏠 HomeScreen: לחיצה ראשונה על Back - המתן ללחיצה שנייה');
 
-      // ✨ הודעה למשתמש - לחץ שוב לסגירה
+      // הודעה למשתמש - לחץ שוב לסגירה
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -77,6 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     // לחיצה שניה בתוך 2 שניות — אשר יציאה
+    debugPrint('🏠 HomeScreen: לחיצה שנייה על Back - יציאה מהאפליקציה');
     return true;
   }
 
@@ -91,13 +115,20 @@ class _HomeScreenState extends State<HomeScreen> {
       1: activeListsCount > 0 ? activeListsCount : null,
     };
 
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, dynamic result) async {
+        if (didPop) return;
+        final shouldPop = await _onWillPop();
+        if (shouldPop && mounted) {
+          Navigator.of(context).pop();
+        }
+      },
       child: AppLayout(
         currentIndex: _selectedIndex,
         onTabSelected: _onItemTapped,
         badges: badges,
-        // ✨ אנימציית fade חלקה בין מסכים
+        // אנימציית fade חלקה בין מסכים
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 200),
           switchInCurve: Curves.easeIn,

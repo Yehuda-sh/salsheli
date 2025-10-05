@@ -78,6 +78,8 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
     final provider = context.read<ShoppingListsProvider>();
     final quantity = int.tryParse(_customQuantityController.text.trim()) ?? 1;
 
+    debugPrint('➕ PopulateListScreen: מוסיף "${product['name']}" (x$quantity)');
+
     final newItem = ReceiptItem(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       name: product['name'] as String,
@@ -90,6 +92,7 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
 
     try {
       await provider.addItemToList(widget.list.id, newItem);
+      debugPrint('   ✅ נוסף בהצלחה');
 
       if (!mounted) return;
 
@@ -101,6 +104,7 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
         ),
       );
     } catch (e) {
+      debugPrint('   ❌ שגיאה: $e');
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -415,8 +419,8 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
               const SizedBox(height: 16),
               Text(
                 provider.searchQuery.isNotEmpty
-                    ? 'לא נמצאו מוצרים התואמים לחיפוש'
-                    : 'אין מוצרים זמינים',
+                    ? 'לא נמצאו מוצרים התואמים "${provider.searchQuery}"'
+                    : 'אין מוצרים זמינים כרגע',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -470,7 +474,9 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
     final category = product['category'] as String? ?? 'אחר';
     final manufacturer = product['manufacturer'] as String?;
 
-    return Card(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      child: Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 1,
       shape: RoundedRectangleBorder(
@@ -592,6 +598,7 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 

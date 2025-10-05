@@ -58,6 +58,100 @@
 
 ---
 
+## 📅 05/10/2025 - שדרוג populate_list_screen + CODE_REVIEW_CHECKLIST v3.2
+
+### 🎯 משימה
+
+בדיקת populate_list_screen.dart לפי CHECKLIST ושדרוגו:
+- הוספת logging מפורט ל-_addProduct
+- שיפור UX של Empty States
+- הוספת אנימציה קלה לכרטיסי מוצרים
+- עדכון CODE_REVIEW_CHECKLIST עם 3 sections חדשים
+
+### ✅ מה הושלם
+
+1. **populate_list_screen.dart** 🛒
+   - Logging ב-_addProduct (➕ מוסיף, ✅ הצלחה, ❌ שגיאה)
+   - Empty state משופר עם query בהודעה
+   - AnimatedContainer לכרטיסי מוצרים (200ms)
+   - הקובץ עכשיו 100% לפי CHECKLIST
+
+2. **CODE_REVIEW_CHECKLIST.md** 📋
+   - Section חדש: Widgets (const, תיעוד, accessibility)
+   - Section חדש: Helpers/Utils (static, cache, logging)
+   - Section חדש: Empty States Pattern (3 מצבים)
+   - שיפור Screens - dispose pattern חכם
+   - הוספת Animations ל-UI Specifics
+   - +3 בדיקות מהירות
+   - גרסה 3.1 → 3.2
+
+### 📂 קבצים שהושפעו
+
+- `lib/screens/lists/populate_list_screen.dart` - logging + UX + animations
+- `CODE_REVIEW_CHECKLIST.md` - +3 sections, גרסה 3.2
+
+### 💡 לקחים
+
+- **dispose pattern חכם**: שמירת provider ב-initState מונעת שגיאות
+- **Empty states צריכים 3 מצבים**: Loading, Error, Empty - תמיד
+- **Widgets צריכים const**: performance + best practice
+- **Helpers צריכים static + cache**: DRY principle
+- **CHECKLIST כיסוי 100%**: עכשיו כל סוג קובץ מכוסה
+
+### 📊 סיכום
+
+זמן: ~45 דק' | קבצים: 2 | גרסה: 3.1→3.2 | Sections: +3 | Coverage: 100%
+
+---
+
+## 📅 05/10/2025 - שדרוג מסכי Home - Logging + Documentation
+
+### 🎯 משימה
+
+שדרוג 2 מסכי הבית הראשיים עם logging מפורט ותיעוד משופר:
+- home_screen.dart: WillPopScope → PopScope
+- home_dashboard_screen.dart: Logging + תיעוד
+
+### ✅ מה הושלם
+
+1. **home_screen.dart** 🏠
+   - החלפת WillPopScope (deprecated) ב-PopScope
+   - Logging למעברים בין טאבים
+   - Logging ללחיצות Back (ראשונה/שנייה)
+   - תיעוד מפורט (5 טאבים, behavior)
+   - Version: 2.0
+
+2. **home_dashboard_screen.dart** 📊
+   - Logging ב-_refresh() (רשימות + הצעות)
+   - Logging ב-_sortLists() (מיון)
+   - Logging ב-_showCreateListDialog() (יצירה)
+   - Logging ב-_deleteList() (מחיקה + שחזור)
+   - Logging ב-_Content (חישוב רשימות)
+   - Logging בניווט (קבלות, רשימות)
+   - תיעוד מפורט (Dependencies, Material 3)
+   - ניקוי הערות מיותרות
+   - Version: 2.0
+
+### 📂 קבצים שהושפעו
+
+- `lib/screens/home/home_screen.dart` - PopScope + logging
+- `lib/screens/home/home_dashboard_screen.dart` - logging מלא + תיעוד
+
+### 💡 לקחים
+
+- **PopScope חדש**: מחליף את WillPopScope מFlutter 3.12+
+- **Logging מפורט**: עוזר לזהות בעיות ב-flow
+- **mounted checks**: קריטי אחרי async operations
+- **Dialog context**: נפרד מה-context הראשי
+- **תיעוד Dependencies**: מפשט הבנת קשרים בין קבצים
+- **Version numbers**: עוזר לעקוב אחרי שינויים
+
+### 📊 סיכום
+
+זמן: ~25 דק' | קבצים: 2 | Logging: +12 statements | APIs: deprecated→modern
+
+---
+
 ## 📅 05/10/2025 - מעבר קבלות ומלאי ל-Firestore
 
 ### 🎯 משימה

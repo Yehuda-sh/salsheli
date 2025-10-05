@@ -43,6 +43,46 @@ class _InsightsScreenState extends State<InsightsScreen> {
   final List<String> _periods = ['שבוע', 'חודש', '3 חודשים', 'שנה'];
   final List<int> _periodMonths = [0, 1, 3, 12];
 
+  // ============================================================
+  // 🎨 MOCK DATA - להחלפה בנתונים אמיתיים
+  // ============================================================
+  // נתונים אלו משמשים להדגמה בלבד עד שיתווספו השדות
+  // המתאימים ל-HomeStats ב-home_stats_service.dart
+  //
+  // ראה: docs/INSIGHTS_INTEGRATION.md למדריך מלא
+  // ============================================================
+
+  /// נתוני קטגוריות דמה לגרף עוגה
+  /// TODO: החלף ב-stats.categoryBreakdown כשיוסף ל-HomeStats
+  static const _mockCategoryData = [
+    {'category': 'מזון', 'amount': 800.0},
+    {'category': 'ניקיון', 'amount': 200.0},
+    {'category': 'טיפוח', 'amount': 150.0},
+    {'category': 'משקאות', 'amount': 120.0},
+    {'category': 'אחר', 'amount': 80.0},
+  ];
+
+  /// מיפוי קטגוריות לצבעים
+  static const _categoryColors = {
+    'מזון': Colors.blue,
+    'ניקיון': Colors.green,
+    'טיפוח': Colors.purple,
+    'משקאות': Colors.orange,
+    'אחר': Colors.grey,
+  };
+
+  /// נתוני הוצאות עיקריות דמה
+  /// TODO: החלף ב-stats.topProducts כשיוסף ל-HomeStats
+  static const _mockTopExpenses = [
+    {'name': 'חלב תנובה', 'amount': 45.0, 'category': 'מזון'},
+    {'name': 'לחם טרי', 'amount': 38.0, 'category': 'מזון'},
+    {'name': 'מי סודה', 'amount': 32.0, 'category': 'משקאות'},
+    {'name': 'סבון כלים', 'amount': 28.0, 'category': 'ניקיון'},
+    {'name': 'יוגורט', 'amount': 25.0, 'category': 'מזון'},
+  ];
+
+  // ============================================================
+
   @override
   void initState() {
     super.initState();
@@ -112,6 +152,42 @@ class _InsightsScreenState extends State<InsightsScreen> {
     setState(() => _selectedPeriod = index);
     _loadStats();
   }
+
+  // ============================================================
+  // 📊 Data Helper Functions
+  // ============================================================
+  // פונקציות אלו מחזירות נתונים - דמה כרגע, אמיתיים בעתיד
+  // ============================================================
+
+  /// מחזיר נתוני קטגוריות עם צבעים
+  /// כרגע: נתונים דמה מ-_mockCategoryData
+  /// עתיד: stats.categoryBreakdown (כשיוסף ל-HomeStatsService)
+  List<Map<String, dynamic>> _getCategoryData(HomeStats stats) {
+    // TODO: כשתוסיף categoryBreakdown ל-HomeStats, החלף בשורה:
+    // return stats.categoryBreakdown ?? _getMockCategoryDataWithColors();
+    return _getMockCategoryDataWithColors();
+  }
+
+  /// מוסיף צבעים לנתוני הקטגוריות הדמה
+  List<Map<String, dynamic>> _getMockCategoryDataWithColors() {
+    return _mockCategoryData.map((item) {
+      return {
+        ...item,
+        'color': _categoryColors[item['category']] ?? Colors.grey,
+      };
+    }).toList();
+  }
+
+  /// מחזיר הוצאות עיקריות (מוצרים עם ההוצאה הגבוהה ביותר)
+  /// כרגע: נתונים דמה מ-_mockTopExpenses
+  /// עתיד: stats.topProducts (כשיוסף ל-HomeStatsService)
+  List<Map<String, dynamic>> _getTopExpenses(HomeStats stats) {
+    // TODO: כשתוסיף topProducts ל-HomeStats, החלף בשורה:
+    // return stats.topProducts?.take(5).toList() ?? _mockTopExpenses;
+    return _mockTopExpenses;
+  }
+
+  // ============================================================
 
   @override
   Widget build(BuildContext context) {
@@ -509,7 +585,25 @@ class _InsightsScreenState extends State<InsightsScreen> {
   }
 
   // ================== 3. גרף עוגה ==================
-  // ⚠️ כרגע: נתונים דמה - בעתיד יחובר ל-stats.categoryBreakdown
+  // ============================================================
+  // 🚧 TODO: חיבור לנתונים אמיתיים
+  // ============================================================
+  // כרגע משתמש בנתונים דמה מ-_getCategoryData().
+  //
+  // שלבים להטמעה:
+  // 1. הוסף שדה categoryBreakdown ל-HomeStats (services/home_stats_service.dart)
+  // 2. חשב התפלגות קטגוריות ב-calculateStats()
+  // 3. עדכן _getCategoryData() להשתמש ב-stats.categoryBreakdown
+  //
+  // מבנה נדרש:
+  // List<Map<String, dynamic>> categoryBreakdown = [
+  //   {'category': 'מזון', 'amount': 800.0, 'color': Colors.blue},
+  //   {'category': 'ניקיון', 'amount': 200.0, 'color': Colors.green},
+  //   ...
+  // ]
+  //
+  // ראה: docs/INSIGHTS_INTEGRATION.md למדריך מפורט
+  // ============================================================
   Widget _buildPieChartCard(ThemeData theme, ColorScheme cs, HomeStats stats) {
     return Container(
           padding: const EdgeInsets.all(20),
@@ -541,15 +635,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
   }
 
   Widget _buildPieChart(ColorScheme cs, HomeStats stats) {
-    // TODO: חבר ל-stats.categoryBreakdown כשיוסף ל-HomeStatsService
-    // כרגע משתמש בדמה להדגמה
-    final data = [
-      {'category': 'מזון', 'amount': 800.0, 'color': Colors.blue},
-      {'category': 'ניקיון', 'amount': 200.0, 'color': Colors.green},
-      {'category': 'טיפוח', 'amount': 150.0, 'color': Colors.purple},
-      {'category': 'משקאות', 'amount': 120.0, 'color': Colors.orange},
-      {'category': 'אחר', 'amount': 80.0, 'color': Colors.grey},
-    ];
+    final data = _getCategoryData(stats);
 
     final total = data.fold(
       0.0,
@@ -584,14 +670,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
     ColorScheme cs,
     HomeStats stats,
   ) {
-    // TODO: חבר ל-stats.categoryBreakdown
-    final data = [
-      {'category': 'מזון', 'amount': 800.0, 'color': Colors.blue},
-      {'category': 'ניקיון', 'amount': 200.0, 'color': Colors.green},
-      {'category': 'טיפוח', 'amount': 150.0, 'color': Colors.purple},
-      {'category': 'משקאות', 'amount': 120.0, 'color': Colors.orange},
-      {'category': 'אחר', 'amount': 80.0, 'color': Colors.grey},
-    ];
+    final data = _getCategoryData(stats);
 
     return Wrap(
       spacing: 12,
@@ -710,16 +789,27 @@ class _InsightsScreenState extends State<InsightsScreen> {
   }
 
   // ================== 5. הוצאות עיקריות ==================
-  // ⚠️ כרגע: נתונים דמה - בעתיד יחובר ל-stats.topProducts
+  // ============================================================
+  // 🚧 TODO: חיבור לנתונים אמיתיים
+  // ============================================================
+  // כרגע משתמש בנתונים דמה מ-_getTopExpenses().
+  //
+  // שלבים להטמעה:
+  // 1. הוסף שדה topProducts ל-HomeStats (services/home_stats_service.dart)
+  // 2. חשב מוצרים עם הוצאה גבוהה ב-calculateStats()
+  // 3. עדכן _getTopExpenses() להשתמש ב-stats.topProducts
+  //
+  // מבנה נדרש:
+  // List<Map<String, dynamic>> topProducts = [
+  //   {'name': 'חלב תנובה', 'amount': 45.0, 'category': 'מזון'},
+  //   {'name': 'לחם טרי', 'amount': 38.0, 'category': 'מזון'},
+  //   ...
+  // ]
+  //
+  // ראה: docs/INSIGHTS_INTEGRATION.md למדריך מפורט
+  // ============================================================
   Widget _buildTopExpenses(ThemeData theme, ColorScheme cs, HomeStats stats) {
-    // TODO: חבר ל-stats.topProducts כשיוסף ל-HomeStatsService
-    final topExpenses = [
-      {'name': 'חלב תנובה', 'amount': 45.0, 'category': 'מזון'},
-      {'name': 'לחם טרי', 'amount': 38.0, 'category': 'מזון'},
-      {'name': 'מי סודה', 'amount': 32.0, 'category': 'משקאות'},
-      {'name': 'סבון כלים', 'amount': 28.0, 'category': 'ניקיון'},
-      {'name': 'יוגורט', 'amount': 25.0, 'category': 'מזון'},
-    ];
+    final topExpenses = _getTopExpenses(stats);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

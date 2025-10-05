@@ -58,17 +58,36 @@ class BadProvider with ChangeNotifier {
 - [ ] `context.read` לפעולות בלבד
 - [ ] כפתורים 48x48 מינימום
 - [ ] padding symmetric (RTL)
+- [ ] **dispose חכם:** שמור provider ב-initState אם צריך ב-dispose
 
 ```dart
-// ✅ טוב
-Scaffold(
-  body: SafeArea(
-    child: Consumer<MyProvider>(
-      builder: (context, provider, _) => 
-        ListView(...), // scrollable
-    ),
-  ),
-);
+// ✅ טוב - dispose בטוח
+class MyScreenState extends State<MyScreen> {
+  MyProvider? _myProvider;
+  
+  @override
+  void initState() {
+    super.initState();
+    _myProvider = context.read<MyProvider>();
+  }
+  
+  @override
+  void dispose() {
+    _myProvider?.cleanup(); // בטוח!
+    super.dispose();
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Consumer<MyProvider>(
+          builder: (context, provider, _) => ListView(...),
+        ),
+      ),
+    );
+  }
+}
 
 // ❌ רע
 Container(
@@ -101,6 +120,201 @@ class MyModel {
   factory MyModel.fromJson(Map<String, dynamic> json) => 
     _$MyModelFromJson(json);
 }
+```
+
+---
+
+### Widgets
+
+- [ ] תיעוד מפורט בראש (Purpose, Usage, Examples)
+- [ ] `const` constructors כשאפשר
+- [ ] Parameters עם `required` כשחובה
+- [ ] `@override` על build
+- [ ] גדלים responsive (לא קבועים)
+- [ ] RTL support (symmetric padding)
+- [ ] Accessibility (semantics, touch targets 48x48)
+
+```dart
+// ✅ טוב
+/// Custom button widget for authentication flows
+/// 
+/// Usage:
+/// ```dart
+/// AuthButton(
+///   label: 'התחבר',
+///   onPressed: () => login(),
+/// )
+/// ```
+class AuthButton extends StatelessWidget {
+  final String label;
+  final VoidCallback? onPressed;
+  
+  const AuthButton({
+    super.key,
+    required this.label,
+    this.onPressed,
+  });
+  
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity, // responsive
+      height: 48, // touch target
+      child: ElevatedButton(
+        onPressed: onPressed,
+        child: Text(label),
+      ),
+    );
+  }
+}
+
+// ❌ רע
+class BadButton extends StatelessWidget {
+  String label; // לא final
+  
+  BadButton({this.label = ''}); // לא const, לא required
+  
+  Widget build(context) { // חסר @override
+    return Container(
+      width: 300, // קבוע
+      padding: EdgeInsets.only(left: 16), // לא RTL
+    );
+  }
+}
+```
+
+---
+
+### Helpers/Utils
+
+- [ ] פונקציות `static`
+- [ ] תיעוד מפורט (Purpose, Parameters, Returns, Example)
+- [ ] Cache אם קורא קבצים
+- [ ] Logging מפורט
+- [ ] Error handling עם fallback
+- [ ] `const` לקבועים
+
+```dart
+// ✅ טוב
+/// Helper for loading products from JSON
+/// 
+/// Returns: List of products or empty list on error
+/// 
+/// Example:
+/// ```dart
+/// final products = await ProductLoader.load();
+/// ```
+class ProductLoader {
+  static List<Product>? _cache;
+  
+  static Future<List<Product>> load() async {
+    debugPrint('📦 ProductLoader.load()');
+    
+    // בדוק cache
+    if (_cache != null) {
+      debugPrint('   ✅ מcache: ${_cache!.length}');
+      return _cache!;
+    }
+    
+    try {
+      final data = await rootBundle.loadString('assets/products.json');
+      final products = (jsonDecode(data) as List)
+          .map((e) => Product.fromJson(e))
+          .toList();
+      
+      _cache = products;
+      debugPrint('   ✅ נטען: ${products.length}');
+      return products;
+    } catch (e) {
+      debugPrint('   ❌ שגיאה: $e');
+      return []; // fallback
+    }
+  }
+}
+
+// ❌ רע
+class BadLoader {
+  List<Product> products = []; // state
+  
+  Future<void> load() async { // לא static
+    products = jsonDecode(...); // בלי error handling
+  }
+}
+```
+
+---
+
+### Empty States Pattern
+
+- [ ] **3 מצבים:** Loading, Error, Empty
+- [ ] **Loading:** CircularProgressIndicator + הודעה
+- [ ] **Error:** אייקון + הודעה + כפתור "נסה שוב"
+- [ ] **Empty:** אייקון + הודעה + הדרכה/CTA
+- [ ] הודעות עם context (למשל: "לא נמצאו X" ולא רק "ריק")
+
+```dart
+// ✅ טוב - 3 מצבים ברורים
+Widget build(BuildContext context) {
+  final provider = context.watch<MyProvider>();
+  
+  // 1️⃣ Loading
+  if (provider.isLoading) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(),
+          SizedBox(height: 16),
+          Text('טוען נתונים...'),
+        ],
+      ),
+    );
+  }
+  
+  // 2️⃣ Error
+  if (provider.hasError) {
+    return Center(
+      child: Column(
+        children: [
+          Icon(Icons.error_outline, size: 64),
+          SizedBox(height: 16),
+          Text(provider.errorMessage ?? 'שגיאה'),
+          SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: () => provider.retry(),
+            child: Text('נסה שוב'),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  // 3️⃣ Empty
+  if (provider.items.isEmpty) {
+    return Center(
+      child: Column(
+        children: [
+          Icon(Icons.inbox, size: 80),
+          SizedBox(height: 16),
+          Text(
+            provider.searchQuery.isNotEmpty
+                ? 'לא נמצאו תוצאות ל"${provider.searchQuery}"'
+                : 'אין פריטים עדיין',
+            style: TextStyle(fontSize: 18),
+          ),
+          SizedBox(height: 8),
+          Text('התחל להוסיף פריטים'),
+        ],
+      ),
+    );
+  }
+  
+  // Content
+  return ListView.builder(...);
+}
+
+// ❌ רע - מצב אחד בלבד
+if (items.isEmpty) return Text('ריק'); // לא ברור למה
 ```
 
 ---
@@ -430,7 +644,8 @@ Future<bool> _onWillPop() async {
 **Touch Targets:** 48x48 מינימום  
 **Font Sizes:** 14-24px  
 **Spacing:** כפולות של 8 (8, 16, 24)  
-**Colors (Flutter 3.27+):** `withValues(alpha: 0.5)` לא `withOpacity`
+**Colors (Flutter 3.27+):** `withValues(alpha: 0.5)` לא `withOpacity`  
+**Animations:** AnimatedContainer/AnimatedOpacity (200ms) לUI משופר
 
 ---
 
@@ -443,6 +658,9 @@ Future<bool> _onWillPop() async {
 - `debugPrint` → אם אין = ⚠️ חסר logging
 - `TODO` → סמן לעתיד
 - `.withOpacity` → ⚠️ השתמש ב`.withValues` במקום
+- `dispose()` → יש? בדוק שמשחרר משאבים
+- `mounted` → יש לפני async navigation?
+- `const` → השתמש כשאפשר (widgets, constructors)
 
 **שורה ראשונה:** יש `// 📄 File:` ? אם לא = ❌
 
@@ -453,6 +671,10 @@ Future<bool> _onWillPop() async {
 **Splash/Index:** סדר `userId` → `seenOnboarding` → `login`? אם לא = ❌
 
 **Dialogs:** יש `dialogContext` נפרד? `Navigator.pop` לפני async? אם לא = ❌
+
+**Empty States:** 3 מצבים (loading/error/empty)? אם לא = ⚠️
+
+**Widgets:** יש תיעוד + const? אם לא = ⚠️
 
 ---
 
@@ -469,9 +691,12 @@ Future<bool> _onWillPop() async {
 | Service              | 3 דק'    |
 | Cache/JSON/Undo      | 1-2 דק'  |
 | Navigation & Dialogs | 1-2 דק'  |
+| Widget               | 1-2 דק'  |
+| Helper/Utils         | 2 דק'    |
+| Empty States         | 1 דק'    |
 
 ---
 
-**גרסה:** 3.1 (מורחב)  
+**גרסה:** 3.2 (Widgets, Helpers, Empty States)  
 **תאימות:** Flutter 3.27+, Mobile Only  
 **עדכון אחרון:** 05/10/2025

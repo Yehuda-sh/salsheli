@@ -1,17 +1,27 @@
 // 📄 File: lib/screens/home/home_dashboard_screen.dart
 //
-// ✅ עדכונים חדשים:
-// 1. מיון רשימות (תאריך/שם/סטטוס)
-// 2. EmptyState משופר עם אנימציה
-// 3. Caching למניעת טעינות מיותרות
-// 4. _ActiveListsCard פנימי (לא מיובא)
-// 5. ✨ תיקון שגיאת Material border (שורה 419)
+// 🇮🇱 **מסך דשבורד הבית** - Dashboard Screen
 //
-// מסך דשבורד הבית (Material 3 + RTL):
+// **תכונות:**
+// - Pull-to-Refresh (רשימות + הצעות)
+// - מיון רשימות (תאריך/שם/סטטוס)
+// - Empty state משופר עם אנימציה
+// - כרטיסים: הקנייה הבאה, הצעות חכמות, קבלות, רשימות פעילות
+// - Dismissible lists עם undo
+//
+// **Dependencies:**
+// - `ShoppingListsProvider` - רשימות קניות
+// - `SuggestionsProvider` - הצעות חכמות
+// - `UserContext` - פרטי משתמש
+// - `ReceiptProvider` - קבלות
+// - `flutter_animate` - אנימציות
+//
+// **Material 3:**
 // - צבעים רק דרך Theme/ColorScheme
-// - Pull-to-Refresh: טוען רשימות + Suggestions
-// - מצבי טעינה/ריק/תוכן
-// - הודעת "ברוך הבא" עם כרטיס רקע נעים
+// - RTL support מלא
+// - Accessibility compliant
+//
+// **Version:** 2.0 (Logging + Documentation)
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -47,20 +57,28 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   SortOption _sortOption = SortOption.date;
 
   Future<void> _refresh(BuildContext context) async {
+    debugPrint('🏠 HomeDashboard: מתחיל refresh...');
+    
     final lists = context.read<ShoppingListsProvider>();
     await lists.loadLists();
+    debugPrint('   ✅ רשימות נטענו: ${lists.lists.length}');
 
     if (context.mounted) {
       try {
         final sugg = context.read<SuggestionsProvider>();
         await sugg.refresh();
-      } catch (_) {
-        /* לא מחובר – מתעלמים */
+        debugPrint('   ✅ הצעות נטענו: ${sugg.suggestions.length}');
+      } catch (e) {
+        debugPrint('   ⚠️ לא ניתן לטעון הצעות: $e');
       }
     }
+    
+    debugPrint('🏠 HomeDashboard: refresh הושלם');
   }
 
   List<ShoppingList> _sortLists(List<ShoppingList> lists) {
+    debugPrint('🏠 HomeDashboard: ממיין ${lists.length} רשימות לפי ${_sortOption.label}');
+    
     final sorted = List<ShoppingList>.from(lists);
 
     switch (_sortOption) {
@@ -75,6 +93,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         break;
     }
 
+    debugPrint('   ✅ מיון הושלם');
     return sorted;
   }
 
@@ -100,6 +119,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 _SortBar(
                   currentSort: _sortOption,
                   onSortChanged: (value) {
+                    debugPrint('🏠 HomeDashboard: שינוי מיון ל-${value.label}');
                     setState(() => _sortOption = value);
                   },
                 ),
@@ -123,6 +143,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   }
 
   void _showCreateListDialog(BuildContext context) {
+    debugPrint('🏠 HomeDashboard: פותח דיאלוג יצירת רשימה');
+    
     final provider = context.read<ShoppingListsProvider>();
 
     showDialog(
@@ -135,10 +157,14 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           final type = listData['type'] as String? ?? 'super';
           final budget = listData['budget'] as double?;
 
+          debugPrint('🏠 HomeDashboard: יוצר רשימה "$name" (סוג: $type)');
+
           if (name != null && name.trim().isNotEmpty) {
             try {
               await provider.createList(name: name, type: type, budget: budget);
+              debugPrint('   ✅ רשימה נוצרה בהצלחה');
             } catch (e) {
+              debugPrint('   ❌ שגיאה ביצירת רשימה: $e');
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -270,6 +296,8 @@ class _Content extends StatelessWidget {
         ? activeLists.sublist(1)
         : const <ShoppingList>[];
 
+    debugPrint('🏠 HomeDashboard._Content: רשימות פעילות=${activeLists.length}, אחרות=${otherLists.length}');
+
     return Column(
       children: [
         UpcomingShopCard(list: mostRecentList),
@@ -375,7 +403,6 @@ class _ImprovedEmptyState extends StatelessWidget {
   }
 }
 
-// ✅ רכיב חדש - ReceiptsCard
 class _ReceiptsCard extends StatelessWidget {
   const _ReceiptsCard();
 
@@ -397,7 +424,10 @@ class _ReceiptsCard extends StatelessWidget {
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
-        onTap: () => Navigator.pushNamed(context, '/receipts'),
+        onTap: () {
+          debugPrint('🏠 HomeDashboard: ניווט למסך קבלות');
+          Navigator.pushNamed(context, '/receipts');
+        },
         borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -489,7 +519,6 @@ class _ReceiptsCard extends StatelessWidget {
   }
 }
 
-// ✅ רכיב פנימי - ActiveListsCard
 class _ActiveListsCard extends StatelessWidget {
   final List<ShoppingList> lists;
 
@@ -499,14 +528,17 @@ class _ActiveListsCard extends StatelessWidget {
     BuildContext context,
     ShoppingList list,
   ) async {
+    debugPrint('🏠 HomeDashboard: מוחק רשימה "${list.name}" (${list.id})');
+    
     final provider = context.read<ShoppingListsProvider>();
 
     try {
-      // ✅ שמירת כל הנתונים לפני מחיקה
+      // שמירת כל הנתונים לפני מחיקה
       final deletedList = list;
 
-      // ✅ מחיקה מיידית
+      // מחיקה מיידית
       await provider.deleteList(list.id);
+      debugPrint('   ✅ רשימה נמחקה');
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -515,8 +547,9 @@ class _ActiveListsCard extends StatelessWidget {
             action: SnackBarAction(
               label: 'בטל',
               onPressed: () async {
-                // ✅ שחזור הרשימה
+                debugPrint('🏠 HomeDashboard: משחזר רשימה "${deletedList.name}"');
                 await provider.restoreList(deletedList);
+                debugPrint('   ✅ רשימה שוחזרה');
               },
             ),
             duration: const Duration(seconds: 5),
@@ -524,6 +557,7 @@ class _ActiveListsCard extends StatelessWidget {
         );
       }
     } catch (e) {
+      debugPrint('   ❌ שגיאה במחיקת רשימה: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -579,6 +613,7 @@ class _ActiveListsCard extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.list_alt),
                   onPressed: () {
+                    debugPrint('🏠 HomeDashboard: ניווט לכל הרשימות');
                     Navigator.pushNamed(context, "/shopping-lists");
                   },
                   tooltip: 'כל הרשימות',
@@ -650,6 +685,7 @@ class _DismissibleListTile extends StatelessWidget {
           ),
           child: InkWell(
             onTap: () {
+              debugPrint('🏠 HomeDashboard: ניווט לרשימה "${list.name}"');
               Navigator.pushNamed(
                 context,
                 "/manage-list",
