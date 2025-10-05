@@ -345,7 +345,7 @@ class _MyAppState extends State<MyApp> {
           );
         }
 
-        // active-shopping - מקבל listName ו-listId
+        // active-shopping - מקבל ShoppingList
         if (settings.name == '/active-shopping') {
           final list = settings.arguments as ShoppingList?;
           if (list == null) {
@@ -355,8 +355,7 @@ class _MyAppState extends State<MyApp> {
             );
           }
           return MaterialPageRoute(
-            builder: (_) =>
-                ActiveShoppingScreen(listName: list.name, listId: list.id),
+            builder: (_) => ActiveShoppingScreen(list: list),
           );
         }
 

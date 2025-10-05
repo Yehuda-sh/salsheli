@@ -42,6 +42,8 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
   final TextEditingController _customQuantityController = TextEditingController(
     text: '1',
   );
+  
+  ProductsProvider? _productsProvider; // 💾 שמור את ה-provider
 
   @override
   void initState() {
@@ -49,23 +51,22 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
     // טוען מוצרים אם צריך
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      final productsProvider = context.read<ProductsProvider>();
+      _productsProvider = context.read<ProductsProvider>();
       
       // ✅ הגדר סינון לפי סוג הרשימה
       debugPrint('🎯 PopulateListScreen: סוג רשימה = ${widget.list.type}');
-      productsProvider.setListType(widget.list.type);
+      _productsProvider!.setListType(widget.list.type);
       
-      if (productsProvider.isEmpty && !productsProvider.isLoading) {
-        productsProvider.loadProducts();
+      if (_productsProvider!.isEmpty && !_productsProvider!.isLoading) {
+        _productsProvider!.loadProducts();
       }
     });
   }
 
   @override
   void dispose() {
-    // ✅ נקה סינון כשיוצאים מהמסך
-    final productsProvider = context.read<ProductsProvider>();
-    productsProvider.clearListType();
+    // ✅ בטוח - משתמש ב-provider ששמרנו ב-initState
+    _productsProvider?.clearListType();
     
     _searchController.dispose();
     _customQuantityController.dispose();

@@ -18,6 +18,7 @@ import '../../models/shopping_list.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../widgets/create_list_dialog.dart';
 import '../../widgets/shopping_list_tile.dart';
+import './active_shopping_screen.dart'; // ⭐ חדש!
 
 class ShoppingListsScreen extends StatelessWidget {
   const ShoppingListsScreen({super.key});
@@ -174,6 +175,15 @@ class ShoppingListsScreen extends StatelessWidget {
           },
           onDelete: () => provider.deleteList(list.id),
           onRestore: (deletedList) => provider.restoreList(deletedList),
+          // ⭐ התחל קנייה
+          onStartShopping: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ActiveShoppingScreen(list: list),
+              ),
+            );
+          },
         );
       },
     ).animate().fadeIn(duration: 300.ms);

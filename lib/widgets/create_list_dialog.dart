@@ -104,8 +104,14 @@ class _CreateListDialogState extends State<CreateListDialog> {
     final provider = context.read<ShoppingListsProvider>();
 
     return AlertDialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       title: const Text("יצירת רשימת קניות חדשה", textAlign: TextAlign.right),
-      content: Form(
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxHeight: 280, // גובה קבוע
+          maxWidth: 400,
+        ),
+        child: Form(
         key: _formKey,
         child: SingleChildScrollView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -143,40 +149,36 @@ class _CreateListDialogState extends State<CreateListDialog> {
                 autofocus: true,
                 enabled: !_isSubmitting,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
 
               // 📋 סוג הרשימה
-              DropdownButtonFormField<String>(
-                value: _type,
-                decoration: const InputDecoration(labelText: "סוג הרשימה"),
+              Directionality(
+                textDirection: TextDirection.rtl,
+                child: DropdownButtonFormField<String>(
+                  value: _type,
+                  isExpanded: true, // מאפשר RTL מלא
+                  decoration: const InputDecoration(
+                    labelText: "סוג הרשימה",
+                  ),
                 items: kListTypes.entries.map((entry) {
                   return DropdownMenuItem<String>(
                     value: entry.key,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              entry.value["name"]!,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
+                        Expanded(
+                          child: Text(
+                            entry.value["name"]!,
+                            textAlign: TextAlign.right,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w500,
                             ),
-                            Text(
-                              entry.value["description"]!,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: theme.textTheme.bodySmall?.color,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                         const SizedBox(width: 8),
                         Text(
                           entry.value["icon"]!,
-                          style: const TextStyle(fontSize: 18),
+                          style: const TextStyle(fontSize: 20),
                         ),
                       ],
                     ),
@@ -188,12 +190,13 @@ class _CreateListDialogState extends State<CreateListDialog> {
                         debugPrint('🔄 סוג רשימה שונה ל: $value');
                         setState(() => _type = value ?? "super");
                       },
+                ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
 
               // ✨ Preview של הסוג שנבחר
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surfaceContainerHighest.withValues(
                     alpha: 0.5,
@@ -208,16 +211,16 @@ class _CreateListDialogState extends State<CreateListDialog> {
                   children: [
                     Text(
                       kListTypes[_type]!["icon"]!,
-                      style: const TextStyle(fontSize: 48),
+                      style: const TextStyle(fontSize: 32),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             kListTypes[_type]!["name"]!,
-                            style: theme.textTheme.titleLarge?.copyWith(
+                            style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -231,7 +234,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
 
               // 💰 תקציב
               TextFormField(
@@ -276,6 +279,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
               ),
             ],
           ),
+        ),
         ),
       ),
       actions: [

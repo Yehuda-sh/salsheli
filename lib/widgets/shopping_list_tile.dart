@@ -24,6 +24,7 @@ class ShoppingListTile extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
   final Function(ShoppingList)? onRestore;
+  final VoidCallback? onStartShopping; // ⭐ חדש!
 
   const ShoppingListTile({
     super.key,
@@ -31,6 +32,7 @@ class ShoppingListTile extends StatelessWidget {
     this.onTap,
     this.onDelete,
     this.onRestore,
+    this.onStartShopping, // ⭐ חדש!
   });
 
   /// 🇮🇱 אייקון מותאם לפי סטטוס הרשימה
@@ -52,6 +54,12 @@ class ShoppingListTile extends StatelessWidget {
     final dateFormatted = DateFormat(
       'dd/MM/yyyy – HH:mm',
     ).format(list.updatedDate);
+
+    // 🔍 Debug: בדיקה למה כפתור לא מוצג
+    debugPrint('📑 ShoppingListTile: ${list.name}');
+    debugPrint('   status: ${list.status} (active=${ShoppingList.statusActive})');
+    debugPrint('   itemCount: ${list.itemCount}');
+    debugPrint('   יציג כפתור? ${list.status == ShoppingList.statusActive && list.itemCount > 0}');
 
     return Dismissible(
       key: Key(list.id),
@@ -90,10 +98,14 @@ class ShoppingListTile extends StatelessWidget {
       child: Material(
         elevation: 2,
         borderRadius: BorderRadius.circular(12),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: onTap,
-          child: ListTile(
+        child: Column(
+          children: [
+            InkWell(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(12),
+              ),
+              onTap: onTap,
+              child: ListTile(
             leading: _statusIcon(),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
@@ -158,6 +170,87 @@ class ShoppingListTile extends StatelessWidget {
             trailing: const Icon(Icons.chevron_right),
           ),
         ),
+        
+        // ⭐ כפתור "התחל קנייה" - רק לרשימות פעילות עם מוצרים
+        if (list.status == ShoppingList.statusActive && list.itemCount > 0)
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(
+                  color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                ),
+              ),
+            ),
+            child: InkWell(
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(12),
+              ),
+              onTap: onStartShopping,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.shopping_cart_checkout,
+                      color: theme.colorScheme.primary,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'התחל קנייה',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          )
+        // 📝 הודעה אם הרשימה ריקה
+        else if (list.status == ShoppingList.statusActive && list.itemCount == 0)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainerHighest,
+              border: Border(
+                top: BorderSide(
+                  color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                ),
+              ),
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(12),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  size: 16,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'הוסף מוצרים כדי להתחיל',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
       ),
     );
   }

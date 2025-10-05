@@ -1,274 +1,131 @@
-// 📄 File: lib/screens/shopping/active_shopping_screen.dart - FIXED v2
+// 📄 File: lib/screens/shopping/active_shopping_screen.dart
 //
-// ✅ תיקונים קריטיים:
-// 1. context.watch מועבר ל-build (לא בפונקציה נפרדת)
-// 2. enum לסטטוס פריט במקום strings
-// 3. null safety מלא
-// 4. validation טוב יותר
+// 🎯 Purpose: מסך קנייה פעילה - המשתמש בחנות וקונה מוצרים
+//
+// ✨ Features:
+// - ⏱️ טיימר - מודד כמה זמן עובר מתחילת הקנייה
+// - 📊 מונים - כמה נקנה / כמה נשאר / כמה לא היה
+// - 🗂️ סידור לפי קטגוריות
+// - ✅ סימון מוצרים: נקנה / לא במלאי / דחוי
+// - 📱 כפתורי פעולה מהירה
+// - 🏁 סיכום מפורט בסיום
+//
+// 🎨 UI:
+// - Header עם טיימר וסטטיסטיקות
+// - רשימת מוצרים לפי קטגוריות
+// - כפתורים לסימון מהיר
+// - מסך סיכום בסוף
+//
+// Usage:
+// ```dart
+// Navigator.push(
+//   context,
+//   MaterialPageRoute(
+//     builder: (context) => ActiveShoppingScreen(list: shoppingList),
+//   ),
+// );
+// ```
 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/shopping_list.dart';
 import '../../models/receipt.dart';
+import '../../models/enums/shopping_item_status.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../theme/app_theme.dart';
 
-/// 🇮🇱 סטטוס פריט - enum מובנה במקום strings
-enum ItemStatus {
-  pending,
-  taken;
-
-  bool get isTaken => this == ItemStatus.taken;
-}
-
 class ActiveShoppingScreen extends StatefulWidget {
-  final String listName;
-  final String? listId;
+  final ShoppingList list;
 
-  const ActiveShoppingScreen({
-    super.key,
-    required this.listName,
-    this.listId,
-  });
+  const ActiveShoppingScreen({super.key, required this.list});
 
   @override
   State<ActiveShoppingScreen> createState() => _ActiveShoppingScreenState();
 }
 
 class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
-  bool isLoading = false;
+  // ⏱️ טיימר
+  late DateTime _startTime;
+  Timer? _timer;
+  Duration _elapsed = Duration.zero;
 
-  // Undo mechanism
-  ShoppingList? _lastState;
-  String? _lastActionMessage;
+  // 📊 מצבי פריטים (item.id → status)
+  final Map<String, ShoppingItemStatus> _itemStatuses = {};
 
-  /// ✅ עדכון פריט דרך Provider
-  Future<void> _updateItemStatus(
-    ShoppingList list,
-    int index,
-    ItemStatus newStatus,
-  ) async {
-    debugPrint('📝 ActiveShoppingScreen: מעדכן פריט $index');
-    debugPrint('   רשימה: ${list.name}');
-    debugPrint('   סטטוס חדש: ${newStatus.name}');
+  @override
+  void initState() {
+    super.initState();
+    _startTime = DateTime.now();
 
-    final provider = context.read<ShoppingListsProvider>();
-
-    // שמירת מצב לצורך Undo
-    _lastState = list;
-
-    // עדכון הפריט
-    final updatedItem = list.items[index].copyWith(
-      isChecked: newStatus.isTaken,
-    );
-
-    debugPrint('   פריט: ${updatedItem.name}');
-
-    // עדכון הרשימה דרך Provider
-    await provider.updateItemAt(list.id, index, (_) => updatedItem);
-
-    debugPrint('   ✅ פריט עודכן בהצלחה');
-
-    setState(() {
-      _lastActionMessage = '${updatedItem.name} ${newStatus.isTaken ? "סומן" : "בוטל"}';
-    });
-  }
-
-  /// ✅ סימון הכל כנלקח
-  Future<void> _markAllAsTaken(ShoppingList list) async {
-    debugPrint('✅ ActiveShoppingScreen: מסמן את כל הפריטים כנלקחו');
-    debugPrint('   רשימה: ${list.name}');
-    debugPrint('   סה"כ פריטים: ${list.items.length}');
-
-    final provider = context.read<ShoppingListsProvider>();
-
-    // שמירת מצב לצורך Undo
-    _lastState = list;
-
-    // עדכון כל הפריטים לסטטוס "נלקח"
-    final updatedItems = list.items.map((item) {
-      return item.copyWith(isChecked: true);
-    }).toList();
-
-    // החלפת כל הפריטים בבת אחת
-    final updatedList = list.copyWith(items: updatedItems);
-    await provider.updateList(updatedList);
-
-    debugPrint('   ✅ כל הפריטים סומנו בהצלחה');
-
-    setState(() {
-      _lastActionMessage = 'כל הפריטים סומנו כנלקחו';
+    // התחל טיימר שמתעדכן כל שנייה
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        _elapsed = DateTime.now().difference(_startTime);
+      });
     });
 
-    _showUndoSnackbar();
-  }
-
-  /// ✅ איפוס כל הסטטוסים
-  Future<void> _resetAllStatuses(ShoppingList list) async {
-    debugPrint('🔄 ActiveShoppingScreen: מאפס את כל הסטטוסים');
-    debugPrint('   רשימה: ${list.name}');
-    debugPrint('   סה"כ פריטים: ${list.items.length}');
-
-    final provider = context.read<ShoppingListsProvider>();
-
-    // שמירת מצב לצורך Undo
-    _lastState = list;
-
-    final updatedItems = list.items.map((item) {
-      return item.copyWith(isChecked: false);
-    }).toList();
-
-    final updatedList = list.copyWith(items: updatedItems);
-    await provider.updateList(updatedList);
-
-    debugPrint('   ✅ כל הסטטוסים אופסו בהצלחה');
-
-    setState(() {
-      _lastActionMessage = 'הסטטוסים אופסו';
-    });
-
-    _showUndoSnackbar();
-  }
-
-  /// ביטול פעולה אחרונה (Undo)
-  Future<void> _undo() async {
-    if (_lastState == null) {
-      debugPrint('⚠️ ActiveShoppingScreen: אין מצב קודם לשחזור');
-      return;
+    // אתחל את כל הפריטים כ-pending
+    for (final item in widget.list.items) {
+      _itemStatuses[item.id] = ShoppingItemStatus.pending;
     }
 
-    debugPrint('↩️ ActiveShoppingScreen: מבטל פעולה אחרונה');
-    debugPrint('   רשימה: ${_lastState!.name}');
+    debugPrint('🛒 ActiveShoppingScreen: התחלה - ${widget.list.items.length} פריטים');
+  }
 
-    final provider = context.read<ShoppingListsProvider>();
-    await provider.updateList(_lastState!);
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
-    debugPrint('   ✅ הרשימה שוחזרה בהצלחה');
-
+  /// עדכון סטטוס פריט
+  void _updateItemStatus(ReceiptItem item, ShoppingItemStatus newStatus) {
     setState(() {
-      _lastState = null;
-      _lastActionMessage = null;
+      _itemStatuses[item.id] = newStatus;
     });
+    debugPrint('   📝 ${item.name}: ${newStatus.label}');
+  }
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('הפעולה בוטלה'),
-          duration: Duration(seconds: 2),
-        ),
+  /// סיום קנייה - מעבר למסך סיכום
+  Future<void> _finishShopping() async {
+    final purchased = _itemStatuses.values
+        .where((s) => s == ShoppingItemStatus.purchased)
+        .length;
+    final outOfStock = _itemStatuses.values
+        .where((s) => s == ShoppingItemStatus.outOfStock)
+        .length;
+    final deferred =
+        _itemStatuses.values.where((s) => s == ShoppingItemStatus.deferred).length;
+    final pending =
+        _itemStatuses.values.where((s) => s == ShoppingItemStatus.pending).length;
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => _ShoppingSummaryDialog(
+        listName: widget.list.name,
+        duration: _elapsed,
+        total: widget.list.items.length,
+        purchased: purchased,
+        outOfStock: outOfStock,
+        deferred: deferred,
+        pending: pending,
+      ),
+    );
+
+    if (result == true && mounted) {
+      // סמן את הרשימה כהושלמה
+      final provider = context.read<ShoppingListsProvider>();
+      await provider.updateListStatus(
+        widget.list.id,
+        ShoppingList.statusCompleted,
       );
+
+      if (mounted) {
+        Navigator.pop(context);
+      }
     }
-  }
-
-  void _showUndoSnackbar() {
-    if (!mounted) return;
-
-    debugPrint('💬 ActiveShoppingScreen: מציג Snackbar');
-    debugPrint('   הודעה: $_lastActionMessage');
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(_lastActionMessage ?? 'הפעולה בוצעה'),
-        action: SnackBarAction(label: 'ביטול', onPressed: _undo),
-        duration: const Duration(seconds: 5),  // ✅ 5 שניות
-      ),
-    );
-  }
-
-  /// קיבוץ פריטים לפי אות ראשונה
-  Map<String, List<MapEntry<int, ReceiptItem>>> _groupByFirstLetter(
-    List<ReceiptItem> items,
-  ) {
-    final map = <String, List<MapEntry<int, ReceiptItem>>>{};
-
-    for (int i = 0; i < items.length; i++) {
-      final item = items[i];
-      final firstLetter = item.name.isNotEmpty
-          ? item.name[0].toUpperCase()
-          : '#';
-
-      map.putIfAbsent(firstLetter, () => []);
-      map[firstLetter]!.add(MapEntry(i, item));
-    }
-
-    return map;
-  }
-
-  /// בניית שורת פריט
-  Widget _buildItemRow(
-    BuildContext context,
-    ShoppingList list,
-    int index,
-    ReceiptItem item,
-  ) {
-    final cs = Theme.of(context).colorScheme;
-    final isChecked = item.isChecked;
-
-    return ListTile(
-      leading: Checkbox(
-        value: isChecked,
-        onChanged: (val) {
-          _updateItemStatus(
-            list,
-            index,
-            val == true ? ItemStatus.taken : ItemStatus.pending,
-          );
-        },
-      ),
-      title: Text(
-        item.name,
-        style: TextStyle(
-          decoration: isChecked ? TextDecoration.lineThrough : null,
-          color: isChecked ? cs.onSurfaceVariant : cs.onSurface,
-        ),
-      ),
-      subtitle: Text('כמות: ${item.quantity}'),
-      trailing: isChecked
-          ? const Icon(Icons.check_circle, color: Colors.green)
-          : Icon(Icons.radio_button_unchecked, color: cs.outline),
-    );
-  }
-
-  /// בניית chip סטטוס
-  Widget _buildStatusChip(IconData icon, int count, Color color) {
-    return Chip(
-      avatar: Icon(icon, size: 16, color: color),
-      label: Text('$count', style: TextStyle(color: color)),
-      backgroundColor: color.withValues(alpha: 0.1),
-      side: BorderSide(color: color.withValues(alpha: 0.3)),
-    );
-  }
-
-  /// בניית מסך שגיאה
-  Widget _buildErrorScreen(String message) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        title: const Text('שגיאה'),
-        backgroundColor: Theme.of(context).colorScheme.surface,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
-            Text(
-              message,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_back),
-              label: const Text('חזור'),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   @override
@@ -278,178 +135,540 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     final brand = theme.extension<AppBrand>();
     final accent = brand?.accent ?? cs.primary;
 
-    // ✅ בדיקת null safety
-    if (widget.listId == null) {
-      return _buildErrorScreen('לא סופק מזהה רשימה');
+    // חשב סטטיסטיקות
+    final purchased = _itemStatuses.values
+        .where((s) => s == ShoppingItemStatus.purchased)
+        .length;
+    final total = widget.list.items.length;
+
+    // קבץ לפי קטגוריה
+    final itemsByCategory = <String, List<ReceiptItem>>{};
+    for (final item in widget.list.items) {
+      // TODO: בעתיד ניקח את הקטגוריה מ-ProductsProvider
+      final category = 'כללי'; // זמני
+      itemsByCategory.putIfAbsent(category, () => []).add(item);
     }
-
-    // ✅ קבלת הרשימה ישירות מה-Provider (context.watch ב-build)
-    final provider = context.watch<ShoppingListsProvider>();
-    final list = provider.getById(widget.listId!);
-
-    if (isLoading) {
-      return Scaffold(
-        backgroundColor: cs.surface,
-        body: Center(child: CircularProgressIndicator(color: accent)),
-      );
-    }
-
-    if (list == null) {
-      return _buildErrorScreen('הרשימה לא נמצאה');
-    }
-
-    // חישוב סטטיסטיקות
-    final totalItems = list.items.length;
-    final takenCount = list.items.where((item) => item.isChecked).length;
-    final pendingCount = totalItems - takenCount;
-    final progress = totalItems > 0 ? takenCount / totalItems : 0.0;
-
-    // קיבוץ לפי אות ראשונה
-    final groupedItems = _groupByFirstLetter(list.items);
 
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: AppBar(
-        title: Text(widget.listName),
-        backgroundColor: cs.surface,
-        elevation: 0,
-        actions: [
-          if (_lastState != null)
-            IconButton(
-              icon: const Icon(Icons.undo),
-              tooltip: 'ביטול',
-              onPressed: _undo,
+        backgroundColor: accent,
+        foregroundColor: Colors.white,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.list.name,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
+            Text(
+              '⏱️ ${_formatDuration(_elapsed)}',
+              style: const TextStyle(fontSize: 14),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton.icon(
+            onPressed: _finishShopping,
+            icon: const Icon(Icons.check, color: Colors.white),
+            label: const Text(
+              'סיום',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
         ],
       ),
       body: Column(
         children: [
-          // Header - סיכום והתקדמות
-          Card(
-            margin: const EdgeInsets.all(16),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildStatusChip(
-                        Icons.schedule,
-                        pendingCount,
-                        Colors.grey,
-                      ),
-                      _buildStatusChip(
-                        Icons.check_circle,
-                        takenCount,
-                        Colors.green,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  LinearProgressIndicator(
-                    value: progress,
-                    backgroundColor: cs.surfaceContainerHighest,
-                    color: accent,
-                    minHeight: 8,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${(progress * 100).toInt()}% הושלם ($takenCount מתוך $totalItems)',
-                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
-                  ),
+          // 📊 Header - סטטיסטיקות
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  accent.withValues(alpha: 0.1),
+                  cs.surface,
                 ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _StatCard(
+                  icon: Icons.check_circle,
+                  label: 'נקנו',
+                  value: '$purchased',
+                  color: Colors.green,
+                ),
+                _StatCard(
+                  icon: Icons.shopping_cart,
+                  label: 'נותרו',
+                  value: '${total - purchased}',
+                  color: Colors.blue,
+                ),
+                _StatCard(
+                  icon: Icons.inventory_2,
+                  label: 'סה״כ',
+                  value: '$total',
+                  color: Colors.grey,
+                ),
+              ],
             ),
           ),
 
-          // רשימת פריטים מקובצת
+          // 🗂️ רשימת מוצרים לפי קטגוריות
           Expanded(
-            child: totalItems == 0
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.shopping_cart_outlined,
-                            size: 64, color: cs.outline),
-                        const SizedBox(height: 16),
-                        Text(
-                          'הרשימה ריקה',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: cs.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    children: groupedItems.entries.map((entry) {
-                      final letter = entry.key;
-                      final items = entry.value;
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: itemsByCategory.length,
+              itemBuilder: (context, index) {
+                final category = itemsByCategory.keys.elementAt(index);
+                final items = itemsByCategory[category]!;
 
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        child: ExpansionTile(
-                          title: Text(
-                            letter,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          subtitle: Text('${items.length} פריטים'),
-                          initiallyExpanded: true,
-                          children: [
-                            const Divider(height: 1),
-                            ...items.map(
-                              (entry) => _buildItemRow(
-                                context,
-                                list,
-                                entry.key,
-                                entry.value,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                          ],
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // כותרת קטגוריה
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Text(
+                        category,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: accent,
                         ),
-                      );
-                    }).toList(),
-                  ),
+                      ),
+                    ),
+
+                    // פריטים בקטגוריה
+                    ...items.map((item) => _ActiveShoppingItemTile(
+                          item: item,
+                          status: _itemStatuses[item.id]!,
+                          onStatusChanged: (newStatus) =>
+                              _updateItemStatus(item, newStatus),
+                        )),
+
+                    const SizedBox(height: 16),
+                  ],
+                );
+              },
+            ),
           ),
         ],
       ),
+    );
+  }
 
-      // כפתורי פעולה מהירים
-      bottomNavigationBar: totalItems == 0
-          ? null
-          : Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: pendingCount == 0 ? null : () => _markAllAsTaken(list),
-                      icon: const Icon(Icons.done_all),
-                      label: const Text('סמן הכל'),
+  /// פורמט משך זמן (HH:MM:SS)
+  String _formatDuration(Duration duration) {
+    final hours = duration.inHours.toString().padLeft(2, '0');
+    final minutes = (duration.inMinutes % 60).toString().padLeft(2, '0');
+    final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
+    return '$hours:$minutes:$seconds';
+  }
+}
+
+// ========================================
+// Widget: כרטיס סטטיסטיקה
+// ========================================
+
+class _StatCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+
+  const _StatCard({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Icon(icon, color: color, size: 32),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            color: color.withValues(alpha: 0.7),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ========================================
+// Widget: פריט בקנייה פעילה
+// ========================================
+
+class _ActiveShoppingItemTile extends StatelessWidget {
+  final ReceiptItem item;
+  final ShoppingItemStatus status;
+  final Function(ShoppingItemStatus) onStatusChanged;
+
+  const _ActiveShoppingItemTile({
+    required this.item,
+    required this.status,
+    required this.onStatusChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      elevation: status == ShoppingItemStatus.purchased ? 0 : 2,
+      color: status == ShoppingItemStatus.purchased
+          ? cs.surfaceContainerHighest
+          : cs.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          children: [
+            // שורה עליונה: שם + מחיר
+            Row(
+              children: [
+                // אייקון סטטוס
+                Icon(
+                  status.icon,
+                  color: status.color,
+                  size: 28,
+                ),
+                const SizedBox(width: 12),
+
+                // שם המוצר
+                Expanded(
+                  child: Text(
+                    item.name,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      decoration: status == ShoppingItemStatus.purchased
+                          ? TextDecoration.lineThrough
+                          : null,
+                      color: status == ShoppingItemStatus.purchased
+                          ? cs.onSurfaceVariant
+                          : cs.onSurface,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: takenCount == 0 ? null : () => _resetAllStatuses(list),
-                      icon: const Icon(Icons.restart_alt),
-                      label: const Text('איפוס'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: accent,
-                        foregroundColor: Colors.black,
+                ),
+
+                // כמות × מחיר
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '${item.quantity}×',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: cs.onSurfaceVariant,
                       ),
                     ),
+                    Text(
+                      '₪${item.unitPrice.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: status.color,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+
+            // שורה תחתונה: כפתורי פעולה
+            Row(
+              children: [
+                Expanded(
+                  child: _ActionButton(
+                    icon: Icons.check_circle,
+                    label: 'נקנה',
+                    color: Colors.green,
+                    isSelected: status == ShoppingItemStatus.purchased,
+                    onTap: () => onStatusChanged(ShoppingItemStatus.purchased),
                   ),
-                ],
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _ActionButton(
+                    icon: Icons.remove_shopping_cart,
+                    label: 'אזל',
+                    color: Colors.red,
+                    isSelected: status == ShoppingItemStatus.outOfStock,
+                    onTap: () => onStatusChanged(ShoppingItemStatus.outOfStock),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _ActionButton(
+                    icon: Icons.schedule,
+                    label: 'דחה',
+                    color: Colors.orange,
+                    isSelected: status == ShoppingItemStatus.deferred,
+                    onTap: () => onStatusChanged(ShoppingItemStatus.deferred),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ========================================
+// Widget: כפתור פעולה
+// ========================================
+
+class _ActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _ActionButton({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? color.withValues(alpha: 0.2) : Colors.transparent,
+          border: Border.all(
+            color: isSelected ? color : Colors.grey.shade300,
+            width: isSelected ? 2 : 1,
+          ),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? color : Colors.grey,
+              size: 18,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected ? color : Colors.grey.shade700,
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ========================================
+// Dialog: סיכום קנייה
+// ========================================
+
+class _ShoppingSummaryDialog extends StatelessWidget {
+  final String listName;
+  final Duration duration;
+  final int total;
+  final int purchased;
+  final int outOfStock;
+  final int deferred;
+  final int pending;
+
+  const _ShoppingSummaryDialog({
+    required this.listName,
+    required this.duration,
+    required this.total,
+    required this.purchased,
+    required this.outOfStock,
+    required this.deferred,
+    required this.pending,
+  });
+
+  String _formatDuration(Duration d) {
+    final minutes = d.inMinutes;
+    final seconds = d.inSeconds % 60;
+    return '$minutes דק\' $seconds שנ\'';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return AlertDialog(
+      title: Row(
+        children: [
+          Icon(Icons.check_circle, color: Colors.green, size: 32),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'סיכום קנייה',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: cs.onSurface,
+              ),
+            ),
+          ),
+        ],
+      ),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              listName,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: cs.primary,
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // ⏱️ זמן קנייה
+            _SummaryRow(
+              icon: Icons.timer,
+              label: 'זמן קנייה',
+              value: _formatDuration(duration),
+              color: Colors.blue,
+            ),
+
+            const Divider(height: 24),
+
+            // ✅ נקנו
+            _SummaryRow(
+              icon: Icons.check_circle,
+              label: 'נקנו',
+              value: '$purchased מתוך $total',
+              color: Colors.green,
+            ),
+
+            // ❌ לא במלאי
+            if (outOfStock > 0)
+              _SummaryRow(
+                icon: Icons.remove_shopping_cart,
+                label: 'לא היו במלאי',
+                value: '$outOfStock',
+                color: Colors.red,
+              ),
+
+            // ⏭️ דחוי
+            if (deferred > 0)
+              _SummaryRow(
+                icon: Icons.schedule,
+                label: 'נדחו לפעם הבאה',
+                value: '$deferred',
+                color: Colors.orange,
+              ),
+
+            // ⏸️ לא סומנו
+            if (pending > 0)
+              _SummaryRow(
+                icon: Icons.radio_button_unchecked,
+                label: 'לא סומנו',
+                value: '$pending',
+                color: Colors.grey,
+              ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('חזור'),
+        ),
+        FilledButton.icon(
+          onPressed: () => Navigator.pop(context, true),
+          icon: const Icon(Icons.check),
+          label: const Text('סיים קנייה'),
+        ),
+      ],
+    );
+  }
+}
+
+// ========================================
+// Widget: שורת סיכום
+// ========================================
+
+class _SummaryRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+
+  const _SummaryRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Icon(icon, color: color, size: 24),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 16),
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

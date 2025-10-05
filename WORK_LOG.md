@@ -58,6 +58,106 @@
 
 ---
 
+## 📅 05/10/2025 - מערכת קנייה פעילה מלאה + UI fixes
+
+### 🎯 משימה
+
+יצירת מערכת "קנייה פעילה" מקצה לקצה - מסך שמלווה את המשתמש בזמן הקנייה בחנות:
+- תיקוני UI: Dialog overflow + RTL ב-Dropdown
+- הוספת סוגי רשימות חדשים (אירועים)
+- יצירת מסך קנייה פעילה עם טיימר, סטטיסטיקות וסיכום
+- כפתור "התחל קנייה" ברשימות
+- תיקון bugs בניווט ו-dispose
+
+### ✅ מה הושלם
+
+1. **תיקון CreateListDialog - Overflow** 🐛
+   - הוספת ConstrainedBox עם גובה מוגבל (280px)
+   - insetPadding מינימלי
+   - הקטנת spacing (16→12px)
+   - הקטנת Preview (padding 8, אייקון 32)
+
+2. **תיקון RTL ב-Dropdown** 🌍
+   - עטיפה ב-Directionality(TextDirection.rtl)
+   - isExpanded: true
+   - Expanded + textAlign: TextAlign.right
+   - הסרת Column - רק Text + אייקון
+
+3. **הוספת סוגי רשימות לאירועים** 🎉
+   - יום הולדת (🎂), מסיבה (🎉), חתונה (💍)
+   - פיקניק (🧺), שבת וחג (🕯️)
+   - עדכון constants.dart + ListType class
+   - סה"כ 21 סוגי רשימות זמינים
+
+4. **יצירת ShoppingItemStatus enum** ⬜
+   - 4 מצבים: pending, purchased, outOfStock, deferred
+   - כל מצב עם label, icon, color
+   - getter isCompleted
+
+5. **יצירת ActiveShoppingScreen** 🛒
+   - טיימר חי (Duration עם Timer.periodic)
+   - סטטיסטיקות למעלה (נקנו/נותרו/סה"כ)
+   - רשימת מוצרים עם 3 כפתורי פעולה לכל אחד
+   - _ActiveShoppingItemTile - כרטיס מוצר
+   - _ActionButton - כפתורי סימון
+   - _ShoppingSummaryDialog - סיכום מפורט בסיום
+   - עדכון סטטוס רשימה ל-completed
+
+6. **הוספת כפתור "התחל קנייה"** 🎯
+   - ShoppingListTile - פרמטר onStartShopping
+   - כפתור רק לרשימות פעילות עם מוצרים
+   - הודעה "הוסף מוצרים כדי להתחיל" לרשימות ריקות
+   - עיצוב: InkWell עם borderRadius
+   - Debug logging למה הכפתור מוצג/לא
+
+7. **חיבור למערכת** 🔗
+   - ShoppingListsScreen - ניווט ל-ActiveShoppingScreen
+   - main.dart - route '/active-shopping' עם ShoppingList
+   - Provider: updateListStatus() לסימון completed
+
+8. **תיקון Bugs** 🐞
+   - main.dart - תיקון route (list במקום listName+listId)
+   - PopulateListScreen - תיקון dispose() error
+   - שמירת ProductsProvider ב-initState
+   - שימוש ב-_productsProvider?.clearListType()
+
+### 📂 קבצים שהושפעו
+
+- `lib/widgets/create_list_dialog.dart` - תיקון overflow + RTL
+- `lib/core/constants.dart` - +5 סוגי רשימות אירועים
+- `lib/models/enums/shopping_item_status.dart` - **חדש!** enum למצבי פריט
+- `lib/screens/shopping/active_shopping_screen.dart` - **חדש!** מסך קנייה
+- `lib/widgets/shopping_list_tile.dart` - +כפתור התחל קנייה
+- `lib/screens/shopping/shopping_lists_screen.dart` - חיבור לActiveShoppingScreen
+- `lib/main.dart` - תיקון route
+- `lib/screens/lists/populate_list_screen.dart` - תיקון dispose
+
+### 💡 לקחים
+
+- **ConstrainedBox > אחוזים**: גובה קבוע יציב יותר ממסכים שונים
+- **Directionality wrapper קריטי**: לא מספיק textDirection בwidget עצמו
+- **Expanded + textAlign**: נדרש ל-RTL תקין בDropdown
+- **Enum עם getters**: label/icon/color - נוח מאוד לUI
+- **Timer.periodic**: פשוט ואפקטיבי למדידת זמן
+- **ProxyProvider במעקב**: שמירת reference למניעת dispose errors
+- **Debug logging**: עוזר למצוא למה UI לא מוצג
+- **Single responsibility**: כל widget עושה דבר אחד טוב
+
+### 🎨 UX Highlights
+
+- **טיימר חי**: משתמש רואה כמה זמן הוא בקנייה
+- **3 כפתורים ברורים**: נקנה/אזל/דחה - בלי בלבול
+- **סיכום מפורט**: זמן, סטטיסטיקות, breakdown מלא
+- **הודעה ידידותית**: "הוסף מוצרים כדי להתחיל"
+- **Visual feedback**: צבעים שונים לכל מצב
+- **LineThrough**: מוצר שנקנה מקבל קו חוצה
+
+### 📊 סיכום
+
+זמן: ~2 שעות | קבצים: 8 (+2 חדשים) | שורות: +750 | Features: קנייה פעילה מלאה
+
+---
+
 ## 📅 05/10/2025 - שדרוג Hybrid Repository + Firebase + בדיקת קבצים מיותרים
 
 ### 🎯 משימה

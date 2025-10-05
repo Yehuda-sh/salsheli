@@ -367,6 +367,31 @@ const Map<String, Map<String, String>> kListTypes = {
     "description": "רעיונות למתנות",
     "icon": "🎁",
   },
+  "birthday": {
+    "name": "יום הולדת",
+    "description": "מצרכים לעוגה וחד\"פ",
+    "icon": "🎂",
+  },
+  "party": {
+    "name": "מסיבה",
+    "description": "אירוח ומסיבות",
+    "icon": "🎉",
+  },
+  "wedding": {
+    "name": "חתונה",
+    "description": "הכנות לאירוע",
+    "icon": "💍",
+  },
+  "picnic": {
+    "name": "פיקניק",
+    "description": "קמפינג וטיולים",
+    "icon": "🧺",
+  },
+  "holiday": {
+    "name": "שבת וחג",
+    "description": "הכנות לשבת וחגים",
+    "icon": "🕯️",
+  },
   "other": {
     "name": "אחר",
     "description": "רשימה כללית",
@@ -408,6 +433,11 @@ class ListType {
   static const String automotive = 'automotive';
   static const String baby = 'baby';
   static const String gifts = 'gifts';
+  static const String birthday = 'birthday';
+  static const String party = 'party';
+  static const String wedding = 'wedding';
+  static const String picnic = 'picnic';
+  static const String holiday = 'holiday';
   static const String other = 'other';
 }
 
