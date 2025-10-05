@@ -15,6 +15,7 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_entity.dart';
 import '../repositories/user_repository.dart';
 import '../services/auth_service.dart';
@@ -39,6 +40,8 @@ class UserContext with ChangeNotifier {
         _authService = authService {
     // האזנה לשינויים ב-Firebase Auth
     _listenToAuthChanges();
+    // טעינת העדפות UI
+    _loadPreferences();
   }
 
   // === Getters ===
@@ -52,6 +55,41 @@ class UserContext with ChangeNotifier {
   ThemeMode get themeMode => _themeMode;
   bool get compactView => _compactView;
   bool get showPrices => _showPrices;
+
+  // === טעינת העדפות UI ===
+
+  Future<void> _loadPreferences() async {
+    debugPrint('📥 UserContext._loadPreferences: טוען העדפות');
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      _themeMode = ThemeMode.values[
+        prefs.getInt('themeMode') ?? ThemeMode.system.index
+      ];
+      _compactView = prefs.getBool('compactView') ?? false;
+      _showPrices = prefs.getBool('showPrices') ?? true;
+
+      debugPrint('✅ העדפות נטענו: theme=$_themeMode, compact=$_compactView, prices=$_showPrices');
+    } catch (e) {
+      debugPrint('⚠️ שגיאה בטעינת העדפות: $e');
+      // נשאר עם ערכי ברירת מחדל
+    }
+  }
+
+  Future<void> _savePreferences() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      await prefs.setInt('themeMode', _themeMode.index);
+      await prefs.setBool('compactView', _compactView);
+      await prefs.setBool('showPrices', _showPrices);
+
+      debugPrint('💾 העדפות נשמרו');
+    } catch (e) {
+      debugPrint('⚠️ שגיאה בשמירת העדפות: $e');
+    }
+  }
 
   // === האזנה לשינויים ב-Auth ===
 
@@ -135,6 +173,7 @@ class UserContext with ChangeNotifier {
 
     _isLoading = true;
     notifyListeners();
+    debugPrint('   🔔 UserContext: notifyListeners() (isLoading=true)');
 
     try {
       // רישום ב-Firebase Auth
@@ -155,12 +194,18 @@ class UserContext with ChangeNotifier {
         await _repository.saveUser(_user!);
         debugPrint('✅ UserContext.signUp: משתמש נוצר בהצלחה');
       }
+
+      // ה-listener של authStateChanges יטפל בעדכון הסופי
     } catch (e) {
       debugPrint('❌ UserContext.signUp: שגיאה - $e');
+      _isLoading = false;
+      notifyListeners();
+      debugPrint('   🔔 UserContext: notifyListeners() (isLoading=false, error)');
       rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();
+      debugPrint('   🔔 UserContext: notifyListeners() (isLoading=false, finally)');
     }
   }
 
@@ -183,6 +228,7 @@ class UserContext with ChangeNotifier {
 
     _isLoading = true;
     notifyListeners();
+    debugPrint('   🔔 UserContext: notifyListeners() (isLoading=true)');
 
     try {
       await _authService.signIn(email: email, password: password);
@@ -193,7 +239,12 @@ class UserContext with ChangeNotifier {
       debugPrint('❌ UserContext.signIn: שגיאה - $e');
       _isLoading = false;
       notifyListeners();
+      debugPrint('   🔔 UserContext: notifyListeners() (isLoading=false, error)');
       rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+      debugPrint('   🔔 UserContext: notifyListeners() (isLoading=false, finally)');
     }
   }
 
@@ -227,13 +278,7 @@ class UserContext with ChangeNotifier {
   /// ```
   Future<void> logout() async => signOut();
 
-  // === טעינת משתמש (Legacy - לתאימות אחורה) ===
 
-  @deprecated
-  Future<void> loadUser(String userId) async {
-    debugPrint('⚠️ UserContext.loadUser: שיטה ישנה! השתמש ב-signIn במקום');
-    await _loadUserFromFirestore(userId);
-  }
 
   // === שמירת משתמש ===
 
@@ -281,17 +326,23 @@ class UserContext with ChangeNotifier {
 
   void setThemeMode(ThemeMode mode) {
     _themeMode = mode;
+    _savePreferences();
     notifyListeners();
+    debugPrint('   🔔 UserContext: notifyListeners() (themeMode=$mode)');
   }
 
   void toggleCompactView() {
     _compactView = !_compactView;
+    _savePreferences();
     notifyListeners();
+    debugPrint('   🔔 UserContext: notifyListeners() (compactView=$_compactView)');
   }
 
   void toggleShowPrices() {
     _showPrices = !_showPrices;
+    _savePreferences();
     notifyListeners();
+    debugPrint('   🔔 UserContext: notifyListeners() (showPrices=$_showPrices)');
   }
 
   void _resetPreferences() {
