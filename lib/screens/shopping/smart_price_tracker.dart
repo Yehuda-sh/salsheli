@@ -30,7 +30,30 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:intl/intl.dart';
 import 'dart:ui' as ui show TextDirection;
-import '../../core/constants.dart';
+
+// קבועים מקומיים (הועברו מ-constants.dart שנמחק)
+const double kSpacingSmall = 8.0;
+const double kSpacingMedium = 16.0;
+const double kSpacingLarge = 24.0;
+const double kButtonHeight = 48.0;
+
+const List<String> _kPredefinedStores = [
+  'שופרסל',
+  'רמי לוי',
+  'ויקטורי',
+  'יינות ביתן',
+  'מגה',
+  'אושר עד',
+];
+
+const List<String> _kPopularProducts = [
+  'חלב',
+  'לחם',
+  'ביצים',
+  'גבינה צהובה',
+  'עגבניות',
+  'קפה',
+];
 
 class PriceResult {
   final String store;
@@ -111,7 +134,7 @@ class _SmartPriceTrackerState extends State<SmartPriceTracker> {
       // סימולציית מקור נתונים
       await Future.delayed(const Duration(milliseconds: 900));
       final random = Random();
-      final stores = kPredefinedStores; // מ-constants.dart
+      final stores = _kPredefinedStores;
 
       // בונים תוצאות רנדומליות, ממיינים: קודם זמינות (כן לפני לא), ואז מחיר
       final results = stores
@@ -477,7 +500,7 @@ class _SmartPriceTrackerState extends State<SmartPriceTracker> {
                 final bg = result.inStock
                     ? (isBest
                         ? cs.primaryContainer.withValues(alpha: 0.30)
-                        : cs.surfaceVariant.withValues(alpha: 0.35))
+                        : cs.surfaceContainerHighest.withValues(alpha: 0.35))
                     : Colors.red.shade50;
 
                 final borderColor = isBest
@@ -573,7 +596,7 @@ class _SmartPriceTrackerState extends State<SmartPriceTracker> {
             Wrap(
               spacing: kSpacingSmall,
               runSpacing: kSpacingSmall,
-              children: kPopularProducts
+              children: _kPopularProducts
                   .map(
                     (product) => ActionChip(
                       label: Text(product),

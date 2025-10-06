@@ -13,7 +13,6 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:xml/xml.dart' as xml;
 import 'package:archive/archive.dart';
-import 'package:intl/intl.dart';
 
 /// מודל למוצר ממערכת מחירון
 class PublishedProduct {
@@ -208,8 +207,8 @@ class PublishedPricesService {
   static const String _loginPath = '/login';
   static const String _filesPath = '/file/d';
 
-  // פרטי התחברות - כפי שצוין
-  static const String _username = 'RamiLevi';
+  // פרטי התחברות - מעודכן לשופרסל
+  static const String _username = 'Shufersal';  // 🆕 שופרסל!
   static const String _password = ''; // ריק
 
   final http.Client _client = http.Client();
@@ -477,7 +476,7 @@ class PublishedPricesService {
   /// קבלת מוצרים (מ-cache או מהשרת)
   Future<List<PublishedProduct>> getProducts({
     bool forceRefresh = false,
-    String? chainName = 'רמי לוי',
+    String? chainName = 'שופרסל',  // 🆕 שופרסל!
   }) async {
     // אם ה-cache תקף ולא מאלצים רענון
     if (!forceRefresh && await isCacheValid()) {

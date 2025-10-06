@@ -14,7 +14,6 @@ import '../../providers/user_context.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../providers/receipt_provider.dart';
 import '../../services/navigation_service.dart';
-import '../../data/rich_demo_data.dart';
 
 /// כפתור כניסה מהירה למשתמש דמו
 ///
@@ -80,42 +79,15 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
 
       debugPrint('✅ DemoLogin: התחברות הושלמה - ${userContext.userId}');
 
-      // 2. טוען את נתוני הדמו העשירים
-      final demoData = await loadRichDemoData(
-        userContext.userId!,
-        householdId,
-      );
+      // 2. ה-Providers יטענו אוטומטית את הנתונים מ-Firebase
+      // ShoppingListsProvider, ReceiptProvider, ProductsProvider - כולם מקשיבים ל-UserContext
+      debugPrint('🔄 DemoLogin: Providers יטענו את הנתונים מ-Firebase');
 
-      // 3. טוען רשימות קניות
-      if (mounted) {
-        final listsProvider = context.read<ShoppingListsProvider>();
-        for (var list in demoData['shoppingLists']) {
-          await listsProvider.updateList(list);
-        }
-        debugPrint('✅ DemoLogin: טען ${demoData['shoppingLists'].length} רשימות');
-      }
-
-      // 4. טוען קבלות
-      if (mounted) {
-        try {
-          final receiptProvider = context.read<ReceiptProvider>();
-          for (var receipt in demoData['receipts']) {
-            await receiptProvider.updateReceipt(receipt);
-          }
-          debugPrint('✅ DemoLogin: טען ${demoData['receipts'].length} קבלות');
-        } catch (e) {
-          debugPrint('⚠️ DemoLogin: ReceiptProvider לא זמין - $e');
-        }
-      }
-
-      // 5. ProductsProvider ו-SuggestionsProvider יטענו אוטומטית (ProxyProvider)
-      debugPrint('🔄 DemoLogin: ProductsProvider יטען אוטומטית');
-
-      // 6. שומר ב-SharedPreferences
+      // 3. שומר ב-SharedPreferences
       await NavigationService.saveUserId(userContext.userId!);
       await NavigationService.markOnboardingSeen();
 
-      // 7. מציג הודעת הצלחה
+      // 4. מציג הודעת הצלחה
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -126,7 +98,7 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
         );
       }
 
-      // 8. ניווט לדף הבית
+      // 5. ניווט לדף הבית
       if (mounted) {
         await NavigationService.goToHome(context);
       }
@@ -155,12 +127,19 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
           mainAxisSize: MainAxisSize.min,
           children: _demoUsers.entries.map((entry) {
             final user = entry.value;
-            return RadioListTile<String>(
-              value: entry.key,
-              groupValue: _selectedUser,
+            return ListTile(
+              leading: Radio<String>(
+                value: entry.key,
+                groupValue: _selectedUser,
+                onChanged: (value) {
+                  if (value != null) {
+                    Navigator.pop(context, value);
+                  }
+                },
+              ),
               title: Text(user['name']!),
               subtitle: Text(user['email']!),
-              onChanged: (value) => Navigator.pop(context, value),
+              onTap: () => Navigator.pop(context, entry.key),
             );
           }).toList(),
         ),
@@ -195,7 +174,7 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
           style: OutlinedButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             side: BorderSide(
-              color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
             ),
           ),
         ),
@@ -218,7 +197,7 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
           style: OutlinedButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             side: BorderSide(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
             ),
           ),
         ),

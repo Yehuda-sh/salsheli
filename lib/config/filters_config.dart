@@ -3,19 +3,21 @@
 // 🎯 מטרה: הגדרת קבועי פילטרים לשימוש במסכים שונים
 // 
 // 📋 תוכן:
-// - CATEGORIES: רשימת קטגוריות מוצרים לסינון ותצוגה
-// - STATUSES: רשימת סטטוסים לפריטים ברשימות קניות
+// - kCategories: רשימת קטגוריות מוצרים לסינון ותצוגה
+// - kStatuses: רשימת סטטוסים לפריטים ברשימות קניות
 //
 // 🔗 קשור: lib/config/category_config.dart - לעיצוב ואימוג'י של קטגוריות
 //
 // 🇮🇱 קובץ זה מגדיר קונפיגורציה קבועה של פילטרים:
-//     - CATEGORIES: רשימת קטגוריות מוצרים לשימוש במסכים (סינון/תצוגה).
-//     - STATUSES: רשימת סטטוסים לפריטים (ממתין, נלקח, חסר וכו').
+//     - kCategories: רשימת קטגוריות מוצרים לשימוש במסכים (סינון/תצוגה).
+//     - kStatuses: רשימת סטטוסים לפריטים (ממתין, נלקח, חסר וכו').
 //
 // 🇬🇧 This file defines static configuration for filters:
-//     - CATEGORIES: Product categories for UI filtering/display.
-//     - STATUSES: Item statuses (pending, taken, missing, replaced).
+//     - kCategories: Product categories for UI filtering/display.
+//     - kStatuses: Item statuses (pending, taken, missing, replaced).
 //
+
+// ignore_for_file: constant_identifier_names
 
 /// קטגוריות מוצרים לפילטרים
 /// 
@@ -26,18 +28,18 @@
 /// ```dart
 /// // ב-Dropdown
 /// DropdownButton<String>(
-///   items: CATEGORIES.entries.map((e) =>
+///   items: kCategories.entries.map((e) =>
 ///     DropdownMenuItem(value: e.key, child: Text(e.value))
 ///   ).toList(),
 /// )
 /// 
 /// // בדיקה
-/// if (category == CATEGORIES.keys.first) { ... } // 'all'
+/// if (category == kCategories.keys.first) { ... } // 'all'
 /// ```
 /// 
 /// 🇮🇱 קטגוריות מוצרים לפילטרים.
 /// 🇬🇧 Product categories for filters.
-const Map<String, String> CATEGORIES = {
+const Map<String, String> kCategories = {
   "all": "כל הקטגוריות", // all categories
   "dairy": "חלב וביצים", // dairy & eggs
   "meat": "בשר ודגים", // meat & fish
@@ -67,7 +69,7 @@ const Map<String, String> CATEGORIES = {
 /// items.where((item) => item.status == 'taken')
 /// 
 /// // הצגת טקסט לפי סטטוס
-/// Text(STATUSES[item.status] ?? 'לא ידוע')
+/// Text(kStatuses[item.status] ?? 'לא ידוע')
 /// 
 /// // בדיקה אם הכל נלקח
 /// final allTaken = items.every((item) => item.status == 'taken');
@@ -75,13 +77,20 @@ const Map<String, String> CATEGORIES = {
 /// 
 /// 🇮🇱 סטטוס פריט ברשימה.
 /// 🇬🇧 Item status in shopping list.
-const Map<String, String> STATUSES = {
+const Map<String, String> kStatuses = {
   "all": "כל הסטטוסים", // all statuses
   "pending": "ממתין", // pending
   "taken": "נלקח", // taken
   "missing": "חסר", // missing
   "replaced": "הוחלף", // replaced
 };
+
+/// תאימות לאחור (שמות ישנים)
+@Deprecated('Use kCategories instead')
+const Map<String, String> CATEGORIES = kCategories;
+
+@Deprecated('Use kStatuses instead')
+const Map<String, String> STATUSES = kStatuses;
 
 /// 💡 טיפים לשימוש:
 /// 
@@ -93,12 +102,12 @@ const Map<String, String> STATUSES = {
 /// 
 /// 2. **Fallback בטוח:**
 ///    ```dart
-///    final displayText = CATEGORIES[category] ?? 'לא ידוע';
+///    final displayText = kCategories[category] ?? 'לא ידוע';
 ///    ```
 /// 
 /// 3. **רשימת כל המפתחות:**
 ///    ```dart
-///    final allKeys = CATEGORIES.keys.toList();  // ['all', 'dairy', ...]
+///    final allKeys = kCategories.keys.toList();  // ['all', 'dairy', ...]
 ///    ```
 /// 
 /// 4. **קישור ל-category_config.dart:**

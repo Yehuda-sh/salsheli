@@ -26,8 +26,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../core/constants.dart';
 import 'welcome_screen.dart';
+
+// קבועים מקומיים (הועברו מ-constants.dart שנמחק)
+const double kButtonHeight = 48.0;
+const double kSpacingSmall = 8.0;
+const double kSpacingMedium = 16.0;
 
 class IndexScreen extends StatefulWidget {
   const IndexScreen({super.key});

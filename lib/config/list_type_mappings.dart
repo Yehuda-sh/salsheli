@@ -3,16 +3,41 @@
 // Purpose: מיפוי בין סוגי רשימות קניות לקטגוריות וחנויות רלוונטיות
 //
 // Features:
-// - מיפוי type → קטגוריות מוצרים
+// - מיפוי type → קטגוריות מוצרים (const maps)
 // - מיפוי type → חנויות/מותגים מומלצים
 // - פריטים כלליים לכל סוג רשימה
 // - תמיכה בכל 9 סוגי הרשימות
+// - Cache אוטומטי ל-getAllCategories/getAllStores (performance)
+// - Logging מפורט לדיבוג
 //
 // Usage:
-// final categories = ListTypeMappings.getCategoriesForType('clothing');
-// final stores = ListTypeMappings.getStoresForType('clothing');
-// final items = ListTypeMappings.getSuggestedItemsForType('clothing');
+// ```dart
+// // קבלת קטגוריות לסוג רשימה
+// final categories = ListTypeMappings.getCategoriesForType(ListType.clothing);
+// // → ['חולצות', 'מכנסיים', 'שמלות וחצאיות', ...]
+//
+// // קבלת חנויות מומלצות
+// final stores = ListTypeMappings.getStoresForType(ListType.super_);
+// // → ['שופרסל', 'רמי לוי', 'יוחננוף', ...]
+//
+// // פריטים מוצעים
+// final items = ListTypeMappings.getSuggestedItemsForType(ListType.pharmacy);
+// // → ['תרופת כאב', 'ויטמין D', ...]
+//
+// // בדיקת רלוונטיות
+// final isRelevant = ListTypeMappings.isCategoryRelevantForType(
+//   'מוצרי חלב',
+//   ListType.super_,
+// ); // → true
+//
+// // קבלת כל הקטגוריות (cached)
+// final allCategories = ListTypeMappings.getAllCategories();
+// ```
+//
+// Version: 2.0
+// Last Updated: 06/10/2025
 
+import 'package:flutter/foundation.dart';
 import '../core/constants.dart';
 
 class ListTypeMappings {
@@ -21,8 +46,18 @@ class ListTypeMappings {
   // ========================================
 
   /// מחזיר קטגוריות רלוונטיות לסוג הרשימה
+  /// 
+  /// אם [type] לא קיים, מחזיר קטגוריות של 'other' (fallback)
   static List<String> getCategoriesForType(String type) {
-    return _typeToCategories[type] ?? _typeToCategories[ListType.other]!;
+    final categories = _typeToCategories[type];
+    
+    if (categories == null) {
+      debugPrint('⚠️ ListTypeMappings: Unknown list type "$type", using fallback "other"');
+      return _typeToCategories[ListType.other]!;
+    }
+    
+    debugPrint('📋 ListTypeMappings.getCategoriesForType($type) → ${categories.length} categories');
+    return categories;
   }
 
   static const Map<String, List<String>> _typeToCategories = {
@@ -130,8 +165,12 @@ class ListTypeMappings {
   // ========================================
 
   /// מחזיר רשימת חנויות/מותגים מומלצים לסוג הרשימה
+  /// 
+  /// אם [type] לא קיים או אין חנויות מוצעות, מחזיר רשימה ריקה
   static List<String> getStoresForType(String type) {
-    return _typeToStores[type] ?? [];
+    final stores = _typeToStores[type] ?? [];
+    debugPrint('🏪 ListTypeMappings.getStoresForType($type) → ${stores.length} stores');
+    return stores;
   }
 
   static const Map<String, List<String>> _typeToStores = {
@@ -218,9 +257,13 @@ class ListTypeMappings {
   // ========================================
 
   /// מחזיר רשימת פריטים כלליים מוצעים לסוג הרשימה
+  /// 
   /// (לא מוצרים ספציפיים, אלא רעיונות כלליים)
+  /// אם [type] לא קיים או אין פריטים מוצעים, מחזיר רשימה ריקה
   static List<String> getSuggestedItemsForType(String type) {
-    return _typeToSuggestedItems[type] ?? [];
+    final items = _typeToSuggestedItems[type] ?? [];
+    debugPrint('🛒 ListTypeMappings.getSuggestedItemsForType($type) → ${items.length} items');
+    return items;
   }
 
   static const Map<String, List<String>> _typeToSuggestedItems = {
@@ -336,29 +379,67 @@ class ListTypeMappings {
   // ========================================
 
   /// בדיקה אם קטגוריה רלוונטית לסוג רשימה
+  /// 
+  /// בודק התאמה חלקית (contains) בשני הכיוונים
   static bool isCategoryRelevantForType(String category, String type) {
     final relevantCategories = getCategoriesForType(type);
-    return relevantCategories.any(
+    final isRelevant = relevantCategories.any(
       (cat) => category.toLowerCase().contains(cat.toLowerCase()) ||
           cat.toLowerCase().contains(category.toLowerCase()),
     );
+    
+    debugPrint('🔍 ListTypeMappings.isCategoryRelevantForType("$category", $type) → $isRelevant');
+    return isRelevant;
   }
 
+  // Cache לשיפור ביצועים (נוצר פעם אחת בלבד)
+  static List<String>? _cachedAllCategories;
+  static List<String>? _cachedAllStores;
+
   /// קבלת כל הקטגוריות הייחודיות מכל הסוגים
+  /// 
+  /// משתמש ב-cache פנימי - נוצר פעם אחת בלבד
   static List<String> getAllCategories() {
+    if (_cachedAllCategories != null) {
+      debugPrint('📦 ListTypeMappings.getAllCategories() → ${_cachedAllCategories!.length} categories (cached)');
+      return _cachedAllCategories!;
+    }
+    
     final allCategories = <String>{};
     for (final categories in _typeToCategories.values) {
       allCategories.addAll(categories);
     }
-    return allCategories.toList()..sort();
+    
+    _cachedAllCategories = allCategories.toList()..sort();
+    debugPrint('📦 ListTypeMappings.getAllCategories() → ${_cachedAllCategories!.length} categories (created cache)');
+    return _cachedAllCategories!;
   }
 
   /// קבלת כל החנויות הייחודיות מכל הסוגים
+  /// 
+  /// משתמש ב-cache פנימי - נוצר פעם אחת בלבד
   static List<String> getAllStores() {
+    if (_cachedAllStores != null) {
+      debugPrint('🏬 ListTypeMappings.getAllStores() → ${_cachedAllStores!.length} stores (cached)');
+      return _cachedAllStores!;
+    }
+    
     final allStores = <String>{};
     for (final stores in _typeToStores.values) {
       allStores.addAll(stores);
     }
-    return allStores.toList()..sort();
+    
+    _cachedAllStores = allStores.toList()..sort();
+    debugPrint('🏬 ListTypeMappings.getAllStores() → ${_cachedAllStores!.length} stores (created cache)');
+    return _cachedAllStores!;
+  }
+  
+  /// ניקוי Cache (לשימוש בטסטים או reload)
+  /// 
+  /// ⚠️ רק לשימוש פנימי - בדרך כלל אין צורך
+  static void clearCache() {
+    _cachedAllCategories = null;
+    _cachedAllStores = null;
+    debugPrint('🗑️ ListTypeMappings.clearCache() - Cache cleared (categories + stores)');
   }
 }

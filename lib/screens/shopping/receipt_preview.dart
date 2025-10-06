@@ -116,7 +116,13 @@ class _ReceiptPreviewState extends State<ReceiptPreview> {
   }
 
   void _onStoreNameChanged() {
-    editedReceipt = editedReceipt.copyWith(storeName: storeController.text);
+    editedReceipt = Receipt(
+      id: editedReceipt.id,
+      storeName: storeController.text,
+      date: editedReceipt.date,
+      items: editedReceipt.items,
+      totalAmount: editedReceipt.totalAmount,
+    );
   }
 
   void _updateItem(int index, ReceiptItem updated) {
@@ -126,7 +132,10 @@ class _ReceiptPreviewState extends State<ReceiptPreview> {
     final newTotal = _calculateTotal(updatedItems);
 
     setState(() {
-      editedReceipt = editedReceipt.copyWith(
+      editedReceipt = Receipt(
+        id: editedReceipt.id,
+        storeName: editedReceipt.storeName,
+        date: editedReceipt.date,
         items: updatedItems,
         totalAmount: newTotal,
       );
@@ -165,7 +174,10 @@ class _ReceiptPreviewState extends State<ReceiptPreview> {
     final newTotal = _calculateTotal(updatedItems);
 
     setState(() {
-      editedReceipt = editedReceipt.copyWith(
+      editedReceipt = Receipt(
+        id: editedReceipt.id,
+        storeName: editedReceipt.storeName,
+        date: editedReceipt.date,
         items: updatedItems,
         totalAmount: newTotal,
       );
@@ -188,7 +200,10 @@ class _ReceiptPreviewState extends State<ReceiptPreview> {
             final items = [...editedReceipt.items];
             items.insert(index, removedItem);
             setState(() {
-              editedReceipt = editedReceipt.copyWith(
+              editedReceipt = Receipt(
+                id: editedReceipt.id,
+                storeName: editedReceipt.storeName,
+                date: editedReceipt.date,
                 items: items,
                 totalAmount: _calculateTotal(items),
               );
@@ -221,10 +236,12 @@ class _ReceiptPreviewState extends State<ReceiptPreview> {
 
   void _addNewItem() {
     // ✅ יצירת פריט חדש דרך מפעל ה־manual (אין צורך ב־id / totalPrice)
-    final newItem = ReceiptItem.manual(
+    final newItem = ReceiptItem(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
       name: 'מוצר חדש',
       quantity: 1,
       unitPrice: 0.0,
+      isChecked: false,
     );
 
     final updatedItems = [...editedReceipt.items, newItem];
@@ -238,7 +255,10 @@ class _ReceiptPreviewState extends State<ReceiptPreview> {
     );
 
     setState(() {
-      editedReceipt = editedReceipt.copyWith(
+      editedReceipt = Receipt(
+        id: editedReceipt.id,
+        storeName: editedReceipt.storeName,
+        date: editedReceipt.date,
         items: updatedItems,
         totalAmount: _calculateTotal(updatedItems),
       );
@@ -263,7 +283,13 @@ class _ReceiptPreviewState extends State<ReceiptPreview> {
 
     if (picked != null && picked != editedReceipt.date) {
       setState(() {
-        editedReceipt = editedReceipt.copyWith(date: picked);
+        editedReceipt = Receipt(
+          id: editedReceipt.id,
+          storeName: editedReceipt.storeName,
+          date: picked,
+          items: editedReceipt.items,
+          totalAmount: editedReceipt.totalAmount,
+        );
         dateController.text = dateFormatter.format(picked);
       });
     }

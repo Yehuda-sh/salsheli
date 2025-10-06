@@ -5,18 +5,34 @@
 //     - Drawer עם פרטי משתמש ותפריט ניווט.
 //     - BottomNavigationBar עם באדג'ים לכל טאב.
 //     - ניהול child (תוכן דינמי לפי הטאב הנבחר).
-//     - מציג מצב Offline במידת הצורך.
 //
 // 🇬🇧 This file defines the main app layout (AppLayout):
 //     - Displays AppBar with notifications and logout.
 //     - Drawer with user profile and navigation menu.
 //     - BottomNavigationBar with badges per tab.
 //     - Manages the child (dynamic content per selected tab).
-//     - Shows an offline banner when connection is lost.
+//
+// 📖 Usage Example:
+// ```dart
+// AppLayout(
+//   currentIndex: 0,
+//   onTabSelected: (index) => setState(() => _currentTab = index),
+//   badges: {1: 3, 2: 1}, // 3 ברשימות, 1 במזווה
+//   child: IndexedStack(
+//     index: _currentTab,
+//     children: [HomeScreen(), ListsScreen(), PantryScreen(), ...],
+//   ),
+// )
+// ```
+//
+// Version: 2.0
+// Last Updated: 06/10/2025
 //
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../l10n/app_strings.dart';
 
 class AppLayout extends StatefulWidget {
   final Widget child;
@@ -37,11 +53,23 @@ class AppLayout extends StatefulWidget {
 }
 
 class _AppLayoutState extends State<AppLayout> {
-  bool isOnline = true;
+  @override
+  void initState() {
+    super.initState();
+    debugPrint('📱 AppLayout.initState: currentIndex=${widget.currentIndex}, badges=${widget.badges}');
+  }
+
+  @override
+  void dispose() {
+    debugPrint('🗑️ AppLayout.dispose');
+    super.dispose();
+  }
 
   Future<void> _logout() async {
+    debugPrint('🚪 AppLayout.logout: clearing userId');
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('userId');
+    debugPrint('   ✅ userId cleared, navigating to /login');
 
     if (!mounted) return;
     Navigator.of(context).pushNamedAndRemoveUntil('/login', (r) => false);
@@ -64,7 +92,7 @@ class _AppLayoutState extends State<AppLayout> {
             Icon(Icons.shopping_basket_outlined, color: cs.primary),
             const SizedBox(width: 8),
             Text(
-              "סל חכם", // TODO: move to localization
+              AppStrings.layout.appTitle,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: cs.primary,
@@ -75,26 +103,26 @@ class _AppLayoutState extends State<AppLayout> {
         centerTitle: true,
         actions: [
           IconButton(
-            tooltip: 'התראות', // TODO: move to localization
+            tooltip: AppStrings.layout.notifications,
             icon: Badge.count(
-              count: _getTotalBadgeCount(),
-              isLabelVisible: _getTotalBadgeCount() > 0,
+              count: totalBadgeCount,
+              isLabelVisible: totalBadgeCount > 0,
               child: const Icon(Icons.notifications_outlined),
             ),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
-                    _getTotalBadgeCount() > 0
-                        ? "יש לך ${_getTotalBadgeCount()} עדכונים חדשים"
-                        : "אין התראות חדשות", // TODO: move to localization
+                    totalBadgeCount > 0
+                        ? AppStrings.layout.notificationsCount(totalBadgeCount)
+                        : AppStrings.layout.noNotifications,
                   ),
                 ),
               );
             },
           ),
           IconButton(
-            tooltip: 'התנתק', // TODO: move to localization
+            tooltip: AppStrings.common.logout,
             icon: const Icon(Icons.logout),
             color: cs.error,
             onPressed: _logout,
@@ -116,6 +144,7 @@ class _AppLayoutState extends State<AppLayout> {
                   selected: safeIndex == e.key,
                   badgeCount: widget.badges?[e.key],
                   onTap: () {
+                    debugPrint('🔄 AppLayout.tabSelected: ${e.key} (${e.value.label})');
                     Navigator.pop(context);
                     widget.onTabSelected(e.key);
                   },
@@ -124,7 +153,7 @@ class _AppLayoutState extends State<AppLayout> {
               const Divider(),
               ListTile(
                 leading: Icon(Icons.logout, color: cs.error),
-                title: Text('התנתקות', style: TextStyle(color: cs.onSurface)),
+                title: Text(AppStrings.common.logoutAction, style: TextStyle(color: cs.onSurface)),
                 onTap: _logout,
               ),
             ],
@@ -132,34 +161,13 @@ class _AppLayoutState extends State<AppLayout> {
         ),
       ),
 
-      body: Column(
-        children: [
-          if (!isOnline)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-              color: cs.errorContainer,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.wifi_off, size: 16, color: cs.onErrorContainer),
-                  const SizedBox(width: 8),
-                  Text(
-                    'אין חיבור לרשת', // TODO: move to localization
-                    style: TextStyle(color: cs.onErrorContainer),
-                  ),
-                ],
-              ),
-            ),
-          Expanded(child: widget.child),
-        ],
-      ),
+      body: widget.child,
 
       bottomNavigationBar: NavigationBar(
         selectedIndex: safeIndex,
         onDestinationSelected: widget.onTabSelected,
         backgroundColor: cs.surfaceContainer,
-        indicatorColor: cs.primary.withOpacity(0.12),
+        indicatorColor: cs.primary.withValues(alpha: 0.12),
         destinations: _navItems.asMap().entries.map((entry) {
           final index = entry.key;
           final item = entry.value;
@@ -193,25 +201,26 @@ class _AppLayoutState extends State<AppLayout> {
     );
   }
 
-  int _getTotalBadgeCount() {
+  /// Total badge count across all tabs
+  int get totalBadgeCount {
     if (widget.badges == null) return 0;
     return widget.badges!.values
-        .where((count) => count != null)
-        .fold(0, (sum, count) => sum + count!);
+        .whereType<int>()
+        .fold(0, (sum, count) => sum + count);
   }
 
   Widget _buildDrawerHeader(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return UserAccountsDrawerHeader(
       decoration: BoxDecoration(color: cs.primary),
-      accountName: const Text('שלום 👋'), // TODO: move to localization
+      accountName: Text(AppStrings.layout.hello),
       accountEmail: Text(
-        _getTotalBadgeCount() > 0
-            ? 'יש לך ${_getTotalBadgeCount()} עדכונים חדשים'
-            : 'ברוך הבא לסל חכם', // TODO: move to localization
+        totalBadgeCount > 0
+            ? AppStrings.layout.welcomeWithUpdates(totalBadgeCount)
+            : AppStrings.layout.welcome,
       ),
       currentAccountPicture: CircleAvatar(
-        backgroundColor: cs.onPrimary.withOpacity(0.15),
+        backgroundColor: cs.onPrimary.withValues(alpha: 0.15),
         child: Icon(Icons.person, color: cs.onPrimary),
       ),
     );
@@ -224,12 +233,14 @@ class _NavItem {
   const _NavItem(this.icon, this.label);
 }
 
-const List<_NavItem> _navItems = [
-  _NavItem(Icons.home, "בית"), // TODO: move to localization
-  _NavItem(Icons.shopping_cart, "רשימות"), // TODO: move to localization
-  _NavItem(Icons.inventory, "מזווה"), // TODO: move to localization
-  _NavItem(Icons.bar_chart, "תובנות"), // TODO: move to localization
-  _NavItem(Icons.settings, "הגדרות"), // TODO: move to localization
+// Note: _navItems must be a top-level const, so we use literal strings.
+// The AppStrings are used at runtime in the widget tree.
+final List<_NavItem> _navItems = [
+  _NavItem(Icons.home, AppStrings.navigation.home),
+  _NavItem(Icons.shopping_cart, AppStrings.navigation.lists),
+  _NavItem(Icons.inventory, AppStrings.navigation.pantry),
+  _NavItem(Icons.bar_chart, AppStrings.navigation.insights),
+  _NavItem(Icons.settings, AppStrings.navigation.settings),
 ];
 
 class _DrawerItem extends StatelessWidget {
@@ -276,7 +287,7 @@ class _DrawerItem extends StatelessWidget {
           ? Icon(Icons.chevron_right, color: cs.primary)
           : const Icon(Icons.chevron_left, color: Colors.transparent),
       selected: selected,
-      selectedTileColor: cs.primary.withOpacity(0.08),
+      selectedTileColor: cs.primary.withValues(alpha: 0.08),
       onTap: onTap,
     );
   }

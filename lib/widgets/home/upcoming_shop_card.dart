@@ -106,8 +106,9 @@ class _ListSummary extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final itemsCount = list.items.length;
-    final checkedCount = list.checkedCount;
-    final progress = list.progress;
+    // חישוב מקומי (הgetters נמחקו מהמודל)
+    final checkedCount = list.items.where((item) => item.isChecked).length;
+    final progress = itemsCount > 0 ? checkedCount / itemsCount : 0.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

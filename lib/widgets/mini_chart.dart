@@ -1,15 +1,63 @@
 // 📄 File: lib/widgets/mini_chart.dart
 // תיאור: תרשים עמודות מיניאטורי (Bar Chart) למידע מהיר
 //
-// תכונות:
-// - תצוגה קומפקטית של נתונים
+// Purpose:
+// וידג'ט תרשים עמודות קומפקטי להצגת מידע סטטיסטי בצורה ויזואלית.
+// מתאים במיוחד ל-dashboards, כרטיסי סיכום, ותצוגות מהירות.
+//
+// Features:
+// - תצוגה קומפקטית של נתונים (גובה ברירת מחדל 40px)
 // - תמיכה בצבעים דינמיים לכל עמודה
-// - מתאים ל-dashboards וכרטיסי תובנות
+// - Tooltip אינטראקטיבי בלחיצה
+// - Empty state אוטומטי
+// - Error handling מובנה
 // - תואם Material Design: theme colors, accessibility
 //
-// תלויות:
-// - fl_chart package
+// Dependencies:
+// - fl_chart package (^0.68.0)
 // - Theme colors (AppBrand)
+//
+// Usage:
+//
+// Example 1 - Basic (צבע אחיד):
+// ```dart
+// MiniChart(
+//   data: [
+//     {'value': 10},
+//     {'value': 25},
+//     {'value': 15},
+//     {'value': 30},
+//   ],
+//   color: Colors.blue,
+//   height: 50,
+// )
+// ```
+//
+// Example 2 - Custom colors per bar:
+// ```dart
+// MiniChart(
+//   data: [
+//     {'value': 10, 'color': Colors.red},
+//     {'value': 25, 'color': Colors.green},
+//     {'value': 15, 'color': '#FF5733'}, // HEX support
+//     {'value': 30, 'color': Colors.blue},
+//   ],
+// )
+// ```
+//
+// Example 3 - Custom data key:
+// ```dart
+// MiniChart(
+//   data: [
+//     {'count': 100, 'color': Colors.purple},
+//     {'count': 200, 'color': Colors.orange},
+//   ],
+//   dataKey: 'count', // instead of default 'value'
+//   accessibilityLabel: 'תרשים מכירות שבועי',
+// )
+// ```
+//
+// Version: 2.0
 
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -57,15 +105,22 @@ class MiniChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('📊 MiniChart.build()');
+    debugPrint('   📦 data.length: ${data.length}');
+    debugPrint('   📏 height: $height');
+    debugPrint('   🔑 dataKey: $dataKey');
+
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
 
     // צבע ברירת מחדל מ-theme
     final defaultColor = color ?? brand?.accent ?? cs.primary;
+    debugPrint('   🎨 defaultColor: ${defaultColor.value.toRadixString(16)}');
 
     // מצב ריק
     if (data.isEmpty) {
+      debugPrint('   ⚠️  data ריק - מציג Empty State');
       return Semantics(
         label: 'אין נתונים להצגה בתרשים',
         child: Center(
@@ -117,7 +172,12 @@ class MiniChart extends StatelessWidget {
 
   /// בונה את קבוצות העמודות
   List<BarChartGroupData> _buildBarGroups(Color defaultColor) {
-    return data.asMap().entries.map((entry) {
+    debugPrint('   🔨 MiniChart._buildBarGroups()');
+    
+    int successCount = 0;
+    int errorCount = 0;
+
+    final groups = data.asMap().entries.map((entry) {
       final index = entry.key;
       final item = entry.value;
 
@@ -127,10 +187,14 @@ class MiniChart extends StatelessWidget {
         final rawValue = item[dataKey];
         if (rawValue is num) {
           value = rawValue.toDouble();
+          successCount++;
+        } else {
+          errorCount++;
+          debugPrint('      ❌ item[$index]: "$dataKey" לא מספר (${rawValue.runtimeType})');
         }
       } catch (e) {
-        // אם יש שגיאה בקריאת הערך, נשאיר 0
-        debugPrint('⚠️ MiniChart: שגיאה בקריאת ערך מ-item $index: $e');
+        errorCount++;
+        debugPrint('      ❌ item[$index]: שגיאה בקריאת "$dataKey" - $e');
       }
 
       // שליפת הצבע
@@ -142,7 +206,7 @@ class MiniChart extends StatelessWidget {
         }
       } catch (e) {
         // אם יש שגיאה בפרסום הצבע, נשתמש בברירת מחדל
-        debugPrint('⚠️ MiniChart: שגיאה בפרסום צבע מ-item $index: $e');
+        debugPrint('      ⚠️  item[$index]: שגיאה בפרסום "color" - $e (משתמש בdefault)');
       }
 
       return BarChartGroupData(
@@ -160,6 +224,13 @@ class MiniChart extends StatelessWidget {
         ],
       );
     }).toList();
+
+    debugPrint('      ✅ נוצרו $successCount עמודות בהצלחה');
+    if (errorCount > 0) {
+      debugPrint('      ⚠️  $errorCount שגיאות בקריאת ערכים');
+    }
+
+    return groups;
   }
 
   /// ממיר צבע מ-Color או String HEX
@@ -178,7 +249,7 @@ class MiniChart extends StatelessWidget {
           return Color(int.parse('0x$hex'));
         }
       } catch (e) {
-        debugPrint('⚠️ MiniChart: שגיאה בהמרת צבע HEX "$input": $e');
+        debugPrint('      ⚠️  _parseColor: לא הצלחתי להמיר "$input" - $e (משתמש בfallback)');
       }
     }
 

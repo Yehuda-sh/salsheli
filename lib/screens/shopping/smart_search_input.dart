@@ -27,7 +27,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../core/constants.dart';
+// קבועים מקומיים (הועברו מ-constants.dart שנמחק)
+const double kSpacingSmall = 8.0;
+const double kSpacingMedium = 16.0;
+const double kBorderRadius = 12.0;
+
+const List<Map<String, String>> _kPopularSearches = [
+  {'name': 'חלב', 'icon': '🥛', 'category': 'מוצרי חלב'},
+  {'name': 'לחם', 'icon': '🍞', 'category': 'אפייה'},
+  {'name': 'ביצים', 'icon': '🥚', 'category': 'מוצרי חלב'},
+  {'name': 'גבינה', 'icon': '🧀', 'category': 'מוצרי חלב'},
+  {'name': 'עגבניות', 'icon': '🍅', 'category': 'ירקות'},
+  {'name': 'קפה', 'icon': '☕', 'category': 'משקאות'},
+];
 
 class SmartSearchInput extends StatefulWidget {
   final String value;
@@ -106,7 +118,7 @@ class _SmartSearchInputState extends State<SmartSearchInput> {
         .map((item) => {...item, "type": "history"})
         .toList();
 
-    final popularMatches = kPopularSearches
+    final popularMatches = _kPopularSearches
         .where((item) => item["name"]!.toString().toLowerCase().contains(query))
         .map((item) => {...item, "type": "popular"})
         .toList();
@@ -308,7 +320,7 @@ class _SmartSearchInputState extends State<SmartSearchInput> {
                   spacing: 6,
                   runSpacing: 6,
                   children: [
-                    for (final p in kPopularSearches)
+                    for (final p in _kPopularSearches)
                       OutlinedButton(
                         onPressed: () => _handleQuickAdd(p),
                         style: OutlinedButton.styleFrom(

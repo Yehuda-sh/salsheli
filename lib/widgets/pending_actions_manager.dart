@@ -1,16 +1,38 @@
 // 📄 File: lib/widgets/pending_actions_manager.dart
 // תיאור: מנהל פעולות ממתינות לאישור/דחייה
 //
-// תכונות:
-// - רשימת כל הפעולות הממתינות
-// - אישור/דחייה לכל פעולה
-// - מצבי טעינה/ריק/שגיאה
-// - חיבור ל-PendingActionCard
-// - תואם Material Design: theme colors, accessibility
+// Purpose:
+// וידג'ט מרכזי לניהול בקשות שיתוף פעולה בין חברי משק בית.
+// מאפשר למשתמשים לאשר/לדחות פעולות שביקשו משתמשים אחרים (החלפת מוצר, הוספה, וכו').
 //
-// תלויות:
+// Features:
+// - רשימת כל הפעולות הממתינות
+// - אישור/דחייה עם Undo (5 שניות)
+// - 3 Empty States: Loading, Error, No Pending
+// - סינון אוטומטי של פעולות שהמשתמש הנוכחי יזם
+// - Logging מפורט לכל פעולה
+// - Confirmation dialogs לפעולות קריטיות
+//
+// Dependencies:
 // - PendingActionCard widget
 // - Theme colors (AppBrand)
+// - PendingActionApi (TODO: להוסיף כשה-API מוכן)
+//
+// Usage:
+// ```dart
+// PendingActionsManager(
+//   householdId: 'house_123',
+//   currentUserEmail: 'user@example.com',
+// )
+// ```
+//
+// Flow:
+// 1. initState → _loadActions (טעינה מ-API)
+// 2. סינון פעולות שלא מהמשתמש הנוכחי
+// 3. תצוגה: Loading/Error/Empty/List
+// 4. אישור/דחייה → Confirmation → API → Undo option
+//
+// Version: 2.0
 
 import 'package:flutter/material.dart';
 
@@ -73,16 +95,33 @@ class PendingActionsManager extends StatefulWidget {
 class _PendingActionsManagerState extends State<PendingActionsManager> {
   List<PendingActionModel> _pendingActions = [];
   bool _isLoading = true;
+  bool _hasError = false;
+  String? _errorMessage;
   String? _updatingActionId;
 
   @override
   void initState() {
     super.initState();
+    debugPrint('📋 PendingActionsManager.initState()');
+    debugPrint('   🏠 householdId: ${widget.householdId}');
+    debugPrint('   👤 currentUser: ${widget.currentUserEmail}');
     _loadActions();
   }
 
+  @override
+  void dispose() {
+    debugPrint('📋 PendingActionsManager.dispose()');
+    super.dispose();
+  }
+
   Future<void> _loadActions() async {
-    setState(() => _isLoading = true);
+    debugPrint('🔄 PendingActionsManager._loadActions()');
+    setState(() {
+      _isLoading = true;
+      _hasError = false;
+      _errorMessage = null;
+    });
+
     try {
       // כאן תבצע קריאה ל-API שלך
       // לדוגמה:
@@ -105,20 +144,28 @@ class _PendingActionsManagerState extends State<PendingActionsManager> {
         ),
       ];
 
+      debugPrint('   📦 נטענו ${actions.length} פעולות');
+
       // לא מציגים פעולות שהמשתמש הנוכחי יזם
+      final filtered = actions
+          .where((a) => a.requestedBy != widget.currentUserEmail)
+          .toList();
+
+      debugPrint('   🔍 אחרי סינון: ${filtered.length} פעולות ממתינות');
+
       if (mounted) {
         setState(() {
-          _pendingActions = actions
-              .where((a) => a.requestedBy != widget.currentUserEmail)
-              .toList();
+          _pendingActions = filtered;
+          _hasError = false;
         });
       }
     } catch (e) {
-      debugPrint('❌ שגיאה בטעינת פעולות: $e');
+      debugPrint('❌ PendingActionsManager._loadActions: שגיאה - $e');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('שגיאה בטעינת בקשות')));
+        setState(() {
+          _hasError = true;
+          _errorMessage = 'שגיאה בטעינת בקשות. נסה שוב.';
+        });
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -129,6 +176,45 @@ class _PendingActionsManagerState extends State<PendingActionsManager> {
     PendingActionModel action,
     bool isApproved,
   ) async {
+    debugPrint('${isApproved ? "✅" : "❌"} PendingActionsManager._handleApproval()');
+    debugPrint('   📋 actionId: ${action.id}');
+    debugPrint('   🔧 actionType: ${action.actionType}');
+    debugPrint('   👤 requestedBy: ${action.requestedBy}');
+    debugPrint('   🎯 isApproved: $isApproved');
+
+    // Confirmation Dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(isApproved ? 'אישור בקשה' : 'דחיית בקשה'),
+        content: Text(
+          isApproved
+              ? 'האם אתה בטוח שברצונך לאשר את הבקשה הזו?'
+              : 'האם אתה בטוח שברצונך לדחות את הבקשה הזו?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('ביטול'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isApproved
+                  ? const Color(0xFF10B981) // green
+                  : Theme.of(context).colorScheme.error,
+            ),
+            child: Text(isApproved ? 'אשר' : 'דחה'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) {
+      debugPrint('   ⏸️  המשתמש ביטל');
+      return;
+    }
+
     setState(() => _updatingActionId = action.id);
 
     try {
@@ -140,25 +226,55 @@ class _PendingActionsManagerState extends State<PendingActionsManager> {
       if (isApproved && action.actionType == 'replace_item') {
         // גם לעדכן את ShoppingItem
         // await ShoppingItemApi.update(action.targetId, {...});
+        debugPrint('   🔄 עדכון ShoppingItem: ${action.targetId}');
       }
 
+      debugPrint('   ✅ פעולה הושלמה בהצלחה');
+
+      if (!mounted) return;
+
+      // שמירה לצורך Undo
+      final savedAction = action;
+      final savedIndex = _pendingActions.indexOf(action);
+
+      setState(() {
+        _pendingActions.removeWhere((a) => a.id == action.id);
+      });
+
+      // SnackBar עם Undo
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'בקשה ${isApproved ? "אושרה" : "נדחתה"} בהצלחה',
+          ),
+          backgroundColor: isApproved
+              ? const Color(0xFF10B981) // green
+              : Theme.of(context).colorScheme.error,
+          duration: const Duration(seconds: 5),
+          action: SnackBarAction(
+            label: 'בטל',
+            textColor: Colors.white,
+            onPressed: () async {
+              debugPrint('⏪ ביטול פעולה: ${savedAction.id}');
+              // TODO: קריאת API לביטול
+              if (mounted) {
+                setState(() {
+                  _pendingActions.insert(savedIndex, savedAction);
+                });
+              }
+            },
+          ),
+        ),
+      );
+    } catch (e) {
+      debugPrint('❌ PendingActionsManager._handleApproval: שגיאה - $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('בקשה ${isApproved ? "אושרה" : "נדחתה"} בהצלחה'),
+            content: const Text('שגיאה בעדכון הבקשה'),
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
-
-        setState(() {
-          _pendingActions.removeWhere((a) => a.id == action.id);
-        });
-      }
-    } catch (e) {
-      debugPrint('❌ שגיאה באישור פעולה: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('שגיאה בעדכון הבקשה')));
       }
     } finally {
       if (mounted) setState(() => _updatingActionId = null);
@@ -198,20 +314,69 @@ class _PendingActionsManagerState extends State<PendingActionsManager> {
 
             // Content
             if (_isLoading)
-              Padding(
-                padding: const EdgeInsets.all(_kEmptyStatePadding),
-                child: Center(
-                  child: CircularProgressIndicator(
-                    color: brand?.accent ?? cs.primary,
-                  ),
-                ),
-              )
+              _buildLoadingState(brand, cs)
+            else if (_hasError)
+              _buildErrorState(theme, cs)
             else if (_pendingActions.isEmpty)
               _buildEmptyState(theme, cs)
             else
               _buildActionsList(),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingState(AppBrand? brand, ColorScheme cs) {
+    return Padding(
+      padding: const EdgeInsets.all(_kEmptyStatePadding),
+      child: Center(
+        child: Column(
+          children: [
+            CircularProgressIndicator(
+              color: brand?.accent ?? cs.primary,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'טוען בקשות...',
+              style: TextStyle(color: cs.onSurfaceVariant),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(ThemeData theme, ColorScheme cs) {
+    return Padding(
+      padding: const EdgeInsets.all(_kEmptyStatePadding),
+      child: Column(
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: _kEmptyStateIconSize,
+            color: cs.error,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            _errorMessage ?? 'שגיאה בטעינת בקשות',
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: cs.onSurface,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: _loadActions,
+            icon: const Icon(Icons.refresh),
+            label: const Text('נסה שוב'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: cs.primary,
+              foregroundColor: cs.onPrimary,
+            ),
+          ),
+        ],
       ),
     );
   }

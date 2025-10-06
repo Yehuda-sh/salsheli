@@ -16,6 +16,7 @@
 
 import 'package:flutter/material.dart';
 import '../core/constants.dart';
+import '../core/ui_constants.dart';
 
 class AddProductToCatalogDialog extends StatefulWidget {
   final bool open;
@@ -189,7 +190,7 @@ class _AddProductToCatalogDialogState extends State<AddProductToCatalogDialog> {
 
                 // 📂 קטגוריה - עם אמוג'י
                 DropdownButtonFormField<String>(
-                  value: category,
+                  initialValue: category,
                   items: categories.entries
                       .map(
                         (e) => DropdownMenuItem(

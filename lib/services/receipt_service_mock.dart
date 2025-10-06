@@ -69,9 +69,24 @@ class ReceiptServiceMock {
       date: DateTime.now(),
       totalAmount: 27.4,
       items: [
-        ReceiptItem.manual(name: 'חלב 3%', quantity: 1, unitPrice: 6.9),
-        ReceiptItem.manual(name: 'לחם מלא', quantity: 1, unitPrice: 10.5),
-        ReceiptItem.manual(name: 'ביצים M (12)', quantity: 1, unitPrice: 10.0),
+        ReceiptItem(
+          id: _uuid.v4(),
+          name: 'חלב 3%',
+          quantity: 1,
+          unitPrice: 6.9,
+        ),
+        ReceiptItem(
+          id: _uuid.v4(),
+          name: 'לחם מלא',
+          quantity: 1,
+          unitPrice: 10.5,
+        ),
+        ReceiptItem(
+          id: _uuid.v4(),
+          name: 'ביצים M (12)',
+          quantity: 1,
+          unitPrice: 10.0,
+        ),
       ],
     );
   }

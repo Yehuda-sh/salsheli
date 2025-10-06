@@ -40,15 +40,14 @@ class MockReceiptRepository implements ReceiptRepository {
   Future<Receipt> saveReceipt(Receipt receipt, String householdId) async {
     final receipts = _storage.putIfAbsent(householdId, () => []);
     final index = receipts.indexWhere((r) => r.id == receipt.id);
-    final newReceipt = receipt.copyWith();
 
     if (index == -1) {
-      receipts.add(newReceipt);
+      receipts.add(receipt);
     } else {
-      receipts[index] = newReceipt;
+      receipts[index] = receipt;
     }
 
-    return newReceipt;
+    return receipt;
   }
 
   @override

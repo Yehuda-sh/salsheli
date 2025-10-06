@@ -121,7 +121,7 @@ class _ManageListScreenState extends State<ManageListScreen> {
                   // ✅ תיקון: positional parameters
                   await provider.addItemToList(widget.listId, newItem);
 
-                  if (mounted) {
+                  if (ctx.mounted) {
                     Navigator.pop(ctx);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -190,36 +190,50 @@ class _ManageListScreenState extends State<ManageListScreen> {
         body: Column(
           children: [
             // Header - סטטיסטיקות
-            Container(
-              padding: const EdgeInsets.all(16),
-              margin: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: cs.primaryContainer,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildStatItem(
-                    'פריטים',
-                    '${list.items.length}',
-                    Icons.shopping_cart,
-                    cs,
+            Builder(
+              builder: (context) {
+                // חישוב סטטיסטיקות מקומי (getters נמחקו)
+                final totalAmount = list.items.fold<double>(
+                  0.0,
+                  (sum, item) => sum + item.totalPrice,
+                );
+                final totalQuantity = list.items.fold<int>(
+                  0,
+                  (sum, item) => sum + item.quantity,
+                );
+
+                return Container(
+                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: cs.primaryContainer,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  _buildStatItem(
-                    'סה"כ',
-                    '₪${list.totalAmount.toStringAsFixed(2)}',
-                    Icons.account_balance_wallet,
-                    cs,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildStatItem(
+                        'פריטים',
+                        '${list.items.length}',
+                        Icons.shopping_cart,
+                        cs,
+                      ),
+                      _buildStatItem(
+                        'סה"כ',
+                        '₪${totalAmount.toStringAsFixed(2)}',
+                        Icons.account_balance_wallet,
+                        cs,
+                      ),
+                      _buildStatItem(
+                        'כמות',
+                        '$totalQuantity',
+                        Icons.format_list_numbered,
+                        cs,
+                      ),
+                    ],
                   ),
-                  _buildStatItem(
-                    'כמות',
-                    '${list.totalQuantity}',
-                    Icons.format_list_numbered,
-                    cs,
-                  ),
-                ],
-              ),
+                );
+              },
             ),
 
             // רשימת פריטים
@@ -299,7 +313,7 @@ class _ManageListScreenState extends State<ManageListScreen> {
                               index,
                             );
 
-                            if (mounted) {
+                            if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text('"${item.name}" הוסר'),

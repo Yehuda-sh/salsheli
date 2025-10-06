@@ -6,6 +6,8 @@
 // שימוש:
 // dart run scripts/fetch_gov_products.dart
 
+// ignore_for_file: avoid_print, curly_braces_in_flow_control_structures
+
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;

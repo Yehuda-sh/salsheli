@@ -1,15 +1,47 @@
 // 📄 File: lib/widgets/pending_action_card.dart
 // תיאור: כרטיס פעולה ממתינה לאישור/דחייה
 //
-// תכונות:
+// Purpose:
+// UI component להצגת פעולה ממתינה אחת עם כפתורי אישור/דחייה.
+// תומך בסוגי פעולות שונים (החלפת מוצר, הוספה, מחיקה, וכו').
+//
+// Features:
 // - תצוגת פעולות ממתינות (החלפת פריט, וכו')
 // - כפתורי אישור/דחייה
 // - תמיכה ב-timeago עברית
 // - תואם Material Design: גדלי מגע 48px, theme colors
+// - Loading state עם spinner
+// - Accessibility: Semantic labels, tooltips
 //
-// תלויות:
+// Dependencies:
 // - timeago package (לפורמט תאריכים יחסיים)
 // - Theme colors (AppBrand)
+//
+// Usage:
+// ```dart
+// PendingActionCard(
+//   action: PendingAction(
+//     requestedBy: 'user@example.com',
+//     actionType: 'replace_item',
+//     actionData: {
+//       'original_item_name': 'חלב תנובה',
+//       'proposed_alternative': 'חלב יטבתה',
+//     },
+//     message: 'לא היה במלאי',
+//     createdDate: DateTime.now().subtract(Duration(minutes: 10)),
+//   ),
+//   onApprove: () => print('אושר'),
+//   onReject: () => print('נדחה'),
+//   isLoading: false,
+// )
+// ```
+//
+// Supported Action Types:
+// - replace_item: החלפת מוצר (original → proposed)
+// - add_item: הוספת מוצר (product_name, quantity)
+// - remove_item: הסרת מוצר (product_name)
+//
+// Version: 2.0
 
 import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -81,6 +113,11 @@ class PendingActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('🎴 PendingActionCard.build()');
+    debugPrint('   📋 actionType: ${action.actionType}');
+    debugPrint('   👤 requestedBy: ${action.requestedBy}');
+    debugPrint('   ⏳ isLoading: $isLoading');
+
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
@@ -168,10 +205,13 @@ class PendingActionCard extends StatelessWidget {
     ColorScheme cs,
     AppBrand? brand,
   ) {
+    debugPrint('   🔍 _buildActionDetails: ${action.actionType}');
+
     switch (action.actionType) {
       case 'replace_item':
         final oldItem = action.actionData['original_item_name'] ?? '';
         final newItem = action.actionData['proposed_alternative'] ?? '';
+        debugPrint('      🔄 $oldItem → $newItem');
         return Wrap(
           crossAxisAlignment: WrapCrossAlignment.center,
           spacing: 8,
@@ -198,6 +238,7 @@ class PendingActionCard extends StatelessWidget {
         );
 
       default:
+        debugPrint('      ⚠️  actionType לא ידוע');
         return Text(
           'פעולה לא ידועה: ${action.actionType}',
           style: Theme.of(
@@ -234,6 +275,7 @@ class PendingActionCard extends StatelessWidget {
 
   Widget _buildActionButtons(BuildContext context, ColorScheme cs) {
     if (isLoading) {
+      debugPrint('   ⏳ מציג loading spinner');
       return SizedBox(
         width: _kSpinnerSize,
         height: _kSpinnerSize,
@@ -255,7 +297,10 @@ class PendingActionCard extends StatelessWidget {
             width: _kButtonSize,
             height: _kButtonSize,
             child: IconButton(
-              onPressed: onReject,
+              onPressed: () {
+                debugPrint('   ❌ לחץ על דחייה');
+                onReject();
+              },
               style: IconButton.styleFrom(
                 backgroundColor: cs.errorContainer,
                 foregroundColor: cs.onErrorContainer,
@@ -276,7 +321,10 @@ class PendingActionCard extends StatelessWidget {
             width: _kButtonSize,
             height: _kButtonSize,
             child: IconButton(
-              onPressed: onApprove,
+              onPressed: () {
+                debugPrint('   ✅ לחץ על אישור');
+                onApprove();
+              },
               style: IconButton.styleFrom(
                 backgroundColor: const Color(0xFF10B981), // green-500
                 foregroundColor: Colors.white,

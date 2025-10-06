@@ -13,6 +13,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 import 'dart:ui' as ui;
 
 import '../../models/receipt.dart';
@@ -75,7 +76,8 @@ class ShoppingListDetailsScreen extends StatelessWidget {
                 final unitPrice = double.tryParse(priceController.text) ?? 0.0;
 
                 if (name.isNotEmpty) {
-                  final newItem = ReceiptItem.manual(
+                  final newItem = ReceiptItem(
+                    id: const Uuid().v4(),
                     name: name,
                     quantity: qty,
                     unitPrice: unitPrice,

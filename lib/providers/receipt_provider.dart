@@ -1,26 +1,45 @@
 // 📄 File: lib/providers/receipt_provider.dart
 //
-// 🇮🇱 מנהל את הקבלות (Receipts) של המשתמש:
-//     - טוען קבלות ממקור נתונים (כרגע Mock, בעתיד Firebase/API).
-//     - יוצר/מעדכן/מוחק קבלות.
-//     - שומר מצב טעינה ושגיאות.
-//     - מסתנכרן עם UserContext.
+// 🎯 Purpose: Provider לניהול קבלות - ניהול state מרכזי של כל הקבלות באפליקציה
 //
-// 💡 רעיונות עתידיים:
-//     - סנכרון בזמן אמת מול Firebase.
-//     - שמירה לוקאלית ב-Hive/SQLite כדי לשחזר אחרי סגירה.
-//     - חיפוש וסינון קבלות לפי חנות/תאריך.
+// 📦 Dependencies:
+// - ReceiptRepository: ממשק לטעינת/שמירת קבלות
+// - UserContext: household_id + auth state
 //
-// 🇬🇧 Manages user receipts:
-//     - Loads receipts from repository (currently Mock, future Firebase/API).
-//     - Creates/updates/deletes receipts.
-//     - Tracks loading/error state.
-//     - Observes UserContext.
+// ✨ Features:
+// - 📥 טעינה אוטומטית: מאזין ל-UserContext ומריענן כשמשתמש משתנה
+// - ✏️ CRUD מלא: יצירה, עדכון, מחיקה של קבלות
+// - 📊 State management: isLoading, hasError, isEmpty
+// - 🔄 Auto-sync: רענון אוטומטי כשמשתמש מתחבר/מתנתק
+// - 🐛 Logging מפורט: כל פעולה עם debugPrint
 //
-// 💡 Future ideas:
-//     - Real-time sync with Firebase.
-//     - Local persistence (Hive/SQLite).
-//     - Search & filter by store/date.
+// 📝 Usage:
+// ```dart
+// // בקריאת נתונים:
+// final provider = context.watch<ReceiptProvider>();
+// final receipts = provider.receipts;
+//
+// // ביצירת קבלה:
+// final receipt = await context.read<ReceiptProvider>().createReceipt(
+//   storeName: 'שופרסל',
+//   date: DateTime.now(),
+//   items: [item1, item2],
+// );
+//
+// // בעדכון:
+// await context.read<ReceiptProvider>().updateReceipt(updatedReceipt);
+//
+// // במחיקה:
+// await context.read<ReceiptProvider>().deleteReceipt(receiptId);
+// ```
+//
+// 🔄 State Flow:
+// 1. Constructor → updateUserContext() → _initialize()
+// 2. UserContext changes → _onUserChanged() → _loadReceipts()
+// 3. CRUD operations → Repository → Update local state → notifyListeners()
+//
+// Version: 2.0 (עם logging מלא + תיעוד מקיף)
+// Last Updated: 06/10/2025
 //
 
 import 'package:flutter/foundation.dart';
@@ -50,97 +69,217 @@ class ReceiptProvider with ChangeNotifier {
   bool get isEmpty => _receipts.isEmpty;
   List<Receipt> get receipts => List.unmodifiable(_receipts);
 
+  /// מעדכן את ה-UserContext ומאזין לשינויים
+  /// נקרא אוטומטית מ-ProxyProvider
   void updateUserContext(UserContext newContext) {
+    debugPrint('🔄 ReceiptProvider.updateUserContext');
     if (_listening && _userContext != null) {
       _userContext!.removeListener(_onUserChanged);
       _listening = false;
+      debugPrint('   ✅ Listener הוסר מ-UserContext הקודם');
     }
     _userContext = newContext;
     _userContext!.addListener(_onUserChanged);
     _listening = true;
+    debugPrint('   ✅ Listener הוסף, מתחיל initialization');
     _initialize();
   }
 
-  void _onUserChanged() => _loadReceipts();
+  void _onUserChanged() {
+    debugPrint('👤 ReceiptProvider._onUserChanged: משתמש השתנה');
+    _loadReceipts();
+  }
 
   void _initialize() {
+    debugPrint('🔧 ReceiptProvider._initialize');
+    
     if (_userContext?.isLoggedIn == true) {
+      debugPrint('   ✅ משתמש מחובר, טוען קבלות');
       _loadReceipts();
     } else {
+      debugPrint('   ⚠️ משתמש לא מחובר, מנקה רשימה');
       _receipts = [];
       notifyListeners();
+      debugPrint('   🔔 ReceiptProvider: notifyListeners() (user not logged in)');
     }
   }
 
   Future<void> _loadReceipts() async {
-    if (_userContext?.isLoggedIn != true) {
+    debugPrint('📥 ReceiptProvider._loadReceipts: מתחיל טעינה');
+    
+    final householdId = _userContext?.user?.householdId;
+    if (_userContext?.isLoggedIn != true || householdId == null) {
+      debugPrint('   ⚠️ אין household_id, מנקה רשימה');
       _receipts = [];
       notifyListeners();
+      debugPrint('   🔔 ReceiptProvider: notifyListeners() (no household_id)');
       return;
     }
 
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
+    debugPrint('   🔔 ReceiptProvider: notifyListeners() (isLoading=true)');
 
     try {
-      final householdId = _userContext!.user!.householdId;
       _receipts = await _repository.fetchReceipts(householdId);
+      debugPrint('✅ ReceiptProvider._loadReceipts: נטענו ${_receipts.length} קבלות');
     } catch (e, st) {
       _errorMessage = "שגיאה בטעינת קבלות: $e";
+      debugPrint('❌ ReceiptProvider._loadReceipts: שגיאה - $e');
       debugPrintStack(label: 'ReceiptProvider._loadReceipts', stackTrace: st);
     }
 
     _isLoading = false;
     notifyListeners();
+    debugPrint('   🔔 ReceiptProvider: notifyListeners() (isLoading=false, receipts=${_receipts.length})');
   }
 
-  Future<void> loadReceipts() => _loadReceipts();
+  /// טוען את כל הקבלות מחדש מה-Repository
+  /// 
+  /// Example:
+  /// ```dart
+  /// await receiptProvider.loadReceipts();
+  /// ```
+  Future<void> loadReceipts() {
+    debugPrint('🔄 ReceiptProvider.loadReceipts: רענון ידני');
+    return _loadReceipts();
+  }
 
+  /// יוצר קבלה חדשה ומוסיף לרשימה
+  /// 
+  /// Example:
+  /// ```dart
+  /// final receipt = await receiptProvider.createReceipt(
+  ///   storeName: 'שופרסל',
+  ///   date: DateTime.now(),
+  ///   items: [item1, item2],
+  /// );
+  /// ```
   Future<Receipt> createReceipt({
     required String storeName,
     required DateTime date,
     List<ReceiptItem> items = const [],
   }) async {
-    final newReceipt = Receipt.newReceipt(
-      storeName: storeName,
-      date: date,
-      items: items,
-      totalAmount: items.fold(0, (sum, it) => sum + it.totalPrice),
-    );
+    debugPrint('➕ ReceiptProvider.createReceipt');
+    debugPrint('   חנות: $storeName, תאריך: $date, פריטים: ${items.length}');
+    
+    final householdId = _userContext?.user?.householdId;
+    if (householdId == null) {
+      debugPrint('❌ householdId לא נמצא');
+      throw Exception("❌ householdId לא נמצא");
+    }
 
-    final householdId = _userContext!.user!.householdId;
-    final saved = await _repository.saveReceipt(newReceipt, householdId);
+    try {
+      final totalAmount = items.fold(0.0, (sum, it) => sum + it.totalPrice);
+      debugPrint('   💰 סכום כולל: ₪${totalAmount.toStringAsFixed(2)}');
+      
+      final newReceipt = Receipt.newReceipt(
+        storeName: storeName,
+        date: date,
+        items: items,
+        totalAmount: totalAmount,
+      );
 
-    _receipts.add(saved);
-    notifyListeners();
-    return saved;
-  }
-
-  Future<void> updateReceipt(Receipt receipt) async {
-    final householdId = _userContext!.user!.householdId;
-    final updated = await _repository.saveReceipt(receipt, householdId);
-
-    final index = _receipts.indexWhere((r) => r.id == updated.id);
-    if (index != -1) {
-      _receipts[index] = updated;
+      final saved = await _repository.saveReceipt(newReceipt, householdId);
+      debugPrint('✅ קבלה נשמרה ב-Repository: ${saved.id}');
+      
+      // אופטימיזציה: הוספה local במקום ריענון מלא
+      _receipts.add(saved);
       notifyListeners();
+      debugPrint('   🔔 ReceiptProvider: notifyListeners() (receipt created: ${saved.id})');
+      
+      return saved;
+    } catch (e) {
+      debugPrint('❌ ReceiptProvider.createReceipt: שגיאה - $e');
+      _errorMessage = 'שגיאה ביצירת קבלה';
+      notifyListeners();
+      debugPrint('   🔔 ReceiptProvider: notifyListeners() (error)');
+      rethrow;
     }
   }
 
-  Future<void> deleteReceipt(String receiptId) async {
-    final householdId = _userContext!.user!.householdId;
-    await _repository.deleteReceipt(receiptId, householdId);
+  /// מעדכן קבלה קיימת
+  /// 
+  /// Example:
+  /// ```dart
+  /// final updatedReceipt = receipt.copyWith(storeName: 'חנות חדשה');
+  /// await receiptProvider.updateReceipt(updatedReceipt);
+  /// ```
+  Future<void> updateReceipt(Receipt receipt) async {
+    debugPrint('✏️ ReceiptProvider.updateReceipt: ${receipt.id}');
+    debugPrint('   חנות: ${receipt.storeName}, פריטים: ${receipt.items.length}');
+    
+    final householdId = _userContext?.user?.householdId;
+    if (householdId == null) {
+      debugPrint('⚠️ householdId לא נמצא, מדלג');
+      return;
+    }
 
-    _receipts.removeWhere((r) => r.id == receiptId);
-    notifyListeners();
+    try {
+      final updated = await _repository.saveReceipt(receipt, householdId);
+      debugPrint('✅ קבלה עודכנה ב-Repository');
+      
+      // אופטימיזציה: עדכון local במקום ריענון מלא
+      final index = _receipts.indexWhere((r) => r.id == updated.id);
+      if (index != -1) {
+        _receipts[index] = updated;
+        notifyListeners();
+        debugPrint('   🔔 ReceiptProvider: notifyListeners() (receipt updated: ${updated.id})');
+      } else {
+        debugPrint('⚠️ קבלה לא נמצאה ברשימה, מבצע ריענון מלא');
+        await _loadReceipts();
+      }
+    } catch (e) {
+      debugPrint('❌ ReceiptProvider.updateReceipt: שגיאה - $e');
+      _errorMessage = 'שגיאה בעדכון קבלה';
+      notifyListeners();
+      debugPrint('   🔔 ReceiptProvider: notifyListeners() (error)');
+      rethrow;
+    }
+  }
+
+  /// מחיק קבלה
+  /// 
+  /// Example:
+  /// ```dart
+  /// await receiptProvider.deleteReceipt(receipt.id);
+  /// ```
+  Future<void> deleteReceipt(String receiptId) async {
+    debugPrint('🗑️ ReceiptProvider.deleteReceipt: $receiptId');
+    
+    final householdId = _userContext?.user?.householdId;
+    if (householdId == null) {
+      debugPrint('⚠️ householdId לא נמצא, מדלג');
+      return;
+    }
+
+    try {
+      await _repository.deleteReceipt(receiptId, householdId);
+      debugPrint('✅ קבלה נמחקה מ-Repository');
+      
+      // אופטימיזציה: מחיקה local במקום ריענון מלא
+      _receipts.removeWhere((r) => r.id == receiptId);
+      notifyListeners();
+      debugPrint('   🔔 ReceiptProvider: notifyListeners() (receipt deleted: $receiptId)');
+    } catch (e) {
+      debugPrint('❌ ReceiptProvider.deleteReceipt: שגיאה - $e');
+      _errorMessage = 'שגיאה במחיקת קבלה';
+      notifyListeners();
+      debugPrint('   🔔 ReceiptProvider: notifyListeners() (error)');
+      rethrow;
+    }
   }
 
   @override
   void dispose() {
+    debugPrint('🧹 ReceiptProvider.dispose');
+    
     if (_listening && _userContext != null) {
       _userContext!.removeListener(_onUserChanged);
+      debugPrint('   ✅ Listener הוסר');
     }
+    
     super.dispose();
   }
 }

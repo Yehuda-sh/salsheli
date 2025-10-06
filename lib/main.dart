@@ -25,7 +25,8 @@ import 'providers/suggestions_provider.dart';
 import 'providers/locations_provider.dart';
 
 // Repositories
-import 'repositories/local_shopping_lists_repository.dart';
+
+import 'repositories/firebase_shopping_list_repository.dart';  // 🔥 Firebase Shopping Lists!
 import 'repositories/user_repository.dart';
 import 'repositories/firebase_user_repository.dart';  // 🔥 Firebase User!
 import 'repositories/firebase_receipt_repository.dart';  // 🔥 Firebase Receipts!
@@ -194,33 +195,25 @@ void main() async {
         // === Locations Provider ===
         ChangeNotifierProvider(create: (_) => LocationsProvider()),
 
-        // === Shopping Lists ===
+        // === Shopping Lists === 🔥 Firebase!
         ChangeNotifierProxyProvider<UserContext, ShoppingListsProvider>(
           create: (context) {
+            debugPrint('📋 main.dart: יוצר ShoppingListsProvider עם Firebase');
             final provider = ShoppingListsProvider(
-              repository: LocalShoppingListsRepository(),
+              repository: FirebaseShoppingListRepository(),  // 🔥 Firebase!
             );
             final userContext = context.read<UserContext>();
-            if (userContext.user != null) {
-              provider.setCurrentUser(
-                userId: userContext.user!.id,
-                householdId: userContext.user!.householdId,
-              );
-            }
+            provider.updateUserContext(userContext);
             return provider;
           },
           update: (context, userContext, previous) {
+            debugPrint('🔄 main.dart: מעדכן ShoppingListsProvider');
             final provider =
                 previous ??
                 ShoppingListsProvider(
-                  repository: LocalShoppingListsRepository(),
+                  repository: FirebaseShoppingListRepository(),  // 🔥 Firebase!
                 );
-            if (userContext.user != null) {
-              provider.setCurrentUser(
-                userId: userContext.user!.id,
-                householdId: userContext.user!.householdId,
-              );
-            }
+            provider.updateUserContext(userContext);
             return provider;
           },
         ),

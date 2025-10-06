@@ -5,15 +5,15 @@
 //     - תומך בשיתוף בין משתמשים במשק בית.
 //     - כולל סוגי רשימות: סופרמרקט, בית מרקחת, אחר.
 //     - מחשב אוטומטית התקדמות, סכומים, וחריגה מתקציב.
-//     - נתמך ע"י JSON לצורך סנכרון עם שרת ושמירה מקומית.
+//     - נתמך ע"י JSON לצורך סנכרון עם Firebase Firestore.
 //
-// 💡 רעיונות עתידיים:
-//     - סנכרון בזמן אמת בין משתמשים (collaborative shopping).
-//     - התראות כשמשתמש אחר מוסיף/מסמן פריטים.
-//     - המלצות חכמות: "המוצרים האלה בדרך כלל נקנים ביחד".
-//     - אופטימיזציה של מסלול בחנות (shelf layout).
-//     - היסטוריה: "קנית את זה ב-15% פחות בשבוע שעבר".
-//     - שיתוף רשימות בין משקי בית (משפחה מורחבת).
+// 🔥 Firebase Integration:
+//     - household_id מנוהל ע"י Repository (לא חלק מהמודל)
+//     - כל רשימה שייכת למשק בית אחד
+//     - Repository מוסיף את household_id בזמן שמירה
+//     - Repository מסנן לפי household_id בזמן טעינה
+//
+
 //
 // 🇬🇧 Shopping list model:
 //     - Represents a shopping list with items, budget, and status.
@@ -22,19 +22,12 @@
 //     - Auto-calculates progress, totals, and budget overruns.
 //     - Supports JSON for server sync and local storage.
 //
-// 💡 Future ideas:
-//     - Real-time sync between users (collaborative shopping).
-//     - Notifications when another user adds/checks items.
-//     - Smart suggestions: "These products are usually bought together".
-//     - In-store route optimization (shelf layout).
-//     - History: "You bought this 15% cheaper last week".
-//     - Share lists between households (extended family).
+
 //
 
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'receipt.dart';
-import '../api/entities/shopping_list.dart' as api;
 
 part 'shopping_list.g.dart';
 
@@ -138,54 +131,6 @@ class ShoppingList {
     );
   }
 
-  // ---- Computed Properties ----
-
-  /// 🇮🇱 מספר פריטים ברשימה
-  /// 🇬🇧 Number of items in list
-  int get itemCount => items.length;
-
-  /// 🇮🇱 סה״כ יחידות (כמויות)
-  /// 🇬🇧 Total quantity (units)
-  int get totalQuantity => items.fold<int>(0, (sum, it) => sum + it.quantity);
-
-  /// 🇮🇱 סה״כ סכום (מחיר מצטבר, ₪)
-  /// 🇬🇧 Total amount (cumulative price, ₪)
-  double get totalAmount =>
-      items.fold<double>(0.0, (sum, it) => sum + it.totalPrice);
-
-  /// 🇮🇱 האם הרשימה פעילה
-  /// 🇬🇧 Is the list active
-  bool get isActive => status == statusActive;
-
-  /// 🇮🇱 האם הרשימה הושלמה
-  /// 🇬🇧 Is the list completed
-  bool get isCompleted => status == statusCompleted;
-
-  /// 🇮🇱 האם הרשימה בארכיון
-  /// 🇬🇧 Is the list archived
-  bool get isArchived => status == statusArchived;
-
-  /// 🇮🇱 כמה פריטים מסומנים כנקנו
-  /// 🇬🇧 How many items are checked as purchased
-  int get checkedCount => items.where((it) => it.isChecked).length;
-
-  /// 🇮🇱 כמה פריטים שנותרו
-  /// 🇬🇧 How many items remain
-  int get uncheckedCount => items.length - checkedCount;
-
-  /// 🇮🇱 התקדמות (0..1), 0 אם הרשימה ריקה
-  /// 🇬🇧 Progress (0..1), 0 if list is empty
-  double get progress =>
-      items.isEmpty ? 0.0 : checkedCount / items.length.toDouble();
-
-  /// 🇮🇱 בדיקה אם חרגנו מהתקציב
-  /// 🇬🇧 Check if over budget
-  bool get isOverBudget => budget != null && totalAmount > budget!;
-
-  /// 🇮🇱 כמה כסף נותר מהתקציב (₪)
-  /// 🇬🇧 Remaining budget amount (₪)
-  double? get remainingBudget => budget != null ? budget! - totalAmount : null;
-
   // ---- Copy & Update ----
 
   /// 🇮🇱 יצירת עותק עם שינויים
@@ -232,41 +177,6 @@ class ShoppingList {
     return copyWith(items: updated, updatedDate: DateTime.now());
   }
 
-  /// 🇮🇱 עדכון פריט לפי אינדקס
-  /// 🇬🇧 Update item by index
-  ShoppingList updateItemAt(
-    int index,
-    ReceiptItem Function(ReceiptItem) update,
-  ) {
-    if (index < 0 || index >= items.length) return this;
-    final updated = [...items];
-    updated[index] = update(updated[index]);
-    return copyWith(items: updated, updatedDate: DateTime.now());
-  }
-
-  /// 🇮🇱 הוספה או עדכון של פריט (לפי שם)
-  /// 🇬🇧 Add or update item (by name)
-  ShoppingList addOrUpdate({
-    required String name,
-    required int quantity,
-    double? unitPrice,
-  }) {
-    final idx = items.indexWhere((it) => it.name == name);
-    if (idx == -1) {
-      return withItemAdded(
-        ReceiptItem.manual(
-          name: name,
-          quantity: quantity,
-          unitPrice: unitPrice ?? 0,
-        ),
-      );
-    }
-    return updateItemAt(idx, (it) {
-      final q = it.quantity + quantity;
-      return it.copyWith(quantity: q, unitPrice: unitPrice ?? it.unitPrice);
-    });
-  }
-
   // ---- JSON Serialization ----
 
   /// 🇮🇱 יצירה מ-JSON
@@ -292,71 +202,6 @@ class ShoppingList {
     debugPrint('   items: ${items.length}');
     return _$ShoppingListToJson(this);
   }
-
-  // ---- API Bridging ----
-
-  /// 🇮🇱 יצירה מתשובת API
-  /// 🇬🇧 Create from API response
-  factory ShoppingList.fromApi(
-    api.ApiShoppingList src, {
-    List<ReceiptItem>? items,
-  }) {
-    debugPrint('🔄 ShoppingList.fromApi: ${src.id} - ${src.name}');
-    return ShoppingList(
-      id: src.id,
-      name: src.name,
-      updatedDate: _parseApiDate(src.updatedDate) ?? DateTime.now(),
-      status: src.status ?? statusActive,
-      type: src.type ?? typeSuper,
-      budget: src.budget,
-      isShared: src.isShared ?? false,
-      createdBy: src.createdBy ?? '',
-      sharedWith: List<String>.unmodifiable(src.sharedWith ?? []),
-      items: List<ReceiptItem>.unmodifiable(items ?? []),
-    );
-  }
-
-  /// 🇮🇱 המרה לפורמט API
-  /// 🇬🇧 Convert to API format
-  api.ApiShoppingList toApi(String householdId) {
-    debugPrint('🔄 ShoppingList.toApi: $id - $name (household: $householdId)');
-    return api.ApiShoppingList(
-      id: id,
-      name: name,
-      householdId: householdId,
-      createdDate: null, // API יגדיר אוטומטית
-      updatedDate: updatedDate.toIso8601String(),
-      status: status,
-      type: type,
-      budget: budget,
-      isShared: isShared,
-      createdBy: createdBy,
-      sharedWith: sharedWith.toList(),
-      items: items.map((item) => _receiptItemToApi(item)).toList(),
-    );
-  }
-
-  /// 🇮🇱 המרת ReceiptItem ל-ApiShoppingListItem
-  /// 🇬🇧 Convert ReceiptItem to ApiShoppingListItem
-  static api.ApiShoppingListItem _receiptItemToApi(ReceiptItem item) {
-    return api.ApiShoppingListItem(
-      id: item.id,
-      name: item.name,
-      quantity: item.quantity,
-      unitPrice: item.unitPrice,
-      isChecked: item.isChecked,
-      barcode: item.barcode,
-      category: item.category,
-      unit: item.unit,
-    );
-  }
-
-  // ---- Utilities ----
-
-  /// 🇮🇱 ניתוח תאריך מ-API (ISO 8601)
-  /// 🇬🇧 Parse date from API (ISO 8601)
-  static DateTime? _parseApiDate(String? iso) =>
-      (iso == null || iso.isEmpty) ? null : DateTime.tryParse(iso);
 
   @override
   String toString() =>

@@ -5,13 +5,30 @@
 //     - מציג פריטים עם מחיר ליחידה וסה"כ.
 //     - מציג סיכום פריטים וסכום סופי לתשלום.
 //     - מעוצב בצורה "מדפסתית" בסגנון קבלה אמיתית.
+//     - תמיכה מלאה ב-Accessibility (screen readers).
 //
 // 🇬🇧 Widget for displaying a Receipt:
 //     - Shows store name, date/time, and receipt ID.
 //     - Displays list of items with unit & total prices.
 //     - Displays summary with total items and total amount.
 //     - Styled as a printable receipt-like component.
+//     - Full accessibility support for screen readers.
 //
+// 📖 Usage:
+// ```dart
+// ReceiptDisplay(
+//   receipt: Receipt(
+//     id: 'rec_123',
+//     storeName: 'שופרסל',
+//     date: DateTime.now(),
+//     totalAmount: 156.50,
+//     items: [
+//       ReceiptItem(name: 'חלב', quantity: 2, unitPrice: 6.90, totalPrice: 13.80),
+//       ReceiptItem(name: 'לחם', quantity: 1, unitPrice: 5.50, totalPrice: 5.50),
+//     ],
+//   ),
+// )
+// ```
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -41,12 +58,19 @@ class ReceiptDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
+    // 📊 Logging - מציג איזו קבלה מוצגת
+    debugPrint('🧾 ReceiptDisplay.build()');
+    debugPrint('   חנות: ${receipt.storeName}');
+    debugPrint('   תאריך: ${DateFormat("dd/MM/yyyy").format(receipt.date)}');
+    debugPrint('   פריטים: ${receipt.items.length}');
+    debugPrint('   סכום: ${_formatCurrency(receipt.totalAmount)}');
+
     return Container(
       width: 380,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: cs.surface,
-        border: Border.all(color: cs.outline.withOpacity(0.3)),
+        border: Border.all(color: cs.outline.withValues(alpha: 0.3)),
         borderRadius: BorderRadius.circular(12),
         boxShadow: const [BoxShadow(blurRadius: 6, color: Colors.black12)],
       ),
@@ -71,7 +95,10 @@ class ReceiptDisplay extends StatelessWidget {
   Widget _buildHeader(ColorScheme cs) {
     return Column(
       children: [
-        Icon(Icons.storefront, size: 32, color: cs.primary),
+        Semantics(
+          label: 'אייקון חנות ${receipt.storeName}',
+          child: Icon(Icons.storefront, size: 32, color: cs.primary),
+        ),
         const SizedBox(height: 6),
         Text(
           receipt.storeName,

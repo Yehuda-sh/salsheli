@@ -65,7 +65,6 @@ class ProductsProvider with ChangeNotifier {
     required ProductsRepository repository,
     bool skipInitialLoad = false, // ⚠️ אם true - לא טוען מייד
   }) : _repository = repository {
-    debugPrint('\n🚀 ProductsProvider: נוצר (skipInitialLoad: $skipInitialLoad)');
     if (!skipInitialLoad) {
       _initialize();
     }
@@ -113,53 +112,33 @@ class ProductsProvider with ChangeNotifier {
 
   // === Initialization ===
   Future<void> _initialize() async {
-    debugPrint('═══════════════════════════════════════════');
-    debugPrint('🔧 ProductsProvider._initialize()');
-    debugPrint('═══════════════════════════════════════════');
-    
     // אתחול Hybrid Repository אם צריך
     final repo = _repository;
     if (repo is HybridProductsRepository) {
-      debugPrint('📞 קורא ל-HybridProductsRepository.initialize()');
       await repo.initialize();
     }
 
     await loadProducts();
-    _hasInitialized = true; // ✅ סימון שאותחל
+    _hasInitialized = true;
   }
 
   /// 🆕 אתחול ו-טעינה ידנית (כשמשתמש מתחבר)
   Future<void> initializeAndLoad() async {
-    if (_hasInitialized) {
-      debugPrint('⚠️ initializeAndLoad: כבר אותחל, מדלג');
-      return;
-    }
-    debugPrint('🚀 initializeAndLoad: מתחיל אתחול...');
+    if (_hasInitialized) return;
     await _initialize();
   }
 
   // === Load Products ===
   Future<void> loadProducts() async {
-    if (_isLoading) {
-      debugPrint('⚠️ loadProducts: כבר טוען, מדלג');
-      return;
-    }
-
-    debugPrint('\n═══════════════════════════════════════════');
-    debugPrint('📥 ProductsProvider.loadProducts() - התחלה');
-    debugPrint('═══════════════════════════════════════════');
+    if (_isLoading) return;
 
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      debugPrint('📞 קורא ל-repository.getAllProducts()');
       _products = await _repository.getAllProducts();
-      
-      debugPrint('📞 קורא ל-repository.getCategories()');
       _categories = await _repository.getCategories();
-      
       _lastUpdated = DateTime.now();
       _errorMessage = null;
 
@@ -170,72 +149,46 @@ class ProductsProvider with ChangeNotifier {
       debugPrint('   🏷️ קטגוריות: ${_categories.length}');
     } catch (e) {
       _errorMessage = 'שגיאה בטעינת מוצרים: $e';
-      debugPrint('❌ שגיאה בטעינת מוצרים:');
-      debugPrint('   $e');
+      debugPrint('❌ שגיאה בטעינת מוצרים: $e');
     } finally {
       _isLoading = false;
-      debugPrint('🔔 ProductsProvider: notifyListeners() - loadProducts הושלם');
       notifyListeners();
-      debugPrint('═══════════════════════════════════════════\n');
     }
   }
 
   // === Refresh Products (עדכון מחירים) ===
   Future<void> refreshProducts({bool force = false}) async {
-    if (_isRefreshing) {
-      debugPrint('⚠️ refreshProducts: כבר מרענן, מדלג');
-      return;
-    }
-
-    debugPrint('\n═══════════════════════════════════════════');
-    debugPrint('🔄 ProductsProvider.refreshProducts(force: $force)');
-    debugPrint('═══════════════════════════════════════════');
+    if (_isRefreshing) return;
 
     _isRefreshing = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      debugPrint('📞 קורא ל-repository.refreshProducts()');
       await _repository.refreshProducts(force: force);
-      
-      debugPrint('📞 קורא ל-repository.getAllProducts()');
       _products = await _repository.getAllProducts();
-      
-      debugPrint('📞 קורא ל-repository.getCategories()');
       _categories = await _repository.getCategories();
-      
       _lastUpdated = DateTime.now();
       _errorMessage = null;
 
-      debugPrint('✅ רענון הושלם בהצלחה');
-      debugPrint('   📊 סה"כ מוצרים: $totalProducts');
-      debugPrint('   💰 עם מחיר: $productsWithPrice');
-      debugPrint('   ❌ ללא מחיר: $productsWithoutPrice');
+      debugPrint('✅ רענון הושלם - $totalProducts מוצרים ($productsWithPrice עם מחיר)');
     } catch (e) {
       _errorMessage = 'שגיאה ברענון מוצרים: $e';
-      debugPrint('❌ שגיאה ברענון מוצרים:');
-      debugPrint('   $e');
+      debugPrint('❌ שגיאה ברענון מוצרים: $e');
     } finally {
       _isRefreshing = false;
-      debugPrint('🔔 ProductsProvider: notifyListeners() - refreshProducts הושלם');
       notifyListeners();
-      debugPrint('═══════════════════════════════════════════\n');
     }
   }
 
   // === Search ===
   void setSearchQuery(String query) {
     if (_searchQuery == query) return;
-    debugPrint('🔍 חיפוש: "$query"');
     _searchQuery = query;
-    debugPrint('🔔 ProductsProvider: notifyListeners() - setSearchQuery');
     notifyListeners();
-    debugPrint('   נמצאו: ${_getFilteredProducts().length} מוצרים');
   }
 
   void clearSearch() {
-    debugPrint('🔍 ניקוי חיפוש');
     _searchQuery = '';
     notifyListeners();
   }
@@ -243,24 +196,12 @@ class ProductsProvider with ChangeNotifier {
   // === Filter by List Type (NEW) ===
   void setListType(String? listType) {
     if (_selectedListType == listType) return;
-    debugPrint('🎯 סינון לפי סוג רשימה: $listType');
     _selectedListType = listType;
-    
-    // נקה קטגוריה נבחרת כי הקטגוריות הרלוונטיות משתנות
-    _selectedCategory = null;
-    
-    debugPrint('🔔 ProductsProvider: notifyListeners() - setListType');
+    _selectedCategory = null; // נקה קטגוריה נבחרת
     notifyListeners();
-    debugPrint('   נמצאו: ${_getFilteredProducts().length} מוצרים');
-    
-    if (listType != null) {
-      final relevantCategories = ListTypeMappings.getCategoriesForType(listType);
-      debugPrint('   🏷️ קטגוריות רלוונטיות: $relevantCategories');
-    }
   }
 
   void clearListType() {
-    debugPrint('🎯 ניקוי סינון סוג רשימה');
     _selectedListType = null;
     notifyListeners();
   }
@@ -287,15 +228,11 @@ class ProductsProvider with ChangeNotifier {
   }
   void setCategory(String? category) {
     if (_selectedCategory == category) return;
-    debugPrint('🏷️ סינון לפי קטגוריה: $category');
     _selectedCategory = category;
-    debugPrint('🔔 ProductsProvider: notifyListeners() - setCategory');
     notifyListeners();
-    debugPrint('   נמצאו: ${_getFilteredProducts().length} מוצרים');
   }
 
   void clearCategory() {
-    debugPrint('🏷️ ניקוי סינון קטגוריה');
     _selectedCategory = null;
     notifyListeners();
   }
@@ -346,16 +283,9 @@ class ProductsProvider with ChangeNotifier {
   // === Get Product by Barcode ===
   Future<Map<String, dynamic>?> getProductByBarcode(String barcode) async {
     try {
-      debugPrint('🔍 חיפוש מוצר לפי ברקוד: $barcode');
-      final product = await _repository.getProductByBarcode(barcode);
-      if (product != null) {
-        debugPrint('   ✅ נמצא: ${product['name']}');
-      } else {
-        debugPrint('   ❌ לא נמצא');
-      }
-      return product;
+      return await _repository.getProductByBarcode(barcode);
     } catch (e) {
-      debugPrint('❌ שגיאה בחיפוש מוצר לפי ברקוד: $e');
+      debugPrint('❌ getProductByBarcode שגיאה: $e');
       return null;
     }
   }
@@ -369,7 +299,6 @@ class ProductsProvider with ChangeNotifier {
   Map<String, dynamic>? getByName(String name) {
     if (name.isEmpty || _products.isEmpty) return null;
 
-    debugPrint('🔍 חיפוש מוצר לפי שם: "$name"');
     final lowerName = name.toLowerCase().trim();
 
     // 1. נסה התאמה מדויקת
@@ -378,10 +307,7 @@ class ProductsProvider with ChangeNotifier {
       orElse: () => {},
     );
 
-    if (exact.isNotEmpty) {
-      debugPrint('   ✅ התאמה מדויקת: ${exact['name']} (${exact['category']})');
-      return exact;
-    }
+    if (exact.isNotEmpty) return exact;
 
     // 2. נסה התאמה חלקית
     final partial = _products.firstWhere(
@@ -389,24 +315,15 @@ class ProductsProvider with ChangeNotifier {
       orElse: () => {},
     );
 
-    if (partial.isNotEmpty) {
-      debugPrint('   ⚠️ התאמה חלקית: ${partial['name']} (${partial['category']})');
-      return partial;
-    }
-
-    debugPrint('   ❌ לא נמצא מוצר');
-    return null;
+    return partial.isNotEmpty ? partial : null;
   }
 
   // === Search Products (async) ===
   Future<List<Map<String, dynamic>>> searchProducts(String query) async {
     try {
-      debugPrint('🔍 חיפוש async: "$query"');
-      final results = await _repository.searchProducts(query);
-      debugPrint('   ✅ נמצאו: ${results.length} תוצאות');
-      return results;
+      return await _repository.searchProducts(query);
     } catch (e) {
-      debugPrint('❌ שגיאה בחיפוש מוצרים: $e');
+      debugPrint('❌ searchProducts שגיאה: $e');
       return [];
     }
   }
@@ -416,12 +333,9 @@ class ProductsProvider with ChangeNotifier {
     String category,
   ) async {
     try {
-      debugPrint('🏷️ קבלת מוצרים לפי קטגוריה: $category');
-      final results = await _repository.getProductsByCategory(category);
-      debugPrint('   ✅ נמצאו: ${results.length} מוצרים');
-      return results;
+      return await _repository.getProductsByCategory(category);
     } catch (e) {
-      debugPrint('❌ שגיאה בקבלת מוצרים לפי קטגוריה: $e');
+      debugPrint('❌ getProductsByCategory שגיאה: $e');
       return [];
     }
   }
@@ -440,18 +354,15 @@ class ProductsProvider with ChangeNotifier {
 
   // === Clear All ===
   void clearAll() {
-    debugPrint('🗑️ ניקוי כל הסינונים');
     _searchQuery = '';
     _selectedCategory = null;
     _selectedListType = null;
-    debugPrint('🔔 ProductsProvider: notifyListeners() - clearAll');
     notifyListeners();
   }
 
   // === Dispose ===
   @override
   void dispose() {
-    debugPrint('👋 ProductsProvider: dispose() - ניקוי משאבים');
     super.dispose();
   }
 }

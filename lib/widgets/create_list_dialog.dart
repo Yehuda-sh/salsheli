@@ -9,6 +9,8 @@
 // - תמיכה בכל סוגי הרשימות מ-constants.dart (kListTypes)
 // - Logging מלא לכל השלבים
 // - 9 סוגי רשימות: סופר, מרקחת, חומרי בניין, ביגוד, אלקטרוניקה, חיות מחמד, קוסמטיקה, ציוד משרדי, אחר
+// - Clear button לניקוי תקציב
+// - Accessibility: Tooltips על כל הכפתורים
 //
 // Dependencies:
 // - ShoppingListsProvider - לבדיקת שמות כפולים
@@ -42,11 +44,25 @@ class CreateListDialog extends StatefulWidget {
 
 class _CreateListDialogState extends State<CreateListDialog> {
   final _formKey = GlobalKey<FormState>();
+  final _budgetController = TextEditingController(); // ⭐ Controller לתקציב
 
   String _name = "";
   String _type = "super";
   double? _budget;
   bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    debugPrint('🔵 CreateListDialog.initState() - Dialog נפתח');
+  }
+
+  @override
+  void dispose() {
+    debugPrint('🔵 CreateListDialog.dispose() - Dialog נסגר');
+    _budgetController.dispose();
+    super.dispose();
+  }
 
   Future<void> _handleSubmit() async {
     debugPrint('🔵 CreateListDialog._handleSubmit() התחיל');
@@ -155,7 +171,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
               Directionality(
                 textDirection: TextDirection.rtl,
                 child: DropdownButtonFormField<String>(
-                  value: _type,
+                  initialValue: _type,
                   isExpanded: true, // מאפשר RTL מלא
                   decoration: const InputDecoration(
                     labelText: "סוג הרשימה",
@@ -236,12 +252,29 @@ class _CreateListDialogState extends State<CreateListDialog> {
               ),
               const SizedBox(height: 12),
 
-              // 💰 תקציב
+              // 💰 תקציב + Clear Button
               TextFormField(
-                decoration: const InputDecoration(
+                controller: _budgetController,
+                decoration: InputDecoration(
                   labelText: "תקציב (אופציונלי)",
                   hintText: "₪500",
-                  prefixIcon: Icon(Icons.monetization_on),
+                  prefixIcon: const Icon(Icons.monetization_on),
+                  // ⭐ Clear Button - מופיע רק כשיש טקסט
+                  suffixIcon: _budgetController.text.isNotEmpty
+                      ? Tooltip(
+                          message: 'נקה תקציב',
+                          child: IconButton(
+                            icon: const Icon(Icons.close, size: 18),
+                            onPressed: () {
+                              debugPrint('🗑️ מנקה תקציב');
+                              setState(() {
+                                _budgetController.clear();
+                                _budget = null;
+                              });
+                            },
+                          ),
+                        )
+                      : null,
                 ),
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
@@ -274,6 +307,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
                     _budget = null;
                   }
                 },
+                onChanged: (_) => setState(() {}), // ⭐ עדכון לClear Button
                 textDirection: TextDirection.rtl,
                 enabled: !_isSubmitting,
               ),
@@ -283,27 +317,36 @@ class _CreateListDialogState extends State<CreateListDialog> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
-          child: const Text("בטל"),
-        ),
-        ElevatedButton(
-          onPressed: _isSubmitting ? null : _handleSubmit,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: theme.colorScheme.primary,
-            foregroundColor: theme.colorScheme.onPrimary,
-            minimumSize: const Size(48, 48), // ✅ Touch target
+        Tooltip(
+          message: 'ביטול יצירת הרשימה',
+          child: TextButton(
+            onPressed: _isSubmitting ? null : () {
+              debugPrint('❌ משתמש ביטל יצירת רשימה');
+              Navigator.of(context).pop();
+            },
+            child: const Text("בטל"),
           ),
-          child: _isSubmitting
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                )
-              : const Text("צור רשימה"),
+        ),
+        Tooltip(
+          message: 'יצירת הרשימה החדשה',
+          child: ElevatedButton(
+            onPressed: _isSubmitting ? null : _handleSubmit,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: theme.colorScheme.primary,
+              foregroundColor: theme.colorScheme.onPrimary,
+              minimumSize: const Size(48, 48), // ✅ Touch target
+            ),
+            child: _isSubmitting
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : const Text("צור רשימה"),
+          ),
         ),
       ],
     );

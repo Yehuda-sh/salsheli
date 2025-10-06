@@ -27,7 +27,13 @@ import '../theme/app_theme.dart';
 import '../widgets/common/benefit_tile.dart';
 import '../widgets/auth/auth_button.dart';
 import '../services/navigation_service.dart';
-import '../core/constants.dart';
+
+// קבועים מקומיים (הועברו מ-constants.dart שנמחק)
+const double kSpacingSmall = 8.0;
+const double kSpacingMedium = 16.0;
+const double kSpacingLarge = 24.0;
+const double kButtonHeight = 48.0;
+const double kBorderRadius = 12.0;
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});

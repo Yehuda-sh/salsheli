@@ -47,8 +47,8 @@
 //     - products.json (local fallback)
 
 import 'package:flutter/foundation.dart';
-import '../services/published_prices_service.dart';
-import '../helpers/product_loader.dart';
+import 'package:flutter/services.dart';
+import '../services/shufersal_prices_service.dart';  // 🆕 שופרסל החדש!
 import 'local_products_repository.dart';
 import 'firebase_products_repository.dart';  // 🆕 Firebase!
 import 'products_repository.dart';
@@ -56,7 +56,7 @@ import '../models/product_entity.dart';
 
 class HybridProductsRepository implements ProductsRepository {
   final LocalProductsRepository _localRepo;
-  final PublishedPricesService _apiService;
+  final ShufersalPricesService _apiService;  // 🆕 שופרסל!
   final FirebaseProductsRepository? _firebaseRepo;  // 🆕 Firebase!
 
   bool _isInitialized = false;
@@ -64,10 +64,10 @@ class HybridProductsRepository implements ProductsRepository {
 
   HybridProductsRepository({
     required LocalProductsRepository localRepo,
-    PublishedPricesService? apiService,
+    ShufersalPricesService? apiService,  // 🆕 שופרסל!
     FirebaseProductsRepository? firebaseRepo,  // 🆕 אופציונלי!
   })  : _localRepo = localRepo,
-        _apiService = apiService ?? PublishedPricesService(),
+        _apiService = apiService ?? ShufersalPricesService(),  // 🆕
         _firebaseRepo = firebaseRepo;
 
   /// אתחול - טוען מוצרים אם ה-DB ריק
@@ -97,7 +97,14 @@ class HybridProductsRepository implements ProductsRepository {
       }
 
       _isInitialized = true;
-      debugPrint('✅ HybridProductsRepository.initialize: הושלם בהצלחה\n');
+      debugPrint('✅ HybridProductsRepository.initialize: הושלם בהצלחה');
+      
+      // 💰 עדכון מחירים אוטומטי (רק אם יש מוצרים)
+      if (_localRepo.totalProducts > 0) {
+        debugPrint('💰 מתחיל עדכון מחירים אוטומטי מ-API...');
+        await updatePrices();
+      }
+      debugPrint('');
     } catch (e) {
       debugPrint('❌ שגיאה באתחול HybridProductsRepository: $e');
       _isInitialized = true; // סימון כמוכן למרות השגיאה
@@ -232,7 +239,8 @@ class HybridProductsRepository implements ProductsRepository {
       debugPrint('📂 מנסה לטעון מ-products.json...');
       
       // קריאה מהקובץ (JSON הוא Array)
-      final productsData = await loadProductsAsList();
+      final jsonString = await rootBundle.loadString('assets/data/products.json');
+      final productsData = json.decode(jsonString) as List;
       
       if (productsData.isEmpty) {
         debugPrint('⚠️ products.json ריק או לא תקין');
@@ -299,18 +307,18 @@ class HybridProductsRepository implements ProductsRepository {
     }
   }
 
-  /// טעינה מ-API
+  /// טעינה מ-API (שופרסל)
   Future<bool> _loadFromAPI() async {
     try {
-      debugPrint('📞 מנסה לטעון מוצרים מ-API...');
-      final apiProducts = await _apiService.getProducts(forceRefresh: true);
+      debugPrint('📞 מנסה לטעון מוצרים מ-API (שופרסל)...');
+      final apiProducts = await _apiService.getProducts();
 
       if (apiProducts.isEmpty) {
         debugPrint('⚠️ לא נמצאו מוצרים ב-API');
         return false;
       }
 
-      // המרה ל-ProductEntity (ללא מחירים)
+      // המרה ל-ProductEntity
       final entities = apiProducts.map((p) {
         final appFormat = p.toAppFormat();
         return ProductEntity(
@@ -320,10 +328,9 @@ class HybridProductsRepository implements ProductsRepository {
           brand: appFormat['brand'] ?? '',
           unit: appFormat['unit'] ?? '',
           icon: appFormat['icon'] ?? '🛒',
-          // לא שומרים מחיר בשלב זה
-          currentPrice: null,
-          lastPriceStore: null,
-          lastPriceUpdate: null,
+          currentPrice: appFormat['price'] as double?,
+          lastPriceStore: appFormat['store'] as String?,
+          lastPriceUpdate: DateTime.now(),
         );
       }).toList();
 
@@ -457,7 +464,7 @@ class HybridProductsRepository implements ProductsRepository {
     await updatePrices();
   }
 
-  /// 💰 עדכון מחירים בלבד מה-API
+  /// 💰 עדכון מחירים בלבד מה-API (שופרסל)
   Future<void> updatePrices() async {
     if (_isPriceUpdateInProgress) {
       debugPrint('⚠️ עדכון מחירים כבר בתהליך');
@@ -467,7 +474,7 @@ class HybridProductsRepository implements ProductsRepository {
     _isPriceUpdateInProgress = true;
 
     try {
-      debugPrint('💰 מעדכן מחירים מ-API...');
+      debugPrint('💰 מעדכן מחירים מ-API (שופרסל)...');
 
       final apiProducts = await _apiService.getProducts();
 
@@ -498,13 +505,24 @@ class HybridProductsRepository implements ProductsRepository {
           updated++;
         } else {
           // מוצר חדש - הוספה
-          final newProduct = ProductEntity.fromPublishedProduct(appFormat);
+          final newProduct = ProductEntity(
+            barcode: barcode,
+            name: appFormat['name'] ?? '',
+            category: appFormat['category'] ?? 'אחר',
+            brand: appFormat['brand'] ?? '',
+            unit: appFormat['unit'] ?? '',
+            icon: appFormat['icon'] ?? '🛒',
+            currentPrice: price,
+            lastPriceStore: store,
+            lastPriceUpdate: DateTime.now(),
+          );
           await _localRepo.saveProduct(newProduct);
           added++;
         }
       }
 
-      debugPrint('✅ עדכון הסתיים: $updated מחירים עודכנו, $added מוצרים נוספו');
+      debugPrint(
+          '✅ עדכון הסתיים: $updated מחירים עודכנו, $added מוצרים נוספו');
     } catch (e) {
       debugPrint('❌ שגיאה בעדכון מחירים: $e');
     } finally {

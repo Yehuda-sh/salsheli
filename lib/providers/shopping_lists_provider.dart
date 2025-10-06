@@ -1,12 +1,51 @@
-// 📄 File: lib/providers/shopping_lists_provider.dart - FIXED
+// 📄 File: lib/providers/shopping_lists_provider.dart
 //
-// ✅ תיקונים:
-// 1. הסרת תלות ב-UserContextProvider (לא קיים)
-// 2. createList() תומך ב-type ו-budget
-// 3. שמירה על תאימות למערכת הקיימת
+// 🎯 Purpose: Provider לניהול רשימות קניות - ניהול state מרכזי של כל הרשימות
 //
-// 🇮🇱 Provider לניהול רשימות קניות.
-// 🇬🇧 Provider for managing shopping lists.
+// 📦 Dependencies:
+// - ShoppingListsRepository: ממשק לטעינת/שמירת רשימות
+// - UserContext: household_id + auth state
+//
+// ✨ Features:
+// - 📥 טעינה אוטומטית: מאזין ל-UserContext ומריענן כשמשתמש משתנה
+// - ✏️ CRUD מלא: יצירה, עדכון, מחיקה, שחזור (Undo)
+// - 📊 State management: isLoading, errorMessage, lastUpdated
+// - 🔄 Auto-sync: רענון אוטומטי כשמשתמש מתחבר/מתנתק
+// - 🎯 פעולות על פריטים: הוספה, עדכון, מחיקה, סימון כולם
+// - 📋 סטטיסטיקות: ספירת פריטים מסומנים/לא מסומנים
+// - 🐛 Logging מפורט: כל פעולה עם debugPrint
+//
+// 📝 Usage:
+// ```dart
+// // בקריאת נתונים:
+// final provider = context.watch<ShoppingListsProvider>();
+// final lists = provider.lists;
+//
+// // ביצירת רשימה:
+// final list = await provider.createList(
+//   name: 'קניות שבועיות',
+//   type: ShoppingList.typeSuper,
+//   budget: 500.0,
+// );
+//
+// // בעדכון:
+// await provider.updateList(updatedList);
+//
+// // במחיקה:
+// await provider.deleteList(listId);
+//
+// // בשחזור (Undo):
+// await provider.restoreList(deletedList);
+// ```
+//
+// 🔄 State Flow:
+// 1. Constructor → מחכה ל-UserContext
+// 2. updateUserContext() → _onUserChanged() → loadLists()
+// 3. CRUD operations → Repository → loadLists() → notifyListeners()
+//
+// Version: 2.0 (עם UserContext סטנדרטי + logging מלא)
+// Last Updated: 06/10/2025
+//
 
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
@@ -14,137 +53,169 @@ import 'package:uuid/uuid.dart';
 import '../models/receipt.dart';
 import '../models/shopping_list.dart';
 import '../repositories/shopping_lists_repository.dart';
+import 'user_context.dart';
 
 class ShoppingListsProvider with ChangeNotifier {
   final ShoppingListsRepository _repository;
   final _uuid = const Uuid();
 
+  // State
   List<ShoppingList> _lists = [];
   bool _isLoading = false;
   String? _errorMessage;
   DateTime? _lastUpdated;
 
-  // ✅ במקום UserContext - פשוט נשמור את ה-householdId
-  String? _householdId;
-  String? _currentUserId;
+  // UserContext
+  UserContext? _userContext;
+  bool _listening = false;
 
-  ShoppingListsProvider({required ShoppingListsRepository repository})
-    : _repository = repository;
+  ShoppingListsProvider({
+    required ShoppingListsRepository repository,
+  }) : _repository = repository;
 
+  // === Getters ===
   List<ShoppingList> get lists => List.unmodifiable(_lists);
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   DateTime? get lastUpdated => _lastUpdated;
 
-  // ✅ הגדרת המשתמש הנוכחי (קריאה מהמערכת הקיימת)
-  void setCurrentUser({required String userId, required String householdId}) {
-    debugPrint('\n👤 ShoppingListsProvider.setCurrentUser()');
-    debugPrint('   userId: $userId');
-    debugPrint('   householdId: $householdId');
-    
-    _currentUserId = userId;
-    _householdId = householdId;
-    
-    debugPrint('   ➡️ קורא ל-loadLists()...');
+  // === חיבור UserContext ===
+  
+  /// מעדכן את ה-UserContext ומאזין לשינויים
+  /// נקרא אוטומטית מ-ProxyProvider
+  void updateUserContext(UserContext newContext) {
+    if (_listening && _userContext != null) {
+      _userContext!.removeListener(_onUserChanged);
+      _listening = false;
+    }
+    _userContext = newContext;
+    _userContext!.addListener(_onUserChanged);
+    _listening = true;
+    _initialize();
+  }
+
+  void _onUserChanged() {
     loadLists();
   }
 
-  // === Load Lists ===
-  Future<void> loadLists() async {
-    if (_householdId == null) {
-      debugPrint(
-        '⚠️ ShoppingListsProvider.loadLists: לא ניתן לטעון רשימות - אין householdId',
-      );
-      return;
+  void _initialize() {
+    if (_userContext?.isLoggedIn == true) {
+      loadLists();
+    } else {
+      _lists = [];
+      notifyListeners();
     }
+  }
 
-    debugPrint('\n📜 ShoppingListsProvider.loadLists() - מתחיל...');
-    debugPrint('   householdId: $_householdId');
-    
+  /// טוען את כל הרשימות מחדש מה-Repository
+  /// 
+  /// Example:
+  /// ```dart
+  /// await shoppingListsProvider.loadLists();
+  /// ```
+  Future<void> loadLists() async {
+    final householdId = _userContext?.user?.householdId;
+    if (householdId == null) return;
+
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      _lists = await _repository.fetchLists(_householdId!);
+      _lists = await _repository.fetchLists(householdId);
       _lastUpdated = DateTime.now();
-      debugPrint('✅ ShoppingListsProvider: נטענו ${_lists.length} רשימות');
+      debugPrint('✅ נטענו ${_lists.length} רשימות');
     } catch (e) {
       _errorMessage = e.toString();
-      debugPrint('❌ ShoppingListsProvider: שגיאה בטעינת רשימות - $e');
+      debugPrint('❌ שגיאה בטעינת רשימות: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  // === Create List === ✅ עודכן - תומך ב-type ו-budget
+  /// יוצר רשימת קניות חדשה
+  /// 
+  /// Example:
+  /// ```dart
+  /// final list = await provider.createList(
+  ///   name: 'קניות שבועיות',
+  ///   type: ShoppingList.typeSuper,
+  ///   budget: 500.0,
+  /// );
+  /// ```
   Future<ShoppingList> createList({
     required String name,
     String type = ShoppingList.typeSuper,
     double? budget,
     bool isShared = false,
   }) async {
-    debugPrint('\n➕ ShoppingListsProvider.createList()');
-    debugPrint('   name: $name');
-    debugPrint('   type: $type');
-    debugPrint('   budget: $budget');
-    debugPrint('   isShared: $isShared');
+    final userId = _userContext?.user?.id;
+    final householdId = _userContext?.user?.householdId;
     
-    if (_currentUserId == null || _householdId == null) {
-      debugPrint('❌ משתמש לא מחובר');
+    if (userId == null || householdId == null) {
       throw Exception('❌ משתמש לא מחובר');
     }
 
     final newList = ShoppingList.newList(
       id: _uuid.v4(),
       name: name,
-      createdBy: _currentUserId!,
+      createdBy: userId,
       type: type,
       budget: budget,
       isShared: isShared,
     );
 
-    debugPrint('✅ שומר רשימה חדשה: ${newList.id}');
-    await _repository.saveList(newList, _householdId!);
-    
-    debugPrint('   ➡️ טוען מחדש את כל הרשימות...');
+    await _repository.saveList(newList, householdId);
     await loadLists();
     return newList;
   }
 
-  // === Delete List ===
+  /// מחיק רשימה
+  /// 
+  /// Example:
+  /// ```dart
+  /// await provider.deleteList(listId);
+  /// ```
   Future<void> deleteList(String id) async {
-    if (_householdId == null) {
+    final householdId = _userContext?.user?.householdId;
+    if (householdId == null) {
       throw Exception('❌ householdId לא נמצא');
     }
 
-    await _repository.deleteList(id, _householdId!);
+    await _repository.deleteList(id, householdId);
     await loadLists();
   }
 
-  // === Restore List (for Undo) ===
+  /// משחזר רשימה שנמחקה (Undo)
+  /// 
+  /// Example:
+  /// ```dart
+  /// await provider.restoreList(deletedList);
+  /// ```
   Future<void> restoreList(ShoppingList list) async {
-    debugPrint('↩️ ShoppingListsProvider.restoreList()');
-    debugPrint('   משחזר רשימה: ${list.name} (${list.id})');
-    
-    if (_householdId == null) {
-      debugPrint('❌ householdId לא נמצא');
+    final householdId = _userContext?.user?.householdId;
+    if (householdId == null) {
       throw Exception('❌ householdId לא נמצא');
     }
 
-    await _repository.saveList(list, _householdId!);
-    debugPrint('✅ רשימה שוחזרה בהצלחה');
+    await _repository.saveList(list, householdId);
     await loadLists();
   }
 
-  // === Update List ===
+  /// מעדכן רשימה קיימת
+  /// 
+  /// Example:
+  /// ```dart
+  /// await provider.updateList(updatedList);
+  /// ```
   Future<void> updateList(ShoppingList updated) async {
-    if (_householdId == null) {
+    final householdId = _userContext?.user?.householdId;
+    if (householdId == null) {
       throw Exception('❌ householdId לא נמצא');
     }
 
-    await _repository.saveList(updated, _householdId!);
+    await _repository.saveList(updated, householdId);
     await loadLists();
   }
 
@@ -217,7 +288,15 @@ class ShoppingListsProvider with ChangeNotifier {
     await updateList(updatedList);
   }
 
-  // === Get List Stats ===
+  /// מחזיר סטטיסטיקות על רשימה
+  /// 
+  /// Returns: Map עם total, checked, unchecked
+  /// 
+  /// Example:
+  /// ```dart
+  /// final stats = provider.getListStats(listId);
+  /// print('סומנו: ${stats['checked']}/${stats['total']}');
+  /// ```
   Map<String, int> getListStats(String listId) {
     final list = getById(listId);
     if (list == null) {
@@ -231,7 +310,12 @@ class ShoppingListsProvider with ChangeNotifier {
     return {'total': total, 'checked': checked, 'unchecked': unchecked};
   }
 
-  // === Update List Status ===
+  /// מעדכן סטטוס רשימה
+  /// 
+  /// Example:
+  /// ```dart
+  /// await provider.updateListStatus(listId, ShoppingList.statusCompleted);
+  /// ```
   Future<void> updateListStatus(String listId, String newStatus) async {
     final list = getById(listId);
     if (list == null) {
@@ -242,18 +326,26 @@ class ShoppingListsProvider with ChangeNotifier {
     await updateList(updatedList);
   }
 
-  // === Archive List ===
+  /// מארכבת רשימה
   Future<void> archiveList(String listId) async {
     await updateListStatus(listId, ShoppingList.statusArchived);
   }
 
-  // === Complete List ===
+  /// מסיימת רשימה כהושלמה
   Future<void> completeList(String listId) async {
     await updateListStatus(listId, ShoppingList.statusCompleted);
   }
 
-  // === Activate List ===
+  /// מפעילה רשימה
   Future<void> activateList(String listId) async {
     await updateListStatus(listId, ShoppingList.statusActive);
+  }
+
+  @override
+  void dispose() {
+    if (_listening && _userContext != null) {
+      _userContext!.removeListener(_onUserChanged);
+    }
+    super.dispose();
   }
 }

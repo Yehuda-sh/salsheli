@@ -26,6 +26,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+
+import '../core/ui_constants.dart';
 import '../core/constants.dart';
 
 class BarcodeScannerDialog extends StatefulWidget {

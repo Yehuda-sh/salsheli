@@ -17,6 +17,8 @@ import 'package:salsheli/providers/user_context.dart';
 import 'package:salsheli/providers/shopping_lists_provider.dart';
 import 'package:salsheli/providers/receipt_provider.dart';
 import 'package:salsheli/providers/inventory_provider.dart';
+import 'package:salsheli/providers/products_provider.dart';
+import 'package:salsheli/models/shopping_list.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -166,6 +168,70 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  // עדכון מחירים ידני
+  Future<void> _updatePrices(BuildContext context) async {
+    final productsProvider = context.read<ProductsProvider>();
+    
+    // הצגת SnackBar עם loading
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  Theme.of(context).colorScheme.onInverseSurface,
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            const Text('💰 מעדכן מחירים מ-API...'),
+          ],
+        ),
+        duration: const Duration(minutes: 5), // זמן ארוך לעדכון
+      ),
+    );
+
+    try {
+      // קריאה ל-refreshProducts עם force=true
+      await productsProvider.refreshProducts(force: true);
+
+      // סגירת SnackBar הקודם
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        
+        // הצגת תוצאה
+        final withPrice = productsProvider.productsWithPrice;
+        final total = productsProvider.totalProducts;
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '✅ התעדכנו $withPrice מחירים מתוך $total מוצרים!',
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      // שגיאה
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ שגיאה בעדכון מחירים: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    }
+  }
+
   // התנתקות
   Future<void> _logout() async {
     final confirmed = await showDialog<bool>(
@@ -210,7 +276,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final inventoryProvider = context.watch<InventoryProvider>();
 
     // חישוב סטטיסטיקות בזמן אמת
-    final activeLists = listsProvider.lists.where((l) => !l.isCompleted).length;
+    final activeLists = listsProvider.lists.where((l) => l.status != ShoppingList.statusCompleted).length;
     final totalReceipts = receiptsProvider.receipts.length;
     final pantryItems = inventoryProvider.items.length;
 
@@ -246,7 +312,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   // תמונת פרופיל
                   CircleAvatar(
                     radius: 36,
-                    backgroundColor: cs.primary.withOpacity(0.15),
+                    backgroundColor: cs.primary.withValues(alpha: 0.15),
                     child: Icon(Icons.person, color: cs.primary, size: 36),
                   ),
                   const SizedBox(width: 16),
@@ -452,7 +518,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ...members.map(
                     (member) => ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: cs.primary.withOpacity(0.15),
+                        backgroundColor: cs.primary.withValues(alpha: 0.15),
                         child: Icon(Icons.person, color: cs.primary, size: 20),
                       ),
                       title: Text(member['name']!),
@@ -664,6 +730,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   trailing: const Icon(Icons.chevron_left),
                   onTap: () => Navigator.pushNamed(context, '/price-compare'),
                 ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: Icon(Icons.sync, color: cs.primary),
+                  title: const Text("עדכן מחירים מ-API"),
+                  subtitle: const Text("טעינת מחירים עדכניים מהרשת"),
+                  trailing: const Icon(Icons.chevron_left),
+                  onTap: () => _updatePrices(context),
+                ),
               ],
             ),
           ),
@@ -719,7 +793,7 @@ class _StatCard extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.15),
+                color: color.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: color, size: 22),

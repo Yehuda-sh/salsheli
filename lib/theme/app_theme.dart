@@ -1,30 +1,91 @@
 // 📄 File: lib/theme/app_theme.dart
 // תיאור: עיצוב האפליקציה - צבעים, טיפוגרפיה, ו-Theme components
 //
-// עדכון: הוספת welcomeBackground ל-AppBrand
+// Purpose:
+// מערכת Theme מרכזית לכל האפליקציה - מגדירה צבעים, טיפוגרפיה, ועיצוב רכיבים.
+// תומכת ב-Light/Dark modes עם Material 3 ומותג מותאם אישית (AppBrand).
+//
+// Features:
+// - Material 3 Theme מלא
+// - Light/Dark modes עם Slate כהה
+// - AppBrand: צבעי מותג מותאמים (Amber accent, Slate backgrounds)
+// - RTL support מובנה (EdgeInsetsDirectional)
+// - Typography: Assistant font family
+// - Accessible: גדלי מגע 48px, contrast AA+
+//
+// Dependencies:
+// - flutter/material.dart
+// - Assistant font (pubspec.yaml)
+//
+// Usage:
+//
+// Example 1 - Apply theme in MaterialApp:
+// ```dart
+// MaterialApp(
+//   theme: AppTheme.lightTheme,
+//   darkTheme: AppTheme.darkTheme,
+//   themeMode: ThemeMode.system,
+//   home: HomeScreen(),
+// )
+// ```
+//
+// Example 2 - Access brand colors in widgets:
+// ```dart
+// final brand = Theme.of(context).extension<AppBrand>();
+// Container(
+//   color: brand?.accent, // Amber
+// )
+// ```
+//
+// Example 3 - Use theme colors:
+// ```dart
+// final cs = Theme.of(context).colorScheme;
+// Text('Hello', style: TextStyle(color: cs.primary))
+// ```
+//
+// Color Palette:
+// - Slate 900 (#0F172A): Dark backgrounds (Welcome, Home)
+// - Slate 800 (#1E293B): Cards, Dialogs in dark mode
+// - Slate 700 (#334155): Dividers, borders
+// - Amber (#FFC107): Accent color (buttons, highlights)
+// - Primary Seed (#4CAF50): Green base for Material palette
+//
+// Version: 2.0
 
 import 'package:flutter/material.dart';
 
 /// צבעי מותג (קבועים)
+/// 
+/// Slate: משפחת צבעים כהים לרקעים ו-surfaces
+/// Amber: צבע accent ברור וחם
+/// Primary Seed: בסיס ירוק לpalette של Material 3
 class _Brand {
   // Slate כהה כמו במסכי Home/Onboarding
-  static const slate900 = Color(0xFF0F172A);
-  static const slate800 = Color(0xFF1E293B);
-  static const slate700 = Color(0xFF334155);
+  static const slate900 = Color(0xFF0F172A); // רקע כהה עמוק
+  static const slate800 = Color(0xFF1E293B); // כרטיסים ודיאלוגים
+  static const slate700 = Color(0xFF334155); // גבולות ודיווידרים
 
-  // Accent ענבר
-  static const amber = Color(0xFFFFC107); // ענבר נעים וברור
+  // Accent ענבר - בולט וחם
+  static const amber = Color(0xFFC107); // ענבר נעים וברור
 
   // בסיס ירקרק (אם תרצה לשמר זהות קיימת)
-  static const primarySeed = Color(0xFF4CAF50);
+  static const primarySeed = Color(0xFF4CAF50); // ירוק Material
 }
 
 /// ThemeExtension כדי להעביר צבעי מותג לרכיבים/מסכים
+/// 
+/// מאפשר גישה לצבעים מותאמים אישית שלא חלק מ-ColorScheme הסטנדרטי.
+/// גישה דרך: `Theme.of(context).extension<AppBrand>()`
 @immutable
 class AppBrand extends ThemeExtension<AppBrand> {
-  final Color accent; // ענבר
-  final Color surfaceSlate; // Slate כהה לברירת־מחדל במסכים
-  final Color welcomeBackground; // רקע מסך Welcome (Slate 900)
+  /// צבע accent ראשי (Amber)
+  final Color accent;
+  
+  /// רקע Slate כהה לברירת־מחדל במסכים
+  final Color surfaceSlate;
+  
+  /// רקע מסך Welcome (Slate 900)
+  final Color welcomeBackground;
 
   const AppBrand({
     required this.accent,
@@ -38,6 +99,7 @@ class AppBrand extends ThemeExtension<AppBrand> {
     Color? surfaceSlate,
     Color? welcomeBackground,
   }) {
+    debugPrint('🎨 AppBrand.copyWith()');
     return AppBrand(
       accent: accent ?? this.accent,
       surfaceSlate: surfaceSlate ?? this.surfaceSlate,
@@ -47,6 +109,7 @@ class AppBrand extends ThemeExtension<AppBrand> {
 
   @override
   AppBrand lerp(ThemeExtension<AppBrand>? other, double t) {
+    debugPrint('🎨 AppBrand.lerp(t: ${t.toStringAsFixed(2)})');
     if (other is! AppBrand) return this;
     return AppBrand(
       accent: Color.lerp(accent, other.accent, t)!,
@@ -60,6 +123,7 @@ class AppBrand extends ThemeExtension<AppBrand> {
   }
 }
 
+/// מחלקה ראשית לניהול Themes
 class AppTheme {
   // סכמות צבע לפי Material 3
   static final _lightScheme = ColorScheme.fromSeed(
@@ -73,14 +137,27 @@ class AppTheme {
   );
 
   /// בסיס משותף ל־Light/Dark
+  /// 
+  /// יוצר ThemeData מלא עם כל ההגדרות:
+  /// - ColorScheme (light/dark)
+  /// - AppBrand extension
+  /// - רכיבים (buttons, cards, inputs, etc.)
+  /// - טיפוגרפיה (Assistant font)
   static ThemeData _base(ColorScheme scheme, {required bool dark}) {
+    debugPrint('🎨 AppTheme._base(dark: $dark)');
+    
     final brand = AppBrand(
       accent: _Brand.amber,
       surfaceSlate: _Brand.slate900,
-      welcomeBackground: _Brand.slate900, // ✅ הוספה
+      welcomeBackground: _Brand.slate900,
     );
+    
+    debugPrint('   🎨 accent: ${brand.accent.value.toRadixString(16)}');
+    debugPrint('   🎨 surfaceSlate: ${brand.surfaceSlate.value.toRadixString(16)}');
 
     // צבעי מילוי דקים לשדות טופס
+    // Light: שקוף יותר (6% opacity)
+    // Dark: קצת יותר בולט (8% opacity)
     final fillOnLight = scheme.surfaceContainerHighest.withValues(alpha: 0.06);
     final fillOnDark = scheme.surfaceContainerHighest.withValues(alpha: 0.08);
 
@@ -93,6 +170,7 @@ class AppTheme {
       // רקע כללי — בדארק נרצה Slate כהה
       scaffoldBackgroundColor: dark ? _Brand.slate900 : scheme.surface,
 
+      // AppBar - עליון של מסכים
       appBarTheme: AppBarTheme(
         elevation: 2,
         centerTitle: true,
@@ -100,11 +178,13 @@ class AppTheme {
         foregroundColor: dark ? scheme.onSurface : scheme.onPrimary,
       ),
 
-      // כפתורים
+      // כפתורים - 4 סוגים
+      
+      // ElevatedButton: כפתור ראשי עם רקע Amber
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: brand.accent,
-          foregroundColor: Colors.black,
+          backgroundColor: brand.accent, // Amber
+          foregroundColor: Colors.black, // טקסט שחור על Amber
           textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           shape: RoundedRectangleBorder(
@@ -112,6 +192,8 @@ class AppTheme {
           ),
         ),
       ),
+      
+      // OutlinedButton: כפתור משני עם מסגרת Amber
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           side: BorderSide(color: brand.accent),
@@ -123,6 +205,8 @@ class AppTheme {
           ),
         ),
       ),
+      
+      // FilledButton: כפתור מלא עם primary color
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: scheme.primary,
@@ -134,6 +218,8 @@ class AppTheme {
           ),
         ),
       ),
+      
+      // TextButton: כפתור טקסט פשוט
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: brand.accent,
@@ -141,10 +227,10 @@ class AppTheme {
         ),
       ),
 
-      // כרטיסים
+      // כרטיסים - Cards
       cardTheme: CardThemeData(
         elevation: 2,
-        color: dark ? _Brand.slate800 : scheme.surface,
+        color: dark ? _Brand.slate800 : scheme.surface, // Slate בdark
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -157,7 +243,7 @@ class AppTheme {
         contentPadding: const EdgeInsetsDirectional.only(start: 16, end: 12),
       ),
 
-      // שדות קלט
+      // שדות קלט - TextField, TextFormField
       inputDecorationTheme: InputDecorationTheme(
         isDense: true,
         filled: true,
@@ -180,7 +266,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: brand.accent, width: 2),
+          borderSide: BorderSide(color: brand.accent, width: 2), // Amber כש-focused
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -192,7 +278,7 @@ class AppTheme {
         ),
       ),
 
-      // CheckBox, Switch, Radio
+      // CheckBox, Switch, Radio - רכיבי בחירה
       checkboxTheme: CheckboxThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) return brand.accent;
@@ -219,7 +305,7 @@ class AppTheme {
         }),
       ),
 
-      // Slider
+      // Slider - ווליום, בהירות, וכו'
       sliderTheme: SliderThemeData(
         activeTrackColor: brand.accent,
         inactiveTrackColor: dark ? Colors.white24 : Colors.black12,
@@ -229,9 +315,9 @@ class AppTheme {
         valueIndicatorTextStyle: const TextStyle(color: Colors.black),
       ),
 
-      // מחווני התקדמות
+      // מחווני התקדמות - Progress Indicators
       progressIndicatorTheme: ProgressIndicatorThemeData(
-        color: brand.accent,
+        color: brand.accent, // Amber spinner
         linearTrackColor: dark ? Colors.white10 : Colors.black12,
         linearMinHeight: 6,
       ),
@@ -260,18 +346,18 @@ class AppTheme {
         ),
       ),
 
-      // סנאק־בר
+      // סנאק־בר - הודעות זמניות
       snackBarTheme: SnackBarThemeData(
         backgroundColor: dark ? _Brand.slate700 : scheme.inverseSurface,
         contentTextStyle: TextStyle(
           color: dark ? Colors.white : scheme.onInverseSurface,
           fontFamily: 'Assistant',
         ),
-        actionTextColor: brand.accent,
+        actionTextColor: brand.accent, // כפתור action בAmber
         behavior: SnackBarBehavior.floating,
       ),
 
-      // טיפוגרפיה כללית
+      // טיפוגרפיה כללית - גדלים ומשקלים
       textTheme: const TextTheme(
         titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         titleMedium: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
@@ -279,7 +365,7 @@ class AppTheme {
         bodySmall: TextStyle(fontSize: 14),
       ),
     ).copyWith(
-      // צבעי טקסט לפי מצב
+      // צבעי טקסט לפי מצב - white בdark, onSurface בlight
       textTheme: ThemeData().textTheme.apply(
         bodyColor: dark ? Colors.white : scheme.onSurface,
         displayColor: dark ? Colors.white : scheme.onSurface,
@@ -288,6 +374,16 @@ class AppTheme {
   }
 
   // ערכות סופיות ליישום
-  static final ThemeData lightTheme = _base(_lightScheme, dark: false);
-  static final ThemeData darkTheme = _base(_darkScheme, dark: true);
+  
+  /// Light Theme - מצב יום
+  static ThemeData get lightTheme {
+    debugPrint('☀️ AppTheme.lightTheme - Loading...');
+    return _base(_lightScheme, dark: false);
+  }
+
+  /// Dark Theme - מצב לילה
+  static ThemeData get darkTheme {
+    debugPrint('🌙 AppTheme.darkTheme - Loading...');
+    return _base(_darkScheme, dark: true);
+  }
 }

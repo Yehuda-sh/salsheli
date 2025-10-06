@@ -129,37 +129,6 @@ class Receipt {
     );
   }
 
-  /// מספר יחידות כולל (כמויות)
-  int get itemsCount => items.fold<int>(0, (sum, item) => sum + item.quantity);
-
-  /// סכום פריטים מחושב (quantity * unitPrice)
-  double get itemsSubtotal =>
-      items.fold<double>(0.0, (sum, item) => sum + item.totalPrice);
-
-  /// האם יש חוסר התאמה בין סכום הקבלה לסכום המחושב
-  bool get isTotalMismatched => (totalAmount - itemsSubtotal).abs() > 0.01;
-
-  /// האם הקבלה כוללת פריטים
-  bool get hasItems => items.isNotEmpty;
-
-  Receipt copyWith({
-    String? id,
-    String? storeName,
-    DateTime? date,
-    DateTime? createdDate,
-    double? totalAmount,
-    List<ReceiptItem>? items,
-  }) {
-    return Receipt(
-      id: id ?? this.id,
-      storeName: storeName ?? this.storeName,
-      date: date ?? this.date,
-      createdDate: createdDate ?? this.createdDate,
-      totalAmount: totalAmount ?? this.totalAmount,
-      items: items ?? this.items,
-    );
-  }
-
   factory Receipt.fromJson(Map<String, dynamic> json) =>
       _$ReceiptFromJson(json);
 
@@ -221,28 +190,6 @@ class ReceiptItem {
 
   /// מחיר כולל (כמות * מחיר ליחידה)
   double get totalPrice => quantity * unitPrice;
-
-  /// יצירת פריט ידני עם id אוטומטי
-  factory ReceiptItem.manual({
-    required String name,
-    int quantity = 1,
-    double unitPrice = 0.0,
-    String? barcode,
-    String? manufacturer,
-    String? category,
-    String? unit,
-  }) {
-    return ReceiptItem(
-      id: const Uuid().v4(),
-      name: name,
-      quantity: quantity,
-      unitPrice: unitPrice,
-      barcode: barcode,
-      manufacturer: manufacturer,
-      category: category,
-      unit: unit,
-    );
-  }
 
   ReceiptItem copyWith({
     String? id,

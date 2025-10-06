@@ -1,59 +1,72 @@
 // 📄 File: lib/models/inventory_item.dart
+// Version: 2.0
+// Last Updated: 06/10/2025
 //
-// 🇮🇱 מודל InventoryItem מייצג פריט במלאי / מזווה:
-//     - מזהה ייחודי (UUID/ברקוד).
-//     - שם מוצר, קטגוריה, מיקום אחסון.
-//     - כמות ויחידת מידה.
-//     - נתמך ב־JSON לצורך שמירה מקומית (SharedPreferences / Hive)
-//       או סנכרון מול API.
+// Purpose:
+//   מודל InventoryItem מייצג פריט במלאי/מזווה של משק הבית.
+//   תומך בסנכרון עם Firebase Firestore ב-JSON format.
 //
-// 💡 רעיונות עתידיים:
-//     - תאריך תפוגה (expiryDate).
-//     - התראות כשכמות נמוכה.
-//     - קישור ישיר למודל Product/PriceData.
+// Features:
+//   ✅ JSON serialization (json_annotation)
+//   ✅ Immutable model (@immutable)
+//   ✅ copyWith for updates
+//   ✅ Equality & hashCode
+//   ✅ Firebase-ready (household_id handled by Repository)
+//   ✅ Compact debug logging
 //
-// 🇬🇧 The InventoryItem model represents a pantry/storage item:
-//     - Unique identifier (UUID/barcode).
-//     - Product name, category, and storage location.
-//     - Quantity and unit.
-//     - JSON supported for local storage (SharedPreferences / Hive)
-//       or API synchronization.
+// Usage:
+//   ```dart
+//   // יצירה
+//   final item = InventoryItem(
+//     id: uuid.v4(),
+//     productName: 'חלב 3%',
+//     category: 'מוצרי חלב',
+//     location: 'מקרר',
+//     quantity: 2,
+//     unit: 'ליטר',
+//   );
 //
-// 💡 Future ideas:
-//     - Expiry date field.
-//     - Low-stock notifications.
-//     - Link to Product/PriceData model.
+//   // JSON
+//   final json = item.toJson();
+//   final fromJson = InventoryItem.fromJson(json);
 //
+//   // עדכון
+//   final updated = item.copyWith(quantity: 1);
+//   ```
+//
+// Dependencies:
+//   - json_annotation: JSON serialization
+//   - firebase_inventory_repository: household_id management
+//
+// Notes:
+//   - household_id לא חלק מהמודל (Repository מנהל אותו)
+//   - Repository מוסיף household_id בשמירה ל-Firestore
+//   - Repository מסנן לפי household_id בטעינה
 
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'inventory_item.g.dart';
 
+@immutable
 @JsonSerializable()
 class InventoryItem {
-  /// 🇮🇱 מזהה ייחודי לפריט (UUID/ברקוד).
-  /// 🇬🇧 Unique identifier (UUID/barcode).
+  /// מזהה ייחודי (UUID)
   final String id;
 
-  /// 🇮🇱 שם המוצר (לדוגמה: "חלב 3%").
-  /// 🇬🇧 Product name (e.g., "Milk 3%").
+  /// שם המוצר (e.g., "חלב 3%")
   final String productName;
 
-  /// 🇮🇱 קטגוריה (חלב, בשר, ירקות...).
-  /// 🇬🇧 Category (dairy, meat, vegetables...).
+  /// קטגוריה (e.g., "מוצרי חלב", "ירקות")
   final String category;
 
-  /// 🇮🇱 מיקום אחסון (מקרר, מקפיא, ארון).
-  /// 🇬🇧 Storage location (fridge, freezer, pantry).
+  /// מיקום אחסון (e.g., "מקרר", "מקפיא", "ארון")
   final String location;
 
-  /// 🇮🇱 כמות זמינה.
-  /// 🇬🇧 Available quantity.
+  /// כמות זמינה
   final int quantity;
 
-  /// 🇮🇱 יחידת מידה (יחידה, ק"ג, ליטר...).
-  /// 🇬🇧 Unit of measure (pcs, kg, liter...).
+  /// יחידת מידה (e.g., "יח'", "ק"ג", "ליטר")
   final String unit;
 
   const InventoryItem({
@@ -65,34 +78,19 @@ class InventoryItem {
     required this.unit,
   });
 
-  /// 🇮🇱 יצירה מ־JSON (deserialize).
-  /// 🇬🇧 Create from JSON.
+  /// יצירה מ-JSON (deserialize)
   factory InventoryItem.fromJson(Map<String, dynamic> json) {
-    debugPrint('📥 InventoryItem.fromJson:');
-    debugPrint('   id: ${json['id']}');
-    debugPrint('   productName: ${json['productName']}');
-    debugPrint('   category: ${json['category']}');
-    debugPrint('   location: ${json['location']}');
-    debugPrint('   quantity: ${json['quantity']}');
-    debugPrint('   unit: ${json['unit']}');
+    debugPrint('📥 InventoryItem.fromJson: id=${json['id']}, product=${json['productName']}, qty=${json['quantity']}');
     return _$InventoryItemFromJson(json);
   }
 
-  /// 🇮🇱 המרה ל־JSON (serialize).
-  /// 🇬🇧 Convert to JSON.
+  /// המרה ל-JSON (serialize)
   Map<String, dynamic> toJson() {
-    debugPrint('📤 InventoryItem.toJson:');
-    debugPrint('   id: $id');
-    debugPrint('   productName: $productName');
-    debugPrint('   category: $category');
-    debugPrint('   location: $location');
-    debugPrint('   quantity: $quantity');
-    debugPrint('   unit: $unit');
+    debugPrint('📤 InventoryItem.toJson: id=$id, product=$productName, qty=$quantity');
     return _$InventoryItemToJson(this);
   }
 
-  /// 🇮🇱 יצירת עותק חדש עם עדכונים.
-  /// 🇬🇧 Create a new copy with updates.
+  /// יצירת עותק חדש עם עדכונים
   InventoryItem copyWith({
     String? id,
     String? productName,

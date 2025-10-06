@@ -11,8 +11,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../data/onboarding_data.dart';
-import '../../../core/constants.dart'; // קבועים: kPredefinedStores, kCategories
+import '../../../config/filters_config.dart'; // kCategories
 import '../../../theme/app_theme.dart'; // AppBrand
+
+// רשימת חנויות מקומית (מחליף את kPredefinedStores שנמחק)
+const List<String> _kStores = [
+  'שופרסל',
+  'רמי לוי',
+  'ויקטורי',
+  'סופר פארם',
+  'יינות ביתן',
+  'טיב טעם',
+  'מגה',
+  'יוחננוף',
+];
 
 class OnboardingSteps {
   static List<Widget> build({
@@ -30,7 +42,7 @@ class OnboardingSteps {
       _MultiSelectStep(
         title: "בחר חנויות מועדפות:",
         icon: Icons.store,
-        options: kPredefinedStores,
+        options: _kStores,
         selected: data.preferredStores,
         onChanged: onStoresChanged,
       ),
@@ -38,7 +50,7 @@ class OnboardingSteps {
       _MultiSelectStep(
         title: "אילו קטגוריות חשובות לכם במיוחד?",
         icon: Icons.category,
-        options: kCategories,
+        options: kCategories.values.toList(),
         selected: data.importantCategories,
         onChanged: onCategoriesChanged,
       ),
@@ -57,13 +69,11 @@ class _StepWrapper extends StatelessWidget {
   final IconData icon;
   final String title;
   final Widget child;
-  final Color? iconColor;
 
   const _StepWrapper({
     required this.icon,
     required this.title,
     required this.child,
-    this.iconColor,
   });
 
   @override
@@ -71,7 +81,7 @@ class _StepWrapper extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
     final brand = Theme.of(context).extension<AppBrand>();
-    final accent = iconColor ?? brand?.accent ?? cs.primary;
+    final accent = brand?.accent ?? cs.primary;
 
     return Directionality(
       textDirection: TextDirection.rtl,

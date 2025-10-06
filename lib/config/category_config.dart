@@ -4,7 +4,6 @@
 //     sort order, fallback support, and utilities for hex and JSON parsing.
 
 import 'dart:collection';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// קונפיגורציית קטגוריה לתצוגה ולוגיקה
@@ -91,11 +90,11 @@ class CategoryConfig {
           other.nameHe == nameHe &&
           other.nameEn == nameEn &&
           other.emoji == emoji &&
-          other.color.value == color.value &&
+          other.color == color &&
           other.sort == sort);
 
   @override
-  int get hashCode => Object.hash(id, nameHe, nameEn, emoji, color.value, sort);
+  int get hashCode => Object.hash(id, nameHe, nameEn, emoji, color, sort);
 }
 
 /// ----------------------------
@@ -193,9 +192,10 @@ Color _parseColorToken(String token) {
 /// דוגמה: Color(0xFFFF5733) → '#FF5733'
 String _colorToHex(Color c) {
   // מחזיר כ־#RRGGBB או #RRGGBBAA אם האלפא != FF
-  final rgb = c.value & 0x00FFFFFF;
+  final argb = c.toARGB32();
+  final rgb = argb & 0x00FFFFFF;
   final base = '#${rgb.toRadixString(16).padLeft(6, '0').toUpperCase()}';
-  final a = c.alpha; // 0–255
+  final a = (c.a * 255.0).round() & 0xff; // 0–255
   if (a != 0xFF) {
     final aa = a.toRadixString(16).padLeft(2, '0').toUpperCase();
     return '$base$aa';
@@ -275,9 +275,9 @@ final Map<String, CategoryConfig> kCategoryConfigs = UnmodifiableMapView(
   _categoryConfigsMutable,
 );
 
-/// תאימות לאחור (למי שמשתמש בשם הישן CATEGORY_CONFIG)
+/// תאימות לאחור (למי שמשתמש בשם הישן categoryConfig)
 @Deprecated('Use kCategoryConfigs instead')
-Map<String, CategoryConfig> get CATEGORY_CONFIG => kCategoryConfigs;
+Map<String, CategoryConfig> get categoryConfig => kCategoryConfigs;
 
 /// רשימה ממוינת של קטגוריות לפי sort ואז שם עברית
 /// 
