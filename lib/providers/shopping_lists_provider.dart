@@ -76,8 +76,10 @@ class ShoppingListsProvider with ChangeNotifier {
   // === Getters ===
   List<ShoppingList> get lists => List.unmodifiable(_lists);
   bool get isLoading => _isLoading;
+  bool get hasError => _errorMessage != null;
   String? get errorMessage => _errorMessage;
   DateTime? get lastUpdated => _lastUpdated;
+  bool get isEmpty => _lists.isEmpty;
 
   // === חיבור UserContext ===
   
@@ -115,8 +117,12 @@ class ShoppingListsProvider with ChangeNotifier {
   /// ```
   Future<void> loadLists() async {
     final householdId = _userContext?.user?.householdId;
-    if (householdId == null) return;
+    if (householdId == null) {
+      debugPrint('⚠️ loadLists: householdId is null');
+      return;
+    }
 
+    debugPrint('📥 loadLists: מתחיל טעינה (householdId: $householdId)');
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -124,14 +130,44 @@ class ShoppingListsProvider with ChangeNotifier {
     try {
       _lists = await _repository.fetchLists(householdId);
       _lastUpdated = DateTime.now();
-      debugPrint('✅ נטענו ${_lists.length} רשימות');
+      debugPrint('✅ loadLists: נטענו ${_lists.length} רשימות');
     } catch (e) {
       _errorMessage = e.toString();
-      debugPrint('❌ שגיאה בטעינת רשימות: $e');
+      debugPrint('❌ loadLists: שגיאה - $e');
+      notifyListeners(); // ← עדכון UI מיידי על שגיאה
     } finally {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  /// ניסיון חוזר אחרי שגיאה
+  /// 
+  /// Example:
+  /// ```dart
+  /// if (provider.hasError) {
+  ///   await provider.retry();
+  /// }
+  /// ```
+  Future<void> retry() async {
+    debugPrint('🔄 retry: מנסה שוב לטעון רשימות');
+    _errorMessage = null;
+    await loadLists();
+  }
+
+  /// מנקה את כל ה-state (שימושי ב-logout)
+  /// 
+  /// Example:
+  /// ```dart
+  /// await provider.clearAll();
+  /// ```
+  void clearAll() {
+    debugPrint('🧹 clearAll: מנקה state');
+    _lists = [];
+    _errorMessage = null;
+    _isLoading = false;
+    _lastUpdated = null;
+    notifyListeners();
   }
 
   /// יוצר רשימת קניות חדשה
@@ -156,10 +192,11 @@ class ShoppingListsProvider with ChangeNotifier {
     final householdId = _userContext?.user?.householdId;
     
     if (userId == null || householdId == null) {
+      debugPrint('❌ createList: משתמש לא מחובר');
       throw Exception('❌ משתמש לא מחובר');
     }
 
-    debugPrint('🎂 יוצר רשימה: "$name" (סוג: $type, תקציב: $budget, תאריך אירוע: $eventDate)');
+    debugPrint('➕ createList: "$name" (סוג: $type, תקציב: $budget, תאריך: $eventDate)');
 
     final newList = ShoppingList.newList(
       id: _uuid.v4(),
@@ -173,7 +210,7 @@ class ShoppingListsProvider with ChangeNotifier {
 
     await _repository.saveList(newList, householdId);
     await loadLists();
-    debugPrint('   ✅ רשימה נוצרה בהצלחה!');
+    debugPrint('✅ createList: רשימה "$name" נוצרה!');
     return newList;
   }
 
@@ -186,11 +223,14 @@ class ShoppingListsProvider with ChangeNotifier {
   Future<void> deleteList(String id) async {
     final householdId = _userContext?.user?.householdId;
     if (householdId == null) {
+      debugPrint('❌ deleteList: householdId לא נמצא');
       throw Exception('❌ householdId לא נמצא');
     }
 
+    debugPrint('🗑️ deleteList: מוחק רשימה $id');
     await _repository.deleteList(id, householdId);
     await loadLists();
+    debugPrint('✅ deleteList: רשימה $id נמחקה');
   }
 
   /// משחזר רשימה שנמחקה (Undo)
@@ -202,11 +242,14 @@ class ShoppingListsProvider with ChangeNotifier {
   Future<void> restoreList(ShoppingList list) async {
     final householdId = _userContext?.user?.householdId;
     if (householdId == null) {
+      debugPrint('❌ restoreList: householdId לא נמצא');
       throw Exception('❌ householdId לא נמצא');
     }
 
+    debugPrint('↩️ restoreList: משחזר רשימה ${list.id}');
     await _repository.saveList(list, householdId);
     await loadLists();
+    debugPrint('✅ restoreList: רשימה ${list.id} שוחזרה');
   }
 
   /// מעדכן רשימה קיימת
@@ -218,11 +261,14 @@ class ShoppingListsProvider with ChangeNotifier {
   Future<void> updateList(ShoppingList updated) async {
     final householdId = _userContext?.user?.householdId;
     if (householdId == null) {
+      debugPrint('❌ updateList: householdId לא נמצא');
       throw Exception('❌ householdId לא נמצא');
     }
 
+    debugPrint('📝 updateList: מעדכן רשימה ${updated.id}');
     await _repository.saveList(updated, householdId);
     await loadLists();
+    debugPrint('✅ updateList: רשימה ${updated.id} עודכנה');
   }
 
   // === Get List By ID ===
@@ -236,24 +282,30 @@ class ShoppingListsProvider with ChangeNotifier {
 
   // === Add Item To List ===
   Future<void> addItemToList(String listId, ReceiptItem item) async {
+    debugPrint('➕ addItemToList: מוסיף פריט "${item.name}" לרשימה $listId');
     final list = getById(listId);
     if (list == null) {
+      debugPrint('❌ addItemToList: רשימה $listId לא נמצאה');
       throw Exception('רשימה $listId לא נמצאה');
     }
 
     final updatedList = list.withItemAdded(item);
     await updateList(updatedList);
+    debugPrint('✅ addItemToList: פריט "${item.name}" נוסף');
   }
 
   // === Remove Item From List ===
   Future<void> removeItemFromList(String listId, int index) async {
+    debugPrint('🗑️ removeItemFromList: מוחק פריט #$index מרשימה $listId');
     final list = getById(listId);
     if (list == null) {
+      debugPrint('❌ removeItemFromList: רשימה $listId לא נמצאה');
       throw Exception('רשימה $listId לא נמצאה');
     }
 
     final updatedList = list.withItemRemoved(index);
     await updateList(updatedList);
+    debugPrint('✅ removeItemFromList: פריט #$index הוסר');
   }
 
   // === Update Item At Index ===
@@ -262,12 +314,15 @@ class ShoppingListsProvider with ChangeNotifier {
     int index,
     ReceiptItem Function(ReceiptItem) updateFn,
   ) async {
+    debugPrint('📝 updateItemAt: מעדכן פריט #$index ברשימה $listId');
     final list = getById(listId);
     if (list == null) {
+      debugPrint('❌ updateItemAt: רשימה $listId לא נמצאה');
       throw Exception('רשימה $listId לא נמצאה');
     }
 
     if (index < 0 || index >= list.items.length) {
+      debugPrint('❌ updateItemAt: אינדקס לא חוקי $index');
       throw Exception('אינדקס לא חוקי: $index');
     }
 
@@ -277,12 +332,15 @@ class ShoppingListsProvider with ChangeNotifier {
 
     final updatedList = list.copyWith(items: newItems);
     await updateList(updatedList);
+    debugPrint('✅ updateItemAt: פריט #$index עודכן');
   }
 
   // === Toggle All Items Checked ===
   Future<void> toggleAllItemsChecked(String listId, bool isChecked) async {
+    debugPrint('✔️ toggleAllItemsChecked: מסמן הכל = $isChecked ברשימה $listId');
     final list = getById(listId);
     if (list == null) {
+      debugPrint('❌ toggleAllItemsChecked: רשימה $listId לא נמצאה');
       throw Exception('רשימה $listId לא נמצאה');
     }
 
@@ -292,6 +350,7 @@ class ShoppingListsProvider with ChangeNotifier {
 
     final updatedList = list.copyWith(items: newItems);
     await updateList(updatedList);
+    debugPrint('✅ toggleAllItemsChecked: ${newItems.length} פריטים עודכנו');
   }
 
   /// מחזיר סטטיסטיקות על רשימה
@@ -323,13 +382,16 @@ class ShoppingListsProvider with ChangeNotifier {
   /// await provider.updateListStatus(listId, ShoppingList.statusCompleted);
   /// ```
   Future<void> updateListStatus(String listId, String newStatus) async {
+    debugPrint('🔄 updateListStatus: משנה סטטוס ל-$newStatus (רשימה $listId)');
     final list = getById(listId);
     if (list == null) {
+      debugPrint('❌ updateListStatus: רשימה $listId לא נמצאה');
       throw Exception('רשימה $listId לא נמצאה');
     }
 
     final updatedList = list.copyWith(status: newStatus);
     await updateList(updatedList);
+    debugPrint('✅ updateListStatus: סטטוס עודכן ל-$newStatus');
   }
 
   /// מארכבת רשימה
@@ -349,6 +411,7 @@ class ShoppingListsProvider with ChangeNotifier {
 
   @override
   void dispose() {
+    debugPrint('🗑️ ShoppingListsProvider.dispose()');
     if (_listening && _userContext != null) {
       _userContext!.removeListener(_onUserChanged);
     }

@@ -1,5 +1,10 @@
-// lib/services/user_service.dart
+// 📄 File: lib/services/user_service.dart
+// 📋 Description: ניהול משתמש מקומי דרך SharedPreferences
+// 🎯 Purpose: שמירה/טעינה/מחיקה של משתמש + userId + onboarding state
+// 📱 Mobile Only
+
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_entity.dart';
 
@@ -13,43 +18,76 @@ class UserService {
   static const String _seenOnboardingKey = 'seenOnboarding';
 
   /// שומר את המשתמש הנוכחי (JSON) וגם את ה-userId לצורך תאימות.
-  Future<bool> saveUser(UserEntity user) async {
+  static Future<bool> saveUser(UserEntity user) async {
+    debugPrint('💾 UserService.saveUser()');
+    debugPrint('   👤 User: ${user.email} (id: ${user.id})');
+    
     try {
       final prefs = await SharedPreferences.getInstance();
       final okJson = await prefs.setString(_userKey, jsonEncode(user.toJson()));
       final okId = await prefs.setString(_userIdKey, user.id);
-      return okJson && okId;
-    } catch (_) {
+      final success = okJson && okId;
+      
+      if (success) {
+        debugPrint('✅ UserService.saveUser: נשמר בהצלחה');
+      } else {
+        debugPrint('❌ UserService.saveUser: נכשל בשמירה');
+      }
+      
+      return success;
+    } catch (e) {
+      debugPrint('❌ UserService.saveUser: שגיאה - $e');
       return false;
     }
   }
 
   /// מחזיר את המשתמש ששמור ב-SharedPreferences, או null אם אין/פגום.
-  Future<UserEntity?> getUser() async {
+  static Future<UserEntity?> getUser() async {
+    debugPrint('📥 UserService.getUser()');
+    
     try {
       final prefs = await SharedPreferences.getInstance();
       final raw = prefs.getString(_userKey);
-      if (raw == null || raw.isEmpty) return null;
+      
+      if (raw == null || raw.isEmpty) {
+        debugPrint('   ⚠️ אין משתמש שמור');
+        return null;
+      }
 
       final decoded = jsonDecode(raw);
-      if (decoded is! Map<String, dynamic>) return null;
+      if (decoded is! Map<String, dynamic>) {
+        debugPrint('   ❌ JSON לא תקין');
+        return null;
+      }
 
-      return UserEntity.fromJson(decoded);
-    } catch (_) {
-      // JSON לא תקין או מפתח חסר
+      final user = UserEntity.fromJson(decoded);
+      debugPrint('✅ UserService.getUser: ${user.email}');
+      return user;
+    } catch (e) {
+      debugPrint('❌ UserService.getUser: שגיאה - $e');
       return null;
     }
   }
 
   /// מוחק את המשתמש מהאחסון המקומי.
-  Future<bool> clearUser() async {
+  static Future<bool> clearUser() async {
+    debugPrint('🗑️ UserService.clearUser()');
+    
     try {
       final prefs = await SharedPreferences.getInstance();
       final ok1 = await prefs.remove(_userKey);
-      // לא תמיד נרצה למחוק userId (לוגיקת אפליקציה). כאן נשמור תאימות וננקה גם אותו:
       final ok2 = await prefs.remove(_userIdKey);
-      return ok1 && ok2;
-    } catch (_) {
+      final success = ok1 && ok2;
+      
+      if (success) {
+        debugPrint('✅ UserService.clearUser: נמחק בהצלחה');
+      } else {
+        debugPrint('❌ UserService.clearUser: נכשל במחיקה');
+      }
+      
+      return success;
+    } catch (e) {
+      debugPrint('❌ UserService.clearUser: שגיאה - $e');
       return false;
     }
   }
@@ -58,29 +96,76 @@ class UserService {
   // עוזרים ל-userId / Onboarding
   // -----------------------
 
-  Future<String?> getCurrentUserId() async {
+  static Future<String?> getCurrentUserId() async {
+    debugPrint('📥 UserService.getCurrentUserId()');
+    
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_userIdKey);
+    final userId = prefs.getString(_userIdKey);
+    
+    if (userId != null) {
+      debugPrint('   ✅ userId: $userId');
+    } else {
+      debugPrint('   ⚠️ אין userId');
+    }
+    
+    return userId;
   }
 
-  Future<bool> setCurrentUserId(String id) async {
+  static Future<bool> setCurrentUserId(String id) async {
+    debugPrint('💾 UserService.setCurrentUserId()');
+    debugPrint('   userId: $id');
+    
     final prefs = await SharedPreferences.getInstance();
-    return prefs.setString(_userIdKey, id);
+    final success = await prefs.setString(_userIdKey, id);
+    
+    if (success) {
+      debugPrint('✅ UserService.setCurrentUserId: נשמר');
+    } else {
+      debugPrint('❌ UserService.setCurrentUserId: נכשל');
+    }
+    
+    return success;
   }
 
-  Future<bool> clearCurrentUserId() async {
+  static Future<bool> clearCurrentUserId() async {
+    debugPrint('🗑️ UserService.clearCurrentUserId()');
+    
     final prefs = await SharedPreferences.getInstance();
-    return prefs.remove(_userIdKey);
+    final success = await prefs.remove(_userIdKey);
+    
+    if (success) {
+      debugPrint('✅ UserService.clearCurrentUserId: נמחק');
+    } else {
+      debugPrint('❌ UserService.clearCurrentUserId: נכשל');
+    }
+    
+    return success;
   }
 
-  Future<bool> getSeenOnboarding() async {
+  static Future<bool> getSeenOnboarding() async {
+    debugPrint('📥 UserService.getSeenOnboarding()');
+    
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_seenOnboardingKey) ?? false;
+    final seen = prefs.getBool(_seenOnboardingKey) ?? false;
+    
+    debugPrint('   ${seen ? "✅" : "⚠️"} seenOnboarding: $seen');
+    return seen;
   }
 
-  Future<bool> setSeenOnboarding(bool value) async {
+  static Future<bool> setSeenOnboarding(bool value) async {
+    debugPrint('💾 UserService.setSeenOnboarding()');
+    debugPrint('   value: $value');
+    
     final prefs = await SharedPreferences.getInstance();
-    return prefs.setBool(_seenOnboardingKey, value);
+    final success = await prefs.setBool(_seenOnboardingKey, value);
+    
+    if (success) {
+      debugPrint('✅ UserService.setSeenOnboarding: נשמר');
+    } else {
+      debugPrint('❌ UserService.setSeenOnboarding: נכשל');
+    }
+    
+    return success;
   }
 
   // -----------------------
@@ -88,15 +173,27 @@ class UserService {
   // -----------------------
 
   /// מעדכן למשתמש הנוכחי את שעת ההתחברות האחרונה ושומר.
-  Future<bool> touchLastLoginNow() async {
+  static Future<bool> touchLastLoginNow() async {
+    debugPrint('🔄 UserService.touchLastLoginNow()');
+    
     final user = await getUser();
-    if (user == null) return false;
+    if (user == null) {
+      debugPrint('   ❌ אין משתמש');
+      return false;
+    }
+    
     final updated = user.copyWith(lastLoginAt: DateTime.now());
-    return saveUser(updated);
+    final success = await saveUser(updated);
+    
+    if (success) {
+      debugPrint('✅ UserService.touchLastLoginNow: עודכן');
+    }
+    
+    return success;
   }
 
   /// עדכון קשיח לשדות פרופיל נפוצים ושמירה.
-  Future<bool> updateProfile({
+  static Future<bool> updateProfile({
     String? name,
     String? email,
     String? profileImageUrl,
@@ -105,8 +202,14 @@ class UserService {
     List<String>? favoriteProducts,
     bool? isAdmin,
   }) async {
+    debugPrint('✏️ UserService.updateProfile()');
+    debugPrint('   name: $name, email: $email');
+    
     final user = await getUser();
-    if (user == null) return false;
+    if (user == null) {
+      debugPrint('   ❌ אין משתמש');
+      return false;
+    }
 
     final updated = user.copyWith(
       name: name,
@@ -118,6 +221,12 @@ class UserService {
       isAdmin: isAdmin,
     );
 
-    return saveUser(updated);
+    final success = await saveUser(updated);
+    
+    if (success) {
+      debugPrint('✅ UserService.updateProfile: עודכן');
+    }
+    
+    return success;
   }
 }

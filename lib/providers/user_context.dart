@@ -26,6 +26,7 @@ class UserContext with ChangeNotifier {
 
   UserEntity? _user;
   bool _isLoading = false;
+  String? _errorMessage;
   StreamSubscription<firebase_auth.User?>? _authSubscription;
 
   // --- UI Preferences ---
@@ -48,6 +49,8 @@ class UserContext with ChangeNotifier {
   UserEntity? get user => _user;
   bool get isLoggedIn => _user != null && _authService.isSignedIn;
   bool get isLoading => _isLoading;
+  bool get hasError => _errorMessage != null;
+  String? get errorMessage => _errorMessage;
   String? get displayName => _user?.name ?? _authService.currentUserDisplayName;
   String? get userId => _user?.id ?? _authService.currentUserId;
   String? get userEmail => _user?.email ?? _authService.currentUserEmail;
@@ -74,6 +77,9 @@ class UserContext with ChangeNotifier {
     } catch (e) {
       debugPrint('⚠️ שגיאה בטעינת העדפות: $e');
       // נשאר עם ערכי ברירת מחדל
+    } finally {
+      notifyListeners();
+      debugPrint('   🔔 UserContext: notifyListeners() (preferences loaded)');
     }
   }
 
@@ -88,6 +94,9 @@ class UserContext with ChangeNotifier {
       debugPrint('💾 העדפות נשמרו');
     } catch (e) {
       debugPrint('⚠️ שגיאה בשמירת העדפות: $e');
+    } finally {
+      notifyListeners();
+      debugPrint('   🔔 UserContext: notifyListeners() (preferences saved)');
     }
   }
 
@@ -144,8 +153,10 @@ class UserContext with ChangeNotifier {
       }
 
       debugPrint('✅ UserContext: משתמש נטען - ${_user?.email}');
+      _errorMessage = null; // נקה שגיאות קודמות
     } catch (e) {
       debugPrint('❌ UserContext._loadUserFromFirestore: שגיאה - $e');
+      _errorMessage = 'שגיאה בטעינת פרטי משתמש';
     }
 
     notifyListeners();
@@ -195,17 +206,18 @@ class UserContext with ChangeNotifier {
         debugPrint('✅ UserContext.signUp: משתמש נוצר בהצלחה');
       }
 
+      _errorMessage = null; // נקה שגיאות קודמות
       // ה-listener של authStateChanges יטפל בעדכון הסופי
     } catch (e) {
       debugPrint('❌ UserContext.signUp: שגיאה - $e');
-      _isLoading = false;
+      _errorMessage = 'שגיאה ברישום: ${e.toString()}';
       notifyListeners();
-      debugPrint('   🔔 UserContext: notifyListeners() (isLoading=false, error)');
+      debugPrint('   🔔 UserContext: notifyListeners() (error occurred)');
       rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();
-      debugPrint('   🔔 UserContext: notifyListeners() (isLoading=false, finally)');
+      debugPrint('   🔔 UserContext: notifyListeners() (isLoading=false)');
     }
   }
 
@@ -233,18 +245,19 @@ class UserContext with ChangeNotifier {
     try {
       await _authService.signIn(email: email, password: password);
       debugPrint('✅ UserContext.signIn: התחברות הושלמה');
+      _errorMessage = null; // נקה שגיאות קודמות
       
       // ה-listener של authStateChanges יטפל בטעינת המשתמש
     } catch (e) {
       debugPrint('❌ UserContext.signIn: שגיאה - $e');
-      _isLoading = false;
+      _errorMessage = 'שגיאה בהתחברות: ${e.toString()}';
       notifyListeners();
-      debugPrint('   🔔 UserContext: notifyListeners() (isLoading=false, error)');
+      debugPrint('   🔔 UserContext: notifyListeners() (error occurred)');
       rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();
-      debugPrint('   🔔 UserContext: notifyListeners() (isLoading=false, finally)');
+      debugPrint('   🔔 UserContext: notifyListeners() (isLoading=false)');
     }
   }
 
@@ -262,10 +275,14 @@ class UserContext with ChangeNotifier {
     try {
       await _authService.signOut();
       debugPrint('✅ UserContext.signOut: התנתקות הושלמה');
+      _errorMessage = null; // נקה שגיאות
       
       // ה-listener של authStateChanges יטפל בניקוי ה-state
     } catch (e) {
       debugPrint('❌ UserContext.signOut: שגיאה - $e');
+      _errorMessage = 'שגיאה בהתנתקות';
+      notifyListeners();
+      debugPrint('   🔔 UserContext: notifyListeners() (error occurred)');
       rethrow;
     }
   }
@@ -294,10 +311,15 @@ class UserContext with ChangeNotifier {
 
     try {
       _user = await _repository.saveUser(user);
+      _errorMessage = null;
       notifyListeners();
       debugPrint('✅ UserContext.saveUser: משתמש נשמר');
+      debugPrint('   🔔 UserContext: notifyListeners() (user saved)');
     } catch (e) {
       debugPrint('❌ UserContext.saveUser: שגיאה - $e');
+      _errorMessage = 'שגיאה בשמירת פרטי משתמש';
+      notifyListeners();
+      debugPrint('   🔔 UserContext: notifyListeners() (error occurred)');
       rethrow;
     }
   }
@@ -315,9 +337,13 @@ class UserContext with ChangeNotifier {
 
     try {
       await _authService.sendPasswordResetEmail(email);
+      _errorMessage = null;
       debugPrint('✅ UserContext.sendPasswordResetEmail: מייל נשלח');
     } catch (e) {
       debugPrint('❌ UserContext.sendPasswordResetEmail: שגיאה - $e');
+      _errorMessage = 'שגיאה בשליחת מייל לאיפוס סיסמה';
+      notifyListeners();
+      debugPrint('   🔔 UserContext: notifyListeners() (error occurred)');
       rethrow;
     }
   }
@@ -349,12 +375,67 @@ class UserContext with ChangeNotifier {
     _themeMode = ThemeMode.system;
     _compactView = false;
     _showPrices = true;
+    debugPrint('🔄 UserContext._resetPreferences: העדפות אופסו');
+  }
+
+  // === Error Recovery ===
+
+  /// ניסיון חוזר לטעינת משתמש אחרי שגיאה
+  /// 
+  /// Example:
+  /// ```dart
+  /// if (userContext.hasError) {
+  ///   await userContext.retry();
+  /// }
+  /// ```
+  Future<void> retry() async {
+    debugPrint('🔄 UserContext.retry: מנסה שוב');
+
+    _errorMessage = null;
+    notifyListeners();
+    debugPrint('   🔔 UserContext: notifyListeners() (error cleared)');
+
+    final currentUser = _authService.currentUser;
+    if (currentUser != null) {
+      await _loadUserFromFirestore(currentUser.uid);
+    } else {
+      debugPrint('⚠️ UserContext.retry: אין משתמש מחובר');
+    }
+  }
+
+  /// ניקוי מלא של כל ה-state
+  /// שימושי בהתנתקות או reset של האפליקציה
+  /// 
+  /// Example:
+  /// ```dart
+  /// await userContext.clearAll();
+  /// ```
+  Future<void> clearAll() async {
+    debugPrint('🗑️ UserContext.clearAll: מנקה state');
+
+    _user = null;
+    _errorMessage = null;
+    _isLoading = false;
+    _resetPreferences();
+
+    // נקה גם SharedPreferences
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+      debugPrint('✅ UserContext.clearAll: SharedPreferences נוקה');
+    } catch (e) {
+      debugPrint('⚠️ שגיאה בניקוי SharedPreferences: $e');
+    }
+
+    notifyListeners();
+    debugPrint('   🔔 UserContext: notifyListeners() (all cleared)');
   }
 
   // === Cleanup ===
 
   @override
   void dispose() {
+    debugPrint('🗑️ UserContext.dispose()');
     _authSubscription?.cancel();
     super.dispose();
   }

@@ -77,6 +77,7 @@ class SuggestionsProvider with ChangeNotifier {
   bool get hasError => _errorMessage != null;
   String? get errorMessage => _errorMessage;
   List<Suggestion> get suggestions => List.unmodifiable(_suggestions);
+  bool get isEmpty => _suggestions.isEmpty;
 
   // קבלת המלצות לפי עדיפות
   List<Suggestion> get highPriority =>
@@ -91,6 +92,20 @@ class SuggestionsProvider with ChangeNotifier {
   void _onDataChanged() {
     // כשהמזווה או הרשימות משתנים, נרענן המלצות
     refresh();
+  }
+
+  /// ניסיון חוזר אחרי שגיאה
+  /// 
+  /// Example:
+  /// ```dart
+  /// if (provider.hasError) {
+  ///   await provider.retry();
+  /// }
+  /// ```
+  Future<void> retry() async {
+    debugPrint('🔄 retry: מנסה שוב לרענן המלצות');
+    _errorMessage = null;
+    await refresh();
   }
 
   /// רענון כל ההמלצות - מנתח מזווה + היסטוריה
@@ -146,6 +161,8 @@ class SuggestionsProvider with ChangeNotifier {
       _errorMessage = 'שגיאה בחישוב המלצות: $e';
       debugPrint('❌ SuggestionsProvider.refresh: שגיאה - $e');
       debugPrintStack(label: 'SuggestionsProvider.refresh', stackTrace: st);
+      notifyListeners(); // ← עדכון UI מיידי על שגיאה
+      debugPrint('   🔔 SuggestionsProvider: notifyListeners() (error occurred)');
     }
 
     _isLoading = false;

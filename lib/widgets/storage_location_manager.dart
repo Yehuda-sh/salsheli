@@ -74,11 +74,13 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
   @override
   void initState() {
     super.initState();
+    debugPrint('🏗️ StorageLocationManager.initState()');
     _loadGridMode();
   }
 
   @override
   void dispose() {
+    debugPrint('🗑️ StorageLocationManager.dispose()');
     newLocationController.dispose();
     searchController.dispose();
     super.dispose();
@@ -86,16 +88,33 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
 
   /// טעינת העדפת תצוגה
   Future<void> _loadGridMode() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      gridMode = prefs.getBool('storage_grid_mode') ?? true;
-    });
+    debugPrint('📥 StorageLocationManager._loadGridMode()');
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedMode = prefs.getBool('storage_grid_mode') ?? true;
+      debugPrint('   ✅ gridMode: $savedMode');
+      setState(() {
+        gridMode = savedMode;
+      });
+    } catch (e) {
+      debugPrint('❌ StorageLocationManager._loadGridMode: שגיאה - $e');
+      // ברירת מחדל
+      setState(() {
+        gridMode = true;
+      });
+    }
   }
 
   /// שמירת העדפת תצוגה
   Future<void> _saveGridMode(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('storage_grid_mode', value);
+    debugPrint('💾 StorageLocationManager._saveGridMode($value)');
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('storage_grid_mode', value);
+      debugPrint('   ✅ שמור בהצלחה');
+    } catch (e) {
+      debugPrint('❌ StorageLocationManager._saveGridMode: שגיאה - $e');
+    }
   }
 
   /// סינון מלאי לפי מיקום וחיפוש עם Cache
@@ -103,8 +122,12 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
     final cacheKey = "$selectedLocation|$searchQuery|$sortBy";
     
     if (cacheKey == _lastCacheKey && _cachedFilteredItems.isNotEmpty) {
+      debugPrint('⚡ StorageLocationManager.filteredInventory: Cache HIT');
       return _cachedFilteredItems;
     }
+    
+    debugPrint('🔄 StorageLocationManager.filteredInventory: Cache MISS - מחשב מחדש');
+    debugPrint('   📍 מיקום: $selectedLocation | 🔍 חיפוש: "$searchQuery" | 🔀 מיון: $sortBy');
 
     var items = widget.inventory;
 
@@ -141,6 +164,7 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
 
     _cachedFilteredItems = items;
     _lastCacheKey = cacheKey;
+    debugPrint('   ✅ תוצאה: ${items.length} פריטים');
 
     return items;
   }
@@ -162,6 +186,7 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
 
   /// הצגת דיאלוג להוספת מיקום חדש
   void _showAddLocationDialog() {
+    debugPrint('➕ StorageLocationManager._showAddLocationDialog()');
     newLocationController.clear();
     String selectedEmoji = "📍";
 
@@ -232,8 +257,12 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                   ElevatedButton(
                     onPressed: () async {
                       final name = newLocationController.text.trim();
-                      if (name.isEmpty) return;
+                      if (name.isEmpty) {
+                        debugPrint('   ⚠️ שם ריק - מבטל');
+                        return;
+                      }
 
+                      debugPrint('   💾 מוסיף מיקום: "$name" $selectedEmoji');
                       final provider = context.read<LocationsProvider>();
                       final messenger = ScaffoldMessenger.of(context);
                       final navigator = Navigator.of(dialogContext);
@@ -247,10 +276,12 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                         navigator.pop();
 
                         if (success) {
+                          debugPrint('   ✅ מיקום נוסף בהצלחה');
                           messenger.showSnackBar(
                             SnackBar(content: Text("נוסף מיקום חדש: $name")),
                           );
                         } else {
+                          debugPrint('   ❌ מיקום כבר קיים');
                           messenger.showSnackBar(
                             const SnackBar(content: Text("מיקום זה כבר קיים")),
                           );
@@ -270,6 +301,7 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
 
   /// עריכת מיקום מותאם
   void _showEditLocationDialog(CustomLocation loc) {
+    debugPrint('✏️ StorageLocationManager._showEditLocationDialog("${loc.name}")');
     newLocationController.text = loc.name;
     String selectedEmoji = loc.emoji;
 
@@ -337,8 +369,12 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                   ElevatedButton(
                     onPressed: () async {
                       final name = newLocationController.text.trim();
-                      if (name.isEmpty) return;
+                      if (name.isEmpty) {
+                        debugPrint('   ⚠️ שם ריק - מבטל');
+                        return;
+                      }
 
+                      debugPrint('   💾 מעדכן מיקום: "${loc.name}" → "$name" $selectedEmoji');
                       final provider = context.read<LocationsProvider>();
                       final messenger = ScaffoldMessenger.of(context);
                       final navigator = Navigator.of(dialogContext);
@@ -349,6 +385,7 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
 
                       if (mounted) {
                         navigator.pop();
+                        debugPrint('   ✅ מיקום עודכן בהצלחה');
                         messenger.showSnackBar(
                           const SnackBar(content: Text("המיקום עודכן")),
                         );
@@ -367,6 +404,7 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
 
   /// מחיקת מיקום מותאם עם אישור + Undo
   void _deleteCustomLocation(String key, String name, String emoji) {
+    debugPrint('🗑️ StorageLocationManager._deleteCustomLocation("$name")');
     showDialog(
       context: context,
       builder: (dialogContext) {
@@ -386,11 +424,13 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                   foregroundColor: Colors.white,
                 ),
                 onPressed: () async {
+                  debugPrint('   ⚠️ מאשר מחיקה...');
                   final provider = context.read<LocationsProvider>();
                   final messenger = ScaffoldMessenger.of(context);
                   final navigator = Navigator.of(dialogContext);
 
                   await provider.deleteLocation(key);
+                  debugPrint('   ✅ מיקום נמחק');
 
                   if (mounted) {
                     navigator.pop();
@@ -402,6 +442,7 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                         action: SnackBarAction(
                           label: "בטל",
                           onPressed: () async {
+                            debugPrint('   🔄 Undo: משחזר מיקום "$name"');
                             await provider.addLocation(name, emoji: emoji);
                           },
                         ),

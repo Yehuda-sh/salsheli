@@ -79,16 +79,7 @@ class InventoryProvider with ChangeNotifier {
 
   void _initialize() {
     debugPrint('🔧 InventoryProvider._initialize');
-    
-    if (_userContext?.isLoggedIn == true) {
-      debugPrint('   ✅ משתמש מחובר, טוען פריטים');
-      _loadItems();
-    } else {
-      debugPrint('   ⚠️ משתמש לא מחובר, מנקה רשימה');
-      _items = [];
-      notifyListeners();
-      debugPrint('   🔔 InventoryProvider: notifyListeners() (user not logged in)');
-    }
+    _loadItems();  // _doLoad יטפל בכל הלוגיקה (מחובר/לא מחובר)
   }
 
   // === טעינת פריטים ===

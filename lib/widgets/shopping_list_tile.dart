@@ -94,29 +94,61 @@ class ShoppingListTile extends StatelessWidget {
         child: const Icon(Icons.delete, color: Colors.white),
       ),
       confirmDismiss: (_) async {
-        // ✅ שמירת כל הנתונים לפני מחיקה
-        final deletedList = list;
+        debugPrint('🗑️ ShoppingListTile.confirmDismiss: מוחק רשימה "${list.name}" (${list.id})');
+        debugPrint('   📊 סטטוס: ${list.status} | פריטים: ${list.items.length}');
         
-        // ✅ מחיקה מיידית
-        onDelete?.call();
-        
-        // ✅ הצגת Snackbar עם אפשרות Undo
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('הרשימה "${deletedList.name}" נמחקה'),
-            action: SnackBarAction(
-              label: 'בטל',
-              onPressed: () {
-                // ✅ שחזור הרשימה
-                onRestore?.call(deletedList);
-              },
+        try {
+          // ✅ שמירת כל הנתונים לפני מחיקה
+          final deletedList = list;
+          
+          // ✅ מחיקה מיידית
+          onDelete?.call();
+          debugPrint('   ✅ onDelete() הופעל');
+          
+          // ✅ הצגת Snackbar עם אפשרות Undo
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('הרשימה "${deletedList.name}" נמחקה'),
+              backgroundColor: Colors.green,
+              action: SnackBarAction(
+                label: 'בטל',
+                onPressed: () {
+                  debugPrint('🔄 ShoppingListTile: Undo - משחזר רשימה "${deletedList.name}"');
+                  try {
+                    // ✅ שחזור הרשימה
+                    onRestore?.call(deletedList);
+                    debugPrint('   ✅ רשימה שוחזרה בהצלחה');
+                  } catch (e) {
+                    debugPrint('   ❌ שגיאה בשחזור: $e');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('שגיאה בשחזור הרשימה'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                },
+              ),
+              duration: const Duration(seconds: 5),
             ),
-            duration: const Duration(seconds: 5),
-          ),
-        );
-        
-        // ✅ מאשר מחיקה מיידית (כבר מחקנו)
-        return true;
+          );
+          
+          // ✅ מאשר מחיקה מיידית (כבר מחקנו)
+          return true;
+        } catch (e) {
+          debugPrint('❌ ShoppingListTile.confirmDismiss: שגיאה במחיקה - $e');
+          
+          // הצג הודעת שגיאה
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('שגיאה במחיקת הרשימה'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          
+          // ביטול מחיקה
+          return false;
+        }
       },
       child: Material(
         elevation: 2,

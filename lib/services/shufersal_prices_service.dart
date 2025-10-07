@@ -1,15 +1,17 @@
-// 📄 lib/services/shufersal_prices_service.dart
+// 📄 File: lib/services/shufersal_prices_service.dart
+// 📋 Description: הורדת מחירים משופרסל (API פומבי)
+// 🎯 Purpose: הורדה + פענוח XML/GZ + המרה למוצרים
+// 📱 Mobile Only
 //
-// 🎯 שירות להורדת מחירים משופרסל - פשוט ועובד!
-// - הורדה ישירה מ-prices.shufersal.co.il (ללא התחברות!)
-// - קבצים פומביים וזמינים
-// - פענוח XML + GZ
-// - עדכון חכם (מוצרים קיימים = עדכון מחיר בלבד)
+// Features:
+// - הורדה ישירה מ-prices.shufersal.co.il (ללא התחברות)
+// - פענוח XML + GZ אוטומטי
+// - ניחוש קטגוריה חכם
+// - הסרת כפילויות
 //
-// 💡 מבוסס על: scripts/fetch_shufersal_products.dart
-//
-// Version: 1.0
-// Last Updated: 06/10/2025
+// Based on: scripts/fetch_shufersal_products.dart
+// Version: 1.1
+// Last Updated: 07/10/2025
 
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
@@ -218,20 +220,20 @@ class ShufersalProduct {
 }
 
 /// שירות להורדת מחירים משופרסל
+/// 
+/// כל ה-methods הם static - אין צורך ביצירת instance
 class ShufersalPricesService {
   static const String _baseUrl = 'https://prices.shufersal.co.il/';
   static const int _maxFilesToDownload = 3; // מס' סניפים להורדה
   static const Duration _timeout = Duration(minutes: 5);
 
-  final http.Client _client = http.Client();
-
   /// קבלת רשימת URL של קבצי מחירים
-  Future<List<String>> _getFileUrls() async {
+  static Future<List<String>> _getFileUrls() async {
     try {
       debugPrint('🌐 מתחבר ל-prices.shufersal.co.il...');
 
       final response =
-          await _client.get(Uri.parse(_baseUrl)).timeout(_timeout);
+          await http.get(Uri.parse(_baseUrl)).timeout(_timeout);
 
       if (response.statusCode != 200) {
         debugPrint('❌ שגיאה: ${response.statusCode}');
@@ -271,12 +273,12 @@ class ShufersalPricesService {
   }
 
   /// הורדה ופענוח של קובץ מחירים בודד
-  Future<List<ShufersalProduct>> _downloadAndParse(String fileUrl) async {
+  static Future<List<ShufersalProduct>> _downloadAndParse(String fileUrl) async {
     try {
       debugPrint('⬇️ מוריד קובץ...');
 
       final response =
-          await _client.get(Uri.parse(fileUrl)).timeout(_timeout);
+          await http.get(Uri.parse(fileUrl)).timeout(_timeout);
 
       if (response.statusCode != 200) {
         debugPrint('❌ שגיאה בהורדה: ${response.statusCode}');
@@ -302,7 +304,7 @@ class ShufersalPricesService {
   }
 
   /// פענוח XML למוצרים
-  List<ShufersalProduct> _parseXml(String xmlContent) {
+  static List<ShufersalProduct> _parseXml(String xmlContent) {
     try {
       debugPrint('📋 מפענח XML למוצרים...');
 
@@ -347,7 +349,7 @@ class ShufersalPricesService {
   }
 
   /// קריאת ערך מ-XML
-  String _getXmlValue(xml.XmlElement element, String tagName) {
+  static String _getXmlValue(xml.XmlElement element, String tagName) {
     try {
       return element.findElements(tagName).first.innerText.trim();
     } catch (e) {
@@ -356,7 +358,15 @@ class ShufersalPricesService {
   }
 
   /// הורדת מוצרים משופרסל (API ציבורי)
-  Future<List<ShufersalProduct>> getProducts() async {
+  /// 
+  /// Returns: רשימת מוצרים ייחודיים (ללא כפילויות)
+  /// 
+  /// Example:
+  /// ```dart
+  /// final products = await ShufersalPricesService.getProducts();
+  /// print('Downloaded ${products.length} products');
+  /// ```
+  static Future<List<ShufersalProduct>> getProducts() async {
     try {
       debugPrint('\n🛒 מוריד מחירים משופרסל...');
 
@@ -404,8 +414,4 @@ class ShufersalPricesService {
     }
   }
 
-  /// סגירת משאבים
-  void dispose() {
-    _client.close();
-  }
 }

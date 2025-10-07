@@ -288,21 +288,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  @override
-  void initState() {
-    super.initState();
-    _loadSavedUser();
-  }
-
-  /// 👤 טעינת משתמש שמור אחרי שכל ה-Providers נבנו
-  /// 
-  /// ⚠️ לא צריך יותר - AuthService מטפל בזה אוטומטית!
-  /// Firebase Auth שומר את המשתמש בזיכרון ומתחבר אוטומטית
-  Future<void> _loadSavedUser() async {
-    debugPrint('👤 MyApp: בודק auth state...');
-    debugPrint('   Firebase Auth מטפל בזה אוטומטית דרך authStateChanges');
-    debugPrint('   אין צורך לטעון ידנית!');
-  }
 
   @override
   Widget build(BuildContext context) {

@@ -54,6 +54,9 @@ import '../models/custom_location.dart';
 class LocationsProvider with ChangeNotifier {
   // רשימת מיקומים מותאמים פרטית
   List<CustomLocation> _customLocations = [];
+  
+  // Error handling
+  String? _errorMessage;
 
   /// מפתח לשמירה ב-SharedPreferences
   static const String _prefsKey = 'custom_storage_locations';
@@ -73,6 +76,22 @@ class LocationsProvider with ChangeNotifier {
   List<CustomLocation> get customLocations =>
       List.unmodifiable(_customLocations);
 
+  /// בדיקה אם הרשימה ריקה
+  /// 
+  /// Example:
+  /// ```dart
+  /// if (provider.isEmpty) {
+  ///   print('אין מיקומים מותאמים');
+  /// }
+  /// ```
+  bool get isEmpty => _customLocations.isEmpty;
+
+  /// בדיקה אם יש שגיאה
+  bool get hasError => _errorMessage != null;
+
+  /// קבלת הודעת שגיאה (null אם אין שגיאה)
+  String? get errorMessage => _errorMessage;
+
   /// בדיקה אם מיקום קיים במיקומים המותאמים
   /// 
   /// Example:
@@ -82,15 +101,30 @@ class LocationsProvider with ChangeNotifier {
   /// }
   /// ```
   bool locationExists(String key) {
-    final exists = _customLocations.any((loc) => loc.key == key);
-    
-    if (exists) {
-      debugPrint('✅ locationExists($key): נמצא');
-    } else {
-      debugPrint('❌ locationExists($key): לא נמצא');
+    return _customLocations.any((loc) => loc.key == key);
+  }
+
+  /// חיפוש מיקום לפי key
+  /// 
+  /// Example:
+  /// ```dart
+  /// final location = provider.getLocationByKey('מקפיא_נוסף');
+  /// if (location != null) {
+  ///   print('נמצא: ${location.name}');
+  /// }
+  /// ```
+  CustomLocation? getLocationByKey(String key) {
+    try {
+      return _customLocations.firstWhere((loc) => loc.key == key);
+    } catch (e) {
+      return null;
     }
-    
-    return exists;
+  }
+
+  /// נרמול key - ממיר שם למפתח תקני
+  /// "מקפיא נוסף" → "מקפיא_נוסף"
+  String _normalizeKey(String input) {
+    return input.trim().toLowerCase().replaceAll(" ", "_");
   }
 
   /// טעינת מיקומים מותאמים מ-SharedPreferences
@@ -118,12 +152,28 @@ class LocationsProvider with ChangeNotifier {
       } else {
         debugPrint('ℹ️ LocationsProvider: אין מיקומים מותאמים שמורים');
       }
-
-      notifyListeners();
-      debugPrint('   🔔 LocationsProvider: notifyListeners() (loaded)');
-    } catch (e) {
+      
+      _errorMessage = null;  // אין שגיאה - נקה שגיאות קודמות
+    } catch (e, st) {
+      _errorMessage = 'שגיאה בטעינת מיקומים: $e';
       debugPrint('❌ LocationsProvider._loadLocations: שגיאה - $e');
+      debugPrintStack(stackTrace: st);
+      notifyListeners();  // עדכן UI על השגיאה
     }
+  }
+
+  /// ניסיון חוזר לטעינת מיקומים אחרי שגיאה
+  /// 
+  /// Example:
+  /// ```dart
+  /// if (provider.hasError) {
+  ///   await provider.retry();
+  /// }
+  /// ```
+  Future<void> retry() async {
+    debugPrint('🔄 LocationsProvider.retry: מנסה לטעון מחדש');
+    _errorMessage = null;
+    await _loadLocations();
   }
 
   /// שמירת מיקומים מותאמים ב-SharedPreferences
@@ -136,8 +186,12 @@ class LocationsProvider with ChangeNotifier {
       await prefs.setString(_prefsKey, jsonEncode(jsonList));
 
       debugPrint('✅ LocationsProvider: מיקומים נשמרו בהצלחה');
-    } catch (e) {
+      _errorMessage = null;  // שמירה הצליחה - נקה שגיאות
+    } catch (e, st) {
+      _errorMessage = 'שגיאה בשמירת מיקומים: $e';
       debugPrint('❌ LocationsProvider._saveLocations: שגיאה - $e');
+      debugPrintStack(stackTrace: st);
+      notifyListeners();  // עדכן UI על השגיאה
     }
   }
 
@@ -166,8 +220,15 @@ class LocationsProvider with ChangeNotifier {
       return false;
     }
 
+    // בדיקת תווים לא חוקיים
+    final invalidChars = RegExp(r'[/\\:*?"<>|]');
+    if (invalidChars.hasMatch(name)) {
+      debugPrint('   ⚠️ תווים לא חוקיים בשם - מבטל');
+      return false;
+    }
+
     // יצירת key ייחודי: "מקפיא נוסף" → "מקפיא_נוסף"
-    final key = name.trim().toLowerCase().replaceAll(" ", "_");
+    final key = _normalizeKey(name);
     debugPrint('   🔑 Key: "$key"');
 
     // בדיקה אם קיים
@@ -205,23 +266,28 @@ class LocationsProvider with ChangeNotifier {
   ///   print('מיקום נמחק');
   /// }
   /// ```
-  Future<bool> deleteLocation(String key) async {
-    debugPrint('🗑️ LocationsProvider.deleteLocation: "$key"');
+  Future<bool> deleteLocation(String nameOrKey) async {
+    debugPrint('🗑️ LocationsProvider.deleteLocation: "$nameOrKey"');
     
-    final initialLength = _customLocations.length;
-
-    _customLocations.removeWhere((loc) => loc.key == key);
-
-    if (_customLocations.length < initialLength) {
-      debugPrint('   ✅ מיקום "$key" נמחק (נשארו: ${_customLocations.length})');
-      await _saveLocations();
-      notifyListeners();
-      debugPrint('   🔔 LocationsProvider: notifyListeners() (location deleted)');
-      return true;
+    // תמיכה בשם או key
+    final key = _normalizeKey(nameOrKey);
+    debugPrint('   🔑 Normalized key: "$key"');
+    
+    final exists = locationExists(key);
+    
+    if (!exists) {
+      debugPrint('   ⚠️ מיקום "$key" לא נמצא למחיקה');
+      return false;
     }
 
-    debugPrint('   ⚠️ מיקום "$key" לא נמצא למחיקה');
-    return false;
+    _customLocations.removeWhere((loc) => loc.key == key);
+    debugPrint('   ✅ מיקום "$key" נמחק (נשארו: ${_customLocations.length})');
+    
+    await _saveLocations();
+    notifyListeners();
+    debugPrint('   🔔 LocationsProvider: notifyListeners() (location deleted)');
+    
+    return true;
   }
 
   /// איפוס - מחיקת כל המיקומים המותאמים

@@ -1,16 +1,76 @@
 // 📄 File: lib/widgets/list_selector.dart
 // תיאור: בורר רשימות קניות - תצוגת כרטיסים לבחירת רשימה
 //
-// תכונות:
-// - תצוגת רשימה בודדת או Grid של רשימות
-// - כרטיס רשימה עם מידע: שם, כמות פריטים, תקציב, תגים חכמים
-// - פעולות: התחל קנייה, עריכה
-// - תואם Material Design: גדלי מגע 48px, theme colors
+// Purpose:
+// וידג'ט מרכזי להצגת רשימות קניות בצורה ויזואלית ואינטראקטיבית.
+// תומך בתצוגה בודדת או Grid של מספר רשימות.
 //
-// תלויות:
+// Features:
+// - תצוגת רשימה בודדת או Grid של רשימות (2 columns)
+// - כרטיסי רשימה עם מידע: שם, כמות פריטים, תקציב, תאריך עדכון
+// - תגים חכמים (עדכון אחרון, רשימה ריקה)
+// - כפתור "התחל קנייה" בולט
+// - Hover effect לכרטיסים
+// - 3 Empty States: Loading, Empty, Content
+// - Material Design: touch targets 48px, theme colors
+// - Accessibility: Semantics מלאה
+// - Logging מפורט לכל פעולה
+//
+// Dependencies:
 // - ShoppingList model (lib/models/shopping_list.dart)
 // - Theme colors (AppBrand)
 // - intl (לפורמט מחיר)
+// - constants.dart (ListType)
+//
+// Usage:
+//
+// Example 1 - רשימה בודדת:
+// ```dart
+// ListSelector(
+//   lists: [myShoppingList],
+//   onStartShopping: (list) => Navigator.push(...),
+//   onEdit: (list) => Navigator.push(...),
+// )
+// ```
+//
+// Example 2 - Grid של רשימות:
+// ```dart
+// ListSelector(
+//   lists: allLists, // 2+ lists
+//   onStartShopping: (list) {
+//     debugPrint('מתחיל קנייה: ${list.name}');
+//     Navigator.push(context, MaterialPageRoute(
+//       builder: (_) => ActiveShoppingScreen(listId: list.id),
+//     ));
+//   },
+//   onEdit: (list) => Navigator.push(...),
+// )
+// ```
+//
+// Example 3 - עם Loading state:
+// ```dart
+// Consumer<ShoppingListsProvider>(
+//   builder: (context, provider, _) {
+//     return ListSelector(
+//       lists: provider.lists,
+//       isLoading: provider.isLoading,
+//       onStartShopping: (list) => ...,
+//     );
+//   },
+// )
+// ```
+//
+// Example 4 - כרטיס בודד (ללא actions):
+// ```dart
+// ListCard(
+//   list: myList,
+//   onStartShopping: (_) {},
+//   onEdit: (_) {},
+//   showActions: false, // בלי כפתורים
+// )
+// ```
+//
+// Version: 2.1
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -91,6 +151,7 @@ class _ListCardState extends State<ListCard> {
   bool isHovered = false;
 
   List<_SmartLabel> _getSmartLabels(ColorScheme cs) {
+    debugPrint('   🏷️ _getSmartLabels()');
     final labels = <_SmartLabel>[];
 
     // תווית עדכון אחרון
@@ -119,11 +180,19 @@ class _ListCardState extends State<ListCard> {
     }
 
     labels.sort((a, b) => a.priority.compareTo(b.priority));
-    return labels.take(2).toList();
+    final result = labels.take(2).toList();
+    debugPrint('      ✅ נוצרו ${result.length} תוויות: ${result.map((l) => l.text).join(", ")}');
+    return result;
   }
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('🎴 ListCard.build()');
+    debugPrint('   📝 שם: ${widget.list.name}');
+    debugPrint('   📦 פריטים: ${widget.list.items.length}');
+    debugPrint('   💰 תקציב: ${widget.list.budget ?? "אין"}');
+    debugPrint('   🗓️ עדכון: ${DateFormat("dd/MM/yyyy").format(widget.list.updatedDate)}');
+
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
@@ -338,11 +407,16 @@ class ListSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('🎯 ListSelector.build()');
+    debugPrint('   📊 lists.length: ${lists.length}');
+    debugPrint('   ⏳ isLoading: $isLoading');
+
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
     // מצב טעינה
     if (isLoading) {
+      debugPrint('   ⏳ מציג Loading state');
       return Center(
         child: CircularProgressIndicator(
           color: theme.extension<AppBrand>()?.accent ?? cs.primary,
@@ -352,11 +426,13 @@ class ListSelector extends StatelessWidget {
 
     // מצב ריק
     if (lists.isEmpty) {
+      debugPrint('   📦 רשימות ריקות - SizedBox.shrink()');
       return const SizedBox.shrink();
     }
 
     // רשימה בודדת
     if (lists.length == 1) {
+      debugPrint('   📑 תצוגת רשימה בודדת: ${lists.first.name}');
       return ListCard(
         list: lists.first,
         onStartShopping: onStartShopping ?? (_) {},
@@ -366,6 +442,7 @@ class ListSelector extends StatelessWidget {
     }
 
     // Grid של רשימות
+    debugPrint('   🔲 תצוגת Grid של ${lists.length} רשימות');
     return Semantics(
       label: 'רשימת ${lists.length} רשימות קניות',
       child: GridView.builder(

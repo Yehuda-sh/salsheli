@@ -111,6 +111,8 @@ class _PendingActionsManagerState extends State<PendingActionsManager> {
   @override
   void dispose() {
     debugPrint('📋 PendingActionsManager.dispose()');
+    debugPrint('   🗑️ ניקוי _pendingActions (${_pendingActions.length} items)');
+    _pendingActions.clear();
     super.dispose();
   }
 

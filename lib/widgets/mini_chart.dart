@@ -116,7 +116,7 @@ class MiniChart extends StatelessWidget {
 
     // צבע ברירת מחדל מ-theme
     final defaultColor = color ?? brand?.accent ?? cs.primary;
-    debugPrint('   🎨 defaultColor: ${defaultColor.value.toRadixString(16)}');
+    debugPrint('   🎨 defaultColor: ${defaultColor.toARGB32().toRadixString(16)}');
 
     // מצב ריק
     if (data.isEmpty) {

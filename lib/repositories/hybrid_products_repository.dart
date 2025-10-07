@@ -57,7 +57,6 @@ import '../models/product_entity.dart';
 
 class HybridProductsRepository implements ProductsRepository {
   final LocalProductsRepository _localRepo;
-  final ShufersalPricesService _apiService;  // 🆕 שופרסל!
   final FirebaseProductsRepository? _firebaseRepo;  // 🆕 Firebase!
 
   bool _isInitialized = false;
@@ -65,10 +64,8 @@ class HybridProductsRepository implements ProductsRepository {
 
   HybridProductsRepository({
     required LocalProductsRepository localRepo,
-    ShufersalPricesService? apiService,  // 🆕 שופרסל!
     FirebaseProductsRepository? firebaseRepo,  // 🆕 אופציונלי!
   })  : _localRepo = localRepo,
-        _apiService = apiService ?? ShufersalPricesService(),  // 🆕
         _firebaseRepo = firebaseRepo;
 
   /// אתחול - טוען מוצרים אם ה-DB ריק
@@ -100,10 +97,14 @@ class HybridProductsRepository implements ProductsRepository {
       _isInitialized = true;
       debugPrint('✅ HybridProductsRepository.initialize: הושלם בהצלחה');
       
-      // 💰 עדכון מחירים אוטומטי (רק אם יש מוצרים)
+      // 💰 עדכון מחירים ברקע (ללא חסימת ה-UI)
       if (_localRepo.totalProducts > 0) {
-        debugPrint('💰 מתחיל עדכון מחירים אוטומטי מ-API...');
-        await updatePrices();
+        debugPrint('💰 מתחיל עדכון מחירים ברקע (async)...');
+        updatePrices().then((_) {
+          debugPrint('✅ עדכון מחירים הושלם בהצלחה ברקע');
+        }).catchError((e) {
+          debugPrint('⚠️ עדכון מחירים נכשל (לא קריטי): $e');
+        });
       }
       debugPrint('');
     } catch (e) {
@@ -312,7 +313,7 @@ class HybridProductsRepository implements ProductsRepository {
   Future<bool> _loadFromAPI() async {
     try {
       debugPrint('📞 מנסה לטעון מוצרים מ-API (שופרסל)...');
-      final apiProducts = await _apiService.getProducts();
+      final apiProducts = await ShufersalPricesService.getProducts();
 
       if (apiProducts.isEmpty) {
         debugPrint('⚠️ לא נמצאו מוצרים ב-API');
@@ -477,7 +478,7 @@ class HybridProductsRepository implements ProductsRepository {
     try {
       debugPrint('💰 מעדכן מחירים מ-API (שופרסל)...');
 
-      final apiProducts = await _apiService.getProducts();
+      final apiProducts = await ShufersalPricesService.getProducts();
 
       if (apiProducts.isEmpty) {
         debugPrint('⚠️ לא נמצאו מוצרים ב-API');

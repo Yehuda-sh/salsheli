@@ -57,6 +57,8 @@ class ReceiptDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final receiptWidth = (screenWidth * 0.9).clamp(300.0, 400.0);
 
     // 📊 Logging - מציג איזו קבלה מוצגת
     debugPrint('🧾 ReceiptDisplay.build()');
@@ -64,9 +66,11 @@ class ReceiptDisplay extends StatelessWidget {
     debugPrint('   תאריך: ${DateFormat("dd/MM/yyyy").format(receipt.date)}');
     debugPrint('   פריטים: ${receipt.items.length}');
     debugPrint('   סכום: ${_formatCurrency(receipt.totalAmount)}');
+    debugPrint('   📐 רוחב מסך: ${screenWidth.toInt()}px');
+    debugPrint('   📐 רוחב קבלה: ${receiptWidth.toInt()}px');
 
     return Container(
-      width: 380,
+      width: receiptWidth,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: cs.surface,

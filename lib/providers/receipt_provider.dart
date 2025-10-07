@@ -38,8 +38,8 @@
 // 2. UserContext changes → _onUserChanged() → _loadReceipts()
 // 3. CRUD operations → Repository → Update local state → notifyListeners()
 //
-// Version: 2.0 (עם logging מלא + תיעוד מקיף)
-// Last Updated: 06/10/2025
+// Version: 3.0 (+ retry() + clearAll() + error handling משופר)
+// Last Updated: 07/10/2025
 //
 
 import 'package:flutter/foundation.dart';
@@ -128,6 +128,9 @@ class ReceiptProvider with ChangeNotifier {
       _errorMessage = "שגיאה בטעינת קבלות: $e";
       debugPrint('❌ ReceiptProvider._loadReceipts: שגיאה - $e');
       debugPrintStack(label: 'ReceiptProvider._loadReceipts', stackTrace: st);
+      notifyListeners();
+      debugPrint('   🔔 ReceiptProvider: notifyListeners() (error in _loadReceipts)');
+      return;
     }
 
     _isLoading = false;
@@ -144,6 +147,40 @@ class ReceiptProvider with ChangeNotifier {
   Future<void> loadReceipts() {
     debugPrint('🔄 ReceiptProvider.loadReceipts: רענון ידני');
     return _loadReceipts();
+  }
+
+  /// מנסה לטעון שוב אחרי שגיאה
+  /// 
+  /// Example:
+  /// ```dart
+  /// // ב-UI:
+  /// if (provider.hasError) {
+  ///   ElevatedButton(
+  ///     onPressed: () => provider.retry(),
+  ///     child: Text('נסה שוב'),
+  ///   );
+  /// }
+  /// ```
+  Future<void> retry() async {
+    debugPrint('🔄 ReceiptProvider.retry: ניסיון נוסף אחרי שגיאה');
+    _errorMessage = null;
+    await _loadReceipts();
+  }
+
+  /// מנקה את כל ה-state (שימושי בהתנתקות)
+  /// 
+  /// Example:
+  /// ```dart
+  /// await authService.logout();
+  /// receiptProvider.clearAll();
+  /// ```
+  void clearAll() {
+    debugPrint('🧹 ReceiptProvider.clearAll');
+    _receipts = [];
+    _errorMessage = null;
+    _isLoading = false;
+    notifyListeners();
+    debugPrint('   🔔 ReceiptProvider: notifyListeners() (cleared all)');
   }
 
   /// יוצר קבלה חדשה ומוסיף לרשימה

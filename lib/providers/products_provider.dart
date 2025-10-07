@@ -61,6 +61,10 @@ class ProductsProvider with ChangeNotifier {
   String? _selectedCategory;
   String? _selectedListType; // ✅ חדש - סוג הרשימה
 
+  // 💾 Cache for filtered products
+  List<Map<String, dynamic>> _cachedFiltered = [];
+  String _cacheKey = '';
+
   ProductsProvider({
     required ProductsRepository repository,
     bool skipInitialLoad = false, // ⚠️ אם true - לא טוען מייד
@@ -76,7 +80,23 @@ class ProductsProvider with ChangeNotifier {
   bool get hasInitialized => _hasInitialized; // 🆕 גישה פומבית
   bool get hasError => _errorMessage != null;
   String? get errorMessage => _errorMessage;
-  List<Map<String, dynamic>> get products => _getFilteredProducts();
+  
+  // 💾 Cached filtered products
+  List<Map<String, dynamic>> get products {
+    final key = '$_searchQuery|$_selectedCategory|$_selectedListType';
+    
+    // Cache hit
+    if (key == _cacheKey && _cachedFiltered.isNotEmpty) {
+      return _cachedFiltered;
+    }
+    
+    // Cache miss - filter products
+    _cachedFiltered = _getFilteredProducts();
+    _cacheKey = key;
+    
+    return _cachedFiltered;
+  }
+  
   List<Map<String, dynamic>> get allProducts => List.unmodifiable(_products);
   List<String> get categories => List.unmodifiable(_categories);
   DateTime? get lastUpdated => _lastUpdated;
@@ -150,6 +170,7 @@ class ProductsProvider with ChangeNotifier {
     } catch (e) {
       _errorMessage = 'שגיאה בטעינת מוצרים: $e';
       debugPrint('❌ שגיאה בטעינת מוצרים: $e');
+      notifyListeners(); // ✅ הוסף - ה-UI צריך לדעת על השגיאה
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -175,21 +196,32 @@ class ProductsProvider with ChangeNotifier {
     } catch (e) {
       _errorMessage = 'שגיאה ברענון מוצרים: $e';
       debugPrint('❌ שגיאה ברענון מוצרים: $e');
+      notifyListeners(); // ✅ הוסף - ה-UI צריך לדעת על השגיאה
     } finally {
       _isRefreshing = false;
       notifyListeners();
     }
   }
 
+  // === Retry (Error Recovery) ===
+  /// ניסיון חוזר לאחר שגיאה
+  Future<void> retry() async {
+    debugPrint('🔄 ProductsProvider.retry() - מנסה שוב...');
+    _errorMessage = null;
+    await loadProducts();
+  }
+
   // === Search ===
   void setSearchQuery(String query) {
     if (_searchQuery == query) return;
     _searchQuery = query;
+    _cacheKey = ''; // ✅ נקה cache
     notifyListeners();
   }
 
   void clearSearch() {
     _searchQuery = '';
+    _cacheKey = ''; // ✅ נקה cache
     notifyListeners();
   }
 
@@ -198,11 +230,13 @@ class ProductsProvider with ChangeNotifier {
     if (_selectedListType == listType) return;
     _selectedListType = listType;
     _selectedCategory = null; // נקה קטגוריה נבחרת
+    _cacheKey = ''; // ✅ נקה cache
     notifyListeners();
   }
 
   void clearListType() {
     _selectedListType = null;
+    _cacheKey = ''; // ✅ נקה cache
     notifyListeners();
   }
 
@@ -214,10 +248,7 @@ class ProductsProvider with ChangeNotifier {
     
     // החזר רק קטגוריות שקיימות במוצרים
     return _categories.where((cat) {
-      return typeCategories.any(
-        (typeCat) => cat.toLowerCase().contains(typeCat.toLowerCase()) ||
-                     typeCat.toLowerCase().contains(cat.toLowerCase()),
-      );
+      return _isCategoryRelevantForListType(cat, typeCategories);
     }).toList();
   }
 
@@ -229,12 +260,25 @@ class ProductsProvider with ChangeNotifier {
   void setCategory(String? category) {
     if (_selectedCategory == category) return;
     _selectedCategory = category;
+    _cacheKey = ''; // ✅ נקה cache
     notifyListeners();
   }
 
   void clearCategory() {
     _selectedCategory = null;
+    _cacheKey = ''; // ✅ נקה cache
     notifyListeners();
+  }
+
+  // === Helper: Check if category is relevant for list type ===
+  bool _isCategoryRelevantForListType(
+    String productCategory,
+    List<String> typeCategories,
+  ) {
+    return typeCategories.any(
+      (typeCat) => productCategory.toLowerCase().contains(typeCat.toLowerCase()) ||
+                   typeCat.toLowerCase().contains(productCategory.toLowerCase()),
+    );
   }
 
   // === Get Filtered Products ===
@@ -243,16 +287,11 @@ class ProductsProvider with ChangeNotifier {
 
     // ✅ Filter by list type - סינון לפי סוג הרשימה
     if (_selectedListType != null) {
-      final relevantCategories = ListTypeMappings.getCategoriesForType(_selectedListType!);
+      final typeCategories = ListTypeMappings.getCategoriesForType(_selectedListType!);
       
       filtered = filtered.where((p) {
         final productCategory = p['category'] as String? ?? '';
-        
-        // בדוק אם הקטגוריה של המוצר תואמת לסוג הרשימה
-        return relevantCategories.any(
-          (typeCat) => productCategory.toLowerCase().contains(typeCat.toLowerCase()) ||
-                       typeCat.toLowerCase().contains(productCategory.toLowerCase()),
-        );
+        return _isCategoryRelevantForListType(productCategory, typeCategories);
       }).toList();
     }
 
@@ -286,6 +325,8 @@ class ProductsProvider with ChangeNotifier {
       return await _repository.getProductByBarcode(barcode);
     } catch (e) {
       debugPrint('❌ getProductByBarcode שגיאה: $e');
+      _errorMessage = 'שגיאה בחיפוש ברקוד: $e';
+      notifyListeners(); // ✅ הוסף - ה-UI צריך לדעת על השגיאה
       return null;
     }
   }
@@ -324,6 +365,8 @@ class ProductsProvider with ChangeNotifier {
       return await _repository.searchProducts(query);
     } catch (e) {
       debugPrint('❌ searchProducts שגיאה: $e');
+      _errorMessage = 'שגיאה בחיפוש מוצרים: $e';
+      notifyListeners(); // ✅ הוסף - ה-UI צריך לדעת על השגיאה
       return [];
     }
   }
@@ -336,6 +379,8 @@ class ProductsProvider with ChangeNotifier {
       return await _repository.getProductsByCategory(category);
     } catch (e) {
       debugPrint('❌ getProductsByCategory שגיאה: $e');
+      _errorMessage = 'שגיאה בטעינת קטגוריה: $e';
+      notifyListeners(); // ✅ הוסף - ה-UI צריך לדעת על השגיאה
       return [];
     }
   }
@@ -354,15 +399,22 @@ class ProductsProvider with ChangeNotifier {
 
   // === Clear All ===
   void clearAll() {
+    debugPrint('🧹 ProductsProvider.clearAll()');
     _searchQuery = '';
     _selectedCategory = null;
     _selectedListType = null;
+    _errorMessage = null; // ✅ נקה שגיאות
+    _cacheKey = ''; // ✅ נקה cache
     notifyListeners();
   }
 
   // === Dispose ===
   @override
   void dispose() {
+    debugPrint('🗑️ ProductsProvider.dispose()');
+    _cachedFiltered.clear();
+    _products.clear();
+    _categories.clear();
     super.dispose();
   }
 }
