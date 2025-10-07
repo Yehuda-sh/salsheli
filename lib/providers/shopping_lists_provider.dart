@@ -142,12 +142,14 @@ class ShoppingListsProvider with ChangeNotifier {
   ///   name: 'קניות שבועיות',
   ///   type: ShoppingList.typeSuper,
   ///   budget: 500.0,
+  ///   eventDate: DateTime(2025, 10, 15), // אירוע ב-15/10
   /// );
   /// ```
   Future<ShoppingList> createList({
     required String name,
     String type = ShoppingList.typeSuper,
     double? budget,
+    DateTime? eventDate,
     bool isShared = false,
   }) async {
     final userId = _userContext?.user?.id;
@@ -157,17 +159,21 @@ class ShoppingListsProvider with ChangeNotifier {
       throw Exception('❌ משתמש לא מחובר');
     }
 
+    debugPrint('🎂 יוצר רשימה: "$name" (סוג: $type, תקציב: $budget, תאריך אירוע: $eventDate)');
+
     final newList = ShoppingList.newList(
       id: _uuid.v4(),
       name: name,
       createdBy: userId,
       type: type,
       budget: budget,
+      eventDate: eventDate,
       isShared: isShared,
     );
 
     await _repository.saveList(newList, householdId);
     await loadLists();
+    debugPrint('   ✅ רשימה נוצרה בהצלחה!');
     return newList;
   }
 

@@ -46,6 +46,7 @@
 //     - PublishedPricesService (API price updates)
 //     - products.json (local fallback)
 
+import 'dart:convert';  // 🆕 חזרה - צריך ל-json.decode!
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import '../services/shufersal_prices_service.dart';  // 🆕 שופרסל החדש!

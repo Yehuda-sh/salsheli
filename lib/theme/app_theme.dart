@@ -66,7 +66,7 @@ class _Brand {
   static const slate700 = Color(0xFF334155); // גבולות ודיווידרים
 
   // Accent ענבר - בולט וחם
-  static const amber = Color(0xFFC107); // ענבר נעים וברור
+  static const amber = Color(0xFFFFC107); // ענבר נעים וברור
 
   // בסיס ירקרק (אם תרצה לשמר זהות קיימת)
   static const primarySeed = Color(0xFF4CAF50); // ירוק Material

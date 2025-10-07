@@ -49,6 +49,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
   String _name = "";
   String _type = "super";
   double? _budget;
+  DateTime? _eventDate; // 🎂 תאריך אירוע
   bool _isSubmitting = false;
 
   @override
@@ -84,6 +85,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
       "type": _type,
       "status": "active",
       if (_budget != null) "budget": _budget,
+      if (_eventDate != null) "eventDate": _eventDate,
     };
 
     try {
@@ -248,6 +250,57 @@ class _CreateListDialogState extends State<CreateListDialog> {
                       ),
                     ),
                   ],
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // 👆 תאריך אירוע (אופציונלי)
+              InkWell(
+                onTap: _isSubmitting ? null : () async {
+                  debugPrint('📅 פותח DatePicker');
+                  final selectedDate = await showDatePicker(
+                    context: context,
+                    initialDate: _eventDate ?? DateTime.now(),
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime.now().add(const Duration(days: 365)),
+                    helpText: 'בחר תאריך אירוע',
+                    cancelText: 'ביטול',
+                    confirmText: 'אישור',
+                  );
+                  
+                  if (selectedDate != null) {
+                    debugPrint('   ✅ תאריך נבחר: $selectedDate');
+                    setState(() => _eventDate = selectedDate);
+                  }
+                },
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    labelText: 'תאריך אירוע (אופציונלי)',
+                    hintText: 'למשל: יום הולדת, אירוח',
+                    prefixIcon: const Icon(Icons.event),
+                    suffixIcon: _eventDate != null
+                        ? Tooltip(
+                            message: 'נקה תאריך',
+                            child: IconButton(
+                              icon: const Icon(Icons.close, size: 18),
+                              onPressed: () {
+                                debugPrint('🗑️ מנקה תאריך אירוע');
+                                setState(() => _eventDate = null);
+                              },
+                            ),
+                          )
+                        : null,
+                  ),
+                  child: Text(
+                    _eventDate == null
+                        ? 'אין תאריך'
+                        : '${_eventDate!.day}/${_eventDate!.month}/${_eventDate!.year}',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: _eventDate == null
+                          ? theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6)
+                          : theme.colorScheme.onSurface,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 12),

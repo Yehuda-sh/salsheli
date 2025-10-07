@@ -156,12 +156,18 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           final name = listData['name'] as String?;
           final type = listData['type'] as String? ?? 'super';
           final budget = listData['budget'] as double?;
+          final eventDate = listData['eventDate'] as DateTime?;
 
-          debugPrint('🏠 HomeDashboard: יוצר רשימה "$name" (סוג: $type)');
+          debugPrint('🏠 HomeDashboard: יוצר רשימה "$name" (סוג: $type, תאריך: $eventDate)');
 
           if (name != null && name.trim().isNotEmpty) {
             try {
-              await provider.createList(name: name, type: type, budget: budget);
+              await provider.createList(
+                name: name, 
+                type: type, 
+                budget: budget,
+                eventDate: eventDate,
+              );
               debugPrint('   ✅ רשימה נוצרה בהצלחה');
             } catch (e) {
               debugPrint('   ❌ שגיאה ביצירת רשימה: $e');
@@ -283,15 +289,69 @@ class _Content extends StatelessWidget {
   final List<ShoppingList> allLists;
   const _Content({required this.allLists});
 
+  /// 🧠 חישוב דחיפות רשימה לפי 3 קריטריונים:
+  /// 1. תאריך אירוע קרוב (100 נקודות אם בעוד פחות משבוע)
+  /// 2. מלאי שנגמר (60 נקודות אם 3+ פריטים)
+  /// 3. עדכון אחרון (20 נקודות אם עודכן היום)
+  int _calculateListPriority(ShoppingList list) {
+    int priority = 0;
+    final now = DateTime.now();
+
+    // 📅 קריטריון 1: תאריך אירוע
+    if (list.eventDate != null) {
+      final daysUntilEvent = list.eventDate!.difference(now).inDays;
+      
+      if (daysUntilEvent <= 7 && daysUntilEvent >= -1) {
+        // שבוע לפני האירוע (או האירוע היה אתמול)
+        priority += 100;
+        debugPrint('   📅 "${list.name}": אירוע בעוד $daysUntilEvent ימים (+100)');
+      } else if (daysUntilEvent <= 14 && daysUntilEvent > 7) {
+        // שבועיים לפני האירוע
+        priority += 50;
+        debugPrint('   📅 "${list.name}": אירוע בעוד $daysUntilEvent ימים (+50)');
+      }
+    }
+
+    // 🛒 קריטריון 2: מלאי שנגמר (לעתיד - כרגע 0)
+    // TODO: לבדוק מלאי ולהוסיף נקודות אם יש פריטים שנגמרו
+    // final outOfStockCount = _checkInventoryForList(list);
+    // if (outOfStockCount >= 3) priority += 60;
+    // else if (outOfStockCount >= 1) priority += 30;
+
+    // ⏰ קריטריון 3: עדכון אחרון
+    final daysSinceUpdate = now.difference(list.updatedDate).inDays;
+    if (daysSinceUpdate == 0) {
+      priority += 20;
+      debugPrint('   ⏰ "${list.name}": עודכן היום (+20)');
+    } else if (daysSinceUpdate == 1) {
+      priority += 10;
+      debugPrint('   ⏰ "${list.name}": עודכן אתמול (+10)');
+    }
+
+    return priority;
+  }
+
   @override
   Widget build(BuildContext context) {
     final activeLists = allLists
         .where((l) => l.status == ShoppingList.statusActive)
         .toList();
 
-    activeLists.sort((a, b) => b.updatedDate.compareTo(a.updatedDate));
+    // 🧠 מחשב דחיפות לכל רשימה וממיין
+    debugPrint('🧠 מחשב דחיפות עבור ${activeLists.length} רשימות:');
+    activeLists.sort((a, b) {
+      final priorityA = _calculateListPriority(a);
+      final priorityB = _calculateListPriority(b);
+      debugPrint('   "${a.name}": $priorityA נקודות vs "${b.name}": $priorityB נקודות');
+      return priorityB.compareTo(priorityA); // גבוה לנמוך
+    });
 
     final mostRecentList = activeLists.isNotEmpty ? activeLists.first : null;
+    if (mostRecentList != null) {
+      final finalPriority = _calculateListPriority(mostRecentList);
+      debugPrint('   ✅ הקנייה הקרובה: "${mostRecentList.name}" ($finalPriority נקודות)');
+    }
+
     final otherLists = activeLists.length > 1
         ? activeLists.sublist(1)
         : const <ShoppingList>[];

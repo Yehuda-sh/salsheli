@@ -43,16 +43,7 @@ class FirebaseShoppingListRepository implements ShoppingListsRepository {
           .get();
 
       final lists = snapshot.docs.map((doc) {
-        // המרת Timestamps ל-DateTime
         final data = Map<String, dynamic>.from(doc.data());
-        
-        if (data['updated_date'] is Timestamp) {
-          data['updated_date'] = (data['updated_date'] as Timestamp).toDate().toIso8601String();
-        }
-        if (data['created_date'] is Timestamp) {
-          data['created_date'] = (data['created_date'] as Timestamp).toDate().toIso8601String();
-        }
-        
         return ShoppingList.fromJson(data);
       }).toList();
 
@@ -77,14 +68,6 @@ class FirebaseShoppingListRepository implements ShoppingListsRepository {
       
       // הוספת household_id
       data['household_id'] = householdId;
-      
-      // המרת DateTime ל-Timestamp (Firebase format)
-      if (data['updated_date'] is String) {
-        final dt = DateTime.tryParse(data['updated_date']);
-        if (dt != null) {
-          data['updated_date'] = Timestamp.fromDate(dt);
-        }
-      }
 
       await _firestore
           .collection(_collectionName)
@@ -149,16 +132,7 @@ class FirebaseShoppingListRepository implements ShoppingListsRepository {
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
-        // המרת Timestamps ל-DateTime
         final data = Map<String, dynamic>.from(doc.data());
-        
-        if (data['updated_date'] is Timestamp) {
-          data['updated_date'] = (data['updated_date'] as Timestamp).toDate().toIso8601String();
-        }
-        if (data['created_date'] is Timestamp) {
-          data['created_date'] = (data['created_date'] as Timestamp).toDate().toIso8601String();
-        }
-        
         return ShoppingList.fromJson(data);
       }).toList();
     });
@@ -187,14 +161,6 @@ class FirebaseShoppingListRepository implements ShoppingListsRepository {
       if (data['household_id'] != householdId) {
         debugPrint('⚠️ רשימה לא שייכת ל-household זה');
         return null;
-      }
-
-      // המרת Timestamps ל-DateTime
-      if (data['updated_date'] is Timestamp) {
-        data['updated_date'] = (data['updated_date'] as Timestamp).toDate().toIso8601String();
-      }
-      if (data['created_date'] is Timestamp) {
-        data['created_date'] = (data['created_date'] as Timestamp).toDate().toIso8601String();
       }
 
       final list = ShoppingList.fromJson(data);
@@ -227,14 +193,6 @@ class FirebaseShoppingListRepository implements ShoppingListsRepository {
 
       final lists = snapshot.docs.map((doc) {
         final data = Map<String, dynamic>.from(doc.data());
-        
-        if (data['updated_date'] is Timestamp) {
-          data['updated_date'] = (data['updated_date'] as Timestamp).toDate().toIso8601String();
-        }
-        if (data['created_date'] is Timestamp) {
-          data['created_date'] = (data['created_date'] as Timestamp).toDate().toIso8601String();
-        }
-        
         return ShoppingList.fromJson(data);
       }).toList();
 
@@ -266,14 +224,6 @@ class FirebaseShoppingListRepository implements ShoppingListsRepository {
 
       final lists = snapshot.docs.map((doc) {
         final data = Map<String, dynamic>.from(doc.data());
-        
-        if (data['updated_date'] is Timestamp) {
-          data['updated_date'] = (data['updated_date'] as Timestamp).toDate().toIso8601String();
-        }
-        if (data['created_date'] is Timestamp) {
-          data['created_date'] = (data['created_date'] as Timestamp).toDate().toIso8601String();
-        }
-        
         return ShoppingList.fromJson(data);
       }).toList();
 

@@ -73,11 +73,9 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
         password: password,
       );
 
-      if (!userContext.isLoggedIn) {
-        throw Exception('שגיאה בהתחברות');
-      }
-
-      debugPrint('✅ DemoLogin: התחברות הושלמה - ${userContext.userId}');
+      // ✅ signIn() זורק Exception אם נכשל, אחרת מצליח
+      // ה-listener של authStateChanges יעדכן את isLoggedIn אוטומטית
+      debugPrint('✅ DemoLogin: התחברות הושלמה');
 
       // 2. ה-Providers יטענו אוטומטית את הנתונים מ-Firebase
       // ShoppingListsProvider, ReceiptProvider, ProductsProvider - כולם מקשיבים ל-UserContext

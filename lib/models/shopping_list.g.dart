@@ -9,16 +9,19 @@ part of 'shopping_list.dart';
 ShoppingList _$ShoppingListFromJson(Map<String, dynamic> json) => ShoppingList(
       id: json['id'] as String,
       name: json['name'] as String,
-      updatedDate: DateTime.parse(json['updatedDate'] as String),
+      updatedDate:
+          const TimestampConverter().fromJson(json['updated_date'] as Object),
+      createdDate: _$JsonConverterFromJson<Object, DateTime>(
+          json['created_date'], const TimestampConverter().fromJson),
       status: json['status'] as String? ?? 'active',
       type: json['type'] as String? ?? 'super',
       budget: (json['budget'] as num?)?.toDouble(),
-      isShared: json['isShared'] as bool? ?? false,
-      createdBy: json['createdBy'] as String,
-      sharedWith: (json['sharedWith'] as List<dynamic>?)
+      isShared: json['is_shared'] as bool? ?? false,
+      createdBy: json['created_by'] as String,
+      sharedWith: (json['shared_with'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
-          const [],
+          [],
       items: (json['items'] as List<dynamic>?)
               ?.map((e) => ReceiptItem.fromJson(e as Map<String, dynamic>))
               .toList() ??
@@ -29,12 +32,19 @@ Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
-      'updatedDate': instance.updatedDate.toIso8601String(),
+      'updated_date': const TimestampConverter().toJson(instance.updatedDate),
+      'created_date': const TimestampConverter().toJson(instance.createdDate),
       'status': instance.status,
       'type': instance.type,
       'budget': instance.budget,
-      'isShared': instance.isShared,
-      'createdBy': instance.createdBy,
-      'sharedWith': instance.sharedWith,
+      'is_shared': instance.isShared,
+      'created_by': instance.createdBy,
+      'shared_with': instance.sharedWith,
       'items': instance.items.map((e) => e.toJson()).toList(),
     };
+
+Value? _$JsonConverterFromJson<Json, Value>(
+  Object? json,
+  Value? Function(Json json) fromJson,
+) =>
+    json == null ? null : fromJson(json as Json);

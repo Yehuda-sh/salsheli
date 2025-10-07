@@ -59,10 +59,13 @@ flutter run
 - ✅ `FirebaseInventoryRepository` - מלאי ב-Firestore
 - ✅ Security Rules + Indexes
 
-### ⚠️ חסר - צריך להוסיף:
-- ❌ `ios/Runner/GoogleService-Info.plist` - **הורד מ-Firebase Console**
+### ⚠️ iOS Configuration
 
-**ללא הקובץ הזה, האפליקציה לא תעבוד על iOS!**
+**סטטוס:** `firebase_options.dart` כולל הגדרות iOS מלאות, אבל לבנייה מקומית על iOS עדיין נדרש:
+
+- ❌ `ios/Runner/GoogleService-Info.plist` - **חסר**
+
+> **הערה:** הקובץ נדרש רק לבנייה מקומית על מכשירי iOS. אם אתה עובד רק עם Android, הפרויקט יעבוד ללא בעיות.
 
 ### 📥 הוספת GoogleService-Info.plist:
 
@@ -124,12 +127,16 @@ lib/
 │   └── constants.dart       # App-wide constants
 │
 ├── data/                    # Demo & sample data
-│   ├── demo_shopping_lists.dart
-│   ├── rich_demo_data.dart
-│   └── onboarding_data.dart
+│   └── onboarding_data.dart     # Onboarding flow data
 │
-├── helpers/                 # Helper utilities
-│   └── product_loader.dart  # JSON product loading
+├── l10n/                    # Localization
+│   └── app_strings.dart         # String resources
+│
+├── layout/                  # App layout
+│   └── app_layout.dart          # Main navigation & structure
+│
+├── utils/                   # Utility functions
+│   └── ...                      # Helper utilities
 │
 ├── models/                  # Data models (@JsonSerializable)
 │   ├── user_entity.dart + .g.dart
@@ -138,7 +145,10 @@ lib/
 │   ├── inventory_item.dart + .g.dart
 │   ├── suggestion.dart + .g.dart
 │   ├── product_entity.dart + .g.dart (Hive)
-│   └── enums/               # Enum types
+│   ├── custom_location.dart + .g.dart
+│   ├── timestamp_converter.dart  # Firestore Timestamp converter
+│   ├── enums/                    # Enum types
+│   └── mappers/                  # Data mappers
 │
 ├── providers/               # State management (ChangeNotifier)
 │   ├── user_context.dart            # 👤 User state + Firebase Auth
@@ -151,18 +161,22 @@ lib/
 │
 ├── repositories/           # Data access layer
 │   ├── user_repository.dart
-│   ├── firebase_user_repository.dart       # ✅ Firebase
-│   ├── firebase_receipt_repository.dart    # ✅ Firebase
-│   ├── firebase_inventory_repository.dart  # ✅ Firebase
-│   ├── firebase_products_repository.dart   # ✅ Firebase
-│   ├── hybrid_products_repository.dart     # 🔀 Local + Firestore + API
-│   ├── local_shopping_lists_repository.dart
+│   ├── firebase_user_repository.dart           # ✅ Firebase
+│   ├── firebase_receipt_repository.dart        # ✅ Firebase
+│   ├── firebase_inventory_repository.dart      # ✅ Firebase
+│   ├── firebase_products_repository.dart       # ✅ Firebase
+│   ├── firebase_shopping_list_repository.dart  # ✅ Firebase (06/10/2025)
+│   ├── hybrid_products_repository.dart         # 🔀 Local + Firestore + API
+│   ├── local_shopping_lists_repository.dart    # 📂 Local fallback
 │   └── ... (interfaces)
 │
 ├── services/               # Business logic
-│   ├── auth_service.dart           # 🔐 Firebase Authentication
-│   ├── home_stats_service.dart     # 📊 Home statistics
-│   ├── local_storage_service.dart
+│   ├── auth_service.dart               # 🔐 Firebase Authentication
+│   ├── home_stats_service.dart         # 📊 Home statistics
+│   ├── shufersal_prices_service.dart   # 💰 Price updates from API
+│   ├── receipt_service.dart            # 🧾 Receipt processing
+│   ├── onboarding_service.dart         # 👋 User onboarding
+│   ├── local_storage_service.dart      # 💾 Local storage
 │   └── ...
 │
 ├── screens/                # UI screens
@@ -199,17 +213,18 @@ lib/
 
 ### ☁️ Firestore Integration
 - ✅ Users collection
+- ✅ **Shopping Lists** - **נשמרות בענן!** (06/10/2025)
 - ✅ Receipts collection - **נשמר בענן!**
 - ✅ Inventory collection - **נשמר בענן!**
 - ✅ Products collection (1,758 מוצרים)
+- ✅ Real-time sync עם `watchLists()` stream
 - ✅ Security Rules
 - ✅ Firestore Indexes
 
 ### 📦 Hybrid Storage
 - ✅ Hive: 1,758 מוצרים מקומיים (cache)
-- ✅ Firestore: Products + Receipts + Inventory
-- ✅ SharedPreferences: Shopping lists (זמני)
-- ✅ Fallback strategy מלאה
+- ✅ Firestore: **Shopping Lists** + Receipts + Inventory + Products
+- ✅ Fallback strategy מלאה (Local → Firebase)
 
 ### 🎨 UI/UX
 - ✅ 21 סוגי רשימות
@@ -230,9 +245,9 @@ lib/
 ## 📝 TODO - מה נשאר
 
 ### 🔴 גבוה
-- [ ] iOS configuration (GoogleService-Info.plist)
-- [ ] העברת Shopping Lists ל-Firestore
-- [ ] Real-time sync לרשימות
+- [ ] iOS configuration (GoogleService-Info.plist לבנייה מקומית)
+- [x] ~~העברת Shopping Lists ל-Firestore~~ ✅ הושלם 06/10/2025
+- [x] ~~Real-time sync לרשימות~~ ✅ הושלם 06/10/2025
 
 ### 🟡 בינוני
 - [ ] Receipt OCR
@@ -278,9 +293,9 @@ npm run upload        # העלאת מוצרים ל-Firestore
 
 ```bash
 # בדוק שהקבצים קיימים:
-ls lib/firebase_options.dart                    # ✅
+ls lib/firebase_options.dart                    # ✅ (אנדרואיד + iOS)
 ls android/app/google-services.json             # ✅
-ls ios/Runner/GoogleService-Info.plist          # ❌ חסר!
+ls ios/Runner/GoogleService-Info.plist          # ❌ חסר (נדרש לבנייה iOS)
 
 # אחרי הוספת הקובץ:
 flutter clean
@@ -327,6 +342,6 @@ MIT License - ראה LICENSE לפרטים
 
 ---
 
-**עדכון אחרון:** 05/10/2025  
+**עדכון אחרון:** 07/10/2025  
 **גרסה:** 1.0.0+1  
 **Made with ❤️ in Israel** 🇮🇱

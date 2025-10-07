@@ -60,12 +60,10 @@ class _LoginScreenState extends State<LoginScreen> {
         password: password,
       );
 
-      // 🔹 2. בדיקה שההתחברות הצליחה
-      if (!userContext.isLoggedIn) {
-        throw Exception('שגיאה בהתחברות');
-      }
+      // ✅ signIn() זורק Exception אם נכשל, אחרת מצליח
+      // ה-listener של authStateChanges יעדכן את isLoggedIn אוטומטית
 
-      // 🔹 3. שמירה ב-SharedPreferences
+      // 🔹 2. שמירה ב-SharedPreferences
       await NavigationService.saveUserId(userContext.userId!);
       await NavigationService.markOnboardingSeen();
 

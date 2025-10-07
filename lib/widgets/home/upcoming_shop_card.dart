@@ -29,9 +29,15 @@ class UpcomingShopCard extends StatelessWidget {
           final name = listData['name'] as String?;
           final type = listData['type'] as String? ?? 'super';
           final budget = listData['budget'] as double?;
+          final eventDate = listData['eventDate'] as DateTime?;
 
           if (name != null && name.trim().isNotEmpty) {
-            await provider.createList(name: name, type: type, budget: budget);
+            await provider.createList(
+              name: name, 
+              type: type, 
+              budget: budget,
+              eventDate: eventDate,
+            );
           }
         },
       ),
@@ -113,23 +119,46 @@ class _ListSummary extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // שם הרשימה
-        Text(
-          list.name,
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+        // שם הרשימה + כפתור עריכה
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                list.name,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            // כפתור עריכה קטן
+            IconButton(
+              icon: const Icon(Icons.edit_outlined, size: 20),
+              tooltip: 'ערוך רשימה',
+              padding: const EdgeInsets.all(8),
+              constraints: const BoxConstraints(
+                minWidth: 36,
+                minHeight: 36,
+              ),
+              onPressed: () {
+                Navigator.pushNamed(
+                  context,
+                  '/populate-list',
+                  arguments: list,
+                );
+              },
+            ),
+          ],
         ),
         const SizedBox(height: 8),
 
-        // תג סוג + תקציב
-        Row(
+        // תג סוג + תקציב + תאריך אירוע
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
           children: [
             _buildTypeBadge(context, list.type),
-            if (list.budget != null) ...[
-              const SizedBox(width: 8),
-              _buildBudgetChip(context, list.budget!),
-            ],
+            if (list.budget != null) _buildBudgetChip(context, list.budget!),
+            if (list.eventDate != null) _buildEventDateChip(context, list.eventDate!),
           ],
         ),
         const SizedBox(height: 16),
@@ -162,6 +191,26 @@ class _ListSummary extends StatelessWidget {
               ),
             ),
           ],
+        ),
+        const SizedBox(height: 16),
+
+        // כפתור התחל קנייה
+        SizedBox(
+          width: double.infinity,
+          child: FilledButton.icon(
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                '/active-shopping',
+                arguments: list,  // עובר את כל ה-list object
+              );
+            },
+            icon: const Icon(Icons.shopping_cart, size: 20),
+            label: const Text('התחל קנייה'),
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+            ),
+          ),
         ),
       ],
     );
@@ -235,6 +284,68 @@ class _ListSummary extends StatelessWidget {
             '₪${budget.toStringAsFixed(0)}',
             style: theme.textTheme.labelSmall?.copyWith(
               color: cs.onSecondaryContainer,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEventDateChip(BuildContext context, DateTime eventDate) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final now = DateTime.now();
+    final daysUntil = eventDate.difference(now).inDays;
+
+    // בחירת צבע לפי מרחק
+    Color chipColor;
+    Color textColor;
+    if (daysUntil <= 7) {
+      // דחוף - אדום
+      chipColor = Colors.red.shade100;
+      textColor = Colors.red.shade800;
+    } else if (daysUntil <= 14) {
+      // בינוני - כתום
+      chipColor = Colors.orange.shade100;
+      textColor = Colors.orange.shade800;
+    } else {
+      // רגיל - ירוק
+      chipColor = Colors.green.shade100;
+      textColor = Colors.green.shade800;
+    }
+
+    // פורמט טקסט
+    String dateText;
+    if (daysUntil == 0) {
+      dateText = 'היום!';
+    } else if (daysUntil == 1) {
+      dateText = 'מחר';
+    } else if (daysUntil > 0) {
+      dateText = 'בעוד $daysUntil ימים';
+    } else {
+      dateText = 'עבר'; // אירוע שעבר
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: chipColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.event,
+            size: 14,
+            color: textColor,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            dateText,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: textColor,
               fontWeight: FontWeight.w600,
             ),
           ),

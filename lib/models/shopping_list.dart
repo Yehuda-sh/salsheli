@@ -28,6 +28,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'receipt.dart';
+import 'timestamp_converter.dart';
 
 part 'shopping_list.g.dart';
 
@@ -45,7 +46,15 @@ class ShoppingList {
 
   /// 🇮🇱 מתי עודכנה הרשימה לאחרונה
   /// 🇬🇧 Last update date
+  @TimestampConverter()
+  @JsonKey(name: 'updated_date')
   final DateTime updatedDate;
+
+  /// 🇮🇱 מתי נוצרה הרשימה
+  /// 🇬🇧 Creation date
+  @TimestampConverter()
+  @JsonKey(name: 'created_date')
+  final DateTime createdDate;
 
   /// 🇮🇱 סטטוס הרשימה: "active" | "completed" | "archived"
   /// 🇬🇧 List status: "active" | "completed" | "archived"
@@ -63,15 +72,24 @@ class ShoppingList {
 
   /// 🇮🇱 האם הרשימה משותפת עם משתמשים נוספים
   /// 🇬🇧 Is the list shared with other users
+  @JsonKey(name: 'is_shared', defaultValue: false)
   final bool isShared;
 
   /// 🇮🇱 מזהה המשתמש שיצר את הרשימה
   /// 🇬🇧 User ID who created the list
+  @JsonKey(name: 'created_by')
   final String createdBy;
 
   /// 🇮🇱 מזהי משתמשים איתם הרשימה שותפה
   /// 🇬🇧 User IDs with whom the list is shared
+  @JsonKey(name: 'shared_with', defaultValue: [])
   final List<String> sharedWith;
+
+  /// 🇮🇱 תאריך אירוע מתוכנן (אופציונלי) - למשל יום הולדת, אירוח
+  /// 🇬🇧 Planned event date (optional) - e.g., birthday, hosting
+  @TimestampConverter()
+  @JsonKey(name: 'event_date')
+  final DateTime? eventDate;
 
   /// 🇮🇱 פריטי הקניות ברשימה
   /// 🇬🇧 Shopping items in the list
@@ -92,14 +110,17 @@ class ShoppingList {
     required this.id,
     required this.name,
     required this.updatedDate,
+    DateTime? createdDate,
     this.status = statusActive,
     this.type = typeSuper,
     this.budget,
+    this.eventDate,
     this.isShared = false,
     required this.createdBy,
     List<String> sharedWith = const [],
     List<ReceiptItem> items = const [],
-  })  : sharedWith = List<String>.unmodifiable(sharedWith),
+  })  : createdDate = createdDate ?? updatedDate,
+        sharedWith = List<String>.unmodifiable(sharedWith),
         items = List<ReceiptItem>.unmodifiable(items);
 
   // ---- Factory Constructors ----
@@ -112,21 +133,25 @@ class ShoppingList {
     required String createdBy,
     String type = typeSuper,
     double? budget,
+    DateTime? eventDate,
     bool isShared = false,
     List<String> sharedWith = const [],
     List<ReceiptItem> items = const [],
     DateTime? now,
   }) {
+    final timestamp = now ?? DateTime.now();
     return ShoppingList(
       id: id,
       name: name,
       createdBy: createdBy,
       type: type,
       budget: budget,
+      eventDate: eventDate,
       isShared: isShared,
       sharedWith: List<String>.unmodifiable(sharedWith),
       items: List<ReceiptItem>.unmodifiable(items),
-      updatedDate: now ?? DateTime.now(),
+      updatedDate: timestamp,
+      createdDate: timestamp,
       status: statusActive,
     );
   }
@@ -139,9 +164,11 @@ class ShoppingList {
     String? id,
     String? name,
     DateTime? updatedDate,
+    DateTime? createdDate,
     String? status,
     String? type,
     double? budget,
+    DateTime? eventDate,
     bool? isShared,
     String? createdBy,
     List<String>? sharedWith,
@@ -151,9 +178,11 @@ class ShoppingList {
       id: id ?? this.id,
       name: name ?? this.name,
       updatedDate: updatedDate ?? this.updatedDate,
+      createdDate: createdDate ?? this.createdDate,
       status: status ?? this.status,
       type: type ?? this.type,
       budget: budget ?? this.budget,
+      eventDate: eventDate ?? this.eventDate,
       isShared: isShared ?? this.isShared,
       createdBy: createdBy ?? this.createdBy,
       sharedWith: sharedWith ?? this.sharedWith,
