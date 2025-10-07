@@ -1430,6 +1430,202 @@ class HybridRepository {
 }
 ```
 
+### 📦 Products Loading Flow (salsheli Project)
+
+**הזרימה המלאה של טעינת מוצרים בפרויקט:**
+
+```
+App Startup
+    ↓
+HybridProductsRepository.initialize()
+    ↓
+    ├─ DB ריק?
+    │   ├─ לא → סיום (יש ${totalProducts} מוצרים)
+    │   └─ כן → _loadInitialProducts()
+    │
+    └─ _loadInitialProducts() - 4 שלבים:
+        ↓
+    🔥 שלב 0: Firestore (1758 מוצרים)
+        ├─ הצלחה → שמירה ב-Hive → ✅ סיום
+        └─ כשלון → שלב 1
+        ↓
+    📂 שלב 1: products.json (800 מוצרים)
+        ├─ הצלחה → שמירה ב-Hive → ✅ סיום
+        └─ כשלון → שלב 2
+        ↓
+    📡 שלב 2: ShufersalAPI (מקוון)
+        ├─ הצלחה → שמירה ב-Hive → ✅ סיום
+        └─ כשלון → שלב 3
+        ↓
+    🆘 שלב 3: Fallback (8 מוצרים דמה)
+        └─ תמיד מצליח → ✅ סיום
+        ↓
+    💾 כל המוצרים עכשיו ב-Hive!
+        ↓
+    💰 עדכון מחירים ברקע (async)
+        └─ ShufersalAPI.updatePrices()
+            ├─ מוצר קיים → עדכן מחיר בלבד
+            └─ מוצר חדש → הוסף למאגר
+```
+
+**קוד דוגמה:**
+
+```dart
+class HybridProductsRepository implements ProductsRepository {
+  final LocalProductsRepository _localRepo;  // Hive
+  final FirebaseProductsRepository? _firebaseRepo;  // Firestore
+  
+  Future<void> initialize() async {
+    if (_isInitialized) return;
+    
+    debugPrint('🚀 HybridProductsRepository.initialize()');
+    
+    // בדיקה: האם יש מוצרים?
+    if (_localRepo.totalProducts == 0) {
+      await _loadInitialProducts();  // 4 שלבי Fallback
+    } else {
+      debugPrint('✅ נמצאו ${_localRepo.totalProducts} מוצרים');
+    }
+    
+    _isInitialized = true;
+    
+    // 💰 עדכון מחירים ברקע (לא חוסם UI!)
+    if (_localRepo.totalProducts > 0) {
+      updatePrices().then((_) {
+        debugPrint('✅ מחירים עודכנו ברקע');
+      }).catchError((e) {
+        debugPrint('⚠️ עדכון מחירים נכשל: $e');
+      });
+    }
+  }
+  
+  Future<void> _loadInitialProducts() async {
+    // 🔥 0. Firestore
+    if (_firebaseRepo != null) {
+      final success = await _loadFromFirestore();
+      if (success) return;
+    }
+    
+    // 📂 1. products.json
+    final jsonSuccess = await _loadFromJson();
+    if (jsonSuccess) return;
+    
+    // 📡 2. API
+    final apiSuccess = await _loadFromAPI();
+    if (apiSuccess) return;
+    
+    // 🆘 3. Fallback
+    await _loadFallbackProducts();
+  }
+  
+  Future<bool> _loadFromFirestore() async {
+    try {
+      final products = await _firebaseRepo!.getAllProducts();
+      if (products.isEmpty) return false;
+      
+      final entities = products.map((data) => ProductEntity(
+        barcode: data['barcode'],
+        name: data['name'],
+        // ...
+      )).toList();
+      
+      await _localRepo.saveProducts(entities);
+      debugPrint('✅ ${entities.length} מוצרים מ-Firestore');
+      return true;
+    } catch (e) {
+      debugPrint('❌ Firestore נכשל: $e');
+      return false;
+    }
+  }
+  
+  Future<bool> _loadFromJson() async {
+    try {
+      final jsonString = await rootBundle.loadString(
+        'assets/data/products.json'
+      );
+      final productsData = json.decode(jsonString) as List;
+      
+      final entities = productsData.map((data) => ProductEntity(
+        barcode: data['barcode'],
+        name: data['name'],
+        // ...
+      )).toList();
+      
+      await _localRepo.saveProducts(entities);
+      debugPrint('✅ ${entities.length} מוצרים מ-JSON');
+      return true;
+    } catch (e) {
+      debugPrint('❌ JSON נכשל: $e');
+      return false;
+    }
+  }
+  
+  Future<void> updatePrices() async {
+    debugPrint('💰 מעדכן מחירים...');
+    
+    final apiProducts = await ShufersalPricesService.getProducts();
+    
+    int updated = 0;
+    int added = 0;
+    
+    for (final apiProduct in apiProducts) {
+      final barcode = apiProduct.barcode;
+      final price = apiProduct.price;
+      
+      if (_localRepo.hasProduct(barcode)) {
+        // עדכן מחיר קיים
+        await _localRepo.updatePrice(
+          barcode: barcode,
+          price: price,
+          store: 'שופרסל',
+        );
+        updated++;
+      } else {
+        // הוסף מוצר חדש
+        await _localRepo.saveProduct(apiProduct);
+        added++;
+      }
+    }
+    
+    debugPrint('✅ $updated עודכנו, $added נוספו');
+  }
+}
+```
+
+**💡 לקחים מהזרימה:**
+
+1. **Cascading Fallbacks:**
+   - Firestore (הכי עדכני) → JSON (יציב) → API (אונליין) → Fallback (גיבוי)
+   - כל שלב לוכד שגיאות ועובר להבא
+
+2. **עדכון מחירים ברקע:**
+   - `.then()` במקום `await` = UI לא נחסם
+   - פעולה לא-קריטית שלא מעכבת את הפתיחה
+   - **לפני:** 4 שניות פתיחה
+   - **אחרי:** 1 שניה פתיחה = **פי 4 יותר מהיר!**
+
+3. **Error Handling עם catchError:**
+   - שגיאות בעדכון מחירים לא קורסות את האפליקציה
+   - האפליקציה פותחת גם ללא אינטרנט
+
+4. **גדילה טבעית של DB:**
+   - התחלה: 800 מוצרים (JSON)
+   - אחרי עדכון ראשון: 850+ מוצרים
+   - אחרי חצי שנה: 1,000+ מוצרים
+   - הכל אוטומטי דרך `updatePrices()`
+
+5. **Offline-First:**
+   - טעינה מהירה מ-Hive (O(1))
+   - עובד ללא אינטרנט אחרי טעינה ראשונה
+   - עדכונים בשקט כשיש חיבור
+
+6. **קבצים רלוונטיים:**
+   - `lib/repositories/hybrid_products_repository.dart` - הזרימה המלאה
+   - `lib/repositories/local_products_repository.dart` - Hive storage
+   - `lib/repositories/firebase_products_repository.dart` - Firestore
+   - `lib/services/shufersal_prices_service.dart` - API עדכוני מחירים
+   - `assets/data/products.json` - 800 מוצרים בסיס
+
 ---
 
 ## 18. Services vs API Clients vs Mock

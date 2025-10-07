@@ -26,6 +26,275 @@
 
 ---
 
+## 📅 07/10/2025 - Services Code Review: Dead Code Detection + תיקון Header
+
+### 🎯 משימה
+
+בדיקה שיטתית של Services לפי AI_DEV_GUIDELINES.md - איתור Dead Code, תיקון Headers, ובדיקת איכות
+
+### ✅ מה הושלם
+
+**1. auth_service.dart - שדרוג Header:**
+- תיקון Header Comment לפורמט הסטנדרטי (📄 File, 📋 Description, 🎯 Purpose, 📱 Mobile Only)
+- הוספת הסבר: למה Instance-based ולא Static?
+  - Dependency Injection + Testing + Mocking
+  - אין צורך ב-dispose() - FirebaseAuth מנהל את עצמו
+- הוספת Features list
+- הקובץ מושלם: Logging מצוין, Error Handling עם תרגום עברית, תיעוד מלא
+
+**2. home_stats_service.dart - Dead Code:**
+- חיפוש `home_stats_service` → **0 imports**
+- חיפוש `HomeStats` → **0 שימושים**
+- חיפוש `calculateStats` → **0 קריאות**
+- בדיקת main.dart → אין Provider
+- בדיקת HomeDashboardScreen → אין שימוש
+- **מחוק:** הקוד היה טוב (logging מפורט, חישובים אמיתיים) אבל לא בשימוש
+- סיבה: כל כרטיס ב-Dashboard מחשב את הנתונים שלו לבד
+
+**3. local_storage_service.dart - Dead Code:**
+- חיפוש `local_storage_service` → **0 imports**
+- חיפוש `LocalStorageService` → **0 שימושים**
+- חיפוש `saveJson` → **0 קריאות**
+- **מחוק:** Singleton wrapper ל-SharedPreferences
+- סיבה: הפרויקט עבר ל-Firebase, אחסון מקומי נעשה ישירות דרך:
+  - SharedPreferences.getInstance() (ב-user_service.dart)
+  - Hive (למוצרים)
+  - לא צריך wrapper נוסף
+
+**4. navigation_service.dart - Dead Code + לוגיקה שגויה:**
+- חיפוש `NavigationService` → **0 שימושים** (מלבד WelcomeScreen)
+- **בעיה קריטית:** מסמן `seenOnboarding=true` מוקדם מדי!
+  - WelcomeScreen → כפתור "הרשמה" → NavigationService.goToOnboarding()
+  - NavigationService קורא ל-markOnboardingSeen() **לפני** הניווט
+  - אם המשתמש יצא באמצע OnboardingScreen, לא יראה WelcomeScreen שוב
+  - OnboardingService.savePreferences() כבר עושה את זה נכון!
+- **100% כפילות:**
+  - markOnboardingSeen() → ✅ UserService.setSeenOnboarding()
+  - hasSeenOnboarding() → ✅ UserService.getSeenOnboarding()
+  - saveUserId() → ✅ UserService.setCurrentUserId()
+  - getUserId() → ✅ UserService.getCurrentUserId()
+  - clearAll() → ✅ UserContext.clearAll()
+- **מחוק + תיקון:** החלפת 6 קריאות ב-WelcomeScreen
+
+**5. welcome_screen.dart - תיקון:**
+- הסרת import של navigation_service
+- החלפת 6 קריאות:
+  - NavigationService.goToLogin() → Navigator.pushNamed(context, '/login') (3 מקומות)
+  - NavigationService.goToOnboarding() → Navigator.pushNamed(context, '/onboarding')
+  - NavigationService.skip() → Navigator.pushNamed(context, '/login')
+  - NavigationService (social buttons) → Navigator.pushNamed (2 מקומות)
+
+### 📂 קבצים שהושפעו
+
+**עודכן (2):**
+- `lib/services/auth_service.dart` - Header Comment מושלם: +12 שורות
+- `lib/screens/welcome_screen.dart` - הסרת NavigationService: -1 שורות (import), החלפת 6 קריאות
+
+**נמחק (3):**
+- `lib/services/home_stats_service.dart` - Dead Code (0 imports): -250 שורות
+- `lib/services/local_storage_service.dart` - Dead Code (0 imports): -50 שורות
+- `lib/services/navigation_service.dart` - Dead Code + כפילות: -90 שורות
+
+### 💡 לקחים
+
+1. **Dead Code Detection שיטתי:**
+   - חיפוש imports (0 תוצאות = Dead Code)
+   - בדיקת main.dart (Providers)
+   - בדיקת Screens (שימוש בפועל)
+   - אם אף אחד לא משתמש = מחק מיד
+
+2. **כפילות = Dead Code:**
+   - NavigationService היה 100% כפילות
+   - כל פונקציה כבר קיימת במקום אחר
+   - תמיד לבדוק אם יש Service דומה לפני יצירת חדש
+
+3. **לוגיקה שגויה גרועה מ-Dead Code:**
+   - NavigationService סימן seenOnboarding מוקדם מדי
+   - גרם לבאג פוטנציאלי (משתמש לא רואה Welcome שוב)
+   - Dead Code עם באגים = מחק מיד!
+
+4. **Header Comment עקביות:**
+   - כל קובץ צריך: 📄 File, 📋 Description, 🎯 Purpose, 📱 Mobile Only
+   - Instance vs Static - תמיד להסביר למה
+   - Features list כשיש
+   - הערות מיוחדות (⚠️ Note) כשצריך
+
+5. **Service טוב ≠ Service בשימוש:**
+   - home_stats_service.dart היה מקצועי:
+     - Logging מפורט
+     - חישובים אמיתיים (לא mock)
+     - Static Service נכון
+   - אבל אף אחד לא השתמש בו = Dead Code
+   - איכות קוד לא מצדיקה שמירה
+
+6. **Wrapper Services - מתי מיותר:**
+   - local_storage_service.dart עטף SharedPreferences
+   - בפרויקט קטן/בינוני - לא צריך wrapper
+   - פשוט להשתמש ישירות ב-SharedPreferences
+   - Wrapper שימושי רק בפרויקטים גדולים מאוד
+
+7. **Services Directory ניקוי:**
+   - לפני: 10 קבצים (3 מהם Dead Code)
+   - אחרי: 7 קבצים (כולם בשימוש)
+   - 30% Dead Code ב-services/!
+   - חשוב לנקות מעת לעת
+
+### 📊 סיכום
+
+זמן: 45 דק' | קבצים: 5 (2 עודכן, 3 נמחק) | שורות: -379 net | סטטוס: ✅ הושלם
+
+---
+
+## 📅 07/10/2025 - ניקוי scripts/: 6 קבצים Dead Code
+
+### 🎯 משימה
+
+בדיקה שיטתית של תקיית scripts/ - זיהוי ומחיקת קבצים מיותרים שלא בשימוש
+
+### ✅ מה הושלם
+
+**1. בדיקה שיטתית:**
+- סריקת 13 פריטים בתקייה
+- קריאה ובדיקת תוכן של 10 קבצים
+- חיפוש התייחסויות ב-WORK_LOG
+- וידוא מה בשימוש אקטיבי
+
+**2. Dead Code שזוהה:**
+- `fetch_published_products.dart` - תלוי ב-published_prices_service שנמחק (SSL problems)
+- `test_api.dart` - Template עם placeholder (`api.example.com`)
+- `download_products.js` - 100 מוצרי דמו hardcoded, לא רלוונטי
+- `fetch_gov_products.dart` - API משרד הכלכלה, לא מוזכר ב-WORK_LOG
+- `fetch_products.dart` - Template כללי עם placeholder
+- `category_icons.txt` - Draft/Notes (3 שורות בלבד)
+
+**3. מה נשאר (שימושי):**
+- `fetch_shufersal_products.dart` - הסקריפט העיקרי בשימוש! ✅
+- `upload_to_firebase.js` - העלאת products.json ל-Firestore ✅
+- `create_demo_users.js` - יצירת משתמשי דמו ✅
+- `firestore_rules.md` - Documentation חשוב ✅
+- `package.json` + `package-lock.json` - Dependencies ✅
+- `node_modules/` - תיקייה
+- `firebase-service-account.json` - Sensitive (⚠️ בדוק .gitignore)
+
+### 📂 קבצים שהושפעו
+
+**נמחק (6):**
+- `scripts/fetch_published_products.dart` - תלוי בשירות שנמחק: -600 שורות
+- `scripts/test_api.dart` - Template placeholder: -130 שורות
+- `scripts/download_products.js` - מוצרי דמו hardcoded: -300 שורות
+- `scripts/fetch_gov_products.dart` - API לא בשימוש: -300 שורות
+- `scripts/fetch_products.dart` - Template כללי: -100 שורות
+- `scripts/category_icons.txt` - Draft notes: -3 שורות
+
+### 💡 לקחים
+
+1. **Scripts = Dead Code Magnet:**
+   - קל מאוד לצבור scripts שהיו שימושיים פעם אחת
+   - חשוב לנקות כשמחליפים שירותים (published_prices → shufersal)
+   - Templates/Placeholders = מועמדים מעולים למחיקה
+
+2. **fetch_shufersal_products.dart = היחיד שעובד:**
+   - כל שאר הסקריפטים היו ניסיונות שנכשלו
+   - מקור: `prices.shufersal.co.il` - הפתרון היציב
+   - עדכון חכם: מחירים + מוצרים חדשים
+
+3. **Node.js Scripts שימושיים:**
+   - `create_demo_users.js` - Firebase Admin SDK
+   - `upload_to_firebase.js` - העלאת bulk data
+   - שניהם נשארים!
+
+4. **אזהרת אבטחה:**
+   - `firebase-service-account.json` רגיש מאוד!
+   - חובה להיות ב-`.gitignore`
+   - לא לשתף בGit לעולם
+
+5. **איכות scripts/:**
+   - לפני: 13 פריטים (6 מיותרים)
+   - אחרי: 7 פריטים (כולם שימושיים)
+   - ~43% Dead Code!
+
+6. **תיקיות נקיות = Onboarding קל:**
+   - מפתח חדש רואה רק מה שעובד
+   - אין בלבול מ-templates ישנים
+   - ברור מה הכלים האמיתיים
+
+### 📊 סיכום
+
+זמן: 15 דק' | קבצים: 6 נמחק | שורות: -1,433 | סטטוס: ✅ הושלם
+
+---
+
+## 📅 07/10/2025 - ניקוי utils/: Dead Code Detection
+
+### 🎯 משימה
+
+בדיקת תקיית lib/utils/ - חיפוש Dead Code ונתוני Mock
+
+### ✅ מה הושלם
+
+**1. בדיקה שיטתית:**
+- סריקת 2 קבצים ב-utils/
+- חיפוש imports (0 תוצאות = Dead Code)
+- חיפוש שימושים בפונקציות
+- וידוא שאין נתוני Mock
+
+**2. Dead Code שנמצא:**
+- `color_hex.dart` - פונקציה `colorFromHex()` לא בשימוש
+- `toast.dart` - 4 פונקציות SnackBar לא בשימוש
+  - showToast()
+  - showSuccessToast()
+  - showErrorToast()
+  - showInfoToast()
+
+**3. מחיקה:**
+- 2 קבצים נמחקו
+- תקיית utils/ ריקה/נמחקה
+- -130 שורות קוד מיותר
+
+**4. וידוא איכות:**
+- ✅ אין נתוני Mock בפרויקט!
+- ✅ הפרויקט עובד עם Firebase אמיתי
+- ✅ כל הנתונים אמיתיים/מקומיים
+
+### 📂 קבצים שהושפעו
+
+**נמחק (2):**
+- `lib/utils/color_hex.dart` - פונקציה לא בשימוש: -15 שורות
+- `lib/utils/toast.dart` - 4 פונקציות לא בשימוש: -115 שורות
+
+### 💡 לקחים
+
+1. **Dead Code Detection שיטתי:**
+   - חיפוש imports בכל הפרויקט
+   - 0 תוצאות = Dead Code מובהק
+   - מחיקה מיידית
+
+2. **utils/ הפכה לתיקייה מיותרת:**
+   - 2/2 קבצים Dead Code
+   - אפשר למחוק את התיקייה כולה
+   - אין צורך ב-utils/ בפרויקט זה
+
+3. **איכות קוד גבוהה:**
+   - אין נתוני Mock שנשארו
+   - הפרויקט נקי ועובד עם נתונים אמיתיים
+   - Firebase/Hive/JSON בלבד
+
+4. **Modern APIs בקבצים שנמחקו:**
+   - toast.dart השתמש ב-`withValues` (נכון)
+   - אבל לא רלוונטי אם הקובץ Dead Code
+   - Modern API לא מצדיק שמירת קוד מיותר
+
+5. **תיקיות ריקות:**
+   - אם כל הקבצים ב-utils/ נמחקו
+   - אפשר למחוק את התיקייה עצמה
+   - מבנה פרויקט נקי יותר
+
+### 📊 סיכום
+
+זמן: 10 דק' | קבצים: 2 נמחק | שורות: -130 | סטטוס: ✅ הושלם
+
+---
+
 ## 📅 07/10/2025 - ניקוי Dead Code + שיפור UX: עדכון מחירים ברקע
 
 ### 🎯 משימה

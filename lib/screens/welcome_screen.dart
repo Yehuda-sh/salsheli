@@ -26,7 +26,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common/benefit_tile.dart';
 import '../widgets/auth/auth_button.dart';
-import '../services/navigation_service.dart';
+
 
 // קבועים מקומיים (הועברו מ-constants.dart שנמחק)
 const double kSpacingSmall = 8.0;
@@ -124,7 +124,7 @@ class WelcomeScreen extends StatelessWidget {
                   icon: Icons.login,
                   onPressed: () {
                     debugPrint('🔐 WelcomeScreen: התחברות נלחץ');
-                    NavigationService.goToLogin(context);
+                    Navigator.pushNamed(context, '/login');
                   },
                 ),
                 SizedBox(height: kSpacingSmall + 4), // 12
@@ -135,7 +135,7 @@ class WelcomeScreen extends StatelessWidget {
                   icon: Icons.app_registration_outlined,
                   onPressed: () {
                     debugPrint('📝 WelcomeScreen: הרשמה נלחץ');
-                    NavigationService.goToOnboarding(context);
+                    Navigator.pushNamed(context, '/onboarding');
                   },
                 ),
                 SizedBox(height: kSpacingMedium),
@@ -148,7 +148,7 @@ class WelcomeScreen extends StatelessWidget {
                     child: TextButton(
                       onPressed: () {
                         debugPrint('⏭️  WelcomeScreen: דילוג נלחץ');
-                        NavigationService.skip(context);
+                        Navigator.pushNamed(context, '/login');
                       },
                       child: const Text(
                         'דלג לעכשיו',
@@ -174,7 +174,7 @@ class WelcomeScreen extends StatelessWidget {
                       label: 'Google',
                       onPressed: () {
                         debugPrint('🌐 WelcomeScreen: Google login נלחץ');
-                        NavigationService.goToLogin(context);
+                        Navigator.pushNamed(context, '/login');
                       },
                     ),
                     SizedBox(width: kSpacingMedium),
@@ -183,7 +183,7 @@ class WelcomeScreen extends StatelessWidget {
                       label: 'Facebook',
                       onPressed: () {
                         debugPrint('🌐 WelcomeScreen: Facebook login נלחץ');
-                        NavigationService.goToLogin(context);
+                        Navigator.pushNamed(context, '/login');
                       },
                     ),
                   ],
