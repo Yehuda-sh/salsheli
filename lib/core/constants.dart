@@ -167,6 +167,18 @@ const Map<String, Map<String, String>> kListTypes = {
 };
 
 // ========================================
+// Onboarding - גבולות ערכים
+// ========================================
+
+/// גודל משפחה - גבולות min/max
+const int kMinFamilySize = 1;
+const int kMaxFamilySize = 10;
+
+/// תקציב חודשי - גבולות min/max (₪)
+const double kMinMonthlyBudget = 500.0;
+const double kMaxMonthlyBudget = 20000.0;
+
+// ========================================
 // סוגי רשימות קניות
 // ========================================
 

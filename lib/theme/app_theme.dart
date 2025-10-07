@@ -152,8 +152,8 @@ class AppTheme {
       welcomeBackground: _Brand.slate900,
     );
     
-    debugPrint('   🎨 accent: ${brand.accent.value.toRadixString(16)}');
-    debugPrint('   🎨 surfaceSlate: ${brand.surfaceSlate.value.toRadixString(16)}');
+    debugPrint('   🎨 accent: ${brand.accent.toARGB32().toRadixString(16)}');
+    debugPrint('   🎨 surfaceSlate: ${brand.surfaceSlate.toARGB32().toRadixString(16)}');
 
     // צבעי מילוי דקים לשדות טופס
     // Light: שקוף יותר (6% opacity)

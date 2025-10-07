@@ -69,7 +69,7 @@ class _InsightCardState extends State<InsightCard>
 
   @override
   Widget build(BuildContext context) {
-    final cardColor = widget.color ?? Colors.blueGrey.shade900.withOpacity(0.9);
+    final cardColor = widget.color ?? Colors.blueGrey.shade900.withValues(alpha: 0.9);
     final iconColor = widget.iconColor ?? Colors.amber;
 
     return FadeTransition(
@@ -102,7 +102,7 @@ class _InsightCardState extends State<InsightCard>
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: cardColor.withOpacity(0.7),
+                            color: cardColor.withValues(alpha: 0.7),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(widget.icon, color: iconColor, size: 20),

@@ -26,19 +26,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// Removed: import '../core/constants.dart'; - constants moved inline
-
-// ========================================
-// קבועים פנימיים
-// ========================================
-
-/// גודל משפחה - min/max
-const int kMinFamilySize = 1;
-const int kMaxFamilySize = 10;
-
-/// תקציב חודשי - min/max (₪)
-const double kMinMonthlyBudget = 500.0;
-const double kMaxMonthlyBudget = 20000.0;
+import '../core/constants.dart';
 
 // ========================================
 // מפתחות SharedPreferences

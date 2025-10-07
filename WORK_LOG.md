@@ -26,6 +26,34 @@
 
 ---
 
+## 📅 07/10/2025 - תיקון Compilation Errors: יצירת HomeStatsService מחדש
+
+### 🎯 משימה
+תיקון 26 שגיאות compilation לאחר Dead Code cleanup - insights_screen.dart השתמש ב-HomeStatsService שנמחק
+
+### ✅ מה הושלם
+
+**תיקון imports (3 קבצים):**
+- login_screen.dart - הסרת NavigationService + החלפה ב-Navigator ישיר
+- register_screen.dart - אותו דבר
+- demo_login_button.dart - אותו דבר
+
+**יצירת HomeStatsService מינימלי (230 שורות):**
+- מחלקת HomeStats עם 5 שדות: monthlySpent, expenseTrend, listAccuracy, potentialSavings, lowInventoryCount
+- calculateStats() - חישוב מנתוני Providers (Receipts, ShoppingLists, Inventory)
+- תמיכה בתקופות: שבוע/חודש/רבעון/שנה
+- חישובים אמיתיים: הוצאות, מגמות, דיוק רשימות, חיסכון פוטנציאלי
+
+### 💡 לקח מרכזי
+**Dead Code Cleanup → Cascade Errors** - מחיקת שירות יכולה לגרום לשגיאות במסכים תלויים. חשוב לחפש imports לפני מחיקה, או ליצור מחדש אם השירות קריטי.
+
+### 🔗 קישורים
+- insights_screen.dart משתמש ב-HomeStatsService
+- הקובץ המקורי נמחק ב-07/10 (Dead Code cleanup)
+- החלטה: יצירה מינימלית במקום הסרת המסך (248 שורות קיימות)
+
+---
+
 ## 📅 07/10/2025 - Services Code Review: Dead Code Detection + תיקון Header
 
 ### 🎯 משימה

@@ -165,7 +165,7 @@ class _ActionableRecommendationState extends State<ActionableRecommendation>
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: priorityColor.withOpacity(0.1),
+                        color: priorityColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
@@ -267,7 +267,7 @@ class _ActionableRecommendationState extends State<ActionableRecommendation>
                           },
                           style: OutlinedButton.styleFrom(
                             side: BorderSide(
-                              color: cs.primary.withOpacity(0.4),
+                              color: cs.primary.withValues(alpha: 0.4),
                             ),
                             minimumSize: const Size(0, 48), // ✅ תוקן ל-48
                             foregroundColor: cs.primary,

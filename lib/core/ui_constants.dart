@@ -89,6 +89,38 @@ const double kIconSizeSmall = 16.0;
 const double kIconSizeLarge = 32.0;
 
 // ========================================
+// Durations (משכי זמן)
+// ========================================
+
+/// משך זמן לאנימציות קצרות (200ms)
+const Duration kAnimationDurationShort = Duration(milliseconds: 200);
+
+/// משך זמן לאנימציות בינוניות (300ms)
+const Duration kAnimationDurationMedium = Duration(milliseconds: 300);
+
+/// משך זמן לאנימציות ארוכות (500ms)
+const Duration kAnimationDurationLong = Duration(milliseconds: 500);
+
+/// זמן המתנה ללחיצה כפולה (2 שניות)
+const Duration kDoubleTapTimeout = Duration(seconds: 2);
+
+/// זמן הצגת SnackBar רגיל (2 שניות)
+const Duration kSnackBarDuration = Duration(seconds: 2);
+
+/// זמן הצגת SnackBar ארוך (5 שניות)
+const Duration kSnackBarDurationLong = Duration(seconds: 5);
+
+// ========================================
+// SnackBar
+// ========================================
+
+/// מרווח תחתון ל-SnackBar (מעל Bottom Navigation)
+const double kSnackBarBottomMargin = 80.0;
+
+/// מרווחים אופקיים ל-SnackBar
+const double kSnackBarHorizontalMargin = 16.0;
+
+// ========================================
 // 💡 דוגמאות שימוש
 // ========================================
 //

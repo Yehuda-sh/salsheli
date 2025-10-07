@@ -1,238 +1,151 @@
 # 🤖 AI Development Guidelines - salsheli Project
 
-> **מטרה:** קובץ הנחיות מאוחד לסוכני AI ומפתחים  
-> **קוראים:** Claude, ChatGPT, מפתחים חדשים  
-> **עדכון אחרון:** 07/10/2025  
-> **גרסה:** 5.0 - ארגון מחדש + Quick Reference
+> **מטרה:** מדריך מהיר לסוכני AI ומפתחים - הכל בעמוד אחד  
+> **עדכון:** 07/10/2025 | **גרסה:** 6.0 - גרסה תמציתית  
+> 💡 **לדוגמאות מפורטות:** ראה [LESSONS_LEARNED.md](LESSONS_LEARNED.md)
 
 ---
 
-## 📖 תוכן עניינים
+## 📖 ניווט מהיר
 
-### 🚀 [Quick Start](#-quick-start)
-- [טבלת בעיות נפוצות](#-טבלת-בעיות-נפוצות)
-- [16 כללי הזהב](#-16-כללי-הזהב)
-- [בדיקה מהירה (5 דק')](#-בדיקה-מהירה-5-דק)
-
-### 🤖 [חלק A: הוראות למערכות AI](#-חלק-a-הוראות-למערכות-ai)
-1. [התחלת שיחה חדשה](#1-התחלת-שיחה-חדשה)
-2. [עדכון יומן אוטומטי](#2-עדכון-יומן-אוטומטי)
-3. [עקרונות עבודה](#3-עקרונות-עבודה)
-4. [פורמט תשובות](#4-פורמט-תשובות)
-
-### 📱 [חלק B: כללים טכניים](#-חלק-b-כללים-טכניים)
-5. [Mobile-First](#5-mobile-first-כללים)
-6. [אסור בהחלט](#6-אסור-בהחלט)
-7. [ארכיטקטורה](#7-ארכיטקטורה)
-8. [Navigation & Routing](#8-navigation--routing)
-9. [State Management](#9-state-management)
-10. [UI/UX Standards](#10-uiux-standards)
-
-### ✅ [חלק C: Code Review](#-חלק-c-code-review)
-11. [בדיקות אוטומטיות](#11-בדיקות-אוטומטיות)
-12. [Checklist לפי סוג קובץ](#12-checklist-לפי-סוג-קובץ)
-13. [דפוסים חובה](#13-דפוסים-חובה)
-14. [Dead Code Detection](#14-dead-code-detection)
-
-### 💡 [חלק D: לקחים מהפרויקט](#-חלק-d-לקחים-מהפרויקט)
-15. [Firebase Integration](#15-firebase-integration)
-16. [Provider Patterns](#16-provider-patterns)
-17. [Data & Storage](#17-data--storage)
-18. [Services Architecture](#18-services-architecture)
+**🚀 [Quick Start](#-quick-start)** | **🤖 [AI Instructions](#-חלק-a-הוראות-למערכות-ai)** | **📱 [Technical Rules](#-חלק-b-כללים-טכניים)** | **✅ [Code Review](#-חלק-c-code-review)** | **💡 [Project Lessons](#-חלק-d-לקחים-מהפרויקט)**
 
 ---
 
 ## 🚀 Quick Start
 
-### 📋 טבלת בעיות נפוצות
+### 📋 טבלת בעיות נפוצות (פתרון תוך 30 שניות)
 
-| בעיה | פתרון מהיר | קישור |
-|------|-----------|-------|
-| 🔴 Provider לא מתעדכן | `addListener()` + `removeListener()` | [#9](#9-state-management) |
-| 🔴 Timestamp שגיאות | `@TimestampConverter()` | [#15](#15-firebase-integration) |
-| 🔴 Race condition ב-Auth | זרוק Exception בשגיאה | [#8](#8-navigation--routing) |
-| 🔴 קובץ לא בשימוש | חפש imports → 0 = מחק | [#14](#14-dead-code-detection) |
-| 🔴 Context אחרי async | שמור dialogContext נפרד | [#8](#8-navigation--routing) |
-| 🔴 Color deprecated | `.withValues(alpha:)` | [#10](#10-uiux-standards) |
-| 🔴 אפליקציה איטית | `.then()` לפעולות ברקע | [#17](#17-data--storage) |
-| 🔴 Empty state חסר | 3 מצבים חובה | [#13](#13-דפוסים-חובה) |
+| בעיה | פתרון | קוד | מקור |
+|------|-------|-----|------|
+| 🔴 Provider לא מתעדכן | `addListener()` + `removeListener()` | [→](#usercontext-pattern) | [LESSONS](LESSONS_LEARNED.md#usercontext-pattern) |
+| 🔴 Timestamp שגיאות | `@TimestampConverter()` | [→](#timestamp-management) | [LESSONS](LESSONS_LEARNED.md#timestamp-management) |
+| 🔴 Race condition Auth | זרוק Exception בשגיאה | [→](#auth-flow) | [LESSONS](LESSONS_LEARNED.md#race-condition) |
+| 🔴 קובץ לא בשימוש | Ctrl+Shift+F imports → 0 = מחק | [→](#dead-code) | סעיף 14 |
+| 🔴 Context אחרי async | שמור `dialogContext` נפרד | [→](#dialogs) | סעיף 8 |
+| 🔴 Color deprecated | `.withValues(alpha:)` | [→](#modern-apis) | סעיף 10 |
+| 🔴 אפליקציה איטית | `.then()` ברקע | [→](#hybrid-strategy) | [LESSONS](LESSONS_LEARNED.md#hybrid-strategy) |
+| 🔴 Empty state חסר | Loading/Error/Empty | [→](#3-empty-states) | סעיף 13 |
 
-### 🎯 16 כללי הזהב
+### 🎯 16 כללי הזהב (חובה!)
 
-1. **קרא WORK_LOG.md** - בתחילת כל שיחה
-2. **עדכן WORK_LOG.md** - בסוף (שאל תחילה!)
-3. **חפש בעצמך** - אל תבקש מהמשתמש
-4. **תמציתי** - פחות הסברים, יותר עשייה
-5. **Logging מפורט** - 🗑️ ✏️ ➕ 🔄 בכל method
-6. **3 Empty States** - Loading/Error/Empty חובה
-7. **Error Recovery** - hasError + retry() + clearAll()
-8. **Undo למחיקה** - 5 שניות עם SnackBar
-9. **Cache חכם** - O(1) במקום O(n)
-10. **Firebase Timestamps** - `@TimestampConverter()`
-11. **Dead Code = מחק** - 0 imports = מחיקה
-12. **Visual Feedback** - צבעים לפי סטטוס
-13. **Constants מרכזיים** - לא hardcoded
-14. **Null Safety תמיד** - בדוק כל nullable
-15. **Fallback Strategy** - תכנן כשל
-16. **Dependencies בדיקה** - אחרי כל שינוי
+1. **קרא WORK_LOG.md** - בתחילת כל שיחה על הפרויקט
+2. **עדכן WORK_LOG.md** - רק שינויים משמעותיים (שאל קודם!)
+3. **חפש בעצמך** - אל תבקש מהמשתמש לחפש קבצים
+4. **תמציתי** - ישר לעניין, פחות הסברים
+5. **Logging** - 🗑️ ✏️ ➕ 🔄 ✅ ❌ בכל method
+6. **3 States** - Loading/Error/Empty בכל widget
+7. **Error Recovery** - `hasError` + `retry()` + `clearAll()`
+8. **Undo** - 5 שניות למחיקה
+9. **Cache** - O(1) במקום O(n)
+10. **Timestamps** - `@TimestampConverter()` אוטומטי
+11. **Dead Code** - 0 imports = מחיקה מיידית
+12. **Feedback** - צבעים לפי סטטוס (ירוק/אדום/כתום)
+13. **Constants** - `kSpacingMedium` לא `16.0`
+14. **Null Safety** - בדוק כל `nullable`
+15. **Fallback** - תכנן למקרה כשל
+16. **Dependencies** - `flutter pub get` אחרי שינויים
 
 ### ⚡ בדיקה מהירה (5 דק')
 
 ```powershell
-# 1. Deprecated APIs
-Ctrl+Shift+F → ".withOpacity"
-Ctrl+Shift+F → "WillPopScope"
+# Deprecated APIs
+Ctrl+Shift+F → ".withOpacity"  # 0 תוצאות = ✅
+Ctrl+Shift+F → "WillPopScope"  # 0 תוצאות = ✅
 
-# 2. Dead Code
-Ctrl+Shift+F → "import.*my_file.dart"  # 0 תוצאות = מחק
+# Dead Code
+Ctrl+Shift+F → "import.*my_file.dart"  # 0 = מחק הקובץ!
 
-# 3. Imports מיותרים
-flutter analyze
+# Code Quality
+flutter analyze  # 0 issues = ✅
 
-# 4. Constants hardcoded
-Ctrl+Shift+F → "height: 16"  # → kSpacingMedium
-Ctrl+Shift+F → "padding: 8"  # → kSpacingSmall
+# Constants
+Ctrl+Shift+F → "height: 16"   # צריך להיות kSpacingMedium
+Ctrl+Shift+F → "padding: 8"   # צריך להיות kSpacingSmall
 ```
 
 ---
 
 ## 🤖 חלק A: הוראות למערכות AI
 
-### 1. התחלת שיחה חדשה
+### 1️⃣ התחלת שיחה
 
-**בכל תחילת שיחה על הפרויקט:**
+**בכל שיחה על הפרויקט:**
 
 ```
-1️⃣ קרא מיד את WORK_LOG.md
-2️⃣ הצג סיכום (2-3 שורות) של העבודה האחרונה
-3️⃣ שאל מה רוצים לעשות היום
+1. קרא WORK_LOG.md
+2. הצג סיכום (2-3 שורות) של העבודה האחרונה
+3. שאל מה לעשות היום
 ```
 
-**דוגמה נכונה:**
-
-```markdown
-[קורא WORK_LOG.md אוטומטית]
-
-היי! בשיחה האחרונה:
-- OCR מקומי עם ML Kit
-- Dead Code: 3,000+ שורות נמחקו
-- Providers: עקביות מלאה
-
+**✅ דוגמה נכונה:**
+```
+[קורא אוטומטית]
+בשיחה האחרונה: OCR מקומי + Dead Code ניקוי.
 במה נעבוד היום?
 ```
 
-**חריג:** שאלה כללית לא קשורה לפרויקט → אל תקרא יומן
+**❌ חריג:** שאלה כללית לא קשורה → אל תקרא
 
 ---
 
-### 2. עדכון יומן אוטומטי
+### 2️⃣ עדכון יומן
 
-**✅ כן - תעדכן:**
-- תיקון באג קריטי
-- הוספת פיצ'ר חדש
-- שדרוג/רפקטור משמעותי
-- שינוי ארכיטקטורה
-- תיקון מספר קבצים
-
-**❌ לא - אל תעדכן:**
-- שאלות הבהרה
-- דיונים כלליים
-- הסברים על קוד קיים
-- שינויים קוסמטיים
+**✅ כן:** באג קריטי | פיצ'ר | רפקטור משמעותי | שינוי ארכיטקטורה  
+**❌ לא:** שאלות | דיונים | הסברים | שינויים קוסמטיים
 
 **תהליך:**
-
 ```
-✅ סיימתי! רוצה שאעדכן את היומן (WORK_LOG.md)?
+✅ סיימתי! לעדכן את WORK_LOG.md?
 ```
 
-**אם "כן":**
-1. צור רשומה בפורמט המדויק
-2. הוסף **בראש** (אחרי "## 🗓️ רשומות")
-3. שמור עם `Filesystem:edit_file`
-
-**פורמט:**
-
-```markdown
----
-
-## 📅 DD/MM/YYYY - כותרת תיאורית
-
-### 🎯 משימה
-תיאור קצר
-
-### ✅ מה הושלם
-- פריט 1
-- פריט 2
-
-### 📂 קבצים שהושפעו
-**נוצר/עודכן/נמחק (מספר):**
-- `נתיב` - מה השתנה
-
-### 💡 לקחים
-- לקח 1
-
-### 📊 סיכום
-זמן: X | קבצים: Y | שורות: Z | סטטוס: ✅
-```
+**פורמט:** [ראה WORK_LOG.md](WORK_LOG.md) - העתק המבנה המדויק!
 
 ---
 
-### 3. עקרונות עבודה
+### 3️⃣ עקרונות עבודה
 
-**כלל זהב:** אסור לבקש מהמשתמש לחפש קבצים!
+**כלל זהב:** אסור לבקש מהמשתמש לחפש!
 
-**✅ נכון:**
-```
-אני צריך לבדוק את PopulateListScreen...
-[search_files: "PopulateListScreen"]
-מצאתי! הפרמטרים הם...
-```
+```dart
+// ✅ נכון
+אני מחפש את PopulateListScreen...
+[search_files]
+מצאתי! הפרמטרים הם X, Y, Z
 
-**❌ שגוי:**
-```
-תוכל לחפש בקוד את הפרמטרים של PopulateListScreen?
+// ❌ שגוי
+תוכל לחפש את PopulateListScreen ולספר לי מה הפרמטרים?
 ```
 
-**אסטרטגיה:**
-1. חפש בניסוח אחד
-2. לא מצאת? נסה ניסוח אחר
-3. גם לא? חפש רחב יותר
-4. רק אז שאל את המשתמש
+**אסטרטגיה:** חפש → נסה שוב → חפש רחב → רק אז שאל
 
 ---
 
-### 4. פורמט תשובות
+### 4️⃣ פורמט תשובות
 
-**❌ אל תעשה - תכנון ארוך:**
-```
-בואי נתכנן את העבודה בשלבים...
-
-שלב 1: הכנה (5 דקות)
-נוסיף מיקומים ל-constants כי...
-[עוד 3 פסקאות הסבר]
-
-שלב 2: יצירת Provider (15 דקות)
-[עוד פסקת הסבר ארוכה]
-```
-
-**✅ כן תעשה - ישר לעניין:**
+**✅ טוב - ישר לעניין:**
 ```
 אני מתקן 3 דברים:
-1. constants.dart - מוסיף מיקומים
-2. LocationsProvider - Provider חדש
-3. Widget - מחבר ל-Provider
-
-מוכן להתחיל?
+1. constants.dart - מוסיף X
+2. Provider - יוצר Y
+3. Widget - מחבר Z
+מוכן?
 ```
 
-**PowerShell - תמיד:**
-```powershell
-# ✅ נכון
-Remove-Item -Recurse -Force lib/old/
-flutter pub get
+**❌ רע - תכנון ארוך:**
+```
+בואו נתכנן...
+שלב 1: הכנה (5 דק') - נעשה X כי Y...
+[3 פסקאות הסבר]
+שלב 2: Provider (15 דק')...
+```
 
-# ❌ שגוי (bash)
+**PowerShell בלבד:**
+```powershell
+# ✅ Windows
+Remove-Item -Recurse -Force lib/old/
+
+# ❌ Linux/Mac
 rm -rf lib/old/
 ```
 
@@ -240,150 +153,73 @@ rm -rf lib/old/
 
 ## 📱 חלק B: כללים טכניים
 
-### 5. Mobile-First כללים
+### 5️⃣ Mobile-First
 
-**⚠️ קריטי: Mobile Only!** (Android & iOS בלבד)
+**⚠️ Mobile Only!** Android + iOS בלבד
 
-**1. SafeArea תמיד:**
 ```dart
-Scaffold(
-  body: SafeArea(
-    child: SingleChildScrollView(/* ... */),
-  ),
-)
-```
+// ✅ חובה
+Scaffold(body: SafeArea(child: SingleChildScrollView(...)))
 
-**2. RTL Support:**
-```dart
-// ✅ טוב
-padding: EdgeInsets.symmetric(horizontal: 16)
+// ✅ RTL Support
+padding: EdgeInsets.symmetric(horizontal: 16)  // לא only
 
-// ❌ רע
-padding: EdgeInsets.only(left: 16, right: 8)
-```
-
-**3. Responsive:**
-```dart
+// ✅ Responsive
 final width = MediaQuery.of(context).size.width;
-const minTouchTarget = 48.0;
+const minTouch = 48.0;
 ```
 
 ---
 
-### 6. אסור בהחלט
+### 6️⃣ אסור בהחלט
 
-**🚫 Browser/Web APIs:**
 ```dart
-// ❌ אסור
-import 'dart:html';
-window.localStorage.setItem(/* ... */);
+// 🚫 אסור
+import 'dart:html';           // Web only
+window.localStorage           // Web only
+Platform.isWindows            // Desktop
+Container(width: 1920)        // Fixed size
 
 // ✅ מותר
-import 'package:shared_preferences/shared_preferences.dart';
-```
-
-**🚫 Desktop Checks:**
-```dart
-// ✅ מותר
-if (Platform.isAndroid) { }
-if (Platform.isIOS) { }
-
-// ❌ אסור
-if (Platform.isWindows) { }
-```
-
-**🚫 Fixed Dimensions:**
-```dart
-// ❌ אסור
-Container(width: 1920, height: 1080)
-
-// ✅ מותר
-Container(
-  width: double.infinity,
-  height: MediaQuery.of(context).size.height * 0.3,
-)
+import 'package:shared_preferences/...';
+Platform.isAndroid / Platform.isIOS
+MediaQuery.of(context).size.width
 ```
 
 ---
 
-### 7. ארכיטקטורה
+### 7️⃣ ארכיטקטורה
 
-**מבנה שכבות:**
 ```
-UI (Screens/Widgets)
-    ↓
-Providers (ChangeNotifier)
-    ↓
-Services (Business Logic)
-    ↓
-Repositories (Data Access)
-    ↓
-Data Sources (Firebase/Hive/HTTP)
+UI → Providers → Services → Repositories → Data Sources
 ```
 
 **הפרדת אחריות:**
-```dart
-// ✅ טוב
-class MyProvider extends ChangeNotifier {
-  final MyRepository _repository;
-  Future<void> load() => _repository.fetch();
-}
-
-// ❌ רע - לוגיקה ב-Widget
-class MyWidget extends StatelessWidget {
-  Widget build(context) {
-    http.get('https://api.example.com');  // ❌
-  }
-}
-```
+- **UI:** רק display + user input
+- **Provider:** state management
+- **Service:** business logic
+- **Repository:** data access
+- **Data Source:** Firebase/Hive/HTTP
 
 ---
 
-### 8. Navigation & Routing
+### 8️⃣ Navigation & Routing
 
-**סוגי Navigation:**
+**3 סוגי Navigation:**
+
 ```dart
-// push - מוסיף לstack
-Navigator.push(context, MaterialPageRoute(/* ... */));
-
-// pushReplacement - מחליף
-Navigator.pushReplacement(context, MaterialPageRoute(/* ... */));
-
-// pushAndRemoveUntil - מנקה stack
-Navigator.pushAndRemoveUntil(
-  context,
-  MaterialPageRoute(/* ... */),
-  (route) => false,  // מחק הכל
-);
+Navigator.push(...)                 // הוסף לstack
+Navigator.pushReplacement(...)      // החלף
+Navigator.pushAndRemoveUntil(...)   // מחק stack
 ```
 
-**Splash Screen - סדר בדיקות נכון:**
+**Splash Screen Pattern:**
 
 ```dart
-Future<void> _checkAndNavigate() async {
-  try {
-    final prefs = await SharedPreferences.getInstance();
-
-    // 1️⃣ האם מחובר?
-    final userId = prefs.getString('userId');
-    if (userId != null) {
-      if (mounted) Navigator.pushReplacementNamed(context, '/home');
-      return;
-    }
-
-    // 2️⃣ האם ראה onboarding?
-    final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
-    if (!seenOnboarding) {
-      if (mounted) Navigator.pushReplacement(/* WelcomeScreen */);
-      return;
-    }
-
-    // 3️⃣ ברירת מחדל
-    if (mounted) Navigator.pushReplacementNamed(context, '/login');
-  } catch (e) {
-    if (mounted) Navigator.pushReplacement(/* WelcomeScreen */);
-  }
-}
+// סדר נכון: 1. מחובר? 2. ראה onboarding? 3. ברירת מחדל
+if (userId != null) → /home
+else if (!seenOnboarding) → /welcome
+else → /login
 ```
 
 **Dialogs - Context נכון:**
@@ -396,11 +232,9 @@ showDialog(
       ElevatedButton(
         onPressed: () async {
           Navigator.pop(dialogContext);  // סגור קודם
-
-          await _performOperation();  // async
-
+          await _operation();
           if (!context.mounted) return;  // בדוק mounted
-          ScaffoldMessenger.of(context).showSnackBar(/* ... */);
+          ScaffoldMessenger.of(context).show(...);
         },
       ),
     ],
@@ -408,96 +242,49 @@ showDialog(
 );
 ```
 
-**Back Button - double press:**
-
-```dart
-DateTime? _lastBackPress;
-
-Future<bool> _onWillPop() async {
-  final now = DateTime.now();
-  if (_lastBackPress == null ||
-      now.difference(_lastBackPress!) > Duration(seconds: 2)) {
-    _lastBackPress = now;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('לחץ שוב לצאת')),
-    );
-    return false;
-  }
-  return true;
-}
-```
+**💡 דוגמאות מלאות:** [LESSONS_LEARNED.md - Navigation](LESSONS_LEARNED.md#navigation--routing)
 
 ---
 
-### 9. State Management
+### 9️⃣ State Management
 
 **Provider Pattern:**
 
 ```dart
-// קריאה שמאזינה לשינויים
-Consumer<MyProvider>(
-  builder: (context, provider, child) {
-    if (provider.isLoading) return CircularProgressIndicator();
-    return ListView.builder(/* ... */);
-  },
-)
+// קריאה + האזנה
+Consumer<MyProvider>(builder: (ctx, provider, _) => ...)
 
-// קריאה לפעולה בלבד
-ElevatedButton(
-  onPressed: () => context.read<MyProvider>().save(),
-  child: Text('שמור'),
-)
+// קריאה בלבד (פעולה)
+context.read<MyProvider>().save()
 ```
 
-**ProxyProvider - חשוב:**
+**ProxyProvider:**
 
 ```dart
-ChangeNotifierProxyProvider<UserContext, ProductsProvider>(
-  lazy: false,  // ← קריטי! אחרת לא נוצר עד שצריך
-  create: (_) => ProductsProvider(skipInitialLoad: true),
-  update: (_, userContext, previous) {
-    // רק אם מחובר וטרם אותחל
-    if (userContext.isLoggedIn && !previous!.hasInitialized) {
-      previous.initializeAndLoad();
-    }
-    return previous;
+ChangeNotifierProxyProvider<UserContext, MyProvider>(
+  lazy: false,  // ← קריטי!
+  create: (_) => MyProvider(),
+  update: (_, user, prev) {
+    if (user.isLoggedIn && !prev.hasInit) prev.init();
+    return prev;
   },
 )
 ```
 
-**Immutable Models:**
-
-```dart
-class MyModel {
-  final String id;
-  const MyModel({required this.id});
-
-  MyModel copyWith({String? id}) =>
-    MyModel(id: id ?? this.id);
-}
-```
+**💡 UserContext Pattern מלא:** [LESSONS_LEARNED.md - UserContext](LESSONS_LEARNED.md#usercontext-pattern)
 
 ---
 
-### 10. UI/UX Standards
+### 🔟 UI/UX Standards
 
 **Measurements:**
 
 ```dart
-// Touch Targets - מינימום 48x48
-GestureDetector(
-  child: Container(width: 48, height: 48, child: Icon(Icons.close)),
-)
+// Touch: 48x48 מינימום
+// Font: 14 (body) | 16 (large) | 20 (heading)
+// Spacing: 8 (small) | 16 (medium) | 24 (large)
 
-// Font Sizes
-fontSize: 14,  // Body
-fontSize: 16,  // Body Large
-fontSize: 20,  // Heading
-
-// Spacing - כפולות של 8
-SizedBox(height: kSpacingSmall),   // 8
-SizedBox(height: kSpacingMedium),  // 16
-SizedBox(height: kSpacingLarge),   // 24
+SizedBox(height: kSpacingMedium)  // ✅ לא 16.0
 ```
 
 **Modern APIs (Flutter 3.27+):**
@@ -505,359 +292,139 @@ SizedBox(height: kSpacingLarge),   // 24
 ```dart
 // ❌ Deprecated
 color.withOpacity(0.5)
-color.value
-color.alpha
 
 // ✅ Modern
 color.withValues(alpha: 0.5)
-color.toARGB32()
-(color.a * 255.0).round() & 0xff
 ```
 
 ---
 
 ## ✅ חלק C: Code Review
 
-### 11. בדיקות אוטומטיות
-
-**Ctrl+F חיפושים:**
+### 1️⃣1️⃣ בדיקות אוטומטיות
 
 | חפש | בעיה | פתרון |
 |-----|------|-------|
-| `dart:html` | Browser API | אסור! |
-| `localStorage` | Web storage | SharedPreferences |
-| `Platform.isWindows` | Desktop check | אסור! |
+| `dart:html` | Browser | ❌ אסור |
+| `localStorage` | Web | SharedPreferences |
 | `.withOpacity` | Deprecated | `.withValues` |
-| `WillPopScope` | Deprecated | PopScope |
-| `TODO 2023` | TODO ישן | מחק/תקן |
-
-**בדיקות נוספות:**
-- **Header:** שורה ראשונה יש `// 📄 File:`?
-- **Providers:** יש `_repository`?
-- **Services:** כל method `static`?
-- **Dialogs:** `dialogContext` נפרד?
+| `TODO 2023` | ישן | מחק/תקן |
 
 ---
 
-### 12. Checklist לפי סוג קובץ
+### 1️⃣2️⃣ Checklist לפי סוג
 
-#### 📦 Providers
-
-- [ ] `ChangeNotifier` + `dispose()`
-- [ ] Repository (לא ישיר לAPI)
-- [ ] Getters: `unmodifiable` / `immutable`
-- [ ] async עם `try/catch`
-- [ ] **Error State:** `hasError`, `errorMessage`
-- [ ] **Error Recovery:** `retry()` method
-- [ ] **State Cleanup:** `clearAll()` method
-- [ ] **Error Notification:** `notifyListeners()` בכל catch
-- [ ] **ProxyProvider:** `lazy: false` אם צריך
-
-**דוגמה מושלמת:**
+#### 📦 Provider
 
 ```dart
 class MyProvider with ChangeNotifier {
-  final MyRepository _repo;
-  List<Item> _items = [];
+  // ✅ חובה
+  final MyRepository _repo;          // Repository (לא ישיר)
+  List<Item> _items = [];             // Private state
   bool _isLoading = false;
   String? _errorMessage;
-
-  // Getters
+  
+  // ✅ Getters
   List<Item> get items => List.unmodifiable(_items);
   bool get isLoading => _isLoading;
   bool get hasError => _errorMessage != null;
   String? get errorMessage => _errorMessage;
   bool get isEmpty => _items.isEmpty;
-
+  
+  // ✅ CRUD + Logging
   Future<void> load() async {
-    debugPrint('📥 MyProvider.load()');
-    _isLoading = true;
-    notifyListeners();
-
+    debugPrint('📥 load()');
+    _isLoading = true; notifyListeners();
     try {
       _items = await _repo.fetch();
       _errorMessage = null;
-      debugPrint('✅ Loaded ${_items.length}');
+      debugPrint('✅ ${_items.length} loaded');
     } catch (e) {
+      _errorMessage = 'שגיאה: $e';
       debugPrint('❌ Error: $e');
-      _errorMessage = 'שגיאה בטעינה';
-      notifyListeners(); // ← עדכן UI מיד!
+      notifyListeners(); // ← חשוב!
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _isLoading = false; notifyListeners();
     }
   }
-
-  Future<void> retry() async {
-    _errorMessage = null;
-    await load();
-  }
-
-  void clearAll() {
-    _items = [];
-    _errorMessage = null;
-    _isLoading = false;
-    notifyListeners();
-  }
-
+  
+  // ✅ Recovery
+  Future<void> retry() async { _errorMessage = null; await load(); }
+  void clearAll() { _items = []; _errorMessage = null; notifyListeners(); }
+  
   @override
-  void dispose() {
-    debugPrint('🗑️ MyProvider.dispose()');
-    super.dispose();
-  }
+  void dispose() { debugPrint('🗑️ dispose()'); super.dispose(); }
 }
 ```
 
+**💡 דוגמה מלאה:** [LESSONS_LEARNED.md - Provider Structure](LESSONS_LEARNED.md#provider-structure)
+
 ---
 
-#### 📱 Screens
+#### 📱 Screen
 
-- [ ] `SafeArea`
-- [ ] תוכן scrollable
-- [ ] `Consumer` / `context.watch` לקריאה
-- [ ] `context.read` לפעולות
+- [ ] `SafeArea` + scrollable
+- [ ] `Consumer` לקריאה | `context.read` לפעולות
 - [ ] כפתורים 48x48 מינימום
-- [ ] padding symmetric (RTL)
-- [ ] **dispose חכם:** provider שמור ב-initState
-
-```dart
-class MyScreenState extends State<MyScreen> {
-  MyProvider? _provider;
-
-  @override
-  void initState() {
-    super.initState();
-    _provider = context.read<MyProvider>();
-  }
-
-  @override
-  void dispose() {
-    _provider?.cleanup();
-    super.dispose();
-  }
-}
-```
+- [ ] padding `symmetric` (RTL)
+- [ ] dispose חכם (שמור provider ב-initState)
 
 ---
 
-#### 📋 Models
-
-- [ ] `@JsonSerializable()` אם JSON
-- [ ] שדות `final`
-- [ ] `copyWith()` method
-- [ ] `*.g.dart` קיים
-- [ ] **Hive:** `@HiveType` + `@HiveField`
+#### 📋 Model
 
 ```dart
 @JsonSerializable()
 class MyModel {
   final String id;
-  final String name;
-
-  const MyModel({required this.id, required this.name});
-
-  MyModel copyWith({String? name}) =>
-    MyModel(id: id, name: name ?? this.name);
-
-  factory MyModel.fromJson(Map<String, dynamic> json) =>
-    _$MyModelFromJson(json);
-
+  const MyModel({required this.id});
+  
+  MyModel copyWith({String? id}) => MyModel(id: id ?? this.id);
+  
+  factory MyModel.fromJson(Map<String, dynamic> json) => _$MyModelFromJson(json);
   Map<String, dynamic> toJson() => _$MyModelToJson(this);
 }
 ```
 
----
-
-#### 🎨 Widgets
-
-- [ ] תיעוד מפורט
-- [ ] `const` constructors
-- [ ] `required` כשחובה
-- [ ] `@override build`
-- [ ] גדלים responsive
-- [ ] RTL support
-
-```dart
-/// Custom auth button
-///
-/// Usage:
-/// ```dart
-/// AuthButton(label: 'התחבר', onPressed: login)
-/// ```
-class AuthButton extends StatelessWidget {
-  final String label;
-  final VoidCallback? onPressed;
-
-  const AuthButton({
-    super.key,
-    required this.label,
-    this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 48,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        child: Text(label),
-      ),
-    );
-  }
-}
-```
+- [ ] `@JsonSerializable()` | שדות `final` | `copyWith()` | `*.g.dart` קיים
 
 ---
 
-#### 🛠️ Services
+#### 🛠️ Service
 
 **3 סוגים:**
 
-**🟢 Static Service (עוטף APIs פשוטים):**
-- [ ] **כל** ה-methods `static`
-- [ ] **אין** instance variables
-- [ ] **אין** `dispose()`
-- [ ] תיעוד מפורט
-
-```dart
-/// Static service for user data via SharedPreferences
-class UserService {
-  static Future<UserEntity?> getUser() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      // ... קוד טהור
-      return user;
-    } catch (e) {
-      return null;
-    }
-  }
-}
-```
-
-**🔵 Instance API Client (HTTP עם state):**
-- [ ] **יש** state (client, token)
-- [ ] **יש** `dispose()`
-- [ ] **לא** static methods
-- [ ] Header: "Instance-based API client"
-
-```dart
-/// Instance-based API client for receipts
-class ReceiptService {
-  final http.Client _client;
-  String? _authToken;
-
-  ReceiptService({http.Client? client})
-    : _client = client ?? http.Client();
-
-  Future<Receipt> upload(String path) async {
-    // ... uses _client, _authToken
-  }
-
-  void dispose() {
-    _client.close();
-  }
-}
-```
-
-**🟡 Mock Service (לפיתוח):**
-- [ ] תמיד Static
-- [ ] Header: "⚠️ MOCK service"
-- [ ] בדוק אם Dead Code!
+| סוג | מתי | דוגמה |
+|-----|-----|--------|
+| 🟢 Static | פונקציות טהורות | `UserService.getUser()` |
+| 🔵 Instance | HTTP + state | `AuthService(client)` |
+| 🟡 Mock | פיתוח בלבד | `⚠️ MOCK - בדוק Dead Code!` |
 
 ---
 
-### 13. דפוסים חובה
+### 1️⃣3️⃣ דפוסים חובה
 
 #### 🎭 3 Empty States
 
 ```dart
-Widget build(BuildContext context) {
-  final provider = context.watch<MyProvider>();
-
-  // 1️⃣ Loading
-  if (provider.isLoading) {
-    return Center(child: CircularProgressIndicator());
-  }
-
-  // 2️⃣ Error
-  if (provider.hasError) {
-    return Center(
-      child: Column(
-        children: [
-          Icon(Icons.error_outline, size: 64),
-          Text(provider.errorMessage ?? 'שגיאה'),
-          ElevatedButton(
-            onPressed: () => provider.retry(),
-            child: Text('נסה שוב'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // 3️⃣ Empty
-  if (provider.items.isEmpty) {
-    return Center(
-      child: Column(
-        children: [
-          Icon(Icons.inbox, size: 80),
-          Text('אין פריטים'),
-        ],
-      ),
-    );
-  }
-
-  // 4️⃣ Content
-  return ListView.builder(/* ... */);
-}
+if (provider.isLoading) return Center(child: Spinner());
+if (provider.hasError) return ErrorWidget(provider.retry);
+if (provider.isEmpty) return EmptyWidget();
+return ListView.builder(...);
 ```
+
+**💡 דוגמה מלאה:** [LESSONS_LEARNED.md - 3 Empty States](LESSONS_LEARNED.md#3-empty-states)
 
 ---
 
 #### ↩️ Undo Pattern
 
 ```dart
-void _deleteItem(Item item) {
-  final index = items.indexOf(item);
-  items.remove(item);
-  notifyListeners();
-
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text('${item.name} נמחק'),
-      duration: Duration(seconds: 5),
-      backgroundColor: Colors.red,
-      action: SnackBarAction(
-        label: 'ביטול',
-        onPressed: () {
-          items.insert(index, item);
-          notifyListeners();
-        },
-      ),
-    ),
-  );
-}
-```
-
----
-
-#### 🧹 Clear Button
-
-```dart
-TextField(
-  controller: _controller,
-  decoration: InputDecoration(
-    suffixIcon: _controller.text.isNotEmpty
-      ? IconButton(
-          icon: Icon(Icons.clear),
-          onPressed: () {
-            _controller.clear();
-            setState(() {});
-          },
-        )
-      : null,
-  ),
+SnackBar(
+  content: Text('${item.name} נמחק'),
+  duration: Duration(seconds: 5),
+  backgroundColor: Colors.red,
+  action: SnackBarAction(label: 'ביטול', onPressed: () => restore()),
 )
 ```
 
@@ -866,356 +433,170 @@ TextField(
 #### 🎨 Visual Feedback
 
 ```dart
-// הצלחה = ירוק
-SnackBar(
-  content: Text('נשמר!'),
-  backgroundColor: Colors.green,
-);
-
-// שגיאה = אדום
-SnackBar(
-  content: Text('שגיאה'),
-  backgroundColor: Colors.red,
-);
-
-// אזהרה = כתום
-SnackBar(
-  content: Text('שים לב'),
-  backgroundColor: Colors.orange,
-);
+// ✅ הצלחה = ירוק | ❌ שגיאה = אדום | ⚠️ אזהרה = כתום
+SnackBar(backgroundColor: Colors.green, ...)
 ```
 
 ---
 
-### 14. Dead Code Detection
-
-**אסטרטגיה:**
+### 1️⃣4️⃣ Dead Code Detection
 
 ```powershell
-# 1. חיפוש Imports
-Ctrl+Shift+F → "import.*demo_users.dart"
-# 0 תוצאות = Dead Code!
+# 1. חיפוש imports
+Ctrl+Shift+F → "import.*my_file.dart"  # 0 = מחק!
 
-# 2. בדיקת Providers ב-main.dart
-# חפש אם Provider רשום
+# 2. Providers ב-main.dart
+# בדוק אם רשום
 
-# 3. בדיקת Routes
+# 3. Routes
 # חפש ב-onGenerateRoute
 
-# 4. Deprecated APIs
-Ctrl+Shift+F → "withOpacity"
-Ctrl+Shift+F → "WillPopScope"
-
-# 5. Imports מיותרים
+# 4. Analyze
 flutter analyze
 ```
 
-**תוצאות 07/10/2025:**
-- 🗑️ 3,000+ שורות Dead Code נמחקו
-- 🗑️ 6 scripts ישנים
-- 🗑️ 3 services לא בשימוש
+**תוצאות:** 3,000+ שורות נמחקו (07/10/2025)
 
 ---
 
 ## 💡 חלק D: לקחים מהפרויקט
 
-### 15. Firebase Integration
+### 1️⃣5️⃣ Firebase Integration
 
-**Authentication:**
+**Timestamp Converter:**
 
 ```dart
-class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  Future<UserCredential> signIn(String email, String password) async {
-    return await _auth.signInWithEmailAndPassword(
-      email: email,
-      password: password
-    );
-  }
-
-  Stream<User?> get authStateChanges => _auth.authStateChanges();
+// lib/models/timestamp_converter.dart
+@JsonSerializable()
+class MyModel {
+  @TimestampConverter()  // ← אוטומטי!
+  @JsonKey(name: 'created_date')
+  final DateTime createdDate;
 }
 ```
 
-**Firestore CRUD:**
+**household_id Pattern:**
 
 ```dart
-Future<List<Item>> fetch(String householdId) async {
-  final snapshot = await _firestore
-    .collection('items')
-    .where('household_id', isEqualTo: householdId)
-    .orderBy('created_at', descending: true)
-    .get();
-
-  return snapshot.docs.map((doc) {
-    final data = doc.data();
-
-    // ⚡ CRITICAL: Timestamp conversion!
-    if (data['date'] is Timestamp) {
-      data['date'] = (data['date'] as Timestamp)
-        .toDate()
-        .toIso8601String();
-    }
-
-    return Item.fromJson(data);
-  }).toList();
-}
+// Repository מוסיף household_id, לא המודל
+await _firestore
+  .collection('items')
+  .where('household_id', isEqualTo: householdId)
+  .get();
 ```
 
-**לקחים:**
-- **Timestamp Conversion חובה** - תמיד המר ל-ISO8601
-- **household_id Pattern** - multi-tenancy
-- **Indexes נדרשים** - queries מורכבים
-- **Real-time Streams** - watch() בונוס
+**💡 הסבר מלא:** [LESSONS_LEARNED.md - Firebase](LESSONS_LEARNED.md#firebase-integration)
 
 ---
 
-### 16. Provider Patterns
+### 1️⃣6️⃣ Provider Patterns
 
-#### 🔴 Error Recovery חובה
+**Error Recovery:**
 
 ```dart
-class MyProvider {
-  String? _errorMessage;
-
-  bool get hasError => _errorMessage != null;
-  String? get errorMessage => _errorMessage;
-
-  Future<void> retry() async {
-    _errorMessage = null;
-    await _loadData();
-  }
-
-  Future<void> clearAll() async {
-    _items = [];
-    _errorMessage = null;
-    _isLoading = false;
-    notifyListeners();
-  }
-
-  Future<void> _loadData() async {
-    try {
-      // ...
-      _errorMessage = null;
-    } catch (e) {
-      _errorMessage = 'שגיאה';
-      notifyListeners(); // ← מיד!
-    }
-  }
-}
+bool get hasError => _errorMessage != null;
+Future<void> retry() async { _errorMessage = null; await load(); }
+void clearAll() { _items = []; _errorMessage = null; notifyListeners(); }
 ```
 
-**למה חשוב:**
-- UI יכול להציג שגיאה
-- retry() לנסות שוב
-- clearAll() מנקה ב-logout
-
----
-
-#### 🔄 ProxyProvider Pattern
+**Logging:**
 
 ```dart
-update: (context, userContext, previous) {
-  // ⚠️ זה יקרה כל פעם ש-UserContext משתנה
-
-  // בדוק אם צריך
-  if (userContext.isLoggedIn && !previous.hasInitialized) {
-    previous.initializeAndLoad();
-  }
-
-  return previous;
-}
+debugPrint('📥 load() | ✅ success | ❌ error | 🔔 notify | 🔄 retry');
 ```
 
 ---
 
-#### 📋 Logging מפורט
+### 1️⃣7️⃣ Data & Storage
+
+**Cache Pattern:**
 
 ```dart
-Future<void> load() async {
-  debugPrint('📥 Provider.load()');
-  
-  try {
-    _items = await _repo.fetch();
-    debugPrint('✅ ${_items.length} loaded');
-  } catch (e) {
-    debugPrint('❌ Error: $e');
-    notifyListeners();
-    debugPrint('   🔔 notifyListeners() (error)');
-  } finally {
-    notifyListeners();
-    debugPrint('   🔔 notifyListeners() (finally)');
-  }
-}
-```
-
-**Emojis:**
-- 📥 טעינה
-- 💾 שמירה
-- 🗑️ מחיקה
-- ✅ הצלחה
-- ❌ שגיאה
-- 🔔 notify
-- 🔄 retry
-
----
-
-### 17. Data & Storage
-
-#### 💾 Cache Pattern
-
-```dart
-List<Item> _cached = [];
 String _cacheKey = "";
+List<Item> _cached = [];
 
-List<Item> get items {
-  final key = "$location|$search";
-
-  if (key == _cacheKey && _cached.isNotEmpty) {
-    debugPrint('💨 Cache HIT');
-    return _cached;
-  }
-
-  debugPrint('🔄 Cache MISS');
-  _cached = _filter();
+List<Item> get filtered {
+  final key = "$filter1|$filter2";
+  if (key == _cacheKey) return _cached;  // O(1) ⚡
+  _cached = _items.where(...).toList();
   _cacheKey = key;
   return _cached;
 }
 ```
 
-**תוצאות:**
-- מהירות פי 10 (O(1) במקום O(n))
+**Hybrid Strategy:**
+
+```dart
+// טען מקומי מיידית
+final items = await _hive.getAll();
+
+// עדכן מחירים ברקע
+_api.updatePrices(items).then((_) => debugPrint('✅'));
+
+return items;  // 4s → 1s (פי 4 מהיר יותר!)
+```
+
+**💡 דוגמאות מלאות:** [LESSONS_LEARNED.md - Data & Storage](LESSONS_LEARNED.md#data--storage)
 
 ---
 
-#### 🗃️ Hive Storage
+### 1️⃣8️⃣ Services Architecture
 
-```dart
-// 1. Model
-@HiveType(typeId: 0)
-class Product extends HiveObject {
-  @HiveField(0)
-  final String barcode;
-}
-
-// 2. Setup
-await Hive.initFlutter();
-Hive.registerAdapter(ProductAdapter());
-final box = await Hive.openBox<Product>('products');
-
-// 3. CRUD
-await box.put(product.barcode, product);
-final product = box.get(barcode);
-```
-
----
-
-#### 🔀 Hybrid Strategy
-
-```dart
-Future<List<Product>> load() async {
-  try {
-    // 1. טען מקומי (Hive)
-    final local = await _loadLocal();
-
-    // 2. עדכן מחירים (API) - ברקע!
-    _updatePrices(local).then((_) {
-      debugPrint('✅ מחירים עודכנו');
-    });
-
-    return local;
-  } catch (e) {
-    return await _loadLocal();
-  }
-}
-```
-
-**לקחים:**
-- `.then()` לפעולות ברקע
-- לפני: 4 שניות → אחרי: 1 שניה = **פי 4**
-
----
-
-### 18. Services Architecture
-
-**3 סוגים:**
-
-#### 🟢 Static Service
-
-פונקציות עזר טהורות, ללא state
-
-**דוגמאות:** `user_service.dart`, `ocr_service.dart`
-
-```dart
-class OcrService {
-  static Future<String> extractText(String path) async {
-    // ... קוד טהור
-  }
-}
-```
-
-**מתי:** עוטף APIs פשוטים (SharedPreferences, HTTP חד-פעמי)
-
----
-
-#### 🔵 Instance API Client
-
-שירות HTTP עם state
-
-**דוגמה:** `auth_service.dart`
-
-```dart
-class AuthService {
-  final FirebaseAuth _auth;  // ← State
-
-  Stream<User?> get authStateChanges => _auth.authStateChanges();
-}
-```
-
-**מתי:** HTTP client, authentication, configuration
-
----
-
-#### 🟡 Mock Service
-
-סימולציה לפיתוח
-
-```dart
-/// ⚠️ MOCK service for development
-class MyServiceMock {
-  static Future<Data> fetch() async {
-    return Data.fake();
-  }
-}
-```
-
-**חשוב:** הפרויקט עובד עם Firebase אמיתי → Mock = Dead Code
+| סוג | תכונות | דוגמה |
+|-----|---------|-------|
+| 🟢 Static | כל methods `static` | `OcrService.extract()` |
+| 🔵 Instance | יש state + `dispose()` | `AuthService(_auth)` |
+| 🟡 Mock | לפיתוח בלבד | בדוק Dead Code! |
 
 ---
 
 ## 📚 קבצים נוספים
 
-- `LESSONS_LEARNED.md` - דפוסים מפורטים
-- `WORK_LOG.md` - היסטוריה (קרא תחילה!)
-- `README.md` - Overview
+| קובץ | תוכן |
+|------|------|
+| **[LESSONS_LEARNED.md](LESSONS_LEARNED.md)** | דוגמאות מפורטות + הסברים |
+| **[WORK_LOG.md](WORK_LOG.md)** | היסטוריה - קרא בתחילת שיחה! |
+| **[README.md](README.md)** | Overview + Setup |
 
 ---
 
-## 📊 זמני בדיקה
+## 📊 זמני Code Review
 
-| סוג קובץ | זמן ממוצע |
-|----------|-----------|
-| Provider | 2-3 דק' |
-| Screen | 3-4 דק' |
-| Model | 1-2 דק' |
-| Widget | 1-2 דק' |
-| Service | 3 דק' |
-| Dead Code | 5-10 דק' |
+| קובץ | זמן | בדיקה |
+|------|-----|--------|
+| Provider | 2-3' | Repository? Error handling? Logging? |
+| Screen | 3-4' | SafeArea? 3 States? RTL? |
+| Model | 1-2' | JsonSerializable? copyWith? |
+| Service | 3' | Static/Instance? dispose()? |
+| Dead Code | 5-10' | 0 imports? |
 
 ---
 
-**גרסה:** 5.0 - Quick Reference + ארגון מחדש  
-**תאימות:** Flutter 3.27+, Mobile Only  
-**עדכון אחרון:** 07/10/2025  
+## 🎓 סיכום מהיר
+
+### ✅ עשה תמיד
+- קרא WORK_LOG בתחילה
+- חפש בעצמך
+- Logging מפורט
+- 3 Empty States
+- Error Recovery
+- Constants
+
+### ❌ אל תעשה
+- אל תבקש מהמשתמש לחפש
+- אל תשתמש ב-Web APIs
+- אל תשאיר Dead Code
+- אל תשכח SafeArea
+- אל להתעלם משגיאות
+
+### 🔗 קישורים מהירים
+- **בעיה?** → [טבלת בעיות](#-טבלת-בעיות-נפוצות)
+- **דוגמה?** → [LESSONS_LEARNED.md](LESSONS_LEARNED.md)
+- **היסטוריה?** → [WORK_LOG.md](WORK_LOG.md)
+
+---
+
+**גרסה:** 6.0 - תמציתי + קישורים  
+**תאימות:** Flutter 3.27+ | Mobile Only  
+**עדכון:** 07/10/2025  
 **Made with ❤️ by AI & Humans** 🤖🤝👨‍💻

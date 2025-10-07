@@ -294,7 +294,6 @@ class _ListSummary extends StatelessWidget {
 
   Widget _buildEventDateChip(BuildContext context, DateTime eventDate) {
     final theme = Theme.of(context);
-    final cs = theme.colorScheme;
     final now = DateTime.now();
     final daysUntil = eventDate.difference(now).inDays;
 

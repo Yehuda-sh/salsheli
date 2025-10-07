@@ -638,6 +638,45 @@ TextFormField(
 - ❌ 0 imports = מחק מיד
 - ⚠️ לבדוק תלויות: A → B → C
 
+**⚠️ Cascade Errors (07/10/2025):**
+
+מחיקת Dead Code יכולה לגרום לשגיאות compilation במסכים תלויים:
+
+```dart
+// דוגמה: HomeStatsService נמחק → insights_screen.dart קרס
+// lib/screens/insights/insights_screen.dart
+import '../../services/home_stats_service.dart'; // ❌ קובץ לא קיים!
+
+final stats = await HomeStatsService.calculateStats(...); // ❌ Error
+```
+
+**פתרונות:**
+
+1. **לפני מחיקה:**
+   ```powershell
+   # חפש את כל השימושים
+   Ctrl+Shift+F → "HomeStatsService"
+   
+   # אם יש תוצאות:
+   # - החלט אם השירות קריטי
+   # - אם כן: אל תמחק! או יצור מינימלי
+   # - אם לא: הסר גם את המסכים התלויים
+   ```
+
+2. **אחרי מחיקה (אם יש שגיאות):**
+   ```powershell
+   flutter analyze  # איתור כל השגיאות
+   
+   # אופציה 1: יצירת שירות מינימלי
+   # אופציה 2: הסרת המסך התלוי
+   ```
+
+**דוגמה מהפרויקט:**
+- `home_stats_service.dart` נמחק ב-07/10 (זוהה כ-Dead Code)
+- `insights_screen.dart` השתמש בו → 26 שגיאות compilation
+- **פתרון:** יצרנו `HomeStatsService` מינימלי חדש (230 שורות)
+- ראה: `WORK_LOG.md` (07/10/2025)
+
 ---
 
 ### ⚡ Race Condition עם Firebase Auth
@@ -688,6 +727,7 @@ color.toARGB32()
 - ✅ 3,000+ שורות נמחקו
 - ✅ 6 scripts ישנים
 - ✅ 3 services לא בשימוש
+- ⚠️ 1 service נוצר מחדש (HomeStatsService) אחרי cascade errors
 
 **Performance:**
 - ✅ אתחול: 4 שניות → 1 שניה (פי 4 מהיר יותר)

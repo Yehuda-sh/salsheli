@@ -11,9 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/user_context.dart';
-import '../../providers/shopping_lists_provider.dart';
-import '../../providers/receipt_provider.dart';
-import '../../services/navigation_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// כפתור כניסה מהירה למשתמש דמו
 ///
@@ -62,7 +60,6 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
       final demoUser = _demoUsers[_selectedUser]!;
       final email = demoUser['email']!;
       final password = demoUser['password']!;
-      final householdId = demoUser['householdId']!;
 
       debugPrint('🔐 DemoLogin: מתחבר כ-${demoUser['name']} ($email)');
 
@@ -82,8 +79,9 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
       debugPrint('🔄 DemoLogin: Providers יטענו את הנתונים מ-Firebase');
 
       // 3. שומר ב-SharedPreferences
-      await NavigationService.saveUserId(userContext.userId!);
-      await NavigationService.markOnboardingSeen();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_id', userContext.userId!);
+      await prefs.setBool('seen_onboarding', true);
 
       // 4. מציג הודעת הצלחה
       if (mounted) {
@@ -98,7 +96,7 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
 
       // 5. ניווט לדף הבית
       if (mounted) {
-        await NavigationService.goToHome(context);
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       }
     } catch (e) {
       setState(() => _isLoading = false);

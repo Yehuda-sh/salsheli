@@ -54,6 +54,7 @@ class UserContext with ChangeNotifier {
   String? get displayName => _user?.name ?? _authService.currentUserDisplayName;
   String? get userId => _user?.id ?? _authService.currentUserId;
   String? get userEmail => _user?.email ?? _authService.currentUserEmail;
+  String? get householdId => _user?.householdId;
 
   ThemeMode get themeMode => _themeMode;
   bool get compactView => _compactView;

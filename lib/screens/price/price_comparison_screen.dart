@@ -218,7 +218,7 @@ class _PriceComparisonScreenState extends State<PriceComparisonScreen> {
 
                 if (minPrice != null && maxPrice != null)
                   Card(
-                    color: Colors.green.withOpacity(0.06),
+                    color: Colors.green.withValues(alpha: 0.06),
                     margin: const EdgeInsets.only(top: 12),
                     child: ListTile(
                       leading: const Text("💰", style: TextStyle(fontSize: 22)),

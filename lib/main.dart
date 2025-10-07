@@ -23,6 +23,7 @@ import 'providers/receipt_provider.dart';
 import 'providers/products_provider.dart';
 import 'providers/suggestions_provider.dart';
 import 'providers/locations_provider.dart';
+import 'providers/habits_provider.dart';
 
 // Repositories
 
@@ -34,6 +35,7 @@ import 'repositories/firebase_inventory_repository.dart';  // 🔥 Firebase Inve
 import 'repositories/local_products_repository.dart';
 import 'repositories/firebase_products_repository.dart';  // 🔥 Firebase!
 import 'repositories/hybrid_products_repository.dart';
+import 'repositories/firebase_habits_repository.dart';  // 🔥 Firebase Habits!
 
 // Services
 import 'services/auth_service.dart';  // 🔐 Firebase Auth!
@@ -273,6 +275,29 @@ void main() async {
                 inventoryProvider: inventoryProvider,
                 listsProvider: listsProvider,
               ),
+        ),
+
+        // === Habits Provider === 🧠 Firebase!
+        ChangeNotifierProxyProvider<UserContext, HabitsProvider>(
+          create: (context) {
+            debugPrint('🧠 main.dart: יוצר HabitsProvider עם Firebase');
+            final provider = HabitsProvider(
+              FirebaseHabitsRepository(),  // 🔥 Firebase!
+            );
+            final userContext = context.read<UserContext>();
+            provider.updateUserContext(userContext);
+            return provider;
+          },
+          update: (context, userContext, previous) {
+            debugPrint('🔄 main.dart: מעדכן HabitsProvider');
+            final provider =
+                previous ??
+                HabitsProvider(
+                  FirebaseHabitsRepository(),  // 🔥 Firebase!
+                );
+            provider.updateUserContext(userContext);
+            return provider;
+          },
         ),
       ],
       child: const MyApp(),

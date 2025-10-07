@@ -21,7 +21,7 @@
 // - RTL support מלא
 // - Accessibility compliant
 //
-// **Version:** 2.0 (Logging + Documentation)
+// **Version:** 2.1 (Constants Migration)
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -36,6 +36,7 @@ import '../../widgets/home/upcoming_shop_card.dart';
 import '../../widgets/home/smart_suggestions_card.dart';
 import '../../widgets/create_list_dialog.dart';
 import '../../theme/app_theme.dart';
+import '../../core/ui_constants.dart';
 
 enum SortOption {
   date('תאריך עדכון'),
@@ -110,10 +111,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           color: Theme.of(context).extension<AppBrand>()?.accent ?? cs.primary,
           onRefresh: () => _refresh(context),
           child: ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(kSpacingMedium),
             children: [
               _Header(userName: userContext.displayName),
-              const SizedBox(height: 16),
+              const SizedBox(height: kSpacingMedium),
 
               if (!listsProvider.isLoading && listsProvider.lists.isNotEmpty)
                 _SortBar(
@@ -126,7 +127,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
               if (listsProvider.isLoading)
                 const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 48),
+                  padding: EdgeInsets.symmetric(vertical: kButtonHeight),
                   child: Center(child: CircularProgressIndicator()),
                 )
               else if (listsProvider.lists.isEmpty)
@@ -198,16 +199,19 @@ class _Header extends StatelessWidget {
     final brand = Theme.of(context).extension<AppBrand>();
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+      padding: const EdgeInsets.symmetric(
+        horizontal: kSpacingMedium,
+        vertical: kSpacingMedium + 2, // 18px
+      ),
       decoration: BoxDecoration(
         color: cs.primaryContainer,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
         border: Border.all(color: cs.primary.withValues(alpha: 0.12)),
       ),
       child: Row(
         children: [
           CircleAvatar(
-            radius: 22,
+            radius: kSpacingLarge - 2, // 22px
             backgroundColor: (brand?.accent ?? cs.secondary).withValues(
               alpha: 0.18,
             ),
@@ -216,7 +220,7 @@ class _Header extends StatelessWidget {
               color: brand?.accent ?? cs.secondary,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: kBorderRadius),
           Expanded(
             child: Text(
               "ברוך הבא, ${(userName?.trim().isEmpty ?? true) ? 'אורח' : userName}",
@@ -246,23 +250,26 @@ class _SortBar extends StatelessWidget {
     final accent = brand?.accent ?? cs.primary;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      margin: const EdgeInsets.only(bottom: kSpacingMedium),
+      padding: const EdgeInsets.symmetric(
+        horizontal: kBorderRadius,
+        vertical: kSpacingSmall,
+      ),
       decoration: BoxDecoration(
         color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(kBorderRadius),
       ),
       child: Row(
         children: [
-          Icon(Icons.sort, size: 20, color: accent),
-          const SizedBox(width: 8),
+          Icon(Icons.sort, size: kIconSizeSmall + 4, color: accent), // 20px
+          const SizedBox(width: kSpacingSmall),
           Text(
             'מיון:',
             style: Theme.of(
               context,
             ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: kSpacingSmall),
           Expanded(
             child: DropdownButton<SortOption>(
               value: currentSort,
@@ -312,8 +319,8 @@ class _Content extends StatelessWidget {
       }
     }
 
-    // 🛒 קריטריון 2: מלאי שנגמר (לעתיד - כרגע 0)
-    // TODO: לבדוק מלאי ולהוסיף נקודות אם יש פריטים שנגמרו
+    // 🛒 קריטריון 2: מלאי שנגמר
+    // TODO(v2.0): חיבור למערכת מלאי
     // final outOfStockCount = _checkInventoryForList(list);
     // if (outOfStockCount >= 3) priority += 60;
     // else if (outOfStockCount >= 1) priority += 30;
@@ -361,11 +368,11 @@ class _Content extends StatelessWidget {
     return Column(
       children: [
         UpcomingShopCard(list: mostRecentList),
-        const SizedBox(height: 16),
+        const SizedBox(height: kSpacingMedium),
         SmartSuggestionsCard(mostRecentList: mostRecentList),
-        const SizedBox(height: 16),
+        const SizedBox(height: kSpacingMedium),
         const _ReceiptsCard(),
-        const SizedBox(height: 16),
+        const SizedBox(height: kSpacingMedium),
         if (otherLists.isNotEmpty) _ActiveListsCard(lists: otherLists),
       ],
     ).animate().fadeIn(duration: 450.ms, delay: 100.ms);
@@ -386,20 +393,23 @@ class _ImprovedEmptyState extends StatelessWidget {
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 64, horizontal: 32),
+        padding: EdgeInsets.symmetric(
+          vertical: kSpacingLarge * 2.67, // 64px
+          horizontal: kSpacingXLarge,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-                  width: 120,
-                  height: 120,
+                  width: kSpacingXLarge * 3.75, // 120px
+                  height: kSpacingXLarge * 3.75, // 120px
                   decoration: BoxDecoration(
                     color: accent.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.shopping_cart_outlined,
-                    size: 64,
+                    size: kSpacingLarge * 2.67, // 64px
                     color: accent,
                   ),
                 )
@@ -418,7 +428,7 @@ class _ImprovedEmptyState extends StatelessWidget {
                   end: const Offset(0.95, 0.95),
                 ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: kSpacingLarge),
 
             Text(
               "אין רשימות פעילות כרגע",
@@ -429,7 +439,7 @@ class _ImprovedEmptyState extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: kBorderRadius),
 
             Text(
               "צור את הרשימה הראשונה שלך\nוהתחל לחסוך זמן וכסף!",
@@ -440,7 +450,7 @@ class _ImprovedEmptyState extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: kSpacingXLarge),
 
             FilledButton.icon(
               onPressed: onCreateList,
@@ -450,8 +460,8 @@ class _ImprovedEmptyState extends StatelessWidget {
                 backgroundColor: accent,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 16,
+                  horizontal: kSpacingXLarge,
+                  vertical: kSpacingMedium,
                 ),
                 textStyle: t.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
@@ -480,33 +490,35 @@ class _ReceiptsCard extends StatelessWidget {
 
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+      ),
       child: InkWell(
         onTap: () {
           debugPrint('🏠 HomeDashboard: ניווט למסך קבלות');
           Navigator.pushNamed(context, '/receipts');
         },
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(kSpacingMedium),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(kSpacingSmall),
                     decoration: BoxDecoration(
                       color: Colors.orange.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                     ),
                     child: const Icon(
                       Icons.receipt_long,
                       color: Colors.orange,
-                      size: 20,
+                      size: kIconSizeSmall + 4, // 20px
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: kBorderRadius),
                   Expanded(
                     child: Text(
                       'הקבלות שלי',
@@ -519,17 +531,17 @@ class _ReceiptsCard extends StatelessWidget {
                   Icon(Icons.chevron_left, color: cs.onSurfaceVariant),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: kBorderRadius),
               if (receiptProvider.isLoading)
                 const Center(
                   child: Padding(
-                    padding: EdgeInsets.all(16),
+                    padding: EdgeInsets.all(kSpacingMedium),
                     child: CircularProgressIndicator(),
                   ),
                 )
               else if (receiptsCount == 0)
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  padding: const EdgeInsets.symmetric(vertical: kSpacingSmall),
                   child: Text(
                     'אין קבלות עדיין. התחל להוסיף!',
                     style: theme.textTheme.bodyMedium?.copyWith(
@@ -559,13 +571,13 @@ class _ReceiptsCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: kSpacingSmall),
                     LinearProgressIndicator(
                       value: receiptsCount / 10,
                       backgroundColor: cs.surfaceContainerHighest,
                       color: Colors.orange,
-                      minHeight: 4,
-                      borderRadius: BorderRadius.circular(2),
+                      minHeight: kBorderWidthThick * 2, // 4px
+                      borderRadius: BorderRadius.circular(kBorderWidthThick),
                     ),
                   ],
                 ),
@@ -610,7 +622,7 @@ class _ActiveListsCard extends StatelessWidget {
                 debugPrint('   ✅ רשימה שוחזרה');
               },
             ),
-            duration: const Duration(seconds: 5),
+            duration: kSnackBarDurationLong,
           ),
         );
       }
@@ -638,27 +650,29 @@ class _ActiveListsCard extends StatelessWidget {
 
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(kSpacingMedium),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(kSpacingSmall),
                   decoration: BoxDecoration(
                     color: accent.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                   ),
                   child: Icon(
                     Icons.inventory_2_outlined,
                     color: accent,
-                    size: 20,
+                    size: kIconSizeSmall + 4, // 20px
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: kBorderRadius),
                 Expanded(
                   child: Text(
                     "רשימות פעילות נוספות",
@@ -678,7 +692,7 @@ class _ActiveListsCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: kSpacingMedium),
             ...lists.map((list) {
               return _DismissibleListTile(
                 list: list,
@@ -705,23 +719,23 @@ class _DismissibleListTile extends StatelessWidget {
     final itemsCount = list.items.length;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: kSpacingSmall),
       child: Dismissible(
         key: Key(list.id),
         direction: DismissDirection.endToStart,
         onDismissed: (_) => onDelete(),
         background: Container(
           alignment: Alignment.centerLeft,
-          padding: const EdgeInsets.only(left: 20),
+          padding: const EdgeInsets.only(left: kIconSizeSmall + 4), // 20px
           decoration: BoxDecoration(
             color: Colors.red,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(kBorderRadius - 2), // 10px
           ),
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Icon(Icons.delete_outline, color: Colors.white),
-              SizedBox(width: 8),
+              SizedBox(width: kSpacingSmall),
               Text(
                 'מחק',
                 style: TextStyle(
@@ -735,10 +749,10 @@ class _DismissibleListTile extends StatelessWidget {
         child: Material(
           color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(kBorderRadius - 2), // 10px
             side: BorderSide(
               color: cs.outline.withValues(alpha: 0.2),
-              width: 1,
+              width: kBorderWidth,
             ),
           ),
           child: InkWell(
@@ -754,17 +768,24 @@ class _DismissibleListTile extends StatelessWidget {
                 },
               );
             },
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(kBorderRadius - 2), // 10px
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              padding: EdgeInsets.symmetric(
+                horizontal: kBorderRadius,
+                vertical: kBorderRadius - 2, // 10px
+              ),
               child: Row(
                 children: [
                   CircleAvatar(
-                    radius: 14,
+                    radius: kSpacingMedium - 2, // 14px
                     backgroundColor: cs.primary.withValues(alpha: 0.12),
-                    child: Icon(Icons.list_alt, size: 16, color: cs.primary),
+                    child: Icon(
+                      Icons.list_alt,
+                      size: kIconSizeSmall,
+                      color: cs.primary,
+                    ),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: kBorderRadius - 2), // 10px
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -777,7 +798,7 @@ class _DismissibleListTile extends StatelessWidget {
                             color: cs.onSurface,
                           ),
                         ),
-                        const SizedBox(height: 2),
+                        const SizedBox(height: kBorderWidthThick),
                         Text(
                           "$itemsCount פריטים",
                           style: theme.textTheme.bodySmall?.copyWith(
@@ -787,7 +808,7 @@ class _DismissibleListTile extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: kSpacingSmall),
                   Icon(Icons.chevron_left, color: cs.onSurfaceVariant),
                 ],
               ),

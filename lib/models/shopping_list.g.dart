@@ -16,6 +16,8 @@ ShoppingList _$ShoppingListFromJson(Map<String, dynamic> json) => ShoppingList(
       status: json['status'] as String? ?? 'active',
       type: json['type'] as String? ?? 'super',
       budget: (json['budget'] as num?)?.toDouble(),
+      eventDate: _$JsonConverterFromJson<Object, DateTime>(
+          json['event_date'], const TimestampConverter().fromJson),
       isShared: json['is_shared'] as bool? ?? false,
       createdBy: json['created_by'] as String,
       sharedWith: (json['shared_with'] as List<dynamic>?)
@@ -40,6 +42,8 @@ Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) =>
       'is_shared': instance.isShared,
       'created_by': instance.createdBy,
       'shared_with': instance.sharedWith,
+      'event_date': _$JsonConverterToJson<Object, DateTime>(
+          instance.eventDate, const TimestampConverter().toJson),
       'items': instance.items.map((e) => e.toJson()).toList(),
     };
 
@@ -48,3 +52,9 @@ Value? _$JsonConverterFromJson<Json, Value>(
   Value? Function(Json json) fromJson,
 ) =>
     json == null ? null : fromJson(json as Json);
+
+Json? _$JsonConverterToJson<Json, Value>(
+  Value? value,
+  Json? Function(Value value) toJson,
+) =>
+    value == null ? null : toJson(value);

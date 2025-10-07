@@ -29,6 +29,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:salsheli/core/ui_constants.dart';
 import 'package:salsheli/layout/app_layout.dart';
 import 'package:salsheli/models/shopping_list.dart';
 import 'package:salsheli/providers/shopping_lists_provider.dart';
@@ -75,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final now = DateTime.now();
     if (_lastBackPress == null ||
-        now.difference(_lastBackPress!) > const Duration(seconds: 2)) {
+        now.difference(_lastBackPress!) > kDoubleTapTimeout) {
       _lastBackPress = now;
       debugPrint('🏠 HomeScreen: לחיצה ראשונה על Back - המתן ללחיצה שנייה');
 
@@ -87,11 +88,15 @@ class _HomeScreenState extends State<HomeScreen> {
               'לחץ שוב לסגירת האפליקציה',
               textAlign: TextAlign.center,
             ),
-            duration: const Duration(seconds: 2),
+            duration: kSnackBarDuration,
             behavior: SnackBarBehavior.floating,
-            margin: const EdgeInsets.only(bottom: 80, left: 16, right: 16),
+            margin: const EdgeInsets.only(
+              bottom: kSnackBarBottomMargin,
+              left: kSnackBarHorizontalMargin,
+              right: kSnackBarHorizontalMargin,
+            ),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
             ),
           ),
         );
@@ -130,7 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
         badges: badges,
         // אנימציית fade חלקה בין מסכים
         child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
+          duration: kAnimationDurationShort,
           switchInCurve: Curves.easeIn,
           switchOutCurve: Curves.easeOut,
           child: KeyedSubtree(

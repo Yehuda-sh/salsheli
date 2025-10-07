@@ -23,36 +23,4 @@ abstract class ShoppingListsRepository {
   Future<void> deleteList(String id, String householdId);
 }
 
-/// === Mock Implementation ===
-///
-/// 🇮🇱 מימוש ראשוני: שומר את הרשימות בזיכרון בלבד (Map לפי householdId).
-/// 🇬🇧 Initial implementation: stores lists only in memory (Map by householdId).
-class MockShoppingListsRepository implements ShoppingListsRepository {
-  final Map<String, List<ShoppingList>> _storage = {};
 
-  @override
-  Future<List<ShoppingList>> fetchLists(String householdId) async {
-    await Future.delayed(const Duration(milliseconds: 300)); // simulate latency
-    return List.unmodifiable(_storage[householdId] ?? []);
-  }
-
-  @override
-  Future<ShoppingList> saveList(ShoppingList list, String householdId) async {
-    final lists = _storage.putIfAbsent(householdId, () => []);
-    final index = lists.indexWhere((l) => l.id == list.id);
-    final newList = list.copyWith(updatedDate: DateTime.now());
-
-    if (index == -1) {
-      lists.add(newList);
-    } else {
-      lists[index] = newList;
-    }
-
-    return newList;
-  }
-
-  @override
-  Future<void> deleteList(String id, String householdId) async {
-    _storage[householdId]?.removeWhere((l) => l.id == id);
-  }
-}

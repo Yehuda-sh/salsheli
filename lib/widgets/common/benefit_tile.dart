@@ -51,7 +51,7 @@ class BenefitTile extends StatelessWidget {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: effectiveIconColor.withOpacity(0.12),
+              color: effectiveIconColor.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, size: iconSize, color: effectiveIconColor),

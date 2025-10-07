@@ -13,9 +13,10 @@ import 'package:provider/provider.dart';
 
 import '../../providers/user_context.dart';
 import '../../theme/app_theme.dart';
+import '../../core/ui_constants.dart';
 import '../../widgets/auth/auth_button.dart';
 import '../../widgets/auth/demo_login_button.dart';
-import '../../services/navigation_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -31,7 +32,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _isLoading = false;
   bool _obscurePassword = true;
-  String? _errorMessage;
 
   @override
   void dispose() {
@@ -42,18 +42,20 @@ class _LoginScreenState extends State<LoginScreen> {
 
   /// ✅ פונקציית Login עם Firebase Authentication
   Future<void> _handleLogin() async {
-    if (!_formKey.currentState!.validate()) return;
+    debugPrint('🔐 _handleLogin() | Starting login process...');
+    if (!_formKey.currentState!.validate()) {
+      debugPrint('❌ _handleLogin() | Form validation failed');
+      return;
+    }
 
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+    setState(() => _isLoading = true);
 
     try {
       final email = _emailController.text.trim();
       final password = _passwordController.text;
 
       // 🔹 1. התחברות דרך Firebase Auth
+      debugPrint('🔐 _handleLogin() | Signing in with email: $email');
       final userContext = context.read<UserContext>();
       await userContext.signIn(
         email: email,
@@ -62,37 +64,42 @@ class _LoginScreenState extends State<LoginScreen> {
 
       // ✅ signIn() זורק Exception אם נכשל, אחרת מצליח
       // ה-listener של authStateChanges יעדכן את isLoggedIn אוטומטית
+      debugPrint('✅ _handleLogin() | Sign in successful, userId: ${userContext.userId}');
 
       // 🔹 2. שמירה ב-SharedPreferences
-      await NavigationService.saveUserId(userContext.userId!);
-      await NavigationService.markOnboardingSeen();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_id', userContext.userId!);
+      await prefs.setBool('seen_onboarding', true);
+      debugPrint('✅ _handleLogin() | User data saved to SharedPreferences');
 
-      // 🔹 4. ניווט לדף הבית
+      // 🔹 3. ניווט לדף הבית
       if (mounted) {
         setState(() => _isLoading = false);
-        await NavigationService.goToHome(context);
+        debugPrint('🔄 _handleLogin() | Navigating to home screen');
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       }
     } catch (e) {
-      setState(() {
-        _errorMessage = e.toString().replaceAll('Exception: ', '');
-        _isLoading = false;
-      });
+      debugPrint('❌ _handleLogin() | Login failed: $e');
+      final errorMsg = e.toString().replaceAll('Exception: ', '');
+      setState(() => _isLoading = false);
 
       // הצגת הודעה למשתמש
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(_errorMessage!),
+            content: Text(errorMsg),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 4),
           ),
         );
       }
     }
+    debugPrint('🏁 _handleLogin() | Completed');
   }
 
   /// ניווט למסך הרשמה
   void _navigateToRegister() {
+    debugPrint('🔄 _navigateToRegister() | Navigating to register screen');
     Navigator.pushReplacementNamed(context, '/register');
   }
 
@@ -121,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
         body: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(kSpacingLarge),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -134,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       size: 80,
                       color: accent,
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: kSpacingLarge),
 
                     // כותרת
                     Text(
@@ -145,7 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: kSpacingSmall),
                     Text(
                       'ברוך שובך!',
                       style: theme.textTheme.bodyMedium?.copyWith(
@@ -153,7 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: kSpacingXLarge),
 
                     // שדה אימייל
                     TextFormField(
@@ -178,7 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: kSpacingMedium),
 
                     // שדה סיסמה
                     TextFormField(
@@ -216,7 +223,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: kSpacingLarge),
 
                     // כפתור התחברות
                     AuthButton.primary(
@@ -224,7 +231,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       isLoading: _isLoading,
                       label: 'התחבר',
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: kSpacingMedium),
 
                     // קישור להרשמה
                     Row(
@@ -246,7 +253,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: kSpacingLarge),
 
                     // מפריד
                     Row(
@@ -262,7 +269,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Expanded(child: Divider(color: cs.outlineVariant)),
                       ],
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: kSpacingLarge),
 
                     // כפתור כניסה מהירה
                     const DemoLoginButton(),

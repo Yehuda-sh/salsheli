@@ -20,7 +20,7 @@ class ReceiptParserService {
   /// 
   /// Example:
   /// ```dart
-  /// final text = "שופרסל\nחלב - 6.90\nלחם - 5.50\nסה״כ: 12.40";
+  /// final text = "שופרסל\nחלב - 6.90\nלחם - 5.50\nסה\"כ: 12.40";
   /// final receipt = ReceiptParserService.parseReceiptText(text);
   /// ```
   static Receipt parseReceiptText(String text) {
@@ -40,7 +40,7 @@ class ReceiptParserService {
 
       // שלב 2: זיהוי סכום כולל
       final totalAmount = _extractTotal(lines);
-      debugPrint('   💰 סה״כ: ₪$totalAmount');
+      debugPrint('   💰 סה"כ: ₪$totalAmount');
 
       // שלב 3: חילוץ פריטים
       final items = _extractItems(lines, totalAmount);
@@ -106,7 +106,7 @@ class ReceiptParserService {
   static double _extractTotal(List<String> lines) {
     // חיפוש אחרי מילות מפתח של סה"כ
     final totalPatterns = [
-      r'סה[״\']כ[:\s]*(\d+[\.,]\d+)',
+      r'סה.?כ[:\s]*(\d+[\.,]\d+)',  // סה"כ או סה'כ (כל תו בין ה-ה ו-כ)
       r'total[:\s]*(\d+[\.,]\d+)',
       r'סך הכל[:\s]*(\d+[\.,]\d+)',
       r'סכום לתשלום[:\s]*(\d+[\.,]\d+)',
@@ -124,14 +124,14 @@ class ReceiptParserService {
           final amountStr = match.group(1)!.replaceAll(',', '.');
           final amount = double.tryParse(amountStr) ?? 0.0;
           if (amount > 0) {
-            debugPrint('   ✅ סה״כ נמצא: ₪$amount');
+            debugPrint('   ✅ סה"כ נמצא: ₪$amount');
             return amount;
           }
         }
       }
     }
 
-    debugPrint('   ⚠️ לא נמצא סה״כ, מחשב מהפריטים...');
+    debugPrint('   ⚠️ לא נמצא סה"כ, מחשב מהפריטים...');
     return 0.0; // נחשב מאוחר יותר מסכום הפריטים
   }
 
@@ -155,7 +155,8 @@ class ReceiptParserService {
 
       // דלג על שורות קצרות מדי או שורות עם מילות מפתח של סה"כ
       if (trimmed.length < 3) continue;
-      if (trimmed.toLowerCase().contains('סה״כ') ||
+      if (trimmed.toLowerCase().contains('סה"כ') ||
+          trimmed.toLowerCase().contains('סהכ') ||
           trimmed.toLowerCase().contains('total') ||
           trimmed.toLowerCase().contains('סך הכל')) {
         continue;
@@ -218,7 +219,7 @@ class ReceiptParserService {
     final difference = (itemsTotal - expectedTotal).abs();
 
     if (expectedTotal > 0 && difference > 1.0) {
-      debugPrint('   ⚠️ אי-התאמה: פריטים=₪$itemsTotal, סה״כ=₪$expectedTotal');
+      debugPrint('   ⚠️ אי-התאמה: פריטים=₪$itemsTotal, סה"כ=₪$expectedTotal');
     } else {
       debugPrint('   ✅ סכום תואם!');
     }

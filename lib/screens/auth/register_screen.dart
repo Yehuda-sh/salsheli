@@ -15,7 +15,7 @@ import '../../providers/user_context.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/auth/auth_button.dart';
 import '../../widgets/auth/demo_login_button.dart';
-import '../../services/navigation_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -73,13 +73,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
 
       // 🔹 3. שמירה ב-SharedPreferences
-      await NavigationService.saveUserId(userContext.userId!);
-      await NavigationService.markOnboardingSeen();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_id', userContext.userId!);
+      await prefs.setBool('seen_onboarding', true);
 
       // 🔹 4. ניווט לדף הבית
       if (mounted) {
         setState(() => _isLoading = false);
-        await NavigationService.goToHome(context);
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       }
     } catch (e) {
       setState(() {
