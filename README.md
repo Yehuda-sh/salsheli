@@ -27,6 +27,7 @@
 |------|-------|
 | **📚 LESSONS_LEARNED.md** | לקחים חשובים + דפוסים טכניים (חובה!) |
 | **🤖 AI_DEV_GUIDELINES.md** | הנחיות לסוכני AI (אם רלוונטי) |
+| **⚡ PERFORMANCE_IMPROVEMENTS.md** | תיקון ביצועים - Batch Save Pattern (אופציונלי) |
 
 ### התקנה:
 
@@ -265,15 +266,16 @@ npm run setup-demo         # הכל ביחד (users + real data)
 
 ---
 
-## 🎓 הישגים אחרונים (06-07/10/2025)
+## 🎓 הישגים אחרונים (06-08/10/2025)
 
 - ✅ Firebase Integration מלא
 - ✅ Shufersal API למחירים אמיתיים
 - ✅ OCR מקומי (ML Kit)
-- ✅ ניקוי 3,000+ שורות Dead Code
+- ✅ ניקוי 5,000+ שורות Dead Code
 - ✅ Code Review מקיף (22 קבצים → 100/100)
 - ✅ Providers עקביים (Error Handling + Logging + Recovery)
-- ✅ תיעוד מקיף (LESSONS_LEARNED + AI_DEV_GUIDELINES)
+- ✅ תיקון ביצועים - Batch Save Pattern (0 Skipped Frames)
+- ✅ תיעוד מקיף (LESSONS_LEARNED + AI_DEV_GUIDELINES + PERFORMANCE)
 
 ---
 
@@ -283,7 +285,7 @@ MIT License - ראה LICENSE
 
 ---
 
-**עדכון:** 07/10/2025 | **גרסה:** 1.0.0+1 | **Made with ❤️ in Israel** 🇮🇱
+**עדכון:** 08/10/2025 | **גרסה:** 1.0.0+1 | **Made with ❤️ in Israel** 🇮🇱
 
 > 💡 **למפתחים:** התחל עם `LESSONS_LEARNED.md` - הכי חשוב!  
 > 💡 **לסוכני AI:** קרא `AI_DEV_GUIDELINES.md` בתחילת כל שיחה

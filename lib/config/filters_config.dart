@@ -151,6 +151,34 @@ String getStatusLabel(String statusId) {
   }
 }
 
+/// בדיקה אם הקטגוריה תקינה
+/// 
+/// דוגמה:
+/// ```dart
+/// isValidCategory('dairy') // true
+/// isValidCategory('invalid') // false
+/// ```
+bool isValidCategory(String categoryId) {
+  return kCategories.contains(categoryId);
+}
+
+/// קבלת קטגוריה עם fallback בטוח
+/// 
+/// אם הקטגוריה לא תקינה או null, מחזיר 'all'
+/// 
+/// דוגמה:
+/// ```dart
+/// getCategorySafe('dairy') // 'dairy'
+/// getCategorySafe('invalid') // 'all'
+/// getCategorySafe(null) // 'all'
+/// ```
+String getCategorySafe(String? categoryId) {
+  if (categoryId == null || !isValidCategory(categoryId)) {
+    return 'all';
+  }
+  return categoryId;
+}
+
 /// תאימות לאחור (שמות ישנים)
 /// 
 /// ⚠️ Deprecated: השתמש ב-kCategories ו-getCategoryLabel() במקום
@@ -158,6 +186,34 @@ String getStatusLabel(String statusId) {
 Map<String, String> get categories => {
       for (final id in kCategories) id: getCategoryLabel(id),
     };
+
+/// בדיקה אם הסטטוס תקין
+/// 
+/// דוגמה:
+/// ```dart
+/// isValidStatus('pending') // true
+/// isValidStatus('invalid') // false
+/// ```
+bool isValidStatus(String statusId) {
+  return kStatuses.contains(statusId);
+}
+
+/// קבלת סטטוס עם fallback בטוח
+/// 
+/// אם הסטטוס לא תקין או null, מחזיר 'all'
+/// 
+/// דוגמה:
+/// ```dart
+/// getStatusSafe('pending') // 'pending'
+/// getStatusSafe('invalid') // 'all'
+/// getStatusSafe(null) // 'all'
+/// ```
+String getStatusSafe(String? statusId) {
+  if (statusId == null || !isValidStatus(statusId)) {
+    return 'all';
+  }
+  return statusId;
+}
 
 /// ⚠️ Deprecated: השתמש ב-kStatuses ו-getStatusLabel() במקום
 @Deprecated('Use kStatuses and getStatusLabel() instead')

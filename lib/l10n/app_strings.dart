@@ -18,8 +18,10 @@
 // 🔮 עתיד: כשנוסיף flutter_localizations, נחליף את הקובץ הזה
 //          ב-AppLocalizations generated class
 //
-// Version: 1.0
-// Last Updated: 06/10/2025
+// Version: 3.0 - רפקטור למבנה תיקיות + הוספת ListTypeMappingsStrings
+// Last Updated: 08/10/2025
+
+import 'strings/list_type_mappings_strings.dart';
 
 /// מחרוזות UI - כרגע עברית בלבד
 /// 
@@ -97,6 +99,24 @@ class AppStrings {
   // ========================================
   
   static const settings = _SettingsStrings();
+  
+  // ========================================
+  // Household (Household Types)
+  // ========================================
+  
+  static const household = _HouseholdStrings();
+  
+  // ========================================
+  // List Type Groups
+  // ========================================
+  
+  static const listTypeGroups = _ListTypeGroupsStrings();
+  
+  // ========================================
+  // List Type Mappings (Categories, Stores, Items)
+  // ========================================
+  
+  static const listMappings = ListTypeMappingsStrings();
 }
 
 // ========================================
@@ -554,4 +574,74 @@ class _SettingsStrings {
   // Errors
   String loadError(String error) => 'Error loading settings: $error';
   String saveError(String error) => 'Error saving settings: $error';
+}
+
+// ========================================
+// Household Strings (Types & Descriptions)
+// ========================================
+
+class _HouseholdStrings {
+  const _HouseholdStrings();
+  
+  // ========================================
+  // Type Labels (11 types)
+  // ========================================
+  
+  // Original 5
+  String get typeFamily => 'משפחה';
+  String get typeBuildingCommittee => 'ועד בית';
+  String get typeKindergartenCommittee => 'ועד גן';
+  String get typeRoommates => 'שותפים לדירה';
+  String get typeOther => 'אחר';
+  
+  // New 6
+  String get typeFriends => 'חברים';
+  String get typeColleagues => 'עמיתים לעבודה';
+  String get typeNeighbors => 'שכנים';
+  String get typeClassCommittee => 'ועד כיתה';
+  String get typeClub => 'מועדון/קהילה';
+  String get typeExtendedFamily => 'משפחה מורחבת';
+  
+  // ========================================
+  // Type Descriptions (11 types)
+  // ========================================
+  
+  // Original 5
+  String get descFamily => 'ניהול קניות וצרכים משותפים למשפחה';
+  String get descBuildingCommittee => 'רכישות משותפות וניהול אירועי ועד בית';
+  String get descKindergartenCommittee => 'ניהול קניות ואירועים לועד גן הילדים';
+  String get descRoommates => 'חלוקת עלויות וקניות לשותפים בדירה';
+  String get descOther => 'קבוצה מותאמת אישית - הגדר בעצמך';
+  
+  // New 6
+  String get descFriends => 'תכנון קניות וארגון אירועים עם חברים קרובים';
+  String get descColleagues => 'רכישות משותפות וארגון ארוחות לצוות העבודה';
+  String get descNeighbors => 'קניות משותפות ושיתוף פעולה בין שכנים בקרבת מקום';
+  String get descClassCommittee => 'ניהול קניות ואירועים להורי תלמידי הכיתה';
+  String get descClub => 'ארגון אירועים ורכישות לקבוצת תחביב או קהילה';
+  String get descExtendedFamily => 'תכנון קניות ואירועים גדולים למשפחה המורחבת';
+}
+
+// ========================================
+// List Type Groups Strings
+// ========================================
+
+class _ListTypeGroupsStrings {
+  const _ListTypeGroupsStrings();
+  
+  // ========================================
+  // Group Names
+  // ========================================
+  
+  String get nameShopping => 'קניות יומיומיות';
+  String get nameSpecialty => 'קניות מיוחדות';
+  String get nameEvents => 'אירועים';
+  
+  // ========================================
+  // Group Descriptions
+  // ========================================
+  
+  String get descShopping => 'קניות שוטפות ויומיומיות';
+  String get descSpecialty => 'קניות בחנויות מיוחדות';
+  String get descEvents => 'רשימות לאירועים ומסיבות';
 }

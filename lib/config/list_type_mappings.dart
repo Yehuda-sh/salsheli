@@ -5,11 +5,12 @@
 // Features:
 // - מיפוי type → קטגוריות מוצרים (const maps)
 // - מיפוי type → חנויות/מותגים מומלצים
-// - פריטים כלליים לכל סוג רשימה
+// - פריטים מוצעים לכל סוג רשימה (140+ פריטים!)
 // - תמיכה בכל 21 סוגי הרשימות (מלא!)
 // - קטגוריות משותפות לאירועים (birthday, party, wedding, etc.)
 // - Cache אוטומטי ל-getAllCategories/getAllStores (performance)
 // - Logging מפורט לדיבוג
+// - i18n ready - כל המחרוזות מ-AppStrings
 //
 // Usage:
 // ```dart
@@ -35,11 +36,12 @@
 // final allCategories = ListTypeMappings.getAllCategories();
 // ```
 //
-// Version: 3.0 - כל 21 הסוגים מוגדרים!
+// Version: 4.0 - i18n Integration! 🌍
 // Last Updated: 08/10/2025
 
 import 'package:flutter/foundation.dart';
 import '../core/constants.dart';
+import '../l10n/app_strings.dart';
 
 class ListTypeMappings {
   // ========================================
@@ -49,13 +51,13 @@ class ListTypeMappings {
   /// קטגוריות משותפות לכל סוגי האירועים
   /// 
   /// משמש כבסיס ל: birthday, party, wedding, picnic, holiday
-  static const _baseEventCategories = [
-    'אוכל ומשקאות',
-    'קישוטים',
-    'כלי הגשה',
-    'מפיות ומגבות',
-    'כלים חד-פעמיים',
-    'מוצרי ניקיון',
+  static List<String> get _baseEventCategories => [
+    AppStrings.listMappings.baseEventFood,
+    AppStrings.listMappings.baseEventDecorations,
+    AppStrings.listMappings.baseEventServeware,
+    AppStrings.listMappings.baseEventNapkins,
+    AppStrings.listMappings.baseEventDisposables,
+    AppStrings.listMappings.baseEventCleaning,
   ];
 
   // ========================================
@@ -66,262 +68,266 @@ class ListTypeMappings {
   /// 
   /// אם [type] לא קיים, מחזיר קטגוריות של 'other' (fallback)
   static List<String> getCategoriesForType(String type) {
-    final categories = _typeToCategories[type];
+    final categories = _typeToCategories()[type];
     
     if (categories == null) {
       debugPrint('⚠️ ListTypeMappings: Unknown list type "$type", using fallback "other"');
-      return _typeToCategories[ListType.other]!;
+      return _typeToCategories()[ListType.other]!;
     }
     
     debugPrint('📋 ListTypeMappings.getCategoriesForType($type) → ${categories.length} categories');
     return categories;
   }
 
-  static const Map<String, List<String>> _typeToCategories = {
-    // סופרמרקט - מזון ומוצרי בית
-    ListType.super_: [
-      'מוצרי חלב',
-      'בשר ודגים',
-      'פירות וירקות',
-      'מאפים',
-      'אורז ופסטה',
-      'שימורים',
-      'משקאות',
-      'ממתקים וחטיפים',
-      'תבלינים ואפייה',
-      'שמנים ורטבים',
-      'קפואים',
-      'מוצרי בוקר',
-    ],
+  static Map<String, List<String>> _typeToCategories() {
+    final s = AppStrings.listMappings;
+    
+    return {
+      // סופרמרקט - מזון ומוצרי בית
+      ListType.super_: [
+        s.catDairyProducts,
+        s.catMeatAndFish,
+        s.catFruitsAndVegetables,
+        s.catBakery,
+        s.catRiceAndPasta,
+        s.catCannedGoods,
+        s.catBeverages,
+        s.catSnacks,
+        s.catSpicesAndBaking,
+        s.catOilsAndSauces,
+        s.catFrozen,
+        s.catBreakfastItems,
+      ],
 
-    // בית מרקחת - בריאות וטיפוח
-    ListType.pharmacy: [
-      'תרופות',
-      'ויטמינים ותוספי תזונה',
-      'טיפוח הגוף',
-      'טיפוח השיער',
-      'היגיינה אישית',
-      'קוסמטיקה',
-      'מוצרי תינוקות',
-      'עזרים רפואיים',
-    ],
+      // בית מרקחת - בריאות וטיפוח
+      ListType.pharmacy: [
+        s.catMedications,
+        s.catVitamins,
+        s.catBodyCare,
+        s.catHairCare,
+        s.catPersonalHygiene,
+        s.catCosmetics,
+        s.catBabyProducts,
+        s.catMedicalAids,
+      ],
 
-    // חומרי בניין - כלים וחומרים
-    ListType.hardware: [
-      'כלי עבודה',
-      'חומרי בניין',
-      'צבעים',
-      'חשמל ותאורה',
-      'אינסטלציה',
-      'גינון',
-      'בטיחות',
-    ],
+      // חומרי בניין - כלים וחומרים
+      ListType.hardware: [
+        s.catTools,
+        s.catBuildingMaterials,
+        s.catPaints,
+        s.catElectricalAndLighting,
+        s.catPlumbing,
+        s.catGardening,
+        s.catSafety,
+      ],
 
-    // ביגוד - בגדים והנעלה
-    ListType.clothing: [
-      'חולצות',
-      'מכנסיים',
-      'שמלות וחצאיות',
-      'הנעלה',
-      'תחתונים וגרביים',
-      'מעילים וז\'קטים',
-      'ביגוד ספורט',
-      'אביזרים',
-    ],
+      // ביגוד - בגדים והנעלה
+      ListType.clothing: [
+        s.catShirts,
+        s.catPants,
+        s.catDressesAndSkirts,
+        s.catFootwear,
+        s.catUnderwearAndSocks,
+        s.catCoatsAndJackets,
+        s.catSportswear,
+        s.catAccessories,
+      ],
 
-    // אלקטרוניקה - מוצרי חשמל
-    ListType.electronics: [
-      'מחשבים וטאבלטים',
-      'סמארטפונים',
-      'אוזניות ורמקולים',
-      'טלוויזיות',
-      'מצלמות',
-      'אביזרים',
-      'משחקים',
-    ],
+      // אלקטרוניקה - מוצרי חשמל
+      ListType.electronics: [
+        s.catComputersAndTablets,
+        s.catSmartphones,
+        s.catHeadphonesAndSpeakers,
+        s.catTelevisions,
+        s.catCameras,
+        s.catElectronicsAccessories,
+        s.catGames,
+      ],
 
-    // חיות מחמד
-    ListType.pets: [
-      'מזון לכלבים',
-      'מזון לחתולים',
-      'חטיפים לחיות',
-      'אביזרים',
-      'משחקים לחיות',
-      'טיפוח',
-      'בריאות',
-    ],
+      // חיות מחמד
+      ListType.pets: [
+        s.catDogFood,
+        s.catCatFood,
+        s.catPetTreats,
+        s.catPetAccessories,
+        s.catPetToys,
+        s.catPetGrooming,
+        s.catPetHealth,
+      ],
 
-    // קוסמטיקה - יופי וטיפוח
-    ListType.cosmetics: [
-      'איפור פנים',
-      'טיפוח העור',
-      'בשמים',
-      'טיפוח שיער',
-      'מניקור ופדיקור',
-      'אביזרי איפור',
-    ],
+      // קוסמטיקה - יופי וטיפוח
+      ListType.cosmetics: [
+        s.catFaceMakeup,
+        s.catSkincare,
+        s.catPerfumes,
+        s.catHaircare,
+        s.catNailCare,
+        s.catMakeupAccessories,
+      ],
 
-    // ציוד משרדי
-    ListType.stationery: [
-      'כלי כתיבה',
-      'מחברות ופנקסים',
-      'ניירת',
-      'ארגון משרדי',
-      'אמנות ויצירה',
-      'מדפסות ודיו',
-    ],
+      // ציוד משרדי
+      ListType.stationery: [
+        s.catWritingInstruments,
+        s.catNotebooksAndPads,
+        s.catPaper,
+        s.catOfficeOrganization,
+        s.catArtsAndCrafts,
+        s.catPrintersAndInk,
+      ],
 
-    // צעצועים ומשחקים
-    ListType.toys: [
-      'צעצועים לגיל הרך',
-      'משחקי קופסה',
-      'משחקי חשיבה',
-      'בובות ודמויות',
-      'משחקי חוץ',
-      'לגו ובניה',
-      'אמנות ויצירה',
-      'משחקי וידאו',
-    ],
+      // צעצועים ומשחקים
+      ListType.toys: [
+        s.catInfantToys,
+        s.catBoardGames,
+        s.catBrainTeasers,
+        s.catDollsAndFigures,
+        s.catOutdoorToys,
+        s.catLegoAndBuilding,
+        s.catCrafts,
+        s.catVideoGames,
+      ],
 
-    // ספרים וחומרי קריאה
-    ListType.books: [
-      'ספרות בדיונית',
-      'ספרי עיון',
-      'ספרי ילדים',
-      'קומיקס ומנגה',
-      'מגזינים',
-      'ספרי לימוד',
-      'ספרי בישול',
-      'ספרי השראה',
-    ],
+      // ספרים וחומרי קריאה
+      ListType.books: [
+        s.catFiction,
+        s.catNonFiction,
+        s.catChildrensBooks,
+        s.catComicsAndManga,
+        s.catMagazines,
+        s.catTextbooks,
+        s.catCookbooks,
+        s.catInspirational,
+      ],
 
-    // ציוד ספורט וכושר
-    ListType.sports: [
-      'ביגוד ספורט',
-      'נעלי ספורט',
-      'כדורים',
-      'משקולות וציוד כוח',
-      'מזרני יוגה',
-      'אביזרי ריצה',
-      'ציוד שחייה',
-      'תוספי תזונה',
-    ],
+      // ציוד ספורט וכושר
+      ListType.sports: [
+        s.catSportsClothing,
+        s.catSportsShoes,
+        s.catBalls,
+        s.catWeights,
+        s.catYogaMats,
+        s.catRunningAccessories,
+        s.catSwimmingEquipment,
+        s.catSportsSupplements,
+      ],
 
-    // עיצוב הבית וריהוט
-    ListType.homeDecor: [
-      'ריהוט',
-      'תמונות ומסגרות',
-      'כריות ושטיחים',
-      'וילונות',
-      'תאורה',
-      'אביזרי מטבח',
-      'צמחי נוי',
-      'נרות וריחות',
-    ],
+      // עיצוב הבית וריהוט
+      ListType.homeDecor: [
+        s.catFurniture,
+        s.catPicturesAndFrames,
+        s.catPillowsAndRugs,
+        s.catCurtains,
+        s.catLighting,
+        s.catKitchenAccessories,
+        s.catPlants,
+        s.catCandlesAndScents,
+      ],
 
-    // רכב ואביזרים
-    ListType.automotive: [
-      'שמן מנוע',
-      'נוזל שמשות',
-      'מסנן אוויר',
-      'מטאטא לרכב',
-      'מוצרי ניקוי רכב',
-      'אביזרי נוחות',
-      'כיסוי הגה',
-      'מטען לרכב',
-    ],
+      // רכב ואביזרים
+      ListType.automotive: [
+        s.catEngineOil,
+        s.catWindshieldFluid,
+        s.catAirFilter,
+        s.catCarBroom,
+        s.catCarCleaning,
+        s.catComfortAccessories,
+        s.catSteeringWheelCover,
+        s.catCarCharger,
+      ],
 
-    // תינוקות (מורחב מעבר ל-pharmacy)
-    ListType.baby: [
-      'חיתולים',
-      'מגבונים',
-      'מזון תינוקות',
-      'בקבוקים ומוצצים',
-      'מוצרי רחצה',
-      'ביגוד תינוקות',
-      'מוצרי בטיחות',
-      'צעצועי התפתחות',
-    ],
+      // תינוקות (מורחב מעבר ל-pharmacy)
+      ListType.baby: [
+        s.catDiapers,
+        s.catWipes,
+        s.catBabyFood,
+        s.catBottlesAndPacifiers,
+        s.catBathProducts,
+        s.catBabyClothing,
+        s.catSafetyProducts,
+        s.catDevelopmentToys,
+      ],
 
-    // מתנות (כללי)
-    ListType.gifts: [
-      'מתנות לגברים',
-      'מתנות לנשים',
-      'מתנות לילדים',
-      'מתנות לבית',
-      'שוברי מתנה',
-      'ניירות עטיפה',
-      'כרטיסי ברכה',
-      'סלסלות מתנה',
-    ],
+      // מתנות (כללי)
+      ListType.gifts: [
+        s.catGiftsForMen,
+        s.catGiftsForWomen,
+        s.catGiftsForKids,
+        s.catGiftsForHome,
+        s.catGiftCards,
+        s.catWrappingPaper,
+        s.catGreetingCards,
+        s.catGiftBaskets,
+      ],
 
-    // יום הולדת (base + specific)
-    ListType.birthday: [
-      ..._baseEventCategories,
-      'עוגת יום הולדת',
-      'נרות ליום הולדת',
-      'בלונים',
-      'כובעי מסיבה',
-      'מתנות',
-      'שקיות הפתעה',
-      'משחקים למסיבה',
-    ],
+      // יום הולדת (base + specific)
+      ListType.birthday: [
+        ..._baseEventCategories,
+        s.catBirthdayCake,
+        s.catBirthdayCandles,
+        s.catBalloons,
+        s.catPartyHats,
+        s.catBirthdayGifts,
+        s.catGoodieBags,
+        s.catPartyGames,
+      ],
 
-    // מסיבה (base + specific)
-    ListType.party: [
-      ..._baseEventCategories,
-      'מוזיקה',
-      'אלכוהול',
-      'מזון למסיבה',
-      'פופקורן וחטיפים',
-      'משחקי חברה',
-      'תחפושות',
-      'תאורה מיוחדת',
-    ],
+      // מסיבה (base + specific)
+      ListType.party: [
+        ..._baseEventCategories,
+        s.catMusic,
+        s.catAlcohol,
+        s.catPartyFood,
+        s.catPopcornAndSnacks,
+        s.catPartyGamesCategory,
+        s.catCostumes,
+        s.catSpecialLighting,
+      ],
 
-    // חתונה (base + specific)
-    ListType.wedding: [
-      ..._baseEventCategories,
-      'פרחים',
-      'הזמנות',
-      'מתנות לאורחים',
-      'אלכוהול',
-      'עיטורי שולחן',
-      'חופה',
-      'תפריט',
-      'צילום ווידאו',
-    ],
+      // חתונה (base + specific)
+      ListType.wedding: [
+        ..._baseEventCategories,
+        s.catFlowers,
+        s.catInvitations,
+        s.catGuestGifts,
+        s.catWeddingAlcohol,
+        s.catTableDecorations,
+        s.catChuppah,
+        s.catMenu,
+        s.catPhotographyAndVideo,
+      ],
 
-    // פיקניק (base + specific)
-    ListType.picnic: [
-      'כריכים',
-      'סלטים',
-      'פירות',
-      'משקאות קרים',
-      'שמיכת פיקניק',
-      'צידנית',
-      'כלים חד-פעמיים',
-      'משחקי חוץ',
-      'דוחה יתושים',
-    ],
+      // פיקניק (base + specific)
+      ListType.picnic: [
+        s.catSandwiches,
+        s.catSalads,
+        s.catFruits,
+        s.catColdDrinks,
+        s.catPicnicBlanket,
+        s.catCooler,
+        s.catDisposableUtensils,
+        s.catOutdoorGames,
+        s.catInsectRepellent,
+      ],
 
-    // חג (base + specific)
-    ListType.holiday: [
-      ..._baseEventCategories,
-      'מאכלי החג',
-      'יין וקידוש',
-      'נרות',
-      'צלחות מיוחדות',
-      'ספרי תפילה',
-      'מתנות לאורחים',
-      'עיטורי חג',
-    ],
+      // חג (base + specific)
+      ListType.holiday: [
+        ..._baseEventCategories,
+        s.catHolidayFood,
+        s.catWineAndKiddush,
+        s.catCandles,
+        s.catSpecialPlates,
+        s.catPrayerBooks,
+        s.catGiftsForGuests,
+        s.catHolidayDecorations,
+      ],
 
-    // אחר - כללי
-    ListType.other: [
-      'כללי',
-    ],
-  };
+      // אחר - כללי
+      ListType.other: [
+        s.catGeneral,
+      ],
+    };
+  }
 
   // ========================================
   // מיפוי Type → חנויות/מותגים
@@ -331,145 +337,146 @@ class ListTypeMappings {
   /// 
   /// אם [type] לא קיים או אין חנויות מוצעות, מחזיר רשימה ריקה
   static List<String> getStoresForType(String type) {
-    final stores = _typeToStores[type] ?? [];
+    final stores = _typeToStores()[type] ?? [];
     debugPrint('🏪 ListTypeMappings.getStoresForType($type) → ${stores.length} stores');
     return stores;
   }
 
-  static const Map<String, List<String>> _typeToStores = {
-    ListType.super_: [
-      'שופרסל',
-      'רמי לוי',
-      'יוחננוף',
-      'ויקטורי',
-      'טיב טעם',
-      'אושר עד',
-      'סופר פארם',
-      'שוק מחנה יהודה',
-    ],
+  static Map<String, List<String>> _typeToStores() {
+    final s = AppStrings.listMappings;
+    
+    return {
+      ListType.super_: [
+        s.storeShufersal,
+        s.storeRamiLevy,
+        s.storeYohananof,
+        s.storeVictory,
+        s.storeTivTaam,
+        s.storeOsherAd,
+        s.storeSuperPharm,
+        s.storeShukMahaneYehuda,
+      ],
 
-    ListType.pharmacy: [
-      'סופר-פארם',
-      'ניו-פארם',
-      'BE',
-      'לייף',
-      'אסתי לאודר',
-      'MAC',
-    ],
+      ListType.pharmacy: [
+        s.storeSuperPharm,
+        s.storeNewPharm,
+        s.storeBE,
+        s.storeLife,
+        s.storeEstee,
+        s.storeMAC,
+      ],
 
-    ListType.hardware: [
-      'איס הרדוור',
-      'בנק הכלים',
-      'טוטל סנטר',
-      'מאסטרפיקס',
-      'דקסטר',
-    ],
+      ListType.hardware: [
+        s.storeAce,
+        s.storeBankHakelim,
+        s.storeTotalCenter,
+        s.storeMasterfix,
+        s.storeDexter,
+      ],
 
-    ListType.clothing: [
-      'קסטרו',
-      'פוקס',
-      'גולף',
-      'H&M',
-      'זארה',
-      'מנגו',
-      'רנואר',
-      'טרמינל X',
-      'נייקי',
-      'אדידס',
-    ],
+      ListType.clothing: [
+        s.storeCastro,
+        s.storeFox,
+        s.storeGolf,
+        s.storeHM,
+        s.storeZara,
+        s.storeMango,
+        s.storeRenuar,
+        s.storeTerminalX,
+        s.storeNike,
+        s.storeAdidas,
+      ],
 
-    ListType.electronics: [
-      'KSP',
-      'יוניון',
-      'בי אנד אייץ\'',
-      'אלקטרה',
-      'מחסני חשמל',
-      'פוני',
-      'באג',
-      'iDigital',
-    ],
+      ListType.electronics: [
+        s.storeKSP,
+        s.storeIvgeni,
+        s.storeBug,
+        s.storeElectra,
+        s.storeMahsaneiHashmal,
+        s.storePony,
+        s.storeBaG,
+        s.storeIDigital,
+      ],
 
-    ListType.pets: [
-      'פטקס',
-      'זוטוב',
-      'פט פלאנט',
-      'פט שופ',
-      'פטזון',
-    ],
+      ListType.pets: [
+        s.storePetex,
+        s.storeZootov,
+        s.storePetPlanet,
+        s.storePetShop,
+        s.storePetzone,
+      ],
 
-    ListType.cosmetics: [
-      'סופר-פארם',
-      'ליליאן',
-      'M.A.C',
-      'סקורה',
-      'המשביר לצרכן',
-    ],
+      ListType.cosmetics: [
+        s.storeSuperPharm,
+        s.storeHamashbir,
+        s.storeMAC,
+      ],
 
-    ListType.stationery: [
-      'סטימצקי',
-      'אופיס דיפו',
-      'פנטסטיק',
-      'מנור',
-    ],
+      ListType.stationery: [
+        s.storeSteimatzky,
+        s.storeOfficeDepot,
+        s.storeFantastic,
+        s.storeManor,
+      ],
 
-    ListType.toys: [
-      'יוחאנן',
-      'צעצועים "ר" אס',
-      'המשביר לצרכן',
-      'טויז "ר" אס',
-    ],
+      ListType.toys: [
+        s.storeYohanan,
+        s.storeToysRUs,
+        s.storeHamashbir,
+      ],
 
-    ListType.books: [
-      'סטימצקי',
-      'צומת ספרים',
-      'בוק אוף ליין',
-      'אמזון',
-    ],
+      ListType.books: [
+        s.storeSteimatzky,
+        s.storeTsometSfarim,
+        s.storeBookOfLine,
+        s.storeAmazon,
+      ],
 
-    ListType.sports: [
-      'ספורט 5',
-      'דקתלון',
-      'טרמינל X',
-      'משקולות בנימין',
-      'פולס',
-    ],
+      ListType.sports: [
+        s.storeSport5,
+        s.storeDecathlon,
+        s.storeTerminalX,
+        s.storeMishkolot,
+        s.storePulse,
+      ],
 
-    ListType.homeDecor: [
-      'איקיאה',
-      'המשביר לצרכן',
-      'טרמינל X',
-      'רוזנפלד',
-    ],
+      ListType.homeDecor: [
+        s.storeIkea,
+        s.storeHamashbir,
+        s.storeTerminalX,
+        s.storeRosenfeld,
+      ],
 
-    ListType.automotive: [
-      'יוניון',
-      'דלק',
-      'פז',
-      'איס הרדוור',
-    ],
+      ListType.automotive: [
+        s.storeIvgeni,
+        s.storeDelek,
+        s.storePaz,
+        s.storeAce,
+      ],
 
-    ListType.baby: [
-      'יוחאנן',
-      'המשביר לצרכן',
-      'סופר-פארם',
-      'ביבילוב',
-    ],
+      ListType.baby: [
+        s.storeYohanan,
+        s.storeHamashbir,
+        s.storeSuperPharm,
+        s.storeBabyLove,
+      ],
 
-    ListType.gifts: [
-      'סטימצקי',
-      'המשביר לצרכן',
-      'איקיאה',
-      'טרמינל X',
-    ],
+      ListType.gifts: [
+        s.storeSteimatzky,
+        s.storeHamashbir,
+        s.storeIkea,
+        s.storeTerminalX,
+      ],
 
-    ListType.birthday: [],
-    ListType.party: [],
-    ListType.wedding: [],
-    ListType.picnic: [],
-    ListType.holiday: [],
+      ListType.birthday: [],
+      ListType.party: [],
+      ListType.wedding: [],
+      ListType.picnic: [],
+      ListType.holiday: [],
 
-    ListType.other: [],
-  };
+      ListType.other: [],
+    };
+  }
 
   // ========================================
   // פריטים מוצעים לפי Type
@@ -480,246 +487,280 @@ class ListTypeMappings {
   /// (לא מוצרים ספציפיים, אלא רעיונות כלליים)
   /// אם [type] לא קיים או אין פריטים מוצעים, מחזיר רשימה ריקה
   static List<String> getSuggestedItemsForType(String type) {
-    final items = _typeToSuggestedItems[type] ?? [];
+    final items = _typeToSuggestedItems()[type] ?? [];
     debugPrint('🛒 ListTypeMappings.getSuggestedItemsForType($type) → ${items.length} items');
     return items;
   }
 
-  static const Map<String, List<String>> _typeToSuggestedItems = {
-    ListType.super_: [
-      'חלב',
-      'לחם',
-      'ביצים',
-      'עגבניות',
-      'מלפפונים',
-      'בננות',
-      'תפוחים',
-      'עוף',
-      'בקר',
-      'אורז',
-      'פסטה',
-      'שמן',
-      'סוכר',
-      'קמח',
-      'שוקולד',
-      'משקה',
-    ],
+  static Map<String, List<String>> _typeToSuggestedItems() {
+    final s = AppStrings.listMappings;
+    
+    return {
+      ListType.super_: [
+        s.itemMilk,
+        s.itemBread,
+        s.itemEggs,
+        s.itemTomatoes,
+        s.itemCucumbers,
+        s.itemBananas,
+        s.itemApples,
+        s.itemChicken,
+        s.itemBeef,
+        s.itemRice,
+        s.itemPasta,
+        s.itemOil,
+        s.itemSugar,
+        s.itemFlour,
+        s.itemChocolate,
+        s.itemDrink,
+      ],
 
-    ListType.pharmacy: [
-      'תרופת כאב',
-      'ויטמין D',
-      'ויטמין C',
-      'משחת שיניים',
-      'מברשת שיניים',
-      'שמפו',
-      'מרכך',
-      'סבון',
-      'קרם לחות',
-      'חיתולים',
-      'מגבונים',
-    ],
+      ListType.pharmacy: [
+        s.itemPainMedicine,
+        s.itemVitaminD,
+        s.itemVitaminC,
+        s.itemToothpaste,
+        s.itemToothbrush,
+        s.itemShampoo,
+        s.itemConditioner,
+        s.itemSoap,
+        s.itemMoisturizer,
+        s.itemBabyDiapers,
+        s.itemBabyWipes,
+      ],
 
-    ListType.hardware: [
-      'פטיש',
-      'מברגים',
-      'ברגים',
-      'מסמרים',
-      'צבע לבן',
-      'מברשות',
-      'דבק',
-      'מטר',
-      'מקדחה',
-      'נורות',
-    ],
+      ListType.hardware: [
+        s.itemHammer,
+        s.itemScrewdrivers,
+        s.itemScrews,
+        s.itemNails,
+        s.itemWhitePaint,
+        s.itemBrushes,
+        s.itemGlue,
+        s.itemMeasuringTape,
+        s.itemDrill,
+        s.itemLightBulbs,
+      ],
 
-    ListType.clothing: [
-      'חולצה לבנה',
-      'חולצת טי',
-      'ג\'ינס',
-      'נעליים שחורות',
-      'גרביים',
-      'תחתונים',
-      'שמלה',
-      'מעיל',
-      'צעיף',
-      'כובע',
-    ],
+      ListType.clothing: [
+        s.itemWhiteShirt,
+        s.itemTShirt,
+        s.itemJeans,
+        s.itemBlackShoes,
+        s.itemSocks,
+        s.itemUnderwear,
+        s.itemDress,
+        s.itemCoat,
+        s.itemScarf,
+        s.itemHat,
+      ],
 
-    ListType.electronics: [
-      'אוזניות',
-      'כבל USB',
-      'מטען',
-      'עכבר',
-      'מקלדת',
-      'זיכרון נייד',
-      'כיסוי לטלפון',
-      'מגן מסך',
-    ],
+      ListType.electronics: [
+        s.itemHeadphones,
+        s.itemUSBCable,
+        s.itemCharger,
+        s.itemMouse,
+        s.itemKeyboard,
+        s.itemFlashDrive,
+        s.itemPhoneCase,
+        s.itemScreenProtector,
+      ],
 
-    ListType.pets: [
-      'מזון יבש לכלב',
-      'מזון יבש לחתול',
-      'חטיפים',
-      'צעצוע',
-      'קולר',
-      'רצועה',
-      'קערה',
-      'חול לחתול',
-    ],
+      ListType.pets: [
+        s.itemDryDogFood,
+        s.itemDryCatFood,
+        s.itemPetTreatsItem,
+        s.itemPetToy,
+        s.itemCollar,
+        s.itemLeash,
+        s.itemBowl,
+        s.itemCatLitter,
+      ],
 
-    ListType.cosmetics: [
-      'שפתון',
-      'מסקרה',
-      'בושם',
-      'קרם לחות',
-      'סרום',
-      'מייק אפ',
-      'מסיר איפור',
-      'לק',
-    ],
+      ListType.cosmetics: [
+        s.itemFoundation,
+        s.itemMascara,
+        s.itemLipstick,
+        s.itemEyeliner,
+        s.itemBlush,
+        s.itemRemover,
+        s.itemFaceCream,
+        s.itemSunscreen,
+        s.itemPerfume,
+        s.itemNailPolish,
+      ],
 
-    ListType.stationery: [
-      'עטים',
-      'מחברת',
-      'פנקס',
-      'דבק',
-      'מחק',
-      'מחדד',
-      'סרגל',
-      'מדבקות',
-      'מדגשים',
-    ],
+      ListType.stationery: [
+        s.itemPens,
+        s.itemPencils,
+        s.itemNotebook,
+        s.itemEraser,
+        s.itemRuler,
+        s.itemScissors,
+        s.itemGlueStick,
+        s.itemStapler,
+        s.itemHighlighter,
+        s.itemCalculator,
+      ],
 
-    ListType.toys: [
-      'לגו',
-      'בובה',
-      'מכונית שלט',
-      'משחק קופסה',
-      'פאזל',
-      'כדור',
-      'צבעים',
-      'צעצוע מוזיקלי',
-    ],
+      ListType.toys: [
+        s.itemPuzzle,
+        s.itemDoll,
+        s.itemCarToy,
+        s.itemBuildingBlocks,
+        s.itemBoardGame,
+        s.itemBall,
+        s.itemColoringBook,
+        s.itemCrayons,
+        s.itemPlayDoh,
+        s.itemBubbles,
+      ],
 
-    ListType.books: [
-      'ספר בדיונית',
-      'ספר בישול',
-      'ספר ילדים',
-      'מגזין',
-      'קומיקס',
-      'ספר עיון',
-      'ספר השראה',
-    ],
+      ListType.books: [
+        s.itemNovel,
+        s.itemCookbookItem,
+        s.itemChildrenBook,
+        s.itemComic,
+        s.itemMagazine,
+        s.itemTextbook,
+        s.itemDiary,
+        s.itemCalendar,
+        s.itemPhotoAlbum,
+      ],
 
-    ListType.sports: [
-      'נעלי ריצה',
-      'מזרן יוגה',
-      'בקבוק מים',
-      'משקולות',
-      'חבל קפיצה',
-      'חולצת ספורט',
-      'כדור',
-      'פרוטאין',
-    ],
+      ListType.sports: [
+        s.itemRunningShoes,
+        s.itemYogaMat,
+        s.itemWaterBottle,
+        s.itemSweatband,
+        s.itemJumpRope,
+        s.itemWeights,
+        s.itemProteinPowder,
+        s.itemSwimGoggles,
+        s.itemSoccerBall,
+        s.itemTennisBall,
+      ],
 
-    ListType.homeDecor: [
-      'כרית',
-      'שטיח',
-      'תמונה',
-      'מסגרת',
-      'נר',
-      'אגרטל',
-      'צמח נוי',
-      'וילון',
-    ],
+      ListType.homeDecor: [
+        s.itemCushion,
+        s.itemVase,
+        s.itemFrame,
+        s.itemClock,
+        s.itemMirror,
+        s.itemCandle,
+        s.itemPlant,
+        s.itemRug,
+        s.itemTableCloth,
+        s.itemCurtain,
+      ],
 
-    ListType.automotive: [
-      'שמן מנוע',
-      'נוזל שמשות',
-      'מסנן',
-      'מטאטא',
-      'מטען',
-      'כיסוי הגה',
-      'מסיר קרח',
-    ],
+      ListType.automotive: [
+        s.itemEngineOilItem,
+        s.itemWindshieldFluidItem,
+        s.itemAirFilterItem,
+        s.itemCarWash,
+        s.itemWax,
+        s.itemTirePressureGauge,
+        s.itemCarFreshener,
+        s.itemPhoneHolder,
+        s.itemFirstAidKit,
+        s.itemJumperCables,
+      ],
 
-    ListType.baby: [
-      'חיתולים',
-      'מגבונים',
-      'תחליב תינוקות',
-      'בקבוק',
-      'מוצץ',
-      'קרם לעכוז',
-      'שמפו לתינוקות',
-      'צעצוע לתינוק',
-    ],
+      ListType.baby: [
+        s.itemDiapersItem,
+        s.itemWipesItem,
+        s.itemBottle,
+        s.itemPacifier,
+        s.itemBabyFoodItem,
+        s.itemBabyLotion,
+        s.itemBabyShampoo,
+        s.itemOnesie,
+        s.itemBlanket,
+        s.itemRattle,
+      ],
 
-    ListType.gifts: [
-      'שובר מתנה',
-      'נייר עטיפה',
-      'כרטיס ברכה',
-      'סל מתנה',
-      'סרט',
-      'שוקולדים',
-      'בקבוק יין',
-    ],
+      ListType.gifts: [
+        s.itemGiftCard,
+        s.itemWrappingPaperItem,
+        s.itemRibbon,
+        s.itemGreetingCard,
+        s.itemChocolateBox,
+        s.itemFlowers,
+        s.itemWine,
+        s.itemPhotoFrame,
+        s.itemCoffeeSet,
+        s.itemGiftBasket,
+      ],
 
-    ListType.birthday: [
-      'עוגה',
-      'נרות',
-      'בלונים',
-      'צלחות חד-פעמיות',
-      'מתנות',
-      'משקאות',
-      'חטיפים',
-      'שקיות הפתעה',
-    ],
+      ListType.birthday: [
+        s.itemBirthdayCakeItem,
+        s.itemBalloonsItem,
+        s.itemCandlesItem,
+        s.itemPartyHatsItem,
+        s.itemInvitations,
+        s.itemGoodieBagsItem,
+        s.itemBanner,
+        s.itemConfetti,
+        s.itemNoisemakers,
+        s.itemPaperPlatesItem,
+      ],
 
-    ListType.party: [
-      'משקאות',
-      'אלכוהול',
-      'חטיפים',
-      'פופקורן',
-      'קישוטים',
-      'מפיות',
-      'כלים חד-פעמיים',
-      'מוזיקה',
-    ],
+      ListType.party: [
+        s.itemChips,
+        s.itemSoda,
+        s.itemBeer,
+        s.itemWineItem,
+        s.itemNuts,
+        s.itemPopcorn,
+        s.itemCups,
+        s.itemNapkins,
+        s.itemIce,
+        s.itemPlaylist,
+      ],
 
-    ListType.wedding: [
-      'פרחים',
-      'הזמנות',
-      'מתנות לאורחים',
-      'אלכוהול',
-      'קישוטי שולחן',
-      'כלי הגשה',
-      'מפות',
-      'עיטורים',
-    ],
+      ListType.wedding: [
+        s.itemFlowersItem,
+        s.itemInvitationsItem,
+        s.itemFavors,
+        s.itemChampagne,
+        s.itemCenterpieces,
+        s.itemTableNumbers,
+        s.itemGuestBook,
+        s.itemDJEquipment,
+        s.itemPhotographer,
+        s.itemWeddingCake,
+      ],
 
-    ListType.picnic: [
-      'כריכים',
-      'סלטים',
-      'פירות',
-      'מים',
-      'מיץ',
-      'שמיכה',
-      'צידנית',
-      'כדור',
-    ],
+      ListType.picnic: [
+        s.itemSandwichesItem,
+        s.itemFruitsItem,
+        s.itemSaladsItem,
+        s.itemJuice,
+        s.itemBlanketItem,
+        s.itemCoolerItem,
+        s.itemPaperPlates,
+        s.itemPlasticUtensils,
+        s.itemSunscreenPicnic,
+        s.itemInsectSpray,
+      ],
 
-    ListType.holiday: [
-      'יין',
-      'חלה',
-      'נרות',
-      'מאכלי החג',
-      'צלחות מיוחדות',
-      'מתנות',
-      'קישוטים',
-    ],
-
-    ListType.other: [],
-  };
+      ListType.holiday: [
+        s.itemWineForKiddush,
+        s.itemChallah,
+        s.itemMatzo,
+        s.itemHoneyApple,
+        s.itemCandlesForShabbat,
+        s.itemMenorah,
+        s.itemSederPlate,
+        s.itemPrayerBook,
+        s.itemShofar,
+        s.itemGregorianCalendar,
+      ],
+      
+      ListType.other: [],
+    };
+  }
 
   // ========================================
   // Helper Methods
@@ -753,7 +794,7 @@ class ListTypeMappings {
     }
     
     final allCategories = <String>{};
-    for (final categories in _typeToCategories.values) {
+    for (final categories in _typeToCategories().values) {
       allCategories.addAll(categories);
     }
     
@@ -772,7 +813,7 @@ class ListTypeMappings {
     }
     
     final allStores = <String>{};
-    for (final stores in _typeToStores.values) {
+    for (final stores in _typeToStores().values) {
       allStores.addAll(stores);
     }
     

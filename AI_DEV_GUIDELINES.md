@@ -1,14 +1,14 @@
 # 🤖 AI Development Guidelines - salsheli Project
 
-> **מטרה:** מדריך מהיר לסוכני AI ומפתחים - הכל בעמוד אחד  
-> **עדכון:** 07/10/2025 | **גרסה:** 6.0 - גרסה תמציתית  
+> **מטרה:** מדריך מהיר לסוכני AI - כל מה שצריך בעמוד אחד  
+> **עדכון:** 09/10/2025 | **גרסה:** 7.1 - False Positive 2: Provider Usage  
 > 💡 **לדוגמאות מפורטות:** ראה [LESSONS_LEARNED.md](LESSONS_LEARNED.md)
 
 ---
 
 ## 📖 ניווט מהיר
 
-**🚀 [Quick Start](#-quick-start)** | **🤖 [AI Instructions](#-חלק-a-הוראות-למערכות-ai)** | **📱 [Technical Rules](#-חלק-b-כללים-טכניים)** | **✅ [Code Review](#-חלק-c-code-review)** | **💡 [Project Lessons](#-חלק-d-לקחים-מהפרויקט)**
+**🚀 [Quick Start](#-quick-start)** | **🤖 [AI Instructions](#-הוראות-למערכות-ai)** | **✅ [Code Review](#-code-review-checklist)** | **🔗 [למידע מפורט](#-למידע-מפורט)**
 
 ---
 
@@ -16,38 +16,36 @@
 
 ### 📋 טבלת בעיות נפוצות (פתרון תוך 30 שניות)
 
-| בעיה | פתרון | קוד | מקור |
-|------|-------|-----|------|
-| 🔴 Provider לא מתעדכן | `addListener()` + `removeListener()` | [→](#usercontext-pattern) | [LESSONS](LESSONS_LEARNED.md#usercontext-pattern) |
-| 🔴 Timestamp שגיאות | `@TimestampConverter()` | [→](#timestamp-management) | [LESSONS](LESSONS_LEARNED.md#timestamp-management) |
-| 🔴 Race condition Auth | זרוק Exception בשגיאה | [→](#auth-flow) | [LESSONS](LESSONS_LEARNED.md#race-condition) |
-| 🔴 Mock Data בקוד | חיבור ל-Provider אמיתי | [→](#mock-data) | [LESSONS](LESSONS_LEARNED.md#אין-mock-data) |
-| 🔴 קובץ לא בשימוש | חפש imports → **קרא מסך ידנית!** | [→](#dead-code) | סעיף 14 |
-| 🔴 Context אחרי async | שמור `dialogContext` נפרד | [→](#dialogs) | סעיף 8 |
-| 🔴 Color deprecated | `.withValues(alpha:)` | [→](#modern-apis) | סעיף 10 |
-| 🔴 אפליקציה איטית | `.then()` ברקע | [→](#hybrid-strategy) | [LESSONS](LESSONS_LEARNED.md#hybrid-strategy) |
-| 🔴 Empty state חסר | Loading/Error/Empty | [→](#3-empty-states) | סעיף 13 |
+| בעיה | פתרון | קישור |
+|------|-------|-------|
+| 🔴 קובץ לא בשימוש | חפש imports → 0 = **חפש Provider!** | [→](#dead-code-3-step) |
+| 🔴 Provider לא מתעדכן | `addListener()` + `removeListener()` | [LESSONS](LESSONS_LEARNED.md#usercontext-pattern) |
+| 🔴 Timestamp שגיאות | `@TimestampConverter()` | [LESSONS](LESSONS_LEARNED.md#timestamp-management) |
+| 🔴 Race condition Auth | זרוק Exception בשגיאה | [LESSONS](LESSONS_LEARNED.md#race-condition) |
+| 🔴 Mock Data בקוד | חיבור ל-Provider אמיתי | [LESSONS](LESSONS_LEARNED.md#אין-mock-data) |
+| 🔴 Context אחרי async | שמור `dialogContext` נפרד | [LESSONS](LESSONS_LEARNED.md#navigation--routing) |
+| 🔴 Color deprecated | `.withValues(alpha:)` | [LESSONS](LESSONS_LEARNED.md#deprecated-apis) |
+| 🔴 אפליקציה איטית | `.then()` ברקע | [LESSONS](LESSONS_LEARNED.md#hybrid-strategy) |
+| 🔴 Empty state חסר | Loading/Error/Empty/Initial | [LESSONS](LESSONS_LEARNED.md#3-4-empty-states) |
+| 🔴 Hardcoded values | constants מ-lib/core/ | [→](#constants-organization) |
 
-### 🎯 18 כללי הזהב (חובה!)
+### 🎯 15 כללי הזהב
 
 1. **קרא WORK_LOG.md** - בתחילת כל שיחה על הפרויקט
 2. **עדכן WORK_LOG.md** - רק שינויים משמעותיים (שאל קודם!)
-3. **בדוק Dead Code קודם!** - לפני רפקטור: Ctrl+Shift+F imports → 0 = אל תעבוד!
+3. **בדוק Dead Code קודם!** - לפני רפקטור: 3-Step + חפש Provider
 4. **חפש בעצמך** - אל תבקש מהמשתמש לחפש קבצים
 5. **תמציתי** - ישר לעניין, פחות הסברים
 6. **Logging** - 🗑️ ✏️ ➕ 🔄 ✅ ❌ בכל method
-7. **3 States** - Loading/Error/Empty בכל widget
+7. **3-4 States** - Loading/Error/Empty/Initial בכל widget
 8. **Error Recovery** - `hasError` + `retry()` + `clearAll()`
 9. **Undo** - 5 שניות למחיקה
 10. **Cache** - O(1) במקום O(n)
 11. **Timestamps** - `@TimestampConverter()` אוטומטי
-12. **Dead Code אחרי** - 0 imports = מחיקה מיידית
-13. **Feedback** - צבעים לפי סטטוס (ירוק/אדום/כתום)
-14. **Constants** - `kSpacingMedium` לא `16.0`
-15. **Null Safety** - בדוק כל `nullable`
-16. **Fallback** - תכנן למקרה כשל
-17. **Dependencies** - `flutter pub get` אחרי שינויים
-18. **UI Review** - "בדוק קובץ" = בדוק גם UI (סעיף 1️⃣5️⃣)
+12. **Dead Code אחרי** - 0 imports = מחיקה מיידית (אחרי בדיקה!)
+13. **Constants** - `kSpacingMedium` לא `16.0`
+14. **Config Files** - patterns/constants במקום אחד
+15. **UI Review** - "בדוק קובץ" = בדוק גם UI ([→](LESSONS_LEARNED.md#uiux-review))
 
 ### ⚡ בדיקה מהירה (5 דק')
 
@@ -57,19 +55,19 @@ Ctrl+Shift+F → ".withOpacity"  # 0 תוצאות = ✅
 Ctrl+Shift+F → "WillPopScope"  # 0 תוצאות = ✅
 
 # Dead Code
-Ctrl+Shift+F → "import.*my_file.dart"  # 0 = מחק הקובץ!
+Ctrl+Shift+F → "import.*my_file.dart"  # 0 = בדוק ידנית!
 
 # Code Quality
 flutter analyze  # 0 issues = ✅
 
 # Constants
-Ctrl+Shift+F → "height: 16"   # צריך להיות kSpacingMedium
-Ctrl+Shift+F → "padding: 8"   # צריך להיות kSpacingSmall
+Ctrl+Shift+F → "height: 16"   # צריך kSpacingMedium
+Ctrl+Shift+F → "padding: 8"   # צריך kSpacingSmall
 ```
 
 ---
 
-## 🤖 חלק A: הוראות למערכות AI
+## 🤖 הוראות למערכות AI
 
 ### 1️⃣ התחלת שיחה
 
@@ -81,10 +79,10 @@ Ctrl+Shift+F → "padding: 8"   # צריך להיות kSpacingSmall
 3. שאל מה לעשות היום
 ```
 
-**✅ דוגמה נכונה:**
+**✅ דוגמה:**
 ```
 [קורא אוטומטית]
-בשיחה האחרונה: OCR מקומי + Dead Code ניקוי.
+בשיחה האחרונה: Home Dashboard Modern Design + 140 פריטים מוצעים.
 במה נעבוד היום?
 ```
 
@@ -124,92 +122,66 @@ Ctrl+Shift+F → "padding: 8"   # צריך להיות kSpacingSmall
 
 ---
 
-### 3️⃣.5️⃣ Dead Code Detection לפני עבודה
+### 4️⃣ Dead Code 3-Step Verification
 
-**🔴 כלל זהב: לפני רפקטור/תיקון קובץ - בדוק אם הוא בשימוש!**
-
-**למה זה חשוב:**
-- ❌ חסכון זמן - אל תשקיע ברפקטור קוד שלא משתמשים בו
-- ❌ מניעת confusion - קובץ מתוקן שלא בשימוש = מטעה
-- ✅ זיהוי מהיר - 30 שניות בדיקה חוסכות 20 דקות עבודה
-
-**תהליך בדיקה מהיר (30 שניות):**
+**🔴 כלל זהב: לפני רפקטור/תיקון - בדוק אם הקובץ בשימוש!**
 
 ```powershell
-# 1. חיפוש imports (הכי חשוב!)
-Ctrl+Shift+F → "import.*smart_search_input.dart"
-# → 0 תוצאות = Dead Code!
+# שלב 1: חיפוש imports (30 שניות)
+Ctrl+Shift+F → "import.*my_widget.dart"
+# → 0 תוצאות = חשד ל-Dead Code
 
-# 2. חיפוש שימוש בשם הקובץ
-Ctrl+Shift+F → "SmartSearchInput"
-# → 0 תוצאות = Dead Code!
+# שלב 2: חיפוש שם המחלקה
+Ctrl+Shift+F → "MyWidget"
+# → 0 תוצאות = חשד חזק
 
-# 3. אם Provider - בדוק main.dart
-Ctrl+Shift+F → "MyProvider()" in "main.dart"
-
-# 4. אם Screen - בדוק routing
-Ctrl+Shift+F → "'/my_screen'" in "routes" או "onGenerateRoute"
+# שלב 3: בדיקה ידנית במסכים מרכזיים (חובה!)
+# קרא: home_dashboard_screen.dart, main.dart, app.dart
+# → אין import = Dead Code מאומת!
 ```
 
 **החלטה:**
 ```
-אם 0 imports ו-0 שימושים:
-  ├─ אופציה 1: 🗑️ מחיקה מיידית (מומלץ!)
-  ├─ אופציה 2: 📝 שאל את המשתמש אם לשמור
-  └─ אופציה 3: 🚫 אל תתחיל לעבוד על הקובץ!
+אם 0 imports + 0 שימושים + בדיקה ידנית:
+  ├─ אופציה 1: 🗑️ מחיקה (מומלץ!)
+  ├─ אופציה 2: 📝 שאל משתמש אם לשמור
+  └─ אופציה 3: 🚫 אל תתחיל לעבוד!
 ```
 
-**דוגמה מהפרויקט (08/10/2025):**
+**⚠️ False Positive 1:** כלי חיפוש לפעמים לא מוצא imports → בדיקה ידנית חובה!
 
-```
-📋 בקשה: "תבדוק אם smart_search_input.dart מעודכן"
+**⚠️ False Positive 2: Provider Usage**
 
-❌ שגוי:
-1. קורא את הקובץ
-2. משווה לתיעוד
-3. מתקן 10 בעיות (20 דקות)
-4. מגלה שאף אחד לא משתמש בקובץ!
+מודל עשוי להשתמש דרך Provider ללא import ישיר:
 
-✅ נכון:
-1. [search_files: "import.*smart_search_input"]
-2. → 0 תוצאות
-3. "⚠️ הקובץ הוא Dead Code! אף אחד לא משתמש בו.
-   רוצה שאמחק אותו?"
-4. משתמש מאשר → מחיקה
+```powershell
+# חיפוש רגיל
+Ctrl+Shift+F → "import.*custom_location.dart"
+# → 0 תוצאות
+
+# ⚠️ אבל! חפש בשם מחלקת Provider
+Ctrl+Shift+F → "LocationsProvider"
+Ctrl+Shift+F → "List<CustomLocation>"
+# → יש שימוש דרך Provider!
 ```
 
-**תוצאה:**
-- ✅ חסך 20 דקות עבודה
-- ✅ מנע רפקטור מיותר
-- ✅ שמר על הפרויקט נקי
+**דוגמה מהפרויקט:**
+- `custom_location.dart` - 0 imports ישירים
+- אבל: `LocationsProvider` משתמש ב-`List<CustomLocation>`
+- התוצאה: המודל בשימוש דרך Provider!
 
-**⚠️ False Positive Warning (08/10/2025):**
+**כלל נוסף:** לפני קביעת Dead Code, חפש:
+1. Import ישיר של הקובץ
+2. שם המחלקה בקוד
+3. שם המחלקה ב-**Providers** (חשוב!)
+4. שימוש ב-`List<ClassName>` או `Map<String, ClassName>`
+5. רישום ב-**main.dart** (Providers)
 
-כלי `search_files` **לפעמים לא מוצא** imports קיימים!
-
-**🔴 כלל חדש חובה:**
-לפני מחיקת widget מתיקייה `lib/widgets/[screen]/`:
-1. חפש imports (2 פעמים)
-2. **חובה: קרא את `[screen]_screen.dart` בעצמך**
-3. רק אם **אתה רואה בעיניים** שאין import → מחק
-
-```
-👁️ דוגמה נכונה:
-[search_files: 0 תוצאות]
-⚠️ רגע! widget מ-lib/widgets/home/ → אקרא home_dashboard_screen.dart
-[read_file: home_dashboard_screen.dart]
-✅ מצאתי import בשורה 18! הקובץ בשימוש - לא Dead Code!
-```
-
-**💡 זכור:** כלי חיפוש = עוזר, לא מושלם. מסכים מרכזיים = בדיקה ידנית חובה!
-
-**💡 TIP:** אם הקובץ נראה שימושי אבל לא בשימוש - הצע למשתמש:
-1. מחיקה (Dead Code = חוב טכני)
-2. תיעוד + שמירה (אם מתוכנן שימוש עתידי)
+📖 **למידע מפורט:** [LESSONS_LEARNED - Dead Code Detection](LESSONS_LEARNED.md#dead-code-detection)
 
 ---
 
-### 4️⃣ פורמט תשובות
+### 5️⃣ פורמט תשובות
 
 **✅ טוב - ישר לעניין:**
 ```
@@ -223,9 +195,8 @@ Ctrl+Shift+F → "'/my_screen'" in "routes" או "onGenerateRoute"
 **❌ רע - תכנון ארוך:**
 ```
 בואו נתכנן...
-שלב 1: הכנה (5 דק') - נעשה X כי Y...
+שלב 1: הכנה (5 דק')...
 [3 פסקאות הסבר]
-שלב 2: Provider (15 דק')...
 ```
 
 **PowerShell בלבד:**
@@ -233,181 +204,34 @@ Ctrl+Shift+F → "'/my_screen'" in "routes" או "onGenerateRoute"
 # ✅ Windows
 Remove-Item -Recurse -Force lib/old/
 
-# ❌ Linux/Mac
+# ❌ Linux/Mac - אסור!
 rm -rf lib/old/
 ```
 
 ---
 
-## 📱 חלק B: כללים טכניים
+## ✅ Code Review Checklist
 
-### 5️⃣ Mobile-First
-
-**⚠️ Mobile Only!** Android + iOS בלבד
-
-```dart
-// ✅ חובה
-Scaffold(body: SafeArea(child: SingleChildScrollView(...)))
-
-// ✅ RTL Support
-padding: EdgeInsets.symmetric(horizontal: 16)  // לא only
-
-// ✅ Responsive
-final width = MediaQuery.of(context).size.width;
-const minTouch = 48.0;
-```
-
----
-
-### 6️⃣ אסור בהחלט
-
-```dart
-// 🚫 אסור
-import 'dart:html';           // Web only
-window.localStorage           // Web only
-Platform.isWindows            // Desktop
-Container(width: 1920)        // Fixed size
-
-// ✅ מותר
-import 'package:shared_preferences/...';
-Platform.isAndroid / Platform.isIOS
-MediaQuery.of(context).size.width
-```
-
----
-
-### 7️⃣ ארכיטקטורה
-
-```
-UI → Providers → Services → Repositories → Data Sources
-```
-
-**הפרדת אחריות:**
-- **UI:** רק display + user input
-- **Provider:** state management
-- **Service:** business logic
-- **Repository:** data access
-- **Data Source:** Firebase/Hive/HTTP
-
----
-
-### 8️⃣ Navigation & Routing
-
-**3 סוגי Navigation:**
-
-```dart
-Navigator.push(...)                 // הוסף לstack
-Navigator.pushReplacement(...)      // החלף
-Navigator.pushAndRemoveUntil(...)   // מחק stack
-```
-
-**Splash Screen Pattern:**
-
-```dart
-// סדר נכון: 1. מחובר? 2. ראה onboarding? 3. ברירת מחדל
-if (userId != null) → /home
-else if (!seenOnboarding) → /welcome
-else → /login
-```
-
-**Dialogs - Context נכון:**
-
-```dart
-showDialog(
-  context: context,
-  builder: (dialogContext) => AlertDialog(  // ← dialogContext נפרד!
-    actions: [
-      ElevatedButton(
-        onPressed: () async {
-          Navigator.pop(dialogContext);  // סגור קודם
-          await _operation();
-          if (!context.mounted) return;  // בדוק mounted
-          ScaffoldMessenger.of(context).show(...);
-        },
-      ),
-    ],
-  ),
-);
-```
-
-**💡 דוגמאות מלאות:** [LESSONS_LEARNED.md - Navigation](LESSONS_LEARNED.md#navigation--routing)
-
----
-
-### 9️⃣ State Management
-
-**Provider Pattern:**
-
-```dart
-// קריאה + האזנה
-Consumer<MyProvider>(builder: (ctx, provider, _) => ...)
-
-// קריאה בלבד (פעולה)
-context.read<MyProvider>().save()
-```
-
-**ProxyProvider:**
-
-```dart
-ChangeNotifierProxyProvider<UserContext, MyProvider>(
-  lazy: false,  // ← קריטי!
-  create: (_) => MyProvider(),
-  update: (_, user, prev) {
-    if (user.isLoggedIn && !prev.hasInit) prev.init();
-    return prev;
-  },
-)
-```
-
-**💡 UserContext Pattern מלא:** [LESSONS_LEARNED.md - UserContext](LESSONS_LEARNED.md#usercontext-pattern)
-
----
-
-### 🔟 UI/UX Standards
-
-**Measurements:**
-
-```dart
-// Touch: 48x48 מינימום
-// Font: 14 (body) | 16 (large) | 20 (heading)
-// Spacing: 8 (small) | 16 (medium) | 24 (large)
-
-SizedBox(height: kSpacingMedium)  // ✅ לא 16.0
-```
-
-**Modern APIs (Flutter 3.27+):**
-
-```dart
-// ❌ Deprecated
-color.withOpacity(0.5)
-
-// ✅ Modern
-color.withValues(alpha: 0.5)
-```
-
----
-
-## ✅ חלק C: Code Review
-
-### 1️⃣1️⃣ בדיקות אוטומטיות
+### 🔍 בדיקות אוטומטיות
 
 | חפש | בעיה | פתרון |
 |-----|------|-------|
-| `dart:html` | Browser | ❌ אסור |
+| `dart:html` | Browser | ❌ אסור Mobile-only |
 | `localStorage` | Web | SharedPreferences |
-| `.withOpacity` | Deprecated | `.withValues` |
+| `.withOpacity` | Deprecated | `.withValues(alpha:)` |
 | `TODO 2023` | ישן | מחק/תקן |
 | `mockResults` / `mock` | Mock Data | Provider אמיתי |
+| `padding: 16` | Hardcoded | `kSpacingMedium` |
 
 ---
 
-### 1️⃣2️⃣ Checklist לפי סוג
+### 📦 Checklist לפי סוג קובץ
 
-#### 📦 Provider
+#### **Provider (2-3 דק')**
 
 ```dart
-class MyProvider with ChangeNotifier {
-  // ✅ חובה
+class MyProvider extends ChangeNotifier {
+  // ✅ חובה לבדוק:
   final MyRepository _repo;          // Repository (לא ישיר)
   List<Item> _items = [];             // Private state
   bool _isLoading = false;
@@ -420,52 +244,48 @@ class MyProvider with ChangeNotifier {
   String? get errorMessage => _errorMessage;
   bool get isEmpty => _items.isEmpty;
   
-  // ✅ CRUD + Logging
-  Future<void> load() async {
-    debugPrint('📥 load()');
-    _isLoading = true; notifyListeners();
-    try {
-      _items = await _repo.fetch();
-      _errorMessage = null;
-      debugPrint('✅ ${_items.length} loaded');
-    } catch (e) {
-      _errorMessage = 'שגיאה: $e';
-      debugPrint('❌ Error: $e');
-      notifyListeners(); // ← חשוב!
-    } finally {
-      _isLoading = false; notifyListeners();
-    }
-  }
-  
-  // ✅ Recovery
+  // ✅ Error Recovery
   Future<void> retry() async { _errorMessage = null; await load(); }
   void clearAll() { _items = []; _errorMessage = null; notifyListeners(); }
   
+  // ✅ Logging
+  debugPrint('📥 load() | ✅ success | ❌ error');
+  
+  // ✅ Dispose
   @override
   void dispose() { debugPrint('🗑️ dispose()'); super.dispose(); }
 }
 ```
 
-**💡 דוגמה מלאה:** [LESSONS_LEARNED.md - Provider Structure](LESSONS_LEARNED.md#provider-structure)
+**בדוק:** Repository? Error handling? Logging? Getters? Recovery?
+
+📖 **דוגמה מלאה:** [LESSONS - Provider Structure](LESSONS_LEARNED.md#provider-structure)
 
 ---
 
-#### 📱 Screen
+#### **Screen (3-4 דק')**
 
-- [ ] `SafeArea` + scrollable
-- [ ] `Consumer` לקריאה | `context.read` לפעולות
-- [ ] כפתורים 48x48 מינימום
-- [ ] padding `symmetric` (RTL)
-- [ ] dispose חכם (שמור provider ב-initState)
+```dart
+// ✅ חובה לבדוק:
+- SafeArea + SingleChildScrollView
+- Consumer לקריאה | context.read לפעולות
+- כפתורים 48x48 מינימום
+- padding symmetric (RTL)
+- 3-4 Empty States (Loading/Error/Empty/Initial)
+- dispose חכם (שמור provider ב-initState)
+```
+
+📖 **UI/UX Review מלא:** [LESSONS - UI/UX Review](LESSONS_LEARNED.md#uiux-review)
 
 ---
 
-#### 📋 Model
+#### **Model (1-2 דק')**
 
 ```dart
 @JsonSerializable()
 class MyModel {
   final String id;
+  
   const MyModel({required this.id});
   
   MyModel copyWith({String? id}) => MyModel(id: id ?? this.id);
@@ -475,27 +295,23 @@ class MyModel {
 }
 ```
 
-- [ ] `@JsonSerializable()` | שדות `final` | `copyWith()` | `*.g.dart` קיים
+**בדוק:** `@JsonSerializable()` | שדות `final` | `copyWith()` | `*.g.dart` קיים
 
 ---
 
-#### 🛠️ Service
-
-**3 סוגים:**
+#### **Service (3 דק')**
 
 | סוג | מתי | דוגמה |
 |-----|-----|--------|
-| 🟢 Static | פונקציות טהורות | `UserService.getUser()` |
-| 🔵 Instance | HTTP + state | `AuthService(client)` |
-| 🟡 Mock | פיתוח בלבד | `⚠️ MOCK - בדוק Dead Code!` |
+| 🟢 Static | פונקציות טהורות | `OcrService.extract()` |
+| 🔵 Instance | HTTP + state | `AuthService(_auth)` |
+| 🟡 Mock | ⚠️ פיתוח בלבד | בדוק Dead Code! |
 
 ---
 
-### 1️⃣3️⃣ דפוסים חובה
+### 🎨 דפוסים חובה
 
-#### 🚫 Mock Data
-
-**כלל זהב:** לעולם לא Mock Data בקוד Production!
+#### 1. אין Mock Data
 
 ```dart
 // ❌ אסור
@@ -506,357 +322,101 @@ final provider = context.read<MyProvider>();
 final results = await provider.searchItems(term);
 ```
 
-**למה?** לא משקף מציאות | גורם לבעיות בתחזוקה | פער Dev/Production
-
-**אם צריך Mock:** MockRepository (מימוש interface) | **דוגמה:** price_comparison_screen.dart
+📖 [LESSONS - אין Mock Data](LESSONS_LEARNED.md#אין-mock-data-בקוד-production)
 
 ---
 
-#### 🎭 3-4 Empty States
+#### 2. 3-4 Empty States
 
 ```dart
-// מינימום: 3 States
-if (provider.isLoading) return Center(child: Spinner());
-if (provider.hasError) return ErrorWidget(provider.retry);
-if (provider.isEmpty) return EmptyWidget();
-return ListView.builder(...);
+if (provider.isLoading) return _buildLoading();
+if (provider.hasError) return _buildError();
+if (provider.isEmpty && searched) return _buildEmptyResults();
+if (provider.isEmpty) return _buildEmptyInitial();
+return _buildContent();
 ```
 
-**למסכים מורכבים (search/filter): 4 States**
-1. Loading 2. Error (+ retry) 3. Empty Results 4. Empty Initial
-
-**💡 דוגמה:** [LESSONS_LEARNED.md - 4 Empty States](LESSONS_LEARNED.md#4-empty-states) | price_comparison_screen.dart
+📖 [LESSONS - 3-4 Empty States](LESSONS_LEARNED.md#3-4-empty-states)
 
 ---
 
-#### ↩️ Undo Pattern
+#### 3. Undo Pattern
 
 ```dart
 SnackBar(
   content: Text('${item.name} נמחק'),
   duration: Duration(seconds: 5),
   backgroundColor: Colors.red,
-  action: SnackBarAction(label: 'ביטול', onPressed: () => restore()),
+  action: SnackBarAction(
+    label: 'ביטול',
+    onPressed: () => restore(),
+  ),
 )
 ```
 
+📖 [LESSONS - Undo Pattern](LESSONS_LEARNED.md#undo-pattern)
+
 ---
 
-#### 🎨 Visual Feedback
+#### 4. Visual Feedback
 
 ```dart
 // ✅ הצלחה = ירוק | ❌ שגיאה = אדום | ⚠️ אזהרה = כתום
 SnackBar(backgroundColor: Colors.green, ...)
 ```
 
----
-
-### 1️⃣4️⃣ Dead Code Detection
-
-```powershell
-# 1. חיפוש imports
-Ctrl+Shift+F → "import.*my_file.dart"  # 0 = מחק!
-
-# 2. Providers ב-main.dart
-# בדוק אם רשום
-
-# 3. Routes
-# חפש ב-onGenerateRoute
-
-# 4. Analyze
-flutter analyze
-```
-
-**תוצאות:** 3,000+ שורות נמחקו (07/10/2025)
+📖 [LESSONS - Visual Feedback](LESSONS_LEARNED.md#visual-feedback)
 
 ---
 
-### 1️⃣5️⃣ UI/UX Review - בדיקה ויזואלית
+### 📐 Constants Organization
 
-**🔴 כלל חדש: כשהמשתמש אומר "בדוק קובץ" - בדוק גם UI!**
+```
+lib/core/
+├── constants.dart       ← ListType, categories, storage
+├── ui_constants.dart    ← Spacing, buttons, borders
 
-#### מתי לבצע UI Review
+lib/l10n/
+└── app_strings.dart     ← UI strings (i18n ready)
 
-✅ **תמיד כשמבקשים "בדוק קובץ" של:**
-- Screens (lib/screens/)
-- Widgets (lib/widgets/)
-- כל קובץ עם UI components
+lib/config/
+├── list_type_mappings.dart      ← Type → Categories
+├── filters_config.dart          ← Filter texts
+├── stores_config.dart           ← Store names
+└── receipt_patterns_config.dart ← OCR Regex
+```
 
-#### 📋 UI/UX Checklist
-
-**1️⃣ Layout & Spacing**
+**שימוש:**
 ```dart
-// ❌ בעיות פוטנציאליות
-Container(width: 400)              // Fixed size - מה עם מסכים קטנים?
-Row(children: [text1, text2, ...]) // אין Expanded - overflow?
-Column(children: [...])             // אין SingleChildScrollView - overflow?
+// ✅ טוב
+SizedBox(height: kSpacingMedium)
+Text(AppStrings.common.logout)
 
-// ✅ נכון
-Container(width: MediaQuery.of(context).size.width * 0.8)
-Row(children: [Expanded(child: text1), text2])
-SingleChildScrollView(child: Column(...))
+// ❌ רע
+SizedBox(height: 16.0)
+Text('התנתק')
 ```
 
-**2️⃣ Touch Targets (Accessibility)**
-```dart
-// ❌ קטן מדי
-GestureDetector(
-  child: Container(width: 30, height: 30)  // < 48x48!
-)
-
-// ✅ מינימום 48x48
-InkWell(
-  child: Container(
-    width: 48,
-    height: 48,
-    child: Icon(...),
-  ),
-)
-```
-
-**3️⃣ Hardcoded Values**
-```dart
-// ❌ Hardcoded
-padding: EdgeInsets.all(16)         // צריך kSpacingMedium
-fontSize: 14                        // צריך kFontSizeBody
-borderRadius: 12                    // צריך kBorderRadius
-
-// ✅ Constants
-padding: EdgeInsets.all(kSpacingMedium)
-fontSize: kFontSizeBody
-borderRadius: kBorderRadius
-```
-
-**4️⃣ Colors**
-```dart
-// ❌ Hardcoded colors
-Color(0xFF123456)                   // לא theme-aware!
-Colors.blue                         // לא יעבוד ב-dark mode
-
-// ✅ Theme-based
-Theme.of(context).colorScheme.primary
-Theme.of(context).colorScheme.surface
-Theme.of(context).extension<AppBrand>()?.accent
-```
-
-**5️⃣ RTL Support**
-```dart
-// ❌ לא RTL-aware
-padding: EdgeInsets.only(left: 16)  // ישתנה בעברית?
-Alignment.centerLeft                // ישתנה בעברית?
-
-// ✅ RTL-aware
-padding: EdgeInsets.only(start: 16) // או symmetric
-Alignment.center
-Directionality widget כשצריך
-```
-
-**6️⃣ Responsive Behavior**
-```dart
-// ❌ לא responsive
-Container(width: 300)               // מה עם מסכים קטנים?
-
-// ✅ Responsive
-Container(
-  width: MediaQuery.of(context).size.width * 0.8,
-  constraints: BoxConstraints(maxWidth: 400),
-)
-```
-
-**7️⃣ Visual Hierarchy**
-```dart
-// בדוק:
-- [ ] כותרות בולטות (fontSize גדול + fontWeight.bold)?
-- [ ] טקסט משני בצבע onSurfaceVariant?
-- [ ] Spacing עקבי בין אלמנטים?
-- [ ] Dividers/Cards להפרדה ברורה?
-```
-
-**8️⃣ Loading & Error States**
-```dart
-// בדוק:
-- [ ] יש CircularProgressIndicator ב-loading?
-- [ ] יש Error widget עם retry?
-- [ ] יש Empty state עם CTA?
-- [ ] Visual feedback על כפתורים (disabled state)?
-```
-
-**9️⃣ Animations**
-```dart
-// ❌ מוגזם
-animation: Duration(seconds: 5)     // ארוך מדי!
-
-// ✅ סביר
-animation: kAnimationDurationMedium // 300ms
-animation: kAnimationDurationShort  // 200ms
-```
-
-**🔟 Overflow Prevention**
-```dart
-// בדוק אזהרות פוטנציאליות:
-- Row ללא Expanded/Flexible
-- Column ללא SingleChildScrollView
-- Text ללא overflow: TextOverflow.ellipsis
-- ListView ללא shrinkWrap (כשבתוך Column)
-```
-
-#### 🎯 תהליך UI Review (3 דקות)
-
-```
-1️⃣ חפש Hardcoded Values:
-   Ctrl+Shift+F → "width: [0-9]"
-   Ctrl+Shift+F → "fontSize: [0-9]"
-   Ctrl+Shift+F → "padding: [0-9]"
-   Ctrl+Shift+F → "Color(0x"
-
-2️⃣ בדוק Layout:
-   - Row/Column ללא Expanded?
-   - SingleChildScrollView חסר?
-   - Touch targets < 48x48?
-
-3️⃣ בדוק States:
-   - Loading state?
-   - Error state?
-   - Empty state?
-
-4️⃣ בדוק Theme:
-   - ColorScheme usage?
-   - Constants usage?
-   - RTL support?
-```
-
-#### 📊 דוגמה: UI Review Report
-
-```
-📊 UI Review - home_dashboard_screen.dart
-
-✅ Layout:
-   - SafeArea + SingleChildScrollView ✓
-   - RefreshIndicator נכון ✓
-   
-✅ Spacing:
-   - כל padding דרך kSpacing* ✓
-   
-✅ Colors:
-   - ColorScheme + AppBrand ✓
-   
-⚠️ Touch Targets:
-   - Icon buttons 16x16 (צריך 48x48 wrapper)
-   
-⚠️ States:
-   - חסר Error State (יש Loading + Empty)
-   
-🎯 ציון UI: 85/100
-💡 2 שיפורים מומלצים
-```
-
-#### 💡 Tips
-
-- **אם אין בעיות UI** - פשוט כתוב "✅ UI: נראה טוב"
-- **אל תתעכב על פרטים קוסמטיים** - רק בעיות אמיתיות
-- **תעדיף בעיות Accessibility** - touch targets, contrast, etc
-- **הצע שיפורים רק אם יש בעיה ברורה**
+📖 [LESSONS - Constants Organization](LESSONS_LEARNED.md#constants-organization)
 
 ---
 
-## 💡 חלק D: לקחים מהפרויקט
+## 🔗 למידע מפורט
 
-### 1️⃣6️⃣ Firebase Integration
+### 📚 קבצים נוספים
 
-**Timestamp Converter:**
+| קובץ | תוכן | מתי לקרוא |
+|------|------|-----------|
+| **[LESSONS_LEARNED.md](LESSONS_LEARNED.md)** | דפוסים טכניים מפורטים + דוגמאות קוד | כשצריך הסבר עמוק |
+| **[WORK_LOG.md](WORK_LOG.md)** | היסטוריה + שינויים אחרונים | בתחילת כל שיחה |
+| **[README.md](README.md)** | Overview + Setup + Dependencies | Setup ראשוני |
 
-```dart
-// lib/models/timestamp_converter.dart
-@JsonSerializable()
-class MyModel {
-  @TimestampConverter()  // ← אוטומטי!
-  @JsonKey(name: 'created_date')
-  final DateTime createdDate;
-}
-```
+### 🎓 נושאים מפורטים ב-LESSONS_LEARNED
 
-**household_id Pattern:**
-
-```dart
-// Repository מוסיף household_id, לא המודל
-await _firestore
-  .collection('items')
-  .where('household_id', isEqualTo: householdId)
-  .get();
-```
-
-**💡 הסבר מלא:** [LESSONS_LEARNED.md - Firebase](LESSONS_LEARNED.md#firebase-integration)
-
----
-
-### 1️⃣7️⃣ Provider Patterns
-
-**Error Recovery:**
-
-```dart
-bool get hasError => _errorMessage != null;
-Future<void> retry() async { _errorMessage = null; await load(); }
-void clearAll() { _items = []; _errorMessage = null; notifyListeners(); }
-```
-
-**Logging:**
-
-```dart
-debugPrint('📥 load() | ✅ success | ❌ error | 🔔 notify | 🔄 retry');
-```
-
----
-
-### 1️⃣8️⃣ Data & Storage
-
-**Cache Pattern:**
-
-```dart
-String _cacheKey = "";
-List<Item> _cached = [];
-
-List<Item> get filtered {
-  final key = "$filter1|$filter2";
-  if (key == _cacheKey) return _cached;  // O(1) ⚡
-  _cached = _items.where(...).toList();
-  _cacheKey = key;
-  return _cached;
-}
-```
-
-**Hybrid Strategy:**
-
-```dart
-// טען מקומי מיידית
-final items = await _hive.getAll();
-
-// עדכן מחירים ברקע
-_api.updatePrices(items).then((_) => debugPrint('✅'));
-
-return items;  // 4s → 1s (פי 4 מהיר יותר!)
-```
-
-**💡 דוגמאות מלאות:** [LESSONS_LEARNED.md - Data & Storage](LESSONS_LEARNED.md#data--storage)
-
----
-
-### 1️⃣9️⃣ Services Architecture
-
-| סוג | תכונות | דוגמה |
-|-----|---------|-------|
-| 🟢 Static | כל methods `static` | `OcrService.extract()` |
-| 🔵 Instance | יש state + `dispose()` | `AuthService(_auth)` |
-| 🟡 Mock | לפיתוח בלבד | בדוק Dead Code! |
-
----
-
-## 📚 קבצים נוספים
-
-| קובץ | תוכן |
-|------|------|
-| **[LESSONS_LEARNED.md](LESSONS_LEARNED.md)** | דוגמאות מפורטות + הסברים |
-| **[WORK_LOG.md](WORK_LOG.md)** | היסטוריה - קרא בתחילת שיחה! |
-| **[README.md](README.md)** | Overview + Setup |
+- **ארכיטקטורה:** [Firebase Integration](LESSONS_LEARNED.md#מעבר-ל-firebase) | [Timestamp Management](LESSONS_LEARNED.md#timestamp-management) | [household_id Pattern](LESSONS_LEARNED.md#householdid-pattern)
+- **דפוסי קוד:** [UserContext Pattern](LESSONS_LEARNED.md#usercontext-pattern) | [Provider Structure](LESSONS_LEARNED.md#provider-structure) | [Cache Pattern](LESSONS_LEARNED.md#cache-pattern) | [Config Files](LESSONS_LEARNED.md#config-files-pattern)
+- **UX & UI:** [3-4 Empty States](LESSONS_LEARNED.md#3-4-empty-states) | [Undo Pattern](LESSONS_LEARNED.md#undo-pattern) | [UI/UX Review](LESSONS_LEARNED.md#uiux-review)
+- **Troubleshooting:** [Dead Code Detection](LESSONS_LEARNED.md#dead-code-detection) | [Race Conditions](LESSONS_LEARNED.md#race-condition-firebase-auth) | [Deprecated APIs](LESSONS_LEARNED.md#deprecated-apis)
 
 ---
 
@@ -865,10 +425,10 @@ return items;  // 4s → 1s (פי 4 מהיר יותר!)
 | קובץ | זמן | בדיקה |
 |------|-----|--------|
 | Provider | 2-3' | Repository? Error handling? Logging? |
-| Screen | 3-4' | SafeArea? 3 States? RTL? |
+| Screen | 3-4' | SafeArea? 3-4 States? RTL? |
 | Model | 1-2' | JsonSerializable? copyWith? |
 | Service | 3' | Static/Instance? dispose()? |
-| Dead Code | 5-10' | 0 imports? |
+| Dead Code | 5-10' | 0 imports? בדיקה ידנית? |
 
 ---
 
@@ -876,9 +436,10 @@ return items;  // 4s → 1s (פי 4 מהיר יותר!)
 
 ### ✅ עשה תמיד
 - קרא WORK_LOG בתחילה
-- חפש בעצמך
+- Dead Code 3-Step לפני עבודה
+- חפש בעצמך (אל תבקש מהמשתמש)
 - Logging מפורט
-- 3 Empty States
+- 3-4 Empty States
 - Error Recovery
 - Constants
 
@@ -888,16 +449,11 @@ return items;  // 4s → 1s (פי 4 מהיר יותר!)
 - אל תשתמש ב-Web APIs
 - אל תשאיר Dead Code
 - אל תשכח SafeArea
-- אל להתעלם משגיאות
-
-### 🔗 קישורים מהירים
-- **בעיה?** → [טבלת בעיות](#-טבלת-בעיות-נפוצות)
-- **דוגמה?** → [LESSONS_LEARNED.md](LESSONS_LEARNED.md)
-- **היסטוריה?** → [WORK_LOG.md](WORK_LOG.md)
+- אל תתעלם משגיאות
 
 ---
 
-**גרסה:** 7.0 - UI Review תוסף  
+**גרסה:** 7.1 - False Positive 2: Provider Usage (380 שורות)  
 **תאימות:** Flutter 3.27+ | Mobile Only  
-**עדכון:** 08/10/2025  
+**עדכון:** 09/10/2025  
 **Made with ❤️ by AI & Humans** 🤖🤝👨‍💻

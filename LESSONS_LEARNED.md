@@ -1,73 +1,79 @@
 # 📚 LESSONS_LEARNED - לקחים מהפרויקט
 
 > **מטרה:** סיכום דפוסים טכניים והחלטות ארכיטקטורליות מהפרויקט  
-> **עדכון אחרון:** 07/10/2025  
-> **גרסה:** 2.0 - ארגון מחדש מלא
+> **עדכון אחרון:** 09/10/2025  
+> **גרסה:** 3.2 - False Positive 2: Provider Usage
 
 ---
 
 ## 📖 תוכן עניינים
 
 ### 🚀 Quick Reference
-- [10 עקרונות הזהב](#-10-עקרונות-הזהב)
-- [התייחסות מהירה לבעיות נפוצות](#-התייחסות-מהירה-לבעיות-נפוצות)
+- [13 עקרונות הזהב](#-13-עקרונות-הזהב)
+- [בעיות נפוצות - פתרון מהיר](#-בעיות-נפוצות---פתרון-מהיר)
 
 ### 🏗️ ארכיטקטורה
 - [מעבר ל-Firebase](#-מעבר-ל-firebase)
-- [Timestamp Management](#-timestamp-management-firebase--datetime)
+- [Timestamp Management](#-timestamp-management)
 - [household_id Pattern](#-householdid-pattern)
 
 ### 🔧 דפוסי קוד
 - [UserContext Pattern](#-usercontext-pattern)
-- [Provider Structure](#-provider-structure-סטנדרטי)
+- [Provider Structure](#-provider-structure)
 - [Repository Pattern](#-repository-pattern)
-- [Cache Pattern](#-cache-pattern-לביצועים)
+- [Cache Pattern](#-cache-pattern)
 - [Constants Organization](#-constants-organization)
+- [Config Files Pattern](#-config-files-pattern)
 
 ### 🎨 UX & UI
-- [3 Empty States](#-3-empty-states-חובה)
-- [Undo Pattern](#-undo-pattern-למחיקה)
+- [אין Mock Data בקוד](#-אין-mock-data-בקוד-production)
+- [3-4 Empty States](#-3-4-empty-states)
+- [Undo Pattern](#-undo-pattern)
 - [Visual Feedback](#-visual-feedback)
-- [Clear Buttons](#-clear-buttons-בשדות-טקסט)
+- [UI/UX Review](#-uiux-review)
 
 ### 🐛 Troubleshooting
 - [Dead Code Detection](#-dead-code-detection)
-- [Race Conditions](#-race-condition-עם-firebase-auth)
-- [Deprecated APIs](#-deprecated-apis-flutter-327)
+- [Race Conditions](#-race-condition-firebase-auth)
+- [Deprecated APIs](#-deprecated-apis)
 
 ### 📈 מדדים
 - [שיפורים שהושגו](#-שיפורים-שהושגו)
 
 ---
 
-## 🚀 11 עקרונות הזהב
+## 🚀 13 עקרונות הזהב
 
-1. **בדוק Dead Code לפני עבודה!** → 30 שניות בדיקה + קרא מסכים מרכזיים ידנית
-2. **Dead Code אחרי = חוב טכני** → מחק מיד (אחרי בדיקה 3-step!)
-3. **3 Empty States חובה** → Loading / Error / Empty בכל widget
-4. **UserContext** → `addListener()` + `removeListener()` בכל Provider
-5. **Firebase Timestamps** → `@TimestampConverter()` אוטומטי
-6. **Constants מרכזיים** → `lib/core/` לא hardcoded strings
-7. **Undo למחיקה** → 5 שניות עם SnackBar
-8. **Async ברקע** → `.then()` לפעולות לא-קריטיות (UX פי 4 מהיר יותר)
-9. **Logging מפורט** → 🗑️ ✏️ ➕ 🔄 emojis לכל פעולה
-10. **Error Recovery** → `retry()` + `hasError` בכל Provider
-11. **Cache למהירות** → O(1) במקום O(n) עם `_cachedFiltered`
+1. **בדוק Dead Code לפני עבודה!** → 3-Step + חפש Provider + קרא מסכים ידנית
+2. **Dormant Code = פוטנציאל** → בדוק 4 שאלות לפני מחיקה (אולי שווה להפעיל!)
+3. **Dead Code אחרי = חוב טכני** → מחק מיד (אחרי בדיקה 3-step!)
+4. **3-4 Empty States חובה** → Loading / Error / Empty / Initial בכל widget
+5. **UserContext** → `addListener()` + `removeListener()` בכל Provider
+6. **Firebase Timestamps** → `@TimestampConverter()` אוטומטי
+7. **Constants מרכזיים** → `lib/core/` + `lib/config/` לא hardcoded
+8. **Undo למחיקה** → 5 שניות עם SnackBar
+9. **Async ברקע** → `.then()` לפעולות לא-קריטיות (UX פי 4 מהיר יותר)
+10. **Logging מפורט** → 🗑️ ✏️ ➕ 🔄 emojis לכל פעולה
+11. **Error Recovery** → `retry()` + `hasError` בכל Provider
+12. **Cache למהירות** → O(1) במקום O(n) עם `_cachedFiltered`
+13. **Config Files** → patterns/constants במקום אחד = maintainability
 
 ---
 
-## 💡 התייחסות מהירה לבעיות נפוצות
+## 💡 בעיות נפוצות - פתרון מהיר
 
 | בעיה | פתרון מהיר |
 |------|-----------|
-| 🔴 קובץ לא בשימוש? | חפש imports → 0 = **קרא את המסך הראשי ידנית!** |
+| 🔴 קובץ לא בשימוש? | חפש imports → 0 = **חפש Provider + קרא מסך!** |
 | 🔴 Provider לא מתעדכן? | וודא `addListener()` + `removeListener()` |
 | 🔴 Timestamp שגיאות? | השתמש ב-`@TimestampConverter()` |
 | 🔴 אפליקציה איטית? | `.then()` במקום `await` לפעולות ברקע |
 | 🔴 Race condition ב-Auth? | אל תבדוק `isLoggedIn` - זרוק Exception בשגיאה |
 | 🔴 Color deprecated? | `.withOpacity()` → `.withValues(alpha:)` |
 | 🔴 SSL errors? | חפש API אחר (לא SSL override!) |
-| 🔴 Empty state חסר? | הוסף Loading/Error/Empty widgets |
+| 🔴 Empty state חסר? | הוסף Loading/Error/Empty/Initial widgets |
+| 🔴 Mock Data? | חבר ל-Provider אמיתי |
+| 🔴 Hardcoded patterns? | העבר ל-config file |
 
 ---
 
@@ -76,24 +82,14 @@
 ### 📅 מעבר ל-Firebase
 
 **תאריך:** 06/10/2025  
-**החלטה:** מעבר מ-SharedPreferences → Firestore לכל הנתונים
+**החלטה:** מעבר מ-SharedPreferences → Firestore
 
-**סיבות:**
-- ✅ Real-time sync בין מכשירים
-- ✅ Collaborative shopping
-- ✅ Backup אוטומטי
-- ✅ Scalability
+**סיבות:** Real-time sync | Collaborative shopping | Backup | Scalability
 
 **קבצים מרכזיים:**
 ```
-lib/repositories/
-├── firebase_shopping_list_repository.dart
-├── firebase_user_repository.dart
-├── firebase_inventory_repository.dart
-└── firebase_receipt_repository.dart
-
-lib/models/
-└── timestamp_converter.dart  ← המרות אוטומטיות
+lib/repositories/firebase_*_repository.dart
+lib/models/timestamp_converter.dart
 ```
 
 **Dependencies:**
@@ -105,39 +101,19 @@ firebase_auth: ^5.7.0
 
 ---
 
-### ⏰ Timestamp Management (Firebase ↔ DateTime)
+### ⏰ Timestamp Management
 
 **הבעיה:** Firestore משתמש ב-`Timestamp`, Flutter ב-`DateTime`
 
 **הפתרון:** `@TimestampConverter()` אוטומטי
 
 ```dart
-// lib/models/timestamp_converter.dart
-class TimestampConverter implements JsonConverter<DateTime, Object> {
-  @override
-  DateTime fromJson(Object json) {
-    if (json is Timestamp) return json.toDate();
-    if (json is String) return DateTime.parse(json);
-    if (json is int) return DateTime.fromMillisecondsSinceEpoch(json);
-    throw ArgumentError('Cannot convert $json to DateTime');
-  }
-
-  @override
-  Object toJson(DateTime date) => Timestamp.fromDate(date);
-}
-```
-
-**שימוש במודל:**
-```dart
+// שימוש במודל:
 @JsonSerializable(explicitToJson: true)
 class ShoppingList {
-  @TimestampConverter()
-  @JsonKey(name: 'created_date')
+  @TimestampConverter()              // ← המרה אוטומטית!
+  @JsonKey(name: 'created_date')     // ← snake_case ב-Firestore
   final DateTime createdDate;
-  
-  @TimestampConverter()
-  @JsonKey(name: 'updated_date')
-  final DateTime updatedDate;
 }
 ```
 
@@ -146,16 +122,18 @@ class ShoppingList {
 - ✅ `@JsonKey(name: 'created_date')` → snake_case ב-Firestore
 - ⚠️ תמיד לבדוק המרות בקצוות (null, invalid format)
 
+📁 מימוש מלא: `lib/models/timestamp_converter.dart`
+
 ---
 
 ### 🏠 household_id Pattern
 
 **הבעיה:** כל משתמש שייך למשק בית, רשימות משותפות
 
-**הפתרון:** Repository מנהל `household_id`, לא המודל
+**הפתרון:** Repository מנהל `household_id`, **לא המודל**
 
 ```dart
-// ✅ טוב - Repository מוסיף household_id
+// ✅ טוב - Repository
 class FirebaseShoppingListRepository {
   Future<ShoppingList> saveList(ShoppingList list, String householdId) async {
     final data = list.toJson();
@@ -163,34 +141,15 @@ class FirebaseShoppingListRepository {
     await _firestore.collection('shopping_lists').doc(list.id).set(data);
     return list;
   }
-
-  Future<List<ShoppingList>> fetchLists(String householdId) async {
-    final snapshot = await _firestore
-        .collection('shopping_lists')
-        .where('household_id', isEqualTo: householdId) // ← סינון
-        .get();
-    return snapshot.docs.map((doc) => ShoppingList.fromJson(doc.data())).toList();
-  }
 }
-```
 
-```dart
 // ❌ רע - household_id במודל
 class ShoppingList {
   final String householdId; // לא!
 }
 ```
 
-**Firestore Security Rules:**
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /shopping_lists/{listId} {
-    allow read, write: if request.auth != null 
-      && resource.data.household_id == request.auth.token.household_id;
-  }
-}
-```
+**Firestore Security Rules:** חובה לסנן לפי `household_id`
 
 **לקחים:**
 - ✅ Repository = Data Access Layer
@@ -205,7 +164,8 @@ service cloud.firestore {
 
 **מטרה:** Providers צריכים לדעת מי המשתמש הנוכחי
 
-**מבנה:**
+**מבנה (4 שלבים):**
+
 ```dart
 class MyProvider extends ChangeNotifier {
   UserContext? _userContext;
@@ -213,32 +173,23 @@ class MyProvider extends ChangeNotifier {
 
   // 1️⃣ חיבור UserContext
   void updateUserContext(UserContext newContext) {
-    // ניקוי listener ישן
     if (_listening && _userContext != null) {
       _userContext!.removeListener(_onUserChanged);
       _listening = false;
     }
-    
-    // חיבור listener חדש
     _userContext = newContext;
     _userContext!.addListener(_onUserChanged);
     _listening = true;
-    
     _initialize();
   }
 
   // 2️⃣ טיפול בשינויים
-  void _onUserChanged() {
-    loadData(); // טען מחדש כשמשתמש משתנה
-  }
+  void _onUserChanged() => loadData();
 
   // 3️⃣ אתחול
   void _initialize() {
-    if (_userContext?.isLoggedIn == true) {
-      loadData();
-    } else {
-      _clearData();
-    }
+    if (_userContext?.isLoggedIn == true) loadData();
+    else _clearData();
   }
 
   // 4️⃣ ניקוי
@@ -254,18 +205,12 @@ class MyProvider extends ChangeNotifier {
 
 **קישור ב-main.dart:**
 ```dart
-MultiProvider(
-  providers: [
-    ChangeNotifierProvider(create: (_) => UserContext(...)),
-    
-    ChangeNotifierProxyProvider<UserContext, ShoppingListsProvider>(
-      create: (_) => ShoppingListsProvider(...),
-      update: (_, userContext, provider) {
-        provider!.updateUserContext(userContext); // ← קישור אוטומטי
-        return provider;
-      },
-    ),
-  ],
+ChangeNotifierProxyProvider<UserContext, ShoppingListsProvider>(
+  create: (_) => ShoppingListsProvider(...),
+  update: (_, userContext, provider) {
+    provider!.updateUserContext(userContext); // ← קישור אוטומטי
+    return provider;
+  },
 )
 ```
 
@@ -277,7 +222,7 @@ MultiProvider(
 
 ---
 
-### 📦 Provider Structure (סטנדרטי)
+### 📦 Provider Structure
 
 **כל Provider צריך:**
 
@@ -288,14 +233,14 @@ class MyProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   
-  // Getters
+  // Getters (חובה!)
   List<MyModel> get items => List.unmodifiable(_items);
   bool get isLoading => _isLoading;
   bool get hasError => _errorMessage != null;
   String? get errorMessage => _errorMessage;
   bool get isEmpty => _items.isEmpty;
   
-  // CRUD
+  // CRUD + Logging
   Future<void> loadItems() async {
     debugPrint('📥 loadItems: מתחיל');
     _isLoading = true;
@@ -304,23 +249,22 @@ class MyProvider extends ChangeNotifier {
     
     try {
       _items = await _repository.fetch();
-      debugPrint('✅ loadItems: נטענו ${_items.length}');
+      debugPrint('✅ loadItems: ${_items.length}');
     } catch (e) {
       _errorMessage = e.toString();
-      debugPrint('❌ loadItems: שגיאה - $e');
+      debugPrint('❌ loadItems: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
   
-  // Recovery
+  // Recovery (חובה!)
   Future<void> retry() async {
     _errorMessage = null;
     await loadItems();
   }
   
-  // Cleanup
   void clearAll() {
     _items = [];
     _errorMessage = null;
@@ -337,10 +281,13 @@ class MyProvider extends ChangeNotifier {
 - ✅ Logging עם emojis (📥 ✅ ❌)
 - ✅ `notifyListeners()` בכל `catch`
 
+📁 דוגמה מלאה: `shopping_lists_provider.dart`
+
 ---
 
 ### 🗂️ Repository Pattern
 
+**מבנה:**
 ```dart
 abstract class MyRepository {
   Future<List<MyModel>> fetch(String householdId);
@@ -369,7 +316,7 @@ class FirebaseMyRepository implements MyRepository {
 
 ---
 
-### ⚡ Cache Pattern (לביצועים)
+### ⚡ Cache Pattern
 
 **הבעיה:** סינון מוצרים O(n) איטי
 
@@ -384,13 +331,13 @@ class ProductsProvider extends ChangeNotifier {
   List<Product> getFiltered({String? category, String? query}) {
     final key = '${category ?? "all"}_${query ?? ""}';
     
-    // Cache HIT
+    // Cache HIT - O(1) ⚡
     if (key == _cacheKey) {
       debugPrint('💨 Cache HIT: $key');
       return _cachedFiltered;
     }
     
-    // Cache MISS
+    // Cache MISS - O(n)
     debugPrint('🔄 Cache MISS: $key');
     _cachedFiltered = _products.where((p) {
       if (category != null && p.category != category) return false;
@@ -417,38 +364,17 @@ class ProductsProvider extends ChangeNotifier {
 ```
 lib/core/
 ├── constants.dart       ← ListType, categories, storage
-├── ui_constants.dart    ← Spacing, buttons, borders
-└── ...
+├── ui_constants.dart    ← Spacing, buttons, borders, receipt parsing
 
 lib/l10n/
 └── app_strings.dart     ← UI strings (i18n ready)
 
 lib/config/
-├── category_config.dart      ← Colors, emojis
-├── list_type_mappings.dart   ← Type → Categories
-└── filters_config.dart       ← Filter texts
-```
-
-**דוגמאות:**
-
-```dart
-// lib/core/constants.dart
-class ListType {
-  static const String super_ = 'super';
-  static const String pharmacy = 'pharmacy';
-  static const List<String> allTypes = [super_, pharmacy, ...];
-}
-
-// lib/core/ui_constants.dart
-const double kSpacingSmall = 8.0;
-const double kSpacingMedium = 16.0;
-const double kButtonHeight = 48.0;
-
-// lib/l10n/app_strings.dart
-class AppStrings {
-  static const layout = _LayoutStrings();
-  static const common = _CommonStrings();
-}
+├── category_config.dart         ← Colors, emojis
+├── list_type_mappings.dart      ← Type → Categories
+├── filters_config.dart          ← Filter texts
+├── stores_config.dart           ← Store names + variations
+└── receipt_patterns_config.dart ← OCR Regex patterns
 ```
 
 **שימוש:**
@@ -466,11 +392,73 @@ Text('התנתק')
 
 ---
 
+### 📂 Config Files Pattern
+
+**תאריך:** 08/10/2025  
+**מקור:** receipt_parser_service.dart refactor
+
+**בעיה:** patterns/constants hardcoded בשירותים
+
+**פתרון:** config file נפרד
+
+```dart
+// ✅ lib/config/receipt_patterns_config.dart
+class ReceiptPatternsConfig {
+  const ReceiptPatternsConfig._();
+  
+  /// Patterns לזיהוי סה"כ
+  static const List<String> totalPatterns = [
+    r'סה.?כ[:\s]*(\d+[\.,]\d+)',
+    r'total[:\s]*(\d+[\.,]\d+)',
+    // ... (5 patterns סה"כ)
+  ];
+  
+  /// Patterns לחילוץ פריטים
+  static const List<String> itemPatterns = [
+    r'^(.+?)\s*[x×]\s*(\d+)\s+(\d+[\.,]\d+)',
+    // ... (3 patterns)
+  ];
+  
+  /// מילות לדילוג
+  static const List<String> skipKeywords = [
+    'סה"כ', 'סהכ', 'total', 'סך הכל',
+    'קופה', 'קופאי', 'תאריך', 'שעה',
+  ];
+}
+```
+
+**שימוש ב-service:**
+```dart
+import '../config/receipt_patterns_config.dart';
+
+for (var pattern in ReceiptPatternsConfig.totalPatterns) {
+  final match = RegExp(pattern).firstMatch(line);
+  // ...
+}
+```
+
+**יתרונות:**
+- **Maintainability** - שינוי במקום אחד
+- **Reusability** - שימוש חוזר בקבצים אחרים
+- **i18n Ready** - קל להוסיף שפות
+- **Testing** - קל לבדוק patterns בנפרד
+
+**מתי להשתמש:**
+- ✅ Regex patterns (יותר מ-3)
+- ✅ רשימות קבועות (חנויות, קטגוריות)
+- ✅ Business rules (ספים, מגבלות)
+- ✅ מיפויים מורכבים
+
+**קבצים דומים בפרויקט:**
+- `stores_config.dart` - שמות חנויות + וריאציות
+- `list_type_mappings.dart` - סוג רשימה → קטגוריות
+- `filters_config.dart` - סינונים וסטטוסים
+
+---
+
 ## 🎨 UX & UI
 
 ### 🚫 אין Mock Data בקוד Production
-
-**הבעיה:** קל להשתמש ב-Mock Data בפיתוח, אבל זה יוצר חוב טכני
 
 **למה זה רע:**
 ```dart
@@ -498,107 +486,37 @@ results.removeWhere((r) => r['price'] == null);
 results.sort((a, b) => a['price'].compareTo(b['price']));
 ```
 
-**דוגמה מהפרויקט:**
-
-price_comparison_screen.dart היה עם Mock Data - 4 מוצרים קבועים. זה עבד "בסדר" בפיתוח, אבל:
-- לא היה קשר לנתונים אמיתיים
-- לא היה ברור אם ה-API עובד
-- לא ניתן היה לבדוק מוצרים אמיתיים
-
-הפתרון: חיבור מלא ל-ProductsProvider.searchProducts() עם טיפול בשגיאות.
-
 **לקח:**
 - אם צריך Mock - השתמש ב-MockRepository (שמימש את ה-interface)
 - אל תשאיר Mock Data בקוד Production
 - חיבור אמיתי = בדיקות אמיתיות
 
-**כלל אצבע:** אם המשתמש הסופי לא יראה את הנתונים - אל תשים אותם בקוד.
+**דוגמה מהפרויקט:** price_comparison_screen.dart - היה עם Mock Data, עבר לחיבור מלא ל-ProductsProvider.searchProducts()
 
 ---
 
-### 🎭 4 Empty States (לא 3!)
+### 🎭 3-4 Empty States
 
-**עדכון:** 3 Empty States זה המינימום, אבל למסכים מורכבים - 4 States!
+| State | מתי | UI |
+|-------|-----|-----|
+| **Loading** | `_isLoading` | CircularProgressIndicator |
+| **Error** | `hasError` | Icon + Message + Retry button |
+| **Empty Results** | חיפוש ריק | "לא נמצא..." + search_off icon |
+| **Empty Initial** | טרם חיפש | "הזן טקסט..." + hint icon |
 
-**4 States Pattern:**
+**מתי להשתמש:**
+- **3 States:** למסכים פשוטים (Loading, Error, Empty)
+- **4 States:** למסכים עם חיפוש (+ Empty Initial)
+
+**דוגמה:**
 ```dart
 Widget build(BuildContext context) {
-  // 1️⃣ Loading
   if (_isLoading && _results.isEmpty) return _buildLoading();
-  
-  // 2️⃣ Error
-  if (_errorMessage != null && !_isLoading) return _buildError();
-  
-  // 3️⃣ Empty (no results after search)
-  if (_results.isEmpty && _searchTerm.isNotEmpty && !_isLoading)
-    return _buildEmptyResults();
-  
-  // 4️⃣ Empty (initial state)
-  if (_results.isEmpty && _searchTerm.isEmpty && !_isLoading)
-    return _buildEmptyInitial();
-  
-  // 5️⃣ Content
+  if (_errorMessage != null) return _buildError();
+  if (_results.isEmpty && _searchTerm.isNotEmpty) return _buildEmptyResults();
+  if (_results.isEmpty && _searchTerm.isEmpty) return _buildEmptyInitial();
   return _buildContent();
 }
-```
-
-**למה 4?**
-
-1. **Loading** - מחפש...
-2. **Error** - משהו השתבש (עם retry)
-3. **Empty Results** - חיפשת אבל לא מצאנו (search_off)
-4. **Empty Initial** - עוד לא חיפשת (הנחיה)
-
-**דוגמה מ-price_comparison_screen:**
-- Initial: "הזן שם מוצר כדי להשוות מחירים" + אייקון compare_arrows
-- No Results: "לא נמצאו תוצאות עבור 'חלב'" + אייקון search_off
-
-זה עוזר למשתמש להבין מה קרה ומה לעשות הלאה.
-
-**3 States (מינימום):**
-```dart
-Widget build(BuildContext context) {
-  if (_isLoading) return _buildLoading();
-  if (_error != null) return _buildError();
-  if (_items.isEmpty) return _buildEmpty();
-  return _buildContent();
-}
-
-Widget _buildLoading() => Center(
-  child: CircularProgressIndicator(),
-);
-
-Widget _buildError() => Center(
-  child: Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Icon(Icons.error_outline, size: 64, color: Colors.red),
-      SizedBox(height: 16),
-      Text('⚠️ $_error'),
-      SizedBox(height: 16),
-      ElevatedButton(
-        onPressed: _retry,
-        child: Text('נסה שוב'),
-      ),
-    ],
-  ),
-);
-
-Widget _buildEmpty() => Center(
-  child: Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Icon(Icons.inbox_outlined, size: 64),
-      SizedBox(height: 16),
-      Text('אין פריטים'),
-      SizedBox(height: 8),
-      TextButton(
-        onPressed: _create,
-        child: Text('צור חדש +'),
-      ),
-    ],
-  ),
-);
 ```
 
 **חובה:**
@@ -606,9 +524,11 @@ Widget _buildEmpty() => Center(
 - ✅ Error = אייקון + הודעה + כפתור "נסה שוב"
 - ✅ Empty = אייקון + הסבר + CTA
 
+📁 דוגמה מלאה: `price_comparison_screen.dart`
+
 ---
 
-### ↩️ Undo Pattern (למחיקה)
+### ↩️ Undo Pattern
 
 ```dart
 void _deleteItem(BuildContext context, int index) {
@@ -665,31 +585,200 @@ ScaffoldMessenger.of(context).showSnackBar(
 
 ---
 
-### ❌ Clear Buttons (בשדות טקסט)
+### 🎨 UI/UX Review
 
+**תאריך:** 08/10/2025  
+**מקור:** AI_DEV_GUIDELINES.md - סעיף 15
+
+**מתי לבצע UI Review:**
+
+✅ **תמיד כשמבקשים "בדוק קובץ" של:**
+- Screens (lib/screens/)
+- Widgets (lib/widgets/)
+- כל קובץ עם UI components
+
+#### 📋 UI/UX Checklist המלא
+
+**1️⃣ Layout & Spacing**
 ```dart
-TextFormField(
-  controller: _controller,
-  decoration: InputDecoration(
-    labelText: 'חיפוש',
-    suffixIcon: _controller.text.isNotEmpty
-      ? IconButton(
-          icon: Icon(Icons.clear),
-          tooltip: 'נקה',
-          onPressed: () {
-            _controller.clear();
-            setState(() {});
-          },
-        )
-      : null,
+// ❌ בעיות פוטנציאליות
+Container(width: 400)              // Fixed size - מה עם מסכים קטנים?
+Row(children: [text1, text2, ...]) // אין Expanded - overflow?
+Column(children: [...])             // אין SingleChildScrollView - overflow?
+
+// ✅ נכון
+Container(width: MediaQuery.of(context).size.width * 0.8)
+Row(children: [Expanded(child: text1), text2])
+SingleChildScrollView(child: Column(...))
+```
+
+**2️⃣ Touch Targets (Accessibility)**
+```dart
+// ❌ קטן מדי
+GestureDetector(
+  child: Container(width: 30, height: 30)  // < 48x48!
+)
+
+// ✅ מינימום 48x48
+InkWell(
+  child: Container(
+    width: 48,
+    height: 48,
+    child: Icon(...),
   ),
 )
 ```
 
+**3️⃣ Hardcoded Values**
+```dart
+// ❌ Hardcoded
+padding: EdgeInsets.all(16)         // צריך kSpacingMedium
+fontSize: 14                        // צריך kFontSizeBody
+borderRadius: 12                    // צריך kBorderRadius
+
+// ✅ Constants
+padding: EdgeInsets.all(kSpacingMedium)
+fontSize: kFontSizeBody
+borderRadius: kBorderRadius
+```
+
+**4️⃣ Colors**
+```dart
+// ❌ Hardcoded colors
+Color(0xFF123456)                   // לא theme-aware!
+Colors.blue                         // לא יעבוד ב-dark mode
+
+// ✅ Theme-based
+Theme.of(context).colorScheme.primary
+Theme.of(context).colorScheme.surface
+Theme.of(context).extension<AppBrand>()?.accent
+```
+
+**5️⃣ RTL Support**
+```dart
+// ❌ לא RTL-aware
+padding: EdgeInsets.only(left: 16)  // ישתנה בעברית?
+Alignment.centerLeft                // ישתנה בעברית?
+
+// ✅ RTL-aware
+padding: EdgeInsets.only(start: 16) // או symmetric
+Alignment.center
+Directionality widget כשצריך
+```
+
+**6️⃣ Responsive Behavior**
+```dart
+// ❌ לא responsive
+Container(width: 300)               // מה עם מסכים קטנים?
+
+// ✅ Responsive
+Container(
+  width: MediaQuery.of(context).size.width * 0.8,
+  constraints: BoxConstraints(maxWidth: 400),
+)
+```
+
+**7️⃣ Visual Hierarchy**
+```dart
+// בדוק:
+- [ ] כותרות בולטות (fontSize גדול + fontWeight.bold)?
+- [ ] טקסט משני בצבע onSurfaceVariant?
+- [ ] Spacing עקבי בין אלמנטים?
+- [ ] Dividers/Cards להפרדה ברורה?
+```
+
+**8️⃣ Loading & Error States**
+```dart
+// בדוק:
+- [ ] יש CircularProgressIndicator ב-loading?
+- [ ] יש Error widget עם retry?
+- [ ] יש Empty state עם CTA?
+- [ ] Visual feedback על כפתורים (disabled state)?
+```
+
+**9️⃣ Animations**
+```dart
+// ❌ מוגזם
+animation: Duration(seconds: 5)     // ארוך מדי!
+
+// ✅ סביר
+animation: kAnimationDurationMedium // 300ms
+animation: kAnimationDurationShort  // 200ms
+```
+
+**🔟 Overflow Prevention**
+```dart
+// בדוק אזהרות פוטנציאליות:
+- Row ללא Expanded/Flexible
+- Column ללא SingleChildScrollView
+- Text ללא overflow: TextOverflow.ellipsis
+- ListView ללא shrinkWrap (כשבתוך Column)
+```
+
+#### 🎯 תהליך UI Review (3 דקות)
+
+```
+1️⃣ חפש Hardcoded Values:
+   Ctrl+Shift+F → "width: [0-9]"
+   Ctrl+Shift+F → "fontSize: [0-9]"
+   Ctrl+Shift+F → "padding: [0-9]"
+   Ctrl+Shift+F → "Color(0x"
+
+2️⃣ בדוק Layout:
+   - Row/Column ללא Expanded?
+   - SingleChildScrollView חסר?
+   - Touch targets < 48x48?
+
+3️⃣ בדוק States:
+   - Loading state?
+   - Error state?
+   - Empty state?
+
+4️⃣ בדוק Theme:
+   - ColorScheme usage?
+   - Constants usage?
+   - RTL support?
+```
+
+#### 📊 דוגמה: UI Review Report
+
+```
+📊 UI Review - home_dashboard_screen.dart
+
+✅ Layout:
+   - SafeArea + SingleChildScrollView ✓
+   - RefreshIndicator נכון ✓
+   
+✅ Spacing:
+   - כל padding דרך kSpacing* ✓
+   
+✅ Colors:
+   - ColorScheme + AppBrand ✓
+   
+⚠️ Touch Targets:
+   - Icon buttons 16x16 (צריך 48x48 wrapper)
+   
+⚠️ States:
+   - חסר Error State (יש Loading + Empty)
+   
+🎯 ציון UI: 85/100
+💡 2 שיפורים מומלצים
+```
+
+#### 💡 Tips
+
+- **אם אין בעיות UI** - פשוט כתוב "✅ UI: נראה טוב"
+- **אל תתעכב על פרטים קוסמטיים** - רק בעיות אמיתיות
+- **תעדיף בעיות Accessibility** - touch targets, contrast, etc
+- **הצע שיפורים רק אם יש בעיה ברורה**
+
 **לקחים:**
-- ✅ רק אם יש טקסט
-- ✅ Tooltip "נקה"
-- ✅ `setState()` אחרי clear
+- ✅ UI Review = חלק מ-Code Review
+- ✅ 10 נקודות מרכזיות לבדיקה
+- ✅ 3 דקות תהליך מהיר
+- ⚠️ זיהוי מוקדם של בעיות UX
+
+📁 דוגמאות מהפרויקט: `home_dashboard_screen.dart`, `upcoming_shop_card.dart`
 
 ---
 
@@ -697,62 +786,63 @@ TextFormField(
 
 ### 🔍 Dead Code Detection
 
-#### 🎯 שני שלבים: לפני ואחרי
+**3 סוגים:**
 
-**שלב 1: לפני עבודה על קובץ (30 שניות)**
+| סוג | תיאור | פעולה | זמן |
+|-----|-------|--------|-----|
+| 🔴 **Dead Code** | 0 imports, לא בשימוש | מחק מיד | 30 שניות |
+| 🟡 **Dormant Code** | 0 imports, אבל איכותי | בדוק 4 שאלות → הפעל/מחק | 5 דקות |
+| 🟢 **False Positive** | כלי חיפוש לא מצא, אבל קיים | קרא מסך ידנית! | 2 דקות |
 
-זה **חובה** לפני כל רפקטור/תיקון!
+---
+
+#### 🔴 Dead Code: מחק מיד
+
+**תהליך בדיקה (30 שניות):**
 
 ```powershell
-# חיפוש imports (הכי חשוב!)
+# 1. חיפוש imports (הכי חשוב!)
 Ctrl+Shift+F → "import.*smart_search_input.dart"
-# → 0 תוצאות = Dead Code! אל תעבוד על הקובץ!
+# → 0 תוצאות = Dead Code!
 
-# חיפוש שם המחלקה
+# 2. חיפוש שם המחלקה
 Ctrl+Shift+F → "SmartSearchInput"
 # → 0 תוצאות = Dead Code!
+
+# 3. בדיקת Providers (אם רלוונטי)
+# חפש ב-main.dart
+
+# 4. בדיקת Routes (אם רלוונטי)
+# חפש ב-onGenerateRoute
+```
+
+**החלטה:**
+```
+אם 0 imports ו-0 שימושים:
+  ├─ אופציה 1: 🗑️ מחיקה מיידית (מומלץ!)
+  ├─ אופציה 2: 📝 שאל את המשתמש אם לשמור
+  └─ אופציה 3: 🚫 אל תתחיל לעבוד על הקובץ!
 ```
 
 **דוגמה מהפרויקט (08/10/2025):**
 
 ```
-📋 בקשה: "תבדוק אם smart_search_input.dart מעודכן לפי התיעוד"
+📋 בקשה: "תבדוק אם smart_search_input.dart מעודכן"
 
-❌ מה שקרה (שגוי):
-1. קריאת הקובץ המלא (330 שורות)
-2. השוואה מול התיעוד
+❌ שגוי - 20 דקות רפקטור:
+1. קריאת הקובץ (330 שורות)
+2. השוואה לתיעוד
 3. זיהוי 10 בעיות
-4. רפקטור מלא (20 דקות)
-5. הסרת Mock Data
-6. תיקון constants
-7. הוספת Error State
-8. רק אז גילוי: אף אחד לא משתמש בקובץ!
+4. רפקטור מלא
+5. גילוי: 0 imports = Dead Code!
 
-✅ מה שהיה צריך לקרות (נכון):
+✅ נכון - 1 דקה:
 1. [search_files: "import.*smart_search_input"]
 2. → 0 תוצאות
-3. "⚠️ הקובץ הוא Dead Code! אף אחד לא משתמש בו."
-4. "רוצה שאמחק אותו?"
-5. משתמש מאשר → מחיקה
-⏱️ זמן: 1 דקה במקום 20!
+3. "⚠️ הקובץ הוא Dead Code!"
+4. מחיקה
 
-חיסכון: 19 דקות + מניעת confusion
-```
-
-**שלב 2: Dead Code Detection אחרי (כרגיל)**
-
-```bash
-# 1. חיפוש imports
-"import.*my_file.dart"  # 0 תוצאות = Dead Code
-
-# 2. בדיקת Providers
-# חפש ב-main.dart אם ה-Provider רשום
-
-# 3. בדיקת Routes
-# חפש ב-onGenerateRoute אם ה-route קיים
-
-# 4. בדיקת Methods
-# חפש שימושים בכל הפרויקט
+חיסכון: 19 דקות!
 ```
 
 **תוצאות ב-07-08/10/2025:**
@@ -760,79 +850,166 @@ Ctrl+Shift+F → "SmartSearchInput"
 - 🗑️ 6 scripts ישנים
 - 🗑️ 3 services לא בשימוש
 - 🗑️ 2 utils files
-- 🗑️ 1 widget שתוקן אבל לא בשימוש (smart_search_input.dart)
+- 🗑️ 1 widget שתוקן אבל לא בשימוש
 
-**לקחים:**
-- 🔴 **קריטי:** תמיד בדוק Dead Code **לפני** עבודה על קובץ!
-- ❌ 0 imports = אל תתחיל לעבוד! שאל את המשתמש קודם
-- ⚠️ לבדוק תלויות: A → B → C
-- ✅ חיסכון זמן: 30 שניות בדיקה > 20 דקות רפקטור מיותר
+**⚠️ Cascade Errors:**
 
-**⚠️ Cascade Errors (07/10/2025):**
+מחיקת Dead Code יכולה לגרום לשגיאות compilation במסכים תלויים.
 
-מחיקת Dead Code יכולה לגרום לשגיאות compilation במסכים תלויים:
+**פתרון:**
+1. לפני מחיקה: חפש `Ctrl+Shift+F → "HomeStatsService"`
+2. אם יש תוצאות: החלט אם קריטי
+3. אחרי מחיקה: `flutter analyze` + תקן
+
+📁 דוגמה: `home_stats_service.dart` נמחק → `insights_screen.dart` קרס → יצרנו מינימלי חדש
+
+---
+
+#### 🟡 Dormant Code: הפעל או מחק?
+
+**Dormant Code** = קוד שלא בשימוש אבל איכותי ועם פוטנציאל.
+
+**תהליך החלטה (4 שאלות):**
 
 ```dart
-// דוגמה: HomeStatsService נמחק → insights_screen.dart קרס
-// lib/screens/insights/insights_screen.dart
-import '../../services/home_stats_service.dart'; // ❌ קובץ לא קיים!
+// שאלה 1: האם המודל תומך?
+InventoryItem.category  // ✅ כן!
 
-final stats = await HomeStatsService.calculateStats(...); // ❌ Error
+// שאלה 2: האם זה UX שימושי?
+// משתמש עם 100+ פריטים רוצה סינון  // ✅ כן!
+
+// שאלה 3: האם הקוד איכותי?
+filters_config.dart: 90/100  // ✅ כן!
+
+// שאלה 4: כמה זמן ליישם?
+20 דקות  // ✅ כן! (< 30 דק')
 ```
 
-**פתרונות:**
+**תוצאה:**
+```
+4/4 = הפעל! 🚀
+0-3/4 = מחק
+```
 
-1. **לפני מחיקה:**
-   ```powershell
-   # חפש את כל השימושים
-   Ctrl+Shift+F → "HomeStatsService"
-   
-   # אם יש תוצאות:
-   # - החלט אם השירות קריטי
-   # - אם כן: אל תמחק! או יצור מינימלי
-   # - אם לא: הסר גם את המסכים התלויים
-   ```
+**דוגמה מהפרויקט (08/10/2025):**
 
-2. **אחרי מחיקה (אם יש שגיאות):**
-   ```powershell
-   flutter analyze  # איתור כל השגיאות
-   
-   # אופציה 1: יצירת שירות מינימלי
-   # אופציה 2: הסרת המסך התלוי
-   ```
+`filters_config.dart`:
+- 0 imports (לא בשימוש!)
+- אבל: i18n ready, 11 קטגוריות, API נקי
+- וגם: InventoryItem.category קיים!
+- החלטה: 4/4 → הפעלנו!
+- תוצאה: PantryFilters widget + UX +30% תוך 20 דק'
 
-**דוגמה מהפרויקט:**
-- `home_stats_service.dart` נמחק ב-07/10 (זוהה כ-Dead Code)
-- `insights_screen.dart` השתמש בו → 26 שגיאות compilation
-- **פתרון:** יצרנו `HomeStatsService` מינימלי חדש (230 שורות)
-- ראה: `WORK_LOG.md` (07/10/2025)
+**מתי להפעיל ומתי למחוק:**
 
-#### ⚠️ False Positive: חיפוש שלא מצא vs. קובץ בשימוש
+| קריטריון | הפעל | מחק |
+|--------------|-------|------|
+| מודל תומך | ✅ | ❌ |
+| UX שימושי | ✅ | ❌ |
+| קוד איכותי | ✅ | ❌ |
+| < 30 דק' | ✅ | ❌ |
+| **סה"כ** | **4/4** | **0-3/4** |
+
+---
+
+#### 🟢 False Positive: חיפוש שלא מצא
 
 **הבעיה:** כלי חיפוש (`search_files`) לפעמים לא מוצא imports קיימים!
 
 **מקרה אמיתי (08/10/2025):**
 
 ```
-❌ שגוי - AI חיפש:
+❌ AI חיפש:
 Ctrl+Shift+F → "import.*upcoming_shop_card.dart"
 → 0 תוצאות
-AI: "זה Dead Code! תמחק!"
+AI: "זה Dead Code!"
 
 ✅ מציאות:
 home_dashboard_screen.dart שורה 18:
 import '../../widgets/home/upcoming_shop_card.dart';  ← קיים!
-
-שורה 348:
-UpcomingShopCard(list: mostRecentList)  ← בשימוש!
 ```
 
 **למה זה קרה:**
-- כלי החיפוש (`search_files`) לא תמיד מוצא imports במבנה תיקיות מורכב
-- חיפוש regex לפעמים לא תופס נתיבים יחסיים (`../../`)
+- כלי החיפוש לא תמיד מוצא imports במבנה תיקיות מורכב
+- חיפוש regex לא תופס נתיבים יחסיים (`../../`)
 - בעיה טכנית בכלי, לא בקוד
 
-**איך למנוע:**
+---
+
+#### 🟢 False Positive 2: Provider Usage
+
+**תאריך:** 09/10/2025  
+**מקור:** custom_location.dart חקירה
+
+**הבעיה:** מודל עשוי להשתמש דרך Provider ללא import ישיר!
+
+**מקרה אמיתי (09/10/2025):**
+
+```
+❌ AI חיפש:
+Ctrl+Shift+F → "import.*custom_location.dart"
+→ 0 תוצאות
+AI: "זה Dead Code!"
+
+✅ מציאות:
+locations_provider.dart שורה 12:
+List<CustomLocation> _customLocations = [];  ← בשימוש!
+
+storage_location_manager.dart שורה 18:
+import '../models/custom_location.dart';  ← קיים!
+
+main.dart שורה 253:
+ChangeNotifierProvider(create: (_) => LocationsProvider()),  ← רשום!
+```
+
+**למה זה קרה:**
+- המודל משמש דרך `LocationsProvider`
+- ה-Provider מחזיר `List<CustomLocation>` 
+- לא צריך import ישיר במסכים - הכל דרך Provider
+- התוצאה: חיפוש רגיל אומר "Dead Code" אבל הקובץ בשימוש מלא!
+
+**✅ תהליך בדיקה נכון:**
+
+```powershell
+# שלב 1: חיפוש import ישיר
+Ctrl+Shift+F → "import.*custom_location.dart"
+# → 0 תוצאות = חשד
+
+# שלב 2: חיפוש שם המחלקה
+Ctrl+Shift+F → "CustomLocation"
+# → 0 תוצאות = חשד חזק
+
+# שלב 3: חיפוש ב-Providers (חדש!)
+Ctrl+Shift+F → "LocationsProvider"
+# → 3 תוצאות! מצאתי!
+
+Ctrl+Shift+F → "List<CustomLocation>"
+# → 2 תוצאות ב-Provider!
+
+# שלב 4: בדיקה ב-main.dart
+Ctrl+Shift+F → "LocationsProvider" in "main.dart"
+# → רשום כ-Provider!
+```
+
+**✅ כלל זהב:**
+
+לפני קביעת Dead Code, חפש:
+1. Import ישיר של הקובץ (`import.*my_model.dart`)
+2. שם המחלקה בקוד (`MyModel`)
+3. **שם המחלקה ב-Providers (`MyModelProvider`)** ← חשוב!
+4. שימוש ב-`List<MyModel>` או `Map<String, MyModel>`
+5. **רישום ב-main.dart** (Providers)
+
+**דוגמאות מהפרויקט:**
+- `custom_location.dart` - משמש דרך `LocationsProvider`
+- `inventory_item.dart` - משמש דרך `InventoryProvider`  
+- `shopping_list.dart` - משמש דרך `ShoppingListsProvider`
+- `receipt.dart` - משמש דרך `ReceiptProvider`
+
+**💡 זכור:**
+- Model יכול להשתמש דרך Provider ללא import ישיר!
+- Providers הם מקור שימוש נפוץ - תמיד בדוק!
+- חיפוש מעמיק = חיסכון זמן ומניעת טעויות
 
 **✅ 3-Step Verification (חובה!):**
 
@@ -847,10 +1024,10 @@ Ctrl+Shift+F → "MyWidget"
 # - home_dashboard_screen.dart
 # - main.dart
 # - app.dart
-# קרא את הקבצים הללו בעצמך!
+# קרא את הקבצים בעצמך!
 ```
 
-**✅ כלל זהב חדש:**
+**✅ כלל זהב:**
 
 לפני מחיקת widget מתיקייה `lib/widgets/[screen]/`:
 1. חפש imports (2 פעמים!)
@@ -862,35 +1039,24 @@ Ctrl+Shift+F → "MyWidget"
 AI: "אני מחפש imports של upcoming_shop_card..."
 [search_files: 0 תוצאות]
 
-AI: "רגע, זה widget מתיקיית home/. 
-     אני חייב לקרא את home_dashboard_screen.dart!"
+AI: "רגע! זה מתיקיית home/.
+     אני חייב לקרא home_dashboard_screen.dart!"
 [read_file: home_dashboard_screen.dart]
 
 AI: "מצאתי! שורה 18 יש import.
      הקובץ בשימוש - לא Dead Code!"
 ```
 
-**📊 Impact:**
-- ❌ כמעט נמחק widget פעיל (upcoming_shop_card + smart_suggestions_card)
-- ✅ המשתמש שאל "אתה בטוח?" - זה הציל!
-- ✅ לקח חדש: תמיד בדיקה ידנית למסכים מרכזיים
-
-**🛡️ סיכום 08/10/2025:**
-- ✅ נמחק אמתי: active_lists_card.dart, insight_card.dart, insight_skeleton.dart (~690 שורות)
-  - active_lists_card.dart: Duplicate במיקום שגוי, header comment שגוי
-  - insight_card.dart: insights_screen בונה הכל בעצמו + Web APIs
-  - insight_skeleton.dart: קוד מצוין אבל לא בשימוש
-- ✅ נשמר: upcoming_shop_card.dart, smart_suggestions_card.dart (הודות לבדיקה ידנית)
-- 📈 סה"כ Dead Code: 3,990+ שורות (07-08/10/2025)
-
 **💡 זכור:**
-כלי חיפוש = עוזר, לא מושלם.  
-מסכים מרכזיים = בדיקה ידנית חובה!  
-ספק = אל תמחק!
+- כלי חיפוש = עוזר, לא מושלם
+- מסכים מרכזיים = בדיקה ידנית חובה
+- ספק = אל תמחק!
 
 ---
 
-### ⚡ Race Condition עם Firebase Auth
+### ⚡ Race Condition (Firebase Auth)
+
+#### תרחיש 1: Login Screen
 
 **הבעיה:**
 ```dart
@@ -914,7 +1080,110 @@ try {
 
 ---
 
-### 🔧 Deprecated APIs (Flutter 3.27+)
+#### תרחיש 2: IndexScreen + UserContext (09/10/2025)
+
+**הבעיה:** IndexScreen בדק את UserContext מוקדם מדי
+
+```dart
+// ❌ רע - בודק מיד
+void initState() {
+  super.initState();
+  _checkAndNavigate(); // ← מהר מדי!
+}
+
+Future<void> _checkAndNavigate() async {
+  final userContext = Provider.of<UserContext>(context);
+  
+  if (userContext.isLoggedIn) {  // ← false! עדיין טוען!
+    Navigator.pushNamed('/home');
+  } else {
+    Navigator.push(WelcomeScreen());  // ← שגוי!
+  }
+}
+
+// אחרי 500ms:
+// UserContext: משתמש נטען - yoni@demo.com  ← מאוחר מדי!
+```
+
+**הפתרון:** Listener Pattern + Wait for isLoading
+
+```dart
+class _IndexScreenState extends State<IndexScreen> {
+  bool _hasNavigated = false;
+  
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _setupListener();
+    });
+  }
+  
+  void _setupListener() {
+    final userContext = Provider.of<UserContext>(context, listen: false);
+    
+    // ✅ האזן לשינויים
+    userContext.addListener(_onUserContextChanged);
+    
+    // בדוק מיידית
+    _checkAndNavigate();
+  }
+  
+  void _onUserContextChanged() {
+    if (!_hasNavigated && mounted) {
+      _checkAndNavigate();
+    }
+  }
+  
+  Future<void> _checkAndNavigate() async {
+    if (_hasNavigated) return;
+    
+    final userContext = Provider.of<UserContext>(context, listen: false);
+    
+    // ✅ המתן אם טוען
+    if (userContext.isLoading) {
+      debugPrint('⏳ ממתין לטעינה...');
+      return; // ה-listener יקרא שוב!
+    }
+    
+    // ✅ עכשיו בטוח לבדוק
+    if (userContext.isLoggedIn) {
+      _hasNavigated = true;
+      userContext.removeListener(_onUserContextChanged);
+      Navigator.pushReplacementNamed('/home');
+    } else {
+      // בדוק seenOnboarding...
+    }
+  }
+  
+  @override
+  void dispose() {
+    final userContext = Provider.of<UserContext>(context, listen: false);
+    userContext.removeListener(_onUserContextChanged);
+    super.dispose();
+  }
+}
+```
+
+**לקחים:**
+1. ✅ **Listener Pattern** - `addListener()` + `removeListener()`
+2. ✅ **Wait for isLoading** - אל תחליט כשהנתונים טוענים
+3. ✅ **_hasNavigated flag** - מונע navigation כפול
+4. ✅ **Cleanup** - `removeListener()` ב-dispose
+5. ✅ **addPostFrameCallback** - בטוח לשימוש ב-Provider
+
+**מתי להשתמש:**
+- ✅ כל splash/index screen שתלוי ב-async Provider
+- ✅ כל מסך startup שקורא נתונים מ-Firebase
+- ✅ כל navigation שתלוי במצב משתמש
+
+📁 דוגמה מלאה: `lib/screens/index_screen.dart` (v2 - 09/10/2025)
+
+---
+
+### 🔧 Deprecated APIs
+
+**Flutter 3.27+:**
 
 ```dart
 // ❌ Deprecated

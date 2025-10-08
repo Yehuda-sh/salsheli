@@ -23,6 +23,9 @@
 // Text(status.label); // "נקנה"
 // Icon(status.icon, color: status.color);
 // ```
+//
+// Version: 1.1 - Dart 3 pattern matching
+// Last Updated: 09/10/2025
 
 import 'package:flutter/material.dart';
 
@@ -44,46 +47,28 @@ enum ShoppingItemStatus {
   deferred;
 
   /// טקסט בעברית
-  String get label {
-    switch (this) {
-      case ShoppingItemStatus.pending:
-        return AppStrings.shopping.itemStatusPending;
-      case ShoppingItemStatus.purchased:
-        return AppStrings.shopping.itemStatusPurchased;
-      case ShoppingItemStatus.outOfStock:
-        return AppStrings.shopping.itemStatusOutOfStock;
-      case ShoppingItemStatus.deferred:
-        return AppStrings.shopping.itemStatusDeferred;
-    }
-  }
+  String get label => switch (this) {
+        ShoppingItemStatus.pending => AppStrings.shopping.itemStatusPending,
+        ShoppingItemStatus.purchased => AppStrings.shopping.itemStatusPurchased,
+        ShoppingItemStatus.outOfStock => AppStrings.shopping.itemStatusOutOfStock,
+        ShoppingItemStatus.deferred => AppStrings.shopping.itemStatusDeferred,
+      };
 
   /// אייקון ויזואלי
-  IconData get icon {
-    switch (this) {
-      case ShoppingItemStatus.pending:
-        return Icons.radio_button_unchecked;
-      case ShoppingItemStatus.purchased:
-        return Icons.check_circle;
-      case ShoppingItemStatus.outOfStock:
-        return Icons.remove_shopping_cart;
-      case ShoppingItemStatus.deferred:
-        return Icons.schedule;
-    }
-  }
+  IconData get icon => switch (this) {
+        ShoppingItemStatus.pending => Icons.radio_button_unchecked,
+        ShoppingItemStatus.purchased => Icons.check_circle,
+        ShoppingItemStatus.outOfStock => Icons.remove_shopping_cart,
+        ShoppingItemStatus.deferred => Icons.schedule,
+      };
 
   /// צבע מותאם
-  Color get color {
-    switch (this) {
-      case ShoppingItemStatus.pending:
-        return StatusColors.pending;
-      case ShoppingItemStatus.purchased:
-        return StatusColors.success;
-      case ShoppingItemStatus.outOfStock:
-        return StatusColors.error;
-      case ShoppingItemStatus.deferred:
-        return StatusColors.warning;
-    }
-  }
+  Color get color => switch (this) {
+        ShoppingItemStatus.pending => StatusColors.pending,
+        ShoppingItemStatus.purchased => StatusColors.success,
+        ShoppingItemStatus.outOfStock => StatusColors.error,
+        ShoppingItemStatus.deferred => StatusColors.warning,
+      };
 
   /// האם הפריט הושלם (נקנה/דחוי/לא במלאי)
   bool get isCompleted =>

@@ -1,8 +1,28 @@
-// lib/screens/receipts/receipt_view_screen.dart
+// 📄 File: lib/screens/receipts/receipt_view_screen.dart
+// 🎯 Purpose: מסך תצוגת קבלה בודדת - Receipt View Screen
+//
+// 📋 Features:
+// ✅ תצוגה מפורטת של קבלה
+// ✅ רשימת פריטים עם מחירים
+// ✅ סיכום כללי
+// ✅ Empty State
+// ✅ RTL Support מלא
+// ✅ Logging מפורט
+//
+// 🔗 Dependencies:
+// - Receipt model - מודל הקבלה
+//
+// 🎨 Material 3:
+// - צבעים דרך Theme/ColorScheme
+// - ui_constants לעיצוב
+// - RTL support
+
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import '../../models/receipt.dart';
+import '../../core/ui_constants.dart';
 
 class ReceiptViewScreen extends StatelessWidget {
   final Receipt receipt;
@@ -11,6 +31,9 @@ class ReceiptViewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('🧾 ReceiptViewScreen: מציג קבלה "${receipt.storeName}"');
+    debugPrint('   📋 ${receipt.items.length} פריטים | סה"כ: ₪${receipt.totalAmount}');
+    
     final cs = Theme.of(context).colorScheme;
     final dateStr = DateFormat('dd/MM/yyyy', 'he_IL').format(receipt.date);
     final currency = NumberFormat.currency(locale: 'he_IL', symbol: '₪');
@@ -32,8 +55,12 @@ class ReceiptViewScreen extends StatelessWidget {
             IconButton(
               tooltip: 'שיתוף (בקרוב)',
               onPressed: () {
+                debugPrint('📤 ReceiptViewScreen: שיתוף קבלה (בקרוב)');
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('שיתוף קבלה — בקרוב')),
+                  const SnackBar(
+                    content: Text('שיתוף קבלה — בקרוב'),
+                    duration: kSnackBarDuration,
+                  ),
                 );
               },
               icon: const Icon(Icons.ios_share),
@@ -45,12 +72,18 @@ class ReceiptViewScreen extends StatelessWidget {
             // Header card
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+              padding: const EdgeInsets.fromLTRB(
+                kSpacingMedium,
+                kSpacingMedium,
+                kSpacingMedium,
+                kSpacingSmallPlus,
+              ),
               decoration: BoxDecoration(
                 color: cs.surfaceContainerHighest,
                 border: Border(
                   bottom: BorderSide(
                     color: cs.outlineVariant.withValues(alpha: 0.4),
+                    width: kBorderWidth,
                   ),
                 ),
               ),
@@ -60,23 +93,23 @@ class ReceiptViewScreen extends StatelessWidget {
                   Row(
                     children: [
                       Icon(Icons.store_mall_directory, color: cs.primary),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: kSpacingSmall),
                       Expanded(
                         child: Text(
                           receipt.storeName,
                           textAlign: TextAlign.right,
                           style: const TextStyle(
-                            fontSize: 18,
+                            fontSize: kFontSizeMedium,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: kSpacingSmall),
                   Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
+                    spacing: kSpacingSmall,
+                    runSpacing: kSpacingSmall,
                     alignment: WrapAlignment.end,
                     children: [
                       _Chip(
@@ -87,30 +120,33 @@ class ReceiptViewScreen extends StatelessWidget {
                       _Chip(
                         icon: Icons.inventory_2_outlined,
                         label: '$itemsCount פריטים',
-                        color: Colors.blue,
+                        color: cs.secondary,
                       ),
                       _Chip(
                         icon: Icons.calculate_outlined,
                         label: '$totalQty יחידות',
-                        color: Colors.teal,
+                        color: cs.tertiary,
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: kSpacingSmallPlus),
                   Row(
                     children: [
                       Text(
                         currency.format(totalAmount),
                         style: TextStyle(
-                          fontSize: 22,
+                          fontSize: kFontSizeXLarge,
                           fontWeight: FontWeight.w900,
                           color: cs.primary,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      const Text(
+                      const SizedBox(width: kSpacingSmall),
+                      Text(
                         'סה״כ לתשלום',
-                        style: TextStyle(fontSize: 14, color: Colors.grey),
+                        style: TextStyle(
+                          fontSize: kFontSizeSmall,
+                          color: cs.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   ),
@@ -124,28 +160,28 @@ class ReceiptViewScreen extends StatelessWidget {
                   ? Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
-                        children: const [
+                        children: [
                           Icon(
                             Icons.inbox_outlined,
                             size: 64,
-                            color: Colors.grey,
+                            color: cs.onSurfaceVariant,
                           ),
-                          SizedBox(height: 12),
+                          const SizedBox(height: kSpacingSmallPlus),
                           Text(
                             'אין פריטים בקבלה',
-                            style: TextStyle(color: Colors.grey),
+                            style: TextStyle(color: cs.onSurfaceVariant),
                           ),
                         ],
                       ),
                     )
                   : ListView.separated(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
+                        horizontal: kSpacingSmallPlus,
+                        vertical: kSpacingSmall,
                       ),
                       itemCount: receipt.items.length,
                       separatorBuilder: (_, __) => Divider(
-                        height: 1,
+                        height: kBorderWidth,
                         color: cs.outlineVariant.withValues(alpha: 0.2),
                       ),
                       itemBuilder: (context, index) {
@@ -153,7 +189,7 @@ class ReceiptViewScreen extends StatelessWidget {
                         final lineTotal = it.totalPrice; // מניח שקיים במודל
                         return ListTile(
                           contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 8,
+                            horizontal: kSpacingSmall,
                           ),
                           leading: CircleAvatar(
                             backgroundColor: cs.primary.withValues(alpha: 0.12),
@@ -171,7 +207,7 @@ class ReceiptViewScreen extends StatelessWidget {
                           ),
                           subtitle: Text(
                             '${it.quantity} × ${currency.format(it.unitPrice)}',
-                            style: const TextStyle(color: Colors.grey),
+                            style: TextStyle(color: cs.onSurfaceVariant),
                           ),
                           trailing: Text(
                             currency.format(lineTotal),
@@ -185,31 +221,37 @@ class ReceiptViewScreen extends StatelessWidget {
             // Footer summary bar
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+              padding: const EdgeInsets.fromLTRB(
+                kSpacingMedium,
+                kSpacingSmallPlus,
+                kSpacingMedium,
+                kSpacingSmallPlus,
+              ),
               decoration: BoxDecoration(
                 color: cs.surfaceContainerHighest,
                 border: Border(
                   top: BorderSide(
                     color: cs.outlineVariant.withValues(alpha: 0.4),
+                    width: kBorderWidth,
                   ),
                 ),
               ),
               child: Row(
                 children: [
                   Icon(Icons.summarize_outlined, color: cs.primary),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: kSpacingSmall),
                   Expanded(
                     child: Text(
                       'סה״כ: $itemsCount פריטים • $totalQty יחידות',
                       textAlign: TextAlign.right,
-                      style: const TextStyle(color: Colors.grey),
+                      style: TextStyle(color: cs.onSurfaceVariant),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: kSpacingSmallPlus),
                   Text(
                     currency.format(totalAmount),
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: kFontSizeMedium,
                       fontWeight: FontWeight.w900,
                       color: cs.primary,
                     ),
@@ -221,8 +263,12 @@ class ReceiptViewScreen extends StatelessWidget {
         ),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
+            debugPrint('📤 ReceiptViewScreen: FAB ייצוא/שיתוף (בקרוב)');
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('ייצוא/שיתוף קבלה — בקרוב')),
+              const SnackBar(
+                content: Text('ייצוא/שיתוף קבלה — בקרוב'),
+                duration: kSnackBarDuration,
+              ),
             );
           },
           icon: const Icon(Icons.share),
@@ -243,23 +289,26 @@ class _Chip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(
+        horizontal: kSpacingSmallPlus,
+        vertical: kSpacingXTiny,
+      ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
         border: Border.all(color: color.withValues(alpha: 0.3)),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(kBorderRadiusLarge + kSpacingSmall),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: color),
-          const SizedBox(width: 6),
+          Icon(icon, size: kIconSizeSmall, color: color),
+          const SizedBox(width: kSpacingXTiny),
           Text(
             label,
             style: TextStyle(
               color: color,
               fontWeight: FontWeight.w600,
-              fontSize: 12,
+              fontSize: kFontSizeTiny,
             ),
           ),
         ],

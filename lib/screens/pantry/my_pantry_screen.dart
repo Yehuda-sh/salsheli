@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 import '../../models/inventory_item.dart';
 import '../../providers/inventory_provider.dart';
 import '../../widgets/storage_location_manager.dart';
+import '../../widgets/pantry_filters.dart';
 
 class MyPantryScreen extends StatefulWidget {
   const MyPantryScreen({super.key});
@@ -26,6 +27,7 @@ class _MyPantryScreenState extends State<MyPantryScreen>
     with SingleTickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   String searchTerm = "";
+  String _selectedCategory = 'all'; // סינון קטגוריה
   
   late TabController _tabController;
 
@@ -474,6 +476,20 @@ class _MyPantryScreenState extends State<MyPantryScreen>
 
   Widget _buildListView(List<InventoryItem> items) {
     final filteredItems = items.where((item) {
+      // סינון לפי קטגוריה
+      if (_selectedCategory != 'all') {
+        // השוואה רגישה למקרה (case-insensitive) כי הקטגוריות במודל בעברית
+        final categoryLower = item.category.toLowerCase();
+        final selectedLower = _selectedCategory.toLowerCase();
+        
+        // אם הקטגוריה לא תואמת, סנן החוצה
+        if (!categoryLower.contains(selectedLower) && 
+            categoryLower != selectedLower) {
+          return false;
+        }
+      }
+      
+      // סינון לפי חיפוש טקסט
       if (searchTerm.isEmpty) return true;
       final searchLower = searchTerm.toLowerCase();
       final locationName = locationConfig[item.location]?["name"] ?? "";
@@ -491,6 +507,19 @@ class _MyPantryScreenState extends State<MyPantryScreen>
 
     return Column(
       children: [
+        // סינון קטגוריה
+        Container(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          color: const Color(0xFF1E293B),
+          child: PantryFilters(
+            currentCategory: _selectedCategory,
+            onCategoryChanged: (category) {
+              debugPrint('🔄 Category changed: $category');
+              setState(() => _selectedCategory = category);
+            },
+          ),
+        ),
+        
         // Search bar
         Container(
           padding: const EdgeInsets.all(16),

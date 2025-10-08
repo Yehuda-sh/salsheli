@@ -33,6 +33,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../l10n/app_strings.dart';
+import '../core/ui_constants.dart';
 
 class AppLayout extends StatefulWidget {
   final Widget child;
@@ -90,7 +91,7 @@ class _AppLayoutState extends State<AppLayout> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.shopping_basket_outlined, color: cs.primary),
-            const SizedBox(width: 8),
+            const SizedBox(width: kSpacingSmall),
             Text(
               AppStrings.layout.appTitle,
               style: theme.textTheme.titleMedium?.copyWith(
