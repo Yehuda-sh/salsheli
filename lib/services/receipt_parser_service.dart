@@ -9,11 +9,24 @@
 // - Extract items with prices
 // - Identify store name and total amount
 //
+// 🔗 Dependencies:
+// - StoresConfig - רשימת חנויות מוכרות
+// - ReceiptPatternsConfig - Regex patterns
+// - ui_constants - validation thresholds
+//
 // 📱 Mobile Only: Yes
+//
+// Version: 2.0 - Refactored (08/10/2025)
+// - הוסרו hardcoded values → constants
+// - הוסרו hardcoded patterns → ReceiptPatternsConfig
+// - שימוש ב-StoresConfig לזיהוי חנויות
 
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import '../models/receipt.dart';
+import '../config/stores_config.dart';
+import '../config/receipt_patterns_config.dart';
+import '../core/ui_constants.dart';
 
 class ReceiptParserService {
   /// ניתוח טקסט OCR לקבלה
@@ -74,49 +87,31 @@ class ReceiptParserService {
   static String _extractStoreName(List<String> lines) {
     if (lines.isEmpty) return 'לא זוהה';
 
-    // נסה למצוא שמות חנויות ידועים
-    const knownStores = [
-      'שופרסל',
-      'רמי לוי',
-      'מגה',
-      'ויקטורי',
-      'יינות ביתן',
-      'סופר פארם',
-      'am:pm',
-      'חצי חינם',
-    ];
-
-    for (var line in lines.take(5)) {
-      // בדוק רק ב-5 שורות הראשונות
-      final lowerLine = line.toLowerCase().trim();
-      for (var store in knownStores) {
-        if (lowerLine.contains(store.toLowerCase())) {
-          debugPrint('   ✅ זיהוי חנות: $store');
-          return store;
-        }
+    // נסה למצוא חנויות ידועות בשורות הראשונות (kMaxStoreLinesCheck = 5)
+    for (var line in lines.take(kMaxStoreLinesCheck)) {
+      // השתמש ב-StoresConfig.detectStore() לזיהוי אוטומטי
+      final detectedStore = StoresConfig.detectStore(line);
+      if (detectedStore != null) {
+        debugPrint('   ✅ זיהוי חנות: $detectedStore');
+        return detectedStore;
       }
     }
 
-    // אם לא מצאנו - קח את השורה הראשונה
+    // אם לא מצאנו - קח את השורה הראשונה (עד kMaxStoreNameLength תווים)
     final firstLine = lines.first.trim();
-    return firstLine.length > 30 ? firstLine.substring(0, 30) : firstLine;
+    return firstLine.length > kMaxStoreNameLength
+        ? firstLine.substring(0, kMaxStoreNameLength)
+        : firstLine;
   }
 
   /// חילוץ סכום כולל
   static double _extractTotal(List<String> lines) {
-    // חיפוש אחרי מילות מפתח של סה"כ
-    final totalPatterns = [
-      r'סה.?כ[:\s]*(\d+[\.,]\d+)',  // סה"כ או סה'כ (כל תו בין ה-ה ו-כ)
-      r'total[:\s]*(\d+[\.,]\d+)',
-      r'סך הכל[:\s]*(\d+[\.,]\d+)',
-      r'סכום לתשלום[:\s]*(\d+[\.,]\d+)',
-    ];
-
+    // השתמש ב-patterns מ-ReceiptPatternsConfig
     for (var line in lines.reversed) {
       // התחל מהסוף - הסה"כ בדרך כלל בסוף
       final lowerLine = line.toLowerCase();
 
-      for (var pattern in totalPatterns) {
+      for (var pattern in ReceiptPatternsConfig.totalPatterns) {
         final regex = RegExp(pattern, caseSensitive: false);
         final match = regex.firstMatch(lowerLine);
 
@@ -139,31 +134,20 @@ class ReceiptParserService {
   static List<ReceiptItem> _extractItems(List<String> lines, double expectedTotal) {
     final items = <ReceiptItem>[];
 
-    // Regex למציאת שורות עם מחיר
-    // דוגמאות:
-    // "חלב - 6.90"
-    // "לחם    5.50"
-    // "ביצים x2 7.80"
-    final itemPatterns = [
-      r'^(.+?)\s*[x×]\s*(\d+)\s+(\d+[\.,]\d+)$', // "פריט x2 12.50"
-      r'^(.+?)\s*[-–—:]\s*(\d+[\.,]\d+)$', // "פריט - 12.50"
-      r'^(.+?)\s{2,}(\d+[\.,]\d+)$', // "פריט    12.50"
-    ];
-
     for (var line in lines) {
       final trimmed = line.trim();
 
-      // דלג על שורות קצרות מדי או שורות עם מילות מפתח של סה"כ
-      if (trimmed.length < 3) continue;
-      if (trimmed.toLowerCase().contains('סה"כ') ||
-          trimmed.toLowerCase().contains('סהכ') ||
-          trimmed.toLowerCase().contains('total') ||
-          trimmed.toLowerCase().contains('סך הכל')) {
+      // דלג על שורות קצרות מדי (kMinReceiptLineLength = 3)
+      if (trimmed.length < kMinReceiptLineLength) continue;
+
+      // דלג על שורות עם מילות מפתח (ReceiptPatternsConfig.skipKeywords)
+      final lowerLine = trimmed.toLowerCase();
+      if (ReceiptPatternsConfig.skipKeywords.any((kw) => lowerLine.contains(kw))) {
         continue;
       }
 
-      // נסה כל pattern
-      for (var pattern in itemPatterns) {
+      // נסה כל pattern מ-ReceiptPatternsConfig
+      for (var pattern in ReceiptPatternsConfig.itemPatterns) {
         final regex = RegExp(pattern);
         final match = regex.firstMatch(trimmed);
 
@@ -184,8 +168,8 @@ class ReceiptParserService {
               price = double.parse(match.group(2)!.replaceAll(',', '.'));
             }
 
-            // בדיקות תקינות
-            if (name.length < 2 || price <= 0 || price > 10000) {
+            // בדיקות תקינות (kMinReceiptLineLength = 3, kMaxReceiptPrice = 10000)
+            if (name.length < 2 || price <= 0 || price > kMaxReceiptPrice) {
               continue; // דלג על פריטים לא הגיוניים
             }
 
@@ -214,11 +198,11 @@ class ReceiptParserService {
       return [];
     }
 
-    // בדיקה: האם סכום הפריטים מתאים לסה"כ?
+    // בדיקה: האם סכום הפריטים מתאים לסה"כ? (kMaxReceiptTotalDifference = 1.0)
     final itemsTotal = items.fold(0.0, (sum, item) => sum + item.totalPrice);
     final difference = (itemsTotal - expectedTotal).abs();
 
-    if (expectedTotal > 0 && difference > 1.0) {
+    if (expectedTotal > 0 && difference > kMaxReceiptTotalDifference) {
       debugPrint('   ⚠️ אי-התאמה: פריטים=₪$itemsTotal, סה"כ=₪$expectedTotal');
     } else {
       debugPrint('   ✅ סכום תואם!');

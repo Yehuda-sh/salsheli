@@ -22,13 +22,13 @@
 | 🔴 Timestamp שגיאות | `@TimestampConverter()` | [→](#timestamp-management) | [LESSONS](LESSONS_LEARNED.md#timestamp-management) |
 | 🔴 Race condition Auth | זרוק Exception בשגיאה | [→](#auth-flow) | [LESSONS](LESSONS_LEARNED.md#race-condition) |
 | 🔴 Mock Data בקוד | חיבור ל-Provider אמיתי | [→](#mock-data) | [LESSONS](LESSONS_LEARNED.md#אין-mock-data) |
-| 🔴 קובץ לא בשימוש | Ctrl+Shift+F imports → 0 = מחק | [→](#dead-code) | סעיף 14 |
+| 🔴 קובץ לא בשימוש | חפש imports → **קרא מסך ידנית!** | [→](#dead-code) | סעיף 14 |
 | 🔴 Context אחרי async | שמור `dialogContext` נפרד | [→](#dialogs) | סעיף 8 |
 | 🔴 Color deprecated | `.withValues(alpha:)` | [→](#modern-apis) | סעיף 10 |
 | 🔴 אפליקציה איטית | `.then()` ברקע | [→](#hybrid-strategy) | [LESSONS](LESSONS_LEARNED.md#hybrid-strategy) |
 | 🔴 Empty state חסר | Loading/Error/Empty | [→](#3-empty-states) | סעיף 13 |
 
-### 🎯 17 כללי הזהב (חובה!)
+### 🎯 18 כללי הזהב (חובה!)
 
 1. **קרא WORK_LOG.md** - בתחילת כל שיחה על הפרויקט
 2. **עדכן WORK_LOG.md** - רק שינויים משמעותיים (שאל קודם!)
@@ -47,6 +47,7 @@
 15. **Null Safety** - בדוק כל `nullable`
 16. **Fallback** - תכנן למקרה כשל
 17. **Dependencies** - `flutter pub get` אחרי שינויים
+18. **UI Review** - "בדוק קובץ" = בדוק גם UI (סעיף 1️⃣5️⃣)
 
 ### ⚡ בדיקה מהירה (5 דק')
 
@@ -181,6 +182,26 @@ Ctrl+Shift+F → "'/my_screen'" in "routes" או "onGenerateRoute"
 - ✅ חסך 20 דקות עבודה
 - ✅ מנע רפקטור מיותר
 - ✅ שמר על הפרויקט נקי
+
+**⚠️ False Positive Warning (08/10/2025):**
+
+כלי `search_files` **לפעמים לא מוצא** imports קיימים!
+
+**🔴 כלל חדש חובה:**
+לפני מחיקת widget מתיקייה `lib/widgets/[screen]/`:
+1. חפש imports (2 פעמים)
+2. **חובה: קרא את `[screen]_screen.dart` בעצמך**
+3. רק אם **אתה רואה בעיניים** שאין import → מחק
+
+```
+👁️ דוגמה נכונה:
+[search_files: 0 תוצאות]
+⚠️ רגע! widget מ-lib/widgets/home/ → אקרא home_dashboard_screen.dart
+[read_file: home_dashboard_screen.dart]
+✅ מצאתי import בשורה 18! הקובץ בשימוש - לא Dead Code!
+```
+
+**💡 זכור:** כלי חיפוש = עוזר, לא מושלם. מסכים מרכזיים = בדיקה ידנית חובה!
 
 **💡 TIP:** אם הקובץ נראה שימושי אבל לא בשימוש - הצע למשתמש:
 1. מחיקה (Dead Code = חוב טכני)
@@ -550,9 +571,197 @@ flutter analyze
 
 ---
 
+### 1️⃣5️⃣ UI/UX Review - בדיקה ויזואלית
+
+**🔴 כלל חדש: כשהמשתמש אומר "בדוק קובץ" - בדוק גם UI!**
+
+#### מתי לבצע UI Review
+
+✅ **תמיד כשמבקשים "בדוק קובץ" של:**
+- Screens (lib/screens/)
+- Widgets (lib/widgets/)
+- כל קובץ עם UI components
+
+#### 📋 UI/UX Checklist
+
+**1️⃣ Layout & Spacing**
+```dart
+// ❌ בעיות פוטנציאליות
+Container(width: 400)              // Fixed size - מה עם מסכים קטנים?
+Row(children: [text1, text2, ...]) // אין Expanded - overflow?
+Column(children: [...])             // אין SingleChildScrollView - overflow?
+
+// ✅ נכון
+Container(width: MediaQuery.of(context).size.width * 0.8)
+Row(children: [Expanded(child: text1), text2])
+SingleChildScrollView(child: Column(...))
+```
+
+**2️⃣ Touch Targets (Accessibility)**
+```dart
+// ❌ קטן מדי
+GestureDetector(
+  child: Container(width: 30, height: 30)  // < 48x48!
+)
+
+// ✅ מינימום 48x48
+InkWell(
+  child: Container(
+    width: 48,
+    height: 48,
+    child: Icon(...),
+  ),
+)
+```
+
+**3️⃣ Hardcoded Values**
+```dart
+// ❌ Hardcoded
+padding: EdgeInsets.all(16)         // צריך kSpacingMedium
+fontSize: 14                        // צריך kFontSizeBody
+borderRadius: 12                    // צריך kBorderRadius
+
+// ✅ Constants
+padding: EdgeInsets.all(kSpacingMedium)
+fontSize: kFontSizeBody
+borderRadius: kBorderRadius
+```
+
+**4️⃣ Colors**
+```dart
+// ❌ Hardcoded colors
+Color(0xFF123456)                   // לא theme-aware!
+Colors.blue                         // לא יעבוד ב-dark mode
+
+// ✅ Theme-based
+Theme.of(context).colorScheme.primary
+Theme.of(context).colorScheme.surface
+Theme.of(context).extension<AppBrand>()?.accent
+```
+
+**5️⃣ RTL Support**
+```dart
+// ❌ לא RTL-aware
+padding: EdgeInsets.only(left: 16)  // ישתנה בעברית?
+Alignment.centerLeft                // ישתנה בעברית?
+
+// ✅ RTL-aware
+padding: EdgeInsets.only(start: 16) // או symmetric
+Alignment.center
+Directionality widget כשצריך
+```
+
+**6️⃣ Responsive Behavior**
+```dart
+// ❌ לא responsive
+Container(width: 300)               // מה עם מסכים קטנים?
+
+// ✅ Responsive
+Container(
+  width: MediaQuery.of(context).size.width * 0.8,
+  constraints: BoxConstraints(maxWidth: 400),
+)
+```
+
+**7️⃣ Visual Hierarchy**
+```dart
+// בדוק:
+- [ ] כותרות בולטות (fontSize גדול + fontWeight.bold)?
+- [ ] טקסט משני בצבע onSurfaceVariant?
+- [ ] Spacing עקבי בין אלמנטים?
+- [ ] Dividers/Cards להפרדה ברורה?
+```
+
+**8️⃣ Loading & Error States**
+```dart
+// בדוק:
+- [ ] יש CircularProgressIndicator ב-loading?
+- [ ] יש Error widget עם retry?
+- [ ] יש Empty state עם CTA?
+- [ ] Visual feedback על כפתורים (disabled state)?
+```
+
+**9️⃣ Animations**
+```dart
+// ❌ מוגזם
+animation: Duration(seconds: 5)     // ארוך מדי!
+
+// ✅ סביר
+animation: kAnimationDurationMedium // 300ms
+animation: kAnimationDurationShort  // 200ms
+```
+
+**🔟 Overflow Prevention**
+```dart
+// בדוק אזהרות פוטנציאליות:
+- Row ללא Expanded/Flexible
+- Column ללא SingleChildScrollView
+- Text ללא overflow: TextOverflow.ellipsis
+- ListView ללא shrinkWrap (כשבתוך Column)
+```
+
+#### 🎯 תהליך UI Review (3 דקות)
+
+```
+1️⃣ חפש Hardcoded Values:
+   Ctrl+Shift+F → "width: [0-9]"
+   Ctrl+Shift+F → "fontSize: [0-9]"
+   Ctrl+Shift+F → "padding: [0-9]"
+   Ctrl+Shift+F → "Color(0x"
+
+2️⃣ בדוק Layout:
+   - Row/Column ללא Expanded?
+   - SingleChildScrollView חסר?
+   - Touch targets < 48x48?
+
+3️⃣ בדוק States:
+   - Loading state?
+   - Error state?
+   - Empty state?
+
+4️⃣ בדוק Theme:
+   - ColorScheme usage?
+   - Constants usage?
+   - RTL support?
+```
+
+#### 📊 דוגמה: UI Review Report
+
+```
+📊 UI Review - home_dashboard_screen.dart
+
+✅ Layout:
+   - SafeArea + SingleChildScrollView ✓
+   - RefreshIndicator נכון ✓
+   
+✅ Spacing:
+   - כל padding דרך kSpacing* ✓
+   
+✅ Colors:
+   - ColorScheme + AppBrand ✓
+   
+⚠️ Touch Targets:
+   - Icon buttons 16x16 (צריך 48x48 wrapper)
+   
+⚠️ States:
+   - חסר Error State (יש Loading + Empty)
+   
+🎯 ציון UI: 85/100
+💡 2 שיפורים מומלצים
+```
+
+#### 💡 Tips
+
+- **אם אין בעיות UI** - פשוט כתוב "✅ UI: נראה טוב"
+- **אל תתעכב על פרטים קוסמטיים** - רק בעיות אמיתיות
+- **תעדיף בעיות Accessibility** - touch targets, contrast, etc
+- **הצע שיפורים רק אם יש בעיה ברורה**
+
+---
+
 ## 💡 חלק D: לקחים מהפרויקט
 
-### 1️⃣5️⃣ Firebase Integration
+### 1️⃣6️⃣ Firebase Integration
 
 **Timestamp Converter:**
 
@@ -580,7 +789,7 @@ await _firestore
 
 ---
 
-### 1️⃣6️⃣ Provider Patterns
+### 1️⃣7️⃣ Provider Patterns
 
 **Error Recovery:**
 
@@ -598,7 +807,7 @@ debugPrint('📥 load() | ✅ success | ❌ error | 🔔 notify | 🔄 retry');
 
 ---
 
-### 1️⃣7️⃣ Data & Storage
+### 1️⃣8️⃣ Data & Storage
 
 **Cache Pattern:**
 
@@ -631,7 +840,7 @@ return items;  // 4s → 1s (פי 4 מהיר יותר!)
 
 ---
 
-### 1️⃣8️⃣ Services Architecture
+### 1️⃣9️⃣ Services Architecture
 
 | סוג | תכונות | דוגמה |
 |-----|---------|-------|
@@ -688,7 +897,7 @@ return items;  // 4s → 1s (פי 4 מהיר יותר!)
 
 ---
 
-**גרסה:** 6.0 - תמציתי + קישורים  
+**גרסה:** 7.0 - UI Review תוסף  
 **תאימות:** Flutter 3.27+ | Mobile Only  
-**עדכון:** 07/10/2025  
+**עדכון:** 08/10/2025  
 **Made with ❤️ by AI & Humans** 🤖🤝👨‍💻

@@ -3,7 +3,7 @@
 //
 // 📋 Features:
 // ✅ Pull-to-Refresh (רשימות + הצעות)
-// ✅ מיון רשימות (תאריך/שם/סטטוס)
+// ✅ מיון חכם לפי priority (אירועים + עדכונים)
 // ✅ Empty state משופר עם אנימציה
 // ✅ כרטיסים: הקנייה הבאה, הצעות חכמות, קבלות, רשימות פעילות
 // ✅ Dismissible lists עם undo
@@ -38,23 +38,6 @@ import '../../theme/app_theme.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 
-enum SortOption {
-  date,
-  name,
-  status;
-
-  String get label {
-    switch (this) {
-      case SortOption.date:
-        return AppStrings.home.sortByDate;
-      case SortOption.name:
-        return AppStrings.home.sortByName;
-      case SortOption.status:
-        return AppStrings.home.sortByStatus;
-    }
-  }
-}
-
 class HomeDashboardScreen extends StatefulWidget {
   const HomeDashboardScreen({super.key});
 
@@ -63,8 +46,6 @@ class HomeDashboardScreen extends StatefulWidget {
 }
 
 class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
-  SortOption _sortOption = SortOption.date;
-
   Future<void> _refresh(BuildContext context) async {
     debugPrint('🏠 HomeDashboard: מתחיל refresh...');
     
@@ -85,27 +66,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     debugPrint('🏠 HomeDashboard: refresh הושלם');
   }
 
-  List<ShoppingList> _sortLists(List<ShoppingList> lists) {
-    debugPrint('🏠 HomeDashboard: ממיין ${lists.length} רשימות לפי ${_sortOption.label}');
-    
-    final sorted = List<ShoppingList>.from(lists);
-
-    switch (_sortOption) {
-      case SortOption.date:
-        sorted.sort((a, b) => b.updatedDate.compareTo(a.updatedDate));
-        break;
-      case SortOption.name:
-        sorted.sort((a, b) => a.name.compareTo(b.name));
-        break;
-      case SortOption.status:
-        sorted.sort((a, b) => a.status.compareTo(b.status));
-        break;
-    }
-
-    debugPrint('   ✅ מיון הושלם');
-    return sorted;
-  }
-
   @override
   Widget build(BuildContext context) {
     final listsProvider = context.watch<ShoppingListsProvider>();
@@ -124,15 +84,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               _Header(userName: userContext.displayName),
               const SizedBox(height: kSpacingMedium),
 
-              if (!listsProvider.isLoading && listsProvider.lists.isNotEmpty)
-                _SortBar(
-                  currentSort: _sortOption,
-                  onSortChanged: (value) {
-                    debugPrint('🏠 HomeDashboard: שינוי מיון ל-${value.label}');
-                    setState(() => _sortOption = value);
-                  },
-                ),
-
               if (listsProvider.isLoading)
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: kButtonHeight),
@@ -143,7 +94,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   onCreateList: () => _showCreateListDialog(context),
                 )
               else
-                _Content(allLists: _sortLists(listsProvider.lists)),
+                _Content(allLists: listsProvider.lists),
             ],
           ),
         ),
@@ -206,29 +157,38 @@ class _Header extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final brand = Theme.of(context).extension<AppBrand>();
 
+    // 🆕 Header קומפקטי יותר - צמצום padding + גודל
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: kSpacingMedium,
-        vertical: kSpacingMedium + 2, // 18px
+        horizontal: kBorderRadius,
+        vertical: kSpacingSmallPlus - 2, // 10px
       ),
       decoration: BoxDecoration(
-        color: cs.primaryContainer,
-        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-        border: Border.all(color: cs.primary.withValues(alpha: 0.12)),
+        gradient: LinearGradient(
+          colors: [
+            cs.primaryContainer,
+            cs.primaryContainer.withValues(alpha: 0.7),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(kBorderRadius),
+        border: Border.all(
+          color: cs.primary.withValues(alpha: 0.12),
+        ),
       ),
       child: Row(
         children: [
           CircleAvatar(
-            radius: kSpacingLarge - 2, // 22px
+            radius: kSpacingMedium, // 16px (צמצום מ-22px)
             backgroundColor: (brand?.accent ?? cs.secondary).withValues(
               alpha: 0.18,
             ),
             child: Icon(
               Icons.home_outlined,
+              size: kIconSizeSmall, // 16px
               color: brand?.accent ?? cs.secondary,
             ),
           ),
-          const SizedBox(width: kBorderRadius),
+          const SizedBox(width: kSpacingSmall),
           Expanded(
             child: Text(
               AppStrings.home.welcomeUser(
@@ -236,7 +196,7 @@ class _Header extends StatelessWidget {
                   ? AppStrings.home.guestUser 
                   : userName!,
               ),
-              style: t.titleLarge?.copyWith(
+              style: t.titleMedium?.copyWith(
                 color: cs.onPrimaryContainer,
                 fontWeight: FontWeight.bold,
               ),
@@ -246,61 +206,6 @@ class _Header extends StatelessWidget {
         ],
       ),
     ).animate().fadeIn(duration: 350.ms).slideY(begin: .1);
-  }
-}
-
-class _SortBar extends StatelessWidget {
-  final SortOption currentSort;
-  final ValueChanged<SortOption> onSortChanged;
-
-  const _SortBar({required this.currentSort, required this.onSortChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final brand = Theme.of(context).extension<AppBrand>();
-    final accent = brand?.accent ?? cs.primary;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: kSpacingMedium),
-      padding: const EdgeInsets.symmetric(
-        horizontal: kBorderRadius,
-        vertical: kSpacingSmall,
-      ),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(kBorderRadius),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.sort, size: kIconSizeSmall + 4, color: accent), // 20px
-          const SizedBox(width: kSpacingSmall),
-          Text(
-            AppStrings.home.sortLabel,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(width: kSpacingSmall),
-          Expanded(
-            child: DropdownButton<SortOption>(
-              value: currentSort,
-              isExpanded: true,
-              underline: const SizedBox(),
-              items: SortOption.values.map((option) {
-                return DropdownMenuItem(
-                  value: option,
-                  child: Text(option.label),
-                );
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) onSortChanged(value);
-              },
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 
@@ -501,7 +406,7 @@ class _ReceiptsCard extends StatelessWidget {
     );
 
     return Card(
-      elevation: 2,
+      elevation: 3, // 🆕 elevation גבוה יותר
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(kBorderRadiusLarge),
       ),
@@ -661,7 +566,7 @@ class _ActiveListsCard extends StatelessWidget {
     final accent = brand?.accent ?? cs.primary;
 
     return Card(
-      elevation: 2,
+      elevation: 3, // 🆕 elevation גבוה יותר
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(kBorderRadiusLarge),
       ),

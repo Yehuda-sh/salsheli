@@ -57,7 +57,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   /// ✅ פונקציית Register עם Firebase Authentication
   Future<void> _handleRegister() async {
-    if (!_formKey.currentState!.validate()) return;
+    debugPrint('📝 _handleRegister() | Starting registration process...');
+    if (!_formKey.currentState!.validate()) {
+      debugPrint('❌ _handleRegister() | Form validation failed');
+      return;
+    }
 
     setState(() {
       _isLoading = true;
@@ -70,6 +74,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final password = _passwordController.text;
 
       // 🔹 1. רישום דרך Firebase Auth
+      debugPrint('📝 _handleRegister() | Signing up with email: $email, name: $name');
       final userContext = context.read<UserContext>();
       await userContext.signUp(
         email: email,
@@ -78,6 +83,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
 
       // 🔹 2. בדיקה שהרישום הצליח
+      debugPrint('✅ _handleRegister() | Sign up successful, userId: ${userContext.userId}');
       if (!userContext.isLoggedIn) {
         throw Exception('שגיאה ביצירת החשבון');
       }
@@ -86,13 +92,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('user_id', userContext.userId!);
       await prefs.setBool('seen_onboarding', true);
+      debugPrint('✅ _handleRegister() | User data saved to SharedPreferences');
 
       // 🔹 4. ניווט לדף הבית
       if (mounted) {
         setState(() => _isLoading = false);
+        debugPrint('🔄 _handleRegister() | Navigating to home screen');
         Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       }
     } catch (e) {
+      debugPrint('❌ _handleRegister() | Registration failed: $e');
       setState(() {
         _errorMessage = e.toString().replaceAll('Exception: ', '');
         _isLoading = false;
@@ -108,10 +117,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
       }
     }
+    debugPrint('🏁 _handleRegister() | Completed');
   }
 
   /// ניווט למסך התחברות
   void _navigateToLogin() {
+    debugPrint('🔄 _navigateToLogin() | Navigating to login screen');
     Navigator.pushReplacementNamed(context, '/login');
   }
 

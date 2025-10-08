@@ -27,6 +27,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/ui_constants.dart';
+import '../l10n/app_strings.dart';
 import 'welcome_screen.dart';
 
 class IndexScreen extends StatefulWidget {
@@ -107,7 +108,7 @@ class _IndexScreenState extends State<IndexScreen> {
             children: [
               // לוגו עם Accessibility
               Semantics(
-                label: 'לוגו אפליקציית Salsheli',
+                label: AppStrings.index.logoLabel,
                 child: Container(
                   width: kButtonHeight + 24, // 72
                   height: kButtonHeight + 24, // 72
@@ -128,7 +129,7 @@ class _IndexScreenState extends State<IndexScreen> {
               Semantics(
                 header: true,
                 child: Text(
-                  'Salsheli',
+                  AppStrings.index.appName,
                   style: TextStyle(
                     fontSize: kFontSizeXLarge,
                     fontWeight: FontWeight.bold,
@@ -140,7 +141,7 @@ class _IndexScreenState extends State<IndexScreen> {
               
               // Progress indicator עם accessibility
               Semantics(
-                label: 'טוען את האפליקציה',
+                label: AppStrings.index.loadingLabel,
                 child: Column(
                   children: [
                     CircularProgressIndicator(
@@ -148,7 +149,7 @@ class _IndexScreenState extends State<IndexScreen> {
                     ),
                     SizedBox(height: kSpacingSmall),
                     Text(
-                      'טוען...',
+                      AppStrings.index.loading,
                       style: TextStyle(
                         fontSize: kFontSizeSmall,
                         color: cs.onSurface.withValues(alpha: 0.6),

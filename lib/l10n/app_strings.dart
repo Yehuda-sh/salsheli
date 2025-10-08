@@ -63,6 +63,18 @@ class AppStrings {
   static const filters = _FiltersStrings();
   
   // ========================================
+  // Index (Splash)
+  // ========================================
+  
+  static const index = _IndexStrings();
+  
+  // ========================================
+  // Welcome
+  // ========================================
+  
+  static const welcome = _WelcomeStrings();
+  
+  // ========================================
   // Auth (Login/Register)
   // ========================================
   
@@ -279,6 +291,55 @@ class _FiltersStrings {
   String get statusTaken => 'נלקח';
   String get statusMissing => 'חסר';
   String get statusReplaced => 'הוחלף';
+}
+
+// ========================================
+// Index (Splash) Strings
+// ========================================
+
+class _IndexStrings {
+  const _IndexStrings();
+  
+  // Screen
+  String get appName => 'Salsheli';
+  
+  // Accessibility
+  String get logoLabel => 'לוגו אפליקציית Salsheli';
+  String get loadingLabel => 'טוען את האפליקציה';
+  
+  // UI
+  String get loading => 'טוען...';
+}
+
+// ========================================
+// Welcome Strings
+// ========================================
+
+class _WelcomeStrings {
+  const _WelcomeStrings();
+  
+  // Screen
+  String get title => 'סל שלי';
+  String get subtitle => 'קניות. פשוט. חכם.\nתכננו, שתפו, עקבו - הכל באפליקציה אחת';
+  
+  // Benefits
+  String get benefit1Title => 'שיתוף בזמן אמת';
+  String get benefit1Subtitle => 'רשימה אחת, כולם רואים, אף אחד לא טועה';
+  String get benefit2Title => 'קבלות שעובדות בשבילכם';
+  String get benefit2Subtitle => 'תמונה → נתונים → תובנות';
+  String get benefit3Title => 'מלאי הבית שלכם';
+  String get benefit3Subtitle => 'יודעים מה יש, קונים רק מה חסר';
+  
+  // Buttons
+  String get loginButton => 'התחברות';
+  String get registerButton => 'הרשמה';
+  String get socialLoginLabel => 'או התחבר עם:';
+  String get googleButton => 'Google';
+  String get facebookButton => 'Facebook';
+  
+  // Accessibility
+  String get logoLabel => 'לוגו אפליקציית סל שלי';
+  String socialLoginButtonLabel(String provider) => 'התחבר עם $provider';
 }
 
 // ========================================

@@ -1,9 +1,10 @@
 // 📄 File: lib/widgets/home/upcoming_shop_card.dart
 //
-// ✅ עדכונים:
-// 1. שימוש ב-DashboardCard המשותף
-// 2. עיצוב אחיד
-// 3. אנימציות משופרות
+// ✅ עדכונים (08/10/2025):
+// 1. Progress bar 0% → סטטוס טקסטואלי "טרם התחלת"
+// 2. כפתור "התחל קנייה" בולט יותר (gradient + elevation)
+// 3. תגי אירוע משופרים (אייקון + צבעים)
+// 4. Visual hierarchy משופר
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +12,8 @@ import '../../models/shopping_list.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../create_list_dialog.dart';
 import '../common/dashboard_card.dart';
+import '../../core/ui_constants.dart';
+import '../../theme/app_theme.dart';
 
 class UpcomingShopCard extends StatelessWidget {
   final ShoppingList? list;
@@ -55,6 +58,7 @@ class UpcomingShopCard extends StatelessWidget {
     return DashboardCard(
       title: "הקנייה הקרובה",
       icon: Icons.shopping_cart,
+      elevation: 3, // ← elevation גבוה יותר
       onTap: () {
         Navigator.pushNamed(context, '/populate-list', arguments: list);
       },
@@ -76,6 +80,7 @@ class _EmptyUpcomingCard extends StatelessWidget {
     return DashboardCard(
       title: "הקנייה הקרובה",
       icon: Icons.shopping_cart_outlined,
+      elevation: 2,
       child: Column(
         children: [
           Icon(
@@ -83,14 +88,14 @@ class _EmptyUpcomingCard extends StatelessWidget {
             size: 48,
             color: cs.primary.withValues(alpha: 0.3),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: kBorderRadius),
           Text(
             "אין רשימה פעילה כרגע",
             style: theme.textTheme.bodyLarge?.copyWith(
               color: cs.onSurfaceVariant,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: kSpacingMedium),
           FilledButton.icon(
             onPressed: onCreateList,
             icon: const Icon(Icons.add),
@@ -111,8 +116,10 @@ class _ListSummary extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
+    final accent = brand?.accent ?? cs.primary;
+    
     final itemsCount = list.items.length;
-    // חישוב מקומי (הgetters נמחקו מהמודל)
     final checkedCount = list.items.where((item) => item.isChecked).length;
     final progress = itemsCount > 0 ? checkedCount / itemsCount : 0.0;
 
@@ -130,11 +137,10 @@ class _ListSummary extends StatelessWidget {
                 ),
               ),
             ),
-            // כפתור עריכה קטן
             IconButton(
-              icon: const Icon(Icons.edit_outlined, size: 20),
+              icon: const Icon(Icons.edit_outlined, size: kIconSizeSmall),
               tooltip: 'ערוך רשימה',
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(kSpacingSmall),
               constraints: const BoxConstraints(
                 minWidth: 36,
                 minHeight: 36,
@@ -149,29 +155,65 @@ class _ListSummary extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: kSpacingSmall),
 
-        // תג סוג + תקציב + תאריך אירוע
+        // תגים: סוג + תקציב + תאריך אירוע
         Wrap(
-          spacing: 8,
-          runSpacing: 8,
+          spacing: kSpacingSmall,
+          runSpacing: kSpacingSmall,
           children: [
             _buildTypeBadge(context, list.type),
             if (list.budget != null) _buildBudgetChip(context, list.budget!),
             if (list.eventDate != null) _buildEventDateChip(context, list.eventDate!),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: kSpacingMedium),
 
-        // התקדמות
-        LinearProgressIndicator(
-          value: progress,
-          backgroundColor: cs.surfaceContainerHighest,
-          color: cs.primary,
-          minHeight: 8,
-          borderRadius: BorderRadius.circular(4),
-        ),
-        const SizedBox(height: 8),
+        // 🆕 התקדמות - עם טיפול ב-0%
+        if (progress == 0.0) ...[
+          // ✅ סטטוס טקסטואלי כשאין התקדמות
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: kBorderRadius,
+              vertical: kSpacingSmall,
+            ),
+            decoration: BoxDecoration(
+              color: cs.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+              border: Border.all(
+                color: cs.outline.withValues(alpha: 0.2),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.hourglass_empty,
+                  size: kIconSizeSmall,
+                  color: cs.onSurfaceVariant,
+                ),
+                const SizedBox(width: kSpacingSmall),
+                Text(
+                  'טרם התחלת',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: cs.onSurfaceVariant,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ] else ...[
+          // Progress bar רגיל
+          LinearProgressIndicator(
+            value: progress,
+            backgroundColor: cs.surfaceContainerHighest,
+            color: accent,
+            minHeight: kSpacingSmall,
+            borderRadius: BorderRadius.circular(kBorderWidthThick),
+          ),
+        ],
+        const SizedBox(height: kSpacingSmall),
 
         // מידע נוסף
         Row(
@@ -183,32 +225,73 @@ class _ListSummary extends StatelessWidget {
                 color: cs.onSurfaceVariant,
               ),
             ),
-            Text(
-              "${(progress * 100).toInt()}%",
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: cs.primary,
+            if (progress > 0)
+              Text(
+                "${(progress * 100).toInt()}%",
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: accent,
+                ),
               ),
-            ),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: kSpacingMedium),
 
-        // כפתור התחל קנייה
+        // 🆕 כפתור "התחל קנייה" בולט יותר
         SizedBox(
           width: double.infinity,
-          child: FilledButton.icon(
-            onPressed: () {
-              Navigator.pushNamed(
-                context,
-                '/active-shopping',
-                arguments: list,  // עובר את כל ה-list object
-              );
-            },
-            icon: const Icon(Icons.shopping_cart, size: 20),
-            label: const Text('התחל קנייה'),
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  accent,
+                  accent.withValues(alpha: 0.85),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(kBorderRadius),
+              boxShadow: [
+                BoxShadow(
+                  color: accent.withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    '/active-shopping',
+                    arguments: list,
+                  );
+                },
+                borderRadius: BorderRadius.circular(kBorderRadius),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: kSpacingMedium - 2,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.shopping_cart,
+                        size: kIconSizeSmall,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(width: kSpacingSmall),
+                      Text(
+                        'התחל קנייה',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         ),
@@ -224,6 +307,18 @@ class _ListSummary extends StatelessWidget {
       'super': 'סופר',
       'pharmacy': 'בית מרקחת',
       'hardware': 'חומרי בניין',
+      'toys': 'צעצועים',
+      'books': 'ספרים',
+      'sports': 'ספורט',
+      'homeDecor': 'קישוטי בית',
+      'automotive': 'רכב',
+      'baby': 'תינוקות',
+      'birthday': 'יום הולדת',
+      'wedding': 'חתונה',
+      'holiday': 'חג',
+      'picnic': 'פיקניק',
+      'party': 'מסיבה',
+      'camping': 'קמפינג',
       'other': 'אחר',
     };
 
@@ -231,24 +326,39 @@ class _ListSummary extends StatelessWidget {
       'super': Icons.shopping_cart,
       'pharmacy': Icons.local_pharmacy,
       'hardware': Icons.hardware,
+      'toys': Icons.toys,
+      'books': Icons.menu_book,
+      'sports': Icons.sports_basketball,
+      'homeDecor': Icons.chair,
+      'automotive': Icons.directions_car,
+      'baby': Icons.child_care,
+      'birthday': Icons.cake,
+      'wedding': Icons.favorite,
+      'holiday': Icons.celebration,
+      'picnic': Icons.park,
+      'party': Icons.party_mode,
+      'camping': Icons.nature_people,
       'other': Icons.more_horiz,
     };
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(
+        horizontal: kSpacingSmallPlus - 2,
+        vertical: kBorderWidthThick + 2,
+      ),
       decoration: BoxDecoration(
         color: cs.primaryContainer,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(kBorderRadius),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             typeIcons[type] ?? Icons.list,
-            size: 14,
+            size: kFontSizeSmall,
             color: cs.onPrimaryContainer,
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: kBorderWidthThick),
           Text(
             typeLabels[type] ?? type,
             style: theme.textTheme.labelSmall?.copyWith(
@@ -266,20 +376,23 @@ class _ListSummary extends StatelessWidget {
     final cs = theme.colorScheme;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(
+        horizontal: kSpacingSmallPlus - 2,
+        vertical: kBorderWidthThick + 2,
+      ),
       decoration: BoxDecoration(
         color: cs.secondaryContainer,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(kBorderRadius),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             Icons.account_balance_wallet,
-            size: 14,
+            size: kFontSizeSmall,
             color: cs.onSecondaryContainer,
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: kBorderWidthThick),
           Text(
             '₪${budget.toStringAsFixed(0)}',
             style: theme.textTheme.labelSmall?.copyWith(
@@ -297,55 +410,68 @@ class _ListSummary extends StatelessWidget {
     final now = DateTime.now();
     final daysUntil = eventDate.difference(now).inDays;
 
-    // בחירת צבע לפי מרחק
+    // 🆕 בחירת צבע + אייקון לפי מרחק
     Color chipColor;
     Color textColor;
+    IconData icon;
+    
     if (daysUntil <= 7) {
       // דחוף - אדום
       chipColor = Colors.red.shade100;
       textColor = Colors.red.shade800;
+      icon = Icons.event;
     } else if (daysUntil <= 14) {
       // בינוני - כתום
       chipColor = Colors.orange.shade100;
       textColor = Colors.orange.shade800;
+      icon = Icons.event;
     } else {
       // רגיל - ירוק
       chipColor = Colors.green.shade100;
       textColor = Colors.green.shade800;
+      icon = Icons.event;
     }
 
     // פורמט טקסט
     String dateText;
     if (daysUntil == 0) {
-      dateText = 'היום!';
+      dateText = 'היום! 🎂';
+      icon = Icons.cake;
     } else if (daysUntil == 1) {
       dateText = 'מחר';
     } else if (daysUntil > 0) {
       dateText = 'בעוד $daysUntil ימים';
     } else {
-      dateText = 'עבר'; // אירוע שעבר
+      dateText = 'עבר';
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(
+        horizontal: kSpacingSmallPlus,
+        vertical: kBorderWidthThick + 2,
+      ),
       decoration: BoxDecoration(
         color: chipColor,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(kBorderRadius),
+        border: Border.all(
+          color: textColor.withValues(alpha: 0.3),
+          width: kBorderWidth,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            Icons.event,
-            size: 14,
+            icon,
+            size: kIconSizeSmall - 2, // 14px
             color: textColor,
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: kBorderWidthThick + 2),
           Text(
             dateText,
-            style: theme.textTheme.labelSmall?.copyWith(
+            style: theme.textTheme.labelMedium?.copyWith(
               color: textColor,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ],

@@ -43,6 +43,9 @@ const double kSpacingLarge = 24.0;
 /// ריווח קטן מאוד (4px)
 const double kSpacingTiny = 4.0;
 
+/// ריווח קטן-קטן (6px) - בין Tiny ל-Small
+const double kSpacingXTiny = 6.0;
+
 /// ריווח ענק (32px)
 const double kSpacingXLarge = 32.0;
 
@@ -221,6 +224,25 @@ const double kSnackBarBottomMargin = 80.0;
 const double kSnackBarHorizontalMargin = 16.0;
 
 // ========================================
+// Receipt Parsing
+// ========================================
+
+/// אורך מינימלי לשורה בקבלה (תווים)
+const int kMinReceiptLineLength = 3;
+
+/// מחיר מקסימלי לפריט בקבלה (₪)
+const double kMaxReceiptPrice = 10000.0;
+
+/// הפרש מקסימלי בין סכום פריטים לסה"כ (₪)
+const double kMaxReceiptTotalDifference = 1.0;
+
+/// מספר שורות מקסימלי לבדיקת שם חנות
+const int kMaxStoreLinesCheck = 5;
+
+/// אורך מקסימלי לשם חנות מהשורה הראשונה
+const int kMaxStoreNameLength = 30;
+
+// ========================================
 // 💡 דוגמאות שימוש
 // ========================================
 //
@@ -240,4 +262,8 @@ const double kSnackBarHorizontalMargin = 16.0;
 //     borderRadius: BorderRadius.circular(kBorderRadius),
 //   ),
 // )
+//
+// // Receipt Parsing
+// if (line.length < kMinReceiptLineLength) continue;
+// if (price > kMaxReceiptPrice) continue;
 // ```

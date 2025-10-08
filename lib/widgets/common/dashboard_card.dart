@@ -4,9 +4,14 @@
 // - עיצוב אחיד לכל כרטיסי הדשבורד
 // - תמיכה בכותרת, אייקון, actions
 // - Material 3 Design
+//
+// 🆕 עדכונים (08/10/2025):
+// - תמיכה ב-elevation parameter
+// - Visual depth משופר
 
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import '../../core/ui_constants.dart';
 
 class DashboardCard extends StatelessWidget {
   final String title;
@@ -16,6 +21,7 @@ class DashboardCard extends StatelessWidget {
   final VoidCallback? onTap;
   final Color? backgroundColor;
   final Color? borderColor;
+  final double elevation; // 🆕
 
   const DashboardCard({
     super.key,
@@ -26,6 +32,7 @@ class DashboardCard extends StatelessWidget {
     this.onTap,
     this.backgroundColor,
     this.borderColor,
+    this.elevation = 2.0, // 🆕 default
   });
 
   @override
@@ -38,21 +45,22 @@ class DashboardCard extends StatelessWidget {
     final cardContent = Container(
       decoration: BoxDecoration(
         color: backgroundColor ?? cs.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
         border: Border.all(
           color: borderColor ?? cs.outline.withValues(alpha: 0.2),
-          width: 1,
+          width: kBorderWidth,
         ),
         boxShadow: [
+          // 🆕 BoxShadow מבוסס elevation
           BoxShadow(
-            color: cs.shadow.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: cs.shadow.withValues(alpha: 0.08 * elevation),
+            blurRadius: 4 * elevation,
+            offset: Offset(0, elevation),
           ),
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(kSpacingMedium),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -60,14 +68,18 @@ class DashboardCard extends StatelessWidget {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(kSpacingSmall),
                   decoration: BoxDecoration(
                     color: accent.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                   ),
-                  child: Icon(icon, color: accent, size: 20),
+                  child: Icon(
+                    icon,
+                    color: accent,
+                    size: kIconSizeSmall + 4, // 20px
+                  ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: kBorderRadius),
                 Expanded(
                   child: Text(
                     title,
@@ -81,7 +93,7 @@ class DashboardCard extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: kSpacingMedium),
 
             // תוכן
             child,
@@ -93,7 +105,7 @@ class DashboardCard extends StatelessWidget {
     if (onTap != null) {
       return InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
         child: cardContent,
       );
     }

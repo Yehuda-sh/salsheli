@@ -483,27 +483,27 @@ class _SummaryStep extends StatelessWidget {
             leadingEmojiOrIconText: "👨‍👩‍👧‍👦",
             text: AppStrings.onboarding.familySizeSummary(data.familySize),
           ),
-          const SizedBox(height: kSpacingTiny + 2),
+          const SizedBox(height: kSpacingXTiny),
           _RtlSummaryRow(
             leadingEmojiOrIconText: "🏪",
             text: AppStrings.onboarding.storesSummary(storesText),
           ),
-          const SizedBox(height: kSpacingTiny + 2),
+          const SizedBox(height: kSpacingXTiny),
           _RtlSummaryRow(
             leadingEmojiOrIconText: "💰",
             text: AppStrings.onboarding.budgetSummary(data.monthlyBudget),
           ),
-          const SizedBox(height: kSpacingTiny + 2),
+          const SizedBox(height: kSpacingXTiny),
           _RtlSummaryRow(
             leadingEmojiOrIconText: "📦",
             text: AppStrings.onboarding.categoriesSummary(categoriesText),
           ),
-          const SizedBox(height: kSpacingTiny + 2),
+          const SizedBox(height: kSpacingXTiny),
           _RtlSummaryRow(
             leadingEmojiOrIconText: "🤝",
             text: AppStrings.onboarding.sharingSummary(data.shareLists),
           ),
-          const SizedBox(height: kSpacingTiny + 2),
+          const SizedBox(height: kSpacingXTiny),
           _RtlSummaryRow(
             leadingEmojiOrIconText: "⏰",
             text: AppStrings.onboarding.reminderTimeSummary(data.reminderTime),

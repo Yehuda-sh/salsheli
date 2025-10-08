@@ -28,6 +28,7 @@ import '../theme/app_theme.dart';
 import '../widgets/common/benefit_tile.dart';
 import '../widgets/auth/auth_button.dart';
 import '../core/ui_constants.dart';
+import '../l10n/app_strings.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -68,14 +69,14 @@ class WelcomeScreen extends StatelessWidget {
 
                   // לוגו עם Accessibility + זוהר ואנימציה
                   Semantics(
-                    label: 'לוגו אפליקציית סל שלי',
+                    label: AppStrings.welcome.logoLabel,
                     child: _AnimatedLogo(accent: accent),
                   ),
                   const SizedBox(height: kSpacingLarge),
 
                   // כותרת
                   Text(
-                    'סל שלי',
+                    AppStrings.welcome.title,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.headlineLarge?.copyWith(
                       color: Colors.white,
@@ -87,7 +88,7 @@ class WelcomeScreen extends StatelessWidget {
 
                   // תיאור
                   Text(
-                    'קניות. פשוט. חכם.\nתכננו, שתפו, עקבו - הכל באפליקציה אחת',
+                    AppStrings.welcome.subtitle,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyLarge?.copyWith(
                       color: Colors.white.withValues(alpha: 0.9), // בהיר יותר!
@@ -99,24 +100,24 @@ class WelcomeScreen extends StatelessWidget {
                   // רשימת יתרונות - עם צבעים לבנים לרקע כהה
                   BenefitTile(
                     icon: Icons.people_outline,
-                    title: 'שיתוף בזמן אמת',
-                    subtitle: 'רשימה אחת, כולם רואים, אף אחד לא טועה',
+                    title: AppStrings.welcome.benefit1Title,
+                    subtitle: AppStrings.welcome.benefit1Subtitle,
                     titleColor: Colors.white,
                     subtitleColor: Colors.white.withValues(alpha: 0.85),
                     iconColor: accent,
                   ),
                   BenefitTile(
                     icon: Icons.camera_alt_outlined,
-                    title: 'קבלות שעובדות בשבילכם',
-                    subtitle: 'תמונה → נתונים → תובנות',
+                    title: AppStrings.welcome.benefit2Title,
+                    subtitle: AppStrings.welcome.benefit2Subtitle,
                     titleColor: Colors.white,
                     subtitleColor: Colors.white.withValues(alpha: 0.85),
                     iconColor: accent,
                   ),
                   BenefitTile(
                     icon: Icons.inventory_2_outlined,
-                    title: 'מלאי הבית שלכם',
-                    subtitle: 'יודעים מה יש, קונים רק מה חסר',
+                    title: AppStrings.welcome.benefit3Title,
+                    subtitle: AppStrings.welcome.benefit3Subtitle,
                     titleColor: Colors.white,
                     subtitleColor: Colors.white.withValues(alpha: 0.85),
                     iconColor: accent,
@@ -126,7 +127,7 @@ class WelcomeScreen extends StatelessWidget {
 
                   // כפתור התחברות
                   AuthButton.primary(
-                    label: 'התחברות',
+                    label: AppStrings.welcome.loginButton,
                     icon: Icons.login,
                     onPressed: () {
                       debugPrint('🔐 WelcomeScreen: התחברות נלחץ');
@@ -137,7 +138,7 @@ class WelcomeScreen extends StatelessWidget {
 
                   // כפתור הרשמה
                   AuthButton.secondary(
-                    label: 'הרשמה',
+                    label: AppStrings.welcome.registerButton,
                     icon: Icons.app_registration_outlined,
                     onPressed: () {
                       debugPrint('📝 WelcomeScreen: הרשמה נלחץ');
@@ -147,8 +148,8 @@ class WelcomeScreen extends StatelessWidget {
                   const SizedBox(height: kSpacingMedium), // צומצם מ-24 ל-16
 
                   // אפשרויות Social Login
-                  const Text(
-                    'או התחבר עם:',
+                  Text(
+                    AppStrings.welcome.socialLoginLabel,
                     style: TextStyle(color: Colors.white60),
                   ),
                   const SizedBox(height: kSpacingMedium),
@@ -158,7 +159,7 @@ class WelcomeScreen extends StatelessWidget {
                     children: [
                       _SocialLoginButton(
                         icon: Icons.g_mobiledata,
-                        label: 'Google',
+                        label: AppStrings.welcome.googleButton,
                         onPressed: () {
                           debugPrint('🌐 WelcomeScreen: Google login נלחץ');
                           Navigator.pushNamed(context, '/login');
@@ -167,7 +168,7 @@ class WelcomeScreen extends StatelessWidget {
                       const SizedBox(width: kSpacingMedium),
                       _SocialLoginButton(
                         icon: Icons.facebook,
-                        label: 'Facebook',
+                        label: AppStrings.welcome.facebookButton,
                         onPressed: () {
                           debugPrint('🌐 WelcomeScreen: Facebook login נלחץ');
                           Navigator.pushNamed(context, '/login');
@@ -284,7 +285,7 @@ class _SocialLoginButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
-      label: 'התחבר עם $label',
+      label: AppStrings.welcome.socialLoginButtonLabel(label),
       child: SizedBox(
         height: kButtonHeight,
         child: OutlinedButton.icon(
