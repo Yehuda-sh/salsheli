@@ -408,13 +408,6 @@ class ProductsProvider with ChangeNotifier {
     return map;
   }
 
-  // === Update Progress (Internal) ===
-  void _updateProgress(int current, int total) {
-    _loadingProgress = current;
-    _loadingTotal = total;
-    notifyListeners();
-  }
-  
   // === Clear All ===
   void clearAll() {
     debugPrint('🧹 ProductsProvider.clearAll()');

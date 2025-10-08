@@ -112,7 +112,7 @@ class ShoppingListDetailsScreen extends StatelessWidget {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('המוצר "${removed.name}" נמחק'),
+        content: Text('המוצר "${removed.name ?? 'ללא שם'}" נמחק'),
         action: SnackBarAction(
           label: 'בטל',
           onPressed: () {
@@ -182,7 +182,7 @@ class ShoppingListDetailsScreen extends StatelessWidget {
                         return Card(
                           child: ListTile(
                             title: Text(
-                              item.name,
+                              item.name ?? 'ללא שם',
                               style: theme.textTheme.titleLarge,
                             ),
                             subtitle: Text(

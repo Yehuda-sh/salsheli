@@ -30,7 +30,7 @@ Map<String, dynamic> _$ReceiptToJson(Receipt instance) => <String, dynamic>{
 
 ReceiptItem _$ReceiptItemFromJson(Map<String, dynamic> json) => ReceiptItem(
       id: json['id'] as String,
-      name: json['name'] as String,
+      name: json['name'] as String? ?? '',
       quantity: (json['quantity'] as num?)?.toInt() ?? 1,
       unitPrice: json['unit_price'] == null
           ? 0.0

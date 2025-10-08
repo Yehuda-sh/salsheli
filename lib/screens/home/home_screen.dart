@@ -81,9 +81,12 @@ class _HomeScreenState extends State<HomeScreen> {
       _lastBackPress = now;
       debugPrint('🏠 HomeScreen: לחיצה ראשונה על Back - המתן ללחיצה שנייה');
 
+      // שמור messenger לפני async
+      final messenger = ScaffoldMessenger.of(context);
+      
       // הודעה למשתמש - לחץ שוב לסגירה
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(
             content: Text(
               AppStrings.home.doubleTapToExit,

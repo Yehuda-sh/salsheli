@@ -152,13 +152,16 @@ String getStatusLabel(String statusId) {
 }
 
 /// תאימות לאחור (שמות ישנים)
+/// 
+/// ⚠️ Deprecated: השתמש ב-kCategories ו-getCategoryLabel() במקום
 @Deprecated('Use kCategories and getCategoryLabel() instead')
-Map<String, String> get CATEGORIES => {
+Map<String, String> get categories => {
       for (final id in kCategories) id: getCategoryLabel(id),
     };
 
+/// ⚠️ Deprecated: השתמש ב-kStatuses ו-getStatusLabel() במקום
 @Deprecated('Use kStatuses and getStatusLabel() instead')
-Map<String, String> get STATUSES => {
+Map<String, String> get statuses => {
       for (final id in kStatuses) id: getStatusLabel(id),
     };
 

@@ -22,7 +22,6 @@
 // **Version:** 1.0
 
 import 'package:json_annotation/json_annotation.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'timestamp_converter.dart';
 
 part 'habit_preference.g.dart';

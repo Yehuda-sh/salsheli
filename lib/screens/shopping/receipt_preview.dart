@@ -106,7 +106,7 @@ class _ReceiptPreviewState extends State<ReceiptPreview> {
     for (int i = 0; i < editedReceipt.items.length; i++) {
       final item = editedReceipt.items[i];
       itemControllersMap[i] = ItemControllers(
-        name: TextEditingController(text: item.name),
+        name: TextEditingController(text: item.name ?? 'ללא שם'),
         quantity: TextEditingController(text: item.quantity.toString()),
         unitPrice: TextEditingController(
           text: item.unitPrice.toStringAsFixed(2),
@@ -209,7 +209,7 @@ class _ReceiptPreviewState extends State<ReceiptPreview> {
               );
               // שיקום controllers לפריט המחוזר
               final c = ItemControllers(
-                name: TextEditingController(text: removedItem.name),
+                name: TextEditingController(text: removedItem.name ?? 'ללא שם'),
                 quantity: TextEditingController(
                   text: removedItem.quantity.toString(),
                 ),
@@ -249,7 +249,7 @@ class _ReceiptPreviewState extends State<ReceiptPreview> {
 
     // Add controllers for new item
     itemControllersMap[newIndex] = ItemControllers(
-      name: TextEditingController(text: newItem.name),
+      name: TextEditingController(text: newItem.name ?? 'מוצר חדש'),
       quantity: TextEditingController(text: '1'),
       unitPrice: TextEditingController(text: '0.00'),
     );
@@ -563,7 +563,7 @@ class _ReceiptPreviewState extends State<ReceiptPreview> {
                                                       vertical: 8,
                                                     ),
                                                 child: Text(
-                                                  item.name,
+                                                  item.name ?? 'ללא שם',
                                                   style: const TextStyle(
                                                     fontWeight: FontWeight.w500,
                                                   ),
@@ -794,8 +794,9 @@ class ItemControllers {
 
   void updateValues(ReceiptItem item) {
     // Update only if values changed to avoid cursor issues
-    if (name.text != item.name) {
-      name.text = item.name;
+    final itemName = item.name ?? 'ללא שם';
+    if (name.text != itemName) {
+      name.text = itemName;
     }
     if (quantity.text != item.quantity.toString()) {
       quantity.text = item.quantity.toString();

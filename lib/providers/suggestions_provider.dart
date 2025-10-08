@@ -238,7 +238,7 @@ class SuggestionsProvider with ChangeNotifier {
       if (list.updatedDate.isAfter(thirtyDaysAgo)) {
         relevantLists++;
         for (var item in list.items) {
-          final name = item.name.trim().toLowerCase();
+          final name = (item.name ?? '').trim().toLowerCase();
           productFrequency[name] = (productFrequency[name] ?? 0) + 1;
           totalItems++;
         }

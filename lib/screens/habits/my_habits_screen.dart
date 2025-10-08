@@ -418,7 +418,6 @@ class _MyHabitsScreenState extends State<MyHabitsScreen> {
     final cs = Theme.of(context).colorScheme;
     final isEditing = _editingId == habit.id;
 
-    final predictedNext = habit.predictedNextPurchase;
     final daysLeft = habit.daysUntilNextPurchase;
     final predictionText =
         daysLeft >= 0 ? "בעוד ~$daysLeft ימים" : "לפני ${daysLeft.abs()} ימים";

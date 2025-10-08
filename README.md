@@ -39,8 +39,8 @@ cd salsheli
 flutter pub get
 dart run build_runner build --delete-conflicting-outputs
 
-# משתמשי דמו (אופציונלי)
-cd scripts && npm install && npm run create-users
+# משתמשי דמו + נתונים (מומלץ!)
+cd scripts && npm install && npm run setup-demo
 
 # Run
 flutter run
@@ -73,15 +73,25 @@ flutter run
 flutterfire configure
 ```
 
-### 👥 משתמשי דמו:
+### 👥 משתמשי דמי + נתונים:
 
 ```bash
-cd scripts && npm run create-users
+cd scripts && npm run setup-demo
 ```
 
+**משתמשים:**
 - `yoni@demo.com` / `Demo123!`
 - `sarah@demo.com` / `Demo123!`
 - `danny@demo.com` / `Demo123!`
+
+**נתונים שיוצרו (עם מוצרים אמיתיים!):**
+- ✅ 3 רשימות קניות (2 פעילות + 1 הושלמה) - **מוצרים מ-Firestore**
+- ✅ ~15 פריטים במלאי - **מוצרים אמיתיים**
+- ✅ 2 קבלות נוספות - **מחירים אמיתיים מהמערכת**
+- ✅ סטטיסטיקות אמיתיות ב-Settings
+
+> **💡 חשוב:** הסקריפט החדש (v2) משתמש במוצרים אמיתיים מ-Firestore, לא Mock Data!
+> אם רוצה להשתמש בסקריפט הישן: `npm run setup-demo-old`
 
 ---
 
@@ -217,8 +227,11 @@ flutter build ios --release
 
 # Firebase Scripts
 cd scripts
-npm run create-users    # משתמשי דמו
-npm run upload          # מוצרים ל-Firestore
+npm run create-users       # משתמשי דמו
+npm run upload-products    # העלאת מוצרים ל-Firestore
+npm run create-data-real   # נתוני דמו עם מוצרים אמיתיים (מומלץ!)
+npm run create-data        # נתוני דמו ישן (Mock Data)
+npm run setup-demo         # הכל ביחד (users + real data)
 ```
 
 ---

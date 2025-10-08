@@ -143,7 +143,7 @@ class _ItemCardState extends State<ItemCard> {
       final updatedItem = widget.item.copyWith(quantity: newQuantity);
       await widget.onUpdate(widget.item.id, updatedItem);
       if (mounted) {
-        _showSnack('${widget.item.name} עודכן ל-$newQuantity יח׳');
+        _showSnack('${widget.item.name ?? 'ללא שם'} עודכן ל-$newQuantity יח׳');
       }
     } catch (e) {
       if (mounted) {
@@ -160,7 +160,7 @@ class _ItemCardState extends State<ItemCard> {
     try {
       await widget.onDelete(widget.item.id);
       if (mounted) {
-        _showSnack('${widget.item.name} הוסר מהרשימה');
+        _showSnack('${widget.item.name ?? 'ללא שם'} הוסר מהרשימה');
       }
     } catch (e) {
       if (mounted) {
@@ -188,7 +188,7 @@ class _ItemCardState extends State<ItemCard> {
           .firstWhere((s) => s.key == newStatus)
           .nameHe;
       if (mounted) {
-        _showSnack('${widget.item.name} סומן כ-$statusName');
+        _showSnack('${widget.item.name ?? 'ללא שם'} סומן כ-$statusName');
       }
     } catch (e) {
       if (mounted) {
@@ -233,7 +233,7 @@ class _ItemCardState extends State<ItemCard> {
 
     return Semantics(
       label:
-          '${widget.item.name}, כמות: $quantity, מחיר: ${formatILS(totalPrice)}, סטטוס: ${currentStatusConfig.nameHe}',
+          '${widget.item.name ?? 'ללא שם'}, כמות: $quantity, מחיר: ${formatILS(totalPrice)}, סטטוס: ${currentStatusConfig.nameHe}',
       child: Card(
         color: cs.surfaceContainerHigh,
         elevation: 2,
@@ -257,7 +257,7 @@ class _ItemCardState extends State<ItemCard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.item.name,
+                          widget.item.name ?? 'ללא שם',
                           style: theme.textTheme.bodyLarge?.copyWith(
                             fontWeight: FontWeight.bold,
                             fontSize: _kProductNameFontSize,

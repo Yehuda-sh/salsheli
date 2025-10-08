@@ -28,24 +28,25 @@
 | 🔴 אפליקציה איטית | `.then()` ברקע | [→](#hybrid-strategy) | [LESSONS](LESSONS_LEARNED.md#hybrid-strategy) |
 | 🔴 Empty state חסר | Loading/Error/Empty | [→](#3-empty-states) | סעיף 13 |
 
-### 🎯 16 כללי הזהב (חובה!)
+### 🎯 17 כללי הזהב (חובה!)
 
 1. **קרא WORK_LOG.md** - בתחילת כל שיחה על הפרויקט
 2. **עדכן WORK_LOG.md** - רק שינויים משמעותיים (שאל קודם!)
-3. **חפש בעצמך** - אל תבקש מהמשתמש לחפש קבצים
-4. **תמציתי** - ישר לעניין, פחות הסברים
-5. **Logging** - 🗑️ ✏️ ➕ 🔄 ✅ ❌ בכל method
-6. **3 States** - Loading/Error/Empty בכל widget
-7. **Error Recovery** - `hasError` + `retry()` + `clearAll()`
-8. **Undo** - 5 שניות למחיקה
-9. **Cache** - O(1) במקום O(n)
-10. **Timestamps** - `@TimestampConverter()` אוטומטי
-11. **Dead Code** - 0 imports = מחיקה מיידית
-12. **Feedback** - צבעים לפי סטטוס (ירוק/אדום/כתום)
-13. **Constants** - `kSpacingMedium` לא `16.0`
-14. **Null Safety** - בדוק כל `nullable`
-15. **Fallback** - תכנן למקרה כשל
-16. **Dependencies** - `flutter pub get` אחרי שינויים
+3. **בדוק Dead Code קודם!** - לפני רפקטור: Ctrl+Shift+F imports → 0 = אל תעבוד!
+4. **חפש בעצמך** - אל תבקש מהמשתמש לחפש קבצים
+5. **תמציתי** - ישר לעניין, פחות הסברים
+6. **Logging** - 🗑️ ✏️ ➕ 🔄 ✅ ❌ בכל method
+7. **3 States** - Loading/Error/Empty בכל widget
+8. **Error Recovery** - `hasError` + `retry()` + `clearAll()`
+9. **Undo** - 5 שניות למחיקה
+10. **Cache** - O(1) במקום O(n)
+11. **Timestamps** - `@TimestampConverter()` אוטומטי
+12. **Dead Code אחרי** - 0 imports = מחיקה מיידית
+13. **Feedback** - צבעים לפי סטטוס (ירוק/אדום/כתום)
+14. **Constants** - `kSpacingMedium` לא `16.0`
+15. **Null Safety** - בדוק כל `nullable`
+16. **Fallback** - תכנן למקרה כשל
+17. **Dependencies** - `flutter pub get` אחרי שינויים
 
 ### ⚡ בדיקה מהירה (5 דק')
 
@@ -119,6 +120,71 @@ Ctrl+Shift+F → "padding: 8"   # צריך להיות kSpacingSmall
 ```
 
 **אסטרטגיה:** חפש → נסה שוב → חפש רחב → רק אז שאל
+
+---
+
+### 3️⃣.5️⃣ Dead Code Detection לפני עבודה
+
+**🔴 כלל זהב: לפני רפקטור/תיקון קובץ - בדוק אם הוא בשימוש!**
+
+**למה זה חשוב:**
+- ❌ חסכון זמן - אל תשקיע ברפקטור קוד שלא משתמשים בו
+- ❌ מניעת confusion - קובץ מתוקן שלא בשימוש = מטעה
+- ✅ זיהוי מהיר - 30 שניות בדיקה חוסכות 20 דקות עבודה
+
+**תהליך בדיקה מהיר (30 שניות):**
+
+```powershell
+# 1. חיפוש imports (הכי חשוב!)
+Ctrl+Shift+F → "import.*smart_search_input.dart"
+# → 0 תוצאות = Dead Code!
+
+# 2. חיפוש שימוש בשם הקובץ
+Ctrl+Shift+F → "SmartSearchInput"
+# → 0 תוצאות = Dead Code!
+
+# 3. אם Provider - בדוק main.dart
+Ctrl+Shift+F → "MyProvider()" in "main.dart"
+
+# 4. אם Screen - בדוק routing
+Ctrl+Shift+F → "'/my_screen'" in "routes" או "onGenerateRoute"
+```
+
+**החלטה:**
+```
+אם 0 imports ו-0 שימושים:
+  ├─ אופציה 1: 🗑️ מחיקה מיידית (מומלץ!)
+  ├─ אופציה 2: 📝 שאל את המשתמש אם לשמור
+  └─ אופציה 3: 🚫 אל תתחיל לעבוד על הקובץ!
+```
+
+**דוגמה מהפרויקט (08/10/2025):**
+
+```
+📋 בקשה: "תבדוק אם smart_search_input.dart מעודכן"
+
+❌ שגוי:
+1. קורא את הקובץ
+2. משווה לתיעוד
+3. מתקן 10 בעיות (20 דקות)
+4. מגלה שאף אחד לא משתמש בקובץ!
+
+✅ נכון:
+1. [search_files: "import.*smart_search_input"]
+2. → 0 תוצאות
+3. "⚠️ הקובץ הוא Dead Code! אף אחד לא משתמש בו.
+   רוצה שאמחק אותו?"
+4. משתמש מאשר → מחיקה
+```
+
+**תוצאה:**
+- ✅ חסך 20 דקות עבודה
+- ✅ מנע רפקטור מיותר
+- ✅ שמר על הפרויקט נקי
+
+**💡 TIP:** אם הקובץ נראה שימושי אבל לא בשימוש - הצע למשתמש:
+1. מחיקה (Dead Code = חוב טכני)
+2. תיעוד + שמירה (אם מתוכנן שימוש עתידי)
 
 ---
 
@@ -608,6 +674,7 @@ return items;  // 4s → 1s (פי 4 מהיר יותר!)
 - Constants
 
 ### ❌ אל תעשה
+- אל תעבוד על קובץ לפני בדיקת Dead Code
 - אל תבקש מהמשתמש לחפש
 - אל תשתמש ב-Web APIs
 - אל תשאיר Dead Code

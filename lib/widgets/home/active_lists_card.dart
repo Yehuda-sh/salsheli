@@ -170,8 +170,9 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       final item = items[i];
 
       // ✅ קיבוץ לפי אות ראשונה של השם (במקום קטגוריה)
-      final firstLetter = item.name.isNotEmpty
-          ? item.name[0].toUpperCase()
+      final itemName = item.name ?? 'ללא שם';
+      final firstLetter = itemName.isNotEmpty
+          ? itemName[0].toUpperCase()
           : '#';
 
       if (!grouped.containsKey(firstLetter)) {
@@ -216,7 +217,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         ),
       ),
       title: Text(
-        item.name,
+        item.name ?? 'ללא שם',
         style: TextStyle(
           decoration: isTaken ? TextDecoration.lineThrough : null,
           color: isTaken ? cs.onSurfaceVariant : cs.onSurface,

@@ -147,7 +147,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     final itemsByCategory = <String, List<ReceiptItem>>{};
     for (final item in widget.list.items) {
       // שליפת קטגוריה מ-ProductsProvider
-      final product = productsProvider.getByName(item.name);
+      final product = productsProvider.getByName(item.name ?? '');
       final category = product?['category'] as String? ?? 'כללי';
       itemsByCategory.putIfAbsent(category, () => []).add(item);
     }
@@ -364,7 +364,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                 // שם המוצר
                 Expanded(
                   child: Text(
-                    item.name,
+                    item.name ?? 'ללא שם',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,

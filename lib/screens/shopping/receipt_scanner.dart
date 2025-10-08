@@ -332,7 +332,7 @@ class _ReceiptScannerState extends State<ReceiptScanner> {
                         ),
                       ),
                       title: Text(
-                        item.name,
+                        item.name ?? 'ללא שם',
                         style: const TextStyle(fontSize: 14),
                       ),
                       trailing: Text(

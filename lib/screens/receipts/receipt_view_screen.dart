@@ -166,7 +166,7 @@ class ReceiptViewScreen extends StatelessWidget {
                             ),
                           ),
                           title: Text(
-                            it.name,
+                            it.name ?? 'ללא שם',
                             style: const TextStyle(fontWeight: FontWeight.w600),
                           ),
                           subtitle: Text(

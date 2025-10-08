@@ -121,9 +121,12 @@ class _ManageListScreenState extends State<ManageListScreen> {
                   // ✅ תיקון: positional parameters
                   await provider.addItemToList(widget.listId, newItem);
 
+                  // שמור messenger לפני async
+                  final messenger = ScaffoldMessenger.of(context);
+                  
                   if (ctx.mounted) {
                     Navigator.pop(ctx);
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    messenger.showSnackBar(
                       SnackBar(
                         content: Text('✅ $name נוסף לרשימה'),
                         duration: const Duration(seconds: 2),
@@ -286,7 +289,7 @@ class _ManageListScreenState extends State<ManageListScreen> {
                                   context: context,
                                   builder: (ctx) => AlertDialog(
                                     title: const Text('אישור מחיקה'),
-                                    content: Text('למחוק את "${item.name}"?'),
+                                    content: Text('למחוק את "${item.name ?? 'ללא שם'}"?'),
                                     actions: [
                                       TextButton(
                                         onPressed: () =>
@@ -316,7 +319,7 @@ class _ManageListScreenState extends State<ManageListScreen> {
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text('"${item.name}" הוסר'),
+                                  content: Text('"${item.name ?? 'ללא שם'}" הוסר'),
                                   behavior: SnackBarBehavior.floating,
                                 ),
                               );
@@ -325,7 +328,7 @@ class _ManageListScreenState extends State<ManageListScreen> {
                           child: Card(
                             margin: const EdgeInsets.only(bottom: 8),
                             child: ListTile(
-                              title: Text(item.name),
+                              title: Text(item.name ?? 'ללא שם'),
                               subtitle: Text(
                                 "${item.quantity} × ₪${item.unitPrice.toStringAsFixed(2)} = ₪${item.totalPrice.toStringAsFixed(2)}",
                               ),

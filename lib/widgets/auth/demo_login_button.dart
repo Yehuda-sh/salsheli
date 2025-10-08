@@ -123,19 +123,16 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
           mainAxisSize: MainAxisSize.min,
           children: _demoUsers.entries.map((entry) {
             final user = entry.value;
-            return ListTile(
-              leading: Radio<String>(
-                value: entry.key,
-                groupValue: _selectedUser,
-                onChanged: (value) {
-                  if (value != null) {
-                    Navigator.pop(context, value);
-                  }
-                },
-              ),
+            return RadioListTile<String>(
+              value: entry.key,
+              groupValue: _selectedUser,
+              onChanged: (value) {
+                if (value != null) {
+                  Navigator.pop(context, value);
+                }
+              },
               title: Text(user['name']!),
               subtitle: Text(user['email']!),
-              onTap: () => Navigator.pop(context, entry.key),
             );
           }).toList(),
         ),

@@ -148,8 +148,9 @@ class ReceiptItem {
   /// מזהה ייחודי לפריט
   final String id;
 
-  /// שם המוצר
-  final String name;
+  /// שם המוצר (אופציונלי - יכול להיות null אם OCR נכשל)
+  @JsonKey(defaultValue: '')
+  final String? name;
 
   /// כמות (>= 0)
   @JsonKey(defaultValue: 1)
@@ -177,7 +178,7 @@ class ReceiptItem {
 
   const ReceiptItem({
     required this.id,
-    required this.name,
+    this.name,
     this.quantity = 1,
     this.unitPrice = 0.0,
     this.isChecked = false,
@@ -222,5 +223,5 @@ class ReceiptItem {
 
   @override
   String toString() =>
-      'ReceiptItem(id: $id, name: $name, qty: $quantity, price: $unitPrice)';
+      'ReceiptItem(id: $id, name: ${name ?? "ללא שם"}, qty: $quantity, price: $unitPrice)';
 }

@@ -153,9 +153,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await prefs.setString(_kPreferredStores, _preferredStores.join(','));
       debugPrint('✅ _saveSettings: נשמר בהצלחה');
       
-      // Visual feedback
+      // Visual feedback - שמור messenger לפני async
+      final messenger = ScaffoldMessenger.of(context);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(
             content: Text(AppStrings.common.success),
             backgroundColor: Colors.green,
@@ -241,9 +242,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     debugPrint('💰 _updatePrices: מתחיל עדכון');
     final productsProvider = context.read<ProductsProvider>();
     
+    // שמור messenger לפני async
+    final messenger = ScaffoldMessenger.of(context);
+    
     // הצגת SnackBar עם loading
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
+    messenger.showSnackBar(
       SnackBar(
         content: Row(
           children: [
@@ -271,14 +275,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       // סגירת SnackBar הקודם
       if (!mounted) return;
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      messenger.hideCurrentSnackBar();
       
       // הצגת תוצאה
       final withPrice = productsProvider.productsWithPrice;
       final total = productsProvider.totalProducts;
       
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(
           content: Text(
             AppStrings.settings.pricesUpdated(withPrice, total),

@@ -163,7 +163,7 @@ class ReceiptDisplay extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(item.name, style: const TextStyle(fontSize: 14)),
+                    Text(item.name ?? 'ללא שם', style: const TextStyle(fontSize: 14)),
                     if (item.quantity > 1)
                       Text(
                         "${_formatCurrency(unitPrice)} x ${item.quantity}",
