@@ -1,12 +1,20 @@
 // 📄 File: lib/screens/auth/login_screen.dart
-// תיאור: מסך התחברות - טופס login עם אימות ושמירת session + כפתור דמו
+// 🎯 Purpose: מסך התחברות - טופס login עם Firebase Auth + session management
 //
-// עדכונים:
-// ✅ תיעוד מלא בראש הקובץ
-// ✅ שימוש ב-AuthButton במקום ElevatedButton/OutlinedButton
-// ✅ שימוש ב-NavigationService במקום קריאות ישירות ל-SharedPreferences
-// ✅ הוספת כפתור כניסה מהירה עם משתמש דמו
-// 🔒 חסימת Back - המשתמש חייב להשלים התחברות
+// 📋 Features:
+// ✅ Firebase Authentication (email/password)
+// ✅ Form validation עם הודעות שגיאה
+// ✅ AuthButton עם loading state
+// ✅ DemoLoginButton לכניסה מהירה
+// ✅ AppStrings - i18n ready
+// ✅ ui_constants - עיצוב עקבי
+// 🔒 PopScope - חסימת Back (חובה להשלים התחברות)
+//
+// 🔗 Related:
+// - UserContext - state management + Firebase Auth
+// - RegisterScreen - יצירת חשבון חדש
+// - SharedPreferences - שמירת session
+// - AppStrings.auth - מחרוזות UI
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,6 +22,7 @@ import 'package:provider/provider.dart';
 import '../../providers/user_context.dart';
 import '../../theme/app_theme.dart';
 import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
 import '../../widgets/auth/auth_button.dart';
 import '../../widgets/auth/demo_login_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -89,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
           SnackBar(
             content: Text(errorMsg),
             backgroundColor: Colors.red,
-            duration: const Duration(seconds: 4),
+            duration: kSnackBarDurationLong,
           ),
         );
       }
@@ -116,9 +125,9 @@ class _LoginScreenState extends State<LoginScreen> {
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('יש להשלים את תהליך ההתחברות'),
-              duration: Duration(seconds: 2),
+            SnackBar(
+              content: Text(AppStrings.auth.mustCompleteLogin),
+              duration: kSnackBarDuration,
             ),
           );
         }
@@ -138,14 +147,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     // לוגו/אייקון
                     Icon(
                       Icons.shopping_basket_outlined,
-                      size: 80,
+                      size: kIconSizeXLarge,
                       color: accent,
                     ),
                     const SizedBox(height: kSpacingLarge),
 
                     // כותרת
                     Text(
-                      'התחברות',
+                      AppStrings.auth.loginTitle,
                       style: theme.textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: cs.onSurface,
@@ -154,7 +163,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: kSpacingSmall),
                     Text(
-                      'ברוך שובך!',
+                      AppStrings.auth.loginSubtitle,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: cs.onSurfaceVariant,
                       ),
@@ -166,21 +175,21 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextFormField(
                       controller: _emailController,
                       decoration: InputDecoration(
-                        labelText: 'אימייל',
-                        hintText: 'example@email.com',
+                        labelText: AppStrings.auth.emailLabel,
+                        hintText: AppStrings.auth.emailHint,
                         prefixIcon: const Icon(Icons.email_outlined),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(kBorderRadius),
                         ),
                       ),
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'נא להזין אימייל';
+                          return AppStrings.auth.emailRequired;
                         }
                         if (!value.contains('@')) {
-                          return 'אימייל לא תקין';
+                          return AppStrings.auth.emailInvalid;
                         }
                         return null;
                       },
@@ -191,8 +200,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextFormField(
                       controller: _passwordController,
                       decoration: InputDecoration(
-                        labelText: 'סיסמה',
-                        hintText: '••••••••',
+                        labelText: AppStrings.auth.passwordLabel,
+                        hintText: AppStrings.auth.passwordHint,
                         prefixIcon: const Icon(Icons.lock_outlined),
                         suffixIcon: IconButton(
                           icon: Icon(
@@ -207,7 +216,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                         ),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(kBorderRadius),
                         ),
                       ),
                       obscureText: _obscurePassword,
@@ -215,10 +224,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       onFieldSubmitted: (_) => _handleLogin(),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'נא להזין סיסמה';
+                          return AppStrings.auth.passwordRequired;
                         }
                         if (value.length < 6) {
-                          return 'סיסמה חייבת להכיל לפחות 6 תווים';
+                          return AppStrings.auth.passwordTooShort;
                         }
                         return null;
                       },
@@ -229,7 +238,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     AuthButton.primary(
                       onPressed: _isLoading ? null : _handleLogin,
                       isLoading: _isLoading,
-                      label: 'התחבר',
+                      label: AppStrings.auth.loginButton,
                     ),
                     const SizedBox(height: kSpacingMedium),
 
@@ -238,13 +247,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'אין לך חשבון?',
+                          AppStrings.auth.noAccount,
                           style: TextStyle(color: cs.onSurfaceVariant),
                         ),
                         TextButton(
                           onPressed: _isLoading ? null : _navigateToRegister,
                           child: Text(
-                            'הירשם עכשיו',
+                            AppStrings.auth.registerNow,
                             style: TextStyle(
                               color: accent,
                               fontWeight: FontWeight.bold,
@@ -260,9 +269,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: [
                         Expanded(child: Divider(color: cs.outlineVariant)),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
                           child: Text(
-                            'או',
+                            AppStrings.auth.or,
                             style: TextStyle(color: cs.onSurfaceVariant),
                           ),
                         ),

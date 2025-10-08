@@ -21,6 +21,7 @@
 | 🔴 Provider לא מתעדכן | `addListener()` + `removeListener()` | [→](#usercontext-pattern) | [LESSONS](LESSONS_LEARNED.md#usercontext-pattern) |
 | 🔴 Timestamp שגיאות | `@TimestampConverter()` | [→](#timestamp-management) | [LESSONS](LESSONS_LEARNED.md#timestamp-management) |
 | 🔴 Race condition Auth | זרוק Exception בשגיאה | [→](#auth-flow) | [LESSONS](LESSONS_LEARNED.md#race-condition) |
+| 🔴 Mock Data בקוד | חיבור ל-Provider אמיתי | [→](#mock-data) | [LESSONS](LESSONS_LEARNED.md#אין-mock-data) |
 | 🔴 קובץ לא בשימוש | Ctrl+Shift+F imports → 0 = מחק | [→](#dead-code) | סעיף 14 |
 | 🔴 Context אחרי async | שמור `dialogContext` נפרד | [→](#dialogs) | סעיף 8 |
 | 🔴 Color deprecated | `.withValues(alpha:)` | [→](#modern-apis) | סעיף 10 |
@@ -309,6 +310,7 @@ color.withValues(alpha: 0.5)
 | `localStorage` | Web | SharedPreferences |
 | `.withOpacity` | Deprecated | `.withValues` |
 | `TODO 2023` | ישן | מחק/תקן |
+| `mockResults` / `mock` | Mock Data | Provider אמיתי |
 
 ---
 
@@ -404,16 +406,39 @@ class MyModel {
 
 ### 1️⃣3️⃣ דפוסים חובה
 
-#### 🎭 3 Empty States
+#### 🚫 Mock Data
+
+**כלל זהב:** לעולם לא Mock Data בקוד Production!
 
 ```dart
+// ❌ אסור
+final mockResults = [{"product": "...", "price": 8.9}];
+
+// ✅ חובה
+final provider = context.read<MyProvider>();
+final results = await provider.searchItems(term);
+```
+
+**למה?** לא משקף מציאות | גורם לבעיות בתחזוקה | פער Dev/Production
+
+**אם צריך Mock:** MockRepository (מימוש interface) | **דוגמה:** price_comparison_screen.dart
+
+---
+
+#### 🎭 3-4 Empty States
+
+```dart
+// מינימום: 3 States
 if (provider.isLoading) return Center(child: Spinner());
 if (provider.hasError) return ErrorWidget(provider.retry);
 if (provider.isEmpty) return EmptyWidget();
 return ListView.builder(...);
 ```
 
-**💡 דוגמה מלאה:** [LESSONS_LEARNED.md - 3 Empty States](LESSONS_LEARNED.md#3-empty-states)
+**למסכים מורכבים (search/filter): 4 States**
+1. Loading 2. Error (+ retry) 3. Empty Results 4. Empty Initial
+
+**💡 דוגמה:** [LESSONS_LEARNED.md - 4 Empty States](LESSONS_LEARNED.md#4-empty-states) | price_comparison_screen.dart
 
 ---
 

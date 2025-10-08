@@ -218,9 +218,16 @@ class HybridProductsRepository implements ProductsRepository {
         return false;
       }
 
-      // שמירה ב-Hive
-      debugPrint('💾 שומר ${entities.length} מוצרים ב-Hive...');
-      await _localRepo.saveProducts(entities);
+      // שמירה ב-Hive עם Progress
+      debugPrint('💾 שומר ${entities.length} מוצרים ב-Hive (עם batches)...');
+      await _localRepo.saveProductsWithProgress(
+        entities,
+        onProgress: (current, total) {
+          if (current % 200 == 0 || current == total) {
+            debugPrint('   📊 Progress: $current/$total (${(current/total*100).toStringAsFixed(1)}%)');
+          }
+        },
+      );
       
       debugPrint('✅ נשמרו ${entities.length} מוצרים מ-Firestore');
       debugPrint('   ✔️ תקינים: $validProducts');
@@ -292,9 +299,16 @@ class HybridProductsRepository implements ProductsRepository {
         return false;
       }
 
-      // שמירה ב-Hive
-      debugPrint('💾 שומר ${entities.length} מוצרים ב-Hive...');
-      await _localRepo.saveProducts(entities);
+      // שמירה ב-Hive עם Progress
+      debugPrint('💾 שומר ${entities.length} מוצרים ב-Hive (עם batches)...');
+      await _localRepo.saveProductsWithProgress(
+        entities,
+        onProgress: (current, total) {
+          if (current % 200 == 0 || current == total) {
+            debugPrint('   📊 Progress: $current/$total (${(current/total*100).toStringAsFixed(1)}%)');
+          }
+        },
+      );
       
       debugPrint('✅ נשמרו ${entities.length} מוצרים מ-products.json');
       debugPrint('   ✔️ תקינים: $validProducts');
@@ -336,7 +350,16 @@ class HybridProductsRepository implements ProductsRepository {
         );
       }).toList();
 
-      await _localRepo.saveProducts(entities);
+      // שמירה ב-Hive עם Progress
+      debugPrint('💾 שומר ${entities.length} מוצרים מ-API ב-Hive (עם batches)...');
+      await _localRepo.saveProductsWithProgress(
+        entities,
+        onProgress: (current, total) {
+          if (current % 100 == 0 || current == total) {
+            debugPrint('   📊 Progress: $current/$total (${(current/total*100).toStringAsFixed(1)}%)');
+          }
+        },
+      );
       debugPrint('✅ נשמרו ${entities.length} מוצרים מ-API');
       return true;
     } catch (e) {
@@ -414,6 +437,7 @@ class HybridProductsRepository implements ProductsRepository {
       ),
     ];
 
+    // מוצרים דמה - פשוט בלי progress
     await _localRepo.saveProducts(fallbackProducts);
     debugPrint('✅ נשמרו ${fallbackProducts.length} מוצרים דמה');
   }

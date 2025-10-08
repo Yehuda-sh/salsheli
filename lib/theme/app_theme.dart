@@ -54,6 +54,8 @@
 
 import 'package:flutter/material.dart';
 
+import '../core/ui_constants.dart';
+
 /// צבעי מותג (קבועים)
 /// 
 /// Slate: משפחת צבעים כהים לרקעים ו-surfaces
@@ -185,10 +187,16 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: brand.accent, // Amber
           foregroundColor: Colors.black, // טקסט שחור על Amber
-          textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          textStyle: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: kFontSizeBody,
+          ),
+          padding: const EdgeInsets.symmetric(
+            horizontal: kButtonPaddingHorizontal,
+            vertical: kButtonPaddingVertical,
+          ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(kBorderRadius),
           ),
         ),
       ),
@@ -198,10 +206,16 @@ class AppTheme {
         style: OutlinedButton.styleFrom(
           side: BorderSide(color: brand.accent),
           foregroundColor: brand.accent,
-          textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          textStyle: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: kFontSizeBody,
+          ),
+          padding: const EdgeInsets.symmetric(
+            horizontal: kButtonPaddingHorizontal,
+            vertical: kButtonPaddingVertical,
+          ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(kBorderRadius),
           ),
         ),
       ),
@@ -211,10 +225,16 @@ class AppTheme {
         style: FilledButton.styleFrom(
           backgroundColor: scheme.primary,
           foregroundColor: scheme.onPrimary,
-          textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          textStyle: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: kFontSizeBody,
+          ),
+          padding: const EdgeInsets.symmetric(
+            horizontal: kButtonPaddingHorizontal,
+            vertical: kButtonPaddingVertical,
+          ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(kBorderRadius),
           ),
         ),
       ),
@@ -231,16 +251,24 @@ class AppTheme {
       cardTheme: CardThemeData(
         elevation: 2,
         color: dark ? _Brand.slate800 : scheme.surface, // Slate בdark
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        margin: const EdgeInsets.symmetric(
+          horizontal: kSpacingMedium,
+          vertical: kCardMarginVertical,
+        ),
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+        ),
       ),
 
       // ListTile — טוב ל־RTL
       listTileTheme: ListTileThemeData(
         iconColor: dark ? Colors.white70 : scheme.onSurfaceVariant,
         textColor: dark ? Colors.white : scheme.onSurface,
-        contentPadding: const EdgeInsetsDirectional.only(start: 16, end: 12),
+        contentPadding: const EdgeInsetsDirectional.only(
+          start: kListTilePaddingStart,
+          end: kListTilePaddingEnd,
+        ),
       ),
 
       // שדות קלט - TextField, TextFormField
@@ -249,32 +277,38 @@ class AppTheme {
         filled: true,
         fillColor: dark ? fillOnDark : fillOnLight,
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 14,
+          horizontal: kInputPadding,
+          vertical: kInputPadding,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(kBorderRadius),
           borderSide: BorderSide(
             color: (dark ? Colors.white24 : Colors.black12),
           ),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(kBorderRadius),
           borderSide: BorderSide(
             color: (dark ? Colors.white24 : Colors.black12),
           ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: brand.accent, width: 2), // Amber כש-focused
+          borderRadius: BorderRadius.circular(kBorderRadius),
+          borderSide: BorderSide(
+            color: brand.accent,
+            width: kBorderWidthFocused,
+          ), // Amber כש-focused
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(kBorderRadius),
           borderSide: BorderSide(color: scheme.error),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: scheme.error, width: 2),
+          borderRadius: BorderRadius.circular(kBorderRadius),
+          borderSide: BorderSide(
+            color: scheme.error,
+            width: kBorderWidthFocused,
+          ),
         ),
       ),
 
@@ -319,17 +353,19 @@ class AppTheme {
       progressIndicatorTheme: ProgressIndicatorThemeData(
         color: brand.accent, // Amber spinner
         linearTrackColor: dark ? Colors.white10 : Colors.black12,
-        linearMinHeight: 6,
+        linearMinHeight: kProgressIndicatorHeight,
       ),
 
       // דיאלוגים/BottomSheet
       dialogTheme: DialogThemeData(
         backgroundColor: dark ? _Brand.slate800 : scheme.surface,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+        ),
         titleTextStyle: TextStyle(
           color: dark ? Colors.white : scheme.onSurface,
-          fontSize: 20,
+          fontSize: kFontSizeLarge,
           fontWeight: FontWeight.bold,
           fontFamily: 'Assistant',
         ),
@@ -342,7 +378,9 @@ class AppTheme {
         backgroundColor: dark ? _Brand.slate800 : scheme.surface,
         surfaceTintColor: Colors.transparent,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(kBorderRadiusLarge),
+          ),
         ),
       ),
 
@@ -359,10 +397,16 @@ class AppTheme {
 
       // טיפוגרפיה כללית - גדלים ומשקלים
       textTheme: const TextTheme(
-        titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-        titleMedium: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-        bodyMedium: TextStyle(fontSize: 16),
-        bodySmall: TextStyle(fontSize: 14),
+        titleLarge: TextStyle(
+          fontSize: kFontSizeXLarge,
+          fontWeight: FontWeight.bold,
+        ),
+        titleMedium: TextStyle(
+          fontSize: kFontSizeMedium,
+          fontWeight: FontWeight.w600,
+        ),
+        bodyMedium: TextStyle(fontSize: kFontSizeBody),
+        bodySmall: TextStyle(fontSize: kFontSizeSmall),
       ),
     ).copyWith(
       // צבעי טקסט לפי מצב - white בdark, onSurface בlight

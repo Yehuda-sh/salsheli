@@ -1,7 +1,8 @@
 // 📄 File: lib/screens/settings/settings_screen.dart
-// תיאור: מסך הגדרות ופרופיל משולב - ניהול פרופיל אישי, הגדרות קבוצה, והעדפות
 //
-// תכונות:
+// 🎯 תיאור: מסך הגדרות ופרופיל משולב - ניהול פרופיל אישי, הגדרות קבוצה, והעדפות
+//
+// 🔧 תכונות:
 // ✅ פרופיל אישי מחובר ל-UserContext (שם, אימייל, תמונה)
 // ✅ סטטיסטיקות בזמן אמת (רשימות, קבלות, פריטים במזווה)
 // ✅ ניהול קבוצה/משק בית (תמיכה במשפחה, ועד בית, ועד גן)
@@ -9,6 +10,28 @@
 // ✅ הגדרות אישיות עם שמירה ב-SharedPreferences
 // ✅ קישורים מהירים למסכים נוספים
 // ✅ התנתקות בטוחה
+// ✅ Logging מפורט
+// ✅ Visual Feedback
+// ✅ i18n ready (AppStrings)
+//
+// 🔗 תלויות:
+// - UserContext (Provider)
+// - ShoppingListsProvider (סטטיסטיקות)
+// - ReceiptProvider (סטטיסטיקות)
+// - InventoryProvider (סטטיסטיקות)
+// - ProductsProvider (עדכון מחירים)
+// - SharedPreferences (שמירת הגדרות מקומית)
+// - HouseholdConfig (סוגי קבוצות)
+//
+// 📊 Flow:
+// 1. טעינת הגדרות מ-SharedPreferences
+// 2. הצגת פרופיל + סטטיסטיקות
+// 3. עריכת הגדרות → שמירה אוטומטית
+// 4. עדכון מחירים ידני (ProductsProvider.refreshProducts)
+// 5. התנתקות → ניקוי + חזרה ל-login
+//
+// Version: 2.0 (Refactored)
+// Last Updated: 08/10/2025
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +42,9 @@ import 'package:salsheli/providers/receipt_provider.dart';
 import 'package:salsheli/providers/inventory_provider.dart';
 import 'package:salsheli/providers/products_provider.dart';
 import 'package:salsheli/models/shopping_list.dart';
+import 'package:salsheli/l10n/app_strings.dart';
+import 'package:salsheli/core/ui_constants.dart';
+import 'package:salsheli/config/household_config.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -37,142 +63,186 @@ class _SettingsScreenState extends State<SettingsScreen> {
   static const _kHabitsAnalysis = 'settings.habitsAnalysis';
 
   // מצב UI
-  String householdName = "הקבוצה שלי";
-  String householdType = "משפחה"; // משפחה, ועד בית, ועד גן, אחר
-  bool isEditingHouseholdName = false;
-  final TextEditingController householdNameController = TextEditingController();
+  String _householdName = "הקבוצה שלי";
+  String _householdType = HouseholdConfig.family; // default
+  bool _isEditingHouseholdName = false;
+  final TextEditingController _householdNameController = TextEditingController();
 
   // חברים (דמה - בעתיד מה-Provider)
-  final List<Map<String, String>> members = [
-    {"name": "יוסי כהן", "role": "בעלים"},
-    {"name": "דנה לוי", "role": "עורך"},
-    {"name": "נועם", "role": "צופה"},
+  final List<Map<String, String>> _members = [
+    {"name": "יוסי כהן", "role": "owner"},
+    {"name": "דנה לוי", "role": "editor"},
+    {"name": "נועם", "role": "viewer"},
   ];
 
   // חנויות מועדפות
-  final List<String> preferredStores = ["שופרסל", "רמי לוי"];
-  final TextEditingController storeController = TextEditingController();
+  final List<String> _preferredStores = ["שופרסל", "רמי לוי"];
+  final TextEditingController _storeController = TextEditingController();
 
   // הגדרות
-  int familySize = 3;
-  late final TextEditingController familySizeController;
-  bool weeklyReminders = true;
-  bool habitsAnalysis = true;
+  int _familySize = 3;
+  late final TextEditingController _familySizeController;
+  bool _weeklyReminders = true;
+  bool _habitsAnalysis = true;
 
   bool _loading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    householdNameController.text = householdName;
-    familySizeController = TextEditingController(text: familySize.toString());
+    debugPrint('⚙️ SettingsScreen: initState');
+    _householdNameController.text = _householdName;
+    _familySizeController = TextEditingController(text: _familySize.toString());
     _loadSettings();
   }
 
   @override
   void dispose() {
-    householdNameController.dispose();
-    storeController.dispose();
-    familySizeController.dispose();
+    debugPrint('🗑️ SettingsScreen: dispose');
+    _householdNameController.dispose();
+    _storeController.dispose();
+    _familySizeController.dispose();
     super.dispose();
   }
 
   // טעינת הגדרות מ-SharedPreferences
   Future<void> _loadSettings() async {
+    debugPrint('📥 _loadSettings: מתחיל טעינה');
     try {
       final prefs = await SharedPreferences.getInstance();
       setState(() {
-        householdName = prefs.getString(_kHouseholdName) ?? householdName;
-        householdType = prefs.getString(_kHouseholdType) ?? householdType;
-        familySize = prefs.getInt(_kFamilySize) ?? familySize;
-        weeklyReminders = prefs.getBool(_kWeeklyReminders) ?? true;
-        habitsAnalysis = prefs.getBool(_kHabitsAnalysis) ?? true;
+        _householdName = prefs.getString(_kHouseholdName) ?? _householdName;
+        _householdType = prefs.getString(_kHouseholdType) ?? _householdType;
+        _familySize = prefs.getInt(_kFamilySize) ?? _familySize;
+        _weeklyReminders = prefs.getBool(_kWeeklyReminders) ?? true;
+        _habitsAnalysis = prefs.getBool(_kHabitsAnalysis) ?? true;
 
         final storesJson = prefs.getString(_kPreferredStores);
         if (storesJson != null && storesJson.isNotEmpty) {
           final List<String> decoded = storesJson.split(',');
-          preferredStores.clear();
-          preferredStores.addAll(decoded);
+          _preferredStores.clear();
+          _preferredStores.addAll(decoded);
         }
 
-        householdNameController.text = householdName;
-        familySizeController.text = familySize.toString();
+        _householdNameController.text = _householdName;
+        _familySizeController.text = _familySize.toString();
+        _loading = false;
+        _errorMessage = null;
+      });
+      debugPrint('✅ _loadSettings: נטען בהצלחה');
+    } catch (e) {
+      debugPrint('❌ _loadSettings: שגיאה - $e');
+      setState(() {
+        _errorMessage = AppStrings.settings.loadError(e.toString());
         _loading = false;
       });
-    } catch (e) {
-      debugPrint('Error loading settings: $e');
-      setState(() => _loading = false);
     }
   }
 
   // שמירת הגדרות ב-SharedPreferences
   Future<void> _saveSettings() async {
+    debugPrint('💾 _saveSettings: שומר הגדרות');
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_kHouseholdName, householdName);
-      await prefs.setString(_kHouseholdType, householdType);
-      await prefs.setInt(_kFamilySize, familySize);
-      await prefs.setBool(_kWeeklyReminders, weeklyReminders);
-      await prefs.setBool(_kHabitsAnalysis, habitsAnalysis);
-      await prefs.setString(_kPreferredStores, preferredStores.join(','));
+      await prefs.setString(_kHouseholdName, _householdName);
+      await prefs.setString(_kHouseholdType, _householdType);
+      await prefs.setInt(_kFamilySize, _familySize);
+      await prefs.setBool(_kWeeklyReminders, _weeklyReminders);
+      await prefs.setBool(_kHabitsAnalysis, _habitsAnalysis);
+      await prefs.setString(_kPreferredStores, _preferredStores.join(','));
+      debugPrint('✅ _saveSettings: נשמר בהצלחה');
+      
+      // Visual feedback
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppStrings.common.success),
+            backgroundColor: Colors.green,
+            duration: kSnackBarDuration,
+          ),
+        );
+      }
     } catch (e) {
-      debugPrint('Error saving settings: $e');
+      debugPrint('❌ _saveSettings: שגיאה - $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppStrings.settings.saveError(e.toString())),
+            backgroundColor: Colors.red,
+            duration: kSnackBarDuration,
+          ),
+        );
+      }
     }
   }
 
   // עריכת שם הקבוצה
   void _toggleEditHousehold() {
-    if (isEditingHouseholdName) {
+    debugPrint('✏️ _toggleEditHousehold: ${_isEditingHouseholdName ? "שומר" : "עורך"}');
+    if (_isEditingHouseholdName) {
       setState(() {
-        householdName = householdNameController.text.trim();
-        isEditingHouseholdName = false;
+        _householdName = _householdNameController.text.trim();
+        _isEditingHouseholdName = false;
       });
       _saveSettings();
     } else {
-      setState(() => isEditingHouseholdName = true);
+      setState(() => _isEditingHouseholdName = true);
     }
   }
 
   // הוספת חנות מועדפת
   void _addStore() {
-    final text = storeController.text.trim();
-    if (text.isNotEmpty && !preferredStores.contains(text)) {
+    final text = _storeController.text.trim();
+    debugPrint('➕ _addStore: "$text"');
+    if (text.isNotEmpty && !_preferredStores.contains(text)) {
       setState(() {
-        preferredStores.add(text);
-        storeController.clear();
+        _preferredStores.add(text);
+        _storeController.clear();
       });
       _saveSettings();
+      debugPrint('✅ _addStore: הוספה הצליחה');
+    } else {
+      debugPrint('⚠️ _addStore: חנות קיימת או ריקה');
     }
   }
 
   // הסרת חנות
   void _removeStore(int index) {
-    setState(() => preferredStores.removeAt(index));
+    debugPrint('🗑️ _removeStore: מוחק index $index');
+    setState(() => _preferredStores.removeAt(index));
     _saveSettings();
   }
 
   // שינוי סוג הקבוצה
   void _changeHouseholdType(String? newType) {
     if (newType != null) {
-      setState(() => householdType = newType);
+      debugPrint('🔄 _changeHouseholdType: $newType');
+      setState(() => _householdType = newType);
       _saveSettings();
     }
   }
 
   // עדכון גודל משפחה
   void _updateFamilySize() {
-    final newSize = int.tryParse(familySizeController.text);
+    final newSize = int.tryParse(_familySizeController.text);
+    debugPrint('🔄 _updateFamilySize: $newSize');
     if (newSize != null && newSize > 0 && newSize <= 20) {
-      setState(() => familySize = newSize);
+      setState(() => _familySize = newSize);
       _saveSettings();
+      debugPrint('✅ _updateFamilySize: עודכן ל-$newSize');
+    } else {
+      debugPrint('❌ _updateFamilySize: ערך לא תקין');
     }
   }
 
   // עדכון מחירים ידני
   Future<void> _updatePrices(BuildContext context) async {
+    debugPrint('💰 _updatePrices: מתחיל עדכון');
     final productsProvider = context.read<ProductsProvider>();
     
     // הצגת SnackBar עם loading
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -187,8 +257,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ),
-            const SizedBox(width: 16),
-            const Text('💰 מעדכן מחירים מ-API...'),
+            const SizedBox(width: kSpacingMedium),
+            Text(AppStrings.settings.updatingPrices),
           ],
         ),
         duration: const Duration(minutes: 5), // זמן ארוך לעדכון
@@ -200,59 +270,65 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await productsProvider.refreshProducts(force: true);
 
       // סגירת SnackBar הקודם
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        
-        // הצגת תוצאה
-        final withPrice = productsProvider.productsWithPrice;
-        final total = productsProvider.totalProducts;
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '✅ התעדכנו $withPrice מחירים מתוך $total מוצרים!',
-            ),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 4),
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      
+      // הצגת תוצאה
+      final withPrice = productsProvider.productsWithPrice;
+      final total = productsProvider.totalProducts;
+      
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppStrings.settings.pricesUpdated(withPrice, total),
           ),
-        );
-      }
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+      debugPrint('✅ _updatePrices: הצליח - $withPrice/$total');
     } catch (e) {
+      debugPrint('❌ _updatePrices: שגיאה - $e');
       // שגיאה
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ שגיאה בעדכון מחירים: $e'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 4),
-          ),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppStrings.settings.pricesUpdateError(e.toString())),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
+        ),
+      );
     }
   }
 
   // התנתקות
   Future<void> _logout() async {
+    debugPrint('🔓 _logout: מתחיל התנתקות');
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('התנתקות'),
-        content: const Text('האם אתה בטוח שברצונך להתנתק?'),
+        title: Text(AppStrings.settings.logoutTitle),
+        content: Text(AppStrings.settings.logoutMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('ביטול'),
+            child: Text(AppStrings.settings.logoutCancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('התנתק', style: TextStyle(color: Colors.red)),
+            child: Text(
+              AppStrings.settings.logoutConfirm,
+              style: const TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),
     );
 
     if (confirmed == true && mounted) {
+      debugPrint('✅ _logout: אושר - מנקה נתונים');
       // ניקוי UserContext
       await context.read<UserContext>().logout();
 
@@ -261,10 +337,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await prefs.clear();
 
       // חזרה למסך התחברות
-      if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, '/login', (r) => false);
-      }
+      if (!mounted) return;
+      debugPrint('🚪 _logout: מעביר ל-login');
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (r) => false);
+    } else {
+      debugPrint('❌ _logout: בוטל');
     }
+  }
+
+  // retry אחרי שגיאה
+  void _retry() {
+    debugPrint('🔄 _retry: מנסה שוב');
+    setState(() {
+      _errorMessage = null;
+      _loading = true;
+    });
+    _loadSettings();
   }
 
   @override
@@ -275,493 +363,580 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final receiptsProvider = context.watch<ReceiptProvider>();
     final inventoryProvider = context.watch<InventoryProvider>();
 
-    // חישוב סטטיסטיקות בזמן אמת
-    final activeLists = listsProvider.lists.where((l) => l.status != ShoppingList.statusCompleted).length;
+    // חישוב סטטיסטיקות בזמן אמיתי
+    final activeLists = listsProvider.lists
+        .where((l) => l.status != ShoppingList.statusCompleted)
+        .length;
     final totalReceipts = receiptsProvider.receipts.length;
     final pantryItems = inventoryProvider.items.length;
 
     // פרטי משתמש
-    final userName = userContext.user?.name ?? "משתמש";
+    final userName = userContext.user?.name ?? AppStrings.home.guestUser;
     final userEmail = userContext.user?.email ?? "email@example.com";
 
+    // Loading State
     if (_loading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: kSpacingMedium),
+              Text(AppStrings.settings.loading),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Error State
+    if (_errorMessage != null) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, size: 64, color: cs.error),
+              const SizedBox(height: kSpacingMedium),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge),
+                child: Text(
+                  _errorMessage!,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: cs.error),
+                ),
+              ),
+              const SizedBox(height: kSpacingMedium),
+              ElevatedButton(
+                onPressed: _retry,
+                child: Text(AppStrings.priceComparison.retry),
+              ),
+            ],
+          ),
+        ),
+      );
     }
 
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: AppBar(
-        title: const Text("הגדרות ופרופיל"),
+        title: Text(AppStrings.settings.title),
         backgroundColor: cs.primary,
         foregroundColor: cs.onPrimary,
         elevation: 0,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // 🔹 פרופיל אישי
-          Card(
-            color: cs.surfaceContainerHighest,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  // תמונת פרופיל
-                  CircleAvatar(
-                    radius: 36,
-                    backgroundColor: cs.primary.withValues(alpha: 0.15),
-                    child: Icon(Icons.person, color: cs.primary, size: 36),
-                  ),
-                  const SizedBox(width: 16),
-
-                  // פרטים
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          userName,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.right,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          userEmail,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: cs.onSurfaceVariant,
-                          ),
-                          textAlign: TextAlign.right,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-
-                  // כפתור עריכה
-                  FilledButton.icon(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("עריכת פרופיל - בקרוב!")),
-                      );
-                    },
-                    icon: const Icon(Icons.edit, size: 18),
-                    label: const Text("עריכה"),
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                    ),
-                  ),
-                ],
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(kSpacingMedium),
+          children: [
+            // 🔹 פרופיל אישי
+            Card(
+              color: cs.surfaceContainerHighest,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(kBorderRadiusLarge),
               ),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // 🔹 סטטיסטיקות מהירות
-          Row(
-            children: [
-              Expanded(
-                child: _StatCard(
-                  color: Colors.amber,
-                  icon: Icons.shopping_cart_outlined,
-                  label: "רשימות פעילות",
-                  value: "$activeLists",
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _StatCard(
-                  color: Colors.green,
-                  icon: Icons.receipt_long_outlined,
-                  label: "קבלות",
-                  value: "$totalReceipts",
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 12),
-
-          Row(
-            children: [
-              Expanded(
-                child: _StatCard(
-                  color: Colors.blue,
-                  icon: Icons.inventory_2_outlined,
-                  label: "פריטים במזווה",
-                  value: "$pantryItems",
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 24),
-
-          // 🔹 ניהול קבוצה
-          Card(
-            color: cs.surfaceContainerHighest,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "ניהול קבוצה",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: cs.primary,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // שם הקבוצה
-                  Row(
-                    children: [
-                      Expanded(
-                        child: isEditingHouseholdName
-                            ? TextField(
-                                controller: householdNameController,
-                                decoration: const InputDecoration(
-                                  hintText: "שם הקבוצה",
-                                  isDense: true,
-                                ),
-                                textInputAction: TextInputAction.done,
-                                onSubmitted: (_) => _toggleEditHousehold(),
-                              )
-                            : Text(
-                                householdName,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                      ),
-                      IconButton(
-                        onPressed: _toggleEditHousehold,
-                        icon: Icon(
-                          isEditingHouseholdName ? Icons.check : Icons.edit,
-                          color: cs.primary,
-                        ),
-                        tooltip: isEditingHouseholdName ? 'שמור' : 'ערוך שם',
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // סוג הקבוצה
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "סוג הקבוצה:",
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: cs.onSurfaceVariant,
-                        ),
-                      ),
-                      DropdownButton<String>(
-                        value: householdType,
-                        items: const [
-                          DropdownMenuItem(
-                            value: "משפחה",
-                            child: Text("משפחה"),
-                          ),
-                          DropdownMenuItem(
-                            value: "ועד בית",
-                            child: Text("ועד בית"),
-                          ),
-                          DropdownMenuItem(
-                            value: "ועד גן",
-                            child: Text("ועד גן"),
-                          ),
-                          DropdownMenuItem(
-                            value: "שותפים",
-                            child: Text("שותפים"),
-                          ),
-                          DropdownMenuItem(value: "אחר", child: Text("אחר")),
-                        ],
-                        onChanged: _changeHouseholdType,
-                        underline: Container(),
-                      ),
-                    ],
-                  ),
-
-                  const Divider(height: 24),
-
-                  // חברי הקבוצה
-                  Text(
-                    "חברי הקבוצה (${members.length})",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: cs.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // רשימת חברים
-                  ...members.map(
-                    (member) => ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: cs.primary.withValues(alpha: 0.15),
-                        child: Icon(Icons.person, color: cs.primary, size: 20),
-                      ),
-                      title: Text(member['name']!),
-                      subtitle: Text(
-                        member['role']!,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: cs.onSurfaceVariant,
-                        ),
-                      ),
-                      dense: true,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  // כפתור ניהול חברים (עתידי)
-                  OutlinedButton.icon(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("ניהול חברים מלא - בקרוב! 🚧"),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.group_add, size: 20),
-                    label: const Text("ניהול חברים - בקרוב!"),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 42),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // 🔹 חנויות מועדפות
-          Card(
-            color: cs.surfaceContainerHighest,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "חנויות מועדפות",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: cs.primary,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  // רשימת חנויות
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: List.generate(
-                      preferredStores.length,
-                      (index) => Chip(
-                        label: Text(preferredStores[index]),
-                        deleteIcon: const Icon(Icons.close, size: 18),
-                        onDeleted: () => _removeStore(index),
+              child: Padding(
+                padding: const EdgeInsets.all(kSpacingMedium),
+                child: Row(
+                  children: [
+                    // תמונת פרופיל
+                    CircleAvatar(
+                      radius: kAvatarRadius,
+                      backgroundColor: cs.primary.withValues(alpha: 0.15),
+                      child: Icon(
+                        Icons.person,
+                        color: cs.primary,
+                        size: kIconSizeProfile,
                       ),
                     ),
-                  ),
+                    const SizedBox(width: kSpacingMedium),
 
-                  const SizedBox(height: 12),
-
-                  // הוספת חנות
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: storeController,
-                          decoration: const InputDecoration(
-                            hintText: "הוסף חנות...",
-                            isDense: true,
-                          ),
-                          textInputAction: TextInputAction.done,
-                          onSubmitted: (_) => _addStore(),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      IconButton(
-                        onPressed: _addStore,
-                        icon: Icon(Icons.add, color: cs.primary),
-                        tooltip: 'הוסף חנות',
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // 🔹 הגדרות אישיות
-          Card(
-            color: cs.surfaceContainerHighest,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "הגדרות אישיות",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: cs.primary,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  // גודל קבוצה
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text("גודל הקבוצה (מספר אנשים)"),
-                      SizedBox(
-                        width: 80,
-                        child: TextField(
-                          controller: familySizeController,
-                          keyboardType: TextInputType.number,
-                          textAlign: TextAlign.center,
-                          decoration: const InputDecoration(
-                            isDense: true,
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 8,
+                    // פרטים
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            userName,
+                            style: const TextStyle(
+                              fontSize: kFontSizeLarge,
+                              fontWeight: FontWeight.bold,
                             ),
+                            textAlign: TextAlign.right,
                           ),
-                          onSubmitted: (_) => _updateFamilySize(),
+                          const SizedBox(height: kSpacingTiny),
+                          Text(
+                            userEmail,
+                            style: TextStyle(
+                              fontSize: kFontSizeSmall,
+                              color: cs.onSurfaceVariant,
+                            ),
+                            textAlign: TextAlign.right,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: kSpacingSmall),
+
+                    // כפתור עריכה
+                    FilledButton.icon(
+                      onPressed: () {
+                        debugPrint('✏️ Edit Profile: clicked');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(AppStrings.settings.editProfileButton),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.edit, size: kIconSizeSmall + 2),
+                      label: Text(AppStrings.settings.editProfile),
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: kSpacingSmallPlus,
+                          vertical: kSpacingSmall,
                         ),
                       ),
-                    ],
-                  ),
-
-                  const Divider(height: 24),
-
-                  // תזכורות שבועיות
-                  SwitchListTile(
-                    title: const Text("תזכורות שבועיות"),
-                    subtitle: const Text("קבל תזכורת לתכנן קניות"),
-                    value: weeklyReminders,
-                    onChanged: (val) {
-                      setState(() => weeklyReminders = val);
-                      _saveSettings();
-                    },
-                    contentPadding: EdgeInsets.zero,
-                  ),
-
-                  // ניתוח הרגלים
-                  SwitchListTile(
-                    title: const Text("ניתוח הרגלי קנייה"),
-                    subtitle: const Text("קבל המלצות מבוססות נתונים"),
-                    value: habitsAnalysis,
-                    onChanged: (val) {
-                      setState(() => habitsAnalysis = val);
-                      _saveSettings();
-                    },
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
 
-          const SizedBox(height: 16),
+            const SizedBox(height: kSpacingMedium),
 
-          // 🔹 קישורים מהירים
-          Card(
-            color: cs.surfaceContainerHighest,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
+            // 🔹 סטטיסטיקות מהירות
+            Row(
               children: [
-                ListTile(
-                  leading: Icon(Icons.receipt_long, color: cs.primary),
-                  title: const Text("הקבלות שלי"),
-                  trailing: const Icon(Icons.chevron_left),
-                  onTap: () => Navigator.pushNamed(context, '/receipts'),
+                Expanded(
+                  child: _StatCard(
+                    color: Colors.amber,
+                    icon: Icons.shopping_cart_outlined,
+                    label: AppStrings.settings.statsActiveLists,
+                    value: "$activeLists",
+                  ),
                 ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: Icon(Icons.inventory_2_outlined, color: cs.primary),
-                  title: const Text("המזווה שלי"),
-                  trailing: const Icon(Icons.chevron_left),
-                  onTap: () => Navigator.pushNamed(context, '/inventory'),
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: Icon(Icons.price_change_outlined, color: cs.primary),
-                  title: const Text("השוואת מחירים"),
-                  trailing: const Icon(Icons.chevron_left),
-                  onTap: () => Navigator.pushNamed(context, '/price-compare'),
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: Icon(Icons.sync, color: cs.primary),
-                  title: const Text("עדכן מחירים מ-API"),
-                  subtitle: const Text("טעינת מחירים עדכניים מהרשת"),
-                  trailing: const Icon(Icons.chevron_left),
-                  onTap: () => _updatePrices(context),
+                const SizedBox(width: kSpacingSmallPlus),
+                Expanded(
+                  child: _StatCard(
+                    color: Colors.green,
+                    icon: Icons.receipt_long_outlined,
+                    label: AppStrings.settings.statsReceipts,
+                    value: "$totalReceipts",
+                  ),
                 ),
               ],
             ),
-          ),
 
-          const SizedBox(height: 16),
+            const SizedBox(height: kSpacingSmallPlus),
 
-          // 🔹 התנתקות
-          Card(
-            color: cs.surfaceContainerHighest,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+            Row(
+              children: [
+                Expanded(
+                  child: _StatCard(
+                    color: Colors.blue,
+                    icon: Icons.inventory_2_outlined,
+                    label: AppStrings.settings.statsPantryItems,
+                    value: "$pantryItems",
+                  ),
+                ),
+              ],
             ),
-            child: ListTile(
-              leading: const Icon(Icons.logout, color: Colors.red),
-              title: const Text("התנתק", style: TextStyle(color: Colors.red)),
-              subtitle: const Text("יציאה מהחשבון"),
-              onTap: _logout,
-            ),
-          ),
 
-          const SizedBox(height: 24),
-        ],
+            const SizedBox(height: kSpacingLarge),
+
+            // 🔹 ניהול קבוצה
+            Card(
+              color: cs.surfaceContainerHighest,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(kSpacingMedium),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      AppStrings.settings.householdTitle,
+                      style: TextStyle(
+                        fontSize: kFontSizeMedium,
+                        fontWeight: FontWeight.bold,
+                        color: cs.primary,
+                      ),
+                    ),
+                    const SizedBox(height: kSpacingMedium),
+
+                    // שם הקבוצה
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _isEditingHouseholdName
+                              ? TextField(
+                                  controller: _householdNameController,
+                                  decoration: InputDecoration(
+                                    hintText: AppStrings.settings.householdNameHint,
+                                    isDense: true,
+                                  ),
+                                  textInputAction: TextInputAction.done,
+                                  onSubmitted: (_) => _toggleEditHousehold(),
+                                )
+                              : Text(
+                                  _householdName,
+                                  style: const TextStyle(
+                                    fontSize: kFontSizeBody,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                        ),
+                        IconButton(
+                          onPressed: _toggleEditHousehold,
+                          icon: Icon(
+                            _isEditingHouseholdName ? Icons.check : Icons.edit,
+                            color: cs.primary,
+                          ),
+                          tooltip: _isEditingHouseholdName
+                              ? AppStrings.settings.editHouseholdNameSave
+                              : AppStrings.settings.editHouseholdNameEdit,
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: kSpacingSmallPlus),
+
+                    // סוג הקבוצה
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          AppStrings.settings.householdType,
+                          style: TextStyle(
+                            fontSize: kFontSizeSmall,
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                        DropdownButton<String>(
+                          value: _householdType,
+                          items: HouseholdConfig.allTypes
+                              .map(
+                                (type) => DropdownMenuItem(
+                                  value: type,
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        HouseholdConfig.getIcon(type),
+                                        size: kIconSizeSmall,
+                                      ),
+                                      const SizedBox(width: kSpacingSmall),
+                                      Text(HouseholdConfig.getLabel(type)),
+                                    ],
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: _changeHouseholdType,
+                          underline: Container(),
+                        ),
+                      ],
+                    ),
+
+                    const Divider(height: kSpacingLarge),
+
+                    // חברי הקבוצה
+                    Text(
+                      AppStrings.settings.membersCount(_members.length),
+                      style: TextStyle(
+                        fontSize: kFontSizeSmall,
+                        fontWeight: FontWeight.w600,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: kSpacingSmall),
+
+                    // רשימת חברים
+                    ..._members.map(
+                      (member) => ListTile(
+                        leading: CircleAvatar(
+                          radius: kAvatarRadiusSmall,
+                          backgroundColor: cs.primary.withValues(alpha: 0.15),
+                          child: Icon(
+                            Icons.person,
+                            color: cs.primary,
+                            size: kIconSizeMedium,
+                          ),
+                        ),
+                        title: Text(member['name']!),
+                        subtitle: Text(
+                          _getRoleLabel(member['role']!),
+                          style: TextStyle(
+                            fontSize: kFontSizeSmall - 2,
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+
+                    const SizedBox(height: kSpacingSmall),
+
+                    // כפתור ניהול חברים (עתידי)
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        debugPrint('👥 Manage Members: clicked');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              AppStrings.settings.manageMembersComingSoon,
+                            ),
+                            duration: kSnackBarDuration,
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.group_add, size: kIconSizeMedium),
+                      label: Text(AppStrings.settings.manageMembersButton),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 42),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: kSpacingMedium),
+
+            // 🔹 חנויות מועדפות
+            Card(
+              color: cs.surfaceContainerHighest,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(kSpacingMedium),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      AppStrings.settings.storesTitle,
+                      style: TextStyle(
+                        fontSize: kFontSizeMedium,
+                        fontWeight: FontWeight.bold,
+                        color: cs.primary,
+                      ),
+                    ),
+                    const SizedBox(height: kSpacingSmallPlus),
+
+                    // רשימת חנויות
+                    Wrap(
+                      spacing: kSpacingSmall,
+                      runSpacing: kSpacingSmall,
+                      children: List.generate(
+                        _preferredStores.length,
+                        (index) => Chip(
+                          label: Text(_preferredStores[index]),
+                          deleteIcon: const Icon(Icons.close, size: kIconSizeSmall + 2),
+                          onDeleted: () => _removeStore(index),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: kSpacingSmallPlus),
+
+                    // הוספת חנות
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _storeController,
+                            decoration: InputDecoration(
+                              hintText: AppStrings.settings.addStoreHint,
+                              isDense: true,
+                            ),
+                            textInputAction: TextInputAction.done,
+                            onSubmitted: (_) => _addStore(),
+                          ),
+                        ),
+                        const SizedBox(width: kSpacingSmall),
+                        IconButton(
+                          onPressed: _addStore,
+                          icon: Icon(Icons.add, color: cs.primary),
+                          tooltip: AppStrings.settings.addStoreTooltip,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: kSpacingMedium),
+
+            // 🔹 הגדרות אישיות
+            Card(
+              color: cs.surfaceContainerHighest,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(kSpacingMedium),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      AppStrings.settings.personalSettingsTitle,
+                      style: TextStyle(
+                        fontSize: kFontSizeMedium,
+                        fontWeight: FontWeight.bold,
+                        color: cs.primary,
+                      ),
+                    ),
+                    const SizedBox(height: kSpacingSmallPlus),
+
+                    // גודל קבוצה
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(AppStrings.settings.familySizeLabel),
+                        SizedBox(
+                          width: kQuantityFieldWidth,
+                          child: TextField(
+                            controller: _familySizeController,
+                            keyboardType: TextInputType.number,
+                            textAlign: TextAlign.center,
+                            decoration: const InputDecoration(
+                              isDense: true,
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: kSpacingSmall,
+                                vertical: kSpacingSmall,
+                              ),
+                            ),
+                            onSubmitted: (_) => _updateFamilySize(),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const Divider(height: kSpacingLarge),
+
+                    // תזכורות שבועיות
+                    SwitchListTile(
+                      title: Text(AppStrings.settings.weeklyRemindersLabel),
+                      subtitle: Text(AppStrings.settings.weeklyRemindersSubtitle),
+                      value: _weeklyReminders,
+                      onChanged: (val) {
+                        debugPrint('🔔 weeklyReminders: $val');
+                        setState(() => _weeklyReminders = val);
+                        _saveSettings();
+                      },
+                      contentPadding: EdgeInsets.zero,
+                    ),
+
+                    // ניתוח הרגלים
+                    SwitchListTile(
+                      title: Text(AppStrings.settings.habitsAnalysisLabel),
+                      subtitle: Text(AppStrings.settings.habitsAnalysisSubtitle),
+                      value: _habitsAnalysis,
+                      onChanged: (val) {
+                        debugPrint('📊 habitsAnalysis: $val');
+                        setState(() => _habitsAnalysis = val);
+                        _saveSettings();
+                      },
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: kSpacingMedium),
+
+            // 🔹 קישורים מהירים
+            Card(
+              color: cs.surfaceContainerHighest,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+              ),
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: Icon(Icons.receipt_long, color: cs.primary),
+                    title: Text(AppStrings.settings.myReceipts),
+                    trailing: const Icon(Icons.chevron_left),
+                    onTap: () {
+                      debugPrint('🧾 Navigating to receipts');
+                      Navigator.pushNamed(context, '/receipts');
+                    },
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: Icon(Icons.inventory_2_outlined, color: cs.primary),
+                    title: Text(AppStrings.settings.myPantry),
+                    trailing: const Icon(Icons.chevron_left),
+                    onTap: () {
+                      debugPrint('📦 Navigating to inventory');
+                      Navigator.pushNamed(context, '/inventory');
+                    },
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: Icon(Icons.price_change_outlined, color: cs.primary),
+                    title: Text(AppStrings.settings.priceComparison),
+                    trailing: const Icon(Icons.chevron_left),
+                    onTap: () {
+                      debugPrint('💰 Navigating to price compare');
+                      Navigator.pushNamed(context, '/price-compare');
+                    },
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: Icon(Icons.sync, color: cs.primary),
+                    title: Text(AppStrings.settings.updatePricesTitle),
+                    subtitle: Text(AppStrings.settings.updatePricesSubtitle),
+                    trailing: const Icon(Icons.chevron_left),
+                    onTap: () => _updatePrices(context),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: kSpacingMedium),
+
+            // 🔹 התנתקות
+            Card(
+              color: cs.surfaceContainerHighest,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+              ),
+              child: ListTile(
+                leading: const Icon(Icons.logout, color: Colors.red),
+                title: Text(
+                  AppStrings.settings.logoutTitle,
+                  style: const TextStyle(color: Colors.red),
+                ),
+                subtitle: Text(AppStrings.settings.logoutSubtitle),
+                onTap: _logout,
+              ),
+            ),
+
+            const SizedBox(height: kSpacingLarge),
+          ],
+        ),
       ),
     );
+  }
+
+  // Helper: תרגום role
+  String _getRoleLabel(String role) {
+    switch (role) {
+      case 'owner':
+        return AppStrings.settings.roleOwner;
+      case 'editor':
+        return AppStrings.settings.roleEditor;
+      case 'viewer':
+        return AppStrings.settings.roleViewer;
+      default:
+        return role;
+    }
   }
 }
 
@@ -784,9 +959,11 @@ class _StatCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return Card(
       color: cs.surfaceContainerHighest,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(kBorderRadius),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(kSpacingSmallPlus),
         child: Row(
           children: [
             Container(
@@ -796,21 +973,24 @@ class _StatCard extends StatelessWidget {
                 color: color.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, color: color, size: 22),
+              child: Icon(icon, color: color, size: kIconSizeMedium + 2),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: kSpacingSmallPlus),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
                     label,
-                    style: const TextStyle(fontSize: 11, color: Colors.grey),
+                    style: const TextStyle(
+                      fontSize: kFontSizeTiny,
+                      color: Colors.grey,
+                    ),
                   ),
                   Text(
                     value,
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: kFontSizeLarge,
                       color: color,
                       fontWeight: FontWeight.bold,
                     ),

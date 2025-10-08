@@ -26,12 +26,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../core/ui_constants.dart';
 import 'welcome_screen.dart';
-
-// קבועים מקומיים (הועברו מ-constants.dart שנמחק)
-const double kButtonHeight = 48.0;
-const double kSpacingSmall = 8.0;
-const double kSpacingMedium = 16.0;
 
 class IndexScreen extends StatefulWidget {
   const IndexScreen({super.key});
@@ -134,13 +130,13 @@ class _IndexScreenState extends State<IndexScreen> {
                 child: Text(
                   'Salsheli',
                   style: TextStyle(
-                    fontSize: 22,
+                    fontSize: kFontSizeXLarge,
                     fontWeight: FontWeight.bold,
                     color: cs.onSurface,
                   ),
                 ),
               ),
-              SizedBox(height: kSpacingSmall + 4), // 12
+              SizedBox(height: kSpacingSmallPlus),
               
               // Progress indicator עם accessibility
               Semantics(
@@ -154,7 +150,7 @@ class _IndexScreenState extends State<IndexScreen> {
                     Text(
                       'טוען...',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: kFontSizeSmall,
                         color: cs.onSurface.withValues(alpha: 0.6),
                       ),
                     ),

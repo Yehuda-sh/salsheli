@@ -1,30 +1,54 @@
 // 📄 File: lib/screens/onboarding/widgets/onboarding_steps.dart
-// תיאור: רכיבי שלבי Onboarding - כל שלב במסך נפרד
 //
-// כולל:
+// 🎯 מטרה: רכיבי שלבי Onboarding - 8 שלבים interactives
+//
+// 📋 כולל:
 // - 8 שלבים: Welcome, Family Size, Stores, Budget, Categories, Sharing, Reminder, Summary
-// - אנימציות חלקות
+// - אנימציות חלקות עם flutter_animate
 // - תמיכה RTL מלאה
 // - עיצוב אחיד עם AppBrand
+//
+// 🔗 Dependencies:
+// - flutter_animate: אנימציות (300ms fade + slide)
+// - ../../../data/onboarding_data.dart: מודל OnboardingData
+// - ../../../config/filters_config.dart: kCategories
+// - ../../../config/stores_config.dart: StoresConfig.allStores
+// - ../../../l10n/app_strings.dart: כל המחרוזות
+// - ../../../core/ui_constants.dart: spacing + icon sizes
+// - ../../../core/constants.dart: kMinFamilySize, kMaxFamilySize, kMinMonthlyBudget, kMaxMonthlyBudget
+// - ../../../theme/app_theme.dart: AppBrand extension
+//
+// 🎯 שימוש:
+// ```dart
+// final steps = OnboardingSteps.build(
+//   data: onboardingData,
+//   onFamilySizeChanged: (size) => setState(() => data.familySize = size),
+//   onStoresChanged: (stores) => setState(() => data.preferredStores = stores),
+//   onBudgetChanged: (budget) => setState(() => data.monthlyBudget = budget),
+//   onCategoriesChanged: (cats) => setState(() => data.importantCategories = cats),
+//   onShareChanged: (share) => setState(() => data.shareLists = share),
+//   onReminderChanged: (time) => setState(() => data.reminderTime = time),
+// );
+// ```
+//
+// 📝 הערות:
+// - כל שלב הוא Widget נפרד עם _StepWrapper משותף
+// - Callbacks מעדכנים את OnboardingData
+// - Logging מפורט בפעולות (time picker, בחירות)
+//
+// Version: 2.0
+// Last Updated: 08/10/2025
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../data/onboarding_data.dart';
-import '../../../config/filters_config.dart'; // kCategories
-import '../../../theme/app_theme.dart'; // AppBrand
-
-// רשימת חנויות מקומית (מחליף את kPredefinedStores שנמחק)
-const List<String> _kStores = [
-  'שופרסל',
-  'רמי לוי',
-  'ויקטורי',
-  'סופר פארם',
-  'יינות ביתן',
-  'טיב טעם',
-  'מגה',
-  'יוחננוף',
-];
+import '../../../config/filters_config.dart';
+import '../../../config/stores_config.dart';
+import '../../../theme/app_theme.dart';
+import '../../../l10n/app_strings.dart';
+import '../../../core/ui_constants.dart';
+import '../../../core/constants.dart';
 
 class OnboardingSteps {
   static List<Widget> build({
@@ -34,23 +58,24 @@ class OnboardingSteps {
     required ValueChanged<double> onBudgetChanged,
     required ValueChanged<Set<String>> onCategoriesChanged,
     required ValueChanged<bool> onShareChanged,
-    required ValueChanged<String> onReminderChanged, // ✅ שונה ל-String
+    required ValueChanged<String> onReminderChanged,
   }) {
+    debugPrint('📋 onboarding: בניית 8 שלבים');
     return [
       const _WelcomeStep(),
       _FamilySizeStep(value: data.familySize, onChanged: onFamilySizeChanged),
       _MultiSelectStep(
-        title: "בחר חנויות מועדפות:",
+        title: AppStrings.onboarding.storesTitle,
         icon: Icons.store,
-        options: _kStores,
+        options: StoresConfig.allStores,
         selected: data.preferredStores,
         onChanged: onStoresChanged,
       ),
       _BudgetStep(value: data.monthlyBudget, onChanged: onBudgetChanged),
       _MultiSelectStep(
-        title: "אילו קטגוריות חשובות לכם במיוחד?",
+        title: AppStrings.onboarding.categoriesTitle,
         icon: Icons.category,
-        options: kCategories.values.toList(),
+        options: kCategories.map((id) => getCategoryLabel(id)).toList(),
         selected: data.importantCategories,
         onChanged: onCategoriesChanged,
       ),
@@ -85,27 +110,26 @@ class _StepWrapper extends StatelessWidget {
 
     return Directionality(
       textDirection: TextDirection.rtl,
-      child:
-          Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(icon, size: 80, color: accent),
-                  const SizedBox(height: 16),
-                  Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: t.titleLarge?.copyWith(
-                      color: cs.onSurface,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  child,
-                ],
-              )
-              .animate()
-              .fadeIn(duration: 300.ms)
-              .slideY(begin: 0.1, curve: Curves.easeOut),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: kIconSizeXLarge, color: accent),
+          const SizedBox(height: kSpacingMedium),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: t.titleLarge?.copyWith(
+              color: cs.onSurface,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: kSpacingLarge),
+          child,
+        ],
+      )
+          .animate()
+          .fadeIn(duration: kAnimationDurationMedium)
+          .slideY(begin: 0.1, curve: Curves.easeOut),
     );
   }
 }
@@ -119,6 +143,7 @@ class _WelcomeStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('👋 onboarding: Welcome step');
     final cs = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
     final brand = Theme.of(context).extension<AppBrand>();
@@ -126,30 +151,29 @@ class _WelcomeStep extends StatelessWidget {
 
     return Directionality(
       textDirection: TextDirection.rtl,
-      child:
-          Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.shopping_cart, size: 100, color: accent),
-                  const SizedBox(height: 20),
-                  Text(
-                    "ברוכים הבאים ל־Salsheli 🎉",
-                    style: t.titleLarge?.copyWith(
-                      color: cs.onSurface,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    "נהל רשימות חכמות, שתף את המשפחה וחסוך כסף וזמן.",
-                    textAlign: TextAlign.center,
-                    style: t.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-                  ),
-                ],
-              )
-              .animate()
-              .fadeIn(duration: 300.ms)
-              .slideY(begin: 0.1, curve: Curves.easeOut),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.shopping_cart, size: kIconSizeXXLarge, color: accent),
+          const SizedBox(height: kSpacingLarge),
+          Text(
+            AppStrings.onboarding.welcomeTitle,
+            style: t.titleLarge?.copyWith(
+              color: cs.onSurface,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: kSpacingSmall),
+          Text(
+            AppStrings.onboarding.welcomeSubtitle,
+            textAlign: TextAlign.center,
+            style: t.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+          ),
+        ],
+      )
+          .animate()
+          .fadeIn(duration: kAnimationDurationMedium)
+          .slideY(begin: 0.1, curve: Curves.easeOut),
     );
   }
 }
@@ -171,7 +195,7 @@ class _FamilySizeStep extends StatelessWidget {
 
     return _StepWrapper(
       icon: Icons.family_restroom,
-      title: "כמה נפשות במשפחה?",
+      title: AppStrings.onboarding.familySizeTitle,
       child: Column(
         children: [
           Text(
@@ -181,13 +205,17 @@ class _FamilySizeStep extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: kSpacingMedium),
           Slider(
             value: value.toDouble(),
             min: kMinFamilySize.toDouble(),
             max: kMaxFamilySize.toDouble(),
             divisions: kMaxFamilySize - kMinFamilySize,
-            onChanged: (v) => onChanged(v.toInt()),
+            onChanged: (v) {
+              final newSize = v.toInt();
+              debugPrint('👨‍👩‍👧‍👦 onboarding: Family size = $newSize');
+              onChanged(newSize);
+            },
           ),
         ],
       ),
@@ -223,8 +251,8 @@ class _MultiSelectStep extends StatelessWidget {
       title: title,
       child: Wrap(
         alignment: WrapAlignment.center,
-        spacing: 8,
-        runSpacing: 8,
+        spacing: kSpacingSmall,
+        runSpacing: kSpacingSmall,
         children: options.map((opt) {
           final isSelected = selected.contains(opt);
           return FilterChip(
@@ -234,9 +262,12 @@ class _MultiSelectStep extends StatelessWidget {
               final newSet = Set<String>.from(selected);
               if (val) {
                 newSet.add(opt);
+                debugPrint('➕ onboarding: נוסף - $opt');
               } else {
                 newSet.remove(opt);
+                debugPrint('➖ onboarding: הוסר - $opt');
               }
+              debugPrint('✅ onboarding: סה"כ נבחרו ${newSet.length} פריטים');
               onChanged(newSet);
             },
             backgroundColor: cs.surfaceContainerHighest.withValues(alpha: 0.18),
@@ -265,23 +296,26 @@ class _BudgetStep extends StatelessWidget {
 
     return _StepWrapper(
       icon: Icons.monetization_on,
-      title: "מה התקציב החודשי שלך?",
+      title: AppStrings.onboarding.budgetTitle,
       child: Column(
         children: [
           Text(
-            "${value.toStringAsFixed(0)} ₪",
+            AppStrings.onboarding.budgetAmount(value),
             style: t.displayMedium?.copyWith(
               color: cs.primary,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: kSpacingMedium),
           Slider(
             value: value,
             min: kMinMonthlyBudget,
             max: kMaxMonthlyBudget,
             divisions: 100,
-            onChanged: onChanged,
+            onChanged: (v) {
+              debugPrint('💰 onboarding: תקציב חודשי = ${v.toStringAsFixed(0)} ₪');
+              onChanged(v);
+            },
           ),
         ],
       ),
@@ -308,17 +342,23 @@ class _SharingStep extends StatelessWidget {
 
     return _StepWrapper(
       icon: Icons.share,
-      title: "האם תרצה לשתף רשימות עם בני משפחה?",
+      title: AppStrings.onboarding.sharingTitle,
       child: SwitchListTile(
-        contentPadding: const EdgeInsetsDirectional.only(start: 8, end: 4),
+        contentPadding: const EdgeInsetsDirectional.only(
+          start: kSpacingSmall,
+          end: kSpacingTiny,
+        ),
         title: Text(
-          "שיתוף רשימות משפחתי",
+          AppStrings.onboarding.sharingOption,
           textAlign: TextAlign.right,
           style: t.bodyLarge?.copyWith(color: cs.onSurface),
         ),
         value: value,
         activeThumbColor: accent,
-        onChanged: onChanged,
+        onChanged: (val) {
+          debugPrint('🤝 onboarding: שיתוף רשימות = ${val ? "מופעל" : "כבוי"}');
+          onChanged(val);
+        },
       ),
     );
   }
@@ -329,8 +369,8 @@ class _SharingStep extends StatelessWidget {
 // ========================================
 
 class _ReminderStep extends StatelessWidget {
-  final String value; // ✅ שונה מ-TimeOfDay ל-String
-  final ValueChanged<String> onChanged; // ✅ שונה מ-TimeOfDay ל-String
+  final String value;
+  final ValueChanged<String> onChanged;
 
   const _ReminderStep({required this.value, required this.onChanged});
 
@@ -343,19 +383,20 @@ class _ReminderStep extends StatelessWidget {
 
     return _StepWrapper(
       icon: Icons.alarm,
-      title: "באיזו שעה נוח לך לקבל תזכורות?",
+      title: AppStrings.onboarding.reminderTitle,
       child: Column(
         children: [
           Text(
-            value, // ✅ מציג את המחרוזת ישירות
+            value,
             style: t.displayMedium?.copyWith(
               color: accent,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: kSpacingMedium),
           OutlinedButton.icon(
             onPressed: () async {
+              debugPrint('⏰ onboarding: פתיחת time picker');
               // המרה של המחרוזת ל-TimeOfDay לצורך הצגה ב-picker
               final parts = value.split(':');
               final currentTime = TimeOfDay(
@@ -378,11 +419,17 @@ class _ReminderStep extends StatelessWidget {
                 // המרה חזרה למחרוזת בפורמט HH:MM
                 final timeString =
                     '${pickedTime.hour.toString().padLeft(2, '0')}:${pickedTime.minute.toString().padLeft(2, '0')}';
+                debugPrint('✅ onboarding: זמן תזכורת עודכן ל-$timeString');
                 onChanged(timeString);
+              } else {
+                debugPrint('❌ onboarding: time picker בוטל');
               }
             },
             icon: Icon(Icons.access_time, color: accent),
-            label: Text("שינוי שעה", style: TextStyle(color: accent)),
+            label: Text(
+              AppStrings.onboarding.reminderChangeButton,
+              style: TextStyle(color: accent),
+            ),
             style: OutlinedButton.styleFrom(side: BorderSide(color: accent)),
           ),
         ],
@@ -402,67 +449,76 @@ class _SummaryStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('📊 onboarding: Summary step');
     final cs = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
     final brand = Theme.of(context).extension<AppBrand>();
     final accent = brand?.accent ?? cs.primary;
+
+    final storesText = data.preferredStores.isEmpty
+        ? AppStrings.onboarding.noStoresSelected
+        : data.preferredStores.join(", ");
+
+    final categoriesText = data.importantCategories.isEmpty
+        ? AppStrings.onboarding.noCategoriesSelected
+        : data.importantCategories.join(", ");
 
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.check_circle, size: 80, color: accent),
-          const SizedBox(height: 16),
+          Icon(Icons.check_circle, size: kIconSizeXLarge, color: accent),
+          const SizedBox(height: kSpacingMedium),
           Text(
-            "סיכום ההעדפות שלך",
+            AppStrings.onboarding.summaryTitle,
             textAlign: TextAlign.center,
             style: t.titleLarge?.copyWith(
               color: cs.onSurface,
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: kSpacingLarge),
           _RtlSummaryRow(
             leadingEmojiOrIconText: "👨‍👩‍👧‍👦",
-            text: "משפחה: ${data.familySize} נפשות",
+            text: AppStrings.onboarding.familySizeSummary(data.familySize),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: kSpacingTiny + 2),
           _RtlSummaryRow(
             leadingEmojiOrIconText: "🏪",
-            text:
-                "חנויות: ${data.preferredStores.isEmpty ? "לא נבחר" : data.preferredStores.join(", ")}",
+            text: AppStrings.onboarding.storesSummary(storesText),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: kSpacingTiny + 2),
           _RtlSummaryRow(
             leadingEmojiOrIconText: "💰",
-            text: "תקציב חודשי: ${data.monthlyBudget.toStringAsFixed(0)} ₪",
+            text: AppStrings.onboarding.budgetSummary(data.monthlyBudget),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: kSpacingTiny + 2),
           _RtlSummaryRow(
             leadingEmojiOrIconText: "📦",
-            text:
-                "קטגוריות: ${data.importantCategories.isEmpty ? "לא נבחר" : data.importantCategories.join(", ")}",
+            text: AppStrings.onboarding.categoriesSummary(categoriesText),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: kSpacingTiny + 2),
           _RtlSummaryRow(
             leadingEmojiOrIconText: "🤝",
-            text: "שיתוף רשימות: ${data.shareLists ? "כן" : "לא"}",
+            text: AppStrings.onboarding.sharingSummary(data.shareLists),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: kSpacingTiny + 2),
           _RtlSummaryRow(
             leadingEmojiOrIconText: "⏰",
-            text:
-                "שעה מועדפת: ${data.reminderTime}", // ✅ מציג את המחרוזת ישירות
+            text: AppStrings.onboarding.reminderTimeSummary(data.reminderTime),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: kSpacingMedium),
           Text(
-            "לחץ על 'סיום' כדי להמשיך להרשמה.",
+            AppStrings.onboarding.summaryFinishHint,
             textAlign: TextAlign.right,
             style: t.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
           ),
         ],
-      ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.1, curve: Curves.easeOut),
+      )
+          .animate()
+          .fadeIn(duration: kAnimationDurationMedium)
+          .slideY(begin: 0.1, curve: Curves.easeOut),
     );
   }
 }
@@ -489,7 +545,7 @@ class _RtlSummaryRow extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(leadingEmojiOrIconText, style: const TextStyle(fontSize: 18)),
-        const SizedBox(width: 8),
+        const SizedBox(width: kSpacingSmall),
         Flexible(
           child: Text(
             text,

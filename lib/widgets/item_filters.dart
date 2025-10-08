@@ -8,10 +8,11 @@
 // - תואם Material Design: גדלי מגע 48px, theme colors
 //
 // תלויות:
-// - filters_config.dart (CATEGORIES, STATUSES)
+// - filters_config.dart (kCategories, kStatuses, getCategoryLabel, getStatusLabel)
 // - Theme colors
 
 import 'package:flutter/material.dart';
+
 import '../config/filters_config.dart';
 import '../theme/app_theme.dart';
 
@@ -89,7 +90,7 @@ class ItemFilters extends StatelessWidget {
               context: context,
               label: "סינון לפי קטגוריה",
               value: filters["category"] ?? "all",
-              items: CATEGORIES,
+              items: kCategories,
               onChanged: (val) => _updateFilter("category", val),
             ),
             const SizedBox(height: 16),
@@ -99,7 +100,7 @@ class ItemFilters extends StatelessWidget {
               context: context,
               label: "סינון לפי סטטוס",
               value: filters["status"] ?? "all",
-              items: STATUSES,
+              items: kStatuses,
               onChanged: (val) => _updateFilter("status", val),
             ),
             const SizedBox(height: 16),
@@ -136,15 +137,20 @@ class ItemFilters extends StatelessWidget {
     required BuildContext context,
     required String label,
     required String value,
-    required Map<String, String> items,
+    required List<String> items,
     required void Function(String?) onChanged,
   }) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
 
+    // קבלת הטקסט הנוכחי
+    final currentText = label.contains('קטגוריה')
+        ? getCategoryLabel(value)
+        : getStatusLabel(value);
+
     return Semantics(
-      label: '$label: ${items[value] ?? ""}',
+      label: '$label: $currentText',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -190,13 +196,16 @@ class ItemFilters extends StatelessWidget {
             dropdownColor: cs.surfaceContainerHigh,
             style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurface),
             icon: Icon(Icons.arrow_drop_down, color: cs.onSurfaceVariant),
-            items: items.entries.map((entry) {
+            items: items.map((id) {
+              final displayText = label.contains('קטגוריה')
+                  ? getCategoryLabel(id)
+                  : getStatusLabel(id);
               return DropdownMenuItem<String>(
-                value: entry.key,
+                value: id,
                 child: Align(
                   alignment: Alignment.centerRight,
                   child: Text(
-                    entry.value,
+                    displayText,
                     textDirection: TextDirection.rtl,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: cs.onSurface,

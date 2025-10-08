@@ -30,6 +30,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:salsheli/core/ui_constants.dart';
+import 'package:salsheli/l10n/app_strings.dart';
 import 'package:salsheli/layout/app_layout.dart';
 import 'package:salsheli/models/shopping_list.dart';
 import 'package:salsheli/providers/shopping_lists_provider.dart';
@@ -84,8 +85,8 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text(
-              'לחץ שוב לסגירת האפליקציה',
+            content: Text(
+              AppStrings.home.doubleTapToExit,
               textAlign: TextAlign.center,
             ),
             duration: kSnackBarDuration,

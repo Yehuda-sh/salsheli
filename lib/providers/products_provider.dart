@@ -55,6 +55,10 @@ class ProductsProvider with ChangeNotifier {
   List<Map<String, dynamic>> _products = [];
   List<String> _categories = [];
   DateTime? _lastUpdated;
+  
+  // 📊 Progress tracking (NEW)
+  int _loadingProgress = 0;
+  int _loadingTotal = 0;
 
   // Search & Filter
   String _searchQuery = '';
@@ -80,6 +84,13 @@ class ProductsProvider with ChangeNotifier {
   bool get hasInitialized => _hasInitialized; // 🆕 גישה פומבית
   bool get hasError => _errorMessage != null;
   String? get errorMessage => _errorMessage;
+  
+  // 📊 Progress getters (NEW)
+  int get loadingProgress => _loadingProgress;
+  int get loadingTotal => _loadingTotal;
+  double get loadingPercentage => _loadingTotal > 0 
+      ? (_loadingProgress / _loadingTotal) * 100 
+      : 0.0;
   
   // 💾 Cached filtered products
   List<Map<String, dynamic>> get products {
@@ -397,6 +408,13 @@ class ProductsProvider with ChangeNotifier {
     return map;
   }
 
+  // === Update Progress (Internal) ===
+  void _updateProgress(int current, int total) {
+    _loadingProgress = current;
+    _loadingTotal = total;
+    notifyListeners();
+  }
+  
   // === Clear All ===
   void clearAll() {
     debugPrint('🧹 ProductsProvider.clearAll()');
@@ -405,6 +423,8 @@ class ProductsProvider with ChangeNotifier {
     _selectedListType = null;
     _errorMessage = null; // ✅ נקה שגיאות
     _cacheKey = ''; // ✅ נקה cache
+    _loadingProgress = 0; // ✅ נקה progress
+    _loadingTotal = 0;
     notifyListeners();
   }
 

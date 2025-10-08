@@ -1,9 +1,14 @@
 // 📄 lib/repositories/local_products_repository.dart
 //
 // 🎯 Repository לניהול מוצרים מקומית ב-Hive
-// - שמירת מוצרים קבועה
+// - שמירת מוצרים קבועה (עם Batch + Progress)
 // - עדכון מחירים דינמי
 // - CRUD מלא
+//
+// ✨ תכונות חדשות:
+// - 📦 Batch Save: שמירה ב-100 מוצרים כל פעם
+// - 📊 Progress Callback: עדכון התקדמות בזמן אמיתי
+// - ⚡ Performance: מאפשר ל-UI להתעדכן בין batches
 
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -11,6 +16,7 @@ import '../models/product_entity.dart';
 
 class LocalProductsRepository {
   static const String _boxName = 'products';
+  static const int _batchSize = 100; // 📦 גודל batch
   Box<ProductEntity>? _box;
 
   /// אתחול ה-Box (חייב לקרוא ב-main)
@@ -78,25 +84,74 @@ class LocalProductsRepository {
     }
   }
 
-  /// שמירת רשימת מוצרים
-  Future<void> saveProducts(List<ProductEntity> products) async {
+  /// 🆕 שמירת רשימת מוצרים עם Batch + Progress
+  /// 
+  /// [products] - רשימת המוצרים לשמירה
+  /// [onProgress] - callback להתקדמות: (current, total)
+  /// 
+  /// Returns: מספר המוצרים שנשמרו בהצלחה
+  Future<int> saveProductsWithProgress(
+    List<ProductEntity> products, {
+    void Function(int current, int total)? onProgress,
+  }) async {
     if (!isReady) {
-      debugPrint('⚠️ saveProducts: Box לא מוכן');
-      return;
+      debugPrint('⚠️ saveProductsWithProgress: Box לא מוכן');
+      return 0;
+    }
+
+    if (products.isEmpty) {
+      debugPrint('⚠️ saveProductsWithProgress: רשימה ריקה');
+      return 0;
     }
 
     try {
-      debugPrint('💾 saveProducts: שומר ${products.length} מוצרים...');
-      final Map<String, ProductEntity> productsMap = {
-        for (var p in products) p.barcode: p,
-      };
-
-      await _box!.putAll(productsMap);
-      debugPrint('✅ saveProducts: נשמרו ${products.length} מוצרים בהצלחה');
+      debugPrint('💾 saveProductsWithProgress: שומר ${products.length} מוצרים...');
+      debugPrint('   📦 Batch size: $_batchSize מוצרים');
+      
+      int saved = 0;
+      final totalBatches = (products.length / _batchSize).ceil();
+      
+      for (int i = 0; i < products.length; i += _batchSize) {
+        final end = (i + _batchSize < products.length) 
+            ? i + _batchSize 
+            : products.length;
+        
+        final batch = products.sublist(i, end);
+        final currentBatch = (i / _batchSize).floor() + 1;
+        
+        // שמירת ה-batch
+        final Map<String, ProductEntity> batchMap = {
+          for (var p in batch) p.barcode: p,
+        };
+        
+        await _box!.putAll(batchMap);
+        saved += batch.length;
+        
+        // עדכון התקדמות
+        onProgress?.call(saved, products.length);
+        
+        debugPrint('   ✅ Batch $currentBatch/$totalBatches: נשמרו ${batch.length} מוצרים (סה"כ: $saved/${products.length})');
+        
+        // תן ל-UI להתעדכן בין batches
+        if (i + _batchSize < products.length) {
+          await Future.delayed(const Duration(milliseconds: 10));
+        }
+      }
+      
+      debugPrint('✅ saveProductsWithProgress: הושלם!');
+      debugPrint('   📊 נשמרו: $saved מוצרים');
       debugPrint('   📊 סה"כ ב-DB: ${_box!.length} מוצרים');
+      
+      return saved;
     } catch (e) {
       debugPrint('❌ שגיאה בשמירת מוצרים: $e');
+      return 0;
     }
+  }
+
+  /// שמירת רשימת מוצרים (ללא progress - לתאימות לאחור)
+  Future<void> saveProducts(List<ProductEntity> products) async {
+    await saveProductsWithProgress(products);
   }
 
   /// עדכון מחיר למוצר קיים

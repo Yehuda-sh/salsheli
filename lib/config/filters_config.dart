@@ -19,6 +19,8 @@
 
 // ignore_for_file: constant_identifier_names
 
+import '../l10n/app_strings.dart';
+
 /// קטגוריות מוצרים לפילטרים
 /// 
 /// 🎯 שימוש: Dropdowns, רשימות סינון, תפריטים
@@ -39,19 +41,57 @@
 /// 
 /// 🇮🇱 קטגוריות מוצרים לפילטרים.
 /// 🇬🇧 Product categories for filters.
-const Map<String, String> kCategories = {
-  "all": "כל הקטגוריות", // all categories
-  "dairy": "חלב וביצים", // dairy & eggs
-  "meat": "בשר ודגים", // meat & fish
-  "vegetables": "ירקות", // vegetables
-  "fruits": "פירות", // fruits
-  "bakery": "לחם ומאפים", // bakery
-  "dry_goods": "מוצרים יבשים", // dry goods
-  "cleaning": "חומרי ניקיון", // cleaning
-  "toiletries": "טואלטיקה", // toiletries
-  "frozen": "קפואים", // frozen
-  "beverages": "משקאות", // beverages
-};
+/// 
+/// ⚠️ השתמש ב-getCategoryLabel() לקבלת טקסט בעברית
+const List<String> kCategories = [
+  "all",
+  "dairy",
+  "meat",
+  "vegetables",
+  "fruits",
+  "bakery",
+  "dry_goods",
+  "cleaning",
+  "toiletries",
+  "frozen",
+  "beverages",
+];
+
+/// קבלת טקסט בעברית לקטגוריה
+/// 
+/// דוגמה:
+/// ```dart
+/// getCategoryLabel('dairy') // "חלב וביצים"
+/// getCategoryLabel('all') // "כל הקטגוריות"
+/// ```
+String getCategoryLabel(String categoryId) {
+  switch (categoryId) {
+    case 'all':
+      return AppStrings.filters.allCategories;
+    case 'dairy':
+      return AppStrings.filters.categoryDairy;
+    case 'meat':
+      return AppStrings.filters.categoryMeat;
+    case 'vegetables':
+      return AppStrings.filters.categoryVegetables;
+    case 'fruits':
+      return AppStrings.filters.categoryFruits;
+    case 'bakery':
+      return AppStrings.filters.categoryBakery;
+    case 'dry_goods':
+      return AppStrings.filters.categoryDryGoods;
+    case 'cleaning':
+      return AppStrings.filters.categoryCleaning;
+    case 'toiletries':
+      return AppStrings.filters.categoryToiletries;
+    case 'frozen':
+      return AppStrings.filters.categoryFrozen;
+    case 'beverages':
+      return AppStrings.filters.categoryBeverages;
+    default:
+      return categoryId; // fallback
+  }
+}
 
 /// סטטוסים של פריטים ברשימות קניות
 /// 
@@ -77,37 +117,70 @@ const Map<String, String> kCategories = {
 /// 
 /// 🇮🇱 סטטוס פריט ברשימה.
 /// 🇬🇧 Item status in shopping list.
-const Map<String, String> kStatuses = {
-  "all": "כל הסטטוסים", // all statuses
-  "pending": "ממתין", // pending
-  "taken": "נלקח", // taken
-  "missing": "חסר", // missing
-  "replaced": "הוחלף", // replaced
-};
+/// 
+/// ⚠️ השתמש ב-getStatusLabel() לקבלת טקסט בעברית
+const List<String> kStatuses = [
+  "all",
+  "pending",
+  "taken",
+  "missing",
+  "replaced",
+];
+
+/// קבלת טקסט בעברית לסטטוס
+/// 
+/// דוגמה:
+/// ```dart
+/// getStatusLabel('pending') // "ממתין"
+/// getStatusLabel('all') // "כל הסטטוסים"
+/// ```
+String getStatusLabel(String statusId) {
+  switch (statusId) {
+    case 'all':
+      return AppStrings.filters.allStatuses;
+    case 'pending':
+      return AppStrings.filters.statusPending;
+    case 'taken':
+      return AppStrings.filters.statusTaken;
+    case 'missing':
+      return AppStrings.filters.statusMissing;
+    case 'replaced':
+      return AppStrings.filters.statusReplaced;
+    default:
+      return statusId; // fallback
+  }
+}
 
 /// תאימות לאחור (שמות ישנים)
-@Deprecated('Use kCategories instead')
-const Map<String, String> CATEGORIES = kCategories;
+@Deprecated('Use kCategories and getCategoryLabel() instead')
+Map<String, String> get CATEGORIES => {
+      for (final id in kCategories) id: getCategoryLabel(id),
+    };
 
-@Deprecated('Use kStatuses instead')
-const Map<String, String> STATUSES = kStatuses;
+@Deprecated('Use kStatuses and getStatusLabel() instead')
+Map<String, String> get STATUSES => {
+      for (final id in kStatuses) id: getStatusLabel(id),
+    };
 
 /// 💡 טיפים לשימוש:
 /// 
-/// 1. **השוואת מפתחות בלבד:**
+/// 1. **קבלת טקסט בעברית:**
+///    ```dart
+///    final text = getCategoryLabel('dairy'); // "חלב וביצים"
+///    final status = getStatusLabel('pending'); // "ממתין"
+///    ```
+/// 
+/// 2. **השוואת מפתחות בלבד:**
 ///    ```dart
 ///    if (category == 'dairy') { ... }  // ✅ השווה למפתח
 ///    if (category == 'חלב וביצים') { ... }  // ❌ אל תשווה לערך
 ///    ```
 /// 
-/// 2. **Fallback בטוח:**
+/// 3. **רשימת כל הקטגוריות:**
 ///    ```dart
-///    final displayText = kCategories[category] ?? 'לא ידוע';
-///    ```
-/// 
-/// 3. **רשימת כל המפתחות:**
-///    ```dart
-///    final allKeys = kCategories.keys.toList();  // ['all', 'dairy', ...]
+///    for (final id in kCategories) {
+///      print('$id: ${getCategoryLabel(id)}');
+///    }
 ///    ```
 /// 
 /// 4. **קישור ל-category_config.dart:**

@@ -26,6 +26,9 @@
 
 import 'package:flutter/material.dart';
 
+import '../../core/status_colors.dart';
+import '../../l10n/app_strings.dart';
+
 /// מצבי פריט בקנייה פעילה
 enum ShoppingItemStatus {
   /// ⬜ ממתין - עדיין לא נקנה
@@ -44,13 +47,13 @@ enum ShoppingItemStatus {
   String get label {
     switch (this) {
       case ShoppingItemStatus.pending:
-        return 'ממתין';
+        return AppStrings.shopping.itemStatusPending;
       case ShoppingItemStatus.purchased:
-        return 'נקנה';
+        return AppStrings.shopping.itemStatusPurchased;
       case ShoppingItemStatus.outOfStock:
-        return 'לא במלאי';
+        return AppStrings.shopping.itemStatusOutOfStock;
       case ShoppingItemStatus.deferred:
-        return 'דחוי';
+        return AppStrings.shopping.itemStatusDeferred;
     }
   }
 
@@ -72,13 +75,13 @@ enum ShoppingItemStatus {
   Color get color {
     switch (this) {
       case ShoppingItemStatus.pending:
-        return Colors.grey;
+        return StatusColors.pending;
       case ShoppingItemStatus.purchased:
-        return Colors.green;
+        return StatusColors.success;
       case ShoppingItemStatus.outOfStock:
-        return Colors.red;
+        return StatusColors.error;
       case ShoppingItemStatus.deferred:
-        return Colors.orange;
+        return StatusColors.warning;
     }
   }
 

@@ -6,15 +6,16 @@
 // - Validation למניעת שמות כפולים
 // - Validation לתקציב (חייב > 0)
 // - Preview ויזואלי לסוג הרשימה הנבחר
-// - תמיכה בכל סוגי הרשימות מ-constants.dart (kListTypes)
+// - תמיכה בכל 21 סוגי הרשימות מ-constants.dart
+// - תצוגה מקובצת: קניות יומיומיות, מיוחדות, אירועים
 // - Logging מלא לכל השלבים
-// - 9 סוגי רשימות: סופר, מרקחת, חומרי בניין, ביגוד, אלקטרוניקה, חיות מחמד, קוסמטיקה, ציוד משרדי, אחר
 // - Clear button לניקוי תקציב
 // - Accessibility: Tooltips על כל הכפתורים
 //
 // Dependencies:
 // - ShoppingListsProvider - לבדיקת שמות כפולים
 // - constants.dart - kListTypes (סוגי רשימות + אייקונים)
+// - list_type_groups.dart - ListTypeGroups (קיבוץ ב-3 קבוצות)
 //
 // Usage Example:
 // showDialog(
@@ -31,6 +32,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../core/constants.dart';
+import '../config/list_type_groups.dart';
 import '../providers/shopping_lists_provider.dart';
 
 class CreateListDialog extends StatefulWidget {
@@ -112,8 +114,165 @@ class _CreateListDialogState extends State<CreateListDialog> {
           content: Text('שגיאה ביצירת הרשימה: $e'),
           backgroundColor: Colors.red,
         ),
-      );
+        );
     }
+  }
+
+  // ========================================
+  // 🎭 תצוגה מקובצת של סוגי רשימות
+  // ========================================
+
+  /// בניית selector מקובץ לפי קבוצות
+  ///
+  /// מציג 3 קבוצות עם ExpansionTile:
+  /// 1. 🛒 קניות יומיומיות (2 סוגים)
+  /// 2. 🎯 קניות מיוחדות (12 סוגים)
+  /// 3. 🎉 אירועים (6 סוגים)
+  Widget _buildGroupedTypeSelector() {
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Label
+        Text(
+          'סוג הרשימה',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.primary,
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        // קבוצות
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: theme.colorScheme.outline.withValues(alpha: 0.3),
+            ),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            children: ListTypeGroups.allGroups.map((group) {
+              return _buildGroupExpansionTile(group);
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// בניית ExpansionTile לקבוצה אחת
+  Widget _buildGroupExpansionTile(ListTypeGroup group) {
+    final theme = Theme.of(context);
+    final types = ListTypeGroups.getTypesInGroup(group);
+    final isCurrentGroupSelected = types.contains(_type);
+
+    return ExpansionTile(
+      initiallyExpanded: isCurrentGroupSelected,
+      tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      childrenPadding: const EdgeInsets.only(
+        left: 16,
+        right: 16,
+        bottom: 8,
+      ),
+      leading: Text(
+        ListTypeGroups.getGroupIcon(group),
+        style: const TextStyle(fontSize: 24),
+      ),
+      title: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  ListTypeGroups.getGroupName(group),
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  ListTypeGroups.getGroupDescription(group),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // אינדיקטור אם הסוג הנוכחי בקבוצה זו
+          if (isCurrentGroupSelected)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                'נבחר',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+        ],
+      ),
+      children: [
+        // Grid של סוגי הרשימות בקבוצה
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          alignment: WrapAlignment.end,
+          children: types.map((type) => _buildTypeChip(type)).toList(),
+        ),
+      ],
+    );
+  }
+
+  /// בניית chip לסוג אחד
+  Widget _buildTypeChip(String type) {
+    final theme = Theme.of(context);
+    final typeInfo = kListTypes[type]!;
+    final isSelected = _type == type;
+
+    return FilterChip(
+      selected: isSelected,
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(typeInfo['name']!),
+          const SizedBox(width: 6),
+          Text(
+            typeInfo['icon']!,
+            style: const TextStyle(fontSize: 16),
+          ),
+        ],
+      ),
+      onSelected: _isSubmitting
+          ? null
+          : (selected) {
+              if (selected) {
+                debugPrint('🔄 סוג רשימה שונה ל: $type');
+                setState(() => _type = type);
+              }
+            },
+      backgroundColor: theme.colorScheme.surface,
+      selectedColor: theme.colorScheme.primaryContainer,
+      checkmarkColor: theme.colorScheme.primary,
+      labelStyle: TextStyle(
+        color: isSelected
+            ? theme.colorScheme.onPrimaryContainer
+            : theme.colorScheme.onSurface,
+        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+      ),
+      side: BorderSide(
+        color: isSelected
+            ? theme.colorScheme.primary
+            : theme.colorScheme.outline.withValues(alpha: 0.3),
+      ),
+    );
   }
 
   @override
@@ -169,47 +328,8 @@ class _CreateListDialogState extends State<CreateListDialog> {
               ),
               const SizedBox(height: 12),
 
-              // 📋 סוג הרשימה
-              Directionality(
-                textDirection: TextDirection.rtl,
-                child: DropdownButtonFormField<String>(
-                  initialValue: _type,
-                  isExpanded: true, // מאפשר RTL מלא
-                  decoration: const InputDecoration(
-                    labelText: "סוג הרשימה",
-                  ),
-                items: kListTypes.entries.map((entry) {
-                  return DropdownMenuItem<String>(
-                    value: entry.key,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            entry.value["name"]!,
-                            textAlign: TextAlign.right,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          entry.value["icon"]!,
-                          style: const TextStyle(fontSize: 20),
-                        ),
-                      ],
-                    ),
-                  );
-                }).toList(),
-                onChanged: _isSubmitting
-                    ? null
-                    : (value) {
-                        debugPrint('🔄 סוג רשימה שונה ל: $value');
-                        setState(() => _type = value ?? "super");
-                      },
-                ),
-              ),
+              // 📋 סוג הרשימה - תצוגה מקובצת
+              _buildGroupedTypeSelector(),
               const SizedBox(height: 12),
 
               // ✨ Preview של הסוג שנבחר

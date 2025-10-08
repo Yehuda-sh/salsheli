@@ -23,17 +23,11 @@
 // - ריווחים מ-constants.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common/benefit_tile.dart';
 import '../widgets/auth/auth_button.dart';
-
-
-// קבועים מקומיים (הועברו מ-constants.dart שנמחק)
-const double kSpacingSmall = 8.0;
-const double kSpacingMedium = 16.0;
-const double kSpacingLarge = 24.0;
-const double kButtonHeight = 48.0;
-const double kBorderRadius = 12.0;
+import '../core/ui_constants.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -48,152 +42,217 @@ class WelcomeScreen extends StatelessWidget {
     final bgColor = brand?.welcomeBackground ?? const Color(0xFF0F172A);
 
     return Scaffold(
-      backgroundColor: bgColor,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.all(kSpacingLarge + 8), // 32
-            child: Column(
-              children: [
-                SizedBox(height: kSpacingLarge + 16), // 40
+      body: Container(
+        // 🌈 גרדיאנט עדין ברקע - עומק ויזואלי
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              bgColor,
+              bgColor.withValues(alpha: 0.95),
+              const Color(0xFF1E293B), // Slate 800
+              bgColor.withValues(alpha: 0.98),
+              bgColor,
+            ],
+            stops: const [0.0, 0.25, 0.5, 0.75, 1.0],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(kSpacingXLarge),
+              child: Column(
+                children: [
+                  const SizedBox(height: kSpacingMedium), // צומצם מ-40 ל-16
 
-                // לוגו עם Accessibility
-                Semantics(
-                  label: 'לוגו אפליקציית סל שלי',
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: accent.withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
+                  // לוגו עם Accessibility + זוהר ואנימציה
+                  Semantics(
+                    label: 'לוגו אפליקציית סל שלי',
+                    child: _AnimatedLogo(accent: accent),
+                  ),
+                  const SizedBox(height: kSpacingLarge),
+
+                  // כותרת
+                  Text(
+                    'סל שלי',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.headlineLarge?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: kFontSizeDisplay,
                     ),
-                    child: Icon(
-                      Icons.shopping_basket_outlined,
-                      size: 56,
-                      color: accent,
+                  ),
+                  const SizedBox(height: kSpacingSmallPlus),
+
+                  // תיאור
+                  Text(
+                    'קניות. פשוט. חכם.\nתכננו, שתפו, עקבו - הכל באפליקציה אחת',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.9), // בהיר יותר!
+                      height: 1.5,
                     ),
                   ),
-                ),
-                SizedBox(height: kSpacingLarge),
+                  const SizedBox(height: kSpacingLarge), // צומצם מ-48 ל-24
 
-                // כותרת
-                Text(
-                  'סל שלי',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.headlineLarge?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 32,
+                  // רשימת יתרונות - עם צבעים לבנים לרקע כהה
+                  BenefitTile(
+                    icon: Icons.people_outline,
+                    title: 'שיתוף בזמן אמת',
+                    subtitle: 'רשימה אחת, כולם רואים, אף אחד לא טועה',
+                    titleColor: Colors.white,
+                    subtitleColor: Colors.white.withValues(alpha: 0.85),
+                    iconColor: accent,
                   ),
-                ),
-                SizedBox(height: kSpacingSmall + 4), // 12
-
-                // תיאור
-                Text(
-                  'הכלי המושלם לתכנון קניות\nחיסכון בזמן וכסף',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: Colors.white70,
-                    height: 1.5,
+                  BenefitTile(
+                    icon: Icons.camera_alt_outlined,
+                    title: 'קבלות שעובדות בשבילכם',
+                    subtitle: 'תמונה → נתונים → תובנות',
+                    titleColor: Colors.white,
+                    subtitleColor: Colors.white.withValues(alpha: 0.85),
+                    iconColor: accent,
                   ),
-                ),
-                SizedBox(height: kSpacingLarge * 2), // 48
+                  BenefitTile(
+                    icon: Icons.inventory_2_outlined,
+                    title: 'מלאי הבית שלכם',
+                    subtitle: 'יודעים מה יש, קונים רק מה חסר',
+                    titleColor: Colors.white,
+                    subtitleColor: Colors.white.withValues(alpha: 0.85),
+                    iconColor: accent,
+                  ),
 
-                // רשימת יתרונות
-                const BenefitTile(
-                  icon: Icons.checklist_outlined,
-                  title: 'רשימות חכמות',
-                  subtitle: 'צרו רשימות קניות בקלות ושתפו עם בני הבית.',
-                ),
-                const BenefitTile(
-                  icon: Icons.receipt_long_outlined,
-                  title: 'סריקת קבלות ותקציב',
-                  subtitle: 'מעקב הוצאות חכם וחיסכון אמיתי.',
-                ),
-                const BenefitTile(
-                  icon: Icons.inventory_2_outlined,
-                  title: 'ניהול מזווה חכם',
-                  subtitle: 'אל תקנו פעמיים—ראו מה כבר יש בבית.',
-                ),
+                  const SizedBox(height: kSpacingLarge), // צומצם מ-48 ל-24
 
-                SizedBox(height: kSpacingLarge * 2), // 48
+                  // כפתור התחברות
+                  AuthButton.primary(
+                    label: 'התחברות',
+                    icon: Icons.login,
+                    onPressed: () {
+                      debugPrint('🔐 WelcomeScreen: התחברות נלחץ');
+                      Navigator.pushNamed(context, '/login');
+                    },
+                  ),
+                  const SizedBox(height: kSpacingSmallPlus),
 
-                // כפתור התחברות
-                AuthButton.primary(
-                  label: 'התחברות',
-                  icon: Icons.login,
-                  onPressed: () {
-                    debugPrint('🔐 WelcomeScreen: התחברות נלחץ');
-                    Navigator.pushNamed(context, '/login');
-                  },
-                ),
-                SizedBox(height: kSpacingSmall + 4), // 12
+                  // כפתור הרשמה
+                  AuthButton.secondary(
+                    label: 'הרשמה',
+                    icon: Icons.app_registration_outlined,
+                    onPressed: () {
+                      debugPrint('📝 WelcomeScreen: הרשמה נלחץ');
+                      Navigator.pushNamed(context, '/onboarding');
+                    },
+                  ),
+                  const SizedBox(height: kSpacingMedium), // צומצם מ-24 ל-16
 
-                // כפתור הרשמה
-                AuthButton.secondary(
-                  label: 'הרשמה',
-                  icon: Icons.app_registration_outlined,
-                  onPressed: () {
-                    debugPrint('📝 WelcomeScreen: הרשמה נלחץ');
-                    Navigator.pushNamed(context, '/onboarding');
-                  },
-                ),
-                SizedBox(height: kSpacingMedium),
+                  // אפשרויות Social Login
+                  const Text(
+                    'או התחבר עם:',
+                    style: TextStyle(color: Colors.white60),
+                  ),
+                  const SizedBox(height: kSpacingMedium),
 
-                // כפתור דילוג - Touch target 48px
-                Tooltip(
-                  message: 'דלג לעכשיו',
-                  child: SizedBox(
-                    height: kButtonHeight,
-                    child: TextButton(
-                      onPressed: () {
-                        debugPrint('⏭️  WelcomeScreen: דילוג נלחץ');
-                        Navigator.pushNamed(context, '/login');
-                      },
-                      child: const Text(
-                        'דלג לעכשיו',
-                        style: TextStyle(color: Colors.white60, fontSize: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _SocialLoginButton(
+                        icon: Icons.g_mobiledata,
+                        label: 'Google',
+                        onPressed: () {
+                          debugPrint('🌐 WelcomeScreen: Google login נלחץ');
+                          Navigator.pushNamed(context, '/login');
+                        },
                       ),
-                    ),
+                      const SizedBox(width: kSpacingMedium),
+                      _SocialLoginButton(
+                        icon: Icons.facebook,
+                        label: 'Facebook',
+                        onPressed: () {
+                          debugPrint('🌐 WelcomeScreen: Facebook login נלחץ');
+                          Navigator.pushNamed(context, '/login');
+                        },
+                      ),
+                    ],
                   ),
-                ),
-                SizedBox(height: kSpacingLarge + 8), // 32
 
-                // אפשרויות Social Login
-                const Text(
-                  'או התחבר עם:',
-                  style: TextStyle(color: Colors.white60),
-                ),
-                SizedBox(height: kSpacingMedium),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _SocialLoginButton(
-                      icon: Icons.g_mobiledata,
-                      label: 'Google',
-                      onPressed: () {
-                        debugPrint('🌐 WelcomeScreen: Google login נלחץ');
-                        Navigator.pushNamed(context, '/login');
-                      },
-                    ),
-                    SizedBox(width: kSpacingMedium),
-                    _SocialLoginButton(
-                      icon: Icons.facebook,
-                      label: 'Facebook',
-                      onPressed: () {
-                        debugPrint('🌐 WelcomeScreen: Facebook login נלחץ');
-                        Navigator.pushNamed(context, '/login');
-                      },
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: kSpacingLarge),
-              ],
+                  const SizedBox(height: kSpacingLarge),
+                ],
+              ),
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// לוגו מונפש עם זוהר ואנימציה
+///
+/// יוצר אפקט גלו (glow) מסביב לאייקון עם אנימציית shimmer עדינה
+///
+/// **תכונות:**
+/// - זוהר רדיאלי בצבע accent
+/// - אנימציית shimmer בלולאה (כל 2.5 שניות)
+/// - BoxShadow לעומק
+/// - גודל 80x80 (מ-ui_constants)
+class _AnimatedLogo extends StatelessWidget {
+  final Color accent;
+
+  const _AnimatedLogo({required this.accent});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: kIconSizeXLarge + 20, // 100px (קטן יותר)
+      height: kIconSizeXLarge + 20,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        // זוהר רדיאלי סביב הלוגו
+        gradient: RadialGradient(
+          colors: [
+            accent.withValues(alpha: 0.3),
+            accent.withValues(alpha: 0.15),
+            accent.withValues(alpha: 0.05),
+            Colors.transparent,
+          ],
+          stops: const [0.0, 0.4, 0.7, 1.0],
+        ),
+      ),
+      child: Center(
+        child: Container(
+          width: kIconSizeXLarge, // 80px
+          height: kIconSizeXLarge,
+          decoration: BoxDecoration(
+            color: accent.withValues(alpha: 0.15),
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: accent.withValues(alpha: 0.4),
+                blurRadius: 24,
+                spreadRadius: 2,
+              ),
+              BoxShadow(
+                color: accent.withValues(alpha: 0.2),
+                blurRadius: 40,
+                spreadRadius: 8,
+              ),
+            ],
+          ),
+          child: Icon(
+            Icons.shopping_basket_outlined,
+            size: 48, // קטן יותר ביחס
+            color: accent,
+          ),
+        )
+            .animate(
+              onPlay: (controller) => controller.repeat(),
+            )
+            .shimmer(
+              duration: 2500.ms,
+              color: accent.withValues(alpha: 0.3),
+              angle: 45,
+            ),
       ),
     );
   }
@@ -236,8 +295,8 @@ class _SocialLoginButton extends StatelessWidget {
             foregroundColor: Colors.white70,
             side: const BorderSide(color: Colors.white30),
             padding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: kSpacingSmall + 4, // 12
+              horizontal: kButtonPaddingHorizontal,
+              vertical: kSpacingSmallPlus,
             ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(kBorderRadius),

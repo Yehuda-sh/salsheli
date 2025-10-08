@@ -1,27 +1,26 @@
 // 📄 File: lib/screens/home/home_dashboard_screen.dart
+// 🎯 Purpose: מסך דשבורד הבית - Dashboard Screen
 //
-// 🇮🇱 **מסך דשבורד הבית** - Dashboard Screen
+// 📋 Features:
+// ✅ Pull-to-Refresh (רשימות + הצעות)
+// ✅ מיון רשימות (תאריך/שם/סטטוס)
+// ✅ Empty state משופר עם אנימציה
+// ✅ כרטיסים: הקנייה הבאה, הצעות חכמות, קבלות, רשימות פעילות
+// ✅ Dismissible lists עם undo
+// ✅ AppStrings - i18n ready
+// ✅ ui_constants - עיצוב עקבי
 //
-// **תכונות:**
-// - Pull-to-Refresh (רשימות + הצעות)
-// - מיון רשימות (תאריך/שם/סטטוס)
-// - Empty state משופר עם אנימציה
-// - כרטיסים: הקנייה הבאה, הצעות חכמות, קבלות, רשימות פעילות
-// - Dismissible lists עם undo
+// 🔗 Dependencies:
+// - ShoppingListsProvider - רשימות קניות
+// - SuggestionsProvider - הצעות חכמות
+// - UserContext - פרטי משתמש
+// - ReceiptProvider - קבלות
+// - flutter_animate - אנימציות
 //
-// **Dependencies:**
-// - `ShoppingListsProvider` - רשימות קניות
-// - `SuggestionsProvider` - הצעות חכמות
-// - `UserContext` - פרטי משתמש
-// - `ReceiptProvider` - קבלות
-// - `flutter_animate` - אנימציות
-//
-// **Material 3:**
+// 🎨 Material 3:
 // - צבעים רק דרך Theme/ColorScheme
 // - RTL support מלא
 // - Accessibility compliant
-//
-// **Version:** 2.1 (Constants Migration)
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -37,14 +36,23 @@ import '../../widgets/home/smart_suggestions_card.dart';
 import '../../widgets/create_list_dialog.dart';
 import '../../theme/app_theme.dart';
 import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
 
 enum SortOption {
-  date('תאריך עדכון'),
-  name('שם'),
-  status('סטטוס');
+  date,
+  name,
+  status;
 
-  final String label;
-  const SortOption(this.label);
+  String get label {
+    switch (this) {
+      case SortOption.date:
+        return AppStrings.home.sortByDate;
+      case SortOption.name:
+        return AppStrings.home.sortByName;
+      case SortOption.status:
+        return AppStrings.home.sortByStatus;
+    }
+  }
 }
 
 class HomeDashboardScreen extends StatefulWidget {
@@ -175,7 +183,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('שגיאה ביצירת רשימה: $e'),
+                    content: Text(AppStrings.home.createListError(e.toString())),
                     backgroundColor: Colors.red,
                   ),
                 );
@@ -223,7 +231,11 @@ class _Header extends StatelessWidget {
           const SizedBox(width: kBorderRadius),
           Expanded(
             child: Text(
-              "ברוך הבא, ${(userName?.trim().isEmpty ?? true) ? 'אורח' : userName}",
+              AppStrings.home.welcomeUser(
+                (userName?.trim().isEmpty ?? true) 
+                  ? AppStrings.home.guestUser 
+                  : userName!,
+              ),
               style: t.titleLarge?.copyWith(
                 color: cs.onPrimaryContainer,
                 fontWeight: FontWeight.bold,
@@ -264,7 +276,7 @@ class _SortBar extends StatelessWidget {
           Icon(Icons.sort, size: kIconSizeSmall + 4, color: accent), // 20px
           const SizedBox(width: kSpacingSmall),
           Text(
-            'מיון:',
+            AppStrings.home.sortLabel,
             style: Theme.of(
               context,
             ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
@@ -431,7 +443,7 @@ class _ImprovedEmptyState extends StatelessWidget {
             const SizedBox(height: kSpacingLarge),
 
             Text(
-              "אין רשימות פעילות כרגע",
+              AppStrings.home.noActiveLists,
               style: t.headlineSmall?.copyWith(
                 color: cs.onSurface,
                 fontWeight: FontWeight.bold,
@@ -442,7 +454,7 @@ class _ImprovedEmptyState extends StatelessWidget {
             const SizedBox(height: kBorderRadius),
 
             Text(
-              "צור את הרשימה הראשונה שלך\nוהתחל לחסוך זמן וכסף!",
+              AppStrings.home.emptyStateMessage,
               style: t.bodyLarge?.copyWith(
                 color: cs.onSurfaceVariant,
                 height: 1.5,
@@ -455,7 +467,7 @@ class _ImprovedEmptyState extends StatelessWidget {
             FilledButton.icon(
               onPressed: onCreateList,
               icon: const Icon(Icons.add_circle_outline),
-              label: const Text("צור רשימה ראשונה"),
+              label: Text(AppStrings.home.createFirstList),
               style: FilledButton.styleFrom(
                 backgroundColor: accent,
                 foregroundColor: Colors.white,
@@ -521,7 +533,7 @@ class _ReceiptsCard extends StatelessWidget {
                   const SizedBox(width: kBorderRadius),
                   Expanded(
                     child: Text(
-                      'הקבלות שלי',
+                      AppStrings.home.myReceipts,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: cs.onSurface,
@@ -543,7 +555,7 @@ class _ReceiptsCard extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: kSpacingSmall),
                   child: Text(
-                    'אין קבלות עדיין. התחל להוסיף!',
+                    AppStrings.home.noReceipts,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: cs.onSurfaceVariant,
                     ),
@@ -556,7 +568,7 @@ class _ReceiptsCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '$receiptsCount קבלות',
+                          AppStrings.home.receiptsCount(receiptsCount),
                           style: theme.textTheme.bodyLarge?.copyWith(
                             fontWeight: FontWeight.w600,
                             color: cs.onSurface,
@@ -613,9 +625,9 @@ class _ActiveListsCard extends StatelessWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('הרשימה "${deletedList.name}" נמחקה'),
+            content: Text(AppStrings.home.listDeleted(deletedList.name)),
             action: SnackBarAction(
-              label: 'בטל',
+              label: AppStrings.home.undo,
               onPressed: () async {
                 debugPrint('🏠 HomeDashboard: משחזר רשימה "${deletedList.name}"');
                 await provider.restoreList(deletedList);
@@ -631,7 +643,7 @@ class _ActiveListsCard extends StatelessWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('שגיאה במחיקה: $e'),
+            content: Text(AppStrings.home.deleteListError(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -675,7 +687,7 @@ class _ActiveListsCard extends StatelessWidget {
                 const SizedBox(width: kBorderRadius),
                 Expanded(
                   child: Text(
-                    "רשימות פעילות נוספות",
+                    AppStrings.home.otherActiveLists,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: cs.onSurface,
@@ -688,7 +700,7 @@ class _ActiveListsCard extends StatelessWidget {
                     debugPrint('🏠 HomeDashboard: ניווט לכל הרשימות');
                     Navigator.pushNamed(context, "/shopping-lists");
                   },
-                  tooltip: 'כל הרשימות',
+                  tooltip: AppStrings.home.allLists,
                 ),
               ],
             ),
@@ -731,14 +743,14 @@ class _DismissibleListTile extends StatelessWidget {
             color: Colors.red,
             borderRadius: BorderRadius.circular(kBorderRadius - 2), // 10px
           ),
-          child: const Row(
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Icon(Icons.delete_outline, color: Colors.white),
-              SizedBox(width: kSpacingSmall),
+              const Icon(Icons.delete_outline, color: Colors.white),
+              const SizedBox(width: kSpacingSmall),
               Text(
-                'מחק',
-                style: TextStyle(
+                AppStrings.common.delete,
+                style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
@@ -785,7 +797,7 @@ class _DismissibleListTile extends StatelessWidget {
                       color: cs.primary,
                     ),
                   ),
-                  SizedBox(width: kBorderRadius - 2), // 10px
+                  const SizedBox(width: kBorderRadius - 2), // 10px
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -800,7 +812,7 @@ class _DismissibleListTile extends StatelessWidget {
                         ),
                         const SizedBox(height: kBorderWidthThick),
                         Text(
-                          "$itemsCount פריטים",
+                          AppStrings.home.itemsCount(itemsCount),
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: cs.onSurfaceVariant,
                           ),

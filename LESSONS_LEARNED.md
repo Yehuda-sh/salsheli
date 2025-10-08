@@ -467,10 +467,94 @@ Text('התנתק')
 
 ## 🎨 UX & UI
 
-### 🎭 3 Empty States (חובה)
+### 🚫 אין Mock Data בקוד Production
 
-**כלל:** כל widget שטוען data → 3 מצבים
+**הבעיה:** קל להשתמש ב-Mock Data בפיתוח, אבל זה יוצר חוב טכני
 
+**למה זה רע:**
+```dart
+// ❌ רע - Mock Data בקוד
+final mockResults = [
+  {"product": "חלב", "store": "שופרסל", "price": 8.9},
+  {"product": "חלב", "store": "רמי לוי", "price": 7.5},
+];
+```
+
+**בעיות:**
+- ❌ לא משקף מציאות (מחירים/מוצרים לא אמיתיים)
+- ❌ גורם לבעיות בתחזוקה (צריך לזכור למחוק)
+- ❌ יוצר פער בין Dev ל-Production
+- ❌ בדיקות לא אמיתיות
+
+**הפתרון הנכון:**
+```dart
+// ✅ טוב - חיבור ל-Provider
+final provider = context.read<ProductsProvider>();
+final results = await provider.searchProducts(term);
+
+// סינון + מיון
+results.removeWhere((r) => r['price'] == null);
+results.sort((a, b) => a['price'].compareTo(b['price']));
+```
+
+**דוגמה מהפרויקט:**
+
+price_comparison_screen.dart היה עם Mock Data - 4 מוצרים קבועים. זה עבד "בסדר" בפיתוח, אבל:
+- לא היה קשר לנתונים אמיתיים
+- לא היה ברור אם ה-API עובד
+- לא ניתן היה לבדוק מוצרים אמיתיים
+
+הפתרון: חיבור מלא ל-ProductsProvider.searchProducts() עם טיפול בשגיאות.
+
+**לקח:**
+- אם צריך Mock - השתמש ב-MockRepository (שמימש את ה-interface)
+- אל תשאיר Mock Data בקוד Production
+- חיבור אמיתי = בדיקות אמיתיות
+
+**כלל אצבע:** אם המשתמש הסופי לא יראה את הנתונים - אל תשים אותם בקוד.
+
+---
+
+### 🎭 4 Empty States (לא 3!)
+
+**עדכון:** 3 Empty States זה המינימום, אבל למסכים מורכבים - 4 States!
+
+**4 States Pattern:**
+```dart
+Widget build(BuildContext context) {
+  // 1️⃣ Loading
+  if (_isLoading && _results.isEmpty) return _buildLoading();
+  
+  // 2️⃣ Error
+  if (_errorMessage != null && !_isLoading) return _buildError();
+  
+  // 3️⃣ Empty (no results after search)
+  if (_results.isEmpty && _searchTerm.isNotEmpty && !_isLoading)
+    return _buildEmptyResults();
+  
+  // 4️⃣ Empty (initial state)
+  if (_results.isEmpty && _searchTerm.isEmpty && !_isLoading)
+    return _buildEmptyInitial();
+  
+  // 5️⃣ Content
+  return _buildContent();
+}
+```
+
+**למה 4?**
+
+1. **Loading** - מחפש...
+2. **Error** - משהו השתבש (עם retry)
+3. **Empty Results** - חיפשת אבל לא מצאנו (search_off)
+4. **Empty Initial** - עוד לא חיפשת (הנחיה)
+
+**דוגמה מ-price_comparison_screen:**
+- Initial: "הזן שם מוצר כדי להשוות מחירים" + אייקון compare_arrows
+- No Results: "לא נמצאו תוצאות עבור 'חלב'" + אייקון search_off
+
+זה עוזר למשתמש להבין מה קרה ומה לעשות הלאה.
+
+**3 States (מינימום):**
 ```dart
 Widget build(BuildContext context) {
   if (_isLoading) return _buildLoading();

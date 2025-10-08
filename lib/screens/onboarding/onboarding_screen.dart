@@ -12,7 +12,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../core/ui_constants.dart';
 import '../../data/onboarding_data.dart';
+import '../../l10n/app_strings.dart';
 import '../../services/onboarding_service.dart';
 import 'widgets/onboarding_steps.dart';
 import '../../theme/app_theme.dart';
@@ -56,7 +58,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
     if (_currentStep < totalSteps - 1) {
       _pageController.nextPage(
-        duration: const Duration(milliseconds: 280),
+        duration: kAnimationDurationMedium,
         curve: Curves.easeOut,
       );
       _haptic();
@@ -70,7 +72,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
     if (_currentStep > 0) {
       _pageController.previousPage(
-        duration: const Duration(milliseconds: 240),
+        duration: kAnimationDurationShort,
         curve: Curves.easeOut,
       );
       _haptic();
@@ -109,9 +111,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('שמירת ההגדרות נכשלה: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppStrings.onboarding.savingError(e.toString()))),
+      );
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -146,9 +148,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('לא ניתן לדלג: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${AppStrings.onboarding.skipError}: $e')),
+      );
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -217,26 +219,34 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             elevation: 0,
             centerTitle: true,
             title: Text(
-              'היכרות קצרה',
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(color: cs.onSurface),
+              AppStrings.onboarding.title,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: cs.onSurface,
+              ),
             ),
             actions: [
               TextButton(
                 onPressed: _isLoading ? null : _skip,
-                child: Text('דלג', style: TextStyle(color: accent)),
+                child: Text(
+                  AppStrings.onboarding.skip,
+                  style: TextStyle(color: accent),
+                ),
               ),
             ],
           ),
           body: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              padding: const EdgeInsets.fromLTRB(
+                kSpacingMedium,
+                kSpacingSmall,
+                kSpacingMedium,
+                kSpacingMedium,
+              ),
               child: Column(
                 children: [
                   // מחוון התקדמות
                   _buildProgressIndicator(cs, accent, steps.length),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: kSpacingSmall),
 
                   // השלבים
                   Expanded(
@@ -267,16 +277,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
               value: (_currentStep + 1) / totalSteps,
-              backgroundColor: cs.surfaceContainerHighest.withValues(
-                alpha: 0.18,
-              ),
+              backgroundColor: cs.surfaceContainerHighest.withValues(alpha: 0.18),
               color: accent,
-              minHeight: 8,
+              minHeight: kSpacingSmall,
             ),
           ),
         ),
-        const SizedBox(width: 12),
-        Text('התקדמות', style: TextStyle(color: cs.onSurfaceVariant)),
+        const SizedBox(width: kSpacingSmall),
+        Text(
+          AppStrings.onboarding.progress,
+          style: TextStyle(color: cs.onSurfaceVariant),
+        ),
       ],
     );
   }
@@ -299,10 +310,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ? cs.onSurfaceVariant
                   : accent,
             ),
-            child: const Text('הקודם'),
+            child: Text(AppStrings.onboarding.previous),
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: kSpacingSmall),
 
         // כפתור "הבא" / "סיום"
         Expanded(
@@ -315,14 +326,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
             child: _isLoading
                 ? const SizedBox(
-                    height: 20,
-                    width: 20,
+                    height: kIconSizeSmall,
+                    width: kIconSizeSmall,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
                   )
-                : Text(_currentStep == totalSteps - 1 ? 'סיום' : 'הבא'),
+                : Text(
+                    _currentStep == totalSteps - 1
+                        ? AppStrings.onboarding.finish
+                        : AppStrings.onboarding.next,
+                  ),
           ),
         ),
       ],

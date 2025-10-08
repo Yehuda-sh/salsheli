@@ -17,6 +17,12 @@ class BenefitTile extends StatelessWidget {
   /// תיאור קצר
   final String subtitle;
 
+  /// צבע כותרת מותאם אישית (אופציונלי)
+  final Color? titleColor;
+
+  /// צבע תיאור מותאם אישית (אופציונלי)
+  final Color? subtitleColor;
+
   /// צבע אייקון מותאם אישית (אופציונלי)
   final Color? iconColor;
 
@@ -28,6 +34,8 @@ class BenefitTile extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.subtitle,
+    this.titleColor,
+    this.subtitleColor,
     this.iconColor,
     this.iconSize = 32.0,
   });
@@ -67,14 +75,14 @@ class BenefitTile extends StatelessWidget {
                   title,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: cs.onSurface,
+                    color: titleColor ?? cs.onSurface, // מותאם אישית או default
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: cs.onSurfaceVariant,
+                    color: subtitleColor ?? cs.onSurfaceVariant, // מותאם אישית או default
                     height: 1.4,
                   ),
                 ),
