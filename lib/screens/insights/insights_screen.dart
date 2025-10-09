@@ -1,5 +1,11 @@
-// 📄 File: lib/screens/insights/insights_screen.dart
+// 📄 File: lib/screens/insights/insights_screen.dart - V2.0 REAL DATA
 // תיאור: מסך תובנות וסטטיסטיקות חכמות על הרגלי קנייה
+//
+// ✨ עדכון (v2.0):
+// ✅ הוסרו נתוני MOCK
+// ✅ חיבור מלא לנתונים אמיתיים מ-HomeStatsService
+// ✅ גרף עוגה עם נתונים אמיתיים
+// ✅ הוצאות עיקריות אמיתיות
 //
 // ✨ תכונות:
 // - בחירת תקופות (שבוע/חודש/3 חודשים/שנה)
@@ -24,6 +30,7 @@ import '../../providers/receipt_provider.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../providers/inventory_provider.dart';
 import '../../theme/app_theme.dart';
+import '../../core/ui_constants.dart';
 
 class InsightsScreen extends StatefulWidget {
   const InsightsScreen({super.key});
@@ -42,46 +49,6 @@ class _InsightsScreenState extends State<InsightsScreen> {
   int _selectedPeriod = 1;
   final List<String> _periods = ['שבוע', 'חודש', '3 חודשים', 'שנה'];
   final List<int> _periodMonths = [0, 1, 3, 12];
-
-  // ============================================================
-  // 🎨 MOCK DATA - להחלפה בנתונים אמיתיים
-  // ============================================================
-  // נתונים אלו משמשים להדגמה בלבד עד שיתווספו השדות
-  // המתאימים ל-HomeStats ב-home_stats_service.dart
-  //
-  // ראה: docs/INSIGHTS_INTEGRATION.md למדריך מלא
-  // ============================================================
-
-  /// נתוני קטגוריות דמה לגרף עוגה
-  /// TODO: החלף ב-stats.categoryBreakdown כשיוסף ל-HomeStats
-  static const _mockCategoryData = [
-    {'category': 'מזון', 'amount': 800.0},
-    {'category': 'ניקיון', 'amount': 200.0},
-    {'category': 'טיפוח', 'amount': 150.0},
-    {'category': 'משקאות', 'amount': 120.0},
-    {'category': 'אחר', 'amount': 80.0},
-  ];
-
-  /// מיפוי קטגוריות לצבעים
-  static const _categoryColors = {
-    'מזון': Colors.blue,
-    'ניקיון': Colors.green,
-    'טיפוח': Colors.purple,
-    'משקאות': Colors.orange,
-    'אחר': Colors.grey,
-  };
-
-  /// נתוני הוצאות עיקריות דמה
-  /// TODO: החלף ב-stats.topProducts כשיוסף ל-HomeStats
-  static const _mockTopExpenses = [
-    {'name': 'חלב תנובה', 'amount': 45.0, 'category': 'מזון'},
-    {'name': 'לחם טרי', 'amount': 38.0, 'category': 'מזון'},
-    {'name': 'מי סודה', 'amount': 32.0, 'category': 'משקאות'},
-    {'name': 'סבון כלים', 'amount': 28.0, 'category': 'ניקיון'},
-    {'name': 'יוגורט', 'amount': 25.0, 'category': 'מזון'},
-  ];
-
-  // ============================================================
 
   @override
   void initState() {
@@ -153,42 +120,6 @@ class _InsightsScreenState extends State<InsightsScreen> {
     _loadStats();
   }
 
-  // ============================================================
-  // 📊 Data Helper Functions
-  // ============================================================
-  // פונקציות אלו מחזירות נתונים - דמה כרגע, אמיתיים בעתיד
-  // ============================================================
-
-  /// מחזיר נתוני קטגוריות עם צבעים
-  /// כרגע: נתונים דמה מ-_mockCategoryData
-  /// עתיד: stats.categoryBreakdown (כשיוסף ל-HomeStatsService)
-  List<Map<String, dynamic>> _getCategoryData(HomeStats stats) {
-    // TODO: כשתוסיף categoryBreakdown ל-HomeStats, החלף בשורה:
-    // return stats.categoryBreakdown ?? _getMockCategoryDataWithColors();
-    return _getMockCategoryDataWithColors();
-  }
-
-  /// מוסיף צבעים לנתוני הקטגוריות הדמה
-  List<Map<String, dynamic>> _getMockCategoryDataWithColors() {
-    return _mockCategoryData.map((item) {
-      return {
-        ...item,
-        'color': _categoryColors[item['category']] ?? Colors.grey,
-      };
-    }).toList();
-  }
-
-  /// מחזיר הוצאות עיקריות (מוצרים עם ההוצאה הגבוהה ביותר)
-  /// כרגע: נתונים דמה מ-_mockTopExpenses
-  /// עתיד: stats.topProducts (כשיוסף ל-HomeStatsService)
-  List<Map<String, dynamic>> _getTopExpenses(HomeStats stats) {
-    // TODO: כשתוסיף topProducts ל-HomeStats, החלף בשורה:
-    // return stats.topProducts?.take(5).toList() ?? _mockTopExpenses;
-    return _mockTopExpenses;
-  }
-
-  // ============================================================
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -226,7 +157,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
     final brand = theme.extension<AppBrand>();
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(kSpacingMedium),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -238,7 +169,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
                 color: brand?.accent ?? cs.primary,
                 size: 28,
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: kSpacingSmall),
               Text(
                 'תובנות חכמות',
                 style: theme.textTheme.headlineSmall?.copyWith(
@@ -258,7 +189,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
                 ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: kSpacingMedium),
 
           // בחירת תקופה
           SingleChildScrollView(
@@ -267,7 +198,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
               children: List.generate(_periods.length, (index) {
                 final isSelected = _selectedPeriod == index;
                 return Padding(
-                  padding: const EdgeInsets.only(left: 8),
+                  padding: const EdgeInsets.only(left: kSpacingSmall),
                   child: ChoiceChip(
                     label: Text(_periods[index]),
                     selected: isSelected,
@@ -279,9 +210,8 @@ class _InsightsScreenState extends State<InsightsScreen> {
                       color: isSelected
                           ? (brand?.accent ?? cs.primary)
                           : cs.onSurface,
-                      fontWeight: isSelected
-                          ? FontWeight.bold
-                          : FontWeight.normal,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
                     ),
                     side: BorderSide(
                       color: isSelected
@@ -301,28 +231,33 @@ class _InsightsScreenState extends State<InsightsScreen> {
   // ================== CONTENT ==================
   Widget _buildContent(ThemeData theme, ColorScheme cs, HomeStats stats) {
     return SliverPadding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(kSpacingMedium),
       sliver: SliverList(
         delegate: SliverChildListDelegate([
           // 1. סיכום כללי עם השוואה
           _buildSummaryCard(theme, cs, stats),
-          const SizedBox(height: 16),
+          const SizedBox(height: kSpacingMedium),
 
           // 2. המלצות חכמות
           _buildSmartRecommendations(theme, cs, stats),
-          const SizedBox(height: 16),
+          const SizedBox(height: kSpacingMedium),
 
-          // 3. גרף עוגה
-          _buildPieChartCard(theme, cs, stats),
-          const SizedBox(height: 16),
+          // 3. גרף עוגה (נתונים אמיתיים!)
+          if (stats.categoryBreakdown != null &&
+              stats.categoryBreakdown!.isNotEmpty)
+            _buildPieChartCard(theme, cs, stats),
+          if (stats.categoryBreakdown != null &&
+              stats.categoryBreakdown!.isNotEmpty)
+            const SizedBox(height: kSpacingMedium),
 
           // 4. סטטיסטיקות מפורטות
           _buildDetailedStats(theme, cs, stats),
-          const SizedBox(height: 16),
+          const SizedBox(height: kSpacingMedium),
 
-          // 5. הוצאות עיקריות
-          _buildTopExpenses(theme, cs, stats),
-          const SizedBox(height: 32),
+          // 5. הוצאות עיקריות (נתונים אמיתיים!)
+          if (stats.topProducts != null && stats.topProducts!.isNotEmpty)
+            _buildTopExpenses(theme, cs, stats),
+          const SizedBox(height: kSpacingXXLarge),
         ]),
       ),
     );
@@ -336,15 +271,13 @@ class _InsightsScreenState extends State<InsightsScreen> {
     // חישוב שינוי לעומת תקופה קודמת - אמיתי!
     double previousSpent = 0.0;
     if (stats.expenseTrend.length >= 2) {
-      // קח את החודש הקודם מה-trend
       final previousMonth = stats.expenseTrend[stats.expenseTrend.length - 2];
       previousSpent = (previousMonth['value'] as num?)?.toDouble() ?? 0.0;
     } else {
-      // אם אין נתונים - דמה
       previousSpent = totalSpent * 1.15;
     }
-    
-    final change = previousSpent > 0 
+
+    final change = previousSpent > 0
         ? ((totalSpent - previousSpent) / previousSpent * 100)
         : 0.0;
     final isImprovement = change < 0;
@@ -360,7 +293,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
         border: Border.all(color: cs.outline.withValues(alpha: 0.2)),
       ),
       child: Column(
@@ -372,7 +305,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
               color: cs.onSurface.withValues(alpha: 0.7),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: kSpacingSmall),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -383,28 +316,31 @@ class _InsightsScreenState extends State<InsightsScreen> {
                   color: cs.onSurface,
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: kSpacingSmall),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: kSpacingSmall,
+                  vertical: kSpacingTiny,
+                ),
                 decoration: BoxDecoration(
                   color: isImprovement
                       ? Colors.green.withValues(alpha: 0.2)
                       : Colors.red.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(kBorderRadius),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
                       isImprovement ? Icons.arrow_downward : Icons.arrow_upward,
-                      size: 14,
+                      size: kFontSizeSmall,
                       color: isImprovement ? Colors.green : Colors.red,
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: kSpacingTiny),
                     Text(
                       '${change.abs().toStringAsFixed(0)}%',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: kFontSizeSmall,
                         fontWeight: FontWeight.bold,
                         color: isImprovement ? Colors.green : Colors.red,
                       ),
@@ -414,7 +350,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: kSpacingSmall),
           Text(
             isImprovement
                 ? 'חיסכון לעומת התקופה הקודמת 🎉'
@@ -446,12 +382,12 @@ class _InsightsScreenState extends State<InsightsScreen> {
             color: cs.onSurface,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: kSpacingSmall),
         ...recommendations.asMap().entries.map((entry) {
           final index = entry.key;
           final rec = entry.value;
           return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.only(bottom: kSpacingSmall),
             child: _buildRecommendationCard(theme, cs, rec)
                 .animate(delay: (150 * index).ms)
                 .fadeIn(duration: 400.ms)
@@ -468,10 +404,10 @@ class _InsightsScreenState extends State<InsightsScreen> {
     Map<String, dynamic> rec,
   ) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(kSpacingMedium),
       decoration: BoxDecoration(
         color: rec['color'].withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(kBorderRadius),
         border: Border.all(color: rec['color'].withValues(alpha: 0.3)),
       ),
       child: Row(
@@ -482,9 +418,9 @@ class _InsightsScreenState extends State<InsightsScreen> {
               color: rec['color'].withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(rec['icon'], color: rec['color'], size: 24),
+            child: Icon(rec['icon'], color: rec['color'], size: kIconSize),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: kSpacingSmall),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -496,7 +432,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
                     color: cs.onSurface,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: kSpacingTiny),
                 Text(
                   rec['subtitle'],
                   style: theme.textTheme.bodySmall?.copyWith(
@@ -514,9 +450,8 @@ class _InsightsScreenState extends State<InsightsScreen> {
   List<Map<String, dynamic>> _generateRecommendations(HomeStats stats) {
     final recommendations = <Map<String, dynamic>>[];
     final accuracy = stats.listAccuracy;
-    final savings = stats.potentialSavings.isFinite
-        ? stats.potentialSavings
-        : 0.0;
+    final savings =
+        stats.potentialSavings.isFinite ? stats.potentialSavings : 0.0;
     final lowInventory = stats.lowInventoryCount;
 
     // המלצה 0: מלאי נמוך (אם רלוונטי)
@@ -524,8 +459,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
       recommendations.add({
         'icon': Icons.inventory_2_outlined,
         'title': 'מלאי נמוך!',
-        'subtitle':
-            'יש לך $lowInventory פריטים שנגמרים. עדכן את הרשימה 📝',
+        'subtitle': 'יש לך $lowInventory פריטים שנגמרים. עדכן את הרשימה 📝',
         'color': Colors.red,
       });
     }
@@ -561,9 +495,8 @@ class _InsightsScreenState extends State<InsightsScreen> {
     }
 
     // המלצה 3: מגמה
-    final trendValue = stats.expenseTrend.isNotEmpty
-        ? stats.expenseTrend.last
-        : 0.0;
+    final trendValue =
+        stats.expenseTrend.isNotEmpty ? stats.expenseTrend.last : 0.0;
     final trend = (trendValue is num) ? trendValue.toDouble() : 0.0;
     if (trend > 0) {
       recommendations.add({
@@ -584,58 +517,39 @@ class _InsightsScreenState extends State<InsightsScreen> {
     return recommendations.take(3).toList();
   }
 
-  // ================== 3. גרף עוגה ==================
-  // ============================================================
-  // 🚧 TODO: חיבור לנתונים אמיתיים
-  // ============================================================
-  // כרגע משתמש בנתונים דמה מ-_getCategoryData().
-  //
-  // שלבים להטמעה:
-  // 1. הוסף שדה categoryBreakdown ל-HomeStats (services/home_stats_service.dart)
-  // 2. חשב התפלגות קטגוריות ב-calculateStats()
-  // 3. עדכן _getCategoryData() להשתמש ב-stats.categoryBreakdown
-  //
-  // מבנה נדרש:
-  // List<Map<String, dynamic>> categoryBreakdown = [
-  //   {'category': 'מזון', 'amount': 800.0, 'color': Colors.blue},
-  //   {'category': 'ניקיון', 'amount': 200.0, 'color': Colors.green},
-  //   ...
-  // ]
-  //
-  // ראה: docs/INSIGHTS_INTEGRATION.md למדריך מפורט
-  // ============================================================
+  // ================== 3. גרף עוגה ✅ נתונים אמיתיים! ==================
   Widget _buildPieChartCard(ThemeData theme, ColorScheme cs, HomeStats stats) {
     return Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: cs.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: cs.outline.withValues(alpha: 0.2)),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+        border: Border.all(color: cs.outline.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'התפלגות הוצאות לפי קטגוריות',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: cs.onSurface,
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'התפלגות הוצאות לפי קטגוריות',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: cs.onSurface,
-                ),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(height: 200, child: _buildPieChart(cs, stats)),
-              const SizedBox(height: 16),
-              _buildPieChartLegend(theme, cs, stats),
-            ],
-          ),
-        )
-        .animate()
-        .fadeIn(duration: 500.ms, delay: 300.ms)
-        .scale(begin: const Offset(0.95, 0.95));
+          const SizedBox(height: kSpacingLarge),
+          SizedBox(height: 200, child: _buildPieChart(cs, stats)),
+          const SizedBox(height: kSpacingMedium),
+          _buildPieChartLegend(theme, cs, stats),
+        ],
+      ),
+    ).animate().fadeIn(duration: 500.ms, delay: 300.ms).scale(
+          begin: const Offset(0.95, 0.95),
+        );
   }
 
   Widget _buildPieChart(ColorScheme cs, HomeStats stats) {
-    final data = _getCategoryData(stats);
+    final data = stats.categoryBreakdown ?? [];
+    if (data.isEmpty) return const SizedBox.shrink();
 
     final total = data.fold(
       0.0,
@@ -652,7 +566,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
             color: item['color'] as Color,
             radius: 80,
             titleStyle: const TextStyle(
-              fontSize: 14,
+              fontSize: kFontSizeSmall,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -670,11 +584,11 @@ class _InsightsScreenState extends State<InsightsScreen> {
     ColorScheme cs,
     HomeStats stats,
   ) {
-    final data = _getCategoryData(stats);
+    final data = stats.categoryBreakdown ?? [];
 
     return Wrap(
-      spacing: 12,
-      runSpacing: 8,
+      spacing: kSpacingSmall,
+      runSpacing: kSpacingSmall,
       children: data.map((item) {
         return Row(
           mainAxisSize: MainAxisSize.min,
@@ -687,7 +601,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
                 shape: BoxShape.circle,
               ),
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: kSpacingXTiny),
             Text(
               '${item['category']} (₪${(item['amount'] as double).toStringAsFixed(0)})',
               style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurface),
@@ -701,9 +615,8 @@ class _InsightsScreenState extends State<InsightsScreen> {
   // ================== 4. סטטיסטיקות מפורטות ==================
   Widget _buildDetailedStats(ThemeData theme, ColorScheme cs, HomeStats stats) {
     final brand = theme.extension<AppBrand>();
-    final savings = stats.potentialSavings.isFinite
-        ? stats.potentialSavings
-        : 0.0;
+    final savings =
+        stats.potentialSavings.isFinite ? stats.potentialSavings : 0.0;
     final accuracy = stats.listAccuracy;
 
     return Column(
@@ -716,7 +629,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
             color: cs.onSurface,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: kSpacingSmall),
         Row(
           children: [
             Expanded(
@@ -730,7 +643,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
                 color: Colors.green,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: kSpacingSmall),
             Expanded(
               child: _buildStatCard(
                 theme,
@@ -758,24 +671,24 @@ class _InsightsScreenState extends State<InsightsScreen> {
     required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(kSpacingMedium),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(kBorderRadius),
         border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: color, size: 28),
-          const SizedBox(height: 8),
+          const SizedBox(height: kSpacingSmall),
           Text(
             title,
             style: theme.textTheme.bodySmall?.copyWith(
               color: cs.onSurface.withValues(alpha: 0.7),
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: kSpacingTiny),
           Text(
             value,
             style: theme.textTheme.titleLarge?.copyWith(
@@ -788,28 +701,10 @@ class _InsightsScreenState extends State<InsightsScreen> {
     );
   }
 
-  // ================== 5. הוצאות עיקריות ==================
-  // ============================================================
-  // 🚧 TODO: חיבור לנתונים אמיתיים
-  // ============================================================
-  // כרגע משתמש בנתונים דמה מ-_getTopExpenses().
-  //
-  // שלבים להטמעה:
-  // 1. הוסף שדה topProducts ל-HomeStats (services/home_stats_service.dart)
-  // 2. חשב מוצרים עם הוצאה גבוהה ב-calculateStats()
-  // 3. עדכן _getTopExpenses() להשתמש ב-stats.topProducts
-  //
-  // מבנה נדרש:
-  // List<Map<String, dynamic>> topProducts = [
-  //   {'name': 'חלב תנובה', 'amount': 45.0, 'category': 'מזון'},
-  //   {'name': 'לחם טרי', 'amount': 38.0, 'category': 'מזון'},
-  //   ...
-  // ]
-  //
-  // ראה: docs/INSIGHTS_INTEGRATION.md למדריך מפורט
-  // ============================================================
+  // ================== 5. הוצאות עיקריות ✅ נתונים אמיתיים! ==================
   Widget _buildTopExpenses(ThemeData theme, ColorScheme cs, HomeStats stats) {
-    final topExpenses = _getTopExpenses(stats);
+    final topExpenses = stats.topProducts ?? [];
+    if (topExpenses.isEmpty) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -821,69 +716,67 @@ class _InsightsScreenState extends State<InsightsScreen> {
             color: cs.onSurface,
           ),
         ),
-        const SizedBox(height: 12),
-        ...topExpenses.asMap().entries.map((entry) {
+        const SizedBox(height: kSpacingSmall),
+        ...topExpenses.take(5).toList().asMap().entries.map((entry) {
           final index = entry.key;
           final expense = entry.value;
           return Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child:
-                Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: cs.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: cs.outline.withValues(alpha: 0.2),
+            padding: const EdgeInsets.only(bottom: kSpacingSmall),
+            child: Container(
+              padding: const EdgeInsets.all(kSpacingSmall),
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: cs.outline.withValues(alpha: 0.2),
+                ),
+              ),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 18,
+                    backgroundColor: cs.primaryContainer,
+                    child: Text(
+                      '${index + 1}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: cs.onPrimaryContainer,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: kSpacingSmall),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          expense['name'] as String,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: cs.onSurface,
+                          ),
                         ),
-                      ),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 18,
-                            backgroundColor: cs.primaryContainer,
-                            child: Text(
-                              '${index + 1}',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: cs.onPrimaryContainer,
-                              ),
-                            ),
+                        Text(
+                          expense['category'] as String,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: cs.onSurface.withValues(alpha: 0.6),
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  expense['name'] as String,
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: cs.onSurface,
-                                  ),
-                                ),
-                                Text(
-                                  expense['category'] as String,
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: cs.onSurface.withValues(alpha: 0.6),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Text(
-                            '₪${(expense['amount'] as double).toStringAsFixed(0)}',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: cs.onSurface,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                    .animate(delay: (100 * index).ms)
-                    .fadeIn(duration: 300.ms)
-                    .slideX(begin: 0.1),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    '₪${(expense['amount'] as double).toStringAsFixed(0)}',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: cs.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+            ).animate(delay: (100 * index).ms).fadeIn(duration: 300.ms).slideX(
+                  begin: 0.1,
+                ),
           );
         }),
       ],
@@ -897,7 +790,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircularProgressIndicator(color: cs.primary),
-          const SizedBox(height: 16),
+          const SizedBox(height: kSpacingMedium),
           Text(
             'טוען תובנות...',
             style: TextStyle(color: cs.onSurface.withValues(alpha: 0.7)),
@@ -915,13 +808,13 @@ class _InsightsScreenState extends State<InsightsScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.error_outline, size: 64, color: cs.error),
-            const SizedBox(height: 16),
+            const SizedBox(height: kSpacingMedium),
             Text(
               _errorMessage ?? 'שגיאה לא ידועה',
               style: TextStyle(color: cs.onSurface),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: kSpacingLarge),
             FilledButton.icon(
               onPressed: _loadStats,
               icon: const Icon(Icons.refresh),
@@ -942,25 +835,25 @@ class _InsightsScreenState extends State<InsightsScreen> {
           children: [
             Icon(
               Icons.insights_outlined,
-              size: 80,
+              size: kIconSizeXLarge,
               color: cs.primary.withValues(alpha: 0.5),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: kSpacingMedium),
             Text(
               'אין נתונים להצגה',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: kFontSizeLarge,
                 fontWeight: FontWeight.bold,
                 color: cs.onSurface,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: kSpacingSmall),
             Text(
               'התחל להשתמש באפליקציה כדי לראות תובנות חכמות!',
               style: TextStyle(color: cs.onSurface.withValues(alpha: 0.6)),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: kSpacingLarge),
             FilledButton.icon(
               onPressed: () => Navigator.pushNamed(context, '/shopping-lists'),
               icon: const Icon(Icons.add),
