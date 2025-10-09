@@ -27,7 +27,7 @@ import 'providers/habits_provider.dart';
 
 // Repositories
 
-import 'repositories/firebase_shopping_list_repository.dart';  // 🔥 Firebase Shopping Lists!
+import 'repositories/firebase_shopping_lists_repository.dart';  // 🔥 Firebase Shopping Lists!
 import 'repositories/user_repository.dart';
 import 'repositories/firebase_user_repository.dart';  // 🔥 Firebase User!
 import 'repositories/firebase_receipt_repository.dart';  // 🔥 Firebase Receipts!
@@ -202,7 +202,7 @@ void main() async {
           create: (context) {
             debugPrint('📋 main.dart: יוצר ShoppingListsProvider עם Firebase');
             final provider = ShoppingListsProvider(
-              repository: FirebaseShoppingListRepository(),  // 🔥 Firebase!
+              repository: FirebaseShoppingListsRepository(),  // 🔥 Firebase!
             );
             final userContext = context.read<UserContext>();
             provider.updateUserContext(userContext);
@@ -213,7 +213,7 @@ void main() async {
             final provider =
                 previous ??
                 ShoppingListsProvider(
-                  repository: FirebaseShoppingListRepository(),  // 🔥 Firebase!
+                  repository: FirebaseShoppingListsRepository(),  // 🔥 Firebase!
                 );
             provider.updateUserContext(userContext);
             return provider;

@@ -6,6 +6,7 @@
 //     - עדכון פרופיל
 //     - מחיקת משתמש
 //     - חיפוש לפי אימייל
+//     - Real-time updates (Stream)
 //
 // 🇬🇧 User repository with Firestore:
 //     - Save user details to Firestore
@@ -13,6 +14,36 @@
 //     - Update profile
 //     - Delete user
 //     - Search by email
+//     - Real-time updates (Stream)
+//
+// 📦 Dependencies:
+//     - cloud_firestore - Firestore SDK
+//     - models/user_entity.dart - מודל המשתמש
+//     - user_repository.dart - ממשק Repository
+//
+// 🔗 Related:
+//     - user_repository.dart - הממשק שממומש כאן
+//     - user_context.dart - Provider שמשתמש בקלאס הזה
+//
+// 🎯 Usage:
+//     ```dart
+//     // יצירה
+//     final repository = FirebaseUserRepository();
+//     
+//     // טעינה
+//     final user = await repository.fetchUser('abc123');
+//     
+//     // שמירה
+//     await repository.saveUser(user);
+//     
+//     // Real-time listening
+//     repository.watchUser('abc123').listen((user) {
+//       print('User updated: ${user?.name}');
+//     });
+//     ```
+//
+// 📝 Version: 2.0 - Full Documentation
+// 📅 Updated: 09/10/2025
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -241,6 +272,23 @@ class FirebaseUserRepository implements UserRepository {
 
   /// יוצר משתמש חדש ב-Firestore
   /// 
+  /// אם המשתמש כבר קיים - מחזיר את המשתמש הקיים (לא יוצר כפילות).
+  /// 
+  /// **פרמטרים:**
+  /// - [userId] - מזהה ייחודי (בד"כ מ-Firebase Auth)
+  /// - [email] - כתובת אימייל (מנורמלת אוטומטית)
+  /// - [name] - שם המשתמש
+  /// - [householdId] - מזהה משק בית (אופציונלי)
+  /// 
+  /// מחזיר את המשתמש החדש/הקיים.
+  /// 
+  /// שימושי ב:
+  /// - תהליך הרשמה (Sign Up)
+  /// - יצירת משתמשי דמו
+  /// - מיגרציה של משתמשים
+  /// 
+  /// זורק [UserRepositoryException] במקרה של שגיאה.
+  /// 
   /// Example:
   /// ```dart
   /// final user = await repository.createUser(
@@ -249,7 +297,12 @@ class FirebaseUserRepository implements UserRepository {
   ///   name: 'יוני כהן',
   ///   householdId: 'house_demo',
   /// );
+  /// print('משתמש נוצר: ${user.id}');
   /// ```
+  /// 
+  /// See also:
+  /// - [saveUser] - עדכון משתמש קיים
+  /// - [existsUser] - בדיקת קיום משתמש
   Future<UserEntity> createUser({
     required String userId,
     required String email,
@@ -286,16 +339,53 @@ class FirebaseUserRepository implements UserRepository {
     }
   }
 
-  /// מעדכן פרופיל של משתמש
+  /// מעדכן פרופיל של משתמש (עדכון חלקי)
+  /// 
+  /// מעדכן רק את השדות שנשלחו (לא null).
+  /// שאר השדות נשארים ללא שינוי.
+  /// 
+  /// **פרמטרים:**
+  /// - [userId] - מזהה המשתמש לעדכון (חובה)
+  /// - [name] - שם חדש (אופציונלי)
+  /// - [avatar] - URL לתמונת פרופיל (אופציונלי)
+  /// 
+  /// שימושי ב:
+  /// - מסך הגדרות פרופיל
+  /// - עדכון שם/תמונה מהיר
+  /// - עדכון חלקי ללא טעינת כל הנתונים
+  /// 
+  /// ⚠️ **הערה:** לא מעדכן את `lastLoginAt` (בניגוד ל-saveUser).
+  /// 
+  /// זורק [UserRepositoryException] במקרה של:
+  /// - משתמש לא קיים
+  /// - שגיאת רשת
+  /// - אין שדות לעדכון
   /// 
   /// Example:
   /// ```dart
+  /// // עדכון שם בלבד
   /// await repository.updateProfile(
   ///   userId: 'abc123',
-  ///   name: 'יוני כהן',
-  ///   avatar: 'https://...',
+  ///   name: 'יוני כהן החדש',
+  /// );
+  /// 
+  /// // עדכון תמונה בלבד
+  /// await repository.updateProfile(
+  ///   userId: 'abc123',
+  ///   avatar: 'https://example.com/avatar.jpg',
+  /// );
+  /// 
+  /// // עדכון שניהם
+  /// await repository.updateProfile(
+  ///   userId: 'abc123',
+  ///   name: 'יוני',
+  ///   avatar: 'https://example.com/avatar.jpg',
   /// );
   /// ```
+  /// 
+  /// See also:
+  /// - [saveUser] - עדכון מלא של כל הפרופיל
+  /// - [fetchUser] - קריאת הפרופיל הנוכחי
   Future<void> updateProfile({
     required String userId,
     String? name,
@@ -318,7 +408,7 @@ class FirebaseUserRepository implements UserRepository {
           .doc(userId)
           .update(updates);
 
-      debugPrint('✅ FirebaseUserRepository.updateProfile: פרופיל עודכן');
+      debugPrint('✅ FirebaseUserRepository.updateProfile: פרופיל עודכן (${updates.length} שדות)');
     } catch (e, stackTrace) {
       debugPrint('❌ FirebaseUserRepository.updateProfile: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
@@ -326,14 +416,64 @@ class FirebaseUserRepository implements UserRepository {
     }
   }
 
-  /// מחזיר stream של משתמש (real-time updates)
+  /// מחזיר Stream של משתמש לעדכונים בזמן אמת
+  /// 
+  /// ה-Stream ישלח עדכון כל פעם שהמשתמש משתנה ב-Firestore.
+  /// 
+  /// מחזיר `null` אם המשתמש נמחק או לא קיים.
+  /// 
+  /// שימושי ב:
+  /// - הצגת פרופיל משתמש (real-time)
+  /// - סנכרון בין מכשירים
+  /// - עדכונים אוטומטיים של UI
+  /// 
+  /// ⚠️ **חשוב:** זכור לבטל את ה-subscription כשלא צריך!
   /// 
   /// Example:
   /// ```dart
-  /// repository.watchUser('abc123').listen((user) {
-  ///   print('User updated: ${user?.name}');
+  /// // האזנה לשינויים
+  /// final subscription = repository.watchUser('abc123').listen((user) {
+  ///   if (user != null) {
+  ///     print('User updated: ${user.name}');
+  ///   } else {
+  ///     print('User deleted or not found');
+  ///   }
   /// });
+  /// 
+  /// // ביטול ההאזנה (חשוב!)
+  /// subscription.cancel();
   /// ```
+  /// 
+  /// Example עם Provider:
+  /// ```dart
+  /// class UserProfileScreen extends StatefulWidget {
+  ///   @override
+  ///   _UserProfileScreenState createState() => _UserProfileScreenState();
+  /// }
+  /// 
+  /// class _UserProfileScreenState extends State<UserProfileScreen> {
+  ///   StreamSubscription? _subscription;
+  ///   
+  ///   @override
+  ///   void initState() {
+  ///     super.initState();
+  ///     final repository = context.read<UserRepository>();
+  ///     _subscription = repository.watchUser('abc123').listen((user) {
+  ///       // עדכן UI...
+  ///     });
+  ///   }
+  ///   
+  ///   @override
+  ///   void dispose() {
+  ///     _subscription?.cancel(); // ביטול!
+  ///     super.dispose();
+  ///   }
+  /// }
+  /// ```
+  /// 
+  /// See also:
+  /// - [fetchUser] - קריאה חד-פעמית
+  /// - [saveUser] - עדכון המשתמש
   Stream<UserEntity?> watchUser(String userId) {
     return _firestore
         .collection(_collectionName)

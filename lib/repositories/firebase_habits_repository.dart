@@ -32,15 +32,53 @@ import '../models/habit_preference.dart';
 
 class FirebaseHabitsRepository {
   final FirebaseFirestore _firestore;
+  static const String _collectionName = 'habit_preferences';
 
+  /// יוצר instance חדש של FirebaseHabitsRepository
+  /// 
+  /// Parameters:
+  ///   - [firestore]: instance של FirebaseFirestore (אופציונלי, ברירת מחדל: instance ראשי)
+  /// 
+  /// Example:
+  /// ```dart
+  /// // שימוש רגיל
+  /// final repo = FirebaseHabitsRepository();
+  /// 
+  /// // עם FirebaseFirestore מותאם
+  /// final repo = FirebaseHabitsRepository(
+  ///   firestore: FirebaseFirestore.instanceFor(app: myApp),
+  /// );
+  /// ```
   FirebaseHabitsRepository({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
   /// קבלת collection reference
   CollectionReference get _collection =>
-      _firestore.collection('habit_preferences');
+      _firestore.collection(_collectionName);
 
-  /// 📥 טעינת כל ההרגלים למשק בית
+  /// טוען את כל הרגלי הקנייה של משק בית
+  /// 
+  /// מבצע query ב-Firestore עם household_id וממיין לפי תאריך קנייה אחרון (מהחדש לישן).
+  /// השימוש הוא דרך HabitsProvider שמנהל את ההרגלים.
+  /// 
+  /// Parameters:
+  ///   - [householdId]: מזהה המשק בית (למשל: 'house_demo')
+  /// 
+  /// Returns:
+  ///   - List של HabitPreference ממוין לפי last_purchased (יורד)
+  /// 
+  /// Throws:
+  ///   - [HabitsRepositoryException] במקרה של שגיאת Firestore
+  /// 
+  /// Example:
+  /// ```dart
+  /// try {
+  ///   final habits = await repo.fetchHabits('house_demo');
+  ///   print('נטענו ${habits.length} הרגלים');
+  /// } catch (e) {
+  ///   print('שגיאה בטעינת הרגלים: $e');
+  /// }
+  /// ```
   Future<List<HabitPreference>> fetchHabits(String householdId) async {
     debugPrint('🔥 FirebaseHabitsRepo.fetchHabits: household=$householdId');
 
@@ -63,11 +101,36 @@ class FirebaseHabitsRepository {
     } catch (e, stack) {
       debugPrint('   ❌ שגיאה בטעינת הרגלים: $e');
       debugPrint('   📍 Stack: $stack');
-      rethrow;
+      throw HabitsRepositoryException('Failed to fetch habits for $householdId', e);
     }
   }
 
-  /// ➕ יצירת הרגל חדש
+  /// יוצר הרגל קנייה חדש
+  /// 
+  /// מוסיף timestamps אוטומטית (createdDate, updatedDate) ו-household_id.
+  /// מחזיר את ההרגל עם ה-ID שנוצר ב-Firestore.
+  /// 
+  /// Parameters:
+  ///   - [habit]: ההרגל ליצירה (ללא ID)
+  ///   - [householdId]: מזהה המשק בית שההרגל שייך אליו
+  /// 
+  /// Returns:
+  ///   - HabitPreference עם ID, createdDate, updatedDate
+  /// 
+  /// Throws:
+  ///   - [HabitsRepositoryException] במקרה של שגיאת שמירה
+  /// 
+  /// Example:
+  /// ```dart
+  /// final habit = HabitPreference(
+  ///   preferredProduct: 'חלב תנובה 3%',
+  ///   genericName: 'חלב',
+  ///   frequencyDays: 7,
+  /// );
+  /// 
+  /// final created = await repo.createHabit(habit, 'house_demo');
+  /// print('נוצר הרגל: ${created.id}');
+  /// ```
   Future<HabitPreference> createHabit(
     HabitPreference habit,
     String householdId,
@@ -97,11 +160,27 @@ class FirebaseHabitsRepository {
     } catch (e, stack) {
       debugPrint('   ❌ שגיאה ביצירת הרגל: $e');
       debugPrint('   📍 Stack: $stack');
-      rethrow;
+      throw HabitsRepositoryException('Failed to create habit', e);
     }
   }
 
-  /// ✏️ עדכון הרגל קיים
+  /// מעדכן הרגל קנייה קיים
+  /// 
+  /// מעדכן את updatedDate אוטומטית ומוודא שהשדה household_id נשמר.
+  /// 
+  /// Parameters:
+  ///   - [habit]: ההרגל המעודכן (חייב לכלול ID)
+  ///   - [householdId]: מזהה המשק בית (לאימות)
+  /// 
+  /// Throws:
+  ///   - [HabitsRepositoryException] במקרה של שגיאת עדכון
+  /// 
+  /// Example:
+  /// ```dart
+  /// final updated = habit.copyWith(frequencyDays: 10);
+  /// await repo.updateHabit(updated, 'house_demo');
+  /// print('הרגל עודכן');
+  /// ```
   Future<void> updateHabit(
     HabitPreference habit,
     String householdId,
@@ -121,25 +200,76 @@ class FirebaseHabitsRepository {
     } catch (e, stack) {
       debugPrint('   ❌ שגיאה בעדכון הרגל: $e');
       debugPrint('   📍 Stack: $stack');
-      rethrow;
+      throw HabitsRepositoryException('Failed to update habit ${habit.id}', e);
     }
   }
 
-  /// 🗑️ מחיקת הרגל
-  Future<void> deleteHabit(String habitId) async {
+  /// מוחק הרגל קנייה
+  /// 
+  /// 🔒 בדיקת אבטחה: מוודא שההרגל שייך ל-household לפני מחיקה.
+  /// אם ההרגל לא קיים או לא שייך ל-household, לא מבצע מחיקה.
+  /// 
+  /// Parameters:
+  ///   - [habitId]: מזהה ההרגל למחיקה
+  ///   - [householdId]: מזהה המשק בית (לאימות בעלות)
+  /// 
+  /// Throws:
+  ///   - [HabitsRepositoryException] אם ההרגל לא שייך ל-household או שגיאה במחיקה
+  /// 
+  /// Example:
+  /// ```dart
+  /// try {
+  ///   await repo.deleteHabit('habit_123', 'house_demo');
+  ///   print('הרגל נמחק בהצלחה');
+  /// } catch (e) {
+  ///   print('שגיאה במחיקה: $e');
+  /// }
+  /// ```
+  Future<void> deleteHabit(String habitId, String householdId) async {
     debugPrint('🔥 FirebaseHabitsRepo.deleteHabit: $habitId');
 
     try {
+      // 🔒 בדיקת אבטחה - וידוא שההרגל שייך ל-household
+      final doc = await _collection.doc(habitId).get();
+      
+      if (!doc.exists) {
+        debugPrint('   ⚠️ הרגל לא קיים');
+        return;
+      }
+
+      final data = doc.data() as Map<String, dynamic>?;
+      if (data?['household_id'] != householdId) {
+        debugPrint('   ⚠️ הרגל לא שייך ל-household זה');
+        throw HabitsRepositoryException('Habit does not belong to household', null);
+      }
+
       await _collection.doc(habitId).delete();
       debugPrint('   ✅ הרגל נמחק');
     } catch (e, stack) {
       debugPrint('   ❌ שגיאה במחיקת הרגל: $e');
       debugPrint('   📍 Stack: $stack');
-      rethrow;
+      throw HabitsRepositoryException('Failed to delete habit $habitId', e);
     }
   }
 
-  /// 📊 ספירת הרגלים למשק בית
+  /// ספירת כמות ההרגלים של משק בית
+  /// 
+  /// שימושי לסטטיסטיקות ו-dashboard.
+  /// 
+  /// Parameters:
+  ///   - [householdId]: מזהה המשק בית
+  /// 
+  /// Returns:
+  ///   - מספר ההרגלים (0 אם אין)
+  /// 
+  /// Throws:
+  ///   - [HabitsRepositoryException] במקרה של שגיאה
+  /// 
+  /// Example:
+  /// ```dart
+  /// final count = await repo.countHabits('house_demo');
+  /// print('יש $count הרגלי קנייה');
+  /// ```
   Future<int> countHabits(String householdId) async {
     debugPrint('🔥 FirebaseHabitsRepo.countHabits: household=$householdId');
 
@@ -155,11 +285,31 @@ class FirebaseHabitsRepository {
     } catch (e, stack) {
       debugPrint('   ❌ שגיאה בספירת הרגלים: $e');
       debugPrint('   📍 Stack: $stack');
-      rethrow;
+      throw HabitsRepositoryException('Failed to count habits for $householdId', e);
     }
   }
 
-  /// 🔍 חיפוש הרגל לפי מוצר
+  /// חיפוש הרגל לפי שם המוצר המועדף
+  /// 
+  /// מחזיר את ההרגל הראשון שמתאים (limit 1).
+  /// 
+  /// Parameters:
+  ///   - [productName]: שם המוצר המדויק (case-sensitive)
+  ///   - [householdId]: מזהה המשק בית
+  /// 
+  /// Returns:
+  ///   - HabitPreference אם נמצא, null אם לא
+  /// 
+  /// Throws:
+  ///   - [HabitsRepositoryException] במקרה של שגיאה
+  /// 
+  /// Example:
+  /// ```dart
+  /// final habit = await repo.findByProduct('חלב תנובה 3%', 'house_demo');
+  /// if (habit != null) {
+  ///   print('נמצא הרגל: קונים כל ${habit.frequencyDays} ימים');
+  /// }
+  /// ```
   Future<HabitPreference?> findByProduct(
     String productName,
     String householdId,
@@ -190,7 +340,32 @@ class FirebaseHabitsRepository {
     } catch (e, stack) {
       debugPrint('   ❌ שגיאה בחיפוש הרגל: $e');
       debugPrint('   📍 Stack: $stack');
-      rethrow;
+      throw HabitsRepositoryException('Failed to find habit by product', e);
     }
   }
+}
+
+/// Exception class for habits repository errors
+/// 
+/// משמש לטיפול בשגיאות ספציפיות של ה-repository.
+/// 
+/// Example:
+/// ```dart
+/// try {
+///   await repo.fetchHabits('house_demo');
+/// } catch (e) {
+///   if (e is HabitsRepositoryException) {
+///     print('שגיאת Repository: ${e.message}');
+///     print('סיבה: ${e.cause}');
+///   }
+/// }
+/// ```
+class HabitsRepositoryException implements Exception {
+  final String message;
+  final Object? cause;
+
+  HabitsRepositoryException(this.message, this.cause);
+
+  @override
+  String toString() => 'HabitsRepositoryException: $message${cause != null ? ' (Cause: $cause)' : ''}';
 }

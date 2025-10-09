@@ -1,4 +1,6 @@
 // 📄 File: lib/widgets/actionable_recommendation.dart
+// ignore_for_file: unnecessary_const
+
 /// Widget for displaying a single recommendation with action buttons
 /// 
 /// Features:
@@ -21,6 +23,8 @@
 /// Dependencies:
 /// - Suggestion model
 /// - Material 3 design
+
+library;
 
 import 'package:flutter/material.dart';
 import '../models/suggestion.dart';

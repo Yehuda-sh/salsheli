@@ -36,6 +36,7 @@ import '../../models/enums/shopping_item_status.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../providers/products_provider.dart';
 import '../../theme/app_theme.dart';
+import '../../core/ui_constants.dart';
 
 class ActiveShoppingScreen extends StatefulWidget {
   final ShoppingList list;
@@ -58,6 +59,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
   @override
   void initState() {
     super.initState();
+    debugPrint('🛒 ActiveShoppingScreen.initState: התחלה');
     _startTime = DateTime.now();
 
     // התחל טיימר שמתעדכן כל שנייה
@@ -72,25 +74,28 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       _itemStatuses[item.id] = ShoppingItemStatus.pending;
     }
 
-    debugPrint('🛒 ActiveShoppingScreen: התחלה - ${widget.list.items.length} פריטים');
+    debugPrint('✅ ActiveShoppingScreen.initState: ${widget.list.items.length} פריטים');
   }
 
   @override
   void dispose() {
+    debugPrint('🗑️ ActiveShoppingScreen.dispose');
     _timer?.cancel();
     super.dispose();
   }
 
   /// עדכון סטטוס פריט
   void _updateItemStatus(ReceiptItem item, ShoppingItemStatus newStatus) {
+    debugPrint('📝 _updateItemStatus: ${item.name} → ${newStatus.label}');
     setState(() {
       _itemStatuses[item.id] = newStatus;
     });
-    debugPrint('   📝 ${item.name}: ${newStatus.label}');
+    debugPrint('✅ _updateItemStatus: עודכן בהצלחה');
   }
 
   /// סיום קנייה - מעבר למסך סיכום
   Future<void> _finishShopping() async {
+    debugPrint('🏁 _finishShopping: מתחיל סיכום');
     final purchased = _itemStatuses.values
         .where((s) => s == ShoppingItemStatus.purchased)
         .length;
@@ -116,16 +121,21 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     );
 
     if (result == true && mounted) {
+      debugPrint('✅ _finishShopping: משתמש אישר סיום');
       // סמן את הרשימה כהושלמה
       final provider = context.read<ShoppingListsProvider>();
       await provider.updateListStatus(
         widget.list.id,
         ShoppingList.statusCompleted,
       );
+      debugPrint('✅ _finishShopping: רשימה סומנה כהושלמה');
 
       if (mounted) {
+        debugPrint('🚪 _finishShopping: חוזר למסך קודם');
         Navigator.pop(context);
       }
+    } else {
+      debugPrint('❌ _finishShopping: משתמש ביטל');
     }
   }
 
@@ -135,6 +145,51 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
     final accent = brand?.accent ?? cs.primary;
+
+    // Empty State - אם אין פריטים
+    if (widget.list.items.isEmpty) {
+      return Scaffold(
+        backgroundColor: cs.surface,
+        appBar: AppBar(
+          backgroundColor: accent,
+          foregroundColor: Colors.white,
+          title: Text(
+            widget.list.name,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.shopping_cart_outlined,
+                size: kIconSizeXLarge * 2,
+                color: cs.onSurfaceVariant,
+              ),
+              SizedBox(height: kSpacingMedium),
+              Text(
+                'הרשימה ריקה',
+                style: TextStyle(
+                  fontSize: kFontSizeLarge,
+                  fontWeight: FontWeight.bold,
+                  color: cs.onSurface,
+                ),
+              ),
+              SizedBox(height: kSpacingSmall),
+              Text(
+                'אין פריטים לקנייה',
+                style: TextStyle(
+                  fontSize: kFontSizeBody,
+                  color: cs.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     // חשב סטטיסטיקות
     final purchased = _itemStatuses.values
@@ -163,13 +218,15 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
             Text(
               widget.list.name,
               style: const TextStyle(
-                fontSize: 18,
+                fontSize: kFontSizeMedium,
                 fontWeight: FontWeight.bold,
               ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
             Text(
               '⏱️ ${_formatDuration(_elapsed)}',
-              style: const TextStyle(fontSize: 14),
+              style: const TextStyle(fontSize: kFontSizeSmall),
             ),
           ],
         ),
@@ -188,7 +245,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         children: [
           // 📊 Header - סטטיסטיקות
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(kSpacingMedium),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -227,7 +284,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
           // 🗂️ רשימת מוצרים לפי קטגוריות
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(kSpacingMedium),
               itemCount: itemsByCategory.length,
               itemBuilder: (context, index) {
                 final category = itemsByCategory.keys.elementAt(index);
@@ -238,11 +295,11 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                   children: [
                     // כותרת קטגוריה
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      padding: const EdgeInsets.symmetric(vertical: kSpacingSmall),
                       child: Text(
                         category,
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: kFontSizeMedium,
                           fontWeight: FontWeight.bold,
                           color: accent,
                         ),
@@ -257,7 +314,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                               _updateItemStatus(item, newStatus),
                         )),
 
-                    const SizedBox(height: 16),
+                    const SizedBox(height: kSpacingMedium),
                   ],
                 );
               },
@@ -298,12 +355,12 @@ class _StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(icon, color: color, size: 32),
-        const SizedBox(height: 4),
+        Icon(icon, color: color, size: kIconSizeLarge),
+        const SizedBox(height: kSpacingTiny),
         Text(
           value,
           style: TextStyle(
-            fontSize: 24,
+            fontSize: kFontSizeXLarge,
             fontWeight: FontWeight.bold,
             color: color,
           ),
@@ -311,7 +368,7 @@ class _StatCard extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            fontSize: 14,
+            fontSize: kFontSizeSmall,
             color: color.withValues(alpha: 0.7),
           ),
         ),
@@ -341,13 +398,13 @@ class _ActiveShoppingItemTile extends StatelessWidget {
     final cs = theme.colorScheme;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      elevation: status == ShoppingItemStatus.purchased ? 0 : 2,
+      margin: const EdgeInsets.only(bottom: kSpacingSmall),
+      elevation: status == ShoppingItemStatus.purchased ? 0 : kCardElevation,
       color: status == ShoppingItemStatus.purchased
           ? cs.surfaceContainerHighest
           : cs.surface,
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(kSpacingSmallPlus),
         child: Column(
           children: [
             // שורה עליונה: שם + מחיר
@@ -357,16 +414,16 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                 Icon(
                   status.icon,
                   color: status.color,
-                  size: 28,
+                  size: kIconSizeMedium + 4,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: kSpacingSmallPlus),
 
                 // שם המוצר
                 Expanded(
                   child: Text(
                     item.name ?? 'ללא שם',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: kFontSizeBody,
                       fontWeight: FontWeight.w600,
                       decoration: status == ShoppingItemStatus.purchased
                           ? TextDecoration.lineThrough
@@ -375,6 +432,8 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                           ? cs.onSurfaceVariant
                           : cs.onSurface,
                     ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
                   ),
                 ),
 
@@ -385,14 +444,14 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                     Text(
                       '${item.quantity}×',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: kFontSizeSmall,
                         color: cs.onSurfaceVariant,
                       ),
                     ),
                     Text(
                       '₪${item.unitPrice.toStringAsFixed(2)}',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: kFontSizeBody,
                         fontWeight: FontWeight.bold,
                         color: status.color,
                       ),
@@ -402,7 +461,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: kSpacingSmallPlus),
 
             // שורה תחתונה: כפתורי פעולה
             Row(
@@ -416,7 +475,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                     onTap: () => onStatusChanged(ShoppingItemStatus.purchased),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: kSpacingSmall),
                 Expanded(
                   child: _ActionButton(
                     icon: Icons.remove_shopping_cart,
@@ -426,7 +485,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                     onTap: () => onStatusChanged(ShoppingItemStatus.outOfStock),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: kSpacingSmall),
                 Expanded(
                   child: _ActionButton(
                     icon: Icons.schedule,
@@ -466,34 +525,41 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(kBorderRadius),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(
+          vertical: kSpacingSmall,
+          horizontal: kSpacingTiny,
+        ),
+        constraints: const BoxConstraints(
+          minHeight: kButtonHeight,
+        ),
         decoration: BoxDecoration(
           color: isSelected ? color.withValues(alpha: 0.2) : Colors.transparent,
           border: Border.all(
-            color: isSelected ? color : Colors.grey.shade300,
+            color: isSelected ? color : cs.outline,
             width: isSelected ? 2 : 1,
           ),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(kBorderRadius),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
-              color: isSelected ? color : Colors.grey,
-              size: 18,
+              color: isSelected ? color : cs.onSurfaceVariant,
+              size: kIconSizeSmall,
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: kSpacingTiny),
             Text(
               label,
               style: TextStyle(
-                fontSize: 13,
+                fontSize: kFontSizeTiny + 1,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? color : Colors.grey.shade700,
+                color: isSelected ? color : cs.onSurfaceVariant,
               ),
             ),
           ],
@@ -540,16 +606,18 @@ class _ShoppingSummaryDialog extends StatelessWidget {
     return AlertDialog(
       title: Row(
         children: [
-          Icon(Icons.check_circle, color: Colors.green, size: 32),
-          const SizedBox(width: 12),
+          Icon(Icons.check_circle, color: Colors.green, size: kIconSizeLarge),
+          const SizedBox(width: kSpacingSmallPlus),
           Expanded(
             child: Text(
               'סיכום קנייה',
               style: TextStyle(
-                fontSize: 22,
+                fontSize: kFontSizeLarge + 4,
                 fontWeight: FontWeight.bold,
                 color: cs.onSurface,
               ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
           ),
         ],
@@ -562,12 +630,14 @@ class _ShoppingSummaryDialog extends StatelessWidget {
             Text(
               listName,
               style: TextStyle(
-                fontSize: 18,
+                fontSize: kFontSizeMedium,
                 fontWeight: FontWeight.bold,
                 color: cs.primary,
               ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: kSpacingMedium),
 
             // ⏱️ זמן קנייה
             _SummaryRow(
@@ -577,7 +647,7 @@ class _ShoppingSummaryDialog extends StatelessWidget {
               color: Colors.blue,
             ),
 
-            const Divider(height: 24),
+            const Divider(height: kSpacingLarge),
 
             // ✅ נקנו
             _SummaryRow(
@@ -651,21 +721,21 @@ class _SummaryRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: kSpacingSmall),
       child: Row(
         children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(width: 12),
+          Icon(icon, color: color, size: kIconSizeMedium + 2),
+          const SizedBox(width: kSpacingSmallPlus),
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: kFontSizeBody),
             ),
           ),
           Text(
             value,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: kFontSizeBody,
               fontWeight: FontWeight.bold,
               color: color,
             ),

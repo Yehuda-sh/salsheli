@@ -3,14 +3,48 @@
 // 🇮🇱 מנהל את ההקשר של המשתמש באפליקציה עם Firebase Authentication:
 //     - מחזיק את פרטי המשתמש (UserEntity) והעדפותיו
 //     - מאזין לשינויים ב-Firebase Auth (real-time)
-//     - טוען/שומר/מוחק משתמש דרך FirebaseUserRepository
+//     - טוען/שומר/מוחק משתמש דרך UserRepository
 //     - עוקב אחרי סטטיסטיקות ושומר העדפות UI
+//     - מספק Single Source of Truth למצב משתמש
 //
 // 🇬🇧 Manages user context in the app with Firebase Authentication:
 //     - Holds user profile (UserEntity) and preferences
 //     - Listens to Firebase Auth changes (real-time)
-//     - Loads/saves/deletes user via FirebaseUserRepository
+//     - Loads/saves/deletes user via UserRepository
 //     - Tracks stats and UI preferences
+//     - Provides Single Source of Truth for user state
+//
+// 📦 Dependencies:
+//     - firebase_auth - Firebase Authentication
+//     - shared_preferences - UI preferences storage
+//     - models/user_entity.dart - מודל המשתמש
+//     - repositories/user_repository.dart - Repository interface
+//     - services/auth_service.dart - שירות אימות
+//
+// 🔗 Related:
+//     - firebase_user_repository.dart - המימוש של Repository
+//     - auth_service.dart - שירות ההתחברות
+//     - main.dart - רישום ה-Provider
+//
+// 🎯 Usage:
+//     ```dart
+//     // קריאה
+//     final userContext = context.watch<UserContext>();
+//     if (userContext.isLoggedIn) {
+//       print('User: ${userContext.displayName}');
+//     }
+//     
+//     // פעולות
+//     await userContext.signIn(email: '...', password: '...');
+//     await userContext.signOut();
+//     
+//     // העדפות UI
+//     userContext.setThemeMode(ThemeMode.dark);
+//     userContext.toggleCompactView();
+//     ```
+//
+// 📝 Version: 2.0 - Full Documentation
+// 📅 Updated: 09/10/2025
 
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
@@ -20,6 +54,39 @@ import '../models/user_entity.dart';
 import '../repositories/user_repository.dart';
 import '../services/auth_service.dart';
 
+/// Provider המנהל את הקשר המשתמש באפליקציה
+/// 
+/// **אחריות:**
+/// - ניהול state המשתמש המחובר
+/// - האזנה לשינויים ב-Firebase Auth
+/// - סנכרון עם Firestore דרך Repository
+/// - שמירת העדפות UI ב-SharedPreferences
+/// - Error handling ו-recovery
+/// 
+/// **Pattern: Single Source of Truth**
+/// 
+/// UserContext הוא המקור היחיד לאמת עבור מצב המשתמש.
+/// כל widget/screen צריך לקרוא ממנו, לא מ-Firebase Auth ישירות!
+/// 
+/// ```dart
+/// // ✅ טוב - קריאה מ-UserContext
+/// final isLoggedIn = context.watch<UserContext>().isLoggedIn;
+/// 
+/// // ❌ רע - קריאה ישירה מ-Firebase
+/// final user = FirebaseAuth.instance.currentUser;
+/// ```
+/// 
+/// **Lifecycle:**
+/// 
+/// 1. נוצר ב-main.dart עם Repository + AuthService
+/// 2. מאזין ל-authStateChanges (real-time)
+/// 3. כשמשתמש מתחבר → טוען מ-Firestore
+/// 4. כשמשתמש מתנתק → מנקה state
+/// 5. notifyListeners() מעדכן את כל הWidgets
+/// 
+/// See also:
+/// - [UserRepository] - הממשק לגישה לנתונים
+/// - [AuthService] - שירות ההתחברות
 class UserContext with ChangeNotifier {
   final UserRepository _repository;
   final AuthService _authService;
@@ -46,22 +113,65 @@ class UserContext with ChangeNotifier {
   }
 
   // === Getters ===
+
+  /// המשתמש הנוכחי (null אם לא מחובר)
   UserEntity? get user => _user;
+
+  /// האם משתמש מחובר כרגע
+  /// 
+  /// בודק גם את UserEntity וגם את Firebase Auth.
   bool get isLoggedIn => _user != null && _authService.isSignedIn;
+
+  /// האם בתהליך טעינה
   bool get isLoading => _isLoading;
+
+  /// האם יש שגיאה
   bool get hasError => _errorMessage != null;
+
+  /// הודעת השגיאה (null אם אין שגיאה)
   String? get errorMessage => _errorMessage;
+
+  /// שם התצוגה של המשתמש
+  /// 
+  /// מחזיר מ-UserEntity אם קיים, אחרת מ-Firebase Auth.
   String? get displayName => _user?.name ?? _authService.currentUserDisplayName;
+
+  /// מזהה המשתמש
+  /// 
+  /// מחזיר מ-UserEntity אם קיים, אחרת מ-Firebase Auth.
   String? get userId => _user?.id ?? _authService.currentUserId;
+
+  /// אימייל המשתמש
+  /// 
+  /// מחזיר מ-UserEntity אם קיים, אחרת מ-Firebase Auth.
   String? get userEmail => _user?.email ?? _authService.currentUserEmail;
+
+  /// מזהה משק הבית של המשתמש
   String? get householdId => _user?.householdId;
 
+  // UI Preferences Getters
+  
+  /// מצב ערכת נושא נוכחי (Light/Dark/System)
   ThemeMode get themeMode => _themeMode;
+
+  /// האם בתצוגה קומפקטית
   bool get compactView => _compactView;
+
+  /// האם להציג מחירים
   bool get showPrices => _showPrices;
 
   // === טעינת העדפות UI ===
 
+  /// טוען העדפות UI מ-SharedPreferences
+  /// 
+  /// נקרא אוטומטית ב-constructor.
+  /// 
+  /// העדפות שנטענות:
+  /// - themeMode (Light/Dark/System)
+  /// - compactView (תצוגה קומפקטית)
+  /// - showPrices (הצגת מחירים)
+  /// 
+  /// במקרה של שגיאה - נשאר עם ערכי ברירת מחדל.
   Future<void> _loadPreferences() async {
     debugPrint('📥 UserContext._loadPreferences: טוען העדפות');
 
@@ -84,6 +194,11 @@ class UserContext with ChangeNotifier {
     }
   }
 
+  /// שומר העדפות UI ל-SharedPreferences
+  /// 
+  /// נקרא אוטומטית כשמשנים העדפה (setThemeMode, toggleCompactView, וכו').
+  /// 
+  /// במקרה של שגיאה - ממשיך בלי לזרוק Exception.
   Future<void> _savePreferences() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -103,6 +218,16 @@ class UserContext with ChangeNotifier {
 
   // === האזנה לשינויים ב-Auth ===
 
+  /// מאזין לשינויים ב-Firebase Auth (real-time)
+  /// 
+  /// נקרא אוטומטית ב-constructor.
+  /// 
+  /// תהליך:
+  /// 1. משתמש מתחבר → טוען מ-Firestore
+  /// 2. משתמש מתנתק → מנקה state
+  /// 3. שגיאה → logging בלבד
+  /// 
+  /// ⚠️ **חשוב:** ה-subscription מתבטל ב-dispose()!
   void _listenToAuthChanges() {
     debugPrint('👂 UserContext: מתחיל להאזין לשינויים ב-Auth');
 
@@ -130,6 +255,19 @@ class UserContext with ChangeNotifier {
 
   // === טעינת משתמש מ-Firestore ===
 
+  /// טוען משתמש מ-Firestore לפי ID
+  /// 
+  /// נקרא אוטומטית כש-Firebase Auth מזהה התחברות.
+  /// 
+  /// תהליך:
+  /// 1. ניסיון לטעון מ-Repository
+  /// 2. אם לא נמצא → יוצר משתמש חדש
+  /// 3. מעדכן state + notifyListeners
+  /// 
+  /// במקרה של שגיאה:
+  /// - State נשאר ללא שינוי
+  /// - errorMessage מתעדכן
+  /// - notifyListeners נקרא בכל מקרה
   Future<void> _loadUserFromFirestore(String userId) async {
     debugPrint('📥 UserContext._loadUserFromFirestore: טוען משתמש $userId');
 
@@ -168,14 +306,34 @@ class UserContext with ChangeNotifier {
 
   /// רושם משתמש חדש עם Firebase Auth ויוצר רשומה ב-Firestore
   /// 
+  /// תהליך:
+  /// 1. רישום ב-Firebase Auth
+  /// 2. יצירת UserEntity חדש
+  /// 3. שמירה ב-Firestore דרך Repository
+  /// 4. ה-Listener של authStateChanges מטפל בעדכון הסופי
+  /// 
+  /// זורק Exception במקרה של:
+  /// - אימייל כבר קיים
+  /// - סיסמה חלשה
+  /// - שגיאת רשת
+  /// 
   /// Example:
   /// ```dart
-  /// await userContext.signUp(
-  ///   email: 'user@example.com',
-  ///   password: 'password123',
-  ///   name: 'יוני כהן',
-  /// );
+  /// try {
+  ///   await userContext.signUp(
+  ///     email: 'user@example.com',
+  ///     password: 'SecurePass123!',
+  ///     name: 'יוני כהן',
+  ///   );
+  ///   // הצלחה - Navigation ל-Home
+  /// } catch (e) {
+  ///   // טיפול בשגיאה
+  ///   showDialog(...);
+  /// }
   /// ```
+  /// 
+  /// See also:
+  /// - [signIn] - התחברות למשתמש קיים
   Future<void> signUp({
     required String email,
     required String password,
@@ -226,13 +384,51 @@ class UserContext with ChangeNotifier {
 
   /// מתחבר עם אימייל וסיסמה
   /// 
+  /// תהליך:
+  /// 1. התחברות ב-Firebase Auth
+  /// 2. ה-Listener של authStateChanges טוען את המשתמש מ-Firestore
+  /// 
+  /// ⚠️ **חשוב:** לא לבדוק isLoggedIn מיד אחרי signIn!
+  /// 
+  /// ```dart
+  /// // ❌ רע - Race Condition
+  /// await userContext.signIn(...);
+  /// if (userContext.isLoggedIn) { ... } // עדיין false!
+  /// 
+  /// // ✅ טוב - Exception Pattern
+  /// try {
+  ///   await userContext.signIn(...);
+  ///   // אם הגענו לכאן = הצלחנו!
+  ///   Navigator.pushReplacementNamed('/home');
+  /// } catch (e) {
+  ///   // שגיאה בהתחברות
+  ///   showError(e);
+  /// }
+  /// ```
+  /// 
+  /// זורק Exception במקרה של:
+  /// - אימייל/סיסמה שגויים
+  /// - משתמש לא קיים
+  /// - שגיאת רשת
+  /// 
   /// Example:
   /// ```dart
-  /// await userContext.signIn(
-  ///   email: 'user@example.com',
-  ///   password: 'password123',
-  /// );
+  /// try {
+  ///   await userContext.signIn(
+  ///     email: 'user@example.com',
+  ///     password: 'password123',
+  ///   );
+  ///   Navigator.pushReplacementNamed('/home');
+  /// } catch (e) {
+  ///   ScaffoldMessenger.of(context).showSnackBar(
+  ///     SnackBar(content: Text('שגיאה: $e')),
+  ///   );
+  /// }
   /// ```
+  /// 
+  /// See also:
+  /// - [signUp] - רישום משתמש חדש
+  /// - [signOut] - התנתקות
   Future<void> signIn({
     required String email,
     required String password,
@@ -266,10 +462,25 @@ class UserContext with ChangeNotifier {
 
   /// מתנתק מהמערכת
   /// 
+  /// תהליך:
+  /// 1. התנתקות מ-Firebase Auth
+  /// 2. ה-Listener של authStateChanges מנקה את ה-state
+  /// 
+  /// זורק Exception רק במקרה של שגיאה קריטית.
+  /// 
   /// Example:
   /// ```dart
-  /// await userContext.signOut();
+  /// try {
+  ///   await userContext.signOut();
+  ///   Navigator.pushReplacementNamed('/login');
+  /// } catch (e) {
+  ///   print('שגיאה בהתנתקות: $e');
+  /// }
   /// ```
+  /// 
+  /// See also:
+  /// - [logout] - Alias ל-signOut
+  /// - [signIn] - התחברות
   Future<void> signOut() async {
     debugPrint('👋 UserContext.signOut: מתנתק');
 
@@ -296,17 +507,22 @@ class UserContext with ChangeNotifier {
   /// ```
   Future<void> logout() async => signOut();
 
-
-
   // === שמירת משתמש ===
 
   /// שומר/מעדכן פרטי משתמש ב-Firestore
+  /// 
+  /// מעדכן גם את ה-state המקומי.
+  /// 
+  /// זורק Exception במקרה של שגיאה.
   /// 
   /// Example:
   /// ```dart
   /// final updatedUser = user.copyWith(name: 'שם חדש');
   /// await userContext.saveUser(updatedUser);
   /// ```
+  /// 
+  /// See also:
+  /// - [signUp] - יצירת משתמש חדש
   Future<void> saveUser(UserEntity user) async {
     debugPrint('💾 UserContext.saveUser: שומר משתמש ${user.id}');
 
@@ -329,9 +545,22 @@ class UserContext with ChangeNotifier {
 
   /// שולח מייל לאיפוס סיסמה
   /// 
+  /// המשתמש יקבל מייל עם קישור לאיפוס הסיסמה.
+  /// 
+  /// זורק Exception במקרה של:
+  /// - אימייל לא קיים
+  /// - שגיאת רשת
+  /// 
   /// Example:
   /// ```dart
-  /// await userContext.sendPasswordResetEmail('user@example.com');
+  /// try {
+  ///   await userContext.sendPasswordResetEmail('user@example.com');
+  ///   ScaffoldMessenger.of(context).showSnackBar(
+  ///     SnackBar(content: Text('מייל נשלח בהצלחה')),
+  ///   );
+  /// } catch (e) {
+  ///   showError('שגיאה בשליחת מייל');
+  /// }
   /// ```
   Future<void> sendPasswordResetEmail(String email) async {
     debugPrint('📧 UserContext.sendPasswordResetEmail: שולח מייל ל-$email');
@@ -351,6 +580,14 @@ class UserContext with ChangeNotifier {
 
   // === Preferences ===
 
+  /// מגדיר מצב ערכת נושא (Light/Dark/System)
+  /// 
+  /// השינוי נשמר ב-SharedPreferences אוטומטית.
+  /// 
+  /// Example:
+  /// ```dart
+  /// userContext.setThemeMode(ThemeMode.dark);
+  /// ```
   void setThemeMode(ThemeMode mode) {
     _themeMode = mode;
     _savePreferences();
@@ -358,6 +595,15 @@ class UserContext with ChangeNotifier {
     debugPrint('   🔔 UserContext: notifyListeners() (themeMode=$mode)');
   }
 
+  /// משנה מצב תצוגה קומפקטית (On/Off)
+  /// 
+  /// השינוי נשמר ב-SharedPreferences אוטומטית.
+  /// 
+  /// Example:
+  /// ```dart
+  /// userContext.toggleCompactView();
+  /// print('Compact: ${userContext.compactView}');
+  /// ```
   void toggleCompactView() {
     _compactView = !_compactView;
     _savePreferences();
@@ -365,6 +611,15 @@ class UserContext with ChangeNotifier {
     debugPrint('   🔔 UserContext: notifyListeners() (compactView=$_compactView)');
   }
 
+  /// משנה מצב הצגת מחירים (Show/Hide)
+  /// 
+  /// השינוי נשמר ב-SharedPreferences אוטומטית.
+  /// 
+  /// Example:
+  /// ```dart
+  /// userContext.toggleShowPrices();
+  /// print('Show prices: ${userContext.showPrices}');
+  /// ```
   void toggleShowPrices() {
     _showPrices = !_showPrices;
     _savePreferences();
@@ -372,6 +627,9 @@ class UserContext with ChangeNotifier {
     debugPrint('   🔔 UserContext: notifyListeners() (showPrices=$_showPrices)');
   }
 
+  /// מאפס את כל העדפות UI לברירת מחדל
+  /// 
+  /// נקרא אוטומטית כשמשתמש מתנתק.
   void _resetPreferences() {
     _themeMode = ThemeMode.system;
     _compactView = false;
@@ -383,12 +641,23 @@ class UserContext with ChangeNotifier {
 
   /// ניסיון חוזר לטעינת משתמש אחרי שגיאה
   /// 
+  /// מנקה את השגיאה ומנסה לטעון שוב מ-Firestore.
+  /// 
+  /// שימושי במסכי Error State עם כפתור "נסה שוב".
+  /// 
   /// Example:
   /// ```dart
   /// if (userContext.hasError) {
-  ///   await userContext.retry();
+  ///   ElevatedButton(
+  ///     onPressed: () => userContext.retry(),
+  ///     child: Text('נסה שוב'),
+  ///   );
   /// }
   /// ```
+  /// 
+  /// See also:
+  /// - [hasError] - בדיקת קיום שגיאה
+  /// - [errorMessage] - הודעת השגיאה
   Future<void> retry() async {
     debugPrint('🔄 UserContext.retry: מנסה שוב');
 
@@ -405,12 +674,30 @@ class UserContext with ChangeNotifier {
   }
 
   /// ניקוי מלא של כל ה-state
-  /// שימושי בהתנתקות או reset של האפליקציה
+  /// 
+  /// מנקה:
+  /// - UserEntity (user = null)
+  /// - שגיאות (errorMessage = null)
+  /// - loading state (isLoading = false)
+  /// - העדפות UI (חזרה לברירת מחדל)
+  /// - SharedPreferences
+  /// 
+  /// ⚠️ **אזהרה:** פעולה זו לא מתנתקת מ-Firebase Auth!
+  /// 
+  /// שימושי ב:
+  /// - Reset של האפליקציה
+  /// - ניקוי לפני התנתקות
+  /// - טסטים
   /// 
   /// Example:
   /// ```dart
   /// await userContext.clearAll();
+  /// await userContext.signOut();
+  /// Navigator.pushReplacementNamed('/login');
   /// ```
+  /// 
+  /// See also:
+  /// - [signOut] - התנתקות מ-Firebase Auth
   Future<void> clearAll() async {
     debugPrint('🗑️ UserContext.clearAll: מנקה state');
 

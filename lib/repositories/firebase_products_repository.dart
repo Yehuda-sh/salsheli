@@ -49,15 +49,34 @@ import 'products_repository.dart';
 
 class FirebaseProductsRepository implements ProductsRepository {
   final FirebaseFirestore _firestore;
-  final String _collectionName = 'products';
+  static const String _collectionName = 'products';
 
   // Cache מקומי
   List<Map<String, dynamic>>? _cachedProducts;
   DateTime? _lastCacheUpdate;
-  static const Duration _cacheValidity = Duration(hours: 1);
+  final Duration _cacheValidity;
 
-  FirebaseProductsRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+  /// יוצר instance חדש של FirebaseProductsRepository
+  /// 
+  /// Parameters:
+  ///   - [firestore]: instance של FirebaseFirestore (אופציונלי)
+  ///   - [cacheValidity]: משך זמן תקינות ה-cache (ברירת מחדל: שעה)
+  /// 
+  /// Example:
+  /// ```dart
+  /// // שימוש רגיל
+  /// final repo = FirebaseProductsRepository();
+  /// 
+  /// // עם cache של 30 דקות
+  /// final repo = FirebaseProductsRepository(
+  ///   cacheValidity: Duration(minutes: 30),
+  /// );
+  /// ```
+  FirebaseProductsRepository({
+    FirebaseFirestore? firestore,
+    Duration cacheValidity = const Duration(hours: 1),
+  }) : _firestore = firestore ?? FirebaseFirestore.instance,
+       _cacheValidity = cacheValidity;
 
   /// בדיקה אם ה-cache תקף
   bool get _isCacheValid {
@@ -66,6 +85,19 @@ class FirebaseProductsRepository implements ProductsRepository {
   }
 
   /// טעינת כל המוצרים מ-Firestore
+  /// 
+  /// משתמש ב-cache חכם - אם ה-cache תקף, מחזיר אותו.
+  /// אחרת, טוען מחדש מ-Firestore ומעדכן את ה-cache.
+  /// 
+  /// Returns:
+  ///   - List של Maps עם נתוני מוצרים
+  ///   - List ריק במקרה של שגיאה
+  /// 
+  /// Example:
+  /// ```dart
+  /// final products = await repo.getAllProducts();
+  /// print('נטענו ${products.length} מוצרים');
+  /// ```
   @override
   Future<List<Map<String, dynamic>>> getAllProducts() async {
     // אם יש cache תקף - החזר אותו
@@ -92,6 +124,21 @@ class FirebaseProductsRepository implements ProductsRepository {
   }
 
   /// טעינת מוצרים לפי קטגוריה
+  /// 
+  /// מבצע query ב-Firestore לפי שדה 'category'
+  /// 
+  /// Parameters:
+  ///   - [category]: שם הקטגוריה (למשל: 'מוצרי חלב', 'ירקות')
+  /// 
+  /// Returns:
+  ///   - List של מוצרים בקטגוריה
+  ///   - List ריק אם אין תוצאות או שגיאה
+  /// 
+  /// Example:
+  /// ```dart
+  /// final dairy = await repo.getProductsByCategory('מוצרי חלב');
+  /// print('${dairy.length} מוצרי חלב');
+  /// ```
   @override
   Future<List<Map<String, dynamic>>> getProductsByCategory(
     String category,
@@ -116,6 +163,25 @@ class FirebaseProductsRepository implements ProductsRepository {
   }
 
   /// קבלת מוצר לפי ברקוד
+  /// 
+  /// חיפוש ב-Firestore collection 'products' לפי שדה 'barcode'
+  /// 
+  /// Parameters:
+  ///   - [barcode]: הברקוד לחיפוש (למשל: '7290000000001')
+  /// 
+  /// Returns:
+  ///   - Map עם נתוני המוצר אם נמצא
+  ///   - null אם לא נמצא או שגיאה
+  /// 
+  /// Example:
+  /// ```dart
+  /// final product = await repo.getProductByBarcode('7290000000001');
+  /// if (product != null) {
+  ///   print('נמצא: ${product['name']}');
+  /// } else {
+  ///   print('מוצר לא נמצא');
+  /// }
+  /// ```
   @override
   Future<Map<String, dynamic>?> getProductByBarcode(String barcode) async {
     try {
@@ -140,11 +206,27 @@ class FirebaseProductsRepository implements ProductsRepository {
     }
   }
 
-  /// חיפוש מוצרים
+  /// חיפוש מוצרים לפי שם או מותג
+  /// 
+  /// ⚠️ Note: טוען את כל המוצרים ומסנן מקומית (Firestore לא תומך ב-LIKE)
+  /// לפרויקטים גדולים מומלץ Algolia/Elasticsearch
+  /// 
+  /// Parameters:
+  ///   - [query]: טקסט לחיפוש (case-insensitive)
+  /// 
+  /// Returns:
+  ///   - List של מוצרים שמתאימים לחיפוש
+  ///   - List ריק אם אין תוצאות או שגיאה
+  /// 
+  /// Example:
+  /// ```dart
+  /// final results = await repo.searchProducts('חלב');
+  /// print('נמצאו ${results.length} תוצאות');
+  /// ```
   @override
   Future<List<Map<String, dynamic>>> searchProducts(String query) async {
     try {
-      // טוען את כל המוצרים ומסנן מקומית (Firestore לא תומך ב-LIKE)
+      // ⚠️ טוען את כל המוצרים ומסנן מקומית (Firestore לא תומך ב-LIKE)
       final allProducts = await getAllProducts();
       final lowerQuery = query.toLowerCase();
 
@@ -162,7 +244,22 @@ class FirebaseProductsRepository implements ProductsRepository {
     }
   }
 
-  /// קבלת כל הקטגוריות
+  /// קבלת רשימת כל הקטגוריות הייחודיות
+  /// 
+  /// סורק את כל המוצרים ומחלץ את הקטגוריות הייחודיות
+  /// 
+  /// Returns:
+  ///   - List של שמות קטגוריות (ממוין אלפביתית)
+  ///   - List ריק במקרה של שגיאה
+  /// 
+  /// Example:
+  /// ```dart
+  /// final categories = await repo.getCategories();
+  /// print('יש ${categories.length} קטגוריות');
+  /// for (var cat in categories) {
+  ///   print('- $cat');
+  /// }
+  /// ```
   @override
   Future<List<String>> getCategories() async {
     try {
@@ -182,6 +279,18 @@ class FirebaseProductsRepository implements ProductsRepository {
   }
 
   /// רענון מוצרים (מאלץ טעינה מחדש מ-Firestore)
+  /// 
+  /// Parameters:
+  ///   - [force]: אם true, מנקה את ה-cache ומאלץ טעינה מחדש
+  /// 
+  /// Example:
+  /// ```dart
+  /// // רענון רגיל (משתמש ב-cache אם תקף)
+  /// await repo.refreshProducts();
+  /// 
+  /// // רענון מאולץ (מתעלם מ-cache)
+  /// await repo.refreshProducts(force: true);
+  /// ```
   @override
   Future<void> refreshProducts({bool force = false}) async {
     if (force) {
@@ -191,7 +300,16 @@ class FirebaseProductsRepository implements ProductsRepository {
     await getAllProducts();
   }
 
-  /// ניקוי cache
+  /// ניקוי ה-cache המקומי
+  /// 
+  /// משמש כאשר רוצים לכפות טעינה מחדש מ-Firestore
+  /// בפעם הבאה ש-getAllProducts() ייקרא
+  /// 
+  /// Example:
+  /// ```dart
+  /// repo.clearCache();
+  /// final products = await repo.getAllProducts(); // טוען מחדש
+  /// ```
   void clearCache() {
     _cachedProducts = null;
     _lastCacheUpdate = null;

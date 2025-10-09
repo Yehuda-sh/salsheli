@@ -5,6 +5,7 @@
 // 📦 Dependencies:
 // - ShoppingListsRepository: ממשק לטעינת/שמירת רשימות
 // - UserContext: household_id + auth state
+// - FirebaseShoppingListsRepository: מימוש Firebase של Repository
 //
 // ✨ Features:
 // - 📥 טעינה אוטומטית: מאזין ל-UserContext ומריענן כשמשתמש משתנה
@@ -43,8 +44,8 @@
 // 2. updateUserContext() → _onUserChanged() → loadLists()
 // 3. CRUD operations → Repository → loadLists() → notifyListeners()
 //
-// Version: 2.0 (עם UserContext סטנדרטי + logging מלא)
-// Last Updated: 06/10/2025
+// Version: 2.1 (FirebaseShoppingListsRepository - naming consistency)
+// Last Updated: 09/10/2025
 //
 
 import 'package:flutter/foundation.dart';

@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 // 📄 File: lib/screens/settings/settings_screen.dart
 //
 // 🎯 תיאור: מסך הגדרות ופרופיל משולב - ניהול פרופיל אישי, הגדרות קבוצה, והעדפות
@@ -468,6 +470,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               fontWeight: FontWeight.bold,
                             ),
                             textAlign: TextAlign.right,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                           const SizedBox(height: kSpacingTiny),
                           Text(
@@ -477,6 +481,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               color: cs.onSurfaceVariant,
                             ),
                             textAlign: TextAlign.right,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                         ],
                       ),
@@ -500,6 +506,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           horizontal: kSpacingSmallPlus,
                           vertical: kSpacingSmall,
                         ),
+                        minimumSize: const Size(kButtonHeight, kButtonHeight),
                       ),
                     ),
                   ],
@@ -581,6 +588,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     hintText: AppStrings.settings.householdNameHint,
                                     isDense: true,
                                   ),
+                                  maxLength: 30,
                                   textInputAction: TextInputAction.done,
                                   onSubmitted: (_) => _toggleEditHousehold(),
                                 )
@@ -756,6 +764,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               hintText: AppStrings.settings.addStoreHint,
                               isDense: true,
                             ),
+                            maxLength: 25,
                             textInputAction: TextInputAction.done,
                             onSubmitted: (_) => _addStore(),
                           ),

@@ -43,32 +43,93 @@
 // 🔗 Related:
 //     - FirebaseProductsRepository (Firestore access)
 //     - LocalProductsRepository (Hive storage)
-//     - PublishedPricesService (API price updates)
+//     - ShufersalPricesService (API price updates)
 //     - products.json (local fallback)
+//
+// 📝 Version: 2.0 - Added docstrings + constants + version info
+// 📅 Last Updated: 09/10/2025
+//
 
-import 'dart:convert';  // 🆕 חזרה - צריך ל-json.decode!
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import '../services/shufersal_prices_service.dart';  // 🆕 שופרסל החדש!
+import '../services/shufersal_prices_service.dart';
 import 'local_products_repository.dart';
-import 'firebase_products_repository.dart';  // 🆕 Firebase!
+import 'firebase_products_repository.dart';
 import 'products_repository.dart';
 import '../models/product_entity.dart';
 
 class HybridProductsRepository implements ProductsRepository {
   final LocalProductsRepository _localRepo;
-  final FirebaseProductsRepository? _firebaseRepo;  // 🆕 Firebase!
+  final FirebaseProductsRepository? _firebaseRepo;
 
   bool _isInitialized = false;
   bool _isPriceUpdateInProgress = false;
 
+  /// ספי מינימום למוצרים תקינים (פחות מזה = DB ישן)
+  static const int _minProductsThreshold = 100;
+  
+  /// מרווח logging ב-progress (כל X מוצרים)
+  static const int _progressLogInterval = 200;
+
   HybridProductsRepository({
     required LocalProductsRepository localRepo,
-    FirebaseProductsRepository? firebaseRepo,  // 🆕 אופציונלי!
+    FirebaseProductsRepository? firebaseRepo,
   })  : _localRepo = localRepo,
         _firebaseRepo = firebaseRepo;
 
-  /// אתחול - טוען מוצרים אם ה-DB ריק
+  /// המרת נתון מ-Map ל-ProductEntity עם validation
+  /// 
+  /// מחזיר null אם הנתונים לא תקינים (barcode/name חסרים)
+  /// 
+  /// Example:
+  /// ```dart
+  /// final entity = _parseProductData(data);
+  /// if (entity != null) {
+  ///   entities.add(entity);
+  /// }
+  /// ```
+  ProductEntity? _parseProductData(Map<String, dynamic> data) {
+    final barcode = data['barcode']?.toString();
+    final name = data['name']?.toString();
+
+    // Validation - חובה שיהיה ברקוד ושם
+    if (barcode == null || barcode.isEmpty || 
+        name == null || name.isEmpty) {
+      return null;
+    }
+
+    return ProductEntity(
+      barcode: barcode,
+      name: name,
+      category: data['category']?.toString() ?? 'אחר',
+      brand: data['brand']?.toString() ?? '',
+      unit: data['unit']?.toString() ?? '',
+      icon: data['icon']?.toString() ?? '🛒',
+      currentPrice: data['currentPrice'] as double?,
+      lastPriceStore: data['lastPriceStore']?.toString(),
+      lastPriceUpdate: data['lastPriceUpdate'] != null 
+        ? DateTime.tryParse(data['lastPriceUpdate'].toString())
+        : null,
+    );
+  }
+
+  /// אתחול ה-Repository - טוען מוצרים אם ה-DB ריק
+  /// 
+  /// אסטרטגיית טעינה (4 שלבים):
+  /// 1. Firestore (1758 מוצרים) - מקור ראשי
+  /// 2. products.json - fallback מקומי
+  /// 3. API (שופרסל) - fallback אונליין
+  /// 4. 8 מוצרים דמה - fallback אחרון
+  /// 
+  /// Note: אם יש פחות מ-$_minProductsThreshold מוצרים, מוחק ה-DB וטוען מחדש
+  /// 
+  /// Example:
+  /// ```dart
+  /// final repo = HybridProductsRepository(localRepo: localRepo);
+  /// await repo.initialize();
+  /// print('מוצרים זמינים: ${repo.totalProducts}');
+  /// ```
   Future<void> initialize() async {
     if (_isInitialized) {
       debugPrint('⚠️ HybridProductsRepository.initialize: כבר אותחל, מדלג');
@@ -79,11 +140,11 @@ class HybridProductsRepository implements ProductsRepository {
       debugPrint('\n🚀 HybridProductsRepository.initialize() - מתחיל...');
       debugPrint('   📊 בודק מספר מוצרים מקומיים: ${_localRepo.totalProducts}');
 
-      // 🆕 אם יש פחות מ-100 מוצרים - נמחק וטוען מחדש
-      if (_localRepo.totalProducts > 0 && _localRepo.totalProducts < 100) {
+      // אם יש פחות מספי מינימום - נמחק וטוען מחדש
+      if (_localRepo.totalProducts > 0 && _localRepo.totalProducts < _minProductsThreshold) {
         debugPrint('   🗑️ מוחק DB ישן (${_localRepo.totalProducts} מוצרים דמה)...');
         await _localRepo.clearAll();
-        debugPrint('   ✅ DB נמחק - יטען מ-products.json');
+        debugPrint('   ✅ DB נמחק - יטען מחדש');
       }
 
       // אם אין מוצרים מקומית - טוען מקורות שונים
@@ -113,7 +174,7 @@ class HybridProductsRepository implements ProductsRepository {
     }
   }
 
-  /// 🆕 טעינת מוצרים ראשונית - אסטרטגיה משולבת
+  /// טעינת מוצרים ראשונית - אסטרטגיה משולבת (4 שלבים)
   Future<void> _loadInitialProducts() async {
     try {
       debugPrint('📥 אסטרטגיית טעינה:');
@@ -134,7 +195,7 @@ class HybridProductsRepository implements ProductsRepository {
         debugPrint('⚠️ Firebase לא מוגדר, מדלג לנסיון הבא...');
       }
 
-      // 🆕 נסיון 1: טעינה מ-products.json
+      // נסיון 1: טעינה מ-products.json
       final success = await _loadFromJson();
       if (success) {
         debugPrint('✅ טעינה מ-products.json הצליחה!');
@@ -149,7 +210,7 @@ class HybridProductsRepository implements ProductsRepository {
         return;
       }
 
-      // נסיון 4: fallback
+      // נסיון 3: fallback
       debugPrint('⚠️ כל המקורות נכשלו, טוען מוצרים דמה...');
       await _loadFallbackProducts();
       debugPrint('✅ טעינת fallback הושלמה');
@@ -160,7 +221,7 @@ class HybridProductsRepository implements ProductsRepository {
     }
   }
 
-  /// 🔥 טעינה מ-Firestore
+  /// טעינה מ-Firestore (נסיון 0)
   Future<bool> _loadFromFirestore() async {
     try {
       debugPrint('🔥 מנסה לטעון מ-Firestore...');
@@ -182,31 +243,13 @@ class HybridProductsRepository implements ProductsRepository {
 
       for (final data in firestoreProducts) {
         try {
-          // וידוא שיש ברקוד ושם
-          final barcode = data['barcode']?.toString();
-          final name = data['name']?.toString();
-
-          if (barcode == null || barcode.isEmpty || 
-              name == null || name.isEmpty) {
+          final entity = _parseProductData(data);
+          if (entity != null) {
+            entities.add(entity);
+            validProducts++;
+          } else {
             invalidProducts++;
-            continue;
           }
-
-          entities.add(ProductEntity(
-            barcode: barcode,
-            name: name,
-            category: data['category']?.toString() ?? 'אחר',
-            brand: data['brand']?.toString() ?? '',
-            unit: data['unit']?.toString() ?? '',
-            icon: data['icon']?.toString() ?? '🛒',
-            // מחיר אם קיים
-            currentPrice: data['currentPrice'] as double?,
-            lastPriceStore: data['lastPriceStore']?.toString(),
-            lastPriceUpdate: data['lastPriceUpdate'] != null 
-              ? DateTime.tryParse(data['lastPriceUpdate'].toString())
-              : null,
-          ));
-          validProducts++;
         } catch (e) {
           invalidProducts++;
           debugPrint('⚠️ שגיאה בהמרת מוצר מ-Firestore: $e');
@@ -223,7 +266,7 @@ class HybridProductsRepository implements ProductsRepository {
       await _localRepo.saveProductsWithProgress(
         entities,
         onProgress: (current, total) {
-          if (current % 200 == 0 || current == total) {
+          if (current % _progressLogInterval == 0 || current == total) {
             debugPrint('   📊 Progress: $current/$total (${(current/total*100).toStringAsFixed(1)}%)');
           }
         },
@@ -242,7 +285,7 @@ class HybridProductsRepository implements ProductsRepository {
     }
   }
 
-  /// 🆕 טעינה מ-products.json
+  /// טעינה מ-products.json (נסיון 1)
   Future<bool> _loadFromJson() async {
     try {
       debugPrint('📂 מנסה לטעון מ-products.json...');
@@ -265,29 +308,13 @@ class HybridProductsRepository implements ProductsRepository {
 
       for (final data in productsData) {
         try {
-          // וידוא שיש ברקוד ושם
-          final barcode = data['barcode']?.toString();
-          final name = data['name']?.toString();
-
-          if (barcode == null || barcode.isEmpty || 
-              name == null || name.isEmpty) {
+          final entity = _parseProductData(data);
+          if (entity != null) {
+            entities.add(entity);
+            validProducts++;
+          } else {
             invalidProducts++;
-            continue;
           }
-
-          entities.add(ProductEntity(
-            barcode: barcode,
-            name: name,
-            category: data['category']?.toString() ?? 'אחר',
-            brand: data['brand']?.toString() ?? '',
-            unit: data['unit']?.toString() ?? '',
-            icon: data['icon']?.toString() ?? '🛒',
-            // ללא מחיר - יתעדכן מ-API אחר כך
-            currentPrice: null,
-            lastPriceStore: null,
-            lastPriceUpdate: null,
-          ));
-          validProducts++;
         } catch (e) {
           invalidProducts++;
           debugPrint('⚠️ שגיאה בהמרת מוצר: $e');
@@ -304,7 +331,7 @@ class HybridProductsRepository implements ProductsRepository {
       await _localRepo.saveProductsWithProgress(
         entities,
         onProgress: (current, total) {
-          if (current % 200 == 0 || current == total) {
+          if (current % _progressLogInterval == 0 || current == total) {
             debugPrint('   📊 Progress: $current/$total (${(current/total*100).toStringAsFixed(1)}%)');
           }
         },
@@ -323,7 +350,7 @@ class HybridProductsRepository implements ProductsRepository {
     }
   }
 
-  /// טעינה מ-API (שופרסל)
+  /// טעינה מ-API - שופרסל (נסיון 2)
   Future<bool> _loadFromAPI() async {
     try {
       debugPrint('📞 מנסה לטעון מוצרים מ-API (שופרסל)...');
@@ -355,7 +382,7 @@ class HybridProductsRepository implements ProductsRepository {
       await _localRepo.saveProductsWithProgress(
         entities,
         onProgress: (current, total) {
-          if (current % 100 == 0 || current == total) {
+          if (current % _progressLogInterval == 0 || current == total) {
             debugPrint('   📊 Progress: $current/$total (${(current/total*100).toStringAsFixed(1)}%)');
           }
         },
@@ -368,7 +395,7 @@ class HybridProductsRepository implements ProductsRepository {
     }
   }
 
-  /// טעינת מוצרים דמה כ-fallback (גיבוי אחרון)
+  /// טעינת מוצרים דמה כ-fallback (נסיון 3 - גיבוי אחרון)
   Future<void> _loadFallbackProducts() async {
     final fallbackProducts = [
       ProductEntity(
@@ -442,6 +469,8 @@ class HybridProductsRepository implements ProductsRepository {
     debugPrint('✅ נשמרו ${fallbackProducts.length} מוצרים דמה');
   }
 
+  // === ProductsRepository Interface Implementation ===
+
   @override
   Future<List<Map<String, dynamic>>> getAllProducts() async {
     if (!_isInitialized) await initialize();
@@ -486,11 +515,23 @@ class HybridProductsRepository implements ProductsRepository {
   Future<void> refreshProducts({bool force = false}) async {
     if (!_isInitialized) await initialize();
 
-    // 🔄 עדכון מחירים בלבד
+    // עדכון מחירים בלבד
     await updatePrices();
   }
 
-  /// 💰 עדכון מחירים בלבד מה-API (שופרסל)
+  // === Additional Public Methods ===
+
+  /// מעדכן מחירים בלבד מ-API (שופרסל)
+  /// 
+  /// מעדכן מחירים למוצרים קיימים ומוסיף מוצרים חדשים אם יש
+  /// 
+  /// Note: הפעולה רצה ברקע ולא חוסמת את ה-UI
+  /// 
+  /// Example:
+  /// ```dart
+  /// await repo.updatePrices();
+  /// print('עדכון מחירים הושלם');
+  /// ```
   Future<void> updatePrices() async {
     if (_isPriceUpdateInProgress) {
       debugPrint('⚠️ עדכון מחירים כבר בתהליך');
@@ -556,13 +597,28 @@ class HybridProductsRepository implements ProductsRepository {
     }
   }
 
-  /// 📊 סטטיסטיקות
-  int get totalProducts => _localRepo.totalProducts;
-  int get productsWithPrice => _localRepo.productsWithPrice;
-  int get productsWithoutPrice => _localRepo.productsWithoutPrice;
-
-  /// ניקוי
+  /// מנקה את כל המוצרים מה-cache המקומי
+  /// 
+  /// Warning: פעולה בלתי הפיכה! צריך לקרוא ל-initialize() אחר כך
+  /// 
+  /// Example:
+  /// ```dart
+  /// await repo.clearAll();
+  /// await repo.initialize(); // טעינה מחדש
+  /// ```
   Future<void> clearAll() async {
     await _localRepo.clearAll();
+    _isInitialized = false;
   }
+
+  // === Statistics Getters ===
+
+  /// סך כל המוצרים במערכת
+  int get totalProducts => _localRepo.totalProducts;
+
+  /// מספר מוצרים עם מחיר
+  int get productsWithPrice => _localRepo.productsWithPrice;
+
+  /// מספר מוצרים ללא מחיר
+  int get productsWithoutPrice => _localRepo.productsWithoutPrice;
 }

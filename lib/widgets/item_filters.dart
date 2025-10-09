@@ -1,4 +1,6 @@
 // 📄 File: lib/widgets/item_filters.dart
+// ignore_for_file: deprecated_member_use
+
 // תיאור: ווידג'ט סינון פריטים לפי קטגוריה וסטטוס
 //
 // תכונות:

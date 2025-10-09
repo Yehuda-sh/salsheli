@@ -1,4 +1,6 @@
 // 📄 File: lib/widgets/pantry_filters.dart
+// ignore_for_file: deprecated_member_use
+
 //
 // 🎯 Purpose: ווידג'ט סינון למסך המזווה - קטגוריה בלבד
 //

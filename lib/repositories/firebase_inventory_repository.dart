@@ -21,13 +21,51 @@ import 'inventory_repository.dart';
 
 class FirebaseInventoryRepository implements InventoryRepository {
   final FirebaseFirestore _firestore;
-  final String _collectionName = 'inventory';
+  static const String _collectionName = 'inventory';
 
+  /// יוצר instance חדש של FirebaseInventoryRepository
+  /// 
+  /// Parameters:
+  ///   - [firestore]: instance של FirebaseFirestore (אופציונלי, ברירת מחדל: instance ראשי)
+  /// 
+  /// Example:
+  /// ```dart
+  /// // שימוש רגיל
+  /// final repo = FirebaseInventoryRepository();
+  /// 
+  /// // עם FirebaseFirestore מותאם
+  /// final repo = FirebaseInventoryRepository(
+  ///   firestore: FirebaseFirestore.instanceFor(app: myApp),
+  /// );
+  /// ```
   FirebaseInventoryRepository({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
   // === Fetch Items ===
 
+  /// טוען את כל פריטי המלאי של משק בית
+  /// 
+  /// מבצע query ב-Firestore עם household_id ומסדר לפי שם המוצר.
+  /// השימוש הוא דרך InventoryProvider שמנהל את המלאי.
+  /// 
+  /// Parameters:
+  ///   - [householdId]: מזהה המשק בית (למשל: 'house_demo')
+  /// 
+  /// Returns:
+  ///   - List של InventoryItem ממוין לפי product_name
+  /// 
+  /// Throws:
+  ///   - [InventoryRepositoryException] במקרה של שגיאת Firestore
+  /// 
+  /// Example:
+  /// ```dart
+  /// try {
+  ///   final items = await repo.fetchItems('house_demo');
+  ///   print('נטענו ${items.length} פריטים במלאי');
+  /// } catch (e) {
+  ///   print('שגיאה בטעינת מלאי: $e');
+  /// }
+  /// ```
   @override
   Future<List<InventoryItem>> fetchItems(String householdId) async {
     try {
@@ -55,6 +93,33 @@ class FirebaseInventoryRepository implements InventoryRepository {
 
   // === Save Item ===
 
+  /// שומר או מעדכן פריט במלאי
+  /// 
+  /// מוסיף את household_id לנתונים ושומר ב-Firestore עם merge.
+  /// אם הפריט קיים, מעדכן רק את השדות שהשתנו.
+  /// 
+  /// Parameters:
+  ///   - [item]: הפריט לשמירה
+  ///   - [householdId]: מזהה המשק בית שהפריט שייך אליו
+  /// 
+  /// Returns:
+  ///   - את אותו InventoryItem שנשמר
+  /// 
+  /// Throws:
+  ///   - [InventoryRepositoryException] במקרה של שגיאת שמירה
+  /// 
+  /// Example:
+  /// ```dart
+  /// final item = InventoryItem(
+  ///   id: 'item_123',
+  ///   productName: 'חלב',
+  ///   quantity: 2,
+  ///   location: 'refrigerator',
+  /// );
+  /// 
+  /// final saved = await repo.saveItem(item, 'house_demo');
+  /// print('פריט נשמר: ${saved.productName}');
+  /// ```
   @override
   Future<InventoryItem> saveItem(InventoryItem item, String householdId) async {
     try {
@@ -80,6 +145,27 @@ class FirebaseInventoryRepository implements InventoryRepository {
 
   // === Delete Item ===
 
+  /// מוחק פריט מהמלאי
+  /// 
+  /// מבצע בדיקת אבטחה - מוודא שהפריט שייך ל-household לפני מחיקה.
+  /// אם הפריט לא קיים או לא שייך ל-household, לא מבצע מחיקה.
+  /// 
+  /// Parameters:
+  ///   - [id]: מזהה הפריט למחיקה
+  ///   - [householdId]: מזהה המשק בית (לאימות בעלות)
+  /// 
+  /// Throws:
+  ///   - [InventoryRepositoryException] אם הפריט לא שייך ל-household או שגיאה במחיקה
+  /// 
+  /// Example:
+  /// ```dart
+  /// try {
+  ///   await repo.deleteItem('item_123', 'house_demo');
+  ///   print('פריט נמחק בהצלחה');
+  /// } catch (e) {
+  ///   print('שגיאה במחיקה: $e');
+  /// }
+  /// ```
   @override
   Future<void> deleteItem(String id, String householdId) async {
     try {

@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 // 📄 File: lib/screens/home/home_screen.dart
 //
 // 🇮🇱 **מסך הבית הראשי** - Navigation Shell

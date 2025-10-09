@@ -1,4 +1,6 @@
 // 📄 File: lib/widgets/add_item_dialog.dart
+// ignore_for_file: deprecated_member_use
+
 /// Dialog for adding new inventory items to pantry
 /// 
 /// Features:
@@ -26,6 +28,8 @@
 /// - Material 3 design
 /// 
 /// Version: 2.0
+
+library;
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';

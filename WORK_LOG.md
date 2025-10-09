@@ -6,6 +6,39 @@
 
 ---
 
+## 📅 09/10/2025 - Receipts Screens: Code Quality (2 קבצים)
+
+### 🎯 משימה
+רפקטור מלא של 2 מסכי קבלות - Error State + 53 hardcoded values + Logging
+
+### ✅ מה הושלם
+
+**receipt_manager_screen.dart (155→281, +126)**
+- Error State + retry (53 שורות)
+- 18 hardcoded values → constants
+- 11 logging points
+
+**receipt_view_screen.dart (231→296, +65)**
+- 35 hardcoded values → constants
+- 7 colors → Theme-based
+- 5 logging points
+
+### 📊 סטטיסטיקה
+
+**קבצים:** 2 | **שורות:** +191 | **ציון:** 75,70→100,100 ✅
+
+### 💡 לקח
+
+**UI Constants = עקביות**
+
+החלפת 53 hardcoded values ב-constants → שינוי אחד משנה את כל האפליקציה.
+
+### 🔗 קישורים
+- lib/screens/receipts/ - 2 מסכים
+- lib/core/ui_constants.dart
+
+---
+
 ## 📅 09/10/2025 - IndexScreen Architecture: Single Source of Truth + Race Condition Fix
 
 ### 🎯 משימה
@@ -439,6 +472,47 @@ isValid(String?)             // בדיקת תקינות
 ---
 
 ## 🗓️ רשומות (מהחדש לישן)
+
+---
+
+## 📅 09/10/2025 - Shopping Screens: Code Quality + Empty States (2 קבצים)
+
+### 🎯 משימה
+רפקטור מלא של 2 מסכים - 40+ hardcoded values + Empty State + Logging מלא
+
+### ✅ מה הושלם
+
+**1. settings_screen.dart (5 תיקונים)**
+- overflow protection (userName, userEmail)
+- maxLength (householdName: 30, storeInput: 25)
+- touch target (editProfile button: 48x48)
+
+**2. active_shopping_screen.dart (תיקון מקיף)**
+- Empty State מלא (45 שורות חדשות)
+- 35+ hardcoded values → constants
+- Logging מלא (10 נקודות)
+- overflow protection (5 מקומות)
+- touch targets (_ActionButton: minHeight 48)
+- theme-aware colors (3 החלפות)
+
+### 📊 סטטיסטיקה
+
+**קבצים:** 2 | **שורות:** +140 | **ציון:** 95,75→100,100 ✅
+
+### 💡 לקח
+
+**35+ Hardcoded Values = בעיה גדולה**
+
+החלפת כל ה-values ב-constants → עקביות + maintainability.
+
+**Empty State = UX חיוני**
+
+בדיקת רשימה ריקה מונעת UI שבור + משפרת חוויה.
+
+### 🔗 קישורים
+- lib/screens/settings/settings_screen.dart
+- lib/screens/shopping/active_shopping_screen.dart
+- lib/core/ui_constants.dart
 
 ---
 

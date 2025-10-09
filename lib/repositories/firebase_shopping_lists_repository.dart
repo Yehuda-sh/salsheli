@@ -1,4 +1,4 @@
-// 📄 File: lib/repositories/firebase_shopping_list_repository.dart
+// 📄 File: lib/repositories/firebase_shopping_lists_repository.dart
 //
 // 🇮🇱 Repository לרשימות קניות עם Firestore:
 //     - שמירת רשימות ב-Firestore
@@ -7,26 +7,27 @@
 //     - מחיקת רשימות
 //     - Real-time updates
 //
-// 🇬🇧 Shopping List repository with Firestore:
+// 🇬🇧 Shopping Lists repository with Firestore:
 //     - Save shopping lists to Firestore
 //     - Load shopping lists by householdId
 //     - Update shopping lists
 //     - Delete shopping lists
 //     - Real-time updates
 //
-// 📝 Version: 1.0
-// 📅 Created: 06/10/2025
+// 📝 Version: 2.0 - Naming consistency (FirebaseShoppingListsRepository)
+// 📅 Last Updated: 09/10/2025
+//
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../models/shopping_list.dart';
 import 'shopping_lists_repository.dart';
 
-class FirebaseShoppingListRepository implements ShoppingListsRepository {
+class FirebaseShoppingListsRepository implements ShoppingListsRepository {
   final FirebaseFirestore _firestore;
   final String _collectionName = 'shopping_lists';
 
-  FirebaseShoppingListRepository({FirebaseFirestore? firestore})
+  FirebaseShoppingListsRepository({FirebaseFirestore? firestore})
     : _firestore = firestore ?? FirebaseFirestore.instance;
 
   // === Fetch Shopping Lists ===
@@ -35,7 +36,7 @@ class FirebaseShoppingListRepository implements ShoppingListsRepository {
   Future<List<ShoppingList>> fetchLists(String householdId) async {
     try {
       debugPrint(
-        '📥 FirebaseShoppingListRepository.fetchLists: טוען רשימות ל-$householdId',
+        '📥 FirebaseShoppingListsRepository.fetchLists: טוען רשימות ל-$householdId',
       );
 
       final snapshot = await _firestore
@@ -50,11 +51,11 @@ class FirebaseShoppingListRepository implements ShoppingListsRepository {
       }).toList();
 
       debugPrint(
-        '✅ FirebaseShoppingListRepository.fetchLists: נטענו ${lists.length} רשימות',
+        '✅ FirebaseShoppingListsRepository.fetchLists: נטענו ${lists.length} רשימות',
       );
       return lists;
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseShoppingListRepository.fetchLists: שגיאה - $e');
+      debugPrint('❌ FirebaseShoppingListsRepository.fetchLists: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw ShoppingListRepositoryException(
         'Failed to fetch shopping lists for $householdId',
@@ -69,7 +70,7 @@ class FirebaseShoppingListRepository implements ShoppingListsRepository {
   Future<ShoppingList> saveList(ShoppingList list, String householdId) async {
     try {
       debugPrint(
-        '💾 FirebaseShoppingListRepository.saveList: שומר רשימה ${list.id} (${list.name})',
+        '💾 FirebaseShoppingListsRepository.saveList: שומר רשימה ${list.id} (${list.name})',
       );
 
       // המרת המודל ל-JSON
@@ -83,10 +84,10 @@ class FirebaseShoppingListRepository implements ShoppingListsRepository {
           .doc(list.id)
           .set(data, SetOptions(merge: true));
 
-      debugPrint('✅ FirebaseShoppingListRepository.saveList: רשימה נשמרה');
+      debugPrint('✅ FirebaseShoppingListsRepository.saveList: רשימה נשמרה');
       return list;
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseShoppingListRepository.saveList: שגיאה - $e');
+      debugPrint('❌ FirebaseShoppingListsRepository.saveList: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw ShoppingListRepositoryException(
         'Failed to save shopping list ${list.id}',
@@ -101,7 +102,7 @@ class FirebaseShoppingListRepository implements ShoppingListsRepository {
   Future<void> deleteList(String id, String householdId) async {
     try {
       debugPrint(
-        '🗑️ FirebaseShoppingListRepository.deleteList: מוחק רשימה $id',
+        '🗑️ FirebaseShoppingListsRepository.deleteList: מוחק רשימה $id',
       );
 
       // וידוא שהרשימה שייכת ל-household
@@ -123,9 +124,9 @@ class FirebaseShoppingListRepository implements ShoppingListsRepository {
 
       await _firestore.collection(_collectionName).doc(id).delete();
 
-      debugPrint('✅ FirebaseShoppingListRepository.deleteList: רשימה נמחקה');
+      debugPrint('✅ FirebaseShoppingListsRepository.deleteList: רשימה נמחקה');
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseShoppingListRepository.deleteList: שגיאה - $e');
+      debugPrint('❌ FirebaseShoppingListsRepository.deleteList: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw ShoppingListRepositoryException(
         'Failed to delete shopping list $id',
@@ -167,7 +168,7 @@ class FirebaseShoppingListRepository implements ShoppingListsRepository {
   Future<ShoppingList?> getListById(String listId, String householdId) async {
     try {
       debugPrint(
-        '🔍 FirebaseShoppingListRepository.getListById: מחפש רשימה $listId',
+        '🔍 FirebaseShoppingListsRepository.getListById: מחפש רשימה $listId',
       );
 
       final doc = await _firestore
@@ -193,7 +194,7 @@ class FirebaseShoppingListRepository implements ShoppingListsRepository {
 
       return list;
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseShoppingListRepository.getListById: שגיאה - $e');
+      debugPrint('❌ FirebaseShoppingListsRepository.getListById: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw ShoppingListRepositoryException(
         'Failed to get shopping list by id',
@@ -214,7 +215,7 @@ class FirebaseShoppingListRepository implements ShoppingListsRepository {
   ) async {
     try {
       debugPrint(
-        '📋 FirebaseShoppingListRepository.getListsByStatus: מחפש רשימות עם סטטוס $status',
+        '📋 FirebaseShoppingListsRepository.getListsByStatus: מחפש רשימות עם סטטוס $status',
       );
 
       final snapshot = await _firestore
@@ -233,7 +234,7 @@ class FirebaseShoppingListRepository implements ShoppingListsRepository {
       return lists;
     } catch (e, stackTrace) {
       debugPrint(
-        '❌ FirebaseShoppingListRepository.getListsByStatus: שגיאה - $e',
+        '❌ FirebaseShoppingListsRepository.getListsByStatus: שגיאה - $e',
       );
       debugPrintStack(stackTrace: stackTrace);
       throw ShoppingListRepositoryException(
@@ -255,7 +256,7 @@ class FirebaseShoppingListRepository implements ShoppingListsRepository {
   ) async {
     try {
       debugPrint(
-        '🛒 FirebaseShoppingListRepository.getListsByType: מחפש רשימות מסוג $type',
+        '🛒 FirebaseShoppingListsRepository.getListsByType: מחפש רשימות מסוג $type',
       );
 
       final snapshot = await _firestore
@@ -273,7 +274,7 @@ class FirebaseShoppingListRepository implements ShoppingListsRepository {
       debugPrint('✅ נמצאו ${lists.length} רשימות');
       return lists;
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseShoppingListRepository.getListsByType: שגיאה - $e');
+      debugPrint('❌ FirebaseShoppingListsRepository.getListsByType: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw ShoppingListRepositoryException(
         'Failed to get shopping lists by type',

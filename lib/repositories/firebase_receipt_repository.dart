@@ -13,18 +13,37 @@
 //     - Update receipts
 //     - Delete receipts
 //     - Real-time updates
+//
+// Version: 2.0 - Helper method + Constants
+// Last Updated: 09/10/2025
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+
 import '../models/receipt.dart';
+import '../core/constants.dart';
 import 'receipt_repository.dart';
 
 class FirebaseReceiptRepository implements ReceiptRepository {
   final FirebaseFirestore _firestore;
-  final String _collectionName = 'receipts';
 
   FirebaseReceiptRepository({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
+
+  // === Private Helpers ===
+
+  /// המרת Firestore Timestamps ל-ISO 8601 strings
+  /// 
+  /// Firestore מחזיר Timestamp objects, אבל המודלים שלנו מצפים ל-DateTime strings
+  Map<String, dynamic> _convertTimestamps(Map<String, dynamic> data) {
+    if (data['date'] is Timestamp) {
+      data['date'] = (data['date'] as Timestamp).toDate().toIso8601String();
+    }
+    if (data['created_date'] is Timestamp) {
+      data['created_date'] = (data['created_date'] as Timestamp).toDate().toIso8601String();
+    }
+    return data;
+  }
 
   // === Fetch Receipts ===
 
@@ -34,22 +53,13 @@ class FirebaseReceiptRepository implements ReceiptRepository {
       debugPrint('📥 FirebaseReceiptRepository.fetchReceipts: טוען קבלות ל-$householdId');
 
       final snapshot = await _firestore
-          .collection(_collectionName)
+          .collection(FirestoreCollections.receipts)
           .where('household_id', isEqualTo: householdId)
           .orderBy('date', descending: true)
           .get();
 
       final receipts = snapshot.docs.map((doc) {
-        // המרת Timestamps ל-Strings לפני fromJson
-        final data = Map<String, dynamic>.from(doc.data());
-        
-        if (data['date'] is Timestamp) {
-          data['date'] = (data['date'] as Timestamp).toDate().toIso8601String();
-        }
-        if (data['created_date'] is Timestamp) {
-          data['created_date'] = (data['created_date'] as Timestamp).toDate().toIso8601String();
-        }
-        
+        final data = _convertTimestamps(Map<String, dynamic>.from(doc.data()));
         return Receipt.fromJson(data);
       }).toList();
 
@@ -74,7 +84,7 @@ class FirebaseReceiptRepository implements ReceiptRepository {
       data['household_id'] = householdId;
 
       await _firestore
-          .collection(_collectionName)
+          .collection(FirestoreCollections.receipts)
           .doc(receipt.id)
           .set(data, SetOptions(merge: true));
 
@@ -95,7 +105,10 @@ class FirebaseReceiptRepository implements ReceiptRepository {
       debugPrint('🗑️ FirebaseReceiptRepository.deleteReceipt: מוחק קבלה $id');
 
       // וידוא שהקבלה שייכת ל-household
-      final doc = await _firestore.collection(_collectionName).doc(id).get();
+      final doc = await _firestore
+          .collection(FirestoreCollections.receipts)
+          .doc(id)
+          .get();
       
       if (!doc.exists) {
         debugPrint('⚠️ קבלה לא קיימת');
@@ -108,7 +121,10 @@ class FirebaseReceiptRepository implements ReceiptRepository {
         throw ReceiptRepositoryException('Receipt does not belong to household', null);
       }
 
-      await _firestore.collection(_collectionName).doc(id).delete();
+      await _firestore
+          .collection(FirestoreCollections.receipts)
+          .doc(id)
+          .delete();
 
       debugPrint('✅ FirebaseReceiptRepository.deleteReceipt: קבלה נמחקה');
     } catch (e, stackTrace) {
@@ -130,22 +146,13 @@ class FirebaseReceiptRepository implements ReceiptRepository {
   /// ```
   Stream<List<Receipt>> watchReceipts(String householdId) {
     return _firestore
-        .collection(_collectionName)
+        .collection(FirestoreCollections.receipts)
         .where('household_id', isEqualTo: householdId)
         .orderBy('date', descending: true)
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
-        // המרת Timestamps ל-Strings
-        final data = Map<String, dynamic>.from(doc.data());
-        
-        if (data['date'] is Timestamp) {
-          data['date'] = (data['date'] as Timestamp).toDate().toIso8601String();
-        }
-        if (data['created_date'] is Timestamp) {
-          data['created_date'] = (data['created_date'] as Timestamp).toDate().toIso8601String();
-        }
-        
+        final data = _convertTimestamps(Map<String, dynamic>.from(doc.data()));
         return Receipt.fromJson(data);
       }).toList();
     });
@@ -161,7 +168,10 @@ class FirebaseReceiptRepository implements ReceiptRepository {
     try {
       debugPrint('🔍 FirebaseReceiptRepository.getReceiptById: מחפש קבלה $receiptId');
 
-      final doc = await _firestore.collection(_collectionName).doc(receiptId).get();
+      final doc = await _firestore
+          .collection(FirestoreCollections.receipts)
+          .doc(receiptId)
+          .get();
 
       if (!doc.exists) {
         debugPrint('⚠️ קבלה לא נמצאה');
@@ -176,15 +186,8 @@ class FirebaseReceiptRepository implements ReceiptRepository {
         return null;
       }
 
-      // המרת Timestamps ל-Strings
-      if (data['date'] is Timestamp) {
-        data['date'] = (data['date'] as Timestamp).toDate().toIso8601String();
-      }
-      if (data['created_date'] is Timestamp) {
-        data['created_date'] = (data['created_date'] as Timestamp).toDate().toIso8601String();
-      }
-
-      final receipt = Receipt.fromJson(data);
+      final convertedData = _convertTimestamps(data);
+      final receipt = Receipt.fromJson(convertedData);
       debugPrint('✅ קבלה נמצאה');
       
       return receipt;
@@ -206,22 +209,14 @@ class FirebaseReceiptRepository implements ReceiptRepository {
       debugPrint('🏪 FirebaseReceiptRepository.getReceiptsByStore: מחפש קבלות מ-$storeName');
 
       final snapshot = await _firestore
-          .collection(_collectionName)
+          .collection(FirestoreCollections.receipts)
           .where('household_id', isEqualTo: householdId)
           .where('store_name', isEqualTo: storeName)
           .orderBy('date', descending: true)
           .get();
 
       final receipts = snapshot.docs.map((doc) {
-        final data = Map<String, dynamic>.from(doc.data());
-        
-        if (data['date'] is Timestamp) {
-          data['date'] = (data['date'] as Timestamp).toDate().toIso8601String();
-        }
-        if (data['created_date'] is Timestamp) {
-          data['created_date'] = (data['created_date'] as Timestamp).toDate().toIso8601String();
-        }
-        
+        final data = _convertTimestamps(Map<String, dynamic>.from(doc.data()));
         return Receipt.fromJson(data);
       }).toList();
 
@@ -253,7 +248,7 @@ class FirebaseReceiptRepository implements ReceiptRepository {
       debugPrint('📅 FirebaseReceiptRepository.getReceiptsByDateRange: מחפש קבלות');
 
       final snapshot = await _firestore
-          .collection(_collectionName)
+          .collection(FirestoreCollections.receipts)
           .where('household_id', isEqualTo: householdId)
           .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
           .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endDate))
@@ -261,15 +256,7 @@ class FirebaseReceiptRepository implements ReceiptRepository {
           .get();
 
       final receipts = snapshot.docs.map((doc) {
-        final data = Map<String, dynamic>.from(doc.data());
-        
-        if (data['date'] is Timestamp) {
-          data['date'] = (data['date'] as Timestamp).toDate().toIso8601String();
-        }
-        if (data['created_date'] is Timestamp) {
-          data['created_date'] = (data['created_date'] as Timestamp).toDate().toIso8601String();
-        }
-        
+        final data = _convertTimestamps(Map<String, dynamic>.from(doc.data()));
         return Receipt.fromJson(data);
       }).toList();
 

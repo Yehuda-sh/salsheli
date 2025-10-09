@@ -224,6 +224,19 @@ const double kSnackBarBottomMargin = 80.0;
 const double kSnackBarHorizontalMargin = 16.0;
 
 // ========================================
+// Elevation (גובה צל)
+// ========================================
+
+/// Elevation רגיל לכרטיסים
+const double kCardElevation = 2.0;
+
+/// Elevation נמוך (כמעט שטוח)
+const double kCardElevationLow = 1.0;
+
+/// Elevation גבוה (בולט)
+const double kCardElevationHigh = 4.0;
+
+// ========================================
 // Receipt Parsing
 // ========================================
 

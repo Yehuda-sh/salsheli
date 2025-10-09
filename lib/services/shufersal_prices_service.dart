@@ -1,4 +1,7 @@
+// ignore_for_file: curly_braces_in_flow_control_structures
+
 // 📄 File: lib/services/shufersal_prices_service.dart
+
 // 📋 Description: הורדת מחירים משופרסל (API פומבי)
 // 🎯 Purpose: הורדה + פענוח XML/GZ + המרה למוצרים
 // 📱 Mobile Only

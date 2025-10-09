@@ -142,14 +142,14 @@ class ListTypeSelectorGrouped extends StatelessWidget {
 /// דוגמה 1: בדיקה אם type הוא אירוע
 void example1(String listType) {
   if (ListTypeGroups.isEvent(listType)) {
-    print('זוהי רשימת אירוע - הצג אפשרויות מיוחדות');
+    debugPrint('זוהי רשימת אירוע - הצג אפשרויות מיוחדות');
   }
 }
 
 /// דוגמה 2: קבלת כל הסוגים בקבוצה
 void example2() {
   final eventTypes = ListTypeGroups.getTypesInGroup(ListTypeGroup.events);
-  print('סוגי אירועים: $eventTypes');
+  debugPrint('סוגי אירועים: $eventTypes');
   // → [birthday, party, wedding, picnic, holiday, gifts]
 }
 
@@ -157,5 +157,5 @@ void example2() {
 void example3(String listType) {
   final group = ListTypeGroups.getGroup(listType);
   final groupName = ListTypeGroups.getGroupName(group);
-  print('$listType שייך לקבוצה: $groupName');
+  debugPrint('$listType שייך לקבוצה: $groupName');
 }

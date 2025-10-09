@@ -21,10 +21,12 @@
 /// 4. הצגה עם סימון "הכי זול" + חיסכון
 ///
 /// 🔄 State Management:
-/// - Consumer<ProductsProvider> לקריאת נתונים
-/// - context.read<ProductsProvider>() לפעולות
+/// - Consumer with ProductsProvider לקריאת נתונים
+/// - context.read with ProductsProvider() לפעולות
 ///
 /// Version: 2.0 (עם ProductsProvider + AppStrings + Logging)
+
+library;
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -122,10 +124,12 @@ class _PriceComparisonScreenState extends State<PriceComparisonScreen> {
         _errorMessage = e.toString();
       });
     } finally {
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-      });
+      // שמירת מצב isLoading אם עדיין mounted
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 

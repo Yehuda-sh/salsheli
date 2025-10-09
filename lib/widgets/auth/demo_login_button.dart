@@ -125,7 +125,9 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
             final user = entry.value;
             return RadioListTile<String>(
               value: entry.key,
+              // ignore: deprecated_member_use
               groupValue: _selectedUser,
+              // ignore: deprecated_member_use
               onChanged: (value) {
                 if (value != null) {
                   Navigator.pop(context, value);

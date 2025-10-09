@@ -184,12 +184,33 @@ class HabitsProvider with ChangeNotifier {
     }
   }
 
-  /// 🗑️ מחיקת הרגל
+  /// מוחק הרגל קנייה
+  /// 
+  /// מוודא שיש household_id לפני המחיקה, מבצע מחיקה ב-Firestore,
+  /// ומעדכן את המצב המקומי.
+  /// 
+  /// Parameters:
+  ///   - [habitId]: מזהה ההרגל למחיקה
+  /// 
+  /// Throws:
+  ///   - Exception אם אין household_id
+  ///   - HabitsRepositoryException אם המחיקה נכשלת
+  /// 
+  /// Example:
+  /// ```dart
+  /// await habitsProvider.deleteHabit('habit_123');
+  /// ```
   Future<void> deleteHabit(String habitId) async {
+    final householdId = _userContext?.householdId;
+    if (householdId == null) {
+      debugPrint('🧠 HabitsProvider.deleteHabit: אין household_id');
+      throw Exception('נדרש household_id');
+    }
+
     debugPrint('🧠 HabitsProvider.deleteHabit: $habitId');
 
     try {
-      await _repository.deleteHabit(habitId);
+      await _repository.deleteHabit(habitId, householdId);
       _habits.removeWhere((h) => h.id == habitId);
       debugPrint('   ✅ הרגל נמחק');
       notifyListeners();

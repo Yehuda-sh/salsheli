@@ -167,6 +167,35 @@ const Map<String, Map<String, String>> kListTypes = {
 };
 
 // ========================================
+// Firestore Collections
+// ========================================
+
+/// שמות Collections ב-Firestore
+/// 
+/// 🎯 שימוש: שמירה על consistency בשמות הקולקציות
+/// 📝 הערה: משמש בכל ה-Repositories
+/// 
+/// **דוגמה:**
+/// ```dart
+/// // ✅ טוב - constant
+/// _firestore.collection(FirestoreCollections.receipts)
+/// 
+/// // ❌ רע - hardcoded string
+/// _firestore.collection('receipts')
+/// ```
+class FirestoreCollections {
+  // מניעת יצירת instances
+  const FirestoreCollections._();
+
+  static const String receipts = 'receipts';
+  static const String users = 'users';
+  static const String shoppingLists = 'shopping_lists';
+  static const String inventory = 'inventory';
+  static const String products = 'products';
+  static const String habits = 'habits';
+}
+
+// ========================================
 // Onboarding - גבולות ערכים
 // ========================================
 
