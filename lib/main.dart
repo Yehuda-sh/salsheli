@@ -24,6 +24,7 @@ import 'providers/products_provider.dart';
 import 'providers/suggestions_provider.dart';
 import 'providers/locations_provider.dart';
 import 'providers/habits_provider.dart';
+import 'providers/templates_provider.dart';
 
 // Repositories
 
@@ -36,6 +37,7 @@ import 'repositories/local_products_repository.dart';
 import 'repositories/firebase_products_repository.dart';  // 🔥 Firebase!
 import 'repositories/hybrid_products_repository.dart';
 import 'repositories/firebase_habits_repository.dart';  // 🔥 Firebase Habits!
+import 'repositories/firebase_templates_repository.dart';  // 🔥 Firebase Templates!
 
 // Services
 import 'services/auth_service.dart';  // 🔐 Firebase Auth!
@@ -294,6 +296,29 @@ void main() async {
                 previous ??
                 HabitsProvider(
                   FirebaseHabitsRepository(),  // 🔥 Firebase!
+                );
+            provider.updateUserContext(userContext);
+            return provider;
+          },
+        ),
+
+        // === Templates Provider === 📋 Firebase!
+        ChangeNotifierProxyProvider<UserContext, TemplatesProvider>(
+          create: (context) {
+            debugPrint('📋 main.dart: יוצר TemplatesProvider עם Firebase');
+            final provider = TemplatesProvider(
+              repository: FirebaseTemplatesRepository(),  // 🔥 Firebase!
+            );
+            final userContext = context.read<UserContext>();
+            provider.updateUserContext(userContext);
+            return provider;
+          },
+          update: (context, userContext, previous) {
+            debugPrint('🔄 main.dart: מעדכן TemplatesProvider');
+            final provider =
+                previous ??
+                TemplatesProvider(
+                  repository: FirebaseTemplatesRepository(),  // 🔥 Firebase!
                 );
             provider.updateUserContext(userContext);
             return provider;

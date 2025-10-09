@@ -91,9 +91,30 @@ class ShoppingList {
   @JsonKey(name: 'event_date')
   final DateTime? eventDate;
 
+  /// 🇮🇱 תאריך יעד לסיום הקניות (אופציונלי) - דד-ליין
+  /// 🇬🇧 Target date for completing the shopping (optional) - deadline
+  @TimestampConverter()
+  @JsonKey(name: 'target_date')
+  final DateTime? targetDate;
+
   /// 🇮🇱 פריטי הקניות ברשימה
   /// 🇬🇧 Shopping items in the list
   final List<ReceiptItem> items;
+
+  /// 🆕 מזהה התבנית ממנה נוצרה הרשימה (null אם ידנית)
+  /// 🇬🇧 Template ID from which the list was created (null if manual)
+  @JsonKey(name: 'template_id')
+  final String? templateId;
+
+  /// 🆕 פורמט הרשימה: "shared" | "assigned" | "personal"
+  /// 🇬🇧 List format: "shared" | "assigned" | "personal"
+  @JsonKey(defaultValue: 'shared')
+  final String format;
+
+  /// 🆕 האם נוצרה מתבנית
+  /// 🇬🇧 Whether the list was created from a template
+  @JsonKey(name: 'created_from_template', defaultValue: false)
+  final bool createdFromTemplate;
 
   // ---- Status constants ----
   static const String statusActive = 'active';
@@ -111,14 +132,18 @@ class ShoppingList {
     required this.name,
     required this.updatedDate,
     DateTime? createdDate,
-    this.status = statusActive,
-    this.type = typeSuper,
+    required this.status,
+    required this.type,
     this.budget,
     this.eventDate,
-    this.isShared = false,
+    this.targetDate,
+    required this.isShared,
     required this.createdBy,
-    List<String> sharedWith = const [],
-    List<ReceiptItem> items = const [],
+    required List<String> sharedWith,
+    required List<ReceiptItem> items,
+    this.templateId,
+    required this.format,
+    required this.createdFromTemplate,
   })  : createdDate = createdDate ?? updatedDate,
         sharedWith = List<String>.unmodifiable(sharedWith),
         items = List<ReceiptItem>.unmodifiable(items);
@@ -134,9 +159,13 @@ class ShoppingList {
     String type = typeSuper,
     double? budget,
     DateTime? eventDate,
+    DateTime? targetDate,
     bool isShared = false,
     List<String> sharedWith = const [],
     List<ReceiptItem> items = const [],
+    String? templateId,
+    String format = 'shared',
+    bool createdFromTemplate = false,
     DateTime? now,
   }) {
     final timestamp = now ?? DateTime.now();
@@ -147,9 +176,51 @@ class ShoppingList {
       type: type,
       budget: budget,
       eventDate: eventDate,
+      targetDate: targetDate,
       isShared: isShared,
       sharedWith: List<String>.unmodifiable(sharedWith),
       items: List<ReceiptItem>.unmodifiable(items),
+      templateId: templateId,
+      format: format,
+      createdFromTemplate: createdFromTemplate,
+      updatedDate: timestamp,
+      createdDate: timestamp,
+      status: statusActive,
+    );
+  }
+
+  /// 🇮🇱 יצירת רשימה מתבנית
+  /// 🇬🇧 Create a list from a template
+  factory ShoppingList.fromTemplate({
+    required String id,
+    required String templateId,
+    required String name,
+    required String createdBy,
+    required String type,
+    required String format,
+    required List<ReceiptItem> items,
+    double? budget,
+    DateTime? eventDate,
+    DateTime? targetDate,
+    bool isShared = false,
+    List<String> sharedWith = const [],
+    DateTime? now,
+  }) {
+    final timestamp = now ?? DateTime.now();
+    return ShoppingList(
+      id: id,
+      name: name,
+      createdBy: createdBy,
+      type: type,
+      format: format,
+      budget: budget,
+      eventDate: eventDate,
+      targetDate: targetDate,
+      isShared: isShared,
+      sharedWith: List<String>.unmodifiable(sharedWith),
+      items: List<ReceiptItem>.unmodifiable(items),
+      templateId: templateId,
+      createdFromTemplate: true,
       updatedDate: timestamp,
       createdDate: timestamp,
       status: statusActive,
@@ -169,10 +240,14 @@ class ShoppingList {
     String? type,
     double? budget,
     DateTime? eventDate,
+    DateTime? targetDate,
     bool? isShared,
     String? createdBy,
     List<String>? sharedWith,
     List<ReceiptItem>? items,
+    String? templateId,
+    String? format,
+    bool? createdFromTemplate,
   }) {
     return ShoppingList(
       id: id ?? this.id,
@@ -183,10 +258,14 @@ class ShoppingList {
       type: type ?? this.type,
       budget: budget ?? this.budget,
       eventDate: eventDate ?? this.eventDate,
+      targetDate: targetDate ?? this.targetDate,
       isShared: isShared ?? this.isShared,
       createdBy: createdBy ?? this.createdBy,
       sharedWith: sharedWith ?? this.sharedWith,
       items: items ?? this.items,
+      templateId: templateId ?? this.templateId,
+      format: format ?? this.format,
+      createdFromTemplate: createdFromTemplate ?? this.createdFromTemplate,
     );
   }
 

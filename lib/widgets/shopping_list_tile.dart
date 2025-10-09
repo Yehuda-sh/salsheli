@@ -30,6 +30,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/shopping_list.dart';
+import '../core/ui_constants.dart';
 
 class ShoppingListTile extends StatelessWidget {
   final ShoppingList list;
@@ -74,6 +75,99 @@ class ShoppingListTile extends StatelessWidget {
     return Tooltip(
       message: tooltip,
       child: Icon(iconData, color: color),
+    );
+  }
+
+  /// 🇮🇱 חישוב דחיפות לפי תאריך יעד
+  /// 🇬🇧 Calculate urgency based on target date
+  Map<String, dynamic>? _getUrgencyData() {
+    if (list.targetDate == null) return null;
+
+    final now = DateTime.now();
+    final target = list.targetDate!;
+    
+    // אם התאריך עבר
+    if (target.isBefore(now)) {
+      return {
+        'color': Colors.red.shade700,
+        'text': 'עבר!',
+        'icon': Icons.warning,
+      };
+    }
+
+    final daysLeft = target.difference(now).inDays;
+    
+    if (daysLeft == 0) {
+      // היום!
+      return {
+        'color': Colors.red.shade700,
+        'text': 'היום!',
+        'icon': Icons.access_time,
+      };
+    } else if (daysLeft <= 1) {
+      // מחר
+      return {
+        'color': Colors.orange.shade700,
+        'text': 'מחר',
+        'icon': Icons.access_time,
+      };
+    } else if (daysLeft <= 7) {
+      // בקרוב (1-7 ימים)
+      return {
+        'color': Colors.orange.shade600,
+        'text': 'עוד $daysLeft ימים',
+        'icon': Icons.access_time,
+      };
+    } else {
+      // יש זמן (7+ ימים)
+      return {
+        'color': Colors.green.shade700,
+        'text': 'עוד $daysLeft ימים',
+        'icon': Icons.check_circle_outline,
+      };
+    }
+  }
+
+  /// 🇮🇱 ווידג׳ט תג דחיפות
+  /// 🇬🇧 Urgency tag widget
+  Widget? _buildUrgencyTag(BuildContext context) {
+    final urgencyData = _getUrgencyData();
+    if (urgencyData == null) return null;
+
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: kSpacingSmall,
+        vertical: kSpacingTiny,
+      ),
+      decoration: BoxDecoration(
+        color: (urgencyData['color'] as Color).withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+        border: Border.all(
+          color: urgencyData['color'] as Color,
+          width: kBorderWidth,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            urgencyData['icon'] as IconData,
+            size: kIconSizeSmall,
+            color: urgencyData['color'] as Color,
+          ),
+          const SizedBox(width: kSpacingTiny),
+          Text(
+            urgencyData['text'] as String,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: urgencyData['color'] as Color,
+              fontWeight: FontWeight.bold,
+              fontSize: kFontSizeTiny,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -176,28 +270,35 @@ class ShoppingListTile extends StatelessWidget {
                         ),
                       ),
                     ),
+                    // תג דחיפות
+                    if (_buildUrgencyTag(context) != null) ...[
+                      _buildUrgencyTag(context)!,
+                      const SizedBox(width: kSpacingSmall),
+                    ],
+                    // תג משותפת
                     if (list.isShared)
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
+                          horizontal: kSpacingSmall,
+                          vertical: kSpacingTiny,
                         ),
                         decoration: BoxDecoration(
                           color: theme.colorScheme.secondaryContainer,
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                         ),
                         child: Row(
                           children: [
                             Icon(
                               Icons.group,
-                              size: 16,
+                              size: kIconSizeSmall,
                               color: theme.colorScheme.onSecondaryContainer,
                             ),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: kSpacingTiny),
                             Text(
                               'משותפת',
                               style: TextStyle(
                                 color: theme.colorScheme.onSecondaryContainer,
+                                fontSize: kFontSizeTiny,
                               ),
                             ),
                           ],

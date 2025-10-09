@@ -18,16 +18,20 @@ ShoppingList _$ShoppingListFromJson(Map<String, dynamic> json) => ShoppingList(
       budget: (json['budget'] as num?)?.toDouble(),
       eventDate: _$JsonConverterFromJson<Object, DateTime>(
           json['event_date'], const TimestampConverter().fromJson),
+      targetDate: _$JsonConverterFromJson<Object, DateTime>(
+          json['target_date'], const TimestampConverter().fromJson),
       isShared: json['is_shared'] as bool? ?? false,
       createdBy: json['created_by'] as String,
       sharedWith: (json['shared_with'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           [],
-      items: (json['items'] as List<dynamic>?)
-              ?.map((e) => ReceiptItem.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
+      items: (json['items'] as List<dynamic>)
+          .map((e) => ReceiptItem.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      templateId: json['template_id'] as String?,
+      format: json['format'] as String? ?? 'shared',
+      createdFromTemplate: json['created_from_template'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) =>
@@ -44,7 +48,12 @@ Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) =>
       'shared_with': instance.sharedWith,
       'event_date': _$JsonConverterToJson<Object, DateTime>(
           instance.eventDate, const TimestampConverter().toJson),
+      'target_date': _$JsonConverterToJson<Object, DateTime>(
+          instance.targetDate, const TimestampConverter().toJson),
       'items': instance.items.map((e) => e.toJson()).toList(),
+      'template_id': instance.templateId,
+      'format': instance.format,
+      'created_from_template': instance.createdFromTemplate,
     };
 
 Value? _$JsonConverterFromJson<Json, Value>(

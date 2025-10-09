@@ -193,6 +193,7 @@ class FirestoreCollections {
   static const String inventory = 'inventory';
   static const String products = 'products';
   static const String habits = 'habits';
+  static const String templates = 'templates';  // 🆕 תבניות רשימות
 }
 
 // ========================================
