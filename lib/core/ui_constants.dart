@@ -191,8 +191,21 @@ const double kAvatarRadius = 36.0;
 /// רדיוס Avatar קטן (20px)
 const double kAvatarRadiusSmall = 20.0;
 
+/// רדיוס Avatar זעיר (18px) - לרשימות
+const double kAvatarRadiusTiny = 18.0;
+
 /// רוחב שדה כמות/מספר (80px)
 const double kQuantityFieldWidth = 80.0;
+
+// ========================================
+// Charts & Graphs
+// ========================================
+
+/// רדיוס גרף עוגה (80px)
+const double kPieChartRadius = 80.0;
+
+/// גודל נקודת Legend (12px)
+const double kLegendDotSize = 12.0;
 
 // ========================================
 // Durations (משכי זמן)
@@ -213,6 +226,9 @@ const Duration kAnimationDurationLong = Duration(milliseconds: 500);
 
 /// גובה מינימלי ל-LinearProgressIndicator
 const double kProgressIndicatorHeight = 6.0;
+
+/// שקיפות רקע ל-Progress Indicators (0.18)
+const double kProgressIndicatorBackgroundAlpha = 0.18;
 
 /// מספר מקסימלי של קבלות להצגת התקדמות (100%)
 const int kMaxReceiptsForProgress = 10;

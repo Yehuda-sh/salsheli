@@ -537,18 +537,20 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
   }) async {
     debugPrint('➡️ ניווט לטופס${template != null ? ' עריכה' : ' יצירה'}');
 
-    final result = await Navigator.push<bool>(
-      context,
+    // שמירת references לפני async
+    final navigator = Navigator.of(context);
+    final provider = context.read<TemplatesProvider>();
+
+    final result = await navigator.push<bool>(
       MaterialPageRoute(
         builder: (_) => TemplateFormScreen(template: template),
       ),
     );
 
     // רענון אם נוצר/עודכן
-    if (result == true) {
-      if (!mounted) return;
+    if (result == true && mounted) {
       debugPrint('✅ חזרה מטופס - מרענן רשימה');
-      context.read<TemplatesProvider>().loadTemplates();
+      provider.loadTemplates();
     }
   }
 

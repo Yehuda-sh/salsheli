@@ -277,7 +277,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
               value: (_currentStep + 1) / totalSteps,
-              backgroundColor: cs.surfaceContainerHighest.withValues(alpha: 0.18),
+              backgroundColor: cs.surfaceContainerHighest.withValues(alpha: kProgressIndicatorBackgroundAlpha),
               color: accent,
               minHeight: kSpacingSmall,
             ),

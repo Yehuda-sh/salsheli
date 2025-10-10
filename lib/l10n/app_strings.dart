@@ -375,17 +375,70 @@ class _WelcomeStrings {
 class _AuthStrings {
   const _AuthStrings();
   
+  // ========================================
   // Login Screen
+  // ========================================
+  
   String get loginTitle => 'התחברות';
   String get loginSubtitle => 'ברוך שובך!';
   String get loginButton => 'התחבר';
   
+  // ========================================
   // Register Screen
+  // ========================================
+  
   String get registerTitle => 'הרשמה';
   String get registerSubtitle => 'צור חשבון חדש';
   String get registerButton => 'הירשם';
   
+  // ========================================
+  // Password Reset
+  // ========================================
+  
+  String get forgotPassword => 'שכחת סיסמה?';
+  String get resetPasswordTitle => 'איפוס סיסמה';
+  String get resetPasswordSubtitle => 'נשלח לך קישור לאיפוס הסיסמה למייל';
+  String get sendResetEmailButton => 'שלח קישור';
+  String get backToLogin => 'חזרה להתחברות';
+  String get resetEmailSent => 'מייל לאיפוס סיסמה נשלח בהצלחה!';
+  
+  // ========================================
+  // Email Verification
+  // ========================================
+  
+  String get emailNotVerified => 'האימייל לא אומת';
+  String get verifyEmailMessage => 'נא לאמת את כתובת האימייל שלך';
+  String get sendVerificationEmailButton => 'שלח מייל אימות';
+  String get verificationEmailSent => 'מייל אימות נשלח!';
+  String get checkYourEmail => 'בדוק את תיבת הדואר שלך';
+  
+  // ========================================
+  // Profile Updates
+  // ========================================
+  
+  String get updateProfile => 'עדכון פרופיל';
+  String get updateDisplayName => 'עדכון שם תצוגה';
+  String get displayNameUpdated => 'שם התצוגה עודכן בהצלחה!';
+  String get updateEmail => 'עדכון אימייל';
+  String get emailUpdated => 'האימייל עודכן בהצלחה!';
+  String get updatePassword => 'עדכון סיסמה';
+  String get passwordUpdated => 'הסיסמה עודכנה בהצלחה!';
+  String get newPasswordLabel => 'סיסמה חדשה';
+  String get currentPasswordLabel => 'סיסמה נוכחית';
+  
+  // ========================================
+  // Account Deletion
+  // ========================================
+  
+  String get deleteAccount => 'מחיקת חשבון';
+  String get deleteAccountWarning => 'פעולה זו בלתי הפיכה!';
+  String get deleteAccountConfirm => 'האם אתה בטוח שברצונך למחוק את החשבון?';
+  String get accountDeleted => 'החשבון נמחק בהצלחה';
+  
+  // ========================================
   // Fields
+  // ========================================
+  
   String get emailLabel => 'אימייל';
   String get emailHint => 'example@email.com';
   String get passwordLabel => 'סיסמה';
@@ -395,16 +448,25 @@ class _AuthStrings {
   String get nameLabel => 'שם מלא';
   String get nameHint => 'יוסי כהן';
   
+  // ========================================
   // Links
+  // ========================================
+  
   String get noAccount => 'אין לך חשבון?';
   String get registerNow => 'הירשם עכשיו';
   String get haveAccount => 'יש לך חשבון?';
   String get loginNow => 'התחבר עכשיו';
   
+  // ========================================
   // Divider
+  // ========================================
+  
   String get or => 'או';
   
-  // Validation
+  // ========================================
+  // Validation Errors
+  // ========================================
+  
   String get emailRequired => 'נא להזין אימייל';
   String get emailInvalid => 'אימייל לא תקין';
   String get passwordRequired => 'נא להזין סיסמה';
@@ -414,11 +476,49 @@ class _AuthStrings {
   String get nameRequired => 'נא להזין שם מלא';
   String get nameTooShort => 'שם חייב להכיל לפחות 2 תווים';
   
-  // Messages
+  // ========================================
+  // Firebase Error Messages
+  // ========================================
+  
+  // Sign Up Errors
+  String get errorWeakPassword => 'הסיסמה חלשה מדי';
+  String get errorEmailInUse => 'האימייל כבר בשימוש';
+  String get errorInvalidEmail => 'פורמט אימייל לא תקין';
+  String get errorOperationNotAllowed => 'פעולה לא מורשית';
+  
+  // Sign In Errors
+  String get errorUserNotFound => 'משתמש לא נמצא';
+  String get errorWrongPassword => 'סיסמה שגויה';
+  String get errorUserDisabled => 'המשתמש חסום';
+  String get errorInvalidCredential => 'פרטי התחברות שגויים';
+  String get errorTooManyRequests => 'יותר מדי ניסיונות. נסה שוב מאוחר יותר';
+  
+  // Other Errors
+  String get errorRequiresRecentLogin => 'נדרשת התחברות מחדש לביצוע פעולה זו';
+  String get errorNetworkRequestFailed => 'בעיית רשת. בדוק את החיבור לאינטרנט';
+  String get errorNoUserLoggedIn => 'אין משתמש מחובר';
+  
+  // Generic Errors with Parameters
+  String signUpError(String? message) => 'שגיאה ברישום${message != null ? ": $message" : ""}';
+  String signInError(String? message) => 'שגיאה בהתחברות${message != null ? ": $message" : ""}';
+  String signOutError(String? message) => 'שגיאה בהתנתקות${message != null ? ": $message" : ""}';
+  String resetEmailError(String? message) => 'שגיאה בשליחת מייל${message != null ? ": $message" : ""}';
+  String verificationEmailError(String? message) => 'שגיאה בשליחת מייל אימות${message != null ? ": $message" : ""}';
+  String updateDisplayNameError(String? message) => 'שגיאה בעדכון שם${message != null ? ": $message" : ""}';
+  String updateEmailError(String? message) => 'שגיאה בעדכון אימייל${message != null ? ": $message" : ""}';
+  String updatePasswordError(String? message) => 'שגיאה בעדכון סיסמה${message != null ? ": $message" : ""}';
+  String deleteAccountError(String? message) => 'שגיאה במחיקת חשבון${message != null ? ": $message" : ""}';
+  String reloadUserError(String? message) => 'שגיאה בטעינה מחדש${message != null ? ": $message" : ""}';
+  
+  // ========================================
+  // Success Messages
+  // ========================================
+  
   String get mustCompleteLogin => 'יש להשלים את תהליך ההתחברות';
   String get mustCompleteRegister => 'יש להשלים את תהליך ההרשמה';
   String get loginSuccess => 'התחברת בהצלחה!';
   String get registerSuccess => 'נרשמת בהצלחה!';
+  String get signOutSuccess => 'התנתקת בהצלחה';
 }
 
 // ========================================
