@@ -7,8 +7,8 @@ part of 'receipt.dart';
 // **************************************************************************
 
 Receipt _$ReceiptFromJson(Map<String, dynamic> json) => Receipt(
-      id: json['id'] as String,
-      storeName: json['store_name'] as String,
+      id: json['id'] as String? ?? '',
+      storeName: json['store_name'] as String? ?? 'חנות ללא שם',
       date: const IsoDateTimeConverter().fromJson(json['date'] as String),
       createdDate: const IsoDateTimeNullableConverter()
           .fromJson(json['created_date'] as String?),
@@ -29,7 +29,7 @@ Map<String, dynamic> _$ReceiptToJson(Receipt instance) => <String, dynamic>{
     };
 
 ReceiptItem _$ReceiptItemFromJson(Map<String, dynamic> json) => ReceiptItem(
-      id: json['id'] as String,
+      id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
       quantity: (json['quantity'] as num?)?.toInt() ?? 1,
       unitPrice: json['unit_price'] == null

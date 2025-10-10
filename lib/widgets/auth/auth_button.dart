@@ -1,5 +1,7 @@
 // 📄 File: lib/widgets/auth/auth_button.dart
 // תיאור: כפתור מעוצב למסכי Auth (התחברות/הרשמה/Welcome)
+// Version: 2.0 - Constants Integration
+// Last Updated: 10/10/2025
 //
 // תכונות:
 // - תומך ב-2 סגנונות: primary (מלא) ו-secondary (קווי)
@@ -40,6 +42,7 @@
 
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import '../../core/ui_constants.dart';
 
 /// סוג הכפתור
 enum AuthButtonType {
@@ -66,7 +69,7 @@ class AuthButton extends StatelessWidget {
   /// האם להציג loading spinner
   final bool isLoading;
 
-  /// גודל טקסט (ברירת מחדל: 18)
+  /// גודל טקסט (ברירת מחדל: kFontSizeMedium)
   final double fontSize;
 
   const AuthButton({
@@ -76,7 +79,7 @@ class AuthButton extends StatelessWidget {
     this.icon,
     this.type = AuthButtonType.primary,
     this.isLoading = false,
-    this.fontSize = 18.0,
+    this.fontSize = kFontSizeMedium,
   });
 
   /// Constructor ייעודי לכפתור primary
@@ -86,7 +89,7 @@ class AuthButton extends StatelessWidget {
     this.onPressed,
     this.icon,
     this.isLoading = false,
-    this.fontSize = 18.0,
+    this.fontSize = kFontSizeMedium,
   }) : type = AuthButtonType.primary;
 
   /// Constructor ייעודי לכפתור secondary
@@ -96,7 +99,7 @@ class AuthButton extends StatelessWidget {
     this.onPressed,
     this.icon,
     this.isLoading = false,
-    this.fontSize = 18.0,
+    this.fontSize = kFontSizeMedium,
   }) : type = AuthButtonType.secondary;
 
   @override
@@ -112,7 +115,7 @@ class AuthButton extends StatelessWidget {
             width: 24,
             height: 24,
             child: CircularProgressIndicator(
-              strokeWidth: 2.5,
+              strokeWidth: kBorderWidthFocused,
               valueColor: AlwaysStoppedAnimation<Color>(
                 type == AuthButtonType.primary ? Colors.black : accent,
               ),
@@ -126,9 +129,9 @@ class AuthButton extends StatelessWidget {
                 Icon(
                   icon,
                   color: type == AuthButtonType.primary ? Colors.black : accent,
-                  size: 20,
+                  size: kIconSizeMedium,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: kSpacingSmall),
               ],
               Text(label, style: TextStyle(fontSize: fontSize)),
             ],
@@ -143,11 +146,11 @@ class AuthButton extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: accent,
             foregroundColor: Colors.black,
-            padding: const EdgeInsets.symmetric(vertical: 16),
+            padding: const EdgeInsets.symmetric(vertical: kSpacingMedium),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(kBorderRadius),
             ),
-            minimumSize: const Size(double.infinity, 48),
+            minimumSize: const Size(double.infinity, kButtonHeight),
           ),
           child: content,
         ),
@@ -158,13 +161,13 @@ class AuthButton extends StatelessWidget {
         child: OutlinedButton(
           onPressed: isLoading ? null : onPressed,
           style: OutlinedButton.styleFrom(
-            side: BorderSide(color: accent, width: 1.5),
+            side: BorderSide(color: accent, width: kBorderWidthFocused),
             foregroundColor: accent,
-            padding: const EdgeInsets.symmetric(vertical: 16),
+            padding: const EdgeInsets.symmetric(vertical: kSpacingMedium),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(kBorderRadius),
             ),
-            minimumSize: const Size(double.infinity, 48),
+            minimumSize: const Size(double.infinity, kButtonHeight),
           ),
           child: content,
         ),

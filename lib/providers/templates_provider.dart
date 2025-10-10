@@ -1,17 +1,19 @@
 // 📄 File: lib/providers/templates_provider.dart
 //
-// 🎯 Purpose: Provider לניהול תבניות רשימות - ניהול state מרכזי
+// 🎯 Purpose: Provider לניהול תבניות רשימות - ניהול state מרכזי של כל התבניות
 //
 // 📦 Dependencies:
 // - TemplatesRepository: ממשק לטעינת/שמירת תבניות
-// - UserContext: household_id + auth state
-// - FirebaseTemplatesRepository: מימוש Firebase
+// - UserContext: user_id + household_id + auth state
+// - FirebaseTemplatesRepository: מימוש Firebase של Repository
 //
 // ✨ Features:
 // - 📥 טעינה אוטומטית: מאזין ל-UserContext ומריענן כשמשתמש משתנה
-// - 📊 State management: isLoading, errorMessage
+// - ✏️ CRUD מלא: יצירה, עדכון, מחיקה, שחזור (Undo)
+// - 📊 State management: isLoading, errorMessage, lastUpdated
 // - 🔄 Auto-sync: רענון אוטומטי כשמשתמש מתחבר/מתנתק
-// - 🔍 Query methods: getByType, getSystemTemplates, getHouseholdTemplates
+// - 🎯 סינון: תבניות מערכת, אישיות, משותפות
+// - 📋 Conversion: המרת תבנית → רשימת קניות
 // - 🐛 Logging מפורט: כל פעולה עם debugPrint
 //
 // 📝 Usage:
@@ -20,21 +22,40 @@
 // final provider = context.watch<TemplatesProvider>();
 // final templates = provider.templates;
 //
-// // בחירת תבנית:
-// final template = provider.getByType(ListType.birthday).first;
+// // ביצירת תבנית:
+// final template = await provider.createTemplate(
+//   name: 'קניות שבועיות',
+//   type: 'super',
+//   format: 'personal',
+//   items: [...],
+// );
+//
+// // בעדכון:
+// await provider.updateTemplate(updatedTemplate);
+//
+// // במחיקה:
+// await provider.deleteTemplate(templateId);
 // ```
 //
-// Version: 1.0
+// 🔄 State Flow:
+// 1. Constructor → מחכה ל-UserContext
+// 2. updateUserContext() → _onUserChanged() → loadTemplates()
+// 3. CRUD operations → Repository → loadTemplates() → notifyListeners()
+//
+// Version: 1.0 (Initial templates provider)
 // Last Updated: 10/10/2025
 //
 
 import 'package:flutter/foundation.dart';
+import 'package:uuid/uuid.dart';
+
 import '../models/template.dart';
 import '../repositories/templates_repository.dart';
 import 'user_context.dart';
 
 class TemplatesProvider with ChangeNotifier {
   final TemplatesRepository _repository;
+  final _uuid = const Uuid();
 
   // State
   List<Template> _templates = [];
@@ -46,13 +67,11 @@ class TemplatesProvider with ChangeNotifier {
   UserContext? _userContext;
   bool _listening = false;
 
-  TemplatesProvider({required TemplatesRepository repository})
-      : _repository = repository;
+  TemplatesProvider({
+    required TemplatesRepository repository,
+  }) : _repository = repository;
 
-  // ========================================
-  // Getters
-  // ========================================
-
+  // === Getters ===
   List<Template> get templates => List.unmodifiable(_templates);
   bool get isLoading => _isLoading;
   bool get hasError => _errorMessage != null;
@@ -60,12 +79,29 @@ class TemplatesProvider with ChangeNotifier {
   DateTime? get lastUpdated => _lastUpdated;
   bool get isEmpty => _templates.isEmpty;
 
-  // ========================================
-  // חיבור UserContext
-  // ========================================
+  /// מחזיר רק תבניות מערכת
+  List<Template> get systemTemplates {
+    return _templates.where((t) => t.isSystem).toList();
+  }
+
+  /// מחזיר רק תבניות אישיות
+  List<Template> get personalTemplates {
+    return _templates.where((t) => !t.isSystem && t.defaultFormat == 'personal').toList();
+  }
+
+  /// מחזיר רק תבניות משותפות
+  List<Template> get sharedTemplates {
+    return _templates.where((t) => !t.isSystem && t.defaultFormat == 'shared').toList();
+  }
+
+  /// מחזיר רק תבניות מוקצות
+  List<Template> get assignedTemplates {
+    return _templates.where((t) => !t.isSystem && t.defaultFormat == 'assigned').toList();
+  }
+
+  // === חיבור UserContext ===
 
   /// מעדכן את ה-UserContext ומאזין לשינויים
-  /// 
   /// נקרא אוטומטית מ-ProxyProvider
   void updateUserContext(UserContext newContext) {
     if (_listening && _userContext != null) {
@@ -91,30 +127,26 @@ class TemplatesProvider with ChangeNotifier {
     }
   }
 
-  // ========================================
-  // Load Templates
-  // ========================================
-
-  /// טוען את כל התבניות (system + household)
-  /// 
+  /// טוען את כל התבניות מחדש מה-Repository
+  ///
   /// Example:
   /// ```dart
   /// await templatesProvider.loadTemplates();
   /// ```
   Future<void> loadTemplates() async {
+    final userId = _userContext?.user?.id;
     final householdId = _userContext?.user?.householdId;
-    if (householdId == null) {
-      debugPrint('⚠️ loadTemplates: householdId is null');
-      return;
-    }
 
-    debugPrint('📥 loadTemplates: מתחיל (householdId: $householdId)');
+    debugPrint('📥 loadTemplates: מתחיל טעינה (user: $userId, household: $householdId)');
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      _templates = await _repository.fetchAllTemplates(householdId);
+      _templates = await _repository.fetchTemplates(
+        userId: userId,
+        householdId: householdId,
+      );
       _lastUpdated = DateTime.now();
       debugPrint('✅ loadTemplates: נטענו ${_templates.length} תבניות');
     } catch (e) {
@@ -128,7 +160,7 @@ class TemplatesProvider with ChangeNotifier {
   }
 
   /// ניסיון חוזר אחרי שגיאה
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// if (provider.hasError) {
@@ -142,7 +174,7 @@ class TemplatesProvider with ChangeNotifier {
   }
 
   /// מנקה את כל ה-state (שימושי ב-logout)
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// await provider.clearAll();
@@ -156,180 +188,283 @@ class TemplatesProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // ========================================
-  // Query Methods
-  // ========================================
-
-  /// מחזיר תבנית לפי ID
-  /// 
+  /// יוצר תבנית חדשה מאובייקט Template
+  ///
   /// Example:
   /// ```dart
-  /// final template = provider.getById('template_super');
+  /// final template = Template.newTemplate(...);
+  /// await provider.createTemplateFromObject(template);
   /// ```
-  Template? getById(String id) {
-    try {
-      return _templates.firstWhere((t) => t.id == id);
-    } catch (_) {
-      return null;
+  Future<void> createTemplateFromObject(Template template) async {
+    final userId = _userContext?.user?.id;
+    final householdId = _userContext?.user?.householdId;
+
+    if (userId == null) {
+      debugPrint('❌ createTemplateFromObject: משתמש לא מחובר');
+      throw Exception('❌ משתמש לא מחובר');
     }
+
+    debugPrint('➕ createTemplateFromObject: "${template.name}" (סוג: ${template.type}, פורמט: ${template.defaultFormat})');
+
+    await _repository.saveTemplate(
+      template: template,
+      userId: userId,
+      householdId: householdId,
+    );
+    await loadTemplates();
+    debugPrint('✅ createTemplateFromObject: תבנית "${template.name}" נוצרה!');
   }
 
-  /// מחזיר תבניות לפי סוג
-  /// 
-  /// Example:
-  /// ```dart
-  /// final birthdayTemplates = provider.getByType(ListType.birthday);
-  /// ```
-  List<Template> getByType(String type) {
-    final filtered = _templates.where((t) => t.type == type).toList();
-    debugPrint('🔍 getByType($type): ${filtered.length} תבניות');
-    return filtered;
-  }
-
-  /// מחזיר תבניות מערכת בלבד
-  /// 
-  /// Example:
-  /// ```dart
-  /// final systemTemplates = provider.getSystemTemplates();
-  /// ```
-  List<Template> getSystemTemplates() {
-    final filtered = _templates.where((t) => t.isSystem).toList();
-    debugPrint('🔍 getSystemTemplates: ${filtered.length} תבניות');
-    return filtered;
-  }
-
-  /// מחזיר תבניות משק בית בלבד
-  /// 
-  /// Example:
-  /// ```dart
-  /// final householdTemplates = provider.getHouseholdTemplates();
-  /// ```
-  List<Template> getHouseholdTemplates() {
-    final filtered = _templates.where((t) => !t.isSystem).toList();
-    debugPrint('🔍 getHouseholdTemplates: ${filtered.length} תבניות');
-    return filtered;
-  }
-
-  /// מחזיר תבניות זמינות למשק בית מסוים
-  /// 
-  /// Example:
-  /// ```dart
-  /// final available = provider.getAvailableFor('house_123');
-  /// ```
-  List<Template> getAvailableFor(String householdId) {
-    final filtered = _templates.where((t) => t.isAvailableFor(householdId)).toList();
-    debugPrint('🔍 getAvailableFor($householdId): ${filtered.length} תבניות');
-    return filtered;
-  }
-
-  // ========================================
-  // CRUD Operations (Optional - for Phase 2+)
-  // ========================================
-
-  /// יוצר תבנית חדשה (משק בית)
-  /// 
+  /// יוצר תבנית חדשה
+  ///
   /// Example:
   /// ```dart
   /// final template = await provider.createTemplate(
-  ///   name: 'הרשימה שלי',
-  ///   type: ListType.other,
-  ///   ...
+  ///   name: 'קניות שבועיות',
+  ///   type: 'super',
+  ///   format: 'personal',
+  ///   items: [
+  ///     TemplateItem(name: 'חלב', category: 'dairy'),
+  ///     TemplateItem(name: 'לחם', category: 'bakery'),
+  ///   ],
   /// );
   /// ```
   Future<Template> createTemplate({
-    required String id,
-    required String type,
     required String name,
-    required String description,
-    required String icon,
-    String defaultFormat = Template.formatShared,
-    List<TemplateItem> defaultItems = const [],
+    required String type,
+    String format = 'personal',
+    List<TemplateItem>? items,
   }) async {
     final userId = _userContext?.user?.id;
     final householdId = _userContext?.user?.householdId;
 
-    if (userId == null || householdId == null) {
+    if (userId == null) {
       debugPrint('❌ createTemplate: משתמש לא מחובר');
       throw Exception('❌ משתמש לא מחובר');
     }
 
-    debugPrint('➕ createTemplate: "$name" (type: $type)');
+    debugPrint('➕ createTemplate: "$name" (סוג: $type, פורמט: $format)');
 
     final newTemplate = Template.newTemplate(
-      id: id,
-      type: type,
+      id: _uuid.v4(),
       name: name,
-      description: description,
-      icon: icon,
+      type: type,
       createdBy: userId,
-      householdId: householdId,
-      defaultFormat: defaultFormat,
-      defaultItems: defaultItems,
-      isSystem: false,
+      defaultFormat: format,
+      defaultItems: items ?? [],
+      icon: _getIconForType(type),
+      description: _getDescriptionForType(type),
     );
 
-    await _repository.saveTemplate(newTemplate);
+    await _repository.saveTemplate(
+      template: newTemplate,
+      userId: userId,
+      householdId: householdId,
+    );
     await loadTemplates();
-
-    debugPrint('✅ createTemplate: תבנית "$name" נוצרה');
+    debugPrint('✅ createTemplate: תבנית "$name" נוצרה!');
     return newTemplate;
   }
 
-  /// מוחק תבנית (רק של משק בית)
-  /// 
+  /// מחיקת תבנית
+  ///
+  /// ⚠️ רק בעלים יכול למחוק (ולא תבניות מערכת)
+  ///
   /// Example:
   /// ```dart
-  /// await provider.deleteTemplate('template_custom_123');
+  /// await provider.deleteTemplate(templateId);
   /// ```
   Future<void> deleteTemplate(String id) async {
-    final householdId = _userContext?.user?.householdId;
-    if (householdId == null) {
-      debugPrint('❌ deleteTemplate: householdId לא נמצא');
-      throw Exception('❌ householdId לא נמצא');
+    final userId = _userContext?.user?.id;
+    if (userId == null) {
+      debugPrint('❌ deleteTemplate: משתמש לא מחובר');
+      throw Exception('❌ משתמש לא מחובר');
     }
 
-    debugPrint('🗑️ deleteTemplate: $id');
-    await _repository.deleteTemplate(id, householdId);
+    debugPrint('🗑️ deleteTemplate: מוחק תבנית $id');
+    await _repository.deleteTemplate(id: id, userId: userId);
     await loadTemplates();
     debugPrint('✅ deleteTemplate: תבנית $id נמחקה');
   }
 
+  /// משחזר תבנית שנמחקה (Undo)
+  ///
+  /// Example:
+  /// ```dart
+  /// await provider.restoreTemplate(deletedTemplate);
+  /// ```
+  Future<void> restoreTemplate(Template template) async {
+    final userId = _userContext?.user?.id;
+    final householdId = _userContext?.user?.householdId;
+
+    if (userId == null) {
+      debugPrint('❌ restoreTemplate: משתמש לא מחובר');
+      throw Exception('❌ משתמש לא מחובר');
+    }
+
+    debugPrint('↩️ restoreTemplate: משחזר תבנית ${template.id}');
+    await _repository.saveTemplate(
+      template: template,
+      userId: userId,
+      householdId: householdId,
+    );
+    await loadTemplates();
+    debugPrint('✅ restoreTemplate: תבנית ${template.id} שוחזרה');
+  }
+
   /// מעדכן תבנית קיימת
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// await provider.updateTemplate(updatedTemplate);
   /// ```
   Future<void> updateTemplate(Template updated) async {
-    debugPrint('📝 updateTemplate: ${updated.id}');
-    await _repository.saveTemplate(updated);
+    final userId = _userContext?.user?.id;
+    final householdId = _userContext?.user?.householdId;
+
+    if (userId == null) {
+      debugPrint('❌ updateTemplate: משתמש לא מחובר');
+      throw Exception('❌ משתמש לא מחובר');
+    }
+
+    debugPrint('📝 updateTemplate: מעדכן תבנית ${updated.id}');
+    await _repository.saveTemplate(
+      template: updated,
+      userId: userId,
+      householdId: householdId,
+    );
     await loadTemplates();
     debugPrint('✅ updateTemplate: תבנית ${updated.id} עודכנה');
   }
 
-  // ========================================
-  // Statistics
-  // ========================================
+  // === Get Template By ID ===
+  Template? getById(String id) {
+    try {
+      return _templates.firstWhere((template) => template.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
 
-  /// מחזיר סטטיסטיקות על התבניות
-  /// 
-  /// Returns: Map עם total, system, household
-  /// 
+  // === Add Item To Template ===
+  Future<void> addItemToTemplate(String templateId, TemplateItem item) async {
+    debugPrint('➕ addItemToTemplate: מוסיף פריט "${item.name}" לתבנית $templateId');
+    final template = getById(templateId);
+    if (template == null) {
+      debugPrint('❌ addItemToTemplate: תבנית $templateId לא נמצאה');
+      throw Exception('תבנית $templateId לא נמצאה');
+    }
+
+    // וידוא שהתבנית ניתנת לעריכה (לא system)
+    if (!template.isEditable) {
+      debugPrint('❌ addItemToTemplate: אין הרשאה לערוך תבנית זו');
+      throw Exception('אין הרשאה לערוך תבנית זו');
+    }
+
+    final updatedTemplate = template.withItemAdded(item);
+    await updateTemplate(updatedTemplate);
+    debugPrint('✅ addItemToTemplate: פריט "${item.name}" נוסף');
+  }
+
+  // === Remove Item From Template ===
+  Future<void> removeItemFromTemplate(String templateId, int index) async {
+    debugPrint('🗑️ removeItemFromTemplate: מוחק פריט #$index מתבנית $templateId');
+    final template = getById(templateId);
+    if (template == null) {
+      debugPrint('❌ removeItemFromTemplate: תבנית $templateId לא נמצאה');
+      throw Exception('תבנית $templateId לא נמצאה');
+    }
+
+    // וידוא שהתבנית ניתנת לעריכה (לא system)
+    if (!template.isEditable) {
+      debugPrint('❌ removeItemFromTemplate: אין הרשאה לערוך תבנית זו');
+      throw Exception('אין הרשאה לערוך תבנית זו');
+    }
+
+    final updatedTemplate = template.withItemRemoved(index);
+    await updateTemplate(updatedTemplate);
+    debugPrint('✅ removeItemFromTemplate: פריט #$index הוסר');
+  }
+
+  // === Update Item At Index ===
+  Future<void> updateItemAt(
+    String templateId,
+    int index,
+    TemplateItem Function(TemplateItem) updateFn,
+  ) async {
+    debugPrint('📝 updateItemAt: מעדכן פריט #$index בתבנית $templateId');
+    final template = getById(templateId);
+    if (template == null) {
+      debugPrint('❌ updateItemAt: תבנית $templateId לא נמצאה');
+      throw Exception('תבנית $templateId לא נמצאה');
+    }
+
+    // וידוא שהתבנית ניתנת לעריכה (לא system)
+    if (!template.isEditable) {
+      debugPrint('❌ updateItemAt: אין הרשאה לערוך תבנית זו');
+      throw Exception('אין הרשאה לערוך תבנית זו');
+    }
+
+    final currentItem = template.defaultItems[index];
+    final newItem = updateFn(currentItem);
+    final updatedTemplate = template.withItemUpdated(index, newItem);
+    await updateTemplate(updatedTemplate);
+    debugPrint('✅ updateItemAt: פריט #$index עודכן');
+  }
+
+  /// מחזיר תבניות לפי סוג רשימה
+  ///
   /// Example:
   /// ```dart
-  /// final stats = provider.getStats();
-  /// print('סה"כ: ${stats['total']}, מערכת: ${stats['system']}');
+  /// final superTemplates = provider.getTemplatesByType('super');
   /// ```
-  Map<String, int> getStats() {
-    final total = _templates.length;
-    final system = _templates.where((t) => t.isSystem).length;
-    final household = total - system;
+  List<Template> getTemplatesByType(String type) {
+    return _templates.where((t) => t.type == type).toList();
+  }
 
-    return {
-      'total': total,
-      'system': system,
-      'household': household,
+  /// מחזיר תבניות זמינות למשתמש (לפי household_id)
+  ///
+  /// Example:
+  /// ```dart
+  /// final availableTemplates = provider.getAvailableTemplates();
+  /// ```
+  List<Template> getAvailableTemplates() {
+    final householdId = _userContext?.user?.householdId;
+    if (householdId == null) return [];
+
+    return _templates.where((t) => t.isAvailableFor(householdId)).toList();
+  }
+
+  // === Helper Methods ===
+
+  /// מחזיר אייקון לפי סוג רשימה
+  String _getIconForType(String type) {
+    const icons = {
+      'super': '🛒',
+      'pharmacy': '💊',
+      'birthday': '🎂',
+      'party': '🎉',
+      'wedding': '💍',
+      'picnic': '🧺',
+      'holiday': '🕎',
+      'camping': '⛺',
     };
+    return icons[type] ?? '📝';
+  }
+
+  /// מחזיר תיאור לפי סוג רשימה
+  String _getDescriptionForType(String type) {
+    const descriptions = {
+      'super': 'רשימת קניות סופרמרקט',
+      'pharmacy': 'רשימת קניות בית מרקחת',
+      'birthday': 'רשימה ליום הולדת',
+      'party': 'רשימה למסיבה',
+      'wedding': 'רשימה לחתונה',
+      'picnic': 'רשימה לפיקניק',
+      'holiday': 'רשימה לחג',
+      'camping': 'רשימה לטיול/קמפינג',
+    };
+    return descriptions[type] ?? 'תבנית מותאמת אישית';
   }
 
   @override

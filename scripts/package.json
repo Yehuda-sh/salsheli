@@ -7,6 +7,7 @@
     "create-data": "node create_demo_data.js",
     "create-data-real": "node create_demo_data_v2.js",
     "upload-products": "node upload_to_firebase.js",
+    "create-templates": "node create_system_templates.js",
     "setup-demo": "npm run create-users && npm run create-data-real",
     "setup-demo-old": "npm run create-users && npm run create-data"
   },

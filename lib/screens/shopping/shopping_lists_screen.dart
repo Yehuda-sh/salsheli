@@ -61,6 +61,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
           ),
         ],
       ),
+      drawer: _buildDrawer(context, provider),
       body: SafeArea(
         child: Column(
           children: [
@@ -101,25 +102,44 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
       child: Column(
         children: [
           // 🔍 שורת חיפוש
-          TextField(
-            decoration: InputDecoration(
-              hintText: 'חפש רשימה...',
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: _searchQuery.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () => setState(() => _searchQuery = ''),
-                    )
-                  : null,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(kBorderRadius),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: kSpacingMedium,
-                vertical: kInputPadding,
-              ),
-            ),
-            onChanged: (value) => setState(() => _searchQuery = value),
+          Consumer<ShoppingListsProvider>(
+            builder: (context, provider, _) {
+              final filteredCount = _getFilteredAndSortedLists(provider.lists).length;
+              final hasFilters = _searchQuery.isNotEmpty || _selectedType != 'all';
+              
+              return TextField(
+                decoration: InputDecoration(
+                  hintText: 'חפש רשימה...',
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear),
+                          iconSize: kIconSizeMedium,
+                          constraints: const BoxConstraints(
+                            minWidth: kMinTouchTarget,
+                            minHeight: kMinTouchTarget,
+                          ),
+                          onPressed: () => setState(() => _searchQuery = ''),
+                        )
+                      : null,
+                  helperText: hasFilters && provider.lists.isNotEmpty
+                      ? 'נמצאו $filteredCount רשימות'
+                      : null,
+                  helperStyle: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(kBorderRadius),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: kSpacingMedium,
+                    vertical: kInputPadding,
+                  ),
+                ),
+                onChanged: (value) => setState(() => _searchQuery = value),
+              );
+            },
           ),
           
           const SizedBox(height: kSpacingSmall),
@@ -190,16 +210,28 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
   /// 📊 כפתור מיון
   Widget _buildSortButton() {
     return PopupMenuButton<String>(
-      icon: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            _getSortIcon(),
-            size: kIconSizeMedium,
+      padding: EdgeInsets.zero,
+      child: Container(
+        height: kMinTouchTarget,
+        padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outline,
           ),
-          const SizedBox(width: kSpacingTiny),
-          const Text('מיין'),
-        ],
+          borderRadius: BorderRadius.circular(kBorderRadius),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              _getSortIcon(),
+              size: kIconSizeMedium,
+            ),
+            const SizedBox(width: kSpacingTiny),
+            const Text('מיין'),
+          ],
+        ),
       ),
       itemBuilder: (context) => [
         PopupMenuItem(
@@ -558,28 +590,258 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
     ShoppingListsProvider provider,
   ) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Padding(
+        padding: const EdgeInsets.all(kSpacingLarge),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.shopping_bag_outlined,
+              size: 120,
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
+            ),
+            const SizedBox(height: kSpacingLarge),
+            Text(
+              "אין רשימות קניות",
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: kSpacingSmall),
+            Text(
+              "לחץ על הכפתור מטה ליצירת",
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            Text(
+              "הרשימה הראשונה שלך!",
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: kSpacingXLarge),
+            ElevatedButton.icon(
+              onPressed: () => _showCreateListDialog(context, provider),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: kSpacingLarge,
+                  vertical: kSpacingMedium,
+                ),
+              ),
+              icon: const Icon(Icons.add, size: kIconSizeMedium),
+              label: const Text(
+                "צור רשימה חדשה",
+                style: TextStyle(fontSize: kFontSizeMedium),
+              ),
+            ),
+            const SizedBox(height: kSpacingLarge),
+            Text(
+              "או סרוק קבלה במסך הקבלות",
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 📂 Drawer עם קבוצות
+  Widget _buildDrawer(BuildContext context, ShoppingListsProvider provider) {
+    final theme = Theme.of(context);
+    
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
         children: [
-          const Icon(Icons.list_alt_rounded, size: kIconSizeXXLarge, color: Colors.grey),
-          const SizedBox(height: kSpacingMedium),
-          const Text(
-            "אין רשימות להצגה",
-            style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold),
+          DrawerHeader(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  theme.colorScheme.primary,
+                  theme.colorScheme.primary.withValues(alpha: 0.7),
+                ],
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Icon(
+                  Icons.shopping_basket,
+                  size: kIconSizeXLarge,
+                  color: theme.colorScheme.onPrimary,
+                ),
+                const SizedBox(height: kSpacingSmall),
+                Text(
+                  'סוגי רשימות',
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    color: theme.colorScheme.onPrimary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: kSpacingSmall),
-          const Text(
-            "לחץ על כפתור הפלוס כדי ליצור את הרשימה הראשונה שלך!",
-            textAlign: TextAlign.center,
+          
+          // כל הרשימות
+          _buildDrawerItem(
+            context: context,
+            title: 'כל הרשימות',
+            icon: Icons.list,
+            type: 'all',
+            isSelected: _selectedType == 'all',
           ),
-          const SizedBox(height: kSpacingLarge),
-          ElevatedButton.icon(
-            onPressed: () => _showCreateListDialog(context, provider),
-            icon: const Icon(Icons.add),
-            label: const Text("צור רשימה חדשה"),
+          
+          const Divider(),
+          
+          // קבוצה 1: קניות שוטפות
+          _buildSectionHeader('קניות שוטפות'),
+          _buildDrawerItem(
+            context: context,
+            title: 'סופרמרקט',
+            icon: Icons.store,
+            type: 'super',
+            isSelected: _selectedType == 'super',
+          ),
+          _buildDrawerItem(
+            context: context,
+            title: 'בית מרקחת',
+            icon: Icons.medication,
+            type: 'pharmacy',
+            isSelected: _selectedType == 'pharmacy',
+          ),
+          _buildDrawerItem(
+            context: context,
+            title: 'מוצרי בניין',
+            icon: Icons.hardware,
+            type: 'hardware',
+            isSelected: _selectedType == 'hardware',
+          ),
+          _buildDrawerItem(
+            context: context,
+            title: 'ביגוד והנעלה',
+            icon: Icons.checkroom,
+            type: 'clothing',
+            isSelected: _selectedType == 'clothing',
+          ),
+          _buildDrawerItem(
+            context: context,
+            title: 'אלקטרוניקה',
+            icon: Icons.devices,
+            type: 'electronics',
+            isSelected: _selectedType == 'electronics',
+          ),
+          
+          const Divider(),
+          
+          // קבוצה 2: מיוחדות
+          _buildSectionHeader('רשימות מיוחדות'),
+          _buildDrawerItem(
+            context: context,
+            title: 'יום הולדת',
+            icon: Icons.cake,
+            type: 'birthday',
+            isSelected: _selectedType == 'birthday',
+          ),
+          _buildDrawerItem(
+            context: context,
+            title: 'אירוח סוף שבוע',
+            icon: Icons.weekend,
+            type: 'hosting',
+            isSelected: _selectedType == 'hosting',
+          ),
+          _buildDrawerItem(
+            context: context,
+            title: 'מסיבה',
+            icon: Icons.celebration,
+            type: 'party',
+            isSelected: _selectedType == 'party',
+          ),
+          _buildDrawerItem(
+            context: context,
+            title: 'חתונה',
+            icon: Icons.favorite,
+            type: 'wedding',
+            isSelected: _selectedType == 'wedding',
+          ),
+          _buildDrawerItem(
+            context: context,
+            title: 'פיקניק',
+            icon: Icons.outdoor_grill,
+            type: 'picnic',
+            isSelected: _selectedType == 'picnic',
           ),
         ],
       ),
+    );
+  }
+
+  /// 🏷️ כותרת קבוצה
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        kSpacingMedium,
+        kSpacingMedium,
+        kSpacingMedium,
+        kSpacingSmall,
+      ),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: kFontSizeTiny,
+          fontWeight: FontWeight.bold,
+          color: Colors.grey.shade600,
+          letterSpacing: 1.2,
+        ),
+      ),
+    );
+  }
+
+  /// 📝 פריט בDrawer
+  Widget _buildDrawerItem({
+    required BuildContext context,
+    required String title,
+    required IconData icon,
+    required String type,
+    required bool isSelected,
+  }) {
+    final theme = Theme.of(context);
+    
+    return ListTile(
+      minVerticalPadding: kSpacingSmall,
+      leading: Icon(
+        icon,
+        color: isSelected ? theme.colorScheme.primary : null,
+        size: kIconSizeMedium,
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          color: isSelected ? theme.colorScheme.primary : null,
+        ),
+      ),
+      selected: isSelected,
+      selectedTileColor: theme.colorScheme.primary.withValues(alpha: 0.1),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(kBorderRadius),
+      ),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: kSpacingMedium,
+        vertical: kSpacingTiny,
+      ),
+      onTap: () {
+        setState(() {
+          _selectedType = type;
+        });
+        Navigator.pop(context);
+      },
     );
   }
 }

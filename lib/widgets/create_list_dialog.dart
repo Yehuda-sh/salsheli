@@ -33,6 +33,8 @@ import 'package:provider/provider.dart';
 import '../core/constants.dart';
 import '../config/list_type_groups.dart';
 import '../providers/shopping_lists_provider.dart';
+import '../providers/templates_provider.dart';
+import '../models/template.dart';
 
 class CreateListDialog extends StatefulWidget {
   final Future<void> Function(Map<String, dynamic>) onCreateList;
@@ -57,6 +59,13 @@ class _CreateListDialogState extends State<CreateListDialog> {
   void initState() {
     super.initState();
     debugPrint('🔵 CreateListDialog.initState() - Dialog נפתח');
+    
+    // טען תבניות
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<TemplatesProvider>().loadTemplates();
+      }
+    });
   }
 
   @override
@@ -113,7 +122,186 @@ class _CreateListDialogState extends State<CreateListDialog> {
           content: Text('שגיאה ביצירת הרשימה: $e'),
           backgroundColor: Colors.red,
         ),
+      );
+    }
+  }
+
+  // ========================================
+  // Templates Bottom Sheet
+  // ========================================
+  Future<void> _showTemplatesBottomSheet() async {
+    debugPrint('📋 פתיחת Templates Bottom Sheet');
+
+    final template = await showModalBottomSheet<Template>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheetContext) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.7,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          expand: false,
+          builder: (_, scrollController) {
+            return Consumer<TemplatesProvider>(
+              builder: (_, provider, __) {
+                return Column(
+                  children: [
+                    // Header
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                          ),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'בחר תבנית',
+                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  'בחר תבנית כדי למלא את הרשימה אוטומטית',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () => Navigator.pop(sheetContext),
+                            icon: const Icon(Icons.close),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Loading State
+                    if (provider.isLoading)
+                      const Expanded(
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+
+                    // Error State
+                    if (provider.hasError)
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            'שגיאה בטעינת תבניות: ${provider.errorMessage}',
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+
+                    // Empty State
+                    if (!provider.isLoading && !provider.hasError && provider.templates.isEmpty)
+                      Expanded(
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.inventory_2_outlined,
+                                size: 64,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'אין תבניות זמינות',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'צור תבנית ראשונה במסך התבניות',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                    // Templates List
+                    if (!provider.isLoading && !provider.hasError && provider.templates.isNotEmpty)
+                      Expanded(
+                        child: ListView.builder(
+                          controller: scrollController,
+                          padding: const EdgeInsets.all(16),
+                          itemCount: provider.templates.length,
+                          itemBuilder: (context, index) {
+                            final template = provider.templates[index];
+                            final typeInfo = kListTypes[template.type] ?? kListTypes['other']!;
+
+                            return Card(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              child: ListTile(
+                                leading: Container(
+                                  width: 48,
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      typeInfo['icon']!,
+                                      style: const TextStyle(fontSize: 24),
+                                    ),
+                                  ),
+                                ),
+                                title: Text(
+                                  template.name,
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                subtitle: Text(
+                                  '${template.defaultItems.length} פריטים • ${typeInfo['name']}',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                                trailing: const Icon(Icons.arrow_forward),
+                                onTap: () {
+                                  debugPrint('✅ נבחרה תבנית: ${template.name}');
+                                  Navigator.pop(sheetContext, template);
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                  ],
+                );
+              },
+            );
+          },
         );
+      },
+    );
+
+    // מילוי נתונים מהתבנית
+    if (template != null) {
+      debugPrint('✨ ממלא נתונים מתבנית: ${template.name}');
+      setState(() {
+        _type = template.type;
+      });
+
+      // TODO: בעתיד - להעביר גם את הפריטים מהתבנית
+      // כרגע רק הסוג ממולא
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('תבנית "${template.name}" נבחרה'),
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          duration: const Duration(seconds: 2),
+        ),
+      );
     }
   }
 
@@ -295,6 +483,19 @@ class _CreateListDialogState extends State<CreateListDialog> {
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisSize: MainAxisSize.min,
             children: [
+              // ========================================
+              // 📋 כפתור שימוש בתבנית
+              // ========================================
+              OutlinedButton.icon(
+                onPressed: _isSubmitting ? null : _showTemplatesBottomSheet,
+                icon: const Icon(Icons.library_books_outlined),
+                label: const Text('📋 שימוש בתבנית'),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(48),
+                ),
+              ),
+              const SizedBox(height: 16),
+
               // 📝 שם הרשימה
               TextFormField(
                 decoration: const InputDecoration(

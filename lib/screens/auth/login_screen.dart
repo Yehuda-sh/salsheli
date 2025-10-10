@@ -13,8 +13,11 @@
 // 🔗 Related:
 // - UserContext - state management + Firebase Auth
 // - RegisterScreen - יצירת חשבון חדש
-// - SharedPreferences - שמירת session
+// - SharedPreferences - שמירת seenOnboarding בלבד (לא user_id!)
 // - AppStrings.auth - מחרוזות UI
+//
+// 📝 Version: 2.0 - Context Safety + Removed redundant user_id
+// 📅 Updated: 10/10/2025
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -50,6 +53,11 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   /// ✅ פונקציית Login עם Firebase Authentication
+  /// 
+  /// שיפורים (v2):
+  /// - שמירת context/navigator לפני await (best practice)
+  /// - הסרת user_id מ-SharedPreferences (מיותר - UserContext מחזיק!)
+  /// - רק seenOnboarding נשמר (UI state מקומי)
   Future<void> _handleLogin() async {
     debugPrint('🔐 _handleLogin() | Starting login process...');
     if (!_formKey.currentState!.validate()) {
@@ -63,9 +71,13 @@ class _LoginScreenState extends State<LoginScreen> {
       final email = _emailController.text.trim();
       final password = _passwordController.text;
 
+      // 💡 שמור context/navigator/messenger לפני await (best practice!)
+      final userContext = context.read<UserContext>();
+      final navigator = Navigator.of(context);
+      final messenger = ScaffoldMessenger.of(context);
+
       // 🔹 1. התחברות דרך Firebase Auth
       debugPrint('🔐 _handleLogin() | Signing in with email: $email');
-      final userContext = context.read<UserContext>();
       await userContext.signIn(
         email: email,
         password: password,
@@ -75,26 +87,28 @@ class _LoginScreenState extends State<LoginScreen> {
       // ה-listener של authStateChanges יעדכן את isLoggedIn אוטומטית
       debugPrint('✅ _handleLogin() | Sign in successful, userId: ${userContext.userId}');
 
-      // 🔹 2. שמירה ב-SharedPreferences
+      // 🔹 2. שמירה ב-SharedPreferences (רק seenOnboarding!)
+      // ⚠️ לא שומרים user_id - UserContext כבר מחזיק את זה מ-Firebase!
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('user_id', userContext.userId!);
       await prefs.setBool('seen_onboarding', true);
-      debugPrint('✅ _handleLogin() | User data saved to SharedPreferences');
+      debugPrint('✅ _handleLogin() | Onboarding flag saved (not user_id - UserContext has it!)');
 
       // 🔹 3. ניווט לדף הבית
       if (mounted) {
         setState(() => _isLoading = false);
         debugPrint('🔄 _handleLogin() | Navigating to home screen');
-        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+        navigator.pushNamedAndRemoveUntil('/home', (route) => false);
       }
     } catch (e) {
       debugPrint('❌ _handleLogin() | Login failed: $e');
       final errorMsg = e.toString().replaceAll('Exception: ', '');
-      setState(() => _isLoading = false);
-
-      // הצגת הודעה למשתמש
+      
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        setState(() => _isLoading = false);
+        
+        // שמור messenger לפני השימוש
+        final messenger = ScaffoldMessenger.of(context);
+        messenger.showSnackBar(
           SnackBar(
             content: Text(errorMsg),
             backgroundColor: Colors.red,
@@ -119,12 +133,15 @@ class _LoginScreenState extends State<LoginScreen> {
     final brand = theme.extension<AppBrand>();
     final accent = brand?.accent ?? cs.primary;
 
+    // 💡 שמור messenger לפני PopScope (best practice)
+    final messenger = ScaffoldMessenger.of(context);
+
     // 🔒 חסימת Back - המשתמש חייב להשלים התחברות
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          messenger.showSnackBar(
             SnackBar(
               content: Text(AppStrings.auth.mustCompleteLogin),
               duration: kSnackBarDuration,

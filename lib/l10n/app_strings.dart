@@ -117,6 +117,12 @@ class AppStrings {
   // ========================================
   
   static const listMappings = ListTypeMappingsStrings();
+  
+  // ========================================
+  // Templates
+  // ========================================
+  
+  static const templates = _TemplatesStrings();
 }
 
 // ========================================
@@ -644,4 +650,143 @@ class _ListTypeGroupsStrings {
   String get descShopping => 'קניות שוטפות ויומיומיות';
   String get descSpecialty => 'קניות בחנויות מיוחדות';
   String get descEvents => 'רשימות לאירועים ומסיבות';
+}
+
+// ========================================
+// Templates Strings
+// ========================================
+
+class _TemplatesStrings {
+  const _TemplatesStrings();
+  
+  // ========================================
+  // Screen
+  // ========================================
+  
+  String get title => 'תבניות רשימות';
+  String get subtitle => 'צור תבניות מוכנות לשימוש חוזר';
+  
+  // ========================================
+  // Tabs/Filters
+  // ========================================
+  
+  String get filterAll => 'הכל';
+  String get filterMine => 'שלי';
+  String get filterShared => 'משותפות';
+  String get filterSystem => 'מערכת';
+  
+  // ========================================
+  // Empty States
+  // ========================================
+  
+  String get emptyStateTitle => 'אין תבניות עדיין';
+  String get emptyStateMessage => 'צור תבנית ראשונה כדי להקל על יצירת רשימות בעתיד';
+  String get emptyStateButton => 'צור תבנית ראשונה';
+  
+  String get emptyMyTemplatesTitle => 'אין לך תבניות אישיות';
+  String get emptyMyTemplatesMessage => 'צור תבנית כדי לחסוך זמן ביצירת רשימות חוזרות';
+  
+  String get emptySharedTemplatesTitle => 'אין תבניות משותפות';
+  String get emptySharedTemplatesMessage => 'חברי הקבוצה יכולים ליצור תבניות משותפות';
+  
+  // ========================================
+  // Card/List Item
+  // ========================================
+  
+  String itemsCount(int count) => '$count פריטים';
+  String get formatPersonal => 'אישי';
+  String get formatShared => 'משותף';
+  String get formatAssigned => 'מוקצה';
+  String get formatSystem => 'מערכת';
+  
+  // ========================================
+  // Actions
+  // ========================================
+  
+  String get createButton => 'תבנית חדשה';
+  String get editButton => 'ערוך';
+  String get deleteButton => 'מחק';
+  String get useTemplateButton => 'השתמש בתבנית';
+  String get duplicateButton => 'שכפל';
+  
+  // ========================================
+  // Form Screen
+  // ========================================
+  
+  String get formTitleCreate => 'תבנית חדשה';
+  String get formTitleEdit => 'עריכת תבנית';
+  
+  // Fields
+  String get nameLabel => 'שם התבנית';
+  String get nameHint => 'למשל: קניות שבועיות';
+  String get nameRequired => 'נא להזין שם תבנית';
+  
+  String get descriptionLabel => 'תיאור (אופציונלי)';
+  String get descriptionHint => 'תאר למה התבנית מיועדת...';
+  
+  String get iconLabel => 'אייקון';
+  String get iconHint => 'בחר סוג רשימה';
+  
+  String get formatLabel => 'פורמט';
+  String get formatPersonalDesc => 'רק אני רואה';
+  String get formatSharedDesc => 'כל הקבוצה רואה';
+  String get formatAssignedDesc => 'הוקצה לאנשים ספציפיים';
+  
+  String get itemsLabel => 'פריטים בתבנית';
+  String get addItemButton => 'הוסף פריט';
+  String get noItemsYet => 'עדיין אין פריטים. הוסף לפחות פריט אחד.';
+  
+  // Item Form
+  String get itemNameLabel => 'שם הפריט';
+  String get itemNameHint => 'למשל: חלב';
+  String get itemNameRequired => 'נא להזין שם פריט';
+  
+  String get itemCategoryLabel => 'קטגוריה';
+  String get itemCategoryHint => 'בחר קטגוריה';
+  
+  String get itemQuantityLabel => 'כמות';
+  String get itemQuantityHint => '1';
+  
+  String get itemUnitLabel => 'יחידה';
+  String get itemUnitHint => 'ליטר, ק"ג, יחידות...';
+  
+  // Save
+  String get saveButton => 'שמור תבנית';
+  String get savingButton => 'שומר...';
+  String get cancelButton => 'בטל';
+  
+  // Validation
+  String get atLeastOneItem => 'יש להוסיף לפחות פריט אחד';
+  String templateNameExists(String name) => 'תבנית בשם "$name" כבר קיימת';
+  
+  // ========================================
+  // Messages
+  // ========================================
+  
+  String templateCreated(String name) => 'התבנית "$name" נוצרה בהצלחה!';
+  String templateUpdated(String name) => 'התבנית "$name" עודכנה!';
+  String templateDeleted(String name) => 'התבנית "$name" נמחקה';
+  String get undo => 'בטל';
+  
+  String createError(String error) => 'שגיאה ביצירת תבנית: $error';
+  String updateError(String error) => 'שגיאה בעדכון: $error';
+  String deleteError(String error) => 'שגיאה במחיקה: $error';
+  
+  // ========================================
+  // Delete Confirmation
+  // ========================================
+  
+  String get deleteConfirmTitle => 'מחיקת תבנית';
+  String deleteConfirmMessage(String name) => 'האם אתה בטוח שברצונך למחוק את התבנית "$name"?';
+  String get deleteCancel => 'ביטול';
+  String get deleteConfirm => 'מחק';
+  
+  // ========================================
+  // Use Template Dialog
+  // ========================================
+  
+  String get useTemplateTitle => 'בחר תבנית';
+  String get useTemplateHint => 'בחר תבנית כדי למלא את הרשימה אוטומטית';
+  String get useTemplateEmpty => 'אין תבניות זמינות';
+  String get useTemplateSelect => 'בחר';
 }

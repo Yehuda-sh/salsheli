@@ -1,5 +1,5 @@
 // 📄 File: lib/screens/auth/register_screen.dart
-// 🎯 Purpose: מסך הרשמה - טופס יצירת חשבון עם Firebase Auth + session management
+// 🎯 Purpose: מסך הרשמה - טופס יצירת חשבון עם Firebase Auth
 //
 // 📋 Features:
 // ✅ Firebase Authentication (email/password + name)
@@ -11,10 +11,14 @@
 // 🔒 PopScope - חסימת Back (חובה להשלים הרשמה)
 //
 // 🔗 Related:
-// - UserContext - state management + Firebase Auth
+// - UserContext - state management + Firebase Auth (Single Source of Truth)
 // - LoginScreen - התחברות לחשבון קיים
-// - SharedPreferences - שמירת session
 // - AppStrings.auth - מחרוזות UI
+//
+// 📝 Version: 2.0 (10/10/2025)
+// - הסרת SharedPreferences (UserContext = Single Source of Truth)
+// - תיקון Context handling אחרי async
+// - תיקון race condition logic
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -25,7 +29,6 @@ import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../widgets/auth/auth_button.dart';
 import '../../widgets/auth/demo_login_button.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -44,7 +47,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  String? _errorMessage;
 
   @override
   void dispose() {
@@ -56,25 +58,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   /// ✅ פונקציית Register עם Firebase Authentication
+  /// 
+  /// תהליך:
+  /// 1. Validation של הטופס
+  /// 2. רישום דרך UserContext.signUp() (זורק Exception אם נכשל)
+  /// 3. ניווט לדף הבית (אם הגענו לכאן = הצלחנו)
   Future<void> _handleRegister() async {
     debugPrint('📝 _handleRegister() | Starting registration process...');
+    
+    // Validation
     if (!_formKey.currentState!.validate()) {
       debugPrint('❌ _handleRegister() | Form validation failed');
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+    // שמירת context לפני async (למניעת "Context used after disposal")
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
+    setState(() => _isLoading = true);
 
     try {
       final name = _nameController.text.trim();
       final email = _emailController.text.trim();
       final password = _passwordController.text;
 
-      // 🔹 1. רישום דרך Firebase Auth
-      debugPrint('📝 _handleRegister() | Signing up with email: $email, name: $name');
+      // רישום דרך UserContext (זורק Exception אם נכשל)
+      debugPrint('📝 _handleRegister() | Signing up: $email (name: $name)');
       final userContext = context.read<UserContext>();
       await userContext.signUp(
         email: email,
@@ -82,41 +92,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
         name: name,
       );
 
-      // 🔹 2. בדיקה שהרישום הצליח
-      debugPrint('✅ _handleRegister() | Sign up successful, userId: ${userContext.userId}');
-      if (!userContext.isLoggedIn) {
-        throw Exception('שגיאה ביצירת החשבון');
-      }
+      // ✅ אם הגענו לכאן = הרישום הצליח!
+      // UserContext מנהל את ה-session דרך Firebase Auth (Single Source of Truth)
+      debugPrint('✅ _handleRegister() | Success! userId: ${userContext.userId}');
 
-      // 🔹 3. שמירה ב-SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('user_id', userContext.userId!);
-      await prefs.setBool('seen_onboarding', true);
-      debugPrint('✅ _handleRegister() | User data saved to SharedPreferences');
-
-      // 🔹 4. ניווט לדף הבית
+      // ניווט לדף הבית
       if (mounted) {
-        setState(() => _isLoading = false);
         debugPrint('🔄 _handleRegister() | Navigating to home screen');
-        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+        navigator.pushNamedAndRemoveUntil('/home', (route) => false);
       }
     } catch (e) {
       debugPrint('❌ _handleRegister() | Registration failed: $e');
-      setState(() {
-        _errorMessage = e.toString().replaceAll('Exception: ', '');
-        _isLoading = false;
-      });
+      
+      final errorMessage = e.toString().replaceAll('Exception: ', '');
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        setState(() => _isLoading = false);
+        scaffoldMessenger.showSnackBar(
           SnackBar(
-            content: Text(_errorMessage!),
+            content: Text(errorMessage),
             backgroundColor: Colors.red,
             duration: kSnackBarDurationLong,
           ),
         );
       }
     }
+    
     debugPrint('🏁 _handleRegister() | Completed');
   }
 

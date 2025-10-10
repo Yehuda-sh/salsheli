@@ -23,6 +23,7 @@
 // - Accessibility compliant
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
@@ -37,6 +38,7 @@ import '../../widgets/create_list_dialog.dart';
 import '../../theme/app_theme.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
+import 'home_dashboard_screen_ux.dart';
 
 class HomeDashboardScreen extends StatefulWidget {
   const HomeDashboardScreen({super.key});
@@ -46,21 +48,49 @@ class HomeDashboardScreen extends StatefulWidget {
 }
 
 class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    debugPrint('🏠 HomeDashboardScreen.initState()');
+  }
+
+  @override
+  void dispose() {
+    debugPrint('🏠 HomeDashboardScreen.dispose()');
+    super.dispose();
+  }
+
   Future<void> _refresh(BuildContext context) async {
     debugPrint('🏠 HomeDashboard: מתחיל refresh...');
+    HapticFeedback.mediumImpact(); // ✨ רטט בהתחלת refresh
     
-    final lists = context.read<ShoppingListsProvider>();
-    await lists.loadLists();
-    debugPrint('   ✅ רשימות נטענו: ${lists.lists.length}');
+    // ✅ טעינת רשימות - נפרד
+    try {
+      final lists = context.read<ShoppingListsProvider>();
+      await lists.loadLists();
+      debugPrint('   ✅ רשימות נטענו: ${lists.lists.length}');
+    } on Exception catch (e) {
+      debugPrint('   ❌ שגיאה בטעינת רשימות: $e');
+      // ממשיכים להצעות
+    }
 
+    if (!context.mounted) return;
+
+    // ✅ טעינת הצעות - נפרד
+    try {
+      final sugg = context.read<SuggestionsProvider>();
+      await sugg.refresh();
+      debugPrint('   ✅ הצעות נטענו: ${sugg.suggestions.length}');
+    } on Exception catch (e) {
+      debugPrint('   ⚠️ לא ניתן לטעון הצעות: $e');
+      // זה לא קריטי
+    }
+    
+    // ✨ עיכוב קצר כדי לראות את ההתקדמות
+    await Future.delayed(const Duration(milliseconds: 300));
+    
     if (context.mounted) {
-      try {
-        final sugg = context.read<SuggestionsProvider>();
-        await sugg.refresh();
-        debugPrint('   ✅ הצעות נטענו: ${sugg.suggestions.length}');
-      } catch (e) {
-        debugPrint('   ⚠️ לא ניתן לטעון הצעות: $e');
-      }
+      HapticFeedback.lightImpact(); // ✨ רטט קל בסיום
     }
     
     debugPrint('🏠 HomeDashboard: refresh הושלם');
@@ -77,6 +107,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       body: SafeArea(
         child: RefreshIndicator(
           color: Theme.of(context).extension<AppBrand>()?.accent ?? cs.primary,
+          backgroundColor: cs.surface,
+          strokeWidth: 4.0, // ✨ עבה יותר
+          displacement: 50.0, // ✨ יותר רחוק
           onRefresh: () => _refresh(context),
           child: ListView(
             padding: const EdgeInsets.all(kSpacingMedium),
@@ -84,11 +117,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               _Header(userName: userContext.displayName),
               const SizedBox(height: kSpacingMedium),
 
+              // ✨ תמיד נראה skeleton בהתחלה
               if (listsProvider.isLoading)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: kButtonHeight),
-                  child: Center(child: CircularProgressIndicator()),
-                )
+                const DashboardSkeleton()
               else if (listsProvider.lists.isEmpty)
                 _ImprovedEmptyState(
                   onCreateList: () => _showCreateListDialog(context),
@@ -103,9 +134,12 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   }
 
   void _showCreateListDialog(BuildContext context) {
+    HapticFeedback.lightImpact(); // ✨ רטט קל
     debugPrint('🏠 HomeDashboard: פותח דיאלוג יצירת רשימה');
     
     final provider = context.read<ShoppingListsProvider>();
+    // ✅ שמירת scaffoldMessenger לפני async
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     showDialog(
       context: context,
@@ -129,13 +163,63 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 eventDate: eventDate,
               );
               debugPrint('   ✅ רשימה נוצרה בהצלחה');
-            } catch (e) {
-              debugPrint('   ❌ שגיאה ביצירת רשימה: $e');
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
+              
+              // ✅ שימוש ב-scaffoldMessenger שנשמר
+              if (mounted) {
+                HapticFeedback.lightImpact(); // ✨ רטט הצלחה
+                scaffoldMessenger.showSnackBar(
                   SnackBar(
-                    content: Text(AppStrings.home.createListError(e.toString())),
-                    backgroundColor: Colors.red,
+                    content: Row(
+                      children: [
+                        const Icon(Icons.check_circle, color: Colors.white, size: 24),
+                        const SizedBox(width: kSpacingSmall),
+                        Expanded(
+                          child: Text(
+                            'הרשימה "$name" נוצרה בהצלחה ✨',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
+                    backgroundColor: Colors.green.shade700,
+                    behavior: SnackBarBehavior.floating,
+                    duration: const Duration(seconds: 3),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(kBorderRadius),
+                    ),
+                  ),
+                );
+              }
+            } on Exception catch (e) {
+              debugPrint('   ❌ שגיאה ביצירת רשימה: $e');
+              
+              if (mounted) {
+                HapticFeedback.heavyImpact(); // ✨ רטט חזק לשגיאה
+                scaffoldMessenger.showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: [
+                        const Icon(Icons.error_outline, color: Colors.white, size: 24),
+                        const SizedBox(width: kSpacingSmall),
+                        Expanded(
+                          child: Text(
+                            AppStrings.home.createListError(e.toString()),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
+                    backgroundColor: Colors.red.shade700,
+                    behavior: SnackBarBehavior.floating,
+                    duration: const Duration(seconds: 4),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(kBorderRadius),
+                    ),
+                    action: SnackBarAction(
+                      label: 'נסה שוב',
+                      textColor: Colors.white,
+                      onPressed: () => _showCreateListDialog(context),
+                    ),
                   ),
                 );
               }
@@ -213,6 +297,85 @@ class _Content extends StatelessWidget {
   final List<ShoppingList> allLists;
   const _Content({required this.allLists});
 
+  @override
+  Widget build(BuildContext context) {
+    final activeLists = _getActiveLists();
+    final mostRecentList = _getMostRecentList(activeLists);
+    final otherLists = _getOtherLists(activeLists);
+
+    debugPrint('🏠 HomeDashboard._Content: פעילות=${activeLists.length}, אחרות=${otherLists.length}');
+
+    return Column(
+      children: [
+        // ✨ אנימציות יותר איטיות ודרמטיות!
+        UpcomingShopCard(list: mostRecentList)
+          .animate()
+          .fadeIn(duration: 600.ms) // ✨ יותר איטי
+          .slideY(begin: 0.15, end: 0) // ✨ יותר דרמטי
+          .scale(begin: const Offset(0.95, 0.95), end: const Offset(1, 1)), // ✨ זום!
+        
+        const SizedBox(height: kSpacingMedium),
+        
+        SmartSuggestionsCard(mostRecentList: mostRecentList)
+          .animate()
+          .fadeIn(duration: 600.ms, delay: 150.ms) // ✨ יותר איטי
+          .slideY(begin: 0.15, end: 0) // ✨ יותר דרמטי
+          .scale(begin: const Offset(0.95, 0.95), end: const Offset(1, 1)), // ✨ זום!
+        
+        const SizedBox(height: kSpacingMedium),
+        
+        const _ReceiptsCard()
+          .animate()
+          .fadeIn(duration: 600.ms, delay: 300.ms) // ✨ יותר איטי
+          .slideY(begin: 0.15, end: 0) // ✨ יותר דרמטי
+          .scale(begin: const Offset(0.95, 0.95), end: const Offset(1, 1)), // ✨ זום!
+        
+        const SizedBox(height: kSpacingMedium),
+        
+        if (otherLists.isNotEmpty)
+          _ActiveListsCard(lists: otherLists)
+            .animate()
+            .fadeIn(duration: 600.ms, delay: 450.ms) // ✨ יותר איטי
+            .slideY(begin: 0.15, end: 0) // ✨ יותר דרמטי
+            .scale(begin: const Offset(0.95, 0.95), end: const Offset(1, 1)), // ✨ זום!
+      ],
+    );
+  }
+
+  /// ✅ מחזיר רק רשימות פעילות
+  List<ShoppingList> _getActiveLists() {
+    return allLists
+        .where((l) => l.status == ShoppingList.statusActive)
+        .toList();
+  }
+
+  /// ✅ מחשב ומחזיר את הרשימה הכי דחופה
+  ShoppingList? _getMostRecentList(List<ShoppingList> activeLists) {
+    if (activeLists.isEmpty) return null;
+
+    debugPrint('🧠 מחשב דחיפות עבור ${activeLists.length} רשימות:');
+    
+    activeLists.sort((a, b) {
+      final priorityA = _calculateListPriority(a);
+      final priorityB = _calculateListPriority(b);
+      debugPrint('   "${a.name}": $priorityA נקודות vs "${b.name}": $priorityB נקודות');
+      return priorityB.compareTo(priorityA); // גבוה לנמוך
+    });
+
+    final list = activeLists.first;
+    final finalPriority = _calculateListPriority(list);
+    debugPrint('   ✅ הקנייה הקרובה: "${list.name}" ($finalPriority נקודות)');
+    
+    return list;
+  }
+
+  /// ✅ מחזיר רשימות נוספות (ללא הדחופה ביותר)
+  List<ShoppingList> _getOtherLists(List<ShoppingList> activeLists) {
+    return activeLists.length > 1 
+        ? activeLists.sublist(1) 
+        : const <ShoppingList>[];
+  }
+
   /// 🧠 חישוב דחיפות רשימה לפי 3 קריטריונים:
   /// 1. תאריך אירוע קרוב (100 נקודות אם בעוד פחות משבוע)
   /// 2. מלאי שנגמר (60 נקודות אם 3+ פריטים)
@@ -255,45 +418,7 @@ class _Content extends StatelessWidget {
     return priority;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final activeLists = allLists
-        .where((l) => l.status == ShoppingList.statusActive)
-        .toList();
 
-    // 🧠 מחשב דחיפות לכל רשימה וממיין
-    debugPrint('🧠 מחשב דחיפות עבור ${activeLists.length} רשימות:');
-    activeLists.sort((a, b) {
-      final priorityA = _calculateListPriority(a);
-      final priorityB = _calculateListPriority(b);
-      debugPrint('   "${a.name}": $priorityA נקודות vs "${b.name}": $priorityB נקודות');
-      return priorityB.compareTo(priorityA); // גבוה לנמוך
-    });
-
-    final mostRecentList = activeLists.isNotEmpty ? activeLists.first : null;
-    if (mostRecentList != null) {
-      final finalPriority = _calculateListPriority(mostRecentList);
-      debugPrint('   ✅ הקנייה הקרובה: "${mostRecentList.name}" ($finalPriority נקודות)');
-    }
-
-    final otherLists = activeLists.length > 1
-        ? activeLists.sublist(1)
-        : const <ShoppingList>[];
-
-    debugPrint('🏠 HomeDashboard._Content: רשימות פעילות=${activeLists.length}, אחרות=${otherLists.length}');
-
-    return Column(
-      children: [
-        UpcomingShopCard(list: mostRecentList),
-        const SizedBox(height: kSpacingMedium),
-        SmartSuggestionsCard(mostRecentList: mostRecentList),
-        const SizedBox(height: kSpacingMedium),
-        const _ReceiptsCard(),
-        const SizedBox(height: kSpacingMedium),
-        if (otherLists.isNotEmpty) _ActiveListsCard(lists: otherLists),
-      ],
-    ).animate().fadeIn(duration: 450.ms, delay: 100.ms);
-  }
 }
 
 class _ImprovedEmptyState extends StatelessWidget {
@@ -406,7 +531,7 @@ class _ReceiptsCard extends StatelessWidget {
     );
 
     return Card(
-      elevation: 3, // 🆕 elevation גבוה יותר
+      elevation: kCardElevationHigh, // ✅ constant במקום 3
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(kBorderRadiusLarge),
       ),
@@ -423,17 +548,48 @@ class _ReceiptsCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(kSpacingSmall),
-                    decoration: BoxDecoration(
-                      color: Colors.orange.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                    ),
-                    child: const Icon(
-                      Icons.receipt_long,
-                      color: Colors.orange,
-                      size: kIconSizeSmall + 4, // 20px
-                    ),
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(kSpacingSmall),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                        ),
+                        child: const Icon(
+                          Icons.receipt_long,
+                          color: Colors.orange,
+                          size: kIconSizeSmall + 4, // 20px
+                        ),
+                      ),
+                      // ✨ Badge חדש!
+                      if (receiptsCount > 0)
+                        Positioned(
+                          top: -4,
+                          right: -4,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.orange,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 18,
+                              minHeight: 18,
+                            ),
+                            child: Text(
+                              '$receiptsCount',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                   const SizedBox(width: kBorderRadius),
                   Expanded(
@@ -479,6 +635,14 @@ class _ReceiptsCard extends StatelessWidget {
                             color: cs.onSurface,
                           ),
                         ),
+                        // ✨ הוסף אחוז
+                        Text(
+                          '${(receiptsCount / kMaxReceiptsForProgress * 100).toInt()}%',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: Colors.orange,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         Text(
                           '₪${totalAmount.toStringAsFixed(2)}',
                           style: theme.textTheme.titleMedium?.copyWith(
@@ -490,7 +654,7 @@ class _ReceiptsCard extends StatelessWidget {
                     ),
                     const SizedBox(height: kSpacingSmall),
                     LinearProgressIndicator(
-                      value: receiptsCount / 10,
+                      value: receiptsCount / kMaxReceiptsForProgress,
                       backgroundColor: cs.surfaceContainerHighest,
                       color: Colors.orange,
                       minHeight: kBorderWidthThick * 2, // 4px
@@ -515,9 +679,11 @@ class _ActiveListsCard extends StatelessWidget {
     BuildContext context,
     ShoppingList list,
   ) async {
+    HapticFeedback.mediumImpact(); // ✨ רטט בינוני למחיקה
     debugPrint('🏠 HomeDashboard: מוחק רשימה "${list.name}" (${list.id})');
     
     final provider = context.read<ShoppingListsProvider>();
+    final scaffoldMessenger = ScaffoldMessenger.of(context); // 👈 שמירה לפני async
 
     try {
       // שמירת כל הנתונים לפני מחיקה
@@ -528,7 +694,7 @@ class _ActiveListsCard extends StatelessWidget {
       debugPrint('   ✅ רשימה נמחקה');
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        scaffoldMessenger.showSnackBar(
           SnackBar(
             content: Text(AppStrings.home.listDeleted(deletedList.name)),
             action: SnackBarAction(
@@ -546,7 +712,7 @@ class _ActiveListsCard extends StatelessWidget {
     } catch (e) {
       debugPrint('   ❌ שגיאה במחיקת רשימה: $e');
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        scaffoldMessenger.showSnackBar(
           SnackBar(
             content: Text(AppStrings.home.deleteListError(e.toString())),
             backgroundColor: Colors.red,
@@ -566,7 +732,7 @@ class _ActiveListsCard extends StatelessWidget {
     final accent = brand?.accent ?? cs.primary;
 
     return Card(
-      elevation: 3, // 🆕 elevation גבוה יותר
+      elevation: kCardElevationHigh, // ✅ constant במקום 3
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(kBorderRadiusLarge),
       ),

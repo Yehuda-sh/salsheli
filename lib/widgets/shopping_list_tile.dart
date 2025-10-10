@@ -247,7 +247,21 @@ class ShoppingListTile extends StatelessWidget {
       child: Material(
         elevation: 2,
         borderRadius: BorderRadius.circular(12),
-        child: Column(
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border(
+              right: BorderSide(
+                color: list.status == ShoppingList.statusCompleted
+                    ? Colors.green.shade400
+                    : list.status == ShoppingList.statusArchived
+                        ? Colors.grey.shade400
+                        : theme.colorScheme.primary,
+                width: 4,
+              ),
+            ),
+          ),
+          child: Column(
           children: [
             InkWell(
               borderRadius: const BorderRadius.vertical(
@@ -408,6 +422,7 @@ class ShoppingListTile extends StatelessWidget {
                 ),
               ),
           ],
+          ),
         ),
       ),
     );

@@ -137,6 +137,16 @@ const double kListTilePaddingEnd = 12.0;
 /// Card margin אנכי (8px) - זהה ל-kSpacingSmall
 const double kCardMarginVertical = 8.0;
 
+/// Card padding צפוף (14px) - קטן מעט מ-kSpacingMedium
+const double kCardPaddingTight = 14.0;
+
+// ========================================
+// Accessibility
+// ========================================
+
+/// גודל מינימלי לכפתורים/אלמנטים ניתנים ללחיצה (48x48)
+const double kMinTouchTarget = 48.0;
+
 // ========================================
 // אייקונים
 // ========================================
@@ -203,6 +213,9 @@ const Duration kAnimationDurationLong = Duration(milliseconds: 500);
 
 /// גובה מינימלי ל-LinearProgressIndicator
 const double kProgressIndicatorHeight = 6.0;
+
+/// מספר מקסימלי של קבלות להצגת התקדמות (100%)
+const int kMaxReceiptsForProgress = 10;
 
 /// זמן המתנה ללחיצה כפולה (2 שניות)
 const Duration kDoubleTapTimeout = Duration(seconds: 2);

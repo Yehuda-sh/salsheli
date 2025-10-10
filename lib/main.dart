@@ -54,6 +54,7 @@ import 'screens/shopping/shopping_lists_screen.dart';
 import 'screens/shopping/active_shopping_screen.dart';
 import 'screens/shopping/shopping_list_details_screen.dart';
 import 'screens/lists/populate_list_screen.dart';
+import 'screens/lists/templates_screen.dart';  // 📋 Templates!
 import 'screens/receipts/receipt_manager_screen.dart';
 import 'screens/pantry/my_pantry_screen.dart';
 import 'screens/price/price_comparison_screen.dart';
@@ -368,6 +369,7 @@ class _MyAppState extends State<MyApp> {
         '/price-comparison': (context) => const PriceComparisonScreen(),
         '/price-compare': (context) => const PriceComparisonScreen(), // alias
         '/shopping-lists': (context) => const ShoppingListsScreen(),
+        '/templates': (context) => const TemplatesScreen(),  // 📋 Templates!
       },
       onGenerateRoute: (settings) {
         // shopping-summary - מקבל listId

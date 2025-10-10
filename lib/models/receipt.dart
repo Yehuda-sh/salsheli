@@ -83,9 +83,11 @@ class FlexDoubleConverter implements JsonConverter<double, Object?> {
 @JsonSerializable(explicitToJson: true, fieldRename: FieldRename.snake)
 class Receipt {
   /// מזהה ייחודי של הקבלה
+  @JsonKey(defaultValue: '')
   final String id;
 
   /// שם החנות
+  @JsonKey(defaultValue: 'חנות ללא שם')
   final String storeName;
 
   /// תאריך הקנייה
@@ -146,6 +148,7 @@ class Receipt {
 @JsonSerializable(fieldRename: FieldRename.snake)
 class ReceiptItem {
   /// מזהה ייחודי לפריט
+  @JsonKey(defaultValue: '')
   final String id;
 
   /// שם המוצר (אופציונלי - יכול להיות null אם OCR נכשל)
@@ -177,7 +180,7 @@ class ReceiptItem {
   final String? unit;
 
   const ReceiptItem({
-    required this.id,
+    this.id = '',
     this.name,
     this.quantity = 1,
     this.unitPrice = 0.0,
