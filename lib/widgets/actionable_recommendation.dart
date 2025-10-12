@@ -9,6 +9,7 @@
 /// - Optional pantry button
 /// - Animated entrance (slide + fade)
 /// - Priority-based coloring
+/// - Full accessibility support (semanticLabel)
 /// 
 /// Usage:
 /// ```dart
@@ -23,11 +24,16 @@
 /// Dependencies:
 /// - Suggestion model
 /// - Material 3 design
+/// - ui_constants.dart
+/// 
+/// Version: 2.0 - Constants Integration (10/10/2025)
 
 library;
 
 import 'package:flutter/material.dart';
 import '../models/suggestion.dart';
+import '../core/ui_constants.dart';
+import '../theme/app_theme.dart';
 
 class ActionableRecommendation extends StatefulWidget {
   final Suggestion suggestion;
@@ -64,7 +70,7 @@ class _ActionableRecommendationState extends State<ActionableRecommendation>
     
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: kAnimationDurationMedium,
     );
 
     _slideAnimation = Tween<Offset>(
@@ -102,22 +108,24 @@ class _ActionableRecommendationState extends State<ActionableRecommendation>
       widget.onAddToList!();
 
       if (!mounted) return;
+      
+      final brand = Theme.of(context).extension<AppBrand>();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('${widget.suggestion.productName} נוסף לרשימה ✅'),
-          backgroundColor: Colors.green.shade700,
+          backgroundColor: brand?.success ?? Colors.green.shade700,
           behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 2),
+          duration: kSnackBarDuration,
         ),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('שגיאה בהוספה, נסה שוב'),
-          backgroundColor: Colors.red,
+        SnackBar(
+          content: const Text('שגיאה בהוספה, נסה שוב'),
+          backgroundColor: Theme.of(context).colorScheme.error,
           behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 2),
+          duration: kSnackBarDuration,
         ),
       );
     } finally {
@@ -129,12 +137,13 @@ class _ActionableRecommendationState extends State<ActionableRecommendation>
     setState(() => _isRemoved = true);
     widget.onRemove?.call();
 
+    final brand = Theme.of(context).extension<AppBrand>();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${widget.suggestion.productName} הוסר מההמלצות'),
-        backgroundColor: Colors.orange.shade700,
+        backgroundColor: brand?.warning ?? Colors.orange.shade700,
         behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
+        duration: kSnackBarDuration,
       ),
     );
   }
@@ -155,10 +164,10 @@ class _ActionableRecommendationState extends State<ActionableRecommendation>
       child: FadeTransition(
         opacity: _fadeAnimation,
         child: Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          elevation: 2,
+          margin: const EdgeInsets.only(bottom: kSpacingSmallPlus),
+          elevation: kCardElevation,
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(kSpacingMedium),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -167,19 +176,19 @@ class _ActionableRecommendationState extends State<ActionableRecommendation>
                   children: [
                     // אייקון עדיפות
                     Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(kSpacingSmall),
                       decoration: BoxDecoration(
                         color: priorityColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                       ),
                       child: Icon(
                         _getPriorityIcon(suggestion.priority),
                         color: priorityColor,
-                        size: 20,
+                        size: kIconSizeMedium,
                         semanticLabel: 'עדיפות ${suggestion.priority}',
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: kSpacingSmallPlus),
 
                     // שם המוצר
                     Expanded(
@@ -192,13 +201,17 @@ class _ActionableRecommendationState extends State<ActionableRecommendation>
                               fontWeight: FontWeight.bold,
                               color: cs.onSurface,
                             ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: kSpacingTiny),
                           Text(
                             suggestion.reasonText,
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: cs.onSurfaceVariant,
                             ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
                           ),
                         ],
                       ),
@@ -206,20 +219,20 @@ class _ActionableRecommendationState extends State<ActionableRecommendation>
                   ],
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: kSpacingSmallPlus),
 
                 // כמות + קטגוריה
                 Wrap(
-                  spacing: 8,
+                  spacing: kSpacingSmall,
                   children: [
                     Chip(
-                      avatar: const Icon(Icons.shopping_bag, size: 16),
+                      avatar: const Icon(Icons.shopping_bag, size: kIconSizeSmall),
                       label: Text(_getQuantityLabel()),
                       backgroundColor: cs.surfaceContainerHighest,
                       labelStyle: theme.textTheme.bodySmall,
                     ),
                     Chip(
-                      avatar: const Icon(Icons.category, size: 16),
+                      avatar: const Icon(Icons.category, size: kIconSizeSmall),
                       label: Text(suggestion.category),
                       backgroundColor: cs.surfaceContainerHighest,
                       labelStyle: theme.textTheme.bodySmall,
@@ -227,7 +240,7 @@ class _ActionableRecommendationState extends State<ActionableRecommendation>
                   ],
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: kSpacingSmallPlus),
 
                 // כפתורי פעולה
                 Row(
@@ -240,19 +253,19 @@ class _ActionableRecommendationState extends State<ActionableRecommendation>
                           style: ElevatedButton.styleFrom(
                             backgroundColor: cs.primary,
                             foregroundColor: cs.onPrimary,
-                            minimumSize: const Size(0, 48), // ✅ תוקן ל-48
+                            minimumSize: const Size(0, kMinTouchTarget),
                           ),
                           icon: _isAdding
                               ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
+                                  width: kIconSizeSmall,
+                                  height: kIconSizeSmall,
                                   child: CircularProgressIndicator(
-                                    strokeWidth: 2,
+                                    strokeWidth: kBorderWidthThick,
                                     color: Colors.white,
                                   ),
                                 )
                               : const Icon(Icons.add, 
-                                  size: 18,
+                                  size: 18.0, // Medium-small
                                   semanticLabel: 'הוסף', // ✅ accessibility
                                 ),
                           label: Text(_isAdding ? 'מוסיף...' : 'הוסף לרשימה'),
@@ -260,7 +273,7 @@ class _ActionableRecommendationState extends State<ActionableRecommendation>
                       ),
 
                     if (widget.onAddToList != null && widget.showPantryButton)
-                      const SizedBox(width: 8),
+                      const SizedBox(width: kSpacingSmall),
 
                     // כפתור מזווה (אופציונלי)
                     if (widget.showPantryButton)
@@ -273,25 +286,25 @@ class _ActionableRecommendationState extends State<ActionableRecommendation>
                             side: BorderSide(
                               color: cs.primary.withValues(alpha: 0.4),
                             ),
-                            minimumSize: const Size(0, 48), // ✅ תוקן ל-48
+                            minimumSize: const Size(0, kMinTouchTarget),
                             foregroundColor: cs.primary,
                           ),
                           icon: const Icon(Icons.kitchen, 
-                            size: 18,
+                            size: 18.0, // Medium-small
                             semanticLabel: 'מזווה', // ✅ accessibility
                           ),
                           label: const Text('למזווה'),
                         ),
                       ),
 
-                    const SizedBox(width: 8),
+                    const SizedBox(width: kSpacingSmall),
 
                     // כפתור הסרה
                     IconButton(
                       tooltip: 'הסר המלצה',
                       onPressed: _handleRemove,
                       icon: Icon(Icons.close, 
-                        color: Colors.red.shade400,
+                        color: Theme.of(context).colorScheme.error,
                         semanticLabel: 'הסר המלצה', // ✅ accessibility
                       ),
                     ),

@@ -46,6 +46,9 @@ const double kSpacingTiny = 4.0;
 /// ריווח קטן-קטן (6px) - בין Tiny ל-Small
 const double kSpacingXTiny = 6.0;
 
+/// ריווח קטן-בינוני (10px) - בין Small ל-SmallPlus
+const double kSpacingXSmall = 10.0;
+
 /// ריווח ענק (32px)
 const double kSpacingXLarge = 32.0;
 
@@ -86,6 +89,9 @@ const double kBorderWidthThin = 0.5;
 
 /// עובי גבול עבה
 const double kBorderWidthThick = 2.0;
+
+/// עובי גבול עבה מאוד (4px) - הדגשה חזקה
+const double kBorderWidthExtraThick = 4.0;
 
 /// עובי גבול focused (שדות קלט)
 const double kBorderWidthFocused = 2.0;
@@ -139,6 +145,9 @@ const double kCardMarginVertical = 8.0;
 
 /// Card padding צפוף (14px) - קטן מעט מ-kSpacingMedium
 const double kCardPaddingTight = 14.0;
+
+/// Dialog padding (horizontal: 16, vertical: 24)
+const EdgeInsets kPaddingDialog = EdgeInsets.symmetric(horizontal: 16, vertical: 24);
 
 // ========================================
 // Accessibility
@@ -266,6 +275,34 @@ const double kCardElevationLow = 1.0;
 const double kCardElevationHigh = 4.0;
 
 // ========================================
+// Skeleton Loading
+// ========================================
+
+/// רוחב skeleton לכותרת (200px)
+const double kSkeletonTitleWidth = 200.0;
+
+/// גובה skeleton לכותרת (20px)
+const double kSkeletonTitleHeight = 20.0;
+
+/// רוחב skeleton לתת-כותרת (150px)
+const double kSkeletonSubtitleWidth = 150.0;
+
+/// גובה skeleton לתת-כותרת (16px)
+const double kSkeletonSubtitleHeight = 16.0;
+
+/// גובה skeleton לתוכן (40px)
+const double kSkeletonContentHeight = 40.0;
+
+/// משך אנימציית shimmer (1200ms)
+const Duration kSkeletonShimmerDuration = Duration(milliseconds: 1200);
+
+/// שקיפות אפקט shimmer (0.5)
+const double kSkeletonShimmerAlpha = 0.5;
+
+/// עיכוב בין skeleton cards (100ms)
+const Duration kSkeletonStaggerDelay = Duration(milliseconds: 100);
+
+// ========================================
 // Receipt Parsing
 // ========================================
 
@@ -283,6 +320,39 @@ const int kMaxStoreLinesCheck = 5;
 
 /// אורך מקסימלי לשם חנות מהשורה הראשונה
 const int kMaxStoreNameLength = 30;
+
+// ========================================
+// Dialog Constraints
+// ========================================
+
+/// גובה מקסימלי לdialog תוכן (280px)
+const double kDialogMaxHeight = 280.0;
+
+/// רוחב מקסימלי לdialog (400px)
+const double kDialogMaxWidth = 400.0;
+
+// ========================================
+// Opacity/Alpha Values
+// ========================================
+
+/// שקיפות נמוכה (0.2) - גבולות עדינים
+const double kOpacityLight = 0.2;
+
+/// שקיפות נמוכה-בינונית (0.3) - רקעים עדינים
+const double kOpacityLow = 0.3;
+
+/// שקיפות בינונית (0.5) - overlays
+const double kOpacityMedium = 0.5;
+
+/// שקיפות גבוהה (0.6) - טקסט משני
+const double kOpacityHigh = 0.6;
+
+// ========================================
+// Date/Time Ranges
+// ========================================
+
+/// טווח מקסימלי לתאריך אירוע עתידי (365 ימים)
+const Duration kMaxEventDateRange = Duration(days: 365);
 
 // ========================================
 // 💡 דוגמאות שימוש

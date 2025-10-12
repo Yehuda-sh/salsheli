@@ -35,6 +35,14 @@
 // Container(
 //   color: brand?.accent, // Amber
 // )
+// 
+// SnackBar(
+//   backgroundColor: brand?.success, // Green (success)
+// )
+// 
+// SnackBar(
+//   backgroundColor: brand?.warning, // Orange (warning)
+// )
 // ```
 //
 // Example 3 - Use theme colors:
@@ -48,9 +56,11 @@
 // - Slate 800 (#1E293B): Cards, Dialogs in dark mode
 // - Slate 700 (#334155): Dividers, borders
 // - Amber (#FFC107): Accent color (buttons, highlights)
+// - Green (#689F38): Success color (SnackBar, feedback)
+// - Orange (#FF9800): Warning color (SnackBar, alerts)
 // - Primary Seed (#4CAF50): Green base for Material palette
 //
-// Version: 2.0
+// Version: 2.1 - Custom Colors (success, warning)
 
 import 'package:flutter/material.dart';
 
@@ -88,11 +98,19 @@ class AppBrand extends ThemeExtension<AppBrand> {
   
   /// רקע מסך Welcome (Slate 900)
   final Color welcomeBackground;
+  
+  /// צבע הצלחה (Success) - ירוק
+  final Color success;
+  
+  /// צבע אזהרה (Warning) - כתום
+  final Color warning;
 
   const AppBrand({
     required this.accent,
     required this.surfaceSlate,
     required this.welcomeBackground,
+    required this.success,
+    required this.warning,
   });
 
   @override
@@ -100,12 +118,16 @@ class AppBrand extends ThemeExtension<AppBrand> {
     Color? accent,
     Color? surfaceSlate,
     Color? welcomeBackground,
+    Color? success,
+    Color? warning,
   }) {
     debugPrint('🎨 AppBrand.copyWith()');
     return AppBrand(
       accent: accent ?? this.accent,
       surfaceSlate: surfaceSlate ?? this.surfaceSlate,
       welcomeBackground: welcomeBackground ?? this.welcomeBackground,
+      success: success ?? this.success,
+      warning: warning ?? this.warning,
     );
   }
 
@@ -121,6 +143,8 @@ class AppBrand extends ThemeExtension<AppBrand> {
         other.welcomeBackground,
         t,
       )!,
+      success: Color.lerp(success, other.success, t)!,
+      warning: Color.lerp(warning, other.warning, t)!,
     );
   }
 }
@@ -152,6 +176,8 @@ class AppTheme {
       accent: _Brand.amber,
       surfaceSlate: _Brand.slate900,
       welcomeBackground: _Brand.slate900,
+      success: Colors.green.shade700,
+      warning: Colors.orange.shade700,
     );
     
     debugPrint('   🎨 accent: ${brand.accent.toARGB32().toRadixString(16)}');

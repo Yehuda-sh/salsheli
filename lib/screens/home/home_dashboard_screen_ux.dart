@@ -5,8 +5,9 @@
 // ✅ Skeleton loading במקום spinner
 // ✅ Staggered animations לכרטיסים
 // ✅ Haptic feedback
+// ✅ Constants למידות (אין hardcoded values)
 //
-// גרסה: 1.0
+// גרסה: 2.0 - Constants Integration (10/10/2025)
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -51,8 +52,8 @@ class _SkeletonCard extends StatelessWidget {
           children: [
             // שורה 1 - כותרת
             Container(
-              width: 200,
-              height: 20,
+              width: kSkeletonTitleWidth,
+              height: kSkeletonTitleHeight,
               decoration: BoxDecoration(
                 color: cs.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(kBorderRadiusSmall),
@@ -61,15 +62,15 @@ class _SkeletonCard extends StatelessWidget {
               .animate(onPlay: (c) => c.repeat())
               .shimmer(
                 duration: 1200.ms,
-                color: cs.surface.withValues(alpha: 0.5),
+                color: cs.surface.withValues(alpha: kSkeletonShimmerAlpha),
               ),
             
             const SizedBox(height: kSpacingSmall),
             
             // שורה 2 - תת-כותרת
             Container(
-              width: 150,
-              height: 16,
+              width: kSkeletonSubtitleWidth,
+              height: kSkeletonSubtitleHeight,
               decoration: BoxDecoration(
                 color: cs.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(kBorderRadiusSmall),
@@ -79,7 +80,7 @@ class _SkeletonCard extends StatelessWidget {
               .shimmer(
                 duration: 1200.ms,
                 delay: 200.ms,
-                color: cs.surface.withValues(alpha: 0.5),
+                color: cs.surface.withValues(alpha: kSkeletonShimmerAlpha),
               ),
             
             const SizedBox(height: kSpacingMedium),
@@ -87,7 +88,7 @@ class _SkeletonCard extends StatelessWidget {
             // שורה 3 - תוכן
             Container(
               width: double.infinity,
-              height: 40,
+              height: kSkeletonContentHeight,
               decoration: BoxDecoration(
                 color: cs.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(kBorderRadiusSmall),
@@ -97,7 +98,7 @@ class _SkeletonCard extends StatelessWidget {
               .shimmer(
                 duration: 1200.ms,
                 delay: 400.ms,
-                color: cs.surface.withValues(alpha: 0.5),
+                color: cs.surface.withValues(alpha: kSkeletonShimmerAlpha),
               ),
           ],
         ),

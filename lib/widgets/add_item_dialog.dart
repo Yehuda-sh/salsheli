@@ -10,6 +10,8 @@
 /// - Category & location dropdowns
 /// - Optional price estimation
 /// - Quantity +/- buttons
+/// - Full accessibility support
+/// - Loading states for async operations
 /// 
 /// Usage:
 /// ```dart
@@ -26,8 +28,10 @@
 /// Dependencies:
 /// - intl package for date formatting
 /// - Material 3 design
+/// - ui_constants.dart
+/// - pantry_config.dart (units, categories, locations)
 /// 
-/// Version: 2.0
+/// Version: 3.0 - Config Integration + Loading States (10/10/2025)
 
 library;
 
@@ -36,9 +40,38 @@ import 'package:intl/intl.dart';
 import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 
-/// סימולציית LLM/ברקוד (השארת כפי שנתת)
+import '../core/ui_constants.dart';
+import '../config/pantry_config.dart';
+
+// ========================================
+// 🎭 DEMO/MOCK: Barcode Scanner
+// ========================================
+
+/// 🎭 DEMO/MOCK: סימולציית LLM לזיהוי ברקוד
+/// 
+/// ⚠️ **זהירות:** זוהי פונקציה Demo בלבד!
+/// - תמיד מחזיר אותו מוצר: "פסטה ברילה"
+/// - לא מתחבר לשירות אמיתי
+/// - נועד רק להדגמת UI Flow
+/// 
+/// 🔮 **TODO - Production:**
+/// - להחליף ב-OcrService.scanBarcode()
+/// - או להתחבר ל-BarcodeScanner API
+/// - או להשתמש ב-ML Kit Barcode Scanning
+/// 
+/// Example:
+/// ```dart
+/// // ❌ DEMO (current):
+/// final result = await invokeLLM("1234567890");
+/// 
+/// // ✅ Production (future):
+/// final result = await context.read<OcrService>().scanBarcode();
+/// ```
 Future<Map<String, dynamic>> invokeLLM(String barcode) async {
-  await Future.delayed(const Duration(seconds: 1));
+  // סימולציית עיכוב רשת
+  await Future.delayed(kAnimationDurationLong);
+  
+  // ⚠️ תמיד מחזיר אותו מוצר (MOCK)
   return {
     "found": true,
     "product_name": "פסטה ברילה",
@@ -64,31 +97,14 @@ class _AddItemDialogState extends State<AddItemDialog> {
   final _quantityController = TextEditingController(text: "1");
   final _estimatedPriceController = TextEditingController();
 
-  String unit = "יחידות";
-  String category = "pasta_rice";
-  String location = "main_pantry";
+  String unit = PantryConfig.defaultUnit;
+  String category = PantryConfig.defaultCategory;
+  String location = PantryConfig.defaultLocation;
   DateTime? expiryDate;
   String barcode = "";
+  
   bool isSaving = false;
-
-  final unitOptions = const ["יחידות", "ק\"ג", "גרם", "ליטר", "מ\"ל"];
-
-  final locationOptions = const {
-    "main_pantry": "מזווה ראשי",
-    "refrigerator": "מקרר",
-    "freezer": "מקפיא",
-    "secondary_storage": "אחסון משני",
-  };
-
-  final categoryOptions = const {
-    "pasta_rice": "פסטה ואורז",
-    "vegetables": "ירקות",
-    "fruits": "פירות",
-    "meat": "בשר",
-    "dairy": "מוצרי חלב",
-    "bakery": "מאפים",
-    "other": "אחר",
-  };
+  bool _isScanning = false; // ✅ Loading state חדש
 
   @override
   void initState() {
@@ -146,13 +162,13 @@ class _AddItemDialogState extends State<AddItemDialog> {
     };
 
     // סימולציה קלה לשמירה
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(kAnimationDurationMedium);
 
     if (!mounted) return;
     widget.onAddItem(newItem);
 
     if (!mounted) return;
-    Navigator.pop(context); // סגור קודם!
+    Navigator.pop(context); // סגור דיאלוג
     
     // SnackBar אחרי סגירה
     if (!mounted) return;
@@ -167,26 +183,45 @@ class _AddItemDialogState extends State<AddItemDialog> {
     FocusScope.of(context).unfocus();
     debugPrint('📷 AddItemDialog.scanBarcode - invoking LLM...');
     
-    final result = await invokeLLM("1234567890");
+    // ✅ הצגת Loading state
+    setState(() => _isScanning = true);
 
-    if (!mounted) return;
-    if (result["found"] == true) {
-      setState(() {
-        _productNameController.text = (result["product_name"] ?? "").toString();
-        category = (result["category"] ?? category).toString();
-        unit = (result["unit"] ?? unit).toString();
-        barcode = "1234567890";
-      });
+    try {
+      final result = await invokeLLM("1234567890");
 
-      debugPrint('   ✅ מוצר נמצא: ${result["product_name"]}');
+      if (!mounted) return;
+      
+      if (result["found"] == true) {
+        setState(() {
+          _productNameController.text = (result["product_name"] ?? "").toString();
+          category = PantryConfig.getCategorySafe(result["category"]?.toString());
+          unit = result["unit"]?.toString() ?? unit;
+          barcode = "1234567890";
+        });
+
+        debugPrint('   ✅ מוצר נמצא: ${result["product_name"]}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("נמצא מוצר: ${result["product_name"]} ✅")),
+        );
+      } else {
+        debugPrint('   ❌ מוצר לא נמצא');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("לא נמצא מוצר עם הברקוד הזה")),
+        );
+      }
+    } catch (e) {
+      debugPrint('   ❌ שגיאה בסריקת ברקוד: $e');
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("נמצא מוצר: ${result["product_name"]} ✅")),
+        SnackBar(
+          content: Text("שגיאה בסריקה: $e"),
+          backgroundColor: Colors.red,
+        ),
       );
-    } else {
-      debugPrint('   ❌ מוצר לא נמצא');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("לא נמצא מוצר עם הברקוד הזה")),
-      );
+    } finally {
+      if (mounted) {
+        setState(() => _isScanning = false);
+      }
     }
   }
 
@@ -236,7 +271,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                   labelText: "שם מוצר",
                   prefixIcon: Icon(
                     Icons.shopping_bag_outlined,
-                    semanticLabel: 'שם מוצר', // ✅ accessibility
+                    semanticLabel: 'שם מוצר',
                   ),
                 ),
                 validator: (val) {
@@ -248,7 +283,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                 textInputAction: TextInputAction.next,
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(height: kSpacingSmall),
 
               // כמות + כפתורים
               Row(
@@ -262,7 +297,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                         labelText: "כמות",
                         prefixIcon: Icon(
                           Icons.onetwothree,
-                          semanticLabel: 'כמות', // ✅ accessibility
+                          semanticLabel: 'כמות',
                         ),
                       ),
                       validator: (val) {
@@ -274,14 +309,14 @@ class _AddItemDialogState extends State<AddItemDialog> {
                       },
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: kSpacingSmall),
                   _qtyBtn(icon: Icons.remove, onTap: _decQty, cs: cs, label: 'הפחת כמות'),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: kSpacingXTiny),
                   _qtyBtn(icon: Icons.add, onTap: _incQty, cs: cs, label: 'הוסף כמות'),
                 ],
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(height: kSpacingSmall),
 
               // יחידה
               DropdownButtonFormField<String>(
@@ -290,16 +325,16 @@ class _AddItemDialogState extends State<AddItemDialog> {
                   labelText: "יחידה",
                   prefixIcon: Icon(
                     Icons.straighten,
-                    semanticLabel: 'יחידת מדידה', // ✅ accessibility
+                    semanticLabel: 'יחידת מדידה',
                   ),
                 ),
-                items: unitOptions
+                items: PantryConfig.unitOptions
                     .map((u) => DropdownMenuItem(value: u, child: Text(u)))
                     .toList(),
                 onChanged: (val) => setState(() => unit = val!),
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(height: kSpacingSmall),
 
               // קטגוריה
               DropdownButtonFormField<String>(
@@ -308,10 +343,10 @@ class _AddItemDialogState extends State<AddItemDialog> {
                   labelText: "קטגוריה",
                   prefixIcon: Icon(
                     Icons.category_outlined,
-                    semanticLabel: 'קטגוריה', // ✅ accessibility
+                    semanticLabel: 'קטגוריה',
                   ),
                 ),
-                items: categoryOptions.entries
+                items: PantryConfig.categoryOptions.entries
                     .map(
                       (e) =>
                           DropdownMenuItem(value: e.key, child: Text(e.value)),
@@ -320,7 +355,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                 onChanged: (val) => setState(() => category = val!),
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(height: kSpacingSmall),
 
               // מיקום
               DropdownButtonFormField<String>(
@@ -329,19 +364,20 @@ class _AddItemDialogState extends State<AddItemDialog> {
                   labelText: "מיקום",
                   prefixIcon: Icon(
                     Icons.kitchen_outlined,
-                    semanticLabel: 'מיקום אחסון', // ✅ accessibility
+                    semanticLabel: 'מיקום אחסון',
                   ),
                 ),
-                items: locationOptions.entries
-                    .map(
-                      (e) =>
-                          DropdownMenuItem(value: e.key, child: Text(e.value)),
-                    )
-                    .toList(),
+                items: PantryConfig.locationOptions.map((locationId) {
+                  final locationName = PantryConfig.getLocationName(locationId);
+                  return DropdownMenuItem(
+                    value: locationId,
+                    child: Text(locationName),
+                  );
+                }).toList(),
                 onChanged: (val) => setState(() => location = val!),
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(height: kSpacingSmall),
 
               // מחיר מוערך (אופציונלי)
               TextFormField(
@@ -354,7 +390,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
                   labelText: "מחיר מוערך (אופציונלי)",
                   prefixIcon: Icon(
                     Icons.attach_money,
-                    semanticLabel: 'מחיר', // ✅ accessibility
+                    semanticLabel: 'מחיר',
                   ),
                   prefixText: "₪ ",
                 ),
@@ -368,31 +404,40 @@ class _AddItemDialogState extends State<AddItemDialog> {
                 },
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(height: kSpacingSmall),
 
               // פעולות: ברקוד + תוקף
               Row(
                 children: [
                   ElevatedButton.icon(
-                    onPressed: scanBarcode,
+                    onPressed: _isScanning ? null : scanBarcode, // ✅ disabled כש-scanning
                     style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(0, 48), // ✅ touch target
+                      minimumSize: const Size(0, kMinTouchTarget),
                     ),
-                    icon: const Icon(
-                      Icons.qr_code_scanner,
-                      semanticLabel: 'סרוק ברקוד', // ✅ accessibility
-                    ),
-                    label: const Text("סרוק ברקוד"),
+                    icon: _isScanning
+                        ? const SizedBox(
+                            width: kIconSizeMedium,
+                            height: kIconSizeMedium,
+                            child: CircularProgressIndicator(
+                              strokeWidth: kBorderWidthThin,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(
+                            Icons.qr_code_scanner,
+                            semanticLabel: 'סרוק ברקוד',
+                          ),
+                    label: Text(_isScanning ? "סורק..." : "סרוק ברקוד"), // ✅ משתנה לפי מצב
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: kSpacingSmall),
                   ElevatedButton.icon(
                     onPressed: pickExpiryDate,
                     style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(0, 48), // ✅ touch target
+                      minimumSize: const Size(0, kMinTouchTarget),
                     ),
                     icon: const Icon(
                       Icons.calendar_today,
-                      semanticLabel: 'תאריך תוקף', // ✅ accessibility
+                      semanticLabel: 'תאריך תוקף',
                     ),
                     label: const Text("תאריך תוקף"),
                   ),
@@ -402,7 +447,7 @@ class _AddItemDialogState extends State<AddItemDialog> {
               // לייבלים קטנים
               if (expiryDate != null)
                 Padding(
-                  padding: const EdgeInsets.only(top: 8),
+                  padding: const EdgeInsets.only(top: kSpacingSmall),
                   child: Text(
                     "תוקף: ${DateFormat('dd/MM/yyyy').format(expiryDate!)}",
                     style: const TextStyle(fontWeight: FontWeight.w500),
@@ -410,10 +455,10 @@ class _AddItemDialogState extends State<AddItemDialog> {
                 ),
               if (barcode.isNotEmpty)
                 Padding(
-                  padding: const EdgeInsets.only(top: 4),
+                  padding: const EdgeInsets.only(top: kSpacingTiny),
                   child: Text(
                     "ברקוד: $barcode",
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    style: TextStyle(fontSize: kFontSizeTiny, color: Colors.grey),
                   ),
                 ),
             ],
@@ -427,21 +472,21 @@ class _AddItemDialogState extends State<AddItemDialog> {
             Navigator.pop(context);
           },
           style: TextButton.styleFrom(
-            minimumSize: const Size(0, 48), // ✅ touch target
+            minimumSize: const Size(0, kMinTouchTarget),
           ),
           child: const Text("ביטול"),
         ),
         ElevatedButton(
           onPressed: isSaving ? null : saveItem,
           style: ElevatedButton.styleFrom(
-            minimumSize: const Size(0, 48), // ✅ touch target
+            minimumSize: const Size(0, kMinTouchTarget),
           ),
           child: isSaving
               ? const SizedBox(
-                  width: 18,
-                  height: 18,
+                  width: kIconSizeMedium,
+                  height: kIconSizeMedium,
                   child: CircularProgressIndicator(
-                    strokeWidth: 2,
+                    strokeWidth: kBorderWidthThick,
                     color: Colors.white,
                   ),
                 )
@@ -455,23 +500,23 @@ class _AddItemDialogState extends State<AddItemDialog> {
     required IconData icon,
     required VoidCallback onTap,
     required ColorScheme cs,
-    required String label, // ✅ accessibility parameter
+    required String label,
   }) {
     return SizedBox(
-      width: 48, // ✅ touch target
-      height: 48, // ✅ touch target
+      width: kMinTouchTarget,
+      height: kMinTouchTarget,
       child: Material(
         color: cs.primary.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
         child: InkWell(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
           onTap: onTap,
           child: Center(
             child: Icon(
               icon, 
               color: cs.primary, 
-              size: 18,
-              semanticLabel: label, // ✅ accessibility
+              size: kIconSizeMedium,
+              semanticLabel: label,
             ),
           ),
         ),

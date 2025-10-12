@@ -31,6 +31,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../core/constants.dart';
+import '../core/ui_constants.dart';
 import '../config/list_type_groups.dart';
 import '../providers/shopping_lists_provider.dart';
 import '../providers/templates_provider.dart';
@@ -148,12 +149,12 @@ class _CreateListDialogState extends State<CreateListDialog> {
                   children: [
                     // Header
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(kSpacingMedium),
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.surfaceContainerHighest,
                         border: Border(
                           bottom: BorderSide(
-                            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                            color: Theme.of(context).colorScheme.outline.withValues(alpha: kOpacityLight),
                           ),
                         ),
                       ),
@@ -213,14 +214,14 @@ class _CreateListDialogState extends State<CreateListDialog> {
                               Icon(
                                 Icons.inventory_2_outlined,
                                 size: 64,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: kOpacityMedium),
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: kSpacingMedium),
                               Text(
                                 'אין תבניות זמינות',
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: kSpacingSmall),
                               Text(
                                 'צור תבנית ראשונה במסך התבניות',
                                 style: Theme.of(context).textTheme.bodySmall,
@@ -235,26 +236,26 @@ class _CreateListDialogState extends State<CreateListDialog> {
                       Expanded(
                         child: ListView.builder(
                           controller: scrollController,
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(kSpacingMedium),
                           itemCount: provider.templates.length,
                           itemBuilder: (context, index) {
                             final template = provider.templates[index];
                             final typeInfo = kListTypes[template.type] ?? kListTypes['other']!;
 
                             return Card(
-                              margin: const EdgeInsets.only(bottom: 12),
+                              margin: const EdgeInsets.only(bottom: kSpacingSmallPlus),
                               child: ListTile(
                                 leading: Container(
-                                  width: 48,
-                                  height: 48,
+                                  width: kMinTouchTarget,
+                                  height: kMinTouchTarget,
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
-                                    borderRadius: BorderRadius.circular(8),
+                                    color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: kOpacityLow),
+                                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                                   ),
                                   child: Center(
                                     child: Text(
                                       typeInfo['icon']!,
-                                      style: const TextStyle(fontSize: 24),
+                                      style: const TextStyle(fontSize: kIconSize),
                                     ),
                                   ),
                                 ),
@@ -328,15 +329,15 @@ class _CreateListDialogState extends State<CreateListDialog> {
             color: theme.colorScheme.primary,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: kSpacingSmall),
 
         // קבוצות
         Container(
           decoration: BoxDecoration(
             border: Border.all(
-              color: theme.colorScheme.outline.withValues(alpha: 0.3),
+              color: theme.colorScheme.outline.withValues(alpha: kOpacityLow),
             ),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
           ),
           child: Column(
             children: ListTypeGroups.allGroups.map((group) {
@@ -356,11 +357,11 @@ class _CreateListDialogState extends State<CreateListDialog> {
 
     return ExpansionTile(
       initiallyExpanded: isCurrentGroupSelected,
-      tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      tilePadding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingTiny),
       childrenPadding: const EdgeInsets.only(
-        left: 16,
-        right: 16,
-        bottom: 8,
+        left: kSpacingMedium,
+        right: kSpacingMedium,
+        bottom: kSpacingSmall,
       ),
       leading: Text(
         ListTypeGroups.getGroupIcon(group),
@@ -382,7 +383,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
                   ListTypeGroups.getGroupDescription(group),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
-                    fontSize: 11,
+                    fontSize: kFontSizeTiny,
                   ),
                 ),
               ],
@@ -391,10 +392,10 @@ class _CreateListDialogState extends State<CreateListDialog> {
           // אינדיקטור אם הסוג הנוכחי בקבוצה זו
           if (isCurrentGroupSelected)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
               decoration: BoxDecoration(
                 color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(kBorderRadius),
               ),
               child: Text(
                 'נבחר',
@@ -430,10 +431,10 @@ class _CreateListDialogState extends State<CreateListDialog> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(typeInfo['name']!),
-          const SizedBox(width: 6),
+          const SizedBox(width: kSpacingXTiny),
           Text(
             typeInfo['icon']!,
-            style: const TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: kIconSizeSmall),
           ),
         ],
       ),
@@ -457,7 +458,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
       side: BorderSide(
         color: isSelected
             ? theme.colorScheme.primary
-            : theme.colorScheme.outline.withValues(alpha: 0.3),
+            : theme.colorScheme.outline.withValues(alpha: kOpacityLow),
       ),
     );
   }
@@ -468,12 +469,12 @@ class _CreateListDialogState extends State<CreateListDialog> {
     final provider = context.read<ShoppingListsProvider>();
 
     return AlertDialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      insetPadding: kPaddingDialog,
       title: const Text("יצירת רשימת קניות חדשה", textAlign: TextAlign.right),
       content: ConstrainedBox(
         constraints: const BoxConstraints(
-          maxHeight: 280, // גובה קבוע
-          maxWidth: 400,
+          maxHeight: kDialogMaxHeight,
+          maxWidth: kDialogMaxWidth,
         ),
         child: Form(
         key: _formKey,
@@ -491,10 +492,10 @@ class _CreateListDialogState extends State<CreateListDialog> {
                 icon: const Icon(Icons.library_books_outlined),
                 label: const Text('📋 שימוש בתבנית'),
                 style: OutlinedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(48),
+                  minimumSize: const Size.fromHeight(kButtonHeight),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: kSpacingMedium),
 
               // 📝 שם הרשימה
               TextFormField(
@@ -526,22 +527,22 @@ class _CreateListDialogState extends State<CreateListDialog> {
                 autofocus: true,
                 enabled: !_isSubmitting,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: kSpacingSmallPlus),
 
               // 📋 סוג הרשימה - תצוגה מקובצת
               _buildGroupedTypeSelector(),
-              const SizedBox(height: 12),
+              const SizedBox(height: kSpacingSmallPlus),
 
               // ✨ Preview של הסוג שנבחר
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(kSpacingSmall),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surfaceContainerHighest.withValues(
-                    alpha: 0.5,
+                    alpha: kOpacityMedium,
                   ),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(kBorderRadius),
                   border: Border.all(
-                    color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                    color: theme.colorScheme.outline.withValues(alpha: kOpacityLight),
                   ),
                 ),
                 child: Row(
@@ -549,9 +550,9 @@ class _CreateListDialogState extends State<CreateListDialog> {
                   children: [
                     Text(
                       kListTypes[_type]!["icon"]!,
-                      style: const TextStyle(fontSize: 32),
+                      style: const TextStyle(fontSize: kIconSizeLarge),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: kSpacingXSmall),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -572,7 +573,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: kSpacingSmallPlus),
 
               // 👆 תאריך אירוע (אופציונלי)
               InkWell(
@@ -582,7 +583,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
                     context: context,
                     initialDate: _eventDate ?? DateTime.now(),
                     firstDate: DateTime.now(),
-                    lastDate: DateTime.now().add(const Duration(days: 365)),
+                    lastDate: DateTime.now().add(kMaxEventDateRange),
                     helpText: 'בחר תאריך אירוע',
                     cancelText: 'ביטול',
                     confirmText: 'אישור',
@@ -602,7 +603,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
                         ? Tooltip(
                             message: 'נקה תאריך',
                             child: IconButton(
-                              icon: const Icon(Icons.close, size: 18),
+                              icon: const Icon(Icons.close, size: kIconSizeSmall),
                               onPressed: () {
                                 debugPrint('🗑️ מנקה תאריך אירוע');
                                 setState(() => _eventDate = null);
@@ -617,13 +618,13 @@ class _CreateListDialogState extends State<CreateListDialog> {
                         : '${_eventDate!.day}/${_eventDate!.month}/${_eventDate!.year}',
                     style: theme.textTheme.bodyLarge?.copyWith(
                       color: _eventDate == null
-                          ? theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6)
+                          ? theme.colorScheme.onSurfaceVariant.withValues(alpha: kOpacityHigh)
                           : theme.colorScheme.onSurface,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: kSpacingSmallPlus),
 
               // 💰 תקציב + Clear Button
               TextFormField(
@@ -637,7 +638,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
                       ? Tooltip(
                           message: 'נקה תקציב',
                           child: IconButton(
-                            icon: const Icon(Icons.close, size: 18),
+                            icon: const Icon(Icons.close, size: kIconSizeSmall),
                             onPressed: () {
                               debugPrint('🗑️ מנקה תקציב');
                               setState(() {
@@ -707,12 +708,12 @@ class _CreateListDialogState extends State<CreateListDialog> {
             style: ElevatedButton.styleFrom(
               backgroundColor: theme.colorScheme.primary,
               foregroundColor: theme.colorScheme.onPrimary,
-              minimumSize: const Size(48, 48), // ✅ Touch target
+              minimumSize: const Size.square(kMinTouchTarget),
             ),
             child: _isSubmitting
                 ? const SizedBox(
-                    width: 20,
-                    height: 20,
+                    width: kIconSizeMedium,
+                    height: kIconSizeMedium,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.white),

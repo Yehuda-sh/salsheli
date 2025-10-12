@@ -3,9 +3,12 @@
 // Purpose: יצירת תבניות מערכת (System Templates) ב-Firestore
 // 
 // תבניות מערכת זמינות לכל המשתמשים ומספקות נקודת התחלה לרשימות נפוצות.
-// התבניות נוצרות עם is_system=true ו-format='shared'
+// התבניות נוצרות עם is_system=true ו-default_format='shared'
 //
 // Run: npm run create-templates
+//
+// Version: 2.0 - מתוקן! (תואם ל-Template model)
+// Last Updated: 11/10/2025
 //
 
 const admin = require('firebase-admin');
@@ -24,11 +27,12 @@ const SYSTEM_TEMPLATES = [
     id: 'system_weekly_super',
     name: 'סופרמרקט שבועי',
     description: 'קניות שבועיות בסיסיות למשפחה',
+    icon: '🛒',
     type: 'super',
-    format: 'shared',
+    default_format: 'shared',
     is_system: true,
     sort_order: 1,
-    items: [
+    default_items: [
       { name: 'חלב 3% 1 ליטר', category: 'חלבי', quantity: 2, unit: 'יחידות' },
       { name: 'לחם פרוס', category: 'לחמים ומאפים', quantity: 2, unit: 'יחידות' },
       { name: 'ביצים', category: 'חלבי', quantity: 1, unit: 'מארז' },
@@ -48,11 +52,12 @@ const SYSTEM_TEMPLATES = [
     id: 'system_pharmacy',
     name: 'בית מרקחת - ערכת עזרה ראשונה',
     description: 'פריטים בסיסיים לבית מרקחת',
+    icon: '💊',
     type: 'pharmacy',
-    format: 'shared',
+    default_format: 'shared',
     is_system: true,
     sort_order: 2,
-    items: [
+    default_items: [
       { name: 'אקמול/אקמוליות', category: 'תרופות', quantity: 1, unit: 'אריזה' },
       { name: 'נורופן/אדוויל', category: 'תרופות', quantity: 1, unit: 'אריזה' },
       { name: 'פלסטרים', category: 'עזרה ראשונה', quantity: 1, unit: 'קופסה' },
@@ -69,11 +74,12 @@ const SYSTEM_TEMPLATES = [
     id: 'system_birthday_party',
     name: 'יום הולדת - מסיבה ביתית',
     description: 'כל מה שצריך למסיבת יום הולדת מוצלחת',
+    icon: '🎂',
     type: 'birthday',
-    format: 'shared',
+    default_format: 'shared',
     is_system: true,
     sort_order: 3,
-    items: [
+    default_items: [
       { name: 'עוגת יום הולדת', category: 'מאפים', quantity: 1, unit: 'יחידה' },
       { name: 'נרות יום הולדת', category: 'אירוח', quantity: 1, unit: 'חבילה' },
       { name: 'בלונים צבעוניים', category: 'קישוטים', quantity: 2, unit: 'חבילות' },
@@ -92,11 +98,12 @@ const SYSTEM_TEMPLATES = [
     id: 'system_weekend_hosting',
     name: 'אירוח סוף שבוע',
     description: 'רשימה לאירוח אורחים בסוף שבוע',
+    icon: '🍷',
     type: 'hosting',
-    format: 'shared',
+    default_format: 'shared',
     is_system: true,
     sort_order: 4,
-    items: [
+    default_items: [
       { name: 'בשר/עוף טרי', category: 'בשר ועוף', quantity: 1.5, unit: 'ק"ג' },
       { name: 'ירקות לסלט', category: 'פירות וירקות', quantity: 1, unit: 'מארז' },
       { name: 'תפוחי אדמה', category: 'פירות וירקות', quantity: 2, unit: 'ק"ג' },
@@ -116,11 +123,12 @@ const SYSTEM_TEMPLATES = [
     id: 'system_game_night',
     name: 'ערב משחקים וצפייה',
     description: 'חטיפים ושתייה לערב משחקים או צפייה',
+    icon: '🎮',
     type: 'party',
-    format: 'shared',
+    default_format: 'shared',
     is_system: true,
     sort_order: 5,
-    items: [
+    default_items: [
       { name: 'פופקורן', category: 'חטיפים', quantity: 2, unit: 'שקיות' },
       { name: 'צ\'יפס/במבה', category: 'חטיפים', quantity: 3, unit: 'שקיות' },
       { name: 'ביסלי', category: 'חטיפים', quantity: 2, unit: 'שקיות' },
@@ -138,11 +146,12 @@ const SYSTEM_TEMPLATES = [
     id: 'system_camping',
     name: 'קמפינג/טיול',
     description: 'פריטים לטיול או קמפינג משפחתי',
+    icon: '🏕️',
     type: 'picnic',
-    format: 'shared',
+    default_format: 'shared',
     is_system: true,
     sort_order: 6,
-    items: [
+    default_items: [
       { name: 'מים בקבוקים', category: 'משקאות', quantity: 6, unit: 'בקבוקים' },
       { name: 'לחם פרוס/לחמניות', category: 'לחמים ומאפים', quantity: 2, unit: 'יחידות' },
       { name: 'גבינה צהובה פרוסה', category: 'חלבי', quantity: 1, unit: 'אריזה' },
@@ -170,14 +179,17 @@ async function createSystemTemplates() {
     for (const template of SYSTEM_TEMPLATES) {
       const templateRef = db.collection('templates').doc(template.id);
       
+      // ✅ מבנה מתוקן - תואם ל-Template model!
       const templateData = {
         ...template,
+        created_by: 'system',        // ✅ חדש!
+        household_id: null,          // ✅ חדש! (null = זמין לכולם)
         created_date: timestamp,
         updated_date: timestamp,
       };
 
       batch.set(templateRef, templateData);
-      console.log(`✅ נוספה תבנית: ${template.name} (${template.items.length} פריטים)`);
+      console.log(`✅ נוספה תבנית: ${template.name} (${template.default_items.length} פריטים)`);
     }
 
     await batch.commit();
@@ -186,8 +198,10 @@ async function createSystemTemplates() {
     console.log(`📊 סה"כ ${SYSTEM_TEMPLATES.length} תבניות מערכת נוצרו`);
     console.log(`\n📋 תבניות שנוצרו:`);
     SYSTEM_TEMPLATES.forEach(t => {
-      console.log(`   ${t.sort_order}. ${t.name} - ${t.items.length} פריטים`);
+      console.log(`   ${t.sort_order}. ${t.icon} ${t.name} - ${t.default_items.length} פריטים`);
     });
+    
+    console.log(`\n✨ כל התבניות תואמות ל-Template model ומוכנות לשימוש!`);
 
   } catch (error) {
     console.error('❌ שגיאה ביצירת תבניות:', error);

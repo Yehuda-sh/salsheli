@@ -257,7 +257,7 @@ class ShoppingListTile extends StatelessWidget {
                     : list.status == ShoppingList.statusArchived
                         ? Colors.grey.shade400
                         : theme.colorScheme.primary,
-                width: 4,
+                width: kBorderWidthExtraThick,
               ),
             ),
           ),
@@ -370,7 +370,7 @@ class ShoppingListTile extends StatelessWidget {
                         Icon(
                           Icons.shopping_cart_checkout,
                           color: theme.colorScheme.primary,
-                          size: 20,
+                          size: kIconSizeMedium,
                         ),
                         const SizedBox(width: 8),
                         Text(

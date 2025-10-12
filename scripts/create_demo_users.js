@@ -1,20 +1,24 @@
 #!/usr/bin/env node
 
 // 📄 File: scripts/create_demo_users.js
-// תיאור: Script ליצירת 3 משתמשי דמו ב-Firebase Authentication
+// תיאור: Script ליצירת 3 משתמשי דמו ב-Firebase Authentication + Firestore
+//
+// מה הסקריפט יוצר:
+// ✅ 3 משתמשים ב-Firebase Auth (yoni, sarah, danny)
+// ✅ 3 רשומות משתמש ב-Firestore (collection: users)
+// ✅ כולם משוייכים ל-household_id: 'house_demo'
 //
 // שימוש:
-//   1. npm install firebase-admin
-//   2. הורד service account key מ-Firebase Console
-//   3. שמור אותו כ-serviceAccountKey.json
-//   4. הרץ: node scripts/create_demo_users.js
+//   1. ודא ש-firebase-service-account.json קיים ב-scripts/
+//   2. הרץ: node scripts/create_demo_users.js
+//   או:  npm run create-users
 
 const admin = require('firebase-admin');
 const path = require('path');
 
 // ======== הגדרות ========
 
-const serviceAccountPath = path.join(__dirname, '..', 'serviceAccountKey.json');
+const serviceAccountPath = path.join(__dirname, 'firebase-service-account.json');
 
 const DEMO_USERS = [
   {
@@ -54,8 +58,8 @@ try {
   console.error('   1. Go to Firebase Console');
   console.error('   2. Project Settings → Service Accounts');
   console.error('   3. Generate new private key');
-  console.error('   4. Save as: serviceAccountKey.json in project root');
-  console.error('   5. Run: node scripts/create_demo_users.js\n');
+  console.error('   4. Save as: scripts/firebase-service-account.json');
+  console.error('   5. Run: npm run create-users\n');
   process.exit(1);
 }
 
@@ -108,6 +112,9 @@ async function createUser(userData) {
 
 /**
  * יוצר רשומת משתמש ב-Firestore
+ * 
+ * ⚠️ חשוב: המבנה חייב לתאום ל-UserEntity model!
+ * ראה: lib/models/user_entity.dart
  */
 async function createFirestoreUser(authUser, displayName) {
   const userId = authUser.uid;
@@ -115,14 +122,19 @@ async function createFirestoreUser(authUser, displayName) {
   console.log(`💾 Creating Firestore document for: ${displayName}`);
   
   try {
+    // ✅ מבנה תואם ל-UserEntity
     const userDoc = {
       id: userId,
       email: authUser.email,
       name: displayName,
-      avatar: null,
-      household_id: 'house_demo',
-      joined_at: admin.firestore.FieldValue.serverTimestamp(),     // ✅ snake_case
-      last_login_at: admin.firestore.FieldValue.serverTimestamp(), // ✅ snake_case
+      household_id: 'house_demo',  // ✅ snake_case
+      profile_image_url: null,     // ✅ תואם למודל
+      joined_at: admin.firestore.FieldValue.serverTimestamp(),
+      last_login_at: admin.firestore.FieldValue.serverTimestamp(),
+      preferred_stores: [],        // ✅ default value
+      favorite_products: [],       // ✅ default value
+      weekly_budget: 0.0,          // ✅ default value
+      is_admin: true,              // ✅ משתמש ראשון = admin
     };
     
     await admin.firestore()
@@ -174,6 +186,7 @@ async function main() {
     DEMO_USERS.forEach(user => {
       console.log(`   • ${user.displayName}: ${user.email} / ${user.password}`);
     });
+    console.log();
   } else {
     console.log('⚠️  Some users failed to create. Check the logs above.\n');
   }
