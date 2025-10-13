@@ -112,8 +112,8 @@ class AuthButton extends StatelessWidget {
     // תוכן הכפתור (טקסט + אייקון אופציונלי)
     final content = isLoading
         ? SizedBox(
-            width: 24,
-            height: 24,
+            width: kIconSize,
+            height: kIconSize,
             child: CircularProgressIndicator(
               strokeWidth: kBorderWidthFocused,
               valueColor: AlwaysStoppedAnimation<Color>(

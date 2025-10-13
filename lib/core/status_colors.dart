@@ -50,6 +50,9 @@ class StatusColors {
   /// כתום - אזהרה / דחייה
   static const warning = Colors.orange;
 
+  /// כחול - מידע / לא צריך
+  static const info = Colors.blueGrey;
+
   // ========================================
   // גוונים נוספים (אופציונלי)
   // ========================================

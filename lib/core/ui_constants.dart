@@ -14,6 +14,8 @@
 // Version: 1.0
 // Last Updated: 06/10/2025
 
+import 'package:flutter/material.dart';
+
 // ========================================
 // גבהים
 // ========================================
@@ -184,6 +186,15 @@ const double kIconSizeMassive = 56.0;
 /// גודל אייקון פרופיל (36px)
 const double kIconSizeProfile = 36.0;
 
+/// גודל אייקון פנימי בלוגו (48px)
+const double kLogoIconInnerSize = 48.0;
+
+/// גודל אייקון social login (20px)
+const double kSocialIconSize = 20.0;
+
+/// padding מסביב ללוגו ליצירת זוהר (20px)
+const double kLogoGlowPadding = 20.0;
+
 // ========================================
 // גדלי רכיבים נוספים
 // ========================================
@@ -228,6 +239,9 @@ const Duration kAnimationDurationMedium = Duration(milliseconds: 300);
 
 /// משך זמן לאנימציות ארוכות (500ms)
 const Duration kAnimationDurationLong = Duration(milliseconds: 500);
+
+/// משך זמן לאנימציות איטיות (2500ms) - shimmer, pulse
+const Duration kAnimationDurationSlow = Duration(milliseconds: 2500);
 
 // ========================================
 // Progress Indicators
@@ -299,6 +313,9 @@ const Duration kSkeletonShimmerDuration = Duration(milliseconds: 1200);
 /// שקיפות אפקט shimmer (0.5)
 const double kSkeletonShimmerAlpha = 0.5;
 
+/// זווית אפקט shimmer (45 מעלות)
+const double kShimmerAngle = 45.0;
+
 /// עיכוב בין skeleton cards (100ms)
 const Duration kSkeletonStaggerDelay = Duration(milliseconds: 100);
 
@@ -325,10 +342,10 @@ const int kMaxStoreNameLength = 30;
 // Dialog Constraints
 // ========================================
 
-/// גובה מקסימלי לdialog תוכן (280px)
+/// גובה מקסימלי לדיאלוג תוכן (280px)
 const double kDialogMaxHeight = 280.0;
 
-/// רוחב מקסימלי לdialog (400px)
+/// רוחב מקסימלי לדיאלוג (400px)
 const double kDialogMaxWidth = 400.0;
 
 // ========================================
@@ -346,6 +363,24 @@ const double kOpacityMedium = 0.5;
 
 /// שקיפות גבוהה (0.6) - טקסט משני
 const double kOpacityHigh = 0.6;
+
+/// שקיפות גבוהה מאוד (0.9) - טקסט בהיר על רקע כהה
+const double kOpacityVeryHigh = 0.9;
+
+/// שקיפות בינונית-גבוהה (0.85) - טקסט משני בהיר
+const double kOpacityMediumHigh = 0.85;
+
+/// שקיפות נמוכה מאוד (0.15) - זוהר עדין
+const double kOpacityVeryLow = 0.15;
+
+/// שקיפות מינימלית (0.05) - אפקטים עדינים מאוד
+const double kOpacityMinimal = 0.05;
+
+/// שקיפות רגילה (0.95) - רקעים כמעט אטומים
+const double kOpacityAlmostFull = 0.95;
+
+/// שקיפות קרובה לאטום (0.98) - רקעים כמעט מלאים
+const double kOpacityNearFull = 0.98;
 
 // ========================================
 // Date/Time Ranges

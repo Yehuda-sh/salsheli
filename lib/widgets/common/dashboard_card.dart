@@ -1,115 +1,108 @@
 // 📄 File: lib/widgets/common/dashboard_card.dart
 //
-// ✅ רכיב משותף: DashboardCard
-// - עיצוב אחיד לכל כרטיסי הדשבורד
-// - תמיכה בכותרת, אייקון, actions
-// - Material 3 Design
+// 🎯 מטרה: Card wrapper לדשבורד עם כותרת, אייקון ו-elevation
 //
-// 🆕 עדכונים (08/10/2025):
-// - תמיכה ב-elevation parameter
-// - Visual depth משופר
+// ✨ Features:
+// - כותרת עם אייקון
+// - elevation מותאם אישית
+// - onTap אופציונלי
+// - תוכן מותאם אישית (child)
+//
+// 📋 Related:
+// - upcoming_shop_card.dart - משתמש ב-DashboardCard
+// - smart_suggestions_card.dart - משתמש ב-DashboardCard (אם קיים)
+//
+// 💡 Usage:
+// ```dart
+// DashboardCard(
+//   title: "כותרת",
+//   icon: Icons.shopping_cart,
+//   elevation: 3,
+//   onTap: () { /* action */ },
+//   child: Widget(...),
+// )
+// ```
+//
+// Version: 1.0
+// Created: 12/10/2025
 
 import 'package:flutter/material.dart';
-import '../../theme/app_theme.dart';
 import '../../core/ui_constants.dart';
 
 class DashboardCard extends StatelessWidget {
   final String title;
   final IconData icon;
-  final Widget child;
-  final List<Widget>? actions;
+  final double elevation;
   final VoidCallback? onTap;
-  final Color? backgroundColor;
-  final Color? borderColor;
-  final double elevation; // 🆕
+  final Widget child;
 
   const DashboardCard({
     super.key,
     required this.title,
     required this.icon,
-    required this.child,
-    this.actions,
+    this.elevation = kCardElevation,
     this.onTap,
-    this.backgroundColor,
-    this.borderColor,
-    this.elevation = 2.0, // 🆕 default
+    required this.child,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final brand = theme.extension<AppBrand>();
-    final accent = brand?.accent ?? cs.primary;
 
-    final cardContent = Container(
-      decoration: BoxDecoration(
-        color: backgroundColor ?? cs.surface,
-        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-        border: Border.all(
-          color: borderColor ?? cs.outline.withValues(alpha: 0.2),
-          width: kBorderWidth,
-        ),
-        boxShadow: [
-          // 🆕 BoxShadow מבוסס elevation
-          BoxShadow(
-            color: cs.shadow.withValues(alpha: 0.08 * elevation),
-            blurRadius: 4 * elevation,
-            offset: Offset(0, elevation),
-          ),
-        ],
+    return Card(
+      elevation: elevation,
+      margin: const EdgeInsets.symmetric(
+        vertical: kCardMarginVertical,
+        horizontal: 0,
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(kSpacingMedium),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // כותרת + אייקון + actions
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(kSpacingSmall),
-                  decoration: BoxDecoration(
-                    color: accent.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                  ),
-                  child: Icon(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(kBorderRadius),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(kBorderRadius),
+        child: Padding(
+          padding: const EdgeInsets.all(kSpacingMedium),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 🏷️ Header: אייקון + כותרת
+              Row(
+                children: [
+                  Icon(
                     icon,
-                    color: accent,
-                    size: kIconSizeSmall + 4, // 20px
+                    size: kIconSize,
+                    color: cs.primary,
                   ),
-                ),
-                const SizedBox(width: kBorderRadius),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: cs.onSurface,
+                  const SizedBox(width: kSpacingSmall),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: cs.onSurface,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ),
-                if (actions != null) ...actions!,
-              ],
-            ),
-
-            const SizedBox(height: kSpacingMedium),
-
-            // תוכן
-            child,
-          ],
+                  if (onTap != null)
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: kIconSizeSmall,
+                      color: cs.onSurfaceVariant,
+                    ),
+                ],
+              ),
+              const SizedBox(height: kSpacingMedium),
+              
+              // 📦 Content
+              child,
+            ],
+          ),
         ),
       ),
     );
-
-    if (onTap != null) {
-      return InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-        child: cardContent,
-      );
-    }
-
-    return cardContent;
   }
 }

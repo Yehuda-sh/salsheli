@@ -36,8 +36,8 @@
 // final allCategories = ListTypeMappings.getAllCategories();
 // ```
 //
-// Version: 4.0 - i18n Integration! 🌍
-// Last Updated: 08/10/2025
+// Version: 4.1 - Backwards Compatibility! 🔄
+// Last Updated: 12/10/2025
 
 import 'package:flutter/foundation.dart';
 import '../core/constants.dart';
@@ -68,15 +68,39 @@ class ListTypeMappings {
   /// 
   /// אם [type] לא קיים, מחזיר קטגוריות של 'other' (fallback)
   static List<String> getCategoriesForType(String type) {
-    final categories = _typeToCategories()[type];
+    // 🔄 Backwards compatibility: תמיכה בשמות ישנים
+    final normalizedType = _normalizeType(type);
+    
+    final categories = _typeToCategories()[normalizedType];
     
     if (categories == null) {
       debugPrint('⚠️ ListTypeMappings: Unknown list type "$type", using fallback "other"');
       return _typeToCategories()[ListType.other]!;
     }
     
+    if (type != normalizedType) {
+      debugPrint('🔄 ListTypeMappings: Normalized "$type" → "$normalizedType"');
+    }
     debugPrint('📋 ListTypeMappings.getCategoriesForType($type) → ${categories.length} categories');
     return categories;
+  }
+
+  /// מנרמל שם type ישן לחדש (backwards compatibility)
+  static String _normalizeType(String type) {
+    switch (type) {
+      case 'event_birthday':
+        return ListType.birthday;
+      case 'event_party':
+        return ListType.party;
+      case 'event_wedding':
+        return ListType.wedding;
+      case 'event_picnic':
+        return ListType.picnic;
+      case 'event_holiday':
+        return ListType.holiday;
+      default:
+        return type;
+    }
   }
 
   static Map<String, List<String>> _typeToCategories() {
@@ -337,7 +361,12 @@ class ListTypeMappings {
   /// 
   /// אם [type] לא קיים או אין חנויות מוצעות, מחזיר רשימה ריקה
   static List<String> getStoresForType(String type) {
-    final stores = _typeToStores()[type] ?? [];
+    // 🔄 Backwards compatibility
+    final normalizedType = _normalizeType(type);
+    final stores = _typeToStores()[normalizedType] ?? [];
+    if (type != normalizedType) {
+      debugPrint('🔄 ListTypeMappings: Normalized "$type" → "$normalizedType"');
+    }
     debugPrint('🏪 ListTypeMappings.getStoresForType($type) → ${stores.length} stores');
     return stores;
   }
@@ -487,7 +516,12 @@ class ListTypeMappings {
   /// (לא מוצרים ספציפיים, אלא רעיונות כלליים)
   /// אם [type] לא קיים או אין פריטים מוצעים, מחזיר רשימה ריקה
   static List<String> getSuggestedItemsForType(String type) {
-    final items = _typeToSuggestedItems()[type] ?? [];
+    // 🔄 Backwards compatibility
+    final normalizedType = _normalizeType(type);
+    final items = _typeToSuggestedItems()[normalizedType] ?? [];
+    if (type != normalizedType) {
+      debugPrint('🔄 ListTypeMappings: Normalized "$type" → "$normalizedType"');
+    }
     debugPrint('🛒 ListTypeMappings.getSuggestedItemsForType($type) → ${items.length} items');
     return items;
   }

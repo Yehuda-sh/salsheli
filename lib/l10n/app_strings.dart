@@ -286,9 +286,10 @@ class _ShoppingStrings {
   
   // Item Status
   String get itemStatusPending => 'ממתין';
-  String get itemStatusPurchased => 'נקנה';
-  String get itemStatusOutOfStock => 'לא במלאי';
-  String get itemStatusDeferred => 'דחוי';
+  String get itemStatusPurchased => 'קנוי';  // שונה מ-"נקנה" ל"קנוי" - קצר וברור!
+  String get itemStatusOutOfStock => 'אזל';  // שונה מ-"לא במלאי" ל"אזל" - קצר וברור!
+  String get itemStatusDeferred => 'דחה לאחר כך';  // שונה מ-"דחוי" ל"דחה לאחר כך" - ברור יותר!
+  String get itemStatusNotNeeded => 'לא צריך';  // חדש!
 }
 
 // ========================================

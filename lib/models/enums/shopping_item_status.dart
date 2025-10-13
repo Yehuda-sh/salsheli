@@ -11,6 +11,7 @@
 // - purchased (✅) - נקנה והוכנס לעגלה
 // - outOfStock (❌) - לא היה במלאי בחנות
 // - deferred (⏭️) - החלטתי לדחות לפעם הבאה
+// - notNeeded (🚫) - החלטתי שלא צריך בכלל
 //
 // 🎨 כל מצב כולל:
 // - label - טקסט בעברית
@@ -24,8 +25,8 @@
 // Icon(status.icon, color: status.color);
 // ```
 //
-// Version: 1.1 - Dart 3 pattern matching
-// Last Updated: 09/10/2025
+// Version: 1.2 - Added notNeeded status
+// Last Updated: 12/10/2025
 
 import 'package:flutter/material.dart';
 
@@ -44,7 +45,10 @@ enum ShoppingItemStatus {
   outOfStock,
 
   /// ⏭️ דחוי - החלטתי לא לקנות עכשיו
-  deferred;
+  deferred,
+
+  /// 🚫 לא צריך - החלטתי שלא צריך בכלל
+  notNeeded;
 
   /// טקסט בעברית
   String get label => switch (this) {
@@ -52,6 +56,7 @@ enum ShoppingItemStatus {
         ShoppingItemStatus.purchased => AppStrings.shopping.itemStatusPurchased,
         ShoppingItemStatus.outOfStock => AppStrings.shopping.itemStatusOutOfStock,
         ShoppingItemStatus.deferred => AppStrings.shopping.itemStatusDeferred,
+        ShoppingItemStatus.notNeeded => AppStrings.shopping.itemStatusNotNeeded,
       };
 
   /// אייקון ויזואלי
@@ -60,6 +65,7 @@ enum ShoppingItemStatus {
         ShoppingItemStatus.purchased => Icons.check_circle,
         ShoppingItemStatus.outOfStock => Icons.remove_shopping_cart,
         ShoppingItemStatus.deferred => Icons.schedule,
+        ShoppingItemStatus.notNeeded => Icons.block,
       };
 
   /// צבע מותאם
@@ -68,11 +74,13 @@ enum ShoppingItemStatus {
         ShoppingItemStatus.purchased => StatusColors.success,
         ShoppingItemStatus.outOfStock => StatusColors.error,
         ShoppingItemStatus.deferred => StatusColors.warning,
+        ShoppingItemStatus.notNeeded => StatusColors.info,
       };
 
-  /// האם הפריט הושלם (נקנה/דחוי/לא במלאי)
+  /// האם הפריט הושלם (נקנה/דחוי/לא במלאי/לא צריך)
   bool get isCompleted =>
       this == ShoppingItemStatus.purchased ||
       this == ShoppingItemStatus.outOfStock ||
-      this == ShoppingItemStatus.deferred;
+      this == ShoppingItemStatus.deferred ||
+      this == ShoppingItemStatus.notNeeded;
 }

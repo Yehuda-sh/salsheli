@@ -71,10 +71,9 @@ class _LoginScreenState extends State<LoginScreen> {
       final email = _emailController.text.trim();
       final password = _passwordController.text;
 
-      // 💡 שמור context/navigator/messenger לפני await (best practice!)
+      // 💡 שמור context/navigator לפני await (best practice!)
       final userContext = context.read<UserContext>();
       final navigator = Navigator.of(context);
-      final messenger = ScaffoldMessenger.of(context);
 
       // 🔹 1. התחברות דרך Firebase Auth
       debugPrint('🔐 _handleLogin() | Signing in with email: $email');

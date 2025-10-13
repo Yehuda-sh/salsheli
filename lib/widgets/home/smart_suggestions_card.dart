@@ -1,10 +1,16 @@
 // 📄 File: lib/widgets/home/smart_suggestions_card.dart
 // 🎯 Purpose: כרטיס המלצות חכמות במסך הבית
 //
-// ✅ עדכונים (08/10/2025):
-// 1. Empty State משופר - CTA + הסבר מפורט
-// 2. Elevation משופר
-// 3. Visual hierarchy טוב יותר
+// ✅ עדכונים (12/10/2025):
+// 1. השלמת תצוגת המלצות - 3 המלצות עליונות
+// 2. כפתורי פעולה - הוספה לרשימה + הסרה
+// 3. Logging מלא + Visual Feedback
+// 4. Touch Targets 48x48 (Accessibility)
+//
+// ✅ עדכונים קודמים (08/10/2025):
+// - Empty State משופר - CTA + הסבר מפורט
+// - Elevation משופר
+// - Visual hierarchy טוב יותר
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -15,7 +21,6 @@ import '../../models/receipt.dart';
 import '../../models/suggestion.dart';
 import '../../providers/suggestions_provider.dart';
 import '../../providers/shopping_lists_provider.dart';
-import '../actionable_recommendation.dart';
 import '../../core/ui_constants.dart';
 
 class SmartSuggestionsCard extends StatelessWidget {
@@ -28,10 +33,13 @@ class SmartSuggestionsCard extends StatelessWidget {
     BuildContext context,
     Suggestion suggestion,
   ) async {
+    debugPrint('➡️ SmartSuggestionsCard: מנסה להוסיף "${suggestion.productName}" לרשימה');
+    
     final listsProvider = context.read<ShoppingListsProvider>();
     final list = mostRecentList;
 
     if (list == null) {
+      debugPrint('⚠️ SmartSuggestionsCard: אין רשימה פעילה');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('אין רשימה פעילה להוסיף אליה'),
@@ -49,7 +57,26 @@ class SmartSuggestionsCard extends StatelessWidget {
       );
 
       await listsProvider.addItemToList(list.id, newItem);
+      debugPrint('✅ SmartSuggestionsCard: הוסף "${suggestion.productName}" בהצלחה');
+      
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text('נוסף "${suggestion.productName}" לרשימה'),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
     } catch (e) {
+      debugPrint('❌ SmartSuggestionsCard: שגיאה בהוספה - $e');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -62,8 +89,18 @@ class SmartSuggestionsCard extends StatelessWidget {
   }
 
   void _handleRemove(BuildContext context, String suggestionId) {
+    debugPrint('➖ SmartSuggestionsCard: מסיר המלצה $suggestionId');
+    
     final suggestionsProvider = context.read<SuggestionsProvider>();
     suggestionsProvider.removeSuggestion(suggestionId);
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('ההמלצה הוסרה'),
+        backgroundColor: Colors.grey,
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   void _showCreateListDialog(BuildContext context) {
@@ -206,7 +243,10 @@ class SmartSuggestionsCard extends StatelessWidget {
                         onPressed: () {
                           Navigator.pushNamed(context, '/receipts');
                         },
-                        icon: const Icon(Icons.receipt_long, size: kIconSizeSmall),
+                        icon: const Icon(
+                          Icons.receipt_long,
+                          size: kIconSizeSmall,
+                        ),
                         label: const Text('סרוק קבלה'),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
@@ -259,15 +299,99 @@ class SmartSuggestionsCard extends StatelessWidget {
                       ),
                   ],
                 ),
-                const SizedBox(height: kBorderRadius),
+                const SizedBox(height: kSpacingMedium),
 
-                // רשימת המלצות
+                // 🆕 רשימת 3 ההמלצות העליונות
                 ...topSuggestions.map((suggestion) {
-                  return ActionableRecommendation(
-                    suggestion: suggestion,
-                    onAddToList: () => _handleAddToList(context, suggestion),
-                    onRemove: () => _handleRemove(context, suggestion.id),
-                    showPantryButton: false,
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: kSpacingSmall),
+                    padding: const EdgeInsets.all(kSpacingSmall),
+                    decoration: BoxDecoration(
+                      color: cs.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(kBorderRadius),
+                    ),
+                    child: Row(
+                      children: [
+                        // אייקון
+                        Container(
+                          padding: const EdgeInsets.all(kSpacingSmall),
+                          decoration: BoxDecoration(
+                            color: cs.primaryContainer,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.shopping_basket_outlined,
+                            size: kIconSizeSmall,
+                            color: cs.onPrimaryContainer,
+                          ),
+                        ),
+                        const SizedBox(width: kSpacingSmall),
+
+                        // פרטי המלצה
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                suggestion.productName,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'כמות מוצעת: ${suggestion.suggestedQuantity}',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: cs.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // כפתורי פעולה
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // כפתור הוספה
+                            IconButton(
+                              icon: Icon(
+                                Icons.add_circle_outline,
+                                size: kIconSizeMedium,
+                              ),
+                              color: cs.primary,
+                              onPressed: () => _handleAddToList(
+                                context,
+                                suggestion,
+                              ),
+                              tooltip: 'הוסף לרשימה',
+                              constraints: const BoxConstraints(
+                                minWidth: kMinTouchTarget,
+                                minHeight: kMinTouchTarget,
+                              ),
+                            ),
+                            // כפתור הסרה
+                            IconButton(
+                              icon: Icon(
+                                Icons.close,
+                                size: kIconSizeSmall,
+                              ),
+                              color: cs.error,
+                              onPressed: () => _handleRemove(
+                                context,
+                                suggestion.id,
+                              ),
+                              tooltip: 'הסר המלצה',
+                              constraints: const BoxConstraints(
+                                minWidth: kMinTouchTarget,
+                                minHeight: kMinTouchTarget,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   );
                 }),
 

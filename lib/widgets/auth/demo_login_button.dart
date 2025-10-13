@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/user_context.dart';
+import '../../core/ui_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// כפתור כניסה מהירה למשתמש דמו
@@ -161,36 +162,42 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
         // כפתור בחירת משתמש
         OutlinedButton.icon(
           onPressed: _isLoading ? null : _showUserSelectionDialog,
-          icon: const Icon(Icons.person_outline, size: 20),
+          icon: const Icon(Icons.person_outline, size: kIconSizeMedium),
           label: Text(
             'משתמש נוכחי: ${currentUser['name']}',
-            style: const TextStyle(fontSize: 14),
+            style: const TextStyle(fontSize: kFontSizeSmall),
           ),
           style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: const EdgeInsets.symmetric(
+              horizontal: kButtonPaddingHorizontal,
+              vertical: kSpacingXSmall,
+            ),
             side: BorderSide(
               color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
             ),
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: kSpacingSmall),
 
         // כפתור התחברות
         OutlinedButton.icon(
           onPressed: _isLoading ? null : _handleDemoLogin,
           icon: _isLoading
               ? const SizedBox(
-                  width: 16,
-                  height: 16,
+                  width: kIconSizeSmall,
+                  height: kIconSizeSmall,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Icon(Icons.rocket_launch_outlined, size: 20),
+              : const Icon(Icons.rocket_launch_outlined, size: kIconSizeMedium),
           label: Text(
             _isLoading ? 'מתחבר...' : 'התחבר עם חשבון דמו',
-            style: const TextStyle(fontSize: 14),
+            style: const TextStyle(fontSize: kFontSizeSmall),
           ),
           style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            padding: const EdgeInsets.symmetric(
+              horizontal: kSpacingLarge,
+              vertical: kSpacingSmallPlus,
+            ),
             side: BorderSide(
               color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
             ),

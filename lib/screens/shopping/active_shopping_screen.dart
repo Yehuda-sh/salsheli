@@ -104,6 +104,8 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         .length;
     final deferred =
         _itemStatuses.values.where((s) => s == ShoppingItemStatus.deferred).length;
+    final notNeeded =
+        _itemStatuses.values.where((s) => s == ShoppingItemStatus.notNeeded).length;  // חדש!
     final pending =
         _itemStatuses.values.where((s) => s == ShoppingItemStatus.pending).length;
 
@@ -116,6 +118,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         purchased: purchased,
         outOfStock: outOfStock,
         deferred: deferred,
+        notNeeded: notNeeded,  // חדש!
         pending: pending,
       ),
     );
@@ -195,6 +198,10 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     final purchased = _itemStatuses.values
         .where((s) => s == ShoppingItemStatus.purchased)
         .length;
+    final notNeeded = _itemStatuses.values
+        .where((s) => s == ShoppingItemStatus.notNeeded)
+        .length;
+    final completed = purchased + notNeeded; // סה"כ מה שהושלם
     final total = widget.list.items.length;
 
     // קבץ לפי קטגוריה
@@ -261,14 +268,20 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
               children: [
                 _StatCard(
                   icon: Icons.check_circle,
-                  label: 'נקנו',
+                  label: 'קנוי',  // שונה!
                   value: '$purchased',
                   color: Colors.green,
                 ),
                 _StatCard(
+                  icon: Icons.block,
+                  label: 'לא צריך',  // חדש!
+                  value: '$notNeeded',
+                  color: Colors.grey.shade600,
+                ),
+                _StatCard(
                   icon: Icons.shopping_cart,
                   label: 'נותרו',
-                  value: '${total - purchased}',
+                  value: '${total - completed}',  // שונה - מוריד גם notNeeded
                   color: Colors.blue,
                 ),
                 _StatCard(
@@ -397,12 +410,31 @@ class _ActiveShoppingItemTile extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
+    // 💰 שליפת מחיר אמיתי מ-ProductsProvider
+    final productsProvider = context.watch<ProductsProvider>();
+    final product = productsProvider.getByName(item.name ?? '');
+    final realPrice = product?['price'] as double? ?? item.unitPrice;
+
+    // 🎨 צבע רקע לפי סטטוס
+    Color cardColor;
+    switch (status) {
+      case ShoppingItemStatus.purchased:
+        cardColor = Colors.green.withValues(alpha: 0.1);
+        break;
+      case ShoppingItemStatus.outOfStock:
+        cardColor = Colors.red.withValues(alpha: 0.1);
+        break;
+      case ShoppingItemStatus.deferred:
+        cardColor = Colors.orange.withValues(alpha: 0.1);
+        break;
+      default:
+        cardColor = cs.surface;
+    }
+
     return Card(
       margin: const EdgeInsets.only(bottom: kSpacingSmall),
-      elevation: status == ShoppingItemStatus.purchased ? 0 : kCardElevation,
-      color: status == ShoppingItemStatus.purchased
-          ? cs.surfaceContainerHighest
-          : cs.surface,
+      elevation: status == ShoppingItemStatus.purchased ? 1 : kCardElevation,
+      color: cardColor,
       child: Padding(
         padding: const EdgeInsets.all(kSpacingSmallPlus),
         child: Column(
@@ -410,11 +442,13 @@ class _ActiveShoppingItemTile extends StatelessWidget {
             // שורה עליונה: שם + מחיר
             Row(
               children: [
-                // אייקון סטטוס
+                // אייקון סטטוס - גדול יותר לפריטים שסומנו
                 Icon(
                   status.icon,
                   color: status.color,
-                  size: kIconSizeMedium + 4,
+                  size: status == ShoppingItemStatus.pending
+                      ? kIconSizeMedium + 4
+                      : kIconSizeLarge,
                 ),
                 const SizedBox(width: kSpacingSmallPlus),
 
@@ -428,16 +462,16 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                       decoration: status == ShoppingItemStatus.purchased
                           ? TextDecoration.lineThrough
                           : null,
-                      color: status == ShoppingItemStatus.purchased
-                          ? cs.onSurfaceVariant
-                          : cs.onSurface,
+                      color: status == ShoppingItemStatus.pending
+                          ? cs.onSurface
+                          : cs.onSurface.withValues(alpha: 0.7),
                     ),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 2,
                   ),
                 ),
 
-                // כמות × מחיר
+                // כמות × מחיר אמיתי
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -445,15 +479,23 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                       '${item.quantity}×',
                       style: TextStyle(
                         fontSize: kFontSizeSmall,
-                        color: cs.onSurfaceVariant,
+                        color: status == ShoppingItemStatus.pending
+                            ? cs.onSurfaceVariant
+                            : cs.onSurfaceVariant.withValues(alpha: 0.7),
                       ),
                     ),
                     Text(
-                      '₪${item.unitPrice.toStringAsFixed(2)}',
+                      realPrice > 0
+                          ? '₪${realPrice.toStringAsFixed(2)}'
+                          : 'אין מחיר',
                       style: TextStyle(
                         fontSize: kFontSizeBody,
                         fontWeight: FontWeight.bold,
-                        color: status.color,
+                        color: realPrice > 0
+                            ? (status == ShoppingItemStatus.pending
+                                ? status.color
+                                : status.color.withValues(alpha: 0.8))
+                            : cs.onSurfaceVariant.withValues(alpha: 0.7),
                       ),
                     ),
                   ],
@@ -463,37 +505,57 @@ class _ActiveShoppingItemTile extends StatelessWidget {
 
             const SizedBox(height: kSpacingSmallPlus),
 
-            // שורה תחתונה: כפתורי פעולה
-            Row(
+            // שורה תחתונה: 4 כפתורי פעולה
+            Column(
               children: [
-                Expanded(
-                  child: _ActionButton(
-                    icon: Icons.check_circle,
-                    label: 'נקנה',
-                    color: Colors.green,
-                    isSelected: status == ShoppingItemStatus.purchased,
-                    onTap: () => onStatusChanged(ShoppingItemStatus.purchased),
-                  ),
+                // שורה 1: קנוי + אזל
+                Row(
+                  children: [
+                    Expanded(
+                      child: _ActionButton(
+                        icon: Icons.check_circle,
+                        label: 'קנוי',  // שונה!
+                        color: Colors.green,
+                        isSelected: status == ShoppingItemStatus.purchased,
+                        onTap: () => onStatusChanged(ShoppingItemStatus.purchased),
+                      ),
+                    ),
+                    const SizedBox(width: kSpacingSmall),
+                    Expanded(
+                      child: _ActionButton(
+                        icon: Icons.remove_shopping_cart,
+                        label: 'אזל',
+                        color: Colors.red,
+                        isSelected: status == ShoppingItemStatus.outOfStock,
+                        onTap: () => onStatusChanged(ShoppingItemStatus.outOfStock),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: kSpacingSmall),
-                Expanded(
-                  child: _ActionButton(
-                    icon: Icons.remove_shopping_cart,
-                    label: 'אזל',
-                    color: Colors.red,
-                    isSelected: status == ShoppingItemStatus.outOfStock,
-                    onTap: () => onStatusChanged(ShoppingItemStatus.outOfStock),
-                  ),
-                ),
-                const SizedBox(width: kSpacingSmall),
-                Expanded(
-                  child: _ActionButton(
-                    icon: Icons.schedule,
-                    label: 'דחה',
-                    color: Colors.orange,
-                    isSelected: status == ShoppingItemStatus.deferred,
-                    onTap: () => onStatusChanged(ShoppingItemStatus.deferred),
-                  ),
+                const SizedBox(height: kSpacingSmall),
+                // שורה 2: דחה לאחר כך + לא צריך
+                Row(
+                  children: [
+                    Expanded(
+                      child: _ActionButton(
+                        icon: Icons.schedule,
+                        label: 'דחה לאחר כך',  // שונה!
+                        color: Colors.orange,
+                        isSelected: status == ShoppingItemStatus.deferred,
+                        onTap: () => onStatusChanged(ShoppingItemStatus.deferred),
+                      ),
+                    ),
+                    const SizedBox(width: kSpacingSmall),
+                    Expanded(
+                      child: _ActionButton(
+                        icon: Icons.block,
+                        label: 'לא צריך',  // חדש!
+                        color: Colors.grey.shade700,
+                        isSelected: status == ShoppingItemStatus.notNeeded,
+                        onTap: () => onStatusChanged(ShoppingItemStatus.notNeeded),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -580,6 +642,7 @@ class _ShoppingSummaryDialog extends StatelessWidget {
   final int purchased;
   final int outOfStock;
   final int deferred;
+  final int notNeeded;  // חדש!
   final int pending;
 
   const _ShoppingSummaryDialog({
@@ -589,6 +652,7 @@ class _ShoppingSummaryDialog extends StatelessWidget {
     required this.purchased,
     required this.outOfStock,
     required this.deferred,
+    required this.notNeeded,  // חדש!
     required this.pending,
   });
 
@@ -649,24 +713,33 @@ class _ShoppingSummaryDialog extends StatelessWidget {
 
             const Divider(height: kSpacingLarge),
 
-            // ✅ נקנו
+            // ✅ קנוי
             _SummaryRow(
               icon: Icons.check_circle,
-              label: 'נקנו',
+              label: 'קנוי',  // שונה!
               value: '$purchased מתוך $total',
               color: Colors.green,
             ),
 
-            // ❌ לא במלאי
+            // 🚫 לא צריך
+            if (notNeeded > 0)  // חדש!
+              _SummaryRow(
+                icon: Icons.block,
+                label: 'לא צריך',
+                value: '$notNeeded',
+                color: Colors.grey.shade700,
+              ),
+
+            // ❌ אזלו
             if (outOfStock > 0)
               _SummaryRow(
                 icon: Icons.remove_shopping_cart,
-                label: 'לא היו במלאי',
+                label: 'אזלו בחנות',  // שונה!
                 value: '$outOfStock',
                 color: Colors.red,
               ),
 
-            // ⏭️ דחוי
+            // ⏭️ נדחו
             if (deferred > 0)
               _SummaryRow(
                 icon: Icons.schedule,

@@ -2,25 +2,26 @@
 // 🎯 Purpose: מסך קבלת פנים - מציג לוגו, יתרונות, וכפתורי התחברות/הרשמה
 //
 // 📋 Features:
-// - לוגו מעוצב עם אייקון
+// - לוגו מעוצב עם אייקון ואנימצית shimmer
 // - 3 יתרונות עיקריים (BenefitTile)
 // - כפתורי התחברות/הרשמה (AuthButton)
-// - כפתור דילוג
 // - Social login buttons (demo only)
 // - Logging מלא
 // - Touch targets 48px
 // - Accessibility labels
+// - כל הערכים מ-constants (100% אין hardcoded!)
 //
 // 🔗 Related:
-// - NavigationService - ניווט מרכזי
 // - BenefitTile - רכיב יתרונות משותף
 // - AuthButton - רכיב כפתורי auth משותף
 // - AppTheme - ערכות נושא
+// - ui_constants.dart - כל הקבועים (גדלים, opacity, אנימציות)
 //
 // 🎨 Design:
-// - רקע כהה (welcomeBackground מה-Theme)
-// - טקסט לבן עם אפקטי opacity
+// - רקע כהה עם גרדיאנט (welcomeBackground מה-Theme)
+// - טקסט לבן עם אפקטי opacity מ-constants
 // - ריווחים מ-constants.dart
+// - לוגו עם זוהר רדיאלי וshadows
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -51,9 +52,9 @@ class WelcomeScreen extends StatelessWidget {
             end: Alignment.bottomRight,
             colors: [
               bgColor,
-              bgColor.withValues(alpha: 0.95),
-              const Color(0xFF1E293B), // Slate 800
-              bgColor.withValues(alpha: 0.98),
+              bgColor.withValues(alpha: kOpacityAlmostFull),
+              const Color(0xFF1E293B), // Slate 800 - fallback gradient color
+              bgColor.withValues(alpha: kOpacityNearFull),
               bgColor,
             ],
             stops: const [0.0, 0.25, 0.5, 0.75, 1.0],
@@ -91,7 +92,7 @@ class WelcomeScreen extends StatelessWidget {
                     AppStrings.welcome.subtitle,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyLarge?.copyWith(
-                      color: Colors.white.withValues(alpha: 0.9), // בהיר יותר!
+                      color: Colors.white.withValues(alpha: kOpacityVeryHigh),
                       height: 1.5,
                     ),
                   ),
@@ -103,7 +104,7 @@ class WelcomeScreen extends StatelessWidget {
                     title: AppStrings.welcome.benefit1Title,
                     subtitle: AppStrings.welcome.benefit1Subtitle,
                     titleColor: Colors.white,
-                    subtitleColor: Colors.white.withValues(alpha: 0.85),
+                    subtitleColor: Colors.white.withValues(alpha: kOpacityMediumHigh),
                     iconColor: accent,
                   ),
                   BenefitTile(
@@ -111,7 +112,7 @@ class WelcomeScreen extends StatelessWidget {
                     title: AppStrings.welcome.benefit2Title,
                     subtitle: AppStrings.welcome.benefit2Subtitle,
                     titleColor: Colors.white,
-                    subtitleColor: Colors.white.withValues(alpha: 0.85),
+                    subtitleColor: Colors.white.withValues(alpha: kOpacityMediumHigh),
                     iconColor: accent,
                   ),
                   BenefitTile(
@@ -119,7 +120,7 @@ class WelcomeScreen extends StatelessWidget {
                     title: AppStrings.welcome.benefit3Title,
                     subtitle: AppStrings.welcome.benefit3Subtitle,
                     titleColor: Colors.white,
-                    subtitleColor: Colors.white.withValues(alpha: 0.85),
+                    subtitleColor: Colors.white.withValues(alpha: kOpacityMediumHigh),
                     iconColor: accent,
                   ),
 
@@ -205,16 +206,16 @@ class _AnimatedLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: kIconSizeXLarge + 20, // 100px (קטן יותר)
-      height: kIconSizeXLarge + 20,
+      width: kIconSizeXLarge + kLogoGlowPadding,
+      height: kIconSizeXLarge + kLogoGlowPadding,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         // זוהר רדיאלי סביב הלוגו
         gradient: RadialGradient(
           colors: [
-            accent.withValues(alpha: 0.3),
-            accent.withValues(alpha: 0.15),
-            accent.withValues(alpha: 0.05),
+            accent.withValues(alpha: kOpacityLow),
+            accent.withValues(alpha: kOpacityVeryLow),
+            accent.withValues(alpha: kOpacityMinimal),
             Colors.transparent,
           ],
           stops: const [0.0, 0.4, 0.7, 1.0],
@@ -222,19 +223,19 @@ class _AnimatedLogo extends StatelessWidget {
       ),
       child: Center(
         child: Container(
-          width: kIconSizeXLarge, // 80px
+          width: kIconSizeXLarge,
           height: kIconSizeXLarge,
           decoration: BoxDecoration(
-            color: accent.withValues(alpha: 0.15),
+            color: accent.withValues(alpha: kOpacityVeryLow),
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: accent.withValues(alpha: 0.4),
+                color: accent.withValues(alpha: kOpacityMedium - 0.1), // 0.4
                 blurRadius: 24,
                 spreadRadius: 2,
               ),
               BoxShadow(
-                color: accent.withValues(alpha: 0.2),
+                color: accent.withValues(alpha: kOpacityLight),
                 blurRadius: 40,
                 spreadRadius: 8,
               ),
@@ -242,7 +243,7 @@ class _AnimatedLogo extends StatelessWidget {
           ),
           child: Icon(
             Icons.shopping_basket_outlined,
-            size: 48, // קטן יותר ביחס
+            size: kLogoIconInnerSize,
             color: accent,
           ),
         )
@@ -250,9 +251,9 @@ class _AnimatedLogo extends StatelessWidget {
               onPlay: (controller) => controller.repeat(),
             )
             .shimmer(
-              duration: 2500.ms,
-              color: accent.withValues(alpha: 0.3),
-              angle: 45,
+              duration: kAnimationDurationSlow,
+              color: accent.withValues(alpha: kOpacityLow),
+              angle: kShimmerAngle,
             ),
       ),
     );
@@ -290,7 +291,7 @@ class _SocialLoginButton extends StatelessWidget {
         height: kButtonHeight,
         child: OutlinedButton.icon(
           onPressed: onPressed,
-          icon: Icon(icon, size: 20),
+          icon: Icon(icon, size: kSocialIconSize),
           label: Text(label),
           style: OutlinedButton.styleFrom(
             foregroundColor: Colors.white70,

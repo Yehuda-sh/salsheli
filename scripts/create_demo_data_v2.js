@@ -294,7 +294,7 @@ const DEMO_LISTS_STRUCTURE = [
   {
     id: 'list_party_supplies',
     name: 'יום הולדת לילדים',
-    type: 'event_birthday',
+    type: 'birthday',  // ✅ תוקן מ-'event_birthday'
     status: 'active',
     categoryMap: {
       'snacks': 3,
