@@ -6,6 +6,7 @@
 // - ProductsRepository: ממשק לטעינת מוצרים
 // - HybridProductsRepository: מימוש היברידי (Local + Firebase + API)
 // - ListTypeMappings: מיפוי בין סוגי רשימות לקטגוריות
+// - UserContext: מידע על המשתמש הנוכחי (חובה!)
 //
 // ✨ Features:
 // - 📥 טעינה חכמה: Local (מהיר) → Firebase → API → Fallback
@@ -14,6 +15,7 @@
 // - 🎯 סינון: לפי סוג רשימה, קטגוריה, טקסט
 // - 📊 סטטיסטיקות: כמה מוצרים, עם/בלי מחיר
 // - 💾 Cache: מוצרים נשמרים במטמון לביצועים
+// - 👤 UserContext Integration: עדכון אוטומטי בהתחברות/התנתקות
 // - 🐛 Logging מפורט: כל פעולה עם debugPrint
 //
 // 📝 Usage:
@@ -33,37 +35,44 @@
 //
 // 🔄 State Flow:
 // 1. Constructor → _initialize() (אם skipInitialLoad=false)
-// 2. loadProducts() → טעינה מ-Repository
-// 3. setSearchQuery/setCategory/setListType → סינון
-// 4. notifyListeners() → UI מתעדכן
+// 2. updateUserContext() → חיבור ל-UserContext
+// 3. _onUserChanged() → טעינה אוטומטית בשינויים
+// 4. loadProducts() → טעינה מ-Repository
+// 5. setSearchQuery/setCategory/setListType → סינון
+// 6. notifyListeners() → UI מתעדכן
 //
-// Version: 2.0 (עם getByName + logging מלא)
+// Version: 3.0 (+ UserContext Integration)
 
 import 'package:flutter/foundation.dart';
 import '../repositories/products_repository.dart';
 import '../repositories/hybrid_products_repository.dart';
 import '../config/list_type_mappings.dart';
+import 'user_context.dart';
 
 class ProductsProvider with ChangeNotifier {
   final ProductsRepository _repository;
 
+  // 👤 UserContext Integration
+  UserContext? _userContext;
+  bool _listening = false;
+
   // State
   bool _isLoading = false;
   bool _isRefreshing = false;
-  bool _hasInitialized = false; // 🆕 דגל אתחול
+  bool _hasInitialized = false;
   String? _errorMessage;
   List<Map<String, dynamic>> _products = [];
   List<String> _categories = [];
   DateTime? _lastUpdated;
   
-  // 📊 Progress tracking (NEW)
+  // 📊 Progress tracking
   int _loadingProgress = 0;
   int _loadingTotal = 0;
 
   // Search & Filter
   String _searchQuery = '';
   String? _selectedCategory;
-  String? _selectedListType; // ✅ חדש - סוג הרשימה
+  String? _selectedListType;
 
   // 💾 Cache for filtered products
   List<Map<String, dynamic>> _cachedFiltered = [];
@@ -71,21 +80,77 @@ class ProductsProvider with ChangeNotifier {
 
   ProductsProvider({
     required ProductsRepository repository,
-    bool skipInitialLoad = false, // ⚠️ אם true - לא טוען מייד
+    bool skipInitialLoad = false,
   }) : _repository = repository {
     if (!skipInitialLoad) {
       _initialize();
     }
   }
 
+  // === UserContext Integration ===
+  
+  /// 🔗 חיבור ל-UserContext - מתעדכן אוטומטית עם שינויי משתמש
+  void updateUserContext(UserContext newContext) {
+    debugPrint('🔗 ProductsProvider.updateUserContext()');
+    
+    // נקה listener קודם אם קיים
+    if (_listening && _userContext != null) {
+      _userContext!.removeListener(_onUserChanged);
+      _listening = false;
+    }
+
+    // עדכן UserContext
+    _userContext = newContext;
+
+    // הוסף listener חדש
+    _userContext!.addListener(_onUserChanged);
+    _listening = true;
+
+    // טען נתונים אם המשתמש מחובר
+    if (_userContext?.isLoggedIn == true && !_hasInitialized) {
+      _initialize();
+    } else if (_userContext?.isLoggedIn == false) {
+      _clearData();
+    }
+  }
+
+  /// 🔄 מופעל כאשר UserContext משתנה (התחברות/התנתקות)
+  void _onUserChanged() {
+    debugPrint('🔄 ProductsProvider._onUserChanged() - isLoggedIn: ${_userContext?.isLoggedIn}');
+    
+    if (_userContext?.isLoggedIn == true) {
+      // משתמש התחבר - טען מוצרים
+      if (!_hasInitialized) {
+        _initialize();
+      }
+    } else {
+      // משתמש התנתק - נקה נתונים
+      _clearData();
+    }
+  }
+
+  /// 🧹 ניקוי נתונים (כשמשתמש מתנתק)
+  void _clearData() {
+    debugPrint('🧹 ProductsProvider._clearData()');
+    _products.clear();
+    _categories.clear();
+    _cachedFiltered.clear();
+    _cacheKey = '';
+    _hasInitialized = false;
+    _lastUpdated = null;
+    _errorMessage = null;
+    notifyListeners();
+  }
+
   // === Getters ===
   bool get isLoading => _isLoading;
   bool get isRefreshing => _isRefreshing;
-  bool get hasInitialized => _hasInitialized; // 🆕 גישה פומבית
+  bool get hasInitialized => _hasInitialized;
   bool get hasError => _errorMessage != null;
   String? get errorMessage => _errorMessage;
+  UserContext? get userContext => _userContext; // ✅ גישה ל-UserContext
   
-  // 📊 Progress getters (NEW)
+  // 📊 Progress getters
   int get loadingProgress => _loadingProgress;
   int get loadingTotal => _loadingTotal;
   double get loadingPercentage => _loadingTotal > 0 
@@ -113,7 +178,7 @@ class ProductsProvider with ChangeNotifier {
   DateTime? get lastUpdated => _lastUpdated;
   String get searchQuery => _searchQuery;
   String? get selectedCategory => _selectedCategory;
-  String? get selectedListType => _selectedListType; // ✅ חדש
+  String? get selectedListType => _selectedListType;
   bool get isEmpty => _products.isEmpty;
 
   // 📊 סטטיסטיקות (רק אם זה Hybrid)
@@ -143,6 +208,8 @@ class ProductsProvider with ChangeNotifier {
 
   // === Initialization ===
   Future<void> _initialize() async {
+    debugPrint('🚀 ProductsProvider._initialize()');
+    
     // אתחול Hybrid Repository אם צריך
     final repo = _repository;
     if (repo is HybridProductsRepository) {
@@ -163,6 +230,7 @@ class ProductsProvider with ChangeNotifier {
   Future<void> loadProducts() async {
     if (_isLoading) return;
 
+    debugPrint('📥 ProductsProvider.loadProducts() - מתחיל...');
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -181,7 +249,7 @@ class ProductsProvider with ChangeNotifier {
     } catch (e) {
       _errorMessage = 'שגיאה בטעינת מוצרים: $e';
       debugPrint('❌ שגיאה בטעינת מוצרים: $e');
-      notifyListeners(); // ✅ הוסף - ה-UI צריך לדעת על השגיאה
+      notifyListeners();
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -192,6 +260,7 @@ class ProductsProvider with ChangeNotifier {
   Future<void> refreshProducts({bool force = false}) async {
     if (_isRefreshing) return;
 
+    debugPrint('🔄 ProductsProvider.refreshProducts(force: $force)');
     _isRefreshing = true;
     _errorMessage = null;
     notifyListeners();
@@ -207,7 +276,7 @@ class ProductsProvider with ChangeNotifier {
     } catch (e) {
       _errorMessage = 'שגיאה ברענון מוצרים: $e';
       debugPrint('❌ שגיאה ברענון מוצרים: $e');
-      notifyListeners(); // ✅ הוסף - ה-UI צריך לדעת על השגיאה
+      notifyListeners();
     } finally {
       _isRefreshing = false;
       notifyListeners();
@@ -225,59 +294,68 @@ class ProductsProvider with ChangeNotifier {
   // === Search ===
   void setSearchQuery(String query) {
     if (_searchQuery == query) return;
+    
+    debugPrint('🔍 ProductsProvider.setSearchQuery("$query")');
     _searchQuery = query;
-    _cacheKey = ''; // ✅ נקה cache
+    _cacheKey = '';
     notifyListeners();
   }
 
   void clearSearch() {
+    debugPrint('🧹 ProductsProvider.clearSearch()');
     _searchQuery = '';
-    _cacheKey = ''; // ✅ נקה cache
+    _cacheKey = '';
     notifyListeners();
   }
 
-  // === Filter by List Type (NEW) ===
+  // === Filter by List Type ===
   void setListType(String? listType) {
     if (_selectedListType == listType) return;
+    
+    debugPrint('🎯 ProductsProvider.setListType("$listType")');
     _selectedListType = listType;
-    _selectedCategory = null; // נקה קטגוריה נבחרת
-    _cacheKey = ''; // ✅ נקה cache
+    _selectedCategory = null;
+    _cacheKey = '';
     notifyListeners();
   }
 
   void clearListType() {
+    debugPrint('🧹 ProductsProvider.clearListType()');
     _selectedListType = null;
-    _cacheKey = ''; // ✅ נקה cache
+    _cacheKey = '';
     notifyListeners();
   }
 
-  // === Get Relevant Categories for Current List Type (NEW) ===
+  // === Get Relevant Categories for Current List Type ===
   List<String> get relevantCategories {
     if (_selectedListType == null) return _categories;
     
     final typeCategories = ListTypeMappings.getCategoriesForType(_selectedListType!);
     
-    // החזר רק קטגוריות שקיימות במוצרים
     return _categories.where((cat) {
       return _isCategoryRelevantForListType(cat, typeCategories);
     }).toList();
   }
 
-  // === Get Suggested Stores for Current List Type (NEW) ===
+  // === Get Suggested Stores for Current List Type ===
   List<String> get suggestedStores {
     if (_selectedListType == null) return [];
     return ListTypeMappings.getStoresForType(_selectedListType!);
   }
+
   void setCategory(String? category) {
     if (_selectedCategory == category) return;
+    
+    debugPrint('🏷️ ProductsProvider.setCategory("$category")');
     _selectedCategory = category;
-    _cacheKey = ''; // ✅ נקה cache
+    _cacheKey = '';
     notifyListeners();
   }
 
   void clearCategory() {
+    debugPrint('🧹 ProductsProvider.clearCategory()');
     _selectedCategory = null;
-    _cacheKey = ''; // ✅ נקה cache
+    _cacheKey = '';
     notifyListeners();
   }
 
@@ -296,7 +374,7 @@ class ProductsProvider with ChangeNotifier {
   List<Map<String, dynamic>> _getFilteredProducts() {
     var filtered = List<Map<String, dynamic>>.from(_products);
 
-    // ✅ Filter by list type - סינון לפי סוג הרשימה
+    // Filter by list type
     if (_selectedListType != null) {
       final typeCategories = ListTypeMappings.getCategoriesForType(_selectedListType!);
       
@@ -333,11 +411,12 @@ class ProductsProvider with ChangeNotifier {
   // === Get Product by Barcode ===
   Future<Map<String, dynamic>?> getProductByBarcode(String barcode) async {
     try {
+      debugPrint('🔍 ProductsProvider.getProductByBarcode("$barcode")');
       return await _repository.getProductByBarcode(barcode);
     } catch (e) {
       debugPrint('❌ getProductByBarcode שגיאה: $e');
       _errorMessage = 'שגיאה בחיפוש ברקוד: $e';
-      notifyListeners(); // ✅ הוסף - ה-UI צריך לדעת על השגיאה
+      notifyListeners();
       return null;
     }
   }
@@ -359,7 +438,10 @@ class ProductsProvider with ChangeNotifier {
       orElse: () => {},
     );
 
-    if (exact.isNotEmpty) return exact;
+    if (exact.isNotEmpty) {
+      debugPrint('✅ getByName: התאמה מדויקת - "${exact['name']}"');
+      return exact;
+    }
 
     // 2. נסה התאמה חלקית
     final partial = _products.firstWhere(
@@ -367,17 +449,24 @@ class ProductsProvider with ChangeNotifier {
       orElse: () => {},
     );
 
+    if (partial.isNotEmpty) {
+      debugPrint('✅ getByName: התאמה חלקית - "${partial['name']}"');
+    } else {
+      debugPrint('❌ getByName: לא נמצא מוצר עבור "$name"');
+    }
+
     return partial.isNotEmpty ? partial : null;
   }
 
   // === Search Products (async) ===
   Future<List<Map<String, dynamic>>> searchProducts(String query) async {
     try {
+      debugPrint('🔍 ProductsProvider.searchProducts("$query")');
       return await _repository.searchProducts(query);
     } catch (e) {
       debugPrint('❌ searchProducts שגיאה: $e');
       _errorMessage = 'שגיאה בחיפוש מוצרים: $e';
-      notifyListeners(); // ✅ הוסף - ה-UI צריך לדעת על השגיאה
+      notifyListeners();
       return [];
     }
   }
@@ -387,11 +476,12 @@ class ProductsProvider with ChangeNotifier {
     String category,
   ) async {
     try {
+      debugPrint('🏷️ ProductsProvider.getProductsByCategory("$category")');
       return await _repository.getProductsByCategory(category);
     } catch (e) {
       debugPrint('❌ getProductsByCategory שגיאה: $e');
       _errorMessage = 'שגיאה בטעינת קטגוריה: $e';
-      notifyListeners(); // ✅ הוסף - ה-UI צריך לדעת על השגיאה
+      notifyListeners();
       return [];
     }
   }
@@ -414,9 +504,9 @@ class ProductsProvider with ChangeNotifier {
     _searchQuery = '';
     _selectedCategory = null;
     _selectedListType = null;
-    _errorMessage = null; // ✅ נקה שגיאות
-    _cacheKey = ''; // ✅ נקה cache
-    _loadingProgress = 0; // ✅ נקה progress
+    _errorMessage = null;
+    _cacheKey = '';
+    _loadingProgress = 0;
     _loadingTotal = 0;
     notifyListeners();
   }
@@ -425,6 +515,13 @@ class ProductsProvider with ChangeNotifier {
   @override
   void dispose() {
     debugPrint('🗑️ ProductsProvider.dispose()');
+    
+    // ✅ נקה UserContext listener
+    if (_listening && _userContext != null) {
+      _userContext!.removeListener(_onUserChanged);
+      _listening = false;
+    }
+    
     _cachedFiltered.clear();
     _products.clear();
     _categories.clear();

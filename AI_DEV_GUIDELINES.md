@@ -3,14 +3,14 @@
 # 🤖 AI Development Guidelines - salsheli Project
 
 > **מטרה:** מדריך מהיר לסוכני AI - כל מה שצריך בעמוד אחד  
-> **עדכון:** 10/10/2025 | **גרסה:** 7.4 - File Paths Fix  
+> **עדכון:** 14/10/2025 | **גרסה:** 8.0 - Modern UI/UX Patterns  
 > 💡 **לדוגמאות מפורטות:** ראה [LESSONS_LEARNED.md](LESSONS_LEARNED.md)
 
 ---
 
 ## 📖 ניווט מהיר
 
-**🚀 [Quick Start](#-quick-start)** | **🤖 [AI Instructions](#-הוראות-למערכות-ai)** | **✅ [Code Review](#-code-review-checklist)** | **📊 [Project Stats](#-project-stats)** | **🔗 [למידע מפורט](#-למידע-מפורט)**
+**🚀 [Quick Start](#-quick-start)** | **🤖 [AI Instructions](#-הוראות-למערכות-ai)** | **✅ [Code Review](#-code-review-checklist)** | **🎨 [Modern UI/UX](#-modern-uiux-patterns)** | **📊 [Project Stats](#-project-stats)** | **🔗 [למידע מפורט](#-למידע-מפורט)**
 
 ---
 
@@ -31,11 +31,13 @@
 | 🔴 אפליקציה איטית (UI)       | `.then()` ברקע                       | [LESSONS](LESSONS_LEARNED.md#hybrid-strategy)          |
 | 🔴 אפליקציה איטית (שמירה)    | **Batch Processing** (50-100 items)  | [LESSONS](LESSONS_LEARNED.md#batch-processing-pattern) |
 | 🔴 Empty state חסר           | Loading/Error/Empty/Initial          | [LESSONS](LESSONS_LEARNED.md#3-4-empty-states)         |
+| 🔴 Loading עיגול משעמם       | **Skeleton Screen** במקום!           | [→](#skeleton-screens)                                 |
+| 🔴 אין אנימציות              | **Micro Animations** להוספה          | [→](#micro-animations)                                 |
 | 🔴 Hardcoded values          | constants מ-lib/core/                | [→](#constants-organization)                           |
 | 🔴 Templates לא נטענות       | `npm run create-system-templates`    | [→](#templates-system)                                 |
 | 🔴 Access denied שגיאה       | **נתיב מלא מהפרויקט!**               | [→](#file-paths)                                       |
 
-### 🎯 13 עקרונות הזהב (מ-LESSONS_LEARNED)
+### 🎯 15 עקרונות הזהב (מ-LESSONS_LEARNED)
 
 1. **בדוק Dead Code לפני עבודה!** → 3-Step + חפש Provider + קרא מסכים
 2. **Dormant Code = פוטנציאל** → בדוק 4 שאלות לפני מחיקה (אולי שווה להפעיל!)
@@ -50,7 +52,8 @@
 11. **Error Recovery** → `retry()` + `hasError` בכל Provider
 12. **Cache למהירות** → O(1) במקום O(n) עם `_cachedFiltered`
 13. **Config Files** → patterns/constants במקום אחד = maintainability
-14. **נתיבי קבצים מלאים!** → `C:\projects\salsheli\...` תמיד! ⭐ (חדש!)
+14. **נתיבי קבצים מלאים!** → `C:\projects\salsheli\...` תמיד! ⭐
+15. **Skeleton + Animations** → Loading מקצועי + UI חי ⭐ (חדש!)
 
 📖 **מקור:** [LESSONS_LEARNED - 13 עקרונות הזהב](LESSONS_LEARNED.md#-13-עקרונות-הזהב)
 
@@ -70,6 +73,10 @@ flutter analyze  # 0 issues = ✅
 # Constants
 Ctrl+Shift+F → "height: 16"   # צריך kSpacingMedium
 Ctrl+Shift+F → "padding: 8"   # צריך kSpacingSmall
+
+# Modern UI (חדש!)
+Ctrl+Shift+F → "CircularProgressIndicator"  # שקול Skeleton Screen
+Ctrl+Shift+F → "setState"  # שקול AnimatedContainer/AnimatedOpacity
 ```
 
 ---
@@ -426,9 +433,14 @@ class MyProvider extends ChangeNotifier {
 - padding symmetric (RTL)
 - 3-4 Empty States (Loading/Error/Empty/Initial)
 - dispose חכם (שמור provider ב-initState)
+
+// 💡 שקול להוסיף (Modern UI):
+- Skeleton Screen במקום CircularProgressIndicator
+- Micro Animations לכפתורים ופריטים
 ```
 
-📖 **UI/UX Review מלא:** [LESSONS - UI/UX Review](LESSONS_LEARNED.md#uiux-review)
+📖 **UI/UX Review מלא:** [LESSONS - UI/UX Review](LESSONS_LEARNED.md#uiux-review)  
+📖 **Modern UI Patterns:** [→ Skeleton + Animations](#-modern-uiux-patterns)
 
 ---
 
@@ -489,6 +501,12 @@ class FirebaseMyRepository implements MyRepository {
 
 - `templates_repository.dart` + `firebase_templates_repository.dart`
 - `shopping_lists_repository.dart` + `firebase_shopping_lists_repository.dart`
+- `locations_repository.dart` + `firebase_locations_repository.dart` ⭐ (חדש!)
+
+**Special Repositories:**
+
+- `hybrid_products_repository.dart` - שילוב Local (Hive) + Firebase
+- `local_products_repository.dart` - אחסון מקומי (Hive) בלבד
 
 📖 [LESSONS - Repository Pattern](LESSONS_LEARNED.md#repository-pattern)
 
@@ -589,6 +607,424 @@ for (int i = 0; i < items.length; i += 100) {
 
 ---
 
+## 🎨 Modern UI/UX Patterns
+
+> **גרסה:** 8.0 - Intermediate UI/UX Enhancements (חדש! 14/10/2025)
+
+### 💀 Skeleton Screens
+
+**מה זה?** במקום `CircularProgressIndicator`, תצוגה אפורה מהבהבת של המבנה שעומד להיטען.
+
+**למה?** המשתמש רואה **מה עומד לבוא**, לא רק עיגול מסתובב. זה מרגיש מהיר יותר!
+
+#### 📍 איפה להוסיף Skeleton?
+
+**מסכים מרכזיים בפרויקט:**
+
+| מסך                   | קובץ                               | Skeleton למה?                 |
+| --------------------- | ---------------------------------- | ----------------------------- |
+| 🏠 **Home Dashboard** | `home_dashboard_screen.dart`       | 2-3 כרטיסים + הצעות           |
+| 🛒 **Shopping Lists** | `shopping_lists_screen.dart`       | 4-5 רשימות בכרטיסים           |
+| 📦 **Pantry**         | `pantry_screen.dart`               | 6-8 פריטים עם תמונות          |
+| 💰 **Price Compare**  | `price_comparison_screen.dart`     | 3-4 תוצאות חיפוש              |
+| 📋 **Templates**      | `templates_list_screen.dart`       | 6 תבניות מערכת                |
+| 🧾 **Receipts**       | `receipts_manager_screen.dart`     | רשימת קבלות                   |
+| 📊 **Insights**       | `insights_screen.dart`             | גרפים + סטטיסטיקות            |
+
+#### 🎨 Skeleton Design Principles
+
+```dart
+// ✅ עיצוב נכון:
+- צבע: Colors.grey[300] (Light) / Colors.grey[700] (Dark)
+- אפקט: Shimmer effect (הבהוב עדין)
+- צורה: זהה למבנה האמיתי (גובה, רוחב, פינות)
+- משך: כל עוד isLoading == true
+
+// ❌ טעויות נפוצות:
+- Skeleton שנראה שונה מהתוכן
+- צבעים עזים מדי
+- אפקט הבהוב חזק מדי
+- לא responsive (לא מתאים למסך)
+```
+
+#### 🔧 Skeleton Widgets להכנה
+
+```dart
+// 1. Base Widget - קופסה מהבהבת
+class SkeletonBox extends StatelessWidget {
+  final double? width;
+  final double? height;
+  final BorderRadius? borderRadius;
+
+  Widget build(context) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: borderRadius,
+      ),
+    );
+  }
+}
+
+// 2. List Item Skeleton - פריט ברשימה
+class ShoppingItemSkeleton extends StatelessWidget {
+  Widget build(context) {
+    return Row([
+      SkeletonBox(width: 50, height: 50, borderRadius: circular), // תמונה
+      SizedBox(width: 12),
+      Expanded(child: Column([
+        SkeletonBox(width: double.infinity, height: 16), // שם
+        SizedBox(height: 8),
+        SkeletonBox(width: 80, height: 12), // כמות
+      ])),
+      SkeletonBox(width: 40, height: 40), // כפתור
+    ]);
+  }
+}
+
+// 3. Card Skeleton - כרטיס
+class DashboardCardSkeleton extends StatelessWidget {
+  Widget build(context) {
+    return Card(
+      child: Padding([
+        SkeletonBox(width: 150, height: 20), // כותרת
+        SizedBox(height: 16),
+        SkeletonBox(width: double.infinity, height: 60), // תוכן
+      ]),
+    );
+  }
+}
+```
+
+#### 💡 Skeleton Usage במסך
+
+```dart
+// ✅ שימוש נכון
+Widget build(BuildContext context) {
+  return Consumer<ShoppingListsProvider>(
+    builder: (context, provider, child) {
+      // Loading → Skeleton!
+      if (provider.isLoading && provider.items.isEmpty) {
+        return ListView.builder(
+          itemCount: 5, // 5 skeletons
+          itemBuilder: (context, index) => ShoppingItemSkeleton(),
+        );
+      }
+      
+      // Error, Empty, Content...
+      if (provider.hasError) return ErrorWidget();
+      if (provider.isEmpty) return EmptyWidget();
+      return ListView.builder(...); // תוכן אמיתי
+    },
+  );
+}
+
+// ❌ שימוש לא נכון
+if (provider.isLoading) {
+  return Center(child: CircularProgressIndicator()); // ישן!
+}
+```
+
+#### 📊 Skeleton Priority
+
+**מסכים לפי עדיפות:**
+
+1. 🥇 **Home Dashboard** - המסך הראשון! (השפעה מקסימלית)
+2. 🥈 **Shopping Lists** - נפתח הרבה (חוויית משתמש חשובה)
+3. 🥉 **Pantry** - רשימות ארוכות (Skeleton מרגיש טוב)
+4. 🏅 **Price Compare, Templates, Receipts** - משני אבל משדרג UX
+
+---
+
+### ✨ Micro Animations
+
+**מה זה?** אנימציות זעירות (150-400ms) שקורות בזמן אינטראקציות.
+
+**למה?** האפליקציה מרגישה **חיה** ו**מגיבה**. המשתמש מבין שהפעולה עבדה.
+
+#### 🎯 6 סוגי Animations עיקריים
+
+| Animation          | איפה                  | מה קורה                       | משך    |
+| ------------------ | --------------------- | ----------------------------- | ------ |
+| 🔘 **Button**      | כל הכפתורים           | Scale ל-0.95 כשלוחצים         | 150ms  |
+| 📋 **List Item**   | הוספה/מחיקה           | Slide + Fade in/out           | 300ms  |
+| 🃏 **Card Tap**    | כרטיסים               | Scale ל-0.98 + Elevation      | 150ms  |
+| 🔔 **SnackBar**    | התראות                | Slide מלמטה + Fade            | 250ms  |
+| 🔢 **Counter**     | מספרים                | ספירה מ-0 לערך האמיתי         | 800ms  |
+| 🔄 **Page Trans**  | מעבר בין מסכים        | Slide ימין-שמאל (RTL aware!)  | 300ms  |
+
+#### 🔧 Animation Widgets מוכנים לשימוש
+
+```dart
+// 1. Animated Button
+class AnimatedButton extends StatefulWidget {
+  final Widget child;
+  final VoidCallback onPressed;
+
+  @override
+  State<AnimatedButton> createState() => _AnimatedButtonState();
+}
+
+class _AnimatedButtonState extends State<AnimatedButton> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) {
+        setState(() => _isPressed = false);
+        widget.onPressed();
+      },
+      onTapCancel: () => setState(() => _isPressed = false),
+      child: AnimatedScale(
+        scale: _isPressed ? 0.95 : 1.0,
+        duration: Duration(milliseconds: 150),
+        curve: Curves.easeInOut,
+        child: widget.child,
+      ),
+    );
+  }
+}
+
+// 2. List Item Animation
+class AnimatedListItem extends StatelessWidget {
+  final Widget child;
+  final int index;
+
+  Widget build(context) {
+    return SlideTransition(
+      position: Tween<Offset>(
+        begin: Offset(0, 0.1),
+        end: Offset.zero,
+      ).animate(CurvedAnimation(
+        parent: AnimationController(...),
+        curve: Curves.easeOut,
+      )),
+      child: FadeTransition(
+        opacity: Tween<double>(begin: 0.0, end: 1.0).animate(...),
+        child: child,
+      ),
+    );
+  }
+}
+
+// 3. Animated Counter
+class AnimatedCounter extends StatelessWidget {
+  final int value;
+  final TextStyle? style;
+
+  Widget build(context) {
+    return TweenAnimationBuilder<int>(
+      tween: IntTween(begin: 0, end: value),
+      duration: Duration(milliseconds: 800),
+      curve: Curves.easeOut,
+      builder: (context, value, child) {
+        return Text(
+          NumberFormat('#,###').format(value), // פסיקים אלפים!
+          style: style,
+        );
+      },
+    );
+  }
+}
+```
+
+#### 💡 Animations Usage במסכים
+
+**דוגמה 1: Button Animation**
+
+```dart
+// ✅ במקום ElevatedButton רגיל
+AnimatedButton(
+  onPressed: _onSave,
+  child: ElevatedButton(
+    onPressed: null, // ה-AnimatedButton מטפל ב-onPressed
+    child: Text('שמור'),
+  ),
+)
+```
+
+**דוגמה 2: List Animation**
+
+```dart
+// ✅ במקום ListView.builder רגיל
+AnimatedList(
+  key: _listKey,
+  itemBuilder: (context, index, animation) {
+    return SlideTransition(
+      position: animation.drive(
+        Tween<Offset>(begin: Offset(1, 0), end: Offset.zero)
+          .chain(CurveTween(curve: Curves.easeOut)),
+      ),
+      child: FadeTransition(
+        opacity: animation,
+        child: ShoppingItemCard(items[index]),
+      ),
+    );
+  },
+)
+
+// הוספת פריט
+_listKey.currentState?.insertItem(index);
+
+// מחיקת פריט
+_listKey.currentState?.removeItem(
+  index,
+  (context, animation) => SizeTransition(
+    sizeFactor: animation,
+    child: SlideTransition(
+      position: animation.drive(
+        Tween<Offset>(begin: Offset(1, 0), end: Offset.zero),
+      ),
+      child: ShoppingItemCard(item),
+    ),
+  ),
+);
+```
+
+**דוגמה 3: Card Tap Effect**
+
+```dart
+// ✅ כרטיס אינטראקטיבי
+class TappableCard extends StatefulWidget {
+  final Widget child;
+  final VoidCallback onTap;
+
+  @override
+  State<TappableCard> createState() => _TappableCardState();
+}
+
+class _TappableCardState extends State<TappableCard> {
+  double _scale = 1.0;
+  double _elevation = 2.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() {
+        _scale = 0.98;
+        _elevation = 4.0;
+      }),
+      onTapUp: (_) {
+        setState(() {
+          _scale = 1.0;
+          _elevation = 2.0;
+        });
+        widget.onTap();
+      },
+      onTapCancel: () => setState(() {
+        _scale = 1.0;
+        _elevation = 2.0;
+      }),
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 150),
+        curve: Curves.easeInOut,
+        transform: Matrix4.identity()..scale(_scale),
+        child: Card(
+          elevation: _elevation,
+          child: widget.child,
+        ),
+      ),
+    );
+  }
+}
+```
+
+**דוגמה 4: Counter Animation**
+
+```dart
+// ✅ במקום Text רגיל
+AnimatedCounter(
+  value: provider.totalProducts, // 1758
+  style: Theme.of(context).textTheme.headlineMedium,
+)
+```
+
+#### 📊 Animation Priority
+
+**מסכים לפי עדיפות:**
+
+1. 🥇 **Buttons** - בכל מקום! (השפעה מקסימלית, מאמץ מינימלי)
+2. 🥈 **Lists** - Shopping Lists, Inventory (הכי מורכב, הכי מרשים)
+3. 🥉 **Cards** - Dashboard, Templates (תחושה מקצועית)
+4. 🏅 **Numbers** - Insights, Settings (wow factor!)
+5. 🏅 **SnackBars** - כל ההתראות (עדין אבל משדרג)
+6. 🏅 **Page Transitions** - כל האפליקציה (פוליש אחרון)
+
+#### ⚠️ Performance Guidelines
+
+```dart
+// ✅ נכון - משך קצר
+duration: Duration(milliseconds: 150-400)
+
+// ❌ שגוי - משך ארוך
+duration: Duration(seconds: 1) // מרגיש איטי!
+
+// ✅ נכון - Curve חלק
+curve: Curves.easeInOut
+
+// ❌ שגוי - Curve מסובך
+curve: Curves.elasticOut // מוגזם!
+
+// ✅ נכון - שימוש ב-AnimatedContainer
+AnimatedContainer(duration: ..., child: ...)
+
+// ❌ שגוי - AnimationController ללא dispose
+final controller = AnimationController(...);
+// שכחנו dispose! → memory leak
+```
+
+#### 💡 Accessibility - Reduce Motion
+
+```dart
+// ✅ כבוד להגדרת "Reduce Motion"
+final bool reduceMotion = MediaQuery.of(context).disableAnimations;
+
+Widget build(context) {
+  if (reduceMotion) {
+    return child; // ללא אנימציה
+  }
+  
+  return AnimatedContainer(
+    duration: Duration(milliseconds: 300),
+    child: child,
+  );
+}
+```
+
+---
+
+### 🎯 Implementation Strategy
+
+**מומלץ לעבוד בסדר הזה:**
+
+**שבוע 1: Skeleton Screens (1-2 ימים)**
+1. צור `SkeletonBox` widget בסיסי
+2. צור `ShoppingItemSkeleton` + `CardSkeleton`
+3. שלב ב-Dashboard (המסך הראשון!)
+4. הרחב ל-Shopping Lists, Pantry, Price Compare
+5. Polish + בדיקות ב-Dark Mode
+
+**שבוע 2: Micro Animations (2-3 ימים)**
+1. `AnimatedButton` - הוסף לכל הכפתורים (3-4 שעות)
+2. `AnimatedList` - Shopping Lists או Inventory (4-6 שעות)
+3. `TappableCard` - Dashboard cards (2-3 שעות)
+4. `AnimatedSnackBar` - כל ההתראות (2-3 שעות)
+5. `AnimatedCounter` - מספרים במסכי Insights (1-2 שעות)
+6. Polish + Page Transitions (2-3 שעות)
+
+**תוצאה צפויה:**
+- ✅ 5-7 מסכים עם Skeleton Screens
+- ✅ 6 סוגי אנימציות פעילים
+- ✅ UX מקצועי ומודרני
+- ✅ תחושה שהאפליקציה "חיה"
+- ✅ פי 3 יותר מקצועי מלפני
+
+---
+
 ### 📐 Constants Organization
 
 ```
@@ -603,12 +1039,14 @@ lib/l10n/
     └── list_type_mappings_strings.dart
 
 lib/config/
-├── household_config.dart        ← 11 household types
-├── list_type_mappings.dart      ← Type → Categories (140+ items)
-├── list_type_groups.dart        ← 3 groups (Shopping/Specialty/Events)
-├── filters_config.dart          ← Filter texts
-├── stores_config.dart           ← Store names + variations
-└── receipt_patterns_config.dart ← OCR Regex patterns
+├── household_config.dart         ← 11 household types
+├── list_type_mappings.dart       ← Type → Categories (140+ items)
+├── list_type_groups.dart         ← 3 groups (Shopping/Specialty/Events)
+├── filters_config.dart           ← Filter texts
+├── stores_config.dart            ← Store names + variations
+├── receipt_patterns_config.dart  ← OCR Regex patterns
+├── pantry_config.dart            ← Units, Categories, Locations ⭐ (חדש!)
+└── storage_locations_config.dart ← 5 מיקומים (❄️🧊🏠📦📍) ⭐ (חדש!)
 ```
 
 **שימוש:**
@@ -619,12 +1057,16 @@ SizedBox(height: kSpacingMedium)
 Text(AppStrings.common.logout)
 final type = HouseholdConfig.getLabel('family')
 final suggestions = ListTypeMappings.getSuggestedItemsForType(ListType.super_)
+final unit = PantryConfig.defaultUnit  // "יחידות"
+final location = StorageLocationsConfig.getEmoji('refrigerator')  // "❄️"
 
 // ❌ רע
 SizedBox(height: 16.0)
 Text('התנתק')
 final type = 'משפחה'
 final suggestions = ['חלב', 'לחם']
+final unit = 'ק"ג'  // hardcoded!
+final location = '🧊'  // hardcoded emoji!
 ```
 
 📖 [LESSONS - Constants Organization](LESSONS_LEARNED.md#constants-organization)
@@ -633,17 +1075,17 @@ final suggestions = ['חלב', 'לחם']
 
 ## 📊 Project Stats
 
-### **מבנה הפרויקט (10/10/2025)**
+### **מבנה הפרויקט (14/10/2025)**
 
 | קטגוריה            | כמות | הערות                                                                                                                                               |
 | ------------------ | ---- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Models**         | 11   | UserEntity, ShoppingList, **Template** ⭐, Receipt, InventoryItem, ProductEntity, Suggestion, HabitPreference, CustomLocation + enums               |
-| **Providers**      | 9    | UserContext, ShoppingLists, **Templates** ⭐, Inventory, Receipt, Products, Suggestions, Habits, Locations                                          |
-| **Repositories**   | 15   | 8 Firebase + 7 interfaces (כולל **Templates** ⭐)                                                                                                   |
+| **Models**         | 10   | UserEntity, ShoppingList, **Template** ⭐, Receipt, InventoryItem, ProductEntity, Suggestion, HabitPreference, CustomLocation + 1 enum              |
+| **Providers**      | 9    | UserContext, ShoppingLists, **Templates** ⭐, Inventory, Receipt, Products, Suggestions, Habits, **Locations** ⭐                                   |
+| **Repositories**   | 17   | 8 Firebase + 7 interfaces + 2 special (כולל **Templates** ⭐ + **Locations** ⭐)                                                                    |
 | **Services**       | 7    | Auth, Shufersal, OCR, Parser, Stats, Onboarding, Prefs                                                                                              |
 | **Screens**        | 30+  | Auth(2), Home(3), Shopping(8), Lists(3), Receipts(2), Pantry(1), Price(1), Habits(1), Insights(1), Settings(1), Onboarding(2), Welcome(1), Index(1) |
 | **Widgets**        | 25+  | Common(2), Home(2), Auth(2) + 19 נוספים                                                                                                             |
-| **Config Files**   | 6    | Household, Mappings, Groups, Filters, Stores, Patterns                                                                                              |
+| **Config Files**   | 8    | Household, Mappings, Groups, Filters, Stores, Patterns, **Pantry** ⭐, **StorageLocations** ⭐                                                       |
 | **Core Constants** | 3    | constants, ui_constants, status_colors                                                                                                              |
 
 ### **Templates System (חדש! 10/10/2025)** ⭐
@@ -698,6 +1140,55 @@ final suggestions = ['חלב', 'לחם']
 - Security: אסור לשמור/למחוק `is_system=true`
 - UserContext Integration: Listener Pattern לעדכון אוטומטי
 
+### 🆕 LocationsProvider: SharedPreferences → Firebase Migration
+
+**Phase 1 (13/10/2025):** Local Storage → Cloud Storage
+
+**לקחים:**
+
+- **מתי לעבור ל-Firebase:**
+  - ✅ נתונים צריכים להיות משותפים (household/team)
+  - ✅ צריך גיבוי אוטומטי
+  - ✅ רוצים סנכרון real-time
+  - ✅ multi-device support
+- Repository Pattern: `LocationsRepository` + `FirebaseLocationsRepository`
+- UserContext Integration: `addListener()` + `removeListener()`
+- Collaborative Editing: כל חברי household יכולים לערוך
+- Security Rules: `custom_locations` collection
+
+**Pattern: Local → Cloud Migration (3 שלבים):**
+
+```dart
+// שלב 1: Repository Pattern
+abstract class LocationsRepository {
+  Future<List<CustomLocation>> fetchLocations(String householdId);
+  Future<void> saveLocation(CustomLocation location, String householdId);
+  Future<void> deleteLocation(String key, String householdId);
+}
+
+// שלב 2: Firebase Implementation
+class FirebaseLocationsRepository implements LocationsRepository {
+  final FirebaseFirestore _firestore;
+  // household_id filtering בכל השאילתות
+}
+
+// שלב 3: Provider Refactor
+class LocationsProvider extends ChangeNotifier {
+  final LocationsRepository _repository;
+  // UserContext Integration
+  // Error Recovery: retry() + clearAll()
+}
+```
+
+**תוצאות:**
+
+- אחסון: מקומי (SharedPreferences) → Cloud (Firestore) ☁️
+- שיתוף: אישי → Household (כולם רואים) 👥
+- סנכרון: אין → Real-time בין מכשירים 🔄
+- גיבוי: אבד עם המכשיר → נשמר בענן ✅
+
+📖 [WORK_LOG - LocationsProvider Migration](WORK_LOG.md)
+
 **קבצים:**
 
 ```
@@ -729,7 +1220,7 @@ await provider.createTemplate(template);
 | קובץ         | זמן   | בדיקה                                             |
 | ------------ | ----- | ------------------------------------------------- |
 | Provider     | 2-3'  | Repository? Error handling? Logging? UserContext? |
-| Screen       | 3-4'  | SafeArea? 3-4 States? RTL?                        |
+| Screen       | 3-4'  | SafeArea? 3-4 States? RTL? + Skeleton/Animations? |
 | Model        | 1-2'  | JsonSerializable? copyWith?                       |
 | Repository   | 2-3'  | Interface? household_id? Logging?                 |
 | Service      | 3'    | Static/Instance? dispose()?                       |
@@ -744,7 +1235,7 @@ await provider.createTemplate(template);
 ### ✅ עשה תמיד
 
 - קרא WORK_LOG בתחילה
-- **נתיב מלא לקבצים: C:\projects\salsheli\...** ⭐ (חדש!)
+- **נתיב מלא לקבצים: C:\projects\salsheli\...** ⭐
 - Dead Code 3-Step לפני עבודה (3 סוגים!)
 - Dormant Code? בדוק 4 שאלות (אולי שווה להפעיל!)
 - חפש בעצמך (אל תבקש מהמשתמש)
@@ -754,10 +1245,12 @@ await provider.createTemplate(template);
 - Constants (lib/core/ + lib/config/)
 - UserContext Integration ב-Providers
 - Batch Processing לפעולות כבדות (100+ items)
+- **Skeleton במקום CircularProgressIndicator** ⭐ (חדש!)
+- **Micro Animations לאינטראקציות** ⭐ (חדש!)
 
 ### ❌ אל תעשה
 
-- **אל תשתמש בנתיבים יחסיים או שגויים!** ⭐ (חדש!)
+- **אל תשתמש בנתיבים יחסיים או שגויים!** ⭐
 - אל תעבוד על קובץ לפני בדיקת Dead Code
 - אל תמחק Dormant Code ללא בדיקת 4 שאלות
 - אל תבקש מהמשתמש לחפש
@@ -768,6 +1261,18 @@ await provider.createTemplate(template);
 - אל תשתמש ב-Mock Data
 - אל תשכח Repository Pattern (לא Firebase ישירות ב-Provider!)
 - אל תשמור 1000+ items בבת אחת (Batch Processing!)
+- **אל תשאיר CircularProgressIndicator בלי שקול Skeleton** ⭐ (חדש!)
+- **אל תעשה אנימציות ארוכות מ-400ms** ⭐ (חדש!)
+
+### 🎨 Modern UI/UX (חדש! v8.0)
+
+- ✅ Skeleton Screens ב-5+ מסכים מרכזיים
+- ✅ Button Animations בכל הכפתורים
+- ✅ List Animations להוספה/מחיקה
+- ✅ Card Tap Effect בכרטיסים
+- ✅ SnackBar Animations להתראות
+- ✅ Counter Animations למספרים
+- ✅ Page Transitions (RTL aware)
 
 ### 🆕 Templates System
 
@@ -784,7 +1289,7 @@ await provider.createTemplate(template);
 
 ---
 
-**גרסה:** 7.4 - File Paths Fix (640 שורות)  
+**גרסה:** 8.0 - Modern UI/UX Patterns (900+ שורות)  
 **תאימות:** Flutter 3.27+ | Mobile Only  
-**עדכון:** 10/10/2025  
+**עדכון:** 14/10/2025  
 **Made with ❤️ by AI & Humans** 🤖🤝👨‍💻

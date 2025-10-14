@@ -37,6 +37,7 @@ import '../../providers/shopping_lists_provider.dart';
 import '../../providers/products_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../core/ui_constants.dart';
+import '../../core/status_colors.dart';
 
 class ActiveShoppingScreen extends StatefulWidget {
   final ShoppingList list;
@@ -270,7 +271,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                   icon: Icons.check_circle,
                   label: 'קנוי',  // שונה!
                   value: '$purchased',
-                  color: Colors.green,
+                  color: StatusColors.success,
                 ),
                 _StatCard(
                   icon: Icons.block,
@@ -282,13 +283,13 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                   icon: Icons.shopping_cart,
                   label: 'נותרו',
                   value: '${total - completed}',  // שונה - מוריד גם notNeeded
-                  color: Colors.blue,
+                  color: StatusColors.info,
                 ),
                 _StatCard(
                   icon: Icons.inventory_2,
                   label: 'סה״כ',
                   value: '$total',
-                  color: Colors.grey,
+                  color: StatusColors.pending,
                 ),
               ],
             ),
@@ -419,13 +420,13 @@ class _ActiveShoppingItemTile extends StatelessWidget {
     Color cardColor;
     switch (status) {
       case ShoppingItemStatus.purchased:
-        cardColor = Colors.green.withValues(alpha: 0.1);
+        cardColor = StatusColors.success.withValues(alpha: 0.1);
         break;
       case ShoppingItemStatus.outOfStock:
-        cardColor = Colors.red.withValues(alpha: 0.1);
+        cardColor = StatusColors.error.withValues(alpha: 0.1);
         break;
       case ShoppingItemStatus.deferred:
-        cardColor = Colors.orange.withValues(alpha: 0.1);
+        cardColor = StatusColors.warning.withValues(alpha: 0.1);
         break;
       default:
         cardColor = cs.surface;
@@ -515,7 +516,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                       child: _ActionButton(
                         icon: Icons.check_circle,
                         label: 'קנוי',  // שונה!
-                        color: Colors.green,
+                        color: StatusColors.success,
                         isSelected: status == ShoppingItemStatus.purchased,
                         onTap: () => onStatusChanged(ShoppingItemStatus.purchased),
                       ),
@@ -525,7 +526,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                       child: _ActionButton(
                         icon: Icons.remove_shopping_cart,
                         label: 'אזל',
-                        color: Colors.red,
+                        color: StatusColors.error,
                         isSelected: status == ShoppingItemStatus.outOfStock,
                         onTap: () => onStatusChanged(ShoppingItemStatus.outOfStock),
                       ),
@@ -540,7 +541,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                       child: _ActionButton(
                         icon: Icons.schedule,
                         label: 'דחה לאחר כך',  // שונה!
-                        color: Colors.orange,
+                        color: StatusColors.warning,
                         isSelected: status == ShoppingItemStatus.deferred,
                         onTap: () => onStatusChanged(ShoppingItemStatus.deferred),
                       ),
@@ -670,7 +671,7 @@ class _ShoppingSummaryDialog extends StatelessWidget {
     return AlertDialog(
       title: Row(
         children: [
-          Icon(Icons.check_circle, color: Colors.green, size: kIconSizeLarge),
+          Icon(Icons.check_circle, color: StatusColors.success, size: kIconSizeLarge),
           const SizedBox(width: kSpacingSmallPlus),
           Expanded(
             child: Text(
@@ -708,7 +709,7 @@ class _ShoppingSummaryDialog extends StatelessWidget {
               icon: Icons.timer,
               label: 'זמן קנייה',
               value: _formatDuration(duration),
-              color: Colors.blue,
+              color: StatusColors.info,
             ),
 
             const Divider(height: kSpacingLarge),
@@ -718,7 +719,7 @@ class _ShoppingSummaryDialog extends StatelessWidget {
               icon: Icons.check_circle,
               label: 'קנוי',  // שונה!
               value: '$purchased מתוך $total',
-              color: Colors.green,
+              color: StatusColors.success,
             ),
 
             // 🚫 לא צריך
@@ -736,7 +737,7 @@ class _ShoppingSummaryDialog extends StatelessWidget {
                 icon: Icons.remove_shopping_cart,
                 label: 'אזלו בחנות',  // שונה!
                 value: '$outOfStock',
-                color: Colors.red,
+                color: StatusColors.error,
               ),
 
             // ⏭️ נדחו
@@ -745,7 +746,7 @@ class _ShoppingSummaryDialog extends StatelessWidget {
                 icon: Icons.schedule,
                 label: 'נדחו לפעם הבאה',
                 value: '$deferred',
-                color: Colors.orange,
+                color: StatusColors.warning,
               ),
 
             // ⏸️ לא סומנו
@@ -754,7 +755,7 @@ class _ShoppingSummaryDialog extends StatelessWidget {
                 icon: Icons.radio_button_unchecked,
                 label: 'לא סומנו',
                 value: '$pending',
-                color: Colors.grey,
+                color: StatusColors.pending,
               ),
           ],
         ),

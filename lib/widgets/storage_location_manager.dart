@@ -19,6 +19,7 @@ import '../models/inventory_item.dart';
 import '../models/custom_location.dart';
 import '../providers/locations_provider.dart';
 import '../core/constants.dart';
+import '../core/ui_constants.dart';
 
 class StorageLocationManager extends StatefulWidget {
   final List<InventoryItem> inventory;
@@ -203,11 +204,11 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // בחירת אמוג'י
-                    const Text("בחר אמוג'י:", style: TextStyle(fontSize: 12)),
-                    const SizedBox(height: 8),
+                    const Text("בחר אמוג'י:", style: TextStyle(fontSize: kFontSizeTiny)),
+                    const SizedBox(height: kSpacingSmall),
                     Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+                      spacing: kSpacingSmall,
+                      runSpacing: kSpacingSmall,
                       children: _availableEmojis.map((emoji) {
                         final isSelected = emoji == selectedEmoji;
                         return GestureDetector(
@@ -217,25 +218,25 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                             });
                           },
                           child: Container(
-                            padding: const EdgeInsets.all(8),
+                            padding: const EdgeInsets.all(kSpacingSmall),
                             decoration: BoxDecoration(
                               color: isSelected
                                   ? Colors.indigo.shade100
                                   : Colors.grey.shade100,
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                               border: Border.all(
                                 color: isSelected
                                     ? Colors.indigo
                                     : Colors.transparent,
-                                width: 2,
+                                width: kBorderWidthThick,
                               ),
                             ),
-                            child: Text(emoji, style: const TextStyle(fontSize: 24)),
+                            child: Text(emoji, style: const TextStyle(fontSize: kIconSize)),
                           ),
                         );
                       }).toList(),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: kSpacingMedium),
                     // שם המיקום
                     TextField(
                       controller: newLocationController,
@@ -318,11 +319,11 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // בחירת אמוג'י
-                    const Text("בחר אמוג'י:", style: TextStyle(fontSize: 12)),
-                    const SizedBox(height: 8),
+                    const Text("בחר אמוג'י:", style: TextStyle(fontSize: kFontSizeTiny)),
+                    const SizedBox(height: kSpacingSmall),
                     Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+                      spacing: kSpacingSmall,
+                      runSpacing: kSpacingSmall,
                       children: _availableEmojis.map((emoji) {
                         final isSelected = emoji == selectedEmoji;
                         return GestureDetector(
@@ -332,25 +333,25 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                             });
                           },
                           child: Container(
-                            padding: const EdgeInsets.all(8),
+                            padding: const EdgeInsets.all(kSpacingSmall),
                             decoration: BoxDecoration(
                               color: isSelected
                                   ? Colors.indigo.shade100
                                   : Colors.grey.shade100,
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                               border: Border.all(
                                 color: isSelected
                                     ? Colors.indigo
                                     : Colors.transparent,
-                                width: 2,
+                                width: kBorderWidthThick,
                               ),
                             ),
-                            child: Text(emoji, style: const TextStyle(fontSize: 24)),
+                            child: Text(emoji, style: const TextStyle(fontSize: kIconSize)),
                           ),
                         );
                       }).toList(),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: kSpacingMedium),
                     TextField(
                       controller: newLocationController,
                       decoration: const InputDecoration(
@@ -492,16 +493,16 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
           ? () => _deleteCustomLocation(key, name, emoji)
           : null,
       child: Card(
-        elevation: isSelected ? 4 : 1,
+        elevation: isSelected ? kCardElevationHigh : kCardElevationLow,
         color: isSelected ? Colors.indigo.shade50 : null,
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(kSpacingSmallPlus),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Row(
                 children: [
-                  Text(emoji, style: const TextStyle(fontSize: 24)),
+                  Text(emoji, style: const TextStyle(fontSize: kIconSize)),
                   const Spacer(),
                   if (isCustom)
                     Tooltip(
@@ -519,41 +520,41 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                         },
                         child: Icon(
                           Icons.edit,
-                          size: 16,
+                          size: kIconSizeSmall,
                           color: Colors.grey.shade600,
                         ),
                       ),
                     ),
                 ],
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: kSpacingTiny),
               Text(
                 name,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: isSelected ? Colors.indigo : null,
-                  fontSize: 12,
+                  fontSize: kFontSizeTiny,
                 ),
                 textAlign: TextAlign.center,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: kSpacingTiny),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     count == 0 ? "ריק" : "$count",
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: kFontSizeSmall,
                       fontWeight: FontWeight.bold,
                       color: count == 0 ? Colors.grey : Colors.indigo,
                     ),
                   ),
                   if (lowStockCount > 0) ...[
-                    const SizedBox(width: 4),
+                    const SizedBox(width: kSpacingTiny),
                     Icon(
                       Icons.warning,
-                      size: 14,
+                      size: kIconSizeSmall,
                       color: Colors.orange.shade700,
                     ),
                   ],
@@ -580,14 +581,14 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
           /// 🔝 כותרת וכפתורים
           Card(
             child: Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(kSpacingSmallPlus),
               child: Row(
                 children: [
                   const Icon(Icons.location_on, color: Colors.indigo),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: kSpacingSmall),
                   const Text(
                     "ניהול אזורי אחסון",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: kFontSizeBody),
                   ),
                   const Spacer(),
                   // מיון
@@ -606,7 +607,7 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                         child: Row(
                           children: [
                             Icon(Icons.sort_by_alpha),
-                            SizedBox(width: 8),
+                            SizedBox(width: kSpacingSmall),
                             Text("לפי שם"),
                           ],
                         ),
@@ -616,7 +617,7 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                         child: Row(
                           children: [
                             Icon(Icons.numbers),
-                            SizedBox(width: 8),
+                            SizedBox(width: kSpacingSmall),
                             Text("לפי כמות"),
                           ],
                         ),
@@ -657,7 +658,7 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
 
           /// 🔍 שדה חיפוש
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingTiny),
             child: TextField(
               controller: searchController,
               decoration: InputDecoration(
@@ -676,7 +677,7 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                       )
                     : null,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                 ),
               ),
               onChanged: (value) {
@@ -694,11 +695,11 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
               children: [
                 /// 📦 רשימת מיקומים
                 SizedBox(
-                  height: gridMode ? 200 : 150,
+                  height: gridMode ? (kChipHeight * 4) : (kChipHeight * 3),
                   child: GridView.count(
                     crossAxisCount: gridMode ? 3 : 1,
                     childAspectRatio: gridMode ? 1.2 : 5,
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
                     children: [
                       // כרטיס "הכל"
                       _buildLocationCard(
@@ -748,17 +749,17 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                 /// 📋 פריטים
                 Expanded(
                   child: Card(
-                    margin: const EdgeInsets.all(8),
+                    margin: const EdgeInsets.all(kSpacingSmall),
                     child: Column(
                       children: [
                         // כותרת
                         Container(
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(kSpacingSmallPlus),
                           decoration: BoxDecoration(
                             color: Colors.indigo.shade50,
                             borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(4),
-                              topRight: Radius.circular(4),
+                              topLeft: Radius.circular(kSpacingTiny),
+                              topRight: Radius.circular(kSpacingTiny),
                             ),
                           ),
                           child: Row(
@@ -767,7 +768,7 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                                 Icons.inventory_2,
                                 color: Colors.indigo.shade700,
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: kSpacingSmall),
                               Text(
                                 _getLocationTitle(customLocations),
                                 style: TextStyle(
@@ -780,7 +781,7 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                                 "${filteredInventory.length} פריטים",
                                 style: TextStyle(
                                   color: Colors.indigo.shade600,
-                                  fontSize: 12,
+                                  fontSize: kFontSizeTiny,
                                 ),
                               ),
                             ],
@@ -798,10 +799,10 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                                         searchQuery.isNotEmpty
                                             ? Icons.search_off
                                             : Icons.inventory_2_outlined,
-                                        size: 64,
+                                        size: kIconSizeXLarge,
                                         color: Colors.grey.shade300,
                                       ),
-                                      const SizedBox(height: 16),
+                                      const SizedBox(height: kSpacingMedium),
                                       Text(
                                         searchQuery.isNotEmpty
                                             ? "לא נמצאו פריטים"
@@ -822,7 +823,7 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                                         backgroundColor: Colors.indigo.shade50,
                                         child: Text(
                                           _getProductEmoji(item.category),
-                                          style: const TextStyle(fontSize: 20),
+                                          style: const TextStyle(fontSize: kFontSizeMedium),
                                         ),
                                       ),
                                       title: Text(
@@ -830,23 +831,25 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                                         style: const TextStyle(
                                           fontWeight: FontWeight.w500,
                                         ),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
                                       ),
                                       subtitle: Row(
                                         children: [
                                           Icon(
                                             Icons.inventory,
-                                            size: 14,
+                                            size: kIconSizeSmall,
                                             color: Colors.grey.shade600,
                                           ),
-                                          const SizedBox(width: 4),
+                                          const SizedBox(width: kSpacingTiny),
                                           Text("${item.quantity} ${item.unit}"),
-                                          const SizedBox(width: 12),
+                                          const SizedBox(width: kSpacingSmallPlus),
                                           Icon(
                                             Icons.category,
-                                            size: 14,
+                                            size: kIconSizeSmall,
                                             color: Colors.grey.shade600,
                                           ),
-                                          const SizedBox(width: 4),
+                                          const SizedBox(width: kSpacingTiny),
                                           Text(item.category),
                                         ],
                                       ),
@@ -857,7 +860,7 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                                             Icon(
                                               Icons.warning,
                                               color: Colors.orange.shade700,
-                                              size: 20,
+                                              size: kFontSizeMedium,
                                             ),
                                           if (widget.onEditItem != null)
                                             IconButton(

@@ -182,8 +182,8 @@ class ShoppingListTile extends StatelessWidget {
       key: Key(list.id),
       direction: DismissDirection.endToStart,
       background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        alignment: AlignmentDirectional.centerEnd,
+        padding: const EdgeInsets.symmetric(horizontal: kButtonPaddingHorizontal),
         color: Colors.redAccent,
         child: const Icon(Icons.delete, color: Colors.white),
       ),
@@ -245,13 +245,13 @@ class ShoppingListTile extends StatelessWidget {
         }
       },
       child: Material(
-        elevation: 2,
-        borderRadius: BorderRadius.circular(12),
+        elevation: kCardElevation,
+        borderRadius: BorderRadius.circular(kBorderRadius),
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border(
-              right: BorderSide(
+            borderRadius: BorderRadius.circular(kBorderRadius),
+            border: BorderDirectional(
+              start: BorderSide(
                 color: list.status == ShoppingList.statusCompleted
                     ? Colors.green.shade400
                     : list.status == ShoppingList.statusArchived
@@ -265,14 +265,14 @@ class ShoppingListTile extends StatelessWidget {
           children: [
             InkWell(
               borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(12),
+                top: Radius.circular(kBorderRadius),
               ),
               onTap: onTap,
               child: ListTile(
                 leading: _statusIcon(),
                 contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
+                  horizontal: kSpacingMedium,
+                  vertical: kSpacingSmallPlus,
                 ),
                 title: Row(
                   children: [
@@ -282,6 +282,8 @@ class ShoppingListTile extends StatelessWidget {
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                       ),
                     ),
                     // תג דחיפות
@@ -327,13 +329,13 @@ class ShoppingListTile extends StatelessWidget {
                       'פריטים: ${list.items.length} • עודכן: $dateFormatted',
                       style: theme.textTheme.bodySmall,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: kSpacingTiny),
                     if (list.items.isNotEmpty)
                       LinearProgressIndicator(
                         value: list.items.isEmpty 
                             ? 0.0 
                             : list.items.where((item) => item.isChecked).length / list.items.length,
-                        minHeight: 4,
+                        minHeight: kSpacingTiny,
                         backgroundColor: theme.colorScheme.surfaceContainerHighest,
                         color: theme.colorScheme.primary,
                       ),
@@ -356,13 +358,13 @@ class ShoppingListTile extends StatelessWidget {
                 ),
                 child: InkWell(
                   borderRadius: const BorderRadius.vertical(
-                    bottom: Radius.circular(12),
+                    bottom: Radius.circular(kBorderRadius),
                   ),
                   onTap: onStartShopping,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+                      horizontal: kSpacingMedium,
+                      vertical: kSpacingSmallPlus,
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -372,11 +374,11 @@ class ShoppingListTile extends StatelessWidget {
                           color: theme.colorScheme.primary,
                           size: kIconSizeMedium,
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: kSpacingSmall),
                         Text(
                           'התחל קנייה',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: kFontSizeBody,
                             fontWeight: FontWeight.bold,
                             color: theme.colorScheme.primary,
                           ),
@@ -390,7 +392,7 @@ class ShoppingListTile extends StatelessWidget {
             else if (list.status == ShoppingList.statusActive && list.items.isEmpty)
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(kSpacingSmallPlus),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surfaceContainerHighest,
                   border: Border(
@@ -399,7 +401,7 @@ class ShoppingListTile extends StatelessWidget {
                     ),
                   ),
                   borderRadius: const BorderRadius.vertical(
-                    bottom: Radius.circular(12),
+                    bottom: Radius.circular(kBorderRadius),
                   ),
                 ),
                 child: Row(
@@ -407,14 +409,14 @@ class ShoppingListTile extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.info_outline,
-                      size: 16,
+                      size: kIconSizeSmall,
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: kSpacingSmall),
                     Text(
                       'הוסף מוצרים כדי להתחיל',
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: kFontSizeSmall,
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ),

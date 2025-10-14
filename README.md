@@ -37,7 +37,7 @@
 
 ```bash
 # Clone
-git clone https://github.com/your-username/salsheli.git
+git clone https://github.com/Yehuda-Sh/salsheli.git
 cd salsheli
 
 # Install & Generate
@@ -145,13 +145,15 @@ lib/
 │   ├── products_provider.dart      # 💰 Products (Hybrid)
 │   ├── suggestions_provider.dart   # 💡 Smart suggestions
 │   ├── habits_provider.dart        # 🧠 User habits
-│   └── locations_provider.dart     # 📍 Custom locations
+│   └── locations_provider.dart     # 📍 Custom locations (Firestore) ⭐
 │
 ├── repositories/              # Data access
 │   ├── firebase_*_repository.dart  # Firestore CRUD (8 repos)
+│   ├── locations_repository.dart   # Locations interface ⭐
+│   ├── firebase_locations_repository.dart # Locations Firebase impl ⭐
 │   ├── hybrid_products_repository.dart # Hive + Firestore + API
 │   ├── local_products_repository.dart  # Hive cache
-│   └── *_repository.dart           # Interfaces (5 interfaces)
+│   └── *_repository.dart           # Interfaces (7 interfaces)
 │
 ├── services/                  # Business logic
 │   ├── auth_service.dart              # 🔐 Firebase Auth
@@ -189,7 +191,9 @@ lib/
 │   ├── list_type_groups.dart       # 3 groups (Shopping/Specialty/Events)
 │   ├── filters_config.dart         # Filter options
 │   ├── stores_config.dart          # Store names + variations
-│   └── receipt_patterns_config.dart # OCR Regex patterns
+│   ├── receipt_patterns_config.dart # OCR Regex patterns
+│   ├── pantry_config.dart          # Units, Categories, Locations ⭐
+│   └── storage_locations_config.dart # 5 מיקומים (❄️🧊🏠📦📍) ⭐
 │
 ├── core/                      # Constants (חדש!)
 │   ├── constants.dart              # ListType, categories, collections
@@ -213,7 +217,7 @@ lib/
 
 ---
 
-## 📝 מה עובד היום (10/10/2025)
+## 📝 מה עובד היום (13/10/2025)
 
 ### ☁️ Firestore + Authentication
 
@@ -222,7 +226,7 @@ lib/
 - ✅ Templates System - system/personal/shared/assigned (חדש!)
 - ✅ Receipts, Inventory, Products (1,758 מוצרים)
 - ✅ Habits tracking - learning user preferences
-- ✅ Custom locations - personalized storage
+- ✅ Custom locations - Cloud storage (Firestore) + household sharing ⭐
 - ✅ Security Rules + Indexes
 - ✅ Hybrid Storage: Hive (cache) + Firestore (cloud)
 
@@ -257,11 +261,11 @@ lib/
 - **קבצי Dart:** 100+ בlib/ (ללא .g.dart)
 - **מודלים:** 11 (כולל Templates)
 - **Providers:** 9 (כולל Templates + Habits)
-- **Repositories:** 15 (8 Firebase + interfaces)
+- **Repositories:** 17 (8 Firebase + 7 interfaces + 2 special)
 - **Services:** 7
 - **Screens:** 30+
 - **Widgets:** 25+
-- **Config Files:** 6 (חדש!)
+- **Config Files:** 8 (חדש!)
 - **תבניות מערכת:** 6 (66 פריטים)
 - **מוצרים:** 1,758 (Hive + Firestore)
 - **סוגי רשימות:** 21
@@ -366,8 +370,11 @@ npm run setup-demo             # הכל ביחד (users + templates + real data)
 
 ---
 
-## 🎓 הישגים אחרונים (06-10/10/2025)
+## 🎓 הישגים אחרונים (06-13/10/2025)
 
+- ✅ LocationsProvider → Firebase Migration (13/10) ⭐
+- ✅ Batch Processing Pattern (13/10) ⭐
+- ✅ InventoryProvider Error Recovery (13/10) ⭐
 - ✅ Templates System מלא (10/10)
 - ✅ 6 תבניות מערכת (10/10)
 - ✅ Firebase Integration מלא
@@ -376,10 +383,10 @@ npm run setup-demo             # הכל ביחד (users + templates + real data)
 - ✅ ניקוי 5,000+ שורות Dead Code
 - ✅ Code Review מקיף (100/100)
 - ✅ Providers עקביים (Error Handling + Logging + Recovery)
-- ✅ תיקון ביצועים - Batch Save Pattern (0 Skipped Frames)
+- ✅ תיקון ביצועים - 0 Skipped Frames
 - ✅ תיעוד מקיף (LESSONS_LEARNED + AI_DEV_GUIDELINES + WORK_LOG)
 - ✅ 140+ פריטים מוצעים (21 קטגוריות)
-- ✅ Config Files Pattern (6 קבצים)
+- ✅ Config Files Pattern (8 קבצים)
 
 ---
 
@@ -389,7 +396,7 @@ MIT License - ראה LICENSE
 
 ---
 
-**עדכון:** 10/10/2025 | **גרסה:** 1.0.0+1 | **Made with ❤️ in Israel** 🇮🇱
+**עדכון:** 13/10/2025 | **גרסה:** 1.0.0+1 | **Made with ❤️ in Israel** 🇮🇱
 
 > 💡 **למפתחים:** התחל עם `LESSONS_LEARNED.md` - הכי חשוב!  
 > 💡 **לסוכני AI:** קרא `AI_DEV_GUIDELINES.md` בתחילת כל שיחה

@@ -38,6 +38,7 @@ import 'repositories/firebase_products_repository.dart';  // 🔥 Firebase!
 import 'repositories/hybrid_products_repository.dart';
 import 'repositories/firebase_habits_repository.dart';  // 🔥 Firebase Habits!
 import 'repositories/firebase_templates_repository.dart';  // 🔥 Firebase Templates!
+import 'repositories/firebase_locations_repository.dart';  // 🔥 Firebase Locations!
 
 // Services
 import 'services/auth_service.dart';  // 🔐 Firebase Auth!
@@ -197,8 +198,25 @@ void main() async {
           },
         ),
 
-        // === Locations Provider ===
-        ChangeNotifierProvider(create: (_) => LocationsProvider()),
+        // === Locations Provider === 📍 Firebase!
+        ChangeNotifierProxyProvider<UserContext, LocationsProvider>(
+          create: (context) {
+            debugPrint('📍 main.dart: יוצר LocationsProvider עם Firebase');
+            return LocationsProvider(
+              userContext: context.read<UserContext>(),
+              repository: FirebaseLocationsRepository(),  // 🔥 Firebase!
+            );
+          },
+          update: (context, userContext, previous) {
+            debugPrint('🔄 main.dart: מעדכן LocationsProvider');
+            return (previous ??
+                    LocationsProvider(
+                      userContext: userContext,
+                      repository: FirebaseLocationsRepository(),  // 🔥 Firebase!
+                    ))
+                ..updateUserContext(userContext);
+          },
+        ),
 
         // === Shopping Lists === 🔥 Firebase!
         ChangeNotifierProxyProvider<UserContext, ShoppingListsProvider>(

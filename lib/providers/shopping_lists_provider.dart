@@ -198,21 +198,29 @@ class ShoppingListsProvider with ChangeNotifier {
     }
 
     debugPrint('➕ createList: "$name" (סוג: $type, תקציב: $budget, תאריך: $eventDate)');
+    _errorMessage = null;
 
-    final newList = ShoppingList.newList(
-      id: _uuid.v4(),
-      name: name,
-      createdBy: userId,
-      type: type,
-      budget: budget,
-      eventDate: eventDate,
-      isShared: isShared,
-    );
+    try {
+      final newList = ShoppingList.newList(
+        id: _uuid.v4(),
+        name: name,
+        createdBy: userId,
+        type: type,
+        budget: budget,
+        eventDate: eventDate,
+        isShared: isShared,
+      );
 
-    await _repository.saveList(newList, householdId);
-    await loadLists();
-    debugPrint('✅ createList: רשימה "$name" נוצרה!');
-    return newList;
+      await _repository.saveList(newList, householdId);
+      await loadLists();
+      debugPrint('✅ createList: רשימה "$name" נוצרה בהצלחה!');
+      return newList;
+    } catch (e) {
+      debugPrint('❌ createList: שגיאה - $e');
+      _errorMessage = 'שגיאה ביצירת רשימה "$name": ${e.toString()}';
+      notifyListeners();
+      rethrow;
+    }
   }
 
   /// מחיק רשימה
@@ -229,9 +237,18 @@ class ShoppingListsProvider with ChangeNotifier {
     }
 
     debugPrint('🗑️ deleteList: מוחק רשימה $id');
-    await _repository.deleteList(id, householdId);
-    await loadLists();
-    debugPrint('✅ deleteList: רשימה $id נמחקה');
+    _errorMessage = null;
+
+    try {
+      await _repository.deleteList(id, householdId);
+      await loadLists();
+      debugPrint('✅ deleteList: רשימה $id נמחקה בהצלחה');
+    } catch (e) {
+      debugPrint('❌ deleteList: שגיאה - $e');
+      _errorMessage = 'שגיאה במחיקת רשימה $id: ${e.toString()}';
+      notifyListeners();
+      rethrow;
+    }
   }
 
   /// משחזר רשימה שנמחקה (Undo)
@@ -267,9 +284,18 @@ class ShoppingListsProvider with ChangeNotifier {
     }
 
     debugPrint('📝 updateList: מעדכן רשימה ${updated.id}');
-    await _repository.saveList(updated, householdId);
-    await loadLists();
-    debugPrint('✅ updateList: רשימה ${updated.id} עודכנה');
+    _errorMessage = null;
+
+    try {
+      await _repository.saveList(updated, householdId);
+      await loadLists();
+      debugPrint('✅ updateList: רשימה ${updated.id} עודכנה בהצלחה');
+    } catch (e) {
+      debugPrint('❌ updateList: שגיאה - $e');
+      _errorMessage = 'שגיאה בעדכון רשימה ${updated.id}: ${e.toString()}';
+      notifyListeners();
+      rethrow;
+    }
   }
 
   // === Get List By ID ===

@@ -25,6 +25,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/shopping_lists_provider.dart';
+import '../../core/status_colors.dart';
 
 class ShoppingSummaryScreen extends StatelessWidget {
   /// מזהה הרשימה
@@ -193,7 +194,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                     subtitle: budget > 0
                         ? "${budgetDiff >= 0 ? 'נשאר' : 'חריגה'}: ₪${budgetDiff.abs().toStringAsFixed(2)}"
                         : null,
-                    color: budgetDiff >= 0 ? Colors.green : Colors.red,
+                    color: budgetDiff >= 0 ? StatusColors.success : StatusColors.error,
                   ),
 
                   const SizedBox(height: 16),
@@ -204,7 +205,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                     title: "אחוז הצלחה",
                     value: "${successRate.toStringAsFixed(1)}%",
                     subtitle: "$purchased מתוך $total פריטים נרכשו",
-                    color: Colors.blue,
+                    color: StatusColors.info,
                   ),
 
                   const SizedBox(height: 16),
@@ -217,7 +218,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                           icon: Icons.check_circle,
                           label: "נרכשו",
                           value: "$purchased",
-                          color: Colors.green,
+                          color: StatusColors.success,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -226,7 +227,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                           icon: Icons.cancel,
                           label: "חסרו",
                           value: "$missing",
-                          color: Colors.red,
+                          color: StatusColors.error,
                         ),
                       ),
                     ],

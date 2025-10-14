@@ -17,7 +17,13 @@
 // - _isLoading: האם בטעינה
 // - _errorMessage: הודעת שגיאה
 //
-// **Version:** 1.0
+// **Version:** 2.0
+// **Updates:**
+// - Added docstrings to createHabit, updateHabit, restoreHabit
+// - Added validation in createHabit (empty strings + frequencyDays > 0)
+// - Enhanced logging with more details
+//
+// **Last Updated:** 13/10/2025
 
 import 'package:flutter/foundation.dart';
 import '../models/habit_preference.dart';
@@ -121,20 +127,57 @@ class HabitsProvider with ChangeNotifier {
     }
   }
 
-  /// ➕ יצירת הרגל חדש
+  /// יוצר הרגל קנייה חדש
+  /// 
+  /// מוודא validation של הפרמטרים, יוצר אובייקט HabitPreference חדש,
+  /// שומר אותו ב-Firestore דרך Repository, ומעדכן את המצב המקומי.
+  /// 
+  /// Parameters:
+  ///   - [preferredProduct]: שם המוצר המועדף (חובה, לא ריק)
+  ///   - [genericName]: שם גנרי/קטגוריה (חובה, לא ריק)
+  ///   - [frequencyDays]: תדירות קנייה בימים (חובה, > 0)
+  ///   - [lastPurchased]: תאריך קנייה אחרון (אופציונלי, ברירת מחדל: היום)
+  /// 
+  /// Throws:
+  ///   - ArgumentError אם validation נכשל
+  ///   - Exception אם אין household_id
+  ///   - HabitsRepositoryException אם השמירה נכשלת
+  /// 
+  /// Example:
+  /// ```dart
+  /// await habitsProvider.createHabit(
+  ///   preferredProduct: 'חלב תנובה 3%',
+  ///   genericName: 'חלב',
+  ///   frequencyDays: 7,
+  /// );
+  /// ```
   Future<void> createHabit({
     required String preferredProduct,
     required String genericName,
     required int frequencyDays,
     DateTime? lastPurchased,
   }) async {
+    // ✅ Validation
+    if (preferredProduct.trim().isEmpty) {
+      debugPrint('🧠 HabitsProvider.createHabit: שם מוצר ריק');
+      throw ArgumentError('שם מוצר לא יכול להיות ריק');
+    }
+    if (genericName.trim().isEmpty) {
+      debugPrint('🧠 HabitsProvider.createHabit: שם גנרי ריק');
+      throw ArgumentError('שם גנרי לא יכול להיות ריק');
+    }
+    if (frequencyDays <= 0) {
+      debugPrint('🧠 HabitsProvider.createHabit: תדירות לא חוקית ($frequencyDays)');
+      throw ArgumentError('תדירות חייבת להיות גדולה מ-0 (קיבלתי: $frequencyDays)');
+    }
+
     final householdId = _userContext?.householdId;
     if (householdId == null) {
       debugPrint('🧠 HabitsProvider.createHabit: אין household_id');
       throw Exception('נדרש household_id');
     }
 
-    debugPrint('🧠 HabitsProvider.createHabit: "$preferredProduct"');
+    debugPrint('🧠 HabitsProvider.createHabit: "$preferredProduct" (תדירות: ${frequencyDays}d)');
 
     final now = DateTime.now();
     final habit = HabitPreference(
@@ -158,7 +201,23 @@ class HabitsProvider with ChangeNotifier {
     }
   }
 
-  /// ✏️ עדכון הרגל
+  /// מעדכן הרגל קנייה קיים
+  /// 
+  /// מוודא שיש household_id, שומר את ההרגל המעודכן ב-Firestore,
+  /// ומעדכן את המצב המקומי. תאריך העדכון מתעדכן אוטומטית.
+  /// 
+  /// Parameters:
+  ///   - [updatedHabit]: אובייקט ההרגל המעודכן
+  /// 
+  /// Throws:
+  ///   - Exception אם אין household_id
+  ///   - HabitsRepositoryException אם העדכון נכשל
+  /// 
+  /// Example:
+  /// ```dart
+  /// final updated = habit.copyWith(frequencyDays: 14);
+  /// await habitsProvider.updateHabit(updated);
+  /// ```
   Future<void> updateHabit(HabitPreference updatedHabit) async {
     final householdId = _userContext?.householdId;
     if (householdId == null) {
@@ -166,7 +225,7 @@ class HabitsProvider with ChangeNotifier {
       throw Exception('נדרש household_id');
     }
 
-    debugPrint('🧠 HabitsProvider.updateHabit: ${updatedHabit.id}');
+    debugPrint('🧠 HabitsProvider.updateHabit: ${updatedHabit.id} (${updatedHabit.preferredProduct})');
 
     try {
       await _repository.updateHabit(updatedHabit, householdId);
@@ -220,7 +279,27 @@ class HabitsProvider with ChangeNotifier {
     }
   }
 
-  /// ↩️ שחזור הרגל שנמחק
+  /// משחזר הרגל שנמחק (Undo)
+  /// 
+  /// יוצר מחדש את ההרגל ב-Firestore ומוסיף אותו למצב המקומי.
+  /// שימושי עבור Undo Pattern (מחיקה + אפשרות שחזור).
+  /// 
+  /// Parameters:
+  ///   - [habit]: אובייקט ההרגל לשחזור
+  /// 
+  /// Throws:
+  ///   - Exception אם אין household_id
+  ///   - HabitsRepositoryException אם השחזור נכשל
+  /// 
+  /// Example:
+  /// ```dart
+  /// // במחיקה:
+  /// final deletedHabit = habits[index];
+  /// await habitsProvider.deleteHabit(deletedHabit.id);
+  /// 
+  /// // ב-SnackBar action:
+  /// await habitsProvider.restoreHabit(deletedHabit);
+  /// ```
   Future<void> restoreHabit(HabitPreference habit) async {
     final householdId = _userContext?.householdId;
     if (householdId == null) {
@@ -228,7 +307,7 @@ class HabitsProvider with ChangeNotifier {
       throw Exception('נדרש household_id');
     }
 
-    debugPrint('🧠 HabitsProvider.restoreHabit: ${habit.preferredProduct}');
+    debugPrint('🧠 HabitsProvider.restoreHabit: ${habit.preferredProduct} (תדירות: ${habit.frequencyDays}d)');
 
     try {
       final restored = await _repository.createHabit(habit, householdId);

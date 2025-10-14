@@ -268,6 +268,39 @@ class InventoryProvider with ChangeNotifier {
     }
   }
 
+  // === Error Recovery ===
+  
+  /// מנקה שגיאות ומטעין מחדש את הפריטים
+  /// 
+  /// Example:
+  /// ```dart
+  /// if (provider.hasError) {
+  ///   await provider.retry();
+  /// }
+  /// ```
+  Future<void> retry() async {
+    debugPrint('🔄 InventoryProvider.retry: מנסה שוב');
+    _errorMessage = null;
+    notifyListeners();
+    debugPrint('   🔔 InventoryProvider: notifyListeners() (error cleared)');
+    await _loadItems();
+  }
+
+  /// מנקה את כל הנתונים והשגיאות
+  /// 
+  /// Example:
+  /// ```dart
+  /// inventoryProvider.clearAll();
+  /// ```
+  void clearAll() {
+    debugPrint('🧹 InventoryProvider.clearAll: מנקה הכל');
+    _items = [];
+    _errorMessage = null;
+    _isLoading = false;
+    notifyListeners();
+    debugPrint('   🔔 InventoryProvider: notifyListeners() (all cleared)');
+  }
+
   // === פילטרים נוחים ===
   
   /// מחזיר פריטים לפי קטגוריה
