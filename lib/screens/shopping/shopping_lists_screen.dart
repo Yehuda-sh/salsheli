@@ -1,6 +1,14 @@
-// 📄 File: lib/screens/shopping/shopping_lists_screen.dart - V2.0 ENHANCED
+// 📄 File: lib/screens/shopping/shopping_lists_screen.dart - V3.0 MODERN UI/UX
 //
-// ✨ שיפורים חדשים (v2.0):
+// ✨ שיפורים חדשים (v3.0 - 14/10/2025):
+// 1. 💀 Skeleton Screens - במקום CircularProgressIndicator
+// 2. ✨ Micro Animations - כפתורים וכרטיסים חיים
+// 3. 🎯 Empty/Error States מונפשים - gradient + animations
+// 4. 🔘 FAB Animation - bounce effect
+// 5. 📋 List Animations - slide + fade לכרטיסים
+// 6. 🎨 Drawer משופר - אנימציות עדינות
+//
+// ✨ שיפורים קודמים (v2.0):
 // 1. 🔍 חיפוש טקסט בשם הרשימה
 // 2. 🏷️ סינון לפי ListType (dropdown)
 // 3. 📊 מיון: תאריך ↓↑ | שם א-ת | תקציב ↓↑
@@ -10,10 +18,10 @@
 //     - תומך ביצירה, מחיקה ופתיחה של רשימה.
 //     - כולל מצב טעינה, שגיאה ומצב ריק.
 //     - חיפוש וסינון מתקדם.
+//     - UI/UX מודרני עם אנימציות.
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../models/shopping_list.dart';
 import '../../providers/shopping_lists_provider.dart';
@@ -30,11 +38,34 @@ class ShoppingListsScreen extends StatefulWidget {
   State<ShoppingListsScreen> createState() => _ShoppingListsScreenState();
 }
 
-class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
+class _ShoppingListsScreenState extends State<ShoppingListsScreen>
+    with SingleTickerProviderStateMixin {
   // 🔍 חיפוש וסינון
   String _searchQuery = '';
   String _selectedType = 'all'; // 'all' = הכל
   String _sortBy = 'date_desc'; // date_desc | date_asc | name | budget_desc | budget_asc
+
+  // 🎨 Animation Controllers
+  late AnimationController _fabController;
+
+  @override
+  void initState() {
+    super.initState();
+    debugPrint('📋 ShoppingListsScreen.initState()');
+    
+    // FAB Animation Controller
+    _fabController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150),
+    );
+  }
+
+  @override
+  void dispose() {
+    debugPrint('🗑️ ShoppingListsScreen.dispose()');
+    _fabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +77,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
           provider.lists.isEmpty &&
           provider.errorMessage == null &&
           provider.lastUpdated == null) {
+        debugPrint('🔄 טוען רשימות ראשונית');
         provider.loadLists();
       }
     });
@@ -57,7 +89,10 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: "רענן",
-            onPressed: () => provider.loadLists(),
+            onPressed: () {
+              debugPrint('🔄 רענון ידני');
+              provider.loadLists();
+            },
           ),
         ],
       ),
@@ -71,16 +106,29 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
             // 📋 תוכן
             Expanded(
               child: RefreshIndicator(
-                onRefresh: provider.loadLists,
+                onRefresh: () async {
+                  debugPrint('🔄 Pull to refresh');
+                  await provider.loadLists();
+                },
                 child: _buildBody(context, provider),
               ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showCreateListDialog(context, provider),
-        child: const Icon(Icons.add),
+      floatingActionButton: ScaleTransition(
+        scale: CurvedAnimation(
+          parent: _fabController,
+          curve: Curves.easeInOut,
+        ),
+        child: FloatingActionButton(
+          onPressed: () {
+            debugPrint('➕ לחיצה על FAB');
+            _fabController.forward().then((_) => _fabController.reverse());
+            _showCreateListDialog(context, provider);
+          },
+          child: const Icon(Icons.add),
+        ),
       ),
     );
   }
@@ -199,6 +247,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
           ],
           onChanged: (value) {
             if (value != null) {
+              debugPrint('🏷️ סינון לפי: $value');
               setState(() => _selectedType = value);
             }
           },
@@ -348,7 +397,10 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
           ),
         ),
       ],
-      onSelected: (value) => setState(() => _sortBy = value),
+      onSelected: (value) {
+        debugPrint('📊 מיון לפי: $value');
+        setState(() => _sortBy = value);
+      },
     );
   }
 
@@ -366,6 +418,106 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
       default:
         return Icons.sort;
     }
+  }
+
+  /// 💀 Skeleton Box - קופסה מהבהבת
+  Widget _buildSkeletonBox({
+    required double width,
+    required double height,
+    BorderRadius? borderRadius,
+  }) {
+    final cs = Theme.of(context).colorScheme;
+    
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 800),
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            cs.surfaceContainerHighest.withValues(alpha: 0.3),
+            cs.surfaceContainerHighest.withValues(alpha: 0.1),
+            cs.surfaceContainerHighest.withValues(alpha: 0.3),
+          ],
+          stops: const [0.0, 0.5, 1.0],
+        ),
+        borderRadius: borderRadius ?? BorderRadius.circular(kBorderRadiusSmall),
+      ),
+    );
+  }
+
+  /// 💀 Skeleton של כרטיס רשימה
+  Widget _buildListCardSkeleton() {
+    return Card(
+      margin: const EdgeInsets.symmetric(
+        horizontal: kSpacingMedium,
+        vertical: kSpacingSmall,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(kSpacingMedium),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                // אייקון
+                _buildSkeletonBox(
+                  width: 40,
+                  height: 40,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                const SizedBox(width: kSpacingMedium),
+                // כותרת
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSkeletonBox(
+                        width: double.infinity,
+                        height: 18,
+                      ),
+                      const SizedBox(height: kSpacingSmall),
+                      _buildSkeletonBox(
+                        width: 100,
+                        height: 14,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: kSpacingMedium),
+            // סטטיסטיקות
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                for (int i = 0; i < 3; i++)
+                  Column(
+                    children: [
+                      _buildSkeletonBox(width: 40, height: 12),
+                      const SizedBox(height: kSpacingTiny),
+                      _buildSkeletonBox(width: 50, height: 10),
+                    ],
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 💀 Loading State - עם Skeleton Screens
+  Widget _buildLoadingState() {
+    debugPrint('⏳ _buildLoadingState()');
+    
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: kSpacingSmall),
+      itemCount: 5,
+      itemBuilder: (context, index) => _buildListCardSkeleton(),
+    );
   }
 
   /// 📌 מציג דיאלוג ליצירת רשימה חדשה
@@ -419,7 +571,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
   /// 📌 בונה את גוף המסך לפי מצב הטעינה / שגיאה / נתונים
   Widget _buildBody(BuildContext context, ShoppingListsProvider provider) {
     if (provider.isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return _buildLoadingState();
     }
     if (provider.errorMessage != null) {
       return _buildErrorState(provider);
@@ -489,142 +641,290 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
     return filtered;
   }
 
-  /// 📌 מציג את כל הרשימות
+  /// 📌 מציג את כל הרשימות - עם אנימציות
   Widget _buildListsView(List<ShoppingList> lists) {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: kSpacingSmall),
       itemCount: lists.length,
       itemBuilder: (context, index) {
         final list = lists[index];
-        return ShoppingListTile(
-          list: list,
-          onTap: () {
-            Navigator.pushNamed(context, '/populate-list', arguments: list);
-          },
-          onDelete: () {
-            final provider = context.read<ShoppingListsProvider>();
-            provider.deleteList(list.id);
-          },
-          onRestore: (deletedList) {
-            final provider = context.read<ShoppingListsProvider>();
-            provider.restoreList(deletedList);
-          },
-          onStartShopping: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ActiveShoppingScreen(list: list),
+        
+        // אנימציית כניסה לכל כרטיס
+        return TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0.0, end: 1.0),
+          duration: Duration(milliseconds: 300 + (index * 50)),
+          curve: Curves.easeOut,
+          builder: (context, value, child) {
+            return Opacity(
+              opacity: value,
+              child: Transform.translate(
+                offset: Offset(20 * (1 - value), 0),
+                child: child,
               ),
             );
           },
+          child: ShoppingListTile(
+            list: list,
+            onTap: () {
+              debugPrint('📋 פתיחת רשימה: ${list.name}');
+              Navigator.pushNamed(context, '/populate-list', arguments: list);
+            },
+            onDelete: () {
+              debugPrint('🗑️ מחיקת רשימה: ${list.name}');
+              final provider = context.read<ShoppingListsProvider>();
+              provider.deleteList(list.id);
+            },
+            onRestore: (deletedList) {
+              debugPrint('↩️ שחזור רשימה: ${deletedList.name}');
+              final provider = context.read<ShoppingListsProvider>();
+              provider.restoreList(deletedList);
+            },
+            onStartShopping: () {
+              debugPrint('🛒 התחלת קנייה: ${list.name}');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ActiveShoppingScreen(list: list),
+                ),
+              );
+            },
+          ),
         );
       },
-    ).animate().fadeIn(duration: 300.ms);
+    );
   }
 
-  /// ❌ מצב שגיאה
+  /// ❌ מצב שגיאה - משופר עם אנימציות
   Widget _buildErrorState(ShoppingListsProvider provider) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, size: 64, color: Colors.red),
-          const SizedBox(height: kSpacingMedium),
-          Text(
-            "שגיאה בטעינת הרשימות",
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: kSpacingSmall),
-          Text(
-            provider.errorMessage!,
-            style: const TextStyle(color: Colors.red),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: kSpacingLarge),
-          ElevatedButton.icon(
-            onPressed: () => provider.loadLists(),
-            icon: const Icon(Icons.refresh),
-            label: const Text('נסה שוב'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 📭 תוצאות חיפוש ריקות
-  Widget _buildEmptySearchResults() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.search_off, size: kIconSizeXLarge, color: Colors.grey),
-          const SizedBox(height: kSpacingMedium),
-          const Text(
-            "לא נמצאו רשימות",
-            style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: kSpacingSmall),
-          Text(
-            "נסה לשנות את החיפוש או הסינון",
-            style: TextStyle(color: Colors.grey[600]),
-          ),
-          const SizedBox(height: kSpacingLarge),
-          TextButton.icon(
-            onPressed: () {
-              setState(() {
-                _searchQuery = '';
-                _selectedType = 'all';
-              });
-            },
-            icon: const Icon(Icons.clear_all),
-            label: const Text('נקה סינון'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 📋 מצב ריק – אין רשימות להצגה
-  Widget _buildEmptyState(
-    BuildContext context,
-    ShoppingListsProvider provider,
-  ) {
+    debugPrint('❌ _buildErrorState()');
+    final cs = Theme.of(context).colorScheme;
+    
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(kSpacingLarge),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.shopping_bag_outlined,
-              size: 120,
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.0, end: 1.0),
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.elasticOut,
+              builder: (context, value, child) {
+                return Transform.scale(
+                  scale: value,
+                  child: Container(
+                    padding: const EdgeInsets.all(kSpacingLarge),
+                    decoration: BoxDecoration(
+                      color: cs.errorContainer.withValues(alpha: 0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.error_outline,
+                      size: kIconSizeXLarge,
+                      color: cs.error,
+                    ),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: kSpacingLarge),
             Text(
-              "אין רשימות קניות",
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              "שגיאה בטעינת הרשימות",
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: kSpacingSmall),
             Text(
-              "לחץ על הכפתור מטה ליצירת",
+              provider.errorMessage ?? 'משהו השתבש...',
+              style: TextStyle(color: cs.error),
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(height: kSpacingLarge),
+            ElevatedButton.icon(
+              onPressed: () {
+                debugPrint('🔄 retry - טוען מחדש');
+                provider.loadLists();
+              },
+              icon: const Icon(Icons.refresh),
+              label: const Text('נסה שוב'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: cs.primary,
+                foregroundColor: cs.onPrimary,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: kSpacingLarge,
+                  vertical: kSpacingMedium,
+                ),
               ),
             ),
-            Text(
-              "הרשימה הראשונה שלך!",
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 📭 תוצאות חיפוש ריקות - משופר עם אנימציות
+  Widget _buildEmptySearchResults() {
+    debugPrint('🔍 _buildEmptySearchResults()');
+    final cs = Theme.of(context).colorScheme;
+    
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(kSpacingLarge),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.0, end: 1.0),
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.easeOut,
+              builder: (context, value, child) {
+                return Opacity(
+                  opacity: value,
+                  child: Transform.translate(
+                    offset: Offset(0, 20 * (1 - value)),
+                    child: Container(
+                      padding: const EdgeInsets.all(kSpacingLarge),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            cs.surfaceContainerHighest.withValues(alpha: 0.3),
+                            cs.surfaceContainerHighest.withValues(alpha: 0.1),
+                          ],
+                        ),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.search_off,
+                        size: kIconSizeXLarge,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: kSpacingLarge),
+            const Text(
+              "לא נמצאו רשימות",
+              style: TextStyle(
+                fontSize: kFontSizeLarge,
+                fontWeight: FontWeight.bold,
               ),
+            ),
+            const SizedBox(height: kSpacingSmall),
+            Text(
+              "נסה לשנות את החיפוש או הסינון",
+              style: TextStyle(color: cs.onSurfaceVariant),
+            ),
+            const SizedBox(height: kSpacingLarge),
+            TextButton.icon(
+              onPressed: () {
+                debugPrint('🧹 ניקוי סינון');
+                setState(() {
+                  _searchQuery = '';
+                  _selectedType = 'all';
+                });
+              },
+              icon: const Icon(Icons.clear_all),
+              label: const Text('נקה סינון'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 📋 מצב ריק – אין רשימות להצגה - משופר עם אנימציות
+  Widget _buildEmptyState(
+    BuildContext context,
+    ShoppingListsProvider provider,
+  ) {
+    debugPrint('📭 _buildEmptyState()');
+    final cs = Theme.of(context).colorScheme;
+    
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(kSpacingLarge),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.0, end: 1.0),
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.easeOut,
+              builder: (context, value, child) {
+                return Opacity(
+                  opacity: value,
+                  child: Transform.translate(
+                    offset: Offset(0, 20 * (1 - value)),
+                    child: Container(
+                      padding: const EdgeInsets.all(kSpacingXLarge),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            cs.primaryContainer.withValues(alpha: 0.3),
+                            cs.secondaryContainer.withValues(alpha: 0.2),
+                          ],
+                        ),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.shopping_bag_outlined,
+                        size: 120,
+                        color: cs.primary,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: kSpacingLarge),
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.0, end: 1.0),
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.easeOut,
+              builder: (context, value, child) {
+                return Opacity(
+                  opacity: value,
+                  child: Column(
+                    children: [
+                      Text(
+                        "אין רשימות קניות",
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: kSpacingSmall),
+                      Text(
+                        "לחץ על הכפתור מטה ליצירת",
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      Text(
+                        "הרשימה הראשונה שלך!",
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
             const SizedBox(height: kSpacingXLarge),
             ElevatedButton.icon(
-              onPressed: () => _showCreateListDialog(context, provider),
+              onPressed: () {
+                debugPrint('➕ יצירת רשימה ראשונה');
+                _showCreateListDialog(context, provider);
+              },
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: kSpacingLarge,
@@ -651,7 +951,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
     );
   }
 
-  /// 📂 Drawer עם קבוצות
+  /// 📂 Drawer עם קבוצות - משופר עם אנימציות
   Widget _buildDrawer(BuildContext context, ShoppingListsProvider provider) {
     final theme = Theme.of(context);
     
@@ -662,6 +962,8 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
           DrawerHeader(
             decoration: BoxDecoration(
               gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
                 colors: [
                   theme.colorScheme.primary,
                   theme.colorScheme.primary.withValues(alpha: 0.7),
@@ -837,6 +1139,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
         vertical: kSpacingTiny,
       ),
       onTap: () {
+        debugPrint('🏷️ בחירת סוג: $type');
         setState(() {
           _selectedType = type;
         });

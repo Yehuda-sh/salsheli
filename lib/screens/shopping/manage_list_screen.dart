@@ -9,6 +9,8 @@
 // - 🗑️ מחיקה עם אישור (Dismissible + Dialog)
 // - 🎯 ניווט לקנייה פעילה
 // - 📱 3 Empty States: Loading/Error/Empty
+// - 💀 Skeleton Screens: loading מודרני
+// - ✨ Micro Animations: UI חי ומגיב
 //
 // 📦 Dependencies:
 // - ShoppingListsProvider: CRUD על רשימות
@@ -17,10 +19,11 @@
 //
 // 🎨 UI:
 // - Header: סטטיסטיקות בכרטיס כחול
-// - ListView: רשימת פריטים עם Dismissible
-// - FAB: הוספת פריט חדש
-// - Empty State: אייקון + טקסט
+// - ListView: רשימת פריטים עם Dismissible + Animations
+// - FAB: הוספת פריט חדש עם Animation
+// - Empty State: אייקון + טקסט מעוצב
 // - Error State: retry button
+// - Loading State: Skeleton Screen במקום spinner
 //
 // 📝 Usage:
 // ```dart
@@ -38,8 +41,8 @@
 // - shopping_lists_screen.dart - רשימת כל הרשימות
 // - populate_list_screen.dart - מילוי רשימה ממקורות
 //
-// Version: 2.1 - Fixed compilation errors
-// Last Updated: 09/10/2025
+// Version: 3.0 - Modern UI/UX (Skeleton + Animations)
+// Last Updated: 14/10/2025
 //
 
 import 'package:flutter/material.dart';
@@ -65,16 +68,26 @@ class ManageListScreen extends StatefulWidget {
   State<ManageListScreen> createState() => _ManageListScreenState();
 }
 
-class _ManageListScreenState extends State<ManageListScreen> {
+class _ManageListScreenState extends State<ManageListScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _fabController;
+
   @override
   void initState() {
     super.initState();
     debugPrint('📋 ManageListScreen.initState() | listId: ${widget.listId}');
+    
+    // FAB Animation Controller
+    _fabController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150),
+    );
   }
 
   @override
   void dispose() {
     debugPrint('🗑️ ManageListScreen.dispose()');
+    _fabController.dispose();
     super.dispose();
   }
 
@@ -174,9 +187,16 @@ class _ManageListScreenState extends State<ManageListScreen> {
                       Navigator.pop(ctx);
                       messenger.showSnackBar(
                         SnackBar(
-                          content: Text('✅ $name נוסף לרשימה'),
+                          content: Row(
+                            children: [
+                              const Icon(Icons.check_circle, color: Colors.white),
+                              SizedBox(width: kSpacingSmall),
+                              Text('✅ $name נוסף לרשימה'),
+                            ],
+                          ),
                           duration: kSnackBarDuration,
                           backgroundColor: Colors.green,
+                          behavior: SnackBarBehavior.floating,
                         ),
                       );
                     }
@@ -185,9 +205,16 @@ class _ManageListScreenState extends State<ManageListScreen> {
                     if (ctx.mounted) {
                       messenger.showSnackBar(
                         SnackBar(
-                          content: Text('❌ שגיאה: ${e.toString()}'),
+                          content: Row(
+                            children: [
+                              const Icon(Icons.error, color: Colors.white),
+                              SizedBox(width: kSpacingSmall),
+                              Text('❌ שגיאה: ${e.toString()}'),
+                            ],
+                          ),
                           duration: kSnackBarDurationLong,
                           backgroundColor: Colors.red,
+                          behavior: SnackBarBehavior.floating,
                         ),
                       );
                     }
@@ -221,7 +248,13 @@ class _ManageListScreenState extends State<ManageListScreen> {
       if (context.mounted) {
         messenger.showSnackBar(
           SnackBar(
-            content: Text('"${item.name ?? 'ללא שם'}" הוסר'),
+            content: Row(
+              children: [
+                const Icon(Icons.delete_outline, color: Colors.white),
+                SizedBox(width: kSpacingSmall),
+                Text('"${item.name ?? 'ללא שם'}" הוסר'),
+              ],
+            ),
             behavior: SnackBarBehavior.floating,
             duration: kSnackBarDuration,
           ),
@@ -232,9 +265,16 @@ class _ManageListScreenState extends State<ManageListScreen> {
       if (context.mounted) {
         messenger.showSnackBar(
           SnackBar(
-            content: Text('❌ שגיאה: ${e.toString()}'),
+            content: Row(
+              children: [
+                const Icon(Icons.error, color: Colors.white),
+                SizedBox(width: kSpacingSmall),
+                Text('❌ שגיאה: ${e.toString()}'),
+              ],
+            ),
             duration: kSnackBarDurationLong,
             backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
@@ -263,16 +303,133 @@ class _ManageListScreenState extends State<ManageListScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('❌ שגיאה: ${e.toString()}'),
+            content: Row(
+              children: [
+                const Icon(Icons.error, color: Colors.white),
+                SizedBox(width: kSpacingSmall),
+                Text('❌ שגיאה: ${e.toString()}'),
+              ],
+            ),
             duration: kSnackBarDuration,
             backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
     }
   }
 
-  /// Loading State
+  /// 💀 Skeleton Box - קופסה מהבהבת בסיסית
+  Widget _buildSkeletonBox({
+    required double width,
+    required double height,
+    BorderRadius? borderRadius,
+    required ColorScheme cs,
+  }) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 800),
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            cs.surfaceContainerHighest.withValues(alpha: 0.3),
+            cs.surfaceContainerHighest.withValues(alpha: 0.1),
+            cs.surfaceContainerHighest.withValues(alpha: 0.3),
+          ],
+          stops: const [0.0, 0.5, 1.0],
+        ),
+        borderRadius: borderRadius ?? BorderRadius.circular(kBorderRadiusSmall),
+      ),
+    );
+  }
+
+  /// 💀 Skeleton של פריט בודד ברשימה
+  Widget _buildItemSkeleton(ColorScheme cs) {
+    return Card(
+      margin: EdgeInsets.only(bottom: kSpacingSmall),
+      child: Padding(
+        padding: EdgeInsets.all(kSpacingMedium),
+        child: Row(
+          children: [
+            // Checkbox skeleton
+            _buildSkeletonBox(
+              width: 24,
+              height: 24,
+              borderRadius: BorderRadius.circular(4),
+              cs: cs,
+            ),
+            SizedBox(width: kSpacingMedium),
+            // Content skeleton
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // שם המוצר
+                  _buildSkeletonBox(
+                    width: double.infinity,
+                    height: 16,
+                    cs: cs,
+                  ),
+                  SizedBox(height: kSpacingSmall),
+                  // פרטי מחיר
+                  _buildSkeletonBox(
+                    width: 120,
+                    height: 12,
+                    cs: cs,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 💀 Skeleton של סטטיסטיקות Header
+  Widget _buildStatsSkeleton(ColorScheme cs) {
+    return Container(
+      padding: EdgeInsets.all(kSpacingMedium),
+      margin: EdgeInsets.all(kSpacingMedium),
+      decoration: BoxDecoration(
+        color: cs.primaryContainer.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(kBorderRadius),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          for (int i = 0; i < 3; i++)
+            Column(
+              children: [
+                _buildSkeletonBox(
+                  width: 32,
+                  height: 32,
+                  borderRadius: BorderRadius.circular(16),
+                  cs: cs,
+                ),
+                SizedBox(height: kSpacingTiny),
+                _buildSkeletonBox(
+                  width: 50,
+                  height: 20,
+                  cs: cs,
+                ),
+                SizedBox(height: kSpacingTiny),
+                _buildSkeletonBox(
+                  width: 40,
+                  height: 14,
+                  cs: cs,
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// Loading State - עם Skeleton Screen
   Widget _buildLoading(ColorScheme cs) {
     debugPrint('⏳ _buildLoading()');
     return Scaffold(
@@ -281,13 +438,25 @@ class _ManageListScreenState extends State<ManageListScreen> {
         title: Text(widget.listName),
         backgroundColor: cs.surface,
       ),
-      body: const Center(
-        child: CircularProgressIndicator(),
+      body: Column(
+        children: [
+          // Skeleton של סטטיסטיקות
+          _buildStatsSkeleton(cs),
+          
+          // Skeleton של 5 פריטים
+          Expanded(
+            child: ListView.builder(
+              padding: EdgeInsets.symmetric(horizontal: kSpacingMedium),
+              itemCount: 5,
+              itemBuilder: (context, index) => _buildItemSkeleton(cs),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  /// Error State
+  /// Error State - משופר עם אייקון מונפש
   Widget _buildError(ColorScheme cs, ShoppingListsProvider provider) {
     debugPrint('❌ _buildError()');
     return Scaffold(
@@ -300,20 +469,45 @@ class _ManageListScreenState extends State<ManageListScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: kIconSizeXLarge,
-              color: cs.error,
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.0, end: 1.0),
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.elasticOut,
+              builder: (context, value, child) {
+                return Transform.scale(
+                  scale: value,
+                  child: Container(
+                    padding: EdgeInsets.all(kSpacingLarge),
+                    decoration: BoxDecoration(
+                      color: cs.errorContainer.withValues(alpha: 0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.error_outline,
+                      size: kIconSizeXLarge,
+                      color: cs.error,
+                    ),
+                  ),
+                );
+              },
             ),
-            SizedBox(height: kSpacingMedium),
+            SizedBox(height: kSpacingLarge),
             Text(
               'שגיאה בטעינת הרשימה',
               style: TextStyle(
                 fontSize: kFontSizeMedium,
+                fontWeight: FontWeight.bold,
                 color: cs.onSurface,
               ),
             ),
             SizedBox(height: kSpacingSmall),
+            Text(
+              'משהו השתבש... בואו ננסה שוב',
+              style: TextStyle(
+                color: cs.onSurfaceVariant,
+              ),
+            ),
+            SizedBox(height: kSpacingLarge),
             ElevatedButton.icon(
               onPressed: () {
                 debugPrint('🔄 retry - טוען מחדש');
@@ -324,6 +518,10 @@ class _ManageListScreenState extends State<ManageListScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: cs.primary,
                 foregroundColor: cs.onPrimary,
+                padding: EdgeInsets.symmetric(
+                  horizontal: kSpacingLarge,
+                  vertical: kSpacingMedium,
+                ),
               ),
             ),
           ],
@@ -332,37 +530,79 @@ class _ManageListScreenState extends State<ManageListScreen> {
     );
   }
 
-  /// Empty State
+  /// Empty State - משופר עם אנימציה
   Widget _buildEmpty(ColorScheme cs) {
     debugPrint('📭 _buildEmpty()');
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.shopping_basket_outlined,
-            size: kIconSizeXLarge,
-            color: cs.onSurfaceVariant,
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0.0, end: 1.0),
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeOut,
+            builder: (context, value, child) {
+              return Opacity(
+                opacity: value,
+                child: Transform.translate(
+                  offset: Offset(0, 20 * (1 - value)),
+                  child: Container(
+                    padding: EdgeInsets.all(kSpacingLarge),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          cs.primaryContainer.withValues(alpha: 0.3),
+                          cs.secondaryContainer.withValues(alpha: 0.2),
+                        ],
+                      ),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.shopping_basket_outlined,
+                      size: kIconSizeXLarge,
+                      color: cs.primary,
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
-          SizedBox(height: kSpacingMedium),
-          Text(
-            'הרשימה ריקה',
-            style: TextStyle(
-              fontSize: kFontSizeMedium,
-              color: cs.onSurfaceVariant,
-            ),
-          ),
-          SizedBox(height: kSpacingSmall),
-          Text(
-            'לחץ על כפתור + להוספת פריטים',
-            style: TextStyle(color: cs.onSurfaceVariant),
+          SizedBox(height: kSpacingLarge),
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0.0, end: 1.0),
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeOut,
+            builder: (context, value, child) {
+              return Opacity(
+                opacity: value,
+                child: Column(
+                  children: [
+                    Text(
+                      'הרשימה ריקה',
+                      style: TextStyle(
+                        fontSize: kFontSizeMedium,
+                        fontWeight: FontWeight.bold,
+                        color: cs.onSurface,
+                      ),
+                    ),
+                    SizedBox(height: kSpacingSmall),
+                    Text(
+                      'לחץ על כפתור + להוספת פריטים',
+                      style: TextStyle(color: cs.onSurfaceVariant),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),
     );
   }
 
-  /// סטטיסטיקות Header
+  /// סטטיסטיקות Header - עם אנימציית מספרים
   Widget _buildStatsHeader(ShoppingList list, ColorScheme cs) {
     // חישוב סטטיסטיקות
     final totalAmount = list.items.fold<double>(
@@ -380,27 +620,42 @@ class _ManageListScreenState extends State<ManageListScreen> {
       padding: EdgeInsets.all(kSpacingMedium),
       margin: EdgeInsets.all(kSpacingMedium),
       decoration: BoxDecoration(
-        color: cs.primaryContainer,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            cs.primaryContainer,
+            cs.primaryContainer.withValues(alpha: 0.8),
+          ],
+        ),
         borderRadius: BorderRadius.circular(kBorderRadius),
+        boxShadow: [
+          BoxShadow(
+            color: cs.shadow.withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _buildStatItem(
             'פריטים',
-            '${list.items.length}',
+            list.items.length,
             Icons.shopping_cart,
             cs,
           ),
           _buildStatItem(
             'סה"כ',
-            '₪${totalAmount.toStringAsFixed(2)}',
+            totalAmount.toInt(),
             Icons.account_balance_wallet,
             cs,
+            prefix: '₪',
           ),
           _buildStatItem(
             'כמות',
-            '$totalQuantity',
+            totalQuantity,
             Icons.format_list_numbered,
             cs,
           ),
@@ -409,24 +664,32 @@ class _ManageListScreenState extends State<ManageListScreen> {
     );
   }
 
-  /// פריט סטטיסטיקה בודד
+  /// פריט סטטיסטיקה בודד - עם אנימציית מספרים
   Widget _buildStatItem(
     String label,
-    String value,
+    int value,
     IconData icon,
-    ColorScheme cs,
-  ) {
+    ColorScheme cs, {
+    String? prefix,
+  }) {
     return Column(
       children: [
         Icon(icon, color: cs.onPrimaryContainer, size: kIconSize),
         SizedBox(height: kSpacingTiny),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: kFontSizeMedium,
-            fontWeight: FontWeight.bold,
-            color: cs.onPrimaryContainer,
-          ),
+        TweenAnimationBuilder<int>(
+          tween: IntTween(begin: 0, end: value),
+          duration: const Duration(milliseconds: 800),
+          curve: Curves.easeOut,
+          builder: (context, animatedValue, child) {
+            return Text(
+              prefix != null ? '$prefix$animatedValue' : '$animatedValue',
+              style: TextStyle(
+                fontSize: kFontSizeMedium,
+                fontWeight: FontWeight.bold,
+                color: cs.onPrimaryContainer,
+              ),
+            );
+          },
         ),
         Text(
           label,
@@ -436,6 +699,146 @@ class _ManageListScreenState extends State<ManageListScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  /// פריט ברשימה - עם אנימציה
+  Widget _buildListItem(
+    BuildContext context,
+    ShoppingListsProvider provider,
+    int index,
+    ReceiptItem item,
+    ColorScheme cs,
+  ) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: Duration(milliseconds: 300 + (index * 50)),
+      curve: Curves.easeOut,
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: Transform.translate(
+            offset: Offset(20 * (1 - value), 0),
+            child: child,
+          ),
+        );
+      },
+      child: Dismissible(
+        key: Key(item.id),
+        direction: DismissDirection.endToStart,
+        background: Container(
+          alignment: Alignment.centerLeft,
+          padding: EdgeInsets.only(left: kSpacingMedium),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                cs.errorContainer,
+                cs.error,
+              ],
+            ),
+            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+          ),
+          child: Icon(
+            Icons.delete,
+            color: cs.onError,
+          ),
+        ),
+        confirmDismiss: (direction) async {
+          debugPrint('❓ confirmDismiss | פריט: ${item.name}');
+          return await showDialog(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: const Text('אישור מחיקה'),
+                  content: Text('למחוק את "${item.name ?? 'ללא שם'}"?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        debugPrint('❌ ביטול מחיקה');
+                        Navigator.pop(ctx, false);
+                      },
+                      child: const Text('ביטול'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        debugPrint('✅ אישור מחיקה');
+                        Navigator.pop(ctx, true);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: cs.error,
+                        foregroundColor: cs.onError,
+                      ),
+                      child: const Text('מחק'),
+                    ),
+                  ],
+                ),
+              ) ??
+              false;
+        },
+        onDismissed: (_) async {
+          await _deleteItem(
+            context,
+            provider,
+            index,
+            item,
+          );
+        },
+        child: Card(
+          margin: EdgeInsets.only(bottom: kSpacingSmall),
+          elevation: 2,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+            onTap: () async {
+              await _toggleItem(provider, index, item);
+            },
+            child: Padding(
+              padding: EdgeInsets.all(kSpacingMedium),
+              child: Row(
+                children: [
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeInOut,
+                    child: Checkbox(
+                      value: item.isChecked,
+                      onChanged: (_) async {
+                        await _toggleItem(provider, index, item);
+                      },
+                    ),
+                  ),
+                  SizedBox(width: kSpacingSmall),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.name ?? 'ללא שם',
+                          style: TextStyle(
+                            fontSize: kFontSizeMedium,
+                            fontWeight: FontWeight.w500,
+                            decoration: item.isChecked
+                                ? TextDecoration.lineThrough
+                                : null,
+                            color: item.isChecked
+                                ? cs.onSurfaceVariant
+                                : cs.onSurface,
+                          ),
+                        ),
+                        SizedBox(height: kSpacingTiny),
+                        Text(
+                          "${item.quantity} × ₪${item.unitPrice.toStringAsFixed(2)} = ₪${item.totalPrice.toStringAsFixed(2)}",
+                          style: TextStyle(
+                            fontSize: kFontSizeSmall,
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -451,7 +854,7 @@ class _ManageListScreenState extends State<ManageListScreen> {
     final provider = context.watch<ShoppingListsProvider>();
     final list = provider.getById(widget.listId);
 
-    // Loading State
+    // Loading State - Skeleton Screen
     if (provider.isLoading && list == null) {
       return _buildLoading(cs);
     }
@@ -531,73 +934,12 @@ class _ManageListScreenState extends State<ManageListScreen> {
                       itemCount: list.items.length,
                       itemBuilder: (context, index) {
                         final item = list.items[index];
-                        return Dismissible(
-                          key: Key(item.id),
-                          direction: DismissDirection.endToStart,
-                          background: Container(
-                            alignment: Alignment.centerLeft,
-                            padding: EdgeInsets.only(left: kSpacingMedium),
-                            color: cs.error,
-                            child: Icon(
-                              Icons.delete,
-                              color: cs.onError,
-                            ),
-                          ),
-                          confirmDismiss: (direction) async {
-                            debugPrint('❓ confirmDismiss | פריט: ${item.name}');
-                            return await showDialog(
-                                  context: context,
-                                  builder: (ctx) => AlertDialog(
-                                    title: const Text('אישור מחיקה'),
-                                    content: Text(
-                                        'למחוק את "${item.name ?? 'ללא שם'}"?'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          debugPrint('❌ ביטול מחיקה');
-                                          Navigator.pop(ctx, false);
-                                        },
-                                        child: const Text('ביטול'),
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          debugPrint('✅ אישור מחיקה');
-                                          Navigator.pop(ctx, true);
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: cs.error,
-                                          foregroundColor: cs.onError,
-                                        ),
-                                        child: const Text('מחק'),
-                                      ),
-                                    ],
-                                  ),
-                                ) ??
-                                false;
-                          },
-                          onDismissed: (_) async {
-                            await _deleteItem(
-                              context,
-                              provider,
-                              index,
-                              item,
-                            );
-                          },
-                          child: Card(
-                            margin: EdgeInsets.only(bottom: kSpacingSmall),
-                            child: ListTile(
-                              title: Text(item.name ?? 'ללא שם'),
-                              subtitle: Text(
-                                "${item.quantity} × ₪${item.unitPrice.toStringAsFixed(2)} = ₪${item.totalPrice.toStringAsFixed(2)}",
-                              ),
-                              trailing: Checkbox(
-                                value: item.isChecked,
-                                onChanged: (_) async {
-                                  await _toggleItem(provider, index, item);
-                                },
-                              ),
-                            ),
-                          ),
+                        return _buildListItem(
+                          context,
+                          provider,
+                          index,
+                          item,
+                          cs,
                         );
                       },
                     ),
@@ -605,12 +947,22 @@ class _ManageListScreenState extends State<ManageListScreen> {
           ],
         ),
 
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => _showAddCustomItemDialog(provider),
-          backgroundColor: accent,
-          foregroundColor: cs.onPrimary,
-          icon: const Icon(Icons.add),
-          label: const Text('הוסף פריט'),
+        floatingActionButton: ScaleTransition(
+          scale: CurvedAnimation(
+            parent: _fabController,
+            curve: Curves.easeInOut,
+          ),
+          child: FloatingActionButton.extended(
+            onPressed: () {
+              _fabController.forward().then((_) => _fabController.reverse());
+              _showAddCustomItemDialog(provider);
+            },
+            backgroundColor: accent,
+            foregroundColor: cs.onPrimary,
+            icon: const Icon(Icons.add),
+            label: const Text('הוסף פריט'),
+            elevation: 4,
+          ),
         ),
       ),
     );

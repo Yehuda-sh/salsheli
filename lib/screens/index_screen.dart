@@ -1,5 +1,15 @@
-// 📄 File: lib/screens/index_screen.dart
+// 📄 File: lib/screens/index_screen.dart - V3.0 MODERN SPLASH
 // 🎯 Purpose: מסך פתיחה ראשוני - Splash screen שבודק מצב משתמש ומנווט למסך המתאים
+//
+// ✨ שיפורים חדשים (v3.0):
+// 1. 🎨 Gradient Background מהמם - כחול-סגול-ורוד
+// 2. 🎬 Logo Animation - fade in + scale + rotate
+// 3. 💫 Pulsing Circle - העיגול פועם
+// 4. ✨ Shimmer Effect - גלי אור על הלוגו
+// 5. 📝 Animated Loading Messages - הודעות שמתחלפות
+// 6. 🌊 Wave Animation - גלים בתחתית
+// 7. ❌ Error State מעוצב - עם retry
+// 8. 🎯 Staggered Animations - הכל בסדר
 //
 // 📋 Flow Logic (עודכן 09/10/2025):
 // 1. משתמש מחובר (UserContext.isLoggedIn)? → /home (ישר לאפליקציה)
@@ -18,17 +28,20 @@
 // - Real-time sync - מגיב לשינויים ב-Firebase Auth אוטומטית
 // - Wait for initial load - ממתין עד ש-Firebase מסיים לטעון
 // - Error handling עם fallback
-// - Loading indicator עם הודעה
+// - Modern Splash Screen עם אנימציות מדהימות
 // - Accessibility labels
 // - Logging מפורט
 //
-// ⚠️ Critical Changes (09/10/2025 - v2):
-// - ✅ עבר מ-SharedPreferences.userId ל-UserContext.isLoggedIn
-// - ✅ seenOnboarding נשאר מקומי (לא צריך sync בין מכשירים)
-// - ✅ תיקון Race Condition - ממתין ל-UserContext לטעון
-// - ✅ Listener ל-UserContext - מגיב לשינויים אוטומטית
-// - ✅ mounted checks לפני כל navigation
+// ⚠️ Critical Changes (14/10/2025 - v3):
+// - ✨ Gradient background מדהים
+// - ✨ Logo animations (fade, scale, rotate)
+// - ✨ Pulsing circle effect
+// - ✨ Shimmer waves על הלוגו
+// - ✨ הודעות טעינה מתחלפות
+// - ✨ Wave animation בתחתית
+// - ✨ Error state מעוצב עם retry
 
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -44,27 +57,93 @@ class IndexScreen extends StatefulWidget {
   State<IndexScreen> createState() => _IndexScreenState();
 }
 
-class _IndexScreenState extends State<IndexScreen> {
+class _IndexScreenState extends State<IndexScreen>
+    with TickerProviderStateMixin {
   bool _hasNavigated = false; // מונע navigation כפול
+  bool _hasError = false; // מצב שגיאה
+
+  // 🎬 Animation Controllers
+  late AnimationController _logoController;
+  late AnimationController _pulseController;
+  late AnimationController _shimmerController;
+  late AnimationController _textController;
+  late AnimationController _waveController;
+
+  // 📝 הודעות טעינה
+  final List<String> _loadingMessages = [
+    'בודק מצב...',
+    'מתחבר...',
+    'כמעט מוכן...',
+  ];
+  int _currentMessageIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    debugPrint('🚀 IndexScreen.initState()');
-    
+    debugPrint('🚀 IndexScreen.initState() - מתחיל Splash Screen מודרני');
+
+    // 🎬 Initialize Animation Controllers
+    _logoController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2000),
+    )..repeat(reverse: true);
+
+    _shimmerController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2000),
+    )..repeat();
+
+    _textController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+
+    _waveController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 3000),
+    )..repeat();
+
+    // 🚀 Start animations
+    _logoController.forward();
+    _textController.forward();
+
+    // 📝 התחל להחליף הודעות
+    _startMessageRotation();
+
     // ✅ מחכה לבניית הUI לפני שמשתמש ב-Provider
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _setupListener();
     });
   }
 
+  /// מחליף הודעות טעינה
+  void _startMessageRotation() {
+    Future.delayed(const Duration(seconds: 2), () {
+      if (!mounted || _hasNavigated) return;
+
+      setState(() {
+        _currentMessageIndex = (_currentMessageIndex + 1) % _loadingMessages.length;
+      });
+
+      _textController.reset();
+      _textController.forward();
+
+      _startMessageRotation(); // המשך rotation
+    });
+  }
+
   /// מגדיר listener ל-UserContext שיגיב לשינויים
   void _setupListener() {
     final userContext = Provider.of<UserContext>(context, listen: false);
-    
+
     // ✅ האזן לשינויים ב-UserContext
     userContext.addListener(_onUserContextChanged);
-    
+
     // ✅ בדוק מיידית אם כבר נטען
     _checkAndNavigate();
   }
@@ -79,13 +158,13 @@ class _IndexScreenState extends State<IndexScreen> {
 
   Future<void> _checkAndNavigate() async {
     if (_hasNavigated) return; // כבר ניווטנו
-    
+
     debugPrint('\n🏗️ IndexScreen._checkAndNavigate() - מתחיל...');
-    
+
     try {
       // ✅ מקור אמת יחיד - UserContext!
       final userContext = Provider.of<UserContext>(context, listen: false);
-      
+
       debugPrint('   📊 UserContext state:');
       debugPrint('      isLoggedIn: ${userContext.isLoggedIn}');
       debugPrint('      user: ${userContext.user?.email ?? "null"}');
@@ -99,7 +178,8 @@ class _IndexScreenState extends State<IndexScreen> {
 
       // ✅ מצב 1: משתמש מחובר → ישר לדף הבית
       if (userContext.isLoggedIn) {
-        debugPrint('   ✅ משתמש מחובר (${userContext.userEmail}) → ניווט ל-/home');
+        debugPrint(
+            '   ✅ משתמש מחובר (${userContext.userEmail}) → ניווט ל-/home');
         _hasNavigated = true;
         if (mounted) {
           // הסר את ה-listener לפני ניווט
@@ -114,7 +194,7 @@ class _IndexScreenState extends State<IndexScreen> {
       final prefs = await SharedPreferences.getInstance();
       final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
       debugPrint('   📋 seenOnboarding (local): $seenOnboarding');
-      
+
       if (!seenOnboarding) {
         // ✅ מצב 2: לא ראה welcome → שולח לשם
         debugPrint('   ➡️ לא ראה onboarding → ניווט ל-WelcomeScreen');
@@ -136,22 +216,29 @@ class _IndexScreenState extends State<IndexScreen> {
         Navigator.of(context).pushReplacementNamed('/login');
       }
     } catch (e) {
-      // ✅ במקרה של שגיאה - שולח ל-welcome (ברירת מחדל בטוחה)
+      // ✅ במקרה של שגיאה - הצג מסך שגיאה
       debugPrint('❌ שגיאה ב-IndexScreen._checkAndNavigate: $e');
-      debugPrint('   ➡️ ניווט ל-WelcomeScreen (ברירת מחדל)');
-      _hasNavigated = true;
       if (mounted) {
-        final userContext = Provider.of<UserContext>(context, listen: false);
-        userContext.removeListener(_onUserContextChanged);
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const WelcomeScreen()),
-        );
+        setState(() {
+          _hasError = true;
+        });
       }
     }
   }
 
+  /// retry לאחר שגיאה
+  void _retry() {
+    debugPrint('🔄 IndexScreen: retry לאחר שגיאה');
+    setState(() {
+      _hasError = false;
+      _hasNavigated = false;
+    });
+    _checkAndNavigate();
+  }
+
   @override
   void dispose() {
+    debugPrint('🗑️ IndexScreen.dispose()');
     // ✅ ניקוי listener
     try {
       final userContext = Provider.of<UserContext>(context, listen: false);
@@ -159,6 +246,13 @@ class _IndexScreenState extends State<IndexScreen> {
     } catch (e) {
       // אם כבר נמחק, לא נורא
     }
+
+    // ✅ ניקוי animation controllers
+    _logoController.dispose();
+    _pulseController.dispose();
+    _shimmerController.dispose();
+    _textController.dispose();
+    _waveController.dispose();
     super.dispose();
   }
 
@@ -167,62 +261,182 @@ class _IndexScreenState extends State<IndexScreen> {
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: cs.surface,
-      body: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+      body: Stack(
+        children: [
+          // 🎨 Gradient Background מהמם
+          _buildGradientBackground(),
+
+          // 🌊 Wave Animation בתחתית
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: _buildWaveAnimation(),
+          ),
+
+          // 📋 תוכן ראשי
+          SafeArea(
+            child: Center(
+              child: _hasError ? _buildErrorState(cs) : _buildLoadingState(cs),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 🎨 Gradient Background
+  Widget _buildGradientBackground() {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 1500),
+      curve: Curves.easeOut,
+      builder: (context, value, child) {
+        return Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color.lerp(Colors.grey, const Color(0xFF667eea), value)!,
+                Color.lerp(Colors.grey, const Color(0xFF764ba2), value)!,
+                Color.lerp(Colors.grey, const Color(0xFFf093fb), value)!,
+              ],
+              stops: const [0.0, 0.5, 1.0],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// 🌊 Wave Animation
+  Widget _buildWaveAnimation() {
+    return AnimatedBuilder(
+      animation: _waveController,
+      builder: (context, child) {
+        return CustomPaint(
+          painter: _WavePainter(_waveController.value),
+          size: Size(MediaQuery.of(context).size.width, 150),
+        );
+      },
+    );
+  }
+
+  /// 📋 מצב טעינה
+  Widget _buildLoadingState(ColorScheme cs) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // 💫 Logo עם Pulsing Circle
+        _buildAnimatedLogo(cs),
+        const SizedBox(height: kSpacingXLarge),
+
+        // 📝 שם האפליקציה
+        _buildAppName(cs),
+        const SizedBox(height: kSpacingSmallPlus),
+
+        // 🔄 Progress indicator
+        _buildLoadingIndicator(cs),
+      ],
+    );
+  }
+
+  /// 💫 Logo מונפש עם Pulsing Circle
+  Widget _buildAnimatedLogo(ColorScheme cs) {
+    final scaleAnimation = CurvedAnimation(
+      parent: _logoController,
+      curve: Curves.elasticOut,
+    );
+
+    final fadeAnimation = CurvedAnimation(
+      parent: _logoController,
+      curve: Curves.easeIn,
+    );
+
+    final pulseAnimation = CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    );
+
+    return ScaleTransition(
+      scale: Tween<double>(begin: 0.0, end: 1.0).animate(scaleAnimation),
+      child: FadeTransition(
+        opacity: fadeAnimation,
+        child: RotationTransition(
+          turns: Tween<double>(begin: 0.0, end: 0.1).animate(
+            CurvedAnimation(
+              parent: _logoController,
+              curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
+            ),
+          ),
+          child: Stack(
+            alignment: Alignment.center,
             children: [
-              // לוגו עם Accessibility
+              // 💫 Pulsing Circle (חיצוני)
+              AnimatedBuilder(
+                animation: pulseAnimation,
+                builder: (context, child) {
+                  final scale = 1.0 + (pulseAnimation.value * 0.2);
+                  return Transform.scale(
+                    scale: scale,
+                    child: Container(
+                      width: (kButtonHeight + 24) * 1.5,
+                      height: (kButtonHeight + 24) * 1.5,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withValues(alpha: 0.1),
+                      ),
+                    ),
+                  );
+                },
+              ),
+
+              // ✨ Shimmer Effect
+              AnimatedBuilder(
+                animation: _shimmerController,
+                builder: (context, child) {
+                  return Container(
+                    width: kButtonHeight + 24,
+                    height: kButtonHeight + 24,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        begin: Alignment(-1 + (_shimmerController.value * 2), -1),
+                        end: Alignment(1 + (_shimmerController.value * 2), 1),
+                        colors: [
+                          Colors.white.withValues(alpha: 0.0),
+                          Colors.white.withValues(alpha: 0.3),
+                          Colors.white.withValues(alpha: 0.0),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+
+              // 🎯 Logo עצמו
               Semantics(
                 label: AppStrings.index.logoLabel,
                 child: Container(
-                  width: kButtonHeight + 24, // 72
-                  height: kButtonHeight + 24, // 72
+                  width: kButtonHeight + 24,
+                  height: kButtonHeight + 24,
                   decoration: BoxDecoration(
-                    color: cs.primary.withValues(alpha: 0.12),
+                    color: Colors.white.withValues(alpha: 0.9),
                     shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
                   ),
                   child: Icon(
                     Icons.shopping_basket_outlined,
-                    size: kButtonHeight - 12, // 36
-                    color: cs.primary,
+                    size: kButtonHeight - 12,
+                    color: const Color(0xFF667eea),
                   ),
-                ),
-              ),
-              SizedBox(height: kSpacingMedium),
-              
-              // שם האפליקציה
-              Semantics(
-                header: true,
-                child: Text(
-                  AppStrings.index.appName,
-                  style: TextStyle(
-                    fontSize: kFontSizeXLarge,
-                    fontWeight: FontWeight.bold,
-                    color: cs.onSurface,
-                  ),
-                ),
-              ),
-              SizedBox(height: kSpacingSmallPlus),
-              
-              // Progress indicator עם accessibility
-              Semantics(
-                label: AppStrings.index.loadingLabel,
-                child: Column(
-                  children: [
-                    CircularProgressIndicator(
-                      strokeWidth: 3,
-                    ),
-                    SizedBox(height: kSpacingSmall),
-                    Text(
-                      AppStrings.index.loading,
-                      style: TextStyle(
-                        fontSize: kFontSizeSmall,
-                        color: cs.onSurface.withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ],
                 ),
               ),
             ],
@@ -230,5 +444,265 @@ class _IndexScreenState extends State<IndexScreen> {
         ),
       ),
     );
+  }
+
+  /// 📝 שם האפליקציה מונפש
+  Widget _buildAppName(ColorScheme cs) {
+    return SlideTransition(
+      position: Tween<Offset>(
+        begin: const Offset(0, 0.5),
+        end: Offset.zero,
+      ).animate(
+        CurvedAnimation(
+          parent: _logoController,
+          curve: const Interval(0.3, 1.0, curve: Curves.easeOut),
+        ),
+      ),
+      child: FadeTransition(
+        opacity: CurvedAnimation(
+          parent: _logoController,
+          curve: const Interval(0.3, 1.0, curve: Curves.easeIn),
+        ),
+        child: Semantics(
+          header: true,
+          child: Text(
+            AppStrings.index.appName,
+            style: TextStyle(
+              fontSize: kFontSizeXLarge,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              shadows: [
+                Shadow(
+                  color: Colors.black.withValues(alpha: 0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 🔄 Loading Indicator עם הודעות מתחלפות
+  Widget _buildLoadingIndicator(ColorScheme cs) {
+    return FadeTransition(
+      opacity: CurvedAnimation(
+        parent: _logoController,
+        curve: const Interval(0.5, 1.0, curve: Curves.easeIn),
+      ),
+      child: Semantics(
+        label: AppStrings.index.loadingLabel,
+        child: Column(
+          children: [
+            // עיגול טעינה
+            SizedBox(
+              width: 40,
+              height: 40,
+              child: CircularProgressIndicator(
+                strokeWidth: 3,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  Colors.white.withValues(alpha: 0.9),
+                ),
+              ),
+            ),
+            const SizedBox(height: kSpacingMedium),
+
+            // הודעת טעינה מתחלפת
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 500),
+              transitionBuilder: (child, animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 0.3),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  ),
+                );
+              },
+              child: Text(
+                _loadingMessages[_currentMessageIndex],
+                key: ValueKey<int>(_currentMessageIndex),
+                style: TextStyle(
+                  fontSize: kFontSizeBody,
+                  color: Colors.white.withValues(alpha: 0.9),
+                  fontWeight: FontWeight.w500,
+                  shadows: [
+                    Shadow(
+                      color: Colors.black.withValues(alpha: 0.3),
+                      blurRadius: 5,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// ❌ מצב שגיאה מעוצב
+  Widget _buildErrorState(ColorScheme cs) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 800),
+      curve: Curves.elasticOut,
+      builder: (context, value, child) {
+        return Transform.scale(
+          scale: value,
+          child: child,
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.all(kSpacingXLarge),
+        padding: const EdgeInsets.all(kSpacingXLarge),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.3),
+              blurRadius: 30,
+              offset: const Offset(0, 15),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // אייקון שגיאה
+            Container(
+              padding: const EdgeInsets.all(kSpacingLarge),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.red.shade300,
+                    Colors.red.shade500,
+                  ],
+                ),
+              ),
+              child: const Icon(
+                Icons.error_outline,
+                size: kIconSizeXXLarge,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: kSpacingLarge),
+
+            // טקסט
+            Text(
+              'אופס! משהו השתבש',
+              style: TextStyle(
+                fontSize: kFontSizeLarge,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey.shade900,
+              ),
+            ),
+            const SizedBox(height: kSpacingSmall),
+            Text(
+              'לא הצלחנו לטעון את האפליקציה',
+              style: TextStyle(
+                fontSize: kFontSizeBody,
+                color: Colors.grey.shade600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+
+            const SizedBox(height: kSpacingXLarge),
+
+            // כפתור retry
+            ElevatedButton.icon(
+              onPressed: _retry,
+              icon: const Icon(Icons.refresh),
+              label: const Text('נסה שוב'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF667eea),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: kSpacingXLarge,
+                  vertical: kSpacingMedium,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                ),
+                elevation: 5,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 🌊 Custom Painter לגלים
+class _WavePainter extends CustomPainter {
+  final double animationValue;
+
+  _WavePainter(this.animationValue);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.1)
+      ..style = PaintingStyle.fill;
+
+    final path = Path();
+    path.moveTo(0, size.height * 0.5);
+
+    for (double i = 0; i <= size.width; i++) {
+      path.lineTo(
+        i,
+        size.height * 0.5 +
+            math.sin((i / size.width * 2 * math.pi) + (animationValue * 2 * math.pi)) *
+                20,
+      );
+    }
+
+    path.lineTo(size.width, size.height);
+    path.lineTo(0, size.height);
+    path.close();
+
+    canvas.drawPath(path, paint);
+
+    // גל שני
+    final paint2 = Paint()
+      ..color = Colors.white.withValues(alpha: 0.05)
+      ..style = PaintingStyle.fill;
+
+    final path2 = Path();
+    path2.moveTo(0, size.height * 0.7);
+
+    for (double i = 0; i <= size.width; i++) {
+      path2.lineTo(
+        i,
+        size.height * 0.7 +
+            math.sin(
+                    (i / size.width * 2 * math.pi) +
+                        (animationValue * 2 * math.pi) +
+                        math.pi) *
+                15,
+      );
+    }
+
+    path2.lineTo(size.width, size.height);
+    path2.lineTo(0, size.height);
+    path2.close();
+
+    canvas.drawPath(path2, paint2);
+  }
+
+  @override
+  bool shouldRepaint(_WavePainter oldDelegate) {
+    return oldDelegate.animationValue != animationValue;
   }
 }

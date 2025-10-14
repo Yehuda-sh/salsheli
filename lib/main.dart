@@ -1,10 +1,10 @@
 // 📄 File: lib/main.dart
-// תיאור: נקודת כניסה ראשית לאפליקציה + הגדרת Providers
+// Description: Main entry point + Providers setup
 //
-// ✅ עדכון חדש:
-// - שימוש ב-HybridProductsRepository במקום Firebase
-// - אתחול Hive לפני הרצת האפליקציה
-// - טעינת משתמש אוטומטית מ-SharedPreferences
+// ✅ Recent Updates:
+// - Using HybridProductsRepository instead of Firebase
+// - Hive initialization before running the app
+// - Automatic user loading from SharedPreferences
 // - Dynamic Color Support (Android 12+ Material You) 🎨
 
 import 'package:flutter/material.dart';
@@ -29,7 +29,6 @@ import 'providers/habits_provider.dart';
 import 'providers/templates_provider.dart';
 
 // Repositories
-
 import 'repositories/firebase_shopping_lists_repository.dart';  // 🔥 Firebase Shopping Lists!
 import 'repositories/user_repository.dart';
 import 'repositories/firebase_user_repository.dart';  // 🔥 Firebase User!
@@ -70,7 +69,7 @@ import 'screens/auth/register_screen.dart' as auth_register;
 import 'theme/app_theme.dart';
 
 void main() async {
-  debugPrint('\n🚀 main.dart: מתחיל אתחול אפליקציה...');
+  debugPrint('\n🚀 main.dart: Starting app initialization...');
   debugPrint('═══════════════════════════════════════════');
 
   WidgetsFlutterBinding.ensureInitialized();
@@ -83,7 +82,7 @@ void main() async {
     debugPrint('✅ Firebase initialized successfully');
   } catch (e) {
     debugPrint('⚠️ Firebase initialization failed: $e');
-    debugPrint('   (ממשיך בלי Firebase - נשתמש רק ב-Hive)');
+    debugPrint('   (Continuing without Firebase - using Hive only)');
   }
 
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -91,41 +90,41 @@ void main() async {
     debugPrint('Flutter Error: ${details.exception}');
   };
 
-  // 🆕 אתחול Hive + Hybrid Repository
-  debugPrint('\n💾 מאתחל LocalProductsRepository...');
+  // 🆕 Initialize Hive + Hybrid Repository
+  debugPrint('\n💾 Initializing LocalProductsRepository...');
   final localRepo = LocalProductsRepository();
   
   try {
     await localRepo.init();
-    debugPrint('✅ LocalProductsRepository מוכן');
-    debugPrint('   📊 מוצרים קיימים: ${localRepo.totalProducts}');
+    debugPrint('✅ LocalProductsRepository ready');
+    debugPrint('   📊 Existing products: ${localRepo.totalProducts}');
   } catch (e) {
-    debugPrint('❌ שגיאה באתחול LocalProductsRepository: $e');
-    debugPrint('   ממשיך בכל זאת...');
+    debugPrint('❌ Error initializing LocalProductsRepository: $e');
+    debugPrint('   Continuing anyway...');
   }
 
-  // 🔥 יצירת Firebase Repository (אופציונלי)
+  // 🔥 Create Firebase Repository (optional)
   FirebaseProductsRepository? firebaseRepo;
   try {
-    debugPrint('\n🔥 מנסה ליצור FirebaseProductsRepository...');
+    debugPrint('\n🔥 Attempting to create FirebaseProductsRepository...');
     firebaseRepo = FirebaseProductsRepository();
-    debugPrint('✅ FirebaseProductsRepository מוכן (יש גישה ל-Firestore)');
+    debugPrint('✅ FirebaseProductsRepository ready (Firestore access available)');
   } catch (e) {
-    debugPrint('⚠️ FirebaseProductsRepository נכשל: $e');
-    debugPrint('   ממשיך בלי Firebase (רק Local + API)...');
+    debugPrint('⚠️ FirebaseProductsRepository failed: $e');
+    debugPrint('   Continuing without Firebase (Local + API only)...');
     firebaseRepo = null;
   }
 
-  // 🔀 יצירת Hybrid Repository
-  debugPrint('\n🔀 יוצר HybridProductsRepository...');
+  // 🔀 Create Hybrid Repository
+  debugPrint('\n🔀 Creating HybridProductsRepository...');
   final hybridRepo = HybridProductsRepository(
     localRepo: localRepo,
-    firebaseRepo: firebaseRepo,  // 🔥 מעביר Firebase!
+    firebaseRepo: firebaseRepo,  // 🔥 Pass Firebase!
   );
-  debugPrint('✅ HybridProductsRepository מוכן');
+  debugPrint('✅ HybridProductsRepository ready');
 
   debugPrint('\n═══════════════════════════════════════════');
-  debugPrint('🎯 מפעיל את האפליקציה...\n');
+  debugPrint('🎯 Launching app...\n');
 
   runApp(
     MultiProvider(
@@ -133,7 +132,7 @@ void main() async {
         // === Auth Service === 🔐
         Provider(
           create: (_) {
-            debugPrint('🔐 main.dart: יוצר AuthService');
+            debugPrint('🔐 main.dart: Creating AuthService');
             return AuthService();
           },
         ),
@@ -141,7 +140,7 @@ void main() async {
         // === Firebase User Repository === 🔥
         Provider<UserRepository>(
           create: (_) {
-            debugPrint('🔥 main.dart: יוצר FirebaseUserRepository');
+            debugPrint('🔥 main.dart: Creating FirebaseUserRepository');
             return FirebaseUserRepository();
           },
         ),
@@ -149,14 +148,14 @@ void main() async {
         // === User Context === 👤
         ChangeNotifierProxyProvider2<AuthService, UserRepository, UserContext>(
           create: (context) {
-            debugPrint('👤 main.dart: יוצר UserContext עם Firebase');
+            debugPrint('👤 main.dart: Creating UserContext with Firebase');
             return UserContext(
               repository: context.read<UserRepository>(),
               authService: context.read<AuthService>(),
             );
           },
           update: (context, authService, repository, previous) {
-            debugPrint('🔄 main.dart: מעדכן UserContext');
+            debugPrint('🔄 main.dart: Updating UserContext');
             return previous ?? UserContext(
               repository: repository,
               authService: authService,
@@ -165,24 +164,29 @@ void main() async {
         ),
 
         // === Products Provider === 🆕 Hybrid + ProxyProvider
+        // ⚠️ IMPORTANT: lazy: false is required! Otherwise ProductsProvider
+        //    won't be created until someone needs it, causing race conditions
+        //    with data loading.
+        // ⚠️ skipInitialLoad: true waits for UserContext to login before loading.
+        //    This prevents loading products before we have household_id.
         ChangeNotifierProxyProvider<UserContext, ProductsProvider>(
-          lazy: false, // חייב! אחרת לא נוצר עד שמישהו צריך אותו
+          lazy: false,
           create: (context) {
-            debugPrint('\n🏗️ main.dart: יוצר ProductsProvider עם Hybrid...');
+            debugPrint('\n🏗️ main.dart: Creating ProductsProvider with Hybrid...');
             final provider = ProductsProvider(
               repository: hybridRepo,
-              skipInitialLoad: true, // ⚠️ לא לטעון עדיין!
+              skipInitialLoad: true,
             );
-            debugPrint('✅ main.dart: ProductsProvider נוצר (skipInitialLoad=true)');
+            debugPrint('✅ main.dart: ProductsProvider created (skipInitialLoad=true)');
             return provider;
           },
           update: (context, userContext, previous) {
-            debugPrint('\n🔄 ProductsProvider.update(): UserContext השתנה');
+            debugPrint('\n🔄 ProductsProvider.update(): UserContext changed');
             debugPrint('   👤 User: ${userContext.user?.email ?? "guest"}');
             debugPrint('   🔐 isLoggedIn: ${userContext.isLoggedIn}');
             
             if (previous == null) {
-              debugPrint('   ⚠️ previous=null, יוצר ProductsProvider חדש');
+              debugPrint('   ⚠️ previous=null, creating new ProductsProvider');
               return ProductsProvider(
                 repository: hybridRepo,
               );
@@ -190,9 +194,9 @@ void main() async {
 
             debugPrint('   📊 hasInitialized: ${previous.hasInitialized}');
 
-            // אם המשתמש התחבר - אתחל ו-טען מוצרים
+            // If user logged in - initialize and load products
             if (userContext.isLoggedIn && !previous.hasInitialized) {
-              debugPrint('   ✅ משתמש מחובר + לא אותחל → קורא ל-initializeAndLoad()');
+              debugPrint('   ✅ User logged in + not initialized → calling initializeAndLoad()');
               previous.initializeAndLoad();
             }
 
@@ -203,14 +207,14 @@ void main() async {
         // === Locations Provider === 📍 Firebase!
         ChangeNotifierProxyProvider<UserContext, LocationsProvider>(
           create: (context) {
-            debugPrint('📍 main.dart: יוצר LocationsProvider עם Firebase');
+            debugPrint('📍 main.dart: Creating LocationsProvider with Firebase');
             return LocationsProvider(
               userContext: context.read<UserContext>(),
               repository: FirebaseLocationsRepository(),  // 🔥 Firebase!
             );
           },
           update: (context, userContext, previous) {
-            debugPrint('🔄 main.dart: מעדכן LocationsProvider');
+            debugPrint('🔄 main.dart: Updating LocationsProvider');
             return (previous ??
                     LocationsProvider(
                       userContext: userContext,
@@ -223,7 +227,7 @@ void main() async {
         // === Shopping Lists === 🔥 Firebase!
         ChangeNotifierProxyProvider<UserContext, ShoppingListsProvider>(
           create: (context) {
-            debugPrint('📋 main.dart: יוצר ShoppingListsProvider עם Firebase');
+            debugPrint('📋 main.dart: Creating ShoppingListsProvider with Firebase');
             final provider = ShoppingListsProvider(
               repository: FirebaseShoppingListsRepository(),  // 🔥 Firebase!
             );
@@ -232,7 +236,7 @@ void main() async {
             return provider;
           },
           update: (context, userContext, previous) {
-            debugPrint('🔄 main.dart: מעדכן ShoppingListsProvider');
+            debugPrint('🔄 main.dart: Updating ShoppingListsProvider');
             final provider =
                 previous ??
                 ShoppingListsProvider(
@@ -242,17 +246,18 @@ void main() async {
             return provider;
           },
         ),
+
         // === Inventory === 🔥 Firebase!
         ChangeNotifierProxyProvider<UserContext, InventoryProvider>(
           create: (context) {
-            debugPrint('📦 main.dart: יוצר InventoryProvider עם Firebase');
+            debugPrint('📦 main.dart: Creating InventoryProvider with Firebase');
             return InventoryProvider(
               userContext: context.read<UserContext>(),
               repository: FirebaseInventoryRepository(),  // 🔥 Firebase!
             );
           },
           update: (context, userContext, previous) {
-            debugPrint('🔄 main.dart: מעדכן InventoryProvider');
+            debugPrint('🔄 main.dart: Updating InventoryProvider');
             return (previous ??
                     InventoryProvider(
                       userContext: userContext,
@@ -265,14 +270,14 @@ void main() async {
         // === Receipts === 🔥 Firebase!
         ChangeNotifierProxyProvider<UserContext, ReceiptProvider>(
           create: (context) {
-            debugPrint('📄 main.dart: יוצר ReceiptProvider עם Firebase');
+            debugPrint('📄 main.dart: Creating ReceiptProvider with Firebase');
             return ReceiptProvider(
               userContext: context.read<UserContext>(),
               repository: FirebaseReceiptRepository(),  // 🔥 Firebase!
             );
           },
           update: (context, userContext, previous) {
-            debugPrint('🔄 main.dart: מעדכן ReceiptProvider');
+            debugPrint('🔄 main.dart: Updating ReceiptProvider');
             return (previous ??
                     ReceiptProvider(
                       userContext: userContext,
@@ -283,6 +288,9 @@ void main() async {
         ),
 
         // === Suggestions Provider ===
+        // ℹ️ Note: This provider doesn't need UserContext because it only
+        //    analyzes data already loaded by InventoryProvider and
+        //    ShoppingListsProvider. It doesn't access household_id directly.
         ChangeNotifierProxyProvider2<
           InventoryProvider,
           ShoppingListsProvider,
@@ -303,7 +311,7 @@ void main() async {
         // === Habits Provider === 🧠 Firebase!
         ChangeNotifierProxyProvider<UserContext, HabitsProvider>(
           create: (context) {
-            debugPrint('🧠 main.dart: יוצר HabitsProvider עם Firebase');
+            debugPrint('🧠 main.dart: Creating HabitsProvider with Firebase');
             final provider = HabitsProvider(
               FirebaseHabitsRepository(),  // 🔥 Firebase!
             );
@@ -312,7 +320,7 @@ void main() async {
             return provider;
           },
           update: (context, userContext, previous) {
-            debugPrint('🔄 main.dart: מעדכן HabitsProvider');
+            debugPrint('🔄 main.dart: Updating HabitsProvider');
             final provider =
                 previous ??
                 HabitsProvider(
@@ -326,7 +334,7 @@ void main() async {
         // === Templates Provider === 📋 Firebase!
         ChangeNotifierProxyProvider<UserContext, TemplatesProvider>(
           create: (context) {
-            debugPrint('📋 main.dart: יוצר TemplatesProvider עם Firebase');
+            debugPrint('📋 main.dart: Creating TemplatesProvider with Firebase');
             final provider = TemplatesProvider(
               repository: FirebaseTemplatesRepository(),  // 🔥 Firebase!
             );
@@ -335,7 +343,7 @@ void main() async {
             return provider;
           },
           update: (context, userContext, previous) {
-            debugPrint('🔄 main.dart: מעדכן TemplatesProvider');
+            debugPrint('🔄 main.dart: Updating TemplatesProvider');
             final provider =
                 previous ??
                 TemplatesProvider(
@@ -363,24 +371,24 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     // 🎨 Material You / Dynamic Color Support!
-    // מתאים את צבעי האפליקציה לטפט של המשתמש (Android 12+)
+    // Adapts app colors to user's wallpaper (Android 12+)
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
         debugPrint('\n🎨 DynamicColorBuilder:');
-        debugPrint('   📱 lightDynamic: ${lightDynamic != null ? "✅ זמין" : "❌ לא זמין"}');
-        debugPrint('   🌙 darkDynamic: ${darkDynamic != null ? "✅ זמין" : "❌ לא זמין"}');
+        debugPrint('   📱 lightDynamic: ${lightDynamic != null ? "✅ Available" : "❌ Not available"}');
+        debugPrint('   🌙 darkDynamic: ${darkDynamic != null ? "✅ Available" : "❌ Not available"}');
         
         if (lightDynamic != null || darkDynamic != null) {
-          debugPrint('   🎉 Material You detected! משתמש בצבעים דינמיים');
+          debugPrint('   🎉 Material You detected! Using dynamic colors');
         } else {
-          debugPrint('   ℹ️ Dynamic Color לא זמין, משתמש בצבעים סטנדרטיים');
+          debugPrint('   ℹ️ Dynamic Color not available, using standard colors');
         }
 
         return MaterialApp(
           title: 'סל שלי',
           debugShowCheckedModeBanner: false,
           
-          // 🎨 Theme עם Dynamic Color או Fallback
+          // 🎨 Theme with Dynamic Color or Fallback
           theme: lightDynamic != null
               ? AppTheme.fromDynamicColors(lightDynamic, dark: false)
               : AppTheme.lightTheme,
@@ -414,27 +422,28 @@ class _MyAppState extends State<MyApp> {
             '/templates': (context) => const TemplatesScreen(),  // 📋 Templates!
           },
           onGenerateRoute: (settings) {
-            // shopping-summary - מקבל listId
+            // shopping-summary - receives listId
             if (settings.name == '/shopping-summary') {
               final listId = settings.arguments as String?;
               if (listId == null) {
                 return MaterialPageRoute(
                   builder: (_) =>
-                      Scaffold(body: Center(child: Text('מזהה רשימה חסר'))),
+                      Scaffold(body: Center(child: Text('List ID missing'))),
                 );
               }
               return MaterialPageRoute(
                 builder: (_) => ShoppingSummaryScreen(listId: listId),
               );
             }
-            // manage-list - צריך רק list (ShoppingList)
+
+            // manage-list - receives ShoppingList object
             if (settings.name == '/manage-list') {
               final args = settings.arguments as Map<String, dynamic>?;
               final list = args?['list'] as ShoppingList?;
               if (list == null) {
                 return MaterialPageRoute(
                   builder: (_) =>
-                      Scaffold(body: Center(child: Text('רשימה לא נמצאה'))),
+                      Scaffold(body: Center(child: Text('List not found'))),
                 );
               }
               return MaterialPageRoute(
@@ -443,13 +452,13 @@ class _MyAppState extends State<MyApp> {
               );
             }
 
-            // active-shopping - מקבל ShoppingList
+            // active-shopping - receives ShoppingList object
             if (settings.name == '/active-shopping') {
               final list = settings.arguments as ShoppingList?;
               if (list == null) {
                 return MaterialPageRoute(
                   builder: (_) =>
-                      Scaffold(body: Center(child: Text('רשימה לא נמצאה'))),
+                      Scaffold(body: Center(child: Text('List not found'))),
                 );
               }
               return MaterialPageRoute(
@@ -457,13 +466,13 @@ class _MyAppState extends State<MyApp> {
               );
             }
 
-            // list-details - מקבל ShoppingList object
+            // list-details - receives ShoppingList object
             if (settings.name == '/list-details') {
               final list = settings.arguments as ShoppingList?;
               if (list == null) {
                 return MaterialPageRoute(
                   builder: (_) =>
-                      Scaffold(body: Center(child: Text('רשימה לא נמצאה'))),
+                      Scaffold(body: Center(child: Text('List not found'))),
                 );
               }
               return MaterialPageRoute(
@@ -471,13 +480,13 @@ class _MyAppState extends State<MyApp> {
               );
             }
 
-            // populate-list - מקבל ShoppingList object
+            // populate-list - receives ShoppingList object
             if (settings.name == '/populate-list') {
               final list = settings.arguments as ShoppingList?;
               if (list == null) {
                 return MaterialPageRoute(
                   builder: (_) =>
-                      Scaffold(body: Center(child: Text('רשימה לא נמצאה'))),
+                      Scaffold(body: Center(child: Text('List not found'))),
                 );
               }
               return MaterialPageRoute(

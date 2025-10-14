@@ -2,22 +2,26 @@
 // 
 // Purpose: Dialog ליצירת רשימת קניות חדשה עם validation מלא
 // 
-// Features:
-// - Validation למניעת שמות כפולים
-// - Validation לתקציב (חייב > 0)
-// - Preview ויזואלי לסוג הרשימה הנבחר
-// - תמיכה בכל 21 סוגי הרשימות מ-constants.dart
-// - תצוגה מקובצת: קניות יומיומיות, מיוחדות, אירועים
-// - Logging מלא לכל השלבים
-// - Clear button לניקוי תקציב
-// - Accessibility: Tooltips על כל הכפתורים
+// ✨ Features:
+// - ✅ i18n: כל המחרוזות דרך AppStrings
+// - ✅ Validation: מניעת שמות כפולים + תקציב חיובי
+// - ✅ Templates: שימוש בתבניות מוכנות + העברת פריטים
+// - ✅ Preview: תצוגה ויזואלית לסוג הרשימה הנבחר
+// - ✅ UX: אינדיקטורים ויזואליים לתבנית שנבחרה
+// - ✅ Error handling: הודעות שגיאה ידידותיות
+// - ✅ Accessibility: Tooltips על כל הכפתורים
+// - ✅ Logging: תיעוד מפורט לכל הפעולות
 //
-// Dependencies:
-// - ShoppingListsProvider - לבדיקת שמות כפולים
-// - constants.dart - kListTypes (סוגי רשימות + אייקונים)
-// - list_type_groups.dart - ListTypeGroups (קיבוץ ב-3 קבוצות)
+// 🔗 Dependencies:
+// - ShoppingListsProvider: ניהול state של רשימות
+// - TemplatesProvider: ניהול state של תבניות
+// - AppStrings: מחרוזות UI (l10n/app_strings.dart)
+// - constants.dart: קבועים גלובליים (kListTypes)
+// - ui_constants.dart: קבועי UI (ריווחים, גדלים)
+// - list_type_groups.dart: קיבוץ סוגי רשימות
 //
-// Usage Example:
+// 📝 Usage Example:
+// ```dart
 // showDialog(
 //   context: context,
 //   builder: (dialogContext) => CreateListDialog(
@@ -26,6 +30,10 @@
 //     },
 //   ),
 // );
+// ```
+//
+// Version: 2.0 - Complete refactor with all improvements
+// Last Updated: 14/10/2025
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -36,6 +44,8 @@ import '../config/list_type_groups.dart';
 import '../providers/shopping_lists_provider.dart';
 import '../providers/templates_provider.dart';
 import '../models/template.dart';
+import '../models/receipt.dart';
+import '../l10n/app_strings.dart';
 
 class CreateListDialog extends StatefulWidget {
   final Future<void> Function(Map<String, dynamic>) onCreateList;
@@ -48,13 +58,17 @@ class CreateListDialog extends StatefulWidget {
 
 class _CreateListDialogState extends State<CreateListDialog> {
   final _formKey = GlobalKey<FormState>();
-  final _budgetController = TextEditingController(); // ⭐ Controller לתקציב
+  final _budgetController = TextEditingController();
 
   String _name = "";
   String _type = "super";
   double? _budget;
-  DateTime? _eventDate; // 🎂 תאריך אירוע
+  DateTime? _eventDate;
   bool _isSubmitting = false;
+  
+  // 🆕 מעקב אחרי תבנית שנבחרה
+  Template? _selectedTemplate;
+  List<ReceiptItem> _templateItems = [];
 
   @override
   void initState() {
@@ -81,6 +95,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
 
     if (!(_formKey.currentState?.validate() ?? false)) {
       debugPrint('   ⚠️ Validation נכשל');
+      _showErrorSnackBar(AppStrings.createListDialog.validationFailed);
       return;
     }
 
@@ -88,6 +103,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
     debugPrint(
       '   📝 שם: "$_name", סוג: "$_type", תקציב: ${_budget ?? "לא הוגדר"}',
     );
+    debugPrint('   📋 תבנית: ${_selectedTemplate?.name ?? "ללא"}, פריטים: ${_templateItems.length}');
 
     setState(() => _isSubmitting = true);
 
@@ -97,6 +113,8 @@ class _CreateListDialogState extends State<CreateListDialog> {
       "status": "active",
       if (_budget != null) "budget": _budget,
       if (_eventDate != null) "eventDate": _eventDate,
+      // 🆕 העברת פריטים מהתבנית
+      if (_templateItems.isNotEmpty) "items": _templateItems.map((item) => item.toJson()).toList(),
     };
 
     try {
@@ -111,6 +129,13 @@ class _CreateListDialogState extends State<CreateListDialog> {
 
       debugPrint('   ✅ סוגר Dialog');
       Navigator.of(context).pop();
+      
+      // הודעת הצלחה עם פרטים
+      _showSuccessSnackBar(
+        _budget != null
+            ? AppStrings.createListDialog.listCreatedWithBudget(_name, _budget!)
+            : AppStrings.createListDialog.listCreated(_name),
+      );
     } catch (e) {
       debugPrint('   ❌ שגיאה ב-onCreateList: $e');
 
@@ -118,17 +143,65 @@ class _CreateListDialogState extends State<CreateListDialog> {
 
       setState(() => _isSubmitting = false);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('שגיאה ביצירת הרשימה: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      // 🆕 הודעת שגיאה ידידותית
+      _showErrorSnackBar(_getFriendlyErrorMessage(e));
     }
   }
 
+  // 🆕 המרת שגיאות להודעות ידידותיות
+  String _getFriendlyErrorMessage(dynamic error) {
+    final errorStr = error.toString().toLowerCase();
+    
+    if (errorStr.contains('network') || errorStr.contains('connection')) {
+      return AppStrings.createListDialog.networkError;
+    }
+    
+    if (errorStr.contains('not logged in') || errorStr.contains('user')) {
+      return AppStrings.createListDialog.userNotLoggedIn;
+    }
+    
+    // שגיאה כללית
+    return AppStrings.createListDialog.createListErrorGeneric;
+  }
+
+  // 🆕 הצגת הודעות שגיאה
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.error_outline, color: Colors.white),
+            const SizedBox(width: kSpacingSmall),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Colors.red.shade700,
+        behavior: SnackBarBehavior.floating,
+        duration: kSnackBarDurationLong,
+      ),
+    );
+  }
+
+  // 🆕 הצגת הודעות הצלחה
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle_outline, color: Colors.white),
+            const SizedBox(width: kSpacingSmall),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Colors.green.shade700,
+        behavior: SnackBarBehavior.floating,
+        duration: kSnackBarDuration,
+      ),
+    );
+  }
+
   // ========================================
-  // Templates Bottom Sheet
+  // 📋 Templates Bottom Sheet - משופר!
   // ========================================
   Future<void> _showTemplatesBottomSheet() async {
     debugPrint('📋 פתיחת Templates Bottom Sheet');
@@ -165,13 +238,13 @@ class _CreateListDialogState extends State<CreateListDialog> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'בחר תבנית',
+                                  AppStrings.createListDialog.selectTemplateTitle,
                                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 Text(
-                                  'בחר תבנית כדי למלא את הרשימה אוטומטית',
+                                  AppStrings.createListDialog.selectTemplateHint,
                                   style: Theme.of(context).textTheme.bodySmall,
                                 ),
                               ],
@@ -187,9 +260,16 @@ class _CreateListDialogState extends State<CreateListDialog> {
 
                     // Loading State
                     if (provider.isLoading)
-                      const Expanded(
+                      Expanded(
                         child: Center(
-                          child: CircularProgressIndicator(),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const CircularProgressIndicator(),
+                              const SizedBox(height: kSpacingMedium),
+                              Text(AppStrings.createListDialog.loadingTemplates),
+                            ],
+                          ),
                         ),
                       ),
 
@@ -197,9 +277,16 @@ class _CreateListDialogState extends State<CreateListDialog> {
                     if (provider.hasError)
                       Expanded(
                         child: Center(
-                          child: Text(
-                            'שגיאה בטעינת תבניות: ${provider.errorMessage}',
-                            textAlign: TextAlign.center,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                              const SizedBox(height: kSpacingMedium),
+                              Text(
+                                '${AppStrings.createListDialog.loadingTemplatesError}\n${provider.errorMessage}',
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -218,12 +305,12 @@ class _CreateListDialogState extends State<CreateListDialog> {
                               ),
                               const SizedBox(height: kSpacingMedium),
                               Text(
-                                'אין תבניות זמינות',
+                                AppStrings.createListDialog.noTemplatesAvailable,
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                               const SizedBox(height: kSpacingSmall),
                               Text(
-                                'צור תבנית ראשונה במסך התבניות',
+                                AppStrings.createListDialog.noTemplatesMessage,
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
                             ],
@@ -264,7 +351,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
                                   style: const TextStyle(fontWeight: FontWeight.bold),
                                 ),
                                 subtitle: Text(
-                                  '${template.defaultItems.length} פריטים • ${typeInfo['name']}',
+                                  '${template.defaultItems.length} ${AppStrings.templates.itemsCount(template.defaultItems.length).split(' ')[1]} • ${typeInfo['name']}',
                                   style: Theme.of(context).textTheme.bodySmall,
                                 ),
                                 trailing: const Icon(Icons.arrow_forward),
@@ -286,21 +373,40 @@ class _CreateListDialogState extends State<CreateListDialog> {
       },
     );
 
-    // מילוי נתונים מהתבנית
-    if (template != null) {
+    // 🆕 מילוי נתונים מהתבנית + פריטים
+    if (template != null && mounted) {
       debugPrint('✨ ממלא נתונים מתבנית: ${template.name}');
+      debugPrint('   📦 ${template.defaultItems.length} פריטים');
+      
       setState(() {
         _type = template.type;
+        _selectedTemplate = template;
+        
+        // 🆕 המרת פריטי תבנית לפריטי קבלה
+        _templateItems = template.defaultItems.map((templateItem) {
+          return ReceiptItem(
+            name: templateItem.name,
+            category: templateItem.category,
+            quantity: templateItem.quantity,
+            unit: templateItem.unit,
+            isChecked: false, // פריטים חדשים מתחילים כלא מסומנים
+            unitPrice: 0.0, // אין מחיר בשלב זה
+          );
+        }).toList();
       });
 
-      // TODO: בעתיד - להעביר גם את הפריטים מהתבנית
-      // כרגע רק הסוג ממולא
-
+      // 🆕 הודעה מפורטת על התבנית שנבחרה
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('תבנית "${template.name}" נבחרה'),
+          content: Text(
+            AppStrings.createListDialog.templateApplied(
+              template.name,
+              template.defaultItems.length,
+            ),
+          ),
           backgroundColor: Theme.of(context).colorScheme.primary,
-          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 3),
         ),
       );
     }
@@ -310,21 +416,16 @@ class _CreateListDialogState extends State<CreateListDialog> {
   // 🎭 תצוגה מקובצת של סוגי רשימות
   // ========================================
 
-  /// בניית selector מקובץ לפי קבוצות
-  ///
-  /// מציג 3 קבוצות עם ExpansionTile:
-  /// 1. 🛒 קניות יומיומיות (2 סוגים)
-  /// 2. 🎯 קניות מיוחדות (12 סוגים)
-  /// 3. 🎉 אירועים (6 סוגים)
   Widget _buildGroupedTypeSelector() {
     final theme = Theme.of(context);
+    final strings = AppStrings.createListDialog;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Label
         Text(
-          'סוג הרשימה',
+          strings.typeLabel,
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.primary,
           ),
@@ -349,7 +450,6 @@ class _CreateListDialogState extends State<CreateListDialog> {
     );
   }
 
-  /// בניית ExpansionTile לקבוצה אחת
   Widget _buildGroupExpansionTile(ListTypeGroup group) {
     final theme = Theme.of(context);
     final types = ListTypeGroups.getTypesInGroup(group);
@@ -398,7 +498,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
                 borderRadius: BorderRadius.circular(kBorderRadius),
               ),
               child: Text(
-                'נבחר',
+                AppStrings.createListDialog.typeSelected,
                 style: theme.textTheme.labelSmall?.copyWith(
                   color: theme.colorScheme.primary,
                   fontWeight: FontWeight.bold,
@@ -419,7 +519,6 @@ class _CreateListDialogState extends State<CreateListDialog> {
     );
   }
 
-  /// בניית chip לסוג אחד
   Widget _buildTypeChip(String type) {
     final theme = Theme.of(context);
     final typeInfo = kListTypes[type]!;
@@ -443,7 +542,15 @@ class _CreateListDialogState extends State<CreateListDialog> {
           : (selected) {
               if (selected) {
                 debugPrint('🔄 סוג רשימה שונה ל: $type');
-                setState(() => _type = type);
+                setState(() {
+                  _type = type;
+                  // 🆕 אם הסוג משתנה, בדוק אם התבנית עדיין תואמת
+                  if (_selectedTemplate != null && _selectedTemplate!.type != type) {
+                    debugPrint('⚠️ סוג רשימה השתנה - מנקה תבנית');
+                    _selectedTemplate = null;
+                    _templateItems.clear();
+                  }
+                });
               }
             },
       backgroundColor: theme.colorScheme.surface,
@@ -467,10 +574,11 @@ class _CreateListDialogState extends State<CreateListDialog> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final provider = context.read<ShoppingListsProvider>();
+    final strings = AppStrings.createListDialog;
 
     return AlertDialog(
       insetPadding: kPaddingDialog,
-      title: const Text("יצירת רשימת קניות חדשה", textAlign: TextAlign.right),
+      title: Text(strings.title, textAlign: TextAlign.right),
       content: ConstrainedBox(
         constraints: const BoxConstraints(
           maxHeight: kDialogMaxHeight,
@@ -485,27 +593,75 @@ class _CreateListDialogState extends State<CreateListDialog> {
             mainAxisSize: MainAxisSize.min,
             children: [
               // ========================================
-              // 📋 כפתור שימוש בתבנית
+              // 📋 כפתור שימוש בתבנית + Badge
               // ========================================
-              OutlinedButton.icon(
-                onPressed: _isSubmitting ? null : _showTemplatesBottomSheet,
-                icon: const Icon(Icons.library_books_outlined),
-                label: const Text('📋 שימוש בתבנית'),
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(kButtonHeight),
-                ),
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: _isSubmitting ? null : _showTemplatesBottomSheet,
+                    icon: const Icon(Icons.library_books_outlined),
+                    label: Text(strings.useTemplateButton),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(kButtonHeight),
+                      backgroundColor: _selectedTemplate != null 
+                          ? theme.colorScheme.primaryContainer.withValues(alpha: kOpacityLow)
+                          : null,
+                    ),
+                  ),
+                  // 🆕 Badge - מציג כמה פריטים נבחרו
+                  if (_selectedTemplate != null)
+                    Positioned(
+                      top: -8,
+                      left: -8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: kSpacingSmall,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary,
+                          borderRadius: BorderRadius.circular(kRadiusPill),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.1),
+                              blurRadius: 4,
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.check_circle,
+                              size: 14,
+                              color: theme.colorScheme.onPrimary,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${_templateItems.length}',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: theme.colorScheme.onPrimary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
               ),
               const SizedBox(height: kSpacingMedium),
 
               // 📝 שם הרשימה
               TextFormField(
-                decoration: const InputDecoration(
-                  labelText: "שם הרשימה",
-                  hintText: "למשל: קניות השבוע",
+                decoration: InputDecoration(
+                  labelText: strings.nameLabel,
+                  hintText: strings.nameHint,
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return "נא להזין שם רשימה";
+                    return strings.nameRequired;
                   }
 
                   // בדיקת שם כפול
@@ -517,7 +673,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
                   );
 
                   if (exists) {
-                    return "רשימה בשם זה כבר קיימת";
+                    return strings.nameAlreadyExists(trimmedName);
                   }
 
                   return null;
@@ -533,7 +689,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
               _buildGroupedTypeSelector(),
               const SizedBox(height: kSpacingSmallPlus),
 
-              // ✨ Preview של הסוג שנבחר
+              // ✨ Preview של הסוג שנבחר + תבנית
               Container(
                 padding: const EdgeInsets.all(kSpacingSmall),
                 decoration: BoxDecoration(
@@ -545,37 +701,72 @@ class _CreateListDialogState extends State<CreateListDialog> {
                     color: theme.colorScheme.outline.withValues(alpha: kOpacityLight),
                   ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: Column(
                   children: [
-                    Text(
-                      kListTypes[_type]!["icon"]!,
-                      style: const TextStyle(fontSize: kIconSizeLarge),
+                    // מידע על הסוג
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          kListTypes[_type]!["icon"]!,
+                          style: const TextStyle(fontSize: kIconSizeLarge),
+                        ),
+                        const SizedBox(width: kSpacingXSmall),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                kListTypes[_type]!["name"]!,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                kListTypes[_type]!["description"]!,
+                                style: theme.textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: kSpacingXSmall),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            kListTypes[_type]!["name"]!,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
+                    // 🆕 מידע על התבנית
+                    if (_selectedTemplate != null) ...[
+                      const SizedBox(height: kSpacingSmall),
+                      Container(
+                        padding: const EdgeInsets.all(kSpacingSmall),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.library_books,
+                              size: kIconSizeSmall,
+                              color: theme.colorScheme.primary,
                             ),
-                          ),
-                          Text(
-                            kListTypes[_type]!["description"]!,
-                            style: theme.textTheme.bodySmall,
-                          ),
-                        ],
+                            const SizedBox(width: kSpacingXSmall),
+                            Expanded(
+                              child: Text(
+                                '${_selectedTemplate!.name} (${_templateItems.length} פריטים)',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),
               const SizedBox(height: kSpacingSmallPlus),
 
-              // 👆 תאריך אירוע (אופציונלי)
+              // 📅 תאריך אירוע (אופציונלי)
               InkWell(
                 onTap: _isSubmitting ? null : () async {
                   debugPrint('📅 פותח DatePicker');
@@ -584,9 +775,9 @@ class _CreateListDialogState extends State<CreateListDialog> {
                     initialDate: _eventDate ?? DateTime.now(),
                     firstDate: DateTime.now(),
                     lastDate: DateTime.now().add(kMaxEventDateRange),
-                    helpText: 'בחר תאריך אירוע',
-                    cancelText: 'ביטול',
-                    confirmText: 'אישור',
+                    helpText: strings.selectDate,
+                    cancelText: strings.cancelButton,
+                    confirmText: AppStrings.common.ok,
                   );
                   
                   if (selectedDate != null) {
@@ -596,12 +787,12 @@ class _CreateListDialogState extends State<CreateListDialog> {
                 },
                 child: InputDecorator(
                   decoration: InputDecoration(
-                    labelText: 'תאריך אירוע (אופציונלי)',
-                    hintText: 'למשל: יום הולדת, אירוח',
+                    labelText: strings.eventDateLabel,
+                    hintText: strings.eventDateHint,
                     prefixIcon: const Icon(Icons.event),
                     suffixIcon: _eventDate != null
                         ? Tooltip(
-                            message: 'נקה תאריך',
+                            message: strings.clearDateTooltip,
                             child: IconButton(
                               icon: const Icon(Icons.close, size: kIconSizeSmall),
                               onPressed: () {
@@ -614,7 +805,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
                   ),
                   child: Text(
                     _eventDate == null
-                        ? 'אין תאריך'
+                        ? strings.noDate
                         : '${_eventDate!.day}/${_eventDate!.month}/${_eventDate!.year}',
                     style: theme.textTheme.bodyLarge?.copyWith(
                       color: _eventDate == null
@@ -630,13 +821,12 @@ class _CreateListDialogState extends State<CreateListDialog> {
               TextFormField(
                 controller: _budgetController,
                 decoration: InputDecoration(
-                  labelText: "תקציב (אופציונלי)",
-                  hintText: "₪500",
+                  labelText: strings.budgetLabel,
+                  hintText: strings.budgetHint,
                   prefixIcon: const Icon(Icons.monetization_on),
-                  // ⭐ Clear Button - מופיע רק כשיש טקסט
                   suffixIcon: _budgetController.text.isNotEmpty
                       ? Tooltip(
-                          message: 'נקה תקציב',
+                          message: strings.clearBudgetTooltip,
                           child: IconButton(
                             icon: const Icon(Icons.close, size: kIconSizeSmall),
                             onPressed: () {
@@ -664,11 +854,11 @@ class _CreateListDialogState extends State<CreateListDialog> {
                     final amount = double.tryParse(normalized);
 
                     if (amount == null) {
-                      return 'נא להזין מספר תקין';
+                      return strings.budgetInvalid;
                     }
 
                     if (amount <= 0) {
-                      return 'תקציב חייב להיות גדול מ-0';
+                      return strings.budgetMustBePositive;
                     }
                   }
                   return null;
@@ -681,7 +871,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
                     _budget = null;
                   }
                 },
-                onChanged: (_) => setState(() {}), // ⭐ עדכון לClear Button
+                onChanged: (_) => setState(() {}),
                 textDirection: TextDirection.rtl,
                 enabled: !_isSubmitting,
               ),
@@ -692,17 +882,17 @@ class _CreateListDialogState extends State<CreateListDialog> {
       ),
       actions: [
         Tooltip(
-          message: 'ביטול יצירת הרשימה',
+          message: strings.cancelTooltip,
           child: TextButton(
             onPressed: _isSubmitting ? null : () {
               debugPrint('❌ משתמש ביטל יצירת רשימה');
               Navigator.of(context).pop();
             },
-            child: const Text("בטל"),
+            child: Text(strings.cancelButton),
           ),
         ),
         Tooltip(
-          message: 'יצירת הרשימה החדשה',
+          message: strings.createTooltip,
           child: ElevatedButton(
             onPressed: _isSubmitting ? null : _handleSubmit,
             style: ElevatedButton.styleFrom(
@@ -719,7 +909,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
                   )
-                : const Text("צור רשימה"),
+                : Text(strings.createButton),
           ),
         ),
       ],

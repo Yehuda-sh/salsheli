@@ -15,6 +15,14 @@
 // ✅ Logging מפורט
 // ✅ Visual Feedback
 // ✅ i18n ready (AppStrings)
+// ✅ 🎬 Modern UI/UX: Animations + Skeleton + AnimatedCounter ⭐
+// ✅ ♿ Accessibility מלא
+//
+// 🎬 Animations (חדש! v3.0):
+// - AnimatedCounter על סטטיסטיקות (0 → value)
+// - TappableCard על כרטיסי סטטיסטיקות (scale effect)
+// - Button animations על כל הכפתורים
+// - Skeleton Screen ל-Loading State
 //
 // 🔗 תלויות:
 // - UserContext (Provider)
@@ -27,13 +35,13 @@
 //
 // 📊 Flow:
 // 1. טעינת הגדרות מ-SharedPreferences
-// 2. הצגת פרופיל + סטטיסטיקות
+// 2. הצגת פרופיל + סטטיסטיקות (עם animations!)
 // 3. עריכת הגדרות → שמירה אוטומטית
 // 4. עדכון מחירים ידני (ProductsProvider.refreshProducts)
 // 5. התנתקות → ניקוי + חזרה ל-login
 //
-// Version: 2.0 (Refactored)
-// Last Updated: 08/10/2025
+// Version: 3.0 - Modern UI/UX Complete ⭐
+// Last Updated: 14/10/2025
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -361,6 +369,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _loadSettings();
   }
 
+  // 💀 Skeleton Screen ל-Loading State
+  Widget _buildLoadingSkeleton(ColorScheme cs) {
+    return ListView(
+      padding: const EdgeInsets.all(kSpacingMedium),
+      children: [
+        // פרופיל skeleton
+        _SkeletonBox(
+          width: double.infinity,
+          height: 100,
+          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+        ),
+        const SizedBox(height: kSpacingMedium),
+
+        // סטטיסטיקות skeleton
+        Row(
+          children: [
+            Expanded(
+              child: _SkeletonBox(
+                width: double.infinity,
+                height: 80,
+                borderRadius: BorderRadius.circular(kBorderRadius),
+              ),
+            ),
+            const SizedBox(width: kSpacingSmallPlus),
+            Expanded(
+              child: _SkeletonBox(
+                width: double.infinity,
+                height: 80,
+                borderRadius: BorderRadius.circular(kBorderRadius),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: kSpacingSmallPlus),
+        _SkeletonBox(
+          width: double.infinity,
+          height: 80,
+          borderRadius: BorderRadius.circular(kBorderRadius),
+        ),
+        const SizedBox(height: kSpacingLarge),
+
+        // קבוצה skeleton
+        _SkeletonBox(
+          width: double.infinity,
+          height: 200,
+          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -380,18 +439,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final userName = userContext.user?.name ?? AppStrings.home.guestUser;
     final userEmail = userContext.user?.email ?? "email@example.com";
 
-    // Loading State
+    // 💀 Loading State - Skeleton!
     if (_loading) {
       return Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const CircularProgressIndicator(),
-              const SizedBox(height: kSpacingMedium),
-              Text(AppStrings.settings.loading),
-            ],
-          ),
+        backgroundColor: cs.surface,
+        appBar: AppBar(
+          title: Text(AppStrings.settings.title),
+          backgroundColor: cs.primary,
+          foregroundColor: cs.onPrimary,
+          elevation: 0,
+        ),
+        body: SafeArea(
+          child: _buildLoadingSkeleton(cs),
         ),
       );
     }
@@ -490,7 +549,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     const SizedBox(width: kSpacingSmall),
 
                     // כפתור עריכה
-                    FilledButton.icon(
+                    _AnimatedButton(
                       onPressed: () {
                         debugPrint('✏️ Edit Profile: clicked');
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -499,14 +558,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         );
                       },
-                      icon: const Icon(Icons.edit, size: kIconSizeSmall + 2),
-                      label: Text(AppStrings.settings.editProfile),
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: kSpacingSmallPlus,
-                          vertical: kSpacingSmall,
+                      child: FilledButton.icon(
+                        onPressed: null,
+                        icon: const Icon(Icons.edit, size: kIconSizeSmall + 2),
+                        label: Text(AppStrings.settings.editProfile),
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: kSpacingSmallPlus,
+                            vertical: kSpacingSmall,
+                          ),
+                          minimumSize: const Size(kButtonHeight, kButtonHeight),
                         ),
-                        minimumSize: const Size(kButtonHeight, kButtonHeight),
                       ),
                     ),
                   ],
@@ -516,7 +578,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             const SizedBox(height: kSpacingMedium),
 
-            // 🔹 סטטיסטיקות מהירות
+            // 🔹 סטטיסטיקות מהירות - עם AnimatedCounter!
             Row(
               children: [
                 Expanded(
@@ -524,7 +586,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     color: Colors.amber,
                     icon: Icons.shopping_cart_outlined,
                     label: AppStrings.settings.statsActiveLists,
-                    value: "$activeLists",
+                    value: activeLists,
                   ),
                 ),
                 const SizedBox(width: kSpacingSmallPlus),
@@ -533,7 +595,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     color: Colors.green,
                     icon: Icons.receipt_long_outlined,
                     label: AppStrings.settings.statsReceipts,
-                    value: "$totalReceipts",
+                    value: totalReceipts,
                   ),
                 ),
               ],
@@ -548,7 +610,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     color: Colors.blue,
                     icon: Icons.inventory_2_outlined,
                     label: AppStrings.settings.statsPantryItems,
-                    value: "$pantryItems",
+                    value: pantryItems,
                   ),
                 ),
               ],
@@ -692,7 +754,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     const SizedBox(height: kSpacingSmall),
 
                     // כפתור ניהול חברים (עתידי)
-                    OutlinedButton.icon(
+                    _AnimatedButton(
                       onPressed: () {
                         debugPrint('👥 Manage Members: clicked');
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -704,10 +766,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         );
                       },
-                      icon: const Icon(Icons.group_add, size: kIconSizeMedium),
-                      label: Text(AppStrings.settings.manageMembersButton),
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 42),
+                      child: OutlinedButton.icon(
+                        onPressed: null,
+                        icon: const Icon(Icons.group_add, size: kIconSizeMedium),
+                        label: Text(AppStrings.settings.manageMembersButton),
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 42),
+                        ),
                       ),
                     ),
                   ],
@@ -805,13 +870,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     const SizedBox(height: kSpacingSmallPlus),
 
-                    // גודל קבוצה
+                    // גודל קבוצה - תוקן! kFieldWidthNarrow במקום kQuantityFieldWidth
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(AppStrings.settings.familySizeLabel),
                         SizedBox(
-                          width: kQuantityFieldWidth,
+                          width: kFieldWidthNarrow, // ✅ תוקן!
                           child: TextField(
                             controller: _familySizeController,
                             keyboardType: TextInputType.number,
@@ -953,12 +1018,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 }
 
-// 🎨 Widget עזר - כרטיס סטטיסטיקה
-class _StatCard extends StatelessWidget {
+// 🎨 Widget עזר - כרטיס סטטיסטיקה עם AnimatedCounter + TappableCard
+class _StatCard extends StatefulWidget {
   final Color color;
   final IconData icon;
   final String label;
-  final String value;
+  final int value;
 
   const _StatCard({
     required this.color,
@@ -968,51 +1033,165 @@ class _StatCard extends StatelessWidget {
   });
 
   @override
+  State<_StatCard> createState() => _StatCardState();
+}
+
+class _StatCardState extends State<_StatCard> {
+  bool _isPressed = false;
+
+  @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Card(
-      color: cs.surfaceContainerHighest,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(kBorderRadius),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(kSpacingSmallPlus),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: color, size: kIconSizeMedium + 2),
+
+    return Semantics(
+      label: '${widget.label}: ${widget.value}',
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _isPressed = true),
+        onTapUp: (_) => setState(() => _isPressed = false),
+        onTapCancel: () => setState(() => _isPressed = false),
+        child: AnimatedScale(
+          scale: _isPressed ? 0.98 : 1.0,
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeInOut,
+          child: Card(
+            color: cs.surfaceContainerHighest,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(kBorderRadius),
             ),
-            const SizedBox(width: kSpacingSmallPlus),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+            child: Padding(
+              padding: const EdgeInsets.all(kSpacingSmallPlus),
+              child: Row(
                 children: [
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: kFontSizeTiny,
-                      color: Colors.grey,
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: widget.color.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      widget.icon,
+                      color: widget.color,
+                      size: kIconSizeMedium + 2,
                     ),
                   ),
-                  Text(
-                    value,
-                    style: TextStyle(
-                      fontSize: kFontSizeLarge,
-                      color: color,
-                      fontWeight: FontWeight.bold,
+                  const SizedBox(width: kSpacingSmallPlus),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          widget.label,
+                          style: const TextStyle(
+                            fontSize: kFontSizeTiny,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        // 🎬 AnimatedCounter!
+                        _AnimatedCounter(
+                          value: widget.value,
+                          style: TextStyle(
+                            fontSize: kFontSizeLarge,
+                            color: widget.color,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+// 🎬 AnimatedCounter - ספירה מ-0 לערך האמיתי
+class _AnimatedCounter extends StatelessWidget {
+  final int value;
+  final TextStyle? style;
+
+  const _AnimatedCounter({
+    required this.value,
+    this.style,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<int>(
+      tween: IntTween(begin: 0, end: value),
+      duration: const Duration(milliseconds: 800),
+      curve: Curves.easeOut,
+      builder: (context, value, child) {
+        return Text(
+          '$value',
+          style: style,
+        );
+      },
+    );
+  }
+}
+
+// 🎬 AnimatedButton - Wrapper לכל הכפתורים
+class _AnimatedButton extends StatefulWidget {
+  final Widget child;
+  final VoidCallback onPressed;
+
+  const _AnimatedButton({
+    required this.child,
+    required this.onPressed,
+  });
+
+  @override
+  State<_AnimatedButton> createState() => _AnimatedButtonState();
+}
+
+class _AnimatedButtonState extends State<_AnimatedButton> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) {
+        setState(() => _isPressed = false);
+        widget.onPressed();
+      },
+      onTapCancel: () => setState(() => _isPressed = false),
+      child: AnimatedScale(
+        scale: _isPressed ? 0.95 : 1.0,
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeInOut,
+        child: widget.child,
+      ),
+    );
+  }
+}
+
+// 💀 SkeletonBox - קופסא מהבהבת ל-Loading
+class _SkeletonBox extends StatelessWidget {
+  final double? width;
+  final double? height;
+  final BorderRadius? borderRadius;
+
+  const _SkeletonBox({
+    this.width,
+    this.height,
+    this.borderRadius,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: isDark ? Colors.grey[800] : Colors.grey[300],
+        borderRadius: borderRadius ?? BorderRadius.circular(kBorderRadius),
       ),
     );
   }

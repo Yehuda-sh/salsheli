@@ -180,6 +180,7 @@ class ShoppingListsProvider with ChangeNotifier {
   ///   type: ShoppingList.typeSuper,
   ///   budget: 500.0,
   ///   eventDate: DateTime(2025, 10, 15), // אירוע ב-15/10
+  ///   items: [...], // 🆕 פריטים מתבנית
   /// );
   /// ```
   Future<ShoppingList> createList({
@@ -188,6 +189,8 @@ class ShoppingListsProvider with ChangeNotifier {
     double? budget,
     DateTime? eventDate,
     bool isShared = false,
+    List<ReceiptItem>? items, // 🆕 פריטים אופציונליים
+    String? templateId, // 🆕 מזהה תבנית
   }) async {
     final userId = _userContext?.user?.id;
     final householdId = _userContext?.user?.householdId;
@@ -198,18 +201,35 @@ class ShoppingListsProvider with ChangeNotifier {
     }
 
     debugPrint('➕ createList: "$name" (סוג: $type, תקציב: $budget, תאריך: $eventDate)');
+    debugPrint('   🆕 פריטים: ${items?.length ?? 0}, תבנית: ${templateId ?? "ללא"}');
     _errorMessage = null;
 
     try {
-      final newList = ShoppingList.newList(
-        id: _uuid.v4(),
-        name: name,
-        createdBy: userId,
-        type: type,
-        budget: budget,
-        eventDate: eventDate,
-        isShared: isShared,
-      );
+      // 🆕 אם יש תבנית, השתמש ב-factory המיוחד
+      final newList = templateId != null
+          ? ShoppingList.fromTemplate(
+              id: _uuid.v4(),
+              templateId: templateId,
+              name: name,
+              createdBy: userId,
+              type: type,
+              format: 'shared',
+              items: items ?? [],
+              budget: budget,
+              eventDate: eventDate,
+              isShared: isShared,
+            )
+          : ShoppingList.newList(
+              id: _uuid.v4(),
+              name: name,
+              createdBy: userId,
+              type: type,
+              budget: budget,
+              eventDate: eventDate,
+              isShared: isShared,
+              items: items ?? [], // 🆕 העברת פריטים
+              createdFromTemplate: items != null && items.isNotEmpty,
+            );
 
       await _repository.saveList(newList, householdId);
       await loadLists();

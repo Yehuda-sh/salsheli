@@ -1,6 +1,13 @@
 // 📄 File: lib/widgets/home/upcoming_shop_card.dart
 //
-// ✅ עדכונים (08/10/2025):
+// ✅ עדכונים (14/10/2025) - Modern UI/UX v8.0:
+// 1. ✨ Button Animations - כל הכפתורים מונפשים
+// 2. ✨ Enhanced "התחל קנייה" - Scale + Elevation + Ripple
+// 3. ✨ Badge Animations - תגים אינטראקטיביים
+// 4. ✨ Card Entrance Animation - Slide + Fade
+// 5. 🎨 Modern UI polish מלא
+//
+// ✅ עדכונים קודמים (08/10/2025):
 // 1. Progress bar 0% → סטטוס טקסטואלי "טרם התחלת"
 // 2. כפתור "התחל קנייה" בולט יותר (gradient + elevation)
 // 3. תגי אירוע משופרים (אייקון + צבעים)
@@ -15,10 +22,56 @@ import '../common/dashboard_card.dart';
 import '../../core/ui_constants.dart';
 import '../../theme/app_theme.dart';
 
-class UpcomingShopCard extends StatelessWidget {
+class UpcomingShopCard extends StatefulWidget {
   final ShoppingList? list;
 
   const UpcomingShopCard({super.key, this.list});
+
+  @override
+  State<UpcomingShopCard> createState() => _UpcomingShopCardState();
+}
+
+class _UpcomingShopCardState extends State<UpcomingShopCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    // 🆕 Card entrance animation
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.05),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOut,
+    ));
+
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOut,
+    ));
+
+    // Start animation
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   void _showCreateListDialog(BuildContext context) {
     final provider = context.read<ShoppingListsProvider>();
@@ -36,8 +89,8 @@ class UpcomingShopCard extends StatelessWidget {
 
           if (name != null && name.trim().isNotEmpty) {
             await provider.createList(
-              name: name, 
-              type: type, 
+              name: name,
+              type: type,
               budget: budget,
               eventDate: eventDate,
             );
@@ -49,20 +102,29 @@ class UpcomingShopCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (list == null) {
-      return _EmptyUpcomingCard(
-        onCreateList: () => _showCreateListDialog(context),
-      );
-    }
-
-    return DashboardCard(
-      title: "הקנייה הקרובה",
-      icon: Icons.shopping_cart,
-      elevation: 3, // ← elevation גבוה יותר
-      onTap: () {
-        Navigator.pushNamed(context, '/populate-list', arguments: list);
-      },
-      child: _ListSummary(list: list!),
+    // 🆕 Wrap with animations
+    return SlideTransition(
+      position: _slideAnimation,
+      child: FadeTransition(
+        opacity: _fadeAnimation,
+        child: widget.list == null
+            ? _EmptyUpcomingCard(
+                onCreateList: () => _showCreateListDialog(context),
+              )
+            : DashboardCard(
+                title: "הקנייה הקרובה",
+                icon: Icons.shopping_cart,
+                elevation: 3,
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    '/populate-list',
+                    arguments: widget.list,
+                  );
+                },
+                child: _ListSummary(list: widget.list!),
+              ),
+      ),
     );
   }
 }
@@ -96,10 +158,15 @@ class _EmptyUpcomingCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: kSpacingMedium),
-          FilledButton.icon(
+          
+          // 🆕 Animated button
+          _AnimatedButton(
             onPressed: onCreateList,
-            icon: const Icon(Icons.add),
-            label: const Text("צור רשימה חדשה"),
+            child: FilledButton.icon(
+              onPressed: null, // ה-AnimatedButton מטפל ב-onPressed
+              icon: const Icon(Icons.add),
+              label: const Text("צור רשימה חדשה"),
+            ),
           ),
         ],
       ),
@@ -118,7 +185,7 @@ class _ListSummary extends StatelessWidget {
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
     final accent = brand?.accent ?? cs.primary;
-    
+
     final itemsCount = list.items.length;
     final checkedCount = list.items.where((item) => item.isChecked).length;
     final progress = itemsCount > 0 ? checkedCount / itemsCount : 0.0;
@@ -137,14 +204,13 @@ class _ListSummary extends StatelessWidget {
                 ),
               ),
             ),
-            IconButton(
-              icon: const Icon(Icons.edit_outlined, size: kIconSizeSmall),
+            
+            // 🆕 Animated icon button
+            _AnimatedIconButton(
+              icon: Icons.edit_outlined,
+              size: kIconSizeSmall,
+              color: cs.onSurface,
               tooltip: 'ערוך רשימה',
-              padding: const EdgeInsets.all(kSpacingSmall),
-              constraints: const BoxConstraints(
-                minWidth: 36,
-                minHeight: 36,
-              ),
               onPressed: () {
                 Navigator.pushNamed(
                   context,
@@ -157,21 +223,29 @@ class _ListSummary extends StatelessWidget {
         ),
         const SizedBox(height: kSpacingSmall),
 
-        // תגים: סוג + תקציב + תאריך אירוע
+        // 🆕 תגים מונפשים
         Wrap(
           spacing: kSpacingSmall,
           runSpacing: kSpacingSmall,
           children: [
-            _buildTypeBadge(context, list.type),
-            if (list.budget != null) _buildBudgetChip(context, list.budget!),
-            if (list.eventDate != null) _buildEventDateChip(context, list.eventDate!),
+            _AnimatedBadge(
+              child: _buildTypeBadge(context, list.type),
+            ),
+            if (list.budget != null)
+              _AnimatedBadge(
+                child: _buildBudgetChip(context, list.budget!),
+              ),
+            if (list.eventDate != null)
+              _AnimatedBadge(
+                child: _buildEventDateChip(context, list.eventDate!),
+              ),
           ],
         ),
         const SizedBox(height: kSpacingMedium),
 
-        // 🆕 התקדמות - עם טיפול ב-0%
+        // התקדמות - עם טיפול ב-0%
         if (progress == 0.0) ...[
-          // ✅ סטטוס טקסטואלי כשאין התקדמות
+          // סטטוס טקסטואלי כשאין התקדמות
           Container(
             padding: const EdgeInsets.symmetric(
               horizontal: kBorderRadius,
@@ -237,63 +311,16 @@ class _ListSummary extends StatelessWidget {
         ),
         const SizedBox(height: kSpacingMedium),
 
-        // 🆕 כפתור "התחל קנייה" בולט יותר
-        SizedBox(
-          width: double.infinity,
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  accent,
-                  accent.withValues(alpha: 0.85),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(kBorderRadius),
-              boxShadow: [
-                BoxShadow(
-                  color: accent.withValues(alpha: 0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    '/active-shopping',
-                    arguments: list,
-                  );
-                },
-                borderRadius: BorderRadius.circular(kBorderRadius),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: kSpacingMedium - 2,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.shopping_cart,
-                        size: kIconSizeSmall,
-                        color: Colors.white,
-                      ),
-                      const SizedBox(width: kSpacingSmall),
-                      Text(
-                        'התחל קנייה',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
+        // 🆕 כפתור "התחל קנייה" מונפש מלא!
+        _EnhancedShoppingButton(
+          accent: accent,
+          onPressed: () {
+            Navigator.pushNamed(
+              context,
+              '/active-shopping',
+              arguments: list,
+            );
+          },
         ),
       ],
     );
@@ -410,11 +437,11 @@ class _ListSummary extends StatelessWidget {
     final now = DateTime.now();
     final daysUntil = eventDate.difference(now).inDays;
 
-    // 🆕 בחירת צבע + אייקון לפי מרחק
+    // בחירת צבע + אייקון לפי מרחק
     Color chipColor;
     Color textColor;
     IconData icon;
-    
+
     if (daysUntil <= 7) {
       // דחוף - אדום
       chipColor = Colors.red.shade100;
@@ -463,7 +490,7 @@ class _ListSummary extends StatelessWidget {
         children: [
           Icon(
             icon,
-            size: kIconSizeSmall - 2, // 14px
+            size: kIconSizeSmall - 2,
             color: textColor,
           ),
           const SizedBox(width: kBorderWidthThick + 2),
@@ -475,6 +502,217 @@ class _ListSummary extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 🆕 ANIMATION WIDGETS
+// ═══════════════════════════════════════════════════════════════
+
+// 1. Animated Button - Scale Effect
+class _AnimatedButton extends StatefulWidget {
+  final Widget child;
+  final VoidCallback onPressed;
+
+  const _AnimatedButton({
+    required this.child,
+    required this.onPressed,
+  });
+
+  @override
+  State<_AnimatedButton> createState() => _AnimatedButtonState();
+}
+
+class _AnimatedButtonState extends State<_AnimatedButton> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) {
+        setState(() => _isPressed = false);
+        widget.onPressed();
+      },
+      onTapCancel: () => setState(() => _isPressed = false),
+      child: AnimatedScale(
+        scale: _isPressed ? 0.95 : 1.0,
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeInOut,
+        child: widget.child,
+      ),
+    );
+  }
+}
+
+// 2. Animated Icon Button
+class _AnimatedIconButton extends StatefulWidget {
+  final IconData icon;
+  final double size;
+  final Color color;
+  final String tooltip;
+  final VoidCallback onPressed;
+
+  const _AnimatedIconButton({
+    required this.icon,
+    required this.size,
+    required this.color,
+    required this.tooltip,
+    required this.onPressed,
+  });
+
+  @override
+  State<_AnimatedIconButton> createState() => _AnimatedIconButtonState();
+}
+
+class _AnimatedIconButtonState extends State<_AnimatedIconButton> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) {
+        setState(() => _isPressed = false);
+        widget.onPressed();
+      },
+      onTapCancel: () => setState(() => _isPressed = false),
+      child: AnimatedScale(
+        scale: _isPressed ? 0.90 : 1.0,
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeInOut,
+        child: IconButton(
+          icon: Icon(widget.icon, size: widget.size),
+          color: widget.color,
+          tooltip: widget.tooltip,
+          padding: const EdgeInsets.all(kSpacingSmall),
+          constraints: const BoxConstraints(
+            minWidth: 36,
+            minHeight: 36,
+          ),
+          onPressed: null, // ה-GestureDetector מטפל ב-onPressed
+        ),
+      ),
+    );
+  }
+}
+
+// 3. Animated Badge - Subtle Tap Effect
+class _AnimatedBadge extends StatefulWidget {
+  final Widget child;
+
+  const _AnimatedBadge({required this.child});
+
+  @override
+  State<_AnimatedBadge> createState() => _AnimatedBadgeState();
+}
+
+class _AnimatedBadgeState extends State<_AnimatedBadge> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) => setState(() => _isPressed = false),
+      onTapCancel: () => setState(() => _isPressed = false),
+      child: AnimatedScale(
+        scale: _isPressed ? 0.97 : 1.0,
+        duration: const Duration(milliseconds: 100),
+        curve: Curves.easeInOut,
+        child: widget.child,
+      ),
+    );
+  }
+}
+
+// 4. Enhanced Shopping Button - הכפתור הגדול המונפש!
+class _EnhancedShoppingButton extends StatefulWidget {
+  final Color accent;
+  final VoidCallback onPressed;
+
+  const _EnhancedShoppingButton({
+    required this.accent,
+    required this.onPressed,
+  });
+
+  @override
+  State<_EnhancedShoppingButton> createState() =>
+      _EnhancedShoppingButtonState();
+}
+
+class _EnhancedShoppingButtonState extends State<_EnhancedShoppingButton> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) {
+        setState(() => _isPressed = false);
+        widget.onPressed();
+      },
+      onTapCancel: () => setState(() => _isPressed = false),
+      child: AnimatedScale(
+        scale: _isPressed ? 0.97 : 1.0,
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeInOut,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          width: double.infinity,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                widget.accent,
+                widget.accent.withValues(alpha: 0.85),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(kBorderRadius),
+            boxShadow: [
+              BoxShadow(
+                color: widget.accent.withValues(
+                  alpha: _isPressed ? 0.4 : 0.3,
+                ),
+                blurRadius: _isPressed ? 12 : 8,
+                offset: Offset(0, _isPressed ? 6 : 4),
+              ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: null, // ה-GestureDetector מטפל ב-onTap
+              borderRadius: BorderRadius.circular(kBorderRadius),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: kSpacingMedium - 2,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.shopping_cart,
+                      size: kIconSizeSmall,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(width: kSpacingSmall),
+                    Text(
+                      'התחל קנייה',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -24,6 +24,7 @@
 // - לוגו עם זוהר רדיאלי וshadows
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common/benefit_tile.dart';
@@ -42,6 +43,8 @@ class WelcomeScreen extends StatelessWidget {
     final brand = theme.extension<AppBrand>();
     final accent = brand?.accent ?? theme.colorScheme.primary;
     final bgColor = brand?.welcomeBackground ?? const Color(0xFF0F172A);
+    // צבע גרדיאנט משני - Slate 800
+    const gradientFallbackColor = Color(0xFF1E293B);
 
     return Scaffold(
       body: Container(
@@ -53,7 +56,7 @@ class WelcomeScreen extends StatelessWidget {
             colors: [
               bgColor,
               bgColor.withValues(alpha: kOpacityAlmostFull),
-              const Color(0xFF1E293B), // Slate 800 - fallback gradient color
+              gradientFallbackColor,
               bgColor.withValues(alpha: kOpacityNearFull),
               bgColor,
             ],
@@ -62,16 +65,21 @@ class WelcomeScreen extends StatelessWidget {
         ),
         child: SafeArea(
           child: SingleChildScrollView(
+            // 📱 גלילה חלקה יותר עם physics מתאים לפלטפורמה
+            physics: const BouncingScrollPhysics(),
             child: Padding(
               padding: const EdgeInsets.all(kSpacingXLarge),
               child: Column(
                 children: [
                   const SizedBox(height: kSpacingMedium), // צומצם מ-40 ל-16
 
-                  // לוגו עם Accessibility + זוהר ואנימציה
-                  Semantics(
-                    label: AppStrings.welcome.logoLabel,
-                    child: _AnimatedLogo(accent: accent),
+                  // לוגו עם Accessibility + זוהר ואנימציה + Hero
+                  Hero(
+                    tag: 'app_logo',
+                    child: Semantics(
+                      label: AppStrings.welcome.logoLabel,
+                      child: _AnimatedLogo(accent: accent),
+                    ),
                   ),
                   const SizedBox(height: kSpacingLarge),
 
@@ -130,9 +138,18 @@ class WelcomeScreen extends StatelessWidget {
                   AuthButton.primary(
                     label: AppStrings.welcome.loginButton,
                     icon: Icons.login,
-                    onPressed: () {
+                    onPressed: () async {
                       debugPrint('🔐 WelcomeScreen: התחברות נלחץ');
-                      Navigator.pushNamed(context, '/login');
+                      // 📳 רטט קל למשוב מישושי
+                      await HapticFeedback.lightImpact();
+                      // 🛡️ טיפול בשגיאות ניווט
+                      if (context.mounted) {
+                        try {
+                          await Navigator.pushNamed(context, '/login');
+                        } catch (e) {
+                          debugPrint('❌ שגיאה בניווט למסך התחברות: $e');
+                        }
+                      }
                     },
                   ),
                   const SizedBox(height: kSpacingSmallPlus),
@@ -141,9 +158,18 @@ class WelcomeScreen extends StatelessWidget {
                   AuthButton.secondary(
                     label: AppStrings.welcome.registerButton,
                     icon: Icons.app_registration_outlined,
-                    onPressed: () {
+                    onPressed: () async {
                       debugPrint('📝 WelcomeScreen: הרשמה נלחץ');
-                      Navigator.pushNamed(context, '/onboarding');
+                      // 📳 רטט קל למשוב מישושי
+                      await HapticFeedback.lightImpact();
+                      // 🛡️ טיפול בשגיאות ניווט
+                      if (context.mounted) {
+                        try {
+                          await Navigator.pushNamed(context, '/onboarding');
+                        } catch (e) {
+                          debugPrint('❌ שגיאה בניווט למסך הרשמה: $e');
+                        }
+                      }
                     },
                   ),
                   const SizedBox(height: kSpacingMedium), // צומצם מ-24 ל-16
@@ -161,18 +187,34 @@ class WelcomeScreen extends StatelessWidget {
                       _SocialLoginButton(
                         icon: Icons.g_mobiledata,
                         label: AppStrings.welcome.googleButton,
-                        onPressed: () {
+                        onPressed: () async {
                           debugPrint('🌐 WelcomeScreen: Google login נלחץ');
-                          Navigator.pushNamed(context, '/login');
+                          // TODO: יישום התחברות Google אמיתית
+                          await HapticFeedback.lightImpact();
+                          if (context.mounted) {
+                            try {
+                              await Navigator.pushNamed(context, '/login');
+                            } catch (e) {
+                              debugPrint('❌ שגיאה בניווט: $e');
+                            }
+                          }
                         },
                       ),
                       const SizedBox(width: kSpacingMedium),
                       _SocialLoginButton(
                         icon: Icons.facebook,
                         label: AppStrings.welcome.facebookButton,
-                        onPressed: () {
+                        onPressed: () async {
                           debugPrint('🌐 WelcomeScreen: Facebook login נלחץ');
-                          Navigator.pushNamed(context, '/login');
+                          // TODO: יישום התחברות Facebook אמיתית
+                          await HapticFeedback.lightImpact();
+                          if (context.mounted) {
+                            try {
+                              await Navigator.pushNamed(context, '/login');
+                            } catch (e) {
+                              debugPrint('❌ שגיאה בניווט: $e');
+                            }
+                          }
                         },
                       ),
                     ],
@@ -254,6 +296,7 @@ class _AnimatedLogo extends StatelessWidget {
               duration: kAnimationDurationSlow,
               color: accent.withValues(alpha: kOpacityLow),
               angle: kShimmerAngle,
+              delay: const Duration(milliseconds: 800), // ⚡ עיכוב בין לולאות לחיסכון בסוללה
             ),
       ),
     );

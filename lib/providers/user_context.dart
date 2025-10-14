@@ -60,7 +60,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_entity.dart';
 import '../repositories/user_repository.dart';
 import '../services/auth_service.dart';
-import '../core/ui_constants.dart';
 
 /// Provider המנהל את הקשר המשתמש באפליקציה
 /// 

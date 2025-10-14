@@ -123,6 +123,12 @@ class AppStrings {
   // ========================================
   
   static const templates = _TemplatesStrings();
+  
+  // ========================================
+  // Create List Dialog
+  // ========================================
+  
+  static const createListDialog = _CreateListDialogStrings();
 }
 
 // ========================================
@@ -890,4 +896,93 @@ class _TemplatesStrings {
   String get useTemplateHint => 'בחר תבנית כדי למלא את הרשימה אוטומטית';
   String get useTemplateEmpty => 'אין תבניות זמינות';
   String get useTemplateSelect => 'בחר';
+}
+
+// ========================================
+// Create List Dialog Strings
+// ========================================
+
+class _CreateListDialogStrings {
+  const _CreateListDialogStrings();
+  
+  // ========================================
+  // Dialog Title
+  // ========================================
+  
+  String get title => 'יצירת רשימת קניות חדשה';
+  
+  // ========================================
+  // Use Template Section
+  // ========================================
+  
+  String get useTemplateButton => '📋 שימוש בתבנית';
+  String get useTemplateTooltip => 'בחר תבנית מוכנה';
+  String get selectTemplateTitle => 'בחר תבנית';
+  String get selectTemplateHint => 'בחר תבנית כדי למלא את הרשימה אוטומטית';
+  String get noTemplatesAvailable => 'אין תבניות זמינות';
+  String get noTemplatesMessage => 'צור תבנית ראשונה במסך התבניות';
+  String templateSelected(String name) => 'תבנית "$name" נבחרה';
+  String templateApplied(String name, int itemsCount) => '✨ התבנית "$name" הוחלה בהצלחה! נוספו $itemsCount פריטים';
+  
+  // ========================================
+  // Form Fields
+  // ========================================
+  
+  // Name Field
+  String get nameLabel => 'שם הרשימה';
+  String get nameHint => 'למשל: קניות השבוע';
+  String get nameRequired => 'נא להזין שם רשימה';
+  String nameAlreadyExists(String name) => 'רשימה בשם "$name" כבר קיימת';
+  
+  // Type Field
+  String get typeLabel => 'סוג הרשימה';
+  String get typeSelected => 'נבחר';
+  
+  // Budget Field
+  String get budgetLabel => 'תקציב (אופציונלי)';
+  String get budgetHint => '₪500';
+  String get budgetInvalid => 'נא להזין מספר תקין';
+  String get budgetMustBePositive => 'תקציב חייב להיות גדול מ-0';
+  String get clearBudgetTooltip => 'נקה תקציב';
+  
+  // Event Date Field
+  String get eventDateLabel => 'תאריך אירוע (אופציונלי)';
+  String get eventDateHint => 'למשל: יום הולדת, אירוח';
+  String get noDate => 'אין תאריך';
+  String get selectDate => 'בחר תאריך אירוע';
+  String get clearDateTooltip => 'נקה תאריך';
+  
+  // ========================================
+  // Action Buttons
+  // ========================================
+  
+  String get cancelButton => 'בטל';
+  String get cancelTooltip => 'ביטול יצירת הרשימה';
+  String get createButton => 'צור רשימה';
+  String get createTooltip => 'יצירת הרשימה החדשה';
+  String get creating => 'יוצר...';
+  
+  // ========================================
+  // Loading State
+  // ========================================
+  
+  String get loadingTemplates => 'טוען תבניות...';
+  String get loadingTemplatesError => 'שגיאה בטעינת תבניות';
+  
+  // ========================================
+  // Success Messages
+  // ========================================
+  
+  String listCreated(String name) => 'הרשימה "$name" נוצרה בהצלחה! 🎉';
+  String listCreatedWithBudget(String name, double budget) => 'הרשימה "$name" נוצרה עם תקציב ₪${budget.toStringAsFixed(0)}';
+  
+  // ========================================
+  // Error Messages
+  // ========================================
+  
+  String get validationFailed => 'אנא תקן את השגיאות בטופס';
+  String get userNotLoggedIn => 'משתמש לא מחובר';
+  String createListError(String error) => 'שגיאה ביצירת הרשימה';
+  String get createListErrorGeneric => 'אירעה שגיאה ביצירת הרשימה. נסה שוב.';
+  String get networkError => 'בעיית רשת. בדוק את החיבור לאינטרנט';
 }
