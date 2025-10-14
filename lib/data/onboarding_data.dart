@@ -1,12 +1,18 @@
 // 📄 File: lib/data/onboarding_data.dart
 // תיאור: מודל נתוני Onboarding + פונקציות שמירה/טעינה/ניהול
 //
+// Version: 2.0 - Enhanced with validation, namespacing, and schema versioning
+// Last Updated: 15/10/2025
+//
 // כולל:
 // - מודל OnboardingData עם כל שדות ההעדפות
 // - פונקציות save/load/reset לעבודה עם SharedPreferences
 // - ניהול סטטוס "סיים Onboarding"
-// - וולידציה מלאה לכל השדות
-// - Logging מפורט לדיבוג
+// - וולידציה מלאה לכל השדות + סינון ערכים לא תקינים
+// - Logging מפורט לדיבוג (kDebugMode only)
+// - Namespacing למפתחות (onboarding.*)
+// - Schema versioning למיגרציות עתידיות
+// - TimeOfDay helpers
 //
 // שימוש:
 // ```dart
@@ -22,11 +28,18 @@
 //
 // // בדיקה אם עבר onboarding
 // final hasSeenIt = await OnboardingData.hasSeenOnboarding();
+//
+// // TimeOfDay helpers
+// final time = OnboardingData.parseTime('09:30'); // TimeOfDay(hour: 9, minute: 30)
+// final str = OnboardingData.formatTime(TimeOfDay(hour: 9, minute: 30)); // '09:30'
 // ```
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants.dart';
+import '../config/stores_config.dart';
+import '../config/filters_config.dart';
 
 // ========================================
 // מפתחות SharedPreferences
@@ -34,16 +47,43 @@ import '../core/constants.dart';
 
 /// מפתחות לשמירה ב-SharedPreferences
 ///
-/// כל המפתחות במקום אחד - קל לניהול ומניעת שגיאות
+/// ⚠️ CRITICAL: אל תשנה שמות מפתחות ללא מיגרציה!
+/// 
+/// כל המפתחות במקום אחד - קל לניהול ומניעת שגיאות.
+/// כל מפתח מתחיל ב-`onboarding.` למניעת התנגשויות עם Providers אחרים.
+/// 
+/// **תאימות לאחור:**
+/// אם צריך לשנות שם מפתח:
+/// 1. הוסף מפתח חדש
+/// 2. הוסף לוגיקת מיגרציה ב-load() שמעתיקה מישן לחדש
+/// 3. לאחר מספר גרסאות, מחק את הישן
 class OnboardingPrefsKeys {
-  static const seenOnboarding = 'seenOnboarding';
-  static const familySize = 'familySize';
-  static const preferredStores = 'preferredStores';
-  static const monthlyBudget = 'monthlyBudget';
-  static const importantCategories = 'importantCategories';
-  static const shareLists = 'shareLists';
-  static const reminderTime = 'reminderTime'; // פורמט: HH:MM
+  // מניעת instances
+  const OnboardingPrefsKeys._();
+
+  // Schema version - לעדכון עתידי של מבנה נתונים
+  static const schemaVersion = 'onboarding.schemaVersion';
+  
+  // נתוני Onboarding
+  static const seenOnboarding = 'onboarding.seenOnboarding';
+  static const familySize = 'onboarding.familySize';
+  static const preferredStores = 'onboarding.preferredStores';
+  static const monthlyBudget = 'onboarding.monthlyBudget';
+  static const importantCategories = 'onboarding.importantCategories';
+  static const shareLists = 'onboarding.shareLists';
+  static const reminderTime = 'onboarding.reminderTime'; // פורמט: HH:MM
 }
+
+// ========================================
+// Schema Version
+// ========================================
+
+/// גרסת Schema נוכחית
+/// 
+/// כשמשנים את מבנה הנתונים (מוסיפים שדות, משנים טיפוסים, וכו'):
+/// 1. העלה את המספר
+/// 2. הוסף לוגיקת מיגרציה ב-load()
+const int kCurrentSchemaVersion = 1;
 
 // ========================================
 // מודל נתונים
@@ -56,8 +96,11 @@ class OnboardingPrefsKeys {
 ///
 /// **תכונות:**
 /// - Validation אוטומטי לכל השדות
-/// - Logging מפורט
+/// - סינון ערכים לא תקינים (חנויות/קטגוריות לא קיימות)
+/// - Logging מפורט (kDebugMode only)
 /// - ניהול סטטוס "סיים Onboarding"
+/// - Namespacing למניעת התנגשויות
+/// - Schema versioning למיגרציות
 class OnboardingData {
   final int familySize;
   final Set<String> preferredStores;
@@ -68,14 +111,16 @@ class OnboardingData {
 
   OnboardingData({
     int? familySize,
-    this.preferredStores = const <String>{},
+    Set<String>? preferredStores,
     double? monthlyBudget,
-    this.importantCategories = const <String>{},
+    Set<String>? importantCategories,
     this.shareLists = false,
     String? reminderTime,
-  }) : familySize = _validateFamilySize(familySize ?? 2),
-       monthlyBudget = _validateBudget(monthlyBudget ?? 2000.0),
-       reminderTime = _validateTime(reminderTime ?? '09:00');
+  })  : familySize = _validateFamilySize(familySize ?? 2),
+        preferredStores = _filterValidStores(preferredStores ?? {}),
+        monthlyBudget = _validateBudget(monthlyBudget ?? 2000.0),
+        importantCategories = _filterValidCategories(importantCategories ?? {}),
+        reminderTime = _validateTime(reminderTime ?? '09:00');
 
   // ========================================
   // וולידציה
@@ -84,15 +129,19 @@ class OnboardingData {
   /// בדיקת תקינות גודל משפחה
   static int _validateFamilySize(int size) {
     if (size < kMinFamilySize) {
-      debugPrint(
-        '⚠️ OnboardingData: גודל משפחה קטן מדי ($size), משתמש במינימום',
-      );
+      if (kDebugMode) {
+        debugPrint(
+          '⚠️ OnboardingData: גודל משפחה קטן מדי ($size), משתמש במינימום $kMinFamilySize',
+        );
+      }
       return kMinFamilySize;
     }
     if (size > kMaxFamilySize) {
-      debugPrint(
-        '⚠️ OnboardingData: גודל משפחה גדול מדי ($size), משתמש במקסימום',
-      );
+      if (kDebugMode) {
+        debugPrint(
+          '⚠️ OnboardingData: גודל משפחה גדול מדי ($size), משתמש במקסימום $kMaxFamilySize',
+        );
+      }
       return kMaxFamilySize;
     }
     return size;
@@ -101,21 +150,64 @@ class OnboardingData {
   /// בדיקת תקינות תקציב
   static double _validateBudget(double budget) {
     if (budget < kMinMonthlyBudget) {
-      debugPrint('⚠️ OnboardingData: תקציב קטן מדי ($budget), משתמש במינימום');
+      if (kDebugMode) {
+        debugPrint(
+          '⚠️ OnboardingData: תקציב קטן מדי ($budget), משתמש במינימום $kMinMonthlyBudget',
+        );
+      }
       return kMinMonthlyBudget;
     }
     if (budget > kMaxMonthlyBudget) {
-      debugPrint('⚠️ OnboardingData: תקציב גדול מדי ($budget), משתמש במקסימום');
+      if (kDebugMode) {
+        debugPrint(
+          '⚠️ OnboardingData: תקציב גדול מדי ($budget), משתמש במקסימום $kMaxMonthlyBudget',
+        );
+      }
       return kMaxMonthlyBudget;
     }
     return budget;
   }
 
+  /// סינון חנויות תקינות בלבד
+  /// 
+  /// מסיר חנויות שלא קיימות ב-StoresConfig.allStores
+  static Set<String> _filterValidStores(Set<String> stores) {
+    final validStores = stores.where(StoresConfig.isValid).toSet();
+    
+    if (kDebugMode && stores.length != validStores.length) {
+      final invalid = stores.difference(validStores);
+      debugPrint(
+        '⚠️ OnboardingData: הוסרו חנויות לא תקינות: ${invalid.join(', ')}',
+      );
+    }
+    
+    return validStores;
+  }
+
+  /// סינון קטגוריות תקינות בלבד
+  /// 
+  /// מסיר קטגוריות שלא קיימות ב-kCategories
+  static Set<String> _filterValidCategories(Set<String> categories) {
+    final validCategories = categories.where(isValidCategory).toSet();
+    
+    if (kDebugMode && categories.length != validCategories.length) {
+      final invalid = categories.difference(validCategories);
+      debugPrint(
+        '⚠️ OnboardingData: הוסרו קטגוריות לא תקינות: ${invalid.join(', ')}',
+      );
+    }
+    
+    return validCategories;
+  }
+
   /// בדיקת תקינות פורמט זמן
+  /// 
+  /// מקבל: "HH:MM" (24h format)
+  /// מחזיר: "HH:MM" תקין עם אפסים מובילים, או "09:00" אם לא תקין
   static String _validateTime(String time) {
     try {
       final parts = time.split(':');
-      if (parts.length != 2) throw FormatException('פורמט לא תקין');
+      if (parts.length != 2) throw const FormatException('פורמט לא תקין');
 
       final hour = int.parse(parts[0]);
       final minute = int.parse(parts[1]);
@@ -125,14 +217,66 @@ class OnboardingData {
       }
 
       // מחזיר בפורמט תקין עם אפסים מובילים
-      return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+      final formatted = '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+      
+      // אם הפורמט השתנה (למשל "9:5" → "09:05"), לוג אזהרה
+      if (kDebugMode && formatted != time) {
+        debugPrint(
+          '⚠️ OnboardingData: פורמט זמן תוקן מ-"$time" ל-"$formatted"',
+        );
+      }
+      
+      return formatted;
     } catch (e) {
-      debugPrint(
-        '⚠️ OnboardingData: פורמט זמן שגוי ($time), משתמש בברירת מחדל 09:00',
-      );
+      if (kDebugMode) {
+        debugPrint(
+          '⚠️ OnboardingData: פורמט זמן שגוי ($time), משתמש בברירת מחדל 09:00',
+        );
+      }
       return '09:00';
     }
   }
+
+  // ========================================
+  // TimeOfDay Helpers
+  // ========================================
+
+  /// המרת String לפורמט TimeOfDay (לשימוש ב-UI)
+  /// 
+  /// דוגמה:
+  /// ```dart
+  /// final time = OnboardingData.parseTime('09:30');
+  /// // TimeOfDay(hour: 9, minute: 30)
+  /// ```
+  static TimeOfDay? parseTime(String timeStr) {
+    try {
+      final parts = timeStr.split(':');
+      if (parts.length != 2) return null;
+      
+      final hour = int.parse(parts[0]);
+      final minute = int.parse(parts[1]);
+      
+      if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
+      
+      return TimeOfDay(hour: hour, minute: minute);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// המרת TimeOfDay לפורמט String (לשמירה)
+  /// 
+  /// דוגמה:
+  /// ```dart
+  /// final str = OnboardingData.formatTime(TimeOfDay(hour: 9, minute: 30));
+  /// // "09:30"
+  /// ```
+  static String formatTime(TimeOfDay time) {
+    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+  }
+
+  /// קבלת TimeOfDay מהנתונים
+  TimeOfDay? get reminderTimeOfDay => parseTime(reminderTime);
 
   // ========================================
   // פונקציות עזר
@@ -158,12 +302,14 @@ class OnboardingData {
   }
 
   /// המרה ל-Map (לצורך JSON)
+  /// 
+  /// רשימות ממוינות לדטרמיניזם
   Map<String, dynamic> toJson() {
     return {
       'familySize': familySize,
-      'preferredStores': preferredStores.toList(),
+      'preferredStores': preferredStores.toList()..sort(),
       'monthlyBudget': monthlyBudget,
-      'importantCategories': importantCategories.toList(),
+      'importantCategories': importantCategories.toList()..sort(),
       'shareLists': shareLists,
       'reminderTime': reminderTime,
     };
@@ -189,65 +335,92 @@ class OnboardingData {
   /// שמירת כל ההעדפות ל-SharedPreferences
   ///
   /// מחזיר true אם השמירה הצליחה, false אחרת.
-  /// כולל logging מפורט לדיבוג.
+  /// כולל logging מפורט לדיבוג (kDebugMode).
+  /// 
+  /// ⚠️ לא אטומי: אם שדה אחד נכשל, חלק מהשדות כבר נשמרו.
   Future<bool> save() async {
     try {
-      debugPrint('💾 OnboardingData: מתחיל שמירה...');
+      if (kDebugMode) {
+        debugPrint('💾 OnboardingData: מתחיל שמירה...');
+      }
+      
       final prefs = await SharedPreferences.getInstance();
 
-      // שמירת כל השדות בזה אחר זה עם logging
-      final success =
-          await _saveField(
-            prefs,
-            OnboardingPrefsKeys.familySize,
-            () => prefs.setInt(OnboardingPrefsKeys.familySize, familySize),
-          ) &&
-          await _saveField(
-            prefs,
-            OnboardingPrefsKeys.preferredStores,
-            () => prefs.setStringList(
-              OnboardingPrefsKeys.preferredStores,
-              preferredStores.toList(),
-            ),
-          ) &&
-          await _saveField(
-            prefs,
-            OnboardingPrefsKeys.monthlyBudget,
-            () => prefs.setDouble(
-              OnboardingPrefsKeys.monthlyBudget,
-              monthlyBudget,
-            ),
-          ) &&
-          await _saveField(
-            prefs,
-            OnboardingPrefsKeys.importantCategories,
-            () => prefs.setStringList(
-              OnboardingPrefsKeys.importantCategories,
-              importantCategories.toList(),
-            ),
-          ) &&
-          await _saveField(
-            prefs,
-            OnboardingPrefsKeys.shareLists,
-            () => prefs.setBool(OnboardingPrefsKeys.shareLists, shareLists),
-          ) &&
-          await _saveField(
-            prefs,
-            OnboardingPrefsKeys.reminderTime,
-            () =>
-                prefs.setString(OnboardingPrefsKeys.reminderTime, reminderTime),
-          );
+      // וולידציה נוספת לפני שמירה (למניעת שמירה ידנית שגויה)
+      final validatedTime = _validateTime(reminderTime);
+      final validatedStores = _filterValidStores(preferredStores);
+      final validatedCategories = _filterValidCategories(importantCategories);
 
-      if (success) {
-        debugPrint('✅ OnboardingData: כל השדות נשמרו בהצלחה');
-        debugPrint('   📊 נתונים: $this');
-      } else {
-        debugPrint('❌ OnboardingData: שגיאה בשמירת אחד השדות');
+      // שמירת schema version
+      await prefs.setInt(OnboardingPrefsKeys.schemaVersion, kCurrentSchemaVersion);
+
+      // רשימת שדות שנכשלו (לשיפור logging)
+      final failedFields = <String>[];
+
+      // שמירת כל השדות בזה אחר זה עם logging
+      if (!await _saveField(
+        prefs,
+        OnboardingPrefsKeys.familySize,
+        () => prefs.setInt(OnboardingPrefsKeys.familySize, familySize),
+      )) failedFields.add('familySize');
+
+      if (!await _saveField(
+        prefs,
+        OnboardingPrefsKeys.preferredStores,
+        () => prefs.setStringList(
+          OnboardingPrefsKeys.preferredStores,
+          validatedStores.toList()..sort(), // ממוין לדטרמיניזם
+        ),
+      )) failedFields.add('preferredStores');
+
+      if (!await _saveField(
+        prefs,
+        OnboardingPrefsKeys.monthlyBudget,
+        () => prefs.setDouble(
+          OnboardingPrefsKeys.monthlyBudget,
+          monthlyBudget,
+        ),
+      )) failedFields.add('monthlyBudget');
+
+      if (!await _saveField(
+        prefs,
+        OnboardingPrefsKeys.importantCategories,
+        () => prefs.setStringList(
+          OnboardingPrefsKeys.importantCategories,
+          validatedCategories.toList()..sort(), // ממוין לדטרמיניזם
+        ),
+      )) failedFields.add('importantCategories');
+
+      if (!await _saveField(
+        prefs,
+        OnboardingPrefsKeys.shareLists,
+        () => prefs.setBool(OnboardingPrefsKeys.shareLists, shareLists),
+      )) failedFields.add('shareLists');
+
+      if (!await _saveField(
+        prefs,
+        OnboardingPrefsKeys.reminderTime,
+        () => prefs.setString(OnboardingPrefsKeys.reminderTime, validatedTime),
+      )) failedFields.add('reminderTime');
+
+      final success = failedFields.isEmpty;
+
+      if (kDebugMode) {
+        if (success) {
+          debugPrint('✅ OnboardingData: כל השדות נשמרו בהצלחה');
+          debugPrint('   📊 נתונים: $this');
+        } else {
+          debugPrint(
+            '❌ OnboardingData: שגיאה בשמירת השדות הבאים: ${failedFields.join(', ')}',
+          );
+        }
       }
 
       return success;
     } catch (e) {
-      debugPrint('❌ OnboardingData: שגיאה כללית בשמירה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ OnboardingData: שגיאה כללית בשמירה - $e');
+      }
       return false;
     }
   }
@@ -260,14 +433,18 @@ class OnboardingData {
   ) async {
     try {
       final result = await saveFn();
-      if (result) {
-        debugPrint('   ✓ נשמר: $key');
-      } else {
-        debugPrint('   ✗ נכשל: $key');
+      if (kDebugMode) {
+        if (result) {
+          debugPrint('   ✓ נשמר: $key');
+        } else {
+          debugPrint('   ✗ נכשל: $key');
+        }
       }
       return result;
     } catch (e) {
-      debugPrint('   ✗ שגיאה ב-$key: $e');
+      if (kDebugMode) {
+        debugPrint('   ✗ שגיאה ב-$key: $e');
+      }
       return false;
     }
   }
@@ -276,36 +453,80 @@ class OnboardingData {
   ///
   /// מחזיר OnboardingData עם הערכים השמורים,
   /// או ערכי ברירת מחדל אם אין נתונים שמורים.
+  /// 
+  /// כולל סינון ערכים לא תקינים וlogging מפורט על שימוש בברירות מחדל.
   static Future<OnboardingData> load() async {
     try {
-      debugPrint('📂 OnboardingData: טוען נתונים...');
+      if (kDebugMode) {
+        debugPrint('📂 OnboardingData: טוען נתונים...');
+      }
+      
       final prefs = await SharedPreferences.getInstance();
 
+      // בדיקת schema version למיגרציות עתידיות
+      final schemaVersion = prefs.getInt(OnboardingPrefsKeys.schemaVersion) ?? 1;
+      if (kDebugMode && schemaVersion != kCurrentSchemaVersion) {
+        debugPrint(
+          '🔄 OnboardingData: Schema version $schemaVersion (נוכחי: $kCurrentSchemaVersion)',
+        );
+      }
+
+      // טעינת נתונים עם אזהרות ספציפיות
+      final familySizeValue = prefs.getInt(OnboardingPrefsKeys.familySize);
+      if (kDebugMode && familySizeValue == null) {
+        debugPrint('   ⚠️ familySize לא נמצא, משתמש בברירת מחדל: 2');
+      }
+
+      final storesValue = prefs.getStringList(OnboardingPrefsKeys.preferredStores);
+      if (kDebugMode && (storesValue == null || storesValue.isEmpty)) {
+        debugPrint('   ⚠️ preferredStores ריק, משתמש בברירת מחדל: []');
+      }
+
+      final budgetValue = prefs.getDouble(OnboardingPrefsKeys.monthlyBudget);
+      if (kDebugMode && budgetValue == null) {
+        debugPrint('   ⚠️ monthlyBudget לא נמצא, משתמש בברירת מחדל: 2000.0');
+      }
+
+      final categoriesValue = prefs.getStringList(OnboardingPrefsKeys.importantCategories);
+      if (kDebugMode && (categoriesValue == null || categoriesValue.isEmpty)) {
+        debugPrint('   ⚠️ importantCategories ריק, משתמש בברירת מחדל: []');
+      }
+
+      final reminderValue = prefs.getString(OnboardingPrefsKeys.reminderTime);
+      if (kDebugMode && reminderValue == null) {
+        debugPrint('   ⚠️ reminderTime לא נמצא, משתמש בברירת מחדל: 09:00');
+      }
+
       final data = OnboardingData(
-        familySize: prefs.getInt(OnboardingPrefsKeys.familySize),
-        preferredStores:
-            (prefs.getStringList(OnboardingPrefsKeys.preferredStores) ?? [])
-                .toSet(),
-        monthlyBudget: prefs.getDouble(OnboardingPrefsKeys.monthlyBudget),
-        importantCategories:
-            (prefs.getStringList(OnboardingPrefsKeys.importantCategories) ?? [])
-                .toSet(),
+        familySize: familySizeValue,
+        preferredStores: (storesValue ?? []).toSet(),
+        monthlyBudget: budgetValue,
+        importantCategories: (categoriesValue ?? []).toSet(),
         shareLists: prefs.getBool(OnboardingPrefsKeys.shareLists) ?? false,
-        reminderTime: prefs.getString(OnboardingPrefsKeys.reminderTime),
+        reminderTime: reminderValue,
       );
 
-      debugPrint('✅ OnboardingData: נתונים נטענו בהצלחה');
-      debugPrint('   📊 נתונים: $data');
+      if (kDebugMode) {
+        debugPrint('✅ OnboardingData: נתונים נטענו בהצלחה');
+        debugPrint('   📊 נתונים: $data');
+      }
+      
       return data;
     } catch (e) {
-      debugPrint('⚠️ OnboardingData: שגיאה בטעינה, משתמש בברירות מחדל - $e');
+      if (kDebugMode) {
+        debugPrint(
+          '⚠️ OnboardingData: שגיאה בטעינה, משתמש בברירות מחדל - $e',
+        );
+      }
       return OnboardingData();
     }
   }
 
   /// איפוס לערכי ברירת מחדל
   static OnboardingData defaults() {
-    debugPrint('🔄 OnboardingData: יוצר ברירות מחדל');
+    if (kDebugMode) {
+      debugPrint('🔄 OnboardingData: יוצר ברירות מחדל');
+    }
     return OnboardingData();
   }
 
@@ -319,22 +540,29 @@ class OnboardingData {
   /// לא יראה אותו שוב בפעם הבאה.
   static Future<bool> markAsCompleted() async {
     try {
-      debugPrint('✓ OnboardingData: מסמן onboarding כהושלם');
+      if (kDebugMode) {
+        debugPrint('✓ OnboardingData: מסמן onboarding כהושלם');
+      }
+      
       final prefs = await SharedPreferences.getInstance();
       final result = await prefs.setBool(
         OnboardingPrefsKeys.seenOnboarding,
         true,
       );
 
-      if (result) {
-        debugPrint('✅ OnboardingData: סימון הושלם בהצלחה');
-      } else {
-        debugPrint('❌ OnboardingData: נכשל בסימון');
+      if (kDebugMode) {
+        if (result) {
+          debugPrint('✅ OnboardingData: סימון הושלם בהצלחה');
+        } else {
+          debugPrint('❌ OnboardingData: נכשל בסימון');
+        }
       }
 
       return result;
     } catch (e) {
-      debugPrint('❌ OnboardingData: שגיאה בסימון - $e');
+      if (kDebugMode) {
+        debugPrint('❌ OnboardingData: שגיאה בסימון - $e');
+      }
       return false;
     }
   }
@@ -348,12 +576,17 @@ class OnboardingData {
       final hasSeen =
           prefs.getBool(OnboardingPrefsKeys.seenOnboarding) ?? false;
 
-      debugPrint(
-        '🔍 OnboardingData: בדיקת סטטוס - ${hasSeen ? "עבר" : "לא עבר"}',
-      );
+      if (kDebugMode) {
+        debugPrint(
+          '🔍 OnboardingData: בדיקת סטטוס - ${hasSeen ? "עבר" : "לא עבר"}',
+        );
+      }
+      
       return hasSeen;
     } catch (e) {
-      debugPrint('⚠️ OnboardingData: שגיאה בבדיקת סטטוס - $e');
+      if (kDebugMode) {
+        debugPrint('⚠️ OnboardingData: שגיאה בבדיקת סטטוס - $e');
+      }
       return false; // ברירת מחדל - נראה את ה-onboarding
     }
   }
@@ -364,10 +597,14 @@ class OnboardingData {
   /// מחזיר true אם האיפוס הצליח.
   static Future<bool> reset() async {
     try {
-      debugPrint('🗑️ OnboardingData: מתחיל איפוס מלא...');
+      if (kDebugMode) {
+        debugPrint('🗑️ OnboardingData: מתחיל איפוס מלא...');
+      }
+      
       final prefs = await SharedPreferences.getInstance();
 
       final keys = [
+        OnboardingPrefsKeys.schemaVersion,
         OnboardingPrefsKeys.seenOnboarding,
         OnboardingPrefsKeys.familySize,
         OnboardingPrefsKeys.preferredStores,
@@ -379,13 +616,20 @@ class OnboardingData {
 
       for (final key in keys) {
         await prefs.remove(key);
-        debugPrint('   🗑️ מחק: $key');
+        if (kDebugMode) {
+          debugPrint('   🗑️ מחק: $key');
+        }
       }
 
-      debugPrint('✅ OnboardingData: איפוס הושלם בהצלחה');
+      if (kDebugMode) {
+        debugPrint('✅ OnboardingData: איפוס הושלם בהצלחה');
+      }
+      
       return true;
     } catch (e) {
-      debugPrint('❌ OnboardingData: שגיאה באיפוס - $e');
+      if (kDebugMode) {
+        debugPrint('❌ OnboardingData: שגיאה באיפוס - $e');
+      }
       return false;
     }
   }

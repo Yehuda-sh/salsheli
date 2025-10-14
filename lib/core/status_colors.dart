@@ -3,23 +3,30 @@
 // 🎯 מטרה: צבעי סטטוס סמנטיים לאפליקציה
 //
 // 📋 כולל:
-// - צבעי סטטוס למצבי פריטים (pending, success, error, warning)
+// - צבעי סטטוס למצבי פריטים (pending, success, error, warning, info)
 // - צבעים עקביים בכל האפליקציה
+// - תמיכה ב-Light/Dark themes
+// - גרסאות overlay לרקעים
 //
 // 📝 הערות:
-// - צבעים סמנטיים: ירוק=הצלחה, אדום=שגיאה, כתום=אזהרה, אפור=ממתין
+// - צבעים סמנטיים: ירוק=הצלחה, אדום=שגיאה, כתום=אזהרה, אפור=ממתין, כחול=מידע
 // - תומך בLight/Dark themes
+// - כולל פונקציה theme-aware לקבלת הצבע הנכון אוטומטית
+// - debugPrint warning לסטטוסים לא ידועים
 //
 // Usage Example:
 // ```dart
 // import 'package:salsheli/core/status_colors.dart';
 // 
-// Icon(Icons.check, color: StatusColors.success)
-// Icon(Icons.error, color: StatusColors.error)
+// // שימוש פשוט עם context
+// color: StatusColors.getStatusColor('success', context)
+// 
+// // overlay לרקעים
+// backgroundColor: StatusColors.successOverlay
 // ```
 //
-// Version: 1.0
-// Last Updated: 08/10/2025
+// Version: 2.1 - Added info overlays + debug warnings
+// Last Updated: 14/10/2025
 
 import 'package:flutter/material.dart';
 
@@ -30,6 +37,7 @@ import 'package:flutter/material.dart';
 /// - success (ירוק) - פעולה הצליחה / פריט נקנה
 /// - error (אדום) - שגיאה / לא במלאי
 /// - warning (כתום) - אזהרה / פריט דחוי
+/// - info (כחול) - מידע / לא רלוונטי
 class StatusColors {
   // מניעת instances
   const StatusColors._();
@@ -54,7 +62,7 @@ class StatusColors {
   static const info = Colors.blueGrey;
 
   // ========================================
-  // גוונים נוספים (אופציונלי)
+  // גוונים נוספים (Light/Dark variants)
   // ========================================
 
   /// אפור בהיר - pending בLight mode
@@ -80,26 +88,183 @@ class StatusColors {
 
   /// כתום כהה - warning בDark mode
   static const warningDark = Color(0xFFFF9800); // Colors.orange.shade500
+
+  /// כחול בהיר - info בLight mode
+  static const infoLight = Color(0xFF78909C); // Colors.blueGrey.shade400
+
+  /// כחול כהה - info בDark mode
+  static const infoDark = Color(0xFF607D8B); // Colors.blueGrey.shade500
+
+  // ========================================
+  // צבעי Overlay (רקעים עם שקיפות)
+  // ========================================
+
+  /// ירוק overlay - לרקע הצלחה (10% שקיפות)
+  static final successOverlay = successLight.withValues(alpha: 0.1);
+
+  /// ירוק overlay כהה - לרקע הצלחה בDark mode (15% שקיפות)
+  static final successOverlayDark = successDark.withValues(alpha: 0.15);
+
+  /// אדום overlay - לרקע שגיאה (10% שקיפות)
+  static final errorOverlay = errorLight.withValues(alpha: 0.1);
+
+  /// אדום overlay כהה - לרקע שגיאה בDark mode (15% שקיפות)
+  static final errorOverlayDark = errorDark.withValues(alpha: 0.15);
+
+  /// כתום overlay - לרקע אזהרה (10% שקיפות)
+  static final warningOverlay = warningLight.withValues(alpha: 0.1);
+
+  /// כתום overlay כהה - לרקע אזהרה בDark mode (15% שקיפות)
+  static final warningOverlayDark = warningDark.withValues(alpha: 0.15);
+
+  /// אפור overlay - לרקע pending (10% שקיפות)
+  static final pendingOverlay = pendingLight.withValues(alpha: 0.1);
+
+  /// אפור overlay כהה - לרקע pending בDark mode (15% שקיפות)
+  static final pendingOverlayDark = pendingDark.withValues(alpha: 0.15);
+
+  /// כחול overlay - לרקע מידע (10% שקיפות)
+  static final infoOverlay = infoLight.withValues(alpha: 0.1);
+
+  /// כחול overlay כהה - לרקע מידע בDark mode (15% שקיפות)
+  static final infoOverlayDark = infoDark.withValues(alpha: 0.15);
+
+  // ========================================
+  // פונקציות עזר (Theme-Aware)
+  // ========================================
+
+  /// מחזיר את צבע הסטטוס המתאים לפי theme mode
+  /// 
+  /// **Status types:**
+  /// - 'success' - הצלחה (ירוק)
+  /// - 'error' - שגיאה (אדום)
+  /// - 'warning' - אזהרה (כתום)
+  /// - 'pending' - ממתין (אפור)
+  /// - 'info' - מידע (כחול)
+  /// 
+  /// **Fallback:** סטטוס לא ידוע יחזיר `pending` + debug warning
+  /// 
+  /// **Usage:**
+  /// ```dart
+  /// Icon(
+  ///   Icons.check_circle,
+  ///   color: StatusColors.getStatusColor('success', context),
+  /// )
+  /// ```
+  static Color getStatusColor(String status, BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    switch (status.toLowerCase()) {
+      case 'success':
+        return isDark ? successDark : successLight;
+      case 'error':
+        return isDark ? errorDark : errorLight;
+      case 'warning':
+        return isDark ? warningDark : warningLight;
+      case 'pending':
+        return isDark ? pendingDark : pendingLight;
+      case 'info':
+        return isDark ? infoDark : infoLight;
+      default:
+        // ⚠️ Warning: סטטוס לא ידוע - עוזר לתפוס typos!
+        debugPrint(
+          '⚠️ StatusColors.getStatusColor: Unknown status "$status" - '
+          'falling back to pending. '
+          'Valid: success, error, warning, pending, info',
+        );
+        return isDark ? pendingDark : pendingLight;
+    }
+  }
+
+  /// מחזיר את צבע ה-overlay (רקע עם שקיפות) המתאים לפי theme mode
+  /// 
+  /// **Status types:**
+  /// - 'success' - הצלחה (ירוק)
+  /// - 'error' - שגיאה (אדום)
+  /// - 'warning' - אזהרה (כתום)
+  /// - 'pending' - ממתין (אפור)
+  /// - 'info' - מידע (כחול)
+  /// 
+  /// **Fallback:** סטטוס לא ידוע יחזיר `pendingOverlay` + debug warning
+  /// 
+  /// **Usage:**
+  /// ```dart
+  /// Container(
+  ///   color: StatusColors.getStatusOverlay('success', context),
+  ///   child: Text('הושלם'),
+  /// )
+  /// ```
+  static Color getStatusOverlay(String status, BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    switch (status.toLowerCase()) {
+      case 'success':
+        return isDark ? successOverlayDark : successOverlay;
+      case 'error':
+        return isDark ? errorOverlayDark : errorOverlay;
+      case 'warning':
+        return isDark ? warningOverlayDark : warningOverlay;
+      case 'pending':
+        return isDark ? pendingOverlayDark : pendingOverlay;
+      case 'info':
+        return isDark ? infoOverlayDark : infoOverlay;
+      default:
+        // ⚠️ Warning: סטטוס לא ידוע - עוזר לתפוס typos!
+        debugPrint(
+          '⚠️ StatusColors.getStatusOverlay: Unknown status "$status" - '
+          'falling back to pending. '
+          'Valid: success, error, warning, pending, info',
+        );
+        return isDark ? pendingOverlayDark : pendingOverlay;
+    }
+  }
 }
 
 // ========================================
-// 💡 דוגמאות שימוש
+// 💡 דוגמאות שימוש מעודכנות
 // ========================================
 //
 // ```dart
-// // שימוש בסיסי
-// Icon(Icons.check_circle, color: StatusColors.success)
-// Icon(Icons.error_outline, color: StatusColors.error)
-// Icon(Icons.schedule, color: StatusColors.warning)
-// Icon(Icons.radio_button_unchecked, color: StatusColors.pending)
-//
-// // עם Theme mode
-// final isDark = Theme.of(context).brightness == Brightness.dark;
-// final color = isDark ? StatusColors.successDark : StatusColors.successLight;
-//
-// // עם Container
-// Container(
-//   color: StatusColors.success.withValues(alpha: 0.1),
-//   child: Text('הצלחה', style: TextStyle(color: StatusColors.success)),
+// // ✅ שימוש חדש (מומלץ) - theme-aware אוטומטי
+// Icon(
+//   Icons.check_circle,
+//   color: StatusColors.getStatusColor('success', context),
 // )
+//
+// Container(
+//   color: StatusColors.getStatusOverlay('error', context),
+//   child: Text('שגיאה', 
+//     style: TextStyle(
+//       color: StatusColors.getStatusColor('error', context),
+//     ),
+//   ),
+// )
+//
+// // ✅ שימוש ב-info (חדש!)
+// Icon(
+//   Icons.info_outline,
+//   color: StatusColors.getStatusColor('info', context),
+// )
+//
+// Container(
+//   color: StatusColors.getStatusOverlay('info', context),
+//   child: Text('מידע'),
+// )
+//
+// // ✅ שימוש ישן (עדיין תקין) - בחירה ידנית
+// final isDark = Theme.of(context).brightness == Brightness.dark;
+// Icon(
+//   Icons.check,
+//   color: isDark ? StatusColors.successDark : StatusColors.successLight,
+// )
+//
+// // ✅ שימוש overlay ישיר
+// Container(
+//   color: StatusColors.successOverlay, // Light mode בלבד
+//   child: Text('הצלחה'),
+// )
+//
+// // ⚠️ Typo warning - יזהה אוטומטית!
+// StatusColors.getStatusColor('succes', context) // typo!
+// // Debug output: ⚠️ StatusColors.getStatusColor: Unknown status "succes"
 // ```

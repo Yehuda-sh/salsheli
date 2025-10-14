@@ -43,8 +43,15 @@
 //     userContext.toggleCompactView();
 //     ```
 //
-// 📝 Version: 2.0 - Full Documentation
-// 📅 Updated: 09/10/2025
+// 📝 Version: 2.1 - Enhanced Safety & Logging
+// 📅 Updated: 14/10/2025
+// 
+// 🆕 Changes in v2.1:
+//     - 🔒 Added bounds checking for ThemeMode.values (prevents RangeError)
+//     - 🔒 Enhanced null-safety for currentUser access
+//     - 🗑️ Selective deletion in clearAll() (only UserContext keys)
+//     - 📝 Improved logging consistency with emojis
+//     - 📖 Enhanced documentation
 
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
@@ -173,15 +180,23 @@ class UserContext with ChangeNotifier {
   /// - showPrices (הצגת מחירים)
   /// 
   /// במקרה של שגיאה - נשאר עם ערכי ברירת מחדל ומעדכן Listeners.
+  /// 
+  /// ⚠️ **חשוב:** בודק גבולות לפני גישה ל-ThemeMode.values למניעת RangeError
   Future<void> _loadPreferences() async {
     debugPrint('📥 UserContext._loadPreferences: טוען העדפות');
 
     try {
       final prefs = await SharedPreferences.getInstance();
 
-      _themeMode = ThemeMode.values[
-        prefs.getInt('themeMode') ?? ThemeMode.system.index
-      ];
+      // 🔒 בדיקת גבולות לפני גישה ל-ThemeMode.values
+      final themeModeIndex = prefs.getInt('themeMode') ?? ThemeMode.system.index;
+      if (themeModeIndex >= 0 && themeModeIndex < ThemeMode.values.length) {
+        _themeMode = ThemeMode.values[themeModeIndex];
+      } else {
+        _themeMode = ThemeMode.system;
+        debugPrint('⚠️ themeMode index לא תקין ($themeModeIndex), משתמש בברירת מחדל');
+      }
+
       _compactView = prefs.getBool('compactView') ?? false;
       _showPrices = prefs.getBool('showPrices') ?? true;
 
@@ -684,9 +699,11 @@ class UserContext with ChangeNotifier {
   /// - שגיאות (errorMessage = null)
   /// - loading state (isLoading = false)
   /// - העדפות UI (חזרה לברירת מחדל)
-  /// - SharedPreferences
+  /// - SharedPreferences (רק המפתחות של UserContext)
   /// 
   /// ⚠️ **אזהרה:** פעולה זו לא מתנתקת מ-Firebase Auth!
+  /// 
+  /// ⚠️ **חשוב:** מחיקה סלקטיבית - רק המפתחות של UserContext!
   /// 
   /// שימושי ב:
   /// - Reset של האפליקציה
@@ -710,11 +727,13 @@ class UserContext with ChangeNotifier {
     _isLoading = false;
     _resetPreferences();
 
-    // נקה גם SharedPreferences
+    // 🔒 מחיקה סלקטיבית - רק המפתחות של UserContext (לא prefs.clear!)
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.clear();
-      debugPrint('✅ UserContext.clearAll: SharedPreferences נוקה');
+      await prefs.remove('themeMode');
+      await prefs.remove('compactView');
+      await prefs.remove('showPrices');
+      debugPrint('✅ UserContext.clearAll: העדפות UserContext נמחקו');
     } catch (e) {
       debugPrint('⚠️ שגיאה בניקוי SharedPreferences: $e');
     }

@@ -1,0 +1,48 @@
+{
+  // 🌍 Disable spell check for Hebrew text
+  // מכבה בדיקת איות למילים בעברית בהערות
+  "cSpell.enabled": false,
+  
+  // 🎨 Flutter/Dart specific settings
+  "dart.lineLength": 120,
+  "editor.rulers": [
+    120
+  ],
+  
+  // 📝 Auto format on save
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  
+  // 🔍 Exclude folders from search
+  "search.exclude": {
+    "**/.dart_tool": true,
+    "**/build": true,
+    "**/.flutter-plugins": true,
+    "**/.flutter-plugins-dependencies": true,
+    "**/*.g.dart": true,
+    "**/*.freezed.dart": true
+  },
+  
+  // 📂 Exclude folders from file explorer
+  "files.exclude": {
+    "**/.dart_tool": true,
+    "**/.flutter-plugins": true,
+    "**/.flutter-plugins-dependencies": true,
+    "**/.packages": true,
+    "**/pubspec.lock": false
+  },
+  
+  // ⚙️ Dart specific
+  "[dart]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true,
+    "editor.rulers": [
+      120
+    ],
+    "editor.selectionHighlight": false,
+    "editor.suggest.snippetsPreventQuickSuggestions": false,
+    "editor.suggestSelection": "first",
+    "editor.tabCompletion": "onlySnippets",
+    "editor.wordBasedSuggestions": "off"
+  }
+}

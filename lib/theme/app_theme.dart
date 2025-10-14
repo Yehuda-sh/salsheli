@@ -6,20 +6,21 @@
 // תומכת ב-Light/Dark modes עם Material 3 ומותג מותאם אישית (AppBrand).
 //
 // Features:
-// - Material 3 Theme מלא
-// - Light/Dark modes עם Slate כהה
-// - AppBrand: צבעי מותג מותאמים (Amber accent, Slate backgrounds)
+// - Material 3 Theme מלא עם Dynamic Color (Android 12+)
+// - Light/Dark modes עם Surface Containers
+// - AppBrand: צבעי מותג מותאמים (Amber accent, harmonized colors)
 // - RTL support מובנה (EdgeInsetsDirectional)
-// - Typography: Assistant font family
+// - Typography: Assistant font family עם line-height מדויק
 // - Accessible: גדלי מגע 48px, contrast AA+
 //
 // Dependencies:
 // - flutter/material.dart
 // - Assistant font (pubspec.yaml)
+// - dynamic_color (optional, for Android 12+ Material You support)
 //
 // Usage:
 //
-// Example 1 - Apply theme in MaterialApp:
+// Example 1 - Apply theme in MaterialApp (basic):
 // ```dart
 // MaterialApp(
 //   theme: AppTheme.lightTheme,
@@ -29,11 +30,31 @@
 // )
 // ```
 //
-// Example 2 - Access brand colors in widgets:
+// Example 2 - With Dynamic Color (Android 12+ Material You):
+// ```dart
+// import 'package:dynamic_color/dynamic_color.dart';
+// 
+// DynamicColorBuilder(
+//   builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
+//     return MaterialApp(
+//       theme: lightDynamic != null
+//           ? AppTheme.fromDynamicColors(lightDynamic, dark: false)
+//           : AppTheme.lightTheme,
+//       darkTheme: darkDynamic != null
+//           ? AppTheme.fromDynamicColors(darkDynamic, dark: true)
+//           : AppTheme.darkTheme,
+//       themeMode: ThemeMode.system,
+//       home: HomeScreen(),
+//     );
+//   },
+// )
+// ```
+//
+// Example 3 - Access brand colors in widgets:
 // ```dart
 // final brand = Theme.of(context).extension<AppBrand>();
 // Container(
-//   color: brand?.accent, // Amber
+//   color: brand?.accent, // Amber (or harmonized if using dynamic color)
 // )
 // 
 // SnackBar(
@@ -45,22 +66,20 @@
 // )
 // ```
 //
-// Example 3 - Use theme colors:
+// Example 4 - Use theme colors:
 // ```dart
 // final cs = Theme.of(context).colorScheme;
 // Text('Hello', style: TextStyle(color: cs.primary))
 // ```
 //
 // Color Palette:
-// - Slate 900 (#0F172A): Dark backgrounds (Welcome, Home)
-// - Slate 800 (#1E293B): Cards, Dialogs in dark mode
-// - Slate 700 (#334155): Dividers, borders
+// - Primary Seed (#4CAF50): Green base for Material 3 palette
 // - Amber (#FFC107): Accent color (buttons, highlights)
 // - Green (#689F38): Success color (SnackBar, feedback)
 // - Orange (#FF9800): Warning color (SnackBar, alerts)
-// - Primary Seed (#4CAF50): Green base for Material palette
+// - Surface Containers: M3 surface system (surfaceContainerLow/High/Highest)
 //
-// Version: 2.1 - Custom Colors (success, warning)
+// Version: 3.0 - Dynamic Color + M3 Surface Containers + Typography Improvements
 
 import 'package:flutter/material.dart';
 
@@ -68,19 +87,14 @@ import '../core/ui_constants.dart';
 
 /// צבעי מותג (קבועים)
 /// 
-/// Slate: משפחת צבעים כהים לרקעים ו-surfaces
+/// משמשים כברירת מחדל כאשר Dynamic Color לא זמין.
 /// Amber: צבע accent ברור וחם
 /// Primary Seed: בסיס ירוק לpalette של Material 3
 class _Brand {
-  // Slate כהה כמו במסכי Home/Onboarding
-  static const slate900 = Color(0xFF0F172A); // רקע כהה עמוק
-  static const slate800 = Color(0xFF1E293B); // כרטיסים ודיאלוגים
-  static const slate700 = Color(0xFF334155); // גבולות ודיווידרים
-
   // Accent ענבר - בולט וחם
   static const amber = Color(0xFFFFC107); // ענבר נעים וברור
 
-  // בסיס ירקרק (אם תרצה לשמר זהות קיימת)
+  // בסיס ירקרק לזהות המותג
   static const primarySeed = Color(0xFF4CAF50); // ירוק Material
 }
 
@@ -90,13 +104,13 @@ class _Brand {
 /// גישה דרך: `Theme.of(context).extension<AppBrand>()`
 @immutable
 class AppBrand extends ThemeExtension<AppBrand> {
-  /// צבע accent ראשי (Amber)
+  /// צבע accent ראשי (Amber או harmonized)
   final Color accent;
   
-  /// רקע Slate כהה לברירת־מחדל במסכים
+  /// רקע surface לברירת־מחדל במסכים (נגזר מ-ColorScheme)
   final Color surfaceSlate;
   
-  /// רקע מסך Welcome (Slate 900)
+  /// רקע מסך Welcome (נגזר מ-ColorScheme.surface)
   final Color welcomeBackground;
   
   /// צבע הצלחה (Success) - ירוק
@@ -151,37 +165,128 @@ class AppBrand extends ThemeExtension<AppBrand> {
 
 /// מחלקה ראשית לניהול Themes
 class AppTheme {
-  // סכמות צבע לפי Material 3
+  // סכמות צבע לפי Material 3 - עם Fidelity variant לצבעים חיים יותר
   static final _lightScheme = ColorScheme.fromSeed(
     seedColor: _Brand.primarySeed,
     brightness: Brightness.light,
+    dynamicSchemeVariant: DynamicSchemeVariant.fidelity, // צבעים נאמנים ל-seed
   );
 
   static final _darkScheme = ColorScheme.fromSeed(
     seedColor: _Brand.primarySeed,
     brightness: Brightness.dark,
+    dynamicSchemeVariant: DynamicSchemeVariant.fidelity, // צבעים נאמנים ל-seed
   );
+
+  /// יוצר Theme מ-Dynamic Colors (Android 12+ Material You)
+  /// 
+  /// מקבל ColorScheme דינמי מהמערכת ויוצר Theme מותאם אישית.
+  /// הצבעים (Amber, Success, Warning) עוברים harmonization כדי להשתלב
+  /// בצבעי המערכת אך לשמור על הזהות של המותג.
+  /// 
+  /// שימושי רק עם DynamicColorBuilder:
+  /// ```dart
+  /// DynamicColorBuilder(
+  ///   builder: (lightDynamic, darkDynamic) {
+  ///     return MaterialApp(
+  ///       theme: lightDynamic != null
+  ///           ? AppTheme.fromDynamicColors(lightDynamic, dark: false)
+  ///           : AppTheme.lightTheme,
+  ///       // ...
+  ///     );
+  ///   },
+  /// )
+  /// ```
+  /// 
+  /// See also:
+  /// - [lightTheme] - ברירת מחדל ללא Dynamic Color
+  /// - [darkTheme] - ברירת מחדל ללא Dynamic Color
+  static ThemeData fromDynamicColors(
+    ColorScheme dynamicScheme, {
+    required bool dark,
+  }) {
+    debugPrint('🎨 AppTheme.fromDynamicColors(dark: $dark)');
+    debugPrint('   📱 Material You - Dynamic Color detected!');
+    
+    // Harmonization: התאם את Amber/Success/Warning לצבעי המערכת
+    // זה שומר על הזהות של המותג אבל משלב אותם בצבעי המשתמש
+    final harmonizedAccent = _harmonizeColor(
+      _Brand.amber,
+      dynamicScheme.primary,
+    );
+    final harmonizedSuccess = _harmonizeColor(
+      Colors.green.shade700,
+      dynamicScheme.primary,
+    );
+    final harmonizedWarning = _harmonizeColor(
+      Colors.orange.shade700,
+      dynamicScheme.primary,
+    );
+    
+    debugPrint('   🎨 accent: harmonized ${_Brand.amber.toARGB32().toRadixString(16)} → ${harmonizedAccent.toARGB32().toRadixString(16)}');
+    
+    final brand = AppBrand(
+      accent: harmonizedAccent,
+      surfaceSlate: dynamicScheme.surface,
+      welcomeBackground: dynamicScheme.surface,
+      success: harmonizedSuccess,
+      warning: harmonizedWarning,
+    );
+    
+    return _base(dynamicScheme, dark: dark, customBrand: brand);
+  }
+
+  /// Helper: Color Harmonization
+  /// 
+  /// מתאים צבע מותאם אישית לצבעי המערכת על ידי הזזת הue
+  /// כך שהוא מרגיש "חלק מהסכמה" אבל שומר על אופי המקורי.
+  /// 
+  /// זוהי גרסה פשוטה של harmonization - לגרסה מלאה יש להשתמש ב:
+  /// `import 'package:dynamic_color/dynamic_color.dart';`
+  /// `color.harmonizeWith(primaryColor);`
+  static Color _harmonizeColor(Color color, Color primaryColor) {
+    // אם הצבעים דומים, אין צורך בharmonization
+    final colorHsl = HSLColor.fromColor(color);
+    final primaryHsl = HSLColor.fromColor(primaryColor);
+    
+    // מזיז את ה-hue ב-30% לעבר ה-primary
+    final newHue = colorHsl.hue + (primaryHsl.hue - colorHsl.hue) * 0.3;
+    
+    return colorHsl.withHue(newHue).toColor();
+  }
 
   /// בסיס משותף ל־Light/Dark
   /// 
   /// יוצר ThemeData מלא עם כל ההגדרות:
-  /// - ColorScheme (light/dark)
-  /// - AppBrand extension
+  /// - ColorScheme (light/dark או dynamic)
+  /// - AppBrand extension (עם או בלי harmonization)
   /// - רכיבים (buttons, cards, inputs, etc.)
-  /// - טיפוגרפיה (Assistant font)
-  static ThemeData _base(ColorScheme scheme, {required bool dark}) {
-    debugPrint('🎨 AppTheme._base(dark: $dark)');
+  /// - טיפוגרפיה (Assistant font עם line-height מדויק)
+  /// 
+  /// Parameters:
+  /// - [scheme]: ColorScheme לשימוש (מ-fromSeed או dynamic)
+  /// - [dark]: האם זה dark mode
+  /// - [customBrand]: AppBrand מותאם אישית (לשימוש ב-fromDynamicColors)
+  static ThemeData _base(
+    ColorScheme scheme, {
+    required bool dark,
+    AppBrand? customBrand,
+  }) {
+    debugPrint('🎨 AppTheme._base(dark: $dark, customBrand: ${customBrand != null})');
     
-    final brand = AppBrand(
+    // צור AppBrand - או customBrand (מ-dynamic colors) או ברירת מחדל
+    final brand = customBrand ?? AppBrand(
       accent: _Brand.amber,
-      surfaceSlate: _Brand.slate900,
-      welcomeBackground: _Brand.slate900,
+      surfaceSlate: scheme.surface,
+      welcomeBackground: scheme.surface,
       success: Colors.green.shade700,
       warning: Colors.orange.shade700,
     );
     
-    debugPrint('   🎨 accent: ${brand.accent.toARGB32().toRadixString(16)}');
-    debugPrint('   🎨 surfaceSlate: ${brand.surfaceSlate.toARGB32().toRadixString(16)}');
+    if (customBrand == null) {
+      debugPrint('   🎨 accent: ${brand.accent.toARGB32().toRadixString(16)}');
+      debugPrint('   🎨 surfaceSlate: ${brand.surfaceSlate.toARGB32().toRadixString(16)}');
+    }
 
     // צבעי מילוי דקים לשדות טופס
     // Light: שקוף יותר (6% opacity)
@@ -190,13 +295,13 @@ class AppTheme {
     final fillOnDark = scheme.surfaceContainerHighest.withValues(alpha: 0.08);
 
     return ThemeData(
-      useMaterial3: true,
+      useMaterial3: true, // Flutter 3.16+ זה ברירת מחדל, אבל מפורש = ברור יותר
       colorScheme: scheme,
       fontFamily: 'Assistant',
       extensions: [brand],
 
-      // רקע כללי — בדארק נרצה Slate כהה
-      scaffoldBackgroundColor: dark ? _Brand.slate900 : scheme.surface,
+      // רקע כללי - M3 Surface System
+      scaffoldBackgroundColor: scheme.surface,
 
       // AppBar - עליון של מסכים
       appBarTheme: AppBarTheme(
@@ -211,7 +316,7 @@ class AppTheme {
       // ElevatedButton: כפתור ראשי עם רקע Amber
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: brand.accent, // Amber
+          backgroundColor: brand.accent, // Amber (או harmonized)
           foregroundColor: Colors.black, // טקסט שחור על Amber
           textStyle: const TextStyle(
             fontWeight: FontWeight.w600,
@@ -273,10 +378,13 @@ class AppTheme {
         ),
       ),
 
-      // כרטיסים - Cards
+      // כרטיסים - Cards (M3 Surface Containers)
       cardTheme: CardThemeData(
         elevation: 2,
-        color: dark ? _Brand.slate800 : scheme.surface, // Slate בdark
+        // Surface Containers: רמות שונות של רקע
+        // surfaceContainerLow = קרוב לרקע
+        // surfaceContainerHigh = בולט יותר
+        color: dark ? scheme.surfaceContainerHigh : scheme.surfaceContainerLow,
         margin: const EdgeInsets.symmetric(
           horizontal: kSpacingMedium,
           vertical: kCardMarginVertical,
@@ -382,26 +490,27 @@ class AppTheme {
         linearMinHeight: kProgressIndicatorHeight,
       ),
 
-      // דיאלוגים/BottomSheet
+      // דיאלוגים/BottomSheet (M3 Surface Containers)
       dialogTheme: DialogThemeData(
-        backgroundColor: dark ? _Brand.slate800 : scheme.surface,
+        // surfaceContainerHighest = הכי בולט (דיאלוגים)
+        backgroundColor: scheme.surfaceContainerHighest,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(kBorderRadiusLarge),
         ),
         titleTextStyle: TextStyle(
-          color: dark ? Colors.white : scheme.onSurface,
+          color: scheme.onSurface,
           fontSize: kFontSizeLarge,
           fontWeight: FontWeight.bold,
           fontFamily: 'Assistant',
         ),
         contentTextStyle: TextStyle(
-          color: dark ? Colors.white70 : scheme.onSurfaceVariant,
+          color: scheme.onSurfaceVariant,
           fontFamily: 'Assistant',
         ),
       ),
       bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: dark ? _Brand.slate800 : scheme.surface,
+        backgroundColor: scheme.surfaceContainerHigh,
         surfaceTintColor: Colors.transparent,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
@@ -412,33 +521,125 @@ class AppTheme {
 
       // סנאק־בר - הודעות זמניות
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: dark ? _Brand.slate700 : scheme.inverseSurface,
+        backgroundColor: scheme.inverseSurface,
         contentTextStyle: TextStyle(
-          color: dark ? Colors.white : scheme.onInverseSurface,
+          color: scheme.onInverseSurface,
           fontFamily: 'Assistant',
         ),
         actionTextColor: brand.accent, // כפתור action בAmber
         behavior: SnackBarBehavior.floating,
       ),
 
-      // טיפוגרפיה כללית - גדלים ומשקלים
-      textTheme: const TextTheme(
+      // טיפוגרפיה כללית - גדלים, משקלים, ו-line-height מדויק לפי M3
+      textTheme: TextTheme(
+        // Display styles - כותרות גדולות
+        displayLarge: TextStyle(
+          fontSize: 57,
+          fontWeight: FontWeight.w400,
+          height: 64 / 57, // line-height מדויק לפי M3
+          letterSpacing: -0.25,
+          color: dark ? Colors.white : scheme.onSurface,
+        ),
+        displayMedium: TextStyle(
+          fontSize: 45,
+          fontWeight: FontWeight.w400,
+          height: 52 / 45,
+          color: dark ? Colors.white : scheme.onSurface,
+        ),
+        displaySmall: TextStyle(
+          fontSize: 36,
+          fontWeight: FontWeight.w400,
+          height: 44 / 36,
+          color: dark ? Colors.white : scheme.onSurface,
+        ),
+        
+        // Headline styles - כותרות בינוניות
+        headlineLarge: TextStyle(
+          fontSize: 32,
+          fontWeight: FontWeight.w400,
+          height: 40 / 32,
+          color: dark ? Colors.white : scheme.onSurface,
+        ),
+        headlineMedium: TextStyle(
+          fontSize: 28,
+          fontWeight: FontWeight.w400,
+          height: 36 / 28,
+          color: dark ? Colors.white : scheme.onSurface,
+        ),
+        headlineSmall: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.w400,
+          height: 32 / 24,
+          color: dark ? Colors.white : scheme.onSurface,
+        ),
+        
+        // Title styles - כותרות קטנות
         titleLarge: TextStyle(
-          fontSize: kFontSizeXLarge,
-          fontWeight: FontWeight.bold,
+          fontSize: 22,
+          fontWeight: FontWeight.w700, // M3 spec: 700!
+          height: 28 / 22,
+          color: dark ? Colors.white : scheme.onSurface,
         ),
         titleMedium: TextStyle(
-          fontSize: kFontSizeMedium,
+          fontSize: 16,
           fontWeight: FontWeight.w600,
+          height: 24 / 16,
+          letterSpacing: 0.1,
+          color: dark ? Colors.white : scheme.onSurface,
         ),
-        bodyMedium: TextStyle(fontSize: kFontSizeBody),
-        bodySmall: TextStyle(fontSize: kFontSizeSmall),
-      ),
-    ).copyWith(
-      // צבעי טקסט לפי מצב - white בdark, onSurface בlight
-      textTheme: ThemeData().textTheme.apply(
-        bodyColor: dark ? Colors.white : scheme.onSurface,
-        displayColor: dark ? Colors.white : scheme.onSurface,
+        titleSmall: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          height: 20 / 14,
+          letterSpacing: 0.1,
+          color: dark ? Colors.white : scheme.onSurface,
+        ),
+        
+        // Body styles - טקסט גוף
+        bodyLarge: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+          height: 24 / 16,
+          letterSpacing: 0.5,
+          color: dark ? Colors.white : scheme.onSurface,
+        ),
+        bodyMedium: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+          height: 20 / 14,
+          letterSpacing: 0.25,
+          color: dark ? Colors.white : scheme.onSurface,
+        ),
+        bodySmall: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w400,
+          height: 16 / 12,
+          letterSpacing: 0.4,
+          color: dark ? Colors.white70 : scheme.onSurfaceVariant,
+        ),
+        
+        // Label styles - תוויות כפתורים וכו'
+        labelLarge: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          height: 20 / 14,
+          letterSpacing: 0.1,
+          color: dark ? Colors.white : scheme.onSurface,
+        ),
+        labelMedium: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          height: 16 / 12,
+          letterSpacing: 0.5,
+          color: dark ? Colors.white : scheme.onSurface,
+        ),
+        labelSmall: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          height: 16 / 11,
+          letterSpacing: 0.5,
+          color: dark ? Colors.white70 : scheme.onSurfaceVariant,
+        ),
       ),
     );
   }
@@ -446,12 +647,18 @@ class AppTheme {
   // ערכות סופיות ליישום
   
   /// Light Theme - מצב יום
+  /// 
+  /// Theme בסיסי ללא Dynamic Color.
+  /// לשימוש כ-fallback כאשר Dynamic Color לא זמין.
   static ThemeData get lightTheme {
     debugPrint('☀️ AppTheme.lightTheme - Loading...');
     return _base(_lightScheme, dark: false);
   }
 
   /// Dark Theme - מצב לילה
+  /// 
+  /// Theme בסיסי ללא Dynamic Color.
+  /// לשימוש כ-fallback כאשר Dynamic Color לא זמין.
   static ThemeData get darkTheme {
     debugPrint('🌙 AppTheme.darkTheme - Loading...');
     return _base(_darkScheme, dark: true);

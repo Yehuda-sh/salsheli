@@ -5,11 +5,13 @@
 // - שימוש ב-HybridProductsRepository במקום Firebase
 // - אתחול Hive לפני הרצת האפליקציה
 // - טעינת משתמש אוטומטית מ-SharedPreferences
+// - Dynamic Color Support (Android 12+ Material You) 🎨
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:dynamic_color/dynamic_color.dart';  // 🎨 Material You!
 import 'firebase_options.dart';
 
 // Models
@@ -360,108 +362,132 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'סל שלי',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
-      locale: const Locale('he', 'IL'),
-      supportedLocales: const [Locale('he', 'IL')],
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      home: const IndexScreen(),
-      routes: {
-        '/home': (context) => const HomeScreen(),
-        '/onboarding': (context) => const OnboardingScreen(),
-        '/login': (context) => const auth_login.LoginScreen(),
-        '/register': (context) => const auth_register.RegisterScreen(),
-        '/habits': (context) => const MyHabitsScreen(),
-        '/insights': (context) => const InsightsScreen(),
-        '/receipts': (context) => const ReceiptManagerScreen(),
-        '/pantry': (context) => const MyPantryScreen(),
-        '/inventory': (context) => const MyPantryScreen(), // alias for pantry
-        '/price-comparison': (context) => const PriceComparisonScreen(),
-        '/price-compare': (context) => const PriceComparisonScreen(), // alias
-        '/shopping-lists': (context) => const ShoppingListsScreen(),
-        '/templates': (context) => const TemplatesScreen(),  // 📋 Templates!
-      },
-      onGenerateRoute: (settings) {
-        // shopping-summary - מקבל listId
-        if (settings.name == '/shopping-summary') {
-          final listId = settings.arguments as String?;
-          if (listId == null) {
-            return MaterialPageRoute(
-              builder: (_) =>
-                  Scaffold(body: Center(child: Text('מזהה רשימה חסר'))),
-            );
-          }
-          return MaterialPageRoute(
-            builder: (_) => ShoppingSummaryScreen(listId: listId),
-          );
-        }
-        // manage-list - צריך רק list (ShoppingList)
-        if (settings.name == '/manage-list') {
-          final args = settings.arguments as Map<String, dynamic>?;
-          final list = args?['list'] as ShoppingList?;
-          if (list == null) {
-            return MaterialPageRoute(
-              builder: (_) =>
-                  Scaffold(body: Center(child: Text('רשימה לא נמצאה'))),
-            );
-          }
-          return MaterialPageRoute(
-            builder: (_) =>
-                ManageListScreen(listName: list.name, listId: list.id),
-          );
+    // 🎨 Material You / Dynamic Color Support!
+    // מתאים את צבעי האפליקציה לטפט של המשתמש (Android 12+)
+    return DynamicColorBuilder(
+      builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
+        debugPrint('\n🎨 DynamicColorBuilder:');
+        debugPrint('   📱 lightDynamic: ${lightDynamic != null ? "✅ זמין" : "❌ לא זמין"}');
+        debugPrint('   🌙 darkDynamic: ${darkDynamic != null ? "✅ זמין" : "❌ לא זמין"}');
+        
+        if (lightDynamic != null || darkDynamic != null) {
+          debugPrint('   🎉 Material You detected! משתמש בצבעים דינמיים');
+        } else {
+          debugPrint('   ℹ️ Dynamic Color לא זמין, משתמש בצבעים סטנדרטיים');
         }
 
-        // active-shopping - מקבל ShoppingList
-        if (settings.name == '/active-shopping') {
-          final list = settings.arguments as ShoppingList?;
-          if (list == null) {
-            return MaterialPageRoute(
-              builder: (_) =>
-                  Scaffold(body: Center(child: Text('רשימה לא נמצאה'))),
-            );
-          }
-          return MaterialPageRoute(
-            builder: (_) => ActiveShoppingScreen(list: list),
-          );
-        }
+        return MaterialApp(
+          title: 'סל שלי',
+          debugShowCheckedModeBanner: false,
+          
+          // 🎨 Theme עם Dynamic Color או Fallback
+          theme: lightDynamic != null
+              ? AppTheme.fromDynamicColors(lightDynamic, dark: false)
+              : AppTheme.lightTheme,
+          
+          darkTheme: darkDynamic != null
+              ? AppTheme.fromDynamicColors(darkDynamic, dark: true)
+              : AppTheme.darkTheme,
+          
+          themeMode: ThemeMode.system,
+          locale: const Locale('he', 'IL'),
+          supportedLocales: const [Locale('he', 'IL')],
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          home: const IndexScreen(),
+          routes: {
+            '/home': (context) => const HomeScreen(),
+            '/onboarding': (context) => const OnboardingScreen(),
+            '/login': (context) => const auth_login.LoginScreen(),
+            '/register': (context) => const auth_register.RegisterScreen(),
+            '/habits': (context) => const MyHabitsScreen(),
+            '/insights': (context) => const InsightsScreen(),
+            '/receipts': (context) => const ReceiptManagerScreen(),
+            '/pantry': (context) => const MyPantryScreen(),
+            '/inventory': (context) => const MyPantryScreen(), // alias for pantry
+            '/price-comparison': (context) => const PriceComparisonScreen(),
+            '/price-compare': (context) => const PriceComparisonScreen(), // alias
+            '/shopping-lists': (context) => const ShoppingListsScreen(),
+            '/templates': (context) => const TemplatesScreen(),  // 📋 Templates!
+          },
+          onGenerateRoute: (settings) {
+            // shopping-summary - מקבל listId
+            if (settings.name == '/shopping-summary') {
+              final listId = settings.arguments as String?;
+              if (listId == null) {
+                return MaterialPageRoute(
+                  builder: (_) =>
+                      Scaffold(body: Center(child: Text('מזהה רשימה חסר'))),
+                );
+              }
+              return MaterialPageRoute(
+                builder: (_) => ShoppingSummaryScreen(listId: listId),
+              );
+            }
+            // manage-list - צריך רק list (ShoppingList)
+            if (settings.name == '/manage-list') {
+              final args = settings.arguments as Map<String, dynamic>?;
+              final list = args?['list'] as ShoppingList?;
+              if (list == null) {
+                return MaterialPageRoute(
+                  builder: (_) =>
+                      Scaffold(body: Center(child: Text('רשימה לא נמצאה'))),
+                );
+              }
+              return MaterialPageRoute(
+                builder: (_) =>
+                    ManageListScreen(listName: list.name, listId: list.id),
+              );
+            }
 
-        // list-details - מקבל ShoppingList object
-        if (settings.name == '/list-details') {
-          final list = settings.arguments as ShoppingList?;
-          if (list == null) {
-            return MaterialPageRoute(
-              builder: (_) =>
-                  Scaffold(body: Center(child: Text('רשימה לא נמצאה'))),
-            );
-          }
-          return MaterialPageRoute(
-            builder: (_) => ShoppingListDetailsScreen(list: list),
-          );
-        }
+            // active-shopping - מקבל ShoppingList
+            if (settings.name == '/active-shopping') {
+              final list = settings.arguments as ShoppingList?;
+              if (list == null) {
+                return MaterialPageRoute(
+                  builder: (_) =>
+                      Scaffold(body: Center(child: Text('רשימה לא נמצאה'))),
+                );
+              }
+              return MaterialPageRoute(
+                builder: (_) => ActiveShoppingScreen(list: list),
+              );
+            }
 
-        // populate-list - מקבל ShoppingList object
-        if (settings.name == '/populate-list') {
-          final list = settings.arguments as ShoppingList?;
-          if (list == null) {
-            return MaterialPageRoute(
-              builder: (_) =>
-                  Scaffold(body: Center(child: Text('רשימה לא נמצאה'))),
-            );
-          }
-          return MaterialPageRoute(
-            builder: (_) => PopulateListScreen(list: list),
-          );
-        }
+            // list-details - מקבל ShoppingList object
+            if (settings.name == '/list-details') {
+              final list = settings.arguments as ShoppingList?;
+              if (list == null) {
+                return MaterialPageRoute(
+                  builder: (_) =>
+                      Scaffold(body: Center(child: Text('רשימה לא נמצאה'))),
+                );
+              }
+              return MaterialPageRoute(
+                builder: (_) => ShoppingListDetailsScreen(list: list),
+              );
+            }
 
-        return null;
+            // populate-list - מקבל ShoppingList object
+            if (settings.name == '/populate-list') {
+              final list = settings.arguments as ShoppingList?;
+              if (list == null) {
+                return MaterialPageRoute(
+                  builder: (_) =>
+                      Scaffold(body: Center(child: Text('רשימה לא נמצאה'))),
+                );
+              }
+              return MaterialPageRoute(
+                builder: (_) => PopulateListScreen(list: list),
+              );
+            }
+
+            return null;
+          },
+        );
       },
     );
   }

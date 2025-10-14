@@ -1,8 +1,8 @@
 # 📚 LESSONS_LEARNED - לקחים מהפרויקט
 
 > **מטרה:** סיכום דפוסים טכניים והחלטות ארכיטקטורליות מהפרויקט  
-> **עדכון אחרון:** 13/10/2025  
-> **גרסה:** 3.4 - Batch Processing + File Paths + LocationsProvider Migration
+> **עדכון אחרון:** 14/10/2025  
+> **גרסה:** 3.5 - UI Constants Update + Batch Firestore Limits + Security Rules Process
 
 ---
 
@@ -10,7 +10,7 @@
 
 ### 🚀 Quick Reference
 
-- [14 עקרונות הזהב](#-14-עקרונות-הזהב)
+- [15 עקרונות הזהב](#-15-עקרונות-הזהב)
 - [בעיות נפוצות - פתרון מהיר](#-בעיות-נפוצות---פתרון-מהיר)
 
 ### 🏗️ ארכיטקטורה
@@ -57,7 +57,7 @@
 
 ---
 
-## 🚀 14 עקרונות הזהב
+## 🚀 15 עקרונות הזהב
 
 1. **בדוק Dead Code לפני עבודה!** → 3-Step + חפש Provider + קרא מסכים ידנית
 2. **Dormant Code = פוטנציאל** → בדוק 4 שאלות לפני מחיקה (אולי שווה להפעיל!)
@@ -72,26 +72,27 @@
 11. **Error Recovery** → `retry()` + `hasError` בכל Provider
 12. **Cache למהירות** → O(1) במקום O(n) עם `_cachedFiltered`
 13. **Config Files** → patterns/constants במקום אחד = maintainability
-14. **נתיבי קבצים מלאים!** → `C:\projects\salsheli\...` תמיד! ⭐ חדש!
+14. **נתיבי קבצים מלאים!** → `C:\projects\salsheli\...` תמיד! ⭐
+15. **UI Constants עדכניים** → `kRadiusPill`, `kFieldWidthNarrow`, `kSpacingXXXLarge` ⭐ חדש!
 
 ---
 
 ## 💡 בעיות נפוצות - פתרון מהיר
 
-| בעיה                         | פתרון מהיר                                    |
-| ---------------------------- | --------------------------------------------- |
-| 🔴 קובץ לא בשימוש?           | חפש imports → 0 = **חפש Provider + קרא מסך!** |
-| 🔴 Provider לא מתעדכן?       | וודא `addListener()` + `removeListener()`     |
-| 🔴 Timestamp שגיאות?         | השתמש ב-`@TimestampConverter()`               |
-| 🔴 אפליקציה איטית (UI)?      | `.then()` במקום `await` לפעולות ברקע          |
-| 🔴 אפליקציה איטית (שמירה)?   | **Batch Processing** (50-100 items) ⭐         |
-| 🔴 Race condition ב-Auth?    | אל תבדוק `isLoggedIn` - זרוק Exception בשגיאה |
-| 🔴 Color deprecated?         | `.withOpacity()` → `.withValues(alpha:)`      |
-| 🔴 SSL errors?               | חפש API אחר (לא SSL override!)                |
-| 🔴 Empty state חסר?          | הוסף Loading/Error/Empty/Initial widgets      |
-| 🔴 Mock Data?                | חבר ל-Provider אמיתי                          |
-| 🔴 Hardcoded patterns?       | העבר ל-config file                            |
-| 🔴 Access denied לקבצים? ⭐  | **נתיב מלא מהפרויקט!** `C:\projects\...`     |
+| בעיה                        | פתרון מהיר                                    |
+| --------------------------- | --------------------------------------------- |
+| 🔴 קובץ לא בשימוש?          | חפש imports → 0 = **חפש Provider + קרא מסך!** |
+| 🔴 Provider לא מתעדכן?      | וודא `addListener()` + `removeListener()`     |
+| 🔴 Timestamp שגיאות?        | השתמש ב-`@TimestampConverter()`               |
+| 🔴 אפליקציה איטית (UI)?     | `.then()` במקום `await` לפעולות ברקע          |
+| 🔴 אפליקציה איטית (שמירה)?  | **Batch Processing** (50-100 items) ⭐        |
+| 🔴 Race condition ב-Auth?   | **אל תנווט עד `isLoading == false`** ⚠️      |
+| 🔴 Color deprecated?        | `.withOpacity()` → `.withValues(alpha:)` ⭐   |
+| 🔴 SSL errors?              | חפש API אחר (לא SSL override!)                |
+| 🔴 Empty state חסר?         | הוסף Loading/Error/Empty/Initial widgets      |
+| 🔴 Mock Data?               | חבר ל-Provider אמיתי                          |
+| 🔴 Hardcoded patterns?      | העבר ל-config file                            |
+| 🔴 Access denied לקבצים? ⭐ | **נתיב מלא מהפרויקט!** `C:\projects\...`      |
 
 ---
 
@@ -232,6 +233,16 @@ Phase 2 (יום): Integration + UI
 - ✅ מערכות מורכבות (Model + Repo + Provider + UI)
 - ✅ כשרוצים לעצור באמצע
 
+**צ'ק-ליסט סיום Phase:** ⭐ חדש!
+
+```
+✅ 1. flutter analyze - 0 issues
+✅ 2. בדיקות ידניות - feature עובד
+✅ 3. Logging - debugPrint בכל method
+✅ 4. תיעוד - WORK_LOG.md מעודכן
+✅ 5. Rollback Plan - אם משהו לא עובד
+```
+
 **לקחים:**
 
 - ✅ פירוק ל-phases = שליטה במורכבות
@@ -276,7 +287,22 @@ await db.collection('templates').doc(id).set(templateData);
 allow create: if request.resource.data.is_system == false  // ← חובה!
 ```
 
-**Firestore Security Rules:**
+**Firestore Security Rules - תהליך בדיקה:** ⭐ חדש!
+
+```bash
+# שלב 1: הרץ Emulators
+firebase emulators:start --only firestore
+
+# שלב 2: בדוק קריאה/כתיבה בקוד
+# - נסה ליצור system template → צריך להיכשל
+# - נסה ליצור personal template → צריך להצליח
+# - נסה לקרוא system templates → צריך להצליח
+
+# שלב 3: Deploy
+firebase deploy --only firestore:rules,firestore:indexes
+```
+
+**Security Rules:**
 
 ```javascript
 // קריאה
@@ -386,16 +412,16 @@ class LocationsProvider extends ChangeNotifier {
 
 **מה השתנה:**
 
-| לפני (SharedPreferences)        | אחרי (Firestore)                   |
-| ------------------------------- | ---------------------------------- |
-| אחסון מקומי                     | אחסון בענן ☁️                      |
-| אישי למכשיר                     | משותף ל-household 👥               |
-| אין סנכרון                      | Real-time sync 🔄                  |
-| נמחק עם הסרת אפליקציה           | גיבוי קבוע ✅                      |
-| `SharedPreferences.setString()` | `Firestore.collection().add()`    |
-| JSON string לאחסון              | JSON object ישיר                   |
-| אין household_id                | household_id בכל מסמך              |
-| אין Security Rules              | Firestore Security Rules חובה! 🔒 |
+| לפני (SharedPreferences) | אחרי (Firestore) |
+|--------------------------|------------------|
+| אחסון מקומי | אחסון בענן ☁️ |
+| אישי למכשיר | משותף ל-household 👥 |
+| אין סנכרון | Real-time sync 🔄 |
+| נמחק עם הסרת אפליקציה | גיבוי קבוע ✅ |
+| `SharedPreferences.setString()` | `Firestore.collection().add()` |
+| JSON string לאחסון | JSON object ישיר |
+| אין household_id | household_id בכל מסמך |
+| אין Security Rules | Firestore Security Rules חובה! 🔒 |
 
 **למה זה חשוב:**
 
@@ -604,7 +630,8 @@ padding: kSpacingMedium
 - UserContext (09/10) - מצב משתמש יחיד
 - Config Files (08/10) - patterns מרכזיים
 - AppStrings - UI טקסטים
-- ui_constants.dart - spacing/sizes
+- ui_constants.dart - spacing/sizes ⭐
+- status_colors.dart - צבעים theme-aware ⭐
 
 ---
 
@@ -805,6 +832,25 @@ Future<void> saveAllItemsBatch(
 }
 ```
 
+**⚠️ Firestore Batch Limit:** ⭐ חדש!
+
+```dart
+// ⚠️ חשוב! Firestore מוגבל ל-500 פעולות לבאץ' אחד
+const maxFirestoreBatch = 500;
+
+// ✅ נכון - חלוקה לבאצ'ים של 500 מקסימום
+for (int i = 0; i < items.length; i += 500) {
+  final batch = _firestore.batch();
+  final end = min(i + 500, items.length);
+  
+  for (int j = i; j < end; j++) {
+    batch.set(_firestore.collection('items').doc(), items[j].toJson());
+  }
+  
+  await batch.commit();
+}
+```
+
 **דוגמה עם Progress Indicator:**
 
 ```dart
@@ -831,6 +877,16 @@ if (provider.isImporting)
   LinearProgressIndicator(value: provider.importProgress)
 ```
 
+**💡 טיפ UI Progress:** ⭐ חדש!
+
+```dart
+// ✅ הצג progress רק מעל 1 שנייה
+if (estimatedTime > Duration(seconds: 1)) {
+  showProgressIndicator();
+}
+// מתחת לשנייה - לא צריך UI
+```
+
 **מתי להשתמש:**
 
 - ✅ שמירה של 100+ items
@@ -843,11 +899,12 @@ if (provider.isImporting)
 **גדלי Batch מומלצים:**
 
 | כמות Items | Batch Size | זמן לחבילה | סה"כ זמן (1000 items) |
-| ---------- | ---------- | ---------- | --------------------- |
-| < 100      | אין צורך   | -          | < 1 שניה              |
-| 100-500    | 50         | ~50ms      | ~1 שניה               |
-| 500-2000   | 100        | ~100ms     | ~2 שניות              |
-| 2000+      | 100-200    | ~150ms     | ~3-5 שניות            |
+|-----------|-----------|-----------|---------------------|
+| < 100 | אין צורך | - | < 1 שניה |
+| 100-500 | 50 | ~50ms | ~1 שניה |
+| 500-2000 | 100 | ~100ms | ~2 שניות |
+| 2000+ | 100-200 | ~150ms | ~3-5 שניות |
+| Firestore | **מקס 500** ⚠️ | ~200ms | מוגבל ל-500! |
 
 **יתרונות:**
 
@@ -861,8 +918,10 @@ if (provider.isImporting)
 
 - ✅ Batch Processing = חובה ל-100+ items
 - ✅ גודל batch: 50-100 אופטימלי
+- ✅ **Firestore: מקסימום 500 פעולות!** ⚠️
 - ✅ Progress callback = UX טוב
 - ✅ Future.delayed(10ms) = זמן ל-UI
+- ✅ Progress UI רק > 1 שנייה
 - ⚠️ 1000+ items בבת אחת = אפליקציה תיקפא!
 
 📁 **דוגמאות שיכולות להשתמש:**
@@ -879,8 +938,8 @@ if (provider.isImporting)
 ```
 lib/core/
 ├── constants.dart       ← ListType, categories, storage, collections
-├── ui_constants.dart    ← Spacing, buttons, borders, durations
-└── status_colors.dart   ← Status colors
+├── ui_constants.dart    ← Spacing, buttons, borders, durations ⭐
+└── status_colors.dart   ← Status colors (Flutter 3.27+) ⭐
 
 lib/l10n/
 ├── app_strings.dart     ← UI strings (i18n ready)
@@ -894,32 +953,85 @@ lib/config/
 ├── filters_config.dart           ← Filter texts
 ├── stores_config.dart            ← Store names + variations
 ├── receipt_patterns_config.dart  ← OCR Regex patterns
-├── pantry_config.dart            ← Units, Categories, Locations ⭐ חדש!
-└── storage_locations_config.dart ← 5 מיקומים (❄️🧊🏠📦📍) ⭐ חדש!
+├── pantry_config.dart            ← Units, Categories, Locations ⭐
+└── storage_locations_config.dart ← 5 מיקומים (❄️🧊🏠📦📍) ⭐
+```
+
+**UI Constants חדשים (Flutter 3.27+):** ⭐ חדש!
+
+```dart
+// lib/core/ui_constants.dart
+
+// ⭐ קביעות חדשות שהוספו:
+const double kSnackBarMaxWidth = 600.0;        // רוחב מקסימלי ל-SnackBar
+const double kRadiusPill = 999.0;              // רדיוס כפתורי pill
+const double kFieldWidthNarrow = 80.0;         // שדות צרים (כמות, מספרים)
+const double kSpacingXXXLarge = 48.0;          // ריווח ענק פי 3
+
+// ⚠️ Deprecated - השתמש בשמות החדשים:
+@Deprecated('Use kRadiusPill')
+const double kBorderRadiusFull = kRadiusPill;
+
+@Deprecated('Use kFieldWidthNarrow')
+const double kQuantityFieldWidth = kFieldWidthNarrow;
+
+@Deprecated('Use kSpacingXXXLarge')
+const double kSpacingDoubleLarge = kSpacingXXXLarge;
+```
+
+**Status Colors (Flutter 3.27+):** ⭐ חדש!
+
+```dart
+// lib/core/status_colors.dart
+
+// ⚠️ הפרויקט עבר ל-.withValues(alpha:) ב-Flutter 3.27+
+// (לא .withOpacity() - deprecated!)
+
+class StatusColors {
+  // דוגמה:
+  static Color getPrimaryWithAlpha(BuildContext context, double alpha) {
+    return Theme.of(context).colorScheme.primary.withValues(alpha: alpha);
+  }
+}
 ```
 
 **שימוש:**
 
 ```dart
-// ✅ טוב
+// ✅ טוב - קביעות חדשות
 if (list.type == ListType.super_) { ... }
 SizedBox(height: kSpacingMedium)
+Container(
+  width: min(screenWidth, kSnackBarMaxWidth),  // ⭐ responsive SnackBar
+  decoration: BoxDecoration(
+    borderRadius: BorderRadius.circular(kRadiusPill),  // ⭐ pill button
+  ),
+)
+SizedBox(width: kFieldWidthNarrow)  // ⭐ שדה צר לכמויות
 Text(AppStrings.common.logout)
 final unit = PantryConfig.defaultUnit  // "יחידות"
 final emoji = StorageLocationsConfig.getEmoji('refrigerator')  // "❄️"
+final color = StatusColors.getPrimaryWithAlpha(context, 0.5)  // ⭐ Flutter 3.27+
 
-// ❌ רע
+// ❌ רע - hardcoded
 if (list.type == 'super') { ... }
 SizedBox(height: 16.0)
+Container(width: 600)  // ⚠️ צריך kSnackBarMaxWidth!
+SizedBox(width: 80.0)  // ⚠️ צריך kFieldWidthNarrow!
+BorderRadius.circular(999.0)  // ⚠️ צריך kRadiusPill!
 Text('התנתק')
 final unit = 'ק"ג'  // hardcoded!
 final emoji = '🧊'  // hardcoded!
+color.withOpacity(0.5)  // ⚠️ Deprecated! צריך .withValues(alpha:)
 ```
 
-**Config Files חדשים (13/10/2025):**
-
+**Config Files (13/10/2025):**
 - `pantry_config.dart` - יחידות מידה, קטגוריות מזון, מיקומי אחסון
 - `storage_locations_config.dart` - 5 מיקומים עם emojis (❄️ מקרר, 🧊 מקפיא, 🏠 מזווה, 📦 ארונות, 📍 מותאם אישית)
+
+📁 **קבצים מרכזיים:**
+- `lib/core/ui_constants.dart` - 150+ UI constants ⭐
+- `lib/core/status_colors.dart` - צבעים theme-aware ⭐
 
 ---
 
@@ -984,7 +1096,6 @@ for (var pattern in ReceiptPatternsConfig.totalPatterns) {
 - ✅ מיפויים מורכבים
 
 **קבצים דומים בפרויקט:**
-
 - `stores_config.dart` - שמות חנויות + וריאציות
 - `list_type_mappings.dart` - סוג רשימה → קטגוריות
 - `filters_config.dart` - סינונים וסטטוסים
@@ -1110,7 +1221,6 @@ results.sort((a, b) => a['price'].compareTo(b['price']));
 ```
 
 **לקח:**
-
 - אם צריך Mock - השתמש ב-MockRepository (שמימש את ה-interface)
 - אל תשאיר Mock Data בקוד Production
 - חיבור אמיתי = בדיקות אמיתיות
@@ -1121,12 +1231,12 @@ results.sort((a, b) => a['price'].compareTo(b['price']));
 
 ### 🎭 3-4 Empty States
 
-| State             | מתי          | UI                             |
-| ----------------- | ------------ | ------------------------------ |
-| **Loading**       | `_isLoading` | CircularProgressIndicator      |
-| **Error**         | `hasError`   | Icon + Message + Retry button  |
-| **Empty Results** | חיפוש ריק    | "לא נמצא..." + search_off icon |
-| **Empty Initial** | טרם חיפש     | "הזן טקסט..." + hint icon      |
+| State | מתי | UI |
+|-------|-----|-----|
+| **Loading** | `_isLoading` | CircularProgressIndicator |
+| **Error** | `hasError` | Icon + Message + Retry button |
+| **Empty Results** | חיפוש ריק | "לא נמצא..." + search_off icon |
+| **Empty Initial** | טרם חיפש | "הזן טקסט..." + hint icon |
 
 **מתי להשתמש:**
 
@@ -1221,7 +1331,6 @@ ScaffoldMessenger.of(context).showSnackBar(
 **מתי לבצע UI Review:**
 
 ✅ **תמיד כשמבקשים "בדוק קובץ" של:**
-
 - Screens (lib/screens/)
 - Widgets (lib/widgets/)
 - כל קובץ עם UI components
@@ -1586,15 +1695,34 @@ Container(
 
 ## 🐛 Troubleshooting
 
+### 🎯 Dead/Dormant Code - Do/Don't Table
+
+⭐ **חדש!** טבלה מהירה למה לעשות:
+
+| מצב | סימנים | מתי למחוק מיד | מתי לבדוק 4 שאלות |
+|-----|--------|---------------|-------------------|
+| 🔴 **Dead Code** | 0 imports + 0 שימוש + בדיקה ידנית | ✅ **כן - מחק מיד!** | ❌ לא רלוונטי |
+| 🟡 **Dormant Code** | 0 imports + קוד איכותי + יש פוטנציאל | ❌ לא! תיצור באג | ✅ **כן - 4 שאלות** |
+| 🟢 **False Positive** | חיפוש אומר 0 אבל יש Provider | ❌ בטח לא! | ❌ קרא ידנית |
+
+**כלל זהב:**
+```
+Dead Code (0 imports + ידנית) → מחק
+Dormant Code (0 imports + איכותי) → 4 שאלות
+False Positive (Provider/מסך) → קרא קובץ!
+```
+
+---
+
 ### 🔍 Dead Code Detection
 
 **3 סוגים:**
 
-| סוג                   | תיאור                      | פעולה                   | זמן      |
-| --------------------- | -------------------------- | ----------------------- | -------- |
-| 🔴 **Dead Code**      | 0 imports, לא בשימוש       | מחק מיד                 | 30 שניות |
-| 🟡 **Dormant Code**   | 0 imports, אבל איכותי      | בדוק 4 שאלות → הפעל/מחק | 5 דקות   |
-| 🟢 **False Positive** | כלי חיפוש לא מצא, אבל קיים | קרא מסך ידנית!          | 2 דקות   |
+| סוג | תיאור | פעולה | זמן |
+|-----|--------|-------|------|
+| 🔴 **Dead Code** | 0 imports, לא בשימוש | מחק מיד | 30 שניות |
+| 🟡 **Dormant Code** | 0 imports, אבל איכותי | בדוק 4 שאלות → הפעל/מחק | 5 דקות |
+| 🟢 **False Positive** | כלי חיפוש לא מצא, אבל קיים | קרא מסך ידנית! | 2 דקות |
 
 ---
 
@@ -1700,7 +1828,6 @@ filters_config.dart: 90/100  // ✅ כן!
 **דוגמה מהפרויקט (08/10/2025):**
 
 `filters_config.dart`:
-
 - 0 imports (לא בשימוש!)
 - אבל: i18n ready, 11 קטגוריות, API נקי
 - וגם: InventoryItem.category קיים!
@@ -1709,13 +1836,13 @@ filters_config.dart: 90/100  // ✅ כן!
 
 **מתי להפעיל ומתי למחוק:**
 
-| קריטריון   | הפעל    | מחק       |
-| ---------- | ------- | --------- |
-| מודל תומך  | ✅      | ❌        |
-| UX שימושי  | ✅      | ❌        |
-| קוד איכותי | ✅      | ❌        |
-| < 30 דק'   | ✅      | ❌        |
-| **סה"כ**   | **4/4** | **0-3/4** |
+| קריטריון | הפעל | מחק |
+|----------|------|-----|
+| מודל תומך | ✅ | ❌ |
+| UX שימושי | ✅ | ❌ |
+| קוד איכותי | ✅ | ❌ |
+| < 30 דק' | ✅ | ❌ |
+| **סה"כ** | **4/4** | **0-3/4** |
 
 ---
 
@@ -1737,7 +1864,6 @@ import '../../widgets/home/upcoming_shop_card.dart';  ← קיים!
 ```
 
 **למה זה קרה:**
-
 - כלי החיפוש לא תמיד מוצא imports במבנה תיקיות מורכב
 - חיפוש regex לא תופס נתיבים יחסיים (`../../`)
 - בעיה טכנית בכלי, לא בקוד
@@ -1771,7 +1897,6 @@ ChangeNotifierProvider(create: (_) => LocationsProvider()),  ← רשום!
 ```
 
 **למה זה קרה:**
-
 - המודל משמש דרך `LocationsProvider`
 - ה-Provider מחזיר `List<CustomLocation>`
 - לא צריך import ישיר במסכים - הכל דרך Provider
@@ -1803,7 +1928,6 @@ Ctrl+Shift+F → "LocationsProvider" in "main.dart"
 **✅ כלל זהב:**
 
 לפני קביעת Dead Code, חפש:
-
 1. Import ישיר של הקובץ (`import.*my_model.dart`)
 2. שם המחלקה בקוד (`MyModel`)
 3. **שם המחלקה ב-Providers (`MyModelProvider`)** ← חשוב!
@@ -1811,7 +1935,6 @@ Ctrl+Shift+F → "LocationsProvider" in "main.dart"
 5. **רישום ב-main.dart** (Providers)
 
 **דוגמאות מהפרויקט:**
-
 - `custom_location.dart` - משמש דרך `LocationsProvider`
 - `template.dart` - משמש דרך `TemplatesProvider`
 - `inventory_item.dart` - משמש דרך `InventoryProvider`
@@ -1819,7 +1942,6 @@ Ctrl+Shift+F → "LocationsProvider" in "main.dart"
 - `receipt.dart` - משמש דרך `ReceiptProvider`
 
 **💡 זכור:**
-
 - Model יכול להשתמש דרך Provider ללא import ישיר!
 - Providers הם מקור שימוש נפוץ - תמיד בדוק!
 - חיפוש מעמיק = חיסכון זמן ומניעת טעויות
@@ -1843,7 +1965,6 @@ Ctrl+Shift+F → "MyWidget"
 **✅ כלל זהב:**
 
 לפני מחיקת widget מתיקייה `lib/widgets/[screen]/`:
-
 1. חפש imports (2 פעמים!)
 2. **חובה: קרא את `[screen]_screen.dart` בעצמך**
 3. רק אם **אתה רואה בעיניים** שאין import → מחק
@@ -1855,7 +1976,7 @@ AI: "אני מחפש imports של upcoming_shop_card..."
 [search_files: 0 תוצאות]
 
 AI: "רגע! זה מתיקיית home/.
-     אני חייב לקרא home_dashboard_screen.dart!"
+     אני חייב לקרוא home_dashboard_screen.dart!"
 [read_file: home_dashboard_screen.dart]
 
 AI: "מצאתי! שורה 18 יש import.
@@ -1863,7 +1984,6 @@ AI: "מצאתי! שורה 18 יש import.
 ```
 
 **💡 זכור:**
-
 - כלי חיפוש = עוזר, לא מושלם
 - מסכים מרכזיים = בדיקה ידנית חובה
 - ספק = אל תמחק!
@@ -1871,6 +1991,8 @@ AI: "מצאתי! שורה 18 יש import.
 ---
 
 ### ⚡ Race Condition (Firebase Auth)
+
+⚠️ **הכלל:** **אל תנווט עד `isLoading == false`** ⭐ חדש!
 
 #### תרחיש 1: Login Screen
 
@@ -2010,6 +2132,13 @@ class _IndexScreenState extends State<IndexScreen> {
 
 **הכלל:** **תמיד השתמש בנתיב המלא של הפרויקט!**
 
+**מקור אמת לנתיב:** ⭐ חדש!
+```
+שורש הפרויקט: C:\projects\salsheli\
+```
+
+**כל הנתיבים חייבים להתחיל מהשורש הזה!**
+
 ```powershell
 # ✅ נכון - נתיב מלא מהפרויקט
 C:\projects\salsheli\lib\core\ui_constants.dart
@@ -2085,7 +2214,7 @@ lib\screens\home_dashboard_screen.dart           # יחסי
 
 ### 🔧 Deprecated APIs
 
-**Flutter 3.27+:**
+**Flutter 3.27+:** ⭐
 
 ```dart
 // ❌ Deprecated
@@ -2093,17 +2222,21 @@ color.withOpacity(0.5)
 color.value
 color.alpha
 
-// ✅ Modern
+// ✅ Modern (Flutter 3.27+)
 color.withValues(alpha: 0.5)
 color.toARGB32()
 (color.a * 255.0).round() & 0xff
 ```
 
+**הפרויקט עבר ל-`.withValues(alpha:)` ב-Flutter 3.27+!** ⭐
+
+📁 ראה: `lib/core/status_colors.dart` - שימוש ב-`.withValues()`
+
 ---
 
 ## 📈 שיפורים שהושגו
 
-### תקופה: 06-13/10/2025
+### תקופה: 06-14/10/2025
 
 **Dead Code:**
 
@@ -2117,18 +2250,20 @@ color.toARGB32()
 - ✅ אתחול: 4 שניות → 1 שניה (פי 4 מהיר יותר)
 - ✅ Cache: O(n) → O(1) (פי 10 מהיר יותר)
 - ✅ Batch Processing: מניעת UI blocking בטעינות כבדות ⭐
+- ✅ Firestore Batch: מגבלת 500 פעולות ⚠️
 
 **Code Quality:**
 
 - ✅ 22 קבצים בציון 100/100
 - ✅ 0 warnings/errors
 - ✅ Logging מפורט בכל הProviders
+- ✅ UI Constants מעודכנים (Flutter 3.27+) ⭐
 
 **Firebase:**
 
 - ✅ Integration מלא
 - ✅ Real-time sync
-- ✅ Security Rules
+- ✅ Security Rules + תהליך בדיקה ⭐
 - ✅ Cloud Storage (LocationsProvider Migration) ⭐
 
 **OCR:**
@@ -2142,6 +2277,7 @@ color.toARGB32()
 - ✅ LocationsProvider Cloud Migration
 - ✅ Repository Pattern (17 repositories)
 - ✅ Config Files Organization (8 files)
+- ✅ Phase-based with צ'ק-ליסט ⭐
 
 ---
 
@@ -2164,11 +2300,14 @@ color.toARGB32()
 
 ---
 
-**לסיכום:** הפרויקט עבר טרנספורמציה מלאה ב-06-13/10/2025. כל הדפוסים כאן מבוססים על קוד אמיתי ומתועדים היטב.
+**לסיכום:** הפרויקט עבר טרנספורמציה מלאה ב-06-14/10/2025. כל הדפוסים כאן מבוססים על קוד אמיתי ומתועדים היטב.
 
-**גרסה 3.4 מוסיפה:**
-- ✅ Batch Processing Pattern (Performance)
-- ✅ File Paths Pattern (Troubleshooting)
-- ✅ LocationsProvider Migration (Architecture)
-- ✅ עדכוני Config Files (pantry_config + storage_locations_config)
-- ✅ עקרון 14 (נתיבי קבצים מלאים)
+**גרסה 3.5 מוסיפה:**
+- ✅ UI Constants Update (kRadiusPill, kFieldWidthNarrow, kSpacingXXXLarge)
+- ✅ Batch Firestore Limits (מגבלת 500 פעולות)
+- ✅ Security Rules Process (3 שלבי בדיקה)
+- ✅ Dead/Dormant Do/Don't Table (טבלה מהירה)
+- ✅ Race Condition הדגשה (אל תנווט עד isLoading == false)
+- ✅ Phase צ'ק-ליסט (5 שלבי סיום)
+- ✅ StatusColors Flutter 3.27+ (withValues)
+- ✅ Batch Progress טיפ (רק > 1 שנייה)

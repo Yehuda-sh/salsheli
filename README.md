@@ -1,10 +1,28 @@
-// file: README.md
-
 # 🛒 סל שלי (Salsheli)
 
 אפליקציית Flutter מובייל (Android & iOS) לניהול קניות, מלאי וקבלות עם סנכרון בענן.
 
-> **⚠️ Mobile Only** - אין תמיכה ב-Web/Desktop
+> **⚠️ Mobile Only** - אין תמיכה ב-Web/Desktop  
+> **📱 Platforms:** Android 6.0+ (API 23+) | iOS 12.0+
+
+---
+
+## 📖 תוכן עניינים
+
+- [✨ פיצ'רים](#-פיצרים)
+- [🚀 Quick Start](#-quick-start)
+- [🔥 Firebase Configuration](#-firebase-configuration)
+- [💰 Shufersal API](#-shufersal-api)
+- [📂 מבנה הפרויקט](#-מבנה-הפרויקט)
+- [📝 מה עובד היום](#-מה-עובד-היום-14102025)
+- [📊 סטטיסטיקות](#-סטטיסטיקות)
+- [🎯 TODO](#-todo)
+- [🛠 פקודות שימושיות](#-פקודות-שימושיות)
+- [🐛 בעיות נפוצות](#-בעיות-נפוצות)
+- [🤝 תרומה](#-תרומה)
+- [🎓 הישגים אחרונים](#-הישגים-אחרונים-06-14102025)
+- [🔒 פרטיות ואבטחה](#-פרטיות-ואבטחה)
+- [👨‍💻 שולחן עבודה למפתחים](#-שולחן-עבודה-למפתחים)
 
 ---
 
@@ -19,87 +37,138 @@
 - 📊 **תובנות וסטטיסטיקות** - ניתוח הוצאות
 - 🔐 **Firebase Auth** - התחברות מאובטחת
 - ☁️ **Firestore Sync** - סנכרון real-time בין מכשירים
-- 🌐 **RTL מלא** - תמיכה בעברית
+- 🌐 **RTL מלא** - תמיכה בעברית מלאה | אנגלית: TODO (v1.1)
 
 ---
 
 ## 🚀 Quick Start
 
-### למפתח חדש - קרא קודם:
+### ⚙️ דרישות מוקדמות
 
-| קובץ                        | מה זה                                |
-| --------------------------- | ------------------------------------ |
-| **📚 LESSONS_LEARNED.md**   | לקחים חשובים + דפוסים טכניים (חובה!) |
-| **🤖 AI_DEV_GUIDELINES.md** | הנחיות לסוכני AI (אם רלוונטי)        |
-| **📓 WORK_LOG.md**          | שינויים אחרונים + היסטוריה           |
+| רכיב | גרסה נדרשת | הערות |
+|------|-----------|-------|
+| **Flutter SDK** | `3.27.0+` | ❗ חובה - גרסאות ישנות לא יעבדו |
+| **Dart SDK** | `3.8.1+` | נכלל ב-Flutter |
+| **Android Studio** | `2024.1+` | או VS Code עם Flutter extension |
+| **Xcode** | `15.0+` (macOS) | ל-iOS builds בלבד |
+| **Node.js** | `18.0+` | לסקריפטי Firebase בלבד |
 
-### התקנה:
+**בדיקת גרסה:**
+```bash
+flutter doctor -v  # שמור פלט לפתרון בעיות עתידיות
+```
+
+### 📚 למפתח חדש - קרא קודם:
+
+| קובץ | מה זה | מתי לקרוא |
+| --- | --- | --- |
+| **📚 LESSONS_LEARNED.md** | לקחים חשובים + דפוסים טכניים | ⭐ חובה לפני עבודה! |
+| **🤖 AI_DEV_GUIDELINES.md** | הנחיות לסוכני AI | אם עובד עם AI |
+| **📓 WORK_LOG.md** | שינויים אחרונים + היסטוריה | בתחילת כל יום עבודה |
+
+### 📥 התקנה:
 
 ```bash
-# Clone
+# 1. Clone
 git clone https://github.com/Yehuda-Sh/salsheli.git
 cd salsheli
 
-# Install & Generate
+# 2. Install Dependencies
 flutter pub get
+
+# 3. Generate Code
 dart run build_runner build --delete-conflicting-outputs
 
-# משתמשי דמו + נתונים (מומלץ!)
-cd scripts && npm install && npm run setup-demo
+# 4. משתמשי דמו + נתונים (מומלץ!)
+cd scripts
+npm install
+npm run setup-demo
 
-# Run
+# 5. Run
 flutter run
 ```
 
-**דרישות:** Dart 3.8.1+ | Flutter SDK | Node.js (לסקריפטים)
+> **💡 טיפ:** אם יש שגיאות build, נקה ונסה שוב:
+> ```bash
+> flutter clean
+> flutter pub get
+> dart run build_runner build --delete-conflicting-outputs
+> ```
 
 ---
 
 ## 🔥 Firebase Configuration
 
-### ✅ מה מוגדר:
+### ✅ מה כבר מוגדר:
 
-- Firebase Core 3.15.2
-- Firebase Auth 5.7.0 (Email/Password)
-- Cloud Firestore 5.4.4 (Real-time sync)
-- `firebase_options.dart` + `android/app/google-services.json` ✅
+- **Firebase Core** `3.15.2` - אתחול Firebase
+- **Firebase Auth** `5.7.0` - Email/Password authentication
+- **Cloud Firestore** `5.4.4` - Real-time database
+- **Android:** `android/app/google-services.json` ✅
+- **Config:** `lib/firebase_options.dart` ✅
 
-### ⚠️ iOS Setup:
+### 📱 iOS Setup (חובה ל-iOS builds):
 
 **חסר:** `ios/Runner/GoogleService-Info.plist`
 
 ```bash
-# הורד מ-Firebase Console:
+# אופציה 1: Firebase Console (מומלץ)
 # 1. https://console.firebase.google.com → Project: salsheli
 # 2. iOS App → הורד GoogleService-Info.plist
-# 3. העתק ל: ios/Runner/GoogleService-Info.plist
+# 3. גרור ל-Xcode: ios/Runner/ (וודא "Copy items if needed")
 
-# או השתמש ב-CLI:
+# אופציה 2: Firebase CLI
 flutterfire configure
 ```
 
-### 👥 משתמשי דמי + נתונים:
+**צעדים נוספים ל-iOS:**
+```bash
+cd ios
+pod install  # התקנת CocoaPods dependencies
+cd ..
+
+# ב-Xcode:
+# 1. פתח ios/Runner.xcworkspace
+# 2. Signing & Capabilities → הוסף Apple ID
+# 3. iCloud: לא צריך! (אלא אם רוצה sync עם iCloud)
+```
+
+### 👥 משתמשי דמו + נתונים:
 
 ```bash
 cd scripts && npm run setup-demo
 ```
 
 **משתמשים:**
+- `yoni@demo.com` / `Demo123!` - Household: משפחת כהן
+- `sarah@demo.com` / `Demo123!` - Household: רווקה
+- `danny@demo.com` / `Demo123!` - Household: שותפים
 
-- `yoni@demo.com` / `Demo123!`
-- `sarah@demo.com` / `Demo123!`
-- `danny@demo.com` / `Demo123!`
+**מה הסקריפט יוצר ב-Firestore:**
 
-**נתונים שיוצרו (עם מוצרים אמיתיים!):**
+| Collection | מה נוצר | פרטים |
+|-----------|--------|-------|
+| `users` | 3 משתמשים | Email, household_id, preferences |
+| `households` | 3 households | Types: family, single, roommates |
+| `shopping_lists` | 3 רשימות | 2 פעילות + 1 הושלמה (מוצרים אמיתיים!) |
+| `templates` | 6 תבניות מערכת | סופר, בית מרקחת, יום הולדת, אירוח, משחקים, קמפינג |
+| `inventory` | ~15 פריטים | מלאי במוצרים אמיתיים |
+| `receipts` | 2 קבלות | OCR parsed + מחירים |
 
-- ✅ 3 רשימות קניות (2 פעילות + 1 הושלמה) - **מוצרים מ-Firestore**
-- ✅ ~15 פריטים במלאי - **מוצרים אמיתיים**
-- ✅ 2 קבלות נוספות - **מחירים אמיתיים מהמערכת**
-- ✅ 6 תבניות מערכת - **תבניות מוכנות לשימוש**
-- ✅ סטטיסטיקות אמיתיות ב-Settings
+> **💡 חשוב:** הסקריפט החדש (v2) משתמש במוצרים אמיתיים מ-Firestore, לא Mock Data!  
+> **🔙 סקריפט ישן:** `npm run setup-demo-old` (אם צריך Mock Data)
 
-> **💡 חשוב:** הסקריפט החדש (v2) משתמש במוצרים אמיתיים מ-Firestore, לא Mock Data!
-> אם רוצה להשתמש בסקריפט הישן: `npm run setup-demo-old`
+### 🔒 Security Rules
+
+**נתיבים חשובים:**
+- `firestore.rules` - Firestore Security Rules (household-based)
+- `firestore.indexes.json` - Composite indexes
+- `scripts/create_system_templates.js` - רק Admin SDK יכול ליצור `is_system: true`
+
+**בדיקת Rules:**
+```bash
+firebase emulators:start --only firestore  # Test locally
+```
 
 ---
 
@@ -107,12 +176,18 @@ cd scripts && npm run setup-demo
 
 השירות מוריד מחירים אמיתיים מ-**prices.shufersal.co.il**:
 
-- 📥 הורדת קבצי XML (פומביים, ללא SSL issues)
-- 🗜️ פענוח GZ compressed
-- 🏪 3 סניפים, ~15,000 מוצרים
-- 🔄 עדכון אוטומטי בהפעלה + כפתור ידני בהגדרות
+- 📥 **הורדת קבצי XML** - קבצים פומביים, ללא authentication
+- 🗜️ **פענוח GZ compressed** - אוטומטי
+- 🏪 **3 סניפים** - ~15,000 מוצרים ייחודיים
+- 🔄 **עדכון אוטומטי** - בהפעלה + כפתור ידני בהגדרות
 
-> **למה Shufersal?** קבצים פומביים, פשוט, ללא התחברות. PublishedPrices יצר SSL problems.
+**מדיניות שימוש:**
+- 🕐 **קצב רענון:** פעם בשעה (מטמון Hive למשך 24 שעות)
+- 📊 **כמות בקשות:** מקסימום 10 ליום (limit במערכת)
+- 💾 **מטמון:** Hive local cache למשך 7 ימים
+
+> **למה Shufersal?** קבצים פומביים, פשוט, ללא SSL issues.  
+> PublishedPrices API יצר SSL certification problems בעבר.
 
 ---
 
@@ -121,283 +196,547 @@ cd scripts && npm run setup-demo
 ```
 lib/
 ├── main.dart                   # Entry + Firebase init + Providers
-├── firebase_options.dart       # Firebase config
+├── firebase_options.dart       # Firebase config (auto-generated)
 │
 ├── models/                     # Data models (@JsonSerializable)
-│   ├── timestamp_converter.dart    # ⚡ Firestore Timestamp helper
+│   ├── timestamp_converter.dart    # ⚡ Firestore Timestamp ↔ DateTime
 │   ├── user_entity.dart            # User model
 │   ├── shopping_list.dart          # Shopping list + items
 │   ├── receipt.dart                # Receipt + items
 │   ├── inventory_item.dart         # Pantry item
 │   ├── product_entity.dart         # Product (Shufersal)
-│   ├── template.dart               # 📋 List template + items (חדש!)
+│   ├── template.dart               # 📋 List template + items ⭐ (חדש!)
 │   ├── suggestion.dart             # Smart suggestions
 │   ├── habit_preference.dart       # 🧠 User habits
-│   ├── custom_location.dart        # Storage locations
+│   ├── custom_location.dart        # Storage locations (Firestore) ⭐
 │   └── enums/                      # Enums (status, etc.)
 │
-├── providers/                  # State (ChangeNotifier)
-│   ├── user_context.dart           # 👤 User + Auth
+├── providers/                  # State Management (ChangeNotifier)
+│   ├── user_context.dart           # 👤 User + Auth + Household
 │   ├── shopping_lists_provider.dart # 🛒 Lists (Firestore)
-│   ├── templates_provider.dart     # 📋 Templates (חדש!)
+│   ├── templates_provider.dart     # 📋 Templates ⭐ (חדש!)
 │   ├── receipt_provider.dart       # 🧾 Receipts
 │   ├── inventory_provider.dart     # 📦 Inventory
-│   ├── products_provider.dart      # 💰 Products (Hybrid)
+│   ├── products_provider.dart      # 💰 Products (Hybrid: Hive + Firestore + API)
 │   ├── suggestions_provider.dart   # 💡 Smart suggestions
 │   ├── habits_provider.dart        # 🧠 User habits
-│   └── locations_provider.dart     # 📍 Custom locations (Firestore) ⭐
+│   └── locations_provider.dart     # 📍 Custom locations ⭐ (Firestore migration!)
 │
-├── repositories/              # Data access
+├── repositories/              # Data Access Layer (Repository Pattern)
 │   ├── firebase_*_repository.dart  # Firestore CRUD (8 repos)
+│   ├── templates_repository.dart   # Templates interface ⭐
+│   ├── firebase_templates_repository.dart # Templates Firebase impl ⭐
 │   ├── locations_repository.dart   # Locations interface ⭐
 │   ├── firebase_locations_repository.dart # Locations Firebase impl ⭐
-│   ├── hybrid_products_repository.dart # Hive + Firestore + API
-│   ├── local_products_repository.dart  # Hive cache
-│   └── *_repository.dart           # Interfaces (7 interfaces)
+│   ├── hybrid_products_repository.dart # Hive + Firestore + API combo
+│   ├── local_products_repository.dart  # Hive cache only
+│   └── *_repository.dart           # Interfaces (7 interfaces total)
 │
-├── services/                  # Business logic
-│   ├── auth_service.dart              # 🔐 Firebase Auth
-│   ├── shufersal_prices_service.dart  # 💰 API
-│   ├── ocr_service.dart               # 📸 ML Kit
-│   ├── receipt_parser_service.dart    # 🧾 Regex Parser
-│   ├── home_stats_service.dart        # 📊 Dashboard stats
-│   ├── onboarding_service.dart        # 🎓 User onboarding
-│   └── prefs_service.dart             # 💾 SharedPreferences
+├── services/                  # Business Logic
+│   ├── auth_service.dart              # 🔐 Firebase Auth wrapper
+│   ├── shufersal_prices_service.dart  # 💰 API client
+│   ├── ocr_service.dart               # 📸 ML Kit OCR
+│   ├── receipt_parser_service.dart    # 🧾 Regex Parser for receipts
+│   ├── home_stats_service.dart        # 📊 Dashboard statistics
+│   ├── onboarding_service.dart        # 🎓 User onboarding flow
+│   └── prefs_service.dart             # 💾 SharedPreferences wrapper
 │
-├── screens/                   # UI (30+ screens)
-│   ├── auth/                   # Login, Register
-│   ├── home/                   # Dashboard + Home
-│   ├── shopping/               # Lists, Active shopping (8 screens)
-│   ├── lists/                  # Templates, Populate (3 screens)
-│   ├── receipts/               # Manager, View (2 screens)
-│   ├── pantry/                 # Inventory screen
-│   ├── price/                  # Price comparison
-│   ├── habits/                 # My habits
-│   ├── insights/               # Statistics
-│   ├── settings/               # Settings
-│   ├── onboarding/             # Welcome flow
+├── screens/                   # UI Screens (30+)
+│   ├── auth/                   # Login, Register (2)
+│   ├── home/                   # Dashboard + Home (3)
+│   ├── shopping/               # Lists, Active shopping (8)
+│   ├── lists/                  # Templates, Populate (3)
+│   ├── receipts/               # Manager, View (2)
+│   ├── pantry/                 # Inventory screen (1)
+│   ├── price/                  # Price comparison (1)
+│   ├── habits/                 # My habits (1)
+│   ├── insights/               # Statistics (1)
+│   ├── settings/               # Settings (1)
+│   ├── onboarding/             # Welcome flow (2)
 │   ├── index_screen.dart       # Splash + Router
 │   └── welcome_screen.dart     # First screen
 │
-├── widgets/                   # Reusable components (25+ widgets)
+├── widgets/                   # Reusable UI Components (25+)
 │   ├── common/                 # Dashboard card, Benefit tile
 │   ├── home/                   # Suggestions, Upcoming shop
 │   ├── auth/                   # Auth button, Demo login
 │   └── *.dart                  # Item card, Filters, etc.
 │
-├── config/                    # Configuration files (חדש!)
+├── config/                    # Configuration Files ⭐ (Business Logic)
 │   ├── household_config.dart       # 11 household types
 │   ├── list_type_mappings.dart     # Type → Categories (140+ items)
 │   ├── list_type_groups.dart       # 3 groups (Shopping/Specialty/Events)
-│   ├── filters_config.dart         # Filter options
+│   ├── filters_config.dart         # Filter options (11 categories)
 │   ├── stores_config.dart          # Store names + variations
 │   ├── receipt_patterns_config.dart # OCR Regex patterns
 │   ├── pantry_config.dart          # Units, Categories, Locations ⭐
 │   └── storage_locations_config.dart # 5 מיקומים (❄️🧊🏠📦📍) ⭐
 │
-├── core/                      # Constants (חדש!)
-│   ├── constants.dart              # ListType, categories, collections
-│   ├── ui_constants.dart           # Spacing, sizes, durations
-│   └── status_colors.dart          # Status colors
+├── core/                      # Core Constants ⭐ (UI + System)
+│   ├── constants.dart              # ListType, categories, Firestore collections
+│   ├── ui_constants.dart           # Spacing, sizes, durations, borders
+│   └── status_colors.dart          # Status colors (theme-aware)
 │
-├── l10n/                      # Localization (חדש!)
-│   ├── app_strings.dart            # Main strings (i18n ready)
-│   └── strings/                    # Additional strings
+├── l10n/                      # Localization (i18n Ready)
+│   ├── app_strings.dart            # Main UI strings (עברית)
+│   └── strings/                    # Additional string files
 │       └── list_type_mappings_strings.dart
 │
-├── data/                      # Static data (חדש!)
-│   └── onboarding_data.dart        # Onboarding steps
+├── data/                      # Static Data
+│   └── onboarding_data.dart        # Onboarding steps data
 │
-├── layout/                    # Layout (חדש!)
-│   └── app_layout.dart             # App shell
+├── layout/                    # Layout Components
+│   └── app_layout.dart             # Main app shell
 │
 └── theme/                     # Theming
     └── app_theme.dart              # Light + Dark themes
 ```
 
+### 💡 ארכיטקטורה - נקודות מרכזיות
+
+**🎯 Config vs Core:**
+- **`lib/config/`** - Business rules, mappings, patterns (140+ items, 8 קבצים)
+- **`lib/core/`** - UI constants, system constants (spacing, colors, 3 קבצים)
+
+> **💡 SSOT:** כל ערכי UI קשיחים מגיעים מ-`core/ui_constants.dart`!  
+> **💡 Business Logic:** כל patterns/mappings ב-`config/` - לא hardcoded!
+
+**🏗️ Repository Pattern:**
+- Interface (`*_repository.dart`) + Implementation (`firebase_*_repository.dart`)
+- הפרדת Data Access מ-State Management
+- household_id filtering בכל השאילתות
+
+**☁️ Firebase Collections:**
+```
+firestore/
+├── users                    # User profiles
+├── households               # Household data
+├── shopping_lists           # Lists + items
+├── templates                # Templates (system + user)
+├── inventory                # Pantry items
+├── receipts                 # Receipts + parsed items
+├── products                 # Products (Shufersal)
+├── custom_locations         # Storage locations ⭐
+└── user_habits              # Habit preferences
+```
+
 ---
 
-## 📝 מה עובד היום (13/10/2025)
+## 📝 מה עובד היום (14/10/2025)
 
 ### ☁️ Firestore + Authentication
 
 - ✅ Email/Password auth + persistent sessions
-- ✅ Shopping Lists - real-time sync
-- ✅ Templates System - system/personal/shared/assigned (חדש!)
+- ✅ Shopping Lists - real-time sync בין מכשירים
+- ✅ **Templates System** - system/personal/shared/assigned ⭐ (חדש!)
 - ✅ Receipts, Inventory, Products (1,758 מוצרים)
-- ✅ Habits tracking - learning user preferences
-- ✅ Custom locations - Cloud storage (Firestore) + household sharing ⭐
-- ✅ Security Rules + Indexes
+- ✅ Habits tracking - למידה מהעדפות משתמש
+- ✅ **Custom locations** - Cloud storage (Firestore) + household sharing ⭐ (חדש!)
+- ✅ Security Rules + Composite Indexes
 - ✅ Hybrid Storage: Hive (cache) + Firestore (cloud)
 
 ### 💰 Shufersal API + OCR
 
-- ✅ עדכון מחירים אוטומטי + ידני
-- ✅ OCR מקומי (ML Kit) לסריקת קבלות
-- ✅ זיהוי חנויות: שופרסל, רמי לוי, מגה
-- ✅ חילוץ פריטים + סכומים
+- ✅ עדכון מחירים אוטומטי (כל שעה) + כפתור ידני
+- ✅ OCR מקומי (ML Kit) - offline, ללא API calls
+- ✅ זיהוי חנויות: שופרסל, רמי לוי, מגה (regex patterns)
+- ✅ חילוץ אוטומטי: פריטים + מחירים + סכום
 
-### 📋 Templates System (חדש!)
+### 📋 Templates System ⭐ (חדש! 10/10/2025)
 
-- ✅ 6 תבניות מערכת (סופר, בית מרקחת, יום הולדת, אירוח, משחקים, קמפינג)
-- ✅ תבניות אישיות (personal)
-- ✅ תבניות משותפות (shared) - כל ה-household
-- ✅ תבניות מוקצות (assigned) - למשתמשים ספציפיים
-- ✅ 66 פריטים בתבניות מערכת
+- ✅ **6 תבניות מערכת:** סופר, בית מרקחת, יום הולדת, אירוח, משחקים, קמפינג
+- ✅ **66 פריטים** בתבניות מערכת (10-12 פריטים לכל תבנית)
+- ✅ **4 formats:** system, personal, shared, assigned
+- ✅ **Security:** רק Admin SDK יכול ליצור `is_system: true`
+- ✅ **Collaborative editing:** כל household יכול לערוך shared templates
 
 ### 🎨 UI/UX
 
 - ✅ 21 סוגי רשימות + מסך קנייה פעילה
-- ✅ Undo למחיקה (5 שניות)
+- ✅ Undo למחיקה (5 שניות עם SnackBar)
 - ✅ 3-4 Empty States: Loading/Error/Empty/Initial
-- ✅ RTL מלא + Dark/Light themes
-- ✅ מיקומי אחסון מותאמים
+- ✅ RTL מלא (עברית) + Dark/Light themes
+- ✅ מיקומי אחסון מותאמים (5: מקרר, מקפיא, מזווה, ארונות, מותאם)
 - ✅ Modern Design - gradients, shadows, elevation
 
 ---
 
 ## 📊 סטטיסטיקות
 
-- **קבצי Dart:** 100+ בlib/ (ללא .g.dart)
-- **מודלים:** 11 (כולל Templates)
-- **Providers:** 9 (כולל Templates + Habits)
-- **Repositories:** 17 (8 Firebase + 7 interfaces + 2 special)
-- **Services:** 7
-- **Screens:** 30+
-- **Widgets:** 25+
-- **Config Files:** 8 (חדש!)
-- **תבניות מערכת:** 6 (66 פריטים)
-- **מוצרים:** 1,758 (Hive + Firestore)
-- **סוגי רשימות:** 21
-- **פריטים מוצעים:** 140+ (לכל סוג רשימה)
-- **משתמשי דמו:** 3
+| קטגוריה | כמות | הערות |
+|---------|------|-------|
+| **קבצי Dart** | 100+ | ב-lib/ (ללא .g.dart) |
+| **Models** | 11 | כולל Template + CustomLocation |
+| **Providers** | 9 | כולל Templates + Locations (Firestore) |
+| **Repositories** | 17 | 8 Firebase + 7 interfaces + 2 special |
+| **Services** | 7 | Auth, Shufersal, OCR, Parser, Stats, Onboarding, Prefs |
+| **Screens** | 30+ | מסכים מלאים עם routing |
+| **Widgets** | 25+ | רכיבי UI לשימוש חוזר |
+| **Config Files** | 8 | Business rules + patterns |
+| **Core Constants** | 3 | UI + System constants |
+| **תבניות מערכת** | 6 | 66 פריטים סה"כ |
+| **מוצרים** | 1,758 | Hive cache + Firestore |
+| **סוגי רשימות** | 21 | עם 140+ פריטים מוצעים |
+| **משתמשי דמו** | 3 | Yoni, Sarah, Danny |
 
 ---
 
 ## 🎯 TODO
 
-### 🔴 גבוה
+### 🔴 גבוה (Priority 1)
 
-- [ ] iOS GoogleService-Info.plist
-- [ ] Collaborative shopping (שיתוף real-time)
-- [ ] Receipt OCR improvements
-- [ ] Template sharing advanced features
+- [ ] iOS GoogleService-Info.plist + pod setup
+- [ ] Collaborative shopping - שיתוף real-time של רשימה פעילה
+- [ ] Receipt OCR improvements - דיוק גבוה יותר
+- [ ] Template sharing - העברת תבניות בין משתמשים
 
-### 🟡 בינוני
+### 🟡 בינוני (Priority 2)
 
-- [ ] Offline mode מלא (Hive cache)
-- [ ] Smart notifications
-- [ ] Price tracking מתקדם
-- [ ] Template categories + search
+- [ ] Offline mode מלא - Hive cache עם sync queue
+- [ ] Smart notifications - תזכורות לקנייה
+- [ ] Price tracking - גרפים + השוואה היסטורית
+- [ ] Template categories + search - ארגון טוב יותר
 
-### 🟢 נמוך
+### 🟢 נמוך (Priority 3)
 
-- [ ] Tests (Unit/Widget/Integration)
-- [ ] i18n (English)
-- [ ] Performance optimization
-- [ ] Custom template icons
+- [ ] Tests - Unit/Widget/Integration (coverage 80%+)
+- [ ] i18n - אנגלית מלאה (כרגע רק עברית)
+- [ ] Performance optimization - profiling + optimization
+- [ ] Custom template icons - אייקונים מותאמים אישית
 
-### ✅ הושלם לאחרונה
+### ✅ הושלם לאחרונה (06-14/10/2025)
 
-- ~~Templates System - Foundation + Provider + Repo~~ (10/10/2025)
-- ~~6 System Templates~~ (10/10/2025)
-- ~~Shopping Lists → Firestore~~
-- ~~Shufersal API~~
-- ~~OCR מקומי (ML Kit)~~
-- ~~Dead Code cleanup (5,000+ שורות)~~
-- ~~140+ suggested items~~ (08/10/2025)
+- ~~LocationsProvider → Firebase Migration~~ (13/10) ⭐
+- ~~Batch Processing Pattern - 100+ items~~ (13/10) ⭐
+- ~~InventoryProvider Error Recovery~~ (13/10) ⭐
+- ~~Templates System - Foundation + 6 תבניות~~ (10/10) ⭐
+- ~~Shopping Lists → Firestore~~ (09/10)
+- ~~Shufersal API integration~~ (08/10)
+- ~~OCR מקומי (ML Kit)~~ (08/10)
+- ~~Dead Code cleanup (5,000+ שורות)~~ (07-08/10)
+- ~~140+ suggested items (21 קטגוריות)~~ (08/10)
+- ~~Config Files Pattern (8 קבצים)~~ (08/10)
 
 ---
 
 ## 🛠 פקודות שימושיות
 
+### 🔧 Development
+
 ```bash
-# Development
+# התקנת dependencies
 flutter pub get
+
+# יצירת קוד אוטומטי (.g.dart files)
 dart run build_runner build --delete-conflicting-outputs
+
+# הרצה (Debug mode)
 flutter run
 
-# Quality
+# הרצה עם device ספציפי
+flutter devices
+flutter run -d <device-id>
+
+# Hot reload - קיצור מקלדת
+# r - reload
+# R - hot restart
+# q - quit
+```
+
+### ✅ Quality & Analysis
+
+```bash
+# ניתוח קוד (0 issues = ✅)
 flutter analyze
+
+# פורמט קוד
 dart format lib/ -w
 
-# Build
+# בדיקת dependencies
+flutter pub outdated
+
+# בדיקת environment
+flutter doctor -v
+```
+
+### 📦 Build (Production)
+
+```bash
+# Android APK
 flutter build apk --release
-flutter build appbundle --release  # Google Play
+
+# Android App Bundle (לGoogle Play)
+flutter build appbundle --release
+
+# iOS (macOS only)
 flutter build ios --release
 
-# Firebase Scripts
+# ⚠️ לא תריץ! (Mobile only)
+# flutter build web  # ❌ לא נתמך
+# flutter build windows  # ❌ לא נתמך
+```
+
+### 🔥 Firebase Scripts
+
+```bash
 cd scripts
-npm run create-users           # משתמשי דמו
-npm run upload-products        # העלאת מוצרים ל-Firestore
-npm run create-system-templates # 6 תבניות מערכת (חדש!)
-npm run create-data-real       # נתוני דמו עם מוצרים אמיתיים (מומלץ!)
-npm run create-data            # נתוני דמו ישן (Mock Data)
-npm run setup-demo             # הכל ביחד (users + templates + real data)
+
+# התקנת npm dependencies (פעם ראשונה)
+npm install
+
+# יצירת 3 משתמשי דמו
+npm run create-users
+
+# העלאת 1,758 מוצרים ל-Firestore
+npm run upload-products
+
+# יצירת 6 תבניות מערכת (Admin SDK)
+npm run create-system-templates
+
+# יצירת נתוני דמו - מוצרים אמיתיים (מומלץ!)
+npm run create-data-real
+
+# יצירת נתוני דמו - Mock Data (ישן)
+npm run create-data
+
+# הכל ביחד! (users + templates + data)
+npm run setup-demo
+
+# בדיקת Firestore Rules
+firebase emulators:start --only firestore
 ```
 
 ---
 
 ## 🐛 בעיות נפוצות
 
-| בעיה                        | פתרון                                  |
-| --------------------------- | -------------------------------------- |
-| **iOS קורס**                | GoogleService-Info.plist חסר           |
-| **Android קורס**            | בדוק google-services.json              |
-| **רשימות לא נטענות**        | בדוק snake_case ב-Firestore (@JsonKey) |
-| **Templates לא נטענות**     | הרץ `npm run create-system-templates`  |
-| **Race condition בהתחברות** | Firebase Auth אסינכרוני - המתן לSignIn |
-| **Build runner fails**      | מחק build/ ו-\*.g.dart, הרץ שוב        |
+| בעיה | פתרון | קישור |
+|------|-------|-------|
+| **iOS קורס בהרצה** | `GoogleService-Info.plist` חסר → הורד מFirebase Console | [iOS Setup](#-ios-setup-חובה-ל-ios-builds) |
+| **Android קורס בהרצה** | בדוק `google-services.json` בנתיב הנכון | [Firebase Config](#-firebase-configuration) |
+| **רשימות לא נטענות** | בדוק snake_case ב-Firestore (@JsonKey בmodels) | [LESSONS_LEARNED](LESSONS_LEARNED.md#timestamp-management) |
+| **Templates לא נטענות** | הרץ `npm run create-system-templates` | [Templates](#-templates-system--חדש-10102025) |
+| **Race condition בהתחברות** | Firebase Auth אסינכרוני - ה-IndexScreen מחכה ל-`isLoading: false` | [LESSONS_LEARNED](LESSONS_LEARNED.md#race-condition-firebase-auth) |
+| **Build runner fails** | מחק `build/` + `*.g.dart`, הרץ `flutter clean` ואז build runner שוב | - |
+| **שגיאת "Access denied"** | נתיב קובץ לא מלא → השתמש ב-`C:\projects\salsheli\...` | [AI_DEV_GUIDELINES](AI_DEV_GUIDELINES.md#file-paths) |
+| **CircularProgressIndicator איטי** | השתמש ב-Batch Processing (50-100 items) לשמירה/טעינה | [LESSONS_LEARNED](LESSONS_LEARNED.md#batch-processing-pattern) |
+| **Deprecated API warnings** | `.withOpacity()` → `.withValues(alpha:)` | [LESSONS_LEARNED](LESSONS_LEARNED.md#deprecated-apis) |
 
-> **עוד פתרונות:** ראה `LESSONS_LEARNED.md` חלק "בעיות נפוצות"
+> **💡 עוד פתרונות:** ראה [LESSONS_LEARNED.md](LESSONS_LEARNED.md) חלק "Troubleshooting"
 
 ---
 
 ## 🤝 תרומה
 
+רוצה לתרום לפרויקט? מעולה! 🎉
+
+### 📋 תהליך התרומה:
+
 1. **Fork + Branch**
-2. **קרא תיעוד:** `LESSONS_LEARNED.md` (חובה!)
-3. **כתוב קוד:**
+   ```bash
+   git checkout -b feature/my-amazing-feature
+   ```
+
+2. **📚 קרא תיעוד (חובה!)**
+   - `LESSONS_LEARNED.md` - דפוסים טכניים + לקחים
+   - `AI_DEV_GUIDELINES.md` - הנחיות פיתוח
+   - `WORK_LOG.md` - שינויים אחרונים
+
+3. **✍️ כתוב קוד איכותי:**
    - עקוב אחר דפוסים ב-LESSONS_LEARNED
    - 3-4 Empty States בwidgets חדשים
-   - Logging בכל method
+   - Logging מפורט בכל method (🗑️ ✏️ ➕ 🔄 ✅ ❌)
    - Constants לכל hardcoded values
-4. **לפני commit:**
-   - `flutter analyze`
-   - `dart format lib/ -w`
-   - ✅ בדיקת איכות (AI_DEV_GUIDELINES.md)
-5. **Commit + PR**
+   - Repository Pattern לdata access
+
+4. **✅ לפני commit:**
+   ```bash
+   # ניתוח קוד
+   flutter analyze  # 0 issues!
+   
+   # פורמט
+   dart format lib/ -w
+   
+   # בדיקת איכות
+   # עבור על AI_DEV_GUIDELINES Code Review Checklist
+   ```
+
+5. **🚀 Commit + PR**
+   ```bash
+   git commit -m "feat: הוספת [feature]"
+   git push origin feature/my-amazing-feature
+   # צור Pull Request ב-GitHub
+   ```
+
+### 📝 Convention:
+
+**Commit Messages:**
+- `feat: הוספת תכונה חדשה`
+- `fix: תיקון באג`
+- `refactor: שיפור קוד קיים`
+- `docs: עדכון תיעוד`
+- `style: שינויי UI/UX`
 
 ---
 
-## 🎓 הישגים אחרונים (06-13/10/2025)
+## 🎓 הישגים אחרונים (06-14/10/2025)
 
-- ✅ LocationsProvider → Firebase Migration (13/10) ⭐
-- ✅ Batch Processing Pattern (13/10) ⭐
-- ✅ InventoryProvider Error Recovery (13/10) ⭐
-- ✅ Templates System מלא (10/10)
-- ✅ 6 תבניות מערכת (10/10)
-- ✅ Firebase Integration מלא
-- ✅ Shufersal API למחירים אמיתיים
-- ✅ OCR מקומי (ML Kit)
-- ✅ ניקוי 5,000+ שורות Dead Code
-- ✅ Code Review מקיף (100/100)
-- ✅ Providers עקביים (Error Handling + Logging + Recovery)
+### ⭐ תשתית ופיצ'רים חדשים
+
+- ✅ **LocationsProvider → Firebase Migration** (13/10)
+  - מעבר מ-SharedPreferences ל-Firestore
+  - household sharing + collaborative editing
+  - Real-time sync בין מכשירים
+
+- ✅ **Batch Processing Pattern** (13/10)
+  - ביצועים: 100+ items בחבילות של 50-100
+  - UI responsive + Progress tracking
+  - מניעת UI blocking
+
+- ✅ **InventoryProvider Error Recovery** (13/10)
+  - `retry()` + `clearAll()` methods
+  - Error handling מלא
+
+- ✅ **Templates System מלא** (10/10)
+  - 6 תבניות מערכת (66 פריטים)
+  - 4 formats: system/personal/shared/assigned
+  - Security: Admin SDK only לsystem templates
+
+### 🏗️ ארכיטקטורה
+
+- ✅ Firebase Integration מלא - Auth + Firestore + Security Rules
+- ✅ Repository Pattern - 17 repositories (8 Firebase + 7 interfaces)
+- ✅ Config Files Pattern - 8 קבצי config לbusiness logic
+- ✅ UserContext Integration - Listener pattern בכל Providers
+
+### 🚀 ביצועים ואיכות
+
+- ✅ Dead Code cleanup - 5,000+ שורות נמחקו (08/10)
+- ✅ Code Review מקיף - 100/100 בכל Providers
+- ✅ Providers עקביים - Error Handling + Logging + Recovery
 - ✅ תיקון ביצועים - 0 Skipped Frames
-- ✅ תיעוד מקיף (LESSONS_LEARNED + AI_DEV_GUIDELINES + WORK_LOG)
-- ✅ 140+ פריטים מוצעים (21 קטגוריות)
-- ✅ Config Files Pattern (8 קבצים)
+- ✅ OCR מקומי (ML Kit) - offline, ללא API calls
+
+### 📚 תיעוד
+
+- ✅ LESSONS_LEARNED.md - 15 עקרונות זהב + דפוסים מפורטים
+- ✅ AI_DEV_GUIDELINES.md - v8.0 + Modern UI/UX patterns
+- ✅ WORK_LOG.md - תיעוד שינויים + לקחים
+
+### 🎨 UI/UX
+
+- ✅ 140+ פריטים מוצעים - 21 קטגוריות רשימות
+- ✅ Modern Design - gradients, shadows, elevation
+- ✅ 3-4 Empty States - בכל widget
+- ✅ RTL מלא - תמיכה בעברית מושלמת
+
+### 💰 אינטגרציות
+
+- ✅ Shufersal API - 1,758 מוצרים + מחירים אמיתיים
+- ✅ ML Kit OCR - סריקת קבלות offline
+- ✅ Hybrid Storage - Hive cache + Firestore cloud
+
+---
+
+## 🔒 פרטיות ואבטחה
+
+### 🛡️ מה אנחנו שומרים:
+
+| נתון | איפה | מטרה |
+|------|------|------|
+| **Email** | Firebase Auth | התחברות + זיהוי |
+| **household_id** | Firestore | קישור למשק בית |
+| **רשימות קניות** | Firestore | סנכרון בין מכשירים |
+| **מחירי מוצרים** | Hive (local) | cache למהירות |
+| **העדפות משתמש** | Firestore | הרגלי קנייה |
+
+### 🔐 אבטחה:
+
+- ✅ **Security Rules** - Firestore מסנן לפי household_id
+- ✅ **No passwords** - Firebase Auth מטפל בהצפנה
+- ✅ **Local cache** - Hive מוצפן במכשיר
+- ✅ **Templates** - רק Admin SDK יכול ליצור system templates
+
+### 🗑️ מחיקת נתונים:
+
+```
+Settings → חשבון → מחק חשבון
+↓
+מוחק: Auth + כל נתוני Firestore + Local cache
+```
+
+> **💡 Demo users:** נתוני דמו נמחקים אוטומטית כל שבועיים.
+
+---
+
+## 👨‍💻 שולחן עבודה למפתחים
+
+קישורים מהירים ל-LESSONS_LEARNED.md לפי נושאים:
+
+### 🏗️ ארכיטקטורה
+
+| נושא | תיאור קצר | קישור |
+|------|-----------|-------|
+| **Firebase Integration** | מעבר מ-SharedPreferences → Firestore | [→](LESSONS_LEARNED.md#-מעבר-ל-firebase) |
+| **Timestamp Management** | Firestore Timestamp ↔ DateTime | [→](LESSONS_LEARNED.md#-timestamp-management) |
+| **household_id Pattern** | Repository מוסיף household_id, לא Model | [→](LESSONS_LEARNED.md#-householdid-pattern) |
+| **Repository Pattern** | Interface + Implementation + household filtering | [→](LESSONS_LEARNED.md#%EF%B8%8F-repository-pattern) |
+| **Templates System** | system/personal/shared/assigned formats | [→](LESSONS_LEARNED.md#-templates-security-model) |
+| **LocationsProvider Migration** | SharedPreferences → Firestore (13/10) | [→](LESSONS_LEARNED.md#%EF%B8%8F-locationsprovider-migration) |
+
+### 💻 דפוסי קוד
+
+| נושא | תיאור קצר | קישור |
+|------|-----------|-------|
+| **UserContext Pattern** | addListener + removeListener בכל Provider | [→](LESSONS_LEARNED.md#-usercontext-pattern) |
+| **Single Source of Truth** | מקור אמת אחד לכל נתון | [→](LESSONS_LEARNED.md#-single-source-of-truth) |
+| **Provider Structure** | State + Getters + CRUD + Recovery + Logging | [→](LESSONS_LEARNED.md#-provider-structure) |
+| **Cache Pattern** | O(1) במקום O(n) עם `_cachedFiltered` | [→](LESSONS_LEARNED.md#-cache-pattern) |
+| **Batch Processing** | 50-100 items לביצועים | [→](LESSONS_LEARNED.md#-batch-processing-pattern) |
+| **Constants Organization** | lib/core/ + lib/config/ - לא hardcoded | [→](LESSONS_LEARNED.md#-constants-organization) |
+| **Config Files Pattern** | patterns/constants במקום אחד | [→](LESSONS_LEARNED.md#-config-files-pattern) |
+
+### 🎨 UI/UX
+
+| נושא | תיאור קצר | קישור |
+|------|-----------|-------|
+| **3-4 Empty States** | Loading/Error/Empty/Initial בכל widget | [→](LESSONS_LEARNED.md#-3-4-empty-states) |
+| **Undo Pattern** | 5 שניות עם SnackBar | [→](LESSONS_LEARNED.md#%EF%B8%8F-undo-pattern) |
+| **Visual Feedback** | צבעים לפי סטטוס + animations | [→](LESSONS_LEARNED.md#%EF%B8%8F-visual-feedback) |
+| **UI/UX Review** | 10 נקודות בדיקה + checklist | [→](LESSONS_LEARNED.md#-uiux-review) |
+| **Modern Design** | Gradients + shadows + elevation | [→](LESSONS_LEARNED.md#-modern-design-principles) |
+
+### 🐛 Troubleshooting
+
+| בעיה | פתרון מהיר | קישור |
+|------|-----------|-------|
+| **Dead Code Detection** | 3-Step: imports → שם → בדיקה ידנית | [→](LESSONS_LEARNED.md#-dead-code-detection) |
+| **Dormant Code** | 4 שאלות → הפעל או מחק | [→](LESSONS_LEARNED.md#-dormant-code-הפעל-או-מחק) |
+| **Race Condition (Auth)** | זרוק Exception בשגיאה, לא בדיקת isLoggedIn | [→](LESSONS_LEARNED.md#-race-condition-firebase-auth) |
+| **File Paths** | נתיב מלא: C:\projects\salsheli\... | [→](LESSONS_LEARNED.md#-file-paths-pattern) |
+| **Deprecated APIs** | .withOpacity → .withValues(alpha:) | [→](LESSONS_LEARNED.md#-deprecated-apis) |
+
+### 📊 מדדי איכות
+
+```
+✅ flutter analyze  # 0 issues
+✅ Code Review      # 100/100
+✅ Dead Code        # 0 files
+✅ Providers        # Error Recovery + Logging
+✅ Constants        # lib/core/ + lib/config/
+✅ Empty States     # 3-4 בכל widget
+```
 
 ---
 
 ## 📄 רישיון
 
-MIT License - ראה LICENSE
+MIT License - ראה [LICENSE](LICENSE)
 
 ---
 
-**עדכון:** 13/10/2025 | **גרסה:** 1.0.0+1 | **Made with ❤️ in Israel** 🇮🇱
+**עדכון:** 14/10/2025 | **גרסה:** 1.0.1 | **Made with ❤️ in Israel** 🇮🇱
 
-> 💡 **למפתחים:** התחל עם `LESSONS_LEARNED.md` - הכי חשוב!  
-> 💡 **לסוכני AI:** קרא `AI_DEV_GUIDELINES.md` בתחילת כל שיחה
-> 💡 **Templates System:** מערכת חדשה לתבניות רשימות - ראה WORK_LOG.md
+> 💡 **למפתחים:** התחל עם [LESSONS_LEARNED.md](LESSONS_LEARNED.md) - הכי חשוב!  
+> 💡 **לסוכני AI:** קרא [AI_DEV_GUIDELINES.md](AI_DEV_GUIDELINES.md) בתחילת כל שיחה  
+> 💡 **Templates System:** מערכת חדשה - ראה [WORK_LOG.md](WORK_LOG.md) רשומה 10/10/2025
