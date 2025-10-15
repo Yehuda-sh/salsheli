@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.memozap"
+    namespace = "com.example.salsheli"
     compileSdk = flutter.compileSdkVersion
 
     // ✅ עדכון NDK לגרסה שהפלאגינים דורשים
@@ -25,7 +25,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.memozap"
+        applicationId = "com.example.salsheli"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

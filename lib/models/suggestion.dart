@@ -34,6 +34,7 @@ part 'suggestion.g.dart';
 
 /// 🇮🇱 מודל המלצה חכמה למוצר
 /// 🇬🇧 Smart product suggestion model
+@immutable
 @JsonSerializable()
 class Suggestion {
   /// 🇮🇱 מזהה ייחודי להמלצה
@@ -97,22 +98,26 @@ class Suggestion {
   /// 🇮🇱 יצירה מ-JSON
   /// 🇬🇧 Create from JSON
   factory Suggestion.fromJson(Map<String, dynamic> json) {
-    debugPrint('📥 Suggestion.fromJson:');
-    debugPrint('   id: ${json['id']}');
-    debugPrint('   product_name: ${json['product_name']}');
-    debugPrint('   reason: ${json['reason']}');
-    debugPrint('   priority: ${json['priority']}');
+    if (kDebugMode) {
+      debugPrint('📥 Suggestion.fromJson:');
+      debugPrint('   id: ${json['id']}');
+      debugPrint('   product_name: ${json['product_name']}');
+      debugPrint('   reason: ${json['reason']}');
+      debugPrint('   priority: ${json['priority']}');
+    }
     return _$SuggestionFromJson(json);
   }
 
   /// 🇮🇱 המרה ל-JSON
   /// 🇬🇧 Convert to JSON
   Map<String, dynamic> toJson() {
-    debugPrint('📤 Suggestion.toJson:');
-    debugPrint('   id: $id');
-    debugPrint('   product_name: $productName');
-    debugPrint('   reason: $reason');
-    debugPrint('   priority: $priority');
+    if (kDebugMode) {
+      debugPrint('📤 Suggestion.toJson:');
+      debugPrint('   id: $id');
+      debugPrint('   product_name: $productName');
+      debugPrint('   reason: $reason');
+      debugPrint('   priority: $priority');
+    }
     return _$SuggestionToJson(this);
   }
 

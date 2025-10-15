@@ -9,11 +9,11 @@ part of 'inventory_item.dart';
 InventoryItem _$InventoryItemFromJson(Map<String, dynamic> json) =>
     InventoryItem(
       id: json['id'] as String,
-      productName: json['productName'] as String,
-      category: json['category'] as String,
-      location: json['location'] as String,
-      quantity: (json['quantity'] as num).toInt(),
-      unit: json['unit'] as String,
+      productName: json['productName'] as String? ?? 'מוצר לא ידוע',
+      category: json['category'] as String? ?? 'כללי',
+      location: json['location'] as String? ?? 'כללי',
+      quantity: (json['quantity'] as num?)?.toInt() ?? 0,
+      unit: json['unit'] as String? ?? "יח'",
     );
 
 Map<String, dynamic> _$InventoryItemToJson(InventoryItem instance) =>

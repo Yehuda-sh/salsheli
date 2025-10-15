@@ -34,6 +34,7 @@ part 'user_entity.g.dart';
 
 /// 🇮🇱 מודל ישות משתמש
 /// 🇬🇧 User entity model
+@immutable
 @JsonSerializable()
 class UserEntity {
   /// 🇮🇱 מזהה ייחודי למשתמש
@@ -55,6 +56,7 @@ class UserEntity {
 
   /// 🇮🇱 כתובת תמונת פרופיל (אופציונלי)
   /// 🇬🇧 Profile image URL (optional)
+  @JsonKey(name: 'profile_image_url')
   final String? profileImageUrl;
 
   /// 🇮🇱 תאריך הצטרפות
@@ -69,22 +71,22 @@ class UserEntity {
 
   /// 🇮🇱 רשימת חנויות מועדפות (IDs)
   /// 🇬🇧 List of preferred stores (IDs)
-  @JsonKey(defaultValue: [])
+  @JsonKey(name: 'preferred_stores')
   final List<String> preferredStores;
 
   /// 🇮🇱 רשימת מוצרים מועדפים (barcodes)
   /// 🇬🇧 List of favorite products (barcodes)
-  @JsonKey(defaultValue: [])
+  @JsonKey(name: 'favorite_products')
   final List<String> favoriteProducts;
 
   /// 🇮🇱 תקציב שבועי מתוכנן (₪)
   /// 🇬🇧 Planned weekly budget (₪)
-  @JsonKey(defaultValue: 0.0)
+  @JsonKey(name: 'weekly_budget')
   final double weeklyBudget;
 
   /// 🇮🇱 האם מנהל משק הבית
   /// 🇬🇧 Is household admin
-  @JsonKey(defaultValue: false)
+  @JsonKey(name: 'is_admin')
   final bool isAdmin;
 
   const UserEntity({
@@ -165,22 +167,26 @@ class UserEntity {
   /// 🇮🇱 יצירה מ-JSON
   /// 🇬🇧 Create from JSON
   factory UserEntity.fromJson(Map<String, dynamic> json) {
-    debugPrint('📥 UserEntity.fromJson:');
-    debugPrint('   id: ${json['id']}');
-    debugPrint('   name: ${json['name']}');
-    debugPrint('   email: ${json['email']}');
-    debugPrint('   household_id: ${json['household_id']}');
+    if (kDebugMode) {
+      debugPrint('📥 UserEntity.fromJson:');
+      debugPrint('   id: ${json['id']}');
+      debugPrint('   name: ${json['name']}');
+      debugPrint('   email: ${json['email']}');
+      debugPrint('   household_id: ${json['household_id']}');
+    }
     return _$UserEntityFromJson(json);
   }
 
   /// 🇮🇱 המרה ל-JSON
   /// 🇬🇧 Convert to JSON
   Map<String, dynamic> toJson() {
-    debugPrint('📤 UserEntity.toJson:');
-    debugPrint('   id: $id');
-    debugPrint('   name: $name');
-    debugPrint('   email: $email');
-    debugPrint('   household_id: $householdId');
+    if (kDebugMode) {
+      debugPrint('📤 UserEntity.toJson:');
+      debugPrint('   id: $id');
+      debugPrint('   name: $name');
+      debugPrint('   email: $email');
+      debugPrint('   household_id: $householdId');
+    }
     return _$UserEntityToJson(this);
   }
 
@@ -206,8 +212,10 @@ class UserEntity {
     String? email,
     String? householdId,
     String? profileImageUrl,
+    bool clearProfileImageUrl = false,
     DateTime? joinedAt,
     DateTime? lastLoginAt,
+    bool clearLastLoginAt = false,
     List<String>? preferredStores,
     List<String>? favoriteProducts,
     double? weeklyBudget,
@@ -218,9 +226,9 @@ class UserEntity {
       name: name ?? this.name,
       email: email ?? this.email,
       householdId: householdId ?? this.householdId,
-      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
+      profileImageUrl: clearProfileImageUrl ? null : (profileImageUrl ?? this.profileImageUrl),
       joinedAt: joinedAt ?? this.joinedAt,
-      lastLoginAt: lastLoginAt ?? this.lastLoginAt,
+      lastLoginAt: clearLastLoginAt ? null : (lastLoginAt ?? this.lastLoginAt),
       preferredStores: preferredStores ?? this.preferredStores,
       favoriteProducts: favoriteProducts ?? this.favoriteProducts,
       weeklyBudget: weeklyBudget ?? this.weeklyBudget,

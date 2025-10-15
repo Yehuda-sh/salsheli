@@ -15,17 +15,17 @@ UserEntity _$UserEntityFromJson(Map<String, dynamic> json) => UserEntity(
       lastLoginAt: json['last_login_at'] == null
           ? null
           : DateTime.parse(json['last_login_at'] as String),
-      profileImageUrl: json['profileImageUrl'] as String?,
-      preferredStores: (json['preferredStores'] as List<dynamic>?)
+      profileImageUrl: json['profile_image_url'] as String?,
+      preferredStores: (json['preferred_stores'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
-          [],
-      favoriteProducts: (json['favoriteProducts'] as List<dynamic>?)
+          const [],
+      favoriteProducts: (json['favorite_products'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
-          [],
-      weeklyBudget: (json['weeklyBudget'] as num?)?.toDouble() ?? 0.0,
-      isAdmin: json['isAdmin'] as bool? ?? false,
+          const [],
+      weeklyBudget: (json['weekly_budget'] as num?)?.toDouble() ?? 0.0,
+      isAdmin: json['is_admin'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$UserEntityToJson(UserEntity instance) =>
@@ -34,11 +34,11 @@ Map<String, dynamic> _$UserEntityToJson(UserEntity instance) =>
       'name': instance.name,
       'email': instance.email,
       'household_id': instance.householdId,
-      'profileImageUrl': instance.profileImageUrl,
+      'profile_image_url': instance.profileImageUrl,
       'joined_at': instance.joinedAt.toIso8601String(),
       'last_login_at': instance.lastLoginAt?.toIso8601String(),
-      'preferredStores': instance.preferredStores,
-      'favoriteProducts': instance.favoriteProducts,
-      'weeklyBudget': instance.weeklyBudget,
-      'isAdmin': instance.isAdmin,
+      'preferred_stores': instance.preferredStores,
+      'favorite_products': instance.favoriteProducts,
+      'weekly_budget': instance.weeklyBudget,
+      'is_admin': instance.isAdmin,
     };

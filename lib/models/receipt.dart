@@ -21,6 +21,7 @@
 //     - Integrate OCR for automatic receipt scanning.
 //
 
+import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 
@@ -80,6 +81,7 @@ class FlexDoubleConverter implements JsonConverter<double, Object?> {
 /// Receipt (קבלה שלמה)
 /// ─────────────────────────────────────────────
 
+@immutable
 @JsonSerializable(explicitToJson: true, fieldRename: FieldRename.snake)
 class Receipt {
   /// מזהה ייחודי של הקבלה
@@ -145,6 +147,7 @@ class Receipt {
 /// ReceiptItem (פריט יחיד בקבלה)
 /// ─────────────────────────────────────────────
 
+@immutable
 @JsonSerializable(fieldRename: FieldRename.snake)
 class ReceiptItem {
   /// מזהה ייחודי לפריט

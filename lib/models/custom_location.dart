@@ -52,20 +52,24 @@ class CustomLocation {
   /// 🇮🇱 יצירה מ-JSON
   /// 🇬🇧 Create from JSON
   factory CustomLocation.fromJson(Map<String, dynamic> json) {
-    debugPrint('📥 CustomLocation.fromJson:');
-    debugPrint('   key: ${json['key']}');
-    debugPrint('   name: ${json['name']}');
-    debugPrint('   emoji: ${json['emoji']}');
+    if (kDebugMode) {
+      debugPrint('📥 CustomLocation.fromJson:');
+      debugPrint('   key: ${json['key']}');
+      debugPrint('   name: ${json['name']}');
+      debugPrint('   emoji: ${json['emoji']}');
+    }
     return _$CustomLocationFromJson(json);
   }
 
   /// 🇮🇱 המרה ל-JSON
   /// 🇬🇧 Convert to JSON
   Map<String, dynamic> toJson() {
-    debugPrint('📤 CustomLocation.toJson:');
-    debugPrint('   key: $key');
-    debugPrint('   name: $name');
-    debugPrint('   emoji: $emoji');
+    if (kDebugMode) {
+      debugPrint('📤 CustomLocation.toJson:');
+      debugPrint('   key: $key');
+      debugPrint('   name: $name');
+      debugPrint('   emoji: $emoji');
+    }
     return _$CustomLocationToJson(this);
   }
 

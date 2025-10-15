@@ -11,11 +11,12 @@
 // - 🏁 סיכום מפורט בסיום
 // - 🎨 Skeleton Screen & Error Handling
 // - 💫 Micro Animations
+// - 📝 Sticky Notes Design System
 //
 // 🎨 UI:
 // - Header עם טיימר וסטטיסטיקות
-// - רשימת מוצרים לפי קטגוריות
-// - כפתורים לסימון מהיר
+// - רשימת מוצרים לפי קטגוריות עם StickyNote
+// - כפתורים בסגנון StickyButton
 // - מסך סיכום בסוף
 // - 4 Empty States: Loading/Error/Empty/Initial
 //
@@ -38,9 +39,13 @@ import '../../models/receipt.dart';
 import '../../models/enums/shopping_item_status.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../providers/products_provider.dart';
+import '../../providers/user_context.dart';
 import '../../theme/app_theme.dart';
 import '../../core/ui_constants.dart';
 import '../../core/status_colors.dart';
+import '../../widgets/common/notebook_background.dart';
+import '../../widgets/common/sticky_note.dart';
+import '../../widgets/common/sticky_button.dart';
 
 class ActiveShoppingScreen extends StatefulWidget {
   final ShoppingList list;
@@ -51,8 +56,7 @@ class ActiveShoppingScreen extends StatefulWidget {
   State<ActiveShoppingScreen> createState() => _ActiveShoppingScreenState();
 }
 
-class _ActiveShoppingScreenState extends State<ActiveShoppingScreen>
-    with SingleTickerProviderStateMixin {
+class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with SingleTickerProviderStateMixin {
   // ⏱️ טיימר
   late DateTime _startTime;
   Timer? _timer;
@@ -69,16 +73,20 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen>
   // 💫 Animation Controller
   late AnimationController _animationController;
 
+  // 🧑 UserContext Listener
+  late UserContext _userContext;
+
   @override
   void initState() {
     super.initState();
     debugPrint('🛒 ActiveShoppingScreen.initState: התחלה');
 
     // Animation Controller for micro-animations
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
+    _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
+
+    // ✅ UserContext Listener - לאזור לשינויים בנתוני המשתמש
+    _userContext = context.read<UserContext>();
+    _userContext.addListener(_onUserContextChanged);
 
     _startTime = DateTime.now();
     _initializeScreen();
@@ -129,11 +137,20 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen>
     }
   }
 
+  /// 🔄 בעת שינוי household_id או משתמש
+  void _onUserContextChanged() {
+    debugPrint('🔄 _onUserContextChanged: שינוי בהקשר המשתמש');
+    if (mounted) {
+      _initializeScreen();
+    }
+  }
+
   @override
   void dispose() {
     debugPrint('🗑️ ActiveShoppingScreen.dispose');
     _timer?.cancel();
     _animationController.dispose();
+    _userContext.removeListener(_onUserContextChanged); // ✅ חובה!
     super.dispose();
   }
 
@@ -154,21 +171,11 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen>
   Future<void> _finishShopping() async {
     debugPrint('🏁 _finishShopping: מתחיל סיכום');
 
-    final purchased = _itemStatuses.values
-        .where((s) => s == ShoppingItemStatus.purchased)
-        .length;
-    final outOfStock = _itemStatuses.values
-        .where((s) => s == ShoppingItemStatus.outOfStock)
-        .length;
-    final deferred = _itemStatuses.values
-        .where((s) => s == ShoppingItemStatus.deferred)
-        .length;
-    final notNeeded = _itemStatuses.values
-        .where((s) => s == ShoppingItemStatus.notNeeded)
-        .length;
-    final pending = _itemStatuses.values
-        .where((s) => s == ShoppingItemStatus.pending)
-        .length;
+    final purchased = _itemStatuses.values.where((s) => s == ShoppingItemStatus.purchased).length;
+    final outOfStock = _itemStatuses.values.where((s) => s == ShoppingItemStatus.outOfStock).length;
+    final deferred = _itemStatuses.values.where((s) => s == ShoppingItemStatus.deferred).length;
+    final notNeeded = _itemStatuses.values.where((s) => s == ShoppingItemStatus.notNeeded).length;
+    final pending = _itemStatuses.values.where((s) => s == ShoppingItemStatus.pending).length;
 
     final result = await showDialog<bool>(
       context: context,
@@ -202,10 +209,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen>
       debugPrint('💾 _saveAndFinish: שומר נתונים');
 
       final provider = context.read<ShoppingListsProvider>();
-      await provider.updateListStatus(
-        widget.list.id,
-        ShoppingList.statusCompleted,
-      );
+      await provider.updateListStatus(widget.list.id, ShoppingList.statusCompleted);
 
       debugPrint('✅ _saveAndFinish: רשימה סומנה כהושלמה');
 
@@ -215,11 +219,9 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen>
           SnackBar(
             content: Row(
               children: [
-                Icon(Icons.check_circle, color: Colors.white),
-                SizedBox(width: kSpacingSmall),
-                Expanded(
-                  child: Text('הקנייה הושלמה בהצלחה! 🎉'),
-                ),
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: kSpacingSmall),
+                const Expanded(child: Text('הקנייה הושלמה בהצלחה! 🎉')),
               ],
             ),
             backgroundColor: StatusColors.success,
@@ -251,19 +253,13 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen>
             title: Row(
               children: [
                 Icon(Icons.error_outline, color: StatusColors.error),
-                SizedBox(width: kSpacingSmall),
-                Text('שגיאה בשמירה'),
+                const SizedBox(width: kSpacingSmall),
+                const Text('שגיאה בשמירה'),
               ],
             ),
-            content: Text(
-              'לא הצלחנו לשמור את הנתונים.\nנסה שוב?',
-              style: TextStyle(fontSize: kFontSizeBody),
-            ),
+            content: Text('לא הצלחנו לשמור את הנתונים.\nנסה שוב?', style: TextStyle(fontSize: kFontSizeBody)),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('ביטול'),
-              ),
+              TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('ביטול')),
               FilledButton.icon(
                 onPressed: () => Navigator.pop(context, true),
                 icon: const Icon(Icons.refresh),
@@ -290,12 +286,8 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen>
     // 🔄 Loading State
     if (_isLoading) {
       return Scaffold(
-        backgroundColor: cs.surface,
-        appBar: AppBar(
-          backgroundColor: accent,
-          foregroundColor: Colors.white,
-          title: Text(widget.list.name),
-        ),
+        backgroundColor: kPaperBackground,
+        appBar: AppBar(backgroundColor: accent, foregroundColor: Colors.white, title: Text(widget.list.name)),
         body: _LoadingSkeletonScreen(accentColor: accent),
       );
     }
@@ -303,43 +295,28 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen>
     // ❌ Error State
     if (_errorMessage != null) {
       return Scaffold(
-        backgroundColor: cs.surface,
-        appBar: AppBar(
-          backgroundColor: accent,
-          foregroundColor: Colors.white,
-          title: Text(widget.list.name),
-        ),
-        body: _ErrorStateScreen(
-          errorMessage: _errorMessage!,
-          onRetry: _initializeScreen,
-        ),
+        backgroundColor: kPaperBackground,
+        appBar: AppBar(backgroundColor: accent, foregroundColor: Colors.white, title: Text(widget.list.name)),
+        body: _ErrorStateScreen(errorMessage: _errorMessage!, onRetry: _initializeScreen),
       );
     }
 
     // 📭 Empty State - אם אין פריטים
     if (widget.list.items.isEmpty) {
       return Scaffold(
-        backgroundColor: cs.surface,
+        backgroundColor: kPaperBackground,
         appBar: AppBar(
           backgroundColor: accent,
           foregroundColor: Colors.white,
-          title: Text(
-            widget.list.name,
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-          ),
+          title: Text(widget.list.name, overflow: TextOverflow.ellipsis, maxLines: 1),
         ),
         body: _EmptyStateScreen(accentColor: accent),
       );
     }
 
     // חשב סטטיסטיקות
-    final purchased = _itemStatuses.values
-        .where((s) => s == ShoppingItemStatus.purchased)
-        .length;
-    final notNeeded = _itemStatuses.values
-        .where((s) => s == ShoppingItemStatus.notNeeded)
-        .length;
+    final purchased = _itemStatuses.values.where((s) => s == ShoppingItemStatus.purchased).length;
+    final notNeeded = _itemStatuses.values.where((s) => s == ShoppingItemStatus.notNeeded).length;
     final completed = purchased + notNeeded;
     final total = widget.list.items.length;
 
@@ -354,8 +331,10 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen>
 
     return Stack(
       children: [
+        // 📓 Sticky Notes Background
+        const NotebookBackground(),
         Scaffold(
-          backgroundColor: cs.surface,
+          backgroundColor: Colors.transparent,
           appBar: AppBar(
             backgroundColor: accent,
             foregroundColor: Colors.white,
@@ -364,17 +343,11 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen>
               children: [
                 Text(
                   widget.list.name,
-                  style: const TextStyle(
-                    fontSize: kFontSizeMedium,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: const TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                 ),
-                Text(
-                  '⏱️ ${_formatDuration(_elapsed)}',
-                  style: const TextStyle(fontSize: kFontSizeSmall),
-                ),
+                Text('⏱️ ${_formatDuration(_elapsed)}', style: const TextStyle(fontSize: kFontSizeSmall)),
               ],
             ),
             actions: [
@@ -383,66 +356,53 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen>
                 icon: const Icon(Icons.check, color: Colors.white),
                 label: Text(
                   _isSaving ? 'שומר...' : 'סיום',
-                  style: TextStyle(
-                    color: _isSaving
-                        ? Colors.white.withValues(alpha: 0.5)
-                        : Colors.white,
-                  ),
+                  style: TextStyle(color: _isSaving ? Colors.white.withValues(alpha: 0.5) : Colors.white),
                 ),
               ),
             ],
           ),
           body: Column(
             children: [
-              // 📊 Header - סטטיסטיקות
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
+              // 📊 Header - סטטיסטיקות בתוך StickyNote
+              Padding(
                 padding: const EdgeInsets.all(kSpacingMedium),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      accent.withValues(alpha: 0.1),
-                      cs.surface,
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
+                child: StickyNote(
+                  color: kStickyYellow,
+                  rotation: -0.01,
+                  child: Padding(
+                    padding: const EdgeInsets.all(kSpacingSmall),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _StatCard(
+                          icon: Icons.check_circle,
+                          label: 'קנוי',
+                          value: '$purchased',
+                          color: StatusColors.success,
+                        ),
+                        _StatCard(
+                          icon: Icons.block,
+                          label: 'לא צריך',
+                          value: '$notNeeded',
+                          color: Colors.grey.shade600,
+                        ),
+                        _StatCard(
+                          icon: Icons.shopping_cart,
+                          label: 'נותרו',
+                          value: '${total - completed}',
+                          color: StatusColors.info,
+                        ),
+                        _StatCard(icon: Icons.inventory_2, label: 'סה״כ', value: '$total', color: StatusColors.pending),
+                      ],
+                    ),
                   ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _StatCard(
-                      icon: Icons.check_circle,
-                      label: 'קנוי',
-                      value: '$purchased',
-                      color: StatusColors.success,
-                    ),
-                    _StatCard(
-                      icon: Icons.block,
-                      label: 'לא צריך',
-                      value: '$notNeeded',
-                      color: Colors.grey.shade600,
-                    ),
-                    _StatCard(
-                      icon: Icons.shopping_cart,
-                      label: 'נותרו',
-                      value: '${total - completed}',
-                      color: StatusColors.info,
-                    ),
-                    _StatCard(
-                      icon: Icons.inventory_2,
-                      label: 'סה״כ',
-                      value: '$total',
-                      color: StatusColors.pending,
-                    ),
-                  ],
                 ),
               ),
 
               // 🗂️ רשימת מוצרים לפי קטגוריות
               Expanded(
                 child: ListView.builder(
-                  padding: const EdgeInsets.all(kSpacingMedium),
+                  padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
                   itemCount: itemsByCategory.length,
                   itemBuilder: (context, index) {
                     final category = itemsByCategory.keys.elementAt(index);
@@ -451,28 +411,29 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen>
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // כותרת קטגוריה
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: kSpacingSmall),
-                          child: Text(
-                            category,
-                            style: TextStyle(
-                              fontSize: kFontSizeMedium,
-                              fontWeight: FontWeight.bold,
-                              color: accent,
+                        // כותרת קטגוריה - בתוך StickyNote
+                        StickyNote(
+                          color: kStickyCyan,
+                          rotation: 0.01,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingTiny),
+                            child: Text(
+                              category,
+                              style: TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold, color: accent),
                             ),
                           ),
                         ),
+                        const SizedBox(height: kSpacingSmall),
 
                         // פריטים בקטגוריה
-                        ...items.map((item) => _ActiveShoppingItemTile(
-                              item: item,
-                              status: _itemStatuses[item.id]!,
-                              onStatusChanged: (newStatus) =>
-                                  _updateItemStatus(item, newStatus),
-                              animationController: _animationController,
-                            )),
+                        ...items.map(
+                          (item) => _ActiveShoppingItemTile(
+                            item: item,
+                            status: _itemStatuses[item.id]!,
+                            onStatusChanged: (newStatus) => _updateItemStatus(item, newStatus),
+                            animationController: _animationController,
+                          ),
+                        ),
 
                         const SizedBox(height: kSpacingMedium),
                       ],
@@ -489,20 +450,19 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen>
           Container(
             color: Colors.black.withValues(alpha: 0.5),
             child: Center(
-              child: Card(
+              child: StickyNote(
+                color: kStickyYellow,
+                rotation: 0.01,
                 child: Padding(
                   padding: const EdgeInsets.all(kSpacingLarge),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       CircularProgressIndicator(color: accent),
-                      SizedBox(height: kSpacingMedium),
+                      const SizedBox(height: kSpacingMedium),
                       Text(
                         'שומר את הנתונים...',
-                        style: TextStyle(
-                          fontSize: kFontSizeBody,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: TextStyle(fontSize: kFontSizeBody, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -536,22 +496,19 @@ class _LoadingSkeletonScreen extends StatefulWidget {
   State<_LoadingSkeletonScreen> createState() => _LoadingSkeletonScreenState();
 }
 
-class _LoadingSkeletonScreenState extends State<_LoadingSkeletonScreen>
-    with SingleTickerProviderStateMixin {
+class _LoadingSkeletonScreenState extends State<_LoadingSkeletonScreen> with SingleTickerProviderStateMixin {
   late AnimationController _shimmerController;
   late Animation<double> _shimmerAnimation;
 
   @override
   void initState() {
     super.initState();
-    _shimmerController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    )..repeat();
+    _shimmerController = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500))..repeat();
 
-    _shimmerAnimation = Tween<double>(begin: -2, end: 2).animate(
-      CurvedAnimation(parent: _shimmerController, curve: Curves.easeInOut),
-    );
+    _shimmerAnimation = Tween<double>(
+      begin: -2,
+      end: 2,
+    ).animate(CurvedAnimation(parent: _shimmerController, curve: Curves.easeInOut));
   }
 
   @override
@@ -571,24 +528,14 @@ class _LoadingSkeletonScreenState extends State<_LoadingSkeletonScreen>
           padding: const EdgeInsets.all(kSpacingMedium),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                widget.accentColor.withValues(alpha: 0.1),
-                cs.surface,
-              ],
+              colors: [widget.accentColor.withValues(alpha: 0.1), cs.surface],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: List.generate(
-              4,
-              (index) => _ShimmerBox(
-                width: 60,
-                height: 80,
-                animation: _shimmerAnimation,
-              ),
-            ),
+            children: List.generate(4, (index) => _ShimmerBox(width: 60, height: 80, animation: _shimmerAnimation)),
           ),
         ),
 
@@ -606,42 +553,22 @@ class _LoadingSkeletonScreenState extends State<_LoadingSkeletonScreen>
                   children: [
                     Row(
                       children: [
-                        _ShimmerBox(
-                          width: 40,
-                          height: 40,
-                          animation: _shimmerAnimation,
-                          borderRadius: 20,
-                        ),
-                        SizedBox(width: kSpacingSmall),
-                        Expanded(
-                          child: _ShimmerBox(
-                            height: 20,
-                            animation: _shimmerAnimation,
-                          ),
-                        ),
-                        SizedBox(width: kSpacingSmall),
-                        _ShimmerBox(
-                          width: 60,
-                          height: 30,
-                          animation: _shimmerAnimation,
-                        ),
+                        _ShimmerBox(width: 40, height: 40, animation: _shimmerAnimation, borderRadius: 20),
+                        const SizedBox(width: kSpacingSmall),
+                        Expanded(child: _ShimmerBox(height: 20, animation: _shimmerAnimation)),
+                        const SizedBox(width: kSpacingSmall),
+                        _ShimmerBox(width: 60, height: 30, animation: _shimmerAnimation),
                       ],
                     ),
-                    SizedBox(height: kSpacingSmall),
+                    const SizedBox(height: kSpacingSmall),
                     Row(
                       children: [
                         Expanded(
-                          child: _ShimmerBox(
-                            height: kButtonHeight,
-                            animation: _shimmerAnimation,
-                          ),
+                          child: _ShimmerBox(height: kButtonHeight, animation: _shimmerAnimation),
                         ),
-                        SizedBox(width: kSpacingSmall),
+                        const SizedBox(width: kSpacingSmall),
                         Expanded(
-                          child: _ShimmerBox(
-                            height: kButtonHeight,
-                            animation: _shimmerAnimation,
-                          ),
+                          child: _ShimmerBox(height: kButtonHeight, animation: _shimmerAnimation),
                         ),
                       ],
                     ),
@@ -666,12 +593,7 @@ class _ShimmerBox extends StatelessWidget {
   final double borderRadius;
   final Animation<double> animation;
 
-  const _ShimmerBox({
-    this.width,
-    required this.height,
-    this.borderRadius = kBorderRadius,
-    required this.animation,
-  });
+  const _ShimmerBox({this.width, required this.height, this.borderRadius = kBorderRadius, required this.animation});
 
   @override
   Widget build(BuildContext context) {
@@ -693,11 +615,7 @@ class _ShimmerBox extends StatelessWidget {
                 cs.surfaceContainerHighest.withValues(alpha: 0.1),
                 cs.surfaceContainerHighest.withValues(alpha: 0.3),
               ],
-              stops: [
-                0.0,
-                animation.value.clamp(0.0, 1.0),
-                1.0,
-              ],
+              stops: [0.0, animation.value.clamp(0.0, 1.0), 1.0],
             ),
           ),
         );
@@ -714,10 +632,7 @@ class _ErrorStateScreen extends StatelessWidget {
   final String errorMessage;
   final VoidCallback onRetry;
 
-  const _ErrorStateScreen({
-    required this.errorMessage,
-    required this.onRetry,
-  });
+  const _ErrorStateScreen({required this.errorMessage, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -729,35 +644,20 @@ class _ErrorStateScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: kIconSizeXLarge * 2,
-              color: StatusColors.error,
-            ),
-            SizedBox(height: kSpacingMedium),
+            Icon(Icons.error_outline, size: kIconSizeXLarge * 2, color: StatusColors.error),
+            const SizedBox(height: kSpacingMedium),
             Text(
               'אופס! משהו השתבש',
-              style: TextStyle(
-                fontSize: kFontSizeLarge,
-                fontWeight: FontWeight.bold,
-                color: cs.onSurface,
-              ),
+              style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold, color: cs.onSurface),
             ),
-            SizedBox(height: kSpacingSmall),
+            const SizedBox(height: kSpacingSmall),
             Text(
               errorMessage,
-              style: TextStyle(
-                fontSize: kFontSizeBody,
-                color: cs.onSurfaceVariant,
-              ),
+              style: TextStyle(fontSize: kFontSizeBody, color: cs.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: kSpacingLarge),
-            FilledButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh),
-              label: const Text('נסה שוב'),
-            ),
+            const SizedBox(height: kSpacingLarge),
+            StickyButton(label: 'נסה שוב', icon: Icons.refresh, onPressed: onRetry, color: StatusColors.info),
           ],
         ),
       ),
@@ -782,27 +682,16 @@ class _EmptyStateScreen extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.shopping_cart_outlined,
-            size: kIconSizeXLarge * 2,
-            color: cs.onSurfaceVariant,
-          ),
-          SizedBox(height: kSpacingMedium),
+          Icon(Icons.shopping_cart_outlined, size: kIconSizeXLarge * 2, color: cs.onSurfaceVariant),
+          const SizedBox(height: kSpacingMedium),
           Text(
             'הרשימה ריקה',
-            style: TextStyle(
-              fontSize: kFontSizeLarge,
-              fontWeight: FontWeight.bold,
-              color: cs.onSurface,
-            ),
+            style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold, color: cs.onSurface),
           ),
-          SizedBox(height: kSpacingSmall),
+          const SizedBox(height: kSpacingSmall),
           Text(
             'אין פריטים לקנייה',
-            style: TextStyle(
-              fontSize: kFontSizeBody,
-              color: cs.onSurfaceVariant,
-            ),
+            style: TextStyle(fontSize: kFontSizeBody, color: cs.onSurfaceVariant),
           ),
         ],
       ),
@@ -820,12 +709,7 @@ class _StatCard extends StatelessWidget {
   final String value;
   final Color color;
 
-  const _StatCard({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-  });
+  const _StatCard({required this.icon, required this.label, required this.value, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -835,18 +719,11 @@ class _StatCard extends StatelessWidget {
         const SizedBox(height: kSpacingTiny),
         Text(
           value,
-          style: TextStyle(
-            fontSize: kFontSizeXLarge,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
+          style: TextStyle(fontSize: kFontSizeXLarge, fontWeight: FontWeight.bold, color: color),
         ),
         Text(
           label,
-          style: TextStyle(
-            fontSize: kFontSizeSmall,
-            color: color.withValues(alpha: 0.7),
-          ),
+          style: TextStyle(fontSize: kFontSizeSmall, color: color.withValues(alpha: 0.7)),
         ),
       ],
     );
@@ -854,7 +731,7 @@ class _StatCard extends StatelessWidget {
 }
 
 // ========================================
-// Widget: פריט בקנייה פעילה
+// Widget: פריט בקנייה פעילה - Sticky Note Style
 // ========================================
 
 class _ActiveShoppingItemTile extends StatelessWidget {
@@ -880,185 +757,163 @@ class _ActiveShoppingItemTile extends StatelessWidget {
     final product = productsProvider.getByName(item.name ?? '');
     final realPrice = product?['price'] as double? ?? item.unitPrice;
 
-    // 🎨 צבע רקע לפי סטטוס
-    Color cardColor;
+    // 🎨 צבע StickyNote לפי סטטוס
+    Color stickyColor;
+    double rotation;
     switch (status) {
       case ShoppingItemStatus.purchased:
-        cardColor = StatusColors.success.withValues(alpha: 0.1);
+        stickyColor = kStickyGreen;
+        rotation = 0.01;
         break;
       case ShoppingItemStatus.outOfStock:
-        cardColor = StatusColors.error.withValues(alpha: 0.1);
+        stickyColor = kStickyPink;
+        rotation = -0.015;
         break;
       case ShoppingItemStatus.deferred:
-        cardColor = StatusColors.warning.withValues(alpha: 0.1);
+        stickyColor = kStickyPurple;
+        rotation = 0.02;
         break;
       case ShoppingItemStatus.notNeeded:
-        cardColor = Colors.grey.withValues(alpha: 0.1);
+        stickyColor = Colors.grey.shade200;
+        rotation = -0.01;
         break;
       default:
-        cardColor = cs.surface;
+        stickyColor = Colors.white;
+        rotation = 0.005;
     }
 
     return ScaleTransition(
-      scale: Tween<double>(begin: 1.0, end: 0.98).animate(
-        CurvedAnimation(
-          parent: animationController,
-          curve: Curves.easeInOut,
-        ),
-      ),
+      scale: Tween<double>(
+        begin: 1.0,
+        end: 0.98,
+      ).animate(CurvedAnimation(parent: animationController, curve: Curves.easeInOut)),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-        child: Card(
-          margin: const EdgeInsets.only(bottom: kSpacingSmall),
-          elevation:
-              status == ShoppingItemStatus.purchased ? 1 : kCardElevation,
-          color: cardColor,
-          child: Padding(
-            padding: const EdgeInsets.all(kSpacingSmallPlus),
-            child: Column(
-              children: [
-                // שורה עליונה: שם + מחיר
-                Row(
-                  children: [
-                    // אייקון סטטוס
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      child: Icon(
-                        status.icon,
-                        key: ValueKey(status),
-                        color: status.color,
-                        size: status == ShoppingItemStatus.pending
-                            ? kIconSizeMedium + 4
-                            : kIconSizeLarge,
-                      ),
+        margin: const EdgeInsets.only(bottom: kSpacingSmall),
+        child: StickyNote(
+          color: stickyColor,
+          rotation: rotation,
+          child: Column(
+            children: [
+              // שורה עליונה: שם + מחיר
+              Row(
+                children: [
+                  // אייקון סטטוס
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: Icon(
+                      status.icon,
+                      key: ValueKey(status),
+                      color: status.color,
+                      size: status == ShoppingItemStatus.pending ? kIconSizeMedium + 4 : kIconSizeLarge,
                     ),
-                    const SizedBox(width: kSpacingSmallPlus),
+                  ),
+                  const SizedBox(width: kSpacingSmallPlus),
 
-                    // שם המוצר
-                    Expanded(
-                      child: AnimatedDefaultTextStyle(
-                        duration: const Duration(milliseconds: 300),
+                  // שם המוצר
+                  Expanded(
+                    child: AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 300),
+                      style: TextStyle(
+                        fontSize: kFontSizeBody,
+                        fontWeight: FontWeight.w600,
+                        decoration: status == ShoppingItemStatus.purchased ? TextDecoration.lineThrough : null,
+                        color: status == ShoppingItemStatus.pending
+                            ? cs.onSurface
+                            : cs.onSurface.withValues(alpha: 0.7),
+                      ),
+                      child: Text(item.name ?? 'ללא שם', overflow: TextOverflow.ellipsis, maxLines: 2),
+                    ),
+                  ),
+
+                  // כמות × מחיר אמיתי
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        '${item.quantity}×',
+                        style: TextStyle(
+                          fontSize: kFontSizeSmall,
+                          color: status == ShoppingItemStatus.pending
+                              ? cs.onSurfaceVariant
+                              : cs.onSurfaceVariant.withValues(alpha: 0.7),
+                        ),
+                      ),
+                      Text(
+                        realPrice > 0 ? '₪${realPrice.toStringAsFixed(2)}' : 'אין מחיר',
                         style: TextStyle(
                           fontSize: kFontSizeBody,
-                          fontWeight: FontWeight.w600,
-                          decoration:
-                              status == ShoppingItemStatus.purchased
-                                  ? TextDecoration.lineThrough
-                                  : null,
-                          color: status == ShoppingItemStatus.pending
-                              ? cs.onSurface
-                              : cs.onSurface.withValues(alpha: 0.7),
-                        ),
-                        child: Text(
-                          item.name ?? 'ללא שם',
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
+                          fontWeight: FontWeight.bold,
+                          color: realPrice > 0
+                              ? (status == ShoppingItemStatus.pending
+                                    ? status.color
+                                    : status.color.withValues(alpha: 0.8))
+                              : cs.onSurfaceVariant.withValues(alpha: 0.7),
                         ),
                       ),
-                    ),
+                    ],
+                  ),
+                ],
+              ),
 
-                    // כמות × מחיר אמיתי
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          '${item.quantity}×',
-                          style: TextStyle(
-                            fontSize: kFontSizeSmall,
-                            color: status == ShoppingItemStatus.pending
-                                ? cs.onSurfaceVariant
-                                : cs.onSurfaceVariant
-                                    .withValues(alpha: 0.7),
-                          ),
-                        ),
-                        Text(
-                          realPrice > 0
-                              ? '₪${realPrice.toStringAsFixed(2)}'
-                              : 'אין מחיר',
-                          style: TextStyle(
-                            fontSize: kFontSizeBody,
-                            fontWeight: FontWeight.bold,
-                            color: realPrice > 0
-                                ? (status == ShoppingItemStatus.pending
-                                    ? status.color
-                                    : status.color
-                                        .withValues(alpha: 0.8))
-                                : cs.onSurfaceVariant
-                                    .withValues(alpha: 0.7),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              const SizedBox(height: kSpacingSmallPlus),
 
-                const SizedBox(height: kSpacingSmallPlus),
-
-                // שורה תחתונה: 4 כפתורי פעולה
-                Column(
-                  children: [
-                    // שורה 1: קנוי + אזל
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _ActionButton(
-                            icon: Icons.check_circle,
-                            label: 'קנוי',
-                            color: StatusColors.success,
-                            isSelected:
-                                status == ShoppingItemStatus.purchased,
-                            onTap: () => onStatusChanged(
-                                ShoppingItemStatus.purchased),
-                          ),
+              // שורה תחתונה: 4 כפתורי פעולה
+              Column(
+                children: [
+                  // שורה 1: קנוי + אזל
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _ActionButton(
+                          icon: Icons.check_circle,
+                          label: 'קנוי',
+                          color: StatusColors.success,
+                          isSelected: status == ShoppingItemStatus.purchased,
+                          onTap: () => onStatusChanged(ShoppingItemStatus.purchased),
                         ),
-                        const SizedBox(width: kSpacingSmall),
-                        Expanded(
-                          child: _ActionButton(
-                            icon: Icons.remove_shopping_cart,
-                            label: 'אזל',
-                            color: StatusColors.error,
-                            isSelected:
-                                status == ShoppingItemStatus.outOfStock,
-                            onTap: () => onStatusChanged(
-                                ShoppingItemStatus.outOfStock),
-                          ),
+                      ),
+                      const SizedBox(width: kSpacingSmall),
+                      Expanded(
+                        child: _ActionButton(
+                          icon: Icons.remove_shopping_cart,
+                          label: 'אזל',
+                          color: StatusColors.error,
+                          isSelected: status == ShoppingItemStatus.outOfStock,
+                          onTap: () => onStatusChanged(ShoppingItemStatus.outOfStock),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: kSpacingSmall),
-                    // שורה 2: דחה לאחר כך + לא צריך
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _ActionButton(
-                            icon: Icons.schedule,
-                            label: 'דחה לאחר כך',
-                            color: StatusColors.warning,
-                            isSelected:
-                                status == ShoppingItemStatus.deferred,
-                            onTap: () =>
-                                onStatusChanged(ShoppingItemStatus.deferred),
-                          ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: kSpacingSmall),
+                  // שורה 2: דחה לאחר כך + לא צריך
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _ActionButton(
+                          icon: Icons.schedule,
+                          label: 'דחה לאחר כך',
+                          color: StatusColors.warning,
+                          isSelected: status == ShoppingItemStatus.deferred,
+                          onTap: () => onStatusChanged(ShoppingItemStatus.deferred),
                         ),
-                        const SizedBox(width: kSpacingSmall),
-                        Expanded(
-                          child: _ActionButton(
-                            icon: Icons.block,
-                            label: 'לא צריך',
-                            color: Colors.grey.shade700,
-                            isSelected:
-                                status == ShoppingItemStatus.notNeeded,
-                            onTap: () =>
-                                onStatusChanged(ShoppingItemStatus.notNeeded),
-                          ),
+                      ),
+                      const SizedBox(width: kSpacingSmall),
+                      Expanded(
+                        child: _ActionButton(
+                          icon: Icons.block,
+                          label: 'לא צריך',
+                          color: Colors.grey.shade700,
+                          isSelected: status == ShoppingItemStatus.notNeeded,
+                          onTap: () => onStatusChanged(ShoppingItemStatus.notNeeded),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
@@ -1067,10 +922,10 @@ class _ActiveShoppingItemTile extends StatelessWidget {
 }
 
 // ========================================
-// Widget: כפתור פעולה
+// Widget: כפתור פעולה - Sticky Button Style
 // ========================================
 
-class _ActionButton extends StatefulWidget {
+class _ActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
@@ -1086,89 +941,20 @@ class _ActionButton extends StatefulWidget {
   });
 
   @override
-  State<_ActionButton> createState() => _ActionButtonState();
-}
-
-class _ActionButtonState extends State<_ActionButton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _scaleController;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _scaleController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 100),
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
-      CurvedAnimation(parent: _scaleController, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _scaleController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    // Sticky Button style with proper colors
+    final buttonColor = isSelected ? color : Colors.white;
+    final textColor = isSelected ? Colors.white : color;
 
-    return ScaleTransition(
-      scale: _scaleAnimation,
-      child: InkWell(
-        onTap: () {
-          _scaleController.forward().then((_) {
-            _scaleController.reverse();
-          });
-          widget.onTap();
-        },
-        borderRadius: BorderRadius.circular(kBorderRadius),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(
-            vertical: kSpacingSmall,
-            horizontal: kSpacingTiny,
-          ),
-          constraints: const BoxConstraints(
-            minHeight: kButtonHeight,
-          ),
-          decoration: BoxDecoration(
-            color: widget.isSelected
-                ? widget.color.withValues(alpha: 0.2)
-                : Colors.transparent,
-            border: Border.all(
-              color: widget.isSelected ? widget.color : cs.outline,
-              width: widget.isSelected ? 2 : 1,
-            ),
-            borderRadius: BorderRadius.circular(kBorderRadius),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                widget.icon,
-                color:
-                    widget.isSelected ? widget.color : cs.onSurfaceVariant,
-                size: kIconSizeSmall,
-              ),
-              const SizedBox(width: kSpacingTiny),
-              Text(
-                widget.label,
-                style: TextStyle(
-                  fontSize: kFontSizeTiny + 1,
-                  fontWeight: widget.isSelected
-                      ? FontWeight.bold
-                      : FontWeight.normal,
-                  color:
-                      widget.isSelected ? widget.color : cs.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-        ),
+    return Transform.scale(
+      scale: isSelected ? 1.02 : 1.0,
+      child: StickyButton(
+        label: label,
+        icon: icon,
+        color: buttonColor,
+        textColor: textColor,
+        height: 44, // Compact height
+        onPressed: onTap,
       ),
     );
   }
@@ -1213,17 +999,12 @@ class _ShoppingSummaryDialog extends StatelessWidget {
     return AlertDialog(
       title: Row(
         children: [
-          Icon(Icons.check_circle,
-              color: StatusColors.success, size: kIconSizeLarge),
+          Icon(Icons.check_circle, color: StatusColors.success, size: kIconSizeLarge),
           const SizedBox(width: kSpacingSmallPlus),
           Expanded(
             child: Text(
               'סיכום קנייה',
-              style: TextStyle(
-                fontSize: kFontSizeLarge + 4,
-                fontWeight: FontWeight.bold,
-                color: cs.onSurface,
-              ),
+              style: TextStyle(fontSize: kFontSizeLarge + 4, fontWeight: FontWeight.bold, color: cs.onSurface),
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
             ),
@@ -1237,11 +1018,7 @@ class _ShoppingSummaryDialog extends StatelessWidget {
           children: [
             Text(
               listName,
-              style: TextStyle(
-                fontSize: kFontSizeMedium,
-                fontWeight: FontWeight.bold,
-                color: cs.primary,
-              ),
+              style: TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold, color: cs.primary),
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
             ),
@@ -1267,12 +1044,7 @@ class _ShoppingSummaryDialog extends StatelessWidget {
 
             // 🚫 לא צריך
             if (notNeeded > 0)
-              _SummaryRow(
-                icon: Icons.block,
-                label: 'לא צריך',
-                value: '$notNeeded',
-                color: Colors.grey.shade700,
-              ),
+              _SummaryRow(icon: Icons.block, label: 'לא צריך', value: '$notNeeded', color: Colors.grey.shade700),
 
             // ❌ אזלו
             if (outOfStock > 0)
@@ -1304,14 +1076,14 @@ class _ShoppingSummaryDialog extends StatelessWidget {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: const Text('חזור'),
-        ),
-        FilledButton.icon(
+        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('חזור')),
+        StickyButton(
+          label: 'סיים קנייה',
+          icon: Icons.check,
           onPressed: () => Navigator.pop(context, true),
-          icon: const Icon(Icons.check),
-          label: const Text('סיים קנייה'),
+          color: StatusColors.success,
+          textColor: Colors.white,
+          height: 44,
         ),
       ],
     );
@@ -1328,12 +1100,7 @@ class _SummaryRow extends StatelessWidget {
   final String value;
   final Color color;
 
-  const _SummaryRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-  });
+  const _SummaryRow({required this.icon, required this.label, required this.value, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -1344,18 +1111,11 @@ class _SummaryRow extends StatelessWidget {
           Icon(icon, color: color, size: kIconSizeMedium + 2),
           const SizedBox(width: kSpacingSmallPlus),
           Expanded(
-            child: Text(
-              label,
-              style: const TextStyle(fontSize: kFontSizeBody),
-            ),
+            child: Text(label, style: const TextStyle(fontSize: kFontSizeBody)),
           ),
           Text(
             value,
-            style: TextStyle(
-              fontSize: kFontSizeBody,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
+            style: TextStyle(fontSize: kFontSizeBody, fontWeight: FontWeight.bold, color: color),
           ),
         ],
       ),

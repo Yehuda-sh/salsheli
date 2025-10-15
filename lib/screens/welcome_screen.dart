@@ -33,13 +33,31 @@ import '../widgets/common/notebook_background.dart';
 import '../widgets/common/sticky_note.dart';
 import '../widgets/common/sticky_button.dart';
 import '../widgets/common/benefit_tile.dart';
-import '../widgets/common/animated_button.dart';
+
 import '../widgets/common/tappable_card.dart';
 import '../core/ui_constants.dart';
 import '../l10n/app_strings.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
+
+  /// מטפל בלחיצה על כפתור התחברות
+  static void _handleLogin(BuildContext context) {
+    debugPrint('🔐 WelcomeScreen: התחברות נלחץ');
+    Navigator.pushNamed(context, '/login').catchError((error) {
+      debugPrint('❌ שגיאה בניווט ל-login: $error');
+      return null;
+    });
+  }
+
+  /// מטפל בלחיצה על כפתור הרשמה
+  static void _handleRegister(BuildContext context) {
+    debugPrint('📝 WelcomeScreen: הרשמה נלחץ');
+    Navigator.pushNamed(context, '/onboarding').catchError((error) {
+      debugPrint('❌ שגיאה בניווט ל-onboarding: $error');
+      return null;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -156,44 +174,20 @@ class WelcomeScreen extends StatelessWidget {
 
                     const SizedBox(height: kSpacingLarge),
 
-                    // 🔘 כפתורי פעולה בסגנון פתקים עם אנימציות לחיצה
-                    AnimatedButton(
-                      onPressed: () async {
-                        debugPrint('🔐 WelcomeScreen: התחברות נלחץ');
-                        if (context.mounted) {
-                          try {
-                            await Navigator.pushNamed(context, '/login');
-                          } catch (e) {
-                            debugPrint('❌ שגיאה בניווט: $e');
-                          }
-                        }
-                      },
-                      child: StickyButton(
-                        color: accent,
-                        label: AppStrings.welcome.loginButton,
-                        icon: Icons.login,
-                        onPressed: () {}, // AnimatedButton מטפל ב-onPressed
-                      ),
+                    // 🔘 כפתורי פעולה בסגנון פתקים
+                    StickyButton(
+                      color: accent,
+                      label: AppStrings.welcome.loginButton,
+                      icon: Icons.login,
+                      onPressed: () => _handleLogin(context),
                     ),
                     const SizedBox(height: kSpacingMedium),
-                    AnimatedButton(
-                      onPressed: () async {
-                        debugPrint('📝 WelcomeScreen: הרשמה נלחץ');
-                        if (context.mounted) {
-                          try {
-                            await Navigator.pushNamed(context, '/onboarding');
-                          } catch (e) {
-                            debugPrint('❌ שגיאה בניווט: $e');
-                          }
-                        }
-                      },
-                      child: StickyButton(
-                        color: Colors.white,
-                        textColor: accent,
-                        label: AppStrings.welcome.registerButton,
-                        icon: Icons.app_registration_outlined,
-                        onPressed: () {}, // AnimatedButton מטפל ב-onPressed
-                      ),
+                    StickyButton(
+                      color: Colors.white,
+                      textColor: accent,
+                      label: AppStrings.welcome.registerButton,
+                      icon: Icons.app_registration_outlined,
+                      onPressed: () => _handleRegister(context),
                     ),
                     const SizedBox(height: kSpacingLarge),
                   ],

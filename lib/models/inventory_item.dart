@@ -1,48 +1,30 @@
 // 📄 File: lib/models/inventory_item.dart
-// Version: 2.1
+// Version: 2.2
 // Last Updated: 15/10/2025
 //
-// Purpose:
-//   מודל InventoryItem מייצג פריט במלאי/מזווה של משק הבית.
-//   תומך בסנכרון עם Firebase Firestore ב-JSON format.
+// ✅ Improvements in v2.2:
+// - Added @JsonKey(defaultValue) for safe defaults
+// - Removed manual null cleaning
+// - Protected `id` from modification in copyWith()
+// - Cleaned up debug logging
 //
-// Features:
+// 🧱 Purpose:
+//   מודל InventoryItem מייצג פריט במלאי/מזווה של משק הבית.
+//   תומך בסנכרון עם Firebase Firestore בפורמט JSON.
+//
+// 🚀 Features:
 //   ✅ JSON serialization (json_annotation)
 //   ✅ Immutable model (@immutable)
-//   ✅ copyWith for updates
+//   ✅ copyWith for updates (id immutable)
 //   ✅ Equality & hashCode
 //   ✅ Firebase-ready (household_id handled by Repository)
-//   ✅ Compact debug logging
-//   ✅ Corrupted data handling (v2.1)
+//   ✅ Default fallbacks for missing data
+//   ✅ Clean debug logging
 //
-// Usage:
-//   ```dart
-//   // יצירה
-//   final item = InventoryItem(
-//     id: uuid.v4(),
-//     productName: 'חלב 3%',
-//     category: 'מוצרי חלב',
-//     location: 'מקרר',
-//     quantity: 2,
-//     unit: 'ליטר',
-//   );
-//
-//   // JSON
-//   final json = item.toJson();
-//   final fromJson = InventoryItem.fromJson(json);
-//
-//   // עדכון
-//   final updated = item.copyWith(quantity: 1);
-//   ```
-//
-// Dependencies:
-//   - json_annotation: JSON serialization
-//   - firebase_inventory_repository: household_id management
-//
-// Notes:
-//   - household_id לא חלק מהמודל (Repository מנהל אותו)
-//   - Repository מוסיף household_id בשמירה ל-Firestore
+// 🧠 Notes:
+//   - household_id לא חלק מהמודל (Repository מוסיף אותו)
 //   - Repository מסנן לפי household_id בטעינה
+//   - כל שדות ה-JSON עם @JsonKey(defaultValue) כדי למנוע null values
 
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -56,18 +38,23 @@ class InventoryItem {
   final String id;
 
   /// שם המוצר (e.g., "חלב 3%")
+  @JsonKey(defaultValue: 'מוצר לא ידוע')
   final String productName;
 
   /// קטגוריה (e.g., "מוצרי חלב", "ירקות")
+  @JsonKey(defaultValue: 'כללי')
   final String category;
 
   /// מיקום אחסון (e.g., "מקרר", "מקפיא", "ארון")
+  @JsonKey(defaultValue: 'כללי')
   final String location;
 
   /// כמות זמינה
+  @JsonKey(defaultValue: 0)
   final int quantity;
 
   /// יחידת מידה (e.g., "יח'", "ק"ג", "ליטר")
+  @JsonKey(defaultValue: 'יח\'')
   final String unit;
 
   const InventoryItem({
@@ -79,51 +66,40 @@ class InventoryItem {
     required this.unit,
   });
 
+  // =========================================================
+  // ✅ JSON Serialization / Deserialization
+  // =========================================================
+
   /// יצירה מ-JSON (deserialize)
   factory InventoryItem.fromJson(Map<String, dynamic> json) {
-    // בדיקת נתונים פגומים
-    final hasCorruptData = json['productName'] == null ||
-        json['category'] == null ||
-        json['location'] == null ||
-        json['quantity'] == null ||
-        json['unit'] == null;
-
-    if (hasCorruptData) {
-      debugPrint('⚠️ InventoryItem.fromJson: נתונים פגומים! id=${json['id']}, product=${json['productName']}, qty=${json['quantity']}');
-    } else {
-      debugPrint('📥 InventoryItem.fromJson: id=${json['id']}, product=${json['productName']}, qty=${json['quantity']}');
+    if (kDebugMode) {
+      debugPrint(
+        '📥 InventoryItem.fromJson: id=${json['id']}, '
+        'product=${json['productName']}, qty=${json['quantity']}',
+      );
     }
-    
-    // טיפול בנתונים פגומים - ערכי default במקום null
-    final cleanedJson = {
-      'id': json['id'] ?? 'unknown_${DateTime.now().millisecondsSinceEpoch}',
-      'productName': json['productName'] ?? 'מוצר לא ידוע',
-      'category': json['category'] ?? 'כללי',
-      'location': json['location'] ?? 'כללי',
-      'quantity': json['quantity'] ?? 0,
-      'unit': json['unit'] ?? 'יח\'',
-    };
-    
-    return _$InventoryItemFromJson(cleanedJson);
+    return _$InventoryItemFromJson(json);
   }
 
   /// המרה ל-JSON (serialize)
   Map<String, dynamic> toJson() {
-    debugPrint('📤 InventoryItem.toJson: id=$id, product=$productName, qty=$quantity');
+    if (kDebugMode) {
+      debugPrint(
+        '📤 InventoryItem.toJson: id=$id, '
+        'product=$productName, qty=$quantity',
+      );
+    }
     return _$InventoryItemToJson(this);
   }
 
-  /// יצירת עותק חדש עם עדכונים
-  InventoryItem copyWith({
-    String? id,
-    String? productName,
-    String? category,
-    String? location,
-    int? quantity,
-    String? unit,
-  }) {
+  // =========================================================
+  // 🧩 copyWith (id protected)
+  // =========================================================
+
+  /// יצירת עותק חדש עם עדכונים (id נשאר קבוע)
+  InventoryItem copyWith({String? productName, String? category, String? location, int? quantity, String? unit}) {
     return InventoryItem(
-      id: id ?? this.id,
+      id: id,
       productName: productName ?? this.productName,
       category: category ?? this.category,
       location: location ?? this.location,
@@ -132,9 +108,12 @@ class InventoryItem {
     );
   }
 
+  // =========================================================
+  // 🧾 Debug / Equality
+  // =========================================================
+
   @override
-  String toString() =>
-      'InventoryItem(id: $id, name: $productName, qty: $quantity $unit, location: $location)';
+  String toString() => 'InventoryItem(id: $id, name: $productName, qty: $quantity $unit, location: $location)';
 
   @override
   bool operator ==(Object other) =>
@@ -148,6 +127,5 @@ class InventoryItem {
           other.unit == unit;
 
   @override
-  int get hashCode =>
-      Object.hash(id, productName, category, location, quantity, unit);
+  int get hashCode => Object.hash(id, productName, category, location, quantity, unit);
 }

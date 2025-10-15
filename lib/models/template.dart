@@ -56,6 +56,7 @@ import 'timestamp_converter.dart';
 part 'template.g.dart';
 
 /// תבנית רשימה - מכילה פריטים ברירת מחדל והגדרות
+@immutable
 @JsonSerializable(explicitToJson: true)
 class Template {
   /// מזהה ייחודי (בדרך כלל: template_{type} או template_custom_{uuid})
@@ -364,21 +365,25 @@ class Template {
 
   /// יצירה מ-JSON
   factory Template.fromJson(Map<String, dynamic> json) {
-    debugPrint('📥 Template.fromJson:');
-    debugPrint('   id: ${json['id']}');
-    debugPrint('   name: ${json['name']}');
-    debugPrint('   type: ${json['type']}');
-    debugPrint('   items: ${(json['default_items'] as List?)?.length ?? 0}');
+    if (kDebugMode) {
+      debugPrint('📥 Template.fromJson:');
+      debugPrint('   id: ${json['id']}');
+      debugPrint('   name: ${json['name']}');
+      debugPrint('   type: ${json['type']}');
+      debugPrint('   items: ${(json['default_items'] as List?)?.length ?? 0}');
+    }
     return _$TemplateFromJson(json);
   }
 
   /// המרה ל-JSON
   Map<String, dynamic> toJson() {
-    debugPrint('📤 Template.toJson:');
-    debugPrint('   id: $id');
-    debugPrint('   name: $name');
-    debugPrint('   type: $type');
-    debugPrint('   items: ${defaultItems.length}');
+    if (kDebugMode) {
+      debugPrint('📤 Template.toJson:');
+      debugPrint('   id: $id');
+      debugPrint('   name: $name');
+      debugPrint('   type: $type');
+      debugPrint('   items: ${defaultItems.length}');
+    }
     return _$TemplateToJson(this);
   }
 
@@ -400,6 +405,7 @@ class Template {
 // ========================================
 
 /// פריט בתוך תבנית - מייצג מוצר מוצע
+@immutable
 @JsonSerializable()
 class TemplateItem {
   /// שם הפריט

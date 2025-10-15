@@ -69,6 +69,17 @@ class _IndexScreenState extends State<IndexScreen>
   late AnimationController _textController;
   late AnimationController _waveController;
 
+  // ⏱️ Animation Durations (constants for better maintainability)
+  static const _logoAnimationDuration = Duration(milliseconds: 1200);
+  static const _pulseAnimationDuration = Duration(milliseconds: 2000);
+  static const _shimmerAnimationDuration = Duration(milliseconds: 2000);
+  static const _textAnimationDuration = Duration(milliseconds: 1000);
+  static const _waveAnimationDuration = Duration(milliseconds: 3000);
+  static const _messageRotationDelay = Duration(seconds: 2);
+  static const _gradientAnimationDuration = Duration(milliseconds: 1500);
+  static const _errorAnimationDuration = Duration(milliseconds: 800);
+  static const _switcherAnimationDuration = Duration(milliseconds: 500);
+
   // 📝 הודעות טעינה
   final List<String> _loadingMessages = [
     'בודק מצב...',
@@ -85,27 +96,27 @@ class _IndexScreenState extends State<IndexScreen>
     // 🎬 Initialize Animation Controllers
     _logoController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: _logoAnimationDuration,
     );
 
     _pulseController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2000),
+      duration: _pulseAnimationDuration,
     )..repeat(reverse: true);
 
     _shimmerController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2000),
+      duration: _shimmerAnimationDuration,
     )..repeat();
 
     _textController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1000),
+      duration: _textAnimationDuration,
     );
 
     _waveController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 3000),
+      duration: _waveAnimationDuration,
     )..repeat();
 
     // 🚀 Start animations
@@ -123,7 +134,7 @@ class _IndexScreenState extends State<IndexScreen>
 
   /// מחליף הודעות טעינה
   void _startMessageRotation() {
-    Future.delayed(const Duration(seconds: 2), () {
+    Future.delayed(_messageRotationDelay, () {
       if (!mounted || _hasNavigated) return;
 
       setState(() {
@@ -289,7 +300,7 @@ class _IndexScreenState extends State<IndexScreen>
   Widget _buildGradientBackground() {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
-      duration: const Duration(milliseconds: 1500),
+      duration: _gradientAnimationDuration,
       curve: Curves.easeOut,
       builder: (context, value, child) {
         return Container(
@@ -511,7 +522,7 @@ class _IndexScreenState extends State<IndexScreen>
 
             // הודעת טעינה מתחלפת
             AnimatedSwitcher(
-              duration: const Duration(milliseconds: 500),
+              duration: _switcherAnimationDuration,
               transitionBuilder: (child, animation) {
                 return FadeTransition(
                   opacity: animation,
@@ -551,7 +562,7 @@ class _IndexScreenState extends State<IndexScreen>
   Widget _buildErrorState(ColorScheme cs) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
-      duration: const Duration(milliseconds: 800),
+      duration: _errorAnimationDuration,
       curve: Curves.elasticOut,
       builder: (context, value, child) {
         return Transform.scale(
@@ -620,10 +631,14 @@ class _IndexScreenState extends State<IndexScreen>
             const SizedBox(height: kSpacingXLarge),
 
             // כפתור retry
-            ElevatedButton.icon(
-              onPressed: _retry,
-              icon: const Icon(Icons.refresh),
-              label: const Text('נסה שוב'),
+            Semantics(
+              button: true,
+              label: 'נסה שוב לטעון את האפליקציה',
+              hint: 'לחץ כדי לנסות שוב',
+              child: ElevatedButton.icon(
+                onPressed: _retry,
+                icon: const Icon(Icons.refresh),
+                label: const Text('נסה שוב'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF667eea),
                 foregroundColor: Colors.white,
@@ -636,6 +651,7 @@ class _IndexScreenState extends State<IndexScreen>
                 ),
                 elevation: 5,
               ),
+            ),
             ),
           ],
         ),

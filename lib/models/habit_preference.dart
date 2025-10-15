@@ -21,11 +21,13 @@
 //
 // **Version:** 1.0
 
+import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'timestamp_converter.dart';
 
 part 'habit_preference.g.dart';
 
+@immutable
 @JsonSerializable(explicitToJson: true)
 class HabitPreference {
   /// מזהה ייחודי (Firestore document ID)

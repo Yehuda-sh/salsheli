@@ -32,8 +32,12 @@ import 'timestamp_converter.dart';
 
 part 'shopping_list.g.dart';
 
+// Sentinel value for detecting when nullable fields should be explicitly set to null
+const _sentinel = Object();
+
 /// 🇮🇱 מודל רשימת קניות
 /// 🇬🇧 Shopping list model
+@immutable
 @JsonSerializable(explicitToJson: true)
 class ShoppingList {
   /// 🇮🇱 מזהה ייחודי לרשימה
@@ -231,6 +235,9 @@ class ShoppingList {
 
   /// 🇮🇱 יצירת עותק עם שינויים
   /// 🇬🇧 Create a copy with updates
+  /// 
+  /// Note: To nullify optional fields, use Object as the parameter type.
+  /// Example: copyWith(budget: null) will clear the budget field.
   ShoppingList copyWith({
     String? id,
     String? name,
@@ -238,14 +245,14 @@ class ShoppingList {
     DateTime? createdDate,
     String? status,
     String? type,
-    double? budget,
-    DateTime? eventDate,
-    DateTime? targetDate,
+    Object? budget = _sentinel,  // Using Object? to allow explicit null
+    Object? eventDate = _sentinel,  // Using Object? to allow explicit null
+    Object? targetDate = _sentinel,  // Using Object? to allow explicit null
     bool? isShared,
     String? createdBy,
     List<String>? sharedWith,
     List<ReceiptItem>? items,
-    String? templateId,
+    Object? templateId = _sentinel,  // Using Object? to allow explicit null
     String? format,
     bool? createdFromTemplate,
   }) {
@@ -256,14 +263,22 @@ class ShoppingList {
       createdDate: createdDate ?? this.createdDate,
       status: status ?? this.status,
       type: type ?? this.type,
-      budget: budget ?? this.budget,
-      eventDate: eventDate ?? this.eventDate,
-      targetDate: targetDate ?? this.targetDate,
+      budget: identical(budget, _sentinel) 
+          ? this.budget 
+          : budget as double?,  // Allow explicit null
+      eventDate: identical(eventDate, _sentinel) 
+          ? this.eventDate 
+          : eventDate as DateTime?,  // Allow explicit null
+      targetDate: identical(targetDate, _sentinel) 
+          ? this.targetDate 
+          : targetDate as DateTime?,  // Allow explicit null
       isShared: isShared ?? this.isShared,
       createdBy: createdBy ?? this.createdBy,
       sharedWith: sharedWith ?? this.sharedWith,
       items: items ?? this.items,
-      templateId: templateId ?? this.templateId,
+      templateId: identical(templateId, _sentinel) 
+          ? this.templateId 
+          : templateId as String?,  // Allow explicit null
       format: format ?? this.format,
       createdFromTemplate: createdFromTemplate ?? this.createdFromTemplate,
     );
@@ -290,24 +305,28 @@ class ShoppingList {
   /// 🇮🇱 יצירה מ-JSON
   /// 🇬🇧 Create from JSON
   factory ShoppingList.fromJson(Map<String, dynamic> json) {
-    debugPrint('📥 ShoppingList.fromJson:');
-    debugPrint('   id: ${json['id']}');
-    debugPrint('   name: ${json['name']}');
-    debugPrint('   type: ${json['type']}');
-    debugPrint('   status: ${json['status']}');
-    debugPrint('   items: ${(json['items'] as List?)?.length ?? 0}');
+    if (kDebugMode) {
+      debugPrint('📥 ShoppingList.fromJson:');
+      debugPrint('   id: ${json['id']}');
+      debugPrint('   name: ${json['name']}');
+      debugPrint('   type: ${json['type']}');
+      debugPrint('   status: ${json['status']}');
+      debugPrint('   items: ${(json['items'] as List?)?.length ?? 0}');
+    }
     return _$ShoppingListFromJson(json);
   }
 
   /// 🇮🇱 המרה ל-JSON
   /// 🇬🇧 Convert to JSON
   Map<String, dynamic> toJson() {
-    debugPrint('📤 ShoppingList.toJson:');
-    debugPrint('   id: $id');
-    debugPrint('   name: $name');
-    debugPrint('   type: $type');
-    debugPrint('   status: $status');
-    debugPrint('   items: ${items.length}');
+    if (kDebugMode) {
+      debugPrint('📤 ShoppingList.toJson:');
+      debugPrint('   id: $id');
+      debugPrint('   name: $name');
+      debugPrint('   type: $type');
+      debugPrint('   status: $status');
+      debugPrint('   items: ${items.length}');
+    }
     return _$ShoppingListToJson(this);
   }
 

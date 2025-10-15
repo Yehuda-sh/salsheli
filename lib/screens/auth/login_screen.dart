@@ -168,6 +168,118 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     Navigator.pushReplacementNamed(context, '/register');
   }
 
+  /// 🔑 איפוס סיסמה - שליחת מייל דרך Firebase Auth
+  Future<void> _handleForgotPassword() async {
+    debugPrint('🔑 _handleForgotPassword() | Starting password reset process');
+    
+    // בדוק אם יש אימייל בשדה
+    final email = _emailController.text.trim();
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.info_outline, color: Colors.white),
+              const SizedBox(width: kSpacingSmall),
+              const Expanded(
+                child: Text(
+                  'אנא הזן את כתובת האימייל שלך בשדה למעלה',
+                  style: TextStyle(fontSize: kFontSizeSmall),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.orange.shade700,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(kBorderRadius),
+          ),
+          margin: const EdgeInsets.all(kSpacingMedium),
+        ),
+      );
+      return;
+    }
+    
+    if (!email.contains('@')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('כתובת אימייל לא תקינה'),
+          backgroundColor: Colors.red.shade700,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final userContext = context.read<UserContext>();
+      await userContext.sendPasswordResetEmail(email);
+      
+      debugPrint('✅ _handleForgotPassword() | Reset email sent to: $email');
+      
+      if (mounted) {
+        setState(() => _isLoading = false);
+        
+        // הצג הודעת הצלחה
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: kSpacingSmall),
+                Expanded(
+                  child: Text(
+                    'נשלח מייל לאיפוס סיסמה ל-$email',
+                    style: const TextStyle(fontSize: kFontSizeSmall),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.green.shade700,
+            duration: const Duration(seconds: 4),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(kBorderRadius),
+            ),
+            margin: const EdgeInsets.all(kSpacingMedium),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('❌ _handleForgotPassword() | Failed: $e');
+      
+      if (mounted) {
+        setState(() => _isLoading = false);
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: kSpacingSmall),
+                const Expanded(
+                  child: Text(
+                    'שגיאה בשליחת מייל איפוס',
+                    style: TextStyle(fontSize: kFontSizeSmall),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red.shade700,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(kBorderRadius),
+            ),
+            margin: const EdgeInsets.all(kSpacingMedium),
+          ),
+        );
+      }
+    }
+    
+    debugPrint('🏁 _handleForgotPassword() | Completed');
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -348,13 +460,40 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                               },
                             ),
                           ),
-                          const SizedBox(height: kSpacingMedium), // 📐 צמצום מ-XLarge ל-Medium
+                          const SizedBox(height: kSpacingSmall), // 📐 רווח קטן
+
+                          // 🔑 קישור שכחתי סיסמה - מימין לשדה הסיסמה
+                          Align(
+                            alignment: AlignmentDirectional.centerEnd,
+                            child: TextButton(
+                              onPressed: _isLoading ? null : () => _handleForgotPassword(),
+                              style: TextButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: kSpacingSmall,
+                                  vertical: 0,
+                                ),
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              child: Text(
+                                'שכחת סיסמה?',
+                                style: TextStyle(
+                                  color: accent,
+                                  fontSize: kFontSizeTiny,
+                                  fontWeight: FontWeight.w600,
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: accent.withValues(alpha: 0.4),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: kSpacingSmall), // 📐 רווח קטן
 
                           // 🔘 כפתור התחברות - StickyButton ירוק
                           StickyButton(
                             color: accent,
-                            label: AppStrings.auth.loginButton,
-                            icon: Icons.login,
+                            label: _isLoading ? 'מתחבר...' : AppStrings.auth.loginButton,
+                            icon: _isLoading ? null : Icons.login,
                             onPressed: _isLoading ? () {} : () => _handleLogin(),
                             height: 44, // 📐 הקטנת גובה הכפתור מעט
                           ),
