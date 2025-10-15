@@ -18,7 +18,7 @@
 // ✅ 🎬 Modern UI/UX: Animations + Skeleton + AnimatedCounter ⭐
 // ✅ ♿ Accessibility מלא
 //
-// 🎬 Animations (חדש! v3.0):
+// 🎬 Animations (v3.0):
 // - AnimatedCounter על סטטיסטיקות (0 → value)
 // - TappableCard על כרטיסי סטטיסטיקות (scale effect)
 // - Button animations על כל הכפתורים
@@ -40,8 +40,8 @@
 // 4. עדכון מחירים ידני (ProductsProvider.refreshProducts)
 // 5. התנתקות → ניקוי + חזרה ל-login
 //
-// Version: 3.0 - Modern UI/UX Complete ⭐
-// Last Updated: 14/10/2025
+// Version: 3.1 - תוקן + NotebookBackground
+// Last Updated: 15/10/2025
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -55,6 +55,7 @@ import 'package:salsheli/models/shopping_list.dart';
 import 'package:salsheli/l10n/app_strings.dart';
 import 'package:salsheli/core/ui_constants.dart';
 import 'package:salsheli/config/household_config.dart';
+import 'package:salsheli/widgets/common/notebook_background.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -116,7 +117,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.dispose();
   }
 
-  // טעינת הגדרות מ-SharedPreferences
+  /// טעינת הגדרות מ-SharedPreferences
   Future<void> _loadSettings() async {
     debugPrint('📥 _loadSettings: מתחיל טעינה');
     try {
@@ -150,7 +151,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  // שמירת הגדרות ב-SharedPreferences
+  /// שמירת הגדרות ב-SharedPreferences
   Future<void> _saveSettings() async {
     debugPrint('💾 _saveSettings: שומר הגדרות');
     try {
@@ -162,8 +163,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await prefs.setBool(_kHabitsAnalysis, _habitsAnalysis);
       await prefs.setString(_kPreferredStores, _preferredStores.join(','));
       debugPrint('✅ _saveSettings: נשמר בהצלחה');
-      
-      // Visual feedback - שמור messenger לפני async
+
       final messenger = ScaffoldMessenger.of(context);
       if (mounted) {
         messenger.showSnackBar(
@@ -188,7 +188,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  // עריכת שם הקבוצה
+  /// עריכת שם הקבוצה
   void _toggleEditHousehold() {
     debugPrint('✏️ _toggleEditHousehold: ${_isEditingHouseholdName ? "שומר" : "עורך"}');
     if (_isEditingHouseholdName) {
@@ -202,7 +202,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  // הוספת חנות מועדפת
+  /// הוספת חנות מועדפת
   void _addStore() {
     final text = _storeController.text.trim();
     debugPrint('➕ _addStore: "$text"');
@@ -218,14 +218,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  // הסרת חנות
+  /// הסרת חנות
   void _removeStore(int index) {
     debugPrint('🗑️ _removeStore: מוחק index $index');
     setState(() => _preferredStores.removeAt(index));
     _saveSettings();
   }
 
-  // שינוי סוג הקבוצה
+  /// שינוי סוג הקבוצה
   void _changeHouseholdType(String? newType) {
     if (newType != null) {
       debugPrint('🔄 _changeHouseholdType: $newType');
@@ -234,7 +234,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  // עדכון גודל משפחה
+  /// עדכון גודל משפחה
   void _updateFamilySize() {
     final newSize = int.tryParse(_familySizeController.text);
     debugPrint('🔄 _updateFamilySize: $newSize');
@@ -247,15 +247,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  // עדכון מחירים ידני
+  /// עדכון מחירים ידני
   Future<void> _updatePrices(BuildContext context) async {
     debugPrint('💰 _updatePrices: מתחיל עדכון');
     final productsProvider = context.read<ProductsProvider>();
-    
-    // שמור messenger לפני async
     final messenger = ScaffoldMessenger.of(context);
-    
-    // הצגת SnackBar עם loading
+
     if (!mounted) return;
     messenger.showSnackBar(
       SnackBar(
@@ -266,37 +263,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
               height: 20,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  Theme.of(context).colorScheme.onInverseSurface,
-                ),
+                valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.onInverseSurface),
               ),
             ),
             const SizedBox(width: kSpacingMedium),
             Text(AppStrings.settings.updatingPrices),
           ],
         ),
-        duration: const Duration(minutes: 5), // זמן ארוך לעדכון
+        duration: const Duration(minutes: 5),
       ),
     );
 
     try {
-      // קריאה ל-refreshProducts עם force=true
       await productsProvider.refreshProducts(force: true);
 
-      // סגירת SnackBar הקודם
       if (!mounted) return;
       messenger.hideCurrentSnackBar();
-      
-      // הצגת תוצאה
+
       final withPrice = productsProvider.productsWithPrice;
       final total = productsProvider.totalProducts;
-      
+
       if (!mounted) return;
       messenger.showSnackBar(
         SnackBar(
-          content: Text(
-            AppStrings.settings.pricesUpdated(withPrice, total),
-          ),
+          content: Text(AppStrings.settings.pricesUpdated(withPrice, total)),
           backgroundColor: Colors.green,
           duration: const Duration(seconds: 4),
         ),
@@ -304,10 +294,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       debugPrint('✅ _updatePrices: הצליח - $withPrice/$total');
     } catch (e) {
       debugPrint('❌ _updatePrices: שגיאה - $e');
-      // שגיאה
       if (!mounted) return;
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.hideCurrentSnackBar();
+      messenger.showSnackBar(
         SnackBar(
           content: Text(AppStrings.settings.pricesUpdateError(e.toString())),
           backgroundColor: Colors.red,
@@ -317,24 +306,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  // התנתקות
+  /// התנתקות
   Future<void> _logout() async {
-    debugPrint('🔓 _logout: מתחיל התנתקות');
+    debugPrint('🔥 _logout: מתחיל התנתקות מלאה');
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(AppStrings.settings.logoutTitle),
-        content: Text(AppStrings.settings.logoutMessage),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(AppStrings.settings.logoutMessage),
+            const SizedBox(height: kSpacingMedium),
+            Container(
+              padding: const EdgeInsets.all(kSpacingSmall),
+              decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(kBorderRadius),
+                border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.warning_amber_rounded, color: Colors.orange, size: kIconSizeMedium),
+                  const SizedBox(width: kSpacingSmall),
+                  Expanded(
+                    child: Text(
+                      'כל הנתונים המקומיים יימחקו!\n(מוצרים, העדפות, cache)',
+                      style: TextStyle(fontSize: kFontSizeSmall, color: Colors.orange[900]),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(AppStrings.settings.logoutCancel),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(AppStrings.settings.logoutCancel)),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             child: Text(
               AppStrings.settings.logoutConfirm,
-              style: const TextStyle(color: Colors.red),
+              style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -342,24 +356,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
 
     if (confirmed == true && mounted) {
-      debugPrint('✅ _logout: אושר - מנקה נתונים');
-      // ניקוי UserContext
-      await context.read<UserContext>().logout();
+      debugPrint('🔥 _logout: אושר - מתחיל מחיקת נתונים מלאה');
 
-      // ניקוי SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.clear();
+      try {
+        if (!mounted) return;
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => PopScope(
+            canPop: false,
+            child: const Center(
+              child: Card(
+                child: Padding(
+                  padding: EdgeInsets.all(kSpacingLarge),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: kSpacingMedium),
+                      Text('ממחק נתונים...'),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
 
-      // חזרה למסך התחברות
-      if (!mounted) return;
-      debugPrint('🚪 _logout: מעביר ל-login');
-      Navigator.pushNamedAndRemoveUntil(context, '/login', (r) => false);
+        await context.read<UserContext>().signOutAndClearAllData();
+
+        debugPrint('🎉 _logout: הושלם בהצלחה');
+
+        if (!mounted) return;
+        Navigator.of(context).pop();
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (r) => false);
+      } catch (e) {
+        debugPrint('❌ _logout: שגיאה - $e');
+        if (!mounted) return;
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('שגיאה בהתנתקות: $e'), backgroundColor: Colors.red, duration: kSnackBarDurationLong),
+        );
+      }
     } else {
       debugPrint('❌ _logout: בוטל');
     }
   }
 
-  // retry אחרי שגיאה
+  /// retry אחרי שגיאה
   void _retry() {
     debugPrint('🔄 _retry: מנסה שוב');
     setState(() {
@@ -369,20 +413,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _loadSettings();
   }
 
-  // 💀 Skeleton Screen ל-Loading State
+  /// Skeleton Screen ל-Loading State
   Widget _buildLoadingSkeleton(ColorScheme cs) {
     return ListView(
       padding: const EdgeInsets.all(kSpacingMedium),
       children: [
-        // פרופיל skeleton
-        _SkeletonBox(
-          width: double.infinity,
-          height: 100,
-          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-        ),
+        _SkeletonBox(width: double.infinity, height: 100, borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
         const SizedBox(height: kSpacingMedium),
-
-        // סטטיסטיקות skeleton
         Row(
           children: [
             Expanded(
@@ -403,19 +440,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         ),
         const SizedBox(height: kSpacingSmallPlus),
-        _SkeletonBox(
-          width: double.infinity,
-          height: 80,
-          borderRadius: BorderRadius.circular(kBorderRadius),
-        ),
+        _SkeletonBox(width: double.infinity, height: 80, borderRadius: BorderRadius.circular(kBorderRadius)),
         const SizedBox(height: kSpacingLarge),
-
-        // קבוצה skeleton
-        _SkeletonBox(
-          width: double.infinity,
-          height: 200,
-          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-        ),
+        _SkeletonBox(width: double.infinity, height: 200, borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
       ],
     );
   }
@@ -429,9 +456,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final inventoryProvider = context.watch<InventoryProvider>();
 
     // חישוב סטטיסטיקות בזמן אמיתי
-    final activeLists = listsProvider.lists
-        .where((l) => l.status != ShoppingList.statusCompleted)
-        .length;
+    final activeLists = listsProvider.lists.where((l) => l.status != ShoppingList.statusCompleted).length;
     final totalReceipts = receiptsProvider.receipts.length;
     final pantryItems = inventoryProvider.items.length;
 
@@ -439,7 +464,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final userName = userContext.user?.name ?? AppStrings.home.guestUser;
     final userEmail = userContext.user?.email ?? "email@example.com";
 
-    // 💀 Loading State - Skeleton!
+    // Loading State
     if (_loading) {
       return Scaffold(
         backgroundColor: cs.surface,
@@ -449,8 +474,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           foregroundColor: cs.onPrimary,
           elevation: 0,
         ),
-        body: SafeArea(
-          child: _buildLoadingSkeleton(cs),
+        body: Stack(
+          children: [
+            const NotebookBackground(),
+            SafeArea(child: _buildLoadingSkeleton(cs)),
+          ],
         ),
       );
     }
@@ -458,27 +486,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // Error State
     if (_errorMessage != null) {
       return Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.error_outline, size: 64, color: cs.error),
-              const SizedBox(height: kSpacingMedium),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge),
-                child: Text(
-                  _errorMessage!,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: cs.error),
-                ),
+        body: Stack(
+          children: [
+            const NotebookBackground(),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, size: 64, color: cs.error),
+                  const SizedBox(height: kSpacingMedium),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge),
+                    child: Text(
+                      _errorMessage!,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: cs.error),
+                    ),
+                  ),
+                  const SizedBox(height: kSpacingMedium),
+                  ElevatedButton(onPressed: _retry, child: Text(AppStrings.priceComparison.retry)),
+                ],
               ),
-              const SizedBox(height: kSpacingMedium),
-              ElevatedButton(
-                onPressed: _retry,
-                child: Text(AppStrings.priceComparison.retry),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
     }
@@ -491,519 +521,429 @@ class _SettingsScreenState extends State<SettingsScreen> {
         foregroundColor: cs.onPrimary,
         elevation: 0,
       ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(kSpacingMedium),
-          children: [
-            // 🔹 פרופיל אישי
-            Card(
-              color: cs.surfaceContainerHighest,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(kSpacingMedium),
-                child: Row(
-                  children: [
-                    // תמונת פרופיל
-                    CircleAvatar(
-                      radius: kAvatarRadius,
-                      backgroundColor: cs.primary.withValues(alpha: 0.15),
-                      child: Icon(
-                        Icons.person,
-                        color: cs.primary,
-                        size: kIconSizeProfile,
-                      ),
-                    ),
-                    const SizedBox(width: kSpacingMedium),
-
-                    // פרטים
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            userName,
-                            style: const TextStyle(
-                              fontSize: kFontSizeLarge,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.right,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                          const SizedBox(height: kSpacingTiny),
-                          Text(
-                            userEmail,
-                            style: TextStyle(
-                              fontSize: kFontSizeSmall,
-                              color: cs.onSurfaceVariant,
-                            ),
-                            textAlign: TextAlign.right,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: kSpacingSmall),
-
-                    // כפתור עריכה
-                    _AnimatedButton(
-                      onPressed: () {
-                        debugPrint('✏️ Edit Profile: clicked');
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(AppStrings.settings.editProfileButton),
-                          ),
-                        );
-                      },
-                      child: FilledButton.icon(
-                        onPressed: null,
-                        icon: const Icon(Icons.edit, size: kIconSizeSmall + 2),
-                        label: Text(AppStrings.settings.editProfile),
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: kSpacingSmallPlus,
-                            vertical: kSpacingSmall,
-                          ),
-                          minimumSize: const Size(kButtonHeight, kButtonHeight),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: kSpacingMedium),
-
-            // 🔹 סטטיסטיקות מהירות - עם AnimatedCounter!
-            Row(
+      body: Stack(
+        children: [
+          const NotebookBackground(),
+          SafeArea(
+            child: ListView(
+              padding: const EdgeInsets.all(kSpacingMedium),
               children: [
-                Expanded(
-                  child: _StatCard(
-                    color: Colors.amber,
-                    icon: Icons.shopping_cart_outlined,
-                    label: AppStrings.settings.statsActiveLists,
-                    value: activeLists,
-                  ),
-                ),
-                const SizedBox(width: kSpacingSmallPlus),
-                Expanded(
-                  child: _StatCard(
-                    color: Colors.green,
-                    icon: Icons.receipt_long_outlined,
-                    label: AppStrings.settings.statsReceipts,
-                    value: totalReceipts,
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: kSpacingSmallPlus),
-
-            Row(
-              children: [
-                Expanded(
-                  child: _StatCard(
-                    color: Colors.blue,
-                    icon: Icons.inventory_2_outlined,
-                    label: AppStrings.settings.statsPantryItems,
-                    value: pantryItems,
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: kSpacingLarge),
-
-            // 🔹 ניהול קבוצה
-            Card(
-              color: cs.surfaceContainerHighest,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(kSpacingMedium),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      AppStrings.settings.householdTitle,
-                      style: TextStyle(
-                        fontSize: kFontSizeMedium,
-                        fontWeight: FontWeight.bold,
-                        color: cs.primary,
-                      ),
-                    ),
-                    const SizedBox(height: kSpacingMedium),
-
-                    // שם הקבוצה
-                    Row(
+                // 🔹 פרופיל אישי
+                Card(
+                  color: cs.surfaceContainerHighest,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(kSpacingMedium),
+                    child: Row(
                       children: [
-                        Expanded(
-                          child: _isEditingHouseholdName
-                              ? TextField(
-                                  controller: _householdNameController,
-                                  decoration: InputDecoration(
-                                    hintText: AppStrings.settings.householdNameHint,
-                                    isDense: true,
-                                  ),
-                                  maxLength: 30,
-                                  textInputAction: TextInputAction.done,
-                                  onSubmitted: (_) => _toggleEditHousehold(),
-                                )
-                              : Text(
-                                  _householdName,
-                                  style: const TextStyle(
-                                    fontSize: kFontSizeBody,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                        ),
-                        IconButton(
-                          onPressed: _toggleEditHousehold,
-                          icon: Icon(
-                            _isEditingHouseholdName ? Icons.check : Icons.edit,
-                            color: cs.primary,
-                          ),
-                          tooltip: _isEditingHouseholdName
-                              ? AppStrings.settings.editHouseholdNameSave
-                              : AppStrings.settings.editHouseholdNameEdit,
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: kSpacingSmallPlus),
-
-                    // סוג הקבוצה
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          AppStrings.settings.householdType,
-                          style: TextStyle(
-                            fontSize: kFontSizeSmall,
-                            color: cs.onSurfaceVariant,
-                          ),
-                        ),
-                        DropdownButton<String>(
-                          value: _householdType,
-                          items: HouseholdConfig.allTypes
-                              .map(
-                                (type) => DropdownMenuItem(
-                                  value: type,
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        HouseholdConfig.getIcon(type),
-                                        size: kIconSizeSmall,
-                                      ),
-                                      const SizedBox(width: kSpacingSmall),
-                                      Text(HouseholdConfig.getLabel(type)),
-                                    ],
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: _changeHouseholdType,
-                          underline: Container(),
-                        ),
-                      ],
-                    ),
-
-                    const Divider(height: kSpacingLarge),
-
-                    // חברי הקבוצה
-                    Text(
-                      AppStrings.settings.membersCount(_members.length),
-                      style: TextStyle(
-                        fontSize: kFontSizeSmall,
-                        fontWeight: FontWeight.w600,
-                        color: cs.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: kSpacingSmall),
-
-                    // רשימת חברים
-                    ..._members.map(
-                      (member) => ListTile(
-                        leading: CircleAvatar(
-                          radius: kAvatarRadiusSmall,
+                        CircleAvatar(
+                          radius: kAvatarRadius,
                           backgroundColor: cs.primary.withValues(alpha: 0.15),
-                          child: Icon(
-                            Icons.person,
-                            color: cs.primary,
-                            size: kIconSizeMedium,
-                          ),
+                          child: Icon(Icons.person, color: cs.primary, size: kIconSizeProfile),
                         ),
-                        title: Text(member['name']!),
-                        subtitle: Text(
-                          _getRoleLabel(member['role']!),
-                          style: TextStyle(
-                            fontSize: kFontSizeSmall - 2,
-                            color: cs.onSurfaceVariant,
-                          ),
-                        ),
-                        dense: true,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-
-                    const SizedBox(height: kSpacingSmall),
-
-                    // כפתור ניהול חברים (עתידי)
-                    _AnimatedButton(
-                      onPressed: () {
-                        debugPrint('👥 Manage Members: clicked');
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              AppStrings.settings.manageMembersComingSoon,
-                            ),
-                            duration: kSnackBarDuration,
-                          ),
-                        );
-                      },
-                      child: OutlinedButton.icon(
-                        onPressed: null,
-                        icon: const Icon(Icons.group_add, size: kIconSizeMedium),
-                        label: Text(AppStrings.settings.manageMembersButton),
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 42),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: kSpacingMedium),
-
-            // 🔹 חנויות מועדפות
-            Card(
-              color: cs.surfaceContainerHighest,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(kSpacingMedium),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      AppStrings.settings.storesTitle,
-                      style: TextStyle(
-                        fontSize: kFontSizeMedium,
-                        fontWeight: FontWeight.bold,
-                        color: cs.primary,
-                      ),
-                    ),
-                    const SizedBox(height: kSpacingSmallPlus),
-
-                    // רשימת חנויות
-                    Wrap(
-                      spacing: kSpacingSmall,
-                      runSpacing: kSpacingSmall,
-                      children: List.generate(
-                        _preferredStores.length,
-                        (index) => Chip(
-                          label: Text(_preferredStores[index]),
-                          deleteIcon: const Icon(Icons.close, size: kIconSizeSmall + 2),
-                          onDeleted: () => _removeStore(index),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: kSpacingSmallPlus),
-
-                    // הוספת חנות
-                    Row(
-                      children: [
+                        const SizedBox(width: kSpacingMedium),
                         Expanded(
-                          child: TextField(
-                            controller: _storeController,
-                            decoration: InputDecoration(
-                              hintText: AppStrings.settings.addStoreHint,
-                              isDense: true,
-                            ),
-                            maxLength: 25,
-                            textInputAction: TextInputAction.done,
-                            onSubmitted: (_) => _addStore(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                userName,
+                                style: const TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.right,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                              const SizedBox(height: kSpacingTiny),
+                              Text(
+                                userEmail,
+                                style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
+                                textAlign: TextAlign.right,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(width: kSpacingSmall),
-                        IconButton(
-                          onPressed: _addStore,
-                          icon: Icon(Icons.add, color: cs.primary),
-                          tooltip: AppStrings.settings.addStoreTooltip,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: kSpacingMedium),
-
-            // 🔹 הגדרות אישיות
-            Card(
-              color: cs.surfaceContainerHighest,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(kSpacingMedium),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      AppStrings.settings.personalSettingsTitle,
-                      style: TextStyle(
-                        fontSize: kFontSizeMedium,
-                        fontWeight: FontWeight.bold,
-                        color: cs.primary,
-                      ),
-                    ),
-                    const SizedBox(height: kSpacingSmallPlus),
-
-                    // גודל קבוצה - תוקן! kFieldWidthNarrow במקום kQuantityFieldWidth
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(AppStrings.settings.familySizeLabel),
-                        SizedBox(
-                          width: kFieldWidthNarrow, // ✅ תוקן!
-                          child: TextField(
-                            controller: _familySizeController,
-                            keyboardType: TextInputType.number,
-                            textAlign: TextAlign.center,
-                            decoration: const InputDecoration(
-                              isDense: true,
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: kSpacingSmall,
+                        _AnimatedButton(
+                          onPressed: () {
+                            debugPrint('✏️ Edit Profile: clicked');
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(SnackBar(content: Text(AppStrings.settings.editProfileButton)));
+                          },
+                          child: FilledButton.icon(
+                            onPressed: null,
+                            icon: const Icon(Icons.edit, size: kIconSizeSmall + 2),
+                            label: Text(AppStrings.settings.editProfile),
+                            style: FilledButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: kSpacingSmallPlus,
                                 vertical: kSpacingSmall,
                               ),
+                              minimumSize: const Size(kButtonHeight, kButtonHeight),
                             ),
-                            onSubmitted: (_) => _updateFamilySize(),
                           ),
                         ),
                       ],
                     ),
+                  ),
+                ),
 
-                    const Divider(height: kSpacingLarge),
+                const SizedBox(height: kSpacingMedium),
 
-                    // תזכורות שבועיות
-                    SwitchListTile(
-                      title: Text(AppStrings.settings.weeklyRemindersLabel),
-                      subtitle: Text(AppStrings.settings.weeklyRemindersSubtitle),
-                      value: _weeklyReminders,
-                      onChanged: (val) {
-                        debugPrint('🔔 weeklyReminders: $val');
-                        setState(() => _weeklyReminders = val);
-                        _saveSettings();
-                      },
-                      contentPadding: EdgeInsets.zero,
+                // 🔹 סטטיסטיקות מהירות
+                Row(
+                  children: [
+                    Expanded(
+                      child: _StatCard(
+                        color: Colors.amber,
+                        icon: Icons.shopping_cart_outlined,
+                        label: AppStrings.settings.statsActiveLists,
+                        value: activeLists,
+                      ),
                     ),
-
-                    // ניתוח הרגלים
-                    SwitchListTile(
-                      title: Text(AppStrings.settings.habitsAnalysisLabel),
-                      subtitle: Text(AppStrings.settings.habitsAnalysisSubtitle),
-                      value: _habitsAnalysis,
-                      onChanged: (val) {
-                        debugPrint('📊 habitsAnalysis: $val');
-                        setState(() => _habitsAnalysis = val);
-                        _saveSettings();
-                      },
-                      contentPadding: EdgeInsets.zero,
+                    const SizedBox(width: kSpacingSmallPlus),
+                    Expanded(
+                      child: _StatCard(
+                        color: Colors.green,
+                        icon: Icons.receipt_long_outlined,
+                        label: AppStrings.settings.statsReceipts,
+                        value: totalReceipts,
+                      ),
                     ),
                   ],
                 ),
-              ),
-            ),
 
-            const SizedBox(height: kSpacingMedium),
+                const SizedBox(height: kSpacingSmallPlus),
 
-            // 🔹 קישורים מהירים
-            Card(
-              color: cs.surfaceContainerHighest,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-              ),
-              child: Column(
-                children: [
-                  ListTile(
-                    leading: Icon(Icons.receipt_long, color: cs.primary),
-                    title: Text(AppStrings.settings.myReceipts),
-                    trailing: const Icon(Icons.chevron_left),
-                    onTap: () {
-                      debugPrint('🧾 Navigating to receipts');
-                      Navigator.pushNamed(context, '/receipts');
-                    },
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: Icon(Icons.inventory_2_outlined, color: cs.primary),
-                    title: Text(AppStrings.settings.myPantry),
-                    trailing: const Icon(Icons.chevron_left),
-                    onTap: () {
-                      debugPrint('📦 Navigating to inventory');
-                      Navigator.pushNamed(context, '/inventory');
-                    },
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: Icon(Icons.price_change_outlined, color: cs.primary),
-                    title: Text(AppStrings.settings.priceComparison),
-                    trailing: const Icon(Icons.chevron_left),
-                    onTap: () {
-                      debugPrint('💰 Navigating to price compare');
-                      Navigator.pushNamed(context, '/price-compare');
-                    },
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: Icon(Icons.sync, color: cs.primary),
-                    title: Text(AppStrings.settings.updatePricesTitle),
-                    subtitle: Text(AppStrings.settings.updatePricesSubtitle),
-                    trailing: const Icon(Icons.chevron_left),
-                    onTap: () => _updatePrices(context),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: kSpacingMedium),
-
-            // 🔹 התנתקות
-            Card(
-              color: cs.surfaceContainerHighest,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-              ),
-              child: ListTile(
-                leading: const Icon(Icons.logout, color: Colors.red),
-                title: Text(
-                  AppStrings.settings.logoutTitle,
-                  style: const TextStyle(color: Colors.red),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _StatCard(
+                        color: Colors.blue,
+                        icon: Icons.inventory_2_outlined,
+                        label: AppStrings.settings.statsPantryItems,
+                        value: pantryItems,
+                      ),
+                    ),
+                  ],
                 ),
-                subtitle: Text(AppStrings.settings.logoutSubtitle),
-                onTap: _logout,
-              ),
-            ),
 
-            const SizedBox(height: kSpacingLarge),
-          ],
-        ),
+                const SizedBox(height: kSpacingLarge),
+
+                // 🔹 ניהול קבוצה
+                Card(
+                  color: cs.surfaceContainerHighest,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(kSpacingMedium),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          AppStrings.settings.householdTitle,
+                          style: TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold, color: cs.primary),
+                        ),
+                        const SizedBox(height: kSpacingMedium),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _isEditingHouseholdName
+                                  ? TextField(
+                                      controller: _householdNameController,
+                                      decoration: InputDecoration(
+                                        hintText: AppStrings.settings.householdNameHint,
+                                        isDense: true,
+                                      ),
+                                      maxLength: 30,
+                                      textInputAction: TextInputAction.done,
+                                      onSubmitted: (_) => _toggleEditHousehold(),
+                                    )
+                                  : Text(
+                                      _householdName,
+                                      style: const TextStyle(fontSize: kFontSizeBody, fontWeight: FontWeight.w600),
+                                    ),
+                            ),
+                            IconButton(
+                              onPressed: _toggleEditHousehold,
+                              icon: Icon(_isEditingHouseholdName ? Icons.check : Icons.edit, color: cs.primary),
+                              tooltip: _isEditingHouseholdName
+                                  ? AppStrings.settings.editHouseholdNameSave
+                                  : AppStrings.settings.editHouseholdNameEdit,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: kSpacingSmallPlus),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              AppStrings.settings.householdType,
+                              style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
+                            ),
+                            DropdownButton<String>(
+                              value: _householdType,
+                              items: HouseholdConfig.allTypes
+                                  .map(
+                                    (type) => DropdownMenuItem(
+                                      value: type,
+                                      child: Row(
+                                        children: [
+                                          Icon(HouseholdConfig.getIcon(type), size: kIconSizeSmall),
+                                          const SizedBox(width: kSpacingSmall),
+                                          Text(HouseholdConfig.getLabel(type)),
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: _changeHouseholdType,
+                              underline: Container(),
+                            ),
+                          ],
+                        ),
+                        const Divider(height: kSpacingLarge),
+                        Text(
+                          AppStrings.settings.membersCount(_members.length),
+                          style: TextStyle(
+                            fontSize: kFontSizeSmall,
+                            fontWeight: FontWeight.w600,
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: kSpacingSmall),
+                        ..._members.map(
+                          (member) => ListTile(
+                            leading: CircleAvatar(
+                              radius: kAvatarRadiusSmall,
+                              backgroundColor: cs.primary.withValues(alpha: 0.15),
+                              child: Icon(Icons.person, color: cs.primary, size: kIconSizeMedium),
+                            ),
+                            title: Text(member['name']!),
+                            subtitle: Text(
+                              _getRoleLabel(member['role']!),
+                              style: TextStyle(fontSize: kFontSizeSmall - 2, color: cs.onSurfaceVariant),
+                            ),
+                            dense: true,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                        ),
+                        const SizedBox(height: kSpacingSmall),
+                        _AnimatedButton(
+                          onPressed: () {
+                            debugPrint('👥 Manage Members: clicked');
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(AppStrings.settings.manageMembersComingSoon),
+                                duration: kSnackBarDuration,
+                              ),
+                            );
+                          },
+                          child: OutlinedButton.icon(
+                            onPressed: null,
+                            icon: const Icon(Icons.group_add, size: kIconSizeMedium),
+                            label: Text(AppStrings.settings.manageMembersButton),
+                            style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 42)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: kSpacingMedium),
+
+                // 🔹 חנויות מועדפות
+                Card(
+                  color: cs.surfaceContainerHighest,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(kSpacingMedium),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          AppStrings.settings.storesTitle,
+                          style: TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold, color: cs.primary),
+                        ),
+                        const SizedBox(height: kSpacingSmallPlus),
+                        Wrap(
+                          spacing: kSpacingSmall,
+                          runSpacing: kSpacingSmall,
+                          children: List.generate(
+                            _preferredStores.length,
+                            (index) => Chip(
+                              label: Text(_preferredStores[index]),
+                              deleteIcon: const Icon(Icons.close, size: kIconSizeSmall + 2),
+                              onDeleted: () => _removeStore(index),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: kSpacingSmallPlus),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _storeController,
+                                decoration: InputDecoration(hintText: AppStrings.settings.addStoreHint, isDense: true),
+                                maxLength: 25,
+                                textInputAction: TextInputAction.done,
+                                onSubmitted: (_) => _addStore(),
+                              ),
+                            ),
+                            const SizedBox(width: kSpacingSmall),
+                            IconButton(
+                              onPressed: _addStore,
+                              icon: Icon(Icons.add, color: cs.primary),
+                              tooltip: AppStrings.settings.addStoreTooltip,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: kSpacingMedium),
+
+                // 🔹 הגדרות אישיות
+                Card(
+                  color: cs.surfaceContainerHighest,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(kSpacingMedium),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          AppStrings.settings.personalSettingsTitle,
+                          style: TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold, color: cs.primary),
+                        ),
+                        const SizedBox(height: kSpacingSmallPlus),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(AppStrings.settings.familySizeLabel),
+                            SizedBox(
+                              width: kFieldWidthNarrow,
+                              child: TextField(
+                                controller: _familySizeController,
+                                keyboardType: TextInputType.number,
+                                textAlign: TextAlign.center,
+                                decoration: const InputDecoration(
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: kSpacingSmall,
+                                    vertical: kSpacingSmall,
+                                  ),
+                                ),
+                                onSubmitted: (_) => _updateFamilySize(),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Divider(height: kSpacingLarge),
+                        SwitchListTile(
+                          title: Text(AppStrings.settings.weeklyRemindersLabel),
+                          subtitle: Text(AppStrings.settings.weeklyRemindersSubtitle),
+                          value: _weeklyReminders,
+                          onChanged: (val) {
+                            debugPrint('🔔 weeklyReminders: $val');
+                            setState(() => _weeklyReminders = val);
+                            _saveSettings();
+                          },
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        SwitchListTile(
+                          title: Text(AppStrings.settings.habitsAnalysisLabel),
+                          subtitle: Text(AppStrings.settings.habitsAnalysisSubtitle),
+                          value: _habitsAnalysis,
+                          onChanged: (val) {
+                            debugPrint('📊 habitsAnalysis: $val');
+                            setState(() => _habitsAnalysis = val);
+                            _saveSettings();
+                          },
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: kSpacingMedium),
+
+                // 🔹 קישורים מהירים
+                Card(
+                  color: cs.surfaceContainerHighest,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+                  child: Column(
+                    children: [
+                      ListTile(
+                        leading: Icon(Icons.receipt_long, color: cs.primary),
+                        title: Text(AppStrings.settings.myReceipts),
+                        trailing: const Icon(Icons.chevron_left),
+                        onTap: () {
+                          debugPrint('🧾 Navigating to receipts');
+                          Navigator.pushNamed(context, '/receipts');
+                        },
+                      ),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: Icon(Icons.inventory_2_outlined, color: cs.primary),
+                        title: Text(AppStrings.settings.myPantry),
+                        trailing: const Icon(Icons.chevron_left),
+                        onTap: () {
+                          debugPrint('📦 Navigating to inventory');
+                          Navigator.pushNamed(context, '/inventory');
+                        },
+                      ),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: Icon(Icons.price_change_outlined, color: cs.primary),
+                        title: Text(AppStrings.settings.priceComparison),
+                        trailing: const Icon(Icons.chevron_left),
+                        onTap: () {
+                          debugPrint('💰 Navigating to price compare');
+                          Navigator.pushNamed(context, '/price-compare');
+                        },
+                      ),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: Icon(Icons.sync, color: cs.primary),
+                        title: Text(AppStrings.settings.updatePricesTitle),
+                        subtitle: Text(AppStrings.settings.updatePricesSubtitle),
+                        trailing: const Icon(Icons.chevron_left),
+                        onTap: () => _updatePrices(context),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: kSpacingMedium),
+
+                // 🔹 התנתקות
+                Card(
+                  color: cs.surfaceContainerHighest,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+                  child: ListTile(
+                    leading: const Icon(Icons.logout, color: Colors.red),
+                    title: Text(AppStrings.settings.logoutTitle, style: const TextStyle(color: Colors.red)),
+                    subtitle: Text(AppStrings.settings.logoutSubtitle),
+                    onTap: _logout,
+                  ),
+                ),
+
+                const SizedBox(height: kSpacingLarge),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  // Helper: תרגום role
+  /// Helper: תרגום role
   String _getRoleLabel(String role) {
     switch (role) {
       case 'owner':
@@ -1025,12 +965,7 @@ class _StatCard extends StatefulWidget {
   final String label;
   final int value;
 
-  const _StatCard({
-    required this.color,
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
+  const _StatCard({required this.color, required this.icon, required this.label, required this.value});
 
   @override
   State<_StatCard> createState() => _StatCardState();
@@ -1055,9 +990,7 @@ class _StatCardState extends State<_StatCard> {
           curve: Curves.easeInOut,
           child: Card(
             color: cs.surfaceContainerHighest,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(kBorderRadius),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadius)),
             child: Padding(
               padding: const EdgeInsets.all(kSpacingSmallPlus),
               child: Row(
@@ -1069,11 +1002,7 @@ class _StatCardState extends State<_StatCard> {
                       color: widget.color.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Icon(
-                      widget.icon,
-                      color: widget.color,
-                      size: kIconSizeMedium + 2,
-                    ),
+                    child: Icon(widget.icon, color: widget.color, size: kIconSizeMedium + 2),
                   ),
                   const SizedBox(width: kSpacingSmallPlus),
                   Expanded(
@@ -1082,19 +1011,11 @@ class _StatCardState extends State<_StatCard> {
                       children: [
                         Text(
                           widget.label,
-                          style: const TextStyle(
-                            fontSize: kFontSizeTiny,
-                            color: Colors.grey,
-                          ),
+                          style: const TextStyle(fontSize: kFontSizeTiny, color: Colors.grey),
                         ),
-                        // 🎬 AnimatedCounter!
                         _AnimatedCounter(
                           value: widget.value,
-                          style: TextStyle(
-                            fontSize: kFontSizeLarge,
-                            color: widget.color,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: TextStyle(fontSize: kFontSizeLarge, color: widget.color, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -1114,10 +1035,7 @@ class _AnimatedCounter extends StatelessWidget {
   final int value;
   final TextStyle? style;
 
-  const _AnimatedCounter({
-    required this.value,
-    this.style,
-  });
+  const _AnimatedCounter({required this.value, this.style});
 
   @override
   Widget build(BuildContext context) {
@@ -1126,10 +1044,7 @@ class _AnimatedCounter extends StatelessWidget {
       duration: const Duration(milliseconds: 800),
       curve: Curves.easeOut,
       builder: (context, value, child) {
-        return Text(
-          '$value',
-          style: style,
-        );
+        return Text('$value', style: style);
       },
     );
   }
@@ -1140,10 +1055,7 @@ class _AnimatedButton extends StatefulWidget {
   final Widget child;
   final VoidCallback onPressed;
 
-  const _AnimatedButton({
-    required this.child,
-    required this.onPressed,
-  });
+  const _AnimatedButton({required this.child, required this.onPressed});
 
   @override
   State<_AnimatedButton> createState() => _AnimatedButtonState();
@@ -1177,11 +1089,7 @@ class _SkeletonBox extends StatelessWidget {
   final double? height;
   final BorderRadius? borderRadius;
 
-  const _SkeletonBox({
-    this.width,
-    this.height,
-    this.borderRadius,
-  });
+  const _SkeletonBox({this.width, this.height, this.borderRadius});
 
   @override
   Widget build(BuildContext context) {
