@@ -1,4 +1,5 @@
 # 📝 Sticky Notes Design System
+
 ## מדריך עיצוב מלא - סל שלי
 
 ---
@@ -9,6 +10,7 @@
 העיצוב יוצר חוויה חמה, ידידותית ונגישה עם מגע של נוסטלגיה.
 
 ### עקרונות עיצוב ליבה
+
 1. **חום ונגישות** - צבעים עדינים ופסטליים
 2. **מגע אנושי** - סיבובים קלים וצללים מציאותיים
 3. **בהירות** - תוכן קריא על כל רקע
@@ -22,12 +24,15 @@
 ### צבעי בסיס
 
 #### רקע
+
 ```dart
 kPaperBackground = Color(0xFFFAF8F3) // נייר קרם
 ```
+
 צבע רקע ראשי - נייר מחברת בגוון קרם חם.
 
 #### קווי מחברת
+
 ```dart
 kNotebookBlue = Color(0xFF9FC5E8)    // קווים כחולים
 kNotebookRed = Color(0xFFE57373)     // קו אדום משמאל
@@ -35,13 +40,13 @@ kNotebookRed = Color(0xFFE57373)     // קו אדום משמאל
 
 ### פתקים צבעוניים
 
-| צבע | קוד | שימוש מומלץ |
-|-----|-----|-------------|
-| 🟨 צהוב | `kStickyYellow = Color(0xFFFFF59D)` | לוגו, פעולות ראשיות |
-| 🌸 ורוד | `kStickyPink = Color(0xFFF8BBD0)` | תזכורות, התראות רכות |
-| 🟩 ירוק | `kStickyGreen = Color(0xFFC5E1A5)` | הצלחות, אישורים |
-| 🔵 תכלת | `kStickyCyan = Color(0xFF80DEEA)` | מידע, עזרה |
-| 🟣 סגול | `kStickyPurple = Color(0xFFCE93D8)` | יצירתיות, חדש |
+| צבע     | קוד                                 | שימוש מומלץ          |
+| ------- | ----------------------------------- | -------------------- |
+| 🟨 צהוב | `kStickyYellow = Color(0xFFFFF59D)` | לוגו, פעולות ראשיות  |
+| 🌸 ורוד | `kStickyPink = Color(0xFFF8BBD0)`   | תזכורות, התראות רכות |
+| 🟩 ירוק | `kStickyGreen = Color(0xFFC5E1A5)`  | הצלחות, אישורים      |
+| 🔵 תכלת | `kStickyCyan = Color(0xFF80DEEA)`   | מידע, עזרה           |
+| 🟣 סגול | `kStickyPurple = Color(0xFFCE93D8)` | יצירתיות, חדש        |
 
 ---
 
@@ -133,6 +138,7 @@ kStickyMaxRotation = 0.03  // ±0.03 רדיאנים (כ-1.7 מעלות)
 ```
 
 ### המלצות שימוש:
+
 - **לוגו**: `-0.03` (שמאלה)
 - **פתק 1**: `0.01` (ימינה קלה)
 - **פתק 2**: `-0.015` (שמאלה קלה)
@@ -151,7 +157,7 @@ kStickyMaxRotation = 0.03  // ±0.03 רדיאנים (כ-1.7 מעלות)
 
 ```dart
 import 'package:flutter/material.dart';
-import 'package:salsheli/widgets/common/notebook_background.dart';
+import 'package:memozap/widgets/common/notebook_background.dart';
 
 Scaffold(
   backgroundColor: kPaperBackground, // ⚠️ חובה!
@@ -167,6 +173,7 @@ Scaffold(
 ```
 
 **מתי להשתמש:**
+
 - מסכי קבלת פנים (Welcome)
 - מסכי הרשמה/התחברות (Auth)
 - מסכי הסבר וחינוך
@@ -179,7 +186,7 @@ Scaffold(
 פתק צבעוני עם תוכן.
 
 ```dart
-import 'package:salsheli/widgets/common/sticky_note.dart';
+import 'package:memozap/widgets/common/sticky_note.dart';
 
 StickyNote(
   color: kStickyPink,
@@ -195,6 +202,7 @@ StickyNote(
 ```
 
 **מתי להשתמש:**
+
 - כרטיסי מידע
 - יתרונות/פיצ'רים
 - הודעות חשובות
@@ -202,6 +210,7 @@ StickyNote(
 - עטיפה לשדות טקסט (TextFormField)
 
 **טיפים:**
+
 - השתמש בצבעים שונים להבחנה בין סוגי תוכן
 - הוסף `Icon` בחלק העליון לזיהוי מהיר
 - שמור על טקסט קצר וקריא
@@ -213,7 +222,7 @@ StickyNote(
 פתק מיוחד ללוגו או אייקון מרכזי.
 
 ```dart
-import 'package:salsheli/widgets/common/sticky_note.dart';
+import 'package:memozap/widgets/common/sticky_note.dart';
 
 StickyNoteLogo(
   color: kStickyYellow,
@@ -237,6 +246,7 @@ Transform.scale(
 ```
 
 **מתי להשתמש:**
+
 - לוגו האפליקציה במסך פתיחה
 - אייקונים מרכזיים
 - סמלי קטגוריות
@@ -248,7 +258,7 @@ Transform.scale(
 כפתור בסגנון פתק.
 
 ```dart
-import 'package:salsheli/widgets/common/sticky_button.dart';
+import 'package:memozap/widgets/common/sticky_button.dart';
 
 StickyButton(
   color: Colors.green,
@@ -319,6 +329,7 @@ StickyButton(
 ```
 
 **נגישות:**
+
 - גובה מינימלי 48px (או 44px למסכים compact)
 - `Semantics` אוטומטי
 - ניגודיות אוטומטית בין טקסט לרקע
@@ -330,6 +341,7 @@ StickyButton(
 כל הרכיבים כוללים אנימציות מובנות:
 
 ### StickyNote & StickyNoteLogo
+
 ```dart
 .animate()
 .fadeIn(duration: Duration(milliseconds: 400))
@@ -337,6 +349,7 @@ StickyButton(
 ```
 
 ### StickyNoteLogo (נוסף)
+
 ```dart
 .animate()
 .fadeIn(duration: Duration(milliseconds: 600))
@@ -344,6 +357,7 @@ StickyButton(
 ```
 
 ### StickyButton
+
 אנימציית לחיצה אוטומטית דרך `AnimatedButton`.
 
 ---
@@ -367,6 +381,7 @@ SizedBox(height: 8), // או 12 בין אלמנטים חשובים
 ```
 
 **מדרגות רווחים מומלצות למסך compact:**
+
 - בין אלמנטים קטנים: `4-6px`
 - בין אלמנטים רגילים: `8px` (kSpacingSmall)
 - בין סקציות: `12-16px` (kSpacingMedium)
@@ -450,6 +465,7 @@ SafeArea(
 ```
 
 **טכניקות שהוחלו:**
+
 - ✅ Padding מצומצם: `16px` אופקי, `8px` אנכי
 - ✅ לוגו מוקטן: `scale: 0.85`
 - ✅ כותרת: גופן `24` במקום `28`
@@ -500,7 +516,7 @@ class _StickyButtonState extends State<StickyButton> {
   Widget build(BuildContext context) {
     final backgroundColor = widget.backgroundColor ?? AppBrand.stickyYellow;
     final rotation = widget.rotation ?? 0.01;
-    
+
     return Transform.rotate(
       angle: rotation,
       child: AnimatedScale(
@@ -548,6 +564,7 @@ class _StickyButtonState extends State<StickyButton> {
 ```
 
 **שימוש:**
+
 ```dart
 StickyButton(
   label: 'שמור',
@@ -588,9 +605,9 @@ class _StickyCardState extends State<StickyCard> {
 
   @override
   Widget build(BuildContext context) {
-    final rotation = widget.rotation ?? 
+    final rotation = widget.rotation ??
         math.Random().nextDouble() * 0.04 - 0.02;
-    
+
     return Transform.rotate(
       angle: rotation,
       child: GestureDetector(
@@ -603,7 +620,7 @@ class _StickyCardState extends State<StickyCard> {
         } : null,
         child: AnimatedContainer(
           duration: Duration(milliseconds: 150),
-          transform: _isPressed 
+          transform: _isPressed
             ? (Matrix4.identity()..scale(0.98))
             : Matrix4.identity(),
           decoration: BoxDecoration(
@@ -627,6 +644,7 @@ class _StickyCardState extends State<StickyCard> {
 ```
 
 **שימוש:**
+
 ```dart
 StickyCard(
   backgroundColor: AppBrand.stickyPink,
@@ -690,6 +708,7 @@ class StickyDialog extends StatelessWidget {
 ```
 
 **שימוש:**
+
 ```dart
 showDialog(
   context: context,
@@ -709,10 +728,10 @@ showDialog(
 
 ```dart
 import 'package:flutter/material.dart';
-import 'package:salsheli/widgets/common/notebook_background.dart';
-import 'package:salsheli/widgets/common/sticky_note.dart';
-import 'package:salsheli/widgets/common/sticky_button.dart';
-import 'package:salsheli/core/ui_constants.dart';
+import 'package:memozap/widgets/common/notebook_background.dart';
+import 'package:memozap/widgets/common/sticky_note.dart';
+import 'package:memozap/widgets/common/sticky_button.dart';
+import 'package:memozap/core/ui_constants.dart';
 
 class LoginScreen extends StatelessWidget {
   @override
@@ -732,7 +751,7 @@ class LoginScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     SizedBox(height: kSpacingSmall),
-                    
+
                     // לוגו מוקטן
                     Transform.scale(
                       scale: 0.85,
@@ -743,7 +762,7 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: kSpacingSmall),
-                    
+
                     // כותרת compact
                     StickyNote(
                       color: Colors.white,
@@ -766,7 +785,7 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: kSpacingMedium),
-                    
+
                     // שדה אימייל
                     StickyNote(
                       color: kStickyCyan,
@@ -783,7 +802,7 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: kSpacingSmall),
-                    
+
                     // שדה סיסמה
                     StickyNote(
                       color: kStickyGreen,
@@ -801,7 +820,7 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: kSpacingMedium),
-                    
+
                     // כפתור התחברות
                     StickyButton(
                       color: Colors.green,
@@ -826,16 +845,16 @@ class LoginScreen extends StatelessWidget {
 
 ```dart
 import 'package:flutter/material.dart';
-import 'package:salsheli/widgets/common/notebook_background.dart';
-import 'package:salsheli/widgets/common/sticky_note.dart';
-import 'package:salsheli/widgets/common/sticky_button.dart';
-import 'package:salsheli/core/ui_constants.dart';
+import 'package:memozap/widgets/common/notebook_background.dart';
+import 'package:memozap/widgets/common/sticky_note.dart';
+import 'package:memozap/widgets/common/sticky_button.dart';
+import 'package:memozap/core/ui_constants.dart';
 
 class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<AppBrand>();
-    
+
     return Scaffold(
       backgroundColor: kPaperBackground,
       body: Stack(
@@ -847,7 +866,7 @@ class WelcomeScreen extends StatelessWidget {
               child: Column(
                 children: [
                   SizedBox(height: kSpacingMedium),
-                  
+
                   // לוגו
                   Hero(
                     tag: 'app_logo',
@@ -857,9 +876,9 @@ class WelcomeScreen extends StatelessWidget {
                       iconColor: brand!.accent,
                     ),
                   ),
-                  
+
                   SizedBox(height: kSpacingMedium),
-                  
+
                   // כותרת
                   StickyNote(
                     color: Colors.white,
@@ -881,9 +900,9 @@ class WelcomeScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  
+
                   SizedBox(height: kSpacingLarge),
-                  
+
                   // יתרונות
                   StickyNote(
                     color: kStickyYellow,
@@ -894,9 +913,9 @@ class WelcomeScreen extends StatelessWidget {
                       subtitle: Text('כולם רואים את אותה רשימה'),
                     ),
                   ),
-                  
+
                   SizedBox(height: kSpacingMedium),
-                  
+
                   StickyNote(
                     color: kStickyPink,
                     rotation: -0.015,
@@ -906,9 +925,9 @@ class WelcomeScreen extends StatelessWidget {
                       subtitle: Text('צלם והכל יתווסף אוטומטית'),
                     ),
                   ),
-                  
+
                   SizedBox(height: kSpacingLarge),
-                  
+
                   // כפתורים
                   StickyButton(
                     color: brand.accent,
@@ -916,9 +935,9 @@ class WelcomeScreen extends StatelessWidget {
                     icon: Icons.login,
                     onPressed: () => Navigator.pushNamed(context, '/login'),
                   ),
-                  
+
                   SizedBox(height: kSpacingMedium),
-                  
+
                   StickyButton(
                     color: Colors.white,
                     textColor: brand.accent,
@@ -973,16 +992,20 @@ StickyNote(
 ## ♿ נגישות
 
 ### בדיקת ניגודיות
+
 כל הפתקים נבדקו עם WCAG 2.0:
+
 - טקסט שחור (87%) על רקעים בהירים ✅
 - טקסט כהה (54%) לטקסט משני ✅
 
 ### גדלי מגע
+
 - כל הכפתורים: 48px מינימום (או 44px למסכים compact)
 - אזורי לחיצה: 48x48px לפחות
 - במסכים compact: 44px מקובל ועדיין נגיש
 
 ### Semantics
+
 - כל הכפתורים מכילים `Semantics` אוטומטית
 - תוויות ברורות לקוראי מסך
 
@@ -993,6 +1016,7 @@ StickyNote(
 ### ✅ עשה
 
 1. **השתמש בצבעים בעקביות**
+
    - צהוב ללוגו ופעולות ראשיות
    - ורוד להתראות רכות
    - ירוק להצלחות
@@ -1000,24 +1024,29 @@ StickyNote(
    - סגול ליצירתיות/בחירות
 
 2. **הוסף סיבובים קלים**
+
    - שנה כיוון בין פתקים סמוכים
    - שמור בטווח -0.03 עד 0.03
 
 3. **שמור על קריאות**
+
    - טקסט כהה על רקעים בהירים
    - שורות קצרות (עד 60 תווים)
    - גודל טקסט מינימלי: 11px (kFontSizeTiny)
 
 4. **הוסף אנימציות**
+
    - הרכיבים כוללים אנימציות מובנות
    - השתמש בהן!
 
 5. **תכנן למסך אחד** 📐
+
    - צמצם רווחים בחכמה
    - השתמש ב-Transform.scale להקטנת אלמנטים
    - שמור על SingleChildScrollView לגיבוי
 
 6. **השתמש ב-withValues** ⚠️
+
    - תמיד `withValues(alpha: ...)` ולא `withOpacity`
    - זה ה-standard החדש של Flutter
 
@@ -1028,25 +1057,31 @@ StickyNote(
 ### ❌ אל תעשה
 
 1. **אל תשתמש ביותר מ-3 צבעי פתקים במסך אחד**
+
    - יותר מדי צבעים = בלגן ויזואלי
 
 2. **אל תשתמש בסיבובים חזקים**
+
    - מעל 0.05 רדיאנים נראה לא טבעי
 
 3. **אל תשכח נגישות**
+
    - שמור על גובה 48px לכפתורים (או 44px למסכים compact)
    - בדוק ניגודיות
 
 4. **אל תערבב עם סגנונות אחרים**
+
    - פתקים + Material Cards = לא עקבי
    - בחר בסגנון אחד
 
 5. **אל תצמצם יותר מדי** ⚠️
+
    - אל תרד מתחת ל-44px לכפתורים
    - אל תרד מתחת ל-11px לטקסט
    - אל תרד מתחת ל-4px לרווחים
 
 6. **אל תשתמש ב-withOpacity** 🚫
+
    - זה deprecated - השתמש ב-withValues
 
 7. **אל תשכח Stack עם NotebookBackground**
@@ -1059,6 +1094,7 @@ StickyNote(
 כדי להמיר מסך קיים לעיצוב Sticky Notes:
 
 ### לפני:
+
 ```dart
 Scaffold(
   body: SafeArea(
@@ -1078,6 +1114,7 @@ Scaffold(
 ```
 
 ### אחרי:
+
 ```dart
 Scaffold(
   backgroundColor: kPaperBackground,
@@ -1127,14 +1164,14 @@ Scaffold(
                   child: StickyNoteLogo(...),
                 ),
                 SizedBox(height: kSpacingSmall), // רווחים קטנים
-                
+
                 StickyNote(
                   color: kStickyYellow,
                   rotation: 0.01,
                   child: Text('תוכן'),
                 ),
                 SizedBox(height: kSpacingSmall),
-                
+
                 StickyButton(
                   label: 'כפתור',
                   height: 44, // ⭐ גובה מצומצם
@@ -1181,6 +1218,7 @@ Colors.white.withValues(alpha: 0.7)
 ### בעיה: הכל לא נכנס במסך
 
 **פתרון:**
+
 1. הקטן padding: `horizontal: 16, vertical: 8`
 2. הקטן רווחים: רוב ל-`8px`
 3. הקטן לוגו: `Transform.scale(scale: 0.85)`
@@ -1191,6 +1229,7 @@ Colors.white.withValues(alpha: 0.7)
 ### בעיה: המסך נראה ריק מדי
 
 **פתרון:**
+
 - אל תרד מתחת ל-`8px` רווחים בין אלמנטים עיקריים
 - אל תרד מתחת ל-`scale: 0.75` ללוגו
 - שמור על `16px` padding אופקי מינימלי
@@ -1200,6 +1239,7 @@ Colors.white.withValues(alpha: 0.7)
 ## 📚 קבצים רלוונטיים
 
 ### קבצי קוד
+
 - `lib/core/ui_constants.dart` - כל הקבועים
 - `lib/theme/app_theme.dart` - AppBrand עם צבעי פתקים
 - `lib/widgets/common/notebook_background.dart` - רקע מחברת
@@ -1209,6 +1249,7 @@ Colors.white.withValues(alpha: 0.7)
 - `lib/widgets/auth/demo_login_button.dart` - דוגמה לרכיב compact ⭐
 
 ### מסמכים
+
 - `STICKY_NOTES_DESIGN.md` - המדריך הזה
 - `README.md` - מידע כללי על הפרויקט
 
@@ -1285,6 +1326,7 @@ StickyNote(
 ## 📝 Changelog
 
 ### v1.1 - 15/10/2025
+
 - ✅ הוספת מדריך לעיצוב Compact
 - ✅ דוגמה מלאה למסך התחברות
 - ✅ המלצות לצמצום רווחים
@@ -1293,6 +1335,7 @@ StickyNote(
 - ✅ פתרון בעיות נפוצות
 
 ### v1.0 - 15/10/2025
+
 - 🎉 גרסה ראשונית
 - מערכת עיצוב מלאה
 - כל הרכיבים והקבועים

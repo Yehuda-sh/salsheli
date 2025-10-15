@@ -11,9 +11,9 @@
 //
 // Usage:
 // ```dart
-// import 'package:salsheli/config/list_type_groups.dart';
-// import 'package:salsheli/l10n/app_strings.dart';
-// 
+// import 'package:memozap/config/list_type_groups.dart';
+// import 'package:memozap/l10n/app_strings.dart';
+//
 // // קבלת קבוצה של type
 // final group = ListTypeGroups.getGroup(ListType.birthday);
 // // → ListTypeGroup.events
@@ -40,13 +40,13 @@ import '../l10n/app_strings.dart';
 
 /// קבוצות סוגי רשימות לתצוגה ב-UI
 enum ListTypeGroup {
-  shopping,   // קניות יומיומיות
-  specialty,  // קניות מיוחדות
-  events,     // אירועים
+  shopping, // קניות יומיומיות
+  specialty, // קניות מיוחדות
+  events, // אירועים
 }
 
 /// מחלקת עזר לניהול קבוצות סוגי רשימות
-/// 
+///
 /// מקבצת את 21 סוגי הרשימות ל-3 קבוצות לוגיות:
 /// - shopping (2): super, pharmacy
 /// - specialty (12): hardware, clothing, electronics...
@@ -60,10 +60,7 @@ class ListTypeGroups {
   // ========================================
 
   /// קניות יומיומיות - כל יום (2 סוגים)
-  static const _shoppingTypes = [
-    ListType.super_,
-    ListType.pharmacy,
-  ];
+  static const _shoppingTypes = [ListType.super_, ListType.pharmacy];
 
   /// קניות מיוחדות - ספציפיות (12 סוגים)
   static const _specialtyTypes = [
@@ -96,7 +93,7 @@ class ListTypeGroups {
   // ========================================
 
   /// מחזיר את הקבוצה של type מסוים
-  /// 
+  ///
   /// דוגמאות:
   /// ```dart
   /// getGroup(ListType.super_)    // ListTypeGroup.shopping
@@ -114,12 +111,12 @@ class ListTypeGroups {
   }
 
   /// מחזיר את כל הסוגים בקבוצה
-  /// 
+  ///
   /// דוגמאות:
   /// ```dart
   /// getTypesInGroup(ListTypeGroup.shopping)
   /// // [super_, pharmacy]
-  /// 
+  ///
   /// getTypesInGroup(ListTypeGroup.events)
   /// // [birthday, party, wedding, picnic, holiday, gifts]
   /// ```
@@ -135,7 +132,7 @@ class ListTypeGroups {
   }
 
   /// שם הקבוצה בעברית (i18n ready)
-  /// 
+  ///
   /// דוגמאות:
   /// ```dart
   /// getGroupName(ListTypeGroup.shopping)   // 'קניות יומיומיות'
@@ -155,7 +152,7 @@ class ListTypeGroups {
   }
 
   /// אייקון הקבוצה (אימוג'י)
-  /// 
+  ///
   /// דוגמאות:
   /// ```dart
   /// getGroupIcon(ListTypeGroup.shopping)   // '🛒'
@@ -174,12 +171,12 @@ class ListTypeGroups {
   }
 
   /// תיאור הקבוצה (i18n ready)
-  /// 
+  ///
   /// דוגמאות:
   /// ```dart
   /// getGroupDescription(ListTypeGroup.shopping)
   /// // 'קניות שוטפות ויומיומיות'
-  /// 
+  ///
   /// getGroupDescription(ListTypeGroup.specialty)
   /// // 'קניות בחנויות מיוחדות'
   /// ```
@@ -196,18 +193,14 @@ class ListTypeGroups {
   }
 
   /// כל הקבוצות בסדר תצוגה
-  static const List<ListTypeGroup> allGroups = [
-    ListTypeGroup.shopping,
-    ListTypeGroup.specialty,
-    ListTypeGroup.events,
-  ];
+  static const List<ListTypeGroup> allGroups = [ListTypeGroup.shopping, ListTypeGroup.specialty, ListTypeGroup.events];
 
   // ========================================
   // Helper Methods
   // ========================================
 
   /// בדיקה אם type הוא אירוע
-  /// 
+  ///
   /// דוגמה:
   /// ```dart
   /// isEvent(ListType.birthday)  // true
@@ -218,7 +211,7 @@ class ListTypeGroups {
   }
 
   /// בדיקה אם type הוא קנייה יומיומית
-  /// 
+  ///
   /// דוגמה:
   /// ```dart
   /// isShopping(ListType.super_)     // true
@@ -229,7 +222,7 @@ class ListTypeGroups {
   }
 
   /// בדיקה אם type הוא קנייה מיוחדת
-  /// 
+  ///
   /// דוגמה:
   /// ```dart
   /// isSpecialty(ListType.hardware)  // true
@@ -240,7 +233,7 @@ class ListTypeGroups {
   }
 
   /// מחזיר את מספר הסוגים בקבוצה
-  /// 
+  ///
   /// דוגמה:
   /// ```dart
   /// getGroupSize(ListTypeGroup.shopping)   // 2
@@ -252,7 +245,7 @@ class ListTypeGroups {
   }
 
   /// בדיקה אם קבוצה היא הגדולה ביותר
-  /// 
+  ///
   /// דוגמה:
   /// ```dart
   /// isLargestGroup(ListTypeGroup.specialty)  // true (12 סוגים)

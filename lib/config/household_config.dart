@@ -10,18 +10,18 @@
 //
 // 🔄 שימוש:
 // ```dart
-// import 'package:salsheli/config/household_config.dart';
-// import 'package:salsheli/l10n/app_strings.dart';
-// 
+// import 'package:memozap/config/household_config.dart';
+// import 'package:memozap/l10n/app_strings.dart';
+//
 // // רשימת כל הסוגים
 // final types = HouseholdConfig.allTypes;
-// 
+//
 // // קבלת תיאור (i18n)
 // final label = HouseholdConfig.getLabel('family');
-// 
+//
 // // אייקון
 // final icon = HouseholdConfig.getIcon('family');
-// 
+//
 // // Helper methods
 // final isValid = HouseholdConfig.isValid('family'); // true
 // final fallback = HouseholdConfig.getTypeOrDefault(null); // 'family'
@@ -33,10 +33,10 @@
 // Updated: 08/10/2025
 
 import 'package:flutter/material.dart';
-import 'package:salsheli/l10n/app_strings.dart';
+import 'package:memozap/l10n/app_strings.dart';
 
 /// תצורת סוגי קבוצות/משקי בית
-/// 
+///
 /// תומך ב-11 סוגים:
 /// - 5 מקוריים: משפחה, ועד בית, ועד גן, שותפים, אחר
 /// - 6 חדשים: חברים, עמיתים, שכנים, ועד כיתה, מועדון, משפחה מורחבת
@@ -46,14 +46,14 @@ class HouseholdConfig {
   // ========================================
   // IDs של סוגי קבוצות
   // ========================================
-  
+
   // Original 5
   static const String family = 'family';
   static const String buildingCommittee = 'building_committee';
   static const String kindergartenCommittee = 'kindergarten_committee';
   static const String roommates = 'roommates';
   static const String other = 'other';
-  
+
   // New 6
   static const String friends = 'friends';
   static const String colleagues = 'colleagues';
@@ -65,7 +65,7 @@ class HouseholdConfig {
   // ========================================
   // רשימת כל הסוגים (11)
   // ========================================
-  
+
   static const List<String> allTypes = [
     family,
     buildingCommittee,
@@ -83,9 +83,9 @@ class HouseholdConfig {
   // ========================================
   // קבלת תווית בעברית (i18n ready)
   // ========================================
-  
+
   /// מחזיר תווית מתורגמת לסוג הקבוצה
-  /// 
+  ///
   /// דוגמאות:
   /// ```dart
   /// getLabel('family')  // 'משפחה'
@@ -106,7 +106,7 @@ class HouseholdConfig {
         return h.typeRoommates;
       case other:
         return h.typeOther;
-      
+
       // New 6
       case friends:
         return h.typeFriends;
@@ -120,7 +120,7 @@ class HouseholdConfig {
         return h.typeClub;
       case extendedFamily:
         return h.typeExtendedFamily;
-      
+
       default:
         return type; // fallback
     }
@@ -129,9 +129,9 @@ class HouseholdConfig {
   // ========================================
   // קבלת אייקון
   // ========================================
-  
+
   /// מחזיר אייקון Material מתאים לסוג הקבוצה
-  /// 
+  ///
   /// דוגמאות:
   /// ```dart
   /// getIcon('family')       // Icons.family_restroom
@@ -151,7 +151,7 @@ class HouseholdConfig {
         return Icons.people_alt; // ✅ שופר: יותר ספציפי
       case other:
         return Icons.group_add; // ✅ שופר: מדגיש "מותאם אישית"
-      
+
       // New 6
       case friends:
         return Icons.people_outline;
@@ -165,7 +165,7 @@ class HouseholdConfig {
         return Icons.groups_2;
       case extendedFamily:
         return Icons.groups_3;
-      
+
       default:
         return Icons.group; // fallback
     }
@@ -174,14 +174,14 @@ class HouseholdConfig {
   // ========================================
   // קבלת תיאור מפורט (i18n ready)
   // ========================================
-  
+
   /// מחזיר תיאור מפורט לסוג הקבוצה
-  /// 
+  ///
   /// דוגמאות:
   /// ```dart
   /// getDescription('family')
   /// // 'ניהול קניות וצרכים משותפים למשפחה'
-  /// 
+  ///
   /// getDescription('colleagues')
   /// // 'רכישות משותפות וארגון ארוחות לצוות העבודה'
   /// ```
@@ -199,7 +199,7 @@ class HouseholdConfig {
         return h.descRoommates;
       case other:
         return h.descOther;
-      
+
       // New 6
       case friends:
         return h.descFriends;
@@ -213,7 +213,7 @@ class HouseholdConfig {
         return h.descClub;
       case extendedFamily:
         return h.descExtendedFamily;
-      
+
       default:
         return ''; // fallback
     }
@@ -222,9 +222,9 @@ class HouseholdConfig {
   // ========================================
   // בדיקת תקינות
   // ========================================
-  
+
   /// בודק אם הסוג תקין (קיים ברשימה)
-  /// 
+  ///
   /// דוגמאות:
   /// ```dart
   /// isValid('family')   // true
@@ -238,9 +238,9 @@ class HouseholdConfig {
   // ========================================
   // Helper Methods
   // ========================================
-  
+
   /// מחזיר את הסוג או 'family' אם invalid
-  /// 
+  ///
   /// שימושי לטעינת הגדרות עם fallback:
   /// ```dart
   /// final type = prefs.getString('household_type');
@@ -252,7 +252,7 @@ class HouseholdConfig {
   }
 
   /// בודק אם הסוג הוא 'אחר' (fallback)
-  /// 
+  ///
   /// ```dart
   /// isOtherType('other')  // true
   /// isOtherType('family') // false
@@ -262,7 +262,7 @@ class HouseholdConfig {
   }
 
   /// מחזיר רשימת סוגים ללא 'אחר'
-  /// 
+  ///
   /// שימושי למסכי בחירה - מציג רק סוגים עיקריים:
   /// ```dart
   /// final types = HouseholdConfig.primaryTypes;
@@ -274,7 +274,7 @@ class HouseholdConfig {
   }
 
   /// בודק אם הסוג קשור למשפחה
-  /// 
+  ///
   /// ```dart
   /// isFamilyRelated('family')         // true
   /// isFamilyRelated('extendedFamily') // true
@@ -285,7 +285,7 @@ class HouseholdConfig {
   }
 
   /// בודק אם הסוג קשור לוועדים
-  /// 
+  ///
   /// ```dart
   /// isCommitteeType('buildingCommittee')      // true
   /// isCommitteeType('kindergartenCommittee')  // true
@@ -293,8 +293,6 @@ class HouseholdConfig {
   /// isCommitteeType('family')                 // false
   /// ```
   static bool isCommitteeType(String type) {
-    return type == buildingCommittee ||
-        type == kindergartenCommittee ||
-        type == classCommittee;
+    return type == buildingCommittee || type == kindergartenCommittee || type == classCommittee;
   }
 }

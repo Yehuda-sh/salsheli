@@ -11,10 +11,10 @@
 ```
         🏆 E2E (5%)
        Integration Tests
-       
+
     🧩 Widget (20%)
     Component Tests
-    
+
 🏗️ Unit (75%)
 Core Logic Tests
 ```
@@ -74,11 +74,11 @@ build_runner build
 // test/unit/models/shopping_list_test.dart
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:salsheli/models/shopping_list.dart';
+import 'package:memozap/models/shopping_list.dart';
 
 void main() {
   group('ShoppingList Model', () {
-    
+
     test('copyWith updates only specified fields', () {
       // Arrange
       final original = ShoppingList(
@@ -163,9 +163,9 @@ void main() {
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:salsheli/providers/shopping_lists_provider.dart';
-import 'package:salsheli/repositories/shopping_lists_repository.dart';
-import 'package:salsheli/models/shopping_list.dart';
+import 'package:memozap/providers/shopping_lists_provider.dart';
+import 'package:memozap/repositories/shopping_lists_repository.dart';
+import 'package:memozap/models/shopping_list.dart';
 
 import 'shopping_lists_provider_test.mocks.dart';
 
@@ -204,7 +204,7 @@ void main() {
           createdAt: DateTime(2025, 10, 15),
         ),
       ];
-      
+
       when(mockRepository.fetchLists('household-1'))
           .thenAnswer((_) async => mockLists);
 
@@ -307,7 +307,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:salsheli/repositories/firebase_shopping_lists_repository.dart';
+import 'package:memozap/repositories/firebase_shopping_lists_repository.dart';
 
 import 'shopping_lists_repository_test.mocks.dart';
 
@@ -325,7 +325,7 @@ void main() {
     test('household_id filtering in queries', () async {
       // Arrange
       const householdId = 'household-1';
-      
+
       // This test verifies that household_id is always filtered
       // Actual implementation depends on Firestore setup
 
@@ -369,14 +369,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
-import 'package:salsheli/screens/home/home_dashboard_screen.dart';
-import 'package:salsheli/providers/shopping_lists_provider.dart';
+import 'package:memozap/screens/home/home_dashboard_screen.dart';
+import 'package:memozap/providers/shopping_lists_provider.dart';
 
 import '../../fixtures/mock_providers.dart';
 
 void main() {
   group('HomeDashboardScreen', () {
-    
+
     testWidgets('displays loading skeleton', (tester) async {
       // Arrange
       final mockProvider = MockShoppingListsProvider();
@@ -484,7 +484,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      
+
       await tester.tap(find.byType(ShoppingListCard).first);
       await tester.pumpAndSettle();
 
@@ -503,15 +503,15 @@ void main() {
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:salsheli/widgets/common/animated_button.dart';
+import 'package:memozap/widgets/common/animated_button.dart';
 
 void main() {
   group('AnimatedButton', () {
-    
+
     testWidgets('scales on tap', (tester) async {
       // Arrange
       bool tapped = false;
-      
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -575,13 +575,13 @@ void main() {
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:salsheli/main.dart' as app;
+import 'package:memozap/main.dart' as app;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('Shopping List Full Flow', () {
-    
+
     testWidgets('Create and delete shopping list', (tester) async {
       // Launch app
       app.main();
@@ -596,7 +596,7 @@ void main() {
         find.byType(TextField),
         'Groceries',
       );
-      
+
       // Create list
       await tester.tap(find.text('Create'));
       await tester.pumpAndSettle();
@@ -652,6 +652,7 @@ void main() {
 ## 📊 Running Tests
 
 ### Unit Tests
+
 ```bash
 # Run all unit tests
 flutter test
@@ -667,6 +668,7 @@ lcov --list coverage/lcov.info
 ```
 
 ### Widget Tests
+
 ```bash
 # Run all widget tests
 flutter test test/widget/
@@ -676,6 +678,7 @@ flutter test test/widget/screens/home_dashboard_screen_test.dart
 ```
 
 ### Integration Tests
+
 ```bash
 # Run integration tests (requires physical device or emulator)
 flutter test integration_test/shopping_list_flow_test.dart
@@ -685,6 +688,7 @@ flutter test integration_test/ -d <device_id>
 ```
 
 ### Coverage Reports
+
 ```bash
 # Generate coverage
 flutter test --coverage
@@ -701,15 +705,15 @@ open coverage/html/index.html
 
 ## 🎯 Coverage Goals
 
-| Component | Target | Current |
-|-----------|--------|---------|
-| Models | 90%+ | - |
-| Providers | 80%+ | - |
-| Repositories | 85%+ | - |
-| Services | 75%+ | - |
-| Screens | 60%+ | - |
-| Widgets | 70%+ | - |
-| **Overall** | **80%+** | - |
+| Component    | Target   | Current |
+| ------------ | -------- | ------- |
+| Models       | 90%+     | -       |
+| Providers    | 80%+     | -       |
+| Repositories | 85%+     | -       |
+| Services     | 75%+     | -       |
+| Screens      | 60%+     | -       |
+| Widgets      | 70%+     | -       |
+| **Overall**  | **80%+** | -       |
 
 ---
 
@@ -721,7 +725,7 @@ open coverage/html/index.html
 // test/fixtures/mock_providers.dart
 
 import 'package:mockito/mockito.dart';
-import 'package:salsheli/providers/shopping_lists_provider.dart';
+import 'package:memozap/providers/shopping_lists_provider.dart';
 
 class MockShoppingListsProvider extends Mock
     implements ShoppingListsProvider {
@@ -759,7 +763,7 @@ class MockShoppingListsProvider extends Mock
 ```dart
 // test/fixtures/mock_data.dart
 
-import 'package:salsheli/models/shopping_list.dart';
+import 'package:memozap/models/shopping_list.dart';
 
 final mockShoppingLists = [
   ShoppingList(
@@ -793,10 +797,10 @@ test('provider loads items', () async {
 test('example', () {
   // Arrange
   final data = setUp();
-  
+
   // Act
   final result = doSomething(data);
-  
+
   // Assert
   expect(result, equals(expected));
 });

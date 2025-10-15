@@ -23,12 +23,12 @@ class StoresConfig {
   const StoresConfig._();
 
   /// רשימת חנויות סופרמרקט מרכזיות
-  /// 
+  ///
   /// 🎯 שימוש:
   /// - Onboarding - בחירת חנויות מועדפות
   /// - Filters - סינון רשימות לפי חנות
   /// - OCR - זיהוי חנות מקבלה
-  /// 
+  ///
   /// **דוגמה:**
   /// ```dart
   /// // Dropdown של חנויות
@@ -37,7 +37,7 @@ class StoresConfig {
   ///     DropdownMenuItem(value: store, child: Text(store))
   ///   ).toList(),
   /// )
-  /// 
+  ///
   /// // בדיקה אם חנות תקינה
   /// if (StoresConfig.allStores.contains(storeName)) { ... }
   /// ```
@@ -53,9 +53,9 @@ class StoresConfig {
   ];
 
   /// מיפוי וריאציות שמות חנויות (לזיהוי מקבלות)
-  /// 
+  ///
   /// 🎯 שימוש: receipt_parser_service.dart
-  /// 
+  ///
   /// **דוגמה:**
   /// ```dart
   /// final storeName = receiptText.toLowerCase();
@@ -77,7 +77,7 @@ class StoresConfig {
   };
 
   /// בדיקה אם חנות תקינה
-  /// 
+  ///
   /// **דוגמה:**
   /// ```dart
   /// if (StoresConfig.isValid('שופרסל')) { ... }  // true
@@ -86,7 +86,7 @@ class StoresConfig {
   static bool isValid(String store) => allStores.contains(store);
 
   /// זיהוי חנות מטקסט (לשימוש ב-OCR)
-  /// 
+  ///
   /// **דוגמה:**
   /// ```dart
   /// final text = 'SHUFERSAL DEAL LTD...';
@@ -112,8 +112,8 @@ class StoresConfig {
 //
 // 1. **גישה לרשימה:**
 //    ```dart
-//    import 'package:salsheli/config/stores_config.dart';
-//    
+//    import 'package:memozap/config/stores_config.dart';
+//
 //    StoresConfig.allStores  // רשימה מלאה
 //    ```
 //

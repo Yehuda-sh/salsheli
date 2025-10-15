@@ -10,14 +10,14 @@
 //
 // Usage:
 // ```dart
-// import 'package:salsheli/l10n/app_strings.dart';
-// 
+// import 'package:memozap/l10n/app_strings.dart';
+//
 // // קטגוריות
 // Text(AppStrings.listMappings.catDairyProducts)  // "מוצרי חלב"
-// 
+//
 // // חנויות
 // Text(AppStrings.listMappings.storeShufersal)    // "שופרסל"
-// 
+//
 // // פריטים
 // Text(AppStrings.listMappings.itemMilk)          // "חלב"
 // ```
@@ -26,29 +26,29 @@
 // Created: 08/10/2025
 
 /// מחרוזות למיפוי סוגי רשימות
-/// 
+///
 /// מכיל את כל המחרוזות עבור:
 /// - קטגוריות מוצרים (21 סוגי רשימות)
 /// - חנויות ומותגים מומלצים
 /// - פריטים מוצעים לכל סוג רשימה
 class ListTypeMappingsStrings {
   const ListTypeMappingsStrings();
-  
+
   // ========================================
   // Base Event Categories (משותף לאירועים)
   // ========================================
-  
+
   String get baseEventFood => 'אוכל ומשקאות';
   String get baseEventDecorations => 'קישוטים';
   String get baseEventServeware => 'כלי הגשה';
   String get baseEventNapkins => 'מפיות ומגבות';
   String get baseEventDisposables => 'כלים חד-פעמיים';
   String get baseEventCleaning => 'מוצרי ניקיון';
-  
+
   // ========================================
   // Categories - Super (סופרמרקט)
   // ========================================
-  
+
   String get catDairyProducts => 'מוצרי חלב';
   String get catMeatAndFish => 'בשר ודגים';
   String get catFruitsAndVegetables => 'פירות וירקות';
@@ -61,11 +61,11 @@ class ListTypeMappingsStrings {
   String get catOilsAndSauces => 'שמנים ורטבים';
   String get catFrozen => 'קפואים';
   String get catBreakfastItems => 'מוצרי בוקר';
-  
+
   // ========================================
   // Categories - Pharmacy (בית מרקחת)
   // ========================================
-  
+
   String get catMedications => 'תרופות';
   String get catVitamins => 'ויטמינים ותוספי תזונה';
   String get catBodyCare => 'טיפוח הגוף';
@@ -74,11 +74,11 @@ class ListTypeMappingsStrings {
   String get catCosmetics => 'קוסמטיקה';
   String get catBabyProducts => 'מוצרי תינוקות';
   String get catMedicalAids => 'עזרים רפואיים';
-  
+
   // ========================================
   // Categories - Hardware (חומרי בניין)
   // ========================================
-  
+
   String get catTools => 'כלי עבודה';
   String get catBuildingMaterials => 'חומרי בניין';
   String get catPaints => 'צבעים';
@@ -86,11 +86,11 @@ class ListTypeMappingsStrings {
   String get catPlumbing => 'אינסטלציה';
   String get catGardening => 'גינון';
   String get catSafety => 'בטיחות';
-  
+
   // ========================================
   // Categories - Clothing (ביגוד)
   // ========================================
-  
+
   String get catShirts => 'חולצות';
   String get catPants => 'מכנסיים';
   String get catDressesAndSkirts => 'שמלות וחצאיות';
@@ -99,11 +99,11 @@ class ListTypeMappingsStrings {
   String get catCoatsAndJackets => 'מעילים וז\'קטים';
   String get catSportswear => 'ביגוד ספורט';
   String get catAccessories => 'אביזרים';
-  
+
   // ========================================
   // Categories - Electronics (אלקטרוניקה)
   // ========================================
-  
+
   String get catComputersAndTablets => 'מחשבים וטאבלטים';
   String get catSmartphones => 'סמארטפונים';
   String get catHeadphonesAndSpeakers => 'אוזניות ורמקולים';
@@ -111,11 +111,11 @@ class ListTypeMappingsStrings {
   String get catCameras => 'מצלמות';
   String get catElectronicsAccessories => 'אביזרים';
   String get catGames => 'משחקים';
-  
+
   // ========================================
   // Categories - Pets (חיות מחמד)
   // ========================================
-  
+
   String get catDogFood => 'מזון לכלבים';
   String get catCatFood => 'מזון לחתולים';
   String get catPetTreats => 'חטיפים לחיות';
@@ -123,33 +123,33 @@ class ListTypeMappingsStrings {
   String get catPetToys => 'משחקים לחיות';
   String get catPetGrooming => 'טיפוח';
   String get catPetHealth => 'בריאות';
-  
+
   // ========================================
   // Categories - Cosmetics (קוסמטיקה)
   // ========================================
-  
+
   String get catFaceMakeup => 'איפור פנים';
   String get catSkincare => 'טיפוח העור';
   String get catPerfumes => 'בשמים';
   String get catHaircare => 'טיפוח שיער';
   String get catNailCare => 'מניקור ופדיקור';
   String get catMakeupAccessories => 'אביזרי איפור';
-  
+
   // ========================================
   // Categories - Stationery (ציוד משרדי)
   // ========================================
-  
+
   String get catWritingInstruments => 'כלי כתיבה';
   String get catNotebooksAndPads => 'מחברות ופנקסים';
   String get catPaper => 'נייר';
   String get catOfficeOrganization => 'ארגון משרדי';
   String get catArtsAndCrafts => 'אמנות ויצירה';
   String get catPrintersAndInk => 'מדפסות ודיו';
-  
+
   // ========================================
   // Categories - Toys (צעצועים)
   // ========================================
-  
+
   String get catInfantToys => 'צעצועים לגיל הרך';
   String get catBoardGames => 'משחקי קופסה';
   String get catBrainTeasers => 'משחקי חשיבה';
@@ -158,11 +158,11 @@ class ListTypeMappingsStrings {
   String get catLegoAndBuilding => 'לגו ובניה';
   String get catCrafts => 'אמנות ויצירה';
   String get catVideoGames => 'משחקי וידאו';
-  
+
   // ========================================
   // Categories - Books (ספרים)
   // ========================================
-  
+
   String get catFiction => 'ספרות בדיונית';
   String get catNonFiction => 'ספרי עיון';
   String get catChildrensBooks => 'ספרי ילדים';
@@ -171,11 +171,11 @@ class ListTypeMappingsStrings {
   String get catTextbooks => 'ספרי לימוד';
   String get catCookbooks => 'ספרי בישול';
   String get catInspirational => 'ספרי השראה';
-  
+
   // ========================================
   // Categories - Sports (ספורט)
   // ========================================
-  
+
   String get catSportsClothing => 'ביגוד ספורט';
   String get catSportsShoes => 'נעלי ספורט';
   String get catBalls => 'כדורים';
@@ -184,11 +184,11 @@ class ListTypeMappingsStrings {
   String get catRunningAccessories => 'אביזרי ריצה';
   String get catSwimmingEquipment => 'ציוד שחייה';
   String get catSportsSupplements => 'תוספי תזונה';
-  
+
   // ========================================
   // Categories - Home Decor (עיצוב הבית)
   // ========================================
-  
+
   String get catFurniture => 'ריהוט';
   String get catPicturesAndFrames => 'תמונות ומסגרות';
   String get catPillowsAndRugs => 'כריות ושטיחים';
@@ -197,11 +197,11 @@ class ListTypeMappingsStrings {
   String get catKitchenAccessories => 'אביזרי מטבח';
   String get catPlants => 'צמחי נוי';
   String get catCandlesAndScents => 'נרות וריחות';
-  
+
   // ========================================
   // Categories - Automotive (רכב)
   // ========================================
-  
+
   String get catEngineOil => 'שמן מנוע';
   String get catWindshieldFluid => 'נוזל שמשות';
   String get catAirFilter => 'מסנן אוויר';
@@ -210,11 +210,11 @@ class ListTypeMappingsStrings {
   String get catComfortAccessories => 'אביזרי נוחות';
   String get catSteeringWheelCover => 'כיסוי הגה';
   String get catCarCharger => 'מטען לרכב';
-  
+
   // ========================================
   // Categories - Baby (תינוקות)
   // ========================================
-  
+
   String get catDiapers => 'חיתולים';
   String get catWipes => 'מגבונים';
   String get catBabyFood => 'מזון תינוקות';
@@ -223,11 +223,11 @@ class ListTypeMappingsStrings {
   String get catBabyClothing => 'ביגוד תינוקות';
   String get catSafetyProducts => 'מוצרי בטיחות';
   String get catDevelopmentToys => 'צעצועי התפתחות';
-  
+
   // ========================================
   // Categories - Gifts (מתנות)
   // ========================================
-  
+
   String get catGiftsForMen => 'מתנות לגברים';
   String get catGiftsForWomen => 'מתנות לנשים';
   String get catGiftsForKids => 'מתנות לילדים';
@@ -236,11 +236,11 @@ class ListTypeMappingsStrings {
   String get catWrappingPaper => 'ניירות עטיפה';
   String get catGreetingCards => 'כרטיסי ברכה';
   String get catGiftBaskets => 'סלסלות מתנה';
-  
+
   // ========================================
   // Categories - Birthday (יום הולדת)
   // ========================================
-  
+
   String get catBirthdayCake => 'עוגת יום הולדת';
   String get catBirthdayCandles => 'נרות ליום הולדת';
   String get catBalloons => 'בלונים';
@@ -248,11 +248,11 @@ class ListTypeMappingsStrings {
   String get catBirthdayGifts => 'מתנות';
   String get catGoodieBags => 'שקיות הפתעה';
   String get catPartyGames => 'משחקים למסיבה';
-  
+
   // ========================================
   // Categories - Party (מסיבה)
   // ========================================
-  
+
   String get catMusic => 'מוזיקה';
   String get catAlcohol => 'אלכוהול';
   String get catPartyFood => 'מזון למסיבה';
@@ -260,11 +260,11 @@ class ListTypeMappingsStrings {
   String get catPartyGamesCategory => 'משחקי חברה';
   String get catCostumes => 'תחפושות';
   String get catSpecialLighting => 'תאורה מיוחדת';
-  
+
   // ========================================
   // Categories - Wedding (חתונה)
   // ========================================
-  
+
   String get catFlowers => 'פרחים';
   String get catInvitations => 'הזמנות';
   String get catGuestGifts => 'מתנות לאורחים';
@@ -273,11 +273,11 @@ class ListTypeMappingsStrings {
   String get catChuppah => 'חופה';
   String get catMenu => 'תפריט';
   String get catPhotographyAndVideo => 'צילום ווידאו';
-  
+
   // ========================================
   // Categories - Picnic (פיקניק)
   // ========================================
-  
+
   String get catSandwiches => 'כריכים';
   String get catSalads => 'סלטים';
   String get catFruits => 'פירות';
@@ -287,11 +287,11 @@ class ListTypeMappingsStrings {
   String get catDisposableUtensils => 'כלים חד-פעמיים';
   String get catOutdoorGames => 'משחקי חוץ';
   String get catInsectRepellent => 'דוחה יתושים';
-  
+
   // ========================================
   // Categories - Holiday (חג)
   // ========================================
-  
+
   String get catHolidayFood => 'מאכלי החג';
   String get catWineAndKiddush => 'יין וקידוש';
   String get catCandles => 'נרות';
@@ -299,17 +299,17 @@ class ListTypeMappingsStrings {
   String get catPrayerBooks => 'ספרי תפילה';
   String get catGiftsForGuests => 'מתנות לאורחים';
   String get catHolidayDecorations => 'עיטורי חג';
-  
+
   // ========================================
   // Categories - Other (אחר)
   // ========================================
-  
+
   String get catGeneral => 'כללי';
-  
+
   // ========================================
   // Stores - Supermarkets
   // ========================================
-  
+
   String get storeShufersal => 'שופרסל';
   String get storeRamiLevy => 'רמי לוי';
   String get storeYohananof => 'יוחננוף';
@@ -318,31 +318,31 @@ class ListTypeMappingsStrings {
   String get storeOsherAd => 'אושר עד';
   String get storeSuperPharm => 'סופר פארם';
   String get storeShukMahaneYehuda => 'שוק מחנה יהודה';
-  
+
   // ========================================
   // Stores - Pharmacy
   // ========================================
-  
+
   String get storeNewPharm => 'ניו-פארם';
   String get storeBE => 'BE';
   String get storeLife => 'לייף';
   String get storeEstee => 'אסתי לאודר';
   String get storeMAC => 'MAC';
-  
+
   // ========================================
   // Stores - Hardware
   // ========================================
-  
+
   String get storeAce => 'איס הרדוור';
   String get storeBankHakelim => 'בנק הכלים';
   String get storeTotalCenter => 'טוטל סנטר';
   String get storeMasterfix => 'מאסטרפיקס';
   String get storeDexter => 'דקסטר';
-  
+
   // ========================================
   // Stores - Clothing
   // ========================================
-  
+
   String get storeCastro => 'קסטרו';
   String get storeFox => 'פוקס';
   String get storeGolf => 'גולף';
@@ -353,11 +353,11 @@ class ListTypeMappingsStrings {
   String get storeTerminalX => 'טרמינל X';
   String get storeNike => 'נייקי';
   String get storeAdidas => 'אדידס';
-  
+
   // ========================================
   // Stores - Electronics
   // ========================================
-  
+
   String get storeKSP => 'KSP';
   String get storeIvgeni => 'יוניון';
   String get storeBug => 'בי אנד אייץ\'';
@@ -366,21 +366,21 @@ class ListTypeMappingsStrings {
   String get storePony => 'פוני';
   String get storeBaG => 'באג';
   String get storeIDigital => 'iDigital';
-  
+
   // ========================================
   // Stores - Pets
   // ========================================
-  
+
   String get storePetex => 'פטקס';
   String get storeZootov => 'זוטוב';
   String get storePetPlanet => 'פט פלאנט';
   String get storePetShop => 'פט שופ';
   String get storePetzone => 'פטזון';
-  
+
   // ========================================
   // Stores - Other Categories
   // ========================================
-  
+
   String get storeSteimatzky => 'סטימצקי';
   String get storeOfficeDepot => 'אופיס דיפו';
   String get storeFantastic => 'פנטסטיק';
@@ -400,11 +400,11 @@ class ListTypeMappingsStrings {
   String get storeDelek => 'דלק';
   String get storePaz => 'פז';
   String get storeBabyLove => 'ביבילוב';
-  
+
   // ========================================
   // Suggested Items - Super
   // ========================================
-  
+
   String get itemMilk => 'חלב';
   String get itemBread => 'לחם';
   String get itemEggs => 'ביצים';
@@ -421,11 +421,11 @@ class ListTypeMappingsStrings {
   String get itemFlour => 'קמח';
   String get itemChocolate => 'שוקולד';
   String get itemDrink => 'משקה';
-  
+
   // ========================================
   // Suggested Items - Pharmacy
   // ========================================
-  
+
   String get itemPainMedicine => 'תרופת כאב';
   String get itemVitaminD => 'ויטמין D';
   String get itemVitaminC => 'ויטמין C';
@@ -437,12 +437,12 @@ class ListTypeMappingsStrings {
   String get itemMoisturizer => 'קרם לחות';
   String get itemBabyDiapers => 'חיתולים';
   String get itemBabyWipes => 'מגבונים';
-  
+
   // ========================================
   // Suggested Items - Other Categories
   // (ממשיך עם כל שאר הפריטים...)
   // ========================================
-  
+
   // Hardware
   String get itemHammer => 'פטיש';
   String get itemScrewdrivers => 'מברגים';
@@ -454,7 +454,7 @@ class ListTypeMappingsStrings {
   String get itemMeasuringTape => 'מטר';
   String get itemDrill => 'מקדחה';
   String get itemLightBulbs => 'נורות';
-  
+
   // Clothing
   String get itemWhiteShirt => 'חולצה לבנה';
   String get itemTShirt => 'חולצת טי';
@@ -466,7 +466,7 @@ class ListTypeMappingsStrings {
   String get itemCoat => 'מעיל';
   String get itemScarf => 'צעיף';
   String get itemHat => 'כובע';
-  
+
   // Electronics
   String get itemHeadphones => 'אוזניות';
   String get itemUSBCable => 'כבל USB';
@@ -476,7 +476,7 @@ class ListTypeMappingsStrings {
   String get itemFlashDrive => 'זיכרון נייד';
   String get itemPhoneCase => 'כיסוי לטלפון';
   String get itemScreenProtector => 'מגן מסך';
-  
+
   // Pets
   String get itemDryDogFood => 'מזון יבש לכלב';
   String get itemDryCatFood => 'מזון יבש לחתול';
@@ -486,11 +486,11 @@ class ListTypeMappingsStrings {
   String get itemLeash => 'רצועה';
   String get itemBowl => 'קערה';
   String get itemCatLitter => 'חול לחתול';
-  
+
   // ========================================
   // Suggested Items - Cosmetics (קוסמטיקה)
   // ========================================
-  
+
   String get itemFoundation => 'מייק אפ';
   String get itemMascara => 'מסקרה';
   String get itemLipstick => 'שפתון';
@@ -501,11 +501,11 @@ class ListTypeMappingsStrings {
   String get itemSunscreen => 'קרם הגנה';
   String get itemPerfume => 'בושם';
   String get itemNailPolish => 'לק ציפורניים';
-  
+
   // ========================================
   // Suggested Items - Stationery (ציוד משרדי)
   // ========================================
-  
+
   String get itemPens => 'עטים';
   String get itemPencils => 'עפרונות';
   String get itemNotebook => 'מחברת';
@@ -516,11 +516,11 @@ class ListTypeMappingsStrings {
   String get itemStapler => 'מהדק';
   String get itemHighlighter => 'טוש סימון';
   String get itemCalculator => 'מחשבון';
-  
+
   // ========================================
   // Suggested Items - Toys (צעצועים)
   // ========================================
-  
+
   String get itemPuzzle => 'פאזל';
   String get itemDoll => 'בובה';
   String get itemCarToy => 'מכונית צעצוע';
@@ -531,11 +531,11 @@ class ListTypeMappingsStrings {
   String get itemCrayons => 'צבעי פנדה';
   String get itemPlayDoh => 'פלסטלינה';
   String get itemBubbles => 'בועות סבון';
-  
+
   // ========================================
   // Suggested Items - Books (ספרים)
   // ========================================
-  
+
   String get itemNovel => 'רומן';
   String get itemCookbookItem => 'ספר בישול';
   String get itemChildrenBook => 'ספר ילדים';
@@ -545,11 +545,11 @@ class ListTypeMappingsStrings {
   String get itemDiary => 'יומן';
   String get itemCalendar => 'לוח שנה';
   String get itemPhotoAlbum => 'אלבום תמונות';
-  
+
   // ========================================
   // Suggested Items - Sports (ספורט)
   // ========================================
-  
+
   String get itemRunningShoes => 'נעלי ריצה';
   String get itemYogaMat => 'מזרן יוגה';
   String get itemWaterBottle => 'בקבוק מים';
@@ -560,11 +560,11 @@ class ListTypeMappingsStrings {
   String get itemSwimGoggles => 'משקפי שחייה';
   String get itemSoccerBall => 'כדור כדורגל';
   String get itemTennisBall => 'כדור טניס';
-  
+
   // ========================================
   // Suggested Items - Home Decor (עיצוב הבית)
   // ========================================
-  
+
   String get itemCushion => 'כרית נוי';
   String get itemVase => 'אגרטל';
   String get itemFrame => 'מסגרת לתמונה';
@@ -575,11 +575,11 @@ class ListTypeMappingsStrings {
   String get itemRug => 'שטיח';
   String get itemTableCloth => 'מפת שולחן';
   String get itemCurtain => 'וילון';
-  
+
   // ========================================
   // Suggested Items - Automotive (רכב)
   // ========================================
-  
+
   String get itemEngineOilItem => 'שמן מנוע';
   String get itemWindshieldFluidItem => 'נוזל שמשות';
   String get itemAirFilterItem => 'מסנן אוויר';
@@ -590,11 +590,11 @@ class ListTypeMappingsStrings {
   String get itemPhoneHolder => 'מחזיק טלפון';
   String get itemFirstAidKit => 'ערכת עזרה ראשונה';
   String get itemJumperCables => 'כבלי עזר';
-  
+
   // ========================================
   // Suggested Items - Baby (תינוקות)
   // ========================================
-  
+
   String get itemDiapersItem => 'חיתולים';
   String get itemWipesItem => 'מגבונים';
   String get itemBottle => 'בקבוק';
@@ -605,11 +605,11 @@ class ListTypeMappingsStrings {
   String get itemOnesie => 'בגד גוף';
   String get itemBlanket => 'שמיכה';
   String get itemRattle => 'רעשן';
-  
+
   // ========================================
   // Suggested Items - Gifts (מתנות)
   // ========================================
-  
+
   String get itemGiftCard => 'שובר מתנה';
   String get itemWrappingPaperItem => 'נייר אריזה';
   String get itemRibbon => 'סרט נוי';
@@ -620,11 +620,11 @@ class ListTypeMappingsStrings {
   String get itemPhotoFrame => 'מסגרת לתמונה';
   String get itemCoffeeSet => 'ערכת קפה';
   String get itemGiftBasket => 'סלסלת מתנה';
-  
+
   // ========================================
   // Suggested Items - Birthday (יום הולדת)
   // ========================================
-  
+
   String get itemBirthdayCakeItem => 'עוגת יום הולדת';
   String get itemBalloonsItem => 'בלונים';
   String get itemCandlesItem => 'נרות';
@@ -635,11 +635,11 @@ class ListTypeMappingsStrings {
   String get itemConfetti => 'קונפטי';
   String get itemNoisemakers => 'חצוצרות מסיבה';
   String get itemPaperPlatesItem => 'צלחות חד-פעמיות';
-  
+
   // ========================================
   // Suggested Items - Party (מסיבה)
   // ========================================
-  
+
   String get itemChips => 'צ\'יפס';
   String get itemSoda => 'משקה קל';
   String get itemBeer => 'בירה';
@@ -650,11 +650,11 @@ class ListTypeMappingsStrings {
   String get itemNapkins => 'מפיות';
   String get itemIce => 'קרח';
   String get itemPlaylist => 'רשימת השמעה';
-  
+
   // ========================================
   // Suggested Items - Wedding (חתונה)
   // ========================================
-  
+
   String get itemFlowersItem => 'פרחים';
   String get itemInvitationsItem => 'הזמנות';
   String get itemFavors => 'מתנות לאורחים';
@@ -665,11 +665,11 @@ class ListTypeMappingsStrings {
   String get itemDJEquipment => 'ציוד DJ';
   String get itemPhotographer => 'צלם';
   String get itemWeddingCake => 'עוגת חתונה';
-  
+
   // ========================================
   // Suggested Items - Picnic (פיקניק)
   // ========================================
-  
+
   String get itemSandwichesItem => 'כריכים';
   String get itemFruitsItem => 'פירות';
   String get itemSaladsItem => 'סלטים';
@@ -680,11 +680,11 @@ class ListTypeMappingsStrings {
   String get itemPlasticUtensils => 'סכו"ם חד-פעמי';
   String get itemSunscreenPicnic => 'קרם הגנה';
   String get itemInsectSpray => 'ספריי נגד יתושים';
-  
+
   // ========================================
   // Suggested Items - Holiday (חג)
   // ========================================
-  
+
   String get itemWineForKiddush => 'יין לקידוש';
   String get itemChallah => 'חלה';
   String get itemMatzo => 'מצה';

@@ -16,11 +16,11 @@
 //
 // Usage Example:
 // ```dart
-// import 'package:salsheli/core/status_colors.dart';
-// 
+// import 'package:memozap/core/status_colors.dart';
+//
 // // שימוש פשוט עם context
 // color: StatusColors.getStatusColor('success', context)
-// 
+//
 // // overlay לרקעים
 // backgroundColor: StatusColors.successOverlay
 // ```
@@ -31,7 +31,7 @@
 import 'package:flutter/material.dart';
 
 /// צבעי סטטוס סמנטיים
-/// 
+///
 /// צבעים קבועים לשימוש במצבי סטטוס שונים:
 /// - pending (אפור) - פריט ממתין לפעולה
 /// - success (ירוק) - פעולה הצליחה / פריט נקנה
@@ -134,16 +134,16 @@ class StatusColors {
   // ========================================
 
   /// מחזיר את צבע הסטטוס המתאים לפי theme mode
-  /// 
+  ///
   /// **Status types:**
   /// - 'success' - הצלחה (ירוק)
   /// - 'error' - שגיאה (אדום)
   /// - 'warning' - אזהרה (כתום)
   /// - 'pending' - ממתין (אפור)
   /// - 'info' - מידע (כחול)
-  /// 
+  ///
   /// **Fallback:** סטטוס לא ידוע יחזיר `pending` + debug warning
-  /// 
+  ///
   /// **Usage:**
   /// ```dart
   /// Icon(
@@ -177,16 +177,16 @@ class StatusColors {
   }
 
   /// מחזיר את צבע ה-overlay (רקע עם שקיפות) המתאים לפי theme mode
-  /// 
+  ///
   /// **Status types:**
   /// - 'success' - הצלחה (ירוק)
   /// - 'error' - שגיאה (אדום)
   /// - 'warning' - אזהרה (כתום)
   /// - 'pending' - ממתין (אפור)
   /// - 'info' - מידע (כחול)
-  /// 
+  ///
   /// **Fallback:** סטטוס לא ידוע יחזיר `pendingOverlay` + debug warning
-  /// 
+  ///
   /// **Usage:**
   /// ```dart
   /// Container(
@@ -233,7 +233,7 @@ class StatusColors {
 //
 // Container(
 //   color: StatusColors.getStatusOverlay('error', context),
-//   child: Text('שגיאה', 
+//   child: Text('שגיאה',
 //     style: TextStyle(
 //       color: StatusColors.getStatusColor('error', context),
 //     ),
