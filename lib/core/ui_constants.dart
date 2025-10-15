@@ -246,6 +246,9 @@ const double kLegendDotSize = 12.0;
 // Durations (משכי זמן)
 // ========================================
 
+/// משך זמן לאנימציות מהירות מאוד (150ms) - כפתורים וכרטיסים
+const Duration kAnimationDurationFast = Duration(milliseconds: 150);
+
 /// משך זמן לאנימציות קצרות (200ms)
 const Duration kAnimationDurationShort = Duration(milliseconds: 200);
 
@@ -365,6 +368,111 @@ const double kDialogMaxHeight = 280.0;
 
 /// רוחב מקסימלי לדיאלוג (400px)
 const double kDialogMaxWidth = 400.0;
+
+// ========================================
+// Sticky Notes Design System 🎨📝
+// ========================================
+
+/// צבע נייר קרם - רקע מחברת
+const Color kPaperBackground = Color(0xFFFAF8F3);
+
+/// פתק צהוב
+const Color kStickyYellow = Color(0xFFFFF59D);
+
+/// פתק ורוד
+const Color kStickyPink = Color(0xFFF8BBD0);
+
+/// פתק ירוק
+const Color kStickyGreen = Color(0xFFC5E1A5);
+
+/// פתק תכלת
+const Color kStickyCyan = Color(0xFF80DEEA);
+
+/// פתק סגול
+const Color kStickyPurple = Color(0xFFCE93D8);
+
+/// קו כחול במחברת
+const Color kNotebookBlue = Color(0xFF9FC5E8);
+
+/// קו אדום במחברת
+const Color kNotebookRed = Color(0xFFE57373);
+
+/// Opacity לקווי מחברת
+const double kNotebookLineOpacity = 0.5;
+
+/// Opacity לקו אדום
+const double kNotebookRedLineOpacity = 0.4;
+
+/// רוחב קו אדום במחברת
+const double kNotebookRedLineWidth = 2.5;
+
+/// מרווח בין קווים במחברת
+const double kNotebookLineSpacing = 40.0;
+
+/// מיקום קו אדום מהשמאל
+const double kNotebookRedLineOffset = 60.0;
+
+// ========================================
+// Shadow Values for Sticky Notes 📌
+// ========================================
+
+/// Opacity צל ראשי לפתקים
+const double kStickyShadowPrimaryOpacity = 0.2;
+
+/// Opacity צל משני לפתקים
+const double kStickyShadowSecondaryOpacity = 0.1;
+
+/// Blur radius צל ראשי
+const double kStickyShadowPrimaryBlur = 10.0;
+
+/// Blur radius צל משני
+const double kStickyShadowSecondaryBlur = 20.0;
+
+/// Offset X צל ראשי
+const double kStickyShadowPrimaryOffsetX = 2.0;
+
+/// Offset Y צל ראשי
+const double kStickyShadowPrimaryOffsetY = 6.0;
+
+/// Offset Y צל משני
+const double kStickyShadowSecondaryOffsetY = 12.0;
+
+/// Opacity צל ללוגו
+const double kStickyLogoShadowPrimaryOpacity = 0.25;
+
+/// Opacity צל משני ללוגו
+const double kStickyLogoShadowSecondaryOpacity = 0.12;
+
+/// Blur צל ראשי ללוגו
+const double kStickyLogoShadowPrimaryBlur = 12.0;
+
+/// Blur צל משני ללוגו
+const double kStickyLogoShadowSecondaryBlur = 24.0;
+
+/// Offset Y צל ראשי ללוגו
+const double kStickyLogoShadowPrimaryOffsetY = 8.0;
+
+/// Offset Y צל משני ללוגו
+const double kStickyLogoShadowSecondaryOffsetY = 16.0;
+
+// ========================================
+// Sticky Note Sizes 📏
+// ========================================
+
+/// גודל פתק לוגו (120x120)
+const double kStickyLogoSize = 120.0;
+
+/// גודל אייקון בתוך פתק לוגו
+const double kStickyLogoIconSize = 60.0;
+
+/// רדיוס פינות פתקים (קטן, 2-4px)
+const double kStickyNoteRadius = 2.0;
+
+/// רדיוס פינות כפתורי פתקים
+const double kStickyButtonRadius = 4.0;
+
+/// זווית סיבוב מקסימלית לפתקים (רדיאנים)
+const double kStickyMaxRotation = 0.03;
 
 // ========================================
 // Opacity/Alpha Values

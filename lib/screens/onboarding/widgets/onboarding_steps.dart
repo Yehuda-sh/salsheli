@@ -135,7 +135,7 @@ class _StepWrapper extends StatelessWidget {
 }
 
 // ========================================
-// שלב 1: Welcome
+// שלב 1: Welcome - משופר עם אנימציות! ⭐
 // ========================================
 
 class _WelcomeStep extends StatelessWidget {
@@ -154,7 +154,8 @@ class _WelcomeStep extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.shopping_cart, size: kIconSizeXXLarge, color: accent),
+          // אייקון מונפש עם זוהר! ⭐
+          _AnimatedWelcomeIcon(accent: accent),
           const SizedBox(height: kSpacingLarge),
           Text(
             AppStrings.onboarding.welcomeTitle,
@@ -175,6 +176,50 @@ class _WelcomeStep extends StatelessWidget {
           .fadeIn(duration: kAnimationDurationMedium)
           .slideY(begin: 0.1, curve: Curves.easeOut),
     );
+  }
+}
+
+/// אייקון מונפש עם זוהר ואנימציית shimmer ⭐
+class _AnimatedWelcomeIcon extends StatelessWidget {
+  final Color accent;
+
+  const _AnimatedWelcomeIcon({required this.accent});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: kIconSizeXXLarge + kLogoGlowPadding,
+      height: kIconSizeXXLarge + kLogoGlowPadding,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        // זוהר רדיאלי סביב האייקון
+        gradient: RadialGradient(
+          colors: [
+            accent.withValues(alpha: kOpacityLow),
+            accent.withValues(alpha: kOpacityVeryLow),
+            accent.withValues(alpha: kOpacityMinimal),
+            Colors.transparent,
+          ],
+          stops: const [0.0, 0.4, 0.7, 1.0],
+        ),
+      ),
+      child: Center(
+        child: Icon(
+          Icons.shopping_cart,
+          size: kIconSizeXXLarge,
+          color: accent,
+        ),
+      ),
+    )
+        .animate(
+          onPlay: (controller) => controller.repeat(),
+        )
+        .shimmer(
+          duration: kAnimationDurationSlow,
+          color: accent.withValues(alpha: kOpacityLow),
+          angle: kShimmerAngle,
+          delay: const Duration(milliseconds: 800),
+        );
   }
 }
 

@@ -366,6 +366,7 @@ class _WelcomeStrings {
   // Buttons
   String get loginButton => 'התחברות';
   String get registerButton => 'הרשמה';
+  String get guestButton => 'המשך כאורח';
   String get socialLoginLabel => 'או התחבר עם:';
   String get googleButton => 'Google';
   String get facebookButton => 'Facebook';

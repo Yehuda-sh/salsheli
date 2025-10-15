@@ -16,6 +16,7 @@ import '../../core/ui_constants.dart';
 import '../../data/onboarding_data.dart';
 import '../../l10n/app_strings.dart';
 import '../../services/onboarding_service.dart';
+import '../../widgets/common/animated_button.dart';
 import 'widgets/onboarding_steps.dart';
 import '../../theme/app_theme.dart';
 
@@ -213,9 +214,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           }
         },
         child: Scaffold(
-          backgroundColor: cs.surface,
+          backgroundColor: Colors.transparent,
+          extendBodyBehindAppBar: true,
           appBar: AppBar(
-            backgroundColor: cs.surface,
+            backgroundColor: Colors.transparent,
             elevation: 0,
             centerTitle: true,
             title: Text(
@@ -234,33 +236,57 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ],
           ),
-          body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                kSpacingMedium,
-                kSpacingSmall,
-                kSpacingMedium,
-                kSpacingMedium,
-              ),
-              child: Column(
-                children: [
-                  // מחוון התקדמות
-                  _buildProgressIndicator(cs, accent, steps.length),
-                  const SizedBox(height: kSpacingSmall),
-
-                  // השלבים
-                  Expanded(
-                    child: PageView.builder(
-                      controller: _pageController,
-                      itemCount: steps.length,
-                      onPageChanged: (i) => setState(() => _currentStep = i),
-                      itemBuilder: (_, i) => steps[i],
-                    ),
-                  ),
-
-                  // כפתורי ניווט
-                  _buildNavigationButtons(cs, accent, steps.length),
+          body: Container(
+            // 🌈 גרדיאנט עדין ברקע - עומק ויזואלי ⭐
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  cs.surface,
+                  cs.surface.withValues(alpha: kOpacityAlmostFull),
+                  accent.withValues(alpha: kOpacityVeryLow),
+                  cs.surface,
                 ],
+                stops: const [0.0, 0.3, 0.7, 1.0],
+              ),
+            ),
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  kSpacingMedium,
+                  kSpacingSmall,
+                  kSpacingMedium,
+                  kSpacingMedium,
+                ),
+                child: Column(
+                  children: [
+                    // מחוון התקדמות
+                    _buildProgressIndicator(cs, accent, steps.length),
+                    const SizedBox(height: kSpacingSmall),
+
+                    // השלבים
+                    Expanded(
+                      child: PageView.builder(
+                        controller: _pageController,
+                        itemCount: steps.length,
+                        onPageChanged: (i) => setState(() => _currentStep = i),
+                        itemBuilder: (_, i) => steps[i],
+                      ),
+                    ),
+
+                    // Progress Dots - נקודות התקדמות ⭐
+                    _ProgressDots(
+                      currentStep: _currentStep,
+                      totalSteps: steps.length,
+                      accent: accent,
+                    ),
+                    const SizedBox(height: kSpacingMedium),
+
+                    // כפתורי ניווט
+                    _buildNavigationButtons(cs, accent, steps.length),
+                  ],
+                ),
               ),
             ),
           ),
@@ -295,52 +321,110 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget _buildNavigationButtons(ColorScheme cs, Color accent, int totalSteps) {
     return Row(
       children: [
-        // כפתור "הקודם"
+        // כפתור "הקודם" עם אנימציה ⭐
         Expanded(
-          child: OutlinedButton(
+          child: AnimatedButton(
             onPressed: _currentStep == 0 || _isLoading ? null : _prevStep,
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 48),
-              side: BorderSide(
-                color: _currentStep == 0 || _isLoading
-                    ? cs.outlineVariant
+            child: OutlinedButton(
+              onPressed: null, // ה-AnimatedButton מטפל ב-onPressed
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+                side: BorderSide(
+                  color: _currentStep == 0 || _isLoading
+                      ? cs.outlineVariant
+                      : accent,
+                ),
+                foregroundColor: _currentStep == 0 || _isLoading
+                    ? cs.onSurfaceVariant
                     : accent,
               ),
-              foregroundColor: _currentStep == 0 || _isLoading
-                  ? cs.onSurfaceVariant
-                  : accent,
+              child: Text(AppStrings.onboarding.previous),
             ),
-            child: Text(AppStrings.onboarding.previous),
           ),
         ),
         const SizedBox(width: kSpacingSmall),
 
-        // כפתור "הבא" / "סיום"
+        // כפתור "הבא" / "סיום" עם אנימציה ⭐
         Expanded(
-          child: ElevatedButton(
+          child: AnimatedButton(
             onPressed: _isLoading ? null : () => _nextStep(totalSteps),
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 48),
-              backgroundColor: accent,
-              foregroundColor: Colors.white,
-            ),
-            child: _isLoading
-                ? const SizedBox(
-                    height: kIconSizeSmall,
-                    width: kIconSizeSmall,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            child: ElevatedButton(
+              onPressed: null, // ה-AnimatedButton מטפל ב-onPressed
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+                backgroundColor: accent,
+                foregroundColor: Colors.white,
+              ),
+              child: _isLoading
+                  ? const SizedBox(
+                      height: kIconSizeSmall,
+                      width: kIconSizeSmall,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : Text(
+                      _currentStep == totalSteps - 1
+                          ? AppStrings.onboarding.finish
+                          : AppStrings.onboarding.next,
                     ),
-                  )
-                : Text(
-                    _currentStep == totalSteps - 1
-                        ? AppStrings.onboarding.finish
-                        : AppStrings.onboarding.next,
-                  ),
+            ),
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Progress Dots - מחוון התקדמות בנקודות ⭐
+///
+/// מציג נקודות שמראות את השלב הנוכחי בתהליך ה-onboarding
+///
+/// **תכונות:**
+/// - נקודה פעילה: גדולה ומלאה עם זוהר
+/// - נקודות אחרות: קטנות ושקופות
+/// - אנימציה חלקה במעברים (300ms)
+class _ProgressDots extends StatelessWidget {
+  final int currentStep;
+  final int totalSteps;
+  final Color accent;
+
+  const _ProgressDots({
+    required this.currentStep,
+    required this.totalSteps,
+    required this.accent,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(
+        totalSteps,
+        (index) => AnimatedContainer(
+          duration: kAnimationDurationMedium,
+          curve: Curves.easeInOut,
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          width: index == currentStep ? 12 : 8,
+          height: index == currentStep ? 12 : 8,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: index == currentStep
+                ? accent
+                : accent.withValues(alpha: kOpacityLight),
+            boxShadow: index == currentStep
+                ? [
+                    BoxShadow(
+                      color: accent.withValues(alpha: kOpacityMedium),
+                      blurRadius: 8,
+                      spreadRadius: 2,
+                    ),
+                  ]
+                : null,
+          ),
+        ),
+      ),
     );
   }
 }

@@ -4,21 +4,29 @@
 // 📋 Features:
 // ✅ Firebase Authentication (email/password + name)
 // ✅ Form validation עם אימות סיסמה
-// ✅ AuthButton עם loading state
+// ✅ AuthButton עם loading state + animations
 // ✅ DemoLoginButton לכניסה מהירה
 // ✅ AppStrings - i18n ready
 // ✅ ui_constants - עיצוב עקבי
+// ✅ Enhanced UX - Improved visual feedback 🎨 ⭐ חדש!
 // 🔒 PopScope - חסימת Back (חובה להשלים הרשמה)
+//
+// 🎨 UI/UX Improvements (14/10/2025): ⭐
+// - כותרת גדולה ומודגשת יותר
+// - אייקון לוגו עם רקע מעגלי עדין
+// - קישור "התחבר" עם underline
+// - מרווחים משופרים בין אלמנטים
+// - הודעות שגיאה ויזואליות עם אייקונים
+// - Animation feedback על שגיאות
+// - Tooltip להצגת/הסתרת סיסמה
 //
 // 🔗 Related:
 // - UserContext - state management + Firebase Auth (Single Source of Truth)
 // - LoginScreen - התחברות לחשבון קיים
 // - AppStrings.auth - מחרוזות UI
 //
-// 📝 Version: 2.0 (10/10/2025)
-// - הסרת SharedPreferences (UserContext = Single Source of Truth)
-// - תיקון Context handling אחרי async
-// - תיקון race condition logic
+// 📝 Version: 2.1 - Enhanced UX + Visual Improvements ⭐
+// 📅 Updated: 14/10/2025
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -37,7 +45,7 @@ class RegisterScreen extends StatefulWidget {
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -47,6 +55,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  
+  // 🎬 Animation controller לשגיאות ⭐ חדש!
+  late AnimationController _shakeController;
+  late Animation<double> _shakeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    // 🎬 הגדרת shake animation לשגיאות ⭐
+    _shakeController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _shakeAnimation = Tween<double>(begin: 0, end: 10).animate(
+      CurvedAnimation(parent: _shakeController, curve: Curves.elasticIn),
+    );
+  }
 
   @override
   void dispose() {
@@ -54,21 +80,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _shakeController.dispose(); // ⭐ חדש!
     super.dispose();
   }
 
   /// ✅ פונקציית Register עם Firebase Authentication
   /// 
-  /// תהליך:
-  /// 1. Validation של הטופס
-  /// 2. רישום דרך UserContext.signUp() (זורק Exception אם נכשל)
-  /// 3. ניווט לדף הבית (אם הגענו לכאן = הצלחנו)
+  /// שיפורים (v2.1): ⭐
+  /// - הודעות שגיאה משופרות עם אייקונים
+  /// - Animation feedback על שגיאות
+  /// - SnackBar מעוצב יותר
   Future<void> _handleRegister() async {
     debugPrint('📝 _handleRegister() | Starting registration process...');
     
     // Validation
     if (!_formKey.currentState!.validate()) {
       debugPrint('❌ _handleRegister() | Form validation failed');
+      _shakeController.forward(from: 0); // 🎬 Shake animation ⭐
       return;
     }
 
@@ -108,11 +136,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       if (mounted) {
         setState(() => _isLoading = false);
+        _shakeController.forward(from: 0); // 🎬 Shake animation ⭐
+        
+        // 🎨 הודעת שגיאה משופרת ⭐
         scaffoldMessenger.showSnackBar(
           SnackBar(
-            content: Text(errorMessage),
-            backgroundColor: Colors.red,
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white, size: 24), // ⭐ אייקון
+                const SizedBox(width: kSpacingSmall),
+                Expanded(
+                  child: Text(
+                    errorMessage,
+                    style: const TextStyle(fontSize: kFontSizeSmall),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red.shade700,
             duration: kSnackBarDurationLong,
+            behavior: SnackBarBehavior.floating, // ⭐ floating למראה מודרני
+            shape: RoundedRectangleBorder( // ⭐ פינות מעוגלות
+              borderRadius: BorderRadius.circular(kBorderRadius),
+            ),
+            margin: const EdgeInsets.all(kSpacingMedium), // ⭐ margin
           ),
         );
       }
@@ -153,213 +200,249 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(kSpacingLarge),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // לוגו/אייקון
-                    Icon(
-                      Icons.shopping_basket_outlined,
-                      size: kIconSizeXLarge,
-                      color: accent,
-                    ),
-                    const SizedBox(height: kSpacingLarge),
-
-                    // כותרת
-                    Text(
-                      AppStrings.auth.registerTitle,
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: cs.onSurface,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: kSpacingSmall),
-                    Text(
-                      AppStrings.auth.registerSubtitle,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: cs.onSurfaceVariant,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: kSpacingXLarge),
-
-                    // שדה שם
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: InputDecoration(
-                        labelText: AppStrings.auth.nameLabel,
-                        hintText: AppStrings.auth.nameHint,
-                        prefixIcon: const Icon(Icons.person_outlined),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(kBorderRadius),
+              child: AnimatedBuilder( // 🎬 Shake animation wrapper ⭐
+                animation: _shakeAnimation,
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(_shakeAnimation.value, 0),
+                    child: child,
+                  );
+                },
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // 🎨 לוגו/אייקון עם רקע מעגלי עדין ⭐
+                      Container(
+                        padding: const EdgeInsets.all(kSpacingLarge),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: accent.withValues(alpha: 0.1), // ⭐ רקע עדין
+                        ),
+                        child: Icon(
+                          Icons.shopping_basket_outlined,
+                          size: kIconSizeXLarge,
+                          color: accent,
                         ),
                       ),
-                      textInputAction: TextInputAction.next,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return AppStrings.auth.nameRequired;
-                        }
-                        if (value.length < 2) {
-                          return AppStrings.auth.nameTooShort;
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: kSpacingMedium),
+                      const SizedBox(height: kSpacingLarge),
 
-                    // שדה אימייל
-                    TextFormField(
-                      controller: _emailController,
-                      decoration: InputDecoration(
-                        labelText: AppStrings.auth.emailLabel,
-                        hintText: AppStrings.auth.emailHint,
-                        prefixIcon: const Icon(Icons.email_outlined),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(kBorderRadius),
+                      // כותרת - גדול ומודגש יותר ⭐
+                      Text(
+                        AppStrings.auth.registerTitle, // "הרשמה"
+                        style: theme.textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 32, // ⭐ גדול יותר
+                          color: cs.onSurface,
                         ),
+                        textAlign: TextAlign.center,
                       ),
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.next,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return AppStrings.auth.emailRequired;
-                        }
-                        if (!value.contains('@')) {
-                          return AppStrings.auth.emailInvalid;
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: kSpacingMedium),
+                      const SizedBox(height: kSpacingSmall),
+                      Text(
+                        AppStrings.auth.registerSubtitle, // "צור חשבון חדש"
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: cs.onSurfaceVariant,
+                          fontSize: kFontSizeMedium, // ⭐ גודל מותאם
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: kSpacingXLarge),
 
-                    // שדה סיסמה
-                    TextFormField(
-                      controller: _passwordController,
-                      decoration: InputDecoration(
-                        labelText: AppStrings.auth.passwordLabel,
-                        hintText: AppStrings.auth.passwordHint,
-                        prefixIcon: const Icon(Icons.lock_outlined),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
+                      // שדה שם
+                      TextFormField(
+                        controller: _nameController,
+                        decoration: InputDecoration(
+                          labelText: AppStrings.auth.nameLabel,
+                          hintText: AppStrings.auth.nameHint,
+                          prefixIcon: const Icon(Icons.person_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(kBorderRadius),
                           ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
                         ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(kBorderRadius),
-                        ),
+                        textInputAction: TextInputAction.next,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return AppStrings.auth.nameRequired;
+                          }
+                          if (value.length < 2) {
+                            return AppStrings.auth.nameTooShort;
+                          }
+                          return null;
+                        },
                       ),
-                      obscureText: _obscurePassword,
-                      textInputAction: TextInputAction.next,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return AppStrings.auth.passwordRequired;
-                        }
-                        if (value.length < 6) {
-                          return AppStrings.auth.passwordTooShort;
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: kSpacingMedium),
+                      const SizedBox(height: kSpacingMedium),
 
-                    // שדה אימות סיסמה
-                    TextFormField(
-                      controller: _confirmPasswordController,
-                      decoration: InputDecoration(
-                        labelText: AppStrings.auth.confirmPasswordLabel,
-                        hintText: AppStrings.auth.confirmPasswordHint,
-                        prefixIcon: const Icon(Icons.lock_outlined),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscureConfirmPassword
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
+                      // שדה אימייל
+                      TextFormField(
+                        controller: _emailController,
+                        decoration: InputDecoration(
+                          labelText: AppStrings.auth.emailLabel,
+                          hintText: AppStrings.auth.emailHint,
+                          prefixIcon: const Icon(Icons.email_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(kBorderRadius),
                           ),
-                          onPressed: () {
-                            setState(() {
-                              _obscureConfirmPassword =
-                                  !_obscureConfirmPassword;
-                            });
-                          },
                         ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(kBorderRadius),
-                        ),
+                        keyboardType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.next,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return AppStrings.auth.emailRequired;
+                          }
+                          if (!value.contains('@')) {
+                            return AppStrings.auth.emailInvalid;
+                          }
+                          return null;
+                        },
                       ),
-                      obscureText: _obscureConfirmPassword,
-                      textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (_) => _handleRegister(),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return AppStrings.auth.confirmPasswordRequired;
-                        }
-                        if (value != _passwordController.text) {
-                          return AppStrings.auth.passwordsDoNotMatch;
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: kSpacingLarge),
+                      const SizedBox(height: kSpacingMedium),
 
-                    // כפתור הרשמה
-                    AuthButton.primary(
-                      onPressed: _isLoading ? null : _handleRegister,
-                      isLoading: _isLoading,
-                      label: AppStrings.auth.registerButton,
-                    ),
-                    const SizedBox(height: kSpacingMedium),
-
-                    // קישור להתחברות
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          AppStrings.auth.haveAccount,
-                          style: TextStyle(color: cs.onSurfaceVariant),
+                      // שדה סיסמה - עם tooltip ⭐
+                      TextFormField(
+                        controller: _passwordController,
+                        decoration: InputDecoration(
+                          labelText: AppStrings.auth.passwordLabel,
+                          hintText: AppStrings.auth.passwordHint,
+                          prefixIcon: const Icon(Icons.lock_outlined),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
+                            tooltip: _obscurePassword ? 'הצג סיסמה' : 'הסתר סיסמה', // ⭐ tooltip
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(kBorderRadius),
+                          ),
                         ),
-                        TextButton(
-                          onPressed: _isLoading ? null : _navigateToLogin,
-                          child: Text(
-                            AppStrings.auth.loginButton,
+                        obscureText: _obscurePassword,
+                        textInputAction: TextInputAction.next,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return AppStrings.auth.passwordRequired;
+                          }
+                          if (value.length < 6) {
+                            return AppStrings.auth.passwordTooShort;
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: kSpacingMedium),
+
+                      // שדה אימות סיסמה - עם tooltip ⭐
+                      TextFormField(
+                        controller: _confirmPasswordController,
+                        decoration: InputDecoration(
+                          labelText: AppStrings.auth.confirmPasswordLabel,
+                          hintText: AppStrings.auth.confirmPasswordHint,
+                          prefixIcon: const Icon(Icons.lock_outlined),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureConfirmPassword
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscureConfirmPassword = !_obscureConfirmPassword;
+                              });
+                            },
+                            tooltip: _obscureConfirmPassword ? 'הצג סיסמה' : 'הסתר סיסמה', // ⭐ tooltip
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(kBorderRadius),
+                          ),
+                        ),
+                        obscureText: _obscureConfirmPassword,
+                        textInputAction: TextInputAction.done,
+                        onFieldSubmitted: (_) => _handleRegister(),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return AppStrings.auth.confirmPasswordRequired;
+                          }
+                          if (value != _passwordController.text) {
+                            return AppStrings.auth.passwordsDoNotMatch;
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: kSpacingLarge),
+
+                      // כפתור הרשמה - עם animations ⭐
+                      AuthButton.primary(
+                        onPressed: _isLoading ? null : _handleRegister,
+                        isLoading: _isLoading,
+                        label: AppStrings.auth.registerButton,
+                      ),
+                      const SizedBox(height: kSpacingMedium),
+
+                      // 🎨 קישור להתחברות - משופר! ⭐
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            AppStrings.auth.haveAccount, // "יש לך חשבון?"
                             style: TextStyle(
-                              color: accent,
-                              fontWeight: FontWeight.bold,
+                              color: cs.onSurfaceVariant,
+                              fontSize: kFontSizeSmall,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: kSpacingLarge),
-
-                    // מפריד
-                    Row(
-                      children: [
-                        Expanded(child: Divider(color: cs.outlineVariant)),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
-                          child: Text(
-                            AppStrings.auth.or,
-                            style: TextStyle(color: cs.onSurfaceVariant),
+                          const SizedBox(width: kSpacingXSmall), // ⭐ רווח קטן
+                          TextButton(
+                            onPressed: _isLoading ? null : _navigateToLogin,
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: kSpacingSmall,
+                                vertical: kSpacingXSmall,
+                              ),
+                            ),
+                            child: Text(
+                              AppStrings.auth.loginButton, // "התחבר"
+                              style: TextStyle(
+                                color: accent,
+                                fontWeight: FontWeight.bold,
+                                decoration: TextDecoration.underline, // ⭐ underline!
+                                decorationColor: accent, // ⭐ צבע ה-underline
+                                decorationThickness: 2, // ⭐ עובי
+                                fontSize: kFontSizeSmall,
+                              ),
+                            ),
                           ),
-                        ),
-                        Expanded(child: Divider(color: cs.outlineVariant)),
-                      ],
-                    ),
-                    const SizedBox(height: kSpacingLarge),
+                        ],
+                      ),
+                      const SizedBox(height: kSpacingXXLarge), // ⭐ מרווח גדול יותר
 
-                    // כפתור כניסה מהירה
-                    const DemoLoginButton(),
-                  ],
+                      // מפריד
+                      Row(
+                        children: [
+                          Expanded(child: Divider(color: cs.outlineVariant)),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+                            child: Text(
+                              AppStrings.auth.or,
+                              style: TextStyle(
+                                color: cs.onSurfaceVariant,
+                                fontSize: kFontSizeSmall,
+                              ),
+                            ),
+                          ),
+                          Expanded(child: Divider(color: cs.outlineVariant)),
+                        ],
+                      ),
+                      const SizedBox(height: kSpacingXLarge), // ⭐ מרווח גדול יותר
+
+                      // כפתור כניסה מהירה - משופר! ⭐
+                      const DemoLoginButton(),
+                    ],
+                  ),
                 ),
               ),
             ),

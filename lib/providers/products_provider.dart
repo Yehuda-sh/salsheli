@@ -14,7 +14,6 @@
 // - 🔍 חיפוש: לפי שם, ברקוד, קטגוריה
 // - 🎯 סינון: לפי סוג רשימה, קטגוריה, טקסט
 // - 📊 סטטיסטיקות: כמה מוצרים, עם/בלי מחיר
-// - 💾 Cache: מוצרים נשמרים במטמון לביצועים
 // - 👤 UserContext Integration: עדכון אוטומטי בהתחברות/התנתקות
 // - 🐛 Logging מפורט: כל פעולה עם debugPrint
 //
@@ -41,7 +40,7 @@
 // 5. setSearchQuery/setCategory/setListType → סינון
 // 6. notifyListeners() → UI מתעדכן
 //
-// Version: 3.0 (+ UserContext Integration)
+// Version: 3.1 (קוד מנוקה - הוסרו cache ו-progress מיותרים)
 
 import 'package:flutter/foundation.dart';
 import '../repositories/products_repository.dart';
@@ -64,19 +63,11 @@ class ProductsProvider with ChangeNotifier {
   List<Map<String, dynamic>> _products = [];
   List<String> _categories = [];
   DateTime? _lastUpdated;
-  
-  // 📊 Progress tracking
-  int _loadingProgress = 0;
-  int _loadingTotal = 0;
 
   // Search & Filter
   String _searchQuery = '';
   String? _selectedCategory;
   String? _selectedListType;
-
-  // 💾 Cache for filtered products
-  List<Map<String, dynamic>> _cachedFiltered = [];
-  String _cacheKey = '';
 
   ProductsProvider({
     required ProductsRepository repository,
@@ -134,8 +125,6 @@ class ProductsProvider with ChangeNotifier {
     debugPrint('🧹 ProductsProvider._clearData()');
     _products.clear();
     _categories.clear();
-    _cachedFiltered.clear();
-    _cacheKey = '';
     _hasInitialized = false;
     _lastUpdated = null;
     _errorMessage = null;
@@ -148,30 +137,12 @@ class ProductsProvider with ChangeNotifier {
   bool get hasInitialized => _hasInitialized;
   bool get hasError => _errorMessage != null;
   String? get errorMessage => _errorMessage;
-  UserContext? get userContext => _userContext; // ✅ גישה ל-UserContext
+  UserContext? get userContext => _userContext;
   
-  // 📊 Progress getters
-  int get loadingProgress => _loadingProgress;
-  int get loadingTotal => _loadingTotal;
-  double get loadingPercentage => _loadingTotal > 0 
-      ? (_loadingProgress / _loadingTotal) * 100 
-      : 0.0;
-  
-  // 💾 Cached filtered products
-  List<Map<String, dynamic>> get products {
-    final key = '$_searchQuery|$_selectedCategory|$_selectedListType';
-    
-    // Cache hit
-    if (key == _cacheKey && _cachedFiltered.isNotEmpty) {
-      return _cachedFiltered;
-    }
-    
-    // Cache miss - filter products
-    _cachedFiltered = _getFilteredProducts();
-    _cacheKey = key;
-    
-    return _cachedFiltered;
-  }
+  /// מוצרים מסוננים (לפי חיפוש/קטגוריה/סוג רשימה)
+  /// 
+  /// Flutter כבר עושה caching אוטומטי של getters, אין צורך ב-cache ידני
+  List<Map<String, dynamic>> get products => _getFilteredProducts();
   
   List<Map<String, dynamic>> get allProducts => List.unmodifiable(_products);
   List<String> get categories => List.unmodifiable(_categories);
@@ -297,14 +268,12 @@ class ProductsProvider with ChangeNotifier {
     
     debugPrint('🔍 ProductsProvider.setSearchQuery("$query")');
     _searchQuery = query;
-    _cacheKey = '';
     notifyListeners();
   }
 
   void clearSearch() {
     debugPrint('🧹 ProductsProvider.clearSearch()');
     _searchQuery = '';
-    _cacheKey = '';
     notifyListeners();
   }
 
@@ -315,14 +284,12 @@ class ProductsProvider with ChangeNotifier {
     debugPrint('🎯 ProductsProvider.setListType("$listType")');
     _selectedListType = listType;
     _selectedCategory = null;
-    _cacheKey = '';
     notifyListeners();
   }
 
   void clearListType() {
     debugPrint('🧹 ProductsProvider.clearListType()');
     _selectedListType = null;
-    _cacheKey = '';
     notifyListeners();
   }
 
@@ -348,14 +315,12 @@ class ProductsProvider with ChangeNotifier {
     
     debugPrint('🏷️ ProductsProvider.setCategory("$category")');
     _selectedCategory = category;
-    _cacheKey = '';
     notifyListeners();
   }
 
   void clearCategory() {
     debugPrint('🧹 ProductsProvider.clearCategory()');
     _selectedCategory = null;
-    _cacheKey = '';
     notifyListeners();
   }
 
@@ -505,9 +470,6 @@ class ProductsProvider with ChangeNotifier {
     _selectedCategory = null;
     _selectedListType = null;
     _errorMessage = null;
-    _cacheKey = '';
-    _loadingProgress = 0;
-    _loadingTotal = 0;
     notifyListeners();
   }
 
@@ -522,7 +484,6 @@ class ProductsProvider with ChangeNotifier {
       _listening = false;
     }
     
-    _cachedFiltered.clear();
     _products.clear();
     _categories.clear();
     super.dispose();

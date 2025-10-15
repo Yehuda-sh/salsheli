@@ -1,7 +1,13 @@
 // 📄 File: lib/widgets/auth/demo_login_button.dart
 // תיאור: כפתור כניסה מהירה עם משתמשים אמיתיים מ-Firebase
 //
-// עדכונים (05/10/2025):
+// עדכונים (14/10/2025): ⭐
+// ✅ UI משופר - כפתורים בשתי שורות
+// ✅ טקסט קצר יותר - "יוני (דמו)"
+// ✅ Responsive - מתאים למסכים קטנים
+// ✅ Visual feedback משופר
+//
+// עדכונים קודמים (05/10/2025):
 // ✅ שימוש ב-Firebase Authentication
 // ✅ 3 משתמשים מוכנים: יוני, שרה, דני
 // ✅ התחברות אמיתית עם אימייל וסיסמה
@@ -37,18 +43,21 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
       'email': 'yoni@demo.com',
       'password': 'Demo123!',
       'name': 'יוני',
+      'shortName': 'יוני', // ⭐ חדש - שם קצר
       'householdId': 'house_demo',
     },
     'sarah': {
       'email': 'sarah@demo.com',
       'password': 'Demo123!',
       'name': 'שרה',
+      'shortName': 'שרה', // ⭐ חדש
       'householdId': 'house_demo',
     },
     'danny': {
       'email': 'danny@demo.com',
       'password': 'Demo123!',
       'name': 'דני',
+      'shortName': 'דני', // ⭐ חדש
       'householdId': 'house_demo',
     },
   };
@@ -84,13 +93,30 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
       await prefs.setString('user_id', userContext.userId!);
       await prefs.setBool('seen_onboarding', true);
 
-      // 4. מציג הודעת הצלחה
+      // 4. מציג הודעת הצלחה משופרת ⭐
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        final messenger = ScaffoldMessenger.of(context);
+        messenger.showSnackBar(
           SnackBar(
-            content: Text('✅ התחברת בהצלחה כ${demoUser['name']}!'),
-            backgroundColor: Colors.green,
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white, size: 24), // ⭐ אייקון
+                const SizedBox(width: kSpacingSmall),
+                Expanded(
+                  child: Text(
+                    '✅ התחברת בהצלחה כ${demoUser['name']}!',
+                    style: const TextStyle(fontSize: kFontSizeSmall),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.green.shade700,
             duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating, // ⭐ floating
+            shape: RoundedRectangleBorder( // ⭐ פינות מעוגלות
+              borderRadius: BorderRadius.circular(kBorderRadius),
+            ),
+            margin: const EdgeInsets.all(kSpacingMedium), // ⭐ margin
           ),
         );
       }
@@ -103,11 +129,28 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
       setState(() => _isLoading = false);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        final messenger = ScaffoldMessenger.of(context);
+        messenger.showSnackBar(
           SnackBar(
-            content: Text('שגיאה: ${e.toString().replaceAll('Exception: ', '')}'),
-            backgroundColor: Colors.red,
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white, size: 24), // ⭐ אייקון
+                const SizedBox(width: kSpacingSmall),
+                Expanded(
+                  child: Text(
+                    'שגיאה: ${e.toString().replaceAll('Exception: ', '')}',
+                    style: const TextStyle(fontSize: kFontSizeSmall),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red.shade700,
             duration: const Duration(seconds: 4),
+            behavior: SnackBarBehavior.floating, // ⭐ floating
+            shape: RoundedRectangleBorder( // ⭐ פינות מעוגלות
+              borderRadius: BorderRadius.circular(kBorderRadius),
+            ),
+            margin: const EdgeInsets.all(kSpacingMedium), // ⭐ margin
           ),
         );
       }
@@ -126,16 +169,14 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
             final user = entry.value;
             return RadioListTile<String>(
               value: entry.key,
-              // ignore: deprecated_member_use
               groupValue: _selectedUser,
-              // ignore: deprecated_member_use
               onChanged: (value) {
                 if (value != null) {
                   Navigator.pop(context, value);
                 }
               },
               title: Text(user['name']!),
-              subtitle: Text(user['email']!),
+              subtitle: Text(user['email']!, style: const TextStyle(fontSize: kFontSizeSmall)),
             );
           }).toList(),
         ),
@@ -156,54 +197,142 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
   @override
   Widget build(BuildContext context) {
     final currentUser = _demoUsers[_selectedUser]!;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
 
+    // 🎨 UI משופר - שתי שורות של כפתורים ⭐ (שיפור #7)
     return Column(
       children: [
-        // כפתור בחירת משתמש
-        OutlinedButton.icon(
-          onPressed: _isLoading ? null : _showUserSelectionDialog,
-          icon: const Icon(Icons.person_outline, size: kIconSizeMedium),
-          label: Text(
-            'משתמש נוכחי: ${currentUser['name']}',
-            style: const TextStyle(fontSize: kFontSizeSmall),
-          ),
-          style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(
-              horizontal: kButtonPaddingHorizontal,
-              vertical: kSpacingXSmall,
+        // 🎯 שורה 1: 3 כפתורים מהירים למשתמשים ⭐ חדש!
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // כפתור יוני
+            _buildQuickUserButton(
+              context: context,
+              userId: 'yoni',
+              icon: Icons.person,
+              label: 'יוני',
+              isSelected: _selectedUser == 'yoni',
             ),
-            side: BorderSide(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+            const SizedBox(width: kSpacingSmall),
+            
+            // כפתור שרה
+            _buildQuickUserButton(
+              context: context,
+              userId: 'sarah',
+              icon: Icons.person,
+              label: 'שרה',
+              isSelected: _selectedUser == 'sarah',
             ),
-          ),
+            const SizedBox(width: kSpacingSmall),
+            
+            // כפתור דני
+            _buildQuickUserButton(
+              context: context,
+              userId: 'danny',
+              icon: Icons.person,
+              label: 'דני',
+              isSelected: _selectedUser == 'danny',
+            ),
+          ],
         ),
         const SizedBox(height: kSpacingSmall),
 
-        // כפתור התחברות
-        OutlinedButton.icon(
-          onPressed: _isLoading ? null : _handleDemoLogin,
-          icon: _isLoading
-              ? const SizedBox(
-                  width: kIconSizeSmall,
-                  height: kIconSizeSmall,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.rocket_launch_outlined, size: kIconSizeMedium),
-          label: Text(
-            _isLoading ? 'מתחבר...' : 'התחבר עם חשבון דמו',
-            style: const TextStyle(fontSize: kFontSizeSmall),
-          ),
-          style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(
-              horizontal: kSpacingLarge,
-              vertical: kSpacingSmallPlus,
+        // 🎯 שורה 2: כפתור התחברות מרכזי ⭐ משופר
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: _isLoading ? null : _handleDemoLogin,
+            icon: _isLoading
+                ? const SizedBox(
+                    width: kIconSizeSmall,
+                    height: kIconSizeSmall,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.rocket_launch_outlined, size: kIconSizeMedium),
+            label: Text(
+              _isLoading 
+                  ? 'מתחבר...' 
+                  : 'התחבר כ${currentUser['shortName']} (דמו)', // ⭐ טקסט קצר!
+              style: const TextStyle(
+                fontSize: kFontSizeSmall,
+                fontWeight: FontWeight.w600, // ⭐ מודגש קצת
+              ),
             ),
-            side: BorderSide(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(
+                horizontal: kSpacingMedium,
+                vertical: kSpacingSmallPlus,
+              ),
+              side: BorderSide(
+                color: cs.primary.withValues(alpha: 0.5),
+                width: 2, // ⭐ גבול עבה יותר
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(kBorderRadius),
+              ),
             ),
           ),
         ),
       ],
+    );
+  }
+
+  /// 🎨 בניית כפתור מהיר למשתמש ⭐ חדש!
+  Widget _buildQuickUserButton({
+    required BuildContext context,
+    required String userId,
+    required IconData icon,
+    required String label,
+    required bool isSelected,
+  }) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return Expanded(
+      child: OutlinedButton(
+        onPressed: _isLoading 
+            ? null 
+            : () => setState(() => _selectedUser = userId),
+        style: OutlinedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(
+            horizontal: kSpacingXSmall,
+            vertical: kSpacingSmall,
+          ),
+          backgroundColor: isSelected 
+              ? cs.primary.withValues(alpha: 0.1) // ⭐ רקע כשנבחר
+              : null,
+          side: BorderSide(
+            color: isSelected 
+                ? cs.primary // ⭐ גבול צבעוני כשנבחר
+                : cs.outline.withValues(alpha: 0.3),
+            width: isSelected ? 2 : 1, // ⭐ גבול עבה יותר כשנבחר
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(kBorderRadius),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: kIconSizeMedium,
+              color: isSelected ? cs.primary : cs.onSurfaceVariant,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: kFontSizeTiny,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected ? cs.primary : cs.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

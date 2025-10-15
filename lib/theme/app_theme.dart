@@ -118,6 +118,32 @@ class AppBrand extends ThemeExtension<AppBrand> {
   
   /// צבע אזהרה (Warning) - כתום
   final Color warning;
+  
+  // 🎨📝 Sticky Notes Design System
+  
+  /// רקע נייר מחברת
+  final Color paperBackground;
+  
+  /// פתק צהוב
+  final Color stickyYellow;
+  
+  /// פתק ורוד
+  final Color stickyPink;
+  
+  /// פתק ירוק
+  final Color stickyGreen;
+  
+  /// פתק תכלת
+  final Color stickyCyan;
+  
+  /// פתק סגול
+  final Color stickyPurple;
+  
+  /// קווי מחברת כחולים
+  final Color notebookBlue;
+  
+  /// קו אדום במחברת
+  final Color notebookRed;
 
   const AppBrand({
     required this.accent,
@@ -125,6 +151,14 @@ class AppBrand extends ThemeExtension<AppBrand> {
     required this.welcomeBackground,
     required this.success,
     required this.warning,
+    required this.paperBackground,
+    required this.stickyYellow,
+    required this.stickyPink,
+    required this.stickyGreen,
+    required this.stickyCyan,
+    required this.stickyPurple,
+    required this.notebookBlue,
+    required this.notebookRed,
   });
 
   @override
@@ -134,6 +168,14 @@ class AppBrand extends ThemeExtension<AppBrand> {
     Color? welcomeBackground,
     Color? success,
     Color? warning,
+    Color? paperBackground,
+    Color? stickyYellow,
+    Color? stickyPink,
+    Color? stickyGreen,
+    Color? stickyCyan,
+    Color? stickyPurple,
+    Color? notebookBlue,
+    Color? notebookRed,
   }) {
     debugPrint('🎨 AppBrand.copyWith()');
     return AppBrand(
@@ -142,6 +184,14 @@ class AppBrand extends ThemeExtension<AppBrand> {
       welcomeBackground: welcomeBackground ?? this.welcomeBackground,
       success: success ?? this.success,
       warning: warning ?? this.warning,
+      paperBackground: paperBackground ?? this.paperBackground,
+      stickyYellow: stickyYellow ?? this.stickyYellow,
+      stickyPink: stickyPink ?? this.stickyPink,
+      stickyGreen: stickyGreen ?? this.stickyGreen,
+      stickyCyan: stickyCyan ?? this.stickyCyan,
+      stickyPurple: stickyPurple ?? this.stickyPurple,
+      notebookBlue: notebookBlue ?? this.notebookBlue,
+      notebookRed: notebookRed ?? this.notebookRed,
     );
   }
 
@@ -159,6 +209,14 @@ class AppBrand extends ThemeExtension<AppBrand> {
       )!,
       success: Color.lerp(success, other.success, t)!,
       warning: Color.lerp(warning, other.warning, t)!,
+      paperBackground: Color.lerp(paperBackground, other.paperBackground, t)!,
+      stickyYellow: Color.lerp(stickyYellow, other.stickyYellow, t)!,
+      stickyPink: Color.lerp(stickyPink, other.stickyPink, t)!,
+      stickyGreen: Color.lerp(stickyGreen, other.stickyGreen, t)!,
+      stickyCyan: Color.lerp(stickyCyan, other.stickyCyan, t)!,
+      stickyPurple: Color.lerp(stickyPurple, other.stickyPurple, t)!,
+      notebookBlue: Color.lerp(notebookBlue, other.notebookBlue, t)!,
+      notebookRed: Color.lerp(notebookRed, other.notebookRed, t)!,
     );
   }
 }
@@ -231,6 +289,14 @@ class AppTheme {
       welcomeBackground: dynamicScheme.surface,
       success: harmonizedSuccess,
       warning: harmonizedWarning,
+      paperBackground: kPaperBackground,
+      stickyYellow: kStickyYellow,
+      stickyPink: kStickyPink,
+      stickyGreen: kStickyGreen,
+      stickyCyan: kStickyCyan,
+      stickyPurple: kStickyPurple,
+      notebookBlue: kNotebookBlue,
+      notebookRed: kNotebookRed,
     );
     
     return _base(dynamicScheme, dark: dark, customBrand: brand);
@@ -281,6 +347,14 @@ class AppTheme {
       welcomeBackground: scheme.surface,
       success: Colors.green.shade700,
       warning: Colors.orange.shade700,
+      paperBackground: kPaperBackground,
+      stickyYellow: kStickyYellow,
+      stickyPink: kStickyPink,
+      stickyGreen: kStickyGreen,
+      stickyCyan: kStickyCyan,
+      stickyPurple: kStickyPurple,
+      notebookBlue: kNotebookBlue,
+      notebookRed: kNotebookRed,
     );
     
     if (customBrand == null) {
