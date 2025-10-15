@@ -1,6 +1,6 @@
 // 📄 File: lib/models/inventory_item.dart
-// Version: 2.0
-// Last Updated: 06/10/2025
+// Version: 2.1
+// Last Updated: 15/10/2025
 //
 // Purpose:
 //   מודל InventoryItem מייצג פריט במלאי/מזווה של משק הבית.
@@ -13,6 +13,7 @@
 //   ✅ Equality & hashCode
 //   ✅ Firebase-ready (household_id handled by Repository)
 //   ✅ Compact debug logging
+//   ✅ Corrupted data handling (v2.1)
 //
 // Usage:
 //   ```dart
@@ -80,8 +81,30 @@ class InventoryItem {
 
   /// יצירה מ-JSON (deserialize)
   factory InventoryItem.fromJson(Map<String, dynamic> json) {
-    debugPrint('📥 InventoryItem.fromJson: id=${json['id']}, product=${json['productName']}, qty=${json['quantity']}');
-    return _$InventoryItemFromJson(json);
+    // בדיקת נתונים פגומים
+    final hasCorruptData = json['productName'] == null ||
+        json['category'] == null ||
+        json['location'] == null ||
+        json['quantity'] == null ||
+        json['unit'] == null;
+
+    if (hasCorruptData) {
+      debugPrint('⚠️ InventoryItem.fromJson: נתונים פגומים! id=${json['id']}, product=${json['productName']}, qty=${json['quantity']}');
+    } else {
+      debugPrint('📥 InventoryItem.fromJson: id=${json['id']}, product=${json['productName']}, qty=${json['quantity']}');
+    }
+    
+    // טיפול בנתונים פגומים - ערכי default במקום null
+    final cleanedJson = {
+      'id': json['id'] ?? 'unknown_${DateTime.now().millisecondsSinceEpoch}',
+      'productName': json['productName'] ?? 'מוצר לא ידוע',
+      'category': json['category'] ?? 'כללי',
+      'location': json['location'] ?? 'כללי',
+      'quantity': json['quantity'] ?? 0,
+      'unit': json['unit'] ?? 'יח\'',
+    };
+    
+    return _$InventoryItemFromJson(cleanedJson);
   }
 
   /// המרה ל-JSON (serialize)

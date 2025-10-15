@@ -56,6 +56,7 @@ import 'package:salsheli/l10n/app_strings.dart';
 import 'package:salsheli/core/ui_constants.dart';
 import 'package:salsheli/config/household_config.dart';
 import 'package:salsheli/widgets/common/notebook_background.dart';
+import 'package:salsheli/screens/debug/cleanup_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -628,6 +629,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                   ],
+                ),
+
+                const SizedBox(height: kSpacingMedium),
+
+                // 🛠️ Debug Tools (זמני)
+                Card(
+                  color: cs.errorContainer.withValues(alpha: 0.1),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                    side: BorderSide(color: Colors.orange.withValues(alpha: 0.3), width: 2),
+                  ),
+                  child: ListTile(
+                    leading: const Icon(Icons.bug_report, color: Colors.orange),
+                    title: const Text('🧹 ניקוי מלאי פגום', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
+                    subtitle: Text('כלי Debug - מחיקת פריטים עם productName=null', style: TextStyle(fontSize: kFontSizeSmall)),
+                    trailing: const Icon(Icons.chevron_left, color: Colors.orange),
+                    onTap: () {
+                      debugPrint('🧹 Navigating to CleanupScreen');
+                      final householdId = userContext.user?.householdId ?? '';
+                      if (householdId.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('שגיאה: אין household ID'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                        return;
+                      }
+                      // ניווט למסך הניקוי
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CleanupScreen(householdId: householdId),
+                        ),
+                      );
+                    },
+                  ),
                 ),
 
                 const SizedBox(height: kSpacingLarge),

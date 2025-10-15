@@ -46,12 +46,6 @@ class WelcomeScreen extends StatelessWidget {
     final brand = theme.extension<AppBrand>();
     final accent = brand?.accent ?? theme.colorScheme.primary;
 
-    // 🎨 צבעי נייר ופתקים
-    const paperBg = Color(0xFFFAF8F3); // צבע נייר קרם
-    const yellowNote = Color(0xFFFFF59D); // פתק צהוב
-    const pinkNote = Color(0xFFF8BBD0); // פתק ורוד
-    const greenNote = Color(0xFFC5E1A5); // פתק ירוק
-
     return Scaffold(
       backgroundColor: brand?.paperBackground ?? kPaperBackground,
       body: Stack(

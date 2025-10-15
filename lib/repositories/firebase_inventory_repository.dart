@@ -77,11 +77,25 @@ class FirebaseInventoryRepository implements InventoryRepository {
           .orderBy('product_name')
           .get();
 
-      final items = snapshot.docs.map((doc) {
-        final data = Map<String, dynamic>.from(doc.data());
-        return InventoryItem.fromJson(data);
-      }).toList();
+      // מעבד כל מסמך בנפרד כדי לדלג על פריטים פגומים
+      final items = <InventoryItem>[];
+      int skippedCount = 0;
+      
+      for (final doc in snapshot.docs) {
+        try {
+          final data = Map<String, dynamic>.from(doc.data());
+          final item = InventoryItem.fromJson(data);
+          items.add(item);
+        } catch (e) {
+          skippedCount++;
+          debugPrint('⚠️ דולג על פריט פגום: ${doc.id} - $e');
+        }
+      }
 
+      if (skippedCount > 0) {
+        debugPrint('⚠️ FirebaseInventoryRepository.fetchItems: דולג על $skippedCount פריטים פגומים');
+      }
+      
       debugPrint('✅ FirebaseInventoryRepository.fetchItems: נטענו ${items.length} פריטים');
       return items;
     } catch (e, stackTrace) {

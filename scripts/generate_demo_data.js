@@ -29,7 +29,7 @@ const db = admin.firestore();
 // ✅ משפחת לוי - UIDs מעודכנים מ-Firebase Auth!
 const FAMILY_MEMBERS = [
   {
-    uid: 'apLPgpAyt6Rt8YPK4fJclKzh5',
+    uid: 'apLPgpAyt6Rt8YPK4FJcIKzh5d72',
     email: 'avi.levi@demo.com',
     name: 'אבי לוי',
     role: 'אבא',
@@ -70,7 +70,7 @@ const FAMILY_MEMBERS = [
   },
 ];
 
-const HOUSEHOLD_ID = 'house_levi_demo';
+const HOUSEHOLD_ID = 'house_apLPgpAyt6Rt8YPK4FJcIKzh5d72';
 
 // === משתנים גלובליים ===
 let availableProducts = [];
@@ -272,9 +272,11 @@ async function createShoppingLists() {
       const listData = {
         id: listId,
         name: template.name,
+        type: template.type || 'grocery',
         household_id: HOUSEHOLD_ID,
         creator_id: creator.uid,
         creator_name: creator.name,
+        created_by: creator.uid,  // הוספת שדה חובה
         items: items,
         created_date: randomDate(daysAgo + 1),
         updated_date: randomDate(daysAgo),
@@ -311,9 +313,11 @@ async function createShoppingLists() {
     const listData = {
       id: listId,
       name: `קניות שבועיות - שבוע ${4 - week}`,
+      type: 'grocery',
       household_id: HOUSEHOLD_ID,
       creator_id: creator.uid,
       creator_name: creator.name,
+      created_by: creator.uid,  // הוספת שדה חובה
       items: items,
       created_date: randomDate(daysAgo + 1),
       updated_date: randomDate(daysAgo),
@@ -344,9 +348,11 @@ async function createShoppingLists() {
   await db.collection('shopping_lists').doc(activeListId).set({
     id: activeListId,
     name: 'קניות דחופות 🔥',
+    type: 'grocery',
     household_id: HOUSEHOLD_ID,
     creator_id: activeMembers[0].uid,
     creator_name: activeMembers[0].name,
+    created_by: activeMembers[0].uid,  // הוספת שדה חובה
     items: activeItems,
     created_date: randomDate(1),
     updated_date: admin.firestore.Timestamp.now(),
@@ -440,7 +446,7 @@ async function createInventory() {
     const inventoryData = {
       id: inventoryId,
       household_id: HOUSEHOLD_ID,
-      product_name: product.name,
+      productName: product.name,  // שדה ב-camelCase
       barcode: product.barcode,
       category: product.category,
       quantity: quantity,
