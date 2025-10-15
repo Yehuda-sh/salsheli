@@ -17,7 +17,6 @@
 //
 // 📱 Mobile Only: Yes
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../models/receipt.dart';
 import '../models/shopping_list.dart';

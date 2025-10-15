@@ -165,7 +165,7 @@ class PantryFilters extends StatelessWidget {
 
           // Dropdown
           DropdownButtonFormField<String>(
-            value: currentCategory,
+            initialValue: currentCategory,
             onChanged: (newCategory) {
               if (newCategory != null) {
                 debugPrint('📝 PantryFilters: category changed to $newCategory');

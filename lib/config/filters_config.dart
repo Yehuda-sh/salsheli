@@ -245,6 +245,6 @@ Map<String, String> get statuses => {
 /// 4. **קישור ל-category_config.dart:**
 ///    ```dart
 ///    // לעיצוב ואימוג'י:
-///    import 'package:salsheli/config/category_config.dart';
+///    import 'package:memozap/config/category_config.dart';
 ///    final config = categoryById('dairy');  // 🥛 חלב וביצים + צבע
 ///    ```

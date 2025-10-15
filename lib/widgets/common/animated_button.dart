@@ -1,79 +1,52 @@
-// 📄 File: lib/widgets/common/animated_button.dart
-//
-// 🎯 Purpose: כפתור עם אנימציית לחיצה (scale effect)
-//
-// 📋 Features:
-// - Scale Animation - scale ל-0.95 בלחיצה (150ms)
-// - Haptic Feedback - רטט קל בלחיצה
-// - Touch States - onTapDown, onTapUp, onTapCancel
-// - Curve - Curves.easeInOut לאנימציה חלקה
-// - Zero Performance Impact - רק כשלוחצים
-//
-// 🔗 Related:
-// - welcome_screen.dart - כפתורי התחברות/הרשמה
-// - ui_constants.dart - kAnimationDurationFast (150ms)
-//
-// 💡 Usage:
-// ```dart
-// // במקום ElevatedButton רגיל
-// AnimatedButton(
-//   onPressed: _onSave,
-//   child: ElevatedButton(
-//     onPressed: null, // ה-AnimatedButton מטפל ב-onPressed
-//     child: Text('שמור'),
-//   ),
-// )
-//
-// // עם כל סוג כפתור
-// AnimatedButton(
-//   onPressed: _onDelete,
-//   child: OutlinedButton(
-//     onPressed: null,
-//     child: Text('מחק'),
-//   ),
-// )
-// ```
-//
-// 📚 Design Pattern: Micro Animations
-// זה חלק מ-Modern UI/UX Patterns (AI_DEV_GUIDELINES v8.0)
-//
-// Version: 1.0 - Initial (15/10/2025)
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../core/ui_constants.dart';
 
-/// כפתור עם אנימציית scale בלחיצה
-///
-/// עוטף כל סוג כפתור (ElevatedButton, OutlinedButton, TextButton וכו')
-/// ומוסיף אנימציית scale ל-0.95 כשלוחצים עליו.
-///
-/// **אפקט:** הכפתור "נלחץ" מעט פנימה, נותן משוב ויזואלי מיידי למשתמש
-///
-/// **תכונות:**
-/// - 150ms animation (מהיר ומדויק)
-/// - Haptic feedback (רטט קל)
-/// - Smooth curve (easeInOut)
-/// - Works עם כל סוג כפתור
+/// 🎯 AnimatedButton - Interactive Button with Scale & Haptic Feedback
+/// 
+/// Wraps any button widget to add:
+/// - Scale animation (0.95) on tap
+/// - Haptic feedback (haptic.call)
+/// - Smooth 150ms animation
+/// - Works with all button types
+/// 
+/// Usage:
+/// ```dart
+/// AnimatedButton(
+///   onPressed: () => print('Pressed!'),
+///   child: ElevatedButton(
+///     onPressed: null,  // AnimatedButton handles this
+///     child: Text('Press Me'),
+///   ),
+/// )
+/// ```
+
 class AnimatedButton extends StatefulWidget {
-  /// הכפתור לעטוף (ElevatedButton, OutlinedButton וכו')
+  /// Callback when button is tapped
+  final VoidCallback onPressed;
+
+  /// Button widget to wrap (ElevatedButton, OutlinedButton, TextButton, etc.)
   final Widget child;
 
-  /// פונקציה לקריאה כשלוחצים
-  final VoidCallback? onPressed;
+  /// Scale animation target (default: 0.95)
+  final double scaleTarget;
 
-  /// האם להפעיל haptic feedback (ברירת מחדל: true)
-  final bool enableHaptic;
+  /// Animation duration (default: 150ms)
+  final Duration duration;
 
-  /// scale factor בלחיצה (ברירת מחדל: 0.95)
-  final double scaleFactor;
+  /// Enable haptic feedback (default: true)
+  final bool hapticFeedback;
+
+  /// Curve for animation (default: easeInOut)
+  final Curve curve;
 
   const AnimatedButton({
     super.key,
-    required this.child,
     required this.onPressed,
-    this.enableHaptic = true,
-    this.scaleFactor = 0.95,
+    required this.child,
+    this.scaleTarget = 0.95,
+    this.duration = const Duration(milliseconds: 150),
+    this.hapticFeedback = true,
+    this.curve = Curves.easeInOut,
   });
 
   @override
@@ -81,49 +54,45 @@ class AnimatedButton extends StatefulWidget {
 }
 
 class _AnimatedButtonState extends State<AnimatedButton> {
+  /// Track if button is pressed
   bool _isPressed = false;
-
-  void _onTapDown(TapDownDetails details) {
-    if (widget.onPressed != null) {
-      setState(() => _isPressed = true);
-      debugPrint('🎯 AnimatedButton: onTapDown');
-    }
-  }
-
-  void _onTapUp(TapUpDetails details) {
-    if (widget.onPressed != null) {
-      setState(() => _isPressed = false);
-      debugPrint('🎯 AnimatedButton: onTapUp');
-      
-      // רטט קל למשוב מישושי (fire and forget)
-      if (widget.enableHaptic) {
-        HapticFeedback.lightImpact();
-      }
-      
-      // קריאה ל-onPressed
-      widget.onPressed!();
-    }
-  }
-
-  void _onTapCancel() {
-    if (widget.onPressed != null) {
-      setState(() => _isPressed = false);
-      debugPrint('🎯 AnimatedButton: onTapCancel');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: _onTapDown,
-      onTapUp: _onTapUp,
+      onTapDown: (_) => _onTapDown(),
+      onTapUp: (_) => _onTapUp(),
       onTapCancel: _onTapCancel,
       child: AnimatedScale(
-        scale: _isPressed ? widget.scaleFactor : 1.0,
-        duration: kAnimationDurationFast,
-        curve: Curves.easeInOut,
+        scale: _isPressed ? widget.scaleTarget : 1.0,
+        duration: widget.duration,
+        curve: widget.curve,
         child: widget.child,
       ),
     );
+  }
+
+  /// Handle tap down - trigger animation and haptic feedback
+  void _onTapDown() {
+    if (!mounted) return;
+    setState(() => _isPressed = true);
+    
+    // ✅ Haptic feedback on tap
+    if (widget.hapticFeedback) {
+      HapticFeedback.lightImpact();
+    }
+  }
+
+  /// Handle tap up - trigger callback
+  void _onTapUp() {
+    if (!mounted) return;
+    setState(() => _isPressed = false);
+    widget.onPressed();
+  }
+
+  /// Handle tap cancel
+  void _onTapCancel() {
+    if (!mounted) return;
+    setState(() => _isPressed = false);
   }
 }

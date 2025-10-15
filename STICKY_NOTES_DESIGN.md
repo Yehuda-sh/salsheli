@@ -462,6 +462,247 @@ SafeArea(
 
 ---
 
+## 🎨 דוגמאות קוד - Sticky Components
+
+### StickyButton Widget
+
+```dart
+// lib/widgets/common/sticky_button.dart
+
+import 'package:flutter/material.dart';
+import 'dart:math' as math;
+import '../../core/app_brand.dart';
+import '../../core/ui_constants.dart';
+
+class StickyButton extends StatefulWidget {
+  final String label;
+  final VoidCallback onPressed;
+  final Color? backgroundColor;
+  final double? rotation;
+  final bool isEnabled;
+
+  const StickyButton({
+    required this.label,
+    required this.onPressed,
+    this.backgroundColor,
+    this.rotation,
+    this.isEnabled = true,
+  });
+
+  @override
+  State<StickyButton> createState() => _StickyButtonState();
+}
+
+class _StickyButtonState extends State<StickyButton> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final backgroundColor = widget.backgroundColor ?? AppBrand.stickyYellow;
+    final rotation = widget.rotation ?? 0.01;
+    
+    return Transform.rotate(
+      angle: rotation,
+      child: AnimatedScale(
+        scale: _isPressed ? 0.95 : 1.0,
+        duration: Duration(milliseconds: 150),
+        curve: Curves.easeInOut,
+        child: GestureDetector(
+          onTapDown: (_) {
+            if (!widget.isEnabled) return;
+            setState(() => _isPressed = true);
+          },
+          onTapUp: (_) {
+            setState(() => _isPressed = false);
+            if (widget.isEnabled) widget.onPressed();
+          },
+          onTapCancel: () => setState(() => _isPressed = false),
+          child: Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: kSpacingLarge,
+              vertical: kSpacingMedium,
+            ),
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(kStickyBorderRadius),
+              boxShadow: kStickyShadow,
+              border: Border.all(
+                color: Colors.grey[300]!,
+                width: 1.5,
+              ),
+            ),
+            child: Text(
+              widget.label,
+              style: TextStyle(
+                color: Colors.black87,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+**שימוש:**
+```dart
+StickyButton(
+  label: 'שמור',
+  backgroundColor: AppBrand.stickyGreen,
+  rotation: -0.01,
+  onPressed: _onSave,
+)
+```
+
+---
+
+### StickyCard Widget
+
+```dart
+// lib/widgets/common/sticky_card.dart
+
+class StickyCard extends StatefulWidget {
+  final Widget child;
+  final Color backgroundColor;
+  final VoidCallback? onTap;
+  final double? rotation;
+  final EdgeInsets? padding;
+
+  const StickyCard({
+    required this.child,
+    this.backgroundColor = AppBrand.stickyYellow,
+    this.onTap,
+    this.rotation,
+    this.padding,
+  });
+
+  @override
+  State<StickyCard> createState() => _StickyCardState();
+}
+
+class _StickyCardState extends State<StickyCard> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final rotation = widget.rotation ?? 
+        math.Random().nextDouble() * 0.04 - 0.02;
+    
+    return Transform.rotate(
+      angle: rotation,
+      child: GestureDetector(
+        onTapDown: widget.onTap != null ? (_) {
+          setState(() => _isPressed = true);
+        } : null,
+        onTapUp: widget.onTap != null ? (_) {
+          setState(() => _isPressed = false);
+          widget.onTap?.call();
+        } : null,
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: 150),
+          transform: _isPressed 
+            ? (Matrix4.identity()..scale(0.98))
+            : Matrix4.identity(),
+          decoration: BoxDecoration(
+            color: widget.backgroundColor,
+            borderRadius: BorderRadius.circular(kStickyBorderRadius),
+            boxShadow: kStickyShadow,
+            border: Border.all(
+              color: Colors.grey[300]!,
+              width: 1.5,
+            ),
+          ),
+          child: Padding(
+            padding: widget.padding ?? EdgeInsets.all(kSpacingMedium),
+            child: widget.child,
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+**שימוש:**
+```dart
+StickyCard(
+  backgroundColor: AppBrand.stickyPink,
+  rotation: -0.02,
+  onTap: () => print('tapped!'),
+  child: Text('פתק צבעוני'),
+)
+```
+
+---
+
+### StickyDialog Widget
+
+```dart
+class StickyDialog extends StatelessWidget {
+  final String title;
+  final String content;
+  final Color backgroundColor;
+
+  const StickyDialog({
+    required this.title,
+    required this.content,
+    this.backgroundColor = AppBrand.stickyYellow,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Transform.rotate(
+        angle: 0.01,
+        child: Container(
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(kStickyBorderRadius),
+            boxShadow: kStickyShadow,
+            border: Border.all(color: Colors.grey[300]!, width: 2),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(kSpacingLarge),
+            child: Column([
+              Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              SizedBox(height: kSpacingMedium),
+              Text(content),
+              SizedBox(height: kSpacingLarge),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  StickyButton(
+                    label: 'סגור',
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+            ]),
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+**שימוש:**
+```dart
+showDialog(
+  context: context,
+  builder: (context) => StickyDialog(
+    title: '✓ הצלחה',
+    content: 'הרשימה נשמרה!',
+    backgroundColor: AppBrand.stickyGreen,
+  ),
+);
+```
+
+---
+
 ## 📱 דוגמאות שימוש מלאות
 
 ### מסך התחברות (Login Screen) - Compact

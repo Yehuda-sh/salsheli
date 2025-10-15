@@ -385,7 +385,7 @@ class _MyAppState extends State<MyApp> {
         }
 
         return MaterialApp(
-          title: 'סל שלי',
+          title: 'MemoZap',
           debugShowCheckedModeBanner: false,
           
           // 🎨 Theme with Dynamic Color or Fallback

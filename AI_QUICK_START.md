@@ -1,418 +1,314 @@
----
+# 🤖 AI Quick Start - הנחיות מהירות לסוכני AI
 
-## 🔎 Code Review אוטומטי - מול תיעוד הפרויקט
-
-**כשקורא קישור לקובץ, בדוק אוטימטית:**
-
-### 1️⃣ שגיאות טכניות (תקן מיידית!)
-- `withOpacity(0.5)` → `withValues(alpha: 0.5)`
-- `value` (DropdownButtonFormField) → `initialValue`
-- `kQuantityFieldWidth` → `kFieldWidthNarrow`
-- `kBorderRadiusFull` → `kRadiusPill`
-- async function ב-onPressed → עטוף ב-lambda: `() => myAsyncFunc()`
-- widgets שלא משתנים → הוסף `const`
-- imports לא נעשים → תקן
-- deprecated APIs → החלף ל-modern API
-
-### 2️⃣ עיצוב לא תואם STICKY_NOTES_DESIGN.md (תקן מיידית!)
-
-**🔴 כלל מרכזי - מסכי Auth/UI חייבים Sticky Notes Design!**
-
-אם המסך הוא מסך UI (screens/auth/, screens/home/, וכו') ו**לא** מעוצב עם Sticky Notes:
-→ **החלף את כל העיצוב מיידית!** אל תשאל!
-
-**העיצוב החדש חייב לכלול:**
-- ✅ `NotebookBackground()` + `kPaperBackground`
-- ✅ `StickyNoteLogo()` עבור לוגו
-- ✅ `StickyNote()` עבור כותרות ושדות
-- ✅ `StickyButton()` עבור כפתורים
-- ✅ סיבובים: -0.03 עד 0.03
-- ✅ צבעים: `kStickyYellow`, `kStickyPink`, `kStickyGreen`, `kStickyCyan`, `kStickyPurple`
-- ✅ Compact design: padding `(16, 8)`, רווחים `kSpacingSmall`
-
-**תיקונים קטנים (לא צריך החלפה מלאה):**
-- שימוש בצבעים קשיחים (`Colors.blue`) → החלף ל-`accent`, `cs.primary`, וכו'
-- `EdgeInsets.all(16)` → `EdgeInsets.all(kSpacingMedium)`
-- `fontSize: 14` → `fontSize: kFontSizeSmall`
-- `BorderRadius.circular(8)` → `BorderRadius.circular(kBorderRadius)`
-- icons בגודל קשיח → `kIconSizeSmall/Medium/Large`
-
-### 3️⃣ קוד לא עוקב BEST_PRACTICES.md (תקן מיידית!)
-**בדוק:**
-- חסר תיעוד בראש הקובץ → הוסף header comment
-- functions פרטיות ללא documentation → הוסף `///` comments
-- functions ציבוריות ללא documentation → הוסף `///` comments
-- naming לא עקבי: `myVar` → `_myPrivateVar`, `MyScreen` → suffix `Screen`
-- קוד משוכפל ללא comments → הוסף הסברים
-- magic numbers (42, 100) → הגדר constants עם שמות מתארים
-
-### 4️⃣ TODO/FIXME שצריך לטפל (הזכר למשתמש!)
-```dart
-// TODO: להוסיף validation
-// FIXME: bug כשלוחצים פעמיים
-```
-**אם אתה יכול לפתור מיידית → תפתור!**
-**אם לא → דווח למשתמש על ה-TODO**
-
-### 5️⃣ איך לדווח?
-```
-📖 קורא product_card.dart...
-
-✅ Widget לתצוגת מוצר
-🔧 תיקנתי אוטומטית:
-   1. Colors.blue → accent מ-theme
-   2. EdgeInsets.all(16) → kSpacingMedium
-   3. הוספתי const ב-3 מקומות
-   4. הוספתי תיעוד בראש הקובץ
-   
-⚠️ TODO שמצאתי (שורה  45): "להוסיף אנימציה"
-
-🎯 הכל עובד! רוצה שאטפל ב-TODO?
-```
-
-### ⚡ חשוב!
-- **תקן מיידית** שגיאות טכניות + עיצוב + best practices
-- **מסך UI ללא Sticky Notes?** → החלף את כל העיצוב ללא שאלות! 🎨
-- **אל תשאל אישור** לתיקונים אלה
-- **רק TODO** שלא ברור או מסובך → שאל אם לטפל
-- **דווח מה תיקנת** בצורה תמציתית
-
-# 🤖 AI Quick Start - הוראות מהירות לסוכן
-
-> **למשתמש:** תן את המשפט הזה לסוכן AI בתחילת כל שיחה:
-> 
-> **"📌 קרא תחילה: `C:\projects\salsheli\AI_QUICK_START.md` - הוראות חובה לפני עבודה"**
+> **📌 משפט הקסם:** קרא את הקובץ הזה בתחילת **כל שיחה חדשה!**  
+> **⏱️ זמן קריאה:** 5-10 דקות  
+> **🎯 תוצאה:** Code Review אוטומטי + תיקונים מיידיים
 
 ---
 
-> 🔴 **עדכון חדש (v1.4):** סוכן AI עכשיו עושה **Code Review אוטומטי**!
-> 
-> כשקורא קובץ, הסוכן בודק ומתקן אוטומטית:
-> - ✅ שגיאות טכניות (withOpacity, value, async, const, deprecated APIs)
-> - 🎨 **מסך UI ללא Sticky Notes? → החלפת עיצוב מלא!**
-> - 📋 קוד מול Best Practices
-> - 📝 תיעוד ו-naming (כולל פונקציות פרטיות)
-> 
-> **ללא שאלות!** רק תיקון ודיווח 🚀
+## 🚀 Quick Start (10 שניות)
+
+**בתחילת כל שיחה:**
+1. ✅ קרא את קובץ **AI_DEV_GUIDELINES.md** (5 דקות)
+2. ✅ קרא את קובץ **BEST_PRACTICES.md** (3 דקות)
+3. ✅ כשהמשתמש מביא קובץ Dart → Code Review אוטומטי!
 
 ---
 
-## 🔗 קישור לקובץ בתחילת שיחה - מה לעשות?
+## 🎯 Code Review אוטומטי - מול תיעוד הפרויקט
 
-> 🔴 **כלל זהב:** שגיאות טכניות בקוד = תקן מיידית ללא שאלות!
-> 
-> אל תשאל "רוצה שאתקן?" - פשוט **תתקן ותדווח!**
-> 
-> **שגיאות טכניות זה:**
-> - withOpacity → withValues
-> - async callbacks לא עטופים
-> - חסר const
-> - imports שגויים
-> - deprecated APIs
-> - syntax errors
+**כשקוראים קובץ Dart, בדוק אוטומטית:**
 
-**אם המשתמש שולח קישור לקובץ (למשל: `C:\projects\salsheli\lib\screens\auth\login_screen.dart`):**
+### 1️⃣ **שגיאות טכניות (תיקון מיידי!)**
 
-### צעדים אוטומטיים:
+| שגיאה | תיקון | קובץ |
+|------|-------|------|
+| ✅ `withOpacity(0.5)` | → `withValues(alpha: 0.5)` | BEST_PRACTICES.md |
+| ✅ `value` (Dropdown) | → `initialValue` | BEST_PRACTICES.md |
+| ✅ `kQuantityFieldWidth` | → `kFieldWidthNarrow` | BEST_PRACTICES.md |
+| ✅ `kBorderRadiusFull` | → `kRadiusPill` | BEST_PRACTICES.md |
+| ✅ async function ב-onPressed | → עטוף ב-lambda `() => func()` | BEST_PRACTICES.md |
+| ✅ widget קבוע ללא `const` | → הוסף `const` | BEST_PRACTICES.md |
+| ✅ imports לא בשימוש | → הסר | - |
+| ✅ deprecated APIs | → החלף ל-modern API | BEST_PRACTICES.md |
 
-1️⃣ **קרא את הקובץ מיד** - אל תשאל אישור!
-```dart
-// פשוט תקרא אותו
-```
+### 2️⃣ **בדיקת עיצוב (Sticky Notes Design compliance)**
 
-2️⃣ **זהה את סוג הקובץ:**
-- 📱 Screen? → בדוק imports, widgets, providers
-- 🧩 Widget? → בדוק איפה משתמשים בו
-- 📦 Provider? → בדוק איזה repository
-- 🗄️ Model? → בדוק אם יש .g.dart
-- 🎨 UI? → בדוק Sticky Notes Design
+**אם זה מסך UI:**
+- ✅ יש `NotebookBackground()`?
+- ✅ יש `kPaperBackground` כ-backgroundColor?
+- ✅ משתמש ב-`StickyNote()` לכותרות/שדות?
+- ✅ משתמש ב-`StickyButton()` לכפתורים?
+- ✅ יש סיבובים בטווח -0.03 עד 0.03?
+- ✅ צבעים מ-`kSticky*` constants?
 
-3️⃣ **בדוק בעיות אוטומטית:**
-- ❌ שגיאות קומפילציה (withOpacity, async callbacks, וכו')
-- 🎨 העיצוב לא תואם STICKY_NOTES_DESIGN.md?
-- 📋 לא עוקב אחרי BEST_PRACTICES.md?
-- ⚠️ TODO/FIXME comments
-- 🔍 Deprecated APIs
-- 📝 חסר תיעוד בראש הקובץ?
-- 🏷️ Naming לא עקבי עם שאר הפרויקט?
+**אם זה מסך ללא Sticky Notes:**
+- ❌ **תחליף את כל העיצוב מיידית!** 🎨
+- ראה: **STICKY_NOTES_DESIGN.md**
 
-4️⃣ **קרא קבצים קשורים (אם רלוונטי):**
-```
-Screen → Provider שבו הוא משתמש
-Widget → Screen שקורא לו
-Provider → Repository + Model
-Model → Repository שמשתמש בו
-```
+### 3️⃣ **Best Practices (תיקון אם צריך)**
 
-5️⃣ **תקן אוטומטית + דווח:**
-```
-✅ קראתי את register_screen.dart
-📦 משתמש ב-UserContext + AuthButton
-🔧 תיקנתי אוטומטית:
-   1. async callback עטוף בlambda (שורה 371)
-   2. שיניתי צבע ל-accent לפי Sticky Notes Design
-   3. הוספתי תיעוד בראש הקובץ
-   
-🎯 הכל עובד!
-```
+| בדיקה | כן/לא | פעולה |
+|------|-------|-------|
+| יש תיעוד בראש הקובץ? | ❌ | הוסף בדיוק |
+| פונקציות ציבוריות תועדות? | ❌ | הוסף `///` comments |
+| פונקציות פרטיות תועדות? | ❌ | הוסף `///` comments קצרים |
+| naming עקבי (PascalCase/camelCase)? | ❌ | תקן |
+| magic numbers בקוד? | ❌ | הגדר constants ב-lib/core/ |
+| dead code (commented)? | ❌ | מחק |
+| context נשמר לפני await? | ❌ | תקן (ראה BEST_PRACTICES.md) |
+| `mounted` בדוק אחרי await? | ❌ | הוסף בדיקה |
 
-**חשוב:** תקן מיידית:
-- שגיאות טכניות (withOpacity, async, const, וכו')
-- **עיצוב לא תואם (Sticky Notes Design) - החלף את כל המסך!** 🎨
-- קוד לא עוקב (Best Practices)
-- חסר תיעוד / naming לא עקבי
+### 4️⃣ **TODO/FIXME**
 
-**לא תשאל אישור!**
-
-**דוגמה - מסך ללא Sticky Notes:**
-```
-❌ רואה: Container עם לוגו, TextFormField רגיל, ElevatedButton
-✅ פעולה: החלפת כל המסך ל-Sticky Notes Design - ללא שאלות!
-✅ תוצאה: NotebookBackground + StickyNote + StickyButton
-```
-
-### דוגמה:
-
-**משתמש:**
-```
-C:\projects\salsheli\lib\screens\auth\login_screen.dart
-```
-
-**אתה (AI):**
-```
-📖 קורא login_screen.dart...
-
-✅ זה מסך התחברות
-📦 משתמש ב-UserContext + StickyButton
-🔧 מתקן אוטומטית:
-   1. withOpacity → withValues (שורות 274, 318, 355)
-   2. async callback עטוף (שורה 341)
-   3. הוספתי const במקומות
-
-🎯 הכל עובד!
-```
-
-### ⚡ חשוב:
-- **אל תשאל אישור לקרוא** - המשתמש כבר שלח את הקישור!
-- **אל תשאל אישור לתקן שגיאות טכניות** - פשוט תקן!
-- **שגיאות טכניות = תיקון מיידי** - withOpacity, async callbacks, const, imports, וכו'
-- **רק החלטות עיצוביות = שאל** - צבעים, מבנה, אלגוריתמים
+- אם יכול לפתור מיידית → פתור וציין "✅ תיקנתי"
+- אם לא → דווח למשתמש בלבד
 
 ---
 
-## 🎯 כללי עבודה - קרא וזכור!
+## 📋 קישור לקובץ בתחילת שיחה - מה לעשות
 
-### 1️⃣ **תעבוד בשקט - אל תפרט יותר מידי**
+**המשתמש מביא קובץ בתחילת שיחה:**
 
-- ✅ **עשה:** קרא קבצים → עבוד → דווח תמציתי על מה עשית
-- ❌ **אל תעשה:** אל תסביר כל שלב, אל תשאל אישור לכל דבר קטן
-- 💬 **דווח:** "✅ עדכנתי 3 קבצים, הכל עובד" - זה מספיק!
-
-**דוגמה טובה:**
 ```
-✅ קראתי את login_screen.dart
-✅ תיקנתי את השגיאות (withValues, async callback)
-✅ הכל עובד עכשיו
+המשתמש: "קרא את lib/screens/home_screen.dart ותיקן שגיאות"
 ```
 
-**דוגמה רעה (אל תעשה!):**
-```
-קודם כל, אני רוצה להסביר לך מה אני עומד לעשות...
-אז תראה, יש כאן 3 שגיאות...
-השגיאה הראשונה היא...
-עכשיו אני אסביר איך אני אתקן את זה...
-[100 שורות של הסבר מיותר]
-```
+**אתה צריך:**
 
----
-
-### 2️⃣ **שאל רק שאלות חשובות**
-
-> 🔴 **כלל זהב #2:** אם אתה יכול לפתור את זה לבד - **תפתור ותדווח!**
-> 
-> שגיאות טכניות, bugs, קוד שבור, naming לא עקבי = תקן מיידית!
-
-**מתי לשאול?**
-- 🔴 כשיש **החלטה עיצובית משמעותית** (למשל: "איזה צבע לפתק?")
-- 🔴 כשיש **2+ דרכים שונות לממש** ולא ברור מה העדיפות
-- 🔴 כש**משהו לא ברור במפרט** ואי אפשר בלעדיו
-
-**מתי לא לשאול? (פשוט תתקן!)**
-- ✅ איך לתקן שגיאה טכנית - **פשוט תתקן!**
-- ✅ איפה לשים קובץ - **יש מבנה ברור בתיעוד**
-- ✅ איזה naming convention - **כבר מוגדר בקוד הקיים**
-- ✅ האם להוסיף comments - **כן, תוסיף!**
-- ✅ האם לתקן async callback - **כן, תתקן!**
-- ✅ האם להחליף withOpacity - **כן, תתקן!**
-
----
-
-### 3️⃣ **ניהול Tokens - חשוב מאוד! ⚠️**
-
-**הבעיה:** השיחה יכולה להיגמר לפני שסיימנו!
-
-**הפתרון:** תכנן מראש!
-
-#### 📊 תקציב Tokens (אמור לך בתחילת השיחה):
-```
-סה"כ: ~190,000 tokens
-שומר לתשובות: ~30,000 tokens
-זמין לעבודה: ~160,000 tokens
-```
-
-#### 💾 שמירת מצב לשיחה הבאה (נקודת שחזור)
-
-**אם מרגיש שנגמרים ה-Tokens:**
-
-1. **עצור לרגע** - אל תמשיך עם הקוד!
-2. **כתוב סיכום מהיר:**
+1. ✅ **קרא את הקובץ**
    ```
-   📌 נקודת עצירה:
-   ✅ הושלם: קובץ A, B
-   ⏳ באמצע: קובץ C - שורה 145
-   📋 נותר: קבצים D, E, F
-   
-   🔄 להמשיך בשיחה הבאה:
-   - פתח קובץ C בשורה 145
-   - תתקן את [בעיה ספציפית]
-   - אחר כך עבור לקבצים D, E, F
+   → kubectl get file content
    ```
 
-3. **שמור את הסיכום** ב-`WORK_LOG.md` או בהודעה אחרונה
+2. ✅ **בדוק Code Review**
+   - ✅ Sticky Notes Design?
+   - ✅ deprecated APIs?
+   - ✅ async callbacks?
+   - ✅ const widgets?
 
-**בשיחה הבאה:** המשתמש יעתיק את הסיכום ואתה תמשיך מדויק מאיפה שעצרת!
+3. ✅ **דווח תמציתי**
+   ```
+   ✅ Code Review Result:
+   • withOpacity → withValues ✅
+   • StickyButton ללא const → הוסף const ✅
+   • Missing documentation → הוסף ✅
+   • Everything else looks good!
+   ```
 
----
-
-### 4️⃣ **קבצים חובה - תמיד בהישג יד**
-
-**לפני כל עבודה, קרא:**
-
-| קובץ | מתי | למה |
-|------|-----|-----|
-| **AI_DEV_GUIDELINES.md** | 🔴 למידע טכני | טבלת בעיות + Code Review + Modern UI |
-| **LESSONS_LEARNED.md** | 🔴 תמיד | דפוסים טכניים + ארכיטקטורה |
-| **BEST_PRACTICES.md** | 🟡 לקוד | Best practices לקוד ועיצוב |
-| **STICKY_NOTES_DESIGN.md** | 🟡 ל-UI | מערכת עיצוב מלאה |
-| **WORK_LOG.md** | 🟢 בהתחלה | מה השתנה לאחרונה |
-
-**אל תקרא הכל בכל פעם!** רק את מה שרלוונטי למשימה.
-
-**💡 Quick Navigation:**
-- בעיה טכנית ספציפית? → [AI_DEV_GUIDELINES - טבלת בעיות](AI_DEV_GUIDELINES.md#-quick-start)
-- צריך Code Review מפורט? → [AI_DEV_GUIDELINES - Checklist](AI_DEV_GUIDELINES.md#-code-review-checklist)
-- צריך Modern UI? → [AI_DEV_GUIDELINES - Skeleton + Animations](AI_DEV_GUIDELINES.md#-modern-uiux-patterns)
+4. ✅ **תן לקובץ משודרג**
+   - אם הן שגיאות קטנות → תיקן בזריזות
+   - אם שינויים גדולים → הצע artifact
 
 ---
 
-### 5️⃣ **אסטרטגיית עבודה חכמה**
+## 🔄 Workflow דוגמה
 
-#### תכנון מראש:
-```
-1. קרא את הבקשה
-2. תכנן: כמה קבצים? כמה tokens?
-3. אם זה גדול → תכנן ל-2-3 שיחות
-4. עבוד בחלקים: קובץ 1 → בדוק → קובץ 2 → בדוק
-```
-
-#### עדיפויות:
-```
-1. תקן שגיאות קריטיות קודם
-2. אחר כך שיפורים
-3. בסוף - ניקיון קוד (אם נשאר זמן)
-```
-
-#### חיסכון ב-Tokens:
-```
-❌ אל תצטט קוד ארוך בתשובות
-❌ אל תסביר כל שלב
-✅ כתוב קוד ישירות לקובץ
-✅ דווח תמציתי: "✅ עשיתי X, Y, Z"
-```
-
----
-
-## 🔧 מבנה הפרויקט - מהיר
+### Scenario 1: פרויקט קיים + שינויים קטנים
 
 ```
-lib/
-├── models/          # Data models (.dart + .g.dart)
-├── providers/       # State (ChangeNotifier)
-├── repositories/    # Data access (Firebase/Hive)
-├── services/        # Business logic
-├── screens/         # UI Screens
-├── widgets/         # Reusable UI
-│   └── common/      # Sticky Notes components ⭐
-├── config/          # Business rules (8 קבצים)
-├── core/            # Constants (3 קבצים)
-│   └── ui_constants.dart  # ⭐ כל קבועי UI!
-└── theme/           # Themes + colors
+משתמש: "העדכן את widgets/sticky_button.dart - הוסף animation"
+
+אתה:
+1. קרא את הקובץ
+2. Code Review:
+   ✅ withOpacity? → withValues
+   ✅ const? ✅
+   ✅ Async? ✅
+   ✅ Sticky Design? ✅
+3. הוסף animation
+4. תן קובץ משודרג
 ```
 
-**זכור:**
-- Constants ב-`core/ui_constants.dart`
-- Business rules ב-`config/`
-- Sticky Notes ב-`widgets/common/`
+### Scenario 2: מסך UI חדש
 
----
-
-## 📋 Checklist מהיר לפני סיום
-
-- [ ] flutter analyze → 0 issues
-- [ ] הקבצים שעבדת עליהם עובדים
-- [ ] עדכנת תיעוד (אם צריך)
-- [ ] אם לא סיימת - כתבת נקודת שחזור!
-
----
-
-## 🎓 דוגמה: שיחה מוצלחת
-
-**משתמש:**
-"C:\projects\salsheli\lib\screens\auth\login_screen.dart"
-
-**אתה (AI) - דרך נכונה:**
 ```
-📖 קורא login_screen.dart...
+משתמש: "צור מסך הרשמה (Register screen)"
 
-✅ מסך התחברות
-📦 משתמש ב-UserContext + StickyButton
-🔧 תיקנתי אוטומטית:
-   1. withOpacity → withValues (4 מקומות)
-   2. async callbacks עטופים
-   3. הוספתי const
-
-🎯 הכל עובד!
-```
-
-**אתה (AI) - דרך שגויה (אל תעשה!):**
-```
-📖 קורא login_screen.dart...
-
-⚠️ מצאתי 4 שגיאות:
-   1. withOpacity במקום withValues
-   2. async callback לא עטוף
-   ...
-
-💡 רוצה שאתקן?  ❌ לא לשאול! פשוט תתקן!
+אתה:
+1. בדוק: צריך Sticky Notes Design (כן!)
+2. בדוק: זה מסך UI (כן!)
+3. יצור עם:
+   ✅ NotebookBackground
+   ✅ StickyNote components
+   ✅ StickyButton
+   ✅ Compact layout (אם צריך)
+4. הוסף תיעוד
+5. תן artifact
 ```
 
 ---
 
-## ⚡ TL;DR - תזכורת של 10 שניות
+## ⚙️ כללי עבודה - קרא וזכור
 
-1. **שגיאות טכניות?** → תקן מיידית ללא שאלות! 🔴
-2. **מסך UI ללא Sticky Notes?** → החלף כל העיצוב מיידית! 🎨
-3. **עיצוב לא תואם?** → תקן לפי Sticky Notes Design! 🎨
-4. **קוד לא עוקב?** → תקן לפי Best Practices! 📋
-5. **קישור לקובץ?** → קרא + בדוק + תקן + דווח
-6. **קרא LESSONS_LEARNED** לפני עבודה
-7. **עבוד בשקט** - אל תפרט יותר מידי
-8. **שאל רק מה חשוב** - לא כל דבר קטן
-9. **שמור Tokens** - תכנן מראש!
-10. **דווח תמציתי** - "✅ תיקנתי X, Y, Z"
+### 🔴 Rules - לא שוברים!
+
+| Rule | למה | Example |
+|------|-----|---------|
+| **Sticky Notes ל-UI מסכים** | תכניסה ייחודית | מסך ללא Sticky? → החלף מלא |
+| **Constants ב-lib/core/** | SSOT - Single Source of Truth | לא hardcode ערכים |
+| **household_id בכל שאילתה** | Security - multi-tenant | בכל Firestore query |
+| **async wrapped בלמבדה** | Type safety | `() => _asyncFunc()` |
+| **mounted בדוק אחרי await** | Prevent crashes | תמיד בדוק |
+| **withValues, לא withOpacity** | Modern API | זה ה-standard החדש |
+| **const כשאפשר** | Performance | אל תשכח! |
+
+### 🟡 Guidelines - עדיף להתאים
+
+| Guideline | Better | Example |
+|-----------|--------|---------|
+| **3-4 Empty States** | בכל widget | Loading, Error, Empty, Initial |
+| **Batch Processing** | ל-100+ items | שמור 50-100 items בבאץ |
+| **Error Recovery** | retry() + clearAll() | Providers צריכים error handling |
+| **Logging** | עם emojis | `✅ ❌ 📥 ➕ 🔄` |
+| **Documentation** | `///` comments | פונקציות חיוניות תועדות |
 
 ---
 
-**זכור:** המשתמש רוצה שתעשה את העבודה, לא שתסביר לו איך! 💪
+## 📚 References - בדיקה מהירה
 
-**גרסה:** 1.4 | **תאריך:** 15/10/2025 | **שינוי:** + deprecated APIs חדשים (initialValue, kFieldWidthNarrow, kRadiusPill) + תיעוד פונקציות פרטיות
+**כשאתה בספק, בדוק:**
+
+| שאלה | קובץ | דוגמה |
+|------|------|-------|
+| "איך להשתמש ב-async?" | BEST_PRACTICES.md | Section 1 |
+| "מה זה Sticky Notes?" | STICKY_NOTES_DESIGN.md | Section 2 |
+| "איך להתחבר ל-Firebase?" | SECURITY_GUIDE.md | Section 2 |
+| "איך לבדוק קוד?" | TESTING_GUIDE.md | Section 1 |
+| "Dead Code מה לעשות?" | QUICK_REFERENCE.md | Section 1 |
+| "Architecture patterns?" | LESSONS_LEARNED.md | Section 1-3 |
+
+---
+
+## 🎯 TL;DR - תזכורת של 10 שניות
+
+```
+בכל שיחה חדשה:
+
+1. ✅ withOpacity → withValues(alpha:)
+2. ✅ Async ב-onPressed? → עטוף: () => func()
+3. ✅ UI Screen? → Sticky Notes Design!
+4. ✅ const בכל מקום אפשרי
+5. ✅ Documentation בראש הקובץ
+6. ✅ household_id בכל Firestore query
+7. ✅ 3-4 Empty States בכל widget
+8. ✅ Error handling + retry/clearAll
+
+אם בספק → בדוק BEST_PRACTICES.md
+```
+
+---
+
+## 🚀 דוגמה: Code Review בפועל
+
+### קובץ מקורי (בעיות):
+```dart
+// ❌ בעיות:
+// 1. אין documentation
+// 2. withOpacity
+// 3. אין const
+// 4. async ב-onPressed
+// 5. אין error handling
+
+class MyButton extends StatelessWidget {
+  final VoidCallback onPressed;
+  
+  const MyButton({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: _handlePress, // ❌ async ללא wrapper!
+      child: Text('Press'),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.blue.withOpacity(0.8), // ❌ deprecated
+      ),
+    );
+  }
+
+  Future<void> _handlePress() async {
+    await Future.delayed(Duration(seconds: 1));
+    Navigator.pop(context); // ❌ context לא בטוח!
+  }
+}
+```
+
+### קובץ מתוקן (✅):
+```dart
+/// MyButton - Custom button with async action support
+/// 
+/// Provides a styled button that handles async callbacks safely
+/// with proper context management and error handling.
+class MyButton extends StatefulWidget {
+  final Future<void> Function() onPressed;
+  
+  const MyButton({Key? key, required this.onPressed}) : super(key: key);
+
+  @override
+  State<MyButton> createState() => _MyButtonState();
+}
+
+class _MyButtonState extends State<MyButton> {
+  bool _isLoading = false;
+
+  Future<void> _handlePress() async {
+    setState(() => _isLoading = true);
+    
+    try {
+      await widget.onPressed();
+      
+      // ✅ בדוק mounted לפני ניווט
+      if (!mounted) return;
+      Navigator.pop(context);
+    } catch (e) {
+      // ✅ Error handling
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      // ✅ עטוף בלמבדה
+      onPressed: _isLoading ? null : () => _handlePress(),
+      style: ElevatedButton.styleFrom(
+        // ✅ withValues במקום withOpacity
+        backgroundColor: Colors.blue.withValues(alpha: 0.8),
+      ),
+      child: _isLoading 
+        ? const SizedBox(
+            height: 20,
+            width: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        // ✅ const widget
+        : const Text('Press'),
+    );
+  }
+}
+```
+
+---
+
+## 📞 Need Help?
+
+```
+1. בעיה טכנית? → BEST_PRACTICES.md
+2. Sticky Design? → STICKY_NOTES_DESIGN.md
+3. Security? → SECURITY_GUIDE.md
+4. Tests? → TESTING_GUIDE.md
+5. Architecture? → LESSONS_LEARNED.md
+6. Quick Answer? → QUICK_REFERENCE.md
+```
+
+---
+
+**Version:** 1.0  
+**Created:** 15/10/2025  
+**Made with ❤️ by Humans & AI** 🤖👨‍💻

@@ -228,7 +228,7 @@ class _TemplateFormScreenState extends State<TemplateFormScreen> {
   // ========================================
   Widget _buildListTypeSelector(ThemeData theme) {
     return DropdownButtonFormField<String>(
-      value: _type,
+      initialValue: _type,
       decoration: InputDecoration(
         labelText: AppStrings.templates.iconLabel,
         hintText: AppStrings.templates.iconHint,
@@ -262,7 +262,7 @@ class _TemplateFormScreenState extends State<TemplateFormScreen> {
   }
 
   // ========================================
-  // Format Selector (Radio Buttons)
+  // Format Selector (Segmented Button)
   // ========================================
   Widget _buildFormatSelector(ThemeData theme) {
     return Column(
@@ -276,70 +276,67 @@ class _TemplateFormScreenState extends State<TemplateFormScreen> {
         ),
         const SizedBox(height: kSpacingSmall),
 
-        // Personal
-        ListTile(
-          title: Text(AppStrings.templates.formatPersonal),
-          subtitle: Text(
-            AppStrings.templates.formatPersonalDesc,
-            style: theme.textTheme.bodySmall,
-          ),
-          leading: Radio<String>(
-            value: 'personal',
-            groupValue: _defaultFormat,
-            onChanged: _isSaving
-                ? null
-                : (value) {
-                    if (value != null) {
-                      debugPrint('🔄 פורמט שונה ל: personal');
-                      setState(() => _defaultFormat = value);
-                    }
-                  },
-          ),
+        // Segmented Button for format selection
+        SegmentedButton<String>(
+          segments: <ButtonSegment<String>>[
+            ButtonSegment<String>(
+              value: 'personal',
+              label: Text(AppStrings.templates.formatPersonal),
+              tooltip: AppStrings.templates.formatPersonalDesc,
+            ),
+            ButtonSegment<String>(
+              value: 'shared',
+              label: Text(AppStrings.templates.formatShared),
+              tooltip: AppStrings.templates.formatSharedDesc,
+            ),
+            ButtonSegment<String>(
+              value: 'assigned',
+              label: Text(AppStrings.templates.formatAssigned),
+              tooltip: AppStrings.templates.formatAssignedDesc,
+            ),
+          ],
+          selected: <String>{_defaultFormat},
+          onSelectionChanged: _isSaving
+              ? null
+              : (Set<String> newSelection) {
+            setState(() => _defaultFormat = newSelection.first);
+            debugPrint('🔄 פורמט שונה ל: ${newSelection.first}');
+          },
+          showSelectedIcon: true,
+          multiSelectionEnabled: false,
         ),
-
-        // Shared
-        ListTile(
-          title: Text(AppStrings.templates.formatShared),
-          subtitle: Text(
-            AppStrings.templates.formatSharedDesc,
-            style: theme.textTheme.bodySmall,
+        const SizedBox(height: kSpacingSmall),
+        
+        // Description text
+        Container(
+          padding: const EdgeInsets.all(kSpacingSmall),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
           ),
-          leading: Radio<String>(
-            value: 'shared',
-            groupValue: _defaultFormat,
-            onChanged: _isSaving
-                ? null
-                : (value) {
-                    if (value != null) {
-                      debugPrint('🔄 פורמט שונה ל: shared');
-                      setState(() => _defaultFormat = value);
-                    }
-                  },
-          ),
-        ),
-
-        // Assigned
-        ListTile(
-          title: Text(AppStrings.templates.formatAssigned),
-          subtitle: Text(
-            AppStrings.templates.formatAssignedDesc,
-            style: theme.textTheme.bodySmall,
-          ),
-          leading: Radio<String>(
-            value: 'assigned',
-            groupValue: _defaultFormat,
-            onChanged: _isSaving
-                ? null
-                : (value) {
-                    if (value != null) {
-                      debugPrint('🔄 פורמט שונה ל: assigned');
-                      setState(() => _defaultFormat = value);
-                    }
-                  },
+          child: Text(
+            _getFormatDescription(_defaultFormat),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
         ),
       ],
     );
+  }
+  
+  /// Get description for format
+  String _getFormatDescription(String format) {
+    switch (format) {
+      case 'personal':
+        return AppStrings.templates.formatPersonalDesc;
+      case 'shared':
+        return AppStrings.templates.formatSharedDesc;
+      case 'assigned':
+        return AppStrings.templates.formatAssignedDesc;
+      default:
+        return '';
+    }
   }
 
   // ========================================
@@ -502,7 +499,7 @@ class _TemplateFormScreenState extends State<TemplateFormScreen> {
 
                   // קטגוריה
                   DropdownButtonFormField<String>(
-                    value: category,
+                    initialValue: category,
                     decoration: InputDecoration(
                       labelText: AppStrings.templates.itemCategoryLabel,
                       hintText: AppStrings.templates.itemCategoryHint,

@@ -541,14 +541,14 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
     final navigator = Navigator.of(context);
     final provider = context.read<TemplatesProvider>();
 
-    final result = await navigator.push<bool>(
+    final result = await navigator.push<bool?>(
       MaterialPageRoute(
         builder: (_) => TemplateFormScreen(template: template),
       ),
     );
 
     // רענון אם נוצר/עודכן
-    if (result == true && mounted) {
+    if (mounted && result == true) {
       debugPrint('✅ חזרה מטופס - מרענן רשימה');
       provider.loadTemplates();
     }
@@ -614,7 +614,9 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
   ) async {
     debugPrint('🗑️ מוחק תבנית: ${template.name}');
 
-    // שמירת references לפני async
+    // בדוק mounted לפני שימוש ב-context
+    if (!mounted) return;
+    
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     final theme = Theme.of(context);
 

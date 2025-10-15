@@ -90,7 +90,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
     super.dispose();
   }
 
-  /// הטיפול בהגשת הטופס - validation + שמירה
+  /// הטיפול בהגשת הטופס - validation and שמירה
   ///
   /// תהליך:
   /// 1. בדיקת validation של הטופס

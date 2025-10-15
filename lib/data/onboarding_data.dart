@@ -362,7 +362,7 @@ class OnboardingData {
         prefs,
         OnboardingPrefsKeys.familySize,
         () => prefs.setInt(OnboardingPrefsKeys.familySize, familySize),
-      )) failedFields.add('familySize');
+      )) {failedFields.add('familySize');}
 
       if (!await _saveField(
         prefs,
@@ -371,7 +371,7 @@ class OnboardingData {
           OnboardingPrefsKeys.preferredStores,
           validatedStores.toList()..sort(), // ממוין לדטרמיניזם
         ),
-      )) failedFields.add('preferredStores');
+      )) {failedFields.add('preferredStores');}
 
       if (!await _saveField(
         prefs,
@@ -380,7 +380,7 @@ class OnboardingData {
           OnboardingPrefsKeys.monthlyBudget,
           monthlyBudget,
         ),
-      )) failedFields.add('monthlyBudget');
+      )) {failedFields.add('monthlyBudget');}
 
       if (!await _saveField(
         prefs,
@@ -389,19 +389,19 @@ class OnboardingData {
           OnboardingPrefsKeys.importantCategories,
           validatedCategories.toList()..sort(), // ממוין לדטרמיניזם
         ),
-      )) failedFields.add('importantCategories');
+      )) {failedFields.add('importantCategories');}
 
       if (!await _saveField(
         prefs,
         OnboardingPrefsKeys.shareLists,
         () => prefs.setBool(OnboardingPrefsKeys.shareLists, shareLists),
-      )) failedFields.add('shareLists');
+      )) {failedFields.add('shareLists');}
 
       if (!await _saveField(
         prefs,
         OnboardingPrefsKeys.reminderTime,
         () => prefs.setString(OnboardingPrefsKeys.reminderTime, validatedTime),
-      )) failedFields.add('reminderTime');
+      )) {failedFields.add('reminderTime');}
 
       final success = failedFields.isEmpty;
 
