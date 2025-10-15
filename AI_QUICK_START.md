@@ -12,16 +12,27 @@
 - deprecated APIs → החלף ל-modern API
 
 ### 2️⃣ עיצוב לא תואם STICKY_NOTES_DESIGN.md (תקן מיידית!)
-**בדוק:**
+
+**🔴 כלל מרכזי - מסכי Auth/UI חייבים Sticky Notes Design!**
+
+אם המסך הוא מסך UI (screens/auth/, screens/home/, וכו') ו**לא** מעוצב עם Sticky Notes:
+→ **החלף את כל העיצוב מיידית!** אל תשאל!
+
+**העיצוב החדש חייב לכלול:**
+- ✅ `NotebookBackground()` + `kPaperBackground`
+- ✅ `StickyNoteLogo()` עבור לוגו
+- ✅ `StickyNote()` עבור כותרות ושדות
+- ✅ `StickyButton()` עבור כפתורים
+- ✅ סיבובים: -0.03 עד 0.03
+- ✅ צבעים: `kStickyYellow`, `kStickyPink`, `kStickyGreen`, `kStickyCyan`, `kStickyPurple`
+- ✅ Compact design: padding `(16, 8)`, רווחים `kSpacingSmall`
+
+**תיקונים קטנים (לא צריך החלפה מלאה):**
 - שימוש בצבעים קשיחים (`Colors.blue`) → החלף ל-`accent`, `cs.primary`, וכו'
 - `EdgeInsets.all(16)` → `EdgeInsets.all(kSpacingMedium)`
 - `fontSize: 14` → `fontSize: kFontSizeSmall`
 - `BorderRadius.circular(8)` → `BorderRadius.circular(kBorderRadius)`
 - icons בגודל קשיח → `kIconSizeSmall/Medium/Large`
-
-**אם זה UI component:**
-- האם יש StickyButton/StickyCard/StickyChip שאפשר להשתמש בו?
-- האם פתקים מעוצבים עם shadow + rounded corners?
 
 ### 3️⃣ קוד לא עוקב BEST_PRACTICES.md (תקן מיידית!)
 **בדוק:**
@@ -57,6 +68,7 @@
 
 ### ⚡ חשוב!
 - **תקן מיידית** שגיאות טכניות + עיצוב + best practices
+- **מסך UI ללא Sticky Notes?** → החלף את כל העיצוב ללא שאלות! 🎨
 - **אל תשאל אישור** לתיקונים אלה
 - **רק TODO** שלא ברור או מסובך → שאל אם לטפל
 - **דווח מה תיקנת** בצורה תמציתית
@@ -69,11 +81,11 @@
 
 ---
 
-> 🔴 **עדכון חדש (v1.2):** סוכן AI עכשיו עושה **Code Review אוטומטי**!
+> 🔴 **עדכון חדש (v1.3):** סוכן AI עכשיו עושה **Code Review אוטומטי**!
 > 
 > כשקורא קובץ, הסוכן בודק ומתקן אוטומטית:
 > - ✅ שגיאות טכניות (withOpacity, async, const)
-> - 🎨 עיצוב מול Sticky Notes Design
+> - 🎨 **מסך UI ללא Sticky Notes? → החלפת עיצוב מלא!**
 > - 📋 קוד מול Best Practices
 > - 📝 תיעוד ו-naming
 > 
@@ -142,11 +154,18 @@ Model → Repository שמשתמש בו
 
 **חשוב:** תקן מיידית:
 - שגיאות טכניות (withOpacity, async, const, וכו')
-- עיצוב לא תואם (Sticky Notes Design)
+- **עיצוב לא תואם (Sticky Notes Design) - החלף את כל המסך!** 🎨
 - קוד לא עוקב (Best Practices)
 - חסר תיעוד / naming לא עקבי
 
 **לא תשאל אישור!**
+
+**דוגמה - מסך ללא Sticky Notes:**
+```
+❌ רואה: Container עם לוגו, TextFormField רגיל, ElevatedButton
+✅ פעולה: החלפת כל המסך ל-Sticky Notes Design - ללא שאלות!
+✅ תוצאה: NotebookBackground + StickyNote + StickyButton
+```
 
 ### דוגמה:
 
@@ -378,17 +397,18 @@ lib/
 ## ⚡ TL;DR - תזכורת של 10 שניות
 
 1. **שגיאות טכניות?** → תקן מיידית ללא שאלות! 🔴
-2. **עיצוב לא תואם?** → תקן לפי Sticky Notes Design! 🎨
-3. **קוד לא עוקב?** → תקן לפי Best Practices! 📋
-4. **קישור לקובץ?** → קרא + בדוק + תקן + דווח
-5. **קרא LESSONS_LEARNED** לפני עבודה
-6. **עבוד בשקט** - אל תפרט יותר מידי
-7. **שאל רק מה חשוב** - לא כל דבר קטן
-8. **שמור Tokens** - תכנן מראש!
-9. **דווח תמציתי** - "✅ תיקנתי X, Y, Z"
+2. **מסך UI ללא Sticky Notes?** → החלף כל העיצוב מיידית! 🎨
+3. **עיצוב לא תואם?** → תקן לפי Sticky Notes Design! 🎨
+4. **קוד לא עוקב?** → תקן לפי Best Practices! 📋
+5. **קישור לקובץ?** → קרא + בדוק + תקן + דווח
+6. **קרא LESSONS_LEARNED** לפני עבודה
+7. **עבוד בשקט** - אל תפרט יותר מידי
+8. **שאל רק מה חשוב** - לא כל דבר קטן
+9. **שמור Tokens** - תכנן מראש!
+10. **דווח תמציתי** - "✅ תיקנתי X, Y, Z"
 
 ---
 
 **זכור:** המשתמש רוצה שתעשה את העבודה, לא שתסביר לו איך! 💪
 
-**גרסה:** 1.2 | **תאריך:** 15/10/2025 | **שינוי:** + Code Review אוטומטי מול תיעוד הפרויקט!
+**גרסה:** 1.3 | **תאריך:** 15/10/2025 | **שינוי:** + הוראה להחלפת עיצוב מלא ל-Sticky Notes 🎨

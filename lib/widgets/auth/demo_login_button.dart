@@ -1,22 +1,18 @@
 // 📄 File: lib/widgets/auth/demo_login_button.dart
-// תיאור: כפתור כניסה מהירה עם משתמשים אמיתיים מ-Firebase
+// תיאור: כפתור כניסה מהירה עם משפחת לוי - משתמשים אמיתיים מ-Firebase
 //
-// עדכונים (15/10/2025): 🎨📝
+// עדכונים (15/10/2025): 👨‍👩‍👧‍👦 משפחת לוי!
+// ✅ עודכן עם משפחת לוי החדשה (5 משתמשים)
 // ✅ Sticky Notes Design System!
 // ✅ כפתורי בחירה בפתקים צבעוניים
 // ✅ כפתור התחברות ב-StickyButton
 // ✅ Visual feedback משופר
-// ✅ תוקן: async callbacks
 // ✅ רווחים מצומצמים למסך אחד 📐
 //
 // עדכונים קודמים (14/10/2025):
 // ✅ UI משופר - כפתורים בשתי שורות
-// ✅ טקסט קצר יותר - "יוני (דמו)"
+// ✅ טקסט קצר יותר
 // ✅ Responsive - מתאים למסכים קטנים
-//
-// עדכונים קודמים (05/10/2025):
-// ✅ שימוש ב-Firebase Authentication
-// ✅ 3 משתמשים מוכנים: יוני, שרה, דני
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -27,12 +23,12 @@ import '../common/sticky_note.dart';
 import '../common/sticky_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// כפתור כניסה מהירה למשתמש דמו
+/// כפתור כניסה מהירה למשתמש דמו - משפחת לוי 👨‍👩‍👧‍👦
 ///
-/// 3 משתמשים זמינים:
-/// 1. יוני - yoni@demo.com (סיסמה: Demo123!)
-/// 2. שרה - sarah@demo.com (סיסמה: Demo123!)
-/// 3. דני - danny@demo.com (סיסמה: Demo123!)
+/// משתמשים זמינים:
+/// 1. אבי לוי (אבא) - avi.levi@demo.com (סיסמה: Demo2025!)
+/// 2. מיכל לוי (אמא) - michal.levi@demo.com (סיסמה: Demo2025!)
+/// 3. תומר לוי (בן) - tomer.levi@demo.com (סיסמה: Demo2025!)
 class DemoLoginButton extends StatefulWidget {
   const DemoLoginButton({super.key});
 
@@ -42,30 +38,36 @@ class DemoLoginButton extends StatefulWidget {
 
 class _DemoLoginButtonState extends State<DemoLoginButton> {
   bool _isLoading = false;
-  String _selectedUser = 'yoni'; // ברירת מחדל
+  String _selectedUser = 'avi'; // ברירת מחדל - אבי (אבא)
 
-  // משתמשי דמו זמינים
+  // 👨‍👩‍👧‍👦 משפחת לוי - משתמשי דמו זמינים
   final Map<String, Map<String, String>> _demoUsers = {
-    'yoni': {
-      'email': 'yoni@demo.com',
-      'password': 'Demo123!',
-      'name': 'יוני',
-      'shortName': 'יוני',
-      'householdId': 'house_demo',
+    'avi': {
+      'email': 'avi.levi@demo.com',
+      'password': 'Demo2025!',
+      'name': 'אבי',
+      'fullName': 'אבי לוי',
+      'shortName': 'אבי',
+      'householdId': 'house_levi_demo',
+      'role': 'אבא',
     },
-    'sarah': {
-      'email': 'sarah@demo.com',
-      'password': 'Demo123!',
-      'name': 'שרה',
-      'shortName': 'שרה',
-      'householdId': 'house_demo',
+    'michal': {
+      'email': 'michal.levi@demo.com',
+      'password': 'Demo2025!',
+      'name': 'מיכל',
+      'fullName': 'מיכל לוי',
+      'shortName': 'מיכל',
+      'householdId': 'house_levi_demo',
+      'role': 'אמא',
     },
-    'danny': {
-      'email': 'danny@demo.com',
-      'password': 'Demo123!',
-      'name': 'דני',
-      'shortName': 'דני',
-      'householdId': 'house_demo',
+    'tomer': {
+      'email': 'tomer.levi@demo.com',
+      'password': 'Demo2025!',
+      'name': 'תומר',
+      'fullName': 'תומר לוי',
+      'shortName': 'תומר',
+      'householdId': 'house_levi_demo',
+      'role': 'בן',
     },
   };
 
@@ -78,7 +80,7 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
       final email = demoUser['email']!;
       final password = demoUser['password']!;
 
-      debugPrint('🔐 DemoLogin: מתחבר כ-${demoUser['name']} ($email)');
+      debugPrint('🔐 DemoLogin: מתחבר כ-${demoUser['fullName']} ($email)');
 
       // 1. התחברות עם Firebase Auth
       final userContext = context.read<UserContext>();
@@ -105,7 +107,7 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
                 const SizedBox(width: kSpacingSmall),
                 Expanded(
                   child: Text(
-                    '✅ התחברת בהצלחה כ${demoUser['name']}!',
+                    '✅ התחברת בהצלחה כ${demoUser['fullName']}!',
                     style: const TextStyle(fontSize: kFontSizeSmall),
                   ),
                 ),
@@ -175,7 +177,7 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
             child: Column(
               children: [
                 Text(
-                  'בחר משתמש:',
+                  'בחר משתמש ממשפחת לוי:',
                   style: theme.textTheme.bodySmall?.copyWith(
                     fontWeight: FontWeight.w600,
                     fontSize: kFontSizeTiny, // 📐 הקטנה
@@ -185,33 +187,36 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // כפתור יוני
+                    // כפתור אבי (אבא)
                     _buildQuickUserButton(
                       context: context,
-                      userId: 'yoni',
+                      userId: 'avi',
                       icon: Icons.person,
-                      label: 'יוני',
-                      isSelected: _selectedUser == 'yoni',
+                      label: 'אבי',
+                      subtitle: 'אבא',
+                      isSelected: _selectedUser == 'avi',
                     ),
                     const SizedBox(width: kSpacingXSmall), // 📐 רווח מצומצם
                     
-                    // כפתור שרה
+                    // כפתור מיכל (אמא)
                     _buildQuickUserButton(
                       context: context,
-                      userId: 'sarah',
+                      userId: 'michal',
                       icon: Icons.person,
-                      label: 'שרה',
-                      isSelected: _selectedUser == 'sarah',
+                      label: 'מיכל',
+                      subtitle: 'אמא',
+                      isSelected: _selectedUser == 'michal',
                     ),
                     const SizedBox(width: kSpacingXSmall), // 📐 רווח מצומצם
                     
-                    // כפתור דני
+                    // כפתור תומר (בן)
                     _buildQuickUserButton(
                       context: context,
-                      userId: 'danny',
+                      userId: 'tomer',
                       icon: Icons.person,
-                      label: 'דני',
-                      isSelected: _selectedUser == 'danny',
+                      label: 'תומר',
+                      subtitle: 'בן',
+                      isSelected: _selectedUser == 'tomer',
                     ),
                   ],
                 ),
@@ -242,6 +247,7 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
     required String userId,
     required IconData icon,
     required String label,
+    required String subtitle,
     required bool isSelected,
   }) {
     final theme = Theme.of(context);
@@ -285,6 +291,16 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
                   fontSize: 10, // 📐 הקטנה מאוד
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                   color: isSelected ? cs.primary : cs.onSurfaceVariant,
+                ),
+              ),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 8, // 📐 הקטנה מאוד
+                  fontWeight: FontWeight.w400,
+                  color: isSelected 
+                      ? cs.primary.withValues(alpha: 0.7)
+                      : cs.onSurfaceVariant.withValues(alpha: 0.6),
                 ),
               ),
             ],

@@ -3,7 +3,7 @@
 # 🤖 AI Development Guidelines - salsheli Project
 
 > **מטרה:** מדריך טכני מקיף לסוכני AI - טבלת בעיות + Code Review + Modern UI/UX  
-> **עדכון:** 14/10/2025 | **גרסה:** 8.0 - Modern UI/UX Patterns  
+> **עדכון:** 15/10/2025 | **גרסה:** 8.1 - Sticky Notes + Best Practices Integration  
 > 💡 **לדוגמאות מפורטות:** ראה [LESSONS_LEARNED.md](LESSONS_LEARNED.md)  
 > 🤖 **להוראות התנהגות סוכן:** ראה [AI_QUICK_START.md](AI_QUICK_START.md) ⭐
 
@@ -54,9 +54,10 @@
 12. **Cache למהירות** → O(1) במקום O(n) עם `_cachedFiltered`
 13. **Config Files** → patterns/constants במקום אחד = maintainability
 14. **נתיבי קבצים מלאים!** → `C:\projects\salsheli\...` תמיד! ⭐
-15. **Skeleton + Animations** → Loading מקצועי + UI חי ⭐ (חדש!)
+15. **Sticky Notes + i18n + withValues** → עיצוב עקבי + טקסטים תרגימים + API מודרני ⭐ (חדש!)
 
 📖 **מקור:** [LESSONS_LEARNED - 13 עקרונות הזהב](LESSONS_LEARNED.md#-13-עקרונות-הזהב)
+📘 **עוד:** [BEST_PRACTICES.md](BEST_PRACTICES.md)
 
 ### ⚡ בדיקה מהירה (5 דק')
 
@@ -379,6 +380,9 @@ rm -rf lib/old/
 | `mockResults` / `mock`   | Mock Data   | Provider אמיתי        |
 | `padding: 16`            | Hardcoded   | `kSpacingMedium`      |
 | `await saveAll()` בלולאה | Performance | Batch Processing      |
+| `'טקסט קשיח'`        | i18n        | `AppStrings.section.text` |
+| `Colors.blue`            | Hardcoded   | `accent` / `cs.primary` |
+| `onPressed: _asyncFunc`  | Type error  | `() => _asyncFunc()`  |
 
 ---
 
@@ -430,18 +434,40 @@ class MyProvider extends ChangeNotifier {
 // ✅ חובה לבדוק:
 - SafeArea + SingleChildScrollView
 - Consumer לקריאה | context.read לפעולות
-- כפתורים 48x48 מינימום
+- כפתורים 48x48 מינימום (44px ל-compact)
 - padding symmetric (RTL)
 - 3-4 Empty States (Loading/Error/Empty/Initial)
 - dispose חכם (שמור provider ב-initState)
+
+// 🎨 Sticky Notes Design בדיקות:
+- האם צבעים מ-AppBrand? (accent, stickyYellow, stickyPink...)
+- האם רווחים מ-ui_constants? (kSpacingSmall/Medium/Large)
+- האם יש NotebookBackground + kPaperBackground?
+- האם משתמשים ב-StickyNote/StickyButton/StickyNoteLogo?
+- האם סיבובים בטווח (-0.03 עד 0.03)?
+
+// 📏 Compact Design (אם רלוונטי):
+- padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8)
+- רווחים: 8px בין אלמנטים (לא 16px)
+- Transform.scale(scale: 0.85) ללוגו
+- גובה כפתורים: 44px
+- טקסט: 24/14/11px
+
+// 🐛 שגיאות נפוצות:
+- async callback לא עטוף → עטוף בlambda: () => func()
+- withOpacity → withValues(alpha: ...)
+- חסר i18n → AppStrings.סקציה.text
 
 // 💡 שקול להוסיף (Modern UI):
 - Skeleton Screen במקום CircularProgressIndicator
 - Micro Animations לכפתורים ופריטים
 ```
 
-📖 **UI/UX Review מלא:** [LESSONS - UI/UX Review](LESSONS_LEARNED.md#uiux-review)  
-📖 **Modern UI Patterns:** [→ Skeleton + Animations](#-modern-uiux-patterns)
+📖 **מדריכים מלאים:**
+- [STICKY_NOTES_DESIGN.md](STICKY_NOTES_DESIGN.md) - מערכת עיצוב מפורטת
+- [BEST_PRACTICES.md](BEST_PRACTICES.md) - Compact Design + Async + עוד
+- [LESSONS - UI/UX Review](LESSONS_LEARNED.md#uiux-review) - דוגמאות קוד
+- [→ Skeleton + Animations](#-modern-uiux-patterns) - Modern UI Patterns
 
 ---
 
@@ -525,7 +551,47 @@ class FirebaseMyRepository implements MyRepository {
 
 ### 🎨 דפוסים חובה
 
-#### 1. אין Mock Data
+#### 1. i18n - תמיכה בתרגום
+
+```dart
+// ❌ אסור - טקסטים קשיחים
+title: const Text("יצירת רשימה חדשה")
+SnackBar(content: Text('הפעולה הצליחה!'))
+
+// ✅ חובה - AppStrings
+title: Text(AppStrings.createListDialog.title)
+SnackBar(content: Text(AppStrings.common.successMessage))
+```
+
+**מבנה AppStrings:**
+```dart
+// lib/l10n/app_strings.dart
+class AppStrings {
+  static const auth = _AuthStrings();
+  static const common = _CommonStrings();
+  static const createListDialog = _CreateListDialogStrings();
+  // ...
+}
+
+class _AuthStrings {
+  const _AuthStrings();
+  
+  String get loginTitle => 'התחברות';
+  String get emailLabel => 'אימייל';
+  // ...
+}
+```
+
+**יתרונות:**
+- ✅ תרגום פשוט בעתיד
+- ✅ תיקוני טקסטים במקום אחד
+- ✅ עקביות בכל האפליקציה
+
+📖 [IMPROVEMENTS_SUMMARY - i18n Patterns](IMPROVEMENTS_SUMMARY.md)
+
+---
+
+#### 2. אין Mock Data
 
 ```dart
 // ❌ אסור
@@ -540,7 +606,7 @@ final results = await provider.searchItems(term);
 
 ---
 
-#### 2. 3-4 Empty States
+#### 3. 3-4 Empty States
 
 ```dart
 if (provider.isLoading) return _buildLoading();
@@ -554,7 +620,7 @@ return _buildContent();
 
 ---
 
-#### 3. Undo Pattern
+#### 4. Undo Pattern
 
 ```dart
 SnackBar(
@@ -568,22 +634,24 @@ SnackBar(
 )
 ```
 
+📘 **עוד Best Practices:** [BEST_PRACTICES.md](BEST_PRACTICES.md)  
 📖 [LESSONS - Undo Pattern](LESSONS_LEARNED.md#undo-pattern)
 
 ---
 
-#### 4. Visual Feedback
+#### 5. Visual Feedback
 
 ```dart
 // ✅ הצלחה = ירוק | ❌ שגיאה = אדום | ⚠️ אזהרה = כתום
 SnackBar(backgroundColor: Colors.green, ...)
 ```
 
+📘 **לפרטים:** [BEST_PRACTICES.md - UX Best Practices](BEST_PRACTICES.md#-ux-best-practices)  
 📖 [LESSONS - Visual Feedback](LESSONS_LEARNED.md#visual-feedback)
 
 ---
 
-#### 5. Batch Processing (Performance)
+#### 6. Batch Processing (Performance)
 
 ```dart
 // ❌ איטי - שומר 1000+ items בבת אחת
@@ -1120,6 +1188,9 @@ final location = '🧊'  // hardcoded emoji!
 | קובץ                                         | תוכן                                | מתי לקרוא        |
 | -------------------------------------------- | ----------------------------------- | ---------------- |
 | **[LESSONS_LEARNED.md](LESSONS_LEARNED.md)** | דפוסים טכניים מפורטים + דוגמאות קוד | כשצריך הסבר עמוק |
+| **[BEST_PRACTICES.md](BEST_PRACTICES.md)** | Compact Design, Async, withValues, UX | כשעובדים על UI/UX |
+| **[STICKY_NOTES_DESIGN.md](STICKY_NOTES_DESIGN.md)** | מערכת עיצוב מלאה | כשיוצרים UI |
+| **[IMPROVEMENTS_SUMMARY.md](IMPROVEMENTS_SUMMARY.md)** | i18n, תבניות, Validation | כשעובדים על dialogs |
 | **[WORK_LOG.md](WORK_LOG.md)**               | היסטוריה + שינויים אחרונים          | בתחילת כל שיחה   |
 | **[README.md](README.md)**                   | Overview + Setup + Dependencies     | Setup ראשוני     |
 
@@ -1246,8 +1317,12 @@ await provider.createTemplate(template);
 - Constants (lib/core/ + lib/config/)
 - UserContext Integration ב-Providers
 - Batch Processing לפעולות כבדות (100+ items)
-- **Skeleton במקום CircularProgressIndicator** ⭐ (חדש!)
-- **Micro Animations לאינטראקציות** ⭐ (חדש!)
+- **Sticky Notes Design** - עקביות בעיצוב ⭐ (חדש!)
+- **i18n** - AppStrings לכל הטקסטים ⭐ (חדש!)
+- **withValues** - לא withOpacity ⭐ (חדש!)
+- **Async callbacks** - עטוף בlambda ⭐ (חדש!)
+- **Skeleton במקום CircularProgressIndicator** ⭐
+- **Micro Animations לאינטראקציות** ⭐
 
 ### ❌ אל תעשה
 
@@ -1262,11 +1337,16 @@ await provider.createTemplate(template);
 - אל תשתמש ב-Mock Data
 - אל תשכח Repository Pattern (לא Firebase ישירות ב-Provider!)
 - אל תשמור 1000+ items בבת אחת (Batch Processing!)
-- **אל תשאיר CircularProgressIndicator בלי שקול Skeleton** ⭐ (חדש!)
-- **אל תעשה אנימציות ארוכות מ-400ms** ⭐ (חדש!)
+- **אל תשתמש ב-withOpacity** - → withValues(alpha: ...) ⭐ (חדש!)
+- **אל תשתמש בטקסטים קשיחים** - → AppStrings.section.text ⭐ (חדש!)
+- **אל תעביר async function ישירות** - → עטוף בlambda ⭐ (חדש!)
+- **אל תשתמש בצבעים קשיחים** - → accent/cs.primary/AppBrand ⭐ (חדש!)
+- **אל תשאיר CircularProgressIndicator בלי שקול Skeleton** ⭐
+- **אל תעשה אנימציות ארוכות מ-400ms** ⭐
 
-### 🎨 Modern UI/UX (חדש! v8.0)
+### 🎨 Modern UI/UX (v8.0-8.1)
 
+- ✅ **Sticky Notes Design System** - עיצוב עקבי עם פתקים צבעוניים ⭐ (v8.1)
 - ✅ Skeleton Screens ב-5+ מסכים מרכזיים
 - ✅ Button Animations בכל הכפתורים
 - ✅ List Animations להוספה/מחיקה
@@ -1274,6 +1354,8 @@ await provider.createTemplate(template);
 - ✅ SnackBar Animations להתראות
 - ✅ Counter Animations למספרים
 - ✅ Page Transitions (RTL aware)
+- ✅ **i18n** - AppStrings לתמיכה בתרגום ⭐ (v8.1)
+- ✅ **Compact Design** - רווחים מצומצמים ⭐ (v8.1)
 
 ### 🆕 Templates System
 
@@ -1290,7 +1372,14 @@ await provider.createTemplate(template);
 
 ---
 
-**גרסה:** 8.0 - Modern UI/UX Patterns (900+ שורות)  
+**גרסה:** 8.1 - Sticky Notes + Best Practices Integration (950+ שורות)  
 **תאימות:** Flutter 3.27+ | Mobile Only  
-**עדכון:** 14/10/2025  
+**עדכון:** 15/10/2025  
+**שינויים ב-v8.1:**
+- ✅ הוספתי Sticky Notes Design ל-Screen Review
+- ✅ הוספתי Compact Design בדיקות
+- ✅ הוספתי i18n patterns
+- ✅ הוספתי async callbacks + withValues לטבלת בדיקות
+- ✅ קישור ל-BEST_PRACTICES.md, STICKY_NOTES_DESIGN.md, IMPROVEMENTS_SUMMARY.md
+
 **Made with ❤️ by AI & Humans** 🤖🤝👨‍💻

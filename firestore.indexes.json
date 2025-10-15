@@ -1,31 +1,100 @@
 {
   "indexes": [
     {
+      "collectionGroup": "templates",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "is_system", "order": "ASCENDING" },
+        { "fieldPath": "name", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "templates",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "is_system", "order": "ASCENDING" },
+        { "fieldPath": "sort_order", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "templates",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "household_id", "order": "ASCENDING" },
+        { "fieldPath": "sort_order", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "templates",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "default_format", "order": "ASCENDING" },
+        { "fieldPath": "is_system", "order": "ASCENDING" },
+        { "fieldPath": "user_id", "order": "ASCENDING" },
+        { "fieldPath": "updated_date", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "templates",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "is_system", "order": "ASCENDING" },
+        { "fieldPath": "user_id", "order": "ASCENDING" },
+        { "fieldPath": "default_format", "order": "ASCENDING" },
+        { "fieldPath": "updated_date", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "templates",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "is_system", "order": "ASCENDING" },
+        { "fieldPath": "household_id", "order": "ASCENDING" },
+        { "fieldPath": "default_format", "order": "ASCENDING" },
+        { "fieldPath": "updated_date", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "templates",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "is_system", "order": "ASCENDING" },
+        { "fieldPath": "default_format", "order": "ASCENDING" },
+        { "fieldPath": "assigned_to", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "updated_date", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "templates",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "is_system", "order": "ASCENDING" },
+        { "fieldPath": "user_id", "order": "ASCENDING" },
+        { "fieldPath": "updated_date", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "shopping_lists",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "household_id", "order": "ASCENDING" },
+        { "fieldPath": "updated_date", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "receipts",
       "queryScope": "COLLECTION",
       "fields": [
-        {
-          "fieldPath": "household_id",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "date",
-          "order": "DESCENDING"
-        }
+        { "fieldPath": "household_id", "order": "ASCENDING" },
+        { "fieldPath": "date", "order": "DESCENDING" }
       ]
     },
     {
       "collectionGroup": "inventory",
       "queryScope": "COLLECTION",
       "fields": [
-        {
-          "fieldPath": "household_id",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "product_name",
-          "order": "ASCENDING"
-        }
+        { "fieldPath": "household_id", "order": "ASCENDING" },
+        { "fieldPath": "product_name", "order": "ASCENDING" }
       ]
     }
   ],

@@ -102,6 +102,9 @@ class UserContext with ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   StreamSubscription<firebase_auth.User?>? _authSubscription;
+  
+  // 🔒 דגל למניעת Race Condition בזמן רישום
+  bool _isSigningUp = false;
 
   // --- UI Preferences ---
   ThemeMode _themeMode = ThemeMode.system;
@@ -255,6 +258,12 @@ class UserContext with ChangeNotifier {
         debugPrint('   User: ${firebaseUser?.email ?? "null"}');
 
         if (firebaseUser != null) {
+          // 🔒 אם אנחנו בתהליך רישום - אל תיצור משתמש כאן!
+          if (_isSigningUp) {
+            debugPrint('   ⏳ במהלך רישום - מדלג על טעינה אוטומטית');
+            return;
+          }
+          
           // משתמש התחבר - טען את הפרטים מ-Firestore (async)
           _loadUserFromFirestore(firebaseUser.uid).then((_) {
             debugPrint('   ✅ טעינת משתמש הושלמה אסינכרונית');
@@ -364,6 +373,7 @@ class UserContext with ChangeNotifier {
     debugPrint('📝 UserContext.signUp: רושם משתמש - $email');
 
     _isLoading = true;
+    _isSigningUp = true; // 🔒 נעילת listener
     _errorMessage = null;
     notifyListeners();
     debugPrint('   🔔 UserContext: notifyListeners() (isLoading=true)');
@@ -395,6 +405,7 @@ class UserContext with ChangeNotifier {
       rethrow;
     } finally {
       _isLoading = false;
+      _isSigningUp = false; // 🔓 שחרור listener
       notifyListeners();
       debugPrint('   🔔 UserContext: notifyListeners() (signup completed)');
     }

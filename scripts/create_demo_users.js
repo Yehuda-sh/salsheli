@@ -1,201 +1,109 @@
-#!/usr/bin/env node
-
-// 📄 File: scripts/create_demo_users.js
-// תיאור: Script ליצירת 3 משתמשי דמו ב-Firebase Authentication + Firestore
-//
-// מה הסקריפט יוצר:
-// ✅ 3 משתמשים ב-Firebase Auth (yoni, sarah, danny)
-// ✅ 3 רשומות משתמש ב-Firestore (collection: users)
-// ✅ כולם משוייכים ל-household_id: 'house_demo'
-//
+// ✨ Script ליצירת משתמשי דמו נכונים ב-Firestore
+// 
 // שימוש:
-//   1. ודא ש-firebase-service-account.json קיים ב-scripts/
-//   2. הרץ: node scripts/create_demo_users.js
-//   או:  npm run create-users
+// 1. הרץ קודם: node scripts/find_demo_uids.js
+// 2. העתק את ה-UIDs שמצאת למטה
+// 3. הרץ: node scripts/create_demo_users.js
 
 const admin = require('firebase-admin');
-const path = require('path');
 
-// ======== הגדרות ========
+admin.initializeApp();
+const db = admin.firestore();
+const auth = admin.auth();
 
-const serviceAccountPath = path.join(__dirname, 'firebase-service-account.json');
-
-const DEMO_USERS = [
+// 🔴 חשוב! תעדכן את ה-UIDs האמיתיים כאן אחרי שתריץ את find_demo_uids.js
+const demoUsers = [
   {
-    email: 'yoni@demo.com',
-    password: 'Demo123!',
-    displayName: 'יוני',
-    uid: 'yoni_demo_user',
-  },
-  {
-    email: 'sarah@demo.com',
-    password: 'Demo123!',
-    displayName: 'שרה',
-    uid: 'sarah_demo_user',
-  },
-  {
+    // 👇 עדכן את ה-UID האמיתי כאן!
+    uid: 'PASTE_DANNY_UID_HERE',
+    name: 'דני',
     email: 'danny@demo.com',
-    password: 'Demo123!',
-    displayName: 'דני',
-    uid: 'danny_demo_user',
   },
+  {
+    // 👇 עדכן את ה-UID האמיתי כאן!
+    uid: 'PASTE_SARAH_UID_HERE',
+    name: 'שרה',
+    email: 'sarah@demo.com',
+  },
+  {
+    // 👇 עדכן את ה-UID האמיתי כאן!
+    uid: 'PASTE_YONI_UID_HERE',
+    name: 'יוני',
+    email: 'yoni@demo.com',
+  }
 ];
 
-// ======== אתחול Firebase Admin ========
-
-try {
-  const serviceAccount = require(serviceAccountPath);
-  
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
-  
-  console.log('✅ Firebase Admin initialized successfully\n');
-} catch (error) {
-  console.error('❌ Failed to initialize Firebase Admin:');
-  console.error('   Error:', error.message);
-  console.error('\n📝 Instructions:');
-  console.error('   1. Go to Firebase Console');
-  console.error('   2. Project Settings → Service Accounts');
-  console.error('   3. Generate new private key');
-  console.error('   4. Save as: scripts/firebase-service-account.json');
-  console.error('   5. Run: npm run create-users\n');
-  process.exit(1);
-}
-
-// ======== פונקציות עזר ========
-
-/**
- * יוצר משתמש ב-Firebase Auth
- */
-async function createUser(userData) {
-  const { email, password, displayName, uid } = userData;
-  
-  console.log(`📝 Creating user: ${displayName} (${email})`);
+async function createDemoUsers() {
+  console.log('✨ יוצר משתמשי דמו נכונים...');
+  console.log('');
   
   try {
-    // בדיקה אם המשתמש כבר קיים
-    try {
-      const existingUser = await admin.auth().getUserByEmail(email);
-      console.log(`   ⚠️  User already exists with UID: ${existingUser.uid}`);
-      
-      // עדכון המשתמש הקיים
-      await admin.auth().updateUser(existingUser.uid, {
-        password: password,
-        displayName: displayName,
-      });
-      
-      console.log(`   ✅ Updated existing user`);
-      return existingUser;
-    } catch (error) {
-      if (error.code !== 'auth/user-not-found') {
-        throw error;
+    // שלב 1: מחיקת משתמשים ישנים
+    console.log('🧹 מוחק משתמשים ישנים...');
+    const oldIds = ['danny_demo_user', 'sarah_demo_user', 'yoni_demo_user'];
+    
+    for (const oldId of oldIds) {
+      try {
+        await db.collection('users').doc(oldId).delete();
+        console.log(`   ❌ נמחק: ${oldId}`);
+      } catch (e) {
+        console.log(`   ⚠️  לא נמצא: ${oldId}`);
       }
     }
+    console.log('');
     
-    // יצירת משתמש חדש
-    const newUser = await admin.auth().createUser({
-      uid: uid,
-      email: email,
-      password: password,
-      displayName: displayName,
-      emailVerified: true, // אימות אוטומטי לדמו
-    });
+    // שלב 2: יצירת משתמשים חדשים עם UIDs נכונים
+    console.log('✨ יוצר משתמשים חדשים...');
+    const now = admin.firestore.Timestamp.now();
     
-    console.log(`   ✅ Created new user with UID: ${newUser.uid}`);
-    return newUser;
-  } catch (error) {
-    console.error(`   ❌ Failed to create user: ${error.message}`);
-    throw error;
-  }
-}
-
-/**
- * יוצר רשומת משתמש ב-Firestore
- * 
- * ⚠️ חשוב: המבנה חייב לתאום ל-UserEntity model!
- * ראה: lib/models/user_entity.dart
- */
-async function createFirestoreUser(authUser, displayName) {
-  const userId = authUser.uid;
-  
-  console.log(`💾 Creating Firestore document for: ${displayName}`);
-  
-  try {
-    // ✅ מבנה תואם ל-UserEntity
-    const userDoc = {
-      id: userId,
-      email: authUser.email,
-      name: displayName,
-      household_id: 'house_demo',  // ✅ snake_case
-      profile_image_url: null,     // ✅ תואם למודל
-      joined_at: admin.firestore.FieldValue.serverTimestamp(),
-      last_login_at: admin.firestore.FieldValue.serverTimestamp(),
-      preferred_stores: [],        // ✅ default value
-      favorite_products: [],       // ✅ default value
-      weekly_budget: 0.0,          // ✅ default value
-      is_admin: true,              // ✅ משתמש ראשון = admin
-    };
-    
-    await admin.firestore()
-      .collection('users')
-      .doc(userId)
-      .set(userDoc, { merge: true });
-    
-    console.log(`   ✅ Firestore document created`);
-  } catch (error) {
-    console.error(`   ❌ Failed to create Firestore document: ${error.message}`);
-    throw error;
-  }
-}
-
-// ======== Main ========
-
-async function main() {
-  console.log('🚀 Starting demo users creation...\n');
-  console.log('═══════════════════════════════════════════\n');
-  
-  let successCount = 0;
-  let failCount = 0;
-  
-  for (const userData of DEMO_USERS) {
-    try {
-      // יצירת משתמש ב-Auth
-      const authUser = await createUser(userData);
+    for (const user of demoUsers) {
+      if (user.uid.startsWith('PASTE_')) {
+        console.log(`❌ ${user.name}: עדכן את ה-UID קודם!`);
+        continue;
+      }
       
-      // יצירת רשומה ב-Firestore
-      await createFirestoreUser(authUser, userData.displayName);
+      // עדכון displayName ב-Firebase Auth
+      try {
+        await auth.updateUser(user.uid, {
+          displayName: user.name
+        });
+        console.log(`   🏷️  ${user.name}: עדכנתי displayName ב-Auth`);
+      } catch (e) {
+        console.log(`   ⚠️  ${user.name}: לא יכול לעדכן Auth - ${e.message}`);
+      }
       
-      console.log(`✅ Successfully created: ${userData.displayName}\n`);
-      successCount++;
-    } catch (error) {
-      console.error(`❌ Failed to create: ${userData.displayName}\n`);
-      failCount++;
+      // יצירת המסמך ב-Firestore עם UID נכון
+      const userData = {
+        id: user.uid, // ← UID אמיתי!
+        name: user.name,
+        email: user.email,
+        household_id: 'house_demo',
+        joined_at: now,
+        last_login_at: now,
+        preferred_stores: [],
+        favorite_products: [],
+        weekly_budget: 0,
+        is_admin: true,
+        profile_image_url: null
+      };
+      
+      await db.collection('users').doc(user.uid).set(userData);
+      console.log(`   ✅ ${user.name}: נוצר עם UID נכון (${user.uid})`);
     }
+    
+    console.log('');
+    console.log('🎉 הכל מוכן!');
+    console.log('');
+    console.log('🚀 עכשיו כשתתחבר עם משתמש דמו:');
+    console.log('   1. Firebase Auth יחזיר את ה-UID הנכון');
+    console.log('   2. הקוד ימצא את המשתמש ב-Firestore');
+    console.log('   3. הכל יעבוד מושלם! 🎯');
+    
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ שגיאה:', error);
+    process.exit(1);
   }
-  
-  console.log('═══════════════════════════════════════════\n');
-  console.log('📊 Summary:');
-  console.log(`   ✅ Success: ${successCount}`);
-  console.log(`   ❌ Failed: ${failCount}`);
-  console.log(`   📝 Total: ${DEMO_USERS.length}\n`);
-  
-  if (successCount === DEMO_USERS.length) {
-    console.log('🎉 All demo users created successfully!\n');
-    console.log('You can now login with:');
-    DEMO_USERS.forEach(user => {
-      console.log(`   • ${user.displayName}: ${user.email} / ${user.password}`);
-    });
-    console.log();
-  } else {
-    console.log('⚠️  Some users failed to create. Check the logs above.\n');
-  }
-  
-  process.exit(successCount === DEMO_USERS.length ? 0 : 1);
 }
 
-// הרצה
-main().catch(error => {
-  console.error('\n❌ Fatal error:', error);
-  process.exit(1);
-});
+createDemoUsers();

@@ -1994,6 +1994,91 @@ AI: "מצאתי! שורה 18 יש import.
 
 ⚠️ **הכלל:** **אל תנווט עד `isLoading == false`** ⭐ חדש!
 
+#### תרחיש 0: signUp Race Condition (חדש 15/10/2025!) ⭐
+
+**הבעיה:** Auth state listener ו-signUp function רצים במקביל
+
+```dart
+// ❌ רע - המשתמש נשמר פעמיים!
+Future<void> signUp() async {
+  // רישום ב-Firebase Auth
+  await _authService.signUp(...);
+  
+  // 💥 Race! Firebase שלח event → listener מגיב
+  
+  // יצירת משתמש ב-Firestore
+  _user = UserEntity.newUser(...);
+  await _repository.saveUser(_user);  // 💥 שמירה #2!
+}
+
+// Auth state listener
+void _listenToAuthChanges() {
+  _authService.authStateChanges.listen((firebaseUser) {
+    if (firebaseUser != null) {
+      // 💥 שמירה #1 - מהיר מדי!
+      _loadUserFromFirestore(firebaseUser.uid);
+    }
+  });
+}
+```
+
+**הפתרון:** דגל `_isSigningUp` למניעת יצירה אוטומטית
+
+```dart
+class UserContext extends ChangeNotifier {
+  // 🔒 דגל למניעת Race Condition
+  bool _isSigningUp = false;
+
+  // Auth state listener
+  void _listenToAuthChanges() {
+    _authService.authStateChanges.listen((firebaseUser) {
+      if (firebaseUser != null) {
+        // 🔒 אם בתהליך רישום - דלג!
+        if (_isSigningUp) {
+          debugPrint('⏳ במהלך רישום - מדלג על טעינה אוטומטית');
+          return;
+        }
+        
+        _loadUserFromFirestore(firebaseUser.uid);
+      }
+    });
+  }
+
+  // signUp עם דגל
+  Future<void> signUp() async {
+    _isSigningUp = true;  // 🔒 נעילה
+    try {
+      // רישום + יצירת משתמש
+      await _authService.signUp(...);
+      _user = UserEntity.newUser(...);
+      await _repository.saveUser(_user);  // ✅ שמירה אחת בלבד!
+    } finally {
+      _isSigningUp = false;  // 🔓 שחרור
+    }
+  }
+}
+```
+
+**תוצאה:**
+- ❌ לפני: המשתמש נשמר **פעמיים** (פעם עם "משתמש חדש", פעם עם שם אמיתי)
+- ✅ אחרי: המשתמש נשמר **פעם אחת** עם השם הנכון!
+
+**איך זה עובד:**
+1. `signUp()` מעלה את הדגל `_isSigningUp = true`
+2. Firebase Auth שולח event → listener בודק את הדגל
+3. הדגל מעלה? → מדלג על `_loadUserFromFirestore`
+4. `signUp()` מסיים → יוצר משתמש עם שם נכון **פעם אחת**
+5. מוריד את הדגל `_isSigningUp = false`
+
+**מתי להשתמש:**
+- ✅ signUp/signIn עם יצירת נתונים ב-Firestore
+- ✅ עדכון פרופיל עם שמירה ב-DB
+- ✅ כל async operation שיכול להתנגש עם listener
+
+📁 דוגמה מעובדת: `lib/providers/user_context.dart` - v2.2 (15/10/2025)
+
+---
+
 #### תרחיש 1: Login Screen
 
 **הבעיה:**
