@@ -69,6 +69,7 @@ class ShoppingListsProvider with ChangeNotifier {
   // UserContext
   UserContext? _userContext;
   bool _listening = false;
+  String? _currentHouseholdId; // 🆕 מעקב אחרי household_id נוכחי
 
   ShoppingListsProvider({
     required ShoppingListsRepository repository,
@@ -98,14 +99,35 @@ class ShoppingListsProvider with ChangeNotifier {
   }
 
   void _onUserChanged() {
-    loadLists();
+    final newHouseholdId = _userContext?.user?.householdId;
+    
+    // 🔍 בדוק אם המשתמש השתנה
+    if (newHouseholdId != _currentHouseholdId) {
+      debugPrint('🔄 _onUserChanged: household_id השתנה');
+      debugPrint('   ישן: $_currentHouseholdId');
+      debugPrint('   חדש: $newHouseholdId');
+      
+      // נקה רשימות ישנות
+      _lists = [];
+      _errorMessage = null;
+      _currentHouseholdId = newHouseholdId;
+    }
+    
+    // טען רשימות רק אם יש משתמש מחובר
+    if (_userContext?.isLoggedIn == true && newHouseholdId != null) {
+      loadLists();
+    }
   }
 
   void _initialize() {
-    if (_userContext?.isLoggedIn == true) {
+    final householdId = _userContext?.user?.householdId;
+    
+    if (_userContext?.isLoggedIn == true && householdId != null) {
+      _currentHouseholdId = householdId;
       loadLists();
     } else {
       _lists = [];
+      _currentHouseholdId = null;
       notifyListeners();
     }
   }
@@ -118,8 +140,16 @@ class ShoppingListsProvider with ChangeNotifier {
   /// ```
   Future<void> loadLists() async {
     final householdId = _userContext?.user?.householdId;
-    if (householdId == null) {
-      debugPrint('⚠️ loadLists: householdId is null');
+    
+    // 🛡️ Guard: אל תטען אם אין משתמש או אין household_id
+    if (householdId == null || _userContext?.user == null) {
+      debugPrint('⚠️ loadLists: householdId או user לא זמינים');
+      return;
+    }
+    
+    // 🛡️ Guard: אל תטען אם זה לא ה-household הנוכחי
+    if (_currentHouseholdId != null && householdId != _currentHouseholdId) {
+      debugPrint('⚠️ loadLists: household_id לא תואם (נוכחי: $_currentHouseholdId, מבוקש: $householdId)');
       return;
     }
 
@@ -168,6 +198,7 @@ class ShoppingListsProvider with ChangeNotifier {
     _errorMessage = null;
     _isLoading = false;
     _lastUpdated = null;
+    _currentHouseholdId = null; // 🆕 נקה גם household_id
     notifyListeners();
   }
 

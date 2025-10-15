@@ -508,6 +508,7 @@ class UserContext with ChangeNotifier {
   /// ```
   /// 
   /// See also:
+  /// - [signOutAndClearAllData] - התנתקות + מחיקת כל הנתונים
   /// - [logout] - Alias ל-signOut
   /// - [signIn] - התחברות
   Future<void> signOut() async {
@@ -525,6 +526,92 @@ class UserContext with ChangeNotifier {
       _errorMessage = 'שגיאה בהתנתקות';
       notifyListeners();
       debugPrint('   🔔 UserContext: notifyListeners() (signout error)');
+      rethrow;
+    }
+  }
+
+  /// התנתקות מלאה + מחיקת כל הנתונים המקומיים
+  /// 
+  /// 🔥 **התנתקות נקייה מוחלטת** - כאילו התקנת את האפליקציה מחדש!
+  /// 
+  /// מוחק:
+  /// 1. 🗄️ כל הנתונים ב-Hive (מוצרים, cache)
+  /// 2. ⚙️ כל ההעדפות ב-SharedPreferences
+  /// 3. 🔐 התנתקות מ-Firebase Auth
+  /// 4. 🧹 ניקוי state ב-UserContext
+  /// 
+  /// ⚠️ **אזהרה:** פעולה בלתי הפיכה! כל הנתונים המקומיים יימחקו!
+  /// 
+  /// Example:
+  /// ```dart
+  /// // במסך הגדרות, כפתור "התנתק"
+  /// ElevatedButton(
+  ///   onPressed: () async {
+  ///     final confirm = await showDialog<bool>(...);
+  ///     if (confirm == true) {
+  ///       await userContext.signOutAndClearAllData();
+  ///       Navigator.pushReplacementNamed('/login');
+  ///     }
+  ///   },
+  ///   child: Text('התנתק'),
+  /// );
+  /// ```
+  /// 
+  /// See also:
+  /// - [signOut] - התנתקות רגילה (ללא מחיקת נתונים)
+  /// - [clearAll] - ניקוי state בלבד
+  Future<void> signOutAndClearAllData() async {
+    debugPrint('🔥 UserContext.signOutAndClearAllData: התנתקות מלאה + מחיקת כל הנתונים!');
+
+    _errorMessage = null;
+
+    try {
+      // 1️⃣ מחק את כל ה-SharedPreferences
+      debugPrint('   1️⃣ מוחק SharedPreferences...');
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+      debugPrint('   ✅ SharedPreferences נמחק');
+
+      // 2️⃣ מחק את כל הנתונים ב-Hive
+      debugPrint('   2️⃣ מוחק Hive boxes...');
+      try {
+        // מחיקת Box המוצרים
+        if (Hive.isBoxOpen('products')) {
+          final productsBox = Hive.box<dynamic>('products');
+          await productsBox.clear();
+          debugPrint('   ✅ Hive box "products" נמחק (${productsBox.length} מוצרים)');
+        }
+        
+        // מחיקת כל ה-boxes הפתוחים (למקרה שיש עוד)
+        await Hive.deleteFromDisk();
+        debugPrint('   ✅ כל Hive boxes נמחקו מהדיסק');
+      } catch (e) {
+        debugPrint('   ⚠️ שגיאה במחיקת Hive: $e (ממשיך...)');
+      }
+
+      // 3️⃣ נקה את ה-state המקומי
+      debugPrint('   3️⃣ מנקה state...');
+      _user = null;
+      _errorMessage = null;
+      _isLoading = false;
+      _resetPreferences();
+      debugPrint('   ✅ State נוקה');
+
+      // 4️⃣ התנתק מ-Firebase Auth
+      debugPrint('   4️⃣ מתנתק מ-Firebase Auth...');
+      await _authService.signOut();
+      debugPrint('   ✅ התנתקות מ-Firebase הושלמה');
+
+      debugPrint('🎉 UserContext.signOutAndClearAllData: הושלם בהצלחה!');
+      debugPrint('   📊 כל הנתונים המקומיים נמחקו');
+      debugPrint('   🔐 המשתמש התנתק לגמרי');
+      
+      // ה-listener של authStateChanges יטפל בעדכון הסופי
+    } catch (e) {
+      debugPrint('❌ UserContext.signOutAndClearAllData: שגיאה - $e');
+      _errorMessage = 'שגיאה בהתנתקות ומחיקת נתונים';
+      notifyListeners();
+      debugPrint('   🔔 UserContext: notifyListeners() (signout+clear error)');
       rethrow;
     }
   }
