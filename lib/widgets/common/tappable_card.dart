@@ -94,16 +94,16 @@ class _TappableCardState extends State<TappableCard> {
     debugPrint('🃏 TappableCard: onTapDown');
   }
 
-  void _onTapUp(TapUpDetails details) async {
+  void _onTapUp(TapUpDetails details) {
     setState(() {
       _scale = 1.0;
       _elevation = widget.initialElevation;
     });
     debugPrint('🃏 TappableCard: onTapUp');
     
-    // רטט קל למשוב מישושי
+    // רטט קל למשוב מישושי (fire and forget)
     if (widget.enableHaptic) {
-      await HapticFeedback.lightImpact();
+      HapticFeedback.lightImpact();
     }
     
     // קריאה ל-onTap

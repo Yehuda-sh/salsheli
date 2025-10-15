@@ -73,6 +73,20 @@ class _UpcomingShopCardState extends State<UpcomingShopCard>
     super.dispose();
   }
 
+  /// הצגת דיאלוג ליצירת רשימה קניות חדשה
+  ///
+  /// תהליך:
+  /// 1. קריאה ל-CreateListDialog עם onCreateList callback
+  /// 2. קבלת נתונים מהדיאלוג (name, type, budget, eventDate)
+  /// 3. יצירת רשימה דרך ListsProvider
+  /// 4. סגירת הדיאלוג ב-success
+  ///
+  /// Validation:
+  /// - בדיקה אם name לא ריק (trim)
+  /// - type ברירת מחדל: 'super'
+  /// - budget/eventDate: optional
+  ///
+  /// [context] - BuildContext לגישה ל-Providers
   void _showCreateListDialog(BuildContext context) {
     final provider = context.read<ShoppingListsProvider>();
 
@@ -129,6 +143,19 @@ class _UpcomingShopCardState extends State<UpcomingShopCard>
   }
 }
 
+/// כרטיס ריק - כשאין רשימה פעילה
+///
+/// תצוגה:
+/// - אייקון (shopping_bag_outlined) בפריפיות
+/// - כותרת: "אין רשימה פעילה כרגע"
+/// - כפתור "צור רשימה חדשה" עם אנימציה
+///
+/// Interaction:
+/// - כפתור עטוף ב-_AnimatedButton (scale 0.95)
+/// - קורא onCreateList callback
+/// - ניווט ל-CreateListDialog
+///
+/// [onCreateList] - callback לחיצה על הכפתור
 class _EmptyUpcomingCard extends StatelessWidget {
   final VoidCallback onCreateList;
 
@@ -174,6 +201,27 @@ class _EmptyUpcomingCard extends StatelessWidget {
   }
 }
 
+/// סיכום רשימה - פרטים עיקריים
+///
+/// תצוגה:
+/// 1. שם + כפתור עריכה מונפש
+/// 2. תגים אינטראקטיביים:
+///    - סוג רשימה (סופר, חתונה וכו') + אייקון
+///    - תקציב (₪X) + אייקון ארנק
+///    - תאריך אירוע + צבע דינמי (אדום/כתום/ירוק)
+/// 3. התקדמות:
+///    - אם 0%: "טרם התחלת" (טקסט)
+///    - אחרת: LinearProgressIndicator + אחוז
+/// 4. ספירה: "X מתוך Y פריטים"
+/// 5. כפתור "התחל קנייה" מונפש (gradient + shadow)
+///
+/// Features:
+/// - כל התגים עטופים ב-_AnimatedBadge (scale 0.97)
+/// - כפתורים עם scale animations
+/// - עריכה דרך /populate-list
+/// - קנייה דרך /active-shopping
+///
+/// [list] - ה-ShoppingList להצגה
 class _ListSummary extends StatelessWidget {
   final ShoppingList list;
 
@@ -326,6 +374,25 @@ class _ListSummary extends StatelessWidget {
     );
   }
 
+  /// בנייה של תג סוג הרשימה
+  ///
+  /// תצוגה:
+  /// - Container עם primaryContainer צבע
+  /// - אייקון + טקסט עברית
+  /// - שם הסוג: "סופר", "בית מרקחת", "חתונה" וכו'
+  /// - אייקון תואם לסוג (🛒, 🏥, 💍 וכו')
+  ///
+  /// סוגים תמוכים:
+  /// - 'super' → 'סופר' 🛒
+  /// - 'pharmacy' → 'בית מרקחת' 🏥
+  /// - 'birthday' → 'יום הולדת' 🎂
+  /// - 'wedding' → 'חתונה' 💍
+  /// - 'holiday' → 'חג' 🎉
+  /// - ו-11 סוגים נוספים...
+  ///
+  /// [context] - BuildContext
+  /// [type] - סוג הרשימה (string key)
+  /// Returns: Container עם תג סוג
   Widget _buildTypeBadge(BuildContext context, String type) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
@@ -398,6 +465,21 @@ class _ListSummary extends StatelessWidget {
     );
   }
 
+  /// בנייה של תג תקציב
+  ///
+  /// תצוגה:
+  /// - Container עם secondaryContainer צבע
+  /// - אייקון ארנק (account_balance_wallet)
+  /// - טקסט: "₪X" (מעוגל)
+  /// - Styling: labelSmall bold
+  ///
+  /// Display:
+  /// - Format: toStringAsFixed(0) → "₪500", "₪1500"
+  /// - Dark mode aware (צבעי theme)
+  ///
+  /// [context] - BuildContext
+  /// [budget] - הערך בשקלים (double)
+  /// Returns: Container עם תג תקציב
   Widget _buildBudgetChip(BuildContext context, double budget) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
@@ -432,6 +514,25 @@ class _ListSummary extends StatelessWidget {
     );
   }
 
+  /// בנייה של תג תאריך אירוע
+  ///
+  /// תצוגה:
+  /// - Container עם צבע דינמי (אדום/כתום/ירוק)
+  /// - אייקון: event (או cake ביום האירוע)
+  /// - טקסט: "היום! 🎂", "מחר", "בעוד X ימים", "עבר"
+  ///
+  /// Dynamic Coloring:
+  /// - ≤7 ימים: אדום (דחוף)
+  /// - 8-14 ימים: כתום (בינוני)
+  /// - >14 ימים: ירוק (רגיל)
+  /// - היום: "היום! 🎂" עם אייקון cake
+  ///
+  /// Border:
+  /// - קו צבעוני עם opacity 0.3
+  ///
+  /// [context] - BuildContext
+  /// [eventDate] - תאריך האירוע (DateTime)
+  /// Returns: Container עם תג תאריך עם צבע דינמי
   Widget _buildEventDateChip(BuildContext context, DateTime eventDate) {
     final theme = Theme.of(context);
     final now = DateTime.now();
@@ -511,7 +612,16 @@ class _ListSummary extends StatelessWidget {
 // 🆕 ANIMATION WIDGETS
 // ═══════════════════════════════════════════════════════════════
 
-// 1. Animated Button - Scale Effect
+/// כפתור עם אנימציית scale בלחיצה
+///
+/// תכונות:
+/// - Scale 0.95 בלחיצה (150ms)
+/// - Smooth easeInOut curve
+/// - GestureDetector עם onTapDown/Up/Cancel
+/// - עטוף סביב כל widget (button, icon, וכו')
+///
+/// [child] - Widget להעטפה (כפתור)
+/// [onPressed] - callback בלחיצה
 class _AnimatedButton extends StatefulWidget {
   final Widget child;
   final VoidCallback onPressed;
@@ -547,7 +657,20 @@ class _AnimatedButtonState extends State<_AnimatedButton> {
   }
 }
 
-// 2. Animated Icon Button
+/// כפתור אייקון עם אנימציית scale
+///
+/// תכונות:
+/// - Scale 0.90 בלחיצה (150ms)
+/// - IconButton styled
+/// - Tooltip support
+/// - Touch target: 36x36 מינימום
+/// - Size parameter: icon size
+///
+/// [icon] - IconData
+/// [size] - גודל האייקון (kIconSizeSmall וכו')
+/// [color] - צבע האייקון
+/// [tooltip] - הודעה בעת hover
+/// [onPressed] - callback בלחיצה
 class _AnimatedIconButton extends StatefulWidget {
   final IconData icon;
   final double size;
@@ -599,7 +722,18 @@ class _AnimatedIconButtonState extends State<_AnimatedIconButton> {
   }
 }
 
-// 3. Animated Badge - Subtle Tap Effect
+/// תג אינטראקטיבי עם אנימציית scale עדינה
+///
+/// תכונות:
+/// - Scale 0.97 בלחיצה (100ms) - subtle effect
+/// - עטוף סביב תגים (badge, chip)
+/// - GestureDetector
+///
+/// Usage:
+/// - עטיפת תגי תקציב, סוג, תאריך
+/// - ההשפעה עדינה (כ-3% קטנה)
+///
+/// [child] - Widget התג
 class _AnimatedBadge extends StatefulWidget {
   final Widget child;
 
@@ -628,7 +762,28 @@ class _AnimatedBadgeState extends State<_AnimatedBadge> {
   }
 }
 
-// 4. Enhanced Shopping Button - הכפתור הגדול המונפש!
+/// כפתור "התחל קנייה" מעוטר מלא
+///
+/// תכונות (Modern UI/UX):
+/// - Gradient (accent לעמום) כרקע
+/// - Box Shadow דינמי (משתנה בלחיצה)
+/// - Scale animation (0.97 בלחיצה)
+/// - Rounded corners (kBorderRadius)
+/// - Icon + Text centered
+/// - Full width
+///
+/// Animations:
+/// 1. Scale: 1.0 → 0.97 (150ms, easeInOut)
+/// 2. Shadow: blur 8 → 12, offset 4 → 6 (150ms)
+/// 3. Gradient shadow alpha: 0.3 → 0.4
+///
+/// Visual Feedback:
+/// - בלחיצה: השפעה של "נדיפה" עקב shadow
+/// - Ripple effect דרך InkWell
+/// - Material layer transparent
+///
+/// [accent] - צבע ראשי לגרדיאנט
+/// [onPressed] - callback בלחיצה (ניווט ל-/active-shopping)
 class _EnhancedShoppingButton extends StatefulWidget {
   final Color accent;
   final VoidCallback onPressed;

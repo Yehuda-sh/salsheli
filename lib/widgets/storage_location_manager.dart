@@ -87,7 +87,13 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
     super.dispose();
   }
 
-  /// טעינת העדפת תצוגה
+  /// טעינת העדפת תצוגה (grid vs list) מ-SharedPreferences
+  ///
+  /// שמירת העדפת המשתמש: grid (true) או list (false)
+  /// ברירת מחדל: true (grid mode)
+  /// שגיאות: מוגדל ל-true בברירת מחדל
+  ///
+  /// Updates: setState עם gridMode החדש
   Future<void> _loadGridMode() async {
     debugPrint('📥 StorageLocationManager._loadGridMode()');
     try {
@@ -106,7 +112,12 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
     }
   }
 
-  /// שמירת העדפת תצוגה
+  /// שמירת העדפת תצוגה ל-SharedPreferences
+  ///
+  /// שומר את בחירת המשתמש בין תצוגת grid לlist
+  /// משמש כיד עבור _loadGridMode() בעת ההתחלה
+  ///
+  /// [value] - true לـ grid, false לـ list
   Future<void> _saveGridMode(bool value) async {
     debugPrint('💾 StorageLocationManager._saveGridMode($value)');
     try {
@@ -118,7 +129,18 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
     }
   }
 
-  /// סינון מלאי לפי מיקום וחיפוש עם Cache
+  /// סינון מלאי לפי מיקום וחיפוש עם Cache לביצועים
+  ///
+  /// תהליך:
+  /// 1. בדיקה אם cache עדיין בעל ערך (cacheKey זהה)
+  /// 2. סינון לפי selectedLocation (אם לא "all")
+  /// 3. סינון לפי searchQuery (case-insensitive)
+  /// 4. מיון לפי sortBy (name, quantity, category)
+  /// 5. עדכון cache עם התוצאה
+  ///
+  /// Performance: Cache מנקה כשמשתנה selectedLocation/searchQuery/sortBy
+  ///
+  /// Returns: List<InventoryItem> מסננת ומסודרת
   List<InventoryItem> get filteredInventory {
     final cacheKey = "$selectedLocation|$searchQuery|$sortBy";
     
@@ -171,6 +193,19 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
   }
 
   /// קבלת אמוג'י לפי קטגוריה (תמיכה בעברית)
+  ///
+  /// חיפוש:
+  /// 1. בקטגוריות עברית (_hebrewCategoryEmojis)
+  /// 2. בקטגוריות אנגלית (kCategoryEmojis)
+  /// 3. ברירת מחדל: "📦" אם לא נמצא
+  ///
+  /// דוגמאות:
+  /// - "חלבי" → "🥛"
+  /// - "ירקות" → "🥬"
+  /// - "אחר" → "📦"
+  ///
+  /// [category] - שם הקטגוריה בעברית או אנגלית
+  /// Returns: Emoji string (single character)
   String _getProductEmoji(String category) {
     // חיפוש קודם בעברית
     if (_hebrewCategoryEmojis.containsKey(category)) {
@@ -185,7 +220,20 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
     return "📦";
   }
 
-  /// הצגת דיאלוג להוספת מיקום חדש
+  /// הצגת דיאלוג להוספת מיקום אחסון חדש
+  ///
+  /// תכונות:
+  /// - בחירת אמוג'י מרשימה (_availableEmojis)
+  /// - TextField לשם המיקום
+  /// - RTL support (Directionality)
+  /// - Validation: שם לא יכול להיות ריק
+  /// - Error handling: בדיקה אם מיקום כבר קיים
+  /// - UI Feedback: SnackBar בהצלחה/כשל
+  /// - Provider integration: LocationsProvider.addLocation()
+  ///
+  /// Emojis:
+  /// - דפוליים: "📍", "🏠", "❄️", "🧊", "📦", וכו'
+  /// - בחירה באמצעות GestureDetector + StatefulBuilder
   void _showAddLocationDialog() {
     debugPrint('➕ StorageLocationManager._showAddLocationDialog()');
     newLocationController.clear();
@@ -300,7 +348,18 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
     );
   }
 
-  /// עריכת מיקום מותאם
+  /// עריכת מיקום אחסון מותאם (custom location)
+  ///
+  /// תכונות:
+  /// - בחירת אמוג'י מרשימה (_availableEmojis)
+  /// - TextField לשם המיקום (טעום מהערך הקיים)
+  /// - RTL support (Directionality)
+  /// - Validation: שם לא יכול להיות ריק
+  /// - עריכה: מחק זקן + הוסף חדש (delete + add pattern)
+  /// - UI Feedback: SnackBar בהצלחה
+  /// - Provider integration: LocationsProvider (delete + addLocation)
+  ///
+  /// [loc] - ה-CustomLocation לעריכה (מכיל key, name, emoji)
   void _showEditLocationDialog(CustomLocation loc) {
     debugPrint('✏️ StorageLocationManager._showEditLocationDialog("${loc.name}")');
     newLocationController.text = loc.name;
@@ -403,7 +462,22 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
     );
   }
 
-  /// מחיקת מיקום מותאם עם אישור + Undo
+  /// מחיקת מיקום אחסון מותאם עם אישור + Undo
+  ///
+  /// תהליך:
+  /// 1. AlertDialog עם אישור מחיקה
+  /// 2. ElevatedButton אדום "מחק" כפתור פעולה
+  /// 3. מחיקה מ-Firestore דרך LocationsProvider
+  /// 4. SnackBar עם Undo action (משחזור)
+  ///
+  /// Undo:
+  /// - משך: 5 שניות
+  /// - פעולה: provider.addLocation() עם הנתונים המקוריים
+  /// - RTL support (Directionality)
+  ///
+  /// [key] - ה-key של המיקום (unique identifier)
+  /// [name] - שם המיקום (לעריכה בעת Undo)
+  /// [emoji] - האמוג'י של המיקום (לעריכה בעת Undo)
   void _deleteCustomLocation(String key, String name, String emoji) {
     debugPrint('🗑️ StorageLocationManager._deleteCustomLocation("$name")');
     showDialog(
@@ -461,14 +535,35 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
     );
   }
 
-  /// עריכת פריט
+  /// עריכת פריט מלאי
+  ///
+  /// קריאה ל-onEditItem callback עם הפריט שנבחר
+  /// משמש ליצור עדכון/פתיחת מסך עריכה בחוץ
+  ///
+  /// [item] - ה-InventoryItem לעריכה
   void _editItem(InventoryItem item) {
     if (widget.onEditItem != null) {
       widget.onEditItem!(item);
     }
   }
 
-  /// בניית כרטיס מיקום
+  /// בנייה של כרטיס מיקום אחסון עם סטטיסטיקה
+  ///
+  /// תכונות:
+  /// - תצוגה: אמוג'י + שם + מספר פריטים
+  /// - ניווט: onTap לשינוי selectedLocation
+  /// - עריכה: long press למחיקה (רק custom locations)
+  /// - אינדיקטור: low stock warning (⚠️ אם quantity ≤ 2)
+  /// - Styling: כרטיס גבוה יותר כשנבחר (elevation + color)
+  /// - Tooltip: "לחץ לעריכה, לחץ ארוכה למחיקה" (custom only)
+  ///
+  /// [key] - unique identifier של המיקום ("all", "refrigerator", וכו')
+  /// [name] - שם המיקום ("הכל", "מקרר", וכו')
+  /// [emoji] - אמוג'י של המיקום
+  /// [count] - מספר הפריטים במיקום
+  /// [customLocations] - רשימת מיקומים מותאמים (לעריכה)
+  /// [isCustom] - האם זה custom location (default: false)
+  /// Returns: Card widget עם כרטיס מיקום interactivo
   Widget _buildLocationCard({
     required String key,
     required String name,
@@ -886,6 +981,16 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
     );
   }
 
+  /// קבלת כותרת מיקום עבור כותרת הפריטים
+  ///
+  /// לוגיקה:
+  /// - אם selectedLocation == "all" → "כל הפריטים"
+  /// - אם selectedLocation במיקומי ברירת מחדל → שם מ-kStorageLocations
+  /// - אם selectedLocation במיקומים מותאמים → שם מ-customLocations
+  /// - אחרת → selectedLocation כ-fallback
+  ///
+  /// [customLocations] - רשימת מיקומים מותאמים
+  /// Returns: String כותרת בעברית
   String _getLocationTitle(List<CustomLocation> customLocations) {
     if (selectedLocation == "all") return "כל הפריטים";
 

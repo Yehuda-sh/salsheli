@@ -29,11 +29,48 @@
 import 'package:flutter/material.dart';
 import '../../core/ui_constants.dart';
 
+/// כרטיס דשבורד עם כותרת, אייקון ותוכן מותאם אישית
+/// 
+/// רכיב wrapper לכרטיסים בממשק הדשבורד.
+/// מציג כותרת עם אייקון, תוכן ואופציונלי - חץ ל-action.
+/// 
+/// Parameters:
+/// - [title]: כותרת הכרטיס
+/// - [icon]: אייקון להצגה ליד הכותרת
+/// - [elevation]: גובה הצל (ברירת מחדל: kCardElevation = 2.0)
+/// - [onTap]: פונקציה לקריאה בלחיצה (אופציונלי - אם null אין חץ)
+/// - [child]: תוכן הכרטיס (widget)
+/// 
+/// Features:
+/// - כותרת עם אייקון בולט
+/// - חץ ימנה כשיש onTap (עיגון ל-action)
+/// - Elevation מותאם אישית
+/// - Material Design compliant
+/// 
+/// דוגמה:
+/// ```dart
+/// DashboardCard(
+///   title: "רשימות הקנייה",
+///   icon: Icons.shopping_list,
+///   elevation: 2,
+///   onTap: () => Navigator.pushNamed(context, '/lists'),
+///   child: ListContent(),
+/// )
+/// ```
 class DashboardCard extends StatelessWidget {
+  /// כותרת הכרטיס
   final String title;
+  
+  /// אייקון להצגה ליד הכותרת
   final IconData icon;
+  
+  /// גובה הצל טהור (ברירת מחדל: 2.0)
   final double elevation;
+  
+  /// פונקציה לקריאה בלחיצה על הכרטיס (אופציונלי)
   final VoidCallback? onTap;
+  
+  /// תוכן הכרטיס (חובה)
   final Widget child;
 
   const DashboardCard({
@@ -47,6 +84,16 @@ class DashboardCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+  /// בנייה של כרטיס דשבורד עם כותרת, אייקון ותוכן מותאם אישית
+  /// 
+  /// פריסה:
+  /// 1. Header: אייקון + כותרת + חץ (אם יש onTap)
+  /// 2. Content: התוכן (child)
+  /// 
+  /// Interactions:
+  /// - InkWell עטוף להשפעת גלים
+  /// - onTap optional - אם קיים, מציג חץ
+  /// - RoundedRectangle עם kBorderRadius
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 

@@ -87,7 +87,7 @@ class _NotebookPainter extends CustomPainter {
     // קווים כחולים כמו במחברת אמיתית 📘
     final bluePaint = Paint()
       ..color = (brand?.notebookBlue ?? kNotebookBlue)
-          .withOpacity(kNotebookLineOpacity)
+          .withValues(alpha: kNotebookLineOpacity)
       ..strokeWidth = 1.0;
 
     // קווים אופקיים כמו במחברת
@@ -104,7 +104,7 @@ class _NotebookPainter extends CustomPainter {
     // קו אדום משמאל (כמו במחברת אמיתית) 📕
     final redLinePaint = Paint()
       ..color = (brand?.notebookRed ?? kNotebookRed)
-          .withOpacity(kNotebookRedLineOpacity)
+          .withValues(alpha: kNotebookRedLineOpacity)
       ..strokeWidth = kNotebookRedLineWidth;
 
     canvas.drawLine(

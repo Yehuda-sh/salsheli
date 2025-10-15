@@ -50,6 +50,15 @@ class ShoppingListTile extends StatelessWidget {
 
   /// 🇮🇱 אייקון מותאם לפי סטטוס הרשימה
   /// 🇬🇧 Status-based icon with tooltip for accessibility
+  ///
+  /// תומך ב-3 סטטוסים:
+  /// - statusCompleted: ✓ ירוק
+  /// - statusArchived: 📦 אפור
+  /// - statusActive (default): 🛒 כחול
+  ///
+  /// כל icon כולל Tooltip בעברית לנגישות
+  ///
+  /// Returns: Icon widget עם Tooltip
   Widget _statusIcon() {
     final IconData iconData;
     final Color color;
@@ -80,6 +89,16 @@ class ShoppingListTile extends StatelessWidget {
 
   /// 🇮🇱 חישוב דחיפות לפי תאריך יעד
   /// 🇬🇧 Calculate urgency based on target date
+  ///
+  /// לוגיקה:
+  /// - null targetDate: מחזיר null (אין דחיפות)
+  /// - targetDate בעבר: אדום "עבר!"
+  /// - targetDate היום: אדום "היום!"
+  /// - targetDate מחר: כתום "מחר"
+  /// - targetDate 1-7 ימים: כתום "עוד X ימים"
+  /// - targetDate 7+ ימים: ירוק "עוד X ימים"
+  ///
+  /// Returns: Map עם 'color', 'text', 'icon' או null
   Map<String, dynamic>? _getUrgencyData() {
     if (list.targetDate == null) return null;
 
@@ -130,6 +149,14 @@ class ShoppingListTile extends StatelessWidget {
 
   /// 🇮🇱 ווידג׳ט תג דחיפות
   /// 🇬🇧 Urgency tag widget
+  ///
+  /// תצוגה:
+  /// - Container עם border + background צבע
+  /// - Icon מהקוד (warning, access_time וכו')
+  /// - טקסט דחיפות ("היום!", "עוד 3 ימים" וכו')
+  /// - Typography: bodySmall, bold, kFontSizeTiny
+  ///
+  /// Returns: Widget או null אם אין targetDate
   Widget? _buildUrgencyTag(BuildContext context) {
     final urgencyData = _getUrgencyData();
     if (urgencyData == null) return null;

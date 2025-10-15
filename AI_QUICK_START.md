@@ -6,6 +6,9 @@
 
 ### 1️⃣ שגיאות טכניות (תקן מיידית!)
 - `withOpacity(0.5)` → `withValues(alpha: 0.5)`
+- `value` (DropdownButtonFormField) → `initialValue`
+- `kQuantityFieldWidth` → `kFieldWidthNarrow`
+- `kBorderRadiusFull` → `kRadiusPill`
 - async function ב-onPressed → עטוף ב-lambda: `() => myAsyncFunc()`
 - widgets שלא משתנים → הוסף `const`
 - imports לא נעשים → תקן
@@ -37,7 +40,8 @@
 ### 3️⃣ קוד לא עוקב BEST_PRACTICES.md (תקן מיידית!)
 **בדוק:**
 - חסר תיעוד בראש הקובץ → הוסף header comment
-- functions ללא documentation → הוסף `///` comments
+- functions פרטיות ללא documentation → הוסף `///` comments
+- functions ציבוריות ללא documentation → הוסף `///` comments
 - naming לא עקבי: `myVar` → `_myPrivateVar`, `MyScreen` → suffix `Screen`
 - קוד משוכפל ללא comments → הוסף הסברים
 - magic numbers (42, 100) → הגדר constants עם שמות מתארים
@@ -81,13 +85,13 @@
 
 ---
 
-> 🔴 **עדכון חדש (v1.3):** סוכן AI עכשיו עושה **Code Review אוטומטי**!
+> 🔴 **עדכון חדש (v1.4):** סוכן AI עכשיו עושה **Code Review אוטומטי**!
 > 
 > כשקורא קובץ, הסוכן בודק ומתקן אוטומטית:
-> - ✅ שגיאות טכניות (withOpacity, async, const)
+> - ✅ שגיאות טכניות (withOpacity, value, async, const, deprecated APIs)
 > - 🎨 **מסך UI ללא Sticky Notes? → החלפת עיצוב מלא!**
 > - 📋 קוד מול Best Practices
-> - 📝 תיעוד ו-naming
+> - 📝 תיעוד ו-naming (כולל פונקציות פרטיות)
 > 
 > **ללא שאלות!** רק תיקון ודיווח 🚀
 
@@ -411,4 +415,4 @@ lib/
 
 **זכור:** המשתמש רוצה שתעשה את העבודה, לא שתסביר לו איך! 💪
 
-**גרסה:** 1.3 | **תאריך:** 15/10/2025 | **שינוי:** + הוראה להחלפת עיצוב מלא ל-Sticky Notes 🎨
+**גרסה:** 1.4 | **תאריך:** 15/10/2025 | **שינוי:** + deprecated APIs חדשים (initialValue, kFieldWidthNarrow, kRadiusPill) + תיעוד פונקציות פרטיות

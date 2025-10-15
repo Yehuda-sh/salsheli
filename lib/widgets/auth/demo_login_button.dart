@@ -173,7 +173,7 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
           color: kStickyPurple, // פתק סגול לבחירת משתמש
           rotation: -0.01,
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6), // 📐 padding מצומצם
+            padding: const EdgeInsets.symmetric(vertical: kSpacingXTiny), // 📐 padding מצומצם
             child: Column(
               children: [
                 Text(
@@ -183,7 +183,7 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
                     fontSize: kFontSizeTiny, // 📐 הקטנה
                   ),
                 ),
-                const SizedBox(height: 6), // 📐 רווח מצומצם
+                const SizedBox(height: 2), // spacing מינימלי בתוך כפתור קומפקטי
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -196,7 +196,7 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
                       subtitle: 'אבא',
                       isSelected: _selectedUser == 'avi',
                     ),
-                    const SizedBox(width: kSpacingXSmall), // 📐 רווח מצומצם
+                    const SizedBox(width: kSpacingXSmall),
                     
                     // כפתור מיכל (אמא)
                     _buildQuickUserButton(
@@ -207,7 +207,7 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
                       subtitle: 'אמא',
                       isSelected: _selectedUser == 'michal',
                     ),
-                    const SizedBox(width: kSpacingXSmall), // 📐 רווח מצומצם
+                    const SizedBox(width: kSpacingXSmall),
                     
                     // כפתור תומר (בן)
                     _buildQuickUserButton(
@@ -261,18 +261,18 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
         child: Container(
           padding: const EdgeInsets.symmetric(
-            horizontal: 6, // 📐 padding מצומצם
-            vertical: 6, // 📐 padding מצומצם
+            horizontal: kSpacingXTiny, // 6px
+            vertical: kSpacingXTiny, // 6px
           ),
           decoration: BoxDecoration(
             color: isSelected 
-                ? cs.primary.withValues(alpha: 0.15)
-                : Colors.white.withValues(alpha: 0.5),
+                ? cs.primary.withValues(alpha: kOpacityVeryLow)
+                : Colors.white.withValues(alpha: kOpacityMedium),
             borderRadius: BorderRadius.circular(kBorderRadiusSmall),
             border: Border.all(
               color: isSelected 
                   ? cs.primary
-                  : cs.outline.withValues(alpha: 0.3),
+                  : cs.outline.withValues(alpha: kOpacityLow),
               width: isSelected ? 2 : 1,
             ),
           ),
@@ -281,14 +281,14 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
             children: [
               Icon(
                 icon,
-                size: kIconSizeSmall, // 📐 הקטנה
+                size: kIconSizeSmall,
                 color: isSelected ? cs.primary : cs.onSurfaceVariant,
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: kSpacingXTiny),
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 10, // 📐 הקטנה מאוד
+                  fontSize: 10, // קומפקטי - קטן מ-kFontSizeTiny
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                   color: isSelected ? cs.primary : cs.onSurfaceVariant,
                 ),
@@ -296,11 +296,11 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
               Text(
                 subtitle,
                 style: TextStyle(
-                  fontSize: 8, // 📐 הקטנה מאוד
+                  fontSize: 8, // קומפקטי ביותר
                   fontWeight: FontWeight.w400,
                   color: isSelected 
-                      ? cs.primary.withValues(alpha: 0.7)
-                      : cs.onSurfaceVariant.withValues(alpha: 0.6),
+                      ? cs.primary.withValues(alpha: kOpacityHigh)
+                      : cs.onSurfaceVariant.withValues(alpha: kOpacityMedium),
                 ),
               ),
             ],

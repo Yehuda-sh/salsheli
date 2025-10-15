@@ -14,13 +14,13 @@
 - [🔥 Firebase Configuration](#-firebase-configuration)
 - [💰 Shufersal API](#-shufersal-api)
 - [📂 מבנה הפרויקט](#-מבנה-הפרויקט)
-- [📝 מה עובד היום](#-מה-עובד-היום-14102025)
+- [📝 מה עובד היום](#-מה-עובד-היום-15102025)
 - [📊 סטטיסטיקות](#-סטטיסטיקות)
 - [🎯 TODO](#-todo)
 - [🛠 פקודות שימושיות](#-פקודות-שימושיות)
 - [🐛 בעיות נפוצות](#-בעיות-נפוצות)
 - [🤝 תרומה](#-תרומה)
-- [🎓 הישגים אחרונים](#-הישגים-אחרונים-06-14102025)
+- [🎓 הישגים אחרונים](#-הישגים-אחרונים-06-15102025)
 - [🔒 פרטיות ואבטחה](#-פרטיות-ואבטחה)
 - [👨‍💻 שולחן עבודה למפתחים](#-שולחן-עבודה-למפתחים)
 
@@ -66,21 +66,35 @@ flutter doctor -v  # שמור פלט לפתרון בעיות עתידיות
 | **📚 LESSONS_LEARNED.md** | לקחים חשובים + דפוסים טכניים | ⭐ חובה לפני עבודה! |
 | **💡 BEST_PRACTICES.md** | Best practices לקוד ועיצוב | ⭐ חובה לכל מפתח! |
 | **🎨 STICKY_NOTES_DESIGN.md** | מדריך מלא למערכת העיצוב | לפני עבודה על UI |
-| **🤖 AI_QUICK_START.md** | הוראות מהירות לסוכני AI ⚡ | ⭐ תן לסוכן AI בתחילת כל שיחה! |
-| **🤖 AI_DEV_GUIDELINES.md** | הנחיות מפורטות לסוכני AI | אם עובד עם AI |
+| **🤖 AI_QUICK_START.md** | הוראות מהירות לסוכני AI + Code Review אוטומטי ⚡ | ⭐ תן לסוכן בתחילת כל שיחה! |
+| **🤖 AI_DEV_GUIDELINES.md** | הנחיות מפורטות לסוכני AI | אם עובד עם AI |  
 | **📓 WORK_LOG.md** | שינויים אחרונים + היסטוריה | בתחילת כל יום עבודה |
 
 **🎯 סדר קריאה מומלץ:**
-1. LESSONS_LEARNED.md - הבסיס הטכני 🏗️
-2. BEST_PRACTICES.md - איך לכתוב קוד נכון 💻
-3. STICKY_NOTES_DESIGN.md - איך לעצב UI יפה 🎨
-4. AI_QUICK_START.md - לסוכן AI (משפט אחד!) ⚡
-5. AI_DEV_GUIDELINES.md - מדריך מפורט ל-AI 🤖
+1. **LESSONS_LEARNED.md** - הבסיס הטכני 🏗️
+2. **BEST_PRACTICES.md** - איך לכתוב קוד נכון 💻
+3. **STICKY_NOTES_DESIGN.md** - איך לעצב UI יפה 🎨
+4. **AI_QUICK_START.md** - לסוכן AI (משפט אחד!) ⚡ **← תן לסוכן בתחילת כל שיחה!**
+5. **AI_DEV_GUIDELINES.md** - מדריך מפורט ל-AI 🤖
 
-**🤖 לסוכן AI - תן לו את המשפט הזה:**
+### 🤖 עבודה עם סוכן AI
+
+**📌 תן לסוכן את המשפט הזה בתחילת כל שיחה:**
 ```
 📌 קרא תחילה: C:\projects\salsheli\AI_QUICK_START.md - הוראות חובה לפני עבודה
 ```
+
+**✨ מה הסוכן עושה אוטומטית:**
+- 🔍 **Code Review מלא** - בדיקה וזיהוי של שגיאות טכניות
+- 🔧 **תיקון אוטומטי** - withOpacity, async callbacks, const, imports, deprecated APIs
+- 🎨 **בדיקת עיצוב** - Sticky Notes Design compliance (מסכי UI חייבים!)
+- 📋 **Best Practices** - תיעוד, naming, קוד נקי, constants
+- ⚠️ **זיהוי TODO/FIXME** - דיווח על בעיות שצריך לטפל בהן
+- ✅ **דיווח תמציתי** - "✅ תיקנתי X, Y, Z - הכל עובד!"
+
+> **🔴 כלל זהב:** הסוכן מתקן שגיאות טכניות מיידית **ללא שאלות**!  
+> **📋 Best Practices** - מסך UI ללא Sticky Notes? → החלף מלא! 🎨  
+> **✅ רק לשאול:** החלטות עיצוביות משמעותיות או דו-משמעיות
 
 ### 📥 התקנה:
 
@@ -258,7 +272,7 @@ lib/
 │   └── prefs_service.dart             # 💾 SharedPreferences wrapper
 │
 ├── screens/                   # UI Screens (30+)
-│   ├── auth/                   # Login, Register (2)
+│   ├── auth/                   # Login, Register (2) ⭐ Sticky Notes Design!
 │   ├── home/                   # Dashboard + Home (3)
 │   ├── shopping/               # Lists, Active shopping (8)
 │   ├── lists/                  # Templates, Populate (3)
@@ -374,6 +388,7 @@ firestore/
 ### 🎨 UI/UX
 
 - ✅ **Sticky Notes Design System** - עיצוב ייחודי בהשראת פתקים ⭐ (חדש! 15/10/2025)
+- ✅ **מסך התחברות** - Sticky Notes Design מלא ⭐ (חדש! 15/10/2025)
 - ✅ 21 סוגי רשימות + מסך קנייה פעילה
 - ✅ Undo למחיקה (5 שניות עם SnackBar)
 - ✅ 3-4 Empty States: Loading/Error/Empty/Initial
@@ -413,6 +428,7 @@ firestore/
 - [ ] Collaborative shopping - שיתוף real-time של רשימה פעילה
 - [ ] Receipt OCR improvements - דיוק גבוה יותר
 - [ ] Template sharing - העברת תבניות בין משתמשים
+- [ ] **Sticky Notes Design** - מסך הרשמה (Register screen) ⭐
 
 ### 🟡 בינוני (Priority 2)
 
@@ -420,7 +436,7 @@ firestore/
 - [ ] Smart notifications - תזכורות לקנייה
 - [ ] Price tracking - גרפים + השוואה היסטורית
 - [ ] Template categories + search - ארגון טוב יותר
-- [ ] Sticky Notes Design - רישום ומסך הרשמה ⭐
+- [ ] **Sticky Notes Design** - מסכי shopping lists + מסכים נוספים ⭐
 
 ### 🟢 נמוך (Priority 3)
 
@@ -431,8 +447,9 @@ firestore/
 
 ### ✅ הושלם לאחרונה (06-15/10/2025)
 
-- ~~Sticky Notes Design System - מסך התחברות~~ (15/10) ⭐
-- ~~BEST_PRACTICES.md + STICKY_NOTES_DESIGN.md~~ (15/10) ⭐
+- ~~**Sticky Notes Design System** - מסך התחברות~~ (15/10) ⭐
+- ~~**BEST_PRACTICES.md** + **STICKY_NOTES_DESIGN.md**~~ (15/10) ⭐
+- ~~**AI_QUICK_START.md** - Code Review אוטומטי~~ (15/10) ⭐
 - ~~LocationsProvider → Firebase Migration~~ (13/10) ⭐
 - ~~Batch Processing Pattern - 100+ items~~ (13/10) ⭐
 - ~~InventoryProvider Error Recovery~~ (13/10) ⭐
@@ -550,6 +567,7 @@ firebase emulators:start --only firestore
 | **Deprecated API warnings** | `.withOpacity()` → `.withValues(alpha:)` | [BEST_PRACTICES](BEST_PRACTICES.md#שימוש-נכון-ב-withvalues) |
 | **Async callback errors** | עטוף Future functions בלמבדה: `() => _asyncFunc()` | [BEST_PRACTICES](BEST_PRACTICES.md#עבודה-עם-async-functions) |
 | **Sticky Notes לא נראים** | בדוק שיש `NotebookBackground` + `kPaperBackground` | [STICKY_NOTES_DESIGN](STICKY_NOTES_DESIGN.md#notebookbackground) |
+| **AI סוכן לא עוקב הוראות** | תן לו: `📌 קרא תחילה: AI_QUICK_START.md` | [AI Quick Start](#-עבודה-עם-סוכן-ai) |
 
 > **💡 עוד פתרונות:** ראה [LESSONS_LEARNED.md](LESSONS_LEARNED.md) חלק "Troubleshooting"  
 > **💡 Best Practices:** ראה [BEST_PRACTICES.md](BEST_PRACTICES.md) לדפוסי קוד נכונים
@@ -618,6 +636,13 @@ firebase emulators:start --only firestore
 
 ### ⭐ תשתית ופיצ'רים חדשים
 
+- ✅ **AI Quick Start + Code Review אוטומטי** (15/10)
+  - AI_QUICK_START.md - הוראות מהירות לסוכן
+  - Code Review אוטומטי בקריאת קובץ
+  - תיקון שגיאות טכניות מיידי
+  - בדיקת Sticky Notes Design
+  - תיקון Best Practices
+
 - ✅ **Sticky Notes Design System** (15/10)
   - מערכת עיצוב מלאה בהשראת פתקים
   - רכיבים: NotebookBackground, StickyNote, StickyButton
@@ -666,6 +691,7 @@ firebase emulators:start --only firestore
 
 ### 📚 תיעוד
 
+- ✅ **AI_QUICK_START.md** - הוראות מהירות לסוכן AI ⭐
 - ✅ LESSONS_LEARNED.md - 15 עקרונות זהב + דפוסים מפורטים
 - ✅ BEST_PRACTICES.md - Best practices מקיפים ⭐
 - ✅ STICKY_NOTES_DESIGN.md - מדריך עיצוב מלא ⭐
@@ -783,6 +809,16 @@ Settings → חשבון → מחק חשבון
 | **דוגמאות** | [→](STICKY_NOTES_DESIGN.md#-דוגמאות-שימוש-מלאות) |
 | **פתרון בעיות** | [→](STICKY_NOTES_DESIGN.md#-פתרון-בעיות-נפוצות) |
 
+### 🤖 קישורים מהירים ל-AI_QUICK_START
+
+| נושא | קישור |
+|------|-------|
+| **Code Review אוטומטי** | [→](AI_QUICK_START.md#-code-review-אוטומטי---מול-תיעוד-הפרויקט) |
+| **קישור לקובץ - מה לעשות** | [→](AI_QUICK_START.md#-קישור-לקובץ-בתחילת-שיחה---מה-לעשות) |
+| **כללי עבודה** | [→](AI_QUICK_START.md#-כללי-עבודה---קרא-וזכור) |
+| **ניהול Tokens** | [→](AI_QUICK_START.md#-ניהול-tokens---חשוב-מאוד-) |
+| **TL;DR** | [→](AI_QUICK_START.md#-tldr---תזכורת-של-10-שניות) |
+
 ### 📊 מדדי איכות
 
 ```
@@ -793,7 +829,8 @@ Settings → חשבון → מחק חשבון
 ✅ Constants        # lib/core/ + lib/config/
 ✅ Empty States     # 3-4 בכל widget
 ✅ Design System    # Sticky Notes מלא
-✅ Documentation    # 5 מדריכים מקיפים
+✅ Documentation    # 6 מדריכים מקיפים ⭐
+✅ AI Integration   # Code Review אוטומטי ⭐
 ```
 
 ---
@@ -804,10 +841,11 @@ MIT License - ראה [LICENSE](LICENSE)
 
 ---
 
-**עדכון:** 15/10/2025 | **גרסה:** 1.1.0 | **Made with ❤️ in Israel** 🇮🇱
+**עדכון:** 15/10/2025 | **גרסה:** 1.2.0 | **Made with ❤️ in Israel** 🇮🇱
 
 > 💡 **למפתחים:** התחל עם [LESSONS_LEARNED.md](LESSONS_LEARNED.md) - הכי חשוב!  
 > 💡 **Best Practices:** קרא [BEST_PRACTICES.md](BEST_PRACTICES.md) לפני כתיבת קוד  
 > 💡 **עיצוב UI:** השתמש ב-[STICKY_NOTES_DESIGN.md](STICKY_NOTES_DESIGN.md) למערכת העיצוב  
-> 💡 **לסוכני AI:** קרא [AI_DEV_GUIDELINES.md](AI_DEV_GUIDELINES.md) בתחילת כל שיחה  
+> 💡 **לסוכני AI:** תן את המשפט: `📌 קרא תחילה: AI_QUICK_START.md` ⚡  
+> 💡 **פיתוח עם AI:** קרא [AI_DEV_GUIDELINES.md](AI_DEV_GUIDELINES.md) למדריך מפורט  
 > 💡 **Templates System:** מערכת חדשה - ראה [WORK_LOG.md](WORK_LOG.md) רשומה 10/10/2025

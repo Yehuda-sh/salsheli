@@ -1,6 +1,4 @@
 // 📄 File: lib/widgets/pantry_filters.dart
-// ignore_for_file: deprecated_member_use
-
 //
 // 🎯 Purpose: ווידג'ט סינון למסך המזווה - קטגוריה בלבד
 //
@@ -44,6 +42,9 @@ class PantryFilters extends StatelessWidget {
     required this.onCategoryChanged,
   });
 
+  /// איפוס הסינון לערך ברירת המחדל ('all')
+  ///
+  /// קורא ל-onCategoryChanged עם 'all' כדי להציג את כל הפריטים
   void _resetFilter() {
     onCategoryChanged('all');
   }
@@ -126,6 +127,18 @@ class PantryFilters extends StatelessWidget {
     );
   }
 
+  /// בנייה של Dropdown לבחירת קטגוריה
+  ///
+  /// תכונות:
+  /// - DropdownButtonFormField עם כל הקטגוריות מ-kCategories
+  /// - RTL support: textDirection: TextDirection.rtl
+  /// - Theme-aware: צבעים מ-AppBrand + colorScheme
+  /// - Accessibility: Semantics label + proper contrast
+  /// - Styling: border, focused color, dropdownColor
+  /// - onChanged callback: קורא ל-onCategoryChanged עם הקטגוריה החדשה
+  ///
+  /// [context] - BuildContext לקבלת theme + AppBrand
+  /// Returns: Widget עם Dropdown מלא + Label
   Widget _buildCategoryDropdown(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;

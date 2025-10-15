@@ -114,7 +114,7 @@ class HomeStatsService {
       final now = DateTime.now();
       final startDate = monthsBack == 0
           ? now.subtract(const Duration(days: 7)) // שבוע
-          : DateTime(now.year, now.month - monthsBack, now.day);
+          : _subtractMonths(now, monthsBack);
 
       debugPrint('   📅 מתאריך: ${startDate.toString().split(' ')[0]}');
 
@@ -173,6 +173,9 @@ class HomeStatsService {
   }
 
   /// ⭐ חדש: חישוב התפלגות לפי קטגוריות
+  /// 
+  /// הנדד 5 קטגוריות גבוהות בעומר עם "אחר" לשאר
+  /// כדי להישמר ייצוג בחטט פאי וגרף.
   static List<Map<String, dynamic>> _calculateCategoryBreakdown(
     List<Receipt> receipts,
   ) {
@@ -249,11 +252,28 @@ class HomeStatsService {
     // מיון לפי סכום (גבוה→נמוך)
     products.sort((a, b) => (b['amount'] as double).compareTo(a['amount'] as double));
 
-    // החזר רק 10 הגבוהים ביותר
+    // החזר רק 10 הגבוהים ביותר (UI readability)
     return products.take(10).toList();
   }
 
-  /// המרת ID קטגוריה לשם תצוגה
+  /// Helper: חיסור חודשים בצורה נכונה (עם overflow handling)
+  static DateTime _subtractMonths(DateTime date, int months) {
+    var year = date.year;
+    var month = date.month - months;
+    
+    // טיפול בoverflow לשנה הקודמת
+    while (month < 1) {
+      month += 12;
+      year -= 1;
+    }
+    
+    // טיפול ביום חוקי (למשל 31 בפברואר)
+    final day = date.day;
+    final maxDays = DateTime(year, month + 1, 0).day;
+    final actualDay = day > maxDays ? maxDays : day;
+    
+    return DateTime(year, month, actualDay);
+  }
   static String _getCategoryDisplayName(String categoryId) {
     const displayNames = {
       'dairy': 'מוצרי חלב',
@@ -301,7 +321,7 @@ class HomeStatsService {
 
     // חישוב לפי חודש
     for (var i = monthsBack; i >= 0; i--) {
-      final monthDate = DateTime(now.year, now.month - i, 1);
+      final monthDate = _subtractMonths(now, i);
       final monthStart = DateTime(monthDate.year, monthDate.month, 1);
       final monthEnd = DateTime(monthDate.year, monthDate.month + 1, 0);
 
@@ -374,19 +394,20 @@ class HomeStatsService {
     return accuracy.clamp(0.0, 100.0);
   }
 
-  /// חישוב חיסכון פוטנציאלי
-  /// זוהי הערכה פשוטה - 5-10% מהסכום החודשי
+  /// חישוב חטיבה פוטנציאלית: אפשר לחטיבה עם השואות מחיריום (הערכה: 7.5% אבקט ריאליסטט)
   static double _calculatePotentialSavings(List<Receipt> receipts) {
     if (receipts.isEmpty) return 0.0;
 
     final total = receipts.fold(0.0, (sum, r) => sum + r.totalAmount);
 
     // הערכה: אפשר לחסוך בין 5% ל-10% עם השוואת מחירים
-    final savingsPercent = 0.075; // 7.5% ממוצע
+    final savingsPercent = 0.075; // 7.5% בינוני (מהפבט 5-10%)
     return total * savingsPercent;
   }
 
-  /// ספירת פריטים במלאי שנגמרים
+  /// ספירה פריטים במלאי שנגמרים
+  /// 
+  /// פרט נחשב "נמוך" אם כמות < 2 (נגמר או עומד להיגמר)
   static int _countLowInventory(List<InventoryItem> inventory) {
     if (inventory.isEmpty) return 0;
 

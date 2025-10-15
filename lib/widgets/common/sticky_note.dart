@@ -93,7 +93,7 @@ class StickyNote extends StatelessWidget {
           boxShadow: [
             // צל ראשי - אפקט הדבקה חזק
             BoxShadow(
-              color: Colors.black.withOpacity(kStickyShadowPrimaryOpacity),
+              color: Colors.black.withValues(alpha: kStickyShadowPrimaryOpacity),
               blurRadius: kStickyShadowPrimaryBlur,
               offset: const Offset(
                 kStickyShadowPrimaryOffsetX,
@@ -102,7 +102,7 @@ class StickyNote extends StatelessWidget {
             ),
             // צל משני - עומק
             BoxShadow(
-              color: Colors.black.withOpacity(kStickyShadowSecondaryOpacity),
+              color: Colors.black.withValues(alpha: kStickyShadowSecondaryOpacity),
               blurRadius: kStickyShadowSecondaryBlur,
               offset: const Offset(0, kStickyShadowSecondaryOffsetY),
             ),
@@ -168,12 +168,12 @@ class StickyNoteLogo extends StatelessWidget {
         height: kStickyLogoSize,
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(kStickyButtonRadius),
+          borderRadius: BorderRadius.circular(kStickyNoteRadius),
           boxShadow: [
             // צל ראשי חזק - אפקט הדבקה
             BoxShadow(
               color:
-                  Colors.black.withOpacity(kStickyLogoShadowPrimaryOpacity),
+                  Colors.black.withValues(alpha: kStickyLogoShadowPrimaryOpacity),
               blurRadius: kStickyLogoShadowPrimaryBlur,
               offset: const Offset(
                 kStickyShadowPrimaryOffsetX,
@@ -183,7 +183,7 @@ class StickyNoteLogo extends StatelessWidget {
             // צל רך - עומק
             BoxShadow(
               color:
-                  Colors.black.withOpacity(kStickyLogoShadowSecondaryOpacity),
+                  Colors.black.withValues(alpha: kStickyLogoShadowSecondaryOpacity),
               blurRadius: kStickyLogoShadowSecondaryBlur,
               offset: const Offset(0, kStickyLogoShadowSecondaryOffsetY),
             ),

@@ -85,6 +85,8 @@ class _MyPantryScreenState extends State<MyPantryScreen>
   // Actions
   // ========================================
 
+  /// מעדכן את כמות הפריט - מוסיף או מוריד delta
+  /// אם הכמות מגיעה ל-0, מציג דיאלוג אישור מחיקה
   void _updateQuantity(String itemId, int delta) async {
     try {
       final provider = context.read<InventoryProvider>();
@@ -116,6 +118,7 @@ class _MyPantryScreenState extends State<MyPantryScreen>
     }
   }
 
+  /// מציג דיאלוג אישור להסרת פריט מהמזווה
   void _confirmRemoveItem(String itemId) {
     debugPrint('🗑️ MyPantryScreen: _confirmRemoveItem - $itemId');
     final provider = context.read<InventoryProvider>();
@@ -178,6 +181,7 @@ class _MyPantryScreenState extends State<MyPantryScreen>
     );
   }
 
+  /// מציג דיאלוג להוספת פריט חדש למזווה
   void _addItemDialog() {
     debugPrint('➕ MyPantryScreen: פתיחת דיאלוג הוספת פריט');
     final cs = Theme.of(context).colorScheme;
@@ -251,7 +255,7 @@ class _MyPantryScreenState extends State<MyPantryScreen>
                 ),
                 const SizedBox(height: kSpacingMedium),
                 DropdownButtonFormField<String>(
-                  value: selectedLocation,
+                  initialValue: selectedLocation,
                   dropdownColor: cs.surface,
                   style: TextStyle(color: cs.onSurface),
                   decoration: InputDecoration(
@@ -363,6 +367,7 @@ class _MyPantryScreenState extends State<MyPantryScreen>
     );
   }
 
+  /// מציג דיאלוג לעריכת פרטי פריט קיים
   void _editItemDialog(InventoryItem item) {
     debugPrint('✏️ MyPantryScreen: עריכת פריט - ${item.id}');
     final cs = Theme.of(context).colorScheme;
@@ -434,7 +439,7 @@ class _MyPantryScreenState extends State<MyPantryScreen>
                 ),
                 const SizedBox(height: kSpacingMedium),
                 DropdownButtonFormField<String>(
-                  value: selectedLocation,
+                  initialValue: selectedLocation,
                   dropdownColor: cs.surface,
                   style: TextStyle(color: cs.onSurface),
                   decoration: InputDecoration(
@@ -527,6 +532,7 @@ class _MyPantryScreenState extends State<MyPantryScreen>
   // UI Helpers
   // ========================================
 
+  /// בונה chip סטטיסטיקה קטן עם אייקון, תווית וערך
   Widget _buildStatChip({
     required IconData icon,
     required String label,
@@ -565,6 +571,7 @@ class _MyPantryScreenState extends State<MyPantryScreen>
     );
   }
 
+  /// בונה את תצוגת הרשימה המלאה עם סינון וקיבוץ לפי מיקומים
   Widget _buildListView(List<InventoryItem> items) {
     final cs = Theme.of(context).colorScheme;
     
@@ -644,7 +651,7 @@ class _MyPantryScreenState extends State<MyPantryScreen>
               filled: true,
               fillColor: cs.surfaceContainerHighest,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(kBorderRadiusFull),
+                borderRadius: BorderRadius.circular(kRadiusPill),
                 borderSide: BorderSide.none,
               ),
             ),

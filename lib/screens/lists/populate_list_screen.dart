@@ -329,7 +329,7 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
                   const Text('כמות:'),
                   const SizedBox(width: kSpacingSmall),
                   SizedBox(
-                    width: kQuantityFieldWidth,
+                    width: kFieldWidthNarrow,
                     child: TextField(
                       controller: _customQuantityController,
                       keyboardType: TextInputType.number,
@@ -365,6 +365,7 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
     );
   }
 
+  /// בונה את רשימת המוצרים עם מצבי טעינה/שגיאה/ריק
   Widget _buildProductsList(
     ProductsProvider provider,
     List<Map<String, dynamic>> products,
@@ -482,6 +483,7 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
     );
   }
 
+  /// בונה כרטיס מוצר בודד עם פרטים וכפתור הוספה
   Widget _buildProductCard(
     Map<String, dynamic> product,
     ColorScheme cs,
@@ -617,6 +619,7 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
     );
   }
 
+  /// מחזיר אייקון מתאים לפי קטגוריית המוצר
   IconData _getCategoryIcon(String category) {
     switch (category.toLowerCase()) {
       case 'מזון':

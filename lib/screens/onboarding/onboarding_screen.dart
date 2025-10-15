@@ -1,13 +1,28 @@
 // 📄 File: lib/screens/onboarding/onboarding_screen.dart
-// תיאור: מסך Onboarding - היכרות ראשונית עם המשתמש
+// 🎯 Purpose: מסך Onboarding - היכרות ראשונית עם המשתמש
 //
-// תפקיד:
+// 📋 Features:
+// - עיצוב Sticky Notes מלא 🎨📝
 // - הצגת שלבי Onboarding למשתמש חדש
 // - איסוף העדפות בסיסיות (גודל משפחה, חנויות, תקציב וכו')
 // - שמירת ההעדפות דרך OnboardingService
 // - ניווט למסך הבא (Register) בסיום
+// - אנימציות חלקות ומשוב
 //
-// תלויות: OnboardingData, OnboardingSteps, OnboardingService, AppBrand
+// 🔗 Related:
+// - NotebookBackground - רקע מחברת
+// - StickyButton - כפתורים מעוצבים
+// - OnboardingSteps - בניית השלבים
+// - OnboardingService - שמירת העדפות
+//
+// 🎨 Design:
+// - עיצוב Sticky Notes System 2025
+// - רקע נייר קרם עם קווים כחולים
+// - כפתורים בסגנון פתקים עם צללים
+// - Progress indicators מודרניים
+// - אנימציות חלקות במעברים
+//
+// Version: 2.0 - Sticky Notes Design (15/10/2025) 🎨📝
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,7 +31,8 @@ import '../../core/ui_constants.dart';
 import '../../data/onboarding_data.dart';
 import '../../l10n/app_strings.dart';
 import '../../services/onboarding_service.dart';
-import '../../widgets/common/animated_button.dart';
+import '../../widgets/common/notebook_background.dart';
+import '../../widgets/common/sticky_button.dart';
 import 'widgets/onboarding_steps.dart';
 import '../../theme/app_theme.dart';
 
@@ -54,6 +70,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   // Navigation Logic
   // ========================================
 
+  /// מעבר לשלב הבא או סיום ה-onboarding
+  /// 
+  /// אם זה השלב האחרון - קורא ל-[_finishOnboarding]
+  /// אחרת - עובר לשלב הבא עם אנימציה
   void _nextStep(int totalSteps) {
     if (_isLoading) return;
 
@@ -68,6 +88,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
+  /// חזרה לשלב הקודם
+  /// 
+  /// מבצע אנימציה קצרה (200ms) חזרה אחורה
+  /// לא פועל אם כבר בשלב הראשון או במצב loading
   void _prevStep() {
     if (_isLoading) return;
 
@@ -236,65 +260,59 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ],
           ),
-          body: Container(
-            // 🌈 גרדיאנט עדין ברקע - עומק ויזואלי ⭐
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  cs.surface,
-                  cs.surface.withValues(alpha: kOpacityAlmostFull),
-                  accent.withValues(alpha: kOpacityVeryLow),
-                  cs.surface,
-                ],
-                stops: const [0.0, 0.3, 0.7, 1.0],
-              ),
-            ),
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  kSpacingMedium,
-                  kSpacingSmall,
-                  kSpacingMedium,
-                  kSpacingMedium,
-                ),
-                child: Column(
-                  children: [
-                    // מחוון התקדמות
-                    _buildProgressIndicator(cs, accent, steps.length),
-                    const SizedBox(height: kSpacingSmall),
+          body: Stack(
+            children: [
+              // 📄 רקע נייר מחברת - Sticky Notes Design ⭐
+              const NotebookBackground(),
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    kSpacingMedium,
+                    kSpacingSmall,
+                    kSpacingMedium,
+                    kSpacingMedium,
+                  ),
+                  child: Column(
+                    children: [
+                      // מחוון התקדמות
+                      _buildProgressIndicator(cs, accent, steps.length),
+                      const SizedBox(height: kSpacingSmall),
 
-                    // השלבים
-                    Expanded(
-                      child: PageView.builder(
-                        controller: _pageController,
-                        itemCount: steps.length,
-                        onPageChanged: (i) => setState(() => _currentStep = i),
-                        itemBuilder: (_, i) => steps[i],
+                      // השלבים
+                      Expanded(
+                        child: PageView.builder(
+                          controller: _pageController,
+                          itemCount: steps.length,
+                          onPageChanged: (i) => setState(() => _currentStep = i),
+                          itemBuilder: (_, i) => steps[i],
+                        ),
                       ),
-                    ),
 
-                    // Progress Dots - נקודות התקדמות ⭐
-                    _ProgressDots(
-                      currentStep: _currentStep,
-                      totalSteps: steps.length,
-                      accent: accent,
-                    ),
-                    const SizedBox(height: kSpacingMedium),
+                      // Progress Dots - נקודות התקדמות ⭐
+                      _ProgressDots(
+                        currentStep: _currentStep,
+                        totalSteps: steps.length,
+                        accent: accent,
+                      ),
+                      const SizedBox(height: kSpacingMedium),
 
-                    // כפתורי ניווט
-                    _buildNavigationButtons(cs, accent, steps.length),
-                  ],
+                      // כפתורי ניווט
+                      _buildNavigationButtons(cs, accent, steps.length),
+                    ],
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
         ),
       ),
     );
   }
 
+  /// בונה מחוון התקדמות בראש המסך
+  /// 
+  /// מציג LinearProgressIndicator עם טקסט "שלב X/Y"
+  /// הצבע מתאים ל-accent מה-theme
   Widget _buildProgressIndicator(ColorScheme cs, Color accent, int totalSteps) {
     return Row(
       children: [
@@ -318,59 +336,76 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
+  /// בונה כפתורי ניווט - "הקודם" ו "הבא/סיום"
+  /// 
+  /// **כפתור "הקודם":**
+  /// - שימוש ב-StickyButton לבן
+  /// - disabled בשלב הראשון עם empty callback () {}
+  /// 
+  /// **כפתור "הבא/סיום":**
+  /// - במצב loading: Container מותאם אישית עם CircularProgressIndicator
+  /// - במצב רגיל: StickyButton עם אייקון משתנה (חץ / V)
+  /// 
+  /// ⚠️ **לקח:** StickyButton לא תומך ב-isLoading parameter,
+  /// לכן אנחנו מחליפים אותו ב-Container כשיש loading!
   Widget _buildNavigationButtons(ColorScheme cs, Color accent, int totalSteps) {
     return Row(
       children: [
-        // כפתור "הקודם" עם אנימציה ⭐
+        // כפתור "הקודם" - Sticky Notes Design ⭐
         Expanded(
-          child: AnimatedButton(
-            onPressed: _currentStep == 0 || _isLoading ? null : _prevStep,
-            child: OutlinedButton(
-              onPressed: null, // ה-AnimatedButton מטפל ב-onPressed
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 48),
-                side: BorderSide(
-                  color: _currentStep == 0 || _isLoading
-                      ? cs.outlineVariant
-                      : accent,
-                ),
-                foregroundColor: _currentStep == 0 || _isLoading
-                    ? cs.onSurfaceVariant
-                    : accent,
-              ),
-              child: Text(AppStrings.onboarding.previous),
-            ),
+          child: StickyButton(
+            color: Colors.white,
+            textColor: _currentStep == 0 || _isLoading
+                ? cs.onSurfaceVariant
+                : accent,
+            label: AppStrings.onboarding.previous,
+            icon: Icons.arrow_back,
+            onPressed: _currentStep == 0 || _isLoading ? () {} : _prevStep,
           ),
         ),
         const SizedBox(width: kSpacingSmall),
 
-        // כפתור "הבא" / "סיום" עם אנימציה ⭐
+        // כפתור "הבא" / "סיום" - Sticky Notes Design ⭐
         Expanded(
-          child: AnimatedButton(
-            onPressed: _isLoading ? null : () => _nextStep(totalSteps),
-            child: ElevatedButton(
-              onPressed: null, // ה-AnimatedButton מטפל ב-onPressed
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 48),
-                backgroundColor: accent,
-                foregroundColor: Colors.white,
-              ),
-              child: _isLoading
-                  ? const SizedBox(
+          child: _isLoading
+              ? Container(
+                  height: kButtonHeight,
+                  decoration: BoxDecoration(
+                    color: accent,
+                    borderRadius: BorderRadius.circular(kStickyButtonRadius),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: kStickyShadowPrimaryOpacity),
+                        blurRadius: kStickyShadowPrimaryBlur,
+                        offset: const Offset(
+                          kStickyShadowPrimaryOffsetX,
+                          kStickyShadowPrimaryOffsetY,
+                        ),
+                      ),
+                    ],
+                  ),
+                  child: const Center(
+                    child: SizedBox(
                       height: kIconSizeSmall,
                       width: kIconSizeSmall,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
-                    )
-                  : Text(
-                      _currentStep == totalSteps - 1
-                          ? AppStrings.onboarding.finish
-                          : AppStrings.onboarding.next,
                     ),
-            ),
-          ),
+                  ),
+                )
+              : StickyButton(
+                  color: accent,
+                  textColor: Colors.white,
+                  label: _currentStep == totalSteps - 1
+                      ? AppStrings.onboarding.finish
+                      : AppStrings.onboarding.next,
+                  icon: _currentStep == totalSteps - 1
+                      ? Icons.check
+                      : Icons.arrow_forward,
+                  onPressed: () => _nextStep(totalSteps),
+                ),
         ),
       ],
     );

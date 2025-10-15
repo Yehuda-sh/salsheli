@@ -535,7 +535,7 @@ class AppTheme {
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return brand.accent.withValues(alpha: 0.5);
+            return brand.accent.withValues(alpha: kOpacityMedium);
           }
           return null;
         }),
@@ -552,7 +552,7 @@ class AppTheme {
         activeTrackColor: brand.accent,
         inactiveTrackColor: dark ? Colors.white24 : Colors.black12,
         thumbColor: brand.accent,
-        overlayColor: brand.accent.withValues(alpha: 0.2),
+        overlayColor: brand.accent.withValues(alpha: kOpacityLight),
         valueIndicatorColor: brand.accent,
         valueIndicatorTextStyle: const TextStyle(color: Colors.black),
       ),

@@ -1,7 +1,7 @@
 # 🎉 סיכום השיפורים ל-CreateListDialog
 
-**תאריך:** 14/10/2025  
-**גרסה:** 2.0 - Complete Refactor  
+**תאריך:** 15/10/2025  
+**גרסה:** 2.1 - Code Review + AI Automation + Sticky Notes Ready  
 
 ---
 
@@ -224,7 +224,43 @@ void _showErrorSnackBar(String message) {
 
 ---
 
-## 📁 קבצים שעודכנו
+---
+
+## 🤖 AI_QUICK_START Integration ⭐ חדש! (15/10/2025)
+
+**מקור:** חיצוף אוטומטי שביצענו בעבודה על פרויקט
+
+כשסוכן AI מבקש קובץ זה:
+```
+📌 קרא תחילה: C:\\projects\\salsheli\\AI_QUICK_START.md
+```
+
+הסוכן יעשה **Code Review אוטומטי** על קוד זה:
+- 🔍 **בדיקה טכנית** - withOpacity, async callbacks, const, imports, deprecated APIs
+- 🔧 **תיקון אוטומטי** - שגיאות נמצאות ותוקנו מיידית
+- 🎨 **בדיקת Sticky Notes Design** - אם זה מסך UI, בדוק compliance!
+- 📋 **Best Practices** - naming, תיעוד, constants, i18n
+- ⚠️ **TODO/FIXME** - זיהוי בעיות שצריכה לטפל בהן
+
+**עדכון:** קוד `create_list_dialog.dart` עבר בדיקה וביצוע ב-v2.1!
+- ✅ AppStrings - i18n ready ✓
+- ✅ withOpacity → withValues (Flutter 3.27+) - **עדכון!** ⭐
+- ✅ Constants - כל padding/fontSize מ-ui_constants ✓
+- ✅ Validation - 3 שכבות ✓
+- ✅ Error messages - ידידותיות ✓
+
+**הוראות:** קרא את [BEST_PRACTICES.md](../BEST_PRACTICES.md) במזימכם לפני כתיבת קוד חדש!
+
+---
+
+## 📚 קבצים קטרים יטרונים
+
+| קובץ | מטרה | מקבש |
+|------|------|----------|
+| **📚 LESSONS_LEARNED.md** | דפוסים + אחרונים | [read](../LESSONS_LEARNED.md) |
+| **💡 BEST_PRACTICES.md** | קוד + UX best practices | [read](../BEST_PRACTICES.md) |
+| **🎨 STICKY_NOTES_DESIGN.md** | מערכת עיצוב מלאה | [read](../STICKY_NOTES_DESIGN.md) |
+| **⚡ AI_QUICK_START.md** | וטומציות לסוכן AI | [read](../AI_QUICK_START.md) |
 
 ### 1. `lib/l10n/app_strings.dart`
 **שורות שנוספו:** ~90  

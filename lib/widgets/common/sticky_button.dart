@@ -123,7 +123,7 @@ class StickyButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(kStickyButtonRadius),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(kStickyShadowPrimaryOpacity),
+                color: Colors.black.withValues(alpha: kStickyShadowPrimaryOpacity),
                 blurRadius: kStickyShadowPrimaryBlur,
                 offset: const Offset(
                   kStickyShadowPrimaryOffsetX,
@@ -135,10 +135,7 @@ class StickyButton extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (icon != null) ...[
-                Icon(icon, color: btnTextColor, size: kIconSize),
-                const SizedBox(width: kSpacingSmall),
-              ],
+              if (icon != null) ...[Icon(icon, color: btnTextColor, size: kIconSize), const SizedBox(width: kSpacingSmall)],
               Text(
                 label,
                 style: TextStyle(

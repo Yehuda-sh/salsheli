@@ -90,14 +90,14 @@ class _AnimatedButtonState extends State<AnimatedButton> {
     }
   }
 
-  void _onTapUp(TapUpDetails details) async {
+  void _onTapUp(TapUpDetails details) {
     if (widget.onPressed != null) {
       setState(() => _isPressed = false);
       debugPrint('🎯 AnimatedButton: onTapUp');
       
-      // רטט קל למשוב מישושי
+      // רטט קל למשוב מישושי (fire and forget)
       if (widget.enableHaptic) {
-        await HapticFeedback.lightImpact();
+        HapticFeedback.lightImpact();
       }
       
       // קריאה ל-onPressed

@@ -90,6 +90,16 @@ class _CreateListDialogState extends State<CreateListDialog> {
     super.dispose();
   }
 
+  /// הטיפול בהגשת הטופס - validation + שמירה
+  ///
+  /// תהליך:
+  /// 1. בדיקת validation של הטופס
+  /// 2. שמירת נתונים (שם, סוג, תקציב, תאריך)
+  /// 3. קריאה ל-onCreateList callback
+  /// 4. סגירת ה-dialog בהצלחה
+  /// 5. הודעת הצלחה ל-user
+  ///
+  /// שגיאות מטופלות עם הודעות ידידותיות
   Future<void> _handleSubmit() async {
     debugPrint('🔵 CreateListDialog._handleSubmit() התחיל');
 
@@ -149,6 +159,15 @@ class _CreateListDialogState extends State<CreateListDialog> {
   }
 
   // 🆕 המרת שגיאות להודעות ידידותיות
+  /// המרת שגיאות טכניות להודעות ידידותיות
+  ///
+  /// בודק את סוג השגיאה ומחזיר הודעה רלוונטית:
+  /// - שגיאות network/connection
+  /// - שגיאות user/login
+  /// - שגיאה כללית כברירת מחדל
+  ///
+  /// [error] - השגיאה המקורית (כל סוג)
+  /// Returns: הודעה ידידותית בעברית
   String _getFriendlyErrorMessage(dynamic error) {
     final errorStr = error.toString().toLowerCase();
     
@@ -165,6 +184,15 @@ class _CreateListDialogState extends State<CreateListDialog> {
   }
 
   // 🆕 הצגת הודעות שגיאה
+  /// הצגת SnackBar עם הודעת שגיאה
+  ///
+  /// עיצוב:
+  /// - צבע אדום (red.shade700)
+  /// - אייקון error + הודעה
+  /// - floating behavior
+  /// - משך: kSnackBarDurationLong
+  ///
+  /// [message] - ההודעה להצגה
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -183,6 +211,15 @@ class _CreateListDialogState extends State<CreateListDialog> {
   }
 
   // 🆕 הצגת הודעות הצלחה
+  /// הצגת SnackBar עם הודעת הצלחה
+  ///
+  /// עיצוב:
+  /// - צבע ירוק (green.shade700)
+  /// - אייקון check_circle + הודעה
+  /// - floating behavior
+  /// - משך: kSnackBarDuration
+  ///
+  /// [message] - ההודעה להצגה
   void _showSuccessSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -203,6 +240,17 @@ class _CreateListDialogState extends State<CreateListDialog> {
   // ========================================
   // 📋 Templates Bottom Sheet - משופר!
   // ========================================
+  /// הצגת Bottom Sheet לבחירת תבנית
+  ///
+  /// תכונות:
+  /// - DraggableScrollableSheet (גובה 0.7-0.95)
+  /// - Consumer<TemplatesProvider> עם states:
+  ///   - loading: מעגל טעינה
+  ///   - error: הודעת שגיאה
+  ///   - empty: הודעת "אין תבניות"
+  ///   - data: ListView של תבניות
+  /// - בחירה: עדכון _selectedTemplate + _templateItems
+  /// - Feedback: SnackBar עם שם התבנית
   Future<void> _showTemplatesBottomSheet() async {
     debugPrint('📋 פתיחת Templates Bottom Sheet');
 
@@ -416,6 +464,20 @@ class _CreateListDialogState extends State<CreateListDialog> {
   // 🎭 תצוגה מקובצת של סוגי רשימות
   // ========================================
 
+  /// בנייה של selector סוגי הרשימות במצב קבוצות
+  ///
+  /// מבנה:
+  /// - Label: "סוג הרשימה"
+  /// - Container עם Border
+  /// - ExpansionTiles לכל קבוצה (ListTypeGroups)
+  /// - FilterChips לכל סוג ברשימה
+  ///
+  /// Features:
+  /// - ניתן to expand/collapse קבוצות
+  /// - אינדיקטור לסוג שנבחר כרגע
+  /// - בחירה עם setState
+  ///
+  /// Returns: Widget מקביל למבנה היררכי
   Widget _buildGroupedTypeSelector() {
     final theme = Theme.of(context);
     final strings = AppStrings.createListDialog;
@@ -450,6 +512,17 @@ class _CreateListDialogState extends State<CreateListDialog> {
     );
   }
 
+  /// בנייה של ExpansionTile לקבוצת סוגי רשימות
+  ///
+  /// תכונות:
+  /// - אייקון הקבוצה (emoji)
+  /// - שם הקבוצה + תיאור קצר
+  /// - ניתן to expand/collapse
+  /// - initiallyExpanded: true אם סוג נוכחי בקבוצה
+  /// - אינדיקטור "selected" כשהסוג בחר הוא בקבוצה זו
+  ///
+  /// [group] - הקבוצה להצגה (ListTypeGroup enum)
+  /// Returns: ExpansionTile עם FilterChips בתוך
   Widget _buildGroupExpansionTile(ListTypeGroup group) {
     final theme = Theme.of(context);
     final types = ListTypeGroups.getTypesInGroup(group);
@@ -519,6 +592,17 @@ class _CreateListDialogState extends State<CreateListDialog> {
     );
   }
 
+  /// בנייה של FilterChip לסוג רשימה בודד
+  ///
+  /// תכונות:
+  /// - Label: שם + אייקון (emoji)
+  /// - selected state: צבע primaryContainer
+  /// - onSelected: עדכון _type + בדיקת תבנית
+  /// - Disabled כשהדיאלוג משתמש בשליחה (_isSubmitting)
+  /// - Logic: אם סוג משתנה ותבנית לא תואמת → מנקה תבנית
+  ///
+  /// [type] - סוג הרשימה (string key מ-kListTypes)
+  /// Returns: FilterChip interactive
   Widget _buildTypeChip(String type) {
     final theme = Theme.of(context);
     final typeInfo = kListTypes[type]!;

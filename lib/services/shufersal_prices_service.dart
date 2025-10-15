@@ -77,6 +77,14 @@ class ShufersalProduct {
   }
 
   /// ניחוש קטגוריה לפי שם
+  /// 
+  /// משתמש בחיפוש keywords בעברית לזיהוי קטגוריה.
+  /// 
+  /// Categories supported:
+  /// - מוצרי חלב, מאפים, ירקות, פירות, בשר ודגים, אורז ופסטה
+  /// - שמנים ורטבים, תבלינים ואפייה, ממתקים וחטיפים
+  /// - משקאות, קפה ותה, מוצרי ניקיון, היגיינה אישית, שימורים, קפואים
+  /// - אחר (default)
   static String _guessCategory(String itemName) {
     final name = itemName.toLowerCase();
 
@@ -225,12 +233,32 @@ class ShufersalProduct {
 /// שירות להורדת מחירים משופרסל
 /// 
 /// כל ה-methods הם static - אין צורך ביצירת instance
+/// 
+/// **Features:**
+/// - הורדה ישירה מ-API ציבורי של שופרסל
+/// - פענוח GZ + XML אוטומטי
+/// - ניחוש קטגוריה חכם לפי שם המוצר
+/// - הסרת כפילויות לפי barcode
+/// - Deduplication: שמור רק מוצרים ייחודיים
+/// 
+/// **שימוש:**
+/// ```dart
+/// final products = await ShufersalPricesService.getProducts();
+/// print('Downloaded ${products.length} products');
+/// ```
+/// 
+/// **Note:** ייתכן זמן טעינה ארוך (עד דקה) בגלל גודל הקבצים
 class ShufersalPricesService {
   static const String _baseUrl = 'https://prices.shufersal.co.il/';
   static const int _maxFilesToDownload = 3; // מס' סניפים להורדה
   static const Duration _timeout = Duration(minutes: 5);
 
-  /// קבלת רשימת URL של קבצי מחירים
+  /// קבלת רשימת URL של קבצי מחירים מעמוד שופרסל
+  /// 
+  /// פותח את עמוד prices.shufersal.co.il וחיפושים עבור קישורי GZ
+  /// המכילים 'Price' בשם.
+  /// 
+  /// Returns: רשימה של URL קבלות (empty list אם נכשל)
   static Future<List<String>> _getFileUrls() async {
     try {
       debugPrint('🌐 מתחבר ל-prices.shufersal.co.il...');
@@ -276,6 +304,16 @@ class ShufersalPricesService {
   }
 
   /// הורדה ופענוח של קובץ מחירים בודד
+  /// 
+  /// Steps:
+  /// 1. הורדה ממשימה HTTP (GZ compressed)
+  /// 2. פענוח GZ → XML
+  /// 3. פענוח XML → ShufersalProduct objects
+  /// 
+  /// Parameters:
+  /// - [fileUrl] - URL של קובץ GZ מודחס
+  /// 
+  /// Returns: רשימת מוצרים מקובץ זה (empty list אם נכשל)
   static Future<List<ShufersalProduct>> _downloadAndParse(String fileUrl) async {
     try {
       debugPrint('⬇️ מוריד קובץ...');
@@ -307,6 +345,18 @@ class ShufersalPricesService {
   }
 
   /// פענוח XML למוצרים
+  /// 
+  /// ממיר XML עם מבנה Item → ShufersalProduct objects
+  /// 
+  /// Features:
+  /// - Parsing of nested XML elements
+  /// - Filtering: רק מוצרים עם price > 0.5₪
+  /// - Error recovery: מדלג על פריטים שגויים
+  /// 
+  /// Parameters:
+  /// - [xmlContent] - תוכן XML (string)
+  /// 
+  /// Returns: רשימת מוצרים (empty list אם נכשל)
   static List<ShufersalProduct> _parseXml(String xmlContent) {
     try {
       debugPrint('📋 מפענח XML למוצרים...');
@@ -351,7 +401,15 @@ class ShufersalPricesService {
     }
   }
 
-  /// קריאת ערך מ-XML
+  /// קריאת ערך מ-XML element
+  /// 
+  /// מחפש tag ממגרי שם, מחזיר את innerText שלו.
+  /// 
+  /// Parameters:
+  /// - [element] - XML element
+  /// - [tagName] - שם ה-tag לחיפוש
+  /// 
+  /// Returns: innerText (or empty string if not found)
   static String _getXmlValue(xml.XmlElement element, String tagName) {
     try {
       return element.findElements(tagName).first.innerText.trim();
@@ -362,12 +420,26 @@ class ShufersalPricesService {
 
   /// הורדת מוצרים משופרסל (API ציבורי)
   /// 
-  /// Returns: רשימת מוצרים ייחודיים (ללא כפילויות)
+  /// Main entry point - יורדת מספר קבצים מ-Shufersal וממצאת את כל המוצרים.
+  /// 
+  /// Steps:
+  /// 1. קבלת רשימת קבצי מחירים מ-Shufersal
+  /// 2. הורדה של עד [_maxFilesToDownload] קבצים (לא הכל כי זה עצום)
+  /// 3. פענוח כל קובץ ל-ShufersalProduct
+  /// 4. Deduplication לפי barcode
+  /// 
+  /// Returns: רשימת מוצרים ייחודיים
+  /// 
+  /// ⏱️ Timeout: עד דקה למטר קובץ (זמן טעינה עלול להיות ארוך)
   /// 
   /// Example:
   /// ```dart
-  /// final products = await ShufersalPricesService.getProducts();
-  /// print('Downloaded ${products.length} products');
+  /// try {
+  ///   final products = await ShufersalPricesService.getProducts();
+  ///   print('Downloaded ${products.length} products');
+  /// } catch (e) {
+  ///   print('Error: $e');
+  /// }
   /// ```
   static Future<List<ShufersalProduct>> getProducts() async {
     try {

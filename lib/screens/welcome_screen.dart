@@ -27,11 +27,14 @@
 // Version: 5.0 - Sticky Notes with Shared Components (15/10/2025) 🎨📝
 
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common/notebook_background.dart';
 import '../widgets/common/sticky_note.dart';
 import '../widgets/common/sticky_button.dart';
 import '../widgets/common/benefit_tile.dart';
+import '../widgets/common/animated_button.dart';
+import '../widgets/common/tappable_card.dart';
 import '../core/ui_constants.dart';
 import '../l10n/app_strings.dart';
 
@@ -102,53 +105,59 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: kSpacingLarge),
 
-                    // 📌 יתרונות כפתקים צבעוניים
-                    StickyNote(
-                      color: brand?.stickyYellow ?? kStickyYellow,
-                      rotation: 0.01,
-                      child: BenefitTile(
-                        icon: Icons.people_outline,
-                        title: AppStrings.welcome.benefit1Title,
-                        subtitle: AppStrings.welcome.benefit1Subtitle,
-                        titleColor: Colors.black87,
-                        subtitleColor: Colors.black54,
-                        iconColor: accent,
+                    // 📌 יתרונות כפתקים צבעוניים עם אנימציות כניסה
+                    TappableCard(
+                      onTap: () => debugPrint('💛 benefit 1 tapped'),
+                      child: StickyNote(
+                        color: brand?.stickyYellow ?? kStickyYellow,
+                        rotation: 0.01,
+                        child: BenefitTile(
+                          icon: Icons.people_outline,
+                          title: AppStrings.welcome.benefit1Title,
+                          subtitle: AppStrings.welcome.benefit1Subtitle,
+                          titleColor: Colors.black87,
+                          subtitleColor: Colors.black54,
+                          iconColor: accent,
+                        ),
                       ),
-                    ),
+                    ).animate().fadeIn(duration: 300.ms, delay: 100.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
                     const SizedBox(height: kSpacingMedium),
-                    StickyNote(
-                      color: brand?.stickyPink ?? kStickyPink,
-                      rotation: -0.015,
-                      child: BenefitTile(
-                        icon: Icons.camera_alt_outlined,
-                        title: AppStrings.welcome.benefit2Title,
-                        subtitle: AppStrings.welcome.benefit2Subtitle,
-                        titleColor: Colors.black87,
-                        subtitleColor: Colors.black54,
-                        iconColor: accent,
+                    TappableCard(
+                      onTap: () => debugPrint('🌸 benefit 2 tapped'),
+                      child: StickyNote(
+                        color: brand?.stickyPink ?? kStickyPink,
+                        rotation: -0.015,
+                        child: BenefitTile(
+                          icon: Icons.camera_alt_outlined,
+                          title: AppStrings.welcome.benefit2Title,
+                          subtitle: AppStrings.welcome.benefit2Subtitle,
+                          titleColor: Colors.black87,
+                          subtitleColor: Colors.black54,
+                          iconColor: accent,
+                        ),
                       ),
-                    ),
+                    ).animate().fadeIn(duration: 300.ms, delay: 200.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
                     const SizedBox(height: kSpacingMedium),
-                    StickyNote(
-                      color: brand?.stickyGreen ?? kStickyGreen,
-                      rotation: 0.01,
-                      child: BenefitTile(
-                        icon: Icons.inventory_2_outlined,
-                        title: AppStrings.welcome.benefit3Title,
-                        subtitle: AppStrings.welcome.benefit3Subtitle,
-                        titleColor: Colors.black87,
-                        subtitleColor: Colors.black54,
-                        iconColor: accent,
+                    TappableCard(
+                      onTap: () => debugPrint('💚 benefit 3 tapped'),
+                      child: StickyNote(
+                        color: brand?.stickyGreen ?? kStickyGreen,
+                        rotation: 0.01,
+                        child: BenefitTile(
+                          icon: Icons.inventory_2_outlined,
+                          title: AppStrings.welcome.benefit3Title,
+                          subtitle: AppStrings.welcome.benefit3Subtitle,
+                          titleColor: Colors.black87,
+                          subtitleColor: Colors.black54,
+                          iconColor: accent,
+                        ),
                       ),
-                    ),
+                    ).animate().fadeIn(duration: 300.ms, delay: 300.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
 
                     const SizedBox(height: kSpacingLarge),
 
-                    // 🔘 כפתורי פעולה בסגנון פתקים
-                    StickyButton(
-                      color: accent,
-                      label: AppStrings.welcome.loginButton,
-                      icon: Icons.login,
+                    // 🔘 כפתורי פעולה בסגנון פתקים עם אנימציות לחיצה
+                    AnimatedButton(
                       onPressed: () async {
                         debugPrint('🔐 WelcomeScreen: התחברות נלחץ');
                         if (context.mounted) {
@@ -159,13 +168,15 @@ class WelcomeScreen extends StatelessWidget {
                           }
                         }
                       },
+                      child: StickyButton(
+                        color: accent,
+                        label: AppStrings.welcome.loginButton,
+                        icon: Icons.login,
+                        onPressed: () {}, // AnimatedButton מטפל ב-onPressed
+                      ),
                     ),
                     const SizedBox(height: kSpacingMedium),
-                    StickyButton(
-                      color: Colors.white,
-                      textColor: accent,
-                      label: AppStrings.welcome.registerButton,
-                      icon: Icons.app_registration_outlined,
+                    AnimatedButton(
                       onPressed: () async {
                         debugPrint('📝 WelcomeScreen: הרשמה נלחץ');
                         if (context.mounted) {
@@ -176,6 +187,13 @@ class WelcomeScreen extends StatelessWidget {
                           }
                         }
                       },
+                      child: StickyButton(
+                        color: Colors.white,
+                        textColor: accent,
+                        label: AppStrings.welcome.registerButton,
+                        icon: Icons.app_registration_outlined,
+                        onPressed: () {}, // AnimatedButton מטפל ב-onPressed
+                      ),
                     ),
                     const SizedBox(height: kSpacingLarge),
                   ],

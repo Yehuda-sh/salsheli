@@ -31,6 +31,23 @@ class SmartSuggestionsCard extends StatelessWidget {
 
   const SmartSuggestionsCard({super.key, this.mostRecentList});
 
+  /// טיפול בהוספת פריט להמלצה לרשימה פעילה
+  ///
+  /// תהליך:
+  /// 1. בדיקה אם יש רשימה פעילה (mostRecentList)
+  /// 2. יצירת ReceiptItem חדש מנתוני ההמלצה
+  /// 3. הוספה דרך ListsProvider
+  /// 4. SnackBar משוב (הצלחה/שגיאה)
+  ///
+  /// הודעות:
+  /// - אם אין רשימה: "אין רשימה פעילה להוסיף אליה" (כתום)
+  /// - אם הצלחה: "נוסף [שם פריט] לרשימה" (ירוק)
+  /// - אם שגיאה: "שגיאה בהוספה: [שגיאה]" (אדום)
+  ///
+  /// [context] - BuildContext לגישה ל-Providers
+  /// [suggestion] - ההמלצה להוספה (עם productName + suggestedQuantity)
+  /// Returns: Future<void>
+  /// Throws: Exception מ-provider (מטופל ב-try-catch)
   Future<void> _handleAddToList(
     BuildContext context,
     Suggestion suggestion,
@@ -82,6 +99,15 @@ class SmartSuggestionsCard extends StatelessWidget {
     }
   }
 
+  /// מחיקת המלצה מרשימת ההמלצות
+  ///
+  /// תהליך:
+  /// 1. קריאה ל-SuggestionsProvider.removeSuggestion()
+  /// 2. הצגת SnackBar אפור עם "ההמלצה הוסרה"
+  /// 3. משך SnackBar: 2 שניות (קצר יותר)
+  ///
+  /// [context] - BuildContext לגישה ל-SuggestionsProvider
+  /// [suggestionId] - ID הייחודי של ההמלצה למחיקה
   void _handleRemove(BuildContext context, String suggestionId) {
     debugPrint('➖ SmartSuggestionsCard: מסיר המלצה $suggestionId');
     
@@ -97,11 +123,39 @@ class SmartSuggestionsCard extends StatelessWidget {
     );
   }
 
+  /// ניווט למסך יצירת רשימה חדשה
+  ///
+  /// ניווט: Navigator.pushNamed(context, '/shopping-lists')
+  /// משמש כ-CTA כש-Empty State (אין המלצות)
+  ///
+  /// [context] - BuildContext לניווט
   void _showCreateListDialog(BuildContext context) {
     Navigator.pushNamed(context, '/shopping-lists');
   }
 
   // 🆕 Animated SnackBar with Slide + Fade
+  /// הצגת SnackBar עם אנימציות (Slide + Fade)
+  ///
+  /// תכונות:
+  /// - Row עם Icon + Text
+  /// - backgroundColor מותאם אישית
+  /// - floating behavior (מעל content)
+  /// - rounded corners (kBorderRadius)
+  /// - margin: kSpacingMedium
+  /// - duration: ברירת מחדל 3 שניות
+  ///
+  /// צבעים מומלצים:
+  /// - Colors.green: הצלחה ("נוסף...")
+  /// - Colors.red: שגיאה ("שגיאה...")
+  /// - Colors.orange: אזהרה ("אין רשימה...")
+  /// - Colors.blue: מידע ("צפה בכל...")
+  /// - Colors.grey: כללי ("הוסרה...")
+  ///
+  /// [context] - BuildContext לגישה ל-ScaffoldMessenger
+  /// [message] - הודעת ה-SnackBar
+  /// [icon] - IconData להצגה (עם צבע לבן)
+  /// [backgroundColor] - צבע הרקע של ה-SnackBar
+  /// [duration] - משך ההצגה (ברירת מחדל: 3 שניות)
   void _showAnimatedSnackBar(
     BuildContext context, {
     required String message,
@@ -161,6 +215,20 @@ class SmartSuggestionsCard extends StatelessWidget {
   }
 
   // 🆕 1. Skeleton Screen - במקום CircularProgressIndicator
+  /// בנייה של Skeleton Screen (טעינה עם shimmer effect)
+  ///
+  /// תצוגה:
+  /// - כותרת skeleton (אייקון + טקסט)
+  /// - 3 skeleton items (שורות חוזרות)
+  /// - כל skeleton box עם animation (opacity 0.3-0.7)
+  ///
+  /// Animation:
+  /// - Pulsing effect (1500ms duration)
+  /// - Smooth opacity transition
+  /// - Dark/Light mode aware
+  ///
+  /// [context] - BuildContext
+  /// Returns: Card widget עם skeleton UI
   Widget _buildSkeletonCard(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
@@ -206,6 +274,23 @@ class SmartSuggestionsCard extends StatelessWidget {
   }
 
   // 🆕 2. Error State
+  /// בנייה של Error State כרטיס
+  ///
+  /// תצוגה:
+  /// - כותרת עם אייקון שגיאה
+  /// - אייקון מרכזי (cloud_off_outlined)
+  /// - כותרת: "שגיאה בטעינת ההמלצות"
+  /// - הודעת שגיאה מ-provider (errorMessage)
+  /// - כפתור "נסה שוב" עם אנימציה
+  ///
+  /// כפתור Retry:
+  /// - עטוף ב-_AnimatedButton (scale effect)
+  /// - קורא provider.retry()
+  /// - צבע: errorContainer
+  ///
+  /// [context] - BuildContext
+  /// [provider] - SuggestionsProvider (ל-errorMessage + retry())
+  /// Returns: Card widget עם error UI
   Widget _buildErrorCard(BuildContext context, SuggestionsProvider provider) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
@@ -295,6 +380,24 @@ class SmartSuggestionsCard extends StatelessWidget {
   }
 
   // 3. Empty State
+  /// בנייה של Empty State כרטיס
+  ///
+  /// תצוגה:
+  /// - כותרת עם אייקון
+  /// - אייקון מרכזי (lightbulb_outline) - רעיון/המלצה
+  /// - כותרת: "אין המלצות זמינות"
+  /// - הסבר: "צור רשימות קניות וסרוק קבלות..."
+  /// - 2 כפתורי CTA עם אנימציות:
+  ///   1. "צור רשימה" (ראשי) - מקום צבע primaryContainer
+  ///   2. "סרוק קבלה" (משני) - outlined
+  ///
+  /// CTA:
+  /// - כל כפתור עטוף ב-_AnimatedButton (scale 0.95)
+  /// - ניווט דרך Navigator.pushNamed()
+  /// - פעולה תלויה בכפתור
+  ///
+  /// [context] - BuildContext
+  /// Returns: Card widget עם empty UI + CTAs
   Widget _buildEmptyCard(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
@@ -409,6 +512,25 @@ class SmartSuggestionsCard extends StatelessWidget {
   }
 
   // 4. Content State - 🆕 עם List Animations
+  /// בנייה של Content State כרטיס (יש המלצות)
+  ///
+  /// תצוגה:
+  /// - כותרת עם אייקון (auto_awesome)
+  /// - Chip "+X נוספות" (אם יותר מ-3 המלצות)
+  /// - רשימה של 3 המלצות עליונות עם אנימציות:
+  ///   - Slide + Fade effect (stagger 100ms בין איזה)
+  ///   - _AnimatedSuggestionItem widgets
+  /// - כפתור "צפה בכל ההמלצות" (אם יותר מ-3)
+  ///
+  /// אנימציות:
+  /// - כל item נכנס עם delay: index * 100ms
+  /// - Slide from (0, 0.1) to (0, 0)
+  /// - Fade from 0.0 to 1.0
+  /// - Duration: 300ms + easeOut
+  ///
+  /// [context] - BuildContext
+  /// [suggestions] - רשימת ההמלצות
+  /// Returns: Card widget עם 3 המלצות יותר + info
   Widget _buildContentCard(BuildContext context, List<Suggestion> suggestions) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;

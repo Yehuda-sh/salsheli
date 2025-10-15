@@ -826,8 +826,78 @@ if (provider.isLoading) {
 
 #### 🔧 Animation Widgets מוכנים לשימוש
 
+**1. AnimatedButton** (חדש 15/10/2025! ⭐)
+
+רכיב מוכן לשימוש מ-`lib/widgets/common/animated_button.dart`:
+
 ```dart
-// 1. Animated Button
+import 'package:salsheli/widgets/common/animated_button.dart';
+
+// שימוש:
+AnimatedButton(
+  onPressed: () => _handleAction(),
+  child: ElevatedButton(
+    onPressed: null, // ה-AnimatedButton מטפל ב-onPressed
+    child: Text('שמור'),
+  ),
+)
+```
+
+**תכונות:**
+- Scale ל-0.95 בלחיצה (150ms)
+- Haptic feedback אינטגרלי
+- עובד עם כל סוג כפתור (ElevatedButton, OutlinedButton, TextButton)
+- Smooth easeInOut curve
+
+📁 `lib/widgets/common/animated_button.dart` (80 שורות)
+
+---
+
+**2. TappableCard** (חדש 15/10/2025! ⭐)
+
+רכיב מוכן לשימוש מ-`lib/widgets/common/tappable_card.dart`:
+
+```dart
+import 'package:salsheli/widgets/common/tappable_card.dart';
+
+// שימוש:
+TappableCard(
+  onTap: () => Navigator.push(...),
+  child: Card(
+    child: ListTile(
+      title: Text('כרטיס אינטראקטיבי'),
+    ),
+  ),
+)
+```
+
+**תכונות:**
+- Scale ל-0.98 + Elevation animation
+- Haptic feedback
+- מתאים לכל סוג Card או widget
+
+📁 `lib/widgets/common/tappable_card.dart` (100 שורות)
+
+---
+
+**3. דוגמאות מהפרויקט:**
+
+```dart
+// דוגמה 1: WelcomeScreen v2.0 (15/10/2025)
+// - כל הכפתורים עטופים ב-AnimatedButton
+// - 3 יתרונות עם TappableCard
+// - Stagger animations (100ms, 200ms, 300ms)
+// - UX Score: 70 → 100 (+30!)
+
+📘 **למדריך מלא:** [WELCOME_SCREEN_UPGRADE.md](WELCOME_SCREEN_UPGRADE.md) - מדריך מפורט (200 שורות)
+```
+
+---
+
+**לויישום נוסף - קוד ידני:**
+
+```dart
+// 4. Animated Button (קוד ידני ליישום עצמאי)
 class AnimatedButton extends StatefulWidget {
   final Widget child;
   final VoidCallback onPressed;
@@ -1066,9 +1136,17 @@ Widget build(context) {
 
 ---
 
+---
+
 ### 🎯 Implementation Strategy
 
 **מומלץ לעבוד בסדר הזה:**
+
+**שבוע 0: Modern Widgets (חדש 15/10/2025! ⭐)**
+- [✓] `AnimatedButton` - כפתורים אינטראקטיביים
+- [✓] `TappableCard` - כרטיסים אינטראקטיביים
+- [✓] WelcomeScreen v2.0 - יישום מלא
+- UX Score: 70 → 100 (+30!) 🚀
 
 **שבוע 1: Skeleton Screens (1-2 ימים)**
 1. צור `SkeletonBox` widget בסיסי
@@ -1144,7 +1222,7 @@ final location = '🧊'  // hardcoded emoji!
 
 ## 📊 Project Stats
 
-### **מבנה הפרויקט (14/10/2025)**
+### **מבנה הפרויקט (15/10/2025)**
 
 | קטגוריה            | כמות | הערות                                                                                                                                               |
 | ------------------ | ---- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1153,11 +1231,11 @@ final location = '🧊'  // hardcoded emoji!
 | **Repositories**   | 17   | 8 Firebase + 7 interfaces + 2 special (כולל **Templates** ⭐ + **Locations** ⭐)                                                                    |
 | **Services**       | 7    | Auth, Shufersal, OCR, Parser, Stats, Onboarding, Prefs                                                                                              |
 | **Screens**        | 30+  | Auth(2), Home(3), Shopping(8), Lists(3), Receipts(2), Pantry(1), Price(1), Habits(1), Insights(1), Settings(1), Onboarding(2), Welcome(1), Index(1) |
-| **Widgets**        | 25+  | Common(2), Home(2), Auth(2) + 19 נוספים                                                                                                             |
+| **Widgets**        | 27+  | Common(4), Home(2), Auth(2) + 19 נוספים (כולל **AnimatedButton** + **TappableCard** ⭐)                                                              |
 | **Config Files**   | 8    | Household, Mappings, Groups, Filters, Stores, Patterns, **Pantry** ⭐, **StorageLocations** ⭐                                                       |
 | **Core Constants** | 3    | constants, ui_constants, status_colors                                                                                                              |
 
-### **Templates System (חדש! 10/10/2025)** ⭐
+### **Templates System (10/10/2025)**
 
 | רכיב                 | תיאור                                                                          |
 | -------------------- | ------------------------------------------------------------------------------ |

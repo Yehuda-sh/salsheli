@@ -7,6 +7,22 @@
 
 מסמך זה מרכז את כל ה-Best Practices והלקחים שנלמדו במהלך פיתוח האפליקציה.
 
+**📌 למפתחים חדשים:** קרא את `LESSONS_LEARNED.md` לפני מסמך זה!  
+**🤖 לסוכני AI:** קרא את `AI_QUICK_START.md` בתחילת כל שיחה!
+
+---
+
+## 📖 תוכן עניינים
+
+- [🎨 עיצוב UI/UX](#-עיצוב-uiux)
+- [💻 קוד וארכיטקטורה](#-קוד-וארכיטקטורה)
+- [🎯 UX Best Practices](#-ux-best-practices)
+- [📱 ביצועים ונגישות](#-ביצועים-ונגישות)
+- [🧪 בדיקות ודיבאג](#-בדיקות-ודיבאג)
+- [🤖 עבודה עם AI](#-עבודה-עם-ai)
+- [📋 Code Review Checklist](#-code-review-checklist)
+- [✅ Checklist למסך חדש](#-checklist-למסך-חדש)
+
 ---
 
 ## 🎨 עיצוב UI/UX
@@ -167,7 +183,58 @@ find lib/ -type f -name "*.dart" -exec sed -i 's/\.withOpacity(\([0-9.]*\))/.wit
 
 ---
 
-### 3. Context Management בפונקציות אסינכרוניות
+### 3. Deprecated APIs נוספים
+
+#### 3.1 DropdownButtonFormField - value → initialValue
+
+```dart
+// ❌ ישן (deprecated):
+DropdownButtonFormField<String>(
+  value: selectedValue,
+  items: [...],
+)
+
+// ✅ חדש (מומלץ):
+DropdownButtonFormField<String>(
+  initialValue: selectedValue,
+  items: [...],
+)
+```
+
+#### 3.2 UI Constants - שמות חדשים
+
+```dart
+// ❌ ישן:
+kQuantityFieldWidth
+kBorderRadiusFull
+
+// ✅ חדש:
+kFieldWidthNarrow
+kRadiusPill
+
+// דוגמה:
+Container(
+  width: kFieldWidthNarrow,  // במקום kQuantityFieldWidth
+  decoration: BoxDecoration(
+    borderRadius: BorderRadius.circular(kRadiusPill),  // במקום kBorderRadiusFull
+  ),
+)
+```
+
+**🔍 חיפוש והחלפה:**
+```bash
+# מצא שימושים ישנים:
+grep -r "kQuantityFieldWidth" lib/
+grep -r "kBorderRadiusFull" lib/
+
+# או ב-VS Code:
+# Find: kQuantityFieldWidth → Replace: kFieldWidthNarrow
+# Find: kBorderRadiusFull → Replace: kRadiusPill
+```
+
+---
+
+### 4. Context Management בפונקציות אסינכרוניות
 
 **בעיה:** אחרי `await`, ה-BuildContext עלול להיות לא valid.
 
@@ -213,7 +280,7 @@ Future<void> _handleLogin() async {
 
 ---
 
-### 4. State Management עם Loading States
+### 5. State Management עם Loading States
 
 ```dart
 class _MyScreenState extends State<MyScreen> {
@@ -259,7 +326,7 @@ class _MyScreenState extends State<MyScreen> {
 
 ---
 
-### 5. Form Validation
+### 6. Form Validation
 
 ```dart
 class _LoginScreenState extends State<LoginScreen> {
@@ -315,6 +382,57 @@ class _LoginScreenState extends State<LoginScreen> {
 - השתמש ב-`trim()` על קלט טקסט
 - החזר `null` כש-validation עובר
 - החזר string עם הודעת שגיאה כש-validation נכשל
+
+---
+
+### 7. תיעוד פונקציות
+
+#### תיעוד פונקציות ציבוריות
+
+```dart
+/// Creates a shopping list with the given parameters.
+///
+/// Parameters:
+/// - [name]: The name of the shopping list
+/// - [type]: The type of list (see [ListType])
+/// - [items]: Optional initial items
+///
+/// Returns a [Future<ShoppingList>] with the created list.
+///
+/// Throws [FirebaseException] if creation fails.
+Future<ShoppingList> createList({
+  required String name,
+  required ListType type,
+  List<ShoppingItem>? items,
+}) async {
+  // Implementation...
+}
+```
+
+#### תיעוד פונקציות פרטיות
+
+```dart
+/// Validates the email format and checks if it's already in use.
+/// Returns true if valid and available, false otherwise.
+/// Internal helper for registration validation.
+Future<bool> _validateEmail(String email) async {
+  // Implementation...
+}
+
+/// Calculates the total price of items in the cart.
+/// Used by [checkout] and [updateCartSummary].
+double _calculateTotal(List<CartItem> items) {
+  // Implementation...
+}
+```
+
+**כללים:**
+- ✅ **פונקציות ציבוריות:** תיעוד מפורט עם `///`
+- ✅ **פונקציות פרטיות:** תיעוד קצר אבל ברור
+- ✅ תאר **מה** הפונקציה עושה, לא **איך**
+- ✅ ציין **parameters** חשובים
+- ✅ ציין **return type** ו**exceptions**
+- ✅ השתמש ב-`[ClassName]` לקישורים
 
 ---
 
@@ -524,7 +642,119 @@ try {
 
 ---
 
-## 📋 Checklist למסך חדש
+## 🤖 עבודה עם AI
+
+### משפט הקסם לסוכן AI
+
+**תן לסוכן את המשפט הזה בתחילת כל שיחה:**
+```
+📌 קרא תחילה: C:\projects\salsheli\AI_QUICK_START.md - הוראות חובה לפני עבודה
+```
+
+### מה הסוכן יעשה אוטומטית
+
+כשקורא קובץ, הסוכן יבצע **Code Review אוטומטי**:
+
+#### 1️⃣ שגיאות טכניות (תיקון מיידי!)
+- ✅ `withOpacity(0.5)` → `withValues(alpha: 0.5)`
+- ✅ `value` (DropdownButtonFormField) → `initialValue`
+- ✅ `kQuantityFieldWidth` → `kFieldWidthNarrow`
+- ✅ `kBorderRadiusFull` → `kRadiusPill`
+- ✅ async function ב-onPressed → עטוף ב-lambda
+- ✅ widgets שלא משתנים → הוסף `const`
+- ✅ imports לא נעשים → תקן
+- ✅ deprecated APIs → החלף ל-modern API
+
+#### 2️⃣ עיצוב לא תואם STICKY_NOTES_DESIGN.md (תיקון מיידי!)
+
+**אם המסך הוא מסך UI ולא מעוצב עם Sticky Notes:**
+→ **הסוכן יחליף את כל העיצוב מיידית!**
+
+**העיצוב החדש יכלול:**
+- ✅ `NotebookBackground()` + `kPaperBackground`
+- ✅ `StickyNoteLogo()` עבור לוגו
+- ✅ `StickyNote()` עבור כותרות ושדות
+- ✅ `StickyButton()` עבור כפתורים
+- ✅ סיבובים: -0.03 עד 0.03
+- ✅ צבעים: `kStickyYellow`, `kStickyPink`, `kStickyGreen`
+
+#### 3️⃣ קוד לא עוקב BEST_PRACTICES.md (תיקון מיידי!)
+- ✅ חסר תיעוד בראש הקובץ → הוסף header comment
+- ✅ פונקציות פרטיות ללא documentation → הוסף `///` comments
+- ✅ פונקציות ציבוריות ללא documentation → הוסף `///` comments
+- ✅ naming לא עקבי → תקן
+- ✅ magic numbers → הגדר constants
+
+#### 4️⃣ TODO/FIXME
+- אם הסוכן יכול לפתור מיידית → יפתור
+- אם לא → ידווח למשתמש
+
+### כללי עבודה עם AI
+
+**מה הסוכן יעשה:**
+- ✅ קרא קבצים → עבוד → דווח תמציתי
+- ✅ תקן שגיאות טכניות מיידית (ללא שאלות)
+- ✅ תקן עיצוב שלא תואם (ללא שאלות)
+- ✅ שאל רק שאלות חשובות (החלטות עיצוביות)
+
+**מה הסוכן לא יעשה:**
+- ❌ לא יסביר כל שלב בפירוט
+- ❌ לא ישאל אישור לתיקונים טכניים
+- ❌ לא יצטט קוד ארוך בתשובות
+
+**למידע מפורט:** ראה `AI_QUICK_START.md`
+
+---
+
+## 📋 Code Review Checklist
+
+### 🔍 לפני Commit - בדוק:
+
+#### שגיאות טכניות
+- [ ] אין `withOpacity` - הוחלף ב-`withValues(alpha:)`
+- [ ] אין `value` ב-DropdownButtonFormField - הוחלף ב-`initialValue`
+- [ ] אין `kQuantityFieldWidth` - הוחלף ב-`kFieldWidthNarrow`
+- [ ] אין `kBorderRadiusFull` - הוחלף ב-`kRadiusPill`
+- [ ] async functions עטופות בלמבדה ב-onPressed
+- [ ] widgets קבועים מסומנים `const`
+- [ ] כל ה-imports נעשים בהצלחה
+- [ ] אין deprecated APIs
+
+#### עיצוב Sticky Notes (למסכי UI)
+- [ ] יש `NotebookBackground()` + `kPaperBackground`
+- [ ] משתמש ב-`StickyNote()` לכותרות ושדות
+- [ ] משתמש ב-`StickyButton()` לכפתורים
+- [ ] משתמש ב-`StickyNoteLogo()` ללוגו
+- [ ] סיבובים בטווח -0.03 עד 0.03
+- [ ] צבעים מ-`kSticky*` constants
+- [ ] מקסימום 3 צבעים במסך
+
+#### תיעוד וקוד נקי
+- [ ] יש תיעוד בראש הקובץ (מה הקובץ עושה)
+- [ ] פונקציות ציבוריות מתועדות (`///`)
+- [ ] פונקציות פרטיות מתועדות (`///`) - קצר אבל ברור
+- [ ] naming עקבי (PascalCase לclasses, camelCase למשתנים)
+- [ ] אין magic numbers - הוחלפו בconstants
+- [ ] אין קוד מת (commented out code)
+- [ ] context נשמר לפני await
+- [ ] `mounted` נבדק אחרי await
+
+#### ביצועים
+- [ ] `const` בכל מקום שאפשר
+- [ ] אין rebuild מיותר
+- [ ] ListView.builder לרשימות ארוכות
+- [ ] Controllers מקבלים dispose
+
+#### UX
+- [ ] יש loading states
+- [ ] הודעות שגיאה ברורות
+- [ ] הודעות הצלחה
+- [ ] כפתורים נגישים (44-48px)
+- [ ] טקסט קריא (מינימום 11px)
+
+---
+
+## ✅ Checklist למסך חדש
 
 לפני שמסיימים מסך חדש, ודא:
 
@@ -534,14 +764,22 @@ try {
 - [ ] רווחים: compact אם צריך להיכנס במסך אחד
 - [ ] צבעים: מקסימום 3 צבעים שונים
 - [ ] סיבובים: בטווח -0.03 עד 0.03
+- [ ] Logo: `StickyNoteLogo` במקום Container
+- [ ] כפתורים: `StickyButton` במקום ElevatedButton
+- [ ] שדות: `StickyNote` לעטיפה
 
 ### קוד
 - [ ] Async functions עטופות בלמבדה
 - [ ] Context נשמר לפני await
 - [ ] בדיקת `mounted` אחרי await
 - [ ] withValues במקום withOpacity
+- [ ] initialValue במקום value (DropdownButtonFormField)
+- [ ] kFieldWidthNarrow במקום kQuantityFieldWidth
+- [ ] kRadiusPill במקום kBorderRadiusFull
 - [ ] Controllers מקבלים dispose
 - [ ] Form validation מוגדר
+- [ ] תיעוד בראש הקובץ
+- [ ] תיעוד לכל פונקציה (ציבורית + פרטית)
 
 ### UX
 - [ ] Loading states מוגדרים
@@ -549,12 +787,20 @@ try {
 - [ ] הודעות הצלחה
 - [ ] כפתורים נגישים (44-48px)
 - [ ] טקסט קריא (מינימום 11px)
+- [ ] 3-4 Empty States (Loading/Error/Empty/Initial)
 
 ### ביצועים
 - [ ] const בכל מקום שאפשר
 - [ ] Lazy loading לרשימות
 - [ ] אין rebuild מיותר
 - [ ] Debug prints מוסרים בproduction
+
+### בדיקה אחרונה
+- [ ] `flutter analyze` - 0 issues
+- [ ] `dart format lib/ -w` - קוד מפורמט
+- [ ] המסך עובד בהצלחה
+- [ ] המסך עובד עם Dark mode
+- [ ] המסך נראה טוב במכשיר אמיתי
 
 ---
 
@@ -575,19 +821,28 @@ try {
 3. **Deprecated APIs** - עקוב אחרי העדכונים של Flutter
 4. **Migration strategy** - שנה בהדרגה, לא הכל בבת אחת
 
+### מעבודה עם AI
+
+1. **Code Review אוטומטי** - הסוכן מתקן שגיאות מיידית
+2. **תקשורת ברורה** - תן לסוכן את `AI_QUICK_START.md`
+3. **תיקונים מיידיים** - שגיאות טכניות מתוקנות ללא שאלות
+4. **תיעוד חשוב** - הסוכן מוסיף תיעוד חסר אוטומטית
+
 ---
 
 ## 📚 משאבים נוספים
 
 ### מסמכים פנימיים
+- `AI_QUICK_START.md` - הוראות מהירות לסוכן AI ⚡
 - `STICKY_NOTES_DESIGN.md` - מדריך מלא לעיצוב
+- `LESSONS_LEARNED.md` - דפוסים טכניים וארכיטקטורה
 - `README.md` - תיעוד כללי של הפרויקט
 - `lib/core/ui_constants.dart` - כל הקבועים
 
 ### דוגמאות קוד
-- `lib/screens/auth/login_screen.dart` - מסך compact מלא
+- `lib/screens/auth/login_screen.dart` - מסך compact מלא + Sticky Notes
 - `lib/widgets/auth/demo_login_button.dart` - רכיב compact
-- `lib/widgets/common/` - כל רכיבי העיצוב
+- `lib/widgets/common/` - כל רכיבי העיצוב Sticky Notes
 
 ### דוקומנטציה חיצונית
 - [Flutter Documentation](https://flutter.dev/docs)
@@ -596,7 +851,7 @@ try {
 
 ---
 
-**גרסה:** 1.0  
+**גרסה:** 1.1  
 **תאריך:** 15/10/2025  
 **מעודכן לאחרונה:** 15/10/2025
 

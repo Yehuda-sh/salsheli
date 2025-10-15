@@ -69,6 +69,8 @@ class _InsightsScreenState extends State<InsightsScreen> {
     super.dispose();
   }
 
+  /// טוען סטטיסטיקות מהשרת או מהמטמון
+  /// [forceRefresh] - אם true, מתעלם מהמטמון וטוען מהשרת
   Future<void> _loadStats({bool forceRefresh = false}) async {
     debugPrint('📊 InsightsScreen._loadStats: מתחיל (refresh=$forceRefresh, period=${_periods[_selectedPeriod]})');
     
@@ -136,6 +138,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
     }
   }
 
+  /// משנה את התקופה הנבחרת וטוען מחדש את הסטטיסטיקות
   void _changePeriod(int index) {
     if (_selectedPeriod == index) return;
     debugPrint('📊 InsightsScreen: משנה תקופה ל-${_periods[index]}');
@@ -176,6 +179,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
   }
 
   // ================== HEADER ==================
+  /// בונה את ה-header עם כותרת ובחירת תקופה
   Widget _buildHeader(ThemeData theme, ColorScheme cs) {
     final brand = theme.extension<AppBrand>();
 
@@ -252,6 +256,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
   }
 
   // ================== CONTENT ==================
+  /// בונה את התוכן המלא של המסך עם כל הסטטיסטיקות
   Widget _buildContent(ThemeData theme, ColorScheme cs, HomeStats stats) {
     return SliverPadding(
       padding: const EdgeInsets.all(kSpacingMedium),
@@ -287,6 +292,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
   }
 
   // ================== 1. סיכום כללי ==================
+  /// בונה כרטיס סיכום כללי עם השוואה לתקופה קודמת
   Widget _buildSummaryCard(ThemeData theme, ColorScheme cs, HomeStats stats) {
     final brand = theme.extension<AppBrand>();
     final totalSpent = stats.monthlySpent.isFinite ? stats.monthlySpent : 0.0;
@@ -388,6 +394,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
   }
 
   // ================== 2. המלצות חכמות ==================
+  /// בונה רשימת המלצות חכמות לשיפור הרגלי קנייה
   Widget _buildSmartRecommendations(
     ThemeData theme,
     ColorScheme cs,
@@ -470,6 +477,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
     );
   }
 
+  /// מייצר רשימת המלצות בהתאם לסטטיסטיקות האמיתיות
   List<Map<String, dynamic>> _generateRecommendations(HomeStats stats) {
     final recommendations = <Map<String, dynamic>>[];
     final accuracy = stats.listAccuracy;
@@ -541,6 +549,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
   }
 
   // ================== 3. גרף עוגה ✅ נתונים אמיתיים! ==================
+  /// בונה כרטיס גרף עוגה עם התפלגות הוצאות לפי קטגוריות
   Widget _buildPieChartCard(ThemeData theme, ColorScheme cs, HomeStats stats) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -570,6 +579,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
         );
   }
 
+  /// בונה את גרף העוגה עצמו עם הנתונים האמיתיים
   Widget _buildPieChart(ColorScheme cs, HomeStats stats) {
     final data = stats.categoryBreakdown ?? [];
     if (data.isEmpty) return const SizedBox.shrink();
@@ -602,6 +612,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
     );
   }
 
+  /// בונה את מקרא הצבעים של גרף העוגה
   Widget _buildPieChartLegend(
     ThemeData theme,
     ColorScheme cs,
@@ -636,6 +647,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
   }
 
   // ================== 4. סטטיסטיקות מפורטות ==================
+  /// בונה כרטיסי סטטיסטיקות נוספות (חיסכון, דיוק רשימות)
   Widget _buildDetailedStats(ThemeData theme, ColorScheme cs, HomeStats stats) {
     final brand = theme.extension<AppBrand>();
     final savings =
@@ -725,6 +737,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
   }
 
   // ================== 5. הוצאות עיקריות ✅ נתונים אמיתיים! ==================
+  /// בונה רשימת 5 ההוצאות העיקריות
   Widget _buildTopExpenses(ThemeData theme, ColorScheme cs, HomeStats stats) {
     final topExpenses = stats.topProducts ?? [];
     if (topExpenses.isEmpty) return const SizedBox.shrink();
@@ -807,6 +820,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
   }
 
   // ================== STATES ==================
+  /// מצב טעינה עם spinner
   Widget _buildLoadingState(ColorScheme cs) {
     return Center(
       child: Column(
@@ -823,6 +837,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
     );
   }
 
+  /// מצב שגיאה עם כפתור 'נסה שוב'
   Widget _buildErrorState(ColorScheme cs) {
     return Center(
       child: Padding(
@@ -849,6 +864,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
     );
   }
 
+  /// מצב ריק כאשר אין נתונים להצגה
   Widget _buildEmptyState(ColorScheme cs) {
     return Center(
       child: Padding(

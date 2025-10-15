@@ -43,6 +43,34 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../core/ui_constants.dart';
 
+/// רכיב להצגת יתרון/פיצ'ר עם אייקון, כותרת ותיאור
+/// 
+/// מציג יתרון או פיצ'ר בעיצוב אחיד (אייקון במעגל + טקסט בצד).
+/// משמש ב-welcome_screen לתצוגת שלוש יתרונות.
+/// 
+/// Features:
+/// - RTL Support (עברית)
+/// - Theme-aware colors + custom colors
+/// - Accessibility (Semantics)
+/// - Touch-friendly sizing (56x56 px minimum)
+/// 
+/// Parameters:
+/// - [icon]: אייקון היתרון
+/// - [title]: כותרת היתרון (bold, titleMedium)
+/// - [subtitle]: תיאור קצר (bodyMedium)
+/// - [titleColor]: צבע כותרת מותאם (אופציונלי)
+/// - [subtitleColor]: צבע תיאור מותאם (אופציונלי)
+/// - [iconColor]: צבע אייקון מותאם (אופציונלי)
+/// - [iconSize]: גודל אייקון (ברירת מחדל: kIconSizeLarge = 32)
+/// 
+/// דוגמה:
+/// ```dart
+/// BenefitTile(
+///   icon: Icons.check_circle,
+///   title: 'רשימות חכמות',
+///   subtitle: 'עיצוב אינטואיטטיבט וקל לשימוש',
+/// )
+/// ```
 class BenefitTile extends StatelessWidget {
   /// אייקון היתרון
   final IconData icon;
@@ -78,6 +106,17 @@ class BenefitTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    /// בנייה של רכיב יתרון עם אייקון במעגל + טקסט בצד
+    /// 
+    /// פריסה:
+    /// 1. אייקון במעגל (56x56px) עם רקע light opacity
+    /// 2. טקסט (כותרת בולט + תיאור)
+    ///
+    /// צבעים:
+    /// - אייקון: מותאם אישית > brand.accent > cs.primary
+    /// - כותרת: מותאם אישית > cs.onSurface
+    /// - תיאור: מותאם אישית > cs.onSurfaceVariant
+    
     debugPrint('🎁 BenefitTile.build()');
     debugPrint('   📝 title: $title');
     
@@ -85,7 +124,7 @@ class BenefitTile extends StatelessWidget {
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
 
-    // צבע אייקון: מותאם אישית > ענבר מהמותג > primary
+    // צבע אייקון: מותאם אישית > brand.accent > primary
     final effectiveIconColor = iconColor ?? brand?.accent ?? cs.primary;
 
     return Padding(
