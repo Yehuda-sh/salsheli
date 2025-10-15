@@ -1,8 +1,83 @@
+---
+
+## 🔎 Code Review אוטומטי - מול תיעוד הפרויקט
+
+**כשקורא קישור לקובץ, בדוק אוטימטית:**
+
+### 1️⃣ שגיאות טכניות (תקן מיידית!)
+- `withOpacity(0.5)` → `withValues(alpha: 0.5)`
+- async function ב-onPressed → עטוף ב-lambda: `() => myAsyncFunc()`
+- widgets שלא משתנים → הוסף `const`
+- imports לא נעשים → תקן
+- deprecated APIs → החלף ל-modern API
+
+### 2️⃣ עיצוב לא תואם STICKY_NOTES_DESIGN.md (תקן מיידית!)
+**בדוק:**
+- שימוש בצבעים קשיחים (`Colors.blue`) → החלף ל-`accent`, `cs.primary`, וכו'
+- `EdgeInsets.all(16)` → `EdgeInsets.all(kSpacingMedium)`
+- `fontSize: 14` → `fontSize: kFontSizeSmall`
+- `BorderRadius.circular(8)` → `BorderRadius.circular(kBorderRadius)`
+- icons בגודל קשיח → `kIconSizeSmall/Medium/Large`
+
+**אם זה UI component:**
+- האם יש StickyButton/StickyCard/StickyChip שאפשר להשתמש בו?
+- האם פתקים מעוצבים עם shadow + rounded corners?
+
+### 3️⃣ קוד לא עוקב BEST_PRACTICES.md (תקן מיידית!)
+**בדוק:**
+- חסר תיעוד בראש הקובץ → הוסף header comment
+- functions ללא documentation → הוסף `///` comments
+- naming לא עקבי: `myVar` → `_myPrivateVar`, `MyScreen` → suffix `Screen`
+- קוד משוכפל ללא comments → הוסף הסברים
+- magic numbers (42, 100) → הגדר constants עם שמות מתארים
+
+### 4️⃣ TODO/FIXME שצריך לטפל (הזכר למשתמש!)
+```dart
+// TODO: להוסיף validation
+// FIXME: bug כשלוחצים פעמיים
+```
+**אם אתה יכול לפתור מיידית → תפתור!**
+**אם לא → דווח למשתמש על ה-TODO**
+
+### 5️⃣ איך לדווח?
+```
+📖 קורא product_card.dart...
+
+✅ Widget לתצוגת מוצר
+🔧 תיקנתי אוטומטית:
+   1. Colors.blue → accent מ-theme
+   2. EdgeInsets.all(16) → kSpacingMedium
+   3. הוספתי const ב-3 מקומות
+   4. הוספתי תיעוד בראש הקובץ
+   
+⚠️ TODO שמצאתי (שורה  45): "להוסיף אנימציה"
+
+🎯 הכל עובד! רוצה שאטפל ב-TODO?
+```
+
+### ⚡ חשוב!
+- **תקן מיידית** שגיאות טכניות + עיצוב + best practices
+- **אל תשאל אישור** לתיקונים אלה
+- **רק TODO** שלא ברור או מסובך → שאל אם לטפל
+- **דווח מה תיקנת** בצורה תמציתית
+
 # 🤖 AI Quick Start - הוראות מהירות לסוכן
 
 > **למשתמש:** תן את המשפט הזה לסוכן AI בתחילת כל שיחה:
 > 
 > **"📌 קרא תחילה: `C:\projects\salsheli\AI_QUICK_START.md` - הוראות חובה לפני עבודה"**
+
+---
+
+> 🔴 **עדכון חדש (v1.2):** סוכן AI עכשיו עושה **Code Review אוטומטי**!
+> 
+> כשקורא קובץ, הסוכן בודק ומתקן אוטומטית:
+> - ✅ שגיאות טכניות (withOpacity, async, const)
+> - 🎨 עיצוב מול Sticky Notes Design
+> - 📋 קוד מול Best Practices
+> - 📝 תיעוד ו-naming
+> 
+> **ללא שאלות!** רק תיקון ודיווח 🚀
 
 ---
 
@@ -38,9 +113,12 @@
 
 3️⃣ **בדוק בעיות אוטומטית:**
 - ❌ שגיאות קומפילציה (withOpacity, async callbacks, וכו')
+- 🎨 העיצוב לא תואם STICKY_NOTES_DESIGN.md?
+- 📋 לא עוקב אחרי BEST_PRACTICES.md?
 - ⚠️ TODO/FIXME comments
 - 🔍 Deprecated APIs
-- 📋 חסר תיעוד?
+- 📝 חסר תיעוד בראש הקובץ?
+- 🏷️ Naming לא עקבי עם שאר הפרויקט?
 
 4️⃣ **קרא קבצים קשורים (אם רלוונטי):**
 ```
@@ -56,11 +134,19 @@ Model → Repository שמשתמש בו
 📦 משתמש ב-UserContext + AuthButton
 🔧 תיקנתי אוטומטית:
    1. async callback עטוף בlambda (שורה 371)
+   2. שיניתי צבע ל-accent לפי Sticky Notes Design
+   3. הוספתי תיעוד בראש הקובץ
    
 🎯 הכל עובד!
 ```
 
-**חשוב:** אם זו שגיאה טכנית ברורה (withOpacity, async callback, const, וכו') - **תקן מיד!** אל תשאל אישור!
+**חשוב:** תקן מיידית:
+- שגיאות טכניות (withOpacity, async, const, וכו')
+- עיצוב לא תואם (Sticky Notes Design)
+- קוד לא עוקב (Best Practices)
+- חסר תיעוד / naming לא עקבי
+
+**לא תשאל אישור!**
 
 ### דוגמה:
 
@@ -181,12 +267,18 @@ C:\projects\salsheli\lib\screens\auth\login_screen.dart
 
 | קובץ | מתי | למה |
 |------|-----|-----|
+| **AI_DEV_GUIDELINES.md** | 🔴 למידע טכני | טבלת בעיות + Code Review + Modern UI |
 | **LESSONS_LEARNED.md** | 🔴 תמיד | דפוסים טכניים + ארכיטקטורה |
 | **BEST_PRACTICES.md** | 🟡 לקוד | Best practices לקוד ועיצוב |
 | **STICKY_NOTES_DESIGN.md** | 🟡 ל-UI | מערכת עיצוב מלאה |
 | **WORK_LOG.md** | 🟢 בהתחלה | מה השתנה לאחרונה |
 
 **אל תקרא הכל בכל פעם!** רק את מה שרלוונטי למשימה.
+
+**💡 Quick Navigation:**
+- בעיה טכנית ספציפית? → [AI_DEV_GUIDELINES - טבלת בעיות](AI_DEV_GUIDELINES.md#-quick-start)
+- צריך Code Review מפורט? → [AI_DEV_GUIDELINES - Checklist](AI_DEV_GUIDELINES.md#-code-review-checklist)
+- צריך Modern UI? → [AI_DEV_GUIDELINES - Skeleton + Animations](AI_DEV_GUIDELINES.md#-modern-uiux-patterns)
 
 ---
 
@@ -286,16 +378,17 @@ lib/
 ## ⚡ TL;DR - תזכורת של 10 שניות
 
 1. **שגיאות טכניות?** → תקן מיידית ללא שאלות! 🔴
-2. **קישור לקובץ?** → קרא מיד + תקן + דווח
-3. **קרא LESSONS_LEARNED** לפני עבודה
-4. **עבוד בשקט** - אל תפרט יותר מידי
-5. **שאל רק מה חשוב** - לא כל דבר קטן
-6. **שמור Tokens** - תכנן מראש!
-7. **נקודת שחזור** - אם נגמרים הtokens
-8. **דווח תמציתי** - "✅ תיקנתי X, Y, Z"
+2. **עיצוב לא תואם?** → תקן לפי Sticky Notes Design! 🎨
+3. **קוד לא עוקב?** → תקן לפי Best Practices! 📋
+4. **קישור לקובץ?** → קרא + בדוק + תקן + דווח
+5. **קרא LESSONS_LEARNED** לפני עבודה
+6. **עבוד בשקט** - אל תפרט יותר מידי
+7. **שאל רק מה חשוב** - לא כל דבר קטן
+8. **שמור Tokens** - תכנן מראש!
+9. **דווח תמציתי** - "✅ תיקנתי X, Y, Z"
 
 ---
 
 **זכור:** המשתמש רוצה שתעשה את העבודה, לא שתסביר לו איך! 💪
 
-**גרסה:** 1.1 | **תאריך:** 15/10/2025 | **שינוי:** כלל זהב - תיקון אוטומטי ללא שאלות!
+**גרסה:** 1.2 | **תאריך:** 15/10/2025 | **שינוי:** + Code Review אוטומטי מול תיעוד הפרויקט!

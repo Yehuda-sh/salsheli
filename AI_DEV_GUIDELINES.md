@@ -2,9 +2,10 @@
 
 # 🤖 AI Development Guidelines - salsheli Project
 
-> **מטרה:** מדריך מהיר לסוכני AI - כל מה שצריך בעמוד אחד  
+> **מטרה:** מדריך טכני מקיף לסוכני AI - טבלת בעיות + Code Review + Modern UI/UX  
 > **עדכון:** 14/10/2025 | **גרסה:** 8.0 - Modern UI/UX Patterns  
-> 💡 **לדוגמאות מפורטות:** ראה [LESSONS_LEARNED.md](LESSONS_LEARNED.md)
+> 💡 **לדוגמאות מפורטות:** ראה [LESSONS_LEARNED.md](LESSONS_LEARNED.md)  
+> 🤖 **להוראות התנהגות סוכן:** ראה [AI_QUICK_START.md](AI_QUICK_START.md) ⭐
 
 ---
 
