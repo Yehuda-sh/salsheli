@@ -38,6 +38,7 @@
 - 🔐 **Firebase Auth** - התחברות מאובטחת
 - ☁️ **Firestore Sync** - סנכרון real-time בין מכשירים
 - 🌐 **RTL מלא** - תמיכה בעברית מלאה | אנגלית: TODO (v1.1)
+- 🎨 **Sticky Notes Design** - עיצוב ייחודי בהשראת פתקים ומחברות ⭐ (חדש!)
 
 ---
 
@@ -63,8 +64,23 @@ flutter doctor -v  # שמור פלט לפתרון בעיות עתידיות
 | קובץ | מה זה | מתי לקרוא |
 | --- | --- | --- |
 | **📚 LESSONS_LEARNED.md** | לקחים חשובים + דפוסים טכניים | ⭐ חובה לפני עבודה! |
-| **🤖 AI_DEV_GUIDELINES.md** | הנחיות לסוכני AI | אם עובד עם AI |
+| **💡 BEST_PRACTICES.md** | Best practices לקוד ועיצוב | ⭐ חובה לכל מפתח! |
+| **🎨 STICKY_NOTES_DESIGN.md** | מדריך מלא למערכת העיצוב | לפני עבודה על UI |
+| **🤖 AI_QUICK_START.md** | הוראות מהירות לסוכני AI ⚡ | ⭐ תן לסוכן AI בתחילת כל שיחה! |
+| **🤖 AI_DEV_GUIDELINES.md** | הנחיות מפורטות לסוכני AI | אם עובד עם AI |
 | **📓 WORK_LOG.md** | שינויים אחרונים + היסטוריה | בתחילת כל יום עבודה |
+
+**🎯 סדר קריאה מומלץ:**
+1. LESSONS_LEARNED.md - הבסיס הטכני 🏗️
+2. BEST_PRACTICES.md - איך לכתוב קוד נכון 💻
+3. STICKY_NOTES_DESIGN.md - איך לעצב UI יפה 🎨
+4. AI_QUICK_START.md - לסוכן AI (משפט אחד!) ⚡
+5. AI_DEV_GUIDELINES.md - מדריך מפורט ל-AI 🤖
+
+**🤖 לסוכן AI - תן לו את המשפט הזה:**
+```
+📌 קרא תחילה: C:\projects\salsheli\AI_QUICK_START.md - הוראות חובה לפני עבודה
+```
 
 ### 📥 התקנה:
 
@@ -257,7 +273,7 @@ lib/
 │   └── welcome_screen.dart     # First screen
 │
 ├── widgets/                   # Reusable UI Components (25+)
-│   ├── common/                 # Dashboard card, Benefit tile
+│   ├── common/                 # Dashboard card, Benefit tile, Sticky Notes ⭐
 │   ├── home/                   # Suggestions, Upcoming shop
 │   ├── auth/                   # Auth button, Demo login
 │   └── *.dart                  # Item card, Filters, etc.
@@ -274,7 +290,7 @@ lib/
 │
 ├── core/                      # Core Constants ⭐ (UI + System)
 │   ├── constants.dart              # ListType, categories, Firestore collections
-│   ├── ui_constants.dart           # Spacing, sizes, durations, borders
+│   ├── ui_constants.dart           # Spacing, sizes, durations, borders, Sticky Notes ⭐
 │   └── status_colors.dart          # Status colors (theme-aware)
 │
 ├── l10n/                      # Localization (i18n Ready)
@@ -289,7 +305,7 @@ lib/
 │   └── app_layout.dart             # Main app shell
 │
 └── theme/                     # Theming
-    └── app_theme.dart              # Light + Dark themes
+    └── app_theme.dart              # Light + Dark themes + Sticky Notes ⭐
 ```
 
 ### 💡 ארכיטקטורה - נקודות מרכזיות
@@ -305,6 +321,11 @@ lib/
 - Interface (`*_repository.dart`) + Implementation (`firebase_*_repository.dart`)
 - הפרדת Data Access מ-State Management
 - household_id filtering בכל השאילתות
+
+**🎨 Sticky Notes Design System:**
+- רכיבים: NotebookBackground, StickyNote, StickyNoteLogo, StickyButton
+- קבועים: צבעים, צללים, רווחים, סיבובים
+- מדריך מלא: `STICKY_NOTES_DESIGN.md`
 
 **☁️ Firebase Collections:**
 ```
@@ -322,7 +343,7 @@ firestore/
 
 ---
 
-## 📝 מה עובד היום (14/10/2025)
+## 📝 מה עובד היום (15/10/2025)
 
 ### ☁️ Firestore + Authentication
 
@@ -352,12 +373,14 @@ firestore/
 
 ### 🎨 UI/UX
 
+- ✅ **Sticky Notes Design System** - עיצוב ייחודי בהשראת פתקים ⭐ (חדש! 15/10/2025)
 - ✅ 21 סוגי רשימות + מסך קנייה פעילה
 - ✅ Undo למחיקה (5 שניות עם SnackBar)
 - ✅ 3-4 Empty States: Loading/Error/Empty/Initial
 - ✅ RTL מלא (עברית) + Dark/Light themes
 - ✅ מיקומי אחסון מותאמים (5: מקרר, מקפיא, מזווה, ארונות, מותאם)
 - ✅ Modern Design - gradients, shadows, elevation
+- ✅ Compact layouts - מסכים ללא גלילה עם צמצום חכם ⭐
 
 ---
 
@@ -371,13 +394,14 @@ firestore/
 | **Repositories** | 17 | 8 Firebase + 7 interfaces + 2 special |
 | **Services** | 7 | Auth, Shufersal, OCR, Parser, Stats, Onboarding, Prefs |
 | **Screens** | 30+ | מסכים מלאים עם routing |
-| **Widgets** | 25+ | רכיבי UI לשימוש חוזר |
+| **Widgets** | 25+ | רכיבי UI לשימוש חוזר + Sticky Notes |
 | **Config Files** | 8 | Business rules + patterns |
-| **Core Constants** | 3 | UI + System constants |
+| **Core Constants** | 3 | UI + System constants + Sticky Notes |
 | **תבניות מערכת** | 6 | 66 פריטים סה"כ |
 | **מוצרים** | 1,758 | Hive cache + Firestore |
 | **סוגי רשימות** | 21 | עם 140+ פריטים מוצעים |
 | **משתמשי דמו** | 3 | Yoni, Sarah, Danny |
+| **מסמכי תיעוד** | 6 | README, LESSONS, BEST_PRACTICES, DESIGN, AI_QUICK_START, AI_GUIDELINES |
 
 ---
 
@@ -396,6 +420,7 @@ firestore/
 - [ ] Smart notifications - תזכורות לקנייה
 - [ ] Price tracking - גרפים + השוואה היסטורית
 - [ ] Template categories + search - ארגון טוב יותר
+- [ ] Sticky Notes Design - רישום ומסך הרשמה ⭐
 
 ### 🟢 נמוך (Priority 3)
 
@@ -404,8 +429,10 @@ firestore/
 - [ ] Performance optimization - profiling + optimization
 - [ ] Custom template icons - אייקונים מותאמים אישית
 
-### ✅ הושלם לאחרונה (06-14/10/2025)
+### ✅ הושלם לאחרונה (06-15/10/2025)
 
+- ~~Sticky Notes Design System - מסך התחברות~~ (15/10) ⭐
+- ~~BEST_PRACTICES.md + STICKY_NOTES_DESIGN.md~~ (15/10) ⭐
 - ~~LocationsProvider → Firebase Migration~~ (13/10) ⭐
 - ~~Batch Processing Pattern - 100+ items~~ (13/10) ⭐
 - ~~InventoryProvider Error Recovery~~ (13/10) ⭐
@@ -520,9 +547,12 @@ firebase emulators:start --only firestore
 | **Build runner fails** | מחק `build/` + `*.g.dart`, הרץ `flutter clean` ואז build runner שוב | - |
 | **שגיאת "Access denied"** | נתיב קובץ לא מלא → השתמש ב-`C:\projects\salsheli\...` | [AI_DEV_GUIDELINES](AI_DEV_GUIDELINES.md#file-paths) |
 | **CircularProgressIndicator איטי** | השתמש ב-Batch Processing (50-100 items) לשמירה/טעינה | [LESSONS_LEARNED](LESSONS_LEARNED.md#batch-processing-pattern) |
-| **Deprecated API warnings** | `.withOpacity()` → `.withValues(alpha:)` | [LESSONS_LEARNED](LESSONS_LEARNED.md#deprecated-apis) |
+| **Deprecated API warnings** | `.withOpacity()` → `.withValues(alpha:)` | [BEST_PRACTICES](BEST_PRACTICES.md#שימוש-נכון-ב-withvalues) |
+| **Async callback errors** | עטוף Future functions בלמבדה: `() => _asyncFunc()` | [BEST_PRACTICES](BEST_PRACTICES.md#עבודה-עם-async-functions) |
+| **Sticky Notes לא נראים** | בדוק שיש `NotebookBackground` + `kPaperBackground` | [STICKY_NOTES_DESIGN](STICKY_NOTES_DESIGN.md#notebookbackground) |
 
-> **💡 עוד פתרונות:** ראה [LESSONS_LEARNED.md](LESSONS_LEARNED.md) חלק "Troubleshooting"
+> **💡 עוד פתרונות:** ראה [LESSONS_LEARNED.md](LESSONS_LEARNED.md) חלק "Troubleshooting"  
+> **💡 Best Practices:** ראה [BEST_PRACTICES.md](BEST_PRACTICES.md) לדפוסי קוד נכונים
 
 ---
 
@@ -539,11 +569,15 @@ firebase emulators:start --only firestore
 
 2. **📚 קרא תיעוד (חובה!)**
    - `LESSONS_LEARNED.md` - דפוסים טכניים + לקחים
+   - `BEST_PRACTICES.md` - Best practices לקוד ועיצוב
+   - `STICKY_NOTES_DESIGN.md` - מערכת העיצוב (אם עובד על UI)
    - `AI_DEV_GUIDELINES.md` - הנחיות פיתוח
    - `WORK_LOG.md` - שינויים אחרונים
 
 3. **✍️ כתוב קוד איכותי:**
    - עקוב אחר דפוסים ב-LESSONS_LEARNED
+   - קרא את BEST_PRACTICES לפני כתיבה
+   - השתמש ב-Sticky Notes Design System לUI
    - 3-4 Empty States בwidgets חדשים
    - Logging מפורט בכל method (🗑️ ✏️ ➕ 🔄 ✅ ❌)
    - Constants לכל hardcoded values
@@ -558,7 +592,7 @@ firebase emulators:start --only firestore
    dart format lib/ -w
    
    # בדיקת איכות
-   # עבור על AI_DEV_GUIDELINES Code Review Checklist
+   # עבור על BEST_PRACTICES Code Review Checklist
    ```
 
 5. **🚀 Commit + PR**
@@ -576,12 +610,25 @@ firebase emulators:start --only firestore
 - `refactor: שיפור קוד קיים`
 - `docs: עדכון תיעוד`
 - `style: שינויי UI/UX`
+- `design: עיצוב Sticky Notes`
 
 ---
 
-## 🎓 הישגים אחרונים (06-14/10/2025)
+## 🎓 הישגים אחרונים (06-15/10/2025)
 
 ### ⭐ תשתית ופיצ'רים חדשים
+
+- ✅ **Sticky Notes Design System** (15/10)
+  - מערכת עיצוב מלאה בהשראת פתקים
+  - רכיבים: NotebookBackground, StickyNote, StickyButton
+  - מסך התחברות מעוצב מחדש
+  - מדריך מלא: STICKY_NOTES_DESIGN.md
+
+- ✅ **Best Practices Documentation** (15/10)
+  - BEST_PRACTICES.md - מדריך מקיף
+  - דפוסי קוד נכונים
+  - עיצוב Compact למסכים
+  - טיפים לביצועים ונגישות
 
 - ✅ **LocationsProvider → Firebase Migration** (13/10)
   - מעבר מ-SharedPreferences ל-Firestore
@@ -620,15 +667,19 @@ firebase emulators:start --only firestore
 ### 📚 תיעוד
 
 - ✅ LESSONS_LEARNED.md - 15 עקרונות זהב + דפוסים מפורטים
+- ✅ BEST_PRACTICES.md - Best practices מקיפים ⭐
+- ✅ STICKY_NOTES_DESIGN.md - מדריך עיצוב מלא ⭐
 - ✅ AI_DEV_GUIDELINES.md - v8.0 + Modern UI/UX patterns
 - ✅ WORK_LOG.md - תיעוד שינויים + לקחים
 
 ### 🎨 UI/UX
 
+- ✅ Sticky Notes Design System - עיצוב ייחודי ⭐
 - ✅ 140+ פריטים מוצעים - 21 קטגוריות רשימות
 - ✅ Modern Design - gradients, shadows, elevation
 - ✅ 3-4 Empty States - בכל widget
 - ✅ RTL מלא - תמיכה בעברית מושלמת
+- ✅ Compact layouts - צמצום חכם של רווחים ⭐
 
 ### 💰 אינטגרציות
 
@@ -671,50 +722,66 @@ Settings → חשבון → מחק חשבון
 
 ## 👨‍💻 שולחן עבודה למפתחים
 
-קישורים מהירים ל-LESSONS_LEARNED.md לפי נושאים:
+### 📚 מדריכים מרכזיים
 
-### 🏗️ ארכיטקטורה
+| מסמך | מה בפנים | קישור |
+|------|----------|-------|
+| **LESSONS_LEARNED** | דפוסים טכניים + ארכיטקטורה | [📖](LESSONS_LEARNED.md) |
+| **BEST_PRACTICES** | Best practices לקוד ועיצוב ⭐ | [💡](BEST_PRACTICES.md) |
+| **STICKY_NOTES_DESIGN** | מדריך מלא למערכת העיצוב ⭐ | [🎨](STICKY_NOTES_DESIGN.md) |
+| **AI_QUICK_START** | הוראות מהירות לסוכני AI ⚡ | [🤖](AI_QUICK_START.md) |
+| **AI_DEV_GUIDELINES** | הנחיות מפורטות לסוכני AI | [🤖](AI_DEV_GUIDELINES.md) |
+| **WORK_LOG** | שינויים אחרונים | [📓](WORK_LOG.md) |
 
-| נושא | תיאור קצר | קישור |
-|------|-----------|-------|
-| **Firebase Integration** | מעבר מ-SharedPreferences → Firestore | [→](LESSONS_LEARNED.md#-מעבר-ל-firebase) |
-| **Timestamp Management** | Firestore Timestamp ↔ DateTime | [→](LESSONS_LEARNED.md#-timestamp-management) |
-| **household_id Pattern** | Repository מוסיף household_id, לא Model | [→](LESSONS_LEARNED.md#-householdid-pattern) |
-| **Repository Pattern** | Interface + Implementation + household filtering | [→](LESSONS_LEARNED.md#%EF%B8%8F-repository-pattern) |
-| **Templates System** | system/personal/shared/assigned formats | [→](LESSONS_LEARNED.md#-templates-security-model) |
-| **LocationsProvider Migration** | SharedPreferences → Firestore (13/10) | [→](LESSONS_LEARNED.md#%EF%B8%8F-locationsprovider-migration) |
+### 🎯 קישורים מהירים ל-LESSONS_LEARNED
 
-### 💻 דפוסי קוד
+#### 🏗️ ארכיטקטורה
 
-| נושא | תיאור קצר | קישור |
-|------|-----------|-------|
-| **UserContext Pattern** | addListener + removeListener בכל Provider | [→](LESSONS_LEARNED.md#-usercontext-pattern) |
-| **Single Source of Truth** | מקור אמת אחד לכל נתון | [→](LESSONS_LEARNED.md#-single-source-of-truth) |
-| **Provider Structure** | State + Getters + CRUD + Recovery + Logging | [→](LESSONS_LEARNED.md#-provider-structure) |
-| **Cache Pattern** | O(1) במקום O(n) עם `_cachedFiltered` | [→](LESSONS_LEARNED.md#-cache-pattern) |
-| **Batch Processing** | 50-100 items לביצועים | [→](LESSONS_LEARNED.md#-batch-processing-pattern) |
-| **Constants Organization** | lib/core/ + lib/config/ - לא hardcoded | [→](LESSONS_LEARNED.md#-constants-organization) |
-| **Config Files Pattern** | patterns/constants במקום אחד | [→](LESSONS_LEARNED.md#-config-files-pattern) |
+| נושא | קישור |
+|------|-------|
+| **Firebase Integration** | [→](LESSONS_LEARNED.md#-מעבר-ל-firebase) |
+| **Timestamp Management** | [→](LESSONS_LEARNED.md#-timestamp-management) |
+| **household_id Pattern** | [→](LESSONS_LEARNED.md#-householdid-pattern) |
+| **Repository Pattern** | [→](LESSONS_LEARNED.md#%EF%B8%8F-repository-pattern) |
+| **Templates System** | [→](LESSONS_LEARNED.md#-templates-security-model) |
 
-### 🎨 UI/UX
+#### 💻 דפוסי קוד
 
-| נושא | תיאור קצר | קישור |
-|------|-----------|-------|
-| **3-4 Empty States** | Loading/Error/Empty/Initial בכל widget | [→](LESSONS_LEARNED.md#-3-4-empty-states) |
-| **Undo Pattern** | 5 שניות עם SnackBar | [→](LESSONS_LEARNED.md#%EF%B8%8F-undo-pattern) |
-| **Visual Feedback** | צבעים לפי סטטוס + animations | [→](LESSONS_LEARNED.md#%EF%B8%8F-visual-feedback) |
-| **UI/UX Review** | 10 נקודות בדיקה + checklist | [→](LESSONS_LEARNED.md#-uiux-review) |
-| **Modern Design** | Gradients + shadows + elevation | [→](LESSONS_LEARNED.md#-modern-design-principles) |
+| נושא | קישור |
+|------|-------|
+| **UserContext Pattern** | [→](LESSONS_LEARNED.md#-usercontext-pattern) |
+| **Provider Structure** | [→](LESSONS_LEARNED.md#-provider-structure) |
+| **Batch Processing** | [→](LESSONS_LEARNED.md#-batch-processing-pattern) |
+| **Constants Organization** | [→](LESSONS_LEARNED.md#-constants-organization) |
 
-### 🐛 Troubleshooting
+#### 🎨 UI/UX
 
-| בעיה | פתרון מהיר | קישור |
-|------|-----------|-------|
-| **Dead Code Detection** | 3-Step: imports → שם → בדיקה ידנית | [→](LESSONS_LEARNED.md#-dead-code-detection) |
-| **Dormant Code** | 4 שאלות → הפעל או מחק | [→](LESSONS_LEARNED.md#-dormant-code-הפעל-או-מחק) |
-| **Race Condition (Auth)** | זרוק Exception בשגיאה, לא בדיקת isLoggedIn | [→](LESSONS_LEARNED.md#-race-condition-firebase-auth) |
-| **File Paths** | נתיב מלא: C:\projects\salsheli\... | [→](LESSONS_LEARNED.md#-file-paths-pattern) |
-| **Deprecated APIs** | .withOpacity → .withValues(alpha:) | [→](LESSONS_LEARNED.md#-deprecated-apis) |
+| נושא | קישור |
+|------|-------|
+| **3-4 Empty States** | [→](LESSONS_LEARNED.md#-3-4-empty-states) |
+| **Undo Pattern** | [→](LESSONS_LEARNED.md#%EF%B8%8F-undo-pattern) |
+| **Modern Design** | [→](LESSONS_LEARNED.md#-modern-design-principles) |
+
+### 💡 קישורים מהירים ל-BEST_PRACTICES
+
+| נושא | קישור |
+|------|-------|
+| **עיצוב Compact** | [→](BEST_PRACTICES.md#עיצוב-מסכים-compact-) |
+| **Async Functions** | [→](BEST_PRACTICES.md#עבודה-עם-async-functions) |
+| **withValues** | [→](BEST_PRACTICES.md#שימוש-נכון-ב-withvalues) |
+| **Context Management** | [→](BEST_PRACTICES.md#context-management-בפונקציות-אסינכרוניות) |
+| **Loading States** | [→](BEST_PRACTICES.md#state-management-עם-loading-states) |
+| **UX Best Practices** | [→](BEST_PRACTICES.md#-ux-best-practices) |
+
+### 🎨 קישורים מהירים ל-STICKY_NOTES_DESIGN
+
+| נושא | קישור |
+|------|-------|
+| **סקירה כללית** | [→](STICKY_NOTES_DESIGN.md#-סקירה-כללית) |
+| **רכיבים** | [→](STICKY_NOTES_DESIGN.md#-רכיבים-משותפים) |
+| **עיצוב Compact** | [→](STICKY_NOTES_DESIGN.md#-עיצוב-compact---מסכים-ללא-גלילה) |
+| **דוגמאות** | [→](STICKY_NOTES_DESIGN.md#-דוגמאות-שימוש-מלאות) |
+| **פתרון בעיות** | [→](STICKY_NOTES_DESIGN.md#-פתרון-בעיות-נפוצות) |
 
 ### 📊 מדדי איכות
 
@@ -725,6 +792,8 @@ Settings → חשבון → מחק חשבון
 ✅ Providers        # Error Recovery + Logging
 ✅ Constants        # lib/core/ + lib/config/
 ✅ Empty States     # 3-4 בכל widget
+✅ Design System    # Sticky Notes מלא
+✅ Documentation    # 5 מדריכים מקיפים
 ```
 
 ---
@@ -735,8 +804,10 @@ MIT License - ראה [LICENSE](LICENSE)
 
 ---
 
-**עדכון:** 14/10/2025 | **גרסה:** 1.0.1 | **Made with ❤️ in Israel** 🇮🇱
+**עדכון:** 15/10/2025 | **גרסה:** 1.1.0 | **Made with ❤️ in Israel** 🇮🇱
 
 > 💡 **למפתחים:** התחל עם [LESSONS_LEARNED.md](LESSONS_LEARNED.md) - הכי חשוב!  
+> 💡 **Best Practices:** קרא [BEST_PRACTICES.md](BEST_PRACTICES.md) לפני כתיבת קוד  
+> 💡 **עיצוב UI:** השתמש ב-[STICKY_NOTES_DESIGN.md](STICKY_NOTES_DESIGN.md) למערכת העיצוב  
 > 💡 **לסוכני AI:** קרא [AI_DEV_GUIDELINES.md](AI_DEV_GUIDELINES.md) בתחילת כל שיחה  
 > 💡 **Templates System:** מערכת חדשה - ראה [WORK_LOG.md](WORK_LOG.md) רשומה 10/10/2025

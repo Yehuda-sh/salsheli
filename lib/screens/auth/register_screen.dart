@@ -378,7 +378,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
 
                       // כפתור הרשמה - עם animations ⭐
                       AuthButton.primary(
-                        onPressed: _isLoading ? null : _handleRegister,
+                        onPressed: _isLoading ? null : () => _handleRegister(),
                         isLoading: _isLoading,
                         label: AppStrings.auth.registerButton,
                       ),

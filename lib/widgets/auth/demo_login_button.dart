@@ -1,23 +1,30 @@
 // 📄 File: lib/widgets/auth/demo_login_button.dart
 // תיאור: כפתור כניסה מהירה עם משתמשים אמיתיים מ-Firebase
 //
-// עדכונים (14/10/2025): ⭐
+// עדכונים (15/10/2025): 🎨📝
+// ✅ Sticky Notes Design System!
+// ✅ כפתורי בחירה בפתקים צבעוניים
+// ✅ כפתור התחברות ב-StickyButton
+// ✅ Visual feedback משופר
+// ✅ תוקן: async callbacks
+// ✅ רווחים מצומצמים למסך אחד 📐
+//
+// עדכונים קודמים (14/10/2025):
 // ✅ UI משופר - כפתורים בשתי שורות
 // ✅ טקסט קצר יותר - "יוני (דמו)"
 // ✅ Responsive - מתאים למסכים קטנים
-// ✅ Visual feedback משופר
 //
 // עדכונים קודמים (05/10/2025):
 // ✅ שימוש ב-Firebase Authentication
 // ✅ 3 משתמשים מוכנים: יוני, שרה, דני
-// ✅ התחברות אמיתית עם אימייל וסיסמה
-// ✅ טעינה אוטומטית של נתוני דמו
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/user_context.dart';
 import '../../core/ui_constants.dart';
+import '../common/sticky_note.dart';
+import '../common/sticky_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// כפתור כניסה מהירה למשתמש דמו
@@ -43,21 +50,21 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
       'email': 'yoni@demo.com',
       'password': 'Demo123!',
       'name': 'יוני',
-      'shortName': 'יוני', // ⭐ חדש - שם קצר
+      'shortName': 'יוני',
       'householdId': 'house_demo',
     },
     'sarah': {
       'email': 'sarah@demo.com',
       'password': 'Demo123!',
       'name': 'שרה',
-      'shortName': 'שרה', // ⭐ חדש
+      'shortName': 'שרה',
       'householdId': 'house_demo',
     },
     'danny': {
       'email': 'danny@demo.com',
       'password': 'Demo123!',
       'name': 'דני',
-      'shortName': 'דני', // ⭐ חדש
+      'shortName': 'דני',
       'householdId': 'house_demo',
     },
   };
@@ -80,27 +87,21 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
         password: password,
       );
 
-      // ✅ signIn() זורק Exception אם נכשל, אחרת מצליח
-      // ה-listener של authStateChanges יעדכן את isLoggedIn אוטומטית
       debugPrint('✅ DemoLogin: התחברות הושלמה');
 
-      // 2. ה-Providers יטענו אוטומטית את הנתונים מ-Firebase
-      // ShoppingListsProvider, ReceiptProvider, ProductsProvider - כולם מקשיבים ל-UserContext
-      debugPrint('🔄 DemoLogin: Providers יטענו את הנתונים מ-Firebase');
-
-      // 3. שומר ב-SharedPreferences
+      // 2. שומר ב-SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('user_id', userContext.userId!);
       await prefs.setBool('seen_onboarding', true);
 
-      // 4. מציג הודעת הצלחה משופרת ⭐
+      // 3. מציג הודעת הצלחה משופרת
       if (mounted) {
         final messenger = ScaffoldMessenger.of(context);
         messenger.showSnackBar(
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.check_circle, color: Colors.white, size: 24), // ⭐ אייקון
+                const Icon(Icons.check_circle, color: Colors.white, size: 24),
                 const SizedBox(width: kSpacingSmall),
                 Expanded(
                   child: Text(
@@ -112,16 +113,16 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
             ),
             backgroundColor: Colors.green.shade700,
             duration: const Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating, // ⭐ floating
-            shape: RoundedRectangleBorder( // ⭐ פינות מעוגלות
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(kBorderRadius),
             ),
-            margin: const EdgeInsets.all(kSpacingMedium), // ⭐ margin
+            margin: const EdgeInsets.all(kSpacingMedium),
           ),
         );
       }
 
-      // 5. ניווט לדף הבית
+      // 4. ניווט לדף הבית
       if (mounted) {
         Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       }
@@ -134,7 +135,7 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.error_outline, color: Colors.white, size: 24), // ⭐ אייקון
+                const Icon(Icons.error_outline, color: Colors.white, size: 24),
                 const SizedBox(width: kSpacingSmall),
                 Expanded(
                   child: Text(
@@ -146,51 +147,14 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
             ),
             backgroundColor: Colors.red.shade700,
             duration: const Duration(seconds: 4),
-            behavior: SnackBarBehavior.floating, // ⭐ floating
-            shape: RoundedRectangleBorder( // ⭐ פינות מעוגלות
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(kBorderRadius),
             ),
-            margin: const EdgeInsets.all(kSpacingMedium), // ⭐ margin
+            margin: const EdgeInsets.all(kSpacingMedium),
           ),
         );
       }
-    }
-  }
-
-  /// מציג דיאלוג לבחירת משתמש
-  Future<void> _showUserSelectionDialog() async {
-    final result = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('בחר משתמש דמו'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: _demoUsers.entries.map((entry) {
-            final user = entry.value;
-            return RadioListTile<String>(
-              value: entry.key,
-              groupValue: _selectedUser,
-              onChanged: (value) {
-                if (value != null) {
-                  Navigator.pop(context, value);
-                }
-              },
-              title: Text(user['name']!),
-              subtitle: Text(user['email']!, style: const TextStyle(fontSize: kFontSizeSmall)),
-            );
-          }).toList(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('ביטול'),
-          ),
-        ],
-      ),
-    );
-
-    if (result != null && result != _selectedUser) {
-      setState(() => _selectedUser = result);
     }
   }
 
@@ -198,88 +162,81 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
   Widget build(BuildContext context) {
     final currentUser = _demoUsers[_selectedUser]!;
     final theme = Theme.of(context);
-    final cs = theme.colorScheme;
 
-    // 🎨 UI משופר - שתי שורות של כפתורים ⭐ (שיפור #7)
+    // 🎨 UI עם Sticky Notes Design System - compact version 📐
     return Column(
       children: [
-        // 🎯 שורה 1: 3 כפתורים מהירים למשתמשים ⭐ חדש!
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // כפתור יוני
-            _buildQuickUserButton(
-              context: context,
-              userId: 'yoni',
-              icon: Icons.person,
-              label: 'יוני',
-              isSelected: _selectedUser == 'yoni',
-            ),
-            const SizedBox(width: kSpacingSmall),
-            
-            // כפתור שרה
-            _buildQuickUserButton(
-              context: context,
-              userId: 'sarah',
-              icon: Icons.person,
-              label: 'שרה',
-              isSelected: _selectedUser == 'sarah',
-            ),
-            const SizedBox(width: kSpacingSmall),
-            
-            // כפתור דני
-            _buildQuickUserButton(
-              context: context,
-              userId: 'danny',
-              icon: Icons.person,
-              label: 'דני',
-              isSelected: _selectedUser == 'danny',
-            ),
-          ],
-        ),
-        const SizedBox(height: kSpacingSmall),
-
-        // 🎯 שורה 2: כפתור התחברות מרכזי ⭐ משופר
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: _isLoading ? null : _handleDemoLogin,
-            icon: _isLoading
-                ? const SizedBox(
-                    width: kIconSizeSmall,
-                    height: kIconSizeSmall,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.rocket_launch_outlined, size: kIconSizeMedium),
-            label: Text(
-              _isLoading 
-                  ? 'מתחבר...' 
-                  : 'התחבר כ${currentUser['shortName']} (דמו)', // ⭐ טקסט קצר!
-              style: const TextStyle(
-                fontSize: kFontSizeSmall,
-                fontWeight: FontWeight.w600, // ⭐ מודגש קצת
-              ),
-            ),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(
-                horizontal: kSpacingMedium,
-                vertical: kSpacingSmallPlus,
-              ),
-              side: BorderSide(
-                color: cs.primary.withValues(alpha: 0.5),
-                width: 2, // ⭐ גבול עבה יותר
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(kBorderRadius),
-              ),
+        // 📝 שורה 1: כפתורי בחירה בפתקים צבעוניים - compact
+        StickyNote(
+          color: kStickyPurple, // פתק סגול לבחירת משתמש
+          rotation: -0.01,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6), // 📐 padding מצומצם
+            child: Column(
+              children: [
+                Text(
+                  'בחר משתמש:',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontSize: kFontSizeTiny, // 📐 הקטנה
+                  ),
+                ),
+                const SizedBox(height: 6), // 📐 רווח מצומצם
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // כפתור יוני
+                    _buildQuickUserButton(
+                      context: context,
+                      userId: 'yoni',
+                      icon: Icons.person,
+                      label: 'יוני',
+                      isSelected: _selectedUser == 'yoni',
+                    ),
+                    const SizedBox(width: kSpacingXSmall), // 📐 רווח מצומצם
+                    
+                    // כפתור שרה
+                    _buildQuickUserButton(
+                      context: context,
+                      userId: 'sarah',
+                      icon: Icons.person,
+                      label: 'שרה',
+                      isSelected: _selectedUser == 'sarah',
+                    ),
+                    const SizedBox(width: kSpacingXSmall), // 📐 רווח מצומצם
+                    
+                    // כפתור דני
+                    _buildQuickUserButton(
+                      context: context,
+                      userId: 'danny',
+                      icon: Icons.person,
+                      label: 'דני',
+                      isSelected: _selectedUser == 'danny',
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
+        ),
+        const SizedBox(height: kSpacingSmall), // 📐 צמצום מ-Medium ל-Small
+
+        // 🔘 שורה 2: כפתור התחברות - StickyButton לבן - compact
+        StickyButton(
+          color: Colors.white,
+          textColor: theme.colorScheme.primary,
+          label: _isLoading 
+              ? 'מתחבר...' 
+              : 'כניסה כ${currentUser['shortName']} 🚀', // 📐 טקסט קצר יותר
+          icon: Icons.rocket_launch_outlined,
+          onPressed: _isLoading ? () {} : () => _handleDemoLogin(),
+          height: 44, // 📐 הקטנת גובה הכפתור
         ),
       ],
     );
   }
 
-  /// 🎨 בניית כפתור מהיר למשתמש ⭐ חדש!
+  /// 🎨 בניית כפתור מהיר למשתמש - בסגנון מינימליסטי וקומפקטי 📐
   Widget _buildQuickUserButton({
     required BuildContext context,
     required String userId,
@@ -291,46 +248,47 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
     final cs = theme.colorScheme;
 
     return Expanded(
-      child: OutlinedButton(
-        onPressed: _isLoading 
+      child: InkWell(
+        onTap: _isLoading 
             ? null 
             : () => setState(() => _selectedUser = userId),
-        style: OutlinedButton.styleFrom(
+        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+        child: Container(
           padding: const EdgeInsets.symmetric(
-            horizontal: kSpacingXSmall,
-            vertical: kSpacingSmall,
+            horizontal: 6, // 📐 padding מצומצם
+            vertical: 6, // 📐 padding מצומצם
           ),
-          backgroundColor: isSelected 
-              ? cs.primary.withValues(alpha: 0.1) // ⭐ רקע כשנבחר
-              : null,
-          side: BorderSide(
+          decoration: BoxDecoration(
             color: isSelected 
-                ? cs.primary // ⭐ גבול צבעוני כשנבחר
-                : cs.outline.withValues(alpha: 0.3),
-            width: isSelected ? 2 : 1, // ⭐ גבול עבה יותר כשנבחר
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(kBorderRadius),
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: kIconSizeMedium,
-              color: isSelected ? cs.primary : cs.onSurfaceVariant,
+                ? cs.primary.withValues(alpha: 0.15)
+                : Colors.white.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+            border: Border.all(
+              color: isSelected 
+                  ? cs.primary
+                  : cs.outline.withValues(alpha: 0.3),
+              width: isSelected ? 2 : 1,
             ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: kFontSizeTiny,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: kIconSizeSmall, // 📐 הקטנה
                 color: isSelected ? cs.primary : cs.onSurfaceVariant,
               ),
-            ),
-          ],
+              const SizedBox(height: 2),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10, // 📐 הקטנה מאוד
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  color: isSelected ? cs.primary : cs.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
