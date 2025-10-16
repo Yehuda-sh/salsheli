@@ -106,6 +106,9 @@ class UserContext with ChangeNotifier {
   
   // 🔒 דגל למניעת Race Condition בזמן רישום
   bool _isSigningUp = false;
+  
+  // 🔒 דגל לבדיקה אם ה-context כבר disposed
+  bool _isDisposed = false;
 
   // --- UI Preferences ---
   ThemeMode _themeMode = ThemeMode.system;
@@ -209,8 +212,11 @@ class UserContext with ChangeNotifier {
       debugPrint('   → נשאר עם ערכי ברירת מחדל: theme=system, compact=false, prices=true');
       // נשאר עם ערכי ברירת מחדל
     } finally {
-      notifyListeners();
-      debugPrint('   🔔 UserContext: notifyListeners() (preferences loaded)');
+      // 🔒 בדוק אם ה-context עדיין חי לפני notifyListeners
+      if (!_isDisposed) {
+        notifyListeners();
+        debugPrint('   🔔 UserContext: notifyListeners() (preferences loaded)');
+      }
     }
   }
 
@@ -227,13 +233,16 @@ class UserContext with ChangeNotifier {
       await prefs.setBool('compactView', _compactView);
       await prefs.setBool('showPrices', _showPrices);
 
-      debugPrint('💾 UserContext._savePreferences: העדפות נשמרו בהצלחה');
+      // debugPrint('💾 UserContext._savePreferences: העדפות נשמרו בהצלחה');
     } catch (e) {
       debugPrint('❌ UserContext._savePreferences: שגיאה בשמירת העדפות - $e');
       debugPrint('   → העדפות נשארו בזיכרון אבל לא נשמרו בהתקן');
     } finally {
-      notifyListeners();
-      debugPrint('   🔔 UserContext: notifyListeners() (preferences saved/failed)');
+      // 🔒 בדוק אם ה-context עדיין חי לפני notifyListeners
+      if (!_isDisposed) {
+        notifyListeners();
+        // debugPrint('   🔔 UserContext: notifyListeners() (preferences saved/failed)');
+      }
     }
   }
 
@@ -709,7 +718,7 @@ class UserContext with ChangeNotifier {
   /// userContext.setThemeMode(ThemeMode.dark);
   /// ```
   void setThemeMode(ThemeMode mode) {
-    debugPrint('🎨 UserContext.setThemeMode: משנה ל-$mode');
+    // debugPrint('🎨 UserContext.setThemeMode: משנה ל-$mode');
     _themeMode = mode;
     _savePreferences();
   }
@@ -725,7 +734,7 @@ class UserContext with ChangeNotifier {
   /// ```
   void toggleCompactView() {
     _compactView = !_compactView;
-    debugPrint('📱 UserContext.toggleCompactView: compactView=$_compactView');
+    // debugPrint('📱 UserContext.toggleCompactView: compactView=$_compactView');
     _savePreferences();
   }
 
@@ -740,7 +749,7 @@ class UserContext with ChangeNotifier {
   /// ```
   void toggleShowPrices() {
     _showPrices = !_showPrices;
-    debugPrint('💰 UserContext.toggleShowPrices: showPrices=$_showPrices');
+    // debugPrint('💰 UserContext.toggleShowPrices: showPrices=$_showPrices');
     _savePreferences();
   }
 
@@ -845,6 +854,7 @@ class UserContext with ChangeNotifier {
   @override
   void dispose() {
     debugPrint('🗑️ UserContext.dispose()');
+    _isDisposed = true; // 🔒 סמן ש-disposed
     _authSubscription?.cancel();
     super.dispose();
   }

@@ -1,0 +1,151 @@
+// תיקונים לבדיקות user_context_test.dart
+// העתק והחלף את הבדיקות המתאימות
+
+// 1. signUp() blocks auth listener during registration - line 168
+test('signUp() blocks auth listener during registration', () async {
+  // Arrange
+  final mockUserCredential = MockUserCredential();
+  final mockFirebaseUser = MockUser();
+
+  when(mockFirebaseUser.uid).thenReturn(testUserId);
+  when(mockFirebaseUser.email).thenReturn(testEmail); // ✅ stub added
+  when(mockUserCredential.user).thenReturn(mockFirebaseUser);
+
+  when(mockAuthService.signUp(
+    email: testEmail,
+    password: testPassword,
+    name: testName,
+  )).thenAnswer((_) async {
+    // Simulate auth state change during signup
+    authStateController.add(mockFirebaseUser);
+    return mockUserCredential;
+  });
+
+  when(mockRepository.saveUser(any))
+      .thenAnswer((invocation) async => invocation.positionalArguments[0]);
+
+  // Act
+  await userContext.signUp(
+    email: testEmail,
+    password: testPassword,
+    name: testName,
+  );
+
+  // Assert - repository.fetchUser should NOT be called during signup
+  verifyNever(mockRepository.fetchUser(any));
+});
+
+// 2. notifyListeners() is called on state changes - line 660
+test('notifyListeners() is called on state changes', () async { // ✅ async added
+  int notificationCount = 0;
+  userContext.addListener(() => notificationCount++);
+
+  // Theme change
+  userContext.setThemeMode(ThemeMode.dark);
+  await Future.delayed(Duration(milliseconds: 200)); // ✅ await added
+  expect(notificationCount, greaterThan(0));
+
+  final previousCount = notificationCount;
+
+  // Compact view toggle
+  userContext.toggleCompactView();
+  await Future.delayed(Duration(milliseconds: 200)); // ✅ await added
+  expect(notificationCount, greaterThan(previousCount));
+});
+
+// 3. disposed context does not notify listeners - line 673
+test('disposed context does not notify listeners', () async { // ✅ async added
+  int notificationCount = 0;
+  userContext.addListener(() => notificationCount++);
+
+  // Dispose
+  userContext.dispose();
+
+  // Try to change state - no throw, just silent ignore
+  try {
+    userContext.setThemeMode(ThemeMode.dark);
+    await Future.delayed(Duration(milliseconds: 100));
+  } catch (e) {
+    // Expected in debug mode: AssertionError
+  }
+
+  // Assert - no notification was sent
+  expect(notificationCount, equals(0));
+});
+
+// 4. auth state change during signup does not trigger load - line 700
+test('auth state change during signup does not trigger load', () async {
+  // This tests the _isSigningUp flag protection
+  final mockUserCredential = MockUserCredential();
+  final mockFirebaseUser = MockUser();
+
+  when(mockFirebaseUser.uid).thenReturn(testUserId);
+  when(mockFirebaseUser.email).thenReturn(testEmail); // ✅ stub added
+  when(mockUserCredential.user).thenReturn(mockFirebaseUser);
+
+  when(mockAuthService.signUp(
+    email: testEmail,
+    password: testPassword,
+    name: testName,
+  )).thenAnswer((_) async {
+    // Simulate auth state change during signup
+    authStateController.add(mockFirebaseUser);
+    await Future.delayed(Duration(milliseconds: 50));
+    return mockUserCredential;
+  });
+
+  when(mockRepository.saveUser(any))
+      .thenAnswer((invocation) async => invocation.positionalArguments[0]);
+
+  // Act
+  await userContext.signUp(
+    email: testEmail,
+    password: testPassword,
+    name: testName,
+  );
+
+  // Assert - fetchUser should not be called
+  verifyNever(mockRepository.fetchUser(any));
+});
+
+// 5. signOutAndClearAllData() clears local state - line 758
+test('signOutAndClearAllData() clears local state', () async {
+  // Arrange - simulate logged in state
+  final mockFirebaseUser = MockUser();
+  when(mockFirebaseUser.uid).thenReturn(testUserId);
+  when(mockFirebaseUser.email).thenReturn(testEmail); // ✅ stub added
+  when(mockRepository.fetchUser(testUserId))
+      .thenAnswer((_) async => testUser);
+
+  authStateController.add(mockFirebaseUser);
+  await Future.delayed(Duration(milliseconds: 100));
+
+  userContext.setThemeMode(ThemeMode.dark);
+  await Future.delayed(Duration(milliseconds: 100)); // ✅ await added
+  userContext.toggleCompactView();
+  await Future.delayed(Duration(milliseconds: 100)); // ✅ await added
+
+  expect(userContext.user, isNotNull);
+  expect(userContext.themeMode, ThemeMode.dark);
+
+  when(mockAuthService.signOut()).thenAnswer((_) async {});
+
+  // Act
+  await userContext.signOutAndClearAllData();
+
+  // Assert - state should be reset
+  expect(userContext.user, isNull);
+  expect(userContext.themeMode, ThemeMode.system);
+  expect(userContext.compactView, isFalse);
+});
+
+// 6. rapid theme changes handled correctly - line 890
+test('rapid theme changes handled correctly', () async {
+  int notificationCount = 0;
+  userContext.addListener(() => notificationCount++);
+
+  // Act - change theme rapidly 5 times with proper await
+  userContext.setThemeMode(ThemeMode.dark);
+  await Future.delayed(Duration(milliseconds: 150));
+  
+  userContext.setThemeMode(Th
