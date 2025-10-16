@@ -725,6 +725,35 @@ void main() {
 
 ---
 
+## 🚀 Quick Commands
+
+### Model Testing with Build Runner
+
+```bash
+# For models with JSON serialization (e.g., UserEntity)
+# Step 1: Generate code
+flutter pub run build_runner build --delete-conflicting-outputs
+
+# Step 2: Run tests
+flutter test test/models/user_entity_test.dart
+
+# Windows batch file (if exists):
+test_user_entity.bat
+```
+
+### Common Test Scenarios
+
+```bash
+# After changing @JsonKey annotations
+flutter pub run build_runner build --delete-conflicting-outputs
+
+# After adding copyWith with nullable fields
+flutter test test/models/*_test.dart
+
+# Quick full test suite
+flutter test
+```
+
 ## 📊 Running Tests
 
 ### Unit Tests
