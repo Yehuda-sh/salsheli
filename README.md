@@ -1,10 +1,10 @@
-# 🛒 MemoZap - README UPDATED v1.2.1
+# 🛒 סל שלי (Salsheli) - README v1.3.0
 
-> **עדכון חשוב:** README.md עדכון עם:
-> - ✅ SECURITY_GUIDE.md - אבטחה וAuth
-> - ✅ TESTING_GUIDE.md - בדיקות Unit/Widget/Integration
-> - ✅ QUICK_REFERENCE.md - תשובות מהירות (30 שניות)
-> - ✅ קישורים מהירים לכל הקבצים
+> **עדכון 16/10/2025:** מבנה מסמכים חדש ומאורגן!
+> - ✅ **DOCS_STRUCTURE.md** - מפת דרכים למסמכים 🆕
+> - ✅ **9 מסמכים מאורגנים** - במקום 14 עם כפילויות
+> - ✅ **ארגון מחדש** - מחקנו קבצים כפולים/זמניים
+> - ✅ **עדכון כל המסמכים** - imports נכונים, constants מעודכנים
 
 ---
 
@@ -59,21 +59,29 @@
 - תיקון שגיאות טכניות מיידי
 
 ### 8. **AI_DEV_GUIDELINES.md** 🤖
-**הנחיות מפורטות ל-AI!**
+**מדריך טכני מקיף ל-AI!**
 - טבלת בעיות נפוצות + פתרונות
-- Code Review Checklist
-- Modern UI/UX Patterns
+- מפנה לכל המסמכים הרלוונטיים
+- Dead/Dormant Code Detection
 
-### 9. **WORK_LOG.md** 📓
-**שינויים אחרונים!**
-- תיעוד שינויים יומי
-- Templates System (10/10)
-- Sticky Notes Design (15/10)
-- AI Code Review (15/10)
+### 9. **DOCS_STRUCTURE.md** 📋
+**מפת דרכים למסמכים! 🆕**
+- רשימת כל המסמכים הפעילים
+- סדר קריאה מומלץ לכל מקרה
+- מסמכים שהועברו/מוחקו
+- עדכון: 16/10/2025
 
 ---
 
 ## 🎯 סדר קריאה מומלץ
+
+### 👨‍💻 למפתח חדש:
+**התחל מ-DOCS_STRUCTURE.md** כדי להבין את מבנה המסמכים, אחר כך עבור ל-LESSONS_LEARNED.md.
+
+### 🤖 לסוכן AI:
+**התחל מ-AI_QUICK_START.md** - משפט אחד מספיק!
+
+### 👥 לכולם:
 
 ```
 1️⃣ LESSONS_LEARNED.md       🏗️ הבסיס הטכני
@@ -89,11 +97,13 @@
 6️⃣ TESTING_GUIDE.md         🧪 בדיקות
    ↓
 7️⃣ AI_QUICK_START.md        🤖 לסוכן AI (משפט אחד!)
+   ↓
+8️⃣ DOCS_STRUCTURE.md        📋 מפת דרכים למסמכים
 ```
 
 ---
 
-## 🔗 קישורים מהירים
+## 🔗 קישורים מהירים לפתרונות
 
 ### 🎯 מתי להשתמש בכל קובץ?
 
@@ -110,9 +120,15 @@
 
 ---
 
-## 🔥 עדכונים ב-v1.2.1
+## 🔥 שינויים מרכזיים ב-v1.3.0 (16/10/2025)
 
-✅ **הוספת SECURITY_GUIDE.md**
+✅ **ארגון מחדש של המסמכים**
+- מחקנו 5 קבצים כפולים/זמניים
+- יצרנו DOCS_STRUCTURE.md חדש
+- עדכנו TESTING_GUIDE.md עם Quick Commands
+- תיקנו STICKY_NOTES_DESIGN.md (imports + constants)
+
+✅ **SECURITY_GUIDE.md**
 - Firebase Auth Setup + Error Handling
 - Firestore Security Rules (household-based)
 - Sensitive Data Handling
@@ -137,11 +153,11 @@
 
 ---
 
-## 📊 סטטיסטיקות סופיות
+## 📊 סטטיסטיקות מעודכנות (16/10/2025)
 
 | קטגוריה | כמות |
 |---------|------|
-| **מסמכי תיעוד** | **9** |
+| **מסמכי תיעוד פעילים** | **9** (מ-14) |
 | **קבצי Dart** | **100+** |
 | **Models** | **11** |
 | **Providers** | **9** |
@@ -149,10 +165,12 @@
 | **Services** | **7** |
 | **Screens** | **30+** |
 | **Widgets** | **25+** |
+| **Tests** | **50+** |
+| **קבצים שמוחקו** | **5** (.deleted) |
 
 ---
 
-## ✅ מה עובד היום (15/10/2025)
+## ✅ מה עובד היום (16/10/2025)
 
 - ✅ Firebase Auth + Firestore
 - ✅ Templates System (6 תבניות, 66 פריטים)
@@ -164,13 +182,63 @@
 - ✅ 21 סוגי רשימות
 - ✅ Batch Processing (100+ items)
 - ✅ LocationsProvider Firebase Migration
+- ✅ מסמכים מאורגנים ונקיים 🆕
 
 ---
 
-**תאריך עדכון:** 15/10/2025  
-**גרסה:** 1.2.1  
+**תאריך עדכון:** 16/10/2025  
+**גרסה:** 1.3.0  
 **Made with ❤️ in Israel** 🇮🇱
 
-> **שם האפליקציה:** MemoZap (לשעבר: סל שלי/Salsheli)
+## 📦 פרטי הפרויקט
 
-> 💡 **START HERE:** Read LESSONS_LEARNED.md first!
+- **שם:** סל שלי (Salsheli)
+- **תיאור:** אפליקציית ניהול קניות משותפת למשפחה
+- **טכנולוגיות:** Flutter, Firebase, Dart
+- **מיקום:** C:\projects\salsheli\
+
+> 💡 **להתחלה מהירה:** פתח את DOCS_STRUCTURE.md להתמצאות!
+
+---
+
+## 🚀 Quick Start Commands
+
+```bash
+# Clone the project
+git clone https://github.com/yourusername/salsheli.git
+cd salsheli
+
+# Install dependencies
+flutter pub get
+
+# Generate code (models)
+flutter pub run build_runner build --delete-conflicting-outputs
+
+# Run the app
+flutter run
+
+# Run tests
+flutter test
+
+# Build for production
+flutter build apk --release  # Android
+flutter build ios --release  # iOS
+
+# Run specific tests
+flutter test test/models/         # Model tests
+flutter test test/providers/      # Provider tests
+flutter test test/widget/         # Widget tests
+```
+
+---
+
+## 📧 יצירת קשר
+
+יש שאלות? צור קשר:
+- **Email:** your.email@example.com
+- **GitHub:** https://github.com/yourusername/salsheli
+- **Issues:** https://github.com/yourusername/salsheli/issues
+
+---
+
+**© 2025 Salsheli Team | All Rights Reserved**

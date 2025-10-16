@@ -1,9 +1,9 @@
 # 🤖 AI Development Guidelines - salsheli Project
 
 > **מטרה:** מדריך טכני מקיף לסוכני AI - טבלת בעיות + Code Review + Modern UI/UX  
-> **עדכון:** 15/10/2025 | **גרסה:** 9.0 - Complete Resource Suite (חדש! 15/10/2025 ⭐)  
+> **עדכון:** 17/10/2025 | **גרסה:** 10.0 - Documentation Cleanup & Structure  
 > 💡 **לדוגמאות מפורטות:** ראה [LESSONS_LEARNED.md](LESSONS_LEARNED.md)  
-> 🤖 **להוראות התנהגות סוכן:** ראה [AI_QUICK_START.md](AI_QUICK_START.md) ⭐  
+> 📁 **למבנה המסמכים המלא:** ראה [DOCS_STRUCTURE.md](DOCS_STRUCTURE.md) ⭐  
 > ⚡ **לתשובות מהירות:** ראה [QUICK_REFERENCE.md](QUICK_REFERENCE.md) ⭐ (חדש!)
 
 ---
@@ -54,16 +54,16 @@
 **בכל שיחה על הפרויקט:**
 
 ```
-1. קרא WORK_LOG.md
-2. הצג סיכום (2-3 שורות) של העבודה האחרונה
+1. קרא את הקבצים הרלוונטיים (ראה DOCS_STRUCTURE.md)
+2. בדוק את השינויים האחרונים
 3. שאל מה לעשות היום
 ```
 
 **✅ דוגמה:**
 
 ```
-[קורא אוטומטית]
-בשיחה האחרונה: Templates System Phase 2 Complete + 6 תבניות מערכת.
+[קורא אוטומטית את הקבצים הרלוונטיים]
+מצאתי את העדכונים האחרונים בפרויקט.
 במה נעבוד היום?
 ```
 
@@ -107,6 +107,7 @@ genhtml coverage/lcov.info -o coverage/html
 |------|------|-----|--------|
 | **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** | ⚡ תשובות מהירות (30 שניות) | 2 דק' | Dead Code? i18n? File Paths? |
 | **[STICKY_NOTES_DESIGN.md](STICKY_NOTES_DESIGN.md)** | 🎨 מערכת עיצוב מלאה + דוגמאות קוד | 10 דק' | StickyButton, StickyCard, Dialog |
+| **[DOCS_STRUCTURE.md](DOCS_STRUCTURE.md)** | 📁 מבנה המסמכים המלא | 2 דק' | איזה קובץ לקרוא ומתי |
 | **[AnimatedButton.dart](lib/widgets/common/animated_button.dart)** | 🔘 Widget מוכן | - | Copy & Use! |
 | **[TappableCard.dart](lib/widgets/common/tappable_card.dart)** | 🃏 Widget מוכן | - | Copy & Use! |
 | **[TESTING_GUIDE.md](TESTING_GUIDE.md)** | 🧪 Test Strategy | 10 דק' | Unit + Widget + Integration |
@@ -117,14 +118,15 @@ genhtml coverage/lcov.info -o coverage/html
 
 ### 📊 Project Stats
 
-**סה"כ 7 שיפורים בגרסה 9.0:**
+**סה"כ 8 שיפורים בגרסה 10.0:**
 
 - ✅ QUICK_REFERENCE.md - ⚡ 2 דק' ל-30 שניות
-- ✅ STICKY_NOTES_EXAMPLES.md - 🎨 דוגמאות חיות
+- ✅ DOCS_STRUCTURE.md - 📁 מבנה מסמכים ברור
 - ✅ AnimatedButton + TappableCard - 🎬 Widgets מוכנים
 - ✅ TESTING_GUIDE.md - 🧪 Comprehensive testing
 - ✅ SECURITY_GUIDE.md - 🔒 Firebase + Auth
 - ✅ validate-paths.js - 🔍 Automated validation
+- ✅ Documentation Cleanup - 🗑️ הסרת קבצים כפולים
 - ✅ Update AI_DEV_GUIDELINES - 📖 Complete reference
 
 ---
@@ -138,32 +140,30 @@ genhtml coverage/lcov.info -o coverage/html
 | ⚡ **Quick Help** | [QUICK_REFERENCE.md](QUICK_REFERENCE.md) | 2 דק' max answers |
 | 📋 **Dead Code** | [QUICK_REFERENCE.md](QUICK_REFERENCE.md#-dead-code-30-שניות) | 3-Step Process |
 | 🟡 **Dormant Code** | [QUICK_REFERENCE.md](QUICK_REFERENCE.md#-dormant-code-2-דקות) | 4 Questions Framework |
-| 🎨 **Sticky Notes** | [STICKY_NOTES_EXAMPLES.md](STICKY_NOTES_EXAMPLES.md) | Code + Design System |
-| 🎬 **Animations** | [STICKY_NOTES_EXAMPLES.md](STICKY_NOTES_EXAMPLES.md#-דוגמה-2-tappable-card) | AnimatedButton + TappableCard |
+| 🎨 **Sticky Notes** | [STICKY_NOTES_DESIGN.md](STICKY_NOTES_DESIGN.md) | Code + Design System |
+| 🎬 **Animations** | [STICKY_NOTES_DESIGN.md](STICKY_NOTES_DESIGN.md#animations) | AnimatedButton + TappableCard |
 | 🧪 **Testing** | [TESTING_GUIDE.md](TESTING_GUIDE.md) | Unit + Widget + Integration |
 | 🔒 **Security** | [SECURITY_GUIDE.md](SECURITY_GUIDE.md) | Auth + Rules + Best Practices |
 | 💻 **Architecture** | [LESSONS_LEARNED.md](LESSONS_LEARNED.md) | Deep Dives + Patterns |
 | 📖 **Best Practices** | [BEST_PRACTICES.md](BEST_PRACTICES.md) | Compact Design + UX |
 | 🎨 **Design System** | [STICKY_NOTES_DESIGN.md](STICKY_NOTES_DESIGN.md) | Full Design Spec |
-| 📰 **History** | [WORK_LOG.md](WORK_LOG.md) | All changes + decisions |
+| 📁 **Structure** | [DOCS_STRUCTURE.md](DOCS_STRUCTURE.md) | Documentation map + when to use |
 
 ---
 
-**גרסה:** 9.0 - Complete Resource Suite (1700+ שורות)  
+**גרסה:** 10.0 - Documentation Cleanup & Structure  
 **תאימות:** Flutter 3.27+ | Mobile Only | Node.js 16+  
-**עדכון:** 15/10/2025  
+**עדכון:** 17/10/2025  
 
-**שינויים ב-v9.0 → v9.1 (Merged & Cleaned):**
-- ✅ QUICK_REFERENCE.md - ⚡ עדיף ל-quick questions
-- ✅ STICKY_NOTES_DESIGN.md - 🎨 עכשיו כולל דוגמאות קוד מלאות!
-- ✅ STICKY_NOTES_EXAMPLES.md - 🗑️ **מחוק** (תוכן עבור ל-DESIGN)
-- ✅ AI_QUICK_START.md - 🗑️ **מחוק** (תוכן עבור ל-QUICK_REFERENCE)
-- ✅ IMPROVEMENTS_SUMMARY.md - 🗑️ **מחוק** (לא רלוונטי)
-- ✅ WELCOME_SCREEN_UPGRADE.md - 🗑️ **מחוק** (ישן)
-- ✅ AnimatedButton + TappableCard - 🔌 Ready to use
-- ✅ TESTING_GUIDE.md - 🧪 Unit/Widget/Integration examples
-- ✅ SECURITY_GUIDE.md - 🔒 Complete auth + rules
-- ✅ validate-paths.js - 🔍 Automate validation
-- ✅ Update AI_DEV_GUIDELINES - 📑 v9.1 with merged content
+**שינויים ב-v9.1 → v10.0 (Documentation Cleanup):**
+- ✅ DOCS_STRUCTURE.md - 📁 **חדש!** מבנה מסמכים מלא
+- ✅ AI_QUICK_START.md - 🔄 **עודכן** למבנה חדש
+- ✅ STICKY_NOTES_EXAMPLES.md - 🗑️ **נמחק** (תוכן עבר ל-DESIGN)
+- ✅ WORK_LOG.md - 🗑️ **נמחק** (לא רלוונטי יותר)
+- ✅ IMPROVEMENTS_SUMMARY.md - 🗑️ **נמחק** (לא רלוונטי)
+- ✅ WELCOME_SCREEN_UPGRADE.md - 🗑️ **נמחק** (ישן)
+- ✅ תיקון כל הקישורים השבורים
+- ✅ עדכון טבלאות והפניות
+- ✅ Documentation cleanup - הסרת כפילויות
 
 **Made with ❤️ by AI & Humans** 🤖🤝👨‍💻

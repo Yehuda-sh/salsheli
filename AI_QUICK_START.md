@@ -2,16 +2,18 @@
 
 > **📌 משפט הקסם:** קרא את הקובץ הזה בתחילת **כל שיחה חדשה!**  
 > **⏱️ זמן קריאה:** 5-10 דקות  
-> **🎯 תוצאה:** Code Review אוטומטי + תיקונים מיידיים
+> **🎯 תוצאה:** Code Review אוטומטי + תיקונים מיידיים  
+> **📁 עדכון:** 17/10/2025
 
 ---
 
 ## 🚀 Quick Start (10 שניות)
 
 **בתחילת כל שיחה:**
-1. ✅ קרא את קובץ **AI_DEV_GUIDELINES.md** (5 דקות)
-2. ✅ קרא את קובץ **BEST_PRACTICES.md** (3 דקות)
-3. ✅ כשהמשתמש מביא קובץ Dart → Code Review אוטומטי!
+1. ✅ קרא את קובץ **DOCS_STRUCTURE.md** (2 דקות)
+2. ✅ קרא את קובץ **AI_DEV_GUIDELINES.md** (5 דקות)
+3. ✅ קרא את קובץ **BEST_PRACTICES.md** (3 דקות)
+4. ✅ כשהמשתמש מביא קובץ Dart → Code Review אוטומטי!
 
 ---
 
@@ -332,16 +334,18 @@ class _MyButtonState extends State<MyButton> {
 ## 📞 Need Help?
 
 ```
-1. בעיה טכנית? → BEST_PRACTICES.md
-2. Sticky Design? → STICKY_NOTES_DESIGN.md
-3. Security? → SECURITY_GUIDE.md
-4. Tests? → TESTING_GUIDE.md
-5. Architecture? → LESSONS_LEARNED.md
-6. Quick Answer? → QUICK_REFERENCE.md
+1. מבנה המסמכים? → DOCS_STRUCTURE.md
+2. בעיה טכנית? → BEST_PRACTICES.md
+3. Sticky Design? → STICKY_NOTES_DESIGN.md
+4. Security? → SECURITY_GUIDE.md
+5. Tests? → TESTING_GUIDE.md
+6. Architecture? → LESSONS_LEARNED.md
+7. Quick Answer? → QUICK_REFERENCE.md
 ```
 
 ---
 
-**Version:** 1.0  
+**Version:** 2.0  
 **Created:** 15/10/2025  
+**Updated:** 17/10/2025  
 **Made with ❤️ by Humans & AI** 🤖👨‍💻
