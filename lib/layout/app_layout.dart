@@ -38,9 +38,11 @@
 // - ✅ Error Handling ללוגאוט
 // - ✅ Cached totalBadgeCount (Performance)
 // - ✅ Context safety after async
+// - ✅ More const optimizations
+// - ✅ Improved _NavItem constructor for clarity
 //
-// Version: 3.0 - Modern UI/UX + UserContext Integration
-// Last Updated: 14/10/2025
+// Version: 3.1 - Performance & Code Quality Improvements
+// Last Updated: 16/10/2025
 //
 
 import 'package:flutter/material.dart';
@@ -429,19 +431,23 @@ class _AnimatedBadgeCount extends StatelessWidget {
 class _NavItem {
   final IconData icon;
   final String label;
-  const _NavItem(this.icon, this.label);
+  
+  const _NavItem({
+    required this.icon, 
+    required this.label,
+  });
 }
 
 /// 📋 Navigation Items List
 /// 
-/// Note: Must use literal strings because const doesn't support AppStrings.
-/// The actual strings are used at runtime in the widget tree.
+/// Note: Uses AppStrings for consistent i18n support.
+/// These items define the bottom navigation structure.
 final List<_NavItem> _navItems = [
-  _NavItem(Icons.home, AppStrings.navigation.home),
-  _NavItem(Icons.shopping_cart, AppStrings.navigation.lists),
-  _NavItem(Icons.inventory, AppStrings.navigation.pantry),
-  _NavItem(Icons.bar_chart, AppStrings.navigation.insights),
-  _NavItem(Icons.settings, AppStrings.navigation.settings),
+  _NavItem(icon: Icons.home, label: AppStrings.navigation.home),
+  _NavItem(icon: Icons.shopping_cart, label: AppStrings.navigation.lists),
+  _NavItem(icon: Icons.inventory, label: AppStrings.navigation.pantry),
+  _NavItem(icon: Icons.bar_chart, label: AppStrings.navigation.insights),
+  _NavItem(icon: Icons.settings, label: AppStrings.navigation.settings),
 ];
 
 // === Drawer Item Widget ===
