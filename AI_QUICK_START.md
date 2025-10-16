@@ -64,6 +64,39 @@
 - אם יכול לפתור מיידית → פתור וציין "✅ תיקנתי"
 - אם לא → דווח למשתמש בלבד
 
+### 5️⃣ **Dead Code Detection - זהירות ממלכודות! ⚠️** (עדכון 16/10/2025)
+
+**אל תמחק קובץ רק בגלל 0 imports!**
+
+**בדיקה נכונה - 5 שלבים:**
+
+1. **חיפוש import מלא:** `"import.*file_name.dart"`
+2. **חיפוש import יחסי:** `"folder_name/file_name"` ← **חשוב! מקרה onboarding_data.dart**
+3. **חיפוש שם המחלקה:** `"ClassName"`
+4. **בדוק מסכים קשורים:** (data→screens, config→providers, model→repositories)
+5. **קרא את הקובץ עצמו:** חפש "EXAMPLE", "DO NOT USE", "דוגמה בלבד"
+
+**דוגמה ממשית מהפרויקט:**
+```powershell
+# onboarding_data.dart נראה כמו Dead Code:
+Ctrl+Shift+F → "import.*onboarding_data" → 0 תוצאות ❌
+
+# אבל! חיפוש נתיב יחסי מוצא:
+Ctrl+Shift+F → "data/onboarding_data" → נמצא! ✅
+# ב-onboarding_screen.dart: import '../../data/onboarding_data.dart';
+```
+
+**קבצים בטוחים למחיקה בפרויקט:**
+- ✅ `create_list_dialog_usage_example.dart` - מסומן "דוגמה בלבד"
+- ✅ `cleanup_screen.dart` - מסך debug לא בroutes
+- ✅ `smart_price_tracker.dart` - לא בשימוש
+- ✅ `shufersal_prices_service.dart` - לא בשימוש
+
+**קבצים שנראים Dead אבל בשימוש:**
+- ⚠️ `onboarding_data.dart` - import יחסי בonboarding_screen!
+- ⚠️ `insights_screen.dart` - בroutes!
+- ⚠️ `price_comparison_screen.dart` - בroutes!
+
 ---
 
 ## 📋 קישור לקובץ בתחילת שיחה - מה לעשות

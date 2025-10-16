@@ -385,7 +385,42 @@ class _LoginScreenState extends State<LoginScreen> {
 
 ---
 
-### 7. תיעוד פונקציות
+### 7. Race Condition Prevention
+
+**בעיה:** כשיש שני תהליכים מקבילים שניגשים לאותו מקור (למשל Auth listener + signUp).
+
+```dart
+// ✅ פתרון - Flag-based Coordination
+class UserContext extends ChangeNotifier {
+  bool _isSigningUp = false;  // דגל למניעת race condition
+  
+  // ב-auth listener
+  void _onAuthStateChange(User? user) {
+    if (_isSigningUp) return;  // דלג בזמן רישום!
+    // ... handle auth change
+  }
+  
+  // בפעולה הידנית
+  Future<void> signUp(...) async {
+    _isSigningUp = true;  // נעילה
+    try {
+      await _authService.signUp(...);
+      // יצירת משתמש פעם אחת בלבד
+    } finally {
+      _isSigningUp = false;  // שחרור
+    }
+  }
+}
+```
+
+**מתי להשתמש:**
+- signUp/signIn עם יצירת נתונים ב-Firestore
+- עדכון פרופיל עם שמירה ב-DB
+- כל async operation שיכול להתנגש עם listener
+
+---
+
+### 8. תיעוד פונקציות
 
 #### תיעוד פונקציות ציבוריות
 
@@ -524,7 +559,80 @@ Stack(
 
 ---
 
-### 3. שגיאות וvalidation
+### 3. Micro Animations - הפרויקט "חי"
+
+**עקרון:** אנימציות קטנות (150-400ms) משנות לחלוטין את התחושה של האפליקציה.
+
+#### AnimatedButton - כפתור עם תגובה
+
+```dart
+// ✅ כל כפתור צריך אנימציה בלחיצה
+import 'package:memozap/widgets/common/animated_button.dart';
+
+AnimatedButton(
+  onPressed: () => _handleAction(),
+  child: ElevatedButton(
+    onPressed: null,  // AnimatedButton מטפל בזה
+    child: Text('שמור'),
+  ),
+)
+```
+
+**מה זה עושה:**
+- Scale ל-0.95 בלחיצה (150ms)
+- Haptic feedback אוטומטי
+- עובד עם כל סוג כפתור
+
+#### TappableCard - כרטיסים אינטראקטיביים
+
+```dart
+import 'package:memozap/widgets/common/tappable_card.dart';
+
+TappableCard(
+  onTap: () => _selectItem(),
+  child: Card(
+    child: ListTile(
+      title: Text('מוצר'),
+      subtitle: Text('תיאור'),
+    ),
+  ),
+)
+```
+
+**מה זה עושה:**
+- Scale ל-0.98 + Elevation animation
+- Haptic feedback
+- האפליקציה מרגישה "חיה"
+
+#### Staggered Animations - רשימות
+
+```dart
+// ✅ אנימציה מדורגת לרשימות
+Column(
+  children: List.generate(items.length, (index) {
+    return SlideTransition(
+      position: _slideAnimation,
+      child: FadeTransition(
+        opacity: _fadeAnimation,
+        child: ItemWidget(items[index]),
+      ),
+    ).animate()
+     .fadeIn(delay: Duration(milliseconds: 100 * index));
+  }),
+)
+```
+
+**כללי אצבע:**
+- Duration: 150-400ms (לא יותר!)
+- Curve: `Curves.easeInOut` (חלק ונעים)
+- Delay: 50-100ms בין אלמנטים
+- Scale: 0.95-0.98 (לא מוגזם)
+
+**Impact:** האפליקציה מרגישה פי 3 יותר מקצועית! ⭐
+
+---
+
+### 4. שגיאות וvalidation
 
 ```dart
 // ✅ אנימציה על שגיאה
@@ -838,6 +946,7 @@ try {
 - `LESSONS_LEARNED.md` - דפוסים טכניים וארכיטקטורה
 - `README.md` - תיעוד כללי של הפרויקט
 - `lib/core/ui_constants.dart` - כל הקבועים
+- `TESTING_GUIDE.md` - מדריך בדיקות
 
 ### דוגמאות קוד
 - `lib/screens/auth/login_screen.dart` - מסך compact מלא + Sticky Notes

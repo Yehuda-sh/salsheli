@@ -676,24 +676,32 @@ void main() {
       });
 
       test('disposed context does not notify listeners', () async {
+        // Create a separate context for this test to avoid double dispose
+        final testContext = UserContext(
+          repository: mockRepository,
+          authService: mockAuthService,
+        );
+        
+        // Wait for initial preferences to load
+        await Future.delayed(Duration(milliseconds: 100));
+        
         int notificationCount = 0;
-        userContext.addListener(() => notificationCount++);
+        testContext.addListener(() => notificationCount++);
+        final initialCount = notificationCount;
 
         // Dispose
-        userContext.dispose();
+        testContext.dispose();
 
-        // Try to change state - should not send notification
-        try {
-          userContext.setThemeMode(ThemeMode.dark);
-          await Future.delayed(Duration(milliseconds: 100));
-        } catch (e) {
-          // May throw in debug mode
-        }
+        // Try to change state after dispose
+        // The code is safe and doesn't notify after dispose
+        testContext.setThemeMode(ThemeMode.dark);
+        await Future.delayed(Duration(milliseconds: 100));
 
-        // Assert - no notification was sent
-        expect(notificationCount, equals(0));
+        // Assert - no new notifications were sent after dispose
+        expect(notificationCount, equals(initialCount));
         
         // Test completed successfully
+        // Note: testContext already disposed, no need to dispose again
       });
     });
 
@@ -914,7 +922,7 @@ void main() {
 
         // Assert - should not crash
         expect(notificationCount, greaterThanOrEqualTo(5));
-        expect(userContext.themeMode, ThemeMode.light); // ✅ Final theme should be light
+        expect(userContext.themeMode, ThemeMode.dark); // ✅ Final theme should be dark (i=4: 4 % 2 == 0)
       });
 
       test('preferences persist after multiple saves', () async {

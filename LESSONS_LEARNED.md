@@ -89,6 +89,13 @@
 - **Elevation Hierarchy** → depth ברור בעזרת elevation
 - **Spacing Compact** → צמצום חכם של רווחים
 
+### Micro Animations ⭐
+- **AnimatedButton** → Scale 0.95 + Haptic (150ms)
+- **TappableCard** → Scale 0.98 + Elevation
+- **Staggered Lists** → Fade + Slide (100ms delay)
+- **Duration:** 150-400ms (לא יותר!)
+- **Impact:** האפליקציה מרגישה פי 3 יותר מקצועית!
+
 ### Sticky Notes Design ⭐
 - **NotebookBackground** + kPaperBackground
 - **StickyNote()** לכותרות ושדות
@@ -103,11 +110,19 @@
 ### Dead/Dormant Code
 | סוג | תיאור | מה לעשות |
 |-----|--------|----------|
-| 🔴 Dead Code | 0 imports, 0 שימוש | **מחק מיד!** (אחרי 3-step) |
+| 🔴 Dead Code | 0 imports, 0 שימוש | **מחק מיד!** (אחרי 5-step) |
 | 🟡 Dormant Code | 0 imports, אבל איכותי | **4 שאלות** → החלט |
 | 🟢 False Positive | Provider משתמש | **קרא מסך ידנית!** |
+| ⚠️ Import יחסי | 0 בimport מלא, אבל יש ביחסי | **נראה Dead אבל בשימוש!** |
 
-**3-Step Verification:** חיפוש imports → חיפוש class → בדיקה יד נית במסכים מרכזיים
+**5-Step Verification (עדכון 16/10/2025):** 
+1. חיפוש import מלא: `"import.*file_name.dart"`
+2. **חיפוש import יחסי: `"folder/file_name"`** ← חשוב!
+3. חיפוש class name
+4. בדיקה במסכים קשורים
+5. קריאת הקובץ (חיפוש "EXAMPLE", "DO NOT USE")
+
+**מלכודת onboarding_data.dart:** נראה Dead בimport מלא, אבל נמצא בimport יחסי: `'../../data/onboarding_data.dart'`
 
 **4 שאלות Dormant Code:**
 1. מודל תומך? (שדה קיים בפרויקט)
@@ -120,6 +135,25 @@
 ### Race Condition
 - **signUp Race:** דגל `_isSigningUp` למניעת יצירה כפולה
 - **IndexScreen + UserContext:** Listener Pattern + בדיקת `isLoading`
+
+**דפוס למניעת Race Condition:** Flag-based Coordination
+```dart
+bool _isSigningUp = false;
+
+void _onAuthStateChange(User? user) {
+  if (_isSigningUp) return; // דלג בזמן רישום!
+  // ... handle auth change
+}
+
+Future<void> signUp(...) async {
+  _isSigningUp = true;
+  try {
+    // ... signup logic
+  } finally {
+    _isSigningUp = false;
+  }
+}
+```
 
 ### File Paths
 - **חובה:** `C:\projects\salsheli\lib\...`
@@ -140,7 +174,6 @@
 | **BEST_PRACTICES.md** | דוגמאות + Checklists | 💻 ביצוע |
 | **STICKY_NOTES_DESIGN.md** | עיצוב ייחודי | 🎨 UI/UX |
 | **AI_DEV_GUIDELINES.md** | הנחיות מפורטות | 🤖 AI |
-| **WORK_LOG.md** | שינויים אחרונים | 📓 היסטוריה |
 
 ---
 
