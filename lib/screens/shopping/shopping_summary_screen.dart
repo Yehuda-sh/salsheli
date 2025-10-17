@@ -26,6 +26,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../core/status_colors.dart';
+import '../../core/ui_constants.dart';
+import '../../widgets/common/notebook_background.dart';
+import '../../widgets/common/sticky_note.dart';
+import '../../widgets/common/sticky_button.dart';
 
 class ShoppingSummaryScreen extends StatelessWidget {
   /// מזהה הרשימה
@@ -41,8 +45,11 @@ class ShoppingSummaryScreen extends StatelessWidget {
     final cs = theme.colorScheme;
     
     return Scaffold(
-      backgroundColor: cs.surface,
-      body: SafeArea(
+      backgroundColor: kPaperBackground,
+      body: Stack(
+        children: [
+          const NotebookBackground(),
+          SafeArea(
         child: Consumer<ShoppingListsProvider>(
           builder: (context, provider, _) {
             // 1️⃣ Loading State
@@ -85,10 +92,11 @@ class ShoppingSummaryScreen extends StatelessWidget {
                       style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
                     ),
                     const SizedBox(height: 24),
-                    FilledButton.icon(
+                    StickyButton(
+                      label: 'חזור',
+                      icon: Icons.arrow_back,
+                      color: kStickyYellow,
                       onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.arrow_back),
-                      label: const Text('חזור'),
                     ),
                   ],
                 ),
@@ -119,13 +127,14 @@ class ShoppingSummaryScreen extends StatelessWidget {
                       style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
                     ),
                     const SizedBox(height: 24),
-                    FilledButton.icon(
+                    StickyButton(
+                      label: 'חזרה לדף הבית',
+                      icon: Icons.home,
+                      color: kStickyYellow,
                       onPressed: () {
                         debugPrint('   🏠 ניווט חזרה לדף הבית');
                         Navigator.of(context).popUntil((route) => route.isFirst);
                       },
-                      icon: const Icon(Icons.home),
-                      label: const Text('חזרה לדף הבית'),
                     ),
                   ],
                 ),
@@ -187,25 +196,33 @@ class ShoppingSummaryScreen extends StatelessWidget {
                   const SizedBox(height: 32),
 
                   // 💰 תקציב
-                  _SummaryCard(
-                    icon: Icons.account_balance_wallet,
-                    title: "תקציב",
-                    value: "₪${spentAmount.toStringAsFixed(2)}",
-                    subtitle: budget > 0
-                        ? "${budgetDiff >= 0 ? 'נשאר' : 'חריגה'}: ₪${budgetDiff.abs().toStringAsFixed(2)}"
-                        : null,
-                    color: budgetDiff >= 0 ? StatusColors.success : StatusColors.error,
+                  StickyNote(
+                    color: kStickyYellow,
+                    rotation: -0.02,
+                    child: _SummaryCard(
+                      icon: Icons.account_balance_wallet,
+                      title: "תקציב",
+                      value: "₪${spentAmount.toStringAsFixed(2)}",
+                      subtitle: budget > 0
+                          ? "${budgetDiff >= 0 ? 'נשאר' : 'חריגה'}: ₪${budgetDiff.abs().toStringAsFixed(2)}"
+                          : null,
+                      color: budgetDiff >= 0 ? StatusColors.success : StatusColors.error,
+                    ),
                   ),
 
                   const SizedBox(height: 16),
 
                   // ✅ הצלחה
-                  _SummaryCard(
-                    icon: Icons.trending_up,
-                    title: "אחוז הצלחה",
-                    value: "${successRate.toStringAsFixed(1)}%",
-                    subtitle: "$purchased מתוך $total פריטים נרכשו",
-                    color: StatusColors.info,
+                  StickyNote(
+                    color: kStickyGreen,
+                    rotation: 0.015,
+                    child: _SummaryCard(
+                      icon: Icons.trending_up,
+                      title: "אחוז הצלחה",
+                      value: "${successRate.toStringAsFixed(1)}%",
+                      subtitle: "$purchased מתוך $total פריטים נרכשו",
+                      color: StatusColors.info,
+                    ),
                   ),
 
                   const SizedBox(height: 16),
@@ -214,20 +231,28 @@ class ShoppingSummaryScreen extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: _StatBox(
-                          icon: Icons.check_circle,
-                          label: "נרכשו",
-                          value: "$purchased",
-                          color: StatusColors.success,
+                        child: StickyNote(
+                          color: kStickyPink,
+                          rotation: -0.01,
+                          child: _StatBox(
+                            icon: Icons.check_circle,
+                            label: "נרכשו",
+                            value: "$purchased",
+                            color: StatusColors.success,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: _StatBox(
-                          icon: Icons.cancel,
-                          label: "חסרו",
-                          value: "$missing",
-                          color: StatusColors.error,
+                        child: StickyNote(
+                          color: kStickyCyan,
+                          rotation: 0.01,
+                          child: _StatBox(
+                            icon: Icons.cancel,
+                            label: "חסרו",
+                            value: "$missing",
+                            color: StatusColors.error,
+                          ),
                         ),
                       ),
                     ],
@@ -236,26 +261,22 @@ class ShoppingSummaryScreen extends StatelessWidget {
                   const SizedBox(height: 32),
 
                   // 🔙 כפתור חזרה
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: FilledButton.icon(
-                      onPressed: () {
-                        debugPrint('   🏠 לחיצה על כפתור חזרה - popUntil');
-                        Navigator.of(context).popUntil((route) => route.isFirst);
-                      },
-                      icon: const Icon(Icons.home),
-                      label: const Text("חזרה לדף הבית"),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: cs.primary,
-                      ),
-                    ),
+                  StickyButton(
+                    label: "חזרה לדף הבית",
+                    icon: Icons.home,
+                    color: kStickyYellow,
+                    onPressed: () {
+                      debugPrint('   🏠 לחיצה על כפתור חזרה - popUntil');
+                      Navigator.of(context).popUntil((route) => route.isFirst);
+                    },
                   ),
                 ],
               ),
             );
           },
         ),
+          ),
+        ],
       ),
     );
   }
@@ -282,15 +303,8 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-
-    return Container(
+    return Padding(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-      ),
       child: Row(
         children: [
           CircleAvatar(
@@ -305,9 +319,9 @@ class _SummaryCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 14,
-                    color: cs.onSurfaceVariant,
+                    color: Colors.black54,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -323,9 +337,9 @@ class _SummaryCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     subtitle!,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 12,
-                      color: cs.onSurfaceVariant,
+                      color: Colors.black54,
                     ),
                   ),
                 ],
@@ -357,15 +371,8 @@ class _StatBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-
-    return Container(
+    return Padding(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-      ),
       child: Column(
         children: [
           Icon(icon, color: color, size: 32),
@@ -381,9 +388,9 @@ class _StatBox extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 12,
-              color: cs.onSurfaceVariant,
+              color: Colors.black54,
             ),
           ),
         ],

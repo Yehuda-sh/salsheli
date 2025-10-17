@@ -34,19 +34,22 @@
 | ✅ imports לא בשימוש | → הסר | - |
 | ✅ deprecated APIs | → החלף ל-modern API | BEST_PRACTICES.md |
 
-### 2️⃣ **בדיקת עיצוב (Sticky Notes Design compliance)**
+### 2️⃣ **בדיקת עיצוב (Sticky Notes Design compliance)** ⚠️ חובה!
 
-**אם זה מסך UI:**
-- ✅ יש `NotebookBackground()`?
-- ✅ יש `kPaperBackground` כ-backgroundColor?
-- ✅ משתמש ב-`StickyNote()` לכותרות/שדות?
+**⚠️ CRITICAL: תמיד בדוק Sticky Notes Design בכל מסך UI!**
+
+**אם המסך לא עומד בבדיקות:**
+1. 🚨 **דווח מיד:** "המסך לא מעוצב לפי Sticky Notes Design!"
+2. 🎨 **הצע המרה:** "האם תרצה שאהמיר את המסך?"
+3. ⚡ **אם כן:** המר באמצעות `Filesystem:edit_file` (לא artifacts!)
+
+**בדיקה אוטומטית:**
+- ✅ יש `NotebookBackground()` + `kPaperBackground`?
+- ✅ משתמש ב-`StickyNote()` לתוכן?
 - ✅ משתמש ב-`StickyButton()` לכפתורים?
-- ✅ יש סיבובים בטווח -0.03 עד 0.03?
-- ✅ צבעים מ-`kSticky*` constants?
-
-**אם זה מסך ללא Sticky Notes:**
-- ❌ **תחליף את כל העיצוב מיידית!** 🎨
-- ראה: **STICKY_NOTES_DESIGN.md**
+- ✅ סיבובים: -0.03 עד 0.03
+- ✅ צבעים: kStickyYellow/Pink/Green/Cyan
+- ✅ Imports נכונים?
 
 ### 3️⃣ **Best Practices (תיקון אם צריך)**
 
@@ -131,9 +134,55 @@ Ctrl+Shift+F → "data/onboarding_data" → נמצא! ✅
    • Everything else looks good!
    ```
 
-4. ✅ **תן לקובץ משודרג**
-   - אם הן שגיאות קטנות → תיקן בזריזות
-   - אם שינויים גדולים → הצע artifact
+4. ✅ **תקן באמצעות `Filesystem:edit_file`**
+   - ⚠️ **חובה: תמיד השתמש ב-Filesystem:edit_file!**
+   - ❌ **לא artifacts!** המשתמש מעדיף עריכה ישירה
+   - ✅ שגיאות קטנות: תקן מייד באמצעות `edit_file`
+   - ✅ שינויים גדולים: שאל אם להמשיך, אז השתמש ב-`edit_file`
+   - 🚨 **רק במקרים חריגים:** artifacts (לדוגמאות קוד, מסמכים)
+
+---
+
+## 🛠️ כלל זהב: Filesystem:edit_file > artifacts
+
+**⚠️ CRITICAL: המשתמש שונא artifacts מיותרים!**
+
+### מתי להשתמש במה?
+
+| מצב | כלי | למה |
+|------|------|------|
+| תיקון קובץ קיים | `Filesystem:edit_file` | ✅ מהיר, יעיל, המשתמש מעדיף |
+| קובץ חדש | `Filesystem:write_file` | ✅ יצירה ישירה |
+| המרת עיצוב | `Filesystem:edit_file` | ✅ עריכות מרובות |
+| דוגמאות קוד | `artifacts` | ❌ רק אם המשתמש ביקש |
+| מסמכים חדשים | `Filesystem:write_file` | ✅ ישיר לקובץ |
+
+### דוגמאות:
+
+**✅ נכון:**
+```
+משתמש: "תיקן את הקובץ"
+אתה: [קורא קובץ] → [Filesystem:edit_file] → "✅ תוקן!"
+```
+
+**✅ נכון:**
+```
+משתמש: "המר ל-Sticky Notes"
+אתה: "אוקי, מתחיל בהמרה..." → [Filesystem:edit_file x3]
+```
+
+**❌ שגוי:**
+```
+משתמש: "תיקן את הקובץ"
+אתה: "הנה הקובץ המתוקן:" [artifact עם 500 שורות]
+משתמש: "😡 אני לא רוצה בלוקים!"
+```
+
+### למה זה חשוב?
+1. 🚀 **מהירות** - edit_file עובד מייד
+2. 🎯 **דיוק** - רק מה שצריך משתנה
+3. 💻 **UX טוב** - אין בלוקים ארוכים
+4. 🧠 **מעקב** - קל לראות מה השתנה
 
 ---
 
