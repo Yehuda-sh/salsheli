@@ -1,12 +1,20 @@
 # 📚 מבנה מסמכי הפרויקט
 
-> **עדכון:** 17/10/2025 - הסרת Hive וכל קבצי ה-Dead Code הקשורים
+> **עדכון:** 18/10/2025 - הוספת מדריך התחלה מהירה למתחילים!
 
 ## 📋 מסמכים פעילים
 
+### 🚀 למתחילים - התחל כאן!
+- **`GETTING_STARTED.md`** - מדריך התחלה מהירה (5-10 דק') 🆕
+  - טבלת קיצורי דרך
+  - איך לדבר עם Claude
+  - Claude Code - התקנה ושימוש
+  - דוגמאות מהפרויקט
+  - קישורים למדריכים המפורטים
+
 ### 🎯 מדריכים מהירים (Quick References)
-- **`AI_QUICK_START.md`** - הנחיות מהירות לעבודה עם AI (2 דק')
-- **`AI_DEVELOPER_INTERACTION_GUIDE.md`** - מדריך תקשורת עם מפתח מתחיל (10 דק') 🆕
+- **`AI_MASTER_GUIDE.md`** - מדריך מלא למערכות AI (10 דק')
+- **`CLAUDE_TECHNICAL_GUIDE.md`** - מדריך טכני מקוצר (5 דק')
 - **`QUICK_REFERENCE.md`** - TL;DR של כל הנושאים החשובים (2-3 דק')
 
 ### 💻 פיתוח ועיצוב
@@ -32,6 +40,13 @@
 - ~~`IMPROVEMENTS_SUMMARY.md`~~ → סיכום זמני של שיפורים (מחוק)
 - ~~`fix_user_context_test.dart`~~ → סקריפט תיקון זמני (מחוק)
 
+### אוחדו למדריך אחד (18/10/2025):
+- ~~`AI_DEVELOPER_INTERACTION_GUIDE.md`~~ → אוחד ל-`AI_MASTER_GUIDE.md`
+- ~~`AI_DEV_GUIDELINES.md`~~ → אוחד ל-`AI_MASTER_GUIDE.md`
+- ~~`AI_QUICK_START.md`~~ → אוחד ל-`AI_MASTER_GUIDE.md`
+
+**תוצאה:** כל המידע הטכני וה-AI Behavior Instructions כעת ב-`AI_MASTER_GUIDE.md` אחד מאוחד!
+
 **הערה:** קבצים אלו נמחקו לגמרי מהפרויקט. התוכן החשוב שלהם הועבר למסמכים הרלוונטיים.
 
 ### קבצים שנמחקו היום (17/10/2025) - Hive ו-Dead Code:
@@ -48,16 +63,23 @@
 
 ## 🎓 סדר קריאה מומלץ
 
-### למפתח חדש:
+### 🆕 למפתח מתחיל:
+1. **`GETTING_STARTED.md`** - ⭐ **התחל כאן!** (5-10 דק')
+2. `QUICK_REFERENCE.md` - תשובות מהירות (2-3 דק')
+3. `LESSONS_LEARNED.md` - עקרונות (10 דק')
+4. `BEST_PRACTICES.md` - איך לכתוב קוד (15 דק')
+5. `STICKY_NOTES_DESIGN.md` - עיצוב (10 דק')
+
+### למפתח מנוסה:
 1. `README.md` - הכרת הפרויקט
-2. `QUICK_REFERENCE.md` - סקירה מהירה
+2. `DOCS_STRUCTURE.md` - מפת דרכים
 3. `LESSONS_LEARNED.md` - עקרונות
 4. `BEST_PRACTICES.md` - איך לכתוב קוד
 5. `STICKY_NOTES_DESIGN.md` - עיצוב
 
 ### לעבודה עם AI:
-1. `AI_QUICK_START.md` - **חובה בתחילת כל שיחה!**
-2. `AI_DEVELOPER_INTERACTION_GUIDE.md` - איך לתקשר עם מפתח מתחיל
+1. `AI_MASTER_GUIDE.md` - **חובה בתחילת כל שיחה!** (מדריך מלא)
+2. `CLAUDE_TECHNICAL_GUIDE.md` - אלטרנטיבה מקוצרת (רק טכני)
 
 ### לפיתוח features חדשים:
 1. `BEST_PRACTICES.md`
@@ -67,4 +89,4 @@
 
 ---
 
-**עודכן:** 17/10/2025 (23:30) | **מעודכן ע"י:** AI Assistant | **שינוי:** הוספת AI_DEVELOPER_INTERACTION_GUIDE.md
+**עודכן:** 18/10/2025 (02:30) | **מעודכן ע"י:** AI Assistant | **שינוי:** הוספת GETTING_STARTED.md - מדריך התחלה מהירה

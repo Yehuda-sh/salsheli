@@ -1,9 +1,12 @@
-# 🛒 סל שלי (Salsheli) - README v1.3.1
+# 🛒 סל שלי (Salsheli) - README v1.4.0
 
-> **עדכון 17/10/2025:** מבנה מסמכים חדש ומאורגן!
-> - ✅ **DOCS_STRUCTURE.md** - מפת דרכים למסמכים 🆕
+> **🆕 חדש! מפתח מתחיל? התחל כאן:** [**GETTING_STARTED.md**](GETTING_STARTED.md) - מדריך התחלה מהירה (5-10 דקות) 🚀
+
+> **עדכון 18/10/2025:** מדריך התחלה חדש + תיעוד מאוחד!
+> - 🆕 **GETTING_STARTED.md** - מדריך התחלה מהירה למתחילים!
+> - ✅ **DOCS_STRUCTURE.md** - מפת דרכים למסמכים
 > - ✅ **10 מסמכים מאורגנים** - במקום 14 עם כפילויות
-> - ✅ **ארגון מחדש** - מחקנו קבצים כפולים/זמניים
+> - ✅ **Claude Code** - מדריך להתקנה ושימוש
 > - ✅ **עדכון כל המסמכים** - imports נכונים, constants מעודכנים
 
 ---
@@ -52,25 +55,20 @@
 - Integration Tests
 - Coverage Goals (80%+)
 
-### 7. **AI_QUICK_START.md** 🤖
-**לסוכן AI - Code Review אוטומטי!**
-- התחל כל שיחה: `📌 קרא תחילה: C:\projects\salsheli\AI_QUICK_START.md`
-- Code Review אוטומטי בקריאת קובץ
-- תיקון שגיאות טכניות מיידי
+### 7. **AI_MASTER_GUIDE.md** 🤖
+**מדריך מלא למערכות AI!**
+- התחל כל שיחה: `📌 קרא תחילה: C:\projects\salsheli\AI_MASTER_GUIDE.md`
+- כל ה-AI Behavior Instructions במקום אחד
+- Code Review אוטומטי + Dead Code Detection
+- Response Guidelines + Workflow + Technical Rules
 
-### 8. **AI_DEVELOPER_INTERACTION_GUIDE.md** 👨‍💻🆕
-**מדריך תקשורת AI עם מפתח מתחיל!**
-- איך לדבר עם Claude בעברית
-- 7 תיקונים אוטומטיים
-- דוגמאות מהפרויקט + טיפים
+### 8. **CLAUDE_TECHNICAL_GUIDE.md** 🛠️
+**מדריך טכני מקוצר!**
+- רק המידע הטכני הנדרש
+- ללא הדרכות למשתמש
+- בינלאומי (English) עם תשובות בעברית
 
-### 9. **AI_DEV_GUIDELINES.md** 🤖
-**מדריך טכני מקיף ל-AI!**
-- טבלת בעיות נפוצות + פתרונות
-- מפנה לכל המסמכים הרלוונטיים
-- Dead/Dormant Code Detection
-
-### 10. **DOCS_STRUCTURE.md** 📋
+### 9. **DOCS_STRUCTURE.md** 📋
 **מפת דרכים למסמכים! 🆕**
 - רשימת כל המסמכים הפעילים
 - סדר קריאה מומלץ לכל מקרה
@@ -81,16 +79,25 @@
 
 ## 🎯 סדר קריאה מומלץ
 
-### 👨‍💻 למפתח חדש:
+### 🆕 למפתח מתחיל:
+**התחל מ-[GETTING_STARTED.md](GETTING_STARTED.md)** - מדריך התחלה מהירה (5-10 דקות)!
+- טבלת קיצורי דרך
+- איך לדבר עם Claude
+- Claude Code - התקנה ושימוש
+- דוגמאות מהפרויקט
+
+### 👨‍💻 למפתח מנוסה:
 **התחל מ-DOCS_STRUCTURE.md** כדי להבין את מבנה המסמכים, אחר כך עבור ל-LESSONS_LEARNED.md.
 
 ### 🤖 לסוכן AI:
-**התחל מ-AI_QUICK_START.md** - משפט אחד מספיק!  
-**איך לתקשר עם מפתח:** AI_DEVELOPER_INTERACTION_GUIDE.md 🆕
+**התחל מ-AI_MASTER_GUIDE.md** - מדריך מלא בקובץ אחד!  
+**או:** CLAUDE_TECHNICAL_GUIDE.md - גרסה מקוצרת טכנית
 
-### 👥 לכולם:
+### 👥 מסלול מלא:
 
 ```
+0️⃣ GETTING_STARTED.md       🚀 התחלה מהירה (מתחילים מכאן!) 🆕
+   ↓
 1️⃣ LESSONS_LEARNED.md       🏗️ הבסיס הטכני
    ↓
 2️⃣ BEST_PRACTICES.md        💻 איך לכתוב קוד נכון
@@ -103,7 +110,7 @@
    ↓
 6️⃣ TESTING_GUIDE.md         🧪 בדיקות
    ↓
-7️⃣ AI_QUICK_START.md        🤖 לסוכן AI (משפט אחד!)
+7️⃣ AI_MASTER_GUIDE.md       🤖 לסוכן AI (מדריך מלא!)
    ↓
 8️⃣ DOCS_STRUCTURE.md        📋 מפת דרכים למסמכים
 ```
@@ -123,8 +130,7 @@
 | **UI Sticky Notes?** | STICKY_NOTES_DESIGN.md | NotebookBackground + StickyNote |
 | **Auth בעיה?** | SECURITY_GUIDE.md | Firebase Auth Setup |
 | **צריך בדיקות?** | TESTING_GUIDE.md | Unit/Widget/Integration Tests |
-| **AI סוכן?** | AI_QUICK_START.md | Code Review אוטומטי |
-| **איך AI מדבר איתי?** | AI_DEVELOPER_INTERACTION_GUIDE.md | תקשורת בעברית + דוגמאות |
+| **AI סוכן?** | AI_MASTER_GUIDE.md | Code Review + Behavior Instructions |
 
 ---
 
@@ -165,7 +171,7 @@
 
 | קטגוריה | כמות |
 |---------|------|
-| **מסמכי תיעוד פעילים** | **10** (מ-14) |
+| **מסמכי תיעוד פעילים** | **9** (מ-14) |
 | **קבצי Dart** | **100+** |
 | **Models** | **11** |
 | **Providers** | **9** |
@@ -194,8 +200,8 @@
 
 ---
 
-**תאריך עדכון:** 17/10/2025  
-**גרסה:** 1.3.1 - AI Developer Interaction Guide  
+**תאריך עדכון:** 18/10/2025  
+**גרסה:** 1.4.0 - AI Master Guide (Unified Documentation)  
 **Made with ❤️ in Israel** 🇮🇱
 
 ## 📦 פרטי הפרויקט
