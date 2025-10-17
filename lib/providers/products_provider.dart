@@ -4,12 +4,12 @@
 //
 // 📦 Dependencies:
 // - ProductsRepository: ממשק לטעינת מוצרים
-// - HybridProductsRepository: מימוש היברידי (Local + Firebase + API)
+// - FirebaseProductsRepository: מימוש Firebase
 // - ListTypeMappings: מיפוי בין סוגי רשימות לקטגוריות
 // - UserContext: מידע על המשתמש הנוכחי (חובה!)
 //
 // ✨ Features:
-// - 📥 טעינה חכמה: Local (מהיר) → Firebase → API → Fallback
+// - 📥 טעינה מ-Firebase
 // - 🔄 רענון מחירים: עדכון מחירים מ-API
 // - 🔍 חיפוש: לפי שם, ברקוד, קטגוריה
 // - 🎯 סינון: לפי סוג רשימה, קטגוריה, טקסט
@@ -44,7 +44,6 @@
 
 import 'package:flutter/foundation.dart';
 import '../repositories/products_repository.dart';
-import '../repositories/hybrid_products_repository.dart';
 import '../config/list_type_mappings.dart';
 import 'user_context.dart';
 
@@ -152,28 +151,16 @@ class ProductsProvider with ChangeNotifier {
   String? get selectedListType => _selectedListType;
   bool get isEmpty => _products.isEmpty;
 
-  // 📊 סטטיסטיקות (רק אם זה Hybrid)
+  // 📊 סטטיסטיקות
   int get totalProducts {
-    final repo = _repository;
-    if (repo is HybridProductsRepository) {
-      return repo.totalProducts;
-    }
     return _products.length;
   }
 
   int get productsWithPrice {
-    final repo = _repository;
-    if (repo is HybridProductsRepository) {
-      return repo.productsWithPrice;
-    }
     return _products.where((p) => p['price'] != null).length;
   }
 
   int get productsWithoutPrice {
-    final repo = _repository;
-    if (repo is HybridProductsRepository) {
-      return repo.productsWithoutPrice;
-    }
     return _products.where((p) => p['price'] == null).length;
   }
 
@@ -181,12 +168,6 @@ class ProductsProvider with ChangeNotifier {
   Future<void> _initialize() async {
     debugPrint('🚀 ProductsProvider._initialize()');
     
-    // אתחול Hybrid Repository אם צריך
-    final repo = _repository;
-    if (repo is HybridProductsRepository) {
-      await repo.initialize();
-    }
-
     await loadProducts();
     _hasInitialized = true;
   }
@@ -287,10 +268,12 @@ class ProductsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void clearListType() {
+  void clearListType({bool notify = true}) {
     debugPrint('🧹 ProductsProvider.clearListType()');
     _selectedListType = null;
-    notifyListeners();
+    if (notify) {
+      notifyListeners();
+    }
   }
 
   // === Get Relevant Categories for Current List Type ===

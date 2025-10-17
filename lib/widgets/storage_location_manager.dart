@@ -140,7 +140,7 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
   ///
   /// Performance: Cache מנקה כשמשתנה selectedLocation/searchQuery/sortBy
   ///
-  /// Returns: List<InventoryItem> מסננת ומסודרת
+  /// Returns: List&lt;InventoryItem&gt; מסננת ומסודרת
   List<InventoryItem> get filteredInventory {
     final cacheKey = "$selectedLocation|$searchQuery|$sortBy";
     

@@ -115,7 +115,7 @@ class HomeScreenExample extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('רשימות הקניות שלי')),
-      body: const Center(child: const Text('תוכן המסך')),
+      body: const Center(child: Text('תוכן המסך')),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showCreateDialog(context),
         child: const Icon(Icons.add),

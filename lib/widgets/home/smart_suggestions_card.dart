@@ -46,7 +46,7 @@ class SmartSuggestionsCard extends StatelessWidget {
   ///
   /// [context] - BuildContext לגישה ל-Providers
   /// [suggestion] - ההמלצה להוספה (עם productName + suggestedQuantity)
-  /// Returns: Future<void>
+  /// Returns: Future&lt;void&gt;
   /// Throws: Exception מ-provider (מטופל ב-try-catch)
   Future<void> _handleAddToList(
     BuildContext context,

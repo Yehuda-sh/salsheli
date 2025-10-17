@@ -56,7 +56,7 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
+// import 'package:hive/hive.dart'; // Removed - using Firestore only
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_entity.dart';
 import '../repositories/user_repository.dart';
@@ -545,7 +545,7 @@ class UserContext with ChangeNotifier {
   /// 🔥 **התנתקות נקייה מוחלטת** - כאילו התקנת את האפליקציה מחדש!
   /// 
   /// מוחק:
-  /// 1. 🗄️ כל הנתונים ב-Hive (מוצרים, cache)
+  /// 1. 🗄️ [REMOVED] Hive data - now using Firestore only
   /// 2. ⚙️ כל ההעדפות ב-SharedPreferences
   /// 3. 🔐 התנתקות מ-Firebase Auth
   /// 4. 🧹 ניקוי state ב-UserContext
@@ -582,22 +582,8 @@ class UserContext with ChangeNotifier {
       await prefs.clear();
       debugPrint('   ✅ SharedPreferences נמחק');
 
-      // 2️⃣ מחק את כל הנתונים ב-Hive
-      debugPrint('   2️⃣ מוחק Hive boxes...');
-      try {
-        // מחיקת Box המוצרים
-        if (Hive.isBoxOpen('products')) {
-          final productsBox = Hive.box<dynamic>('products');
-          await productsBox.clear();
-          debugPrint('   ✅ Hive box "products" נמחק (${productsBox.length} מוצרים)');
-        }
-        
-        // מחיקת כל ה-boxes הפתוחים (למקרה שיש עוד)
-        await Hive.deleteFromDisk();
-        debugPrint('   ✅ כל Hive boxes נמחקו מהדיסק');
-      } catch (e) {
-        debugPrint('   ⚠️ שגיאה במחיקת Hive: $e (ממשיך...)');
-      }
+      // 2️⃣ Hive removed - using Firestore only
+      debugPrint('   2️⃣ Skipping Hive deletion (no longer used)...');
 
       // 3️⃣ נקה את ה-state המקומי
       debugPrint('   3️⃣ מנקה state...');

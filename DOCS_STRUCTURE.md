@@ -1,6 +1,6 @@
 # 📚 מבנה מסמכי הפרויקט
 
-> **עדכון:** 16/10/2025 - ארגון מחדש של המסמכים
+> **עדכון:** 17/10/2025 - הסרת Hive וכל קבצי ה-Dead Code הקשורים
 
 ## 📋 מסמכים פעילים
 
@@ -31,7 +31,14 @@
 - ~~`IMPROVEMENTS_SUMMARY.md`~~ → סיכום זמני של שיפורים (מחוק)
 - ~~`fix_user_context_test.dart`~~ → סקריפט תיקון זמני (מחוק)
 
-**הערה:** קבצים אלו שונו ל-`.deleted` ואפשר למחוק לגמרי או לשחזר אם נדרש.
+**הערה:** קבצים אלו נמחקו לגמרי מהפרויקט. התוכן החשוב שלהם הועבר למסמכים הרלוונטיים.
+
+### קבצים שנמחקו היום (17/10/2025) - Hive ו-Dead Code:
+- `lib/models/product_entity.dart` → מודל Hive (נמחק)
+- `lib/models/product_entity.g.dart` → Generated code (נמחק)
+- `lib/repositories/local_products_repository.dart` → Repository של Hive (נמחק)
+- `lib/repositories/hybrid_products_repository.dart` → Repository היברידי (נמחק)
+- `test/models/product_entity_test.dart` → בדיקות של product_entity (הועבר ל-.bak)
 
 ### קבצים ששמרנו:
 - ✅ `AI_DEV_GUIDELINES.md` - מקיף ומפנה לכל המסמכים
@@ -58,4 +65,4 @@
 
 ---
 
-**עודכן:** 16/10/2025 | **מעודכן ע"י:** AI Assistant
+**עודכן:** 17/10/2025 | **מעודכן ע"י:** AI Assistant

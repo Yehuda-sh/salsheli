@@ -42,10 +42,13 @@
 // Last Updated: 06/10/2025
 //
 
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/suggestion.dart';
+import '../models/inventory_item.dart';
 import 'inventory_provider.dart';
 import 'shopping_lists_provider.dart';
 
@@ -54,8 +57,10 @@ class SuggestionsProvider with ChangeNotifier {
   final ShoppingListsProvider _listsProvider;
 
   bool _isLoading = false;
+  bool _isRefreshing = false; // 🔒 מנע ריצות כפולות
   String? _errorMessage;
   List<Suggestion> _suggestions = [];
+  Timer? _debounceTimer; // ⏲️ Debouncing
 
   static final Uuid _uuid = Uuid();
 
@@ -90,8 +95,18 @@ class SuggestionsProvider with ChangeNotifier {
       _suggestions.where((s) => s.priority == 'low').toList();
 
   void _onDataChanged() {
-    // כשהמזווה או הרשימות משתנים, נרענן המלצות
-    refresh();
+    // כשהמזווה או הרשימות משתנים, נרענן המלצות עם debouncing
+    debugPrint('⏲️ SuggestionsProvider._onDataChanged: Debouncing refresh...');
+    _debounceRefresh();
+  }
+
+  /// Debounce מנגנון למניעת ריענונים מרובים
+  void _debounceRefresh() {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      debugPrint('⚡ Debounce timer fired - executing refresh');
+      refresh();
+    });
   }
 
   /// ניסיון חוזר אחרי שגיאה
@@ -115,10 +130,18 @@ class SuggestionsProvider with ChangeNotifier {
   /// await suggestionsProvider.refresh();
   /// ```
   Future<void> refresh() async {
+    // 🔒 מנע ריצות כפולות
+    if (_isRefreshing) {
+      debugPrint('🔒 SuggestionsProvider.refresh: כבר בתהליך ניתוח, מדלג');
+      return;
+    }
+    
     if (_isLoading) {
       debugPrint('⏳ SuggestionsProvider.refresh: כבר בתהליך ניתוח, מדלג');
       return;
     }
+    
+    _isRefreshing = true;
 
     debugPrint('\n═══════════════════════════════════════════');
     debugPrint('🔄 SuggestionsProvider.refresh() - מתחיל ניתוח');
@@ -138,9 +161,9 @@ class SuggestionsProvider with ChangeNotifier {
       newSuggestions.addAll(inventorySuggestions);
       debugPrint('   ✅ נוצרו ${inventorySuggestions.length} המלצות ממזווה');
 
-      // 2. המלצות מהיסטוריה (פריטים שנקנים לעיתים קרובות)
-      debugPrint('\n📊 שלב 2: ניתוח היסטוריה');
-      final historySuggestions = _analyzeHistory();
+      // 2. המלצות מהיסטוריה - משתמש ב-Isolate לביצועים טובים יותר
+      debugPrint('\n📊 שלב 2: ניתוח היסטוריה (with Isolate)');
+      final historySuggestions = await _analyzeHistoryInBackground();
       newSuggestions.addAll(historySuggestions);
       debugPrint('   ✅ נוצרו ${historySuggestions.length} המלצות מהיסטוריה');
 
@@ -163,6 +186,8 @@ class SuggestionsProvider with ChangeNotifier {
       debugPrintStack(label: 'SuggestionsProvider.refresh', stackTrace: st);
       notifyListeners(); // ← עדכון UI מיידי על שגיאה
       debugPrint('   🔔 SuggestionsProvider: notifyListeners() (error occurred)');
+    } finally {
+      _isRefreshing = false; // 🔓 שחרור נעילה
     }
 
     _isLoading = false;
@@ -216,7 +241,77 @@ class SuggestionsProvider with ChangeNotifier {
     return suggestions;
   }
 
-  /// ניתוח היסטוריה - מחזיר פריטים שנקנים לעיתים קרובות
+  /// ניתוח היסטוריה עם Isolate לביצועים טובים יותר
+  Future<List<Suggestion>> _analyzeHistoryInBackground() async {
+    // הכנת הנתונים ל-isolate
+    final data = {
+      'lists': _listsProvider.lists.map((l) => l.toJson()).toList(),
+      'inventoryItems': _inventoryProvider.items.map((i) => i.productName.toLowerCase()).toList(),
+    };
+    
+    // הרצה ב-isolate
+    try {
+      return await compute(_analyzeHistoryIsolate, data);
+    } catch (e) {
+      debugPrint('⚠️ Isolate failed, falling back to main thread: $e');
+      return _analyzeHistory(); // Fallback למקרה של בעיה
+    }
+  }
+  
+  /// פונקציה סטטית לריצה ב-Isolate (ללא גישה ל-state)
+  static List<Suggestion> _analyzeHistoryIsolate(Map<String, dynamic> data) {
+    final suggestions = <Suggestion>[];
+    final listsData = data['lists'] as List<dynamic>;
+    final inventoryItems = data['inventoryItems'] as List<String>;
+    
+    // ספירת תדירות
+    final productFrequency = <String, int>{};
+    final now = DateTime.now();
+    final thirtyDaysAgo = now.subtract(Duration(days: 30));
+    
+    for (var listJson in listsData) {
+      final updatedDate = DateTime.parse(listJson['updatedAt'] ?? listJson['updatedDate']);
+      if (updatedDate.isAfter(thirtyDaysAgo)) {
+        final items = listJson['items'] as List<dynamic>? ?? [];
+        for (var item in items) {
+          final name = (item['name'] ?? '').toString().trim().toLowerCase();
+          if (name.isNotEmpty) {
+            productFrequency[name] = (productFrequency[name] ?? 0) + 1;
+          }
+        }
+      }
+    }
+    
+    // יצירת המלצות
+    productFrequency.forEach((productName, count) {
+      if (count >= 3 && !inventoryItems.contains(productName)) {
+        final priority = count >= 5 ? 'medium' : 'low';
+        suggestions.add(
+          Suggestion(
+            id: Uuid().v4(),
+            productName: _capitalizeStatic(productName),
+            reason: 'frequently_bought',
+            category: 'כללי',
+            suggestedQuantity: 1,
+            unit: 'יחידות',
+            priority: priority,
+            source: 'history',
+            createdAt: DateTime.now(),
+          ),
+        );
+      }
+    });
+    
+    return suggestions;
+  }
+  
+  /// עזר סטטי - הופך אות ראשונה לגדולה
+  static String _capitalizeStatic(String text) {
+    if (text.isEmpty) return text;
+    return text[0].toUpperCase() + text.substring(1);
+  }
+
+  /// ניתוח היסטוריה - הגרסה הרגילה (fallback)
   /// 
   /// Logic: מוצר שהופיע 3+ פעמים ב-30 הימים האחרונים
   List<Suggestion> _analyzeHistory() {
@@ -400,6 +495,7 @@ class SuggestionsProvider with ChangeNotifier {
   @override
   void dispose() {
     debugPrint('🧹 SuggestionsProvider.dispose');
+    _debounceTimer?.cancel(); // ⏲️ ביטול טיימר
     _inventoryProvider.removeListener(_onDataChanged);
     _listsProvider.removeListener(_onDataChanged);
     debugPrint('   ✅ Listeners הוסרו');

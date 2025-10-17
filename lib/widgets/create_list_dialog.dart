@@ -244,7 +244,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
   ///
   /// תכונות:
   /// - DraggableScrollableSheet (גובה 0.7-0.95)
-  /// - Consumer<TemplatesProvider> עם states:
+  /// - Consumer&lt;TemplatesProvider&gt; עם states:
   ///   - loading: מעגל טעינה
   ///   - error: הודעת שגיאה
   ///   - empty: הודעת "אין תבניות"

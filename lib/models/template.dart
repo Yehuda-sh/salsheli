@@ -147,7 +147,7 @@ class Template {
   // Constructor
   // ========================================
 
-  Template({
+  const Template({
     required this.id,
     required this.type,
     required this.name,

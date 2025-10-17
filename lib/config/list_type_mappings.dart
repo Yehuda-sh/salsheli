@@ -88,6 +88,12 @@ class ListTypeMappings {
   /// מנרמל שם type ישן לחדש (backwards compatibility)
   static String _normalizeType(String type) {
     switch (type) {
+      case 'grocery':  // Alias for super_
+        return ListType.super_;
+      case 'groceries':  // Another common alias
+        return ListType.super_;
+      case 'supermarket':  // Another common alias
+        return ListType.super_;
       case 'event_birthday':
         return ListType.birthday;
       case 'event_party':

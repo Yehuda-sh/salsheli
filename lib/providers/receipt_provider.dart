@@ -42,6 +42,8 @@
 // Last Updated: 07/10/2025
 //
 
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import '../models/receipt.dart';
 import '../repositories/receipt_repository.dart';
@@ -122,8 +124,17 @@ class ReceiptProvider with ChangeNotifier {
     debugPrint('   🔔 ReceiptProvider: notifyListeners() (isLoading=true)');
 
     try {
-      _receipts = await _repository.fetchReceipts(householdId);
-      debugPrint('✅ ReceiptProvider._loadReceipts: נטענו ${_receipts.length} קבלות');
+      final allReceipts = await _repository.fetchReceipts(householdId);
+      debugPrint('✅ ReceiptProvider._loadReceipts: נטענו ${allReceipts.length} קבלות');
+      
+      // ⚡ Batch Processing לביצועים טובים יותר
+      if (allReceipts.length > 50) {
+        debugPrint('🔄 Using batch processing for ${allReceipts.length} receipts');
+        _receipts = await _processBatchedReceipts(allReceipts);
+      } else {
+        _receipts = allReceipts;
+      }
+      
     } catch (e, st) {
       _errorMessage = "שגיאה בטעינת קבלות: $e";
       debugPrint('❌ ReceiptProvider._loadReceipts: שגיאה - $e');
@@ -136,6 +147,38 @@ class ReceiptProvider with ChangeNotifier {
     _isLoading = false;
     notifyListeners();
     debugPrint('   🔔 ReceiptProvider: notifyListeners() (isLoading=false, receipts=${_receipts.length})');
+  }
+  
+  /// עיבוד קבלות ב-batches למניעת חסימת ה-UI
+  /// 
+  /// עובד על 25 קבלות בכל פעם עם delay קטן ביניהן
+  Future<List<Receipt>> _processBatchedReceipts(List<Receipt> receipts) async {
+    const batchSize = 25;
+    final processedReceipts = <Receipt>[];
+    
+    for (int i = 0; i < receipts.length; i += batchSize) {
+      final endIndex = (i + batchSize < receipts.length) 
+          ? i + batchSize 
+          : receipts.length;
+      final batch = receipts.sublist(i, endIndex);
+      
+      debugPrint('   📦 Processing batch ${i ~/ batchSize + 1} (${batch.length} receipts)');
+      
+      // עיבוד ה-batch
+      processedReceipts.addAll(batch);
+      
+      // עדכון UI אינטרמדיום (רק אם יש עוד batches)
+      if (endIndex < receipts.length) {
+        _receipts = List.unmodifiable(processedReceipts);
+        notifyListeners(); // עדכון ביניים של ה-UI
+        
+        // נותן ל-UI לנשום בין ה-batches
+        await Future.delayed(Duration(milliseconds: 10));
+      }
+    }
+    
+    debugPrint('   ✅ Batch processing completed: ${processedReceipts.length} receipts');
+    return processedReceipts;
   }
 
   /// טוען את כל הקבלות מחדש מה-Repository

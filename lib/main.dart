@@ -2,8 +2,7 @@
 // Description: Main entry point + Providers setup
 //
 // ✅ Recent Updates:
-// - Using HybridProductsRepository instead of Firebase
-// - Hive initialization before running the app
+// - Using FirebaseProductsRepository directly (Hive removed)
 // - Automatic user loading from SharedPreferences
 // - Dynamic Color Support (Android 12+ Material You) 🎨
 
@@ -34,9 +33,7 @@ import 'repositories/user_repository.dart';
 import 'repositories/firebase_user_repository.dart';  // 🔥 Firebase User!
 import 'repositories/firebase_receipt_repository.dart';  // 🔥 Firebase Receipts!
 import 'repositories/firebase_inventory_repository.dart';  // 🔥 Firebase Inventory!
-import 'repositories/local_products_repository.dart';
 import 'repositories/firebase_products_repository.dart';  // 🔥 Firebase!
-import 'repositories/hybrid_products_repository.dart';
 import 'repositories/firebase_habits_repository.dart';  // 🔥 Firebase Habits!
 import 'repositories/firebase_templates_repository.dart';  // 🔥 Firebase Templates!
 import 'repositories/firebase_locations_repository.dart';  // 🔥 Firebase Locations!
@@ -90,38 +87,10 @@ void main() async {
     debugPrint('Flutter Error: ${details.exception}');
   };
 
-  // 🆕 Initialize Hive + Hybrid Repository
-  debugPrint('\n💾 Initializing LocalProductsRepository...');
-  final localRepo = LocalProductsRepository();
-  
-  try {
-    await localRepo.init();
-    debugPrint('✅ LocalProductsRepository ready');
-    debugPrint('   📊 Existing products: ${localRepo.totalProducts}');
-  } catch (e) {
-    debugPrint('❌ Error initializing LocalProductsRepository: $e');
-    debugPrint('   Continuing anyway...');
-  }
-
-  // 🔥 Create Firebase Repository (optional)
-  FirebaseProductsRepository? firebaseRepo;
-  try {
-    debugPrint('\n🔥 Attempting to create FirebaseProductsRepository...');
-    firebaseRepo = FirebaseProductsRepository();
-    debugPrint('✅ FirebaseProductsRepository ready (Firestore access available)');
-  } catch (e) {
-    debugPrint('⚠️ FirebaseProductsRepository failed: $e');
-    debugPrint('   Continuing without Firebase (Local + API only)...');
-    firebaseRepo = null;
-  }
-
-  // 🔀 Create Hybrid Repository
-  debugPrint('\n🔀 Creating HybridProductsRepository...');
-  final hybridRepo = HybridProductsRepository(
-    localRepo: localRepo,
-    firebaseRepo: firebaseRepo,  // 🔥 Pass Firebase!
-  );
-  debugPrint('✅ HybridProductsRepository ready');
+  // 🔥 Create Firebase Repository
+  debugPrint('\n🔥 Creating FirebaseProductsRepository...');
+  final firebaseRepo = FirebaseProductsRepository();
+  debugPrint('✅ FirebaseProductsRepository ready');
 
   debugPrint('\n═══════════════════════════════════════════');
   debugPrint('🎯 Launching app...\n');
@@ -163,7 +132,7 @@ void main() async {
           },
         ),
 
-        // === Products Provider === 🆕 Hybrid + ProxyProvider
+        // === Products Provider === 🔥 Firebase
         // ⚠️ IMPORTANT: lazy: false is required! Otherwise ProductsProvider
         //    won't be created until someone needs it, causing race conditions
         //    with data loading.
@@ -172,9 +141,9 @@ void main() async {
         ChangeNotifierProxyProvider<UserContext, ProductsProvider>(
           lazy: false,
           create: (context) {
-            debugPrint('\n🏗️ main.dart: Creating ProductsProvider with Hybrid...');
+            debugPrint('\n🏗️ main.dart: Creating ProductsProvider with Firebase...');
             final provider = ProductsProvider(
-              repository: hybridRepo,
+              repository: firebaseRepo,
               skipInitialLoad: true,
             );
             debugPrint('✅ main.dart: ProductsProvider created (skipInitialLoad=true)');
@@ -188,7 +157,7 @@ void main() async {
             if (previous == null) {
               debugPrint('   ⚠️ previous=null, creating new ProductsProvider');
               return ProductsProvider(
-                repository: hybridRepo,
+                repository: firebaseRepo,
               );
             }
 

@@ -75,8 +75,8 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
 
   @override
   void dispose() {
-    // ✅ בטוח - משתמש ב-provider ששמרנו ב-initState
-    _productsProvider?.clearListType();
+    // ✅ בטוח - קורא clearListType בלי notifyListeners
+    _productsProvider?.clearListType(notify: false);
     
     _searchController.dispose();
     _customQuantityController.dispose();
