@@ -1,7 +1,28 @@
 // 📄 File: lib/screens/receipts/receipt_to_inventory_screen.dart
 //
-// 🎯 מטרה: מסך אישור להעברת פריטים מקבלה למלאי
-// מאפשר למשתמש לבחור איזה פריטים להוסיף ולאן
+// 🎯 Purpose: מסך העברת פריטים מקבלה למלאי - Receipt to Inventory Screen
+//
+// 📋 Features:
+// ✅ בחירת פריטים להעברה למלאי
+// ✅ קביעת כמות ומיקום לכל פריט
+// ✅ זיהוי פריטים קיימים במלאי
+// ✅ 4 Empty States: Loading, Error, Empty, Data
+// ✅ Error Recovery עם retry
+// ✅ Logging מפורט
+//
+// 🔗 Dependencies:
+// - InventoryProvider - ניהול מלאי
+// - ReceiptToInventoryService - לוגיקת העברה
+// - StorageLocationsConfig - מיקומים
+//
+// 📊 Flow:
+// 1. טעינה: עיבוד פריטי הקבלה
+// 2. בחירה: משתמש בוחר פריטים + מיקום
+// 3. אישור: העברה למלאי
+// 4. סיום: חזרה למסך קודם
+//
+// Version: 2.0 - Full Refactor with Error Handling
+// Last Updated: 17/10/2025
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -9,7 +30,7 @@ import '../../models/receipt.dart';
 import '../../providers/inventory_provider.dart';
 import '../../services/receipt_to_inventory_service.dart';
 import '../../config/storage_locations_config.dart';
-
+import '../../core/ui_constants.dart';
 
 class ReceiptToInventoryScreen extends StatefulWidget {
   final Receipt receipt;
@@ -28,64 +49,102 @@ class _ReceiptToInventoryScreenState extends State<ReceiptToInventoryScreen> {
   List<ReceiptToInventoryItem> _items = [];
   bool _isLoading = true;
   bool _isProcessing = false;
+  String? _errorMessage;
   
   @override
   void initState() {
     super.initState();
+    debugPrint('📦 ReceiptToInventoryScreen: initState - Receipt from "${widget.receipt.storeName}"');
     _initializeService();
   }
   
+  /// מאתחל את השירות ומעבד את פריטי הקבלה.
+  /// טוען פריטים קיימים מהמלאי ומציע מיקומים.
   Future<void> _initializeService() async {
-    final inventoryProvider = context.read<InventoryProvider>();
-    _service = ReceiptToInventoryService(inventoryProvider: inventoryProvider);
+    debugPrint('🔄 _initializeService: מתחיל עיבוד ${widget.receipt.items.length} פריטים...');
     
-    // עבד את הקבלה
-    final processedItems = await _service.processReceipt(widget.receipt);
-    
-    setState(() {
-      _items = processedItems;
-      _isLoading = false;
-    });
+    try {
+      final inventoryProvider = context.read<InventoryProvider>();
+      _service = ReceiptToInventoryService(inventoryProvider: inventoryProvider);
+      
+      // עבד את הקבלה
+      final processedItems = await _service.processReceipt(widget.receipt);
+      
+      debugPrint('✅ _initializeService: עובדו ${processedItems.length} פריטים בהצלחה');
+      
+      if (!mounted) return;
+      
+      setState(() {
+        _items = processedItems;
+        _isLoading = false;
+        _errorMessage = null;
+      });
+    } catch (e) {
+      debugPrint('❌ _initializeService: שגיאה - $e');
+      
+      if (!mounted) return;
+      
+      setState(() {
+        _errorMessage = 'שגיאה בטעינת הקבלה: $e';
+        _isLoading = false;
+      });
+    }
   }
   
+  /// מאשר ומוסיף את הפריטים שנבחרו למלאי.
+  /// מציג הודעת הצלחה/שגיאה ומחזיר למסך הקודם.
   Future<void> _confirmAndAddToInventory() async {
+    final selectedCount = _items.where((item) => item.shouldAdd).length;
+    debugPrint('✅ _confirmAndAddToInventory: מוסיף $selectedCount פריטים למלאי...');
+    
     setState(() => _isProcessing = true);
     
     try {
       await _service.addApprovedItemsToInventory(_items);
       
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ הפריטים נוספו למלאי בהצלחה!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        Navigator.pop(context, true);
-      }
+      debugPrint('🎉 _confirmAndAddToInventory: הוספה הצליחה!');
+      
+      if (!mounted) return;
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('✅ $selectedCount פריטים נוספו למלאי בהצלחה!'),
+          backgroundColor: Colors.green,
+          duration: kSnackBarDuration,
+        ),
+      );
+      Navigator.pop(context, true);
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ שגיאה בהוספת פריטים: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      debugPrint('❌ _confirmAndAddToInventory: שגיאה - $e');
+      
+      if (!mounted) return;
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('❌ שגיאה בהוספת פריטים: $e'),
+          backgroundColor: Colors.red,
+          duration: kSnackBarDurationLong,
+        ),
+      );
     } finally {
-      setState(() => _isProcessing = false);
+      if (mounted) {
+        setState(() => _isProcessing = false);
+      }
     }
   }
   
+  /// בונה כרטיס פריט לבחירה.
+  /// 
+  /// [item] - הפריט להצגה.
+  /// [index] - אינדקס הפריט ברשימה.
   Widget _buildItemCard(ReceiptToInventoryItem item, int index) {
     final cs = Theme.of(context).colorScheme;
-    // final locationInfo = StorageLocationsConfig.getLocationInfo(item.suggestedLocation);
     
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
       color: item.shouldAdd ? cs.surface : cs.surfaceContainerHighest.withValues(alpha: 0.5),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(kSpacingMedium),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -106,10 +165,9 @@ class _ReceiptToInventoryScreenState extends State<ReceiptToInventoryScreen> {
                     children: [
                       Text(
                         item.productName,
-                        style: TextStyle(
-                          fontSize: 16,
+                        style: const TextStyle(
+                          fontSize: kFontSizeBody,
                           fontWeight: FontWeight.bold,
-                          color: cs.onSurface,
                         ),
                       ),
                       if (item.isNewItem)
@@ -122,7 +180,7 @@ class _ReceiptToInventoryScreenState extends State<ReceiptToInventoryScreen> {
                           ),
                           child: const Text(
                             'מוצר חדש',
-                            style: TextStyle(fontSize: 12, color: Colors.blue),
+                            style: TextStyle(fontSize: kFontSizeSmall, color: Colors.blue),
                           ),
                         )
                       else
@@ -135,7 +193,7 @@ class _ReceiptToInventoryScreenState extends State<ReceiptToInventoryScreen> {
                           ),
                           child: Text(
                             'קיים במלאי (${item.existingInventoryItem!.quantity} ${item.existingInventoryItem!.unit})',
-                            style: const TextStyle(fontSize: 12, color: Colors.green),
+                            style: const TextStyle(fontSize: kFontSizeSmall, color: Colors.green),
                           ),
                         ),
                     ],
@@ -144,7 +202,7 @@ class _ReceiptToInventoryScreenState extends State<ReceiptToInventoryScreen> {
               ],
             ),
             
-            const SizedBox(height: 12),
+            const SizedBox(height: kSpacingSmallPlus),
             
             // כמות ומיקום
             Row(
@@ -153,8 +211,8 @@ class _ReceiptToInventoryScreenState extends State<ReceiptToInventoryScreen> {
                 Expanded(
                   child: Row(
                     children: [
-                      const Icon(Icons.numbers, size: 16),
-                      const SizedBox(width: 8),
+                      const Icon(Icons.numbers, size: kIconSizeSmall),
+                      const SizedBox(width: kSpacingSmall),
                       const Text('כמות: '),
                       SizedBox(
                         width: 60,
@@ -195,7 +253,7 @@ class _ReceiptToInventoryScreenState extends State<ReceiptToInventoryScreen> {
                         child: Row(
                           children: [
                             Text(info.emoji),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: kSpacingSmall),
                             Flexible(
                               child: Text(
                                 info.name,
@@ -223,10 +281,230 @@ class _ReceiptToInventoryScreenState extends State<ReceiptToInventoryScreen> {
     );
   }
   
+  /// בונה Loading State.
+  Widget _buildLoadingSkeleton(ColorScheme cs) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const CircularProgressIndicator(),
+          const SizedBox(height: kSpacingMedium),
+          Text(
+            'מעבד ${widget.receipt.items.length} פריטים...',
+            style: TextStyle(color: cs.onSurfaceVariant),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// בונה Error State עם retry.
+  Widget _buildErrorState(ColorScheme cs) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(kSpacingLarge),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.error_outline,
+              size: kIconSizeXLarge,
+              color: Colors.red,
+            ),
+            const SizedBox(height: kSpacingMedium),
+            const Text(
+              'אופס! משהו השתבש',
+              style: TextStyle(
+                fontSize: kFontSizeLarge,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: kSpacingSmall),
+            Text(
+              _errorMessage ?? 'שגיאה לא ידועה',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: cs.onSurfaceVariant),
+            ),
+            const SizedBox(height: kSpacingXLarge),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.arrow_back),
+                  label: const Text('חזור'),
+                ),
+                const SizedBox(width: kSpacingMedium),
+                FilledButton.icon(
+                  onPressed: () {
+                    debugPrint('🔄 Retry: משתמש לחץ retry');
+                    setState(() {
+                      _isLoading = true;
+                      _errorMessage = null;
+                    });
+                    _initializeService();
+                  },
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('נסה שוב'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// בונה Empty State.
+  Widget _buildEmptyState(ColorScheme cs) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(kSpacingLarge),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.inbox_outlined,
+              size: kIconSizeXLarge,
+              color: Colors.orange,
+            ),
+            const SizedBox(height: kSpacingMedium),
+            const Text(
+              'אין פריטים בקבלה',
+              style: TextStyle(
+                fontSize: kFontSizeLarge,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: kSpacingSmall),
+            Text(
+              'הקבלה ריקה או שכל הפריטים כבר נוספו',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: cs.onSurfaceVariant),
+            ),
+            const SizedBox(height: kSpacingXLarge),
+            OutlinedButton.icon(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.arrow_back),
+              label: const Text('חזור'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// בונה את מסך הנתונים הראשי.
+  Widget _buildDataScreen(ColorScheme cs) {
+    final selectedCount = _items.where((item) => item.shouldAdd).length;
+    
+    return Column(
+      children: [
+        // כותרת עם מידע על הקבלה
+        Container(
+          padding: const EdgeInsets.all(kSpacingMedium),
+          color: cs.primaryContainer.withValues(alpha: 0.3),
+          child: Row(
+            children: [
+              const Icon(Icons.store),
+              const SizedBox(width: kSpacingSmall),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.receipt.storeName,
+                      style: const TextStyle(
+                        fontSize: kFontSizeBody,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      '${widget.receipt.date.day}/${widget.receipt.date.month}/${widget.receipt.date.year}',
+                      style: TextStyle(
+                        fontSize: kFontSizeSmall,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                '$selectedCount/${_items.length} נבחרו',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: cs.primary,
+                ),
+              ),
+            ],
+          ),
+        ),
+        
+        // רשימת פריטים
+        Expanded(
+          child: ListView.builder(
+            itemCount: _items.length,
+            itemBuilder: (context, index) {
+              return _buildItemCard(_items[index], index);
+            },
+          ),
+        ),
+        
+        // כפתורי פעולה
+        Container(
+          padding: const EdgeInsets.all(kSpacingMedium),
+          decoration: BoxDecoration(
+            color: cs.surface,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                offset: const Offset(0, -2),
+                blurRadius: 4,
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: _isProcessing ? null : () => Navigator.pop(context),
+                  child: const Text('ביטול'),
+                ),
+              ),
+              const SizedBox(width: kSpacingMedium),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: _isProcessing || selectedCount == 0
+                      ? null
+                      : () => _confirmAndAddToInventory(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: cs.primary,
+                    foregroundColor: cs.onPrimary,
+                  ),
+                  child: _isProcessing
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Text('הוסף $selectedCount פריטים'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+  
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final selectedCount = _items.where((item) => item.shouldAdd).length;
     
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -237,104 +515,12 @@ class _ReceiptToInventoryScreenState extends State<ReceiptToInventoryScreen> {
           title: Text('הוספת ${widget.receipt.items.length} פריטים למלאי'),
         ),
         body: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : Column(
-                children: [
-                  // כותרת עם מידע על הקבלה
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    color: cs.primaryContainer.withValues(alpha: 0.3),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.store),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                widget.receipt.storeName,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                '${widget.receipt.date.day}/${widget.receipt.date.month}/${widget.receipt.date.year}',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: cs.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Text(
-                          '$selectedCount/${_items.length} נבחרו',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: cs.primary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  
-                  // רשימת פריטים
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: _items.length,
-                      itemBuilder: (context, index) {
-                        return _buildItemCard(_items[index], index);
-                      },
-                    ),
-                  ),
-                  
-                  // כפתורי פעולה
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: cs.surface,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          offset: const Offset(0, -2),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: _isProcessing ? null : () => Navigator.pop(context),
-                            child: const Text('ביטול'),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: _isProcessing || selectedCount == 0
-                                ? null
-                                : _confirmAndAddToInventory,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: cs.primary,
-                              foregroundColor: cs.onPrimary,
-                            ),
-                            child: _isProcessing
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(strokeWidth: 2),
-                                  )
-                                : Text('הוסף $selectedCount פריטים'),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            ? _buildLoadingSkeleton(cs)
+            : _errorMessage != null
+                ? _buildErrorState(cs)
+                : _items.isEmpty
+                    ? _buildEmptyState(cs)
+                    : _buildDataScreen(cs),
       ),
     );
   }

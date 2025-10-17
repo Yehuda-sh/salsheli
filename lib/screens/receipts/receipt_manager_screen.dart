@@ -47,7 +47,9 @@ class _ReceiptManagerScreenState extends State<ReceiptManagerScreen> {
     });
   }
 
-  void _addReceipt() async {
+  /// יוצר קבלה חדשה ושומר ב-Firebase.
+  /// מציג הודעת הצלחה/שגיאה למשתמש.
+  Future<void> _addReceipt() async {
     debugPrint('➕ ReceiptManagerScreen: יוצר קבלה חדשה...');
     final provider = context.read<ReceiptProvider>();
     
@@ -96,14 +98,14 @@ class _ReceiptManagerScreenState extends State<ReceiptManagerScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add_circle_outline),
-            onPressed: _addReceipt,
+            onPressed: () => _addReceipt(),
             tooltip: 'הוסף קבלה',
           ),
         ],
       ),
       body: _buildBody(provider, cs),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _addReceipt,
+        onPressed: () => _addReceipt(),
         icon: const Icon(Icons.add),
         label: const Text('קבלה חדשה'),
         tooltip: 'הוסף קבלה',
@@ -111,11 +113,29 @@ class _ReceiptManagerScreenState extends State<ReceiptManagerScreen> {
     );
   }
 
+  /// בונה את גוף המסך לפי מצב ה-Provider.
+  /// מטפל ב-4 מצבים: Loading, Error, Empty, Data.
   Widget _buildBody(ReceiptProvider provider, ColorScheme cs) {
-    // 🔄 Loading State
+    // 🔄 Loading State - Skeleton Screen
     if (provider.isLoading) {
       debugPrint('🔄 ReceiptManagerScreen: מציג Loading State');
-      return const Center(child: CircularProgressIndicator());
+      return ListView.builder(
+        padding: const EdgeInsets.all(kSpacingSmallPlus),
+        itemCount: 5,
+        itemBuilder: (context, index) => Card(
+          margin: const EdgeInsets.only(bottom: kSpacingSmall),
+          child: ListTile(
+            leading: _SkeletonBox(
+              width: 48,
+              height: 48,
+              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+            ),
+            title: const _SkeletonBox(width: double.infinity, height: 16),
+            subtitle: const _SkeletonBox(width: 120, height: 12),
+            trailing: const _SkeletonBox(width: 60, height: 20),
+          ),
+        ),
+      );
     }
 
     // ❌ Error State
@@ -127,10 +147,10 @@ class _ReceiptManagerScreenState extends State<ReceiptManagerScreen> {
           padding: const EdgeInsets.all(kSpacingLarge),
           children: [
             const SizedBox(height: kSpacingXXLarge),
-            Icon(
+            const Icon(
               Icons.error_outline,
               size: kIconSizeXLarge,
-              color: Colors.red.withValues(alpha: 0.5),
+              color: Colors.red,
             ),
             const SizedBox(height: kSpacingMedium),
             Text(
@@ -180,10 +200,10 @@ class _ReceiptManagerScreenState extends State<ReceiptManagerScreen> {
           padding: const EdgeInsets.all(kSpacingLarge),
           children: [
             const SizedBox(height: kSpacingXXLarge),
-            Icon(
+            const Icon(
               Icons.receipt_long,
               size: kIconSizeXLarge,
-              color: Colors.orange.withValues(alpha: 0.5),
+              color: Colors.orange,
             ),
             const SizedBox(height: kSpacingMedium),
             Text(
@@ -204,7 +224,7 @@ class _ReceiptManagerScreenState extends State<ReceiptManagerScreen> {
             const SizedBox(height: kSpacingXLarge),
             Center(
               child: FilledButton.icon(
-                onPressed: _addReceipt,
+                onPressed: () => _addReceipt(),
                 icon: const Icon(Icons.add),
                 label: const Text('הוסף קבלה ראשונה'),
                 style: FilledButton.styleFrom(
@@ -278,6 +298,28 @@ class _ReceiptManagerScreenState extends State<ReceiptManagerScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+// 💀 Widget עזר - Skeleton Box ל-Loading State
+class _SkeletonBox extends StatelessWidget {
+  final double? width;
+  final double? height;
+  final BorderRadius? borderRadius;
+
+  const _SkeletonBox({this.width, this.height, this.borderRadius});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: isDark ? Colors.grey[800] : Colors.grey[300],
+        borderRadius: borderRadius ?? BorderRadius.circular(kBorderRadius),
       ),
     );
   }
