@@ -37,13 +37,16 @@ class FirestoreUtils {
     
     final fieldsToConvert = timestampFields ?? defaultFields;
     
+    // ✅ יצירת עותק של הדאטה כדי לא לשנות את המקור
+    final result = Map<String, dynamic>.from(data);
+    
     for (final field in fieldsToConvert) {
-      if (data.containsKey(field) && data[field] is Timestamp) {
-        data[field] = (data[field] as Timestamp).toDate().toIso8601String();
+      if (result.containsKey(field) && result[field] is Timestamp) {
+        result[field] = (result[field] as Timestamp).toDate().toIso8601String();
       }
     }
     
-    return data;
+    return result;
   }
 
   /// המרת DateTime ל-Timestamp לשמירה ב-Firestore

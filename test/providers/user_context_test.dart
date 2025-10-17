@@ -7,10 +7,10 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:memozap/providers/user_context.dart';
-import 'package:memozap/repositories/user_repository.dart';
-import 'package:memozap/services/auth_service.dart';
-import 'package:memozap/models/user_entity.dart';
+import 'package:salsheli/providers/user_context.dart';
+import 'package:salsheli/repositories/user_repository.dart';
+import 'package:salsheli/services/auth_service.dart';
+import 'package:salsheli/models/user_entity.dart';
 import 'package:provider/provider.dart';
 
 import 'user_context_test.mocks.dart';
@@ -109,7 +109,7 @@ void main() {
 
       test('initial UI preferences are loaded', () async {
         // Wait for preferences to load
-        await Future.delayed(Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 100));
 
         expect(userContext.themeMode, equals(ThemeMode.system));
         expect(userContext.compactView, isFalse);
@@ -314,7 +314,7 @@ void main() {
 
         // Act
         authStateController.add(mockFirebaseUser);
-        await Future.delayed(Duration(milliseconds: 100)); // Wait for async operations
+        await Future.delayed(const Duration(milliseconds: 100)); // Wait for async operations
 
         // Assert
         verify(mockRepository.fetchUser(testUserId)).called(1);
@@ -337,7 +337,7 @@ void main() {
 
         // Act
         authStateController.add(mockFirebaseUser);
-        await Future.delayed(Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 100));
 
         // Assert
         verify(mockRepository.fetchUser(testUserId)).called(1);
@@ -355,12 +355,12 @@ void main() {
             .thenAnswer((_) async => testUser);
 
         authStateController.add(mockFirebaseUser);
-        await Future.delayed(Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 100));
         expect(userContext.user, isNotNull);
 
         // Act - sign out
         authStateController.add(null);
-        await Future.delayed(Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 100));
 
         // Assert
         expect(userContext.user, isNull);
@@ -438,7 +438,7 @@ void main() {
 
         // Act
         userContext.setThemeMode(ThemeMode.dark);
-        await Future.delayed(Duration(milliseconds: 200)); // ✅ Increased delay for async _savePreferences
+        await Future.delayed(const Duration(milliseconds: 200)); // ✅ Increased delay for async _savePreferences
 
         // Assert
         expect(userContext.themeMode, equals(ThemeMode.dark));
@@ -483,7 +483,7 @@ void main() {
 
         // Act - trigger sign out via auth state
         authStateController.add(null);
-        await Future.delayed(Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 100));
 
         // Assert - preferences reset to defaults
         expect(userContext.themeMode, equals(ThemeMode.system));
@@ -505,7 +505,7 @@ void main() {
           authService: mockAuthService,
         );
 
-        await Future.delayed(Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 100));
 
         // Assert - should default to system
         expect(testContext.themeMode, equals(ThemeMode.system));
@@ -533,7 +533,7 @@ void main() {
 
         // Act - retry should clear error and reload
         await userContext.retry();
-        await Future.delayed(Duration(milliseconds: 100)); // ✅ Wait for async operations
+        await Future.delayed(const Duration(milliseconds: 100)); // ✅ Wait for async operations
 
         // Assert
         expect(userContext.hasError, isFalse);
@@ -633,7 +633,7 @@ void main() {
             .thenAnswer((_) async => testUser);
 
         authStateController.add(mockFirebaseUser);
-        await Future.delayed(Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 100));
 
         expect(userContext.userId, equals(testUserId));
       });
@@ -651,7 +651,7 @@ void main() {
             .thenAnswer((_) async => testUser);
 
         authStateController.add(mockFirebaseUser);
-        await Future.delayed(Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 100));
 
         expect(userContext.userEmail, equals(testEmail));
       });
@@ -664,14 +664,14 @@ void main() {
 
         // Theme change
         userContext.setThemeMode(ThemeMode.dark);
-        await Future.delayed(Duration(milliseconds: 200));
+        await Future.delayed(const Duration(milliseconds: 200));
         expect(notificationCount, greaterThan(0));
 
         final previousCount = notificationCount;
 
         // Compact view toggle
         userContext.toggleCompactView();
-        await Future.delayed(Duration(milliseconds: 200));
+        await Future.delayed(const Duration(milliseconds: 200));
         expect(notificationCount, greaterThan(previousCount));
       });
 
@@ -683,7 +683,7 @@ void main() {
         );
         
         // Wait for initial preferences to load
-        await Future.delayed(Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 100));
         
         int notificationCount = 0;
         testContext.addListener(() => notificationCount++);
@@ -695,7 +695,7 @@ void main() {
         // Try to change state after dispose
         // The code is safe and doesn't notify after dispose
         testContext.setThemeMode(ThemeMode.dark);
-        await Future.delayed(Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 100));
 
         // Assert - no new notifications were sent after dispose
         expect(notificationCount, equals(initialCount));
@@ -713,7 +713,7 @@ void main() {
           email: testEmail,
           password: testPassword,
         )).thenAnswer((_) async {
-          await Future.delayed(Duration(milliseconds: 100));
+          await Future.delayed(const Duration(milliseconds: 100));
           return mockUserCredential;
         });
 
@@ -747,7 +747,7 @@ void main() {
         )).thenAnswer((_) async {
           // Simulate auth state change during signup
           authStateController.add(mockFirebaseUser);
-          await Future.delayed(Duration(milliseconds: 50));
+          await Future.delayed(const Duration(milliseconds: 50));
           return mockUserCredential;
         });
 
@@ -798,12 +798,12 @@ void main() {
             .thenAnswer((_) async => testUser);
 
         authStateController.add(mockFirebaseUser);
-        await Future.delayed(Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 100));
 
         userContext.setThemeMode(ThemeMode.dark);
-        await Future.delayed(Duration(milliseconds: 100)); // ✅
+        await Future.delayed(const Duration(milliseconds: 100)); // ✅
         userContext.toggleCompactView();
-        await Future.delayed(Duration(milliseconds: 100)); // ✅
+        await Future.delayed(const Duration(milliseconds: 100)); // ✅
 
         expect(userContext.user, isNotNull);
         expect(userContext.themeMode, ThemeMode.dark);
@@ -872,7 +872,7 @@ void main() {
 
         // Act - add error to stream
         errorController.addError(Exception('Auth stream error'));
-        await Future.delayed(Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 100));
 
         // Assert - should not crash, error not exposed to UI
         expect(testContext.hasError, isFalse);
@@ -898,7 +898,7 @@ void main() {
 
         // Try to add to stream after dispose
         disposeController.add(null);
-        await Future.delayed(Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 100));
 
         disposeController.close();
       });
@@ -914,11 +914,11 @@ void main() {
           userContext.setThemeMode(
             i % 2 == 0 ? ThemeMode.dark : ThemeMode.light,
           );
-          await Future.delayed(Duration(milliseconds: 100)); // ✅ Increased delay for async _savePreferences
+          await Future.delayed(const Duration(milliseconds: 100)); // ✅ Increased delay for async _savePreferences
         }
 
         // Wait for all async operations to complete
-        await Future.delayed(Duration(milliseconds: 200)); // ✅ Final wait
+        await Future.delayed(const Duration(milliseconds: 200)); // ✅ Final wait
 
         // Assert - should not crash
         expect(notificationCount, greaterThanOrEqualTo(5));
@@ -928,13 +928,13 @@ void main() {
       test('preferences persist after multiple saves', () async {
         // Act - multiple preference changes
         userContext.setThemeMode(ThemeMode.dark);
-        await Future.delayed(Duration(milliseconds: 50));
+        await Future.delayed(const Duration(milliseconds: 50));
 
         userContext.toggleCompactView();
-        await Future.delayed(Duration(milliseconds: 50));
+        await Future.delayed(const Duration(milliseconds: 50));
 
         userContext.toggleShowPrices();
-        await Future.delayed(Duration(milliseconds: 50));
+        await Future.delayed(const Duration(milliseconds: 50));
 
         // Assert - all changes should be saved
         final prefs = await SharedPreferences.getInstance();
@@ -952,7 +952,7 @@ void main() {
           email: testEmail,
           password: testPassword,
         )).thenAnswer((_) async {
-          await Future.delayed(Duration(milliseconds: 50));
+          await Future.delayed(const Duration(milliseconds: 50));
           return mockUserCredential;
         });
 
@@ -982,11 +982,11 @@ void main() {
         // Act - trigger multiple state changes rapidly
         for (int i = 0; i < 20; i++) {
           userContext.toggleCompactView();
-          await Future.delayed(Duration(milliseconds: 10)); // ✅
+          await Future.delayed(const Duration(milliseconds: 10)); // ✅
         }
 
         // Wait for all async operations
-        await Future.delayed(Duration(milliseconds: 200)); // ✅
+        await Future.delayed(const Duration(milliseconds: 200)); // ✅
 
         // Assert - should handle all notifications
         expect(notificationCount, greaterThanOrEqualTo(20));
