@@ -126,49 +126,37 @@ class WelcomeScreen extends StatelessWidget {
                     // 📌 יתרונות כפתקים צבעוניים עם אנימציות כניסה
                     TappableCard(
                       onTap: () => debugPrint('💛 benefit 1 tapped'),
-                      child: StickyNote(
+                      child: BenefitTile(
+                        icon: Icons.people_outline,
+                        title: AppStrings.welcome.benefit1Title,
+                        subtitle: AppStrings.welcome.benefit1Subtitle,
                         color: brand?.stickyYellow ?? kStickyYellow,
                         rotation: 0.01,
-                        child: BenefitTile(
-                          icon: Icons.people_outline,
-                          title: AppStrings.welcome.benefit1Title,
-                          subtitle: AppStrings.welcome.benefit1Subtitle,
-                          titleColor: Colors.black87,
-                          subtitleColor: Colors.black54,
-                          iconColor: accent,
-                        ),
+                        iconColor: accent,
                       ),
                     ).animate().fadeIn(duration: 300.ms, delay: 100.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
                     const SizedBox(height: kSpacingMedium),
                     TappableCard(
                       onTap: () => debugPrint('🌸 benefit 2 tapped'),
-                      child: StickyNote(
+                      child: BenefitTile(
+                        icon: Icons.camera_alt_outlined,
+                        title: AppStrings.welcome.benefit2Title,
+                        subtitle: AppStrings.welcome.benefit2Subtitle,
                         color: brand?.stickyPink ?? kStickyPink,
                         rotation: -0.015,
-                        child: BenefitTile(
-                          icon: Icons.camera_alt_outlined,
-                          title: AppStrings.welcome.benefit2Title,
-                          subtitle: AppStrings.welcome.benefit2Subtitle,
-                          titleColor: Colors.black87,
-                          subtitleColor: Colors.black54,
-                          iconColor: accent,
-                        ),
+                        iconColor: accent,
                       ),
                     ).animate().fadeIn(duration: 300.ms, delay: 200.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
                     const SizedBox(height: kSpacingMedium),
                     TappableCard(
                       onTap: () => debugPrint('💚 benefit 3 tapped'),
-                      child: StickyNote(
+                      child: BenefitTile(
+                        icon: Icons.inventory_2_outlined,
+                        title: AppStrings.welcome.benefit3Title,
+                        subtitle: AppStrings.welcome.benefit3Subtitle,
                         color: brand?.stickyGreen ?? kStickyGreen,
                         rotation: 0.01,
-                        child: BenefitTile(
-                          icon: Icons.inventory_2_outlined,
-                          title: AppStrings.welcome.benefit3Title,
-                          subtitle: AppStrings.welcome.benefit3Subtitle,
-                          titleColor: Colors.black87,
-                          subtitleColor: Colors.black54,
-                          iconColor: accent,
-                        ),
+                        iconColor: accent,
                       ),
                     ).animate().fadeIn(duration: 300.ms, delay: 300.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
 

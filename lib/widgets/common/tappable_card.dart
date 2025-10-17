@@ -1,3 +1,21 @@
+// 📄 File: lib/widgets/common/tappable_card.dart
+// 🎯 Purpose: Interactive card wrapper with scale & elevation animations
+//
+// ✅ Features:
+// - Scale animation (0.98 on tap)
+// - Elevation animation (2 → 4 → 2)
+// - Haptic feedback support
+// - Flexible parameters (duration, curve, targets)
+// - 3 variants: TappableCard, SimpleTappableCard, AnimatedCard
+//
+// 📦 Exports:
+// - TappableCard: Full-featured interactive card
+// - SimpleTappableCard: Scale-only variant
+// - AnimatedCard: Internal elevation helper
+//
+// Version: 1.0
+// Created: 14/10/2025
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -71,6 +89,14 @@ class TappableCard extends StatefulWidget {
   State<TappableCard> createState() => _TappableCardState();
 }
 
+/// Internal state for TappableCard
+///
+/// Manages:
+/// - Pressed state tracking (_isPressed)
+/// - GestureDetector event handling
+/// - Animation state changes
+/// - Haptic feedback triggers
+/// - mounted checks for safety
 class _TappableCardState extends State<TappableCard> {
   /// Track if card is pressed
   bool _isPressed = false;
@@ -235,6 +261,14 @@ class SimpleTappableCard extends StatefulWidget {
   State<SimpleTappableCard> createState() => _SimpleTappableCardState();
 }
 
+/// Internal state for SimpleTappableCard
+///
+/// Manages:
+/// - Pressed state tracking (_isPressed)
+/// - Scale animation only (no elevation)
+/// - GestureDetector events
+/// - Haptic feedback triggers
+/// - mounted checks for safety
 class _SimpleTappableCardState extends State<SimpleTappableCard> {
   bool _isPressed = false;
 

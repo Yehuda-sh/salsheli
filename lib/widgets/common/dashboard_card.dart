@@ -1,35 +1,44 @@
 // 📄 File: lib/widgets/common/dashboard_card.dart
+// 🎯 Purpose: כרטיס דשבורד בסגנון Sticky Notes
 //
-// 🎯 מטרה: Card wrapper לדשבורד עם כותרת, אייקון ו-elevation
-//
-// ✨ Features:
+// 📋 Features:
+// - כרטיס בסגנון פתק צבעוני (Post-it)
+// - סיבוב קל לאפקט אותנטי
+// - צללים מציאותיים
 // - כותרת עם אייקון
-// - elevation מותאם אישית
 // - onTap אופציונלי
 // - תוכן מותאם אישית (child)
 //
-// 📋 Related:
+// 🔗 Related:
+// - StickyNote - הרכיב הבסיסי
 // - upcoming_shop_card.dart - משתמש ב-DashboardCard
-// - smart_suggestions_card.dart - משתמש ב-DashboardCard (אם קיים)
+// - ui_constants.dart - צבעי פתקים וקבועים
 //
-// 💡 Usage:
+// 🎨 Design:
+// - צבעים: kStickyYellow, kStickyPink, kStickyGreen, kStickyCyan
+// - סיבוב: -0.02 עד 0.02 רדיאנים
+// - צללים: אוטומטיים מ-StickyNote
+//
+// Usage:
 // ```dart
 // DashboardCard(
 //   title: "כותרת",
 //   icon: Icons.shopping_cart,
-//   elevation: 3,
+//   color: kStickyYellow,
+//   rotation: 0.01,
 //   onTap: () { /* action */ },
 //   child: Widget(...),
 // )
 // ```
 //
-// Version: 1.0
-// Created: 12/10/2025
+// Version: 2.0 - Sticky Notes Design System
+// Updated: 18/10/2025
 
 import 'package:flutter/material.dart';
 import '../../core/ui_constants.dart';
+import 'sticky_note.dart';
 
-/// כרטיס דשבורד עם כותרת, אייקון ותוכן מותאם אישית
+/// כרטיס דשבורד בסגנון פתק מודבק (Sticky Notes)
 /// 
 /// רכיב wrapper לכרטיסים בממשק הדשבורד.
 /// מציג כותרת עם אייקון, תוכן ואופציונלי - חץ ל-action.
@@ -37,22 +46,25 @@ import '../../core/ui_constants.dart';
 /// Parameters:
 /// - [title]: כותרת הכרטיס
 /// - [icon]: אייקון להצגה ליד הכותרת
-/// - [elevation]: גובה הצל (ברירת מחדל: kCardElevation = 2.0)
-/// - [onTap]: פונקציה לקריאה בלחיצה (אופציונלי - אם null אין חץ)
+/// - [color]: צבע הפתק (ברירת מחדל: kStickyYellow)
+/// - [rotation]: סיבוב ברדיאנים (ברירת מחדל: 0.01)
+/// - [onTap]: פונקציה לקריאה בלחיצה (אופציונלי)
 /// - [child]: תוכן הכרטיס (widget)
 /// 
 /// Features:
+/// - עיצוב פתק צבעוני עם צללים
+/// - סיבוב קל לאפקט אותנטי
 /// - כותרת עם אייקון בולט
-/// - חץ ימנה כשיש onTap (עיגון ל-action)
-/// - Elevation מותאם אישית
-/// - Material Design compliant
+/// - חץ ימנה כשיש onTap
+/// - אנימציות כניסה
 /// 
 /// דוגמה:
 /// ```dart
 /// DashboardCard(
 ///   title: "רשימות הקנייה",
 ///   icon: Icons.shopping_list,
-///   elevation: 2,
+///   color: kStickyPink,
+///   rotation: -0.015,
 ///   onTap: () => Navigator.pushNamed(context, '/lists'),
 ///   child: ListContent(),
 /// )
@@ -64,8 +76,11 @@ class DashboardCard extends StatelessWidget {
   /// אייקון להצגה ליד הכותרת
   final IconData icon;
   
-  /// גובה הצל טהור (ברירת מחדל: 2.0)
-  final double elevation;
+  /// צבע הפתק (ברירת מחדל: kStickyYellow)
+  final Color? color;
+  
+  /// סיבוב ברדיאנים (ברירת מחדל: 0.01)
+  final double? rotation;
   
   /// פונקציה לקריאה בלחיצה על הכרטיס (אופציונלי)
   final VoidCallback? onTap;
@@ -77,40 +92,29 @@ class DashboardCard extends StatelessWidget {
     super.key,
     required this.title,
     required this.icon,
-    this.elevation = kCardElevation,
+    this.color,
+    this.rotation,
     this.onTap,
     required this.child,
   });
 
   @override
   Widget build(BuildContext context) {
-  /// בנייה של כרטיס דשבורד עם כותרת, אייקון ותוכן מותאם אישית
-  /// 
-  /// פריסה:
-  /// 1. Header: אייקון + כותרת + חץ (אם יש onTap)
-  /// 2. Content: התוכן (child)
-  /// 
-  /// Interactions:
-  /// - InkWell עטוף להשפעת גלים
-  /// - onTap optional - אם קיים, מציג חץ
-  /// - RoundedRectangle עם kBorderRadius
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final cardColor = color ?? kStickyYellow;
+    final cardRotation = rotation ?? 0.01;
 
-    return Card(
-      elevation: elevation,
-      margin: const EdgeInsets.symmetric(
+    return Padding(
+      padding: const EdgeInsets.symmetric(
         vertical: kCardMarginVertical,
         horizontal: 0,
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(kBorderRadius),
-      ),
-      child: InkWell(
+      child: GestureDetector(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(kBorderRadius),
-        child: Padding(
-          padding: const EdgeInsets.all(kSpacingMedium),
+        child: StickyNote(
+          color: cardColor,
+          rotation: cardRotation,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -129,7 +133,7 @@ class DashboardCard extends StatelessWidget {
                       title,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: cs.onSurface,
+                        color: Colors.black87,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -138,7 +142,7 @@ class DashboardCard extends StatelessWidget {
                     Icon(
                       Icons.arrow_forward_ios,
                       size: kIconSizeSmall,
-                      color: cs.onSurfaceVariant,
+                      color: Colors.black54,
                     ),
                 ],
               ),

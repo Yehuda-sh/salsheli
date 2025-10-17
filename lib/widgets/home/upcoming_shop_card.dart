@@ -128,7 +128,8 @@ class _UpcomingShopCardState extends State<UpcomingShopCard>
             : DashboardCard(
                 title: "הקנייה הקרובה",
                 icon: Icons.shopping_cart,
-                elevation: 3,
+                color: kStickyPink,
+                rotation: 0.015,
                 onTap: () {
                   Navigator.pushNamed(
                     context,
@@ -169,7 +170,8 @@ class _EmptyUpcomingCard extends StatelessWidget {
     return DashboardCard(
       title: "הקנייה הקרובה",
       icon: Icons.shopping_cart_outlined,
-      elevation: 2,
+      color: kStickyCyan,
+      rotation: -0.01,
       child: Column(
         children: [
           Icon(

@@ -1,65 +1,68 @@
 // 📄 File: lib/widgets/common/benefit_tile.dart
-//
-// 🎯 Purpose: רכיב משותף להצגת יתרון/פיצ'ר (אייקון + כותרת + תיאור)
+// 🎯 Purpose: כרטיס יתרון/פיצ'ר בסגנון Sticky Notes
 //
 // 📋 Features:
-// - RTL Support - עבודה נכונה בעברית
-// - Theme-aware - משתמש בצבעי Theme
-// - Custom colors - אפשרות לעקוף צבעי Theme
-// - Touch targets - מידות מגע נכונות
-// - Accessibility - Semantics למסכים קוראים
-// - Constants - כל המידות מ-ui_constants.dart
+// - עיצוב פתק מודבק (Post-it style)
+// - סיבוב קל לאפקט אותנטי
+// - צללים מציאותיים
+// - אייקון במעגל + כותרת + תיאור
+// - RTL Support מלא
+// - אנימציות כניסה
 //
 // 🔗 Related:
+// - StickyNote - הרכיב הבסיסי
 // - welcome_screen.dart - השימוש העיקרי (3 יתרונות)
-// - app_theme.dart - AppBrand extension
-// - ui_constants.dart - spacing, icon sizes
+// - ui_constants.dart - צבעי פתקים וקבועים
 //
-// 💡 Usage:
+// 🎨 Design:
+// - צבעים: kStickyYellow, kStickyPink, kStickyGreen, kStickyCyan
+// - סיבוב: -0.02 עד 0.02 רדיאנים
+// - אייקון: במעגל 56x56px
+//
+// Usage:
 // ```dart
-// // Basic usage
+// // שימוש בסיסי
 // BenefitTile(
 //   icon: Icons.check_circle,
 //   title: 'יתרון',
 //   subtitle: 'תיאור קצר',
 // )
 //
-// // עם צבעים מותאמים אישית (רקע כהה)
+// // עם צבע מותאם
 // BenefitTile(
 //   icon: Icons.star,
 //   title: 'מעולה',
 //   subtitle: 'זה עובד מצוין',
-//   titleColor: Colors.white,
-//   subtitleColor: Colors.white70,
-//   iconColor: Colors.amber,
+//   color: kStickyPink,
+//   rotation: -0.015,
 // )
 // ```
 //
-// Version: 2.0 - Refactored (08/10/2025)
-// - הוספת titleColor, subtitleColor parameters
-// - שימוש מלא ב-constants (iconSize, spacing)
+// Version: 3.0 - Sticky Notes Design System
+// Updated: 18/10/2025
 
 import 'package:flutter/material.dart';
-import '../../theme/app_theme.dart';
 import '../../core/ui_constants.dart';
+import 'sticky_note.dart';
 
-/// רכיב להצגת יתרון/פיצ'ר עם אייקון, כותרת ותיאור
+/// כרטיס יתרון/פיצ'ר בסגנון פתק מודבק (Sticky Notes)
 /// 
-/// מציג יתרון או פיצ'ר בעיצוב אחיד (אייקון במעגל + טקסט בצד).
-/// משמש ב-welcome_screen לתצוגת שלוש יתרונות.
+/// מציג יתרון או פיצ'ר בעיצוב פתק צבעוני עם אייקון במעגל + טקסט בצד.
+/// משמש ב-welcome_screen לתצוגת שלושה יתרונות.
 /// 
 /// Features:
-/// - RTL Support (עברית)
-/// - Theme-aware colors + custom colors
-/// - Accessibility (Semantics)
-/// - Touch-friendly sizing (56x56 px minimum)
+/// - עיצוב פתק צבעוני עם צללים
+/// - סיבוב קל לאפקט אותנטי
+/// - אייקון במעגל 56x56px
+/// - RTL Support מלא
+/// - אנימציות כניסה
 /// 
 /// Parameters:
 /// - [icon]: אייקון היתרון
 /// - [title]: כותרת היתרון (bold, titleMedium)
 /// - [subtitle]: תיאור קצר (bodyMedium)
-/// - [titleColor]: צבע כותרת מותאם (אופציונלי)
-/// - [subtitleColor]: צבע תיאור מותאם (אופציונלי)
+/// - [color]: צבע הפתק (ברירת מחדל: kStickyYellow)
+/// - [rotation]: סיבוב ברדיאנים (ברירת מחדל: 0.01)
 /// - [iconColor]: צבע אייקון מותאם (אופציונלי)
 /// - [iconSize]: גודל אייקון (ברירת מחדל: kIconSizeLarge = 32)
 /// 
@@ -68,7 +71,9 @@ import '../../core/ui_constants.dart';
 /// BenefitTile(
 ///   icon: Icons.check_circle,
 ///   title: 'רשימות חכמות',
-///   subtitle: 'עיצוב אינטואיטטיבט וקל לשימוש',
+///   subtitle: 'עיצוב אינטואיטיבי וקל לשימוש',
+///   color: kStickyPink,
+///   rotation: -0.015,
 /// )
 /// ```
 class BenefitTile extends StatelessWidget {
@@ -81,11 +86,11 @@ class BenefitTile extends StatelessWidget {
   /// תיאור קצר
   final String subtitle;
 
-  /// צבע כותרת מותאם אישית (אופציונלי)
-  final Color? titleColor;
+  /// צבע הפתק (ברירת מחדל: kStickyYellow)
+  final Color? color;
 
-  /// צבע תיאור מותאם אישית (אופציונלי)
-  final Color? subtitleColor;
+  /// סיבוב ברדיאנים (ברירת מחדל: 0.01)
+  final double? rotation;
 
   /// צבע אייקון מותאם אישית (אופציונלי)
   final Color? iconColor;
@@ -98,76 +103,67 @@ class BenefitTile extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.subtitle,
-    this.titleColor,
-    this.subtitleColor,
+    this.color,
+    this.rotation,
     this.iconColor,
     this.iconSize = kIconSizeLarge,
   });
 
   @override
   Widget build(BuildContext context) {
-    /// בנייה של רכיב יתרון עם אייקון במעגל + טקסט בצד
-    /// 
-    /// פריסה:
-    /// 1. אייקון במעגל (56x56px) עם רקע light opacity
-    /// 2. טקסט (כותרת בולט + תיאור)
-    ///
-    /// צבעים:
-    /// - אייקון: מותאם אישית > brand.accent > cs.primary
-    /// - כותרת: מותאם אישית > cs.onSurface
-    /// - תיאור: מותאם אישית > cs.onSurfaceVariant
-    
-    debugPrint('🎁 BenefitTile.build()');
-    debugPrint('   📝 title: $title');
-    
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final brand = theme.extension<AppBrand>();
+    final cardColor = color ?? kStickyYellow;
+    final cardRotation = rotation ?? 0.01;
 
-    // צבע אייקון: מותאם אישית > brand.accent > primary
-    final effectiveIconColor = iconColor ?? brand?.accent ?? cs.primary;
+    // צבע אייקון: מותאם אישית > primary
+    final effectiveIconColor = iconColor ?? cs.primary;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: kSpacingSmallPlus),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // אייקון במעגל
-          Container(
-            width: kIconSizeProfile + 20, // 56px (36 + 20)
-            height: kIconSizeProfile + 20,
-            decoration: BoxDecoration(
-              color: effectiveIconColor.withValues(alpha: 0.12),
-              shape: BoxShape.circle,
+      child: StickyNote(
+        color: cardColor,
+        rotation: cardRotation,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // אייקון במעגל
+            Container(
+              width: kIconSizeProfile + 20, // 56px (36 + 20)
+              height: kIconSizeProfile + 20,
+              decoration: BoxDecoration(
+                color: effectiveIconColor.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: iconSize, color: effectiveIconColor),
             ),
-            child: Icon(icon, size: iconSize, color: effectiveIconColor),
-          ),
-          const SizedBox(width: kSpacingMedium),
+            const SizedBox(width: kSpacingMedium),
 
-          // טקסט
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: titleColor ?? cs.onSurface, // מותאם אישית או default
+            // טקסט
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
                   ),
-                ),
-                const SizedBox(height: kSpacingTiny),
-                Text(
-                  subtitle,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: subtitleColor ?? cs.onSurfaceVariant, // מותאם אישית או default
-                    height: 1.4,
+                  const SizedBox(height: kSpacingTiny),
+                  Text(
+                    subtitle,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.black54,
+                      height: 1.4,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -15,6 +15,7 @@
 // 4. Touch Targets 48x48 (Accessibility)
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
@@ -30,6 +31,17 @@ class SmartSuggestionsCard extends StatelessWidget {
   static final Uuid _uuid = Uuid();
 
   const SmartSuggestionsCard({super.key, this.mostRecentList});
+
+  /// Helper function for conditional logging
+  /// 
+  /// Logs only in debug mode, automatically removed in production.
+  /// 
+  /// [message] - The message to log
+  static void _log(String message) {
+    if (kDebugMode) {
+      debugPrint(message);
+    }
+  }
 
   /// טיפול בהוספת פריט להמלצה לרשימה פעילה
   ///
@@ -52,13 +64,13 @@ class SmartSuggestionsCard extends StatelessWidget {
     BuildContext context,
     Suggestion suggestion,
   ) async {
-    debugPrint('➡️ SmartSuggestionsCard: מנסה להוסיף "${suggestion.productName}" לרשימה');
+    _log('➡️ SmartSuggestionsCard: מנסה להוסיף "${suggestion.productName}" לרשימה');
     
     final listsProvider = context.read<ShoppingListsProvider>();
     final list = mostRecentList;
 
     if (list == null) {
-      debugPrint('⚠️ SmartSuggestionsCard: אין רשימה פעילה');
+      _log('⚠️ SmartSuggestionsCard: אין רשימה פעילה');
       _showAnimatedSnackBar(
         context,
         message: 'אין רשימה פעילה להוסיף אליה',
@@ -81,7 +93,7 @@ class SmartSuggestionsCard extends StatelessWidget {
         newItem.quantity,
         newItem.unit ?? "יח'"
       );
-      debugPrint('✅ SmartSuggestionsCard: הוסף "${suggestion.productName}" בהצלחה');
+      _log('✅ SmartSuggestionsCard: הוסף "${suggestion.productName}" בהצלחה');
       
       if (context.mounted) {
         _showAnimatedSnackBar(
@@ -92,7 +104,7 @@ class SmartSuggestionsCard extends StatelessWidget {
         );
       }
     } catch (e) {
-      debugPrint('❌ SmartSuggestionsCard: שגיאה בהוספה - $e');
+      _log('❌ SmartSuggestionsCard: שגיאה בהוספה - $e');
       if (context.mounted) {
         _showAnimatedSnackBar(
           context,
@@ -114,7 +126,7 @@ class SmartSuggestionsCard extends StatelessWidget {
   /// [context] - BuildContext לגישה ל-SuggestionsProvider
   /// [suggestionId] - ID הייחודי של ההמלצה למחיקה
   void _handleRemove(BuildContext context, String suggestionId) {
-    debugPrint('➖ SmartSuggestionsCard: מסיר המלצה $suggestionId');
+    _log('➖ SmartSuggestionsCard: מסיר המלצה $suggestionId');
     
     final suggestionsProvider = context.read<SuggestionsProvider>();
     suggestionsProvider.removeSuggestion(suggestionId);
@@ -361,7 +373,7 @@ class SmartSuggestionsCard extends StatelessWidget {
             // כפתור retry
             _AnimatedButton(
               onPressed: () {
-                debugPrint('🔄 SmartSuggestionsCard: retry');
+                _log('🔄 SmartSuggestionsCard: retry');
                 provider.retry();
               },
               child: ElevatedButton.icon(

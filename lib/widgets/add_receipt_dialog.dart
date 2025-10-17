@@ -6,7 +6,6 @@
 // ✅ Material Design 3
 // ✅ אנימציות חלקות
 // ✅ RTL Support מלא
-// ✅ Sticky Notes Design
 //
 // 🔗 Navigation:
 // - צילום → ScanReceiptScreen
@@ -56,8 +55,8 @@ class AddReceiptDialog extends StatelessWidget {
                   child: Text(
                     'הוסף קבלה חדשה',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -112,7 +111,17 @@ class AddReceiptDialog extends StatelessWidget {
   }
 }
 
-/// Widget עזר - כרטיס אופציה
+/// כרטיס אופציה אינטראקטיבי
+///
+/// מציג אייקון, כותרת, תיאור וחץ ניווט.
+/// לחיצה על הכרטיס קוראת ל-[onTap] callback.
+///
+/// Parameters:
+/// - [icon]: האייקון להצגה
+/// - [iconColor]: צבע האייקון והרקע
+/// - [title]: כותרת ראשית
+/// - [subtitle]: תיאור משני
+/// - [onTap]: פעולה ללחיצה
 class _OptionCard extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
