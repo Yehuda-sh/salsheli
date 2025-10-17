@@ -2,7 +2,7 @@
 
 > **CRITICAL:** Read this file at the start of EVERY new conversation  
 > **Purpose:** Complete AI behavior instructions + technical rules  
-> **Updated:** 18/10/2025 | **Version:** 2.0 - Unified Documentation
+> **Updated:** 18/10/2025 | **Version:** 2.2 - Production-Ready Checks 🚀
 
 ---
 
@@ -179,6 +179,439 @@ User: "😡 אני לא רוצה בלוקים!"
 | Context saved before await | Fix |
 | mounted check after await | Add |
 | Error handling in async | Add try-catch |
+
+#### 7️⃣ Business Logic Validation (Salsheli-Specific) 🛒
+
+**Check these validations in the project:**
+
+| Check | Where | Action if missing |
+|-------|-------|-------------------|
+| Empty list name | `ShoppingListsProvider.createList()` | Add validation: trim + check isEmpty |
+| Empty product name | `ShoppingItem` model | Add validation in constructor |
+| Invalid quantity | `ShoppingItem.quantity` | Check: 1-9999 range |
+| Negative price | `Product.price` | Check: >= 0 |
+| Missing household_id | All save operations | Add validation before save |
+| Expired date | `InventoryItem.expiryDate` | Warn if date < now |
+| Empty OCR result | `ReceiptProvider.scanReceipt()` | Handle gracefully |
+
+**Example validations:**
+```dart
+// ✅ List name validation
+if (name.trim().isEmpty) {
+  throw Exception('שם הרשימה לא יכול להיות ריק');
+}
+if (name.length > 50) {
+  throw Exception('שם הרשימה ארוך מדי (מקסימום 50 תווים)');
+}
+
+// ✅ Quantity validation
+if (quantity <= 0 || quantity > 9999) {
+  throw ArgumentError('כמות לא תקינה (1-9999)');
+}
+
+// ✅ household_id validation
+if (_userContext.householdId == null) {
+  throw Exception('לא ניתן ליצור רשימה ללא household_id');
+}
+```
+
+#### 8️⃣ State Management Issues (Salsheli-Specific) 🔄
+
+**Critical checks for Providers:**
+
+| Check | Where | Action if missing | Priority |
+|-------|-------|-------------------|----------|
+| `notifyListeners()` after update | Every state change | **Add immediately** | 🔴 High |
+| `removeListener()` in dispose | All Providers with UserContext | **Add immediately** | 🔴 Critical! |
+| Race condition protection | `loadData()` methods | Add `if (_isLoading) return;` | 🟡 Medium |
+| `notifyListeners()` in loop | Batch operations | Move outside loop | 🟡 Medium |
+| `setState()` after dispose | All async Screen methods | Add `if (!mounted) return;` | 🔴 High |
+
+**Example fixes:**
+```dart
+// ❌ Missing notifyListeners
+void updateList(ShoppingList list) {
+  final index = _lists.indexWhere((l) => l.id == list.id);
+  if (index != -1) {
+    _lists[index] = list;
+    // 🚨 UI won't update!
+  }
+}
+
+// ✅ With notifyListeners
+void updateList(ShoppingList list) {
+  final index = _lists.indexWhere((l) => l.id == list.id);
+  if (index != -1) {
+    _lists[index] = list;
+    notifyListeners(); // ✅
+  }
+}
+
+// ❌ CRITICAL: Memory leak - listener not removed!
+class ProductsProvider extends ChangeNotifier {
+  ProductsProvider(this._userContext) {
+    _userContext.addListener(_onUserChanged);
+  }
+  // Missing dispose()!
+}
+
+// ✅ FIXED: Proper cleanup
+class ProductsProvider extends ChangeNotifier {
+  ProductsProvider(this._userContext) {
+    _userContext.addListener(_onUserChanged);
+  }
+  
+  @override
+  void dispose() {
+    _userContext.removeListener(_onUserChanged); // ✅ Critical!
+    super.dispose();
+  }
+}
+
+// ❌ Race condition
+Future<void> loadProducts() async {
+  _isLoading = true;
+  notifyListeners();
+  // If called twice, data gets mixed!
+  final products = await _repository.fetchProducts();
+  _products = products;
+  _isLoading = false;
+  notifyListeners();
+}
+
+// ✅ Protected
+Future<void> loadProducts() async {
+  if (_isLoading) return; // ✅ Prevent race condition
+  
+  _isLoading = true;
+  notifyListeners();
+  
+  try {
+    final products = await _repository.fetchProducts();
+    _products = products;
+  } finally {
+    _isLoading = false;
+    notifyListeners();
+  }
+}
+```
+
+#### 9️⃣ Memory Leaks (Salsheli-Specific) 💧
+
+**Critical resources to dispose:**
+
+| Resource | Where in Project | Action | Priority |
+|----------|------------------|--------|----------|
+| `TextEditingController` | All Screens with TextFields | Dispose in `dispose()` | 🟡 Medium |
+| `TextRecognizer` (OCR) | `ReceiptImportScreen` | Call `.close()` in `dispose()` | 🔴 Critical! |
+| `Timer` (debounce) | Search screens | Cancel in `dispose()` | 🟡 Medium |
+| `StreamSubscription` | Real-time Firestore | Cancel in `dispose()` | 🔴 Critical! |
+| `AnimationController` | Animated screens | Dispose in `dispose()` | 🟡 Medium |
+| UserContext listeners | All Providers | Remove in `dispose()` | 🔴 Critical! |
+
+**Example fixes:**
+```dart
+// ❌ CRITICAL: OCR not closed - huge memory leak!
+class _ReceiptImportScreenState extends State<ReceiptImportScreen> {
+  final TextRecognizer _textRecognizer = TextRecognizer();
+  
+  Future<void> _scanReceipt() async {
+    final image = await _picker.pickImage(source: ImageSource.camera);
+    final recognizedText = await _textRecognizer.processImage(inputImage);
+  }
+  // Missing dispose()!
+}
+
+// ✅ FIXED
+class _ReceiptImportScreenState extends State<ReceiptImportScreen> {
+  final TextRecognizer _textRecognizer = TextRecognizer();
+  
+  @override
+  void dispose() {
+    _textRecognizer.close(); // ✅ Must close!
+    super.dispose();
+  }
+  
+  Future<void> _scanReceipt() async {
+    final image = await _picker.pickImage(source: ImageSource.camera);
+    final recognizedText = await _textRecognizer.processImage(inputImage);
+  }
+}
+
+// ❌ Controllers not disposed
+class _LoginScreenState extends State<LoginScreen> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  // Missing dispose()!
+}
+
+// ✅ Properly disposed
+class _LoginScreenState extends State<LoginScreen> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+}
+
+// ❌ CRITICAL: Firestore stream not cancelled!
+class ShoppingListsProvider extends ChangeNotifier {
+  StreamSubscription<QuerySnapshot>? _listsSubscription;
+  
+  void startListening(String householdId) {
+    _listsSubscription = FirebaseFirestore.instance
+      .collection('shopping_lists')
+      .where('household_id', isEqualTo: householdId)
+      .snapshots()
+      .listen((snapshot) {
+        _lists = snapshot.docs.map((doc) => ShoppingList.fromJson(doc.data())).toList();
+        notifyListeners();
+      });
+  }
+  // Missing dispose()!
+}
+
+// ✅ FIXED
+class ShoppingListsProvider extends ChangeNotifier {
+  StreamSubscription<QuerySnapshot>? _listsSubscription;
+  
+  void startListening(String householdId) {
+    _listsSubscription = FirebaseFirestore.instance
+      .collection('shopping_lists')
+      .where('household_id', isEqualTo: householdId)
+      .snapshots()
+      .listen((snapshot) {
+        _lists = snapshot.docs.map((doc) => ShoppingList.fromJson(doc.data())).toList();
+        notifyListeners();
+      });
+  }
+  
+  @override
+  void dispose() {
+    _listsSubscription?.cancel(); // ✅ Must cancel!
+    super.dispose();
+  }
+}
+```
+
+#### 🔟 Firebase Best Practices (Salsheli-Specific) 🔥
+
+**Critical Firebase checks:**
+
+| Check | Where | Action if wrong | Priority |
+|-------|-------|-----------------|----------|
+| Batch > 500 operations | Mass save/delete | Split into 500-item batches | 🔴 Critical |
+| Query without limit | All `.get()` calls | Add `.limit(50)` | 🟡 Medium |
+| Real-time listener no error handler | All `.snapshots()` | Add `onError` callback | 🔴 High |
+| Missing offline persistence | Repository init | Enable offline | 🟡 Medium |
+| No retry on server error | HTTP calls | Add retry logic (3x) | 🔴 High |
+
+**Example fixes:**
+```dart
+// ❌ CRITICAL: Batch > 500 operations
+final batch = _firestore.batch();
+for (final item in allItems) { // 1000 items!
+  batch.delete(_firestore.collection('items').doc(item.id));
+}
+await batch.commit(); // 🚨 ERROR: Max 500!
+
+// ✅ FIXED: Batches of 500
+const batchSize = 500;
+for (int i = 0; i < allItems.length; i += batchSize) {
+  final batch = _firestore.batch();
+  final chunk = allItems.sublist(i, min(i + batchSize, allItems.length));
+  
+  for (final item in chunk) {
+    batch.delete(_firestore.collection('items').doc(item.id));
+  }
+  
+  await batch.commit();
+}
+
+// ❌ Query without limit - can return 10,000 items!
+final snapshot = await _firestore
+  .collection('products')
+  .where('name', isGreaterThanOrEqualTo: query)
+  .get();
+
+// ✅ With limit
+final snapshot = await _firestore
+  .collection('products')
+  .where('name', isGreaterThanOrEqualTo: query)
+  .limit(50) // ✅ Prevent loading thousands
+  .get();
+
+// ❌ Listener without error handler
+_firestore.collection('lists')
+  .snapshots()
+  .listen((snapshot) {
+    _lists = snapshot.docs.map((d) => ShoppingList.fromJson(d.data())).toList();
+  });
+  // 🚨 Network error crashes app!
+
+// ✅ With error handler
+_listsSubscription = _firestore.collection('lists')
+  .snapshots()
+  .listen(
+    (snapshot) {
+      _lists = snapshot.docs.map((d) => ShoppingList.fromJson(d.data())).toList();
+      _errorMessage = null;
+      notifyListeners();
+    },
+    onError: (error) {
+      debugPrint('❌ Firestore error: $error');
+      _errorMessage = 'בעיית חיבור לשרת';
+      notifyListeners();
+    },
+    cancelOnError: false, // ✅ Don't cancel on error
+  );
+```
+
+#### 1️⃣1️⃣ API Integration Best Practices (Salsheli-Specific) 🌐
+
+**Critical API checks (Shufersal API):**
+
+| Check | Why Critical | Fix |
+|-------|-------------|-----|
+| No timeout | App stuck waiting | Add `.timeout(Duration(seconds: 10))` |
+| No retry logic | Fails on network hiccup | Retry 3 times with backoff |
+| Generic error messages | Poor UX | Differentiate 401, 404, 429, 500 |
+| No rate limiting | API blocks you | Add throttling |
+| No caching | Slow + expensive | Add cache layer |
+
+**Example fix:**
+```dart
+// ❌ No timeout or retry
+Future<List<Product>> fetchProducts() async {
+  final response = await http.get(Uri.parse('$apiUrl/products'));
+  
+  if (response.statusCode == 200) {
+    return parseProducts(response.body);
+  }
+  throw Exception('Failed to load products');
+}
+
+// ✅ With timeout, retry, and proper errors
+Future<List<Product>> fetchProducts() async {
+  const maxRetries = 3;
+  
+  for (int attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      final response = await http
+        .get(Uri.parse('$apiUrl/products'))
+        .timeout(Duration(seconds: 10)); // ✅ Timeout
+      
+      if (response.statusCode == 200) {
+        return parseProducts(response.body);
+      } else if (response.statusCode == 401) {
+        throw UnauthorizedException('יש להתחבר מחדש');
+      } else if (response.statusCode == 429) {
+        throw RateLimitException('יותר מדי בקשות');
+      } else if (response.statusCode >= 500) {
+        // Server error - retry
+        if (attempt < maxRetries) {
+          await Future.delayed(Duration(seconds: attempt * 2));
+          continue;
+        }
+        throw ServerException('השרת לא זמין');
+      }
+    } on TimeoutException {
+      if (attempt < maxRetries) {
+        await Future.delayed(Duration(seconds: attempt * 2));
+        continue;
+      }
+      throw TimeoutException('החיבור איטי מדי');
+    }
+  }
+  throw Exception('Failed after $maxRetries attempts');
+}
+```
+
+#### 1️⃣2️⃣ Production Readiness (Salsheli-Specific) 🚀
+
+**Pre-release checks:**
+
+| Check | Why Critical | Command |
+|-------|-------------|----------|
+| debugPrint in code | Performance hit | `grep -r "debugPrint" lib/` |
+| TODO comments | Unfinished work | `grep -r "TODO" lib/` |
+| Hardcoded localhost | Won't work in prod | `grep -r "localhost" lib/` |
+| API keys in code | Security risk | `grep -r "api_key" lib/` |
+| Large APK size | Slow downloads | `flutter build apk --analyze-size` |
+
+**Quick production check script:**
+```bash
+#!/bin/bash
+echo "🔍 Production Readiness Check..."
+echo ""
+
+# 1. Debug prints
+echo "1️⃣ Checking for debug prints..."
+if grep -r "debugPrint\|print(" lib/ --exclude-dir=test | grep -v "//"; then
+  echo "❌ Found debug prints! Remove before release."
+else
+  echo "✅ No debug prints"
+fi
+echo ""
+
+# 2. TODOs
+echo "2️⃣ Checking for TODOs..."
+if grep -r "TODO\|FIXME" lib/ | grep -v "//" | head -5; then
+  echo "⚠️ Found TODOs - review before release"
+else
+  echo "✅ No TODOs"
+fi
+echo ""
+
+# 3. Hardcoded URLs
+echo "3️⃣ Checking for hardcoded URLs..."
+if grep -r "localhost\|127.0.0.1" lib/; then
+  echo "❌ Found localhost URLs!"
+else
+  echo "✅ No hardcoded URLs"
+fi
+echo ""
+
+# 4. API keys
+echo "4️⃣ Checking for API keys..."
+if grep -r "api_key\|apiKey" lib/ --exclude=firebase_options.dart; then
+  echo "❌ Found API keys in code!"
+else
+  echo "✅ No exposed API keys"
+fi
+echo ""
+
+echo "✅ Production check complete!"
+```
+
+**Environment config pattern:**
+```dart
+// ❌ Hardcoded
+const apiUrl = 'http://localhost:3000';
+
+// ✅ Environment-based
+class Config {
+  static const String apiUrl = String.fromEnvironment(
+    'API_URL',
+    defaultValue: 'https://api.salsheli.com',
+  );
+  
+  static const bool isProduction = bool.fromEnvironment(
+    'PRODUCTION',
+    defaultValue: false,
+  );
+  
+  static bool get shouldLog => !isProduction;
+}
+
+// Usage:
+// Dev: flutter run
+// Prod: flutter run --dart-define=PRODUCTION=true
+```
 
 ---
 
@@ -630,6 +1063,21 @@ Scaffold(
 | Security issue | Check household_id + no sensitive logs | Part 8 |
 | Poor performance | const + ListView.builder + caching | Part 9 |
 | Accessibility issue | Sizes 44px+, contrast 4.5:1+ | Part 10 |
+| Empty list name | Validation: trim + isEmpty check | Part 3.7 |
+| Invalid quantity | Validation: 1-9999 range | Part 3.7 |
+| Missing notifyListeners | Add after every state change | Part 3.8 |
+| Listener not removed | Add removeListener in dispose | Part 3.8 |
+| Race condition | Add if (_isLoading) return | Part 3.8 |
+| Controller not disposed | Add dispose() method | Part 3.9 |
+| OCR not closed | Call textRecognizer.close() | Part 3.9 |
+| Stream not cancelled | Cancel subscription in dispose | Part 3.9 |
+| Batch > 500 operations | Split into 500-item batches | Part 3.10 |
+| Query without limit | Add .limit(50) | Part 3.10 |
+| Listener no error handler | Add onError callback | Part 3.10 |
+| API no timeout | Add .timeout(10 seconds) | Part 3.11 |
+| API no retry | Retry 3x with backoff | Part 3.11 |
+| debugPrint in production | Remove all debugPrint | Part 3.12 |
+| Hardcoded localhost | Use environment variables | Part 3.12 |
 
 ---
 
@@ -720,6 +1168,30 @@ lib/
 **Symptom:** Accessibility issue  
 **Fix:** See Part 10
 
+### 11. שם רשימה ריק / כמות לא תקינה 🆕
+**Symptom:** Invalid data saved to Firestore  
+**Fix:** See Part 3.7 - Add validation
+
+### 12. notifyListeners חסר 🆕
+**Symptom:** UI doesn't update after state change  
+**Fix:** See Part 3.8 - Add notifyListeners()
+
+### 13. Listener לא מנותק 🆕
+**Symptom:** Memory leak, app slows down over time  
+**Fix:** See Part 3.8 - Add removeListener in dispose
+
+### 14. Batch > 500 operations 🆕
+**Symptom:** Firestore error: "Maximum 500 writes per batch"  
+**Fix:** See Part 3.10 - Split into 500-item batches
+
+### 15. API ללא timeout 🆕
+**Symptom:** App stuck waiting, poor UX  
+**Fix:** See Part 3.11 - Add timeout(Duration(seconds: 10))
+
+### 16. debugPrint בפרודקשן 🆕
+**Symptom:** Performance hit in production  
+**Fix:** See Part 3.12 - Remove all debugPrint before release
+
 ---
 
 ## 🎯 Part 18: TL;DR - 10-Second Reminder
@@ -733,9 +1205,15 @@ lib/
 6. ✅ Auto-check: Security (household_id, no API keys)
 7. ✅ Auto-check: Performance (const, ListView.builder)
 8. ✅ Auto-check: Accessibility (sizes, contrast)
-9. ✅ Use Filesystem:edit_file (not artifacts)
-10. ✅ Fix tech errors WITHOUT asking
-11. ✅ Ask before major changes only
+9. 🆕 Auto-check: Business Logic (validation, empty checks)
+10. 🆕 Auto-check: State Management (notifyListeners, removeListener)
+11. 🆕 Auto-check: Memory Leaks (dispose Controllers, Streams, OCR)
+12. 🆕 Auto-check: Firebase (batch size, limits, error handlers)
+13. 🆕 Auto-check: API Integration (timeout, retry, proper errors)
+14. 🆕 Auto-check: Production Readiness (debugPrint, TODOs, hardcoded URLs)
+15. ✅ Use Filesystem:edit_file (not artifacts)
+16. ✅ Fix tech errors WITHOUT asking
+17. ✅ Ask before major changes only
 
 **If in doubt → Check DEVELOPER_GUIDE.md**
 
@@ -772,6 +1250,24 @@ lib/
 
 ## 📈 Version History
 
+### v2.2 - 18/10/2025 🆕
+- ✅ **3 More Critical Auto-Checks Added:**
+  1. Firebase Best Practices (batch size, limits, error handlers)
+  2. API Integration (timeout, retry, proper error handling)
+  3. Production Readiness (debugPrint, TODOs, hardcoded URLs)
+- ✅ **Updated checklists:** Now **12 auto-checks** instead of 9
+- ✅ **Top 16 mistakes:** Added 3 critical production issues
+- ✅ **Production check script:** Ready-to-use bash script
+
+### v2.1 - 18/10/2025 🆕
+- ✅ **3 New Auto-Checks Added:**
+  1. Business Logic Validation (empty checks, range validation)
+  2. State Management Issues (notifyListeners, removeListener)
+  3. Memory Leaks (Controllers, Streams, OCR cleanup)
+- ✅ **Updated checklists:** Now 9 auto-checks instead of 6
+- ✅ **Salsheli-specific examples:** Real code from the project
+- ✅ **Top 13 mistakes:** Added 3 common issues
+
 ### v2.0 - 18/10/2025
 - ✅ **Major update:** Added Security, Performance, Accessibility, Testing, Error Handling
 - ✅ **Unified documentation:** Single source of truth for AI
@@ -786,7 +1282,8 @@ lib/
 
 ---
 
-**Version:** 2.0  
+**Version:** 2.2 🚀  
 **Created:** 18/10/2025  
 **Purpose:** Complete AI behavior guide - single source of truth  
+**Last Update:** Added Firebase, API Integration, Production Readiness checks  
 **Made with ❤️ by Humans & AI** 👨‍💻🤖
