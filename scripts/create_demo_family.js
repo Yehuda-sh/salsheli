@@ -11,6 +11,7 @@ const serviceAccount = require(path.join(__dirname, '..', 'serviceAccountKey.jso
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
+  databaseURL: 'https://salsheli-default-rtdb.firebaseio.com',
   projectId: 'salsheli',
 });
 
@@ -62,7 +63,26 @@ const LEVI_FAMILY = [
 
 const HOUSEHOLD_ID = 'house_levi_demo';
 
+async function testConnection() {
+  try {
+    console.log('🔍 בודק חיבור ל-Firebase...');
+    await db.collection('users').limit(1).get();
+    console.log('✅ חיבור ל-Firestore תקין');
+    console.log('');
+    return true;
+  } catch (error) {
+    console.error('❌ שגיאת חיבור:', error.message);
+    console.error('💡 ודא ש-serviceAccountKey.json נכון ושהפרויקט פעיל');
+    return false;
+  }
+}
+
 async function createLeviFamily() {
+  // בדוק חיבור לפני התחלה
+  const connected = await testConnection();
+  if (!connected) {
+    process.exit(1);
+  }
   console.log('✨ יוצר את משפחת לוי...');
   console.log('');
   
@@ -142,6 +162,20 @@ async function createLeviFamily() {
     }
   }
   
+  console.log('');
+  
+  // בדוק אם כל המשתמשים נוצרו בהצלחה
+  if (createdUsers.length < LEVI_FAMILY.length) {
+    console.log('⚠️  אזהרה: לא כל המשתמשים נוצרו');
+    console.log(`   צפוי: ${LEVI_FAMILY.length}, נוצרו: ${createdUsers.length}`);
+    console.log('');
+  }
+  
+  console.log('📊 סטטיסטיקה:');
+  console.log(`   👥 סה"כ משתמשים: ${createdUsers.length}`);
+  console.log(`   👨‍💼 מנהלים: ${createdUsers.filter(u => u.role === 'אבא' || u.role === 'אמא').length}`);
+  console.log(`   👶 ילדים: ${createdUsers.filter(u => !['אבא', 'אמא'].includes(u.role)).length}`);
+  console.log(`   🏠 Household ID: ${HOUSEHOLD_ID}`);
   console.log('');
   console.log('🎉 ================================================');
   console.log('✅ משפחת לוי נוצרה בהצלחה!');

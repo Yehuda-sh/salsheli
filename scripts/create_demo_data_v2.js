@@ -18,7 +18,7 @@ const path = require('path');
 
 // ======== הגדרות ========
 
-const serviceAccountPath = path.join(__dirname, 'firebase-service-account.json');
+const serviceAccountPath = path.join(__dirname, '..', 'serviceAccountKey.json');
 const HOUSEHOLD_ID = 'house_demo';
 const USER_ID = 'yoni_demo_user';
 
@@ -39,6 +39,50 @@ try {
 }
 
 const db = admin.firestore();
+
+// ======== בדיקת/יצירת משתמש דמו ========
+
+/**
+ * בודק אם משתמש הדמו קיים, אם לא - יוצר אותו
+ */
+async function ensureDemoUserExists() {
+  console.log('👤 Checking demo user...');
+  
+  try {
+    const userDoc = await db.collection('users').doc(USER_ID).get();
+    
+    if (userDoc.exists) {
+      console.log('   ✅ Demo user already exists');
+      console.log('');
+      return;
+    }
+    
+    // יצירת משתמש דמו
+    console.log('   ⚙️  Creating demo user...');
+    
+    const now = admin.firestore.Timestamp.now();
+    const userData = {
+      id: USER_ID,
+      name: 'יוני דמו',
+      email: 'yoni@demo.com',
+      household_id: HOUSEHOLD_ID,
+      joined_at: now,
+      last_login_at: now,
+      preferred_stores: ['שופרסל', 'רמי לוי', 'ויקטורי'],
+      favorite_products: [],
+      weekly_budget: 1500,
+      is_admin: true,
+      profile_image_url: null,
+    };
+    
+    await db.collection('users').doc(USER_ID).set(userData);
+    console.log('   ✅ Demo user created successfully');
+    console.log('');
+  } catch (error) {
+    console.error('   ❌ Failed to check/create demo user:', error.message);
+    throw error;
+  }
+}
 
 // ======== מיפוי קטגוריות ========
 
@@ -353,6 +397,14 @@ async function main() {
   console.log('🚀 Starting demo data creation with REAL products...\n');
   console.log('═══════════════════════════════════════════\n');
   
+  // 0️⃣ בדיקת/יצירת משתמש דמו
+  try {
+    await ensureDemoUserExists();
+  } catch (error) {
+    console.error('❌ Failed to ensure demo user exists. Exiting...\n');
+    process.exit(1);
+  }
+  
   let stats = {
     lists: 0,
     inventory: 0,
@@ -367,7 +419,12 @@ async function main() {
     
     if (realProducts.length === 0) {
       console.error('❌ No products found in Firestore!');
-      console.log('\n💡 Run this first: node scripts/upload_to_firebase.js\n');
+      console.log('');
+      console.log('💡 You need to upload products first:');
+      console.log('   1. Check if products collection exists in Firestore');
+      console.log('   2. Or run: node scripts/upload_to_firebase.js');
+      console.log('   3. Or manually add products to Firestore');
+      console.log('');
       process.exit(1);
     }
   } catch (error) {
