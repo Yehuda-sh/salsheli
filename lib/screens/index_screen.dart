@@ -126,9 +126,10 @@ class _IndexScreenState extends State<IndexScreen>
     // 📝 התחל להחליף הודעות
     _startMessageRotation();
 
-    // ✅ מחכה לבניית הUI לפני שמשתמש ב-Provider
+    // ⚡ טעינה אסינכרונית משופרת - לא חוסמת את ה-UI
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _setupListener();
+      // מבצע את הטעינה ב-microtask כדי לא לחסום את ה-frame
+      Future.microtask(() => _setupListener());
     });
   }
 

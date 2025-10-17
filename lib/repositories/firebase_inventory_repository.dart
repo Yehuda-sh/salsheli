@@ -1,26 +1,52 @@
 // 📄 File: lib/repositories/firebase_inventory_repository.dart
 //
-// 🇮🇱 Repository למלאי עם Firestore:
-//     - שמירת פריטי מלאי ב-Firestore
-//     - טעינת מלאי לפי householdId
-//     - עדכון פריטים
-//     - מחיקת פריטים
-//     - Real-time updates
+// 🎯 מטרה: Repository למלאי עם Firestore
 //
-// 🇬🇧 Inventory repository with Firestore:
-//     - Save inventory items to Firestore
-//     - Load inventory by householdId
-//     - Update items
-//     - Delete items
-//     - Real-time updates
+// 📋 כולל:
+//     - שמירת פריטי מלאי ב-Firestore
+//     - טעינת מלאי לפי householdId (⚠️ חובה!)
+//     - עדכון פריטים
+//     - מחיקת פריטים (עם בדיקת אבטחה)
+//     - Real-time updates (watchInventory)
+//     - Queries מתקדמים (לפי מיקום, קטגוריה, כמות נמוכה)
+//
+// 🔒 Security:
+//     - כל query מסונן לפי household_id
+//     - מחיקה רק אחרי בדיקת בעלות
+//     - שימוש בקבועים מ-FirestoreCollections/Fields
+//
+// 📝 הערות:
+//     - משתמש ב-FirestoreUtils לטיפול ב-timestamps
+//     - כל הפונקציות זורקות InventoryRepositoryException בשגיאה
+//     - Error handling מלא + logging
+//
+// Version: 2.0
+// Last Updated: 17/10/2025
+// Changes: ✅ שימוש מלא בקבועים, ✅ שיפור תיעוד, ✅ שיפור error handling
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../models/inventory_item.dart';
+import '../core/constants.dart';  // 🆕 שימוש ב-FirestoreCollections/Fields
 import 'inventory_repository.dart';
-import 'constants/repository_constants.dart';
 import 'utils/firestore_utils.dart';
 
+/// Firebase implementation של InventoryRepository
+/// 
+/// מנהל את כל פעולות המלאי מול Firestore:
+/// - CRUD operations (Create, Read, Update, Delete)
+/// - Real-time updates דרך streams
+/// - Queries מתקדמים (מיקום, קטגוריה, כמות נמוכה)
+/// 
+/// 🔒 Security:
+/// - כל query מסונן לפי household_id
+/// - בדיקת בעלות לפני מחיקה/עדכון
+/// 
+/// 📝 שימוש:
+/// ```dart
+/// final repo = FirebaseInventoryRepository();
+/// final items = await repo.fetchItems('household_123');
+/// ```
 class FirebaseInventoryRepository implements InventoryRepository {
   final FirebaseFirestore _firestore;
 
@@ -34,7 +60,7 @@ class FirebaseInventoryRepository implements InventoryRepository {
   /// // שימוש רגיל
   /// final repo = FirebaseInventoryRepository();
   /// 
-  /// // עם FirebaseFirestore מותאם
+  /// // עם FirebaseFirestore מותאם (למשל לבדיקות)
   /// final repo = FirebaseInventoryRepository(
   ///   firestore: FirebaseFirestore.instanceFor(app: myApp),
   /// );
@@ -42,15 +68,19 @@ class FirebaseInventoryRepository implements InventoryRepository {
   FirebaseInventoryRepository({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
-  // === Fetch Items ===
+  // ========================================
+  // CRUD Operations - פעולות בסיסיות
+  // ========================================
 
   /// טוען את כל פריטי המלאי של משק בית
   /// 
   /// מבצע query ב-Firestore עם household_id ומסדר לפי שם המוצר.
   /// השימוש הוא דרך InventoryProvider שמנהל את המלאי.
   /// 
+  /// 🔒 Security: מסונן לפי household_id
+  /// 
   /// Parameters:
-  ///   - [householdId]: מזהה המשק בית (למשל: 'house_demo')
+  ///   - [householdId]: מזהה המשק בית (חובה!)
   /// 
   /// Returns:
   ///   - List של InventoryItem ממוין לפי product_name
@@ -61,7 +91,7 @@ class FirebaseInventoryRepository implements InventoryRepository {
   /// Example:
   /// ```dart
   /// try {
-  ///   final items = await repo.fetchItems('house_demo');
+  ///   final items = await repo.fetchItems('household_demo');
   ///   print('נטענו ${items.length} פריטים במלאי');
   /// } catch (e) {
   ///   print('שגיאה בטעינת מלאי: $e');
@@ -72,6 +102,7 @@ class FirebaseInventoryRepository implements InventoryRepository {
     try {
       debugPrint('📥 FirebaseInventoryRepository.fetchItems: טוען מלאי ל-$householdId');
 
+      // ✅ שימוש מלא בקבועים
       final snapshot = await _firestore
           .collection(FirestoreCollections.inventory)
           .where(FirestoreFields.householdId, isEqualTo: householdId)
@@ -106,12 +137,12 @@ class FirebaseInventoryRepository implements InventoryRepository {
     }
   }
 
-  // === Save Item ===
-
   /// שומר או מעדכן פריט במלאי
   /// 
   /// מוסיף את household_id לנתונים ושומר ב-Firestore עם merge.
   /// אם הפריט קיים, מעדכן רק את השדות שהשתנו.
+  /// 
+  /// 🔒 Security: מוסיף household_id אוטומטית
   /// 
   /// Parameters:
   ///   - [item]: הפריט לשמירה
@@ -132,7 +163,7 @@ class FirebaseInventoryRepository implements InventoryRepository {
   ///   location: 'refrigerator',
   /// );
   /// 
-  /// final saved = await repo.saveItem(item, 'house_demo');
+  /// final saved = await repo.saveItem(item, 'household_demo');
   /// print('פריט נשמר: ${saved.productName}');
   /// ```
   @override
@@ -146,6 +177,7 @@ class FirebaseInventoryRepository implements InventoryRepository {
         householdId,
       );
 
+      // ✅ שימוש בקבועים
       await _firestore
           .collection(FirestoreCollections.inventory)
           .doc(item.id)
@@ -160,12 +192,12 @@ class FirebaseInventoryRepository implements InventoryRepository {
     }
   }
 
-  // === Delete Item ===
-
   /// מוחק פריט מהמלאי
   /// 
   /// מבצע בדיקת אבטחה - מוודא שהפריט שייך ל-household לפני מחיקה.
   /// אם הפריט לא קיים או לא שייך ל-household, לא מבצע מחיקה.
+  /// 
+  /// 🔒 Security: בדיקת בעלות חובה!
   /// 
   /// Parameters:
   ///   - [id]: מזהה הפריט למחיקה
@@ -177,7 +209,7 @@ class FirebaseInventoryRepository implements InventoryRepository {
   /// Example:
   /// ```dart
   /// try {
-  ///   await repo.deleteItem('item_123', 'house_demo');
+  ///   await repo.deleteItem('item_123', 'household_demo');
   ///   print('פריט נמחק בהצלחה');
   /// } catch (e) {
   ///   print('שגיאה במחיקה: $e');
@@ -188,8 +220,11 @@ class FirebaseInventoryRepository implements InventoryRepository {
     try {
       debugPrint('🗑️ FirebaseInventoryRepository.deleteItem: מוחק פריט $id');
 
-      // וידוא שהפריט שייך ל-household
-      final doc = await _firestore.collection(FirestoreCollections.inventory).doc(id).get();
+      // ✅ שימוש בקבועים
+      final doc = await _firestore
+          .collection(FirestoreCollections.inventory)
+          .doc(id)
+          .get();
       
       if (!doc.exists) {
         debugPrint('⚠️ פריט לא קיים');
@@ -197,12 +232,18 @@ class FirebaseInventoryRepository implements InventoryRepository {
       }
 
       final data = doc.data();
+      
+      // ✅ בדיקת בעלות עם קבוע
       if (data?[FirestoreFields.householdId] != householdId) {
         debugPrint('⚠️ פריט לא שייך ל-household זה');
         throw InventoryRepositoryException('Item does not belong to household', null);
       }
 
-      await _firestore.collection(FirestoreCollections.inventory).doc(id).delete();
+      // ✅ שימוש בקבועים
+      await _firestore
+          .collection(FirestoreCollections.inventory)
+          .doc(id)
+          .delete();
 
       debugPrint('✅ FirebaseInventoryRepository.deleteItem: פריט נמחק');
     } catch (e, stackTrace) {
@@ -212,17 +253,41 @@ class FirebaseInventoryRepository implements InventoryRepository {
     }
   }
 
-  // === 🆕 פונקציות נוספות ===
+  // ========================================
+  // Real-time Updates - עדכונים בזמן אמת
+  // ========================================
 
   /// מחזיר stream של מלאי (real-time updates)
   /// 
+  /// 📡 Real-time: השינויים מתעדכנים אוטומטית
+  /// 🔒 Security: מסונן לפי household_id
+  /// 
+  /// Parameters:
+  ///   - [householdId]: מזהה המשק בית
+  /// 
+  /// Returns:
+  ///   - Stream<List<InventoryItem>> שמתעדכן בזמן אמת
+  /// 
   /// Example:
   /// ```dart
-  /// repository.watchInventory('house_demo').listen((items) {
+  /// // האזנה לשינויים בזמן אמת
+  /// repository.watchInventory('household_demo').listen((items) {
   ///   print('Inventory updated: ${items.length} items');
   /// });
+  /// 
+  /// // עם StreamBuilder ב-Widget
+  /// StreamBuilder<List<InventoryItem>>(
+  ///   stream: repository.watchInventory(householdId),
+  ///   builder: (context, snapshot) {
+  ///     if (snapshot.hasData) {
+  ///       return ItemsList(items: snapshot.data!);
+  ///     }
+  ///     return CircularProgressIndicator();
+  ///   },
+  /// )
   /// ```
   Stream<List<InventoryItem>> watchInventory(String householdId) {
+    // ✅ שימוש מלא בקבועים
     return _firestore
         .collection(FirestoreCollections.inventory)
         .where(FirestoreFields.householdId, isEqualTo: householdId)
@@ -236,17 +301,39 @@ class FirebaseInventoryRepository implements InventoryRepository {
     });
   }
 
+  // ========================================
+  // Advanced Queries - queries מתקדמים
+  // ========================================
+
   /// מחזיר פריט לפי ID
+  /// 
+  /// 🔒 Security: בדיקת בעלות household
+  /// 
+  /// Parameters:
+  ///   - [itemId]: מזהה הפריט
+  ///   - [householdId]: מזהה המשק בית (לאימות)
+  /// 
+  /// Returns:
+  ///   - InventoryItem או null אם לא נמצא / לא שייך ל-household
   /// 
   /// Example:
   /// ```dart
-  /// final item = await repository.getItemById('item_123', 'house_demo');
+  /// final item = await repository.getItemById('item_123', 'household_demo');
+  /// if (item != null) {
+  ///   print('נמצא: ${item.productName}');
+  /// } else {
+  ///   print('פריט לא נמצא או לא שייך למשק בית');
+  /// }
   /// ```
   Future<InventoryItem?> getItemById(String itemId, String householdId) async {
     try {
       debugPrint('🔍 FirebaseInventoryRepository.getItemById: מחפש פריט $itemId');
 
-      final doc = await _firestore.collection(FirestoreCollections.inventory).doc(itemId).get();
+      // ✅ שימוש בקבועים
+      final doc = await _firestore
+          .collection(FirestoreCollections.inventory)
+          .doc(itemId)
+          .get();
 
       if (!doc.exists) {
         debugPrint('⚠️ פריט לא נמצא');
@@ -255,7 +342,7 @@ class FirebaseInventoryRepository implements InventoryRepository {
 
       final data = Map<String, dynamic>.from(doc.data()!);
       
-      // בדיקה שהפריט שייך ל-household
+      // ✅ בדיקה שהפריט שייך ל-household
       if (data[FirestoreFields.householdId] != householdId) {
         debugPrint('⚠️ פריט לא שייך ל-household זה');
         return null;
@@ -274,14 +361,30 @@ class FirebaseInventoryRepository implements InventoryRepository {
 
   /// מחזיר פריטים לפי מיקום
   /// 
+  /// 📍 סינון לפי מיקום אחסון (מקרר, מקפיא, מזווה וכו')
+  /// 🔒 Security: מסונן לפי household_id
+  /// 
+  /// Parameters:
+  ///   - [location]: מיקום האחסון (למשל: 'refrigerator', 'freezer')
+  ///   - [householdId]: מזהה המשק בית
+  /// 
+  /// Returns:
+  ///   - List<InventoryItem> ממוין לפי שם מוצר
+  /// 
   /// Example:
   /// ```dart
-  /// final items = await repository.getItemsByLocation('refrigerator', 'house_demo');
+  /// // קבל את כל הפריטים במקרר
+  /// final fridgeItems = await repository.getItemsByLocation(
+  ///   'refrigerator',
+  ///   'household_demo',
+  /// );
+  /// print('במקרר: ${fridgeItems.length} פריטים');
   /// ```
   Future<List<InventoryItem>> getItemsByLocation(String location, String householdId) async {
     try {
       debugPrint('📍 FirebaseInventoryRepository.getItemsByLocation: מחפש פריטים ב-$location');
 
+      // ✅ שימוש מלא בקבועים
       final snapshot = await _firestore
           .collection(FirestoreCollections.inventory)
           .where(FirestoreFields.householdId, isEqualTo: householdId)
@@ -305,14 +408,30 @@ class FirebaseInventoryRepository implements InventoryRepository {
 
   /// מחזיר פריטים לפי קטגוריה
   /// 
+  /// 🏷️ סינון לפי קטגוריית מוצר (dairy, meat, produce וכו')
+  /// 🔒 Security: מסונן לפי household_id
+  /// 
+  /// Parameters:
+  ///   - [category]: קטגוריית המוצר (למשל: 'dairy', 'meat')
+  ///   - [householdId]: מזהה המשק בית
+  /// 
+  /// Returns:
+  ///   - List<InventoryItem> ממוין לפי שם מוצר
+  /// 
   /// Example:
   /// ```dart
-  /// final items = await repository.getItemsByCategory('dairy', 'house_demo');
+  /// // קבל את כל מוצרי החלב
+  /// final dairyItems = await repository.getItemsByCategory(
+  ///   'dairy',
+  ///   'household_demo',
+  /// );
+  /// print('מוצרי חלב: ${dairyItems.length}');
   /// ```
   Future<List<InventoryItem>> getItemsByCategory(String category, String householdId) async {
     try {
       debugPrint('🏷️ FirebaseInventoryRepository.getItemsByCategory: מחפש פריטים בקטגוריה $category');
 
+      // ✅ שימוש מלא בקבועים
       final snapshot = await _firestore
           .collection(FirestoreCollections.inventory)
           .where(FirestoreFields.householdId, isEqualTo: householdId)
@@ -336,12 +455,31 @@ class FirebaseInventoryRepository implements InventoryRepository {
 
   /// מחזיר פריטים עם כמות נמוכה
   /// 
+  /// ⚠️ מציאת פריטים שהכמות שלהם נמוכה או שווה ל-threshold
+  /// 🔒 Security: מסונן לפי household_id
+  /// 
+  /// Parameters:
+  ///   - [threshold]: כמות מקסימלית (פריטים עם כמות <= threshold)
+  ///   - [householdId]: מזהה המשק בית
+  /// 
+  /// Returns:
+  ///   - List<InventoryItem> ממוין לפי כמות (נמוך ביותר ראשון)
+  /// 
   /// Example:
   /// ```dart
+  /// // מצא פריטים עם 2 יחידות או פחות
   /// final lowItems = await repository.getLowStockItems(
   ///   threshold: 2,
-  ///   householdId: 'house_demo',
+  ///   householdId: 'household_demo',
   /// );
+  /// 
+  /// // התרעה למשתמש
+  /// if (lowItems.isNotEmpty) {
+  ///   print('התראה: ${lowItems.length} פריטים עם כמות נמוכה!');
+  ///   for (final item in lowItems) {
+  ///     print('- ${item.productName}: ${item.quantity} יחידות');
+  ///   }
+  /// }
   /// ```
   Future<List<InventoryItem>> getLowStockItems({
     required int threshold,
@@ -350,6 +488,7 @@ class FirebaseInventoryRepository implements InventoryRepository {
     try {
       debugPrint('⚠️ FirebaseInventoryRepository.getLowStockItems: מחפש פריטים עם כמות <= $threshold');
 
+      // ✅ שימוש מלא בקבועים
       final snapshot = await _firestore
           .collection(FirestoreCollections.inventory)
           .where(FirestoreFields.householdId, isEqualTo: householdId)
@@ -373,13 +512,31 @@ class FirebaseInventoryRepository implements InventoryRepository {
 
   /// מעדכן כמות של פריט
   /// 
+  /// 🔢 עדכון מהיר של כמות בלבד (ללא שינוי שאר השדות)
+  /// 🔒 Security: בדיקת בעלות household
+  /// 
+  /// Parameters:
+  ///   - [itemId]: מזהה הפריט
+  ///   - [newQuantity]: כמות חדשה
+  ///   - [householdId]: מזהה המשק בית (לאימות)
+  /// 
+  /// Throws:
+  ///   - [InventoryRepositoryException] אם הפריט לא נמצא או לא שייך ל-household
+  /// 
   /// Example:
   /// ```dart
+  /// // הפחת כמות אחרי שימוש
   /// await repository.updateQuantity(
   ///   itemId: 'item_123',
-  ///   newQuantity: 5,
-  ///   householdId: 'house_demo',
+  ///   newQuantity: 3,  // היו 5, נשארו 3
+  ///   householdId: 'household_demo',
   /// );
+  /// 
+  /// // בדוק אם צריך להזמין
+  /// final item = await repository.getItemById('item_123', 'household_demo');
+  /// if (item!.quantity <= 2) {
+  ///   print('זמן להזמין ${item.productName}!');
+  /// }
   /// ```
   Future<void> updateQuantity({
     required String itemId,
@@ -389,8 +546,11 @@ class FirebaseInventoryRepository implements InventoryRepository {
     try {
       debugPrint('🔢 FirebaseInventoryRepository.updateQuantity: מעדכן כמות ל-$newQuantity');
 
-      // וידוא שהפריט שייך ל-household
-      final doc = await _firestore.collection(FirestoreCollections.inventory).doc(itemId).get();
+      // ✅ וידוא שהפריט שייך ל-household
+      final doc = await _firestore
+          .collection(FirestoreCollections.inventory)
+          .doc(itemId)
+          .get();
       
       if (!doc.exists) {
         debugPrint('⚠️ פריט לא קיים');
@@ -398,11 +558,14 @@ class FirebaseInventoryRepository implements InventoryRepository {
       }
 
       final data = doc.data();
+      
+      // ✅ בדיקת בעלות עם קבוע
       if (data?[FirestoreFields.householdId] != householdId) {
         debugPrint('⚠️ פריט לא שייך ל-household זה');
         throw InventoryRepositoryException('Item does not belong to household', null);
       }
 
+      // ✅ שימוש בקבועים
       await _firestore
           .collection(FirestoreCollections.inventory)
           .doc(itemId)
@@ -417,7 +580,27 @@ class FirebaseInventoryRepository implements InventoryRepository {
   }
 }
 
+// ========================================
+// Exception Class
+// ========================================
+
 /// Exception class for inventory repository errors
+/// 
+/// 📝 משמש לכל השגיאות של InventoryRepository
+/// 
+/// Example:
+/// ```dart
+/// try {
+///   await repo.fetchItems(householdId);
+/// } catch (e) {
+///   if (e is InventoryRepositoryException) {
+///     print('Repository error: ${e.message}');
+///     if (e.cause != null) {
+///       print('Caused by: ${e.cause}');
+///     }
+///   }
+/// }
+/// ```
 class InventoryRepositoryException implements Exception {
   final String message;
   final Object? cause;

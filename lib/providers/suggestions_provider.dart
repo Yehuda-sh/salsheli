@@ -269,11 +269,33 @@ class SuggestionsProvider with ChangeNotifier {
     final thirtyDaysAgo = now.subtract(Duration(days: 30));
     
     for (var listJson in listsData) {
-      final updatedDate = DateTime.parse(listJson['updatedAt'] ?? listJson['updatedDate']);
+      // טיפול בטוח בתאריך - בדיקת null
+      final dateStr = listJson['updatedAt'] ?? listJson['updatedDate'];
+      if (dateStr == null) continue; // דלג אם אין תאריך
+      
+      DateTime? updatedDate;
+      try {
+        updatedDate = DateTime.parse(dateStr.toString());
+      } catch (e) {
+        // אם הפרסור נכשל, דלג לרשימה הבאה
+        continue;
+      }
+      
       if (updatedDate.isAfter(thirtyDaysAgo)) {
-        final items = listJson['items'] as List<dynamic>? ?? [];
+        // טיפול בטוח ב-items
+        final itemsRaw = listJson['items'];
+        if (itemsRaw == null || itemsRaw is! List) continue;
+        
+        final items = itemsRaw;
         for (var item in items) {
-          final name = (item['name'] ?? '').toString().trim().toLowerCase();
+          if (item == null || item is! Map) continue;
+          
+          // נסה לקבל את השם
+          final name = (item['name'] ?? '')
+              .toString()
+              .trim()
+              .toLowerCase();
+          
           if (name.isNotEmpty) {
             productFrequency[name] = (productFrequency[name] ?? 0) + 1;
           }
@@ -332,9 +354,12 @@ class SuggestionsProvider with ChangeNotifier {
       if (list.updatedDate.isAfter(thirtyDaysAgo)) {
         relevantLists++;
         for (var item in list.items) {
+          // טיפול בטוח בשם הפריט
           final name = (item.name ?? '').trim().toLowerCase();
-          productFrequency[name] = (productFrequency[name] ?? 0) + 1;
-          totalItems++;
+          if (name.isNotEmpty) {
+            productFrequency[name] = (productFrequency[name] ?? 0) + 1;
+            totalItems++;
+          }
         }
       }
     }

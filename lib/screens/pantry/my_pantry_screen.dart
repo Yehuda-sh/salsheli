@@ -37,6 +37,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/inventory_item.dart';
 import '../../providers/inventory_provider.dart';
+import '../../providers/shopping_lists_provider.dart';
 import '../../widgets/storage_location_manager.dart';
 import '../../widgets/pantry_filters.dart';
 import '../../config/storage_locations_config.dart';
@@ -58,6 +59,7 @@ class _MyPantryScreenState extends State<MyPantryScreen>
   String _selectedCategory = 'all';
   
   late TabController _tabController;
+  final Set<String> _selectedItemIds = {}; // פריטים מסומנים להוספה לרשימה
 
   @override
   void initState() {
@@ -571,6 +573,91 @@ class _MyPantryScreenState extends State<MyPantryScreen>
     );
   }
 
+  /// מוסיף פריטים מסומנים לרשימת קניות
+  Future<void> _addSelectedToShoppingList() async {
+    if (_selectedItemIds.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('אנא בחר פריטים להוספה'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    final provider = context.read<InventoryProvider>();
+    final listsProvider = context.read<ShoppingListsProvider>();
+    
+    // קבל את הרשימה הפעילה הראשונה או צור חדשה
+    String? targetListId;
+    final activeLists = listsProvider.lists
+        .where((l) => l.status == 'active')
+        .toList();
+    
+    if (activeLists.isNotEmpty) {
+      // יש רשימה פעילה - הוסף אליה
+      targetListId = activeLists.first.id;
+    } else {
+      // צור רשימה חדשה
+      try {
+        final newList = await listsProvider.createList(
+          name: 'רשימת קניות חדשה',
+          type: 'grocery',
+        );
+        targetListId = newList.id;
+      } catch (e) {
+        debugPrint('❌ שגיאה ביצירת רשימה: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('שגיאה ביצירת רשימה: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+    }
+    
+    // הוסף את הפריטים המסומנים לרשימה
+    int addedCount = 0;
+    for (var itemId in _selectedItemIds) {
+      final item = provider.items.firstWhere((i) => i.id == itemId);
+      
+      try {
+        await listsProvider.addItemToList(
+          targetListId,
+          item.productName,
+          1, // כמות ברירת מחדל
+          item.unit,
+        );
+        addedCount++;
+      } catch (e) {
+        debugPrint('❌ שגיאה בהוספת ${item.productName}: $e');
+      }
+    }
+    
+    setState(() {
+      _selectedItemIds.clear();
+    });
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('✅ נוספו $addedCount פריטים לרשימת הקניות'),
+        backgroundColor: Colors.green,
+        action: SnackBarAction(
+          label: 'צפה ברשימה',
+          textColor: Colors.white,
+          onPressed: () {
+            Navigator.pushNamed(
+              context,
+              '/manage-list',
+              arguments: {'listId': targetListId},
+            );
+          },
+        ),
+      ),
+    );
+  }
+  
   /// בונה את תצוגת הרשימה המלאה עם סינון וקיבוץ לפי מיקומים
   Widget _buildListView(List<InventoryItem> items) {
     final cs = Theme.of(context).colorScheme;
@@ -769,14 +856,70 @@ class _MyPantryScreenState extends State<MyPantryScreen>
                             ),
                           ),
                           ...locationItems.map((item) {
+                            final isSelected = _selectedItemIds.contains(item.id);
+                            final needsRefill = item.quantity <= 1;
+                            
                             return ListTile(
-                              title: Text(
-                                item.productName,
-                                style: TextStyle(color: cs.onSurface),
+                              tileColor: isSelected 
+                                  ? cs.primaryContainer.withValues(alpha: 0.3)
+                                  : null,
+                              leading: Checkbox(
+                                value: isSelected,
+                                onChanged: (value) {
+                                  setState(() {
+                                    if (value == true) {
+                                      _selectedItemIds.add(item.id);
+                                    } else {
+                                      _selectedItemIds.remove(item.id);
+                                    }
+                                  });
+                                },
+                                activeColor: cs.primary,
+                              ),
+                              title: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      item.productName,
+                                      style: TextStyle(
+                                        color: cs.onSurface,
+                                        decoration: needsRefill 
+                                            ? TextDecoration.lineThrough 
+                                            : null,
+                                      ),
+                                    ),
+                                  ),
+                                  if (needsRefill)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.orange.withValues(alpha: 0.2),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: const Text(
+                                        'חסר',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: Colors.orange,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
                               subtitle: Text(
                                 "${item.quantity} ${item.unit}",
-                                style: TextStyle(color: cs.onSurfaceVariant),
+                                style: TextStyle(
+                                  color: item.quantity == 0 
+                                      ? Colors.red 
+                                      : cs.onSurfaceVariant,
+                                  fontWeight: item.quantity == 0 
+                                      ? FontWeight.bold 
+                                      : FontWeight.normal,
+                                ),
                               ),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -835,8 +978,17 @@ class _MyPantryScreenState extends State<MyPantryScreen>
             backgroundColor: cs.surface,
             appBar: AppBar(
               backgroundColor: cs.surfaceContainer,
-              title: const Text('המזווה שלי'),
+              title: Text(_selectedItemIds.isEmpty 
+                  ? 'המזווה שלי' 
+                  : '${_selectedItemIds.length} נבחרו'),
               actions: [
+                if (_selectedItemIds.isNotEmpty)
+                  IconButton(
+                    icon: const Icon(Icons.add_shopping_cart),
+                    onPressed: _addSelectedToShoppingList,
+                    tooltip: "הוסף לרשימת קניות",
+                    color: Colors.green,
+                  ),
                 IconButton(
                   icon: const Icon(Icons.add),
                   onPressed: _addItemDialog,

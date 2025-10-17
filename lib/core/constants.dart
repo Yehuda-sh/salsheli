@@ -3,9 +3,14 @@
 // 🎯 מטרה: קבועים גלובליים לכל האפליקציה
 //
 // 📋 כולל:
-// - סוגי רשימות קניות (ListType class)
+// - FirestoreCollections - שמות collections ב-Firestore
+// - FirestoreFields - שמות שדות משותפים ב-Firestore
+// - ListType - סוגי רשימות קניות
+// - UI Maps - אימוג'י, מיקומים, types
+// - Validation Limits - גבולות ערכים
 //
 // 🔗 קבצים קשורים:
+// - lib/core/ui_constants.dart - קבועי UI (צבעים, מרווחים, גדלים)
 // - lib/config/list_type_mappings.dart - מיפוי types לקטגוריות וחנויות
 // - lib/config/category_config.dart - עיצוב מלא של קטגוריות (צבעים, אימוג'י)
 // - lib/config/filters_config.dart - טקסטים לפילטרים (kCategories, kStatuses)
@@ -14,8 +19,283 @@
 // - קבצי Config אחרים מכילים קבועים ספציפיים יותר
 // - קובץ זה מכיל רק constants בסיסיים שמשותפים לכל המערכת
 //
-// Version: 3.1
-// Last Updated: 06/10/2025
+// Version: 4.0
+// Last Updated: 17/10/2025
+// Changes: ✅ השלמת FirestoreCollections, ✅ הוספת FirestoreFields, ✅ שיפור תיעוד
+
+// ========================================
+// Firestore Collections
+// ========================================
+
+/// שמות Collections ב-Firestore
+/// 
+/// 🎯 שימוש: שמירה על consistency בשמות הקולקציות
+/// 📝 הערה: משמש בכל ה-Repositories
+/// ⚠️ חשוב: **תמיד** השתמש בקבועים אלה, לעולם לא ב-hardcoded strings!
+/// 
+/// **דוגמה:**
+/// ```dart
+/// // ✅ טוב - constant (type-safe)
+/// await _firestore
+///   .collection(FirestoreCollections.shoppingLists)
+///   .where(FirestoreFields.householdId, isEqualTo: householdId)
+///   .get();
+/// 
+/// // ❌ רע - hardcoded strings (שגיאות אפשריות!)
+/// await _firestore
+///   .collection('shopping_lists')  // אם תעשה טעות כתיב - קריסה!
+///   .where('household_id', isEqualTo: householdId)
+///   .get();
+/// ```
+class FirestoreCollections {
+  // מניעת יצירת instances
+  const FirestoreCollections._();
+
+  // ========================================
+  // Core Collections - קולקציות ליבה
+  // ========================================
+
+  /// 👥 משתמשים - נתוני פרופיל, הגדרות, preferences
+  static const String users = 'users';
+
+  /// 🏠 משקי בית - קבוצות משפחתיות/שיתופיות
+  /// ⚠️ חשוב: כל המשתמשים שייכים ל-household אחד או יותר
+  static const String households = 'households';
+
+  // ========================================
+  // Shopping & Lists - קניות ורשימות
+  // ========================================
+
+  /// 🛒 רשימות קניות - רשימות פעילות וארכיון
+  static const String shoppingLists = 'shopping_lists';
+
+  /// 📋 תבניות רשימות - תבניות מערכת ואישיות
+  /// 🔒 is_system=true רק ע"י Admin SDK!
+  static const String templates = 'templates';
+
+  // ========================================
+  // Inventory & Products - מלאי ומוצרים
+  // ========================================
+
+  /// 📦 מלאי - פריטים במזווה/מקרר/מקפיא
+  static const String inventory = 'inventory';
+
+  /// 🏷️ מוצרים - קטלוג מוצרים (shared database)
+  static const String products = 'products';
+
+  /// 📍 מיקומים - מיקומי אחסון מותאמים אישית
+  /// 📝 לדוגמה: "מדף עליון - מטבח", "מגירה 2 - מקרר"
+  static const String locations = 'locations';
+
+  /// 🧠 זיכרון מיקומי מוצרים - למידה אוטומטית של מיקומים
+  /// 📝 המערכת זוכרת איפה כל מוצר בדרך כלל מאוחסן
+  static const String productLocationMemory = 'product_location_memory';
+
+  // ========================================
+  // Receipts & Analysis - קבלות וניתוח
+  // ========================================
+
+  /// 🧾 קבלות - קבלות סרוקות ונתוני קנייה
+  static const String receipts = 'receipts';
+
+  // ========================================
+  // Habits & Settings - הרגלים והגדרות
+  // ========================================
+
+  /// ✨ הרגלים - מעקב אחר הרגלי קנייה וצריכה
+  static const String habits = 'habits';
+
+  /// ⚙️ הגדרות - העדפות אפליקציה והגדרות מערכת
+  /// 📝 לדוגמה: תזכורות, נוטיפיקציות, תצוגות ברירת מחדל
+  static const String settings = 'settings';
+
+  // ========================================
+  // Utility Methods - פונקציות עזר
+  // ========================================
+
+  /// רשימת כל ה-collections הזמינים
+  /// 
+  /// 🎯 שימוש: validations, testing, admin tools
+  static const List<String> allCollections = [
+    users,
+    households,
+    shoppingLists,
+    templates,
+    inventory,
+    products,
+    locations,
+    productLocationMemory,
+    receipts,
+    habits,
+    settings,
+  ];
+
+  /// בדיקה אם collection name תקין
+  /// 
+  /// **דוגמה:**
+  /// ```dart
+  /// if (FirestoreCollections.isValid('users')) { ... }  // true
+  /// if (FirestoreCollections.isValid('invalid')) { ... }  // false
+  /// ```
+  static bool isValid(String collection) => allCollections.contains(collection);
+}
+
+// ========================================
+// Firestore Fields
+// ========================================
+
+/// שמות שדות משותפים ב-Firestore
+/// 
+/// 🎯 שימוש: שמירה על consistency בשמות השדות
+/// ⚠️ חשוב: **כל query חייב** לכלול household_id filtering!
+/// 🔒 Security: Firestore Rules מסתמכות על שמות אלה
+/// 
+/// **דוגמה:**
+/// ```dart
+/// // ✅ טוב - constants + household_id filtering
+/// await _firestore
+///   .collection(FirestoreCollections.inventory)
+///   .where(FirestoreFields.householdId, isEqualTo: householdId)
+///   .where(FirestoreFields.isActive, isEqualTo: true)
+///   .orderBy(FirestoreFields.createdAt, descending: true)
+///   .get();
+/// 
+/// // ❌ רע - hardcoded + חסר household_id!
+/// await _firestore
+///   .collection('inventory')
+///   .where('is_active', isEqualTo: true)
+///   .get();  // ⚠️ Security risk! יחזיר נתונים מכל ה-households!
+/// ```
+class FirestoreFields {
+  // מניעת יצירת instances
+  const FirestoreFields._();
+
+  // ========================================
+  // Security & Multi-Tenancy - אבטחה ו-multi-tenancy
+  // ========================================
+
+  /// 🏠 household_id - מזהה משק בית
+  /// ⚠️ **חובה בכל query!** למניעת גישה לנתונים של households אחרים
+  /// 🔒 Security Rules בודקות שדה זה
+  /// 
+  /// **דוגמה נכונה:**
+  /// ```dart
+  /// // ✅ תמיד סנן לפי household_id
+  /// .where(FirestoreFields.householdId, isEqualTo: userContext.currentHouseholdId)
+  /// ```
+  static const String householdId = 'household_id';
+
+  /// 👤 user_id - מזהה משתמש (יוצר/בעלים)
+  /// 📝 לדוגמה: מי יצר רשימה, מי הוסיף פריט
+  static const String userId = 'user_id';
+
+  // ========================================
+  // Timestamps - חותמות זמן
+  // ========================================
+
+  /// 📅 created_at - תאריך יצירה
+  /// 🔄 @TimestampConverter() אוטומטי במודלים
+  static const String createdAt = 'created_at';
+
+  /// 🔄 updated_at - תאריך עדכון אחרון
+  /// 📝 מתעדכן אוטומטית בכל שינוי
+  static const String updatedAt = 'updated_at';
+
+  /// 🗑️ deleted_at - תאריך מחיקה (soft delete)
+  /// 📝 null = פעיל, timestamp = נמחק
+  static const String deletedAt = 'deleted_at';
+
+  // ========================================
+  // Status & Flags - סטטוס ודגלים
+  // ========================================
+
+  /// ✅ is_active - האם הרשומה פעילה
+  /// 📝 false = archived/disabled
+  static const String isActive = 'is_active';
+
+  /// 🔒 is_system - האם זו רשומת מערכת
+  /// ⚠️ רק Admin SDK יכול ליצור is_system=true!
+  /// 📝 לדוגמה: system templates
+  static const String isSystem = 'is_system';
+
+  /// ✅ is_completed - האם הושלם
+  /// 📝 לדוגמה: רשימת קניות, משימה
+  static const String isCompleted = 'is_completed';
+
+  /// ⭐ is_favorite - האם מועדף
+  /// 📝 לדוגמה: מוצרים מועדפים, רשימות חשובות
+  static const String isFavorite = 'is_favorite';
+
+  // ========================================
+  // Common Data Fields - שדות נתונים נפוצים
+  // ========================================
+
+  /// 📝 name - שם (כללי)
+  static const String name = 'name';
+
+  /// 📋 description - תיאור
+  static const String description = 'description';
+
+  /// 🏷️ type - סוג/קטגוריה
+  static const String type = 'type';
+
+  /// 🎨 color - צבע (hex או שם)
+  static const String color = 'color';
+
+  /// 🔢 quantity - כמות
+  static const String quantity = 'quantity';
+
+  /// 💰 price - מחיר
+  static const String price = 'price';
+
+  /// 📍 location - מיקום
+  static const String location = 'location';
+
+  /// 🏷️ category - קטגוריה (למוצרים)
+  /// 📝 לדוגמה: 'dairy', 'meat', 'produce'
+  static const String category = 'category';
+
+  /// 📦 product_name - שם מוצר (למלאי)
+  /// 📝 לדוגמה: 'חלב 3%', 'עגבניות'
+  static const String productName = 'product_name';
+
+  // ========================================
+  // Utility Methods - פונקציות עזר
+  // ========================================
+
+  /// רשימת כל השדות המשותפים
+  /// 
+  /// 🎯 שימוש: validations, testing, documentation
+  static const List<String> allFields = [
+    householdId,
+    userId,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    isActive,
+    isSystem,
+    isCompleted,
+    isFavorite,
+    name,
+    description,
+    type,
+    color,
+    quantity,
+    price,
+    location,
+    category,
+    productName,
+  ];
+
+  /// בדיקה אם שם שדה תקין
+  /// 
+  /// **דוגמה:**
+  /// ```dart
+  /// if (FirestoreFields.isValid('household_id')) { ... }  // true
+  /// if (FirestoreFields.isValid('invalid_field')) { ... }  // false
+  /// ```
+  static bool isValid(String field) => allFields.contains(field);
+}
 
 // ========================================
 // מיפויי אימוג'י וטקסטים
@@ -167,44 +447,18 @@ const Map<String, Map<String, String>> kListTypes = {
 };
 
 // ========================================
-// Firestore Collections
-// ========================================
-
-/// שמות Collections ב-Firestore
-/// 
-/// 🎯 שימוש: שמירה על consistency בשמות הקולקציות
-/// 📝 הערה: משמש בכל ה-Repositories
-/// 
-/// **דוגמה:**
-/// ```dart
-/// // ✅ טוב - constant
-/// _firestore.collection(FirestoreCollections.receipts)
-/// 
-/// // ❌ רע - hardcoded string
-/// _firestore.collection('receipts')
-/// ```
-class FirestoreCollections {
-  // מניעת יצירת instances
-  const FirestoreCollections._();
-
-  static const String receipts = 'receipts';
-  static const String users = 'users';
-  static const String shoppingLists = 'shopping_lists';
-  static const String inventory = 'inventory';
-  static const String products = 'products';
-  static const String habits = 'habits';
-  static const String templates = 'templates';  // 🆕 תבניות רשימות
-}
-
-// ========================================
 // Onboarding - גבולות ערכים
 // ========================================
 
 /// גודל משפחה - גבולות min/max
+/// 
+/// 🎯 שימוש: validation ב-onboarding flow
 const int kMinFamilySize = 1;
 const int kMaxFamilySize = 10;
 
 /// תקציב חודשי - גבולות min/max (₪)
+/// 
+/// 🎯 שימוש: validation ב-onboarding flow
 const double kMinMonthlyBudget = 500.0;
 const double kMaxMonthlyBudget = 20000.0;
 
@@ -222,7 +476,7 @@ const double kMaxMonthlyBudget = 20000.0;
 /// // ✅ טוב - type safe
 /// if (list.type == ListType.super_) { ... }
 /// 
-/// // ❌ רע - string literal
+/// // ❌ רע - string literal (שגיאות אפשריות!)
 /// if (list.type == 'super') { ... }
 /// 
 /// // יצירת רשימה חדשה
@@ -326,22 +580,46 @@ class ListType {
 // 💡 טיפים לשימוש
 // ========================================
 //
-// 1. **השתמש ב-ListType במקום strings:**
+// 1. **השתמש תמיד ב-Constants (לא hardcoded strings!):**
 //    ```dart
 //    // ✅ טוב
-//    final type = ListType.super_;
+//    await _firestore
+//      .collection(FirestoreCollections.shoppingLists)
+//      .where(FirestoreFields.householdId, isEqualTo: householdId)
+//      .get();
 //    
 //    // ❌ רע
-//    final type = 'super';
+//    await _firestore
+//      .collection('shopping_lists')  // שגיאות כתיב אפשריות!
+//      .where('household_id', isEqualTo: householdId)
+//      .get();
 //    ```
 //
-// 2. **קישור לקבצי Config:**
+// 2. **Security Rule #1: תמיד סנן לפי household_id!**
+//    ```dart
+//    // ✅ חובה בכל query!
+//    .where(FirestoreFields.householdId, isEqualTo: userContext.currentHouseholdId)
+//    ```
+//
+// 3. **קישור לקבצי Config אחרים:**
+//    - UI: lib/core/ui_constants.dart
 //    - קטגוריות: lib/config/category_config.dart
 //    - פילטרים: lib/config/filters_config.dart
 //    - מיפויים: lib/config/list_type_mappings.dart
 //
-// 3. **Validation:**
+// 4. **Validation Examples:**
 //    ```dart
+//    // Collections
+//    if (!FirestoreCollections.isValid(collectionName)) {
+//      throw Exception('Invalid collection');
+//    }
+//    
+//    // Fields
+//    if (!FirestoreFields.isValid(fieldName)) {
+//      throw Exception('Invalid field');
+//    }
+//    
+//    // List Types
 //    if (!ListType.isValid(userInput)) {
 //      throw Exception('Invalid type');
 //    }

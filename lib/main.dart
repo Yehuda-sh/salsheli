@@ -26,6 +26,7 @@ import 'providers/suggestions_provider.dart';
 import 'providers/locations_provider.dart';
 import 'providers/habits_provider.dart';
 import 'providers/templates_provider.dart';
+import 'providers/product_location_provider.dart';
 
 // Repositories
 import 'repositories/firebase_shopping_lists_repository.dart';  // 🔥 Firebase Shopping Lists!
@@ -55,6 +56,7 @@ import 'screens/shopping/shopping_list_details_screen.dart';
 import 'screens/lists/populate_list_screen.dart';
 import 'screens/lists/templates_screen.dart';  // 📋 Templates!
 import 'screens/receipts/receipt_manager_screen.dart';
+import 'screens/receipts/receipt_import_screen.dart';
 import 'screens/pantry/my_pantry_screen.dart';
 import 'screens/price/price_comparison_screen.dart';
 import 'screens/shopping/shopping_summary_screen.dart';
@@ -71,7 +73,7 @@ void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 🔥 Firebase initialization
+  // 🔥 Firebase initialization - אסינכרוני משופר
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -163,10 +165,11 @@ void main() async {
 
             debugPrint('   📊 hasInitialized: ${previous.hasInitialized}');
 
-            // If user logged in - initialize and load products
+            // If user logged in - initialize and load products בצורה אסינכרונית
             if (userContext.isLoggedIn && !previous.hasInitialized) {
               debugPrint('   ✅ User logged in + not initialized → calling initializeAndLoad()');
-              previous.initializeAndLoad();
+              // ⚡ אופטימיזציה: טעינה אסינכרונית שלא חוסמת
+              Future.microtask(() => previous.initializeAndLoad());
             }
 
             return previous;
@@ -233,6 +236,19 @@ void main() async {
                       repository: FirebaseInventoryRepository(),  // 🔥 Firebase!
                     ))
                 ..updateUserContext(userContext);
+          },
+        ),
+
+        // === Product Location Memory === 📍
+        ChangeNotifierProxyProvider<UserContext, ProductLocationProvider>(
+          create: (context) {
+            debugPrint('📍 main.dart: Creating ProductLocationProvider');
+            return ProductLocationProvider();
+          },
+          update: (context, userContext, previous) {
+            debugPrint('🔄 main.dart: Updating ProductLocationProvider');
+            previous?.updateUserContext(userContext);
+            return previous ?? ProductLocationProvider();
           },
         ),
 
@@ -383,6 +399,7 @@ class _MyAppState extends State<MyApp> {
             '/habits': (context) => const MyHabitsScreen(),
             '/insights': (context) => const InsightsScreen(),
             '/receipts': (context) => const ReceiptManagerScreen(),
+            '/receipt-import': (context) => const ReceiptImportScreen(),
             '/pantry': (context) => const MyPantryScreen(),
             '/inventory': (context) => const MyPantryScreen(), // alias for pantry
             '/price-comparison': (context) => const PriceComparisonScreen(),

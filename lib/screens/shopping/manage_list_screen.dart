@@ -180,7 +180,12 @@ class _ManageListScreenState extends State<ManageListScreen>
                   );
 
                   try {
-                    await provider.addItemToList(widget.listId, newItem);
+                    await provider.addItemToList(
+                      widget.listId, 
+                      newItem.name ?? 'מוצר ללא שם', 
+                      newItem.quantity, 
+                      newItem.unit ?? "יח'"
+                    );
                     debugPrint('✅ פריט "$name" נוסף בהצלחה');
 
                     if (ctx.mounted) {

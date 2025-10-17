@@ -359,17 +359,27 @@ class ShoppingListsProvider with ChangeNotifier {
   }
 
   // === Add Item To List ===
-  Future<void> addItemToList(String listId, ReceiptItem item) async {
-    debugPrint('➕ addItemToList: מוסיף פריט "${item.name}" לרשימה $listId');
+  Future<void> addItemToList(String listId, String name, int quantity, String unit) async {
+    debugPrint('➕ addItemToList: מוסיף פריט "$name" לרשימה $listId');
     final list = getById(listId);
     if (list == null) {
       debugPrint('❌ addItemToList: רשימה $listId לא נמצאה');
       throw Exception('רשימה $listId לא נמצאה');
     }
 
+    // יצירת ReceiptItem חדש
+    final item = ReceiptItem(
+      id: _uuid.v4(),
+      name: name,
+      quantity: quantity,
+      unit: unit,
+      unitPrice: 0.0,
+      isChecked: false,
+    );
+    
     final updatedList = list.withItemAdded(item);
     await updateList(updatedList);
-    debugPrint('✅ addItemToList: פריט "${item.name}" נוסף');
+    debugPrint('✅ addItemToList: פריט "$name" נוסף');
   }
 
   // === Remove Item From List ===

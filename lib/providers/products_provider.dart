@@ -188,8 +188,14 @@ class ProductsProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      _products = await _repository.getAllProducts();
-      _categories = await _repository.getCategories();
+      // ⚡ אופטימיזציה: טוען קטגוריות ומוצרים במקביל
+      final results = await Future.wait([
+        _repository.getAllProducts(),
+        _repository.getCategories(),
+      ]);
+      
+      _products = results[0] as List<Map<String, dynamic>>;
+      _categories = results[1] as List<String>;
       _lastUpdated = DateTime.now();
       _errorMessage = null;
 

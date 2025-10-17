@@ -194,7 +194,12 @@ class _ShoppingListDetailsScreenState
                       );
 
                       if (item == null) {
-                        provider.addItemToList(widget.list.id, newItem);
+                        provider.addItemToList(
+                          widget.list.id,
+                          newItem.name ?? 'מוצר ללא שם',
+                          newItem.quantity,
+                          newItem.unit ?? "יח'"
+                        );
                         debugPrint('✅ ShoppingListDetailsScreen: הוסף מוצר "$name"');
                       } else if (index != null) {
                         provider.updateItemAt(
@@ -230,7 +235,12 @@ class _ShoppingListDetailsScreenState
           label: 'בטל',
           textColor: Colors.white,
           onPressed: () {
-            provider.addItemToList(widget.list.id, removed);
+            provider.addItemToList(
+              widget.list.id,
+              removed.name ?? 'מוצר ללא שם',
+              removed.quantity,
+              removed.unit ?? "יח'"
+            );
             debugPrint('↩️ ShoppingListDetailsScreen: שחזר מוצר "${removed.name}"');
           },
         ),

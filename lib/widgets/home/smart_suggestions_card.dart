@@ -75,7 +75,12 @@ class SmartSuggestionsCard extends StatelessWidget {
         quantity: suggestion.suggestedQuantity,
       );
 
-      await listsProvider.addItemToList(list.id, newItem);
+      await listsProvider.addItemToList(
+        list.id,
+        newItem.name ?? 'מוצר ללא שם',
+        newItem.quantity,
+        newItem.unit ?? "יח'"
+      );
       debugPrint('✅ SmartSuggestionsCard: הוסף "${suggestion.productName}" בהצלחה');
       
       if (context.mounted) {

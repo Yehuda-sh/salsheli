@@ -101,7 +101,12 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
     );
 
     try {
-      await provider.addItemToList(widget.list.id, newItem);
+      await provider.addItemToList(
+        widget.list.id, 
+        newItem.name ?? 'מוצר ללא שם', 
+        newItem.quantity, 
+        newItem.unit ?? "יח'"
+      );
       debugPrint('   ✅ נוסף בהצלחה');
 
       if (!mounted) return;
