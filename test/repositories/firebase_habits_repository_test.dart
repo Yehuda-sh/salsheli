@@ -6,8 +6,8 @@
 // Created: 17/10/2025
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:memozap/repositories/firebase_habits_repository.dart';
-import 'package:memozap/models/habit_preference.dart';
+import 'package:salsheli/repositories/firebase_habits_repository.dart';
+import 'package:salsheli/models/habit_preference.dart';
 
 void main() {
   group('FirebaseHabitsRepository', () {
@@ -170,27 +170,6 @@ void main() {
     });
 
     group('Business Logic', () {
-      test('Should handle null lastPurchased date', () {
-        // Arrange
-        final now = DateTime.now();
-        final habit = HabitPreference(
-          id: 'habit_123',
-          preferredProduct: 'חלב',
-          genericName: 'חלב',
-          frequencyDays: 7,
-          lastPurchased: now, // Changed from null since it's required
-          createdDate: now,
-          updatedDate: now,
-        );
-        
-        // Act - check if it's a new habit (purchased same day as created)
-        final isNewHabit = habit.lastPurchased == habit.createdDate;
-        
-        // Assert
-        expect(isNewHabit, true);
-        // New habit should probably be suggested for purchase
-      });
-
       test('Should handle various frequency patterns', () {
         // Arrange
         final now = DateTime.now();
@@ -231,15 +210,174 @@ void main() {
       });
     });
 
-    // Note: Integration tests with Firestore should be in a separate file
-    // and run against a test Firestore instance or emulator
-    
-    group('Interface Implementation', () {
-      test('Repository should implement HabitsRepository interface', () {
-        // This is a compile-time check
-        // If this compiles, it means the interface is properly implemented
-        expect(true, isTrue);
+    group('Smart Getters', () {
+      test('predictedNextPurchase should calculate correct date', () {
+        // Arrange
+        final lastPurchased = DateTime(2025, 1, 1);
+        final habit = HabitPreference(
+          id: 'habit_123',
+          preferredProduct: 'חלב',
+          genericName: 'חלב',
+          frequencyDays: 7,
+          lastPurchased: lastPurchased,
+          createdDate: DateTime(2024, 12, 1),
+          updatedDate: lastPurchased,
+        );
+        
+        // Act
+        final predicted = habit.predictedNextPurchase;
+        
+        // Assert
+        expect(predicted, DateTime(2025, 1, 8)); // 7 days later
+      });
+
+      test('daysUntilNextPurchase should calculate remaining days', () {
+        // Arrange - purchased 5 days ago, frequency is 7 days
+        final now = DateTime.now();
+        final habit = HabitPreference(
+          id: 'habit_123',
+          preferredProduct: 'חלב',
+          genericName: 'חלב',
+          frequencyDays: 7,
+          lastPurchased: now.subtract(const Duration(days: 5)),
+          createdDate: now.subtract(const Duration(days: 30)),
+          updatedDate: now.subtract(const Duration(days: 5)),
+        );
+        
+        // Act
+        final daysUntil = habit.daysUntilNextPurchase;
+        
+        // Assert - should be around 2 days (7 - 5 = 2)
+        expect(daysUntil, closeTo(2, 1)); // Allow 1 day tolerance for timing
+      });
+
+      test('daysUntilNextPurchase should be negative when overdue', () {
+        // Arrange - purchased 10 days ago, frequency is 7 days
+        final now = DateTime.now();
+        final habit = HabitPreference(
+          id: 'habit_123',
+          preferredProduct: 'חלב',
+          genericName: 'חלב',
+          frequencyDays: 7,
+          lastPurchased: now.subtract(const Duration(days: 10)),
+          createdDate: now.subtract(const Duration(days: 30)),
+          updatedDate: now.subtract(const Duration(days: 10)),
+        );
+        
+        // Act
+        final daysUntil = habit.daysUntilNextPurchase;
+        
+        // Assert - should be negative (overdue by ~3 days)
+        expect(daysUntil, lessThan(0));
+      });
+
+      test('isDueForPurchase should be true when overdue', () {
+        // Arrange - purchased 10 days ago, frequency is 7 days
+        final now = DateTime.now();
+        final habit = HabitPreference(
+          id: 'habit_123',
+          preferredProduct: 'חלב',
+          genericName: 'חלב',
+          frequencyDays: 7,
+          lastPurchased: now.subtract(const Duration(days: 10)),
+          createdDate: now.subtract(const Duration(days: 30)),
+          updatedDate: now.subtract(const Duration(days: 10)),
+        );
+        
+        // Act & Assert
+        expect(habit.isDueForPurchase, isTrue);
+      });
+
+      test('isDueForPurchase should be true when due tomorrow', () {
+        // Arrange - purchased 6 days ago, frequency is 7 days (due tomorrow)
+        final now = DateTime.now();
+        final habit = HabitPreference(
+          id: 'habit_123',
+          preferredProduct: 'חלב',
+          genericName: 'חלב',
+          frequencyDays: 7,
+          lastPurchased: now.subtract(const Duration(days: 6)),
+          createdDate: now.subtract(const Duration(days: 30)),
+          updatedDate: now.subtract(const Duration(days: 6)),
+        );
+        
+        // Act & Assert
+        expect(habit.isDueForPurchase, isTrue); // <= 1 day
+      });
+
+      test('isDueForPurchase should be false when still has time', () {
+        // Arrange - purchased 3 days ago, frequency is 7 days (4 days left)
+        final now = DateTime.now();
+        final habit = HabitPreference(
+          id: 'habit_123',
+          preferredProduct: 'חלב',
+          genericName: 'חלב',
+          frequencyDays: 7,
+          lastPurchased: now.subtract(const Duration(days: 3)),
+          createdDate: now.subtract(const Duration(days: 30)),
+          updatedDate: now.subtract(const Duration(days: 3)),
+        );
+        
+        // Act & Assert
+        expect(habit.isDueForPurchase, isFalse);
       });
     });
+
+    group('Edge Cases', () {
+      test('Should handle same-day purchase (new habit)', () {
+        // Arrange
+        final now = DateTime.now();
+        final habit = HabitPreference(
+          id: 'habit_123',
+          preferredProduct: 'חלב',
+          genericName: 'חלב',
+          frequencyDays: 7,
+          lastPurchased: now,
+          createdDate: now,
+          updatedDate: now,
+        );
+        
+        // Act
+        final isNewHabit = habit.lastPurchased == habit.createdDate;
+        
+        // Assert
+        expect(isNewHabit, isTrue);
+        expect(habit.isDueForPurchase, isFalse); // Just bought, not due yet
+      });
+
+      test('Should handle extreme frequencies', () {
+        // Arrange
+        final now = DateTime.now();
+        
+        // Very frequent (daily)
+        final dailyHabit = HabitPreference(
+          id: 'habit_1',
+          preferredProduct: 'לחם',
+          genericName: 'לחם',
+          frequencyDays: 1,
+          lastPurchased: now.subtract(const Duration(days: 1)),
+          createdDate: now.subtract(const Duration(days: 30)),
+          updatedDate: now.subtract(const Duration(days: 1)),
+        );
+        
+        // Very rare (quarterly)
+        final quarterlyHabit = HabitPreference(
+          id: 'habit_2',
+          preferredProduct: 'שמפו',
+          genericName: 'שמפו',
+          frequencyDays: 90,
+          lastPurchased: now.subtract(const Duration(days: 30)),
+          createdDate: now.subtract(const Duration(days: 120)),
+          updatedDate: now.subtract(const Duration(days: 30)),
+        );
+        
+        // Assert
+        expect(dailyHabit.isDueForPurchase, isTrue);  // 1 day passed
+        expect(quarterlyHabit.isDueForPurchase, isFalse);  // Only 30/90 days passed
+      });
+    });
+
+    // Note: Integration tests with Firestore should be in a separate file
+    // and run against a test Firestore instance or emulator
   });
 }
