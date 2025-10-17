@@ -224,6 +224,51 @@ class ReceiptProvider with ChangeNotifier {
     debugPrint('   🔔 ReceiptProvider: notifyListeners() (cleared all)');
   }
 
+  /// בודק אם קבלה עם אותו קישור כבר קיימת
+  /// 
+  /// מחזיר true אם נמצאה קבלה עם אותו originalUrl.
+  /// 
+  /// Example:
+  /// ```dart
+  /// final isDuplicate = await receiptProvider.checkDuplicateByUrl(url);
+  /// if (isDuplicate) {
+  ///   print('קבלה זו כבר קיימת!');
+  /// }
+  /// ```
+  Future<bool> checkDuplicateByUrl(String originalUrl) async {
+    debugPrint('🔍 ReceiptProvider.checkDuplicateByUrl: $originalUrl');
+    
+    final householdId = _userContext?.user?.householdId;
+    if (householdId == null) {
+      debugPrint('⚠️ householdId לא נמצא, מחזיר false');
+      return false;
+    }
+
+    try {
+      // בדיקה local קודם (מהיר)
+      final localMatch = _receipts.any((r) => r.originalUrl == originalUrl);
+      if (localMatch) {
+        debugPrint('✅ נמצאה התאמה local');
+        return true;
+      }
+
+      // אם לא נמצא local - בודק ב-Repository (לבטח)
+      final allReceipts = await _repository.fetchReceipts(householdId);
+      final remoteMatch = allReceipts.any((r) => r.originalUrl == originalUrl);
+      
+      if (remoteMatch) {
+        debugPrint('✅ נמצאה התאמה remote');
+      } else {
+        debugPrint('❌ לא נמצאה כפילות');
+      }
+      
+      return remoteMatch;
+    } catch (e) {
+      debugPrint('❌ ReceiptProvider.checkDuplicateByUrl: שגיאה - $e');
+      return false; // במקרה של שגיאה - ממשיכים
+    }
+  }
+
   /// יוצר קבלה חדשה ומוסיף לרשימה
   /// 
   /// Example:
@@ -232,12 +277,16 @@ class ReceiptProvider with ChangeNotifier {
   ///   storeName: 'שופרסל',
   ///   date: DateTime.now(),
   ///   items: [item1, item2],
+  ///   originalUrl: 'https://...',  // אופציונלי
+  ///   fileUrl: 'https://...',      // אופציונלי
   /// );
   /// ```
   Future<Receipt> createReceipt({
     required String storeName,
     required DateTime date,
     List<ReceiptItem> items = const [],
+    String? originalUrl,
+    String? fileUrl,
   }) async {
     debugPrint('➕ ReceiptProvider.createReceipt');
     debugPrint('   חנות: $storeName, תאריך: $date, פריטים: ${items.length}');
@@ -257,6 +306,8 @@ class ReceiptProvider with ChangeNotifier {
         date: date,
         items: items,
         totalAmount: totalAmount,
+        originalUrl: originalUrl,
+        fileUrl: fileUrl,
       );
 
       final saved = await _repository.saveReceipt(newReceipt, householdId);

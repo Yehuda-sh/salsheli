@@ -7,40 +7,46 @@ part of 'receipt.dart';
 // **************************************************************************
 
 Receipt _$ReceiptFromJson(Map<String, dynamic> json) => Receipt(
-      id: json['id'] as String? ?? '',
-      storeName: json['store_name'] as String? ?? 'חנות ללא שם',
-      date: const IsoDateTimeConverter().fromJson(json['date'] as String),
-      createdDate: const IsoDateTimeNullableConverter()
-          .fromJson(json['created_date'] as String?),
-      totalAmount: const FlexDoubleConverter().fromJson(json['total_amount']),
-      items: (json['items'] as List<dynamic>)
-          .map((e) => ReceiptItem.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
+  id: json['id'] as String? ?? '',
+  storeName: json['store_name'] as String? ?? 'חנות ללא שם',
+  date: const IsoDateTimeConverter().fromJson(json['date'] as String),
+  createdDate: const IsoDateTimeNullableConverter().fromJson(
+    json['created_date'] as String?,
+  ),
+  totalAmount: const FlexDoubleConverter().fromJson(json['total_amount']),
+  items: (json['items'] as List<dynamic>)
+      .map((e) => ReceiptItem.fromJson(e as Map<String, dynamic>))
+      .toList(),
+  originalUrl: json['original_url'] as String? ?? '',
+  fileUrl: json['file_url'] as String? ?? '',
+);
 
 Map<String, dynamic> _$ReceiptToJson(Receipt instance) => <String, dynamic>{
-      'id': instance.id,
-      'store_name': instance.storeName,
-      'date': const IsoDateTimeConverter().toJson(instance.date),
-      'created_date':
-          const IsoDateTimeNullableConverter().toJson(instance.createdDate),
-      'total_amount': const FlexDoubleConverter().toJson(instance.totalAmount),
-      'items': instance.items.map((e) => e.toJson()).toList(),
-    };
+  'id': instance.id,
+  'store_name': instance.storeName,
+  'date': const IsoDateTimeConverter().toJson(instance.date),
+  'created_date': const IsoDateTimeNullableConverter().toJson(
+    instance.createdDate,
+  ),
+  'total_amount': const FlexDoubleConverter().toJson(instance.totalAmount),
+  'items': instance.items.map((e) => e.toJson()).toList(),
+  'original_url': instance.originalUrl,
+  'file_url': instance.fileUrl,
+};
 
 ReceiptItem _$ReceiptItemFromJson(Map<String, dynamic> json) => ReceiptItem(
-      id: json['id'] as String? ?? '',
-      name: json['name'] as String? ?? '',
-      quantity: (json['quantity'] as num?)?.toInt() ?? 1,
-      unitPrice: json['unit_price'] == null
-          ? 0.0
-          : const FlexDoubleConverter().fromJson(json['unit_price']),
-      isChecked: json['is_checked'] as bool? ?? false,
-      barcode: json['barcode'] as String?,
-      manufacturer: json['manufacturer'] as String?,
-      category: json['category'] as String?,
-      unit: json['unit'] as String?,
-    );
+  id: json['id'] as String? ?? '',
+  name: json['name'] as String? ?? '',
+  quantity: (json['quantity'] as num?)?.toInt() ?? 1,
+  unitPrice: json['unit_price'] == null
+      ? 0.0
+      : const FlexDoubleConverter().fromJson(json['unit_price']),
+  isChecked: json['is_checked'] as bool? ?? false,
+  barcode: json['barcode'] as String?,
+  manufacturer: json['manufacturer'] as String?,
+  category: json['category'] as String?,
+  unit: json['unit'] as String?,
+);
 
 Map<String, dynamic> _$ReceiptItemToJson(ReceiptItem instance) =>
     <String, dynamic>{

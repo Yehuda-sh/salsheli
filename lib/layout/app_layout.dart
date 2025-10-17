@@ -446,7 +446,7 @@ final List<_NavItem> _navItems = [
   _NavItem(icon: Icons.home, label: AppStrings.navigation.home),
   _NavItem(icon: Icons.shopping_cart, label: AppStrings.navigation.lists),
   _NavItem(icon: Icons.inventory, label: AppStrings.navigation.pantry),
-  _NavItem(icon: Icons.bar_chart, label: AppStrings.navigation.insights),
+  _NavItem(icon: Icons.receipt_long, label: AppStrings.navigation.receipts),
   _NavItem(icon: Icons.settings, label: AppStrings.navigation.settings),
 ];
 

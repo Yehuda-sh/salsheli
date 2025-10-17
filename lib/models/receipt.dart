@@ -107,6 +107,14 @@ class Receipt {
   /// פריטים בקבלה
   final List<ReceiptItem> items;
 
+  /// קישור מקורי לקבלה (לזיהוי כפילויות)
+  @JsonKey(defaultValue: '')
+  final String? originalUrl;
+
+  /// קישור לקובץ ב-Firebase Storage
+  @JsonKey(defaultValue: '')
+  final String? fileUrl;
+
   const Receipt({
     required this.id,
     required this.storeName,
@@ -114,6 +122,8 @@ class Receipt {
     this.createdDate,
     required this.totalAmount,
     required this.items,
+    this.originalUrl,
+    this.fileUrl,
   });
 
   /// יצירת קבלה חדשה עם id אוטומטי
@@ -122,6 +132,8 @@ class Receipt {
     required DateTime date,
     double totalAmount = 0.0,
     List<ReceiptItem> items = const [],
+    String? originalUrl,
+    String? fileUrl,
   }) {
     return Receipt(
       id: const Uuid().v4(),
@@ -130,6 +142,8 @@ class Receipt {
       totalAmount: totalAmount,
       items: List.unmodifiable(items),
       createdDate: DateTime.now(),
+      originalUrl: originalUrl,
+      fileUrl: fileUrl,
     );
   }
 

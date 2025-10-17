@@ -55,8 +55,7 @@ import 'screens/shopping/active_shopping_screen.dart';
 import 'screens/shopping/shopping_list_details_screen.dart';
 import 'screens/lists/populate_list_screen.dart';
 import 'screens/lists/templates_screen.dart';  // 📋 Templates!
-import 'screens/receipts/receipt_manager_screen.dart';
-import 'screens/receipts/receipt_import_screen.dart';
+import 'screens/receipts/receipt_import_screen.dart';  // הקבלות שלי
 import 'screens/pantry/my_pantry_screen.dart';
 import 'screens/price/price_comparison_screen.dart';
 import 'screens/shopping/shopping_summary_screen.dart';
@@ -398,8 +397,7 @@ class _MyAppState extends State<MyApp> {
             '/register': (context) => const auth_register.RegisterScreen(),
             '/habits': (context) => const MyHabitsScreen(),
             '/insights': (context) => const InsightsScreen(),
-            '/receipts': (context) => const ReceiptManagerScreen(),
-            '/receipt-import': (context) => const ReceiptImportScreen(),
+            '/receipts': (context) => const ReceiptImportScreen(),  // הקבלות שלי
             '/pantry': (context) => const MyPantryScreen(),
             '/inventory': (context) => const MyPantryScreen(), // alias for pantry
             '/price-comparison': (context) => const PriceComparisonScreen(),

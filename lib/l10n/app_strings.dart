@@ -165,7 +165,7 @@ class _NavigationStrings {
   String get home => 'בית';
   String get lists => 'רשימות';
   String get pantry => 'מזווה';
-  String get insights => 'תובנות';
+  String get receipts => 'קבלות';
   String get settings => 'הגדרות';
 }
 

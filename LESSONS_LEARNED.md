@@ -1,8 +1,8 @@
-# 📚 LESSONS_LEARNED v5.0 - ״לקחים״ מהפרויקט
+# 📚 LESSONS_LEARNED v5.2 - ״לקחים״ מהפרויקט
 
 > **מטרה:** סיכום דפוסים טכניים וארכיטקטורליים.  
 > **עדכון אחרון:** 17/10/2025  
-> **גרסה:** 5.0 - Receipt Screens Refactor + 4 States Pattern
+> **גרסה:** 5.2 - POC/Demo Dead Code Pattern
 
 ---
 
@@ -408,6 +408,44 @@ debugPrint('❌ Error: $e');
 - 🗑️ Deleting
 - 🎉 Complete
 
+#### 6. שם Getter שגוי (Provider)
+**❌ הבעיה:**
+```dart
+// השגיאה: "The getter 'currentHouseholdId' isn't defined"
+final id = userContext.currentHouseholdId;  // שם שגוי!
+```
+
+**✅ איך למצוא את השם הנכון:**
+
+**שלב 1 - חפש את הקובץ:**
+```powershell
+Ctrl+Shift+F → "class UserContext"
+# → lib/providers/user_context.dart
+```
+
+**שלב 2 - קרא את הקובץ:**
+```dart
+// ב-user_context.dart
+String? get householdId => _user?.householdId;  // ✅ זה השם הנכון!
+```
+
+**שלב 3 - תקן:**
+```dart
+final id = userContext.householdId;  // ✅ עובד!
+```
+
+**טיפ מהיר:** בVSCode, לחץ `Ctrl+Space` אחרי `userContext.` - יציג רשימת getters!
+
+**דוגמאות נפוצות:**
+| ❌ שם שגוי | ✅ שם נכון |
+|-----------|----------|
+| `currentHouseholdId` | `householdId` |
+| `getCurrentUser` | `user` |
+| `getIsLoading` | `isLoading` |
+| `currentUserId` | `userId` |
+
+---
+
 ### Dead/Dormant Code
 | סוג | תיאור | מה לעשות |
 |-----|--------|----------|
@@ -415,6 +453,7 @@ debugPrint('❌ Error: $e');
 | 🟡 Dormant Code | 0 imports, אבל איכותי | **4 שאלות** → החלט |
 | 🟢 False Positive | Provider משתמש | **קרא מסך ידנית!** |
 | ⚠️ Import יחסי | 0 בimport מלא, אבל יש ביחסי | **נראה Dead אבל בשימוש!** |
+| 🔵 POC/Demo | TODO (Future), נתונים מזויפים | **מחק או העבר ל-unused/** |
 
 **5-Step Verification (עדכון 16/10/2025):** 
 1. חיפוש import מלא: `"import.*file_name.dart"`
@@ -432,6 +471,33 @@ debugPrint('❌ Error: $e');
 4. < 30 דקות ליישם?
 
 → **4/4** = הפעל! | **0-3/4** = מחק!
+
+#### דוגמה מהפרויקט: smart_price_tracker.dart ✅
+
+**המצב:**
+- 📄 קובץ מלא ומתוחכם (500+ שורות)
+- 🎯 תכונה מעניינת (השוואת מחירים)
+- ❌ אבל: 0 imports, 0 שימושים, אין route
+- 🔵 מסומן TODO (Future) + נתונים מזויפים
+
+**ההחלטה:**
+```dart
+// בדיקה:
+// 1. חיפוש: "smart_price_tracker" → רק הקובץ עצמו
+// 2. חיפוש: "SmartPriceTracker" → 0 תוצאות
+// 3. main.dart → אין route
+// 4. הקובץ: "TODO (Future)" + Random() data
+
+// תוצאה: Dead Code + POC = מחק!
+```
+
+**למה למחוק?**
+1. ✅ יש כבר `price_comparison_screen.dart` שעובד!
+2. ✅ הקוד מזויף (Random data)
+3. ✅ לא מחובר לאפליקציה
+4. ✅ אף אחד לא משתמש בו
+
+**הלקח:** קובצי POC/Demo טובים למחיקה אפילו אם הקוד איכותי!
 
 ### Race Condition
 - **signUp Race:** דגל `_isSigningUp` למניעת יצירה כפולה
@@ -533,4 +599,26 @@ Future<void> signUp(...) async {
 
 ---
 
-**Made with ❤️** | גרסה 5.0 | 17/10/2025
+## 📝 Changelog
+
+### v5.2 - 17/10/2025 (לילה)
+- ✅ **דוגמה מהפרויקט:** smart_price_tracker.dart - Dead Code
+- ✅ **סוג חדש:** POC/Demo - קבצים מתוכננים לעתיד
+- ✅ **הלקח:** מחק אפילו אם הקוד איכותי!
+- ✅ **4 סימנים:** 0 imports + TODO + Random data + אין route
+
+### v5.1 - 17/10/2025 (ערב)
+- ✅ **סעיף חדש:** Troubleshooting > שם Getter שגוי (Provider)
+- ✅ **דוגמאות:** `currentHouseholdId` → `householdId`
+- ✅ **3 שלבים:** איך למצוא את השם הנכון
+- ✅ **טיפ:** `Ctrl+Space` לרשימת getters
+
+### v5.0 - 17/10/2025
+- ✅ Receipt Screens Refactor
+- ✅ 4 Empty States Pattern
+- ✅ Skeleton Screen
+- ✅ Error Recovery Pattern
+
+---
+
+**Made with ❤️** | גרסה 5.2 | 17/10/2025

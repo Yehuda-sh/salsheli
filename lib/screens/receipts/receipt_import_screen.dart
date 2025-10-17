@@ -1,10 +1,14 @@
 // 📄 File: lib/screens/receipts/receipt_import_screen.dart
 //
-// 🎯 Purpose: מסך ייבוא קבלות למלאי - Receipt Import Screen
+// 🎯 Purpose: מסך ניהול קבלות - Receipt Management Screen
 //
 // 📋 Features:
-// ✅ רשימת קבלות זמינות לייבוא
-// ✅ בחירת קבלה והעברה למלאי
+// ✅ רשימת כל הקבלות
+// ✅ הוספת קבלה חדשה
+// ✅ צפייה בקבלה
+// ✅ ייבוא קבלות למלאי
+// ✅ מיון דינמי (4 אפשרויות)
+// ✅ סטטיסטיקה מלאה
 // ✅ 4 Empty States: Loading, Error, Empty, Data
 // ✅ Pull-to-Refresh
 // ✅ Skeleton Screen ל-Loading
@@ -14,22 +18,27 @@
 // 🔗 Dependencies:
 // - ReceiptProvider - ניהול קבלות
 // - ReceiptToInventoryDialog - דיאלוג העברה למלאי
+// - ReceiptViewScreen - תצוגת קבלה מפורטת
 //
 // 📊 Flow:
 // 1. טעינת קבלות מה-Provider
-// 2. הצגת רשימה עם סטטוס כל קבלה
-// 3. לחיצה על "למלאי" → פותח דיאלוג
-// 4. בחירת פריטים + מיקומים → העברה למלאי
+// 2. הצגת רשימה + סטטיסטיקה + מיון
+// 3. לחיצה על קבלה → ReceiptViewScreen
+// 4. לחיצה על "למלאי" → דיאלוג ייבוא
+// 5. FAB → יצירת קבלה חדשה
 //
-// Version: 2.0 - Full Refactor with 4 States
+// Version: 3.0 - Complete Receipt Manager
 // Last Updated: 17/10/2025
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../models/receipt.dart';
 import '../../providers/receipt_provider.dart';
 import '../../widgets/receipt_to_inventory_dialog.dart';
+import '../../widgets/add_receipt_dialog.dart';
 import '../../core/ui_constants.dart';
+import 'receipt_view_screen.dart';
 
 class ReceiptImportScreen extends StatefulWidget {
   const ReceiptImportScreen({super.key});
@@ -38,11 +47,21 @@ class ReceiptImportScreen extends StatefulWidget {
   State<ReceiptImportScreen> createState() => _ReceiptImportScreenState();
 }
 
+// 📊 סוג מיון
+enum SortType {
+  dateNewest,
+  dateOldest,
+  storeName,
+  totalAmount,
+}
+
 class _ReceiptImportScreenState extends State<ReceiptImportScreen> {
+  SortType _sortType = SortType.dateNewest;
+
   @override
   void initState() {
     super.initState();
-    debugPrint('📥 ReceiptImportScreen: initState');
+    debugPrint('🧾 ReceiptImportScreen: initState');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       debugPrint('🔄 ReceiptImportScreen: טוען קבלות ראשוניות...');
@@ -57,10 +76,70 @@ class _ReceiptImportScreenState extends State<ReceiptImportScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ייבוא קבלה למלאי'),
+        title: const Text('הקבלות שלי'),
         backgroundColor: cs.surfaceContainer,
+        actions: [
+          // כפתור מיון
+          PopupMenuButton<SortType>(
+            icon: const Icon(Icons.sort),
+            tooltip: 'מיון',
+            onSelected: (type) {
+              debugPrint('📊 ReceiptImportScreen: שינוי מיון ל-$type');
+              setState(() => _sortType = type);
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: SortType.dateNewest,
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_today, size: 18),
+                    SizedBox(width: 8),
+                    Text('חדש ← ישן'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: SortType.dateOldest,
+                child: Row(
+                  children: [
+                    Icon(Icons.history, size: 18),
+                    SizedBox(width: 8),
+                    Text('ישן ← חדש'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: SortType.storeName,
+                child: Row(
+                  children: [
+                    Icon(Icons.store, size: 18),
+                    SizedBox(width: 8),
+                    Text('שם חנות'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: SortType.totalAmount,
+                child: Row(
+                  children: [
+                    Icon(Icons.attach_money, size: 18),
+                    SizedBox(width: 8),
+                    Text('סכום (גבוה ← נמוך)'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: _buildBody(receiptProvider, cs),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _addReceipt(),
+        icon: const Icon(Icons.add),
+        label: const Text('קבלה חדשה'),
+        tooltip: 'הוסף קבלה',
+      ),
     );
   }
 
@@ -186,7 +265,7 @@ class _ReceiptImportScreenState extends State<ReceiptImportScreen> {
           ),
           const SizedBox(height: kSpacingMedium),
           Text(
-            'אין קבלות זמינות',
+            'אין קבלות עדיין',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
@@ -194,19 +273,16 @@ class _ReceiptImportScreenState extends State<ReceiptImportScreen> {
           ),
           const SizedBox(height: kSpacingSmall),
           Text(
-            'הוסף קבלות כדי לייבא אותן למלאי',
+            'התחל להוסיף קבלות כדי לעקוב אחר ההוצאות שלך!',
             textAlign: TextAlign.center,
             style: TextStyle(color: cs.onSurfaceVariant),
           ),
           const SizedBox(height: kSpacingXLarge),
           Center(
             child: FilledButton.icon(
-              onPressed: () {
-                debugPrint('➕ ReceiptImportScreen: ניווט להוספת קבלה');
-                Navigator.pushNamed(context, '/receipts');
-              },
+              onPressed: () => _addReceipt(),
               icon: const Icon(Icons.add),
-              label: const Text('עבור לקבלות'),
+              label: const Text('הוסף קבלה ראשונה'),
               style: FilledButton.styleFrom(
                 backgroundColor: Colors.orange,
                 padding: const EdgeInsets.symmetric(
@@ -223,60 +299,96 @@ class _ReceiptImportScreenState extends State<ReceiptImportScreen> {
 
   /// בונה רשימת קבלות.
   Widget _buildReceiptsList(List<Receipt> receipts, ColorScheme cs) {
+    // 📊 מיון הרשימה
+    final sortedReceipts = _sortReceipts(receipts);
+
     return RefreshIndicator(
       onRefresh: context.read<ReceiptProvider>().loadReceipts,
       child: ListView.builder(
         padding: const EdgeInsets.all(kSpacingMedium),
-        itemCount: receipts.length,
+        itemCount: sortedReceipts.length + 1, // +1 לכרטיס סטטיסטיקה
         itemBuilder: (context, index) {
-          final receipt = receipts[index];
+          // 📊 כרטיס סטטיסטיקה ראשון
+          if (index == 0) {
+            return _buildStatisticsCard(receipts, cs);
+          }
+
+          final receipt = sortedReceipts[index - 1];
+          final dateStr = DateFormat('dd/MM/yyyy').format(receipt.date);
+          
           return Card(
             color: cs.surfaceContainer,
             margin: const EdgeInsets.only(bottom: kSpacingMedium),
             child: ListTile(
-              leading: CircleAvatar(
-                backgroundColor: Colors.orange.withValues(alpha: 0.2),
+              leading: Container(
+                padding: const EdgeInsets.all(kSpacingSmall),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                ),
                 child: const Icon(
-                  Icons.receipt,
+                  Icons.receipt_long,
                   color: Colors.orange,
                 ),
               ),
               title: Text(
                 receipt.storeName,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: cs.onSurface,
-                ),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              subtitle: Text('$dateStr • ${receipt.items.length} פריטים'),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    '${receipt.date.day}/${receipt.date.month}/${receipt.date.year}',
-                    style: TextStyle(color: cs.onSurfaceVariant),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        '₪${receipt.totalAmount.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: kFontSizeBody,
+                          color: Colors.orange,
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    '${receipt.items.length} פריטים • ₪${receipt.totalAmount.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      color: cs.onSurfaceVariant,
-                      fontSize: kFontSizeSmall,
-                    ),
+                  const SizedBox(width: 8),
+                  PopupMenuButton<String>(
+                    icon: const Icon(Icons.more_vert),
+                    onSelected: (value) {
+                      if (value == 'view') {
+                        _viewReceipt(receipt);
+                      } else if (value == 'import') {
+                        _showImportDialog(receipt);
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 'view',
+                        child: Row(
+                          children: [
+                            Icon(Icons.visibility, size: 18),
+                            SizedBox(width: 8),
+                            Text('צפה'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'import',
+                        child: Row(
+                          children: [
+                            Icon(Icons.move_to_inbox, size: 18),
+                            SizedBox(width: 8),
+                            Text('ייבא למלאי'),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              trailing: ElevatedButton.icon(
-                onPressed: () => _showImportDialog(receipt),
-                icon: const Icon(Icons.move_to_inbox, size: 16),
-                label: const Text('למלאי'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: cs.primary,
-                  foregroundColor: cs.onPrimary,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                ),
-              ),
+              onTap: () => _viewReceipt(receipt),
             ),
           );
         },
@@ -310,6 +422,161 @@ class _ReceiptImportScreenState extends State<ReceiptImportScreen> {
     } else {
       debugPrint('❌ ReceiptImportScreen: ייבוא בוטל או נכשל');
     }
+  }
+
+  /// מציג את הקבלה במסך צפייה.
+  void _viewReceipt(Receipt receipt) {
+    debugPrint('👁️ ReceiptImportScreen: צפייה בקבלה "${receipt.storeName}"');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ReceiptViewScreen(receipt: receipt),
+      ),
+    );
+  }
+
+  /// פותח Dialog לבחירת שיטת הוספת קבלה.
+  /// 
+  /// 2 אופציות:
+  /// - 📷 צילום קבלה
+  /// - 📱 קישור מ-SMS
+  Future<void> _addReceipt() async {
+    debugPrint('➕ ReceiptImportScreen: פותח Dialog לבחירת שיטה...');
+    
+    await showDialog(
+      context: context,
+      builder: (_) => const AddReceiptDialog(),
+    );
+    
+    // רענון הרשימה אחרי שהמשתמש חוזר
+    if (mounted) {
+      debugPrint('🔄 ReceiptImportScreen: מרענן רשימת קבלות...');
+      context.read<ReceiptProvider>().loadReceipts();
+    }
+  }
+
+  /// ממיין רשימת קבלות לפי סוג המיון שנבחר.
+  List<Receipt> _sortReceipts(List<Receipt> receipts) {
+    final sorted = List<Receipt>.from(receipts);
+
+    switch (_sortType) {
+      case SortType.dateNewest:
+        sorted.sort((a, b) => b.date.compareTo(a.date));
+        break;
+      case SortType.dateOldest:
+        sorted.sort((a, b) => a.date.compareTo(b.date));
+        break;
+      case SortType.storeName:
+        sorted.sort((a, b) => a.storeName.compareTo(b.storeName));
+        break;
+      case SortType.totalAmount:
+        sorted.sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
+        break;
+    }
+
+    return sorted;
+  }
+
+  /// בונה כרטיס סטטיסטיקה.
+  Widget _buildStatisticsCard(List<Receipt> receipts, ColorScheme cs) {
+    final totalReceipts = receipts.length;
+    final totalItems = receipts.fold<int>(0, (sum, r) => sum + r.items.length);
+    final totalAmount = receipts.fold<double>(0, (sum, r) => sum + r.totalAmount);
+
+    return Card(
+      color: cs.primaryContainer,
+      margin: const EdgeInsets.only(bottom: kSpacingMedium),
+      child: Padding(
+        padding: const EdgeInsets.all(kSpacingMedium),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.analytics,
+                  color: cs.onPrimaryContainer,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'סטטיסטיקה',
+                  style: TextStyle(
+                    fontSize: kFontSizeMedium,
+                    fontWeight: FontWeight.bold,
+                    color: cs.onPrimaryContainer,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: kSpacingMedium),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _StatisticItem(
+                  icon: Icons.receipt_long,
+                  label: 'קבלות',
+                  value: totalReceipts.toString(),
+                  color: cs.onPrimaryContainer,
+                ),
+                _StatisticItem(
+                  icon: Icons.shopping_bag,
+                  label: 'פריטים',
+                  value: totalItems.toString(),
+                  color: cs.onPrimaryContainer,
+                ),
+                _StatisticItem(
+                  icon: Icons.attach_money,
+                  label: 'סה"כ',
+                  value: '₪${totalAmount.toStringAsFixed(0)}',
+                  color: cs.onPrimaryContainer,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// 📊 Widget עזר - פריט סטטיסטיקה
+class _StatisticItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+
+  const _StatisticItem({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Icon(icon, color: color, size: 32),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: kFontSizeLarge,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: kFontSizeSmall,
+            color: color.withValues(alpha: 0.8),
+          ),
+        ),
+      ],
+    );
   }
 }
 

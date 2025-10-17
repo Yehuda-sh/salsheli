@@ -7,26 +7,28 @@ part of 'user_entity.dart';
 // **************************************************************************
 
 UserEntity _$UserEntityFromJson(Map<String, dynamic> json) => UserEntity(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      email: json['email'] as String,
-      householdId: json['household_id'] as String,
-      joinedAt: DateTime.parse(json['joined_at'] as String),
-      lastLoginAt: json['last_login_at'] == null
-          ? null
-          : DateTime.parse(json['last_login_at'] as String),
-      profileImageUrl: json['profile_image_url'] as String?,
-      preferredStores: (json['preferred_stores'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          const [],
-      favoriteProducts: (json['favorite_products'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          const [],
-      weeklyBudget: (json['weekly_budget'] as num?)?.toDouble() ?? 0.0,
-      isAdmin: json['is_admin'] as bool? ?? false,
-    );
+  id: json['id'] as String,
+  name: json['name'] as String,
+  email: json['email'] as String,
+  householdId: json['household_id'] as String,
+  joinedAt: DateTime.parse(json['joined_at'] as String),
+  lastLoginAt: json['last_login_at'] == null
+      ? null
+      : DateTime.parse(json['last_login_at'] as String),
+  profileImageUrl: json['profile_image_url'] as String?,
+  preferredStores:
+      (json['preferred_stores'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
+  favoriteProducts:
+      (json['favorite_products'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
+  weeklyBudget: (json['weekly_budget'] as num?)?.toDouble() ?? 0.0,
+  isAdmin: json['is_admin'] as bool? ?? false,
+);
 
 Map<String, dynamic> _$UserEntityToJson(UserEntity instance) =>
     <String, dynamic>{
