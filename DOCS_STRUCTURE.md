@@ -22,6 +22,14 @@
 - **`STICKY_NOTES_DESIGN.md`** - מערכת העיצוב הייחודית (10 דק')
 - **`LESSONS_LEARNED.md`** - דפוסים טכניים וארכיטקטורה (10 דק')
 
+### ⚡ ביצועים ואופטימיזציה
+- **`PERFORMANCE_TEST.md`** - מדריך שיפורי ביצועים (5 דק')
+  - Debouncing pattern - מניעת קריאות מרובות
+  - Isolate - חישובים כבדים ברקע
+  - Batch Processing - טעינה מדורגת
+  - Performance benchmarks - מדדים ומדידות
+  - דוגמאות טסט מהירות
+
 ### 🔒 אבטחה ובדיקות
 - **`SECURITY_GUIDE.md`** - Auth + Firestore Rules (10 דק')
 - **`TESTING_GUIDE.md`** - Unit + Widget + Integration tests (10 דק')
@@ -87,6 +95,11 @@
 3. `TESTING_GUIDE.md`
 4. `SECURITY_GUIDE.md`
 
+### לשיפור ביצועים:
+1. `PERFORMANCE_TEST.md` - דפוסים וטסטים
+2. `LESSONS_LEARNED.md` - עקרונות ארכיטקטורה
+3. `BEST_PRACTICES.md` - דוגמאות קוד
+
 ---
 
-**עודכן:** 18/10/2025 (02:30) | **מעודכן ע"י:** AI Assistant | **שינוי:** הוספת GETTING_STARTED.md - מדריך התחלה מהירה
+**עודכן:** 18/10/2025 (21:45) | **מעודכן ע"י:** AI Assistant | **שינוי:** הוספת PERFORMANCE_TEST.md למדריכי ביצועים
