@@ -42,8 +42,6 @@
 // Last Updated: 07/10/2025
 //
 
-import 'dart:math';
-
 import 'package:flutter/foundation.dart';
 import '../models/receipt.dart';
 import '../repositories/receipt_repository.dart';

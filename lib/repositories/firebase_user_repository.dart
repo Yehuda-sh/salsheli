@@ -49,10 +49,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../models/user_entity.dart';
 import 'user_repository.dart';
+import 'utils/firestore_utils.dart';
+import 'constants/repository_constants.dart';
 
 class FirebaseUserRepository implements UserRepository {
   final FirebaseFirestore _firestore;
-  final String _collectionName = 'users';
 
   FirebaseUserRepository({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
@@ -64,7 +65,7 @@ class FirebaseUserRepository implements UserRepository {
     try {
       debugPrint('📥 FirebaseUserRepository.fetchUser: טוען משתמש $userId');
 
-      final doc = await _firestore.collection(_collectionName).doc(userId).get();
+      final doc = await _firestore.collection(FirestoreCollections.users).doc(userId).get();
 
       if (!doc.exists) {
         debugPrint('⚠️ FirebaseUserRepository.fetchUser: משתמש לא נמצא');
@@ -72,14 +73,9 @@ class FirebaseUserRepository implements UserRepository {
       }
 
       // המרת Timestamps ל-Strings לפני fromJson
-      final data = Map<String, dynamic>.from(doc.data()!);
-      
-      if (data['joined_at'] is Timestamp) {
-        data['joined_at'] = (data['joined_at'] as Timestamp).toDate().toIso8601String();
-      }
-      if (data['last_login_at'] is Timestamp) {
-        data['last_login_at'] = (data['last_login_at'] as Timestamp).toDate().toIso8601String();
-      }
+      final data = FirestoreUtils.convertTimestamps(
+        Map<String, dynamic>.from(doc.data()!),
+      );
 
       final user = UserEntity.fromJson(data);
       debugPrint('✅ FirebaseUserRepository.fetchUser: משתמש נטען - ${user.email}');
@@ -103,7 +99,7 @@ class FirebaseUserRepository implements UserRepository {
       final updatedUser = user.copyWith(lastLoginAt: DateTime.now());
 
       await _firestore
-          .collection(_collectionName)
+          .collection(FirestoreCollections.users)
           .doc(user.id)
           .set(
             updatedUser.toJson(),
@@ -126,7 +122,7 @@ class FirebaseUserRepository implements UserRepository {
     try {
       debugPrint('🗑️ FirebaseUserRepository.deleteUser: מוחק משתמש $userId');
 
-      await _firestore.collection(_collectionName).doc(userId).delete();
+      await _firestore.collection(FirestoreCollections.users).doc(userId).delete();
 
       debugPrint('✅ FirebaseUserRepository.deleteUser: משתמש נמחק');
     } catch (e, stackTrace) {
@@ -141,7 +137,7 @@ class FirebaseUserRepository implements UserRepository {
   @override
   Future<bool> existsUser(String userId) async {
     try {
-      final doc = await _firestore.collection(_collectionName).doc(userId).get();
+      final doc = await _firestore.collection(FirestoreCollections.users).doc(userId).get();
       return doc.exists;
     } catch (e) {
       debugPrint('❌ FirebaseUserRepository.existsUser: שגיאה - $e');
@@ -156,19 +152,13 @@ class FirebaseUserRepository implements UserRepository {
     try {
       debugPrint('📋 FirebaseUserRepository.getAllUsers: טוען כל המשתמשים');
 
-      final snapshot = await _firestore.collection(_collectionName).get();
+      final snapshot = await _firestore.collection(FirestoreCollections.users).get();
 
       final users = snapshot.docs.map((doc) {
         // המרת Timestamps ל-Strings
-        final data = Map<String, dynamic>.from(doc.data());
-        
-        if (data['joined_at'] is Timestamp) {
-          data['joined_at'] = (data['joined_at'] as Timestamp).toDate().toIso8601String();
-        }
-        if (data['last_login_at'] is Timestamp) {
-          data['last_login_at'] = (data['last_login_at'] as Timestamp).toDate().toIso8601String();
-        }
-        
+        final data = FirestoreUtils.convertTimestamps(
+          Map<String, dynamic>.from(doc.data()),
+        );
         return UserEntity.fromJson(data);
       }).toList();
 
@@ -195,8 +185,8 @@ class FirebaseUserRepository implements UserRepository {
       final normalizedEmail = email.toLowerCase().trim();
 
       final snapshot = await _firestore
-          .collection(_collectionName)
-          .where('email', isEqualTo: normalizedEmail)
+          .collection(FirestoreCollections.users)
+          .where(FirestoreFields.email, isEqualTo: normalizedEmail)
           .limit(1)
           .get();
 
@@ -206,14 +196,9 @@ class FirebaseUserRepository implements UserRepository {
       }
 
       // המרת Timestamps ל-Strings
-      final data = Map<String, dynamic>.from(snapshot.docs.first.data());
-      
-      if (data['joined_at'] is Timestamp) {
-        data['joined_at'] = (data['joined_at'] as Timestamp).toDate().toIso8601String();
-      }
-      if (data['last_login_at'] is Timestamp) {
-        data['last_login_at'] = (data['last_login_at'] as Timestamp).toDate().toIso8601String();
-      }
+      final data = FirestoreUtils.convertTimestamps(
+        Map<String, dynamic>.from(snapshot.docs.first.data()),
+      );
 
       final user = UserEntity.fromJson(data);
       debugPrint('✅ FirebaseUserRepository.findByEmail: משתמש נמצא - ${user.id}');
@@ -233,8 +218,8 @@ class FirebaseUserRepository implements UserRepository {
     try {
       debugPrint('⏰ FirebaseUserRepository.updateLastLogin: מעדכן זמן התחברות ל-$userId');
 
-      await _firestore.collection(_collectionName).doc(userId).update({
-        'lastLoginAt': Timestamp.now(),
+      await _firestore.collection(FirestoreCollections.users).doc(userId).update({
+        FirestoreFields.lastLoginAt: Timestamp.now(),
       });
 
       debugPrint('✅ FirebaseUserRepository.updateLastLogin: זמן עודכן');
@@ -251,7 +236,7 @@ class FirebaseUserRepository implements UserRepository {
     try {
       debugPrint('🧹 FirebaseUserRepository.clearAll: מנקה את כל המשתמשים');
 
-      final snapshot = await _firestore.collection(_collectionName).get();
+      final snapshot = await _firestore.collection(FirestoreCollections.users).get();
 
       final batch = _firestore.batch();
       for (final doc in snapshot.docs) {
@@ -404,7 +389,7 @@ class FirebaseUserRepository implements UserRepository {
       }
 
       await _firestore
-          .collection(_collectionName)
+          .collection(FirestoreCollections.users)
           .doc(userId)
           .update(updates);
 
@@ -476,21 +461,16 @@ class FirebaseUserRepository implements UserRepository {
   /// - [saveUser] - עדכון המשתמש
   Stream<UserEntity?> watchUser(String userId) {
     return _firestore
-        .collection(_collectionName)
+        .collection(FirestoreCollections.users)
         .doc(userId)
         .snapshots()
         .map((snapshot) {
       if (!snapshot.exists) return null;
       
       // המרת Timestamps ל-Strings
-      final data = Map<String, dynamic>.from(snapshot.data()!);
-      
-      if (data['joined_at'] is Timestamp) {
-        data['joined_at'] = (data['joined_at'] as Timestamp).toDate().toIso8601String();
-      }
-      if (data['last_login_at'] is Timestamp) {
-        data['last_login_at'] = (data['last_login_at'] as Timestamp).toDate().toIso8601String();
-      }
+      final data = FirestoreUtils.convertTimestamps(
+        Map<String, dynamic>.from(snapshot.data()!),
+      );
       
       return UserEntity.fromJson(data);
     });

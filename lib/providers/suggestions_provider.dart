@@ -48,7 +48,6 @@ import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/suggestion.dart';
-import '../models/inventory_item.dart';
 import 'inventory_provider.dart';
 import 'shopping_lists_provider.dart';
 

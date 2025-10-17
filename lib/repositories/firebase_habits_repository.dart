@@ -29,8 +29,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../models/habit_preference.dart';
+import 'habits_repository.dart';
 
-class FirebaseHabitsRepository {
+class FirebaseHabitsRepository implements HabitsRepository {
   final FirebaseFirestore _firestore;
   static const String _collectionName = 'habit_preferences';
 
@@ -56,29 +57,7 @@ class FirebaseHabitsRepository {
   CollectionReference get _collection =>
       _firestore.collection(_collectionName);
 
-  /// טוען את כל הרגלי הקנייה של משק בית
-  /// 
-  /// מבצע query ב-Firestore עם household_id וממיין לפי תאריך קנייה אחרון (מהחדש לישן).
-  /// השימוש הוא דרך HabitsProvider שמנהל את ההרגלים.
-  /// 
-  /// Parameters:
-  ///   - [householdId]: מזהה המשק בית (למשל: 'house_demo')
-  /// 
-  /// Returns:
-  ///   - List של HabitPreference ממוין לפי last_purchased (יורד)
-  /// 
-  /// Throws:
-  ///   - [HabitsRepositoryException] במקרה של שגיאת Firestore
-  /// 
-  /// Example:
-  /// ```dart
-  /// try {
-  ///   final habits = await repo.fetchHabits('house_demo');
-  ///   print('נטענו ${habits.length} הרגלים');
-  /// } catch (e) {
-  ///   print('שגיאה בטעינת הרגלים: $e');
-  /// }
-  /// ```
+  @override
   Future<List<HabitPreference>> fetchHabits(String householdId) async {
     debugPrint('🔥 FirebaseHabitsRepo.fetchHabits: household=$householdId');
 
@@ -105,32 +84,7 @@ class FirebaseHabitsRepository {
     }
   }
 
-  /// יוצר הרגל קנייה חדש
-  /// 
-  /// מוסיף timestamps אוטומטית (createdDate, updatedDate) ו-household_id.
-  /// מחזיר את ההרגל עם ה-ID שנוצר ב-Firestore.
-  /// 
-  /// Parameters:
-  ///   - [habit]: ההרגל ליצירה (ללא ID)
-  ///   - [householdId]: מזהה המשק בית שההרגל שייך אליו
-  /// 
-  /// Returns:
-  ///   - HabitPreference עם ID, createdDate, updatedDate
-  /// 
-  /// Throws:
-  ///   - [HabitsRepositoryException] במקרה של שגיאת שמירה
-  /// 
-  /// Example:
-  /// ```dart
-  /// final habit = HabitPreference(
-  ///   preferredProduct: 'חלב תנובה 3%',
-  ///   genericName: 'חלב',
-  ///   frequencyDays: 7,
-  /// );
-  /// 
-  /// final created = await repo.createHabit(habit, 'house_demo');
-  /// print('נוצר הרגל: ${created.id}');
-  /// ```
+  @override
   Future<HabitPreference> createHabit(
     HabitPreference habit,
     String householdId,
@@ -164,23 +118,7 @@ class FirebaseHabitsRepository {
     }
   }
 
-  /// מעדכן הרגל קנייה קיים
-  /// 
-  /// מעדכן את updatedDate אוטומטית ומוודא שהשדה household_id נשמר.
-  /// 
-  /// Parameters:
-  ///   - [habit]: ההרגל המעודכן (חייב לכלול ID)
-  ///   - [householdId]: מזהה המשק בית (לאימות)
-  /// 
-  /// Throws:
-  ///   - [HabitsRepositoryException] במקרה של שגיאת עדכון
-  /// 
-  /// Example:
-  /// ```dart
-  /// final updated = habit.copyWith(frequencyDays: 10);
-  /// await repo.updateHabit(updated, 'house_demo');
-  /// print('הרגל עודכן');
-  /// ```
+  @override
   Future<void> updateHabit(
     HabitPreference habit,
     String householdId,
@@ -204,27 +142,7 @@ class FirebaseHabitsRepository {
     }
   }
 
-  /// מוחק הרגל קנייה
-  /// 
-  /// 🔒 בדיקת אבטחה: מוודא שההרגל שייך ל-household לפני מחיקה.
-  /// אם ההרגל לא קיים או לא שייך ל-household, לא מבצע מחיקה.
-  /// 
-  /// Parameters:
-  ///   - [habitId]: מזהה ההרגל למחיקה
-  ///   - [householdId]: מזהה המשק בית (לאימות בעלות)
-  /// 
-  /// Throws:
-  ///   - [HabitsRepositoryException] אם ההרגל לא שייך ל-household או שגיאה במחיקה
-  /// 
-  /// Example:
-  /// ```dart
-  /// try {
-  ///   await repo.deleteHabit('habit_123', 'house_demo');
-  ///   print('הרגל נמחק בהצלחה');
-  /// } catch (e) {
-  ///   print('שגיאה במחיקה: $e');
-  /// }
-  /// ```
+  @override
   Future<void> deleteHabit(String habitId, String householdId) async {
     debugPrint('🔥 FirebaseHabitsRepo.deleteHabit: $habitId');
 
@@ -252,24 +170,7 @@ class FirebaseHabitsRepository {
     }
   }
 
-  /// ספירת כמות ההרגלים של משק בית
-  /// 
-  /// שימושי לסטטיסטיקות ו-dashboard.
-  /// 
-  /// Parameters:
-  ///   - [householdId]: מזהה המשק בית
-  /// 
-  /// Returns:
-  ///   - מספר ההרגלים (0 אם אין)
-  /// 
-  /// Throws:
-  ///   - [HabitsRepositoryException] במקרה של שגיאה
-  /// 
-  /// Example:
-  /// ```dart
-  /// final count = await repo.countHabits('house_demo');
-  /// print('יש $count הרגלי קנייה');
-  /// ```
+  @override
   Future<int> countHabits(String householdId) async {
     debugPrint('🔥 FirebaseHabitsRepo.countHabits: household=$householdId');
 
@@ -289,27 +190,7 @@ class FirebaseHabitsRepository {
     }
   }
 
-  /// חיפוש הרגל לפי שם המוצר המועדף
-  /// 
-  /// מחזיר את ההרגל הראשון שמתאים (limit 1).
-  /// 
-  /// Parameters:
-  ///   - [productName]: שם המוצר המדויק (case-sensitive)
-  ///   - [householdId]: מזהה המשק בית
-  /// 
-  /// Returns:
-  ///   - HabitPreference אם נמצא, null אם לא
-  /// 
-  /// Throws:
-  ///   - [HabitsRepositoryException] במקרה של שגיאה
-  /// 
-  /// Example:
-  /// ```dart
-  /// final habit = await repo.findByProduct('חלב תנובה 3%', 'house_demo');
-  /// if (habit != null) {
-  ///   print('נמצא הרגל: קונים כל ${habit.frequencyDays} ימים');
-  /// }
-  /// ```
+  @override
   Future<HabitPreference?> findByProduct(
     String productName,
     String householdId,

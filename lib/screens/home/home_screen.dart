@@ -105,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final messenger = ScaffoldMessenger.of(context);
       
       messenger.showSnackBar(
-          SnackBar(
+        SnackBar(
             content: Text(
               AppStrings.home.doubleTapToExit,
               textAlign: TextAlign.center,

@@ -490,7 +490,7 @@ class _SmartPriceTrackerState extends State<SmartPriceTracker> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: _searchResults.length,
-              separatorBuilder: (_, __) => const SizedBox(height: kSpacingSmall),
+              separatorBuilder: (_, index) => const SizedBox(height: kSpacingSmall),
               itemBuilder: (_, i) {
                 final result = _searchResults[i];
                 final isBest = best != null &&

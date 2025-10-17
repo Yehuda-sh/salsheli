@@ -18,10 +18,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../models/inventory_item.dart';
 import 'inventory_repository.dart';
+import 'constants/repository_constants.dart';
+import 'utils/firestore_utils.dart';
 
 class FirebaseInventoryRepository implements InventoryRepository {
   final FirebaseFirestore _firestore;
-  static const String _collectionName = 'inventory';
 
   /// יוצר instance חדש של FirebaseInventoryRepository
   /// 
@@ -72,9 +73,9 @@ class FirebaseInventoryRepository implements InventoryRepository {
       debugPrint('📥 FirebaseInventoryRepository.fetchItems: טוען מלאי ל-$householdId');
 
       final snapshot = await _firestore
-          .collection(_collectionName)
-          .where('household_id', isEqualTo: householdId)
-          .orderBy('product_name')
+          .collection(FirestoreCollections.inventory)
+          .where(FirestoreFields.householdId, isEqualTo: householdId)
+          .orderBy(FirestoreFields.productName)
           .get();
 
       // מעבד כל מסמך בנפרד כדי לדלג על פריטים פגומים
@@ -140,11 +141,13 @@ class FirebaseInventoryRepository implements InventoryRepository {
       debugPrint('💾 FirebaseInventoryRepository.saveItem: שומר פריט ${item.id}');
 
       // הוספת household_id לנתונים
-      final data = item.toJson();
-      data['household_id'] = householdId;
+      final data = FirestoreUtils.addHouseholdId(
+        item.toJson(),
+        householdId,
+      );
 
       await _firestore
-          .collection(_collectionName)
+          .collection(FirestoreCollections.inventory)
           .doc(item.id)
           .set(data, SetOptions(merge: true));
 
@@ -186,7 +189,7 @@ class FirebaseInventoryRepository implements InventoryRepository {
       debugPrint('🗑️ FirebaseInventoryRepository.deleteItem: מוחק פריט $id');
 
       // וידוא שהפריט שייך ל-household
-      final doc = await _firestore.collection(_collectionName).doc(id).get();
+      final doc = await _firestore.collection(FirestoreCollections.inventory).doc(id).get();
       
       if (!doc.exists) {
         debugPrint('⚠️ פריט לא קיים');
@@ -194,12 +197,12 @@ class FirebaseInventoryRepository implements InventoryRepository {
       }
 
       final data = doc.data();
-      if (data?['household_id'] != householdId) {
+      if (data?[FirestoreFields.householdId] != householdId) {
         debugPrint('⚠️ פריט לא שייך ל-household זה');
         throw InventoryRepositoryException('Item does not belong to household', null);
       }
 
-      await _firestore.collection(_collectionName).doc(id).delete();
+      await _firestore.collection(FirestoreCollections.inventory).doc(id).delete();
 
       debugPrint('✅ FirebaseInventoryRepository.deleteItem: פריט נמחק');
     } catch (e, stackTrace) {
@@ -221,9 +224,9 @@ class FirebaseInventoryRepository implements InventoryRepository {
   /// ```
   Stream<List<InventoryItem>> watchInventory(String householdId) {
     return _firestore
-        .collection(_collectionName)
-        .where('household_id', isEqualTo: householdId)
-        .orderBy('product_name')
+        .collection(FirestoreCollections.inventory)
+        .where(FirestoreFields.householdId, isEqualTo: householdId)
+        .orderBy(FirestoreFields.productName)
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
@@ -243,7 +246,7 @@ class FirebaseInventoryRepository implements InventoryRepository {
     try {
       debugPrint('🔍 FirebaseInventoryRepository.getItemById: מחפש פריט $itemId');
 
-      final doc = await _firestore.collection(_collectionName).doc(itemId).get();
+      final doc = await _firestore.collection(FirestoreCollections.inventory).doc(itemId).get();
 
       if (!doc.exists) {
         debugPrint('⚠️ פריט לא נמצא');
@@ -253,7 +256,7 @@ class FirebaseInventoryRepository implements InventoryRepository {
       final data = Map<String, dynamic>.from(doc.data()!);
       
       // בדיקה שהפריט שייך ל-household
-      if (data['household_id'] != householdId) {
+      if (data[FirestoreFields.householdId] != householdId) {
         debugPrint('⚠️ פריט לא שייך ל-household זה');
         return null;
       }
@@ -280,10 +283,10 @@ class FirebaseInventoryRepository implements InventoryRepository {
       debugPrint('📍 FirebaseInventoryRepository.getItemsByLocation: מחפש פריטים ב-$location');
 
       final snapshot = await _firestore
-          .collection(_collectionName)
-          .where('household_id', isEqualTo: householdId)
-          .where('location', isEqualTo: location)
-          .orderBy('product_name')
+          .collection(FirestoreCollections.inventory)
+          .where(FirestoreFields.householdId, isEqualTo: householdId)
+          .where(FirestoreFields.location, isEqualTo: location)
+          .orderBy(FirestoreFields.productName)
           .get();
 
       final items = snapshot.docs.map((doc) {
@@ -311,10 +314,10 @@ class FirebaseInventoryRepository implements InventoryRepository {
       debugPrint('🏷️ FirebaseInventoryRepository.getItemsByCategory: מחפש פריטים בקטגוריה $category');
 
       final snapshot = await _firestore
-          .collection(_collectionName)
-          .where('household_id', isEqualTo: householdId)
-          .where('category', isEqualTo: category)
-          .orderBy('product_name')
+          .collection(FirestoreCollections.inventory)
+          .where(FirestoreFields.householdId, isEqualTo: householdId)
+          .where(FirestoreFields.category, isEqualTo: category)
+          .orderBy(FirestoreFields.productName)
           .get();
 
       final items = snapshot.docs.map((doc) {
@@ -348,10 +351,10 @@ class FirebaseInventoryRepository implements InventoryRepository {
       debugPrint('⚠️ FirebaseInventoryRepository.getLowStockItems: מחפש פריטים עם כמות <= $threshold');
 
       final snapshot = await _firestore
-          .collection(_collectionName)
-          .where('household_id', isEqualTo: householdId)
-          .where('quantity', isLessThanOrEqualTo: threshold)
-          .orderBy('quantity')
+          .collection(FirestoreCollections.inventory)
+          .where(FirestoreFields.householdId, isEqualTo: householdId)
+          .where(FirestoreFields.quantity, isLessThanOrEqualTo: threshold)
+          .orderBy(FirestoreFields.quantity)
           .get();
 
       final items = snapshot.docs.map((doc) {
@@ -387,7 +390,7 @@ class FirebaseInventoryRepository implements InventoryRepository {
       debugPrint('🔢 FirebaseInventoryRepository.updateQuantity: מעדכן כמות ל-$newQuantity');
 
       // וידוא שהפריט שייך ל-household
-      final doc = await _firestore.collection(_collectionName).doc(itemId).get();
+      final doc = await _firestore.collection(FirestoreCollections.inventory).doc(itemId).get();
       
       if (!doc.exists) {
         debugPrint('⚠️ פריט לא קיים');
@@ -395,15 +398,15 @@ class FirebaseInventoryRepository implements InventoryRepository {
       }
 
       final data = doc.data();
-      if (data?['household_id'] != householdId) {
+      if (data?[FirestoreFields.householdId] != householdId) {
         debugPrint('⚠️ פריט לא שייך ל-household זה');
         throw InventoryRepositoryException('Item does not belong to household', null);
       }
 
       await _firestore
-          .collection(_collectionName)
+          .collection(FirestoreCollections.inventory)
           .doc(itemId)
-          .update({'quantity': newQuantity});
+          .update({FirestoreFields.quantity: newQuantity});
 
       debugPrint('✅ FirebaseInventoryRepository.updateQuantity: כמות עודכנה');
     } catch (e, stackTrace) {

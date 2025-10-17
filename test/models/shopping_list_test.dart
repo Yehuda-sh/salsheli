@@ -426,14 +426,16 @@ void main() {
       });
 
       test('shares list with household members', () {
-        final householdMembers = ['user-1', 'user-2', 'user-3'];
+        // רשימת חברי בית
+        final creator = 'user-1';
+        final otherMembers = ['user-2', 'user-3'];
         
         final sharedList = ShoppingList.newList(
           id: 'shared-001',
           name: 'רשימת בית משותפת',
-          createdBy: 'user-1',
+          createdBy: creator,
           isShared: true,
-          sharedWith: ['user-2', 'user-3'],
+          sharedWith: otherMembers,
         );
 
         expect(sharedList.isShared, true);

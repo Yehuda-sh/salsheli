@@ -265,7 +265,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
           expand: false,
           builder: (_, scrollController) {
             return Consumer<TemplatesProvider>(
-              builder: (_, provider, __) {
+              builder: (_, provider, child) {
                 return Column(
                   children: [
                     // Header

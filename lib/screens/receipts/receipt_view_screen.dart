@@ -180,7 +180,7 @@ class ReceiptViewScreen extends StatelessWidget {
                         vertical: kSpacingSmall,
                       ),
                       itemCount: receipt.items.length,
-                      separatorBuilder: (_, __) => Divider(
+                      separatorBuilder: (_, index) => Divider(
                         height: kBorderWidth,
                         color: cs.outlineVariant.withValues(alpha: 0.2),
                       ),

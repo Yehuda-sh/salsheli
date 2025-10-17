@@ -540,6 +540,9 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
     // שמירת references לפני async
     final navigator = Navigator.of(context);
     final provider = context.read<TemplatesProvider>();
+    
+    // בדיקת mounted אחרי קבלת context
+    if (!mounted) return;
 
     final result = await navigator.push<bool?>(
       MaterialPageRoute(
@@ -614,9 +617,7 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
   ) async {
     debugPrint('🗑️ מוחק תבנית: ${template.name}');
 
-    // בדוק mounted לפני שימוש ב-context
-    if (!mounted) return;
-    
+    // שמור references לפני async operations
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     final theme = Theme.of(context);
 
