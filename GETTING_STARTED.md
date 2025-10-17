@@ -338,70 +338,73 @@ _repository.fetchItems()
 
 ---
 
-## 📚 המסמכים המלאים - איפה מה?
+## 📚 המסמכים המלאים - 5 קבצים בלבד!
 
-### 🔥 לתשובות מהירות (2-3 דקות)
+### 🤖 AI_MASTER_GUIDE.md (לסוכני AI)
+**למי:** מערכות AI (Claude, ChatGPT, etc.)  
+**תוכן:**
+- כל הוראות ה-AI Behavior
+- Code Review אוטומטי (7 תיקונים)
+- Dead Code Detection (5 שלבים)
+- Security, Performance, Accessibility
+- Top 10 טעויות נפוצות
 
-📄 **`QUICK_REFERENCE.md`**
+**מתי:** תחילת **כל** שיחה עם AI!
 
-- Dead Code - איך לבדוק
-- Dormant Code - להפעיל או למחוק?
-- Constants - איפה כל דבר
-- תשובות ב-30 שניות
+---
 
-### 🏗️ לארכיטקטורה ודפוסים (10 דקות)
+### 👨‍💻 DEVELOPER_GUIDE.md (למפתחים)
+**למי:** כל מפתח בפרויקט  
+**תוכן:**
+- Quick Reference (תשובות ב-30 שניות)
+- Architecture Patterns (Repository, Provider, etc.)
+- Code Examples (async, forms, error handling)
+- Testing Guidelines
+- Security Best Practices
+- Performance Optimization
+- Checklists מלאים
 
-📄 **`LESSONS_LEARNED.md`**
+**מתי:** כתיבה או בדיקת קוד!
 
-- Firebase Integration
-- Repository Pattern
-- Templates System
-- 15 עקרונות זהב
+---
 
-### 💻 לדוגמאות קוד (15 דקות)
-
-📄 **`BEST_PRACTICES.md`**
-
-- Async Functions
-- Context Management
-- Loading States
-- Code Review Checklist
-
-### 🎨 למערכת העיצוב (10 דקות)
-
-📄 **`STICKY_NOTES_DESIGN.md`**
-
-- כל הרכיבים
-- צבעים וגדלים
+### 🎨 DESIGN_GUIDE.md (לעיצוב)
+**למי:** מעצבים ומפתחי UI  
+**תוכן:**
+- Sticky Notes Design System
+- צבעים (kStickyYellow, kStickyPink, etc.)
+- רכיבים (StickyNote, StickyButton, NotebookBackground)
 - עיצוב Compact
-- דוגמאות מלאות
+- דוגמאות קוד
 
-### 🔒 לאבטחה (10 דקות)
+**מתי:** יצירת או עדכון מסכים!
 
-📄 **`SECURITY_GUIDE.md`**
+---
 
-- Firebase Auth
-- Firestore Security Rules
-- Sensitive Data
-- Deployment Checklist
+### 🚀 GETTING_STARTED.md (למתחילים)
+**למי:** מפתח חדש בפרויקט  
+**תוכן:**
+- התחלה מהירה (5-10 דקות)
+- טבלת קיצורי דרך
+- איך לדבר עם Claude
+- Claude Code - התקנה ושימוש
+- טעויות נפוצות
 
-### 🧪 לבדיקות (10 דקות)
+**מתי:** היכרות ראשונית!
 
-📄 **`TESTING_GUIDE.md`**
+---
 
-- Unit Tests
-- Widget Tests
-- Integration Tests
-- Coverage Goals
+### 📋 PROJECT_INFO.md (מידע כללי)
+**למי:** כל מי שרוצה להבין את הפרויקט  
+**תוכן:**
+- סקירת הפרויקט
+- סטטיסטיקות
+- Tech Stack
+- היסטוריית שינויים
+- Setup Instructions
+- צור קשר
 
-### 🤖 לעבודה עם AI (10 דקות)
-
-📄 **`AI_MASTER_GUIDE.md`**
-
-- הנחיות מלאות למערכות AI
-- Code Review אוטומטי
-- Dead Code Detection
-- Response Guidelines
+**מתי:** הבנת ארכיטקטורה והיסטוריה!
 
 ---
 

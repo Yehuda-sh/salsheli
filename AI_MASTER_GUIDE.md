@@ -2,7 +2,7 @@
 
 > **CRITICAL:** Read this file at the start of EVERY new conversation  
 > **Purpose:** Complete AI behavior instructions + technical rules  
-> **Updated:** 18/10/2025
+> **Updated:** 18/10/2025 | **Version:** 2.0 - Unified Documentation
 
 ---
 
@@ -61,6 +61,9 @@
 - Sticky Notes Design violations
 - Missing imports
 - Dead code removal (after verification)
+- Performance issues (const, lazy loading)
+- Security issues (household_id missing)
+- Accessibility issues (sizes < 44px)
 
 **Ask before fixing:**
 - Architectural changes
@@ -115,6 +118,8 @@ User: "😡 אני לא רוצה בלוקים!"
 | Static widget, no const | → Add `const` | Performance |
 | Unused imports | → Remove | Clean code |
 | No mounted check after await | → Add check | Prevent crashes |
+| ListView with children | → `ListView.builder()` | Performance |
+| Image.network() | → `CachedNetworkImage()` | Caching |
 
 #### 2️⃣ Sticky Notes Design Compliance (UI screens only!)
 
@@ -134,7 +139,34 @@ User: "😡 אני לא רוצה בלוקים!"
 2. 🎨 Offer: "האם תרצה שאהמיר את המסך?"
 3. ⚡ If yes: Convert using `Filesystem:edit_file`
 
-#### 3️⃣ Best Practices
+#### 3️⃣ Security Checks (Fix immediately!)
+
+| Check | Action if missing |
+|-------|-------------------|
+| household_id in Firestore queries | **Add immediately** |
+| API keys in code | **Report as CRITICAL** |
+| Passwords in debugPrint | **Remove immediately** |
+| Sensitive data exposed | **Report as CRITICAL** |
+
+#### 4️⃣ Performance Checks
+
+| Check | Action if missing |
+|-------|-------------------|
+| `const` for static widgets | Add |
+| ListView.builder for lists | Convert |
+| Image caching | Add CachedNetworkImage |
+| Batch processing (100+ items) | Implement |
+
+#### 5️⃣ Accessibility Checks
+
+| Check | Action if missing |
+|-------|-------------------|
+| Button height < 44px | Increase to 44px minimum |
+| Text size < 11px | Increase to 11px minimum |
+| Missing Semantics | Add for custom widgets |
+| Poor contrast | Fix color combinations |
+
+#### 6️⃣ Best Practices
 
 | Check | Action if missing |
 |-------|-------------------|
@@ -146,6 +178,7 @@ User: "😡 אני לא רוצה בלוקים!"
 | Dead code (commented) | Remove |
 | Context saved before await | Fix |
 | mounted check after await | Add |
+| Error handling in async | Add try-catch |
 
 ---
 
@@ -335,7 +368,196 @@ class MyProvider extends ChangeNotifier {
 
 ---
 
-## 🎨 Part 8: Sticky Notes Design System
+## 🔒 Part 8: Security Best Practices
+
+### Critical Security Checks
+
+**Before EVERY commit:**
+```dart
+// ✅ Check 1: No API keys in code
+grep -r "AIza" lib/
+grep -r "api_key" lib/
+
+// ✅ Check 2: No passwords
+grep -r "password.*=" lib/
+
+// ✅ Check 3: All queries have household_id
+grep -r "collection(" lib/repositories/
+
+// ✅ Check 4: No sensitive data in logs
+grep -r "debugPrint.*password" lib/
+grep -r "debugPrint.*token" lib/
+```
+
+### Security Patterns
+
+```dart
+// ✅ Validate household_id before operations
+assert(householdId == userContext.currentHouseholdId,
+  'household_id mismatch!');
+
+// ✅ Never log sensitive data
+debugPrint('User logged in: ${user.uid}'); // ✅
+debugPrint('Password: $password');         // ❌ NEVER!
+
+// ✅ Verify ownership
+if (data['created_by'] != currentUserId) {
+  throw Exception('Unauthorized');
+}
+```
+
+---
+
+## ⚡ Part 9: Performance Optimization
+
+### Performance Rules
+
+| Issue | Bad ❌ | Good ✅ | Impact |
+|-------|-------|---------|--------|
+| Const widgets | `SizedBox(height: 8)` | `const SizedBox(height: 8)` | -30% rebuilds |
+| ListView | `ListView(children: [...])` | `ListView.builder(...)` | -70% memory |
+| Image caching | `Image.network(url)` | `CachedNetworkImage(url)` | -80% loading |
+| Late init | `Widget? _widget;` | `late Widget _widget;` | Cleaner null safety |
+| Batch processing | Load all at once | Batch 50-100 items | -90% lag |
+
+### Debouncing Pattern
+```dart
+Timer? _debounceTimer;
+
+void _handleSearch(String query) {
+  _debounceTimer?.cancel();
+  _debounceTimer = Timer(Duration(milliseconds: 500), () {
+    _performSearch(query); // Only run once after typing stops
+  });
+}
+```
+
+### Isolate for Heavy Computations
+```dart
+// ❌ Blocks UI
+final result = _heavyComputation(data);
+
+// ✅ Runs in background
+final result = await compute(_heavyComputation, data);
+```
+
+---
+
+## ♿ Part 10: Accessibility Guidelines
+
+### Accessibility Checklist
+
+**Every new screen:**
+```dart
+// ✅ Minimum sizes
+// Buttons: 44-48px height
+// Text: 11px minimum
+// Touch target: 44x44px minimum
+
+// ✅ Contrast ratios
+// Normal text: 4.5:1
+// Large text: 3:1
+
+// ✅ Semantics for custom widgets
+Semantics(
+  button: true,
+  label: 'התחבר למערכת',
+  enabled: !_isLoading,
+  child: MyCustomButton(...),
+)
+
+// ✅ Screen readers
+// Test with TalkBack (Android) / VoiceOver (iOS)
+```
+
+---
+
+## 🐛 Part 11: Error Handling Standards
+
+### Error Handling Pattern
+
+**Every async function must have:**
+```dart
+Future<void> myFunction() async {
+  try {
+    await operation();
+    
+    // ⚠️ Check mounted before setState
+    if (!mounted) return;
+    
+    setState(() {
+      _isLoading = false;
+      _errorMessage = null; // ← Clear errors!
+    });
+  } catch (e) {
+    debugPrint('❌ myFunction: $e');
+    
+    if (!mounted) return;
+    
+    setState(() {
+      _errorMessage = e.toString();
+      _isLoading = false;
+    });
+  }
+}
+```
+
+### Logging Standards
+
+**Use emojis for quick identification:**
+```dart
+debugPrint('🚀 LoginScreen: initState');
+debugPrint('🔄 Logging in...');
+debugPrint('✅ Login successful');
+debugPrint('❌ Login failed: $e');
+debugPrint('💾 Saving data...');
+debugPrint('🗑️ Deleting item...');
+```
+
+---
+
+## 🧪 Part 12: Testing Guidelines
+
+### When to Write Tests
+
+- ✅ **Every Model** → Unit test (JSON serialization, copyWith)
+- ✅ **Every Provider** → Unit test + Widget test
+- ✅ **Every Repository** → Unit test (mock Firebase)
+- ⚠️ **UI Screens** → Optional but recommended
+
+### Coverage Targets
+
+| Component | Target | Priority |
+|-----------|--------|----------|
+| Models | 90%+ | High |
+| Providers | 80%+ | High |
+| Repositories | 85%+ | High |
+| Services | 75%+ | Medium |
+| UI | 60%+ | Low |
+
+### Quick Test Example
+
+```dart
+test('Provider loads items successfully', () async {
+  // Arrange
+  final mockRepo = MockRepository();
+  when(mockRepo.fetchItems()).thenAnswer((_) async => [item1, item2]);
+  
+  final provider = MyProvider(mockRepo);
+  
+  // Act
+  await provider.load();
+  
+  // Assert
+  expect(provider.items, hasLength(2));
+  expect(provider.isLoading, isFalse);
+  expect(provider.hasError, isFalse);
+});
+```
+
+---
+
+## 🎨 Part 13: Sticky Notes Design System
 
 ### Required Structure for ALL UI Screens:
 
@@ -381,9 +603,11 @@ Scaffold(
 
 **Rule:** Max 3 colors per screen
 
+**📖 Full design guide:** See `DESIGN_GUIDE.md`
+
 ---
 
-## 📊 Part 9: Quick Problem Solving
+## 📊 Part 14: Quick Problem Solving
 
 ### Common Issues Table (30-second solutions):
 
@@ -392,21 +616,24 @@ Scaffold(
 | File not used | 5-step verification | Part 4 |
 | Good code not used | 4-question framework | Part 5 |
 | Provider not updating | addListener + removeListener | Part 7.4 |
-| Timestamp errors | @TimestampConverter() | LESSONS_LEARNED.md |
-| Auth race condition | Throw exception on error | LESSONS_LEARNED.md |
-| Mock data in code | Connect to real Provider | LESSONS_LEARNED.md |
-| Context after async | Save dialogContext separately | LESSONS_LEARNED.md |
+| Timestamp errors | @TimestampConverter() | DEVELOPER_GUIDE |
+| Auth race condition | Throw exception on error | DEVELOPER_GUIDE |
+| Mock data in code | Connect to real Provider | DEVELOPER_GUIDE |
+| Context after async | Save dialogContext separately | Part 11 |
 | withOpacity deprecated | .withValues(alpha:) | Part 6.1 |
-| Slow UI | .then() in background | LESSONS_LEARNED.md |
-| Slow save | Batch processing (50-100) | LESSONS_LEARNED.md |
+| Slow UI | Debouncing + Isolate | Part 9 |
+| Slow save | Batch processing (50-100) | Part 9 |
 | Missing empty state | 4 states required | Part 7.3 |
-| Boring loading | Use Skeleton Screen | STICKY_NOTES_DESIGN.md |
-| No animations | Add micro animations | STICKY_NOTES_DESIGN.md |
+| Boring loading | Use Skeleton Screen | DESIGN_GUIDE |
+| No animations | Add micro animations | DESIGN_GUIDE |
 | Hardcoded values | Use constants from lib/core/ | Part 6.5 |
+| Security issue | Check household_id + no sensitive logs | Part 8 |
+| Poor performance | const + ListView.builder + caching | Part 9 |
+| Accessibility issue | Sizes 44px+, contrast 4.5:1+ | Part 10 |
 
 ---
 
-## 📁 Part 10: Project Structure
+## 📁 Part 15: Project Structure
 
 ```
 lib/
@@ -429,23 +656,73 @@ lib/
 
 ---
 
-## 🔗 Part 11: Related Documentation
+## 🔗 Part 16: Documentation References
 
-**When you need more details:**
+### The 5 Core Documents
 
-| Question | File | Section |
-|----------|------|---------|
-| How async callbacks work? | BEST_PRACTICES.md | Async |
-| Sticky Notes full spec? | STICKY_NOTES_DESIGN.md | Complete |
-| Firebase connection? | SECURITY_GUIDE.md | Auth |
-| How to test? | TESTING_GUIDE.md | All types |
-| Dead Code process? | QUICK_REFERENCE.md | 30-sec answer |
-| Architecture patterns? | LESSONS_LEARNED.md | Deep dives |
-| User beginner tips? | AI_DEVELOPER_INTERACTION_GUIDE.md | For user |
+| Document | Purpose | When to use |
+|----------|---------|-------------|
+| **AI_MASTER_GUIDE.md** | AI instructions | Every conversation start |
+| **DEVELOPER_GUIDE.md** | Code patterns & best practices | Writing/reviewing code |
+| **DESIGN_GUIDE.md** | UI/UX guidelines | Creating screens |
+| **GETTING_STARTED.md** | Quick start | First time setup |
+| **PROJECT_INFO.md** | Project overview | Understanding architecture |
+
+### Quick Links
+
+**Need help with:**
+- Architecture patterns → DEVELOPER_GUIDE.md
+- UI design → DESIGN_GUIDE.md
+- Getting started → GETTING_STARTED.md
+- Project info → PROJECT_INFO.md
 
 ---
 
-## 🎯 TL;DR - 10-Second Reminder
+## ⚠️ Part 17: Top 10 Common Mistakes
+
+### 1. שכחת mounted check
+**Symptom:** "setState called after dispose"  
+**Fix:** See Part 6.3
+
+### 2. withOpacity במקום withValues
+**Symptom:** Deprecated warning  
+**Fix:** See Part 6.1
+
+### 3. Firebase ישירות במסך
+**Symptom:** Tight coupling, hard to test  
+**Fix:** See Part 7.1
+
+### 4. חסר household_id
+**Symptom:** Security vulnerability  
+**Fix:** See Part 7.2
+
+### 5. לא בדק async callback type
+**Symptom:** Type error  
+**Fix:** See Part 6.2
+
+### 6. Context לא נשמר לפני await
+**Symptom:** Invalid context error  
+**Fix:** See Part 11
+
+### 7. חסר 4 Empty States
+**Symptom:** Poor UX  
+**Fix:** See Part 7.3
+
+### 8. const חסר
+**Symptom:** Poor performance  
+**Fix:** See Part 6.6
+
+### 9. API keys בקוד
+**Symptom:** Security vulnerability  
+**Fix:** See Part 8
+
+### 10. גובה כפתור < 44px
+**Symptom:** Accessibility issue  
+**Fix:** See Part 10
+
+---
+
+## 🎯 Part 18: TL;DR - 10-Second Reminder
 
 **Every new conversation:**
 1. ✅ All responses in Hebrew (except code)
@@ -453,27 +730,63 @@ lib/
 3. ✅ Auto-fix: Async callbacks wrapped
 4. ✅ Auto-check: Sticky Notes Design
 5. ✅ Auto-check: 5-step Dead Code verification
-6. ✅ Use Filesystem:edit_file (not artifacts)
-7. ✅ Fix tech errors WITHOUT asking
-8. ✅ Ask before major changes only
+6. ✅ Auto-check: Security (household_id, no API keys)
+7. ✅ Auto-check: Performance (const, ListView.builder)
+8. ✅ Auto-check: Accessibility (sizes, contrast)
+9. ✅ Use Filesystem:edit_file (not artifacts)
+10. ✅ Fix tech errors WITHOUT asking
+11. ✅ Ask before major changes only
 
-**If in doubt → Check BEST_PRACTICES.md**
+**If in doubt → Check DEVELOPER_GUIDE.md**
 
 ---
 
 ## 📌 Critical Reminders
 
+### Communication
 - 🗣️ **Hebrew responses** - User is Hebrew speaker, beginner developer
 - 🛠️ **edit_file preferred** - User dislikes unnecessary artifacts
+- 📝 **Concise feedback** - Don't over-explain simple fixes
+
+### Code Review
 - 🔍 **5-step verification** - Before declaring code "dead"
 - 🎨 **Sticky Notes mandatory** - For ALL UI screens
-- 🏗️ **4 rules never break** - Repository, household_id, 4 states, listeners
-- 📝 **Concise feedback** - Don't over-explain simple fixes
+- 🔒 **Security first** - household_id, no sensitive logs
+- ⚡ **Performance matters** - const, ListView.builder, caching
+- ♿ **Accessibility required** - 44px buttons, 11px text, 4.5:1 contrast
+
+### Architecture
+- 🏗️ **4 rules never break:**
+  1. Repository Pattern
+  2. household_id in all queries
+  3. 4 Loading States
+  4. UserContext listeners cleanup
+
+### Quality
 - ✅ **Auto-fix when clear** - Don't ask permission for technical corrections
+- 🧪 **Test coverage** - Models 90%+, Providers 80%+, Repositories 85%+
+- 📖 **Documentation** - File headers + function docs
+- 🐛 **Error handling** - try-catch + mounted checks
 
 ---
 
-**Version:** 1.0  
+## 📈 Version History
+
+### v2.0 - 18/10/2025
+- ✅ **Major update:** Added Security, Performance, Accessibility, Testing, Error Handling
+- ✅ **Unified documentation:** Single source of truth for AI
+- ✅ **Top 10 mistakes:** Common pitfalls + solutions
+- ✅ **Enhanced checklists:** More comprehensive coverage
+
+### v1.0 - 18/10/2025
+- 🎉 Initial unified guide
+- Basic AI behavior instructions
+- Code review guidelines
+- Technical rules
+
+---
+
+**Version:** 2.0  
 **Created:** 18/10/2025  
-**Purpose:** Complete AI behavior guide - replaces 3 separate files  
+**Purpose:** Complete AI behavior guide - single source of truth  
 **Made with ❤️ by Humans & AI** 👨‍💻🤖
