@@ -38,6 +38,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import '../../core/ui_constants.dart';
 import '../../providers/receipt_provider.dart';
 import '../../providers/user_context.dart';
+import '../../widgets/common/notebook_background.dart';
+import '../../widgets/common/sticky_note.dart';
+import '../../widgets/common/sticky_button.dart';
 
 class LinkReceiptScreen extends StatefulWidget {
   const LinkReceiptScreen({super.key});
@@ -61,38 +64,58 @@ class _LinkReceiptScreenState extends State<LinkReceiptScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('קישור לקבלה'),
-        backgroundColor: cs.surfaceContainer,
+      backgroundColor: kPaperBackground,
+      body: Stack(
+        children: [
+          const NotebookBackground(),
+          SafeArea(
+            child: Column(
+              children: [
+                const StickyNoteLogo(
+                  color: kStickyYellow,
+                  icon: Icons.link,
+                  iconColor: Colors.green,
+                ),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: _isProcessing ? _buildLoadingState() : _buildFormState(),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
-      body: _isProcessing ? _buildLoadingState() : _buildFormState(),
     );
   }
 
   /// מצב טעינה
   Widget _buildLoadingState() {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const CircularProgressIndicator(),
-          const SizedBox(height: kSpacingMedium),
-          Text(
-            'מעבד קבלה...',
-            style: Theme.of(context).textTheme.titleMedium,
+      child: StickyNote(
+        color: kStickyYellow,
+        rotation: -0.01,
+        child: Padding(
+          padding: const EdgeInsets.all(kSpacingLarge),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: kSpacingMedium),
+              Text(
+                'מעבד קבלה...',
+                style: Theme.of(context).textTheme.titleMedium,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: kSpacingSmall),
+              Text(
+                'מוריד → בודק כפילויות → מעלה לשרת',
+                style: Theme.of(context).textTheme.bodySmall,
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
-          const SizedBox(height: kSpacingSmall),
-          Text(
-            'מוריד → בודק כפילויות → מעלה לשרת',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -100,55 +123,54 @@ class _LinkReceiptScreenState extends State<LinkReceiptScreen> {
   /// מצב טופס
   Widget _buildFormState() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(kSpacingLarge),
+      padding: const EdgeInsets.all(kSpacingMedium),
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // 🔗 אייקון
-            Container(
-              padding: const EdgeInsets.all(kSpacingXLarge),
-              decoration: BoxDecoration(
-                color: Colors.green.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.link,
-                size: 80,
-                color: Colors.green,
-              ),
-            ),
-            const SizedBox(height: kSpacingXLarge),
-
-            // 📝 הסבר
-            Text(
-              'הדבק את כל הודעת ה-SMS',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
+            // 📝 הסבר על פתק ירוק
+            StickyNote(
+              color: kStickyGreen,
+              rotation: 0.01,
+              child: Column(
+                children: [
+                  const Icon(
+                    Icons.link,
+                    size: 60,
+                    color: Colors.green,
                   ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: kSpacingSmall),
-            Text(
-              'המערכת תמצא את הקישור אוטומטית 🎯',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  const SizedBox(height: kSpacingMedium),
+                  Text(
+                    'הדבק את כל הודעת ה-SMS',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                    textAlign: TextAlign.center,
                   ),
-              textAlign: TextAlign.center,
+                  const SizedBox(height: kSpacingSmall),
+                  Text(
+                    'המערכת תמצא את הקישור אוטומטית 🎯',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: kSpacingXLarge),
+            const SizedBox(height: 8),
 
-            // 📱 שדה טקסט חופשי
-            TextFormField(
+            // 📱 שדה טקסט על פתק תכלת
+            StickyNote(
+              color: kStickyCyan,
+              rotation: -0.01,
+              child: TextFormField(
               controller: _textController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'הדבק את כל ההודעה',
                 hintText: 'התקבלה קבלה חדשה מרמי לוי...\nlorem ipsum https://...',
-                prefixIcon: const Icon(Icons.text_fields),
-                border: const OutlineInputBorder(),
-                filled: true,
-                fillColor: Theme.of(context).colorScheme.surfaceContainer,
+                prefixIcon: Icon(Icons.text_fields),
+                border: OutlineInputBorder(),
+                filled: false,
               ),
               keyboardType: TextInputType.multiline,
               maxLines: 8,
@@ -173,20 +195,15 @@ class _LinkReceiptScreenState extends State<LinkReceiptScreen> {
                 
                 return null;
               },
+              ),
             ),
-            const SizedBox(height: kSpacingSmall),
+            const SizedBox(height: 8),
 
-            // 🎯 קישור שנמצא
+            // 🎯 קישור שנמצא - על פתק ירוק
             if (_extractedLink != null) ...[
-              Container(
-                padding: const EdgeInsets.all(kSpacingMedium),
-                decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                  border: Border.all(
-                    color: Colors.green.withValues(alpha: 0.3),
-                  ),
-                ),
+              StickyNote(
+                color: kStickyGreen,
+                rotation: 0.015,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -196,7 +213,7 @@ class _LinkReceiptScreenState extends State<LinkReceiptScreen> {
                         const SizedBox(width: kSpacingSmall),
                         Text(
                           'נמצא קישור! ✅',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.green,
                             fontWeight: FontWeight.bold,
                           ),
@@ -217,16 +234,9 @@ class _LinkReceiptScreenState extends State<LinkReceiptScreen> {
                 ),
               ),
             ] else ...[
-              // 💡 טיפ
-              Container(
-                padding: const EdgeInsets.all(kSpacingMedium),
-                decoration: BoxDecoration(
-                  color: Colors.blue.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                  border: Border.all(
-                    color: Colors.blue.withValues(alpha: 0.3),
-                  ),
-                ),
+              StickyNote(
+                color: kStickyCyan,
+                rotation: -0.008,
                 child: Row(
                   children: [
                     const Icon(Icons.info_outline, color: Colors.blue, size: 20),
@@ -244,18 +254,13 @@ class _LinkReceiptScreenState extends State<LinkReceiptScreen> {
               ),
             ],
 
-            // ⚠️ הודעת שגיאה
+            const SizedBox(height: 8),
+
+            // ⚠️ הודעת שגיאה - על פתק כתום
             if (_errorMessage != null) ...[
-              const SizedBox(height: kSpacingMedium),
-              Container(
-                padding: const EdgeInsets.all(kSpacingMedium),
-                decoration: BoxDecoration(
-                  color: Colors.red.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                  border: Border.all(
-                    color: Colors.red.withValues(alpha: 0.3),
-                  ),
-                ),
+              StickyNote(
+                color: kStickyOrange,
+                rotation: 0.012,
                 child: Row(
                   children: [
                     const Icon(Icons.error_outline, color: Colors.red, size: 20),
@@ -271,20 +276,16 @@ class _LinkReceiptScreenState extends State<LinkReceiptScreen> {
               ),
             ],
 
-            const SizedBox(height: kSpacingXLarge),
+            const SizedBox(height: 8),
 
-            // ✅ כפתור המשך
-            FilledButton.icon(
-              onPressed: _extractedLink != null ? _processLink : null,
-              icon: const Icon(Icons.download),
-              label: const Text('הורד ושמור קבלה'),
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.green,
-                padding: const EdgeInsets.symmetric(
-                  vertical: kSpacingMedium,
-                ),
+            // ✅ כפתור המשך - כפתור ורוד
+            if (_extractedLink != null)
+              StickyButton(
+                label: 'הורד ושמור קבלה',
+                icon: Icons.download,
+                color: kStickyPink,
+                onPressed: () => _processLink(),
               ),
-            ),
           ],
         ),
       ),

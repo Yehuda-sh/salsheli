@@ -1,10 +1,11 @@
 # 🤖 AI Development Guidelines - salsheli Project
 
 > **מטרה:** מדריך טכני מקיף לסוכני AI - טבלת בעיות + Code Review + Modern UI/UX  
-> **עדכון:** 17/10/2025 | **גרסה:** 10.0 - Documentation Cleanup & Structure  
+> **עדכון:** 17/10/2025 | **גרסה:** 10.1 - AI Developer Interaction Guide  
+> 👨‍💻 **למדריך תקשורת עם מפתח:** ראה [AI_DEVELOPER_INTERACTION_GUIDE.md](AI_DEVELOPER_INTERACTION_GUIDE.md) 🆕  
 > 💡 **לדוגמאות מפורטות:** ראה [LESSONS_LEARNED.md](LESSONS_LEARNED.md)  
 > 📁 **למבנה המסמכים המלא:** ראה [DOCS_STRUCTURE.md](DOCS_STRUCTURE.md) ⭐  
-> ⚡ **לתשובות מהירות:** ראה [QUICK_REFERENCE.md](QUICK_REFERENCE.md) ⭐ (חדש!)
+> ⚡ **לתשובות מהירות:** ראה [QUICK_REFERENCE.md](QUICK_REFERENCE.md) ⭐
 
 ---
 

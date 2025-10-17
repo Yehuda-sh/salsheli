@@ -391,6 +391,9 @@ const Color kStickyCyan = Color(0xFF80DEEA);
 /// פתק סגול
 const Color kStickyPurple = Color(0xFFCE93D8);
 
+/// פתק כתום
+const Color kStickyOrange = Color(0xFFFFCC80);
+
 /// קו כחול במחברת
 const Color kNotebookBlue = Color(0xFF9FC5E8);
 

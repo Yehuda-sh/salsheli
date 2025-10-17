@@ -6,6 +6,7 @@
 
 ### 🎯 מדריכים מהירים (Quick References)
 - **`AI_QUICK_START.md`** - הנחיות מהירות לעבודה עם AI (2 דק')
+- **`AI_DEVELOPER_INTERACTION_GUIDE.md`** - מדריך תקשורת עם מפתח מתחיל (10 דק') 🆕
 - **`QUICK_REFERENCE.md`** - TL;DR של כל הנושאים החשובים (2-3 דק')
 
 ### 💻 פיתוח ועיצוב
@@ -56,6 +57,7 @@
 
 ### לעבודה עם AI:
 1. `AI_QUICK_START.md` - **חובה בתחילת כל שיחה!**
+2. `AI_DEVELOPER_INTERACTION_GUIDE.md` - איך לתקשר עם מפתח מתחיל
 
 ### לפיתוח features חדשים:
 1. `BEST_PRACTICES.md`
@@ -65,4 +67,4 @@
 
 ---
 
-**עודכן:** 17/10/2025 | **מעודכן ע"י:** AI Assistant
+**עודכן:** 17/10/2025 (23:30) | **מעודכן ע"י:** AI Assistant | **שינוי:** הוספת AI_DEVELOPER_INTERACTION_GUIDE.md
