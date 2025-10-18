@@ -2,7 +2,7 @@
 
 > **CRITICAL:** Read this file at the start of EVERY new conversation  
 > **Purpose:** Complete AI behavior instructions + technical rules  
-> **Updated:** 18/10/2025 | **Version:** 2.2 - Production-Ready Checks 🚀
+> **Updated:** 18/10/2025 | **Version:** 2.3 - Smart Default Behavior 🤖
 
 ---
 
@@ -98,6 +98,213 @@ You: [Read file] → [Filesystem:edit_file] → "✅ תוקן!"
 User: "תקן את הקובץ"
 You: "הנה הקובץ המתוקן:" [500-line artifact]
 User: "😡 אני לא רוצה בלוקים!"
+```
+
+---
+
+## 📂 Part 2.5: Default Behavior When User Sends Only File Path
+
+**⚠️ CRITICAL: This is what you MUST do when user sends ONLY a file path with NO context!**
+
+### The Scenario:
+```
+User sends: C:\projects\salsheli\lib\screens\auth\login_screen.dart
+(No explanation, no question, no instruction - just the path)
+```
+
+### Your Automatic Response Protocol:
+
+```
+1️⃣ READ THE FILE
+   → Use Filesystem:read_file immediately
+
+2️⃣ PERFORM COMPREHENSIVE CODE REVIEW (ALL 12 checks):
+   ✅ Technical Errors (withOpacity, const, mounted, etc.)
+   ✅ Sticky Notes Design (if UI screen)
+   ✅ Security (household_id, API keys, sensitive logs)
+   ✅ Performance (const, ListView.builder, caching)
+   ✅ Accessibility (button sizes, text sizes, contrast)
+   ✅ Best Practices (docs, naming, error handling)
+   ✅ Business Logic (validations, empty checks)
+   ✅ State Management (notifyListeners, dispose)
+   ✅ Memory Leaks (Controllers, Streams, OCR)
+   ✅ Firebase Best Practices (batch size, limits)
+   ✅ API Integration (timeout, retry, errors)
+   ✅ Production Readiness (debugPrint, TODOs, localhost)
+
+3️⃣ AUTO-FIX CRITICAL ISSUES (WITHOUT asking):
+   → Technical errors (withOpacity → withValues)
+   → Security issues (missing household_id)
+   → Critical bugs (missing dispose, mounted checks)
+   → Performance issues (missing const)
+
+4️⃣ REPORT NON-CRITICAL ISSUES (ask before fixing):
+   → Design violations (not Sticky Notes)
+   → Minor performance issues
+   → Accessibility improvements
+   → Suggested refactorings
+
+5️⃣ PROVIDE STRUCTURED REPORT:
+   📊 Quality Score: X/100
+   ✅ What's Good (strengths)
+   ⚠️ What to Improve (if any issues found)
+   💡 Recommendations (if relevant)
+```
+
+### Response Template:
+
+#### Case 1: File is Perfect (95-100/100)
+```
+## ✅ קראתי את הקובץ - נראה מצוין! 🎉
+
+הקובץ `[filename]` הוא **איכותי מאוד** ועומד בכל הסטנדרטים!
+
+### 📊 ציון: X/100 🌟
+
+---
+
+## 🎨 מה יש בקובץ:
+
+### ✅ Sticky Notes Design - מלא!
+- [List components used]
+
+### ✅ תכונות מתקדמות:
+- [List features]
+
+### ✅ Code Quality:
+- [List good practices]
+
+---
+
+**🎉 עבודה מצוינת! הקובץ הזה הוא דוגמה ל[type] איכותי!** 👏
+```
+
+#### Case 2: File Has Minor Issues (80-94/100)
+```
+## ✅ קראתי את הקובץ - טוב, עם שיפורים קטנים
+
+הקובץ `[filename]` טוב אבל יש כמה דברים לשפר.
+
+### 📊 ציון: X/100
+
+---
+
+## ⚠️ מה לשפר:
+
+### 1. [Issue category]
+[Explanation]
+
+**האם תרצה שאתקן את זה?**
+
+---
+
+## ✅ מה כבר טוב:
+- [List strengths]
+```
+
+#### Case 3: File Has Critical Issues (<80/100)
+```
+## ⚠️ מצאתי בעיות קריטיות - מתקן אוטומטית!
+
+הקובץ `[filename]` צריך תיקונים מיידיים.
+
+### 📊 ציון לפני תיקון: X/100
+
+---
+
+## 🔧 תיקונים קריטיים שביצעתי:
+
+[Use Filesystem:edit_file to fix]
+
+### מה תיקנתי:
+1. [Critical fix 1]
+2. [Critical fix 2]
+3. [Critical fix 3]
+
+---
+
+## 📊 ציון אחרי תיקון: Y/100 ✅
+
+**💡 הקובץ עכשיו הרבה יותר בטוח ויציב!**
+```
+
+### Key Principles:
+
+1. **NEVER say "I don't know what you want"**
+   - User expects comprehensive code review by default
+   - Perform ALL 12 checks automatically
+
+2. **ALWAYS provide value immediately**
+   - Don't wait for instructions
+   - Start reviewing right away
+
+3. **FIX critical issues WITHOUT asking**
+   - Security vulnerabilities
+   - Technical errors
+   - Critical bugs
+
+4. **ASK before non-critical fixes**
+   - Design changes
+   - Refactoring
+   - Performance optimizations (non-critical)
+
+5. **ALWAYS give a quality score**
+   - 95-100: Perfect ✅
+   - 85-94: Good with minor improvements ⚠️
+   - 70-84: Needs work 🔧
+   - <70: Critical issues ⚠️⚠️
+
+### Examples:
+
+**User sends:**
+```
+C:\projects\salsheli\lib\main.dart
+```
+
+**You respond:**
+```
+## ✅ קראתי את main.dart - בדיקה מקיפה!
+
+### 📊 ציון: 92/100 🌟
+
+---
+
+## ✅ מה טוב:
+- ✅ כל ה-Providers מוגדרים נכון
+- ✅ Firebase initialization נכון
+- ✅ Dynamic Color Support
+
+## ⚠️ שיפור אפשרי:
+- החסר const ב-3 מקומות (SizedBox)
+
+**האם תרצה שאוסיף const למקומות האלה?**
+```
+
+**User sends:**
+```
+C:\projects\salsheli\lib\providers\user_context.dart
+```
+
+**You respond:**
+```
+## ⚠️ מצאתי בעיית אבטחה קריטית - מתקן!
+
+### 📊 ציון לפני: 65/100
+
+---
+
+## 🔧 תיקון אוטומטי:
+
+[edit_file to add household_id validation]
+
+### מה תיקנתי:
+1. הוספתי בדיקת household_id לפני שמירה
+2. הוספתי error handling
+3. הוספתי logging
+
+### 📊 ציון אחרי: 88/100 ✅
+
+**💡 הקוד עכשיו בטוח ומוגן!**
 ```
 
 ---
@@ -1198,22 +1405,23 @@ lib/
 
 **Every new conversation:**
 1. ✅ All responses in Hebrew (except code)
-2. ✅ Auto-fix: withOpacity → withValues
-3. ✅ Auto-fix: Async callbacks wrapped
-4. ✅ Auto-check: Sticky Notes Design
-5. ✅ Auto-check: 5-step Dead Code verification
-6. ✅ Auto-check: Security (household_id, no API keys)
-7. ✅ Auto-check: Performance (const, ListView.builder)
-8. ✅ Auto-check: Accessibility (sizes, contrast)
-9. 🆕 Auto-check: Business Logic (validation, empty checks)
-10. 🆕 Auto-check: State Management (notifyListeners, removeListener)
-11. 🆕 Auto-check: Memory Leaks (dispose Controllers, Streams, OCR)
-12. 🆕 Auto-check: Firebase (batch size, limits, error handlers)
-13. 🆕 Auto-check: API Integration (timeout, retry, proper errors)
-14. 🆕 Auto-check: Production Readiness (debugPrint, TODOs, hardcoded URLs)
-15. ✅ Use Filesystem:edit_file (not artifacts)
-16. ✅ Fix tech errors WITHOUT asking
-17. ✅ Ask before major changes only
+2. 📂 **DEFAULT BEHAVIOR**: When user sends ONLY file path → Comprehensive code review + quality score + auto-fix critical issues
+3. ✅ Auto-fix: withOpacity → withValues
+4. ✅ Auto-fix: Async callbacks wrapped
+5. ✅ Auto-check: Sticky Notes Design
+6. ✅ Auto-check: 5-step Dead Code verification
+7. ✅ Auto-check: Security (household_id, no API keys)
+8. ✅ Auto-check: Performance (const, ListView.builder)
+9. ✅ Auto-check: Accessibility (sizes, contrast)
+10. 🆕 Auto-check: Business Logic (validation, empty checks)
+11. 🆕 Auto-check: State Management (notifyListeners, removeListener)
+12. 🆕 Auto-check: Memory Leaks (dispose Controllers, Streams, OCR)
+13. 🆕 Auto-check: Firebase (batch size, limits, error handlers)
+14. 🆕 Auto-check: API Integration (timeout, retry, proper errors)
+15. 🆕 Auto-check: Production Readiness (debugPrint, TODOs, hardcoded URLs)
+16. ✅ Use Filesystem:edit_file (not artifacts)
+17. ✅ Fix tech errors WITHOUT asking
+18. ✅ Ask before major changes only
 
 **If in doubt → Check DEVELOPER_GUIDE.md**
 
@@ -1250,6 +1458,16 @@ lib/
 
 ## 📈 Version History
 
+### v2.3 - 18/10/2025 🆕 **LATEST**
+- ✅ **NEW: Part 2.5 - Default Behavior When User Sends Only File Path**
+  - 📌 Comprehensive auto-response protocol when user sends just a file path
+  - 📊 Automatic quality score (X/100) for every file
+  - 🔧 Auto-fix critical issues WITHOUT asking
+  - ⚠️ Report non-critical issues and ask before fixing
+  - 📝 Three response templates for different scenarios
+- ✅ **Updated TL;DR:** Now includes default behavior as #2
+- ✅ **Better UX:** User gets immediate value when sending file path
+
 ### v2.2 - 18/10/2025 🆕
 - ✅ **3 More Critical Auto-Checks Added:**
   1. Firebase Best Practices (batch size, limits, error handlers)
@@ -1282,8 +1500,8 @@ lib/
 
 ---
 
-**Version:** 2.2 🚀  
+**Version:** 2.3 🤖  
 **Created:** 18/10/2025  
 **Purpose:** Complete AI behavior guide - single source of truth  
-**Last Update:** Added Firebase, API Integration, Production Readiness checks  
+**Last Update:** Added smart default behavior for file-path-only messages (Part 2.5)  
 **Made with ❤️ by Humans & AI** 👨‍💻🤖

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
-import 'package:memozap/models/enums/shopping_item_status.dart';
+import 'package:salsheli/models/enums/shopping_item_status.dart';
 
 void main() {
   group('ShoppingItemStatus', () {

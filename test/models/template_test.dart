@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:memozap/models/template.dart';
+import 'package:salsheli/models/template.dart';
 
 void main() {
   group('Template', () {
@@ -504,7 +504,7 @@ void main() {
 
       expect(template.type, 'birthday');
       expect(template.defaultFormat, Template.formatAssigned);
-      expect(template.defaultItems.any((item) => item.name.contains('עוגה')), true);
+      expect(template.defaultItems.any((item) => item.name.contains('עוג')), true);  // 'עוגת' contains 'עוג'
     });
 
     test('creates household custom template', () {

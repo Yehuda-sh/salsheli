@@ -291,20 +291,22 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     final messenger = ScaffoldMessenger.of(context);
 
     // 🔒 חסימת Back - המשתמש חייב להשלים התחברות
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
-        if (!didPop) {
-          messenger.showSnackBar(
-            SnackBar(
-              content: Text(AppStrings.auth.mustCompleteLogin),
-              duration: kSnackBarDuration,
-            ),
-          );
-        }
-      },
-      child: Scaffold(
-        backgroundColor: kPaperBackground, // 🎨 צבע רקע מחברת
+    return Directionality(
+      textDirection: TextDirection.rtl, // 🔄 תמיכה מלאה ב-RTL
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop) {
+            messenger.showSnackBar(
+              SnackBar(
+                content: Text(AppStrings.auth.mustCompleteLogin),
+                duration: kSnackBarDuration,
+              ),
+            );
+          }
+        },
+        child: Scaffold(
+          backgroundColor: kPaperBackground, // 🎨 צבע רקע מחברת
         body: Stack(
           children: [
             // 📓 רקע מחברת עם קווים
@@ -576,6 +578,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             ),
           ],
         ),
+      ),
       ),
     );
   }

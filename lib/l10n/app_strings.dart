@@ -475,13 +475,13 @@ class _AuthStrings {
   // Validation Errors
   // ========================================
 
-  String get emailRequired => 'נא להזין אימייל';
+  String get emailRequired => 'שדה חובה';
   String get emailInvalid => 'אימייל לא תקין';
-  String get passwordRequired => 'נא להזין סיסמה';
+  String get passwordRequired => 'שדה חובה';
   String get passwordTooShort => 'סיסמה חייבת להכיל לפחות 6 תווים';
-  String get confirmPasswordRequired => 'נא לאמת את הסיסמה';
+  String get confirmPasswordRequired => 'שדה חובה';
   String get passwordsDoNotMatch => 'הסיסמאות לא תואמות';
-  String get nameRequired => 'נא להזין שם מלא';
+  String get nameRequired => 'שדה חובה';
   String get nameTooShort => 'שם חייב להכיל לפחות 2 תווים';
 
   // ========================================

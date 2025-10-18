@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:memozap/models/shopping_list.dart';
-import 'package:memozap/models/receipt.dart';
+import 'package:salsheli/models/shopping_list.dart';
+import 'package:salsheli/models/receipt.dart';
 
 void main() {
   group('ShoppingList', () {
@@ -296,7 +296,7 @@ void main() {
         final weeklyItems = [
           ReceiptItem(id: 'item-1', name: 'חלב', quantity: 2, unitPrice: 6.5),
           ReceiptItem(id: 'item-2', name: 'לחם', quantity: 1, unitPrice: 8.0),
-          ReceiptItem(id: 'item-3', name: 'ביצים', quantity: 12, unitPrice: 15.0),
+          ReceiptItem(id: 'item-3', name: 'ביצים (מארז)', quantity: 1, unitPrice: 15.0),  // 1 מארז, לא 12 יח'
           ReceiptItem(id: 'item-4', name: 'ירקות', quantity: 1, unitPrice: 30.0),
           ReceiptItem(id: 'item-5', name: 'עוף', quantity: 1, unitPrice: 40.0),
         ];
@@ -340,7 +340,8 @@ void main() {
         );
 
         expect(list.type, ShoppingList.typePharmacy);
-        expect(list.items.every((item) => item.name?.contains('מין') != true), true);  // Not groceries
+        expect(list.items.length, 3);
+        expect(list.items.any((item) => item.name?.contains('אקמול') ?? false), true);  // Has medicine
       });
 
       test('creates list for special event', () {

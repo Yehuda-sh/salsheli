@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:memozap/models/timestamp_converter.dart';
+import 'package:salsheli/models/timestamp_converter.dart';
 
 void main() {
   group('TimestampConverter', () {

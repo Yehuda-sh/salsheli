@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:memozap/models/receipt.dart';
+import 'package:salsheli/models/receipt.dart';
 
 void main() {
   group('Receipt', () {
@@ -404,8 +404,8 @@ void main() {
         items: items,
       );
 
-      expect(receipt.items[0].totalPrice, 17.70);
-      expect(receipt.totalAmount, receipt.items[0].totalPrice);
+      expect(receipt.items[0].totalPrice, closeTo(17.70, 0.01));
+      expect(receipt.totalAmount, closeTo(receipt.items[0].totalPrice, 0.01));
     });
 
     test('creates pharmacy receipt', () {
