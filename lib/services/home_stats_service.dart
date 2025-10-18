@@ -17,6 +17,7 @@
 //
 // 📱 Mobile Only: Yes
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../models/receipt.dart';
 import '../models/shopping_list.dart';
@@ -102,11 +103,13 @@ class HomeStatsService {
     required List<InventoryItem> inventory,
     int monthsBack = 1,
   }) async {
-    debugPrint('📊 HomeStatsService.calculateStats()');
-    debugPrint('   📄 ${receipts.length} קבלות');
-    debugPrint('   📋 ${shoppingLists.length} רשימות');
-    debugPrint('   📦 ${inventory.length} פריטים במלאי');
-    debugPrint('   📅 מנתח $monthsBack חודשים אחורה');
+    if (kDebugMode) {
+      debugPrint('📊 HomeStatsService.calculateStats()');
+      debugPrint('   📄 ${receipts.length} קבלות');
+      debugPrint('   📋 ${shoppingLists.length} רשימות');
+      debugPrint('   📦 ${inventory.length} פריטים במלאי');
+      debugPrint('   📅 מנתח $monthsBack חודשים אחורה');
+    }
 
     try {
       // 1. חישוב תקופת זמן
@@ -115,42 +118,60 @@ class HomeStatsService {
           ? now.subtract(const Duration(days: 7)) // שבוע
           : _subtractMonths(now, monthsBack);
 
-      debugPrint('   📅 מתאריך: ${startDate.toString().split(' ')[0]}');
+      if (kDebugMode) {
+        debugPrint('   📅 מתאריך: ${startDate.toString().split(' ')[0]}');
+      }
 
       // 2. סינון קבלות לפי תקופה
       final relevantReceipts = receipts.where((r) {
         return r.date.isAfter(startDate);
       }).toList();
 
-      debugPrint('   ✅ ${relevantReceipts.length} קבלות רלוונטיות');
+      if (kDebugMode) {
+        debugPrint('   ✅ ${relevantReceipts.length} קבלות רלוונטיות');
+      }
 
       // 3. חישוב הוצאה חודשית
       final monthlySpent = _calculateMonthlySpent(relevantReceipts);
-      debugPrint('   💰 הוצאה חודשית: ₪${monthlySpent.toStringAsFixed(2)}');
+      if (kDebugMode) {
+        debugPrint('   💰 הוצאה חודשית: ₪${monthlySpent.toStringAsFixed(2)}');
+      }
 
       // 4. חישוב מגמת הוצאות
       final expenseTrend = _calculateExpenseTrend(receipts, monthsBack);
-      debugPrint('   📈 מגמה: ${expenseTrend.length} נקודות');
+      if (kDebugMode) {
+        debugPrint('   📈 מגמה: ${expenseTrend.length} נקודות');
+      }
 
       // 5. חישוב דיוק רשימות
       final listAccuracy = _calculateListAccuracy(shoppingLists, receipts);
-      debugPrint('   🎯 דיוק רשימות: ${listAccuracy.toStringAsFixed(1)}%');
+      if (kDebugMode) {
+        debugPrint('   🎯 דיוק רשימות: ${listAccuracy.toStringAsFixed(1)}%');
+      }
 
       // 6. חישוב חיסכון פוטנציאלי (בסיסי)
       final potentialSavings = _calculatePotentialSavings(relevantReceipts);
-      debugPrint('   💡 חיסכון פוטנציאלי: ₪${potentialSavings.toStringAsFixed(2)}');
+      if (kDebugMode) {
+        debugPrint('   💡 חיסכון פוטנציאלי: ₪${potentialSavings.toStringAsFixed(2)}');
+      }
 
       // 7. ספירת מלאי נמוך
       final lowInventoryCount = _countLowInventory(inventory);
-      debugPrint('   ⚠️ מלאי נמוך: $lowInventoryCount פריטים');
+      if (kDebugMode) {
+        debugPrint('   ⚠️ מלאי נמוך: $lowInventoryCount פריטים');
+      }
 
       // 8. ⭐ חדש: התפלגות לפי קטגוריות
       final categoryBreakdown = _calculateCategoryBreakdown(relevantReceipts);
-      debugPrint('   🏷️ קטגוריות: ${categoryBreakdown.length}');
+      if (kDebugMode) {
+        debugPrint('   🏷️ קטגוריות: ${categoryBreakdown.length}');
+      }
 
       // 9. ⭐ חדש: מוצרים עם הוצאה גבוהה
       final topProducts = _calculateTopProducts(relevantReceipts);
-      debugPrint('   🔝 מוצרים מובילים: ${topProducts.length}');
+      if (kDebugMode) {
+        debugPrint('   🔝 מוצרים מובילים: ${topProducts.length}');
+      }
 
       final stats = HomeStats(
         monthlySpent: monthlySpent,
@@ -162,19 +183,23 @@ class HomeStatsService {
         topProducts: topProducts,
       );
 
-      debugPrint('✅ HomeStatsService.calculateStats: הצליח');
+      if (kDebugMode) {
+        debugPrint('✅ HomeStatsService.calculateStats: הצליח');
+      }
       return stats;
     } catch (e, stackTrace) {
-      debugPrint('❌ HomeStatsService.calculateStats: שגיאה - $e');
-      debugPrintStack(stackTrace: stackTrace);
+      if (kDebugMode) {
+        debugPrint('❌ HomeStatsService.calculateStats: שגיאה - $e');
+        debugPrintStack(stackTrace: stackTrace);
+      }
       return HomeStats.empty();
     }
   }
 
   /// ⭐ חדש: חישוב התפלגות לפי קטגוריות
   /// 
-  /// הנדד 5 קטגוריות גבוהות בעומר עם "אחר" לשאר
-  /// כדי להישמר ייצוג בחטט פאי וגרף.
+  /// מחזיר 5 קטגוריות הגבוהות ביותר עם "אחר" לשאר
+  /// כדי לשמור על ייצוג נקי בגרף פאי וגרפים.
   static List<Map<String, dynamic>> _calculateCategoryBreakdown(
     List<Receipt> receipts,
   ) {
@@ -255,7 +280,15 @@ class HomeStatsService {
     return products.take(10).toList();
   }
 
-  /// Helper: חיסור חודשים בצורה נכונה (עם overflow handling)
+  /// מחסיר מספר חודשים מתאריך נתון.
+  /// 
+  /// מטפל בoverflow לשנה קודמת ובימים לא חוקיים (למשל 31 בפברואר).
+  /// 
+  /// Parameters:
+  /// - [date]: התאריך הראשוני
+  /// - [months]: מספר החודשים לחסר
+  /// 
+  /// Returns תאריך חדש אחרי החיסור.
   static DateTime _subtractMonths(DateTime date, int months) {
     var year = date.year;
     var month = date.month - months;
@@ -273,6 +306,13 @@ class HomeStatsService {
     
     return DateTime(year, month, actualDay);
   }
+
+  /// ממיר מזהה קטגוריה לשם תצוגה בעברית.
+  /// 
+  /// Parameters:
+  /// - [categoryId]: מזהה הקטגוריה (למשל 'dairy', 'meat')
+  /// 
+  /// Returns שם הקטגוריה בעברית או את המזהה אם לא נמצא.
   static String _getCategoryDisplayName(String categoryId) {
     const displayNames = {
       'dairy': 'מוצרי חלב',
@@ -291,7 +331,14 @@ class HomeStatsService {
     return displayNames[categoryId] ?? categoryId;
   }
 
-  /// חישוב הוצאה חודשית ממוצעת
+  /// מחשב הוצאה חודשית ממוצעת מרשימת קבלות.
+  /// 
+  /// מחשב את הסכום הכולל ומחלק במספר החודשים בפועל.
+  /// 
+  /// Parameters:
+  /// - [receipts]: רשימת קבלות לניתוח
+  /// 
+  /// Returns הוצאה חודשית ממוצעת בש"ח.
   static double _calculateMonthlySpent(List<Receipt> receipts) {
     if (receipts.isEmpty) return 0.0;
 
@@ -308,7 +355,15 @@ class HomeStatsService {
     return total / monthsDiff;
   }
 
-  /// חישוב מגמת הוצאות לפי חודשים
+  /// מחשב מגמת הוצאות לפי חודשים.
+  /// 
+  /// יוצר רשימה של נקודות נתונים עם שם חודש וסכום.
+  /// 
+  /// Parameters:
+  /// - [receipts]: רשימת קבלות
+  /// - [monthsBack]: כמה חודשים אחורה לנתח
+  /// 
+  /// Returns רשימה של מפות עם 'month' ו-'value'.
   static List<Map<String, dynamic>> _calculateExpenseTrend(
     List<Receipt> receipts,
     int monthsBack,
@@ -340,7 +395,12 @@ class HomeStatsService {
     return trend;
   }
 
-  /// המרת מספר חודש לשם
+  /// ממיר מספר חודש (1-12) לשם חודש בעברית.
+  /// 
+  /// Parameters:
+  /// - [month]: מספר החודש (1=ינואר, 12=דצמבר)
+  /// 
+  /// Returns שם החודש בעברית.
   static String _getMonthName(int month) {
     const names = [
       'ינואר',
@@ -359,8 +419,15 @@ class HomeStatsService {
     return names[month - 1];
   }
 
-  /// חישוב דיוק רשימות קניות
-  /// כמה פריטים שתכננו באמת נקנו
+  /// מחשב אחוז דיוק רשימות קניות.
+  /// 
+  /// בודק כמה פריטים שתכננו ברשימות באמת נקנו.
+  /// 
+  /// Parameters:
+  /// - [lists]: רשימות קניות
+  /// - [receipts]: קבלות
+  /// 
+  /// Returns אחוז דיוק (0-100).
   static double _calculateListAccuracy(
     List<ShoppingList> lists,
     List<Receipt> receipts,
@@ -393,7 +460,14 @@ class HomeStatsService {
     return accuracy.clamp(0.0, 100.0);
   }
 
-  /// חישוב חטיבה פוטנציאלית: אפשר לחטיבה עם השואות מחיריום (הערכה: 7.5% אבקט ריאליסטט)
+  /// מחשב חיסכון פוטנציאלי בהשוואת מחירים.
+  /// 
+  /// הערכה: אפשר לחסוך 7.5% בממוצע עם השוואת מחירים.
+  /// 
+  /// Parameters:
+  /// - [receipts]: רשימת קבלות
+  /// 
+  /// Returns סכום חיסכון פוטנציאלי בש"ח.
   static double _calculatePotentialSavings(List<Receipt> receipts) {
     if (receipts.isEmpty) return 0.0;
 
@@ -404,9 +478,14 @@ class HomeStatsService {
     return total * savingsPercent;
   }
 
-  /// ספירה פריטים במלאי שנגמרים
+  /// סופר פריטים במלאי שנגמרים.
   /// 
-  /// פרט נחשב "נמוך" אם כמות < 2 (נגמר או עומד להיגמר)
+  /// פריט נחשב "נמוך" אם כמות < 2 (נגמר או עומד להיגמר).
+  /// 
+  /// Parameters:
+  /// - [inventory]: רשימת פריטי מלאי
+  /// 
+  /// Returns מספר פריטים עם מלאי נמוך.
   static int _countLowInventory(List<InventoryItem> inventory) {
     if (inventory.isEmpty) return 0;
 
@@ -422,8 +501,10 @@ class HomeStatsService {
   /// TODO: אפשר להוסיף שמירה ל-SharedPreferences או Hive
   /// כדי למנוע חישובים מיותרים
   static Future<HomeStats?> loadFromCache() async {
-    debugPrint('💾 HomeStatsService.loadFromCache()');
-    debugPrint('   ⚠️ Cache לא ממומש - מחזיר null');
+    if (kDebugMode) {
+      debugPrint('💾 HomeStatsService.loadFromCache()');
+      debugPrint('   ⚠️ Cache לא ממומש - מחזיר null');
+    }
     return null;
   }
 
@@ -431,7 +512,9 @@ class HomeStatsService {
   ///
   /// TODO: שמירת HomeStats ל-SharedPreferences/Hive
   static Future<void> saveToCache(HomeStats stats) async {
-    debugPrint('💾 HomeStatsService.saveToCache()');
-    debugPrint('   ⚠️ Cache לא ממומש - לא עושה כלום');
+    if (kDebugMode) {
+      debugPrint('💾 HomeStatsService.saveToCache()');
+      debugPrint('   ⚠️ Cache לא ממומש - לא עושה כלום');
+    }
   }
 }

@@ -464,17 +464,20 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
 
           if (name != null && name.isNotEmpty) {
             try {
+              // שמירת navigator לפני async
+              final navigator = Navigator.of(context);
+              
               final newList = await provider.createList(name: name, type: type, budget: budget);
 
               debugPrint('   ✅ רשימה נוצרה: ${newList.id}');
 
-              if (!context.mounted) {
-                debugPrint('   ⚠️ context לא mounted - מדלג על ניווט');
+              if (!mounted) {
+                debugPrint('   ⚠️ widget לא mounted - מדלג על ניווט');
                 return;
               }
 
               debugPrint('   ➡️ ניווט ל-populate-list');
-              Navigator.pushNamed(context, '/populate-list', arguments: newList);
+              navigator.pushNamed('/populate-list', arguments: newList);
             } catch (e) {
               debugPrint('   ❌ שגיאה ביצירת רשימה: $e');
               rethrow;

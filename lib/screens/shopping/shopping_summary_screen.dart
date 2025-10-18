@@ -23,6 +23,7 @@
 // ```
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../core/status_colors.dart';
@@ -30,6 +31,13 @@ import '../../core/ui_constants.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_note.dart';
 import '../../widgets/common/sticky_button.dart';
+
+// 🔧 Wrapper ללוגים - פועל רק ב-debug mode
+void _log(String message) {
+  if (kDebugMode) {
+    debugPrint(message);
+  }
+}
 
 class ShoppingSummaryScreen extends StatelessWidget {
   /// מזהה הרשימה
@@ -39,7 +47,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('🎉 ShoppingSummaryScreen.build: listId=$listId');
+    _log('🎉 ShoppingSummaryScreen.build: listId=$listId');
 
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
@@ -54,7 +62,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
           builder: (context, provider, _) {
             // 1️⃣ Loading State
             if (provider.isLoading) {
-              debugPrint('   ⏳ Loading...');
+              _log('   ⏳ Loading...');
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -75,7 +83,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
 
             // 2️⃣ Error State
             if (provider.errorMessage != null) {
-              debugPrint('   ❌ Error: ${provider.errorMessage}');
+              _log('   ❌ Error: ${provider.errorMessage}');
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -106,7 +114,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
             // 3️⃣ Not Found State
             final list = provider.getById(listId);
             if (list == null) {
-              debugPrint('   ⚠️ List not found: $listId');
+              _log('   ⚠️ List not found: $listId');
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -132,7 +140,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                       icon: Icons.home,
                       color: kStickyYellow,
                       onPressed: () {
-                        debugPrint('   🏠 ניווט חזרה לדף הבית');
+                        _log('   🏠 ניווט חזרה לדף הבית');
                         Navigator.of(context).popUntil((route) => route.isFirst);
                       },
                     ),
@@ -142,7 +150,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
             }
 
             // 4️⃣ Content - חישוב סטטיסטיקות
-            debugPrint('   ✅ מציג סיכום: ${list.name}');
+            _log('   ✅ מציג סיכום: ${list.name}');
             final total = list.items.length;
             final purchased = list.items.where((item) => item.isChecked).length;
             final missing = total - purchased;
@@ -153,9 +161,9 @@ class ShoppingSummaryScreen extends StatelessWidget {
             final budgetDiff = budget - spentAmount;
             final successRate = total > 0 ? (purchased / total) * 100 : 0;
 
-            debugPrint('   📊 נקנו: $purchased/$total');
-            debugPrint('   💰 הוצאו: ₪${spentAmount.toStringAsFixed(2)}');
-            debugPrint('   📈 אחוז הצלחה: ${successRate.toStringAsFixed(1)}%');
+            _log('   📊 נקנו: $purchased/$total');
+            _log('   💰 הוצאו: ₪${spentAmount.toStringAsFixed(2)}');
+            _log('   📈 אחוז הצלחה: ${successRate.toStringAsFixed(1)}%');
 
             return SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -168,7 +176,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                       CircleAvatar(
                         radius: 48,
                         backgroundColor: cs.primaryContainer,
-                        child: Text(
+                        child: const Text(
                           "🎉",
                           style: const TextStyle(fontSize: 40),
                         ),
@@ -266,7 +274,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                     icon: Icons.home,
                     color: kStickyYellow,
                     onPressed: () {
-                      debugPrint('   🏠 לחיצה על כפתור חזרה - popUntil');
+                      _log('   🏠 לחיצה על כפתור חזרה - popUntil');
                       Navigator.of(context).popUntil((route) => route.isFirst);
                     },
                   ),

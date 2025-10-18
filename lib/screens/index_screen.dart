@@ -43,12 +43,20 @@
 
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/ui_constants.dart';
 import '../l10n/app_strings.dart';
 import '../providers/user_context.dart';
 import 'welcome_screen.dart';
+
+// 🔧 Wrapper ללוגים - פועל רק ב-debug mode
+void _log(String message) {
+  if (kDebugMode) {
+    debugPrint(message);
+  }
+}
 
 class IndexScreen extends StatefulWidget {
   const IndexScreen({super.key});
@@ -91,7 +99,7 @@ class _IndexScreenState extends State<IndexScreen>
   @override
   void initState() {
     super.initState();
-    debugPrint('🚀 IndexScreen.initState() - מתחיל Splash Screen מודרני');
+    _log('🚀 IndexScreen.initState() - מתחיל Splash Screen מודרני');
 
     // 🎬 Initialize Animation Controllers
     _logoController = AnimationController(
@@ -162,7 +170,7 @@ class _IndexScreenState extends State<IndexScreen>
 
   /// מופעל כל פעם ש-UserContext משתנה
   void _onUserContextChanged() {
-    debugPrint('👂 IndexScreen: UserContext השתנה');
+    _log('👂 IndexScreen: UserContext השתנה');
     if (!_hasNavigated && mounted) {
       _checkAndNavigate();
     }
@@ -171,26 +179,26 @@ class _IndexScreenState extends State<IndexScreen>
   Future<void> _checkAndNavigate() async {
     if (_hasNavigated) return; // כבר ניווטנו
 
-    debugPrint('\n🏗️ IndexScreen._checkAndNavigate() - מתחיל...');
+    _log('\n🏗️ IndexScreen._checkAndNavigate() - מתחיל...');
 
     try {
       // ✅ מקור אמת יחיד - UserContext!
       final userContext = Provider.of<UserContext>(context, listen: false);
 
-      debugPrint('   📊 UserContext state:');
-      debugPrint('      isLoggedIn: ${userContext.isLoggedIn}');
-      debugPrint('      user: ${userContext.user?.email ?? "null"}');
-      debugPrint('      isLoading: ${userContext.isLoading}');
+      _log('   📊 UserContext state:');
+      _log('      isLoggedIn: ${userContext.isLoggedIn}');
+      _log('      user: ${userContext.user?.email ?? "null"}');
+      _log('      isLoading: ${userContext.isLoading}');
 
       // ⏳ אם UserContext עדיין טוען, נחכה
       if (userContext.isLoading) {
-        debugPrint('   ⏳ UserContext טוען, ממתין לסיום...');
+        _log('   ⏳ UserContext טוען, ממתין לסיום...');
         return; // ה-listener יקרא לנו שוב כש-isLoading ישתנה
       }
 
       // ✅ מצב 1: משתמש מחובר → ישר לדף הבית
       if (userContext.isLoggedIn) {
-        debugPrint(
+        _log(
             '   ✅ משתמש מחובר (${userContext.userEmail}) → ניווט ל-/home');
         _hasNavigated = true;
         if (mounted) {
@@ -205,11 +213,11 @@ class _IndexScreenState extends State<IndexScreen>
       // (seenOnboarding נשאר מקומי - לא צריך sync בין מכשירים)
       final prefs = await SharedPreferences.getInstance();
       final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
-      debugPrint('   📋 seenOnboarding (local): $seenOnboarding');
+      _log('   📋 seenOnboarding (local): $seenOnboarding');
 
       if (!seenOnboarding) {
         // ✅ מצב 2: לא ראה welcome → שולח לשם
-        debugPrint('   ➡️ לא ראה onboarding → ניווט ל-WelcomeScreen');
+        _log('   ➡️ לא ראה onboarding → ניווט ל-WelcomeScreen');
         _hasNavigated = true;
         if (mounted) {
           userContext.removeListener(_onUserContextChanged);
@@ -221,7 +229,7 @@ class _IndexScreenState extends State<IndexScreen>
       }
 
       // ✅ מצב 3: ראה welcome אבל לא מחובר → שולח ל-login
-      debugPrint('   ➡️ ראה onboarding אבל לא מחובר → ניווט ל-/login');
+      _log('   ➡️ ראה onboarding אבל לא מחובר → ניווט ל-/login');
       _hasNavigated = true;
       if (mounted) {
         userContext.removeListener(_onUserContextChanged);
@@ -229,7 +237,7 @@ class _IndexScreenState extends State<IndexScreen>
       }
     } catch (e) {
       // ✅ במקרה של שגיאה - הצג מסך שגיאה
-      debugPrint('❌ שגיאה ב-IndexScreen._checkAndNavigate: $e');
+      _log('❌ שגיאה ב-IndexScreen._checkAndNavigate: $e');
       if (mounted) {
         setState(() {
           _hasError = true;
@@ -240,7 +248,7 @@ class _IndexScreenState extends State<IndexScreen>
 
   /// retry לאחר שגיאה
   void _retry() {
-    debugPrint('🔄 IndexScreen: retry לאחר שגיאה');
+    _log('🔄 IndexScreen: retry לאחר שגיאה');
     setState(() {
       _hasError = false;
       _hasNavigated = false;
@@ -250,7 +258,7 @@ class _IndexScreenState extends State<IndexScreen>
 
   @override
   void dispose() {
-    debugPrint('🗑️ IndexScreen.dispose()');
+    _log('🗑️ IndexScreen.dispose()');
     // ✅ ניקוי listener
     try {
       final userContext = Provider.of<UserContext>(context, listen: false);

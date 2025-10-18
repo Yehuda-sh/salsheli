@@ -81,6 +81,7 @@
 //
 // Version: 3.0 - Dynamic Color + M3 Surface Containers + Typography Improvements
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../core/ui_constants.dart';
@@ -177,7 +178,9 @@ class AppBrand extends ThemeExtension<AppBrand> {
     Color? notebookBlue,
     Color? notebookRed,
   }) {
-    debugPrint('🎨 AppBrand.copyWith()');
+    if (kDebugMode) {
+      debugPrint('🎨 AppBrand.copyWith()');
+    }
     return AppBrand(
       accent: accent ?? this.accent,
       surfaceSlate: surfaceSlate ?? this.surfaceSlate,
@@ -197,7 +200,9 @@ class AppBrand extends ThemeExtension<AppBrand> {
 
   @override
   AppBrand lerp(ThemeExtension<AppBrand>? other, double t) {
-    debugPrint('🎨 AppBrand.lerp(t: ${t.toStringAsFixed(2)})');
+    if (kDebugMode) {
+      debugPrint('🎨 AppBrand.lerp(t: ${t.toStringAsFixed(2)})');
+    }
     if (other is! AppBrand) return this;
     return AppBrand(
       accent: Color.lerp(accent, other.accent, t)!,
@@ -263,8 +268,10 @@ class AppTheme {
     ColorScheme dynamicScheme, {
     required bool dark,
   }) {
-    debugPrint('🎨 AppTheme.fromDynamicColors(dark: $dark)');
-    debugPrint('   📱 Material You - Dynamic Color detected!');
+    if (kDebugMode) {
+      debugPrint('🎨 AppTheme.fromDynamicColors(dark: $dark)');
+      debugPrint('   📱 Material You - Dynamic Color detected!');
+    }
     
     // Harmonization: התאם את Amber/Success/Warning לצבעי המערכת
     // זה שומר על הזהות של המותג אבל משלב אותם בצבעי המשתמש
@@ -281,7 +288,9 @@ class AppTheme {
       dynamicScheme.primary,
     );
     
-    debugPrint('   🎨 accent: harmonized ${_Brand.amber.toARGB32().toRadixString(16)} → ${harmonizedAccent.toARGB32().toRadixString(16)}');
+    if (kDebugMode) {
+      debugPrint('   🎨 accent: harmonized ${_Brand.amber.toARGB32().toRadixString(16)} → ${harmonizedAccent.toARGB32().toRadixString(16)}');
+    }
     
     final brand = AppBrand(
       accent: harmonizedAccent,
@@ -338,7 +347,9 @@ class AppTheme {
     required bool dark,
     AppBrand? customBrand,
   }) {
-    debugPrint('🎨 AppTheme._base(dark: $dark, customBrand: ${customBrand != null})');
+    if (kDebugMode) {
+      debugPrint('🎨 AppTheme._base(dark: $dark, customBrand: ${customBrand != null})');
+    }
     
     // צור AppBrand - או customBrand (מ-dynamic colors) או ברירת מחדל
     final brand = customBrand ?? AppBrand(
@@ -357,7 +368,7 @@ class AppTheme {
       notebookRed: kNotebookRed,
     );
     
-    if (customBrand == null) {
+    if (customBrand == null && kDebugMode) {
       debugPrint('   🎨 accent: ${brand.accent.toARGB32().toRadixString(16)}');
       debugPrint('   🎨 surfaceSlate: ${brand.surfaceSlate.toARGB32().toRadixString(16)}');
     }
@@ -725,7 +736,9 @@ class AppTheme {
   /// Theme בסיסי ללא Dynamic Color.
   /// לשימוש כ-fallback כאשר Dynamic Color לא זמין.
   static ThemeData get lightTheme {
-    debugPrint('☀️ AppTheme.lightTheme - Loading...');
+    if (kDebugMode) {
+      debugPrint('☀️ AppTheme.lightTheme - Loading...');
+    }
     return _base(_lightScheme, dark: false);
   }
 
@@ -734,7 +747,9 @@ class AppTheme {
   /// Theme בסיסי ללא Dynamic Color.
   /// לשימוש כ-fallback כאשר Dynamic Color לא זמין.
   static ThemeData get darkTheme {
-    debugPrint('🌙 AppTheme.darkTheme - Loading...');
+    if (kDebugMode) {
+      debugPrint('🌙 AppTheme.darkTheme - Loading...');
+    }
     return _base(_darkScheme, dark: true);
   }
 }

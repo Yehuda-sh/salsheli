@@ -6,12 +6,14 @@
 // ✅ Staggered animations לכרטיסים
 // ✅ Haptic feedback
 // ✅ Constants למידות (אין hardcoded values)
+// ✅ Sticky Notes Design - פתקים צבעוניים במצב טעינה!
 //
-// גרסה: 2.0 - Constants Integration (10/10/2025)
+// גרסה: 3.0 - Sticky Notes Integration (18/10/2025)
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/ui_constants.dart';
+import '../../widgets/common/sticky_note.dart';
 
 /// 💀 Skeleton Loader - מצב טעינה מקצועי
 class DashboardSkeleton extends StatelessWidget {
@@ -19,35 +21,41 @@ class DashboardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    
     return Column(
       children: [
-        _SkeletonCard(cs: cs).animate().fadeIn(),
+        // פתק צהוב - תואם ל-Header
+        const _SkeletonCard(color: kStickyYellow, rotation: -0.02)
+          .animate().fadeIn(),
         const SizedBox(height: kSpacingMedium),
-        _SkeletonCard(cs: cs).animate().fadeIn(delay: 100.ms),
+        
+        // פתק ורוד - תואם ל-ReceiptsCard
+        const _SkeletonCard(color: kStickyPink, rotation: 0.015)
+          .animate().fadeIn(delay: 100.ms),
         const SizedBox(height: kSpacingMedium),
-        _SkeletonCard(cs: cs).animate().fadeIn(delay: 200.ms),
+        
+        // פתק ירוק - תואם ל-ActiveListsCard
+        const _SkeletonCard(color: kStickyGreen, rotation: -0.01)
+          .animate().fadeIn(delay: 200.ms),
       ],
     );
   }
 }
 
 class _SkeletonCard extends StatelessWidget {
-  final ColorScheme cs;
+  final Color color;
+  final double rotation;
   
-  const _SkeletonCard({required this.cs});
+  const _SkeletonCard({
+    required this.color,
+    required this.rotation,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: kCardElevation,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(kSpacingMedium),
-        child: Column(
+    return StickyNote(
+      color: color,
+      rotation: rotation,
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // שורה 1 - כותרת
@@ -55,14 +63,14 @@ class _SkeletonCard extends StatelessWidget {
               width: kSkeletonTitleWidth,
               height: kSkeletonTitleHeight,
               decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest,
+                color: Colors.black.withValues(alpha: 0.1),  // ✅ צבע כהה קל על הפתק
                 borderRadius: BorderRadius.circular(kBorderRadiusSmall),
               ),
             )
               .animate(onPlay: (c) => c.repeat())
               .shimmer(
                 duration: 1200.ms,
-                color: cs.surface.withValues(alpha: kSkeletonShimmerAlpha),
+                color: Colors.white.withValues(alpha: 0.4),  // ✅ shimmer לבן
               ),
             
             const SizedBox(height: kSpacingSmall),
@@ -72,7 +80,7 @@ class _SkeletonCard extends StatelessWidget {
               width: kSkeletonSubtitleWidth,
               height: kSkeletonSubtitleHeight,
               decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest,
+                color: Colors.black.withValues(alpha: 0.1),  // ✅ צבע כהה קל על הפתק
                 borderRadius: BorderRadius.circular(kBorderRadiusSmall),
               ),
             )
@@ -80,7 +88,7 @@ class _SkeletonCard extends StatelessWidget {
               .shimmer(
                 duration: 1200.ms,
                 delay: 200.ms,
-                color: cs.surface.withValues(alpha: kSkeletonShimmerAlpha),
+                color: Colors.white.withValues(alpha: 0.4),  // ✅ shimmer לבן
               ),
             
             const SizedBox(height: kSpacingMedium),
@@ -90,7 +98,7 @@ class _SkeletonCard extends StatelessWidget {
               width: double.infinity,
               height: kSkeletonContentHeight,
               decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest,
+                color: Colors.black.withValues(alpha: 0.1),  // ✅ צבע כהה קל על הפתק
                 borderRadius: BorderRadius.circular(kBorderRadiusSmall),
               ),
             )
@@ -98,11 +106,10 @@ class _SkeletonCard extends StatelessWidget {
               .shimmer(
                 duration: 1200.ms,
                 delay: 400.ms,
-                color: cs.surface.withValues(alpha: kSkeletonShimmerAlpha),
+                color: Colors.white.withValues(alpha: 0.4),  // ✅ shimmer לבן
               ),
           ],
         ),
-      ),
     );
   }
 }

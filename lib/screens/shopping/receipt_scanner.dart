@@ -1,11 +1,31 @@
-// lib/screens/shopping/receipt_scanner.dart
+/// Receipt scanner screen with OCR capabilities.
+///
+/// Features:
+/// - Camera capture
+/// - Gallery upload
+/// - OCR text extraction
+/// - Receipt parsing
+/// - Preview and confirmation
+///
+/// Design: Sticky Notes theme
+library;
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-// ✨ שירותי OCR + Parser
+// Services
 import '../../services/ocr_service.dart';
 import '../../services/receipt_parser_service.dart';
+
+// Models
 import '../../models/receipt.dart';
+
+// Widgets
+import '../../widgets/common/sticky_note.dart';
+import '../../widgets/common/sticky_button.dart';
+
+// Constants
+import '../../core/ui_constants.dart';
 
 class ReceiptScanner extends StatefulWidget {
   final Function(Receipt)? onReceiptProcessed;
@@ -25,6 +45,12 @@ class _ReceiptScannerState extends State<ReceiptScanner> {
 
   final ImagePicker _picker = ImagePicker();
 
+  @override
+  void dispose() {
+    // Cleanup
+    super.dispose();
+  }
+
   Future<void> _pickImage(ImageSource source) async {
     try {
       setState(() {
@@ -42,6 +68,7 @@ class _ReceiptScannerState extends State<ReceiptScanner> {
         return;
       }
 
+      if (!mounted) return;
       setState(() => progress = 0.3);
       debugPrint('✅ ReceiptScanner: תמונה נבחרה - ${picked.path}');
 
@@ -53,16 +80,20 @@ class _ReceiptScannerState extends State<ReceiptScanner> {
         throw Exception('לא זוהה טקסט בתמונה');
       }
 
+      if (!mounted) return;
       setState(() => progress = 0.7);
       debugPrint('✅ ReceiptScanner: OCR הושלם - ${text.length} תווים');
 
       // שלב 3: ניתוח לקבלה (90%)
       debugPrint('📝 ReceiptScanner: מנתח קבלה...');
       final receipt = ReceiptParserService.parseReceiptText(text);
+      
+      if (!mounted) return;
       setState(() => progress = 0.9);
       debugPrint('✅ ReceiptScanner: קבלה נותחה - ${receipt.items.length} פריטים');
 
       // שלב 4: סיום (100%)
+      if (!mounted) return;
       setState(() {
         extractedReceipt = receipt;
         progress = 1.0;
@@ -74,6 +105,7 @@ class _ReceiptScannerState extends State<ReceiptScanner> {
       debugPrint('❌ ReceiptScanner: שגיאה בעיבוד - $e');
       debugPrintStack(stackTrace: stackTrace);
       
+      if (!mounted) return;
       setState(() {
         isScanning = false;
         error = "שגיאה בעיבוד הקבלה: ${e.toString()}";
@@ -81,8 +113,25 @@ class _ReceiptScannerState extends State<ReceiptScanner> {
     }
   }
 
+  /// Confirms and processes the extracted receipt.
+  /// Validates data before sending to parent.
   Future<void> _confirmReceipt() async {
     if (extractedReceipt == null) return;
+
+    // Validation
+    if (extractedReceipt!.storeName.trim().isEmpty) {
+      setState(() {
+        error = 'שם החנות חובה';
+      });
+      return;
+    }
+
+    if (extractedReceipt!.totalAmount <= 0) {
+      setState(() {
+        error = 'סכום לא תקין';
+      });
+      return;
+    }
 
     debugPrint('💾 ReceiptScanner: מאשר קבלה...');
     setState(() => isProcessing = true);
@@ -94,6 +143,7 @@ class _ReceiptScannerState extends State<ReceiptScanner> {
         debugPrint('✅ ReceiptScanner: קבלה הועברה לעיבוד');
       }
 
+      if (!mounted) return;
       setState(() {
         extractedReceipt = null;
         isProcessing = false;
@@ -104,6 +154,7 @@ class _ReceiptScannerState extends State<ReceiptScanner> {
       debugPrint('❌ ReceiptScanner: שגיאה באישור - $e');
       debugPrintStack(stackTrace: stackTrace);
       
+      if (!mounted) return;
       setState(() {
         error = "שגיאה באישור הקבלה: ${e.toString()}";
         isProcessing = false;
@@ -121,10 +172,12 @@ class _ReceiptScannerState extends State<ReceiptScanner> {
     });
   }
 
+  /// Opens receipt editing screen (future feature).
   void _editReceipt() {
     debugPrint('✏️ ReceiptScanner: עריכת קבלה');
-    // TODO: פתח מסך עריכה
-    ScaffoldMessenger.of(context).showSnackBar(
+    
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.showSnackBar(
       const SnackBar(
         content: Text('עריכת קבלה - בקרוב!'),
         backgroundColor: Colors.orange,
@@ -138,86 +191,106 @@ class _ReceiptScannerState extends State<ReceiptScanner> {
       return _buildReceiptPreview();
     }
 
-    return Card(
-      elevation: 4,
+    return StickyNote(
+      color: kStickyYellow,
+      rotation: -0.01,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(kSpacingMedium),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Row(
+            Row(
               children: [
-                Icon(Icons.camera_alt, color: Colors.green),
-                SizedBox(width: 8),
-                Text(
+                Icon(Icons.camera_alt, color: Colors.green.shade700),
+                const SizedBox(width: kSpacingSmall),
+                const Text(
                   "סריקת קבלות חכמה",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: kSpacingMedium),
             if (error != null)
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(8),
-                margin: const EdgeInsets.only(bottom: 12),
+                padding: EdgeInsets.all(kSpacingSmall),
+                margin: EdgeInsets.only(bottom: kSpacingMedium),
                 decoration: BoxDecoration(
-                  color: Colors.red[100],
-                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.red.shade100,
+                  borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                  border: Border.all(
+                    color: Colors.red.shade300,
+                    width: 1.5,
+                  ),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.error_outline, color: Colors.red),
-                    const SizedBox(width: 8),
+                    Icon(Icons.error_outline, color: Colors.red.shade700),
+                    const SizedBox(width: kSpacingSmall),
                     Expanded(
                       child: Text(
                         error!,
-                        style: const TextStyle(color: Colors.red, fontSize: 14),
+                        style: TextStyle(
+                          color: Colors.red.shade900,
+                          fontSize: kFontSizeSmall,
+                        ),
                       ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.close, size: 18),
                       onPressed: () => setState(() => error = null),
-                      color: Colors.red,
+                      color: Colors.red.shade700,
                     ),
                   ],
                 ),
               ),
             if (isScanning) ...[
-              LinearProgressIndicator(value: progress),
-              const SizedBox(height: 8),
+              LinearProgressIndicator(
+                value: progress,
+                backgroundColor: Colors.grey.shade200,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.green.shade600),
+              ),
+              const SizedBox(height: kSpacingSmall),
               Text(
                 _getProgressText(),
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
+                style: TextStyle(
+                  fontSize: kFontSizeSmall,
+                  color: Colors.grey.shade700,
+                ),
               ),
             ] else ...[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  ElevatedButton.icon(
-                    onPressed: () => _pickImage(ImageSource.camera),
-                    icon: const Icon(Icons.camera_alt),
-                    label: const Text("צלם קבלה"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
+                  Expanded(
+                    child: StickyButton(
+                      label: "צלם",
+                      icon: Icons.camera_alt,
+                      color: Colors.green.shade400,
+                      onPressed: () => _pickImage(ImageSource.camera),
                     ),
                   ),
-                  ElevatedButton.icon(
-                    onPressed: () => _pickImage(ImageSource.gallery),
-                    icon: const Icon(Icons.upload),
-                    label: const Text("העלה תמונה"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
+                  const SizedBox(width: kSpacingSmall),
+                  Expanded(
+                    child: StickyButton(
+                      label: "העלה",
+                      icon: Icons.upload,
+                      color: Colors.blue.shade300,
+                      onPressed: () => _pickImage(ImageSource.gallery),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              const Text(
+              const SizedBox(height: kSpacingSmall),
+              Text(
                 '💡 טיפ: ודא תאורה טובה וקבלה ישרה',
-                style: TextStyle(fontSize: 12, color: Colors.grey),
+                style: TextStyle(
+                  fontSize: kFontSizeTiny,
+                  color: Colors.grey.shade600,
+                ),
               ),
             ],
           ],
@@ -235,18 +308,19 @@ class _ReceiptScannerState extends State<ReceiptScanner> {
 
   Widget _buildReceiptPreview() {
     final r = extractedReceipt!;
-    return Card(
-      elevation: 4,
+    return StickyNote(
+      color: kStickyPink,
+      rotation: 0.015,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(kSpacingMedium),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
             Row(
               children: [
-                const Icon(Icons.receipt_long, color: Colors.green, size: 28),
-                const SizedBox(width: 12),
+                Icon(Icons.receipt_long, color: Colors.green.shade700, size: 28),
+                const SizedBox(width: kSpacingMedium),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,7 +336,7 @@ class _ReceiptScannerState extends State<ReceiptScanner> {
                         "סה״כ: ₪${r.totalAmount.toStringAsFixed(2)}",
                         style: TextStyle(
                           fontSize: 16,
-                          color: Colors.grey[700],
+                          color: Colors.grey.shade700,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -273,28 +347,32 @@ class _ReceiptScannerState extends State<ReceiptScanner> {
                   icon: const Icon(Icons.edit),
                   onPressed: _editReceipt,
                   tooltip: 'ערוך קבלה',
+                  color: Colors.grey.shade700,
                 ),
               ],
             ),
-            const Divider(height: 24),
+            const Divider(height: kSpacingLarge),
 
             // Items List
             if (r.items.isEmpty)
-              const Center(
+              Center(
                 child: Padding(
-                  padding: EdgeInsets.all(16.0),
+                  padding: EdgeInsets.all(kSpacingMedium),
                   child: Column(
                     children: [
-                      Icon(Icons.inbox, size: 48, color: Colors.grey),
-                      SizedBox(height: 8),
+                      Icon(Icons.inbox, size: 48, color: Colors.grey.shade400),
+                      const SizedBox(height: kSpacingSmall),
                       Text(
                         'לא זוהו פריטים',
-                        style: TextStyle(color: Colors.grey),
+                        style: TextStyle(color: Colors.grey.shade600),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
                         'לחץ על ערוך להוספה ידנית',
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: kFontSizeTiny,
+                        ),
                       ),
                     ],
                   ),
@@ -303,13 +381,13 @@ class _ReceiptScannerState extends State<ReceiptScanner> {
             else ...[
               Text(
                 '${r.items.length} פריטים:',
-                style: const TextStyle(
-                  fontSize: 14,
+                style: TextStyle(
+                  fontSize: kFontSizeSmall,
                   fontWeight: FontWeight.bold,
-                  color: Colors.grey,
+                  color: Colors.grey.shade700,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: kSpacingSmall),
               SizedBox(
                 height: 200,
                 child: ListView.builder(
@@ -318,27 +396,29 @@ class _ReceiptScannerState extends State<ReceiptScanner> {
                     final item = r.items[index];
                     return ListTile(
                       dense: true,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: kSpacingSmall,
+                      ),
                       leading: CircleAvatar(
                         radius: 16,
-                        backgroundColor: Colors.green[100],
+                        backgroundColor: Colors.green.shade100,
                         child: Text(
                           '${item.quantity}',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: kFontSizeTiny,
                             fontWeight: FontWeight.bold,
-                            color: Colors.green[900],
+                            color: Colors.green.shade900,
                           ),
                         ),
                       ),
                       title: Text(
                         item.name ?? 'ללא שם',
-                        style: const TextStyle(fontSize: 14),
+                        style: const TextStyle(fontSize: kFontSizeSmall),
                       ),
                       trailing: Text(
                         '₪${item.totalPrice.toStringAsFixed(2)}',
                         style: const TextStyle(
-                          fontSize: 14,
+                          fontSize: kFontSizeSmall,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -348,33 +428,27 @@ class _ReceiptScannerState extends State<ReceiptScanner> {
               ),
             ],
 
-            const Divider(height: 24),
+            const Divider(height: kSpacingLarge),
 
             // Actions
             Row(
               children: [
-                OutlinedButton.icon(
-                  onPressed: _resetScanner,
-                  icon: const Icon(Icons.close),
-                  label: const Text("ביטול"),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.red,
+                Expanded(
+                  child: StickyButton(
+                    label: "ביטול",
+                    icon: Icons.close,
+                    color: Colors.white,
+                    textColor: Colors.red.shade700,
+                    onPressed: _resetScanner,
                   ),
                 ),
-                const Spacer(),
-                ElevatedButton.icon(
-                  onPressed: isProcessing ? null : _confirmReceipt,
-                  icon: isProcessing
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.check),
-                  label: Text(isProcessing ? "שומר..." : "אישור"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
+                const SizedBox(width: kSpacingSmall),
+                Expanded(
+                  child: StickyButton(
+                    label: isProcessing ? "שומר..." : "אישור",
+                    icon: isProcessing ? null : Icons.check,
+                    color: Colors.green.shade400,
+                    onPressed: isProcessing ? () {} : _confirmReceipt,
                   ),
                 ),
               ],

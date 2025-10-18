@@ -35,17 +35,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:memozap/core/ui_constants.dart';
-import 'package:memozap/l10n/app_strings.dart';
-import 'package:memozap/layout/app_layout.dart';
-import 'package:memozap/models/shopping_list.dart';
-import 'package:memozap/providers/shopping_lists_provider.dart';
+import 'package:salsheli/core/ui_constants.dart';
+import 'package:salsheli/l10n/app_strings.dart';
+import 'package:salsheli/layout/app_layout.dart';
+import 'package:salsheli/models/shopping_list.dart';
+import 'package:salsheli/providers/shopping_lists_provider.dart';
 
-import 'package:memozap/screens/home/home_dashboard_screen.dart';
-import 'package:memozap/screens/shopping/shopping_lists_screen.dart';
-import 'package:memozap/screens/pantry/my_pantry_screen.dart';
-import 'package:memozap/screens/receipts/receipt_import_screen.dart';  // קבלות
-import 'package:memozap/screens/settings/settings_screen.dart';
+import 'package:salsheli/screens/home/home_dashboard_screen.dart';
+import 'package:salsheli/screens/shopping/shopping_lists_screen.dart';
+import 'package:salsheli/screens/pantry/my_pantry_screen.dart';
+import 'package:salsheli/screens/receipts/receipt_import_screen.dart';  // קבלות
+import 'package:salsheli/screens/settings/settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -86,22 +86,22 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() => _selectedIndex = index);
   }
 
-  Future<bool> _onWillPop() async {
-    // Jeśli nie jesteśmy na pierwszej karcie — wróć do niej zamiast wychodzić
+  Future<bool> _onWillPop() {
+    // אם לא בטאב הראשון - חזור אליו במקום לצאת
     if (_selectedIndex != 0) {
-      debugPrint('🏠 HomeScreen: Back z karty $_selectedIndex → powrót do dashboardu (0)');
+      debugPrint('🏠 HomeScreen: Back מטאב $_selectedIndex → חזרה לדשבורד (0)');
       setState(() => _selectedIndex = 0);
-      return false;
+      return Future.value(false);
     }
 
     final now = DateTime.now();
     if (_lastBackPress == null ||
         now.difference(_lastBackPress!) > kDoubleTapTimeout) {
       _lastBackPress = now;
-      debugPrint('🏠 HomeScreen: pierwsze kliknięcie na Back - czekaj na drugie');
+      debugPrint('🏠 HomeScreen: לחיצה ראשונה על Back - חכה לשנייה');
 
-      // ✅ Pobierz referencję PRZED jakimikolwiek async operacjami
-      if (!mounted) return false;
+      // ✅ בדיקת mounted ו-context נשמרים לפני כל פעולה
+      if (!mounted) return Future.value(false);
       final messenger = ScaffoldMessenger.of(context);
       
       messenger.showSnackBar(
@@ -122,12 +122,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         );
-      return false;
+      return Future.value(false);
     }
 
-    // Drugie kliknięcie w ciągu 2 sekund — zezwól na wyjście
-    debugPrint('🏠 HomeScreen: drugie kliknięcie na Back - wyjście z aplikacji');
-    return true;
+    // לחיצה שנייה תוך 2 שניות - אפשר יציאה
+    debugPrint('🏠 HomeScreen: לחיצה שנייה על Back - יוצא מהאפליקציה');
+    return Future.value(true);
   }
 
   @override
@@ -159,9 +159,13 @@ class _HomeScreenState extends State<HomeScreen> {
       canPop: false,
       onPopInvokedWithResult: (bool didPop, dynamic result) async {
         if (didPop) return;
+        
+        // ✅ שמור Navigator לפני await
+        final navigator = Navigator.of(context);
+        
         final shouldPop = await _onWillPop();
         if (shouldPop && mounted) {
-          Navigator.of(context).pop();
+          navigator.pop();
         }
       },
       child: AppLayout(

@@ -54,6 +54,15 @@ import '../../providers/shopping_lists_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../core/ui_constants.dart';
 
+// Widgets - Sticky Notes Design
+import '../../widgets/common/sticky_note.dart';
+import '../../widgets/common/sticky_button.dart';
+import '../../widgets/common/notebook_background.dart';
+
+// Animation constants
+const Duration _kItemAnimationBaseDuration = Duration(milliseconds: 300);
+const Duration _kItemAnimationStaggerDelay = Duration(milliseconds: 50);
+
 class ManageListScreen extends StatefulWidget {
   final String listName;
   final String listId;
@@ -99,6 +108,13 @@ class _ManageListScreenState extends State<ManageListScreen>
     final qtyController = TextEditingController(text: '1');
     final priceController = TextEditingController(text: '0');
 
+    // Cleanup function
+    void disposeControllers() {
+      nameController.dispose();
+      qtyController.dispose();
+      priceController.dispose();
+    }
+
     // שמירת messenger לפני async
     final messenger = ScaffoldMessenger.of(context);
 
@@ -107,67 +123,145 @@ class _ManageListScreenState extends State<ManageListScreen>
       builder: (ctx) {
         return Directionality(
           textDirection: TextDirection.rtl,
-          child: AlertDialog(
-            title: const Text('הוסף פריט חדש'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'שם המוצר',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                SizedBox(height: kSpacingSmallPlus),
-                Row(
+          child: Dialog(
+            child: StickyNote(
+              color: kStickyYellow,
+              rotation: -0.015,
+              child: Padding(
+                padding: EdgeInsets.all(kSpacingLarge),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Expanded(
-                      child: TextField(
-                        controller: qtyController,
-                        decoration: const InputDecoration(
-                          labelText: 'כמות',
-                          border: OutlineInputBorder(),
+                    Row(
+                      children: [
+                        Icon(Icons.add_shopping_cart, color: Colors.green.shade700),
+                        const SizedBox(width: kSpacingSmall),
+                        const Text(
+                          'הוסף פריט חדש',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        keyboardType: TextInputType.number,
-                      ),
+                      ],
                     ),
-                    SizedBox(width: kSpacingSmallPlus),
-                    Expanded(
-                      child: TextField(
-                        controller: priceController,
-                        decoration: const InputDecoration(
-                          labelText: 'מחיר',
-                          border: OutlineInputBorder(),
+                    const SizedBox(height: kSpacingMedium),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        StickyNote(
+                          color: kStickyCyan,
+                          rotation: 0.01,
+                          child: TextField(
+                            controller: nameController,
+                            decoration: const InputDecoration(
+                              labelText: 'שם המוצר',
+                              border: InputBorder.none,
+                              filled: false,
+                            ),
+                          ),
                         ),
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
+                        const SizedBox(height: kSpacingSmall),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: StickyNote(
+                                color: kStickyGreen,
+                                rotation: -0.008,
+                                child: TextField(
+                                  controller: qtyController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'כמות',
+                                    border: InputBorder.none,
+                                    filled: false,
+                                  ),
+                                  keyboardType: TextInputType.number,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: kSpacingSmall),
+                            Expanded(
+                              child: StickyNote(
+                                color: kStickyPink,
+                                rotation: 0.008,
+                                child: TextField(
+                                  controller: priceController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'מחיר',
+                                    border: InputBorder.none,
+                                    filled: false,
+                                  ),
+                                  keyboardType: const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  debugPrint('❌ ביטול הוספת פריט');
-                  Navigator.pop(ctx);
-                },
-                child: const Text('ביטול'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
+                        const SizedBox(height: kSpacingLarge),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: StickyButton(
+                                label: 'ביטול',
+                                icon: Icons.close,
+                                color: Colors.white,
+                                textColor: Colors.red.shade700,
+                                onPressed: () {
+                                  debugPrint('❌ ביטול הוספת פריט');
+                                  disposeControllers();
+                                  Navigator.pop(ctx);
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: kSpacingSmall),
+                            Expanded(
+                              child: StickyButton(
+                                label: 'הוסף',
+                                icon: Icons.add,
+                                color: Colors.green.shade400,
+                                onPressed: () async {
                   final name = nameController.text.trim();
+                  
+                  // Validation
                   if (name.isEmpty) {
                     debugPrint('⚠️ שם פריט ריק');
+                    messenger.showSnackBar(
+                      const SnackBar(
+                        content: Text('⚠️ נא להזין שם מוצר'),
+                        backgroundColor: Colors.orange,
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
                     return;
                   }
 
                   final qty = int.tryParse(qtyController.text.trim()) ?? 1;
-                  final price =
-                      double.tryParse(priceController.text.trim()) ?? 0.0;
+                  if (qty <= 0) {
+                    debugPrint('⚠️ כמות לא תקינה: $qty');
+                    messenger.showSnackBar(
+                      const SnackBar(
+                        content: Text('⚠️ כמות חייבת להיות גדולה מ-0'),
+                        backgroundColor: Colors.orange,
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                    return;
+                  }
+
+                  final price = double.tryParse(priceController.text.trim()) ?? 0.0;
+                  if (price < 0) {
+                    debugPrint('⚠️ מחיר שלילי: $price');
+                    messenger.showSnackBar(
+                      const SnackBar(
+                        content: Text('⚠️ מחיר לא יכול להיות שלילי'),
+                        backgroundColor: Colors.orange,
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                    return;
+                  }
 
                   debugPrint('➕ מוסיף פריט: "$name" x$qty = ₪$price');
 
@@ -188,6 +282,7 @@ class _ManageListScreenState extends State<ManageListScreen>
                     );
                     debugPrint('✅ פריט "$name" נוסף בהצלחה');
 
+                    disposeControllers();
                     if (ctx.mounted) {
                       Navigator.pop(ctx);
                       messenger.showSnackBar(
@@ -195,7 +290,7 @@ class _ManageListScreenState extends State<ManageListScreen>
                           content: Row(
                             children: [
                               const Icon(Icons.check_circle, color: Colors.white),
-                              SizedBox(width: kSpacingSmall),
+                              const SizedBox(width: kSpacingSmall),
                               Text('✅ $name נוסף לרשימה'),
                             ],
                           ),
@@ -207,13 +302,14 @@ class _ManageListScreenState extends State<ManageListScreen>
                     }
                   } catch (e) {
                     debugPrint('❌ שגיאה בהוספת פריט: $e');
+                    disposeControllers();
                     if (ctx.mounted) {
                       messenger.showSnackBar(
                         SnackBar(
                           content: Row(
                             children: [
                               const Icon(Icons.error, color: Colors.white),
-                              SizedBox(width: kSpacingSmall),
+                              const SizedBox(width: kSpacingSmall),
                               Text('❌ שגיאה: ${e.toString()}'),
                             ],
                           ),
@@ -224,14 +320,24 @@ class _ManageListScreenState extends State<ManageListScreen>
                       );
                     }
                   }
-                },
-                child: const Text('הוסף'),
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ],
+            ),
           ),
         );
       },
-    );
+    ).whenComplete(() {
+      // Cleanup if dialog was closed without pressing buttons
+      disposeControllers();
+    });
   }
 
   /// מחיקת פריט עם אישור
@@ -256,7 +362,7 @@ class _ManageListScreenState extends State<ManageListScreen>
             content: Row(
               children: [
                 const Icon(Icons.delete_outline, color: Colors.white),
-                SizedBox(width: kSpacingSmall),
+                const SizedBox(width: kSpacingSmall),
                 Text('"${item.name ?? 'ללא שם'}" הוסר'),
               ],
             ),
@@ -273,7 +379,7 @@ class _ManageListScreenState extends State<ManageListScreen>
             content: Row(
               children: [
                 const Icon(Icons.error, color: Colors.white),
-                SizedBox(width: kSpacingSmall),
+                const SizedBox(width: kSpacingSmall),
                 Text('❌ שגיאה: ${e.toString()}'),
               ],
             ),
@@ -305,22 +411,23 @@ class _ManageListScreenState extends State<ManageListScreen>
       debugPrint('✅ פריט "${item.name}" עודכן');
     } catch (e) {
       debugPrint('❌ שגיאה בעדכון פריט: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.error, color: Colors.white),
-                SizedBox(width: kSpacingSmall),
-                Text('❌ שגיאה: ${e.toString()}'),
-              ],
-            ),
-            duration: kSnackBarDuration,
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
+      if (!mounted) return;
+      
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error, color: Colors.white),
+              const SizedBox(width: kSpacingSmall),
+              Text('❌ שגיאה: ${e.toString()}'),
+            ],
           ),
-        );
-      }
+          duration: kSnackBarDuration,
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 
@@ -378,7 +485,7 @@ class _ManageListScreenState extends State<ManageListScreen>
                     height: 16,
                     cs: cs,
                   ),
-                  SizedBox(height: kSpacingSmall),
+                  const SizedBox(height: kSpacingSmall),
                   // פרטי מחיר
                   _buildSkeletonBox(
                     width: 120,
@@ -415,13 +522,13 @@ class _ManageListScreenState extends State<ManageListScreen>
                   borderRadius: BorderRadius.circular(16),
                   cs: cs,
                 ),
-                SizedBox(height: kSpacingTiny),
+                const SizedBox(height: kSpacingTiny),
                 _buildSkeletonBox(
                   width: 50,
                   height: 20,
                   cs: cs,
                 ),
-                SizedBox(height: kSpacingTiny),
+                const SizedBox(height: kSpacingTiny),
                 _buildSkeletonBox(
                   width: 40,
                   height: 14,
@@ -438,23 +545,29 @@ class _ManageListScreenState extends State<ManageListScreen>
   Widget _buildLoading(ColorScheme cs) {
     debugPrint('⏳ _buildLoading()');
     return Scaffold(
-      backgroundColor: cs.surface,
+      backgroundColor: kPaperBackground,
       appBar: AppBar(
         title: Text(widget.listName),
-        backgroundColor: cs.surface,
+        backgroundColor: kPaperBackground,
+        elevation: 0,
       ),
-      body: Column(
+      body: Stack(
         children: [
-          // Skeleton של סטטיסטיקות
-          _buildStatsSkeleton(cs),
-          
-          // Skeleton של 5 פריטים
-          Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.symmetric(horizontal: kSpacingMedium),
-              itemCount: 5,
-              itemBuilder: (context, index) => _buildItemSkeleton(cs),
-            ),
+          const NotebookBackground(),
+          Column(
+            children: [
+              // Skeleton של סטטיסטיקות
+              _buildStatsSkeleton(cs),
+              
+              // Skeleton של 5 פריטים
+              Expanded(
+                child: ListView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: kSpacingMedium),
+                  itemCount: 5,
+                  itemBuilder: (context, index) => _buildItemSkeleton(cs),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -496,7 +609,7 @@ class _ManageListScreenState extends State<ManageListScreen>
                 );
               },
             ),
-            SizedBox(height: kSpacingLarge),
+            const SizedBox(height: kSpacingLarge),
             Text(
               'שגיאה בטעינת הרשימה',
               style: TextStyle(
@@ -512,7 +625,7 @@ class _ManageListScreenState extends State<ManageListScreen>
                 color: cs.onSurfaceVariant,
               ),
             ),
-            SizedBox(height: kSpacingLarge),
+            const SizedBox(height: kSpacingLarge),
             ElevatedButton.icon(
               onPressed: () {
                 debugPrint('🔄 retry - טוען מחדש');
@@ -574,7 +687,7 @@ class _ManageListScreenState extends State<ManageListScreen>
               );
             },
           ),
-          SizedBox(height: kSpacingLarge),
+          const SizedBox(height: kSpacingLarge),
           TweenAnimationBuilder<double>(
             tween: Tween(begin: 0.0, end: 1.0),
             duration: const Duration(milliseconds: 600),
@@ -592,7 +705,7 @@ class _ManageListScreenState extends State<ManageListScreen>
                         color: cs.onSurface,
                       ),
                     ),
-                    SizedBox(height: kSpacingSmall),
+                    const SizedBox(height: kSpacingSmall),
                     Text(
                       'לחץ על כפתור + להוספת פריטים',
                       style: TextStyle(color: cs.onSurfaceVariant),
@@ -621,50 +734,36 @@ class _ManageListScreenState extends State<ManageListScreen>
 
     debugPrint('📊 סטטיסטיקות: ${list.items.length} פריטים, ₪$totalAmount, כמות: $totalQuantity');
 
-    return Container(
-      padding: EdgeInsets.all(kSpacingMedium),
-      margin: EdgeInsets.all(kSpacingMedium),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            cs.primaryContainer,
-            cs.primaryContainer.withValues(alpha: 0.8),
+    return StickyNote(
+      color: kStickyYellow,
+      rotation: -0.015,
+      child: Container(
+        padding: EdgeInsets.all(kSpacingMedium),
+        margin: EdgeInsets.all(kSpacingMedium),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildStatItem(
+              'פריטים',
+              list.items.length,
+              Icons.shopping_cart,
+              cs,
+            ),
+            _buildStatItem(
+              'סה"כ',
+              totalAmount.toInt(),
+              Icons.account_balance_wallet,
+              cs,
+              prefix: '₪',
+            ),
+            _buildStatItem(
+              'כמות',
+              totalQuantity,
+              Icons.format_list_numbered,
+              cs,
+            ),
           ],
         ),
-        borderRadius: BorderRadius.circular(kBorderRadius),
-        boxShadow: [
-          BoxShadow(
-            color: cs.shadow.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildStatItem(
-            'פריטים',
-            list.items.length,
-            Icons.shopping_cart,
-            cs,
-          ),
-          _buildStatItem(
-            'סה"כ',
-            totalAmount.toInt(),
-            Icons.account_balance_wallet,
-            cs,
-            prefix: '₪',
-          ),
-          _buildStatItem(
-            'כמות',
-            totalQuantity,
-            Icons.format_list_numbered,
-            cs,
-          ),
-        ],
       ),
     );
   }
@@ -717,7 +816,7 @@ class _ManageListScreenState extends State<ManageListScreen>
   ) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
-      duration: Duration(milliseconds: 300 + (index * 50)),
+      duration: _kItemAnimationBaseDuration + (_kItemAnimationStaggerDelay * index),
       curve: Curves.easeOut,
       builder: (context, value, child) {
         return Opacity(
@@ -787,11 +886,10 @@ class _ManageListScreenState extends State<ManageListScreen>
             item,
           );
         },
-        child: Card(
-          margin: EdgeInsets.only(bottom: kSpacingSmall),
-          elevation: 2,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+        child: StickyNote(
+          color: item.isChecked ? Colors.grey.shade200 : kStickyCyan,
+          rotation: (index % 2 == 0) ? 0.008 : -0.008,
+          child: GestureDetector(
             onTap: () async {
               await _toggleItem(provider, index, item);
             },
@@ -827,7 +925,7 @@ class _ManageListScreenState extends State<ManageListScreen>
                                 : cs.onSurface,
                           ),
                         ),
-                        SizedBox(height: kSpacingTiny),
+                        const SizedBox(height: kSpacingTiny),
                         Text(
                           "${item.quantity} × ₪${item.unitPrice.toStringAsFixed(2)} = ₪${item.totalPrice.toStringAsFixed(2)}",
                           style: TextStyle(
@@ -873,10 +971,10 @@ class _ManageListScreenState extends State<ManageListScreen>
     if (list == null) {
       debugPrint('❌ רשימה ${widget.listId} לא נמצאה');
       return Scaffold(
-        backgroundColor: cs.surface,
+        backgroundColor: kPaperBackground,
         appBar: AppBar(
           title: const Text('שגיאה'),
-          backgroundColor: cs.surface,
+          backgroundColor: kPaperBackground,
         ),
         body: Center(
           child: Column(
@@ -905,10 +1003,10 @@ class _ManageListScreenState extends State<ManageListScreen>
     return PopScope(
       canPop: true,
       child: Scaffold(
-        backgroundColor: cs.surface,
+        backgroundColor: kPaperBackground,
         appBar: AppBar(
           title: Text(widget.listName),
-          backgroundColor: cs.surface,
+          backgroundColor: kPaperBackground,
           elevation: 0,
           actions: [
             IconButton(
@@ -925,29 +1023,34 @@ class _ManageListScreenState extends State<ManageListScreen>
             ),
           ],
         ),
-        body: Column(
+        body: Stack(
           children: [
-            // Header - סטטיסטיקות
-            _buildStatsHeader(list, cs),
+            const NotebookBackground(),
+            Column(
+              children: [
+                // Header - סטטיסטיקות
+                _buildStatsHeader(list, cs),
 
-            // רשימת פריטים
-            Expanded(
-              child: list.items.isEmpty
-                  ? _buildEmpty(cs)
-                  : ListView.builder(
-                      padding: EdgeInsets.symmetric(horizontal: kSpacingMedium),
-                      itemCount: list.items.length,
-                      itemBuilder: (context, index) {
-                        final item = list.items[index];
-                        return _buildListItem(
-                          context,
-                          provider,
-                          index,
-                          item,
-                          cs,
-                        );
-                      },
-                    ),
+                // רשימת פריטים
+                Expanded(
+                  child: list.items.isEmpty
+                      ? _buildEmpty(cs)
+                      : ListView.builder(
+                          padding: EdgeInsets.symmetric(horizontal: kSpacingMedium),
+                          itemCount: list.items.length,
+                          itemBuilder: (context, index) {
+                            final item = list.items[index];
+                            return _buildListItem(
+                              context,
+                              provider,
+                              index,
+                              item,
+                              cs,
+                            );
+                          },
+                        ),
+                ),
+              ],
             ),
           ],
         ),
@@ -957,16 +1060,14 @@ class _ManageListScreenState extends State<ManageListScreen>
             parent: _fabController,
             curve: Curves.easeInOut,
           ),
-          child: FloatingActionButton.extended(
+          child: StickyButton(
+            label: 'הוסף פריט',
+            icon: Icons.add,
+            color: accent,
             onPressed: () {
               _fabController.forward().then((_) => _fabController.reverse());
               _showAddCustomItemDialog(provider);
             },
-            backgroundColor: accent,
-            foregroundColor: cs.onPrimary,
-            icon: const Icon(Icons.add),
-            label: const Text('הוסף פריט'),
-            elevation: 4,
           ),
         ),
       ),

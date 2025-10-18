@@ -27,6 +27,7 @@
 // Version: 5.0 - Sticky Notes with Shared Components (15/10/2025) 🎨📝
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../theme/app_theme.dart';
 import '../widgets/common/notebook_background.dart';
@@ -38,30 +39,37 @@ import '../widgets/common/tappable_card.dart';
 import '../core/ui_constants.dart';
 import '../l10n/app_strings.dart';
 
+// 🔧 Wrapper ללוגים - פועל רק ב-debug mode
+void _log(String message) {
+  if (kDebugMode) {
+    debugPrint(message);
+  }
+}
+
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
   /// מטפל בלחיצה על כפתור התחברות
   static void _handleLogin(BuildContext context) {
-    debugPrint('🔐 WelcomeScreen: התחברות נלחץ');
+    _log('🔐 WelcomeScreen: התחברות נלחץ');
     Navigator.pushNamed(context, '/login').catchError((error) {
-      debugPrint('❌ שגיאה בניווט ל-login: $error');
+      _log('❌ שגיאה בניווט ל-login: $error');
       return null;
     });
   }
 
   /// מטפל בלחיצה על כפתור הרשמה
   static void _handleRegister(BuildContext context) {
-    debugPrint('📝 WelcomeScreen: הרשמה נלחץ');
+    _log('📝 WelcomeScreen: הרשמה נלחץ');
     Navigator.pushNamed(context, '/onboarding').catchError((error) {
-      debugPrint('❌ שגיאה בניווט ל-onboarding: $error');
+      _log('❌ שגיאה בניווט ל-onboarding: $error');
       return null;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('🏠 WelcomeScreen.build()');
+    _log('🏠 WelcomeScreen.build()');
 
     final theme = Theme.of(context);
     final brand = theme.extension<AppBrand>();
@@ -125,7 +133,7 @@ class WelcomeScreen extends StatelessWidget {
 
                     // 📌 יתרונות כפתקים צבעוניים עם אנימציות כניסה
                     TappableCard(
-                      onTap: () => debugPrint('💛 benefit 1 tapped'),
+                      onTap: () => _log('💛 benefit 1 tapped'),
                       child: BenefitTile(
                         icon: Icons.people_outline,
                         title: AppStrings.welcome.benefit1Title,
@@ -137,7 +145,7 @@ class WelcomeScreen extends StatelessWidget {
                     ).animate().fadeIn(duration: 300.ms, delay: 100.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
                     const SizedBox(height: kSpacingMedium),
                     TappableCard(
-                      onTap: () => debugPrint('🌸 benefit 2 tapped'),
+                      onTap: () => _log('🌸 benefit 2 tapped'),
                       child: BenefitTile(
                         icon: Icons.camera_alt_outlined,
                         title: AppStrings.welcome.benefit2Title,
@@ -149,7 +157,7 @@ class WelcomeScreen extends StatelessWidget {
                     ).animate().fadeIn(duration: 300.ms, delay: 200.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
                     const SizedBox(height: kSpacingMedium),
                     TappableCard(
-                      onTap: () => debugPrint('💚 benefit 3 tapped'),
+                      onTap: () => _log('💚 benefit 3 tapped'),
                       child: BenefitTile(
                         icon: Icons.inventory_2_outlined,
                         title: AppStrings.welcome.benefit3Title,

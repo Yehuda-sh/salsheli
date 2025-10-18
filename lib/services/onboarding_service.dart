@@ -11,6 +11,13 @@
 import 'package:flutter/foundation.dart';
 import '../data/onboarding_data.dart';
 
+// 🔧 Wrapper לlogs - פועל רק ב-debug mode
+void _log(String message) {
+  if (kDebugMode) {
+    debugPrint(message);
+  }
+}
+
 /// שירות לניהול נתוני Onboarding
 ///
 /// השירות מספק API פשוט לשמירה וטעינה של העדפות המשתמש
@@ -43,7 +50,7 @@ class OnboardingService {
   ///
   /// משתמש בפונקציה החדשה מ-OnboardingData
   Future<bool> hasCompletedOnboarding() async {
-    debugPrint('🔍 OnboardingService: בודק סטטוס onboarding');
+    _log('🔍 OnboardingService: בודק סטטוס onboarding');
     return await OnboardingData.hasSeenOnboarding();
   }
 
@@ -51,7 +58,7 @@ class OnboardingService {
   ///
   /// משתמש בפונקציה החדשה מ-OnboardingData
   Future<bool> markAsCompleted() async {
-    debugPrint('✓ OnboardingService: מסמן onboarding כהושלם');
+    _log('✓ OnboardingService: מסמן onboarding כהושלם');
     return await OnboardingData.markAsCompleted();
   }
 
@@ -62,7 +69,7 @@ class OnboardingService {
   ///
   /// מחזיר true אם השמירה הצליחה, false אחרת.
   Future<bool> savePreferences(OnboardingData data) async {
-    debugPrint('💾 OnboardingService: שומר העדפות onboarding');
+    _log('💾 OnboardingService: שומר העדפות onboarding');
 
     try {
       // שמירת הנתונים באמצעות המודל
@@ -74,14 +81,14 @@ class OnboardingService {
       final success = savedData && markedCompleted;
 
       if (success) {
-        debugPrint('✅ OnboardingService: שמירה הושלמה בהצלחה');
+        _log('✅ OnboardingService: שמירה הושלמה בהצלחה');
       } else {
-        debugPrint('❌ OnboardingService: שמירה נכשלה');
+        _log('❌ OnboardingService: שמירה נכשלה');
       }
 
       return success;
     } catch (e) {
-      debugPrint('❌ OnboardingService: שגיאה בשמירה - $e');
+      _log('❌ OnboardingService: שגיאה בשמירה - $e');
       return false;
     }
   }
@@ -91,14 +98,14 @@ class OnboardingService {
   /// מחזיר אובייקט OnboardingData עם הערכים השמורים,
   /// או OnboardingData עם ערכי ברירת מחדל אם אין נתונים שמורים.
   Future<OnboardingData> loadPreferences() async {
-    debugPrint('📂 OnboardingService: טוען העדפות onboarding');
+    _log('📂 OnboardingService: טוען העדפות onboarding');
 
     try {
       final data = await OnboardingData.load();
-      debugPrint('✅ OnboardingService: טעינה הושלמה');
+      _log('✅ OnboardingService: טעינה הושלמה');
       return data;
     } catch (e) {
-      debugPrint('⚠️ OnboardingService: שגיאה בטעינה, משתמש בברירות מחדל - $e');
+      _log('⚠️ OnboardingService: שגיאה בטעינה, משתמש בברירות מחדל - $e');
       return OnboardingData();
     }
   }
@@ -112,20 +119,20 @@ class OnboardingService {
   ///
   /// משתמש בפונקציה החדשה מ-OnboardingData
   Future<bool> resetPreferences() async {
-    debugPrint('🗑️ OnboardingService: מאפס את כל נתוני ה-onboarding');
+    _log('🗑️ OnboardingService: מאפס את כל נתוני ה-onboarding');
 
     try {
       final result = await OnboardingData.reset();
 
       if (result) {
-        debugPrint('✅ OnboardingService: איפוס הושלם בהצלחה');
+        _log('✅ OnboardingService: איפוס הושלם בהצלחה');
       } else {
-        debugPrint('❌ OnboardingService: איפוס נכשל');
+        _log('❌ OnboardingService: איפוס נכשל');
       }
 
       return result;
     } catch (e) {
-      debugPrint('❌ OnboardingService: שגיאה באיפוס - $e');
+      _log('❌ OnboardingService: שגיאה באיפוס - $e');
       return false;
     }
   }

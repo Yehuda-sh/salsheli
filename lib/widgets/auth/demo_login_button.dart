@@ -14,6 +14,7 @@
 // ✅ טקסט קצר יותר
 // ✅ Responsive - מתאים למסכים קטנים
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -71,7 +72,15 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
     },
   };
 
-  /// טעינת משתמש דמו עם Firebase Authentication
+  /// מבצע התחברות עם משתמש דמו נבחר דרך Firebase Auth.
+  /// 
+  /// התהליך:
+  /// 1. מתחבר עם Firebase Auth
+  /// 2. שומר ב-SharedPreferences
+  /// 3. מציג הודעת הצלחה
+  /// 4. מנווט לדף הבית
+  /// 
+  /// Throws [Exception] במקרה של כשל בהתחברות.
   Future<void> _handleDemoLogin() async {
     setState(() => _isLoading = true);
 
@@ -80,7 +89,9 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
       final email = demoUser['email']!;
       final password = demoUser['password']!;
 
-      debugPrint('🔐 DemoLogin: מתחבר כ-${demoUser['fullName']} ($email)');
+      if (kDebugMode) {
+        debugPrint('🔐 DemoLogin: מתחבר כ-${demoUser['fullName']} ($email)');
+      }
 
       // 1. התחברות עם Firebase Auth
       final userContext = context.read<UserContext>();
@@ -89,7 +100,9 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
         password: password,
       );
 
-      debugPrint('✅ DemoLogin: התחברות הושלמה');
+      if (kDebugMode) {
+        debugPrint('✅ DemoLogin: התחברות הושלמה');
+      }
 
       // 2. שומר ב-SharedPreferences
       final prefs = await SharedPreferences.getInstance();
@@ -183,7 +196,7 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
                     fontSize: kFontSizeTiny, // 📐 הקטנה
                   ),
                 ),
-                const SizedBox(height: 2), // spacing מינימלי בתוך כפתור קומפקטי
+                const SizedBox(height: kSpacingXTiny), // spacing מינימלי בתוך כפתור קומפקטי
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -241,7 +254,16 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
     );
   }
 
-  /// 🎨 בניית כפתור מהיר למשתמש - בסגנון מינימליסטי וקומפקטי 📐
+  /// בונה כפתור בחירה למשתמש ספציפי בסגנון מינימליסטי.
+  /// 
+  /// Parameters:
+  /// - [userId]: מזהה המשתמש (avi/michal/tomer)
+  /// - [icon]: אייקון להצגה
+  /// - [label]: שם המשתמש
+  /// - [subtitle]: תפקיד במשפחה (אבא/אמא/בן)
+  /// - [isSelected]: האם המשתמש נבחר כרגע
+  /// 
+  /// Returns כפתור בעיצוב Sticky Notes עם visual feedback.
   Widget _buildQuickUserButton({
     required BuildContext context,
     required String userId,
@@ -288,7 +310,7 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 10, // קומפקטי - קטן מ-kFontSizeTiny
+                  fontSize: kFontSizeTiny, // 11px - נגישות
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                   color: isSelected ? cs.primary : cs.onSurfaceVariant,
                 ),
@@ -296,7 +318,7 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
               Text(
                 subtitle,
                 style: TextStyle(
-                  fontSize: 8, // קומפקטי ביותר
+                  fontSize: kFontSizeTiny, // 11px - נגישות
                   fontWeight: FontWeight.w400,
                   color: isSelected 
                       ? cs.primary.withValues(alpha: kOpacityHigh)

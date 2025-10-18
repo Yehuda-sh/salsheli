@@ -30,6 +30,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../core/ui_constants.dart';
 import '../../providers/receipt_provider.dart';
+import '../../widgets/common/notebook_background.dart';
+import '../../widgets/common/sticky_note.dart';
+import '../../widgets/common/sticky_button.dart';
 
 class ScanReceiptScreen extends StatefulWidget {
   const ScanReceiptScreen({super.key});
@@ -55,114 +58,130 @@ class _ScanReceiptScreenState extends State<ScanReceiptScreen> {
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
+      backgroundColor: kPaperBackground,
       appBar: AppBar(
         title: const Text('צילום קבלה'),
-        backgroundColor: cs.surfaceContainer,
+        backgroundColor: cs.primary,
+        foregroundColor: cs.onPrimary,
       ),
-      body: _isProcessing
-          ? _buildLoadingState()
-          : _imageFile == null
-              ? _buildInitialState()
-              : _buildPreviewState(),
+      body: Stack(
+        children: [
+          const NotebookBackground(),
+          _isProcessing
+              ? _buildLoadingState()
+              : _imageFile == null
+                  ? _buildInitialState()
+                  : _buildPreviewState(),
+        ],
+      ),
     );
   }
 
   /// מצב התחלתי - בחירת מקור תמונה
   Widget _buildInitialState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(kSpacingLarge),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // 📷 אייקון
-            Container(
-              padding: const EdgeInsets.all(kSpacingXLarge),
-              decoration: BoxDecoration(
-                color: Colors.blue.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.camera_alt,
-                size: 80,
-                color: Colors.blue,
-              ),
-            ),
-            const SizedBox(height: kSpacingXLarge),
+    return SafeArea(
+      child: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(kSpacingMedium),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: kSpacingMedium),
 
-            // 📝 הסבר
-            Text(
-              'צלם או בחר תמונה של הקבלה',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: kSpacingSmall),
-            Text(
-              'המערכת תזהה אוטומטית את הפרטים',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: kSpacingXXLarge),
-
-            // 🎯 כפתור מצלמה
-            FilledButton.icon(
-              onPressed: () => _pickImage(ImageSource.camera),
-              icon: const Icon(Icons.camera_alt),
-              label: const Text('צלם עכשיו'),
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.blue,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: kSpacingXLarge,
-                  vertical: kSpacingMedium,
-                ),
-              ),
-            ),
-            const SizedBox(height: kSpacingMedium),
-
-            // 🖼️ כפתור גלריה
-            OutlinedButton.icon(
-              onPressed: () => _pickImage(ImageSource.gallery),
-              icon: const Icon(Icons.photo_library),
-              label: const Text('בחר מהגלריה'),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: kSpacingXLarge,
-                  vertical: kSpacingMedium,
-                ),
-              ),
-            ),
-
-            // ⚠️ הודעת שגיאה
-            if (_errorMessage != null) ...[
-              const SizedBox(height: kSpacingXLarge),
-              Container(
-                padding: const EdgeInsets.all(kSpacingMedium),
-                decoration: BoxDecoration(
-                  color: Colors.red.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                  border: Border.all(
-                    color: Colors.red.withValues(alpha: 0.3),
+              // 📷 לוגו מצלמה
+              StickyNote(
+                color: kStickyYellow,
+                rotation: -0.02,
+                child: Container(
+                  padding: const EdgeInsets.all(kSpacingXLarge),
+                  child: const Icon(
+                    Icons.camera_alt,
+                    size: 80,
+                    color: Colors.blue,
                   ),
                 ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.error_outline, color: Colors.red),
-                    const SizedBox(width: kSpacingSmall),
-                    Expanded(
-                      child: Text(
-                        _errorMessage!,
-                        style: const TextStyle(color: Colors.red),
+              ),
+              const SizedBox(height: kSpacingMedium),
+
+              // 📝 הסבר
+              StickyNote(
+                color: kStickyPink,
+                rotation: 0.015,
+                child: Padding(
+                  padding: const EdgeInsets.all(kSpacingMedium),
+                  child: Column(
+                    children: [
+                      Text(
+                        'צלם או בחר תמונה של הקבלה',
+                        style: const TextStyle(
+                          fontSize: kFontSizeLarge,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: kSpacingSmall),
+                      Text(
+                        'המערכת תזהה אוטומטית את הפרטים',
+                        style: TextStyle(
+                          fontSize: kFontSizeBody,
+                          color: Colors.grey.shade700,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
                 ),
               ),
+              const SizedBox(height: kSpacingLarge),
+
+              // 🎯 כפתור מצלמה
+              StickyButton(
+                label: 'צלם עכשיו',
+                icon: Icons.camera_alt,
+                color: Colors.blue,
+                textColor: Colors.white,
+                height: 48,
+                onPressed: () => _pickImage(ImageSource.camera),
+              ),
+              const SizedBox(height: kSpacingMedium),
+
+              // 🖼️ כפתור גלריה
+              StickyButton(
+                label: 'בחר מהגלריה',
+                icon: Icons.photo_library,
+                color: Colors.white,
+                textColor: Colors.blue,
+                height: 48,
+                onPressed: () => _pickImage(ImageSource.gallery),
+              ),
+
+              // ⚠️ הודעת שגיאה
+              if (_errorMessage != null) ...[
+                const SizedBox(height: kSpacingLarge),
+                StickyNote(
+                  color: Colors.red.shade100,
+                  rotation: -0.01,
+                  child: Padding(
+                    padding: const EdgeInsets.all(kSpacingMedium),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.error_outline, color: Colors.red),
+                        const SizedBox(width: kSpacingSmall),
+                        Expanded(
+                          child: Text(
+                            _errorMessage!,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+
+              const SizedBox(height: kSpacingMedium),
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -170,24 +189,37 @@ class _ScanReceiptScreenState extends State<ScanReceiptScreen> {
 
   /// מצב טעינה
   Widget _buildLoadingState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const CircularProgressIndicator(),
-          const SizedBox(height: kSpacingMedium),
-          Text(
-            'מעבד קבלה...',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: kSpacingSmall),
-          Text(
-            'זה ייקח רגע',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+    return SafeArea(
+      child: Center(
+        child: StickyNote(
+          color: kStickyYellow,
+          rotation: 0.01,
+          child: Padding(
+            padding: const EdgeInsets.all(kSpacingXLarge),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircularProgressIndicator(),
+                const SizedBox(height: kSpacingMedium),
+                const Text(
+                  'מעבד קבלה...',
+                  style: TextStyle(
+                    fontSize: kFontSizeMedium,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
+                const SizedBox(height: kSpacingSmall),
+                Text(
+                  'זה ייקח רגע',
+                  style: TextStyle(
+                    fontSize: kFontSizeSmall,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -212,29 +244,36 @@ class _ScanReceiptScreenState extends State<ScanReceiptScreen> {
         // 🎛️ פס כלים
         Container(
           padding: const EdgeInsets.all(kSpacingMedium),
-          color: Theme.of(context).colorScheme.surfaceContainer,
+          color: kPaperBackground,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               // 🗑️ מחק
-              OutlinedButton.icon(
-                onPressed: () {
-                  setState(() {
-                    _imageFile = null;
-                    _errorMessage = null;
-                  });
-                },
-                icon: const Icon(Icons.delete),
-                label: const Text('מחק'),
+              Expanded(
+                child: StickyButton(
+                  label: 'מחק',
+                  icon: Icons.delete,
+                  color: Colors.red.shade100,
+                  textColor: Colors.red,
+                  height: 48,
+                  onPressed: () {
+                    setState(() {
+                      _imageFile = null;
+                      _errorMessage = null;
+                    });
+                  },
+                ),
               ),
+              const SizedBox(width: kSpacingMedium),
 
               // ✅ אשר
-              FilledButton.icon(
-                onPressed: _processReceipt,
-                icon: const Icon(Icons.check),
-                label: const Text('המשך'),
-                style: FilledButton.styleFrom(
-                  backgroundColor: Colors.green,
+              Expanded(
+                child: StickyButton(
+                  label: 'המשך',
+                  icon: Icons.check,
+                  color: Colors.green,
+                  textColor: Colors.white,
+                  height: 48,
+                  onPressed: _processReceipt,
                 ),
               ),
             ],

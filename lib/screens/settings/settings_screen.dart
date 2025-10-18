@@ -46,17 +46,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:memozap/providers/user_context.dart';
-import 'package:memozap/providers/shopping_lists_provider.dart';
-import 'package:memozap/providers/receipt_provider.dart';
-import 'package:memozap/providers/inventory_provider.dart';
-import 'package:memozap/providers/products_provider.dart';
-import 'package:memozap/models/shopping_list.dart';
-import 'package:memozap/l10n/app_strings.dart';
-import 'package:memozap/core/ui_constants.dart';
-import 'package:memozap/config/household_config.dart';
-import 'package:memozap/widgets/common/notebook_background.dart';
-import 'package:memozap/screens/debug/cleanup_screen.dart';
+import 'package:salsheli/providers/user_context.dart';
+import 'package:salsheli/providers/shopping_lists_provider.dart';
+import 'package:salsheli/providers/receipt_provider.dart';
+import 'package:salsheli/providers/inventory_provider.dart';
+import 'package:salsheli/providers/products_provider.dart';
+import 'package:salsheli/models/shopping_list.dart';
+import 'package:salsheli/l10n/app_strings.dart';
+import 'package:salsheli/core/ui_constants.dart';
+import 'package:salsheli/config/household_config.dart';
+import 'package:salsheli/widgets/common/notebook_background.dart';
+import 'package:salsheli/widgets/common/sticky_note.dart';
+import 'package:salsheli/widgets/common/sticky_button.dart';
+import 'package:salsheli/screens/debug/cleanup_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -530,9 +532,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               padding: const EdgeInsets.all(kSpacingMedium),
               children: [
                 // 🔹 פרופיל אישי
-                Card(
-                  color: cs.surfaceContainerHighest,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+                StickyNote(
+                  color: kStickyYellow,
+                  rotation: -0.02,
                   child: Padding(
                     padding: const EdgeInsets.all(kSpacingMedium),
                     child: Row(
@@ -566,25 +568,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                         const SizedBox(width: kSpacingSmall),
-                        _AnimatedButton(
+                        StickyButton(
+                          label: AppStrings.settings.editProfile,
+                          icon: Icons.edit,
+                          height: 44,
+                          color: cs.primary,
+                          textColor: Colors.white,
                           onPressed: () {
                             debugPrint('✏️ Edit Profile: clicked');
                             ScaffoldMessenger.of(
                               context,
                             ).showSnackBar(SnackBar(content: Text(AppStrings.settings.editProfileButton)));
                           },
-                          child: FilledButton.icon(
-                            onPressed: null,
-                            icon: const Icon(Icons.edit, size: kIconSizeSmall + 2),
-                            label: Text(AppStrings.settings.editProfile),
-                            style: FilledButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: kSpacingSmallPlus,
-                                vertical: kSpacingSmall,
-                              ),
-                              minimumSize: const Size(kButtonHeight, kButtonHeight),
-                            ),
-                          ),
                         ),
                       ],
                     ),
@@ -634,12 +629,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: kSpacingMedium),
 
                 // 🛠️ Debug Tools (זמני)
-                Card(
-                  color: cs.errorContainer.withValues(alpha: 0.1),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                    side: BorderSide(color: Colors.orange.withValues(alpha: 0.3), width: 2),
-                  ),
+                StickyNote(
+                  color: Colors.orange.shade100,
+                  rotation: -0.02,
                   child: ListTile(
                     leading: const Icon(Icons.bug_report, color: Colors.orange),
                     title: const Text('🧹 ניקוי מלאי פגום', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
@@ -671,9 +663,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: kSpacingLarge),
 
                 // 🔹 ניהול קבוצה
-                Card(
-                  color: cs.surfaceContainerHighest,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+                StickyNote(
+                  color: kStickyPink,
+                  rotation: 0.015,
                   child: Padding(
                     padding: const EdgeInsets.all(kSpacingMedium),
                     child: Column(
@@ -768,7 +760,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                         const SizedBox(height: kSpacingSmall),
-                        _AnimatedButton(
+                        StickyButton(
+                          label: AppStrings.settings.manageMembersButton,
+                          icon: Icons.group_add,
+                          color: Colors.white,
+                          textColor: cs.primary,
+                          height: 44,
                           onPressed: () {
                             debugPrint('👥 Manage Members: clicked');
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -778,12 +775,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                             );
                           },
-                          child: OutlinedButton.icon(
-                            onPressed: null,
-                            icon: const Icon(Icons.group_add, size: kIconSizeMedium),
-                            label: Text(AppStrings.settings.manageMembersButton),
-                            style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 42)),
-                          ),
                         ),
                       ],
                     ),
@@ -793,9 +784,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: kSpacingMedium),
 
                 // 🔹 חנויות מועדפות
-                Card(
-                  color: cs.surfaceContainerHighest,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+                StickyNote(
+                  color: kStickyGreen,
+                  rotation: -0.01,
                   child: Padding(
                     padding: const EdgeInsets.all(kSpacingMedium),
                     child: Column(
@@ -846,9 +837,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: kSpacingMedium),
 
                 // 🔹 הגדרות אישיות
-                Card(
-                  color: cs.surfaceContainerHighest,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+                StickyNote(
+                  color: kStickyCyan,
+                  rotation: 0.01,
                   child: Padding(
                     padding: const EdgeInsets.all(kSpacingMedium),
                     child: Column(
@@ -912,9 +903,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: kSpacingMedium),
 
                 // 🔹 קישורים מהירים
-                Card(
-                  color: cs.surfaceContainerHighest,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+                StickyNote(
+                  color: kStickyPurple,
+                  rotation: -0.015,
                   child: Column(
                     children: [
                       ListTile(
@@ -961,9 +952,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: kSpacingMedium),
 
                 // 🔹 התנתקות
-                Card(
-                  color: cs.surfaceContainerHighest,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+                StickyNote(
+                  color: Colors.red.shade100,
+                  rotation: 0.02,
                   child: ListTile(
                     leading: const Icon(Icons.logout, color: Colors.red),
                     title: Text(AppStrings.settings.logoutTitle, style: const TextStyle(color: Colors.red)),

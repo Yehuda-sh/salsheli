@@ -22,6 +22,7 @@
 // - RTL support מלא
 // - Accessibility compliant
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -35,6 +36,8 @@ import '../../providers/receipt_provider.dart';
 import '../../widgets/home/upcoming_shop_card.dart';
 import '../../widgets/home/smart_suggestions_card.dart';
 import '../../widgets/create_list_dialog.dart';
+import '../../widgets/common/notebook_background.dart';
+import '../../widgets/common/sticky_note.dart';
 import '../../theme/app_theme.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
@@ -51,26 +54,36 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint('🏠 HomeDashboardScreen.initState()');
+    if (kDebugMode) {
+      debugPrint('🏠 HomeDashboardScreen.initState()');
+    }
   }
 
   @override
   void dispose() {
-    debugPrint('🏠 HomeDashboardScreen.dispose()');
+    if (kDebugMode) {
+      debugPrint('🏠 HomeDashboardScreen.dispose()');
+    }
     super.dispose();
   }
 
   Future<void> _refresh(BuildContext context) async {
-    debugPrint('🏠 HomeDashboard: מתחיל refresh...');
+    if (kDebugMode) {
+      debugPrint('🏠 HomeDashboard: מתחיל refresh...');
+    }
     HapticFeedback.mediumImpact(); // ✨ רטט בהתחלת refresh
     
     // ✅ טעינת רשימות - נפרד
     try {
       final lists = context.read<ShoppingListsProvider>();
       await lists.loadLists();
-      debugPrint('   ✅ רשימות נטענו: ${lists.lists.length}');
+      if (kDebugMode) {
+        debugPrint('   ✅ רשימות נטענו: ${lists.lists.length}');
+      }
     } on Exception catch (e) {
-      debugPrint('   ❌ שגיאה בטעינת רשימות: $e');
+      if (kDebugMode) {
+        debugPrint('   ❌ שגיאה בטעינת רשימות: $e');
+      }
       // ממשיכים להצעות
     }
 
@@ -80,9 +93,13 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     try {
       final sugg = context.read<SuggestionsProvider>();
       await sugg.refresh();
-      debugPrint('   ✅ הצעות נטענו: ${sugg.suggestions.length}');
+      if (kDebugMode) {
+        debugPrint('   ✅ הצעות נטענו: ${sugg.suggestions.length}');
+      }
     } on Exception catch (e) {
-      debugPrint('   ⚠️ לא ניתן לטעון הצעות: $e');
+      if (kDebugMode) {
+        debugPrint('   ⚠️ לא ניתן לטעון הצעות: $e');
+      }
       // זה לא קריטי
     }
     
@@ -93,7 +110,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       HapticFeedback.lightImpact(); // ✨ רטט קל בסיום
     }
     
-    debugPrint('🏠 HomeDashboard: refresh הושלם');
+    if (kDebugMode) {
+      debugPrint('🏠 HomeDashboard: refresh הושלם');
+    }
   }
 
   @override
@@ -103,39 +122,46 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: cs.surface,
-      body: SafeArea(
-        child: RefreshIndicator(
-          color: Theme.of(context).extension<AppBrand>()?.accent ?? cs.primary,
-          backgroundColor: cs.surface,
-          strokeWidth: 4.0, // ✨ עבה יותר
-          displacement: 50.0, // ✨ יותר רחוק
-          onRefresh: () => _refresh(context),
-          child: ListView(
-            padding: const EdgeInsets.all(kSpacingMedium),
-            children: [
-              _Header(userName: userContext.displayName),
-              const SizedBox(height: kSpacingMedium),
+      backgroundColor: kPaperBackground,  // ✅ Sticky Notes background
+      body: Stack(
+        children: [
+          const NotebookBackground(),  // ✅ רקע מחברת
+          SafeArea(
+            child: RefreshIndicator(
+              color: Theme.of(context).extension<AppBrand>()?.accent ?? cs.primary,
+              backgroundColor: kPaperBackground,
+              strokeWidth: 4.0, // ✨ עבה יותר
+              displacement: 50.0, // ✨ יותר רחוק
+              onRefresh: () => _refresh(context),
+              child: ListView(
+                padding: const EdgeInsets.all(kSpacingMedium),
+                children: [
+                  _Header(userName: userContext.displayName),
+                  const SizedBox(height: kSpacingMedium),
 
-              // ✨ תמיד נראה skeleton בהתחלה
-              if (listsProvider.isLoading)
-                const DashboardSkeleton()
-              else if (listsProvider.lists.isEmpty)
-                _ImprovedEmptyState(
-                  onCreateList: () => _showCreateListDialog(context),
-                )
-              else
-                _Content(allLists: listsProvider.lists),
-            ],
+                  // ✨ תמיד נראה skeleton בהתחלה
+                  if (listsProvider.isLoading)
+                    const DashboardSkeleton()
+                  else if (listsProvider.lists.isEmpty)
+                    _ImprovedEmptyState(
+                      onCreateList: () => _showCreateListDialog(context),
+                    )
+                  else
+                    _Content(allLists: listsProvider.lists),
+                ],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 
   void _showCreateListDialog(BuildContext context) {
     HapticFeedback.lightImpact(); // ✨ רטט קל
-    debugPrint('🏠 HomeDashboard: פותח דיאלוג יצירת רשימה');
+    if (kDebugMode) {
+      debugPrint('🏠 HomeDashboard: פותח דיאלוג יצירת רשימה');
+    }
     
     final provider = context.read<ShoppingListsProvider>();
     // ✅ שמירת scaffoldMessenger לפני async
@@ -152,7 +178,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           final budget = listData['budget'] as double?;
           final eventDate = listData['eventDate'] as DateTime?;
 
-          debugPrint('🏠 HomeDashboard: יוצר רשימה "$name" (סוג: $type, תאריך: $eventDate)');
+          if (kDebugMode) {
+            debugPrint('🏠 HomeDashboard: יוצר רשימה "$name" (סוג: $type, תאריך: $eventDate)');
+          }
 
           if (name != null && name.trim().isNotEmpty) {
             try {
@@ -162,7 +190,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 budget: budget,
                 eventDate: eventDate,
               );
-              debugPrint('   ✅ רשימה נוצרה בהצלחה');
+              if (kDebugMode) {
+                debugPrint('   ✅ רשימה נוצרה בהצלחה');
+              }
               
               // ✅ שימוש ב-scaffoldMessenger שנשמר
               if (mounted) {
@@ -191,7 +221,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 );
               }
             } on Exception catch (e) {
-              debugPrint('   ❌ שגיאה ביצירת רשימה: $e');
+              if (kDebugMode) {
+                debugPrint('   ❌ שגיאה ביצירת רשימה: $e');
+              }
               
               if (mounted) {
                 HapticFeedback.heavyImpact(); // ✨ רטט חזק לשגיאה
@@ -241,28 +273,14 @@ class _Header extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final brand = Theme.of(context).extension<AppBrand>();
 
-    // 🆕 Header קומפקטי יותר - צמצום padding + גודל
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: kBorderRadius,
-        vertical: kSpacingSmallPlus - 2, // 10px
-      ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            cs.primaryContainer,
-            cs.primaryContainer.withValues(alpha: 0.7),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(kBorderRadius),
-        border: Border.all(
-          color: cs.primary.withValues(alpha: 0.12),
-        ),
-      ),
+    // ✅ Header על פתק צהוב
+    return StickyNote(
+      color: kStickyYellow,
+      rotation: -0.02,
       child: Row(
         children: [
           CircleAvatar(
-            radius: kSpacingMedium, // 16px (צמצום מ-22px)
+            radius: kSpacingMedium, // 16px
             backgroundColor: (brand?.accent ?? cs.secondary).withValues(
               alpha: 0.18,
             ),
@@ -281,7 +299,7 @@ class _Header extends StatelessWidget {
                   : userName!,
               ),
               style: t.titleMedium?.copyWith(
-                color: cs.onPrimaryContainer,
+                color: Colors.black87,  // ✅ טקסט כהה על פתק צהוב
                 fontWeight: FontWeight.bold,
               ),
               overflow: TextOverflow.ellipsis,
@@ -289,7 +307,7 @@ class _Header extends StatelessWidget {
           ),
         ],
       ),
-    ).animate().fadeIn(duration: 350.ms).slideY(begin: .1);
+    );
   }
 }
 
@@ -303,7 +321,9 @@ class _Content extends StatelessWidget {
     final mostRecentList = _getMostRecentList(activeLists);
     final otherLists = _getOtherLists(activeLists);
 
-    debugPrint('🏠 HomeDashboard._Content: פעילות=${activeLists.length}, אחרות=${otherLists.length}');
+    if (kDebugMode) {
+      debugPrint('🏠 HomeDashboard._Content: פעילות=${activeLists.length}, אחרות=${otherLists.length}');
+    }
 
     return Column(
       children: [
@@ -353,18 +373,24 @@ class _Content extends StatelessWidget {
   ShoppingList? _getMostRecentList(List<ShoppingList> activeLists) {
     if (activeLists.isEmpty) return null;
 
-    debugPrint('🧠 מחשב דחיפות עבור ${activeLists.length} רשימות:');
+    if (kDebugMode) {
+      debugPrint('🧠 מחשב דחיפות עבור ${activeLists.length} רשימות:');
+    }
     
     activeLists.sort((a, b) {
       final priorityA = _calculateListPriority(a);
       final priorityB = _calculateListPriority(b);
-      debugPrint('   "${a.name}": $priorityA נקודות vs "${b.name}": $priorityB נקודות');
+      if (kDebugMode) {
+        debugPrint('   "${a.name}": $priorityA נקודות vs "${b.name}": $priorityB נקודות');
+      }
       return priorityB.compareTo(priorityA); // גבוה לנמוך
     });
 
     final list = activeLists.first;
     final finalPriority = _calculateListPriority(list);
-    debugPrint('   ✅ הקנייה הקרובה: "${list.name}" ($finalPriority נקודות)');
+    if (kDebugMode) {
+      debugPrint('   ✅ הקנייה הקרובה: "${list.name}" ($finalPriority נקודות)');
+    }
     
     return list;
   }
@@ -391,11 +417,15 @@ class _Content extends StatelessWidget {
       if (daysUntilEvent <= 7 && daysUntilEvent >= -1) {
         // שבוע לפני האירוע (או האירוע היה אתמול)
         priority += 100;
-        debugPrint('   📅 "${list.name}": אירוע בעוד $daysUntilEvent ימים (+100)');
+        if (kDebugMode) {
+          debugPrint('   📅 "${list.name}": אירוע בעוד $daysUntilEvent ימים (+100)');
+        }
       } else if (daysUntilEvent <= 14 && daysUntilEvent > 7) {
         // שבועיים לפני האירוע
         priority += 50;
-        debugPrint('   📅 "${list.name}": אירוע בעוד $daysUntilEvent ימים (+50)');
+        if (kDebugMode) {
+          debugPrint('   📅 "${list.name}": אירוע בעוד $daysUntilEvent ימים (+50)');
+        }
       }
     }
 
@@ -409,10 +439,14 @@ class _Content extends StatelessWidget {
     final daysSinceUpdate = now.difference(list.updatedDate).inDays;
     if (daysSinceUpdate == 0) {
       priority += 20;
-      debugPrint('   ⏰ "${list.name}": עודכן היום (+20)');
+      if (kDebugMode) {
+        debugPrint('   ⏰ "${list.name}": עודכן היום (+20)');
+      }
     } else if (daysSinceUpdate == 1) {
       priority += 10;
-      debugPrint('   ⏰ "${list.name}": עודכן אתמול (+10)');
+      if (kDebugMode) {
+        debugPrint('   ⏰ "${list.name}": עודכן אתמול (+10)');
+      }
     }
 
     return priority;
@@ -530,19 +564,19 @@ class _ReceiptsCard extends StatelessWidget {
       (sum, r) => sum + r.totalAmount,
     );
 
-    return Card(
-      elevation: kCardElevationHigh, // ✅ constant במקום 3
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-      ),
+    return StickyNote(
+      color: kStickyPink,  // ✅ פתק ורוד
+      rotation: 0.015,
       child: InkWell(
         onTap: () {
-          debugPrint('🏠 HomeDashboard: ניווט למסך קבלות');
+          if (kDebugMode) {
+            debugPrint('🏠 HomeDashboard: ניווט למסך קבלות');
+          }
           Navigator.pushNamed(context, '/receipts');
         },
-        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+        borderRadius: BorderRadius.circular(kBorderRadius),
         child: Padding(
-          padding: const EdgeInsets.all(kSpacingMedium),
+          padding: EdgeInsets.zero,  // StickyNote כבר יש padding
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -597,11 +631,11 @@ class _ReceiptsCard extends StatelessWidget {
                       AppStrings.home.myReceipts,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: cs.onSurface,
+                        color: Colors.black87,  // ✅ טקסט כהה על פתק
                       ),
                     ),
                   ),
-                  Icon(Icons.chevron_left, color: cs.onSurfaceVariant),
+                  const Icon(Icons.chevron_left, color: Colors.black54),
                 ],
               ),
               const SizedBox(height: kBorderRadius),
@@ -680,7 +714,9 @@ class _ActiveListsCard extends StatelessWidget {
     ShoppingList list,
   ) async {
     HapticFeedback.mediumImpact(); // ✨ רטט בינוני למחיקה
-    debugPrint('🏠 HomeDashboard: מוחק רשימה "${list.name}" (${list.id})');
+    if (kDebugMode) {
+      debugPrint('🏠 HomeDashboard: מוחק רשימה "${list.name}" (${list.id})');
+    }
     
     final provider = context.read<ShoppingListsProvider>();
     final scaffoldMessenger = ScaffoldMessenger.of(context); // 👈 שמירה לפני async
@@ -691,7 +727,9 @@ class _ActiveListsCard extends StatelessWidget {
 
       // מחיקה מיידית
       await provider.deleteList(list.id);
-      debugPrint('   ✅ רשימה נמחקה');
+      if (kDebugMode) {
+        debugPrint('   ✅ רשימה נמחקה');
+      }
 
       if (context.mounted) {
         scaffoldMessenger.showSnackBar(
@@ -700,9 +738,13 @@ class _ActiveListsCard extends StatelessWidget {
             action: SnackBarAction(
               label: AppStrings.home.undo,
               onPressed: () async {
-                debugPrint('🏠 HomeDashboard: משחזר רשימה "${deletedList.name}"');
+                if (kDebugMode) {
+                  debugPrint('🏠 HomeDashboard: משחזר רשימה "${deletedList.name}"');
+                }
                 await provider.restoreList(deletedList);
-                debugPrint('   ✅ רשימה שוחזרה');
+                if (kDebugMode) {
+                  debugPrint('   ✅ רשימה שוחזרה');
+                }
               },
             ),
             duration: kSnackBarDurationLong,
@@ -710,7 +752,9 @@ class _ActiveListsCard extends StatelessWidget {
         );
       }
     } catch (e) {
-      debugPrint('   ❌ שגיאה במחיקת רשימה: $e');
+      if (kDebugMode) {
+        debugPrint('   ❌ שגיאה במחיקת רשימה: $e');
+      }
       if (context.mounted) {
         scaffoldMessenger.showSnackBar(
           SnackBar(
@@ -731,13 +775,11 @@ class _ActiveListsCard extends StatelessWidget {
     final brand = theme.extension<AppBrand>();
     final accent = brand?.accent ?? cs.primary;
 
-    return Card(
-      elevation: kCardElevationHigh, // ✅ constant במקום 3
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-      ),
+    return StickyNote(
+      color: kStickyGreen,  // ✅ פתק ירוק
+      rotation: -0.01,
       child: Padding(
-        padding: const EdgeInsets.all(kSpacingMedium),
+        padding: EdgeInsets.zero,  // StickyNote כבר יש padding
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -757,18 +799,20 @@ class _ActiveListsCard extends StatelessWidget {
                 ),
                 const SizedBox(width: kBorderRadius),
                 Expanded(
-                  child: Text(
-                    AppStrings.home.otherActiveLists,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: cs.onSurface,
-                    ),
-                  ),
+                child: Text(
+                AppStrings.home.otherActiveLists,
+                style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,  // ✅ טקסט כהה על פתק
+                ),
+                ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.list_alt),
                   onPressed: () {
-                    debugPrint('🏠 HomeDashboard: ניווט לכל הרשימות');
+                    if (kDebugMode) {
+                      debugPrint('🏠 HomeDashboard: ניווט לכל הרשימות');
+                    }
                     Navigator.pushNamed(context, "/shopping-lists");
                   },
                   tooltip: AppStrings.home.allLists,
@@ -840,7 +884,9 @@ class _DismissibleListTile extends StatelessWidget {
           ),
           child: InkWell(
             onTap: () {
-              debugPrint('🏠 HomeDashboard: ניווט לרשימה "${list.name}"');
+              if (kDebugMode) {
+                debugPrint('🏠 HomeDashboard: ניווט לרשימה "${list.name}"');
+              }
               Navigator.pushNamed(
                 context,
                 "/manage-list",

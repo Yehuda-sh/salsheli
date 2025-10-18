@@ -14,6 +14,10 @@ class ReceiptToInventoryService {
   final InventoryProvider inventoryProvider;
   final Map<String, ProductLocationMemory> _locationMemory = {};
   
+  // 🔒 הגבלת גודל זיכרון למניעת Memory Leak
+  static const int _maxMemorySize = 100;
+  static const int _cleanupThreshold = 20; // כמה למחוק כשמגיעים למקסימום
+  
   ReceiptToInventoryService({required this.inventoryProvider});
   
   /// מעבד קבלה ומחזיר רשימת פריטים לאישור
@@ -70,6 +74,7 @@ class ReceiptToInventoryService {
       final normalizedName = name.toLowerCase().trim();
       
       // שמור בזיכרון את המיקום
+      _cleanupOldMemoriesIfNeeded(); // נקה זיכרון ישן אם צריך
       _locationMemory[normalizedName] = ProductLocationMemory(
         productName: normalizedName,
         defaultLocation: item.suggestedLocation,
@@ -95,6 +100,23 @@ class ReceiptToInventoryService {
           quantity: item.quantity,
           unit: item.receiptItem.unit ?? 'יח\'',
         );
+      }
+    }
+  }
+  
+  /// ניקוי אוטומטי של זיכרון ישן
+  /// 
+  /// כשהמפה מגיעה ל-100 items, מוחק את ה-20 הישנים ביותר.
+  /// מונע Memory Leak ושומר על ביצועים.
+  void _cleanupOldMemoriesIfNeeded() {
+    if (_locationMemory.length >= _maxMemorySize) {
+      // מיין לפי תאריך עדכון (הישנים ביותר ראשונים)
+      final sorted = _locationMemory.entries.toList()
+        ..sort((a, b) => a.value.lastUpdated.compareTo(b.value.lastUpdated));
+      
+      // מחק את ה-20 הישנים ביותר
+      for (int i = 0; i < _cleanupThreshold && i < sorted.length; i++) {
+        _locationMemory.remove(sorted[i].key);
       }
     }
   }
