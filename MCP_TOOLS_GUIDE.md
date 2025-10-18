@@ -1,7 +1,7 @@
 # 🛠️ MCP Tools Guide - Salsheli Project
 
 > **מדריך מקיף לשימוש בכלי MCP של Claude Desktop**  
-> **עדכון:** 19/10/2025 | **גרסה:** 1.0  
+> **עדכון:** 19/10/2025 | **גרסה:** 1.1 - Windows MCP Added  
 > **למי:** AI Assistants + Developers using Claude Desktop
 
 ---
@@ -10,6 +10,7 @@
 
 - [סקירה כללית](#סקירה-כללית)
 - [10 הכלים במפורט](#10-הכלים-במפורט)
+- [11. Windows MCP - עבודה עם ממשק Windows](#11-windows-mcp)
 - [Workflows מומלצים](#workflows-מומלצים)
 - [Anti-Patterns - מה לא לעשות](#anti-patterns)
 - [Troubleshooting](#troubleshooting)
@@ -23,7 +24,7 @@
 
 **MCP (Model Context Protocol)** = פרוטוקול שנותן ל-Claude גישה לכלים חיצוניים דרך Claude Desktop.
 
-### 10 הכלים בפרויקט Salsheli:
+### 11 הכלים בפרויקט Salsheli:
 
 | # | כלי | תפקיד ראשי | קריטיות |
 |---|-----|------------|----------|
@@ -37,6 +38,7 @@
 | 8️⃣ | **Conversation Search** | חיפוש בשיחות קודמות | 🟡 Important |
 | 9️⃣ | **Artifacts** | יצירת קבצים מוצגים | 🟢 Nice to have |
 | 🔟 | **Extended Research** | מחקר מתקדם | 🟢 Nice to have |
+| 1️⃣1️⃣ | **Windows MCP** | אינטראקציה עם Windows UI | 🟡 Important |
 
 ---
 
@@ -695,6 +697,291 @@ Salsheli user prefers edit_file over artifacts
 
 ---
 
+### 1️⃣1️⃣ Windows MCP - עבודה עם ממשק Windows 🪟
+
+**תפקיד:** אינטראקציה ישירה עם ממשק Windows - לחיצות, הקלדה, צילומי מסך, הרצת תוכנות.
+
+#### 14 הכלים הפנימיים:
+
+**קטגוריה 1: הפעלת תוכנות 🚀**
+
+| Tool | Purpose | Example |
+|------|---------|--------|
+| `Launch-Tool` | פותח אפליקציה | "פתח Visual Studio Code" |
+| `Powershell-Tool` | מריץ פקודות PS | "הרץ flutter run" |
+| `Switch-Tool` | מחליף בין חלונות | "עבור ל-Chrome" |
+
+**קטגוריה 2: מידע ותצוגה 📊**
+
+| Tool | Purpose | Example |
+|------|---------|--------|
+| `State-Tool` | מצלם מסך + רשימת חלונות | "תראה לי מה על המסך" |
+| `Scrape-Tool` | קורא תוכן דף אינטרנט | "תקרא את הדוקס" |
+
+**קטגוריה 3: פעולות בסיסיות 🖱️⌨️**
+
+| Tool | Purpose | Example |
+|------|---------|--------|
+| `Click-Tool` | לחיצת עכבר | "לחץ על הכפתור Run" |
+| `Type-Tool` | הקלדה | "כתוב 'hello'" |
+| `Clipboard-Tool` | העתקה/הדבקה | "העתק את הטקסט" |
+| `Scroll-Tool` | גלילה | "גלול למטה" |
+| `Drag-Tool` | גרירה | "גרור את הקובץ" |
+| `Move-Tool` | הזזת עכבר | "הזז עכבר ל..." |
+
+**קטגוריה 4: פקודות מקלדת ⌨️**
+
+| Tool | Purpose | Example |
+|------|---------|--------|
+| `Shortcut-Tool` | קיצורי מקלדת | "Ctrl+C" |
+| `Key-Tool` | מקש בודד | "Enter" |
+| `Wait-Tool` | המתנה | "המתן 3 שניות" |
+
+#### ✅ When to Use:
+
+```
+✅ UI Testing:
+"תבדוק את מסך ההתחברות באפליקציה"
+→ State-Tool → Click-Tool → Type-Tool → Check result
+
+✅ Running Flutter Commands:
+"הרץ את האפליקציה במצב debug"
+→ Powershell-Tool: flutter run
+
+✅ Taking Screenshots:
+"תצלם את כל המסכים באפליקציה"
+→ State-Tool for each screen
+
+✅ Copying Errors:
+"יש לי שגיאה בקונסול, תעתיק אותה"
+→ Switch-Tool → Select → Clipboard-Tool
+
+✅ Automated Testing:
+"תריץ את כל הבדיקות"
+→ Powershell-Tool: flutter test
+```
+
+#### ❌ When NOT to Use:
+
+```
+❌ Editing code:
+"תתקן את הקוד דרך העכבר"
+→ Use Filesystem:edit_file instead
+
+❌ Dangerous operations:
+"תמחק את כל הקבצים"
+→ Need explicit confirmation
+
+❌ Long repetitive tasks:
+"תעבור על 100 מסכים"
+→ Too time-consuming, find alternative
+
+❌ File operations:
+"תקרא את הקובץ הזה"
+→ Use Filesystem:read_file instead
+```
+
+#### 🎯 Best Practices:
+
+1. **שלב עם Filesystem:**
+   ```
+   Best combo: Windows MCP (for UI testing) + Filesystem (for code fixes)
+   
+   Example:
+   1. State-Tool → See the bug visually
+   2. Filesystem:edit_file → Fix the code
+   3. Powershell-Tool: flutter hot reload
+   4. State-Tool → Verify fix worked
+   ```
+
+2. **תמיד אמת תוצאות:**
+   ```
+   After any action:
+   → State-Tool to verify it worked
+   → Provide screenshot evidence
+   ```
+
+3. **השתמש ב-Wait-Tool בחוכמה:**
+   ```
+   After heavy operations:
+   → Wait-Tool: 2-3 seconds
+   → Let UI/compilation finish
+   ```
+
+#### 💡 תרחישי שימוש לפיתוח Flutter:
+
+**תרחיש 1: בדיקת UI אוטומטית**
+```
+User: "תבדוק את מסך ההתחברות"
+
+Steps:
+1. State-Tool → צילום מסך נוכחי
+2. Click-Tool → לחיצה על שדה Email
+3. Type-Tool → test@example.com
+4. Click-Tool → לחיצה על כפתור "התחבר"
+5. Wait-Tool → 2 seconds
+6. State-Tool → צילום של תוצאה
+7. Report: "✅ מסך עובד! צילומים מצורפים."
+```
+
+**תרחיש 2: הרצת פקודות Flutter**
+```
+User: "הרץ את האפליקציה במצב debug"
+
+Steps:
+1. Powershell-Tool: cd C:\projects\salsheli
+2. Powershell-Tool: flutter run
+3. Wait-Tool: 30 seconds (build time)
+4. State-Tool: וידוא שהאפליקציה רצה
+5. Report: "✅ האפליקציה רצה! מסך ראשי מוצג."
+```
+
+**תרחיש 3: העתקה מהירה של שגיאות**
+```
+User: "יש שגיאה בקונסול, תעתיק"
+
+Steps:
+1. State-Tool → זיהוי חלון Terminal
+2. Switch-Tool → מעבר ל-Terminal
+3. Shortcut-Tool → Ctrl+A (select all)
+4. Clipboard-Tool → copy mode
+5. Report: "הנה השגיאה: [paste here]"
+```
+
+**תרחיש 4: בדיקת Responsive Design**
+```
+User: "תבדוק איך נראה המסך בגדלים שונים"
+
+Steps:
+1. State-Tool → צילום במסך מלא
+2. Drag-Tool → שינוי גודל חלון (קטן)
+3. State-Tool → צילום
+4. Drag-Tool → שינוי גודל (בינוני)
+5. State-Tool → צילום
+6. Report: "הנה 3 צילומים בגדלים שונים + הערות."
+```
+
+**תרחיש 5: הרצת Tests אוטומטית**
+```
+User: "תריץ את כל הבדיקות"
+
+Steps:
+1. Powershell-Tool: flutter test
+2. Wait-Tool: wait for completion
+3. Clipboard-Tool: copy test results
+4. Analyze results
+5. Report: "✅ 47/50 בדיקות עברו. 3 נכשלו: [list]"
+```
+
+#### 🔄 שילוב עם Filesystem Tools:
+
+**הקומבינציה הכי חזקה:** Windows MCP + Filesystem!
+
+```
+Scenario: "תתקן את הבאג ותאמת שזה עובד"
+
+## שלב 1: זיהוי הבעיה (Windows MCP)
+State-Tool → צילום מסך
+Analysis: "הכפתור לא מיושר נכון"
+
+## שלב 2: תיקון הקוד (Filesystem)
+Filesystem:read_file(login_screen.dart)
+Filesystem:edit_file → תיקון padding
+Report: "✅ תיקנתי את הקוד"
+
+## שלב 3: אימות התיקון (Windows MCP)
+Powershell-Tool: flutter hot reload
+Wait-Tool: 2 seconds
+State-Tool: צילום מסך חדש
+Report: "✅ עובד מעולה עכשיו! before/after מצורף."
+```
+
+#### 📊 השוואה: Filesystem vs Windows MCP:
+
+| תכונה | Filesystem | Windows MCP | מתי להשתמש? |
+|-------|-----------|-------------|-------------|
+| **קריאת קבצים** | ✅ מעולה | ❌ לא | **Filesystem** |
+| **עריכת קוד** | ✅ מעולה | ❌ לא | **Filesystem** |
+| **בדיקות UI** | ❌ לא | ✅ מעולה | **Windows MCP** |
+| **צילומי מסך** | ❌ לא | ✅ מעולה | **Windows MCP** |
+| **הרצת פקודות** | ⚠️ Git בלבד | ✅ כל פקודה | **Windows MCP** |
+| **גלישה באפליקציה** | ❌ לא | ✅ מעולה | **Windows MCP** |
+| **Git operations** | ✅ GitHub tools | ⚠️ דרך PS | **Filesystem/GitHub** |
+
+#### 🎓 טיפים מתקדמים:
+
+**1. צור סקריפט אוטומטי**
+```
+User: "צור workflow לבדיקת האפליקציה:
+1. הרץ flutter run
+2. המתן לטעינה
+3. צלם מסך ראשי
+4. לחץ על כניסה
+5. צלם מסך התחברות
+6. סגור"
+
+→ AI saves this workflow and can run on demand!
+```
+
+**2. בדיקת Performance**
+```
+User: "תבדוק כמה זמן לוקחת טעינת המסך הראשי"
+
+Steps:
+1. Close app
+2. Start timer
+3. Powershell-Tool: flutter run
+4. Wait for main screen
+5. Report: "⏱️ 8.3 שניות מהפעלה עד מסך ראשי"
+```
+
+**3. השוואת Before/After**
+```
+User: "תעשה Before/After של מסך ההתחברות:
+1. תצלם לפני
+2. אני מתקן
+3. תצלם אחרי
+4. תשווה"
+
+→ Report with 2 screenshots + detailed comparison
+```
+
+#### ⚠️ מגבלות חשובות:
+
+1. **לא לעריכת קוד:**
+   - Windows MCP לא מתאים לעריכת קבצים
+   - השתמש תמיד ב-Filesystem:edit_file
+
+2. **לא לפעולות מסוכנות:**
+   - מחיקות המוניות
+   - שינויים מערכתיים
+   - צריך אישור מפורש
+
+3. **לא לפעולות ארוכות:**
+   - מעל 5-10 פעולות UI = יותר מדי
+   - מצא דרך אוטומטית יותר
+
+#### 💡 Salsheli-Specific Examples:
+
+```
+✅ "תבדוק את מסך הרשימות בפרויקט"
+→ Navigate + Screenshot + Report
+
+✅ "תריץ flutter test ותדווח תוצאות"
+→ Powershell + Analysis
+
+✅ "תצלם את כל מסכי Auth"
+→ Navigate through screens + Screenshots
+
+❌ "תתקן את login_screen.dart דרך המסך"
+→ NO! Use Filesystem:edit_file
+
+❌ "תלחץ 100 פעמים על כפתור"
+→ Too repetitive, not practical
+```
+
+---
+
 ## 🔄 Workflows מומלצים
 
 ### Workflow 1: Code Review + Fix
@@ -1100,6 +1387,9 @@ Question: "What should I do?"
 ├─ Need to run JavaScript?
 │  └─ Use: REPL
 │
+├─ Need to test UI / run commands?
+│  └─ Use: Windows MCP
+│
 └─ Need deep research?
    └─ Use: Extended Research
 ```
@@ -1118,6 +1408,9 @@ Question: "What should I do?"
 | **Show example** | Code block | Artifacts (if user asks) | edit_file |
 | **Complex calculation** | REPL | - | Sequential Thinking |
 | **Search info** | Check docs first | Web Search | Conversation Search |
+| **UI testing** | Windows MCP | - | Manual testing |
+| **Run Flutter commands** | Windows MCP | Manual terminal | - |
+| **Take screenshots** | Windows MCP | - | Manual screenshots |
 
 ---
 
@@ -1126,21 +1419,24 @@ Question: "What should I do?"
 ### The Big Picture:
 
 ```
-1. Filesystem = העבודה היומיומית (90% of tasks)
-2. Memory = הזיכרון הארוך (saves time long-term)
-3. GitHub = אוטומציה של Git (convenience)
-4. Sequential Thinking = פתרון בעיות מורכבות (when needed)
-5. Rest = כלי עזר נוספים (nice to have)
+1. Filesystem = העבודה היומיומית (80% of tasks)
+2. Windows MCP = בדיקות UI + הרצת פקודות (10% of tasks)
+3. Memory = הזיכרון הארוך (saves time long-term)
+4. GitHub = אוטומציה של Git (convenience)
+5. Sequential Thinking = פתרון בעיות מורכבות (when needed)
+6. Rest = כלי עזר נוספים (nice to have)
 ```
 
 ### Golden Rules:
 
 1. **Default to Filesystem** for file operations
-2. **Use Memory** for long-term knowledge only
-3. **Ask before Git operations** unless explicitly requested
-4. **Don't over-think** simple tasks
-5. **Check docs first** before searching web
-6. **Prefer edit_file** over artifacts (Salsheli-specific)
+2. **Use Windows MCP** for UI testing and Flutter commands
+3. **Combine tools** - Windows MCP + Filesystem = powerful!
+4. **Use Memory** for long-term knowledge only
+5. **Ask before Git operations** unless explicitly requested
+6. **Don't over-think** simple tasks
+7. **Check docs first** before searching web
+8. **Prefer edit_file** over artifacts (Salsheli-specific)
 
 ---
 
@@ -1160,7 +1456,7 @@ Question: "What should I do?"
 
 ---
 
-**גרסה:** 1.0  
-**נוצר:** 19/10/2025  
-**מטרה:** מדריך מקיף לשימוש נכון בכלי MCP  
+**גרסה:** 1.1 (Windows MCP Added)  
+**נוצר:** 19/10/2025 | **עודכן:** 19/10/2025  
+**מטרה:** מדריך מקיף לשימוש נכון בכלי MCP + Windows MCP  
 **Made with ❤️ by Humans & AI** 👨‍💻🤖

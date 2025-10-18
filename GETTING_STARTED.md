@@ -133,9 +133,9 @@ C:\projects\salsheli\lib\main.dart
 
 ---
 
-## 🛠️ 10 כלים MCP שיש לך 🆕
+## 🛠️ 11 כלים MCP שיש לך 🆕
 
-אתה עובד עם **Claude Desktop** + **10 כלים מתקדמים!**
+אתה עובד עם **Claude Desktop** + **11 כלים מתקדמים!**
 
 ### 📊 רשימת הכלים:
 
@@ -151,6 +151,7 @@ C:\projects\salsheli\lib\main.dart
 | 8️⃣ | **Conversation Search** | חיפוש בשיחות קודמות | מה דיברנו על X? |
 | 9️⃣ | **Artifacts** | יצירת קבצים מובנים | דוגמאות קוד |
 | 🔟 | **Extended Research** | מחקר מתקדם | שאלות מורכבות |
+| 🪟 | **Windows MCP** | אינטראקציה עם Windows | בדיקות UI, צילומים |
 
 ### 🎯 כלים שאתה תשתמש בהם הכי הרבה:
 
@@ -227,7 +228,34 @@ C:\projects\salsheli\lib\main.dart
    - פשוט תגיד מה אתה רוצה
    - אני בוחר את הכלי הנכון אוטומטית!
 
-**📚 רוצה מדריך מקיף על כלי MCP?** → ראה [**MCP_TOOLS_GUIDE.md**](MCP_TOOLS_GUIDE.md)  
+### 🆕 חדש: Windows MCP - אינטראקציה עם Windows!
+
+**מה זה עושה?**
+- 🔎 צילומי מסך
+- 🖱️ לחיצות + הקלדה אוטומטית
+- 🚀 הרצת פקודות (flutter run, flutter test)
+- 🧑‍💻 בדיקות UI אוטומטיות
+
+**דוגמאות:**
+```
+"תבדוק את מסך ההתחברות"
+→ אצלם + אלחץ + אבדוק + אדווח
+
+"הרץ flutter run"
+→ אריץ אוטומטית + אוודא שזה עובד
+
+"תעתיק את השגיאה מהקונסול"
+→ אמצא + אבחר + אעתיק אוטומטית
+```
+
+💡 **שילוב חזק:** Windows MCP + Filesystem!
+```
+1. Windows MCP: תראה את הבאג במסך
+2. Filesystem: תתקן את הקוד
+3. Windows MCP: תאמת שזה עובד!
+```
+
+**📚 רוצה מדריך מקיף על הכלים?** → ראה [**MCP_TOOLS_GUIDE.md**](MCP_TOOLS_GUIDE.md)  
 **📚 לימוד מהיר על AI behavior?** → ראה `AI_MASTER_GUIDE.md` - Part 2
 
 ---
