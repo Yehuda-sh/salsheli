@@ -1,7 +1,8 @@
 # 📋 Salsheli - Project Information
 
 > **Complete project overview and documentation index**  
-> **Updated:** 18/10/2025 | **Version:** 2.0 - Unified Documentation
+> **🤖 For AI Systems:** This is your main reference document  
+> **Updated:** 19/10/2025 | **Version:** 2.1 - Added MCP Tools Guide
 
 ---
 
@@ -23,11 +24,11 @@
 
 ## 📊 Project Statistics
 
-### Codebase (18/10/2025)
+### Codebase (19/10/2025)
 
 | Category | Count |
 |----------|-------|
-| **Documentation Files** | **5** (optimized!) |
+| **Documentation Files** | **6** (optimized!) |
 | **Dart Files** | 100+ |
 | **Models** | 11 |
 | **Providers** | 9 |
@@ -46,6 +47,7 @@
 - **Database:** Cloud Firestore
 - **ML:** ML Kit (OCR)
 - **External API:** Shufersal (1,758 products)
+- **AI Tools:** Claude Desktop with MCP (Model Context Protocol)
 
 ---
 
@@ -68,12 +70,14 @@ C:\projects\salsheli\
 ├── test/                           # 50+ tests
 ├── assets/                         # Images, fonts
 └── scripts/                        # Build scripts
-# Documentation (5 files) in project root
+# Documentation (6 files) in project root
 ```
 
 ---
 
-## 📚 The 5 Core Documents
+## 📚 The 6 Core Documents
+
+> **🎯 Note for AI Systems:** Read these documents to understand the project fully
 
 ### 1. 🤖 AI_MASTER_GUIDE.md
 **For: AI assistants**  
@@ -151,6 +155,21 @@ C:\projects\salsheli\
 
 ---
 
+### 6. 🛠️ MCP_TOOLS_GUIDE.md
+**For: AI assistants using Claude Desktop**  
+**Purpose:** Comprehensive guide to MCP (Model Context Protocol) tools  
+**Contains:**
+- 11 available tools (Filesystem, Memory, GitHub, Windows MCP, etc.)
+- When and how to use each tool
+- Workflows and best practices
+- Anti-patterns to avoid
+- Troubleshooting guide
+- Integration with other project docs
+
+**When to use:** Working with Claude Desktop + MCP tools
+
+---
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -215,6 +234,7 @@ flutter build web --release
 | **Security** | DEVELOPER_GUIDE.md | Security Best Practices |
 | **Performance** | DEVELOPER_GUIDE.md | Performance Optimization |
 | **AI instructions** | AI_MASTER_GUIDE.md | Full guide |
+| **MCP tools** | MCP_TOOLS_GUIDE.md | Tools guide |
 | **Project info** | PROJECT_INFO.md | This file! |
 
 ### Reading Order
@@ -233,22 +253,40 @@ flutter build web --release
 2. DEVELOPER_GUIDE.md       (full read)
 3. DESIGN_GUIDE.md          (full read)
 4. AI_MASTER_GUIDE.md       (if using AI assistant)
+5. MCP_TOOLS_GUIDE.md       (if using Claude Desktop)
 ```
 
 #### For AI Assistants 🤖
 ```
 1. AI_MASTER_GUIDE.md       (START HERE - EVERY conversation!)
-2. DEVELOPER_GUIDE.md       (reference as needed)
-3. DESIGN_GUIDE.md          (reference as needed)
+2. PROJECT_INFO.md          (THIS FILE - understand project structure)
+3. MCP_TOOLS_GUIDE.md       (if using Claude Desktop tools)
+4. DEVELOPER_GUIDE.md       (reference as needed)
+5. DESIGN_GUIDE.md          (reference as needed)
 ```
 
 ---
 
 ## 📖 Change History
 
+### v2.1 - 19/10/2025 🆕 **Added MCP Tools Guide**
+
+**Added:**
+- ✅ **MCP_TOOLS_GUIDE.md** (v1.0) - Comprehensive guide for Claude Desktop MCP tools
+- ✅ Updated PROJECT_INFO.md to reference 6 documents (not 5)
+- ✅ Added AI-specific notes throughout
+- ✅ Added Windows MCP to available tools
+
+**Changed:**
+- 📊 Codebase stats updated to 19/10/2025
+- 🔢 Documentation count: 5 → 6 files
+- 🎯 Enhanced AI system focus
+
+---
+
 ### v2.0 - 18/10/2025 🎉 **Major Update: Documentation Unification**
 
-**🔥 Reduced from 14 to 5 documents!**
+**🔥 Reduced from 14 to 6 documents!**
 
 #### Created
 - ✅ **AI_MASTER_GUIDE.md** (v2.0) - Complete AI guide with Security, Performance, Accessibility
@@ -274,7 +312,7 @@ flutter build web --release
 - ♻️ **DEPENDENCY_NOTE.md** → Merged into PROJECT_INFO.md
 - ♻️ **CLAUDE_TECHNICAL_GUIDE.md** → Merged into AI_MASTER_GUIDE.md
 
-**Result:** From 14 documents → **5 unified documents** ✨
+**Result:** From 14 documents → **6 unified documents** ✨
 
 ---
 
@@ -456,6 +494,7 @@ git push origin feature/my-feature
    - GETTING_STARTED.md for setup
    - DEVELOPER_GUIDE.md for code questions
    - DESIGN_GUIDE.md for UI questions
+   - MCP_TOOLS_GUIDE.md for tools questions
 
 2. **Search existing issues:**
    - https://github.com/Yehuda-sh/salsheli/issues
@@ -537,15 +576,19 @@ git push origin feature/my-feature
 - [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) - Developer reference
 - [DESIGN_GUIDE.md](DESIGN_GUIDE.md) - UI/UX guide
 - [GETTING_STARTED.md](GETTING_STARTED.md) - Quick start
+- [MCP_TOOLS_GUIDE.md](MCP_TOOLS_GUIDE.md) - MCP tools reference
+- [PROJECT_INFO.md](PROJECT_INFO.md) - Project overview (this file)
 
 ### External Resources
 - [Flutter Docs](https://flutter.dev/docs)
 - [Firebase Docs](https://firebase.google.com/docs)
 - [Dart Docs](https://dart.dev/guides)
 - [Provider Package](https://pub.dev/packages/provider)
+- [Claude Desktop MCP](https://docs.anthropic.com/en/docs/claude-desktop)
 
 ---
 
 **Made with ❤️ in Israel** 🇮🇱  
-**Version:** 2.0 | **Updated:** 18/10/2025  
-**Purpose:** Complete project information and documentation index
+**Version:** 2.1 | **Updated:** 19/10/2025  
+**Purpose:** Complete project information and documentation index  
+**🤖 AI Note:** This is your main reference for understanding the Salsheli project structure

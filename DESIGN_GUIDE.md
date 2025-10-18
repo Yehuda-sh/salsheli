@@ -478,90 +478,11 @@ SafeArea(
 
 ---
 
-## 🎨 דוגמאות קוד - Sticky Components
+## 🎨 שימוש ברכיבים
 
-### StickyButton Widget
+### StickyButton
 
-```dart
-// lib/widgets/common/sticky_button.dart
-
-import 'package:flutter/material.dart';
-import 'dart:math' as math;
-// import removed - using ui_constants.dart instead
-import '../../core/ui_constants.dart';
-
-class StickyButton extends StatefulWidget {
-  final String label;
-  final VoidCallback onPressed;
-  final Color? backgroundColor;
-  final double? rotation;
-  final bool isEnabled;
-
-  const StickyButton({
-    required this.label,
-    required this.onPressed,
-    this.backgroundColor,
-    this.rotation,
-    this.isEnabled = true,
-  });
-
-  @override
-  State<StickyButton> createState() => _StickyButtonState();
-}
-
-class _StickyButtonState extends State<StickyButton> {
-  bool _isPressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final backgroundColor = widget.backgroundColor ?? kStickyYellow;
-    final rotation = widget.rotation ?? 0.01;
-
-    return Transform.rotate(
-      angle: rotation,
-      child: AnimatedScale(
-        scale: _isPressed ? 0.95 : 1.0,
-        duration: Duration(milliseconds: 150),
-        curve: Curves.easeInOut,
-        child: GestureDetector(
-          onTapDown: (_) {
-            if (!widget.isEnabled) return;
-            setState(() => _isPressed = true);
-          },
-          onTapUp: (_) {
-            setState(() => _isPressed = false);
-            if (widget.isEnabled) widget.onPressed();
-          },
-          onTapCancel: () => setState(() => _isPressed = false),
-          child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: kSpacingLarge,
-              vertical: kSpacingMedium,
-            ),
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              borderRadius: BorderRadius.circular(kStickyBorderRadius),
-              boxShadow: kStickyShadow,
-              border: Border.all(
-                color: Colors.grey[300]!,
-                width: 1.5,
-              ),
-            ),
-            child: Text(
-              widget.label,
-              style: TextStyle(
-                color: Colors.black87,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-```
+**📁 קוד מלא:** `lib/widgets/common/sticky_button.dart`
 
 **שימוש:**
 
@@ -570,78 +491,15 @@ StickyButton(
   label: 'שמור',
   backgroundColor: kStickyGreen,
   rotation: -0.01,
-  onPressed: _onSave,
+  onPressed: () => _onSave(),
 )
 ```
 
 ---
 
-### StickyCard Widget
+### StickyCard
 
-```dart
-// lib/widgets/common/sticky_card.dart
-
-class StickyCard extends StatefulWidget {
-  final Widget child;
-  final Color backgroundColor;
-  final VoidCallback? onTap;
-  final double? rotation;
-  final EdgeInsets? padding;
-
-  const StickyCard({
-    required this.child,
-    this.backgroundColor = kStickyYellow,
-    this.onTap,
-    this.rotation,
-    this.padding,
-  });
-
-  @override
-  State<StickyCard> createState() => _StickyCardState();
-}
-
-class _StickyCardState extends State<StickyCard> {
-  bool _isPressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final rotation = widget.rotation ??
-        math.Random().nextDouble() * 0.04 - 0.02;
-
-    return Transform.rotate(
-      angle: rotation,
-      child: GestureDetector(
-        onTapDown: widget.onTap != null ? (_) {
-          setState(() => _isPressed = true);
-        } : null,
-        onTapUp: widget.onTap != null ? (_) {
-          setState(() => _isPressed = false);
-          widget.onTap?.call();
-        } : null,
-        child: AnimatedContainer(
-          duration: Duration(milliseconds: 150),
-          transform: _isPressed
-            ? (Matrix4.identity()..scale(0.98))
-            : Matrix4.identity(),
-          decoration: BoxDecoration(
-            color: widget.backgroundColor,
-            borderRadius: BorderRadius.circular(kStickyBorderRadius),
-            boxShadow: kStickyShadow,
-            border: Border.all(
-              color: Colors.grey[300]!,
-              width: 1.5,
-            ),
-          ),
-          child: Padding(
-            padding: widget.padding ?? EdgeInsets.all(kSpacingMedium),
-            child: widget.child,
-          ),
-        ),
-      ),
-    );
-  }
-}
-```
+**📁 קוד מלא:** `lib/widgets/common/sticky_card.dart`
 
 **שימוש:**
 
@@ -656,57 +514,9 @@ StickyCard(
 
 ---
 
-### StickyDialog Widget
+### StickyDialog
 
-```dart
-class StickyDialog extends StatelessWidget {
-  final String title;
-  final String content;
-  final Color backgroundColor;
-
-  const StickyDialog({
-    required this.title,
-    required this.content,
-    this.backgroundColor = kStickyYellow,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      child: Transform.rotate(
-        angle: 0.01,
-        child: Container(
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: BorderRadius.circular(kStickyBorderRadius),
-            boxShadow: kStickyShadow,
-            border: Border.all(color: Colors.grey[300]!, width: 2),
-          ),
-          child: Padding(
-            padding: EdgeInsets.all(kSpacingLarge),
-            child: Column(
-              children: [
-              Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(height: kSpacingMedium),
-              Text(content),
-              SizedBox(height: kSpacingLarge),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  StickyButton(
-                    label: 'סגור',
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-            ]),
-          ),
-        ),
-      ),
-    );
-  }
-}
-```
+**📁 קוד מלא:** `lib/widgets/common/sticky_dialog.dart`
 
 **שימוש:**
 
@@ -727,235 +537,31 @@ showDialog(
 
 ### מסך התחברות (Login Screen) - Compact
 
-```dart
-import 'package:flutter/material.dart';
-import 'package:salsheli/widgets/common/notebook_background.dart';
-import 'package:salsheli/widgets/common/sticky_note.dart';
-import 'package:salsheli/widgets/common/sticky_button.dart';
-import 'package:salsheli/core/ui_constants.dart';
+**📁 קוד מלא:** `lib/screens/auth/login_screen.dart`
 
-class LoginScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: kPaperBackground,
-      body: Stack(
-        children: [
-          NotebookBackground(),
-          SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(
-                  horizontal: kSpacingMedium, // 16px
-                  vertical: kSpacingSmall, // 8px
-                ),
-                child: Column(
-                  children: [
-                    const SizedBox(height: kSpacingSmall),
+**טכניקות שהוחלו:**
+- ✅ Padding מצומצם: `16px` אופקי, `8px` אנכי
+- ✅ לוגו מוקטן: `scale: 0.85`
+- ✅ כותרת: גופן `24` במקום `28`
+- ✅ רווחים: `8px` בין רוב האלמנטים
+- ✅ כפתורים: גובה `44px` במקום `48px`
+- ✅ טקסט קטן: `kFontSizeTiny (11px)` לקישורים
+- ✅ Padding פנימי מצומצם בשדות טקסט
 
-                    // לוגו מוקטן
-                    Transform.scale(
-                      scale: 0.85,
-                      child: StickyNoteLogo(
-                        color: kStickyYellow,
-                        icon: Icons.shopping_basket_outlined,
-                        rotation: -0.03,
-                      ),
-                    ),
-                    const SizedBox(height: kSpacingSmall),
+**תוצאה:** המסך נכנס במלואו ללא גלילה! 🎯
 
-                    // כותרת compact
-                    StickyNote(
-                      color: Colors.white,
-                      rotation: -0.02,
-                      child: Column(
-                        children: [
-                          Text(
-                            'התחברות',
-                            style: TextStyle(
-                              fontSize: 24, // מצומצם
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'ברוך שובך!',
-                            style: TextStyle(fontSize: kFontSizeSmall),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: kSpacingMedium),
-
-                    // שדה אימייל
-                    StickyNote(
-                      color: kStickyCyan,
-                      rotation: 0.01,
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                          labelText: 'אימייל',
-                          prefixIcon: Icon(Icons.email_outlined),
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: kSpacingMedium,
-                            vertical: kSpacingSmall,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: kSpacingSmall),
-
-                    // שדה סיסמה
-                    StickyNote(
-                      color: kStickyGreen,
-                      rotation: -0.015,
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                          labelText: 'סיסמה',
-                          prefixIcon: Icon(Icons.lock_outlined),
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: kSpacingMedium,
-                            vertical: kSpacingSmall,
-                          ),
-                        ),
-                        obscureText: true,
-                      ),
-                    ),
-                    const SizedBox(height: kSpacingMedium),
-
-                    // כפתור התחברות
-                    StickyButton(
-                      color: Colors.green,
-                      label: 'התחבר',
-                      icon: Icons.login,
-                      onPressed: () => _handleLogin(),
-                      height: 44, // compact
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-```
+---
 
 ### מסך Welcome
 
-```dart
-import 'package:flutter/material.dart';
-import 'package:salsheli/widgets/common/notebook_background.dart';
-import 'package:salsheli/widgets/common/sticky_note.dart';
-import 'package:salsheli/widgets/common/sticky_button.dart';
-import 'package:salsheli/core/ui_constants.dart';
+**📁 קוד מלא:** `lib/screens/welcome/welcome_screen.dart`
 
-class WelcomeScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    // צבעים מוגדרים ב-ui_constants.dart
-
-    return Scaffold(
-      backgroundColor: kPaperBackground,
-      body: Stack(
-        children: [
-          NotebookBackground(),
-          SafeArea(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(kSpacingMedium),
-              child: Column(
-                children: [
-                  SizedBox(height: kSpacingMedium),
-
-                  // לוגו
-                  Hero(
-                    tag: 'app_logo',
-                    child: StickyNoteLogo(
-                      color: kStickyYellow,
-                      icon: Icons.shopping_basket_outlined,
-                      iconColor: Colors.green, // או כל צבע אחר
-                    ),
-                  ),
-
-                  SizedBox(height: kSpacingMedium),
-
-                  // כותרת
-                  StickyNote(
-                    color: Colors.white,
-                    rotation: -0.02,
-                    child: Column(
-                      children: [
-                        Text(
-                          'ברוכים הבאים!',
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: kSpacingSmall),
-                        Text(
-                          'נהל את הקניות בקלות',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: kSpacingLarge),
-
-                  // יתרונות
-                  StickyNote(
-                    color: kStickyYellow,
-                    rotation: 0.01,
-                    child: ListTile(
-                      leading: Icon(Icons.people_outline),
-                      title: Text('שיתוף בקבוצה'),
-                      subtitle: Text('כולם רואים את אותה רשימה'),
-                    ),
-                  ),
-
-                  SizedBox(height: kSpacingMedium),
-
-                  StickyNote(
-                    color: kStickyPink,
-                    rotation: -0.015,
-                    child: ListTile(
-                      leading: Icon(Icons.camera_alt_outlined),
-                      title: Text('סריקת קבלות'),
-                      subtitle: Text('צלם והכל יתווסף אוטומטית'),
-                    ),
-                  ),
-
-                  SizedBox(height: kSpacingLarge),
-
-                  // כפתורים
-                  StickyButton(
-                    color: Colors.green, // או kStickyGreen
-                    label: 'התחברות',
-                    icon: Icons.login,
-                    onPressed: () => Navigator.pushNamed(context, '/login'),
-                  ),
-
-                  SizedBox(height: kSpacingMedium),
-
-                  StickyButton(
-                    color: Colors.white,
-                    textColor: Colors.green, // או צבע אחר
-                    label: 'הרשמה',
-                    icon: Icons.app_registration_outlined,
-                    onPressed: () => Navigator.pushNamed(context, '/register'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-```
+**עקרונות עיצוב:**
+- ✅ רקע: `kPaperBackground + NotebookBackground()`
+- ✅ לוגו מרכזי עם `Hero` animation
+- ✅ StickyNote לכותרת ויתרונות
+- ✅ צבעים שונים להבחנה (Yellow, Pink, Green)
+- ✅ כפתורים ראשיים/משניים
 
 ### כרטיס מוצר
 
@@ -1092,100 +698,32 @@ StickyNote(
 
 ## 🔄 עדכון מסכים קיימים
 
-כדי להמיר מסך קיים לעיצוב Sticky Notes:
+### צ'קליסט להמרה ל-Sticky Notes:
 
-### לפני:
-
+**1. רקע:**
 ```dart
-Scaffold(
-  body: SafeArea(
-    child: Column(
-      children: [
-        Card(
-          child: Text('תוכן'),
-        ),
-        ElevatedButton(
-          child: Text('כפתור'),
-          onPressed: () {},
-        ),
-      ],
-    ),
-  ),
-)
+✅ backgroundColor: kPaperBackground
+✅ Stack + NotebookBackground()
 ```
 
-### אחרי:
-
+**2. תוכן:**
 ```dart
-Scaffold(
-  backgroundColor: kPaperBackground,
-  body: Stack(
-    children: [
-      NotebookBackground(),
-      SafeArea(
-        child: Column(
-          children: [
-            StickyNote(
-              color: kStickyYellow,
-              rotation: 0.01,
-              child: Text('תוכן'),
-            ),
-            StickyButton(
-              label: 'כפתור',
-              onPressed: () {}, // לא async? תעביר ישירות
-            ),
-          ],
-        ),
-      ),
-    ],
-  ),
-)
+❌ Card → ✅ StickyNote
+❌ Container → ✅ StickyNote
 ```
 
-### המרה ל-Compact:
-
+**3. כפתורים:**
 ```dart
-Scaffold(
-  backgroundColor: kPaperBackground,
-  body: Stack(
-    children: [
-      NotebookBackground(),
-      SafeArea(
-        child: Center( // ⭐ חשוב למרכוז
-          child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(
-              horizontal: kSpacingMedium, // 16px
-              vertical: kSpacingSmall, // 8px
-            ),
-            child: Column(
-              children: [
-                // הקטן אלמנטים גדולים
-                Transform.scale(
-                  scale: 0.85,
-                  child: StickyNoteLogo(...),
-                ),
-                SizedBox(height: kSpacingSmall), // רווחים קטנים
+❌ ElevatedButton → ✅ StickyButton
+❌ TextButton → ✅ StickyButton(color: Colors.white)
+```
 
-                StickyNote(
-                  color: kStickyYellow,
-                  rotation: 0.01,
-                  child: Text('תוכן'),
-                ),
-                SizedBox(height: kSpacingSmall),
-
-                StickyButton(
-                  label: 'כפתור',
-                  height: 44, // ⭐ גובה מצומצם
-                  onPressed: () {},
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    ],
-  ),
-)
+**4. Compact (אם צריך):**
+```dart
+✅ padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8)
+✅ Transform.scale(scale: 0.85) ללוגו
+✅ height: 44 לכפתורים
+✅ SizedBox(height: 8) רווחים
 ```
 
 ---
@@ -1325,7 +863,15 @@ StickyNote(
 
 ## 📝 Changelog
 
-### v1.2 - 16/10/2025 🆕
+### v1.3 - 19/10/2025 🆕 **LATEST - Lean & Focused**
+
+- ✅ **קיצוץ דוגמאות קוד** - הסרת ~200 שורות duplications
+- ✅ **קיצוץ דוגמאות שימוש** - הסרת ~160 שורות duplications
+- ✅ **קיצוץ עדכון מסכים** - הסרת ~50 שורות duplications
+- ✅ **references במקום קוד** - קישורים לקבצים במקום שכפול
+- 📊 **סה"כ הפחתה:** ~410 שורות (37%!)
+
+### v1.2 - 16/10/2025
 
 - ✅ **תיקון imports** - שינוי מ-`memozap` ל-`salsheli`
 - ✅ **הסרת AppBrand** - שימוש בקבועים מ-`ui_constants.dart` בלבד
@@ -1349,8 +895,8 @@ StickyNote(
 
 ---
 
-**גרסה:** 1.2  
-**תאריך:** 16/10/2025  
-**מעודכן לאחרונה:** 16/10/2025
+**גרסה:** 1.3 🎯  
+**תאריך:** 19/10/2025  
+**מעודכן לאחרונה:** 19/10/2025
 
 🎨 **Happy Designing!** 📝

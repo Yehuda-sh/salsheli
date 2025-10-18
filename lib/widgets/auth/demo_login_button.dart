@@ -42,6 +42,8 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
   String _selectedUser = 'avi'; // ברירת מחדל - אבי (אבא)
 
   // 👨‍👩‍👧‍👦 משפחת לוי - משתמשי דמו זמינים
+  // ⚠️ DEMO USERS ONLY - לא לייצור אמיתי!
+  // אלו משתמשי בדיקה עם credentials גלויים למטרות פיתוח בלבד
   final Map<String, Map<String, String>> _demoUsers = {
     'avi': {
       'email': 'avi.levi@demo.com',
@@ -282,6 +284,7 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
             : () => setState(() => _selectedUser = userId),
         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
         child: Container(
+          constraints: const BoxConstraints(minHeight: 44), // ♿ נגישות - tap area
           padding: const EdgeInsets.symmetric(
             horizontal: kSpacingXTiny, // 6px
             vertical: kSpacingXTiny, // 6px
