@@ -33,7 +33,7 @@
 // Updated: 08/10/2025
 
 import 'package:flutter/material.dart';
-import 'package:memozap/l10n/app_strings.dart';
+import 'package:salsheli/l10n/app_strings.dart';
 
 /// תצורת סוגי קבוצות/משקי בית
 ///

@@ -37,6 +37,9 @@ import '../../providers/shopping_lists_provider.dart';
 import '../../providers/inventory_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../core/ui_constants.dart';
+import '../../widgets/common/notebook_background.dart';
+import '../../widgets/common/sticky_note.dart';
+import '../../widgets/common/sticky_button.dart';
 
 class InsightsScreen extends StatefulWidget {
   const InsightsScreen({super.key});
@@ -152,13 +155,16 @@ class _InsightsScreenState extends State<InsightsScreen> {
     final cs = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: cs.surface,
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () => _loadStats(forceRefresh: true),
-          child: CustomScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            slivers: [
+      backgroundColor: kPaperBackground,
+      body: Stack(
+        children: [
+          const NotebookBackground(),
+          SafeArea(
+            child: RefreshIndicator(
+              onRefresh: () => _loadStats(forceRefresh: true),
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
               // Header עם בחירת תקופה
               SliverToBoxAdapter(child: _buildHeader(theme, cs)),
 
@@ -171,9 +177,11 @@ class _InsightsScreenState extends State<InsightsScreen> {
                 _buildContent(theme, cs, _stats!)
               else
                 SliverFillRemaining(child: _buildEmptyState(cs)),
-            ],
+                ],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -183,9 +191,12 @@ class _InsightsScreenState extends State<InsightsScreen> {
   Widget _buildHeader(ThemeData theme, ColorScheme cs) {
     final brand = theme.extension<AppBrand>();
 
-    return Container(
+    return Padding(
       padding: const EdgeInsets.all(kSpacingMedium),
-      child: Column(
+      child: StickyNote(
+        color: Colors.white.withValues(alpha: 0.9),
+        rotation: -0.01,
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // כותרת ואייקון
@@ -251,6 +262,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
             ),
           ),
         ],
+        ),
       ),
     ).animate().fadeIn(duration: 300.ms);
   }
@@ -294,7 +306,6 @@ class _InsightsScreenState extends State<InsightsScreen> {
   // ================== 1. סיכום כללי ==================
   /// בונה כרטיס סיכום כללי עם השוואה לתקופה קודמת
   Widget _buildSummaryCard(ThemeData theme, ColorScheme cs, HomeStats stats) {
-    final brand = theme.extension<AppBrand>();
     final totalSpent = stats.monthlySpent.isFinite ? stats.monthlySpent : 0.0;
 
     // חישוב שינוי לעומת תקופה קודמת - אמיתי!
@@ -311,20 +322,9 @@ class _InsightsScreenState extends State<InsightsScreen> {
         : 0.0;
     final isImprovement = change < 0;
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            (brand?.accent ?? cs.primary).withValues(alpha: 0.1),
-            cs.primaryContainer.withValues(alpha: 0.3),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-        border: Border.all(color: cs.outline.withValues(alpha: 0.2)),
-      ),
+    return StickyNote(
+      color: kStickyYellow,
+      rotation: -0.015,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -433,13 +433,9 @@ class _InsightsScreenState extends State<InsightsScreen> {
     ColorScheme cs,
     Map<String, dynamic> rec,
   ) {
-    return Container(
-      padding: const EdgeInsets.all(kSpacingMedium),
-      decoration: BoxDecoration(
-        color: rec['color'].withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(kBorderRadius),
-        border: Border.all(color: rec['color'].withValues(alpha: 0.3)),
-      ),
+    return StickyNote(
+      color: rec['color'].withValues(alpha: 0.15),
+      rotation: 0.01,
       child: Row(
         children: [
           Container(
@@ -551,13 +547,9 @@ class _InsightsScreenState extends State<InsightsScreen> {
   // ================== 3. גרף עוגה ✅ נתונים אמיתיים! ==================
   /// בונה כרטיס גרף עוגה עם התפלגות הוצאות לפי קטגוריות
   Widget _buildPieChartCard(ThemeData theme, ColorScheme cs, HomeStats stats) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-        border: Border.all(color: cs.outline.withValues(alpha: 0.2)),
-      ),
+    return StickyNote(
+      color: kStickyCyan,
+      rotation: 0.02,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -705,13 +697,9 @@ class _InsightsScreenState extends State<InsightsScreen> {
     required String value,
     required Color color,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(kSpacingMedium),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(kBorderRadius),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
-      ),
+    return StickyNote(
+      color: color.withValues(alpha: 0.15),
+      rotation: -0.01,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -758,15 +746,9 @@ class _InsightsScreenState extends State<InsightsScreen> {
           final expense = entry.value;
           return Padding(
             padding: const EdgeInsets.only(bottom: kSpacingSmall),
-            child: Container(
-              padding: const EdgeInsets.all(kSpacingSmall),
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: cs.outline.withValues(alpha: 0.2),
-                ),
-              ),
+            child: StickyNote(
+              color: kStickyGreen.withValues(alpha: 0.15),
+              rotation: index.isEven ? 0.005 : -0.005,
               child: Row(
                 children: [
                   CircleAvatar(
@@ -853,10 +835,11 @@ class _InsightsScreenState extends State<InsightsScreen> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: kSpacingLarge),
-            FilledButton.icon(
-              onPressed: _loadStats,
-              icon: const Icon(Icons.refresh),
-              label: const Text('נסה שוב'),
+            StickyButton(
+              label: 'נסה שוב',
+              icon: Icons.refresh,
+              color: kStickyPink,
+              onPressed: () => _loadStats(),
             ),
           ],
         ),
@@ -893,10 +876,11 @@ class _InsightsScreenState extends State<InsightsScreen> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: kSpacingLarge),
-            FilledButton.icon(
+            StickyButton(
+              label: 'צור רשימה ראשונה',
+              icon: Icons.add,
+              color: kStickyYellow,
               onPressed: () => Navigator.pushNamed(context, '/shopping-lists'),
-              icon: const Icon(Icons.add),
-              label: const Text('צור רשימה ראשונה'),
             ),
           ],
         ),
