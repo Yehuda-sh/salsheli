@@ -75,6 +75,8 @@
 
 ## 🛠️ Part 2: Tools & Workflow
 
+**📚 For comprehensive MCP tools guide:** See [**MCP_TOOLS_GUIDE.md**](MCP_TOOLS_GUIDE.md)
+
 ### Filesystem:edit_file > artifacts
 
 **⚠️ CRITICAL: User prefers Filesystem:edit_file over artifacts!**

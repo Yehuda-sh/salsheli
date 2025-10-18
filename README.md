@@ -40,7 +40,7 @@
 
 ```bash
 # Clone
-git clone https://github.com/yourusername/salsheli.git
+git clone https://github.com/Yehuda-sh/salsheli.git
 cd salsheli
 
 # Install
@@ -88,8 +88,8 @@ flutter run
 ## 📧 Contact
 
 - **Email:** your.email@example.com
-- **GitHub:** [@yourusername](https://github.com/yourusername)
-- **Issues:** [Report a bug](https://github.com/yourusername/salsheli/issues)
+- **GitHub:** [@Yehuda-sh](https://github.com/Yehuda-sh)
+- **Issues:** [Report a bug](https://github.com/Yehuda-sh/salsheli/issues)
 
 ---
 

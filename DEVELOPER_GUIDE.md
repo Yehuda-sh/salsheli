@@ -7,13 +7,13 @@
 
 ## 📚 תוכן עניינים
 
-- [🎯 Quick Reference - תשובות ב-30 שניות](#-quick-reference)
-- [🏗️ Architecture Patterns](#️-architecture-patterns)
-- [💻 Code Examples & Best Practices](#-code-examples--best-practices)
-- [🧪 Testing Guidelines](#-testing-guidelines)
-- [🔒 Security Best Practices](#-security-best-practices)
-- [⚡ Performance Optimization](#-performance-optimization)
-- [📋 Checklists](#-checklists)
+- [🎯 Quick Reference - תשובות ב-30 שניות](#quick-reference)
+- [🏗️ Architecture Patterns](#architecture-patterns)
+- [💻 Code Examples & Best Practices](#code-examples--best-practices)
+- [🧪 Testing Guidelines](#testing-guidelines)
+- [🔒 Security Best Practices](#security-best-practices)
+- [⚡ Performance Optimization](#performance-optimization)
+- [📋 Checklists](#checklists)
 
 ---
 
@@ -320,6 +320,34 @@ for (int i = 0; i < items.length; i += 100) {
 ```
 
 **Firestore Limit:** Max **500 operations** per batch!
+
+---
+
+### 7. Real Project Examples
+
+**Want to see these patterns in action?**
+
+#### Repository Pattern:
+- `lib/repositories/shopping_lists_repository.dart` - Shopping lists CRUD
+- `lib/repositories/products_repository.dart` - Products from Shufersal API
+- `lib/repositories/inventory_repository.dart` - Pantry management
+
+#### Provider Pattern:
+- `lib/providers/shopping_lists_provider.dart` - Lists state management
+- `lib/providers/products_provider.dart` - Products state + search
+- `lib/providers/inventory_provider.dart` - Inventory tracking
+
+#### UserContext Integration:
+- `lib/providers/user_context.dart` - Main implementation
+- All providers extend ChangeNotifier and listen to UserContext
+- See any provider for household switching pattern
+
+#### Sticky Notes Design:
+- `lib/screens/auth/login_screen.dart` - Complete compact design example
+- `lib/widgets/common/sticky_note.dart` - Base component
+- `lib/widgets/common/sticky_button.dart` - Button component
+
+**💡 Pro Tip:** Open these files to see real implementation of patterns from this guide!
 
 ---
 
@@ -888,7 +916,7 @@ Future<void> _loadMore() async {
 
 ### 5. Performance Benchmarks
 
-**From PERFORMANCE_TEST.md:**
+**Historical Performance Improvements (Oct 2025):**
 
 | Operation | Before | After | Improvement |
 |-----------|--------|-------|-------------|

@@ -846,10 +846,10 @@ class LoginScreen extends StatelessWidget {
 
 ```dart
 import 'package:flutter/material.dart';
-import 'package:memozap/widgets/common/notebook_background.dart';
-import 'package:memozap/widgets/common/sticky_note.dart';
-import 'package:memozap/widgets/common/sticky_button.dart';
-import 'package:memozap/core/ui_constants.dart';
+import 'package:salsheli/widgets/common/notebook_background.dart';
+import 'package:salsheli/widgets/common/sticky_note.dart';
+import 'package:salsheli/widgets/common/sticky_button.dart';
+import 'package:salsheli/core/ui_constants.dart';
 
 class WelcomeScreen extends StatelessWidget {
   @override
@@ -1251,7 +1251,7 @@ Colors.white.withValues(alpha: 0.7)
 
 ### מסמכים
 
-- `STICKY_NOTES_DESIGN.md` - המדריך הזה
+- `DESIGN_GUIDE.md` - המדריך הזה
 - `README.md` - מידע כללי על הפרויקט
 
 ---

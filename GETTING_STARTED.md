@@ -227,7 +227,8 @@ C:\projects\salsheli\lib\main.dart
    - פשוט תגיד מה אתה רוצה
    - אני בוחר את הכלי הנכון אוטומטית!
 
-**📚 רוצה לימוד מעמיק על הכלים?** → ראה `AI_MASTER_GUIDE.md` - Part 2
+**📚 רוצה מדריך מקיף על כלי MCP?** → ראה [**MCP_TOOLS_GUIDE.md**](MCP_TOOLS_GUIDE.md)  
+**📚 לימוד מהיר על AI behavior?** → ראה `AI_MASTER_GUIDE.md` - Part 2
 
 ---
 

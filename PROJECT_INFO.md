@@ -67,8 +67,8 @@ C:\projects\salsheli\
 │   └── main.dart                   # App entry point
 ├── test/                           # 50+ tests
 ├── assets/                         # Images, fonts
-├── docs/                           # Documentation (5 files)
 └── scripts/                        # Build scripts
+# Documentation (5 files) in project root
 ```
 
 ---
@@ -169,7 +169,7 @@ Android Studio / VS Code
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/yourusername/salsheli.git
+git clone https://github.com/Yehuda-sh/salsheli.git
 cd salsheli
 
 # 2. Install dependencies
@@ -441,14 +441,14 @@ git push origin feature/my-feature
 
 - **Project Lead:** [Your Name]
 - **Email:** your.email@example.com
-- **GitHub:** [@yourusername](https://github.com/yourusername)
+- **GitHub:** [@Yehuda-sh](https://github.com/Yehuda-sh)
 
 ### Resources
 
-- **Repository:** https://github.com/yourusername/salsheli
-- **Issues:** https://github.com/yourusername/salsheli/issues
-- **Discussions:** https://github.com/yourusername/salsheli/discussions
-- **Wiki:** https://github.com/yourusername/salsheli/wiki
+- **Repository:** https://github.com/Yehuda-sh/salsheli
+- **Issues:** https://github.com/Yehuda-sh/salsheli/issues
+- **Discussions:** https://github.com/Yehuda-sh/salsheli/discussions
+- **Wiki:** https://github.com/Yehuda-sh/salsheli/wiki
 
 ### Getting Help
 
@@ -458,7 +458,7 @@ git push origin feature/my-feature
    - DESIGN_GUIDE.md for UI questions
 
 2. **Search existing issues:**
-   - https://github.com/yourusername/salsheli/issues
+   - https://github.com/Yehuda-sh/salsheli/issues
 
 3. **Ask Claude (AI):**
    - Give it AI_MASTER_GUIDE.md at conversation start
