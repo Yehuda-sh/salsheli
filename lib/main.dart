@@ -6,6 +6,7 @@
 // - Automatic user loading from SharedPreferences
 // - Dynamic Color Support (Android 12+ Material You) 🎨
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -67,8 +68,10 @@ import 'screens/auth/register_screen.dart' as auth_register;
 import 'theme/app_theme.dart';
 
 void main() async {
-  debugPrint('\n🚀 main.dart: Starting app initialization...');
-  debugPrint('═══════════════════════════════════════════');
+  if (kDebugMode) {
+    debugPrint('\n🚀 main.dart: Starting app initialization...');
+    debugPrint('═══════════════════════════════════════════');
+  }
 
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -77,24 +80,29 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    debugPrint('✅ Firebase initialized successfully');
+    if (kDebugMode) debugPrint('✅ Firebase initialized successfully');
   } catch (e) {
-    debugPrint('⚠️ Firebase initialization failed: $e');
-    debugPrint('   (Continuing without Firebase - using Hive only)');
+    if (kDebugMode) {
+      debugPrint('⚠️ Firebase initialization failed: $e');
+      debugPrint('   (Continuing without Firebase - using Hive only)');
+    }
   }
 
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
-    debugPrint('Flutter Error: ${details.exception}');
+    if (kDebugMode) debugPrint('Flutter Error: ${details.exception}');
   };
 
   // 🔥 Create Firebase Repository
-  debugPrint('\n🔥 Creating FirebaseProductsRepository...');
+  if (kDebugMode) {
+    debugPrint('\n🔥 Creating FirebaseProductsRepository...');
+  }
   final firebaseRepo = FirebaseProductsRepository();
-  debugPrint('✅ FirebaseProductsRepository ready');
-
-  debugPrint('\n═══════════════════════════════════════════');
-  debugPrint('🎯 Launching app...\n');
+  if (kDebugMode) {
+    debugPrint('✅ FirebaseProductsRepository ready');
+    debugPrint('\n═══════════════════════════════════════════');
+    debugPrint('🎯 Launching app...\n');
+  }
 
   runApp(
     MultiProvider(
@@ -102,7 +110,7 @@ void main() async {
         // === Auth Service === 🔐
         Provider(
           create: (_) {
-            debugPrint('🔐 main.dart: Creating AuthService');
+            if (kDebugMode) debugPrint('🔐 main.dart: Creating AuthService');
             return AuthService();
           },
         ),
@@ -110,7 +118,7 @@ void main() async {
         // === Firebase User Repository === 🔥
         Provider<UserRepository>(
           create: (_) {
-            debugPrint('🔥 main.dart: Creating FirebaseUserRepository');
+            if (kDebugMode) debugPrint('🔥 main.dart: Creating FirebaseUserRepository');
             return FirebaseUserRepository();
           },
         ),
@@ -118,14 +126,14 @@ void main() async {
         // === User Context === 👤
         ChangeNotifierProxyProvider2<AuthService, UserRepository, UserContext>(
           create: (context) {
-            debugPrint('👤 main.dart: Creating UserContext with Firebase');
+            if (kDebugMode) debugPrint('👤 main.dart: Creating UserContext with Firebase');
             return UserContext(
               repository: context.read<UserRepository>(),
               authService: context.read<AuthService>(),
             );
           },
           update: (context, authService, repository, previous) {
-            debugPrint('🔄 main.dart: Updating UserContext');
+            if (kDebugMode) debugPrint('🔄 main.dart: Updating UserContext');
             return previous ?? UserContext(
               repository: repository,
               authService: authService,
@@ -142,31 +150,37 @@ void main() async {
         ChangeNotifierProxyProvider<UserContext, ProductsProvider>(
           lazy: false,
           create: (context) {
-            debugPrint('\n🏗️ main.dart: Creating ProductsProvider with Firebase...');
+            if (kDebugMode) {
+              debugPrint('\n🏗️ main.dart: Creating ProductsProvider with Firebase...');
+            }
             final provider = ProductsProvider(
               repository: firebaseRepo,
               skipInitialLoad: true,
             );
-            debugPrint('✅ main.dart: ProductsProvider created (skipInitialLoad=true)');
+            if (kDebugMode) {
+              debugPrint('✅ main.dart: ProductsProvider created (skipInitialLoad=true)');
+            }
             return provider;
           },
           update: (context, userContext, previous) {
-            debugPrint('\n🔄 ProductsProvider.update(): UserContext changed');
-            debugPrint('   👤 User: ${userContext.user?.email ?? "guest"}');
-            debugPrint('   🔐 isLoggedIn: ${userContext.isLoggedIn}');
+            if (kDebugMode) {
+              debugPrint('\n🔄 ProductsProvider.update(): UserContext changed');
+              debugPrint('   👤 User: ${userContext.user?.email ?? "guest"}');
+              debugPrint('   🔐 isLoggedIn: ${userContext.isLoggedIn}');
+            }
             
             if (previous == null) {
-              debugPrint('   ⚠️ previous=null, creating new ProductsProvider');
+              if (kDebugMode) debugPrint('   ⚠️ previous=null, creating new ProductsProvider');
               return ProductsProvider(
                 repository: firebaseRepo,
               );
             }
 
-            debugPrint('   📊 hasInitialized: ${previous.hasInitialized}');
+            if (kDebugMode) debugPrint('   📊 hasInitialized: ${previous.hasInitialized}');
 
             // If user logged in - initialize and load products בצורה אסינכרונית
             if (userContext.isLoggedIn && !previous.hasInitialized) {
-              debugPrint('   ✅ User logged in + not initialized → calling initializeAndLoad()');
+              if (kDebugMode) debugPrint('   ✅ User logged in + not initialized → calling initializeAndLoad()');
               // ⚡ אופטימיזציה: טעינה אסינכרונית שלא חוסמת
               Future.microtask(() => previous.initializeAndLoad());
             }
@@ -178,14 +192,14 @@ void main() async {
         // === Locations Provider === 📍 Firebase!
         ChangeNotifierProxyProvider<UserContext, LocationsProvider>(
           create: (context) {
-            debugPrint('📍 main.dart: Creating LocationsProvider with Firebase');
+            if (kDebugMode) debugPrint('📍 main.dart: Creating LocationsProvider with Firebase');
             return LocationsProvider(
               userContext: context.read<UserContext>(),
               repository: FirebaseLocationsRepository(),  // 🔥 Firebase!
             );
           },
           update: (context, userContext, previous) {
-            debugPrint('🔄 main.dart: Updating LocationsProvider');
+            if (kDebugMode) debugPrint('🔄 main.dart: Updating LocationsProvider');
             return (previous ??
                     LocationsProvider(
                       userContext: userContext,
@@ -198,7 +212,7 @@ void main() async {
         // === Shopping Lists === 🔥 Firebase!
         ChangeNotifierProxyProvider<UserContext, ShoppingListsProvider>(
           create: (context) {
-            debugPrint('📋 main.dart: Creating ShoppingListsProvider with Firebase');
+            if (kDebugMode) debugPrint('📋 main.dart: Creating ShoppingListsProvider with Firebase');
             final provider = ShoppingListsProvider(
               repository: FirebaseShoppingListsRepository(),  // 🔥 Firebase!
             );
@@ -207,7 +221,7 @@ void main() async {
             return provider;
           },
           update: (context, userContext, previous) {
-            debugPrint('🔄 main.dart: Updating ShoppingListsProvider');
+            if (kDebugMode) debugPrint('🔄 main.dart: Updating ShoppingListsProvider');
             final provider =
                 previous ??
                 ShoppingListsProvider(
@@ -221,14 +235,14 @@ void main() async {
         // === Inventory === 🔥 Firebase!
         ChangeNotifierProxyProvider<UserContext, InventoryProvider>(
           create: (context) {
-            debugPrint('📦 main.dart: Creating InventoryProvider with Firebase');
+            if (kDebugMode) debugPrint('📦 main.dart: Creating InventoryProvider with Firebase');
             return InventoryProvider(
               userContext: context.read<UserContext>(),
               repository: FirebaseInventoryRepository(),  // 🔥 Firebase!
             );
           },
           update: (context, userContext, previous) {
-            debugPrint('🔄 main.dart: Updating InventoryProvider');
+            if (kDebugMode) debugPrint('🔄 main.dart: Updating InventoryProvider');
             return (previous ??
                     InventoryProvider(
                       userContext: userContext,
@@ -241,11 +255,11 @@ void main() async {
         // === Product Location Memory === 📍
         ChangeNotifierProxyProvider<UserContext, ProductLocationProvider>(
           create: (context) {
-            debugPrint('📍 main.dart: Creating ProductLocationProvider');
+            if (kDebugMode) debugPrint('📍 main.dart: Creating ProductLocationProvider');
             return ProductLocationProvider();
           },
           update: (context, userContext, previous) {
-            debugPrint('🔄 main.dart: Updating ProductLocationProvider');
+            if (kDebugMode) debugPrint('🔄 main.dart: Updating ProductLocationProvider');
             previous?.updateUserContext(userContext);
             return previous ?? ProductLocationProvider();
           },
@@ -254,14 +268,14 @@ void main() async {
         // === Receipts === 🔥 Firebase!
         ChangeNotifierProxyProvider<UserContext, ReceiptProvider>(
           create: (context) {
-            debugPrint('📄 main.dart: Creating ReceiptProvider with Firebase');
+            if (kDebugMode) debugPrint('📄 main.dart: Creating ReceiptProvider with Firebase');
             return ReceiptProvider(
               userContext: context.read<UserContext>(),
               repository: FirebaseReceiptRepository(),  // 🔥 Firebase!
             );
           },
           update: (context, userContext, previous) {
-            debugPrint('🔄 main.dart: Updating ReceiptProvider');
+            if (kDebugMode) debugPrint('🔄 main.dart: Updating ReceiptProvider');
             return (previous ??
                     ReceiptProvider(
                       userContext: userContext,
@@ -295,7 +309,7 @@ void main() async {
         // === Habits Provider === 🧠 Firebase!
         ChangeNotifierProxyProvider<UserContext, HabitsProvider>(
           create: (context) {
-            debugPrint('🧠 main.dart: Creating HabitsProvider with Firebase');
+            if (kDebugMode) debugPrint('🧠 main.dart: Creating HabitsProvider with Firebase');
             final provider = HabitsProvider(
               FirebaseHabitsRepository(),  // 🔥 Firebase!
             );
@@ -304,7 +318,7 @@ void main() async {
             return provider;
           },
           update: (context, userContext, previous) {
-            debugPrint('🔄 main.dart: Updating HabitsProvider');
+            if (kDebugMode) debugPrint('🔄 main.dart: Updating HabitsProvider');
             final provider =
                 previous ??
                 HabitsProvider(
@@ -318,7 +332,7 @@ void main() async {
         // === Templates Provider === 📋 Firebase!
         ChangeNotifierProxyProvider<UserContext, TemplatesProvider>(
           create: (context) {
-            debugPrint('📋 main.dart: Creating TemplatesProvider with Firebase');
+            if (kDebugMode) debugPrint('📋 main.dart: Creating TemplatesProvider with Firebase');
             final provider = TemplatesProvider(
               repository: FirebaseTemplatesRepository(),  // 🔥 Firebase!
             );
@@ -327,7 +341,7 @@ void main() async {
             return provider;
           },
           update: (context, userContext, previous) {
-            debugPrint('🔄 main.dart: Updating TemplatesProvider');
+            if (kDebugMode) debugPrint('🔄 main.dart: Updating TemplatesProvider');
             final provider =
                 previous ??
                 TemplatesProvider(
@@ -358,14 +372,16 @@ class _MyAppState extends State<MyApp> {
     // Adapts app colors to user's wallpaper (Android 12+)
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
-        debugPrint('\n🎨 DynamicColorBuilder:');
-        debugPrint('   📱 lightDynamic: ${lightDynamic != null ? "✅ Available" : "❌ Not available"}');
-        debugPrint('   🌙 darkDynamic: ${darkDynamic != null ? "✅ Available" : "❌ Not available"}');
-        
-        if (lightDynamic != null || darkDynamic != null) {
-          debugPrint('   🎉 Material You detected! Using dynamic colors');
-        } else {
-          debugPrint('   ℹ️ Dynamic Color not available, using standard colors');
+        if (kDebugMode) {
+          debugPrint('\n🎨 DynamicColorBuilder:');
+          debugPrint('   📱 lightDynamic: ${lightDynamic != null ? "✅ Available" : "❌ Not available"}');
+          debugPrint('   🌙 darkDynamic: ${darkDynamic != null ? "✅ Available" : "❌ Not available"}');
+          
+          if (lightDynamic != null || darkDynamic != null) {
+            debugPrint('   🎉 Material You detected! Using dynamic colors');
+          } else {
+            debugPrint('   ℹ️ Dynamic Color not available, using standard colors');
+          }
         }
 
         return MaterialApp(
@@ -411,8 +427,9 @@ class _MyAppState extends State<MyApp> {
               final listId = settings.arguments as String?;
               if (listId == null) {
                 return MaterialPageRoute(
-                  builder: (_) =>
-                      Scaffold(body: Center(child: Text('List ID missing'))),
+                  builder: (_) => const Scaffold(
+                    body: Center(child: Text('List ID missing')),
+                  ),
                 );
               }
               return MaterialPageRoute(
@@ -426,8 +443,9 @@ class _MyAppState extends State<MyApp> {
               final list = args?['list'] as ShoppingList?;
               if (list == null) {
                 return MaterialPageRoute(
-                  builder: (_) =>
-                      Scaffold(body: Center(child: Text('List not found'))),
+                  builder: (_) => const Scaffold(
+                    body: Center(child: Text('List not found')),
+                  ),
                 );
               }
               return MaterialPageRoute(
@@ -441,8 +459,9 @@ class _MyAppState extends State<MyApp> {
               final list = settings.arguments as ShoppingList?;
               if (list == null) {
                 return MaterialPageRoute(
-                  builder: (_) =>
-                      Scaffold(body: Center(child: Text('List not found'))),
+                  builder: (_) => const Scaffold(
+                    body: Center(child: Text('List not found')),
+                  ),
                 );
               }
               return MaterialPageRoute(
@@ -455,8 +474,9 @@ class _MyAppState extends State<MyApp> {
               final list = settings.arguments as ShoppingList?;
               if (list == null) {
                 return MaterialPageRoute(
-                  builder: (_) =>
-                      Scaffold(body: Center(child: Text('List not found'))),
+                  builder: (_) => const Scaffold(
+                    body: Center(child: Text('List not found')),
+                  ),
                 );
               }
               return MaterialPageRoute(
@@ -469,8 +489,9 @@ class _MyAppState extends State<MyApp> {
               final list = settings.arguments as ShoppingList?;
               if (list == null) {
                 return MaterialPageRoute(
-                  builder: (_) =>
-                      Scaffold(body: Center(child: Text('List not found'))),
+                  builder: (_) => const Scaffold(
+                    body: Center(child: Text('List not found')),
+                  ),
                 );
               }
               return MaterialPageRoute(
