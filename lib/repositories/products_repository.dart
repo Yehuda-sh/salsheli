@@ -23,14 +23,27 @@
 abstract class ProductsRepository {
   /// טוען את כל המוצרים מה-Repository
   ///
+  /// Parameters:
+  ///   - [limit]: מספר מקסימלי של מוצרים להחזיר (null = הכל)
+  ///   - [offset]: כמה מוצרים לדלג (לדפדוף)
+  ///
   /// Returns: רשימת כל המוצרים הזמינים (עם/בלי מחירים)
   ///
   /// Example:
   /// ```dart
-  /// final products = await repository.getAllProducts();
-  /// print('נמצאו ${products.length} מוצרים');
+  /// // טען את כל המוצרים
+  /// final all = await repository.getAllProducts();
+  /// 
+  /// // טען 100 ראשונים
+  /// final first100 = await repository.getAllProducts(limit: 100);
+  /// 
+  /// // טען 100-200 (דף שני)
+  /// final second100 = await repository.getAllProducts(limit: 100, offset: 100);
   /// ```
-  Future<List<Map<String, dynamic>>> getAllProducts();
+  Future<List<Map<String, dynamic>>> getAllProducts({
+    int? limit,
+    int? offset,
+  });
   
   /// טוען מוצרים לפי קטגוריה מסוימת
   ///

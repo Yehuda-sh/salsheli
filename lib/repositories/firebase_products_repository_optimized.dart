@@ -26,8 +26,16 @@ class FirebaseProductsRepositoryOptimized implements ProductsRepository {
   }
   
   @override
-  Future<List<Map<String, dynamic>>> getAllProducts() async {
-    debugPrint('📥 FirebaseProductsRepositoryOptimized.getAllProducts()');
+  Future<List<Map<String, dynamic>>> getAllProducts({
+    int? limit,
+    int? offset,
+  }) async {
+    debugPrint('📥 FirebaseProductsRepositoryOptimized.getAllProducts(limit: $limit, offset: $offset)');
+    
+    // 🚀 אם יש limit/offset - טען באופן ספציפי
+    if (limit != null || offset != null) {
+      return await _loadProductsWithPagination(limit: limit, offset: offset);
+    }
     
     // ⚡ החזר מ-cache אם תקף
     if (_isCacheValid && _cachedProducts != null) {
@@ -37,6 +45,73 @@ class FirebaseProductsRepositoryOptimized implements ProductsRepository {
     
     // 🔄 טען מחדש
     return await _loadAllProductsPaginated();
+  }
+  
+  /// 📄 טעינה עם pagination ספציפי
+  Future<List<Map<String, dynamic>>> _loadProductsWithPagination({
+    int? limit,
+    int? offset,
+  }) async {
+    debugPrint('📄 טוען מוצרים עם pagination...');
+    
+    try {
+      // 🚀 אם יש cache מלא ותקף, נשתמש בו
+      if (_isCacheValid && _cachedProducts != null) {
+        final start = offset ?? 0;
+        final end = limit != null ? start + limit : _cachedProducts!.length;
+        final result = _cachedProducts!.sublist(
+          start.clamp(0, _cachedProducts!.length),
+          end.clamp(0, _cachedProducts!.length),
+        );
+        debugPrint('✅ מחזיר ${result.length} מוצרים מ-cache (pagination)');
+        return result;
+      }
+      
+      // אין cache - טען מ-Firestore
+      Query query = _firestore
+          .collection('products')
+          .orderBy('name');
+      
+      // אם יש offset, נטען את כל המוצרים עד offset+limit
+      if (offset != null && offset > 0) {
+        final totalToLoad = limit != null ? offset + limit : offset + 100;
+        query = query.limit(totalToLoad);
+        
+        final snapshot = await query.get();
+        final allDocs = snapshot.docs.map((doc) {
+          final data = doc.data() as Map<String, dynamic>;
+          return <String, dynamic>{
+            ...data,
+            'id': doc.id,
+          };
+        }).toList();
+        
+        final result = allDocs.skip(offset).take(limit ?? allDocs.length).toList();
+        debugPrint('✅ נטענו ${result.length} מוצרים (pagination)');
+        return result;
+      }
+      
+      // אין offset - פשוט limit
+      if (limit != null) {
+        query = query.limit(limit);
+      }
+      
+      final snapshot = await query.get();
+      final products = snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return <String, dynamic>{
+          ...data,
+          'id': doc.id,
+        };
+      }).toList();
+      
+      debugPrint('✅ נטענו ${products.length} מוצרים');
+      return products;
+      
+    } catch (e) {
+      debugPrint('❌ שגיאה בטעינת מוצרים עם pagination: $e');
+      return [];
+    }
   }
   
   /// ⚡ טעינה בעמודים - לא טוען הכל בבת אחת

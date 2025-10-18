@@ -33,6 +33,7 @@
 // - Logging מפורט
 //
 // ⚠️ Critical Changes (14/10/2025 - v3):
+// - ⏱️ Fixed Race Condition: 600ms delay before navigation check (allows Firebase Auth to load)
 // - ✨ Gradient background מדהים
 // - ✨ Logo animations (fade, scale, rotate)
 // - ✨ Pulsing circle effect
@@ -134,10 +135,14 @@ class _IndexScreenState extends State<IndexScreen>
     // 📝 התחל להחליף הודעות
     _startMessageRotation();
 
-    // ⚡ טעינה אסינכרונית משופרת - לא חוסמת את ה-UI
+    // ⚡ טעינה אסינכרונית משופרת - עם delay ל-Firebase Auth
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // מבצע את הטעינה ב-microtask כדי לא לחסום את ה-frame
-      Future.microtask(() => _setupListener());
+      // ⏱️ המתנה של 600ms כדי לתת ל-Firebase Auth זמן להחזיר את המשתמש
+      Future.delayed(const Duration(milliseconds: 600), () {
+        if (mounted) {
+          _setupListener();
+        }
+      });
     });
   }
 

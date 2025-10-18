@@ -89,17 +89,35 @@ class FirebaseProductsRepository implements ProductsRepository {
   /// משתמש ב-cache חכם - אם ה-cache תקף, מחזיר אותו.
   /// אחרת, טוען מחדש מ-Firestore ומעדכן את ה-cache.
   /// 
+  /// Parameters:
+  ///   - [limit]: מספר מקסימלי של מוצרים להחזיר (null = הכל)
+  ///   - [offset]: כמה מוצרים לדלג (לדפדוף)
+  /// 
   /// Returns:
   ///   - List של Maps עם נתוני מוצרים
   ///   - List ריק במקרה של שגיאה
   /// 
   /// Example:
   /// ```dart
-  /// final products = await repo.getAllProducts();
-  /// print('נטענו ${products.length} מוצרים');
+  /// // טען את כל המוצרים
+  /// final all = await repo.getAllProducts();
+  /// 
+  /// // טען 100 ראשונים
+  /// final first100 = await repo.getAllProducts(limit: 100);
+  /// 
+  /// // טען 100-200 (דף שני)
+  /// final second100 = await repo.getAllProducts(limit: 100, offset: 100);
   /// ```
   @override
-  Future<List<Map<String, dynamic>>> getAllProducts() async {
+  Future<List<Map<String, dynamic>>> getAllProducts({
+    int? limit,
+    int? offset,
+  }) async {
+    // 🚀 אם יש limit/offset - לא משתמשים ב-cache, טוענים ישירות
+    if (limit != null || offset != null) {
+      return _loadProductsWithPagination(limit: limit, offset: offset);
+    }
+
     // אם יש cache תקף - החזר אותו
     if (_isCacheValid && _cachedProducts != null) {
       debugPrint('✅ מחזיר ${_cachedProducts!.length} מוצרים מ-cache');
@@ -120,6 +138,74 @@ class FirebaseProductsRepository implements ProductsRepository {
     } catch (e) {
       debugPrint('❌ שגיאה בטעינת מוצרים מ-Firestore: $e');
       return _cachedProducts ?? [];
+    }
+  }
+
+  /// 📄 טוען מוצרים עם pagination (limit + offset)
+  /// 
+  /// פנימי - נקרא רק כש-limit או offset מוגדרים.
+  Future<List<Map<String, dynamic>>> _loadProductsWithPagination({
+    int? limit,
+    int? offset,
+  }) async {
+    try {
+      debugPrint('📥 טוען מוצרים מ-Firestore (limit: $limit, offset: $offset)...');
+      
+      // 🚀 אם יש cache מלא, נשתמש בו במקום query
+      if (_isCacheValid && _cachedProducts != null) {
+        final start = offset ?? 0;
+        final end = limit != null ? start + limit : _cachedProducts!.length;
+        final result = _cachedProducts!.sublist(
+          start.clamp(0, _cachedProducts!.length),
+          end.clamp(0, _cachedProducts!.length),
+        );
+        debugPrint('✅ מחזיר ${result.length} מוצרים מ-cache (pagination)');
+        return result;
+      }
+
+      // 🔥 אין cache - טען מ-Firestore
+      Query query = _firestore.collection(_collectionName);
+      
+      // הוסף offset (skip) אם יש
+      // ⚠️ Note: Firestore לא תומך ישירות ב-offset, אז נשתמש בטריק:
+      // נטען offset+limit ואז ניקח רק את ה-limit האחרונים
+      if (offset != null && offset > 0) {
+        // טען את כולם עד offset+limit
+        final totalToLoad = limit != null ? offset + limit : offset + 100;
+        query = query.limit(totalToLoad);
+        
+        final snapshot = await query.get();
+        final allDocs = snapshot.docs
+            .map((doc) => <String, dynamic>{
+              ...doc.data() as Map<String, dynamic>,
+              'id': doc.id,
+            })
+            .toList();
+        
+        // החזר רק את החלק הרלוונטי
+        final result = allDocs.skip(offset).take(limit ?? allDocs.length).toList();
+        debugPrint('✅ נטענו ${result.length} מוצרים (pagination)');
+        return result;
+      }
+      
+      // אין offset - פשוט limit
+      if (limit != null) {
+        query = query.limit(limit);
+      }
+      
+      final snapshot = await query.get();
+      final products = snapshot.docs
+          .map((doc) => <String, dynamic>{
+            ...doc.data() as Map<String, dynamic>,
+            'id': doc.id,
+          })
+          .toList();
+
+      debugPrint('✅ נטענו ${products.length} מוצרים מ-Firestore');
+      return products;
+    } catch (e) {
+      debugPrint('❌ שגיאה בטעינת מוצרים עם pagination: $e');
+      return [];
     }
   }
 
