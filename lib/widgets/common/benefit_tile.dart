@@ -148,14 +148,14 @@ class BenefitTile extends StatelessWidget {
                     title,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: cs.onSurface,
                     ),
                   ),
                   const SizedBox(height: kSpacingTiny),
                   Text(
                     subtitle,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: Colors.black54,
+                      color: cs.onSurfaceVariant,
                       height: 1.4,
                     ),
                   ),

@@ -291,14 +291,14 @@ class _DemoLoginButtonState extends State<DemoLoginButton> {
           ),
           decoration: BoxDecoration(
             color: isSelected 
-                ? cs.primary.withValues(alpha: kOpacityVeryLow)
-                : Colors.white.withValues(alpha: kOpacityMedium),
+            ? cs.primary.withValues(alpha: kOpacityVeryLow)
+            : Colors.white.withValues(alpha: kOpacityMedium),
             borderRadius: BorderRadius.circular(kBorderRadiusSmall),
             border: Border.all(
-              color: isSelected 
-                  ? cs.primary
-                  : cs.outline.withValues(alpha: kOpacityLow),
-              width: isSelected ? 2 : 1,
+            color: isSelected 
+            ? cs.primary
+            : cs.outline.withValues(alpha: kOpacityLow),
+            width: isSelected ? 2 : 1,
             ),
           ),
           child: Column(

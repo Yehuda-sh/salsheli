@@ -2,7 +2,7 @@
 
 > **CRITICAL:** Read this file at the start of EVERY new conversation  
 > **Purpose:** AI behavior instructions for Claude  
-> **Updated:** 20/10/2025 | **Version:** 4.2 - Project Paths
+> **Updated:** 20/10/2025 | **Version:** 4.5 - Complete Code Review (21 checks)
 
 ---
 
@@ -96,7 +96,7 @@ C:\projects\salsheli\lib\core\ui_constants.dart
 ```
 1️⃣ READ THE FILE → Use Filesystem:read_file immediately
 
-2️⃣ PERFORM COMPREHENSIVE CODE REVIEW (13 checks):
+2️⃣ PERFORM COMPREHENSIVE CODE REVIEW (21 checks):
    ✅ Technical Errors
    ✅ Sticky Notes Design
    ✅ Security
@@ -110,6 +110,14 @@ C:\projects\salsheli\lib\core\ui_constants.dart
    ✅ API Integration
    ✅ Production Readiness
    ✅ Navigation (Orphan Screen check)
+   ✅ Dead/Unused Code (Usage check)
+   ✅ Imports Quality
+   ✅ Error Handling
+   ✅ Network/API Safety
+   ✅ Security Advanced
+   ✅ Logging Quality
+   ✅ Design Consistency
+   ✅ Data Integrity
 
 3️⃣ AUTO-FIX CRITICAL ISSUES (WITHOUT asking)
 
@@ -159,6 +167,20 @@ C:\projects\salsheli\lib\core\ui_constants.dart
 | Async in onPressed | Wrap: `() => func()` | Type safety |
 | No const | Add `const` | Performance |
 | No mounted after await | Add `if (!mounted) return;` | Prevent crashes |
+
+### Dark Mode & Theme Colors (Fix immediately!)
+
+| Error | Fix | Why |
+|-------|-----|-----|
+| `Colors.black87` | `cs.onSurface` | Dark mode support |
+| `Colors.black54` | `cs.onSurfaceVariant` | Dark mode support |
+| `Colors.white` (text) | `cs.onPrimary` / `cs.surface` | Theme consistency |
+| Hardcoded colors | Use theme colors | Accessibility + theming |
+
+**Context needed:**
+```dart
+final cs = Theme.of(context).colorScheme;
+```
 
 ### Sticky Notes Design (UI screens)
 
@@ -285,6 +307,259 @@ C:\projects\salsheli\lib\core\ui_constants.dart
 | Admin/Debug | No UI needed |
 
 **Golden Rule:** Every screen with a route MUST be accessible through at least 1 UI path!
+
+### 🗑️ Dead/Unused Code Detection (Report only)
+
+**⚠️ AUTOMATIC CHECK - runs on every file review!**
+
+**3-Step Quick Check:**
+
+```bash
+1️⃣ Search for imports of this file:
+   grep -r "import.*filename" lib/
+   
+2️⃣ Search for class/widget name:
+   grep -r "ClassName" lib/
+   
+3️⃣ Check for markers:
+   grep "EXAMPLE\|DEPRECATED\|DO NOT USE" filename.dart
+```
+
+**Report Pattern:**
+
+| Finding | Action |
+|---------|--------|
+| **0 imports + 0 class usage** | 🚨 Report: "⚠️ קובץ לא בשימוש - 0 imports נמצאו" |
+| **Has "EXAMPLE" marker** | 💡 Report: "ℹ️ קובץ לדוגמה בלבד (EXAMPLE)" |
+| **Has "DEPRECATED" marker** | ⚠️ Report: "⚠️ קובץ deprecated - מומלץ להסיר" |
+| **Has "DO NOT USE" marker** | 🚫 Report: "🚫 קובץ מסומן DO NOT USE" |
+| **Found imports/usage** | ✅ Skip - file is in use |
+
+**Important:**
+- **DO NOT delete automatically!** - only report
+- **Always ask user** before suggesting deletion
+- **Full verification** (Part 5) if user wants to delete
+- **If any doubt** - skip and move on
+
+**Example Report:**
+```
+⚠️ בדיקת שימוש:
+   🔍 חיפשתי imports של animated_button.dart
+   ✅ נמצא בשימוש ב-sticky_button.dart
+   📊 הקובץ פעיל ותקין
+```
+
+### 📦 Imports Quality (Fix immediately!)
+
+**⚠️ Check for import issues**
+
+| Issue | Fix | Why |
+|-------|-----|-----|
+| **Duplicate imports** | Remove duplicates | Build errors + confusion |
+| **Relative imports** (`../`) | Use full paths | Breaks on refactor |
+| **Unused imports** | Remove | Clean code |
+| **Multiple material imports** | Keep one only | Redundant |
+
+**Example issues:**
+```dart
+// ❌ BAD
+import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';  // Duplicate!
+import '../../../core/constants.dart';    // Relative path!
+
+// ✅ GOOD  
+import 'package:flutter/material.dart';
+import 'package:my_app/core/constants.dart';  // Full path
+```
+
+**Auto-fix:**
+- Remove duplicate imports immediately
+- Report relative imports (ask before fixing)
+- Report unused imports
+
+### ⚠️ Error Handling (Fix immediately!)
+
+**⚠️ Check error handling quality**
+
+| Issue | Fix | Why |
+|-------|-----|-----|
+| **Empty catch** `catch (e) {}` | Add logging | Silent failures! |
+| **No user feedback** | Show SnackBar/Dialog | UX |
+| **Sensitive data in error** | Remove household_id/email | Security |
+| **Generic catch-all** | Specific error types | Better handling |
+
+**Example issues:**
+```dart
+// ❌ BAD
+try {
+  await deleteItem();
+} catch (e) {}  // Silent failure!
+
+// ❌ BAD
+catch (e) {
+  debugPrint('Error: $userId, $householdId');  // Sensitive!
+}
+
+// ✅ GOOD
+try {
+  await deleteItem();
+} on FirebaseException catch (e) {
+  debugPrint('Firebase error: ${e.code}');
+  if (mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('שגיאה: לא ניתן למחוק')),
+    );
+  }
+} catch (e) {
+  debugPrint('Unexpected error: ${e.runtimeType}');
+}
+```
+
+**Auto-fix:**
+- Report empty catch blocks
+- Report sensitive data in errors
+
+### 🌐 Network/API Safety (Fix immediately!)
+
+**⚠️ Check API calls are safe**
+
+| Issue | Fix | Why |
+|-------|-----|-----|
+| **No timeout** | Add `.timeout(10s)` | Hangs forever |
+| **No retry** | Add retry with backoff | Network flaky |
+| **Generic errors** | Handle 401/404/500 separately | Better UX |
+| **localhost in code** | Use config | Production risk |
+
+**Example issues:**
+```dart
+// ❌ BAD
+final response = await http.get(url);  // No timeout!
+
+// ❌ BAD
+final url = 'http://localhost:3000/api';  // Hardcoded!
+
+// ✅ GOOD
+final response = await http.get(url).timeout(
+  Duration(seconds: 10),
+  onTimeout: () => throw TimeoutException('API timeout'),
+);
+
+if (response.statusCode == 401) {
+  // Handle unauthorized
+} else if (response.statusCode == 404) {
+  // Handle not found  
+} else if (response.statusCode >= 500) {
+  // Handle server error
+}
+```
+
+**Priority:** 🔴 Critical for Shufersal API!
+
+### 🔒 Security Advanced (Fix immediately!)
+
+**⚠️ Additional security checks**
+
+| Issue | Fix | Why |
+|-------|-----|-----|
+| **API keys in code** | Environment vars | Security risk! |
+| **test_key.dart exists** | Remove from repo | Credential leak |
+| **config.dart with secrets** | Use .env | Git exposure |
+| **No household_id validation** | Validate ownership | Multi-tenant leak |
+
+**Files to check:**
+```bash
+grep -r "api_key\|API_KEY\|secret\|password" lib/
+find . -name "*test_key*" -o -name "*secret*"
+```
+
+**Multi-tenant validation:**
+```dart
+// ❌ BAD
+await deleteList(listId);  // No ownership check!
+
+// ✅ GOOD
+final list = await getList(listId);
+if (list.householdId != userContext.householdId) {
+  throw Exception('Unauthorized');
+}
+await deleteList(listId);
+```
+
+### 📝 Logging Quality (Report only)
+
+**⚠️ Check logging practices**
+
+| Issue | Action | Why |
+|-------|--------|-----|
+| **print() usage** | Change to debugPrint | Production safety |
+| **>15 debugPrint in file** | Suggest logger package | Too noisy |
+| **No format** | Suggest emoji/prefix | Readability |
+| **Sensitive data logged** | Remove | Security |
+
+**Threshold:** >15 debugPrint = excessive
+
+**Example:**
+```dart
+// ❌ BAD
+print('User logged in');  // Wrong!
+debugPrint('Password: $password');  // Sensitive!
+
+// ✅ GOOD
+debugPrint('🔐 User logged in: ${user.uid}');
+```
+
+### 🎨 Design Consistency (Report only)
+
+**⚠️ Check design system compliance**
+
+| Issue | Fix | Why |
+|-------|-----|-----|
+| **Hardcoded colors** `Color(0xFF...)` | Use kSticky* constants | Consistency |
+| **Inconsistent spacing** | Use kSpacing* constants | Design system |
+| **Wrong component sizes** | Check StickyButton height | Accessibility |
+
+**Example:**
+```dart
+// ❌ BAD
+color: Color(0xFFFFF59D),  // Hardcoded!
+padding: EdgeInsets.all(14),  // Random number
+height: 42,  // Wrong size
+
+// ✅ GOOD
+color: kStickyYellow,
+padding: EdgeInsets.all(kSpacingMedium),
+height: kButtonHeight,  // 48px
+```
+
+### 📊 Data Integrity (Report only)
+
+**⚠️ Check model completeness**
+
+| Issue | Fix | Why |
+|-------|-----|-----|
+| **No fromJson** | Add factory method | Firebase integration |
+| **No toJson** | Add method | Firestore save |
+| **No copyWith** | Add method | Immutability pattern |
+| **household_id missing** | Add field | Security |
+
+**Example model check:**
+```dart
+class ShoppingList {
+  final String id;
+  final String householdId;  // ✅ Required!
+  
+  // ✅ Required methods:
+  factory ShoppingList.fromJson(Map<String, dynamic> json) => ...
+  Map<String, dynamic> toJson() => ...
+  ShoppingList copyWith({...}) => ...
+}
+```
+
+**Check pattern:**
+1. Does class have `fromJson`?
+2. Does class have `toJson`?
+3. Does class have `copyWith`?
+4. Does class have `householdId` field?
 
 ---
 
@@ -461,9 +736,9 @@ C:\projects\salsheli\lib\core\ui_constants.dart
 **Every new conversation:**
 
 1. ✅ Hebrew responses (except code)
-2. 📂 File path only? → Auto code review + quality score + auto-fix critical
-3. ✅ Auto-fix immediately: withOpacity, async callbacks, const, mounted, household_id, notifyListeners, memory leaks
-4. ✅ Always check: Sticky Notes Design compliance
+2. 📂 File path only? → Auto code review (21 checks!) + quality score + auto-fix critical
+3. ✅ Auto-fix immediately: withOpacity, async callbacks, const, mounted, household_id, notifyListeners, memory leaks, hardcoded colors, duplicate imports, empty catch
+4. ✅ Always check: Sticky Notes Design + Dark Mode + Navigation + Usage + Imports + Error Handling + API Safety + Security + Logging + Design + Data
 5. ✅ Prefer: Filesystem:edit_file (not artifacts)
 6. ✅ Ask only for: Major changes, unclear requirements
 7. 📊 At 85% tokens → Auto-save to Memory + suggest new chat
@@ -474,7 +749,18 @@ C:\projects\salsheli\lib\core\ui_constants.dart
 ## 📊 Part 12: Quick Problem Solving
 
 | Problem | Solution | Reference |
-|---------|----------|-----------|
+|---------|----------|-----------|  
+| Duplicate imports | Remove duplicates | Part 4 |
+| Relative imports (../) | Use full package path | Part 4 |
+| Empty catch block | Add logging + user feedback | Part 4 |
+| No API timeout | Add .timeout(10s) | Part 4 |
+| API keys in code | Use environment vars | Part 4 |
+| print() instead of debugPrint | Change to debugPrint | Part 4 |
+| >15 debugPrint in file | Use logger package | Part 4 |
+| Hardcoded Color(0xFF...) | Use kSticky* constants | Part 4 |
+| No fromJson/toJson | Add to model | Part 4 |
+| File not used (suspected) | Run 3-step quick check | Part 4 |
+| Hardcoded colors (black87/black54) | Use cs.onSurface/onSurfaceVariant | Part 4 |
 | File not used | 5-step verification | Part 5 |
 | Good code not used | 5-question framework | Part 6 |
 | withOpacity | withValues(alpha:) | Part 4 |
@@ -582,7 +868,39 @@ File has:      ## 📌 Critical Reminders  ← Missing emoji!
 
 ## 📈 Version History
 
-### v4.2 - 20/10/2025 🆕 **LATEST - Project Paths**
+### v4.5 - 20/10/2025 🆕 **LATEST - Complete Code Review (21 checks)**
+- ✅ **21 checks total!** - Added 7 new critical checks (15-21)
+- ✅ **#15 Imports Quality** - Duplicates, relative paths, unused
+- ✅ **#16 Error Handling** - Empty catch, no logging, sensitive data
+- ✅ **#17 Network/API Safety** - Timeout, retry, localhost (🔴 Critical for Shufersal API!)
+- ✅ **#18 Security Advanced** - API keys, test files, multi-tenant validation
+- ✅ **#19 Logging Quality** - print() vs debugPrint, excessive logging (>15)
+- ✅ **#20 Design Consistency** - Hardcoded colors, spacing, component sizes
+- ✅ **#21 Data Integrity** - fromJson/toJson, copyWith, household_id in models
+- ✅ **Part 11 updated** - TL;DR now mentions all checks
+- ✅ **Part 12 updated** - 10 new problem-solution pairs
+- 👤 **User request** - "Code review should cover everything automatically" - ✅ DONE!
+- 📊 **Most comprehensive** - From 14 to 21 checks = 50% more coverage!
+
+### v4.4 - 20/10/2025 - Automatic Dead Code Detection
+- ✅ **14 checks now!** - Added automatic Dead/Unused Code check
+- ✅ **Part 3** - Updated to 14 checks (was 13)
+- ✅ **Part 4** - Added "🗑️ Dead/Unused Code Detection" with 3-step quick check
+- ✅ **Auto-report** - grep for imports, class usage, and markers (EXAMPLE/DEPRECATED)
+- ✅ **Part 11** - Updated TL;DR: "14 checks + Usage (dead code)"
+- ✅ **Part 12** - Added to Quick Problem Solving
+- 📊 **Complete coverage** - Navigation + Dead Code now automatic!
+- 👤 **User request** - "Code review should cover everything automatically"
+
+### v4.3 - 20/10/2025 - Dark Mode Check
+- ✅ **Part 4 enhanced** - Added "Dark Mode & Theme Colors" check
+- ✅ **Auto-fix** - Colors.black87/black54 → cs.onSurface/onSurfaceVariant
+- ✅ **Part 12** - Added hardcoded colors to Quick Problem Solving
+- ✅ **Part 11** - Updated TL;DR with dark mode check
+- 🐛 **Real bug found** - benefit_tile.dart had hardcoded colors (fixed!)
+- 📊 Learning from actual code review sessions
+
+### v4.2 - 20/10/2025 - Project Paths
 - ✅ **Part 2 enhanced** - Added "Important Paths" section
 - ✅ **Path rules** - Always use FULL paths (C:\projects\salsheli\...)
 - ✅ **Better organization** - Moved from PROJECT_INFO to AI_MASTER_GUIDE
@@ -609,9 +927,10 @@ File has:      ## 📌 Critical Reminders  ← Missing emoji!
 
 ---
 
-**Version:** 4.2  
+**Version:** 4.5  
 **Created:** 18/10/2025 | **Updated:** 20/10/2025  
 **Purpose:** Personalized AI behavior guide for this specific user  
 **Philosophy:** User preferences first, technical details in DEVELOPER_GUIDE.md  
 **User:** Claude Max with token limits - optimize for continuation & memory  
-**Learning:** Continuously updated based on real errors and user feedback
+**Learning:** Continuously updated based on real errors and user feedback  
+**Coverage:** 21 comprehensive checks - most complete code review guide!
