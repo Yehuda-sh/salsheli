@@ -2,7 +2,7 @@
 
 > **CRITICAL:** Read this file at the start of EVERY new conversation  
 > **Purpose:** AI behavior instructions for Claude  
-> **Updated:** 20/10/2025 | **Version:** 4.5 - Complete Code Review (21 checks)
+> **Updated:** 20/10/2025 | **Version:** 4.6 - File Organization Check (22 checks)
 
 ---
 
@@ -96,7 +96,7 @@ C:\projects\salsheli\lib\core\ui_constants.dart
 ```
 1️⃣ READ THE FILE → Use Filesystem:read_file immediately
 
-2️⃣ PERFORM COMPREHENSIVE CODE REVIEW (21 checks):
+2️⃣ PERFORM COMPREHENSIVE CODE REVIEW (22 checks):
    ✅ Technical Errors
    ✅ Sticky Notes Design
    ✅ Security
@@ -118,6 +118,7 @@ C:\projects\salsheli\lib\core\ui_constants.dart
    ✅ Logging Quality
    ✅ Design Consistency
    ✅ Data Integrity
+   ✅ File Organization
 
 3️⃣ AUTO-FIX CRITICAL ISSUES (WITHOUT asking)
 
@@ -561,6 +562,66 @@ class ShoppingList {
 3. Does class have `copyWith`?
 4. Does class have `householdId` field?
 
+### 📁 File Organization (Report only)
+
+**⚠️ Check if files are in the correct folder**
+
+**Folder Structure Rules:**
+
+| File Type | Should Be In | Sub-folders |
+|-----------|-------------|-------------|
+| **Widget** | `lib/widgets/` | `auth/`, `common/`, `home/`, `inventory/` |
+| **Screen** | `lib/screens/` | By feature |
+| **Model** | `lib/models/` | Root only |
+| **Provider** | `lib/providers/` | Root only |
+| **Repository** | `lib/repositories/` | Root only |
+| **Service** | `lib/services/` | Root only |
+| **Config** | `lib/config/` | Root only |
+
+**Widget Sub-folder Rules:**
+- **auth/** - Authentication widgets (login, register)
+- **common/** - Reusable UI components (StickyButton, StickyNote)
+- **home/** - Dashboard/home widgets
+- **inventory/** - Pantry/inventory widgets
+
+**Naming Conventions:**
+- **Files:** `snake_case.dart` (e.g., `login_screen.dart`)
+- **Classes:** `PascalCase` (e.g., `LoginScreen`)
+- **Private classes:** `_PascalCase` (e.g., `_LoginScreenState`)
+
+**Import Rules:**
+- ✅ **Always:** `package:salsheli/...` (full package imports)
+- ❌ **Never:** `../...` (relative imports)
+
+**Check Pattern:**
+```bash
+# 1. Identify file type (widget/screen/model/etc.)
+# 2. Check current location
+# 3. Compare with rules above
+# 4. If wrong folder → Report + suggest move
+# 5. Check imports: any relative imports?
+# 6. Report: "File should be in X folder"
+```
+
+**Example Report:**
+```
+⚠️ ארגון קבצים:
+- storage_location_manager.dart נמצא ב-widgets/ (root)
+- המלצה: להעביר ל-widgets/inventory/
+- סיבה: זה widget של מלאי, לא common component
+```
+
+**When to Report:**
+- Widget in wrong sub-folder (or missing sub-folder)
+- File with relative imports (`../`)
+- Model/Provider/Service in wrong root folder
+- File naming not snake_case
+
+**When NOT to Report:**
+- File already in correct place
+- Temporary files (test files, examples)
+- Generated files (*.g.dart, *.freezed.dart)
+
 ---
 
 ## 🗑️ Part 5: Dead Code Detection
@@ -736,7 +797,7 @@ class ShoppingList {
 **Every new conversation:**
 
 1. ✅ Hebrew responses (except code)
-2. 📂 File path only? → Auto code review (21 checks!) + quality score + auto-fix critical
+2. 📂 File path only? → Auto code review (22 checks!) + quality score + auto-fix critical
 3. ✅ Auto-fix immediately: withOpacity, async callbacks, const, mounted, household_id, notifyListeners, memory leaks, hardcoded colors, duplicate imports, empty catch
 4. ✅ Always check: Sticky Notes Design + Dark Mode + Navigation + Usage + Imports + Error Handling + API Safety + Security + Logging + Design + Data
 5. ✅ Prefer: Filesystem:edit_file (not artifacts)
@@ -774,6 +835,7 @@ class ShoppingList {
 | No timeout | Add .timeout(10s) | Part 4 |
 | Need QA tests? | Consider for new features | Part 4 |
 | Messy files? | Suggest reorganization | Part 4 |
+| File in wrong folder? | Report + suggest move | Part 4 #22 |
 
 ---
 
@@ -868,7 +930,18 @@ File has:      ## 📌 Critical Reminders  ← Missing emoji!
 
 ## 📈 Version History
 
-### v4.5 - 20/10/2025 🆕 **LATEST - Complete Code Review (21 checks)**
+### v4.6 - 20/10/2025 🆕 **LATEST - File Organization Check (22 checks)**
+- ✅ **Check #22: File Organization** - Automatic folder structure validation
+- ✅ **Widget sub-folders** - auth/, common/, home/, inventory/
+- ✅ **Import rules** - Always package:salsheli/..., never ../
+- ✅ **Naming conventions** - snake_case files, PascalCase classes
+- ✅ **Part 3 updated** - Now 22 checks (was 21)
+- ✅ **Part 11 updated** - TL;DR mentions 22 checks
+- ✅ **Part 12 updated** - Added File Organization to Quick Problem Solving
+- 👤 **User request** - "Add file organization check to docs" - ✅ DONE!
+- 📊 **Better organization** - Catches widgets in wrong folders automatically
+
+### v4.5 - 20/10/2025 - Complete Code Review (21 checks)**
 - ✅ **21 checks total!** - Added 7 new critical checks (15-21)
 - ✅ **#15 Imports Quality** - Duplicates, relative paths, unused
 - ✅ **#16 Error Handling** - Empty catch, no logging, sensitive data
@@ -927,10 +1000,10 @@ File has:      ## 📌 Critical Reminders  ← Missing emoji!
 
 ---
 
-**Version:** 4.5  
+**Version:** 4.6  
 **Created:** 18/10/2025 | **Updated:** 20/10/2025  
 **Purpose:** Personalized AI behavior guide for this specific user  
 **Philosophy:** User preferences first, technical details in DEVELOPER_GUIDE.md  
 **User:** Claude Max with token limits - optimize for continuation & memory  
 **Learning:** Continuously updated based on real errors and user feedback  
-**Coverage:** 21 comprehensive checks - most complete code review guide!
+**Coverage:** 22 comprehensive checks - most complete code review guide!
