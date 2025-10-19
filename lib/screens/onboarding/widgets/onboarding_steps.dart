@@ -49,6 +49,7 @@ import '../../../theme/app_theme.dart';
 import '../../../l10n/app_strings.dart';
 import '../../../core/ui_constants.dart';
 import '../../../core/constants.dart';
+import '../../../widgets/common/sticky_note.dart';
 
 class OnboardingSteps {
   static List<Widget> build({
@@ -63,25 +64,53 @@ class OnboardingSteps {
     debugPrint('📋 onboarding: בניית 8 שלבים');
     return [
       const _WelcomeStep(),
-      _FamilySizeStep(value: data.familySize, onChanged: onFamilySizeChanged),
+      _FamilySizeStep(
+        value: data.familySize,
+        onChanged: onFamilySizeChanged,
+        stickyColor: kStickyYellow,
+        rotation: -0.015,
+      ),
       _MultiSelectStep(
         title: AppStrings.onboarding.storesTitle,
         icon: Icons.store,
         options: StoresConfig.allStores,
         selected: data.preferredStores,
         onChanged: onStoresChanged,
+        stickyColor: kStickyPink,
+        rotation: 0.02,
       ),
-      _BudgetStep(value: data.monthlyBudget, onChanged: onBudgetChanged),
+      _BudgetStep(
+        value: data.monthlyBudget,
+        onChanged: onBudgetChanged,
+        stickyColor: kStickyGreen,
+        rotation: -0.01,
+      ),
       _MultiSelectStep(
         title: AppStrings.onboarding.categoriesTitle,
         icon: Icons.category,
         options: kCategories.map((id) => getCategoryLabel(id)).toList(),
         selected: data.importantCategories,
         onChanged: onCategoriesChanged,
+        stickyColor: kStickyPurple,
+        rotation: 0.015,
       ),
-      _SharingStep(value: data.shareLists, onChanged: onShareChanged),
-      _ReminderStep(value: data.reminderTime, onChanged: onReminderChanged),
-      _SummaryStep(data: data),
+      _SharingStep(
+        value: data.shareLists,
+        onChanged: onShareChanged,
+        stickyColor: kStickyOrange,
+        rotation: -0.02,
+      ),
+      _ReminderStep(
+        value: data.reminderTime,
+        onChanged: onReminderChanged,
+        stickyColor: kStickyCyan,
+        rotation: 0.01,
+      ),
+      _SummaryStep(
+        data: data,
+        stickyColor: kStickyGreen,
+        rotation: -0.015,
+      ),
     ];
   }
 }
@@ -94,11 +123,15 @@ class _StepWrapper extends StatelessWidget {
   final IconData icon;
   final String title;
   final Widget child;
+  final Color? stickyColor;
+  final double rotation;
 
   const _StepWrapper({
     required this.icon,
     required this.title,
     required this.child,
+    this.stickyColor,
+    this.rotation = 0.01,
   });
 
   @override
@@ -107,6 +140,8 @@ class _StepWrapper extends StatelessWidget {
     final t = Theme.of(context).textTheme;
     final brand = Theme.of(context).extension<AppBrand>();
     final accent = brand?.accent ?? cs.primary;
+    // צבע ברירת מחדל למערכת Sticky Notes
+    final noteColor = stickyColor ?? kStickyCyan;
 
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -124,7 +159,12 @@ class _StepWrapper extends StatelessWidget {
             ),
           ),
           const SizedBox(height: kSpacingLarge),
-          child,
+          // ⭐ עטיפה ב-StickyNote לעיצוב אחיד!
+          StickyNote(
+            color: noteColor,
+            rotation: rotation,
+            child: child,
+          ),
         ],
       )
           .animate()
@@ -230,8 +270,15 @@ class _AnimatedWelcomeIcon extends StatelessWidget {
 class _FamilySizeStep extends StatelessWidget {
   final int value;
   final ValueChanged<int> onChanged;
+  final Color? stickyColor;
+  final double rotation;
 
-  const _FamilySizeStep({required this.value, required this.onChanged});
+  const _FamilySizeStep({
+    required this.value,
+    required this.onChanged,
+    this.stickyColor,
+    this.rotation = 0.01,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -241,6 +288,8 @@ class _FamilySizeStep extends StatelessWidget {
     return _StepWrapper(
       icon: Icons.family_restroom,
       title: AppStrings.onboarding.familySizeTitle,
+      stickyColor: stickyColor,
+      rotation: rotation,
       child: Column(
         children: [
           Text(
@@ -278,6 +327,8 @@ class _MultiSelectStep extends StatelessWidget {
   final List<String> options;
   final Set<String> selected;
   final ValueChanged<Set<String>> onChanged;
+  final Color? stickyColor;
+  final double rotation;
 
   const _MultiSelectStep({
     required this.title,
@@ -285,6 +336,8 @@ class _MultiSelectStep extends StatelessWidget {
     required this.options,
     required this.selected,
     required this.onChanged,
+    this.stickyColor,
+    this.rotation = 0.01,
   });
 
   @override
@@ -294,6 +347,8 @@ class _MultiSelectStep extends StatelessWidget {
     return _StepWrapper(
       icon: icon,
       title: title,
+      stickyColor: stickyColor,
+      rotation: rotation,
       child: Wrap(
         alignment: WrapAlignment.center,
         spacing: kSpacingSmall,
@@ -331,8 +386,15 @@ class _MultiSelectStep extends StatelessWidget {
 class _BudgetStep extends StatelessWidget {
   final double value;
   final ValueChanged<double> onChanged;
+  final Color? stickyColor;
+  final double rotation;
 
-  const _BudgetStep({required this.value, required this.onChanged});
+  const _BudgetStep({
+    required this.value,
+    required this.onChanged,
+    this.stickyColor,
+    this.rotation = 0.01,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -342,6 +404,8 @@ class _BudgetStep extends StatelessWidget {
     return _StepWrapper(
       icon: Icons.monetization_on,
       title: AppStrings.onboarding.budgetTitle,
+      stickyColor: stickyColor,
+      rotation: rotation,
       child: Column(
         children: [
           Text(
@@ -375,8 +439,15 @@ class _BudgetStep extends StatelessWidget {
 class _SharingStep extends StatelessWidget {
   final bool value;
   final ValueChanged<bool> onChanged;
+  final Color? stickyColor;
+  final double rotation;
 
-  const _SharingStep({required this.value, required this.onChanged});
+  const _SharingStep({
+    required this.value,
+    required this.onChanged,
+    this.stickyColor,
+    this.rotation = 0.01,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -388,6 +459,8 @@ class _SharingStep extends StatelessWidget {
     return _StepWrapper(
       icon: Icons.share,
       title: AppStrings.onboarding.sharingTitle,
+      stickyColor: stickyColor,
+      rotation: rotation,
       child: SwitchListTile(
         contentPadding: const EdgeInsetsDirectional.only(
           start: kSpacingSmall,
@@ -416,8 +489,15 @@ class _SharingStep extends StatelessWidget {
 class _ReminderStep extends StatelessWidget {
   final String value;
   final ValueChanged<String> onChanged;
+  final Color? stickyColor;
+  final double rotation;
 
-  const _ReminderStep({required this.value, required this.onChanged});
+  const _ReminderStep({
+    required this.value,
+    required this.onChanged,
+    this.stickyColor,
+    this.rotation = 0.01,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -429,6 +509,8 @@ class _ReminderStep extends StatelessWidget {
     return _StepWrapper(
       icon: Icons.alarm,
       title: AppStrings.onboarding.reminderTitle,
+      stickyColor: stickyColor,
+      rotation: rotation,
       child: Column(
         children: [
           Text(
@@ -489,8 +571,14 @@ class _ReminderStep extends StatelessWidget {
 
 class _SummaryStep extends StatelessWidget {
   final OnboardingData data;
+  final Color? stickyColor;
+  final double rotation;
 
-  const _SummaryStep({required this.data});
+  const _SummaryStep({
+    required this.data,
+    this.stickyColor,
+    this.rotation = 0.01,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -499,6 +587,7 @@ class _SummaryStep extends StatelessWidget {
     final t = Theme.of(context).textTheme;
     final brand = Theme.of(context).extension<AppBrand>();
     final accent = brand?.accent ?? cs.primary;
+    final noteColor = stickyColor ?? kStickyGreen;
 
     final storesText = data.preferredStores.isEmpty
         ? AppStrings.onboarding.noStoresSelected
@@ -524,40 +613,49 @@ class _SummaryStep extends StatelessWidget {
             ),
           ),
           const SizedBox(height: kSpacingLarge),
-          _RtlSummaryRow(
-            leadingEmojiOrIconText: "👨‍👩‍👧‍👦",
-            text: AppStrings.onboarding.familySizeSummary(data.familySize),
-          ),
-          const SizedBox(height: kSpacingXTiny),
-          _RtlSummaryRow(
-            leadingEmojiOrIconText: "🏪",
-            text: AppStrings.onboarding.storesSummary(storesText),
-          ),
-          const SizedBox(height: kSpacingXTiny),
-          _RtlSummaryRow(
-            leadingEmojiOrIconText: "💰",
-            text: AppStrings.onboarding.budgetSummary(data.monthlyBudget),
-          ),
-          const SizedBox(height: kSpacingXTiny),
-          _RtlSummaryRow(
-            leadingEmojiOrIconText: "📦",
-            text: AppStrings.onboarding.categoriesSummary(categoriesText),
-          ),
-          const SizedBox(height: kSpacingXTiny),
-          _RtlSummaryRow(
-            leadingEmojiOrIconText: "🤝",
-            text: AppStrings.onboarding.sharingSummary(data.shareLists),
-          ),
-          const SizedBox(height: kSpacingXTiny),
-          _RtlSummaryRow(
-            leadingEmojiOrIconText: "⏰",
-            text: AppStrings.onboarding.reminderTimeSummary(data.reminderTime),
-          ),
-          const SizedBox(height: kSpacingMedium),
-          Text(
-            AppStrings.onboarding.summaryFinishHint,
-            textAlign: TextAlign.right,
-            style: t.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+          // ⭐ עטיפה ב-StickyNote לעיצוב אחיד!
+          StickyNote(
+            color: noteColor,
+            rotation: rotation,
+            child: Column(
+              children: [
+                _RtlSummaryRow(
+                  leadingEmojiOrIconText: "👨‍👩‍👧‍👦",
+                  text: AppStrings.onboarding.familySizeSummary(data.familySize),
+                ),
+                const SizedBox(height: kSpacingXTiny),
+                _RtlSummaryRow(
+                  leadingEmojiOrIconText: "🏪",
+                  text: AppStrings.onboarding.storesSummary(storesText),
+                ),
+                const SizedBox(height: kSpacingXTiny),
+                _RtlSummaryRow(
+                  leadingEmojiOrIconText: "💰",
+                  text: AppStrings.onboarding.budgetSummary(data.monthlyBudget),
+                ),
+                const SizedBox(height: kSpacingXTiny),
+                _RtlSummaryRow(
+                  leadingEmojiOrIconText: "📦",
+                  text: AppStrings.onboarding.categoriesSummary(categoriesText),
+                ),
+                const SizedBox(height: kSpacingXTiny),
+                _RtlSummaryRow(
+                  leadingEmojiOrIconText: "🤝",
+                  text: AppStrings.onboarding.sharingSummary(data.shareLists),
+                ),
+                const SizedBox(height: kSpacingXTiny),
+                _RtlSummaryRow(
+                  leadingEmojiOrIconText: "⏰",
+                  text: AppStrings.onboarding.reminderTimeSummary(data.reminderTime),
+                ),
+                const SizedBox(height: kSpacingMedium),
+                Text(
+                  AppStrings.onboarding.summaryFinishHint,
+                  textAlign: TextAlign.right,
+                  style: t.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                ),
+              ],
+            ),
           ),
         ],
       )

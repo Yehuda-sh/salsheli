@@ -1,15 +1,15 @@
-// 📄 File: lib/widgets/receipt_to_inventory_dialog.dart
+// 📄 File: lib/widgets/inventory/receipt_to_inventory_dialog.dart
 //
 // 🎯 מטרה: דיאלוג להעברת פריטים מקבלה למלאי
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/receipt.dart';
-import '../models/inventory_item.dart';
-import '../providers/inventory_provider.dart';
-import '../providers/product_location_provider.dart';
-import '../config/storage_locations_config.dart';
-import '../core/ui_constants.dart';
+import 'package:salsheli/models/receipt.dart';
+import 'package:salsheli/models/inventory_item.dart';
+import 'package:salsheli/providers/inventory_provider.dart';
+import 'package:salsheli/providers/product_location_provider.dart';
+import 'package:salsheli/config/storage_locations_config.dart';
+import 'package:salsheli/core/ui_constants.dart';
 
 class ReceiptToInventoryDialog extends StatefulWidget {
   final Receipt receipt;

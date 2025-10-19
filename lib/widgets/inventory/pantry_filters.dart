@@ -1,4 +1,4 @@
-// 📄 File: lib/widgets/pantry_filters.dart
+// 📄 File: lib/widgets/inventory/pantry_filters.dart
 //
 // 🎯 Purpose: ווידג'ט סינון למסך המזווה - קטגוריה בלבד
 //
@@ -25,9 +25,9 @@
 
 import 'package:flutter/material.dart';
 
-import '../config/filters_config.dart';
-import '../core/ui_constants.dart';
-import '../theme/app_theme.dart';
+import 'package:salsheli/config/filters_config.dart';
+import 'package:salsheli/core/ui_constants.dart';
+import 'package:salsheli/theme/app_theme.dart';
 
 class PantryFilters extends StatelessWidget {
   /// הקטגוריה הנוכחית הנבחרת (למשל 'dairy' או 'all')

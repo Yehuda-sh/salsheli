@@ -35,7 +35,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../models/receipt.dart';
 import '../../providers/receipt_provider.dart';
-import '../../widgets/receipt_to_inventory_dialog.dart';
+import '../../widgets/inventory/receipt_to_inventory_dialog.dart';
 import '../../widgets/add_receipt_dialog.dart';
 import '../../core/ui_constants.dart';
 import 'receipt_view_screen.dart';
