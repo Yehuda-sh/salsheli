@@ -128,7 +128,7 @@ class _ManageListScreenState extends State<ManageListScreen>
               color: kStickyYellow,
               rotation: -0.015,
               child: Padding(
-                padding: EdgeInsets.all(kSpacingLarge),
+                padding: const EdgeInsets.all(kSpacingLarge),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -283,8 +283,9 @@ class _ManageListScreenState extends State<ManageListScreen>
                     debugPrint('✅ פריט "$name" נוסף בהצלחה');
 
                     disposeControllers();
-                    if (ctx.mounted) {
-                      Navigator.pop(ctx);
+                    if (!ctx.mounted) return;
+                    
+                    Navigator.pop(ctx);
                       messenger.showSnackBar(
                         SnackBar(
                           content: Row(
@@ -303,7 +304,8 @@ class _ManageListScreenState extends State<ManageListScreen>
                   } catch (e) {
                     debugPrint('❌ שגיאה בהוספת פריט: $e');
                     disposeControllers();
-                    if (ctx.mounted) {
+                    if (!ctx.mounted) return;
+                    
                       messenger.showSnackBar(
                         SnackBar(
                           content: Row(
@@ -336,6 +338,7 @@ class _ManageListScreenState extends State<ManageListScreen>
       },
     ).whenComplete(() {
       // Cleanup if dialog was closed without pressing buttons
+      if (!mounted) return;
       disposeControllers();
     });
   }
@@ -461,7 +464,7 @@ class _ManageListScreenState extends State<ManageListScreen>
   /// 💀 Skeleton של פריט בודד ברשימה
   Widget _buildItemSkeleton(ColorScheme cs) {
     return Card(
-      margin: EdgeInsets.only(bottom: kSpacingSmall),
+      margin: const EdgeInsets.only(bottom: kSpacingSmall),
       child: Padding(
         padding: EdgeInsets.all(kSpacingMedium),
         child: Row(
@@ -473,7 +476,7 @@ class _ManageListScreenState extends State<ManageListScreen>
               borderRadius: BorderRadius.circular(4),
               cs: cs,
             ),
-            SizedBox(width: kSpacingMedium),
+            const SizedBox(width: kSpacingMedium),
             // Content skeleton
             Expanded(
               child: Column(
@@ -738,8 +741,8 @@ class _ManageListScreenState extends State<ManageListScreen>
       color: kStickyYellow,
       rotation: -0.015,
       child: Container(
-        padding: EdgeInsets.all(kSpacingMedium),
-        margin: EdgeInsets.all(kSpacingMedium),
+        padding: const EdgeInsets.all(kSpacingMedium),
+        margin: const EdgeInsets.all(kSpacingMedium),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
@@ -779,7 +782,7 @@ class _ManageListScreenState extends State<ManageListScreen>
     return Column(
       children: [
         Icon(icon, color: cs.onPrimaryContainer, size: kIconSize),
-        SizedBox(height: kSpacingTiny),
+        const SizedBox(height: kSpacingTiny),
         TweenAnimationBuilder<int>(
           tween: IntTween(begin: 0, end: value),
           duration: const Duration(milliseconds: 800),
@@ -894,7 +897,7 @@ class _ManageListScreenState extends State<ManageListScreen>
               await _toggleItem(provider, index, item);
             },
             child: Padding(
-              padding: EdgeInsets.all(kSpacingMedium),
+              padding: const EdgeInsets.all(kSpacingMedium),
               child: Row(
                 children: [
                   AnimatedContainer(
@@ -907,7 +910,7 @@ class _ManageListScreenState extends State<ManageListScreen>
                       },
                     ),
                   ),
-                  SizedBox(width: kSpacingSmall),
+                  const SizedBox(width: kSpacingSmall),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

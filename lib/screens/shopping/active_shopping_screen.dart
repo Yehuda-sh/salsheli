@@ -104,6 +104,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
 
       // סימולציה של delay קל (במקרה הזה זה מיידי אבל מוכן לעתיד)
       await Future.delayed(const Duration(milliseconds: 300));
+      if (!mounted) return;
 
       // התחל טיימר שמתעדכן כל שנייה
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -121,11 +122,11 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
 
       debugPrint('✅ _initializeScreen: ${widget.list.items.length} פריטים');
 
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      if (!mounted) return;
+      
+      setState(() {
+        _isLoading = false;
+      });
     } catch (e) {
       debugPrint('❌ _initializeScreen Error: $e');
       if (mounted) {
@@ -232,6 +233,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
 
         // המתן קצת להודעה ואז חזור
         await Future.delayed(const Duration(milliseconds: 500));
+        if (!mounted) return;
 
         if (mounted) {
           debugPrint('🚪 _saveAndFinish: חוזר למסך קודם');
@@ -282,6 +284,9 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
     final accent = brand?.accent ?? cs.primary;
+
+    // 🔐 Prevent build during saving
+    if (_isSaving && !mounted) return const SizedBox.shrink();
 
     // 🔄 Loading State
     if (_isLoading) {
@@ -715,8 +720,8 @@ class _StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(icon, color: color, size: kIconSizeLarge),
-        const SizedBox(height: kSpacingTiny),
+      Icon(icon, color: color, size: kIconSizeLarge),
+      const SizedBox(height: kSpacingTiny),
         Text(
           value,
           style: TextStyle(fontSize: kFontSizeXLarge, fontWeight: FontWeight.bold, color: color),
@@ -864,7 +869,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                 children: [
                   // שורה 1: קנוי + אזל
                   Row(
-                    children: [
+                  children: [
                       Expanded(
                         child: _ActionButton(
                           icon: Icons.check_circle,
@@ -999,7 +1004,7 @@ class _ShoppingSummaryDialog extends StatelessWidget {
     return AlertDialog(
       title: Row(
         children: [
-          Icon(Icons.check_circle, color: StatusColors.success, size: kIconSizeLarge),
+          const Icon(Icons.check_circle, color: StatusColors.success, size: kIconSizeLarge),
           const SizedBox(width: kSpacingSmallPlus),
           Expanded(
             child: Text(
