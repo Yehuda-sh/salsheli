@@ -28,9 +28,7 @@
 
 ### For New Users
 
-**🆕 First time here?** → [**GETTING_STARTED.md**](GETTING_STARTED.md) (5-10 min)
-
-**📋 Want full project overview?** → [**PROJECT_INFO.md**](PROJECT_INFO.md)
+**📋 Want full project overview?** → [**docs/PROJECT_INFO.md**](docs/PROJECT_INFO.md)
 
 ### Installation
 
@@ -71,29 +69,28 @@ flutter build ios --release  # iOS
 
 ---
 
-## 📚 Documentation (6 Core Documents)
+## 📚 Documentation (5 Core Documents)
 
 ### By Role
 
 | Role | Document | What's Inside |
 |------|----------|---------------|
-| 🆕 **Beginner** | [GETTING_STARTED.md](GETTING_STARTED.md) | 5-10 min quick start guide |
-| 👨‍💻 **Developer** | [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) | Code patterns, testing, security |
-| 🎨 **Designer** | [DESIGN_GUIDE.md](DESIGN_GUIDE.md) | Sticky Notes Design System |
-| 🤖 **AI Assistant** | [AI_MASTER_GUIDE.md](AI_MASTER_GUIDE.md) | AI behavior + auto code review |
-| 🛠️ **Using Claude Desktop** | [MCP_TOOLS_GUIDE.md](MCP_TOOLS_GUIDE.md) | MCP tools reference |
-| 📋 **Project Manager** | [PROJECT_INFO.md](PROJECT_INFO.md) | Complete project overview |
+| 👨‍💻 **Developer** | [docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md) | Code patterns, testing, security |
+| 🎨 **Designer** | [docs/DESIGN_GUIDE.md](docs/DESIGN_GUIDE.md) | Sticky Notes Design System |
+| 🤖 **AI Assistant** | [docs/AI_MASTER_GUIDE.md](docs/AI_MASTER_GUIDE.md) | AI behavior + auto code review |
+| 🛠️ **Using Claude Desktop** | [docs/MCP_TOOLS_GUIDE.md](docs/MCP_TOOLS_GUIDE.md) | MCP tools reference |
+| 📋 **Project Manager** | [docs/PROJECT_INFO.md](docs/PROJECT_INFO.md) | Complete project overview |
 
 ### By Task
 
 | Need | Go To | Section |
 |------|-------|---------|
-| **Write code** | [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) | Architecture + Examples |
-| **Design screens** | [DESIGN_GUIDE.md](DESIGN_GUIDE.md) | Components + Colors |
-| **Test code** | [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) | Testing Guidelines |
-| **Secure data** | [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) | Security Best Practices |
-| **Optimize performance** | [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) | Performance Tips |
-| **Use MCP tools** | [MCP_TOOLS_GUIDE.md](MCP_TOOLS_GUIDE.md) | Tools + Workflows |
+| **Write code** | [docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md) | Architecture + Examples |
+| **Design screens** | [docs/DESIGN_GUIDE.md](docs/DESIGN_GUIDE.md) | Components + Colors |
+| **Test code** | [docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md) | Testing Guidelines |
+| **Secure data** | [docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md) | Security Best Practices |
+| **Optimize performance** | [docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md) | Performance Tips |
+| **Use MCP tools** | [docs/MCP_TOOLS_GUIDE.md](docs/MCP_TOOLS_GUIDE.md) | Tools + Workflows |
 
 ---
 
@@ -123,16 +120,17 @@ flutter build ios --release  # iOS
 - 🗄️ **17 repositories**
 - 🎨 **30+ screens**
 - 🧩 **25+ widgets**
-- 📖 **6 documentation files** (lean & focused)
+- 📖 **5 documentation files** (lean & focused)
 
 ---
 
 ## 🆕 What's New (v2.1 - Oct 19, 2025)
 
 ### Documentation Updates
+- ✅ **Moved all docs to docs/ folder** - Better organization
+- ✅ **Removed GETTING_STARTED.md** - Redundant with other docs
 - ✅ **MCP_TOOLS_GUIDE.md** - Complete guide for Claude Desktop MCP tools
 - ✅ **AI_MASTER_GUIDE.md** - Reduced from 1500 to 500 lines (67% lighter!)
-- ✅ **GETTING_STARTED.md** - Removed marketing content (32% lighter)
 - ✅ **DESIGN_GUIDE.md** - Removed code duplications (37% lighter)
 - ✅ **Overall reduction** - ~50% less documentation, same value!
 
@@ -143,7 +141,7 @@ flutter build ios --release  # iOS
 - ✅ Performance improvements (debouncing, batch processing)
 - ✅ Documentation unification (14 → 6 files)
 
-**📖 Full changelog:** See [PROJECT_INFO.md](PROJECT_INFO.md#change-history)
+**📖 Full changelog:** See [docs/PROJECT_INFO.md](docs/PROJECT_INFO.md#change-history)
 
 ---
 
@@ -163,11 +161,10 @@ salsheli/
 │   └── main.dart          # App entry point
 ├── test/                  # 50+ tests
 ├── assets/                # Images, fonts
-└── docs/                  # 6 core documents
+└── docs/                  # 5 core documents
     ├── AI_MASTER_GUIDE.md
     ├── DEVELOPER_GUIDE.md
     ├── DESIGN_GUIDE.md
-    ├── GETTING_STARTED.md
     ├── MCP_TOOLS_GUIDE.md
     └── PROJECT_INFO.md
 ```
@@ -177,9 +174,9 @@ salsheli/
 ## 🤝 Contributing
 
 ### Getting Started
-1. Read [GETTING_STARTED.md](GETTING_STARTED.md)
-2. Check [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) for code patterns
-3. Follow [DESIGN_GUIDE.md](DESIGN_GUIDE.md) for UI/UX
+1. Read [docs/PROJECT_INFO.md](docs/PROJECT_INFO.md) for project overview
+2. Check [docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md) for code patterns
+3. Follow [docs/DESIGN_GUIDE.md](docs/DESIGN_GUIDE.md) for UI/UX
 
 ### Code Style
 - ✅ Run `dart format lib/ -w` before commit
@@ -234,4 +231,4 @@ Special thanks to the open source community!
 **Made with ❤️ in Israel** 🇮🇱  
 **Version:** 2.1 | **Updated:** 19/10/2025
 
-**🚀 Ready to start?** → [GETTING_STARTED.md](GETTING_STARTED.md)
+**🚀 Ready to start?** → [docs/PROJECT_INFO.md](docs/PROJECT_INFO.md)
