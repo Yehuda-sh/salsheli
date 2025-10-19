@@ -215,6 +215,7 @@ void main() async {
             if (kDebugMode) debugPrint('📋 main.dart: Creating ShoppingListsProvider with Firebase');
             final provider = ShoppingListsProvider(
               repository: FirebaseShoppingListsRepository(),  // 🔥 Firebase!
+              receiptRepository: FirebaseReceiptRepository(),  // 🔥 Firebase Receipts!
             );
             final userContext = context.read<UserContext>();
             provider.updateUserContext(userContext);
@@ -226,6 +227,7 @@ void main() async {
                 previous ??
                 ShoppingListsProvider(
                   repository: FirebaseShoppingListsRepository(),  // 🔥 Firebase!
+                  receiptRepository: FirebaseReceiptRepository(),  // 🔥 Firebase Receipts!
                 );
             provider.updateUserContext(userContext);
             return provider;

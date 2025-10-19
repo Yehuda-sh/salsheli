@@ -53,11 +53,14 @@ import 'package:uuid/uuid.dart';
 
 import '../models/receipt.dart';
 import '../models/shopping_list.dart';
+import '../models/active_shopper.dart';
 import '../repositories/shopping_lists_repository.dart';
+import '../repositories/receipt_repository.dart';
 import 'user_context.dart';
 
 class ShoppingListsProvider with ChangeNotifier {
   final ShoppingListsRepository _repository;
+  final ReceiptRepository _receiptRepository;
   final _uuid = const Uuid();
 
   // State
@@ -73,7 +76,9 @@ class ShoppingListsProvider with ChangeNotifier {
 
   ShoppingListsProvider({
     required ShoppingListsRepository repository,
-  }) : _repository = repository;
+    required ReceiptRepository receiptRepository,
+  })  : _repository = repository,
+        _receiptRepository = receiptRepository;
 
   // === Getters ===
   List<ShoppingList> get lists => List.unmodifiable(_lists);
@@ -495,6 +500,300 @@ class ShoppingListsProvider with ChangeNotifier {
   /// מפעילה רשימה
   Future<void> activateList(String listId) async {
     await updateListStatus(listId, ShoppingList.statusActive);
+  }
+
+  // ==========================================
+  // 🆕 Collaborative Shopping Methods
+  // ==========================================
+
+  /// מתחיל קנייה משותפת - רק מי שמתחיל הופך ל-Starter
+  /// 
+  /// Example:
+  /// ```dart
+  /// await provider.startCollaborativeShopping(listId, userId);
+  /// ```
+  Future<void> startCollaborativeShopping(String listId, String userId) async {
+    debugPrint('🛒 startCollaborativeShopping: מתחיל קנייה (list: $listId, user: $userId)');
+    final list = getById(listId);
+    if (list == null) {
+      debugPrint('❌ startCollaborativeShopping: רשימה לא נמצאה');
+      throw Exception('רשימה $listId לא נמצאה');
+    }
+
+    // בדוק שאין כבר קנייה פעילה
+    if (list.isBeingShopped) {
+      debugPrint('⚠️ startCollaborativeShopping: יש כבר קנייה פעילה');
+      throw Exception('יש כבר קנייה פעילה ברשימה הזו');
+    }
+
+    _errorMessage = null;
+
+    try {
+      // צור Starter
+      final starter = ActiveShopper.starter(userId: userId);
+      
+      // עדכן רשימה
+      final updatedList = list.copyWith(
+        activeShoppers: [starter],
+        updatedDate: DateTime.now(),
+      );
+
+      await updateList(updatedList);
+      debugPrint('✅ startCollaborativeShopping: קנייה התחילה!');
+    } catch (e) {
+      debugPrint('❌ startCollaborativeShopping: שגיאה - $e');
+      _errorMessage = 'שגיאה בהתחלת קנייה: ${e.toString()}';
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  /// מצטרף לקנייה משותפת קיימת - הופך ל-Helper
+  /// 
+  /// Example:
+  /// ```dart
+  /// await provider.joinCollaborativeShopping(listId, userId);
+  /// ```
+  Future<void> joinCollaborativeShopping(String listId, String userId) async {
+    debugPrint('🤝 joinCollaborativeShopping: מצטרף לקנייה (list: $listId, user: $userId)');
+    final list = getById(listId);
+    if (list == null) {
+      debugPrint('❌ joinCollaborativeShopping: רשימה לא נמצאה');
+      throw Exception('רשימה $listId לא נמצאה');
+    }
+
+    // בדוק שיש קנייה פעילה
+    if (!list.isBeingShopped) {
+      debugPrint('⚠️ joinCollaborativeShopping: אין קנייה פעילה');
+      throw Exception('אין קנייה פעילה ברשימה הזו');
+    }
+
+    // בדוק שהמשתמש לא כבר קונה
+    if (list.isUserShopping(userId)) {
+      debugPrint('⚠️ joinCollaborativeShopping: המשתמש כבר קונה');
+      throw Exception('אתה כבר קונה ברשימה הזו');
+    }
+
+    _errorMessage = null;
+
+    try {
+      // צור Helper
+      final helper = ActiveShopper.helper(userId: userId);
+      
+      // הוסף לרשימת קונים
+      final updatedList = list.copyWith(
+        activeShoppers: [...list.activeShoppers, helper],
+        updatedDate: DateTime.now(),
+      );
+
+      await updateList(updatedList);
+      debugPrint('✅ joinCollaborativeShopping: הצטרף בהצלחה!');
+    } catch (e) {
+      debugPrint('❌ joinCollaborativeShopping: שגיאה - $e');
+      _errorMessage = 'שגיאה בהצטרפות לקנייה: ${e.toString()}';
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  /// עוזב קנייה משותפת - מסמן את עצמו כלא פעיל
+  /// 
+  /// Example:
+  /// ```dart
+  /// await provider.leaveCollaborativeShopping(listId, userId);
+  /// ```
+  Future<void> leaveCollaborativeShopping(String listId, String userId) async {
+    debugPrint('👋 leaveCollaborativeShopping: עוזב קנייה (list: $listId, user: $userId)');
+    final list = getById(listId);
+    if (list == null) {
+      debugPrint('❌ leaveCollaborativeShopping: רשימה לא נמצאה');
+      throw Exception('רשימה $listId לא נמצאה');
+    }
+
+    _errorMessage = null;
+
+    try {
+      // מצא את הקונה ושנה isActive ל-false
+      final updatedShoppers = list.activeShoppers.map((shopper) {
+        if (shopper.userId == userId) {
+          return shopper.copyWith(isActive: false);
+        }
+        return shopper;
+      }).toList();
+
+      final updatedList = list.copyWith(
+        activeShoppers: updatedShoppers,
+        updatedDate: DateTime.now(),
+      );
+
+      await updateList(updatedList);
+      debugPrint('✅ leaveCollaborativeShopping: עזב בהצלחה!');
+    } catch (e) {
+      debugPrint('❌ leaveCollaborativeShopping: שגיאה - $e');
+      _errorMessage = 'שגיאה ביציאה מקנייה: ${e.toString()}';
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  /// מסמן פריט כנרכש + רושם מי סימן ומתי
+  /// 
+  /// Example:
+  /// ```dart
+  /// await provider.markItemAsChecked(listId, 0, userId);
+  /// ```
+  Future<void> markItemAsChecked(
+    String listId,
+    int itemIndex,
+    String userId,
+  ) async {
+    debugPrint('✓ markItemAsChecked: מסמן פריט #$itemIndex (list: $listId, user: $userId)');
+    final list = getById(listId);
+    if (list == null) {
+      debugPrint('❌ markItemAsChecked: רשימה לא נמצאה');
+      throw Exception('רשימה $listId לא נמצאה');
+    }
+
+    // בדוק שהמשתמש קונה
+    if (!list.isUserShopping(userId)) {
+      debugPrint('⚠️ markItemAsChecked: המשתמש לא קונה');
+      throw Exception('אתה לא קונה ברשימה הזו');
+    }
+
+    _errorMessage = null;
+
+    try {
+      // עדכן את הפריט
+      await updateItemAt(listId, itemIndex, (item) {
+        return item.copyWith(
+          isChecked: true,
+          checkedBy: userId,
+          checkedAt: DateTime.now(),
+        );
+      });
+
+      debugPrint('✅ markItemAsChecked: פריט #$itemIndex סומן!');
+    } catch (e) {
+      debugPrint('❌ markItemAsChecked: שגיאה - $e');
+      _errorMessage = 'שגיאה בסימון פריט: ${e.toString()}';
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  /// מסיים קנייה משותפת - רק ה-Starter יכול!
+  /// יוצר קבלה וירטואלית מכל הפריטים המסומנים
+  /// 
+  /// Example:
+  /// ```dart
+  /// await provider.finishCollaborativeShopping(listId, userId);
+  /// ```
+  Future<void> finishCollaborativeShopping(String listId, String userId) async {
+    debugPrint('🏁 finishCollaborativeShopping: מסיים קנייה (list: $listId, user: $userId)');
+    final list = getById(listId);
+    if (list == null) {
+      debugPrint('❌ finishCollaborativeShopping: רשימה לא נמצאה');
+      throw Exception('רשימה $listId לא נמצאה');
+    }
+
+    // בדוק שהמשתמש יכול לסיים (רק Starter)
+    if (!list.canUserFinish(userId)) {
+      debugPrint('⚠️ finishCollaborativeShopping: רק מי שהתחיל יכול לסיים');
+      throw Exception('רק מי שהתחיל את הקנייה יכול לסיים');
+    }
+
+    _errorMessage = null;
+
+    try {
+      // 1. סמן את כל הקונים כלא פעילים
+      final inactiveShoppers = list.activeShoppers.map((shopper) {
+        return shopper.copyWith(isActive: false);
+      }).toList();
+
+      // 2. מצא פריטים מסומנים
+      final checkedItems = list.items.where((item) => item.isChecked).toList();
+      debugPrint('   📦 נמצאו ${checkedItems.length} פריטים מסומנים');
+
+      // 3. צור קבלה וירטואלית
+      if (checkedItems.isNotEmpty) {
+        final householdId = _userContext?.user?.householdId;
+        if (householdId == null) {
+          throw Exception('household_id לא נמצא');
+        }
+
+        final receipt = Receipt.virtual(
+          linkedShoppingListId: listId,
+          createdBy: userId,
+          storeName: list.name,
+          items: checkedItems,
+          date: DateTime.now(),
+        );
+
+        // שמור קבלה ב-ReceiptRepository
+        await _receiptRepository.saveReceipt(receipt, householdId);
+        debugPrint('   📄 קבלה וירטואלית נוצרה ונשמרה: ${receipt.id}');
+      }
+
+      // 4. עדכן רשימה: סטטוס + inactiveShoppers
+      final updatedList = list.copyWith(
+        status: ShoppingList.statusCompleted,
+        activeShoppers: inactiveShoppers,
+        updatedDate: DateTime.now(),
+      );
+
+      await updateList(updatedList);
+      debugPrint('✅ finishCollaborativeShopping: קנייה הסתיימה!');
+    } catch (e) {
+      debugPrint('❌ finishCollaborativeShopping: שגיאה - $e');
+      _errorMessage = 'שגיאה בסיום קנייה: ${e.toString()}';
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  /// מנקה sessions נטושים (6+ שעות)
+  /// 
+  /// Example:
+  /// ```dart
+  /// await provider.cleanupAbandonedSessions();
+  /// ```
+  Future<void> cleanupAbandonedSessions() async {
+    debugPrint('🧹 cleanupAbandonedSessions: בודק sessions נטושים');
+    
+    final timedOutLists = _lists.where((list) => list.isShoppingTimedOut).toList();
+    
+    if (timedOutLists.isEmpty) {
+      debugPrint('   ✓ אין sessions נטושים');
+      return;
+    }
+
+    debugPrint('   ⚠️ נמצאו ${timedOutLists.length} sessions נטושים');
+    _errorMessage = null;
+
+    try {
+      for (final list in timedOutLists) {
+        debugPrint('   🧹 מנקה session של רשימה ${list.id}');
+        
+        // סמן את כל הקונים כלא פעילים
+        final inactiveShoppers = list.activeShoppers.map((shopper) {
+          return shopper.copyWith(isActive: false);
+        }).toList();
+
+        final updatedList = list.copyWith(
+          activeShoppers: inactiveShoppers,
+          updatedDate: DateTime.now(),
+        );
+
+        await updateList(updatedList);
+      }
+
+      debugPrint('✅ cleanupAbandonedSessions: ${timedOutLists.length} sessions נוקו!');
+    } catch (e) {
+      debugPrint('❌ cleanupAbandonedSessions: שגיאה - $e');
+      _errorMessage = 'שגיאה בניקוי sessions: ${e.toString()}';
+      notifyListeners();
+      rethrow;
+    }
   }
 
   @override

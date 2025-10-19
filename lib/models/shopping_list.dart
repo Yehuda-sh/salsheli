@@ -124,7 +124,7 @@ class ShoppingList {
   /// 🆕 רשימת קונים פעילים (תמיכה בקנייה משותפת)
   /// 🇬🇧 List of active shoppers (collaborative shopping support)
   @JsonKey(name: 'active_shoppers', defaultValue: [])
-  final List<ActiveShopper> activeSho ppers;
+  final List<ActiveShopper> activeShoppers;
 
   // ---- Shopping timeout ----
   static const Duration shoppingTimeout = Duration(hours: 6);
@@ -143,17 +143,17 @@ class ShoppingList {
 
   /// 🇮🇱 האם יש קנייה פעילה
   /// 🇬🇧 Is there an active shopping session
-  bool get isBeingShopped => activeSho ppers.any((s) => s.isActive);
+  bool get isBeingShopped => activeShoppers.any((s) => s.isActive);
 
   /// 🇮🇱 האם יש קונים פעילים
   /// 🇬🇧 Are there active shoppers
-  bool get hasActiveSho ppers => activeSho ppers.isNotEmpty;
+  bool get hasActiveShoppers => activeShoppers.isNotEmpty;
 
   /// 🇮🇱 מי התחיל את הקנייה (ה-Starter)
   /// 🇬🇧 Who started the shopping (the Starter)
   ActiveShopper? get starter {
     try {
-      return activeSho ppers.firstWhere((s) => s.isStarter);
+      return activeShoppers.firstWhere((s) => s.isStarter);
     } catch (_) {
       return null;
     }
@@ -161,17 +161,17 @@ class ShoppingList {
 
   /// 🇮🇱 רשימת קונים פעילים כרגע
   /// 🇬🇧 List of currently active shoppers
-  List<ActiveShopper> get currentSho ppers =>
-      activeSho ppers.where((s) => s.isActive).toList();
+  List<ActiveShopper> get currentShoppers =>
+      activeShoppers.where((s) => s.isActive).toList();
 
   /// 🇮🇱 כמות קונים פעילים
   /// 🇬🇧 Number of active shoppers
-  int get activeShopperCount => currentSho ppers.length;
+  int get activeShopperCount => currentShoppers.length;
 
   /// 🇮🇱 האם המשתמש הזה קונה כרגע
   /// 🇬🇧 Is this user currently shopping
   bool isUserShopping(String userId) =>
-      currentSho ppers.any((s) => s.userId == userId);
+      currentShoppers.any((s) => s.userId == userId);
 
   /// 🇮🇱 האם המשתמש יכול לסיים קנייה (רק ה-Starter)
   /// 🇬🇧 Can this user finish shopping (only the Starter)
@@ -186,7 +186,7 @@ class ShoppingList {
     if (!isBeingShopped) return false;
 
     try {
-      final oldest = currentSho ppers
+      final oldest = currentShoppers
           .map((s) => s.joinedAt)
           .reduce((a, b) => a.isBefore(b) ? a : b);
 
@@ -214,11 +214,11 @@ class ShoppingList {
     this.templateId,
     required this.format,
     required this.createdFromTemplate,
-    List<ActiveShopper> activeSho ppers = const [],
+    List<ActiveShopper> activeShoppers = const [],
   })  : createdDate = createdDate ?? updatedDate,
         sharedWith = List<String>.unmodifiable(sharedWith),
         items = List<ReceiptItem>.unmodifiable(items),
-        activeSho ppers = List<ActiveShopper>.unmodifiable(activeSho ppers);
+        activeShoppers = List<ActiveShopper>.unmodifiable(activeShoppers);
 
   // ---- Factory Constructors ----
 
@@ -323,7 +323,7 @@ class ShoppingList {
     Object? templateId = _sentinel,  // Using Object? to allow explicit null
     String? format,
     bool? createdFromTemplate,
-    List<ActiveShopper>? activeSho ppers,
+    List<ActiveShopper>? activeShoppers,
   }) {
     return ShoppingList(
       id: id ?? this.id,
@@ -350,7 +350,7 @@ class ShoppingList {
           : templateId as String?,  // Allow explicit null
       format: format ?? this.format,
       createdFromTemplate: createdFromTemplate ?? this.createdFromTemplate,
-      activeSho ppers: activeSho ppers ?? this.activeSho ppers,
+      activeShoppers: activeShoppers ?? this.activeShoppers,
     );
   }
 
