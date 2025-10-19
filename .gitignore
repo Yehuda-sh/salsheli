@@ -48,3 +48,6 @@ app.*.map.json
 scripts/firebase-service-account.json
 serviceAccountKey.json
 firebase-service-account.json
+
+# Claude Desktop config - contains API keys!
+claude_desktop_config.json
