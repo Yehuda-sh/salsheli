@@ -2,7 +2,7 @@
 
 > **CRITICAL:** Read this file at the start of EVERY new conversation  
 > **Purpose:** AI behavior instructions for Claude  
-> **Updated:** 19/10/2025 | **Version:** 4.1 - Error Prevention
+> **Updated:** 20/10/2025 | **Version:** 4.2 - Project Paths
 
 ---
 
@@ -61,6 +61,29 @@
 - **No code blocks** in explanations
 - **No command snippets** to run manually (use Windows MCP if possible)
 - **Windows MCP** - can read terminal logs automatically
+
+### 📌 Important Paths
+
+**Project Root:**
+```
+C:\projects\salsheli\
+```
+
+**Always use FULL paths:**
+```
+C:\projects\salsheli\lib\core\ui_constants.dart
+```
+
+**Never use relative paths:**
+```
+❌ lib\core\ui_constants.dart
+❌ ./lib/core/ui_constants.dart
+```
+
+**Why FULL paths:**
+- MCP tools require absolute paths
+- Avoids ambiguity
+- Works across different working directories
 
 ---
 
@@ -559,11 +582,16 @@ File has:      ## 📌 Critical Reminders  ← Missing emoji!
 
 ## 📈 Version History
 
-### v4.1 - 19/10/2025 🆕 **LATEST - Error Prevention**
+### v4.2 - 20/10/2025 🆕 **LATEST - Project Paths**
+- ✅ **Part 2 enhanced** - Added "Important Paths" section
+- ✅ **Path rules** - Always use FULL paths (C:\projects\salsheli\...)
+- ✅ **Better organization** - Moved from PROJECT_INFO to AI_MASTER_GUIDE
+- 📊 Synced with PROJECT_INFO v2.4
+
+### v4.1 - 19/10/2025 - Error Prevention
 - ✅ **Part 15 added** - Common tool errors & prevention
 - ✅ **edit_file protocol** - 3-step process to avoid "exact match" errors
 - ✅ **Memory saved** - edit_file best practices
-- 📊 User feedback integrated!
 
 ### v4.0 - 19/10/2025 - User Preferences Integration
 - ✅ **Ultra-concise responses** - No code blocks in explanations
@@ -581,8 +609,8 @@ File has:      ## 📌 Critical Reminders  ← Missing emoji!
 
 ---
 
-**Version:** 4.1  
-**Created:** 18/10/2025 | **Updated:** 19/10/2025  
+**Version:** 4.2  
+**Created:** 18/10/2025 | **Updated:** 20/10/2025  
 **Purpose:** Personalized AI behavior guide for this specific user  
 **Philosophy:** User preferences first, technical details in DEVELOPER_GUIDE.md  
 **User:** Claude Max with token limits - optimize for continuation & memory  

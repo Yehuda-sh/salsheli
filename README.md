@@ -5,7 +5,7 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.27+-02569B?logo=flutter)](https://flutter.dev)
 [![Firebase](https://img.shields.io/badge/Firebase-Enabled-FFCA28?logo=firebase)](https://firebase.google.com)
 [![License](https://img.shields.io/badge/License-Proprietary-red)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-2.1-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-2.4-blue)](CHANGELOG.md)
 
 ---
 
@@ -20,7 +20,7 @@
 - 📸 **OCR receipt scanning** - Scan and import items automatically
 - 🔒 **Household-based security** - Your data stays private
 - 🛒 **21 list types + 6 templates** - Pre-loaded with 66 common items
-- 🏪 **Shufersal API integration** - 1,758 products database
+- 🏪 **Shufersal API integration** - Public API with dynamic pricing
 
 ---
 
