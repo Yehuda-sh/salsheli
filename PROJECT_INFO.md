@@ -2,7 +2,7 @@
 
 > **Complete project overview and documentation index**  
 > **🤖 For AI Systems:** This is your main reference document  
-> **Updated:** 19/10/2025 | **Version:** 2.1 - Added MCP Tools Guide
+> **Updated:** 19/10/2025 | **Version:** 2.2 - Navigation Check Added
 
 ---
 
@@ -269,7 +269,21 @@ flutter build web --release
 
 ## 📖 Change History
 
-### v2.1 - 19/10/2025 🆕 **Added MCP Tools Guide**
+### v2.2 - 19/10/2025 🆕 **LATEST - Navigation Check Added**
+
+**Updated:**
+- ✅ **AI_MASTER_GUIDE.md** (v3.0 → v3.1) - Added 13th check: Navigation/Orphan Screens
+- ✅ **DEVELOPER_GUIDE.md** (v1.0 → v1.1) - Added Navigation section + checklist item
+- 🎯 **Result:** Complete coverage of all code quality aspects (13 checks total)
+
+**Impact:**
+- 🔍 Prevents orphan screens (screens with no UI path)
+- ✅ Ensures all routes are accessible
+- 📊 Improves code review completeness
+
+---
+
+### v2.1 - 19/10/2025 **Added MCP Tools Guide**
 
 **Added:**
 - ✅ **MCP_TOOLS_GUIDE.md** (v1.0) - Comprehensive guide for Claude Desktop MCP tools
@@ -589,6 +603,6 @@ git push origin feature/my-feature
 ---
 
 **Made with ❤️ in Israel** 🇮🇱  
-**Version:** 2.1 | **Updated:** 19/10/2025  
+**Version:** 2.2 | **Updated:** 19/10/2025  
 **Purpose:** Complete project information and documentation index  
 **🤖 AI Note:** This is your main reference for understanding the Salsheli project structure

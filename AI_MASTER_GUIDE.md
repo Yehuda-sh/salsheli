@@ -2,7 +2,7 @@
 
 > **CRITICAL:** Read this file at the start of EVERY new conversation  
 > **Purpose:** AI behavior instructions for Claude  
-> **Updated:** 19/10/2025 | **Version:** 3.0 - Lean & Focused 🎯
+> **Updated:** 19/10/2025 | **Version:** 3.1 - Navigation Check Added 🎯
 
 ---
 
@@ -85,7 +85,7 @@ User sends: C:\projects\salsheli\lib\screens\auth\login_screen.dart
 1️⃣ READ THE FILE
    → Use Filesystem:read_file immediately
 
-2️⃣ PERFORM COMPREHENSIVE CODE REVIEW (ALL 12 checks):
+2️⃣ PERFORM COMPREHENSIVE CODE REVIEW (ALL 13 checks):
    ✅ Technical Errors (withOpacity → withValues, const, mounted)
    ✅ Sticky Notes Design (if UI screen)
    ✅ Security (household_id, API keys, sensitive logs)
@@ -98,6 +98,7 @@ User sends: C:\projects\salsheli\lib\screens\auth\login_screen.dart
    ✅ Firebase (batch size <500, limits, error handlers)
    ✅ API Integration (timeout, retry, proper errors)
    ✅ Production Readiness (debugPrint, TODOs, localhost)
+   ✅ Navigation (screen accessible from UI? Orphan Screen check)
 
 3️⃣ AUTO-FIX CRITICAL ISSUES (WITHOUT asking):
    → Technical errors (withOpacity → withValues)
@@ -249,11 +250,114 @@ User sends: C:\projects\salsheli\lib\screens\auth\login_screen.dart
 ### Production Readiness
 
 | Check | Command |
-|-------|---------|
+|-------|---------|  
 | debugPrint | `grep -r "debugPrint" lib/` |
 | TODO comments | `grep -r "TODO" lib/` |
 | Hardcoded localhost | `grep -r "localhost" lib/` |
 | API keys | `grep -r "api_key" lib/` |
+
+### 🧭 Navigation & Accessibility (Anti-Pattern: Orphan Screen)
+
+**⚠️ CRITICAL:** When reviewing any screen file, verify users can actually reach it!
+
+#### The Orphan Screen Problem:
+```dart
+// ❌ Orphan Screen Anti-Pattern
+// Screen exists: InsightsScreen ✅
+// Route defined: '/insights' in main.dart ✅  
+// Navigation: NONE ❌
+// → User CANNOT reach this screen!
+```
+
+#### 5-Step Navigation Check:
+
+```bash
+1️⃣ Check route exists in main.dart
+   → '/screen-name': (context) => const ScreenName()
+
+2️⃣ Search for navigation calls  
+   → grep -r "'/screen-name'" lib/screens/
+   → Should find: Navigator.pushNamed(context, '/screen-name')
+
+3️⃣ Check Bottom Navigation (if applicable)
+   → lib/screens/home/home_screen.dart
+   → Look for screen in _pages list
+
+4️⃣ Check Dashboard cards (common entry point)
+   → lib/screens/home/home_dashboard_screen.dart  
+   → Look for Navigator.pushNamed calls
+
+5️⃣ Check Settings menu (for config screens)
+   → lib/screens/settings/settings_screen.dart
+   → Look for ListTile with onTap navigation
+```
+
+**If ALL 5 checks fail = Orphan Screen! 🚨**
+
+#### Action Protocol:
+
+```markdown
+**When Orphan Screen detected:**
+
+1. REPORT to user:
+   "מצאתי מסך [ScreenName] אבל אין דרך להגיע אליו מהממשק.
+    איפה המשתמש צריך לגשת למסך הזה?"
+
+2. SUGGEST solutions based on importance:
+   - Critical/Important → Dashboard card (most visible)
+   - Always needed → Bottom Nav tab (always accessible)  
+   - Configuration → Settings option (organized)
+   - Related flow → Deep link from related screen
+
+3. IMPLEMENT chosen solution
+```
+
+#### Example Fix - Dashboard Card:
+
+```dart
+// Add to home_dashboard_screen.dart:
+
+const _MyFeatureCard()
+  .animate()
+  .fadeIn(duration: 600.ms, delay: 400.ms)
+  .slideY(begin: 0.15, end: 0),
+
+class _MyFeatureCard extends StatelessWidget {
+  const _MyFeatureCard();
+  
+  @override
+  Widget build(BuildContext context) {
+    return StickyNote(
+      color: kStickyPurple,
+      rotation: 0.01,
+      child: InkWell(
+        onTap: () => Navigator.pushNamed(context, '/my-feature'),
+        child: Column(
+          children: [
+            // Icon + Title + Description
+            Icon(Icons.feature_icon),
+            Text('Feature Name'),
+            Text('Feature description'),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+#### Priority Matrix:
+
+| Screen Type | Best Navigation | Why |
+|-------------|----------------|-----|
+| Analytics/Insights | Dashboard card | High visibility |
+| Core feature | Bottom Nav | Always accessible |
+| Settings/Config | Settings menu | Organized location |
+| Flow step | Deep link | Natural progression |
+| Admin/Debug | No UI needed | Dev-only access |
+
+**Golden Rule:**  
+> "Every screen with a route MUST be accessible through at least 1 UI path!"
 
 ---
 
@@ -452,7 +556,12 @@ class MyProvider extends ChangeNotifier {
 
 ## 📈 Version History
 
-### v3.0 - 19/10/2025 🆕 **LATEST - Lean & Focused**
+### v3.1 - 19/10/2025 🆕 **LATEST - Navigation Check Added**
+- ✅ **Added 13th check:** Navigation/Orphan Screens detection
+- ✅ **Updated:** DEVELOPER_GUIDE.md with Navigation section
+- 🎯 **Result:** Complete coverage of all code quality aspects
+
+### v3.0 - 19/10/2025 **Lean & Focused**
 - 🎯 **Massive reduction:** 1500 → 500 lines
 - 🗑️ **Removed:** Parts 4-17 duplicates (all in DEVELOPER_GUIDE.md)
 - ✅ **Kept:** Only what AI needs at conversation start
@@ -474,7 +583,7 @@ class MyProvider extends ChangeNotifier {
 
 ---
 
-**Version:** 3.0 🎯  
+**Version:** 3.1 🎯  
 **Created:** 18/10/2025 | **Updated:** 19/10/2025  
 **Purpose:** Lean AI behavior guide - only essentials  
 **Philosophy:** Details in DEVELOPER_GUIDE.md, guidance here  

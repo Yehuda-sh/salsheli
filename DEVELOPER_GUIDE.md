@@ -1,7 +1,7 @@
 # 👨‍💻 Developer Guide - Salsheli
 
 > **מטרה:** כל מה שמפתח צריך במקום אחד  
-> **עדכון:** 18/10/2025 | **גרסה:** 1.0 - מדריך מאוחד
+> **עדכון:** 19/10/2025 | **גרסה:** 1.1 - Navigation Check Added
 
 ---
 
@@ -105,6 +105,38 @@ final navigator = Navigator.of(context);
 await operation();
 if (mounted) navigator.push(...);
 ```
+
+---
+
+### Navigation / Orphan Screens (30 שניות)
+
+**Problem:** Screen exists but no UI way to reach it = Dead code!
+
+**Quick Check:**
+```powershell
+# 1. Find route definition
+Ctrl+Shift+F → "'/my_screen'"
+
+# 2. Search for navigation calls
+Ctrl+Shift+F → "Navigator.push.*MyScreen"
+Ctrl+Shift+F → "Navigator.pushNamed.*my_screen"
+
+# 3. Check UI elements
+Ctrl+Shift+F → "onTap.*MyScreen" 
+```
+
+**Decision Tree:**
+
+| Screen Type | Best Navigation | Why |
+|-------------|----------------|-----|
+| Analytics/Insights | Dashboard card | High visibility |
+| Core feature | Bottom Nav | Always accessible |
+| Settings/Config | Settings menu | Organized location |
+| Flow step | Deep link | Natural progression |
+| Admin/Debug | No UI needed | Dev-only access |
+
+**Golden Rule:**  
+> "Every screen with a route MUST be accessible through at least 1 UI path!"
 
 ---
 
@@ -948,6 +980,7 @@ Future<void> _loadMore() async {
 - [ ] Padding is symmetric (RTL support)
 - [ ] Has animations (buttons/lists/cards)
 - [ ] mounted check after every await
+- [ ] Navigation accessible from UI (not orphan screen)
 
 #### Model
 - [ ] Has @JsonSerializable()
@@ -1118,5 +1151,6 @@ Future<void> _loadMore() async {
 ---
 
 **Made with ❤️ by Humans & AI** 👨‍💻🤖  
-**Version:** 1.0 | **Created:** 18/10/2025  
-**Purpose:** Complete developer reference - single source of truth
+**Version:** 1.1 | **Created:** 18/10/2025 | **Updated:** 19/10/2025  
+**Purpose:** Complete developer reference - single source of truth  
+**Changelog:** Added Navigation/Orphan Screens detection (13th check)

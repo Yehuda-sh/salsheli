@@ -5,7 +5,7 @@
 // ✅ Pull-to-Refresh (רשימות + הצעות)
 // ✅ מיון חכם לפי priority (אירועים + עדכונים)
 // ✅ Empty state משופר עם אנימציה
-// ✅ כרטיסים: הקנייה הבאה, הצעות חכמות, קבלות, רשימות פעילות
+// ✅ כרטיסים: הקנייה הבאה, הצעות חכמות, קבלות, תובנות, רשימות פעילות
 // ✅ Dismissible lists עם undo
 // ✅ AppStrings - i18n ready
 // ✅ ui_constants - עיצוב עקבי
@@ -352,10 +352,19 @@ class _Content extends StatelessWidget {
         
         const SizedBox(height: kSpacingMedium),
         
+        // 🆕 כרטיס תובנות חכמות
+        const _InsightsCard()
+          .animate()
+          .fadeIn(duration: 600.ms, delay: 400.ms)
+          .slideY(begin: 0.15, end: 0)
+          .scale(begin: const Offset(0.95, 0.95), end: const Offset(1, 1)),
+        
+        const SizedBox(height: kSpacingMedium),
+        
         if (otherLists.isNotEmpty)
           _ActiveListsCard(lists: otherLists)
             .animate()
-            .fadeIn(duration: 600.ms, delay: 450.ms) // ✨ יותר איטי
+            .fadeIn(duration: 600.ms, delay: 550.ms) // ✨ עיכוב מעודכן
             .slideY(begin: 0.15, end: 0) // ✨ יותר דרמטי
             .scale(begin: const Offset(0.95, 0.95), end: const Offset(1, 1)), // ✨ זום!
       ],
@@ -701,6 +710,103 @@ class _ReceiptsCard extends StatelessWidget {
         ),
       ),
     ).animate().fadeIn(duration: 450.ms, delay: 200.ms).slideY(begin: 0.1);
+  }
+}
+
+class _InsightsCard extends StatelessWidget {
+  const _InsightsCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return StickyNote(
+      color: kStickyPurple,  // ✅ פתק סגול
+      rotation: 0.01,
+      child: InkWell(
+        onTap: () {
+          if (kDebugMode) {
+            debugPrint('🏠 HomeDashboard: ניווט למסך תובנות');
+          }
+          Navigator.pushNamed(context, '/insights');
+        },
+        borderRadius: BorderRadius.circular(kBorderRadius),
+        child: Padding(
+          padding: EdgeInsets.zero,  // StickyNote כבר יש padding
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(kSpacingSmall),
+                    decoration: BoxDecoration(
+                      color: Colors.deepPurple.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                    ),
+                    child: const Icon(
+                      Icons.insights_outlined,
+                      color: Colors.deepPurple,
+                      size: kIconSizeSmall + 4, // 20px
+                    ),
+                  ),
+                  const SizedBox(width: kBorderRadius),
+                  Expanded(
+                    child: Text(
+                      'תובנות חכמות',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,  // ✅ טקסט כהה על פתק
+                      ),
+                    ),
+                  ),
+                  const Icon(Icons.chevron_left, color: Colors.black54),
+                ],
+              ),
+              const SizedBox(height: kBorderRadius),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.bar_chart_rounded,
+                    color: Colors.deepPurple,
+                    size: kIconSizeSmall,
+                  ),
+                  const SizedBox(width: kSpacingSmall),
+                  Expanded(
+                    child: Text(
+                      'ראה סטטיסטיקות על הרגלי הקנייה שלך',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: kSpacingSmall),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.lightbulb_outline,
+                    color: Colors.amber,
+                    size: kIconSizeSmall,
+                  ),
+                  const SizedBox(width: kSpacingSmall),
+                  Expanded(
+                    child: Text(
+                      'קבל המלצות לשיפור וחיסכון',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

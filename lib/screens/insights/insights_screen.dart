@@ -26,6 +26,7 @@
 // - fl_chart - גרפים
 // - flutter_animate - אנימציות
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -62,20 +63,26 @@ class _InsightsScreenState extends State<InsightsScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint('📊 InsightsScreen.initState()');
+    if (kDebugMode) {
+      debugPrint('📊 InsightsScreen.initState()');
+    }
     _loadStats();
   }
 
   @override
   void dispose() {
-    debugPrint('📊 InsightsScreen.dispose()');
+    if (kDebugMode) {
+      debugPrint('📊 InsightsScreen.dispose()');
+    }
     super.dispose();
   }
 
   /// טוען סטטיסטיקות מהשרת או מהמטמון
   /// [forceRefresh] - אם true, מתעלם מהמטמון וטוען מהשרת
   Future<void> _loadStats({bool forceRefresh = false}) async {
-    debugPrint('📊 InsightsScreen._loadStats: מתחיל (refresh=$forceRefresh, period=${_periods[_selectedPeriod]})');
+    if (kDebugMode) {
+      debugPrint('📊 InsightsScreen._loadStats: מתחיל (refresh=$forceRefresh, period=${_periods[_selectedPeriod]})');
+    }
     
     if (!forceRefresh) {
       if (mounted) {
@@ -93,7 +100,9 @@ class _InsightsScreenState extends State<InsightsScreen> {
       if (!forceRefresh) {
         final cachedStats = await HomeStatsService.loadFromCache();
         if (mounted && cachedStats != null) {
-          debugPrint('   ✅ נטען ממטמון');
+          if (kDebugMode) {
+            debugPrint('   ✅ נטען ממטמון');
+          }
           setState(() => _stats = cachedStats);
         }
       }
@@ -108,7 +117,9 @@ class _InsightsScreenState extends State<InsightsScreen> {
       final lists = listsProvider.lists;
       final inventory = inventoryProvider.items;
 
-      debugPrint('   📥 נתונים: receipts=${receipts.length}, lists=${lists.length}, inventory=${inventory.length}');
+      if (kDebugMode) {
+        debugPrint('   📥 נתונים: receipts=${receipts.length}, lists=${lists.length}, inventory=${inventory.length}');
+      }
 
       // 3) חישוב סטטיסטיקות
       final freshStats = await HomeStatsService.calculateStats(
@@ -118,7 +129,9 @@ class _InsightsScreenState extends State<InsightsScreen> {
         monthsBack: _periodMonths[_selectedPeriod],
       );
 
-      debugPrint('   ✅ סטטיסטיקות חושבו: spent=${freshStats.monthlySpent}, accuracy=${freshStats.listAccuracy}');
+      if (kDebugMode) {
+        debugPrint('   ✅ סטטיסטיקות חושבו: spent=${freshStats.monthlySpent}, accuracy=${freshStats.listAccuracy}');
+      }
 
       if (mounted) {
         setState(() {
@@ -127,10 +140,14 @@ class _InsightsScreenState extends State<InsightsScreen> {
           _isRefreshing = false;
           _errorMessage = null;
         });
-        debugPrint('   ✅ State עודכן בהצלחה');
+        if (kDebugMode) {
+          debugPrint('   ✅ State עודכן בהצלחה');
+        }
       }
     } catch (e) {
-      debugPrint('   ❌ שגיאה בטעינת נתונים: $e');
+      if (kDebugMode) {
+        debugPrint('   ❌ שגיאה בטעינת נתונים: $e');
+      }
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -144,7 +161,9 @@ class _InsightsScreenState extends State<InsightsScreen> {
   /// משנה את התקופה הנבחרת וטוען מחדש את הסטטיסטיקות
   void _changePeriod(int index) {
     if (_selectedPeriod == index) return;
-    debugPrint('📊 InsightsScreen: משנה תקופה ל-${_periods[index]}');
+    if (kDebugMode) {
+      debugPrint('📊 InsightsScreen: משנה תקופה ל-${_periods[index]}');
+    }
     setState(() => _selectedPeriod = index);
     _loadStats();
   }
