@@ -50,7 +50,6 @@ import 'screens/home/home_screen.dart';
 import 'screens/habits/my_habits_screen.dart';
 import 'screens/insights/insights_screen.dart';
 
-import 'screens/shopping/manage_list_screen.dart';
 import 'screens/shopping/shopping_lists_screen.dart';
 import 'screens/shopping/active_shopping_screen.dart';
 import 'screens/shopping/shopping_list_details_screen.dart';
@@ -436,23 +435,6 @@ class _MyAppState extends State<MyApp> {
               }
               return MaterialPageRoute(
                 builder: (_) => ShoppingSummaryScreen(listId: listId),
-              );
-            }
-
-            // manage-list - receives ShoppingList object
-            if (settings.name == '/manage-list') {
-              final args = settings.arguments as Map<String, dynamic>?;
-              final list = args?['list'] as ShoppingList?;
-              if (list == null) {
-                return MaterialPageRoute(
-                  builder: (_) => const Scaffold(
-                    body: Center(child: Text('List not found')),
-                  ),
-                );
-              }
-              return MaterialPageRoute(
-                builder: (_) =>
-                    ManageListScreen(listName: list.name, listId: list.id),
               );
             }
 
