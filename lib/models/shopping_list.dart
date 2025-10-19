@@ -29,6 +29,7 @@ import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'receipt.dart';
 import 'timestamp_converter.dart';
+import 'active_shopper.dart';
 
 part 'shopping_list.g.dart';
 
@@ -120,6 +121,14 @@ class ShoppingList {
   @JsonKey(name: 'created_from_template', defaultValue: false)
   final bool createdFromTemplate;
 
+  /// 🆕 רשימת קונים פעילים (תמיכה בקנייה משותפת)
+  /// 🇬🇧 List of active shoppers (collaborative shopping support)
+  @JsonKey(name: 'active_shoppers', defaultValue: [])
+  final List<ActiveShopper> activeSho ppers;
+
+  // ---- Shopping timeout ----
+  static const Duration shoppingTimeout = Duration(hours: 6);
+
   // ---- Status constants ----
   static const String statusActive = 'active';
   static const String statusArchived = 'archived';
@@ -129,6 +138,63 @@ class ShoppingList {
   static const String typeSuper = 'super';
   static const String typePharmacy = 'pharmacy';
   static const String typeOther = 'other';
+
+  // ---- Active Shopping Getters ----
+
+  /// 🇮🇱 האם יש קנייה פעילה
+  /// 🇬🇧 Is there an active shopping session
+  bool get isBeingShopped => activeSho ppers.any((s) => s.isActive);
+
+  /// 🇮🇱 האם יש קונים פעילים
+  /// 🇬🇧 Are there active shoppers
+  bool get hasActiveSho ppers => activeSho ppers.isNotEmpty;
+
+  /// 🇮🇱 מי התחיל את הקנייה (ה-Starter)
+  /// 🇬🇧 Who started the shopping (the Starter)
+  ActiveShopper? get starter {
+    try {
+      return activeSho ppers.firstWhere((s) => s.isStarter);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// 🇮🇱 רשימת קונים פעילים כרגע
+  /// 🇬🇧 List of currently active shoppers
+  List<ActiveShopper> get currentSho ppers =>
+      activeSho ppers.where((s) => s.isActive).toList();
+
+  /// 🇮🇱 כמות קונים פעילים
+  /// 🇬🇧 Number of active shoppers
+  int get activeShopperCount => currentSho ppers.length;
+
+  /// 🇮🇱 האם המשתמש הזה קונה כרגע
+  /// 🇬🇧 Is this user currently shopping
+  bool isUserShopping(String userId) =>
+      currentSho ppers.any((s) => s.userId == userId);
+
+  /// 🇮🇱 האם המשתמש יכול לסיים קנייה (רק ה-Starter)
+  /// 🇬🇧 Can this user finish shopping (only the Starter)
+  bool canUserFinish(String userId) {
+    final s = starter;
+    return s != null && s.userId == userId && s.isActive;
+  }
+
+  /// 🇮🇱 האם הקנייה הקפיאה (timeout)
+  /// 🇬🇧 Is the shopping session timed out
+  bool get isShoppingTimedOut {
+    if (!isBeingShopped) return false;
+
+    try {
+      final oldest = currentSho ppers
+          .map((s) => s.joinedAt)
+          .reduce((a, b) => a.isBefore(b) ? a : b);
+
+      return DateTime.now().difference(oldest) > shoppingTimeout;
+    } catch (_) {
+      return false;
+    }
+  }
 
   /// Constructor
   ShoppingList({
@@ -148,9 +214,11 @@ class ShoppingList {
     this.templateId,
     required this.format,
     required this.createdFromTemplate,
+    List<ActiveShopper> activeSho ppers = const [],
   })  : createdDate = createdDate ?? updatedDate,
         sharedWith = List<String>.unmodifiable(sharedWith),
-        items = List<ReceiptItem>.unmodifiable(items);
+        items = List<ReceiptItem>.unmodifiable(items),
+        activeSho ppers = List<ActiveShopper>.unmodifiable(activeSho ppers);
 
   // ---- Factory Constructors ----
 
@@ -255,6 +323,7 @@ class ShoppingList {
     Object? templateId = _sentinel,  // Using Object? to allow explicit null
     String? format,
     bool? createdFromTemplate,
+    List<ActiveShopper>? activeSho ppers,
   }) {
     return ShoppingList(
       id: id ?? this.id,
@@ -281,6 +350,7 @@ class ShoppingList {
           : templateId as String?,  // Allow explicit null
       format: format ?? this.format,
       createdFromTemplate: createdFromTemplate ?? this.createdFromTemplate,
+      activeSho ppers: activeSho ppers ?? this.activeSho ppers,
     );
   }
 

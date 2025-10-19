@@ -19,6 +19,9 @@ Receipt _$ReceiptFromJson(Map<String, dynamic> json) => Receipt(
       .toList(),
   originalUrl: json['original_url'] as String? ?? '',
   fileUrl: json['file_url'] as String? ?? '',
+  linkedShoppingListId: json['linked_shopping_list_id'] as String?,
+  isVirtual: json['is_virtual'] as bool? ?? false,
+  createdBy: json['created_by'] as String?,
 );
 
 Map<String, dynamic> _$ReceiptToJson(Receipt instance) => <String, dynamic>{
@@ -32,6 +35,9 @@ Map<String, dynamic> _$ReceiptToJson(Receipt instance) => <String, dynamic>{
   'items': instance.items.map((e) => e.toJson()).toList(),
   'original_url': instance.originalUrl,
   'file_url': instance.fileUrl,
+  'linked_shopping_list_id': instance.linkedShoppingListId,
+  'is_virtual': instance.isVirtual,
+  'created_by': instance.createdBy,
 };
 
 ReceiptItem _$ReceiptItemFromJson(Map<String, dynamic> json) => ReceiptItem(
@@ -46,17 +52,24 @@ ReceiptItem _$ReceiptItemFromJson(Map<String, dynamic> json) => ReceiptItem(
   manufacturer: json['manufacturer'] as String?,
   category: json['category'] as String?,
   unit: json['unit'] as String?,
+  checkedBy: json['checked_by'] as String?,
+  checkedAt: const IsoDateTimeNullableConverter().fromJson(
+    json['checked_at'] as String?,
+  ),
 );
 
-Map<String, dynamic> _$ReceiptItemToJson(ReceiptItem instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
-      'quantity': instance.quantity,
-      'unit_price': const FlexDoubleConverter().toJson(instance.unitPrice),
-      'is_checked': instance.isChecked,
-      'barcode': instance.barcode,
-      'manufacturer': instance.manufacturer,
-      'category': instance.category,
-      'unit': instance.unit,
-    };
+Map<String, dynamic> _$ReceiptItemToJson(
+  ReceiptItem instance,
+) => <String, dynamic>{
+  'id': instance.id,
+  'name': instance.name,
+  'quantity': instance.quantity,
+  'unit_price': const FlexDoubleConverter().toJson(instance.unitPrice),
+  'is_checked': instance.isChecked,
+  'barcode': instance.barcode,
+  'manufacturer': instance.manufacturer,
+  'category': instance.category,
+  'unit': instance.unit,
+  'checked_by': instance.checkedBy,
+  'checked_at': const IsoDateTimeNullableConverter().toJson(instance.checkedAt),
+};

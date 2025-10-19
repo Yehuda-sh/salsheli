@@ -72,8 +72,13 @@ class SuggestionsProvider with ChangeNotifier {
     _inventoryProvider.addListener(_onDataChanged);
     _listsProvider.addListener(_onDataChanged);
 
-    // טעינה ראשונית
-    refresh();
+    // טעינה ראשונית - רק אם יש נתונים
+    // נדחה את הטעינה הראשונית כדי למנוע התנגשות עם debounce
+    Future.microtask(() {
+      if (_inventoryProvider.items.isNotEmpty || _listsProvider.lists.isNotEmpty) {
+        refresh();
+      }
+    });
   }
 
   // === Getters ===

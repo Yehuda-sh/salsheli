@@ -289,7 +289,7 @@ class AppTheme {
     );
     
     if (kDebugMode) {
-      debugPrint('   🎨 accent: harmonized ${_Brand.amber.toARGB32().toRadixString(16)} → ${harmonizedAccent.toARGB32().toRadixString(16)}');
+      debugPrint('   🎨 accent: harmonized ${_Brand.amber.value.toRadixString(16)} → ${harmonizedAccent.value.toRadixString(16)}');
     }
     
     final brand = AppBrand(
@@ -369,8 +369,8 @@ class AppTheme {
     );
     
     if (customBrand == null && kDebugMode) {
-      debugPrint('   🎨 accent: ${brand.accent.toARGB32().toRadixString(16)}');
-      debugPrint('   🎨 surfaceSlate: ${brand.surfaceSlate.toARGB32().toRadixString(16)}');
+      debugPrint('   🎨 accent: ${brand.accent.value.toRadixString(16)}');
+      debugPrint('   🎨 surfaceSlate: ${brand.surfaceSlate.value.toRadixString(16)}');
     }
 
     // צבעי מילוי דקים לשדות טופס

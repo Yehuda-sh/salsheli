@@ -115,6 +115,21 @@ class Receipt {
   @JsonKey(defaultValue: '')
   final String? fileUrl;
 
+  /// 🆕 קישור לרשימת קניות (קבלה וירטואלית)
+  /// 🇬🇧 Link to shopping list (virtual receipt)
+  @JsonKey(name: 'linked_shopping_list_id')
+  final String? linkedShoppingListId;
+
+  /// 🆕 האם קבלה וירטואלית (נוצרה אוטומטית מסיום קנייה)
+  /// 🇬🇧 Is this a virtual receipt (created automatically from shopping)
+  @JsonKey(name: 'is_virtual', defaultValue: false)
+  final bool isVirtual;
+
+  /// 🆕 מי יצר את הקבלה (ה-Starter שסיים קנייה)
+  /// 🇬🇧 Who created the receipt (the Starter who finished shopping)
+  @JsonKey(name: 'created_by')
+  final String? createdBy;
+
   const Receipt({
     required this.id,
     required this.storeName,
@@ -124,7 +139,22 @@ class Receipt {
     required this.items,
     this.originalUrl,
     this.fileUrl,
+    this.linkedShoppingListId,
+    this.isVirtual = false,
+    this.createdBy,
   });
+
+  /// 🇮🇱 האם קבלה וירטואלית (ללא סריקה)
+  /// 🇬🇧 Is this a virtual receipt (no scan)
+  bool get isVirtualReceipt => isVirtual && fileUrl == null;
+
+  /// 🇮🇱 האם קבלה וירטואלית עם סריקה מחוברת
+  /// 🇬🇧 Is this a virtual receipt with connected scan
+  bool get isRealConnected => isVirtual && fileUrl != null;
+
+  /// 🇮🇱 האם קבלה אמיתית סרוקה
+  /// 🇬🇧 Is this a real scanned receipt
+  bool get isRealScanned => !isVirtual && fileUrl != null;
 
   /// יצירת קבלה חדשה עם id אוטומטי
   factory Receipt.newReceipt({
@@ -134,6 +164,9 @@ class Receipt {
     List<ReceiptItem> items = const [],
     String? originalUrl,
     String? fileUrl,
+    String? linkedShoppingListId,
+    bool isVirtual = false,
+    String? createdBy,
   }) {
     return Receipt(
       id: const Uuid().v4(),
@@ -144,6 +177,32 @@ class Receipt {
       createdDate: DateTime.now(),
       originalUrl: originalUrl,
       fileUrl: fileUrl,
+      linkedShoppingListId: linkedShoppingListId,
+      isVirtual: isVirtual,
+      createdBy: createdBy,
+    );
+  }
+
+  /// 🆕 יצירת קבלה וירטואלית מסיום קנייה
+  /// 🇬🇧 Create virtual receipt from shopping completion
+  factory Receipt.virtual({
+    required String linkedShoppingListId,
+    required String createdBy,
+    required String storeName,
+    required List<ReceiptItem> items,
+    DateTime? date,
+  }) {
+    return Receipt(
+      id: const Uuid().v4(),
+      storeName: '$storeName (וירטואלי)',
+      date: date ?? DateTime.now(),
+      totalAmount: 0.0, // מחיר משומן יהיה אחרי קישור קבלה אמיתית
+      items: List.unmodifiable(items),
+      createdDate: DateTime.now(),
+      linkedShoppingListId: linkedShoppingListId,
+      isVirtual: true,
+      createdBy: createdBy,
+      fileUrl: null, // אין סריקה
     );
   }
 
@@ -196,6 +255,17 @@ class ReceiptItem {
   /// יחידת מידה (אם זימנה)
   final String? unit;
 
+  /// 🆕 מזהה המשתמש שסימן את הפריט (קנייה משותפת)
+  /// 🇬🇧 User ID who checked this item (collaborative shopping)
+  @JsonKey(name: 'checked_by')
+  final String? checkedBy;
+
+  /// 🆕 מתי סומן הפריט
+  /// 🇬🇧 When the item was checked
+  @IsoDateTimeNullableConverter()
+  @JsonKey(name: 'checked_at')
+  final DateTime? checkedAt;
+
   const ReceiptItem({
     this.id = '',
     this.name,
@@ -206,8 +276,14 @@ class ReceiptItem {
     this.manufacturer,
     this.category,
     this.unit,
+    this.checkedBy,
+    this.checkedAt,
   }) : assert(quantity >= 0, 'Quantity must be >= 0'),
        assert(unitPrice >= 0, 'Unit price must be >= 0');
+
+  /// 🇮🇱 האם הפריט סומן על ידי מישהו (יש checkedBy)
+  /// 🇬🇧 Was the item checked by someone (has checkedBy)
+  bool get wasChecked => checkedBy != null;
 
   /// מחיר כולל (כמות * מחיר ליחידה)
   double get totalPrice => quantity * unitPrice;
@@ -222,6 +298,8 @@ class ReceiptItem {
     String? manufacturer,
     String? category,
     String? unit,
+    String? checkedBy,
+    DateTime? checkedAt,
   }) {
     return ReceiptItem(
       id: id ?? this.id,
@@ -233,6 +311,8 @@ class ReceiptItem {
       manufacturer: manufacturer ?? this.manufacturer,
       category: category ?? this.category,
       unit: unit ?? this.unit,
+      checkedBy: checkedBy ?? this.checkedBy,
+      checkedAt: checkedAt ?? this.checkedAt,
     );
   }
 

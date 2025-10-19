@@ -51,6 +51,7 @@ class ReceiptProvider with ChangeNotifier {
   final ReceiptRepository _repository;
   UserContext? _userContext;
   bool _listening = false;
+  bool _hasInitialized = false; // מניעת אתחול כפול
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -73,6 +74,13 @@ class ReceiptProvider with ChangeNotifier {
   /// נקרא אוטומטית מ-ProxyProvider
   void updateUserContext(UserContext newContext) {
     debugPrint('🔄 ReceiptProvider.updateUserContext');
+    
+    // מניעת update כפול של אותו context
+    if (_userContext == newContext) {
+      debugPrint('   ⏭️ אותו UserContext, מדלג');
+      return;
+    }
+    
     if (_listening && _userContext != null) {
       _userContext!.removeListener(_onUserChanged);
       _listening = false;
@@ -81,8 +89,15 @@ class ReceiptProvider with ChangeNotifier {
     _userContext = newContext;
     _userContext!.addListener(_onUserChanged);
     _listening = true;
-    debugPrint('   ✅ Listener הוסף, מתחיל initialization');
-    _initialize();
+    
+    // אתחול רק בפעם הראשונה
+    if (!_hasInitialized) {
+      debugPrint('   ✅ Listener הוסף, מתחיל initialization');
+      _hasInitialized = true;
+      _initialize();
+    } else {
+      debugPrint('   ⏭️ כבר אותחל, מדלג');
+    }
   }
 
   void _onUserChanged() {

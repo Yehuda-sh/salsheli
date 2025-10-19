@@ -32,6 +32,7 @@
 // - late final _pages: איניציאליזציה lazy
 // - ציון איכות: 100/100 ✅
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -69,12 +70,16 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint('🏠 HomeScreen.initState()');
+    if (kDebugMode) {
+      debugPrint('🏠 HomeScreen.initState()');
+    }
   }
 
   @override
   void dispose() {
-    debugPrint('🏠 HomeScreen.dispose()');
+    if (kDebugMode) {
+      debugPrint('🏠 HomeScreen.dispose()');
+    }
     _lastBackPress = null; // ניקוי
     super.dispose();
   }
@@ -82,14 +87,18 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onItemTapped(int index) {
     if (_selectedIndex == index) return;
     
-    debugPrint('🏠 HomeScreen: מעבר לטאב $_selectedIndex → $index');
+    if (kDebugMode) {
+      debugPrint('🏠 HomeScreen: מעבר לטאב $_selectedIndex → $index');
+    }
     setState(() => _selectedIndex = index);
   }
 
   Future<bool> _onWillPop() {
     // אם לא בטאב הראשון - חזור אליו במקום לצאת
     if (_selectedIndex != 0) {
-      debugPrint('🏠 HomeScreen: Back מטאב $_selectedIndex → חזרה לדשבורד (0)');
+      if (kDebugMode) {
+        debugPrint('🏠 HomeScreen: Back מטאב $_selectedIndex → חזרה לדשבורד (0)');
+      }
       setState(() => _selectedIndex = 0);
       return Future.value(false);
     }
@@ -98,7 +107,9 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_lastBackPress == null ||
         now.difference(_lastBackPress!) > kDoubleTapTimeout) {
       _lastBackPress = now;
-      debugPrint('🏠 HomeScreen: לחיצה ראשונה על Back - חכה לשנייה');
+      if (kDebugMode) {
+        debugPrint('🏠 HomeScreen: לחיצה ראשונה על Back - חכה לשנייה');
+      }
 
       // ✅ בדיקת mounted ו-context נשמרים לפני כל פעולה
       if (!mounted) return Future.value(false);
@@ -126,7 +137,9 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     // לחיצה שנייה תוך 2 שניות - אפשר יציאה
-    debugPrint('🏠 HomeScreen: לחיצה שנייה על Back - יוצא מהאפליקציה');
+    if (kDebugMode) {
+      debugPrint('🏠 HomeScreen: לחיצה שנייה על Back - יוצא מהאפליקציה');
+    }
     return Future.value(true);
   }
 
@@ -141,7 +154,9 @@ class _HomeScreenState extends State<HomeScreen> {
       activeListsCount = null;
     } else if (listsProvider.hasError) {
       // שגיאה - לא מציג badge
-      debugPrint('⚠️ HomeScreen: ShoppingListsProvider has error, hiding badge');
+      if (kDebugMode) {
+        debugPrint('⚠️ HomeScreen: ShoppingListsProvider has error, hiding badge');
+      }
       activeListsCount = null;
     } else {
       // מוצלח - מחשב רשימות פעילות
