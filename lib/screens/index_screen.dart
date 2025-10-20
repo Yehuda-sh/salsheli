@@ -1,7 +1,13 @@
-// 📄 File: lib/screens/index_screen.dart - V3.0 MODERN SPLASH
+// 📄 File: lib/screens/index_screen.dart - V4.0 THEME-RESPONSIVE
 // 🎯 Purpose: מסך פתיחה ראשוני - Splash screen שבודק מצב משתמש ומנווט למסך המתאים
 //
-// ✨ שיפורים חדשים (v3.0):
+// ✨ שיפורים חדשים (v4.0):
+// 1. 🎨 Dark Mode Support - gradient responsive לתצורת theme
+// 2. 🌈 Gradient Colors מקבועים - kSplashGradient*
+// 3. 🎨 ColorScheme Integration - כל הצבעים מה-theme
+// 4. 💫 Enhanced Wave Animation - מקבל ColorScheme
+//
+// ✨ שיפורים קודמים (v3.0):
 // 1. 🎨 Gradient Background מהמם - כחול-סגול-ורוד
 // 2. 🎬 Logo Animation - fade in + scale + rotate
 // 3. 💫 Pulsing Circle - העיגול פועם
@@ -31,6 +37,13 @@
 // - Modern Splash Screen עם אנימציות מדהימות
 // - Accessibility labels
 // - Logging מפורט
+// - Dark Mode Support - כל הצבעים responsive
+//
+// ⚠️ Critical Changes (20/10/2025 - v4):
+// - 🎨 Dark Mode: gradient colors מתאימים ל-theme
+// - 🌈 קבועים: kSplashGradient* במקום hardcoded
+// - 🎨 ColorScheme: cs.onPrimary, cs.surface, cs.error וכו'
+// - 💫 Wave Painter: מקבל ColorScheme parameter
 //
 // ⚠️ Critical Changes (14/10/2025 - v3):
 // - ⏱️ Fixed Race Condition: 600ms delay before navigation check (allows Firebase Auth to load)
@@ -310,22 +323,28 @@ class _IndexScreenState extends State<IndexScreen>
     );
   }
 
-  /// 🎨 Gradient Background
+  /// 🎨 Gradient Background - Dark Mode Responsive
   Widget _buildGradientBackground() {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
       duration: _gradientAnimationDuration,
       curve: Curves.easeOut,
       builder: (context, value, child) {
+        // 🌙 תמיכה ב-Dark Mode
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final startColor = isDark ? kSplashGradientStartDark : kSplashGradientStart;
+        final middleColor = isDark ? kSplashGradientMiddleDark : kSplashGradientMiddle;
+        final endColor = isDark ? kSplashGradientEndDark : kSplashGradientEnd;
+        
         return Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color.lerp(Colors.grey, const Color(0xFF667eea), value)!,
-                Color.lerp(Colors.grey, const Color(0xFF764ba2), value)!,
-                Color.lerp(Colors.grey, const Color(0xFFf093fb), value)!,
+                Color.lerp(Colors.grey, startColor, value)!,
+                Color.lerp(Colors.grey, middleColor, value)!,
+                Color.lerp(Colors.grey, endColor, value)!,
               ],
               stops: const [0.0, 0.5, 1.0],
             ),
@@ -335,13 +354,14 @@ class _IndexScreenState extends State<IndexScreen>
     );
   }
 
-  /// 🌊 Wave Animation
+  /// 🌊 Wave Animation - Theme-Aware
   Widget _buildWaveAnimation() {
     return AnimatedBuilder(
       animation: _waveController,
       builder: (context, child) {
+        final cs = Theme.of(context).colorScheme;
         return CustomPaint(
-          painter: _WavePainter(_waveController.value),
+          painter: _WavePainter(_waveController.value, cs),
           size: Size(MediaQuery.of(context).size.width, 150),
         );
       },
@@ -367,7 +387,7 @@ class _IndexScreenState extends State<IndexScreen>
     );
   }
 
-  /// 💫 Logo מונפש עם Pulsing Circle
+  /// 💫 Logo מונפש עם Pulsing Circle - Theme-Aware
   Widget _buildAnimatedLogo(ColorScheme cs) {
     final scaleAnimation = CurvedAnimation(
       parent: _logoController,
@@ -398,7 +418,7 @@ class _IndexScreenState extends State<IndexScreen>
           child: Stack(
             alignment: Alignment.center,
             children: [
-              // 💫 Pulsing Circle (חיצוני)
+              // 💫 Pulsing Circle (חיצוני) - Theme-Aware
               AnimatedBuilder(
                 animation: pulseAnimation,
                 builder: (context, child) {
@@ -410,14 +430,14 @@ class _IndexScreenState extends State<IndexScreen>
                       height: (kButtonHeight + 24) * 1.5,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.1),
+                        color: cs.onPrimary.withValues(alpha: 0.1),
                       ),
                     ),
                   );
                 },
               ),
 
-              // ✨ Shimmer Effect
+              // ✨ Shimmer Effect - Theme-Aware
               AnimatedBuilder(
                 animation: _shimmerController,
                 builder: (context, child) {
@@ -430,9 +450,9 @@ class _IndexScreenState extends State<IndexScreen>
                         begin: Alignment(-1 + (_shimmerController.value * 2), -1),
                         end: Alignment(1 + (_shimmerController.value * 2), 1),
                         colors: [
-                          Colors.white.withValues(alpha: 0.0),
-                          Colors.white.withValues(alpha: 0.3),
-                          Colors.white.withValues(alpha: 0.0),
+                          cs.onPrimary.withValues(alpha: 0.0),
+                          cs.onPrimary.withValues(alpha: 0.3),
+                          cs.onPrimary.withValues(alpha: 0.0),
                         ],
                       ),
                     ),
@@ -440,18 +460,18 @@ class _IndexScreenState extends State<IndexScreen>
                 },
               ),
 
-              // 🎯 Logo עצמו
+              // 🎯 Logo עצמו - Theme-Aware
               Semantics(
                 label: AppStrings.index.logoLabel,
                 child: Container(
                   width: kButtonHeight + 24,
                   height: kButtonHeight + 24,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.9),
+                    color: cs.surface,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
+                        color: cs.shadow.withValues(alpha: 0.2),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -460,7 +480,7 @@ class _IndexScreenState extends State<IndexScreen>
                   child: Icon(
                     Icons.shopping_basket_outlined,
                     size: kButtonHeight - 12,
-                    color: const Color(0xFF667eea),
+                    color: cs.primary,
                   ),
                 ),
               ),
@@ -471,7 +491,7 @@ class _IndexScreenState extends State<IndexScreen>
     );
   }
 
-  /// 📝 שם האפליקציה מונפש
+  /// 📝 שם האפליקציה מונפש - Theme-Aware
   Widget _buildAppName(ColorScheme cs) {
     return SlideTransition(
       position: Tween<Offset>(
@@ -495,10 +515,10 @@ class _IndexScreenState extends State<IndexScreen>
             style: TextStyle(
               fontSize: kFontSizeXLarge,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: cs.onPrimary,
               shadows: [
                 Shadow(
-                  color: Colors.black.withValues(alpha: 0.3),
+                  color: cs.shadow.withValues(alpha: 0.3),
                   blurRadius: 10,
                   offset: const Offset(0, 5),
                 ),
@@ -510,7 +530,7 @@ class _IndexScreenState extends State<IndexScreen>
     );
   }
 
-  /// 🔄 Loading Indicator עם הודעות מתחלפות
+  /// 🔄 Loading Indicator עם הודעות מתחלפות - Theme-Aware
   Widget _buildLoadingIndicator(ColorScheme cs) {
     return FadeTransition(
       opacity: CurvedAnimation(
@@ -521,20 +541,20 @@ class _IndexScreenState extends State<IndexScreen>
         label: AppStrings.index.loadingLabel,
         child: Column(
           children: [
-            // עיגול טעינה
+            // עיגול טעינה - Theme-Aware
             SizedBox(
               width: 40,
               height: 40,
               child: CircularProgressIndicator(
                 strokeWidth: 3,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  Colors.white.withValues(alpha: 0.9),
+                  cs.onPrimary.withValues(alpha: 0.9),
                 ),
               ),
             ),
             const SizedBox(height: kSpacingMedium),
 
-            // הודעת טעינה מתחלפת
+            // הודעת טעינה מתחלפת - Theme-Aware
             AnimatedSwitcher(
               duration: _switcherAnimationDuration,
               transitionBuilder: (child, animation) {
@@ -554,11 +574,11 @@ class _IndexScreenState extends State<IndexScreen>
                 key: ValueKey<int>(_currentMessageIndex),
                 style: TextStyle(
                   fontSize: kFontSizeBody,
-                  color: Colors.white.withValues(alpha: 0.9),
+                  color: cs.onPrimary.withValues(alpha: 0.9),
                   fontWeight: FontWeight.w500,
                   shadows: [
                     Shadow(
-                      color: Colors.black.withValues(alpha: 0.3),
+                      color: cs.shadow.withValues(alpha: 0.3),
                       blurRadius: 5,
                       offset: const Offset(0, 2),
                     ),
@@ -572,7 +592,7 @@ class _IndexScreenState extends State<IndexScreen>
     );
   }
 
-  /// ❌ מצב שגיאה מעוצב
+  /// ❌ מצב שגיאה מעוצב - Theme-Aware
   Widget _buildErrorState(ColorScheme cs) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
@@ -588,11 +608,11 @@ class _IndexScreenState extends State<IndexScreen>
         margin: const EdgeInsets.all(kSpacingXLarge),
         padding: const EdgeInsets.all(kSpacingXLarge),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cs.surface,
           borderRadius: BorderRadius.circular(kBorderRadiusLarge),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
+              color: cs.shadow.withValues(alpha: 0.3),
               blurRadius: 30,
               offset: const Offset(0, 15),
             ),
@@ -601,7 +621,7 @@ class _IndexScreenState extends State<IndexScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // אייקון שגיאה
+            // אייקון שגיאה - Theme-Aware
             Container(
               padding: const EdgeInsets.all(kSpacingLarge),
               decoration: BoxDecoration(
@@ -610,26 +630,26 @@ class _IndexScreenState extends State<IndexScreen>
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Colors.red.shade300,
-                    Colors.red.shade500,
+                    cs.error.withValues(alpha: 0.7),
+                    cs.error,
                   ],
                 ),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.error_outline,
                 size: kIconSizeXXLarge,
-                color: Colors.white,
+                color: cs.onError,
               ),
             ),
             const SizedBox(height: kSpacingLarge),
 
-            // טקסט
+            // טקסט - Theme-Aware
             Text(
               'אופס! משהו השתבש',
               style: TextStyle(
                 fontSize: kFontSizeLarge,
                 fontWeight: FontWeight.bold,
-                color: Colors.grey.shade900,
+                color: cs.onSurface,
               ),
             ),
             const SizedBox(height: kSpacingSmall),
@@ -637,14 +657,14 @@ class _IndexScreenState extends State<IndexScreen>
               'לא הצלחנו לטעון את האפליקציה',
               style: TextStyle(
                 fontSize: kFontSizeBody,
-                color: Colors.grey.shade600,
+                color: cs.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
 
             const SizedBox(height: kSpacingXLarge),
 
-            // כפתור retry
+            // כפתור retry - Theme-Aware
             Semantics(
               button: true,
               label: 'נסה שוב לטעון את האפליקציה',
@@ -654,8 +674,8 @@ class _IndexScreenState extends State<IndexScreen>
                 icon: const Icon(Icons.refresh),
                 label: const Text('נסה שוב'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF667eea),
-                foregroundColor: Colors.white,
+                backgroundColor: cs.primary,
+                foregroundColor: cs.onPrimary,
                 padding: const EdgeInsets.symmetric(
                   horizontal: kSpacingXLarge,
                   vertical: kSpacingMedium,
@@ -674,16 +694,18 @@ class _IndexScreenState extends State<IndexScreen>
   }
 }
 
-/// 🌊 Custom Painter לגלים
+/// 🌊 Custom Painter לגלים - Theme-Aware
 class _WavePainter extends CustomPainter {
   final double animationValue;
+  final ColorScheme colorScheme;
 
-  _WavePainter(this.animationValue);
+  _WavePainter(this.animationValue, this.colorScheme);
 
   @override
   void paint(Canvas canvas, Size size) {
+    // גל ראשון - Theme-Aware
     final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.1)
+      ..color = colorScheme.onPrimary.withValues(alpha: 0.1)
       ..style = PaintingStyle.fill;
 
     final path = Path();
@@ -704,9 +726,9 @@ class _WavePainter extends CustomPainter {
 
     canvas.drawPath(path, paint);
 
-    // גל שני
+    // גל שני - Theme-Aware
     final paint2 = Paint()
-      ..color = Colors.white.withValues(alpha: 0.05)
+      ..color = colorScheme.onPrimary.withValues(alpha: 0.05)
       ..style = PaintingStyle.fill;
 
     final path2 = Path();

@@ -400,6 +400,28 @@ const Color kNotebookBlue = Color(0xFF9FC5E8);
 /// קו אדום במחברת
 const Color kNotebookRed = Color(0xFFE57373);
 
+// ========================================
+// Splash Screen Gradient Colors 🌈
+// ========================================
+
+/// צבע התחלה של gradient במסך splash (כחול)
+const Color kSplashGradientStart = Color(0xFF667eea);
+
+/// צבע אמצע של gradient במסך splash (סגול)
+const Color kSplashGradientMiddle = Color(0xFF764ba2);
+
+/// צבע סוף של gradient במסך splash (ורוד)
+const Color kSplashGradientEnd = Color(0xFFF093fb);
+
+/// צבע התחלה של gradient במסך splash - Dark Mode
+const Color kSplashGradientStartDark = Color(0xFF4d5fc7);
+
+/// צבע אמצע של gradient במסך splash - Dark Mode
+const Color kSplashGradientMiddleDark = Color(0xFF5d3886);
+
+/// צבע סוף של gradient במסך splash - Dark Mode
+const Color kSplashGradientEndDark = Color(0xFFd677e0);
+
 /// Opacity לקווי מחברת
 const double kNotebookLineOpacity = 0.5;
 
