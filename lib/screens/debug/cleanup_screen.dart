@@ -38,6 +38,7 @@ class _CleanupScreenState extends State<CleanupScreen> {
       final snapshot = await FirebaseFirestore.instance
           .collection('inventory')
           .where('household_id', isEqualTo: widget.householdId)
+          .limit(1000)
           .get();
 
       debugPrint('📊 נמצאו ${snapshot.docs.length} פריטים במלאי');
@@ -108,15 +109,23 @@ class _CleanupScreenState extends State<CleanupScreen> {
     int deleted = 0;
 
     try {
-      for (final id in _corruptedIds) {
-        await FirebaseFirestore.instance.collection('inventory').doc(id).delete();
-        deleted++;
-
-        if (deleted % 10 == 0) {
-          setState(() {
-            _status = 'נמחקו $deleted/${_corruptedIds.length} פריטים...';
-          });
+      // מחיקה ב-batches (500 לכל batch)
+      const batchSize = 500;
+      for (int i = 0; i < _corruptedIds.length; i += batchSize) {
+        final batch = FirebaseFirestore.instance.batch();
+        final end = (i + batchSize < _corruptedIds.length) ? i + batchSize : _corruptedIds.length;
+        
+        for (int j = i; j < end; j++) {
+          final docRef = FirebaseFirestore.instance.collection('inventory').doc(_corruptedIds[j]);
+          batch.delete(docRef);
         }
+        
+        await batch.commit();
+        deleted = end;
+        
+        setState(() {
+          _status = 'נמחקו $deleted/${_corruptedIds.length} פריטים...';
+        });
       }
 
       setState(() {

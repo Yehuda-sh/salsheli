@@ -35,6 +35,8 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../../models/habit_preference.dart';
 import '../../providers/habits_provider.dart';
 import '../../core/ui_constants.dart';
+import '../../widgets/common/notebook_background.dart';
+import '../../widgets/common/sticky_note.dart';
 
 class MyHabitsScreen extends StatefulWidget {
   const MyHabitsScreen({super.key});
@@ -49,15 +51,17 @@ class _MyHabitsScreenState extends State<MyHabitsScreen> {
   final TextEditingController _editController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
 
+  void _onSearchChanged() {
+    setState(() => _query = _searchController.text.trim());
+  }
+
   @override
   void initState() {
     super.initState();
     debugPrint('🧠 MyHabitsScreen.initState');
     timeago.setLocaleMessages('he', timeago.HeMessages());
 
-    _searchController.addListener(() {
-      setState(() => _query = _searchController.text.trim());
-    });
+    _searchController.addListener(_onSearchChanged);
 
     // טעינה ראשונית
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -77,11 +81,7 @@ class _MyHabitsScreenState extends State<MyHabitsScreen> {
 
     final q = _query.toLowerCase();
     return habits
-        .where(
-          (h) =>
-              h.preferredProduct.toLowerCase().contains(q) ||
-              h.genericName.toLowerCase().contains(q),
-        )
+        .where((h) => h.preferredProduct.toLowerCase().contains(q) || h.genericName.toLowerCase().contains(q))
         .toList();
   }
 
@@ -96,6 +96,7 @@ class _MyHabitsScreenState extends State<MyHabitsScreen> {
 
   /// 💾 שמירת עריכה
   Future<void> _saveEdit(String id) async {
+    final cs = Theme.of(context).colorScheme;
     final newName = _editController.text.trim();
     if (newName.isEmpty) return;
 
@@ -105,37 +106,29 @@ class _MyHabitsScreenState extends State<MyHabitsScreen> {
     final habit = provider.habits.firstWhere((h) => h.id == id);
 
     try {
-      await provider.updateHabit(
-        habit.copyWith(preferredProduct: newName),
-      );
+      await provider.updateHabit(habit.copyWith(preferredProduct: newName));
 
       setState(() => _editingId = null);
       debugPrint('   ✅ עריכה נשמרה');
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('✓ "$newName" עודכן'),
-            backgroundColor: Colors.green,
-            duration: kSnackBarDuration,
-          ),
+          SnackBar(content: Text('✓ "$newName" עודכן'), backgroundColor: cs.primary, duration: kSnackBarDuration),
         );
       }
     } catch (e) {
       debugPrint('   ❌ שגיאה בשמירה: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('שגיאה בעדכון: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('שגיאה בעדכון: $e'), backgroundColor: cs.error));
       }
     }
   }
 
   /// 🗑️ מחיקת הרגל
   Future<void> _deleteHabit(HabitPreference habit) async {
+    final cs = Theme.of(context).colorScheme;
     debugPrint('🧠 MyHabitsScreen._deleteHabit: ${habit.id}');
 
     final provider = context.read<HabitsProvider>();
@@ -148,7 +141,7 @@ class _MyHabitsScreenState extends State<MyHabitsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('הוסרה ההעדפה: ${habit.preferredProduct}'),
-            backgroundColor: Colors.red,
+            backgroundColor: cs.error,
             action: SnackBarAction(
               label: 'בטל',
               textColor: Colors.white,
@@ -165,12 +158,9 @@ class _MyHabitsScreenState extends State<MyHabitsScreen> {
     } catch (e) {
       debugPrint('   ❌ שגיאה במחיקה: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('שגיאה במחיקה: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('שגיאה במחיקה: $e'), backgroundColor: cs.error));
       }
     }
   }
@@ -179,6 +169,7 @@ class _MyHabitsScreenState extends State<MyHabitsScreen> {
   void dispose() {
     debugPrint('🧠 MyHabitsScreen.dispose');
     _editController.dispose();
+    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     super.dispose();
   }
@@ -195,56 +186,44 @@ class _MyHabitsScreenState extends State<MyHabitsScreen> {
     filteredHabits.sort((a, b) => b.lastPurchased.compareTo(a.lastPurchased));
 
     return Scaffold(
-      backgroundColor: cs.surface,
-      appBar: AppBar(
-        title: const Text("הרגלי הקנייה שלי"),
-        centerTitle: true,
-      ),
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: _loadHabits,
-          child: CustomScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            slivers: [
-              SliverToBoxAdapter(child: _buildHeader(context)),
-              SliverToBoxAdapter(child: _buildSearchBar(context)),
+      backgroundColor: kPaperBackground,
+      appBar: AppBar(title: const Text("הרגלי הקנייה שלי"), centerTitle: true),
+      body: Stack(
+        children: [
+          const NotebookBackground(),
+          SafeArea(
+            child: RefreshIndicator(
+              onRefresh: _loadHabits,
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  SliverToBoxAdapter(child: _buildHeader(context)),
+                  SliverToBoxAdapter(child: _buildSearchBar(context)),
 
-              // 🎭 3 Empty States
-              if (provider.isLoading)
-                const SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Center(child: CircularProgressIndicator()),
-                )
-              else if (provider.hasError)
-                SliverToBoxAdapter(
-                  child: _buildErrorState(context, provider),
-                )
-              else if (filteredHabits.isEmpty)
-                SliverToBoxAdapter(
-                  child: _buildEmptyState(context, allHabits.isNotEmpty),
-                )
-              else
-                SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, i) {
-                      final habit = filteredHabits[i];
-                      return Padding(
-                        padding: EdgeInsets.only(
-                          bottom: i == filteredHabits.length - 1
-                              ? 0
-                              : kSpacingSmall,
-                        ),
-                        child: _buildHabitCard(context, habit),
-                      );
-                    },
-                    childCount: filteredHabits.length,
-                  ),
-                ),
+                  // 🎭 3 Empty States
+                  if (provider.isLoading)
+                    const SliverFillRemaining(hasScrollBody: false, child: Center(child: CircularProgressIndicator()))
+                  else if (provider.hasError)
+                    SliverToBoxAdapter(child: _buildErrorState(context, provider))
+                  else if (filteredHabits.isEmpty)
+                    SliverToBoxAdapter(child: _buildEmptyState(context, allHabits.isNotEmpty))
+                  else
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate((context, i) {
+                        final habit = filteredHabits[i];
+                        return Padding(
+                          padding: EdgeInsets.only(bottom: i == filteredHabits.length - 1 ? 0 : kSpacingSmall),
+                          child: _buildHabitCard(context, habit),
+                        );
+                      }, childCount: filteredHabits.length),
+                    ),
 
-              const SliverToBoxAdapter(child: SizedBox(height: kSpacingMedium)),
-            ],
+                  const SliverToBoxAdapter(child: SizedBox(height: kSpacingMedium)),
+                ],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -254,32 +233,20 @@ class _MyHabitsScreenState extends State<MyHabitsScreen> {
     final cs = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        kSpacingMedium,
-        kSpacingMedium,
-        kSpacingMedium,
-        kSpacingSmall,
-      ),
+      padding: const EdgeInsets.fromLTRB(kSpacingMedium, kSpacingMedium, kSpacingMedium, kSpacingSmall),
       child: Row(
         children: [
           CircleAvatar(
             radius: kAvatarRadius,
             backgroundColor: cs.primary.withValues(alpha: 0.12),
-            child: Icon(
-              Icons.psychology,
-              size: kIconSize,
-              color: cs.primary,
-            ),
+            child: Icon(Icons.psychology, size: kIconSize, color: cs.primary),
           ),
           const SizedBox(width: kBorderRadius),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "ההעדפות שלך",
-                  style: t.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                ),
+                Text("ההעדפות שלך", style: t.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                 Text(
                   "נהל מוצרים ומותגים שנרכשים לעיתים תכופות – עריכה/מחיקה/חיפוש",
                   style: t.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
@@ -296,12 +263,7 @@ class _MyHabitsScreenState extends State<MyHabitsScreen> {
     final cs = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        kSpacingMedium,
-        kSpacingTiny,
-        kSpacingMedium,
-        kBorderRadius,
-      ),
+      padding: const EdgeInsets.fromLTRB(kSpacingMedium, kSpacingTiny, kSpacingMedium, kBorderRadius),
       child: TextField(
         controller: _searchController,
         textInputAction: TextInputAction.search,
@@ -345,10 +307,9 @@ class _MyHabitsScreenState extends State<MyHabitsScreen> {
               const SizedBox(height: kBorderRadius),
               Text(
                 "שגיאה בטעינת הרגלים",
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: cs.onErrorContainer,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: cs.onErrorContainer),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: kSpacingSmall),
@@ -365,10 +326,7 @@ class _MyHabitsScreenState extends State<MyHabitsScreen> {
                 },
                 icon: const Icon(Icons.refresh),
                 label: const Text('נסה שוב'),
-                style: FilledButton.styleFrom(
-                  backgroundColor: cs.error,
-                  foregroundColor: cs.onError,
-                ),
+                style: FilledButton.styleFrom(backgroundColor: cs.error, foregroundColor: cs.onError),
               ),
             ],
           ),
@@ -392,24 +350,16 @@ class _MyHabitsScreenState extends State<MyHabitsScreen> {
           ),
           child: Column(
             children: [
-              Icon(
-                hasGlobalData ? Icons.search_off : Icons.star_border,
-                size: kButtonHeight,
-                color: cs.primary,
-              ),
+              Icon(hasGlobalData ? Icons.search_off : Icons.star_border, size: kButtonHeight, color: cs.primary),
               const SizedBox(height: kBorderRadius),
               Text(
                 hasGlobalData ? "לא נמצאו תוצאות" : "אין עדיין העדפות שמורות",
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: kSpacingSmall),
               Text(
-                hasGlobalData
-                    ? 'נסה מילות חיפוש אחרות'
-                    : "ככל שתשתמש, נלמד אוטומטית את ההרגלים ונציע התאמות.",
+                hasGlobalData ? 'נסה מילות חיפוש אחרות' : "ככל שתשתמש, נלמד אוטומטית את ההרגלים ונציע התאמות.",
                 textAlign: TextAlign.center,
                 style: TextStyle(color: cs.onSurfaceVariant),
               ),
@@ -426,141 +376,113 @@ class _MyHabitsScreenState extends State<MyHabitsScreen> {
     final isEditing = _editingId == habit.id;
 
     final daysLeft = habit.daysUntilNextPurchase;
-    final predictionText =
-        daysLeft >= 0 ? "בעוד ~$daysLeft ימים" : "לפני ${daysLeft.abs()} ימים";
+    final predictionText = daysLeft >= 0 ? "בעוד ~$daysLeft ימים" : "לפני ${daysLeft.abs()} ימים";
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
-      child: Padding(
-        padding: const EdgeInsets.all(kCardPaddingTight),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // שורה עליונה: שם/עריכה + אקשנים
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: isEditing
-                      ? TextField(
-                          controller: _editController,
-                          autofocus: true,
-                          decoration: const InputDecoration(
-                            labelText: "שם המוצר המועדף",
-                            isDense: true,
-                          ),
-                          onSubmitted: (_) => _saveEdit(habit.id),
-                        )
-                      : Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              habit.preferredProduct,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                            if (habit.genericName.isNotEmpty)
+    // סיבובים משתנים
+    final rotations = [-0.015, 0.01, -0.02, 0.015, -0.01];
+    final rotation = rotations[habit.hashCode % rotations.length];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+      child: StickyNote(
+        color: kStickyGreen,
+        rotation: rotation,
+        child: Padding(
+          padding: const EdgeInsets.all(kCardPaddingTight),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // שורה עליונה: שם/עריכה + אקשנים
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: isEditing
+                        ? TextField(
+                            controller: _editController,
+                            autofocus: true,
+                            decoration: const InputDecoration(labelText: "שם המוצר המועדף", isDense: true),
+                            onSubmitted: (_) => _saveEdit(habit.id),
+                          )
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                               Text(
-                                habit.genericName,
-                                style: TextStyle(
-                                  color: cs.onSurfaceVariant,
-                                  fontSize: 13,
-                                ),
+                                habit.preferredProduct,
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                               ),
-                          ],
-                        ),
-                ),
-                const SizedBox(width: kSpacingSmall),
-                if (isEditing)
-                  Row(
-                    children: [
-                      IconButton(
-                        tooltip: 'שמור',
-                        icon: const Icon(Icons.check, color: Colors.green),
-                        onPressed: () => _saveEdit(habit.id),
-                        constraints: const BoxConstraints(
-                          minWidth: kMinTouchTarget,
-                          minHeight: kMinTouchTarget,
-                        ),
-                      ),
-                      IconButton(
-                        tooltip: 'בטל',
-                        icon: const Icon(Icons.close, color: Colors.redAccent),
-                        onPressed: () {
-                          debugPrint('🧠 MyHabitsScreen: ביטול עריכה');
-                          setState(() => _editingId = null);
-                        },
-                        constraints: const BoxConstraints(
-                          minWidth: kMinTouchTarget,
-                          minHeight: kMinTouchTarget,
-                        ),
-                      ),
-                    ],
-                  )
-                else
-                  Row(
-                    children: [
-                      IconButton(
-                        tooltip: 'ערוך',
-                        icon: const Icon(Icons.edit_outlined),
-                        onPressed: () => _startEdit(habit),
-                        constraints: const BoxConstraints(
-                          minWidth: kMinTouchTarget,
-                          minHeight: kMinTouchTarget,
-                        ),
-                      ),
-                      IconButton(
-                        tooltip: 'מחק',
-                        icon: const Icon(
-                          Icons.delete_outline,
-                          color: Colors.redAccent,
-                        ),
-                        onPressed: () => _deleteHabit(habit),
-                        constraints: const BoxConstraints(
-                          minWidth: kMinTouchTarget,
-                          minHeight: kMinTouchTarget,
-                        ),
-                      ),
-                    ],
+                              if (habit.genericName.isNotEmpty)
+                                Text(habit.genericName, style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
+                            ],
+                          ),
                   ),
-              ],
-            ),
-            const SizedBox(height: kBorderRadius),
+                  const SizedBox(width: kSpacingSmall),
+                  if (isEditing)
+                    Row(
+                      children: [
+                        IconButton(
+                          tooltip: 'שמור',
+                          icon: Icon(Icons.check, color: cs.primary),
+                          onPressed: () => _saveEdit(habit.id),
+                          constraints: const BoxConstraints(minWidth: kMinTouchTarget, minHeight: kMinTouchTarget),
+                        ),
+                        IconButton(
+                          tooltip: 'בטל',
+                          icon: Icon(Icons.close, color: cs.error),
+                          onPressed: () {
+                            debugPrint('🧠 MyHabitsScreen: ביטול עריכה');
+                            setState(() => _editingId = null);
+                          },
+                          constraints: const BoxConstraints(minWidth: kMinTouchTarget, minHeight: kMinTouchTarget),
+                        ),
+                      ],
+                    )
+                  else
+                    Row(
+                      children: [
+                        IconButton(
+                          tooltip: 'ערוך',
+                          icon: const Icon(Icons.edit_outlined),
+                          onPressed: () => _startEdit(habit),
+                          constraints: const BoxConstraints(minWidth: kMinTouchTarget, minHeight: kMinTouchTarget),
+                        ),
+                        IconButton(
+                          tooltip: 'מחק',
+                          icon: Icon(Icons.delete_outline, color: cs.error),
+                          onPressed: () => _deleteHabit(habit),
+                          constraints: const BoxConstraints(minWidth: kMinTouchTarget, minHeight: kMinTouchTarget),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+              const SizedBox(height: kBorderRadius),
 
-            // צ'יפים של סטטוס
-            Wrap(
-              spacing: kSpacingSmall,
-              runSpacing: kSpacingSmall,
-              children: [
-                Chip(
-                  avatar: const Icon(Icons.repeat, size: kIconSizeSmall),
-                  label: Text(
-                    "נקנה כל ${habit.frequencyDays} ימים",
-                    overflow: TextOverflow.ellipsis,
+              // צ'יפים של סטטוס
+              Wrap(
+                spacing: kSpacingSmall,
+                runSpacing: kSpacingSmall,
+                children: [
+                  Chip(
+                    avatar: const Icon(Icons.repeat, size: kIconSizeSmall),
+                    label: Text("נקנה כל ${habit.frequencyDays} ימים", overflow: TextOverflow.ellipsis),
                   ),
-                ),
-                Chip(
-                  avatar: const Icon(Icons.schedule, size: kIconSizeSmall),
-                  label: Text(
-                    "נרכש ${timeago.format(habit.lastPurchased, locale: 'he')}",
-                    overflow: TextOverflow.ellipsis,
+                  Chip(
+                    avatar: const Icon(Icons.schedule, size: kIconSizeSmall),
+                    label: Text(
+                      "נרכש ${timeago.format(habit.lastPurchased, locale: 'he')}",
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-                Chip(
-                  avatar:
-                      const Icon(Icons.notifications_active, size: kIconSizeSmall),
-                  label: Text(
-                    "הבא: $predictionText",
-                    overflow: TextOverflow.ellipsis,
+                  Chip(
+                    avatar: const Icon(Icons.notifications_active, size: kIconSizeSmall),
+                    label: Text("הבא: $predictionText", overflow: TextOverflow.ellipsis),
+                    backgroundColor: cs.tertiaryContainer.withValues(alpha: 0.25),
                   ),
-                  backgroundColor:
-                      cs.tertiaryContainer.withValues(alpha: 0.25),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

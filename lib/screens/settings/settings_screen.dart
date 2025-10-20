@@ -902,6 +902,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       const Divider(height: 1),
                       ListTile(
+                        leading: Icon(Icons.psychology, color: cs.primary),
+                        title: const Text('הרגלי קנייה שלי'),
+                        trailing: const Icon(Icons.chevron_left),
+                        onTap: () {
+                          Navigator.pushNamed(context, '/habits');
+                        },
+                      ),
+                      const Divider(height: 1),
+                      ListTile(
                         leading: Icon(Icons.inventory_2_outlined, color: cs.primary),
                         title: Text(AppStrings.settings.myPantry),
                         trailing: const Icon(Icons.chevron_left),
