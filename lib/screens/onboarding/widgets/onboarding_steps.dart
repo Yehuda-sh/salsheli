@@ -196,7 +196,7 @@ class _WelcomeStep extends StatelessWidget {
         children: [
           // אייקון מונפש עם זוהר! ⭐
           _AnimatedWelcomeIcon(accent: accent),
-          const SizedBox(height: kSpacingLarge),
+          const SizedBox(height: kSpacingXLarge),
           Text(
             AppStrings.onboarding.welcomeTitle,
             style: t.titleLarge?.copyWith(
@@ -204,12 +204,16 @@ class _WelcomeStep extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: kSpacingSmall),
+          const SizedBox(height: kSpacingMedium),
           Text(
             AppStrings.onboarding.welcomeSubtitle,
             textAlign: TextAlign.center,
-            style: t.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+            style: t.bodyLarge?.copyWith(
+              color: cs.onSurface,
+              height: 1.5,
+            ),
           ),
+          const SizedBox(height: kSpacingSmall),
         ],
       )
           .animate()
@@ -228,8 +232,8 @@ class _AnimatedWelcomeIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: kIconSizeXXLarge + kLogoGlowPadding,
-      height: kIconSizeXXLarge + kLogoGlowPadding,
+      width: kIconSizeXLarge + kLogoGlowPadding,
+      height: kIconSizeXLarge + kLogoGlowPadding,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         // זוהר רדיאלי סביב האייקון
@@ -246,7 +250,7 @@ class _AnimatedWelcomeIcon extends StatelessWidget {
       child: Center(
         child: Icon(
           Icons.shopping_cart,
-          size: kIconSizeXXLarge,
+          size: kIconSizeXLarge,
           color: accent,
         ),
       ),

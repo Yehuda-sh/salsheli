@@ -238,7 +238,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           }
         },
         child: Scaffold(
-          backgroundColor: Colors.transparent,
+          backgroundColor: kPaperBackground,
           extendBodyBehindAppBar: true,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
@@ -255,7 +255,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 onPressed: _isLoading ? null : _skip,
                 child: Text(
                   AppStrings.onboarding.skip,
-                  style: TextStyle(color: accent),
+                  style: TextStyle(
+                    color: _isLoading ? cs.onSurfaceVariant : cs.onSurface.withValues(alpha: 0.6),
+                    fontSize: 14,
+                  ),
                 ),
               ),
             ],
@@ -288,13 +291,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                       ),
 
+                      const SizedBox(height: kSpacingMedium),
+
                       // Progress Dots - נקודות התקדמות ⭐
                       _ProgressDots(
                         currentStep: _currentStep,
                         totalSteps: steps.length,
                         accent: accent,
                       ),
-                      const SizedBox(height: kSpacingMedium),
+                      const SizedBox(height: kSpacingLarge),
 
                       // כפתורי ניווט
                       _buildNavigationButtons(cs, accent, steps.length),
@@ -330,7 +335,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         const SizedBox(width: kSpacingSmall),
         Text(
           AppStrings.onboarding.progress,
-          style: TextStyle(color: cs.onSurfaceVariant),
+          style: TextStyle(
+            color: cs.onSurface,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );
@@ -440,9 +449,9 @@ class _ProgressDots extends StatelessWidget {
         (index) => AnimatedContainer(
           duration: kAnimationDurationMedium,
           curve: Curves.easeInOut,
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          width: index == currentStep ? 12 : 8,
-          height: index == currentStep ? 12 : 8,
+          margin: const EdgeInsets.symmetric(horizontal: 5),
+          width: index == currentStep ? 16 : 10,
+          height: index == currentStep ? 16 : 10,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: index == currentStep
@@ -451,12 +460,18 @@ class _ProgressDots extends StatelessWidget {
             boxShadow: index == currentStep
                 ? [
                     BoxShadow(
-                      color: accent.withValues(alpha: kOpacityMedium),
-                      blurRadius: 8,
-                      spreadRadius: 2,
+                      color: accent.withValues(alpha: 0.4),
+                      blurRadius: 10,
+                      spreadRadius: 3,
                     ),
                   ]
-                : null,
+                : [
+                    BoxShadow(
+                      color: accent.withValues(alpha: 0.1),
+                      blurRadius: 4,
+                      spreadRadius: 1,
+                    ),
+                  ],
           ),
         ),
       ),

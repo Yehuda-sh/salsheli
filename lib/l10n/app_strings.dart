@@ -9,7 +9,7 @@
 //
 // 🎯 שימוש:
 // ```dart
-// import 'package:memozap/l10n/app_strings.dart';
+// import 'package:salsheli/l10n/app_strings.dart';
 //
 // Text(AppStrings.layout.appTitle)  // "סל חכם"
 // Text(AppStrings.common.logout)    // "התנתק"
@@ -18,8 +18,8 @@
 // 🔮 עתיד: כשנוסיף flutter_localizations, נחליף את הקובץ הזה
 //          ב-AppLocalizations generated class
 //
-// Version: 3.0 - רפקטור למבנה תיקיות + הוספת ListTypeMappingsStrings
-// Last Updated: 08/10/2025
+// Version: 3.1 - עדכון טקסטים לתמיכה בכל סוגי הקבוצות והרשימות
+// Last Updated: 20/10/2025
 
 import 'strings/list_type_mappings_strings.dart';
 
@@ -206,7 +206,7 @@ class _OnboardingStrings {
   const _OnboardingStrings();
 
   // Screen
-  String get title => 'היכרות קצרה';
+  String get title => 'בואו נכיר! 👋';
   String get skip => 'דלג';
   String get previous => 'הקודם';
   String get next => 'הבא';
@@ -219,10 +219,10 @@ class _OnboardingStrings {
 
   // Welcome Step
   String get welcomeTitle => 'ברוכים הבאים ל־Salsheli 🎉';
-  String get welcomeSubtitle => 'נהל רשימות חכמות, שתף את המשפחה וחסוך כסף וזמן.';
+  String get welcomeSubtitle => 'ניהול רשימות מעולם לא היה קל כל כך! 🎉\n🛒 קניות • 📝 מטלות • 🎁 אירועים - עם בת הזוג, המשפחה, החברים או כל קבוצה';
 
   // Family Size Step
-  String get familySizeTitle => 'כמה נפשות במשפחה?';
+  String get familySizeTitle => 'כמה אנשים בקבוצה?';
 
   // Stores Step
   String get storesTitle => 'בחר חנויות מועדפות:';
@@ -235,8 +235,8 @@ class _OnboardingStrings {
   String get categoriesTitle => 'אילו קטגוריות חשובות לכם במיוחד?';
 
   // Sharing Step
-  String get sharingTitle => 'האם תרצה לשתף רשימות עם בני משפחה?';
-  String get sharingOption => 'שיתוף רשימות משפחתי';
+  String get sharingTitle => 'האם תרצה לשתף רשימות עם הקבוצה?';
+  String get sharingOption => 'שיתוף רשימות עם הקבוצה';
 
   // Reminder Step
   String get reminderTitle => 'באיזו שעה נוח לך לקבל תזכורות?';
@@ -245,7 +245,7 @@ class _OnboardingStrings {
   // Summary Step
   String get summaryTitle => 'סיכום ההעדפות שלך';
   String get summaryFinishHint => 'לחץ על \'סיום\' כדי להמשיך להרשמה.';
-  String familySizeSummary(int size) => 'משפחה: $size נפשות';
+  String familySizeSummary(int size) => 'קבוצה: $size אנשים';
   String storesSummary(String stores) => 'חנויות: $stores';
   String get noStoresSelected => 'לא נבחר';
   String budgetSummary(double amount) => 'תקציב חודשי: ${amount.toStringAsFixed(0)} ₪';
@@ -261,7 +261,7 @@ class _OnboardingStrings {
 //
 // 1. **Import פשוט:**
 //    ```dart
-//    import 'package:memozap/l10n/app_strings.dart';
+//    import 'package:salsheli/l10n/app_strings.dart';
 //    ```
 //
 // 2. **שימוש ב-Widget:**
@@ -352,13 +352,13 @@ class _WelcomeStrings {
   const _WelcomeStrings();
 
   // Screen
-  String get title => 'סל שלי';
-  String get subtitle => 'שיתוף חכם • תבניות מותאמות • מזווה מאורגן\nהכל באפליקציה אחת';
+  String get title => 'Salsheli - הרשימות שלך 📝';
+  String get subtitle => '🛒 קניות • 📝 מטלות • 🎉 אירועים • 📦 מזווה\nעם מי שאתה רוצה, איך שאתה רוצה';
 
   // Benefits - Compact Version (20/10/2025)
   // 📏 Shorter texts for single-screen layout (4 benefits + no scroll)
   String get benefit1Title => 'שיתוף חכם';
-  String get benefit1Subtitle => 'משפחה, ועד בית, חברים - עם הרשאות';
+  String get benefit1Subtitle => 'זוג, משפחה, חברים, עבודה - עם הרשאות';
   String get benefit2Title => 'תבניות מותאמות';
   String get benefit2Subtitle => '21 סוגים עם הצעות לפי פרופיל';
   String get benefit3Title => 'מזווה מאורגן';
@@ -542,7 +542,7 @@ class _HomeStrings {
   const _HomeStrings();
 
   // Welcome Header
-  String welcomeUser(String userName) => 'ברוך הבא, $userName';
+  String welcomeUser(String userName) => 'שלום $userName! 👋';
   String get guestUser => 'אורח';
 
   // Sort
@@ -553,7 +553,7 @@ class _HomeStrings {
 
   // Empty State
   String get noActiveLists => 'אין רשימות פעילות כרגע';
-  String get emptyStateMessage => 'צור את הרשימה הראשונה שלך\nוהתחל לחסוך זמן וכסף!';
+  String get emptyStateMessage => 'צור את הרשימה הראשונה שלך\nקניות, מטלות, אירועים - הכל מתחיל פה! ✨';
   String get createFirstList => 'צור רשימה ראשונה';
 
   // Receipts Card
@@ -762,7 +762,7 @@ class _ListTypeGroupsStrings {
 
   String get descShopping => 'קניות שוטפות ויומיומיות';
   String get descSpecialty => 'קניות בחנויות מיוחדות';
-  String get descEvents => 'רשימות לאירועים ומסיבות';
+  String get descEvents => 'אירועים, מסיבות ומטלות מיוחדות';
 }
 
 // ========================================
@@ -915,7 +915,7 @@ class _CreateListDialogStrings {
   // Dialog Title
   // ========================================
 
-  String get title => 'יצירת רשימת קניות חדשה';
+  String get title => 'יצירת רשימה חדשה';
 
   // ========================================
   // Use Template Section
