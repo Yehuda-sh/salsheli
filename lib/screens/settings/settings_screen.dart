@@ -122,7 +122,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   /// טעינת הגדרות מ-SharedPreferences
   Future<void> _loadSettings() async {
-    debugPrint('📥 _loadSettings: מתחיל טעינה');
     try {
       final prefs = await SharedPreferences.getInstance();
       setState(() {
@@ -144,7 +143,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _loading = false;
         _errorMessage = null;
       });
-      debugPrint('✅ _loadSettings: נטען בהצלחה');
     } catch (e) {
       debugPrint('❌ _loadSettings: שגיאה - $e');
       setState(() {
@@ -156,7 +154,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   /// שמירת הגדרות ב-SharedPreferences
   Future<void> _saveSettings() async {
-    debugPrint('💾 _saveSettings: שומר הגדרות');
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_kHouseholdName, _householdName);
@@ -165,7 +162,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await prefs.setBool(_kWeeklyReminders, _weeklyReminders);
       await prefs.setBool(_kHabitsAnalysis, _habitsAnalysis);
       await prefs.setString(_kPreferredStores, _preferredStores.join(','));
-      debugPrint('✅ _saveSettings: נשמר בהצלחה');
 
       final messenger = ScaffoldMessenger.of(context);
       if (mounted) {
@@ -193,7 +189,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   /// עריכת שם הקבוצה
   void _toggleEditHousehold() {
-    debugPrint('✏️ _toggleEditHousehold: ${_isEditingHouseholdName ? "שומר" : "עורך"}');
     if (_isEditingHouseholdName) {
       setState(() {
         _householdName = _householdNameController.text.trim();
@@ -208,7 +203,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   /// הוספת חנות מועדפת
   void _addStore() {
     final text = _storeController.text.trim();
-    debugPrint('➕ _addStore: "$text"');
     if (text.isNotEmpty && !_preferredStores.contains(text)) {
       setState(() {
         _preferredStores.add(text);
@@ -223,7 +217,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   /// הסרת חנות
   void _removeStore(int index) {
-    debugPrint('🗑️ _removeStore: מוחק index $index');
     setState(() => _preferredStores.removeAt(index));
     _saveSettings();
   }
@@ -231,7 +224,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   /// שינוי סוג הקבוצה
   void _changeHouseholdType(String? newType) {
     if (newType != null) {
-      debugPrint('🔄 _changeHouseholdType: $newType');
       setState(() => _householdType = newType);
       _saveSettings();
     }
@@ -240,11 +232,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   /// עדכון גודל משפחה
   void _updateFamilySize() {
     final newSize = int.tryParse(_familySizeController.text);
-    debugPrint('🔄 _updateFamilySize: $newSize');
     if (newSize != null && newSize > 0 && newSize <= 20) {
       setState(() => _familySize = newSize);
       _saveSettings();
-      debugPrint('✅ _updateFamilySize: עודכן ל-$newSize');
     } else {
       debugPrint('❌ _updateFamilySize: ערך לא תקין');
     }
@@ -366,9 +356,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         showDialog(
           context: context,
           barrierDismissible: false,
-          builder: (context) => PopScope(
+          builder: (context) => const PopScope(
             canPop: false,
-            child: const Center(
+            child: Center(
               child: Card(
                 child: Padding(
                   padding: EdgeInsets.all(kSpacingLarge),
@@ -408,7 +398,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   /// retry אחרי שגיאה
   void _retry() {
-    debugPrint('🔄 _retry: מנסה שוב');
     setState(() {
       _errorMessage = null;
       _loading = true;
@@ -575,7 +564,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           color: cs.primary,
                           textColor: Colors.white,
                           onPressed: () {
-                            debugPrint('✏️ Edit Profile: clicked');
                             ScaffoldMessenger.of(
                               context,
                             ).showSnackBar(SnackBar(content: Text(AppStrings.settings.editProfileButton)));
@@ -638,7 +626,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     subtitle: Text('כלי Debug - מחיקת פריטים עם productName=null', style: TextStyle(fontSize: kFontSizeSmall)),
                     trailing: const Icon(Icons.chevron_left, color: Colors.orange),
                     onTap: () {
-                      debugPrint('🧹 Navigating to CleanupScreen');
                       final householdId = userContext.user?.householdId ?? '';
                       if (householdId.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -767,7 +754,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           textColor: cs.primary,
                           height: 44,
                           onPressed: () {
-                            debugPrint('👥 Manage Members: clicked');
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(AppStrings.settings.manageMembersComingSoon),
@@ -878,7 +864,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           subtitle: Text(AppStrings.settings.weeklyRemindersSubtitle),
                           value: _weeklyReminders,
                           onChanged: (val) {
-                            debugPrint('🔔 weeklyReminders: $val');
                             setState(() => _weeklyReminders = val);
                             _saveSettings();
                           },
@@ -889,7 +874,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           subtitle: Text(AppStrings.settings.habitsAnalysisSubtitle),
                           value: _habitsAnalysis,
                           onChanged: (val) {
-                            debugPrint('📊 habitsAnalysis: $val');
                             setState(() => _habitsAnalysis = val);
                             _saveSettings();
                           },
@@ -913,7 +897,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         title: Text(AppStrings.settings.myReceipts),
                         trailing: const Icon(Icons.chevron_left),
                         onTap: () {
-                          debugPrint('🧾 Navigating to receipts');
                           Navigator.pushNamed(context, '/receipts');
                         },
                       ),
@@ -923,7 +906,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         title: Text(AppStrings.settings.myPantry),
                         trailing: const Icon(Icons.chevron_left),
                         onTap: () {
-                          debugPrint('📦 Navigating to inventory');
                           Navigator.pushNamed(context, '/inventory');
                         },
                       ),
@@ -933,7 +915,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         title: Text(AppStrings.settings.priceComparison),
                         trailing: const Icon(Icons.chevron_left),
                         onTap: () {
-                          debugPrint('💰 Navigating to price compare');
                           Navigator.pushNamed(context, '/price-compare');
                         },
                       ),

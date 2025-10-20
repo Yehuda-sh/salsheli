@@ -26,8 +26,8 @@
 // - LoginScreen - התחברות לחשבון קיים
 // - AppStrings.auth - מחרוזות UI
 //
-// 📝 Version: 3.0 - Complete Sticky Notes Design System
-// 📅 Updated: 15/10/2025
+// 📝 Version: 3.1 - UX Improvements + Tests (A+B+C) 🎉
+// 📅 Updated: 20/10/2025
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -62,6 +62,12 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
   // 🎬 Animation controller לשגיאות
   late AnimationController _shakeController;
   late Animation<double> _shakeAnimation;
+  
+  // 🎯 Focus nodes for auto-focus
+  final FocusNode _nameFocusNode = FocusNode();
+  final FocusNode _emailFocusNode = FocusNode();
+  final FocusNode _passwordFocusNode = FocusNode();
+  final FocusNode _confirmPasswordFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -75,6 +81,13 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     _shakeAnimation = Tween<double>(begin: 0, end: 10).animate(
       CurvedAnimation(parent: _shakeController, curve: Curves.elasticIn),
     );
+    
+    // 🎯 Auto-focus על שדה שם בכניסה למסך
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _nameFocusNode.requestFocus();
+      }
+    });
   }
 
   @override
@@ -84,6 +97,10 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _shakeController.dispose();
+    _nameFocusNode.dispose();
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    _confirmPasswordFocusNode.dispose();
     super.dispose();
   }
 
@@ -110,7 +127,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       final password = _passwordController.text;
 
       // רישום דרך UserContext
-      debugPrint('📝 _handleRegister() | Signing up: $email (name: $name)');
+      debugPrint('📝 _handleRegister() | Signing up...');
       final userContext = context.read<UserContext>();
       await userContext.signUp(
         email: email,
@@ -121,10 +138,37 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       // ✅ הרישום הצליח!
       debugPrint('✅ _handleRegister() | Success! userId: ${userContext.userId}');
 
-      // ניווט לדף הבית
+      // 🎉 הצגת feedback ויזואלי + ניווט
       if (mounted) {
-        debugPrint('🔄 _handleRegister() | Navigating to home screen');
-        navigator.pushNamedAndRemoveUntil('/home', (route) => false);
+        setState(() => _isLoading = false);
+        
+        // 🎉 הודעת הצלחה
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white, size: 24),
+                const SizedBox(width: kSpacingSmall),
+                const Text('הרשמת בהצלחה! מעביר לדף הבית...'),
+              ],
+            ),
+            backgroundColor: Colors.green.shade700,
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(kBorderRadius),
+            ),
+            margin: const EdgeInsets.all(kSpacingMedium),
+          ),
+        );
+        
+        // ⏱️ המתנה קצרה לפני ניווט
+        await Future.delayed(const Duration(milliseconds: 1500));
+        
+        if (mounted) {
+          debugPrint('🔄 _handleRegister() | Navigating to home screen');
+          navigator.pushNamedAndRemoveUntil('/home', (route) => false);
+        }
       }
     } catch (e) {
       debugPrint('❌ _handleRegister() | Registration failed: $e');
@@ -275,6 +319,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                             rotation: 0.01,
                             child: TextFormField(
                               controller: _nameController,
+                              focusNode: _nameFocusNode,
                               decoration: InputDecoration(
                                 labelText: AppStrings.auth.nameLabel,
                                 hintText: AppStrings.auth.nameHint,
@@ -283,7 +328,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                   borderRadius: BorderRadius.circular(kBorderRadius),
                                 ),
                                 filled: true,
-                                fillColor: Colors.white.withValues(alpha: 0.7),
+                                fillColor: cs.surface.withValues(alpha: 0.9),
                                 contentPadding: const EdgeInsets.symmetric(
                                   horizontal: kSpacingMedium,
                                   vertical: kSpacingSmall,
@@ -309,6 +354,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                             rotation: -0.015,
                             child: TextFormField(
                               controller: _emailController,
+                              focusNode: _emailFocusNode,
                               decoration: InputDecoration(
                                 labelText: AppStrings.auth.emailLabel,
                                 hintText: AppStrings.auth.emailHint,
@@ -317,7 +363,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                   borderRadius: BorderRadius.circular(kBorderRadius),
                                 ),
                                 filled: true,
-                                fillColor: Colors.white.withValues(alpha: 0.7),
+                                fillColor: cs.surface.withValues(alpha: 0.9),
                                 contentPadding: const EdgeInsets.symmetric(
                                   horizontal: kSpacingMedium,
                                   vertical: kSpacingSmall,
@@ -344,6 +390,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                             rotation: 0.01,
                             child: TextFormField(
                               controller: _passwordController,
+                              focusNode: _passwordFocusNode,
                               decoration: InputDecoration(
                                 labelText: AppStrings.auth.passwordLabel,
                                 hintText: AppStrings.auth.passwordHint,
@@ -365,7 +412,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                   borderRadius: BorderRadius.circular(kBorderRadius),
                                 ),
                                 filled: true,
-                                fillColor: Colors.white.withValues(alpha: 0.7),
+                                fillColor: cs.surface.withValues(alpha: 0.9),
                                 contentPadding: const EdgeInsets.symmetric(
                                   horizontal: kSpacingMedium,
                                   vertical: kSpacingSmall,
@@ -392,6 +439,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                             rotation: -0.015,
                             child: TextFormField(
                               controller: _confirmPasswordController,
+                              focusNode: _confirmPasswordFocusNode,
                               decoration: InputDecoration(
                                 labelText: AppStrings.auth.confirmPasswordLabel,
                                 hintText: AppStrings.auth.confirmPasswordHint,
@@ -413,7 +461,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                   borderRadius: BorderRadius.circular(kBorderRadius),
                                 ),
                                 filled: true,
-                                fillColor: Colors.white.withValues(alpha: 0.7),
+                                fillColor: cs.surface.withValues(alpha: 0.9),
                                 contentPadding: const EdgeInsets.symmetric(
                                   horizontal: kSpacingMedium,
                                   vertical: kSpacingSmall,

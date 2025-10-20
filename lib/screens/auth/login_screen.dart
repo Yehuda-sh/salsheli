@@ -27,8 +27,8 @@
 // - SharedPreferences - שמירת seenOnboarding בלבד (לא user_id!)
 // - AppStrings.auth - מחרוזות UI
 //
-// 📝 Version: 3.1 - Optimized spacing for single screen 📐
-// 📅 Updated: 15/10/2025
+// 📝 Version: 3.2 - UX Improvements + Tests (A+B+C) 🎉
+// 📅 Updated: 20/10/2025
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -61,6 +61,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   // 🎬 Animation controller לשגיאות
   late AnimationController _shakeController;
   late Animation<double> _shakeAnimation;
+  
+  // 🎯 Focus nodes for auto-focus
+  final FocusNode _emailFocusNode = FocusNode();
+  final FocusNode _passwordFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -74,6 +78,13 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     _shakeAnimation = Tween<double>(begin: 0, end: 10).animate(
       CurvedAnimation(parent: _shakeController, curve: Curves.elasticIn),
     );
+    
+    // 🎯 Auto-focus על שדה אימייל בכניסה למסך
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _emailFocusNode.requestFocus();
+      }
+    });
   }
 
   @override
@@ -81,6 +92,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     _emailController.dispose();
     _passwordController.dispose();
     _shakeController.dispose();
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
     super.dispose();
   }
 
@@ -104,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       final navigator = Navigator.of(context);
 
       // 🔹 1. התחברות דרך Firebase Auth
-      debugPrint('🔐 _handleLogin() | Signing in with email: $email');
+      debugPrint('🔐 _handleLogin() | Signing in...');
       await userContext.signIn(
         email: email,
         password: password,
@@ -118,11 +131,38 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       await prefs.setBool('seen_onboarding', true);
       debugPrint('✅ _handleLogin() | Onboarding flag saved');
 
-      // 🔹 3. ניווט לדף הבית
+      // 🔹 3. הצגת feedback ויזואלי + ניווט
       if (mounted) {
         setState(() => _isLoading = false);
-        debugPrint('🔄 _handleLogin() | Navigating to home screen');
-        navigator.pushNamedAndRemoveUntil('/home', (route) => false);
+        
+        // 🎉 הצגת הודעת הצלחה קצרה
+        final messenger = ScaffoldMessenger.of(context);
+        messenger.showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white, size: 24),
+                const SizedBox(width: kSpacingSmall),
+                const Text('התחברת בהצלחה! מעביר לדף הבית...'),
+              ],
+            ),
+            backgroundColor: Colors.green.shade700,
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(kBorderRadius),
+            ),
+            margin: const EdgeInsets.all(kSpacingMedium),
+          ),
+        );
+        
+        // ⏱️ המתנה קצרה לפני ניווט (feedback ויזואלי)
+        await Future.delayed(const Duration(milliseconds: 1500));
+        
+        if (mounted) {
+          debugPrint('🔄 _handleLogin() | Navigating to home screen');
+          navigator.pushNamedAndRemoveUntil('/home', (route) => false);
+        }
       }
     } catch (e) {
       debugPrint('❌ _handleLogin() | Login failed: $e');
@@ -216,7 +256,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       final userContext = context.read<UserContext>();
       await userContext.sendPasswordResetEmail(email);
       
-      debugPrint('✅ _handleForgotPassword() | Reset email sent to: $email');
+      debugPrint('✅ _handleForgotPassword() | Reset email sent');
       
       if (mounted) {
         setState(() => _isLoading = false);
@@ -386,6 +426,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                             rotation: 0.01,
                             child: TextFormField(
                               controller: _emailController,
+                              focusNode: _emailFocusNode,
                               decoration: InputDecoration(
                                 labelText: AppStrings.auth.emailLabel,
                                 hintText: AppStrings.auth.emailHint,
@@ -394,7 +435,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                   borderRadius: BorderRadius.circular(kBorderRadius),
                                 ),
                                 filled: true,
-                                fillColor: Colors.white.withValues(alpha: 0.7),
+                                fillColor: cs.surface.withValues(alpha: 0.9),
                                 contentPadding: const EdgeInsets.symmetric( // 📐 צמצום padding פנימי
                                   horizontal: kSpacingMedium,
                                   vertical: kSpacingSmall,
@@ -421,6 +462,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                             rotation: -0.015,
                             child: TextFormField(
                               controller: _passwordController,
+                              focusNode: _passwordFocusNode,
                               decoration: InputDecoration(
                                 labelText: AppStrings.auth.passwordLabel,
                                 hintText: AppStrings.auth.passwordHint,
@@ -442,7 +484,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                   borderRadius: BorderRadius.circular(kBorderRadius),
                                 ),
                                 filled: true,
-                                fillColor: Colors.white.withValues(alpha: 0.7),
+                                fillColor: cs.surface.withValues(alpha: 0.9),
                                 contentPadding: const EdgeInsets.symmetric( // 📐 צמצום padding פנימי
                                   horizontal: kSpacingMedium,
                                   vertical: kSpacingSmall,

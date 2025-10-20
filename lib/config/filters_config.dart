@@ -19,7 +19,7 @@
 
 // ignore_for_file: constant_identifier_names
 
-import '../l10n/app_strings.dart';
+import 'package:salsheli/l10n/app_strings.dart';
 
 /// קטגוריות מוצרים לפילטרים
 /// 
