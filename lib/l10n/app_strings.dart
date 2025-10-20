@@ -9,7 +9,7 @@
 //
 // 🎯 שימוש:
 // ```dart
-// import 'package:salsheli/l10n/app_strings.dart';
+// import 'package:memozap/l10n/app_strings.dart';
 //
 // Text(AppStrings.layout.appTitle)  // "סל חכם"
 // Text(AppStrings.common.logout)    // "התנתק"
@@ -218,7 +218,7 @@ class _OnboardingStrings {
   String get skipError => 'לא ניתן לדלג';
 
   // Welcome Step
-  String get welcomeTitle => 'ברוכים הבאים ל־Salsheli 🎉';
+  String get welcomeTitle => 'ברוכים הבאים ל־MemoZap 🎉';
   String get welcomeSubtitle => 'ניהול רשימות מעולם לא היה קל כל כך! 🎉\n🛒 קניות • 📝 מטלות • 🎁 אירועים - עם בת הזוג, המשפחה, החברים או כל קבוצה';
 
   // Family Size Step
@@ -334,10 +334,10 @@ class _IndexStrings {
   const _IndexStrings();
 
   // Screen
-  String get appName => 'Salsheli';
+  String get appName => 'MemoZap';
 
   // Accessibility
-  String get logoLabel => 'לוגו אפליקציית Salsheli';
+  String get logoLabel => 'לוגו אפליקציית MemoZap';
   String get loadingLabel => 'טוען את האפליקציה';
 
   // UI
@@ -352,7 +352,7 @@ class _WelcomeStrings {
   const _WelcomeStrings();
 
   // Screen
-  String get title => 'Salsheli - הרשימות שלך 📝';
+  String get title => 'MemoZap - הרשימות שלך 📝';
   String get subtitle => '🛒 קניות • 📝 מטלות • 🎉 אירועים • 📦 מזווה\nעם מי שאתה רוצה, איך שאתה רוצה';
 
   // Benefits - Compact Version (20/10/2025)

@@ -36,17 +36,17 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:salsheli/core/ui_constants.dart';
-import 'package:salsheli/l10n/app_strings.dart';
-import 'package:salsheli/layout/app_layout.dart';
-import 'package:salsheli/models/shopping_list.dart';
-import 'package:salsheli/providers/shopping_lists_provider.dart';
+import 'package:memozap/core/ui_constants.dart';
+import 'package:memozap/l10n/app_strings.dart';
+import 'package:memozap/layout/app_layout.dart';
+import 'package:memozap/models/shopping_list.dart';
+import 'package:memozap/providers/shopping_lists_provider.dart';
 
-import 'package:salsheli/screens/home/home_dashboard_screen.dart';
-import 'package:salsheli/screens/shopping/shopping_lists_screen.dart';
-import 'package:salsheli/screens/pantry/my_pantry_screen.dart';
-import 'package:salsheli/screens/receipts/receipt_import_screen.dart';  // קבלות
-import 'package:salsheli/screens/settings/settings_screen.dart';
+import 'package:memozap/screens/home/home_dashboard_screen.dart';
+import 'package:memozap/screens/shopping/shopping_lists_screen.dart';
+import 'package:memozap/screens/pantry/my_pantry_screen.dart';
+import 'package:memozap/screens/receipts/receipt_import_screen.dart';  // קבלות
+import 'package:memozap/screens/settings/settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

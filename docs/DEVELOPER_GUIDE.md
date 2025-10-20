@@ -1,4 +1,4 @@
-# 👨‍💻 Developer Guide - Salsheli
+# 👨‍💻 Developer Guide - MemoZap
 
 > **מטרה:** Code patterns, testing, security - כל מה שמפתח צריך  
 > **עדכון:** 20/10/2025 | **גרסה:** 1.3 - Docs Cleanup

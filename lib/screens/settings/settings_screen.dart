@@ -46,19 +46,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:salsheli/providers/user_context.dart';
-import 'package:salsheli/providers/shopping_lists_provider.dart';
-import 'package:salsheli/providers/receipt_provider.dart';
-import 'package:salsheli/providers/inventory_provider.dart';
-import 'package:salsheli/providers/products_provider.dart';
-import 'package:salsheli/models/shopping_list.dart';
-import 'package:salsheli/l10n/app_strings.dart';
-import 'package:salsheli/core/ui_constants.dart';
-import 'package:salsheli/config/household_config.dart';
-import 'package:salsheli/widgets/common/notebook_background.dart';
-import 'package:salsheli/widgets/common/sticky_note.dart';
-import 'package:salsheli/widgets/common/sticky_button.dart';
-import 'package:salsheli/screens/debug/cleanup_screen.dart';
+import 'package:memozap/providers/user_context.dart';
+import 'package:memozap/providers/shopping_lists_provider.dart';
+import 'package:memozap/providers/receipt_provider.dart';
+import 'package:memozap/providers/inventory_provider.dart';
+import 'package:memozap/providers/products_provider.dart';
+import 'package:memozap/models/shopping_list.dart';
+import 'package:memozap/l10n/app_strings.dart';
+import 'package:memozap/core/ui_constants.dart';
+import 'package:memozap/config/household_config.dart';
+import 'package:memozap/widgets/common/notebook_background.dart';
+import 'package:memozap/widgets/common/sticky_note.dart';
+import 'package:memozap/widgets/common/sticky_button.dart';
+import 'package:memozap/screens/debug/cleanup_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -1123,3 +1123,4 @@ class _SkeletonBox extends StatelessWidget {
     );
   }
 }
+

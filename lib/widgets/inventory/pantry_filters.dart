@@ -25,9 +25,9 @@
 
 import 'package:flutter/material.dart';
 
-import 'package:salsheli/config/filters_config.dart';
-import 'package:salsheli/core/ui_constants.dart';
-import 'package:salsheli/theme/app_theme.dart';
+import 'package:memozap/config/filters_config.dart';
+import 'package:memozap/core/ui_constants.dart';
+import 'package:memozap/theme/app_theme.dart';
 
 class PantryFilters extends StatelessWidget {
   /// הקטגוריה הנוכחית הנבחרת (למשל 'dairy' או 'all')
@@ -221,3 +221,4 @@ class PantryFilters extends StatelessWidget {
     );
   }
 }
+

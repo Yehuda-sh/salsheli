@@ -4,12 +4,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:salsheli/models/receipt.dart';
-import 'package:salsheli/models/inventory_item.dart';
-import 'package:salsheli/providers/inventory_provider.dart';
-import 'package:salsheli/providers/product_location_provider.dart';
-import 'package:salsheli/config/storage_locations_config.dart';
-import 'package:salsheli/core/ui_constants.dart';
+import 'package:memozap/models/receipt.dart';
+import 'package:memozap/models/inventory_item.dart';
+import 'package:memozap/providers/inventory_provider.dart';
+import 'package:memozap/providers/product_location_provider.dart';
+import 'package:memozap/config/storage_locations_config.dart';
+import 'package:memozap/core/ui_constants.dart';
 
 class ReceiptToInventoryDialog extends StatefulWidget {
   final Receipt receipt;

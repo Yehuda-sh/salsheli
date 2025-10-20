@@ -1,4 +1,4 @@
-# 📋 Salsheli - Project Information
+# 📋 MemoZap - Project Information
 
 > **Complete project overview for AI systems**  
 > **Updated:** 20/10/2025 | **Version:** 2.5 - AI Optimized
@@ -7,7 +7,7 @@
 
 ## 🎯 Project Overview
 
-**Salsheli** (סל שלי = "My Cart") - Family shopping list management app.
+**MemoZap** - Family shopping list management app with smart memo features.
 
 **Key Features:**
 - 👨‍👩‍👧‍👦 Multi-user household collaboration
@@ -55,7 +55,7 @@
 ## 📂 Project Structure
 
 ```
-C:\projects\salsheli\
+C:\projects\memozap\
 ├── lib/
 │   ├── core/              # UI constants, theme base
 │   ├── models/            # 11 data models

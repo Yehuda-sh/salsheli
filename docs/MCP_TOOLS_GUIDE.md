@@ -1,4 +1,4 @@
-# 🛠️ MCP Tools Guide - Salsheli
+# 🛠️ MCP Tools Guide - MemoZap
 
 > **MCP tools reference for Claude Desktop**  
 > **Updated:** 20/10/2025 | **Version:** 1.3 - Docs Cleanup
@@ -39,7 +39,7 @@
 
 **Best Practices:**
 ```
-✅ Always use FULL paths: C:\projects\salsheli\lib\main.dart
+✅ Always use FULL paths: C:\projects\memozap\lib\main.dart
 ✅ Prefer edit_file over write_file
 ✅ Read before editing
 ```
@@ -155,7 +155,7 @@ User: "Fix login_screen.dart"
 - Interactive demos
 - Complete examples
 
-**Don't use for (Salsheli!):**
+**Don't use for (MemoZap!):**
 - Fixing existing files (use edit_file instead!)
 - User didn't ask for example
 
@@ -215,7 +215,7 @@ User: "Fix login_screen.dart"
 ### Workflow 1: Code Review + Fix
 
 ```
-User sends: C:\projects\salsheli\lib\screens\auth\login_screen.dart
+User sends: C:\projects\memozap\lib\screens\auth\login_screen.dart
 
 1. Filesystem:read_file(login_screen.dart)
 2. Analyze (13 checks)
@@ -351,7 +351,7 @@ AI: "✅ Fixed. Should I commit?"
 ### Problem 1: Filesystem Operation Failed
 
 **Solutions:**
-1. Check path format: `C:\projects\salsheli\lib\main.dart`
+1. Check path format: `C:\projects\memozap\lib\main.dart`
 2. Verify file exists: Use list_directory first
 3. Check allowed directories: Use list_allowed_directories
 
@@ -428,7 +428,7 @@ Need deep research? → Extended Research
 5. **Ask before Git operations** unless explicitly requested
 6. **Don't over-think** simple tasks
 7. **Check docs first** before searching web
-8. **Prefer edit_file** over artifacts (Salsheli-specific)
+8. **Prefer edit_file** over artifacts (MemoZap-specific)
 
 ---
 

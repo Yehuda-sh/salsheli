@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "189577355895",
-    "project_id": "salsheli",
-    "storage_bucket": "salsheli.firebasestorage.app"
+    "project_number": "804283551011",
+    "project_id": "memozap-5ad30",
+    "storage_bucket": "memozap-5ad30.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:189577355895:android:9c1a6494da76b6a94adc72",
+        "mobilesdk_app_id": "1:804283551011:android:6c53d4ec1bf80b33bd9096",
         "android_client_info": {
-          "package_name": "com.example.salsheli"
+          "package_name": "com.example.memozap"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAbwt3M7vZsfTxaZgROav3_PBb2ST8X_NQ"
+          "current_key": "AIzaSyB52eBlYLTiOQdZFl0U1B4F4g75xo31oN8"
         }
       ],
       "services": {

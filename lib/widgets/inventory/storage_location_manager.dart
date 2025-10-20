@@ -15,11 +15,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:salsheli/models/inventory_item.dart';
-import 'package:salsheli/models/custom_location.dart';
-import 'package:salsheli/providers/locations_provider.dart';
-import 'package:salsheli/core/constants.dart';
-import 'package:salsheli/core/ui_constants.dart';
+import 'package:memozap/models/inventory_item.dart';
+import 'package:memozap/models/custom_location.dart';
+import 'package:memozap/providers/locations_provider.dart';
+import 'package:memozap/core/constants.dart';
+import 'package:memozap/core/ui_constants.dart';
 
 class StorageLocationManager extends StatefulWidget {
   final List<InventoryItem> inventory;
@@ -1016,3 +1016,4 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
     }
   }
 }
+
