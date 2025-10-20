@@ -71,11 +71,15 @@ class StickyNote extends StatelessWidget {
   /// דוגמה: 0.01 = סיבוב קל ימינה, -0.02 = סיבוב קל שמאלה
   final double rotation;
 
+  /// Padding פנימי (ברירת מחדל: kSpacingMedium)
+  final double padding;
+
   const StickyNote({
     super.key,
     required this.color,
     required this.child,
     this.rotation = 0.0,
+    this.padding = kSpacingMedium,
   });
 
   @override
@@ -86,7 +90,7 @@ class StickyNote extends StatelessWidget {
       angle: rotation,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(kSpacingMedium),
+        padding: EdgeInsets.all(padding),
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(kStickyNoteRadius),

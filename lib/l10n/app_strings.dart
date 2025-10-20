@@ -353,15 +353,20 @@ class _WelcomeStrings {
 
   // Screen
   String get title => 'סל שלי';
-  String get subtitle => 'קניות. פשוט. חכם.\nתכננו, שתפו, עקבו - הכל באפליקציה אחת';
+  String get subtitle => 'שיתוף חכם • תבניות מותאמות • מזווה מאורגן\nהכל באפליקציה אחת';
 
-  // Benefits
-  String get benefit1Title => 'שיתוף בזמן אמת';
-  String get benefit1Subtitle => 'רשימה אחת, כולם רואים, אף אחד לא טועה';
-  String get benefit2Title => 'קבלות שעובדות בשבילכם';
-  String get benefit2Subtitle => 'תמונה → נתונים → תובנות';
-  String get benefit3Title => 'מלאי הבית שלכם';
-  String get benefit3Subtitle => 'יודעים מה יש, קונים רק מה חסר';
+  // Benefits - Compact Version (20/10/2025)
+  // 📏 Shorter texts for single-screen layout (4 benefits + no scroll)
+  String get benefit1Title => 'שיתוף חכם';
+  String get benefit1Subtitle => 'משפחה, ועד בית, חברים - עם הרשאות';
+  String get benefit2Title => 'תבניות מותאמות';
+  String get benefit2Subtitle => '21 סוגים עם הצעות לפי פרופיל';
+  String get benefit3Title => 'מזווה מאורגן';
+  String get benefit3Subtitle => 'לפי ארון, מדף, מיקום';
+  
+  // 🆕 Benefit 4 - Added 20/10/2025
+  String get benefit4Title => 'סריקת קבלות';
+  String get benefit4Subtitle => 'תמונה → מלאי מעודכן';
 
   // Buttons
   String get loginButton => 'התחברות';

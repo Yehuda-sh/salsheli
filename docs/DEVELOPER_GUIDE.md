@@ -1,7 +1,7 @@
 # 👨‍💻 Developer Guide - Salsheli
 
 > **מטרה:** Code patterns, testing, security - כל מה שמפתח צריך  
-> **עדכון:** 19/10/2025 | **גרסה:** 1.2 - Cleaned & Optimized
+> **עדכון:** 20/10/2025 | **גרסה:** 1.3 - Docs Cleanup
 
 ---
 
@@ -593,16 +593,12 @@ final newItems = await _repo.fetchPage(
 
 ## 📈 Version History
 
-### v1.2 - 19/10/2025 🆕 **LATEST - Cleaned & Optimized**
-- 🧹 Removed Dead/Dormant/Navigation sections (moved to AI_MASTER_GUIDE)
-- ✂️ Replaced code examples with file references
-- 📊 Result: 40% reduction in size
-
-### v1.1 - 19/10/2025
-- ✅ Added Navigation section + checklist
+### v1.3 - 20/10/2025 🆕 **LATEST - Docs Cleanup**
+- ✂️ Removed old version history (kept only latest)
+- 📊 Result: Cleaner, more focused
 
 ---
 
-**Version:** 1.2  
-**Created:** 18/10/2025 | **Updated:** 19/10/2025  
+**Version:** 1.3  
+**Created:** 18/10/2025 | **Updated:** 20/10/2025  
 **Purpose:** Complete developer reference - patterns, testing, security

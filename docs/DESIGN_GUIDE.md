@@ -679,26 +679,13 @@ Too spaced → Use compact pattern: kSpacingSmall (8px)
 
 ## 📈 Version History
 
-### v2.0 - 20/10/2025 🆕 **LATEST - AI Optimized**
-- ✅ Restructured for AI consumption
-- ✅ Quick Reference tables at top
-- ✅ Decision Trees for component selection
-- ✅ Complete constants from ui_constants.dart
-- ✅ Dark Mode documentation
-- ✅ Animation guidelines
-- ✅ Loading/Error/Empty state patterns
-- ✅ Anti-patterns section
-- ✅ Code examples index
-- ✅ Quick debugging guide
-- 📊 Result: 50% more useful, 30% shorter
-
-### v1.4 - 19/10/2025
-- 🧹 Cleaned duplicate examples
-- ✂️ Replaced long examples with file references
+### v2.1 - 20/10/2025 🆕 **LATEST - Docs Cleanup**
+- ✂️ Removed old version history (kept only latest)
+- 📊 Result: Cleaner, more focused
 
 ---
 
-**Version:** 2.0  
+**Version:** 2.1  
 **Created:** 15/10/2025 | **Updated:** 20/10/2025  
 **Purpose:** AI-optimized Sticky Notes Design System reference  
 **Target:** Claude and AI assistants - understand design in 2 minutes

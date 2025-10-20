@@ -24,7 +24,12 @@
 // - צללים מציאותיים לאפקט הדבקה
 // - סיבובים קלים לכל פתק
 //
-// Version: 5.0 - Sticky Notes with Shared Components (15/10/2025) 🎨📝
+// Version: 6.2 - Ultra Compact + Title Padding (20/10/2025) 🎨📝
+// - 📏 Maximum optimization: 4 benefits + 2 buttons, no scrolling!
+// - 👀 Logo scale: 0.75 | Spacing: kSpacingSmall | Buttons: 44px
+// - 💬 Shorter texts: 1-2 words titles, concise subtitles
+// - 📦 Padding vertical: 0 | No spacing before buttons
+// - 🎯 Title note padding: 8px (saved -16px!)
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -85,27 +90,34 @@ class WelcomeScreen extends StatelessWidget {
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               child: Padding(
-                padding: const EdgeInsets.all(kSpacingMedium),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: kSpacingMedium,
+                  vertical: 0,
+                ),
                 child: Column(
                   children: [
-                    const SizedBox(height: kSpacingMedium),
+                    const SizedBox(height: kSpacingSmall),
 
-                    // 📝 לוגו על פתק צהוב
+                    // 📝 לוגו על פתק צהוב - קומפקטי מאוד
                     Hero(
                       tag: 'app_logo',
-                      child: StickyNoteLogo(
-                        color: brand?.stickyYellow ?? kStickyYellow,
-                        icon: Icons.shopping_basket_outlined,
-                        iconColor: accent,
-                        rotation: -0.03,
+                      child: Transform.scale(
+                        scale: 0.75,
+                        child: StickyNoteLogo(
+                          color: brand?.stickyYellow ?? kStickyYellow,
+                          icon: Icons.shopping_basket_outlined,
+                          iconColor: accent,
+                          rotation: -0.03,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: kSpacingMedium),
+                    const SizedBox(height: kSpacingSmall),
 
-                    // 📋 כותרת על פתק לבן
+                    // 📋 כותרת על פתק לבן - קומפקטי
                     StickyNote(
                       color: Colors.white,
                       rotation: -0.02,
+                      padding: kSpacingSmall, // 8px במקום 16px
                       child: Column(
                         children: [
                           Text(
@@ -117,7 +129,7 @@ class WelcomeScreen extends StatelessWidget {
                               fontSize: 28,
                             ),
                           ),
-                          const SizedBox(height: kSpacingSmall),
+                          const SizedBox(height: kSpacingXTiny), // 6px
                           Text(
                             AppStrings.welcome.subtitle,
                             textAlign: TextAlign.center,
@@ -143,7 +155,7 @@ class WelcomeScreen extends StatelessWidget {
                         iconColor: accent,
                       ),
                     ).animate().fadeIn(duration: 300.ms, delay: 100.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
-                    const SizedBox(height: kSpacingMedium),
+                    const SizedBox(height: kSpacingSmall),
                     TappableCard(
                       onTap: () => _log('🌸 benefit 2 tapped'),
                       child: BenefitTile(
@@ -155,7 +167,7 @@ class WelcomeScreen extends StatelessWidget {
                         iconColor: accent,
                       ),
                     ).animate().fadeIn(duration: 300.ms, delay: 200.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
-                    const SizedBox(height: kSpacingMedium),
+                    const SizedBox(height: kSpacingSmall),
                     TappableCard(
                       onTap: () => _log('💚 benefit 3 tapped'),
                       child: BenefitTile(
@@ -167,22 +179,34 @@ class WelcomeScreen extends StatelessWidget {
                         iconColor: accent,
                       ),
                     ).animate().fadeIn(duration: 300.ms, delay: 300.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
+                    const SizedBox(height: kSpacingSmall),
+                    TappableCard(
+                      onTap: () => _log('💙 benefit 4 tapped'),
+                      child: BenefitTile(
+                        icon: Icons.receipt_long_outlined,
+                        title: AppStrings.welcome.benefit4Title,
+                        subtitle: AppStrings.welcome.benefit4Subtitle,
+                        color: brand?.stickyCyan ?? kStickyCyan,
+                        rotation: -0.015,
+                        iconColor: accent,
+                      ),
+                    ).animate().fadeIn(duration: 300.ms, delay: 400.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
 
-                    const SizedBox(height: kSpacingLarge),
-
-                    // 🔘 כפתורי פעולה בסגנון פתקים
+                    // 🔘 כפתורי פעולה בסגנון פתקים - קומפקטיים
                     StickyButton(
                       color: accent,
                       label: AppStrings.welcome.loginButton,
                       icon: Icons.login,
+                      height: 44,
                       onPressed: () => _handleLogin(context),
                     ),
-                    const SizedBox(height: kSpacingMedium),
+                    const SizedBox(height: kSpacingSmall),
                     StickyButton(
                       color: Colors.white,
                       textColor: accent,
                       label: AppStrings.welcome.registerButton,
                       icon: Icons.app_registration_outlined,
+                      height: 44,
                       onPressed: () => _handleRegister(context),
                     ),
                     const SizedBox(height: kSpacingLarge),

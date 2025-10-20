@@ -5,7 +5,7 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.27+-02569B?logo=flutter)](https://flutter.dev)
 [![Firebase](https://img.shields.io/badge/Firebase-Enabled-FFCA28?logo=firebase)](https://firebase.google.com)
 [![License](https://img.shields.io/badge/License-Proprietary-red)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-2.4-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-2.5-blue)](CHANGELOG.md)
 
 ---
 
@@ -124,22 +124,13 @@ flutter build ios --release  # iOS
 
 ---
 
-## 🆕 What's New (v2.1 - Oct 19, 2025)
+## 🆕 What's New (v2.5 - Oct 20, 2025)
 
-### Documentation Updates
-- ✅ **Moved all docs to docs/ folder** - Better organization
-- ✅ **Removed GETTING_STARTED.md** - Redundant with other docs
-- ✅ **MCP_TOOLS_GUIDE.md** - Complete guide for Claude Desktop MCP tools
-- ✅ **AI_MASTER_GUIDE.md** - Reduced from 1500 to 500 lines (67% lighter!)
-- ✅ **DESIGN_GUIDE.md** - Removed code duplications (37% lighter)
-- ✅ **Overall reduction** - ~50% less documentation, same value!
-
-### Recent Features (v2.0 - Oct 18, 2025)
-- ✅ Receipt-to-Inventory system
-- ✅ Product Location Memory
-- ✅ Add-to-Shopping from Pantry
-- ✅ Performance improvements (debouncing, batch processing)
-- ✅ Documentation unification (14 → 6 files)
+### Documentation Cleanup
+- ✂️ **Removed version history** - Kept only latest versions
+- ✂️ **Removed redundant content** - Quick Start, Firebase setup details
+- 📊 **Result** - ~40% lighter docs, same value!
+- 🐛 **Fixed** - All docs now v2.5+ (synced)
 
 **📖 Full changelog:** See [docs/PROJECT_INFO.md](docs/PROJECT_INFO.md#change-history)
 
@@ -229,6 +220,6 @@ Special thanks to the open source community!
 ---
 
 **Made with ❤️ in Israel** 🇮🇱  
-**Version:** 2.1 | **Updated:** 19/10/2025
+**Version:** 2.5 | **Updated:** 20/10/2025
 
 **🚀 Ready to start?** → [docs/PROJECT_INFO.md](docs/PROJECT_INFO.md)

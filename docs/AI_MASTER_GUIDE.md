@@ -2,7 +2,7 @@
 
 > **CRITICAL:** Read this file at the start of EVERY new conversation  
 > **Purpose:** AI behavior instructions for Claude  
-> **Updated:** 20/10/2025 | **Version:** 4.6 - File Organization Check (22 checks)
+> **Updated:** 20/10/2025 | **Version:** 4.8 - Docs Cleanup
 
 ---
 
@@ -746,12 +746,26 @@ class ShoppingList {
 
 **⚠️ When user writes "המשך" in new conversation:**
 
+### CRITICAL RULE (Updated 20/10/2025):
+
+**"המשך" = Continue from THE LAST conversation ONLY!**
+
+**❌ DO NOT:**
+- Show list of conversations
+- Ask which conversation
+- Use conversation_search
+- Offer multiple options
+
+**✅ ALWAYS DO:**
+```
+recent_chats(n=1, sort_order='desc')
+→ Get THE MOST RECENT conversation
+→ Continue from there immediately
+```
+
 ### Automatic Continuation Steps:
 
-1. ✅ **Call recent_chats** - Get last conversation
-   ```
-   recent_chats(n=1, sort_order='desc')
-   ```
+1. ✅ **Call recent_chats(n=1)** - Get LAST conversation
 
 2. ✅ **Read last 5-10 messages** - Understand context
    - What were we working on?
@@ -930,77 +944,13 @@ File has:      ## 📌 Critical Reminders  ← Missing emoji!
 
 ## 📈 Version History
 
-### v4.6 - 20/10/2025 🆕 **LATEST - File Organization Check (22 checks)**
-- ✅ **Check #22: File Organization** - Automatic folder structure validation
-- ✅ **Widget sub-folders** - auth/, common/, home/, inventory/
-- ✅ **Import rules** - Always package:salsheli/..., never ../
-- ✅ **Naming conventions** - snake_case files, PascalCase classes
-- ✅ **Part 3 updated** - Now 22 checks (was 21)
-- ✅ **Part 11 updated** - TL;DR mentions 22 checks
-- ✅ **Part 12 updated** - Added File Organization to Quick Problem Solving
-- 👤 **User request** - "Add file organization check to docs" - ✅ DONE!
-- 📊 **Better organization** - Catches widgets in wrong folders automatically
-
-### v4.5 - 20/10/2025 - Complete Code Review (21 checks)**
-- ✅ **21 checks total!** - Added 7 new critical checks (15-21)
-- ✅ **#15 Imports Quality** - Duplicates, relative paths, unused
-- ✅ **#16 Error Handling** - Empty catch, no logging, sensitive data
-- ✅ **#17 Network/API Safety** - Timeout, retry, localhost (🔴 Critical for Shufersal API!)
-- ✅ **#18 Security Advanced** - API keys, test files, multi-tenant validation
-- ✅ **#19 Logging Quality** - print() vs debugPrint, excessive logging (>15)
-- ✅ **#20 Design Consistency** - Hardcoded colors, spacing, component sizes
-- ✅ **#21 Data Integrity** - fromJson/toJson, copyWith, household_id in models
-- ✅ **Part 11 updated** - TL;DR now mentions all checks
-- ✅ **Part 12 updated** - 10 new problem-solution pairs
-- 👤 **User request** - "Code review should cover everything automatically" - ✅ DONE!
-- 📊 **Most comprehensive** - From 14 to 21 checks = 50% more coverage!
-
-### v4.4 - 20/10/2025 - Automatic Dead Code Detection
-- ✅ **14 checks now!** - Added automatic Dead/Unused Code check
-- ✅ **Part 3** - Updated to 14 checks (was 13)
-- ✅ **Part 4** - Added "🗑️ Dead/Unused Code Detection" with 3-step quick check
-- ✅ **Auto-report** - grep for imports, class usage, and markers (EXAMPLE/DEPRECATED)
-- ✅ **Part 11** - Updated TL;DR: "14 checks + Usage (dead code)"
-- ✅ **Part 12** - Added to Quick Problem Solving
-- 📊 **Complete coverage** - Navigation + Dead Code now automatic!
-- 👤 **User request** - "Code review should cover everything automatically"
-
-### v4.3 - 20/10/2025 - Dark Mode Check
-- ✅ **Part 4 enhanced** - Added "Dark Mode & Theme Colors" check
-- ✅ **Auto-fix** - Colors.black87/black54 → cs.onSurface/onSurfaceVariant
-- ✅ **Part 12** - Added hardcoded colors to Quick Problem Solving
-- ✅ **Part 11** - Updated TL;DR with dark mode check
-- 🐛 **Real bug found** - benefit_tile.dart had hardcoded colors (fixed!)
-- 📊 Learning from actual code review sessions
-
-### v4.2 - 20/10/2025 - Project Paths
-- ✅ **Part 2 enhanced** - Added "Important Paths" section
-- ✅ **Path rules** - Always use FULL paths (C:\projects\salsheli\...)
-- ✅ **Better organization** - Moved from PROJECT_INFO to AI_MASTER_GUIDE
-- 📊 Synced with PROJECT_INFO v2.4
-
-### v4.1 - 19/10/2025 - Error Prevention
-- ✅ **Part 15 added** - Common tool errors & prevention
-- ✅ **edit_file protocol** - 3-step process to avoid "exact match" errors
-- ✅ **Memory saved** - edit_file best practices
-
-### v4.0 - 19/10/2025 - User Preferences Integration
-- ✅ **Ultra-concise responses** - No code blocks in explanations
-- ✅ **Token Management** - Auto-summary at 85% (Claude Max)
-- ✅ **Continuation Protocol** - "המשך" auto-continues from last conversation
-- ✅ **QA Tests** - Always consider for new features
-- ✅ **File Organization** - Suggest merge/delete/move
-- ✅ **Dormant Code** - Added UI question (5 questions now)
-- ✅ **Options format** - A, B, C (sub: A1, A2, A3)
-
-### v3.2 - 19/10/2025
-- 🧹 Removed duplicate code examples
-- ✂️ Top 15 → Top 5 mistakes
-- 📊 Result: 40% reduction in size
+### v4.8 - 20/10/2025 🆕 **LATEST - Docs Cleanup**
+- ✂️ Removed old version history (kept only latest)
+- 📊 Result: Cleaner, more focused for AI
 
 ---
 
-**Version:** 4.6  
+**Version:** 4.8  
 **Created:** 18/10/2025 | **Updated:** 20/10/2025  
 **Purpose:** Personalized AI behavior guide for this specific user  
 **Philosophy:** User preferences first, technical details in DEVELOPER_GUIDE.md  

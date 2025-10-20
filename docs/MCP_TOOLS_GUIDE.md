@@ -1,7 +1,7 @@
 # 🛠️ MCP Tools Guide - Salsheli
 
 > **MCP tools reference for Claude Desktop**  
-> **Updated:** 19/10/2025 | **Version:** 1.2 - Cleaned & Optimized
+> **Updated:** 20/10/2025 | **Version:** 1.3 - Docs Cleanup
 
 ---
 
@@ -441,6 +441,6 @@ Need deep research? → Extended Research
 
 ---
 
-**Version:** 1.2  
-**Created:** 19/10/2025 | **Updated:** 19/10/2025  
+**Version:** 1.3  
+**Created:** 19/10/2025 | **Updated:** 20/10/2025  
 **Purpose:** MCP tools reference for Claude Desktop

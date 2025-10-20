@@ -43,11 +43,13 @@ void main() {
         // === Assert ===
         debugPrint('🔍 Verifying RTL layout...');
 
-        // בדוק שהכיוון הכללי הוא RTL
-        final scaffold = tester.widget<Directionality>(
-          find.byType(Directionality).first,
-        );
-        expect(scaffold.textDirection, equals(TextDirection.rtl));
+        // בדוק שהכיוון הכללי הוא RTL - נמצא את ה-Directionality שעוטף את LoginScreen
+        final directionalityFinder = find.ancestor(
+          of: find.byType(LoginScreen),
+          matching: find.byType(Directionality),
+        ).first;
+        final directionality = tester.widget<Directionality>(directionalityFinder);
+        expect(directionality.textDirection, equals(TextDirection.rtl));
 
         // בדוק שהטקסטים מיושרים לימין
         final titleFinder = find.text('התחברות');
