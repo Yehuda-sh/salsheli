@@ -159,8 +159,9 @@ C:\projects\salsheli\
 
 **Firebase:**
 - **Android:** ✅ `google-services.json` exists
-- **iOS:** ⚠️ Missing `GoogleService-Info.plist`  
+- **iOS:** ✅ `GoogleService-Info.plist` exists
 - **Web:** ✅ `firebase_options.dart` exists
+- **Project:** `memozap-5ad30`
 
 **Shufersal API:**
 - ✅ Public API (no authentication)
