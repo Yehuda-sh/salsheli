@@ -74,16 +74,24 @@ void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 🔥 Firebase initialization - אסינכרוני משופר
+  // 🔥 Firebase initialization - v2.0 with duplicate app fix
   try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    if (kDebugMode) debugPrint('✅ Firebase initialized successfully');
+    if (kDebugMode) debugPrint('\n🔍 Checking Firebase apps... count: ${Firebase.apps.length}');
+    
+    // ✅ בדיקה אם Firebase כבר אותחל (מונע duplicate app error)
+    if (Firebase.apps.isEmpty) {
+      if (kDebugMode) debugPrint('   ➡️ No apps found, initializing...');
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      if (kDebugMode) debugPrint('   ✅ Firebase initialized successfully!');
+    } else {
+      if (kDebugMode) debugPrint('   ℹ️ Firebase already initialized (${Firebase.apps.length} apps)');
+    }
   } catch (e) {
     if (kDebugMode) {
-      debugPrint('⚠️ Firebase initialization failed: $e');
-      debugPrint('   (Continuing without Firebase - using Hive only)');
+      debugPrint('   ❌ Firebase initialization error: $e');
+      debugPrint('   (App will continue without Firebase)');
     }
   }
 
@@ -91,6 +99,12 @@ void main() async {
     FlutterError.presentError(details);
     if (kDebugMode) debugPrint('Flutter Error: ${details.exception}');
   };
+
+  // ⏸️ Wait a moment to ensure Firebase is fully ready before creating Providers
+  // This prevents race condition where Providers try to access Firebase
+  // (e.g., AuthService calling FirebaseAuth.instance) before initialization completes
+  await Future.delayed(Duration(milliseconds: 100));
+  if (kDebugMode) debugPrint('⏳ Waited for Firebase stabilization');
 
   // 🔥 Create Firebase Repository
   if (kDebugMode) {

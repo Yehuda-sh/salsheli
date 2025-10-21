@@ -1,4 +1,4 @@
-# AI Master Guide - Salsheli Project
+# AI Master Guide - MemoZap Project
 
 > **CRITICAL:** Read this file at the start of EVERY new conversation  
 > **Purpose:** AI behavior instructions for Claude  
@@ -66,12 +66,12 @@
 
 **Project Root:**
 ```
-C:\projects\salsheli\
+C:\projects\memozap\
 ```
 
 **Always use FULL paths:**
 ```
-C:\projects\salsheli\lib\core\ui_constants.dart
+C:\projects\memozap\lib\core\ui_constants.dart
 ```
 
 **Never use relative paths:**
@@ -590,7 +590,7 @@ class ShoppingList {
 - **Private classes:** `_PascalCase` (e.g., `_LoginScreenState`)
 
 **Import Rules:**
-- ✅ **Always:** `package:salsheli/...` (full package imports)
+- ✅ **Always:** `package:memozap/...` (full package imports)
 - ❌ **Never:** `../...` (relative imports)
 
 **Check Pattern:**

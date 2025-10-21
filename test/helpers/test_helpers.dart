@@ -14,11 +14,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:salsheli/providers/user_context.dart';
-import 'package:salsheli/repositories/user_repository.dart';
-import 'package:salsheli/services/auth_service.dart';
-import 'package:salsheli/theme/app_theme.dart';
-import 'package:salsheli/l10n/app_strings.dart';
+import 'package:memozap/providers/user_context.dart';
+import 'package:memozap/repositories/user_repository.dart';
+import 'package:memozap/services/auth_service.dart';
+import 'package:memozap/theme/app_theme.dart';
+import 'package:memozap/l10n/app_strings.dart';
 
 /// יוצר MaterialApp עם כל ה-Providers הדרושים לבדיקות
 /// 

@@ -23,8 +23,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:salsheli/l10n/app_strings.dart';
-import 'package:salsheli/screens/onboarding/onboarding_screen.dart';
+import 'package:memozap/l10n/app_strings.dart';
+import 'package:memozap/screens/onboarding/onboarding_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {

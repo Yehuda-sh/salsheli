@@ -8,9 +8,9 @@ import 'dart:async' as _i5;
 import 'package:firebase_auth/firebase_auth.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i7;
-import 'package:salsheli/models/user_entity.dart' as _i2;
-import 'package:salsheli/repositories/user_repository.dart' as _i4;
-import 'package:salsheli/services/auth_service.dart' as _i6;
+import 'package:memozap/models/user_entity.dart' as _i2;
+import 'package:memozap/repositories/user_repository.dart' as _i4;
+import 'package:memozap/services/auth_service.dart' as _i6;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values

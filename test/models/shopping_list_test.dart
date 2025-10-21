@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:salsheli/models/shopping_list.dart';
-import 'package:salsheli/models/receipt.dart';
+import 'package:memozap/models/shopping_list.dart';
+import 'package:memozap/models/receipt.dart';
 
 void main() {
   group('ShoppingList', () {

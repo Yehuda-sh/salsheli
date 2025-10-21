@@ -14,10 +14,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:salsheli/screens/auth/login_screen.dart';
-import 'package:salsheli/widgets/common/sticky_note.dart';
-import 'package:salsheli/widgets/common/sticky_button.dart';
-import 'package:salsheli/core/ui_constants.dart';
+import 'package:memozap/screens/auth/login_screen.dart';
+import 'package:memozap/widgets/common/sticky_note.dart';
+import 'package:memozap/widgets/common/sticky_button.dart';
+import 'package:memozap/core/ui_constants.dart';
 import '../helpers/test_helpers.dart';
 
 void main() {

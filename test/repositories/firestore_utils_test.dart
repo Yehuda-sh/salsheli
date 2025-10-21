@@ -7,7 +7,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:salsheli/repositories/utils/firestore_utils.dart';
+import 'package:memozap/repositories/utils/firestore_utils.dart';
 
 void main() {
   group('FirestoreUtils', () {

@@ -6,8 +6,8 @@
 // Created: 17/10/2025
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:salsheli/repositories/firebase_inventory_repository.dart';
-import 'package:salsheli/models/inventory_item.dart';
+import 'package:memozap/repositories/firebase_inventory_repository.dart';
+import 'package:memozap/models/inventory_item.dart';
 
 void main() {
   group('FirebaseInventoryRepository', () {

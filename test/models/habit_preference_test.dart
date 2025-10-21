@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:salsheli/models/habit_preference.dart';
+import 'package:memozap/models/habit_preference.dart';
 
 void main() {
   group('HabitPreference', () {

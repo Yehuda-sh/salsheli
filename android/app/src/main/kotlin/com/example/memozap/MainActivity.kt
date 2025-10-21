@@ -1,4 +1,4 @@
-package com.example.salsheli
+package com.example.memozap
 
 import io.flutter.embedding.android.FlutterActivity
 

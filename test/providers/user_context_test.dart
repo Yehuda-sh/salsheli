@@ -7,10 +7,10 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:salsheli/providers/user_context.dart';
-import 'package:salsheli/repositories/user_repository.dart';
-import 'package:salsheli/services/auth_service.dart';
-import 'package:salsheli/models/user_entity.dart';
+import 'package:memozap/providers/user_context.dart';
+import 'package:memozap/repositories/user_repository.dart';
+import 'package:memozap/services/auth_service.dart';
+import 'package:memozap/models/user_entity.dart';
 import 'package:provider/provider.dart';
 
 import 'user_context_test.mocks.dart';

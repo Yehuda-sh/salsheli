@@ -145,9 +145,10 @@ class _StepWrapper extends StatelessWidget {
 
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
           Icon(icon, size: kIconSizeXLarge, color: accent),
           const SizedBox(height: kSpacingMedium),
           Text(
@@ -166,6 +167,7 @@ class _StepWrapper extends StatelessWidget {
             child: child,
           ),
         ],
+      ),
       )
           .animate()
           .fadeIn(duration: kAnimationDurationMedium)

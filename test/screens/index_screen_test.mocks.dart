@@ -8,8 +8,8 @@ import 'dart:ui' as _i6;
 
 import 'package:flutter/material.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:salsheli/models/user_entity.dart' as _i5;
-import 'package:salsheli/providers/user_context.dart' as _i2;
+import 'package:memozap/models/user_entity.dart' as _i5;
+import 'package:memozap/providers/user_context.dart' as _i2;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values

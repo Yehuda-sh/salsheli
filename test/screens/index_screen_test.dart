@@ -6,9 +6,9 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:salsheli/screens/index_screen.dart';
-import 'package:salsheli/providers/user_context.dart';
-import 'package:salsheli/screens/welcome_screen.dart';
+import 'package:memozap/screens/index_screen.dart';
+import 'package:memozap/providers/user_context.dart';
+import 'package:memozap/screens/welcome_screen.dart';
 
 import 'index_screen_test.mocks.dart';
 

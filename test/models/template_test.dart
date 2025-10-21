@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:salsheli/models/template.dart';
+import 'package:memozap/models/template.dart';
 
 void main() {
   group('Template', () {

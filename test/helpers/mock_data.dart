@@ -10,9 +10,9 @@
 // 📝 Version: 1.0
 // 📅 Created: 18/10/2025
 
-import 'package:salsheli/models/user_entity.dart';
-import 'package:salsheli/models/shopping_list.dart';
-import 'package:salsheli/models/receipt.dart'; // ReceiptItem
+import 'package:memozap/models/user_entity.dart';
+import 'package:memozap/models/shopping_list.dart';
+import 'package:memozap/models/receipt.dart'; // ReceiptItem
 
 /// משתמש דמו מלא
 UserEntity createMockUser({

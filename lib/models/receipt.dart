@@ -130,6 +130,11 @@ class Receipt {
   @JsonKey(name: 'created_by')
   final String? createdBy;
 
+  /// 🔒 מזהה משק הבית (אבטחה - חובה!)
+  /// 🇬🇧 Household ID (security - required!)
+  @JsonKey(name: 'household_id')
+  final String householdId;
+
   const Receipt({
     required this.id,
     required this.storeName,
@@ -142,6 +147,7 @@ class Receipt {
     this.linkedShoppingListId,
     this.isVirtual = false,
     this.createdBy,
+    required this.householdId,
   });
 
   /// 🇮🇱 האם קבלה וירטואלית (ללא סריקה)
@@ -160,6 +166,7 @@ class Receipt {
   factory Receipt.newReceipt({
     required String storeName,
     required DateTime date,
+    required String householdId,
     double totalAmount = 0.0,
     List<ReceiptItem> items = const [],
     String? originalUrl,
@@ -180,6 +187,7 @@ class Receipt {
       linkedShoppingListId: linkedShoppingListId,
       isVirtual: isVirtual,
       createdBy: createdBy,
+      householdId: householdId,
     );
   }
 
@@ -188,6 +196,7 @@ class Receipt {
   factory Receipt.virtual({
     required String linkedShoppingListId,
     required String createdBy,
+    required String householdId,
     required String storeName,
     required List<ReceiptItem> items,
     DateTime? date,
@@ -202,6 +211,7 @@ class Receipt {
       linkedShoppingListId: linkedShoppingListId,
       isVirtual: true,
       createdBy: createdBy,
+      householdId: householdId,
       fileUrl: null, // אין סריקה
     );
   }
