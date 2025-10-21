@@ -66,12 +66,12 @@
 
 **Project Root:**
 ```
-C:\projects\memozap\
+C:\projects\salsheli\
 ```
 
 **Always use FULL paths:**
 ```
-C:\projects\memozap\lib\core\ui_constants.dart
+C:\projects\salsheli\lib\core\ui_constants.dart
 ```
 
 **Never use relative paths:**
