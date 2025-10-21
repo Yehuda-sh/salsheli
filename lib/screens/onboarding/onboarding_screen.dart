@@ -24,6 +24,8 @@
 //
 // Version: 2.0 - Sticky Notes Design (15/10/2025) 🎨📝
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -31,10 +33,10 @@ import '../../core/ui_constants.dart';
 import '../../data/onboarding_data.dart';
 import '../../l10n/app_strings.dart';
 import '../../services/onboarding_service.dart';
+import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_button.dart';
 import 'widgets/onboarding_steps.dart';
-import '../../theme/app_theme.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -82,7 +84,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         duration: kAnimationDurationMedium,
         curve: Curves.easeOut,
       );
-      _haptic();
+      unawaited(_haptic());
     } else {
       _finishOnboarding();
     }
@@ -100,7 +102,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         duration: kAnimationDurationShort,
         curve: Curves.easeOut,
       );
-      _haptic();
+      unawaited(_haptic());
     }
   }
 
@@ -214,11 +216,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       onStoresChanged: (v) => setState(() {
         _data = _data.copyWith(preferredStores: v);
       }),
-      onBudgetChanged: (v) => setState(() {
-        _data = _data.copyWith(monthlyBudget: v);
+      onShoppingFrequencyChanged: (v) => setState(() {
+        _data = _data.copyWith(shoppingFrequency: v);
       }),
-      onCategoriesChanged: (v) => setState(() {
-        _data = _data.copyWith(importantCategories: v);
+      onShoppingDaysChanged: (v) => setState(() {
+        _data = _data.copyWith(shoppingDays: v);
+      }),
+      onHasChildrenChanged: (v) => setState(() {
+        _data = _data.copyWith(hasChildren: v);
+      }),
+      onChildrenAgesChanged: (v) => setState(() {
+        _data = _data.copyWith(childrenAges: v);
       }),
       onShareChanged: (v) => setState(() {
         _data = _data.copyWith(shareLists: v);

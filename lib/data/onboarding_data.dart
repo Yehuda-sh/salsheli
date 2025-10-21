@@ -39,7 +39,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants.dart';
 import '../config/stores_config.dart';
-import '../config/filters_config.dart';
 
 // ========================================
 // מפתחות SharedPreferences
@@ -68,8 +67,10 @@ class OnboardingPrefsKeys {
   static const seenOnboarding = 'onboarding.seenOnboarding';
   static const familySize = 'onboarding.familySize';
   static const preferredStores = 'onboarding.preferredStores';
-  static const monthlyBudget = 'onboarding.monthlyBudget';
-  static const importantCategories = 'onboarding.importantCategories';
+  static const shoppingFrequency = 'onboarding.shoppingFrequency'; // פעמים בשבוע
+  static const shoppingDays = 'onboarding.shoppingDays'; // ימים קבועים (0-6)
+  static const hasChildren = 'onboarding.hasChildren';
+  static const childrenAges = 'onboarding.childrenAges'; // גילאי ילדים
   static const shareLists = 'onboarding.shareLists';
   static const reminderTime = 'onboarding.reminderTime'; // פורמט: HH:MM
 }
@@ -104,22 +105,27 @@ const int kCurrentSchemaVersion = 1;
 class OnboardingData {
   final int familySize;
   final Set<String> preferredStores;
-  final double monthlyBudget;
-  final Set<String> importantCategories;
+  final int shoppingFrequency; // פעמים בשבוע (1-7)
+  final Set<int> shoppingDays; // ימים קבועים (0=ראשון, 6=שבת)
+  final bool hasChildren;
+  final Set<String> childrenAges; // גילאי ילדים
   final bool shareLists;
   final String reminderTime; // פורמט: HH:MM
 
   OnboardingData({
     int? familySize,
     Set<String>? preferredStores,
-    double? monthlyBudget,
-    Set<String>? importantCategories,
+    int? shoppingFrequency,
+    Set<int>? shoppingDays,
+    this.hasChildren = false,
+    Set<String>? childrenAges,
     this.shareLists = false,
     String? reminderTime,
   })  : familySize = _validateFamilySize(familySize ?? 2),
         preferredStores = _filterValidStores(preferredStores ?? {}),
-        monthlyBudget = _validateBudget(monthlyBudget ?? 2000.0),
-        importantCategories = _filterValidCategories(importantCategories ?? {}),
+        shoppingFrequency = _validateShoppingFrequency(shoppingFrequency ?? 2),
+        shoppingDays = _filterValidDays(shoppingDays ?? {}),
+        childrenAges = _filterValidAges(childrenAges ?? {}),
         reminderTime = _validateTime(reminderTime ?? '09:00');
 
   // ========================================
@@ -147,25 +153,54 @@ class OnboardingData {
     return size;
   }
 
-  /// בדיקת תקינות תקציב
-  static double _validateBudget(double budget) {
-    if (budget < kMinMonthlyBudget) {
+  /// בדיקת תקינות תדירות קניות
+  static int _validateShoppingFrequency(int frequency) {
+    if (frequency < 1) {
       if (kDebugMode) {
         debugPrint(
-          '⚠️ OnboardingData: תקציב קטן מדי ($budget), משתמש במינימום $kMinMonthlyBudget',
+          '⚠️ OnboardingData: תדירות קטנה מדי ($frequency), משתמש במינימום 1',
         );
       }
-      return kMinMonthlyBudget;
+      return 1;
     }
-    if (budget > kMaxMonthlyBudget) {
+    if (frequency > 7) {
       if (kDebugMode) {
         debugPrint(
-          '⚠️ OnboardingData: תקציב גדול מדי ($budget), משתמש במקסימום $kMaxMonthlyBudget',
+          '⚠️ OnboardingData: תדירות גדולה מדי ($frequency), משתמש במקסימום 7',
         );
       }
-      return kMaxMonthlyBudget;
+      return 7;
     }
-    return budget;
+    return frequency;
+  }
+
+  /// סינון ימי קניות תקינים בלבד (0-6)
+  static Set<int> _filterValidDays(Set<int> days) {
+    final validDays = days.where((day) => day >= 0 && day <= 6).toSet();
+    
+    if (kDebugMode && days.length != validDays.length) {
+      final invalid = days.difference(validDays);
+      debugPrint(
+        '⚠️ OnboardingData: הוסרו ימים לא תקינים: ${invalid.join(', ')}',
+      );
+    }
+    
+    return validDays;
+  }
+
+  /// סינון גילאי ילדים תקינים בלבד
+  static Set<String> _filterValidAges(Set<String> ages) {
+    const validAges = {'babies', 'toddlers', 'children', 'teens'};
+    final filtered = ages.where(validAges.contains).toSet();
+    
+    if (kDebugMode && ages.length != filtered.length) {
+      final invalid = ages.difference(filtered);
+      debugPrint(
+        '⚠️ OnboardingData: הוסרו גילאים לא תקינים: ${invalid.join(', ')}',
+      );
+    }
+    
+    return filtered;
   }
 
   /// סינון חנויות תקינות בלבד
@@ -184,21 +219,7 @@ class OnboardingData {
     return validStores;
   }
 
-  /// סינון קטגוריות תקינות בלבד
-  /// 
-  /// מסיר קטגוריות שלא קיימות ב-kCategories
-  static Set<String> _filterValidCategories(Set<String> categories) {
-    final validCategories = categories.where(isValidCategory).toSet();
-    
-    if (kDebugMode && categories.length != validCategories.length) {
-      final invalid = categories.difference(validCategories);
-      debugPrint(
-        '⚠️ OnboardingData: הוסרו קטגוריות לא תקינות: ${invalid.join(', ')}',
-      );
-    }
-    
-    return validCategories;
-  }
+
 
   /// בדיקת תקינות פורמט זמן
   /// 
@@ -286,16 +307,20 @@ class OnboardingData {
   OnboardingData copyWith({
     int? familySize,
     Set<String>? preferredStores,
-    double? monthlyBudget,
-    Set<String>? importantCategories,
+    int? shoppingFrequency,
+    Set<int>? shoppingDays,
+    bool? hasChildren,
+    Set<String>? childrenAges,
     bool? shareLists,
     String? reminderTime,
   }) {
     return OnboardingData(
       familySize: familySize ?? this.familySize,
       preferredStores: preferredStores ?? this.preferredStores,
-      monthlyBudget: monthlyBudget ?? this.monthlyBudget,
-      importantCategories: importantCategories ?? this.importantCategories,
+      shoppingFrequency: shoppingFrequency ?? this.shoppingFrequency,
+      shoppingDays: shoppingDays ?? this.shoppingDays,
+      hasChildren: hasChildren ?? this.hasChildren,
+      childrenAges: childrenAges ?? this.childrenAges,
       shareLists: shareLists ?? this.shareLists,
       reminderTime: reminderTime ?? this.reminderTime,
     );
@@ -308,8 +333,10 @@ class OnboardingData {
     return {
       'familySize': familySize,
       'preferredStores': preferredStores.toList()..sort(),
-      'monthlyBudget': monthlyBudget,
-      'importantCategories': importantCategories.toList()..sort(),
+      'shoppingFrequency': shoppingFrequency,
+      'shoppingDays': shoppingDays.toList()..sort(),
+      'hasChildren': hasChildren,
+      'childrenAges': childrenAges.toList()..sort(),
       'shareLists': shareLists,
       'reminderTime': reminderTime,
     };
@@ -321,8 +348,10 @@ class OnboardingData {
     return 'OnboardingData('
         'familySize: $familySize, '
         'stores: ${preferredStores.length}, '
-        'budget: $monthlyBudget, '
-        'categories: ${importantCategories.length}, '
+        'frequency: $shoppingFrequency, '
+        'days: ${shoppingDays.length}, '
+        'hasChildren: $hasChildren, '
+        'childrenAges: ${childrenAges.length}, '
         'shareLists: $shareLists, '
         'reminderTime: $reminderTime'
         ')';
@@ -349,7 +378,8 @@ class OnboardingData {
       // וולידציה נוספת לפני שמירה (למניעת שמירה ידנית שגויה)
       final validatedTime = _validateTime(reminderTime);
       final validatedStores = _filterValidStores(preferredStores);
-      final validatedCategories = _filterValidCategories(importantCategories);
+      final validatedDays = _filterValidDays(shoppingDays);
+      final validatedAges = _filterValidAges(childrenAges);
 
       // שמירת schema version
       await prefs.setInt(OnboardingPrefsKeys.schemaVersion, kCurrentSchemaVersion);
@@ -375,21 +405,36 @@ class OnboardingData {
 
       if (!await _saveField(
         prefs,
-        OnboardingPrefsKeys.monthlyBudget,
-        () => prefs.setDouble(
-          OnboardingPrefsKeys.monthlyBudget,
-          monthlyBudget,
+        OnboardingPrefsKeys.shoppingFrequency,
+        () => prefs.setInt(
+          OnboardingPrefsKeys.shoppingFrequency,
+          shoppingFrequency,
         ),
-      )) {failedFields.add('monthlyBudget');}
+      )) {failedFields.add('shoppingFrequency');}
 
       if (!await _saveField(
         prefs,
-        OnboardingPrefsKeys.importantCategories,
-        () => prefs.setStringList(
-          OnboardingPrefsKeys.importantCategories,
-          validatedCategories.toList()..sort(), // ממוין לדטרמיניזם
+        OnboardingPrefsKeys.shoppingDays,
+        () => prefs.setString(
+          OnboardingPrefsKeys.shoppingDays,
+          validatedDays.toList().join(','), // שמירה כ-CSV
         ),
-      )) {failedFields.add('importantCategories');}
+      )) {failedFields.add('shoppingDays');}
+
+      if (!await _saveField(
+        prefs,
+        OnboardingPrefsKeys.hasChildren,
+        () => prefs.setBool(OnboardingPrefsKeys.hasChildren, hasChildren),
+      )) {failedFields.add('hasChildren');}
+
+      if (!await _saveField(
+        prefs,
+        OnboardingPrefsKeys.childrenAges,
+        () => prefs.setStringList(
+          OnboardingPrefsKeys.childrenAges,
+          validatedAges.toList()..sort(),
+        ),
+      )) {failedFields.add('childrenAges');}
 
       if (!await _saveField(
         prefs,
@@ -482,14 +527,27 @@ class OnboardingData {
         debugPrint('   ⚠️ preferredStores ריק, משתמש בברירת מחדל: []');
       }
 
-      final budgetValue = prefs.getDouble(OnboardingPrefsKeys.monthlyBudget);
-      if (kDebugMode && budgetValue == null) {
-        debugPrint('   ⚠️ monthlyBudget לא נמצא, משתמש בברירת מחדל: 2000.0');
+      final frequencyValue = prefs.getInt(OnboardingPrefsKeys.shoppingFrequency);
+      if (kDebugMode && frequencyValue == null) {
+        debugPrint('   ⚠️ shoppingFrequency לא נמצא, משתמש בברירת מחדל: 2');
       }
 
-      final categoriesValue = prefs.getStringList(OnboardingPrefsKeys.importantCategories);
-      if (kDebugMode && (categoriesValue == null || categoriesValue.isEmpty)) {
-        debugPrint('   ⚠️ importantCategories ריק, משתמש בברירת מחדל: []');
+      final daysValue = prefs.getString(OnboardingPrefsKeys.shoppingDays);
+      final daysSet = daysValue != null && daysValue.isNotEmpty
+          ? daysValue.split(',').map((s) => int.tryParse(s)).whereType<int>().toSet()
+          : <int>{};
+      if (kDebugMode && (daysValue == null || daysValue.isEmpty)) {
+        debugPrint('   ⚠️ shoppingDays ריק, משתמש בברירת מחדל: []');
+      }
+
+      final hasChildrenValue = prefs.getBool(OnboardingPrefsKeys.hasChildren);
+      if (kDebugMode && hasChildrenValue == null) {
+        debugPrint('   ⚠️ hasChildren לא נמצא, משתמש בברירת מחדל: false');
+      }
+
+      final agesValue = prefs.getStringList(OnboardingPrefsKeys.childrenAges);
+      if (kDebugMode && (agesValue == null || agesValue.isEmpty)) {
+        debugPrint('   ⚠️ childrenAges ריק, משתמש בברירת מחדל: []');
       }
 
       final reminderValue = prefs.getString(OnboardingPrefsKeys.reminderTime);
@@ -500,8 +558,10 @@ class OnboardingData {
       final data = OnboardingData(
         familySize: familySizeValue,
         preferredStores: (storesValue ?? []).toSet(),
-        monthlyBudget: budgetValue,
-        importantCategories: (categoriesValue ?? []).toSet(),
+        shoppingFrequency: frequencyValue,
+        shoppingDays: daysSet,
+        hasChildren: hasChildrenValue ?? false,
+        childrenAges: (agesValue ?? []).toSet(),
         shareLists: prefs.getBool(OnboardingPrefsKeys.shareLists) ?? false,
         reminderTime: reminderValue,
       );
@@ -608,8 +668,10 @@ class OnboardingData {
         OnboardingPrefsKeys.seenOnboarding,
         OnboardingPrefsKeys.familySize,
         OnboardingPrefsKeys.preferredStores,
-        OnboardingPrefsKeys.monthlyBudget,
-        OnboardingPrefsKeys.importantCategories,
+        OnboardingPrefsKeys.shoppingFrequency,
+        OnboardingPrefsKeys.shoppingDays,
+        OnboardingPrefsKeys.hasChildren,
+        OnboardingPrefsKeys.childrenAges,
         OnboardingPrefsKeys.shareLists,
         OnboardingPrefsKeys.reminderTime,
       ];

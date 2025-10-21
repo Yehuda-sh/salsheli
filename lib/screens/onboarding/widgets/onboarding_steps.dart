@@ -42,13 +42,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-import '../../../data/onboarding_data.dart';
-import '../../../config/filters_config.dart';
 import '../../../config/stores_config.dart';
-import '../../../theme/app_theme.dart';
-import '../../../l10n/app_strings.dart';
-import '../../../core/ui_constants.dart';
 import '../../../core/constants.dart';
+import '../../../core/ui_constants.dart';
+import '../../../data/onboarding_data.dart';
+import '../../../l10n/app_strings.dart';
+import '../../../l10n/onboarding_extensions.dart';
+import '../../../theme/app_theme.dart';
 import '../../../widgets/common/sticky_note.dart';
 
 class OnboardingSteps {
@@ -56,8 +56,10 @@ class OnboardingSteps {
     required OnboardingData data,
     required ValueChanged<int> onFamilySizeChanged,
     required ValueChanged<Set<String>> onStoresChanged,
-    required ValueChanged<double> onBudgetChanged,
-    required ValueChanged<Set<String>> onCategoriesChanged,
+    required ValueChanged<int> onShoppingFrequencyChanged,
+    required ValueChanged<Set<int>> onShoppingDaysChanged,
+    required ValueChanged<bool> onHasChildrenChanged,
+    required ValueChanged<Set<String>> onChildrenAgesChanged,
     required ValueChanged<bool> onShareChanged,
     required ValueChanged<String> onReminderChanged,
   }) {
@@ -79,18 +81,19 @@ class OnboardingSteps {
         stickyColor: kStickyPink,
         rotation: 0.02,
       ),
-      _BudgetStep(
-        value: data.monthlyBudget,
-        onChanged: onBudgetChanged,
+      _ShoppingFrequencyStep(
+        frequency: data.shoppingFrequency,
+        selectedDays: data.shoppingDays,
+        onFrequencyChanged: onShoppingFrequencyChanged,
+        onDaysChanged: onShoppingDaysChanged,
         stickyColor: kStickyGreen,
         rotation: -0.01,
       ),
-      _MultiSelectStep(
-        title: AppStrings.onboarding.categoriesTitle,
-        icon: Icons.category,
-        options: kCategories.map((id) => getCategoryLabel(id)).toList(),
-        selected: data.importantCategories,
-        onChanged: onCategoriesChanged,
+      _ChildrenStep(
+        hasChildren: data.hasChildren,
+        selectedAges: data.childrenAges,
+        onHasChildrenChanged: onHasChildrenChanged,
+        onAgesChanged: onChildrenAgesChanged,
         stickyColor: kStickyPurple,
         rotation: 0.015,
       ),
@@ -149,25 +152,25 @@ class _StepWrapper extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-          Icon(icon, size: kIconSizeXLarge, color: accent),
-          const SizedBox(height: kSpacingMedium),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: t.titleLarge?.copyWith(
-              color: cs.onSurface,
-              fontWeight: FontWeight.w600,
+            Icon(icon, size: kIconSizeXLarge, color: accent),
+            const SizedBox(height: kSpacingMedium),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: t.titleLarge?.copyWith(
+                color: cs.onSurface,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ),
-          const SizedBox(height: kSpacingLarge),
-          // ⭐ עטיפה ב-StickyNote לעיצוב אחיד!
-          StickyNote(
-            color: noteColor,
-            rotation: rotation,
-            child: child,
-          ),
-        ],
-      ),
+            const SizedBox(height: kSpacingLarge),
+            // ⭐ עטיפה ב-StickyNote לעיצוב אחיד!
+            StickyNote(
+              color: noteColor,
+              rotation: rotation,
+              child: child,
+            ),
+          ],
+        ),
       )
           .animate()
           .fadeIn(duration: kAnimationDurationMedium)
@@ -386,18 +389,22 @@ class _MultiSelectStep extends StatelessWidget {
 }
 
 // ========================================
-// שלב 4: Budget
+// שלב 4: Shopping Frequency + Days 🆕 (מסך אחד!)
 // ========================================
 
-class _BudgetStep extends StatelessWidget {
-  final double value;
-  final ValueChanged<double> onChanged;
+class _ShoppingFrequencyStep extends StatelessWidget {
+  final int frequency;
+  final Set<int> selectedDays;
+  final ValueChanged<int> onFrequencyChanged;
+  final ValueChanged<Set<int>> onDaysChanged;
   final Color? stickyColor;
   final double rotation;
 
-  const _BudgetStep({
-    required this.value,
-    required this.onChanged,
+  const _ShoppingFrequencyStep({
+    required this.frequency,
+    required this.selectedDays,
+    required this.onFrequencyChanged,
+    required this.onDaysChanged,
     this.stickyColor,
     this.rotation = 0.01,
   });
@@ -408,30 +415,187 @@ class _BudgetStep extends StatelessWidget {
     final t = Theme.of(context).textTheme;
 
     return _StepWrapper(
-      icon: Icons.monetization_on,
-      title: AppStrings.onboarding.budgetTitle,
+      icon: Icons.calendar_today,
+      title: 'תדירות קניות',
       stickyColor: stickyColor,
       rotation: rotation,
       child: Column(
         children: [
+          // שאלה 1: תדירות
           Text(
-            AppStrings.onboarding.budgetAmount(value),
-            style: t.displayMedium?.copyWith(
+            'כמה פעמים בשבוע אתם קונים קניות?',
+            style: t.titleSmall?.copyWith(color: cs.onSurface),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: kSpacingSmall),
+          Text(
+            '$frequency פעמים בשבוע',
+            style: t.displaySmall?.copyWith(
               color: cs.primary,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: kSpacingMedium),
+          const SizedBox(height: kSpacingSmall),
           Slider(
-            value: value,
-            min: kMinMonthlyBudget,
-            max: kMaxMonthlyBudget,
-            divisions: 100,
+            value: frequency.toDouble(),
+            min: 1,
+            max: 7,
+            divisions: 6,
             onChanged: (v) {
-              debugPrint('💰 onboarding: תקציב חודשי = ${v.toStringAsFixed(0)} ₪');
-              onChanged(v);
+              final newFreq = v.toInt();
+              debugPrint('📅 onboarding: Shopping frequency = $newFreq');
+              onFrequencyChanged(newFreq);
             },
           ),
+          const SizedBox(height: kSpacingLarge),
+          
+          // שאלה 2: ימים קבועים
+          Text(
+            'יש לכם ימים קבועים לקניות?',
+            style: t.titleSmall?.copyWith(color: cs.onSurface),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: kSpacingSmall),
+          Text(
+            '(בחירה מרובה)',
+            style: t.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+          ),
+          const SizedBox(height: kSpacingMedium),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: kSpacingSmall,
+            runSpacing: kSpacingSmall,
+            children: OnboardingExtensions.allDays.map((day) {
+              final isSelected = selectedDays.contains(day);
+              final dayLabel = OnboardingExtensions.getDayLabel(day);
+              return FilterChip(
+                label: Text(dayLabel),
+                selected: isSelected,
+                onSelected: (val) {
+                  final newSet = Set<int>.from(selectedDays);
+                  if (val) {
+                    newSet.add(day);
+                    debugPrint('➕ onboarding: נוסף יום - $dayLabel');
+                  } else {
+                    newSet.remove(day);
+                    debugPrint('➖ onboarding: הוסר יום - $dayLabel');
+                  }
+                  debugPrint('✅ onboarding: סה"צ נבחרו ${newSet.length} ימים');
+                  onDaysChanged(newSet);
+                },
+                backgroundColor: cs.surfaceContainerHighest.withValues(alpha: 0.18),
+                selectedColor: cs.primaryContainer,
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ========================================
+// שלב 5: Children (Conditional!) 🆕
+// ========================================
+
+class _ChildrenStep extends StatelessWidget {
+  final bool hasChildren;
+  final Set<String> selectedAges;
+  final ValueChanged<bool> onHasChildrenChanged;
+  final ValueChanged<Set<String>> onAgesChanged;
+  final Color? stickyColor;
+  final double rotation;
+
+  const _ChildrenStep({
+    required this.hasChildren,
+    required this.selectedAges,
+    required this.onHasChildrenChanged,
+    required this.onAgesChanged,
+    this.stickyColor,
+    this.rotation = 0.01,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final t = Theme.of(context).textTheme;
+    final brand = Theme.of(context).extension<AppBrand>();
+    final accent = brand?.accent ?? cs.primary;
+
+    return _StepWrapper(
+      icon: Icons.child_care,
+      title: 'ילדים',
+      stickyColor: stickyColor,
+      rotation: rotation,
+      child: Column(
+        children: [
+          // שאלה 1: יש לכם ילדים?
+          SwitchListTile(
+            contentPadding: const EdgeInsetsDirectional.only(
+              start: kSpacingSmall,
+              end: kSpacingTiny,
+            ),
+            title: Text(
+              'יש לכם ילדים?',
+              textAlign: TextAlign.right,
+              style: t.bodyLarge?.copyWith(color: cs.onSurface),
+            ),
+            value: hasChildren,
+            activeThumbColor: accent,
+            onChanged: (val) {
+              debugPrint('👶 onboarding: יש ילדים = ${val ? "כן" : "לא"}');
+              onHasChildrenChanged(val);
+              
+              // אם בחר "לא" - נקה את הגילאים
+              if (!val && selectedAges.isNotEmpty) {
+                debugPrint('➖ onboarding: מנקה גילאים כי בחר "לא"');
+                onAgesChanged({});
+              }
+            },
+          ),
+          
+          // שאלה 2: גילאים (רק אם יש ילדים!)
+          if (hasChildren) ...[
+            const SizedBox(height: kSpacingLarge),
+            Text(
+              'באילו גילאים?',
+              style: t.titleSmall?.copyWith(color: cs.onSurface),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: kSpacingSmall),
+            Text(
+              '(בחירה מרובה)',
+              style: t.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+            ),
+            const SizedBox(height: kSpacingMedium),
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: kSpacingSmall,
+              runSpacing: kSpacingSmall,
+              children: OnboardingExtensions.allAges.map((age) {
+                final isSelected = selectedAges.contains(age);
+                final ageLabel = OnboardingExtensions.getAgeLabel(age);
+                return FilterChip(
+                  label: Text(ageLabel),
+                  selected: isSelected,
+                  onSelected: (val) {
+                    final newSet = Set<String>.from(selectedAges);
+                    if (val) {
+                      newSet.add(age);
+                      debugPrint('➕ onboarding: נוסף גיל - $ageLabel');
+                    } else {
+                      newSet.remove(age);
+                      debugPrint('➖ onboarding: הוסר גיל - $ageLabel');
+                    }
+                    debugPrint('✅ onboarding: סה"צ נבחרו ${newSet.length} גילאים');
+                    onAgesChanged(newSet);
+                  },
+                  backgroundColor: cs.surfaceContainerHighest.withValues(alpha: 0.18),
+                  selectedColor: cs.primaryContainer,
+                );
+              }).toList(),
+            ),
+          ],
         ],
       ),
     );
@@ -489,7 +653,7 @@ class _SharingStep extends StatelessWidget {
 }
 
 // ========================================
-// שלב 7: Reminder Time
+// שלב 5: Reminder Time
 // ========================================
 
 class _ReminderStep extends StatelessWidget {
@@ -572,7 +736,7 @@ class _ReminderStep extends StatelessWidget {
 }
 
 // ========================================
-// שלב 8: Summary
+// שלב 6: Summary
 // ========================================
 
 class _SummaryStep extends StatelessWidget {
@@ -598,10 +762,6 @@ class _SummaryStep extends StatelessWidget {
     final storesText = data.preferredStores.isEmpty
         ? AppStrings.onboarding.noStoresSelected
         : data.preferredStores.join(", ");
-
-    final categoriesText = data.importantCategories.isEmpty
-        ? AppStrings.onboarding.noCategoriesSelected
-        : data.importantCategories.join(", ");
 
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -636,14 +796,23 @@ class _SummaryStep extends StatelessWidget {
                 ),
                 const SizedBox(height: kSpacingXTiny),
                 _RtlSummaryRow(
-                  leadingEmojiOrIconText: "💰",
-                  text: AppStrings.onboarding.budgetSummary(data.monthlyBudget),
+                  leadingEmojiOrIconText: "📅",
+                  text: 'תדירות: ${data.shoppingFrequency} פעמים בשבוע',
                 ),
-                const SizedBox(height: kSpacingXTiny),
-                _RtlSummaryRow(
-                  leadingEmojiOrIconText: "📦",
-                  text: AppStrings.onboarding.categoriesSummary(categoriesText),
-                ),
+                if (data.shoppingDays.isNotEmpty) ...[
+                  const SizedBox(height: kSpacingXTiny),
+                  _RtlSummaryRow(
+                    leadingEmojiOrIconText: "🗓️",
+                    text: 'ימים קבועים: ${data.shoppingDays.map((d) => OnboardingExtensions.getDayLabel(d)).join(', ')}',
+                  ),
+                ],
+                if (data.hasChildren) ...[
+                  const SizedBox(height: kSpacingXTiny),
+                  _RtlSummaryRow(
+                    leadingEmojiOrIconText: "👶",
+                    text: 'ילדים: ${data.childrenAges.isEmpty ? 'כן' : data.childrenAges.map((a) => OnboardingExtensions.getAgeLabel(a)).join(', ')}',
+                  ),
+                ],
                 const SizedBox(height: kSpacingXTiny),
                 _RtlSummaryRow(
                   leadingEmojiOrIconText: "🤝",
