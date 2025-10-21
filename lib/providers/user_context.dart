@@ -56,7 +56,6 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/material.dart';
-// import 'package:hive/hive.dart'; // Removed - using Firestore only
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_entity.dart';
 import '../repositories/user_repository.dart';
@@ -237,13 +236,8 @@ class UserContext with ChangeNotifier {
     } catch (e) {
       debugPrint('❌ UserContext._savePreferences: שגיאה בשמירת העדפות - $e');
       debugPrint('   → העדפות נשארו בזיכרון אבל לא נשמרו בהתקן');
-    } finally {
-      // 🔒 בדוק אם ה-context עדיין חי לפני notifyListeners
-      if (!_isDisposed) {
-        notifyListeners();
-        // debugPrint('   🔔 UserContext: notifyListeners() (preferences saved/failed)');
-      }
     }
+    // Note: notifyListeners() נקרא על ידי הפונקציה הקוראת (setThemeMode/toggleCompactView/toggleShowPrices)
   }
 
   // === האזנה לשינויים ב-Auth ===
@@ -261,6 +255,9 @@ class UserContext with ChangeNotifier {
   /// ⚠️ **Performance:** משתמש ב-.then() במקום await למניעת blocking
   void _listenToAuthChanges() {
     debugPrint('👂 UserContext: מתחיל להאזין לשינויים ב-Auth');
+
+    // 🔒 ביטול listener קיים לפני יצירת חדש (למניעת האזנה כפולה)
+    _authSubscription?.cancel();
 
     _authSubscription = _authService.authStateChanges.listen(
       (firebaseUser) {
@@ -302,7 +299,7 @@ class UserContext with ChangeNotifier {
   /// 
   /// תהליך:
   /// 1. ניסיון לטעון מ-Repository
-  /// 2. אם לא נמצא → יוצר משתמש חדש
+  /// 2. אם לא נמצא → יוצר משתמש חדש דרך Repository
   /// 3. מעדכן state + notifyListeners
   /// 
   /// במקרה של שגיאה:
@@ -318,16 +315,14 @@ class UserContext with ChangeNotifier {
       if (_user == null) {
         debugPrint('⚠️ משתמש לא נמצא ב-Firestore, יוצר חדש');
 
-        // צור משתמש חדש אם לא קיים
+        // ✅ צור משתמש חדש דרך Repository.createUser()
         final firebaseUser = _authService.currentUser;
         if (firebaseUser != null) {
-          _user = UserEntity.newUser(
-            id: firebaseUser.uid,
+          _user = await _repository.createUser(
+            userId: firebaseUser.uid,
             email: firebaseUser.email ?? '',
             name: firebaseUser.displayName ?? 'משתמש חדש',
           );
-
-          await _repository.saveUser(_user!);
           debugPrint('✅ משתמש חדש נוצר ב-Firestore');
         }
       }
@@ -349,7 +344,7 @@ class UserContext with ChangeNotifier {
   /// 
   /// תהליך:
   /// 1. רישום ב-Firebase Auth
-  /// 2. יצירת UserEntity חדש
+  /// 2. יצירת UserEntity חדש דרך Repository
   /// 3. שמירה ב-Firestore דרך Repository
   /// 4. ה-Listener של authStateChanges מטפל בעדכון הסופי
   /// 
@@ -396,15 +391,13 @@ class UserContext with ChangeNotifier {
         name: name,
       );
 
-      // יצירת רשומה ב-Firestore
+      // ✅ יצירת רשומה ב-Firestore דרך Repository.createUser()
       if (credential.user != null) {
-        _user = UserEntity.newUser(
-          id: credential.user!.uid,
-          email: email.toLowerCase().trim(),
+        _user = await _repository.createUser(
+          userId: credential.user!.uid,
+          email: email,
           name: name,
         );
-
-        await _repository.saveUser(_user!);
         debugPrint('✅ UserContext.signUp: משתמש נוצר בהצלחה');
       }
 
@@ -636,6 +629,7 @@ class UserContext with ChangeNotifier {
   /// 
   /// See also:
   /// - [signUp] - יצירת משתמש חדש
+  /// - [updateUserProfile] - עדכון חלקי (שם/תמונה)
   Future<void> saveUser(UserEntity user) async {
     debugPrint('💾 UserContext.saveUser: שומר משתמש ${user.id}');
 
@@ -651,6 +645,76 @@ class UserContext with ChangeNotifier {
     } finally {
       notifyListeners();
       debugPrint('   🔔 UserContext: notifyListeners() (saveUser completed)');
+    }
+  }
+
+  /// מעדכן פרופיל משתמש (עדכון חלקי)
+  /// 
+  /// פונקציה נוחה לעדכון שם ו/או תמונת פרופיל.
+  /// 
+  /// מעדכן רק את השדות שנשלחו (לא null).
+  /// שאר השדות נשארים ללא שינוי.
+  /// 
+  /// ⚠️ **הערה:** לא מעדכן את `lastLoginAt` (בניגוד ל-saveUser).
+  /// 
+  /// 💡 **יתרונות:**
+  /// - עדכון מהיר בלי לטעון את כל הנתונים
+  /// - API פשוט למסך הגדרות
+  /// - לא משפיע על lastLoginAt
+  /// 
+  /// זורק [UserRepositoryException] במקרה של:
+  /// - משתמש לא מחובר
+  /// - שגיאת רשת
+  /// - אין שדות לעדכון
+  /// 
+  /// Example:
+  /// ```dart
+  /// // עדכון שם בלבד
+  /// await userContext.updateUserProfile(name: 'יוני כהן');
+  /// 
+  /// // עדכון תמונה בלבד
+  /// await userContext.updateUserProfile(
+  ///   avatar: 'https://example.com/avatar.jpg',
+  /// );
+  /// 
+  /// // עדכון שניהם
+  /// await userContext.updateUserProfile(
+  ///   name: 'יוני',
+  ///   avatar: 'https://example.com/avatar.jpg',
+  /// );
+  /// ```
+  /// 
+  /// See also:
+  /// - [saveUser] - עדכון מלא של כל הפרופיל
+  Future<void> updateUserProfile({String? name, String? avatar}) async {
+    if (_user == null) {
+      debugPrint('❌ UserContext.updateUserProfile: אין משתמש מחובר');
+      throw UserRepositoryException('אין משתמש מחובר');
+    }
+
+    debugPrint('✏️ UserContext.updateUserProfile: מעדכן פרופיל של ${_user!.id}');
+
+    _errorMessage = null;
+
+    try {
+      // ✅ קורא ל-Repository.updateProfile()
+      await _repository.updateProfile(
+        userId: _user!.id,
+        name: name,
+        avatar: avatar,
+      );
+
+      // טען מחדש כדי לקבל את העדכונים
+      _user = await _repository.fetchUser(_user!.id);
+
+      debugPrint('✅ UserContext.updateUserProfile: פרופיל עודכן');
+    } catch (e) {
+      debugPrint('❌ UserContext.updateUserProfile: שגיאה - $e');
+      _errorMessage = 'שגיאה בעדכון פרופיל';
+      rethrow;
+    } finally {
+      notifyListeners();
+      debugPrint('   🔔 UserContext: notifyListeners() (updateProfile completed)');
     }
   }
 
@@ -707,6 +771,7 @@ class UserContext with ChangeNotifier {
     // debugPrint('🎨 UserContext.setThemeMode: משנה ל-$mode');
     _themeMode = mode;
     _savePreferences();
+    notifyListeners();
   }
 
   /// משנה מצב תצוגה קומפקטית (On/Off)
@@ -722,6 +787,7 @@ class UserContext with ChangeNotifier {
     _compactView = !_compactView;
     // debugPrint('📱 UserContext.toggleCompactView: compactView=$_compactView');
     _savePreferences();
+    notifyListeners();
   }
 
   /// משנה מצב הצגת מחירים (Show/Hide)
@@ -737,6 +803,7 @@ class UserContext with ChangeNotifier {
     _showPrices = !_showPrices;
     // debugPrint('💰 UserContext.toggleShowPrices: showPrices=$_showPrices');
     _savePreferences();
+    notifyListeners();
   }
 
   /// מאפס את כל העדפות UI לברירת מחדל

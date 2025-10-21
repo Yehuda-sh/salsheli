@@ -47,10 +47,11 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+
 import '../models/user_entity.dart';
+import 'constants/repository_constants.dart';
 import 'user_repository.dart';
 import 'utils/firestore_utils.dart';
-import 'constants/repository_constants.dart';
 
 class FirebaseUserRepository implements UserRepository {
   final FirebaseFirestore _firestore;
@@ -146,26 +147,40 @@ class FirebaseUserRepository implements UserRepository {
   }
 
   // === Get All Users ===
+  // 💡 Dynamic filtering: Pass householdId to filter, or null for all users
+  // ⚠️ WARNING: Calling without householdId returns ALL users (admin only!)
 
   @override
-  Future<List<UserEntity>> getAllUsers() async {
+  Future<List<UserEntity>> getAllUsers({String? householdId}) async {
     try {
-      debugPrint('📋 FirebaseUserRepository.getAllUsers: טוען כל המשתמשים');
+      if (householdId != null) {
+        debugPrint('📋 FirebaseUserRepository.getAllUsers: Loading users for household $householdId');
+      } else {
+        debugPrint('⚠️ FirebaseUserRepository.getAllUsers: Loading ALL users (no filter!)');
+      }
 
-      final snapshot = await _firestore.collection(FirestoreCollections.users).get();
+      Query<Map<String, dynamic>> query = _firestore.collection(FirestoreCollections.users);
+      
+      // ✅ Apply household filter if provided
+      if (householdId != null) {
+        query = query.where(FirestoreFields.householdId, isEqualTo: householdId);
+      }
+      
+      final snapshot = await query
+          .limit(householdId != null ? 50 : 100) // More restrictive for all-users query
+          .get();
 
       final users = snapshot.docs.map((doc) {
-        // המרת Timestamps ל-Strings
         final data = FirestoreUtils.convertTimestamps(
           Map<String, dynamic>.from(doc.data()),
         );
         return UserEntity.fromJson(data);
       }).toList();
 
-      debugPrint('✅ FirebaseUserRepository.getAllUsers: נטענו ${users.length} משתמשים');
+      debugPrint('✅ FirebaseUserRepository.getAllUsers: Loaded ${users.length} users');
       return users;
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseUserRepository.getAllUsers: שגיאה - $e');
+      debugPrint('❌ FirebaseUserRepository.getAllUsers: Error - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw UserRepositoryException('Failed to get all users', e);
     }
@@ -230,24 +245,52 @@ class FirebaseUserRepository implements UserRepository {
   }
 
   // === Clear All ===
+  // 💡 Dynamic filtering: Pass householdId to delete specific household, or null for all
+  // ⚠️ DANGEROUS: Calling without householdId deletes ALL users (testing only!)
 
   @override
-  Future<void> clearAll() async {
+  Future<void> clearAll({String? householdId}) async {
     try {
-      debugPrint('🧹 FirebaseUserRepository.clearAll: מנקה את כל המשתמשים');
-
-      final snapshot = await _firestore.collection(FirestoreCollections.users).get();
-
-      final batch = _firestore.batch();
-      for (final doc in snapshot.docs) {
-        batch.delete(doc.reference);
+      if (householdId != null) {
+        debugPrint('🧹 FirebaseUserRepository.clearAll: Deleting users for household $householdId');
+      } else {
+        debugPrint('⚠️ FirebaseUserRepository.clearAll: Deleting ALL users (DANGEROUS!)');
       }
 
-      await batch.commit();
+      Query<Map<String, dynamic>> query = _firestore.collection(FirestoreCollections.users);
+      
+      // ✅ Apply household filter if provided
+      if (householdId != null) {
+        query = query.where(FirestoreFields.householdId, isEqualTo: householdId);
+      } else {
+        query = query.limit(100); // Safety limit for all-users delete
+      }
+      
+      final snapshot = await query.get();
 
-      debugPrint('✅ FirebaseUserRepository.clearAll: ${snapshot.docs.length} משתמשים נמחקו');
+      // ✅ Split into batches of 500 (Firestore maximum)
+      final docs = snapshot.docs;
+      for (int i = 0; i < docs.length; i += RepositoryConfig.maxBatchSize) {
+        final batch = _firestore.batch();
+        final end = (i + RepositoryConfig.maxBatchSize < docs.length) 
+            ? i + RepositoryConfig.maxBatchSize 
+            : docs.length;
+        
+        for (int j = i; j < end; j++) {
+          batch.delete(docs[j].reference);
+        }
+        
+        await batch.commit();
+        
+        // ✅ Prevent rate limiting with delay between batches
+        if (end < docs.length) {
+          await Future.delayed(const Duration(milliseconds: 100));
+        }
+      }
+
+      debugPrint('✅ FirebaseUserRepository.clearAll: Deleted ${docs.length} users');
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseUserRepository.clearAll: שגיאה - $e');
+      debugPrint('❌ FirebaseUserRepository.clearAll: Error - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw UserRepositoryException('Failed to clear all users', e);
     }
@@ -380,8 +423,8 @@ class FirebaseUserRepository implements UserRepository {
       debugPrint('✏️ FirebaseUserRepository.updateProfile: מעדכן פרופיל של $userId');
 
       final updates = <String, dynamic>{};
-      if (name != null) updates['name'] = name;
-      if (avatar != null) updates['avatar'] = avatar;
+      if (name != null) updates[FirestoreFields.name] = name;
+      if (avatar != null) updates[FirestoreFields.profileImageUrl] = avatar;
 
       if (updates.isEmpty) {
         debugPrint('⚠️ אין שדות לעדכון');

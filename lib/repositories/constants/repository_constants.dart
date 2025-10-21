@@ -55,8 +55,13 @@ class FirestoreFields {
   // User fields
   static const String email = 'email';
   static const String name = 'name';
+  static const String profileImageUrl = 'profile_image_url';
   static const String joinedAt = 'joined_at';
   static const String lastLoginAt = 'last_login_at';
+  static const String preferredStores = 'preferred_stores';
+  static const String favoriteProducts = 'favorite_products';
+  static const String weeklyBudget = 'weekly_budget';
+  static const String isAdmin = 'is_admin';
   
   // Shopping list fields
   static const String listName = 'name';

@@ -198,10 +198,15 @@ abstract class UserRepository {
 
   /// מחזיר רשימה של כל המשתמשים במערכת
   /// 
-  /// ⚠️ **אזהרה:** פעולה זו יכולה להיות איטית עם הרבה משתמשים!
+  /// 💡 **Dynamic filtering:** מקבל פרמטר אופציונלי [householdId]:
+  /// - אם [householdId] מסופק → מחזיר רק משתמשים של אותו משק בית
+  /// - אם [householdId] הוא null → מחזיר **כל** המשתמשים (admin בלבד!)
+  /// 
+  /// ⚠️ **אזהרה:** שימוש ללא householdId יכול להיות איטי עם הרבה משתמשים!
   /// 
   /// שימושי בעיקר ל:
-  /// - מסכי ניהול (admin)
+  /// - מסכי ניהול משק בית (עם householdId) ✅
+  /// - מסכי ניהול admin (ללא householdId) ⚠️
   /// - דוחות ואנליטיקה
   /// - טסטים ו-debugging
   /// 
@@ -211,17 +216,20 @@ abstract class UserRepository {
   /// 
   /// Example:
   /// ```dart
-  /// final users = await repository.getAllUsers();
-  /// print('סה"כ משתמשים: ${users.length}');
+  /// // קבלת משתמשים של משק בית מסוים (מומלץ)
+  /// final householdUsers = await repository.getAllUsers(
+  ///   householdId: 'house_abc123',
+  /// );
+  /// print('משתמשי המשק: ${householdUsers.length}');
   /// 
-  /// for (final user in users) {
-  ///   print('${user.name} - ${user.email}');
-  /// }
+  /// // קבלת כל המשתמשים (admin בלבד)
+  /// final allUsers = await repository.getAllUsers();
+  /// print('סה"כ משתמשים: ${allUsers.length}');
   /// ```
   /// 
   /// See also:
   /// - [findByEmail] - חיפוש משתמש ספציפי
-  Future<List<UserEntity>> getAllUsers();
+  Future<List<UserEntity>> getAllUsers({String? householdId});
 
   /// מחפש משתמש לפי כתובת אימייל
   /// 
@@ -276,22 +284,198 @@ abstract class UserRepository {
   /// - [saveUser] - עדכון כל הפרופיל (כולל lastLoginAt)
   Future<void> updateLastLogin(String userId);
 
-  /// מוחק את כל המשתמשים מהמערכת
+  /// יוצר משתמש חדש במערכת
   /// 
-  /// ⚠️ **אזהרה קריטית:** פעולה זו בלתי הפיכה!
+  /// פונקציה עוטפת נוחה ל-[saveUser] שמטפלת ביצירת משתמש חדש.
   /// 
-  /// שימושי **רק** ל:
-  /// - איפוס מסד נתונים בטסטים
-  /// - סביבת פיתוח (dev/staging)
-  /// - סקריפטים של ניקוי
+  /// אם המשתמש כבר קיים - מחזיר את המשתמש הקיים (לא יוצר כפילות).
   /// 
-  /// ❌ **אסור להשתמש ב-Production!**
+  /// **פרמטרים:**
+  /// - [userId] - מזהה ייחודי (בד"כ מ-Firebase Auth)
+  /// - [email] - כתובת אימייל (מנורמלת אוטומטית)
+  /// - [name] - שם המשתמש
+  /// - [householdId] - מזהה משק בית (אופציונלי)
+  /// 
+  /// מחזיר את המשתמש החדש/הקיים.
+  /// 
+  /// שימושי ב:
+  /// - תהליך הרשמה (Sign Up)
+  /// - יצירת משתמשי דמו
+  /// - מיגרציה של משתמשים
   /// 
   /// זורק [UserRepositoryException] במקרה של שגיאה.
   /// 
   /// Example:
   /// ```dart
-  /// // בטסטים בלבד!
+  /// final user = await repository.createUser(
+  ///   userId: 'abc123',
+  ///   email: 'user@example.com',
+  ///   name: 'יוני כהן',
+  ///   householdId: 'house_demo',
+  /// );
+  /// print('משתמש נוצר: ${user.id}');
+  /// ```
+  /// 
+  /// See also:
+  /// - [saveUser] - שמירה/עדכון משתמש קיים
+  /// - [existsUser] - בדיקת קיום משתמש
+  Future<UserEntity> createUser({
+    required String userId,
+    required String email,
+    required String name,
+    String? householdId,
+  });
+
+  /// מעדכן פרופיל של משתמש (עדכון חלקי)
+  /// 
+  /// מעדכן רק את השדות שנשלחו (לא null).
+  /// שאר השדות נשארים ללא שינוי.
+  /// 
+  /// **פרמטרים:**
+  /// - [userId] - מזהה המשתמש לעדכון (חובה)
+  /// - [name] - שם חדש (אופציונלי)
+  /// - [avatar] - URL לתמונת פרופיל (אופציונלי)
+  /// 
+  /// שימושי ב:
+  /// - מסך הגדרות פרופיל
+  /// - עדכון שם/תמונה מהיר
+  /// - עדכון חלקי ללא טעינת כל הנתונים
+  /// 
+  /// ⚠️ **הערה:** לא מעדכן את `lastLoginAt` (בניגוד ל-saveUser).
+  /// 
+  /// זורק [UserRepositoryException] במקרה של:
+  /// - משתמש לא קיים
+  /// - שגיאת רשת
+  /// - אין שדות לעדכון
+  /// 
+  /// Example:
+  /// ```dart
+  /// // עדכון שם בלבד
+  /// await repository.updateProfile(
+  ///   userId: 'abc123',
+  ///   name: 'יוני כהן החדש',
+  /// );
+  /// 
+  /// // עדכון תמונה בלבד
+  /// await repository.updateProfile(
+  ///   userId: 'abc123',
+  ///   avatar: 'https://example.com/avatar.jpg',
+  /// );
+  /// 
+  /// // עדכון שניהם
+  /// await repository.updateProfile(
+  ///   userId: 'abc123',
+  ///   name: 'יוני',
+  ///   avatar: 'https://example.com/avatar.jpg',
+  /// );
+  /// ```
+  /// 
+  /// See also:
+  /// - [saveUser] - עדכון מלא של כל הפרופיל
+  /// - [fetchUser] - קריאת הפרופיל הנוכחי
+  Future<void> updateProfile({
+    required String userId,
+    String? name,
+    String? avatar,
+  });
+
+  /// מחזיר Stream של משתמש לעדכונים בזמן אמת
+  /// 
+  /// ה-Stream ישלח עדכון כל פעם שהמשתמש משתנה במערכת.
+  /// 
+  /// מחזיר `null` אם המשתמש נמחק או לא קיים.
+  /// 
+  /// 💡 **שימושי ב:**
+  /// - הצגת פרופיל משתמש (real-time)
+  /// - סנכרון בין מכשירים
+  /// - עדכונים אוטומטיים של UI
+  /// - מעקב אחר שינויים בפרופיל
+  /// 
+  /// ⚠️ **חשוב:** זכור לבטל את ה-subscription כשלא צריך!
+  /// 
+  /// 📝 **הערת מימוש:**
+  /// - Firebase: Real-time Firestore snapshots
+  /// - SQLite: Periodic polling או manual refresh
+  /// - Mock: Stream.periodic למטרות testing
+  /// 
+  /// זורק [UserRepositoryException] במקרה של שגיאת חיבור או הרשאות.
+  /// 
+  /// Example:
+  /// ```dart
+  /// // האזנה לשינויים
+  /// final subscription = repository.watchUser('abc123').listen((user) {
+  ///   if (user != null) {
+  ///     print('User updated: ${user.name}');
+  ///   } else {
+  ///     print('User deleted or not found');
+  ///   }
+  /// });
+  /// 
+  /// // ביטול ההאזנה (חשוב!)
+  /// subscription.cancel();
+  /// ```
+  /// 
+  /// Example עם Provider:
+  /// ```dart
+  /// class UserProfileScreen extends StatefulWidget {
+  ///   @override
+  ///   _UserProfileScreenState createState() => _UserProfileScreenState();
+  /// }
+  /// 
+  /// class _UserProfileScreenState extends State<UserProfileScreen> {
+  ///   StreamSubscription? _subscription;
+  ///   
+  ///   @override
+  ///   void initState() {
+  ///     super.initState();
+  ///     final repository = context.read<UserRepository>();
+  ///     _subscription = repository.watchUser('abc123').listen((user) {
+  ///       if (mounted && user != null) {
+  ///         setState(() {
+  ///           // עדכן UI...
+  ///         });
+  ///       }
+  ///     });
+  ///   }
+  ///   
+  ///   @override
+  ///   void dispose() {
+  ///     _subscription?.cancel(); // ביטול!
+  ///     super.dispose();
+  ///   }
+  /// }
+  /// ```
+  /// 
+  /// See also:
+  /// - [fetchUser] - קריאה חד-פעמית
+  /// - [saveUser] - עדכון המשתמש
+  Stream<UserEntity?> watchUser(String userId);
+
+  /// מוחק את כל המשתמשים מהמערכת
+  /// 
+  /// 💡 **Dynamic filtering:** מקבל פרמטר אופציונלי [householdId]:
+  /// - אם [householdId] מסופק → מוחק רק משתמשים של אותו משק בית ✅
+  /// - אם [householdId] הוא null → מוחק **כל** המשתמשים (מסוכן!) ⚠️
+  /// 
+  /// ⚠️ **אזהרה קריטית:** פעולה זו בלתי הפיכה!
+  /// 
+  /// שימושי **רק** ל:
+  /// - ניקוי משק בית מסוים (עם householdId) ✅
+  /// - איפוס מסד נתונים בטסטים (ללא householdId)
+  /// - סביבת פיתוח (dev/staging)
+  /// - סקריפטים של ניקוי
+  /// 
+  /// ❌ **אסור להשתמש ב-Production ללא householdId!**
+  /// 
+  /// זורק [UserRepositoryException] במקרה של שגיאה.
+  /// 
+  /// Example:
+  /// ```dart
+  /// // ניקוי משק בית מסוים (מומלץ)
+  /// await repository.clearAll(householdId: 'house_abc123');
+  /// print('משתמשי המשק נמחקו');
+  /// 
+  /// // ניקוי כל המשתמשים (בטסטים בלבד!)
   /// await repository.clearAll();
   /// print('כל המשתמשים נמחקו');
   /// 
@@ -302,5 +486,5 @@ abstract class UserRepository {
   /// 
   /// See also:
   /// - [deleteUser] - מחיקת משתמש בודד
-  Future<void> clearAll();
+  Future<void> clearAll({String? householdId});
 }
