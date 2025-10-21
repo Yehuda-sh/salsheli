@@ -14,6 +14,7 @@ void main() {
         final receipt = Receipt.newReceipt(
           storeName: 'רמי לוי',
           date: testDate,
+          householdId: 'test_household',
           totalAmount: 250.50,
         );
 
@@ -44,6 +45,7 @@ void main() {
         final receipt = Receipt.newReceipt(
           storeName: 'שופרסל',
           date: testDate,
+          householdId: 'test_household',
           totalAmount: 21.0,
           items: items,
         );
@@ -61,6 +63,7 @@ void main() {
           id: 'receipt-123',
           storeName: 'מגה בעיר',
           date: testDate,
+          householdId: 'test_household',
           createdDate: testDate.add(Duration(hours: 1)),
           totalAmount: 342.75,
           items: [
@@ -91,6 +94,7 @@ void main() {
           'id': 'receipt-minimal',
           'store_name': 'חנות',
           'date': testDate.toIso8601String(),
+          'household_id': 'test_household',
           'total_amount': 100.0,
           'items': [],
         };
@@ -108,6 +112,7 @@ void main() {
           'id': '',
           'store_name': null,
           'date': testDate.toIso8601String(),
+          'household_id': 'test_household',
           'total_amount': 0,
           'items': [],
         };
@@ -371,6 +376,7 @@ void main() {
       final receipt = Receipt.newReceipt(
         storeName: 'רמי לוי',
         date: DateTime.now(),
+        householdId: 'test_household',
         totalAmount: groceryItems.fold(0.0, (sum, item) => sum + item.totalPrice),
         items: groceryItems,
       );
@@ -400,6 +406,7 @@ void main() {
         id: 'receipt-discount',
         storeName: 'שופרסל דיל',
         date: DateTime.now(),
+        householdId: 'test_household',
         totalAmount: 17.70,
         items: items,
       );
@@ -431,6 +438,7 @@ void main() {
       final receipt = Receipt.newReceipt(
         storeName: 'סופר-פארם',
         date: DateTime.now(),
+        householdId: 'test_household',
         totalAmount: 53.70,
         items: items,
       );
@@ -445,6 +453,7 @@ void main() {
       final emptyReceipt = Receipt.newReceipt(
         storeName: 'חנות לא ידועה',
         date: DateTime.now(),
+        householdId: 'test_household',
       );
 
       expect(emptyReceipt.items, isEmpty);
@@ -462,6 +471,7 @@ void main() {
       final receipt = Receipt.newReceipt(
         storeName: 'חנות בדיקה',
         date: DateTime.now(),
+        householdId: 'test_household',
         totalAmount: 72.50,
         items: items,
       );
@@ -490,6 +500,7 @@ void main() {
         id: 'receipt-checked',
         storeName: 'מגה',
         date: DateTime.now(),
+        householdId: 'test_household',
         totalAmount: 43.80,
         items: items,
       );
@@ -533,6 +544,7 @@ void main() {
         id: 'receipt-ocr',
         storeName: 'חנות',
         date: DateTime.now(),
+        householdId: 'test_household',
         totalAmount: 37.80,
         items: ocrItems,
       );
@@ -577,6 +589,7 @@ void main() {
       final receipt = Receipt.newReceipt(
         storeName: 'קוסטקו',
         date: DateTime.now(),
+        householdId: 'test_household',
         totalAmount: 279.90,
         items: bulkItems,
       );

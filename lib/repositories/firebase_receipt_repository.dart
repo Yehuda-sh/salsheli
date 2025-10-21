@@ -65,7 +65,7 @@ class FirebaseReceiptRepository implements ReceiptRepository {
   // === Save Receipt ===
 
   @override
-  Future<Receipt> saveReceipt(Receipt receipt, String householdId) async {
+  Future<Receipt> saveReceipt({required Receipt receipt, required String householdId}) async {
     try {
       debugPrint('💾 FirebaseReceiptRepository.saveReceipt: שומר קבלה ${receipt.id}');
 
@@ -90,7 +90,7 @@ class FirebaseReceiptRepository implements ReceiptRepository {
   // === Delete Receipt ===
 
   @override
-  Future<void> deleteReceipt(String id, String householdId) async {
+  Future<void> deleteReceipt({required String id, required String householdId}) async {
     try {
       debugPrint('🗑️ FirebaseReceiptRepository.deleteReceipt: מוחק קבלה $id');
 

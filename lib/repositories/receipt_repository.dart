@@ -53,7 +53,7 @@ abstract class ReceiptRepository {
   /// );
   /// final saved = await repository.saveReceipt(newReceipt, 'house_123');
   /// ```
-  Future<Receipt> saveReceipt(Receipt receipt, String householdId);
+  Future<Receipt> saveReceipt({required Receipt receipt, required String householdId});
 
   /// מחיק קבלה
   /// 
@@ -67,5 +67,5 @@ abstract class ReceiptRepository {
   /// await repository.deleteReceipt('receipt_123', 'house_123');
   /// print('קבלה נמחקה בהצלחה');
   /// ```
-  Future<void> deleteReceipt(String id, String householdId);
+  Future<void> deleteReceipt({required String id, required String householdId});
 }

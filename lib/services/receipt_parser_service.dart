@@ -36,7 +36,7 @@ class ReceiptParserService {
   /// final text = "שופרסל\nחלב - 6.90\nלחם - 5.50\nסה\"כ: 12.40";
   /// final receipt = ReceiptParserService.parseReceiptText(text);
   /// ```
-  static Receipt parseReceiptText(String text) {
+  static Receipt parseReceiptText(String text, String householdId) {
     debugPrint('📝 ReceiptParserService.parseReceiptText()');
     debugPrint('   📏 אורך טקסט: ${text.length} תווים');
 
@@ -63,6 +63,7 @@ class ReceiptParserService {
       final receipt = Receipt.newReceipt(
         storeName: storeName,
         date: DateTime.now(),
+        householdId: householdId,
         totalAmount: totalAmount,
         items: items,
       );
@@ -77,6 +78,7 @@ class ReceiptParserService {
       return Receipt.newReceipt(
         storeName: 'לא זוהה',
         date: DateTime.now(),
+        householdId: householdId,
         totalAmount: 0.0,
         items: [],
       );

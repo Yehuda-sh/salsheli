@@ -22,6 +22,7 @@ Receipt _$ReceiptFromJson(Map<String, dynamic> json) => Receipt(
   linkedShoppingListId: json['linked_shopping_list_id'] as String?,
   isVirtual: json['is_virtual'] as bool? ?? false,
   createdBy: json['created_by'] as String?,
+  householdId: json['household_id'] as String,
 );
 
 Map<String, dynamic> _$ReceiptToJson(Receipt instance) => <String, dynamic>{
@@ -38,6 +39,7 @@ Map<String, dynamic> _$ReceiptToJson(Receipt instance) => <String, dynamic>{
   'linked_shopping_list_id': instance.linkedShoppingListId,
   'is_virtual': instance.isVirtual,
   'created_by': instance.createdBy,
+  'household_id': instance.householdId,
 };
 
 ReceiptItem _$ReceiptItemFromJson(Map<String, dynamic> json) => ReceiptItem(

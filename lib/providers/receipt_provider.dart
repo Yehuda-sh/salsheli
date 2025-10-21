@@ -319,13 +319,14 @@ class ReceiptProvider with ChangeNotifier {
       final newReceipt = Receipt.newReceipt(
         storeName: storeName,
         date: date,
+        householdId: householdId,
         items: items,
         totalAmount: totalAmount,
         originalUrl: originalUrl,
         fileUrl: fileUrl,
       );
 
-      final saved = await _repository.saveReceipt(newReceipt, householdId);
+      final saved = await _repository.saveReceipt(receipt: newReceipt, householdId: householdId);
       debugPrint('✅ קבלה נשמרה ב-Repository: ${saved.id}');
       
       // אופטימיזציה: הוספה local במקום ריענון מלא
@@ -361,7 +362,7 @@ class ReceiptProvider with ChangeNotifier {
     }
 
     try {
-      final updated = await _repository.saveReceipt(receipt, householdId);
+      final updated = await _repository.saveReceipt(receipt: receipt, householdId: householdId);
       debugPrint('✅ קבלה עודכנה ב-Repository');
       
       // אופטימיזציה: עדכון local במקום ריענון מלא
@@ -399,7 +400,7 @@ class ReceiptProvider with ChangeNotifier {
     }
 
     try {
-      await _repository.deleteReceipt(receiptId, householdId);
+      await _repository.deleteReceipt(id: receiptId, householdId: householdId);
       debugPrint('✅ קבלה נמחקה מ-Repository');
       
       // אופטימיזציה: מחיקה local במקום ריענון מלא

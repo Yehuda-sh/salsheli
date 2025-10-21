@@ -724,13 +724,14 @@ class ShoppingListsProvider with ChangeNotifier {
         final receipt = Receipt.virtual(
           linkedShoppingListId: listId,
           createdBy: userId,
+          householdId: householdId,
           storeName: list.name,
           items: checkedItems,
           date: DateTime.now(),
         );
 
         // שמור קבלה ב-ReceiptRepository
-        await _receiptRepository.saveReceipt(receipt, householdId);
+        await _receiptRepository.saveReceipt(receipt: receipt, householdId: householdId);
         debugPrint('   📄 קבלה וירטואלית נוצרה ונשמרה: ${receipt.id}');
       }
 

@@ -191,6 +191,7 @@ class _ReceiptPreviewState extends State<ReceiptPreview> {
       date: editedReceipt.date,
       items: editedReceipt.items,
       totalAmount: editedReceipt.totalAmount,
+      householdId: editedReceipt.householdId,
     );
   }
 
@@ -210,6 +211,7 @@ class _ReceiptPreviewState extends State<ReceiptPreview> {
         date: editedReceipt.date,
         items: updatedItems,
         totalAmount: newTotal,
+        householdId: editedReceipt.householdId,
       );
 
       // Update controllers if needed
@@ -255,6 +257,7 @@ class _ReceiptPreviewState extends State<ReceiptPreview> {
         date: editedReceipt.date,
         items: updatedItems,
         totalAmount: newTotal,
+        householdId: editedReceipt.householdId,
       );
 
       // Adjust editing index if needed
@@ -287,6 +290,7 @@ class _ReceiptPreviewState extends State<ReceiptPreview> {
                 date: editedReceipt.date,
                 items: items,
                 totalAmount: _calculateTotal(items),
+                householdId: editedReceipt.householdId,
               );
               // שיקום controllers לפריט המחוזר
               final c = ItemControllers(
@@ -344,6 +348,7 @@ class _ReceiptPreviewState extends State<ReceiptPreview> {
         date: editedReceipt.date,
         items: updatedItems,
         totalAmount: _calculateTotal(updatedItems),
+        householdId: editedReceipt.householdId,
       );
       editingItemIndex = newIndex; // Start editing the new item
     });
@@ -377,6 +382,7 @@ class _ReceiptPreviewState extends State<ReceiptPreview> {
           date: picked,
           items: editedReceipt.items,
           totalAmount: editedReceipt.totalAmount,
+          householdId: editedReceipt.householdId,
         );
         dateController.text = dateFormatter.format(picked);
       });
