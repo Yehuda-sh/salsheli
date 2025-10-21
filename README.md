@@ -1,4 +1,4 @@
-# 🛒 Salsheli - סל שלי
+# 🛒 MemoZap
 
 > **Family shopping list management app** | Built with Flutter + Firebase
 
@@ -9,7 +9,7 @@
 
 ---
 
-## 🎯 What is Salsheli?
+## 🎯 What is MemoZap?
 
 **Smart family shopping list manager** with unique Sticky Notes design.
 
@@ -34,8 +34,8 @@
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/Yehuda-sh/salsheli.git
-cd salsheli
+git clone https://github.com/Yehuda-sh/memozap.git
+cd memozap
 
 # 2. Install dependencies
 flutter pub get
@@ -139,7 +139,7 @@ flutter build ios --release  # iOS
 ## 📂 Project Structure
 
 ```
-salsheli/
+memozap/
 ├── lib/
 │   ├── core/              # UI constants, theme
 │   ├── models/            # 11 data models
@@ -192,8 +192,8 @@ salsheli/
 - **GitHub:** [@Yehuda-sh](https://github.com/Yehuda-sh)
 
 ### Resources
-- **🐛 Report Bug:** [Create Issue](https://github.com/Yehuda-sh/salsheli/issues/new)
-- **💡 Feature Request:** [Discussions](https://github.com/Yehuda-sh/salsheli/discussions)
+- **🐛 Report Bug:** [Create Issue](https://github.com/Yehuda-sh/memozap/issues/new)
+- **💡 Feature Request:** [Discussions](https://github.com/Yehuda-sh/memozap/discussions)
 - **📖 Documentation:** All docs in this repo
 - **🔧 Support:** Check docs first, then create issue
 
@@ -201,7 +201,7 @@ salsheli/
 
 ## 📜 License
 
-**© 2025 Salsheli Team | All Rights Reserved**
+**© 2025 MemoZap Team | All Rights Reserved**
 
 [Add your license here - MIT, Apache, Proprietary, etc.]
 

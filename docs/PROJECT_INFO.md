@@ -55,7 +55,7 @@
 ## 📂 Project Structure
 
 ```
-C:\projects\memozap\
+C:\projects\salsheli\
 ├── lib/
 │   ├── core/              # UI constants, theme base
 │   ├── models/            # 11 data models

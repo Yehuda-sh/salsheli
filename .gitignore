@@ -1,9 +1,14 @@
-# Miscellaneous
+# ----------------------------
+# General junk
+# ----------------------------
 *.class
 *.log
 *.pyc
 *.swp
+*.orig
 .DS_Store
+Thumbs.db
+
 .atom/
 .build/
 .buildlog/
@@ -12,42 +17,133 @@
 .swiftpm/
 migrate_working_dir/
 
-# IntelliJ related
+# ----------------------------
+# IDEs
+# ----------------------------
 *.iml
 *.ipr
 *.iws
 .idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
+# שמור בדרך כלל: קונפיגים של VS Code. בטוח להשאיר כמחוק # אם רוצים לשתף.
 #.vscode/
 
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
+# ----------------------------
+# Flutter / Dart / Pub
+# ----------------------------
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-/build/
+build/
+**/doc/api/
+**/ios/Flutter/.last_build_id
 
-# Symbolication related
-app.*.symbols
+# קבצים שנוצרים אוטומטית ע"י מחוללים
+**/*.g.dart
+**/*.freezed.dart
+**/*.gen.dart
+lib/gen/
 
-# Obfuscation related
-app.*.map.json
-
-# Android Studio will place build artifacts here
+# ----------------------------
+# Android
+# ----------------------------
 /android/app/debug
 /android/app/profile
 /android/app/release
+android/.gradle/
+android/captures/
+android/local.properties
+android/key.properties
+*.keystore
+*.jks
 
-# Firebase credentials - DO NOT COMMIT!
+# ----------------------------
+# iOS / macOS (Xcode & CocoaPods)
+# ----------------------------
+ios/DerivedData/
+ios/.symlinks/
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Pods/
+ios/Runner.xcworkspace/
+*.xcuserdatad
+*.xcworkspace/*
+*.xcscmblueprint
+*.xccheckout
+
+macos/DerivedData/
+macos/.symlinks/
+macos/Pods/
+macos/Runner.xcworkspace/
+macos/Flutter/GeneratedPluginRegistrant.swift
+
+# ----------------------------
+# Windows
+# ----------------------------
+windows/runner/Debug/
+windows/runner/Release/
+windows/x64/
+windows/GeneratedFiles/
+
+# ----------------------------
+# Linux
+# ----------------------------
+linux/flutter/ephemeral/
+
+# ----------------------------
+# Web
+# ----------------------------
+web/.dart_tool/
+
+# ----------------------------
+# Crash/symbolication & obfuscation
+# ----------------------------
+app.*.symbols
+app.*.map.json
+**/mapping.txt
+
+# ----------------------------
+# Firebase & secrets (אל תכניס לריפו)
+# ----------------------------
+**/google-services.json
+**/GoogleService-Info.plist
 scripts/firebase-service-account.json
 serviceAccountKey.json
 firebase-service-account.json
 
-# Claude Desktop config - contains API keys!
+# ----------------------------
+# Certificates / profiles
+# ----------------------------
+*.p12
+*.pem
+*.cert
+*.mobileprovision
+
+# ----------------------------
+# Env & misc
+# ----------------------------
+.env
+.env.*
+coverage/
+lcov.info
+
+# ----------------------------
+# Node (למשימות עזר/סקריפטים)
+# ----------------------------
+node_modules/
+
+# ----------------------------
+# כלים נוספים
+# ----------------------------
+appcenter-pre-build.sh
+fastlane/report.xml
+fastlane/TestOutput
+fastlane/Preview.html
+
+# ----------------------------
+# Local configs with secrets
+# ----------------------------
 claude_desktop_config.json
