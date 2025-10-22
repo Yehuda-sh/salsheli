@@ -96,7 +96,7 @@ void main() {
         );
         
         when(mockRepository.saveList(any, testHouseholdId))
-            .thenAnswer((_) async => {});
+            .thenAnswer((_) async => testList);
         
         // Act
         await provider.addUnifiedItem(testListId, product);
@@ -134,7 +134,7 @@ void main() {
         await provider.addUnifiedItem(testListId, task);
         
         // Assert
-        final list = provider.getListById(testListId);
+        final list = provider.getById(testListId);
         expect(list, isNotNull);
         expect(list!.items.length, 1);
         expect(list.items.first.name, 'להזמין עוגה');
@@ -172,7 +172,7 @@ void main() {
         await provider.addUnifiedItem(testListId, task);
         
         // Assert
-        final list = provider.getListById(testListId);
+        final list = provider.getById(testListId);
         expect(list, isNotNull);
         expect(list!.items.length, 2);
         expect(list.items[0].type, ItemType.product);
@@ -253,7 +253,7 @@ void main() {
         );
         
         // Verify state wasn't corrupted
-        final list = provider.getListById(testListId);
+        final list = provider.getById(testListId);
         expect(list, isNotNull);
         expect(list!.items.length, 0); // Item wasn't added due to error
       });
@@ -277,7 +277,7 @@ void main() {
         await provider.addUnifiedItem(testListId, product);
         
         // Assert - should still work, but list might validate later
-        final list = provider.getListById(testListId);
+        final list = provider.getById(testListId);
         expect(list, isNotNull);
         expect(list!.items.length, 1);
         expect(list.items.first.name, '');
@@ -317,7 +317,7 @@ void main() {
         await provider.addUnifiedItem(testListId, newItem);
         
         // Assert
-        final list = provider.getListById(testListId);
+        final list = provider.getById(testListId);
         expect(list, isNotNull);
         expect(list!.items.length, 2);
         expect(list.items[0].name, 'לחם');
@@ -348,7 +348,7 @@ void main() {
         await provider.addUnifiedItem(testListId, product);
         
         // Assert
-        final list = provider.getListById(testListId);
+        final list = provider.getById(testListId);
         expect(list, isNotNull);
         expect(
           list!.updatedDate.isAfter(originalDate),
@@ -385,7 +385,7 @@ void main() {
         await provider.addUnifiedItem(testListId, product2);
         
         // Assert
-        final list = provider.getListById(testListId);
+        final list = provider.getById(testListId);
         expect(list, isNotNull);
         
         // 2 * 6.90 + 1 * 5.50 = 13.80 + 5.50 = 19.30
@@ -411,7 +411,7 @@ void main() {
         await provider.addUnifiedItem(testListId, task);
         
         // Assert
-        final list = provider.getListById(testListId);
+        final list = provider.getById(testListId);
         expect(list, isNotNull);
         expect(list!.totalAmount, 0); // Tasks don't affect total
       });
@@ -437,7 +437,7 @@ void main() {
         await provider.addUnifiedItem(testListId, product);
         
         // Assert
-        final list = provider.getListById(testListId);
+        final list = provider.getById(testListId);
         expect(list, isNotNull);
         expect(list!.items.first.quantity, 0);
         expect(list.items.first.totalPrice, 0);
@@ -462,7 +462,7 @@ void main() {
         await provider.addUnifiedItem(testListId, product);
         
         // Assert
-        final list = provider.getListById(testListId);
+        final list = provider.getById(testListId);
         expect(list, isNotNull);
         expect(list!.items.first.unitPrice, 0);
         expect(list.items.first.totalPrice, 0);
@@ -487,7 +487,7 @@ void main() {
         await provider.addUnifiedItem(testListId, task);
         
         // Assert
-        final list = provider.getListById(testListId);
+        final list = provider.getById(testListId);
         expect(list, isNotNull);
         expect(list!.items.first.dueDate, pastDate);
         expect(list.items.first.dueDate!.isBefore(DateTime.now()), isTrue);
@@ -511,7 +511,7 @@ void main() {
         await provider.addUnifiedItem(testListId, task);
         
         // Assert
-        final list = provider.getListById(testListId);
+        final list = provider.getById(testListId);
         expect(list, isNotNull);
         expect(list!.items.first.dueDate, isNull);
       });

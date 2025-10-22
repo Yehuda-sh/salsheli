@@ -248,7 +248,7 @@ class ShoppingList {
     List<ActiveShopper> activeShoppers = const [],
   })  : createdDate = createdDate ?? updatedDate,
         sharedWith = List<String>.unmodifiable(sharedWith),
-        items = List<ReceiptItem>.unmodifiable(items),
+        items = List<UnifiedListItem>.unmodifiable(items),
         activeShoppers = List<ActiveShopper>.unmodifiable(activeShoppers);
 
   // ---- Factory Constructors ----
@@ -282,7 +282,7 @@ class ShoppingList {
       targetDate: targetDate,
       isShared: isShared,
       sharedWith: List<String>.unmodifiable(sharedWith),
-      items: List<ReceiptItem>.unmodifiable(items),
+      items: List<UnifiedListItem>.unmodifiable(items),
       templateId: templateId,
       format: format,
       createdFromTemplate: createdFromTemplate,
@@ -321,7 +321,7 @@ class ShoppingList {
       targetDate: targetDate,
       isShared: isShared,
       sharedWith: List<String>.unmodifiable(sharedWith),
-      items: List<ReceiptItem>.unmodifiable(items),
+      items: List<UnifiedListItem>.unmodifiable(items),
       templateId: templateId,
       createdFromTemplate: true,
       updatedDate: timestamp,

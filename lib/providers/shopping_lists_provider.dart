@@ -706,8 +706,7 @@ class ShoppingListsProvider with ChangeNotifier {
       await updateItemAt(listId, itemIndex, (item) {
         return item.copyWith(
           isChecked: true,
-          checkedBy: userId,
-          checkedAt: DateTime.now(),
+          // TODO: checkedBy + checkedAt יתווספו ב-UnifiedListItem
         );
       });
 
