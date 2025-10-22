@@ -33,6 +33,7 @@ import '../../providers/shopping_lists_provider.dart';
 import '../../providers/suggestions_provider.dart';
 import '../../providers/user_context.dart';
 import '../../providers/receipt_provider.dart';
+import '../../providers/templates_provider.dart';
 import '../../widgets/home/upcoming_shop_card.dart';
 import '../../widgets/home/smart_suggestions_card.dart';
 import '../../widgets/create_list_dialog.dart';
@@ -41,6 +42,7 @@ import '../../widgets/common/sticky_note.dart';
 import '../../theme/app_theme.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
+import '../lists/templates_screen.dart';
 import 'home_dashboard_screen_ux.dart';
 
 class HomeDashboardScreen extends StatefulWidget {
@@ -57,6 +59,16 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     if (kDebugMode) {
       debugPrint('🏠 HomeDashboardScreen.initState()');
     }
+    
+    // ✅ טעינת תבניות ברקע
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<TemplatesProvider>().loadTemplates();
+        if (kDebugMode) {
+          debugPrint('✅ HomeDashboard: טוען תבניות ברקע');
+        }
+      }
+    });
   }
 
   @override
@@ -356,6 +368,15 @@ class _Content extends StatelessWidget {
         const _InsightsCard()
           .animate()
           .fadeIn(duration: 600.ms, delay: 400.ms)
+          .slideY(begin: 0.15, end: 0)
+          .scale(begin: const Offset(0.95, 0.95), end: const Offset(1, 1)),
+        
+        const SizedBox(height: kSpacingMedium),
+        
+        // 🆕 כרטיס תבניות רשימות
+        const _TemplatesCard()
+          .animate()
+          .fadeIn(duration: 600.ms, delay: 500.ms)
           .slideY(begin: 0.15, end: 0)
           .scale(begin: const Offset(0.95, 0.95), end: const Offset(1, 1)),
         
@@ -802,6 +823,169 @@ class _InsightsCard extends StatelessWidget {
                   ),
                 ],
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TemplatesCard extends StatelessWidget {
+  const _TemplatesCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final templatesProvider = context.watch<TemplatesProvider>();
+
+    final templatesCount = templatesProvider.templates.length;
+    final myTemplatesCount = templatesProvider.templates
+        .where((t) => !t.isSystem)
+        .length;
+
+    return StickyNote(
+      color: kStickyOrange,  // ✅ פתק כתום
+      rotation: -0.015,
+      child: InkWell(
+        onTap: () {
+          if (kDebugMode) {
+            debugPrint('🏠 HomeDashboard: ניווט למסך תבניות');
+          }
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const TemplatesScreen(),
+            ),
+          );
+        },
+        borderRadius: BorderRadius.circular(kBorderRadius),
+        child: Padding(
+          padding: EdgeInsets.zero,  // StickyNote כבר יש padding
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(kSpacingSmall),
+                        decoration: BoxDecoration(
+                          color: Colors.deepOrange.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                        ),
+                        child: const Icon(
+                          Icons.filter_none,
+                          color: Colors.deepOrange,
+                          size: kIconSizeSmall + 4, // 20px
+                        ),
+                      ),
+                      // ✨ Badge עם מספר תבניות
+                      if (myTemplatesCount > 0)
+                        Positioned(
+                          top: -4,
+                          right: -4,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.deepOrange,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 18,
+                              minHeight: 18,
+                            ),
+                            child: Text(
+                              '$myTemplatesCount',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(width: kBorderRadius),
+                  Expanded(
+                    child: Text(
+                      'תבניות רשימות',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,  // ✅ טקסט כהה על פתק
+                      ),
+                    ),
+                  ),
+                  const Icon(Icons.chevron_left, color: Colors.black54),
+                ],
+              ),
+              const SizedBox(height: kBorderRadius),
+              if (templatesProvider.isLoading)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(kSpacingMedium),
+                    child: CircularProgressIndicator(),
+                  ),
+                )
+              else if (templatesCount == 0)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: kSpacingSmall),
+                  child: Text(
+                    'אין תבניות עדיין - צור את הראשונה!',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                )
+              else
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.bookmark_outline,
+                          color: Colors.deepOrange,
+                          size: kIconSizeSmall,
+                        ),
+                        const SizedBox(width: kSpacingSmall),
+                        Expanded(
+                          child: Text(
+                            '$templatesCount תבניות זמינות ($myTemplatesCount שלי)',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: cs.onSurface,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: kSpacingSmall),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.flash_on,
+                          color: Colors.amber,
+                          size: kIconSizeSmall,
+                        ),
+                        const SizedBox(width: kSpacingSmall),
+                        Expanded(
+                          child: Text(
+                            'צור רשימות מהר יותר עם תבניות מוכנות',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: cs.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
             ],
           ),
         ),
