@@ -2,7 +2,6 @@
 # General junk
 # ----------------------------
 *.class
-*.log
 *.pyc
 *.swp
 *.orig
@@ -24,9 +23,7 @@ migrate_working_dir/
 *.ipr
 *.iws
 .idea/
-
-# שמור בדרך כלל: קונפיגים של VS Code. בטוח להשאיר כמחוק # אם רוצים לשתף.
-#.vscode/
+.vscode/
 
 # ----------------------------
 # Flutter / Dart / Pub
@@ -99,8 +96,9 @@ linux/flutter/ephemeral/
 web/.dart_tool/
 
 # ----------------------------
-# Crash/symbolication & obfuscation
+# Logs & crash reports
 # ----------------------------
+*.log
 app.*.symbols
 app.*.map.json
 **/mapping.txt

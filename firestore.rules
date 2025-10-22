@@ -123,7 +123,7 @@ service cloud.firestore {
       allow read: if isAuthenticated() && (
         resource.data.is_system == true ||
         resource.data.user_id == request.auth.uid ||
-        (resource.data.format == 'shared' && sameHousehold(resource.data.user_id))
+        (resource.data.default_format == 'shared' && resource.data.household_id == getUserHouseholdId())
       );
       
       // ✅ מתוקן: יצירה - רק תבניות משתמש עם household_id תקין

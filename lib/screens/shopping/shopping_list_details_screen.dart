@@ -34,6 +34,7 @@ import '../../core/ui_constants.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_note.dart';
 import '../../widgets/common/sticky_button.dart';
+import '../lists/populate_list_screen.dart';
 
 class ShoppingListDetailsScreen extends StatefulWidget {
   final ShoppingList list;
@@ -79,6 +80,24 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     _fabController.dispose();
     _listController.dispose();
     super.dispose();
+  }
+
+  /// 🛒 ניווט למסך אכלוס מהקטלוג
+  Future<void> _navigateToPopulateScreen() async {
+    debugPrint('🛒 ShoppingListDetailsScreen: ניווט לאכלוס מהקטלוג');
+    
+    final navigator = Navigator.of(context);
+    await navigator.push(
+      MaterialPageRoute(
+        builder: (context) => PopulateListScreen(list: widget.list),
+      ),
+    );
+    
+    // רענון הרשימה אחרי חזרה
+    if (mounted) {
+      debugPrint('✅ ShoppingListDetailsScreen: חזרה מאכלוס, רענון נתונים');
+      setState(() {});
+    }
   }
 
   /// 🔄 טעינת נתונים
@@ -327,6 +346,19 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
         appBar: AppBar(
           title: Text(currentList.name),
           actions: [
+            // כפתור הוספה מהקטלוג
+            ScaleTransition(
+              scale: Tween<double>(
+                begin: 0.0,
+                end: 1.0,
+              ).animate(CurvedAnimation(parent: _fabController, curve: Curves.elasticOut)),
+              child: IconButton(
+                icon: const Icon(Icons.library_add),
+                tooltip: 'הוסף מהקטלוג',
+                onPressed: () => _navigateToPopulateScreen(),
+              ),
+            ),
+            // כפתור חיפוש
             ScaleTransition(
               scale: Tween<double>(
                 begin: 0.0,
@@ -1025,6 +1057,15 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                   Text('הרשימה ריקה', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
                   const SizedBox(height: kSpacingMedium),
                   const Text('לחץ על "הוסף מוצר" להתחלה', style: TextStyle(fontSize: kFontSizeMedium)),
+                  const SizedBox(height: kSpacingSmall),
+                  const Text('או אכלס מהקטלוג:', style: TextStyle(fontSize: kFontSizeSmall)),
+                  const SizedBox(height: kSpacingLarge),
+                  StickyButton(
+                    color: kStickyCyan,
+                    label: 'אכלס מהקטלוג',
+                    icon: Icons.library_add,
+                    onPressed: () => _navigateToPopulateScreen(),
+                  ),
                 ],
               ),
             ),

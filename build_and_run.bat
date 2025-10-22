@@ -1,11 +1,36 @@
 @echo off
 REM ==========================================
 REM Build & Run Script for Salsheli
-REM Version: 2.0
-REM Updated: 15/10/2025
+REM Version: 2.1
+REM Updated: 22/10/2025
 REM ==========================================
 
 setlocal enabledelayedexpansion
+
+REM ==========================================
+REM Startup Checks
+REM ==========================================
+
+REM Check if Flutter is installed
+where flutter >nul 2>nul
+if errorlevel 1 (
+    echo.
+    echo ❌ Flutter not found!
+    echo 💡 Please install Flutter first: https://flutter.dev
+    echo.
+    pause
+    exit /b 1
+)
+
+REM Check if we're in the right directory
+if not exist "pubspec.yaml" (
+    echo.
+    echo ❌ Not in a Flutter project directory!
+    echo 💡 Please run this script from: C:\projects\salsheli\
+    echo.
+    pause
+    exit /b 1
+)
 
 :menu
 cls
@@ -21,9 +46,10 @@ echo 4. 📝 Format Code (dart format)
 echo 5. 🏗️  Build APK (Release)
 echo 6. 📦 Build App Bundle (Release)
 echo 7. 🔄 Full Setup + Run (all steps)
-echo 8. ❌ Exit
+echo 8. 🧪 Run Tests (flutter test)
+echo 9. ❌ Exit
 echo.
-set /p choice="Choose an option (1-8): "
+set /p choice="Choose an option (1-9): "
 
 if "%choice%"=="1" goto clean_setup
 if "%choice%"=="2" goto run_debug
@@ -32,7 +58,8 @@ if "%choice%"=="4" goto format
 if "%choice%"=="5" goto build_apk
 if "%choice%"=="6" goto build_bundle
 if "%choice%"=="7" goto full_setup
-if "%choice%"=="8" goto end
+if "%choice%"=="8" goto run_tests
+if "%choice%"=="9" goto end
 echo Invalid choice. Please try again.
 timeout /t 2 >nul
 goto menu
@@ -91,9 +118,13 @@ echo ====================================
 echo.
 
 echo 🚀 Starting Flutter development build...
+echo 💡 Tip: Press 'r' for hot reload, 'R' for hot restart
+echo.
 flutter run -v
 if errorlevel 1 (
+    echo.
     echo ❌ Error during flutter run
+    echo 💡 Tip: Check if device is connected - run: flutter devices
     pause
     goto menu
 )
@@ -246,6 +277,31 @@ echo ✅ Setup completed!
 echo.
 echo 🚀 Starting Flutter app...
 flutter run -v
+
+pause
+goto menu
+
+REM ==========================================
+REM Option 8: Run Tests
+REM ==========================================
+:run_tests
+cls
+echo.
+echo ====================================
+echo 🧪 RUN TESTS
+echo ====================================
+echo.
+
+echo 🔬 Running: flutter test
+flutter test
+
+if errorlevel 1 (
+    echo.
+    echo ⚠️  Some tests failed. See above for details.
+) else (
+    echo.
+    echo ✅ All tests passed!
+)
 
 pause
 goto menu
