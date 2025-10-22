@@ -1,7 +1,7 @@
 # 📋 MemoZap - Project Information
 
 > **Complete project overview for AI systems**  
-> **Updated:** 22/10/2025 | **Version:** 2.6 - Complete Structure
+> **Updated:** 22/10/2025 | **Version:** 2.7 - Documentation Sync
 
 ---
 
@@ -286,12 +286,13 @@ C:\projects\salsheli\
 
 ---
 
-### 3. 🎨 DESIGN_GUIDE.md
+### 3. 🎨 DESIGN_GUIDE.md (v2.2)
 **For:** UI/UX work  
 **Contains:**
 - Sticky Notes Design System
 - Color palette
-- Components
+- Components (organized by category!)
+- File Locations (Core, Sticky Notes, Reusable Widgets, Loading)
 - Compact design
 - Accessibility
 
@@ -374,12 +375,16 @@ C:\projects\salsheli\
 
 ## 📖 Change History
 
-### v2.6 - 22/10/2025 🆕 **LATEST - Complete Structure Update**
+### v2.7 - 22/10/2025 🆕 **LATEST - Documentation Sync**
+- 🔄 Synced with DESIGN_GUIDE.md v2.2 (File Locations Enhanced)
+- 🏗 Updated documentation index to reflect latest changes
+- 📊 Result: All docs in sync!
+
+### v2.6 - 22/10/2025 - Complete Structure Update
 - ✅ Updated Project Structure with EXACT file count (168 files)
 - ✅ Detailed breakdown of all folders (lib, test, docs)
 - ✅ Added emojis for better readability
 - ✅ Updated statistics: Models (11), Providers (10), Repos (17), Services (8), Screens (36), Widgets (21), Tests (29)
-- 📊 Result: Complete, accurate, AI-optimized structure reference
 
 ---
 
@@ -407,6 +412,6 @@ C:\projects\salsheli\
 
 ---
 
-**Version:** 2.6  
+**Version:** 2.7  
 **Created:** 18/10/2025 | **Updated:** 22/10/2025  
 **Purpose:** Complete project reference with accurate structure
