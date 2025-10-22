@@ -31,21 +31,22 @@
 // ```
 
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/shopping_list.dart';
-import '../../models/receipt.dart';
+import '../../core/status_colors.dart';
+import '../../core/ui_constants.dart';
 import '../../models/enums/shopping_item_status.dart';
-import '../../providers/shopping_lists_provider.dart';
+import '../../models/shopping_list.dart';
+import '../../models/unified_list_item.dart';
 import '../../providers/products_provider.dart';
+import '../../providers/shopping_lists_provider.dart';
 import '../../providers/user_context.dart';
 import '../../theme/app_theme.dart';
-import '../../core/ui_constants.dart';
-import '../../core/status_colors.dart';
 import '../../widgets/common/notebook_background.dart';
-import '../../widgets/common/sticky_note.dart';
 import '../../widgets/common/sticky_button.dart';
+import '../../widgets/common/sticky_note.dart';
 
 class ActiveShoppingScreen extends StatefulWidget {
   final ShoppingList list;
@@ -156,7 +157,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
   }
 
   /// עדכון סטטוס פריט עם Animation
-  void _updateItemStatus(ReceiptItem item, ShoppingItemStatus newStatus) {
+  void _updateItemStatus(UnifiedListItem item, ShoppingItemStatus newStatus) {
     debugPrint('📝 _updateItemStatus: ${item.name} → ${newStatus.label}');
 
     // Animation קלה
@@ -327,9 +328,9 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
 
     // קבץ לפי קטגוריה
     final productsProvider = context.watch<ProductsProvider>();
-    final itemsByCategory = <String, List<ReceiptItem>>{};
+    final itemsByCategory = <String, List<UnifiedListItem>>{};
     for (final item in widget.list.items) {
-      final product = productsProvider.getByName(item.name ?? '');
+      final product = productsProvider.getByName(item.name);
       final category = product?['category'] as String? ?? 'כללי';
       itemsByCategory.putIfAbsent(category, () => []).add(item);
     }
@@ -424,14 +425,14 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
                             padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingTiny),
                             child: Text(
                               category,
-                              style: TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold, color: accent),
+                              style: const TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold),
                             ),
                           ),
                         ),
                         const SizedBox(height: kSpacingSmall),
 
                         // פריטים בקטגוריה
-                        ...items.map(
+                        ...items.map<Widget>(
                           (item) => _ActiveShoppingItemTile(
                             item: item,
                             status: _itemStatuses[item.id]!,
@@ -467,7 +468,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
                       const SizedBox(height: kSpacingMedium),
                       Text(
                         'שומר את הנתונים...',
-                        style: TextStyle(fontSize: kFontSizeBody, fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontSize: kFontSizeBody, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -530,19 +531,19 @@ class _LoadingSkeletonScreenState extends State<_LoadingSkeletonScreen> with Sin
       children: [
         // Stats Header Skeleton
         Container(
-          padding: const EdgeInsets.all(kSpacingMedium),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [widget.accentColor.withValues(alpha: 0.1), cs.surface],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+            padding: const EdgeInsets.all(kSpacingMedium),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [widget.accentColor.withValues(alpha: 0.1), cs.surface],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: List.generate(4, (index) => _ShimmerBox(width: 60, height: 80, animation: _shimmerAnimation)),
             ),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: List.generate(4, (index) => _ShimmerBox(width: 60, height: 80, animation: _shimmerAnimation)),
-          ),
-        ),
 
         // Items List Skeleton
         Expanded(
@@ -720,8 +721,8 @@ class _StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-      Icon(icon, color: color, size: kIconSizeLarge),
-      const SizedBox(height: kSpacingTiny),
+        Icon(icon, color: color, size: kIconSizeLarge),
+        const SizedBox(height: kSpacingTiny),
         Text(
           value,
           style: TextStyle(fontSize: kFontSizeXLarge, fontWeight: FontWeight.bold, color: color),
@@ -740,7 +741,7 @@ class _StatCard extends StatelessWidget {
 // ========================================
 
 class _ActiveShoppingItemTile extends StatelessWidget {
-  final ReceiptItem item;
+  final UnifiedListItem item;
   final ShoppingItemStatus status;
   final Function(ShoppingItemStatus) onStatusChanged;
   final AnimationController animationController;
@@ -759,8 +760,8 @@ class _ActiveShoppingItemTile extends StatelessWidget {
 
     // 💰 שליפת מחיר אמיתי מ-ProductsProvider
     final productsProvider = context.watch<ProductsProvider>();
-    final product = productsProvider.getByName(item.name ?? '');
-    final realPrice = product?['price'] as double? ?? item.unitPrice;
+    final product = productsProvider.getByName(item.name);
+    final realPrice = product?['price'] as double? ?? (item.unitPrice ?? 0.0);
 
     // 🎨 צבע StickyNote לפי סטטוס
     Color stickyColor;
@@ -828,7 +829,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                             ? cs.onSurface
                             : cs.onSurface.withValues(alpha: 0.7),
                       ),
-                      child: Text(item.name ?? 'ללא שם', overflow: TextOverflow.ellipsis, maxLines: 2),
+                      child: Text(item.name, overflow: TextOverflow.ellipsis, maxLines: 2),
                     ),
                   ),
 
@@ -837,7 +838,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        '${item.quantity}×',
+                        '${item.quantity ?? 1}×',
                         style: TextStyle(
                           fontSize: kFontSizeSmall,
                           color: status == ShoppingItemStatus.pending

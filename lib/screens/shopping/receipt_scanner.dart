@@ -12,20 +12,24 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+
+// Core
+import '../../core/ui_constants.dart';
+
+// Models
+import '../../models/receipt.dart';
+
+// Providers
+import '../../providers/user_context.dart';
 
 // Services
 import '../../services/ocr_service.dart';
 import '../../services/receipt_parser_service.dart';
 
-// Models
-import '../../models/receipt.dart';
-
 // Widgets
-import '../../widgets/common/sticky_note.dart';
 import '../../widgets/common/sticky_button.dart';
-
-// Constants
-import '../../core/ui_constants.dart';
+import '../../widgets/common/sticky_note.dart';
 
 class ReceiptScanner extends StatefulWidget {
   final Function(Receipt)? onReceiptProcessed;
@@ -86,7 +90,9 @@ class _ReceiptScannerState extends State<ReceiptScanner> {
 
       // שלב 3: ניתוח לקבלה (90%)
       debugPrint('📝 ReceiptScanner: מנתח קבלה...');
-      final receipt = ReceiptParserService.parseReceiptText(text);
+      final userContext = context.read<UserContext>();
+      final householdId = userContext.householdId ?? '';
+      final receipt = ReceiptParserService.parseReceiptText(text, householdId);
       
       if (!mounted) return;
       setState(() => progress = 0.9);
@@ -204,7 +210,7 @@ class _ReceiptScannerState extends State<ReceiptScanner> {
                 Icon(Icons.camera_alt, color: Colors.green.shade700),
                 const SizedBox(width: kSpacingSmall),
                 const Text(
-                  "סריקת קבלות חכמה",
+                  'סריקת קבלות חכמה',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -251,7 +257,7 @@ class _ReceiptScannerState extends State<ReceiptScanner> {
               LinearProgressIndicator(
                 value: progress,
                 backgroundColor: Colors.grey.shade200,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.green.shade600),
+                valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
               ),
               const SizedBox(height: kSpacingSmall),
               Text(
@@ -267,7 +273,7 @@ class _ReceiptScannerState extends State<ReceiptScanner> {
                 children: [
                   Expanded(
                     child: StickyButton(
-                      label: "צלם",
+                      label: 'צלם',
                       icon: Icons.camera_alt,
                       color: Colors.green.shade400,
                       onPressed: () => _pickImage(ImageSource.camera),
@@ -276,7 +282,7 @@ class _ReceiptScannerState extends State<ReceiptScanner> {
                   const SizedBox(width: kSpacingSmall),
                   Expanded(
                     child: StickyButton(
-                      label: "העלה",
+                      label: 'העלה',
                       icon: Icons.upload,
                       color: Colors.blue.shade300,
                       onPressed: () => _pickImage(ImageSource.gallery),
@@ -333,7 +339,7 @@ class _ReceiptScannerState extends State<ReceiptScanner> {
                         ),
                       ),
                       Text(
-                        "סה״כ: ₪${r.totalAmount.toStringAsFixed(2)}",
+                        'סה״כ: ₪${r.totalAmount.toStringAsFixed(2)}',
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey.shade700,
@@ -381,10 +387,9 @@ class _ReceiptScannerState extends State<ReceiptScanner> {
             else ...[
               Text(
                 '${r.items.length} פריטים:',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: kFontSizeSmall,
                   fontWeight: FontWeight.bold,
-                  color: Colors.grey.shade700,
                 ),
               ),
               const SizedBox(height: kSpacingSmall),
@@ -435,7 +440,7 @@ class _ReceiptScannerState extends State<ReceiptScanner> {
               children: [
                 Expanded(
                   child: StickyButton(
-                    label: "ביטול",
+                  label: 'ביטול',
                     icon: Icons.close,
                     color: Colors.white,
                     textColor: Colors.red.shade700,
@@ -445,7 +450,7 @@ class _ReceiptScannerState extends State<ReceiptScanner> {
                 const SizedBox(width: kSpacingSmall),
                 Expanded(
                   child: StickyButton(
-                    label: isProcessing ? "שומר..." : "אישור",
+                  label: isProcessing ? 'שומר...' : 'אישור',
                     icon: isProcessing ? null : Icons.check,
                     color: Colors.green.shade400,
                     onPressed: isProcessing ? () {} : _confirmReceipt,

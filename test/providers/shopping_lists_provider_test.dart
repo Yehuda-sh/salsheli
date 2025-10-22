@@ -128,7 +128,7 @@ void main() {
         );
         
         when(mockRepository.saveList(any, testHouseholdId))
-            .thenAnswer((_) async {});
+            .thenAnswer((_) async => testList);
         
         // Act
         await provider.addUnifiedItem(testListId, task);

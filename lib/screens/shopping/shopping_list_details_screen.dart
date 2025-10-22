@@ -27,7 +27,7 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:ui' as ui;
 
-import '../../models/receipt.dart';
+
 import '../../models/shopping_list.dart';
 import '../../models/unified_list_item.dart';
 import '../../models/enums/item_type.dart';
@@ -137,8 +137,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
     // Controllers - יש לסגור אותם!
     final nameController = TextEditingController(text: item?.name ?? "");
-    final quantityController = TextEditingController(text: item?.quantity.toString() ?? "1");
-    final priceController = TextEditingController(text: item?.unitPrice.toString() ?? "");
+    final quantityController = TextEditingController(text: item?.quantity?.toString() ?? "1");
+    final priceController = TextEditingController(text: item?.unitPrice?.toString() ?? "");
 
     debugPrint(
       item == null
@@ -450,7 +450,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     // מיון
     switch (_sortBy) {
       case 'price_desc':
-        filtered.sort((a, b) => b.unitPrice.compareTo(a.unitPrice));
+        filtered.sort((a, b) => (b.unitPrice ?? 0).compareTo(a.unitPrice ?? 0));
         debugPrint('📊 ShoppingListDetailsScreen: מיון לפי מחיר (יקר→זול)');
         break;
       case 'checked':

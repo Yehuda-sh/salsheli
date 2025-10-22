@@ -404,7 +404,73 @@ view(
 
 ---
 
-### 9️⃣ create_file - Direct File Creation
+### 9️⃣ Uploaded Files - Working with User Uploads
+
+**Location:** `/mnt/user-data/uploads/`
+
+**What are uploaded files?**
+- Files the user uploads during conversation
+- Can be any type: code, JSON, images, text, etc.
+- Some files have their content in context window, some don't
+
+**Files with content in context:**
+- `.md`, `.txt`, `.html`, `.csv` (as text)
+- `.png`, `.pdf` (as images)
+
+**How to access:**
+
+**Option 1: view tool (recommended)**
+```dart
+view(
+  path="/mnt/user-data/uploads/filename.txt",
+  description="Reading uploaded file"
+)
+```
+
+**Option 2: read_text_file**
+```dart
+read_text_file(
+  path="/mnt/user-data/uploads/filename.txt"
+)
+```
+
+**Common scenarios:**
+
+1. **VS Code error JSON:**
+```json
+[{
+  "resource": "/C:/projects/...",
+  "code": "argument_type_not_assignable",
+  "message": "The argument type 'int?' can't be assigned..."
+}]
+```
+- Parse the JSON
+- Extract error locations and messages
+- Fix the issues in the actual files
+
+2. **Code snippet:**
+- Read the uploaded code
+- Analyze or fix issues
+- Apply changes to project files
+
+3. **Configuration files:**
+- Read and understand settings
+- Update project configuration accordingly
+
+**Best Practices:**
+- Always use `view` tool first for uploaded files
+- Check if content is already in context window
+- For binary files (images, PDFs), use appropriate handling
+- Extract real file paths from error JSONs
+
+**Important Notes:**
+- Uploaded files are READ-ONLY in `/mnt/user-data/uploads/`
+- To make changes, work on files in `C:\projects\salsheli\`
+- Error JSONs often contain full paths to actual project files
+
+---
+
+### 🔟 create_file - Direct File Creation
 
 **Function:** `create_file`
 
@@ -604,15 +670,105 @@ AI: "✅ Fixed. Should I commit?"
 
 ---
 
+### Problem 4: Bash Tool with Windows Paths
+
+**Problem:** `grep: C:\projects\... No such file or directory`
+
+**Why:** Bash tool doesn't handle Windows paths well (C:\...)
+
+**Solutions:**
+1. Use Filesystem tools instead:
+```dart
+// ❌ Bad
+bash_tool: grep -r "pattern" "C:\projects\salsheli\lib"
+
+// ✅ Good
+search_files(
+  path="C:\projects\salsheli\lib",
+  pattern="pattern"
+)
+```
+
+2. If you must use bash, convert to Unix path:
+```bash
+grep -r "pattern" /c/projects/salsheli/lib
+```
+
+---
+
+### Problem 5: view Tool Parameter Errors
+
+**Problem:** `Cannot specify both head and tail parameters simultaneously`
+
+**Solutions:**
+```dart
+// ❌ Bad
+view(path="file.dart", head=10, tail=10)
+
+// ✅ Good - Use one or none
+view(path="file.dart", view_range=[1, 50])  // Specific range
+view(path="file.dart")  // Full file
+```
+
+---
+
+### Problem 6: Access Denied - Uploaded Files
+
+**Problem:** `Access denied - path outside allowed directories`
+
+**Why:** Trying to access `/mnt/user-data/uploads/` with wrong tool
+
+**Solutions:**
+```dart
+// ❌ Bad
+read_text_file("C:\mnt\user-data\uploads\file.txt")
+
+// ✅ Good
+view("/mnt/user-data/uploads/file.txt")
+```
+
+---
+
+### Problem 7: Working with VS Code Error JSON
+
+**Scenario:** User uploads JSON of VS Code errors
+
+**Workflow:**
+```
+1. view("/mnt/user-data/uploads/errors.json")
+2. Parse JSON - extract:
+   - resource (file path)
+   - startLineNumber
+   - message
+3. For each error:
+   - read_text_file(actual_file_path)
+   - Analyze the specific line
+   - Fix with edit_file
+4. Report all fixes
+```
+
+**Example:**
+```json
+{
+  "resource": "/C:/projects/salsheli/lib/screen.dart",
+  "startLineNumber": 431,
+  "message": "The argument type 'int?' can't be assigned to 'int'"
+}
+```
+→ Go fix line 431 in `C:\projects\salsheli\lib\screen.dart`
+
+---
+
 ## 📊 Decision Tree: Which Tool to Use?
 
 ```
-Need to read file? → read_text_file / view
+Need to read project file? → read_text_file / view
+Need to read uploaded file? → view (/mnt/user-data/uploads/)
 Need to edit existing file? → edit_file
 Need to create new file? → create_file
 Need quick string replacement? → str_replace
-Need to search files? → search_files
-Need to run command? → bash_tool
+Need to search files? → search_files (not bash grep!)
+Need to run command? → bash_tool (careful with Windows paths)
 Need to remember long-term? → Memory
 Need past conversation by topic? → conversation_search
 Need to continue last chat? → recent_chats(n=1)
@@ -620,6 +776,7 @@ Need to search internet? → Brave Search / Web Search
 Need to do Git operations? → GitHub (26 functions!)
 Complex multi-step problem? → Sequential Thinking
 Need deep research? → Extended Research
+Got VS Code errors? → Parse JSON → Fix actual files
 ```
 
 ---
@@ -636,7 +793,9 @@ Need deep research? → Extended Research
 | **Architecture decision** | Sequential Thinking | Memory |
 | **Git commit** | GitHub:push_files | bash_tool |
 | **Run Flutter commands** | bash_tool | Manual instructions |
-| **Search project files** | search_files | bash: grep |
+| **Search project files** | search_files | read_multiple_files |
+| **Read uploaded file** | view (/mnt/user-data/uploads/) | - |
+| **Fix VS Code errors** | Parse JSON → edit_file | - |
 
 ---
 
@@ -646,13 +805,16 @@ Need deep research? → Extended Research
 
 ```
 1. Filesystem = Daily work (70% of tasks)
-   - 13 functions for every file need!
+   - 16 functions for every file need!
+   - Includes uploaded files handling
 2. Bash = Commands + automation (15%)
+   - ⚠️ Limited on Windows paths
 3. GitHub = Git operations (26 functions!)
 4. Memory = Long-term knowledge
 5. Conversation = Past discussions (2 tools)
 6. Sequential Thinking = Complex problems
-7. Rest = Helper tools
+7. Uploaded Files = /mnt/user-data/uploads/
+8. Rest = Helper tools
 ```
 
 ### Golden Rules:
@@ -667,6 +829,9 @@ Need deep research? → Extended Research
 8. **Prefer edit_file** over write_file (MemoZap-specific)
 9. **Use recent_chats(n=1)** when user writes "המשך"
 10. **Always read before edit** - avoid "exact match" errors
+11. **Use view for uploaded files** - /mnt/user-data/uploads/
+12. **Avoid bash for Windows paths** - use Filesystem tools instead
+13. **Parse VS Code errors** - extract real file paths and fix
 
 ---
 
@@ -679,15 +844,27 @@ Need deep research? → Extended Research
 
 ---
 
-**Version:** 2.1  
-**Created:** 19/10/2025 | **Updated:** 23/10/2025  
+**Version:** 2.2  
+**Created:** 19/10/2025 | **Updated:** 24/10/2025  
 **Purpose:** Complete MCP tools reference - current installation + recommendations
 
 ---
 
 ## 📝 Changelog
 
-### v2.1 - 23/10/2025 ✨ **LATEST**
+### v2.2 - 24/10/2025 🆕 **LATEST - Uploaded Files & Troubleshooting**
+- ✅ Added section 9: Uploaded Files handling
+- ✅ Enhanced Troubleshooting with 4 new problems:
+  - Problem 4: Bash tool with Windows paths
+  - Problem 5: view tool parameter errors
+  - Problem 6: Access denied on uploaded files
+  - Problem 7: Working with VS Code error JSON
+- ✅ Updated Decision Tree with uploaded files
+- ✅ Updated Tool Priority Matrix
+- ✅ Updated Golden Rules (3 new rules)
+- 💡 Real-world learnings from actual debugging session
+
+### v2.1 - 23/10/2025
 - ✅ Added "Installation & Setup" section
 - ✅ Documented current server configuration
 - ✅ Added API keys setup instructions
