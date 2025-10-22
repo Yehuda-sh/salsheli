@@ -32,6 +32,9 @@ import 'unified_list_item.dart';
 import 'enums/item_type.dart';
 import 'timestamp_converter.dart';
 import 'active_shopper.dart';
+import 'shared_user.dart';
+import 'pending_request.dart';
+import 'enums/user_role.dart';
 
 part 'shopping_list.g.dart';
 
@@ -127,6 +130,23 @@ class ShoppingList {
   /// 🇬🇧 List of active shoppers (collaborative shopping support)
   @JsonKey(name: 'active_shoppers', defaultValue: [])
   final List<ActiveShopper> activeShoppers;
+
+  // ==== 🆕 שיתוף משתמשים ====
+
+  /// 🆕 רשימת משתמשים משותפים (מלבד ה-owner)
+  /// 🇬🇧 List of shared users (besides the owner)
+  @JsonKey(name: 'shared_users', defaultValue: [])
+  final List<SharedUser> sharedUsers;
+
+  /// 🆕 בקשות ממתינות לאישור (רק עבור Editors)
+  /// 🇬🇧 Pending requests for approval (only for Editors)
+  @JsonKey(name: 'pending_requests', defaultValue: [])
+  final List<PendingRequest> pendingRequests;
+
+  /// 🆕 הרשאה של המשתמש הנוכחי (מחושב, לא נשמר)
+  /// 🇬🇧 Current user's role (computed, not saved)
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final UserRole? currentUserRole;
 
   // ---- Shopping timeout ----
   static const Duration shoppingTimeout = Duration(hours: 6);
