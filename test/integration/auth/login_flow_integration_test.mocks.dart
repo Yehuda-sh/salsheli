@@ -154,6 +154,18 @@ class MockUserContext extends _i1.Mock implements _i4.UserContext {
           as _i6.Future<void>);
 
   @override
+  _i6.Future<void> updateUserProfile({String? name, String? avatar}) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateUserProfile, [], {
+              #name: name,
+              #avatar: avatar,
+            }),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
   _i6.Future<void> sendPasswordResetEmail(String? email) =>
       (super.noSuchMethod(
             Invocation.method(#sendPasswordResetEmail, [email]),
@@ -431,9 +443,9 @@ class MockUserRepository extends _i1.Mock implements _i9.UserRepository {
           as _i6.Future<bool>);
 
   @override
-  _i6.Future<List<_i3.UserEntity>> getAllUsers() =>
+  _i6.Future<List<_i3.UserEntity>> getAllUsers({String? householdId}) =>
       (super.noSuchMethod(
-            Invocation.method(#getAllUsers, []),
+            Invocation.method(#getAllUsers, [], {#householdId: householdId}),
             returnValue: _i6.Future<List<_i3.UserEntity>>.value(
               <_i3.UserEntity>[],
             ),
@@ -458,9 +470,62 @@ class MockUserRepository extends _i1.Mock implements _i9.UserRepository {
           as _i6.Future<void>);
 
   @override
-  _i6.Future<void> clearAll() =>
+  _i6.Future<_i3.UserEntity> createUser({
+    required String? userId,
+    required String? email,
+    required String? name,
+    String? householdId,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#clearAll, []),
+            Invocation.method(#createUser, [], {
+              #userId: userId,
+              #email: email,
+              #name: name,
+              #householdId: householdId,
+            }),
+            returnValue: _i6.Future<_i3.UserEntity>.value(
+              _FakeUserEntity_1(
+                this,
+                Invocation.method(#createUser, [], {
+                  #userId: userId,
+                  #email: email,
+                  #name: name,
+                  #householdId: householdId,
+                }),
+              ),
+            ),
+          )
+          as _i6.Future<_i3.UserEntity>);
+
+  @override
+  _i6.Future<void> updateProfile({
+    required String? userId,
+    String? name,
+    String? avatar,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateProfile, [], {
+              #userId: userId,
+              #name: name,
+              #avatar: avatar,
+            }),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Stream<_i3.UserEntity?> watchUser(String? userId) =>
+      (super.noSuchMethod(
+            Invocation.method(#watchUser, [userId]),
+            returnValue: _i6.Stream<_i3.UserEntity?>.empty(),
+          )
+          as _i6.Stream<_i3.UserEntity?>);
+
+  @override
+  _i6.Future<void> clearAll({String? householdId}) =>
+      (super.noSuchMethod(
+            Invocation.method(#clearAll, [], {#householdId: householdId}),
             returnValue: _i6.Future<void>.value(),
             returnValueForMissingStub: _i6.Future<void>.value(),
           )

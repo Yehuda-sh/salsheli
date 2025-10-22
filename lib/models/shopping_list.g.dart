@@ -35,7 +35,7 @@ ShoppingList _$ShoppingListFromJson(Map<String, dynamic> json) => ShoppingList(
           .toList() ??
       [],
   items: (json['items'] as List<dynamic>)
-      .map((e) => ReceiptItem.fromJson(e as Map<String, dynamic>))
+      .map((e) => UnifiedListItem.fromJson(e as Map<String, dynamic>))
       .toList(),
   templateId: json['template_id'] as String?,
   format: json['format'] as String? ?? 'shared',

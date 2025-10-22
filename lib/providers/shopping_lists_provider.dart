@@ -53,6 +53,8 @@ import 'package:uuid/uuid.dart';
 
 import '../models/receipt.dart';
 import '../models/shopping_list.dart';
+import '../models/unified_list_item.dart';
+import '../models/enums/item_type.dart';
 import '../models/active_shopper.dart';
 import '../repositories/shopping_lists_repository.dart';
 import '../repositories/receipt_repository.dart';
@@ -225,7 +227,7 @@ class ShoppingListsProvider with ChangeNotifier {
     double? budget,
     DateTime? eventDate,
     bool isShared = false,
-    List<ReceiptItem>? items, // 🆕 פריטים אופציונליים
+    List<UnifiedListItem>? items, // 🆕 פריטים אופציונליים (UnifiedListItem)
     String? templateId, // 🆕 מזהה תבנית
   }) async {
     final userId = _userContext?.user?.id;
@@ -372,8 +374,8 @@ class ShoppingListsProvider with ChangeNotifier {
       throw Exception('רשימה $listId לא נמצאה');
     }
 
-    // יצירת ReceiptItem חדש
-    final item = ReceiptItem(
+    // יצירת UnifiedListItem חדש (מוצר)
+    final item = UnifiedListItem.product(
       id: _uuid.v4(),
       name: name,
       quantity: quantity,
@@ -385,6 +387,43 @@ class ShoppingListsProvider with ChangeNotifier {
     final updatedList = list.withItemAdded(item);
     await updateList(updatedList);
     debugPrint('✅ addItemToList: פריט "$name" נוסף');
+  }
+
+  // === 🆕 Add UnifiedListItem (Product or Task) ===
+  /// הוספת UnifiedListItem כללי (מוצר או משימה)
+  /// 
+  /// Example:
+  /// ```dart
+  /// // הוספת מוצר
+  /// final product = UnifiedListItem.product(
+  ///   id: uuid.v4(),
+  ///   name: 'חלב',
+  ///   quantity: 2,
+  ///   unitPrice: 6.90,
+  ///   unit: 'יח\',
+  /// );
+  /// await provider.addUnifiedItem(listId, product);
+  /// 
+  /// // הוספת משימה
+  /// final task = UnifiedListItem.task(
+  ///   id: uuid.v4(),
+  ///   name: 'להזמין עוגה',
+  ///   dueDate: DateTime(2025, 11, 15),
+  ///   priority: 'high',
+  /// );
+  /// await provider.addUnifiedItem(listId, task);
+  /// ```
+  Future<void> addUnifiedItem(String listId, UnifiedListItem item) async {
+    debugPrint('➕ addUnifiedItem: מוסיף ${item.type == ItemType.product ? "מוצר" : "משימה"} "${item.name}" לרשימה $listId');
+    final list = getById(listId);
+    if (list == null) {
+      debugPrint('❌ addUnifiedItem: רשימה $listId לא נמצאה');
+      throw Exception('רשימה $listId לא נמצאה');
+    }
+
+    final updatedList = list.withItemAdded(item);
+    await updateList(updatedList);
+    debugPrint('✅ addUnifiedItem: ${item.type == ItemType.product ? "מוצר" : "משימה"} "${item.name}" נוסף');
   }
 
   // === Remove Item From List ===
@@ -405,7 +444,7 @@ class ShoppingListsProvider with ChangeNotifier {
   Future<void> updateItemAt(
     String listId,
     int index,
-    ReceiptItem Function(ReceiptItem) updateFn,
+    UnifiedListItem Function(UnifiedListItem) updateFn,
   ) async {
     debugPrint('📝 updateItemAt: מעדכן פריט #$index ברשימה $listId');
     final list = getById(listId);
@@ -420,7 +459,7 @@ class ShoppingListsProvider with ChangeNotifier {
     }
 
     final updatedItem = updateFn(list.items[index]);
-    final newItems = List<ReceiptItem>.from(list.items);
+    final newItems = List<UnifiedListItem>.from(list.items);
     newItems[index] = updatedItem;
 
     final updatedList = list.copyWith(items: newItems);
@@ -710,9 +749,22 @@ class ShoppingListsProvider with ChangeNotifier {
         return shopper.copyWith(isActive: false);
       }).toList();
 
-      // 2. מצא פריטים מסומנים
-      final checkedItems = list.items.where((item) => item.isChecked).toList();
-      debugPrint('   📦 נמצאו ${checkedItems.length} פריטים מסומנים');
+      // 2. מצא פריטים מסומנים (רק Products)
+      final checkedItems = list.items
+          .where((item) => item.isChecked && item.type == ItemType.product)
+          .map((item) => ReceiptItem(
+                id: item.id,
+                name: item.name,
+                quantity: item.quantity ?? 0,
+                unitPrice: item.unitPrice ?? 0.0,
+                unit: item.unit,
+                barcode: item.barcode,
+                isChecked: item.isChecked,
+                checkedBy: null, // UnifiedListItem לא מחזיק checkedBy
+                checkedAt: null,
+              ))
+          .toList();
+      debugPrint('   📦 נמצאו ${checkedItems.length} פריטים מסומנים (מוצרים)');
 
       // 3. צור קבלה וירטואלית
       if (checkedItems.isNotEmpty) {

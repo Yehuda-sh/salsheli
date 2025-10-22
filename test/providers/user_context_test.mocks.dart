@@ -107,9 +107,9 @@ class MockUserRepository extends _i1.Mock implements _i4.UserRepository {
           as _i5.Future<bool>);
 
   @override
-  _i5.Future<List<_i2.UserEntity>> getAllUsers() =>
+  _i5.Future<List<_i2.UserEntity>> getAllUsers({String? householdId}) =>
       (super.noSuchMethod(
-            Invocation.method(#getAllUsers, []),
+            Invocation.method(#getAllUsers, [], {#householdId: householdId}),
             returnValue: _i5.Future<List<_i2.UserEntity>>.value(
               <_i2.UserEntity>[],
             ),
@@ -134,9 +134,62 @@ class MockUserRepository extends _i1.Mock implements _i4.UserRepository {
           as _i5.Future<void>);
 
   @override
-  _i5.Future<void> clearAll() =>
+  _i5.Future<_i2.UserEntity> createUser({
+    required String? userId,
+    required String? email,
+    required String? name,
+    String? householdId,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#clearAll, []),
+            Invocation.method(#createUser, [], {
+              #userId: userId,
+              #email: email,
+              #name: name,
+              #householdId: householdId,
+            }),
+            returnValue: _i5.Future<_i2.UserEntity>.value(
+              _FakeUserEntity_0(
+                this,
+                Invocation.method(#createUser, [], {
+                  #userId: userId,
+                  #email: email,
+                  #name: name,
+                  #householdId: householdId,
+                }),
+              ),
+            ),
+          )
+          as _i5.Future<_i2.UserEntity>);
+
+  @override
+  _i5.Future<void> updateProfile({
+    required String? userId,
+    String? name,
+    String? avatar,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateProfile, [], {
+              #userId: userId,
+              #name: name,
+              #avatar: avatar,
+            }),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Stream<_i2.UserEntity?> watchUser(String? userId) =>
+      (super.noSuchMethod(
+            Invocation.method(#watchUser, [userId]),
+            returnValue: _i5.Stream<_i2.UserEntity?>.empty(),
+          )
+          as _i5.Stream<_i2.UserEntity?>);
+
+  @override
+  _i5.Future<void> clearAll({String? householdId}) =>
+      (super.noSuchMethod(
+            Invocation.method(#clearAll, [], {#householdId: householdId}),
             returnValue: _i5.Future<void>.value(),
             returnValueForMissingStub: _i5.Future<void>.value(),
           )

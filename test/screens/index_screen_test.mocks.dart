@@ -140,6 +140,18 @@ class MockUserContext extends _i1.Mock implements _i2.UserContext {
           as _i4.Future<void>);
 
   @override
+  _i4.Future<void> updateUserProfile({String? name, String? avatar}) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateUserProfile, [], {
+              #name: name,
+              #avatar: avatar,
+            }),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
   _i4.Future<void> sendPasswordResetEmail(String? email) =>
       (super.noSuchMethod(
             Invocation.method(#sendPasswordResetEmail, [email]),

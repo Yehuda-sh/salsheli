@@ -29,6 +29,8 @@ import 'dart:ui' as ui;
 
 import '../../models/receipt.dart';
 import '../../models/shopping_list.dart';
+import '../../models/unified_list_item.dart';
+import '../../models/enums/item_type.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../core/ui_constants.dart';
 import '../../widgets/common/notebook_background.dart';
@@ -130,7 +132,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   }
 
   /// === דיאלוג הוספה/עריכה עם אנימציה ===
-  void _showItemDialog(BuildContext context, {ReceiptItem? item, int? index}) {
+  void _showItemDialog(BuildContext context, {UnifiedListItem? item, int? index}) {
     final provider = context.read<ShoppingListsProvider>();
 
     // Controllers - יש לסגור אותם!
@@ -229,15 +231,16 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                       return;
                     }
 
-                    final newItem = ReceiptItem(id: const Uuid().v4(), name: name, quantity: qty, unitPrice: unitPrice);
+                    final newItem = UnifiedListItem.product(
+                      id: const Uuid().v4(),
+                      name: name,
+                      quantity: qty,
+                      unitPrice: unitPrice,
+                      unit: "יח'",
+                    );
 
                     if (item == null) {
-                      provider.addItemToList(
-                        widget.list.id,
-                        newItem.name ?? 'מוצר ללא שם',
-                        newItem.quantity,
-                        newItem.unit ?? "יח'",
-                      );
+                      provider.addUnifiedItem(widget.list.id, newItem);
                       debugPrint('✅ ShoppingListDetailsScreen: הוסף מוצר "$name"');
                     } else if (index != null) {
                       provider.updateItemAt(widget.list.id, index, (_) => newItem);
@@ -257,8 +260,157 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     );
   }
 
+  /// === דיאלוג הוספת משימה עם אנימציה ===
+  void _showTaskDialog(BuildContext context, {UnifiedListItem? item, int? index}) {
+    final provider = context.read<ShoppingListsProvider>();
+
+    // Controllers - יש לסגור אותם!
+    final nameController = TextEditingController(text: item?.name ?? "");
+    final notesController = TextEditingController(text: item?.notes ?? "");
+    DateTime? selectedDueDate = item?.dueDate;
+    String selectedPriority = item?.priority ?? 'medium';
+
+    debugPrint(
+      item == null
+          ? '➕ ShoppingListDetailsScreen: פתיחת דיאלוג הוספת משימה'
+          : '✏️ ShoppingListDetailsScreen: פתיחת דיאלוג עריכת "${item.name}"',
+    );
+
+    // פונקציה לניקוי controllers
+    void disposeControllers() {
+      nameController.dispose();
+      notesController.dispose();
+    }
+
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      transitionDuration: const Duration(milliseconds: 200),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return ScaleTransition(
+              scale: CurvedAnimation(parent: animation, curve: Curves.easeOutBack),
+              child: FadeTransition(
+                opacity: animation,
+                child: AlertDialog(
+                  title: Text(item == null ? "הוספת משימה" : "עריכת משימה"),
+                  content: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextField(
+                          controller: nameController,
+                          decoration: const InputDecoration(labelText: "שם משימה"),
+                          textDirection: ui.TextDirection.rtl,
+                        ),
+                        const SizedBox(height: kSpacingSmall),
+                        TextField(
+                          controller: notesController,
+                          decoration: const InputDecoration(labelText: "הערות (אופציונלי)"),
+                          textDirection: ui.TextDirection.rtl,
+                          maxLines: 3,
+                        ),
+                        const SizedBox(height: kSpacingMedium),
+                        // תאריך יעד
+                        ListTile(
+                          title: Text(
+                            selectedDueDate != null
+                                ? 'תאריך יעד: ${DateFormat('dd/MM/yyyy').format(selectedDueDate!)}'
+                                : 'בחר תאריך יעד (אופציונלי)',
+                            style: TextStyle(
+                              color: selectedDueDate != null ? Colors.green : Colors.grey,
+                            ),
+                          ),
+                          leading: const Icon(Icons.calendar_today),
+                          onTap: () async {
+                            final picked = await showDatePicker(
+                              context: context,
+                              initialDate: selectedDueDate ?? DateTime.now(),
+                              firstDate: DateTime.now(),
+                              lastDate: DateTime.now().add(const Duration(days: 365)),
+                            );
+                            if (picked != null) {
+                              setState(() => selectedDueDate = picked);
+                            }
+                          },
+                        ),
+                        const SizedBox(height: kSpacingSmall),
+                        // עדיפות
+                        DropdownButtonFormField<String>(
+                          value: selectedPriority,
+                          decoration: const InputDecoration(labelText: "עדיפות"),
+                          items: const [
+                            DropdownMenuItem(value: 'low', child: Text('🟢 נמוכה')),
+                            DropdownMenuItem(value: 'medium', child: Text('🟡 בינונית')),
+                            DropdownMenuItem(value: 'high', child: Text('🔴 גבוהה')),
+                          ],
+                          onChanged: (value) {
+                            if (value != null) {
+                              setState(() => selectedPriority = value);
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        debugPrint('❌ ShoppingListDetailsScreen: ביטול דיאלוג משימה');
+                        disposeControllers();
+                        Navigator.pop(context);
+                      },
+                      child: const Text("ביטול"),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        final name = nameController.text.trim();
+                        final notes = notesController.text.trim();
+
+                        // ✅ Validation מלא
+                        if (name.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('שם המשימה לא יכול להיות ריק'), backgroundColor: Colors.red),
+                          );
+                          return;
+                        }
+
+                        final newItem = UnifiedListItem.task(
+                          id: item?.id ?? const Uuid().v4(),
+                          name: name,
+                          dueDate: selectedDueDate,
+                          priority: selectedPriority,
+                          notes: notes.isNotEmpty ? notes : null,
+                        );
+
+                        if (item == null) {
+                          // הוספה - נשתמש ב-addUnifiedItem החדש!
+                          provider.addUnifiedItem(widget.list.id, newItem);
+                          debugPrint('✅ ShoppingListDetailsScreen: הוסף משימה "$name"');
+                        } else if (index != null) {
+                          provider.updateItemAt(widget.list.id, index, (_) => newItem);
+                          debugPrint('✅ ShoppingListDetailsScreen: עדכן משימה "$name"');
+                        }
+
+                        disposeControllers();
+                        Navigator.pop(context);
+                      },
+                      child: const Text("שמירה"),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   /// === מחיקת פריט עם אנימציה ===
-  void _deleteItem(BuildContext context, int index, ReceiptItem removed) {
+  void _deleteItem(BuildContext context, int index, UnifiedListItem removed) {
     final provider = context.read<ShoppingListsProvider>();
     provider.removeItemFromList(widget.list.id, index);
 
@@ -287,7 +439,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   }
 
   /// 🔍 סינון ומיון פריטים
-  List<ReceiptItem> _getFilteredAndSortedItems(List<ReceiptItem> items) {
+  List<UnifiedListItem> _getFilteredAndSortedItems(List<UnifiedListItem> items) {
     var filtered = items.where((item) {
       if (_searchQuery.isEmpty) return true;
       final query = _searchQuery.toLowerCase();
@@ -314,8 +466,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   }
 
   /// 🏷️ קיבוץ לפי קטגוריה
-  Map<String, List<ReceiptItem>> _groupItemsByCategory(List<ReceiptItem> items) {
-    final grouped = <String, List<ReceiptItem>>{};
+  Map<String, List<UnifiedListItem>> _groupItemsByCategory(List<UnifiedListItem> items) {
+    final grouped = <String, List<UnifiedListItem>>{};
 
     for (var item in items) {
       final category = item.category ?? 'ללא קטגוריה';
@@ -334,7 +486,10 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     final theme = Theme.of(context);
     final allItems = currentList.items;
     final filteredItems = _getFilteredAndSortedItems(allItems);
-    final totalAmount = allItems.fold(0.0, (sum, item) => sum + item.totalPrice);
+    // 💰 חישוב סה"כ - רק מוצרים (Products)
+    final totalAmount = allItems
+        .where((item) => item.type == ItemType.product)
+        .fold(0.0, (sum, item) => sum + (item.totalPrice ?? 0.0));
 
     // 🎬 FAB Animation
     final fabAnimation = CurvedAnimation(parent: _fabController, curve: Curves.elasticOut);
@@ -411,16 +566,35 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
           scale: fabAnimation,
           child: Padding(
             padding: const EdgeInsets.all(kSpacingMedium),
-            child: StickyButton(
-              color: kStickyYellow,
-              label: 'הוסף מוצר',
-              icon: Icons.add,
-              onPressed: () {
-                _fabController.reverse().then((_) {
-                  _fabController.forward();
-                });
-                _showItemDialog(context);
-              },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // 📋 הוסף משימה
+                StickyButton(
+                  color: kStickyCyan,
+                  label: 'הוסף משימה',
+                  icon: Icons.task_alt,
+                  onPressed: () {
+                    _fabController.reverse().then((_) {
+                      _fabController.forward();
+                    });
+                    _showTaskDialog(context);
+                  },
+                ),
+                const SizedBox(width: kSpacingSmall),
+                // 🛒 הוסף מוצר
+                StickyButton(
+                  color: kStickyYellow,
+                  label: 'הוסף מוצר',
+                  icon: Icons.shopping_basket,
+                  onPressed: () {
+                    _fabController.reverse().then((_) {
+                      _fabController.forward();
+                    });
+                    _showItemDialog(context);
+                  },
+                ),
+              ],
             ),
           ),
         ),
@@ -430,7 +604,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   }
 
   /// 🔍 סעיף חיפוש וסינון
-  Widget _buildFiltersSection(List<ReceiptItem> allItems) {
+  Widget _buildFiltersSection(List<UnifiedListItem> allItems) {
     return Padding(
       padding: const EdgeInsets.all(kSpacingMedium),
       child: StickyNote(
@@ -719,7 +893,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   }
 
   /// 📋 רשימה שטוחה (flat) עם Staggered Animation
-  Widget _buildFlatList(List<ReceiptItem> items, ThemeData theme) {
+  Widget _buildFlatList(List<UnifiedListItem> items, ThemeData theme) {
     final stickyColors = [kStickyYellow, kStickyPink, kStickyGreen, kStickyCyan];
     final stickyRotations = [0.01, -0.015, 0.01, -0.01];
 
@@ -751,7 +925,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   }
 
   /// 🏷️ רשימה מקובצת לפי קטגוריה
-  Widget _buildGroupedList(List<ReceiptItem> items, ThemeData theme) {
+  Widget _buildGroupedList(List<UnifiedListItem> items, ThemeData theme) {
     final grouped = _groupItemsByCategory(items);
     final categories = grouped.keys.toList()..sort();
     final stickyColors = [kStickyYellow, kStickyPink, kStickyGreen, kStickyCyan];
@@ -832,8 +1006,24 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   }
 
   /// 🎴 כרטיס פריט מונפש
-  Widget _buildItemCard(ReceiptItem item, int index, ThemeData theme, Color stickyColor, double rotation) {
-    final formattedPrice = NumberFormat.simpleCurrency(locale: 'he_IL').format(item.totalPrice);
+  Widget _buildItemCard(UnifiedListItem item, int index, ThemeData theme, Color stickyColor, double rotation) {
+    // 🎯 איקונים וצבעים לפי סוג
+    final isProduct = item.type == ItemType.product;
+    final itemIcon = isProduct ? Icons.shopping_basket : Icons.task_alt;
+    final actualColor = isProduct ? kStickyYellow : kStickyCyan;
+    
+    // 💰 subtitle לפי סוג
+    final String subtitle;
+    if (isProduct) {
+      final formattedPrice = NumberFormat.simpleCurrency(locale: 'he_IL').format(item.totalPrice);
+      subtitle = "כמות: ${item.quantity} | מחיר כולל: $formattedPrice";
+    } else {
+      // Task
+      final dueDate = item.dueDate;
+      final dueDateText = dueDate != null ? DateFormat('dd/MM/yy').format(dueDate) : 'ללא תאריך יעד';
+      final priorityEmoji = item.priority == 'high' ? '🔴' : item.priority == 'medium' ? '🟡' : '🟢';
+      subtitle = "$priorityEmoji תאריך יעד: $dueDateText";
+    }
 
     return Dismissible(
       key: Key(item.id),
@@ -863,7 +1053,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
       },
       onDismissed: (_) => _deleteItem(context, index, item),
       child: StickyNote(
-        color: stickyColor,
+        color: actualColor,
         rotation: rotation,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
@@ -880,7 +1070,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
               ),
               child: Text(item.name ?? 'ללא שם'),
             ),
-            subtitle: Text("כמות: ${item.quantity} | מחיר כולל: $formattedPrice", style: theme.textTheme.bodySmall),
+            subtitle: Text(subtitle, style: theme.textTheme.bodySmall),
             leading: AnimatedSwitcher(
               duration: const Duration(milliseconds: 200),
               child: item.isChecked

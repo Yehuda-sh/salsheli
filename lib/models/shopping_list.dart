@@ -28,6 +28,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'receipt.dart';
+import 'unified_list_item.dart';
+import 'enums/item_type.dart';
 import 'timestamp_converter.dart';
 import 'active_shopper.dart';
 
@@ -102,9 +104,9 @@ class ShoppingList {
   @JsonKey(name: 'target_date')
   final DateTime? targetDate;
 
-  /// 🇮🇱 פריטי הקניות ברשימה
-  /// 🇬🇧 Shopping items in the list
-  final List<ReceiptItem> items;
+  /// 🇮🇱 פריטי הקניות ברשימה (מוצרים + משימות)
+  /// 🇬🇧 Shopping items in the list (products + tasks)
+  final List<UnifiedListItem> items;
 
   /// 🆕 מזהה התבנית ממנה נוצרה הרשימה (null אם ידנית)
   /// 🇬🇧 Template ID from which the list was created (null if manual)
@@ -196,6 +198,35 @@ class ShoppingList {
     }
   }
 
+  // ---- Unified Items Helpers ----
+
+  /// 🇮🇱 רק מוצרים (ללא משימות)
+  /// 🇬🇧 Only products (no tasks)
+  List<UnifiedListItem> get products =>
+      items.where((item) => item.type == ItemType.product).toList();
+
+  /// 🇮🇱 רק משימות (ללא מוצרים)
+  /// 🇬🇧 Only tasks (no products)
+  List<UnifiedListItem> get tasks =>
+      items.where((item) => item.type == ItemType.task).toList();
+
+  /// 🇮🇱 כמות מוצרים
+  /// 🇬🇧 Product count
+  int get productCount => products.length;
+
+  /// 🇮🇱 כמות משימות
+  /// 🇬🇧 Task count
+  int get taskCount => tasks.length;
+
+  /// 🇮🇱 סכום מחיר כולל של מוצרים
+  /// 🇬🇧 Total price of all products
+  double get totalAmount {
+    return products.fold(
+      0.0,
+      (sum, item) => sum + (item.totalPrice ?? 0.0),
+    );
+  }
+
   /// Constructor
   ShoppingList({
     required this.id,
@@ -210,7 +241,7 @@ class ShoppingList {
     required this.isShared,
     required this.createdBy,
     required List<String> sharedWith,
-    required List<ReceiptItem> items,
+    required List<UnifiedListItem> items,
     this.templateId,
     required this.format,
     required this.createdFromTemplate,
@@ -234,7 +265,7 @@ class ShoppingList {
     DateTime? targetDate,
     bool isShared = false,
     List<String> sharedWith = const [],
-    List<ReceiptItem> items = const [],
+    List<UnifiedListItem> items = const [],
     String? templateId,
     String format = 'shared',
     bool createdFromTemplate = false,
@@ -270,7 +301,7 @@ class ShoppingList {
     required String createdBy,
     required String type,
     required String format,
-    required List<ReceiptItem> items,
+    required List<UnifiedListItem> items,
     double? budget,
     DateTime? eventDate,
     DateTime? targetDate,
@@ -319,7 +350,7 @@ class ShoppingList {
     bool? isShared,
     String? createdBy,
     List<String>? sharedWith,
-    List<ReceiptItem>? items,
+    List<UnifiedListItem>? items,
     Object? templateId = _sentinel,  // Using Object? to allow explicit null
     String? format,
     bool? createdFromTemplate,
@@ -358,7 +389,7 @@ class ShoppingList {
 
   /// 🇮🇱 הוספת פריט לרשימה
   /// 🇬🇧 Add item to list
-  ShoppingList withItemAdded(ReceiptItem item) {
+  ShoppingList withItemAdded(UnifiedListItem item) {
     return copyWith(items: [...items, item], updatedDate: DateTime.now());
   }
 
