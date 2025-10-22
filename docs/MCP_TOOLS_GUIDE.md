@@ -1,7 +1,7 @@
 # 🛠️ MCP Tools Guide - MemoZap
 
 > **MCP tools reference for Claude Desktop**  
-> **Updated:** 22/10/2025 | **Version:** 2.0 - Complete Tool Update
+> **Updated:** 23/10/2025 | **Version:** 2.1 - Current Installation Status
 
 ---
 
@@ -9,19 +9,123 @@
 
 **MCP (Model Context Protocol)** = Tools that give Claude access to external capabilities.
 
-### The 8 Core Tools:
+### Currently Installed (5 Servers):
+
+| Server | Status | Functions | Criticality |
+|--------|--------|-----------|-------------|
+| **Filesystem** | ✅ Active | 16 functions | 🔴 Critical |
+| **Memory** | ✅ Active | 9 functions | 🟡 Important |
+| **GitHub** | ⚠️ Needs token | 26 functions | 🟡 Important |
+| **Bash** | ✅ Active | 1 function | 🔴 Critical |
+| **Sequential Thinking** | ✅ Active | 1 function | 🟡 Important |
+| **Brave Search** | ⚠️ Needs API key | 2 functions | 🟢 Optional |
+
+### Additional Built-in Tools:
 
 | Tool | Purpose | Criticality |
 |------|---------|-------------|
-| **Filesystem** | Read/write/edit files (13 functions) | 🔴 Critical |
-| **Memory** | Long-term memory (9 functions) | 🟡 Important |
-| **GitHub** | Git operations (26 functions) | 🟡 Important |
-| **Bash** | Run terminal commands | 🔴 Critical |
-| **Sequential Thinking** | Complex problem solving | 🟡 Important |
-| **Brave Search** | Internet search | 🟢 Optional |
 | **Web Search/Fetch** | Search + fetch pages | 🟢 Optional |
-| **Conversation** | Search past conversations (2 tools) | 🟡 Important |
-| **Extended Research** | Deep research | 🟢 Optional |
+| **Conversation Tools** | Search past conversations (2 tools) | 🟡 Important |
+
+---
+
+## ⚙️ Installation & Setup
+
+### Current Configuration File:
+
+**Location:** `%APPDATA%\Claude\claude_desktop_config.json`
+
+**Currently Installed:**
+```json
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:\\projects\\salsheli"]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "<YOUR_TOKEN>"
+      }
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    },
+    "brave-search": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "env": {
+        "BRAVE_API_KEY": "<YOUR_API_KEY>"
+      }
+    },
+    "bash": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-bash"]
+    }
+  },
+  "isUsingBuiltInNodeForMcp": true,
+  "isDxtAutoUpdatesEnabled": true
+}
+```
+
+### 🔑 API Keys Setup:
+
+#### GitHub Token:
+1. Go to: https://github.com/settings/tokens
+2. Generate new token (classic)
+3. Permissions: `repo`, `read:org`
+4. Copy token to config
+
+#### Brave Search API:
+1. Go to: https://brave.com/search/api/
+2. Sign up (free tier: 2000 queries/month)
+3. Copy API key to config
+
+### 💡 Recommended Additional Servers (Free):
+
+#### 1. SQLite Server (Testing & Cache)
+```json
+"sqlite": {
+  "command": "npx",
+  "args": ["-y", "@modelcontextprotocol/server-sqlite"]
+}
+```
+
+#### 2. Fetch Server (Alternative to Brave)
+```json
+"fetch": {
+  "command": "npx",
+  "args": ["-y", "@modelcontextprotocol/server-fetch"]
+}
+```
+
+#### 3. Puppeteer Server (UI Testing)
+```json
+"puppeteer": {
+  "command": "npx",
+  "args": ["-y", "@modelcontextprotocol/server-puppeteer"]
+}
+```
+
+#### 4. Firebase Server (Direct Firestore Access)
+```json
+"firebase": {
+  "command": "npx",
+  "args": ["-y", "@firebase/mcp-server-firebase"],
+  "env": {
+    "GOOGLE_APPLICATION_CREDENTIALS": "C:\\path\\to\\serviceAccountKey.json"
+  }
+}
+```
+
+**Note:** Firebase server is especially useful for MemoZap since the project uses Firebase extensively!
 
 ---
 
@@ -575,6 +679,21 @@ Need deep research? → Extended Research
 
 ---
 
-**Version:** 2.0  
-**Created:** 19/10/2025 | **Updated:** 22/10/2025  
-**Purpose:** Complete MCP tools reference with all 8 core tools + functions
+**Version:** 2.1  
+**Created:** 19/10/2025 | **Updated:** 23/10/2025  
+**Purpose:** Complete MCP tools reference - current installation + recommendations
+
+---
+
+## 📝 Changelog
+
+### v2.1 - 23/10/2025 ✨ **LATEST**
+- ✅ Added "Installation & Setup" section
+- ✅ Documented current server configuration
+- ✅ Added API keys setup instructions
+- ✅ Added recommended additional servers (SQLite, Fetch, Puppeteer, Firebase)
+- ✅ Updated status table with current installation
+
+### v2.0 - 22/10/2025
+- ✅ Complete tool documentation
+- ✅ All 8 core tools + functions documented
