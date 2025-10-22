@@ -16,6 +16,7 @@
 
 import 'package:flutter/material.dart';
 import '../core/ui_constants.dart';
+import '../core/status_colors.dart';
 import '../screens/receipts/scan_receipt_screen.dart';
 import '../screens/receipts/link_receipt_screen.dart';
 
@@ -41,12 +42,12 @@ class AddReceiptDialog extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(kSpacingSmall),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withValues(alpha: 0.1),
+                    color: StatusColors.getStatusOverlay('warning', context),
                     borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.receipt_long,
-                    color: Colors.orange,
+                    color: StatusColors.getStatusColor('warning', context),
                     size: 28,
                   ),
                 ),
@@ -66,7 +67,7 @@ class AddReceiptDialog extends StatelessWidget {
             // 🎯 אופציה 1: צילום
             _OptionCard(
               icon: Icons.camera_alt,
-              iconColor: Colors.blue,
+              iconStatus: 'info',
               title: 'צילום קבלה',
               subtitle: 'צלם את הקבלה עם המצלמה',
               onTap: () {
@@ -84,7 +85,7 @@ class AddReceiptDialog extends StatelessWidget {
             // 🎯 אופציה 2: קישור
             _OptionCard(
               icon: Icons.link,
-              iconColor: Colors.green,
+              iconStatus: 'success',
               title: 'קישור מ-SMS',
               subtitle: 'הדבק קישור לקבלה דיגיטלית',
               onTap: () {
@@ -118,20 +119,20 @@ class AddReceiptDialog extends StatelessWidget {
 ///
 /// Parameters:
 /// - [icon]: האייקון להצגה
-/// - [iconColor]: צבע האייקון והרקע
+/// - [iconStatus]: סטטוס לצבע האייקון (מ-StatusColors)
 /// - [title]: כותרת ראשית
 /// - [subtitle]: תיאור משני
 /// - [onTap]: פעולה ללחיצה
 class _OptionCard extends StatelessWidget {
   final IconData icon;
-  final Color iconColor;
+  final String iconStatus;
   final String title;
   final String subtitle;
   final VoidCallback onTap;
 
   const _OptionCard({
     required this.icon,
-    required this.iconColor,
+    required this.iconStatus,
     required this.title,
     required this.subtitle,
     required this.onTap,
@@ -140,6 +141,8 @@ class _OptionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final iconColor = StatusColors.getStatusColor(iconStatus, context);
+    final overlayColor = StatusColors.getStatusOverlay(iconStatus, context);
 
     return InkWell(
       onTap: onTap,
@@ -160,7 +163,7 @@ class _OptionCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(kSpacingSmall),
               decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.1),
+                color: overlayColor,
                 borderRadius: BorderRadius.circular(kBorderRadiusSmall),
               ),
               child: Icon(

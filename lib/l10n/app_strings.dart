@@ -11,7 +11,7 @@
 // ```dart
 // import 'package:memozap/l10n/app_strings.dart';
 //
-// Text(AppStrings.layout.appTitle)  // "סל חכם"
+// Text(AppStrings.layout.appTitle)  // "MemoZap"
 // Text(AppStrings.common.logout)    // "התנתק"
 // ```
 //
@@ -19,7 +19,7 @@
 //          ב-AppLocalizations generated class
 //
 // Version: 3.1 - עדכון טקסטים לתמיכה בכל סוגי הקבוצות והרשימות
-// Last Updated: 20/10/2025
+// Last Updated: 22/10/2025
 
 import 'strings/list_type_mappings_strings.dart';
 
@@ -139,7 +139,7 @@ class _LayoutStrings {
   const _LayoutStrings();
 
   // AppBar
-  String get appTitle => 'סל חכם';
+  String get appTitle => 'MemoZap';
 
   // Notifications
   String get notifications => 'התראות';
@@ -148,7 +148,7 @@ class _LayoutStrings {
 
   // User Menu
   String get hello => 'שלום 👋';
-  String get welcome => 'ברוך הבא לסל חכם';
+  String get welcome => 'ברוך הבא ל-MemoZap';
   String welcomeWithUpdates(int count) => 'יש לך $count עדכונים חדשים';
 
   // Offline
@@ -261,7 +261,7 @@ class _OnboardingStrings {
 //
 // 1. **Import פשוט:**
 //    ```dart
-//    import 'package:salsheli/l10n/app_strings.dart';
+//    import 'package:memozap/l10n/app_strings.dart';
 //    ```
 //
 // 2. **שימוש ב-Widget:**
@@ -377,7 +377,7 @@ class _WelcomeStrings {
   String get facebookButton => 'Facebook';
 
   // Accessibility
-  String get logoLabel => 'לוגו אפליקציית סל שלי';
+  String get logoLabel => 'לוגו אפליקציית MemoZap';
   String socialLoginButtonLabel(String provider) => 'התחבר עם $provider';
 }
 

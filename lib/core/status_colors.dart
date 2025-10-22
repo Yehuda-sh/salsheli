@@ -25,8 +25,8 @@
 // backgroundColor: StatusColors.successOverlay
 // ```
 //
-// Version: 2.1 - Added info overlays + debug warnings
-// Last Updated: 14/10/2025
+// Version: 2.2 - Now actively used in 3 files (shopping_list_tile, create_list_dialog, add_receipt_dialog)
+// Last Updated: 22/10/2025
 
 import 'package:flutter/material.dart';
 
@@ -35,9 +35,14 @@ import 'package:flutter/material.dart';
 /// צבעים קבועים לשימוש במצבי סטטוס שונים:
 /// - pending (אפור) - פריט ממתין לפעולה
 /// - success (ירוק) - פעולה הצליחה / פריט נקנה
-/// - error (אדום) - שגיאה / לא במלאי
-/// - warning (כתום) - אזהרה / פריט דחוי
-/// - info (כחול) - מידע / לא רלוונטי
+/// - error (אדום) - שגיאה / כשלון
+/// - warning (כתום) - אזהרה / דחיפות
+/// - info (כחול) - מידע / רשימה פעילה
+///
+/// 📍 שימוש בפרויקט:
+/// - lib/widgets/shopping_list_tile.dart (סטטוס רשימות, דחיפות, borders, SnackBars)
+/// - lib/widgets/create_list_dialog.dart (SnackBars, error states)
+/// - lib/widgets/add_receipt_dialog.dart (dialog header, אופציות)
 class StatusColors {
   // מניעת instances
   const StatusColors._();

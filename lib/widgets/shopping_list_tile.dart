@@ -31,6 +31,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/shopping_list.dart';
 import '../core/ui_constants.dart';
+import '../core/status_colors.dart';
 
 class ShoppingListTile extends StatelessWidget {
   final ShoppingList list;
@@ -59,31 +60,34 @@ class ShoppingListTile extends StatelessWidget {
   /// כל icon כולל Tooltip בעברית לנגישות
   ///
   /// Returns: Icon widget עם Tooltip
-  Widget _statusIcon() {
+  Widget _statusIcon(BuildContext context) {
     final IconData iconData;
-    final Color color;
+    final String status;
     final String tooltip;
 
     switch (list.status) {
       case ShoppingList.statusCompleted:
         iconData = Icons.check_circle;
-        color = Colors.green;
+        status = 'success';
         tooltip = 'רשימה הושלמה';
         break;
       case ShoppingList.statusArchived:
         iconData = Icons.archive;
-        color = Colors.grey;
+        status = 'pending';
         tooltip = 'רשימה בארכיון';
         break;
       default:
         iconData = Icons.shopping_cart;
-        color = Colors.blue;
+        status = 'info';
         tooltip = 'רשימה פעילה';
     }
 
     return Tooltip(
       message: tooltip,
-      child: Icon(iconData, color: color),
+      child: Icon(
+        iconData,
+        color: StatusColors.getStatusColor(status, context),
+      ),
     );
   }
 
@@ -108,7 +112,7 @@ class ShoppingListTile extends StatelessWidget {
     // אם התאריך עבר
     if (target.isBefore(now)) {
       return {
-        'color': Colors.red.shade700,
+        'status': 'error',
         'text': 'עבר!',
         'icon': Icons.warning,
       };
@@ -119,28 +123,28 @@ class ShoppingListTile extends StatelessWidget {
     if (daysLeft == 0) {
       // היום!
       return {
-        'color': Colors.red.shade700,
+        'status': 'error',
         'text': 'היום!',
         'icon': Icons.access_time,
       };
     } else if (daysLeft <= 1) {
       // מחר
       return {
-        'color': Colors.orange.shade700,
+        'status': 'warning',
         'text': 'מחר',
         'icon': Icons.access_time,
       };
     } else if (daysLeft <= 7) {
       // בקרוב (1-7 ימים)
       return {
-        'color': Colors.orange.shade600,
+        'status': 'warning',
         'text': 'עוד $daysLeft ימים',
         'icon': Icons.access_time,
       };
     } else {
       // יש זמן (7+ ימים)
       return {
-        'color': Colors.green.shade700,
+        'status': 'success',
         'text': 'עוד $daysLeft ימים',
         'icon': Icons.check_circle_outline,
       };
@@ -162,6 +166,9 @@ class ShoppingListTile extends StatelessWidget {
     if (urgencyData == null) return null;
 
     final theme = Theme.of(context);
+    final status = urgencyData['status'] as String;
+    final statusColor = StatusColors.getStatusColor(status, context);
+    final overlayColor = StatusColors.getStatusOverlay(status, context);
 
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -169,10 +176,10 @@ class ShoppingListTile extends StatelessWidget {
         vertical: kSpacingTiny,
       ),
       decoration: BoxDecoration(
-        color: (urgencyData['color'] as Color).withValues(alpha: 0.15),
+        color: overlayColor,
         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
         border: Border.all(
-          color: urgencyData['color'] as Color,
+          color: statusColor,
           width: kBorderWidth,
         ),
       ),
@@ -182,13 +189,13 @@ class ShoppingListTile extends StatelessWidget {
           Icon(
             urgencyData['icon'] as IconData,
             size: kIconSizeSmall,
-            color: urgencyData['color'] as Color,
+            color: statusColor,
           ),
           const SizedBox(width: kSpacingTiny),
           Text(
             urgencyData['text'] as String,
             style: theme.textTheme.bodySmall?.copyWith(
-              color: urgencyData['color'] as Color,
+              color: statusColor,
               fontWeight: FontWeight.bold,
               fontSize: kFontSizeTiny,
             ),
@@ -229,8 +236,8 @@ class ShoppingListTile extends StatelessWidget {
           // ✅ הצגת Snackbar עם אפשרות Undo
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('הרשימה "${deletedList.name}" נמחקה'),
-              backgroundColor: Colors.green,
+            content: Text('הרשימה "${deletedList.name}" נמחקה'),
+            backgroundColor: StatusColors.getStatusColor('success', context),
               action: SnackBarAction(
                 label: 'בטל',
                 onPressed: () {
@@ -242,9 +249,9 @@ class ShoppingListTile extends StatelessWidget {
                   } catch (e) {
                     debugPrint('   ❌ שגיאה בשחזור: $e');
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('שגיאה בשחזור הרשימה'),
-                        backgroundColor: Colors.red,
+                      SnackBar(
+                        content: const Text('שגיאה בשחזור הרשימה'),
+                        backgroundColor: StatusColors.getStatusColor('error', context),
                       ),
                     );
                   }
@@ -261,9 +268,9 @@ class ShoppingListTile extends StatelessWidget {
           
           // הצג הודעת שגיאה
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('שגיאה במחיקת הרשימה'),
-              backgroundColor: Colors.red,
+            SnackBar(
+              content: const Text('שגיאה במחיקת הרשימה'),
+              backgroundColor: StatusColors.getStatusColor('error', context),
             ),
           );
           
@@ -280,9 +287,9 @@ class ShoppingListTile extends StatelessWidget {
             border: BorderDirectional(
               start: BorderSide(
                 color: list.status == ShoppingList.statusCompleted
-                    ? Colors.green.shade400
+                    ? StatusColors.getStatusColor('success', context)
                     : list.status == ShoppingList.statusArchived
-                        ? Colors.grey.shade400
+                        ? StatusColors.getStatusColor('pending', context)
                         : theme.colorScheme.primary,
                 width: kBorderWidthExtraThick,
               ),
@@ -296,7 +303,7 @@ class ShoppingListTile extends StatelessWidget {
               ),
               onTap: onTap,
               child: ListTile(
-                leading: _statusIcon(),
+                leading: _statusIcon(context),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: kSpacingMedium,
                   vertical: kSpacingSmallPlus,

@@ -40,6 +40,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../core/constants.dart';
 import '../core/ui_constants.dart';
+import '../core/status_colors.dart';
 import '../config/list_type_groups.dart';
 import '../providers/shopping_lists_provider.dart';
 import '../providers/templates_provider.dart';
@@ -203,7 +204,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
             Expanded(child: Text(message)),
           ],
         ),
-        backgroundColor: Colors.red.shade700,
+        backgroundColor: StatusColors.getStatusColor('error', context),
         behavior: SnackBarBehavior.floating,
         duration: kSnackBarDurationLong,
       ),
@@ -230,7 +231,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
             Expanded(child: Text(message)),
           ],
         ),
-        backgroundColor: Colors.green.shade700,
+        backgroundColor: StatusColors.getStatusColor('success', context),
         behavior: SnackBarBehavior.floating,
         duration: kSnackBarDuration,
       ),
@@ -328,7 +329,11 @@ class _CreateListDialogState extends State<CreateListDialog> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                              Icon(
+                                Icons.error_outline,
+                                size: 64,
+                                color: StatusColors.getStatusColor('error', context),
+                              ),
                               const SizedBox(height: kSpacingMedium),
                               Text(
                                 '${AppStrings.createListDialog.loadingTemplatesError}\n${provider.errorMessage}',

@@ -42,7 +42,7 @@
 // - ✅ Improved _NavItem constructor for clarity
 //
 // Version: 3.1 - Performance & Code Quality Improvements
-// Last Updated: 16/10/2025
+// Last Updated: 22/10/2025
 //
 
 import 'package:flutter/material.dart';

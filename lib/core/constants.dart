@@ -12,8 +12,8 @@
 // 🔗 קבצים קשורים:
 // - lib/core/ui_constants.dart - קבועי UI (צבעים, מרווחים, גדלים)
 // - lib/config/list_type_mappings.dart - מיפוי types לקטגוריות וחנויות
-// - lib/config/category_config.dart - עיצוב מלא של קטגוריות (צבעים, אימוג'י)
-// - lib/config/filters_config.dart - טקסטים לפילטרים (kCategories, kStatuses)
+// - lib/config/filters_config.dart - טקסטים לפילטרים וקטגוריות (kCategories, kStatuses)
+// - lib/config/pantry_config.dart - הגדרות מלאי ומזווה
 //
 // 📝 הערות:
 // - קבצי Config אחרים מכילים קבועים ספציפיים יותר
@@ -305,7 +305,7 @@ class FirestoreFields {
 /// 
 /// 🎯 שימוש: הצגת אימוג'י לפי קטגוריה
 /// 📝 הערה: משמש ב-widgets שצריכים אימוג'י בלבד ללא Config מלא
-const Map<String, String> kCategoryEmojis = {
+const Map<String, String> kCategoryEmojis = const {
   'dairy': '🥛',
   'meat': '🥩',
   'produce': '🥦',
@@ -323,7 +323,7 @@ const Map<String, String> kCategoryEmojis = {
 /// 
 /// 🎯 שימוש: Map של מיקומי אחסון עם שמות ואימוג'י
 /// 📝 הערה: משמש ב-storage_location_manager
-const Map<String, Map<String, String>> kStorageLocations = {
+const Map<String, Map<String, String>> kStorageLocations = const {
   'refrigerator': {'name': 'מקרר', 'emoji': '❄️'},
   'freezer': {'name': 'מקפיא', 'emoji': '🧊'},
   'pantry': {'name': 'מזווה', 'emoji': '📦'},
@@ -338,7 +338,7 @@ const Map<String, Map<String, String>> kStorageLocations = {
 /// 
 /// 🎯 שימוש: יצירת רשימות, תצוגה של סוגים
 /// 📝 הערה: משמש ב-create_list_dialog
-const Map<String, Map<String, String>> kListTypes = {
+const Map<String, Map<String, String>> kListTypes = const {
   'super': {
     'name': 'סופרמרקט',
     'icon': '🛒',
@@ -461,6 +461,17 @@ const int kMaxFamilySize = 10;
 /// 🎯 שימוש: validation ב-onboarding flow
 const double kMinMonthlyBudget = 500.0;
 const double kMaxMonthlyBudget = 20000.0;
+
+/// גילאי ילדים תקינים
+/// 
+/// 🎯 שימוש: validation בהעדפות onboarding
+/// 📝 הערה: משמש ב-OnboardingData._filterValidAges()
+const Set<String> kValidChildrenAges = {
+  'babies',   // תינוקות (0-2)
+  'toddlers', // פעוטות (2-5)
+  'children', // ילדים (5-12)
+  'teens',    // בני נוער (12+)
+};
 
 // ========================================
 // סוגי רשימות קניות
@@ -603,9 +614,9 @@ class ListType {
 //
 // 3. **קישור לקבצי Config אחרים:**
 //    - UI: lib/core/ui_constants.dart
-//    - קטגוריות: lib/config/category_config.dart
-//    - פילטרים: lib/config/filters_config.dart
+//    - פילטרים וקטגוריות: lib/config/filters_config.dart
 //    - מיפויים: lib/config/list_type_mappings.dart
+//    - מלאי: lib/config/pantry_config.dart
 //
 // 4. **Validation Examples:**
 //    ```dart

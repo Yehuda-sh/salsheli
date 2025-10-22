@@ -1,8 +1,8 @@
 // 📄 File: lib/data/onboarding_data.dart
 // תיאור: מודל נתוני Onboarding + פונקציות שמירה/טעינה/ניהול
 //
-// Version: 2.0 - Enhanced with validation, namespacing, and schema versioning
-// Last Updated: 15/10/2025
+// Version: 2.1 - Using kValidChildrenAges constant
+// Last Updated: 22/10/2025
 //
 // כולל:
 // - מודל OnboardingData עם כל שדות ההעדפות
@@ -190,8 +190,7 @@ class OnboardingData {
 
   /// סינון גילאי ילדים תקינים בלבד
   static Set<String> _filterValidAges(Set<String> ages) {
-    const validAges = {'babies', 'toddlers', 'children', 'teens'};
-    final filtered = ages.where(validAges.contains).toSet();
+    final filtered = ages.where(kValidChildrenAges.contains).toSet();
     
     if (kDebugMode && ages.length != filtered.length) {
       final invalid = ages.difference(filtered);

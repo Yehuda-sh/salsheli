@@ -22,8 +22,9 @@
 // Text(AppStrings.listMappings.itemMilk)          // "חלב"
 // ```
 //
-// Version: 1.0
+// Version: 1.1 - Date update
 // Created: 08/10/2025
+// Last Updated: 22/10/2025
 
 /// מחרוזות למיפוי סוגי רשימות
 ///
