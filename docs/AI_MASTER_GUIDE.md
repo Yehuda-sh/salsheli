@@ -1,8 +1,10 @@
 # AI Master Guide - MemoZap Project
 
+> **Project Name:** MemoZap (חבילה: memozap)  
+> **Workspace:** salsheli (שם תיקיית העבודה)  
 > **CRITICAL:** Read this file at the start of EVERY new conversation  
 > **Purpose:** AI behavior instructions for Claude  
-> **Updated:** 20/10/2025 | **Version:** 4.8 - Docs Cleanup
+> **Updated:** 22/10/2025 | **Version:** 4.9 - Import Rules Fix
 
 ---
 
@@ -366,11 +368,12 @@ final cs = Theme.of(context).colorScheme;
 // ❌ BAD
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';  // Duplicate!
-import '../../../core/constants.dart';    // Relative path!
+import '../../../core/constants.dart';    // Too deep (3 levels)!
 
 // ✅ GOOD  
 import 'package:flutter/material.dart';
-import 'package:my_app/core/constants.dart';  // Full path
+import '../core/constants.dart';  // Relative path (max 2 levels)
+import '../../models/shopping_list.dart';  // OK - 2 levels
 ```
 
 **Auto-fix:**
@@ -590,8 +593,9 @@ class ShoppingList {
 - **Private classes:** `_PascalCase` (e.g., `_LoginScreenState`)
 
 **Import Rules:**
-- ✅ **Always:** `package:memozap/...` (full package imports)
-- ❌ **Never:** `../...` (relative imports)
+- ✅ **Allowed:** `../...` (relative imports - project convention)
+- ⚠️ **Caution:** Avoid deep nesting (max 2 levels: `../..`)
+- ❌ **Never:** `../../..` (3+ levels - too deep!)
 
 **Check Pattern:**
 ```bash
@@ -944,14 +948,20 @@ File has:      ## 📌 Critical Reminders  ← Missing emoji!
 
 ## 📈 Version History
 
-### v4.8 - 20/10/2025 🆕 **LATEST - Docs Cleanup**
+### v4.9 - 22/10/2025 🆕 **LATEST - Import Rules Fix**
+- 🔧 Fixed Import Rules to match project convention (relative imports allowed)
+- 📝 Updated code examples for imports
+- 💡 Added project name clarification (MemoZap vs salsheli)
+- 📅 Updated dates to 22/10/2025
+
+### v4.8 - 20/10/2025
 - ✂️ Removed old version history (kept only latest)
 - 📊 Result: Cleaner, more focused for AI
 
 ---
 
-**Version:** 4.8  
-**Created:** 18/10/2025 | **Updated:** 20/10/2025  
+**Version:** 4.9  
+**Created:** 18/10/2025 | **Updated:** 22/10/2025  
 **Purpose:** Personalized AI behavior guide for this specific user  
 **Philosophy:** User preferences first, technical details in DEVELOPER_GUIDE.md  
 **User:** Claude Max with token limits - optimize for continuation & memory  
