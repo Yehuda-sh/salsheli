@@ -17,7 +17,8 @@
 
 - 👨‍👩‍👧‍👦 **Multi-user collaboration** - Share lists with household members
 - 🎨 **Unique Sticky Notes theme** - Beautiful post-it style UI
-- 📸 **OCR receipt scanning** - Scan and import items automatically
+- 🧠 **Smart suggestions** - Pantry-based recommendations
+- 💡 **Smart inventory** - Auto-update pantry after shopping
 - 🔒 **Household-based security** - Your data stays private
 - 🛒 **21 list types + 6 templates** - Pre-loaded with 66 common items
 - 🏪 **Shufersal API integration** - Public API with dynamic pricing
@@ -80,6 +81,7 @@ flutter build ios --release  # iOS
 | 🤖 **AI Assistant** | [docs/AI_MASTER_GUIDE.md](docs/AI_MASTER_GUIDE.md) | AI behavior + auto code review |
 | 🛠️ **Using Claude Desktop** | [docs/MCP_TOOLS_GUIDE.md](docs/MCP_TOOLS_GUIDE.md) | MCP tools reference |
 | 📋 **Project Manager** | [docs/PROJECT_INFO.md](docs/PROJECT_INFO.md) | Complete project overview |
+| 📚 **Learning from mistakes** | [docs/LESSONS_LEARNED.md](docs/LESSONS_LEARNED.md) | Common mistakes + solutions |
 
 ### By Task
 
@@ -103,7 +105,6 @@ flutter build ios --release  # iOS
 | **Backend** | Firebase (Auth, Firestore, Functions) |
 | **State Management** | Provider |
 | **Database** | Cloud Firestore |
-| **ML/OCR** | ML Kit (Text Recognition) |
 | **External API** | Shufersal (1,758 products) |
 | **Design System** | Sticky Notes (Custom) |
 | **Testing** | flutter_test, mockito |
@@ -128,20 +129,21 @@ flutter build ios --release  # iOS
 
 ### ✅ Major Features Completed
 
-#### Tasks + Products (Hybrid)
-- 🧩 **Mixed lists** - Products and tasks in one list
-- 🎨 **Smart UI** - Different colors/icons for each type
-- ✅ **Full testing** - 9/9 unit tests passing
+#### 🧩 Tasks + Products (Track 1)
+- Mix products and tasks in one list
+- Smart UI with different colors/icons
+- Full unit test coverage (9/9 passing)
 
-#### User Sharing System
-- 👥 **4 permission levels** - Owner/Admin/Editor/Viewer
-- 📨 **Request workflow** - Add/Edit/Delete with approval
-- 🔒 **Secure** - Firestore rules with full permissions
+#### 👥 User Sharing (Track 2)
+- 4 permission levels: Owner/Admin/Editor/Viewer
+- Request workflow for editors
+- Secure Firestore rules with full permissions
 
 ### 🧪 Technical Improvements
 - Removed 1,600+ lines of obsolete tests
-- Fixed const usage errors
-- Cleaner project structure
+- Fixed const usage errors in production code
+- Cleaner, more focused codebase
+- Enhanced documentation with LESSONS_LEARNED.md
 
 **📖 Full changelog:** See [docs/CHANGELOG.md](docs/CHANGELOG.md)
 
