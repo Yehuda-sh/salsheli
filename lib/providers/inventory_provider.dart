@@ -26,6 +26,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import '../models/inventory_item.dart';
+import '../models/unified_list_item.dart';
+import '../models/enums/item_type.dart';
 import '../repositories/inventory_repository.dart';
 import 'user_context.dart';
 
@@ -328,6 +330,83 @@ class InventoryProvider with ChangeNotifier {
     final filtered = _items.where((i) => i.category == category).toList();
     debugPrint('🔍 itemsByCategory($category): ${filtered.length} פריטים');
     return filtered;
+  }
+
+  /// מחזיר מוצרים שאוזלים (מתחת ל-threshold)
+  /// 
+  /// Example:
+  /// ```dart
+  /// final lowStock = provider.getLowStockItems();
+  /// ```
+  List<InventoryItem> getLowStockItems() {
+    final lowStock = _items.where((item) {
+      return item.currentStock <= item.threshold;
+    }).toList();
+    debugPrint('📦 getLowStockItems: ${lowStock.length} מוצרים אוזלים');
+    return lowStock;
+  }
+
+  /// מוסיף מלאי למוצר קיים (חיבור!)
+  /// 
+  /// Example:
+  /// ```dart
+  /// await provider.addStock('חלב', 2); // +2 יחידות
+  /// ```
+  Future<void> addStock(String productName, int quantity) async {
+    debugPrint('➕ addStock: $productName +$quantity');
+    
+    final householdId = _userContext?.user?.householdId;
+    if (householdId == null) {
+      debugPrint('⚠️ householdId לא נמצא');
+      return;
+    }
+
+    try {
+      // מצא פריט לפי שם
+      final existingItem = _items.where((i) => i.productName.trim().toLowerCase() == productName.trim().toLowerCase()).firstOrNull;
+      
+      if (existingItem != null) {
+        // עדכן מלאי - חיבור!
+        final updatedItem = existingItem.copyWith(
+          currentStock: existingItem.currentStock + quantity,
+        );
+        
+        await _repository.updateItem(updatedItem, householdId);
+        debugPrint('✅ מלאי עודכן: ${existingItem.currentStock} -> ${updatedItem.currentStock}');
+        
+        // עדכון local
+        final index = _items.indexWhere((i) => i.id == existingItem.id);
+        if (index != -1) {
+          _items[index] = updatedItem;
+          notifyListeners();
+        }
+      } else {
+        debugPrint('⚠️ מוצר "$productName" לא נמצא במזווה');
+      }
+    } catch (e) {
+      debugPrint('❌ addStock: שגיאה - $e');
+      _errorMessage = 'שגיאה בעדכון מלאי';
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  /// עדכון מלאי אוטומטי אחרי קנייה
+  /// 
+  /// Example:
+  /// ```dart
+  /// await provider.updateStockAfterPurchase(checkedItems);
+  /// ```
+  Future<void> updateStockAfterPurchase(List<UnifiedListItem> purchasedItems) async {
+    debugPrint('🛍️ updateStockAfterPurchase: ${purchasedItems.length} פריטים');
+    
+    for (final item in purchasedItems) {
+      if (item.type == ItemType.product && item.quantity != null) {
+        await addStock(item.name, item.quantity!);
+      }
+    }
+    
+    debugPrint('✅ מלאי עודכן אוטומטית');
   }
 
   /// מחזיר פריטים לפי מיקום

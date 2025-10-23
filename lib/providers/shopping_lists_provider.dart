@@ -90,6 +90,24 @@ class ShoppingListsProvider with ChangeNotifier {
   DateTime? get lastUpdated => _lastUpdated;
   bool get isEmpty => _lists.isEmpty;
 
+  /// רשימות פעילות בלבד (לא הושלמו)
+  List<ShoppingList> get activeLists => _lists
+      .where((list) => list.status == ShoppingList.statusActive)
+      .toList();
+
+  /// רשימות שהושלמו (היסטוריה)
+  List<ShoppingList> get completedLists => _lists
+      .where((list) => list.status == ShoppingList.statusCompleted)
+      .toList();
+
+  /// רשימות מ-N ימים אחרונים
+  List<ShoppingList> getRecentLists(int days) {
+    final cutoff = DateTime.now().subtract(Duration(days: days));
+    return _lists
+        .where((list) => list.updatedDate.isAfter(cutoff))
+        .toList();
+  }
+
   // === חיבור UserContext ===
   
   /// מעדכן את ה-UserContext ומאזין לשינויים
@@ -529,6 +547,22 @@ class ShoppingListsProvider with ChangeNotifier {
   /// מארכבת רשימה
   Future<void> archiveList(String listId) async {
     await updateListStatus(listId, ShoppingList.statusArchived);
+  }
+
+  /// מחזיר פריטים שלא נקנו מרשימה
+  /// 
+  /// Example:
+  /// ```dart
+  /// final unpurchased = provider.getUnpurchasedItems(listId);
+  /// ```
+  List<UnifiedListItem> getUnpurchasedItems(String listId) {
+    final list = getById(listId);
+    if (list == null) {
+      debugPrint('⚠️ getUnpurchasedItems: רשימה $listId לא נמצאה');
+      return [];
+    }
+
+    return list.items.where((item) => !item.isChecked).toList();
   }
 
   /// מסיימת רשימה כהושלמה
