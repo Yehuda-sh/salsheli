@@ -223,6 +223,12 @@
 
 ## 📊 Recent Learnings (Last 7 Days)
 
+### 23/10/2025 (Evening)
+- 🗑️ הסרת סריקת קבלות: מחקנו receipt_import_screen, scan_receipt_screen, receipt_scanner
+- ✅ שמרנו: ReceiptProvider + ReceiptRepository (לקבלות וירטואליות אוטומטיות)
+- 📝 עדכון: main.dart - הסרת import ו-route של '/receipts'
+- 💡 החלטה: גישה A - הסרה חלקית (שמירת היסטוריה)
+
 ### 24/10/2025
 - ✅ מסלול 2 (שיתוף משתמשים) הושלם - Security Rules + UI מלא
 - 🔧 תיקון: const על widgets עם ארגומנטים דינמיים (active_shopping_screen.dart)
