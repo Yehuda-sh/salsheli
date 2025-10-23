@@ -32,11 +32,15 @@ import '../../models/shopping_list.dart';
 import '../../models/unified_list_item.dart';
 import '../../models/enums/item_type.dart';
 import '../../providers/shopping_lists_provider.dart';
+import '../../providers/shared_users_provider.dart';
+import '../../providers/pending_requests_provider.dart';
 import '../../core/ui_constants.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_note.dart';
 import '../../widgets/common/sticky_button.dart';
+import '../../widgets/lists/pending_requests_section.dart';
 import '../lists/populate_list_screen.dart';
+import '../lists/share_list_screen.dart';
 
 class ShoppingListDetailsScreen extends StatefulWidget {
   final ShoppingList list;
@@ -501,6 +505,25 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
         appBar: AppBar(
           title: Text(currentList.name),
           actions: [
+            // כפתור שיתוף
+            ScaleTransition(
+              scale: Tween<double>(
+                begin: 0.0,
+                end: 1.0,
+              ).animate(CurvedAnimation(parent: _fabController, curve: Curves.elasticOut)),
+              child: IconButton(
+                icon: const Icon(Icons.share),
+                tooltip: 'שתף רשימה',
+                onPressed: () {
+                  final navigator = Navigator.of(context);
+                  navigator.push(
+                    MaterialPageRoute(
+                      builder: (context) => ShareListScreen(list: currentList),
+                    ),
+                  );
+                },
+              ),
+            ),
             // כפתור הוספה מהקטלוג
             ScaleTransition(
               scale: Tween<double>(
@@ -540,6 +563,13 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
               children: [
                 // 🔍 חיפוש וסינון
                 _buildFiltersSection(allItems),
+
+                // 📝 בקשות ממתינות
+                if (currentList.pendingRequestsForReview.isNotEmpty && currentList.canCurrentUserApprove)
+                  PendingRequestsSection(
+                    listId: currentList.id,
+                    requests: currentList.pendingRequestsForReview,
+                  ),
 
                 // 📋 תוכן
                 Expanded(

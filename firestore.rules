@@ -1,4 +1,14 @@
 rules_version = '2';
+// 🔒 MemoZap Firestore Security Rules
+// 
+// ✅ עודכן: 23/10/2025 - מערכת שיתוף
+// 
+// 📄 מערכת הרשאות לרשימות משותפות:
+//    - Owner:  בעלים (כל ההרשאות כולל מחיקה)
+//    - Admin:  מנהל (כמעט כל ההרשאות, אישור בקשות)
+//    - Editor: עורך (שליחת בקשות בלבד)
+//    - Viewer: צופה (רק קריאה)
+
 service cloud.firestore {
   match /databases/{database}/documents {
     
@@ -44,6 +54,55 @@ service cloud.firestore {
     function hasValidHouseholdId() {
       return request.resource.data.keys().hasAll(['household_id']) &&
              request.resource.data.household_id == getUserHouseholdId();
+    }
+    
+    // === Sharing System Functions ===
+    
+    // קבלת תפקיד המשתמש ברשימה
+    function getUserRole(listId) {
+      let list = get(/databases/$(database)/documents/shopping_lists/$(listId));
+      let sharedUsers = list.data.sharedUsers;
+      let userRole = null;
+      
+      // בדיקה אם המשתמש הוא הבעלים
+      if (list.data.user_id == request.auth.uid) {
+        return 'owner';
+      }
+      
+      // חיפוש ברשימת sharedUsers
+      // נעבור על כל המשתמשים ונמצא את התפקיד
+      return sharedUsers.filter(u => u.userId == request.auth.uid)[0].role;
+    }
+    
+    // בדיקה אם המשתמש הוא Owner של הרשימה
+    function isListOwner(listId) {
+      let list = get(/databases/$(database)/documents/shopping_lists/$(listId));
+      return isAuthenticated() && list.data.user_id == request.auth.uid;
+    }
+    
+    // בדיקה אם המשתמש הוא Admin או Owner
+    function isListAdmin(listId) {
+      let role = getUserRole(listId);
+      return isAuthenticated() && (role == 'owner' || role == 'admin');
+    }
+    
+    // בדיקה אם המשתמש חבר ברשימה (כולל Viewer)
+    function isListMember(listId) {
+      let list = get(/databases/$(database)/documents/shopping_lists/$(listId));
+      let sharedUsers = list.data.sharedUsers;
+      
+      // בעלים = תמיד חבר
+      if (list.data.user_id == request.auth.uid) {
+        return true;
+      }
+      
+      // בדיקה אם קיים ב-sharedUsers
+      return sharedUsers.filter(u => u.userId == request.auth.uid).size() > 0;
+    }
+    
+    // בדיקה אם יכול לאשר בקשות (Owner או Admin)
+    function canApproveRequests(listId) {
+      return isListAdmin(listId);
     }
     
     // === Users Collection ===
@@ -100,18 +159,31 @@ service cloud.firestore {
     
     // === Shopping Lists Collection ===
     match /shopping_lists/{listId} {
-      allow read: if isAuthenticated() && 
-                     isHouseholdMember(resource.data.household_id);
+      // קריאה: household member או shared user
+      allow read: if isAuthenticated() && (
+                       isHouseholdMember(resource.data.household_id) ||
+                       isListMember(listId)
+                     );
       
-      // ✅ מתוקן: יצירה
+      // יצירה: רק household member
       allow create: if isAuthenticated() && hasValidHouseholdId();
       
-      allow update: if isAuthenticated() && 
-                       isHouseholdMember(resource.data.household_id) &&
-                       request.resource.data.household_id == resource.data.household_id;
+      // עדכון: לפי הרשאות
+      // Owner/Admin: כל עדכון
+      // Editor: רק items (באמצעות בקשות)
+      // Viewer: לא יכול לעדכן
+      allow update: if isAuthenticated() && (
+                       // Owner/Admin - כל עדכון
+                       isListAdmin(listId) ||
+                       // Editor - רק דרך pendingRequests
+                       (getUserRole(listId) == 'editor' && 
+                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pendingRequests']))
+                     ) &&
+                     // מנע שינוי household_id
+                     request.resource.data.household_id == resource.data.household_id;
       
-      allow delete: if isAuthenticated() && 
-                       isHouseholdMember(resource.data.household_id);
+      // מחיקה: רק Owner
+      allow delete: if isAuthenticated() && isListOwner(listId);
     }
     
     // === Templates Collection ===
