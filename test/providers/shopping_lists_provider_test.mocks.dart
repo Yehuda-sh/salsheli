@@ -4,16 +4,17 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i5;
-import 'dart:ui' as _i10;
+import 'dart:ui' as _i11;
 
-import 'package:flutter/material.dart' as _i8;
+import 'package:flutter/material.dart' as _i9;
 import 'package:memozap/models/receipt.dart' as _i3;
 import 'package:memozap/models/shopping_list.dart' as _i2;
-import 'package:memozap/models/user_entity.dart' as _i9;
-import 'package:memozap/providers/user_context.dart' as _i7;
-import 'package:memozap/repositories/receipt_repository.dart' as _i6;
+import 'package:memozap/models/user_entity.dart' as _i10;
+import 'package:memozap/providers/user_context.dart' as _i8;
+import 'package:memozap/repositories/receipt_repository.dart' as _i7;
 import 'package:memozap/repositories/shopping_lists_repository.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:mockito/src/dummies.dart' as _i6;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -82,12 +83,153 @@ class MockShoppingListsRepository extends _i1.Mock
             returnValueForMissingStub: _i5.Future<void>.value(),
           )
           as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> addSharedUser(
+    String? listId,
+    String? userId,
+    String? role,
+    String? userName,
+    String? userEmail,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#addSharedUser, [
+              listId,
+              userId,
+              role,
+              userName,
+              userEmail,
+            ]),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> removeSharedUser(String? listId, String? userId) =>
+      (super.noSuchMethod(
+            Invocation.method(#removeSharedUser, [listId, userId]),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> updateUserRole(
+    String? listId,
+    String? userId,
+    String? newRole,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateUserRole, [listId, userId, newRole]),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> transferOwnership(
+    String? listId,
+    String? currentOwnerId,
+    String? newOwnerId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#transferOwnership, [
+              listId,
+              currentOwnerId,
+              newOwnerId,
+            ]),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Future<String> createRequest(
+    String? listId,
+    String? requesterId,
+    String? type,
+    Map<String, dynamic>? requestData,
+    String? requesterName,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#createRequest, [
+              listId,
+              requesterId,
+              type,
+              requestData,
+              requesterName,
+            ]),
+            returnValue: _i5.Future<String>.value(
+              _i6.dummyValue<String>(
+                this,
+                Invocation.method(#createRequest, [
+                  listId,
+                  requesterId,
+                  type,
+                  requestData,
+                  requesterName,
+                ]),
+              ),
+            ),
+          )
+          as _i5.Future<String>);
+
+  @override
+  _i5.Future<void> approveRequest(
+    String? listId,
+    String? requestId,
+    String? reviewerId,
+    String? reviewerName,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#approveRequest, [
+              listId,
+              requestId,
+              reviewerId,
+              reviewerName,
+            ]),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> rejectRequest(
+    String? listId,
+    String? requestId,
+    String? reviewerId,
+    String? reason,
+    String? reviewerName,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#rejectRequest, [
+              listId,
+              requestId,
+              reviewerId,
+              reason,
+              reviewerName,
+            ]),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Future<List<Map<String, dynamic>>> getPendingRequests(String? listId) =>
+      (super.noSuchMethod(
+            Invocation.method(#getPendingRequests, [listId]),
+            returnValue: _i5.Future<List<Map<String, dynamic>>>.value(
+              <Map<String, dynamic>>[],
+            ),
+          )
+          as _i5.Future<List<Map<String, dynamic>>>);
 }
 
 /// A class which mocks [ReceiptRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockReceiptRepository extends _i1.Mock implements _i6.ReceiptRepository {
+class MockReceiptRepository extends _i1.Mock implements _i7.ReceiptRepository {
   MockReceiptRepository() {
     _i1.throwOnMissingStub(this);
   }
@@ -141,7 +283,7 @@ class MockReceiptRepository extends _i1.Mock implements _i6.ReceiptRepository {
 /// A class which mocks [UserContext].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockUserContext extends _i1.Mock implements _i7.UserContext {
+class MockUserContext extends _i1.Mock implements _i8.UserContext {
   MockUserContext() {
     _i1.throwOnMissingStub(this);
   }
@@ -162,12 +304,12 @@ class MockUserContext extends _i1.Mock implements _i7.UserContext {
           as bool);
 
   @override
-  _i8.ThemeMode get themeMode =>
+  _i9.ThemeMode get themeMode =>
       (super.noSuchMethod(
             Invocation.getter(#themeMode),
-            returnValue: _i8.ThemeMode.system,
+            returnValue: _i9.ThemeMode.system,
           )
-          as _i8.ThemeMode);
+          as _i9.ThemeMode);
 
   @override
   bool get compactView =>
@@ -244,7 +386,7 @@ class MockUserContext extends _i1.Mock implements _i7.UserContext {
           as _i5.Future<void>);
 
   @override
-  _i5.Future<void> saveUser(_i9.UserEntity? user) =>
+  _i5.Future<void> saveUser(_i10.UserEntity? user) =>
       (super.noSuchMethod(
             Invocation.method(#saveUser, [user]),
             returnValue: _i5.Future<void>.value(),
@@ -274,7 +416,7 @@ class MockUserContext extends _i1.Mock implements _i7.UserContext {
           as _i5.Future<void>);
 
   @override
-  void setThemeMode(_i8.ThemeMode? mode) => super.noSuchMethod(
+  void setThemeMode(_i9.ThemeMode? mode) => super.noSuchMethod(
     Invocation.method(#setThemeMode, [mode]),
     returnValueForMissingStub: null,
   );
@@ -316,13 +458,13 @@ class MockUserContext extends _i1.Mock implements _i7.UserContext {
   );
 
   @override
-  void addListener(_i10.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i11.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i10.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i11.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );
