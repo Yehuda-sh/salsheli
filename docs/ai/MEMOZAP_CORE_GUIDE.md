@@ -38,8 +38,6 @@ Do not duplicate comments already standardized across files.
 
 🔁 Workflow Logic
 
-Sync all work with core AI guidelines (AI_DEV_GUIDELINES.md, AI_QUICK_START.md).
-
 Respect folder architecture:
 
 /lib/
@@ -60,6 +58,21 @@ Avoid repeating identical fixes — use internal record to adapt.
 
 Keep self-awareness of last actions: summarize what was changed and why.
 
+🧠 Memory Tool Pattern (CRITICAL)
+
+1. ALWAYS search_nodes or read_graph first
+2. If entity exists → add_observations
+3. If entity doesn't exist → create_entities
+4. NEVER add_observations on non-existent entity
+
+📊 Checkpoint Protocol
+
+Save checkpoint after every 3-5 file modifications.
+
+Update Current Work Context every 10 messages.
+
+Store architectural decisions in Memory immediately.
+
 🪞 Failure Protocol
 
 When a tool fails (Filesystem, Bash, GitHub, Memory):
@@ -70,7 +83,7 @@ Identify cause pattern (edit, path, entity).
 
 Retry only once after validation.
 
-If still failing → record to MEMOZAP_LESSONS_AND_ERRORS.md.
+If still failing → record to LESSONS_LEARNED.md.
 
 🔗 Cross-References
 
@@ -82,4 +95,4 @@ Tools setup → MEMOZAP_MCP_GUIDE.md
 
 Task system → MEMOZAP_TASKS_AND_SHARING.md
 
-Error records → MEMOZAP_LESSONS_AND_ERRORS.md
+Error records → LESSONS_LEARNED.md

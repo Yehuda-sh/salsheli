@@ -186,6 +186,34 @@
 
 ---
 
+## 📚 Documentation Maintenance
+
+### 1️⃣ ניקוי קבצים מיותרים
+
+- ❌ קבצים כפולים עם תוכן דומה  
+  ✅ לשמור קובץ אחד עם התוכן המעודכן
+- ❌ הפניות לקבצים שלא קיימים  
+  ✅ חפש ועדכן בכל הקבצים (`search_files`)
+- ❌ שמות קבצים שונים לאותו תוכן  
+  ✅ שמות עקביים ואחידים (LESSONS_LEARNED.md ✓)
+
+### 2️⃣ עדכון הפניות בתיעוד
+
+- ✅ **תהליך מלא:**
+  1. חפש את שם הקובץ הישן בכל התיקיות (`search_files`)
+  2. עדכן כל הפניה לשם החדש (`edit_file`)
+  3. מחק את הקובץ הישן
+  4. עדכן MEMOZAP_INDEX.md
+- **דוגמה:** MEMOZAP_LESSONS_AND_ERRORS.md → LESSONS_LEARNED.md (24/10/2025)
+
+### 3️⃣ שמירת סינכרון
+
+- ✅ INDEX חייב להשתקף את מצב הקבצים באמת
+- ✅ עדכן תאריך + גרסה אחרי שינויים
+- ✅ תעד ב-LESSONS_LEARNED.md את השינויים
+
+---
+
 ## 🔄 Session Continuity
 
 ### 1️⃣ המשך מהשיחה האחרונה
@@ -233,6 +261,9 @@
 - ✅ מסלול 2 (שיתוף משתמשים) הושלם - Security Rules + UI מלא
 - 🔧 תיקון: const על widgets עם ארגומנטים דינמיים (active_shopping_screen.dart)
 - 📝 עדכון: LESSONS_LEARNED.md עם Flutter best practices
+- 🧹 ניקוי תיעוד: מחקנו MEMOZAP_LESSONS_AND_ERRORS.md (מיותר)
+- ✅ עדכון MEMOZAP_CORE_GUIDE.md: Memory Tool Pattern + Checkpoint Protocol
+- 📝 עדכון MEMOZAP_INDEX.md לגרסה 2.3
 
 ### 23/10/2025
 - ✅ מסלול 1 (Tasks + Products) הושלם - כולל Unit Tests
