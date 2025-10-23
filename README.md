@@ -5,7 +5,7 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.27+-02569B?logo=flutter)](https://flutter.dev)
 [![Firebase](https://img.shields.io/badge/Firebase-Enabled-FFCA28?logo=firebase)](https://firebase.google.com)
 [![License](https://img.shields.io/badge/License-Proprietary-red)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-2.5-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-2.8-blue)](CHANGELOG.md)
 
 ---
 
@@ -124,15 +124,26 @@ flutter build ios --release  # iOS
 
 ---
 
-## 🆕 What's New (v2.5 - Oct 20, 2025)
+## 🆕 What's New (v2.8 - Oct 24, 2025)
 
-### Documentation Cleanup
-- ✂️ **Removed version history** - Kept only latest versions
-- ✂️ **Removed redundant content** - Quick Start, Firebase setup details
-- 📊 **Result** - ~40% lighter docs, same value!
-- 🐛 **Fixed** - All docs now v2.5+ (synced)
+### ✅ Major Features Completed
 
-**📖 Full changelog:** See [docs/PROJECT_INFO.md](docs/PROJECT_INFO.md#change-history)
+#### Tasks + Products (Hybrid)
+- 🧩 **Mixed lists** - Products and tasks in one list
+- 🎨 **Smart UI** - Different colors/icons for each type
+- ✅ **Full testing** - 9/9 unit tests passing
+
+#### User Sharing System
+- 👥 **4 permission levels** - Owner/Admin/Editor/Viewer
+- 📨 **Request workflow** - Add/Edit/Delete with approval
+- 🔒 **Secure** - Firestore rules with full permissions
+
+### 🧪 Technical Improvements
+- Removed 1,600+ lines of obsolete tests
+- Fixed const usage errors
+- Cleaner project structure
+
+**📖 Full changelog:** See [docs/CHANGELOG.md](docs/CHANGELOG.md)
 
 ---
 
@@ -220,6 +231,6 @@ Special thanks to the open source community!
 ---
 
 **Made with ❤️ in Israel** 🇮🇱  
-**Version:** 2.5 | **Updated:** 20/10/2025
+**Version:** 2.8 | **Updated:** 24/10/2025
 
 **🚀 Ready to start?** → [docs/PROJECT_INFO.md](docs/PROJECT_INFO.md)

@@ -461,7 +461,7 @@ class SmartSuggestionsCard extends StatelessWidget {
 
             // כותרת משנה
             Text(
-              'אין המלצות זמינות',
+              'אין המלצות',
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: cs.onSurface,
@@ -471,7 +471,7 @@ class SmartSuggestionsCard extends StatelessWidget {
 
             // הסבר מפורט
             Text(
-              'צור רשימות קניות וסרוק קבלות\nכדי לקבל המלצות מותאמות אישית',
+              'עדכן מלאי במזווה\nכדי לקבל המלצות מותאמות אישית',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: cs.onSurfaceVariant,
                 height: 1.4,
@@ -480,47 +480,32 @@ class SmartSuggestionsCard extends StatelessWidget {
             ),
             const SizedBox(height: kSpacingMedium + kSpacingSmall),
 
-            // 🆕 כפתורי CTA עם אנימציה
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // כפתור ראשי
-                _AnimatedButton(
-                  onPressed: () => _showCreateListDialog(context),
-                  child: ElevatedButton.icon(
-                    onPressed: null,
-                    icon: const Icon(Icons.add, size: kIconSizeSmall),
-                    label: const Text('צור רשימה'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: cs.primaryContainer,
-                      foregroundColor: cs.onPrimaryContainer,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: kSpacingMedium,
-                        vertical: kSpacingSmallPlus,
-                      ),
+            // 🆕 כפתור CTA יחיד - עדכון מזווה
+            Center(
+              child: _AnimatedButton(
+                onPressed: () {
+                  // TODO: ניווט למסך עדכון מזווה
+                  _showAnimatedSnackBar(
+                    context,
+                    message: 'מסך עדכון מזווה יתווסף בקרוב',
+                    icon: Icons.info_outline,
+                    backgroundColor: Colors.blue,
+                  );
+                },
+                child: ElevatedButton.icon(
+                  onPressed: null,
+                  icon: const Icon(Icons.inventory_2, size: kIconSizeSmall),
+                  label: const Text('עדכן מזווה'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: cs.primaryContainer,
+                    foregroundColor: cs.onPrimaryContainer,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: kSpacingMedium,
+                      vertical: kSpacingSmallPlus,
                     ),
                   ),
                 ),
-                const SizedBox(width: kSpacingSmall),
-
-                // כפתור משני
-                _AnimatedButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/receipts');
-                  },
-                  child: OutlinedButton.icon(
-                    onPressed: null,
-                    icon: const Icon(Icons.receipt_long, size: kIconSizeSmall),
-                    label: const Text('סרוק קבלה'),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: kSpacingMedium,
-                        vertical: kSpacingSmallPlus,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ],
         ),

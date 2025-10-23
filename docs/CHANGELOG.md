@@ -1,7 +1,37 @@
 # 🕒 CHANGELOG - MemoZap Project
 
-> **Updated:** 23/10/2025  
+> **Updated:** 24/10/2025  
 > **Purpose:** Track main documentation, logic, and structural updates for AI coordination.
+
+---
+
+## 🚀 v2.8 - 24/10/2025
+
+### Major Features Completed
+
+#### ✅ Mסלול 1: Tasks + Products (Hybrid) - 100% Complete
+- 🧩 **UnifiedListItem model** - supports mixed products + tasks in one list
+- 📋 **ItemType enum** - distinguishes between product and task
+- 🎨 **UI updates** - shopping_list_details_screen.dart now shows both types
+- 🔄 **Migration script** - converts old ReceiptItem to UnifiedListItem
+- ✅ **Unit tests** - 9/9 tests passing for UnifiedListItem
+- 📊 **Helpers** - products, tasks, productCount, taskCount, totalAmount
+- ⏱️ **Completed:** 22/10/2025 (2 days)
+
+#### ✅ מסלול 2: User Sharing System - 100% Complete
+- 👥 **4 permission levels** - Owner, Admin, Editor, Viewer
+- 🔐 **SharedUser model** - user permissions + metadata
+- 📨 **Request system** - PendingRequest with add/edit/delete workflows
+- 🎛️ **Providers** - SharedUsersProvider + PendingRequestsProvider
+- 🖥️ **UI screens** - ShareListScreen + PendingRequestsSection widget
+- 🔒 **Security rules** - Firestore rules with full permissions logic
+- 📊 **8 Repository methods** - addSharedUser, removeSharedUser, updateUserRole, transferOwnership, createRequest, approveRequest, rejectRequest, getPendingRequests
+- ⏱️ **Completed:** 23-24/10/2025 (2 days)
+
+### Technical Improvements
+- 🧪 **Test cleanup** - removed 1,600+ lines of obsolete tests (receipt, template, habits)
+- 📁 **File organization** - cleaner test structure focused on active features
+- 🐛 **Bug fixes** - const usage errors in active_shopping_screen.dart
 
 ---
 
@@ -39,6 +69,6 @@
 
 ---
 
-**Next planned version:** v2.8 — focus on performance rules + caching logic  
+**Next planned version:** v2.9 — מסלול 3 (UX חדש: מסך ראשי + המלצות חכמות)  
 **Maintainer:** MemoZap AI Documentation System  
 **Location:** `C:\projects\salsheli\docs\CHANGELOG.md`
