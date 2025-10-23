@@ -12,8 +12,7 @@
 // 0. 🏠 דשבורד - HomeDashboardScreen
 // 1. 📝 רשימות - ShoppingListsScreen (עם badge)
 // 2. 📦 מזווה - MyPantryScreen
-// 3. 🧾 קבלות - ReceiptImportScreen
-// 4. ⚙️ הגדרות - SettingsScreen
+// 3. ⚙️ הגדרות - SettingsScreen
 //
 // **Dependencies:**
 // - `AppLayout` - Bottom navigation wrapper
@@ -45,7 +44,6 @@ import 'package:memozap/providers/shopping_lists_provider.dart';
 import 'package:memozap/screens/home/home_dashboard_screen.dart';
 import 'package:memozap/screens/shopping/shopping_lists_screen.dart';
 import 'package:memozap/screens/pantry/my_pantry_screen.dart';
-import 'package:memozap/screens/receipts/receipt_import_screen.dart';  // קבלות
 import 'package:memozap/screens/settings/settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -63,7 +61,6 @@ class _HomeScreenState extends State<HomeScreen> {
     HomeDashboardScreen(),
     ShoppingListsScreen(),
     MyPantryScreen(),
-    ReceiptImportScreen(),  // הקבלות שלי
     SettingsScreen(),
   ];
 

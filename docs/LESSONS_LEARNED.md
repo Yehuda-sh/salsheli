@@ -251,13 +251,26 @@
 
 ## 📊 Recent Learnings (Last 7 Days)
 
+### 24/10/2025 (Evening)
+- ✅ **מסלול 3 שלב 3.7 הושלם!** - הסרת סריקת קבלות מלאה
+- 🗑️ 11 קבצים נמחקו: OCR, parsers, UI של קבלות, widgets
+- 📝 3 קבצים עודכנו: main.dart, home_screen.dart, pubspec.yaml
+- 💾 שמרנו Receipt models (לקבלות וירטואליות)
+- 👀 Bottom Navigation: 5 טאבים → 4 טאבים
+
+### 24/10/2025 (Morning)
+- ✅ מסלול 2 (שיתוף משתמשים) הושלם - Security Rules + UI מלא
+- 🔧 תיקון: const על widgets עם ארגומנטים דינמיים (active_shopping_screen.dart)
+- 📝 עדכון: LESSONS_LEARNED.md עם Flutter best practices
+- 🧹 ניקוי תיעוד: מחקנו MEMOZAP_LESSONS_AND_ERRORS.md (מיותר)
+- ✅ עדכון MEMOZAP_CORE_GUIDE.md: Memory Tool Pattern + Checkpoint Protocol
+- 📝 עדכון MEMOZAP_INDEX.md לגרסה 2.3
+
 ### 23/10/2025 (Evening)
 - 🗑️ הסרת סריקת קבלות: מחקנו receipt_import_screen, scan_receipt_screen, receipt_scanner
 - ✅ שמרנו: ReceiptProvider + ReceiptRepository (לקבלות וירטואליות אוטומטיות)
 - 📝 עדכון: main.dart - הסרת import ו-route של '/receipts'
 - 💡 החלטה: גישה A - הסרה חלקית (שמירת היסטוריה)
-
-### 24/10/2025
 - ✅ מסלול 2 (שיתוף משתמשים) הושלם - Security Rules + UI מלא
 - 🔧 תיקון: const על widgets עם ארגומנטים דינמיים (active_shopping_screen.dart)
 - 📝 עדכון: LESSONS_LEARNED.md עם Flutter best practices

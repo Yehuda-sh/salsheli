@@ -1,7 +1,7 @@
 # 📋 תוכנית משימות - MemoZap
 
-> **תאריך:** 23/10/2025  
-> **גרסה:** 1.4 - מסלול 2 הושלם במלואו! 🎉  
+> **תאריך:** 24/10/2025  
+> **גרסה:** 1.6 - מסלול 3 התחיל! (שלב 3.7 הושלם) 🚀  
 > **בסיס:** UX_REQUIREMENTS.md + TASK_SUPPORT_OPTIONS.md
 
 ---
@@ -393,27 +393,34 @@
 
 ---
 
-### שלב 3.7: הסרת סריקת קבלות (1 יום)
+### שלב 3.7: הסרת סריקת קבלות (1 יום) ✅ הושלם 24/10/2025
 
-**קבצים למחיקה:**
-- ❌ `lib/screens/receipts/scan_receipt_screen.dart`
-- ❌ `lib/screens/receipts/receipt_import_screen.dart`
-- ❌ `lib/screens/receipts/receipt_view_screen.dart`
-- ❌ `lib/services/ocr_service.dart`
-- ❌ `lib/services/receipt_parser_service.dart`
-- ❌ `lib/widgets/add_receipt_dialog.dart`
+**קבצים שנמחקו (11 קבצים):**
+- ✅ `lib/services/ocr_service.dart`
+- ✅ `lib/services/receipt_parser_service.dart`
+- ✅ `lib/services/receipt_to_inventory_service.dart`
+- ✅ `lib/screens/receipts/` (תיקייה שלמה - 3 קבצים)
+- ✅ `lib/screens/shopping/receipt_preview.dart`
+- ✅ `lib/widgets/add_receipt_dialog.dart`
+- ✅ `lib/widgets/inventory/receipt_to_inventory_dialog.dart`
+- ✅ `lib/config/receipt_patterns_config.dart`
 
-**קבצים לעדכון:**
-- ✅ `lib/main.dart` (הסר routes)
-- ✅ `lib/screens/home/home_screen.dart` (הסר Bottom Nav item)
-- ✅ `pubspec.yaml` (הסר google_mlkit_text_recognition)
+**קבצים שעודכנו (3 קבצים):**
+- ✅ `lib/main.dart` (הוסרו imports מיותרים)
+- ✅ `lib/screens/home/home_screen.dart` (הוסר טאב קבלות - 4 טאבים במקום 5)
+- ✅ `pubspec.yaml` (הוסר google_mlkit_text_recognition)
 
-**מה לעשות:**
-1. מחק קבצים
-2. הסר routes מ-main.dart
-3. הסר Bottom Navigation item
-4. הסר dependencies מיותרות
-5. רוץ `flutter clean && flutter pub get`
+**קבצים ששמרנו (לקבלות וירטואליות):**
+- ✅ `models/receipt.dart` + `receipt.g.dart`
+- ✅ `providers/receipt_provider.dart`
+- ✅ `repositories/receipt_repository.dart`
+- ✅ `repositories/firebase_receipt_repository.dart`
+
+**תוצאה:**
+- ✅ 11 קבצים נמחקו
+- ✅ 3 קבצים עודכנו
+- ✅ 0 errors בקוד
+- ✅ Bottom Navigation: 5 טאבים → 4 טאבים
 
 ---
 
@@ -542,14 +549,21 @@
 
 ---
 
-**גרסה:** 1.4  
+**גרסה:** 1.6  
 **תאריך יצירה:** 22/10/2025  
-**עדכון אחרון:** 24/10/2025 (יום)  
+**עדכון אחרון:** 24/10/2025 (ערב)  
 **מטרה:** תוכנית עבודה מפורטת ליישום כל התכונות החדשות
 
 ---
 
 ## 📈 היסטוריית עדכונים
+
+### v1.6 - 24/10/2025 (ערב)
+- ✅ **מסלול 3 שלב 3.7 הושלם!** - הסרת סריקת קבלות
+- 🗑️ 11 קבצים נמחקו (OCR, parsers, UI של קבלות)
+- 📝 3 קבצים עודכנו (main, home_screen, pubspec)
+- 💾 4 קבצים נשמרו (Receipt models לקבלות וירטואליות)
+- 🎯 **הבא:** שלב 3.1-3.2 (מודלים ולוגיקה)
 
 ### v1.5 - 24/10/2025 (יום)
 - 📝 **תיעוד מעודכן** - CHANGELOG.md + README.md סונכרנו
