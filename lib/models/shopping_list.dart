@@ -247,6 +247,60 @@ class ShoppingList {
     );
   }
 
+  // ==== 🆕 Sharing & Permissions Helpers ====
+
+  /// 🇮🇱 האם המשתמש הנוכחי הוא ה-owner
+  /// 🇬🇧 Is the current user the owner
+  bool get isCurrentUserOwner => currentUserRole == UserRole.owner;
+
+  /// 🇮🇱 האם המשתמש הנוכחי יכול לאשר בקשות
+  /// 🇬🇧 Can the current user approve requests
+  bool get canCurrentUserApprove =>
+      currentUserRole == UserRole.owner || currentUserRole == UserRole.admin;
+
+  /// 🇮🇱 בקשות ממתינות של המשתמש הנוכחי
+  /// 🇬🇧 Pending requests by the current user
+  List<PendingRequest> pendingRequestsByCurrentUser(String userId) {
+    return pendingRequests
+        .where((r) => r.requesterId == userId && r.isPending)
+        .toList();
+  }
+
+  /// 🇮🇱 בקשות ממתינות לאישור (רק ל-Admin/Owner)
+  /// 🇬🇧 Pending requests for review (only for Admin/Owner)
+  List<PendingRequest> get pendingRequestsForReview {
+    return pendingRequests.where((r) => r.isPending).toList();
+  }
+
+  /// 🇮🇱 כמה בקשות ממתינות יש
+  /// 🇬🇧 How many pending requests exist
+  int get pendingRequestsCount =>
+      pendingRequests.where((r) => r.isPending).length;
+
+  /// 🇮🇱 מצא משתמש משותף לפי userId
+  /// 🇬🇧 Find shared user by userId
+  SharedUser? getSharedUser(String userId) {
+    if (createdBy == userId) {
+      return SharedUser(
+        userId: userId,
+        role: UserRole.owner,
+        sharedAt: createdDate,
+      );
+    }
+
+    try {
+      return sharedUsers.firstWhere((u) => u.userId == userId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// 🇮🇱 קבל את התפקיד של משתמש
+  /// 🇬🇧 Get the role of a user
+  UserRole? getUserRole(String userId) {
+    return getSharedUser(userId)?.role;
+  }
+
   /// Constructor
   ShoppingList({
     required this.id,
@@ -266,10 +320,15 @@ class ShoppingList {
     required this.format,
     required this.createdFromTemplate,
     List<ActiveShopper> activeShoppers = const [],
+    List<SharedUser> sharedUsers = const [],
+    List<PendingRequest> pendingRequests = const [],
+    this.currentUserRole,
   })  : createdDate = createdDate ?? updatedDate,
         sharedWith = List<String>.unmodifiable(sharedWith),
         items = List<UnifiedListItem>.unmodifiable(items),
-        activeShoppers = List<ActiveShopper>.unmodifiable(activeShoppers);
+        activeShoppers = List<ActiveShopper>.unmodifiable(activeShoppers),
+        sharedUsers = List<SharedUser>.unmodifiable(sharedUsers),
+        pendingRequests = List<PendingRequest>.unmodifiable(pendingRequests);
 
   // ---- Factory Constructors ----
 
@@ -375,6 +434,9 @@ class ShoppingList {
     String? format,
     bool? createdFromTemplate,
     List<ActiveShopper>? activeShoppers,
+    List<SharedUser>? sharedUsers,
+    List<PendingRequest>? pendingRequests,
+    UserRole? currentUserRole,
   }) {
     return ShoppingList(
       id: id ?? this.id,
@@ -402,6 +464,9 @@ class ShoppingList {
       format: format ?? this.format,
       createdFromTemplate: createdFromTemplate ?? this.createdFromTemplate,
       activeShoppers: activeShoppers ?? this.activeShoppers,
+      sharedUsers: sharedUsers ?? this.sharedUsers,
+      pendingRequests: pendingRequests ?? this.pendingRequests,
+      currentUserRole: currentUserRole ?? this.currentUserRole,
     );
   }
 

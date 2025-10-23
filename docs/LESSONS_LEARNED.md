@@ -1,6 +1,6 @@
 # 📘 LESSONS_LEARNED - MemoZap
 
-> **Updated:** 23/10/2025  
+> **Updated:** 23/10/2025 (Stage 2.4 session)  
 > **Purpose:** Internal AI reference — mistakes to avoid and refined best practices.  
 > **Context:** Project path → `C:\projects\salsheli\`
 
@@ -30,6 +30,24 @@
   ✅ Always create `migrate_*` script in `scripts/`.
 - ❌ Suggested logic outside MemoZap scope (e.g., receipt scanning).  
   ✅ Keep focus on pantry, shopping lists, tasks, and smart suggestions.
+
+### 4️⃣ Stage Management
+
+- ❌ Created too many files without checkpoints.  
+  ✅ Save checkpoint after every 3-4 file modifications.
+- ❌ Editing complex files without reading first.  
+  ✅ Read large files (>500 lines) before any `edit_file` operation.
+- ❌ Not tracking progress in session.  
+  ✅ After each stage completion → save to Memory with % complete.
+
+### 5️⃣ Memory Tool Issues
+
+- ❌ `Tool execution failed` when using `add_observations` on existing entity.  
+  ✅ Use `create_entities` for new entities only.
+  ✅ Use `add_observations` for existing entities only.
+  ✅ If entity might exist → check first with `search_nodes` or `open_nodes`.
+- ❌ Trying to add observations without checking entity exists.  
+  ✅ Pattern: `search_nodes` → check results → then `add_observations` OR `create_entities`.
 
 ---
 

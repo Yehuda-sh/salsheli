@@ -45,6 +45,16 @@ ShoppingList _$ShoppingListFromJson(Map<String, dynamic> json) => ShoppingList(
           ?.map((e) => ActiveShopper.fromJson(e as Map<String, dynamic>))
           .toList() ??
       [],
+  sharedUsers:
+      (json['shared_users'] as List<dynamic>?)
+          ?.map((e) => SharedUser.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      [],
+  pendingRequests:
+      (json['pending_requests'] as List<dynamic>?)
+          ?.map((e) => PendingRequest.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      [],
 );
 
 Map<String, dynamic> _$ShoppingListToJson(
@@ -73,6 +83,8 @@ Map<String, dynamic> _$ShoppingListToJson(
   'format': instance.format,
   'created_from_template': instance.createdFromTemplate,
   'active_shoppers': instance.activeShoppers.map((e) => e.toJson()).toList(),
+  'shared_users': instance.sharedUsers.map((e) => e.toJson()).toList(),
+  'pending_requests': instance.pendingRequests.map((e) => e.toJson()).toList(),
 };
 
 Value? _$JsonConverterFromJson<Json, Value>(

@@ -1,7 +1,7 @@
 # 📋 תוכנית משימות - MemoZap
 
 > **תאריך:** 23/10/2025  
-> **גרסה:** 1.1 - עדכון התקדמות  
+> **גרסה:** 1.2 - עדכון התקדמות מסלול 2  
 > **בסיס:** UX_REQUIREMENTS.md + TASK_SUPPORT_OPTIONS.md
 
 ---
@@ -134,7 +134,7 @@
 
 ---
 
-### שלב 2.1: Models + Enums (יום 1 - 4 שעות) 🟡 כמעט גמור (90%)
+### שלב 2.1: Models + Enums (יום 1 - 4 שעות) ✅ הושלם 23/10/2025
 
 **קבצים:**
 - ✅ `lib/models/enums/user_role.dart` - **הושלם 23/10**
@@ -142,33 +142,48 @@
 - ✅ `lib/models/enums/request_status.dart` - **הושלם 23/10**
 - ✅ `lib/models/shared_user.dart` - **הושלם 23/10**
 - ✅ `lib/models/pending_request.dart` - **הושלם 23/10**
-- 🟡 עדכון `lib/models/shopping_list.dart` - **בתהליך** (נשאר: sharedUsers, pendingRequests, currentUserRole + helpers)
+- ✅ עדכון `lib/models/shopping_list.dart` - **הושלם 23/10** (sharedUsers, pendingRequests, currentUserRole + helpers)
 
 **פירוט ב-TASK_SUPPORT_OPTIONS.md חלק 2**
 
 ---
 
-### שלב 2.2: Repository Layer (יום 2 - 5 שעות)
+### שלב 2.2: Repository Layer (יום 2 - 5 שעות) ✅ הושלם 23/10/2025
 
 **קבצים:**
-- ✅ `lib/repositories/shopping_lists_repository.dart` (methods חדשים)
-- ✅ `lib/repositories/firebase_shopping_lists_repository.dart` (מימוש)
+- ✅ `lib/repositories/shopping_lists_repository.dart` - **הושלם 23/10** (8 methods חדשים)
+- ✅ `lib/repositories/firebase_shopping_lists_repository.dart` - **הושלם 23/10** (מימוש מלא)
 
-**Methods:**
-- `addSharedUser()`
-- `removeSharedUser()`
-- `updateUserRole()`
-- `createRequest()`
-- `approveRequest()`
-- `rejectRequest()`
+**Methods שהוספו:**
+- ✅ `addSharedUser()` - הוספת משתמש משותף
+- ✅ `removeSharedUser()` - הסרת משתמש משותף
+- ✅ `updateUserRole()` - שינוי תפקיד משתמש
+- ✅ `transferOwnership()` - העברת בעלות
+- ✅ `createRequest()` - יצירת בקשה חדשה
+- ✅ `approveRequest()` - אישור בקשה
+- ✅ `rejectRequest()` - דחיית בקשה עם סיבה
+- ✅ `getPendingRequests()` - קבלת רשימת בקשות ממתינות
 
 ---
 
-### שלב 2.3: Provider Layer (יום 3 - 4 שעות)
+### שלב 2.3: Provider Layer (יום 3 - 4 שעות) ⏳ הבא בתור
 
 **קבצים:**
-- ✅ `lib/providers/shared_users_provider.dart` (חדש)
-- ✅ `lib/providers/pending_requests_provider.dart` (חדש)
+- ⏳ `lib/providers/shared_users_provider.dart` (חדש)
+- ⏳ `lib/providers/pending_requests_provider.dart` (חדש)
+
+**מה לעשות:**
+1. SharedUsersProvider:
+   - ניהול משתמשים משותפים
+   - הוספה/הסרה/עדכון תפקיד
+   - העברת בעלות
+   - notifyListeners על שינויים
+
+2. PendingRequestsProvider:
+   - ניהול תור בקשות
+   - יצירת בקשות חדשות
+   - אישור/דחיית בקשות
+   - ביצוע הפעולה בפועל לאחר אישור
 
 ---
 
@@ -511,19 +526,23 @@
 
 ---
 
-**גרסה:** 1.1  
+**גרסה:** 1.2  
 **תאריך יצירה:** 22/10/2025  
-**עדכון אחרון:** 23/10/2025  
+**עדכון אחרון:** 23/10/2025 (ערב)  
 **מטרה:** תוכנית עבודה מפורטת ליישום כל התכונות החדשות
 
 ---
 
 ## 📈 היסטוריית עדכונים
 
-### v1.1 - 23/10/2025
+### v1.2 - 23/10/2025 (ערב)
+- ✅ מסלול 2 שלב 2.1: **הושלם 100%** - כל ה-Models והשדות הנדרשים
+- ✅ מסלול 2 שלב 2.2: **הושלם 100%** - Repository Layer מלא
+- ⏳ הבא: שלב 2.3 - Provider Layer
+
+### v1.1 - 23/10/2025 (בוקר)
 - ✅ עדכון סטטוס מסלול 1: **הושלם לחלוטין**
 - 🟡 עדכון סטטוס מסלול 2 שלב 2.1: **90% - Enums+Models הושלמו**
-- ⏳ נשאר: לסיים עדכון shopping_list.dart (10%)
 
 ### v1.0 - 22/10/2025
 - 📝 תוכנית ראשונית
