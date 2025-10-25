@@ -24,6 +24,8 @@ import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'enums/suggestion_status.dart';
 import 'timestamp_converter.dart';
+import 'unified_list_item.dart';
+import 'enums/item_type.dart';
 
 part 'smart_suggestion.g.dart';
 
@@ -255,6 +257,19 @@ class SmartSuggestion {
       dismissedUntil: dismissedUntil ?? this.dismissedUntil,
       addedAt: addedAt ?? this.addedAt,
       addedToListId: addedToListId ?? this.addedToListId,
+    );
+  }
+
+  /// 🇮🇱 המרה ל-UnifiedListItem (למוצר)
+  /// 🇬🇧 Convert to UnifiedListItem (as product)
+  UnifiedListItem toUnifiedListItem() {
+    return UnifiedListItem.product(
+      id: productId,
+      name: productName,
+      quantity: quantityNeeded,
+      unitPrice: 0.0, // לא ידוע
+      unit: unit,
+      category: category,
     );
   }
 

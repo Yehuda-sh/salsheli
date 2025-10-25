@@ -47,6 +47,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/sticky_note.dart';
+import '../../widgets/shopping/last_chance_banner.dart';
 
 class ActiveShoppingScreen extends StatefulWidget {
   final ShoppingList list;
@@ -404,6 +405,9 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
                   ),
                 ),
               ),
+
+              // ⚠️ הזדמנות אחרונה - באנר המלצות
+              LastChanceBanner(listId: widget.list.id),
 
               // 🗂️ רשימת מוצרים לפי קטגוריות
               Expanded(
