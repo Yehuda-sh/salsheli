@@ -54,11 +54,11 @@ void main() {
     Widget createTestWidget() {
       return ChangeNotifierProvider<UserContext>.value(
         value: mockUserContext,
-        child: const MaterialApp(
-          home: IndexScreen(),
+        child: MaterialApp(
+          home: const IndexScreen(),
           routes: {
-            '/home': (context) => Scaffold(body: Text('Home Screen')),
-            '/login': (context) => Scaffold(body: Text('Login Screen')),
+            '/home': (context) => const Scaffold(body: Text('Home Screen')),
+            '/login': (context) => const Scaffold(body: Text('Login Screen')),
           },
         ),
       );

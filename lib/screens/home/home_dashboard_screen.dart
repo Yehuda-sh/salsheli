@@ -25,25 +25,23 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:provider/provider.dart';
 
+import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
 import '../../models/shopping_list.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../providers/suggestions_provider.dart';
-import '../../providers/user_context.dart';
-import '../../providers/receipt_provider.dart';
 import '../../providers/templates_provider.dart';
-import '../../widgets/home/upcoming_shop_card.dart';
-import '../../widgets/home/smart_suggestions_card.dart';
-import '../../widgets/home/active_lists_section.dart';
-import '../../widgets/create_list_dialog.dart';
+import '../../providers/user_context.dart';
+import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_note.dart';
-import '../../theme/app_theme.dart';
-import '../../core/ui_constants.dart';
-import '../../l10n/app_strings.dart';
-import '../lists/templates_screen.dart';
+import '../../widgets/create_list_dialog.dart';
+import '../../widgets/home/active_lists_section.dart';
+import '../../widgets/home/smart_suggestions_card.dart';
+import '../../widgets/home/upcoming_shop_card.dart';
 import 'home_dashboard_screen_ux.dart';
 
 class HomeDashboardScreen extends StatefulWidget {
@@ -105,7 +103,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     // ✅ טעינת הצעות - נפרד
     try {
       final sugg = context.read<SuggestionsProvider>();
-      await sugg.refresh();
+      await sugg.refreshSuggestions();
       if (kDebugMode) {
         debugPrint('   ✅ הצעות נטענו: ${sugg.suggestions.length}');
       }
@@ -358,7 +356,10 @@ class _Content extends StatelessWidget {
         const SizedBox(height: kSpacingMedium),
         
         if (otherLists.isNotEmpty)
-          ActiveListsSection(lists: otherLists)
+          ActiveListsSection(
+            lists: otherLists,
+            onTapList: () {}, // TODO: Navigate to list details
+          )
             .animate()
             .fadeIn(duration: 600.ms, delay: 300.ms)
             .slideY(begin: 0.15, end: 0)
@@ -427,15 +428,15 @@ class _ImprovedEmptyState extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-                  width: kSpacingXLarge * 3.75, // 120px
-                  height: kSpacingXLarge * 3.75, // 120px
+                  width: 120,
+                  height: 120,
                   decoration: BoxDecoration(
                     color: accent.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.shopping_cart_outlined,
-                    size: kSpacingLarge * 2.67, // 64px
+                    size: 64,
                     color: accent,
                   ),
                 )

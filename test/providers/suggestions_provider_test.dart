@@ -13,11 +13,10 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:uuid/uuid.dart';
 
-import 'package:memozap/providers/suggestions_provider.dart';
-import 'package:memozap/providers/inventory_provider.dart';
-import 'package:memozap/models/inventory_item.dart';
-import 'package:memozap/models/smart_suggestion.dart';
 import 'package:memozap/models/enums/suggestion_status.dart';
+import 'package:memozap/models/inventory_item.dart';
+import 'package:memozap/providers/inventory_provider.dart';
+import 'package:memozap/providers/suggestions_provider.dart';
 
 import 'suggestions_provider_test.mocks.dart';
 
