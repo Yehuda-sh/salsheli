@@ -7,6 +7,61 @@
 
 ## [In Progress] - 25/10/2025
 
+### Session #7 - Fix: Three Critical Compilation Errors
+**Files Modified:**
+1. `lib/services/suggestions_service.dart` - Fixed const modifier error
+2. `lib/screens/shopping/shopping_list_details_screen.dart` - Fixed null safety error  
+3. `lib/screens/lists/share_list_screen.dart` - Fixed NotebookBackground structure
+4. `docs/CHANGELOG.md` - Updated documentation
+
+**Status:** ✅ Complete
+
+**Changes:**
+- Fixed line 190 in suggestions_service.dart: Removed invalid `const` modifier from parameter
+  - Changed: `const Duration duration = defaultDismissalDuration`
+  - To: `Duration duration = defaultDismissalDuration`
+- Fixed line 433 in shopping_list_details_screen.dart: Added null safety
+  - Changed: `removed.quantity`
+  - To: `removed.quantity ?? 1`
+- Fixed line 54 in share_list_screen.dart: Fixed NotebookBackground structure
+  - Changed: `NotebookBackground(child: CustomScrollView(...))`
+  - To: `Stack(children: [const NotebookBackground(), CustomScrollView(...)])`
+
+**Result:** All 3 critical errors resolved:
+- ✅ const modifier removed from parameter
+- ✅ Null safety handled properly
+- ✅ NotebookBackground now uses correct Stack pattern
+
+**Technical Notes:**
+- NotebookBackground doesn't accept child parameter - must be used with Stack
+- All parameters with default values cannot use const modifier
+- int? must be converted to int using null coalescing operator (??)
+
+---
+
+### Session #6 - Fix: pending_requests_provider.dart Compilation Errors
+**Files Modified:**
+1. `lib/providers/pending_requests_provider.dart` - Fixed 5 compilation errors
+
+**Status:** ✅ Complete
+
+**Changes:**
+- Fixed line 54: Added `fromJson` conversion for `getPendingRequests` return type
+  - Changed: `_requests = await _repository.getPendingRequests(listId)`
+  - To: Map JSON to PendingRequest objects using `PendingRequest.fromJson`
+- Fixed line 117: Added missing `reviewerName` parameter to `approveRequest` (4th parameter)
+- Fixed line 151: Added null safety for `reason` parameter (`reason ?? ''`)
+- Fixed line 151: Added missing `reviewerName` parameter to `rejectRequest` (5th parameter)
+- Fixed lines 3-4: Sorted imports alphabetically (lint warning)
+
+**Result:** All 5 errors resolved:
+- ✅ Type conversion error fixed (List<Map> → List<PendingRequest>)
+- ✅ Missing parameters added to repository calls
+- ✅ Null safety handled properly
+- ✅ Import order follows lint rules
+
+---
+
 ### Session #5 - Cleanup: Removed Redundant TemplatesProvider Call
 **Files Modified:**
 1. `lib/screens/home/home_dashboard_screen.dart` - Removed unnecessary TemplatesProvider import and loadTemplates() call

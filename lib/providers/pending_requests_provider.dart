@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
-import '../models/pending_request.dart';
-import '../models/enums/request_type.dart';
 import '../models/enums/request_status.dart';
+import '../models/enums/request_type.dart';
+import '../models/pending_request.dart';
 import '../repositories/shopping_lists_repository.dart';
 
 /// Provider לניהול בקשות ממתינות
@@ -51,7 +51,10 @@ class PendingRequestsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _requests = await _repository.getPendingRequests(listId);
+      final rawRequests = await _repository.getPendingRequests(listId);
+      _requests = rawRequests
+          .map((json) => PendingRequest.fromJson(json))
+          .toList();
       debugPrint('✅ [PendingRequestsProvider] נטענו ${_requests.length} בקשות');
     } catch (e) {
       _error = 'שגיאה בטעינת בקשות: $e';
@@ -114,7 +117,12 @@ class PendingRequestsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _repository.approveRequest(listId, requestId, reviewerId);
+      await _repository.approveRequest(
+        listId,
+        requestId,
+        reviewerId,
+        null, // reviewerName - optional
+      );
 
       // עדכן ברשימה המקומית
       final index = _requests.indexWhere((r) => r.id == requestId);
@@ -148,7 +156,13 @@ class PendingRequestsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _repository.rejectRequest(listId, requestId, reviewerId, reason);
+      await _repository.rejectRequest(
+        listId,
+        requestId,
+        reviewerId,
+        reason ?? '', // Convert null to empty string
+        null, // reviewerName - optional
+      );
 
       // עדכן ברשימה המקומית
       final index = _requests.indexWhere((r) => r.id == requestId);

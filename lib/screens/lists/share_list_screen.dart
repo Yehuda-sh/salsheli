@@ -50,8 +50,10 @@ class _ShareListScreenState extends State<ShareListScreen> {
 
     return Scaffold(
       backgroundColor: kPaperBackground,
-      body: NotebookBackground(
-        child: CustomScrollView(
+      body: Stack(
+        children: [
+          const NotebookBackground(),
+          CustomScrollView(
           slivers: [
             // AppBar
             SliverAppBar(
@@ -222,6 +224,7 @@ class _ShareListScreenState extends State<ShareListScreen> {
             ),
           ],
         ),
+        ],
       ),
     );
   }

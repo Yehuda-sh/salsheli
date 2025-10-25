@@ -430,7 +430,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
             provider.addItemToList(
               widget.list.id,
               removed.name ?? 'מוצר ללא שם',
-              removed.quantity,
+              removed.quantity ?? 1,
               removed.unit ?? "יח'",
             );
             debugPrint('↩️ ShoppingListDetailsScreen: שחזר מוצר "${removed.name}"');
