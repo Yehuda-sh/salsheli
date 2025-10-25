@@ -1,18 +1,17 @@
-// 📄 File: lib/screens/shopping/shopping_lists_screen.dart - V4.0 STICKY NOTES DESIGN
+// 📄 File: lib/screens/shopping/shopping_lists_screen.dart - V5.0 ACTIVE + HISTORY
 //
-// ✨ שיפורים חדשים (v4.0 - 17/10/2025):
+// ✨ שיפורים חדשים (v5.0 - 24/10/2025):
+// 1. 📋 הפרדה בין פעילות (🔵) להיסטוריה (✅)
+// 2. 📊 פעילות למעלה, היסטוריה למטה
+// 3. 📦 טעינת 10 שורות היסטוריה + "טען עוד"
+// 4. 🎨 אייקונים שונים לפי סטטוס
+//
+// ✨ שיפורים קודמים (v4.0 - 17/10/2025):
 // 1. 📝 המרה מלאה ל-Sticky Notes Design System
 // 2. 🎨 NotebookBackground + kPaperBackground
 // 3. 📋 כל הכרטיסים ב-StickyNote
 // 4. 🔘 FAB → StickyButton מרחף
 // 5. 🎨 Sticky Colors: Yellow/Pink/Green + rotation
-//
-// ✨ שיפורים קודמים (v3.0 - 14/10/2025):
-// 1. 💀 Skeleton Screens - במקום CircularProgressIndicator
-// 2. ✨ Micro Animations - כפתורים וכרטיסים חיים
-// 3. 🎯 Empty/Error States מונפשים
-// 4. 🔍 חיפוש וסינון מתקדם
-// 5. 📊 מיון: תאריך ↓↑ | שם א-ת | תקציב ↓↑
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -40,6 +39,10 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
   String _searchQuery = '';
   String _selectedType = 'all'; // 'all' = הכל
   String _sortBy = 'date_desc'; // date_desc | date_asc | name | budget_desc | budget_asc
+
+  // 📦 היסטוריה - pagination
+  int _historyPageSize = 10; // כמה רשימות היסטוריה להציג
+  int _currentHistoryLimit = 10; // כמה רשימות להציג כרגע
 
   // 🎨 Animation Controllers
   late AnimationController _fabController;
@@ -498,23 +501,27 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
     }
 
     // 🔍 סינון ומיון
-    final filteredLists = _getFilteredAndSortedLists(provider.lists);
+    final activeLists = _getFilteredAndSortedActiveLists(provider.lists);
+    final completedLists = _getFilteredAndSortedCompletedLists(provider.lists);
 
-    if (filteredLists.isEmpty && provider.lists.isNotEmpty) {
+    if (activeLists.isEmpty && completedLists.isEmpty && provider.lists.isNotEmpty) {
       // יש רשימות אבל הסינון ריק
       return _buildEmptySearchResults();
     }
 
-    if (filteredLists.isEmpty) {
+    if (activeLists.isEmpty && completedLists.isEmpty) {
       return _buildEmptyState(context, provider);
     }
 
-    return _buildListsView(filteredLists);
+    return _buildListsView(provider.lists);
   }
 
-  /// 🔍 סינון ומיון רשימות
-  List<ShoppingList> _getFilteredAndSortedLists(List<ShoppingList> lists) {
+  /// 🔍 סינון ומיון רשימות פעילות
+  List<ShoppingList> _getFilteredAndSortedActiveLists(List<ShoppingList> lists) {
     var filtered = lists.where((list) {
+      // רק פעילות
+      if (list.status != ShoppingList.statusActive) return false;
+
       // סינון לפי חיפוש
       if (_searchQuery.isNotEmpty) {
         final query = _searchQuery.toLowerCase();
@@ -532,90 +539,226 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
     }).toList();
 
     // מיון
+    _sortLists(filtered);
+    return filtered;
+  }
+
+  /// 🔍 סינון ומיון רשימות היסטוריה
+  List<ShoppingList> _getFilteredAndSortedCompletedLists(List<ShoppingList> lists) {
+    var filtered = lists.where((list) {
+      // רק הושלמו
+      if (list.status != ShoppingList.statusCompleted) return false;
+
+      // סינון לפי חיפוש
+      if (_searchQuery.isNotEmpty) {
+        final query = _searchQuery.toLowerCase();
+        if (!list.name.toLowerCase().contains(query)) {
+          return false;
+        }
+      }
+
+      // סינון לפי סוג
+      if (_selectedType != 'all' && list.type != _selectedType) {
+        return false;
+      }
+
+      return true;
+    }).toList();
+
+    // מיון (ברירת מחדל: תאריך יורד)
+    filtered.sort((a, b) => b.updatedDate.compareTo(a.updatedDate));
+    return filtered;
+  }
+
+  /// 📊 מיון כללי
+  void _sortLists(List<ShoppingList> lists) {
+    var filtered = lists.where((list) {
+      // סינון לפי חיפוש
+      if (_searchQuery.isNotEmpty) {
+        final query = _searchQuery.toLowerCase();
+        if (!list.name.toLowerCase().contains(query)) {
+          return false;
+        }
+      }
+
+      // סינון לפי סוג
+      if (_selectedType != 'all' && list.type != _selectedType) {
+        return false;
+      }
+
+      return true;
+    }).toList();
+
     switch (_sortBy) {
       case 'date_desc':
-        filtered.sort((a, b) => b.createdDate.compareTo(a.createdDate));
+        lists.sort((a, b) => b.createdDate.compareTo(a.createdDate));
         break;
       case 'date_asc':
-        filtered.sort((a, b) => a.createdDate.compareTo(b.createdDate));
+        lists.sort((a, b) => a.createdDate.compareTo(b.createdDate));
         break;
       case 'name':
-        filtered.sort((a, b) => a.name.compareTo(b.name));
+        lists.sort((a, b) => a.name.compareTo(b.name));
         break;
       case 'budget_desc':
-        filtered.sort((a, b) {
+        lists.sort((a, b) {
           final budgetA = a.budget ?? 0.0;
           final budgetB = b.budget ?? 0.0;
           return budgetB.compareTo(budgetA);
         });
         break;
       case 'budget_asc':
-        filtered.sort((a, b) {
+        lists.sort((a, b) {
           final budgetA = a.budget ?? 0.0;
           final budgetB = b.budget ?? 0.0;
           return budgetA.compareTo(budgetB);
         });
         break;
     }
-
-    return filtered;
   }
 
-  /// 📌 מציג את כל הרשימות - עם אנימציות
-  Widget _buildListsView(List<ShoppingList> lists) {
-    // 🎨 צבעים לפתקים (rotation)
-    final stickyColors = [kStickyYellow, kStickyPink, kStickyGreen];
-    final stickyRotations = [0.01, -0.015, 0.01];
+  /// 📌 מציג פעילות + היסטוריה
+  Widget _buildListsView(List<ShoppingList> allLists) {
+    // הפרד לפעילות והיסטוריה
+    final activeLists = _getFilteredAndSortedActiveLists(allLists);
+    final completedLists = _getFilteredAndSortedCompletedLists(allLists);
+    
+    // הגבל היסטוריה
+    final limitedHistory = completedLists.take(_currentHistoryLimit).toList();
+    final hasMoreHistory = completedLists.length > _currentHistoryLimit;
 
-    return ListView.builder(
+    return ListView(
       padding: const EdgeInsets.all(kSpacingMedium),
-      itemCount: lists.length,
-      itemBuilder: (context, index) {
-        final list = lists[index];
-        final colorIndex = index % stickyColors.length;
+      children: [
+        // 🔵 פעילות
+        if (activeLists.isNotEmpty) ...[  
+          _buildSectionHeader('🔵 רשימות פעילות', activeLists.length),
+          const SizedBox(height: kSpacingSmall),
+          ..._buildListCards(activeLists, isActive: true),
+          const SizedBox(height: kSpacingLarge),
+        ],
 
-        // אנימציית כניסה לכל כרטיס
-        return TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0.0, end: 1.0),
-          duration: Duration(milliseconds: 300 + (index * 50)),
-          curve: Curves.easeOut,
-          builder: (context, value, child) {
-            return Opacity(
-              opacity: value,
-              child: Transform.translate(offset: Offset(20 * (1 - value), 0), child: child),
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: kSpacingMedium),
-            child: StickyNote(
-              color: stickyColors[colorIndex],
-              rotation: stickyRotations[colorIndex],
-              child: ShoppingListTile(
-                list: list,
-                onTap: () {
-                  debugPrint('📋 פתיחת רשימה: ${list.name}');
-                  Navigator.pushNamed(context, '/populate-list', arguments: list);
-                },
-                onDelete: () {
-                  debugPrint('🗑️ מחיקת רשימה: ${list.name}');
-                  final provider = context.read<ShoppingListsProvider>();
-                  provider.deleteList(list.id);
-                },
-                onRestore: (deletedList) {
-                  debugPrint('↩️ שחזור רשימה: ${deletedList.name}');
-                  final provider = context.read<ShoppingListsProvider>();
-                  provider.restoreList(deletedList);
-                },
-                onStartShopping: () {
-                  debugPrint('🛒 התחלת קנייה: ${list.name}');
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ActiveShoppingScreen(list: list)));
+        // ✅ היסטוריה
+        if (limitedHistory.isNotEmpty) ...[  
+          _buildSectionHeader('✅ היסטוריה', completedLists.length),
+          const SizedBox(height: kSpacingSmall),
+          ..._buildListCards(limitedHistory, isActive: false),
+          
+          // כפתור "טען עוד"
+          if (hasMoreHistory) ..[
+            const SizedBox(height: kSpacingMedium),
+            Center(
+              child: StickyButtonSmall(
+                color: kStickyCyan,
+                label: 'טען עוד רשימות (${completedLists.length - _currentHistoryLimit} נותרו)',
+                icon: Icons.expand_more,
+                onPressed: () {
+                  setState(() {
+                    _currentHistoryLimit += _historyPageSize;
+                  });
                 },
               ),
             ),
-          ),
-        );
-      },
+          ],
+        ],
+
+        // אם אין כלום
+        if (activeLists.isEmpty && completedLists.isEmpty)
+          const SizedBox.shrink(),
+      ],
     );
+  }
+
+  /// 🏷️ כותרת קטגוריה
+  Widget _buildSectionHeader(String title, int count) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
+      child: Row(
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: kFontSizeLarge,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(width: kSpacingSmall),
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: kSpacingSmall,
+              vertical: kSpacingTiny,
+            ),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+            ),
+            child: Text(
+              '$count',
+              style: TextStyle(
+                fontSize: kFontSizeSmall,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 📋 בונה כרטיסי רשימות
+  List<Widget> _buildListCards(List<ShoppingList> lists, {required bool isActive}) {
+    // 🎨 צבעים לפתקים
+    final stickyColors = isActive 
+        ? [kStickyYellow, kStickyPink, kStickyGreen]
+        : [kStickyGreen.withValues(alpha: 0.7), kStickyCyan.withValues(alpha: 0.7)];
+    final stickyRotations = [0.01, -0.015, 0.01];
+
+    return lists.asMap().entries.map((entry) {
+      final index = entry.key;
+      final list = entry.value;
+      final colorIndex = index % stickyColors.length;
+
+      // אנימציית כניסה לכל כרטיס
+      return TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0.0, end: 1.0),
+        duration: Duration(milliseconds: 300 + (index * 50)),
+        curve: Curves.easeOut,
+        builder: (context, value, child) {
+          return Opacity(
+            opacity: value,
+            child: Transform.translate(offset: Offset(20 * (1 - value), 0), child: child),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: kSpacingMedium),
+          child: StickyNote(
+            color: stickyColors[colorIndex],
+            rotation: stickyRotations[colorIndex],
+            child: ShoppingListTile(
+              list: list,
+              onTap: () {
+                debugPrint('📋 פתיחת רשימה: ${list.name}');
+                Navigator.pushNamed(context, '/populate-list', arguments: list);
+              },
+              onDelete: () {
+                debugPrint('🗑️ מחיקת רשימה: ${list.name}');
+                final provider = context.read<ShoppingListsProvider>();
+                provider.deleteList(list.id);
+              },
+              onRestore: (deletedList) {
+                debugPrint('↩️ שחזור רשימה: ${deletedList.name}');
+                final provider = context.read<ShoppingListsProvider>();
+                provider.restoreList(deletedList);
+              },
+              onStartShopping: isActive ? () {
+                debugPrint('🛒 התחלת קנייה: ${list.name}');
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ActiveShoppingScreen(list: list)));
+              } : null, // היסטוריה - אין אפשרות קנייה
+            ),
+          ),
+        ),
+      );
+    }).toList();
   }
 
   /// ❌ מצב שגיאה - משופר עם אנימציות
