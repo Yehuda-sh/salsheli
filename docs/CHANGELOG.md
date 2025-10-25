@@ -1,6 +1,6 @@
 # 🕒 CHANGELOG - MemoZap Project
 
-> **Updated:** 25/10/2025 (ערב)  
+> **Updated:** 25/10/2025 (ערב - עודכן)  
 > **Purpose:** Track main documentation, logic, and structural updates for AI coordination.
 
 ---
@@ -70,6 +70,13 @@
 ---
 
 ## 🚧 v2.9 - [In Progress] 25/10/2025
+
+### 📊 Quick Summary:
+✅ **Completed:** שלבים 3.1, 3.3-3.7 (Models, UI, הסרת קבלות, סיום קנייה)
+🟡 **In Progress:** שלב 3.8 (Testing - 40% - SmartSuggestionsCard Tests הושלמו)
+⏳ **Next:** שלב 3.8 (Widget Tests ל-LastChanceBanner + ActiveListsSection, Unit Tests, Manual Testing)
+
+---
 
 ### ✅ מסלול 3 - שלב 3.1: Models + Logic - 100% Complete
 
@@ -199,6 +206,39 @@
   - ✅ אם יש רשימה → מוסיף לרשימה הקיימת
 
 #### ⏱️ **Completed:** 25/10/2025 (בוקר - 1 יום)
+
+---
+
+### ✅ מסלול 3 - שלב 3.7: הסרת סריקת קבלות - 100% Complete
+
+**קבצים שנמחקו (11 קבצים):**
+- ✅ `lib/services/ocr_service.dart`
+- ✅ `lib/services/receipt_parser_service.dart`
+- ✅ `lib/services/receipt_to_inventory_service.dart`
+- ✅ `lib/screens/receipts/` (תיקייה שלמה - 3 קבצים)
+- ✅ `lib/screens/shopping/receipt_preview.dart`
+- ✅ `lib/widgets/add_receipt_dialog.dart`
+- ✅ `lib/widgets/inventory/receipt_to_inventory_dialog.dart`
+- ✅ `lib/config/receipt_patterns_config.dart`
+
+**קבצים שעודכנו (3 קבצים):**
+- ✅ `lib/main.dart` (הוסרו imports מיותרים)
+- ✅ `lib/screens/home/home_screen.dart` (הוסר טאב קבלות - 4 טאבים במקום 5)
+- ✅ `pubspec.yaml` (הוסר google_mlkit_text_recognition)
+
+**קבצים ששמרנו (לקבלות וירטואליות):**
+- ✅ `models/receipt.dart` + `receipt.g.dart`
+- ✅ `providers/receipt_provider.dart`
+- ✅ `repositories/receipt_repository.dart`
+- ✅ `repositories/firebase_receipt_repository.dart`
+
+**תוצאה:**
+- ✅ 11 קבצים נמחקו
+- ✅ 3 קבצים עודכנו
+- ✅ 0 errors בקוד
+- ✅ Bottom Navigation: 5 טאבים → 4 טאבים
+
+#### ⏱️ **Completed:** 24/10/2025 (ערב - 1 יום)
 
 ---
 

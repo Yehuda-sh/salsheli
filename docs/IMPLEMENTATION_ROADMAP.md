@@ -1,7 +1,7 @@
 # 📋 תוכנית משימות - MemoZap
 
 > **תאריך:** 25/10/2025  
-> **גרסה:** 2.1 - מסלול 3 שלב 3.8 התחיל! SmartSuggestionsCard Tests הושלמו! 🧪  
+> **גרסה:** 2.2 - מסלול 3 שלב 3.8 מתקדם! LastChanceBanner Tests הושלמו! 🧪  
 > **בסיס:** UX_REQUIREMENTS.md + TASK_SUPPORT_OPTIONS.md
 
 ---
@@ -291,31 +291,6 @@
 
 ---
 
-### שלב 3.2: Providers (2 ימים)
-
-**קבצים:**
-- ✅ `lib/providers/suggestions_provider.dart` (חדש)
-- ✅ עדכון `lib/providers/shopping_lists_provider.dart`
-- ✅ עדכון `lib/providers/inventory_provider.dart`
-
-**מה לעשות:**
-1. SuggestionsProvider:
-   - ניהול תור המלצות
-   - קריאה ל-SuggestionsService
-   - notifyListeners על שינויים
-
-2. ShoppingListsProvider:
-   - `completeList()` - סיום רשימה
-   - `getActiveLists()` - רק פעילות
-   - `getCompletedLists()` - היסטוריה
-   - `getUnpurchasedItems()` - פריטים שלא נקנו
-
-3. InventoryProvider:
-   - `updateStockAfterPurchase()` - עדכון אוטומטי
-   - `getLowStockItems()` - מוצרים שאוזלים
-
----
-
 ### שלב 3.3: מסך ראשי חדש (2 ימים) ✅ הושלם 24/10/2025
 
 **קבצים:**
@@ -462,7 +437,7 @@
 
 ---
 
-### שלב 3.8: Testing + Polish (1-2 ימים) 🟡 בתהליך (40%)
+### שלב 3.8: Testing + Polish (1-2 ימים) 🟡 בתהליך (67%)
 
 #### ✅ Widget Tests - SmartSuggestionsCard (הושלם 25/10/2025 - ערב):
 
@@ -491,14 +466,43 @@ flutter test test/widgets/smart_suggestions_card_test.dart
 
 ---
 
-#### ⏳ Widget Tests - הבא בתור:
-1. **LastChanceBanner Tests** - טרם התחיל
-   - Banner display
-   - Add action
-   - Skip action
-   - Integration עם SuggestionsProvider
+#### ✅ Widget Tests - LastChanceBanner (הושלם 25/10/2025 - ערב):
 
-2. **ActiveListsSection Tests** - טרם התחיל
+**קובץ:**
+- ✅ `test/widgets/last_chance_banner_test.dart` - **12/12 טסטים עברו!**
+
+**מה נבדק:**
+1. ✅ **Visibility Tests** - נראות הבאנר
+   - מוצג כשיש המלצות וקנייה פעילה
+   - מוסתר כשאין המלצות
+2. ✅ **Content Display** - תצוגת תוכן
+   - שם מוצר + מלאי נוכחי
+   - כפתורי הוסף/הבא
+   - ספירת המלצות נוספות
+3. ✅ **Action Buttons** - פעולות
+   - כפתור הוסף → קורא ל-`addItemToList()`
+   - כפתור הבא → קורא ל-`dismissCurrentSuggestion()`
+4. ✅ **SnackBar Tests** - הודעות
+   - הודעת הצלחה על הוספה
+   - הודעת הצלחה על דחייה
+5. ✅ **Error Handling** - טיפול בשגיאות
+   - שגיאה כשאין רשימה פעילה
+   - stub ל-pendingSuggestionsCount
+6. ✅ **Animation Tests** - אנימציות
+   - FadeIn animation על כפתורים
+
+**תוצאות:**
+```bash
+flutter test test/widgets/last_chance_banner_test.dart
+00:02 +12: All tests passed! ✅
+```
+
+**🔧 תיקון שבוצע:** הוספת stub ל-pendingSuggestionsCount בטסטי Error Handling
+
+---
+
+#### ⏳ Widget Tests - הבא בתור:
+1. **ActiveListsSection Tests** - טרם התחיל
    - רשימות פעילות מוצגות
    - Navigation עובד
    - Empty state
@@ -520,7 +524,7 @@ flutter test test/widgets/smart_suggestions_card_test.dart
 
 ---
 
-**⏱️ התקדמות:** 40% - 1 מתוך 3 Widget Tests הושלם
+**⏱️ התקדמות:** 67% - 2 מתוך 3 Widget Tests הושלמו
 
 ---
 
@@ -628,14 +632,29 @@ flutter test test/widgets/smart_suggestions_card_test.dart
 
 ---
 
-**גרסה:** 2.0  
+**גרסה:** 2.2  
 **תאריך יצירה:** 22/10/2025  
-**עדכון אחרון:** 25/10/2025 (צהריים)  
+**עדכון אחרון:** 25/10/2025 (ערב - מתועדכן)  
 **מטרה:** תוכנית עבודה מפורטת ליישום כל התכונות החדשות
 
 ---
 
 ## 📈 היסטוריית עדכונים
+
+### v2.2 - 25/10/2025 (ערב - מתועדכן)
+- 🧪 **מסלול 3 שלב 3.8 מתקדם!** - LastChanceBanner Tests הושלמו
+- ✅ Widget Tests: LastChanceBanner - 12/12 טסטים עברו!
+  - ✅ Visibility Tests
+  - ✅ Content Display
+  - ✅ Action Buttons
+  - ✅ SnackBar Tests
+  - ✅ Error Handling (תוקן!)
+  - ✅ Animation Tests
+- 🔧 תיקון: הוספת stub ל-pendingSuggestionsCount
+- 🗑️ **ניקוי:** הסרת שלב 3.2 (מיותר - הכל כבר בשלב 3.1)
+- 📄 IMPLEMENTATION_ROADMAP.md עודכן
+- ⏳ **הבא:** ActiveListsSection Tests (1/3 נותר) + Unit Tests + Manual Testing
+- 📊 **התקדמות שלב 3.8:** 67% (2/3 Widget Tests)
 
 ### v2.1 - 25/10/2025 (ערב)
 - 🧪 **מסלול 3 שלב 3.8 התחיל!** - SmartSuggestionsCard Tests הושלמו
