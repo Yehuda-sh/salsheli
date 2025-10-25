@@ -5,6 +5,22 @@
 
 ---
 
+## 🧹 v2.1 - Cleanup - 25/10/2025
+
+### Project Cleanup
+
+#### 🗑️ Removed Obsolete MCP Setup Scripts
+- **Deleted:** `C:\projects\salsheli\scripts\mcp\` directory
+- **Reason:** Scripts were for initial MCP server setup (Claude Desktop)
+- **Current status:** Project uses Claude Projects with pre-configured tools
+- **Files removed:**
+  - `copy_mcp_config.bat` - was copying config to Claude Desktop (no longer needed)
+  - `install_mcp_servers.bat` - was installing Git MCP + Brave Search (now built-in)
+- **Impact:** None - all MCP tools already active and working
+- ⏱️ **Completed:** 25/10/2025
+
+---
+
 ## 📚 v2.0 - Documentation - 25/10/2025
 
 ### Documentation Updates
