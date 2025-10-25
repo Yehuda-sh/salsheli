@@ -40,6 +40,7 @@ import '../../core/ui_constants.dart';
 import '../../models/enums/shopping_item_status.dart';
 import '../../models/shopping_list.dart';
 import '../../models/unified_list_item.dart';
+import '../../providers/inventory_provider.dart';
 import '../../providers/products_provider.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../providers/user_context.dart';
@@ -255,7 +256,10 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
           message += '\n🔄 ${unpurchasedItems.length} פריטים הועברו לרשימה הבאה';
         }
 
-        ScaffoldMessenger.of(context).showSnackBar(
+        final messenger = ScaffoldMessenger.of(context);
+        final navigator = Navigator.of(context);
+        
+        messenger.showSnackBar(
           SnackBar(
             content: Row(
               children: [
@@ -274,10 +278,8 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
         await Future.delayed(const Duration(milliseconds: 800));
         if (!mounted) return;
 
-        if (mounted) {
-          debugPrint('🚪 _saveAndFinish: חוזר למסך קודם');
-          Navigator.pop(context);
-        }
+        debugPrint('🚪 _saveAndFinish: חוזר למסך קודם');
+        navigator.pop();
       }
     } catch (e) {
       debugPrint('❌ _saveAndFinish Error: $e');
