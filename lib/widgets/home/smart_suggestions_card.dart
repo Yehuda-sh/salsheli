@@ -95,7 +95,7 @@ class SmartSuggestionsCard extends StatelessWidget {
           const SizedBox(height: kSpacingMedium),
           Text(
             'שגיאה בטעינת המלצות',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: kSpacingSmall),
           Text(
@@ -347,7 +347,7 @@ class SmartSuggestionsCard extends StatelessWidget {
 
       targetList = lists.first;
 
-      // Create unified item
+      // Add to list
       final item = UnifiedListItem.product(
         id: suggestion.id,
         name: suggestion.productName,
@@ -356,13 +356,7 @@ class SmartSuggestionsCard extends StatelessWidget {
         category: suggestion.category,
       );
 
-      // Add to list
-      await listsProvider.addItemToList(
-        targetList.id,
-        item.name ?? 'מוצר ללא שם',
-        item.quantity,
-        item.unit ?? "יח'",
-      );
+      await listsProvider.addUnifiedItem(targetList.id, item);
 
       // Mark suggestion as added
       await provider.addCurrentSuggestion();

@@ -48,7 +48,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/sticky_note.dart';
-import '../../widgets/shopping/last_chance_banner.dart';
+import '../../widgets/home/last_chance_banner.dart';
 
 class ActiveShoppingScreen extends StatefulWidget {
   final ShoppingList list;
@@ -205,6 +205,10 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
 
   /// שמירה וסיום - עם עדכון מלאי אוטומטי
   Future<void> _saveAndFinish() async {
+    // ✅ תפוס context לפני await
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    
     setState(() {
       _isSaving = true;
     });
@@ -246,18 +250,17 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
       await provider.updateListStatus(widget.list.id, ShoppingList.statusCompleted);
       debugPrint('✅ רשימה הושלמה!');
 
-      if (mounted) {
-        // הצג הודעת הצלחה עם פרטים
-        String message = 'הקנייה הושלמה בהצלחה! 🎉';
-        if (purchasedItems.isNotEmpty) {
-          message += '\n📦 ${purchasedItems.length} מוצרים עודכנו במזווה';
-        }
-        if (unpurchasedItems.isNotEmpty) {
-          message += '\n🔄 ${unpurchasedItems.length} פריטים הועברו לרשימה הבאה';
-        }
-
-        final messenger = ScaffoldMessenger.of(context);
-        final navigator = Navigator.of(context);
+      // ✅ בדוק אם עדיין mounted לפני שימוש ב-context
+      if (!mounted) return;
+      
+      // הצג הודעת הצלחה עם פרטים
+      String message = 'הקנייה הושלמה בהצלחה! 🎉';
+      if (purchasedItems.isNotEmpty) {
+        message += '\n📦 ${purchasedItems.length} מוצרים עודכנו במזווה';
+      }
+      if (unpurchasedItems.isNotEmpty) {
+        message += '\n🔄 ${unpurchasedItems.length} פריטים הועברו לרשימה הבאה';
+      }
         
         messenger.showSnackBar(
           SnackBar(
@@ -446,7 +449,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
               ),
 
               // ⚠️ הזדמנות אחרונה - באנר המלצות
-              LastChanceBanner(listId: widget.list.id),
+              LastChanceBanner(activeListId: widget.list.id),
 
               // 🗂️ רשימת מוצרים לפי קטגוריות
               Expanded(

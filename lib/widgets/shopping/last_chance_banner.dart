@@ -1,14 +1,22 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:provider/provider.dart';
-import '../../models/smart_suggestion.dart';
-import '../../providers/suggestions_provider.dart';
-import '../../providers/shopping_lists_provider.dart';
-import '../../theme/app_theme.dart';
-import '../../core/ui_constants.dart';
+// 📄 File: lib/widgets/shopping/last_chance_banner.dart
+// Description: Last chance banner for active shopping - urgent suggestions
+//
+// ✅ Features:
+// - Shows urgent suggestion during active shopping
+// - Sticky Notes design (kStickyOrange - warning)
+// - 2 actions: Add now, Ignore
+// - Shows remaining suggestions count
+// - Dismissible with animation
 
-/// באנר "הזדמנות אחרונה" שמציג המלצות שלא הוספו
-/// מופיע רק במצב קנייה פעילה
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../core/ui_constants.dart';
+import '../../models/smart_suggestion.dart';
+import '../../models/unified_list_item.dart';
+import '../../providers/shopping_lists_provider.dart';
+import '../../providers/suggestions_provider.dart';
+
 class LastChanceBanner extends StatelessWidget {
   final String listId;
 
@@ -20,15 +28,21 @@ class LastChanceBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<SuggestionsProvider>(
-      builder: (context, suggestionsProvider, child) {
-        final currentSuggestion = suggestionsProvider.currentSuggestion;
+      builder: (context, provider, child) {
+        // Get current suggestion
+        final suggestion = provider.currentSuggestion;
 
-        // אם אין המלצה נוכחית, לא מציגים כלום
-        if (currentSuggestion == null) {
+        // Don't show if no suggestions
+        if (suggestion == null) {
           return const SizedBox.shrink();
         }
 
-        return _buildBanner(context, currentSuggestion, suggestionsProvider);
+        // Only show urgent suggestions during shopping
+        if (!suggestion.isUrgent) {
+          return const SizedBox.shrink();
+        }
+
+        return _buildBanner(context, suggestion, provider);
       },
     );
   }
@@ -36,30 +50,20 @@ class LastChanceBanner extends StatelessWidget {
   Widget _buildBanner(
     BuildContext context,
     SmartSuggestion suggestion,
-    SuggestionsProvider suggestionsProvider,
+    SuggestionsProvider provider,
   ) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final remainingCount = provider.pendingSuggestionsCount - 1;
+
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.all(kSpacingMedium),
+      padding: const EdgeInsets.all(kSpacingMedium),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            kStickyOrange.withValues(alpha: 0.2),
-            kStickyYellow.withValues(alpha: 0.1),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: kStickyOrange.withValues(alpha: 0.3),
-          width: 2,
-        ),
+        color: kStickyOrange,
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: kStickyOrange.withValues(alpha: 0.1),
-            blurRadius: 8,
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],
@@ -67,205 +71,198 @@ class LastChanceBanner extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // כותרת
+          // Header
           Row(
             children: [
               const Icon(
                 Icons.warning_amber_rounded,
-                color: kStickyOrange,
+                color: Colors.white,
                 size: 24,
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: kSpacingSmall),
               const Expanded(
                 child: Text(
-                  'עוד לא הוספת:',
+                  'רגע! שכחת משהו? 🛒',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: kStickyOrange,
+                    color: Colors.white,
                   ),
                 ),
               ),
-              // ספירת המלצות נוספות
-              if (suggestionsProvider.pendingSuggestionsCount > 0)
+              if (remainingCount > 0)
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
+                    horizontal: kSpacingSmall,
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: kStickyOrange.withValues(alpha: 0.2),
+                    color: Colors.white.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    '+${suggestionsProvider.pendingSuggestionsCount}',
+                    '+$remainingCount נוספים',
                     style: const TextStyle(
                       fontSize: 12,
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      color: kStickyOrange,
                     ),
                   ),
                 ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: kSpacingSmall),
 
-          // פרטי המוצר
+          // Product info
           Row(
             children: [
-              Icon(
-                Icons.shopping_basket_outlined,
-                color: colorScheme.onSurface,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       suggestion.productName,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: colorScheme.onSurface,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      'נשארו ${suggestion.currentStock} יחידות',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
-                      ),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.inventory_2_outlined,
+                          color: Colors.white70,
+                          size: 16,
+                        ),
+                        const SizedBox(width: kSpacingSmall),
+                        Text(
+                          'נותרו ${suggestion.currentStock} במלאי',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: kSpacingMedium),
 
-          // כפתורי פעולה
+          // Actions
           Row(
             children: [
-              // כפתור "הבא"
               Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _onNext(context, suggestionsProvider),
-                  icon: const Icon(Icons.skip_next, size: 20),
-                  label: const Text('הבא'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: colorScheme.onSurfaceVariant,
-                    side: BorderSide(
-                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
-                    ),
+                flex: 2,
+                child: ElevatedButton.icon(
+                  onPressed: () => _onAddPressed(context, suggestion, provider),
+                  icon: const Icon(Icons.add_shopping_cart, size: 18),
+                  label: const Text('הוסף עכשיו'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: kStickyOrange,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
-
-              // כפתור "הוסף"
+              const SizedBox(width: kSpacingSmall),
               Expanded(
-                flex: 2,
-                child: ElevatedButton.icon(
-                  onPressed: () => _onAdd(context, suggestionsProvider),
-                  icon: const Icon(Icons.add, size: 20),
-                  label: const Text('הוסף לרשימה'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: kStickyOrange,
+                child: OutlinedButton(
+                  onPressed: () => _onIgnorePressed(context, suggestion, provider),
+                  style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.white,
+                    side: const BorderSide(color: Colors.white, width: 1.5),
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    elevation: 2,
                   ),
+                  child: const Text('התעלם'),
                 ),
               ),
             ],
           ),
         ],
       ),
-    ).animate().fadeIn(duration: 300.ms).slideY(
-          begin: -0.2,
-          end: 0,
-          duration: 300.ms,
-          curve: Curves.easeOut,
-        );
+    );
   }
 
-  /// טיפול בלחיצה על "הבא"
-  Future<void> _onNext(
+  // 🎬 Actions
+
+  Future<void> _onAddPressed(
     BuildContext context,
-    SuggestionsProvider suggestionsProvider,
+    SmartSuggestion suggestion,
+    SuggestionsProvider provider,
   ) async {
     try {
-      await suggestionsProvider.dismissCurrentSuggestion();
+      // Get shopping lists provider
+      final listsProvider = context.read<ShoppingListsProvider>();
 
-      if (context.mounted) {
-        // הצגת הודעה
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('הדחיתי את ההמלצה'),
-            duration: Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
+      // Create unified item
+      final item = UnifiedListItem.product(
+        id: suggestion.id,
+        name: suggestion.productName,
+        quantity: suggestion.neededQuantity,
+        unit: suggestion.category ?? "יח'",
+        category: suggestion.category,
+      );
+
+      // Add to current list
+      await listsProvider.addUnifiedItem(listId, item);
+
+      // Mark suggestion as added
+      await provider.addCurrentSuggestion();
+
+      if (!context.mounted) return;
+
+      // Show success
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('נוסף "${suggestion.productName}" לרשימה ✅'),
+          backgroundColor: kStickyGreen,
+          duration: const Duration(seconds: 2),
+        ),
+      );
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('שגיאה: $e'),
-            duration: const Duration(seconds: 3),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('שגיאה בהוספה: $e'),
+          backgroundColor: kStickyPink,
+        ),
+      );
     }
   }
 
-  /// טיפול בלחיצה על "הוסף"
-  Future<void> _onAdd(
+  Future<void> _onIgnorePressed(
     BuildContext context,
-    SuggestionsProvider suggestionsProvider,
+    SmartSuggestion suggestion,
+    SuggestionsProvider provider,
   ) async {
     try {
-      final shoppingListsProvider = context.read<ShoppingListsProvider>();
-
-      // הוספת המוצר ישירות לרשימה הנוכחית
-      await shoppingListsProvider.addUnifiedItem(
-        listId,
-        suggestionsProvider.currentSuggestion!.toUnifiedListItem(),
+      // Dismiss for this shopping session (1 day)
+      await provider.dismissCurrentSuggestion(
+        duration: const Duration(days: 1),
       );
 
-      // סימון ההמלצה כ"נוספה"
-      await suggestionsProvider.addCurrentSuggestion(listId);
+      if (!context.mounted) return;
 
-      if (context.mounted) {
-        // הצגת הודעת הצלחה
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'הוספתי ${suggestionsProvider.currentSuggestion?.productName ?? "המוצר"} לרשימה',
-            ),
-            duration: const Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('התעלמתי מ-"${suggestion.productName}" 👍'),
+          backgroundColor: kStickyCyan,
+          duration: const Duration(seconds: 2),
+        ),
+      );
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('שגיאה: $e'),
-            duration: const Duration(seconds: 3),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('שגיאה: $e'),
+          backgroundColor: kStickyPink,
+        ),
+      );
     }
   }
 }
