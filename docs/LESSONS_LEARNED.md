@@ -234,12 +234,13 @@
   1. חפש את שם הקובץ הישן בכל התיקיות (`search_files`)
   2. עדכן כל הפניה לשם החדש (`edit_file`)
   3. מחק את הקובץ הישן
-  4. עדכן MEMOZAP_INDEX.md
+  4. עדכן README.md ב-docs/
 - **דוגמה:** MEMOZAP_LESSONS_AND_ERRORS.md → LESSONS_LEARNED.md (24/10/2025)
+- **דוגמה 2:** MEMOZAP_INDEX.md → מוזג ל-README.md (25/10/2025)
 
 ### 3️⃣ שמירת סינכרון
 
-- ✅ INDEX חייב להשתקף את מצב הקבצים באמת
+- ✅ README.md חייב להשתקף את מצב הקבצים באמת
 - ✅ עדכן תאריך + גרסה אחרי שינויים
 - ✅ תעד ב-LESSONS_LEARNED.md את השינויים
 
@@ -295,7 +296,7 @@
 - 📝 עדכון: LESSONS_LEARNED.md עם Flutter best practices
 - 🧹 ניקוי תיעוד: מחקנו MEMOZAP_LESSONS_AND_ERRORS.md (מיותר)
 - ✅ עדכון MEMOZAP_CORE_GUIDE.md: Memory Tool Pattern + Checkpoint Protocol
-- 📝 עדכון MEMOZAP_INDEX.md לגרסה 2.3
+- 📝 מיזוג MEMOZAP_INDEX.md לתוך README.md
 
 ### 25/10/2025 (ערב)
 - 🧪 **Widget Testing Mastery!** - למדנו patterns נכונים לבדיקות

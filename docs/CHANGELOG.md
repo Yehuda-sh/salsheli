@@ -9,16 +9,21 @@
 
 ### Documentation Updates
 
-#### ✅ README.md Major Overhaul - v2.0
+#### ✅ README.md Major Overhaul - v2.1 (Merged with INDEX)
+- 🔀 **MEMOZAP_INDEX.md → README.md** - Merged INDEX into README as master entry point
 - 📝 **Complete Restructure** - Reorganized for clarity and accuracy
-- 📊 **Documentation Stats** - Added metrics and counts section
+- 📊 **Documentation Stats** - Added metrics and counts section (8 AI guides, 5 reference docs)
 - 💾 **Checkpoint & Continuity Protocol** - Full section on auto-save and resume commands
 - 🗺️ **Complete File Listing** - Added missing files (IMPLEMENTATION_ROADMAP.md, TASK_SUPPORT_OPTIONS.md, MEMOZAP_SECURITY_AND_RULES.md)
+- 🧱 **Cooperation Logic** - Added section explaining document relationships
+- 📖 **Common Task Scenarios** - Quick reference for which docs to read per task
 - 🎯 **Better Organization** - Separate sections for AI agents and human developers
 - 📋 **Reference Tables** - Quick lookup tables for all documentation
 - 🔧 **Technical Notes** - Environment details, path formats, and standards
 - 📖 **Reading Order** - Clear guidance for new developers
-- ⏱️ **Completed:** 25/10/2025 (1 hour)
+- 🗑️ **Cleanup** - Removed redundant MEMOZAP_INDEX.md
+- 🔄 **Cross-References** - Updated all docs to point to README instead of INDEX
+- ⏱️ **Completed:** 25/10/2025 (1.5 hours)
 
 ---
 
@@ -44,6 +49,11 @@
 - 🔒 **Security rules** - Firestore rules with full permissions logic
 - 📊 **8 Repository methods** - addSharedUser, removeSharedUser, updateUserRole, transferOwnership, createRequest, approveRequest, rejectRequest, getPendingRequests
 - ⏱️ **Completed:** 23-24/10/2025 (2 days)
+
+### Documentation Updates
+- 📝 **MEMOZAP_CORE_GUIDE.md** - Updated folder structure tree (removed INDEX, added SECURITY_AND_RULES)
+- 📝 **MEMOZAP_MCP_GUIDE.md** - Updated cross-references table (README instead of INDEX)
+- 📝 **LESSONS_LEARNED.md** - Updated documentation maintenance section with INDEX merge example
 
 ### Technical Improvements
 - 🧪 **Test cleanup** - removed 1,600+ lines of obsolete tests (receipt, template, habits)

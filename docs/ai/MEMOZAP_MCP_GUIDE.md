@@ -192,13 +192,14 @@ For AI agent internal use only – not intended for human reading.
 
 | Topic | Document |
 |-------|----------|
+| Master entry point | README.md (in docs/) |
 | Core behavior & constants | MEMOZAP_CORE_GUIDE.md |
 | Developer flow & patterns | MEMOZAP_DEVELOPER_GUIDE.md |
-| Error logs & lessons | LESSONS_LEARNED.md |
+| Error logs & lessons | LESSONS_LEARNED.md (in docs/) |
 | UI/UX requirements | MEMOZAP_UI_REQUIREMENTS.md |
 | Design system | MEMOZAP_DESIGN_GUIDE.md |
 | Tasks & Sharing logic | MEMOZAP_TASKS_AND_SHARING.md |
-| All documents index | MEMOZAP_INDEX.md |
+| Security & validation | MEMOZAP_SECURITY_AND_RULES.md |
 
 ---
 

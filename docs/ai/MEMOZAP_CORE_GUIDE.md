@@ -157,15 +157,16 @@ Store after every 3-5 file changes:
   /utils/          # Helper functions
 
 /docs/ai/          # AI documentation ONLY
-  ├── MEMOZAP_INDEX.md              # Entry point
+  ├── README.md                     # Master entry point (in docs/)
   ├── MEMOZAP_CORE_GUIDE.md         # This file
   ├── MEMOZAP_DEVELOPER_GUIDE.md    # Code patterns
   ├── MEMOZAP_DESIGN_GUIDE.md       # UI/UX rules
   ├── MEMOZAP_MCP_GUIDE.md          # MCP integration
   ├── MEMOZAP_UI_REQUIREMENTS.md    # UI specifications
   ├── MEMOZAP_TASKS_AND_SHARING.md  # Task system
-  ├── LESSONS_LEARNED.md            # Error prevention
-  └── CHANGELOG.md                  # Version history
+  ├── MEMOZAP_SECURITY_AND_RULES.md # Security patterns
+  ├── LESSONS_LEARNED.md            # Error prevention (in docs/)
+  └── CHANGELOG.md                  # Version history (in docs/)
 ```
 
 ### Provider Pattern
@@ -315,11 +316,11 @@ Text(AppLocalizations.of(context)!.taskTitle)
 ### Documentation Hierarchy
 ```
 READ FIRST (every session):
-├── MEMOZAP_INDEX.md           # Table of contents
+├── README.md                   # Master entry point
 └── MEMOZAP_CORE_GUIDE.md      # This file
 
 READ ON-DEMAND:
-├── Task-specific guides        # See INDEX.md
+├── Task-specific guides        # See README.md
 └── LESSONS_LEARNED.md          # Before making risky changes
 
 UPDATE ALWAYS:
