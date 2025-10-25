@@ -105,6 +105,20 @@
 
 ### Documentation Updates (25/10/2025 - ערב)
 
+#### ✅ MEMOZAP_MCP_GUIDE.md v3.0 - Complete Rewrite
+- 🔧 **Complete Rewrite** - מדריך מושלם לשימוש בכלי MCP
+- 📊 **Status Table** - טבלת סטטוס כלים מעודכנת
+- 🛠️ **Detailed Tool Examples** - דוגמאות קוד מעשיות לכל כלי
+- 🧠 **Memory Protocol** - פרוטוקול מפורט ל-search_nodes → add_observations
+- 💾 **Checkpoint Protocol** - פורמט מדויק + דוגמאות
+- ⚠️ **Error Handling** - פרוטוקול recovery מפורט + טבלת כשלים
+- 📊 **Token Management** - התראות + פרוטוקול חירום
+- 🎯 **Best Practices** - DO/DON'T מסודר בבירור
+- 📝 **Practical Examples** - 3 תרחישי שימוש מלאים
+- 🎨 **Visual Design** - emojis, טבלאות, סעיפים ברורים
+- 🔧 **Location Fixed** - הועבר ל-docs/ai/ (המיקום הנכון)
+- ⏱️ **Completed:** 25/10/2025 (ערב - 1 שעה)
+
 #### ✅ MEMOZAP_CORE_GUIDE.md v2.0 - Major Restructure
 - 📝 **Complete Rewrite** - מדריך מושלם ושימושי יותר
 - 🎯 **Quick Reference** - מידע על הפרויקט, טכנולוגיות, נתיבים
