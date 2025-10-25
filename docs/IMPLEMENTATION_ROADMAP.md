@@ -1,7 +1,7 @@
 # 📋 תוכנית משימות - MemoZap
 
 > **תאריך:** 24/10/2025  
-> **גרסה:** 1.7 - מסלול 3 שלב 3.1 הושלם! 🎉  
+> **גרסה:** 1.8 - מסלול 3 שלב 3.4 הושלם! 🎉  
 > **בסיס:** UX_REQUIREMENTS.md + TASK_SUPPORT_OPTIONS.md
 
 ---
@@ -338,25 +338,28 @@ flutter pub run build_runner build --delete-conflicting-outputs
 
 ---
 
-### שלב 3.4: הזדמנות אחרונה (1 יום)
+### שלב 3.4: הזדמנות אחרונה (1 יום) ✅ הושלם 24/10/2025
 
 **קבצים:**
-- ✅ `lib/widgets/shopping/last_chance_banner.dart` (חדש)
-- ✅ עדכון `lib/screens/shopping/shopping_list_details_screen.dart`
+- ✅ `lib/widgets/shopping/last_chance_banner.dart` - **הושלם 24/10** (widget מלא עם אנימציות)
+- ✅ `lib/screens/shopping/active_shopping_screen.dart` - **הושלם 24/10** (אינטגרציה של LastChanceBanner)
 
-**מה לעשות:**
-1. LastChanceBanner:
-   ```dart
-   ┌─────────────────────────┐
-   │ ⚠️ עוד לא הוספת:       │
-   │ • חלב (נשארו 2)        │
-   │ [הוסף] [הבא]           │
-   └─────────────────────────┘
-   ```
-   - רק במצב "קנייה פעילה"
-   - מציג המלצות שלא הוספו
-   - כפתור הוסף → מוסיף לרשימה הנוכחית
-   - כפתור הבא → עובר למוצר הבא
+**מה בוצע:**
+1. ✅ **LastChanceBanner** - widget מלא:
+   - ⚠️ באנר כתום עם gradient
+   - 💡 הצגת המלצה נוכחית עם stock info
+   - ➕ כפתור הוסף → מוסיף לרשימה הנוכחית + טוען המלצה הבאה
+   - ⏭️ כפתור הבא → דוחה המלצה + טוען המלצה הבאה
+   - 🔄 Animation על כפתורים
+   - ✨ הודעות הצלחה/שגיאה
+
+2. ✅ **אינטגרציה ב-ActiveShoppingScreen:**
+   - LastChanceBanner מוטמע בשורה 337
+   - מציג רק במצב קנייה פעילה
+   - מקבל listId לשימוש בהוספת פריטים
+   - עיצוב Sticky Notes עקבי
+
+⏱️ **הושלם:** 24/10/2025 (לילה מאוחר - 1 יום)
 
 ---
 
