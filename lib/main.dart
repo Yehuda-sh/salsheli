@@ -302,22 +302,19 @@ void main() async {
 
         // === Suggestions Provider ===
         // ℹ️ Note: This provider doesn't need UserContext because it only
-        //    analyzes data already loaded by InventoryProvider and
-        //    ShoppingListsProvider. It doesn't access household_id directly.
-        ChangeNotifierProxyProvider2<
+        //    analyzes data already loaded by InventoryProvider.
+        //    It doesn't access household_id directly.
+        ChangeNotifierProxyProvider<
           InventoryProvider,
-          ShoppingListsProvider,
           SuggestionsProvider
         >(
           create: (context) => SuggestionsProvider(
             inventoryProvider: context.read<InventoryProvider>(),
-            listsProvider: context.read<ShoppingListsProvider>(),
           ),
-          update: (context, inventoryProvider, listsProvider, previous) =>
+          update: (context, inventoryProvider, previous) =>
               previous ??
               SuggestionsProvider(
                 inventoryProvider: inventoryProvider,
-                listsProvider: listsProvider,
               ),
         ),
 
