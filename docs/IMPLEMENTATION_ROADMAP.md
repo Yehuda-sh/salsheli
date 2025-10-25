@@ -1,7 +1,7 @@
 # 📋 תוכנית משימות - MemoZap
 
 > **תאריך:** 25/10/2025  
-> **גרסה:** 2.0 - מסלול 3 שלב 3.1 + 3.6 הושלמו עם טסטים! 🎉  
+> **גרסה:** 2.1 - מסלול 3 שלב 3.8 התחיל! SmartSuggestionsCard Tests הושלמו! 🧪  
 > **בסיס:** UX_REQUIREMENTS.md + TASK_SUPPORT_OPTIONS.md
 
 ---
@@ -462,24 +462,65 @@
 
 ---
 
-### שלב 3.8: Testing + Polish (1-2 ימים)
+### שלב 3.8: Testing + Polish (1-2 ימים) 🟡 בתהליך (40%)
 
-**מה לעשות:**
-1. Unit tests:
-   - SuggestionsService
-   - SuggestionsProvider
-   - Complete purchase logic
+#### ✅ Widget Tests - SmartSuggestionsCard (הושלם 25/10/2025 - ערב):
 
-2. Widget tests:
-   - SmartSuggestionsCard
-   - LastChanceBanner
-   - Active lists section
+**קובץ:**
+- ✅ `test/widgets/smart_suggestions_card_test.dart` - **15/15 טסטים עברו!**
 
-3. Manual testing:
-   - תרחישי משתמש מלאים
-   - המלצות + הוסף/דחה/מחק
-   - קנייה + סיום + עדכון מלאי
-   - הזדמנות אחרונה
+**מה נבדק:**
+1. ✅ **Loading State** - Skeleton screen עם shimmer
+2. ✅ **Error State** - הודעת שגיאה + כפתור Refresh
+3. ✅ **Empty State** - הודעת "אין המלצות" + כפתור עדכון מזווה
+4. ✅ **Content State:**
+   - הצגת 3 המלצות ראשונות
+   - Chip עם "+X נוספות" אם יש יותר
+   - כל המלצה עם שם + stock info
+5. ✅ **Actions:**
+   - כפתור הוסף → קורא ל-`addItemToList()`
+   - כפתור דחה → קורא ל-`dismissCurrentSuggestion()`
+   - SnackBar feedback על הוספה בהצלחה
+   - SnackBar feedback אם אין רשימה פעילה
+
+**תוצאות:**
+```bash
+flutter test test/widgets/smart_suggestions_card_test.dart
+00:02 +15: All tests passed! ✅
+```
+
+---
+
+#### ⏳ Widget Tests - הבא בתור:
+1. **LastChanceBanner Tests** - טרם התחיל
+   - Banner display
+   - Add action
+   - Skip action
+   - Integration עם SuggestionsProvider
+
+2. **ActiveListsSection Tests** - טרם התחיל
+   - רשימות פעילות מוצגות
+   - Navigation עובד
+   - Empty state
+   - Formatting נכון
+
+---
+
+#### ⏳ Unit Tests - טרם התחיל:
+- SuggestionsService tests
+- Complete purchase logic tests (integration)
+
+---
+
+#### ⏳ Manual Testing - טרם התחיל:
+- תרחישי משתמש מלאים
+- המלצות + הוסף/דחה/מחק
+- קנייה + סיום + עדכון מלאי
+- הזדמנות אחרונה
+
+---
+
+**⏱️ התקדמות:** 40% - 1 מתוך 3 Widget Tests הושלם
 
 ---
 
@@ -595,6 +636,18 @@
 ---
 
 ## 📈 היסטוריית עדכונים
+
+### v2.1 - 25/10/2025 (ערב)
+- 🧪 **מסלול 3 שלב 3.8 התחיל!** - SmartSuggestionsCard Tests הושלמו
+- ✅ Widget Tests: SmartSuggestionsCard - 15/15 טסטים עברו!
+  - ✅ Loading State
+  - ✅ Error State
+  - ✅ Empty State
+  - ✅ Content State (3 המלצות + Chip)
+  - ✅ Actions (Add/Dismiss + SnackBar)
+- 📄 CHANGELOG.md עודכן
+- 📄 IMPLEMENTATION_ROADMAP.md עודכן
+- ⏳ **הבא:** Widget Tests ל-LastChanceBanner + ActiveListsSection
 
 ### v2.0 - 25/10/2025 (צהריים)
 - 🧪 **מסלול 3 שלב 3.1 הושלם עם טסטים!** - Models + Logic + Testing

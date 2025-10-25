@@ -21,7 +21,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../models/shopping_list.dart';
 import '../../models/receipt.dart';
-import '../../models/suggestion.dart';
+import '../../models/smart_suggestion.dart';
 import '../../providers/suggestions_provider.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../core/ui_constants.dart';
@@ -62,7 +62,7 @@ class SmartSuggestionsCard extends StatelessWidget {
   /// Throws: Exception מ-provider (מטופל ב-try-catch)
   Future<void> _handleAddToList(
     BuildContext context,
-    Suggestion suggestion,
+    SmartSuggestion suggestion,
   ) async {
     _log('➡️ SmartSuggestionsCard: מנסה להוסיף "${suggestion.productName}" לרשימה');
     
@@ -84,7 +84,7 @@ class SmartSuggestionsCard extends StatelessWidget {
       final newItem = ReceiptItem(
         id: _uuid.v4(),
         name: suggestion.productName,
-        quantity: suggestion.suggestedQuantity,
+        quantity: suggestion.quantityNeeded,
       );
 
       await listsProvider.addItemToList(
@@ -125,15 +125,30 @@ class SmartSuggestionsCard extends StatelessWidget {
   ///
   /// [context] - BuildContext לגישה ל-SuggestionsProvider
   /// [suggestionId] - ID הייחודי של ההמלצה למחיקה
-  void _handleRemove(BuildContext context, String suggestionId) {
-    _log('➖ SmartSuggestionsCard: מסיר המלצה $suggestionId');
+  Future<void> _handleDismiss(BuildContext context) async {
+    _log('⏭️ SmartSuggestionsCard: דוחה המלצה נוכחית');
     
     final suggestionsProvider = context.read<SuggestionsProvider>();
-    suggestionsProvider.removeSuggestion(suggestionId);
+    await suggestionsProvider.dismissCurrentSuggestion();
     
     _showAnimatedSnackBar(
       context,
-      message: 'ההמלצה הוסרה',
+      message: 'ההמלצה נדחתה לשבוע',
+      icon: Icons.schedule,
+      backgroundColor: Colors.grey,
+      duration: const Duration(seconds: 2),
+    );
+  }
+
+  Future<void> _handleDelete(BuildContext context) async {
+    _log('❌ SmartSuggestionsCard: מוחק המלצה נוכחית');
+    
+    final suggestionsProvider = context.read<SuggestionsProvider>();
+    await suggestionsProvider.deleteCurrentSuggestion(null); // null = לצמיתות
+    
+    _showAnimatedSnackBar(
+      context,
+      message: 'ההמלצה נמחקה',
       icon: Icons.delete_outline,
       backgroundColor: Colors.grey,
       duration: const Duration(seconds: 2),
@@ -214,7 +229,7 @@ class SmartSuggestionsCard extends StatelessWidget {
         }
 
         // 2️⃣ 🆕 Error State
-        if (suggestionsProvider.hasError) {
+        if (suggestionsProvider.error != null) {
           return _buildErrorCard(context, suggestionsProvider);
         }
 
@@ -362,7 +377,7 @@ class SmartSuggestionsCard extends StatelessWidget {
             ),
             const SizedBox(height: kSpacingSmall),
             Text(
-              provider.errorMessage ?? 'משהו השתבש',
+              provider.error ?? 'משהו השתבש',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: cs.onSurfaceVariant,
               ),
@@ -373,8 +388,8 @@ class SmartSuggestionsCard extends StatelessWidget {
             // כפתור retry
             _AnimatedButton(
               onPressed: () {
-                _log('🔄 SmartSuggestionsCard: retry');
-                provider.retry();
+                _log('🔄 SmartSuggestionsCard: refreshing');
+                provider.refreshSuggestions();
               },
               child: ElevatedButton.icon(
                 onPressed: null, // ה-AnimatedButton מטפל ב-onPressed
@@ -533,7 +548,7 @@ class SmartSuggestionsCard extends StatelessWidget {
   /// [context] - BuildContext
   /// [suggestions] - רשימת ההמלצות
   /// Returns: Card widget עם 3 המלצות יותר + info
-  Widget _buildContentCard(BuildContext context, List<Suggestion> suggestions) {
+  Widget _buildContentCard(BuildContext context, List<SmartSuggestion> suggestions) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final topSuggestions = suggestions.take(3).toList();
@@ -583,7 +598,7 @@ class SmartSuggestionsCard extends StatelessWidget {
                 index: index,
                 suggestion: suggestion,
                 onAdd: () => _handleAddToList(context, suggestion),
-                onRemove: () => _handleRemove(context, suggestion.id),
+                onDismiss: () => _handleDismiss(context),
               );
             }),
 
@@ -794,16 +809,16 @@ class _AnimatedButtonState extends State<_AnimatedButton> {
 // 2. Animated Suggestion Item - Slide + Fade
 class _AnimatedSuggestionItem extends StatefulWidget {
   final int index;
-  final Suggestion suggestion;
+  final SmartSuggestion suggestion;
   final VoidCallback onAdd;
-  final VoidCallback onRemove;
+  final VoidCallback onDismiss;
 
   const _AnimatedSuggestionItem({
     super.key,
     required this.index,
     required this.suggestion,
     required this.onAdd,
-    required this.onRemove,
+    required this.onDismiss,
   });
 
   @override
@@ -901,7 +916,7 @@ class _AnimatedSuggestionItemState extends State<_AnimatedSuggestionItem>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'כמות מוצעת: ${widget.suggestion.suggestedQuantity}',
+                      widget.suggestion.stockDescription,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: cs.onSurfaceVariant,
                       ),
@@ -921,12 +936,12 @@ class _AnimatedSuggestionItemState extends State<_AnimatedSuggestionItem>
                     onPressed: widget.onAdd,
                     tooltip: 'הוסף לרשימה',
                   ),
-                  // כפתור הסרה
+                  // כפתור דחייה
                   _AnimatedIconButton(
-                    icon: Icons.close,
-                    color: cs.error,
-                    onPressed: widget.onRemove,
-                    tooltip: 'הסר המלצה',
+                    icon: Icons.schedule,
+                    color: cs.outline,
+                    onPressed: widget.onDismiss,
+                    tooltip: 'דחה לשבוע',
                   ),
                 ],
               ),

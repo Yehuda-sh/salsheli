@@ -1,6 +1,6 @@
 # 🕒 CHANGELOG - MemoZap Project
 
-> **Updated:** 25/10/2025 (צהריים)  
+> **Updated:** 25/10/2025 (ערב)  
 > **Purpose:** Track main documentation, logic, and structural updates for AI coordination.
 
 ---
@@ -202,11 +202,39 @@
 
 ---
 
+### ✅ מסלול 3 - שלב 3.8: Testing + Polish - 40% Complete
+
+#### Widget Tests (🟡 בתהליך):
+- ✅ **SmartSuggestionsCard Tests** - 15/15 הושלם! (25/10/2025 - ערב)
+  - ✅ Loading State - Skeleton screen
+  - ✅ Error State - Error message + Refresh button
+  - ✅ Empty State - Empty message + CTA button
+  - ✅ Content State - 3 המלצות + Chip "+X נוספות"
+  - ✅ Actions - Add/Dismiss/Delete + SnackBar feedback
+  - ✅ קובץ: `test/widgets/smart_suggestions_card_test.dart`
+
+- ⏳ **LastChanceBanner Tests** - טרם התחיל
+- ⏳ **ActiveListsSection Tests** - טרם התחיל
+
+#### Unit Tests (⏳ ממתין):
+- ⏳ SuggestionsService tests
+- ⏳ Complete purchase logic tests
+
+#### Manual Testing (⏳ ממתין):
+- ⏳ תרחישי משתמש מלאים
+- ⏳ המלצות + הוסף/דחה/מחק
+- ⏳ קנייה + סיום + עדכון מלאי
+- ⏳ הזדמנות אחרונה
+
+#### ⏱️ **התקדמות:** 40% (1 מתוך 3 Widget Tests)
+
+---
+
 ### 🔜 Next Steps:
 
-**מסלול 3 - שלב 3.8:** Testing + Polish (1-2 ימים)
-- Unit tests: SuggestionsService, SuggestionsProvider, Complete purchase logic
-- Widget tests: SmartSuggestionsCard, LastChanceBanner, Active lists section
+**מסלול 3 - שלב 3.8:** המשך Testing + Polish
+- Widget tests: LastChanceBanner, ActiveListsSection
+- Unit tests נוספים: SuggestionsService, Complete purchase logic
 - Manual testing: תרחישי משתמש מלאים
 
 ---
