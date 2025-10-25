@@ -187,7 +187,7 @@ class SuggestionsService {
   /// דוחה את ההמלצה למשך זמן מסוים (ברירת מחדל: שבוע)
   static SmartSuggestion dismissSuggestion(
     SmartSuggestion suggestion, {
-    Duration duration = defaultDismissalDuration,
+    const Duration duration = defaultDismissalDuration,
   }) {
     final dismissedUntil = DateTime.now().add(duration);
 

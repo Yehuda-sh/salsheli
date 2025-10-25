@@ -332,18 +332,21 @@ class InventoryProvider with ChangeNotifier {
     return filtered;
   }
 
-  /// מחזיר מוצרים שאוזלים (מתחת ל-2 יחידות)
+  /// מחזיר מוצרים שאוזלים (מתחת לסף מוגדר)
+  /// 
+  /// Parameters:
+  /// - threshold: סף מינימום (default: 2)
   /// 
   /// Example:
   /// ```dart
-  /// final lowStock = provider.getLowStockItems();
+  /// final lowStock = provider.getLowStockItems(); // threshold=2
+  /// final veryLowStock = provider.getLowStockItems(threshold: 1);
   /// ```
-  List<InventoryItem> getLowStockItems() {
-    const threshold = 2; // סף קבוע - מתחת ל-2 יחידות
+  List<InventoryItem> getLowStockItems({int threshold = 2}) {
     final lowStock = _items.where((item) {
       return item.quantity <= threshold;
     }).toList();
-    debugPrint('📦 getLowStockItems: ${lowStock.length} מוצרים אוזלים');
+    debugPrint('📦 getLowStockItems(threshold: $threshold): ${lowStock.length} מוצרים');
     return lowStock;
   }
 
@@ -394,20 +397,45 @@ class InventoryProvider with ChangeNotifier {
 
   /// עדכון מלאי אוטומטי אחרי קנייה
   /// 
+  /// עובד ב-batch mode - ממשיך גם אם חלק נכשל
+  /// 
+  /// Returns: מספר פריטים שעודכנו בהצלחה
+  /// 
   /// Example:
   /// ```dart
-  /// await provider.updateStockAfterPurchase(checkedItems);
+  /// final successCount = await provider.updateStockAfterPurchase(checkedItems);
+  /// print('עודכנו $successCount מתוך ${checkedItems.length} פריטים');
   /// ```
-  Future<void> updateStockAfterPurchase(List<UnifiedListItem> purchasedItems) async {
+  Future<int> updateStockAfterPurchase(List<UnifiedListItem> purchasedItems) async {
     debugPrint('🛍️ updateStockAfterPurchase: ${purchasedItems.length} פריטים');
+    
+    int successCount = 0;
+    int failureCount = 0;
+    final failures = <String>[];
     
     for (final item in purchasedItems) {
       if (item.type == ItemType.product && item.quantity != null) {
-        await addStock(item.name, item.quantity!);
+        try {
+          await addStock(item.name, item.quantity!);
+          successCount++;
+          debugPrint('   ✅ ${item.name}: +${item.quantity}');
+        } catch (e) {
+          failureCount++;
+          failures.add(item.name);
+          debugPrint('   ❌ ${item.name}: שגיאה - $e');
+        }
       }
     }
     
-    debugPrint('✅ מלאי עודכן אוטומטית');
+    if (failureCount > 0) {
+      _errorMessage = 'עודכנו $successCount פריטים, נכשלו $failureCount: ${failures.join(", ")}';
+      notifyListeners();
+      debugPrint('⚠️ updateStockAfterPurchase: נכשלו $failureCount פריטים');
+    } else {
+      debugPrint('✅ מלאי עודכן אוטומטית: $successCount/$successCount');
+    }
+    
+    return successCount;
   }
 
   /// מחזיר פריטים לפי מיקום

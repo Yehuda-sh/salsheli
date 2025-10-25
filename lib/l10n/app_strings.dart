@@ -563,6 +563,7 @@ class _HomeStrings {
 
   // Active Lists Card
   String get otherActiveLists => 'רשימות פעילות נוספות';
+  String get noOtherActiveLists => 'אין רשימות נוספות כרגע';
   String get allLists => 'כל הרשימות';
   String itemsCount(int count) => '$count פריטים';
 

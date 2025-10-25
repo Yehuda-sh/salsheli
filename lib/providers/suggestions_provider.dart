@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../models/smart_suggestion.dart';
 import '../models/enums/suggestion_status.dart';
 import '../services/suggestions_service.dart';
@@ -7,19 +8,58 @@ import 'inventory_provider.dart';
 /// 💡 Provider לניהול המלצות חכמות
 /// 
 /// מנהל תור המלצות מהמזווה ומתעדכן אוטומטית
+/// 
+/// Persistence: מוצרים מוחרגים נשמרים ב-Hive
 class SuggestionsProvider with ChangeNotifier {
   final InventoryProvider _inventoryProvider;
+  static const String _excludedProductsBoxName = 'excluded_products';
 
   List<SmartSuggestion> _suggestions = [];
   SmartSuggestion? _currentSuggestion;
   bool _isLoading = false;
   String? _error;
-  Set<String> _excludedProducts = {}; // מוצרים שנמחקו לצמיתות
+  Set<String> _excludedProducts = {}; // מוצרים שנמחקו לצמיתות (persistent)
 
   SuggestionsProvider({
     required InventoryProvider inventoryProvider,
   })  : _inventoryProvider = inventoryProvider {
     _init();
+  }
+
+  // ========== Persistence ==========
+
+  /// 💾 טעינת מוצרים מוחרגים מ-Hive
+  Future<void> _loadExcludedProducts() async {
+    try {
+      if (!Hive.isBoxOpen(_excludedProductsBoxName)) {
+        await Hive.openBox<String>(_excludedProductsBoxName);
+      }
+      
+      final box = Hive.box<String>(_excludedProductsBoxName);
+      _excludedProducts = box.values.toSet();
+      
+      debugPrint('💾 [SuggestionsProvider] נטענו ${_excludedProducts.length} מוצרים מוחרגים');
+    } catch (e) {
+      debugPrint('❌ [SuggestionsProvider] שגיאה בטעינת excluded products: $e');
+      _excludedProducts = {};
+    }
+  }
+
+  /// 💾 שמירת מוצרים מוחרגים ב-Hive
+  Future<void> _saveExcludedProducts() async {
+    try {
+      if (!Hive.isBoxOpen(_excludedProductsBoxName)) {
+        await Hive.openBox<String>(_excludedProductsBoxName);
+      }
+      
+      final box = Hive.box<String>(_excludedProductsBoxName);
+      await box.clear();
+      await box.addAll(_excludedProducts);
+      
+      debugPrint('💾 [SuggestionsProvider] נשמרו ${_excludedProducts.length} מוצרים מוחרגים');
+    } catch (e) {
+      debugPrint('❌ [SuggestionsProvider] שגיאה בשמירת excluded products: $e');
+    }
   }
 
   // ========== Getters ==========
@@ -34,13 +74,33 @@ class SuggestionsProvider with ChangeNotifier {
 
   // ========== Initialization ==========
 
-  void _init() {
+  void _init() async {
+    // טעינת מוצרים מוחרגים מ-Hive
+    await _loadExcludedProducts();
+    
     // האזנה לשינויים במלאי
     _inventoryProvider.addListener(_onInventoryChanged);
     
     // טעינה ראשונית
     refreshSuggestions();
   }
+
+  /// 🗑️ מחיקת מוצר מרשימת המוחרגים (שחזור המלצות)
+  /// 
+  /// Example:
+  /// ```dart
+  /// await provider.removeFromExcluded('חלב');
+  /// ```
+  Future<void> removeFromExcluded(String productName) async {
+    if (_excludedProducts.remove(productName)) {
+      await _saveExcludedProducts();
+      debugPrint('🗑️ [SuggestionsProvider] מוצר הוסר מהמוחרגים: $productName');
+      await refreshSuggestions();
+    }
+  }
+
+  /// 📋 קבלת רשימת מוצרים מוחרגים
+  Set<String> get excludedProducts => Set.unmodifiable(_excludedProducts);
 
   @override
   void dispose() {
@@ -170,9 +230,10 @@ class SuggestionsProvider with ChangeNotifier {
         duration: duration,
       );
       
-      // אם מחיקה קבועה - הוסף לרשימת מוצרים מוחרגים
+      // אם מחיקה קבועה - הוסף לרשימת מוצרים מוחרגים + שמור
       if (duration == null) {
         _excludedProducts.add(_currentSuggestion!.productName);
+        await _saveExcludedProducts(); // 💾 שמירה persistent
       }
       
       // עדכון ברשימה המקומית
