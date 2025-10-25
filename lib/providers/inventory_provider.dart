@@ -332,15 +332,16 @@ class InventoryProvider with ChangeNotifier {
     return filtered;
   }
 
-  /// מחזיר מוצרים שאוזלים (מתחת ל-threshold)
+  /// מחזיר מוצרים שאוזלים (מתחת ל-2 יחידות)
   /// 
   /// Example:
   /// ```dart
   /// final lowStock = provider.getLowStockItems();
   /// ```
   List<InventoryItem> getLowStockItems() {
+    const threshold = 2; // סף קבוע - מתחת ל-2 יחידות
     final lowStock = _items.where((item) {
-      return item.currentStock <= item.threshold;
+      return item.quantity <= threshold;
     }).toList();
     debugPrint('📦 getLowStockItems: ${lowStock.length} מוצרים אוזלים');
     return lowStock;
@@ -368,11 +369,11 @@ class InventoryProvider with ChangeNotifier {
       if (existingItem != null) {
         // עדכן מלאי - חיבור!
         final updatedItem = existingItem.copyWith(
-          currentStock: existingItem.currentStock + quantity,
+          quantity: existingItem.quantity + quantity,
         );
         
-        await _repository.updateItem(updatedItem, householdId);
-        debugPrint('✅ מלאי עודכן: ${existingItem.currentStock} -> ${updatedItem.currentStock}');
+        await _repository.saveItem(updatedItem, householdId);
+        debugPrint('✅ מלאי עודכן: ${existingItem.quantity} -> ${updatedItem.quantity}');
         
         // עדכון local
         final index = _items.indexWhere((i) => i.id == existingItem.id);

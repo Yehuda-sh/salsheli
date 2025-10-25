@@ -1,6 +1,6 @@
 # 🕒 CHANGELOG - MemoZap Project
 
-> **Updated:** 25/10/2025 (בוקר)  
+> **Updated:** 25/10/2025 (צהריים)  
 > **Purpose:** Track main documentation, logic, and structural updates for AI coordination.
 
 ---
@@ -96,8 +96,18 @@
   - ✅ updateStockAfterPurchase()
   - ✅ addStock()
 
-#### ⏳ Pending Action:
-- 📦 **build_runner** - להריץ ידנית:
+#### ✅ Testing Complete:
+- 🧪 **Unit Tests** - 15/15 טסטים עברו בהצלחה!
+  - ✅ SuggestionsProvider - כל הפונקציות
+  - ✅ refreshSuggestions - יצירה וטעינה
+  - ✅ addCurrentSuggestion - הוספה לרשימה
+  - ✅ dismissCurrentSuggestion - דחייה לשבוע
+  - ✅ deleteCurrentSuggestion - מחיקה זמנית/קבועה
+  - ✅ Error handling - תפיסת שגיאות
+  - ✅ ChangeNotifier - notifyListeners
+
+#### 📦 Build Complete:
+- ✅ **build_runner** - רץ בהצלחה:
   ```bash
   cd C:\projects\salsheli
   flutter pub run build_runner build --delete-conflicting-outputs

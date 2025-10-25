@@ -644,7 +644,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
           ..._buildListCards(limitedHistory, isActive: false),
           
           // כפתור "טען עוד"
-          if (hasMoreHistory) ..[
+          if (hasMoreHistory) ...[
             const SizedBox(height: kSpacingMedium),
             Center(
               child: StickyButtonSmall(
