@@ -194,17 +194,35 @@ class LastChanceBanner extends StatelessWidget {
   }
 
   /// טיפול בלחיצה על "הבא"
-  void _onNext(BuildContext context, SuggestionsProvider suggestionsProvider) {
-    suggestionsProvider.dismissCurrentSuggestion();
+  Future<void> _onNext(
+    BuildContext context,
+    SuggestionsProvider suggestionsProvider,
+  ) async {
+    try {
+      await suggestionsProvider.dismissCurrentSuggestion();
 
-    // הצגת הודעה
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('הדחיתי את ההמלצה'),
-        duration: Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+      if (context.mounted) {
+        // הצגת הודעה
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('הדחיתי את ההמלצה'),
+            duration: Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('שגיאה: $e'),
+            duration: const Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   /// טיפול בלחיצה על "הוסף"

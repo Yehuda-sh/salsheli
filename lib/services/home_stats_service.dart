@@ -449,7 +449,7 @@ class HomeStatsService {
 
       // ספור פריטים שנקנו (עם כמות > 0 או isChecked = true)
       final purchased = list.items.where((item) {
-        return item.quantity > 0 || item.isChecked;
+        return (item.quantity ?? 0) > 0 || item.isChecked;
       }).length;
       totalPurchased += purchased;
     }

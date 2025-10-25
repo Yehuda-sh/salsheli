@@ -22,15 +22,16 @@
 // );
 // ```
 
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/shopping_lists_provider.dart';
+
 import '../../core/status_colors.dart';
 import '../../core/ui_constants.dart';
+import '../../providers/shopping_lists_provider.dart';
 import '../../widgets/common/notebook_background.dart';
-import '../../widgets/common/sticky_note.dart';
 import '../../widgets/common/sticky_button.dart';
+import '../../widgets/common/sticky_note.dart';
 
 // 🔧 Wrapper ללוגים - פועל רק ב-debug mode
 void _log(String message) {
@@ -177,13 +178,13 @@ class ShoppingSummaryScreen extends StatelessWidget {
                         radius: 48,
                         backgroundColor: cs.primaryContainer,
                         child: const Text(
-                          "🎉",
-                          style: const TextStyle(fontSize: 40),
+                          '🎉',
+                          style: TextStyle(fontSize: 40),
                         ),
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        "קנייה הושלמה בהצלחה!",
+                        'קנייה הושלמה בהצלחה!',
                         style: TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
@@ -209,10 +210,10 @@ class ShoppingSummaryScreen extends StatelessWidget {
                     rotation: -0.02,
                     child: _SummaryCard(
                       icon: Icons.account_balance_wallet,
-                      title: "תקציב",
-                      value: "₪${spentAmount.toStringAsFixed(2)}",
+                      title: 'תקציב',
+                      value: '₪${spentAmount.toStringAsFixed(2)}',
                       subtitle: budget > 0
-                          ? "${budgetDiff >= 0 ? 'נשאר' : 'חריגה'}: ₪${budgetDiff.abs().toStringAsFixed(2)}"
+                          ? '${budgetDiff >= 0 ? 'נשאר' : 'חריגה'}: ₪${budgetDiff.abs().toStringAsFixed(2)}'
                           : null,
                       color: budgetDiff >= 0 ? StatusColors.success : StatusColors.error,
                     ),
@@ -226,9 +227,9 @@ class ShoppingSummaryScreen extends StatelessWidget {
                     rotation: 0.015,
                     child: _SummaryCard(
                       icon: Icons.trending_up,
-                      title: "אחוז הצלחה",
-                      value: "${successRate.toStringAsFixed(1)}%",
-                      subtitle: "$purchased מתוך $total פריטים נרכשו",
+                      title: 'אחוז הצלחה',
+                      value: '${successRate.toStringAsFixed(1)}%',
+                      subtitle: '$purchased מתוך $total פריטים נרכשו',
                       color: StatusColors.info,
                     ),
                   ),
@@ -244,8 +245,8 @@ class ShoppingSummaryScreen extends StatelessWidget {
                           rotation: -0.01,
                           child: _StatBox(
                             icon: Icons.check_circle,
-                            label: "נרכשו",
-                            value: "$purchased",
+                            label: 'נרכשו',
+                            value: '$purchased',
                             color: StatusColors.success,
                           ),
                         ),
@@ -257,8 +258,8 @@ class ShoppingSummaryScreen extends StatelessWidget {
                           rotation: 0.01,
                           child: _StatBox(
                             icon: Icons.cancel,
-                            label: "חסרו",
-                            value: "$missing",
+                            label: 'חסרו',
+                            value: '$missing',
                             color: StatusColors.error,
                           ),
                         ),
@@ -270,7 +271,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
 
                   // 🔙 כפתור חזרה
                   StickyButton(
-                    label: "חזרה לדף הבית",
+                    label: 'חזרה לדף הבית',
                     icon: Icons.home,
                     color: kStickyYellow,
                     onPressed: () {
@@ -317,7 +318,7 @@ class _SummaryCard extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 28,
-            backgroundColor: color.withValues(alpha: 0.2),
+            backgroundColor: color.withValues(alpha: 0.2 as double),
             child: Icon(icon, color: color, size: 28),
           ),
           const SizedBox(width: 16),
