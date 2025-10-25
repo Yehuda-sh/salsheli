@@ -33,7 +33,7 @@
 **📖 Read in this order:**
 
 1. **README.md** (this file) - Project overview
-2. **[docs/ai/MEMOZAP_CORE_GUIDE.md](docs/ai/MEMOZAP_CORE_GUIDE.md)** - Essential context & paths
+2. **[docs/GUIDE.md](docs/GUIDE.md)** - Core operational guide
 3. **[docs/CHANGELOG.md](docs/CHANGELOG.md)** - Recent changes & `[In Progress]` work
 4. **Specific guide** - Pick from table below based on your task
 
@@ -42,7 +42,7 @@
 **🤖 Starting a new session? Follow this protocol:**
 
 1. ✅ Read `README.md` (this file)
-2. ✅ Read `docs/ai/MEMOZAP_CORE_GUIDE.md` (base context)
+2. ✅ Read `docs/GUIDE.md` (core operational guide)
 3. ✅ Check `docs/CHANGELOG.md` → look for `[In Progress]` section
 4. ✅ Load memory: `read_graph()` or `search_nodes("last checkpoint")`
 5. ✅ Ready to work! 🎯
@@ -75,32 +75,27 @@
 
 ## 📚 Documentation
 
-### Core Documentation (11 Files)
+### Core Documentation (6 Files)
 
 | Document | Purpose | When to Read |
 |----------|---------|--------------|
-| **[MEMOZAP_CORE_GUIDE.md](docs/ai/MEMOZAP_CORE_GUIDE.md)** | Base context, paths, principles | 🔴 Always 2nd (after README) |
-| **[MEMOZAP_DEVELOPER_GUIDE.md](docs/ai/MEMOZAP_DEVELOPER_GUIDE.md)** | Code patterns, architecture, testing | Before coding/reviewing |
-| **[MEMOZAP_DESIGN_GUIDE.md](docs/ai/MEMOZAP_DESIGN_GUIDE.md)** | Sticky Notes Design System | Before UI work |
-| **[MEMOZAP_UI_REQUIREMENTS.md](docs/ai/MEMOZAP_UI_REQUIREMENTS.md)** | Detailed UI/UX requirements | Before screen development |
-| **[MEMOZAP_MCP_GUIDE.md](docs/ai/MEMOZAP_MCP_GUIDE.md)** | MCP tools reference & protocols | Before using MCP tools |
-| **[MEMOZAP_TASKS_AND_SHARING.md](docs/ai/MEMOZAP_TASKS_AND_SHARING.md)** | Task system & sharing logic | For lists/permissions work |
-| **[MEMOZAP_SECURITY_AND_RULES.md](docs/ai/MEMOZAP_SECURITY_AND_RULES.md)** | Security patterns & Firebase rules | For auth/permissions |
+| **[GUIDE.md](docs/GUIDE.md)** | Core operational guide (Project + Files + Memory + MCP) | 🔴 Always 2nd (after README) |
+| **[CODE.md](docs/CODE.md)** | Code patterns, architecture, testing, mistakes | Before coding/reviewing |
+| **[DESIGN.md](docs/DESIGN.md)** | Sticky Notes design system (RTL + Components) | Before UI work |
+| **[TECH.md](docs/TECH.md)** | Firebase, security, models, dependencies | Before backend work |
 | **[LESSONS_LEARNED.md](docs/LESSONS_LEARNED.md)** | Common mistakes & solutions | ⚠️ Before risky changes |
 | **[CHANGELOG.md](docs/CHANGELOG.md)** | Project history + `[In Progress]` | Check for current work |
-| **[IMPLEMENTATION_ROADMAP.md](docs/IMPLEMENTATION_ROADMAP.md)** | Feature planning & priorities | For planning new work |
-| **[TASK_SUPPORT_OPTIONS.md](docs/TASK_SUPPORT_OPTIONS.md)** | Task support features | For task functionality |
 
 ### By Task Type
 
 | Need | Read These | Priority Order |
 |------|-----------|---------------|
-| **Write code** | DEVELOPER_GUIDE + CORE_GUIDE | 1. CORE, 2. DEVELOPER |
-| **Design UI** | DESIGN_GUIDE + UI_REQUIREMENTS | 1. DESIGN, 2. UI_REQ |
-| **Use MCP tools** | MCP_GUIDE + CORE_GUIDE | 1. CORE, 2. MCP |
-| **Add permissions** | TASKS_AND_SHARING + SECURITY_AND_RULES | 1. TASKS, 2. SECURITY |
-| **Build feature** | DEVELOPER + UI_REQ + DESIGN | 1. DEVELOPER, 2. UI, 3. DESIGN |
-| **Debug issues** | LESSONS_LEARNED + DEVELOPER | 1. LESSONS, 2. DEVELOPER |
+| **Write code** | CODE.md + GUIDE.md | 1. GUIDE, 2. CODE |
+| **Design UI** | DESIGN.md + GUIDE.md | 1. GUIDE, 2. DESIGN |
+| **Use MCP tools** | GUIDE.md (includes MCP) | 1. GUIDE |
+| **Firebase/Security** | TECH.md + CODE.md | 1. TECH, 2. CODE |
+| **Build feature** | GUIDE + CODE + DESIGN + TECH | 1. GUIDE, 2. CODE, 3. DESIGN, 4. TECH |
+| **Debug issues** | LESSONS_LEARNED + CODE | 1. LESSONS_LEARNED, 2. CODE |
 
 ---
 
@@ -130,7 +125,7 @@
 - 🗄️ **17 repositories**
 - 🎨 **30+ screens**
 - 🧩 **25+ widgets**
-- 📖 **11 documentation files** (focused & practical)
+- 📖 **6 documentation files** (~1,600 lines - condensed & optimized)
 - 🌐 **Full Hebrew RTL support**
 
 ---
@@ -177,19 +172,13 @@ memozap/
 │   └── main.dart          # App entry point
 ├── test/                  # 50+ tests
 ├── assets/                # Images, fonts
-└── docs/                  # Documentation
-    ├── ai/                # AI assistant guides (7 files)
-    │   ├── MEMOZAP_CORE_GUIDE.md
-    │   ├── MEMOZAP_DEVELOPER_GUIDE.md
-    │   ├── MEMOZAP_DESIGN_GUIDE.md
-    │   ├── MEMOZAP_UI_REQUIREMENTS.md
-    │   ├── MEMOZAP_MCP_GUIDE.md
-    │   ├── MEMOZAP_TASKS_AND_SHARING.md
-    │   └── MEMOZAP_SECURITY_AND_RULES.md
-    ├── CHANGELOG.md
-    ├── IMPLEMENTATION_ROADMAP.md
-    ├── LESSONS_LEARNED.md
-    └── TASK_SUPPORT_OPTIONS.md
+└── docs/                  # Documentation (6 files)
+    ├── GUIDE.md           # Core operational guide (400 lines)
+    ├── CODE.md            # Code patterns & architecture (500 lines)
+    ├── DESIGN.md          # Sticky Notes design system (300 lines)
+    ├── TECH.md            # Firebase, security, models (400 lines)
+    ├── LESSONS_LEARNED.md # Common mistakes & solutions
+    └── CHANGELOG.md       # Project history + [In Progress]
 ```
 
 ---
@@ -260,10 +249,11 @@ flutter build ios --release  # iOS
 ## 🤝 Contributing
 
 ### Getting Started
-1. Read [docs/ai/MEMOZAP_CORE_GUIDE.md](docs/ai/MEMOZAP_CORE_GUIDE.md) for project context
-2. Check [docs/ai/MEMOZAP_DEVELOPER_GUIDE.md](docs/ai/MEMOZAP_DEVELOPER_GUIDE.md) for code patterns
-3. Follow [docs/ai/MEMOZAP_DESIGN_GUIDE.md](docs/ai/MEMOZAP_DESIGN_GUIDE.md) for UI/UX
-4. Review [docs/LESSONS_LEARNED.md](docs/LESSONS_LEARNED.md) to avoid common mistakes
+1. Read [docs/GUIDE.md](docs/GUIDE.md) for project context & MCP tools
+2. Check [docs/CODE.md](docs/CODE.md) for code patterns & architecture
+3. Follow [docs/DESIGN.md](docs/DESIGN.md) for UI/UX guidelines
+4. Review [docs/TECH.md](docs/TECH.md) for Firebase & security
+5. Check [docs/LESSONS_LEARNED.md](docs/LESSONS_LEARNED.md) to avoid common mistakes
 
 ### Code Style
 - ✅ Run `dart format lib/ -w` before commit
