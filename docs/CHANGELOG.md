@@ -1,6 +1,6 @@
 # 🕒 CHANGELOG - MemoZap Project
 
-> **Updated:** 24/10/2025  
+> **Updated:** 24/10/2025 (ערב)  
 > **Purpose:** Track main documentation, logic, and structural updates for AI coordination.
 
 ---
@@ -9,7 +9,7 @@
 
 ### Major Features Completed
 
-#### ✅ Mסלול 1: Tasks + Products (Hybrid) - 100% Complete
+#### ✅ מסלול 1: Tasks + Products (Hybrid) - 100% Complete
 - 🧩 **UnifiedListItem model** - supports mixed products + tasks in one list
 - 📋 **ItemType enum** - distinguishes between product and task
 - 🎨 **UI updates** - shopping_list_details_screen.dart now shows both types
@@ -69,28 +69,84 @@
 
 ---
 
-## 🚧 v2.9 - [In Progress] 24/10/2025
+## 🚧 v2.9 - [In Progress] 24/10/2025 (ערב)
 
-### מסלול 3: UX חדש - שלב 3.1 (Models + Logic) - 🟡 50% Complete
+### ✅ מסלול 3 - שלב 3.1: Models + Logic - 100% Complete
 
-#### ✅ Completed:
+#### Models & Services (✅ הושלם):
 - 📝 **SuggestionStatus enum** - pending/added/dismissed/deleted
-- 🧩 **SmartSuggestion model** - advanced suggestion with stock tracking
-- 🧠 **SuggestionsService** - generates suggestions from inventory
-- 🧪 **Unit tests** - comprehensive tests for model and service
-- ⏱️ **Started:** 24/10/2025
+- 🧩 **SmartSuggestion model** - מודל מתקדם עם מעקב מלאי
+- 🧠 **SuggestionsService** - יצירת המלצות מהמזווה (static methods)
+- 🧪 **Unit tests** - בדיקות מקיפות למודל ול-service
 
-#### 🟡 In Progress:
-- 📦 Running build_runner to generate JSON serialization
-- 🔄 Next: Complete Day 1-2 tasks
+#### Providers (✅ הושלם):
+- 🔧 **SuggestionsProvider** - תוקן והותאם ל-static methods
+  - ✅ refreshSuggestions()
+  - ✅ addCurrentSuggestion()
+  - ✅ dismissCurrentSuggestion()
+  - ✅ deleteCurrentSuggestion()
+  - ✅ _excludedProducts set (למוצרים שנמחקו לצמיתות)
+- ✅ **ShoppingListsProvider** - כבר מוכן
+  - ✅ activeLists getter
+  - ✅ completedLists getter
+  - ✅ completeList()
+  - ✅ getUnpurchasedItems()
+- ✅ **InventoryProvider** - כבר מוכן
+  - ✅ getLowStockItems()
+  - ✅ updateStockAfterPurchase()
+  - ✅ addStock()
 
-#### ⏳ Remaining:
-- ShoppingList status field update (if needed)
-- Provider layer integration (Day 2)
-- UI components (Days 3-8)
+#### ⏳ Pending Action:
+- 📦 **build_runner** - להריץ ידנית:
+  ```bash
+  cd C:\projects\salsheli
+  flutter pub run build_runner build --delete-conflicting-outputs
+  ```
+
+#### ⏱️ **Completed:** 24/10/2025 (ערב - 1 יום)
 
 ---
 
-**Next planned version:** v3.0 — מסלול 3 (UX חדש: מסך ראשי + המלצות חכמות - Full)  
+### ✅ מסלול 3 - שלב 3.3: UI Components - 100% Complete
+
+#### Widgets (✅ הושלם):
+- 🎨 **SmartSuggestionsCard** - כרטיס המלצות חכמות עם 3 כפתורים
+  - ✅ כפתור הוסף → מוסיף לרשימה + טוען המלצה הבאה
+  - ✅ כפתור דחה → דוחה לשבוע הבא + טוען המלצה הבאה
+  - ✅ כפתור מחק → פותח dialog למחיקה לצמיתות
+- 📋 **ActiveListsSection** - רשימת רשימות פעילות
+  - ✅ הצגת רשימות נוספות (מלבד ה-upcoming)
+  - ✅ כל רשימה clickable לניווט
+  - ✅ עיצוב Sticky Note ירוק
+
+#### Dashboard Integration (✅ הושלם):
+- ✅ **home_dashboard_screen.dart** - עודכן להשתמש בwidgets החדשים
+  - ✅ SmartSuggestionsCard מוטמע
+  - ✅ ActiveListsSection מוטמע
+  - ✅ הוסר _ActiveListsCard (ישן)
+  - ✅ הוסר _DismissibleListTile (ישן)
+  - ✅ אנימציות .animate() על כל הwidgets
+
+#### ⏳ Pending Action:
+- 📦 **build_runner** - להריץ ידנית (אותו כמו בשלב 3.1)
+- 🧪 **בדיקה ידנית** - להריץ את האפליקציה ולבדוק
+
+#### ⏱️ **Completed:** 24/10/2025 (לילה - 1 יום)
+
+---
+
+### 🔜 Next Steps:
+
+**מסלול 3 - שלב 3.4:** הזדמנות אחרונה (1 יום)
+- LastChanceBanner widget
+- Integration עם active_shopping_screen
+
+**מסלול 3 - שלב 3.5:** מסך רשימות (1 יום)
+- עדכון shopping_lists_screen
+- פעילות + היסטוריה ביחד
+
+---
+
+**Next planned version:** v3.0 — מסלול 3 מלא (מסך ראשי + המלצות חכמות)  
 **Maintainer:** MemoZap AI Documentation System  
 **Location:** `C:\projects\salsheli\docs\CHANGELOG.md`

@@ -1,26 +1,24 @@
 import 'package:flutter/foundation.dart';
-import 'package:memozap/models/suggestions/smart_suggestion.dart';
-import 'package:memozap/models/suggestions/suggestion_status.dart';
-import 'package:memozap/services/suggestions/suggestions_service.dart';
-import 'package:memozap/providers/inventory_provider.dart';
+import '../models/smart_suggestion.dart';
+import '../models/enums/suggestion_status.dart';
+import '../services/suggestions_service.dart';
+import 'inventory_provider.dart';
 
 /// 💡 Provider לניהול המלצות חכמות
 /// 
 /// מנהל תור המלצות מהמזווה ומתעדכן אוטומטית
 class SuggestionsProvider with ChangeNotifier {
-  final SuggestionsService _service;
   final InventoryProvider _inventoryProvider;
 
   List<SmartSuggestion> _suggestions = [];
   SmartSuggestion? _currentSuggestion;
   bool _isLoading = false;
   String? _error;
+  Set<String> _excludedProducts = {}; // מוצרים שנמחקו לצמיתות
 
   SuggestionsProvider({
-    required SuggestionsService service,
     required InventoryProvider inventoryProvider,
-  })  : _service = service,
-        _inventoryProvider = inventoryProvider {
+  })  : _inventoryProvider = inventoryProvider {
     _init();
   }
 
@@ -66,22 +64,14 @@ class SuggestionsProvider with ChangeNotifier {
 
       final inventoryItems = _inventoryProvider.items;
       
-      // יצירת המלצות חדשות
-      _suggestions = await _service.generateSuggestions(inventoryItems);
-      
-      // עדכון המלצות קיימות
-      if (_suggestions.isNotEmpty) {
-        await _service.updateSuggestionsFromInventory(
-          _suggestions,
-          inventoryItems,
-        );
-      }
+      // יצירת המלצות חדשות (static method)
+      _suggestions = SuggestionsService.generateSuggestions(
+        inventoryItems: inventoryItems,
+        excludedProducts: _excludedProducts,
+      );
 
-      // ניקוי ישנות
-      await _service.cleanupOldSuggestions(_suggestions);
-
-      // טעינת המלצה נוכחית
-      _currentSuggestion = _service.getNextSuggestion(_suggestions);
+      // טעינת המלצה נוכחית (static method)
+      _currentSuggestion = SuggestionsService.getNextSuggestion(_suggestions);
 
       debugPrint('💡 [SuggestionsProvider] רענון הושלם: ${_suggestions.length} המלצות');
       debugPrint('💡 [SuggestionsProvider] המלצה נוכחית: ${_currentSuggestion?.productName ?? "אין"}');
@@ -95,7 +85,7 @@ class SuggestionsProvider with ChangeNotifier {
   }
 
   /// ➕ הוספת המלצה נוכחית לרשימה
-  Future<void> addCurrentSuggestion() async {
+  Future<void> addCurrentSuggestion(String listId) async {
     if (_currentSuggestion == null) {
       debugPrint('⚠️ [SuggestionsProvider] אין המלצה נוכחית להוספה');
       return;
@@ -104,15 +94,16 @@ class SuggestionsProvider with ChangeNotifier {
     try {
       debugPrint('➕ [SuggestionsProvider] מוסיף המלצה: ${_currentSuggestion!.productName}');
       
-      // עדכון סטטוס ל-added
-      await _service.addSuggestion(_currentSuggestion!);
+      // עדכון סטטוס ל-added (static method)
+      final updatedSuggestion = SuggestionsService.markAsAdded(
+        _currentSuggestion!,
+        listId: listId,
+      );
       
       // עדכון ברשימה המקומית
       final index = _suggestions.indexWhere((s) => s.id == _currentSuggestion!.id);
       if (index != -1) {
-        _suggestions[index] = _currentSuggestion!.copyWith(
-          status: SuggestionStatus.added,
-        );
+        _suggestions[index] = updatedSuggestion;
       }
 
       // טעינת המלצה חדשה
@@ -136,17 +127,17 @@ class SuggestionsProvider with ChangeNotifier {
     try {
       debugPrint('⏭️ [SuggestionsProvider] דוחה המלצה: ${_currentSuggestion!.productName}');
       
-      // דחייה לשבוע
+      // דחייה לשבוע (static method)
       const duration = Duration(days: 7);
-      await _service.dismissSuggestion(_currentSuggestion!, duration);
+      final updatedSuggestion = SuggestionsService.dismissSuggestion(
+        _currentSuggestion!,
+        duration: duration,
+      );
       
       // עדכון ברשימה המקומית
       final index = _suggestions.indexWhere((s) => s.id == _currentSuggestion!.id);
       if (index != -1) {
-        _suggestions[index] = _currentSuggestion!.copyWith(
-          status: SuggestionStatus.dismissed,
-          dismissedUntil: DateTime.now().add(duration),
-        );
+        _suggestions[index] = updatedSuggestion;
       }
 
       // טעינת המלצה חדשה
@@ -173,16 +164,21 @@ class SuggestionsProvider with ChangeNotifier {
           : '${duration.inDays} ימים';
       debugPrint('❌ [SuggestionsProvider] מוחק המלצה $durationText: ${_currentSuggestion!.productName}');
       
-      // מחיקה
-      await _service.deleteSuggestion(_currentSuggestion!, duration);
+      // מחיקה (static method)
+      final updatedSuggestion = SuggestionsService.deleteSuggestion(
+        _currentSuggestion!,
+        duration: duration,
+      );
+      
+      // אם מחיקה קבועה - הוסף לרשימת מוצרים מוחרגים
+      if (duration == null) {
+        _excludedProducts.add(_currentSuggestion!.productName);
+      }
       
       // עדכון ברשימה המקומית
       final index = _suggestions.indexWhere((s) => s.id == _currentSuggestion!.id);
       if (index != -1) {
-        _suggestions[index] = _currentSuggestion!.copyWith(
-          status: SuggestionStatus.deleted,
-          dismissedUntil: duration != null ? DateTime.now().add(duration) : null,
-        );
+        _suggestions[index] = updatedSuggestion;
       }
 
       // טעינת המלצה חדשה
@@ -198,7 +194,7 @@ class SuggestionsProvider with ChangeNotifier {
 
   /// 📊 טעינת המלצה הבאה מהתור
   Future<void> _loadNextSuggestion() async {
-    _currentSuggestion = _service.getNextSuggestion(_suggestions);
+    _currentSuggestion = SuggestionsService.getNextSuggestion(_suggestions);
     debugPrint('💡 [SuggestionsProvider] המלצה הבאה: ${_currentSuggestion?.productName ?? "אין עוד"}');
   }
 

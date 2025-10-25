@@ -1,7 +1,7 @@
 # 📋 תוכנית משימות - MemoZap
 
 > **תאריך:** 24/10/2025  
-> **גרסה:** 1.6 - מסלול 3 התחיל! (שלב 3.7 הושלם) 🚀  
+> **גרסה:** 1.7 - מסלול 3 שלב 3.1 הושלם! 🎉  
 > **בסיס:** UX_REQUIREMENTS.md + TASK_SUPPORT_OPTIONS.md
 
 ---
@@ -234,32 +234,52 @@
 
 ---
 
-### שלב 3.1: מודלים ולוגיקה (2 ימים)
+### שלב 3.1: מודלים ולוגיקה (2 ימים) ✅ הושלם 24/10/2025
 
 **קבצים:**
-- ✅ `lib/models/smart_suggestion.dart` (חדש)
-- ✅ `lib/services/suggestions_service.dart` (חדש)
-- ✅ עדכון `lib/models/shopping_list.dart` (status: active/completed)
+- ✅ `lib/models/smart_suggestion.dart` (חדש) - **הושלם 24/10**
+- ✅ `lib/models/enums/suggestion_status.dart` (חדש) - **הושלם 24/10**
+- ✅ `lib/services/suggestions_service.dart` (חדש) - **הושלם 24/10**
+- ✅ `lib/providers/suggestions_provider.dart` (חדש) - **הושלם 24/10**
+- ✅ עדכון `lib/models/shopping_list.dart` (status: active/completed) - **הושלם 24/10**
 
-**מה לעשות:**
-1. SmartSuggestion model:
-   ```dart
-   class SmartSuggestion {
-     final String productId;
-     final String productName;
-     final int currentStock;
-     final int threshold;
-     final DateTime suggestedAt;
-     final SuggestionStatus status; // pending/added/dismissed/deleted
-     final DateTime? dismissedUntil; // למחיקה זמנית
-   }
-   ```
+**מה בוצע:**
+1. ✅ **SmartSuggestion model** - מודל מלא עם:
+   - productId, productName, currentStock, threshold
+   - suggestedAt (timestamp)
+   - SuggestionStatus enum (pending/added/dismissed/deleted)
+   - dismissedUntil (למחיקה זמנית)
+   - JSON serialization מלא
 
-2. SuggestionsService:
-   - `generateSuggestions()` - מייצר המלצות מהמזווה
-   - `dismissSuggestion(duration)` - דחייה זמנית
-   - `deleteSuggestion(duration)` - מחיקה (יום/שבוע/חודש/לעולם)
-   - `getNextSuggestion()` - מביא המלצה הבאה מהתור
+2. ✅ **SuggestionsService** - static methods:
+   - `generateSuggestions()` - יצירת המלצות מהמזווה
+   - `getNextSuggestion()` - הבאת המלצה הבאה מהתור
+   - `filterExcludedProducts()` - סינון מוצרים שנמחקו
+   - `shouldShowProduct()` - בדיקת dismissed period
+
+3. ✅ **SuggestionsProvider** - תוקן והותאם:
+   - `refreshSuggestions()` - רענון תור המלצות
+   - `addCurrentSuggestion()` - הוספת המלצה לרשימה
+   - `dismissCurrentSuggestion()` - דחייה זמנית (שבוע)
+   - `deleteCurrentSuggestion()` - מחיקה לצמיתות
+   - `_excludedProducts` set - מעקב אחר מוצרים שנמחקו
+
+4. ✅ **ShoppingListsProvider** - כבר מוכן:
+   - `activeLists` getter
+   - `completedLists` getter
+   - `completeList()` method
+   - `getUnpurchasedItems()` method
+
+5. ✅ **InventoryProvider** - כבר מוכן:
+   - `getLowStockItems()` method
+   - `updateStockAfterPurchase()` method
+   - `addStock()` method
+
+⏳ **הבא:** להריץ build_runner ידנית:
+```bash
+cd C:\projects\salsheli
+flutter pub run build_runner build --delete-conflicting-outputs
+```
 
 ---
 
@@ -288,30 +308,33 @@
 
 ---
 
-### שלב 3.3: מסך ראשי חדש (2 ימים)
+### שלב 3.3: מסך ראשי חדש (2 ימים) ✅ הושלם 24/10/2025
 
 **קבצים:**
-- ✅ עדכון `lib/screens/home/home_dashboard_screen.dart`
-- ✅ `lib/widgets/home/smart_suggestions_card.dart` (חדש)
-- ✅ `lib/widgets/home/active_lists_section.dart` (חדש)
+- ✅ `lib/screens/home/home_dashboard_screen.dart` - **הושלם 24/10** (עודכן להשתמש בwidgets החדשים)
+- ✅ `lib/widgets/home/smart_suggestions_card.dart` - **הושלם 24/10** (כבר קיים מהשיחה הקודמת)
+- ✅ `lib/widgets/home/active_lists_section.dart` - **הושלם 24/10** (נוצר כעת)
 
-**מה לעשות:**
-1. Dashboard:
-   - רק רשימות פעילות
-   - SmartSuggestionsCard (כרטיס גדול)
-   - אם אין המלצות: "תזכורת - עדכן מלאי"
+**מה בוצע:**
+1. ✅ **Dashboard עודכן:**
+   - import של ActiveListsSection
+   - שימוש ב-ActiveListsSection במקום _ActiveListsCard
+   - הוסרו _ActiveListsCard ו-_DismissibleListTile (ישנים)
+   - אנימציות .animate() על כל הwidgets
 
-2. SmartSuggestionsCard:
-   ```dart
-   ┌─────────────────────────┐
-   │ 💡 המלצות לקניה         │
-   │ 🥛 חלב - נשארו 2       │
-   │ [הוסף] [דחה] [מחק]     │
-   └─────────────────────────┘
-   ```
+2. ✅ **SmartSuggestionsCard** (כבר קיים):
    - כפתור הוסף → מוסיף לרשימה הבאה + טוען המלצה חדשה
    - כפתור דחה → דוחה לשבוע הבא + טוען המלצה חדשה
    - כפתור מחק → פותח dialog + טוען המלצה חדשה
+
+3. ✅ **ActiveListsSection** (חדש):
+   - הצגת רשימות נוספות (מלבד ה-upcoming)
+   - כל רשימה clickable לניווט
+   - עיצוב Sticky Note ירוק
+   - פורמט זמן יחסי (לפני X דק'/שעות/ימים)
+   - תמיכה ב-Tasks (אם יש משימות)
+
+⏳ **הבא:** להריץ build_runner + בדיקה ידנית
 
 ---
 
@@ -558,12 +581,20 @@
 
 ## 📈 היסטוריית עדכונים
 
+### v1.7 - 24/10/2025 (ערב - מאוחר)
+- ✅ **מסלול 3 שלב 3.1 הושלם לגמרי!** - Models + Logic + Providers
+- 🧩 SmartSuggestion model + SuggestionStatus enum
+- 🛠️ SuggestionsService - static methods ליצירת המלצות
+- 🔧 SuggestionsProvider - תוקן והותאם ל-static methods
+- ✅ ShoppingListsProvider - כבר מוכן עם כל ה-methods
+- ✅ InventoryProvider - כבר מוכן עם כל ה-methods
+- ⏳ **הבא:** להריץ build_runner + שלב 3.3 (UI Components)
+
 ### v1.6 - 24/10/2025 (ערב)
 - ✅ **מסלול 3 שלב 3.7 הושלם!** - הסרת סריקת קבלות
 - 🗑️ 11 קבצים נמחקו (OCR, parsers, UI של קבלות)
 - 📝 3 קבצים עודכנו (main, home_screen, pubspec)
 - 💾 4 קבצים נשמרו (Receipt models לקבלות וירטואליות)
-- 🎯 **הבא:** שלב 3.1-3.2 (מודלים ולוגיקה)
 
 ### v1.5 - 24/10/2025 (יום)
 - 📝 **תיעוד מעודכן** - CHANGELOG.md + README.md סונכרנו
