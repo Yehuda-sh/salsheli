@@ -7,6 +7,22 @@
 
 ## [In Progress] - 25/10/2025
 
+### Session #5 - Cleanup: Removed Redundant TemplatesProvider Call
+**Files Modified:**
+1. `lib/screens/home/home_dashboard_screen.dart` - Removed unnecessary TemplatesProvider import and loadTemplates() call
+
+**Status:** ✅ Complete
+
+**Changes:**
+- Removed: `import '../../providers/templates_provider.dart'`
+- Removed: `loadTemplates()` call from `initState()` in HomeDashboardScreen
+- Reason: TemplatesProvider already auto-loads via UserContext listener in main.dart
+- Impact: Cleaner code, no duplicate loading, improved performance
+
+**Result:** Code is cleaner and follows the established Provider pattern without redundant calls
+
+---
+
 ### Session #4 - Fix: shopping_list_details_screen.dart Critical Errors
 **Files Modified:**
 1. `lib/screens/shopping/shopping_list_details_screen.dart` - Fixed 3 critical compilation errors

@@ -33,7 +33,6 @@ import '../../l10n/app_strings.dart';
 import '../../models/shopping_list.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../providers/suggestions_provider.dart';
-import '../../providers/templates_provider.dart';
 import '../../providers/user_context.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
@@ -58,16 +57,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     if (kDebugMode) {
       debugPrint('🏠 HomeDashboardScreen.initState()');
     }
-    
-    // ✅ טעינת תבניות ברקע
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<TemplatesProvider>().loadTemplates();
-        if (kDebugMode) {
-          debugPrint('✅ HomeDashboard: טוען תבניות ברקע');
-        }
-      }
-    });
   }
 
   @override
