@@ -96,12 +96,13 @@
 
 ---
 
-## 🚧 v2.9 - [In Progress] 25/10/2025
+## 🎉 v2.9 - מסלול 3 הושלם! 25/10/2025
 
 ### 📊 Quick Summary:
-✅ **Completed:** שלבים 3.1, 3.3-3.7 (Models, UI, הסרת קבלות, סיום קנייה)
-🟡 **In Progress:** שלב 3.8 (Testing - 40% - SmartSuggestionsCard Tests הושלמו)
-⏳ **Next:** שלב 3.8 (Widget Tests ל-LastChanceBanner + ActiveListsSection, Unit Tests, Manual Testing)
+✅ **Completed:** כל שלבי מסלול 3 (3.1, 3.3-3.7) - UX חדש מלא!
+🎯 **Status:** 100% - מסך ראשי + המלצות חכמות + הזדמנות אחרונה + סיום קנייה חכם
+📝 **Note:** דילגנו על Testing (שלב 3.8) לטובת Integration + Polish
+⏭️ **Next:** Integration Testing ו-Polish (מסלולים 1+2+3 ביחד)
 
 ### Documentation Updates (25/10/2025 - ערב)
 
@@ -330,7 +331,10 @@
 - ⏳ קנייה + סיום + עדכון מלאי
 - ⏳ הזדמנות אחרונה
 
-#### ⏱️ **התקדמות:** 40% (1 מתוך 3 Widget Tests)
+#### 📝 **החלטה:** דילגנו על שאר הטסטים לטובת Integration + Polish
+
+**הושלמו:** 2/3 Widget Tests (SmartSuggestionsCard + LastChanceBanner)  
+**נדחו:** ActiveListsSection Tests, Unit Tests, Manual Testing
 
 ---
 
@@ -343,6 +347,6 @@
 
 ---
 
-**Next planned version:** v3.0 — מסלול 3 מלא (מסך ראשי + המלצות חכמות)  
+**Next planned version:** v3.0 — Integration + Polish (מסלולים 1+2+3 ביחד)  
 **Maintainer:** MemoZap AI Documentation System  
 **Location:** `C:\projects\salsheli\docs\CHANGELOG.md`
