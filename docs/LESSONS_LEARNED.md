@@ -1,6 +1,6 @@
 # 📘 LESSONS_LEARNED - MemoZap
 
-> **Updated:** 24/10/2025 (Post Stage 2 completion)  
+> **Updated:** 25/10/2025 (Post Stage 3 Testing)  
 > **Purpose:** Internal AI reference — mistakes to avoid and refined best practices.  
 > **Context:** Project path → `C:\projects\salsheli\`
 
@@ -81,22 +81,53 @@
 
 ## 🧪 Testing & Integration
 
-### 1️⃣ Widget Testing
+### 1️⃣ Widget Testing Best Practices
 
 - ❌ `find.byWidgetPredicate(widget.decoration)` לא עובד!  
   ✅ השתמש ב-`find.bySemanticsLabel()` (גם מוסיף accessibility)
 - **דוגמה:** `find.bySemanticsLabel(AppStrings.auth.emailLabel)`
 
-### 2️⃣ Mocks Generation
+- ❌ לא בודק Empty/Loading/Error states  
+  ✅ כל widget צריך 3 states בסיסיים: Loading, Error, Empty/Content
+
+- ❌ לא בודק animations  
+  ✅ בדוק FadeIn, SlideIn וכו' עם `tester.pumpAndSettle()`
+
+### 2️⃣ Mock & Stub Patterns
 
 - ❌ לא רצתי build_runner לפני tests  
   ✅ תמיד: `flutter pub run build_runner build` לפני `flutter test`
+
+- ❌ שגיאה: "The getter 'x' isn't defined for the type 'Mock'"  
+  ✅ הוסף stub מפורש: `when(() => mockProvider.x).thenReturn(value);`
+  
+- **דוגמה מעשית:**
+  ```dart
+  // ❌ גורם לשגיאה:
+  final mockProvider = MockSuggestionsProvider();
+  // שימוש: mockProvider.pendingSuggestionsCount
+  
+  // ✅ נכון:
+  final mockProvider = MockSuggestionsProvider();
+  when(() => mockProvider.pendingSuggestionsCount).thenReturn(2);
+  ```
 
 ### 3️⃣ Test File Naming
 
 - ❌ שם פרויקט שגוי ב-imports (`package:salsheli/...`)  
   ✅ שם הפרויקט: `memozap` (בדוק pubspec.yaml)
 - **הערה:** תיקיית העבודה `C:\projects\salsheli` אבל שם הפרויקט `memozap`
+
+### 4️⃣ Testing Error Handling
+
+- ❌ לא בודק error states כראוי  
+  ✅ צריך לבדוק:
+  - הודעת שגיאה מוצגת
+  - כפתור Retry/Refresh קיים
+  - State מתעדכן לאחר שגיאה
+
+- ❌ שכחתי stub ל-properties של Mock  
+  ✅ כל property שנגיש בטסט צריך stub מפורש
 
 ---
 
@@ -266,25 +297,74 @@
 - ✅ עדכון MEMOZAP_CORE_GUIDE.md: Memory Tool Pattern + Checkpoint Protocol
 - 📝 עדכון MEMOZAP_INDEX.md לגרסה 2.3
 
+### 25/10/2025 (ערב)
+- 🧪 **Widget Testing Mastery!** - למדנו patterns נכונים לבדיקות
+  - ✅ SmartSuggestionsCard: 15/15 טסטים עברו
+  - ✅ LastChanceBanner: 12/12 טסטים עברו
+  - 🔧 תיקון: stub patterns ל-Mock properties (pendingSuggestionsCount)
+  - 📝 Testing 4 states: Loading, Error, Empty, Content
+  - 🎬 Animation testing עם pumpAndSettle()
+
+### 25/10/2025 (בוקר)
+- ✅ **מסלול 3 שלב 3.6 הושלם!** - סיום קנייה + עדכון מלאי
+  - 🛒 לוגיקה מלאה: עדכון אוטומטי + העברת פריטים
+  - ➕ addStock() = חיבור (לא החלפה!)
+  - 📦 3 חלב + 2 נקנו = 5 במזווה ✅
+
+### 24/10/2025 (לילה)
+- ✅ **מסלול 3 שלבים 3.3-3.5 הושלמו!**
+  - 🎨 Dashboard חדש עם SmartSuggestionsCard + ActiveListsSection
+  - ⚠️ LastChanceBanner במצב קנייה פעילה
+  - 📋 shopping_lists_screen V5.0 - תצוגה מאוחדת
+
 ### 23/10/2025 (Evening)
-- 🗑️ הסרת סריקת קבלות: מחקנו receipt_import_screen, scan_receipt_screen, receipt_scanner
-- ✅ שמרנו: ReceiptProvider + ReceiptRepository (לקבלות וירטואליות אוטומטיות)
-- 📝 עדכון: main.dart - הסרת import ו-route של '/receipts'
-- 💡 החלטה: גישה A - הסרה חלקית (שמירת היסטוריה)
-- ✅ מסלול 2 (שיתוף משתמשים) הושלם - Security Rules + UI מלא
-- 🔧 תיקון: const על widgets עם ארגומנטים דינמיים (active_shopping_screen.dart)
-- 📝 עדכון: LESSONS_LEARNED.md עם Flutter best practices
-- 🧹 ניקוי תיעוד: מחקנו MEMOZAP_LESSONS_AND_ERRORS.md (מיותר)
-- ✅ עדכון MEMOZAP_CORE_GUIDE.md: Memory Tool Pattern + Checkpoint Protocol
-- 📝 עדכון MEMOZAP_INDEX.md לגרסה 2.3
+- 🗑️ הסרת סריקת קבלות: 11 קבצים נמחקו
+- ✅ שמרנו: ReceiptProvider + ReceiptRepository (לקבלות וירטואליות)
+- 📝 Bottom Navigation: 5 טאבים → 4 טאבים
 
 ### 23/10/2025
-- ✅ מסלול 1 (Tasks + Products) הושלם - כולל Unit Tests
-- 🧪 למדתי: `find.bySemanticsLabel()` במקום `widget.decoration` בטסטים
+- ✅ מסלול 1 (Tasks + Products) הושלם - UnifiedListItem + tests
+- ✅ מסלול 2 (שיתוף משתמשים) הושלם - 4 הרשאות + Security Rules
+- 🧪 למדתי: `find.bySemanticsLabel()` במקום `widget.decoration`
 - 🏗️ למדתי: build_runner חובה לפני flutter test
 
 ---
 
-**Next Review:** 31/10/2025  
-**Maintainer:** AI System (Claude + GPT)  
+## 🎯 Critical Patterns Summary
+
+### Testing Checklist:
+```dart
+// ✅ תמיד בדוק 4 states:
+1. Loading state (skeleton/shimmer)
+2. Error state (message + retry)
+3. Empty state (message + CTA)
+4. Content state (data rendering)
+
+// ✅ תמיד stub כל property:
+when(() => mock.property).thenReturn(value);
+
+// ✅ תמיד בדוק animations:
+await tester.pumpAndSettle();
+```
+
+### Memory Tool Pattern:
+```dart
+// ✅ תמיד קודם:
+1. search_nodes() או read_graph()
+2. אם קיים → add_observations()
+3. אם לא → create_entities()
+```
+
+### File Editing Pattern:
+```dart
+// ✅ תמיד:
+1. read_text_file() - קרא קודם
+2. אמת את הטקסט המדויק
+3. edit_file() - ערוך
+```
+
+---
+
+**Next Review:** 01/11/2025  
+**Maintainer:** AI System (Claude)  
 **Location:** `C:\projects\salsheli\docs\LESSONS_LEARNED.md`
