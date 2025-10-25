@@ -24,12 +24,12 @@
 // - צללים מציאותיים לאפקט הדבקה
 // - סיבובים קלים לכל פתק
 //
-// Version: 6.2 - Ultra Compact + Title Padding (20/10/2025) 🎨📝
-// - 📏 Maximum optimization: 4 benefits + 2 buttons, no scrolling!
-// - 👀 Logo scale: 0.75 | Spacing: kSpacingSmall | Buttons: 44px
-// - 💬 Shorter texts: 1-2 words titles, concise subtitles
-// - 📦 Padding vertical: 0 | No spacing before buttons
-// - 🎯 Title note padding: 8px (saved -16px!)
+// Version: 7.0 - Updated Core Messages (25/10/2025) 🎨✨
+// - 🎯 New focus: Smart suggestions from pantry, unified lists (products+tasks)
+// - 📝 Title: "קניות ומטלות חכמות" | Subtitle: "מה שקונים מתווסף אוטומטית למזווה"
+// - 🔄 Benefits: 1) שיתוף 2) מוצרים+מטלות 3) המלצות חכמות 4) מזווה מאורגן
+// - 🎨 Icons: people_outline, checklist, auto_awesome, inventory_2
+// - 📏 Same optimization: 4 benefits + 2 buttons, no scrolling
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -159,7 +159,7 @@ class WelcomeScreen extends StatelessWidget {
                     TappableCard(
                       onTap: () => _log('🌸 benefit 2 tapped'),
                       child: BenefitTile(
-                        icon: Icons.camera_alt_outlined,
+                        icon: Icons.checklist,
                         title: AppStrings.welcome.benefit2Title,
                         subtitle: AppStrings.welcome.benefit2Subtitle,
                         color: brand?.stickyPink ?? kStickyPink,
@@ -171,7 +171,7 @@ class WelcomeScreen extends StatelessWidget {
                     TappableCard(
                       onTap: () => _log('💚 benefit 3 tapped'),
                       child: BenefitTile(
-                        icon: Icons.inventory_2_outlined,
+                        icon: Icons.auto_awesome,
                         title: AppStrings.welcome.benefit3Title,
                         subtitle: AppStrings.welcome.benefit3Subtitle,
                         color: brand?.stickyGreen ?? kStickyGreen,
@@ -183,7 +183,7 @@ class WelcomeScreen extends StatelessWidget {
                     TappableCard(
                       onTap: () => _log('💙 benefit 4 tapped'),
                       child: BenefitTile(
-                        icon: Icons.receipt_long_outlined,
+                        icon: Icons.inventory_2_outlined,
                         title: AppStrings.welcome.benefit4Title,
                         subtitle: AppStrings.welcome.benefit4Subtitle,
                         color: brand?.stickyCyan ?? kStickyCyan,

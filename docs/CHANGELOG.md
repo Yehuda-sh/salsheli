@@ -7,6 +7,43 @@
 
 ## [In Progress] - 25/10/2025
 
+### Session #8 - Documentation: Created 4 New Condensed Guides
+**Files Created:**
+1. `docs/GUIDE.md` - Core operational guide (400 lines)
+2. `docs/CODE.md` - Code patterns & architecture (500 lines)
+3. `docs/DESIGN.md` - Sticky Notes design system (300 lines)
+4. `docs/TECH.md` - Firebase, security, models (400 lines)
+5. `docs/CHANGELOG.md` - Updated with this session
+
+**Status:** ✅ Complete
+
+**Purpose:**
+- Condensed 11 docs into 4 focused guides
+- Optimized for AI consumption
+- Reduced from ~15,000 to ~1,600 lines
+- Maintained all critical info
+
+**New Structure:**
+- GUIDE.md: Project + Files + Memory + MCP tools
+- CODE.md: Architecture + Patterns + Testing + Mistakes
+- DESIGN.md: Sticky Notes + RTL + Components + States
+- TECH.md: Firebase + Security + Models + Dependencies
+
+**Old Docs Status:**
+- 🗑️ To Delete: User will manually delete 11 old docs
+- 📋 Kept: LESSONS_LEARNED.md, CHANGELOG.md
+
+**Cleanup Instructions:**
+```powershell
+cd C:\projects\salsheli\docs
+Remove-Item README.md, IMPLEMENTATION_ROADMAP.md, TASK_SUPPORT_OPTIONS.md -Force
+Remove-Item ai -Recurse -Force
+```
+
+**Result:** Clean 6-file documentation system (4 new + 2 legacy)
+
+---
+
 ### Session #7 - Fix: Three Critical Compilation Errors
 **Files Modified:**
 1. `lib/services/suggestions_service.dart` - Fixed const modifier error
