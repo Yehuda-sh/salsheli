@@ -38,7 +38,7 @@ import '../../core/ui_constants.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_note.dart';
 import '../../widgets/common/sticky_button.dart';
-import '../../widgets/lists/pending_requests_section.dart';
+import '../../widgets/common/pending_requests_section.dart';
 import '../lists/populate_list_screen.dart';
 import '../lists/share_list_screen.dart';
 

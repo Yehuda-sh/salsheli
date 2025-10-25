@@ -157,7 +157,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
             final missing = total - purchased;
             final spentAmount = list.items
                 .where((item) => item.isChecked)
-                .fold(0.0, (sum, item) => sum + item.totalPrice);
+                .fold(0.0, (sum, item) => sum + (item.totalPrice ?? 0.0));
             final budget = list.budget ?? 0.0;
             final budgetDiff = budget - spentAmount;
             final successRate = total > 0 ? (purchased / total) * 100 : 0;
@@ -167,7 +167,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
             _log('   📈 אחוז הצלחה: ${successRate.toStringAsFixed(1)}%');
 
             return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -318,7 +318,7 @@ class _SummaryCard extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 28,
-            backgroundColor: color.withValues(alpha: 0.2 as double),
+            backgroundColor: color.withValues(alpha: 0.2),
             child: Icon(icon, color: color, size: 28),
           ),
           const SizedBox(width: 16),

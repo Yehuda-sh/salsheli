@@ -147,7 +147,9 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
             // 🔍 שורת חיפוש
             Consumer<ShoppingListsProvider>(
               builder: (context, provider, _) {
-                final filteredCount = _getFilteredAndSortedLists(provider.lists).length;
+                final activeLists = _getFilteredAndSortedActiveLists(provider.lists);
+                final completedLists = _getFilteredAndSortedCompletedLists(provider.lists);
+                final filteredCount = activeLists.length + completedLists.length;
                 final hasFilters = _searchQuery.isNotEmpty || _selectedType != 'all';
 
                 return TextField(
@@ -572,23 +574,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
 
   /// 📊 מיון כללי
   void _sortLists(List<ShoppingList> lists) {
-    var filtered = lists.where((list) {
-      // סינון לפי חיפוש
-      if (_searchQuery.isNotEmpty) {
-        final query = _searchQuery.toLowerCase();
-        if (!list.name.toLowerCase().contains(query)) {
-          return false;
-        }
-      }
-
-      // סינון לפי סוג
-      if (_selectedType != 'all' && list.type != _selectedType) {
-        return false;
-      }
-
-      return true;
-    }).toList();
-
     switch (_sortBy) {
       case 'date_desc':
         lists.sort((a, b) => b.createdDate.compareTo(a.createdDate));
@@ -1021,7 +1006,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
           const Divider(),
 
           // קבוצה 1: קניות שוטפות
-          _buildSectionHeader('קניות שוטפות'),
+          _buildDrawerSectionHeader('קניות שוטפות'),
           _buildDrawerItem(
             context: context,
             title: 'סופרמרקט',
@@ -1061,7 +1046,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
           const Divider(),
 
           // קבוצה 2: מיוחדות
-          _buildSectionHeader('רשימות מיוחדות'),
+          _buildDrawerSectionHeader('רשימות מיוחדות'),
           _buildDrawerItem(
             context: context,
             title: 'יום הולדת',
@@ -1102,8 +1087,8 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
     );
   }
 
-  /// 🏷️ כותרת קבוצה
-  Widget _buildSectionHeader(String title) {
+  /// 🏷️ כותרת קבוצה ב-Drawer
+  Widget _buildDrawerSectionHeader(String title) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(kSpacingMedium, kSpacingMedium, kSpacingMedium, kSpacingSmall),
       child: Text(
