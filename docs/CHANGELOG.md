@@ -1,6 +1,6 @@
 # 🕒 CHANGELOG - MemoZap Project
 
-> **Updated:** 24/10/2025 (לילה מאוחר)  
+> **Updated:** 25/10/2025 (בוקר)  
 > **Purpose:** Track main documentation, logic, and structural updates for AI coordination.
 
 ---
@@ -69,7 +69,7 @@
 
 ---
 
-## 🚧 v2.9 - [In Progress] 24/10/2025 (ערב)
+## 🚧 v2.9 - [In Progress] 25/10/2025
 
 ### ✅ מסלול 3 - שלב 3.1: Models + Logic - 100% Complete
 
@@ -127,10 +127,6 @@
   - ✅ הוסר _DismissibleListTile (ישן)
   - ✅ אנימציות .animate() על כל הwidgets
 
-#### ⏳ Pending Action:
-- 📦 **build_runner** - להריץ ידנית (אותו כמו בשלב 3.1)
-- 🧪 **בדיקה ידנית** - להריץ את האפליקציה ולבדוק
-
 #### ⏱️ **Completed:** 24/10/2025 (לילה - 1 יום)
 
 ---
@@ -153,16 +149,55 @@
 
 ---
 
+### ✅ מסלול 3 - שלב 3.5: מסך רשימות - 100% Complete
+
+#### Widget & Integration (✅ הושלם):
+- 📋 **shopping_lists_screen.dart V5.0** - תצוגה מאוחדת
+  - ✅ פעילות למעלה (🔵) - צבעים בהירים
+  - ✅ היסטוריה למטה (✅) - צבעים עם שקיפות
+  - ✅ 10 שורות היסטוריה + כפתור "טען עוד"
+  - ✅ ספירת רשימות בכל קטגוריה
+- 🔍 **סינון וחיפוש**
+  - ✅ שדה חיפוש עובד על פעילות + היסטוריה
+  - ✅ סינון לפי סוג עובד על שתי הקטגוריות
+  - ✅ מיון נפרד לכל קטגוריה
+- 📊 **Pagination חכמה**
+  - ✅ טעינת 10 רשימות בכל פעם
+  - ✅ כפתור "טען עוד" עם ספירה
+  - ✅ אנימציות חלקות
+
+#### ⏱️ **Completed:** 24/10/2025 (לילה מאוחר - 1 יום)
+
+---
+
+### ✅ מסלול 3 - שלב 3.6: סיום קנייה - 100% Complete
+
+#### Logic & Integration (✅ הושלם):
+- 🛒 **active_shopping_screen.dart** - פונקציה _saveAndFinish() מושלמת
+  - ✅ עדכון מלאי אוטומטי לפריטים שנקנו ✅
+  - ✅ העברת פריטים שלא נקנו לרשימה הבאה
+  - ✅ סימון רשימה כהושלמה
+  - ✅ הודעות הצלחה/שגיאה מפורטות
+  - ✅ Error handling עם retry
+- 📦 **inventory_provider.dart** - מתודות כבר קיימות
+  - ✅ `updateStockAfterPurchase()` - עדכון אוטומטי
+  - ✅ `addStock()` - **חיבור** מלאי (לא החלפה!)
+  - ✅ דוגמה: 3 חלב במזווה + 2 נקנו = 5 במזווה ✅
+- 🔄 **shopping_lists_provider.dart** - מתודות כבר קיימות
+  - ✅ `addToNextList()` - העברת פריטים לרשימה הבאה
+  - ✅ אם אין רשימה → יוצר "קניות כלליות"
+  - ✅ אם יש רשימה → מוסיף לרשימה הקיימת
+
+#### ⏱️ **Completed:** 25/10/2025 (בוקר - 1 יום)
+
+---
+
 ### 🔜 Next Steps:
 
-**מסלול 3 - שלב 3.5:** מסך רשימות (1 יום)
-- עדכון shopping_lists_screen
-- פעילות + היסטוריה ביחד
-
-**מסלול 3 - שלב 3.6:** סיום קנייה (2 ימים)
-- עדכון active_shopping_screen
-- לוגיקת עדכון מלאי אוטומטי
-- העברת פריטים שלא נקנו לרשימה הבאה
+**מסלול 3 - שלב 3.8:** Testing + Polish (1-2 ימים)
+- Unit tests: SuggestionsService, SuggestionsProvider, Complete purchase logic
+- Widget tests: SmartSuggestionsCard, LastChanceBanner, Active lists section
+- Manual testing: תרחישי משתמש מלאים
 
 ---
 

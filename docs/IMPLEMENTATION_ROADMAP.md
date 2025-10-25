@@ -1,7 +1,7 @@
 # 📋 תוכנית משימות - MemoZap
 
-> **תאריך:** 24/10/2025  
-> **גרסה:** 1.8 - מסלול 3 שלב 3.4 הושלם! 🎉  
+> **תאריך:** 25/10/2025  
+> **גרסה:** 1.9 - מסלול 3 שלב 3.6 הושלם! 🎉  
 > **בסיס:** UX_REQUIREMENTS.md + TASK_SUPPORT_OPTIONS.md
 
 ---
@@ -389,42 +389,37 @@ flutter pub run build_runner build --delete-conflicting-outputs
 
 ---
 
-### שלב 3.6: סיום קנייה (2 ימים)
+### שלב 3.6: סיום קנייה (2 ימים) ✅ הושלם 25/10/2025
 
 **קבצים:**
-- ✅ עדכון `lib/screens/shopping/active_shopping_screen.dart`
-- ✅ עדכון `lib/providers/shopping_lists_provider.dart`
-- ✅ עדכון `lib/providers/inventory_provider.dart`
+- ✅ `lib/screens/shopping/active_shopping_screen.dart` - **הושלם 25/10** (פונקציה _saveAndFinish() מושלמת)
+- ✅ `lib/providers/shopping_lists_provider.dart` - **הושלם 25/10** (addToNextList() כבר קיים)
+- ✅ `lib/providers/inventory_provider.dart` - **הושלם 25/10** (updateStockAfterPurchase() כבר קיים)
 
-**מה לעשות:**
-1. לוגיקת סיום קנייה:
-   - פריטים שסומנו ✅ → עדכן מלאי (חיבור!)
-   - פריטים שלא סומנו → שמור לרשימה הבאה
-   - בדיקה: האם יש מלאי במזווה? (אם כן - אל תוסיף)
+**מה בוצע:**
+1. ✅ **לוגיקת סיום קנייה מלאה:**
+   - פריטים שסומנו ✅ → עדכון מלאי אוטומטי (חיבור!)
+   - פריטים שלא סומנו → העברה לרשימה הבאה
+   - סימון רשימה כהושלמה
+   - הודעות הצלחה/שגיאה מפורטות
 
-2. עדכון מלאי אוטומטי:
-   ```dart
-   Future<void> completePurchase(ShoppingList list) async {
-     for (var item in list.items) {
-       if (item.isChecked && item.type == ItemType.product) {
-         // עדכון מלאי: חיבור!
-         await _inventoryProvider.addStock(
-           item.productId, 
-           item.quantity,
-         );
-       }
-     }
-     
-     // פריטים שלא נקנו → רשימה הבאה
-     final unpurchasedItems = list.items.where((i) => !i.isChecked);
-     if (unpurchasedItems.isNotEmpty) {
-       await _addToNextList(unpurchasedItems);
-     }
-     
-     // סיים רשימה
-     await _shoppingListsProvider.completeList(list.id);
-   }
-   ```
+2. ✅ **עדכון מלאי אוטומטי:**
+   - `_saveAndFinish()` קורא ל-`updateStockAfterPurchase()`
+   - `updateStockAfterPurchase()` קורא ל-`addStock()` לכל מוצר
+   - `addStock()` מבצע **חיבור** (לא החלפה!)
+   - דוגמה: 3 חלב במזווה + 2 נקנו = 5 במזווה ✅
+
+3. ✅ **העברת פריטים שלא נקנו:**
+   - `addToNextList()` מעביר פריטים לרשימה הבאה
+   - אם אין רשימה קיימת → יוצר "קניות כלליות"
+   - אם יש רשימה קיימת → מוסיף לרשימה
+
+4. ✅ **Error Handling:**
+   - try-catch מסביב לכל התהליך
+   - הודעת שגיאה עם retry
+   - Saving overlay במהלך התהליך
+
+⏱️ **הושלם:** 25/10/2025 (בוקר - 1 יום)
 
 ---
 
@@ -593,6 +588,20 @@ flutter pub run build_runner build --delete-conflicting-outputs
 
 ## 📈 היסטוריית עדכונים
 
+### v1.9 - 25/10/2025 (בוקר)
+- ✅ **מסלול 3 שלב 3.6 הושלם!** - סיום קנייה + עדכון מלאי אוטומטי
+- 🛒 `active_shopping_screen.dart` - פונקציה _saveAndFinish() מושלמת
+- 📦 `inventory_provider.dart` - updateStockAfterPurchase() כבר קיים
+- 🔄 `shopping_lists_provider.dart` - addToNextList() כבר קיים
+- ✅ לוגיקה מלאה: עדכון מלאי (חיבור!) + העברת פריטים לרשימה הבאה
+- ⏳ **הבא:** שלב 3.8 (Testing + Polish)
+
+### v1.8 - 24/10/2025 (לילה)
+- ✅ **מסלול 3 שלב 3.5 הושלם!** - מסך רשימות (V5.0)
+- 📋 תצוגה מאוחדת: פעילות + היסטוריה ביחד
+- 🔍 חיפוש וסינון מלא
+- 📊 Pagination חכמה (10 שורות + "טען עוד")
+
 ### v1.7 - 24/10/2025 (ערב - מאוחר)
 - ✅ **מסלול 3 שלב 3.1 הושלם לגמרי!** - Models + Logic + Providers
 - 🧩 SmartSuggestion model + SuggestionStatus enum
@@ -600,7 +609,6 @@ flutter pub run build_runner build --delete-conflicting-outputs
 - 🔧 SuggestionsProvider - תוקן והותאם ל-static methods
 - ✅ ShoppingListsProvider - כבר מוכן עם כל ה-methods
 - ✅ InventoryProvider - כבר מוכן עם כל ה-methods
-- ⏳ **הבא:** להריץ build_runner + שלב 3.3 (UI Components)
 
 ### v1.6 - 24/10/2025 (ערב)
 - ✅ **מסלול 3 שלב 3.7 הושלם!** - הסרת סריקת קבלות
