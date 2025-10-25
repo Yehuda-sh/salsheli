@@ -202,39 +202,76 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
     }
   }
 
-  /// שמירה וסיום - עם Error Handling
+  /// שמירה וסיום - עם עדכון מלאי אוטומטי
   Future<void> _saveAndFinish() async {
     setState(() {
       _isSaving = true;
     });
 
     try {
-      debugPrint('💾 _saveAndFinish: שומר נתונים');
+      debugPrint('💾 _saveAndFinish: מתחיל תהליך סיום קנייה');
 
+      // 1️⃣ עדכן מלאי - רק פריטים שנקנו ✅
+      final purchasedItems = widget.list.items.where((item) {
+        final status = _itemStatuses[item.id];
+        return status == ShoppingItemStatus.purchased;
+      }).toList();
+
+      if (purchasedItems.isNotEmpty) {
+        debugPrint('📦 מעדכן מלאי: ${purchasedItems.length} פריטים');
+        final inventoryProvider = context.read<InventoryProvider>();
+        await inventoryProvider.updateStockAfterPurchase(purchasedItems);
+        debugPrint('✅ מלאי עודכן בהצלחה');
+      }
+
+      // 2️⃣ העבר פריטים שלא נקנו לרשימה הבאה
+      final unpurchasedItems = widget.list.items.where((item) {
+        final status = _itemStatuses[item.id];
+        return status == ShoppingItemStatus.pending ||
+               status == ShoppingItemStatus.deferred ||
+               status == ShoppingItemStatus.outOfStock;
+      }).toList();
+
+      if (unpurchasedItems.isNotEmpty) {
+        debugPrint('🔄 מעביר ${unpurchasedItems.length} פריטים לרשימה הבאה');
+        final provider = context.read<ShoppingListsProvider>();
+        await provider.addToNextList(unpurchasedItems);
+        debugPrint('✅ פריטים הועברו לרשימה הבאה');
+      }
+
+      // 3️⃣ סמן רשימה כהושלמה
+      debugPrint('🏁 מסמן רשימה כהושלמה');
       final provider = context.read<ShoppingListsProvider>();
       await provider.updateListStatus(widget.list.id, ShoppingList.statusCompleted);
-
-      debugPrint('✅ _saveAndFinish: רשימה סומנה כהושלמה');
+      debugPrint('✅ רשימה הושלמה!');
 
       if (mounted) {
-        // הצג הודעת הצלחה
+        // הצג הודעת הצלחה עם פרטים
+        String message = 'הקנייה הושלמה בהצלחה! 🎉';
+        if (purchasedItems.isNotEmpty) {
+          message += '\n📦 ${purchasedItems.length} מוצרים עודכנו במזווה';
+        }
+        if (unpurchasedItems.isNotEmpty) {
+          message += '\n🔄 ${unpurchasedItems.length} פריטים הועברו לרשימה הבאה';
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
               children: [
                 const Icon(Icons.check_circle, color: Colors.white),
                 const SizedBox(width: kSpacingSmall),
-                const Expanded(child: Text('הקנייה הושלמה בהצלחה! 🎉')),
+                Expanded(child: Text(message)),
               ],
             ),
             backgroundColor: StatusColors.success,
             behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 2),
+            duration: const Duration(seconds: 3),
           ),
         );
 
         // המתן קצת להודעה ואז חזור
-        await Future.delayed(const Duration(milliseconds: 500));
+        await Future.delayed(const Duration(milliseconds: 800));
         if (!mounted) return;
 
         if (mounted) {

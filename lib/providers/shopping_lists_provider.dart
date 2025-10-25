@@ -575,6 +575,70 @@ class ShoppingListsProvider with ChangeNotifier {
     await updateListStatus(listId, ShoppingList.statusActive);
   }
 
+  /// מוסיף פריטים לרשימה הבאה (אוטומטי)
+  /// 
+  /// Example:
+  /// ```dart
+  /// final unpurchased = provider.getUnpurchasedItems(listId);
+  /// await provider.addToNextList(unpurchased);
+  /// ```
+  Future<void> addToNextList(List<UnifiedListItem> items) async {
+    debugPrint('🔄 addToNextList: מעביר ${items.length} פריטים לרשימה הבאה');
+    
+    if (items.isEmpty) {
+      debugPrint('   ⏭️ אין פריטים להעביר');
+      return;
+    }
+
+    final userId = _userContext?.user?.id;
+    final householdId = _userContext?.user?.householdId;
+    
+    if (userId == null || householdId == null) {
+      debugPrint('❌ addToNextList: משתמש לא מחובר');
+      throw Exception('❌ משתמש לא מחובר');
+    }
+
+    _errorMessage = null;
+
+    try {
+      // מצא רשימה פעילה קיימת (לא "קניות כלליות")
+      final existingList = activeLists.firstWhere(
+        (list) => list.name != 'קניות כלליות',
+        orElse: () {
+          // אין רשימה פעילה → צור חדשה
+          return ShoppingList.newList(
+            id: '',
+            name: '',
+            createdBy: userId,
+          );
+        },
+      );
+
+      if (existingList.id.isEmpty) {
+        // צור רשימה חדשה "קניות כלליות"
+        debugPrint('   ➕ יוצר רשימה חדשה "קניות כלליות"');
+        await createList(
+          name: 'קניות כלליות',
+          type: ShoppingList.typeSuper,
+          items: items,
+        );
+        debugPrint('✅ addToNextList: רשימה חדשה נוצרה עם ${items.length} פריטים');
+      } else {
+        // הוסף לרשימה קיימת
+        debugPrint('   📝 מוסיף ל"${existingList.name}"');
+        final updatedItems = [...existingList.items, ...items];
+        final updatedList = existingList.copyWith(items: updatedItems);
+        await updateList(updatedList);
+        debugPrint('✅ addToNextList: ${items.length} פריטים הוספו ל"${existingList.name}"');
+      }
+    } catch (e) {
+      debugPrint('❌ addToNextList: שגיאה - $e');
+      _errorMessage = 'שגיאה בהוספת פריטים לרשימה הבאה: ${e.toString()}';
+      notifyListeners();
+      rethrow;
+    }
+  }
+
   // ==========================================
   // 🆕 Collaborative Shopping Methods
   // ==========================================
