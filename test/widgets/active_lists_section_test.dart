@@ -20,6 +20,29 @@ import 'package:memozap/models/enums/item_type.dart';
 import 'package:memozap/widgets/common/sticky_note.dart';
 import 'package:memozap/widgets/home/active_lists_section.dart';
 
+// Helper function to create test ShoppingList
+ShoppingList _createTestList({
+  required String id,
+  required String name,
+  String type = 'super',
+  List<UnifiedListItem> items = const [],
+}) {
+  return ShoppingList(
+    id: id,
+    name: name,
+    type: type,
+    status: 'active',
+    format: 'shared',
+    createdBy: 'user1',
+    isShared: false,
+    sharedWith: const [],
+    createdFromTemplate: false,
+    createdDate: DateTime.now(),
+    updatedDate: DateTime.now(),
+    items: items,
+  );
+}
+
 void main() {
   group('ActiveListsSection Widget Tests', () {
     // ========================================
@@ -54,14 +77,10 @@ void main() {
     testWidgets('displays lists when provided', (tester) async {
       // Arrange
       final lists = [
-        ShoppingList(
+        _createTestList(
           id: '1',
           name: 'רשימת סופר',
           type: 'super',
-          householdId: 'household1',
-          createdBy: 'user1',
-          createdDate: DateTime.now(),
-          updatedDate: DateTime.now(),
           items: [
             UnifiedListItem.product(
               name: 'חלב',
@@ -69,15 +88,10 @@ void main() {
             ),
           ],
         ),
-        ShoppingList(
+        _createTestList(
           id: '2',
           name: 'רשימת פארם',
           type: 'pharm',
-          householdId: 'household1',
-          createdBy: 'user1',
-          createdDate: DateTime.now(),
-          updatedDate: DateTime.now(),
-          items: [],
         ),
       ];
 
@@ -103,14 +117,9 @@ void main() {
     // ========================================
     testWidgets('displays correct content for each list tile', (tester) async {
       // Arrange
-      final list = ShoppingList(
+      final list = _createTestList(
         id: '1',
         name: 'רשימת קניות',
-        type: 'super',
-        householdId: 'household1',
-        createdBy: 'user1',
-        createdDate: DateTime.now(),
-        updatedDate: DateTime.now(),
         items: [
           UnifiedListItem.product(name: 'חלב', quantity: 2),
           UnifiedListItem.product(name: 'לחם', quantity: 1),
@@ -148,15 +157,9 @@ void main() {
     testWidgets('calls onTapList when list tile is tapped', (tester) async {
       // Arrange
       bool wasCallbackCalled = false;
-      final list = ShoppingList(
+      final list = _createTestList(
         id: '1',
         name: 'רשימת סופר',
-        type: 'super',
-        householdId: 'household1',
-        createdBy: 'user1',
-        createdDate: DateTime.now(),
-        updatedDate: DateTime.now(),
-        items: [],
       );
 
       await tester.pumpWidget(
@@ -186,28 +189,17 @@ void main() {
     testWidgets('displays correct items count for lists', (tester) async {
       // Arrange
       final lists = [
-        ShoppingList(
+        _createTestList(
           id: '1',
           name: 'רשימה עם 5 פריטים',
-          type: 'super',
-          householdId: 'household1',
-          createdBy: 'user1',
-          createdDate: DateTime.now(),
-          updatedDate: DateTime.now(),
           items: List.generate(
             5,
             (i) => UnifiedListItem.product(name: 'מוצר $i', quantity: 1),
           ),
         ),
-        ShoppingList(
+        _createTestList(
           id: '2',
           name: 'רשימה ריקה',
-          type: 'super',
-          householdId: 'household1',
-          createdBy: 'user1',
-          createdDate: DateTime.now(),
-          updatedDate: DateTime.now(),
-          items: [],
         ),
       ];
 
@@ -235,15 +227,9 @@ void main() {
       // Arrange
       final lists = List.generate(
         4,
-        (i) => ShoppingList(
+        (i) => _createTestList(
           id: '$i',
           name: 'רשימה ${i + 1}',
-          type: 'super',
-          householdId: 'household1',
-          createdBy: 'user1',
-          createdDate: DateTime.now(),
-          updatedDate: DateTime.now(),
-          items: [],
         ),
       );
 
@@ -272,15 +258,9 @@ void main() {
     // ========================================
     testWidgets('uses correct Sticky Note design', (tester) async {
       // Arrange
-      final list = ShoppingList(
+      final list = _createTestList(
         id: '1',
         name: 'רשימה',
-        type: 'super',
-        householdId: 'household1',
-        createdBy: 'user1',
-        createdDate: DateTime.now(),
-        updatedDate: DateTime.now(),
-        items: [],
       );
 
       await tester.pumpWidget(
@@ -309,15 +289,9 @@ void main() {
     testWidgets('displays section header with title and icon',
         (tester) async {
       // Arrange
-      final list = ShoppingList(
+      final list = _createTestList(
         id: '1',
         name: 'רשימה',
-        type: 'super',
-        householdId: 'household1',
-        createdBy: 'user1',
-        createdDate: DateTime.now(),
-        updatedDate: DateTime.now(),
-        items: [],
       );
 
       await tester.pumpWidget(
@@ -346,15 +320,9 @@ void main() {
     // ========================================
     testWidgets('list tiles have InkWell for ripple effect', (tester) async {
       // Arrange
-      final list = ShoppingList(
+      final list = _createTestList(
         id: '1',
         name: 'רשימה',
-        type: 'super',
-        householdId: 'household1',
-        createdBy: 'user1',
-        createdDate: DateTime.now(),
-        updatedDate: DateTime.now(),
-        items: [],
       );
 
       await tester.pumpWidget(
@@ -377,15 +345,9 @@ void main() {
     // ========================================
     testWidgets('truncates long list names with ellipsis', (tester) async {
       // Arrange
-      final list = ShoppingList(
+      final list = _createTestList(
         id: '1',
         name: 'רשימה עם שם ארוך מאוד מאוד מאוד שצריך להיחתך',
-        type: 'super',
-        householdId: 'household1',
-        createdBy: 'user1',
-        createdDate: DateTime.now(),
-        updatedDate: DateTime.now(),
-        items: [],
       );
 
       await tester.pumpWidget(

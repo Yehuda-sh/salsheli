@@ -26,7 +26,6 @@ import 'providers/products_provider.dart';
 import 'providers/suggestions_provider.dart';
 import 'providers/locations_provider.dart';
 import 'providers/habits_provider.dart';
-import 'providers/templates_provider.dart';
 import 'providers/product_location_provider.dart';
 
 // Repositories
@@ -37,7 +36,6 @@ import 'repositories/firebase_receipt_repository.dart';  // 🔥 Firebase Receip
 import 'repositories/firebase_inventory_repository.dart';  // 🔥 Firebase Inventory!
 import 'repositories/firebase_products_repository.dart';  // 🔥 Firebase!
 import 'repositories/firebase_habits_repository.dart';  // 🔥 Firebase Habits!
-import 'repositories/firebase_templates_repository.dart';  // 🔥 Firebase Templates!
 import 'repositories/firebase_locations_repository.dart';  // 🔥 Firebase Locations!
 
 // Services
@@ -54,7 +52,6 @@ import 'screens/shopping/shopping_lists_screen.dart';
 import 'screens/shopping/active_shopping_screen.dart';
 import 'screens/shopping/shopping_list_details_screen.dart';
 import 'screens/lists/populate_list_screen.dart';
-import 'screens/lists/templates_screen.dart';  // 📋 Templates!
 // ❌ Receipt Import Screen removed (no more manual receipt scanning)
 import 'screens/pantry/my_pantry_screen.dart';
 import 'screens/price/price_comparison_screen.dart';
@@ -341,28 +338,7 @@ void main() async {
           },
         ),
 
-        // === Templates Provider === 📋 Firebase!
-        ChangeNotifierProxyProvider<UserContext, TemplatesProvider>(
-          create: (context) {
-            if (kDebugMode) debugPrint('📋 main.dart: Creating TemplatesProvider with Firebase');
-            final provider = TemplatesProvider(
-              repository: FirebaseTemplatesRepository(),  // 🔥 Firebase!
-            );
-            final userContext = context.read<UserContext>();
-            provider.updateUserContext(userContext);
-            return provider;
-          },
-          update: (context, userContext, previous) {
-            if (kDebugMode) debugPrint('🔄 main.dart: Updating TemplatesProvider');
-            final provider =
-                previous ??
-                TemplatesProvider(
-                  repository: FirebaseTemplatesRepository(),  // 🔥 Firebase!
-                );
-            provider.updateUserContext(userContext);
-            return provider;
-          },
-        ),
+
       ],
       child: const MyApp(),
     ),
@@ -431,7 +407,6 @@ class _MyAppState extends State<MyApp> {
             '/price-comparison': (context) => const PriceComparisonScreen(),
             '/price-compare': (context) => const PriceComparisonScreen(), // alias
             '/shopping-lists': (context) => const ShoppingListsScreen(),
-            '/templates': (context) => const TemplatesScreen(),  // 📋 Templates!
           },
           onGenerateRoute: (settings) {
             // shopping-summary - receives listId

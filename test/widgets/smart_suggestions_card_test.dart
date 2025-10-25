@@ -35,9 +35,7 @@ void main() {
   });
 
   /// Helper: יוצר widget עם providers מזויפים
-  Widget createTestWidget({
-    ShoppingList? list,
-  }) {
+  Widget createTestWidget() {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<SuggestionsProvider>.value(
@@ -47,11 +45,11 @@ void main() {
           value: mockShoppingListsProvider,
         ),
       ],
-      child: MaterialApp(
+      child: const MaterialApp(
         home: Directionality(
           textDirection: TextDirection.rtl,
           child: Scaffold(
-            body: SmartSuggestionsCard(mostRecentList: list),
+            body: SmartSuggestionsCard(),
           ),
         ),
       ),
@@ -310,6 +308,10 @@ void main() {
       when(mockSuggestionsProvider.isLoading).thenReturn(false);
       when(mockSuggestionsProvider.error).thenReturn(null);
       when(mockSuggestionsProvider.suggestions).thenReturn(suggestions);
+      when(mockSuggestionsProvider.currentSuggestion).thenReturn(suggestions.first);
+      
+      // Mock activeLists to return our test list
+      when(mockShoppingListsProvider.activeLists).thenReturn([list]);
       
       // Mock addItemToList
       when(mockShoppingListsProvider.addItemToList(
@@ -318,14 +320,17 @@ void main() {
         any,
         any,
       )).thenAnswer((_) async {});
+      
+      // Mock addCurrentSuggestion
+      when(mockSuggestionsProvider.addCurrentSuggestion()).thenAnswer((_) async {});
 
       // Act
-      await tester.pumpWidget(createTestWidget(list: list));
+      await tester.pumpWidget(createTestWidget());
       await tester.pump();
       await tester.pumpAndSettle();
 
       // לחץ על כפתור הוסף
-      await tester.tap(find.byIcon(Icons.add_circle_outline));
+      await tester.tap(find.byIcon(Icons.add_shopping_cart));
       await tester.pump();
 
       // Assert
@@ -370,19 +375,23 @@ void main() {
       when(mockSuggestionsProvider.isLoading).thenReturn(false);
       when(mockSuggestionsProvider.error).thenReturn(null);
       when(mockSuggestionsProvider.suggestions).thenReturn(suggestions);
+      when(mockSuggestionsProvider.currentSuggestion).thenReturn(suggestions.first);
+      
+      // Mock activeLists to return empty list
+      when(mockShoppingListsProvider.activeLists).thenReturn([]);
 
       // Act
-      await tester.pumpWidget(createTestWidget(list: null)); // אין רשימה!
+      await tester.pumpWidget(createTestWidget());
       await tester.pump();
       await tester.pumpAndSettle();
 
       // לחץ על כפתור הוסף
-      await tester.tap(find.byIcon(Icons.add_circle_outline));
+      await tester.tap(find.byIcon(Icons.add_shopping_cart));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
       // Assert
-      expect(find.text('אין רשימה פעילה להוסיף אליה'), findsOneWidget);
+      expect(find.text('אין רשימות פעילות - צור רשימה חדשה'), findsOneWidget);
       expect(find.byType(SnackBar), findsOneWidget);
     });
   });

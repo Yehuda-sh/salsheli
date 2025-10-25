@@ -7,6 +7,68 @@
 
 ## [In Progress] - 25/10/2025
 
+### Session #10 - Track 3 Stage 3.3: Home Dashboard UI (50%)
+**Files Created:**
+1. `lib/widgets/home/smart_suggestions_card.dart` - Smart suggestions widget (440 lines)
+
+**Files Modified:**
+1. `lib/screens/home/home_dashboard_screen.dart` - Updated to use new SmartSuggestionsCard
+
+**Status:** 🟡 50% Complete (Widget created, needs testing)
+
+**Features Implemented:**
+- ✅ 4 UI States: Loading, Error, Empty, Content
+- ✅ Sticky Notes design (kStickyGreen)
+- ✅ 3 Actions: Add to list, Dismiss for week, Delete permanently
+- ✅ Pending suggestions count badge
+- ✅ Urgency indicator (🔴🟠🟡🟢)
+- ✅ Stock info display
+- ✅ Confirmation dialog for delete
+- ✅ SnackBar feedback for all actions
+
+**Next Steps:**
+- [ ] Test on emulator (compile + run)
+- [ ] Fix any compilation errors
+- [ ] Test all 3 actions (Add/Dismiss/Delete)
+- [ ] Test empty state (no suggestions)
+- [ ] Create ActiveListsSection widget
+
+**Progress:** Track 3 Stage 3.3 - 50% (1/2 widgets done)
+
+---
+
+### Session #9 - Cleanup: Removed Templates Feature
+**Files Modified:**
+1. `lib/main.dart` - Removed TemplatesProvider and imports
+
+**Files Deleted (by user):**
+- `lib/models/template.dart`
+- `lib/models/template.g.dart`
+- `lib/providers/templates_provider.dart`
+- `lib/repositories/templates_repository.dart`
+- `lib/repositories/firebase_templates_repository.dart`
+- `lib/screens/lists/templates_screen.dart`
+- `lib/screens/lists/template_form_screen.dart`
+- `functions/` (entire directory)
+
+**Status:** ✅ Complete
+
+**Reason:**
+- Templates obsolete - replaced by Smart Suggestions
+- Smart Suggestions use pantry + shopping history (dynamic)
+- Templates were static (21 fixed templates)
+- Cleaner codebase: 8 files removed
+
+**Impact:**
+- Removed 3 imports from main.dart
+- Removed ChangeNotifierProxyProvider<UserContext, TemplatesProvider>
+- Removed '/templates' route
+- No UI references remain
+
+**Result:** Templates feature fully removed, focus on Smart Suggestions
+
+---
+
 ### Session #8 - Documentation: Created 4 New Condensed Guides
 **Files Created:**
 1. `docs/GUIDE.md` - Core operational guide (400 lines)

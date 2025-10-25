@@ -336,7 +336,7 @@ class _Content extends StatelessWidget {
         
         const SizedBox(height: kSpacingMedium),
         
-        SmartSuggestionsCard(mostRecentList: mostRecentList)
+        const SmartSuggestionsCard()
           .animate()
           .fadeIn(duration: 600.ms, delay: 150.ms) // ✨ יותר איטי
           .slideY(begin: 0.15, end: 0) // ✨ יותר דרמטי
