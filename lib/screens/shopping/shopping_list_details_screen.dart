@@ -32,8 +32,6 @@ import '../../models/shopping_list.dart';
 import '../../models/unified_list_item.dart';
 import '../../models/enums/item_type.dart';
 import '../../providers/shopping_lists_provider.dart';
-import '../../providers/shared_users_provider.dart';
-import '../../providers/pending_requests_provider.dart';
 import '../../core/ui_constants.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_note.dart';
@@ -238,7 +236,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                     final newItem = UnifiedListItem.product(
                       id: const Uuid().v4(),
                       name: name,
-                      quantity: qty,
+                      quantity: qty ?? 1,
                       unitPrice: unitPrice,
                       unit: "יח'",
                     );
@@ -568,7 +566,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                 if (currentList.pendingRequestsForReview.isNotEmpty && currentList.canCurrentUserApprove)
                   PendingRequestsSection(
                     listId: currentList.id,
-                    requests: currentList.pendingRequestsForReview,
+                    canApprove: currentList.canCurrentUserApprove,
                   ),
 
                 // 📋 תוכן
