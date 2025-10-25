@@ -93,6 +93,20 @@
 🟡 **In Progress:** שלב 3.8 (Testing - 40% - SmartSuggestionsCard Tests הושלמו)
 ⏳ **Next:** שלב 3.8 (Widget Tests ל-LastChanceBanner + ActiveListsSection, Unit Tests, Manual Testing)
 
+### Documentation Updates (25/10/2025 - ערב)
+
+#### ✅ MEMOZAP_CORE_GUIDE.md v2.0 - Major Restructure
+- 📝 **Complete Rewrite** - מדריך מושלם ושימושי יותר
+- 🎯 **Quick Reference** - מידע על הפרויקט, טכנולוגיות, נתיבים
+- 📂 **File Interaction Protocol** - כללים מפורטים לקריאה/כתיבה
+- 🧠 **Memory Management** - פרוטוקול מדויק ל-Memory Tools (search_nodes → add_observations)
+- 💾 **Checkpoint Protocol** - פורמט מדויק + טריגרים אוטומטיים
+- 🪞 **Error Handling** - פרוטוקול recovery מפורט
+- 🎨 **UI/UX Standards** - תמיכה בעברית (RTL) + Material Design 3
+- 📝 **Response Protocol** - פורמט תגובות אחיד עם אמוג'ים
+- 💡 **Best Practices** - DO/DON'T מסודר
+- ⏱️ **Completed:** 25/10/2025 (ערב - 1 שעה)
+
 ---
 
 ### ✅ מסלול 3 - שלב 3.1: Models + Logic - 100% Complete
