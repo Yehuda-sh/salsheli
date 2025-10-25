@@ -4,7 +4,8 @@ import 'package:provider/provider.dart';
 import '../../models/smart_suggestion.dart';
 import '../../providers/suggestions_provider.dart';
 import '../../providers/shopping_lists_provider.dart';
-import '../../config/theme.dart';
+import '../../theme/app_theme.dart';
+import '../../core/ui_constants.dart';
 
 /// באנר "הזדמנות אחרונה" שמציג המלצות שלא הוספו
 /// מופיע רק במצב קנייה פעילה
@@ -37,6 +38,7 @@ class LastChanceBanner extends StatelessWidget {
     SmartSuggestion suggestion,
     SuggestionsProvider suggestionsProvider,
   ) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
@@ -111,9 +113,9 @@ class LastChanceBanner extends StatelessWidget {
           // פרטי המוצר
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.shopping_basket_outlined,
-                color: kTextPrimary,
+                color: colorScheme.onSurface,
                 size: 20,
               ),
               const SizedBox(width: 8),
@@ -123,10 +125,10 @@ class LastChanceBanner extends StatelessWidget {
                   children: [
                     Text(
                       suggestion.productName,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: kTextPrimary,
+                        color: colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -134,7 +136,7 @@ class LastChanceBanner extends StatelessWidget {
                       'נשארו ${suggestion.currentStock} יחידות',
                       style: TextStyle(
                         fontSize: 14,
-                        color: kTextSecondary.withValues(alpha: 0.7),
+                        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                       ),
                     ),
                   ],
@@ -154,9 +156,9 @@ class LastChanceBanner extends StatelessWidget {
                   icon: const Icon(Icons.skip_next, size: 20),
                   label: const Text('הבא'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: kTextSecondary,
+                    foregroundColor: colorScheme.onSurfaceVariant,
                     side: BorderSide(
-                      color: kTextSecondary.withValues(alpha: 0.3),
+                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
@@ -214,7 +216,7 @@ class LastChanceBanner extends StatelessWidget {
       final shoppingListsProvider = context.read<ShoppingListsProvider>();
 
       // הוספת המוצר ישירות לרשימה הנוכחית
-      await shoppingListsProvider.addItemToList(
+      await shoppingListsProvider.addUnifiedItem(
         listId,
         suggestionsProvider.currentSuggestion!.toUnifiedListItem(),
       );
