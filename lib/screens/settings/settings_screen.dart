@@ -58,7 +58,6 @@ import 'package:memozap/config/household_config.dart';
 import 'package:memozap/widgets/common/notebook_background.dart';
 import 'package:memozap/widgets/common/sticky_note.dart';
 import 'package:memozap/widgets/common/sticky_button.dart';
-import 'package:memozap/screens/debug/cleanup_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -622,27 +621,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   rotation: -0.02,
                   child: ListTile(
                     leading: const Icon(Icons.bug_report, color: Colors.orange),
-                    title: const Text('🧹 ניקוי מלאי פגום', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
-                    subtitle: Text('כלי Debug - מחיקת פריטים עם productName=null', style: TextStyle(fontSize: kFontSizeSmall)),
+                    title: const Text(
+                      '🧹 ניקוי מלאי פגום',
+                      style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(
+                      'כלי Debug - מחיקת פריטים עם productName=null',
+                      style: TextStyle(fontSize: kFontSizeSmall),
+                    ),
                     trailing: const Icon(Icons.chevron_left, color: Colors.orange),
                     onTap: () {
                       final householdId = userContext.user?.householdId ?? '';
                       if (householdId.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('שגיאה: אין household ID'),
-                            backgroundColor: Colors.red,
-                          ),
+                          const SnackBar(content: Text('שגיאה: אין household ID'), backgroundColor: Colors.red),
                         );
                         return;
                       }
-                      // ניווט למסך הניקוי
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CleanupScreen(householdId: householdId),
-                        ),
-                      );
                     },
                   ),
                 ),
@@ -1123,4 +1118,3 @@ class _SkeletonBox extends StatelessWidget {
     );
   }
 }
-

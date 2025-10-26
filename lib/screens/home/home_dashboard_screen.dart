@@ -139,9 +139,12 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   _Header(userName: userContext.displayName),
                   const SizedBox(height: kSpacingMedium),
 
-                  // ✨ תמיד נראה skeleton בהתחלה
+                  // ✨ Skeleton loading עם אנימציות
                   if (listsProvider.isLoading)
                     const DashboardSkeleton()
+                      .animate()
+                      .fadeIn(duration: 300.ms)
+                      .slideY(begin: 0.05, end: 0)
                   else if (listsProvider.lists.isEmpty)
                     _ImprovedEmptyState(
                       onCreateList: () => _showCreateListDialog(context),

@@ -1,14 +1,5 @@
 // 📄 File: lib/screens/home/home_dashboard_screen_ux.dart
-// 🎨 UX Improvements: Skeleton Loading + Staggered Animations
-//
-// שיפורים:
-// ✅ Skeleton loading במקום spinner
-// ✅ Staggered animations לכרטיסים
-// ✅ Haptic feedback
-// ✅ Constants למידות (אין hardcoded values)
-// ✅ Sticky Notes Design - פתקים צבעוניים במצב טעינה!
-//
-// גרסה: 3.0 - Sticky Notes Integration (18/10/2025)
+// 🎨 UX Improvements: Skeleton Loading with Sticky Notes Design
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -17,23 +8,30 @@ import '../../widgets/common/sticky_note.dart';
 
 /// 💀 Skeleton Loader - מצב טעינה מקצועי
 class DashboardSkeleton extends StatelessWidget {
-  const DashboardSkeleton({super.key});
+  final bool showAll;
+  const DashboardSkeleton({super.key, this.showAll = true});
 
   @override
   Widget build(BuildContext context) {
+    if (!showAll) {
+      // רק כרטיס אחד להצעות
+      return const _SkeletonCard(color: kStickyGreen, rotation: -0.01)
+        .animate().fadeIn();
+    }
+    
     return Column(
       children: [
-        // פתק צהוב - תואם ל-Header
+        // פתק צהוב - תואם ל-UpcomingShopCard
         const _SkeletonCard(color: kStickyYellow, rotation: -0.02)
           .animate().fadeIn(),
         const SizedBox(height: kSpacingMedium),
         
-        // פתק ורוד - תואם ל-ReceiptsCard
+        // פתק ורוד - תואם ל-SmartSuggestionsCard
         const _SkeletonCard(color: kStickyPink, rotation: 0.015)
           .animate().fadeIn(delay: 100.ms),
         const SizedBox(height: kSpacingMedium),
         
-        // פתק ירוק - תואם ל-ActiveListsCard
+        // פתק ירוק - תואם ל-רשימות נוספות
         const _SkeletonCard(color: kStickyGreen, rotation: -0.01)
           .animate().fadeIn(delay: 200.ms),
       ],
@@ -56,31 +54,29 @@ class _SkeletonCard extends StatelessWidget {
       color: color,
       rotation: rotation,
       child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // שורה 1 - כותרת
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
             Container(
               width: kSkeletonTitleWidth,
               height: kSkeletonTitleHeight,
               decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.1),  // ✅ צבע כהה קל על הפתק
+                color: Colors.black.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(kBorderRadiusSmall),
               ),
             )
               .animate(onPlay: (c) => c.repeat())
               .shimmer(
                 duration: 1200.ms,
-                color: Colors.white.withValues(alpha: 0.4),  // ✅ shimmer לבן
+                color: Colors.white.withOpacity(0.4),
               ),
-            
+
             const SizedBox(height: kSpacingSmall),
-            
-            // שורה 2 - תת-כותרת
             Container(
               width: kSkeletonSubtitleWidth,
               height: kSkeletonSubtitleHeight,
               decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.1),  // ✅ צבע כהה קל על הפתק
+                color: Colors.black.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(kBorderRadiusSmall),
               ),
             )
@@ -88,17 +84,15 @@ class _SkeletonCard extends StatelessWidget {
               .shimmer(
                 duration: 1200.ms,
                 delay: 200.ms,
-                color: Colors.white.withValues(alpha: 0.4),  // ✅ shimmer לבן
+                color: Colors.white.withOpacity(0.4),
               ),
-            
+
             const SizedBox(height: kSpacingMedium),
-            
-            // שורה 3 - תוכן
             Container(
               width: double.infinity,
               height: kSkeletonContentHeight,
               decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.1),  // ✅ צבע כהה קל על הפתק
+                color: Colors.black.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(kBorderRadiusSmall),
               ),
             )
@@ -106,10 +100,10 @@ class _SkeletonCard extends StatelessWidget {
               .shimmer(
                 duration: 1200.ms,
                 delay: 400.ms,
-                color: Colors.white.withValues(alpha: 0.4),  // ✅ shimmer לבן
+                color: Colors.white.withOpacity(0.4),
               ),
-          ],
-        ),
+        ],
+      )
     );
   }
 }
