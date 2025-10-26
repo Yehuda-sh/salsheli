@@ -38,7 +38,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_note.dart';
 import '../../widgets/create_list_dialog.dart';
-import '../../widgets/home/active_lists_section.dart';
+
 import '../../widgets/home/smart_suggestions_card.dart';
 import '../../widgets/home/upcoming_shop_card.dart';
 import 'home_dashboard_screen_ux.dart';
@@ -345,14 +345,31 @@ class _Content extends StatelessWidget {
         const SizedBox(height: kSpacingMedium),
         
         if (otherLists.isNotEmpty)
-          ActiveListsSection(
-            lists: otherLists,
-            onTapList: () {}, // TODO: Navigate to list details
+          Center(
+            child: TextButton.icon(
+              onPressed: () {
+                // Navigate to lists tab (index 1)
+                DefaultTabController.of(context)?.animateTo(1);
+              },
+              icon: const Icon(Icons.list_alt),
+              label: Text(
+                'יש לך עוד ${otherLists.length} רשימות - לחץ לצפייה',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: kSpacingLarge,
+                  vertical: kSpacingMedium,
+                ),
+              ),
+            ),
           )
             .animate()
             .fadeIn(duration: 600.ms, delay: 300.ms)
-            .slideY(begin: 0.15, end: 0)
-            .scale(begin: const Offset(0.95, 0.95), end: const Offset(1, 1)),
+            .slideY(begin: 0.15, end: 0),
       ],
     );
   }

@@ -142,30 +142,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // מספר רשימות פעילות (לבדג' בטאב "רשימות")
-    final listsProvider = context.watch<ShoppingListsProvider>();
-    
-    int? activeListsCount;
-    if (listsProvider.isLoading) {
-      // טוען - לא מציג badge
-      activeListsCount = null;
-    } else if (listsProvider.hasError) {
-      // שגיאה - לא מציג badge
-      if (kDebugMode) {
-        debugPrint('⚠️ HomeScreen: ShoppingListsProvider has error, hiding badge');
-      }
-      activeListsCount = null;
-    } else {
-      // מוצלח - מחשב רשימות פעילות
-      final count = listsProvider.lists
-          .where((l) => l.status == ShoppingList.statusActive)
-          .length;
-      activeListsCount = count > 0 ? count : null;
-    }
-
-    final badges = <int, int?>{
-      1: activeListsCount,
-    };
 
     return PopScope(
       canPop: false,
@@ -183,7 +159,6 @@ class _HomeScreenState extends State<HomeScreen> {
       child: AppLayout(
         currentIndex: _selectedIndex,
         onTabSelected: _onItemTapped,
-        badges: badges,
         // אנימציית fade חלקה בין מסכים
         child: AnimatedSwitcher(
           duration: kAnimationDurationShort,

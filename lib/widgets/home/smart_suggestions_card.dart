@@ -1,10 +1,10 @@
 // 📄 File: lib/widgets/home/smart_suggestions_card.dart
-// Description: Smart suggestions card for home dashboard - shows current suggestion from pantry
+// Description: Smart suggestions carousel for home dashboard
 //
-// ✅ Features:
-// - Shows next suggestion from queue
-// - 3 actions: Add to list, Dismiss for week, Delete permanently
-// - Sticky Notes design (kStickyGreen)
+// ✅ עדכון (26/10/2025) - Carousel UI:
+// - PageView עם swipe ימינה/שמאלה
+// - Dots indicator בתחתית
+// - כרטיס ירוק, שם, מלאי, 3 כפתורים
 // - Loading/Error/Empty states
 
 import 'package:flutter/material.dart';
@@ -16,8 +16,22 @@ import '../../models/unified_list_item.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../providers/suggestions_provider.dart';
 
-class SmartSuggestionsCard extends StatelessWidget {
+class SmartSuggestionsCard extends StatefulWidget {
   const SmartSuggestionsCard({super.key});
+
+  @override
+  State<SmartSuggestionsCard> createState() => _SmartSuggestionsCardState();
+}
+
+class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,17 +47,65 @@ class SmartSuggestionsCard extends StatelessWidget {
           return _buildErrorCard(context, provider.errorMessage!);
         }
 
-        // Get current suggestion
-        final suggestion = provider.currentSuggestion;
+        // Get all pending suggestions
+        final suggestions = provider.pendingSuggestions;
 
         // Empty state
-        if (suggestion == null) {
+        if (suggestions.isEmpty) {
           return _buildEmptyCard(context);
         }
 
-        // Content state
-        return _buildSuggestionCard(context, suggestion, provider);
+        // Content state - Carousel
+        return Column(
+          children: [
+            // PageView
+            SizedBox(
+              height: 280,
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: suggestions.length,
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentPage = index;
+                  });
+                },
+                itemBuilder: (context, index) {
+                  return _buildSuggestionCard(
+                    context,
+                    suggestions[index],
+                    provider,
+                  );
+                },
+              ),
+            ),
+            // Dots indicator
+            if (suggestions.length > 1) ..[
+              const SizedBox(height: kSpacingSmall),
+              _buildDotsIndicator(suggestions.length),
+            ],
+          ],
+        );
       },
+    );
+  }
+
+  /// Dots indicator
+  Widget _buildDotsIndicator(int count) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(count, (index) {
+        final isActive = index == _currentPage;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          width: isActive ? 24 : 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: isActive ? kStickyGreen : Colors.grey[300],
+            borderRadius: BorderRadius.circular(4),
+          ),
+        );
+      }),
     );
   }
 
