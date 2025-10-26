@@ -7,6 +7,54 @@
 
 ## [In Progress] - 26/10/2025
 
+### Session #21 - Security Fix + Repository Cleanup
+**Files Modified:**
+- `lib/repositories/firebase_user_repository.dart` - Major refactor (security + dependencies)
+- `lib/repositories/user_repository.dart` - Updated interface signature
+
+**Issue #1:** ๐Ÿšจ SECURITY BREACH!
+- `findByEmail()` allowed searching users across ALL households
+- Missing `household_id` filter = data leakage risk
+
+**Issue #2:** ๐Ÿšซ Missing Dependencies!
+- `constants/repository_constants.dart` - doesn't exist
+- `utils/firestore_utils.dart` - doesn't exist
+- Code couldn't compile!
+
+**Fix:**
+- โœ… Added optional `householdId` parameter to `findByEmail()`
+- โœ… Removed non-existent imports
+- โœ… Replaced `FirestoreCollections.users` โ†' `_collectionName = 'users'`
+- โœ… Replaced `FirestoreFields.*` โ†' string literals
+- โœ… Removed `FirestoreUtils.convertTimestamps()` - not needed
+- โœ… Replaced `RepositoryConfig.maxBatchSize` โ†' `500`
+
+**Result:**
+- โœ… Code now compiles
+- โœ… Secure (household_id filter)
+- โœ… Consistent with other repositories
+
+**Status:** โœ… Complete
+
+---
+
+### Session #20 - Repository Cleanup
+**Files to Delete:**
+- `lib/repositories/firebase_products_repository_optimized.dart`
+
+**Reason:**
+- Optimized version with pagination/caching never used
+- Not imported by any Provider
+- Standard `firebase_products_repository.dart` is sufficient
+
+**Analysis:**
+- ✅ 14/15 repositories in use
+- ❌ 1/15 repository unused (optimized version)
+
+**Status:** 🟡 Pending manual deletion
+
+---
+
 ### Session #19 - Scripts Directory Cleanup
 **Files Deleted:**
 - **Demo Data (9 files):** `cleanup_demo_users.js`, `create_demo_data_v2.js`, `create_demo_family.js`, `create_demo_users.js`, `create_demo_users_complete.js`, `find_demo_uids.js`, `fix_demo_users.js`, `generate_demo_data.js`, `DEMO_DATA_UPGRADE.md`

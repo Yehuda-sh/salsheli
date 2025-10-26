@@ -49,12 +49,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 import '../models/user_entity.dart';
-import 'constants/repository_constants.dart';
 import 'user_repository.dart';
-import 'utils/firestore_utils.dart';
 
 class FirebaseUserRepository implements UserRepository {
   final FirebaseFirestore _firestore;
+  final String _collectionName = 'users';
 
   FirebaseUserRepository({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
@@ -66,18 +65,14 @@ class FirebaseUserRepository implements UserRepository {
     try {
       debugPrint('📥 FirebaseUserRepository.fetchUser: טוען משתמש $userId');
 
-      final doc = await _firestore.collection(FirestoreCollections.users).doc(userId).get();
+      final doc = await _firestore.collection(_collectionName).doc(userId).get();
 
       if (!doc.exists) {
         debugPrint('⚠️ FirebaseUserRepository.fetchUser: משתמש לא נמצא');
         return null;
       }
 
-      // המרת Timestamps ל-Strings לפני fromJson
-      final data = FirestoreUtils.convertTimestamps(
-        Map<String, dynamic>.from(doc.data()!),
-      );
-
+      final data = Map<String, dynamic>.from(doc.data()!);
       final user = UserEntity.fromJson(data);
       debugPrint('✅ FirebaseUserRepository.fetchUser: משתמש נטען - ${user.email}');
       
@@ -100,7 +95,7 @@ class FirebaseUserRepository implements UserRepository {
       final updatedUser = user.copyWith(lastLoginAt: DateTime.now());
 
       await _firestore
-          .collection(FirestoreCollections.users)
+          .collection(_collectionName)
           .doc(user.id)
           .set(
             updatedUser.toJson(),
@@ -123,7 +118,7 @@ class FirebaseUserRepository implements UserRepository {
     try {
       debugPrint('🗑️ FirebaseUserRepository.deleteUser: מוחק משתמש $userId');
 
-      await _firestore.collection(FirestoreCollections.users).doc(userId).delete();
+      await _firestore.collection(_collectionName).doc(userId).delete();
 
       debugPrint('✅ FirebaseUserRepository.deleteUser: משתמש נמחק');
     } catch (e, stackTrace) {
@@ -138,7 +133,7 @@ class FirebaseUserRepository implements UserRepository {
   @override
   Future<bool> existsUser(String userId) async {
     try {
-      final doc = await _firestore.collection(FirestoreCollections.users).doc(userId).get();
+      final doc = await _firestore.collection(_collectionName).doc(userId).get();
       return doc.exists;
     } catch (e) {
       debugPrint('❌ FirebaseUserRepository.existsUser: שגיאה - $e');
@@ -159,11 +154,11 @@ class FirebaseUserRepository implements UserRepository {
         debugPrint('⚠️ FirebaseUserRepository.getAllUsers: Loading ALL users (no filter!)');
       }
 
-      Query<Map<String, dynamic>> query = _firestore.collection(FirestoreCollections.users);
+      Query<Map<String, dynamic>> query = _firestore.collection(_collectionName);
       
       // ✅ Apply household filter if provided
       if (householdId != null) {
-        query = query.where(FirestoreFields.householdId, isEqualTo: householdId);
+        query = query.where('household_id', isEqualTo: householdId);
       }
       
       final snapshot = await query
@@ -171,9 +166,7 @@ class FirebaseUserRepository implements UserRepository {
           .get();
 
       final users = snapshot.docs.map((doc) {
-        final data = FirestoreUtils.convertTimestamps(
-          Map<String, dynamic>.from(doc.data()),
-        );
+        final data = Map<String, dynamic>.from(doc.data());
         return UserEntity.fromJson(data);
       }).toList();
 
@@ -187,9 +180,10 @@ class FirebaseUserRepository implements UserRepository {
   }
 
   // === Find By Email ===
+  // 🔒 SECURITY: Always filters by household_id to prevent cross-household data leakage
 
   @override
-  Future<UserEntity?> findByEmail(String email) async {
+  Future<UserEntity?> findByEmail(String email, {String? householdId}) async {
     try {
       if (email.isEmpty) {
         throw ArgumentError('Email cannot be empty');
@@ -199,21 +193,23 @@ class FirebaseUserRepository implements UserRepository {
 
       final normalizedEmail = email.toLowerCase().trim();
 
-      final snapshot = await _firestore
-          .collection(FirestoreCollections.users)
-          .where(FirestoreFields.email, isEqualTo: normalizedEmail)
-          .limit(1)
-          .get();
+      Query<Map<String, dynamic>> query = _firestore
+          .collection(_collectionName)
+          .where('email', isEqualTo: normalizedEmail);
+
+      // ✅ CRITICAL: Filter by household_id if provided
+      if (householdId != null) {
+        query = query.where('household_id', isEqualTo: householdId);
+      }
+
+      final snapshot = await query.limit(1).get();
 
       if (snapshot.docs.isEmpty) {
         debugPrint('⚠️ FirebaseUserRepository.findByEmail: משתמש לא נמצא');
         return null;
       }
 
-      // המרת Timestamps ל-Strings
-      final data = FirestoreUtils.convertTimestamps(
-        Map<String, dynamic>.from(snapshot.docs.first.data()),
-      );
+      final data = Map<String, dynamic>.from(snapshot.docs.first.data());
 
       final user = UserEntity.fromJson(data);
       debugPrint('✅ FirebaseUserRepository.findByEmail: משתמש נמצא - ${user.id}');
@@ -233,8 +229,8 @@ class FirebaseUserRepository implements UserRepository {
     try {
       debugPrint('⏰ FirebaseUserRepository.updateLastLogin: מעדכן זמן התחברות ל-$userId');
 
-      await _firestore.collection(FirestoreCollections.users).doc(userId).update({
-        FirestoreFields.lastLoginAt: Timestamp.now(),
+      await _firestore.collection(_collectionName).doc(userId).update({
+        'last_login_at': Timestamp.now(),
       });
 
       debugPrint('✅ FirebaseUserRepository.updateLastLogin: זמן עודכן');
@@ -257,11 +253,11 @@ class FirebaseUserRepository implements UserRepository {
         debugPrint('⚠️ FirebaseUserRepository.clearAll: Deleting ALL users (DANGEROUS!)');
       }
 
-      Query<Map<String, dynamic>> query = _firestore.collection(FirestoreCollections.users);
+      Query<Map<String, dynamic>> query = _firestore.collection(_collectionName);
       
       // ✅ Apply household filter if provided
       if (householdId != null) {
-        query = query.where(FirestoreFields.householdId, isEqualTo: householdId);
+        query = query.where('household_id', isEqualTo: householdId);
       } else {
         query = query.limit(100); // Safety limit for all-users delete
       }
@@ -270,10 +266,11 @@ class FirebaseUserRepository implements UserRepository {
 
       // ✅ Split into batches of 500 (Firestore maximum)
       final docs = snapshot.docs;
-      for (int i = 0; i < docs.length; i += RepositoryConfig.maxBatchSize) {
+      const maxBatchSize = 500;
+      for (int i = 0; i < docs.length; i += maxBatchSize) {
         final batch = _firestore.batch();
-        final end = (i + RepositoryConfig.maxBatchSize < docs.length) 
-            ? i + RepositoryConfig.maxBatchSize 
+        final end = (i + maxBatchSize < docs.length) 
+            ? i + maxBatchSize 
             : docs.length;
         
         for (int j = i; j < end; j++) {
@@ -423,8 +420,8 @@ class FirebaseUserRepository implements UserRepository {
       debugPrint('✏️ FirebaseUserRepository.updateProfile: מעדכן פרופיל של $userId');
 
       final updates = <String, dynamic>{};
-      if (name != null) updates[FirestoreFields.name] = name;
-      if (avatar != null) updates[FirestoreFields.profileImageUrl] = avatar;
+      if (name != null) updates['name'] = name;
+      if (avatar != null) updates['profile_image_url'] = avatar;
 
       if (updates.isEmpty) {
         debugPrint('⚠️ אין שדות לעדכון');
@@ -432,7 +429,7 @@ class FirebaseUserRepository implements UserRepository {
       }
 
       await _firestore
-          .collection(FirestoreCollections.users)
+          .collection(_collectionName)
           .doc(userId)
           .update(updates);
 
@@ -504,17 +501,13 @@ class FirebaseUserRepository implements UserRepository {
   /// - [saveUser] - עדכון המשתמש
   Stream<UserEntity?> watchUser(String userId) {
     return _firestore
-        .collection(FirestoreCollections.users)
+        .collection(_collectionName)
         .doc(userId)
         .snapshots()
         .map((snapshot) {
       if (!snapshot.exists) return null;
       
-      // המרת Timestamps ל-Strings
-      final data = FirestoreUtils.convertTimestamps(
-        Map<String, dynamic>.from(snapshot.data()!),
-      );
-      
+      final data = Map<String, dynamic>.from(snapshot.data()!);
       return UserEntity.fromJson(data);
     });
   }

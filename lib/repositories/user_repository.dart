@@ -235,10 +235,15 @@ abstract class UserRepository {
   /// 
   /// מחזיר [UserEntity] אם נמצא משתמש עם האימייל, אחרת `null`.
   /// 
+  /// 🔒 **SECURITY:** מקבל פרמטר אופציונלי [householdId]:
+  /// - אם [householdId] מסופק → מחפש רק במשק בית זה ✅ (מומלץ)
+  /// - אם [householdId] הוא null → מחפש בכל המשתמשים ⚠️ (admin בלבד)
+  /// 
   /// ⚠️ **חשוב:** האימייל מנורמל (toLowerCase + trim) לפני החיפוש.
   /// 
   /// שימושי ל:
-  /// - בדיקת אימייל קיים בהרשמה
+  /// - הוספת משתמש למשק בית (עם householdId) ✅
+  /// - בדיקת אימייל קיים בהרשמה (ללא householdId)
   /// - שחזור חשבון
   /// - חיפוש משתמש במסך ניהול
   /// 
@@ -248,9 +253,19 @@ abstract class UserRepository {
   /// 
   /// Example:
   /// ```dart
-  /// final user = await repository.findByEmail('user@example.com');
+  /// // חיפוש במשק בית מסוים (מומלץ)
+  /// final user = await repository.findByEmail(
+  ///   'user@example.com',
+  ///   householdId: 'house_abc123',
+  /// );
   /// if (user != null) {
-  ///   print('משתמש קיים: ${user.id}');
+  ///   print('משתמש במשק: ${user.id}');
+  /// }
+  /// 
+  /// // חיפוש גלובלי (הרשמה חדשה)
+  /// final existingUser = await repository.findByEmail('user@example.com');
+  /// if (existingUser != null) {
+  ///   print('אימייל כבר קיים במערכת');
   /// } else {
   ///   print('אימייל פנוי לרישום');
   /// }
@@ -258,7 +273,8 @@ abstract class UserRepository {
   /// 
   /// See also:
   /// - [existsUser] - בדיקת קיום לפי ID
-  Future<UserEntity?> findByEmail(String email);
+  /// - [getAllUsers] - קבלת כל משתמשי המשק
+  Future<UserEntity?> findByEmail(String email, {String? householdId});
 
   /// מעדכן את זמן ההתחברות האחרון של משתמש
   /// 
