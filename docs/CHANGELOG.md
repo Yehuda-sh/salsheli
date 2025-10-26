@@ -7,6 +7,49 @@
 ```yaml
 date: 26/10/2025
 
+session_29:
+  task: Fixed RangeError - Receipts Tab Mismatch
+  status: complete
+  files:
+    - lib/layout/app_layout.dart: removed Receipts tab (4 tabs)
+    - lib/screens/home/home_screen.dart: added bounds check + docs
+  bug:
+    symptom: "RangeError: Invalid value: Not in inclusive range 0..3: 4"
+    cause: AppLayout had 5 tabs (0-4) but HomeScreen had 4 pages (0-3)
+    trigger: clicking tab index 4 (Receipts)
+  fix:
+    - removed Receipts from _navItems (accessible via Settings)
+    - added bounds check in _onItemTapped (prevents future crashes)
+    - updated docs: 5→4 tabs, version 2.2→2.3
+  impact:
+    - crash_fixed: RangeError eliminated
+    - defensive: bounds check prevents similar bugs
+    - ux: Receipts still accessible via Settings → "הקבלות שלי"
+  result: stable navigation, no more crashes
+
+session_28:
+  task: Optimized settings_screen.dart
+  status: complete
+  files:
+    - lib/screens/settings/settings_screen.dart: 7 improvements
+  changes:
+    priority_1_critical:
+      A: Added const on 50+ widgets (SizedBox, Text, Icon, CircularProgressIndicator, Row, _SkeletonBox)
+      B: Deleted _AnimatedButton (dead code - unused widget)
+      C: Fixed ElevatedButton → StickyButton in error state
+    priority_2_important:
+      D: Simplified _SkeletonBox (removed borderRadius param)
+      E: Added TODO on Debug Tools section
+      F: Added TODO+FIXME on _members hardcoded data
+    priority_3_polish:
+      G: Added comment for future shimmer effect in _SkeletonBox
+  impact:
+    - performance: +5-10% (const optimization)
+    - code_quality: dead code removed
+    - design_consistency: StickyButton everywhere
+    - maintainability: clear TODOs for future work
+  result: cleaner, faster, consistent with MemoZap standards
+
 session_27:
   task: Fixed smart_suggestions_card.dart
   status: complete

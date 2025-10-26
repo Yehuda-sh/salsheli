@@ -81,7 +81,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _isEditingHouseholdName = false;
   final TextEditingController _householdNameController = TextEditingController();
 
-  // חברים (דמה - בעתיד מה-Provider)
+  // TODO: חברים (דמה - בעתיד מה-Provider או HouseholdProvider)
+  // FIXME: Hardcoded data - צריך להתחבר ל-UserContext/HouseholdProvider
   final List<Map<String, String>> _members = [
     {"name": "יוסי כהן", "role": "owner"},
     {"name": "דנה לוי", "role": "editor"},
@@ -250,13 +251,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       SnackBar(
         content: Row(
           children: [
-            SizedBox(
+            const SizedBox(
               width: 20,
               height: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.onInverseSurface),
-              ),
+              child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
             ),
             const SizedBox(width: kSpacingMedium),
             Text(AppStrings.settings.updatingPrices),
@@ -365,8 +363,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       CircularProgressIndicator(),
-                      SizedBox(height: kSpacingMedium),
-                      Text('ממחק נתונים...'),
+                      const SizedBox(height: kSpacingMedium),
+                      const Text('ממחק נתונים...'),
                     ],
                   ),
                 ),
@@ -409,31 +407,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return ListView(
       padding: const EdgeInsets.all(kSpacingMedium),
       children: [
-        _SkeletonBox(width: double.infinity, height: 100, borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+        const _SkeletonBox(width: double.infinity, height: 100),
         const SizedBox(height: kSpacingMedium),
-        Row(
+        const Row(
           children: [
-            Expanded(
-              child: _SkeletonBox(
-                width: double.infinity,
-                height: 80,
-                borderRadius: BorderRadius.circular(kBorderRadius),
-              ),
-            ),
-            const SizedBox(width: kSpacingSmallPlus),
-            Expanded(
-              child: _SkeletonBox(
-                width: double.infinity,
-                height: 80,
-                borderRadius: BorderRadius.circular(kBorderRadius),
-              ),
-            ),
+            Expanded(child: _SkeletonBox(width: double.infinity, height: 80)),
+            SizedBox(width: kSpacingSmallPlus),
+            Expanded(child: _SkeletonBox(width: double.infinity, height: 80)),
           ],
         ),
         const SizedBox(height: kSpacingSmallPlus),
-        _SkeletonBox(width: double.infinity, height: 80, borderRadius: BorderRadius.circular(kBorderRadius)),
+        const _SkeletonBox(width: double.infinity, height: 80),
         const SizedBox(height: kSpacingLarge),
-        _SkeletonBox(width: double.infinity, height: 200, borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+        const _SkeletonBox(width: double.infinity, height: 200),
       ],
     );
   }
@@ -495,7 +481,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                   const SizedBox(height: kSpacingMedium),
-                  ElevatedButton(onPressed: _retry, child: Text(AppStrings.priceComparison.retry)),
+                  StickyButton(label: AppStrings.priceComparison.retry, onPressed: _retry, color: kStickyCyan),
                 ],
               ),
             ),
@@ -616,6 +602,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: kSpacingMedium),
 
                 // 🛠️ Debug Tools (זמני)
+                // TODO: להחליט - להשאיר או להעביר למסך נפרד
                 StickyNote(
                   color: Colors.orange.shade100,
                   rotation: -0.02,
@@ -1060,39 +1047,6 @@ class _AnimatedCounter extends StatelessWidget {
       builder: (context, value, child) {
         return Text('$value', style: style);
       },
-    );
-  }
-}
-
-// 🎬 AnimatedButton - Wrapper לכל הכפתורים
-class _AnimatedButton extends StatefulWidget {
-  final Widget child;
-  final VoidCallback onPressed;
-
-  const _AnimatedButton({required this.child, required this.onPressed});
-
-  @override
-  State<_AnimatedButton> createState() => _AnimatedButtonState();
-}
-
-class _AnimatedButtonState extends State<_AnimatedButton> {
-  bool _isPressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        widget.onPressed();
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      child: AnimatedScale(
-        scale: _isPressed ? 0.95 : 1.0,
-        duration: const Duration(milliseconds: 150),
-        curve: Curves.easeInOut,
-        child: widget.child,
-      ),
     );
   }
 }

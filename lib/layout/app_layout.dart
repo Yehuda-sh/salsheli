@@ -44,6 +44,9 @@
 // Version: 3.1 - Performance & Code Quality Improvements
 // Last Updated: 22/10/2025
 //
+// 🎨 New in v3.2 (26/10/2025):
+// - ✅ Removed Receipts tab (accessible via Settings → "הקבלות שלי")
+// - ✅ Fixed RangeError: 4 tabs instead of 5
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -442,11 +445,11 @@ class _NavItem {
 /// 
 /// Note: Uses AppStrings for consistent i18n support.
 /// These items define the bottom navigation structure.
+/// Version 3.2: Removed Receipts tab - accessible via Settings → "הקבלות שלי"
 final List<_NavItem> _navItems = [
   _NavItem(icon: Icons.home, label: AppStrings.navigation.home),
   _NavItem(icon: Icons.shopping_cart, label: AppStrings.navigation.lists),
   _NavItem(icon: Icons.inventory, label: AppStrings.navigation.pantry),
-  _NavItem(icon: Icons.receipt_long, label: AppStrings.navigation.receipts),
   _NavItem(icon: Icons.settings, label: AppStrings.navigation.settings),
 ];
 

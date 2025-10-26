@@ -110,8 +110,6 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
       _unitController = TextEditingController(text: 'יח\'');
       _selectedLocation = StorageLocationsConfig.mainPantry;
     }
-
-    debugPrint('🔧 PantryItemDialog: Initialized in ${widget.mode.name} mode');
   }
 
   @override
@@ -157,7 +155,6 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
       final provider = context.read<InventoryProvider>();
 
       if (widget.mode == PantryItemDialogMode.add) {
-        debugPrint('➕ PantryItemDialog: Creating item - $productName');
         await provider.createItem(
           productName: productName,
           category: category,
@@ -165,9 +162,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
           quantity: quantity,
           unit: unit,
         );
-        debugPrint('✅ PantryItemDialog: Item created successfully');
       } else {
-        debugPrint('✏️ PantryItemDialog: Updating item - ${widget.item!.id}');
         final updatedItem = widget.item!.copyWith(
           productName: productName,
           category: category,
@@ -176,7 +171,6 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
           unit: unit,
         );
         await provider.updateItem(updatedItem);
-        debugPrint('✅ PantryItemDialog: Item updated successfully');
       }
 
       if (!mounted) return;
@@ -348,10 +342,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
           TextButton(
             onPressed: _isLoading
                 ? null
-                : () {
-                    debugPrint('❌ PantryItemDialog: Cancelled');
-                    Navigator.pop(context, false);
-                  },
+                : () => Navigator.pop(context, false),
             child: Text(AppStrings.common.cancel),
           ),
           

@@ -51,8 +51,6 @@ class PantryFilters extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('🏗️ PantryFilters.build: currentCategory=$currentCategory');
-    
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
@@ -66,7 +64,6 @@ class PantryFilters extends StatelessWidget {
           borderRadius: BorderRadius.circular(kBorderRadius),
           border: Border.all(
             color: cs.outline.withValues(alpha: 0.3),
-            width: 1,
           ),
         ),
         child: Column(
@@ -77,7 +74,7 @@ class PantryFilters extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  "סינון לפי קטגוריה",
+                  'סינון לפי קטגוריה',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     fontSize: kFontSizeBody,
@@ -112,7 +109,7 @@ class PantryFilters extends StatelessWidget {
                     color: brand?.accent ?? cs.primary,
                   ),
                   label: Text(
-                    "איפוס סינון",
+                    'איפוס סינון',
                     style: TextStyle(
                       color: brand?.accent ?? cs.primary,
                       fontWeight: FontWeight.w600,
@@ -154,7 +151,7 @@ class PantryFilters extends StatelessWidget {
         children: [
           // תווית
           Text(
-            "קטגוריה",
+            'קטגוריה',
             style: theme.textTheme.bodyMedium?.copyWith(
               fontSize: kFontSizeSmall,
               fontWeight: FontWeight.w500,
@@ -168,7 +165,6 @@ class PantryFilters extends StatelessWidget {
             initialValue: currentCategory,
             onChanged: (newCategory) {
               if (newCategory != null) {
-                debugPrint('📝 PantryFilters: category changed to $newCategory');
                 onCategoryChanged(newCategory);
               }
             },
