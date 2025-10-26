@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
+import '../../models/shopping_list.dart';
 import '../../models/smart_suggestion.dart';
 import '../../models/unified_list_item.dart';
 import '../../providers/shopping_lists_provider.dart';
@@ -26,6 +27,22 @@ class SmartSuggestionsCard extends StatefulWidget {
 class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
+
+  /// המרת urgency (string) לאמוג'י
+  String _getUrgencyEmoji(String urgency) {
+    switch (urgency) {
+      case 'critical':
+        return '🚨';
+      case 'high':
+        return '⚠️';
+      case 'medium':
+        return '⚡';
+      case 'low':
+        return 'ℹ️';
+      default:
+        return '💡';
+    }
+  }
 
   @override
   void dispose() {
@@ -43,12 +60,12 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
         }
 
         // Error state
-        if (provider.errorMessage != null) {
-          return _buildErrorCard(context, provider.errorMessage!);
+        if (provider.error != null) {
+          return _buildErrorCard(context, provider.error!);
         }
 
         // Get all pending suggestions
-        final suggestions = provider.pendingSuggestions;
+        final suggestions = provider.suggestions.where((s) => s.isActive).toList();
 
         // Empty state
         if (suggestions.isEmpty) {
@@ -79,7 +96,7 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
               ),
             ),
             // Dots indicator
-            if (suggestions.length > 1) ..[
+            if (suggestions.length > 1) ...<Widget>[
               const SizedBox(height: kSpacingSmall),
               _buildDotsIndicator(suggestions.length),
             ],
@@ -155,14 +172,14 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
         children: [
           const Icon(Icons.error_outline, size: 48, color: kStickyPink),
           const SizedBox(height: kSpacingMedium),
-          Text(
+          const Text(
             'שגיאה בטעינת המלצות',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: kSpacingSmall),
           Text(
             error,
-            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            style: const TextStyle(fontSize: 14, color: Colors.grey),  
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: kSpacingMedium),
@@ -244,8 +261,8 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
           Row(
             children: [
               Icon(
-                suggestion.isUrgent ? Icons.warning_amber : Icons.lightbulb_outline,
-                color: suggestion.isUrgent ? kStickyOrange : Colors.white,
+                suggestion.isCriticallyLow ? Icons.warning_amber : Icons.lightbulb_outline,
+                color: suggestion.isCriticallyLow ? kStickyOrange : Colors.white,
                 size: 28,
               ),
               const SizedBox(width: kSpacingSmall),
@@ -300,19 +317,19 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
               const Icon(Icons.inventory_2_outlined, color: Colors.white70, size: 18),
               const SizedBox(width: kSpacingSmall),
               Text(
-                'במלאי: ${suggestion.currentStock} ${suggestion.category ?? "יח\'"}',
+                'במלאי: ${suggestion.currentStock} ${suggestion.unit}',
                 style: const TextStyle(fontSize: 14, color: Colors.white70),
               ),
               const SizedBox(width: kSpacingMedium),
               Text(
-                suggestion.urgencyEmoji,
+                _getUrgencyEmoji(suggestion.urgency),
                 style: const TextStyle(fontSize: 18),
               ),
             ],
           ),
 
           // Reason (if urgent)
-          if (suggestion.isUrgent) ...[
+          if (suggestion.isCriticallyLow) ...[
             const SizedBox(height: kSpacingSmall),
             Container(
               padding: const EdgeInsets.all(kSpacingSmall),
@@ -320,11 +337,11 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
                 color: kStickyOrange.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Row(
+              child: const Row(
                 children: [
-                  const Icon(Icons.priority_high, color: Colors.white, size: 16),
-                  const SizedBox(width: kSpacingSmall),
-                  const Expanded(
+                  Icon(Icons.priority_high, color: Colors.white, size: 16),
+                  SizedBox(width: kSpacingSmall),
+                  Expanded(
                     child: Text(
                       'דחוף - מלאי נמוך!',
                       style: TextStyle(
@@ -413,15 +430,16 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
       final item = UnifiedListItem.product(
         id: suggestion.id,
         name: suggestion.productName,
-        quantity: suggestion.neededQuantity,
-        unit: suggestion.category ?? "יח'",
+        quantity: suggestion.quantityNeeded,
+        unitPrice: 0.0,
+        unit: suggestion.unit,
         category: suggestion.category,
       );
 
       await listsProvider.addUnifiedItem(targetList.id, item);
 
       // Mark suggestion as added
-      await provider.addCurrentSuggestion();
+      await provider.addCurrentSuggestion(targetList.id);
 
       if (!context.mounted) return;
 
@@ -498,7 +516,7 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
     if (confirmed != true) return;
 
     try {
-      await provider.deleteCurrentSuggestion();
+      await provider.deleteCurrentSuggestion(null);
 
       if (!context.mounted) return;
 

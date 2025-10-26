@@ -60,6 +60,10 @@ class _CreateListDialogState extends State<CreateListDialog> {
   double? _budget;
   DateTime? _eventDate;
   bool _isSubmitting = false;
+  
+  // Template selection (disabled for now - models not implemented)
+  // Template? _selectedTemplate;
+  // List<UnifiedListItem> _templateItems = [];
 
   @override
   void initState() {
@@ -219,20 +223,10 @@ class _CreateListDialogState extends State<CreateListDialog> {
   }
 
   // ========================================
-  // 📋 Templates Bottom Sheet - משופר!
+  // 📋 Templates Bottom Sheet - DISABLED
   // ========================================
-  /// הצגת Bottom Sheet לבחירת תבנית
-  ///
-  /// תכונות:
-  /// - DraggableScrollableSheet (גובה 0.7-0.95)
-  /// - Consumer&lt;TemplatesProvider&gt; עם states:
-  ///   - loading: מעגל טעינה
-  ///   - error: הודעת שגיאה
-  ///   - empty: הודעת "אין תבניות"
-  ///   - data: ListView של תבניות
-  /// - בחירה: עדכון _selectedTemplate + _templateItems
-  /// - Feedback: SnackBar עם שם התבנית
-  Future<void> _showTemplatesBottomSheet() async {
+  /// Templates feature is disabled until Template model is implemented
+  /* Future<void> _showTemplatesBottomSheet() async {
     debugPrint('📋 פתיחת Templates Bottom Sheet');
 
     final template = await showModalBottomSheet<Template>(
@@ -443,7 +437,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
         ),
       );
     }
-  }
+  } */
 
   // ========================================
   // 🎭 תצוגה מקובצת של סוגי רשימות
@@ -613,12 +607,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
                 debugPrint('🔄 סוג רשימה שונה ל: $type');
                 setState(() {
                   _type = type;
-                  // 🆕 אם הסוג משתנה, בדוק אם התבנית עדיין תואמת
-                  if (_selectedTemplate != null && _selectedTemplate!.type != type) {
-                    debugPrint('⚠️ סוג רשימה השתנה - מנקה תבנית');
-                    _selectedTemplate = null;
-                    _templateItems.clear();
-                  }
+                  // Template logic removed - feature not implemented
                 });
               }
             },
@@ -662,65 +651,9 @@ class _CreateListDialogState extends State<CreateListDialog> {
             mainAxisSize: MainAxisSize.min,
             children: [
               // ========================================
-              // 📋 כפתור שימוש בתבנית + Badge
+              // 📋 Templates feature disabled
               // ========================================
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  OutlinedButton.icon(
-                    onPressed: _isSubmitting ? null : _showTemplatesBottomSheet,
-                    icon: const Icon(Icons.library_books_outlined),
-                    label: Text(strings.useTemplateButton),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(kButtonHeight),
-                      backgroundColor: _selectedTemplate != null 
-                          ? theme.colorScheme.primaryContainer.withValues(alpha: kOpacityLow)
-                          : null,
-                    ),
-                  ),
-                  // 🆕 Badge - מציג כמה פריטים נבחרו
-                  if (_selectedTemplate != null)
-                    Positioned(
-                      top: -8,
-                      left: -8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: kSpacingSmall,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.primary,
-                          borderRadius: BorderRadius.circular(kRadiusPill),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.1),
-                              blurRadius: 4,
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.check_circle,
-                              size: 14,
-                              color: theme.colorScheme.onPrimary,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${_templateItems.length}',
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                color: theme.colorScheme.onPrimary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: kSpacingMedium),
+              // Template button removed - feature not implemented yet
 
               // 📝 שם הרשימה
               TextFormField(
@@ -800,36 +733,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
                         ),
                       ],
                     ),
-                    // 🆕 מידע על התבנית
-                    if (_selectedTemplate != null) ...[
-                      const SizedBox(height: kSpacingSmall),
-                      Container(
-                        padding: const EdgeInsets.all(kSpacingSmall),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.library_books,
-                              size: kIconSizeSmall,
-                              color: theme.colorScheme.primary,
-                            ),
-                            const SizedBox(width: kSpacingXSmall),
-                            Expanded(
-                              child: Text(
-                                '${_selectedTemplate!.name} (${_templateItems.length} פריטים)',
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                    // Template info removed - feature not implemented yet
                   ],
                 ),
               ),

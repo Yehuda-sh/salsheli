@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
-import '../../models/suggestions/smart_suggestion.dart';
+import '../../models/smart_suggestion.dart';
 import '../../models/unified_list_item.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../providers/suggestions_provider.dart';
@@ -54,6 +54,22 @@ class _LastChanceBannerContent extends StatefulWidget {
 
 class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
   bool _isProcessing = false;
+
+  /// המרת urgency (string) לאמוג'י
+  String _getUrgencyEmoji(String urgency) {
+    switch (urgency) {
+      case 'critical':
+        return '🚨';
+      case 'high':
+        return '⚠️';
+      case 'medium':
+        return '⚡';
+      case 'low':
+        return 'ℹ️';
+      default:
+        return '💡';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +132,7 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
               children: [
                 // אמוג'י דחיפות
                 Text(
-                  suggestion.urgencyEmoji,
+                  _getUrgencyEmoji(suggestion.urgency),
                   style: const TextStyle(fontSize: 32),
                 ),
                 const SizedBox(width: kSpacingSmall),
@@ -171,9 +187,7 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                  ).animate()
-                      .fadeIn(duration: 300.ms)
-                      .slideX(begin: -0.2, end: 0),
+                  ),
                 ),
 
                 const SizedBox(width: kSpacingSmall),
@@ -192,9 +206,7 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                  ).animate()
-                      .fadeIn(duration: 300.ms, delay: 100.ms)
-                      .slideX(begin: 0.2, end: 0),
+                  ),
                 ),
               ],
             ),
@@ -226,24 +238,19 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
       final suggestionsProvider =
           Provider.of<SuggestionsProvider>(context, listen: false);
 
-      // יצירת פריט
-      final item = UnifiedListItem.product(
-        productId: suggestion.productId,
-        productName: suggestion.productName,
-        quantity: suggestion.neededQuantity,
-        category: suggestion.category,
-      );
+      // יצירת פריט מההמלצה (השתמש במתודה המוכנה)
+      final item = suggestion.toUnifiedListItem();
 
       // הוספה לרשימה
       await listsProvider.addUnifiedItem(widget.activeListId, item);
 
-      // סימון כנוסף
-      await suggestionsProvider.addCurrentSuggestion();
-
-      if (!mounted) return;
+      // סימון כנוסף (צריך listId)
+      await suggestionsProvider.addCurrentSuggestion(widget.activeListId);
 
       // הודעת הצלחה
-      ScaffoldMessenger.of(context).showSnackBar(
+      if (!mounted) return;
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.showSnackBar(
         SnackBar(
           content: Text('נוסף "${suggestion.productName}" לרשימה ✅'),
           backgroundColor: kStickyGreen,
@@ -252,8 +259,8 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
       );
     } catch (e) {
       if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.showSnackBar(
         SnackBar(
           content: Text('שגיאה בהוספה: $e'),
           backgroundColor: kStickyPink,
@@ -275,24 +282,22 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
       final suggestionsProvider =
           Provider.of<SuggestionsProvider>(context, listen: false);
 
-      // דחייה ליום אחד (הקניות הנוכחיות)
-      await suggestionsProvider.dismissCurrentSuggestion(
-        duration: const Duration(days: 1),
-      );
+      // דחייה (המתודה משתמשת ב-Duration קבוע של 7 ימים)
+      await suggestionsProvider.dismissCurrentSuggestion();
 
       if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('עברנו להמלצה הבאה 👍'),
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('עברנו להמלצה הבאה 👍'),
           backgroundColor: kStickyCyan,
           duration: const Duration(seconds: 2),
         ),
       );
     } catch (e) {
       if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.showSnackBar(
         SnackBar(
           content: Text('שגיאה: $e'),
           backgroundColor: kStickyPink,

@@ -7,6 +7,67 @@
 ```yaml
 date: 26/10/2025
 
+session_27:
+  task: Fixed smart_suggestions_card.dart
+  status: complete
+  files:
+    - lib/widgets/home/smart_suggestions_card.dart: 14 errors fixed + import added
+  bugs:
+    1: errorMessage undefined (should be error)
+    2: pendingSuggestions undefined (filter suggestions manually)
+    3: syntax error with spread operator [...]
+    4: isUrgent undefined (should be isCriticallyLow)
+    5: urgencyEmoji undefined (need helper method)
+    6: ShoppingList undefined (should be ShoppingListEntity)
+    7: UnifiedListItem.product missing unitPrice parameter
+    8: neededQuantity undefined (should be quantityNeeded)
+    9: addCurrentSuggestion() missing listId argument
+    10: deleteCurrentSuggestion() missing duration argument (null for permanent)
+  fixes:
+    1: errorMessage → error
+    2: provider.suggestions.where((s) => s.isActive).toList()
+    3: ...[] → ...<Widget>[]
+    4: isUrgent → isCriticallyLow
+    5: Created _getUrgencyEmoji(urgency) helper method
+    6: Added import shopping_list_entity.dart + ShoppingListEntity type
+    7: Added unitPrice: 0.0 parameter
+    8: neededQuantity → quantityNeeded
+    9: Added targetList.id argument
+    10: Added null argument (permanent delete)
+  impact: Widget now compiles, ready for testing
+
+session_26:
+  task: Fixed last_chance_banner.dart
+  status: complete
+  files:
+    - lib/widgets/home/last_chance_banner.dart: 13 errors fixed
+  bugs:
+    1: urgencyEmoji getter undefined in SmartSuggestion
+    2: animate() method undefined (flutter_animate not imported)
+    3: productId/productName parameters undefined in UnifiedListItem.product
+    4: neededQuantity getter undefined
+    5: addCurrentSuggestion() missing listId argument
+    6: dismissCurrentSuggestion() unexpected duration parameter
+    7: use_build_context_synchronously warnings
+  fixes:
+    1: Created _getUrgencyEmoji(urgency) helper method
+    2: Removed .animate() calls
+    3: Used suggestion.toUnifiedListItem() instead
+    4: Fixed to quantityNeeded
+    5: Added listId argument
+    6: Removed duration parameter
+    7: Captured messenger before await + mounted checks
+  impact: Widget now compiles, ready for testing
+
+session_25:
+  task: Fixed create_list_dialog.dart
+  status: complete
+  files:
+    - lib/widgets/create_list_dialog.dart: closed multi-line comment
+  bug: Missing */ caused entire code after line 432 to be treated as comment
+  fix: Added */ to close comment block
+  impact: Dialog now compiles correctly
+
 session_24:
   task: CHANGELOG Compression
   status: complete

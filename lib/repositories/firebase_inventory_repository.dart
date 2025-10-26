@@ -26,10 +26,10 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import '../models/inventory_item.dart';
+
 import '../core/constants.dart';  // 🆕 שימוש ב-FirestoreCollections/Fields
+import '../models/inventory_item.dart';
 import 'inventory_repository.dart';
-import 'utils/firestore_utils.dart';
 
 /// Firebase implementation של InventoryRepository
 /// 
@@ -172,10 +172,8 @@ class FirebaseInventoryRepository implements InventoryRepository {
       debugPrint('💾 FirebaseInventoryRepository.saveItem: שומר פריט ${item.id}');
 
       // הוספת household_id לנתונים
-      final data = FirestoreUtils.addHouseholdId(
-        item.toJson(),
-        householdId,
-      );
+      final data = item.toJson();
+      data[FirestoreFields.householdId] = householdId;
 
       // ✅ שימוש בקבועים
       await _firestore
@@ -266,7 +264,7 @@ class FirebaseInventoryRepository implements InventoryRepository {
   ///   - [householdId]: מזהה המשק בית
   /// 
   /// Returns:
-  ///   - Stream<List<InventoryItem>> שמתעדכן בזמן אמת
+  ///   - `Stream<List<InventoryItem>>` שמתעדכן בזמן אמת
   /// 
   /// Example:
   /// ```dart
@@ -369,7 +367,7 @@ class FirebaseInventoryRepository implements InventoryRepository {
   ///   - [householdId]: מזהה המשק בית
   /// 
   /// Returns:
-  ///   - List<InventoryItem> ממוין לפי שם מוצר
+  ///   - `List<InventoryItem>` ממוין לפי שם מוצר
   /// 
   /// Example:
   /// ```dart
@@ -416,7 +414,7 @@ class FirebaseInventoryRepository implements InventoryRepository {
   ///   - [householdId]: מזהה המשק בית
   /// 
   /// Returns:
-  ///   - List<InventoryItem> ממוין לפי שם מוצר
+  ///   - `List<InventoryItem>` ממוין לפי שם מוצר
   /// 
   /// Example:
   /// ```dart
@@ -463,7 +461,7 @@ class FirebaseInventoryRepository implements InventoryRepository {
   ///   - [householdId]: מזהה המשק בית
   /// 
   /// Returns:
-  ///   - List<InventoryItem> ממוין לפי כמות (נמוך ביותר ראשון)
+  ///   - `List<InventoryItem>` ממוין לפי כמות (נמוך ביותר ראשון)
   /// 
   /// Example:
   /// ```dart

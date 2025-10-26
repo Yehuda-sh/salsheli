@@ -283,7 +283,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
 
         debugPrint('🚪 _saveAndFinish: חוזר למסך קודם');
         navigator.pop();
-      }
     } catch (e) {
       debugPrint('❌ _saveAndFinish Error: $e');
 

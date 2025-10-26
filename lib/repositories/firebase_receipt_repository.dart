@@ -21,9 +21,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 import '../models/receipt.dart';
+import 'constants/repository_constants.dart';
 import 'receipt_repository.dart';
 import 'utils/firestore_utils.dart';
-import 'constants/repository_constants.dart';
 
 class FirebaseReceiptRepository implements ReceiptRepository {
   final FirebaseFirestore _firestore;
@@ -244,8 +244,8 @@ class FirebaseReceiptRepository implements ReceiptRepository {
       final snapshot = await _firestore
           .collection(FirestoreCollections.receipts)
           .where('household_id', isEqualTo: householdId)
-          .where(FirestoreFields.date, isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
-          .where(FirestoreFields.date, isLessThanOrEqualTo: Timestamp.fromDate(endDate))
+          .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
+          .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endDate))
           .orderBy('date', descending: true)
           .get();
 
