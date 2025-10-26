@@ -227,9 +227,16 @@ class _IndexScreenState extends State<IndexScreen>
         return;
       }
 
+      // 🔒 Capture navigator BEFORE any await (prevents crashes if widget disposed during await)
+      final navigator = Navigator.of(context);
+      
       // ✅ מצב 2-3: לא מחובר → בודק אם ראה welcome
       // (seenOnboarding נשאר מקומי - לא צריך sync בין מכשירים)
       final prefs = await SharedPreferences.getInstance();
+      
+      // Check mounted after await
+      if (!mounted) return;
+      
       final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
       _log('   📋 seenOnboarding (local): $seenOnboarding');
 
@@ -237,22 +244,18 @@ class _IndexScreenState extends State<IndexScreen>
         // ✅ מצב 2: לא ראה welcome → שולח לשם
         _log('   ➡️ לא ראה onboarding → ניווט ל-WelcomeScreen');
         _hasNavigated = true;
-        if (mounted) {
-          userContext.removeListener(_onUserContextChanged);
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => const WelcomeScreen()),
-          );
-        }
+        userContext.removeListener(_onUserContextChanged);
+        navigator.pushReplacement(
+          MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+        );
         return;
       }
 
       // ✅ מצב 3: ראה welcome אבל לא מחובר → שולח ל-login
       _log('   ➡️ ראה onboarding אבל לא מחובר → ניווט ל-/login');
       _hasNavigated = true;
-      if (mounted) {
-        userContext.removeListener(_onUserContextChanged);
-        Navigator.of(context).pushReplacementNamed('/login');
-      }
+      userContext.removeListener(_onUserContextChanged);
+      navigator.pushReplacementNamed('/login');
     } catch (e) {
       // ✅ במקרה של שגיאה - הצג מסך שגיאה
       _log('❌ שגיאה ב-IndexScreen._checkAndNavigate: $e');

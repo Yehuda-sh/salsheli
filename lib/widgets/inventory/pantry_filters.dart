@@ -63,7 +63,7 @@ class PantryFilters extends StatelessWidget {
           color: cs.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(kBorderRadius),
           border: Border.all(
-            color: cs.outline.withValues(alpha: 0.3),
+            color: cs.outline.withOpacity(0.3),
           ),
         ),
         child: Column(
