@@ -7,6 +7,21 @@
 
 ## [In Progress] - 26/10/2025
 
+### Session #17 - Constants & Storage Locations Updated
+**Files Modified:**
+1. `lib/core/constants.dart` - Removed budget constants + updated kStorageLocations (10 locations)
+2. `lib/config/storage_locations_config.dart` - Added 5 new storage locations
+
+**Changes:**
+- ✅ Removed: kMinMonthlyBudget, kMaxMonthlyBudget (not needed in app)
+- ✅ Added 5 storage locations: ארון מטבח עליון, ארון מטבח תחתון, מתחת לכיור, ארון אמבטיה, מדפים פתוחים
+- ✅ Updated kStorageLocations map to match new config (4→10 locations)
+- ✅ Marked kStorageLocations as deprecated (use StorageLocationsConfig)
+
+**Status:** ✅ Complete
+
+---
+
 ### Session #16 - Token Management + QUICKSTART Created
 **Files Created:**
 1. `docs/TOKEN_MANAGEMENT.md` - Complete token strategy (500+ lines)

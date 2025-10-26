@@ -3,7 +3,8 @@
 // 🎯 מטרה: הגדרות מיקומי אחסון במזווה
 //
 // 📋 כולל:
-// - 4 מיקומי אחסון מוגדרים מראש: מקרר, מקפיא, מזווה ראשי, מחסן
+// - 10 מיקומי אחסון מוגדרים מראש: מקרר, מקפיא, מזווה ראשי, מחסן,
+//   ארון מטבח עליון, ארון מטבח תחתון, מתחת לכיור, ארון אמבטיה, מדפים פתוחים, אחר
 // - מידע עבור כל מיקום: שם, אימוג'י, צבע
 // - Helper methods לגישה למידע
 //
@@ -57,6 +58,11 @@ class StorageLocationsConfig {
   static const String freezer = 'freezer';
   static const String mainPantry = 'main_pantry';
   static const String secondaryStorage = 'secondary_storage';
+  static const String upperCabinet = 'upper_cabinet';
+  static const String lowerCabinet = 'lower_cabinet';
+  static const String underSink = 'under_sink';
+  static const String bathroomCabinet = 'bathroom_cabinet';
+  static const String openShelves = 'open_shelves';
   static const String other = 'other';
 
   // ========================================
@@ -88,6 +94,36 @@ class StorageLocationsConfig {
       name: 'מחסן',
       emoji: '📦',
       color: Colors.brown,
+    ),
+    upperCabinet: LocationInfo(
+      id: upperCabinet,
+      name: 'ארון מטבח עליון',
+      emoji: '🚪',
+      color: Colors.orange,
+    ),
+    lowerCabinet: LocationInfo(
+      id: lowerCabinet,
+      name: 'ארון מטבח תחתון',
+      emoji: '🗄️',
+      color: Colors.deepOrange,
+    ),
+    underSink: LocationInfo(
+      id: underSink,
+      name: 'מתחת לכיור',
+      emoji: '🚿',
+      color: Colors.teal,
+    ),
+    bathroomCabinet: LocationInfo(
+      id: bathroomCabinet,
+      name: 'ארון אמבטיה',
+      emoji: '🛁',
+      color: Colors.lightBlue,
+    ),
+    openShelves: LocationInfo(
+      id: openShelves,
+      name: 'מדפים פתוחים',
+      emoji: '📏',
+      color: Colors.indigo,
     ),
     other: LocationInfo(
       id: other,
@@ -162,7 +198,9 @@ class StorageLocationsConfig {
   /// דוגמה:
   /// ```dart
   /// final allIds = StorageLocationsConfig.allLocationIds;
-  /// // מחזיר: ['refrigerator', 'freezer', 'main_pantry', 'secondary_storage', 'other']
+  /// // מחזיר: ['refrigerator', 'freezer', 'main_pantry', 'secondary_storage',
+  /// //          'upper_cabinet', 'lower_cabinet', 'under_sink', 'bathroom_cabinet',
+  /// //          'open_shelves', 'other']
   /// ```
   static List<String> get allLocationIds => locations.keys.toList();
 

@@ -323,16 +323,22 @@ const Map<String, String> kCategoryEmojis = const {
 /// 
 /// 🎯 שימוש: Map של מיקומי אחסון עם שמות ואימוג'י
 /// 📝 הערה: משמש ב-storage_location_manager
+/// ⚠️ Deprecated: השתמש ב-StorageLocationsConfig במקום
 const Map<String, Map<String, String>> kStorageLocations = const {
   'refrigerator': {'name': 'מקרר', 'emoji': '❄️'},
   'freezer': {'name': 'מקפיא', 'emoji': '🧊'},
-  'pantry': {'name': 'מזווה', 'emoji': '📦'},
-  'cabinet': {'name': 'ארון מטבח', 'emoji': '🚪'},
-  'shelf_top': {'name': 'מדף עליון', 'emoji': '📏'},
-  'shelf_bottom': {'name': 'מדף תחתון', 'emoji': '📍'},
-  'drawer': {'name': 'מגירה', 'emoji': '🗄️'},
+  'main_pantry': {'name': 'מזווה ראשי', 'emoji': '🏠'},
+  'secondary_storage': {'name': 'מחסן', 'emoji': '📦'},
+  'upper_cabinet': {'name': 'ארון מטבח עליון', 'emoji': '🚪'},
+  'lower_cabinet': {'name': 'ארון מטבח תחתון', 'emoji': '🗄️'},
+  'under_sink': {'name': 'מתחת לכיור', 'emoji': '🚿'},
+  'bathroom_cabinet': {'name': 'ארון אמבטיה', 'emoji': '🛁'},
+  'open_shelves': {'name': 'מדפים פתוחים', 'emoji': '📏'},
   'other': {'name': 'אחר', 'emoji': '📍'},
 };
+
+@Deprecated('Use StorageLocationsConfig instead')
+const Map<String, Map<String, String>> kStorageLocationsOld = kStorageLocations;
 
 /// מיפוי list types לשמות, אימוג'י ותיאורים
 /// 
@@ -455,12 +461,6 @@ const Map<String, Map<String, String>> kListTypes = const {
 /// 🎯 שימוש: validation ב-onboarding flow
 const int kMinFamilySize = 1;
 const int kMaxFamilySize = 10;
-
-/// תקציב חודשי - גבולות min/max (₪)
-/// 
-/// 🎯 שימוש: validation ב-onboarding flow
-const double kMinMonthlyBudget = 500.0;
-const double kMaxMonthlyBudget = 20000.0;
 
 /// גילאי ילדים תקינים
 /// 
