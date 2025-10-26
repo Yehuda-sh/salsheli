@@ -1,6 +1,6 @@
 # GUIDE.md - MemoZap AI Operation Guide
 
-> **For AI agents only** | Updated: 25/10/2025 | Version: 2.0
+> **For AI agents only** | Updated: 26/10/2025 | Version: 2.1
 
 ---
 
@@ -11,7 +11,7 @@
 **Platform:** Flutter (iOS/Android)  
 **Language:** Hebrew (RTL primary)  
 **State:** Provider pattern  
-**Storage:** Firebase + Hive  
+**Storage:** Firebase + Hive
 
 **OS:** Windows 11 Home  
 **Editor:** VS Code  
@@ -96,7 +96,7 @@ Always follow this sequence:
    ↓
 2. IF entity exists:
    → add_observations(entity_name, [new_observations])
-   
+
    IF entity doesn't exist:
    → create_entities([{name, entityType, observations}])
 
@@ -168,6 +168,105 @@ delete_entities(entityNames=["Checkpoint_2025-10-20"])
 
 ---
 
+## 🔐 Security Critical Rules
+
+### household_id Filter (MANDATORY!)
+
+**⛔ THE RULE:** Every Firestore query MUST filter by household_id
+
+**Why Critical?**
+```dart
+// ❌ WITHOUT household_id - SECURITY BREACH!
+.where('user_id', isEqualTo: userId)
+// Result: User sees data from ALL households! 🔓
+
+// ✅ WITH household_id - SECURE
+.where('household_id', isEqualTo: householdId)
+.where('user_id', isEqualTo: userId)
+// Result: User sees ONLY their household data 🔒
+```
+
+**Real Impact:**
+- 🔥 GDPR violation
+- 🔥 Privacy breach
+- 🔥 Data leakage between households
+- 🔥 App store removal risk
+
+**Before Committing Code:**
+```yaml
+✅ Security Checklist:
+  - [ ] Every .collection() has .where('household_id', ...)
+  - [ ] No query without household_id filter
+  - [ ] Firebase Rules enforce household_id
+  - [ ] Tested: User can't see other households
+```
+
+**📖 Full Details:** See TECH.md → Security Rules
+
+---
+
+## ⚡ Performance Optimization
+
+### Lazy Loading Providers
+
+**Problem:** Loading all Providers at startup = slow app launch
+
+**Solution:** Load Providers only when needed
+
+```dart
+// ❌ WRONG - loads in constructor
+class ProductsProvider extends ChangeNotifier {
+  ProductsProvider(repo) {
+    _loadProducts(); // Slows startup!
+  }
+}
+
+// ✅ CORRECT - lazy loading
+class ProductsProvider extends ChangeNotifier {
+  bool _isInitialized = false;
+  
+  Future<void> ensureInitialized() async {
+    if (_isInitialized) return;
+    _isInitialized = true;
+    await _loadProducts(); // Load when needed!
+  }
+}
+
+// Usage in screen
+@override
+void initState() {
+  super.initState();
+  Provider.of<ProductsProvider>(context, listen: false)
+      .ensureInitialized();
+}
+```
+
+**Benefits:**
+- ⚡ 50%+ faster app startup
+- 💾 30-40% less memory usage
+- 🎯 Load only what you need
+
+### const Optimization
+
+**Impact:** Missing const = 5-10% unnecessary widget rebuilds
+
+**When to use const:**
+```dart
+// ✅ With literals
+const SizedBox(height: 16)
+const EdgeInsets.all(8)
+const Text('Static text')
+const Icon(Icons.add)
+
+// ❌ With variables
+const SizedBox(height: spacing) // spacing is variable!
+const _Card(data: item) // item is variable!
+```
+
+**📖 Full Details:** See CODE.md → Performance Patterns
+
+---
+
 ## 💾 Checkpoint Protocol
 
 ### When to Save
@@ -183,6 +282,7 @@ delete_entities(entityNames=["Checkpoint_2025-10-20"])
 ✅ Checkpoint #N saved (25/10/2025 14:30)
 
 Changes:
+
 - ✏️ lib/models/task.dart - Added reminder field
 - ✏️ lib/providers/tasks_provider.dart - Save logic
 - 🌐 lib/l10n/app_he.arb - Hebrew strings
@@ -190,6 +290,7 @@ Changes:
 Status: 60% 🟡
 
 Next:
+
 - [ ] UI for reminder selection
 - [ ] Integration with notifications
 - [ ] Test on emulator
@@ -212,6 +313,7 @@ When user says **"תמשיך"** or **"continue"**:
 ## 🔧 MCP Tools Quick Reference
 
 ### Filesystem
+
 ```
 read_text_file(path)     # Always read first
 edit_file(path, edits)   # Surgical changes
@@ -221,6 +323,7 @@ list_directory(path)
 ```
 
 ### Memory
+
 ```
 read_graph()              # Load all memory
 search_nodes(query)       # Find entities
@@ -230,6 +333,7 @@ delete_entities([names])  # Cleanup old
 ```
 
 ### Bash (PowerShell)
+
 ```bash
 flutter run              # Run app
 flutter pub get          # Get dependencies
@@ -238,6 +342,7 @@ git status              # Check git status
 ```
 
 ### GitHub
+
 ```python
 get_file_contents(owner, repo, path, branch)
 create_or_update_file(owner, repo, branch, path, message, content, sha)
@@ -267,12 +372,12 @@ When ANY tool fails:
 
 ### Common Failures
 
-| Tool | Error | Cause | Fix |
-|------|-------|-------|-----|
-| edit_file | "no match" | Emoji/space mismatch | Read again, copy exactly |
-| memory | "failed" | Entity doesn't exist | search_nodes first |
-| filesystem | "ENOENT" | Wrong path | Use absolute path |
-| bash | timeout | Long process | Split into shorter commands |
+| Tool       | Error      | Cause                | Fix                         |
+| ---------- | ---------- | -------------------- | --------------------------- |
+| edit_file  | "no match" | Emoji/space mismatch | Read again, copy exactly    |
+| memory     | "failed"   | Entity doesn't exist | search_nodes first          |
+| filesystem | "ENOENT"   | Wrong path           | Use absolute path           |
+| bash       | timeout    | Long process         | Split into shorter commands |
 
 ---
 
@@ -318,6 +423,7 @@ When ANY tool fails:
 [Brief summary of action]
 
 ✅ Changes:
+
 - File: path/to/file.dart
   - Added: feature X
   - Modified: function Y
@@ -387,14 +493,14 @@ C:\projects\salsheli\
 
 ## 🔗 Documentation Map
 
-| Topic | File |
-|-------|------|
-| **Entry point** | GUIDE.md (this file) |
-| **Code patterns** | CODE.md |
-| **UI/UX rules** | DESIGN.md |
-| **Firebase/models** | TECH.md |
-| **Past mistakes** | LESSONS_LEARNED.md |
-| **Version history** | CHANGELOG.md |
+| Topic               | File                 |
+| ------------------- | -------------------- |
+| **Entry point**     | GUIDE.md (this file) |
+| **Code patterns**   | CODE.md              |
+| **UI/UX rules**     | DESIGN.md            |
+| **Firebase/models** | TECH.md              |
+| **Past mistakes**   | LESSONS_LEARNED.md   |
+| **Version history** | CHANGELOG.md         |
 
 ---
 
@@ -410,10 +516,13 @@ C:\projects\salsheli\
 - Search memory before creating entities
 - Validate commands before execution
 - Preserve emoji and formatting
+- Use package imports (not relative paths)
+- Add const to static widgets
+- Capture context before await operations
 
 ### DON'T
 
-- Use relative paths
+- Use relative paths (../ or ./)
 - Edit without reading first
 - Assume entity exists in memory
 - Ignore LESSONS_LEARNED.md
@@ -421,9 +530,77 @@ C:\projects\salsheli\
 - Hardcode strings (use l10n)
 - Skip CHANGELOG updates
 - Retry failed tools blindly
+- Forget dispose() cleanup
+- Use context after await without checking mounted
+
+### 🚨 Critical Patterns
+
+**1. Disposal Checklist (5 things to clean):**
+```dart
+@override
+void dispose() {
+  // 1. Remove listeners
+  _userContext.removeListener(_onUserChanged);
+  
+  // 2. Dispose controllers
+  _textController.dispose();
+  _animationController.dispose();
+  
+  // 3. Cancel timers
+  _timer?.cancel();
+  
+  // 4. Cancel streams
+  _subscription?.cancel();
+  
+  // 5. Close ML/Platform resources
+  _recognizer?.close();
+  
+  super.dispose(); // ALWAYS last!
+}
+```
+
+**2. Context After Await (prevents crashes):**
+```dart
+// ❌ WRONG - crashes if widget disposed
+await _save();
+Navigator.of(context).push(...); // May crash!
+
+// ✅ CORRECT - safe pattern
+final nav = Navigator.of(context);
+await _save();
+if (!mounted) return; // Check if still alive
+nav.push(...); // Safe!
+```
+
+**3. Package Imports (project standard):**
+```dart
+// ❌ WRONG
+import '../models/task.dart';
+import '../../widgets/button.dart';
+
+// ✅ CORRECT
+import 'package:memozap/models/task.dart';
+import 'package:memozap/widgets/button.dart';
+```
 
 ---
 
 **End of Guide** 🎯
 
-*Remember: This guide is your primary reference. Read it at the start of every session.*
+_Remember: This guide is your primary reference. Read it at the start of every session._
+
+---
+
+## 📝 Version 2.1 Changes (26/10/2025)
+
+**Added:**
+- 🔐 Security Critical Rules section (household_id enforcement)
+- ⚡ Performance Optimization section (Lazy Loading + const)
+- 🚨 Critical Patterns in Best Practices (Disposal, Context, Imports)
+
+**Why:**
+- Security: Prevent data leakage between households
+- Performance: 50%+ faster startup, 30-40% less memory
+- Stability: Prevent memory leaks and crashes
+
+**Previous:** Version 2.0 (25/10/2025)
