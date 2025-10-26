@@ -7,6 +7,30 @@
 
 ## [In Progress] - 26/10/2025
 
+### Session #22 - Home Screen Simplification Analysis
+**Analysis Complete - Awaiting Execution**
+
+**User Decisions:**
+- โœ… KEEP: Bottom nav (4 tabs), Welcome header, Pull-to-refresh, Empty state, Create dialog, Double-tap exit, Animations
+- ๐Ÿ"„ CHANGE: Upcoming Shop Card (simplify), Smart Suggestions (carousel), Active Lists (text only), Badge (remove)
+
+**Changes Planned:**
+1. **upcoming_shop_card.dart** - Remove type/budget/date badges, progress bar, edit button. Keep: name + count + button
+2. **smart_suggestions_card.dart** - Convert to PageView carousel with dots indicator, swipe left/right
+3. **home_dashboard_screen.dart** - Replace ActiveListsSection with simple TextButton
+4. **home_screen.dart** - Remove badge logic on "รจยฉืฉืึดืืื•ืึช" tab
+5. **active_lists_section.dart** - DELETE entire file (not needed)
+
+**Status:** ๐ŸŸก Waiting for "ืชืึทืึถืฉืึดืื™ืึฐ" command in new session
+
+**Next Steps:**
+- Execute all 5 file changes
+- Test home screen rendering
+- Verify carousel swipe works
+- Update CHANGELOG when complete
+
+---
+
 ### Session #21 - Security Fix + Repository Cleanup
 **Files Modified:**
 - `lib/repositories/firebase_user_repository.dart` - Major refactor (security + dependencies)
