@@ -24,6 +24,15 @@
 - ❌ Overreliance on Bash for short tasks.  
   ✅ Prefer Filesystem tools unless automation needed.
 
+### 6️⃣ Path Resolution (CRITICAL!)
+
+- ❌ Used `/mnt/project/` paths with Filesystem tools → "Access denied"  
+  ✅ **Never use `/mnt/project/` with filesystem tools!**
+- **Pattern:** Tried to read docs with `read_text_file("/mnt/project/GUIDE.md")`
+- **Solution:** Use project documentation search for docs
+- **Frequency:** 2+ times (25/10/2025)
+- **Prevention:** If path starts with `/mnt/project/` → STOP and search docs instead
+
 ### 3️⃣ Project Logic
 
 - ❌ Forgot to migrate data when changing repository pattern.  
@@ -170,6 +179,15 @@
   _userContext.removeListener(_onUserChanged);
   ```
 - **סיבה:** מניעת memory leaks
+
+### 6️⃣ Provider Method Names
+
+- ❌ Used old method name that doesn't exist → "Method not found"  
+  ✅ **Always check Provider implementation for correct method names**
+- **דוגמה:** `addItemToList()` → `addUnifiedItem()` (after Track 1 refactor)
+- **Solution:** Read Provider file before calling methods
+- **Prevention:** Search Provider file for method name first
+- **Frequency:** 1 time (25/10/2025) - קרה לאחר שינוי ארכיטקטורה
 
 ---
 
