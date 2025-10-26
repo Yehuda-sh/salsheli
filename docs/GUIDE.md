@@ -1,606 +1,425 @@
 # GUIDE.md - MemoZap AI Operation Guide
 
-> **For AI agents only** | Updated: 26/10/2025 | Version: 2.1
+> Machine-Readable | Updated: 26/10/2025 | Version: 3.0
 
 ---
 
-## 📍 Project Info
-
-**Project:** MemoZap - Smart Shopping & Task Lists  
-**Root Path:** `C:\projects\salsheli`  
-**Platform:** Flutter (iOS/Android)  
-**Language:** Hebrew (RTL primary)  
-**State:** Provider pattern  
-**Storage:** Firebase + Hive
-
-**OS:** Windows 11 Home  
-**Editor:** VS Code  
-**Terminal:** PowerShell (inside VS Code)  
-**Testing:** Android Emulator (always active)
-
----
-
-## 📂 File Operations Protocol
-
-### Critical Rules
+## PROJECT
 
 ```yaml
-✅ Always:
-  - Read before edit: read_text_file → edit_file
-  - Absolute Windows paths: C:\projects\salsheli\...
-  - Preserve formatting: emojis, RTL, whitespace
-  - Match old_str EXACTLY (including spaces)
-
-❌ Never:
-  - Relative paths (../lib, ./src)
-  - write_file on existing files (edit_file only!)
-  - Edit without reading first
-  - Use grep/find in bash (use search_files)
-```
-
-### Tool Examples
-
-```python
-# Read file (always first!)
-read_text_file(path="C:\\projects\\salsheli\\lib\\models\\task.dart")
-
-# Read with limit
-read_text_file(path="C:\\projects\\salsheli\\lib\\main.dart", head=50)
-
-# Edit file (surgical changes)
-edit_file(
-    path="C:\\projects\\salsheli\\lib\\models\\task.dart",
-    edits=[{
-        "oldText": "  final String title;",
-        "newText": "  final String title;\n  final DateTime? reminder;"
-    }]
-)
-
-# Create new file only
-write_file(
-    path="C:\\projects\\salsheli\\lib\\utils\\helper.dart",
-    content="class Helper { }"
-)
-
-# Search files
-search_files(
-    path="C:\\projects\\salsheli\\lib",
-    pattern="task",
-    excludePatterns=["test", "*.g.dart"]
-)
-
-# List directory
-list_directory(path="C:\\projects\\salsheli\\lib\\screens")
-```
-
-### Edit Pattern (CRITICAL)
-
-```
-1. read_text_file(path) → Read current content
-2. Find exact block to change
-3. Copy text EXACTLY (spaces, emojis, newlines)
-4. edit_file with exact match
-5. If fails → return to step 1
+name: MemoZap
+path: C:\projects\salsheli
+platform: Flutter (iOS/Android)
+language: Hebrew (RTL primary)
+state: Provider
+storage: Firebase + Hive
+os: Windows 11
+editor: VS Code
+terminal: PowerShell
+emulator: Android (always active)
 ```
 
 ---
 
-## 🧠 Memory Protocol (CRITICAL!)
-
-### The Pattern
-
-```
-Always follow this sequence:
-
-1. search_nodes("query") OR read_graph()
-   ↓
-2. IF entity exists:
-   → add_observations(entity_name, [new_observations])
-
-   IF entity doesn't exist:
-   → create_entities([{name, entityType, observations}])
-
-3. ⛔ NEVER call add_observations on non-existent entity
-   → This causes tool failure!
-```
-
-### Tool Examples
-
-```python
-# Read all memory
-read_graph()
-
-# Search before modifying
-search_nodes(query="last checkpoint")
-search_nodes(query="MemoZap project")
-
-# Create new entity (only if doesn't exist!)
-create_entities(entities=[{
-    "name": "Checkpoint_2025-10-25",
-    "entityType": "WorkSession",
-    "observations": [
-        "Modified: task.dart, tasks_provider.dart",
-        "Added: reminder field to Task model",
-        "Next: UI for reminder selection",
-        "Status: 60% complete"
-    ]
-}])
-
-# Add to existing entity
-add_observations(observations=[{
-    "entityName": "MemoZap",
-    "contents": [
-        "Decision: Using flutter_local_notifications",
-        "Refactoring: TasksProvider → Riverpod 2.0"
-    ]
-}])
-
-# Delete old checkpoints
-delete_entities(entityNames=["Checkpoint_2025-10-20"])
-```
-
-### What to Store
+## FILES
 
 ```yaml
-✅ Store:
-  - Architectural decisions
-  - Feature status
-  - Work checkpoints
-  - Known issues
-  - Next steps
+CRITICAL_RULES:
+  - read before edit: read_text_file → edit_file
+  - absolute paths: C:\projects\salsheli\...
+  - never relative: ../ or ./
+  - never write_file on existing files
 
-❌ Don't store:
-  - Raw code (never!)
-  - Full file contents
-  - Rapidly changing data
-```
+TOOLS:
+  read_text_file(path, head?, tail?)
+  edit_file(path, edits[{oldText, newText}])
+  write_file(path, content) # NEW FILES ONLY
+  search_files(path, pattern, excludePatterns?)
+  list_directory(path)
 
-### Common Failure
-
-```
-❌ Error: "Tool execution failed"
-🔍 Cause: Called add_observations on non-existent entity
-✅ Fix:
-   1. search_nodes("entity_name")
-   2. If not exists → create_entities
-   3. If exists → add_observations
+EDIT_PATTERN:
+  1. read_text_file(path)
+  2. find exact oldText (spaces, emojis, newlines)
+  3. edit_file(path, edits)
+  4. if fails → return to step 1
 ```
 
 ---
 
-## 🔐 Security Critical Rules
+## MEMORY
 
-### household_id Filter (MANDATORY!)
+```yaml
+PATTERN (CRITICAL!):
+  1. search_nodes(query) OR read_graph()
+  2. IF exists → add_observations
+     IF not exists → create_entities
+  3. NEVER add_observations on non-existent entity!
 
-**⛔ THE RULE:** Every Firestore query MUST filter by household_id
+TOOLS:
+  read_graph() # load all
+  search_nodes(query) # find entities
+  create_entities([{name, entityType, observations}])
+  add_observations([{entityName, contents}])
+  delete_entities([names])
 
-**Why Critical?**
-```dart
-// ❌ WITHOUT household_id - SECURITY BREACH!
-.where('user_id', isEqualTo: userId)
-// Result: User sees data from ALL households! 🔓
+STORE:
+  - architectural decisions
+  - feature status
+  - checkpoints
+  - known issues
+  - next steps
 
-// ✅ WITH household_id - SECURE
-.where('household_id', isEqualTo: householdId)
-.where('user_id', isEqualTo: userId)
-// Result: User sees ONLY their household data 🔒
+DONT_STORE:
+  - raw code
+  - file contents
+  - temp data
 ```
 
-**Real Impact:**
-- 🔥 GDPR violation
-- 🔥 Privacy breach
-- 🔥 Data leakage between households
-- 🔥 App store removal risk
+---
 
-**Before Committing Code:**
+## SECURITY (CRITICAL!)
+
 ```yaml
-✅ Security Checklist:
+household_id_MANDATORY:
+  # EVERY Firestore query MUST filter by household_id
+  
+  WRONG:
+    .where('user_id', isEqualTo: userId)
+    # Result: SECURITY BREACH - sees ALL households!
+  
+  CORRECT:
+    .where('household_id', isEqualTo: householdId)
+    .where('user_id', isEqualTo: userId)
+    # Result: sees ONLY their household
+
+IMPACT_IF_MISSING:
+  - GDPR violation
+  - Privacy breach
+  - Data leakage
+  - App store removal
+
+CHECKLIST:
   - [ ] Every .collection() has .where('household_id', ...)
-  - [ ] No query without household_id filter
+  - [ ] No query without household_id
   - [ ] Firebase Rules enforce household_id
-  - [ ] Tested: User can't see other households
-```
+  - [ ] Tested: user can't see other households
 
-**📖 Full Details:** See TECH.md → Security Rules
-
----
-
-## ⚡ Performance Optimization
-
-### Lazy Loading Providers
-
-**Problem:** Loading all Providers at startup = slow app launch
-
-**Solution:** Load Providers only when needed
-
-```dart
-// ❌ WRONG - loads in constructor
-class ProductsProvider extends ChangeNotifier {
-  ProductsProvider(repo) {
-    _loadProducts(); // Slows startup!
-  }
-}
-
-// ✅ CORRECT - lazy loading
-class ProductsProvider extends ChangeNotifier {
-  bool _isInitialized = false;
-  
-  Future<void> ensureInitialized() async {
-    if (_isInitialized) return;
-    _isInitialized = true;
-    await _loadProducts(); // Load when needed!
-  }
-}
-
-// Usage in screen
-@override
-void initState() {
-  super.initState();
-  Provider.of<ProductsProvider>(context, listen: false)
-      .ensureInitialized();
-}
-```
-
-**Benefits:**
-- ⚡ 50%+ faster app startup
-- 💾 30-40% less memory usage
-- 🎯 Load only what you need
-
-### const Optimization
-
-**Impact:** Missing const = 5-10% unnecessary widget rebuilds
-
-**When to use const:**
-```dart
-// ✅ With literals
-const SizedBox(height: 16)
-const EdgeInsets.all(8)
-const Text('Static text')
-const Icon(Icons.add)
-
-// ❌ With variables
-const SizedBox(height: spacing) // spacing is variable!
-const _Card(data: item) // item is variable!
-```
-
-**📖 Full Details:** See CODE.md → Performance Patterns
-
----
-
-## 💾 Checkpoint Protocol
-
-### When to Save
-
-- ✅ Every 3-5 file modifications
-- ✅ Before context limit (~160K tokens)
-- ✅ After completing feature stage
-- ✅ User says: "שמור checkpoint"
-
-### Checkpoint Format
-
-```markdown
-✅ Checkpoint #N saved (25/10/2025 14:30)
-
-Changes:
-
-- ✏️ lib/models/task.dart - Added reminder field
-- ✏️ lib/providers/tasks_provider.dart - Save logic
-- 🌐 lib/l10n/app_he.arb - Hebrew strings
-
-Status: 60% 🟡
-
-Next:
-
-- [ ] UI for reminder selection
-- [ ] Integration with notifications
-- [ ] Test on emulator
-```
-
-### Resume Protocol
-
-When user says **"תמשיך"** or **"continue"**:
-
-```
-1. read_graph() → Load all memory
-2. search_nodes("Checkpoint") → Find last checkpoint
-3. Read CHANGELOG.md → [In Progress] section
-4. recent_chats(n=1) → Load last messages
-5. Continue from exact stopping point
+DETAILS: → TECH.md Security Rules
 ```
 
 ---
 
-## 🔧 MCP Tools Quick Reference
-
-### Filesystem
-
-```
-read_text_file(path)     # Always read first
-edit_file(path, edits)   # Surgical changes
-write_file(path, content) # New files only
-search_files(path, pattern)
-list_directory(path)
-```
-
-### Memory
-
-```
-read_graph()              # Load all memory
-search_nodes(query)       # Find entities
-create_entities([...])    # Create new
-add_observations([...])   # Update existing
-delete_entities([names])  # Cleanup old
-```
-
-### Bash (PowerShell)
-
-```bash
-flutter run              # Run app
-flutter pub get          # Get dependencies
-dart format lib/         # Format code
-git status              # Check git status
-```
-
-### GitHub
-
-```python
-get_file_contents(owner, repo, path, branch)
-create_or_update_file(owner, repo, branch, path, message, content, sha)
-push_files(owner, repo, branch, message, files)
-```
-
----
-
-## ⚠️ Error Handling Protocol
-
-### Tool Failure Pattern
-
-```
-When ANY tool fails:
-
-1. ⏸️ PAUSE - Don't retry blindly
-2. 📖 READ - Re-read last known state
-3. 🔍 ANALYZE - Find root cause:
-   - Filesystem: Wrong path? File deleted?
-   - Memory: Entity doesn't exist?
-   - Bash: Command syntax? Permission?
-   - GitHub: Auth? Rate limit?
-4. 🔧 FIX - Correct the issue
-5. 🔁 RETRY - Only ONCE after validation
-6. 📝 LOG - If still fails → LESSONS_LEARNED.md
-```
-
-### Common Failures
-
-| Tool       | Error      | Cause                | Fix                         |
-| ---------- | ---------- | -------------------- | --------------------------- |
-| edit_file  | "no match" | Emoji/space mismatch | Read again, copy exactly    |
-| memory     | "failed"   | Entity doesn't exist | search_nodes first          |
-| filesystem | "ENOENT"   | Wrong path           | Use absolute path           |
-| bash       | timeout    | Long process         | Split into shorter commands |
-
----
-
-## 📊 Token Management
-
-**Total Budget:** 190,000 tokens
-
-### Alerts
+## PERFORMANCE
 
 ```yaml
-70% (133K):
-  Message: "⚠️ Token Alert: 70% - 30% remaining"
-  Action: Start planning completion
-
-85% (161.5K):
-  Message: "🚨 Token Critical: 85% - finish now"
-  Action:
-    - Ultra-concise mode
-    - Save everything to Memory
-    - Summarize and finish
-
-90%+:
-  Message: "❌ Token Emergency"
-  Action: End immediately with full checkpoint
-```
-
-### Emergency Protocol
-
-```
-1. create_entities → Checkpoint_Emergency
-2. Update CHANGELOG.md → [In Progress]
-3. Write detailed "Next Steps"
-4. Summarize in final message
-```
-
----
-
-## 📝 Response Format
-
-### Standard Output
-
-```markdown
-[Brief summary of action]
-
-✅ Changes:
-
-- File: path/to/file.dart
-  - Added: feature X
-  - Modified: function Y
-
-⏳ Next: [Clear next step if applicable]
-
-💾 [Checkpoint saved if needed]
-```
-
-### Principles
-
-- ✅ Summarize, don't explain extensively
-- ✅ Show diffs only when requested
-- ✅ Use emojis for visual parsing
-- ✅ Keep focused and actionable
-- ✅ Minimal text
-
----
-
-## 🎨 UI/UX Standards
-
-### Hebrew (RTL) Support
-
-```dart
-// ✅ Always for Hebrew text
-Directionality(
-  textDirection: TextDirection.rtl,
-  child: Text('טקסט בעברית'),
-)
-
-// ✅ Auto-detect with l10n
-Text(AppLocalizations.of(context)!.taskTitle)
-```
-
-### Material Design 3
-
-- Use `ColorScheme` from theme
-- Prefer `FilledButton.icon` over deprecated buttons
-- Use `SegmentedButton` for toggles
-- Follow 8dp grid: EdgeInsets(8, 16, 24, 32)
-
----
-
-## 📚 Project Structure
-
-```
-C:\projects\salsheli\
-├── lib\
-│   ├── models\          # Data classes
-│   ├── providers\       # State management
-│   ├── screens\         # Full-page UI
-│   ├── widgets\         # Reusable components
-│   ├── services\        # External integrations
-│   ├── l10n\           # Translations (he, en)
-│   └── utils\          # Helpers
-├── docs\
-│   ├── GUIDE.md         # This file (entry point)
-│   ├── CODE.md          # Development patterns
-│   ├── DESIGN.md        # UI/UX guidelines
-│   ├── TECH.md          # Technical reference
-│   ├── LESSONS_LEARNED.md  # Error prevention
-│   └── CHANGELOG.md     # Version history
-└── test\               # Unit & widget tests
-```
-
----
-
-## 🔗 Documentation Map
-
-| Topic               | File                 |
-| ------------------- | -------------------- |
-| **Entry point**     | GUIDE.md (this file) |
-| **Code patterns**   | CODE.md              |
-| **UI/UX rules**     | DESIGN.md            |
-| **Firebase/models** | TECH.md              |
-| **Past mistakes**   | LESSONS_LEARNED.md   |
-| **Version history** | CHANGELOG.md         |
-
----
-
-## ✅ Best Practices Summary
-
-### DO
-
-- Read files before editing
-- Use absolute Windows paths
-- Test RTL layout for Hebrew
-- Update CHANGELOG.md immediately
-- Save checkpoints every 3-5 changes
-- Search memory before creating entities
-- Validate commands before execution
-- Preserve emoji and formatting
-- Use package imports (not relative paths)
-- Add const to static widgets
-- Capture context before await operations
-
-### DON'T
-
-- Use relative paths (../ or ./)
-- Edit without reading first
-- Assume entity exists in memory
-- Ignore LESSONS_LEARNED.md
-- Mix LTR/RTL without Directionality
-- Hardcode strings (use l10n)
-- Skip CHANGELOG updates
-- Retry failed tools blindly
-- Forget dispose() cleanup
-- Use context after await without checking mounted
-
-### 🚨 Critical Patterns
-
-**1. Disposal Checklist (5 things to clean):**
-```dart
-@override
-void dispose() {
-  // 1. Remove listeners
-  _userContext.removeListener(_onUserChanged);
+LAZY_LOADING:
+  # Don't load Providers in constructor
   
-  // 2. Dispose controllers
-  _textController.dispose();
-  _animationController.dispose();
+  WRONG:
+    ProductsProvider(repo) {
+      _loadProducts(); # Slows startup!
+    }
   
-  // 3. Cancel timers
-  _timer?.cancel();
+  CORRECT:
+    Future<void> ensureInitialized() async {
+      if (_isInitialized) return;
+      _isInitialized = true;
+      await _loadProducts(); # Load when needed
+    }
   
-  // 4. Cancel streams
-  _subscription?.cancel();
+  USAGE:
+    Provider.of<ProductsProvider>(context, listen: false)
+        .ensureInitialized();
   
-  // 5. Close ML/Platform resources
-  _recognizer?.close();
+  BENEFITS:
+    - 50%+ faster startup
+    - 30-40% less memory
+    - Load only what needed
+
+CONST_OPTIMIZATION:
+  # Missing const = 5-10% unnecessary rebuilds
   
-  super.dispose(); // ALWAYS last!
-}
-```
+  WITH_LITERALS:
+    const SizedBox(height: 16)
+    const EdgeInsets.all(8)
+    const Text('Static text')
+    const Icon(Icons.add)
+  
+  WITH_VARIABLES:
+    SizedBox(height: spacing) # spacing is variable!
+    _Card(data: item) # item is variable!
 
-**2. Context After Await (prevents crashes):**
-```dart
-// ❌ WRONG - crashes if widget disposed
-await _save();
-Navigator.of(context).push(...); // May crash!
-
-// ✅ CORRECT - safe pattern
-final nav = Navigator.of(context);
-await _save();
-if (!mounted) return; // Check if still alive
-nav.push(...); // Safe!
-```
-
-**3. Package Imports (project standard):**
-```dart
-// ❌ WRONG
-import '../models/task.dart';
-import '../../widgets/button.dart';
-
-// ✅ CORRECT
-import 'package:memozap/models/task.dart';
-import 'package:memozap/widgets/button.dart';
+DETAILS: → CODE.md Performance Patterns
 ```
 
 ---
 
-**End of Guide** 🎯
+## CHECKPOINTS
 
-_Remember: This guide is your primary reference. Read it at the start of every session._
+```yaml
+FREQUENCY: after EVERY file change
+
+AFTER_EACH_EDIT:
+  1. add_observations(session entity)
+  2. update CHANGELOG.md [In Progress]
+  3. if session ends → checkpoint exists!
+
+FORMAT:
+  ## [In Progress] - YYYY-MM-DD
+  Modified: file.dart - what changed
+  Status: complete/in-progress/blocked
+  Next: next step
+
+RESUME_PROTOCOL:
+  USER_SAYS "המשך":
+    1. search_nodes("last session")
+    2. read CHANGELOG.md [In Progress]
+    3. continue from exact point
+```
 
 ---
 
-## 📝 Version 2.1 Changes (26/10/2025)
+## MCP_TOOLS
 
-**Added:**
-- 🔐 Security Critical Rules section (household_id enforcement)
-- ⚡ Performance Optimization section (Lazy Loading + const)
-- 🚨 Critical Patterns in Best Practices (Disposal, Context, Imports)
+```yaml
+FILESYSTEM (80% usage):
+  read_text_file
+  edit_file
+  write_file
+  search_files
+  list_directory
 
-**Why:**
-- Security: Prevent data leakage between households
-- Performance: 50%+ faster startup, 30-40% less memory
-- Stability: Prevent memory leaks and crashes
+MEMORY:
+  read_graph
+  search_nodes
+  create_entities
+  add_observations
+  delete_entities
 
-**Previous:** Version 2.0 (25/10/2025)
+BASH (PowerShell):
+  flutter run
+  flutter pub get
+  flutter pub run build_runner build --delete-conflicting-outputs
+  dart format lib/
+  git status
+
+GITHUB:
+  get_file_contents
+  create_or_update_file
+  push_files
+```
+
+---
+
+## ERROR_HANDLING
+
+```yaml
+TOOL_FAILS:
+  1. PAUSE - don't retry blindly
+  2. READ - re-read last state
+  3. ANALYZE - find root cause
+  4. FIX - correct issue
+  5. RETRY - only once after validation
+  6. LOG - if still fails → LESSONS_LEARNED.md
+
+COMMON_FAILURES:
+  edit_file "no match":
+    cause: emoji/space mismatch
+    fix: read again, copy exactly
+  
+  memory "failed":
+    cause: entity doesn't exist
+    fix: search_nodes first
+  
+  filesystem "ENOENT":
+    cause: wrong path
+    fix: use absolute path
+  
+  bash timeout:
+    cause: long process
+    fix: split into shorter commands
+```
+
+---
+
+## RESPONSE_FORMAT
+
+```yaml
+ULTRA_CONCISE:
+  # Default mode - save tokens
+  
+  EXAMPLE:
+    "Fixed memory leak in tasks_provider.dart
+    ✅ Added removeListener() in dispose()
+    Done"
+  
+  NOT:
+    "I analyzed the code and found that...
+    The problem is...
+    Here's the full code...
+    This will fix it!"
+  
+  PRINCIPLES:
+    - Summarize, don't explain
+    - Show diffs only if requested
+    - Use emojis for visual parsing
+    - Keep focused and actionable
+    - Minimal text
+  
+  SAVINGS: 150 tokens → 15 tokens = 90% less!
+```
+
+---
+
+## CRITICAL_PATTERNS
+
+```yaml
+1_PROVIDER_DISPOSAL:
+  @override
+  void dispose() {
+    _userContext.removeListener(_onUserChanged); # MUST!
+    _controller.dispose();
+    _timer?.cancel();
+    _subscription?.cancel();
+    super.dispose(); # LAST!
+  }
+
+2_CONTEXT_AFTER_AWAIT:
+  WRONG:
+    await _save();
+    Navigator.of(context).push(...); # CRASH!
+  
+  CORRECT:
+    final nav = Navigator.of(context);
+    await _save();
+    if (!mounted) return;
+    nav.push(...); # SAFE!
+
+3_PACKAGE_IMPORTS:
+  WRONG:
+    import '../models/task.dart';
+  
+  CORRECT:
+    import 'package:memozap/models/task.dart';
+
+4_HOUSEHOLD_ID:
+  # See SECURITY section above
+
+5_CONST:
+  # See PERFORMANCE section above
+
+DETAILS: → CODE.md Critical Patterns
+```
+
+---
+
+## STRUCTURE
+
+```yaml
+lib/:
+  models/         # Data classes
+  providers/      # State management
+  repositories/   # Data layer
+  screens/        # Full-page UI
+  widgets/        # Reusable components
+  services/       # External integrations
+  l10n/          # Translations (he, en)
+  utils/         # Helpers
+
+docs/:
+  GUIDE.md                # This file (entry point)
+  CODE.md                 # Development patterns
+  DESIGN.md               # UI/UX guidelines
+  TECH.md                 # Technical reference
+  LESSONS_LEARNED.md      # Error prevention
+  CHANGELOG.md            # Version history
+  TOKEN_MANAGEMENT.md     # Token strategy
+  QUICKSTART.md           # Quick start guide
+
+test/                     # Unit & widget tests
+```
+
+---
+
+## DOCUMENTATION_MAP
+
+```yaml
+Entry_Point: GUIDE.md (this file)
+Quick_Start: QUICKSTART.md
+Code_Patterns: CODE.md
+UI_UX: DESIGN.md
+Firebase_Models: TECH.md
+Mistakes: LESSONS_LEARNED.md
+History: CHANGELOG.md
+Tokens: TOKEN_MANAGEMENT.md
+```
+
+---
+
+## BEST_PRACTICES
+
+```yaml
+DO:
+  - read before edit
+  - absolute paths
+  - test RTL for Hebrew
+  - update CHANGELOG immediately
+  - checkpoint every change
+  - search memory before create
+  - validate commands
+  - preserve emoji/formatting
+  - package imports
+  - const on static widgets
+  - capture context before await
+
+DONT:
+  - relative paths
+  - edit without reading
+  - assume entity exists
+  - ignore LESSONS_LEARNED
+  - mix LTR/RTL without Directionality
+  - hardcode strings (use l10n)
+  - skip CHANGELOG
+  - retry blindly
+  - forget dispose cleanup
+  - use context after await without mounted
+
+CRITICAL_CHECKLIST:
+  - [ ] household_id in ALL Firestore queries
+  - [ ] removeListener() in ALL dispose()
+  - [ ] context captured before await
+  - [ ] const on ALL static widgets
+  - [ ] package imports (not relative)
+```
+
+---
+
+## WORKFLOW
+
+```yaml
+START_SESSION:
+  1. read QUICKSTART.md OR GUIDE.md
+  2. search_nodes("last session")
+  3. check CHANGELOG [In Progress]
+  4. start work immediately
+
+DURING_SESSION:
+  - ultra-concise responses
+  - checkpoint every change
+  - alert at 50%, 70%, 85%
+
+END_SESSION:
+  - update Memory
+  - update CHANGELOG
+  - suggest "המשך" if incomplete
+```
+
+---
+
+**End of GUIDE v3.0**
+
+Optimized for AI parsing - zero redundancy, maximum data density.
+Read QUICKSTART.md first, then this file for full context.
+Read other docs ONLY when needed (see QUICKSTART → READING RULES).
+
+Last updated: 2025-10-26
