@@ -7,6 +7,38 @@
 
 ## [In Progress] - 26/10/2025
 
+### Session #19 - Scripts Directory Cleanup
+**Files Deleted:**
+- **Demo Data (9 files):** `cleanup_demo_users.js`, `create_demo_data_v2.js`, `create_demo_family.js`, `create_demo_users.js`, `create_demo_users_complete.js`, `find_demo_uids.js`, `fix_demo_users.js`, `generate_demo_data.js`, `DEMO_DATA_UPGRADE.md`
+- **Migrations (3 files):** `migrate_to_unified_list_item.js`, `clean_corrupted_inventory.dart`, `delete_old_lists.js`
+- **Old Docs (2 files):** `README.md` (cleanup guide), `firestore_rules_v2.md` (old rules)
+- **Node Modules:** `node_modules/` directory (keeping `package.json` for future use)
+
+**Reason:**
+- Demo data scripts obsolete (project past demo phase)
+- Migrations completed (Track 1 done)
+- Old documentation no longer needed
+- Node modules can be reinstalled with `npm install` when needed
+
+**Scripts Kept:**
+- ✅ `upload_to_firebase.js` - Upload products to Firestore
+- ✅ `create_system_templates.js` - Create system templates
+- ✅ `validate-paths.js` - Path validation
+- ✅ `list_all_users.js` - List Firebase users
+- ✅ `build_models.bat/sh` - Model code generation
+- ✅ `fetch_shufersal_products.dart` - Fetch Shufersal products
+- ✅ `firebase-service-account.json` - Credentials (in .gitignore)
+- ✅ `package.json`, `package-lock.json` - Node dependencies config
+
+**Result:**
+- ✅ 14 files removed (~2,000+ lines)
+- ✅ Scripts directory now focused on active utilities
+- ✅ Cleaner project structure
+
+**Status:** ✅ Complete
+
+---
+
 ### Session #18 - Test Cleanup
 **Files Deleted:**
 - `test/concurrent/` (תיקייה שלמה - deprecated)
