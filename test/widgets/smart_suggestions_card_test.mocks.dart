@@ -72,9 +72,26 @@ class MockSuggestionsProvider extends _i1.Mock
           as int);
 
   @override
+  Set<String> get excludedProducts =>
+      (super.noSuchMethod(
+            Invocation.getter(#excludedProducts),
+            returnValue: <String>{},
+          )
+          as Set<String>);
+
+  @override
   bool get hasListeners =>
       (super.noSuchMethod(Invocation.getter(#hasListeners), returnValue: false)
           as bool);
+
+  @override
+  _i5.Future<void> removeFromExcluded(String? productName) =>
+      (super.noSuchMethod(
+            Invocation.method(#removeFromExcluded, [productName]),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
 
   @override
   void dispose() => super.noSuchMethod(

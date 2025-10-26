@@ -37,10 +37,8 @@ class LastChanceBanner extends StatelessWidget {
           return const SizedBox.shrink();
         }
 
-        // Only show urgent suggestions during shopping
-        if (!suggestion.isUrgent) {
-          return const SizedBox.shrink();
-        }
+        // Show all suggestions during shopping
+        // (removed isUrgent check - all suggestions are relevant)
 
         return _buildBanner(context, suggestion, provider);
       },
@@ -203,8 +201,9 @@ class LastChanceBanner extends StatelessWidget {
       final item = UnifiedListItem.product(
         id: suggestion.id,
         name: suggestion.productName,
-        quantity: suggestion.neededQuantity,
-        unit: suggestion.category ?? "יח'",
+        quantity: suggestion.quantityNeeded,
+        unitPrice: 0.0, // Price unknown from suggestion
+        unit: suggestion.unit,
         category: suggestion.category,
       );
 
@@ -212,7 +211,7 @@ class LastChanceBanner extends StatelessWidget {
       await listsProvider.addUnifiedItem(listId, item);
 
       // Mark suggestion as added
-      await provider.addCurrentSuggestion();
+      await provider.addCurrentSuggestion(listId);
 
       if (!context.mounted) return;
 
@@ -241,10 +240,8 @@ class LastChanceBanner extends StatelessWidget {
     SuggestionsProvider provider,
   ) async {
     try {
-      // Dismiss for this shopping session (1 day)
-      await provider.dismissCurrentSuggestion(
-        duration: const Duration(days: 1),
-      );
+      // Dismiss for one week
+      await provider.dismissCurrentSuggestion();
 
       if (!context.mounted) return;
 

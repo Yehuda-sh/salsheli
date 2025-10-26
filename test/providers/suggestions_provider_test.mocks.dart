@@ -155,9 +155,9 @@ class MockInventoryProvider extends _i1.Mock implements _i3.InventoryProvider {
           as List<_i2.InventoryItem>);
 
   @override
-  List<_i2.InventoryItem> getLowStockItems() =>
+  List<_i2.InventoryItem> getLowStockItems({int? threshold = 2}) =>
       (super.noSuchMethod(
-            Invocation.method(#getLowStockItems, []),
+            Invocation.method(#getLowStockItems, [], {#threshold: threshold}),
             returnValue: <_i2.InventoryItem>[],
           )
           as List<_i2.InventoryItem>);
@@ -172,15 +172,14 @@ class MockInventoryProvider extends _i1.Mock implements _i3.InventoryProvider {
           as _i5.Future<void>);
 
   @override
-  _i5.Future<void> updateStockAfterPurchase(
+  _i5.Future<int> updateStockAfterPurchase(
     List<_i6.UnifiedListItem>? purchasedItems,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#updateStockAfterPurchase, [purchasedItems]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i5.Future<int>.value(0),
           )
-          as _i5.Future<void>);
+          as _i5.Future<int>);
 
   @override
   List<_i2.InventoryItem> itemsByLocation(String? location) =>

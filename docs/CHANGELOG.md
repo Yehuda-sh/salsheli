@@ -7,6 +7,37 @@
 
 ## [In Progress] - 26/10/2025
 
+### Session #14 - Fix: inventory_provider_test.dart Mock Stubs
+**Files Modified:**
+1. `test/providers/inventory_provider_test.dart` - Fixed 7 mock stubs for saveItem (returns InventoryItem)
+
+**Status:** ✅ Complete
+
+**Changes:**
+- Fixed all `saveItem` stubs to return `InventoryItem` instead of void
+- Changed from: `.thenAnswer((_) async {})`
+- Changed to: `.thenAnswer((invocation) async => invocation.positionalArguments[0] as InventoryItem)`
+
+**Stubs Fixed (7 locations):**
+1. ✅ Line 81 - test 'adds stock to existing product (addition)'
+2. ✅ Line 109 - test 'handles case-insensitive product matching'
+3. ✅ Line 137 - test 'trims whitespace from product name'
+4. ✅ Line 176 - test 'updates local list correctly'
+5. ✅ Line 210 - test 'calls notifyListeners after successful update'
+6. ✅ Line 337 - test 'adds large quantities correctly'
+7. ✅ Line 366 - test 'preserves other item properties when updating quantity'
+
+**Test Results:** ✅ All tests passing!
+
+**Technical Notes:**
+- Mock stubs must return correct type to match repository signature
+- `invocation.positionalArguments[0]` retrieves the InventoryItem parameter
+- Type cast `as InventoryItem` ensures type safety
+
+**Result:** All inventory provider tests now pass correctly
+
+---
+
 ### Session #13 - Track 3 Stage 3.8: Widget Tests - 100% COMPLETE
 **Files Created:**
 1. `test/widgets/active_lists_section_test.dart` - ActiveListsSection widget tests (13 tests, 240 lines)

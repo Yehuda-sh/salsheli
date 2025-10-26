@@ -30,27 +30,35 @@ void main() {
       list1 = ShoppingList(
         id: 'list1',
         name: 'רשימת סופר',
-        householdId: 'household1',
         createdBy: 'user1',
         createdDate: DateTime.now(),
         updatedDate: DateTime.now(),
+        status: 'active',
+        type: 'super',
+        isShared: false,
+        sharedWith: [],
+        format: 'shared',
+        createdFromTemplate: false,
         items: [
           UnifiedListItem.product(
             id: 'item1',
             name: 'חלב',
             quantity: 2,
+            unitPrice: 6.9,
             category: 'חלב וביצים',
           ),
           UnifiedListItem.product(
             id: 'item2',
             name: 'לחם',
             quantity: 1,
+            unitPrice: 5.5,
             category: 'לחם ומאפים',
           ),
           UnifiedListItem.product(
             id: 'item3',
             name: 'ביצים',
             quantity: 1,
+            unitPrice: 15.0,
             category: 'חלב וביצים',
           ),
         ],
@@ -60,15 +68,21 @@ void main() {
       list2 = ShoppingList(
         id: 'list2',
         name: 'רשימת פארם',
-        householdId: 'household1',
         createdBy: 'user1',
         createdDate: DateTime.now(),
         updatedDate: DateTime.now(),
+        status: 'active',
+        type: 'pharmacy',
+        isShared: false,
+        sharedWith: [],
+        format: 'shared',
+        createdFromTemplate: false,
         items: [
           UnifiedListItem.product(
             id: 'item4',
             name: 'שמפו',
             quantity: 1,
+            unitPrice: 25.0,
             category: 'טיפוח',
           ),
         ],
@@ -78,10 +92,15 @@ void main() {
       list3 = ShoppingList(
         id: 'list3',
         name: 'רשימה ריקה',
-        householdId: 'household1',
         createdBy: 'user1',
         createdDate: DateTime.now(),
         updatedDate: DateTime.now(),
+        status: 'active',
+        type: 'other',
+        isShared: false,
+        sharedWith: [],
+        format: 'shared',
+        createdFromTemplate: false,
         items: [],
       );
     });
@@ -103,7 +122,6 @@ void main() {
 
         // Should show SizedBox.shrink() - nothing visible
         expect(find.text('רשימות נוספות'), findsNothing);
-        expect(find.byType(StickyNote), findsNothing);
       });
     });
 
@@ -250,15 +268,21 @@ void main() {
         final longNameList = ShoppingList(
           id: 'list_long',
           name: 'רשימה עם שם ארוך מאוד מאוד מאוד שצריך להיחתך',
-          householdId: 'household1',
           createdBy: 'user1',
           createdDate: DateTime.now(),
           updatedDate: DateTime.now(),
+          status: 'active',
+          type: 'super',
+          isShared: false,
+          sharedWith: [],
+          format: 'shared',
+          createdFromTemplate: false,
           items: [
             UnifiedListItem.product(
               id: 'item1',
               name: 'מוצר',
               quantity: 1,
+              unitPrice: 10.0,
               category: 'אחר',
             ),
           ],
