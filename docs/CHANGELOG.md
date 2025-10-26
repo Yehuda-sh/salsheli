@@ -7,6 +7,28 @@
 
 ## [In Progress] - 26/10/2025
 
+### Session #18 - Test Cleanup
+**Files Deleted:**
+- `test/concurrent/` (תיקייה שלמה - deprecated)
+- `test/offline/` (תיקייה שלמה - deprecated)
+- `test/integration/login_flow_test.dart` (גרסה ישנה)
+- `test/integration/login_flow_test.mocks.dart` (mock ישן)
+- `test/README.md` (מיושן)
+
+**Reason:**
+- Deprecated tests מסומנים במפורש
+- Duplicate tests (גרסה חדשה קיימת ב-auth/)
+- Documentation מתייחס לקבצים שנמחקו
+
+**Result:**
+- ✅ 5 קבצים + 2 תיקיות נמחקו
+- ✅ ~500-800 שורות קוד מיותר הוסרו
+- ✅ test/ נקי ומסודר
+
+**Status:** ✅ Complete
+
+---
+
 ### Session #17 - Constants & Storage Locations Updated
 **Files Modified:**
 1. `lib/core/constants.dart` - Removed budget constants + updated kStorageLocations (10 locations)
