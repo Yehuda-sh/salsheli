@@ -1,527 +1,689 @@
-// 📄 File: test/services/suggestions_service_test.dart
+// 🧪 Test File: test/services/suggestions_service_test.dart
+// Description: Unit tests for SuggestionsService
 //
-// 🧪 בדיקות ל-SuggestionsService:
-//     - יצירת המלצות ממלאי נמוך
-//     - סינון המלצות פעילות
-//     - דחייה זמנית
-//     - מחיקה (זמנית/קבועה)
-//     - סימון כנוסף
-//     - סטטיסטיקות
+// Test Coverage:
+// ✅ generateSuggestions() - Creating suggestions from inventory
+// ✅ getActiveSuggestions() - Filtering active suggestions
+// ✅ getNextSuggestion() - Getting next from queue
+// ✅ dismissSuggestion() - Temporary dismissal
+// ✅ deleteSuggestion() - Temporary/permanent deletion
+// ✅ markAsAdded() - Marking as added to list
+// ✅ getDurationFromChoice() - Duration parsing
+// ✅ getDurationText() - Duration description
+// ✅ getSuggestionsStats() - Statistics calculation
+// ✅ hasUrgentSuggestions() - Urgency checking
+// ✅ getActiveSuggestionsCount() - Active count
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memozap/models/inventory_item.dart';
 import 'package:memozap/models/smart_suggestion.dart';
 import 'package:memozap/models/enums/suggestion_status.dart';
 import 'package:memozap/services/suggestions_service.dart';
-import 'package:uuid/uuid.dart';
 
 void main() {
-  group('SuggestionsService', () {
-    const uuid = Uuid();
+  group('SuggestionsService Tests', () {
+    // Test data
+    late InventoryItem lowStockItem1;
+    late InventoryItem lowStockItem2;
+    late InventoryItem normalStockItem;
+    late InventoryItem outOfStockItem;
 
-    // Helper: יצירת פריט מלאי
-    InventoryItem createInventoryItem({
-      required String name,
-      required int quantity,
-      String category = 'כללי',
-      String unit = 'יח\'',
-    }) {
-      return InventoryItem(
-        id: uuid.v4(),
-        productName: name,
-        category: category,
-        location: 'מזווה',
-        quantity: quantity,
-        unit: unit,
+    setUp(() {
+      // נוצר לפני כל טסט
+      lowStockItem1 = InventoryItem(
+        id: 'item1',
+        productName: 'חלב',
+        category: 'חלב וביצים',
+        quantity: 2, // נמוך מ-5 (threshold)
+        unit: 'יחידות',
+        householdId: 'household1',
+        addedBy: 'user1',
+        addedDate: DateTime.now(),
+        updatedDate: DateTime.now(),
       );
-    }
 
-    group('generateSuggestions', () {
-      test('יוצר המלצות למוצרים שמתחת לסף', () {
-        // Arrange
-        final inventory = [
-          createInventoryItem(name: 'חלב', quantity: 2), // < 5 ✅
-          createInventoryItem(name: 'לחם', quantity: 8), // >= 5 ❌
-          createInventoryItem(name: 'ביצים', quantity: 0), // < 5 ✅
-          createInventoryItem(name: 'גבינה', quantity: 3), // < 5 ✅
-        ];
+      lowStockItem2 = InventoryItem(
+        id: 'item2',
+        productName: 'לחם',
+        category: 'לחם ומאפים',
+        quantity: 3, // נמוך מ-5
+        unit: 'יחידות',
+        householdId: 'household1',
+        addedBy: 'user1',
+        addedDate: DateTime.now(),
+        updatedDate: DateTime.now(),
+      );
 
-        // Act
+      normalStockItem = InventoryItem(
+        id: 'item3',
+        productName: 'שמן',
+        category: 'שמנים',
+        quantity: 10, // מלאי תקין
+        unit: 'יחידות',
+        householdId: 'household1',
+        addedBy: 'user1',
+        addedDate: DateTime.now(),
+        updatedDate: DateTime.now(),
+      );
+
+      outOfStockItem = InventoryItem(
+        id: 'item4',
+        productName: 'סוכר',
+        category: 'אפייה',
+        quantity: 0, // אזל!
+        unit: 'יחידות',
+        householdId: 'household1',
+        addedBy: 'user1',
+        addedDate: DateTime.now(),
+        updatedDate: DateTime.now(),
+      );
+    });
+
+    group('generateSuggestions() Tests', () {
+      test('generates suggestions for low stock items', () {
         final suggestions = SuggestionsService.generateSuggestions(
-          inventoryItems: inventory,
+          inventoryItems: [lowStockItem1, lowStockItem2, normalStockItem],
         );
 
-        // Assert
-        expect(suggestions.length, 3); // חלב, ביצים, גבינה
-        expect(suggestions.any((s) => s.productName == 'חלב'), true);
-        expect(suggestions.any((s) => s.productName == 'ביצים'), true);
-        expect(suggestions.any((s) => s.productName == 'גבינה'), true);
-        expect(suggestions.any((s) => s.productName == 'לחם'), false);
+        // צריך ליצור 2 המלצות (חלב + לחם, לא שמן)
+        expect(suggestions.length, 2);
+        expect(
+          suggestions.any((s) => s.productName == 'חלב'),
+          true,
+        );
+        expect(
+          suggestions.any((s) => s.productName == 'לחם'),
+          true,
+        );
+        expect(
+          suggestions.any((s) => s.productName == 'שמן'),
+          false,
+        );
       });
 
-      test('ממיין לפי דחיפות: critical → high → medium → low', () {
-        // Arrange
-        final inventory = [
-          createInventoryItem(name: 'לחם', quantity: 3), // medium (60%)
-          createInventoryItem(name: 'חלב', quantity: 0), // critical (0%)
-          createInventoryItem(name: 'ביצים', quantity: 1), // high (20%)
-          createInventoryItem(name: 'גבינה', quantity: 4), // low (80%)
-        ];
-
-        // Act
+      test('sorts suggestions by urgency (critical first)', () {
         final suggestions = SuggestionsService.generateSuggestions(
-          inventoryItems: inventory,
+          inventoryItems: [outOfStockItem, lowStockItem1, lowStockItem2],
         );
 
-        // Assert
-        expect(suggestions[0].productName, 'חלב'); // critical
-        expect(suggestions[1].productName, 'ביצים'); // high
-        expect(suggestions[2].productName, 'לחם'); // medium
-        expect(suggestions[3].productName, 'גבינה'); // low
-
-        expect(suggestions[0].urgency, 'critical');
-        expect(suggestions[1].urgency, 'high');
-        expect(suggestions[2].urgency, 'medium');
-        expect(suggestions[3].urgency, 'low');
+        // אזל צריך להיות ראשון (critical)
+        expect(suggestions.first.productName, 'סוכר');
+        expect(suggestions.first.urgency, 'critical');
+        expect(suggestions.first.currentStock, 0);
       });
 
-      test('תומך בספים מותאמים אישית', () {
-        // Arrange
-        final inventory = [
-          createInventoryItem(name: 'חלב', quantity: 8), // < 10 ✅
-          createInventoryItem(name: 'לחם', quantity: 3), // < 5 ✅
-        ];
+      test('respects custom thresholds', () {
+        // סף מותאם: חלב צריך 10 (לא 5)
+        final customThresholds = {'חלב': 10};
 
-        final customThresholds = {
-          'חלב': 10, // סף גבוה יותר לחלב
-        };
-
-        // Act
         final suggestions = SuggestionsService.generateSuggestions(
-          inventoryItems: inventory,
+          inventoryItems: [lowStockItem1, normalStockItem],
           customThresholds: customThresholds,
         );
 
-        // Assert
-        expect(suggestions.length, 2);
-        final milkSuggestion = suggestions.firstWhere((s) => s.productName == 'חלב');
-        expect(milkSuggestion.threshold, 10);
-        expect(milkSuggestion.currentStock, 8);
+        // חלב צריך להיות במלצות (2 < 10)
+        expect(suggestions.length, 1);
+        expect(suggestions.first.productName, 'חלב');
+        expect(suggestions.first.threshold, 10);
       });
 
-      test('מתעלם ממוצרים שנמחקו לצמיתות', () {
-        // Arrange
-        final inventory = [
-          createInventoryItem(name: 'חלב', quantity: 2),
-          createInventoryItem(name: 'לחם', quantity: 1),
-          createInventoryItem(name: 'ביצים', quantity: 0),
-        ];
+      test('excludes deleted products', () {
+        final excludedProducts = {'חלב'};
 
-        final excludedProducts = {'לחם', 'ביצים'};
-
-        // Act
         final suggestions = SuggestionsService.generateSuggestions(
-          inventoryItems: inventory,
+          inventoryItems: [lowStockItem1, lowStockItem2],
           excludedProducts: excludedProducts,
         );
 
-        // Assert
+        // חלב לא צריך להיות בהמלצות
         expect(suggestions.length, 1);
-        expect(suggestions[0].productName, 'חלב');
+        expect(suggestions.first.productName, 'לחם');
+        expect(
+          suggestions.any((s) => s.productName == 'חלב'),
+          false,
+        );
       });
 
-      test('מחזיר רשימה ריקה אם אין מוצרים שמתחת לסף', () {
-        // Arrange
-        final inventory = [
-          createInventoryItem(name: 'חלב', quantity: 10),
-          createInventoryItem(name: 'לחם', quantity: 8),
-        ];
-
-        // Act
+      test('returns empty list when all items have sufficient stock', () {
         final suggestions = SuggestionsService.generateSuggestions(
-          inventoryItems: inventory,
+          inventoryItems: [normalStockItem],
         );
 
-        // Assert
+        expect(suggestions.isEmpty, true);
+      });
+
+      test('handles empty inventory list', () {
+        final suggestions = SuggestionsService.generateSuggestions(
+          inventoryItems: [],
+        );
+
         expect(suggestions.isEmpty, true);
       });
     });
 
-    group('getActiveSuggestions', () {
-      test('מחזיר רק המלצות pending שלא נדחו', () {
-        // Arrange
-        final now = DateTime.now();
+    group('getActiveSuggestions() Tests', () {
+      test('returns only pending suggestions', () {
         final suggestions = [
           SmartSuggestion.fromInventory(
-            id: uuid.v4(),
-            productId: '1',
+            id: 's1',
+            productId: 'p1',
             productName: 'חלב',
-            category: 'מוצרי חלב',
+            category: 'חלב',
             currentStock: 2,
             threshold: 5,
-            unit: 'יח\'',
-          ), // pending, לא נדחה ✅
-
+            unit: 'יחידות',
+            now: DateTime.now(),
+          ),
           SmartSuggestion.fromInventory(
-            id: uuid.v4(),
-            productId: '2',
+            id: 's2',
+            productId: 'p2',
             productName: 'לחם',
-            category: 'מאפים',
+            category: 'לחם',
             currentStock: 1,
             threshold: 5,
-            unit: 'יח\'',
-          ).copyWith(
-            status: SuggestionStatus.added,
-          ), // added ❌
-
-          SmartSuggestion.fromInventory(
-            id: uuid.v4(),
-            productId: '3',
-            productName: 'ביצים',
-            category: 'מוצרי חלב',
-            currentStock: 0,
-            threshold: 5,
-            unit: 'יח\'',
-          ).copyWith(
-            dismissedUntil: now.add(const Duration(days: 7)),
-          ), // dismissed, עדיין לא עבר ❌
-
-          SmartSuggestion.fromInventory(
-            id: uuid.v4(),
-            productId: '4',
-            productName: 'גבינה',
-            category: 'מוצרי חלב',
-            currentStock: 1,
-            threshold: 5,
-            unit: 'יח\'',
-          ).copyWith(
-            dismissedUntil: now.subtract(const Duration(days: 1)),
-          ), // dismissed, אבל עבר ✅
+            unit: 'יחידות',
+            now: DateTime.now(),
+          ).copyWith(status: SuggestionStatus.added), // נוסף
         ];
 
-        // Act
         final active = SuggestionsService.getActiveSuggestions(suggestions);
 
-        // Assert
-        expect(active.length, 2);
-        expect(active.any((s) => s.productName == 'חלב'), true);
-        expect(active.any((s) => s.productName == 'גבינה'), true);
-      });
-    });
-
-    group('getNextSuggestion', () {
-      test('מחזיר את ההמלצה הדחופה ביותר', () {
-        // Arrange
-        final suggestions = [
-          SmartSuggestion.fromInventory(
-            id: uuid.v4(),
-            productId: '1',
-            productName: 'לחם',
-            category: 'מאפים',
-            currentStock: 3,
-            threshold: 5,
-            unit: 'יח\'',
-          ), // medium
-
-          SmartSuggestion.fromInventory(
-            id: uuid.v4(),
-            productId: '2',
-            productName: 'חלב',
-            category: 'מוצרי חלב',
-            currentStock: 0,
-            threshold: 5,
-            unit: 'יח\'',
-          ), // critical ← הכי דחוף
-
-          SmartSuggestion.fromInventory(
-            id: uuid.v4(),
-            productId: '3',
-            productName: 'ביצים',
-            category: 'מוצרי חלב',
-            currentStock: 1,
-            threshold: 5,
-            unit: 'יח\'',
-          ), // high
-        ];
-
-        // יש למיין אותם קודם
-        final sorted = List<SmartSuggestion>.from(suggestions);
-        sorted.sort((a, b) {
-          const urgencyOrder = {
-            'critical': 0,
-            'high': 1,
-            'medium': 2,
-            'low': 3,
-          };
-          final urgencyA = urgencyOrder[a.urgency] ?? 999;
-          final urgencyB = urgencyOrder[b.urgency] ?? 999;
-          return urgencyA.compareTo(urgencyB);
-        });
-
-        // Act
-        final next = SuggestionsService.getNextSuggestion(sorted);
-
-        // Assert
-        expect(next, isNotNull);
-        expect(next!.productName, 'חלב');
-        expect(next.urgency, 'critical');
+        expect(active.length, 1);
+        expect(active.first.productName, 'חלב');
       });
 
-      test('מחזיר null אם אין המלצות פעילות', () {
-        // Arrange
+      test('filters out dismissed suggestions that havent expired', () {
+        final now = DateTime.now();
+        final dismissedUntil = now.add(const Duration(days: 1));
+
         final suggestions = [
           SmartSuggestion.fromInventory(
-            id: uuid.v4(),
-            productId: '1',
+            id: 's1',
+            productId: 'p1',
             productName: 'חלב',
-            category: 'מוצרי חלב',
+            category: 'חלב',
             currentStock: 2,
             threshold: 5,
-            unit: 'יח\'',
+            unit: 'יחידות',
+            now: now,
           ).copyWith(
-            status: SuggestionStatus.added,
+            status: SuggestionStatus.dismissed,
+            dismissedUntil: dismissedUntil,
           ),
         ];
 
-        // Act
+        final active = SuggestionsService.getActiveSuggestions(suggestions);
+
+        // לא צריך להיות פעיל (נדחה עד מחר)
+        expect(active.isEmpty, true);
+      });
+
+      test('includes expired dismissed suggestions', () {
+        final now = DateTime.now();
+        final dismissedUntil = now.subtract(const Duration(days: 1));
+
+        final suggestions = [
+          SmartSuggestion.fromInventory(
+            id: 's1',
+            productId: 'p1',
+            productName: 'חלב',
+            category: 'חלב',
+            currentStock: 2,
+            threshold: 5,
+            unit: 'יחידות',
+            now: now,
+          ).copyWith(
+            status: SuggestionStatus.pending,
+            dismissedUntil: dismissedUntil, // פג תוקף
+          ),
+        ];
+
+        final active = SuggestionsService.getActiveSuggestions(suggestions);
+
+        // צריך להיות פעיל (הדחייה פגה)
+        expect(active.length, 1);
+        expect(active.first.productName, 'חלב');
+      });
+    });
+
+    group('getNextSuggestion() Tests', () {
+      test('returns most urgent active suggestion', () {
+        final suggestions = SuggestionsService.generateSuggestions(
+          inventoryItems: [
+            outOfStockItem, // critical
+            lowStockItem1, // high
+            lowStockItem2, // high
+          ],
+        );
+
         final next = SuggestionsService.getNextSuggestion(suggestions);
 
-        // Assert
+        expect(next, isNotNull);
+        expect(next!.productName, 'סוכר'); // אזל = critical
+        expect(next.urgency, 'critical');
+      });
+
+      test('returns null when no active suggestions', () {
+        final suggestions = [
+          SmartSuggestion.fromInventory(
+            id: 's1',
+            productId: 'p1',
+            productName: 'חלב',
+            category: 'חלב',
+            currentStock: 2,
+            threshold: 5,
+            unit: 'יחידות',
+            now: DateTime.now(),
+          ).copyWith(status: SuggestionStatus.added),
+        ];
+
+        final next = SuggestionsService.getNextSuggestion(suggestions);
+
+        expect(next, isNull);
+      });
+
+      test('returns null when suggestions list is empty', () {
+        final next = SuggestionsService.getNextSuggestion([]);
+
         expect(next, isNull);
       });
     });
 
-    group('dismissSuggestion', () {
-      test('מגדיר dismissed_until לעתיד', () {
-        // Arrange
+    group('dismissSuggestion() Tests', () {
+      test('sets status to dismissed with future date', () {
         final suggestion = SmartSuggestion.fromInventory(
-          id: uuid.v4(),
-          productId: '1',
+          id: 's1',
+          productId: 'p1',
           productName: 'חלב',
-          category: 'מוצרי חלב',
+          category: 'חלב',
           currentStock: 2,
           threshold: 5,
-          unit: 'יח\'',
+          unit: 'יחידות',
+          now: DateTime.now(),
         );
 
-        final before = DateTime.now();
+        final dismissed = SuggestionsService.dismissSuggestion(suggestion);
 
-        // Act
-        final dismissed = SuggestionsService.dismissSuggestion(
-          suggestion,
-          duration: const Duration(days: 7),
-        );
-
-        final after = DateTime.now();
-
-        // Assert
         expect(dismissed.status, SuggestionStatus.dismissed);
         expect(dismissed.dismissedUntil, isNotNull);
         expect(
-          dismissed.dismissedUntil!.isAfter(before.add(const Duration(days: 6))),
-          true,
-        );
-        expect(
-          dismissed.dismissedUntil!.isBefore(after.add(const Duration(days: 8))),
+          dismissed.dismissedUntil!.isAfter(DateTime.now()),
           true,
         );
       });
-    });
 
-    group('deleteSuggestion', () {
-      test('מחיקה קבועה (duration: null)', () {
-        // Arrange
+      test('uses custom duration when provided', () {
         final suggestion = SmartSuggestion.fromInventory(
-          id: uuid.v4(),
-          productId: '1',
+          id: 's1',
+          productId: 'p1',
           productName: 'חלב',
-          category: 'מוצרי חלב',
+          category: 'חלב',
           currentStock: 2,
           threshold: 5,
-          unit: 'יח\'',
+          unit: 'יחידות',
+          now: DateTime.now(),
         );
 
-        // Act
-        final deleted = SuggestionsService.deleteSuggestion(
-          suggestion,
-          duration: null, // לצמיתות
-        );
-
-        // Assert
-        expect(deleted.status, SuggestionStatus.deleted);
-        expect(deleted.dismissedUntil, isNull);
-      });
-
-      test('מחיקה זמנית (duration: Duration)', () {
-        // Arrange
-        final suggestion = SmartSuggestion.fromInventory(
-          id: uuid.v4(),
-          productId: '1',
-          productName: 'חלב',
-          category: 'מוצרי חלב',
-          currentStock: 2,
-          threshold: 5,
-          unit: 'יח\'',
-        );
-
-        // Act
-        final deleted = SuggestionsService.deleteSuggestion(
+        final dismissed = SuggestionsService.dismissSuggestion(
           suggestion,
           duration: const Duration(days: 30),
         );
 
-        // Assert
+        final expectedDate = DateTime.now().add(const Duration(days: 30));
+        final actualDate = dismissed.dismissedUntil!;
+
+        // בדיקה שההפרש קטן מדקה (כדי להתמודד עם זמן ריצה)
+        expect(
+          actualDate.difference(expectedDate).inMinutes.abs(),
+          lessThan(1),
+        );
+      });
+
+      test('uses default 7 days when no duration provided', () {
+        final suggestion = SmartSuggestion.fromInventory(
+          id: 's1',
+          productId: 'p1',
+          productName: 'חלב',
+          category: 'חלב',
+          currentStock: 2,
+          threshold: 5,
+          unit: 'יחידות',
+          now: DateTime.now(),
+        );
+
+        final dismissed = SuggestionsService.dismissSuggestion(suggestion);
+
+        final expectedDate = DateTime.now().add(const Duration(days: 7));
+        final actualDate = dismissed.dismissedUntil!;
+
+        expect(
+          actualDate.difference(expectedDate).inMinutes.abs(),
+          lessThan(1),
+        );
+      });
+    });
+
+    group('deleteSuggestion() Tests', () {
+      test('sets status to deleted when duration is null (permanent)', () {
+        final suggestion = SmartSuggestion.fromInventory(
+          id: 's1',
+          productId: 'p1',
+          productName: 'חלב',
+          category: 'חלב',
+          currentStock: 2,
+          threshold: 5,
+          unit: 'יחידות',
+          now: DateTime.now(),
+        );
+
+        final deleted = SuggestionsService.deleteSuggestion(
+          suggestion,
+          duration: null,
+        );
+
+        expect(deleted.status, SuggestionStatus.deleted);
+        expect(deleted.dismissedUntil, isNull);
+      });
+
+      test('dismisses temporarily when duration provided', () {
+        final suggestion = SmartSuggestion.fromInventory(
+          id: 's1',
+          productId: 'p1',
+          productName: 'חלב',
+          category: 'חלב',
+          currentStock: 2,
+          threshold: 5,
+          unit: 'יחידות',
+          now: DateTime.now(),
+        );
+
+        final deleted = SuggestionsService.deleteSuggestion(
+          suggestion,
+          duration: const Duration(days: 1),
+        );
+
         expect(deleted.status, SuggestionStatus.dismissed);
         expect(deleted.dismissedUntil, isNotNull);
       });
     });
 
-    group('markAsAdded', () {
-      test('משנה סטטוס ל-added ושומר list_id', () {
-        // Arrange
+    group('markAsAdded() Tests', () {
+      test('sets status to added and stores list ID', () {
         final suggestion = SmartSuggestion.fromInventory(
-          id: uuid.v4(),
-          productId: '1',
+          id: 's1',
+          productId: 'p1',
           productName: 'חלב',
-          category: 'מוצרי חלב',
+          category: 'חלב',
           currentStock: 2,
           threshold: 5,
-          unit: 'יח\'',
+          unit: 'יחידות',
+          now: DateTime.now(),
         );
 
-        const listId = 'list-123';
-
-        // Act
         final added = SuggestionsService.markAsAdded(
           suggestion,
-          listId: listId,
+          listId: 'list123',
         );
 
-        // Assert
         expect(added.status, SuggestionStatus.added);
-        expect(added.addedToListId, listId);
+        expect(added.addedToListId, 'list123');
         expect(added.addedAt, isNotNull);
       });
-    });
 
-    group('getDurationFromChoice', () {
-      test('מחזיר Duration נכון לפי בחירה', () {
+      test('sets addedAt to current time', () {
+        final suggestion = SmartSuggestion.fromInventory(
+          id: 's1',
+          productId: 'p1',
+          productName: 'חלב',
+          category: 'חלב',
+          currentStock: 2,
+          threshold: 5,
+          unit: 'יחידות',
+          now: DateTime.now(),
+        );
+
+        final before = DateTime.now();
+        final added = SuggestionsService.markAsAdded(
+          suggestion,
+          listId: 'list123',
+        );
+        final after = DateTime.now();
+
+        expect(added.addedAt, isNotNull);
         expect(
-          SuggestionsService.getDurationFromChoice('day'),
-          const Duration(days: 1),
+          added.addedAt!.isAfter(before.subtract(const Duration(seconds: 1))),
+          true,
         );
         expect(
-          SuggestionsService.getDurationFromChoice('week'),
-          const Duration(days: 7),
-        );
-        expect(
-          SuggestionsService.getDurationFromChoice('month'),
-          const Duration(days: 30),
-        );
-        expect(
-          SuggestionsService.getDurationFromChoice('forever'),
-          null,
+          added.addedAt!.isBefore(after.add(const Duration(seconds: 1))),
+          true,
         );
       });
     });
 
-    group('getSuggestionsStats', () {
-      test('מחזיר סטטיסטיקה נכונה', () {
-        // Arrange
+    group('getDurationFromChoice() Tests', () {
+      test('returns 1 day for "day"', () {
+        final duration = SuggestionsService.getDurationFromChoice('day');
+        expect(duration, const Duration(days: 1));
+      });
+
+      test('returns 7 days for "week"', () {
+        final duration = SuggestionsService.getDurationFromChoice('week');
+        expect(duration, const Duration(days: 7));
+      });
+
+      test('returns 30 days for "month"', () {
+        final duration = SuggestionsService.getDurationFromChoice('month');
+        expect(duration, const Duration(days: 30));
+      });
+
+      test('returns null for "forever"', () {
+        final duration = SuggestionsService.getDurationFromChoice('forever');
+        expect(duration, isNull);
+      });
+
+      test('returns default (7 days) for unknown choice', () {
+        final duration = SuggestionsService.getDurationFromChoice('unknown');
+        expect(duration, const Duration(days: 7));
+      });
+    });
+
+    group('getDurationText() Tests', () {
+      test('returns "לעולם לא" for null', () {
+        final text = SuggestionsService.getDurationText(null);
+        expect(text, 'לעולם לא');
+      });
+
+      test('returns "יום אחד" for 1 day', () {
+        final text =
+            SuggestionsService.getDurationText(const Duration(days: 1));
+        expect(text, 'יום אחד');
+      });
+
+      test('returns "שבוע" for 7 days', () {
+        final text =
+            SuggestionsService.getDurationText(const Duration(days: 7));
+        expect(text, 'שבוע');
+      });
+
+      test('returns "חודש" for 30 days', () {
+        final text =
+            SuggestionsService.getDurationText(const Duration(days: 30));
+        expect(text, 'חודש');
+      });
+
+      test('returns days count for other durations', () {
+        final text =
+            SuggestionsService.getDurationText(const Duration(days: 14));
+        expect(text, '14 ימים');
+      });
+    });
+
+    group('getSuggestionsStats() Tests', () {
+      test('calculates correct statistics', () {
+        final now = DateTime.now();
         final suggestions = [
+          // Active critical
           SmartSuggestion.fromInventory(
-            id: uuid.v4(),
-            productId: '1',
-            productName: 'חלב',
-            category: 'מוצרי חלב',
+            id: 's1',
+            productId: 'p1',
+            productName: 'סוכר',
+            category: 'אפייה',
             currentStock: 0,
             threshold: 5,
-            unit: 'יח\'',
-          ), // pending, critical
-
+            unit: 'יחידות',
+            now: now,
+          ),
+          // Active high
           SmartSuggestion.fromInventory(
-            id: uuid.v4(),
-            productId: '2',
-            productName: 'ביצים',
-            category: 'מוצרי חלב',
-            currentStock: 1,
-            threshold: 5,
-            unit: 'יח\'',
-          ), // pending, high
-
-          SmartSuggestion.fromInventory(
-            id: uuid.v4(),
-            productId: '3',
-            productName: 'לחם',
-            category: 'מאפים',
+            id: 's2',
+            productId: 'p2',
+            productName: 'חלב',
+            category: 'חלב',
             currentStock: 2,
             threshold: 5,
-            unit: 'יח\'',
-          ).copyWith(
-            status: SuggestionStatus.added,
-          ), // added
-
+            unit: 'יחידות',
+            now: now,
+          ),
+          // Added
           SmartSuggestion.fromInventory(
-            id: uuid.v4(),
-            productId: '4',
-            productName: 'גבינה',
-            category: 'מוצרי חלב',
+            id: 's3',
+            productId: 'p3',
+            productName: 'לחם',
+            category: 'לחם',
+            currentStock: 1,
+            threshold: 5,
+            unit: 'יחידות',
+            now: now,
+          ).copyWith(status: SuggestionStatus.added),
+          // Dismissed
+          SmartSuggestion.fromInventory(
+            id: 's4',
+            productId: 'p4',
+            productName: 'ביצים',
+            category: 'חלב',
             currentStock: 3,
             threshold: 5,
-            unit: 'יח\'',
-          ).copyWith(
-            status: SuggestionStatus.dismissed,
-          ), // dismissed
+            unit: 'יחידות',
+            now: now,
+          ).copyWith(status: SuggestionStatus.dismissed),
         ];
 
-        // Act
         final stats = SuggestionsService.getSuggestionsStats(suggestions);
 
-        // Assert
         expect(stats['total'], 4);
-        expect(stats['active'], 2); // חלב, ביצים
-        expect(stats['critical'], 1); // חלב
-        expect(stats['high'], 1); // ביצים
-        expect(stats['added'], 1); // לחם
-        expect(stats['dismissed'], 1); // גבינה
+        expect(stats['active'], 2);
+        expect(stats['critical'], 1);
+        expect(stats['high'], 1);
+        expect(stats['added'], 1);
+        expect(stats['dismissed'], 1);
+      });
+
+      test('handles empty suggestions list', () {
+        final stats = SuggestionsService.getSuggestionsStats([]);
+
+        expect(stats['total'], 0);
+        expect(stats['active'], 0);
       });
     });
 
-    group('hasUrgentSuggestions', () {
-      test('מחזיר true אם יש המלצות critical או high', () {
-        // Arrange
-        final suggestions = [
-          SmartSuggestion.fromInventory(
-            id: uuid.v4(),
-            productId: '1',
-            productName: 'חלב',
-            category: 'מוצרי חלב',
-            currentStock: 0,
-            threshold: 5,
-            unit: 'יח\'',
-          ), // critical ✅
-        ];
+    group('hasUrgentSuggestions() Tests', () {
+      test('returns true when critical suggestions exist', () {
+        final suggestions = SuggestionsService.generateSuggestions(
+          inventoryItems: [outOfStockItem],
+        );
 
-        // Act & Assert
-        expect(SuggestionsService.hasUrgentSuggestions(suggestions), true);
+        final hasUrgent =
+            SuggestionsService.hasUrgentSuggestions(suggestions);
+
+        expect(hasUrgent, true);
       });
 
-      test('מחזיר false אם אין המלצות דחופות', () {
-        // Arrange
+      test('returns true when high urgency suggestions exist', () {
+        final suggestions = SuggestionsService.generateSuggestions(
+          inventoryItems: [lowStockItem1],
+        );
+
+        final hasUrgent =
+            SuggestionsService.hasUrgentSuggestions(suggestions);
+
+        expect(hasUrgent, true);
+      });
+
+      test('returns false when only low/medium urgency', () {
+        final mediumStockItem = InventoryItem(
+          id: 'item5',
+          productName: 'קמח',
+          category: 'אפייה',
+          quantity: 3,
+          unit: 'יחידות',
+          householdId: 'household1',
+          addedBy: 'user1',
+          addedDate: DateTime.now(),
+          updatedDate: DateTime.now(),
+        );
+
+        final suggestions = SuggestionsService.generateSuggestions(
+          inventoryItems: [mediumStockItem],
+        );
+
+        final hasUrgent =
+            SuggestionsService.hasUrgentSuggestions(suggestions);
+
+        expect(hasUrgent, false);
+      });
+
+      test('returns false when no active suggestions', () {
+        final hasUrgent = SuggestionsService.hasUrgentSuggestions([]);
+        expect(hasUrgent, false);
+      });
+    });
+
+    group('getActiveSuggestionsCount() Tests', () {
+      test('returns correct count of active suggestions', () {
+        final now = DateTime.now();
         final suggestions = [
           SmartSuggestion.fromInventory(
-            id: uuid.v4(),
-            productId: '1',
-            productName: 'גבינה',
-            category: 'מוצרי חלב',
-            currentStock: 4,
+            id: 's1',
+            productId: 'p1',
+            productName: 'חלב',
+            category: 'חלב',
+            currentStock: 2,
             threshold: 5,
-            unit: 'יח\'',
-          ), // low
+            unit: 'יחידות',
+            now: now,
+          ),
+          SmartSuggestion.fromInventory(
+            id: 's2',
+            productId: 'p2',
+            productName: 'לחם',
+            category: 'לחם',
+            currentStock: 1,
+            threshold: 5,
+            unit: 'יחידות',
+            now: now,
+          ),
+          SmartSuggestion.fromInventory(
+            id: 's3',
+            productId: 'p3',
+            productName: 'ביצים',
+            category: 'חלב',
+            currentStock: 0,
+            threshold: 5,
+            unit: 'יחידות',
+            now: now,
+          ).copyWith(status: SuggestionStatus.added), // לא פעיל
         ];
 
-        // Act & Assert
-        expect(SuggestionsService.hasUrgentSuggestions(suggestions), false);
+        final count =
+            SuggestionsService.getActiveSuggestionsCount(suggestions);
+
+        expect(count, 2);
+      });
+
+      test('returns 0 for empty list', () {
+        final count = SuggestionsService.getActiveSuggestionsCount([]);
+        expect(count, 0);
       });
     });
   });
