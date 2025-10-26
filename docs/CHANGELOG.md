@@ -5,6 +5,36 @@
 
 ---
 
+## [In Progress] - 26/10/2025
+
+### Session #12 - Cleanup: Removed Obsolete Repository Utilities
+**Files Deleted:**
+1. `lib/repositories/utils/firestore_utils.dart` - Utility functions (no longer needed)
+2. `lib/repositories/utils/` directory (now empty)
+3. `lib/repositories/constants/repository_constants.dart` - Obsolete constants
+4. `lib/repositories/constants/` directory (now empty)
+
+**Status:** ✅ Complete
+
+**Reason:**
+- firestore_utils.dart: Not used anywhere (0 imports, 0 function calls)
+  - Timestamp conversion → @JsonSerializable handles automatically
+  - Security logic → Firestore Security Rules
+  - Query building → Direct in repositories (clearer)
+  - Validation → Null safety + Model validation
+- repository_constants.dart: Not used anywhere (0 imports)
+  - All repositories use hardcoded strings directly
+  - 7/11 collection constants obsolete (templates, receipts, habits removed)
+  - Constants add unnecessary indirection
+
+**Impact:**
+- Cleaner codebase: 4 files + 2 directories removed
+- No functional changes (code was not used)
+
+**Result:** Obsolete utility file removed, codebase cleaner
+
+---
+
 ## [In Progress] - 25/10/2025
 
 ### Session #11 - Track 3 Stage 3.4: Last Chance Banner - 100% COMPLETE
