@@ -5,11 +5,11 @@
 // ✅ Firebase Authentication (email/password + name)
 // ✅ Form validation עם אימות סיסמה
 // ✅ StickyButton עם loading state + animations
-// ✅ DemoLoginButton לכניסה מהירה
 // ✅ AppStrings - i18n ready
 // ✅ ui_constants - עיצוב עקבי
 // ✅ Sticky Notes Design System 🎨📝 ⭐ חדש!
 // 🔒 PopScope - חסימת Back (חובה להשלים הרשמה)
+// 🚫 הוסרה כניסת Demo (26/10/2025)
 //
 // 🎨 UI/UX Improvements (15/10/2025): ⭐
 // - מעוצב כולו עם Sticky Notes Design System!
@@ -26,8 +26,8 @@
 // - LoginScreen - התחברות לחשבון קיים
 // - AppStrings.auth - מחרוזות UI
 //
-// 📝 Version: 3.1 - UX Improvements + Tests (A+B+C) 🎉
-// 📅 Updated: 20/10/2025
+// 📝 Version: 3.2 - Removed Demo Login
+// 📅 Updated: 26/10/2025
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -36,7 +36,7 @@ import '../../providers/user_context.dart';
 import '../../theme/app_theme.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
-import '../../widgets/auth/demo_login_button.dart';
+
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_note.dart';
 import '../../widgets/common/sticky_button.dart';
@@ -536,30 +536,6 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                               ),
                             ),
                           ),
-                          const SizedBox(height: kSpacingMedium),
-
-                          // מפריד - compact
-                          Row(
-                            children: [
-                              Expanded(child: Divider(color: cs.outlineVariant)),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
-                                child: Text(
-                                  AppStrings.auth.or,
-                                  style: TextStyle(
-                                    color: cs.onSurfaceVariant,
-                                    fontSize: kFontSizeTiny,
-                                  ),
-                                ),
-                              ),
-                              Expanded(child: Divider(color: cs.outlineVariant)),
-                            ],
-                          ),
-                          const SizedBox(height: kSpacingSmall),
-
-                          // 🔘 כפתור כניסה מהירה
-                          const DemoLoginButton(),
-                          
                           const SizedBox(height: kSpacingSmall), // 📐 רווח קטן בתחתית
                         ],
                       ),
