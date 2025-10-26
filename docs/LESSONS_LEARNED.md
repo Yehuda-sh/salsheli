@@ -1,389 +1,252 @@
-# 📘 LESSONS_LEARNED - MemoZap
-
-> **Updated:** 25/10/2025 (Post Stage 3 Testing)  
-> **Purpose:** Internal AI reference — mistakes to avoid and refined best practices.  
-> **Context:** Project path → `C:\projects\salsheli\`
-
----
-
-## 🔧 Code & Logic Patterns
-
-### 1️⃣ File Editing
-
-- ❌ Edited files without verifying original string → “no match” errors.  
-  ✅ Always `read_text_file` → confirm → then `edit_file`.
-- ❌ Used relative paths.  
-  ✅ Always use **full Windows path** (e.g., `C:\projects\salsheli\lib\main.dart`).
-- ❌ Overused `write_file` instead of `edit_file`.  
-  ✅ Only use `edit_file` for surgical changes.
-
-### 2️⃣ MCP & Terminal
-
-- ❌ Tried `grep` with Windows path → failed (`ENOENT`).  
-  ✅ Use `search_files` instead of `bash_tool` for search operations.
-- ❌ Overreliance on Bash for short tasks.  
-  ✅ Prefer Filesystem tools unless automation needed.
-
-### 6️⃣ Path Resolution (CRITICAL!)
-
-- ❌ Used `/mnt/project/` paths with Filesystem tools → "Access denied"  
-  ✅ **Never use `/mnt/project/` with filesystem tools!**
-- **Pattern:** Tried to read docs with `read_text_file("/mnt/project/GUIDE.md")`
-- **Solution:** Use project documentation search for docs
-- **Frequency:** 2+ times (25/10/2025)
-- **Prevention:** If path starts with `/mnt/project/` → STOP and search docs instead
-
-### 3️⃣ Project Logic
-
-- ❌ Forgot to migrate data when changing repository pattern.  
-  ✅ Always create `migrate_*` script in `scripts/`.
-- ❌ Suggested logic outside MemoZap scope (e.g., receipt scanning).  
-  ✅ Keep focus on pantry, shopping lists, tasks, and smart suggestions.
-
-### 4️⃣ Stage Management
-
-- ❌ Created too many files without checkpoints.  
-  ✅ Save checkpoint after every 3-4 file modifications.
-- ❌ Editing complex files without reading first.  
-  ✅ Read large files (>500 lines) before any `edit_file` operation.
-- ❌ Not tracking progress in session.  
-  ✅ After each stage completion → save to Memory with % complete.
-
-### 5️⃣ Memory Tool Issues
-
-- ❌ `Tool execution failed` when using Memory tool  
-  ✅ **Pattern (CRITICAL):**
-  1. קודם `search_nodes` או `read_graph`
-  2. אם entity קיים → `add_observations`
-  3. אם entity לא קיים → `create_entities`
-  4. **אסור** לנסות `add_observations` על entity שלא קיים
-- ❌ Trying to add observations without checking entity exists.  
-  ✅ Always verify entity existence before update.
-
----
-
-## 🎯 Flutter Common Mistakes & Solutions
-
-### 1️⃣ const Usage
-
-- ❌ שמתי const על widget עם ארגומנטים דינמיים (variables, parameters)  
-  ✅ const רק עם ערכים קבועים בזמן קומפילציה (literals, enum values)
-- **דוגמה:** `const SizedBox(height: 16)` ✅ אבל `const _StatCard(value: count)` ❌
-
-### 2️⃣ Color API Changes
-
-- ❌ השתמשתי ב-withOpacity (deprecated מ-Flutter 3.22)  
-  ✅ השתמש ב-withValues: `Colors.black.withValues(alpha: 0.5)`
-
-### 3️⃣ Async Callbacks
-
-- ❌ `onPressed: _asyncFunc` (טעות טיפוס - Future<void> במקום void)  
-  ✅ `onPressed: () => _asyncFunc()` (חייב wrapper function)
-
-### 4️⃣ Context After Await
-
-- ❌ `await func(); Navigator.of(context).push(...)`  
-  ✅ `final nav = Navigator.of(context); await func(); if (!mounted) return; nav.push(...)`
-- **סיבה:** context יכול להיות invalid אחרי await
-
----
-
-## 🧪 Testing & Integration
-
-### 1️⃣ Widget Testing Best Practices
-
-- ❌ `find.byWidgetPredicate(widget.decoration)` לא עובד!  
-  ✅ השתמש ב-`find.bySemanticsLabel()` (גם מוסיף accessibility)
-- **דוגמה:** `find.bySemanticsLabel(AppStrings.auth.emailLabel)`
-
-- ❌ לא בודק Empty/Loading/Error states  
-  ✅ כל widget צריך 3 states בסיסיים: Loading, Error, Empty/Content
-
-- ❌ לא בודק animations  
-  ✅ בדוק FadeIn, SlideIn וכו' עם `tester.pumpAndSettle()`
-
-### 2️⃣ Mock & Stub Patterns
-
-- ❌ לא רצתי build_runner לפני tests  
-  ✅ תמיד: `flutter pub run build_runner build` לפני `flutter test`
-
-- ❌ שגיאה: "The getter 'x' isn't defined for the type 'Mock'"  
-  ✅ הוסף stub מפורש: `when(() => mockProvider.x).thenReturn(value);`
-  
-- **דוגמה מעשית:**
-  ```dart
-  // ❌ גורם לשגיאה:
-  final mockProvider = MockSuggestionsProvider();
-  // שימוש: mockProvider.pendingSuggestionsCount
-  
-  // ✅ נכון:
-  final mockProvider = MockSuggestionsProvider();
-  when(() => mockProvider.pendingSuggestionsCount).thenReturn(2);
-  ```
-
-### 3️⃣ Test File Naming
-
-- ❌ שם פרויקט שגוי ב-imports (`package:salsheli/...`)  
-  ✅ שם הפרויקט: `memozap` (בדוק pubspec.yaml)
-- **הערה:** תיקיית העבודה `C:\projects\salsheli` אבל שם הפרויקט `memozap`
-
-### 4️⃣ Testing Error Handling
-
-- ❌ לא בודק error states כראוי  
-  ✅ צריך לבדוק:
-  - הודעת שגיאה מוצגת
-  - כפתור Retry/Refresh קיים
-  - State מתעדכן לאחר שגיאה
-
-- ❌ שכחתי stub ל-properties של Mock  
-  ✅ כל property שנגיש בטסט צריך stub מפורש
-
----
-
-## 🏗️ MemoZap Architecture Rules
-
-### 1️⃣ household_id Filter (CRITICAL!)
-
-- ❌ שכחתי `.where('household_id', isEqualTo: ...)` בשאילתות  
-  ✅ **בכל שאילתת Firestore חייב לסנן לפי household_id**
-- **סיבה:** בעיית אבטחה קריטית - משתמש יכול לראות נתונים של אחרים!
-
-### 2️⃣ Logging Best Practices
-
-- ❌ יותר מ-15 debugPrint בקובץ אחד  
-  ✅ מקסימום 15 logs למסך: lifecycle + שגיאות + פעולות קריטיות בלבד
-- **מה להשאיר:** initState/dispose, try-catch errors, critical actions (logout, delete)
-- **מה להסיר:** התחלות/סיומים רגילים, ניווטים פשוטים, לחצני UI
-
-### 3️⃣ Model Updates
-
-- ❌ שכחתי לרוץ build_runner אחרי שינויים ב-@JsonSerializable  
-  ✅ אחרי כל שינוי במודל: רוץ build_runner, בדוק קומפילציה
-- **פקודה:** `flutter pub run build_runner build --delete-conflicting-outputs`
-
-### 4️⃣ Repository Pattern
-
-- ❌ גישה ישירה ל-Firestore מ-Screens/Widgets  
-  ✅ **תמיד** דרך Repository → Provider → Screen
-- **סיבה:** ניתן לבדיקה, ניתן להחלפה, separation of concerns
-
-### 5️⃣ UserContext Integration
-
-- ❌ שכחתי removeListener() ב-dispose()  
-  ✅ **Pattern חובה:**
-  ```dart
-  // Constructor
-  _userContext.addListener(_onUserChanged);
-  
-  // dispose()
-  _userContext.removeListener(_onUserChanged);
-  ```
-- **סיבה:** מניעת memory leaks
-
-### 6️⃣ Provider Method Names
-
-- ❌ Used old method name that doesn't exist → "Method not found"  
-  ✅ **Always check Provider implementation for correct method names**
-- **דוגמה:** `addItemToList()` → `addUnifiedItem()` (after Track 1 refactor)
-- **Solution:** Read Provider file before calling methods
-- **Prevention:** Search Provider file for method name first
-- **Frequency:** 1 time (25/10/2025) - קרה לאחר שינוי ארכיטקטורה
-
----
-
-## 🎨 UI/UX & Structure
-
-### 1️⃣ Hebrew & RTL
-
-- ❌ Ignored RTL layout.  
-  ✅ All UI text → align right + test with Hebrew labels.
-
-### 2️⃣ Sticky Notes Design System
-
-- ❌ Suggested random UI elements.  
-  ✅ Always reference `DESIGN_GUIDE.md`.
-
-### 3️⃣ User Flow
-
-- ❌ Focused on features before UI skeleton.  
-  ✅ Build UI first → then connect logic.
-
----
-
-## 💬 Communication
-
-### 1️⃣ With User
-
-- ❌ Provided long code blocks.  
-  ✅ Explain in **text**, simple Hebrew, real project context.
-- ❌ Too many tokens → redundant phrasing.  
-  ✅ Keep concise; one clear summary per topic.
-
-### 2️⃣ User Preferences
-
-- ❌ Artifacts (בכלל!)  
-  ✅ תמיד `filesystem:edit_file` (מפורש מהמשתמש)
-- ❌ הסברים טכניים ארוכים  
-  ✅ תמציתי בעברית + מה השתנה (לא איך)
-- ❌ קוד snippets להרצה ידנית  
-  ✅ פשוט תסביר מה צריך לקרות
-
-### 3️⃣ With Other AI Agents
-
-- ❌ Missing shared memory for past issues.  
-  ✅ Store lessons here, and update on each fix.
-
----
-
-## 📚 Documentation Maintenance
-
-### 1️⃣ ניקוי קבצים מיותרים
-
-- ❌ קבצים כפולים עם תוכן דומה  
-  ✅ לשמור קובץ אחד עם התוכן המעודכן
-- ❌ הפניות לקבצים שלא קיימים  
-  ✅ חפש ועדכן בכל הקבצים (`search_files`)
-- ❌ שמות קבצים שונים לאותו תוכן  
-  ✅ שמות עקביים ואחידים (LESSONS_LEARNED.md ✓)
-
-### 2️⃣ עדכון הפניות בתיעוד
-
-- ✅ **תהליך מלא:**
-  1. חפש את שם הקובץ הישן בכל התיקיות (`search_files`)
-  2. עדכן כל הפניה לשם החדש (`edit_file`)
-  3. מחק את הקובץ הישן
-  4. עדכן README.md ב-docs/
-- **דוגמה:** MEMOZAP_LESSONS_AND_ERRORS.md → LESSONS_LEARNED.md (24/10/2025)
-- **דוגמה 2:** MEMOZAP_INDEX.md → מוזג ל-README.md (25/10/2025)
-
-### 3️⃣ שמירת סינכרון
-
-- ✅ README.md חייב להשתקף את מצב הקבצים באמת
-- ✅ עדכן תאריך + גרסה אחרי שינויים
-- ✅ תעד ב-LESSONS_LEARNED.md את השינויים
-
----
-
-## 🔄 Session Continuity
-
-### 1️⃣ המשך מהשיחה האחרונה
-
-- ❌ המשתמש כתב "המשך" ושאלתי שאלות  
-  ✅ מיד `recent_chats(n=1)` → קרא 5-10 הודעות אחרונות → המשך אוטומטי
-- **כלל:** "המשך" = continue from LAST chat, לא שאלות!
-
-### 2️⃣ Token Management
-
-- ⚠️ ב-70% טוקנים (133K/190K) → הצג התראה בסוף תשובה:  
-  `⚠️ Token Alert: 70% - נותרו 30% מהשיחה`
-- 🔴 ב-85% טוקנים → מצב ultra-concise + שמור הכל ב-Memory  
-- 📝 "נעבור" מהמשתמש → עדכן Current Work Context + תן 4 משפטים אחרונים
-
-### 3️⃣ Checkpoint Strategy
-
-- ✅ שמור checkpoint אחרי כל 3-5 קבצים ששונו
-- ✅ עדכן Current Work Context כל 10 הודעות
-- ✅ שמור החלטות ארכיטקטורליות ב-Memory מיד
-
----
-
-## 🧠 Meta Rules
-
-| Keyword           | Meaning                                        |
-| ----------------- | ---------------------------------------------- |
-| **"תבונות"**      | Trigger to recall this file and apply lessons. |
-| **"בדיקה חוזרת"** | Re-run same analysis, avoiding prior errors.   |
-| **"שגיאה חוזרת"** | Append to this file under relevant section.    |
-
----
-
----
-
-## 📊 Recent Learnings (Last 7 Days)
-
-### 24/10/2025 (Evening)
-- ✅ **מסלול 3 שלב 3.7 הושלם!** - הסרת סריקת קבלות מלאה
-- 🗑️ 11 קבצים נמחקו: OCR, parsers, UI של קבלות, widgets
-- 📝 3 קבצים עודכנו: main.dart, home_screen.dart, pubspec.yaml
-- 💾 שמרנו Receipt models (לקבלות וירטואליות)
-- 👀 Bottom Navigation: 5 טאבים → 4 טאבים
-
-### 24/10/2025 (Morning)
-- ✅ מסלול 2 (שיתוף משתמשים) הושלם - Security Rules + UI מלא
-- 🔧 תיקון: const על widgets עם ארגומנטים דינמיים (active_shopping_screen.dart)
-- 📝 עדכון: LESSONS_LEARNED.md עם Flutter best practices
-- 🧹 ניקוי תיעוד: מחקנו MEMOZAP_LESSONS_AND_ERRORS.md (מיותר)
-- ✅ עדכון MEMOZAP_CORE_GUIDE.md: Memory Tool Pattern + Checkpoint Protocol
-- 📝 מיזוג MEMOZAP_INDEX.md לתוך README.md
-
-### 25/10/2025 (ערב)
-- 🧪 **Widget Testing Mastery!** - למדנו patterns נכונים לבדיקות
-  - ✅ SmartSuggestionsCard: 15/15 טסטים עברו
-  - ✅ LastChanceBanner: 12/12 טסטים עברו
-  - 🔧 תיקון: stub patterns ל-Mock properties (pendingSuggestionsCount)
-  - 📝 Testing 4 states: Loading, Error, Empty, Content
-  - 🎬 Animation testing עם pumpAndSettle()
-
-### 25/10/2025 (בוקר)
-- ✅ **מסלול 3 שלב 3.6 הושלם!** - סיום קנייה + עדכון מלאי
-  - 🛒 לוגיקה מלאה: עדכון אוטומטי + העברת פריטים
-  - ➕ addStock() = חיבור (לא החלפה!)
-  - 📦 3 חלב + 2 נקנו = 5 במזווה ✅
-
-### 24/10/2025 (לילה)
-- ✅ **מסלול 3 שלבים 3.3-3.5 הושלמו!**
-  - 🎨 Dashboard חדש עם SmartSuggestionsCard + ActiveListsSection
-  - ⚠️ LastChanceBanner במצב קנייה פעילה
-  - 📋 shopping_lists_screen V5.0 - תצוגה מאוחדת
-
-### 23/10/2025 (Evening)
-- 🗑️ הסרת סריקת קבלות: 11 קבצים נמחקו
-- ✅ שמרנו: ReceiptProvider + ReceiptRepository (לקבלות וירטואליות)
-- 📝 Bottom Navigation: 5 טאבים → 4 טאבים
-
-### 23/10/2025
-- ✅ מסלול 1 (Tasks + Products) הושלם - UnifiedListItem + tests
-- ✅ מסלול 2 (שיתוף משתמשים) הושלם - 4 הרשאות + Security Rules
-- 🧪 למדתי: `find.bySemanticsLabel()` במקום `widget.decoration`
-- 🏗️ למדתי: build_runner חובה לפני flutter test
-
----
-
-## 🎯 Critical Patterns Summary
-
-### Testing Checklist:
-```dart
-// ✅ תמיד בדוק 4 states:
-1. Loading state (skeleton/shimmer)
-2. Error state (message + retry)
-3. Empty state (message + CTA)
-4. Content state (data rendering)
-
-// ✅ תמיד stub כל property:
-when(() => mock.property).thenReturn(value);
-
-// ✅ תמיד בדוק animations:
-await tester.pumpAndSettle();
+# LESSONS_LEARNED - MemoZap
+
+> Machine-Readable | Updated: 26/10/2025 | Version: 2.0
+
+## TOOL ERRORS
+
+```yaml
+edit_file:
+  error: "no match found"
+  cause: emoji/space mismatch
+  fix: read_text_file → copy exact text → edit
+  frequency: high
+
+memory:
+  error: "entity not found"
+  cause: add_observations on non-existent entity
+  fix: search_nodes first → if exists add_observations, if not create_entities
+  frequency: medium
+
+path:
+  error: "ENOENT" or "Access denied"
+  cause: /mnt/project/ with filesystem tools OR relative paths
+  fix: use absolute C:\projects\salsheli\ paths
+  frequency: medium
+
+grep:
+  error: "ENOENT"
+  cause: using bash grep on Windows
+  fix: use search_files instead
+  frequency: low
 ```
 
-### Memory Tool Pattern:
-```dart
-// ✅ תמיד קודם:
-1. search_nodes() או read_graph()
-2. אם קיים → add_observations()
-3. אם לא → create_entities()
+## FLUTTER ERRORS
+
+```yaml
+const:
+  error: "const with dynamic args"
+  wrong: const _StatCard(value: count)
+  right: const SizedBox(height: 16)
+  rule: const only with literals
+  frequency: medium
+
+color_api:
+  error: "deprecated withOpacity"
+  wrong: Colors.black.withOpacity(0.5)
+  right: Colors.black.withValues(alpha: 0.5)
+  since: Flutter 3.22+
+  frequency: low
+
+async_callback:
+  error: "type mismatch Future<void> vs void"
+  wrong: onPressed: _asyncFunc
+  right: onPressed: () => _asyncFunc()
+  frequency: medium
+
+context_after_await:
+  error: "crash - context invalid after await"
+  wrong: await _save(); Navigator.of(context).push(...)
+  right: final nav = Navigator.of(context); await _save(); if (!mounted) return; nav.push(...)
+  impact: CRASH
+  frequency: high
 ```
 
-### File Editing Pattern:
-```dart
-// ✅ תמיד:
-1. read_text_file() - קרא קודם
-2. אמת את הטקסט המדויק
-3. edit_file() - ערוך
+## TESTING ERRORS
+
+```yaml
+widget_finder:
+  error: "find.byWidgetPredicate doesn't work"
+  wrong: find.byWidgetPredicate(widget.decoration)
+  right: find.bySemanticsLabel(AppStrings.auth.emailLabel)
+  benefit: adds_accessibility
+  frequency: medium
+
+missing_states:
+  error: "incomplete test coverage"
+  missing: Loading/Error/Empty states
+  fix: test all 4 states (Loading, Error, Empty, Content)
+  frequency: high
+
+build_runner:
+  error: "tests fail - .g.dart missing"
+  cause: forgot build_runner before tests
+  fix: flutter pub run build_runner build BEFORE flutter test
+  frequency: medium
+
+mock_stub:
+  error: "getter not defined for Mock"
+  cause: missing stub for property
+  fix: when(() => mock.property).thenReturn(value)
+  frequency: high
+
+package_name:
+  error: "import not found"
+  wrong: package:salsheli/...
+  right: package:memozap/...
+  note: folder=salsheli, package=memozap
+  frequency: low
+```
+
+## ARCHITECTURE ERRORS
+
+```yaml
+household_id:
+  error: "SECURITY BREACH - sees other households"
+  missing: .where('household_id', isEqualTo: householdId)
+  impact: CRITICAL - GDPR violation
+  fix: ALWAYS filter by household_id in ALL Firestore queries
+  frequency: medium
+
+logging:
+  error: "too many logs"
+  limit: 15 debugPrint per file
+  keep: lifecycle (initState/dispose) + errors + critical actions
+  remove: routine operations, navigations, UI buttons
+  frequency: low
+
+model_update:
+  error: "compilation fails after model change"
+  cause: forgot build_runner
+  fix: flutter pub run build_runner build --delete-conflicting-outputs
+  frequency: medium
+
+repository_pattern:
+  error: "direct Firestore in UI"
+  wrong: FirebaseFirestore.instance in Screen/Widget
+  right: Repository → Provider → Screen
+  impact: hard to test, breaks pattern
+  frequency: low
+
+removeListener:
+  error: "memory leak"
+  missing: _userContext.removeListener() in dispose()
+  pattern: addListener in constructor, removeListener in dispose
+  impact: HIGH - memory leak + battery drain
+  frequency: high
+
+old_method:
+  error: "method not found"
+  cause: using old method name after refactor
+  example: addItemToList() → addUnifiedItem()
+  fix: read Provider file first
+  frequency: low
+```
+
+## UI/UX ERRORS
+
+```yaml
+rtl:
+  error: "text displays backwards"
+  missing: Directionality(textDirection: RTL)
+  fix: wrap all Hebrew text
+  frequency: low
+
+design_system:
+  error: "inconsistent UI"
+  cause: ignored Sticky Notes design system
+  fix: always reference DESIGN.md
+  frequency: low
+```
+
+## COMMUNICATION ERRORS
+
+```yaml
+artifacts:
+  error: "user doesn't want artifacts"
+  wrong: creating artifacts
+  right: filesystem:edit_file ALWAYS
+  user_preference: EXPLICIT
+  frequency: medium
+
+verbose:
+  error: "too many tokens"
+  cause: long explanations + code blocks
+  fix: ultra-concise Hebrew + what changed (not how)
+  frequency: high
+
+continue:
+  error: "asking questions instead of continuing"
+  trigger: user says "המשך"
+  right: recent_chats(n=1) → load last messages → continue immediately
+  frequency: medium
+```
+
+## SESSION ERRORS
+
+```yaml
+token_alert:
+  70%: show "⚠️ 70% - נותרו 30%"
+  85%: ultra-concise + save Memory + end
+  90%: emergency checkpoint + end
+
+checkpoint:
+  frequency: every 3-5 files (NOT after each file)
+  format: update Memory + CHANGELOG [In Progress]
+  
+memory_usage:
+  store: decisions, status, checkpoints, issues, next_steps
+  dont_store: code, file_contents, temp_data
+```
+
+## RECENT FIXES (Last 5)
+
+```yaml
+26_10_2025:
+  - doc_compression: AI_INSTRUCTIONS + TOKEN_MANAGEMENT created
+  - token_strategy: zero-reading default, selective when needed
+  - checkpoint: every file (not 3-5)
+
+25_10_2025:
+  - widget_testing: find.bySemanticsLabel() pattern learned
+  - mock_stubs: all properties need explicit stubs
+  - 4_states: Loading/Error/Empty/Content mandatory
+
+24_10_2025:
+  - const_fix: removed const from dynamic widgets
+  - doc_cleanup: merged/deleted duplicate files
+  - memory_pattern: search first, then add/create
+
+23_10_2025:
+  - track1_complete: UnifiedListItem + tests
+  - track2_complete: 4 permission levels + Security Rules
+  - build_runner: must run before tests
+```
+
+## QUICK REFERENCE
+
+```yaml
+most_common_errors:
+  1. household_id missing (SECURITY BREACH!)
+  2. removeListener missing (MEMORY LEAK!)
+  3. context after await (CRASH!)
+  4. const on dynamic widgets (BUILD ERROR!)
+  5. edit_file without read first (NO MATCH!)
+
+most_critical_patterns:
+  1. ALWAYS filter by household_id in Firestore
+  2. ALWAYS removeListener in dispose()
+  3. ALWAYS capture context before await
+  4. ALWAYS read_text_file before edit_file
+  5. ALWAYS search_nodes before add_observations
+
+error_frequency:
+  high: context_after_await, removeListener, edit_no_match, verbose, missing_states
+  medium: household_id, const, memory, async_callback, continue
+  low: color_api, package_name, rtl, design_system
 ```
 
 ---
 
-**Next Review:** 01/11/2025  
-**Maintainer:** AI System (Claude)  
-**Location:** `C:\projects\salsheli\docs\LESSONS_LEARNED.md`
+End of LESSONS_LEARNED  
+Version: 2.0 | Date: 26/10/2025  
+Optimized for AI parsing - minimal formatting, maximum data density.
