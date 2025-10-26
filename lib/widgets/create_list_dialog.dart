@@ -5,16 +5,13 @@
 // ✨ Features:
 // - ✅ i18n: כל המחרוזות דרך AppStrings
 // - ✅ Validation: מניעת שמות כפולים + תקציב חיובי
-// - ✅ Templates: שימוש בתבניות מוכנות + העברת פריטים
 // - ✅ Preview: תצוגה ויזואלית לסוג הרשימה הנבחר
-// - ✅ UX: אינדיקטורים ויזואליים לתבנית שנבחרה
 // - ✅ Error handling: הודעות שגיאה ידידותיות
 // - ✅ Accessibility: Tooltips על כל הכפתורים
 // - ✅ Logging: תיעוד מפורט לכל הפעולות
 //
 // 🔗 Dependencies:
 // - ShoppingListsProvider: ניהול state של רשימות
-// - TemplatesProvider: ניהול state של תבניות
 // - AppStrings: מחרוזות UI (l10n/app_strings.dart)
 // - constants.dart: קבועים גלובליים (kListTypes)
 // - ui_constants.dart: קבועי UI (ריווחים, גדלים)
@@ -43,9 +40,6 @@ import '../core/ui_constants.dart';
 import '../core/status_colors.dart';
 import '../config/list_type_groups.dart';
 import '../providers/shopping_lists_provider.dart';
-import '../providers/templates_provider.dart';
-import '../models/template.dart';
-import '../models/receipt.dart';
 import '../l10n/app_strings.dart';
 
 class CreateListDialog extends StatefulWidget {
@@ -66,22 +60,11 @@ class _CreateListDialogState extends State<CreateListDialog> {
   double? _budget;
   DateTime? _eventDate;
   bool _isSubmitting = false;
-  
-  // 🆕 מעקב אחרי תבנית שנבחרה
-  Template? _selectedTemplate;
-  List<ReceiptItem> _templateItems = [];
 
   @override
   void initState() {
     super.initState();
     debugPrint('🔵 CreateListDialog.initState() - Dialog נפתח');
-    
-    // טען תבניות
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<TemplatesProvider>().loadTemplates();
-      }
-    });
   }
 
   @override
@@ -114,18 +97,15 @@ class _CreateListDialogState extends State<CreateListDialog> {
     debugPrint(
       '   📝 שם: "$_name", סוג: "$_type", תקציב: ${_budget ?? "לא הוגדר"}',
     );
-    debugPrint('   📋 תבנית: ${_selectedTemplate?.name ?? "ללא"}, פריטים: ${_templateItems.length}');
 
     setState(() => _isSubmitting = true);
 
     final listData = {
-      "name": _name,
-      "type": _type,
-      "status": "active",
-      if (_budget != null) "budget": _budget,
-      if (_eventDate != null) "eventDate": _eventDate,
-      // 🆕 העברת פריטים מהתבנית
-      if (_templateItems.isNotEmpty) "items": _templateItems.map((item) => item.toJson()).toList(),
+      'name': _name,
+      'type': _type,
+      'status': 'active',
+      if (_budget != null) 'budget': _budget,
+      if (_eventDate != null) 'eventDate': _eventDate,
     };
 
     try {
