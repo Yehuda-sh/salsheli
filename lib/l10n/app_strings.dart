@@ -185,6 +185,7 @@ class _CommonStrings {
   String get edit => 'ערוך';
   String get add => 'הוסף';
   String get search => 'חיפוש';
+  String get retry => 'נסה שוב';
 
   // Confirmations
   String get yes => 'כן';
@@ -296,6 +297,42 @@ class _ShoppingStrings {
   String get itemStatusOutOfStock => 'אזל'; // שונה מ-"לא במלאי" ל"אזל" - קצר וברור!
   String get itemStatusDeferred => 'דחה לאחר כך'; // שונה מ-"דחוי" ל"דחה לאחר כך" - ברור יותר!
   String get itemStatusNotNeeded => 'לא צריך'; // חדש!
+
+  // Active Shopping Screen
+  String get activeSaving => 'שומר...';
+  String get activeFinish => 'סיום';
+  String get activePurchased => 'קנוי';
+  String get activeNotNeeded => 'לא צריך';
+  String get activeRemaining => 'נותרו';
+  String get activeTotal => 'סה״כ';
+  String get activeSavingData => 'שומר את הנתונים...';
+  
+  // Active Shopping - Messages
+  String get loadingDataError => 'שגיאה בטעינת הנתונים';
+  String get shoppingCompletedSuccess => 'הקנייה הושלמה בהצלחה! 🎉';
+  String pantryUpdated(int count) => '📦 $count מוצרים עודכנו במזווה';
+  String itemsMovedToNext(int count) => '🔄 $count פריטים הועברו לרשימה הבאה';
+  String get saveError => 'שגיאה בשמירה';
+  String get saveErrorMessage => 'לא הצלחנו לשמור את הנתונים.\nנסה שוב?';
+  String get oopsError => 'אופס! משהו השתבש';
+  String get listEmpty => 'הרשימה ריקה';
+  String get noItemsToBuy => 'אין פריטים לקנייה';
+  
+  // Active Shopping - Summary Dialog
+  String get summaryTitle => 'סיכום קנייה';
+  String get summaryShoppingTime => 'זמן קנייה';
+  String get summaryOutOfStock => 'אזלו בחנות';
+  String get summaryDeferred => 'נדחו לפעם הבאה';
+  String get summaryNotMarked => 'לא סומנו';
+  String get summaryBack => 'חזור';
+  String get summaryFinishShopping => 'סיים קנייה';
+  String summaryPurchased(int purchased, int total) => '$purchased מתוך $total';
+  
+  // Price & Quantity
+  String quantityMultiplier(int quantity) => '${quantity}×';
+  String priceFormat(double price) => '₪${price.toStringAsFixed(2)}';
+  String get noPrice => 'אין מחיר';
+  String get categoryGeneral => 'כללי';
 }
 
 // ========================================

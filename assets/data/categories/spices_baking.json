@@ -1,0 +1,352 @@
+[
+  {
+    "name": "גרעיני חמנייה במלח 200 ג",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 13.9,
+    "barcode": "4607012351999",
+    "brand": "אל אל סי מרטין",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "דיסקריט תחבושות לילה8 י",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 21.9,
+    "barcode": "8700216179041",
+    "brand": "פרוקטר אנד גמבל, גרמניה",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "הרינג מלוח מצונןתבלין",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 21.9,
+    "barcode": "4810168024512",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "טורטיות קמח כוסמת 408 גר",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 13.9,
+    "barcode": "7296073398325",
+    "brand": "PIP D.O.O",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "טרוביה תחליף סוכר 360 גר",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 29.9,
+    "barcode": "8121300208780",
+    "brand": "כללי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "לחמנ.קיטו קמח שקדים1004",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 36.9,
+    "barcode": "96086000294",
+    "brand": "מצות אביב 2014 מאפה בעמ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "לקריץ מוברק מיקס קופס280",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 15.9,
+    "barcode": "7296073707813",
+    "brand": "דין שיווק",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "לקריץ מסוכר מיקס קופס280",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 15.9,
+    "barcode": "7296073707837",
+    "brand": "דין שיווק וקלייה בעמ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מיני קרקרים מיקס 350 ג",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 12.9,
+    "barcode": "8434165466326",
+    "brand": "CUETARA",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מלח הימלאיה דק 1 ק\"ג",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 18.9,
+    "barcode": "7296073626701",
+    "brand": "סנקי",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מלח הימלאיה דק 1 ק\"ג",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 17.9,
+    "barcode": "7290018724323",
+    "brand": "ביתן ניסים ובבניו בע\\\"מ",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מלח לימון 170 גרם",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 12.9,
+    "barcode": "7290011964658",
+    "brand": "תבליני טעם וריח",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מלח לימון בשקית 100 גרם",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 8.0,
+    "barcode": "7296073216315",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מלח מופחת נתרן 250 ג",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 12.9,
+    "barcode": "7290000523514",
+    "brand": "חברת מלח הארץ אילת בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מלפפונים במלח 10-12",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 10.9,
+    "barcode": "7296073006411",
+    "brand": "קבוצת יבנה",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מרכך קרטין ללא מלחים500 מ",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 25.9,
+    "barcode": "7290017637761",
+    "brand": "סאסא קוסמטיקס אגש\"ח בע\"מ",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "משקה שיבול.שועל 0%סוכר1 ל",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 15.9,
+    "barcode": "7290017325972",
+    "brand": "ליקאוטס",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "נאצ'וס קמח תירס לבן150 גר",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 10.9,
+    "barcode": "8002183013572",
+    "brand": "S.P.A PATA",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סוכ.וורטר ל.סוכר בוקס42 ג",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 8.9,
+    "barcode": "4014400907902",
+    "brand": "שטורק",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סוכרה דיאט 100 שקיות",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 32.9,
+    "barcode": "7290000518220",
+    "brand": "מתוק וקל בעמ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סוכריות בים בום 200 גרם",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 10.9,
+    "barcode": "4823077612732",
+    "brand": "רושן",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סוכריות טיק טק תות שדה16",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 5.9,
+    "barcode": "80936848",
+    "brand": "פררו",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "עוגיות מלוחות מלח 350 ג",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 17.9,
+    "barcode": "7290119044672",
+    "brand": "קפולסקי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "צ'וקטה דבש ומלח ים160 ג",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 9.9,
+    "barcode": "7290018894460",
+    "brand": "SRL CO Trading Alka SC",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קמח שיפון מלא 1 ק\"ג",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 7.9,
+    "barcode": "7296073173335",
+    "brand": "טחנות ישראליות בעמ",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קמח שמרים מנופה 1 ק\"ג",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 11.5,
+    "barcode": "7296073552949",
+    "brand": "שטיבל בע\"מ",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קמח שקד קלוף 300 גר",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 29.9,
+    "barcode": "7290016146004",
+    "brand": "שקד תבור",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קמח שקדים 250 גרם",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 28.9,
+    "barcode": "7297488098305",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קמח תירס שופרסל 400 גרם",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 6.0,
+    "barcode": "7296073116813",
+    "brand": "מיה תעשיות מזון",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קריניאנו באזז 750 מ\"ל",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 35.9,
+    "barcode": "7290014256620",
+    "brand": "יקבי כרמל",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קריספי סטיקס 600 גרם",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 39.9,
+    "barcode": "7290019204381",
+    "brand": "מוצרי עוף טוב",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שוקולד מריר לינדט מלח 10",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 19.9,
+    "barcode": "3046920029674",
+    "brand": "לינדט ושפרונגלי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שמפו קרטין ללא מלחים500 מ",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 28.5,
+    "barcode": "7290017637655",
+    "brand": "סאסא קוסמטיקס אגש\"ח בע\"מ",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תבלין על האש 100 גרם",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 14.0,
+    "barcode": "7290010002283",
+    "brand": "א.ל ייצור ושיווק תבלינים",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תבלין צ'ילי גרוס 70 גרם",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 12.9,
+    "barcode": "7290015324663",
+    "brand": "תבליני טעם וריח בע\"\\מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  }
+]

@@ -34,7 +34,7 @@ import 'repositories/user_repository.dart';
 import 'repositories/firebase_user_repository.dart'; // 🔥 Firebase User!
 import 'repositories/firebase_receipt_repository.dart'; // 🔥 Firebase Receipts!
 import 'repositories/firebase_inventory_repository.dart'; // 🔥 Firebase Inventory!
-import 'repositories/firebase_products_repository.dart'; // 🔥 Firebase!
+import 'repositories/local_products_repository.dart'; // 📦 Local JSON!
 import 'repositories/firebase_habits_repository.dart'; // 🔥 Firebase Habits!
 import 'repositories/firebase_locations_repository.dart'; // 🔥 Firebase Locations!
 
@@ -101,13 +101,13 @@ void main() async {
   await Future.delayed(Duration(milliseconds: 100));
   if (kDebugMode) debugPrint('⏳ Waited for Firebase stabilization');
 
-  // 🔥 Create Firebase Repository
+  // 📦 Create Local Products Repository
   if (kDebugMode) {
-    debugPrint('\n🔥 Creating FirebaseProductsRepository...');
+    debugPrint('\n📦 Creating LocalProductsRepository...');
   }
-  final firebaseRepo = FirebaseProductsRepository();
+  final productsRepo = LocalProductsRepository();
   if (kDebugMode) {
-    debugPrint('✅ FirebaseProductsRepository ready');
+    debugPrint('✅ LocalProductsRepository ready');
     debugPrint('\n═══════════════════════════════════════════');
     debugPrint('🎯 Launching app...\n');
   }
@@ -155,7 +155,7 @@ void main() async {
             if (kDebugMode) {
               debugPrint('\n🏗️ main.dart: Creating ProductsProvider with Firebase...');
             }
-            final provider = ProductsProvider(repository: firebaseRepo, skipInitialLoad: true);
+            final provider = ProductsProvider(repository: productsRepo, skipInitialLoad: true);
             if (kDebugMode) {
               debugPrint('✅ main.dart: ProductsProvider created (skipInitialLoad=true)');
             }
@@ -170,7 +170,7 @@ void main() async {
 
             if (previous == null) {
               if (kDebugMode) debugPrint('   ⚠️ previous=null, creating new ProductsProvider');
-              return ProductsProvider(repository: firebaseRepo);
+              return ProductsProvider(repository: productsRepo);
             }
 
             if (kDebugMode) debugPrint('   📊 hasInitialized: ${previous.hasInitialized}');

@@ -1,0 +1,432 @@
+[
+  {
+    "name": "אייס קפה GO תנובה 340 מ\"ל",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 9.9,
+    "barcode": "7290110325893",
+    "brand": "תנובה בע\"מ",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "אייס קפה דיאט 245 גרם",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 24.9,
+    "barcode": "7290013144805",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "אייס קפה סוויטנג 250 גרם",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 42.9,
+    "barcode": "7290018249901",
+    "brand": "דרך לחיות בע\"\\מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חליטת תה סאמר בוקט 25 שק",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 14.9,
+    "barcode": "4605246004339",
+    "brand": "גרינפילד",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חליטת תה פירות אדומים20 ש",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 14.9,
+    "barcode": "4605246017896",
+    "brand": "גרינפילד",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "לור קפסולות אספרסו בטעם",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 20.9,
+    "barcode": "8711000488195",
+    "brand": "ג'ייקובס דאו אגברטס צרפת",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מארז קפה טורקי 4100 גרם",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 25.9,
+    "barcode": "7296073191421",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מארז קפה רג'ואן 1002 גר",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 16.9,
+    "barcode": "7290014704725",
+    "brand": "רוני רג'ואן ושות' 1986 ב",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מילקי שכבות שוק.וקפה108 ג",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 4.3,
+    "barcode": "7290110557447",
+    "brand": "שטראוס גרופ בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "עוגיות לקפה 350 גרם",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 17.9,
+    "barcode": "7290119040902",
+    "brand": "קיראי סחר והשקעות בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פולי קפה Starbucks אספרס",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 78.9,
+    "barcode": "7613037204889",
+    "brand": "נספרסו נסטלה",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פיירי אורגינל קפסולות 41",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 46.9,
+    "barcode": "8700216237239",
+    "brand": "---",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פסטרמה חרמוןתה 400400 ג",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 24.9,
+    "barcode": "7290000530703",
+    "brand": "זוגלובק",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קפה נמס גולד 200 גרם",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 54.9,
+    "barcode": "7613036314114",
+    "brand": "נסטלה אנגליה, טטבורי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קפה נמס עלית 50 גרם",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 13.9,
+    "barcode": "7290000176413",
+    "brand": "שטראוס קפה בי.וי.",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קפה קלוי וטחון בלי הל200",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 18.9,
+    "barcode": "7290002771364",
+    "brand": "סוגת",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קפסולות Starbuck קרמל51 ג",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 24.9,
+    "barcode": "8445290154552",
+    "brand": "נסטלה נספרסו",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קפסולות Starbucks נטול57",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 24.9,
+    "barcode": "7613036984454",
+    "brand": "נסטלה נספרסו",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קפסולות אספרסו 8 לונגו52",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 20.9,
+    "barcode": "8711000362617",
+    "brand": "ג'ייקובס דאו אגברטס צרפת",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קפסולות ג'ל לכביסה30 יXPO",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 29.9,
+    "barcode": "7290020188632",
+    "brand": "שניב",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קפסולות ג'ל למדיח30 יXPO",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 29.9,
+    "barcode": "7290020188625",
+    "brand": "שניב",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קפסולות לונגו8 נספרסו50 ג",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 18.9,
+    "barcode": "7296073398837",
+    "brand": "דליקה",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קפסולות מס 11 DOPPIO",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 18.9,
+    "barcode": "7296073372073",
+    "brand": "דליקה",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קפסולות מס MACCHITO 9",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 18.9,
+    "barcode": "7296073372110",
+    "brand": "דליקה",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קפסולות מס RISTRETTO 10",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 18.9,
+    "barcode": "7296073372103",
+    "brand": "דליקה",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קפסולות נטול",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 20.5,
+    "barcode": "7290119376711",
+    "brand": "שטראוס קפה בי.וי.",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קפסולות קולומביה 50 גרם",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 18.9,
+    "barcode": "7296073372097",
+    "brand": "דליקה",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קפסולות קפה אינטנסו 13",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 33.9,
+    "barcode": "8000070003774",
+    "brand": "לואיג'י לוואצה אס.פי.אי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קפסולות קפה אינטנסו52 גרם",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 18.9,
+    "barcode": "8711000371183",
+    "brand": "ג'ייקובס דאו אגברטס צרפת",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קפסולות קפה אספרסו 96 גר",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 32.9,
+    "barcode": "7617014149330",
+    "brand": "דליקה איי.ג'י",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קפסולות קפה מס 20 50 גרם",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 20.5,
+    "barcode": "7290110572884",
+    "brand": "שטראוס קפה בי.וי.",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קפסולות קפה מס' 15 50 גרם",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 20.5,
+    "barcode": "7290112350312",
+    "brand": "שטראוס קפה בי.וי.",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תה ארל גריי 50 שק1.5גרם",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 33.9,
+    "barcode": "7290000345307",
+    "brand": "ויסוצקי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תה ויסוצקי 25 שק1.5גרם",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 9.5,
+    "barcode": "7290000345260",
+    "brand": "ויסוצקי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תה ויסוצקי כחול 25 שק 1 ג",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 8.5,
+    "barcode": "7290000345208",
+    "brand": "ויסוצקי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תה ירוק לימוניתג'ינגר25",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 27.9,
+    "barcode": "7290006251374",
+    "brand": "ויסוצקי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תה ירוק מנגו 25 שקיקים",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 27.9,
+    "barcode": "7290019621362",
+    "brand": "ויסוצקי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תה ירוק נענע 50 שק1.5 גרם",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 49.9,
+    "barcode": "7290006251589",
+    "brand": "ויסוצקי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תה ירוק סטיביהלימונית25",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 27.9,
+    "barcode": "7290014002982",
+    "brand": "ויסוצקי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תה ירוק צ'אי מסאלה 25 שק'",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 27.9,
+    "barcode": "7290012413636",
+    "brand": "ויסוצקי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תה ירוק קמומיל 25 שק1.5ג",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 27.9,
+    "barcode": "7290012413643",
+    "brand": "ויסוצקי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תה צ'אי מאסלה20 שק2גר",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 17.9,
+    "barcode": "4009300524625",
+    "brand": "טיקנה",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תה שחור קינמון 20 שקיקים",
+    "category": "קפה ותה",
+    "icon": "🛒",
+    "price": 13.5,
+    "barcode": "54881006958",
+    "brand": "אחמד תי,אפ.זי-אל.אל.סי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  }
+]

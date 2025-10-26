@@ -1,0 +1,902 @@
+[
+  {
+    "name": "ארלה גב.שמנת טעם טבעי200",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 15.9,
+    "barcode": "5711953106583",
+    "brand": "ארלה פודס אמבה",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "בורקס גבינה 4 יח 600 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 21.9,
+    "barcode": "7290121010368",
+    "brand": "גידרון תעשיות בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "בורקס גבינה חלבי במשקל",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 50.0,
+    "barcode": "7290000099248",
+    "brand": "גידרון תעשיות בע\"מ",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "בורקס יפו גבינה 600 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 23.5,
+    "barcode": "7290014218321",
+    "brand": "מעדנות בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "בורקס פילו גבינה בולגרית",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 22.9,
+    "barcode": "7290002109372",
+    "brand": "שגמור בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "בייגלה דקים שמנת ובצל300",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 14.9,
+    "barcode": "7290112491794",
+    "brand": "בייגל את בייגל מזון",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ביצים 12 יח",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 13.0,
+    "barcode": "7296073227786",
+    "brand": "",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ביצים ארוזות 18 יח M",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 19.5,
+    "barcode": "7290001201619",
+    "brand": "מ.לסר",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ביציםL שופרסל 12",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 14.09,
+    "barcode": "7296073224709",
+    "brand": "",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גב.שמנת זיתים 5%גד 200 ג",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 15.9,
+    "barcode": "7290019635116",
+    "brand": "מחלבות גד",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גבינה אמנטל פרוסות 150 ג",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 20.9,
+    "barcode": "7290014083769",
+    "brand": "ויליפוד",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גבינה גרוויר מחיר במשקל",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 169.0,
+    "barcode": "7290008866972",
+    "brand": "גבינות משק יעקבס",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גבינה כחולה 100 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 21.9,
+    "barcode": "7290017065168",
+    "brand": "ST.CLEMENS-BOMHOLMWS",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גבינה לבנהזיתים 5% 250 ג",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 7.7,
+    "barcode": "7290000056272",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גבינה למריחה 3% 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 6.5,
+    "barcode": "7290004129545",
+    "brand": "מחלבת אלון תבור",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גבינה צהובה נעם 22% 200 ג",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 22.9,
+    "barcode": "7290102397204",
+    "brand": "מילקו תעשיות בעמ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גבינה קשקבל 180 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 25.9,
+    "barcode": "7290001258804",
+    "brand": "משק יעקבס",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גל.קרמיסימו ריבת חלב1.33",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 22.9,
+    "barcode": "7290112493927",
+    "brand": "גלידת שטראוס בע\"מ",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גלידה עוגת גבינה ותות",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 27.9,
+    "barcode": "76840400218",
+    "brand": "מוצרי איכות אמריקאיים בע",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גלידת RUD שמנת פיסטוק275",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 32.9,
+    "barcode": "4820077162052",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גלידת שמנת סופלהYUKKI 65",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 7.9,
+    "barcode": "4810168060268",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גליליות רושן חלב 140 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 10.9,
+    "barcode": "4823077618161",
+    "brand": "ROSHEN",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "היידי- שוקולד חלב עם אגו",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 13.9,
+    "barcode": "5941021025571",
+    "brand": "היידי שוקולר בירונטי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חט.שוקו.חלבחמאת בוטנ42 ג",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 7.9,
+    "barcode": "7290003444009",
+    "brand": "הרשי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חטיף חלבון ט.בננה טופי64",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 15.9,
+    "barcode": "7290121161930",
+    "brand": "Plc Group Nutrition",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חטיף קליק אין קרם חלבי38",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 6.7,
+    "barcode": "7290116536781",
+    "brand": "יוניליוור ישראל מזון",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חלב טרי 2% דל לקטוז 1 ל",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 8.9,
+    "barcode": "7290000040974",
+    "brand": "תנובה בע\"מ",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חלב מועשר1% בקבוק 1 ליטר",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 10.0,
+    "barcode": "7290107932134",
+    "brand": "מחלבת יטבתה",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חלב עמיד הומוגני 3% 1 ל'",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 9.9,
+    "barcode": "7290000042503",
+    "brand": "תנובה בע\"מ",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חלבה וניל בארכה 350 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 17.9,
+    "barcode": "7290001407844",
+    "brand": "רושדי תעשיות מזון בע\"\\מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חלבון שוק.לבן עוגיות50",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 14.5,
+    "barcode": "7290019766063",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "טורטיה מוגברת חלבון408 ג",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 13.9,
+    "barcode": "7296073597230",
+    "brand": "דליברדס יורופ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "יוגורט גו נטול לקטוז 200",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 7.2,
+    "barcode": "7290116932620",
+    "brand": "תנובה",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "יוגורט חלבון גו 20 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 7.2,
+    "barcode": "7290116934402",
+    "brand": "תנובה בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "יוגורט חלבון גו 25 ג 200 ג",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 7.2,
+    "barcode": "7290116935614",
+    "brand": "תנובה בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "יוגורט יופלה אפרסק3% 150",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 6.2,
+    "barcode": "7290000040080",
+    "brand": "תנובה בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "יוגורט יופלה מנגו בננ3%",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 6.2,
+    "barcode": "7290116935836",
+    "brand": "תנובה בע\"\\מn\\",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "יוגורט לימון מולר 150 מ\"ל",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 6.8,
+    "barcode": "7290102390489",
+    "brand": "טרה",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "יוגורט עזים טבעי 3% 200 ג",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 7.5,
+    "barcode": "7290005416415",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "יוגורט עיזים פ.יער 500 מל",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 16.9,
+    "barcode": "7290005416279",
+    "brand": "",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "כיף תחליב רח.חלב ודבש700",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 12.9,
+    "barcode": "7290108356113",
+    "brand": "קוסמופארם",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מאגדת 99 חלבה שוקולד 5 יח",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 32.9,
+    "barcode": "7290019816515",
+    "brand": "גלידות נסטלה )נגה גלידות",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מאגדת יוגורט תות 400 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 38.0,
+    "barcode": "7290018011713",
+    "brand": "תמרה בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מאגדתRUD גלידת שמנת וניל",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 32.9,
+    "barcode": "4820077162038",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מטבעות שוק.חלב 250 ג",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 22.9,
+    "barcode": "7290019079736",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ממרח חלבה מלאה עשירה350 ג",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 16.9,
+    "barcode": "7290011498511",
+    "brand": "שקד תבור",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מעדן חלב גו בטעם קרמל120",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 6.8,
+    "barcode": "7290116930701",
+    "brand": "תנובה בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מעדןחלבוןGO שקד קרמל מלו",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 33.9,
+    "barcode": "7290101113881",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מרגרינה בטעם חמאה 200 גר",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 5.9,
+    "barcode": "7290000453897",
+    "brand": "פאקא תעשיות בע\"\\מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "משק.חלב גו ונילחלבון340",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 9.9,
+    "barcode": "7290110324773",
+    "brand": "תנובה בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "משקה חלב בטעם קפה 350 מ\"ל",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 6.9,
+    "barcode": "7290011438142",
+    "brand": "מחלבת יטבתה",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "משקה חלב צמר גפן מתוק 1 ל",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 14.5,
+    "barcode": "7290114313124",
+    "brand": "מילקו תעשיות בעמ",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "משקה יוגורט מנגו אננס250",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 7.0,
+    "barcode": "7290116935713",
+    "brand": "תנובה בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "משקה יוגורטGO תות בננ250",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 8.9,
+    "barcode": "7290110325114",
+    "brand": "תנובה",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "משקה סויה מועשר חלבון 1 ל",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 16.5,
+    "barcode": "7290110327033",
+    "brand": "תנובה בע\"מ",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ס.דליס שוק.חלב ל.ג136 גר",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 15.9,
+    "barcode": "8423207208260",
+    "brand": "ביסצ'ורי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סבון מוצק-חלב ורדים904",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 10.9,
+    "barcode": "8693495051156",
+    "brand": "קולגייט-פלמוליב",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סוכריות חמאה וורטר135 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 10.9,
+    "barcode": "4014400910063",
+    "brand": "אוגוסט שטורק",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סוכריות ממולא קרם חלב150",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 10.9,
+    "barcode": "4823077623684",
+    "brand": "רושן",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סלט ביצים 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 23.9,
+    "barcode": "7296073725619",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סקי מעדן גבינה וניל 125 ג",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 4.5,
+    "barcode": "7290005838613",
+    "brand": "שטראוס בריאות בע\"\\מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "עוגיות חמאה ללת\"ס 200 גר",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 11.9,
+    "barcode": "7290000311463",
+    "brand": "רוקחמן",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "עוגיות חמאה פריכות200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 20.9,
+    "barcode": "7290010045006",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "עוגיות לוביטה קרם חלב127",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 9.9,
+    "barcode": "4823077636400",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פלמוליב מוצק סחלב904 ג",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 10.9,
+    "barcode": "8693495052047",
+    "brand": "קולגייט-פלמוליב",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פס גבינה מעודןאוכמנ650 ג",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 58.9,
+    "barcode": "7290009398748",
+    "brand": "עוף עוז",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פסטו עגבניותגבינה190 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 19.9,
+    "barcode": "8001060042100",
+    "brand": "אפ.ללי סאקלה, אס.פי.אי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פרינגלס שמנת בצל 158 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 13.9,
+    "barcode": "38000232176",
+    "brand": "פרינגלס מנופקצ'ורינג קונ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פתיבר קוקיז בטעם חמאה155",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 13.5,
+    "barcode": "7290118425496",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קוטג 1% 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 6.4,
+    "barcode": "7290014758681",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קוטג' 5% שומן 250 ג טרה",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 7.0,
+    "barcode": "7290002868996",
+    "brand": "טרה",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קוטג' בקטנה 5% 100 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 3.3,
+    "barcode": "7290110321277",
+    "brand": "תנובה בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קוטג' שום שמיר",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 7.5,
+    "barcode": "7290000052717",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קוטג' תנובה 12% 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 7.0,
+    "barcode": "7290116931241",
+    "brand": "תנובה",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קוטג' תנובה 3% שומן 250",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 6.4,
+    "barcode": "7290004127077",
+    "brand": "מחלבת אלון תבור",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קוקיס שוקולד לבן חלבי",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 59.0,
+    "barcode": "7290000099804",
+    "brand": "גידרון סהרון",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קוקיסשבבי שוקולד חלבי",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 59.0,
+    "barcode": "7290000099835",
+    "brand": "גידרון תעשיות בע\"מ",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קורנטו בטעם ריבת חלב636",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 37.9,
+    "barcode": "7290018755259",
+    "brand": "גלידת שטראוס בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קראנץ שוקולד חלבה 500 ג",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 19.9,
+    "barcode": "7296073722861",
+    "brand": "אנטקוביץ בייקרס",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קרקר שמנת בצל 80 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 8.9,
+    "barcode": "7296073661337",
+    "brand": "ANITIN",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ריבת חלב הוואנה 450 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 19.9,
+    "barcode": "7791875005353",
+    "brand": "מיגה פוד קומרס",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שוקולד חלב מקורמל 98 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 17.9,
+    "barcode": "7290119382248",
+    "brand": "שטראוס גרופ בע\"\\מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שוקולד חלב מקורמל 98 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 17.9,
+    "barcode": "7290119376582",
+    "brand": "שטראוס גרופ בע\"\\מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שטרודל גבינה",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 33.9,
+    "barcode": "7290005718021",
+    "brand": "תמה",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שלישיה גלית תות חלבי 99 ק",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 10.0,
+    "barcode": "7290101114369",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שמנת מתוקה להקצפה32% 250",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 9.7,
+    "barcode": "7290105368904",
+    "brand": "מחלבת יטבתה",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שקדים בציפוי שוקולד חלב",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 21.9,
+    "barcode": "7290117907641",
+    "brand": "דין שיווק וקליה בעמ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ת.רחצ.יוגורט וניל דבש650",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 15.9,
+    "barcode": "7290117860892",
+    "brand": "טרופיקל דגיל בע\\\"מ",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תבור גבינה לאפיה5% 500 ג",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 35.9,
+    "barcode": "7290102392049",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תח.רחצה יוגורט שקדים700 מ",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 15.9,
+    "barcode": "7290117860991",
+    "brand": "טרופיקל דגיל בע\"\\מ",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  }
+]

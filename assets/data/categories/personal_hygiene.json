@@ -1,0 +1,332 @@
+[
+  {
+    "name": "בטיסט שמפו קלאסי200 מ\"ל",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 33.9,
+    "barcode": "5010724527481",
+    "brand": "צרצ אנד דיוויט",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גליל מטליות 40 יח VIVI",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 20.9,
+    "barcode": "7296073722205",
+    "brand": "מ.א. מטליות",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "הד&שולדרס שמפו קלאסי625 מ",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 26.9,
+    "barcode": "8700216418300",
+    "brand": "---",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "הוואי שמפו לחות שיער יבש",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 15.9,
+    "barcode": "7290117860199",
+    "brand": "טרופיקל דגיל בע\"\\מ",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "הוואי שמפו לשיער רגיל",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 15.9,
+    "barcode": "7290117860045",
+    "brand": "טרופיקל דגיל בע\"\\מ",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "זרעי פשתן אורגניים 500 ג",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 11.9,
+    "barcode": "7296073224549",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "טורטיות פשתן וצ'יה 40ג8",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 13.9,
+    "barcode": "7296073553298",
+    "brand": "דליברדס יורופ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "טרזמה שמפו קרטין 400 מ\"ל",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 19.7,
+    "barcode": "8710447224342",
+    "brand": "יוניליוור פולין",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "כיף שמפו לברק 7400 מל",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 13.9,
+    "barcode": "7290108356779",
+    "brand": "קוסמופארם",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "כיף שמפו לשיער רגיל 700 מ",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 13.9,
+    "barcode": "7290108357707",
+    "brand": "קוסמופארם",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מטליות לחות לחיטוי",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 13.9,
+    "barcode": "7290000190198",
+    "brand": "ניקול",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מטליות לחות לפרקט 10 יח",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 21.9,
+    "barcode": "7290000189734",
+    "brand": "חוגלה קימברלי",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "משחת שיניים דואלקר 275",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 29.9,
+    "barcode": "7290113560390",
+    "brand": "---",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "משחת שיניים הלו קיטי50 מ",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 11.9,
+    "barcode": "7290014426061",
+    "brand": "כצט",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "משחת שיניים לילדים 2-6",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 10.2,
+    "barcode": "7296073345336",
+    "brand": "MENUFACLURER",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "משחת שיניים מרידול 752 מ",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 31.9,
+    "barcode": "8718951288492",
+    "brand": "קולגייט-פלמוליב",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פינוק 2 ב1 שמפומרכך 70 מל",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 15.9,
+    "barcode": "7290112492470",
+    "brand": "יוניליוור ישראל טיפוח",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פינוק שמפו יבש/פגום 700",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 15.9,
+    "barcode": "7290112492456",
+    "brand": "יוניליוור ישראל טיפוח",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פינוק שמפו שיער ארוך410",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 19.9,
+    "barcode": "7290116535838",
+    "brand": "יוניליוור ישראל טיפוח",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פנטן שמפו לתלתלים 600 מ\"ל",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 22.5,
+    "barcode": "8700216527897",
+    "brand": "---",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פנטן שמפו קלאסי 600 מ\"ל",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 22.5,
+    "barcode": "8700216527941",
+    "brand": "---",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פרל שמפו לשיער מוחלק500 מ",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 20.9,
+    "barcode": "7296073526919",
+    "brand": "א.משי תעשיות",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פשתן טחון אורגני 300 גרם",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 11.9,
+    "barcode": "7290011426071",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שמפו Dream Long משקם500 מ",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 21.9,
+    "barcode": "3600524163099",
+    "brand": "RAMOUILLET",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שמפו אל דמע קמיל בלו 1 לי",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 35.9,
+    "barcode": "7290003026227",
+    "brand": "פישר מעבדות פרמצבטיות בע",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שמפו יומיומי לילד700 מ ME",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 17.9,
+    "barcode": "7296073722557",
+    "brand": "טרופיקל דגיל תעשיות קוסמ",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שמפו להזנה עוצמתית 500 מל",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 21.9,
+    "barcode": "3600524167080",
+    "brand": "RAMOUILLET",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שמפו לשיער מוחלק500 מ פרל",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 20.9,
+    "barcode": "7296073363217",
+    "brand": "א.משי תעשיות",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שמפו לשיער מתולתל 500 מ\"",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 25.9,
+    "barcode": "7290017637563",
+    "brand": "סאסא קוסמטיקס אגש\"\\ח בע\\",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שמפו נקה 7 יבש/צבוע750 מל",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 12.9,
+    "barcode": "7290001136294",
+    "brand": "טרופיקל דגיל תעשיות קוסמ",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שמפו נקה 7 רגיל 750 מ\"ל",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 12.9,
+    "barcode": "7290001136287",
+    "brand": "טרופיקל דגיל תעשיות קוסמ",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שמפו קרטין נטורל 400 מ\"ל",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 29.9,
+    "barcode": "7290108355208",
+    "brand": "קוסמופארם",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שמפו שיער יבששיאהME 700",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 14.9,
+    "barcode": "7296073722588",
+    "brand": "טרופיקל דגיל תעשיות קוסמ",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  }
+]

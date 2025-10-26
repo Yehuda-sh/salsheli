@@ -1,0 +1,472 @@
+[
+  {
+    "name": "אנרג'י מצופה שוקולד286 ג",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 16.5,
+    "barcode": "7290107947480",
+    "brand": "שטראוס גרופ בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ביסלי פלאפל 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 7.9,
+    "barcode": "7290000066189",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ביסקוטי כוסמין שוקולד200",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 27.9,
+    "barcode": "7290013453501",
+    "brand": "דני וגלית בעמ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "במבה 2510 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 21.5,
+    "barcode": "7290105693341",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "במבה מילוי קרם נוגט305 ג",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.5,
+    "barcode": "7290107877619",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "במבה מתוקה 30 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 4.5,
+    "barcode": "7290000066295",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גלידה בצק עוגיות",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 27.9,
+    "barcode": "76840100583",
+    "brand": "מוצרי איכות אמריקאיים בע",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גלידה מוצ'י טירמיסו240 גר",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 35.9,
+    "barcode": "4820077162298",
+    "brand": "ללס \"טירס ט.מ מוסאיק\"",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "וופל בלגי שוקולד 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 5.9,
+    "barcode": "7296073211969",
+    "brand": "גילרו בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "וופלים בטעם שוקולד 1 ק\"ג",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 21.9,
+    "barcode": "7296073240853",
+    "brand": "מנעמים תעשיות מזון בע\"\\מ",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ופלים בטעם שוקולד 500 גר",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 12.9,
+    "barcode": "7296073220275",
+    "brand": "מנעמים תעשיות מזון בע\"\\מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חטיף FREE תמר וקינמון5 יח",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 20.9,
+    "barcode": "7290100659090",
+    "brand": "טבעית מוצרים מן הטבע בעמ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חטיף מנגו מיובש בהקפאה20",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 12.9,
+    "barcode": "7290014021716",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חטיף נייטשר וואלי דבש5 יח",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 22.9,
+    "barcode": "16000548404",
+    "brand": "ג'נרל מילס סאן אדריאן",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חטיף קוקומן שוקולד 216 ג",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 18.9,
+    "barcode": "7290107646154",
+    "brand": "יוניליוור ישראל מזון",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חטיף ש.שועל שוק.מריר425",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 14.5,
+    "barcode": "7296073448136",
+    "brand": "אפקטבעי בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חטיף ש.שועלמייפל425 ג",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 14.5,
+    "barcode": "7296073448129",
+    "brand": "אפקטבעי בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חטיף שוגי קורנפלקס 626 ג",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 18.9,
+    "barcode": "7290107646147",
+    "brand": "יוניליוור ישראל מזון בעמ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חטיףFREEבוטנשקדשוק140 ג",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 20.9,
+    "barcode": "7290107971522",
+    "brand": "ש.שסטוביץ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "טפטופים לעוגה 60 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 20.9,
+    "barcode": "7290000483412",
+    "brand": "המרשלג",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "כדורי שוקולד ל.גלוטן400 ג",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 33.9,
+    "barcode": "7290013121684",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "כדורים בט.שוקולד ללג375 ג",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 18.5,
+    "barcode": "7296073642008",
+    "brand": "CERERA",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "לה קרמריה שוקולד בלגי .1",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 25.9,
+    "barcode": "7290106576971",
+    "brand": "גלידות נסטלה",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מטבעות שוקולד60%ללתס250",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 26.9,
+    "barcode": "7290019079712",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מטבעות שוקולד70%מריר250",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 26.9,
+    "barcode": "7290019079705",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ממרח חרובים ט.שוקולד350 ג",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.9,
+    "barcode": "7290008989473",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ממרח שוקולד ללת\"ס 200 גר",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 23.5,
+    "barcode": "8410342003508",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "ממתק פנדה קרם נוגט 100 ג",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 19.9,
+    "barcode": "7290016505023",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מעדן סויה ט.שוקולד1254 ג",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 20.9,
+    "barcode": "54051157",
+    "brand": "אלפרו C.V.A",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סוכ.שוקולד לל\"ס 70 ג ורטר",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 10.9,
+    "barcode": "4014400920857",
+    "brand": "אוגוסט שטורק",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "סלים דליס שוקולד מריר6 י",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.9,
+    "barcode": "8423207206495",
+    "brand": "סלים דליס",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "עוג.כוסמין מלא שוקולד250",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.9,
+    "barcode": "7290017894317",
+    "brand": "גנדולה ביסקוטי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "עוג.שוקולדאגוז לוז200 ג",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 24.9,
+    "barcode": "7290119040629",
+    "brand": "קפולסקי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "עוגיות סובין שוקולד 225",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 24.9,
+    "barcode": "3760151011429",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "עוגיות צ'יפ שוקולד 200 ג",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 24.9,
+    "barcode": "7290119040674",
+    "brand": "קפולסקי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "עוגיות ש.שועל שוקולד168 ג",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.9,
+    "barcode": "7622300270506",
+    "brand": "מונדלייז",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "עוגיות שוקולד צ'יפס לל\"ס",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 29.9,
+    "barcode": "7290013453044",
+    "brand": "דני וגלית בעמ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פיקאפ שוקולד מריר140 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.9,
+    "barcode": "4017100219016",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קוקיס שוקושבבי שוקולד",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 59.0,
+    "barcode": "7290000099873",
+    "brand": "גידרון תעשיות בע\"מ",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שוקולד לינדור דאבל שוקו",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 19.9,
+    "barcode": "743434015034",
+    "brand": "לינדט ושפרונגלי אס.פי.אי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שוקולד מריר 75% 100 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.9,
+    "barcode": "7296073382386",
+    "brand": "דליקה איי.ג'י",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שוקולד מריר פרימיום 81%",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.9,
+    "barcode": "7296073237631",
+    "brand": "דליקה איי.ג'י",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שוקולד סטרציאטלה 100 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 9.9,
+    "barcode": "4000415111908",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שוקולד פרה לבן 100 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 9.9,
+    "barcode": "7290112348548",
+    "brand": "תופינית בע\"\\מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שוקולד צ'יפס מריר 250 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 22.9,
+    "barcode": "7290019079729",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "שוקולד שוגטן פופקורן100 ג",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 9.9,
+    "barcode": "4000415831905",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תערובת לעוגת שוקולד425 גר",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 22.9,
+    "barcode": "18000701223",
+    "brand": "ג'נרל מילס",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  }
+]

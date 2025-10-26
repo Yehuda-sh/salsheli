@@ -83,6 +83,18 @@ class _NotebookPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final brand = Theme.of(context).extension<AppBrand>();
+    final brightness = Theme.of(context).brightness;
+
+    // רקע נייר (בהיר/כהה לפי Theme)
+    final bgPaint = Paint()
+      ..color = brightness == Brightness.dark 
+          ? kDarkPaperBackground 
+          : kPaperBackground;
+    
+    canvas.drawRect(
+      Offset.zero & size,
+      bgPaint,
+    );
 
     // קווים כחולים כמו במחברת אמיתית 📘
     final bluePaint = Paint()

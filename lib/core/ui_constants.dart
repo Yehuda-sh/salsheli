@@ -373,8 +373,11 @@ const double kDialogMaxWidth = 400.0;
 // Sticky Notes Design System 🎨📝
 // ========================================
 
-/// צבע נייר קרם - רקע מחברת
-const Color kPaperBackground = Color(0xFFFAF8F3);
+/// צבע נייר קרם - רקע מחברת (Light mode)
+const Color kPaperBackground = Color(0xFFF5F5F5);
+
+/// צבע נייר כהה - רקע מחברת (Dark mode)
+const Color kDarkPaperBackground = Color(0xFF1E1E1E);
 
 /// פתק צהוב
 const Color kStickyYellow = Color(0xFFFFF59D);

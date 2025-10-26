@@ -36,6 +36,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/status_colors.dart';
+import '../../l10n/app_strings.dart';
 import '../../core/ui_constants.dart';
 import '../../models/enums/shopping_item_status.dart';
 import '../../models/shopping_list.dart';
@@ -135,7 +136,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _errorMessage = 'שגיאה בטעינת הנתונים';
+          _errorMessage = AppStrings.shopping.loadingDataError;
         });
       }
     }
@@ -254,12 +255,12 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
       if (!mounted) return;
       
       // הצג הודעת הצלחה עם פרטים
-      String message = 'הקנייה הושלמה בהצלחה! 🎉';
+      String message = AppStrings.shopping.shoppingCompletedSuccess;
       if (purchasedItems.isNotEmpty) {
-        message += '\n📦 ${purchasedItems.length} מוצרים עודכנו במזווה';
+        message += '\n${AppStrings.shopping.pantryUpdated(purchasedItems.length)}';
       }
       if (unpurchasedItems.isNotEmpty) {
-        message += '\n🔄 ${unpurchasedItems.length} פריטים הועברו לרשימה הבאה';
+        message += '\n${AppStrings.shopping.itemsMovedToNext(unpurchasedItems.length)}';
       }
         
         messenger.showSnackBar(
@@ -299,16 +300,16 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
               children: [
                 Icon(Icons.error_outline, color: StatusColors.error),
                 const SizedBox(width: kSpacingSmall),
-                const Text('שגיאה בשמירה'),
+                Text(AppStrings.shopping.saveError),
               ],
             ),
-            content: Text('לא הצלחנו לשמור את הנתונים.\nנסה שוב?', style: TextStyle(fontSize: kFontSizeBody)),
+            content: Text(AppStrings.shopping.saveErrorMessage, style: TextStyle(fontSize: kFontSizeBody)),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('ביטול')),
+              TextButton(onPressed: () => Navigator.pop(context, false), child: Text(AppStrings.common.cancel)),
               FilledButton.icon(
                 onPressed: () => Navigator.pop(context, true),
                 icon: const Icon(Icons.refresh),
-                label: const Text('נסה שוב'),
+                label: Text(AppStrings.common.retry),
               ),
             ],
           ),
@@ -373,7 +374,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
     final itemsByCategory = <String, List<UnifiedListItem>>{};
     for (final item in widget.list.items) {
       final product = productsProvider.getByName(item.name);
-      final category = product?['category'] as String? ?? 'כללי';
+      final category = product?['category'] as String? ?? AppStrings.shopping.categoryGeneral;
       itemsByCategory.putIfAbsent(category, () => []).add(item);
     }
 
@@ -399,12 +400,17 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
               ],
             ),
             actions: [
-              TextButton.icon(
-                onPressed: _isSaving ? null : _finishShopping,
-                icon: const Icon(Icons.check, color: Colors.white),
-                label: Text(
-                  _isSaving ? 'שומר...' : 'סיום',
-                  style: TextStyle(color: _isSaving ? Colors.white.withValues(alpha: 0.5) : Colors.white),
+              Semantics(
+                label: _isSaving ? 'שומר נתונים' : 'סיים קנייה',
+                button: true,
+                enabled: !_isSaving,
+                child: TextButton.icon(
+                  onPressed: _isSaving ? null : _finishShopping,
+                  icon: const Icon(Icons.check, color: Colors.white),
+                  label: Text(
+                    _isSaving ? AppStrings.shopping.activeSaving : AppStrings.shopping.activeFinish,
+                    style: TextStyle(color: _isSaving ? Colors.white.withValues(alpha: 0.5) : Colors.white),
+                  ),
                 ),
               ),
             ],
@@ -424,23 +430,23 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
                       children: [
                         _StatCard(
                           icon: Icons.check_circle,
-                          label: 'קנוי',
+                          label: AppStrings.shopping.activePurchased,
                           value: '$purchased',
                           color: StatusColors.success,
                         ),
                         _StatCard(
                           icon: Icons.block,
-                          label: 'לא צריך',
+                          label: AppStrings.shopping.activeNotNeeded,
                           value: '$notNeeded',
                           color: Colors.grey.shade600,
                         ),
                         _StatCard(
                           icon: Icons.shopping_cart,
-                          label: 'נותרו',
+                          label: AppStrings.shopping.activeRemaining,
                           value: '${total - completed}',
                           color: StatusColors.info,
                         ),
-                        _StatCard(icon: Icons.inventory_2, label: 'סה״כ', value: '$total', color: StatusColors.pending),
+                        _StatCard(icon: Icons.inventory_2, label: AppStrings.shopping.activeTotal, value: '$total', color: StatusColors.pending),
                       ],
                     ),
                   ),
@@ -512,7 +518,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
                       CircularProgressIndicator(color: accent),
                       const SizedBox(height: kSpacingMedium),
                       Text(
-                        'שומר את הנתונים...',
+                        AppStrings.shopping.activeSavingData,
                         style: const TextStyle(fontSize: kFontSizeBody, fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -698,7 +704,7 @@ class _ErrorStateScreen extends StatelessWidget {
             Icon(Icons.error_outline, size: kIconSizeXLarge * 2, color: StatusColors.error),
             const SizedBox(height: kSpacingMedium),
             Text(
-              'אופס! משהו השתבש',
+              AppStrings.shopping.oopsError,
               style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold, color: cs.onSurface),
             ),
             const SizedBox(height: kSpacingSmall),
@@ -708,7 +714,11 @@ class _ErrorStateScreen extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: kSpacingLarge),
-            StickyButton(label: 'נסה שוב', icon: Icons.refresh, onPressed: onRetry, color: StatusColors.info),
+            Semantics(
+              label: 'נסה לטעון שוב',
+              button: true,
+              child: StickyButton(label: AppStrings.common.retry, icon: Icons.refresh, onPressed: onRetry, color: StatusColors.info),
+            ),
           ],
         ),
       ),
@@ -736,12 +746,12 @@ class _EmptyStateScreen extends StatelessWidget {
           Icon(Icons.shopping_cart_outlined, size: kIconSizeXLarge * 2, color: cs.onSurfaceVariant),
           const SizedBox(height: kSpacingMedium),
           Text(
-            'הרשימה ריקה',
+            AppStrings.shopping.listEmpty,
             style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold, color: cs.onSurface),
           ),
           const SizedBox(height: kSpacingSmall),
           Text(
-            'אין פריטים לקנייה',
+            AppStrings.shopping.noItemsToBuy,
             style: TextStyle(fontSize: kFontSizeBody, color: cs.onSurfaceVariant),
           ),
         ],
@@ -883,7 +893,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        '${item.quantity ?? 1}×',
+                        AppStrings.shopping.quantityMultiplier(item.quantity ?? 1),
                         style: TextStyle(
                           fontSize: kFontSizeSmall,
                           color: status == ShoppingItemStatus.pending
@@ -892,7 +902,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        realPrice > 0 ? '₪${realPrice.toStringAsFixed(2)}' : 'אין מחיר',
+                        realPrice > 0 ? AppStrings.shopping.priceFormat(realPrice) : AppStrings.shopping.noPrice,
                         style: TextStyle(
                           fontSize: kFontSizeBody,
                           fontWeight: FontWeight.bold,
@@ -919,7 +929,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                       Expanded(
                         child: _ActionButton(
                           icon: Icons.check_circle,
-                          label: 'קנוי',
+                          label: AppStrings.shopping.activePurchased,
                           color: StatusColors.success,
                           isSelected: status == ShoppingItemStatus.purchased,
                           onTap: () => onStatusChanged(ShoppingItemStatus.purchased),
@@ -929,7 +939,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                       Expanded(
                         child: _ActionButton(
                           icon: Icons.remove_shopping_cart,
-                          label: 'אזל',
+                          label: AppStrings.shopping.itemStatusOutOfStock,
                           color: StatusColors.error,
                           isSelected: status == ShoppingItemStatus.outOfStock,
                           onTap: () => onStatusChanged(ShoppingItemStatus.outOfStock),
@@ -944,7 +954,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                       Expanded(
                         child: _ActionButton(
                           icon: Icons.schedule,
-                          label: 'דחה לאחר כך',
+                          label: AppStrings.shopping.itemStatusDeferred,
                           color: StatusColors.warning,
                           isSelected: status == ShoppingItemStatus.deferred,
                           onTap: () => onStatusChanged(ShoppingItemStatus.deferred),
@@ -954,7 +964,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                       Expanded(
                         child: _ActionButton(
                           icon: Icons.block,
-                          label: 'לא צריך',
+                          label: AppStrings.shopping.itemStatusNotNeeded,
                           color: Colors.grey.shade700,
                           isSelected: status == ShoppingItemStatus.notNeeded,
                           onTap: () => onStatusChanged(ShoppingItemStatus.notNeeded),
@@ -997,15 +1007,20 @@ class _ActionButton extends StatelessWidget {
     final buttonColor = isSelected ? color : Colors.white;
     final textColor = isSelected ? Colors.white : color;
 
-    return Transform.scale(
-      scale: isSelected ? 1.02 : 1.0,
-      child: StickyButton(
-        label: label,
-        icon: icon,
-        color: buttonColor,
-        textColor: textColor,
-        height: 44, // Compact height
-        onPressed: onTap,
+    return Semantics(
+      label: label,
+      button: true,
+      selected: isSelected,
+      child: Transform.scale(
+        scale: isSelected ? 1.02 : 1.0,
+        child: StickyButton(
+          label: label,
+          icon: icon,
+          color: buttonColor,
+          textColor: textColor,
+          height: 44, // Compact height
+          onPressed: onTap,
+        ),
       ),
     );
   }
@@ -1054,7 +1069,7 @@ class _ShoppingSummaryDialog extends StatelessWidget {
           const SizedBox(width: kSpacingSmallPlus),
           Expanded(
             child: Text(
-              'סיכום קנייה',
+              AppStrings.shopping.summaryTitle,
               style: TextStyle(fontSize: kFontSizeLarge + 4, fontWeight: FontWeight.bold, color: cs.onSurface),
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
@@ -1078,7 +1093,7 @@ class _ShoppingSummaryDialog extends StatelessWidget {
             // ⏱️ זמן קנייה
             _SummaryRow(
               icon: Icons.timer,
-              label: 'זמן קנייה',
+              label: AppStrings.shopping.summaryShoppingTime,
               value: _formatDuration(duration),
               color: StatusColors.info,
             ),
@@ -1088,20 +1103,20 @@ class _ShoppingSummaryDialog extends StatelessWidget {
             // ✅ קנוי
             _SummaryRow(
               icon: Icons.check_circle,
-              label: 'קנוי',
-              value: '$purchased מתוך $total',
+              label: AppStrings.shopping.activePurchased,
+              value: AppStrings.shopping.summaryPurchased(purchased, total),
               color: StatusColors.success,
             ),
 
             // 🚫 לא צריך
             if (notNeeded > 0)
-              _SummaryRow(icon: Icons.block, label: 'לא צריך', value: '$notNeeded', color: Colors.grey.shade700),
+              _SummaryRow(icon: Icons.block, label: AppStrings.shopping.activeNotNeeded, value: '$notNeeded', color: Colors.grey.shade700),
 
             // ❌ אזלו
             if (outOfStock > 0)
               _SummaryRow(
                 icon: Icons.remove_shopping_cart,
-                label: 'אזלו בחנות',
+                label: AppStrings.shopping.summaryOutOfStock,
                 value: '$outOfStock',
                 color: StatusColors.error,
               ),
@@ -1110,7 +1125,7 @@ class _ShoppingSummaryDialog extends StatelessWidget {
             if (deferred > 0)
               _SummaryRow(
                 icon: Icons.schedule,
-                label: 'נדחו לפעם הבאה',
+                label: AppStrings.shopping.summaryDeferred,
                 value: '$deferred',
                 color: StatusColors.warning,
               ),
@@ -1119,7 +1134,7 @@ class _ShoppingSummaryDialog extends StatelessWidget {
             if (pending > 0)
               _SummaryRow(
                 icon: Icons.radio_button_unchecked,
-                label: 'לא סומנו',
+                label: AppStrings.shopping.summaryNotMarked,
                 value: '$pending',
                 color: StatusColors.pending,
               ),
@@ -1127,14 +1142,22 @@ class _ShoppingSummaryDialog extends StatelessWidget {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('חזור')),
-        StickyButton(
-          label: 'סיים קנייה',
-          icon: Icons.check,
-          onPressed: () => Navigator.pop(context, true),
-          color: StatusColors.success,
-          textColor: Colors.white,
-          height: 44,
+        Semantics(
+          label: 'חזור לרשימה',
+          button: true,
+          child: TextButton(onPressed: () => Navigator.pop(context, false), child: Text(AppStrings.shopping.summaryBack)),
+        ),
+        Semantics(
+          label: 'סיים קנייה ושמור',
+          button: true,
+          child: StickyButton(
+            label: AppStrings.shopping.summaryFinishShopping,
+            icon: Icons.check,
+            onPressed: () => Navigator.pop(context, true),
+            color: StatusColors.success,
+            textColor: Colors.white,
+            height: 44,
+          ),
         ),
       ],
     );

@@ -123,7 +123,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
       }
 
       debugPrint('   ✅ סוגר Dialog');
-      Navigator.of(context).pop();
+      Navigator.of(context, rootNavigator: true).pop();
       
       // הודעת הצלחה עם פרטים
       _showSuccessSnackBar(
@@ -859,7 +859,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
           child: TextButton(
             onPressed: _isSubmitting ? null : () {
               debugPrint('❌ משתמש ביטל יצירת רשימה');
-              Navigator.of(context).pop();
+              Navigator.of(context, rootNavigator: true).pop();
             },
             child: Text(strings.cancelButton),
           ),
