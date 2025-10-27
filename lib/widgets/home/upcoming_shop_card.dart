@@ -116,21 +116,69 @@ class _ListSummary extends StatelessWidget {
 
   const _ListSummary({required this.list});
 
+  /// 🏷️ מקבל את התג והצבע לסוג הרשימה
+  (String label, Color color) _getTypeTagInfo() {
+    switch (list.type) {
+      case ShoppingList.typeSuper:
+        return ('🛒 סופרמרקט', kStickyGreen);
+      case ShoppingList.typePharmacy:
+        return ('💊 בית מרקחת', kStickyCyan);
+      case ShoppingList.typeOther:
+      default:
+        return ('📋 כללי', kStickyPurple);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final itemsCount = list.items.length;
+    final (typeLabel, typeColor) = _getTypeTagInfo();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // שם הרשימה
-        Text(
-          list.name,
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+        // שורת כותרת עם תג סוג
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // שם הרשימה
+            Expanded(
+              child: Text(
+                list.name,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(width: kSpacingSmall),
+            // תג סוג הרשימה
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: kSpacingSmall,
+                vertical: 4,
+              ),
+              decoration: BoxDecoration(
+                color: typeColor,
+                borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 2,
+                    offset: const Offset(1, 1),
+                  ),
+                ],
+              ),
+              child: Text(
+                typeLabel,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: kSpacingMedium),
 

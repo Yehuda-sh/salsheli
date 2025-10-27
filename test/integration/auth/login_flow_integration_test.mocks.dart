@@ -453,9 +453,16 @@ class MockUserRepository extends _i1.Mock implements _i9.UserRepository {
           as _i6.Future<List<_i3.UserEntity>>);
 
   @override
-  _i6.Future<_i3.UserEntity?> findByEmail(String? email) =>
+  _i6.Future<_i3.UserEntity?> findByEmail(
+    String? email, {
+    String? householdId,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#findByEmail, [email]),
+            Invocation.method(
+              #findByEmail,
+              [email],
+              {#householdId: householdId},
+            ),
             returnValue: _i6.Future<_i3.UserEntity?>.value(),
           )
           as _i6.Future<_i3.UserEntity?>);

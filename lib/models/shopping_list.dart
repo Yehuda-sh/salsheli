@@ -156,10 +156,19 @@ class ShoppingList {
   static const String statusArchived = 'archived';
   static const String statusCompleted = 'completed';
 
-  // ---- Type constants ----
+  // ---- Type constants (Extended List Types) ----
+  static const String typeSupermarket = 'supermarket';  // 🛒 סופרמרקט - כל המוצרים
+  static const String typePharmacy = 'pharmacy';        // 💊 בית מרקחת - היגיינה וניקיון
+  static const String typeGreengrocer = 'greengrocer'; // 🥬 ירקן - פירות וירקות
+  static const String typeButcher = 'butcher';         // 🥩 אטליז - בשר ועוף
+  static const String typeBakery = 'bakery';           // 🍞 מאפייה - לחם ומאפים
+  static const String typeMarket = 'market';           // 🏪 שוק - מעורב
+  static const String typeHousehold = 'household';     // 🏠 כלי בית - מוצרים מותאמים
+  static const String typeOther = 'other';             // ➕ אחר
+  
+  // Legacy support (deprecated)
+  @Deprecated('Use typeSupermarket instead')
   static const String typeSuper = 'super';
-  static const String typePharmacy = 'pharmacy';
-  static const String typeOther = 'other';
 
   // ---- Active Shopping Getters ----
 
@@ -338,7 +347,7 @@ class ShoppingList {
     required String id,
     required String name,
     required String createdBy,
-    String type = typeSuper,
+    String type = typeSupermarket,
     double? budget,
     DateTime? eventDate,
     DateTime? targetDate,

@@ -38,7 +38,6 @@ import 'package:provider/provider.dart';
 import '../core/constants.dart';
 import '../core/ui_constants.dart';
 import '../core/status_colors.dart';
-import '../config/list_type_groups.dart';
 import '../providers/shopping_lists_provider.dart';
 import '../l10n/app_strings.dart';
 
@@ -56,7 +55,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
   final _budgetController = TextEditingController();
 
   String _name = "";
-  String _type = "super";
+  String _type = "supermarket";
   double? _budget;
   DateTime? _eventDate;
   bool _isSubmitting = false;
@@ -440,26 +439,34 @@ class _CreateListDialogState extends State<CreateListDialog> {
   } */
 
   // ========================================
-  // 🎭 תצוגה מקובצת של סוגי רשימות
+  // 🎭 Selector פשוט של סוגי רשימות (7 סוגים)
   // ========================================
 
-  /// בנייה של selector סוגי הרשימות במצב קבוצות
+  /// בנייה של selector סוגי הרשימות - גרסה פשוטה
   ///
   /// מבנה:
   /// - Label: "סוג הרשימה"
-  /// - Container עם Border
-  /// - ExpansionTiles לכל קבוצה (ListTypeGroups)
-  /// - FilterChips לכל סוג ברשימה
+  /// - Wrap של 7 FilterChips (ללא קבוצות)
   ///
   /// Features:
-  /// - ניתן to expand/collapse קבוצות
-  /// - אינדיקטור לסוג שנבחר כרגע
+  /// - אינדיקטור לסוג שנבחר
   /// - בחירה עם setState
   ///
-  /// Returns: Widget מקביל למבנה היררכי
+  /// Returns: Widget פשוט ונקי
   Widget _buildGroupedTypeSelector() {
     final theme = Theme.of(context);
     final strings = AppStrings.createListDialog;
+
+    // 7 סוגי הרשימות החדשים בלבד
+    const types = [
+      'supermarket',
+      'pharmacy',
+      'greengrocer',
+      'butcher',
+      'bakery',
+      'market',
+      'other',
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -473,94 +480,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
         ),
         const SizedBox(height: kSpacingSmall),
 
-        // קבוצות
-        Container(
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: theme.colorScheme.outline.withValues(alpha: kOpacityLow),
-            ),
-            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-          ),
-          child: Column(
-            children: ListTypeGroups.allGroups.map((group) {
-              return _buildGroupExpansionTile(group);
-            }).toList(),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// בנייה של ExpansionTile לקבוצת סוגי רשימות
-  ///
-  /// תכונות:
-  /// - אייקון הקבוצה (emoji)
-  /// - שם הקבוצה + תיאור קצר
-  /// - ניתן to expand/collapse
-  /// - initiallyExpanded: true אם סוג נוכחי בקבוצה
-  /// - אינדיקטור "selected" כשהסוג בחר הוא בקבוצה זו
-  ///
-  /// [group] - הקבוצה להצגה (ListTypeGroup enum)
-  /// Returns: ExpansionTile עם FilterChips בתוך
-  Widget _buildGroupExpansionTile(ListTypeGroup group) {
-    final theme = Theme.of(context);
-    final types = ListTypeGroups.getTypesInGroup(group);
-    final isCurrentGroupSelected = types.contains(_type);
-
-    return ExpansionTile(
-      initiallyExpanded: isCurrentGroupSelected,
-      tilePadding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingTiny),
-      childrenPadding: const EdgeInsets.only(
-        left: kSpacingMedium,
-        right: kSpacingMedium,
-        bottom: kSpacingSmall,
-      ),
-      leading: Text(
-        ListTypeGroups.getGroupIcon(group),
-        style: const TextStyle(fontSize: 24),
-      ),
-      title: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  ListTypeGroups.getGroupName(group),
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  ListTypeGroups.getGroupDescription(group),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                    fontSize: kFontSizeTiny,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // אינדיקטור אם הסוג הנוכחי בקבוצה זו
-          if (isCurrentGroupSelected)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(kBorderRadius),
-              ),
-              child: Text(
-                AppStrings.createListDialog.typeSelected,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-        ],
-      ),
-      children: [
-        // Grid של סוגי הרשימות בקבוצה
+        // Wrap של כל הסוגים
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -576,9 +496,8 @@ class _CreateListDialogState extends State<CreateListDialog> {
   /// תכונות:
   /// - Label: שם + אייקון (emoji)
   /// - selected state: צבע primaryContainer
-  /// - onSelected: עדכון _type + בדיקת תבנית
+  /// - onSelected: עדכון _type
   /// - Disabled כשהדיאלוג משתמש בשליחה (_isSubmitting)
-  /// - Logic: אם סוג משתנה ותבנית לא תואמת → מנקה תבנית
   ///
   /// [type] - סוג הרשימה (string key מ-kListTypes)
   /// Returns: FilterChip interactive
@@ -607,7 +526,6 @@ class _CreateListDialogState extends State<CreateListDialog> {
                 debugPrint('🔄 סוג רשימה שונה ל: $type');
                 setState(() {
                   _type = type;
-                  // Template logic removed - feature not implemented
                 });
               }
             },

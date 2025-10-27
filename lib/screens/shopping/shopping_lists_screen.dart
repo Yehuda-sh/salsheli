@@ -1005,14 +1005,13 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
 
           const Divider(),
 
-          // קבוצה 1: קניות שוטפות
-          _buildDrawerSectionHeader('קניות שוטפות'),
+          // 🛒 סוגי רשימות (7 סוגים)
           _buildDrawerItem(
             context: context,
             title: 'סופרמרקט',
-            icon: Icons.store,
-            type: 'super',
-            isSelected: _selectedType == 'super',
+            icon: Icons.shopping_cart,
+            type: 'supermarket',
+            isSelected: _selectedType == 'supermarket',
           ),
           _buildDrawerItem(
             context: context,
@@ -1023,82 +1022,40 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
           ),
           _buildDrawerItem(
             context: context,
-            title: 'מוצרי בניין',
-            icon: Icons.hardware,
-            type: 'hardware',
-            isSelected: _selectedType == 'hardware',
+            title: 'ירקן',
+            icon: Icons.local_florist,
+            type: 'greengrocer',
+            isSelected: _selectedType == 'greengrocer',
           ),
           _buildDrawerItem(
             context: context,
-            title: 'ביגוד והנעלה',
-            icon: Icons.checkroom,
-            type: 'clothing',
-            isSelected: _selectedType == 'clothing',
+            title: 'אטליז',
+            icon: Icons.set_meal,
+            type: 'butcher',
+            isSelected: _selectedType == 'butcher',
           ),
           _buildDrawerItem(
             context: context,
-            title: 'אלקטרוניקה',
-            icon: Icons.devices,
-            type: 'electronics',
-            isSelected: _selectedType == 'electronics',
-          ),
-
-          const Divider(),
-
-          // קבוצה 2: מיוחדות
-          _buildDrawerSectionHeader('רשימות מיוחדות'),
-          _buildDrawerItem(
-            context: context,
-            title: 'יום הולדת',
-            icon: Icons.cake,
-            type: 'birthday',
-            isSelected: _selectedType == 'birthday',
+            title: 'מאפייה',
+            icon: Icons.bakery_dining,
+            type: 'bakery',
+            isSelected: _selectedType == 'bakery',
           ),
           _buildDrawerItem(
             context: context,
-            title: 'אירוח סוף שבוע',
-            icon: Icons.weekend,
-            type: 'hosting',
-            isSelected: _selectedType == 'hosting',
+            title: 'שוק',
+            icon: Icons.store,
+            type: 'market',
+            isSelected: _selectedType == 'market',
           ),
           _buildDrawerItem(
             context: context,
-            title: 'מסיבה',
-            icon: Icons.celebration,
-            type: 'party',
-            isSelected: _selectedType == 'party',
-          ),
-          _buildDrawerItem(
-            context: context,
-            title: 'חתונה',
-            icon: Icons.favorite,
-            type: 'wedding',
-            isSelected: _selectedType == 'wedding',
-          ),
-          _buildDrawerItem(
-            context: context,
-            title: 'פיקניק',
-            icon: Icons.outdoor_grill,
-            type: 'picnic',
-            isSelected: _selectedType == 'picnic',
+            title: 'אחר',
+            icon: Icons.more_horiz,
+            type: 'household',
+            isSelected: _selectedType == 'household',
           ),
         ],
-      ),
-    );
-  }
-
-  /// 🏷️ כותרת קבוצה ב-Drawer
-  Widget _buildDrawerSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(kSpacingMedium, kSpacingMedium, kSpacingMedium, kSpacingSmall),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: kFontSizeTiny,
-          fontWeight: FontWeight.bold,
-          color: Colors.grey.shade600,
-          letterSpacing: 1.2,
-        ),
       ),
     );
   }

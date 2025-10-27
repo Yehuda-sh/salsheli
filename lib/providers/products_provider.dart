@@ -48,7 +48,7 @@
 
 import 'package:flutter/foundation.dart';
 import '../repositories/products_repository.dart';
-import '../config/list_type_mappings.dart';
+import '../services/list_type_filter_service.dart';
 import 'user_context.dart';
 
 class ProductsProvider with ChangeNotifier {
@@ -385,23 +385,6 @@ class ProductsProvider with ChangeNotifier {
     }
   }
 
-  // === Get Relevant Categories for Current List Type ===
-  List<String> get relevantCategories {
-    if (_selectedListType == null) return _categories;
-    
-    final typeCategories = ListTypeMappings.getCategoriesForType(_selectedListType!);
-    
-    return _categories.where((cat) {
-      return _isCategoryRelevantForListType(cat, typeCategories);
-    }).toList();
-  }
-
-  // === Get Suggested Stores for Current List Type ===
-  List<String> get suggestedStores {
-    if (_selectedListType == null) return [];
-    return ListTypeMappings.getStoresForType(_selectedListType!);
-  }
-
   void setCategory(String? category) {
     if (_selectedCategory == category) return;
     
@@ -416,29 +399,14 @@ class ProductsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // === Helper: Check if category is relevant for list type ===
-  bool _isCategoryRelevantForListType(
-    String productCategory,
-    List<String> typeCategories,
-  ) {
-    return typeCategories.any(
-      (typeCat) => productCategory.toLowerCase().contains(typeCat.toLowerCase()) ||
-                   typeCat.toLowerCase().contains(productCategory.toLowerCase()),
-    );
-  }
-
   // === Get Filtered Products ===
   List<Map<String, dynamic>> _getFilteredProducts() {
     var filtered = List<Map<String, dynamic>>.from(_products);
 
-    // Filter by list type
+    // Filter by list type (using ListTypeFilterService)
     if (_selectedListType != null) {
-      final typeCategories = ListTypeMappings.getCategoriesForType(_selectedListType!);
-      
-      filtered = filtered.where((p) {
-        final productCategory = p['category'] as String? ?? '';
-        return _isCategoryRelevantForListType(productCategory, typeCategories);
-      }).toList();
+      final listType = ListTypeFilterService.fromString(_selectedListType!);
+      filtered = ListTypeFilterService.filterProductsByListType(filtered, listType);
     }
 
     // Filter by category

@@ -151,6 +151,71 @@ class ShoppingListTile extends StatelessWidget {
     }
   }
 
+  /// 🏷️ ווידג׳ט תג סוג רשימה
+  /// 🇬🇧 List type tag widget
+  ///
+  /// מציג תג עם סוג הרשימה (סופר, פארם, אחר)
+  Widget _buildListTypeTag(BuildContext context) {
+    final String typeLabel;
+    final Color typeColor;
+    final String typeEmoji;
+
+    switch (list.type) {
+      case ShoppingList.typeSuper:
+        typeEmoji = '🛒';
+        typeLabel = 'סופרמרקט';
+        typeColor = kStickyGreen;
+        break;
+      case ShoppingList.typePharmacy:
+        typeEmoji = '💊';
+        typeLabel = 'בית מרקחת';
+        typeColor = kStickyCyan;
+        break;
+      case ShoppingList.typeOther:
+      default:
+        typeEmoji = '📋';
+        typeLabel = 'כללי';
+        typeColor = kStickyPurple;
+        break;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: kSpacingSmall,
+        vertical: 2,
+      ),
+      decoration: BoxDecoration(
+        color: typeColor,
+        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 2,
+            offset: const Offset(1, 1),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            typeEmoji,
+            style: const TextStyle(fontSize: 10),
+          ),
+          const SizedBox(width: 2),
+          Text(
+            typeLabel,
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// 🇮🇱 ווידג׳ט תג דחיפות
   /// 🇬🇧 Urgency tag widget
   ///
@@ -320,6 +385,9 @@ class ShoppingListTile extends StatelessWidget {
                         maxLines: 1,
                       ),
                     ),
+                    // תג סוג רשימה
+                    _buildListTypeTag(context),
+                    const SizedBox(width: kSpacingSmall),
                     // תג דחיפות
                     if (_buildUrgencyTag(context) != null) ...[
                       _buildUrgencyTag(context)!,
