@@ -226,7 +226,7 @@ class ListTypeFilterService {
   }
 
   /// ממיר מ-enum ל-string (ל-DB)
-  static String toString(ExtendedListType type) {
+  static String typeToString(ExtendedListType type) {
     switch (type) {
       case ExtendedListType.supermarket:
         return 'supermarket';

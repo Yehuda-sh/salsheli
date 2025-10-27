@@ -158,8 +158,8 @@ void main() {
         // Assert
         expect(suggestion.urgency, 'critical');
         expect(suggestion.isOutOfStock, true);
-        expect(suggestion.isCriticallyLow, false);
-        expect(suggestion.isLow, false);
+        expect(suggestion.isCriticallyLow, true);  // ✅ 0 = out of stock AND critically low
+        expect(suggestion.isLow, true);  // ✅ כל critically low הוא גם low
       });
 
       test('high אם < 20% מהסף', () {

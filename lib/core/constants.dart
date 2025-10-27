@@ -344,111 +344,63 @@ const Map<String, Map<String, String>> kStorageLocationsOld = kStorageLocations;
 /// 
 /// 🎯 שימוש: יצירת רשימות, תצוגה של סוגים
 /// 📝 הערה: משמש ב-create_list_dialog
+/// 
+/// 🆕 Extended List Types (8 types - v2.0):
+/// - supermarket: כל המוצרים (5000)
+/// - pharmacy: היגיינה וניקיון
+/// - greengrocer: פירות וירקות
+/// - butcher: בשר ועוף
+/// - bakery: לחם ומאפים
+/// - market: מעורב
+/// - household: כלי בית מותאמים
+/// - other: fallback
 const Map<String, Map<String, String>> kListTypes = const {
-  'super': {
+  'supermarket': {
     'name': 'סופרמרקט',
     'icon': '🛒',
-    'description': 'קניות יומיומיות ומזון'
+    'description': 'קניות יומיומיות - כל המוצרים'
   },
   'pharmacy': {
     'name': 'בית מרקחת',
     'icon': '💊',
-    'description': 'תרופות ומוצרי בריאות'
+    'description': 'תרופות, היגיינה וניקיון'
   },
-  'hardware': {
-    'name': 'חומרי בניין',
-    'icon': '🔨',
-    'description': 'כלים וחומרי בניין'
+  'greengrocer': {
+    'name': 'ירקן',
+    'icon': '🥬',
+    'description': 'פירות וירקות טריים'
   },
-  'clothing': {
-    'name': 'ביגוד',
-    'icon': '👕',
-    'description': 'בגדים ואביזרים'
+  'butcher': {
+    'name': 'אטליז',
+    'icon': '🥩',
+    'description': 'בשר, עוף ודגים'
   },
-  'electronics': {
-    'name': 'אלקטרוניקה',
-    'icon': '📱',
-    'description': 'מכשירים חשמליים'
+  'bakery': {
+    'name': 'מאפייה',
+    'icon': '🍞',
+    'description': 'לחם, מאפים וחלות'
   },
-  'pets': {
-    'name': 'חיות מחמד',
-    'icon': '🐕',
-    'description': 'מזון וצרכים לחיות'
+  'market': {
+    'name': 'שוק',
+    'icon': '🏪',
+    'description': 'מוצרים טריים מעורבים'
   },
-  'cosmetics': {
-    'name': 'קוסמטיקה',
-    'icon': '💄',
-    'description': 'מוצרי יופי וטיפוח'
-  },
-  'stationery': {
-    'name': 'כלי כתיבה',
-    'icon': '✏️',
-    'description': 'מוצרי משרד וכתיבה'
-  },
-  'toys': {
-    'name': 'צעצועים',
-    'icon': '🧸',
-    'description': 'משחקים וצעצועים'
-  },
-  'books': {
-    'name': 'ספרים',
-    'icon': '📚',
-    'description': 'ספרים וחומרי קריאה'
-  },
-  'sports': {
-    'name': 'ספורט',
-    'icon': '⚽',
-    'description': 'ציוד ספורט וכושר'
-  },
-  'home_decor': {
-    'name': 'עיצוב הבית',
+  'household': {
+    'name': 'כלי בית',
     'icon': '🏠',
-    'description': 'מוצרים לעיצוב הבית'
-  },
-  'automotive': {
-    'name': 'רכב',
-    'icon': '🚗',
-    'description': 'צרכים לרכב'
-  },
-  'baby': {
-    'name': 'תינוקות',
-    'icon': '👶',
-    'description': 'מוצרים לתינוקות'
-  },
-  'gifts': {
-    'name': 'מתנות',
-    'icon': '🎁',
-    'description': 'רעיונות למתנות'
-  },
-  'birthday': {
-    'name': 'יום הולדת',
-    'icon': '🎂',
-    'description': 'צרכים ליום הולדת'
-  },
-  'party': {
-    'name': 'מסיבה',
-    'icon': '🎉',
-    'description': 'צרכים למסיבה'
-  },
-  'wedding': {
-    'name': 'חתונה',
-    'icon': '💒',
-    'description': 'צרכים לחתונה'
-  },
-  'picnic': {
-    'name': 'פיקניק',
-    'icon': '🧺',
-    'description': 'צרכים לטיול'
-  },
-  'holiday': {
-    'name': 'חג',
-    'icon': '✨',
-    'description': 'קניות לחג'
+    'description': 'מוצרים מותאמים אישית'
   },
   'other': {
     'name': 'אחר',
     'icon': '📝',
     'description': 'סוג אחר'
+  },
+  
+  // Legacy support - will be migrated
+  'super': {
+    'name': 'סופרמרקט',
+    'icon': '🛒',
+    'description': 'קניות יומיומיות (deprecated - use supermarket)'
   },
 };
 

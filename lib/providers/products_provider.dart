@@ -158,6 +158,32 @@ class ProductsProvider with ChangeNotifier {
   
   List<Map<String, dynamic>> get allProducts => List.unmodifiable(_products);
   List<String> get categories => List.unmodifiable(_categories);
+  
+  /// קטגוריות רלוונטיות לסוג הרשימה שנבחר
+  /// 
+  /// אם לא נבחר סוג רשימה - מחזיר את כל הקטגוריות
+  /// אם נבחר סוג רשימה - מחזיר רק קטגוריות של המוצרים המסוננים
+  List<String> get relevantCategories {
+    if (_selectedListType == null) {
+      return List.unmodifiable(_categories);
+    }
+    
+    // חלץ קטגוריות ייחודיות מהמוצרים המסוננים
+    final filtered = _getFilteredProducts();
+    final categoriesSet = <String>{};
+    
+    for (final product in filtered) {
+      final category = product['category'] as String?;
+      if (category != null && category.isNotEmpty) {
+        categoriesSet.add(category);
+      }
+    }
+    
+    final result = categoriesSet.toList()..sort();
+    debugPrint('🏷️ relevantCategories: ${result.length} קטגוריות עבור $_selectedListType');
+    return result;
+  }
+  
   DateTime? get lastUpdated => _lastUpdated;
   String get searchQuery => _searchQuery;
   String? get selectedCategory => _selectedCategory;

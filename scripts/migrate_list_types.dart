@@ -17,13 +17,16 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import '../lib/firebase_options.dart';
 
 Future<void> main() async {
   print('🚀 Starting migration: "super" → "supermarket"');
   print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-  // Initialize Firebase
-  await Firebase.initializeApp();
+  // Initialize Firebase with options
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   final firestore = FirebaseFirestore.instance;
 
   try {

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Scripts for Firebase setup and demo data",
   "scripts": {
+    "migrate-types": "node migrate_types.js",
     "create-users": "node create_demo_users.js",
     "create-data": "node create_demo_data.js",
     "create-data-real": "node create_demo_data_v2.js",
