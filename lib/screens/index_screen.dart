@@ -26,7 +26,7 @@
 // - UserContext - מקור האמת היחיד למצב משתמש (Firebase Auth)
 // - WelcomeScreen - מסך קבלת פנים ראשוני
 // - LoginScreen - מסך התחברות (/login)
-// - HomeScreen - מסך ראשי (/home)
+// - MainNavigationScreen - מסך ראשי עם ניווט (/home)
 // - SharedPreferences - אחסון seenOnboarding (מקומי בלבד)
 //
 // 💡 Features:

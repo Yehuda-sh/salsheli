@@ -44,7 +44,7 @@ import 'services/auth_service.dart'; // 🔐 Firebase Auth!
 // Screens
 import 'screens/index_screen.dart';
 import 'screens/onboarding/onboarding_screen.dart';
-import 'screens/home/home_screen.dart';
+import 'screens/main_navigation_screen.dart';
 
 import 'screens/insights/insights_screen.dart';
 
@@ -367,7 +367,7 @@ class _MyAppState extends State<MyApp> {
           ],
           home: const IndexScreen(),
           routes: {
-            '/home': (context) => const HomeScreen(),
+            '/home': (context) => const MainNavigationScreen(),
             '/onboarding': (context) => const OnboardingScreen(),
             '/login': (context) => const auth_login.LoginScreen(),
             '/register': (context) => const auth_register.RegisterScreen(),

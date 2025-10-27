@@ -1,6 +1,6 @@
-// 📄 File: lib/screens/home/home_screen.dart
+// 📄 File: lib/screens/main_navigation_screen.dart
 //
-// 🇮🇱 **מסך הבית הראשי** - Navigation Shell
+// 🇮🇱 **מסך הניווט הראשי** - Main Navigation Shell
 //
 // **מבנה:**
 // - Bottom Navigation Bar עם 4 טאבים
@@ -23,17 +23,16 @@
 // - Back ← מדשבורד: double-tap ליציאה (2 שניות timeout)
 // - SnackBar feedback: "לחץ שוב לסגירת האפליקציה"
 //
-// **Version:** 2.3 (Bounds Check + RangeError Fix)
+// **Version:** 2.4 (Renamed & Relocated)
+//
+// **שיפורים בגרסה 2.4 (27/10/2025):**
+// - שינוי שם מ-HomeScreen ל-MainNavigationScreen
+// - העברה מ-lib/screens/home/ ל-lib/screens/
+// - שם ברור יותר שמשקף את תפקיד המסך
 //
 // **שיפורים בגרסה 2.3 (26/10/2025):**
 // - Bounds Check: מונע RangeError עם index לא חוקי
 // - 🔍 Debug: לוג כשטאב לא חוקי מזוהה
-// - ציון איכות: 100/100 ✅
-//
-// **שיפורים בגרסה 2.2:**
-// - Error Handling: בדיקת isLoading + hasError לפני badge
-// - Loading State: badge נעלם בזמן טעינה/שגיאה
-// - late final _pages: איניציאליזציה lazy
 // - ציון איכות: 100/100 ✅
 
 import 'package:flutter/foundation.dart';
@@ -51,14 +50,14 @@ import 'package:memozap/screens/shopping/shopping_lists_screen.dart';
 import 'package:memozap/screens/pantry/my_pantry_screen.dart';
 import 'package:memozap/screens/settings/settings_screen.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class MainNavigationScreen extends StatefulWidget {
+  const MainNavigationScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<MainNavigationScreen> createState() => _MainNavigationScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _selectedIndex = 0;
   DateTime? _lastBackPress;
 
@@ -73,14 +72,14 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     if (kDebugMode) {
-      debugPrint('🏠 HomeScreen.initState()');
+      debugPrint('🏠 MainNavigationScreen.initState()');
     }
   }
 
   @override
   void dispose() {
     if (kDebugMode) {
-      debugPrint('🏠 HomeScreen.dispose()');
+      debugPrint('🏠 MainNavigationScreen.dispose()');
     }
     _lastBackPress = null; // ניקוי
     super.dispose();
@@ -90,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // 🛡️ בדיקת bounds - מונע RangeError
     if (index < 0 || index >= _pages.length) {
       if (kDebugMode) {
-        debugPrint('❌ HomeScreen: טאב לא חוקי $index (טווח חוקי: 0-${_pages.length - 1})');
+        debugPrint('❌ MainNavigationScreen: טאב לא חוקי $index (טווח חוקי: 0-${_pages.length - 1})');
       }
       return;
     }
@@ -98,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_selectedIndex == index) return;
     
     if (kDebugMode) {
-      debugPrint('🏠 HomeScreen: מעבר לטאב $_selectedIndex → $index');
+      debugPrint('🏠 MainNavigationScreen: מעבר לטאב $_selectedIndex → $index');
     }
     setState(() => _selectedIndex = index);
   }
@@ -107,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // אם לא בטאב הראשון - חזור אליו במקום לצאת
     if (_selectedIndex != 0) {
       if (kDebugMode) {
-        debugPrint('🏠 HomeScreen: Back מטאב $_selectedIndex → חזרה לדשבורד (0)');
+        debugPrint('🏠 MainNavigationScreen: Back מטאב $_selectedIndex → חזרה לדשבורד (0)');
       }
       setState(() => _selectedIndex = 0);
       return Future.value(false);
@@ -118,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
         now.difference(_lastBackPress!) > kDoubleTapTimeout) {
       _lastBackPress = now;
       if (kDebugMode) {
-        debugPrint('🏠 HomeScreen: לחיצה ראשונה על Back - חכה לשנייה');
+        debugPrint('🏠 MainNavigationScreen: לחיצה ראשונה על Back - חכה לשנייה');
       }
 
       // ✅ בדיקת mounted ו-context נשמרים לפני כל פעולה
@@ -148,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // לחיצה שנייה תוך 2 שניות - אפשר יציאה
     if (kDebugMode) {
-      debugPrint('🏠 HomeScreen: לחיצה שנייה על Back - יוצא מהאפליקציה');
+      debugPrint('🏠 MainNavigationScreen: לחיצה שנייה על Back - יוצא מהאפליקציה');
     }
     return Future.value(true);
   }
