@@ -26,10 +26,9 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-
-import '../core/constants.dart';  // 🆕 שימוש ב-FirestoreCollections/Fields
-import '../models/inventory_item.dart';
-import 'inventory_repository.dart';
+import 'package:memozap/models/inventory_item.dart';
+import 'package:memozap/repositories/constants/repository_constants.dart';
+import 'package:memozap/repositories/inventory_repository.dart';
 
 /// Firebase implementation של InventoryRepository
 /// 

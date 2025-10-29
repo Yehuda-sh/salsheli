@@ -33,15 +33,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../providers/user_context.dart';
-import '../../theme/app_theme.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
-
+import '../../providers/user_context.dart';
+import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
-import '../../widgets/common/sticky_note.dart';
 import '../../widgets/common/sticky_button.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../widgets/common/sticky_note.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -81,9 +81,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     
     // 🎯 Auto-focus על שדה אימייל בכניסה למסך
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _emailFocusNode.requestFocus();
-      }
+      _emailFocusNode.requestFocus();
     });
   }
 
@@ -139,11 +137,11 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         final messenger = ScaffoldMessenger.of(context);
         messenger.showSnackBar(
           SnackBar(
-            content: Row(
+            content: const Row(
               children: [
-                const Icon(Icons.check_circle, color: Colors.white, size: 24),
-                const SizedBox(width: kSpacingSmall),
-                const Text('התחברת בהצלחה! מעביר לדף הבית...'),
+                Icon(Icons.check_circle, color: Colors.white, size: 24),
+                SizedBox(width: kSpacingSmall),
+                Text('התחברת בהצלחה! מעביר לדף הבית...'),
               ],
             ),
             backgroundColor: Colors.green.shade700,
@@ -217,7 +215,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Row(
+          content: const Row(
             children: [
               const Icon(Icons.info_outline, color: Colors.white),
               const SizedBox(width: kSpacingSmall),
@@ -264,7 +262,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         // הצג הודעת הצלחה
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Row(
+            content: const Row(
               children: [
                 const Icon(Icons.check_circle, color: Colors.white),
                 const SizedBox(width: kSpacingSmall),
@@ -294,7 +292,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Row(
+            content: const Row(
               children: [
                 const Icon(Icons.error_outline, color: Colors.white),
                 const SizedBox(width: kSpacingSmall),
@@ -442,7 +440,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                 ),
                               ),
                               keyboardType: TextInputType.emailAddress,
-                              textInputAction: TextInputAction.next,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return AppStrings.auth.emailRequired;
@@ -491,8 +488,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                 ),
                               ),
                               obscureText: _obscurePassword,
-                              textInputAction: TextInputAction.done,
-                              onFieldSubmitted: (_) => _handleLogin(),
+                              onFieldSubmitted: (_) => _handleLogin,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return AppStrings.auth.passwordRequired;
@@ -510,11 +506,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           Align(
                             alignment: AlignmentDirectional.centerEnd,
                             child: TextButton(
-                              onPressed: _isLoading ? null : () => _handleForgotPassword(),
+                              onPressed: _isLoading ? null : _handleForgotPassword,
                               style: TextButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: kSpacingSmall,
-                                  vertical: 0,
                                 ),
                                 minimumSize: Size.zero,
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -538,7 +533,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                             color: accent,
                             label: _isLoading ? 'מתחבר...' : AppStrings.auth.loginButton,
                             icon: _isLoading ? null : Icons.login,
-                            onPressed: _isLoading ? () {} : () => _handleLogin(),
+                            onPressed: _isLoading ? () {} : _handleLogin,
                             height: 44, // 📐 הקטנת גובה הכפתור מעט
                           ),
                           const SizedBox(height: kSpacingSmall), // 📐 צמצום מ-Large ל-Small
@@ -564,8 +559,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                     onPressed: _isLoading ? null : _navigateToRegister,
                                     style: TextButton.styleFrom(
                                       padding: const EdgeInsets.symmetric(
-                                        horizontal: kSpacingXSmall,
-                                        vertical: 0, // 📐 אפס padding אנכי
+                                        horizontal: kSpacingTiny,
                                       ),
                                       minimumSize: Size.zero, // 📐 ביטול גודל מינימלי
                                       tapTargetSize: MaterialTapTargetSize.shrinkWrap, // 📐 כפתור צמוד

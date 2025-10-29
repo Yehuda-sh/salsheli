@@ -161,6 +161,7 @@ const Color kSplashGradientEndDark = Color(0xFF9F1239);    // Dark pink
 // TYPOGRAPHY
 // ═══════════════════════════════════════════════════════════════════════════
 
+const double kFontSizeTiny = 10.0;    // Tiny text (smaller than small)
 const double kFontSizeSmall = 12.0;   // Small text
 const double kFontSizeBody = 16.0;    // Body text
 const double kFontSizeLarge = 20.0;   // Large text

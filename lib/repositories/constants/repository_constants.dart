@@ -36,7 +36,9 @@ class FirestoreFields {
   
   // Inventory fields
   static const String productId = 'product_id';
+  static const String productName = 'product_name';
   static const String quantity = 'quantity';
+  static const String location = 'location';
   static const String expiryDate = 'expiry_date';
   
   // Product fields
@@ -51,4 +53,15 @@ class FirestoreFields {
   // Location fields
   static const String locationName = 'location_name';
   static const String createdAt = 'created_at';
+  
+  // User fields
+  static const String userId = 'user_id';
+  static const String userName = 'user_name';
+  static const String email = 'email';
+  
+  // Sharing fields
+  static const String role = 'role';
+  static const String type = 'type';
+  static const String sharedUsers = 'shared_users';
+  static const String pendingRequests = 'pending_requests';
 }

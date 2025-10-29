@@ -20,9 +20,9 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import '../models/shopping_list.dart';
-import 'shopping_lists_repository.dart';
-import '../core/constants.dart';
+import 'package:memozap/models/shopping_list.dart';
+import 'package:memozap/repositories/constants/repository_constants.dart';
+import 'package:memozap/repositories/shopping_lists_repository.dart';
 
 class FirebaseShoppingListsRepository implements ShoppingListsRepository {
   final FirebaseFirestore _firestore;
