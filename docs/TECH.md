@@ -20,7 +20,7 @@ classes:
     - shoppingLists
     - users
     - households
-    - inventoryItems
+    - inventory
     - products
     - receipts
     - habitPreferences
@@ -29,10 +29,11 @@ classes:
   FirestoreFields:
     - id, name, createdBy, createdDate, updatedDate
     - householdId (CRITICAL!)
-    - userId, email, displayName
+    - userId, userName, email, displayName
     - items, sharedUsers, pendingRequests
     - date, category, barcode, brand
     - preferredProduct, lastPurchased, createdAt
+    - type, status, role (sharing/requests)
 
 usage:
   good: .collection(FirestoreCollections.shoppingLists)
@@ -158,10 +159,10 @@ flutter pub run build_runner build --delete-conflicting-outputs
 
 ```yaml
 firebase:
-  - firebase_core: ^3.11.0
-  - firebase_auth: ^5.3.4
-  - firebase_firestore: ^5.5.5
-  - cloud_functions: ^5.2.3
+  - firebase_core: ^4.2.0
+  - firebase_auth: ^6.1.1
+  - cloud_firestore: ^6.0.3
+  - firebase_storage: ^13.0.3
 
 state:
   - provider: ^6.1.2
@@ -176,20 +177,39 @@ storage:
   - hive_flutter: ^1.1.0
 
 ui:
-  - google_fonts: ^6.2.1
+  - cupertino_icons: ^1.0.8
+  - font_awesome_flutter: ^10.7.0
+  - flutter_animate: ^4.5.0
+  - shimmer: ^3.0.0
+  - dynamic_color: ^1.7.0
 
 l10n:
   - flutter_localizations (sdk)
-  - intl: ^0.19.0
+  - intl: ^0.20.2
+
+media:
+  - camera: ^0.11.0+2
+  - image_picker: ^1.1.2
+  - mobile_scanner: ^7.1.2
 
 utils:
-  - uuid: ^4.5.1
-  - path_provider: ^2.1.5
+  - uuid: ^4.5.0
+  - path_provider: ^2.1.4
+  - path: ^1.9.0
+  - http: ^1.2.2
+  - timeago: ^3.7.0
+  - xml: ^6.6.1
+  - archive: ^4.0.7
+
+charts:
+  - fl_chart: ^1.1.1
 
 testing:
   - flutter_test (sdk)
   - mockito: ^5.4.4
-  - flutter_lints: ^5.0.0 (dev)
+  - test: ^1.25.0
+  - analyzer: ^7.7.1
+  - flutter_lints: ^6.0.0 (dev)
 ```
 
 ---
@@ -327,17 +347,14 @@ before_deploy:
 
 ```yaml
 android:
-  compileSdkVersion: 34
-  minSdkVersion: 21
-  targetSdkVersion: 34
-  firebase_bom: 33.7.0
+  compileSdk: flutter.compileSdkVersion
+  minSdk: flutter.minSdkVersion
+  targetSdk: flutter.targetSdkVersion
+  ndkVersion: 27.0.12077973
+  jvmTarget: 21
 
 ios:
   platform: 13.0
-  pods:
-    - Firebase/Analytics
-    - Firebase/Auth
-    - Firebase/Firestore
 ```
 
 ---
@@ -351,3 +368,11 @@ Optimized for AI parsing - minimal formatting, maximum data density.
 - Added magic_strings to COMMON MISTAKES
 - Updated before_commit checklist
 - 6 repositories migrated to constants
+
+**Updates v1.2 (29/10/2025 - session 46):**
+- Fixed dependencies (updated to current versions from pubspec.yaml)
+- Fixed FirestoreCollections: inventory (not inventoryItems)
+- Added missing FirestoreFields: userName, role, type, status
+- Updated Build Config to match current setup
+- Removed deprecated firebase_bom, google_fonts
+- Added new dependencies: firebase_storage, camera, image_picker, etc.
