@@ -73,7 +73,7 @@
 
 ## 📚 Documentation
 
-### Core Documentation (6 Files)
+### Core Documentation (5 Files)
 
 | Document | Purpose | When to Read |
 |----------|---------|--------------|
@@ -82,7 +82,6 @@
 | **[DESIGN.md](docs/DESIGN.md)** | Sticky Notes design system (RTL + Components) | Before UI work |
 | **[TECH.md](docs/TECH.md)** | Firebase, security, models, dependencies | Before backend work |
 | **[CODE_REVIEW_CHECKLIST.md](docs/CODE_REVIEW_CHECKLIST.md)** | Code review protocols + dead code detection | Before reviewing/deleting code |
-| **[LESSONS_LEARNED.md](docs/LESSONS_LEARNED.md)** | Common mistakes & solutions | ⚠️ Before risky changes |
 | **[WORK_PLAN.md](docs/WORK_PLAN.md)** | 8-week roadmap (Lists + Inventory systems) | Planning new features |
 
 ### By Task Type
@@ -94,7 +93,7 @@
 | **Review code** | CODE_REVIEW_CHECKLIST | 1. CODE_REVIEW_CHECKLIST |
 | **Firebase/Security** | TECH.md + CODE.md | 1. TECH, 2. CODE |
 | **Build feature** | PROJECT_INSTRUCTIONS + CODE + DESIGN + TECH | 1. PROJECT_INSTRUCTIONS, 2. CODE, 3. DESIGN, 4. TECH |
-| **Debug issues** | LESSONS_LEARNED + CODE | 1. LESSONS_LEARNED, 2. CODE |
+| **Debug issues** | CODE + PROJECT_INSTRUCTIONS | 1. CODE, 2. PROJECT_INSTRUCTIONS |
 | **Plan roadmap** | WORK_PLAN | 1. WORK_PLAN |
 
 ---
@@ -125,7 +124,7 @@
 - 🗄️ **17 repositories**
 - 🎨 **30+ screens**
 - 🧩 **25+ widgets**
-- 📖 **6 documentation files** (~2,300 lines - machine-optimized)
+- 📖 **5 documentation files** (~2,000 lines - machine-optimized)
 - 🌐 **Full Hebrew RTL support**
 
 ---
@@ -179,13 +178,12 @@ memozap/
 │   └── main.dart          # App entry point
 ├── test/                  # 50+ tests
 ├── assets/                # Images, fonts
-└── docs/                  # Documentation (6 files)
+└── docs/                  # Documentation (5 files)
     ├── PROJECT_INSTRUCTIONS_v4.md # Complete AI instructions (450 lines)
     ├── CODE.md            # Code patterns & architecture (500 lines)
     ├── DESIGN.md          # Sticky Notes design system (300 lines)
     ├── TECH.md            # Firebase, security, models (400 lines)
     ├── CODE_REVIEW_CHECKLIST.md # Review protocols (300 lines)
-    ├── LESSONS_LEARNED.md # Common mistakes & solutions (300 lines)
     └── WORK_PLAN.md       # 8-week roadmap (500 lines)
 ```
 
@@ -262,7 +260,6 @@ flutter build ios --release  # iOS
 3. Follow [docs/DESIGN.md](docs/DESIGN.md) for UI/UX guidelines
 4. Review [docs/TECH.md](docs/TECH.md) for Firebase & security
 5. Use [docs/CODE_REVIEW_CHECKLIST.md](docs/CODE_REVIEW_CHECKLIST.md) before reviewing/deleting code
-6. Check [docs/LESSONS_LEARNED.md](docs/LESSONS_LEARNED.md) to avoid common mistakes
 
 ### Code Style
 - ✅ Run `dart format lib/ -w` before commit
