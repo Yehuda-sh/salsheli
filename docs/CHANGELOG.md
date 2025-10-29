@@ -7,6 +7,45 @@
 ```yaml
 date: 29/10/2025
 
+session_36:
+  task: Code Review - Old List System Cleanup
+  status: complete
+  files:
+    - lib/config/list_type_mappings.dart: deleted (700+ lines, dead code)
+    - lib/l10n/strings/list_type_mappings_strings.dart: deleted (dead code)
+  analysis:
+    - search_files: no imports found
+    - old system: 21 list types (super, pharmacy, hardware, clothing, electronics, pets, cosmetics, stationery, toys, books, sports, homeDecor, automotive, baby, gifts, birthday, party, wedding, picnic, holiday, other)
+    - defined 140+ categories, 60+ stores, 140+ suggested items
+    - cache + backwards compatibility + logging
+  reason:
+    - replaced by ListTypeFilterService (8 types only)
+    - removed from ProductsProvider in session_33
+    - new system: supermarket, pharmacy, greengrocer, butcher, bakery, market, household, other
+  impact:
+    - codebase: -1000 lines
+    - clarity: single filtering system
+    - maintenance: less complexity
+  result: old 21-type system completely removed
+
+session_35:
+  task: Code Review - Dead Code Cleanup
+  status: complete
+  files:
+    - lib/config/household_config.dart: deleted (dead code)
+  analysis:
+    - search_files: no imports found
+    - defined 3 household types (family, building, kindergarten)
+    - getIcon() + getLabel() methods unused
+  reason:
+    - feature not implemented
+    - project uses household_id without type distinction
+    - no UI references this config
+  impact:
+    - cleaner codebase
+    - less confusion about unimplemented features
+  result: dead code removed
+
 session_34:
   task: Documentation Cleanup
   status: complete

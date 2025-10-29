@@ -220,7 +220,8 @@ class _OnboardingStrings {
 
   // Welcome Step
   String get welcomeTitle => 'ברוכים הבאים ל־MemoZap 🎉';
-  String get welcomeSubtitle => 'ניהול רשימות מעולם לא היה קל כל כך! 🎉\n🛒 קניות • 📝 מטלות • 🎁 אירועים - עם בת הזוג, המשפחה, החברים או כל קבוצה';
+  String get welcomeSubtitle =>
+      'ניהול רשימות מעולם לא היה קל כל כך! 🎉\n🛒 קניות • 📝 מטלות • 🎁 אירועים - עם בת הזוג, המשפחה, החברים או כל קבוצה';
 
   // Family Size Step
   String get familySizeTitle => 'כמה אנשים בקבוצה?';
@@ -306,7 +307,7 @@ class _ShoppingStrings {
   String get activeRemaining => 'נותרו';
   String get activeTotal => 'סה״כ';
   String get activeSavingData => 'שומר את הנתונים...';
-  
+
   // Active Shopping - Messages
   String get loadingDataError => 'שגיאה בטעינת הנתונים';
   String get shoppingCompletedSuccess => 'הקנייה הושלמה בהצלחה! 🎉';
@@ -317,7 +318,7 @@ class _ShoppingStrings {
   String get oopsError => 'אופס! משהו השתבש';
   String get listEmpty => 'הרשימה ריקה';
   String get noItemsToBuy => 'אין פריטים לקנייה';
-  
+
   // Active Shopping - Summary Dialog
   String get summaryTitle => 'סיכום קנייה';
   String get summaryShoppingTime => 'זמן קנייה';
@@ -327,7 +328,7 @@ class _ShoppingStrings {
   String get summaryBack => 'חזור';
   String get summaryFinishShopping => 'סיים קנייה';
   String summaryPurchased(int purchased, int total) => '$purchased מתוך $total';
-  
+
   // Price & Quantity
   String quantityMultiplier(int quantity) => '${quantity}×';
   String priceFormat(double price) => '₪${price.toStringAsFixed(2)}';
