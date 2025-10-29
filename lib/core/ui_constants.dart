@@ -46,6 +46,13 @@ const Color kStickyPurple = Color(0xFFCE93D8);  // Creative features
 const Color kStickyOrange = Color(0xFFFFAB91);  // Warnings
 
 // ═══════════════════════════════════════════════════════════════════════════
+// COLORS - Notebook Lines
+// ═══════════════════════════════════════════════════════════════════════════
+
+const Color kNotebookBlue = Color(0xFF4285F4);   // Blue notebook lines
+const Color kNotebookRed = Color(0xFFE53935);    // Red notebook line
+
+// ═══════════════════════════════════════════════════════════════════════════
 // COLORS - Backgrounds
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -60,6 +67,26 @@ const double kButtonHeight = 48.0;       // Standard button height
 const double kButtonHeightSmall = 36.0;  // Compact button height
 const double kButtonHeightLarge = 56.0;  // Prominent button height
 const double kMinTouchTarget = 44.0;     // Minimum touch target (accessibility)
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BUTTON PADDING
+// ═══════════════════════════════════════════════════════════════════════════
+
+const double kButtonPaddingHorizontal = 24.0;  // Horizontal button padding
+const double kButtonPaddingVertical = 12.0;    // Vertical button padding
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CARD MARGINS
+// ═══════════════════════════════════════════════════════════════════════════
+
+const double kCardMarginVertical = 8.0;  // Vertical card margin
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LIST TILE PADDING
+// ═══════════════════════════════════════════════════════════════════════════
+
+const double kListTilePaddingStart = 16.0;  // ListTile start padding (RTL)
+const double kListTilePaddingEnd = 8.0;     // ListTile end padding (RTL)
 
 // ═══════════════════════════════════════════════════════════════════════════
 // DURATIONS
@@ -96,6 +123,25 @@ const double kBorderRadius = 12.0;       // Default border radius
 const double kBorderRadiusSmall = 8.0;   // Small border radius
 const double kBorderRadiusMedium = 12.0; // Medium border radius
 const double kBorderRadiusLarge = 16.0;  // Large border radius
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BORDER WIDTH
+// ═══════════════════════════════════════════════════════════════════════════
+
+const double kBorderWidthFocused = 2.0;  // Border width when focused
+
+// ═══════════════════════════════════════════════════════════════════════════
+// OPACITY
+// ═══════════════════════════════════════════════════════════════════════════
+
+const double kOpacityLight = 0.3;   // Light opacity
+const double kOpacityMedium = 0.5;  // Medium opacity
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PROGRESS INDICATOR
+// ═══════════════════════════════════════════════════════════════════════════
+
+const double kProgressIndicatorHeight = 4.0;  // Linear progress indicator height
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SPLASH GRADIENT COLORS

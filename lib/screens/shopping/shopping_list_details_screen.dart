@@ -27,11 +27,11 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:ui' as ui;
 
-
 import '../../models/shopping_list.dart';
 import '../../models/unified_list_item.dart';
 import '../../models/enums/item_type.dart';
 import '../../providers/shopping_lists_provider.dart';
+
 import '../../core/ui_constants.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_note.dart';
@@ -104,14 +104,10 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   /// 🛒 ניווט למסך אכלוס מהקטלוג
   Future<void> _navigateToPopulateScreen() async {
     debugPrint('🛒 ShoppingListDetailsScreen: ניווט לאכלוס מהקטלוג');
-    
+
     final navigator = Navigator.of(context);
-    await navigator.push(
-      MaterialPageRoute(
-        builder: (context) => PopulateListScreen(list: widget.list),
-      ),
-    );
-    
+    await navigator.push(MaterialPageRoute(builder: (context) => PopulateListScreen(list: widget.list)));
+
     // רענון הרשימה אחרי חזרה
     if (mounted) {
       debugPrint('✅ ShoppingListDetailsScreen: חזרה מאכלוס, רענון נתונים');
@@ -336,9 +332,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                             selectedDueDate != null
                                 ? 'תאריך יעד: ${DateFormat('dd/MM/yyyy').format(selectedDueDate!)}'
                                 : 'בחר תאריך יעד (אופציונלי)',
-                            style: TextStyle(
-                              color: selectedDueDate != null ? Colors.green : Colors.grey,
-                            ),
+                            style: TextStyle(color: selectedDueDate != null ? Colors.green : Colors.grey),
                           ),
                           leading: const Icon(Icons.calendar_today),
                           onTap: () async {
@@ -464,13 +458,13 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
         final name = (item.name ?? '').toLowerCase();
         if (!name.contains(query)) return false;
       }
-      
+
       // סינון לפי קטגוריה
       if (_selectedCategory != null && _selectedCategory != 'הכל') {
         final itemCategory = item.category ?? 'אחר';
         if (itemCategory != _selectedCategory) return false;
       }
-      
+
       return true;
     }).toList();
 
@@ -539,11 +533,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                 tooltip: 'שתף רשימה',
                 onPressed: () {
                   final navigator = Navigator.of(context);
-                  navigator.push(
-                    MaterialPageRoute(
-                      builder: (context) => ShareListScreen(list: currentList),
-                    ),
-                  );
+                  navigator.push(MaterialPageRoute(builder: (context) => ShareListScreen(list: currentList)));
                 },
               ),
             ),
@@ -589,10 +579,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
                 // 📝 בקשות ממתינות
                 if (currentList.pendingRequestsForReview.isNotEmpty && currentList.canCurrentUserApprove)
-                  PendingRequestsSection(
-                    listId: currentList.id,
-                    canApprove: currentList.canCurrentUserApprove,
-                  ),
+                  PendingRequestsSection(listId: currentList.id, canApprove: currentList.canCurrentUserApprove),
 
                 // 📋 תוכן
                 Expanded(
@@ -1070,11 +1057,11 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     // 🎯 איקונים וצבעים לפי סוג
     final isProduct = item.type == ItemType.product;
     final actualColor = isProduct ? kStickyYellow : kStickyCyan;
-    
+
     // קטגוריה עם אימוג'י
     final category = item.category ?? 'אחר';
     final categoryEmoji = _categoryEmojis[category] ?? '📋';
-    
+
     return Dismissible(
       key: Key(item.id),
       direction: DismissDirection.endToStart,
@@ -1120,16 +1107,30 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                 child: GestureDetector(
                   onTap: () {
                     final provider = context.read<ShoppingListsProvider>();
-                    provider.updateItemAt(widget.list.id, index, (current) => current.copyWith(isChecked: !current.isChecked));
+                    provider.updateItemAt(
+                      widget.list.id,
+                      index,
+                      (current) => current.copyWith(isChecked: !current.isChecked),
+                    );
                   },
                   child: item.isChecked
-                      ? Icon(Icons.check_circle, key: const ValueKey('checked'), color: theme.colorScheme.primary, size: kIconSizeMedium)
-                      : Icon(Icons.radio_button_unchecked, key: const ValueKey('unchecked'), color: theme.colorScheme.onSurfaceVariant, size: kIconSizeMedium),
+                      ? Icon(
+                          Icons.check_circle,
+                          key: const ValueKey('checked'),
+                          color: theme.colorScheme.primary,
+                          size: kIconSizeMedium,
+                        )
+                      : Icon(
+                          Icons.radio_button_unchecked,
+                          key: const ValueKey('unchecked'),
+                          color: theme.colorScheme.onSurfaceVariant,
+                          size: kIconSizeMedium,
+                        ),
                 ),
               ),
-              
+
               const SizedBox(width: kSpacingSmall),
-              
+
               // 📝 שם + קטגוריה
               Expanded(
                 child: Column(
@@ -1152,7 +1153,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                   ],
                 ),
               ),
-              
+
               // 🔘 כפתורי פעולה
               Row(
                 mainAxisSize: MainAxisSize.min,
