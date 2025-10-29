@@ -122,6 +122,65 @@
 
 ---
 
+### 🆕 Phase 3B: User Sharing System
+**Timeline:** Week 2-3 (04/11 - 17/11/2025)  
+**Priority:** HIGH
+
+> **Based on:** MemoZap Sharing System - Creator Flow (29/10/2025)
+
+#### Models (✅ DONE):
+- ✅ SharedUser (userId, role, sharedAt)
+- ✅ PendingRequest (id, requesterId, itemData, status, requestedAt)
+- ✅ UserRole enum (owner, admin, editor, viewer)
+
+#### Permission Levels:
+1. **Owner (יוצר הרשימה):**
+   - מוסיף מוצרים ישירות (ללא אישור)
+   - מאשר/דחה בקשות מ-Editors
+   - יכול למחוק רשימה
+   - מנהל הרשאות משתמשים
+
+2. **Admin (מנהל):**
+   - מוסיף מוצרים ישירות (ללא אישור)
+   - מאשר/דחה בקשות מ-Editors
+   - לא יכול למחוק רשימה (רק Owner)
+   - יכול לנהל הרשאות משתמשים אחרים
+
+3. **Editor (עורך):**
+   - רואה את הרשימה המלאה
+   - מוסיף מוצרים → הופך ל-'מוצר ממתין' (Pending)
+   - צריך אישור מ-Owner/Admin
+   - המוצר לא מופיע ברשימה עד האישור
+   - לא יכול לערוך/מחוק מוצרים קיימים
+
+4. **Viewer (צופה):**
+   - רק צופה ברשימה (read-only)
+   - לא יכול להוסיף בקשות
+   - לא יכול לערוך כלום
+
+#### Tasks:
+- [ ] UI: Invite users screen (email + role selector)
+- [ ] UI: Manage users screen (list of shared users + edit roles)
+- [ ] UI: Pending requests section (badge with count)
+- [ ] UI: Approve/reject pending request dialog
+- [ ] Service: ShareListService (invite, remove, update role)
+- [ ] Service: PendingRequestsService (create, approve, reject)
+- [ ] Logic: Permission validation (who can do what)
+- [ ] Logic: Badge counter for Owner/Admin (pending requests)
+- [ ] Notifications: Push when request approved/rejected
+- [ ] Notifications: Push when new user invited
+- [ ] Firebase Security: Enforce permission rules
+- [ ] Testing: All 4 permission levels
+
+#### User Flow:
+1. **Owner creates list** → invites users → assigns roles
+2. **Editor adds item** → creates PendingRequest → waits for approval
+3. **Owner/Admin sees badge** → reviews request → approves/rejects
+4. **Approved** → item added to list + notification to Editor
+5. **Rejected** → request deleted + notification to Editor
+
+---
+
 ### 🔄 Phase 4: Product Management
 **Timeline:** Week 3 (11/11 - 17/11/2025)  
 **Priority:** MEDIUM
