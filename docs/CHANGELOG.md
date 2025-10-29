@@ -7,6 +7,52 @@
 ```yaml
 date: 29/10/2025
 
+session_41:
+  task: Updated PROJECT_INSTRUCTIONS_v4.md to v4.1
+  status: complete
+  files:
+    - docs/PROJECT_INSTRUCTIONS_v4.md: updated to v4.1
+  changes:
+    - removed GUIDE.md references (deleted in session_34)
+    - updated docs count: 8→7 files
+    - updated total lines: 2100→2700
+    - added Lesson #7: YAGNI anti-pattern (ui_constants.dart)
+    - updated checkpoint trigger: every file→3-5 files
+    - added YAGNI shortcut: 3+ pattern rule
+    - updated version: 4.0→4.1
+  impact:
+    - accuracy: instructions now match reality
+    - learning: YAGNI principle documented
+    - efficiency: checkpoint trigger corrected
+  result: v4.1 synchronized with current state
+
+session_40:
+  task: Code Review - ui_constants.dart Dead Code
+  status: complete
+  files:
+    - lib/core/ui_constants.dart: deleted (dead code)
+  analysis:
+    - 600+ lines of UI constants (spacing, colors, animations, sizes)
+    - 8 comprehensive checks: no imports, no usage, no references
+    - checked constants: kButtonHeight, kSpacingMedium, kStickyYellow, kPaperBackground
+    - checked values: 0xFFF5F5F5 hex colors, height: 48 patterns
+    - lib/core/constants.dart: only doc reference (not actual usage)
+    - lib/core/status_colors.dart: no usage
+  reason:
+    - over-planning: comprehensive system designed but never implemented
+    - codebase uses: hardcoded values or local constants per file
+    - Sticky Notes design: colors/spacing defined elsewhere or inline
+    - created early but never adopted project-wide
+  impact:
+    - bloat: -600 lines of unused code
+    - clarity: removed misleading "available" constants
+    - maintenance: zero cost from non-existent dependency
+  lesson:
+    - YAGNI principle: don't create comprehensive systems before needed
+    - add constants organically when pattern emerges 3+ times
+    - over-planning = wasted effort + confusion
+  result: cleaner core/ directory, user deleted file
+
 session_39:
   task: Code Review - status_colors.dart Documentation
   status: complete
@@ -537,7 +583,7 @@ codebase:
   repositories: 17
   screens: 30+
   widgets: 25+
-  docs: 8 (~2100 lines optimized)
+  docs: 7 (~2700 lines optimized)
   language: Hebrew (full RTL support)
 
 tech_stack:

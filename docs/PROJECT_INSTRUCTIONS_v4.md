@@ -1,4 +1,4 @@
-# 📋 MemoZap Project Instructions v4.0
+# 📋 MemoZap Project Instructions v4.1
 
 > Machine-Readable | Full YAML Format | Updated: 29/10/2025
 
@@ -165,15 +165,7 @@ session_end:
 ## 📚 DOCUMENTATION
 
 ```yaml
-docs_8_files:
-  GUIDE.md:
-    content: Project + Protocol + Tools + MCP
-    size: 400_lines
-    read_when:
-      - protocol שכחתי
-      - צריך overview כללי
-      - מבנה הפרויקט
-    
+docs_7_files:
   CODE.md:
     content: Architecture + Patterns + Testing
     size: 500_lines
@@ -512,12 +504,17 @@ learning_protocol:
 ## 🎓 LEARNING FROM MISTAKES
 
 ```yaml
-error_6_most_recent:
+error_7_most_recent:
   date: 29/10/2025
-  error: Reviewed filters_config.dart without checking usage
-  cause: Followed 'read before edit' but missed 'check usage'
-  fix: read_file → search_files(imports) → report if unused
-  learning: Code review MUST include usage check
+  error_6: Reviewed filters_config.dart without checking usage
+  cause_6: Followed 'read before edit' but missed 'check usage'
+  fix_6: read_file → search_files(imports) → report if unused
+  learning_6: Code review MUST include usage check
+  
+  error_7: ui_constants.dart - over-planning anti-pattern
+  cause_7: Created comprehensive 600-line constants file before actual need
+  fix_7: YAGNI principle - add constants only when pattern appears 3+ times
+  learning_7: Don't design perfect systems upfront, grow organically
 
 top_5_common_errors:
   1:
@@ -563,10 +560,9 @@ lib:
   config: Constants + configs
 
 docs:
-  count: 8 files
-  total_lines: 2100 (optimized for machine)
+  count: 7 files
+  total_lines: 2700 (optimized for machine)
   files:
-    - GUIDE.md (400) - entry point
     - CODE.md (500) - patterns
     - DESIGN.md (300) - UI/UX
     - TECH.md (400) - Firebase
@@ -607,7 +603,8 @@ shortcuts:
   read_docs: /mnt/project/[DOC].md
   read_code: C:\projects\salsheli\lib\...
   memory: search_nodes first, always!
-  checkpoint: after every file change
+  checkpoint: after 3-5 files OR topic switch
+  yagni: don't create systems before needed (3+ pattern rule)
 
 critical_checklist_before_commit:
   - [ ] household_id in ALL Firestore queries
@@ -633,6 +630,14 @@ critical_checklist_before_commit:
 - ✅ Added quick reference shortcuts
 - ✅ Security + Performance in one place
 
+**Updates v4.1 (29/10/2025):**
+- ✅ Removed GUIDE.md (deleted in session_34)
+- ✅ Updated docs count: 8→7 files, 2100→2700 lines
+- ✅ Added Lesson #7: YAGNI anti-pattern (ui_constants.dart)
+- ✅ Updated checkpoint trigger: every file→3-5 files
+- ✅ Added YAGNI shortcut: 3+ pattern rule
+
 **Total:** 400 lines | Format: Pure YAML  
+**Version:** 4.1
 **Last Updated:** 29/10/2025  
 **Maintainer:** MemoZap AI System
