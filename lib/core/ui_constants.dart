@@ -29,6 +29,7 @@ import 'dart:ui';
 const double kSpacingXTiny = 4.0;   // Extra tiny spacing
 const double kSpacingTiny = 6.0;    // Tiny spacing
 const double kSpacingSmall = 8.0;   // Small spacing
+const double kSpacingSmallPlus = 12.0; // Between small and medium
 const double kSpacingMedium = 16.0; // Default spacing ⭐
 const double kSpacingLarge = 24.0;  // Large spacing
 const double kSpacingXLarge = 32.0; // Extra large spacing
@@ -82,9 +83,48 @@ const double kSnackBarBottomMargin = 80.0;      // Bottom margin (above nav bar)
 const double kSnackBarHorizontalMargin = 16.0;  // Left & right margins
 
 // ═══════════════════════════════════════════════════════════════════════════
+// INPUT PADDING
+// ═══════════════════════════════════════════════════════════════════════════
+
+const double kInputPadding = 16.0;  // Standard input padding
+
+// ═══════════════════════════════════════════════════════════════════════════
 // BORDER RADIUS
 // ═══════════════════════════════════════════════════════════════════════════
 
+const double kBorderRadius = 12.0;       // Default border radius
 const double kBorderRadiusSmall = 8.0;   // Small border radius
 const double kBorderRadiusMedium = 12.0; // Medium border radius
 const double kBorderRadiusLarge = 16.0;  // Large border radius
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SPLASH GRADIENT COLORS
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Light mode gradient
+const Color kSplashGradientStart = Color(0xFF4A90E2);   // Blue
+const Color kSplashGradientMiddle = Color(0xFF9B59B6);  // Purple
+const Color kSplashGradientEnd = Color(0xFFE91E63);     // Pink
+
+// Dark mode gradient
+const Color kSplashGradientStartDark = Color(0xFF1E3A8A);  // Dark blue
+const Color kSplashGradientMiddleDark = Color(0xFF6B21A8); // Dark purple
+const Color kSplashGradientEndDark = Color(0xFF9F1239);    // Dark pink
+
+// ═══════════════════════════════════════════════════════════════════════════
+// TYPOGRAPHY
+// ═══════════════════════════════════════════════════════════════════════════
+
+const double kFontSizeSmall = 12.0;   // Small text
+const double kFontSizeBody = 16.0;    // Body text
+const double kFontSizeLarge = 20.0;   // Large text
+const double kFontSizeXLarge = 28.0;  // Extra large text (titles)
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ICON SIZES
+// ═══════════════════════════════════════════════════════════════════════════
+
+const double kIconSizeSmall = 16.0;    // Small icons
+const double kIconSizeMedium = 24.0;   // Medium icons (default)
+const double kIconSizeXLarge = 48.0;   // Extra large icons
+const double kIconSizeXXLarge = 64.0;  // Extra extra large icons

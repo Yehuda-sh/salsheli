@@ -16,15 +16,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/ui_constants.dart';
 import '../../models/shopping_list.dart';
 import '../../providers/shopping_lists_provider.dart';
+import '../../widgets/common/notebook_background.dart';
+import '../../widgets/common/sticky_button.dart';
+import '../../widgets/common/sticky_note.dart';
 import '../../widgets/create_list_dialog.dart';
 import '../../widgets/shopping_list_tile.dart';
-import '../../widgets/common/notebook_background.dart';
-import '../../widgets/common/sticky_note.dart';
-import '../../widgets/common/sticky_button.dart';
-import '../../core/constants.dart';
-import '../../core/ui_constants.dart';
 import './active_shopping_screen.dart';
 
 class ShoppingListsScreen extends StatefulWidget {
@@ -41,7 +40,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
   String _sortBy = 'date_desc'; // date_desc | date_asc | name | budget_desc | budget_asc
 
   // 📦 היסטוריה - pagination
-  int _historyPageSize = 10; // כמה רשימות היסטוריה להציג
+  final int _historyPageSize = 10; // כמה רשימות היסטוריה להציג
   int _currentHistoryLimit = 10; // כמה רשימות להציג כרגע
 
   // 🎨 Animation Controllers
@@ -194,6 +193,18 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
 
   /// 🏷️ Dropdown לסינון לפי סוג
   Widget _buildTypeFilter() {
+    // 📋 Map של types עם אייקונים ושמות
+    final listTypes = {
+      ShoppingList.typeSupermarket: {'icon': '🛒', 'name': 'סופרמרקט'},
+      ShoppingList.typePharmacy: {'icon': '💊', 'name': 'בית מרקחת'},
+      ShoppingList.typeGreengrocer: {'icon': '🥬', 'name': 'ירקן'},
+      ShoppingList.typeButcher: {'icon': '🥩', 'name': 'אטליז'},
+      ShoppingList.typeBakery: {'icon': '🍞', 'name': 'מאפייה'},
+      ShoppingList.typeMarket: {'icon': '🏪', 'name': 'שוק'},
+      ShoppingList.typeHousehold: {'icon': '🏠', 'name': 'כלי בית'},
+      ShoppingList.typeOther: {'icon': '➕', 'name': 'אחר'},
+    };
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
       decoration: BoxDecoration(
@@ -208,15 +219,14 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
           icon: const Icon(Icons.filter_list, size: kIconSizeMedium),
           items: [
             const DropdownMenuItem(value: 'all', child: Text('כל הסוגים')),
-            ...ListType.allTypes.map((type) {
-              final typeInfo = kListTypes[type];
+            ...listTypes.entries.map((entry) {
               return DropdownMenuItem(
-                value: type,
+                value: entry.key,
                 child: Row(
                   children: [
-                    Text(typeInfo?['icon'] ?? '📝'),
+                    Text(entry.value['icon']!),
                     const SizedBox(width: kSpacingSmall),
-                    Text(typeInfo?['name'] ?? type),
+                    Text(entry.value['name']!),
                   ],
                 ),
               );
@@ -256,7 +266,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
         ),
       ),
       itemBuilder: (context) => [
-        const PopupMenuItem(
+        PopupMenuItem(
           value: 'date_desc',
           child: Row(
             children: [
@@ -273,7 +283,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
             ],
           ),
         ),
-        const PopupMenuItem(
+        PopupMenuItem(
           value: 'date_asc',
           child: Row(
             children: [
@@ -290,7 +300,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
             ],
           ),
         ),
-        const PopupMenuItem(
+        PopupMenuItem(
           value: 'name',
           child: Row(
             children: [
@@ -304,7 +314,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
             ],
           ),
         ),
-        const PopupMenuItem(
+        PopupMenuItem(
           value: 'budget_desc',
           child: Row(
             children: [
@@ -321,7 +331,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
             ],
           ),
         ),
-        const PopupMenuItem(
+        PopupMenuItem(
           value: 'budget_asc',
           child: Row(
             children: [
@@ -477,7 +487,9 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
               debugPrint('   ✅ רשימה נוצרה: ${newList.id}');
 
               // ✅ סגור דיאלוג לפני ניווט
-              Navigator.of(dialogContext, rootNavigator: true).pop();
+              if (mounted) {
+                Navigator.of(dialogContext, rootNavigator: true).pop();
+              }
 
               if (!mounted) {
                 debugPrint('   ⚠️ widget לא mounted - מדלג על ניווט');
@@ -485,7 +497,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
               }
 
               debugPrint('   ➡️ ניווט ל-populate-list');
-              navigator.pushNamed('/populate-list', arguments: newList);
+              await navigator.pushNamed('/populate-list', arguments: newList);
             } catch (e) {
               debugPrint('   ❌ שגיאה ביצירת רשימה: $e');
               rethrow;

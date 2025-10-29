@@ -55,11 +55,14 @@
 // - ✨ Wave animation בתחתית
 // - ✨ Error state מעוצב עם retry
 
+import 'dart:async';
 import 'dart:math' as math;
-import 'package:flutter/material.dart';
+
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../core/ui_constants.dart';
 import '../l10n/app_strings.dart';
 import '../providers/user_context.dart';
@@ -151,11 +154,11 @@ class _IndexScreenState extends State<IndexScreen>
     // ⚡ טעינה אסינכרונית משופרת - עם delay ל-Firebase Auth
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // ⏱️ המתנה של 600ms כדי לתת ל-Firebase Auth זמן להחזיר את המשתמש
-      Future.delayed(const Duration(milliseconds: 600), () {
+      unawaited(Future.delayed(const Duration(milliseconds: 600), () {
         if (mounted) {
           _setupListener();
         }
-      });
+      }));
     });
   }
 
@@ -222,7 +225,7 @@ class _IndexScreenState extends State<IndexScreen>
         if (mounted) {
           // הסר את ה-listener לפני ניווט
           userContext.removeListener(_onUserContextChanged);
-          Navigator.of(context).pushReplacementNamed('/home');
+          unawaited(Navigator.of(context).pushReplacementNamed('/home'));
         }
         return;
       }
@@ -245,9 +248,9 @@ class _IndexScreenState extends State<IndexScreen>
         _log('   ➡️ לא ראה onboarding → ניווט ל-WelcomeScreen');
         _hasNavigated = true;
         userContext.removeListener(_onUserContextChanged);
-        navigator.pushReplacement(
+        unawaited(navigator.pushReplacement(
           MaterialPageRoute(builder: (_) => const WelcomeScreen()),
-        );
+        ));
         return;
       }
 
@@ -255,7 +258,7 @@ class _IndexScreenState extends State<IndexScreen>
       _log('   ➡️ ראה onboarding אבל לא מחובר → ניווט ל-/login');
       _hasNavigated = true;
       userContext.removeListener(_onUserContextChanged);
-      navigator.pushReplacementNamed('/login');
+      unawaited(navigator.pushReplacementNamed('/login'));
     } catch (e) {
       // ✅ במקרה של שגיאה - הצג מסך שגיאה
       _log('❌ שגיאה ב-IndexScreen._checkAndNavigate: $e');
