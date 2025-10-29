@@ -5,7 +5,7 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.27+-02569B?logo=flutter)](https://flutter.dev)
 [![Firebase](https://img.shields.io/badge/Firebase-Enabled-FFCA28?logo=firebase)](https://firebase.google.com)
 [![License](https://img.shields.io/badge/License-Proprietary-red)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-2.9-blue)](docs/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-2.9-blue)](#)
 
 ---
 
@@ -34,8 +34,7 @@
 
 1. **README.md** (this file) - Project overview
 2. **[docs/PROJECT_INSTRUCTIONS_v4.md](docs/PROJECT_INSTRUCTIONS_v4.md)** - Complete AI instructions
-3. **[docs/CHANGELOG.md](docs/CHANGELOG.md)** - Recent changes & `[In Progress]` work
-4. **Specific guide** - Pick from table below based on your task
+3. **Specific guide** - Pick from table below based on your task
 
 ### For AI Assistants (Claude)
 
@@ -43,9 +42,8 @@
 
 1. ✅ Read `README.md` (this file)
 2. ✅ Read `docs/PROJECT_INSTRUCTIONS_v4.md` (complete AI instructions)
-3. ✅ Check `docs/CHANGELOG.md` → look for `[In Progress]` section
-4. ✅ Load memory: `read_graph()` or `search_nodes("last checkpoint")`
-5. ✅ Ready to work! 🎯
+3. ✅ Load memory: `read_graph()` or `search_nodes("Current Work Context")`
+4. ✅ Ready to work! 🎯
 
 **Continuation commands:**
 - "**המשך**" or "**תמשיך**" → Resume from last checkpoint
@@ -57,25 +55,25 @@
 
 ### Session Continuity
 
-- Every 3-5 file changes → Auto-checkpoint created
-- Check `docs/CHANGELOG.md` → `[In Progress]` section for current work
-- Memory system tracks session state across conversations
-- Document "Next Steps" before taking breaks
+- Every 3-5 file changes → Auto-checkpoint in Memory
+- Memory system tracks session state automatically
+- Use `search_nodes("Current Work Context")` for latest status
+- Zero manual documentation needed
 
 ### For AI Assistants
 
 ```markdown
 ## How to resume work:
-1. Read CHANGELOG.md → [In Progress] section
-2. Search memory: search_nodes("last checkpoint")
-3. Continue from documented "Next Steps"
+1. recent_chats(n=2) - Load previous session
+2. search_nodes("Current Work Context") - Get latest state
+3. Continue from "Next Steps" automatically
 ```
 
 ---
 
 ## 📚 Documentation
 
-### Core Documentation (7 Files)
+### Core Documentation (6 Files)
 
 | Document | Purpose | When to Read |
 |----------|---------|--------------|
@@ -85,7 +83,6 @@
 | **[TECH.md](docs/TECH.md)** | Firebase, security, models, dependencies | Before backend work |
 | **[CODE_REVIEW_CHECKLIST.md](docs/CODE_REVIEW_CHECKLIST.md)** | Code review protocols + dead code detection | Before reviewing/deleting code |
 | **[LESSONS_LEARNED.md](docs/LESSONS_LEARNED.md)** | Common mistakes & solutions | ⚠️ Before risky changes |
-| **[CHANGELOG.md](docs/CHANGELOG.md)** | Project history + `[In Progress]` | Check for current work |
 | **[WORK_PLAN.md](docs/WORK_PLAN.md)** | 8-week roadmap (Lists + Inventory systems) | Planning new features |
 
 ### By Task Type
@@ -128,7 +125,7 @@
 - 🗄️ **17 repositories**
 - 🎨 **30+ screens**
 - 🧩 **25+ widgets**
-- 📖 **7 documentation files** (~2,700 lines - machine-optimized)
+- 📖 **6 documentation files** (~2,300 lines - machine-optimized)
 - 🌐 **Full Hebrew RTL support**
 
 ---
@@ -161,7 +158,7 @@
 - Code cleanup: 1,500+ lines dead code removed
 - Testing: 179 tests passing (90%+ coverage)
 
-**📖 Full changelog:** See [docs/CHANGELOG.md](docs/CHANGELOG.md)
+**📖 Version history:** Check Memory (`search_nodes("Recent Sessions")`)
 
 ---
 
@@ -182,14 +179,13 @@ memozap/
 │   └── main.dart          # App entry point
 ├── test/                  # 50+ tests
 ├── assets/                # Images, fonts
-└── docs/                  # Documentation (7 files)
+└── docs/                  # Documentation (6 files)
     ├── PROJECT_INSTRUCTIONS_v4.md # Complete AI instructions (450 lines)
     ├── CODE.md            # Code patterns & architecture (500 lines)
     ├── DESIGN.md          # Sticky Notes design system (300 lines)
     ├── TECH.md            # Firebase, security, models (400 lines)
     ├── CODE_REVIEW_CHECKLIST.md # Review protocols (300 lines)
     ├── LESSONS_LEARNED.md # Common mistakes & solutions (300 lines)
-    ├── CHANGELOG.md       # Project history + [In Progress] (400 lines)
     └── WORK_PLAN.md       # 8-week roadmap (500 lines)
 ```
 

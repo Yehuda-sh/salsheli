@@ -1,4 +1,4 @@
-# 📋 MemoZap Project Instructions v4.4
+# 📋 MemoZap Project Instructions v4.5
 
 > Machine-Readable | Full YAML Format | Updated: 29/10/2025
 
@@ -181,8 +181,7 @@ during_session:
 
 session_end:
   step_1: add_observations("Current Work Context")
-  step_2: update CHANGELOG.md [IN_PROGRESS]
-  step_3: |
+  step_2: |
     IF work incomplete:
       suggest "המשך" למשתמש
 ```
@@ -192,7 +191,7 @@ session_end:
 ## 📚 DOCUMENTATION
 
 ```yaml
-docs_7_files:
+docs_6_files:
   CODE.md:
     content: Architecture + Patterns + Testing
     size: 500_lines
@@ -238,15 +237,6 @@ docs_7_files:
       - טעות חוזרת
       - אזהרה לפני שינוי מסוכן
       - תיקון באג מוכר
-    
-  CHANGELOG.md:
-    content: Session history + [IN_PROGRESS]
-    size: 400_lines
-    read_when:
-      - צריך סטטוס נוכחי
-      - מחפש מה שונה לאחרונה
-      - המשך עבודה
-    update_trigger: אחרי כל file change
     
   WORK_PLAN.md:
     content: 8 weeks roadmap (Lists + Inventory)
@@ -518,7 +508,8 @@ alerts:
     trigger: automatic
 
 checkpoint_protocol:
-  step_1_memory:
+  automatic_updates:
+    trigger: After 3-5 file changes OR topic switch
     entity: Current Work Context
     content: |
       Last Updated: [date] [time]
@@ -529,35 +520,31 @@ checkpoint_protocol:
       Critical Context: [any info needed to continue]
       Decisions Made: [architectural/design decisions]
   
-  step_2_changelog:
-    file: CHANGELOG.md [IN_PROGRESS]
+  session_rotation:
+    entity: Recent Sessions
+    behavior: Auto-rotate (keep last 3-5 sessions)
     content: |
-      session_XX:
-        task: [description]
-        status: in_progress / partial / complete
-        files:
-          - file1.dart: [what changed]
-          - file2.dart: [what changed]
-        next: |
-          [EXACT next steps - be specific!]
-          Example: "Continue with X, then Y, then Z"
+      Session [N]:
+      Date: [date]
+      Task: [description]
+      Outcome: [complete/partial/blocked]
+      Files: [list]
   
-  step_3_user_message:
+  user_message:
     output: |
       📌 **מוכן להמשך בשיחה חדשה**
       
       **פקודה:** "המשך"
       
-      **המערכת תטען:**
-      ✅ Current Work Context מ-Memory
-      ✅ CHANGELOG [IN_PROGRESS]
-      ✅ ימשיך בדיוק מ-[next step]
+      **המערכת תטען אוטומטית:**
+      ✅ Current Work Context (מצב עדכני)
+      ✅ Recent Sessions (3-5 אחרונות)
+      ✅ ימשיך בדיוק מ-Next Steps
       
-      **אין אובדן מידע:**
-      - כל ההחלטות נשמרו
-      - כל השינויים מתועדים
-      - נקודת המשך מדויקת
-      - אין עבודה כפולה
+      **יתרונות:**
+      - אפס אובדן מידע
+      - אין maintenance ידני
+      - עובד מאחורי הקלעים
 
 continuation_protocol:
   user_command: "המשך"
@@ -565,8 +552,7 @@ continuation_protocol:
   system_execution:
     step_1: recent_chats(n=2) # load previous chat
     step_2: search_nodes("Current Work Context") # load state
-    step_3: read CHANGELOG.md [IN_PROGRESS] section
-    step_4: |
+    step_3: |
       Continue EXACTLY from "Next Steps"
       Do NOT repeat work
       Do NOT ask what to do
@@ -577,7 +563,8 @@ continuation_protocol:
     - ✅ Seamless continuation
     - ✅ No repeated explanations
     - ✅ Efficient token usage
-    - ✅ User doesn't need to re-explain
+    - ✅ No manual documentation
+    - ✅ Automatic tracking
 ```
 
 ---
@@ -624,17 +611,104 @@ never_do:
 ## 💾 MEMORY ENTITIES
 
 ```yaml
-current_entities_10:
-  - Current Work Context (Active Session)
-  - Learning from Mistakes (Auto-Learning)
-  - MemoZap Project (Project Info)
-  - Design & Development Standards (Standards)
-  - Critical Protocols (Work Protocols)
-  - Tool Errors & Solutions (Error Patterns)
-  - Development Tools Guide (Tool Reference)
-  - MCP Anti-Patterns (Best Practices)
-  - Lessons Learned - MemoZap (Error Prevention)
-  - MemoZap Chat Environment (Environment)
+memory_structure_10:
+  1_current_work_context:
+    entity: Current Work Context
+    type: Active Session
+    updates: Auto (after 3-5 files)
+    content: |
+      - Last Updated
+      - Task
+      - Status
+      - Files Touched
+      - Next Steps
+      - Critical Context
+      - Decisions Made
+  
+  2_recent_sessions:
+    entity: Recent Sessions
+    type: Session History
+    updates: Auto-rotate (keep 3-5)
+    content: |
+      - Session date
+      - Task
+      - Outcome
+      - Files modified
+  
+  3_active_issues:
+    entity: Active Issues
+    type: Bugs & Tasks
+    updates: Manual
+    content: |
+      - Issue #N
+      - Priority
+      - Status
+      - Context
+  
+  4_feature_progress:
+    entity: Feature Progress
+    type: Feature Tracking
+    updates: Manual
+    content: |
+      - Feature name
+      - Completion %
+      - Blockers
+      - Next milestone
+  
+  5_learning_from_mistakes:
+    entity: Learning from Mistakes
+    type: Auto-Learning
+    updates: Auto (on error)
+    content: |
+      - Error #N
+      - Cause
+      - Fix
+      - Learning
+  
+  6_project_info:
+    entity: MemoZap Project
+    type: Project Info
+    updates: Rare
+    content: |
+      - Tech stack
+      - Architecture
+      - Key decisions
+  
+  7_standards:
+    entity: Design & Development Standards
+    type: Standards
+    updates: Rare
+    content: |
+      - Code patterns
+      - Design system
+      - Best practices
+  
+  8_protocols:
+    entity: Critical Protocols
+    type: Work Protocols
+    updates: Rare
+    content: |
+      - Edit protocol
+      - Memory protocol
+      - Review protocol
+  
+  9_tool_errors:
+    entity: Tool Errors & Solutions
+    type: Error Patterns
+    updates: Auto (on error)
+    content: |
+      - Tool name
+      - Error pattern
+      - Solution
+  
+  10_environment:
+    entity: MemoZap Chat Environment
+    type: Environment
+    updates: Rare
+    content: |
+      - Paths
+      - Tools
+      - Preferences
 
 update_triggers_only_2:
   trigger_1:
@@ -770,15 +844,14 @@ lib:
   config: Constants + configs
 
 docs:
-  count: 7 files
-  total_lines: 2700 (optimized for machine)
+  count: 6 files
+  total_lines: 2300 (optimized for machine)
   files:
     - CODE.md (500) - patterns
     - DESIGN.md (300) - UI/UX
     - TECH.md (400) - Firebase
     - CODE_REVIEW_CHECKLIST.md (300) - review
     - LESSONS_LEARNED.md (300) - errors
-    - CHANGELOG.md (400) - history
     - WORK_PLAN.md (500) - future
 
 test:
@@ -867,7 +940,15 @@ critical_checklist_before_commit:
 - ✅ Added error_12: undefined identifiers (session 45 pattern)
 - ✅ Impact: Seamless session continuation + zero context loss
 
+**Updates v4.5 (session 46 - MEMORY FIRST):**
+- ✅ Removed CHANGELOG.md (Memory replaces it!)
+- ✅ Enhanced Memory Structure (10 entities detailed)
+- ✅ Automatic checkpoint protocol (no manual docs)
+- ✅ Session rotation (keep last 3-5)
+- ✅ Docs: 7→6 files, 2700→2300 lines
+- ✅ Impact: Zero maintenance, automatic tracking, efficient tokens
+
 **Total:** 500 lines | Format: Pure YAML  
-**Version:** 4.4
+**Version:** 4.5
 **Last Updated:** 29/10/2025  
 **Maintainer:** MemoZap AI System
