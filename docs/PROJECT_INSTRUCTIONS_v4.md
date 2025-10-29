@@ -1,4 +1,4 @@
-# 📋 MemoZap Project Instructions v4.6
+# 📋 MemoZap Project Instructions v4.7
 
 > Machine-Readable | Full YAML Format | Updated: 29/10/2025
 
@@ -52,6 +52,15 @@ filesystem_primary_80_percent:
     usage: יצירת קבצים חדשים בלבד
     warning: אל תשתמש על קבצים קיימים!
     example: write_file("lib/models/new_model.dart", content)
+  
+  create_file:
+    status: ❌ NOT WORKING - DO NOT USE!
+    error: Tool exists but always fails
+    replacement: Use write_file instead
+    impact: Wastes tool calls
+    note: |
+      create_file was tested and confirmed broken (session 47)
+      Always use write_file for new files
   
   search_files:
     usage: חיפוש בפרויקט
@@ -945,7 +954,12 @@ critical_checklist_before_commit:
 - ✅ Fixed docs_6_files → docs_5_files
 - ✅ Impact: Zero duplication, single source of truth
 
+**Updates v4.7 (session 47 - TOOL FIX):**
+- ✅ Added create_file warning (NOT WORKING!)
+- ✅ Documented: Always use write_file instead
+- ✅ Impact: Prevents wasting tool calls on broken tool
+
 **Total:** 500 lines | Format: Pure YAML  
-**Version:** 4.6
+**Version:** 4.7
 **Last Updated:** 29/10/2025  
 **Maintainer:** MemoZap AI System

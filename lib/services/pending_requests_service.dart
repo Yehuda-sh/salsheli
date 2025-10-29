@@ -54,10 +54,13 @@ class PendingRequestsService {
     required RequestType type,
     required Map<String, dynamic> requestData,
   }) async {
-    final currentUserId = _userContext.currentUserId;
+    final currentUserId = _userContext.userId;
+    if (currentUserId == null) {
+      throw Exception('משתמש לא מחובר');
+    }
 
     // Validation: רק Editor צריך לבקש אישור
-    if (!_shareService.shouldUserRequest(list, currentUserId)) {
+    if (!ShareListService.shouldUserRequest(list, currentUserId)) {
       throw Exception(
         'אין צורך בבקשה - למשתמש יש הרשאה לערוך ישירות',
       );
@@ -69,7 +72,7 @@ class PendingRequestsService {
       requesterId: currentUserId,
       type: type,
       requestData: requestData,
-      requesterName: _userContext.currentUserName,
+      requesterName: _userContext.displayName,
     );
 
     // הוספה לרשימת הבקשות
@@ -77,8 +80,13 @@ class PendingRequestsService {
 
     // עדכון Firebase
     try {
-      await _repository.update(
+      final householdId = _userContext.householdId;
+      if (householdId == null) {
+        throw Exception('משתמש לא משויך למשק בית');
+      }
+      await _repository.saveList(
         list.copyWith(pendingRequests: updatedRequests),
+        householdId,
       );
       log('✅ בקשה נוצרה בהצלחה [PendingRequestsService]');
     } catch (e) {
@@ -130,10 +138,13 @@ class PendingRequestsService {
     required ShoppingList list,
     required String requestId,
   }) async {
-    final currentUserId = _userContext.currentUserId;
+    final currentUserId = _userContext.userId;
+    if (currentUserId == null) {
+      throw Exception('משתמש לא מחובר');
+    }
 
     // Validation: רק Owner/Admin יכולים לאשר
-    if (!_shareService.canUserApprove(list, currentUserId)) {
+    if (!ShareListService.canUserApprove(list, currentUserId)) {
       throw Exception('אין לך הרשאה לאשר בקשות');
     }
 
@@ -153,7 +164,7 @@ class PendingRequestsService {
       status: RequestStatus.approved,
       reviewerId: currentUserId,
       reviewedAt: DateTime.now(),
-      reviewerName: _userContext.currentUserName,
+      reviewerName: _userContext.displayName,
     );
 
     // ביצוע הפעולה המבוקשת
@@ -184,11 +195,16 @@ class PendingRequestsService {
 
     // עדכון Firebase
     try {
-      await _repository.update(
+      final householdId = _userContext.householdId;
+      if (householdId == null) {
+        throw Exception('משתמש לא משויך למשק בית');
+      }
+      await _repository.saveList(
         list.copyWith(
           items: updatedItems,
           pendingRequests: updatedRequests,
         ),
+        householdId,
       );
       log('✅ בקשה אושרה בהצלחה [PendingRequestsService]');
     } catch (e) {
@@ -220,10 +236,13 @@ class PendingRequestsService {
     required String requestId,
     String? reason,
   }) async {
-    final currentUserId = _userContext.currentUserId;
+    final currentUserId = _userContext.userId;
+    if (currentUserId == null) {
+      throw Exception('משתמש לא מחובר');
+    }
 
     // Validation: רק Owner/Admin יכולים לדחות
-    if (!_shareService.canUserApprove(list, currentUserId)) {
+    if (!ShareListService.canUserApprove(list, currentUserId)) {
       throw Exception('אין לך הרשאה לדחות בקשות');
     }
 
@@ -243,7 +262,7 @@ class PendingRequestsService {
       status: RequestStatus.rejected,
       reviewerId: currentUserId,
       reviewedAt: DateTime.now(),
-      reviewerName: _userContext.currentUserName,
+      reviewerName: _userContext.displayName,
       rejectionReason: reason,
     );
 
@@ -254,8 +273,13 @@ class PendingRequestsService {
 
     // עדכון Firebase
     try {
-      await _repository.update(
+      final householdId = _userContext.householdId;
+      if (householdId == null) {
+        throw Exception('משתמש לא משויך למשק בית');
+      }
+      await _repository.saveList(
         list.copyWith(pendingRequests: updatedRequests),
+        householdId,
       );
       log('✅ בקשה נדחתה [PendingRequestsService]');
     } catch (e) {
@@ -288,8 +312,13 @@ class PendingRequestsService {
     // אם יש שינוי - עדכון Firebase
     if (updatedRequests.length != list.pendingRequests.length) {
       try {
-        await _repository.update(
+        final householdId = _userContext.householdId;
+        if (householdId == null) {
+          throw Exception('משתמש לא משויך למשק בית');
+        }
+        await _repository.saveList(
           list.copyWith(pendingRequests: updatedRequests),
+          householdId,
         );
         final removed = list.pendingRequests.length - updatedRequests.length;
         log('✅ נמחקו $removed בקשות ישנות [PendingRequestsService]');
