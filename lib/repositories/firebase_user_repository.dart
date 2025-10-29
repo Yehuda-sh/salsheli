@@ -50,7 +50,7 @@ import 'package:flutter/foundation.dart';
 
 import '../models/user_entity.dart';
 import 'user_repository.dart';
-import '../core/constants.dart';
+import 'constants/repository_constants.dart';
 
 class FirebaseUserRepository implements UserRepository {
   final FirebaseFirestore _firestore;

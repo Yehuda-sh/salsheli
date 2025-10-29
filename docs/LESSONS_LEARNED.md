@@ -38,6 +38,28 @@ grep:
   cause: using bash grep on Windows
   fix: use search_files instead
   frequency: low
+
+search_files_unreliable:
+  error: "search_files misses 3 usage types"
+  cause: tool only finds direct imports, misses:
+    1. in-file usage (AppStrings.layout.title)
+    2. constants usage (kMinFamilySize, kValidChildrenAges)
+    3. static class usage (StoresConfig.isValid, FirestoreFields.userId)
+  example_sessions:
+    session_42: app_strings.dart - missed in-file usage
+    session_43: constants.dart - missed kMinFamilySize in onboarding_data
+    session_43: stores_config.dart - missed StoresConfig.isValid
+  impact: CRITICAL - deleted 2 ACTIVE files (constants, stores_config)
+  correct_protocol: 6-step verification:
+    1. search_files (imports)
+    2. read_file full
+    3. check in-file usage
+    4. search constants (kXxx patterns)
+    5. search static classes (ClassName.method)
+    6. final approval only after 5 negative checks
+  frequency: VERY HIGH - this is WHY false dead code happens!
+  fix: NEVER claim dead code without 6-step protocol
+  details: CODE_REVIEW_CHECKLIST.md (Dead Code Detection)
 ```
 
 ## FLUTTER ERRORS
@@ -222,9 +244,19 @@ memory_usage:
   - fix: NEVER bash_tool for file ops, use Filesystem:search_files/read_file
   - frequency: VERY HIGH - this mistake repeats constantly!
   
-  - code_review_error: app_strings.dart false "dead code" claim
-  - lesson: search_files ≠ full usage check (in-file usage exists!)
-  - protocol: read file + verify usage + manual check before claiming dead
+  - session_42: app_strings.dart false "dead code" claim
+  - lesson: search_files misses in-file usage (AppStrings.layout.title)
+  - protocol: read file + verify usage + manual check
+  
+  - session_43: constants.dart + stores_config.dart false positives
+  - deleted: 2 ACTIVE files (constants.dart, stores_config.dart)
+  - verified_correct: ui_constants.dart (truly dead code)
+  - cause: search_files("kMinFamilySize") → no results, but used via constants!
+  - missed: constants usage (kMinFamilySize) + static class usage (StoresConfig.isValid)
+  - impact: broke compilation - onboarding_data.dart depends on both files
+  - recovered: user restored both files manually
+  - new_protocol: 6-step verification (not 4) - added constants + static checks
+  - updated: CODE_REVIEW_CHECKLIST.md v2.1 → v2.2 with full protocol
 
 26_10_2025:
   - doc_compression: AI_INSTRUCTIONS + TOKEN_MANAGEMENT created
@@ -251,11 +283,11 @@ memory_usage:
 
 ```yaml
 most_common_errors:
-  1. bash_tool with Windows paths (ALWAYS FAILS!)
-  2. household_id missing (SECURITY BREACH!)
-  3. removeListener missing (MEMORY LEAK!)
-  4. context after await (CRASH!)
-  5. false dead code detection (DELETING ACTIVE CODE!)
+  1. search_files unreliable (DELETES ACTIVE FILES!)
+  2. bash_tool with Windows paths (ALWAYS FAILS!)
+  3. household_id missing (SECURITY BREACH!)
+  4. removeListener missing (MEMORY LEAK!)
+  5. context after await (CRASH!)
   6. edit_file without read first (NO MATCH!)
 
 most_critical_patterns:
@@ -266,7 +298,7 @@ most_critical_patterns:
   5. ALWAYS search_nodes before add_observations
 
 error_frequency:
-  very_high: bash_windows (repeating constantly!)
+  very_high: search_files_unreliable (3 files deleted!), bash_windows (repeating constantly!)
   high: context_after_await, removeListener, edit_no_match, verbose, missing_states
   medium: household_id, const, memory, async_callback, continue, code_review
   low: color_api, package_name, rtl, design_system

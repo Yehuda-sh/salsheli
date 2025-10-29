@@ -1,6 +1,6 @@
 # 🧾 CODE REVIEW CHECKLIST – MemoZap
 
-**גרסה:** 2.1 | **עודכן:** 29/10/2025  
+**גרסה:** 2.2 | **עודכן:** 29/10/2025  
 **שימוש:** סריקה אוטומטית לכל קובץ חדש/מעודכן  
 **מטרה:** זיהוי חכם של בעיות, קוד ישן, ופיצ'רים חלקיים
 
@@ -222,56 +222,97 @@
 
 ### ⚠️ CRITICAL: False-Positive Prevention
 
-**הבעיה:** `search_files` לא מוצא שימוש **בתוך הקובץ עצמו** (in-file usage)
+**הבעיה:** `search_files` לא מוצא 3 סוגי שימוש:
 
-**דוגמה אמיתית (session 42):**
+1. **שימוש בתוך הקובץ עצמו** (in-file usage)
+2. **שימוש דרך קונסטנטות** (`kMinFamilySize`, `kValidChildrenAges`)
+3. **שימוש דרך מחלקות סטטיות** (`StoresConfig.isValid`, `FirestoreFields.userId`)
+
+**דוגמה 1 - in-file usage (session 42):**
 ```yaml
 קובץ: app_strings.dart
-טעות: claimed "0 imports = dead code"
-מציאות: 10+ קבצים משתמשים (app_layout, welcome_screen, login_screen...)
-סיבה: AppStrings.layout.appTitle - שימוש פנימי בתוך app_strings.dart
+טעות: "0 imports = dead code"
+מציאות: 10+ קבצים משתמשים
+סיבה: AppStrings.layout.appTitle - שימוש פנימי בתוך הקובץ
 ```
 
-**פרוטוקול נכון (4 שלבים חובה!):**
+**דוגמה 2 - constants usage (session 43):**
+```yaml
+קובץ: constants.dart
+טעות: "0 imports = dead code"
+מציאות: onboarding_data.dart משתמש
+סיבה: kMinFamilySize, kMaxFamilySize, kValidChildrenAges
+שימוש: if (size < kMinFamilySize)
+```
+
+**דוגמה 3 - static class usage (session 43):**
+```yaml
+קובץ: stores_config.dart
+טעות: "0 imports = dead code"
+מציאות: onboarding_data.dart משתמש
+סיבה: StoresConfig.isValid
+שימוש: stores.where(StoresConfig.isValid)
+```
+
+**פרוטוקול נכון (6 שלבים חובה!):**
 
 | שלב | Priority | מה לעשות |
 |------|----------|----------|
 | **1. search_files** | 💀 CRITICAL | חפש imports בכל הפרויקט |
 | **2. read_file מלא** | 💀 CRITICAL | קרא את הקובץ כולו (לא חלקי!) |
-| **3. בדיקה ידנית** | 💀 CRITICAL | חפש שימוש **בתוך הקובץ** |
-| **4. אישור סופי** | 💀 CRITICAL | רק אם **גם** 0 imports **וגם** 0 in-file usage |
+| **3. in-file usage** | 💀 CRITICAL | חפש שימוש בתוך הקובץ עצמו |
+| **4. constants usage** | 💀 CRITICAL | חפש `k[ClassName]` patterns בפרויקט |
+| **5. static usage** | 💀 CRITICAL | חפש `ClassName.method` patterns |
+| **6. אישור סופי** | 💀 CRITICAL | רק אחרי 5 בדיקות שליליות |
 
-**דוגמה לבדיקה נכונה:**
+**דוגמה לבדיקה מלאה:**
 ```yaml
 # שלב 1: search_files
-מצא: 0 imports ל-app_strings.dart
+מצא: 0 imports ל-constants.dart
 
 # שלב 2: read_file מלא
-קרא: כל 1100 שורות
+קרא: כל 40 שורות
+מצא: kMinFamilySize = 1, kMaxFamilySize = 10, kValidChildrenAges
 
-# שלב 3: בדיקה ידנית
-מצא: AppStrings.layout.appTitle בשורה 50
-מצא: AppStrings.auth.loginButton בשורה 150
-מצא: AppStrings.home.welcome בשורה 250
+# שלב 3: in-file usage
+לא מצא שימוש פנימי
+
+# שלב 4: constants usage (קריטי!)
+חיפוש: search_files("kMinFamilySize")
+מצא: onboarding_data.dart שורה 129
+חיפוש: search_files("kValidChildrenAges")
+מצא: onboarding_data.dart שורה 165
 → קובץ פעיל!
 
-# שלב 4: אישור
-תוצאה: NOT dead code (שימוש פנימי קיים)
+# שלב 5: (דילוג - אין מחלקות)
+
+# שלב 6: אישור
+תוצאה: NOT dead code (משמש דרך קונסטנטות)
 ```
 
 **אסור בהחלט:**
 - ❌ טענת "dead code" רק לפי search_files
 - ❌ אי קריאת הקובץ המלא
 - ❌ אי בדיקת שימוש פנימי
-- ❌ מחיקה מהירה בלי אימות
+- ❌ אי חיפוש קונסטנטות (`kXxx`)
+- ❌ אי חיפוש מחלקות סטטיות (`ClassName.method`)
+- ❌ מחיקה מהירה בלי 6 השלבים
 
 **למה זה קריטי:**
 - 💥 מחיקת קוד פעיל = איבוד אמון מוחלט
 - 🔥 compilation errors בכל הפרויקט
 - ⏰ בזבוז זמן בשחזור קוד
 - 😤 תסכול משתמש ("למה מחקת?!")
+- 📉 3 קבצים פעילים נמחקו (sessions 40-43)
 
-**כשיש ספק - אל תמחק!**
+**חוק ברזל: כשיש ספק - אל תמחק!**
+
+**מקרי False-Positive שאירעו:**
+| Session | קובץ | מה חיפשנו | מה פספסנו |
+|---------|------|-----------|----------|
+| 40 | ui_constants.dart | imports | ✅ Dead code נכון |
+| 41 | constants.dart | imports | ❌ kMinFamilySize ב-onboarding |
+| 43 | stores_config.dart | imports | ❌ StoresConfig.isValid ב-onboarding |
 
 ---
 
@@ -351,4 +392,10 @@
 
 **🎯 זכור:** הסקירה צריכה להיות **חכמה** (לא מכנית), **קצרה** (ממוקד), ו**אנושית** (הסבר למה, לא רק מה).
 
-**End of Checklist v2.0**
+**End of Checklist v2.2**
+
+**עדכונים מ-v2.1:**
+- הרחבת פרוטוקול Dead Code: 4→6 שלבים
+- הוספת בדיקות: constants usage + static class usage
+- 3 דוגמאות מסשנים 42-43
+- טבלת False-Positives
