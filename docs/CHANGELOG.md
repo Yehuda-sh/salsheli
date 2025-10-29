@@ -7,6 +7,36 @@
 ```yaml
 date: 29/10/2025
 
+session_42:
+  task: Code Review - app_strings.dart Fixed Broken Import
+  status: complete
+  files:
+    - lib/l10n/app_strings.dart: removed broken import (v3.1â†'v3.2)
+  analysis:
+    - 1100+ lines localization system (300+ strings UI)
+    - actively used: app_layout, welcome_screen, login_screen, and more
+    - broken import: 'strings/list_type_mappings_strings.dart' (deleted session 36)
+    - unused property: AppStrings.listMappings = ListTypeMappingsStrings()
+  reason:
+    - list_type_mappings_strings.dart deleted in session 36 (old 21-type system)
+    - app_strings.dart never updated to remove import
+    - caused potential compilation error
+  changes:
+    - removed import line 15
+    - removed listMappings property (lines 111-115)
+    - updated version: 3.1â†'3.2
+    - updated date: 22/10â†'29/10/2025
+  lesson_learned:
+    - initial assessment WRONG: claimed "dead code 0 imports"
+    - user caught mistake: app_strings.dart actively used!
+    - always verify: search_files can miss in-file usage
+    - broken import != dead code (file can be active with broken import)
+  impact:
+    - compilation: fixed potential error
+    - code_quality: removed broken dependency
+    - trust: user caught AI error - must be more careful
+  result: app_strings.dart now compiles correctly
+
 session_41:
   task: Code Review - constants.dart Dead Code + PROJECT_INSTRUCTIONS v4.1
   status: complete

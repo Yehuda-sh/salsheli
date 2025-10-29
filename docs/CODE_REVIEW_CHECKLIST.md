@@ -1,6 +1,6 @@
 # 🧾 CODE REVIEW CHECKLIST – MemoZap
 
-**גרסה:** 2.0 | **עודכן:** 29/10/2025  
+**גרסה:** 2.1 | **עודכן:** 29/10/2025  
 **שימוש:** סריקה אוטומטית לכל קובץ חדש/מעודכן  
 **מטרה:** זיהוי חכם של בעיות, קוד ישן, ופיצ'רים חלקיים
 
@@ -219,6 +219,61 @@
 ---
 
 ## 💀 Dead Code Detection
+
+### ⚠️ CRITICAL: False-Positive Prevention
+
+**הבעיה:** `search_files` לא מוצא שימוש **בתוך הקובץ עצמו** (in-file usage)
+
+**דוגמה אמיתית (session 42):**
+```yaml
+קובץ: app_strings.dart
+טעות: claimed "0 imports = dead code"
+מציאות: 10+ קבצים משתמשים (app_layout, welcome_screen, login_screen...)
+סיבה: AppStrings.layout.appTitle - שימוש פנימי בתוך app_strings.dart
+```
+
+**פרוטוקול נכון (4 שלבים חובה!):**
+
+| שלב | Priority | מה לעשות |
+|------|----------|----------|
+| **1. search_files** | 💀 CRITICAL | חפש imports בכל הפרויקט |
+| **2. read_file מלא** | 💀 CRITICAL | קרא את הקובץ כולו (לא חלקי!) |
+| **3. בדיקה ידנית** | 💀 CRITICAL | חפש שימוש **בתוך הקובץ** |
+| **4. אישור סופי** | 💀 CRITICAL | רק אם **גם** 0 imports **וגם** 0 in-file usage |
+
+**דוגמה לבדיקה נכונה:**
+```yaml
+# שלב 1: search_files
+מצא: 0 imports ל-app_strings.dart
+
+# שלב 2: read_file מלא
+קרא: כל 1100 שורות
+
+# שלב 3: בדיקה ידנית
+מצא: AppStrings.layout.appTitle בשורה 50
+מצא: AppStrings.auth.loginButton בשורה 150
+מצא: AppStrings.home.welcome בשורה 250
+→ קובץ פעיל!
+
+# שלב 4: אישור
+תוצאה: NOT dead code (שימוש פנימי קיים)
+```
+
+**אסור בהחלט:**
+- ❌ טענת "dead code" רק לפי search_files
+- ❌ אי קריאת הקובץ המלא
+- ❌ אי בדיקת שימוש פנימי
+- ❌ מחיקה מהירה בלי אימות
+
+**למה זה קריטי:**
+- 💥 מחיקת קוד פעיל = איבוד אמון מוחלט
+- 🔥 compilation errors בכל הפרויקט
+- ⏰ בזבוז זמן בשחזור קוד
+- 😤 תסכול משתמש ("למה מחקת?!")
+
+**כשיש ספק - אל תמחק!**
+
+---
 
 ### סימנים לקוד ישן
 | סימן | הסבר אנושי נדרש |

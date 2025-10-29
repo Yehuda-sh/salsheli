@@ -18,10 +18,10 @@
 // 🔮 עתיד: כשנוסיף flutter_localizations, נחליף את הקובץ הזה
 //          ב-AppLocalizations generated class
 //
-// Version: 3.1 - עדכון טקסטים לתמיכה בכל סוגי הקבוצות והרשימות
-// Last Updated: 22/10/2025
+// Version: 3.2 - הסרת list_type_mappings_strings שבור (session 42)
+// Last Updated: 29/10/2025
 
-import 'strings/list_type_mappings_strings.dart';
+
 
 /// מחרוזות UI - כרגע עברית בלבד
 ///
@@ -112,11 +112,7 @@ class AppStrings {
 
   static const listTypeGroups = _ListTypeGroupsStrings();
 
-  // ========================================
-  // List Type Mappings (Categories, Stores, Items)
-  // ========================================
 
-  static const listMappings = ListTypeMappingsStrings();
 
   // ========================================
   // Templates

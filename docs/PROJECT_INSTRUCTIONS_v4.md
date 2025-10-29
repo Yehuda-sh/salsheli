@@ -1,4 +1,4 @@
-# 📋 MemoZap Project Instructions v4.1
+# 📋 MemoZap Project Instructions v4.2
 
 > Machine-Readable | Full YAML Format | Updated: 29/10/2025
 
@@ -101,10 +101,27 @@ chats_history:
 bash_powershell:
   usage: פקודות Windows
   network: limited (see allowed domains)
+  
+  CRITICAL_WARNING: |
+    ⚠️ NEVER use bash_tool with Windows paths!
+    bash_tool = Linux shell (/bin/sh)
+    Linux doesn't understand C:\ drives
+    Result: ALWAYS FAILS
+    
+    Wrong: bash_tool("cd C:\\projects\\salsheli && findstr ...")
+    Right: search_files("C:\\projects\\salsheli\\lib", "pattern")
+    
+    This is the #1 MOST COMMON ERROR!
+  
   examples:
     - flutter pub get
     - flutter test
     - dart format lib/
+  
+  when_to_use:
+    - Flutter commands (pub, test, analyze)
+    - Dart commands (format, fix)
+    - NEVER for file operations!
 ```
 
 ---
@@ -289,14 +306,20 @@ code_review_protocol:
   trigger: user says "תבדוק [file]"
   
   step_0: read CODE_REVIEW_CHECKLIST.md
-  step_1: read_file(target_file)
-  step_2: search_files(lib, filename) # check usage!
+  step_1: read_file(target_file) FULL - not partial!
+  step_2: search_files(lib, filename) # check external imports
   step_3: |
-    IF no imports found:
+    Manual verification (CRITICAL!):
+    1. Check for in-file usage (AppStrings.layout.title)
+    2. Check for property access patterns
+    3. Verify file is truly unused
+  step_4: |
+    Final decision:
+    IF 0 imports AND 0 in-file usage:
       report "💀 Dead Code - not used"
     ELSE:
       apply full checklist
-  step_4: |
+  step_5: |
     Format response:
       📄 קובץ: path
       סטטוס: ⚠️/✅/💀
@@ -307,6 +330,12 @@ code_review_protocol:
       💀 DEAD CODE: what + why
       
       🔧 צעדים: 1,2,3
+  
+  critical_warning: |
+    ⚠️ FALSE-POSITIVE PREVENTION:
+    Never claim "dead code" based on search_files alone!
+    MUST verify in-file usage (session 42 lesson)
+    Example: app_strings.dart had 0 imports but WAS ACTIVE
 ```
 
 ---
@@ -515,32 +544,46 @@ error_7_most_recent:
   cause_7: Created comprehensive 600-line constants file before actual need
   fix_7: YAGNI principle - add constants only when pattern appears 3+ times
   learning_7: Don't design perfect systems upfront, grow organically
+  
+  error_8: app_strings.dart false dead code claim (session 42)
+  cause_8: Used search_files alone, missed in-file usage (AppStrings.layout.title)
+  fix_8: 4-step protocol - search_files + read_file + manual check + final decision
+  learning_8: Never claim dead code without verifying in-file usage
+  impact_8: CRITICAL - deleting active code breaks entire app
+  
+  error_9: bash_tool with Windows paths (session 42)
+  cause_9: Used bash_tool("cd C:\\...") - Linux shell doesn't understand Windows drives
+  symptom_9: "/bin/sh: cd: can't cd to C:projectssalsheli"
+  fix_9: ALWAYS use Filesystem:search_files/read_file for Windows file operations
+  learning_9: bash_tool = Linux shell, NEVER for Windows paths
+  impact_9: CRITICAL - wastes tool calls, this is THE MOST COMMON ERROR
 
 top_5_common_errors:
   1:
+    name: bash_tool with Windows paths
+    impact: ALWAYS FAILS
+    frequency: very_high
+    fix: Use Filesystem:search_files instead
+  
+  2:
     name: household_id missing
     impact: SECURITY BREACH
     frequency: medium
   
-  2:
+  3:
     name: removeListener missing
     impact: MEMORY LEAK
     frequency: high
   
-  3:
+  4:
     name: context after await
     impact: CRASH
     frequency: high
   
-  4:
-    name: const on dynamic widgets
-    impact: BUILD ERROR
-    frequency: medium
-  
   5:
-    name: edit_file without read
-    impact: NO MATCH
-    frequency: high
+    name: false dead code detection
+    impact: DELETING ACTIVE CODE
+    frequency: medium
 ```
 
 ---
@@ -630,14 +673,14 @@ critical_checklist_before_commit:
 - ✅ Added quick reference shortcuts
 - ✅ Security + Performance in one place
 
-**Updates v4.1 (29/10/2025):**
-- ✅ Removed GUIDE.md (deleted in session_34)
-- ✅ Updated docs count: 8→7 files, 2100→2700 lines
-- ✅ Added Lesson #7: YAGNI anti-pattern (ui_constants.dart)
-- ✅ Updated checkpoint trigger: every file→3-5 files
-- ✅ Added YAGNI shortcut: 3+ pattern rule
+**Updates v4.3 (29/10/2025):**
+- ✅ Added CRITICAL bash_tool warning in Tools section
+- ✅ Added error_9: bash_tool with Windows paths (THE MOST COMMON ERROR!)
+- ✅ Updated top_5_common_errors: bash_tool with Windows paths (#1)
+- ✅ Impact: Prevents wasted tool calls, this mistake repeats constantly
+- ✅ Fix: ALWAYS use Filesystem tools for Windows file operations
 
 **Total:** 400 lines | Format: Pure YAML  
-**Version:** 4.1
+**Version:** 4.2
 **Last Updated:** 29/10/2025  
 **Maintainer:** MemoZap AI System

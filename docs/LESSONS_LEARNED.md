@@ -23,6 +23,16 @@ path:
   fix: use absolute C:\projects\salsheli\ paths
   frequency: medium
 
+bash_windows:
+  error: "can't cd to C:projectssalsheli" or "/bin/sh: cd: can't cd"
+  cause: using bash_tool with Windows paths (C:\...)
+  wrong: bash_tool + cd C:\projects\salsheli
+  right: Filesystem:search_files or Filesystem:read_file
+  why: bash_tool = Linux shell, doesn't understand C:\
+  impact: ALWAYS FAILS on Windows paths
+  frequency: VERY HIGH (repeating mistake!)
+  fix: NEVER use bash_tool for Windows file operations
+
 grep:
   error: "ENOENT"
   cause: using bash grep on Windows
@@ -135,6 +145,16 @@ old_method:
   example: addItemToList() → addUnifiedItem()
   fix: read Provider file first
   frequency: low
+
+code_review:
+  error: "false dead code detection"
+  cause: search_files doesn't find in-file usage (AppStrings.layout.appTitle)
+  wrong: "0 imports = dead code"
+  right: read file + check actual usage + manual verification
+  impact: CRITICAL - can delete active code!
+  details: → CODE_REVIEW_CHECKLIST.md (Dead Code Detection)
+  frequency: medium
+  example: app_strings.dart claimed dead but used in 10+ files
 ```
 
 ## UI/UX ERRORS
@@ -196,6 +216,16 @@ memory_usage:
 ## RECENT FIXES (Last 5)
 
 ```yaml
+29_10_2025:
+  - bash_windows_error: used bash_tool with Windows paths (C:\...) - FAILS ALWAYS
+  - lesson: bash_tool = Linux shell, doesn't understand C:\ drives
+  - fix: NEVER bash_tool for file ops, use Filesystem:search_files/read_file
+  - frequency: VERY HIGH - this mistake repeats constantly!
+  
+  - code_review_error: app_strings.dart false "dead code" claim
+  - lesson: search_files ≠ full usage check (in-file usage exists!)
+  - protocol: read file + verify usage + manual check before claiming dead
+
 26_10_2025:
   - doc_compression: AI_INSTRUCTIONS + TOKEN_MANAGEMENT created
   - token_strategy: zero-reading default, selective when needed
@@ -221,11 +251,12 @@ memory_usage:
 
 ```yaml
 most_common_errors:
-  1. household_id missing (SECURITY BREACH!)
-  2. removeListener missing (MEMORY LEAK!)
-  3. context after await (CRASH!)
-  4. const on dynamic widgets (BUILD ERROR!)
-  5. edit_file without read first (NO MATCH!)
+  1. bash_tool with Windows paths (ALWAYS FAILS!)
+  2. household_id missing (SECURITY BREACH!)
+  3. removeListener missing (MEMORY LEAK!)
+  4. context after await (CRASH!)
+  5. false dead code detection (DELETING ACTIVE CODE!)
+  6. edit_file without read first (NO MATCH!)
 
 most_critical_patterns:
   1. ALWAYS filter by household_id in Firestore
@@ -235,8 +266,9 @@ most_critical_patterns:
   5. ALWAYS search_nodes before add_observations
 
 error_frequency:
+  very_high: bash_windows (repeating constantly!)
   high: context_after_await, removeListener, edit_no_match, verbose, missing_states
-  medium: household_id, const, memory, async_callback, continue
+  medium: household_id, const, memory, async_callback, continue, code_review
   low: color_api, package_name, rtl, design_system
 ```
 
