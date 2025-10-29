@@ -20,8 +20,8 @@ session_34:
     - AI_INSTRUCTIONS duplicated: GUIDE/CODE/LESSONS_LEARNED content
     - TOKEN_MANAGEMENT duplicated: GUIDE content
   impact:
-    - docs: 10→8 files
-    - lines: 3400→2100 (-38%)
+    - docs: 10â†’8 files
+    - lines: 3400â†’2100 (-38%)
     - tokens: ~1300 saved per session
     - clarity: single source of truth maintained
   result: leaner, machine-optimized documentation
@@ -36,11 +36,11 @@ session_33:
       - removed suggestedStores variable from build()
       - removed entire stores chips UI section
     part_2_compact_design:
-      - card height: 120px→70px (50% smaller)
+      - card height: 120pxâ†’70px (50% smaller)
       - price moved inline with product name (saves space)
-      - icons/buttons: 40px→32/36px
-      - fonts: 16/12→14/11
-      - spacing reduced (kSpacingSmall→kSpacingTiny)
+      - icons/buttons: 40pxâ†’32/36px
+      - fonts: 16/12â†’14/11
+      - spacing reduced (kSpacingSmallâ†’kSpacingTiny)
   impact:
     - ux: 6-7 products visible vs 3 before (2x more)
     - cleaner_ui: less visual clutter
@@ -87,7 +87,7 @@ session_31:
   part_3_missing_constant:
     error: kDarkPaperBackground undefined
     fix: added to ui_constants.dart
-    bonus: fixed kPaperBackground color (#FAF8F3 → #F5F5F5 per DESIGN.md)
+    bonus: fixed kPaperBackground color (#FAF8F3 â†’ #F5F5F5 per DESIGN.md)
   impact:
     - code_compiles: all errors eliminated
     - lint_clean: 9/9 diagnostics resolved
@@ -101,7 +101,7 @@ session_30:
   files:
     - lib/widgets/inventory/pantry_filters.dart: Color API update
   changes:
-    - withValues(alpha: 0.3) → withOpacity(0.3) (line 59)
+    - withValues(alpha: 0.3) â†’ withOpacity(0.3) (line 59)
     - verified const already correct (no changes needed)
   impact:
     - compatibility: Flutter 3.22+ Color API
@@ -121,11 +121,11 @@ session_29:
   fix:
     - removed Receipts from _navItems (accessible via Settings)
     - added bounds check in _onItemTapped (prevents future crashes)
-    - updated docs: 5→4 tabs, version 2.2→2.3
+    - updated docs: 5â†’4 tabs, version 2.2â†’2.3
   impact:
     - crash_fixed: RangeError eliminated
     - defensive: bounds check prevents similar bugs
-    - ux: Receipts still accessible via Settings → "הקבלות שלי"
+    - ux: Receipts still accessible via Settings â†’ "×”×§×‘×œ×•×ª ×©×œ×™"
   result: stable navigation, no more crashes
 
 session_28:
@@ -137,7 +137,7 @@ session_28:
     priority_1_critical:
       A: Added const on 50+ widgets (SizedBox, Text, Icon, CircularProgressIndicator, Row, _SkeletonBox)
       B: Deleted _AnimatedButton (dead code - unused widget)
-      C: Fixed ElevatedButton → StickyButton in error state
+      C: Fixed ElevatedButton â†’ StickyButton in error state
     priority_2_important:
       D: Simplified _SkeletonBox (removed borderRadius param)
       E: Added TODO on Debug Tools section
@@ -168,14 +168,14 @@ session_27:
     9: addCurrentSuggestion() missing listId argument
     10: deleteCurrentSuggestion() missing duration argument (null for permanent)
   fixes:
-    1: errorMessage → error
+    1: errorMessage â†’ error
     2: provider.suggestions.where((s) => s.isActive).toList()
-    3: ...[] → ...<Widget>[]
-    4: isUrgent → isCriticallyLow
+    3: ...[] â†’ ...<Widget>[]
+    4: isUrgent â†’ isCriticallyLow
     5: Created _getUrgencyEmoji(urgency) helper method
     6: Added import shopping_list_entity.dart + ShoppingListEntity type
     7: Added unitPrice: 0.0 parameter
-    8: neededQuantity → quantityNeeded
+    8: neededQuantity â†’ quantityNeeded
     9: Added targetList.id argument
     10: Added null argument (permanent delete)
   impact: Widget now compiles, ready for testing
@@ -216,7 +216,7 @@ session_24:
   task: CHANGELOG Compression
   status: complete
   files:
-    - docs/CHANGELOG.md: 1300→400 lines (70% reduction)
+    - docs/CHANGELOG.md: 1300â†’400 lines (70% reduction)
   changes:
     - YAML machine-readable format
     - condensed sessions to key info only
@@ -229,7 +229,7 @@ session_23:
   task: Documentation Compression - LESSONS_LEARNED.md
   status: complete
   files:
-    - docs/LESSONS_LEARNED.md: 600→300 lines (50% reduction)
+    - docs/LESSONS_LEARNED.md: 600â†’300 lines (50% reduction)
   changes:
     - YAML machine-readable format
     - 7 categories: Tool/Flutter/Testing/Architecture/UI/Communication/Session
@@ -266,7 +266,7 @@ session_21:
   fixes:
     - added optional householdId param to findByEmail()
     - removed non-existent imports
-    - replaced constants → string literals
+    - replaced constants â†’ string literals
   result: code_compiles, secure, consistent
 
 session_20:
@@ -294,7 +294,7 @@ session_17:
   changes:
     - removed: kMinMonthlyBudget, kMaxMonthlyBudget
     - added: 5 storage locations
-    - updated: kStorageLocations map 4→10
+    - updated: kStorageLocations map 4â†’10
 
 session_16:
   task: Token Management + QUICKSTART
@@ -312,7 +312,7 @@ session_15:
   task: Provider Optimization Strategy
   status: awaiting_approval
   file: PROVIDER_OPTIMIZATION_STRATEGY.md (500+)
-  proposed: 11→5 providers at startup (54% reduction)
+  proposed: 11â†’5 providers at startup (54% reduction)
   impact: 50%+ faster startup, 30-40% less memory
   stages: 6 (ProductsProvider, InventoryProvider, LocationsProvider, ProductLocationProvider, ReceiptProvider, HabitsProvider)
   time: 5-7 hours
@@ -444,8 +444,8 @@ fixes_applied:
   - mock_stubs: all properties need explicit stubs
   - 4_states: Loading/Error/Empty/Content mandatory
   - const_optimization: 200+ widgets
-  - doc_compression: 15000→2100 lines (86% reduction)
-  - lazy_providers: 11→5 at startup (54% reduction)
+  - doc_compression: 15000â†’2100 lines (86% reduction)
+  - lazy_providers: 11â†’5 at startup (54% reduction)
 ```
 
 ---
