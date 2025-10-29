@@ -5,7 +5,26 @@
 ## IN_PROGRESS
 
 ```yaml
-date: 26/10/2025
+date: 29/10/2025
+
+session_34:
+  task: Documentation Cleanup
+  status: complete
+  files:
+    - docs/AI_INSTRUCTIONS.md: deleted (1200 lines, 60% duplicates)
+    - docs/TOKEN_MANAGEMENT.md: deleted (100 lines, 100% duplicates)
+    - docs/GUIDE.md: added ANTI_PATTERNS section, updated maps
+  analysis:
+    - 10 docs analyzed
+    - found 38% redundancy
+    - AI_INSTRUCTIONS duplicated: GUIDE/CODE/LESSONS_LEARNED content
+    - TOKEN_MANAGEMENT duplicated: GUIDE content
+  impact:
+    - docs: 10→8 files
+    - lines: 3400→2100 (-38%)
+    - tokens: ~1300 saved per session
+    - clarity: single source of truth maintained
+  result: leaner, machine-optimized documentation
 
 session_33:
   task: Removed stores + Compact design for PopulateListScreen
@@ -392,7 +411,7 @@ codebase:
   repositories: 17
   screens: 30+
   widgets: 25+
-  docs: 6 (~1600 lines optimized)
+  docs: 8 (~2100 lines optimized)
   language: Hebrew (full RTL support)
 
 tech_stack:
@@ -425,7 +444,7 @@ fixes_applied:
   - mock_stubs: all properties need explicit stubs
   - 4_states: Loading/Error/Empty/Content mandatory
   - const_optimization: 200+ widgets
-  - doc_compression: 15000→1600 lines (89% reduction)
+  - doc_compression: 15000→2100 lines (86% reduction)
   - lazy_providers: 11→5 at startup (54% reduction)
 ```
 

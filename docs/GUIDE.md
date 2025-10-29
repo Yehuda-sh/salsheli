@@ -211,6 +211,37 @@ GITHUB:
 
 ---
 
+## ANTI_PATTERNS
+
+```yaml
+NEVER_DO:
+  artifacts_for_code:
+    why: User explicitly prefers edit_file
+    use: Filesystem:edit_file always
+  
+  sequential_thinking_simple:
+    why: Waste tokens on 1-2 step fixes
+    use: Only for complex 5+ step problems
+  
+  web_search_docs:
+    why: Info already in docs/
+    use: Read GUIDE/CODE/DESIGN first
+  
+  memory_temp_data:
+    why: Memory = long-term only
+    use: Current Work Context only
+  
+  auto_commit:
+    why: User wants to review first
+    use: Show changes, wait for approval
+  
+  read_unnecessary_files:
+    why: Waste tokens
+    use: Check docs/ first, then decide
+```
+
+---
+
 ## ERROR_HANDLING
 
 ```yaml
@@ -333,8 +364,8 @@ docs/:
   TECH.md                 # Technical reference
   LESSONS_LEARNED.md      # Error prevention
   CHANGELOG.md            # Version history
-  TOKEN_MANAGEMENT.md     # Token strategy
-  QUICKSTART.md           # Quick start guide
+  CODE_REVIEW_CHECKLIST.md # Code review protocol
+  WORK_PLAN.md            # Future work plan
 
 test/                     # Unit & widget tests
 ```
@@ -345,13 +376,13 @@ test/                     # Unit & widget tests
 
 ```yaml
 Entry_Point: GUIDE.md (this file)
-Quick_Start: QUICKSTART.md
 Code_Patterns: CODE.md
 UI_UX: DESIGN.md
 Firebase_Models: TECH.md
 Mistakes: LESSONS_LEARNED.md
 History: CHANGELOG.md
-Tokens: TOKEN_MANAGEMENT.md
+Code_Review: CODE_REVIEW_CHECKLIST.md
+Future_Work: WORK_PLAN.md
 ```
 
 ---
