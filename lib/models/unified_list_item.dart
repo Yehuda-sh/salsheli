@@ -220,6 +220,26 @@ class UnifiedListItem {
     );
   }
 
+  /// 🇮🇱 יצירה מתוכן בקשה (למערכת Sharing)
+  /// 🇬🇧 Create from request data (for Sharing system)
+  /// 
+  /// מקבל Map עם השדות:
+  /// - name (חובה)
+  /// - quantity (אופציונלי, ברירת מחדל: 1)
+  /// - unitPrice (אופציונלי, ברירת מחדל: 0.0)
+  /// - barcode, unit, category, notes (אופציונליים)
+  factory UnifiedListItem.fromRequestData(Map<String, dynamic> data) {
+    return UnifiedListItem.product(
+      name: data['name'] as String,
+      quantity: data['quantity'] as int? ?? 1,
+      unitPrice: (data['unitPrice'] as num?)?.toDouble() ?? 0.0,
+      barcode: data['barcode'] as String?,
+      unit: data['unit'] as String? ?? 'יח\'',
+      category: data['category'] as String?,
+      notes: data['notes'] as String?,
+    );
+  }
+
   // ════════════════════════════════════════════
   // JSON Serialization
   // ════════════════════════════════════════════
@@ -242,6 +262,19 @@ class UnifiedListItem {
       debugPrint('   type: $type');
     }
     return _$UnifiedListItemToJson(this);
+  }
+
+  // ════════════════════════════════════════════
+  // Display Helpers
+  // ════════════════════════════════════════════
+
+  /// 🇮🇱 שם לתצוגה (שם + כמות למוצרים)
+  /// 🇬🇧 Display name (name + quantity for products)
+  String get displayName {
+    if (type == ItemType.product && quantity != null) {
+      return '$name (x$quantity)';
+    }
+    return name;
   }
 
   // ════════════════════════════════════════════

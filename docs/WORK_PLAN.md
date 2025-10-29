@@ -129,9 +129,11 @@
 
 ---
 
-### 🆕 Phase 3B: User Sharing System
+### 🟢 Phase 3B: User Sharing System (IN PROGRESS)
 **Timeline:** Week 2-3 (04/11 - 17/11/2025)  
-**Priority:** HIGH
+**Priority:** HIGH  
+**Status:** 🟢 IN PROGRESS  
+**Started:** 29/10/2025
 
 > **Based on:** MemoZap Sharing System - Creator Flow (29/10/2025)
 
@@ -139,6 +141,10 @@
 - ✅ SharedUser (userId, role, sharedAt)
 - ✅ PendingRequest (id, requesterId, itemData, status, requestedAt)
 - ✅ UserRole enum (owner, admin, editor, viewer)
+
+#### Services (✅ 2/2 DONE):
+- ✅ ShareListService (460 lines) - invite/remove/update users
+- ✅ PendingRequestsService (410 lines) - create/approve/reject requests
 
 #### Permission Levels:
 1. **Owner (יוצר הרשימה):**
@@ -165,19 +171,28 @@
    - לא יכול להוסיף בקשות
    - לא יכול לערוך כלום
 
-#### Tasks:
+#### Completed Tasks:
+- ✅ ShareListService (session 46)
+  - inviteUser(), removeUser(), updateUserRole()
+  - Permission helpers: canUserEdit(), canUserApprove(), canUserManage()
+  - Statistics: getUsersStats(), isListShared()
+- ✅ PendingRequestsService (session 47)
+  - createRequest(), createAddItemRequest()
+  - approveRequest() - adds item to list
+  - rejectRequest() - marks as rejected
+  - cleanupOldRejectedRequests() - auto-delete after 7 days
+  - Query methods: getPendingRequests(), getPendingRequestsCount(), getRequestsStats()
+
+#### Remaining Tasks:
 - [ ] UI: Invite users screen (email + role selector)
 - [ ] UI: Manage users screen (list of shared users + edit roles)
-- [ ] UI: Pending requests section (badge with count)
-- [ ] UI: Approve/reject pending request dialog
-- [ ] Service: ShareListService (invite, remove, update role)
-- [ ] Service: PendingRequestsService (create, approve, reject)
-- [ ] Logic: Permission validation (who can do what)
-- [ ] Logic: Badge counter for Owner/Admin (pending requests)
+- [ ] UI: Pending requests screen (list + approve/reject)
+- [ ] UI: Badge counter for Owner/Admin (pending requests)
+- [ ] Logic: Permission validation in UI
 - [ ] Notifications: Push when request approved/rejected
 - [ ] Notifications: Push when new user invited
 - [ ] Firebase Security: Enforce permission rules
-- [ ] Testing: All 4 permission levels
+- [ ] Testing: All 4 permission levels + services
 
 #### User Flow:
 1. **Owner creates list** → invites users → assigns roles
@@ -308,7 +323,7 @@
 
 ---
 
-## 🎯 Current Status (Session 46+)
+## 🎯 Current Status (Session 47+)
 
 ### Infrastructure: ✅ COMPLETE
 1. ✅ All compilation errors resolved
@@ -317,28 +332,47 @@
 4. ✅ Memory system operational (10 entities)
 5. ✅ Token management system active
 
-### Next: 🟢 Phase 3 UI/UX Updates
+### Current: 🟢 Phase 3B User Sharing System
 **Status:** IN PROGRESS  
-**Started:** 29/10/2025
+**Started:** 29/10/2025 (Session 46-47)
 
+**Completed (Services Layer):**
+- ✅ ShareListService (session 46) - 460 lines
+  - User management: invite, remove, update roles
+  - Permission helpers: 7 functions
+  - Security: Owner-only actions, role validation
+- ✅ PendingRequestsService (session 47) - 410 lines
+  - Request lifecycle: create, approve, reject
+  - Query methods: 7 functions for filtering/stats
+  - Auto-cleanup: rejected requests after 7 days
+
+**Remaining (UI Layer):**
+- [ ] Invite Users Screen (email + role selector)
+- [ ] Manage Users Screen (list + edit roles)
+- [ ] Pending Requests Screen (badge + approve/reject)
+- [ ] Permission validation in UI
+- [ ] Notifications
+- [ ] Firebase Security Rules
+- [ ] Testing
+
+### Phase 3 UI/UX Updates: ⏸️ PAUSED
 **Completed:**
-- ✅ List type selection UI (CreateListDialog with 8 types)
-- ✅ Type icons and Hebrew labels (kListTypes config)
-- ✅ Type indicator in list cards (shopping_list_tile.dart)
-- ✅ Type filtering in shopping_lists_screen.dart (Drawer + Dropdown)
+- ✅ List type selection UI (8 types)
+- ✅ Type filtering in list screen
+- ✅ Type indicators on list cards
+- ✅ Product search with type filtering (session 46)
 
-**Remaining:**
-- [ ] Update product search dialog (filter by list type)
-- [ ] Add type-based product suggestions
-- [ ] Polish animations and transitions
-- [ ] Test all 8 types end-to-end
+**Remaining (Optional):**
+- [ ] Animations and transitions
+- [ ] End-to-end testing
 
 ### Future Roadmap:
-1. **Phase 4:** Product Management (lazy loading, caching)
-2. **Phase 5:** Testing & Polish
-3. **Phase 6-8:** Inventory System (storage locations, thresholds)
-4. **Phase 9:** Lists ↔️ Inventory Integration
-5. **Phase 10-14:** Receipt to Inventory System
+1. **Complete Phase 3B:** UI Screens (3-4 screens)
+2. **Phase 4:** Product Management (lazy loading, caching)
+3. **Phase 5:** Testing & Polish
+4. **Phase 6-8:** Inventory System (storage locations, thresholds)
+5. **Phase 9:** Lists ↔️ Inventory Integration
+6. **Phase 10-14:** Receipt to Inventory System
 
 ---
 
@@ -615,7 +649,7 @@
 
 **Version:** 1.3  
 **Last Updated:** 29/10/2025  
-**Status:** 🟢 ACTIVE - Phase 3 in progress
+**Status:** 🟢 ACTIVE - Phase 3B in progress (Session 47)
 
 ---
 
