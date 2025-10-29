@@ -25,8 +25,9 @@
 // backgroundColor: StatusColors.successOverlay
 // ```
 //
-// Version: 2.2 - Now actively used in 3 files (shopping_list_tile, create_list_dialog, add_receipt_dialog)
-// Last Updated: 22/10/2025
+// Version: 2.3 - Actively used in 2 files (shopping_list_tile, create_list_dialog)
+// Last Updated: 29/10/2025
+// Note: add_receipt_dialog.dart was removed in v2.9 (receipt scanning feature removed)
 
 import 'package:flutter/material.dart';
 
@@ -42,7 +43,6 @@ import 'package:flutter/material.dart';
 /// 📍 שימוש בפרויקט:
 /// - lib/widgets/shopping_list_tile.dart (סטטוס רשימות, דחיפות, borders, SnackBars)
 /// - lib/widgets/create_list_dialog.dart (SnackBars, error states)
-/// - lib/widgets/add_receipt_dialog.dart (dialog header, אופציות)
 class StatusColors {
   // מניעת instances
   const StatusColors._();

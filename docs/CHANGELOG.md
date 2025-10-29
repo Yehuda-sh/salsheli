@@ -7,6 +7,40 @@
 ```yaml
 date: 29/10/2025
 
+session_39:
+  task: Code Review - status_colors.dart Documentation
+  status: complete
+  files:
+    - lib/core/status_colors.dart: updated documentation (v2.2→v2.3)
+    - docs/CODE_REVIEW_CHECKLIST.md: added "Outdated Documentation" section
+  changes:
+    status_colors:
+      - removed add_receipt_dialog.dart from active files list (deleted in v2.9)
+      - updated version: 2.2→2.3
+      - updated last modified date: 22/10→29/10/2025
+      - added note explaining removal of add_receipt_dialog
+      - fixed class documentation (removed line about add_receipt_dialog)
+    checklist:
+      - added new section: "📝 Outdated Documentation"
+      - protocol: read_file full → identify all → fix all at once
+      - critical rules: NO partial fixes, NO partial reads, NO missing occurrences
+      - example workflow included
+  analysis:
+    - file usage checked: 2/3 files still exist (shopping_list_tile, create_list_dialog)
+    - add_receipt_dialog removed in session 27 (receipt scanning feature)
+    - constants quality: 100% (all Color consts, withValues final)
+    - theme-aware functions: excellent (getStatusColor, getStatusOverlay)
+  lesson_learned:
+    - partial fix = user catches mistake = trust broken
+    - documentation must be COMPLETE, not partial
+    - always read full file when fixing docs
+  impact:
+    - documentation: now accurate (2 files vs 3)
+    - clarity: explains historical removal
+    - prevents: future confusion about missing file
+    - checklist: enhanced with documentation fix protocol
+  result: documentation synchronized + protocol improved
+
 session_38:
   task: Repository Constants Migration
   status: complete
