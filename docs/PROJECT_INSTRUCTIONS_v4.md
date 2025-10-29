@@ -1,4 +1,4 @@
-# 📋 MemoZap Project Instructions v4.3
+# 📋 MemoZap Project Instructions v4.4
 
 > Machine-Readable | Full YAML Format | Updated: 29/10/2025
 
@@ -145,15 +145,23 @@ during_session:
   response_style:
     language: Hebrew (except code/tech)
     length: 3-5 sentences max
-    format: |
-      Option A:
+    
+    options_format: |
+      ALWAYS separate lines (RTL issue!):
+      
+      **Option A:**
       תיאור קצר
       
-      Option B:
+      **Option B:**
       תיאור קצר
       
-      Option C:
+      **Option C:**
       תיאור קצר
+      
+      Sub-options: A1, A2, A3
+    
+    artifacts: NEVER use for code (edit_file ONLY)
+    command_snippets: NEVER provide (user doesn't run manually)
     
   code_format:
     full_blocks: כשצריך להעתיק
@@ -165,6 +173,8 @@ during_session:
     - ❌ תיאור כישלונות למשתמש
     - ❌ בקשת אישור לפעולות פשוטות
     - ❌ אופציות באותה שורה (RTL issue!)
+    - ❌ artifacts for code (edit_file ONLY)
+    - ❌ command snippets to run
     - ❌ introductions/apologies
     - ❌ קריאת docs אוטומטית
     - ❌ edit_file בלי read_file לפני
@@ -335,6 +345,15 @@ code_review_protocol:
       
       🔧 צעדים: 1,2,3
   
+  always_consider:
+    - QA tests for new features/changes
+    - File organization (merge/delete/move) for old/messy code
+    - Dormant Code: 5 questions (UI ready? Design ready? Tests? Docs? Need it?)
+  
+  before_reorganizing:
+    rule: ALWAYS ASK user first
+    why: Major refactoring needs approval
+  
   critical_warning: |
     ⚠️ FALSE-POSITIVE PREVENTION:
     search_files misses 3 usage types:
@@ -452,6 +471,113 @@ performance_critical:
       await _save();
       if (!mounted) return;
       nav.push(...); # SAFE!
+```
+
+---
+
+## 🔔 TOKEN MANAGEMENT
+
+```yaml
+token_budget: 190000
+current_usage: monitor frequently
+
+alerts:
+  70_percent:
+    threshold: 133000_tokens
+    remaining: 30_percent
+    action: |
+      ⚠️ **התראה: 70% טוקנים**
+      נותרו 30% (~57K טוקנים)
+      
+      **Option A:**
+      המשך עבודה (עוד 5-10 קבצים)
+      
+      **Option B:**
+      שמור checkpoint עכשיו
+    mode: alert_only
+    trigger: user_decision
+  
+  85_percent:
+    threshold: 161500_tokens
+    remaining: 15_percent
+    action: |
+      🚨 **התראה קריטית: 85% טוקנים**
+      נותרו 15% (~28.5K טוקנים)
+      שומר checkpoint אוטומטי...
+    mode: auto_checkpoint + ultra_concise
+    trigger: automatic
+  
+  90_percent:
+    threshold: 171000_tokens
+    remaining: 10_percent
+    action: |
+      ❌ **סיום חירום: 90% טוקנים**
+      נותרו 10% (~19K טוקנים)
+      שומר checkpoint סופי + סיכום...
+    mode: emergency_save + end_session
+    trigger: automatic
+
+checkpoint_protocol:
+  step_1_memory:
+    entity: Current Work Context
+    content: |
+      Last Updated: [date] [time]
+      Task: [exact task description]
+      Status: [stage/percentage/completion]
+      Files Touched: [list with changes]
+      Next Steps: [EXACT continuation point]
+      Critical Context: [any info needed to continue]
+      Decisions Made: [architectural/design decisions]
+  
+  step_2_changelog:
+    file: CHANGELOG.md [IN_PROGRESS]
+    content: |
+      session_XX:
+        task: [description]
+        status: in_progress / partial / complete
+        files:
+          - file1.dart: [what changed]
+          - file2.dart: [what changed]
+        next: |
+          [EXACT next steps - be specific!]
+          Example: "Continue with X, then Y, then Z"
+  
+  step_3_user_message:
+    output: |
+      📌 **מוכן להמשך בשיחה חדשה**
+      
+      **פקודה:** "המשך"
+      
+      **המערכת תטען:**
+      ✅ Current Work Context מ-Memory
+      ✅ CHANGELOG [IN_PROGRESS]
+      ✅ ימשיך בדיוק מ-[next step]
+      
+      **אין אובדן מידע:**
+      - כל ההחלטות נשמרו
+      - כל השינויים מתועדים
+      - נקודת המשך מדויקת
+      - אין עבודה כפולה
+
+continuation_protocol:
+  user_command: "המשך"
+  
+  system_execution:
+    step_1: recent_chats(n=2) # load previous chat
+    step_2: search_nodes("Current Work Context") # load state
+    step_3: read CHANGELOG.md [IN_PROGRESS] section
+    step_4: |
+      Continue EXACTLY from "Next Steps"
+      Do NOT repeat work
+      Do NOT ask what to do
+      Just CONTINUE
+  
+  benefits:
+    - ✅ Zero context loss
+    - ✅ Seamless continuation
+    - ✅ No repeated explanations
+    - ✅ Efficient token usage
+    - ✅ User doesn't need to re-explain
 ```
 
 ---
@@ -582,6 +708,13 @@ error_11_most_recent:
   fix_11: Must search for ClassName.method patterns separately
   learning_11: Static classes used without import - search_files misses this!
   impact_11: CRITICAL - deleted active file, broke onboarding (recovered manually)
+  
+  error_12: undefined identifiers compilation (session 45)
+  cause_12: Used constants before verifying they exist in ui_constants.dart
+  symptom_12: kDoubleTapTimeout, kSnackBarBottomMargin, kBorderRadiusSmall not found
+  fix_12: Check ui_constants.dart first, add missing constants if needed
+  learning_12: Before using new constants - verify they exist or add them
+  impact_12: Medium - 8 compilation errors, fixed by adding 4 constants
 
 top_6_common_errors:
   1:
@@ -727,7 +860,14 @@ critical_checklist_before_commit:
 - ✅ Impact: Prevents DELETING ACTIVE CODE (3 incidents!)
 - ✅ New rule: When in doubt - DON'T DELETE!
 
-**Total:** 450 lines | Format: Pure YAML  
-**Version:** 4.3
+**Updates v4.4 (session 45 - TOKEN MANAGEMENT):**
+- ✅ Added User Communication Preferences (artifacts + snippets + format)
+- ✅ Added Code Review Additions (QA tests + file organization + ASK before refactor)
+- ✅ Added TOKEN MANAGEMENT section (70%/85%/90% alerts + continuation protocol)
+- ✅ Added error_12: undefined identifiers (session 45 pattern)
+- ✅ Impact: Seamless session continuation + zero context loss
+
+**Total:** 500 lines | Format: Pure YAML  
+**Version:** 4.4
 **Last Updated:** 29/10/2025  
 **Maintainer:** MemoZap AI System
