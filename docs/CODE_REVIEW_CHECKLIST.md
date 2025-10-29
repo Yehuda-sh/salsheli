@@ -1,0 +1,359 @@
+# 🧾 CODE REVIEW CHECKLIST – MemoZap
+
+**גרסה:** 2.0 | **עודכן:** 29/10/2025  
+**שימוש:** סריקה אוטומטית לכל קובץ חדש/מעודכן  
+**מטרה:** זיהוי חכם של בעיות, קוד ישן, ופיצ'רים חלקיים
+
+---
+
+## 🧠 תהליך סקירה חכם
+
+### לפני הסקירה:
+1. **זיהוי תלויות** - האם צריך קבצים נוספים? (Repository, Model, Provider)
+2. **בקש מהמשתמש** - רק תלויות קריטיות
+3. **המתן לקבלת כל התלויות** - אחרת הסקירה חלקית
+
+### במהלך הסקירה:
+- ✅ **תקין** - עובד כמצופה
+- ⚠️ **בעיה** - דורש תיקון
+- 💀 **קוד ישן** - למחיקה (+ הסבר למה)
+- 🔧 **הצעה** - שיפור מומלץ
+- 🧠 **תובנה** - insight חשוב
+- ❓ **לא ברור** - צריך הבהרה
+
+### סגנון תשובה:
+- **עברית בלבד** (ללא קוד בתשובה)
+- **קצר וממוקד** - רק הנקודות החשובות
+- **פורמט אחיד** - ראה דוגמה בסוף
+
+---
+
+## 🚨 CRITICAL CHECKS (ראשון!)
+
+### 🔒 אבטחה
+| בדיקה | Priority | הסבר |
+|-------|----------|------|
+| **household_id בכל query** | 💀 CRITICAL | כל `.collection()` חייב `.where('household_id', ...)` |
+| **Firebase Rules מיושמים** | 💀 CRITICAL | בדוק שיש 4 רמות גישה (owner/admin/editor/viewer) |
+| **לא חושף מידע רגיש** | 🔴 HIGH | אין passwords/tokens/personal data בלוגים |
+
+**דוגמה שגויה:**
+```dart
+// ❌ SECURITY BREACH!
+.collection('tasks').where('user_id', isEqualTo: userId)
+```
+
+**דוגמה נכונה:**
+```dart
+// ✅ SECURE
+.collection('tasks')
+  .where('household_id', isEqualTo: householdId)
+  .where('user_id', isEqualTo: userId)
+```
+
+---
+
+### 🧹 Provider Cleanup (Memory Leaks!)
+| בדיקה | Priority | הסבר |
+|-------|----------|------|
+| **removeListener() ב-dispose** | 💀 CRITICAL | כל `addListener` צריך `removeListener` |
+| **Controllers disposed** | 🔴 HIGH | TextController, AnimationController, ScrollController |
+| **Timers canceled** | 🔴 HIGH | `_timer?.cancel()` ב-dispose |
+| **Streams canceled** | 🔴 HIGH | `_subscription?.cancel()` ב-dispose |
+| **Platform resources closed** | 🟡 MEDIUM | ML Kit, ImageLabeler וכו' |
+
+**דוגמה שגויה:**
+```dart
+// ❌ MEMORY LEAK!
+MyProvider(UserContext userContext) {
+  userContext.addListener(_onUserChanged);
+}
+// dispose() חסר!
+```
+
+**דוגמה נכונה:**
+```dart
+// ✅ NO LEAK
+@override
+void dispose() {
+  _userContext.removeListener(_onUserChanged);
+  _controller.dispose();
+  _timer?.cancel();
+  super.dispose(); // LAST!
+}
+```
+
+---
+
+### ⚡ Performance Critical
+| בדיקה | Priority | הסבר |
+|-------|----------|------|
+| **const על widgets סטטיים** | 🔴 HIGH | SizedBox, EdgeInsets, Text, Icon עם literals |
+| **Lazy loading ל-Providers כבדים** | 🟡 MEDIUM | `ensureInitialized()` במקום constructor |
+| **Unmodifiable getters** | 🟡 MEDIUM | `List.unmodifiable(_items)` |
+
+**דוגמה:**
+```dart
+// ❌ Missing const (5-10% rebuilds!)
+SizedBox(height: 16)
+EdgeInsets.all(8)
+
+// ✅ With const
+const SizedBox(height: 16)
+const EdgeInsets.all(8)
+```
+
+---
+
+### 💥 Context After Await (Common Crash!)
+| בדיקה | Priority | הסבר |
+|-------|----------|------|
+| **Context captured לפני await** | 💀 CRITICAL | Navigator/ScaffoldMessenger לפני async |
+| **`if (!mounted) return;` אחרי await** | 💀 CRITICAL | בדיקה שה-widget עדיין חי |
+
+**דוגמה שגויה:**
+```dart
+// ❌ CRASH!
+await _save();
+Navigator.of(context).push(...);
+```
+
+**דוגמה נכונה:**
+```dart
+// ✅ SAFE
+final nav = Navigator.of(context);
+await _save();
+if (!mounted) return;
+nav.push(...);
+```
+
+---
+
+## 📁 ארגון ומבנה
+
+### תיקיות ושמות
+| בדיקה | הסבר |
+|-------|------|
+| 📂 **מיקום תקין** | screens/providers/models/services/widgets/utils |
+| 🏷️ **שם קובץ snake_case** | `shopping_list_provider.dart` |
+| 🪞 **שם מחלקה = שם קובץ** | `ShoppingListProvider` ב-`shopping_list_provider.dart` |
+| 📦 **Package imports** | `package:memozap/...` (NOT `../...`) |
+| 🧩 **קבצים כפולים?** | אותו תפקיד בשני קבצים |
+
+---
+
+### Imports
+| בדיקה | הסבר |
+|-------|------|
+| 🚫 **אין imports מיותרים** | unused imports |
+| 📦 **Package imports בלבד** | `package:memozap/` (לא `../`) |
+| 🎯 **סדר נכון** | Dart → Flutter → Packages → Project |
+
+---
+
+## 🔄 State Management
+
+### Provider Pattern
+| בדיקה | Priority | הסבר |
+|-------|----------|------|
+| **notifyListeners() אחרי שינוי** | 🔴 HIGH | תמיד אחרי `_items.add()` וכו' |
+| **Getters מוגנים** | 🟡 MEDIUM | `List.unmodifiable()` |
+| **Try-catch על async** | 🔴 HIGH | כל async operation |
+| **Loading/Error states** | 🟡 MEDIUM | `_isLoading`, `_errorMessage` |
+
+---
+
+### Lazy Loading Pattern
+| בדיקה | Priority | הסבר |
+|-------|----------|------|
+| **אין טעינה ב-constructor** | 🟡 MEDIUM | רק אם Provider כבד |
+| **`ensureInitialized()`** | 🟡 MEDIUM | טעינה רק כשנדרש |
+| **`_isInitialized` flag** | 🟡 MEDIUM | מונע טעינה כפולה |
+
+**דוגמה:**
+```dart
+// ✅ Lazy loading
+ProductsProvider(repo) {
+  // NO loading here!
+}
+
+Future<void> ensureInitialized() async {
+  if (_isInitialized) return;
+  _isInitialized = true;
+  await _loadProducts();
+}
+```
+
+---
+
+## 🎨 UI/UX (Sticky Notes Design)
+
+### חובה
+| בדיקה | Priority | הסבר |
+|-------|----------|------|
+| **NotebookBackground עם Stack** | 🔴 HIGH | לא child property! |
+| **StickyButton** | 🔴 HIGH | לא ElevatedButton/TextButton |
+| **RTL + Directionality** | 🔴 HIGH | כל טקסט עברי |
+| **EdgeInsetsDirectional** | 🟡 MEDIUM | לא EdgeInsets.only(left:) |
+| **AppStrings בלבד** | 🔴 HIGH | אין hardcoded strings |
+
+**דוגמה שגויה:**
+```dart
+// ❌ WRONG
+NotebookBackground(child: CustomScrollView(...))
+```
+
+**דוגמה נכונה:**
+```dart
+// ✅ CORRECT
+Stack(
+  children: [
+    const NotebookBackground(),
+    CustomScrollView(...),
+  ],
+)
+```
+
+---
+
+### 4 מצבי UI (חובה!)
+| מצב | Priority | הסבר |
+|-----|----------|------|
+| **Loading** | 🔴 HIGH | CircularProgressIndicator + טקסט |
+| **Error** | 🔴 HIGH | Icon + Message + Retry button |
+| **Empty** | 🔴 HIGH | Icon + Message + CTA |
+| **Content** | 🔴 HIGH | הנתונים עצמם |
+
+---
+
+### Dark Mode
+| בדיקה | הסבר |
+|-------|------|
+| ✅ **Sticky colors קבועים** | kStickyCyan וכו' לא משתנים |
+| ✅ **Text adaptive** | `Theme.of(context).textTheme.bodyLarge?.color` |
+
+---
+
+## 🧪 Testing
+
+### Widget Testing
+| בדיקה | Priority | הסבר |
+|-------|----------|------|
+| **bySemanticsLabel** | 🔴 HIGH | לא byWidgetPredicate! |
+| **4 states tested** | 🟡 MEDIUM | Loading/Error/Empty/Content |
+| **Mock stubs complete** | 🟡 MEDIUM | כל property צריך stub |
+
+**דוגמה שגויה:**
+```dart
+// ❌ FAILS!
+find.byWidgetPredicate((w) => w is TextFormField && w.decoration != null)
+```
+
+**דוגמה נכונה:**
+```dart
+// ✅ WORKS + ACCESSIBILITY
+find.bySemanticsLabel(AppStrings.auth.emailLabel)
+```
+
+---
+
+## 📊 Logging
+
+### כללים
+| בדיקה | Priority | הסבר |
+|-------|----------|------|
+| **מקסימום 15 debugPrint** | 🟡 MEDIUM | לקובץ |
+| **Emoji prefix** | ⚪ LOW | ✅/⚠️/❌ |
+| **[Component] suffix** | ⚪ LOW | [TasksProvider] |
+
+**מה לשמור:**
+- ✅ Lifecycle (initState, dispose)
+- ✅ Errors (catch blocks)
+- ✅ Critical actions (logout, delete)
+
+**מה למחוק:**
+- ❌ Function start/end
+- ❌ Routine CRUD
+- ❌ UI button presses
+
+---
+
+## 💀 Dead Code Detection
+
+### סימנים לקוד ישן
+| סימן | הסבר אנושי נדרש |
+|------|----------------|
+| **פונקציה לא נקראת** | הסבר: למה נוצרה ומה החליף אותה |
+| **Import לא בשימוש** | מתי היה בשימוש |
+| **TODO/FIXME ישנים** | סטטוס עדכני |
+| **printDebug/console.log** | למה היה צריך |
+
+**פורמט תיעוד:**
+```markdown
+💀 `getTasks()` - שלפה ישירות מ-DB לפני המעבר ל-Repository. 
+   כיום משתמשים ב-`TasksRepository.getTasks()`.
+```
+
+---
+
+## 🧠 Top 5 שגיאות נפוצות
+
+עדיפות לבדיקה לפי תדירות:
+
+1. 💀 **household_id חסר** → SECURITY BREACH
+2. 💀 **removeListener חסר** → MEMORY LEAK  
+3. 💀 **context after await** → CRASH
+4. 🔴 **const חסר** → 5-10% rebuilds
+5. 🔴 **edit_file without read** → NO MATCH
+
+---
+
+## 💬 פורמט תשובה
+
+```
+📄 קובץ: lib/providers/tasks_provider.dart
+סטטוס: ⚠️ בעיות בינוניות
+סיכום: Provider תקין לוגית אך יש 2 בעיות קריטיות
+
+🚨 CRITICAL:
+⚠️ חסר removeListener ב-dispose → memory leak
+⚠️ context משמש אחרי await → potential crash
+
+⚡ PERFORMANCE:
+⚠️ 8 מקומות חסר const → rebuilds מיותרים
+
+💀 DEAD CODE:
+💀 getTasks() - שלפה ישירות מ-DB לפני Repository.
+   כיום: TasksRepository.getTasks()
+
+🔧 צעדים:
+1. הוסף dispose מלא (removeListener)
+2. capture context לפני await
+3. הוסף const ב-8 מקומות
+4. מחק getTasks()
+
+🧠 תובנה:
+בעיית dispose חוזרת ב-5 Providers → לעדכן LESSONS_LEARNED
+```
+
+---
+
+## 📋 Checklist מהיר
+
+לפני Commit:
+- [ ] household_id בכל query
+- [ ] dispose מלא (listeners/timers/streams)
+- [ ] context captured לפני await
+- [ ] const על widgets סטטיים
+- [ ] package imports (לא relative)
+- [ ] bySemanticsLabel בטסטים
+- [ ] 4 UI states קיימים
+- [ ] מקסימום 15 debugPrint
+- [ ] NotebookBackground עם Stack
+- [ ] StickyButton (לא Elevated)
+
+---
+
+**🎯 זכור:** הסקירה צריכה להיות **חכמה** (לא מכנית), **קצרה** (ממוקד), ו**אנושית** (הסבר למה, לא רק מה).
+
+**End of Checklist v2.0**

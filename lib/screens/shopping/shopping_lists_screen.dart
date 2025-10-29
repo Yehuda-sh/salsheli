@@ -476,6 +476,9 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
 
               debugPrint('   ✅ רשימה נוצרה: ${newList.id}');
 
+              // ✅ סגור דיאלוג לפני ניווט
+              Navigator.of(dialogContext, rootNavigator: true).pop();
+
               if (!mounted) {
                 debugPrint('   ⚠️ widget לא mounted - מדלג על ניווט');
                 return;

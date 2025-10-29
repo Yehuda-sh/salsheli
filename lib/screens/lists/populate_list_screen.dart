@@ -34,6 +34,7 @@ import 'package:provider/provider.dart';
 import '../../core/ui_constants.dart';
 import '../../models/receipt.dart';
 import '../../models/shopping_list.dart';
+import '../../models/unified_list_item.dart';
 import '../../providers/products_provider.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../providers/user_context.dart';
@@ -56,6 +57,8 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
   final TextEditingController _customQuantityController = TextEditingController(
     text: '1',
   );
+  
+  bool _isEditMode = false; // 🎯 מצב עריכה/צפייה
   
   ProductsProvider? _productsProvider; // 💾 שמור את ה-provider
   late UserContext _userContext; // ✅ UserContext listener
@@ -181,8 +184,8 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
           overflow: TextOverflow.ellipsis,
         ),
         actions: [
-          // כפתור רענון
-          if (productsProvider.lastUpdated != null)
+          // כפתור רענון (רק במצב עריכה)
+          if (_isEditMode && productsProvider.lastUpdated != null)
             Semantics(
               label: 'רענן מוצרים מהשרת',
               button: true,
@@ -203,14 +206,18 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
                     : () => productsProvider.refreshProducts(force: true),
               ),
             ),
-          // כפתור סיום
+          // כפתור עריכה/סיום
           Semantics(
-            label: 'סיים הוספת מוצרים',
+            label: _isEditMode ? 'סיים עריכה' : 'עבור למצב עריכה',
             button: true,
             child: TextButton.icon(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.check),
-              label: const Text('סיום'),
+              onPressed: () {
+                setState(() {
+                  _isEditMode = !_isEditMode;
+                });
+              },
+              icon: Icon(_isEditMode ? Icons.check : Icons.edit),
+              label: Text(_isEditMode ? 'סיום' : 'עריכה'),
               style: TextButton.styleFrom(foregroundColor: accent),
             ),
           ),
@@ -219,142 +226,148 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header - סטטיסטיקות
-            if (productsProvider.lastUpdated != null)
-              Container(
-                padding: const EdgeInsets.all(kSpacingSmallPlus),
-                margin: const EdgeInsets.all(kSpacingMedium),
-                decoration: BoxDecoration(
-                  color: cs.primaryContainer,
-                  borderRadius: BorderRadius.circular(kBorderRadius),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.inventory_2, size: kIconSizeMedium),
-                    const SizedBox(width: kSpacingSmall),
-                    Expanded(
-                      child: Text(
-                        '${productsProvider.totalProducts} מוצרים זמינים | '
-                        'מציג ${productsProvider.filteredProductsCount}',
-                        style: TextStyle(
-                          color: cs.onPrimaryContainer,
-                          fontSize: kFontSizeSmall,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-            // שורת חיפוש
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
-              child: TextField(
-                controller: _searchController,
-                onChanged: (value) =>
-                    productsProvider.setSearchQuery(value.trim()),
-                decoration: InputDecoration(
-                  hintText: 'חפש מוצר...',
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            _searchController.clear();
-                            productsProvider.clearSearch();
-                          },
-                        )
-                      : null,
-                  border: OutlineInputBorder(
+            // מצב צפייה
+            if (!_isEditMode) ..._buildViewModeWidgets(cs, accent),
+            
+            // מצב עריכה
+            if (_isEditMode) ...[
+              // Header - סטטיסטיקות
+              if (productsProvider.lastUpdated != null)
+                Container(
+                  padding: const EdgeInsets.all(kSpacingSmallPlus),
+                  margin: const EdgeInsets.all(kSpacingMedium),
+                  decoration: BoxDecoration(
+                    color: cs.primaryContainer,
                     borderRadius: BorderRadius.circular(kBorderRadius),
                   ),
-                  filled: true,
-                  fillColor: cs.surfaceContainerHighest,
+                  child: Row(
+                    children: [
+                      const Icon(Icons.inventory_2, size: kIconSizeMedium),
+                      const SizedBox(width: kSpacingSmall),
+                      Expanded(
+                        child: Text(
+                          '${productsProvider.totalProducts} מוצרים זמינים | '
+                          'מציג ${productsProvider.filteredProductsCount}',
+                          style: TextStyle(
+                            color: cs.onPrimaryContainer,
+                            fontSize: kFontSizeSmall,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+              // שורת חיפוש
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (value) =>
+                      productsProvider.setSearchQuery(value.trim()),
+                  decoration: InputDecoration(
+                    hintText: 'חפש מוצר...',
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              _searchController.clear();
+                              productsProvider.clearSearch();
+                            },
+                          )
+                        : null,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(kBorderRadius),
+                    ),
+                    filled: true,
+                    fillColor: cs.surfaceContainerHighest,
+                  ),
                 ),
               ),
-            ),
 
-            const SizedBox(height: kSpacingSmallPlus),
+              const SizedBox(height: kSpacingSmallPlus),
 
-            // סינון קטגוריות
-            if (categories.isNotEmpty)
-              SizedBox(
-                height: kChipHeight,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
-                  children: [
-                    // כפתור "הכל"
-                    Padding(
-                      padding: const EdgeInsets.only(left: kSpacingSmall),
-                      child: FilterChip(
-                        label: const Text('הכל'),
-                        selected: productsProvider.selectedCategory == null,
-                        onSelected: (_) => productsProvider.clearCategory(),
-                        selectedColor: accent.withValues(alpha: 0.2),
-                      ),
-                    ),
-                    // כפתורי קטגוריות
-                    ...categories.map((category) {
-                      final count =
-                          productsProvider.productsByCategory[category] ?? 0;
-                      return Padding(
+              // סינון קטגוריות
+              if (categories.isNotEmpty)
+                SizedBox(
+                  height: kChipHeight,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+                    children: [
+                      // כפתור "הכל"
+                      Padding(
                         padding: const EdgeInsets.only(left: kSpacingSmall),
                         child: FilterChip(
-                          label: Text('$category ($count)'),
-                          selected: productsProvider.selectedCategory == category,
-                          onSelected: (_) =>
-                              productsProvider.setCategory(category),
+                          label: const Text('הכל'),
+                          selected: productsProvider.selectedCategory == null,
+                          onSelected: (_) => productsProvider.clearCategory(),
                           selectedColor: accent.withValues(alpha: 0.2),
                         ),
-                      );
-                    }),
-                  ],
+                      ),
+                      // כפתורי קטגוריות
+                      ...categories.map((category) {
+                        final count =
+                            productsProvider.productsByCategory[category] ?? 0;
+                        return Padding(
+                          padding: const EdgeInsets.only(left: kSpacingSmall),
+                          child: FilterChip(
+                            label: Text('$category ($count)'),
+                            selected: productsProvider.selectedCategory == category,
+                            onSelected: (_) =>
+                                productsProvider.setCategory(category),
+                            selectedColor: accent.withValues(alpha: 0.2),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
                 ),
-              ),
 
-            const SizedBox(height: kSpacingSmall),
+              const SizedBox(height: kSpacingSmall),
 
-            // שדה בחירת כמות
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
-              child: Row(
-                children: [
-                  const Text('כמות:'),
-                  const SizedBox(width: kSpacingSmall),
-                  SizedBox(
-                    width: kFieldWidthNarrow,
-                    child: TextField(
+              // שדה בחירת כמות
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+                child: Row(
+                  children: [
+                    const Text('כמות:'),
+                    const SizedBox(width: kSpacingSmall),
+                    SizedBox(
+                      width: kFieldWidthNarrow,
+                      child: TextField(
                       controller: _customQuantityController,
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
                       decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: kSpacingSmall,
-                          vertical: kSpacingSmallPlus,
-                        ),
-                        filled: true,
-                        fillColor: cs.surfaceContainerHighest,
+                      border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                      horizontal: kSpacingSmall,
+                      vertical: kSpacingSmallPlus,
+                      ),
+                      filled: true,
+                      fillColor: cs.surfaceContainerHighest,
+                      ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: kSpacingSmall),
-                  Text('יחידות', style: TextStyle(color: cs.onSurfaceVariant)),
-                ],
+                    const SizedBox(width: kSpacingSmall),
+                    Text('יחידות', style: TextStyle(color: cs.onSurfaceVariant)),
+                  ],
+                ),
               ),
-            ),
 
-            const SizedBox(height: kSpacingSmallPlus),
+              const SizedBox(height: kSpacingSmallPlus),
 
-            // רשימת מוצרים
-            Expanded(
-              child: _buildProductsList(productsProvider, products, cs, accent),
-            ),
+              // רשימת מוצרים
+              Expanded(
+                child: _buildProductsList(productsProvider, products, cs, accent),
+              ),
+            ],
           ],
         ),
           ),
@@ -630,6 +643,220 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
         ),
       ),
     );
+  }
+
+  /// בונה ווידג'טים למצב צפייה
+  List<Widget> _buildViewModeWidgets(ColorScheme cs, Color accent) {
+    final listItems = widget.list.items;
+    
+    return [
+      // כותרת מצב צפייה
+      Container(
+        padding: const EdgeInsets.all(kSpacingSmallPlus),
+        margin: const EdgeInsets.all(kSpacingMedium),
+        decoration: BoxDecoration(
+          color: cs.secondaryContainer,
+          borderRadius: BorderRadius.circular(kBorderRadius),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.visibility, size: kIconSizeMedium, color: cs.onSecondaryContainer),
+            const SizedBox(width: kSpacingSmall),
+            Expanded(
+              child: Text(
+                'מצב צפייה - ${listItems.length} מוצרים ברשימה',
+                style: TextStyle(
+                  color: cs.onSecondaryContainer,
+                  fontSize: kFontSizeSmall,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      
+      // רשימת המוצרים שכבר ברשימה
+      Expanded(
+        child: listItems.isEmpty
+            ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(kSpacingXLarge),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.shopping_cart_outlined,
+                        size: kIconSizeXLarge,
+                        color: cs.onSurfaceVariant.withValues(alpha: 0.5),
+                      ),
+                      const SizedBox(height: kSpacingMedium),
+                      Text(
+                        'הרשימה ריקה',
+                        style: TextStyle(
+                          fontSize: kFontSizeMedium,
+                          fontWeight: FontWeight.bold,
+                          color: cs.onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: kSpacingSmall),
+                      Text(
+                        'לחץ על "עריכה" להוסיף מוצרים',
+                        style: TextStyle(color: cs.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            : ListView.builder(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: kSpacingMedium,
+                  vertical: kSpacingSmall,
+                ),
+                itemCount: listItems.length,
+                itemBuilder: (context, index) {
+                  final item = listItems[index];
+                  return _buildViewModeItemCard(item, cs, accent);
+                },
+              ),
+      ),
+    ];
+  }
+  
+  /// בונה כרטיס פריט במצב צפייה (עם עריכת כמות)
+  Widget _buildViewModeItemCard(
+    UnifiedListItem item,
+    ColorScheme cs,
+    Color accent,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: kSpacingTiny),
+      child: StickyNote(
+        color: kStickyCyan,
+        rotation: (item.name.hashCode % 5 - 2) * 0.005,
+        child: Padding(
+          padding: const EdgeInsets.all(kSpacingSmallPlus),
+          child: Row(
+            children: [
+              // שם המוצר
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.name,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: cs.onSurface,
+                      ),
+                    ),
+                    if (item.unitPrice > 0) ..[
+                      const SizedBox(height: 2),
+                      Text(
+                        '₪${item.unitPrice.toStringAsFixed(2)} × ${item.quantity}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              
+              // כפתורי + / -
+              Row(
+                children: [
+                  // כפתור -
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: kStickyPink.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: IconButton(
+                      onPressed: () => _updateQuantity(item, item.quantity - 1),
+                      icon: const Icon(Icons.remove, size: 16),
+                      padding: EdgeInsets.zero,
+                      tooltip: 'הפחת כמות',
+                    ),
+                  ),
+                  
+                  // כמות
+                  Container(
+                    width: 40,
+                    alignment: Alignment.center,
+                    child: Text(
+                      '${item.quantity}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: cs.onSurface,
+                      ),
+                    ),
+                  ),
+                  
+                  // כפתור +
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: kStickyGreen.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: IconButton(
+                      onPressed: () => _updateQuantity(item, item.quantity + 1),
+                      icon: const Icon(Icons.add, size: 16),
+                      padding: EdgeInsets.zero,
+                      tooltip: 'הוסף כמות',
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  
+  /// מעדכן כמות של פריט (במצב צפייה)
+  Future<void> _updateQuantity(UnifiedListItem item, int newQuantity) async {
+    if (newQuantity < 1) return; // לא מאפשרים אפס
+    
+    final messenger = ScaffoldMessenger.of(context);
+    final provider = context.read<ShoppingListsProvider>();
+    
+    try {
+      // ✅ קרא רשימה עדכנית מה-Provider (לא widget.list!)
+      final currentList = provider.getById(widget.list.id);
+      if (currentList == null) {
+        throw Exception('רשימה לא נמצאה');
+      }
+      
+      // מצא את האינדקס של הפריט לפי ID (לא indexOf!)
+      final itemIndex = currentList.items.indexWhere((i) => i.id == item.id);
+      if (itemIndex == -1) {
+        throw Exception('פריט לא נמצא ברשימה');
+      }
+      
+      // עדכן את הפריט
+      await provider.updateItemAt(
+        widget.list.id,
+        itemIndex,
+        (oldItem) => oldItem.copyWith(quantity: newQuantity),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('שגיאה בעדכון כמות: ${e.toString()}'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
   }
 
   /// מחזיר אייקון מתאים לפי קטגוריית המוצר

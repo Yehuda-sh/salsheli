@@ -54,6 +54,21 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   String _searchQuery = '';
   bool _groupByCategory = false;
   String _sortBy = 'none'; // none | price_desc | checked
+  String? _selectedCategory; // קטגוריה נבחרת לסינון
+
+  // 🏷️ קטגוריות עם אימוג'י
+  final Map<String, String> _categoryEmojis = {
+    'הכל': '📦',
+    'ירקות ופירות': '🥬',
+    'בשר ודגים': '🍖',
+    'חלב וביצים': '🥛',
+    'לחם ומאפים': '🍞',
+    'שימורים': '🥫',
+    'קפואים': '❄️',
+    'ניקיון': '🧽',
+    'היגיינה': '🚿',
+    'אחר': '📋',
+  };
 
   // 🎬 Animation Controllers
   late AnimationController _fabController;
@@ -443,10 +458,20 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   /// 🔍 סינון ומיון פריטים
   List<UnifiedListItem> _getFilteredAndSortedItems(List<UnifiedListItem> items) {
     var filtered = items.where((item) {
-      if (_searchQuery.isEmpty) return true;
-      final query = _searchQuery.toLowerCase();
-      final name = (item.name ?? '').toLowerCase();
-      return name.contains(query);
+      // סינון לפי חיפוש
+      if (_searchQuery.isNotEmpty) {
+        final query = _searchQuery.toLowerCase();
+        final name = (item.name ?? '').toLowerCase();
+        if (!name.contains(query)) return false;
+      }
+      
+      // סינון לפי קטגוריה
+      if (_selectedCategory != null && _selectedCategory != 'הכל') {
+        final itemCategory = item.category ?? 'אחר';
+        if (itemCategory != _selectedCategory) return false;
+      }
+      
+      return true;
     }).toList();
 
     // מיון
@@ -665,66 +690,73 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
               },
             ),
 
+            const SizedBox(height: kSpacingMedium),
+
+            // 🏷️ גריד קטגוריות
+            _buildCategoryGrid(),
+
             const SizedBox(height: kSpacingSmall),
 
-            // 🏷️ קיבוץ ומיון
+            // 📊 שורת מיון ומונה
             Row(
               children: [
-                // קיבוץ לפי קטגוריה
-                Expanded(
-                  child: AnimatedScale(
-                    scale: _groupByCategory ? 1.05 : 1.0,
-                    duration: const Duration(milliseconds: 150),
-                    child: FilterChip(
-                      label: const Text('קבץ לפי קטגוריה'),
-                      selected: _groupByCategory,
-                      onSelected: (value) {
-                        setState(() => _groupByCategory = value);
-                        debugPrint(
-                          value
-                              ? '🏷️ ShoppingListDetailsScreen: קיבוץ לפי קטגוריה'
-                              : '📋 ShoppingListDetailsScreen: רשימה שטוחה',
-                        );
-                      },
-                      avatar: Icon(_groupByCategory ? Icons.folder_open : Icons.folder, size: kIconSizeMedium),
+                Expanded(child: _buildSortButton()),
+                if (allItems.isNotEmpty) ...[
+                  const SizedBox(width: kSpacingSmall),
+                  Expanded(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: Container(
+                        key: ValueKey<int>(allItems.length),
+                        padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingSmall),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primaryContainer,
+                          borderRadius: BorderRadius.circular(kBorderRadius),
+                        ),
+                        child: Text(
+                          '📦 ${allItems.length} פריטים',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onPrimaryContainer,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-
-                const SizedBox(width: kSpacingSmall),
-
-                // מיון
-                Expanded(child: _buildSortButton()),
+                ],
               ],
             ),
-
-            // מונה פריטים מונפש
-            if (allItems.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: kSpacingSmall),
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  transitionBuilder: (child, animation) {
-                    return FadeTransition(
-                      opacity: animation,
-                      child: SlideTransition(
-                        position: Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(animation),
-                        child: child,
-                      ),
-                    );
-                  },
-                  child: Text(
-                    'מציג ${allItems.length} פריטים',
-                    key: ValueKey<int>(allItems.length),
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  ),
-                ),
-              ),
           ],
         ),
       ),
+    );
+  }
+
+  /// 🏷️ גריד קטגוריות עם אימוג'י
+  Widget _buildCategoryGrid() {
+    return Wrap(
+      spacing: kSpacingTiny,
+      runSpacing: kSpacingTiny,
+      children: _categoryEmojis.entries.map((entry) {
+        final isSelected = _selectedCategory == entry.key || (_selectedCategory == null && entry.key == 'הכל');
+        return AnimatedScale(
+          scale: isSelected ? 1.1 : 1.0,
+          duration: const Duration(milliseconds: 150),
+          child: FilterChip(
+            label: Text('${entry.value} ${entry.key}'),
+            selected: isSelected,
+            onSelected: (selected) {
+              setState(() {
+                _selectedCategory = entry.key == 'הכל' ? null : entry.key;
+              });
+              debugPrint('🏷️ ShoppingListDetailsScreen: סנן לפי "${entry.key}"');
+            },
+            backgroundColor: isSelected ? Theme.of(context).colorScheme.primaryContainer : null,
+            selectedColor: Theme.of(context).colorScheme.primaryContainer,
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -1033,26 +1065,16 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     );
   }
 
-  /// 🎴 כרטיס פריט מונפש
+  /// 🎴 כרטיס פריט מונפש - קומפקטי
   Widget _buildItemCard(UnifiedListItem item, int index, ThemeData theme, Color stickyColor, double rotation) {
     // 🎯 איקונים וצבעים לפי סוג
     final isProduct = item.type == ItemType.product;
-    final itemIcon = isProduct ? Icons.shopping_basket : Icons.task_alt;
     final actualColor = isProduct ? kStickyYellow : kStickyCyan;
     
-    // 💰 subtitle לפי סוג
-    final String subtitle;
-    if (isProduct) {
-      final formattedPrice = NumberFormat.simpleCurrency(locale: 'he_IL').format(item.totalPrice);
-      subtitle = "כמות: ${item.quantity} | מחיר כולל: $formattedPrice";
-    } else {
-      // Task
-      final dueDate = item.dueDate;
-      final dueDateText = dueDate != null ? DateFormat('dd/MM/yy').format(dueDate) : 'ללא תאריך יעד';
-      final priorityEmoji = item.priority == 'high' ? '🔴' : item.priority == 'medium' ? '🟡' : '🟢';
-      subtitle = "$priorityEmoji תאריך יעד: $dueDateText";
-    }
-
+    // קטגוריה עם אימוג'י
+    final category = item.category ?? 'אחר';
+    final categoryEmoji = _categoryEmojis[category] ?? '📋';
+    
     return Dismissible(
       key: Key(item.id),
       direction: DismissDirection.endToStart,
@@ -1085,80 +1107,84 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
         rotation: rotation,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
           decoration: BoxDecoration(
             color: item.isChecked ? theme.colorScheme.surfaceContainerHighest : theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(kBorderRadius),
           ),
-          child: ListTile(
-            title: AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 200),
-              style: theme.textTheme.titleMedium!.copyWith(
-                decoration: item.isChecked ? TextDecoration.lineThrough : null,
-                color: item.isChecked ? theme.colorScheme.onSurfaceVariant : theme.colorScheme.onSurface,
+          child: Row(
+            children: [
+              // ✅ Checkbox
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: GestureDetector(
+                  onTap: () {
+                    final provider = context.read<ShoppingListsProvider>();
+                    provider.updateItemAt(widget.list.id, index, (current) => current.copyWith(isChecked: !current.isChecked));
+                  },
+                  child: item.isChecked
+                      ? Icon(Icons.check_circle, key: const ValueKey('checked'), color: theme.colorScheme.primary, size: kIconSizeMedium)
+                      : Icon(Icons.radio_button_unchecked, key: const ValueKey('unchecked'), color: theme.colorScheme.onSurfaceVariant, size: kIconSizeMedium),
+                ),
               ),
-              child: Text(item.name ?? 'ללא שם'),
-            ),
-            subtitle: Text(subtitle, style: theme.textTheme.bodySmall),
-            leading: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              child: item.isChecked
-                  ? Icon(Icons.check_circle, key: const ValueKey('checked'), color: theme.colorScheme.primary)
-                  : Icon(
-                      Icons.radio_button_unchecked,
-                      key: const ValueKey('unchecked'),
-                      color: theme.colorScheme.onSurfaceVariant,
+              
+              const SizedBox(width: kSpacingSmall),
+              
+              // 📝 שם + קטגוריה
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 200),
+                      style: theme.textTheme.titleSmall!.copyWith(
+                        decoration: item.isChecked ? TextDecoration.lineThrough : null,
+                        color: item.isChecked ? theme.colorScheme.onSurfaceVariant : theme.colorScheme.onSurface,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      child: Text(item.name ?? 'ללא שם', maxLines: 1, overflow: TextOverflow.ellipsis),
                     ),
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildActionButton(
-                  icon: Icons.edit,
-                  color: Colors.blue,
-                  tooltip: "ערוך מוצר",
-                  onPressed: () => _showItemDialog(context, item: item, index: index),
+                    Text(
+                      '$categoryEmoji ${isProduct ? "כמות: ${item.quantity}" : "משימה"}',
+                      style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                    ),
+                  ],
                 ),
-                _buildActionButton(
-                  icon: Icons.delete,
-                  color: Colors.red,
-                  tooltip: "מחק מוצר",
-                  onPressed: () => _deleteItem(context, index, item),
-                ),
-              ],
-            ),
-            onTap: () => _showItemDialog(context, item: item, index: index),
+              ),
+              
+              // 🔘 כפתורי פעולה
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit, size: 18),
+                    color: Colors.blue,
+                    tooltip: "ערוך",
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                    onPressed: () {
+                      if (isProduct) {
+                        _showItemDialog(context, item: item, index: index);
+                      } else {
+                        _showTaskDialog(context, item: item, index: index);
+                      }
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete, size: 18),
+                    color: Colors.red,
+                    tooltip: "מחק",
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                    onPressed: () => _deleteItem(context, index, item),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
-    );
-  }
-
-  /// 🔘 כפתור פעולה מונפש
-  Widget _buildActionButton({
-    required IconData icon,
-    required Color color,
-    required String tooltip,
-    required VoidCallback onPressed,
-  }) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 1.0, end: 1.0),
-      duration: const Duration(milliseconds: 100),
-      builder: (context, value, child) {
-        return Transform.scale(
-          scale: value,
-          child: IconButton(
-            icon: Icon(icon, color: color),
-            tooltip: tooltip,
-            onPressed: () {
-              // Micro animation on tap
-              setState(() {});
-              Future.delayed(const Duration(milliseconds: 100), () {
-                onPressed();
-              });
-            },
-          ),
-        );
-      },
     );
   }
 

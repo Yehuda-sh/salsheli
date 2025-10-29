@@ -117,13 +117,10 @@ class _CreateListDialogState extends State<CreateListDialog> {
       debugPrint('   ✅ onCreateList הושלם בהצלחה');
 
       if (!mounted) {
-        debugPrint('   ⚠️ Widget לא mounted - לא סוגר Dialog');
+        debugPrint('   ⚠️ Widget לא mounted - מדלג על הודעה');
         return;
       }
 
-      debugPrint('   ✅ סוגר Dialog');
-      Navigator.of(context, rootNavigator: true).pop();
-      
       // הודעת הצלחה עם פרטים
       _showSuccessSnackBar(
         _budget != null
