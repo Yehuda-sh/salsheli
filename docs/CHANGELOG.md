@@ -8,23 +8,35 @@
 date: 29/10/2025
 
 session_41:
-  task: Updated PROJECT_INSTRUCTIONS_v4.md to v4.1
+  task: Code Review - constants.dart Dead Code + PROJECT_INSTRUCTIONS v4.1
   status: complete
   files:
+    - lib/core/constants.dart: deleted (430 lines, dead code)
     - docs/PROJECT_INSTRUCTIONS_v4.md: updated to v4.1
-  changes:
+  analysis_constants:
+    - 430 lines comprehensive constants system
+    - 0 imports, 0 references (FirestoreCollections/Fields/ListType/kListTypes/etc)
+    - active replacement: lib/repositories/constants/repository_constants.dart (50 lines)
+    - duplicate classes: FirestoreCollections/Fields (both in constants.dart AND repository_constants.dart)
+  reason:
+    - over-planning: comprehensive 430-line system created but never used
+    - project created simpler 50-line repository_constants.dart instead
+    - pattern #2 in sessions 40-41: ui_constants.dart (600 lines) + constants.dart (430 lines) = 1030 lines dead code
+  changes_instructions:
     - removed GUIDE.md references (deleted in session_34)
     - updated docs count: 8→7 files
     - updated total lines: 2100→2700
     - added Lesson #7: YAGNI anti-pattern (ui_constants.dart)
+    - added Lesson #8: constants.dart pattern (second occurrence)
     - updated checkpoint trigger: every file→3-5 files
     - added YAGNI shortcut: 3+ pattern rule
     - updated version: 4.0→4.1
   impact:
+    - bloat: -430 lines unused code
+    - clarity: removed duplicate FirestoreCollections/Fields classes
+    - learning: YAGNI pattern confirmed (2 consecutive over-planning cases)
     - accuracy: instructions now match reality
-    - learning: YAGNI principle documented
-    - efficiency: checkpoint trigger corrected
-  result: v4.1 synchronized with current state
+  result: cleaner core/ directory + v4.1 instructions synchronized
 
 session_40:
   task: Code Review - ui_constants.dart Dead Code
