@@ -81,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     
     // 🎯 Auto-focus על שדה אימייל בכניסה למסך
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _emailFocusNode.requestFocus();
+      Future.microtask(() => _emailFocusNode.requestFocus());
     });
   }
 
@@ -137,7 +137,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         final messenger = ScaffoldMessenger.of(context);
         messenger.showSnackBar(
           SnackBar(
-            content: const Row(
+            content: Row(
               children: [
                 Icon(Icons.check_circle, color: Colors.white, size: 24),
                 SizedBox(width: kSpacingSmall),
@@ -159,7 +159,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         
         if (mounted) {
           debugPrint('🔄 _handleLogin() | Navigating to home screen');
-          navigator.pushNamedAndRemoveUntil('/home', (route) => false);
+          await navigator.pushNamedAndRemoveUntil('/home', (route) => false);
         }
       }
     } catch (e) {
@@ -176,8 +176,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.error_outline, color: Colors.white, size: 24),
-                const SizedBox(width: kSpacingSmall),
+                Icon(Icons.error_outline, color: Colors.white, size: 24),
+                SizedBox(width: kSpacingSmall),
                 Expanded(
                   child: Text(
                     errorMsg,
@@ -215,14 +215,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Row(
+          content: Row(
             children: [
-              const Icon(Icons.info_outline, color: Colors.white),
-              const SizedBox(width: kSpacingSmall),
-              const Expanded(
+              Icon(Icons.info_outline, color: Colors.white),
+              SizedBox(width: kSpacingSmall),
+              Expanded(
                 child: Text(
                   'אנא הזן את כתובת האימייל שלך בשדה למעלה',
-                  style: TextStyle(fontSize: kFontSizeSmall),
+                  style: const TextStyle(fontSize: kFontSizeSmall),
                 ),
               ),
             ],
@@ -241,7 +241,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     if (!email.contains('@')) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('כתובת אימייל לא תקינה'),
+          content: Text('כתובת אימייל לא תקינה'),
           backgroundColor: Colors.red.shade700,
         ),
       );
@@ -262,10 +262,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         // הצג הודעת הצלחה
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Row(
+            content: Row(
               children: [
-                const Icon(Icons.check_circle, color: Colors.white),
-                const SizedBox(width: kSpacingSmall),
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: kSpacingSmall),
                 Expanded(
                   child: Text(
                     'נשלח מייל לאיפוס סיסמה ל-$email',
@@ -292,14 +292,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Row(
+            content: Row(
               children: [
-                const Icon(Icons.error_outline, color: Colors.white),
-                const SizedBox(width: kSpacingSmall),
-                const Expanded(
+                Icon(Icons.error_outline, color: Colors.white),
+                SizedBox(width: kSpacingSmall),
+                Expanded(
                   child: Text(
                     'שגיאה בשליחת מייל איפוס',
-                    style: TextStyle(fontSize: kFontSizeSmall),
+                    style: const TextStyle(fontSize: kFontSizeSmall),
                   ),
                 ),
               ],
@@ -434,7 +434,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                 ),
                                 filled: true,
                                 fillColor: cs.surface.withValues(alpha: 0.9),
-                                contentPadding: const EdgeInsets.symmetric( // 📐 צמצום padding פנימי
+                                contentPadding: EdgeInsets.symmetric( // 📐 צמצום padding פנימי
                                   horizontal: kSpacingMedium,
                                   vertical: kSpacingSmall,
                                 ),
@@ -488,7 +488,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                 ),
                               ),
                               obscureText: _obscurePassword,
-                              onFieldSubmitted: (_) => _handleLogin,
+                              onFieldSubmitted: (_) => _handleLogin(),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return AppStrings.auth.passwordRequired;
@@ -508,7 +508,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                             child: TextButton(
                               onPressed: _isLoading ? null : _handleForgotPassword,
                               style: TextButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
+                                padding: EdgeInsets.symmetric(
                                   horizontal: kSpacingSmall,
                                 ),
                                 minimumSize: Size.zero,
@@ -521,7 +521,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                   fontSize: kFontSizeTiny,
                                   fontWeight: FontWeight.w600,
                                   decoration: TextDecoration.underline,
-                                  decorationColor: accent.withValues(alpha: 0.4),
                                 ),
                               ),
                             ),
@@ -558,7 +557,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                   TextButton(
                                     onPressed: _isLoading ? null : _navigateToRegister,
                                     style: TextButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(
+                                      padding: EdgeInsets.symmetric(
                                         horizontal: kSpacingTiny,
                                       ),
                                       minimumSize: Size.zero, // 📐 ביטול גודל מינימלי

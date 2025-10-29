@@ -154,14 +154,14 @@ class ShoppingListTile extends StatelessWidget {
   /// 🏷️ ווידג׳ט תג סוג רשימה
   /// 🇬🇧 List type tag widget
   ///
-  /// מציג תג עם סוג הרשימה (סופר, פארם, אחר)
+  /// מציג תג עם סוג הרשימה - תומך בכל 8 הסוגים החדשים
   Widget _buildListTypeTag(BuildContext context) {
     final String typeLabel;
     final Color typeColor;
     final String typeEmoji;
 
     switch (list.type) {
-      case ShoppingList.typeSuper:
+      case ShoppingList.typeSupermarket:
         typeEmoji = '🛒';
         typeLabel = 'סופרמרקט';
         typeColor = kStickyGreen;
@@ -171,10 +171,35 @@ class ShoppingListTile extends StatelessWidget {
         typeLabel = 'בית מרקחת';
         typeColor = kStickyCyan;
         break;
+      case ShoppingList.typeGreengrocer:
+        typeEmoji = '🥬';
+        typeLabel = 'ירקן';
+        typeColor = kStickyGreen;
+        break;
+      case ShoppingList.typeButcher:
+        typeEmoji = '🥩';
+        typeLabel = 'אטליז';
+        typeColor = kStickyPink;
+        break;
+      case ShoppingList.typeBakery:
+        typeEmoji = '🍞';
+        typeLabel = 'מאפייה';
+        typeColor = kStickyYellow;
+        break;
+      case ShoppingList.typeMarket:
+        typeEmoji = '🧺';
+        typeLabel = 'שוק';
+        typeColor = kStickyYellow;
+        break;
+      case ShoppingList.typeHousehold:
+        typeEmoji = '🏠';
+        typeLabel = 'כלי בית';
+        typeColor = kStickyPurple;
+        break;
       case ShoppingList.typeOther:
       default:
-        typeEmoji = '📋';
-        typeLabel = 'כללי';
+        typeEmoji = '📦';
+        typeLabel = 'אחר';
         typeColor = kStickyPurple;
         break;
     }

@@ -163,6 +163,7 @@ const Color kSplashGradientEndDark = Color(0xFF9F1239);    // Dark pink
 
 const double kFontSizeTiny = 10.0;    // Tiny text (smaller than small)
 const double kFontSizeSmall = 12.0;   // Small text
+const double kFontSizeMedium = 14.0;  // Medium text (between small and body)
 const double kFontSizeBody = 16.0;    // Body text
 const double kFontSizeLarge = 20.0;   // Large text
 const double kFontSizeXLarge = 28.0;  // Extra large text (titles)
@@ -175,3 +176,10 @@ const double kIconSizeSmall = 16.0;    // Small icons
 const double kIconSizeMedium = 24.0;   // Medium icons (default)
 const double kIconSizeXLarge = 48.0;   // Extra large icons
 const double kIconSizeXXLarge = 64.0;  // Extra extra large icons
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FORM FIELD SIZES
+// ═══════════════════════════════════════════════════════════════════════════
+
+const double kFieldWidthNarrow = 80.0;   // Narrow field width (quantity inputs)
+const double kChipHeight = 48.0;          // Filter chip container height

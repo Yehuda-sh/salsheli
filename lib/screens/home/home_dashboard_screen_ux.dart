@@ -56,51 +56,50 @@ class _SkeletonCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
-            Container(
-              width: kSkeletonTitleWidth,
-              height: kSkeletonTitleHeight,
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-              ),
-            )
+          Container(
+            width: 150.0,
+            height: 20.0,
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+            ),
+          )
               .animate(onPlay: (c) => c.repeat())
               .shimmer(
                 duration: 1200.ms,
-                color: Colors.white.withOpacity(0.4),
+                color: Colors.white.withValues(alpha: 0.4),
               ),
 
-            const SizedBox(height: kSpacingSmall),
-            Container(
-              width: kSkeletonSubtitleWidth,
-              height: kSkeletonSubtitleHeight,
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-              ),
-            )
+          const SizedBox(height: kSpacingSmall),
+          Container(
+            width: 200.0,
+            height: 16.0,
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+            ),
+          )
               .animate(onPlay: (c) => c.repeat())
               .shimmer(
                 duration: 1200.ms,
                 delay: 200.ms,
-                color: Colors.white.withOpacity(0.4),
+                color: Colors.white.withValues(alpha: 0.4),
               ),
 
-            const SizedBox(height: kSpacingMedium),
-            Container(
-              width: double.infinity,
-              height: kSkeletonContentHeight,
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-              ),
-            )
+          const SizedBox(height: kSpacingMedium),
+          Container(
+            width: double.infinity,
+            height: 60.0,
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+            ),
+          )
               .animate(onPlay: (c) => c.repeat())
               .shimmer(
                 duration: 1200.ms,
                 delay: 400.ms,
-                color: Colors.white.withOpacity(0.4),
+                color: Colors.white.withValues(alpha: 0.4),
               ),
         ],
       )

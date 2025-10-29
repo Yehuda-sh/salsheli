@@ -81,7 +81,7 @@ class StickyButton extends StatelessWidget {
   final IconData? icon;
 
   /// פעולה בלחיצה
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   /// גובה הכפתור (ברירת מחדל: 48px)
   final double height;
@@ -92,7 +92,7 @@ class StickyButton extends StatelessWidget {
     this.textColor,
     required this.label,
     this.icon,
-    required this.onPressed,
+    this.onPressed,
     this.height = kButtonHeight,
   });
 
@@ -112,14 +112,14 @@ class StickyButton extends StatelessWidget {
     return Semantics(
       button: true,
       label: label,
-      enabled: true,
+      enabled: onPressed != null,
       child: AnimatedButton(
-        onPressed: onPressed,
+        onPressed: onPressed ?? () {},
         child: Container(
           width: double.infinity,
           height: height,
           decoration: BoxDecoration(
-            color: buttonColor,
+            color: onPressed == null ? buttonColor.withValues(alpha: 0.5) : buttonColor,
             borderRadius: BorderRadius.circular(kStickyButtonRadius),
             boxShadow: [
               BoxShadow(
@@ -179,7 +179,7 @@ class StickyButtonSmall extends StatelessWidget {
   final IconData? icon;
 
   /// פעולה בלחיצה
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   const StickyButtonSmall({
     super.key,
@@ -187,7 +187,7 @@ class StickyButtonSmall extends StatelessWidget {
     this.textColor,
     required this.label,
     this.icon,
-    required this.onPressed,
+    this.onPressed,
   });
 
   @override

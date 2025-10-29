@@ -29,17 +29,18 @@
 // 📝 Version: 3.2 - Removed Demo Login
 // 📅 Updated: 26/10/2025
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../providers/user_context.dart';
-import '../../theme/app_theme.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
-
+import '../../providers/user_context.dart';
+import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
-import '../../widgets/common/sticky_note.dart';
 import '../../widgets/common/sticky_button.dart';
+import '../../widgets/common/sticky_note.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -87,6 +88,18 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       if (mounted) {
         _nameFocusNode.requestFocus();
       }
+    });
+  }
+
+  void _togglePasswordVisibility() {
+    setState(() {
+      _obscurePassword = !_obscurePassword;
+    });
+  }
+
+  void _toggleConfirmPasswordVisibility() {
+    setState(() {
+      _obscureConfirmPassword = !_obscureConfirmPassword;
     });
   }
 
@@ -145,11 +158,11 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         // 🎉 הודעת הצלחה
         scaffoldMessenger.showSnackBar(
           SnackBar(
-            content: Row(
+            content: const Row(
               children: [
-                const Icon(Icons.check_circle, color: Colors.white, size: 24),
-                const SizedBox(width: kSpacingSmall),
-                const Text('הרשמת בהצלחה! מעביר לדף הבית...'),
+                Icon(Icons.check_circle, color: Colors.white, size: 24),
+                SizedBox(width: kSpacingSmall),
+                Text('הרשמת בהצלחה! מעביר לדף הבית...'),
               ],
             ),
             backgroundColor: Colors.green.shade700,
@@ -167,7 +180,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         
         if (mounted) {
           debugPrint('🔄 _handleRegister() | Navigating to home screen');
-          navigator.pushNamedAndRemoveUntil('/home', (route) => false);
+          await navigator.pushNamedAndRemoveUntil('/home', (route) => false);
         }
       }
     } catch (e) {
@@ -212,7 +225,12 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
   /// ניווט למסך התחברות
   void _navigateToLogin() {
     debugPrint('🔄 _navigateToLogin() | Navigating to login screen');
-    Navigator.pushReplacementNamed(context, '/login');
+    unawaited(Navigator.pushReplacementNamed(context, '/login'));
+  }
+
+  /// טיפול בלחיצה על כפתור הרשמה
+  void _onRegisterPressed() {
+    unawaited(_handleRegister());
   }
 
   @override
@@ -401,11 +419,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                         ? Icons.visibility_outlined
                                         : Icons.visibility_off_outlined,
                                   ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _obscurePassword = !_obscurePassword;
-                                    });
-                                  },
+                                  onPressed: _togglePasswordVisibility,
                                   tooltip: _obscurePassword ? 'הצג סיסמה' : 'הסתר סיסמה',
                                 ),
                                 border: OutlineInputBorder(
@@ -450,11 +464,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                         ? Icons.visibility_outlined
                                         : Icons.visibility_off_outlined,
                                   ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _obscureConfirmPassword = !_obscureConfirmPassword;
-                                    });
-                                  },
+                                  onPressed: _toggleConfirmPasswordVisibility,
                                   tooltip: _obscureConfirmPassword ? 'הצג סיסמה' : 'הסתר סיסמה',
                                 ),
                                 border: OutlineInputBorder(
@@ -469,7 +479,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                               ),
                               obscureText: _obscureConfirmPassword,
                               textInputAction: TextInputAction.done,
-                              onFieldSubmitted: (_) => _handleRegister(),
+                              onFieldSubmitted: (_) { _onRegisterPressed(); },
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return AppStrings.auth.confirmPasswordRequired;
@@ -488,7 +498,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                             color: accent,
                             label: AppStrings.auth.registerButton,
                             icon: Icons.app_registration,
-                            onPressed: _isLoading ? () {} : () => _handleRegister(),
+                            onPressed: _isLoading ? null : _onRegisterPressed,
                             height: 44, // 📐 גובה מצומצם
                           ),
                           const SizedBox(height: kSpacingSmall),
@@ -514,8 +524,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                     onPressed: _isLoading ? null : _navigateToLogin,
                                     style: TextButton.styleFrom(
                                       padding: const EdgeInsets.symmetric(
-                                        horizontal: kSpacingXSmall,
-                                        vertical: 0,
+                                        horizontal: kSpacingTiny,
                                       ),
                                       minimumSize: Size.zero,
                                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,

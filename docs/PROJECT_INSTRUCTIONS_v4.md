@@ -1,4 +1,4 @@
-# 📋 MemoZap Project Instructions v4.5
+# 📋 MemoZap Project Instructions v4.6
 
 > Machine-Readable | Full YAML Format | Updated: 29/10/2025
 
@@ -191,7 +191,7 @@ session_end:
 ## 📚 DOCUMENTATION
 
 ```yaml
-docs_6_files:
+docs_5_files:
   CODE.md:
     content: Architecture + Patterns + Testing
     size: 500_lines
@@ -229,14 +229,6 @@ docs_6_files:
         2. search_files (check usage!)
         3. apply checklist
         4. format response in Hebrew
-    
-  LESSONS_LEARNED.md:
-    content: Common errors + solutions
-    size: 300_lines
-    read_when:
-      - טעות חוזרת
-      - אזהרה לפני שינוי מסוכן
-      - תיקון באג מוכר
     
   WORK_PLAN.md:
     content: 8 weeks roadmap (Lists + Inventory)
@@ -844,14 +836,13 @@ lib:
   config: Constants + configs
 
 docs:
-  count: 6 files
-  total_lines: 2300 (optimized for machine)
+  count: 5 files
+  total_lines: 2000 (optimized for machine)
   files:
     - CODE.md (500) - patterns
     - DESIGN.md (300) - UI/UX
     - TECH.md (400) - Firebase
     - CODE_REVIEW_CHECKLIST.md (300) - review
-    - LESSONS_LEARNED.md (300) - errors
     - WORK_PLAN.md (500) - future
 
 test:
@@ -948,7 +939,13 @@ critical_checklist_before_commit:
 - ✅ Docs: 7→6 files, 2700→2300 lines
 - ✅ Impact: Zero maintenance, automatic tracking, efficient tokens
 
+**Updates v4.6 (session 46 - FINAL CLEANUP):**
+- ✅ Removed LESSONS_LEARNED.md (100% covered in v4.5 + Memory)
+- ✅ Docs: 6→5 files, 2300→2000 lines
+- ✅ Fixed docs_6_files → docs_5_files
+- ✅ Impact: Zero duplication, single source of truth
+
 **Total:** 500 lines | Format: Pure YAML  
-**Version:** 4.5
+**Version:** 4.6
 **Last Updated:** 29/10/2025  
 **Maintainer:** MemoZap AI System

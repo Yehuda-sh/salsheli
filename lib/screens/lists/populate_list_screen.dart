@@ -181,7 +181,6 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
         title: Text(
           'הוספת מוצרים: ${widget.list.name}',
           style: TextStyle(color: cs.onSurface),
-          overflow: TextOverflow.ellipsis,
         ),
         actions: [
           // כפתור רענון (רק במצב עריכה)
@@ -751,10 +750,10 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
                         color: cs.onSurface,
                       ),
                     ),
-                    if (item.unitPrice > 0) ..[
+                    if ((item.unitPrice ?? 0.0) > 0) ...[
                       const SizedBox(height: 2),
                       Text(
-                        '₪${item.unitPrice.toStringAsFixed(2)} × ${item.quantity}',
+                        '₪${item.unitPrice?.toStringAsFixed(2)} × ${item.quantity}',
                         style: TextStyle(
                           fontSize: 12,
                           color: cs.onSurfaceVariant,
@@ -777,7 +776,7 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: IconButton(
-                      onPressed: () => _updateQuantity(item, item.quantity - 1),
+                      onPressed: () => _updateQuantity(item, (item.quantity ?? 0) - 1),
                       icon: const Icon(Icons.remove, size: 16),
                       padding: EdgeInsets.zero,
                       tooltip: 'הפחת כמות',
@@ -807,7 +806,7 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: IconButton(
-                      onPressed: () => _updateQuantity(item, item.quantity + 1),
+                      onPressed: () => _updateQuantity(item, (item.quantity ?? 0) + 1),
                       icon: const Icon(Icons.add, size: 16),
                       padding: EdgeInsets.zero,
                       tooltip: 'הוסף כמות',
@@ -846,7 +845,12 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
       await provider.updateItemAt(
         widget.list.id,
         itemIndex,
-        (oldItem) => oldItem.copyWith(quantity: newQuantity),
+        (oldItem) => oldItem.copyWith(
+          productData: {
+            ...?oldItem.productData,
+            'quantity': newQuantity,
+          },
+        ),
       );
     } catch (e) {
       if (!mounted) return;
