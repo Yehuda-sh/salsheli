@@ -11,6 +11,8 @@ class FirestoreCollections {
   static const String products = 'products';
   static const String users = 'users';
   static const String households = 'households';
+  static const String habitPreferences = 'habit_preferences';
+  static const String customLocations = 'custom_locations';
 }
 
 class FirestoreFields {
@@ -25,6 +27,7 @@ class FirestoreFields {
   static const String purchaseDate = 'purchase_date';
   static const String totalAmount = 'total_amount';
   static const String items = 'items';
+  static const String date = 'date';
   
   // Shopping List fields
   static const String name = 'name';
@@ -35,4 +38,17 @@ class FirestoreFields {
   static const String productId = 'product_id';
   static const String quantity = 'quantity';
   static const String expiryDate = 'expiry_date';
+  
+  // Product fields
+  static const String category = 'category';
+  static const String barcode = 'barcode';
+  static const String brand = 'brand';
+  
+  // Habit Preference fields
+  static const String preferredProduct = 'preferred_product';
+  static const String lastPurchased = 'last_purchased';
+  
+  // Location fields
+  static const String locationName = 'location_name';
+  static const String createdAt = 'created_at';
 }

@@ -27,14 +27,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../models/custom_location.dart';
+import 'constants/repository_constants.dart';
 import 'locations_repository.dart';
 
 /// מימוש Firebase של LocationsRepository
 class FirebaseLocationsRepository implements LocationsRepository {
   final FirebaseFirestore _firestore;
 
-  /// שם ה-collection ב-Firestore
-  static const String collectionName = 'custom_locations';
+
 
   /// Constructor
   /// 
@@ -49,9 +49,9 @@ class FirebaseLocationsRepository implements LocationsRepository {
 
     try {
       final snapshot = await _firestore
-          .collection(collectionName)
-          .where('household_id', isEqualTo: householdId)
-          .orderBy('created_at', descending: false)
+          .collection(FirestoreCollections.customLocations)
+          .where(FirestoreFields.householdId, isEqualTo: householdId)
+          .orderBy(FirestoreFields.createdAt, descending: false)
           .get();
 
       final locations = snapshot.docs.map((doc) {
@@ -83,13 +83,13 @@ class FirebaseLocationsRepository implements LocationsRepository {
 
     try {
       final data = location.toJson();
-      data['household_id'] = householdId; // הוספת household_id
-      data['created_at'] = FieldValue.serverTimestamp();
+      data[FirestoreFields.householdId] = householdId; // הוספת household_id
+      data[FirestoreFields.createdAt] = FieldValue.serverTimestamp();
 
       // שימוש ב-key כ-document ID (ייחודי per household)
       final docId = '${householdId}_${location.key}';
       
-      await _firestore.collection(collectionName).doc(docId).set(
+      await _firestore.collection(FirestoreCollections.customLocations).doc(docId).set(
             data,
             SetOptions(merge: true),
           );
@@ -109,7 +109,7 @@ class FirebaseLocationsRepository implements LocationsRepository {
     try {
       final docId = '${householdId}_$key';
       
-      await _firestore.collection(collectionName).doc(docId).delete();
+      await _firestore.collection(FirestoreCollections.customLocations).doc(docId).delete();
 
       debugPrint('✅ FirebaseLocationsRepository: מיקום נמחק - $key');
     } catch (e, st) {

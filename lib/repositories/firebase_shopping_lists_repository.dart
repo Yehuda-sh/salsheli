@@ -22,10 +22,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../models/shopping_list.dart';
 import 'shopping_lists_repository.dart';
+import '../core/constants.dart';
 
 class FirebaseShoppingListsRepository implements ShoppingListsRepository {
   final FirebaseFirestore _firestore;
-  final String _collectionName = 'shopping_lists';
 
   FirebaseShoppingListsRepository({FirebaseFirestore? firestore})
     : _firestore = firestore ?? FirebaseFirestore.instance;
@@ -40,9 +40,9 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
       );
 
       final snapshot = await _firestore
-          .collection(_collectionName)
-          .where('household_id', isEqualTo: householdId)
-          .orderBy('updated_date', descending: true)
+          .collection(FirestoreCollections.shoppingLists)
+          .where(FirestoreFields.householdId, isEqualTo: householdId)
+          .orderBy(FirestoreFields.updatedDate, descending: true)
           .get();
 
       final lists = snapshot.docs.map((doc) {
@@ -77,10 +77,10 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
       final data = list.toJson();
 
       // הוספת household_id
-      data['household_id'] = householdId;
+      data[FirestoreFields.householdId] = householdId;
 
       await _firestore
-          .collection(_collectionName)
+          .collection(FirestoreCollections.shoppingLists)
           .doc(list.id)
           .set(data, SetOptions(merge: true));
 
@@ -106,7 +106,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
       );
 
       // וידוא שהרשימה שייכת ל-household
-      final doc = await _firestore.collection(_collectionName).doc(id).get();
+      final doc = await _firestore.collection(FirestoreCollections.shoppingLists).doc(id).get();
 
       if (!doc.exists) {
         debugPrint('⚠️ רשימה לא קיימת');
@@ -114,7 +114,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
       }
 
       final data = doc.data();
-      if (data?['household_id'] != householdId) {
+      if (data?[FirestoreFields.householdId] != householdId) {
         debugPrint('⚠️ רשימה לא שייכת ל-household זה');
         throw ShoppingListRepositoryException(
           'Shopping list does not belong to household',
@@ -122,7 +122,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         );
       }
 
-      await _firestore.collection(_collectionName).doc(id).delete();
+      await _firestore.collection(FirestoreCollections.shoppingLists).doc(id).delete();
 
       debugPrint('✅ FirebaseShoppingListsRepository.deleteList: רשימה נמחקה');
     } catch (e, stackTrace) {
@@ -150,20 +150,20 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         '📝 FirebaseShoppingListsRepository.addSharedUser: מוסיף משתמש $userId לרשימה $listId כ-$role',
       );
 
-      final docRef = _firestore.collection(_collectionName).doc(listId);
+      final docRef = _firestore.collection(FirestoreCollections.shoppingLists).doc(listId);
 
       // יצירת SharedUser object
       final sharedUser = {
-        'user_id': userId,
-        'role': role,
+        FirestoreFields.userId: userId,
+        FirestoreFields.role: role,
         'shared_at': FieldValue.serverTimestamp(),
-        if (userName != null) 'user_name': userName,
-        if (userEmail != null) 'user_email': userEmail,
+        if (userName != null) FirestoreFields.userName: userName,
+        if (userEmail != null) FirestoreFields.email: userEmail,
       };
 
       await docRef.update({
-        'shared_users': FieldValue.arrayUnion([sharedUser]),
-        'updated_date': FieldValue.serverTimestamp(),
+        FirestoreFields.sharedUsers: FieldValue.arrayUnion([sharedUser]),
+        FirestoreFields.updatedDate: FieldValue.serverTimestamp(),
       });
 
       debugPrint('✅ משתמש נוסף בהצלחה');
@@ -184,7 +184,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         '🗑️ FirebaseShoppingListsRepository.removeSharedUser: מסיר משתמש $userId מרשימה $listId',
       );
 
-      final docRef = _firestore.collection(_collectionName).doc(listId);
+      final docRef = _firestore.collection(FirestoreCollections.shoppingLists).doc(listId);
       final doc = await docRef.get();
 
       if (!doc.exists) {
@@ -193,15 +193,15 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
 
       final data = doc.data()!;
       final sharedUsers = List<Map<String, dynamic>>.from(
-        data['shared_users'] ?? [],
+        data[FirestoreFields.sharedUsers] ?? [],
       );
 
       // הסרת המשתמש מהרשימה
-      sharedUsers.removeWhere((user) => user['user_id'] == userId);
+      sharedUsers.removeWhere((user) => user[FirestoreFields.userId] == userId);
 
       await docRef.update({
-        'shared_users': sharedUsers,
-        'updated_date': FieldValue.serverTimestamp(),
+        FirestoreFields.sharedUsers: sharedUsers,
+        FirestoreFields.updatedDate: FieldValue.serverTimestamp(),
       });
 
       debugPrint('✅ משתמש הוסר בהצלחה');
@@ -228,7 +228,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         '🔄 FirebaseShoppingListsRepository.updateUserRole: משנה תפקיד $userId ברשימה $listId ל-$newRole',
       );
 
-      final docRef = _firestore.collection(_collectionName).doc(listId);
+      final docRef = _firestore.collection(FirestoreCollections.shoppingLists).doc(listId);
       final doc = await docRef.get();
 
       if (!doc.exists) {
@@ -237,23 +237,23 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
 
       final data = doc.data()!;
       final sharedUsers = List<Map<String, dynamic>>.from(
-        data['shared_users'] ?? [],
+        data[FirestoreFields.sharedUsers] ?? [],
       );
 
       // מציאת המשתמש ועדכון התפקיד
       final userIndex = sharedUsers.indexWhere(
-        (user) => user['user_id'] == userId,
+        (user) => user[FirestoreFields.userId] == userId,
       );
 
       if (userIndex == -1) {
         throw ShoppingListRepositoryException('User not found in list', null);
       }
 
-      sharedUsers[userIndex]['role'] = newRole;
+      sharedUsers[userIndex][FirestoreFields.role] = newRole;
 
       await docRef.update({
-        'shared_users': sharedUsers,
-        'updated_date': FieldValue.serverTimestamp(),
+        FirestoreFields.sharedUsers: sharedUsers,
+        FirestoreFields.updatedDate: FieldValue.serverTimestamp(),
       });
 
       debugPrint('✅ תפקיד עודכן בהצלחה');
@@ -280,7 +280,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         '👑 FirebaseShoppingListsRepository.transferOwnership: מעביר בעלות מ-$currentOwnerId ל-$newOwnerId',
       );
 
-      final docRef = _firestore.collection(_collectionName).doc(listId);
+      final docRef = _firestore.collection(FirestoreCollections.shoppingLists).doc(listId);
       final doc = await docRef.get();
 
       if (!doc.exists) {
@@ -289,23 +289,23 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
 
       final data = doc.data()!;
       final sharedUsers = List<Map<String, dynamic>>.from(
-        data['shared_users'] ?? [],
+        data[FirestoreFields.sharedUsers] ?? [],
       );
 
       // מסירים את הבעלים החדש מרשימת shared_users (אם הוא שם)
-      sharedUsers.removeWhere((user) => user['user_id'] == newOwnerId);
+      sharedUsers.removeWhere((user) => user[FirestoreFields.userId] == newOwnerId);
 
       // מוסיפים את הבעלים הנוכחי כ-Admin
       sharedUsers.add({
-        'user_id': currentOwnerId,
-        'role': 'admin',
+        FirestoreFields.userId: currentOwnerId,
+        FirestoreFields.role: 'admin',
         'shared_at': FieldValue.serverTimestamp(),
       });
 
       await docRef.update({
-        'created_by': newOwnerId,
-        'shared_users': sharedUsers,
-        'updated_date': FieldValue.serverTimestamp(),
+        FirestoreFields.createdBy: newOwnerId,
+        FirestoreFields.sharedUsers: sharedUsers,
+        FirestoreFields.updatedDate: FieldValue.serverTimestamp(),
       });
 
       debugPrint('✅ בעלות הועברה בהצלחה');
@@ -336,7 +336,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         '📝 FirebaseShoppingListsRepository.createRequest: יוצר בקשה מסוג $type לרשימה $listId',
       );
 
-      final docRef = _firestore.collection(_collectionName).doc(listId);
+      final docRef = _firestore.collection(FirestoreCollections.shoppingLists).doc(listId);
 
       // יצירת request ID
       final requestId = '${DateTime.now().millisecondsSinceEpoch}_$requesterId';
@@ -344,16 +344,16 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
       final request = {
         'id': requestId,
         'requester_id': requesterId,
-        'type': type,
-        'status': 'pending',
+        FirestoreFields.type: type,
+        FirestoreFields.status: 'pending',
         'created_at': FieldValue.serverTimestamp(),
         'request_data': requestData,
         if (requesterName != null) 'requester_name': requesterName,
       };
 
       await docRef.update({
-        'pending_requests': FieldValue.arrayUnion([request]),
-        'updated_date': FieldValue.serverTimestamp(),
+        FirestoreFields.pendingRequests: FieldValue.arrayUnion([request]),
+        FirestoreFields.updatedDate: FieldValue.serverTimestamp(),
       });
 
       debugPrint('✅ בקשה נוצרה: $requestId');
@@ -382,7 +382,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         '✅ FirebaseShoppingListsRepository.approveRequest: מאשר בקשה $requestId',
       );
 
-      final docRef = _firestore.collection(_collectionName).doc(listId);
+      final docRef = _firestore.collection(FirestoreCollections.shoppingLists).doc(listId);
       final doc = await docRef.get();
 
       if (!doc.exists) {
@@ -391,7 +391,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
 
       final data = doc.data()!;
       final pendingRequests = List<Map<String, dynamic>>.from(
-        data['pending_requests'] ?? [],
+        data[FirestoreFields.pendingRequests] ?? [],
       );
 
       // מציאת הבקשה
@@ -404,7 +404,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
       }
 
       // עדכון סטטוס הבקשה
-      pendingRequests[requestIndex]['status'] = 'approved';
+      pendingRequests[requestIndex][FirestoreFields.status] = 'approved';
       pendingRequests[requestIndex]['reviewer_id'] = reviewerId;
       pendingRequests[requestIndex]['reviewed_at'] = FieldValue.serverTimestamp();
       if (reviewerName != null) {
@@ -415,8 +415,8 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
       // זה יועבר ל-Provider לטיפול
 
       await docRef.update({
-        'pending_requests': pendingRequests,
-        'updated_date': FieldValue.serverTimestamp(),
+        FirestoreFields.pendingRequests: pendingRequests,
+        FirestoreFields.updatedDate: FieldValue.serverTimestamp(),
       });
 
       debugPrint('✅ בקשה אושרה בהצלחה');
@@ -445,7 +445,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         '❌ FirebaseShoppingListsRepository.rejectRequest: דוחה בקשה $requestId',
       );
 
-      final docRef = _firestore.collection(_collectionName).doc(listId);
+      final docRef = _firestore.collection(FirestoreCollections.shoppingLists).doc(listId);
       final doc = await docRef.get();
 
       if (!doc.exists) {
@@ -454,7 +454,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
 
       final data = doc.data()!;
       final pendingRequests = List<Map<String, dynamic>>.from(
-        data['pending_requests'] ?? [],
+        data[FirestoreFields.pendingRequests] ?? [],
       );
 
       // מציאת הבקשה
@@ -467,7 +467,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
       }
 
       // עדכון סטטוס הבקשה
-      pendingRequests[requestIndex]['status'] = 'rejected';
+      pendingRequests[requestIndex][FirestoreFields.status] = 'rejected';
       pendingRequests[requestIndex]['reviewer_id'] = reviewerId;
       pendingRequests[requestIndex]['reviewed_at'] = FieldValue.serverTimestamp();
       pendingRequests[requestIndex]['rejection_reason'] = reason;
@@ -476,8 +476,8 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
       }
 
       await docRef.update({
-        'pending_requests': pendingRequests,
-        'updated_date': FieldValue.serverTimestamp(),
+        FirestoreFields.pendingRequests: pendingRequests,
+        FirestoreFields.updatedDate: FieldValue.serverTimestamp(),
       });
 
       debugPrint('✅ בקשה נדחתה בהצלחה');
@@ -500,7 +500,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         '📝 FirebaseShoppingListsRepository.getPendingRequests: מביא בקשות ממתינות',
       );
 
-      final doc = await _firestore.collection(_collectionName).doc(listId).get();
+      final doc = await _firestore.collection(FirestoreCollections.shoppingLists).doc(listId).get();
 
       if (!doc.exists) {
         throw ShoppingListRepositoryException('List not found', null);
@@ -508,12 +508,12 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
 
       final data = doc.data()!;
       final allRequests = List<Map<String, dynamic>>.from(
-        data['pending_requests'] ?? [],
+        data[FirestoreFields.pendingRequests] ?? [],
       );
 
       // סינון רק בקשות pending
       final pendingRequests = allRequests
-          .where((req) => req['status'] == 'pending')
+          .where((req) => req[FirestoreFields.status] == 'pending')
           .toList();
 
       debugPrint('✅ נמצאו ${pendingRequests.length} בקשות ממתינות');
@@ -542,9 +542,9 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
   /// ```
   Stream<List<ShoppingList>> watchLists(String householdId) {
     return _firestore
-        .collection(_collectionName)
-        .where('household_id', isEqualTo: householdId)
-        .orderBy('updated_date', descending: true)
+        .collection(FirestoreCollections.shoppingLists)
+        .where(FirestoreFields.householdId, isEqualTo: householdId)
+        .orderBy(FirestoreFields.updatedDate, descending: true)
         .snapshots()
         .map((snapshot) {
           return snapshot.docs.map((doc) {
@@ -567,7 +567,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
       );
 
       final doc = await _firestore
-          .collection(_collectionName)
+          .collection(FirestoreCollections.shoppingLists)
           .doc(listId)
           .get();
 
@@ -579,7 +579,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
       final data = Map<String, dynamic>.from(doc.data()!);
 
       // בדיקה שהרשימה שייכת ל-household
-      if (data['household_id'] != householdId) {
+      if (data[FirestoreFields.householdId] != householdId) {
         debugPrint('⚠️ רשימה לא שייכת ל-household זה');
         return null;
       }
@@ -614,10 +614,10 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
       );
 
       final snapshot = await _firestore
-          .collection(_collectionName)
-          .where('household_id', isEqualTo: householdId)
-          .where('status', isEqualTo: status)
-          .orderBy('updated_date', descending: true)
+          .collection(FirestoreCollections.shoppingLists)
+          .where(FirestoreFields.householdId, isEqualTo: householdId)
+          .where(FirestoreFields.status, isEqualTo: status)
+          .orderBy(FirestoreFields.updatedDate, descending: true)
           .get();
 
       final lists = snapshot.docs.map((doc) {
@@ -655,10 +655,10 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
       );
 
       final snapshot = await _firestore
-          .collection(_collectionName)
-          .where('household_id', isEqualTo: householdId)
-          .where('type', isEqualTo: type)
-          .orderBy('updated_date', descending: true)
+          .collection(FirestoreCollections.shoppingLists)
+          .where(FirestoreFields.householdId, isEqualTo: householdId)
+          .where(FirestoreFields.type, isEqualTo: type)
+          .orderBy(FirestoreFields.updatedDate, descending: true)
           .get();
 
       final lists = snapshot.docs.map((doc) {

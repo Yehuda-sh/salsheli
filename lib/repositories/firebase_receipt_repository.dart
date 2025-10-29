@@ -42,8 +42,8 @@ class FirebaseReceiptRepository implements ReceiptRepository {
 
       final snapshot = await _firestore
           .collection(FirestoreCollections.receipts)
-          .where('household_id', isEqualTo: householdId)
-          .orderBy('date', descending: true)
+          .where(FirestoreFields.householdId, isEqualTo: householdId)
+          .orderBy(FirestoreFields.date, descending: true)
           .get();
 
       final receipts = snapshot.docs.map((doc) {
@@ -71,7 +71,7 @@ class FirebaseReceiptRepository implements ReceiptRepository {
 
       // הוספת household_id לנתונים
       final data = receipt.toJson();
-      data['household_id'] = householdId;
+      data[FirestoreFields.householdId] = householdId;
 
       await _firestore
           .collection(FirestoreCollections.receipts)
@@ -106,7 +106,7 @@ class FirebaseReceiptRepository implements ReceiptRepository {
       }
 
       final data = doc.data();
-      if (data?['household_id'] != householdId) {
+      if (data?[FirestoreFields.householdId] != householdId) {
         debugPrint('⚠️ קבלה לא שייכת ל-household זה');
         throw ReceiptRepositoryException('Receipt does not belong to household', null);
       }
@@ -137,8 +137,8 @@ class FirebaseReceiptRepository implements ReceiptRepository {
   Stream<List<Receipt>> watchReceipts(String householdId) {
     return _firestore
         .collection(FirestoreCollections.receipts)
-        .where('household_id', isEqualTo: householdId)
-        .orderBy('date', descending: true)
+        .where(FirestoreFields.householdId, isEqualTo: householdId)
+        .orderBy(FirestoreFields.date, descending: true)
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
@@ -173,7 +173,7 @@ class FirebaseReceiptRepository implements ReceiptRepository {
       final data = Map<String, dynamic>.from(doc.data()!);
       
       // בדיקה שהקבלה שייכת ל-household
-      if (data['household_id'] != householdId) {
+      if (data[FirestoreFields.householdId] != householdId) {
         debugPrint('⚠️ קבלה לא שייכת ל-household זה');
         return null;
       }
@@ -202,9 +202,9 @@ class FirebaseReceiptRepository implements ReceiptRepository {
 
       final snapshot = await _firestore
           .collection(FirestoreCollections.receipts)
-          .where('household_id', isEqualTo: householdId)
+          .where(FirestoreFields.householdId, isEqualTo: householdId)
           .where(FirestoreFields.storeName, isEqualTo: storeName)
-          .orderBy('date', descending: true)
+          .orderBy(FirestoreFields.date, descending: true)
           .get();
 
       final receipts = snapshot.docs.map((doc) {
@@ -243,10 +243,10 @@ class FirebaseReceiptRepository implements ReceiptRepository {
 
       final snapshot = await _firestore
           .collection(FirestoreCollections.receipts)
-          .where('household_id', isEqualTo: householdId)
-          .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
-          .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endDate))
-          .orderBy('date', descending: true)
+          .where(FirestoreFields.householdId, isEqualTo: householdId)
+          .where(FirestoreFields.date, isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
+          .where(FirestoreFields.date, isLessThanOrEqualTo: Timestamp.fromDate(endDate))
+          .orderBy(FirestoreFields.date, descending: true)
           .get();
 
       final receipts = snapshot.docs.map((doc) {

@@ -45,11 +45,11 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'constants/repository_constants.dart';
 import 'products_repository.dart';
 
 class FirebaseProductsRepository implements ProductsRepository {
   final FirebaseFirestore _firestore;
-  static const String _collectionName = 'products';
 
   // Cache מקומי
   List<Map<String, dynamic>>? _cachedProducts;
@@ -126,7 +126,7 @@ class FirebaseProductsRepository implements ProductsRepository {
 
     try {
       debugPrint('📥 טוען מוצרים מ-Firestore...');
-      final snapshot = await _firestore.collection(_collectionName).get();
+      final snapshot = await _firestore.collection(FirestoreCollections.products).get();
 
       _cachedProducts = snapshot.docs
           .map((doc) => {...doc.data(), 'id': doc.id})
@@ -164,7 +164,7 @@ class FirebaseProductsRepository implements ProductsRepository {
       }
 
       // 🔥 אין cache - טען מ-Firestore
-      Query query = _firestore.collection(_collectionName);
+      Query query = _firestore.collection(FirestoreCollections.products);
       
       // הוסף offset (skip) אם יש
       // ⚠️ Note: Firestore לא תומך ישירות ב-offset, אז נשתמש בטריק:
@@ -232,8 +232,8 @@ class FirebaseProductsRepository implements ProductsRepository {
     try {
       debugPrint('📥 טוען מוצרים בקטגוריה: $category');
       final snapshot = await _firestore
-          .collection(_collectionName)
-          .where('category', isEqualTo: category)
+          .collection(FirestoreCollections.products)
+          .where(FirestoreFields.category, isEqualTo: category)
           .get();
 
       final products = snapshot.docs
@@ -273,8 +273,8 @@ class FirebaseProductsRepository implements ProductsRepository {
     try {
       debugPrint('🔍 מחפש מוצר עם ברקוד: $barcode');
       final snapshot = await _firestore
-          .collection(_collectionName)
-          .where('barcode', isEqualTo: barcode)
+          .collection(FirestoreCollections.products)
+          .where(FirestoreFields.barcode, isEqualTo: barcode)
           .limit(1)
           .get();
 

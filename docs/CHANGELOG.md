@@ -7,6 +7,59 @@
 ```yaml
 date: 29/10/2025
 
+session_38:
+  task: Repository Constants Migration
+  status: complete
+  files:
+    - lib/repositories/constants/repository_constants.dart: added 9 constants
+    - lib/repositories/firebase_user_repository.dart: replaced hardcoded strings
+    - lib/repositories/firebase_receipt_repository.dart: replaced hardcoded strings
+    - lib/repositories/firebase_habits_repository.dart: replaced hardcoded strings
+    - lib/repositories/firebase_locations_repository.dart: replaced hardcoded strings
+    - lib/repositories/firebase_products_repository.dart: replaced hardcoded strings
+  constants_added:
+    collections: habitPreferences, customLocations
+    fields: date, category, barcode, brand, preferredProduct, lastPurchased, createdAt
+  changes:
+    - replaced 'habit_preferences' → FirestoreCollections.habitPreferences
+    - replaced 'custom_locations' → FirestoreCollections.customLocations
+    - replaced 'household_id' → FirestoreFields.householdId (everywhere)
+    - replaced 'date' → FirestoreFields.date
+    - replaced 'category' → FirestoreFields.category
+    - replaced 'barcode' → FirestoreFields.barcode
+    - replaced 'preferred_product' → FirestoreFields.preferredProduct
+    - replaced 'last_purchased' → FirestoreFields.lastPurchased
+    - replaced 'created_at' → FirestoreFields.createdAt
+  impact:
+    - maintainability: single source of truth for all Firestore strings
+    - refactoring: easier to rename collections/fields
+    - consistency: all repositories use same constants
+    - code_quality: no magic strings in repository layer
+  result: 6 repositories fully migrated to constants
+
+session_37:
+  task: Code Review - Config Directory Final Cleanup
+  status: complete
+  files:
+    - lib/config/pantry_config.dart: deleted (dead code)
+    - lib/config/storage_locations_config.dart: deleted (dead code)
+    - lib/config/stores_config.dart: deleted (dead code)
+  analysis:
+    - search_files: no imports found for all 3 files
+    - pantry_config: units, categories (7), storage locations
+    - storage_locations_config: pantry, fridge, freezer locations
+    - stores_config: 8 stores + OCR variations for receipt parsing
+  reason:
+    - pantry/inventory system not implemented
+    - receipt scanning removed (session 27 - v2.9)
+    - receipt_parser_service.dart deleted
+    - no onboarding for store preferences
+  impact:
+    - lib/config: now empty (all config files removed)
+    - codebase: -400 lines total
+    - clarity: removed unimplemented features
+  result: config directory completely cleaned
+
 session_36:
   task: Code Review - Old List System Cleanup
   status: complete

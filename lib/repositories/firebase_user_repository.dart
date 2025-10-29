@@ -50,10 +50,10 @@ import 'package:flutter/foundation.dart';
 
 import '../models/user_entity.dart';
 import 'user_repository.dart';
+import '../core/constants.dart';
 
 class FirebaseUserRepository implements UserRepository {
   final FirebaseFirestore _firestore;
-  final String _collectionName = 'users';
 
   FirebaseUserRepository({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
@@ -65,7 +65,7 @@ class FirebaseUserRepository implements UserRepository {
     try {
       debugPrint('📥 FirebaseUserRepository.fetchUser: טוען משתמש $userId');
 
-      final doc = await _firestore.collection(_collectionName).doc(userId).get();
+      final doc = await _firestore.collection(FirestoreCollections.users).doc(userId).get();
 
       if (!doc.exists) {
         debugPrint('⚠️ FirebaseUserRepository.fetchUser: משתמש לא נמצא');
@@ -95,7 +95,7 @@ class FirebaseUserRepository implements UserRepository {
       final updatedUser = user.copyWith(lastLoginAt: DateTime.now());
 
       await _firestore
-          .collection(_collectionName)
+          .collection(FirestoreCollections.users)
           .doc(user.id)
           .set(
             updatedUser.toJson(),
@@ -118,7 +118,7 @@ class FirebaseUserRepository implements UserRepository {
     try {
       debugPrint('🗑️ FirebaseUserRepository.deleteUser: מוחק משתמש $userId');
 
-      await _firestore.collection(_collectionName).doc(userId).delete();
+      await _firestore.collection(FirestoreCollections.users).doc(userId).delete();
 
       debugPrint('✅ FirebaseUserRepository.deleteUser: משתמש נמחק');
     } catch (e, stackTrace) {
@@ -133,7 +133,7 @@ class FirebaseUserRepository implements UserRepository {
   @override
   Future<bool> existsUser(String userId) async {
     try {
-      final doc = await _firestore.collection(_collectionName).doc(userId).get();
+      final doc = await _firestore.collection(FirestoreCollections.users).doc(userId).get();
       return doc.exists;
     } catch (e) {
       debugPrint('❌ FirebaseUserRepository.existsUser: שגיאה - $e');
@@ -154,11 +154,11 @@ class FirebaseUserRepository implements UserRepository {
         debugPrint('⚠️ FirebaseUserRepository.getAllUsers: Loading ALL users (no filter!)');
       }
 
-      Query<Map<String, dynamic>> query = _firestore.collection(_collectionName);
+      Query<Map<String, dynamic>> query = _firestore.collection(FirestoreCollections.users);
       
       // ✅ Apply household filter if provided
       if (householdId != null) {
-        query = query.where('household_id', isEqualTo: householdId);
+        query = query.where(FirestoreFields.householdId, isEqualTo: householdId);
       }
       
       final snapshot = await query
@@ -194,12 +194,12 @@ class FirebaseUserRepository implements UserRepository {
       final normalizedEmail = email.toLowerCase().trim();
 
       Query<Map<String, dynamic>> query = _firestore
-          .collection(_collectionName)
-          .where('email', isEqualTo: normalizedEmail);
+          .collection(FirestoreCollections.users)
+          .where(FirestoreFields.email, isEqualTo: normalizedEmail);
 
       // ✅ CRITICAL: Filter by household_id if provided
       if (householdId != null) {
-        query = query.where('household_id', isEqualTo: householdId);
+        query = query.where(FirestoreFields.householdId, isEqualTo: householdId);
       }
 
       final snapshot = await query.limit(1).get();
@@ -229,7 +229,7 @@ class FirebaseUserRepository implements UserRepository {
     try {
       debugPrint('⏰ FirebaseUserRepository.updateLastLogin: מעדכן זמן התחברות ל-$userId');
 
-      await _firestore.collection(_collectionName).doc(userId).update({
+      await _firestore.collection(FirestoreCollections.users).doc(userId).update({
         'last_login_at': Timestamp.now(),
       });
 
@@ -253,11 +253,11 @@ class FirebaseUserRepository implements UserRepository {
         debugPrint('⚠️ FirebaseUserRepository.clearAll: Deleting ALL users (DANGEROUS!)');
       }
 
-      Query<Map<String, dynamic>> query = _firestore.collection(_collectionName);
+      Query<Map<String, dynamic>> query = _firestore.collection(FirestoreCollections.users);
       
       // ✅ Apply household filter if provided
       if (householdId != null) {
-        query = query.where('household_id', isEqualTo: householdId);
+        query = query.where(FirestoreFields.householdId, isEqualTo: householdId);
       } else {
         query = query.limit(100); // Safety limit for all-users delete
       }
@@ -420,7 +420,7 @@ class FirebaseUserRepository implements UserRepository {
       debugPrint('✏️ FirebaseUserRepository.updateProfile: מעדכן פרופיל של $userId');
 
       final updates = <String, dynamic>{};
-      if (name != null) updates['name'] = name;
+      if (name != null) updates[FirestoreFields.name] = name;
       if (avatar != null) updates['profile_image_url'] = avatar;
 
       if (updates.isEmpty) {
@@ -429,7 +429,7 @@ class FirebaseUserRepository implements UserRepository {
       }
 
       await _firestore
-          .collection(_collectionName)
+          .collection(FirestoreCollections.users)
           .doc(userId)
           .update(updates);
 
@@ -501,7 +501,7 @@ class FirebaseUserRepository implements UserRepository {
   /// - [saveUser] - עדכון המשתמש
   Stream<UserEntity?> watchUser(String userId) {
     return _firestore
-        .collection(_collectionName)
+        .collection(FirestoreCollections.users)
         .doc(userId)
         .snapshots()
         .map((snapshot) {

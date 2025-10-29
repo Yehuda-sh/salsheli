@@ -29,11 +29,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../models/habit_preference.dart';
+import 'constants/repository_constants.dart';
 import 'habits_repository.dart';
 
 class FirebaseHabitsRepository implements HabitsRepository {
   final FirebaseFirestore _firestore;
-  static const String _collectionName = 'habit_preferences';
 
   /// יוצר instance חדש של FirebaseHabitsRepository
   /// 
@@ -55,7 +55,7 @@ class FirebaseHabitsRepository implements HabitsRepository {
 
   /// קבלת collection reference
   CollectionReference get _collection =>
-      _firestore.collection(_collectionName);
+      _firestore.collection(FirestoreCollections.habitPreferences);
 
   @override
   Future<List<HabitPreference>> fetchHabits(String householdId) async {
@@ -63,8 +63,8 @@ class FirebaseHabitsRepository implements HabitsRepository {
 
     try {
       final snapshot = await _collection
-          .where('household_id', isEqualTo: householdId)
-          .orderBy('last_purchased', descending: true)
+          .where(FirestoreFields.householdId, isEqualTo: householdId)
+          .orderBy(FirestoreFields.lastPurchased, descending: true)
           .get();
 
       final habits = snapshot.docs
@@ -101,7 +101,7 @@ class FirebaseHabitsRepository implements HabitsRepository {
           .toJson();
 
       // הוספת household_id
-      data['household_id'] = householdId;
+      data[FirestoreFields.householdId] = householdId;
 
       final docRef = await _collection.add(data);
       debugPrint('   ✅ הרגל נוצר: ${docRef.id}');
@@ -131,7 +131,7 @@ class FirebaseHabitsRepository implements HabitsRepository {
           .toJson();
 
       // וידוא household_id
-      data['household_id'] = householdId;
+      data[FirestoreFields.householdId] = householdId;
 
       await _collection.doc(habit.id).update(data);
       debugPrint('   ✅ הרגל עודכן');
@@ -156,7 +156,7 @@ class FirebaseHabitsRepository implements HabitsRepository {
       }
 
       final data = doc.data() as Map<String, dynamic>?;
-      if (data?['household_id'] != householdId) {
+      if (data?[FirestoreFields.householdId] != householdId) {
         debugPrint('   ⚠️ הרגל לא שייך ל-household זה');
         throw HabitsRepositoryException('Habit does not belong to household', null);
       }
@@ -176,7 +176,7 @@ class FirebaseHabitsRepository implements HabitsRepository {
 
     try {
       final snapshot = await _collection
-          .where('household_id', isEqualTo: householdId)
+          .where(FirestoreFields.householdId, isEqualTo: householdId)
           .count()
           .get();
 
@@ -201,8 +201,8 @@ class FirebaseHabitsRepository implements HabitsRepository {
 
     try {
       final snapshot = await _collection
-          .where('household_id', isEqualTo: householdId)
-          .where('preferred_product', isEqualTo: productName)
+          .where(FirestoreFields.householdId, isEqualTo: householdId)
+          .where(FirestoreFields.preferredProduct, isEqualTo: productName)
           .limit(1)
           .get();
 

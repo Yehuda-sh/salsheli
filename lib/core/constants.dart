@@ -193,17 +193,42 @@ class FirestoreFields {
   // Timestamps - חותמות זמן
   // ========================================
 
-  /// 📅 created_at - תאריך יצירה
+  /// 📅 created_date - תאריך יצירה
   /// 🔄 @TimestampConverter() אוטומטי במודלים
-  static const String createdAt = 'created_at';
+  static const String createdDate = 'created_date';
 
-  /// 🔄 updated_at - תאריך עדכון אחרון
+  /// 🔄 updated_date - תאריך עדכון אחרון
   /// 📝 מתעדכן אוטומטית בכל שינוי
-  static const String updatedAt = 'updated_at';
+  static const String updatedDate = 'updated_date';
+
+  /// 👤 created_by - מזהה המשתמש שיצר (בעלים)
+  /// 📝 לדוגמה: מי יצר רשימה
+  static const String createdBy = 'created_by';
 
   /// 🗑️ deleted_at - תאריך מחיקה (soft delete)
   /// 📝 null = פעיל, timestamp = נמחק
   static const String deletedAt = 'deleted_at';
+
+  // ========================================
+  // Sharing & Collaboration - שיתוף ושיתוף פעולה
+  // ========================================
+
+  /// 👥 shared_users - רשימת משתמשים משותפים
+  /// 📝 array של SharedUser objects
+  static const String sharedUsers = 'shared_users';
+
+  /// 📋 pending_requests - בקשות ממתינות לאישור
+  /// 📝 array של PendingRequest objects (רק ל-Editors)
+  static const String pendingRequests = 'pending_requests';
+
+  /// 🤝 shared_with - מזהי משתמשים משותפים (legacy)
+  /// ⚠️ Deprecated: השתמש ב-shared_users במקום
+  @Deprecated('Use sharedUsers instead')
+  static const String sharedWith = 'shared_with';
+
+  /// 👥 active_shoppers - קונים פעילים כרגע
+  /// 📝 array של ActiveShopper objects
+  static const String activeShoppers = 'active_shoppers';
 
   // ========================================
   // Status & Flags - סטטוס ודגלים
@@ -259,6 +284,34 @@ class FirestoreFields {
   /// 📝 לדוגמה: 'חלב 3%', 'עגבניות'
   static const String productName = 'product_name';
 
+  /// 📝 items - רשימת פריטים
+  /// 📝 array של UnifiedListItem או InventoryItem
+  static const String items = 'items';
+
+  /// 📊 status - סטטוס/מצב
+  /// 📝 לדוגמה: 'active', 'completed', 'archived'
+  static const String status = 'status';
+
+  /// 🔖 role - תפקיד משתמש
+  /// 📝 לדוגמה: 'owner', 'admin', 'editor', 'viewer'
+  static const String role = 'role';
+
+  /// 📧 email - כתובת אימייל
+  static const String email = 'email';
+
+  /// 👤 user_name / display_name - שם תצוגה
+  static const String userName = 'user_name';
+  static const String displayName = 'display_name';
+
+  /// 🏪 store_name - שם חנות
+  static const String storeName = 'store_name';
+
+  /// 📅 purchase_date - תאריך רכישה
+  static const String purchaseDate = 'purchase_date';
+
+  /// 💰 total_amount - סכום כולל
+  static const String totalAmount = 'total_amount';
+
   // ========================================
   // Utility Methods - פונקציות עזר
   // ========================================
@@ -269,9 +322,10 @@ class FirestoreFields {
   static const List<String> allFields = [
     householdId,
     userId,
-    createdAt,
-    updatedAt,
+    createdDate,
+    updatedDate,
     deletedAt,
+    createdBy,
     isActive,
     isSystem,
     isCompleted,
@@ -285,6 +339,18 @@ class FirestoreFields {
     location,
     category,
     productName,
+    items,
+    status,
+    role,
+    email,
+    userName,
+    displayName,
+    storeName,
+    purchaseDate,
+    totalAmount,
+    sharedUsers,
+    pendingRequests,
+    activeShoppers,
   ];
 
   /// בדיקה אם שם שדה תקין
