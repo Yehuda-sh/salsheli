@@ -1,6 +1,6 @@
 # LESSONS_LEARNED - MemoZap
 
-> Machine-Readable | Updated: 26/10/2025 | Version: 2.0
+> Machine-Readable | Updated: 29/10/2025 | Version: 2.1
 
 ## TOOL ERRORS
 
@@ -46,10 +46,10 @@ search_files_unreliable:
     2. constants usage (kMinFamilySize, kValidChildrenAges)
     3. static class usage (StoresConfig.isValid, FirestoreFields.userId)
   example_sessions:
-    session_42: app_strings.dart - missed in-file usage
-    session_43: constants.dart - missed kMinFamilySize in onboarding_data
-    session_43: stores_config.dart - missed StoresConfig.isValid
-  impact: CRITICAL - deleted 2 ACTIVE files (constants, stores_config)
+    session_42: app_strings.dart - missed in-file usage (claimed dead, was ACTIVE)
+    session_41: constants.dart - missed kMinFamilySize usage (deleted by mistake!)
+    impact: 2 active files almost deleted, 1 compilation broken
+  impact: CRITICAL - deleted 1 active file (constants.dart 430 lines)
   correct_protocol: 6-step verification:
     1. search_files (imports)
     2. read_file full
@@ -239,24 +239,38 @@ memory_usage:
 
 ```yaml
 29_10_2025:
-  - bash_windows_error: used bash_tool with Windows paths (C:\...) - FAILS ALWAYS
-  - lesson: bash_tool = Linux shell, doesn't understand C:\ drives
-  - fix: NEVER bash_tool for file ops, use Filesystem:search_files/read_file
-  - frequency: VERY HIGH - this mistake repeats constantly!
+  session_40:
+    file: ui_constants.dart (600 lines)
+    verdict: ✅ TRUE dead code - correctly deleted
+    checks: 8 comprehensive checks, 0 usage found
   
-  - session_42: app_strings.dart false "dead code" claim
-  - lesson: search_files misses in-file usage (AppStrings.layout.title)
-  - protocol: read file + verify usage + manual check
+  session_41:
+    file: constants.dart (430 lines)
+    verdict: ❌ FALSE POSITIVE - active file deleted!
+    missed: kMinFamilySize, kMaxFamilySize, kValidChildrenAges usage
+    location: onboarding_data.dart used via constants (not imports)
+    impact: broke onboarding compilation
+    recovered: user restored manually
   
-  - session_43: constants.dart + stores_config.dart false positives
-  - deleted: 2 ACTIVE files (constants.dart, stores_config.dart)
-  - verified_correct: ui_constants.dart (truly dead code)
-  - cause: search_files("kMinFamilySize") → no results, but used via constants!
-  - missed: constants usage (kMinFamilySize) + static class usage (StoresConfig.isValid)
-  - impact: broke compilation - onboarding_data.dart depends on both files
-  - recovered: user restored both files manually
-  - new_protocol: 6-step verification (not 4) - added constants + static checks
-  - updated: CODE_REVIEW_CHECKLIST.md v2.1 → v2.2 with full protocol
+  session_42:
+    file: app_strings.dart (1100+ lines)
+    verdict: ❌ FALSE POSITIVE - claimed dead, was ACTIVE
+    missed: in-file usage (AppStrings.layout.title in 10+ files)
+    impact: user caught before deletion
+    lesson: search_files doesn't find property access patterns
+  
+  session_43:
+    action: Enhanced protocol 4→6 steps
+    added: constants usage check (kXxx patterns)
+    added: static class usage check (ClassName.method patterns)
+    updated: CODE_REVIEW_CHECKLIST.md v2.1→v2.2, PROJECT_INSTRUCTIONS v4.2→v4.3
+    rule: When in doubt - DON'T DELETE!
+  
+  bash_windows_error:
+    - used bash_tool with Windows paths (C:\...) - FAILS ALWAYS
+    - lesson: bash_tool = Linux shell, doesn't understand C:\ drives
+    - fix: NEVER bash_tool for file ops, use Filesystem:search_files/read_file
+    - frequency: VERY HIGH - this mistake repeats constantly!
 
 26_10_2025:
   - doc_compression: AI_INSTRUCTIONS + TOKEN_MANAGEMENT created
@@ -283,7 +297,7 @@ memory_usage:
 
 ```yaml
 most_common_errors:
-  1. search_files unreliable (DELETES ACTIVE FILES!)
+  1. search_files unreliable (DELETES ACTIVE FILES! - 2 incidents sessions 41-42)
   2. bash_tool with Windows paths (ALWAYS FAILS!)
   3. household_id missing (SECURITY BREACH!)
   4. removeListener missing (MEMORY LEAK!)
@@ -298,14 +312,28 @@ most_critical_patterns:
   5. ALWAYS search_nodes before add_observations
 
 error_frequency:
-  very_high: search_files_unreliable (3 files deleted!), bash_windows (repeating constantly!)
+  very_high: search_files_unreliable (2 false positives sessions 41-42!), bash_windows (repeating constantly!)
   high: context_after_await, removeListener, edit_no_match, verbose, missing_states
   medium: household_id, const, memory, async_callback, continue, code_review
   low: color_api, package_name, rtl, design_system
+
+false_positive_statistics:
+  sessions_40_43: 4 dead code reviews
+  true_positives: 1 (ui_constants.dart - 600 lines)
+  false_positives: 2 (constants.dart - 430 lines, app_strings.dart - 1100 lines)
+  accuracy: 50% before protocol enhancement
+  lesson: search_files alone = coin flip accuracy!
+  fix: 6-step protocol implemented session 43
 ```
 
 ---
 
 End of LESSONS_LEARNED  
-Version: 2.0 | Date: 26/10/2025  
+Version: 2.1 | Date: 29/10/2025  
 Optimized for AI parsing - minimal formatting, maximum data density.
+
+**Critical Update v2.1:**
+- Added session-by-session breakdown (40-43)
+- Added false_positive_statistics (50% accuracy!)
+- Enhanced with 6-step protocol details
+- Clarified: 2 false positives (not 3)

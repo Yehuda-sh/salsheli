@@ -1,6 +1,53 @@
 # TECH.md - MemoZap Technical Reference
 
-> Machine-readable | Firebase + Security + Models | Updated: 25/10/2025
+> Machine-readable | Firebase + Security + Models | Updated: 29/10/2025
+
+---
+
+## REPOSITORY CONSTANTS
+
+```yaml
+location: lib/repositories/constants/repository_constants.dart
+
+purpose:
+  - single source of truth for Firestore strings
+  - easier refactoring (rename collections/fields)
+  - no magic strings in repositories
+  - maintainability + consistency
+
+classes:
+  FirestoreCollections:
+    - shoppingLists
+    - users
+    - households
+    - inventoryItems
+    - products
+    - receipts
+    - habitPreferences
+    - customLocations
+  
+  FirestoreFields:
+    - id, name, createdBy, createdDate, updatedDate
+    - householdId (CRITICAL!)
+    - userId, email, displayName
+    - items, sharedUsers, pendingRequests
+    - date, category, barcode, brand
+    - preferredProduct, lastPurchased, createdAt
+
+usage:
+  good: .collection(FirestoreCollections.shoppingLists)
+  good: .where(FirestoreFields.householdId, isEqualTo: id)
+  bad: .collection('shopping_lists') // magic string!
+  bad: .where('household_id', ...) // magic string!
+
+migrated_repositories: 6
+  - firebase_user_repository
+  - firebase_receipt_repository  
+  - firebase_habits_repository
+  - firebase_locations_repository
+  - firebase_products_repository
+  - firebase_shopping_list_repository (partial)
+```
 
 ---
 
@@ -246,6 +293,11 @@ transactions:
   error: "❌ No try-catch on async Firebase calls"
   impact: Crashes
   fix: Wrap all async Firebase operations in try-catch
+
+6_magic_strings:
+  error: "❌ Hardcoded 'shopping_lists' or 'household_id' strings"
+  impact: Hard to refactor, typo-prone
+  fix: Use FirestoreCollections/FirestoreFields constants
 ```
 
 ---
@@ -260,6 +312,7 @@ before_commit:
   - [ ] Repository pattern used (no direct Firestore in UI)
   - [ ] Try-catch on all async Firebase operations
   - [ ] Tests pass (flutter test)
+  - [ ] Use FirestoreCollections/Fields constants (no magic strings)
 
 before_deploy:
   - [ ] Firestore rules deployed
@@ -290,5 +343,11 @@ ios:
 ---
 
 End of Technical Reference
-Version: 1.0 | Date: 25/10/2025
+Version: 1.1 | Date: 29/10/2025
 Optimized for AI parsing - minimal formatting, maximum data density.
+
+**Updates v1.1 (29/10/2025):**
+- Added REPOSITORY CONSTANTS section (session 38)
+- Added magic_strings to COMMON MISTAKES
+- Updated before_commit checklist
+- 6 repositories migrated to constants

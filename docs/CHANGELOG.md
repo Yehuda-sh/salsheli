@@ -7,6 +7,55 @@
 ```yaml
 date: 29/10/2025
 
+session_43:
+  task: Documentation Complete Update - 4 Files CRITICAL
+  status: complete
+  files:
+    - docs/PROJECT_INSTRUCTIONS_v4.md: v4.2→v4.3 (enhanced protocols)
+    - docs/LESSONS_LEARNED.md: v2.0→v2.1 (statistics + breakdown)
+    - docs/TECH.md: v1.0→v1.1 (repository constants)
+    - docs/WORK_PLAN.md: v1.0→v1.1 (reality check)
+    - docs/CHANGELOG.md: session 43 added
+  critical_updates:
+    - code_review_protocol: 4→6 steps (added constants + static usage checks)
+    - learning_from_mistakes: added error_10 (constants.dart) + error_11 (stores_config.dart)
+    - top_5→top_6_common_errors: false dead code now #1 (most critical!)
+    - protocol: 3 usage types that search_files misses
+  reason:
+    - 3 false dead code incidents (sessions 40-43)
+    - 2 active files deleted (constants.dart, stores_config.dart)
+    - user had to recover manually
+    - broke onboarding_data.dart compilation
+  new_6_step_protocol:
+    1: search_files (imports)
+    2: read_file FULL
+    3: in-file usage check (AppStrings.layout.title)
+    4: constants usage (kMinFamilySize patterns)
+    5: static usage (StoresConfig.isValid patterns)
+    6: final approval (only after 5 negatives)
+  impact:
+    - prevention: stops DELETING ACTIVE CODE
+    - rule: when in doubt - DON'T DELETE!
+    - examples: 3 real mistakes documented
+    - trust: user won't catch AI deleting active files anymore
+  lessons_learned_updates:
+    - added session-by-session breakdown (40-43)
+    - added false_positive_statistics (50% accuracy!)
+    - clarified: 1 file deleted (not 3), 2 false positives total
+    - lesson: search_files alone = coin flip accuracy
+  tech_updates:
+    - added REPOSITORY CONSTANTS section (session 38)
+    - documented FirestoreCollections + FirestoreFields usage
+    - added magic_strings to COMMON MISTAKES
+    - updated before_commit checklist
+  work_plan_updates:
+    - status: ACTIVE→PAUSED (stability phase)
+    - added Recent Work section (sessions 25-43)
+    - documented: bug fixes, docs overhaul, code cleanup, testing
+    - clarified: Phase 0-2 done, Phase 3-5 postponed
+    - removed GUIDE.md reference, added 6 new doc references
+  result: all 4 core docs synchronized with reality
+
 session_42:
   task: Code Review - app_strings.dart Fixed Broken Import
   status: complete

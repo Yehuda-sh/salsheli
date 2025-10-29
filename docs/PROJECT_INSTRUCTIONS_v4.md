@@ -1,4 +1,4 @@
-# 📋 MemoZap Project Instructions v4.2
+# 📋 MemoZap Project Instructions v4.3
 
 > Machine-Readable | Full YAML Format | Updated: 29/10/2025
 
@@ -309,15 +309,19 @@ code_review_protocol:
   step_1: read_file(target_file) FULL - not partial!
   step_2: search_files(lib, filename) # check external imports
   step_3: |
-    Manual verification (CRITICAL!):
-    1. Check for in-file usage (AppStrings.layout.title)
-    2. Check for property access patterns
-    3. Verify file is truly unused
+    6-Step Dead Code Verification (CRITICAL!):
+    1. search_files - check imports across project
+    2. read_file FULL - read entire file (not partial!)
+    3. in-file usage - check usage within file itself
+    4. constants usage - search for k[ClassName] patterns
+    5. static usage - search for ClassName.method patterns
+    6. final approval - only after 5 negative checks
   step_4: |
     Final decision:
-    IF 0 imports AND 0 in-file usage:
+    IF all 6 checks negative:
       report "💀 Dead Code - not used"
     ELSE:
+      report "✅ ACTIVE - used via [mechanism]"
       apply full checklist
   step_5: |
     Format response:
@@ -333,9 +337,15 @@ code_review_protocol:
   
   critical_warning: |
     ⚠️ FALSE-POSITIVE PREVENTION:
-    Never claim "dead code" based on search_files alone!
-    MUST verify in-file usage (session 42 lesson)
-    Example: app_strings.dart had 0 imports but WAS ACTIVE
+    search_files misses 3 usage types:
+    1. in-file usage (AppStrings.layout.title)
+    2. constants usage (kMinFamilySize)
+    3. static class usage (StoresConfig.isValid)
+    
+    Impact: DELETING ACTIVE CODE breaks entire app!
+    Rule: When in doubt - DON'T DELETE!
+    
+    Real mistakes: sessions 41, 43 (2 active files deleted)
 ```
 
 ---
@@ -533,23 +543,24 @@ learning_protocol:
 ## 🎓 LEARNING FROM MISTAKES
 
 ```yaml
-error_7_most_recent:
+error_11_most_recent:
   date: 29/10/2025
   error_6: Reviewed filters_config.dart without checking usage
   cause_6: Followed 'read before edit' but missed 'check usage'
   fix_6: read_file → search_files(imports) → report if unused
   learning_6: Code review MUST include usage check
   
-  error_7: ui_constants.dart - over-planning anti-pattern
+  error_7: ui_constants.dart - over-planning anti-pattern (session 40)
   cause_7: Created comprehensive 600-line constants file before actual need
   fix_7: YAGNI principle - add constants only when pattern appears 3+ times
   learning_7: Don't design perfect systems upfront, grow organically
+  impact_7: ✅ True dead code - correctly identified and deleted
   
   error_8: app_strings.dart false dead code claim (session 42)
   cause_8: Used search_files alone, missed in-file usage (AppStrings.layout.title)
-  fix_8: 4-step protocol - search_files + read_file + manual check + final decision
+  fix_8: 6-step protocol - all usage types must be checked
   learning_8: Never claim dead code without verifying in-file usage
-  impact_8: CRITICAL - deleting active code breaks entire app
+  impact_8: CRITICAL - almost deleted active file (1100+ lines)
   
   error_9: bash_tool with Windows paths (session 42)
   cause_9: Used bash_tool("cd C:\\...") - Linux shell doesn't understand Windows drives
@@ -557,33 +568,56 @@ error_7_most_recent:
   fix_9: ALWAYS use Filesystem:search_files/read_file for Windows file operations
   learning_9: bash_tool = Linux shell, NEVER for Windows paths
   impact_9: CRITICAL - wastes tool calls, this is THE MOST COMMON ERROR
+  
+  error_10: constants.dart false dead code (session 41)
+  cause_10: search_files("constants.dart") = 0 imports, but missed constants usage
+  actual_usage_10: kMinFamilySize, kMaxFamilySize, kValidChildrenAges in onboarding_data
+  fix_10: Must search for k[ClassName] patterns separately
+  learning_10: Constants used via name, not import - search_files misses this!
+  impact_10: CRITICAL - deleted active file, broke onboarding (430 lines)
+  
+  error_11: stores_config.dart false dead code (session 43)
+  cause_11: search_files("stores_config.dart") = 0 imports, missed static usage
+  actual_usage_11: StoresConfig.isValid() called in onboarding_data
+  fix_11: Must search for ClassName.method patterns separately
+  learning_11: Static classes used without import - search_files misses this!
+  impact_11: CRITICAL - deleted active file, broke onboarding (recovered manually)
 
-top_5_common_errors:
+top_6_common_errors:
   1:
+    name: false dead code detection
+    impact: DELETING ACTIVE CODE (breaks entire app!)
+    frequency: very_high
+    recent: 3 files (sessions 41-43: app_strings, constants, stores_config)
+    fix: Use 6-step protocol (not just search_files!)
+  
+  2:
     name: bash_tool with Windows paths
     impact: ALWAYS FAILS
     frequency: very_high
     fix: Use Filesystem:search_files instead
   
-  2:
+  3:
     name: household_id missing
     impact: SECURITY BREACH
     frequency: medium
   
-  3:
+  4:
     name: removeListener missing
     impact: MEMORY LEAK
     frequency: high
   
-  4:
+  5:
     name: context after await
     impact: CRASH
     frequency: high
   
-  5:
-    name: false dead code detection
-    impact: DELETING ACTIVE CODE
+  6:
+    name: over-planning (YAGNI violation)
+    impact: 1000+ lines dead code
     frequency: medium
+    examples: ui_constants (600), constants (430)
+    fix: Add code only when pattern appears 3+ times
 ```
 
 ---
@@ -673,14 +707,27 @@ critical_checklist_before_commit:
 - ✅ Added quick reference shortcuts
 - ✅ Security + Performance in one place
 
-**Updates v4.3 (29/10/2025):**
-- ✅ Added CRITICAL bash_tool warning in Tools section
-- ✅ Added error_9: bash_tool with Windows paths (THE MOST COMMON ERROR!)
-- ✅ Updated top_5_common_errors: bash_tool with Windows paths (#1)
-- ✅ Impact: Prevents wasted tool calls, this mistake repeats constantly
-- ✅ Fix: ALWAYS use Filesystem tools for Windows file operations
+**Updates v4.1 (session 41):**
+- ✅ Removed GUIDE.md references (deleted)
+- ✅ Updated docs: 8→7 files, 2100→2700 lines
+- ✅ Added YAGNI lessons (ui_constants, constants)
+- ✅ Updated checkpoint: every file→3-5 files
 
-**Total:** 400 lines | Format: Pure YAML  
-**Version:** 4.2
+**Updates v4.2 (session 42):**
+- ✅ Added bash_tool Windows warning
+- ✅ Added error_9: bash_tool paths
+- ✅ Impact: THE MOST COMMON ERROR
+
+**Updates v4.3 (session 43 - CRITICAL):**
+- ✅ Enhanced Dead Code Detection: 4→6 steps
+- ✅ Added error_10: constants.dart false positive (kMinFamilySize)
+- ✅ Added error_11: stores_config.dart false positive (StoresConfig.isValid)
+- ✅ Updated top_5→top_6_common_errors (false dead code #1!)
+- ✅ Critical fix: search_files misses 3 usage types
+- ✅ Impact: Prevents DELETING ACTIVE CODE (3 incidents!)
+- ✅ New rule: When in doubt - DON'T DELETE!
+
+**Total:** 450 lines | Format: Pure YAML  
+**Version:** 4.3
 **Last Updated:** 29/10/2025  
 **Maintainer:** MemoZap AI System
