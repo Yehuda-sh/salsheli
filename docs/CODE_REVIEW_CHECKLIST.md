@@ -37,19 +37,7 @@
 | **Firebase Rules מיושמים** | 💀 CRITICAL | בדוק שיש 4 רמות גישה (owner/admin/editor/viewer) |
 | **לא חושף מידע רגיש** | 🔴 HIGH | אין passwords/tokens/personal data בלוגים |
 
-**דוגמה שגויה:**
-```dart
-// ❌ SECURITY BREACH!
-.collection('tasks').where('user_id', isEqualTo: userId)
-```
-
-**דוגמה נכונה:**
-```dart
-// ✅ SECURE
-.collection('tasks')
-  .where('household_id', isEqualTo: householdId)
-  .where('user_id', isEqualTo: userId)
-```
+**Details:** → TECH.md (Security Rules section)
 
 ---
 
@@ -62,26 +50,7 @@
 | **Streams canceled** | 🔴 HIGH | `_subscription?.cancel()` ב-dispose |
 | **Platform resources closed** | 🟡 MEDIUM | ML Kit, ImageLabeler וכו' |
 
-**דוגמה שגויה:**
-```dart
-// ❌ MEMORY LEAK!
-MyProvider(UserContext userContext) {
-  userContext.addListener(_onUserChanged);
-}
-// dispose() חסר!
-```
-
-**דוגמה נכונה:**
-```dart
-// ✅ NO LEAK
-@override
-void dispose() {
-  _userContext.removeListener(_onUserChanged);
-  _controller.dispose();
-  _timer?.cancel();
-  super.dispose(); // LAST!
-}
-```
+**Details:** → CODE.md (Provider Cleanup section)
 
 ---
 
@@ -92,16 +61,7 @@ void dispose() {
 | **Lazy loading ל-Providers כבדים** | 🟡 MEDIUM | `ensureInitialized()` במקום constructor |
 | **Unmodifiable getters** | 🟡 MEDIUM | `List.unmodifiable(_items)` |
 
-**דוגמה:**
-```dart
-// ❌ Missing const (5-10% rebuilds!)
-SizedBox(height: 16)
-EdgeInsets.all(8)
-
-// ✅ With const
-const SizedBox(height: 16)
-const EdgeInsets.all(8)
-```
+**Details:** → CODE.md (const Usage section)
 
 ---
 
@@ -111,21 +71,7 @@ const EdgeInsets.all(8)
 | **Context captured לפני await** | 💀 CRITICAL | Navigator/ScaffoldMessenger לפני async |
 | **`if (!mounted) return;` אחרי await** | 💀 CRITICAL | בדיקה שה-widget עדיין חי |
 
-**דוגמה שגויה:**
-```dart
-// ❌ CRASH!
-await _save();
-Navigator.of(context).push(...);
-```
-
-**דוגמה נכונה:**
-```dart
-// ✅ SAFE
-final nav = Navigator.of(context);
-await _save();
-if (!mounted) return;
-nav.push(...);
-```
+**Details:** → CODE.md (Common Mistakes - Context After Await)
 
 ---
 
@@ -170,19 +116,7 @@ nav.push(...);
 | **`ensureInitialized()`** | 🟡 MEDIUM | טעינה רק כשנדרש |
 | **`_isInitialized` flag** | 🟡 MEDIUM | מונע טעינה כפולה |
 
-**דוגמה:**
-```dart
-// ✅ Lazy loading
-ProductsProvider(repo) {
-  // NO loading here!
-}
-
-Future<void> ensureInitialized() async {
-  if (_isInitialized) return;
-  _isInitialized = true;
-  await _loadProducts();
-}
-```
+**Details:** → CODE.md (Lazy Provider Pattern section)
 
 ---
 
@@ -197,22 +131,7 @@ Future<void> ensureInitialized() async {
 | **EdgeInsetsDirectional** | 🟡 MEDIUM | לא EdgeInsets.only(left:) |
 | **AppStrings בלבד** | 🔴 HIGH | אין hardcoded strings |
 
-**דוגמה שגויה:**
-```dart
-// ❌ WRONG
-NotebookBackground(child: CustomScrollView(...))
-```
-
-**דוגמה נכונה:**
-```dart
-// ✅ CORRECT
-Stack(
-  children: [
-    const NotebookBackground(),
-    CustomScrollView(...),
-  ],
-)
-```
+**Details:** → DESIGN.md (NotebookBackground section)
 
 ---
 
@@ -243,17 +162,7 @@ Stack(
 | **4 states tested** | 🟡 MEDIUM | Loading/Error/Empty/Content |
 | **Mock stubs complete** | 🟡 MEDIUM | כל property צריך stub |
 
-**דוגמה שגויה:**
-```dart
-// ❌ FAILS!
-find.byWidgetPredicate((w) => w is TextFormField && w.decoration != null)
-```
-
-**דוגמה נכונה:**
-```dart
-// ✅ WORKS + ACCESSIBILITY
-find.bySemanticsLabel(AppStrings.auth.emailLabel)
-```
+**Details:** → CODE.md (Testing Patterns - Widget Finders)
 
 ---
 

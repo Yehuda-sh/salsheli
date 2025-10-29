@@ -77,34 +77,12 @@ DONT_STORE:
 
 ---
 
-## SECURITY (CRITICAL!)
+## SECURITY
 
 ```yaml
-household_id_MANDATORY:
-  # EVERY Firestore query MUST filter by household_id
-  
-  WRONG:
-    .where('user_id', isEqualTo: userId)
-    # Result: SECURITY BREACH - sees ALL households!
-  
-  CORRECT:
-    .where('household_id', isEqualTo: householdId)
-    .where('user_id', isEqualTo: userId)
-    # Result: sees ONLY their household
+CRITICAL: Every Firestore query MUST filter by household_id
 
-IMPACT_IF_MISSING:
-  - GDPR violation
-  - Privacy breach
-  - Data leakage
-  - App store removal
-
-CHECKLIST:
-  - [ ] Every .collection() has .where('household_id', ...)
-  - [ ] No query without household_id
-  - [ ] Firebase Rules enforce household_id
-  - [ ] Tested: user can't see other households
-
-DETAILS: → TECH.md Security Rules
+DETAILS: → TECH.md (Security Rules section)
 ```
 
 ---
@@ -112,44 +90,12 @@ DETAILS: → TECH.md Security Rules
 ## PERFORMANCE
 
 ```yaml
-LAZY_LOADING:
-  # Don't load Providers in constructor
-  
-  WRONG:
-    ProductsProvider(repo) {
-      _loadProducts(); # Slows startup!
-    }
-  
-  CORRECT:
-    Future<void> ensureInitialized() async {
-      if (_isInitialized) return;
-      _isInitialized = true;
-      await _loadProducts(); # Load when needed
-    }
-  
-  USAGE:
-    Provider.of<ProductsProvider>(context, listen: false)
-        .ensureInitialized();
-  
-  BENEFITS:
-    - 50%+ faster startup
-    - 30-40% less memory
-    - Load only what needed
+KEY_PATTERNS:
+  - Lazy loading Providers
+  - const optimization
+  - Provider disposal
 
-CONST_OPTIMIZATION:
-  # Missing const = 5-10% unnecessary rebuilds
-  
-  WITH_LITERALS:
-    const SizedBox(height: 16)
-    const EdgeInsets.all(8)
-    const Text('Static text')
-    const Icon(Icons.add)
-  
-  WITH_VARIABLES:
-    SizedBox(height: spacing) # spacing is variable!
-    _Card(data: item) # item is variable!
-
-DETAILS: → CODE.md Performance Patterns
+DETAILS: → CODE.md (Performance section)
 ```
 
 ---
@@ -305,41 +251,14 @@ ULTRA_CONCISE:
 ## CRITICAL_PATTERNS
 
 ```yaml
-1_PROVIDER_DISPOSAL:
-  @override
-  void dispose() {
-    _userContext.removeListener(_onUserChanged); # MUST!
-    _controller.dispose();
-    _timer?.cancel();
-    _subscription?.cancel();
-    super.dispose(); # LAST!
-  }
+TOP_5:
+  1. Provider disposal (removeListener)
+  2. Context after await
+  3. Package imports
+  4. household_id filter
+  5. const optimization
 
-2_CONTEXT_AFTER_AWAIT:
-  WRONG:
-    await _save();
-    Navigator.of(context).push(...); # CRASH!
-  
-  CORRECT:
-    final nav = Navigator.of(context);
-    await _save();
-    if (!mounted) return;
-    nav.push(...); # SAFE!
-
-3_PACKAGE_IMPORTS:
-  WRONG:
-    import '../models/task.dart';
-  
-  CORRECT:
-    import 'package:memozap/models/task.dart';
-
-4_HOUSEHOLD_ID:
-  # See SECURITY section above
-
-5_CONST:
-  # See PERFORMANCE section above
-
-DETAILS: → CODE.md Critical Patterns
+DETAILS: → CODE.md (Critical Patterns section)
 ```
 
 ---

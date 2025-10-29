@@ -35,9 +35,7 @@ grep:
 ```yaml
 const:
   error: "const with dynamic args"
-  wrong: const _StatCard(value: count)
-  right: const SizedBox(height: 16)
-  rule: const only with literals
+  details: → CODE.md (const Usage section)
   frequency: medium
 
 color_api:
@@ -55,9 +53,8 @@ async_callback:
 
 context_after_await:
   error: "crash - context invalid after await"
-  wrong: await _save(); Navigator.of(context).push(...)
-  right: final nav = Navigator.of(context); await _save(); if (!mounted) return; nav.push(...)
   impact: CRASH
+  details: → CODE.md (Common Mistakes section)
   frequency: high
 ```
 
@@ -102,9 +99,8 @@ package_name:
 ```yaml
 household_id:
   error: "SECURITY BREACH - sees other households"
-  missing: .where('household_id', isEqualTo: householdId)
   impact: CRITICAL - GDPR violation
-  fix: ALWAYS filter by household_id in ALL Firestore queries
+  details: → TECH.md (Security Rules section)
   frequency: medium
 
 logging:
@@ -129,9 +125,8 @@ repository_pattern:
 
 removeListener:
   error: "memory leak"
-  missing: _userContext.removeListener() in dispose()
-  pattern: addListener in constructor, removeListener in dispose
   impact: HIGH - memory leak + battery drain
+  details: → CODE.md (Provider Cleanup section)
   frequency: high
 
 old_method:
