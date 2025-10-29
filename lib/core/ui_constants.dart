@@ -11,9 +11,14 @@
 // Note: These constants are used across the app for consistency.
 // Refer to DESIGN.md for full design system documentation.
 //
-// Version: 2.0
+// Version: 2.1
 // Created: 31/10/2025
 // Last Updated: 29/10/2025
+//
+// ⭐ Version 2.1 Changes (29/10/2025):
+// - Added kDoubleTapTimeout (2 seconds) for double-tap detection
+// - Added SnackBar margins (kSnackBarBottomMargin, kSnackBarHorizontalMargin)
+// - Added Border Radius constants (kBorderRadiusSmall/Medium/Large)
 
 import 'dart:ui';
 
@@ -66,3 +71,20 @@ const Duration kAnimationDurationLong = Duration(milliseconds: 500);   // Long a
 const Duration kSnackBarDuration = Duration(seconds: 3);      // Default SnackBar
 const Duration kSnackBarDurationShort = Duration(seconds: 2); // Short SnackBar
 const Duration kSnackBarDurationLong = Duration(seconds: 5);  // Long SnackBar
+
+const Duration kDoubleTapTimeout = Duration(seconds: 2);      // Double-tap detection timeout
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SNACKBAR MARGINS
+// ═══════════════════════════════════════════════════════════════════════════
+
+const double kSnackBarBottomMargin = 80.0;      // Bottom margin (above nav bar)
+const double kSnackBarHorizontalMargin = 16.0;  // Left & right margins
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BORDER RADIUS
+// ═══════════════════════════════════════════════════════════════════════════
+
+const double kBorderRadiusSmall = 8.0;   // Small border radius
+const double kBorderRadiusMedium = 12.0; // Medium border radius
+const double kBorderRadiusLarge = 16.0;  // Large border radius

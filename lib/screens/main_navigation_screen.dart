@@ -16,14 +16,19 @@
 //
 // **Dependencies:**
 // - `AppLayout` - Bottom navigation wrapper
-// - `ShoppingListsProvider` - מספר רשימות פעילות
 //
 // **Behavior:**
 // - Back ← מטאב 1-3: חזרה לדשבורד (tab 0)
 // - Back ← מדשבורד: double-tap ליציאה (2 שניות timeout)
 // - SnackBar feedback: "לחץ שוב לסגירת האפליקציה"
 //
-// **Version:** 2.4 (Renamed & Relocated)
+// **Version:** 2.5 (Cleanup & Optimization)
+//
+// **שיפורים בגרסה 2.5 (29/10/2025):**
+// - הסרת 3 imports מיותרים (provider, shopping_list, shopping_lists_provider)
+// - const optimization על _pages list
+// - תיקון סדר imports (alphabetically)
+// - עדכון ui_constants.dart עם 4 קונסטנטות חסרות
 //
 // **שיפורים בגרסה 2.4 (27/10/2025):**
 // - שינוי שם מ-HomeScreen ל-MainNavigationScreen
@@ -37,18 +42,14 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import 'package:memozap/core/ui_constants.dart';
 import 'package:memozap/l10n/app_strings.dart';
 import 'package:memozap/layout/app_layout.dart';
-import 'package:memozap/models/shopping_list.dart';
-import 'package:memozap/providers/shopping_lists_provider.dart';
-
 import 'package:memozap/screens/home/home_dashboard_screen.dart';
-import 'package:memozap/screens/shopping/shopping_lists_screen.dart';
 import 'package:memozap/screens/pantry/my_pantry_screen.dart';
 import 'package:memozap/screens/settings/settings_screen.dart';
+import 'package:memozap/screens/shopping/shopping_lists_screen.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -61,7 +62,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _selectedIndex = 0;
   DateTime? _lastBackPress;
 
-  late final _pages = const <Widget>[
+  late final List<Widget> _pages = const <Widget>[
     HomeDashboardScreen(),
     ShoppingListsScreen(),
     MyPantryScreen(),
