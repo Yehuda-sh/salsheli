@@ -102,6 +102,26 @@
 
 ---
 
+### 🆕 Phase 3A: Shopping Frequency & Reminders
+**Timeline:** Week 2 (04/11 - 10/11/2025)  
+**Priority:** LOW (Future)
+
+#### Model Changes:
+- [ ] ShoppingList: add `frequency` field (int - times per week)
+- [ ] ShoppingList: add `lastShoppingDate` field (DateTime)
+- [ ] Run build_runner after model changes
+
+#### Tasks:
+- [ ] UI: Frequency selector in create list (1-7 times/week)
+- [ ] Service: ReminderService (calculate next shopping date)
+- [ ] Notifications: Push reminder based on frequency
+- [ ] Logic: Smart reminder (3 days before if frequency=weekly)
+- [ ] Settings: Enable/disable reminders per list
+
+**Note:** Currently marked as TODO in specification - implement when needed.
+
+---
+
 ### 🔄 Phase 4: Product Management
 **Timeline:** Week 3 (11/11 - 17/11/2025)  
 **Priority:** MEDIUM
@@ -228,6 +248,11 @@
 **Timeline:** Week 5 (25/11 - 01/12/2025)  
 **Priority:** HIGH
 
+#### Model Changes:
+- [ ] InventoryItem: add `minimumThreshold` field (int, default: 0)
+- [ ] InventoryItem: add `lastUpdated` field (DateTime)
+- [ ] Run build_runner after model changes
+
 #### Tasks:
 - [ ] Update InventoryItem model
 - [ ] Create StorageLocationService
@@ -237,7 +262,22 @@
 
 ---
 
-### 🔄 Phase 7: Inventory UI/UX
+### 🆕 Phase 6A: Minimum Threshold System
+**Timeline:** Week 5 (25/11 - 01/12/2025)  
+**Priority:** HIGH
+
+#### Tasks:
+- [ ] UI: Threshold editor in inventory item (default: 0)
+- [ ] Service: ThresholdMonitorService (check inventory < threshold)
+- [ ] Logic: When quantity < minimumThreshold → auto-add to shopping list
+- [ ] Logic: Route to correct list type (milk → supermarket)
+- [ ] UI: Badge showing "auto-added" items in list
+- [ ] Settings: Enable/disable auto-add per item
+- [ ] Notifications: "Low stock: X items added to list"
+
+---
+
+### 🔄 Phase 7: Inventory UI/UX + Custom Locations
 **Timeline:** Week 6 (02/12 - 08/12/2025)  
 **Priority:** HIGH
 
@@ -248,6 +288,15 @@
 - [ ] Quick assignment UI (single row, all options)
 - [ ] Animations for item assignment
 - [ ] Empty states for each location
+
+#### Custom Locations:
+- [ ] Model: CustomLocation (id, name, icon, householdId, createdBy)
+- [ ] Service: CustomLocationsService (CRUD operations)
+- [ ] UI: Add custom location dialog (name + icon picker)
+- [ ] UI: Edit/delete custom locations
+- [ ] Logic: Custom locations appear in quick assignment row
+- [ ] Firebase: Store in `custom_locations` collection
+- [ ] Validation: Max 20 locations per household
 
 ---
 
@@ -262,6 +311,23 @@
 - [ ] Location learning algorithm
 - [ ] Auto-assignment logic
 - [ ] Testing with real data
+
+---
+
+### 🆕 Phase 8A: Learning Algorithm - Predictive Stock
+**Timeline:** Week 7 (09/12 - 15/12/2025)  
+**Priority:** LOW (Future)
+
+#### Tasks:
+- [ ] Service: StockPredictionService
+- [ ] Algorithm: Track purchase frequency per item
+- [ ] Algorithm: Calculate average consumption rate
+- [ ] Logic: Predict when item will run out
+- [ ] Logic: Auto-add to list before running out
+- [ ] UI: Show "predicted low stock" badge
+- [ ] Testing: 2 weeks of data needed for accuracy
+
+**Note:** Currently marked as TODO in specification - implement after basic system works.
 
 ---
 
@@ -285,8 +351,154 @@
 
 ---
 
+### 🆕 Phase 9A: Cumulative Inventory System
+**Timeline:** Week 8 (16/12 - 22/12/2025)  
+**Priority:** HIGH
+
+#### Tasks:
+- [ ] Logic: Cumulative calculation (existing + purchased = total)
+- [ ] Example: 2 in pantry + 5 bought = 7 total
+- [ ] UI: Show before/after quantities in update confirmation
+- [ ] UI: "You had 2, bought 5, now have 7" message
+- [ ] Service: InventoryCumulativeService
+- [ ] Validation: Prevent negative quantities
+- [ ] History: Track quantity changes (optional)
+
+---
+
+# Part D: Receipt to Inventory System 🧾→🏠
+
+> **Based on:** Receipt to Inventory System - Final Design (29/10/2025)
+
+## 🎯 Overview
+
+**מטרה:** מעבר חלק מקנייה משותפת לעדכון מלאי אוטומטי
+
+### Core Concept:
+1. **קנייה משותפת** - כמה אנשים קונים יחד בו-זמנית
+2. **קבלה וירטואלית** - נוצרת אוטומטית בסיום קנייה
+3. **חיבור לקבלה אמיתית** - משתמש סורק אחר כך ומחבר
+4. **עדכון מלאי** - מוצרים שנקנו עוברים אוטומטית למזווה
+
+---
+
+## 📅 Implementation Phases
+
+### 🔄 Phase 10: Shopping Session Management
+**Timeline:** Week 9 (23/12 - 29/12/2025)  
+**Priority:** HIGH
+
+#### Models (✅ DONE - 29/10/2025):
+- ✅ ActiveShopper (userId, joinedAt, isStarter, isActive)
+- ✅ ShoppingList: added activeShoppers field + 8 helper getters
+- ✅ ReceiptItem: added checkedBy, checkedAt (who marked as purchased)
+- ✅ Receipt: added linkedShoppingListId, isVirtual, createdBy
+
+#### Tasks:
+- [ ] UI: Start Shopping screen with "Join Shopping" button
+- [ ] Service: ShoppingSessionService (join, leave, timeout)
+- [ ] Logic: Starter assignment (first person = starter)
+- [ ] Logic: Power transfer (starter leaves → first helper becomes starter)
+- [ ] Timeout: 6 hours inactive → auto-end shopping
+- [ ] Notifications: Push when someone joins/leaves
+
+---
+
+### 🔄 Phase 11: Virtual Receipt Creation
+**Timeline:** Week 10 (30/12 - 05/01/2026)  
+**Priority:** HIGH
+
+#### Tasks:
+- [ ] Service: VirtualReceiptService
+- [ ] Logic: On "Finish Shopping" → create virtual receipt
+- [ ] Filter: Only purchased items (isChecked=true) in receipt
+- [ ] Connection: linkedShoppingListId stored in receipt
+- [ ] Model: Receipt.virtual() factory (already created ✅)
+- [ ] UI: Show virtual receipt after shopping
+- [ ] Validation: Only starter can finish shopping
+
+---
+
+### 🔄 Phase 12: Real Receipt Connection (OCR)
+**Timeline:** Week 11 (06/01 - 12/01/2026)  
+**Priority:** MEDIUM
+
+#### Tasks:
+- [ ] Service: ReceiptOCRService (scan & parse)
+- [ ] Matching: Compare OCR items to virtual receipt items
+- [ ] Update: Add real prices + fileUrl to virtual receipt
+- [ ] UI: Scan receipt screen
+- [ ] UI: Manual price editing (if OCR fails)
+- [ ] Validation: Prevent duplicate receipt linking
+
+---
+
+### 🔄 Phase 13: Purchased → Inventory Flow
+**Timeline:** Week 12 (13/01 - 19/01/2026)  
+**Priority:** HIGH
+
+#### Tasks:
+- [ ] Service: PurchasedToInventoryService
+- [ ] Logic: Purchased items → add to inventory (location: "no location")
+- [ ] Logic: Unpurchased items → stay in list
+- [ ] Cumulative inventory: existing 2 + purchased 5 = total 7
+- [ ] UI: Notification to assign locations
+- [ ] UI: Quick location assignment from notification
+
+---
+
+## 🔄 Phase 14: Integration Testing
+**Timeline:** Week 13 (20/01 - 26/01/2026)  
+**Priority:** HIGH
+
+#### Scenarios:
+1. **Solo Shopping:**
+   - User starts shopping alone
+   - Marks items as purchased
+   - Finishes shopping
+   - Virtual receipt created
+   - Items move to inventory
+
+2. **Collaborative Shopping:**
+   - User A starts shopping (starter)
+   - User B joins (helper)
+   - Both mark items
+   - User A finishes
+   - Receipt shows who bought what
+
+3. **Starter Leaving:**
+   - User A starts (starter)
+   - User B joins (helper)
+   - User A leaves → User B becomes starter
+   - User B finishes shopping
+
+4. **Timeout:**
+   - User starts shopping
+   - 6 hours pass
+   - Auto-end shopping
+   - Virtual receipt created
+
+5. **OCR Connection:**
+   - Scan real receipt
+   - Match to virtual receipt
+   - Update prices
+   - Inventory already updated
+
+#### Tasks:
+- [ ] Write integration tests for all 5 scenarios
+- [ ] Test edge cases (network failure, app crash)
+- [ ] Test permissions (only starter can finish)
+- [ ] Test concurrent shoppers (2-3 people)
+- [ ] Performance testing (100+ items)
+
+---
+
 ## 🎯 Success Metrics
 
+- ⏳ 100% purchased items auto-added to inventory
+- ⏳ 95% virtual receipt creation success rate
+- ⏳ 80% OCR matching accuracy
+- ⏳ < 2 taps to assign location
 - ⏳ 70% less manual updates
 - ⏳ 80% accuracy in stock prediction  
 - ⏳ 90% of essential items never run out
@@ -297,13 +509,69 @@
 
 ---
 
-**Version:** 1.1  
+**Version:** 1.2  
 **Last Updated:** 29/10/2025  
 **Status:** 🟡 PAUSED - Stability phase
+
+---
+
+## 📊 Updated Timeline Summary
+
+```yaml
+סה"כ זמן: 13 שבועות
+- Part A (Lists): 4 שבועות (Phases 0-5)
+- Part B (Inventory): 3 שבועות (Phases 6-8)
+- Part C (Integration): 1 שבוע (Phase 9)
+- Part D (Receipt to Inventory): 5 שבועות (Phases 10-14)
+
+New Features Added:
+- 🆕 Phase 3A: Shopping Frequency & Reminders (LOW priority)
+- 🆕 Phase 6A: Minimum Threshold System (HIGH priority)
+- 🆕 Phase 7: Custom Locations (HIGH priority)
+- 🆕 Phase 8A: Learning Algorithm (LOW priority - future)
+- 🆕 Phase 9A: Cumulative Inventory (HIGH priority)
+- 🆕 Part D: Receipt to Inventory System (Phases 10-14)
+```
+
+---
+
+## 📦 What's New in v1.2
+
+### Model Changes Required:
+1. **ShoppingList:**
+   - Add `frequency` (int) - times per week
+   - Add `lastShoppingDate` (DateTime)
+
+2. **InventoryItem:**
+   - Add `minimumThreshold` (int, default: 0)
+   - Add `lastUpdated` (DateTime)
+
+3. **CustomLocation (new model):**
+   - id, name, icon, householdId, createdBy
+
+### New Services:
+- ReminderService (frequency-based notifications)
+- ThresholdMonitorService (auto-add to list)
+- CustomLocationsService (CRUD for locations)
+- StockPredictionService (future - learning algorithm)
+- InventoryCumulativeService (quantity calculations)
+- ShoppingSessionService (collaborative shopping)
+- VirtualReceiptService (receipt creation)
+- ReceiptOCRService (scan & match)
+- PurchasedToInventoryService (auto-update inventory)
+
+### Priority Order:
+1. **HIGH:** Phases 6A, 7, 9A, 10-11, 13-14
+2. **MEDIUM:** Phase 12 (OCR)
+3. **LOW:** Phases 3A, 8A (future features)
+
+---
 
 **Remember:** The goals are SIMPLE LIST MANAGEMENT + SMART INVENTORY, not complex systems! 🎯
 
 **Next Steps:**
-1. Resume Phase 3 (UI/UX Updates) when ready
-2. Continue with original roadmap
-3. Keep focus on simplicity & user value
+1. Complete stability phase (documentation + testing) ✅
+2. Resume Phase 3 (UI/UX Updates)
+3. Implement Phase 6A (Minimum Threshold) - HIGH PRIORITY
+4. Continue with original roadmap + new features
+5. Keep focus on simplicity & user value
