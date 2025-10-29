@@ -1,6 +1,6 @@
 # CHANGELOG - MemoZap
 
-> Machine-readable | Updated: 26/10/2025 | Version: 1.0
+> Machine-readable | Updated: 29/10/2025 | Version: 1.0
 
 ## IN_PROGRESS
 
@@ -55,6 +55,46 @@ session_43:
     - clarified: Phase 0-2 done, Phase 3-5 postponed
     - removed GUIDE.md reference, added 6 new doc references
   result: all 4 core docs synchronized with reality
+
+session_44:
+  task: README.md Update - Version 2.9
+  status: complete
+  files:
+    - README.md: v2.8→v2.9 (comprehensive update)
+  changes:
+    version_and_dates:
+      - version: 2.8 → 2.9
+      - date: 25/10/2025 → 29/10/2025
+    documentation:
+      - docs: 6 → 7 files
+      - lines: 1,600 → 2,700
+      - replaced ALL GUIDE.md references → PROJECT_INSTRUCTIONS_v4.md
+      - added CODE_REVIEW_CHECKLIST.md to tables
+      - added WORK_PLAN.md to tables
+    statistics:
+      - tests: 50+ → 179 passing
+      - list_types: 21 → 8 smart types
+    features_v2.9:
+      - added Track 3 Complete section (Smart Suggestions)
+      - SuggestionsService + tests (15/15)
+      - Shopping Lists V5.0 (unified view)
+      - Receipt Scanning removed (11 files)
+    tables_updated:
+      - Core Documentation: 6→7 rows
+      - By Task Type: added "Review code" + "Plan roadmap"
+      - Project Structure: updated docs/ section
+      - Contributing: added step 5 (CODE_REVIEW_CHECKLIST)
+  reason:
+    - README outdated after sessions 40-43
+    - GUIDE.md deleted (session 34) but 20+ references remained
+    - Missing 2 new docs in tables
+    - Version mismatch (2.8 vs actual 2.9)
+  impact:
+    - accuracy: README now matches reality (7 docs, v2.9)
+    - navigation: all links work (no broken GUIDE.md references)
+    - completeness: all documentation properly listed
+    - onboarding: new devs/AI see correct structure
+  result: README.md fully synchronized with current state
 
 session_42:
   task: Code Review - app_strings.dart Fixed Broken Import
