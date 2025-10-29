@@ -13,7 +13,7 @@
 // 🔗 Dependencies:
 // - ShoppingListsProvider: ניהול state של רשימות
 // - AppStrings: מחרוזות UI (l10n/app_strings.dart)
-// - constants.dart: קבועים גלובליים (kListTypes)
+// - list_types_config.dart: הגדרות סוגי רשימות (kListTypes)
 // - ui_constants.dart: קבועי UI (ריווחים, גדלים)
 // - list_type_groups.dart: קיבוץ סוגי רשימות
 //
@@ -35,7 +35,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../core/constants.dart';
+import '../config/list_types_config.dart';
 import '../core/ui_constants.dart';
 import '../core/status_colors.dart';
 import '../providers/shopping_lists_provider.dart';
@@ -178,9 +178,9 @@ class _CreateListDialogState extends State<CreateListDialog> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
-          children: [
-            const Icon(Icons.error_outline, color: Colors.white),
-            const SizedBox(width: kSpacingSmall),
+          children: const [
+            Icon(Icons.error_outline, color: Colors.white),
+            SizedBox(width: kSpacingSmall),
             Expanded(child: Text(message)),
           ],
         ),
@@ -205,9 +205,9 @@ class _CreateListDialogState extends State<CreateListDialog> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
-          children: [
-            const Icon(Icons.check_circle_outline, color: Colors.white),
-            const SizedBox(width: kSpacingSmall),
+          children: const [
+            Icon(Icons.check_circle_outline, color: Colors.white),
+            SizedBox(width: kSpacingSmall),
             Expanded(child: Text(message)),
           ],
         ),

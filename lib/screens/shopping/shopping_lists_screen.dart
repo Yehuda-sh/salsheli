@@ -256,7 +256,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
         ),
       ),
       itemBuilder: (context) => [
-        PopupMenuItem(
+        const PopupMenuItem(
           value: 'date_desc',
           child: Row(
             children: [
@@ -273,7 +273,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
             ],
           ),
         ),
-        PopupMenuItem(
+        const PopupMenuItem(
           value: 'date_asc',
           child: Row(
             children: [
@@ -290,7 +290,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
             ],
           ),
         ),
-        PopupMenuItem(
+        const PopupMenuItem(
           value: 'name',
           child: Row(
             children: [
@@ -304,7 +304,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
             ],
           ),
         ),
-        PopupMenuItem(
+        const PopupMenuItem(
           value: 'budget_desc',
           child: Row(
             children: [
@@ -321,7 +321,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
             ],
           ),
         ),
-        PopupMenuItem(
+        const PopupMenuItem(
           value: 'budget_asc',
           child: Row(
             children: [
