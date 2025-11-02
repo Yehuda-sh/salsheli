@@ -59,13 +59,15 @@ firestore:
   shopping_lists/{listId}:
     id: string
     name: string
+    list_type: string  # supermarket, pharmacy, greengrocer, butcher, bakery, market, household, other
     created_by: string (userId)
     created_date: timestamp
     updated_date: timestamp
     household_id: string  # CRITICAL - ALWAYS filter by this!
     items: array[UnifiedListItem]
-    shared_users: array[SharedUser]
-    pending_requests: array[PendingRequest]
+    shared_users: array[SharedUser]  # userId, role (owner/admin/editor/viewer), sharedAt
+    pending_requests: array[PendingRequest]  # id, requesterId, itemData, status, requestedAt
+    active_shoppers: array[ActiveShopper]  # userId, joinedAt, isStarter, isActive
   
   users/{userId}:
     id: string
@@ -79,10 +81,20 @@ firestore:
     name: string
     created_by: string
     members: array[userId]
+  
+  receipts/{receiptId}:
+    id: string
+    household_id: string  # CRITICAL - ALWAYS filter by this!
+    linked_shopping_list_id: string?  # connection to shopping list
+    is_virtual: bool  # true = created automatically, false = scanned
+    created_by: string (userId)
+    created_date: timestamp
+    items: array[ReceiptItem]  # includes checkedBy, checkedAt fields
 
 indexes_required:
   - household_id (Asc) + created_date (Desc)
   - household_id (Asc) + updated_date (Desc)
+  - household_id (Asc) + linked_shopping_list_id (Asc)  # for receipt lookups
 ```
 
 ---
@@ -92,15 +104,37 @@ indexes_required:
 ```yaml
 core_principles:
   1. household_id filter - MANDATORY on ALL queries
-  2. role_based_access - Owner/Admin/Editor/Viewer
-  3. editor_restrictions - Can only modify pending_requests
-  4. owner_exclusive - Only owner can delete
+  2. role_based_access - Owner/Admin/Editor/Viewer (4 tiers)
+  3. editor_restrictions - Can only add pending_requests, NOT direct items
+  4. owner_exclusive - Only owner can delete lists
+  5. starter_permissions - Only starter can finish shopping
 
 roles:
-  owner: full_access + delete
-  admin: full_access
-  editor: read + modify_pending_requests_only
-  viewer: read_only
+  owner:
+    - Full access to list (create/read/update)
+    - Delete list
+    - Manage users (invite/remove/change roles)
+    - Approve/reject pending requests
+    - Add items directly (no approval needed)
+  
+  admin:
+    - Full access to list (create/read/update)
+    - Cannot delete list (owner only)
+    - Manage users (invite/remove/change roles)
+    - Approve/reject pending requests
+    - Add items directly (no approval needed)
+  
+  editor:
+    - Read list (full visibility)
+    - Add items → creates pending_request (needs approval)
+    - Cannot modify existing items
+    - Cannot delete items
+    - Cannot manage users
+  
+  viewer:
+    - Read-only access
+    - Cannot add/edit/delete anything
+    - Cannot create requests
 
 rules_location: firestore.rules
 deploy_command: firebase deploy --only firestore:rules
@@ -113,6 +147,69 @@ deploy_command: firebase deploy --only firestore:rules
 
 // ❌ WRONG - Missing household_id = SECURITY BREACH!
 .collection('shopping_lists').get()  // Can see ALL households!
+```
+
+---
+
+## KEY MODELS
+
+### Phase 3B: User Sharing System
+
+```dart
+// SharedUser - represents a user with access to a shopping list
+class SharedUser {
+  final String userId;
+  final UserRole role;  // owner, admin, editor, viewer
+  final DateTime sharedAt;
+}
+
+enum UserRole {
+  owner,   // Full access + delete + manage users
+  admin,   // Full access + manage users (no delete)
+  editor,  // Read + create pending requests
+  viewer,  // Read-only
+}
+
+// PendingRequest - Editor's item addition request
+class PendingRequest {
+  final String id;
+  final String requesterId;  // userId who created request
+  final Map<String, dynamic> itemData;  // UnifiedListItem data
+  final RequestStatus status;  // pending, approved, rejected
+  final RequestType type;  // addItem, editItem, deleteItem
+  final DateTime requestedAt;
+}
+
+enum RequestStatus { pending, approved, rejected }
+enum RequestType { addItem, editItem, deleteItem }
+```
+
+### Receipt to Inventory System
+
+```dart
+// ActiveShopper - tracks who's shopping in real-time
+class ActiveShopper {
+  final String userId;
+  final DateTime joinedAt;
+  final bool isStarter;  // First person = starter (can finish shopping)
+  final bool isActive;   // Still shopping or left
+}
+
+// Receipt fields (added to existing Receipt model)
+class Receipt {
+  // ... existing fields ...
+  final String? linkedShoppingListId;  // Connection to shopping list
+  final bool isVirtual;  // true = auto-created, false = scanned
+  final String? createdBy;  // userId who created receipt
+}
+
+// ReceiptItem fields (added to existing ReceiptItem model)
+class ReceiptItem {
+  // ... existing fields ...
+  final String? checkedBy;  // userId who marked as purchased
+  final DateTime? checkedAt;  // When marked as purchased
+  final bool isChecked;  // Kept for backward compatibility
+}
 ```
 
 ---
@@ -360,7 +457,7 @@ ios:
 ---
 
 End of Technical Reference
-Version: 1.1 | Date: 29/10/2025
+Version: 1.3 | Date: 02/11/2025
 Optimized for AI parsing - minimal formatting, maximum data density.
 
 **Updates v1.1 (29/10/2025):**
@@ -376,3 +473,12 @@ Optimized for AI parsing - minimal formatting, maximum data density.
 - Updated Build Config to match current setup
 - Removed deprecated firebase_bom, google_fonts
 - Added new dependencies: firebase_storage, camera, image_picker, etc.
+
+**Updates v1.3 (02/11/2025 - session 49):**
+- Added KEY MODELS section with Phase 3B (SharedUser, PendingRequest, UserRole)
+- Added Receipt to Inventory models (ActiveShopper, Receipt fields, ReceiptItem fields)
+- Expanded FIREBASE STRUCTURE with receipts collection + new fields
+- Enhanced SECURITY RULES with 4-tier role system details
+- Added list_type field to shopping_lists
+- Added linked_shopping_list_id index for receipt lookups
+- Documented Editor restrictions (pending requests workflow)

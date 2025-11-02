@@ -1,4 +1,4 @@
-# 📋 MemoZap Project Instructions v4.8
+# 📋 MemoZap Project Instructions v4.9
 
 > Machine-Readable | Full YAML Format | Updated: 02/11/2025
 
@@ -358,7 +358,7 @@ code_review_protocol:
     Rule: When in doubt - DON'T DELETE!
     Step 7: For large files, ask user to verify with PowerShell (see CODE_REVIEW_CHECKLIST v2.3)
     
-    Real mistakes: sessions 41, 43, 48 (3 active files almost deleted)
+    Real mistakes: sessions 41, 43, 48, 49 (4 active files almost deleted)
 ```
 
 ---
@@ -801,13 +801,21 @@ error_11_most_recent:
   fix_13: ALWAYS search for BOTH filename AND class name. Better: ask user for PowerShell verification
   learning_13: PowerShell > MCP search_files for definitive file usage proof
   impact_13: CRITICAL - almost deleted 990 lines of active code, user caught with PowerShell
+  
+  error_14: animated_button.dart false dead code (session 49)
+  cause_14: search_files('animated_button') = 0 imports, missed class usage
+  actual_usage_14: AnimatedButton used in StickyButton (lib/widgets/common/sticky_button.dart)
+  pattern_missed_14: Missed import inside another widget component
+  fix_14: ALWAYS check widgets/common/ files for component imports
+  learning_14: Shared components are often imported by other shared components
+  impact_14: CRITICAL - almost deleted 98 lines of active animation code, user caught with PowerShell
 
 top_6_common_errors:
   1:
     name: false dead code detection
     impact: DELETING ACTIVE CODE (breaks entire app!)
     frequency: very_high
-    recent: 4 files (sessions 41-43, 48: app_strings, constants, stores_config, storage_location_manager)
+    recent: 5 files (sessions 41-43, 48-49: app_strings, constants, stores_config, storage_location_manager, animated_button)
     fix: Use 6-step protocol + PowerShell verification for large files (see CODE_REVIEW_CHECKLIST v2.3)
   
   2:
@@ -978,7 +986,14 @@ critical_checklist_before_commit:
 - ✅ Added reference to CODE_REVIEW_CHECKLIST v2.3 (Step 7 protocol)
 - ✅ Impact: PowerShell verification prevents false positives on large files
 
+**Updates v4.9 (session 49 - COMPONENT IMPORTS):**
+- ✅ Added error_14: animated_button.dart false positive (98 lines)
+- ✅ Updated critical_warning: 3→4 active files almost deleted
+- ✅ Updated top_6_common_errors: 4→5 false positive files
+- ✅ New pattern: shared components import other shared components
+- ✅ Impact: Documented 5th false positive, emphasizing component checks
+
 **Total:** 500 lines | Format: Pure YAML  
-**Version:** 4.8
+**Version:** 4.9
 **Last Updated:** 02/11/2025  
 **Maintainer:** MemoZap AI System
