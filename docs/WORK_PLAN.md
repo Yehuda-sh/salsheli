@@ -1,780 +1,591 @@
-# 📋 MemoZap Complete System - Work Plan
-> תוכנית עבודה מלאה | מערכת רשימות + מזווה חכם
-> Created: 27/10/2025 | Updated: 29/10/2025
-
----
-
-## 🎯 Strategic Goals
-
-### Primary Goals
-1. **ניהול רשימות קניות חכם** - לא השוואת מחירים!
-2. **מזווה חכם מבוסס מיקומים** - עדכון אוטומטי ולמידת הרגלים
-
-### Core Principles
-1. ✅ **אין מחירים חובה** - מחירים לשלב מתקדם בלבד
-2. ✅ **אין ברקוד חובה** - רק אופציונלי למי שרוצה
-3. ✅ **פשטות מעל הכל** - הוספה מהירה של מוצרים
-4. ✅ **שימוש חכם ב-API קיים** - 5000 מוצרים משופרסל מספיקים
-
-### Target Features
-- 🛒 רשימות לפי סוג חנות
-- 🔍 סינון חכם של מוצרים
-- 📝 הוספת מוצרים ללא מחיר/ברקוד
-- 🥬 ירקות ופירות - רק שם וכמות
-
----
-
-## 📊 Master Timeline
+# WORK_PLAN.md - MemoZap Roadmap
+> Machine-Readable | AI-Optimized | Updated: 02/11/2025 v1.4
 
 ```yaml
-סה"כ זמן: 8 שבועות
-- Part A (Lists): 4 שבועות
-- Part B (Inventory): 3 שבועות  
-- Part C (Integration): 1 שבוע
+status: ACTIVE
+current_phase: 3B_user_sharing
+last_session: 49
+last_updated: 02/11/2025
+
+goals:
+  primary:
+    - smart_shopping_lists: NO price comparison
+    - smart_inventory: location-based, auto-update
+  
+  principles:
+    - no_mandatory_prices: optional only
+    - no_mandatory_barcode: optional only
+    - simplicity_first: quick product addition
+    - use_existing_api: 5000 products (Shufersal)
+
+timeline:
+  total: 13_weeks
+  part_a_lists: 4_weeks
+  part_b_inventory: 3_weeks
+  part_c_integration: 1_week
+  part_d_receipt_system: 5_weeks
 ```
 
 ---
-
-# Part A: Lists System 🛒
-
-## 📅 Implementation Phases
-
-### ✅ Phase 0: Research & Planning (COMPLETED)
-**Status:** ✅ DONE  
-**Date:** 27/10/2025
-
-- ✅ Analyzed existing system
-- ✅ Verified UnifiedListItem supports no-price products
-- ✅ Created ListTypeFilterService
-- ✅ Documented strategy in memory
-
----
-
-### ✅ Phase 1: Extend List Types (COMPLETED)
-**Timeline:** Week 1 (28/10 - 03/11/2025)  
-**Priority:** HIGH  
-**Status:** ✅ DONE (27/10/2025)
-
-#### Completed Tasks:
-- ✅ Updated ShoppingList model with 8 types
-- ✅ Extended Firebase schema
-- ✅ Created and executed DB migration (1 list updated)
-- ✅ Backward compatibility maintained
-- ✅ Migration script: `scripts/migrate_types.js`
-
-#### New Types:
-```dart
-- supermarket (סופרמרקט) - all 5000 products
-- pharmacy (בית מרקחת) - hygiene & cleaning only
-- greengrocer (ירקן) - fruits & vegetables only
-- butcher (אטליז) - meat & poultry only
-- bakery (מאפייה) - bread & pastries only
-- market (שוק) - mixed fresh products
-- household (כלי בית) - custom items
-- other (אחר) - fallback
-```
-
----
-
-### ✅ Phase 2: Smart Product Filtering (COMPLETED)
-**Timeline:** Week 1-2 (28/10 - 10/11/2025)  
-**Priority:** HIGH  
-**Status:** ✅ DONE (27/10/2025)
-
-#### Completed Tasks:
-- ✅ Created `ListTypeFilterService`
-- ✅ Category mapping defined (7 list types)
-- ✅ Connected to ProductsProvider
-- ✅ Lazy loading in ProductsProvider (100 initial, then background)
-
----
-
-### 🟢 Phase 3: UI/UX Updates (IN PROGRESS)
-**Timeline:** Week 2 (04/11 - 10/11/2025)  
-**Priority:** MEDIUM  
-**Status:** 🟢 IN PROGRESS  
-**Started:** 29/10/2025
-
-#### Completed Tasks:
-- ✅ List type selection UI (CreateListDialog with 8 types)
-- ✅ Type icons and Hebrew labels (kListTypes config)
-- ✅ Add type indicator to list cards (shopping_list_tile.dart)
-- ✅ Type filtering in shopping_lists_screen.dart (Drawer + Dropdown)
-
-#### Remaining Tasks:
-- [ ] Update product search dialog (filter by list type)
-- [ ] Add type-based product suggestions
-- [ ] Polish animations and transitions
-- [ ] Test all 8 types end-to-end
-
----
-
-### 🆕 Phase 3A: Shopping Frequency & Reminders
-**Timeline:** Week 2 (04/11 - 10/11/2025)  
-**Priority:** LOW (Future)
-
-#### Model Changes:
-- [ ] ShoppingList: add `frequency` field (int - times per week)
-- [ ] ShoppingList: add `lastShoppingDate` field (DateTime)
-- [ ] Run build_runner after model changes
-
-#### Tasks:
-- [ ] UI: Frequency selector in create list (1-7 times/week)
-- [ ] Service: ReminderService (calculate next shopping date)
-- [ ] Notifications: Push reminder based on frequency
-- [ ] Logic: Smart reminder (3 days before if frequency=weekly)
-- [ ] Settings: Enable/disable reminders per list
-
-**Note:** Currently marked as TODO in specification - implement when needed.
-
----
-
-### 🟢 Phase 3B: User Sharing System (IN PROGRESS)
-**Timeline:** Week 2-3 (04/11 - 17/11/2025)  
-**Priority:** HIGH  
-**Status:** 🟢 IN PROGRESS  
-**Started:** 29/10/2025
-
-> **Based on:** MemoZap Sharing System - Creator Flow (29/10/2025)
-
-#### Models (✅ DONE):
-- ✅ SharedUser (userId, role, sharedAt)
-- ✅ PendingRequest (id, requesterId, itemData, status, requestedAt)
-- ✅ UserRole enum (owner, admin, editor, viewer)
-
-#### Services (✅ 2/2 DONE):
-- ✅ ShareListService (460 lines) - invite/remove/update users
-- ✅ PendingRequestsService (410 lines) - create/approve/reject requests
-
-#### Permission Levels:
-1. **Owner (יוצר הרשימה):**
-   - מוסיף מוצרים ישירות (ללא אישור)
-   - מאשר/דחה בקשות מ-Editors
-   - יכול למחוק רשימה
-   - מנהל הרשאות משתמשים
-
-2. **Admin (מנהל):**
-   - מוסיף מוצרים ישירות (ללא אישור)
-   - מאשר/דחה בקשות מ-Editors
-   - לא יכול למחוק רשימה (רק Owner)
-   - יכול לנהל הרשאות משתמשים אחרים
-
-3. **Editor (עורך):**
-   - רואה את הרשימה המלאה
-   - מוסיף מוצרים → הופך ל-'מוצר ממתין' (Pending)
-   - צריך אישור מ-Owner/Admin
-   - המוצר לא מופיע ברשימה עד האישור
-   - לא יכול לערוך/מחוק מוצרים קיימים
-
-4. **Viewer (צופה):**
-   - רק צופה ברשימה (read-only)
-   - לא יכול להוסיף בקשות
-   - לא יכול לערוך כלום
-
-#### Completed Tasks:
-- ✅ ShareListService (session 46)
-  - inviteUser(), removeUser(), updateUserRole()
-  - Permission helpers: canUserEdit(), canUserApprove(), canUserManage()
-  - Statistics: getUsersStats(), isListShared()
-- ✅ PendingRequestsService (session 47)
-  - createRequest(), createAddItemRequest()
-  - approveRequest() - adds item to list
-  - rejectRequest() - marks as rejected
-  - cleanupOldRejectedRequests() - auto-delete after 7 days
-  - Query methods: getPendingRequests(), getPendingRequestsCount(), getRequestsStats()
-
-#### Remaining Tasks:
-- [ ] UI: Invite users screen (email + role selector)
-- [ ] UI: Manage users screen (list of shared users + edit roles)
-- [ ] UI: Pending requests screen (list + approve/reject)
-- [ ] UI: Badge counter for Owner/Admin (pending requests)
-- [ ] Logic: Permission validation in UI
-- [ ] Notifications: Push when request approved/rejected
-- [ ] Notifications: Push when new user invited
-- [ ] Firebase Security: Enforce permission rules
-- [ ] Testing: All 4 permission levels + services
-
-#### User Flow:
-1. **Owner creates list** → invites users → assigns roles
-2. **Editor adds item** → creates PendingRequest → waits for approval
-3. **Owner/Admin sees badge** → reviews request → approves/rejects
-4. **Approved** → item added to list + notification to Editor
-5. **Rejected** → request deleted + notification to Editor
-
----
-
-### 🔄 Phase 4: Product Management
-**Timeline:** Week 3 (11/11 - 17/11/2025)  
-**Priority:** MEDIUM
-
-#### Tasks:
-- [ ] Create ProductsManager singleton
-- [ ] Implement lazy loading per type
-- [ ] Hive cache integration
-- [ ] Memory optimization
-- [ ] Offline support
-
----
-
-### 🔄 Phase 5: Testing & Polish
-**Timeline:** Week 3-4 (11/11 - 24/11/2025)  
-**Priority:** HIGH
-
-#### Tasks:
-- [ ] Test scenarios (filtering, no-price products, performance)
-- [ ] Loading animations
-- [ ] Empty state messages
-- [ ] Error handling
-- [ ] Hebrew translations
-- [ ] RTL support verification
-
----
-
-## 📊 Success Metrics
-
-- ✅ 7 list types working
-- ✅ Filter reduces products by 80%+
-- ⏳ UI selection < 2 taps
-- ⏳ Cache hit rate > 90%
-- ⏳ All tests passing
-
----
-
-## ⚠️ Important Notes
-
-### What We're NOT Building:
-- ❌ Price comparison app
-- ❌ Barcode scanner (maybe later)
-- ❌ Complex inventory system
-- ❌ Store-specific prices
-
-### What We ARE Building:
-- ✅ Simple list manager
-- ✅ Quick product addition
-- ✅ Smart categorization
-- ✅ Offline support
-
----
-
-## 📚 Related Documents
-
-- `CODE.md` - Code patterns (v2.2, 500 lines)
-- `DESIGN.md` - UI/UX guidelines (v1.1, 300 lines)
-- `TECH.md` - Technical reference (400 lines)
-- `PROJECT_INSTRUCTIONS_v4.md` - Complete AI instructions (500 lines)
-- `CODE_REVIEW_CHECKLIST.md` - Review protocols (300 lines)
-
-**Total:** 5 files, 2000 lines (optimized for machine)
-
----
-
-**Last Updated:** 02/11/2025  
-**Status:** 🟢 ACTIVE - Phase 3B User Sharing System
-
----
-
-## 🔍 Recent Work History
-
-### ✅ Stability Phase (Sessions 25-46)
-
-**Focus:** Infrastructure before features - fixing bugs, cleaning code, documenting properly.
-
-#### 1. Bug Fixes (Sessions 25-33)
-- Fixed compilation errors across 10+ files
-- Fixed RangeError in navigation
-- Fixed product loading (0 products → 1758 products)
-- Added View/Edit modes to PopulateListScreen
-
-#### 2. Documentation Evolution (Sessions 34-46)
-- **Phase 1 (34, 39-43):** Reduced 10→7 files (-38% redundancy)
-- **Phase 2 (45-46):** Reduced 7→5 files (-60% total redundancy)
-- **PROJECT_INSTRUCTIONS:** v4.0 → v4.6
-  - v4.0: Full YAML format
-  - v4.1: Removed GUIDE.md references
-  - v4.2: Added bash_tool Windows warning
-  - v4.3: Enhanced dead code detection (4→6 steps)
-  - v4.4: Added token management system
-  - v4.5: Removed CHANGELOG.md (Memory replaces it!)
-  - v4.6: Removed LESSONS_LEARNED.md (zero duplication)
-- **CODE_REVIEW_CHECKLIST:** v2.0 → v2.2
-- **TECH.md:** v1.0 → v1.1
-
-#### 3. Code Cleanup (Sessions 35-41)
-- Removed dead code: 1500+ lines across 9 files
-- Cleaned: config/ directory, test/ directory, scripts/
-- Created: 6-step dead code verification protocol
-- **Critical lessons:** 3 false-positive incidents prevented deletion of active code
-
-#### 4. Repository Work (Session 38)
-- Created repository_constants.dart
-- Migrated 6 repositories to constants
-- Eliminated magic strings
-
-#### 5. Testing (Sessions 44-45)
-- Fixed tests from 61 failures → 0 failures
-- 179 passing tests (90%+ model coverage)
-- Added missing test data
-
-#### 6. Memory System (Session 46)
-- Implemented 10-entity knowledge graph
-- Automatic checkpoint protocol (no manual docs!)
-- Session rotation (keep last 3-5)
-- Zero maintenance overhead
-
-#### 7. Manual Animations Cleanup (Session 49)
-- Fixed 3 manual animations → shared components
-- settings_screen.dart: _StatCard → SimpleTappableCard (-15 lines)
-- populate_list_screen.dart: InkWell → SimpleTappableCard
-- shopping_list_details_screen.dart: GestureDetector → AnimatedButton
-- Result: Consistent animations + haptic feedback across app
-- False positive #5 prevented: animated_button.dart (98 lines saved)
-
-#### 8. Documentation Update (Session 49)
-- CODE.md: v2.1 → v2.2 (added Component Reuse Protocol)
-- DESIGN.md: v1.0 → v1.1 (added 5 Advanced Components)
-- Updated: AnimatedButton, SimpleTappableCard, BenefitTile, DashboardCard, SkeletonLoading
-- Added: Decision tree for component selection
-- Added: Protocol for AI to ask about components
-
----
-
-## 🎯 Current Status (Session 49+)
-
-### Infrastructure: ✅ COMPLETE
-1. ✅ All compilation errors resolved
-2. ✅ Documentation stabilized (5 files, 2000 lines)
-3. ✅ Testing infrastructure solid (179 passing)
-4. ✅ Memory system operational (10 entities)
-5. ✅ Token management system active
-
-### Current: 🟢 Phase 3B User Sharing System
-**Status:** IN PROGRESS  
-**Started:** 29/10/2025 (Session 46-47, 49)
-
-**Completed (Services Layer):**
-- ✅ ShareListService (session 46) - 460 lines
-  - User management: invite, remove, update roles
-  - Permission helpers: 7 functions
-  - Security: Owner-only actions, role validation
-- ✅ PendingRequestsService (session 47) - 410 lines
-  - Request lifecycle: create, approve, reject
-  - Query methods: 7 functions for filtering/stats
-  - Auto-cleanup: rejected requests after 7 days
-
-**Remaining (UI Layer):**
-- [ ] Invite Users Screen (email + role selector)
-- [ ] Manage Users Screen (list + edit roles)
-- [ ] Pending Requests Screen (badge + approve/reject)
-- [ ] Permission validation in UI
-- [ ] Notifications
-- [ ] Firebase Security Rules
-- [ ] Testing
-
-### Phase 3 UI/UX Updates: ⏸️ PAUSED
-**Completed:**
-- ✅ List type selection UI (8 types)
-- ✅ Type filtering in list screen
-- ✅ Type indicators on list cards
-- ✅ Product search with type filtering (session 46)
-
-**Remaining (Optional):**
-- [ ] Animations and transitions
-- [ ] End-to-end testing
-
-### Future Roadmap:
-1. **Complete Phase 3B:** UI Screens (3-4 screens)
-2. **Phase 4:** Product Management (lazy loading, caching)
-3. **Phase 5:** Testing & Polish
-4. **Phase 6-8:** Inventory System (storage locations, thresholds)
-5. **Phase 9:** Lists ↔️ Inventory Integration
-6. **Phase 10-14:** Receipt to Inventory System
-
----
-
----
-
-# Part B: Inventory System 🏠
-
-## 📅 Implementation Phases
-
-### 🔄 Phase 6: Storage Location Infrastructure
-**Timeline:** Week 5 (25/11 - 01/12/2025)  
-**Priority:** HIGH
-
-#### Model Changes:
-- [ ] InventoryItem: add `minimumThreshold` field (int, default: 0)
-- [ ] InventoryItem: add `lastUpdated` field (DateTime)
-- [ ] Run build_runner after model changes
-
-#### Tasks:
-- [ ] Update InventoryItem model
-- [ ] Create StorageLocationService
-- [ ] Add location field to Firebase
-- [ ] Create migration for existing items
-- [ ] Update repositories
-
----
-
-### 🆕 Phase 6A: Minimum Threshold System
-**Timeline:** Week 5 (25/11 - 01/12/2025)  
-**Priority:** HIGH
-
-#### Tasks:
-- [ ] UI: Threshold editor in inventory item (default: 0)
-- [ ] Service: ThresholdMonitorService (check inventory < threshold)
-- [ ] Logic: When quantity < minimumThreshold → auto-add to shopping list
-- [ ] Logic: Route to correct list type (milk → supermarket)
-- [ ] UI: Badge showing "auto-added" items in list
-- [ ] Settings: Enable/disable auto-add per item
-- [ ] Notifications: "Low stock: X items added to list"
-
----
-
-### 🔄 Phase 7: Inventory UI/UX + Custom Locations
-**Timeline:** Week 6 (02/12 - 08/12/2025)  
-**Priority:** HIGH
-
-#### Tasks:
-- [ ] Create inventory_screen.dart
-- [ ] Build UnassignedItemsBar widget
-- [ ] Location-based item display
-- [ ] Quick assignment UI (single row, all options)
-- [ ] Animations for item assignment
-- [ ] Empty states for each location
-
-#### Custom Locations:
-- [ ] Model: CustomLocation (id, name, icon, householdId, createdBy)
-- [ ] Service: CustomLocationsService (CRUD operations)
-- [ ] UI: Add custom location dialog (name + icon picker)
-- [ ] UI: Edit/delete custom locations
-- [ ] Logic: Custom locations appear in quick assignment row
-- [ ] Firebase: Store in `custom_locations` collection
-- [ ] Validation: Max 20 locations per household
-
----
-
-### 🔄 Phase 8: Smart Stock Management
-**Timeline:** Week 7 (09/12 - 15/12/2025)  
-**Priority:** MEDIUM
-
-#### Tasks:
-- [ ] Implement StockUpdateService
-- [ ] Create unpack shopping flow
-- [ ] Build physical check flow  
-- [ ] Location learning algorithm
-- [ ] Auto-assignment logic
-- [ ] Testing with real data
-
----
-
-### 🆕 Phase 8A: Learning Algorithm - Predictive Stock
-**Timeline:** Week 7 (09/12 - 15/12/2025)  
-**Priority:** LOW (Future)
-
-#### Tasks:
-- [ ] Service: StockPredictionService
-- [ ] Algorithm: Track purchase frequency per item
-- [ ] Algorithm: Calculate average consumption rate
-- [ ] Logic: Predict when item will run out
-- [ ] Logic: Auto-add to list before running out
-- [ ] UI: Show "predicted low stock" badge
-- [ ] Testing: 2 weeks of data needed for accuracy
-
-**Note:** Currently marked as TODO in specification - implement after basic system works.
-
----
-
-# Part C: Integration 🔄
-
-## 📅 Implementation Phase
-
-### 🔄 Phase 9: Lists ↔️ Inventory Connection
-**Timeline:** Week 8 (16/12 - 22/12/2025)  
-**Priority:** HIGH
-
-#### Integration Points:
-
-#### Tasks:
-- [ ] Connect inventory to suggestions
-- [ ] Auto-routing to list types
-- [ ] Shopping completion flow
-- [ ] Weekly list generation
-- [ ] Cross-system notifications
-- [ ] End-to-end testing
-
----
-
-### 🆕 Phase 9A: Cumulative Inventory System
-**Timeline:** Week 8 (16/12 - 22/12/2025)  
-**Priority:** HIGH
-
-#### Tasks:
-- [ ] Logic: Cumulative calculation (existing + purchased = total)
-- [ ] Example: 2 in pantry + 5 bought = 7 total
-- [ ] UI: Show before/after quantities in update confirmation
-- [ ] UI: "You had 2, bought 5, now have 7" message
-- [ ] Service: InventoryCumulativeService
-- [ ] Validation: Prevent negative quantities
-- [ ] History: Track quantity changes (optional)
-
----
-
-# Part D: Receipt to Inventory System 🧾→🏠
-
-> **Based on:** Receipt to Inventory System - Final Design (29/10/2025)
-
-## 🎯 Overview
-
-**מטרה:** מעבר חלק מקנייה משותפת לעדכון מלאי אוטומטי
-
-### Core Concept:
-1. **קנייה משותפת** - כמה אנשים קונים יחד בו-זמנית
-2. **קבלה וירטואלית** - נוצרת אוטומטית בסיום קנייה
-3. **חיבור לקבלה אמיתית** - משתמש סורק אחר כך ומחבר
-4. **עדכון מלאי** - מוצרים שנקנו עוברים אוטומטית למזווה
-
----
-
-## 📅 Implementation Phases
-
-### 🔄 Phase 10: Shopping Session Management
-**Timeline:** Week 9 (23/12 - 29/12/2025)  
-**Priority:** HIGH
-
-#### Models (✅ DONE - 29/10/2025):
-- ✅ ActiveShopper (userId, joinedAt, isStarter, isActive)
-- ✅ ShoppingList: added activeShoppers field + 8 helper getters
-- ✅ ReceiptItem: added checkedBy, checkedAt (who marked as purchased)
-- ✅ Receipt: added linkedShoppingListId, isVirtual, createdBy
-
-#### Tasks:
-- [ ] UI: Start Shopping screen with "Join Shopping" button
-- [ ] Service: ShoppingSessionService (join, leave, timeout)
-- [ ] Logic: Starter assignment (first person = starter)
-- [ ] Logic: Power transfer (starter leaves → first helper becomes starter)
-- [ ] Timeout: 6 hours inactive → auto-end shopping
-- [ ] Notifications: Push when someone joins/leaves
-
----
-
-### 🔄 Phase 11: Virtual Receipt Creation
-**Timeline:** Week 10 (30/12 - 05/01/2026)  
-**Priority:** HIGH
-
-#### Tasks:
-- [ ] Service: VirtualReceiptService
-- [ ] Logic: On "Finish Shopping" → create virtual receipt
-- [ ] Filter: Only purchased items (isChecked=true) in receipt
-- [ ] Connection: linkedShoppingListId stored in receipt
-- [ ] Model: Receipt.virtual() factory (already created ✅)
-- [ ] UI: Show virtual receipt after shopping
-- [ ] Validation: Only starter can finish shopping
-
----
-
-### 🔄 Phase 12: Real Receipt Connection (OCR)
-**Timeline:** Week 11 (06/01 - 12/01/2026)  
-**Priority:** MEDIUM
-
-#### Tasks:
-- [ ] Service: ReceiptOCRService (scan & parse)
-- [ ] Matching: Compare OCR items to virtual receipt items
-- [ ] Update: Add real prices + fileUrl to virtual receipt
-- [ ] UI: Scan receipt screen
-- [ ] UI: Manual price editing (if OCR fails)
-- [ ] Validation: Prevent duplicate receipt linking
-
----
-
-### 🔄 Phase 13: Purchased → Inventory Flow
-**Timeline:** Week 12 (13/01 - 19/01/2026)  
-**Priority:** HIGH
-
-#### Tasks:
-- [ ] Service: PurchasedToInventoryService
-- [ ] Logic: Purchased items → add to inventory (location: "no location")
-- [ ] Logic: Unpurchased items → stay in list
-- [ ] Cumulative inventory: existing 2 + purchased 5 = total 7
-- [ ] UI: Notification to assign locations
-- [ ] UI: Quick location assignment from notification
-
----
-
-## 🔄 Phase 14: Integration Testing
-**Timeline:** Week 13 (20/01 - 26/01/2026)  
-**Priority:** HIGH
-
-#### Scenarios:
-1. **Solo Shopping:**
-   - User starts shopping alone
-   - Marks items as purchased
-   - Finishes shopping
-   - Virtual receipt created
-   - Items move to inventory
-
-2. **Collaborative Shopping:**
-   - User A starts shopping (starter)
-   - User B joins (helper)
-   - Both mark items
-   - User A finishes
-   - Receipt shows who bought what
-
-3. **Starter Leaving:**
-   - User A starts (starter)
-   - User B joins (helper)
-   - User A leaves → User B becomes starter
-   - User B finishes shopping
-
-4. **Timeout:**
-   - User starts shopping
-   - 6 hours pass
-   - Auto-end shopping
-   - Virtual receipt created
-
-5. **OCR Connection:**
-   - Scan real receipt
-   - Match to virtual receipt
-   - Update prices
-   - Inventory already updated
-
-#### Tasks:
-- [ ] Write integration tests for all 5 scenarios
-- [ ] Test edge cases (network failure, app crash)
-- [ ] Test permissions (only starter can finish)
-- [ ] Test concurrent shoppers (2-3 people)
-- [ ] Performance testing (100+ items)
-
----
-
-## 🎯 Success Metrics
-
-- ⏳ 100% purchased items auto-added to inventory
-- ⏳ 95% virtual receipt creation success rate
-- ⏳ 80% OCR matching accuracy
-- ⏳ < 2 taps to assign location
-- ⏳ 70% less manual updates
-- ⏳ 80% accuracy in stock prediction  
-- ⏳ 90% of essential items never run out
-- ⏳ Seamless flow between lists and inventory
-- ⏳ Smart learning after 2 weeks
-
----
-
----
-
-**Version:** 1.4  
-**Last Updated:** 02/11/2025  
-**Status:** 🟢 ACTIVE - Phase 3B in progress (Session 49)
-
----
-
-## 📊 Updated Timeline Summary
 
 ```yaml
-סה"כ זמן: 13 שבועות
-- Part A (Lists): 4 שבועות (Phases 0-5)
-- Part B (Inventory): 3 שבועות (Phases 6-8)
-- Part C (Integration): 1 שבוע (Phase 9)
-- Part D (Receipt to Inventory): 5 שבועות (Phases 10-14)
+part_a_lists:
+  phase_0_research:
+    status: DONE
+    date: 27/10/2025
+    completed:
+      - analyzed_existing_system
+      - verified_unified_list_item_no_price
+      - created_list_type_filter_service
+      - documented_strategy
+  
+  phase_1_extend_types:
+    status: DONE
+    week: 1
+    priority: HIGH
+    completed:
+      - shopping_list_model_8_types
+      - firebase_schema_extended
+      - db_migration_executed
+      - backward_compatibility
+    
+    types:
+      - supermarket: all_5000_products
+      - pharmacy: hygiene_cleaning
+      - greengrocer: fruits_vegetables
+      - butcher: meat_poultry
+      - bakery: bread_pastries
+      - market: mixed_fresh
+      - household: custom_items
+      - other: fallback
+  
+  phase_2_smart_filtering:
+    status: DONE
+    week: 1_2
+    priority: HIGH
+    completed:
+      - list_type_filter_service
+      - category_mapping_7_types
+      - products_provider_connected
+      - lazy_loading_100_initial
+  
+  phase_3_ui_ux:
+    status: PAUSED
+    week: 2
+    priority: MEDIUM
+    started: 29/10/2025
+    completed:
+      - list_type_selection_8_types
+      - type_icons_labels
+      - type_indicator_cards
+      - type_filtering_screen
+    remaining_optional:
+      - product_search_dialog
+      - type_based_suggestions
+      - animations_transitions
+      - e2e_testing
 
-New Features Added:
-- 🆕 Phase 3A: Shopping Frequency & Reminders (LOW priority)
-- 🆕 Phase 6A: Minimum Threshold System (HIGH priority)
-- 🆕 Phase 7: Custom Locations (HIGH priority)
-- 🆕 Phase 8A: Learning Algorithm (LOW priority - future)
-- 🆕 Phase 9A: Cumulative Inventory (HIGH priority)
-- 🆕 Part D: Receipt to Inventory System (Phases 10-14)
+---
+
+  phase_3a_frequency_reminders:
+    status: TODO_FUTURE
+    week: 2
+    priority: LOW
+    
+    model_changes:
+      shopping_list:
+        - frequency_int_times_per_week
+        - last_shopping_date_datetime
+        - build_runner_required
+    
+    tasks:
+      - frequency_selector_ui_1_7_per_week
+      - reminder_service_calculate_next_date
+      - push_notifications_frequency_based
+      - smart_reminder_3_days_before
+      - settings_enable_disable_per_list
+
+---
+
+  phase_3b_user_sharing:
+    status: IN_PROGRESS
+    week: 2_3
+    priority: HIGH
+    started: session_46
+    progress: 22_percent
+    
+    models_done:
+      - shared_user: userId_role_sharedAt
+      - pending_request: id_requesterId_itemData_status_requestedAt
+      - user_role_enum: owner_admin_editor_viewer
+    
+    services_done:
+      share_list_service:
+        lines: 460
+        session: 46
+        methods:
+          - invite_remove_update_user
+          - can_edit_approve_manage
+          - get_users_stats_is_shared
+      
+      pending_requests_service:
+        lines: 410
+        session: 47
+        methods:
+          - create_approve_reject_request
+          - cleanup_old_7_days
+          - get_pending_count_stats
+      
+      tests:
+        total: 64
+        coverage: services_100_percent
+    
+    permission_levels:
+      owner:
+        - add_items_directly_no_approval
+        - approve_reject_editor_requests
+        - can_delete_list
+        - manage_user_permissions
+      
+      admin:
+        - add_items_directly_no_approval
+        - approve_reject_editor_requests
+        - cannot_delete_list
+        - manage_user_permissions
+      
+      editor:
+        - see_full_list_read_only
+        - add_items_creates_pending_request
+        - needs_approval_from_owner_admin
+        - item_not_visible_until_approved
+        - cannot_edit_delete_existing
+      
+      viewer:
+        - read_only_access
+        - cannot_add_requests
+        - cannot_edit_anything
+    
+    remaining_ui:
+      - invite_users_screen_email_role
+      - manage_users_screen_list_edit_roles
+      - pending_requests_screen_badge_approve_reject
+      - permission_validation_ui
+      - notifications_approved_rejected_invited
+      - firebase_security_rules
+      - testing_4_permission_levels
+    
+    user_flow:
+      - owner_creates_invites_assigns_roles
+      - editor_adds_item_creates_pending_request
+      - owner_admin_sees_badge_reviews
+      - approved_adds_to_list_notifies_editor
+      - rejected_deletes_notifies_editor
+
+---
+
+  phase_4_product_management:
+    status: TODO
+    week: 3
+    priority: MEDIUM
+    tasks:
+      - products_manager_singleton
+      - lazy_loading_per_type
+      - hive_cache_integration
+      - memory_optimization
+      - offline_support
+  
+  phase_5_testing_polish:
+    status: TODO
+    week: 3_4
+    priority: HIGH
+    tasks:
+      - test_scenarios_filtering_no_price_performance
+      - loading_animations
+      - empty_state_messages
+      - error_handling
+      - hebrew_translations
+      - rtl_support_verification
+
+success_metrics:
+  done:
+    - 7_list_types_working
+    - filter_reduces_80_percent
+  pending:
+    - ui_selection_under_2_taps
+    - cache_hit_rate_90_percent
+    - all_tests_passing
+
+not_building:
+  - price_comparison_app
+  - barcode_scanner_maybe_later
+  - complex_inventory_system
+  - store_specific_prices
+
+building:
+  - simple_list_manager
+  - quick_product_addition
+  - smart_categorization
+  - offline_support
+
+related_docs:
+  - CODE.md: v2.2_500_lines
+  - DESIGN.md: v1.1_300_lines
+  - TECH.md: v1.3_400_lines
+  - PROJECT_INSTRUCTIONS.md: v4.9_500_lines
+  - CODE_REVIEW_CHECKLIST.md: v2.4_300_lines
+  total: 5_files_2000_lines
 ```
 
 ---
 
-## 📦 What's New in v1.3
-
-### Completed Since v1.3 (Sessions 47-49):
-1. **Phase 3B Services Layer (100%):**
-   - ShareListService + PendingRequestsService (870 lines)
-   - 64 unit tests created and passing
-   - Permission system fully implemented (Owner/Admin/Editor/Viewer)
-
-2. **Manual Animations Standardization:**
-   - Replaced 3 manual animations with shared components
-   - SimpleTappableCard: 2 usages (settings, populate)
-   - AnimatedButton: 1 usage (checkbox)
-   - Result: Consistent UX + haptic feedback everywhere
-
-3. **Documentation Enhancement:**
-   - CODE.md v2.2: Component Reuse Protocol (179 lines)
-   - DESIGN.md v1.1: 5 Advanced Components (147 lines)
-   - Added decision tree + AI protocol for component selection
-
-4. **False Positive Prevention:**
-   - animated_button.dart saved (98 lines)
-   - PowerShell verification protocol documented
-   - Total: 5 false positives prevented
-
-### Completed v1.2→v1.3 (Sessions 25-46):
-1. **Infrastructure Stability:**
-   - All compilation errors fixed
-   - 179 passing tests (0 failures)
-   - Documentation: 10→5 files (-60% redundancy)
-   - PROJECT_INSTRUCTIONS: v4.0→v4.6 (6 iterations!)
-
-2. **Phase 3 Progress (UI/UX):**
-   - ✅ List type selection UI (8 types working)
-   - ✅ Type filtering in list screen
-   - ✅ Type indicators on list cards
-   - ⏳ Product search dialog (next step)
-
-3. **Memory System:**
-   - 10-entity knowledge graph
-   - Auto-checkpoint every 3-5 files
-   - Session rotation (last 3-5 kept)
-   - Zero manual maintenance
-
-4. **Critical Lessons:**
-   - 6-step dead code verification (prevents false positives)
-   - bash_tool Windows paths warning (most common error!)
-   - YAGNI principle (don't over-design)
-
----
-
-## 📦 What Was in v1.2
-
-### Model Changes Required:
-1. **ShoppingList:**
-   - Add `frequency` (int) - times per week
-   - Add `lastShoppingDate` (DateTime)
-
-2. **InventoryItem:**
-   - Add `minimumThreshold` (int, default: 0)
-   - Add `lastUpdated` (DateTime)
-
-3. **CustomLocation (new model):**
-   - id, name, icon, householdId, createdBy
-
-### New Services:
-- ReminderService (frequency-based notifications)
-- ThresholdMonitorService (auto-add to list)
-- CustomLocationsService (CRUD for locations)
-- StockPredictionService (future - learning algorithm)
-- InventoryCumulativeService (quantity calculations)
-- ShoppingSessionService (collaborative shopping)
-- VirtualReceiptService (receipt creation)
-- ReceiptOCRService (scan & match)
-- PurchasedToInventoryService (auto-update inventory)
-
-### Priority Order:
-1. **HIGH:** Phases 6A, 7, 9A, 10-11, 13-14
-2. **MEDIUM:** Phase 12 (OCR)
-3. **LOW:** Phases 3A, 8A (future features)
+```yaml
+recent_work:
+  sessions_25_49:
+    focus: infrastructure_before_features
+    
+    bug_fixes_25_33:
+      - 10_files_compilation_errors
+      - navigation_range_error
+      - product_loading_0_to_1758
+      - view_edit_modes_populate_screen
+    
+    docs_evolution_34_46:
+      phase_1: 10_to_7_files_minus_38_percent
+      phase_2: 7_to_5_files_minus_60_percent
+      project_instructions: v4.0_to_v4.9
+      checklist: v2.0_to_v2.4
+      tech: v1.0_to_v1.3
+    
+    code_cleanup_35_41:
+      removed: 1500_lines_dead_code
+      cleaned: config_test_scripts_dirs
+      protocol: 6_step_dead_code_verification
+      false_positives: 5_prevented
+    
+    repository_38:
+      created: repository_constants.dart
+      migrated: 6_repos
+      eliminated: magic_strings
+    
+    testing_44_45:
+      before: 61_failures
+      after: 0_failures_179_passing
+      coverage: 90_percent_models
+    
+    memory_system_46:
+      entities: 10_optimized
+      protocol: auto_checkpoint
+      rotation: last_3_5_sessions
+      maintenance: zero
+    
+    animations_cleanup_49:
+      fixed: 3_manual_animations
+      files:
+        - settings_screen: SimpleTappableCard_minus_15_lines
+        - populate_list_screen: SimpleTappableCard
+        - shopping_list_details_screen: AnimatedButton
+      result: consistent_haptic_feedback
+      saved: animated_button_98_lines_false_positive_5
+    
+    docs_update_49:
+      code_md: v2.1_to_v2.2_component_reuse
+      design_md: v1.0_to_v1.1_advanced_components
+      added: decision_tree_ai_protocol
+```
 
 ---
 
-**Remember:** The goals are SIMPLE LIST MANAGEMENT + SMART INVENTORY, not complex systems! 🎯
+```yaml
+current_status:
+  infrastructure:
+    status: COMPLETE
+    items:
+      - compilation_errors: RESOLVED
+      - documentation: 5_files_2000_lines
+      - testing: 179_passing_0_failures
+      - memory: 10_entities_operational
+      - token_management: ACTIVE
+  
+  phase_3b_user_sharing:
+    status: IN_PROGRESS
+    started: session_46
+    progress: 22_percent_services_only
+    
+    completed_services:
+      share_list_service:
+        lines: 460
+        features:
+          - invite_remove_update_users
+          - 7_permission_helpers
+          - owner_only_security
+      
+      pending_requests_service:
+        lines: 410
+        features:
+          - create_approve_reject
+          - 7_query_methods
+          - auto_cleanup_7_days
+      
+      tests:
+        total: 64_unit_tests
+        coverage: services_100_percent
+    
+    remaining_ui:
+      - invite_users_screen
+      - manage_users_screen
+      - pending_requests_screen
+      - permission_validation
+      - notifications
+      - firebase_security_rules
+      - ui_testing
+  
+  phase_3_ui_ux:
+    status: PAUSED
+    completed:
+      - list_type_selection_8_types
+      - type_filtering
+      - type_indicators
+      - product_search_filtering
+    remaining_optional:
+      - animations_transitions
+      - e2e_testing
+  
+  roadmap:
+    next:
+      - complete_phase_3b_ui
+      - phase_4_product_management
+      - phase_5_testing_polish
+    future:
+      - phase_6_8_inventory_system
+      - phase_9_integration
+      - phase_10_14_receipt_system
+```
 
-**Next Steps:**
-1. Complete stability phase (documentation + testing) ✅
-2. Resume Phase 3 (UI/UX Updates)
-3. Implement Phase 6A (Minimum Threshold) - HIGH PRIORITY
-4. Continue with original roadmap + new features
-5. Keep focus on simplicity & user value
+---
+
+---
+
+```yaml
+part_b_inventory:
+  phase_6_storage_infrastructure:
+    status: TODO
+    week: 5
+    priority: HIGH
+    
+    model_changes:
+      inventory_item:
+        - minimum_threshold_int_default_0
+        - last_updated_datetime
+        - build_runner_required
+    
+    tasks:
+      - update_inventory_item_model
+      - storage_location_service
+      - firebase_location_field
+      - migration_existing_items
+      - update_repositories
+  
+  phase_6a_threshold_system:
+    status: TODO
+    week: 5
+    priority: HIGH
+    tasks:
+      - threshold_editor_ui_default_0
+      - threshold_monitor_service
+      - auto_add_when_quantity_less_than_threshold
+      - route_to_correct_list_type
+      - badge_auto_added_items
+      - settings_enable_disable_per_item
+      - notification_low_stock_added
+  
+  phase_7_ui_custom_locations:
+    status: TODO
+    week: 6
+    priority: HIGH
+    
+    ui_tasks:
+      - inventory_screen_dart
+      - unassigned_items_bar_widget
+      - location_based_display
+      - quick_assignment_single_row
+      - animations_item_assignment
+      - empty_states_per_location
+    
+    custom_locations:
+      model:
+        - id_name_icon_householdId_createdBy
+      service:
+        - custom_locations_service_crud
+      ui:
+        - add_location_dialog_name_icon
+        - edit_delete_locations
+      logic:
+        - appear_in_quick_assignment
+      firebase:
+        - custom_locations_collection
+      validation:
+        - max_20_per_household
+  
+  phase_8_stock_management:
+    status: TODO
+    week: 7
+    priority: MEDIUM
+    tasks:
+      - stock_update_service
+      - unpack_shopping_flow
+      - physical_check_flow
+      - location_learning_algorithm
+      - auto_assignment_logic
+      - testing_real_data
+  
+  phase_8a_predictive_stock:
+    status: TODO_FUTURE
+    week: 7
+    priority: LOW
+    tasks:
+      - stock_prediction_service
+      - track_purchase_frequency
+      - calculate_consumption_rate
+      - predict_runout_time
+      - auto_add_before_runout
+      - predicted_low_stock_badge
+      - testing_2_weeks_data_needed
+```
+
+---
+
+```yaml
+part_c_integration:
+  phase_9_lists_inventory:
+    status: TODO
+    week: 8
+    priority: HIGH
+    tasks:
+      - connect_inventory_to_suggestions
+      - auto_routing_to_list_types
+      - shopping_completion_flow
+      - weekly_list_generation
+      - cross_system_notifications
+      - e2e_testing
+  
+  phase_9a_cumulative_inventory:
+    status: TODO
+    week: 8
+    priority: HIGH
+    tasks:
+      - cumulative_calculation_existing_plus_purchased
+      - example_2_plus_5_equals_7
+      - ui_show_before_after_quantities
+      - ui_message_you_had_2_bought_5_now_7
+      - inventory_cumulative_service
+      - validation_prevent_negative
+      - history_track_changes_optional
+```
+
+---
+
+```yaml
+part_d_receipt_to_inventory:
+  overview:
+    goal: collaborative_shopping_to_auto_inventory_update
+    concept:
+      - collaborative_shopping_multiple_people
+      - virtual_receipt_auto_created_on_finish
+      - real_receipt_connection_scan_later
+      - inventory_update_auto_from_purchased
+  
+  phase_10_shopping_session:
+    status: TODO
+    week: 9
+    priority: HIGH
+    
+    models_done:
+      - active_shopper: userId_joinedAt_isStarter_isActive
+      - shopping_list: activeShoppers_field_8_helpers
+      - receipt_item: checkedBy_checkedAt
+      - receipt: linkedShoppingListId_isVirtual_createdBy
+    
+    tasks:
+      - start_shopping_ui_join_button
+      - shopping_session_service_join_leave_timeout
+      - starter_assignment_first_person
+      - power_transfer_first_helper_becomes_starter
+      - timeout_6_hours_auto_end
+      - notifications_join_leave
+  
+  phase_11_virtual_receipt:
+    status: TODO
+    week: 10
+    priority: HIGH
+    tasks:
+      - virtual_receipt_service
+      - on_finish_create_virtual_receipt
+      - filter_only_purchased_items
+      - store_linked_shopping_list_id
+      - receipt_virtual_factory_done
+      - show_virtual_receipt_ui
+      - validation_only_starter_finish
+  
+  phase_12_ocr_connection:
+    status: TODO
+    week: 11
+    priority: MEDIUM
+    tasks:
+      - receipt_ocr_service_scan_parse
+      - matching_ocr_to_virtual_items
+      - update_real_prices_fileUrl
+      - scan_receipt_screen_ui
+      - manual_price_editing_if_ocr_fails
+      - validation_prevent_duplicate_linking
+  
+  phase_13_purchased_to_inventory:
+    status: TODO
+    week: 12
+    priority: HIGH
+    tasks:
+      - purchased_to_inventory_service
+      - purchased_items_to_inventory_no_location
+      - unpurchased_items_stay_in_list
+      - cumulative_existing_2_plus_5_equals_7
+      - notification_assign_locations
+      - quick_location_assignment_ui
+  
+  phase_14_integration_testing:
+    status: TODO
+    week: 13
+    priority: HIGH
+    
+    scenarios:
+      - solo_shopping: start_mark_finish_virtual_to_inventory
+      - collaborative: starter_helper_both_mark_receipt_shows_who
+      - starter_leaving: power_transfer_first_helper
+      - timeout: 6_hours_auto_end_virtual_created
+      - ocr_connection: scan_match_update_prices
+    
+    tasks:
+      - integration_tests_5_scenarios
+      - edge_cases_network_crash
+      - permissions_only_starter_finish
+      - concurrent_shoppers_2_3_people
+      - performance_100_items
+
+success_metrics:
+  part_d:
+    - 100_percent_purchased_auto_inventory
+    - 95_percent_virtual_receipt_success
+    - 80_percent_ocr_accuracy
+    - under_2_taps_assign_location
+    - 70_percent_less_manual_updates
+  part_b:
+    - 80_percent_stock_prediction_accuracy
+    - 90_percent_essential_never_runout
+  overall:
+    - seamless_lists_inventory_flow
+    - smart_learning_2_weeks
+```
+
+---
+
+**End of WORK_PLAN.md v1.4**  
+**Machine-Readable Format | AI-Optimized**  
+**Last Updated:** 02/11/2025 Session 49
