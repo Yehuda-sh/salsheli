@@ -649,32 +649,31 @@ class _MyPantryScreenState extends State<MyPantryScreen>
                                         : FontWeight.normal,
                                   ),
                                 ),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    SizedBox(
-                                      width: kMinTouchTarget,
-                                      height: kMinTouchTarget,
-                                      child: IconButton(
-                                        icon: const Icon(
-                                          Icons.remove_circle_outline,
-                                          color: Colors.red,
+                                trailing: SizedBox(
+                                  width: kMinTouchTarget * 2,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Expanded(
+                                        child: IconButton(
+                                          icon: const Icon(
+                                            Icons.remove_circle_outline,
+                                            color: Colors.red,
+                                          ),
+                                          onPressed: () => _updateQuantity(item.id, -1),
                                         ),
-                                        onPressed: () => _updateQuantity(item.id, -1),
                                       ),
-                                    ),
-                                    SizedBox(
-                                      width: kMinTouchTarget,
-                                      height: kMinTouchTarget,
-                                      child: IconButton(
-                                        icon: const Icon(
-                                          Icons.add_circle_outline,
-                                          color: Colors.green,
+                                      Expanded(
+                                        child: IconButton(
+                                          icon: const Icon(
+                                            Icons.add_circle_outline,
+                                            color: Colors.green,
+                                          ),
+                                          onPressed: () => _updateQuantity(item.id, 1),
                                         ),
-                                        onPressed: () => _updateQuantity(item.id, 1),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               );
                             }),

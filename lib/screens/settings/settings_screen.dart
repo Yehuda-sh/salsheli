@@ -614,17 +614,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                         const SizedBox(width: kSpacingSmall),
-                        StickyButton(
-                          label: AppStrings.settings.editProfile,
-                          icon: Icons.edit,
-                          height: 44,
-                          color: cs.primary,
-                          textColor: Colors.white,
-                          onPressed: () {
-                            ScaffoldMessenger.of(
-                              context,
-                            ).showSnackBar(SnackBar(content: Text(AppStrings.settings.editProfileButton)));
-                          },
+                        Flexible(
+                          child: StickyButton(
+                            label: AppStrings.settings.editProfile,
+                            icon: Icons.edit,
+                            height: 44,
+                            color: cs.primary,
+                            textColor: Colors.white,
+                            onPressed: () {
+                              ScaffoldMessenger.of(
+                                context,
+                              ).showSnackBar(SnackBar(content: Text(AppStrings.settings.editProfileButton)));
+                            },
+                          ),
                         ),
                       ],
                     ),
@@ -754,13 +756,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                         const SizedBox(height: kSpacingSmall),
-                        StickyButton(
-                          label: AppStrings.settings.manageMembersButton,
-                          icon: Icons.group_add,
-                          color: Colors.white,
-                          textColor: cs.primary,
-                          height: 44,
-                          onPressed: () => _manageMembers(context),
+                        SizedBox(
+                          width: double.infinity,
+                          child: StickyButton(
+                            label: AppStrings.settings.manageMembersButton,
+                            icon: Icons.group_add,
+                            color: Colors.white,
+                            textColor: cs.primary,
+                            height: 44,
+                            onPressed: () => _manageMembers(context),
+                          ),
                         ),
                       ],
                     ),

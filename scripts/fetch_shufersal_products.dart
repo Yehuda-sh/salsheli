@@ -17,8 +17,8 @@ import 'package:xml/xml.dart' as xml;
 /// נתיב הקובץ היעד
 const String outputFile = 'assets/data/products.json';
 
-/// מספר מוצרים מקסימלי לשמירה
-const int maxProducts = 5000;
+/// מספר מוצרים מקסימלי לשמירה (בדיקה)
+const int maxProducts = 20;
 
 /// מחיר מינימלי
 const double minPrice = 0.5;
@@ -67,9 +67,9 @@ void main() async {
     
     print('\n✓ פוענחו ${allProducts.length} מוצרים גולמיים\n');
     
-    // 3. עיבוד
+    // 3. עיבוד (עם חיפוש חכם)
     print('🔄 מעבד מוצרים...');
-    final processed = processProducts(allProducts);
+    final processed = await processProducts(allProducts);
     
     print('✓ עובדו ${processed.length} מוצרים\n');
     
@@ -200,6 +200,20 @@ List<Map<String, dynamic>> parseXmlProducts(String xmlContent) {
     
     print('   ✓ נמצאו ${items.length} פריטים ב-XML');
     
+    // 🔍 הדפס את כל השדות של הפריט הראשון
+    if (items.isNotEmpty) {
+      print('\n   🔍 שדות זמינים בפריט ראשון:');
+      final firstItem = items.first;
+      for (final element in firstItem.children.whereType<xml.XmlElement>()) {
+        final tagName = element.name.toString();
+        final value = element.innerText.trim();
+        if (value.isNotEmpty) {
+          print('      - $tagName: ${value.substring(0, value.length > 50 ? 50 : value.length)}${value.length > 50 ? '...' : ''}');
+        }
+      }
+      print('');
+    }
+    
     final products = <Map<String, dynamic>>[];
     
     for (final item in items) {
@@ -243,11 +257,15 @@ String _getXmlValue(xml.XmlElement element, String tagName) {
   }
 }
 
-/// עיבוד וסינון מוצרים
-List<Map<String, dynamic>> processProducts(
+/// עיבוד וסינון מוצרים (עם חיפוש חכם)
+Future<List<Map<String, dynamic>>> processProducts(
   List<Map<String, dynamic>> products,
-) {
+) async {
   var processed = <Map<String, dynamic>>[];
+  
+  // 🆕 טען products.json קיים (אם יש)
+  final existingProductsByBarcode = await _loadExistingProducts();
+  print('   📦 נטענו ${existingProductsByBarcode.length} מוצרים קיימים מ-products.json\n');
   
   for (final p in products) {
     final price = p['price'] as double? ?? 0.0;
@@ -261,17 +279,45 @@ List<Map<String, dynamic>> processProducts(
     // 🆕 נקה את שם המוצר
     final name = _cleanProductName(rawName);
     
-    final category = guessCategory(name);
+    // 🆕 זיהוי קטגוריה חכם - אופציה C!
+    final barcode = p['barcode']?.toString() ?? '';
+    final brand = p['brand']?.toString() ?? '';
+    
+    String category;
+    final existingProduct = existingProductsByBarcode[barcode];
+    
+    if (existingProduct != null) {
+      final existingCategory = existingProduct['category']?.toString() ?? 'אחר';
+      
+      if (existingCategory != 'אחר') {
+        // קטגוריה קיימת ותקינה → השתמש בה!
+        category = existingCategory;
+      } else {
+        // קטגוריה "אחר" → נסה לזהות מחדש
+        category = guessCategoryByBrand(brand) ?? guessCategory(name);
+      }
+    } else {
+      // מוצר חדש → זיהוי חכם
+      category = guessCategoryByBrand(brand) ?? guessCategory(name);
+    }
+    
+    // 🆕 הוסף קישור לתמונה משופרסל (media.shufersal.co.il)
+    // פורמט: /product_images/products_360/{barcode}/files/360_assets/index/images/{barcode}_1.jpg
+    // Fallback: תמונת ברירת מחדל (אייקון קטגוריה)
+    final imageUrl = 'https://media.shufersal.co.il/product_images/products_360/${barcode}/files/360_assets/index/images/${barcode}_1.jpg';
+    final fallbackImageUrl = 'https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg';
     
     processed.add({
       'name': name,
       'category': category,
       'icon': getCategoryIcon(category),
       'price': price,
-      'barcode': p['barcode'],
+      'barcode': barcode,
       'brand': p['brand'],
       'unit': p['unit'],
       'store': p['store'],
+      'image_url': imageUrl,
+      'fallback_image_url': fallbackImageUrl,
     });
   }
   
@@ -301,13 +347,47 @@ List<Map<String, dynamic>> processProducts(
   return processed;
 }
 
-/// ניקוי שם מוצר
+/// טעינת מוצרים קיימים מ-products.json
+Future<Map<String, Map<String, dynamic>>> _loadExistingProducts() async {
+  final file = File(outputFile);
+  
+  if (!await file.exists()) {
+    return {};
+  }
+  
+  try {
+    final jsonContent = await file.readAsString();
+    final List<dynamic> productsList = json.decode(jsonContent);
+    
+    final Map<String, Map<String, dynamic>> byBarcode = {};
+    
+    for (final p in productsList) {
+      if (p is Map<String, dynamic>) {
+        final barcode = p['barcode']?.toString();
+        if (barcode != null && barcode.isNotEmpty) {
+          byBarcode[barcode] = Map<String, dynamic>.from(p);
+        }
+      }
+    }
+    
+    return byBarcode;
+  } catch (e) {
+    print('   ⚠️  שגיאה בטעינת products.json: $e');
+    return {};
+  }
+}
+
+/// ניקוי שם מוצר (משופר)
 String _cleanProductName(String name) {
   var cleaned = name.trim();
   
-  // הוסף רווח אחרי מספרים (12ביצים → 12 ביצים)
+  // הוסף רווח אחרי מספרים (12ביצים → 12 ביצים, 140ג → 140 ג)
   cleaned = cleaned.replaceAllMapped(
     RegExp(r'(\d)([א-ת])'),
+    (match) => '${match.group(1)} ${match.group(2)}',
+  );
+  cleaned = cleaned.replaceAllMapped(
+    RegExp(r'(\d)([a-zA-Z])'),
     (match) => '${match.group(1)} ${match.group(2)}',
   );
   
@@ -315,35 +395,117 @@ String _cleanProductName(String name) {
   cleaned = cleaned.replaceAll(RegExp(r'\s+'), ' ');
   
   // הסר תווים מיוחדים מיותרים
-  cleaned = cleaned.replaceAll(RegExp(r'[\*\+\#\@]'), '');
+  cleaned = cleaned.replaceAll(RegExp(r'[\*\+\#\@\$\%\^]'), '');
+  
+  // תקן גרש בעברית (g' → ג', kg → ק"ג)
+  cleaned = cleaned.replaceAll(RegExp(r'(\d+)\s*g\b', caseSensitive: false), r'$1 גרם');
+  cleaned = cleaned.replaceAll(RegExp(r'(\d+)\s*kg\b', caseSensitive: false), r'$1 ק"ג');
+  cleaned = cleaned.replaceAll(RegExp(r'(\d+)\s*ml\b', caseSensitive: false), r'$1 מ"ל');
   
   return cleaned.trim();
 }
 
-/// ניחוש קטגוריה לפי שם המוצר
+/// זיהוי קטגוריה לפי מותג (עדיפות ראשונה)
+String? guessCategoryByBrand(String brand) {
+  if (brand.isEmpty) return null;
+  
+  final brandLower = brand.toLowerCase();
+  
+  // מוצרי חלב
+  if (brandLower.contains('תנובה') ||
+      brandLower.contains('יוטבתה') ||
+      brandLower.contains('שטראוס') ||
+      brandLower.contains('דנונה') ||
+      brandLower.contains('גד') ||
+      brandLower.contains('המשביר') ||
+      brandLower.contains('טרה')) return 'מוצרי חלב';
+  
+  // ממתקים
+  if (brandLower.contains('אסם') ||
+      brandLower.contains('עלית') ||
+      brandLower.contains('מאפיית חלבי') ||
+      brandLower.contains('טעמן') ||
+      brandLower.contains('נסטלה') ||
+      brandLower.contains('פררו') ||
+      brandLower.contains('קליק')) return 'ממתקים וחטיפים';
+  
+  // קפה ותה
+  if (brandLower.contains('נסקפה') ||
+      brandLower.contains('עלית קפה') ||
+      brandLower.contains('לנדוור') ||
+      brandLower.contains('ויסוצקי') ||
+      brandLower.contains('אילנית')) return 'קפה ותה';
+  
+  // מוצרי ניקיון
+  if (brandLower.contains('סנו') ||
+      brandLower.contains('בריל') ||
+      brandLower.contains('פרסיל') ||
+      brandLower.contains('דורית') ||
+      brandLower.contains('מאסטר') ||
+      brandLower.contains('קלין')) return 'מוצרי ניקיון';
+  
+  // היגיינה
+  if (brandLower.contains('ג\'ונסון') ||
+      brandLower.contains('קולגייט') ||
+      brandLower.contains('הד אנד שולדרס') ||
+      brandLower.contains('דאב') ||
+      brandLower.contains('ניוויאה') ||
+      brandLower.contains('אקס סנס')) return 'היגיינה אישית';
+  
+  // בשר ודגים
+  if (brandLower.contains('טיב טעם') ||
+      brandLower.contains('זוגלובק') ||
+      brandLower.contains('יהלום')) return 'בשר ודגים';
+  
+  return null;
+}
+
+/// ניחוש קטגוריה לפי שם המוצר (משופר)
 String guessCategory(String itemName) {
   final name = itemName.toLowerCase();
   
-  // 🥚 מוצרי חלב וביצים
+  // 🥚 מוצרי חלב וביצים (מורחב)
   if (name.contains('חלב') ||
       name.contains('גבינה') ||
       name.contains('יוגורט') ||
       name.contains('חמאה') ||
       name.contains('שמנת') ||
       name.contains('קוטג') ||
+      name.contains('קוטאג') ||
       name.contains('ביצים') ||
-      name.contains('ביצה')) return 'מוצרי חלב';
+      name.contains('ביצה') ||
+      name.contains('לבן') ||
+      name.contains('לבנה') ||
+      name.contains('עמק') ||
+      name.contains('צפתית') ||
+      name.contains('בולגרית') ||
+      name.contains('פטה') ||
+      name.contains('מוצרלה') ||
+      name.contains('צהוב') ||
+      name.contains('אמנטל') ||
+      name.contains('פרמזן') ||
+      name.contains('קממבר') ||
+      name.contains('גאודה') ||
+      name.contains('חלבי')) return 'מוצרי חלב';
   
-  // 🍞 מאפים
+  // 🍞 מאפים (מורחב)
   if (name.contains('לחם') ||
       name.contains('חלה') ||
       name.contains('בורקס') ||
       name.contains('מאפה') ||
       name.contains('פיתה') ||
+      name.contains('פיתות') ||
       name.contains('בגט') ||
-      name.contains('לחמניה')) return 'מאפים';
+      name.contains('לחמניה') ||
+      name.contains('לחמנייה') ||
+      name.contains('בייגל') ||
+      name.contains('קרואסון') ||
+      name.contains('רוגלך') ||
+      name.contains('סמבוסק') ||
+      name.contains('מלווח') ||
+      name.contains('לאפה')) return 'מאפים';
   
-  // 🥬 ירקות
+  // 🥬 ירקות (מורחב)
   if (name.contains('עגבני') ||
       name.contains('מלפפון') ||
       name.contains('חסה') ||
@@ -355,10 +517,23 @@ String guessCategory(String itemName) {
       name.contains('ברוקולי') ||
       name.contains('קונופיה') ||
       name.contains('קישוא') ||
-      name.contains('בטטה')) return 'ירקות';
+      name.contains('בטטה') ||
+      name.contains('תפוח אדמה') ||
+      name.contains('תפו"א') ||
+      name.contains('תירס') ||
+      name.contains('חציל') ||
+      name.contains('דלעת') ||
+      name.contains('סלק') ||
+      name.contains('צנון') ||
+      name.contains('כרפס') ||
+      name.contains('פטרוזיליה') ||
+      name.contains('כוסברה') ||
+      name.contains('נענע') ||
+      name.contains('בזיליקום') ||
+      name.contains('רוקט')) return 'ירקות';
   
-  // 🍎 פירות
-  if (name.contains('תפוח') ||
+  // 🍎 פירות (מורחב)
+  if (name.contains('תפוח') && !name.contains('אדמה') || // לא תפוח אדמה!
       name.contains('בננה') ||
       name.contains('תפוז') ||
       name.contains('אבטיח') ||
@@ -367,9 +542,22 @@ String guessCategory(String itemName) {
       name.contains('אגס') ||
       name.contains('אפרסק') ||
       name.contains('שזיף') ||
-      name.contains('אגוזים')) return 'פירות';
+      name.contains('אגוזים') ||
+      name.contains('קלמנטינה') ||
+      name.contains('פומלה') ||
+      name.contains('גרייפ') ||
+      name.contains('קיוי') ||
+      name.contains('מנגו') ||
+      name.contains('פפאיה') ||
+      name.contains('אננס') ||
+      name.contains('רימון') ||
+      name.contains('תות') ||
+      name.contains('אוכמנייה') ||
+      name.contains('דובדבן') ||
+      name.contains('משמש') ||
+      name.contains('אבוקדו')) return 'פירות';
   
-  // 🥩 בשר ודגים
+  // 🥩 בשר ודגים (מורחב)
   if (name.contains('עוף') ||
       name.contains('בשר') ||
       name.contains('דג') ||
@@ -377,38 +565,96 @@ String guessCategory(String itemName) {
       name.contains('טונה') ||
       name.contains('שניצל') ||
       name.contains('פילה') ||
-      name.contains('המבורגר')) return 'בשר ודגים';
+      name.contains('המבורגר') ||
+      name.contains('קבב') ||
+      name.contains('נקניק') ||
+      name.contains('סטייק') ||
+      name.contains('אנטריקוט') ||
+      name.contains('צלי') ||
+      name.contains('כרעיים') ||
+      name.contains('שוקיים') ||
+      name.contains('כנפיים') ||
+      name.contains('חזה') ||
+      name.contains('ירך') ||
+      name.contains('כבד') ||
+      name.contains('לב') ||
+      name.contains('קורנדביף') ||
+      name.contains('פסטרמה') ||
+      name.contains('סרדינים') ||
+      name.contains('הרינג') ||
+      name.contains('בקלה')) return 'בשר ודגים';
   
-  // 🍚 אורז ופסטה
+  // 🍚 אורז ופסטה (מורחב)
   if (name.contains('אורז') ||
       name.contains('פסטה') ||
       name.contains('ספגטי') ||
       name.contains('קוסקוס') ||
-      name.contains('נודלס')) return 'אורז ופסטה';
+      name.contains('נודלס') ||
+      name.contains('רביולי') ||
+      name.contains('פנה') ||
+      name.contains('פוזילי') ||
+      name.contains('ריגטוני') ||
+      name.contains('פרפלה') ||
+      name.contains('לזניה') ||
+      name.contains('טורטיליני') ||
+      name.contains('ניוקי') ||
+      name.contains('בורגול') ||
+      name.contains('קינואה') ||
+      name.contains('פתיתים')) return 'אורז ופסטה';
   
-  // 🫝 שמנים ורטבים
+  // 🫗 שמנים ורטבים (מורחב)
   if (name.contains('שמן') ||
       name.contains('קטשופ') ||
-      name.contains('קטשופ') ||
+      name.contains('קצ\'אפ') ||
       name.contains('מיונז') ||
-      name.contains('מיונז') ||
+      name.contains('מיוניז') ||
       name.contains('חומוס') ||
       name.contains('טחינה') ||
       name.contains('חרדל') ||
-      name.contains('רוטב')) return 'שמנים ורטבים';
+      name.contains('רוטב') ||
+      name.contains('מרינרה') ||
+      name.contains('פסטו') ||
+      name.contains('טריאקי') ||
+      name.contains('סויה') ||
+      name.contains('חומץ') ||
+      name.contains('בלסמי') ||
+      name.contains('ויניגרט') ||
+      name.contains('ברביקיו') ||
+      name.contains('צ\'ילי') ||
+      name.contains('סלסה') ||
+      name.contains('זיתים') ||
+      name.contains('כבושים') ||
+      name.contains('חמוצים') ||
+      name.contains('ממרח')) return 'שמנים ורטבים';
   
-  // 🧂 תבלינים ואפייה
+  // 🧂 תבלינים ואפייה (מורחב)
   if (name.contains('סוכר') ||
       name.contains('מלח') ||
-      name.contains('פלפל') ||
+      name.contains('פלפל') && !name.contains('ירק') || // לא פלפל ירק!
       name.contains('קמח') ||
       name.contains('תבלין') ||
       name.contains('כמון') ||
       name.contains('קוריאנדר') ||
       name.contains('קרי') ||
-      name.contains('שמרים')) return 'תבלינים ואפייה';
+      name.contains('שמרים') ||
+      name.contains('אבקת אפיה') ||
+      name.contains('אבקת סודה') ||
+      name.contains('וניל') ||
+      name.contains('קינמון') ||
+      name.contains('הל') ||
+      name.contains('פפריקה') ||
+      name.contains('כורכום') ||
+      name.contains('זעתר') ||
+      name.contains('אורגנו') ||
+      name.contains('בזיליקום') && name.contains('יבש') ||
+      name.contains('רוזמרין') ||
+      name.contains('זנגביל') ||
+      name.contains('מוסקט') ||
+      name.contains('קציצות תבלין') ||
+      name.contains('שומשום') ||
+      name.contains('קוקוס') && (name.contains('גרור') || name.contains('קמח'))) return 'תבלינים ואפייה';
   
-  // 🍫 ממתקים וחטיפים
+  // 🍫 ממתקים וחטיפים (מורחב)
   if (name.contains('שוקולד') ||
       name.contains('ממתק') ||
       name.contains('חטיף') ||
@@ -416,56 +662,132 @@ String guessCategory(String itemName) {
       name.contains('במבה') ||
       name.contains('גלידה') ||
       name.contains('עוגה') ||
-      name.contains('וופלים') ||
-      name.contains('חטיף')) return 'ממתקים וחטיפים';
+      name.contains('עוגי') ||
+      name.contains('וופל') ||
+      name.contains('וייפר') ||
+      name.contains('קרקר') ||
+      name.contains('פריכית') ||
+      name.contains('פצפוצי') ||
+      name.contains('דורית') ||
+      name.contains('צ\'יפס') ||
+      name.contains('טורטיה') ||
+      name.contains('נאצ\'וס') ||
+      name.contains('חלבה') ||
+      name.contains('דבש') ||
+      name.contains('ריבה') ||
+      name.contains('מרמלדה') ||
+      name.contains('נוטלה') ||
+      name.contains('סוכריה') ||
+      name.contains('גומי') ||
+      name.contains('מסטיק') ||
+      name.contains('בונבון') ||
+      name.contains('טופי') ||
+      name.contains('קרמל')) return 'ממתקים וחטיפים';
   
-  // 🥤 משקאות
+  // 🥤 משקאות (מורחב)
   if (name.contains('קוקה') ||
       name.contains('מיץ') ||
       name.contains('משקה') ||
       name.contains('בירה') ||
       name.contains('יין') ||
       name.contains('ספרייט') ||
-      name.contains('מים מינרלים') ||
-      name.contains('פפסי')) return 'משקאות';
+      name.contains('ספרינג') ||
+      name.contains('מים') && (name.contains('מינרל') || name.contains('בקבוק')) ||
+      name.contains('פפסי') ||
+      name.contains('פאנטה') ||
+      name.contains('שוופס') ||
+      name.contains('סודה') ||
+      name.contains('טוניק') ||
+      name.contains('אייס טי') ||
+      name.contains('נסטי') ||
+      name.contains('ליפטון') ||
+      name.contains('אנרג\' דרינק') ||
+      name.contains('רד בול') ||
+      name.contains('אקסטרה') ||
+      name.contains('מי תפוז') ||
+      name.contains('לימונדה') ||
+      name.contains('משקה קל')) return 'משקאות';
   
-  // ☕ קפה ותה
+  // ☕ קפה ותה (מורחב)
   if (name.contains('קפה') ||
       name.contains('קפסול') ||
       name.contains('נספרסו') ||
-      name.contains('תה') ||
-      name.contains('קפואין')) return 'קפה ותה';
+      name.contains('תה') && !name.contains('חלב') || // לא חלב תה!
+      name.contains('קפואין') ||
+      name.contains('אספרסו') ||
+      name.contains('קפוצ\'ינו') ||
+      name.contains('נס') && name.contains('קפה') ||
+      name.contains('חליטה') ||
+      name.contains('תמצית קפה') ||
+      name.contains('קפה פילטר')) return 'קפה ותה';
   
-  // 🧼 מוצרי ניקיון
-  if (name.contains('סבון') ||
+  // 🧼 מוצרי ניקיון (מורחב)
+  if (name.contains('סבון') && name.contains('כלים') ||
       name.contains('ניקוי') ||
       name.contains('אקונומיקה') ||
       name.contains('מטהר') ||
       name.contains('אמוניה') ||
       name.contains('לבנדר') ||
-      name.contains('מרכך כביסה')) return 'מוצרי ניקיון';
+      name.contains('מרכך') && name.contains('כביסה') ||
+      name.contains('אבקת כביסה') ||
+      name.contains('ג\'ל כביסה') ||
+      name.contains('מלבין') ||
+      name.contains('כלורית') ||
+      name.contains('כלור') ||
+      name.contains('ווש') ||
+      name.contains('ספוגים') ||
+      name.contains('מגבות נייר') ||
+      name.contains('נייר טואלט') ||
+      name.contains('שקית אשפה') ||
+      name.contains('כפפות') && name.contains('ניקיון') ||
+      name.contains('מטליות') && name.contains('ניקיון')) return 'מוצרי ניקיון';
   
-  // 🧴 היגיינה אישית
+  // 🧴 היגיינה אישית (מורחב)
   if (name.contains('שמפו') ||
       name.contains('משחת שיניים') ||
+      name.contains('משחה') && name.contains('שיניים') ||
       name.contains('דאודורנט') ||
-      name.contains('סבון גוף') ||
+      name.contains('סבון') && !name.contains('כלים') && !name.contains('כביסה') ||
       name.contains('תחבושת') ||
-      name.contains('מגבות') ||
-      name.contains('מטליות') ||
-      name.contains('קיסמי שיניים') ||
-      name.contains('שתן')) return 'היגיינה אישית';
+      name.contains('קרפרי') ||
+      name.contains('טמפון') ||
+      name.contains('מגבות') && name.contains('לחות') ||
+      name.contains('מטליות') && name.contains('לחות') ||
+      name.contains('קיסמי') ||
+      name.contains('חוט דנטלי') ||
+      name.contains('מברשת שיניים') ||
+      name.contains('שפתון') ||
+      name.contains('קרם') && (name.contains('פנים') || name.contains('גוף') || name.contains('ידיים')) ||
+      name.contains('תער') ||
+      name.contains('קצף גילוח') ||
+      name.contains('ג\'ל גילוח') ||
+      name.contains('מסיכה') && name.contains('פנים') ||
+      name.contains('מחטבי') ||
+      name.contains('תחתונים') ||
+      name.contains('אטבי')) return 'היגיינה אישית';
   
-  // 🥫 שימורים
+  // 🥫 שימורים (מורחב)
   if (name.contains('שימורים') ||
-      name.contains('כבושים') ||
-      name.contains('חמוצים') ||
-      name.contains('טונה בקופסה') ||
-      name.contains('שימור')) return 'שימורים';
+      name.contains('שימור') ||
+      name.contains('קונסרבה') ||
+      name.contains('קופסת שימורים') ||
+      name.contains('בקופסה') && (name.contains('טונה') || name.contains('תירס') || name.contains('אפונה')) ||
+      name.contains('שעועית') && name.contains('קופסה') ||
+      name.contains('חומוס') && name.contains('קופסה') ||
+      name.contains('עגבניות') && name.contains('קופסה') ||
+      name.contains('רסק עגבניות')) return 'שימורים';
   
-  // 🥖 קפואים
+  // ❄️ קפואים (מורחב)
   if (name.contains('קפוא') ||
-      name.contains('קרח')) return 'קפואים';
+      name.contains('קפואה') ||
+      name.contains('קפואים') ||
+      name.contains('קרח') ||
+      name.contains('פיצה קפואה') ||
+      name.contains('ירקות קפואים') ||
+      name.contains('דגים קפואים') ||
+      name.contains('משולשים קפואים') ||
+      name.contains('פלפל קפוא') ||
+      name.contains('ברוקולי קפוא')) return 'קפואים';
   
   return 'אחר';
 }
@@ -536,7 +858,7 @@ Future<void> saveToFile(List<Map<String, dynamic>> newProducts) async {
     if (barcode == null || barcode.isEmpty) continue;
     
     if (existingProducts.containsKey(barcode)) {
-      // מוצר קיים - עדכון מחיר בלבד
+      // מוצר קיים - עדכון מחיר + תמונות
       final existing = existingProducts[barcode]!;
       final oldPrice = existing['price'] as double? ?? 0.0;
       final newPrice = newProduct['price'] as double? ?? 0.0;
@@ -544,12 +866,16 @@ Future<void> saveToFile(List<Map<String, dynamic>> newProducts) async {
       if ((newPrice - oldPrice).abs() > 0.01) {
         // המחיר השתנה
         existing['price'] = newPrice;
-        existing['store'] = newProduct['store']; // עדכון גם את החנות
+        existing['store'] = newProduct['store'];
         updatedPrices++;
       } else {
         // המחיר לא השתנה
         unchangedProducts++;
       }
+      
+      // 🆕 עדכון תמונות תמיד (גם אם המחיר לא השתנה)
+      existing['image_url'] = newProduct['image_url'];
+      existing['fallback_image_url'] = newProduct['fallback_image_url'];
     } else {
       // מוצר חדש - הוספה
       existingProducts[barcode] = newProduct;

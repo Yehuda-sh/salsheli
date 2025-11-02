@@ -1,11 +1,81 @@
 [
   {
+    "name": "אינסטנט פודינג וניל 50 גר",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 14.9,
+    "barcode": "7290018249123",
+    "brand": "נטורל קייקס",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "בלינצס תפו\"ע וקינמון360",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 17.9,
+    "barcode": "4810168062217",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גלידת וניל ופל YUKKI 75",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 7.9,
+    "barcode": "4810168038977",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גלידת וניל מייפל DADU 31",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 29.9,
+    "barcode": "4770166224324",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גרגירי חומוס במי מלח800 ג",
+    "category": "תבלינים ואפייה",
+    "icon": "🫗",
+    "price": 13.9,
+    "barcode": "7290117265062",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "גרנולה לוז וקינמון 450 ג",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 26.9,
+    "barcode": "7290106771369",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
     "name": "גרעיני חמנייה במלח 200 ג",
     "category": "תבלינים ואפייה",
     "icon": "🧂",
     "price": 13.9,
     "barcode": "4607012351999",
     "brand": "אל אל סי מרטין",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "דייסת וניל מטרנה 200 גרם",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 19.9,
+    "barcode": "7290006992390",
+    "brand": "מטרנה תעשיות ש.מ",
     "unit": "100 גרם",
     "store": "שופרסל"
   },
@@ -30,6 +100,76 @@
     "store": "שופרסל"
   },
   {
+    "name": "חלווה וניל שופרסל 400 גרם",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 15.9,
+    "barcode": "7296073094746",
+    "brand": "אחדות",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חלווה שיש שוקו וניל 400 ג",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 15.9,
+    "barcode": "7296073094463",
+    "brand": "אחדות",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חליטת קינמון וניל 25 שקיק",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 22.9,
+    "barcode": "7290019865186",
+    "brand": "תה ויסוצקי",
+    "unit": "יחידה",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חליטת קסם הקינמון25 ש2.5",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 22.9,
+    "barcode": "7290000346120",
+    "brand": "ויסוצקי",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חמישיה שלגון וניל ש.מריר",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 28.9,
+    "barcode": "7290101114345",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חמישיה שלגון ונילש.פיסטו",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 28.9,
+    "barcode": "7290101114338",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "חתיכ.פילה הרינג מומלח500",
+    "category": "תבלינים ואפייה",
+    "icon": "🥩",
+    "price": 31.9,
+    "barcode": "4810168062651",
+    "brand": "סנטה ברמור",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
     "name": "טורטיות קמח כוסמת 408 גר",
     "category": "תבלינים ואפייה",
     "icon": "🧂",
@@ -50,6 +190,26 @@
     "store": "שופרסל"
   },
   {
+    "name": "כורכום במיכל גדול 100 גרם",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 12.0,
+    "barcode": "7296073215851",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "לה קרמריהשוקו וניל פרווה",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 25.9,
+    "barcode": "7290106576957",
+    "brand": "גלידות נסטלה",
+    "unit": "ליטר",
+    "store": "שופרסל"
+  },
+  {
     "name": "לחמנ.קיטו קמח שקדים1004",
     "category": "תבלינים ואפייה",
     "icon": "🧂",
@@ -57,6 +217,16 @@
     "barcode": "96086000294",
     "brand": "מצות אביב 2014 מאפה בעמ",
     "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "לנור מרכך מרוכז וניל 819",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 18.5,
+    "barcode": "8006540910320",
+    "brand": "פרוקטר אנד גמבל )ראה קוד",
+    "unit": "100 מ\"ל",
     "store": "שופרסל"
   },
   {
@@ -80,12 +250,12 @@
     "store": "שופרסל"
   },
   {
-    "name": "מיני קרקרים מיקס 350 ג",
+    "name": "מאפה דונאטס וניל 111 גרם",
     "category": "תבלינים ואפייה",
-    "icon": "🧂",
-    "price": 12.9,
-    "barcode": "8434165466326",
-    "brand": "CUETARA",
+    "icon": "🍞",
+    "price": 21.5,
+    "barcode": "7290017040561",
+    "brand": "---",
     "unit": "100 גרם",
     "store": "שופרסל"
   },
@@ -150,6 +320,26 @@
     "store": "שופרסל"
   },
   {
+    "name": "מעדן סויה בטעם וניל 125 ג",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 5.7,
+    "barcode": "7290014760134",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "מקלות קינמון אורגני 70 ג",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 18.9,
+    "barcode": "4793000637005",
+    "brand": "אינטרנשיונל קומודטי אקספ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
     "name": "מרכך קרטין ללא מלחים500 מ",
     "category": "תבלינים ואפייה",
     "icon": "🧂",
@@ -180,6 +370,16 @@
     "store": "שופרסל"
   },
   {
+    "name": "נייטשר וואלי קינמון 5 יח",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 22.9,
+    "barcode": "16000548602",
+    "brand": "ג'נרל מילס סאן אדריאן",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
     "name": "סוכ.וורטר ל.סוכר בוקס42 ג",
     "category": "תבלינים ואפייה",
     "icon": "🧂",
@@ -200,32 +400,122 @@
     "store": "שופרסל"
   },
   {
-    "name": "סוכריות בים בום 200 גרם",
+    "name": "פדיאשור ונילה850",
     "category": "תבלינים ואפייה",
-    "icon": "🧂",
-    "price": 10.9,
-    "barcode": "4823077612732",
-    "brand": "רושן",
+    "icon": "🛒",
+    "price": 74.9,
+    "barcode": "8710428017000",
+    "brand": "ABBOT",
     "unit": "100 גרם",
     "store": "שופרסל"
   },
   {
-    "name": "סוכריות טיק טק תות שדה16",
+    "name": "פודינג בטעם וניל 80 גרם",
     "category": "תבלינים ואפייה",
-    "icon": "🧂",
+    "icon": "🛒",
     "price": 5.9,
-    "barcode": "80936848",
-    "brand": "פררו",
+    "barcode": "7296073219897",
+    "brand": "",
     "unit": "100 גרם",
     "store": "שופרסל"
   },
   {
-    "name": "עוגיות מלוחות מלח 350 ג",
+    "name": "פודינג בטעם וניל לבן80 ג",
     "category": "תבלינים ואפייה",
-    "icon": "🧂",
-    "price": 17.9,
-    "barcode": "7290119044672",
-    "brand": "קפולסקי",
+    "icon": "🛒",
+    "price": 7.9,
+    "barcode": "7290013145826",
+    "brand": "א.ל ייצור ושיווק תבלינים",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פיינט מילקה וניל ליבת שו",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 25.9,
+    "barcode": "8606018615841",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פילה מקרל מומלח עישון150",
+    "category": "תבלינים ואפייה",
+    "icon": "🥩",
+    "price": 25.9,
+    "barcode": "5901576059483",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פפריקה הונגרית מתוקה100 ג",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 13.9,
+    "barcode": "7290010002122",
+    "brand": "א.ל ייצור ושיווק תבלינים",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פפריקה הונגרית מתוקה400 ג",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 29.9,
+    "barcode": "7290010003051",
+    "brand": "א.ל ייצור ושיווק תבלינים",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פפריקה חריפה מיכל 100 גר",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 11.5,
+    "barcode": "7296073216308",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פפריקה מעושנת במיכל90 ג",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 12.9,
+    "barcode": "7290014217003",
+    "brand": "תבליני טעם וריח",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פפריקה מתוקה אורגני 50 ג",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 18.9,
+    "barcode": "80473206",
+    "brand": "קנהמלה",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פפריקה מתוקה בשמן 400 גר",
+    "category": "תבלינים ואפייה",
+    "icon": "🫗",
+    "price": 24.9,
+    "barcode": "7290015324571",
+    "brand": "תבליני טעם וריח בע\"\\מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "פתיבר פינוקי וניל 220 גרם",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 14.9,
+    "barcode": "7290115200003",
+    "brand": "GERARD DR",
     "unit": "100 גרם",
     "store": "שופרסל"
   },
@@ -236,6 +526,26 @@
     "price": 9.9,
     "barcode": "7290018894460",
     "brand": "SRL CO Trading Alka SC",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קמח לאפיית לחם 1 ק\"ג",
+    "category": "תבלינים ואפייה",
+    "icon": "🍞",
+    "price": 7.9,
+    "barcode": "7296073661795",
+    "brand": "טחנות ישראליות בעמ",
+    "unit": "ק\"ג",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קמח לחם ללא גלוטן 500 גר",
+    "category": "תבלינים ואפייה",
+    "icon": "🍞",
+    "price": 21.9,
+    "barcode": "7290011570644",
+    "brand": "אשבל בעמ",
     "unit": "100 גרם",
     "store": "שופרסל"
   },
@@ -310,22 +620,32 @@
     "store": "שופרסל"
   },
   {
-    "name": "שוקולד מריר לינדט מלח 10",
+    "name": "קרמה ק.גוף ורד וניל500 מל",
     "category": "תבלינים ואפייה",
-    "icon": "🧂",
-    "price": 19.9,
-    "barcode": "3046920029674",
-    "brand": "לינדט ושפרונגלי",
+    "icon": "🛒",
+    "price": 25.9,
+    "barcode": "7290108357417",
+    "brand": "קוסמופארם",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל"
+  },
+  {
+    "name": "קרמוגית שוקו במילוי וניל",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 15.5,
+    "barcode": "7290118423904",
+    "brand": "הגביע",
     "unit": "100 גרם",
     "store": "שופרסל"
   },
   {
-    "name": "שמפו קרטין ללא מלחים500 מ",
+    "name": "ת.רחצה וניל דבש700 מ XPO",
     "category": "תבלינים ואפייה",
-    "icon": "🧂",
-    "price": 28.5,
-    "barcode": "7290017637655",
-    "brand": "סאסא קוסמטיקס אגש\"ח בע\"מ",
+    "icon": "🛒",
+    "price": 14.9,
+    "barcode": "7296073722663",
+    "brand": "טרופיקל דגיל תעשיות קוסמ",
     "unit": "100 מ\"ל",
     "store": "שופרסל"
   },
@@ -346,6 +666,16 @@
     "price": 12.9,
     "barcode": "7290015324663",
     "brand": "תבליני טעם וריח בע\"\\מ",
+    "unit": "100 גרם",
+    "store": "שופרסל"
+  },
+  {
+    "name": "תה שחור קינמון 20 שקיקים",
+    "category": "תבלינים ואפייה",
+    "icon": "🛒",
+    "price": 13.5,
+    "barcode": "54881006958",
+    "brand": "אחמד תי,אפ.זי-אל.אל.סי",
     "unit": "100 גרם",
     "store": "שופרסל"
   }
