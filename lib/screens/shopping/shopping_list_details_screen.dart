@@ -33,6 +33,7 @@ import '../../models/enums/item_type.dart';
 import '../../providers/shopping_lists_provider.dart';
 
 import '../../core/ui_constants.dart';
+import '../../widgets/common/animated_button.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_note.dart';
 import '../../widgets/common/sticky_button.dart';
@@ -1104,7 +1105,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
               // ✅ Checkbox
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
-                child: GestureDetector(
+                child: AnimatedButton(
                   onTap: () {
                     final provider = context.read<ShoppingListsProvider>();
                     provider.updateItemAt(

@@ -129,6 +129,145 @@ StickyNoteLogo(
 
 ---
 
+## 🔧 Advanced Components
+
+### 1️⃣ AnimatedButton
+
+**תפקיד:** Wrapper לאנימציות + haptic feedback
+
+```dart
+AnimatedButton(
+  onPressed: () => _handleTap(),
+  child: Container(
+    padding: EdgeInsets.all(kSpacingSmall),
+    child: Text('לחץ כאן'),
+  ),
+)
+```
+
+**מתי להשתמש:**
+- כפתורים מותאמים אישית (לא StickyButton)
+- צ'קבוקסים
+- אלמנטים אינטראקטיביים קטנים
+
+**אל תשתמש:**
+- כפתורים רגילים → השתמש ב-StickyButton
+- כרטיסים → השתמש ב-SimpleTappableCard
+
+---
+
+### 2️⃣ SimpleTappableCard
+
+**תפקיד:** כרטיסים אינטראקטיביים עם אנימציה
+
+```dart
+SimpleTappableCard(
+  onTap: () => _openDetails(),
+  child: Column(
+    children: [
+      Text('כותרת'),
+      Text('תוכן'),
+    ],
+  ),
+)
+```
+
+**מתי להשתמש:**
+- כרטיסי רשימה (list cards)
+- כרטיסי סטטיסטיקה
+- כל כרטיס שניתן ללחוץ עליו
+
+**תכונות:**
+- ✅ Scale animation (0.95)
+- ✅ Haptic feedback
+- ✅ 150ms duration
+
+**דוגמה מהפרויקט:**
+```dart
+// settings_screen.dart
+SimpleTappableCard(
+  onTap: () => _showDetails(),
+  child: _StatCard(
+    icon: Icons.list,
+    label: 'רשימות',
+    value: '12',
+  ),
+)
+```
+
+---
+
+### 3️⃣ BenefitTile
+
+**תפקיד:** כרטיסי יתרונות/features
+
+```dart
+BenefitTile(
+  icon: Icons.check_circle,
+  title: 'ניהול חכם',
+  description: 'מעקב אוטומטי אחר המלאי',
+)
+```
+
+**מתי להשתמש:**
+- מסכי onboarding
+- דפי features
+- רשימות יתרונות
+
+---
+
+### 4️⃣ DashboardCard
+
+**תפקיד:** כרטיסי מידע ב-dashboard
+
+```dart
+DashboardCard(
+  title: 'רשימות פעילות',
+  value: '5',
+  icon: Icons.list,
+  color: kStickyCyan,
+)
+```
+
+**מתי להשתמש:**
+- מסך ראשי (dashboard)
+- סטטיסטיקות
+- סיכומים
+
+---
+
+### 5️⃣ SkeletonLoading
+
+**תפקיד:** Loading state עם skeleton
+
+```dart
+SkeletonLoading(
+  type: SkeletonType.list, // card, grid, list
+  itemCount: 5,
+)
+```
+
+**מתי להשתמש:**
+- טעינת רשימות
+- טעינת כרטיסים
+- במקום CircularProgressIndicator
+
+**למה זה טוב יותר:**
+- ✅ מראה את המבנה העתידי
+- ✅ UX טוב יותר
+- ✅ מקטין תחושת המתנה
+
+**דוגמה:**
+```dart
+// במקום:
+if (isLoading) CircularProgressIndicator()
+
+// השתמש:
+if (isLoading) SkeletonLoading(type: SkeletonType.list)
+```
+
+---
+
 ## 🇮🇱 RTL & Hebrew
 
 ### Text Direction
@@ -528,8 +667,8 @@ StickyButton(...)
 ---
 
 **📍 Location:** `C:\projects\salsheli\docs\DESIGN.md`  
-**📅 Version:** 1.0  
-**✍️ Updated:** 25/10/2025
+**📅 Version:** 1.1  
+**✍️ Updated:** 02/11/2025
 
 ---
 

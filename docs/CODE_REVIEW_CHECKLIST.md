@@ -1,6 +1,6 @@
 # 🧾 CODE REVIEW CHECKLIST – MemoZap
 
-**גרסה:** 2.3 | **עודכן:** 02/11/2025  
+**גרסה:** 2.4 | **עודכן:** 02/11/2025  
 **שימוש:** סריקה אוטומטית לכל קובץ חדש/מעודכן  
 **מטרה:** זיהוי חכם של בעיות, קוד ישן, ופיצ'רים חלקיים
 
@@ -303,7 +303,7 @@
 - 🔥 compilation errors בכל הפרויקט
 - ⏰ בזבוז זמן בשחזור קוד
 - 😤 תסכול משתמש ("למה מחקת?!")
-- 📉 3 קבצים פעילים נמחקו (sessions 40-43)
+- 📉 4 קבצים פעילים כמעט נמחקו (sessions 40-43, 48-49)
 
 **חוק ברזל: כשיש ספק - אל תמחק!**
 
@@ -314,6 +314,7 @@
 | 41 | constants.dart | imports | ❌ kMinFamilySize ב-onboarding |
 | 43 | stores_config.dart | imports | ❌ StoresConfig.isValid ב-onboarding |
 | 48 | storage_location_manager.dart | imports | ❌ StorageLocationManager ב-my_pantry_screen |
+| 49 | animated_button.dart | imports | ❌ AnimatedButton ב-sticky_button (98 שורות) |
 
 ---
 
@@ -479,7 +480,12 @@ Get-ChildItem -Path "C:\projects\salsheli\lib" -Recurse -Filter "*.dart" | Selec
 
 **🎯 זכור:** הסקירה צריכה להיות **חכמה** (לא מכנית), **קצרה** (ממוקד), ו**אנושית** (הסבר למה, לא רק מה).
 
-**End of Checklist v2.3**
+**End of Checklist v2.4**
+
+**עדכונים מ-v2.3:**
+- 🆕 False Positive #5: animated_button.dart (session 49, 98 lines saved)
+- 📊 טבלת False-Positives: 4→5 מקרים
+- 📈 סה"כ קוד שניצל: 98+990+430+... = 2000+ שורות
 
 **עדכונים מ-v2.2:**
 - 🆕 שלב 7: בקשת אימות PowerShell מהמשתמש (המלצה!)

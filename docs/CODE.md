@@ -1,6 +1,6 @@
 # CODE.md - MemoZap Development Patterns
 
-> **For AI agents only** | Updated: 26/10/2025 | Version: 2.1
+> **For AI agents only** | Updated: 02/11/2025 | Version: 2.2
 
 ---
 
@@ -661,6 +661,177 @@ import 'package:memozap/models/shopping_list.dart';
 ```
 
 **Note:** Package name is `memozap` (from pubspec.yaml), not project folder name
+
+---
+
+## 📦 Component Reuse Protocol
+
+### 🎯 מתי לשאול על component קיים?
+
+**🔴 תמיד שאל כש:**
+- יוצר כרטיס אינטראקטיבי (לחיצה)
+- יוצר כפתור מותאם אישית
+- מוסיף אנימציה לקליק
+- בונה כרטיסי סטטיסטיקה
+- מוסיף Loading state
+
+**🟢 אל תשאל:**
+- כפתורים רגילים → StickyButton (תמיד!)
+- טקסט / תמונה סטטית → לא צריך component
+- AppBar / Scaffold → שימוש סטנדרטי
+
+---
+
+### 📚 Components זמינים
+
+**⚡ בסיסיים (4):**
+1. **StickyButton** - כפתורים רגילים (תמיד תשתמש!)
+2. **StickyNote** - עטיפת כרטיסים
+3. **NotebookBackground** - רקע מחברת
+4. **StickyNoteLogo** - לוגו
+
+**🔧 מתקדמים (5):**
+1. **AnimatedButton** - wrapper לאנימציות + haptic
+2. **SimpleTappableCard** - כרטיסים אינטראקטיביים
+3. **BenefitTile** - כרטיסי יתרונות
+4. **DashboardCard** - כרטיסי dashboard
+5. **SkeletonLoading** - Loading state
+
+**📍 מיקום:** `lib/widgets/common/`
+
+---
+
+### 🧠 Decision Tree
+
+```dart
+// שאלה: מה אתה בונה?
+
+if (כפתור רגיל) {
+  → StickyButton (תמיד!)
+} else if (כרטיס לחיצה) {
+  → SimpleTappableCard
+} else if (צ'קבוקס / toggle) {
+  → AnimatedButton
+} else if (Loading state) {
+  → SkeletonLoading (list/card/grid)
+} else if (כרטיס סטטיסטיקה) {
+  → DashboardCard
+} else if (כרטיס feature/יתרון) {
+  → BenefitTile
+} else {
+  → 🚨 שאל את המשתמש!
+}
+```
+
+---
+
+### ✏️ דוגמאות מהפרויקט
+
+**דוגמה 1: תיקון אנימציה ידנית (Session 49)**
+
+```dart
+// ❌ לפני: אנימציה ידנית
+GestureDetector(
+  onTap: () => _handleTap(),
+  child: AnimatedScale(
+    scale: _isPressed ? 0.95 : 1.0,
+    duration: Duration(milliseconds: 150),
+    child: _StatCard(...),
+  ),
+)
+
+// ✅ אחרי: SimpleTappableCard
+SimpleTappableCard(
+  onTap: () => _handleTap(),
+  child: _StatCard(...),
+)
+
+// תוצאה:
+// - אותה אנימציה
+// - Haptic feedback אוטומטי
+// - 15 שורות פחות
+```
+
+**דוגמה 2: כפתורים**
+
+```dart
+// ❌ לא נכון
+ElevatedButton(
+  onPressed: () {},
+  child: Text('הוסף'),
+)
+
+// ✅ נכון
+StickyButton(
+  text: 'הוסף',
+  color: kStickyGreen,
+  onPressed: () {},
+)
+```
+
+**דוגמה 3: Loading State**
+
+```dart
+// ❌ בסיסי
+if (isLoading) {
+  return Center(
+    child: CircularProgressIndicator(),
+  );
+}
+
+// ✅ טוב יותר
+if (isLoading) {
+  return SkeletonLoading(
+    type: SkeletonType.list,
+    itemCount: 5,
+  );
+}
+```
+
+---
+
+### 📝 פרוטוקול שאלות
+
+**כשעובד עם AI:**
+
+```yaml
+AI צריך לשאול:
+  "📦 האם להשתמש ב-[component] מ-common/ למסך הזה?
+  
+  **Option A:** SimpleTappableCard (לכרטיסים)
+  תוצאה: Scale animation + haptic feedback
+  
+  **Option B:** AnimatedButton (לצ'קבוקס)
+  תוצאה: אנימציה מותאמת
+  
+  **Option C:** יצירת component חדש
+  אם המקרה ייחודי"
+
+מתי לשאול:
+  - לפני יצירת אנימציה יהדנית
+  - לפני שימוש ב-GestureDetector
+  - לפני InkWell / InkResponse
+  - לפני יצירת Loading state
+
+מתי לא לשאול:
+  - StickyButton תמיד בשימוש
+  - אלמנטים סטטיים
+```
+
+---
+
+### ✅ תוצאות
+
+**לפני Protocol (Session 1-48):**
+- 🔴 60+ כפתורים לא StickyButton
+- 🔴 אנימציות ידניות ב-4 מקומות
+- 🔴 CircularProgressIndicator בכל מקום
+
+**אחרי Protocol (Session 49+):**
+- ✅ שאלות אוטומטיות
+- ✅ שימוש ב-components קיימים
+- ✅ פחות קוד מיותר
+- ✅ UX אחיד
 
 ---
 

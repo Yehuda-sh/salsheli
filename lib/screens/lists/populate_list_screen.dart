@@ -42,6 +42,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/sticky_note.dart';
+import '../../widgets/common/tappable_card.dart';
 
 class PopulateListScreen extends StatefulWidget {
   final ShoppingList list;
@@ -513,9 +514,8 @@ class _PopulateListScreenState extends State<PopulateListScreen> {
       child: StickyNote(
         color: kStickyYellow,
         rotation: (product.hashCode % 5 - 2) * 0.005,
-        child: InkWell(
+        child: SimpleTappableCard(
           onTap: () => _addProduct(product),
-          borderRadius: BorderRadius.circular(kBorderRadius),
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: kSpacingSmallPlus,

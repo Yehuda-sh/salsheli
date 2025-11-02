@@ -258,8 +258,8 @@
 
 ## 📚 Related Documents
 
-- `CODE.md` - Code patterns (500 lines)
-- `DESIGN.md` - UI/UX guidelines (300 lines)
+- `CODE.md` - Code patterns (v2.2, 500 lines)
+- `DESIGN.md` - UI/UX guidelines (v1.1, 300 lines)
 - `TECH.md` - Technical reference (400 lines)
 - `PROJECT_INSTRUCTIONS_v4.md` - Complete AI instructions (500 lines)
 - `CODE_REVIEW_CHECKLIST.md` - Review protocols (300 lines)
@@ -268,8 +268,8 @@
 
 ---
 
-**Last Updated:** 29/10/2025  
-**Status:** 🟢 ACTIVE - Phase 3 UI/UX Updates
+**Last Updated:** 02/11/2025  
+**Status:** 🟢 ACTIVE - Phase 3B User Sharing System
 
 ---
 
@@ -321,9 +321,24 @@
 - Session rotation (keep last 3-5)
 - Zero maintenance overhead
 
+#### 7. Manual Animations Cleanup (Session 49)
+- Fixed 3 manual animations → shared components
+- settings_screen.dart: _StatCard → SimpleTappableCard (-15 lines)
+- populate_list_screen.dart: InkWell → SimpleTappableCard
+- shopping_list_details_screen.dart: GestureDetector → AnimatedButton
+- Result: Consistent animations + haptic feedback across app
+- False positive #5 prevented: animated_button.dart (98 lines saved)
+
+#### 8. Documentation Update (Session 49)
+- CODE.md: v2.1 → v2.2 (added Component Reuse Protocol)
+- DESIGN.md: v1.0 → v1.1 (added 5 Advanced Components)
+- Updated: AnimatedButton, SimpleTappableCard, BenefitTile, DashboardCard, SkeletonLoading
+- Added: Decision tree for component selection
+- Added: Protocol for AI to ask about components
+
 ---
 
-## 🎯 Current Status (Session 47+)
+## 🎯 Current Status (Session 49+)
 
 ### Infrastructure: ✅ COMPLETE
 1. ✅ All compilation errors resolved
@@ -334,7 +349,7 @@
 
 ### Current: 🟢 Phase 3B User Sharing System
 **Status:** IN PROGRESS  
-**Started:** 29/10/2025 (Session 46-47)
+**Started:** 29/10/2025 (Session 46-47, 49)
 
 **Completed (Services Layer):**
 - ✅ ShareListService (session 46) - 460 lines
@@ -647,9 +662,9 @@
 
 ---
 
-**Version:** 1.3  
-**Last Updated:** 29/10/2025  
-**Status:** 🟢 ACTIVE - Phase 3B in progress (Session 47)
+**Version:** 1.4  
+**Last Updated:** 02/11/2025  
+**Status:** 🟢 ACTIVE - Phase 3B in progress (Session 49)
 
 ---
 
@@ -675,7 +690,29 @@ New Features Added:
 
 ## 📦 What's New in v1.3
 
-### Completed Since v1.2 (Sessions 25-46):
+### Completed Since v1.3 (Sessions 47-49):
+1. **Phase 3B Services Layer (100%):**
+   - ShareListService + PendingRequestsService (870 lines)
+   - 64 unit tests created and passing
+   - Permission system fully implemented (Owner/Admin/Editor/Viewer)
+
+2. **Manual Animations Standardization:**
+   - Replaced 3 manual animations with shared components
+   - SimpleTappableCard: 2 usages (settings, populate)
+   - AnimatedButton: 1 usage (checkbox)
+   - Result: Consistent UX + haptic feedback everywhere
+
+3. **Documentation Enhancement:**
+   - CODE.md v2.2: Component Reuse Protocol (179 lines)
+   - DESIGN.md v1.1: 5 Advanced Components (147 lines)
+   - Added decision tree + AI protocol for component selection
+
+4. **False Positive Prevention:**
+   - animated_button.dart saved (98 lines)
+   - PowerShell verification protocol documented
+   - Total: 5 false positives prevented
+
+### Completed v1.2→v1.3 (Sessions 25-46):
 1. **Infrastructure Stability:**
    - All compilation errors fixed
    - 179 passing tests (0 failures)
