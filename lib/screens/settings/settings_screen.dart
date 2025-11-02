@@ -58,6 +58,7 @@ import 'package:memozap/config/household_config.dart';
 import 'package:memozap/widgets/common/notebook_background.dart';
 import 'package:memozap/widgets/common/sticky_note.dart';
 import 'package:memozap/widgets/common/sticky_button.dart';
+import 'package:memozap/widgets/common/skeleton_loading.dart';
 import 'package:memozap/screens/settings/manage_users_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -477,19 +478,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return ListView(
       padding: const EdgeInsets.all(kSpacingMedium),
       children: [
-        const _SkeletonBox(width: double.infinity, height: 100),
+        const SkeletonBox(width: double.infinity, height: 100),
         const SizedBox(height: kSpacingMedium),
         const Row(
           children: [
-            Expanded(child: _SkeletonBox(width: double.infinity, height: 80)),
+            Expanded(child: SkeletonBox(width: double.infinity, height: 80)),
             SizedBox(width: kSpacingSmallPlus),
-            Expanded(child: _SkeletonBox(width: double.infinity, height: 80)),
+            Expanded(child: SkeletonBox(width: double.infinity, height: 80)),
           ],
         ),
         const SizedBox(height: kSpacingSmallPlus),
-        const _SkeletonBox(width: double.infinity, height: 80),
+        const SkeletonBox(width: double.infinity, height: 80),
         const SizedBox(height: kSpacingLarge),
-        const _SkeletonBox(width: double.infinity, height: 200),
+        const SkeletonBox(width: double.infinity, height: 200),
       ],
     );
   }
@@ -1082,28 +1083,6 @@ class _AnimatedCounter extends StatelessWidget {
       builder: (context, value, child) {
         return Text('$value', style: style);
       },
-    );
-  }
-}
-
-// 💀 SkeletonBox - קופסא מהבהבת ל-Loading
-class _SkeletonBox extends StatelessWidget {
-  final double? width;
-  final double? height;
-  final BorderRadius? borderRadius;
-
-  const _SkeletonBox({this.width, this.height, this.borderRadius});
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: isDark ? Colors.grey[800] : Colors.grey[300],
-        borderRadius: borderRadius ?? BorderRadius.circular(kBorderRadius),
-      ),
     );
   }
 }

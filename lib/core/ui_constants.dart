@@ -11,9 +11,14 @@
 // Note: These constants are used across the app for consistency.
 // Refer to DESIGN.md for full design system documentation.
 //
-// Version: 2.2
+// Version: 2.3
 // Created: 31/10/2025
 // Last Updated: 2/11/2025
+//
+// ⭐ Version 2.3 Changes (2/11/2025):
+// - Added kBorderWidth (1.0) for default border
+// - Added kBorderWidthExtraThick (4.0) for thick borders
+// - Added kCardElevation (2.0) for card shadows
 //
 // ⭐ Version 2.2 Changes (2/11/2025):
 // - Added kIconSizeProfile (32.0) for profile icons
@@ -135,7 +140,18 @@ const double kBorderRadiusLarge = 16.0;  // Large border radius
 // BORDER WIDTH
 // ═══════════════════════════════════════════════════════════════════════════
 
-const double kBorderWidthFocused = 2.0;  // Border width when focused
+const double kBorderWidth = 1.0;            // Default border width
+const double kBorderWidthFocused = 2.0;      // Border width when focused
+const double kBorderWidthThick = 3.0;        // Thick border
+const double kBorderWidthExtraThick = 4.0;   // Extra thick border
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ELEVATION
+// ═══════════════════════════════════════════════════════════════════════════
+
+const double kCardElevation = 2.0;       // Card elevation (default)
+const double kCardElevationLow = 1.0;       // Low card elevation
+const double kCardElevationHigh = 4.0;      // High card elevation
 
 // ═══════════════════════════════════════════════════════════════════════════
 // OPACITY
@@ -181,6 +197,7 @@ const double kFontSizeXLarge = 28.0;  // Extra large text (titles)
 // ═══════════════════════════════════════════════════════════════════════════
 
 const double kIconSizeSmall = 16.0;    // Small icons
+const double kIconSize = 24.0;         // Default icon size (alias for Medium)
 const double kIconSizeMedium = 24.0;   // Medium icons (default)
 const double kIconSizeProfile = 32.0;  // Profile icons
 const double kIconSizeXLarge = 48.0;   // Extra large icons

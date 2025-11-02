@@ -29,9 +29,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../models/shopping_list.dart';
-import '../core/ui_constants.dart';
-import '../core/status_colors.dart';
+import '../../core/status_colors.dart';
+import '../../core/ui_constants.dart';
+import '../../models/shopping_list.dart';
 
 class ShoppingListTile extends StatelessWidget {
   final ShoppingList list;
@@ -84,10 +84,7 @@ class ShoppingListTile extends StatelessWidget {
 
     return Tooltip(
       message: tooltip,
-      child: Icon(
-        iconData,
-        color: StatusColors.getStatusColor(status, context),
-      ),
+      child: Icon(iconData, color: StatusColors.getStatusColor(status, context)),
     );
   }
 
@@ -108,46 +105,26 @@ class ShoppingListTile extends StatelessWidget {
 
     final now = DateTime.now();
     final target = list.targetDate!;
-    
+
     // אם התאריך עבר
     if (target.isBefore(now)) {
-      return {
-        'status': 'error',
-        'text': 'עבר!',
-        'icon': Icons.warning,
-      };
+      return {'status': 'error', 'text': 'עבר!', 'icon': Icons.warning};
     }
 
     final daysLeft = target.difference(now).inDays;
-    
+
     if (daysLeft == 0) {
       // היום!
-      return {
-        'status': 'error',
-        'text': 'היום!',
-        'icon': Icons.access_time,
-      };
+      return {'status': 'error', 'text': 'היום!', 'icon': Icons.access_time};
     } else if (daysLeft <= 1) {
       // מחר
-      return {
-        'status': 'warning',
-        'text': 'מחר',
-        'icon': Icons.access_time,
-      };
+      return {'status': 'warning', 'text': 'מחר', 'icon': Icons.access_time};
     } else if (daysLeft <= 7) {
       // בקרוב (1-7 ימים)
-      return {
-        'status': 'warning',
-        'text': 'עוד $daysLeft ימים',
-        'icon': Icons.access_time,
-      };
+      return {'status': 'warning', 'text': 'עוד $daysLeft ימים', 'icon': Icons.access_time};
     } else {
       // יש זמן (7+ ימים)
-      return {
-        'status': 'success',
-        'text': 'עוד $daysLeft ימים',
-        'icon': Icons.check_circle_outline,
-      };
+      return {'status': 'success', 'text': 'עוד $daysLeft ימים', 'icon': Icons.check_circle_outline};
     }
   }
 
@@ -205,36 +182,20 @@ class ShoppingListTile extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: kSpacingSmall,
-        vertical: 2,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
       decoration: BoxDecoration(
         color: typeColor,
         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 2,
-            offset: const Offset(1, 1),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 2, offset: const Offset(1, 1))],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            typeEmoji,
-            style: const TextStyle(fontSize: 10),
-          ),
+          Text(typeEmoji, style: const TextStyle(fontSize: 10)),
           const SizedBox(width: 2),
           Text(
             typeLabel,
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black87),
           ),
         ],
       ),
@@ -261,26 +222,16 @@ class ShoppingListTile extends StatelessWidget {
     final overlayColor = StatusColors.getStatusOverlay(status, context);
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: kSpacingSmall,
-        vertical: kSpacingTiny,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingTiny),
       decoration: BoxDecoration(
         color: overlayColor,
         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-        border: Border.all(
-          color: statusColor,
-          width: kBorderWidth,
-        ),
+        border: Border.all(color: statusColor),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            urgencyData['icon'] as IconData,
-            size: kIconSizeSmall,
-            color: statusColor,
-          ),
+          Icon(urgencyData['icon'] as IconData, size: kIconSizeSmall, color: statusColor),
           const SizedBox(width: kSpacingTiny),
           Text(
             urgencyData['text'] as String,
@@ -298,9 +249,7 @@ class ShoppingListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final dateFormatted = DateFormat(
-      'dd/MM/yyyy – HH:mm',
-    ).format(list.updatedDate);
+    final dateFormatted = DateFormat('dd/MM/yyyy – HH:mm').format(list.updatedDate);
 
     return Dismissible(
       key: Key(list.id),
@@ -314,20 +263,20 @@ class ShoppingListTile extends StatelessWidget {
       confirmDismiss: (_) async {
         debugPrint('🗑️ ShoppingListTile.confirmDismiss: מוחק רשימה "${list.name}" (${list.id})');
         debugPrint('   📊 סטטוס: ${list.status} | פריטים: ${list.items.length}');
-        
+
         try {
           // ✅ שמירת כל הנתונים לפני מחיקה
           final deletedList = list;
-          
+
           // ✅ מחיקה מיידית
           onDelete?.call();
           debugPrint('   ✅ onDelete() הופעל');
-          
+
           // ✅ הצגת Snackbar עם אפשרות Undo
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-            content: Text('הרשימה "${deletedList.name}" נמחקה'),
-            backgroundColor: StatusColors.getStatusColor('success', context),
+              content: Text('הרשימה "${deletedList.name}" נמחקה'),
+              backgroundColor: StatusColors.getStatusColor('success', context),
               action: SnackBarAction(
                 label: 'בטל',
                 onPressed: () {
@@ -350,12 +299,12 @@ class ShoppingListTile extends StatelessWidget {
               duration: const Duration(seconds: 5),
             ),
           );
-          
+
           // ✅ מאשר מחיקה מיידית (כבר מחקנו)
           return true;
         } catch (e) {
           debugPrint('❌ ShoppingListTile.confirmDismiss: שגיאה במחיקה - $e');
-          
+
           // הצג הודעת שגיאה
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -363,7 +312,7 @@ class ShoppingListTile extends StatelessWidget {
               backgroundColor: StatusColors.getStatusColor('error', context),
             ),
           );
-          
+
           // ביטול מחיקה
           return false;
         }
@@ -379,178 +328,135 @@ class ShoppingListTile extends StatelessWidget {
                 color: list.status == ShoppingList.statusCompleted
                     ? StatusColors.getStatusColor('success', context)
                     : list.status == ShoppingList.statusArchived
-                        ? StatusColors.getStatusColor('pending', context)
-                        : theme.colorScheme.primary,
+                    ? StatusColors.getStatusColor('pending', context)
+                    : theme.colorScheme.primary,
                 width: kBorderWidthExtraThick,
               ),
             ),
           ),
           child: Column(
-          children: [
-            InkWell(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(kBorderRadius),
-              ),
-              onTap: onTap,
-              child: ListTile(
-                leading: _statusIcon(context),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: kSpacingMedium,
-                  vertical: kSpacingSmallPlus,
-                ),
-                title: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        list.name,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
+            children: [
+              InkWell(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(kBorderRadius)),
+                onTap: onTap,
+                child: ListTile(
+                  leading: _statusIcon(context),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmallPlus),
+                  title: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          list.name,
+                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
                       ),
-                    ),
-                    // תג סוג רשימה
-                    _buildListTypeTag(context),
-                    const SizedBox(width: kSpacingSmall),
-                    // תג דחיפות
-                    if (_buildUrgencyTag(context) != null) ...[
-                      _buildUrgencyTag(context)!,
+                      // תג סוג רשימה
+                      _buildListTypeTag(context),
                       const SizedBox(width: kSpacingSmall),
-                    ],
-                    // תג משותפת
-                    if (list.isShared)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: kSpacingSmall,
-                          vertical: kSpacingTiny,
-                        ),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.secondaryContainer,
-                          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.group,
-                              size: kIconSizeSmall,
-                              color: theme.colorScheme.onSecondaryContainer,
-                            ),
-                            const SizedBox(width: kSpacingTiny),
-                            Text(
-                              'משותפת',
-                              style: TextStyle(
-                                color: theme.colorScheme.onSecondaryContainer,
-                                fontSize: kFontSizeTiny,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'פריטים: ${list.items.length} • עודכן: $dateFormatted',
-                      style: theme.textTheme.bodySmall,
-                    ),
-                    const SizedBox(height: kSpacingTiny),
-                    if (list.items.isNotEmpty)
-                      LinearProgressIndicator(
-                        value: list.items.isEmpty 
-                            ? 0.0 
-                            : list.items.where((item) => item.isChecked).length / list.items.length,
-                        minHeight: kSpacingTiny,
-                        backgroundColor: theme.colorScheme.surfaceContainerHighest,
-                        color: theme.colorScheme.primary,
-                      ),
-                  ],
-                ),
-                trailing: const Icon(Icons.chevron_right),
-              ),
-            ),
-            
-            // ⭐ כפתור "התחל קנייה" - רק לרשימות פעילות עם מוצרים
-            if (list.status == ShoppingList.statusActive && list.items.isNotEmpty)
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  border: Border(
-                    top: BorderSide(
-                      color: theme.colorScheme.outline.withValues(alpha: 0.2),
-                    ),
-                  ),
-                ),
-                child: InkWell(
-                  borderRadius: const BorderRadius.vertical(
-                    bottom: Radius.circular(kBorderRadius),
-                  ),
-                  onTap: onStartShopping,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: kSpacingMedium,
-                      vertical: kSpacingSmallPlus,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.shopping_cart_checkout,
-                          color: theme.colorScheme.primary,
-                          size: kIconSizeMedium,
-                        ),
+                      // תג דחיפות
+                      if (_buildUrgencyTag(context) != null) ...[
+                        _buildUrgencyTag(context)!,
                         const SizedBox(width: kSpacingSmall),
-                        Text(
-                          'התחל קנייה',
-                          style: TextStyle(
-                            fontSize: kFontSizeBody,
-                            fontWeight: FontWeight.bold,
-                            color: theme.colorScheme.primary,
+                      ],
+                      // תג משותפת
+                      if (list.isShared)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingTiny),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.secondaryContainer,
+                            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.group, size: kIconSizeSmall, color: theme.colorScheme.onSecondaryContainer),
+                              const SizedBox(width: kSpacingTiny),
+                              Text(
+                                'משותפת',
+                                style: TextStyle(
+                                  color: theme.colorScheme.onSecondaryContainer,
+                                  fontSize: kFontSizeTiny,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
+                    ],
                   ),
-                ),
-              )
-            // 📝 הודעה אם הרשימה ריקה
-            else if (list.status == ShoppingList.statusActive && list.items.isEmpty)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(kSpacingSmallPlus),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHighest,
-                  border: Border(
-                    top: BorderSide(
-                      color: theme.colorScheme.outline.withValues(alpha: 0.2),
-                    ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('פריטים: ${list.items.length} • עודכן: $dateFormatted', style: theme.textTheme.bodySmall),
+                      const SizedBox(height: kSpacingTiny),
+                      if (list.items.isNotEmpty)
+                        LinearProgressIndicator(
+                          value: list.items.isEmpty
+                              ? 0.0
+                              : list.items.where((item) => item.isChecked).length / list.items.length,
+                          minHeight: kSpacingTiny,
+                          backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                          color: theme.colorScheme.primary,
+                        ),
+                    ],
                   ),
-                  borderRadius: const BorderRadius.vertical(
-                    bottom: Radius.circular(kBorderRadius),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.info_outline,
-                      size: kIconSizeSmall,
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: kSpacingSmall),
-                    Text(
-                      'הוסף מוצרים כדי להתחיל',
-                      style: TextStyle(
-                        fontSize: kFontSizeSmall,
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
+                  trailing: const Icon(Icons.chevron_right),
                 ),
               ),
-          ],
+
+              // ⭐ כפתור "התחל קנייה" - רק לרשימות פעילות עם מוצרים
+              if (list.status == ShoppingList.statusActive && list.items.isNotEmpty)
+                Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    border: Border(top: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.2))),
+                  ),
+                  child: InkWell(
+                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(kBorderRadius)),
+                    onTap: onStartShopping,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmallPlus),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.shopping_cart_checkout, color: theme.colorScheme.primary, size: kIconSizeMedium),
+                          const SizedBox(width: kSpacingSmall),
+                          Text(
+                            'התחל קנייה',
+                            style: TextStyle(
+                              fontSize: kFontSizeBody,
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+              // 📝 הודעה אם הרשימה ריקה
+              else if (list.status == ShoppingList.statusActive && list.items.isEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(kSpacingSmallPlus),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest,
+                    border: Border(top: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.2))),
+                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(kBorderRadius)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.info_outline, size: kIconSizeSmall, color: theme.colorScheme.onSurfaceVariant),
+                      const SizedBox(width: kSpacingSmall),
+                      Text(
+                        'הוסף מוצרים כדי להתחיל',
+                        style: TextStyle(fontSize: kFontSizeSmall, color: theme.colorScheme.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
           ),
         ),
       ),

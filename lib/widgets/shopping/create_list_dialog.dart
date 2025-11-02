@@ -35,11 +35,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../config/list_types_config.dart';
-import '../core/ui_constants.dart';
-import '../core/status_colors.dart';
-import '../providers/shopping_lists_provider.dart';
-import '../l10n/app_strings.dart';
+
+import '../../config/list_types_config.dart';
+import '../../core/status_colors.dart';
+import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
+import '../../providers/shopping_lists_provider.dart';
 
 class CreateListDialog extends StatefulWidget {
   final Future<void> Function(Map<String, dynamic>) onCreateList;
@@ -54,8 +55,8 @@ class _CreateListDialogState extends State<CreateListDialog> {
   final _formKey = GlobalKey<FormState>();
   final _budgetController = TextEditingController();
 
-  String _name = "";
-  String _type = "supermarket";
+  String _name = '';
+  String _type = 'supermarket';
   double? _budget;
   DateTime? _eventDate;
   bool _isSubmitting = false;
@@ -68,6 +69,11 @@ class _CreateListDialogState extends State<CreateListDialog> {
   void initState() {
     super.initState();
     debugPrint('🔵 CreateListDialog.initState() - Dialog נפתח');
+  }
+
+  /// טיפול בשינוי תקציב - מעדכן UI להצגת כפתור Clear
+  void _handleBudgetChanged(String value) {
+    setState(() {});
   }
 
   @override
@@ -112,6 +118,9 @@ class _CreateListDialogState extends State<CreateListDialog> {
     };
 
     try {
+      // Capture messenger before async operation
+      final messenger = ScaffoldMessenger.of(context);
+      
       debugPrint('   ✅ קורא ל-onCreateList');
       await widget.onCreateList(listData);
       debugPrint('   ✅ onCreateList הושלם בהצלחה');
@@ -122,10 +131,23 @@ class _CreateListDialogState extends State<CreateListDialog> {
       }
 
       // הודעת הצלחה עם פרטים
-      _showSuccessSnackBar(
-        _budget != null
-            ? AppStrings.createListDialog.listCreatedWithBudget(_name, _budget!)
-            : AppStrings.createListDialog.listCreated(_name),
+      final message = _budget != null
+          ? AppStrings.createListDialog.listCreatedWithBudget(_name, _budget!)
+          : AppStrings.createListDialog.listCreated(_name);
+      
+      messenger.showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle_outline, color: Colors.white),
+              const SizedBox(width: kSpacingSmall),
+              Expanded(child: Text(message)),
+            ],
+          ),
+          backgroundColor: StatusColors.getStatusColor('success', context),
+          behavior: SnackBarBehavior.floating,
+          duration: kSnackBarDuration,
+        ),
       );
     } catch (e) {
       debugPrint('   ❌ שגיאה ב-onCreateList: $e');
@@ -178,9 +200,9 @@ class _CreateListDialogState extends State<CreateListDialog> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
-          children: const [
-            Icon(Icons.error_outline, color: Colors.white),
-            SizedBox(width: kSpacingSmall),
+          children: [
+            const Icon(Icons.error_outline, color: Colors.white),
+            const SizedBox(width: kSpacingSmall),
             Expanded(child: Text(message)),
           ],
         ),
@@ -190,250 +212,6 @@ class _CreateListDialogState extends State<CreateListDialog> {
       ),
     );
   }
-
-  // 🆕 הצגת הודעות הצלחה
-  /// הצגת SnackBar עם הודעת הצלחה
-  ///
-  /// עיצוב:
-  /// - צבע ירוק (green.shade700)
-  /// - אייקון check_circle + הודעה
-  /// - floating behavior
-  /// - משך: kSnackBarDuration
-  ///
-  /// [message] - ההודעה להצגה
-  void _showSuccessSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: const [
-            Icon(Icons.check_circle_outline, color: Colors.white),
-            SizedBox(width: kSpacingSmall),
-            Expanded(child: Text(message)),
-          ],
-        ),
-        backgroundColor: StatusColors.getStatusColor('success', context),
-        behavior: SnackBarBehavior.floating,
-        duration: kSnackBarDuration,
-      ),
-    );
-  }
-
-  // ========================================
-  // 📋 Templates Bottom Sheet - DISABLED
-  // ========================================
-  /// Templates feature is disabled until Template model is implemented
-  /* Future<void> _showTemplatesBottomSheet() async {
-    debugPrint('📋 פתיחת Templates Bottom Sheet');
-
-    final template = await showModalBottomSheet<Template>(
-      context: context,
-      isScrollControlled: true,
-      builder: (sheetContext) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.7,
-          minChildSize: 0.5,
-          maxChildSize: 0.95,
-          expand: false,
-          builder: (_, scrollController) {
-            return Consumer<TemplatesProvider>(
-              builder: (_, provider, child) {
-                return Column(
-                  children: [
-                    // Header
-                    Container(
-                      padding: const EdgeInsets.all(kSpacingMedium),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Theme.of(context).colorScheme.outline.withValues(alpha: kOpacityLight),
-                          ),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  AppStrings.createListDialog.selectTemplateTitle,
-                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  AppStrings.createListDialog.selectTemplateHint,
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                              ],
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () => Navigator.pop(sheetContext),
-                            icon: const Icon(Icons.close),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Loading State
-                    if (provider.isLoading)
-                      Expanded(
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const CircularProgressIndicator(),
-                              const SizedBox(height: kSpacingMedium),
-                              Text(AppStrings.createListDialog.loadingTemplates),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                    // Error State
-                    if (provider.hasError)
-                      Expanded(
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.error_outline,
-                                size: 64,
-                                color: StatusColors.getStatusColor('error', context),
-                              ),
-                              const SizedBox(height: kSpacingMedium),
-                              Text(
-                                '${AppStrings.createListDialog.loadingTemplatesError}\n${provider.errorMessage}',
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                    // Empty State
-                    if (!provider.isLoading && !provider.hasError && provider.templates.isEmpty)
-                      Expanded(
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.inventory_2_outlined,
-                                size: 64,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: kOpacityMedium),
-                              ),
-                              const SizedBox(height: kSpacingMedium),
-                              Text(
-                                AppStrings.createListDialog.noTemplatesAvailable,
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                              const SizedBox(height: kSpacingSmall),
-                              Text(
-                                AppStrings.createListDialog.noTemplatesMessage,
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                    // Templates List
-                    if (!provider.isLoading && !provider.hasError && provider.templates.isNotEmpty)
-                      Expanded(
-                        child: ListView.builder(
-                          controller: scrollController,
-                          padding: const EdgeInsets.all(kSpacingMedium),
-                          itemCount: provider.templates.length,
-                          itemBuilder: (context, index) {
-                            final template = provider.templates[index];
-                            final typeInfo = kListTypes[template.type] ?? kListTypes['other']!;
-
-                            return Card(
-                              margin: const EdgeInsets.only(bottom: kSpacingSmallPlus),
-                              child: ListTile(
-                                leading: Container(
-                                  width: kMinTouchTarget,
-                                  height: kMinTouchTarget,
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: kOpacityLow),
-                                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      typeInfo['icon']!,
-                                      style: const TextStyle(fontSize: kIconSize),
-                                    ),
-                                  ),
-                                ),
-                                title: Text(
-                                  template.name,
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                subtitle: Text(
-                                  '${template.defaultItems.length} ${AppStrings.templates.itemsCount(template.defaultItems.length).split(' ')[1]} • ${typeInfo['name']}',
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                                trailing: const Icon(Icons.arrow_forward),
-                                onTap: () {
-                                  debugPrint('✅ נבחרה תבנית: ${template.name}');
-                                  Navigator.pop(sheetContext, template);
-                                },
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                  ],
-                );
-              },
-            );
-          },
-        );
-      },
-    );
-
-    // 🆕 מילוי נתונים מהתבנית + פריטים
-    if (template != null && mounted) {
-      debugPrint('✨ ממלא נתונים מתבנית: ${template.name}');
-      debugPrint('   📦 ${template.defaultItems.length} פריטים');
-      
-      setState(() {
-        _type = template.type;
-        _selectedTemplate = template;
-        
-        // 🆕 המרת פריטי תבנית לפריטי קבלה
-        _templateItems = template.defaultItems.map((templateItem) {
-          return ReceiptItem(
-            name: templateItem.name,
-            category: templateItem.category,
-            quantity: templateItem.quantity,
-            unit: templateItem.unit,
-            isChecked: false, // פריטים חדשים מתחילים כלא מסומנים
-            unitPrice: 0.0, // אין מחיר בשלב זה
-          );
-        }).toList();
-      });
-
-      // 🆕 הודעה מפורטת על התבנית שנבחרה
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppStrings.createListDialog.templateApplied(
-              template.name,
-              template.defaultItems.length,
-            ),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 3),
-        ),
-      );
-    }
-  } */
 
   // ========================================
   // 🎭 Selector פשוט של סוגי רשימות (7 סוגים)
@@ -482,7 +260,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
           spacing: 8,
           runSpacing: 8,
           alignment: WrapAlignment.end,
-          children: types.map((type) => _buildTypeChip(type)).toList(),
+          children: types.map(_buildTypeChip).toList(),
         ),
       ],
     );
@@ -538,7 +316,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
       side: BorderSide(
         color: isSelected
             ? theme.colorScheme.primary
-            : theme.colorScheme.outline.withValues(alpha: kOpacityLow),
+            : theme.colorScheme.outline.withValues(alpha: kOpacityLight),
       ),
     );
   }
@@ -550,12 +328,12 @@ class _CreateListDialogState extends State<CreateListDialog> {
     final strings = AppStrings.createListDialog;
 
     return AlertDialog(
-      insetPadding: kPaddingDialog,
+      insetPadding: const EdgeInsets.all(kSpacingMedium),
       title: Text(strings.title, textAlign: TextAlign.right),
       content: ConstrainedBox(
         constraints: const BoxConstraints(
-          maxHeight: kDialogMaxHeight,
-          maxWidth: kDialogMaxWidth,
+          maxHeight: 600.0,
+          maxWidth: 500.0,
         ),
         child: Form(
         key: _formKey,
@@ -625,22 +403,22 @@ class _CreateListDialogState extends State<CreateListDialog> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          kListTypes[_type]!["icon"]!,
-                          style: const TextStyle(fontSize: kIconSizeLarge),
+                          kListTypes[_type]!['icon']!,
+                          style: const TextStyle(fontSize: 32.0),
                         ),
-                        const SizedBox(width: kSpacingXSmall),
+                        const SizedBox(width: kSpacingSmall),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                kListTypes[_type]!["name"]!,
+                                kListTypes[_type]!['name']!,
                                 style: theme.textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               Text(
-                                kListTypes[_type]!["description"]!,
+                                kListTypes[_type]!['description']!,
                                 style: theme.textTheme.bodySmall,
                               ),
                             ],
@@ -662,7 +440,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
                     context: context,
                     initialDate: _eventDate ?? DateTime.now(),
                     firstDate: DateTime.now(),
-                    lastDate: DateTime.now().add(kMaxEventDateRange),
+                    lastDate: DateTime.now().add(const Duration(days: 365)),
                     helpText: strings.selectDate,
                     cancelText: strings.cancelButton,
                     confirmText: AppStrings.common.ok,
@@ -697,7 +475,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
                         : '${_eventDate!.day}/${_eventDate!.month}/${_eventDate!.year}',
                     style: theme.textTheme.bodyLarge?.copyWith(
                       color: _eventDate == null
-                          ? theme.colorScheme.onSurfaceVariant.withValues(alpha: kOpacityHigh)
+                          ? theme.colorScheme.onSurfaceVariant.withValues(alpha: kOpacityMedium)
                           : theme.colorScheme.onSurface,
                     ),
                   ),
@@ -759,7 +537,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
                     _budget = null;
                   }
                 },
-                onChanged: (_) => setState(() {}),
+                onChanged: _handleBudgetChanged,
                 textDirection: TextDirection.rtl,
                 enabled: !_isSubmitting,
               ),
@@ -772,10 +550,12 @@ class _CreateListDialogState extends State<CreateListDialog> {
         Tooltip(
           message: strings.cancelTooltip,
           child: TextButton(
-            onPressed: _isSubmitting ? null : () {
-              debugPrint('❌ משתמש ביטל יצירת רשימה');
-              Navigator.of(context, rootNavigator: true).pop();
-            },
+            onPressed: _isSubmitting
+                ? null
+                : () {
+                    debugPrint('❌ משתמש ביטל יצירת רשימה');
+                    Navigator.of(context, rootNavigator: true).pop();
+                  },
             child: Text(strings.cancelButton),
           ),
         ),

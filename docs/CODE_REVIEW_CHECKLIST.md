@@ -1,6 +1,6 @@
 # 🧾 CODE REVIEW CHECKLIST – MemoZap
 
-**גרסה:** 2.2 | **עודכן:** 29/10/2025  
+**גרסה:** 2.3 | **עודכן:** 02/11/2025  
 **שימוש:** סריקה אוטומטית לכל קובץ חדש/מעודכן  
 **מטרה:** זיהוי חכם של בעיות, קוד ישן, ופיצ'רים חלקיים
 
@@ -313,6 +313,93 @@
 | 40 | ui_constants.dart | imports | ✅ Dead code נכון |
 | 41 | constants.dart | imports | ❌ kMinFamilySize ב-onboarding |
 | 43 | stores_config.dart | imports | ❌ StoresConfig.isValid ב-onboarding |
+| 48 | storage_location_manager.dart | imports | ❌ StorageLocationManager ב-my_pantry_screen |
+
+---
+
+### 🔍 שלב 7: בקש אימות PowerShell מהמשתמש (המלצה!)
+
+**מתי להשתמש:**
+- כש-search_files מחזיר 0 תוצאות
+- קובץ גדול (500+ שורות) שנראה "לא בשימוש"
+- ספק אם הבדיקות שלב 1-6 מספיקות
+
+**הפרוטוקול:**
+
+```yaml
+שלב 7.1: הכן פקודת PowerShell
+  תבנית:
+    Get-ChildItem -Path "C:\projects\salsheli\lib" -Recurse -Filter "*.dart" | Select-String "[FILE_NAME]|[CLASS_NAME]" | Select-Object Path, LineNumber, Line
+  
+  דוגמה:
+    Get-ChildItem -Path "C:\projects\salsheli\lib" -Recurse -Filter "*.dart" | Select-String "storage_location_manager|StorageLocationManager" | Select-Object Path, LineNumber, Line
+
+שלב 7.2: בקש מהמשתמש
+  טקסט:
+    "אני לא בטוח אם הקובץ בשימוש. אנא הרץ את הפקודה הבאה ב-PowerShell והדבק את התוצאה:
+    
+    [הפקודה כאן]
+    
+    זה יעזור לי לוודא בדיוק איפה הקובץ משמש."
+
+שלב 7.3: נתח תוצאה
+  אם יש תוצאות:
+    ✅ הקובץ בשימוש! בדוק את הנתיבים
+  אם אין תוצאות:
+    ⚠️ ספק נוסף - בדוק class name בנפרד
+  אם גם class name מחזיר 0:
+    💀 ככל הנראה dead code (אבל עדיין - כשיש ספק אל תמחק!)
+```
+
+**למה זה עובד טוב יותר מ-MCP search_files:**
+1. ✅ PowerShell מחפש גם בתוך שורות (לא רק שמות קבצים)
+2. ✅ מציג LineNumber + Line המלא
+3. ✅ תומך בחיפוש מרובה (file|class name)
+4. ✅ יותר מהימן למציאת שימוש אמיתי
+
+**דוגמה מהפרקטיקה (Session 48):**
+
+```yaml
+מצב התחלתי:
+  קובץ: storage_location_manager.dart (990 שורות)
+  search_files: 0 imports נמצאו
+  מסקנה מוטעית: "קובץ לא בשימוש"
+
+פקודת PowerShell:
+  Get-ChildItem -Path "C:\projects\salsheli\lib" -Recurse -Filter "*.dart" | Select-String "StorageLocationManager" | Select-Object Path, LineNumber, Line
+
+תוצאה:
+  my_pantry_screen.dart:17 - תיעוד
+  my_pantry_screen.dart:754 - StorageLocationManager(inventory: items, onEditItem: _editItemDialog)
+  → קובץ בשימוש פעיל!
+
+למידה:
+  search_files חיפש רק "storage_location_manager" (שם קובץ)
+  PowerShell חיפש גם "StorageLocationManager" (שם class)
+  → הבדל קריטי שהציל 990 שורות קוד פעיל!
+```
+
+**טיפים לחיפוש יעיל:**
+
+```powershell
+# 1️⃣ חיפוש שם קובץ + שם class
+Get-ChildItem -Path "C:\projects\salsheli\lib" -Recurse -Filter "*.dart" | Select-String "my_file|MyClassName" | Select-Object Path, LineNumber, Line
+
+# 2️⃣ ספירת מופעים
+Get-ChildItem -Path "C:\projects\salsheli\lib" -Recurse -Filter "*.dart" | Select-String "MyClassName" | Measure-Object | Select-Object Count
+
+# 3️⃣ חיפוש בתיקיית screens בלבד
+Get-ChildItem -Path "C:\projects\salsheli\lib\screens" -Recurse -Filter "*.dart" | Select-String "MyWidget"
+
+# 4️⃣ חיפוש imports ישירות
+Get-ChildItem -Path "C:\projects\salsheli\lib" -Recurse -Filter "*.dart" | Select-String "import.*my_file.dart" | Select-Object Path, LineNumber
+```
+
+**מתי לדלג על שלב 7:**
+- קבצים קטנים (< 100 שורות)
+- כבר יש 3+ מופעים ב-search_files
+- קובץ ברור שלא בשימוש (test file ישן, duplicate)
+- זמן לחוץ וסיכון נמוך
 
 ---
 
@@ -392,7 +479,14 @@
 
 **🎯 זכור:** הסקירה צריכה להיות **חכמה** (לא מכנית), **קצרה** (ממוקד), ו**אנושית** (הסבר למה, לא רק מה).
 
-**End of Checklist v2.2**
+**End of Checklist v2.3**
+
+**עדכונים מ-v2.2:**
+- 🆕 שלב 7: בקשת אימות PowerShell מהמשתמש (המלצה!)
+- 🆕 דוגמה מעשית: storage_location_manager.dart (session 48)
+- 🆕 4 פקודות PowerShell יעילות לחיפוש
+- 🆕 הסבר מתי לדלג על שלב 7
+- 📊 טבלת False-Positives: 3→4 מקרים
 
 **עדכונים מ-v2.1:**
 - הרחבת פרוטוקול Dead Code: 4→6 שלבים

@@ -22,8 +22,8 @@ import '../../providers/shopping_lists_provider.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/sticky_note.dart';
-import '../../widgets/create_list_dialog.dart';
-import '../../widgets/shopping_list_tile.dart';
+import '../../widgets/shopping/create_list_dialog.dart';
+import '../../widgets/shopping/shopping_list_tile.dart';
 import './active_shopping_screen.dart';
 
 class ShoppingListsScreen extends StatefulWidget {
