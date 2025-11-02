@@ -45,7 +45,6 @@ import 'services/auth_service.dart'; // 🔐 Firebase Auth!
 import 'screens/auth/login_screen.dart' as auth_login;
 import 'screens/auth/register_screen.dart' as auth_register;
 import 'screens/index_screen.dart';
-import 'screens/lists/populate_list_screen.dart';
 import 'screens/main_navigation_screen.dart';
 import 'screens/onboarding/onboarding_screen.dart';
 import 'screens/pantry/my_pantry_screen.dart';
@@ -329,17 +328,6 @@ class _MyAppState extends State<MyApp> {
                 );
               }
               return MaterialPageRoute(builder: (_) => ShoppingListDetailsScreen(list: list));
-            }
-
-            // populate-list - receives ShoppingList object
-            if (settings.name == '/populate-list') {
-              final list = settings.arguments as ShoppingList?;
-              if (list == null) {
-                return MaterialPageRoute(
-                  builder: (_) => const Scaffold(body: Center(child: Text('List not found'))),
-                );
-              }
-              return MaterialPageRoute(builder: (_) => PopulateListScreen(list: list));
             }
 
             return null;

@@ -40,8 +40,8 @@ import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/pending_requests_section.dart';
 import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/sticky_note.dart';
-import '../lists/populate_list_screen.dart';
 import '../lists/share_list_screen.dart';
+import '../../widgets/shopping/product_selection_bottom_sheet.dart';
 
 class ShoppingListDetailsScreen extends StatefulWidget {
   final ShoppingList list;
@@ -104,16 +104,20 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     super.dispose();
   }
 
-  /// 🛒 ניווט למסך אכלוס מהקטלוג
+  /// 🛒 פתיחת Bottom Sheet לבחירת מוצרים
   Future<void> _navigateToPopulateScreen() async {
-    debugPrint('🛒 ShoppingListDetailsScreen: ניווט לאכלוס מהקטלוג');
+    debugPrint('🛒 ShoppingListDetailsScreen: פתיחת Bottom Sheet');
 
-    final navigator = Navigator.of(context);
-    await navigator.push(MaterialPageRoute(builder: (context) => PopulateListScreen(list: widget.list)));
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => ProductSelectionBottomSheet(list: widget.list),
+    );
 
-    // רענון הרשימה אחרי חזרה
+    // רענון הרשימה אחרי סגירה
     if (mounted) {
-      debugPrint('✅ ShoppingListDetailsScreen: חזרה מאכלוס, רענון נתונים');
+      debugPrint('✅ ShoppingListDetailsScreen: חזרה מ-Bottom Sheet');
       setState(() {});
     }
   }
