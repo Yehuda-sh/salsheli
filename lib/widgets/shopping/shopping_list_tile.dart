@@ -49,7 +49,59 @@ class ShoppingListTile extends StatelessWidget {
     this.onStartShopping,
   });
 
-  /// 🇮🇱 אייקון מותאם לפי סטטוס הרשימה
+  /// 🎨 אייקון לפי סוג הרשימה
+  /// מחזיר אייקון ייחודי לכל סוג רשימה
+  Widget _getListIcon(BuildContext context) {
+    IconData iconData;
+    Color iconColor;
+
+    switch (list.type) {
+      case ShoppingList.typeSupermarket:
+        iconData = Icons.shopping_cart;
+        iconColor = kStickyGreen;
+        break;
+      case ShoppingList.typePharmacy:
+        iconData = Icons.medication;
+        iconColor = kStickyCyan;
+        break;
+      case ShoppingList.typeGreengrocer:
+        iconData = Icons.local_florist;
+        iconColor = kStickyGreen;
+        break;
+      case ShoppingList.typeButcher:
+        iconData = Icons.set_meal;
+        iconColor = kStickyPink;
+        break;
+      case ShoppingList.typeBakery:
+        iconData = Icons.bakery_dining;
+        iconColor = kStickyYellow;
+        break;
+      case ShoppingList.typeMarket:
+        iconData = Icons.store;
+        iconColor = kStickyYellow;
+        break;
+      case ShoppingList.typeHousehold:
+        iconData = Icons.home;
+        iconColor = kStickyPurple;
+        break;
+      case ShoppingList.typeOther:
+      default:
+        iconData = Icons.shopping_bag;
+        iconColor = kStickyPurple;
+        break;
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(kSpacingSmall),
+      decoration: BoxDecoration(
+        color: iconColor.withValues(alpha: 0.2),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(iconData, color: iconColor, size: kIconSizeMedium),
+    );
+  }
+
+  /// 🇮🇱 אייקון מותאם לפי סטטוס הרשימה (לא בשימוש - הוחלף ב-_getListIcon)
   /// 🇬🇧 Status-based icon with tooltip for accessibility
   ///
   /// תומך ב-3 סטטוסים:
@@ -182,20 +234,30 @@ class ShoppingListTile extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 4),
       decoration: BoxDecoration(
         color: typeColor,
         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 2, offset: const Offset(1, 1))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 4,
+            offset: const Offset(2, 2),
+          ),
+        ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(typeEmoji, style: const TextStyle(fontSize: 10)),
-          const SizedBox(width: 2),
+          Text(typeEmoji, style: const TextStyle(fontSize: 16)),
+          const SizedBox(width: 4),
           Text(
             typeLabel,
-            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black87),
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
+            ),
           ),
         ],
       ),
@@ -340,7 +402,7 @@ class ShoppingListTile extends StatelessWidget {
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(kBorderRadius)),
                 onTap: onTap,
                 child: ListTile(
-                  leading: _statusIcon(context),
+                  leading: _getListIcon(context),
                   contentPadding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmallPlus),
                   title: Row(
                     children: [
@@ -434,26 +496,37 @@ class ShoppingListTile extends StatelessWidget {
                     ),
                   ),
                 )
-              // 📝 הודעה אם הרשימה ריקה
+              // 📝 כפתור להוספת מוצרים - רשימה ריקה
               else if (list.status == ShoppingList.statusActive && list.items.isEmpty)
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(kSpacingSmallPlus),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest,
                     border: Border(top: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.2))),
-                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(kBorderRadius)),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.info_outline, size: kIconSizeSmall, color: theme.colorScheme.onSurfaceVariant),
-                      const SizedBox(width: kSpacingSmall),
-                      Text(
-                        'הוסף מוצרים כדי להתחיל',
-                        style: TextStyle(fontSize: kFontSizeSmall, color: theme.colorScheme.onSurfaceVariant),
+                  child: InkWell(
+                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(kBorderRadius)),
+                    onTap: () {
+                      debugPrint('➕ ShoppingListTile: כפתור "הוסף מוצרים" נלחץ - רשימה: ${list.name}');
+                      onTap?.call();
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(kSpacingSmallPlus),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.add_circle_outline, size: kIconSizeMedium, color: theme.colorScheme.primary),
+                          const SizedBox(width: kSpacingSmall),
+                          Text(
+                            'הוסף מוצרים כדי להתחיל',
+                            style: TextStyle(
+                              fontSize: kFontSizeBody,
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
             ],

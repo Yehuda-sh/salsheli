@@ -213,8 +213,9 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                 TextButton(
                   onPressed: () {
                     debugPrint('❌ ShoppingListDetailsScreen: ביטול דיאלוג');
-                    disposeControllers();
                     Navigator.pop(context);
+                    // Dispose אחרי שהאנימציה נגמרת
+                    Future.delayed(const Duration(milliseconds: 250), disposeControllers);
                   },
                   child: Text(AppStrings.common.cancel),
                 ),
@@ -267,8 +268,9 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                       debugPrint('✅ ShoppingListDetailsScreen: עדכן מוצר "$name"');
                     }
 
-                    disposeControllers();
                     Navigator.pop(context);
+                    // Dispose אחרי שהאנימציה נגמרת
+                    Future.delayed(const Duration(milliseconds: 250), disposeControllers);
                   },
                   child: Text(AppStrings.common.save),
                 ),
@@ -377,8 +379,9 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                     TextButton(
                       onPressed: () {
                         debugPrint('❌ ShoppingListDetailsScreen: ביטול דיאלוג משימה');
-                        disposeControllers();
                         Navigator.pop(context);
+                        // Dispose אחרי שהאנימציה נגמרת
+                        Future.delayed(const Duration(milliseconds: 250), disposeControllers);
                       },
                       child: Text(AppStrings.common.cancel),
                     ),
@@ -412,8 +415,9 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                           debugPrint('✅ ShoppingListDetailsScreen: עדכן משימה "$name"');
                         }
 
-                        disposeControllers();
                         Navigator.pop(context);
+                        // Dispose אחרי שהאנימציה נגמרת
+                        Future.delayed(const Duration(milliseconds: 250), disposeControllers);
                       },
                       child: Text(AppStrings.common.save),
                     ),
@@ -603,8 +607,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                       : _buildFlatList(filteredItems, theme),
                 ),
 
-                // 💰 סה"כ מונפש
-                _buildAnimatedTotal(totalAmount, theme),
+                // 💰 סה"כ מונפש - מוסתר כרגע
+                // _buildAnimatedTotal(totalAmount, theme),
               ],
             ),
           ],
@@ -617,29 +621,33 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
               mainAxisSize: MainAxisSize.min,
               children: [
                 // 📋 הוסף משימה
-                StickyButton(
-                  color: kStickyCyan,
-                  label: AppStrings.listDetails.addTaskButton,
-                  icon: Icons.task_alt,
-                  onPressed: () {
-                    _fabController.reverse().then((_) {
-                      _fabController.forward();
-                    });
-                    _showTaskDialog(context);
-                  },
+                Flexible(
+                  child: StickyButton(
+                    color: kStickyCyan,
+                    label: AppStrings.listDetails.addTaskButton,
+                    icon: Icons.task_alt,
+                    onPressed: () {
+                      _fabController.reverse().then((_) {
+                        _fabController.forward();
+                      });
+                      _showTaskDialog(context);
+                    },
+                  ),
                 ),
                 const SizedBox(width: kSpacingSmall),
                 // 🛒 הוסף מוצר
-                StickyButton(
-                  color: kStickyYellow,
-                  label: AppStrings.listDetails.addProductButton,
-                  icon: Icons.shopping_basket,
-                  onPressed: () {
-                    _fabController.reverse().then((_) {
-                      _fabController.forward();
-                    });
-                    _showItemDialog(context);
-                  },
+                Flexible(
+                  child: StickyButton(
+                    color: kStickyYellow,
+                    label: AppStrings.listDetails.addProductButton,
+                    icon: Icons.shopping_basket,
+                    onPressed: () {
+                      _fabController.reverse().then((_) {
+                        _fabController.forward();
+                      });
+                      _showItemDialog(context);
+                    },
+                  ),
                 ),
               ],
             ),
@@ -686,10 +694,11 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
             const SizedBox(height: kSpacingMedium),
 
-            // 🏷️ גריד קטגוריות
-            _buildCategoryGrid(),
-
-            const SizedBox(height: kSpacingSmall),
+            // 🏷️ גריד קטגוריות - רק בסופרמרקט!
+            if (widget.list.type == ShoppingList.typeSupermarket) ...[
+              _buildCategoryGrid(),
+              const SizedBox(height: kSpacingSmall),
+            ],
 
             // 📊 שורת מיון ומונה
             Row(

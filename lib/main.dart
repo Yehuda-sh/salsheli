@@ -330,6 +330,17 @@ class _MyAppState extends State<MyApp> {
               return MaterialPageRoute(builder: (_) => ShoppingListDetailsScreen(list: list));
             }
 
+            // populate-list - receives ShoppingList object (alias for list-details)
+            if (settings.name == '/populate-list') {
+              final list = settings.arguments as ShoppingList?;
+              if (list == null) {
+                return MaterialPageRoute(
+                  builder: (_) => const Scaffold(body: Center(child: Text('List not found'))),
+                );
+              }
+              return MaterialPageRoute(builder: (_) => ShoppingListDetailsScreen(list: list));
+            }
+
             return null;
           },
         );

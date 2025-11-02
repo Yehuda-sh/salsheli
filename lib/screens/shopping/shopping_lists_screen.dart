@@ -84,7 +84,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            tooltip: "רענן",
+            tooltip: 'רענן',
             onPressed: () {
               debugPrint('🔄 רענון ידני');
               provider.loadLists();
@@ -134,16 +134,16 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
     );
   }
 
-  /// 🔍 סעיף חיפוש וסינון
+  /// 🔍 סעיף חיפוש וסינון - גרסה קומפקטית
   Widget _buildFiltersSection() {
     return Padding(
-      padding: const EdgeInsets.all(kSpacingMedium),
+      padding: const EdgeInsets.all(kSpacingSmall),
       child: StickyNote(
         color: kStickyCyan,
-        rotation: -0.02,
+        rotation: -0.015,
         child: Column(
           children: [
-            // 🔍 שורת חיפוש
+            // 🔍 שורת חיפוש קומפקטית
             Consumer<ShoppingListsProvider>(
               builder: (context, provider, _) {
                 final activeLists = _getFilteredAndSortedActiveLists(provider.lists);
@@ -152,21 +152,28 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
                 final hasFilters = _searchQuery.isNotEmpty || _selectedType != 'all';
 
                 return TextField(
+                  style: const TextStyle(fontSize: kFontSizeSmall),
                   decoration: InputDecoration(
                     hintText: 'חפש רשימה...',
-                    prefixIcon: const Icon(Icons.search),
+                    hintStyle: const TextStyle(fontSize: kFontSizeSmall),
+                    prefixIcon: const Icon(Icons.search, size: kIconSizeSmall),
                     suffixIcon: _searchQuery.isNotEmpty
                         ? IconButton(
-                            icon: const Icon(Icons.clear),
-                            iconSize: kIconSizeMedium,
-                            constraints: const BoxConstraints(minWidth: kMinTouchTarget, minHeight: kMinTouchTarget),
+                            icon: const Icon(Icons.clear, size: kIconSizeSmall),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
                             onPressed: () => setState(() => _searchQuery = ''),
                           )
                         : null,
-                    helperText: hasFilters && provider.lists.isNotEmpty ? 'נמצאו $filteredCount רשימות' : null,
-                    helperStyle: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.w500),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(kBorderRadius)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kInputPadding),
+                    helperText: hasFilters && provider.lists.isNotEmpty ? 'נמצאו $filteredCount' : null,
+                    helperStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w500,
+                      fontSize: kFontSizeTiny,
+                    ),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingSmall),
+                    isDense: true,
                   ),
                   onChanged: (value) => setState(() => _searchQuery = value),
                 );
@@ -175,14 +182,14 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
 
             const SizedBox(height: kSpacingSmall),
 
-            // 🏷️ סינון ומיון
+            // 🏷️ סינון ומיון - שורה אחת קומפקטית
             Row(
               children: [
                 // סינון לפי סוג
-                Expanded(child: _buildTypeFilter()),
+                Expanded(child: _buildCompactTypeFilter()),
                 const SizedBox(width: kSpacingSmall),
                 // מיון
-                Expanded(child: _buildSortButton()),
+                Expanded(child: _buildCompactSortButton()),
               ],
             ),
           ],
@@ -191,44 +198,41 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
     );
   }
 
-  /// 🏷️ Dropdown לסינון לפי סוג
-  Widget _buildTypeFilter() {
-    // 📋 Map של types עם אייקונים ושמות
+  /// 🏷️ Dropdown קומפקטי לסינון לפי סוג
+  Widget _buildCompactTypeFilter() {
+    // 📋 Map של types עם אייקונים
     final listTypes = {
-      ShoppingList.typeSupermarket: {'icon': '🛒', 'name': 'סופרמרקט'},
-      ShoppingList.typePharmacy: {'icon': '💊', 'name': 'בית מרקחת'},
-      ShoppingList.typeGreengrocer: {'icon': '🥬', 'name': 'ירקן'},
-      ShoppingList.typeButcher: {'icon': '🥩', 'name': 'אטליז'},
-      ShoppingList.typeBakery: {'icon': '🍞', 'name': 'מאפייה'},
-      ShoppingList.typeMarket: {'icon': '🏪', 'name': 'שוק'},
-      ShoppingList.typeHousehold: {'icon': '🏠', 'name': 'כלי בית'},
-      ShoppingList.typeOther: {'icon': '➕', 'name': 'אחר'},
+      ShoppingList.typeSupermarket: '🛒',
+      ShoppingList.typePharmacy: '💊',
+      ShoppingList.typeGreengrocer: '🥬',
+      ShoppingList.typeButcher: '🥩',
+      ShoppingList.typeBakery: '🍞',
+      ShoppingList.typeMarket: '🏪',
+      ShoppingList.typeHousehold: '🏠',
+      ShoppingList.typeOther: '➕',
     };
 
     return Container(
+      height: 36,
       padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.7),
         border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3)),
-        borderRadius: BorderRadius.circular(kBorderRadius),
+        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: _selectedType,
           isExpanded: true,
-          icon: const Icon(Icons.filter_list, size: kIconSizeMedium),
+          isDense: true,
+          icon: const Icon(Icons.filter_list, size: kIconSizeSmall),
+          style: const TextStyle(fontSize: kFontSizeSmall, color: Colors.black87),
           items: [
             const DropdownMenuItem(value: 'all', child: Text('כל הסוגים')),
             ...listTypes.entries.map((entry) {
               return DropdownMenuItem(
                 value: entry.key,
-                child: Row(
-                  children: [
-                    Text(entry.value['icon']!),
-                    const SizedBox(width: kSpacingSmall),
-                    Text(entry.value['name']!),
-                  ],
-                ),
+                child: Text('${entry.value} ${_getTypeShortName(entry.key)}'),
               );
             }),
           ],
@@ -243,116 +247,85 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
     );
   }
 
-  /// 📊 כפתור מיון
-  Widget _buildSortButton() {
+  /// קיצור שמות הסוגים
+  String _getTypeShortName(String type) {
+    switch (type) {
+      case ShoppingList.typeSupermarket:
+        return 'סופר';
+      case ShoppingList.typePharmacy:
+        return 'מרקחת';
+      case ShoppingList.typeGreengrocer:
+        return 'ירקן';
+      case ShoppingList.typeButcher:
+        return 'אטליז';
+      case ShoppingList.typeBakery:
+        return 'מאפייה';
+      case ShoppingList.typeMarket:
+        return 'שוק';
+      case ShoppingList.typeHousehold:
+        return 'בית';
+      case ShoppingList.typeOther:
+      default:
+        return 'אחר';
+    }
+  }
+
+  /// 📊 כפתור מיון קומפקטי
+  Widget _buildCompactSortButton() {
     return PopupMenuButton<String>(
       padding: EdgeInsets.zero,
       child: Container(
-        height: kMinTouchTarget,
+        height: 36,
         padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.7),
           border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3)),
-          borderRadius: BorderRadius.circular(kBorderRadius),
+          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(_getSortIcon(), size: kIconSizeMedium),
+            Icon(_getSortIcon(), size: kIconSizeSmall),
             const SizedBox(width: kSpacingTiny),
-            const Text('מיין'),
+            const Text('מיין', style: TextStyle(fontSize: kFontSizeSmall)),
           ],
         ),
       ),
       itemBuilder: (context) => [
-        PopupMenuItem(
-          value: 'date_desc',
-          child: Row(
-            children: [
-              Icon(
-                Icons.arrow_downward,
-                size: kIconSizeSmall,
-                color: _sortBy == 'date_desc' ? Theme.of(context).colorScheme.primary : null,
-              ),
-              const SizedBox(width: kSpacingSmall),
-              Text(
-                'תאריך (חדש→ישן)',
-                style: TextStyle(fontWeight: _sortBy == 'date_desc' ? FontWeight.bold : FontWeight.normal),
-              ),
-            ],
-          ),
-        ),
-        PopupMenuItem(
-          value: 'date_asc',
-          child: Row(
-            children: [
-              Icon(
-                Icons.arrow_upward,
-                size: kIconSizeSmall,
-                color: _sortBy == 'date_asc' ? Theme.of(context).colorScheme.primary : null,
-              ),
-              const SizedBox(width: kSpacingSmall),
-              Text(
-                'תאריך (ישן→חדש)',
-                style: TextStyle(fontWeight: _sortBy == 'date_asc' ? FontWeight.bold : FontWeight.normal),
-              ),
-            ],
-          ),
-        ),
-        PopupMenuItem(
-          value: 'name',
-          child: Row(
-            children: [
-              Icon(
-                Icons.sort_by_alpha,
-                size: kIconSizeSmall,
-                color: _sortBy == 'name' ? Theme.of(context).colorScheme.primary : null,
-              ),
-              const SizedBox(width: kSpacingSmall),
-              Text('שם (א-ת)', style: TextStyle(fontWeight: _sortBy == 'name' ? FontWeight.bold : FontWeight.normal)),
-            ],
-          ),
-        ),
-        PopupMenuItem(
-          value: 'budget_desc',
-          child: Row(
-            children: [
-              Icon(
-                Icons.arrow_downward,
-                size: kIconSizeSmall,
-                color: _sortBy == 'budget_desc' ? Theme.of(context).colorScheme.primary : null,
-              ),
-              const SizedBox(width: kSpacingSmall),
-              Text(
-                'תקציב (גבוה→נמוך)',
-                style: TextStyle(fontWeight: _sortBy == 'budget_desc' ? FontWeight.bold : FontWeight.normal),
-              ),
-            ],
-          ),
-        ),
-        PopupMenuItem(
-          value: 'budget_asc',
-          child: Row(
-            children: [
-              Icon(
-                Icons.arrow_upward,
-                size: kIconSizeSmall,
-                color: _sortBy == 'budget_asc' ? Theme.of(context).colorScheme.primary : null,
-              ),
-              const SizedBox(width: kSpacingSmall),
-              Text(
-                'תקציב (נמוך→גבוה)',
-                style: TextStyle(fontWeight: _sortBy == 'budget_asc' ? FontWeight.bold : FontWeight.normal),
-              ),
-            ],
-          ),
-        ),
+        _buildCompactSortMenuItem('date_desc', 'חדש→ישן', Icons.arrow_downward),
+        _buildCompactSortMenuItem('date_asc', 'ישן→חדש', Icons.arrow_upward),
+        _buildCompactSortMenuItem('name', 'א-ת', Icons.sort_by_alpha),
       ],
       onSelected: (value) {
         debugPrint('📊 מיון לפי: $value');
         setState(() => _sortBy = value);
       },
+    );
+  }
+
+  /// פריט תפריט מיון קומפקטי
+  PopupMenuItem<String> _buildCompactSortMenuItem(String value, String label, IconData icon) {
+    return PopupMenuItem(
+      value: value,
+      height: 36,
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            size: kIconSizeSmall,
+            color: _sortBy == value ? Theme.of(context).colorScheme.primary : null,
+          ),
+          const SizedBox(width: kSpacingSmall),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: kFontSizeSmall,
+              fontWeight: _sortBy == value ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -486,15 +459,14 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
 
               debugPrint('   ✅ רשימה נוצרה: ${newList.id}');
 
-              // ✅ סגור דיאלוג לפני ניווט
-              if (mounted) {
-                Navigator.of(dialogContext, rootNavigator: true).pop();
-              }
-
+              // ✅ בדיקת mounted לפני שימוש ב-context
               if (!mounted) {
-                debugPrint('   ⚠️ widget לא mounted - מדלג על ניווט');
+                debugPrint('   ⚠️ widget לא mounted - מדלג');
                 return;
               }
+
+              // סגור דיאלוג
+              Navigator.of(dialogContext, rootNavigator: true).pop();
 
               debugPrint('   ➡️ ניווט ל-populate-list');
               await navigator.pushNamed('/populate-list', arguments: newList);
@@ -535,7 +507,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
 
   /// 🔍 סינון ומיון רשימות פעילות
   List<ShoppingList> _getFilteredAndSortedActiveLists(List<ShoppingList> lists) {
-    var filtered = lists.where((list) {
+    final filtered = lists.where((list) {
       // רק פעילות
       if (list.status != ShoppingList.statusActive) return false;
 
@@ -562,7 +534,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
 
   /// 🔍 סינון ומיון רשימות היסטוריה
   List<ShoppingList> _getFilteredAndSortedCompletedLists(List<ShoppingList> lists) {
-    var filtered = lists.where((list) {
+    final filtered = lists.where((list) {
       // רק הושלמו
       if (list.status != ShoppingList.statusCompleted) return false;
 
@@ -855,7 +827,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
             ),
             const SizedBox(height: kSpacingLarge),
             const Text(
-              "לא נמצאו רשימות",
+              'לא נמצאו רשימות',
               style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: kSpacingSmall),
@@ -929,19 +901,19 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
                   child: Column(
                     children: [
                       Text(
-                        "אין רשימות קניות",
+                      'אין רשימות קניות',
                         style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: kSpacingSmall),
                       Text(
-                        "לחץ על הכפתור מטה ליצירת",
+                        'לחץ על הכפתור מטה ליצירת',
                         textAlign: TextAlign.center,
                         style: Theme.of(
                           context,
                         ).textTheme.bodyLarge?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                       Text(
-                        "הרשימה הראשונה שלך!",
+                        'הרשימה הראשונה שלך!',
                         textAlign: TextAlign.center,
                         style: Theme.of(
                           context,
@@ -964,7 +936,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
             ),
             const SizedBox(height: kSpacingLarge),
             Text(
-              "או סרוק קבלה במסך הקבלות",
+              'או סרוק קבלה במסך הקבלות',
               textAlign: TextAlign.center,
               style: Theme.of(
                 context,
