@@ -117,21 +117,12 @@ class ActiveShopper {
 
   /// 🇮🇱 יצירה מ-JSON
   /// 🇬🇧 Create from JSON
-  factory ActiveShopper.fromJson(Map<String, dynamic> json) {
-    if (kDebugMode) {
-      debugPrint('📥 ActiveShopper.fromJson: userId=${json['user_id']}, isStarter=${json['is_starter']}');
-    }
-    return _$ActiveShopperFromJson(json);
-  }
+  factory ActiveShopper.fromJson(Map<String, dynamic> json) =>
+      _$ActiveShopperFromJson(json);
 
   /// 🇮🇱 המרה ל-JSON
   /// 🇬🇧 Convert to JSON
-  Map<String, dynamic> toJson() {
-    if (kDebugMode) {
-      debugPrint('📤 ActiveShopper.toJson: userId=$userId, isStarter=$isStarter, isActive=$isActive');
-    }
-    return _$ActiveShopperToJson(this);
-  }
+  Map<String, dynamic> toJson() => _$ActiveShopperToJson(this);
 
   @override
   String toString() => 'ActiveShopper(userId: $userId, isStarter: $isStarter, isActive: $isActive)';
