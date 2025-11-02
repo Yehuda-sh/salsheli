@@ -47,6 +47,7 @@
 //    - loadMore(): למשתמש שרוצה scroll אינסופי
 
 import 'package:flutter/foundation.dart';
+import '../repositories/local_products_repository.dart';
 import '../repositories/products_repository.dart';
 import '../services/list_type_filter_service.dart';
 import 'user_context.dart';
@@ -222,6 +223,7 @@ class ProductsProvider with ChangeNotifier {
     if (_isLoading) return;
 
     debugPrint('📥 ProductsProvider.loadProducts() - טעינה ראשונית ($_batchSize מוצרים)...');
+    debugPrint('   🎯 list_type: $_selectedListType');
     _isLoading = true;
     _errorMessage = null;
     _products.clear(); // נקה מוצרים קודמים
@@ -229,14 +231,11 @@ class ProductsProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      // ⚡ אופטימיזציה: טוען קטגוריות ומוצרים הראשונים במקביל
-      final results = await Future.wait([
-        _repository.getAllProducts(limit: _batchSize), // רק 100 ראשונים!
-        _repository.getCategories(),
-      ]);
+      // ⚡ טוען מוצרים ראשונים
+      final initialProducts = await _loadProductsByTypeOrAll(limit: _batchSize);
       
-      final initialProducts = results[0] as List<Map<String, dynamic>>;
-      _categories = results[1] as List<String>;
+      // 🏷️ חלץ קטגוריות מהמוצרים שנטענו (לא מה-cache המלא!)
+      _categories = _extractCategories(initialProducts);
       
       _products = initialProducts;
       _hasLoadedAll = initialProducts.length < _batchSize; // אם קיבלנו פחות מ-100, סיימנו
@@ -283,7 +282,7 @@ class ProductsProvider with ChangeNotifier {
         await Future.delayed(const Duration(milliseconds: 50));
         
         // טען עוד מוצרים
-        final moreProducts = await _repository.getAllProducts(
+        final moreProducts = await _loadProductsByTypeOrAll(
           limit: step,
           offset: loadedCount,
         );
@@ -294,6 +293,9 @@ class ProductsProvider with ChangeNotifier {
         
         _products.addAll(moreProducts);
         loadedCount += moreProducts.length;
+        
+        // 🏷️ עדכן קטגוריות מכל המוצרים שנטענו עד כה
+        _categories = _extractCategories(_products);
         
         // עדכן UI כל 200 מוצרים
         notifyListeners();
@@ -322,7 +324,7 @@ class ProductsProvider with ChangeNotifier {
 
     try {
       final currentCount = _products.length;
-      final moreProducts = await _repository.getAllProducts(
+      final moreProducts = await _loadProductsByTypeOrAll(
         limit: _batchSize,
         offset: currentCount,
       );
@@ -343,6 +345,51 @@ class ProductsProvider with ChangeNotifier {
     }
   }
 
+  /// 🏷️ חולץ קטגוריות מרשימת מוצרים
+  List<String> _extractCategories(List<Map<String, dynamic>> products) {
+    final categoriesSet = <String>{};
+    
+    for (final product in products) {
+      final category = product['category'] as String?;
+      if (category != null && category.isNotEmpty) {
+        categoriesSet.add(category);
+      }
+    }
+    
+    final result = categoriesSet.toList()..sort();
+    debugPrint('🏷️ חולצו ${result.length} קטגוריות: $result');
+    return result;
+  }
+
+  /// 📥 טוען מוצרים לפי list_type או כולם
+  /// 
+  /// אם יש _selectedListType ו-Repository הוא LocalProductsRepository:
+  /// → קורא ל-getProductsByListType() (טוען קובץ JSON ספציפי)
+  /// אחרת:
+  /// → קורא ל-getAllProducts() (טוען מ-supermarket)
+  Future<List<Map<String, dynamic>>> _loadProductsByTypeOrAll({
+    int? limit,
+    int? offset,
+  }) async {
+    // אם יש list_type נבחר ו-Repository תומך ב-getProductsByListType
+    if (_selectedListType != null && _repository is LocalProductsRepository) {
+      final localRepo = _repository as LocalProductsRepository;
+      debugPrint('   🎯 טוען מוצרים לפי list_type: $_selectedListType');
+      return await localRepo.getProductsByListType(
+        _selectedListType!,
+        limit: limit,
+        offset: offset,
+      );
+    }
+
+    // אחרת - טען הכל (מ-supermarket או Firebase)
+    debugPrint('   📦 טוען כל המוצרים (supermarket)');
+    return await _repository.getAllProducts(
+      limit: limit,
+      offset: offset,
+    );
+  }
+
   // === Refresh Products (עדכון מחירים) ===
   Future<void> refreshProducts({bool force = false}) async {
     if (_isRefreshing) return;
@@ -354,8 +401,11 @@ class ProductsProvider with ChangeNotifier {
 
     try {
       await _repository.refreshProducts(force: force);
-      _products = await _repository.getAllProducts();
-      _categories = await _repository.getCategories();
+      _products = await _loadProductsByTypeOrAll();
+      
+      // 🏷️ חלץ קטגוריות מהמוצרים שנטענו
+      _categories = _extractCategories(_products);
+      
       _lastUpdated = DateTime.now();
       _errorMessage = null;
 
@@ -400,7 +450,9 @@ class ProductsProvider with ChangeNotifier {
     debugPrint('🎯 ProductsProvider.setListType("$listType")');
     _selectedListType = listType;
     _selectedCategory = null;
-    notifyListeners();
+    
+    // 🔄 טען מחדש מוצרים מהקובץ החדש!
+    loadProducts();
   }
 
   void clearListType({bool notify = true}) {
@@ -429,11 +481,8 @@ class ProductsProvider with ChangeNotifier {
   List<Map<String, dynamic>> _getFilteredProducts() {
     var filtered = List<Map<String, dynamic>>.from(_products);
 
-    // Filter by list type (using ListTypeFilterService)
-    if (_selectedListType != null) {
-      final listType = ListTypeFilterService.fromString(_selectedListType!);
-      filtered = ListTypeFilterService.filterProductsByListType(filtered, listType);
-    }
+    // ⚠️ אין צורך בסינון לפי list_type - המוצרים כבר נטענו מהקובץ הנכון!
+    // (pharmacy.json, bakery.json וכו')
 
     // Filter by category
     if (_selectedCategory != null) {

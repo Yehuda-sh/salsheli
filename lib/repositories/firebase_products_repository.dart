@@ -43,8 +43,9 @@
 //     - LocalProductsRepository (current implementation)
 //     - scripts/upload_to_firebase.js (upload script)
 
-import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
+
 import 'constants/repository_constants.dart';
 import 'products_repository.dart';
 
@@ -384,6 +385,33 @@ class FirebaseProductsRepository implements ProductsRepository {
       _lastCacheUpdate = null;
     }
     await getAllProducts();
+  }
+
+  /// טוען מוצרים לפי סוג רשימה (list_type)
+  /// 
+  /// Parameters:
+  ///   - [listType]: סוג הרשימה (supermarket, pharmacy, greengrocer, וכו')
+  ///   - [limit]: מספר מקסימלי של מוצרים
+  ///   - [offset]: כמה מוצרים לדלג (pagination)
+  /// 
+  /// Returns: רשימת מוצרים מסוננת לפי סוג הרשימה
+  /// 
+  /// Note: ב-Firebase אין שדה list_type, אז נסנן לפי category
+  ///       (בדומה ל-LocalProductsRepository)
+  /// 
+  /// Example:
+  /// ```dart
+  /// final bakeryProducts = await repo.getProductsByListType('bakery');
+  /// ```
+  @override
+  Future<List<Map<String, dynamic>>> getProductsByListType(
+    String listType, {
+    int? limit,
+    int? offset,
+  }) async {
+    // ⚠️ Firebase לא מחלק לפי list_type, אז נחזיר את כל המוצרים
+    // (הסינון יתבצע ב-ListTypeFilterService)
+    return getAllProducts(limit: limit, offset: offset);
   }
 
   /// ניקוי ה-cache המקומי

@@ -49,6 +49,10 @@ class UnifiedListItem {
   /// הערות (אופציונלי)
   final String? notes;
 
+  /// 🖼️ קישור לתמונת המוצר (אופציונלי)
+  @JsonKey(name: 'image_url')
+  final String? imageUrl;
+
   /// 🆕 שדות ייחודיים למוצרים (Map)
   /// quantity, unitPrice, barcode, unit
   final Map<String, dynamic>? productData;
@@ -72,6 +76,7 @@ class UnifiedListItem {
     this.isChecked = false,
     this.category,
     this.notes,
+    this.imageUrl,
     this.productData,
     this.taskData,
     this.checkedBy,
@@ -149,6 +154,7 @@ class UnifiedListItem {
     bool isChecked = false,
     String? category,
     String? notes,
+    String? imageUrl,
     String? checkedBy,
     String? checkedAt,
   }) {
@@ -159,6 +165,7 @@ class UnifiedListItem {
       isChecked: isChecked,
       category: category,
       notes: notes,
+      imageUrl: imageUrl,
       productData: {
         'quantity': quantity,
         'unitPrice': unitPrice,
@@ -182,6 +189,7 @@ class UnifiedListItem {
     bool isChecked = false,
     String? category,
     String? notes,
+    String? imageUrl,
     String? checkedBy,
     String? checkedAt,
   }) {
@@ -192,6 +200,7 @@ class UnifiedListItem {
       isChecked: isChecked,
       category: category,
       notes: notes,
+      imageUrl: imageUrl,
       productData: null,
       taskData: {
         if (dueDate != null) 'dueDate': dueDate.toIso8601String(),
@@ -237,6 +246,7 @@ class UnifiedListItem {
       unit: data['unit'] as String? ?? 'יח\'',
       category: data['category'] as String?,
       notes: data['notes'] as String?,
+      imageUrl: data['imageUrl'] as String?,
     );
   }
 
@@ -276,6 +286,7 @@ class UnifiedListItem {
     bool? isChecked,
     String? category,
     String? notes,
+    String? imageUrl,
     Map<String, dynamic>? productData,
     Map<String, dynamic>? taskData,
     String? checkedBy,
@@ -288,6 +299,7 @@ class UnifiedListItem {
       isChecked: isChecked ?? this.isChecked,
       category: category ?? this.category,
       notes: notes ?? this.notes,
+      imageUrl: imageUrl ?? this.imageUrl,
       productData: productData ?? this.productData,
       taskData: taskData ?? this.taskData,
       checkedBy: checkedBy ?? this.checkedBy,

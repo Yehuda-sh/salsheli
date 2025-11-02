@@ -40,8 +40,8 @@ import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/pending_requests_section.dart';
 import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/sticky_note.dart';
-import '../lists/share_list_screen.dart';
 import '../../widgets/shopping/product_selection_bottom_sheet.dart';
+import '../lists/share_list_screen.dart';
 
 class ShoppingListDetailsScreen extends StatefulWidget {
   final ShoppingList list;
@@ -518,10 +518,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     final theme = Theme.of(context);
     final allItems = currentList.items;
     final filteredItems = _getFilteredAndSortedItems(allItems);
-    // 💰 חישוב סה"כ - רק מוצרים (Products)
-    final totalAmount = allItems
-        .where((item) => item.type == ItemType.product)
-        .fold(0.0, (sum, item) => sum + (item.totalPrice ?? 0.0));
 
     // 🎬 FAB Animation
     final fabAnimation = CurvedAnimation(parent: _fabController, curve: Curves.elasticOut);
@@ -1068,7 +1064,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     );
   }
 
-  /// 🎴 כרטיס פריט מונפש - קומפקטי
+  /// 🎴 כרטיס פריט מונפש - עם תמונה
   Widget _buildItemCard(UnifiedListItem item, int index, ThemeData theme, Color stickyColor, double rotation) {
     // 🎯 איקונים וצבעים לפי סוג
     final isProduct = item.type == ItemType.product;
@@ -1110,13 +1106,18 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
         rotation: rotation,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
+          padding: const EdgeInsets.all(kSpacingMedium),
           decoration: BoxDecoration(
             color: item.isChecked ? theme.colorScheme.surfaceContainerHighest : theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(kBorderRadius),
           ),
           child: Row(
             children: [
+              // 🖼️ תמונת מוצר
+              _buildProductImage(item, theme),
+              
+              const SizedBox(width: kSpacingMedium),
+
               // ✅ Checkbox
               AnimatedSwitcher(
               duration: const Duration(milliseconds: 200),
@@ -1147,7 +1148,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
               const SizedBox(width: kSpacingSmall),
 
-              // 📝 שם + קטגוריה
+              // 📝 שם + קטגוריה + מחיר
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1160,11 +1161,39 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                         color: item.isChecked ? theme.colorScheme.onSurfaceVariant : theme.colorScheme.onSurface,
                         fontWeight: FontWeight.w600,
                       ),
-                      child: Text(item.name ?? 'ללא שם', maxLines: 1, overflow: TextOverflow.ellipsis),
+                      child: Text(item.name ?? 'ללא שם', maxLines: 2, overflow: TextOverflow.ellipsis),
                     ),
-                    Text(
-                      '$categoryEmoji ${isProduct ? AppStrings.listDetails.quantityDisplay(item.quantity ?? 1) : AppStrings.listDetails.taskLabel}',
-                      style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Text(
+                          categoryEmoji,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          isProduct ? AppStrings.listDetails.quantityDisplay(item.quantity ?? 1) : AppStrings.listDetails.taskLabel,
+                          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                        ),
+                        if (isProduct && item.unitPrice != null && item.unitPrice! > 0) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.green.shade100,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              '₪${item.unitPrice!.toStringAsFixed(2)}',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green.shade700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ],
                 ),
@@ -1205,45 +1234,73 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     );
   }
 
-  /// 💰 סכום כולל מונפש
-  Widget _buildAnimatedTotal(double totalAmount, ThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.all(kSpacingMedium),
-      child: StickyNote(
-        color: kStickyGreen,
-        rotation: 0.015,
-        child: Padding(
-          padding: const EdgeInsets.all(kSpacingMedium),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Icon(Icons.account_balance_wallet, color: Colors.green.shade700),
-                  const SizedBox(width: kSpacingSmall),
-                  Text(AppStrings.listDetails.totalLabel, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-                ],
-              ),
-              TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0.0, end: totalAmount),
-                duration: const Duration(milliseconds: 500),
-                curve: Curves.easeOut,
-                builder: (context, value, child) {
-                  return Text(
-                    NumberFormat.simpleCurrency(locale: 'he_IL').format(value),
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green.shade700,
+  /// 🖼️ בניית תמונת מוצר עם placeholder
+  Widget _buildProductImage(UnifiedListItem item, ThemeData theme) {
+    final hasImage = item.imageUrl != null && item.imageUrl!.isNotEmpty;
+    final isProduct = item.type == ItemType.product;
+
+    return Container(
+      width: 60,
+      height: 60,
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(kBorderRadius),
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(kBorderRadius - 1),
+        child: hasImage
+            ? Image.network(
+                item.imageUrl!,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                            : null,
+                        strokeWidth: 2,
+                      ),
                     ),
                   );
                 },
-              ),
-            ],
-          ),
-        ),
+                errorBuilder: (context, error, stackTrace) {
+                  return _buildPlaceholderIcon(isProduct, theme);
+                },
+              )
+            : _buildPlaceholderIcon(isProduct, theme),
       ),
     );
   }
+
+  /// 🎨 אייקון placeholder כשאין תמונה
+  Widget _buildPlaceholderIcon(bool isProduct, ThemeData theme) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isProduct
+              ? [Colors.amber.shade100, Colors.amber.shade200]
+              : [Colors.blue.shade100, Colors.blue.shade200],
+        ),
+      ),
+      child: Icon(
+        isProduct ? Icons.shopping_bag : Icons.task_alt,
+        color: isProduct ? Colors.amber.shade700 : Colors.blue.shade700,
+        size: 32,
+      ),
+    );
+  }
+
+
 
   /// 📭 תוצאות חיפוש ריקות
   Widget _buildEmptySearchResults() {
