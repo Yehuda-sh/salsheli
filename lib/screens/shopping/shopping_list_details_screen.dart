@@ -33,6 +33,7 @@ import '../../models/enums/item_type.dart';
 import '../../providers/shopping_lists_provider.dart';
 
 import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
 import '../../widgets/common/animated_button.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_note.dart';
@@ -58,17 +59,17 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   String? _selectedCategory; // קטגוריה נבחרת לסינון
 
   // 🏷️ קטגוריות עם אימוג'י
-  final Map<String, String> _categoryEmojis = {
-    'הכל': '📦',
-    'ירקות ופירות': '🥬',
-    'בשר ודגים': '🍖',
-    'חלב וביצים': '🥛',
-    'לחם ומאפים': '🍞',
-    'שימורים': '🥫',
-    'קפואים': '❄️',
-    'ניקיון': '🧽',
-    'היגיינה': '🚿',
-    'אחר': '📋',
+  Map<String, String> get _categoryEmojis => {
+    AppStrings.listDetails.categoryAll: '📦',
+    AppStrings.listDetails.categoryVegetables: '🥬',
+    AppStrings.listDetails.categoryMeat: '🍖',
+    AppStrings.listDetails.categoryDairy: '🥛',
+    AppStrings.listDetails.categoryBakery: '🍞',
+    AppStrings.listDetails.categoryCanned: '🥫',
+    AppStrings.listDetails.categoryFrozen: '❄️',
+    AppStrings.listDetails.categoryCleaning: '🧽',
+    AppStrings.listDetails.categoryHygiene: '🚿',
+    AppStrings.listDetails.categoryOther: '📋',
   };
 
   // 🎬 Animation Controllers
@@ -138,7 +139,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _errorMessage = 'שגיאה בטעינת הנתונים';
+          _errorMessage = AppStrings.listDetails.loadingError;
         });
         debugPrint('❌ ShoppingListDetailsScreen: שגיאה בטעינה - $e');
       }
@@ -178,26 +179,26 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
           child: FadeTransition(
             opacity: animation,
             child: AlertDialog(
-              title: Text(item == null ? "הוספת מוצר" : "עריכת מוצר"),
+              title: Text(item == null ? AppStrings.listDetails.addProductTitle : AppStrings.listDetails.editProductTitle),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
                     controller: nameController,
-                    decoration: const InputDecoration(labelText: "שם מוצר"),
+                    decoration: InputDecoration(labelText: AppStrings.listDetails.productNameLabel),
                     textDirection: ui.TextDirection.rtl,
                   ),
                   const SizedBox(height: kSpacingSmall),
                   TextField(
                     controller: quantityController,
-                    decoration: const InputDecoration(labelText: "כמות"),
+                    decoration: InputDecoration(labelText: AppStrings.listDetails.quantityLabel),
                     keyboardType: TextInputType.number,
                     textDirection: ui.TextDirection.rtl,
                   ),
                   const SizedBox(height: kSpacingSmall),
                   TextField(
                     controller: priceController,
-                    decoration: const InputDecoration(labelText: "מחיר ליחידה"),
+                    decoration: InputDecoration(labelText: AppStrings.listDetails.priceLabel),
                     keyboardType: TextInputType.number,
                     textDirection: ui.TextDirection.rtl,
                   ),
@@ -210,7 +211,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                     disposeControllers();
                     Navigator.pop(context);
                   },
-                  child: const Text("ביטול"),
+                  child: Text(AppStrings.common.cancel),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -221,7 +222,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                     // ✅ Validation מלא
                     if (name.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('שם המוצר לא יכול להיות ריק'), backgroundColor: Colors.red),
+                        SnackBar(content: Text(AppStrings.listDetails.productNameEmpty), backgroundColor: Colors.red),
                       );
                       return;
                     }
@@ -229,7 +230,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                     final qty = int.tryParse(qtyText);
                     if (qty == null || qty <= 0 || qty > 9999) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('כמות לא תקינה (1-9999)'), backgroundColor: Colors.red),
+                        SnackBar(content: Text(AppStrings.listDetails.quantityInvalid), backgroundColor: Colors.red),
                       );
                       return;
                     }
@@ -237,8 +238,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                     final unitPrice = double.tryParse(priceText);
                     if (unitPrice == null || unitPrice < 0) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('מחיר לא תקין (חייב להיות מספר חיובי)'),
+                        SnackBar(
+                          content: Text(AppStrings.listDetails.priceInvalid),
                           backgroundColor: Colors.red,
                         ),
                       );
@@ -264,7 +265,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                     disposeControllers();
                     Navigator.pop(context);
                   },
-                  child: const Text("שמירה"),
+                  child: Text(AppStrings.common.save),
                 ),
               ],
             ),
@@ -309,20 +310,20 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
               child: FadeTransition(
                 opacity: animation,
                 child: AlertDialog(
-                  title: Text(item == null ? "הוספת משימה" : "עריכת משימה"),
+                  title: Text(item == null ? AppStrings.listDetails.addTaskTitle : AppStrings.listDetails.editTaskTitle),
                   content: SingleChildScrollView(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         TextField(
                           controller: nameController,
-                          decoration: const InputDecoration(labelText: "שם משימה"),
+                          decoration: InputDecoration(labelText: AppStrings.listDetails.taskNameLabel),
                           textDirection: ui.TextDirection.rtl,
                         ),
                         const SizedBox(height: kSpacingSmall),
                         TextField(
                           controller: notesController,
-                          decoration: const InputDecoration(labelText: "הערות (אופציונלי)"),
+                          decoration: InputDecoration(labelText: AppStrings.listDetails.notesLabel),
                           textDirection: ui.TextDirection.rtl,
                           maxLines: 3,
                         ),
@@ -331,8 +332,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                         ListTile(
                           title: Text(
                             selectedDueDate != null
-                                ? 'תאריך יעד: ${DateFormat('dd/MM/yyyy').format(selectedDueDate!)}'
-                                : 'בחר תאריך יעד (אופציונלי)',
+                                ? AppStrings.listDetails.dueDateSelected(DateFormat('dd/MM/yyyy').format(selectedDueDate!))
+                                : AppStrings.listDetails.dueDateLabel,
                             style: TextStyle(color: selectedDueDate != null ? Colors.green : Colors.grey),
                           ),
                           leading: const Icon(Icons.calendar_today),
@@ -352,11 +353,11 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                         // עדיפות
                         DropdownButtonFormField<String>(
                           value: selectedPriority,
-                          decoration: const InputDecoration(labelText: "עדיפות"),
-                          items: const [
-                            DropdownMenuItem(value: 'low', child: Text('🟢 נמוכה')),
-                            DropdownMenuItem(value: 'medium', child: Text('🟡 בינונית')),
-                            DropdownMenuItem(value: 'high', child: Text('🔴 גבוהה')),
+                          decoration: InputDecoration(labelText: AppStrings.listDetails.priorityLabel),
+                          items: [
+                            DropdownMenuItem(value: 'low', child: Text(AppStrings.listDetails.priorityLow)),
+                            DropdownMenuItem(value: 'medium', child: Text(AppStrings.listDetails.priorityMedium)),
+                            DropdownMenuItem(value: 'high', child: Text(AppStrings.listDetails.priorityHigh)),
                           ],
                           onChanged: (value) {
                             if (value != null) {
@@ -374,7 +375,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                         disposeControllers();
                         Navigator.pop(context);
                       },
-                      child: const Text("ביטול"),
+                      child: Text(AppStrings.common.cancel),
                     ),
                     ElevatedButton(
                       onPressed: () {
@@ -384,7 +385,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                         // ✅ Validation מלא
                         if (name.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('שם המשימה לא יכול להיות ריק'), backgroundColor: Colors.red),
+                          SnackBar(content: Text(AppStrings.listDetails.taskNameEmpty), backgroundColor: Colors.red),
                           );
                           return;
                         }
@@ -409,7 +410,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                         disposeControllers();
                         Navigator.pop(context);
                       },
-                      child: const Text("שמירה"),
+                      child: Text(AppStrings.common.save),
                     ),
                   ],
                 ),
@@ -430,11 +431,11 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('המוצר "${removed.name ?? 'ללא שם'}" נמחק'),
+        content: Text(AppStrings.listDetails.itemDeleted(removed.name ?? 'ללא שם')),
         duration: const Duration(seconds: 5),
         backgroundColor: Colors.red.shade700,
         action: SnackBarAction(
-          label: 'בטל',
+          label: AppStrings.common.cancel,
           textColor: Colors.white,
           onPressed: () {
             provider.addItemToList(
@@ -461,8 +462,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
       }
 
       // סינון לפי קטגוריה
-      if (_selectedCategory != null && _selectedCategory != 'הכל') {
-        final itemCategory = item.category ?? 'אחר';
+      if (_selectedCategory != null && _selectedCategory != AppStrings.listDetails.categoryAll) {
+        final itemCategory = item.category ?? AppStrings.listDetails.categoryOther;
         if (itemCategory != _selectedCategory) return false;
       }
 
@@ -531,7 +532,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
               ).animate(CurvedAnimation(parent: _fabController, curve: Curves.elasticOut)),
               child: IconButton(
                 icon: const Icon(Icons.share),
-                tooltip: 'שתף רשימה',
+                tooltip: AppStrings.listDetails.shareListTooltip,
                 onPressed: () {
                   final navigator = Navigator.of(context);
                   navigator.push(MaterialPageRoute(builder: (context) => ShareListScreen(list: currentList)));
@@ -546,7 +547,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
               ).animate(CurvedAnimation(parent: _fabController, curve: Curves.elasticOut)),
               child: IconButton(
                 icon: const Icon(Icons.library_add),
-                tooltip: 'הוסף מהקטלוג',
+                tooltip: AppStrings.listDetails.addFromCatalogTooltip,
                 onPressed: () => _navigateToPopulateScreen(),
               ),
             ),
@@ -613,7 +614,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                 // 📋 הוסף משימה
                 StickyButton(
                   color: kStickyCyan,
-                  label: 'הוסף משימה',
+                  label: AppStrings.listDetails.addTaskButton,
                   icon: Icons.task_alt,
                   onPressed: () {
                     _fabController.reverse().then((_) {
@@ -626,7 +627,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                 // 🛒 הוסף מוצר
                 StickyButton(
                   color: kStickyYellow,
-                  label: 'הוסף מוצר',
+                  label: AppStrings.listDetails.addProductButton,
                   icon: Icons.shopping_basket,
                   onPressed: () {
                     _fabController.reverse().then((_) {
@@ -656,7 +657,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
             // 🔍 שורת חיפוש
             TextField(
               decoration: InputDecoration(
-                hintText: 'חפש פריט...',
+                hintText: AppStrings.listDetails.searchHint,
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
@@ -698,11 +699,11 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                         key: ValueKey<int>(allItems.length),
                         padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingSmall),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(kBorderRadius),
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(kBorderRadius),
                         ),
                         child: Text(
-                          '📦 ${allItems.length} פריטים',
+                        '📦 ${AppStrings.listDetails.itemsCount(allItems.length)}',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
@@ -736,7 +737,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
             selected: isSelected,
             onSelected: (selected) {
               setState(() {
-                _selectedCategory = entry.key == 'הכל' ? null : entry.key;
+                _selectedCategory = entry.key == AppStrings.listDetails.categoryAll ? null : entry.key;
               });
               debugPrint('🏷️ ShoppingListDetailsScreen: סנן לפי "${entry.key}"');
             },
@@ -765,14 +766,14 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
             children: [
               Icon(_getSortIcon(), size: kIconSizeMedium),
               const SizedBox(width: kSpacingTiny),
-              const Text('מיין'),
+              Text(AppStrings.listDetails.sortButton),
             ],
           ),
         ),
         itemBuilder: (context) => [
-          _buildSortMenuItem('none', 'ללא מיון', Icons.clear),
-          _buildSortMenuItem('price_desc', 'מחיר (יקר→זול)', Icons.arrow_downward),
-          _buildSortMenuItem('checked', 'סטטוס (לא נסומן קודם)', Icons.check_circle_outline),
+          _buildSortMenuItem('none', AppStrings.listDetails.sortNone, Icons.clear),
+          _buildSortMenuItem('price_desc', AppStrings.listDetails.sortPriceDesc, Icons.arrow_downward),
+          _buildSortMenuItem('checked', AppStrings.listDetails.sortStatus, Icons.check_circle_outline),
         ],
         onSelected: (value) {
           setState(() => _sortBy = value);
@@ -916,10 +917,10 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                 children: [
                   Icon(Icons.error_outline, size: kIconSizeXXLarge, color: Colors.red.shade700),
                   const SizedBox(height: kSpacingMedium),
-                  Text('אופס! משהו השתבש', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                  Text(AppStrings.listDetails.errorTitle, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                   const SizedBox(height: kSpacingSmall),
                   Text(
-                    _errorMessage ?? 'אירעה שגיאה בטעינת הנתונים',
+                    AppStrings.listDetails.errorMessage(_errorMessage),
                     style: theme.textTheme.bodyMedium,
                     textAlign: TextAlign.center,
                   ),
@@ -927,7 +928,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                   StickyButton(
                     color: Colors.red.shade100,
                     textColor: Colors.red.shade700,
-                    label: 'נסה שוב',
+                    label: AppStrings.common.retry,
                     icon: Icons.refresh,
                     onPressed: () => _loadData(),
                   ),
@@ -1060,7 +1061,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     final actualColor = isProduct ? kStickyYellow : kStickyCyan;
 
     // קטגוריה עם אימוג'י
-    final category = item.category ?? 'אחר';
+    final category = item.category ?? AppStrings.listDetails.categoryOther;
     final categoryEmoji = _categoryEmojis[category] ?? '📋';
 
     return Dismissible(
@@ -1076,14 +1077,14 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
         return await showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('מחיקת מוצר'),
-            content: Text('האם למחוק את "${item.name ?? 'ללא שם'}"?'),
+          title: Text(AppStrings.listDetails.deleteTitle),
+          content: Text(AppStrings.listDetails.deleteMessage(item.name ?? 'ללא שם')),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('ביטול')),
+            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(AppStrings.common.cancel)),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, true),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-                child: const Text('מחק'),
+                child: Text(AppStrings.common.delete),
               ),
             ],
           ),
@@ -1148,7 +1149,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                       child: Text(item.name ?? 'ללא שם', maxLines: 1, overflow: TextOverflow.ellipsis),
                     ),
                     Text(
-                      '$categoryEmoji ${isProduct ? "כמות: ${item.quantity}" : "משימה"}',
+                      '$categoryEmoji ${isProduct ? AppStrings.listDetails.quantityDisplay(item.quantity ?? 1) : AppStrings.listDetails.taskLabel}',
                       style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                     ),
                   ],
@@ -1160,9 +1161,9 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.edit, size: 18),
-                    color: Colors.blue,
-                    tooltip: "ערוך",
+                  icon: const Icon(Icons.edit, size: 18),
+                  color: Colors.blue,
+                  tooltip: AppStrings.listDetails.editTooltip,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                     onPressed: () {
@@ -1174,9 +1175,9 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                     },
                   ),
                   IconButton(
-                    icon: const Icon(Icons.delete, size: 18),
-                    color: Colors.red,
-                    tooltip: "מחק",
+                  icon: const Icon(Icons.delete, size: 18),
+                  color: Colors.red,
+                  tooltip: AppStrings.listDetails.deleteTooltip,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                     onPressed: () => _deleteItem(context, index, item),
@@ -1206,7 +1207,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                 children: [
                   Icon(Icons.account_balance_wallet, color: Colors.green.shade700),
                   const SizedBox(width: kSpacingSmall),
-                  Text("סה״כ:", style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                  Text(AppStrings.listDetails.totalLabel, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                 ],
               ),
               TweenAnimationBuilder<double>(
@@ -1252,17 +1253,17 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                 children: [
                   Icon(Icons.search_off, size: kIconSizeXXLarge, color: Colors.orange.shade700),
                   const SizedBox(height: kSpacingLarge),
-                  const Text(
-                    "לא נמצאו פריטים",
+                  Text(
+                    AppStrings.listDetails.noSearchResultsTitle,
                     style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: kSpacingSmall),
-                  const Text("נסה לשנות את החיפוש"),
+                  Text(AppStrings.listDetails.noSearchResultsMessage),
                   const SizedBox(height: kSpacingLarge),
                   StickyButtonSmall(
                     color: Colors.orange.shade100,
                     textColor: Colors.orange.shade700,
-                    label: 'נקה חיפוש',
+                    label: AppStrings.listDetails.clearSearchButton,
                     icon: Icons.clear_all,
                     onPressed: () {
                       setState(() => _searchQuery = '');
@@ -1300,15 +1301,15 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                 children: [
                   Icon(Icons.shopping_basket_outlined, size: kIconSizeXXLarge, color: Colors.green.shade700),
                   const SizedBox(height: kSpacingXLarge),
-                  Text('הרשימה ריקה', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+                  Text(AppStrings.listDetails.emptyListTitle, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
                   const SizedBox(height: kSpacingMedium),
-                  const Text('לחץ על "הוסף מוצר" להתחלה', style: TextStyle(fontSize: kFontSizeMedium)),
+                  Text(AppStrings.listDetails.emptyListMessage, style: const TextStyle(fontSize: kFontSizeMedium)),
                   const SizedBox(height: kSpacingSmall),
-                  const Text('או אכלס מהקטלוג:', style: TextStyle(fontSize: kFontSizeSmall)),
+                  Text(AppStrings.listDetails.emptyListSubMessage, style: const TextStyle(fontSize: kFontSizeSmall)),
                   const SizedBox(height: kSpacingLarge),
                   StickyButton(
                     color: kStickyCyan,
-                    label: 'אכלס מהקטלוג',
+                    label: AppStrings.listDetails.populateFromCatalog,
                     icon: Icons.library_add,
                     onPressed: () => _navigateToPopulateScreen(),
                   ),

@@ -131,6 +131,12 @@ class AppStrings {
   // ========================================
 
   static const inventory = _InventoryStrings();
+
+  // ========================================
+  // Shopping List Details
+  // ========================================
+
+  static const listDetails = _ShoppingListDetailsStrings();
 }
 
 // ========================================
@@ -1100,4 +1106,121 @@ class _InventoryStrings {
 
   String get addError => 'שגיאה בהוספת פריט';
   String get updateError => 'שגיאה בעדכון פריט';
+}
+
+// ========================================
+// Shopping List Details Strings
+// ========================================
+
+class _ShoppingListDetailsStrings {
+  const _ShoppingListDetailsStrings();
+
+  // ========================================
+  // Dialogs - Product
+  // ========================================
+
+  String get addProductTitle => 'הוספת מוצר';
+  String get editProductTitle => 'עריכת מוצר';
+  String get productNameLabel => 'שם מוצר';
+  String get quantityLabel => 'כמות';
+  String get priceLabel => 'מחיר ליחידה';
+
+  // ========================================
+  // Dialogs - Task
+  // ========================================
+
+  String get addTaskTitle => 'הוספת משימה';
+  String get editTaskTitle => 'עריכת משימה';
+  String get taskNameLabel => 'שם משימה';
+  String get notesLabel => 'הערות (אופציונלי)';
+  String get dueDateLabel => 'בחר תאריך יעד (אופציונלי)';
+  String dueDateSelected(String date) => 'תאריך יעד: $date';
+  String get priorityLabel => 'עדיפות';
+  String get priorityLow => '🟢 נמוכה';
+  String get priorityMedium => '🟡 בינונית';
+  String get priorityHigh => '🔴 גבוהה';
+
+  // ========================================
+  // Validation Messages
+  // ========================================
+
+  String get productNameEmpty => 'שם המוצר לא יכול להיות ריק';
+  String get quantityInvalid => 'כמות לא תקינה (1-9999)';
+  String get priceInvalid => 'מחיר לא תקין (חייב להיות מספר חיובי)';
+  String get taskNameEmpty => 'שם המשימה לא יכול להיות ריק';
+
+  // ========================================
+  // Search & Filters
+  // ========================================
+
+  String get searchHint => 'חפש פריט...';
+  String get sortButton => 'מיין';
+  String get sortNone => 'ללא מיון';
+  String get sortPriceDesc => 'מחיר (יקר→זול)';
+  String get sortStatus => 'סטטוס (לא נסומן קודם)';
+  String itemsCount(int count) => '$count פריטים';
+
+  // ========================================
+  // Categories with Emoji
+  // ========================================
+
+  String get categoryAll => 'הכל';
+  String get categoryVegetables => 'ירקות ופירות';
+  String get categoryMeat => 'בשר ודגים';
+  String get categoryDairy => 'חלב וביצים';
+  String get categoryBakery => 'לחם ומאפים';
+  String get categoryCanned => 'שימורים';
+  String get categoryFrozen => 'קפואים';
+  String get categoryCleaning => 'ניקיון';
+  String get categoryHygiene => 'היגיינה';
+  String get categoryOther => 'אחר';
+
+  // ========================================
+  // Actions
+  // ========================================
+
+  String get addProductButton => 'הוסף מוצר';
+  String get addTaskButton => 'הוסף משימה';
+  String get shareListTooltip => 'שתף רשימה';
+  String get addFromCatalogTooltip => 'הוסף מהקטלוג';
+  String get searchTooltip => 'חיפוש';
+  String get editTooltip => 'ערוך';
+  String get deleteTooltip => 'מחק';
+
+  // ========================================
+  // Delete Confirmation
+  // ========================================
+
+  String get deleteTitle => 'מחיקת מוצר';
+  String deleteMessage(String name) => 'האם למחוק את "$name"?';
+  String itemDeleted(String name) => 'המוצר "$name" נמחק';
+
+  // ========================================
+  // Item Display
+  // ========================================
+
+  String quantityDisplay(int quantity) => 'כמות: $quantity';
+  String get taskLabel => 'משימה';
+  String get totalLabel => 'סה״כ:';
+
+  // ========================================
+  // Empty States
+  // ========================================
+
+  String get emptyListTitle => 'הרשימה ריקה';
+  String get emptyListMessage => 'לחץ על "הוסף מוצר" להתחלה';
+  String get emptyListSubMessage => 'או אכלס מהקטלוג:';
+  String get populateFromCatalog => 'אכלס מהקטלוג';
+
+  String get noSearchResultsTitle => 'לא נמצאו פריטים';
+  String get noSearchResultsMessage => 'נסה לשנות את החיפוש';
+  String get clearSearchButton => 'נקה חיפוש';
+
+  // ========================================
+  // Loading & Error States
+  // ========================================
+
+  String get loadingError => 'שגיאה בטעינת הנתונים';
+  String get errorTitle => 'אופס! משהו השתבש';
+  String errorMessage(String? error) => error ?? 'אירעה שגיאה בטעינת הנתונים';
 }
