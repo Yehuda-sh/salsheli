@@ -57,29 +57,17 @@ import 'screens/shopping/shopping_summary_screen.dart';
 import 'theme/app_theme.dart';
 
 void main() async {
-  if (kDebugMode) {
-    debugPrint('\n🚀 main.dart: Starting app initialization...');
-    debugPrint('═══════════════════════════════════════════');
-  }
-
   WidgetsFlutterBinding.ensureInitialized();
 
   // 🔥 Firebase initialization - v2.0 with duplicate app fix
   try {
-    if (kDebugMode) debugPrint('\n🔍 Checking Firebase apps... count: ${Firebase.apps.length}');
-
     // ✅ בדיקה אם Firebase כבר אותחל (מונע duplicate app error)
     if (Firebase.apps.isEmpty) {
-      if (kDebugMode) debugPrint('   ➡️ No apps found, initializing...');
       await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-      if (kDebugMode) debugPrint('   ✅ Firebase initialized successfully!');
-    } else {
-      if (kDebugMode) debugPrint('   ℹ️ Firebase already initialized (${Firebase.apps.length} apps)');
     }
   } catch (e) {
     if (kDebugMode) {
-      debugPrint('   ❌ Firebase initialization error: $e');
-      debugPrint('   (App will continue without Firebase)');
+      debugPrint('❌ Firebase initialization error: $e');
     }
   }
 
@@ -92,48 +80,31 @@ void main() async {
   // This prevents race condition where Providers try to access Firebase
   // (e.g., AuthService calling FirebaseAuth.instance) before initialization completes
   await Future.delayed(const Duration(milliseconds: 100));
-  if (kDebugMode) debugPrint('⏳ Waited for Firebase stabilization');
 
   // 📦 Create Local Products Repository
-  if (kDebugMode) {
-    debugPrint('\n📦 Creating LocalProductsRepository...');
-  }
   final productsRepo = LocalProductsRepository();
-  if (kDebugMode) {
-    debugPrint('✅ LocalProductsRepository ready');
-    debugPrint('\n═══════════════════════════════════════════');
-    debugPrint('🎯 Launching app...\n');
-  }
 
   runApp(
     MultiProvider(
       providers: [
         // === Auth Service === 🔐
         Provider(
-          create: (_) {
-            if (kDebugMode) debugPrint('🔐 main.dart: Creating AuthService');
-            return AuthService();
-          },
+          create: (_) => AuthService(),
         ),
 
         // === Firebase User Repository === 🔥
         Provider<UserRepository>(
-          create: (_) {
-            if (kDebugMode) debugPrint('🔥 main.dart: Creating FirebaseUserRepository');
-            return FirebaseUserRepository();
-          },
+          create: (_) => FirebaseUserRepository(),
         ),
 
         // === User Context === 👤
         ChangeNotifierProxyProvider2<AuthService, UserRepository, UserContext>(
-          create: (context) {
-            if (kDebugMode) debugPrint('👤 main.dart: Creating UserContext with Firebase');
-            return UserContext(repository: context.read<UserRepository>(), authService: context.read<AuthService>());
-          },
-          update: (context, authService, repository, previous) {
-            if (kDebugMode) debugPrint('🔄 main.dart: Updating UserContext');
-            return previous ?? UserContext(repository: repository, authService: authService);
-          },
+          create: (context) => UserContext(
+            repository: context.read<UserRepository>(),
+            authService: context.read<AuthService>(),
+          ),
+          update: (context, authService, repository, previous) =>
+              previous ?? UserContext(repository: repository, authService: authService),
         ),
 
         // === Products Provider === 🔥 Firebase
@@ -144,33 +115,17 @@ void main() async {
         //    This prevents loading products before we have household_id.
         ChangeNotifierProxyProvider<UserContext, ProductsProvider>(
           lazy: false,
-          create: (context) {
-            if (kDebugMode) {
-              debugPrint('\n🏗️ main.dart: Creating ProductsProvider with Firebase...');
-            }
-            final provider = ProductsProvider(repository: productsRepo, skipInitialLoad: true);
-            if (kDebugMode) {
-              debugPrint('✅ main.dart: ProductsProvider created (skipInitialLoad=true)');
-            }
-            return provider;
-          },
+          create: (context) => ProductsProvider(
+            repository: productsRepo,
+            skipInitialLoad: true,
+          ),
           update: (context, userContext, previous) {
-            if (kDebugMode) {
-              debugPrint('\n🔄 ProductsProvider.update(): UserContext changed');
-              debugPrint('   👤 User: ${userContext.user?.email ?? "guest"}');
-              debugPrint('   🔐 isLoggedIn: ${userContext.isLoggedIn}');
-            }
-
             if (previous == null) {
-              if (kDebugMode) debugPrint('   ⚠️ previous=null, creating new ProductsProvider');
               return ProductsProvider(repository: productsRepo);
             }
 
-            if (kDebugMode) debugPrint('   📊 hasInitialized: ${previous.hasInitialized}');
-
             // If user logged in - initialize and load products בצורה אסינכרונית
             if (userContext.isLoggedIn && !previous.hasInitialized) {
-              if (kDebugMode) debugPrint('   ✅ User logged in + not initialized → calling initializeAndLoad()');
               // ⚡ אופטימיזציה: טעינה אסינכרונית שלא חוסמת
               Future.microtask(() => previous.initializeAndLoad());
             }
@@ -181,28 +136,22 @@ void main() async {
 
         // === Locations Provider === 📍 Firebase!
         ChangeNotifierProxyProvider<UserContext, LocationsProvider>(
-          create: (context) {
-            if (kDebugMode) debugPrint('📍 main.dart: Creating LocationsProvider with Firebase');
-            return LocationsProvider(
-              userContext: context.read<UserContext>(),
-              repository: FirebaseLocationsRepository(), // 🔥 Firebase!
-            );
-          },
-          update: (context, userContext, previous) {
-            if (kDebugMode) debugPrint('🔄 main.dart: Updating LocationsProvider');
-            return (previous ??
-                  LocationsProvider(
-                    userContext: userContext,
-                    repository: FirebaseLocationsRepository(), // 🔥 Firebase!
-                  ))
-              ..updateUserContext(userContext);
-          },
+          create: (context) => LocationsProvider(
+            userContext: context.read<UserContext>(),
+            repository: FirebaseLocationsRepository(), // 🔥 Firebase!
+          ),
+          update: (context, userContext, previous) =>
+              (previous ??
+                    LocationsProvider(
+                      userContext: userContext,
+                      repository: FirebaseLocationsRepository(), // 🔥 Firebase!
+                    ))
+                ..updateUserContext(userContext),
         ),
 
         // === Shopping Lists === 🔥 Firebase!
         ChangeNotifierProxyProvider<UserContext, ShoppingListsProvider>(
           create: (context) {
-            if (kDebugMode) debugPrint('📋 main.dart: Creating ShoppingListsProvider with Firebase');
             final provider = ShoppingListsProvider(
               repository: FirebaseShoppingListsRepository(), // 🔥 Firebase!
               receiptRepository: FirebaseReceiptRepository(), // 🔥 Firebase Receipts!
@@ -212,7 +161,6 @@ void main() async {
             return provider;
           },
           update: (context, userContext, previous) {
-            if (kDebugMode) debugPrint('🔄 main.dart: Updating ShoppingListsProvider');
             final provider =
                 previous ??
                 ShoppingListsProvider(
@@ -226,32 +174,23 @@ void main() async {
 
         // === Inventory === 🔥 Firebase!
         ChangeNotifierProxyProvider<UserContext, InventoryProvider>(
-          create: (context) {
-            if (kDebugMode) debugPrint('📦 main.dart: Creating InventoryProvider with Firebase');
-            return InventoryProvider(
-              userContext: context.read<UserContext>(),
-              repository: FirebaseInventoryRepository(), // 🔥 Firebase!
-            );
-          },
-          update: (context, userContext, previous) {
-            if (kDebugMode) debugPrint('🔄 main.dart: Updating InventoryProvider');
-            return (previous ??
-                  InventoryProvider(
-                    userContext: userContext,
-                    repository: FirebaseInventoryRepository(), // 🔥 Firebase!
-                  ))
-              ..updateUserContext(userContext);
-          },
+          create: (context) => InventoryProvider(
+            userContext: context.read<UserContext>(),
+            repository: FirebaseInventoryRepository(), // 🔥 Firebase!
+          ),
+          update: (context, userContext, previous) =>
+              (previous ??
+                    InventoryProvider(
+                      userContext: userContext,
+                      repository: FirebaseInventoryRepository(), // 🔥 Firebase!
+                    ))
+                ..updateUserContext(userContext),
         ),
 
         // === Product Location Memory === 📍
         ChangeNotifierProxyProvider<UserContext, ProductLocationProvider>(
-          create: (context) {
-            if (kDebugMode) debugPrint('📍 main.dart: Creating ProductLocationProvider');
-            return ProductLocationProvider();
-          },
+          create: (context) => ProductLocationProvider(),
           update: (context, userContext, previous) {
-            if (kDebugMode) debugPrint('🔄 main.dart: Updating ProductLocationProvider');
             previous?.updateUserContext(userContext);
             return previous ?? ProductLocationProvider();
           },
@@ -259,22 +198,17 @@ void main() async {
 
         // === Receipts === 🔥 Firebase!
         ChangeNotifierProxyProvider<UserContext, ReceiptProvider>(
-          create: (context) {
-            if (kDebugMode) debugPrint('📄 main.dart: Creating ReceiptProvider with Firebase');
-            return ReceiptProvider(
-              userContext: context.read<UserContext>(),
-              repository: FirebaseReceiptRepository(), // 🔥 Firebase!
-            );
-          },
-          update: (context, userContext, previous) {
-            if (kDebugMode) debugPrint('🔄 main.dart: Updating ReceiptProvider');
-            return (previous ??
-                  ReceiptProvider(
-                    userContext: userContext,
-                    repository: FirebaseReceiptRepository(), // 🔥 Firebase!
-                  ))
-              ..updateUserContext(userContext);
-          },
+          create: (context) => ReceiptProvider(
+            userContext: context.read<UserContext>(),
+            repository: FirebaseReceiptRepository(), // 🔥 Firebase!
+          ),
+          update: (context, userContext, previous) =>
+              (previous ??
+                    ReceiptProvider(
+                      userContext: userContext,
+                      repository: FirebaseReceiptRepository(), // 🔥 Firebase!
+                    ))
+                ..updateUserContext(userContext),
         ),
 
         // === Suggestions Provider ===
@@ -290,7 +224,6 @@ void main() async {
         // === Habits Provider === 🧠 Firebase!
         ChangeNotifierProxyProvider<UserContext, HabitsProvider>(
           create: (context) {
-            if (kDebugMode) debugPrint('🧠 main.dart: Creating HabitsProvider with Firebase');
             final provider = HabitsProvider(
               FirebaseHabitsRepository(), // 🔥 Firebase!
             );
@@ -299,7 +232,6 @@ void main() async {
             return provider;
           },
           update: (context, userContext, previous) {
-            if (kDebugMode) debugPrint('🔄 main.dart: Updating HabitsProvider');
             final provider =
                 previous ??
                 HabitsProvider(
@@ -329,17 +261,6 @@ class _MyAppState extends State<MyApp> {
     // Adapts app colors to user's wallpaper (Android 12+)
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
-        if (kDebugMode) {
-          debugPrint('\n🎨 DynamicColorBuilder:');
-          debugPrint('   📱 lightDynamic: ${lightDynamic != null ? "✅ Available" : "❌ Not available"}');
-          debugPrint('   🌙 darkDynamic: ${darkDynamic != null ? "✅ Available" : "❌ Not available"}');
-
-          if (lightDynamic != null || darkDynamic != null) {
-            debugPrint('   🎉 Material You detected! Using dynamic colors');
-          } else {
-            debugPrint('   ℹ️ Dynamic Color not available, using standard colors');
-          }
-        }
 
         return MaterialApp(
           title: 'MemoZap',
