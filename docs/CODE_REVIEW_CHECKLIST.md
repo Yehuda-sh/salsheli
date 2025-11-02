@@ -1,6 +1,6 @@
 # 🧾 CODE REVIEW CHECKLIST – MemoZap
 
-**גרסה:** 2.4 | **עודכן:** 02/11/2025  
+**גרסה:** 2.5 | **עודכן:** 02/11/2025  
 **שימוש:** סריקה אוטומטית לכל קובץ חדש/מעודכן  
 **מטרה:** זיהוי חכם של בעיות, קוד ישן, ופיצ'רים חלקיים
 
@@ -72,6 +72,192 @@
 | **`if (!mounted) return;` אחרי await** | 💀 CRITICAL | בדיקה שה-widget עדיין חי |
 
 **Details:** → CODE.md (Common Mistakes - Context After Await)
+
+---
+
+## 🔧 Component Reuse & Tools
+
+### 🎨 Component Decision Tree
+| מצב | פתרון | הסבר |
+|-----|--------|------|
+| **כפתור רגיל** | StickyButton | ✅ תמיד! (לא ElevatedButton) |
+| **כרטיס ללחיצה** | SimpleTappableCard | Scale animation + haptic |
+| **צ'קבוקס/toggle** | AnimatedButton | Wrapper + haptic |
+| **Loading state** | SkeletonLoading | במקום CircularProgressIndicator |
+| **כרטיס סטטיסטיקה** | DashboardCard | Dashboard screens |
+| **כרטיס יתרון** | BenefitTile | Onboarding/features |
+
+**מיקום:** `lib/widgets/common/`
+
+**דוגמאות מהפרויקט (Session 49):**
+```yaml
+settings_screen.dart:
+  לפני: GestureDetector + AnimatedScale (15 שורות)
+  אחרי: SimpleTappableCard (wrapper)
+  
+populate_list_screen.dart:
+  לפני: InkWell (manual ripple)
+  אחרי: SimpleTappableCard
+  
+shopping_list_details_screen.dart:
+  לפני: GestureDetector על checkbox
+  אחרי: AnimatedButton
+```
+
+**Decision Protocol:**
+1. ✅ בדוק `widgets/common/` לפני יצירת אנימציה ידנית
+2. ✅ StickyButton תמיד לכפתורים (לא Elevated/Text)
+3. ✅ SimpleTappableCard לכרטיסים אינטראקטיביים
+4. ✅ AnimatedButton לאלמנטים קטנים (checkbox, toggle)
+5. ❌ אל תיצור GestureDetector + AnimatedScale ידנית
+
+**Details:** → DESIGN.md (Advanced Components section)
+
+---
+
+### ⚠️ bash_tool Warning (CRITICAL!)
+| בדיקה | Priority | הסבר |
+|-------|----------|------|
+| **NEVER bash_tool + Windows paths** | 💀 CRITICAL | bash_tool = Linux shell (/bin/sh) |
+| **Error pattern** | ALWAYS FAILS | "can't cd to C:projects..." |
+| **Correct tools** | MANDATORY | Filesystem:search_files / read_file |
+
+**למה זה שגיאה #1:**
+- 🔥 Frequency: VERY HIGH (חוזר כל הזמן!)
+- 💥 Impact: Wastes tool calls, breaks workflow
+- 🚫 bash_tool = Linux shell, לא מבין C:\
+
+**דוגמאות:**
+```yaml
+❌ WRONG:
+bash_tool("cd C:\\projects\\salsheli && findstr ...")
+→ Error: /bin/sh: cd: can't cd to C:projects
+
+✅ CORRECT:
+search_files("C:\\projects\\salsheli\\lib", "pattern")
+read_file("C:\\projects\\salsheli\\lib\\file.dart")
+```
+
+**Details:** → PROJECT_INSTRUCTIONS v4.9 (LEARNING FROM MISTAKES - error_9)
+
+---
+
+### 📦 YAGNI Principle
+| Pattern | Priority | הסבר |
+|---------|----------|------|
+| **Over-planning systems** | 🔴 HIGH | אל תיצור קובץ גדול לפני צורך |
+| **Trigger rule** | 3+ TIMES | רק כשפטרן חוזר 3 פעמים |
+| **Examples** | COSTLY | ui_constants (600), constants (430) |
+
+**What happened:**
+- Session 40: ui_constants.dart - 600 lines unused config
+- Session 41: constants.dart - 430 lines comprehensive system
+- Total: 1030+ lines dead code from over-planning
+
+**Rule:**
+```yaml
+IF pattern appears 1 time:
+  → Write inline (no extraction)
+
+IF pattern appears 2 times:
+  → Consider extraction (maybe)
+
+IF pattern appears 3+ times:
+  → Extract to shared constant/config
+```
+
+**Prevent:**
+- ❌ Creating "perfect system" upfront
+- ❌ 500+ line config files before features
+- ❌ Comprehensive constants "for future use"
+
+**Details:** → PROJECT_INSTRUCTIONS v4.9 (error_7)
+
+---
+
+### 🔍 Undefined Identifiers
+| Issue | Priority | הסבר |
+|-------|----------|------|
+| **Using constants before verify** | 🟡 MEDIUM | Check existence first |
+| **Pattern** | COMPILATION ERROR | Assume constant exists |
+| **Fix** | CHECK FIRST | Read constants file |
+
+**Example (Session 45):**
+```yaml
+File: main_navigation_screen.dart
+Error: kDoubleTapTimeout undefined
+       kSnackBarBottomMargin undefined
+       kBorderRadiusSmall undefined
+
+Cause: Used constants without checking ui_constants.dart
+
+Fix: Added 4 missing constants to ui_constants.dart
+```
+
+**Protocol:**
+1. Check constants file BEFORE using new constant
+2. If missing → add it
+3. If exists → use it
+4. Never assume "it's probably there"
+
+**Details:** → PROJECT_INSTRUCTIONS v4.9 (error_12)
+
+---
+
+### 🚫 Broken Tools
+| Tool | Status | הסבר |
+|------|--------|------|
+| **Filesystem:create_file** | ❌ BROKEN | Always fails |
+| **Replacement** | write_file | Use this instead |
+| **Impact** | LOW | Wastes 1 tool call |
+
+**Why it fails:**
+- Tool exists in function list
+- Implementation is broken
+- Returns: "Tool not found" error
+
+**Solution:**
+```yaml
+❌ create_file(path, content) # FAILS
+✅ write_file(path, content)  # WORKS
+```
+
+**Confirmed:** Session 47
+
+**Details:** → PROJECT_INSTRUCTIONS v4.7
+
+---
+
+### 🔗 Component Import Checks
+| Check | Priority | הסבר |
+|-------|----------|------|
+| **widgets/common/ imports** | 🟡 MEDIUM | Shared components import each other |
+| **Example pattern** | FALSE POSITIVE | sticky_button imports animated_button |
+| **Search strategy** | BOTH | Filename AND classname |
+
+**Why this matters (Session 49):**
+```yaml
+File: animated_button.dart (98 lines)
+Claim: search_files('AnimatedButton') = 0 results
+Reality: Used by sticky_button.dart (line 36, 116)
+
+PowerShell found: 11 matches across project
+
+Pattern missed:
+  - search_files only searched filename
+  - Missed class name usage
+  - Missed component imports
+
+Result: Almost deleted core animation wrapper!
+```
+
+**Protocol for shared components:**
+1. Search filename: `animated_button`
+2. Search class name: `AnimatedButton`
+3. Check `widgets/common/` files specifically
+4. Use PowerShell for definitive proof
+
+**This was False Positive #5!**
 
 ---
 
@@ -480,7 +666,16 @@ Get-ChildItem -Path "C:\projects\salsheli\lib" -Recurse -Filter "*.dart" | Selec
 
 **🎯 זכור:** הסקירה צריכה להיות **חכמה** (לא מכנית), **קצרה** (ממוקד), ו**אנושית** (הסבר למה, לא רק מה).
 
-**End of Checklist v2.4**
+**End of Checklist v2.5**
+
+**עדכונים מ-v2.4:**
+- 🆕 סעיף חדש: Component Reuse & Tools (6 תתי-סעיפים)
+- 🔴 bash_tool Warning: שגיאה #1 הנפוצה ביותר!
+- 📦 YAGNI Principle: 1030+ שורות dead code נמנעו
+- 🔍 Undefined Identifiers: בדיקת constants לפני שימוש
+- 🚫 Broken Tools: create_file לא עובד, השתמש ב-write_file
+- 🔗 Component Import Checks: shared components מייבאים זה את זה
+- 📊 Impact: מונע 3 סוגי שגיאות נפוצות (bash_tool, over-planning, false positives)
 
 **עדכונים מ-v2.3:**
 - 🆕 False Positive #5: animated_button.dart (session 49, 98 lines saved)
