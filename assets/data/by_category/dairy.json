@@ -123,24 +123,24 @@
     "name": "ביצים 30 יח",
     "category": "מוצרי חלב",
     "icon": "🥛",
-    "price": 38.7,
-    "barcode": "7296073227830",
-    "brand": "",
-    "unit": "יחידה",
-    "store": "שופרסל",
-    "image_url": "https://media.shufersal.co.il/product_images/products_360/7296073227830/files/360_assets/index/images/7296073227830_1.jpg",
-    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
-  },
-  {
-    "name": "ביצים 30 יח",
-    "category": "מוצרי חלב",
-    "icon": "🥛",
     "price": 35.6,
     "barcode": "7296073227823",
     "brand": "",
     "unit": "יחידה",
     "store": "שופרסל",
     "image_url": "https://media.shufersal.co.il/product_images/products_360/7296073227823/files/360_assets/index/images/7296073227823_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "ביצים 30 יח",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 38.7,
+    "barcode": "7296073227830",
+    "brand": "",
+    "unit": "יחידה",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7296073227830/files/360_assets/index/images/7296073227830_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {

@@ -17,6 +17,12 @@ import 'package:xml/xml.dart' as xml;
 /// נתיב הקובץ היעד
 const String outputFile = 'assets/data/products.json';
 
+/// מספר עמודים להורדה
+const int pagesToFetch = 10;
+
+/// מספר קבצים מקסימלי לעמוד
+const int maxFilesPerPage = 20;
+
 /// מספר מוצרים מקסימלי לשמירה
 const int maxProducts = 10000; // כל המוצרים
 
@@ -29,34 +35,48 @@ const double minPrice = 0.5;
 const String _baseUrl = 'https://prices.shufersal.co.il/';
 
 void main() async {
-  print('🛒 מוריד מוצרים משופרסל...\n');
+  print('🛒 מוריד מוצרים מ-$pagesToFetch עמודים ראשונים...\n');
   
   try {
-    // 1. קבלת רשימת קבצים זמינים
-    print('📂 מחפש קבצי מחירים...');
-    final fileUrls = await getFileUrls();
-    
-    if (fileUrls.isEmpty) {
-      print('❌ לא נמצאו קבצי מחירים');
-      exit(1);
-    }
-    
-    print('✓ נמצאו ${fileUrls.length} קבצי מחירים\n');
-    
-    // 2. הורדת מספר קבצים (לא רק הראשון)
-    print('⬇️  מוריד קבצי מחירים מסניפים שונים...');
     final allProducts = <Map<String, dynamic>>[];
     
-    // נוריד את כל הקבצים הזמינים
-    final filesToDownload = fileUrls.toList();
-    
-    for (var i = 0; i < filesToDownload.length; i++) {
-      print('\n📦 סניף ${i + 1}/${filesToDownload.length}:');
-      final products = await downloadAndParse(filesToDownload[i]);
+    // לולאה על עמודים
+    for (var page = 1; page <= pagesToFetch; page++) {
+      print('━━━━━━━━━━━━━━━━━━━━━━━━');
+      print('📄 עמוד $page/$pagesToFetch');
+      print('━━━━━━━━━━━━━━━━━━━━━━━━\n');
       
-      if (products.isNotEmpty) {
-        allProducts.addAll(products);
-        print('   ✓ נוספו ${products.length} מוצרים (סה"כ: ${allProducts.length})');
+      // 1. קבלת URL-ים מהעמוד
+      final pageUrl = page == 1 ? _baseUrl : '$_baseUrl?page=$page';
+      print('🌐 מתחבר ל: $pageUrl');
+      
+      final fileUrls = await getFileUrlsFromPage(pageUrl);
+      
+      if (fileUrls.isEmpty) {
+        print('⚠️  לא נמצאו קבצים בעמוד $page\n');
+        continue;
+      }
+      
+      print('✓ נמצאו ${fileUrls.length} קבצים\n');
+      
+      // 2. הורדה - רק חלק מהקבצים מכל עמוד
+      final filesToDownload = fileUrls.take(maxFilesPerPage).toList();
+      
+      for (var i = 0; i < filesToDownload.length; i++) {
+        print('📦 קובץ ${i + 1}/${filesToDownload.length}:');
+        final products = await downloadAndParse(filesToDownload[i]);
+        
+        if (products.isNotEmpty) {
+          allProducts.addAll(products);
+          print('   ✓ נוספו ${products.length} מוצרים (סה"כ: ${allProducts.length})');
+        }
+      }
+      
+      print('\n✅ עמוד $page הושלם - סה"כ ${allProducts.length} מוצרים גולמיים\n');
+      
+      // המתנה קצרה בין עמודים
+      if (page < pagesToFetch) {
+        await Future.delayed(const Duration(seconds: 1));
       }
     }
     
@@ -92,12 +112,10 @@ void main() async {
   }
 }
 
-/// קבלת רשימת קישורי קבצים מהאתר
-Future<List<String>> getFileUrls() async {
+/// קבלת רשימת קישורי קבצים מעמוד
+Future<List<String>> getFileUrlsFromPage(String pageUrl) async {
   try {
-    print('   🌐 מתחבר ל-prices.shufersal.co.il...');
-    
-    final response = await http.get(Uri.parse(_baseUrl))
+    final response = await http.get(Uri.parse(pageUrl))
         .timeout(const Duration(seconds: 30));
     
     if (response.statusCode != 200) {
@@ -105,10 +123,7 @@ Future<List<String>> getFileUrls() async {
       return [];
     }
     
-    print('   ✓ קיבל תגובה (${response.body.length} תווים)');
-    
-    // חיפוש קישורי הורדה בעמוד
-    // הקישור כולל SAS token עם פרמטרים רבים
+    // חיפוש קישורי הורדה
     final regex = RegExp(
       r'https://pricesprodpublic\.blob\.core\.windows\.net/[^\s"<>]+\.gz[^\s"<>]*',
       caseSensitive: false,
@@ -120,7 +135,7 @@ Future<List<String>> getFileUrls() async {
     for (final match in matches) {
       final url = match.group(0);
       if (url != null && url.contains('Price')) {
-        // 🆕 HTML decode - המר &amp; ל-&
+        // HTML decode - המר &amp; ל-&
         final decodedUrl = url
             .replaceAll('&amp;', '&')
             .replaceAll('&lt;', '<')
@@ -130,25 +145,10 @@ Future<List<String>> getFileUrls() async {
       }
     }
     
-    print('   ✓ נמצאו ${urls.length} קישורי הורדה');
-    
-    // נציג דוגמה מלאה
-    if (urls.isNotEmpty) {
-      final firstUrl = urls.first;
-      print('   📎 URL מלא ראשון (${firstUrl.length} תווים):');
-      // נציג את כל ה-URL
-      if (firstUrl.length > 200) {
-        print('   ${firstUrl.substring(0, 200)}');
-        print('   ...${firstUrl.substring(firstUrl.length - 50)}');
-      } else {
-        print('   $firstUrl');
-      }
-    }
-    
     return urls;
     
   } catch (e) {
-    print('   ❌ שגיאה בחיפוש קבצים: $e');
+    print('   ❌ שגיאה בטעינת עמוד: $e');
     return [];
   }
 }
@@ -156,17 +156,8 @@ Future<List<String>> getFileUrls() async {
 /// הורדה ופענוח של קובץ מחירים
 Future<List<Map<String, dynamic>>> downloadAndParse(String fileUrl) async {
   try {
-    print('   🌐 URL מלא (${fileUrl.length} תווים):');
-    if (fileUrl.length > 150) {
-      print('      ${fileUrl.substring(0, 100)}');
-      print('      ...${fileUrl.substring(fileUrl.length - 50)}');
-    } else {
-      print('      $fileUrl');
-    }
-    print('   ⬇️  מוריד קובץ...');
-    
     final response = await http.get(Uri.parse(fileUrl))
-        .timeout(const Duration(minutes: 5));
+        .timeout(const Duration(minutes: 2));
     
     if (response.statusCode != 200) {
       print('   ❌ שגיאה בהורדה: ${response.statusCode}');
@@ -174,20 +165,16 @@ Future<List<Map<String, dynamic>>> downloadAndParse(String fileUrl) async {
     }
     
     final bytes = response.bodyBytes;
-    print('   ✓ הורד ${bytes.length} bytes');
     
     // פענוח GZ
-    print('   📦 מפענח GZ...');
     final decompressed = GZipDecoder().decodeBytes(bytes);
     final xmlContent = utf8.decode(decompressed);
-    
-    print('   ✓ פוענח XML (${xmlContent.length} תווים)');
     
     // פענוח XML
     return parseXmlProducts(xmlContent);
     
   } catch (e) {
-    print('   ❌ שגיאה בהורדה/פענוח: $e');
+    print('   ⚠️  שגיאה: $e');
     return [];
   }
 }
@@ -195,26 +182,8 @@ Future<List<Map<String, dynamic>>> downloadAndParse(String fileUrl) async {
 /// פענוח קובץ XML למוצרים
 List<Map<String, dynamic>> parseXmlProducts(String xmlContent) {
   try {
-    print('   📋 מפענח XML למוצרים...');
-    
     final document = xml.XmlDocument.parse(xmlContent);
     final items = document.findAllElements('Item');
-    
-    print('   ✓ נמצאו ${items.length} פריטים ב-XML');
-    
-    // 🔍 הדפס את כל השדות של הפריט הראשון
-    if (items.isNotEmpty) {
-      print('\n   🔍 שדות זמינים בפריט ראשון:');
-      final firstItem = items.first;
-      for (final element in firstItem.children.whereType<xml.XmlElement>()) {
-        final tagName = element.name.toString();
-        final value = element.innerText.trim();
-        if (value.isNotEmpty) {
-          print('      - $tagName: ${value.substring(0, value.length > 50 ? 50 : value.length)}${value.length > 50 ? '...' : ''}');
-        }
-      }
-      print('');
-    }
     
     final products = <Map<String, dynamic>>[];
     
@@ -241,11 +210,9 @@ List<Map<String, dynamic>> parseXmlProducts(String xmlContent) {
       }
     }
     
-    print('   ✓ פוענחו ${products.length} מוצרים');
     return products;
     
   } catch (e) {
-    print('   ❌ שגיאה בפענוח XML: $e');
     return [];
   }
 }
@@ -281,6 +248,10 @@ Future<List<Map<String, dynamic>>> processProducts(
     // 🆕 נקה את שם המוצר
     final name = _cleanProductName(rawName);
     
+    // 🆕 נקה את המותג (escape characters)
+    final rawBrand = p['brand']?.toString() ?? '';
+    final cleanBrand = _cleanBrand(rawBrand);
+    
     // 🆕 זיהוי קטגוריה חכם - אופציה C!
     final barcode = p['barcode']?.toString() ?? '';
     final brand = p['brand']?.toString() ?? '';
@@ -312,10 +283,10 @@ Future<List<Map<String, dynamic>>> processProducts(
     processed.add({
       'name': name,
       'category': category,
-      'icon': getCategoryIcon(category),
+      'icon': getCategoryIcon(category, name),
       'price': price,
       'barcode': barcode,
-      'brand': p['brand'],
+      'brand': cleanBrand,
       'unit': p['unit'],
       'store': p['store'],
       'image_url': imageUrl,
@@ -491,6 +462,22 @@ Future<Map<String, Map<String, dynamic>>> _loadExistingProducts() async {
   }
 }
 
+/// ניקוי מותג (escape characters)
+String _cleanBrand(String brand) {
+  var cleaned = brand.trim();
+  
+  // תקן escape characters
+  cleaned = cleaned.replaceAll('\\"', '"');
+  cleaned = cleaned.replaceAll('\\\\', '\\');
+  cleaned = cleaned.replaceAll('\\n', ' ');
+  cleaned = cleaned.replaceAll('\\t', ' ');
+  
+  // הסר רווחים כפולים
+  cleaned = cleaned.replaceAll(RegExp(r'\s+'), ' ');
+  
+  return cleaned.trim();
+}
+
 /// ניקוי שם מוצר (משופר)
 String _cleanProductName(String name) {
   var cleaned = name.trim();
@@ -602,8 +589,11 @@ String guessCategory(String itemName) {
       name.contains('גאודה') ||
       name.contains('חלבי')) return 'מוצרי חלב';
   
+  // 🧂 קמח = תבלינים ואפייה (עדיפות ראשונה!)
+  if (name.contains('קמח')) return 'תבלינים ואפייה';
+  
   // 🍞 מאפים (מורחב)
-  if (name.contains('לחם') ||
+  if (name.contains('לחם') && !name.contains('קמח') ||
       name.contains('חלה') ||
       name.contains('בורקס') ||
       name.contains('מאפה') ||
@@ -906,8 +896,9 @@ String guessCategory(String itemName) {
   return 'אחר';
 }
 
-/// אייקון לפי קטגוריה
-String getCategoryIcon(String category) {
+/// אייקון לפי קטגוריה (חכם)
+String getCategoryIcon(String category, [String? productName]) {
+  // אייקונים ברירת מחדל לפי קטגוריה
   const iconMap = {
     'מוצרי חלב': '🥛',
     'מאפים': '🍞',
@@ -922,6 +913,27 @@ String getCategoryIcon(String category) {
     'מוצרי ניקיון': '🧼',
     'היגיינה אישית': '🧴',
   };
+  
+  // אייקונים חכמים לפי שם מוצר (מאפים)
+  if (category == 'מאפים' && productName != null) {
+    final name = productName.toLowerCase();
+    if (name.contains('פיצה') || name.contains('בצק פיצה')) return '🍕';
+    if (name.contains('פיתה') || name.contains('בצק פיתה')) return '🫓';
+    if (name.contains('בגט') || name.contains('באגט')) return '🥖';
+    if (name.contains('קרואסון')) return '🥐';
+    if (name.contains('עוגה')) return '🍰';
+    if (name.contains('בורקס') || name.contains('מלווח')) return '🥟';
+  }
+  
+  // אייקונים חכמים לפי שם מוצר (תבלינים)
+  if (category == 'תבלינים ואפייה' && productName != null) {
+    final name = productName.toLowerCase();
+    if (name.contains('קמח')) return '🌾';
+    if (name.contains('סוכר')) return '🍬';
+    if (name.contains('מלח')) return '🧂';
+    if (name.contains('שמרים')) return '🍄';
+  }
+  
   return iconMap[category] ?? '🛒';
 }
 
