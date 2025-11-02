@@ -1,0 +1,86 @@
+[
+  {
+    "name": "טחינה אורגנית גרין 500 ג",
+    "category": "שמנים ורטבים",
+    "icon": "🫗",
+    "price": 14.9,
+    "barcode": "7296073530374",
+    "brand": "אחדות",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7296073530374/files/360_assets/index/images/7296073530374_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "טחינה אורגנית מלאה500 ג",
+    "category": "שמנים ורטבים",
+    "icon": "🫗",
+    "price": 14.9,
+    "barcode": "7296073530381",
+    "brand": "אחדות",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7296073530381/files/360_assets/index/images/7296073530381_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "ממרח במרקם קרמי 490 גרם",
+    "category": "שמנים ורטבים",
+    "icon": "🫗",
+    "price": 11.9,
+    "barcode": "8715700110158",
+    "brand": "ה.י.היינץ הולדינג בי.וי",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/8715700110158/files/360_assets/index/images/8715700110158_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "ממרח היינץ צנצנת 460 גרם",
+    "category": "שמנים ורטבים",
+    "icon": "🫗",
+    "price": 11.9,
+    "barcode": "8715700110141",
+    "brand": "ה.י.היינץ הולדינג בי.וי",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/8715700110141/files/360_assets/index/images/8715700110141_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "ממרח ט.טבעי ע\"ב קוקוס200",
+    "category": "שמנים ורטבים",
+    "icon": "🫗",
+    "price": 15.9,
+    "barcode": "7290109640402",
+    "brand": "גן שמואל-תעשיות בריאות",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290109640402/files/360_assets/index/images/7290109640402_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "ממרחזיתים ע\"ב קוקוס200 ג",
+    "category": "שמנים ורטבים",
+    "icon": "🫗",
+    "price": 15.9,
+    "barcode": "7290109640372",
+    "brand": "גן שמואל-תעשיות בריאות",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290109640372/files/360_assets/index/images/7290109640372_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "שמן זית אורגני 750 מ\"ל",
+    "category": "שמנים ורטבים",
+    "icon": "🫗",
+    "price": 29.9,
+    "barcode": "7296073703792",
+    "brand": "CAVANNA OLI SNC",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7296073703792/files/360_assets/index/images/7296073703792_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  }
+]

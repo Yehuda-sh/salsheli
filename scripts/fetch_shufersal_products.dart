@@ -17,8 +17,8 @@ import 'package:xml/xml.dart' as xml;
 /// נתיב הקובץ היעד
 const String outputFile = 'assets/data/products.json';
 
-/// מספר מוצרים מקסימלי לשמירה (בדיקה)
-const int maxProducts = 20;
+/// מספר מוצרים מקסימלי לשמירה
+const int maxProducts = 10000; // כל המוצרים
 
 /// מחיר מינימלי
 const double minPrice = 0.5;
@@ -47,8 +47,8 @@ void main() async {
     print('⬇️  מוריד קבצי מחירים מסניפים שונים...');
     final allProducts = <Map<String, dynamic>>[];
     
-    // נוריד מקסימום 3 סניפים כדי לא להכביד
-    final filesToDownload = fileUrls.take(3).toList();
+    // נוריד את כל הקבצים הזמינים
+    final filesToDownload = fileUrls.toList();
     
     for (var i = 0; i < filesToDownload.length; i++) {
       print('\n📦 סניף ${i + 1}/${filesToDownload.length}:');
@@ -81,7 +81,9 @@ void main() async {
     printSummary(processed);
     
     print('\n✅ הסתיים בהצלחה!');
-    print('📂 הקובץ נשמר ב: $outputFile');
+    print('📂 הקבצים נשמרו ב:');
+    print('   - assets/data/by_list_type/ (8 קבצים)');
+    print('   - assets/data/by_category/ (15+ קבצים)');
     
   } catch (e, stack) {
     print('❌ שגיאה: $e');
@@ -263,9 +265,9 @@ Future<List<Map<String, dynamic>>> processProducts(
 ) async {
   var processed = <Map<String, dynamic>>[];
   
-  // 🆕 טען products.json קיים (אם יש)
-  final existingProductsByBarcode = await _loadExistingProducts();
-  print('   📦 נטענו ${existingProductsByBarcode.length} מוצרים קיימים מ-products.json\n');
+  // 🆕 טען מוצרים קיימים (אם יש)
+  final existingProductsByBarcode = await _loadAllExistingProducts();
+  print('   📦 נטענו ${existingProductsByBarcode.length} מוצרים קיימים\n');
   
   for (final p in products) {
     final price = p['price'] as double? ?? 0.0;
@@ -347,7 +349,119 @@ Future<List<Map<String, dynamic>>> processProducts(
   return processed;
 }
 
-/// טעינת מוצרים קיימים מ-products.json
+/// טעינת כל המוצרים הקיימים מכל הקבצים
+Future<Map<String, Map<String, dynamic>>> _loadAllExistingProducts() async {
+  final Map<String, Map<String, dynamic>> allProducts = {};
+  
+  // 1. טען מ-by_list_type
+  final listTypeDir = Directory('assets/data/by_list_type');
+  if (await listTypeDir.exists()) {
+    await for (final file in listTypeDir.list()) {
+      if (file is File && file.path.endsWith('.json')) {
+        try {
+          final content = await file.readAsString();
+          final List<dynamic> products = json.decode(content);
+          for (final p in products) {
+            if (p is Map<String, dynamic>) {
+              final barcode = p['barcode']?.toString();
+              if (barcode != null && barcode.isNotEmpty) {
+                allProducts[barcode] = Map<String, dynamic>.from(p);
+              }
+            }
+          }
+        } catch (e) {
+          // Skip invalid files
+        }
+      }
+    }
+  }
+  
+  return allProducts;
+}
+
+/// שמירת קבצים לפי list_type
+Future<void> _saveByListType(Map<String, List<Map<String, dynamic>>> byListType) async {
+  final dir = Directory('assets/data/by_list_type');
+  if (!await dir.exists()) {
+    await dir.create(recursive: true);
+  }
+  
+  const encoder = JsonEncoder.withIndent('  ');
+  
+  for (final entry in byListType.entries) {
+    final listType = entry.key;
+    final products = entry.value;
+    
+    // מיון
+    products.sort((a, b) {
+      final nameA = a['name']?.toString() ?? '';
+      final nameB = b['name']?.toString() ?? '';
+      return nameA.compareTo(nameB);
+    });
+    
+    final file = File('assets/data/by_list_type/$listType.json');
+    final jsonStr = encoder.convert(products);
+    await file.writeAsString(jsonStr);
+    
+    print('   ✅ נשמר $listType.json (${products.length} מוצרים)');
+  }
+}
+
+/// שמירת קבצים לפי category
+Future<void> _saveByCategory(Map<String, List<Map<String, dynamic>>> byCategory) async {
+  final dir = Directory('assets/data/by_category');
+  if (!await dir.exists()) {
+    await dir.create(recursive: true);
+  }
+  
+  const encoder = JsonEncoder.withIndent('  ');
+  
+  for (final entry in byCategory.entries) {
+    final category = entry.key;
+    final products = entry.value;
+    
+    // מיון
+    products.sort((a, b) {
+      final nameA = a['name']?.toString() ?? '';
+      final nameB = b['name']?.toString() ?? '';
+      return nameA.compareTo(nameB);
+    });
+    
+    // המרת שם קטגוריה לשם קובץ (עברית -> אנגלית)
+    final fileName = _categoryToFileName(category);
+    final file = File('assets/data/by_category/$fileName.json');
+    final jsonStr = encoder.convert(products);
+    await file.writeAsString(jsonStr);
+    
+    print('   ✅ נשמר $fileName.json (${products.length} מוצרים)');
+  }
+}
+
+/// המרת שם קטגוריה עברית לשם קובץ אנגלי
+String _categoryToFileName(String category) {
+  const mapping = {
+    'מוצרי חלב': 'dairy',
+    'מאפים': 'bakery',
+    'ירקות': 'vegetables',
+    'פירות': 'fruits',
+    'בשר ודגים': 'meat',
+    'אורז ופסטה': 'pasta',
+    'שמנים ורטבים': 'sauces',
+    'תבלינים ואפייה': 'spices',
+    'ממתקים וחטיפים': 'snacks',
+    'משקאות': 'beverages',
+    'קפה ותה': 'coffee_tea',
+    'מוצרי ניקיון': 'cleaning',
+    'היגיינה אישית': 'toiletries',
+    'שימורים': 'canned',
+    'קפואים': 'frozen',
+    'אחר': 'other',
+  };
+  
+  return mapping[category] ?? 'other';
+}
+
+/// טעינת מוצרים קיימים מ-products.json (deprecated)
 Future<Map<String, Map<String, dynamic>>> _loadExistingProducts() async {
   final file = File(outputFile);
   
@@ -811,7 +925,32 @@ String getCategoryIcon(String category) {
   return iconMap[category] ?? '🛒';
 }
 
-/// שמירה חכמה לקובץ - מעדכן מחירים ומוסיף מוצרים חדשים
+/// מיפוי קטגוריות ל-list_type
+Map<String, List<String>> _getCategoryToListTypeMapping() {
+  return {
+    'pharmacy': ['היגיינה אישית', 'מוצרי ניקיון'],
+    'greengrocer': ['ירקות', 'פירות'],
+    'butcher': ['בשר ודגים'],
+    'bakery': ['מאפים'],
+    'market': [], // נוסיף ידנית - overlap
+  };
+}
+
+/// מחזיר list_type למוצר לפי קטגוריה
+String _getListTypeForProduct(String category) {
+  final mapping = _getCategoryToListTypeMapping();
+  
+  for (final entry in mapping.entries) {
+    if (entry.value.contains(category)) {
+      return entry.key;
+    }
+  }
+  
+  // ברירת מחדל - supermarket
+  return 'supermarket';
+}
+
+/// שמירה חכמה - מפצלת לפי list_type וגם לפי category
 Future<void> saveToFile(List<Map<String, dynamic>> newProducts) async {
   final file = File(outputFile);
   
@@ -820,33 +959,12 @@ Future<void> saveToFile(List<Map<String, dynamic>> newProducts) async {
     await dir.create(recursive: true);
   }
   
-  print('\n🔄 משתמש במצב עדכון חכם...');
+  print('\n🔄 מפצל מוצרים לפי list_type ו-category...');
   
-  // 1. קריאת קובץ קיים (אם יש)
-  Map<String, Map<String, dynamic>> existingProducts = {};
+  // 1. קריאת כל הקבצים הקיימים
+  Map<String, Map<String, dynamic>> existingProducts = await _loadAllExistingProducts();
   
-  if (await file.exists()) {
-    try {
-      final existingJson = await file.readAsString();
-      final List<dynamic> existingList = json.decode(existingJson);
-      
-      // המרה ל-Map לפי barcode (לחיפוש מהיר)
-      for (final p in existingList) {
-        if (p is Map<String, dynamic>) {
-          final barcode = p['barcode']?.toString();
-          if (barcode != null && barcode.isNotEmpty) {
-            existingProducts[barcode] = Map<String, dynamic>.from(p);
-          }
-        }
-      }
-      
-      print('   📦 נטענו ${existingProducts.length} מוצרים קיימים');
-    } catch (e) {
-      print('   ⚠️  לא הצלחתי לקרוא קובץ קיים, יוצר חדש: $e');
-    }
-  } else {
-    print('   📝 קובץ לא קיים - יוצר חדש');
-  }
+  print('   📦 נטענו ${existingProducts.length} מוצרים קיימים');
   
   // 2. עדכון והוספה
   int updatedPrices = 0;
@@ -888,23 +1006,28 @@ Future<void> saveToFile(List<Map<String, dynamic>> newProducts) async {
   print('   ⏸️  $unchangedProducts מוצרים ללא שינוי');
   print('   📦 סה"כ ${existingProducts.length} מוצרים בקובץ המעודכן');
   
-  // 3. המרה חזרה ל-List
-  final finalProducts = existingProducts.values.toList();
+  // 3. פיצול לפי list_type
+  final byListType = <String, List<Map<String, dynamic>>>{};
+  final byCategory = <String, List<Map<String, dynamic>>>{};
   
-  // 4. מיון לפי שם
-  finalProducts.sort((a, b) {
-    final nameA = a['name']?.toString() ?? '';
-    final nameB = b['name']?.toString() ?? '';
-    return nameA.compareTo(nameB);
-  });
+  for (final product in existingProducts.values) {
+    final category = product['category']?.toString() ?? 'אחר';
+    final listType = _getListTypeForProduct(category);
+    
+    // הוסף ל-list_type
+    byListType.putIfAbsent(listType, () => []);
+    byListType[listType]!.add(product);
+    
+    // הוסף ל-category
+    byCategory.putIfAbsent(category, () => []);
+    byCategory[category]!.add(product);
+  }
   
-  // 5. שמירה
-  const encoder = JsonEncoder.withIndent('  ');
-  final jsonStr = encoder.convert(finalProducts);
+  // 4. שמירת קבצים
+  await _saveByListType(byListType);
+  await _saveByCategory(byCategory);
   
-  await file.writeAsString(jsonStr);
-  
-  print('   💾 הקובץ נשמר בהצלחה!');
+  print('   💾 כל הקבצים נשמרו בהצלחה!');
 }
 
 /// סיכום

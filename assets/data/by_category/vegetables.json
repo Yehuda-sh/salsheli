@@ -1,0 +1,38 @@
+[
+  {
+    "name": "מלפפון בייבי",
+    "category": "ירקות",
+    "icon": "🥬",
+    "price": 10.9,
+    "barcode": "710497091329",
+    "brand": "אוהד חקלאות ושיווק בע\"מ",
+    "unit": "יחידה",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/710497091329/files/360_assets/index/images/710497091329_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "תירס ארוז",
+    "category": "ירקות",
+    "icon": "🥬",
+    "price": 8.9,
+    "barcode": "7296073288756",
+    "brand": "קטיף.",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7296073288756/files/360_assets/index/images/7296073288756_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "תירס קלוף ארוז",
+    "category": "ירקות",
+    "icon": "🥬",
+    "price": 8.9,
+    "barcode": "7290000000848",
+    "brand": "קטיף.",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000000848/files/360_assets/index/images/7290000000848_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  }
+]

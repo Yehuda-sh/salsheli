@@ -1,0 +1,26 @@
+[
+  {
+    "name": "אוכמניות כחולות קפוא 300",
+    "category": "קפואים",
+    "icon": "🛒",
+    "price": 22.9,
+    "barcode": "7296073452546",
+    "brand": "D.O.O LAKI",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7296073452546/files/360_assets/index/images/7296073452546_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "מיקס פירות טרופי קפוא300",
+    "category": "קפואים",
+    "icon": "🛒",
+    "price": 22.9,
+    "barcode": "7296073283829",
+    "brand": "LAKI D.O.O",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7296073283829/files/360_assets/index/images/7296073283829_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  }
+]

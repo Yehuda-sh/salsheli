@@ -1,0 +1,38 @@
+[
+  {
+    "name": "מלפפונים במלח ט.ביתי1.65",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 29.9,
+    "barcode": "7296073006640",
+    "brand": "שימורי מוטולה בעמ",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7296073006640/files/360_assets/index/images/7296073006640_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "קמח חיטה מלאה 1 ק\"ג",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 8.9,
+    "barcode": "7296073108443",
+    "brand": "טחנות ישראליות בעמ",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7296073108443/files/360_assets/index/images/7296073108443_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "קמח שיפון מלא 1 ק\"ג",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 8.9,
+    "barcode": "7296073173335",
+    "brand": "טחנות ישראליות בעמ",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7296073173335/files/360_assets/index/images/7296073173335_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  }
+]
