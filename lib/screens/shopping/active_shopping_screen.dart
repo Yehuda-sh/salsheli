@@ -47,8 +47,10 @@ import '../../providers/shopping_lists_provider.dart';
 import '../../providers/user_context.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
+import '../../widgets/common/skeleton_loading.dart';
 import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/sticky_note.dart';
+import '../../widgets/common/tappable_card.dart';
 import '../../widgets/home/last_chance_banner.dart';
 
 class ActiveShoppingScreen extends StatefulWidget {
@@ -74,9 +76,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
   String? _errorMessage;
   bool _isSaving = false;
 
-  // 💫 Animation Controller
-  late AnimationController _animationController;
-
   // 🧑 UserContext Listener
   late UserContext _userContext;
 
@@ -84,9 +83,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
   void initState() {
     super.initState();
     debugPrint('🛒 ActiveShoppingScreen.initState: התחלה');
-
-    // Animation Controller for micro-animations
-    _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
 
     // ✅ UserContext Listener - לאזור לשינויים בנתוני המשתמש
     _userContext = context.read<UserContext>();
@@ -154,17 +150,13 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
   void dispose() {
     debugPrint('🗑️ ActiveShoppingScreen.dispose');
     _timer?.cancel();
-    _animationController.dispose();
     _userContext.removeListener(_onUserContextChanged); // ✅ חובה!
     super.dispose();
   }
 
-  /// עדכון סטטוס פריט עם Animation
+  /// עדכון סטטוס פריט
   void _updateItemStatus(UnifiedListItem item, ShoppingItemStatus newStatus) {
     debugPrint('📝 _updateItemStatus: ${item.name} → ${newStatus.label}');
-
-    // Animation קלה
-    _animationController.forward(from: 0.0);
 
     setState(() {
       _itemStatuses[item.id] = newStatus;
@@ -488,7 +480,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
                             item: item,
                             status: _itemStatuses[item.id]!,
                             onStatusChanged: (newStatus) => _updateItemStatus(item, newStatus),
-                            animationController: _animationController,
                           ),
                         ),
 
@@ -544,35 +535,10 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
 // Widget: Loading Skeleton Screen
 // ========================================
 
-class _LoadingSkeletonScreen extends StatefulWidget {
+class _LoadingSkeletonScreen extends StatelessWidget {
   final Color accentColor;
 
   const _LoadingSkeletonScreen({required this.accentColor});
-
-  @override
-  State<_LoadingSkeletonScreen> createState() => _LoadingSkeletonScreenState();
-}
-
-class _LoadingSkeletonScreenState extends State<_LoadingSkeletonScreen> with SingleTickerProviderStateMixin {
-  late AnimationController _shimmerController;
-  late Animation<double> _shimmerAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _shimmerController = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500))..repeat();
-
-    _shimmerAnimation = Tween<double>(
-      begin: -2,
-      end: 2,
-    ).animate(CurvedAnimation(parent: _shimmerController, curve: Curves.easeInOut));
-  }
-
-  @override
-  void dispose() {
-    _shimmerController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -582,19 +548,22 @@ class _LoadingSkeletonScreenState extends State<_LoadingSkeletonScreen> with Sin
       children: [
         // Stats Header Skeleton
         Container(
-            padding: const EdgeInsets.all(kSpacingMedium),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [widget.accentColor.withValues(alpha: 0.1), cs.surface],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: List.generate(4, (index) => _ShimmerBox(width: 60, height: 80, animation: _shimmerAnimation)),
+          padding: const EdgeInsets.all(kSpacingMedium),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [accentColor.withValues(alpha: 0.1), cs.surface],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
             ),
           ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(
+              4,
+              (index) => const SkeletonBox(width: 60, height: 80),
+            ),
+          ),
+        ),
 
         // Items List Skeleton
         Expanded(
@@ -610,23 +579,23 @@ class _LoadingSkeletonScreenState extends State<_LoadingSkeletonScreen> with Sin
                   children: [
                     Row(
                       children: [
-                        _ShimmerBox(width: 40, height: 40, animation: _shimmerAnimation, borderRadius: 20),
+                        SkeletonBox(
+                          width: 40,
+                          height: 40,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
                         const SizedBox(width: kSpacingSmall),
-                        Expanded(child: _ShimmerBox(height: 20, animation: _shimmerAnimation)),
+                        const Expanded(child: SkeletonBox(height: 20)),
                         const SizedBox(width: kSpacingSmall),
-                        _ShimmerBox(width: 60, height: 30, animation: _shimmerAnimation),
+                        const SkeletonBox(width: 60, height: 30),
                       ],
                     ),
                     const SizedBox(height: kSpacingSmall),
-                    Row(
+                    const Row(
                       children: [
-                        Expanded(
-                          child: _ShimmerBox(height: kButtonHeight, animation: _shimmerAnimation),
-                        ),
-                        const SizedBox(width: kSpacingSmall),
-                        Expanded(
-                          child: _ShimmerBox(height: kButtonHeight, animation: _shimmerAnimation),
-                        ),
+                        Expanded(child: SkeletonBox(height: kButtonHeight)),
+                        SizedBox(width: kSpacingSmall),
+                        Expanded(child: SkeletonBox(height: kButtonHeight)),
                       ],
                     ),
                   ],
@@ -636,47 +605,6 @@ class _LoadingSkeletonScreenState extends State<_LoadingSkeletonScreen> with Sin
           ),
         ),
       ],
-    );
-  }
-}
-
-// ========================================
-// Widget: Shimmer Box
-// ========================================
-
-class _ShimmerBox extends StatelessWidget {
-  final double? width;
-  final double height;
-  final double borderRadius;
-  final Animation<double> animation;
-
-  const _ShimmerBox({this.width, required this.height, this.borderRadius = kBorderRadius, required this.animation});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return AnimatedBuilder(
-      animation: animation,
-      builder: (context, child) {
-        return Container(
-          width: width,
-          height: height,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(borderRadius),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                cs.surfaceContainerHighest.withValues(alpha: 0.3),
-                cs.surfaceContainerHighest.withValues(alpha: 0.1),
-                cs.surfaceContainerHighest.withValues(alpha: 0.3),
-              ],
-              stops: [0.0, animation.value.clamp(0.0, 1.0), 1.0],
-            ),
-          ),
-        );
-      },
     );
   }
 }
@@ -774,19 +702,40 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Icon(icon, color: color, size: kIconSizeLarge),
-        const SizedBox(height: kSpacingTiny),
-        Text(
-          value,
-          style: TextStyle(fontSize: kFontSizeXLarge, fontWeight: FontWeight.bold, color: color),
-        ),
-        Text(
-          label,
-          style: TextStyle(fontSize: kFontSizeSmall, color: color.withValues(alpha: 0.7)),
-        ),
-      ],
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: kSpacingSmall,
+        vertical: kSpacingTiny,
+      ),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: kIconSizeLarge),
+          const SizedBox(height: kSpacingTiny),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: kFontSizeXLarge,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: kFontSizeSmall,
+              color: color.withValues(alpha: 0.8),
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -799,13 +748,11 @@ class _ActiveShoppingItemTile extends StatelessWidget {
   final UnifiedListItem item;
   final ShoppingItemStatus status;
   final Function(ShoppingItemStatus) onStatusChanged;
-  final AnimationController animationController;
 
   const _ActiveShoppingItemTile({
     required this.item,
     required this.status,
     required this.onStatusChanged,
-    required this.animationController,
   });
 
   @override
@@ -843,11 +790,8 @@ class _ActiveShoppingItemTile extends StatelessWidget {
         rotation = 0.005;
     }
 
-    return ScaleTransition(
-      scale: Tween<double>(
-        begin: 1.0,
-        end: 0.98,
-      ).animate(CurvedAnimation(parent: animationController, curve: Curves.easeInOut)),
+    return SimpleTappableCard(
+      onTap: null, // לא צריך onTap - הכפתורים בפנים מטפלים
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
