@@ -5,11 +5,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../../core/ui_constants.dart';
 import '../../models/shopping_list.dart';
 import '../../providers/shopping_lists_provider.dart';
-import '../create_list_dialog.dart';
 import '../common/dashboard_card.dart';
-import '../../core/ui_constants.dart';
+import '../shopping/create_list_dialog.dart';
 
 class UpcomingShopCard extends StatelessWidget {
   final ShoppingList? list;
@@ -23,7 +24,7 @@ class UpcomingShopCard extends StatelessWidget {
     showDialog(
       context: context,
       builder: (dialogContext) => CreateListDialog(
-        onCreateList: (listData) async {
+        onCreateList: (Map<String, dynamic> listData) async {
           Navigator.of(dialogContext).pop();
 
           final name = listData['name'] as String?;
@@ -51,7 +52,7 @@ class UpcomingShopCard extends StatelessWidget {
             onCreateList: () => _showCreateListDialog(context),
           )
         : DashboardCard(
-            title: "הקנייה הקרובה",
+            title: 'הקנייה הקרובה',
             icon: Icons.shopping_cart,
             color: kStickyPink,
             rotation: 0.015,
@@ -79,20 +80,20 @@ class _EmptyUpcomingCard extends StatelessWidget {
     final cs = theme.colorScheme;
 
     return DashboardCard(
-      title: "הקנייה הקרובה",
+      title: 'הקנייה הקרובה',
       icon: Icons.shopping_cart_outlined,
       color: kStickyCyan,
       rotation: -0.01,
       child: Column(
         children: [
-          Icon(
+          const Icon(
             Icons.shopping_bag_outlined,
             size: 48,
-            color: cs.primary.withValues(alpha: 0.3),
+            color: Color(0x4D000000),
           ),
           const SizedBox(height: kBorderRadius),
           Text(
-            "אין רשימה פעילה כרגע",
+            'אין רשימה פעילה כרגע',
             style: theme.textTheme.bodyLarge?.copyWith(
               color: cs.onSurfaceVariant,
             ),
@@ -102,7 +103,7 @@ class _EmptyUpcomingCard extends StatelessWidget {
           FilledButton.icon(
             onPressed: onCreateList,
             icon: const Icon(Icons.add),
-            label: const Text("צור רשימה חדשה"),
+            label: const Text('צור רשימה חדשה'),
           ),
         ],
       ),
@@ -119,7 +120,7 @@ class _ListSummary extends StatelessWidget {
   /// 🏷️ מקבל את התג והצבע לסוג הרשימה
   (String label, Color color) _getTypeTagInfo() {
     switch (list.type) {
-      case ShoppingList.typeSuper:
+      case ShoppingList.typeSupermarket:
         return ('🛒 סופרמרקט', kStickyGreen);
       case ShoppingList.typePharmacy:
         return ('💊 בית מרקחת', kStickyCyan);
@@ -151,9 +152,9 @@ class _ListSummary extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
-            const SizedBox(width: kSpacingSmall),
-            // תג סוג הרשימה
+              ),
+              const SizedBox(width: kSpacingSmall),
+              // תג סוג הרשימה
             Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: kSpacingSmall,
@@ -184,7 +185,7 @@ class _ListSummary extends StatelessWidget {
 
         // ספירת פריטים
         Text(
-          "$itemsCount פריטים",
+          '$itemsCount פריטים',
           style: theme.textTheme.bodyLarge?.copyWith(
             color: cs.onSurfaceVariant,
             fontWeight: FontWeight.w500,
