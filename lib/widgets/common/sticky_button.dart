@@ -98,8 +98,6 @@ class StickyButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('🔘 StickyButton.build(label: $label)');
-
     final theme = Theme.of(context);
     final buttonColor = color ?? theme.colorScheme.primary;
 

@@ -500,28 +500,12 @@ class ShoppingList {
   /// 🇮🇱 יצירה מ-JSON
   /// 🇬🇧 Create from JSON
   factory ShoppingList.fromJson(Map<String, dynamic> json) {
-    if (kDebugMode) {
-      debugPrint('📥 ShoppingList.fromJson:');
-      debugPrint('   id: ${json['id']}');
-      debugPrint('   name: ${json['name']}');
-      debugPrint('   type: ${json['type']}');
-      debugPrint('   status: ${json['status']}');
-      debugPrint('   items: ${(json['items'] as List?)?.length ?? 0}');
-    }
     return _$ShoppingListFromJson(json);
   }
 
   /// 🇮🇱 המרה ל-JSON
   /// 🇬🇧 Convert to JSON
   Map<String, dynamic> toJson() {
-    if (kDebugMode) {
-      debugPrint('📤 ShoppingList.toJson:');
-      debugPrint('   id: $id');
-      debugPrint('   name: $name');
-      debugPrint('   type: $type');
-      debugPrint('   status: $status');
-      debugPrint('   items: ${items.length}');
-    }
     return _$ShoppingListToJson(this);
   }
 

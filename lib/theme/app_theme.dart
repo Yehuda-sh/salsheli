@@ -178,9 +178,6 @@ class AppBrand extends ThemeExtension<AppBrand> {
     Color? notebookBlue,
     Color? notebookRed,
   }) {
-    if (kDebugMode) {
-      debugPrint('🎨 AppBrand.copyWith()');
-    }
     return AppBrand(
       accent: accent ?? this.accent,
       surfaceSlate: surfaceSlate ?? this.surfaceSlate,
@@ -200,9 +197,6 @@ class AppBrand extends ThemeExtension<AppBrand> {
 
   @override
   AppBrand lerp(ThemeExtension<AppBrand>? other, double t) {
-    if (kDebugMode) {
-      debugPrint('🎨 AppBrand.lerp(t: ${t.toStringAsFixed(2)})');
-    }
     if (other is! AppBrand) return this;
     return AppBrand(
       accent: Color.lerp(accent, other.accent, t)!,
@@ -268,11 +262,6 @@ class AppTheme {
     ColorScheme dynamicScheme, {
     required bool dark,
   }) {
-    if (kDebugMode) {
-      debugPrint('🎨 AppTheme.fromDynamicColors(dark: $dark)');
-      debugPrint('   📱 Material You - Dynamic Color detected!');
-    }
-    
     // Harmonization: התאם את Amber/Success/Warning לצבעי המערכת
     // זה שומר על הזהות של המותג אבל משלב אותם בצבעי המשתמש
     final harmonizedAccent = _harmonizeColor(
@@ -287,10 +276,6 @@ class AppTheme {
       Colors.orange.shade700,
       dynamicScheme.primary,
     );
-    
-    if (kDebugMode) {
-      debugPrint('   🎨 accent: harmonized ${_Brand.amber.value.toRadixString(16)} → ${harmonizedAccent.value.toRadixString(16)}');
-    }
     
     final brand = AppBrand(
       accent: harmonizedAccent,
@@ -347,10 +332,6 @@ class AppTheme {
     required bool dark,
     AppBrand? customBrand,
   }) {
-    if (kDebugMode) {
-      debugPrint('🎨 AppTheme._base(dark: $dark, customBrand: ${customBrand != null})');
-    }
-    
     // צור AppBrand - או customBrand (מ-dynamic colors) או ברירת מחדל
     final brand = customBrand ?? AppBrand(
       accent: _Brand.amber,
@@ -367,11 +348,6 @@ class AppTheme {
       notebookBlue: kNotebookBlue,
       notebookRed: kNotebookRed,
     );
-    
-    if (customBrand == null && kDebugMode) {
-      debugPrint('   🎨 accent: ${brand.accent.value.toRadixString(16)}');
-      debugPrint('   🎨 surfaceSlate: ${brand.surfaceSlate.value.toRadixString(16)}');
-    }
 
     // צבעי מילוי דקים לשדות טופס
     // Light: שקוף יותר (6% opacity)
@@ -736,9 +712,6 @@ class AppTheme {
   /// Theme בסיסי ללא Dynamic Color.
   /// לשימוש כ-fallback כאשר Dynamic Color לא זמין.
   static ThemeData get lightTheme {
-    if (kDebugMode) {
-      debugPrint('☀️ AppTheme.lightTheme - Loading...');
-    }
     return _base(_lightScheme, dark: false);
   }
 
@@ -747,9 +720,6 @@ class AppTheme {
   /// Theme בסיסי ללא Dynamic Color.
   /// לשימוש כ-fallback כאשר Dynamic Color לא זמין.
   static ThemeData get darkTheme {
-    if (kDebugMode) {
-      debugPrint('🌙 AppTheme.darkTheme - Loading...');
-    }
     return _base(_darkScheme, dark: true);
   }
 }

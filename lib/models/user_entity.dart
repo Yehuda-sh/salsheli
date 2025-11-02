@@ -167,26 +167,12 @@ class UserEntity {
   /// 🇮🇱 יצירה מ-JSON
   /// 🇬🇧 Create from JSON
   factory UserEntity.fromJson(Map<String, dynamic> json) {
-    if (kDebugMode) {
-      debugPrint('📥 UserEntity.fromJson:');
-      debugPrint('   id: ${json['id']}');
-      debugPrint('   name: ${json['name']}');
-      debugPrint('   email: ${json['email']}');
-      debugPrint('   household_id: ${json['household_id']}');
-    }
     return _$UserEntityFromJson(json);
   }
 
   /// 🇮🇱 המרה ל-JSON
   /// 🇬🇧 Convert to JSON
   Map<String, dynamic> toJson() {
-    if (kDebugMode) {
-      debugPrint('📤 UserEntity.toJson:');
-      debugPrint('   id: $id');
-      debugPrint('   name: $name');
-      debugPrint('   email: $email');
-      debugPrint('   household_id: $householdId');
-    }
     return _$UserEntityToJson(this);
   }
 

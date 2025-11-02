@@ -72,6 +72,7 @@ flutter:
 
   assets:
     - assets/data/products.json
+    - assets/data/list_types/
     - assets/templates/
     - assets/images/
 

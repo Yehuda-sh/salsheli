@@ -245,22 +245,10 @@ class UnifiedListItem {
   // ════════════════════════════════════════════
 
   factory UnifiedListItem.fromJson(Map<String, dynamic> json) {
-    if (kDebugMode) {
-      debugPrint('📥 UnifiedListItem.fromJson:');
-      debugPrint('   id: ${json['id']}');
-      debugPrint('   name: ${json['name']}');
-      debugPrint('   type: ${json['type']}');
-    }
     return _$UnifiedListItemFromJson(json);
   }
 
   Map<String, dynamic> toJson() {
-    if (kDebugMode) {
-      debugPrint('📤 UnifiedListItem.toJson:');
-      debugPrint('   id: $id');
-      debugPrint('   name: $name');
-      debugPrint('   type: $type');
-    }
     return _$UnifiedListItemToJson(this);
   }
 

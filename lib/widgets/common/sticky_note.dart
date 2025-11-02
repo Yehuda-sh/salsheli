@@ -84,8 +84,6 @@ class StickyNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('📝 StickyNote.build(rotation: ${rotation.toStringAsFixed(3)})');
-
     return Transform.rotate(
       angle: rotation,
       child: Container(
@@ -163,8 +161,6 @@ class StickyNoteLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('📝 StickyNoteLogo.build()');
-
     return Transform.rotate(
       angle: rotation,
       child: Container(

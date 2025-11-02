@@ -59,7 +59,6 @@ class NotebookBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('📄 NotebookBackground.build()');
     return SizedBox.expand(
       child: CustomPaint(
         painter: _NotebookPainter(context),
