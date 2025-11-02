@@ -30,6 +30,7 @@ import 'package:memozap/providers/user_context.dart';
 import 'package:memozap/services/share_list_service.dart';
 import 'package:memozap/widgets/common/notebook_background.dart';
 import 'package:memozap/widgets/common/sticky_button.dart';
+import 'package:memozap/widgets/dialogs/invite_user_dialog.dart';
 
 /// 🇮🇱 מסך ניהול משתמשים משותפים
 /// 🇬🇧 Manage shared users screen
@@ -227,6 +228,15 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     );
   }
 
+  Future<void> _inviteUser() async {
+    final result = await showInviteUserDialog(context, widget.list);
+    
+    if (result == true && mounted) {
+      // רענון רשימת המשתמשים
+      _loadUsers();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final userContext = context.watch<UserContext>();
@@ -276,14 +286,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       ),
       floatingActionButton: isOwner
           ? FloatingActionButton.extended(
-              onPressed: () {
-                // TODO(UI): פתיחת Invite User Dialog
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('הזמנת משתמשים תהיה זמינה בקרוב'),
-                  ),
-                );
-              },
+              onPressed: _inviteUser,
               backgroundColor: kStickyGreen,
               icon: const Icon(Icons.person_add),
               label: const Text('הזמן משתמש'),

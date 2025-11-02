@@ -290,8 +290,8 @@ void main() {
         );
 
         // Mock Owner
-        when(mockUserContext.currentUserId).thenReturn(ownerId);
-        when(mockUserContext.currentUserName).thenReturn('Owner User');
+        when(mockUserContext.userId).thenReturn(ownerId);
+        when(mockUserContext.displayName).thenReturn('Owner User');
       });
 
       test('Owner can reject request', () async {
@@ -342,7 +342,7 @@ void main() {
           ),
         );
 
-        verifyNever(mockRepository.update(any));
+        verifyNever(mockRepository.saveList(any, any));
       });
     });
 

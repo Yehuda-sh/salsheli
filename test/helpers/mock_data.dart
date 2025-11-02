@@ -12,7 +12,7 @@
 
 import 'package:memozap/models/user_entity.dart';
 import 'package:memozap/models/shopping_list.dart';
-import 'package:memozap/models/receipt.dart'; // ReceiptItem
+import 'package:memozap/models/unified_list_item.dart';
 
 /// משתמש דמו מלא
 UserEntity createMockUser({
@@ -34,8 +34,8 @@ ShoppingList createMockShoppingList({
   String? id,
   String? name,
   String? createdBy,
-  List<ReceiptItem>? items,
-  String type = ShoppingList.typeSuper,
+  List<UnifiedListItem>? items,
+  String type = ShoppingList.typeSupermarket,
 }) {
   return ShoppingList.newList(
     id: id ?? 'list-123',
@@ -47,28 +47,29 @@ ShoppingList createMockShoppingList({
 }
 
 /// פריט קנייה דמו
-ReceiptItem createMockShoppingItem({
+UnifiedListItem createMockShoppingItem({
   String? id,
   String? name,
   int quantity = 1,
   bool isBought = false,
 }) {
-  return ReceiptItem(
+  return UnifiedListItem.product(
     id: id ?? 'item-123',
     name: name ?? 'חלב',
     quantity: quantity,
+    unitPrice: 0.0,
     isChecked: isBought,
   );
 }
 
-/// מוצר דמו (משתמשים ב-ReceiptItem בפרויקט)
-ReceiptItem createMockProduct({
+/// מוצר דמו
+UnifiedListItem createMockProduct({
   String? id,
   String? name,
   double? price,
   String? barcode,
 }) {
-  return ReceiptItem(
+  return UnifiedListItem.product(
     id: id ?? 'product-123',
     name: name ?? 'חלב 3%',
     quantity: 1,
@@ -90,7 +91,7 @@ List<UserEntity> createMockUsers(int count) {
 }
 
 /// רשימת פריטים דמו
-List<ReceiptItem> createMockShoppingItems(int count) {
+List<UnifiedListItem> createMockShoppingItems(int count) {
   final items = [
     'חלב',
     'לחם',
@@ -115,7 +116,7 @@ List<ReceiptItem> createMockShoppingItems(int count) {
 }
 
 /// רשימת מוצרים דמו
-List<ReceiptItem> createMockProducts(int count) {
+List<UnifiedListItem> createMockProducts(int count) {
   final products = [
     {'name': 'חלב 3%', 'price': 5.90},
     {'name': 'לחם פרוס', 'price': 6.50},

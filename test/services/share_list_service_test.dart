@@ -17,17 +17,11 @@ void main() {
 
     setUp(() {
       // רשימה בסיסית עם Owner בלבד
-      testList = ShoppingList(
+      testList = ShoppingList.newList(
         id: 'list-001',
         name: 'רשימת קניות',
         createdBy: ownerId,
-        createdDate: DateTime.now(),
-        updatedDate: DateTime.now(),
-        householdId: 'household-001',
         items: [],
-        sharedUsers: [],
-        pendingRequests: [],
-        isShared: false,
       );
     });
 

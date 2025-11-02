@@ -11,6 +11,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:hive_flutter/hive_flutter.dart'; // 📦 Hive!
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
@@ -80,6 +81,9 @@ void main() async {
   // This prevents race condition where Providers try to access Firebase
   // (e.g., AuthService calling FirebaseAuth.instance) before initialization completes
   await Future.delayed(const Duration(milliseconds: 100));
+
+  // 📦 Initialize Hive for local storage
+  await Hive.initFlutter();
 
   // 📦 Create Local Products Repository
   final productsRepo = LocalProductsRepository();
