@@ -504,12 +504,14 @@ Result: Almost deleted core animation wrapper!
 
 ---
 
-### 🔍 שלב 7: בקש אימות PowerShell מהמשתמש (המלצה!)
+### 🔍 שלב 7: בקש אימות PowerShell מהמשתמש (חובה!)
 
-**מתי להשתמש:**
-- כש-search_files מחזיר 0 תוצאות
-- קובץ גדול (500+ שורות) שנראה "לא בשימוש"
-- ספק אם הבדיקות שלב 1-6 מספיקות
+**💀 CRITICAL: תמיד שלח פקודת PowerShell למשתמש לפני קביעת dead code!**
+
+**מתי חובה להשתמש:**
+- **תמיד** כש-search_files מחזיר 0 תוצאות
+- **תמיד** לפני הצהרה על dead code
+- **תמיד** כשיש ספק אם קובץ בשימוש
 
 **הפרוטוקול:**
 
@@ -521,13 +523,13 @@ Result: Almost deleted core animation wrapper!
   דוגמה:
     Get-ChildItem -Path "C:\projects\salsheli\lib" -Recurse -Filter "*.dart" | Select-String "storage_location_manager|StorageLocationManager" | Select-Object Path, LineNumber, Line
 
-שלב 7.2: בקש מהמשתמש
+שלב 7.2: בקש מהמשתמש (חובה!)
   טקסט:
-    "אני לא בטוח אם הקובץ בשימוש. אנא הרץ את הפקודה הבאה ב-PowerShell והדבק את התוצאה:
+    "לפני שאני קובע אם זה dead code, אנא הרץ את הפקודה הבאה ב-PowerShell והדבק את התוצאה:
     
     [הפקודה כאן]
     
-    זה יעזור לי לוודא בדיוק איפה הקובץ משמש."
+    זה יוודא בדיוק איפה הקובץ משמש (5 false positives קרו בעבר!)."
 
 שלב 7.3: נתח תוצאה
   אם יש תוצאות:
@@ -582,11 +584,10 @@ Get-ChildItem -Path "C:\projects\salsheli\lib\screens" -Recurse -Filter "*.dart"
 Get-ChildItem -Path "C:\projects\salsheli\lib" -Recurse -Filter "*.dart" | Select-String "import.*my_file.dart" | Select-Object Path, LineNumber
 ```
 
-**מתי לדלג על שלב 7:**
-- קבצים קטנים (< 100 שורות)
-- כבר יש 3+ מופעים ב-search_files
-- קובץ ברור שלא בשימוש (test file ישן, duplicate)
-- זמן לחוץ וסיכון נמוך
+**מתי אפשר לדלג על שלב 7:**
+- **רק** אם כבר יש 3+ מופעים ב-search_files (בטוח בשימוש)
+- **אחרת - תמיד שלח פקודה למשתמש!**
+- זכור: 5 false positives קרו כי דילגנו על שלב זה
 
 ---
 
@@ -641,9 +642,6 @@ Get-ChildItem -Path "C:\projects\salsheli\lib" -Recurse -Filter "*.dart" | Selec
 2. capture context לפני await
 3. הוסף const ב-8 מקומות
 4. מחק getTasks()
-
-🧠 תובנה:
-בעיית dispose חוזרת ב-5 Providers → לעדכן LESSONS_LEARNED
 ```
 
 ---

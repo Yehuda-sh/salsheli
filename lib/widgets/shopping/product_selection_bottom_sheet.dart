@@ -20,6 +20,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/app_strings.dart';
 import '../../core/ui_constants.dart';
 import '../../models/receipt.dart';
 import '../../models/shopping_list.dart';
@@ -76,7 +77,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
   @override
   void dispose() {
     _userContext.removeListener(_onUserContextChanged);
-    _productsProvider?.clearListType(notify: false);
+    _productsProvider?.clearListType();
     _searchController.dispose();
     _customQuantityController.dispose();
     super.dispose();
@@ -109,7 +110,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
         newItem.unit ?? "יח'",
       );
       debugPrint('   ✅ נוסף בהצלחה');
-
+      
       if (!mounted) return;
 
       messenger.showSnackBar(
@@ -148,9 +149,9 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
       expand: false,
       builder: (context, scrollController) {
         return Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: kPaperBackground,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
           ),
           child: Column(
             children: [
@@ -221,7 +222,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                   controller: _searchController,
                   onChanged: (value) => productsProvider.setSearchQuery(value.trim()),
                   decoration: InputDecoration(
-                    hintText: 'חפש מוצר...',
+                    hintText: AppStrings.priceComparison.searchHint,
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
@@ -252,7 +253,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                       Padding(
                         padding: const EdgeInsets.only(left: kSpacingSmall),
                         child: FilterChip(
-                          label: const Text('הכל'),
+                          label: Text(AppStrings.filters.allCategories),
                           selected: productsProvider.selectedCategory == null,
                           onSelected: (_) => productsProvider.clearCategory(),
                           selectedColor: cs.primary.withValues(alpha: 0.2),
@@ -281,7 +282,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                 padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
                 child: Row(
                   children: [
-                    const Text('כמות:'),
+                    Text(AppStrings.listDetails.quantityLabel),
                     const SizedBox(width: kSpacingSmall),
                     SizedBox(
                       width: kFieldWidthNarrow,
@@ -332,7 +333,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
           children: [
             CircularProgressIndicator(color: cs.primary),
             const SizedBox(height: kSpacingMedium),
-            Text('טוען מוצרים...', style: TextStyle(color: cs.onSurfaceVariant)),
+            Text(AppStrings.common.loading, style: TextStyle(color: cs.onSurfaceVariant)),
           ],
         ),
       );
@@ -354,7 +355,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
               ),
               const SizedBox(height: kSpacingLarge),
               StickyButton(
-                label: 'נסה שוב',
+                label: AppStrings.common.retry,
                 icon: Icons.refresh,
                 onPressed: () => provider.loadProducts(),
                 color: kStickyGreen,

@@ -41,7 +41,7 @@ import '../../widgets/common/pending_requests_section.dart';
 import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/sticky_note.dart';
 import '../../widgets/shopping/product_selection_bottom_sheet.dart';
-import '../lists/share_list_screen.dart';
+import '../settings/manage_users_screen.dart';
 
 class ShoppingListDetailsScreen extends StatefulWidget {
   final ShoppingList list;
@@ -540,7 +540,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                 tooltip: AppStrings.listDetails.shareListTooltip,
                 onPressed: () {
                   final navigator = Navigator.of(context);
-                  navigator.push(MaterialPageRoute(builder: (context) => ShareListScreen(list: currentList)));
+                  navigator.push(MaterialPageRoute(builder: (context) => ManageUsersScreen(list: currentList)));
                 },
               ),
             ),
