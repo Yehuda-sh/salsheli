@@ -37,10 +37,9 @@ import '../../providers/user_context.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_note.dart';
-import '../../widgets/create_list_dialog.dart';
-
 import '../../widgets/home/smart_suggestions_card.dart';
 import '../../widgets/home/upcoming_shop_card.dart';
+import '../../widgets/shopping/create_list_dialog.dart';
 import 'home_dashboard_screen_ux.dart';
 
 class HomeDashboardScreen extends StatefulWidget {
@@ -71,11 +70,14 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     if (kDebugMode) {
       debugPrint('🏠 HomeDashboard: מתחיל refresh...');
     }
-    HapticFeedback.mediumImpact(); // ✨ רטט בהתחלת refresh
+    await HapticFeedback.mediumImpact(); // ✨ רטט בהתחלת refresh
+    
+    // ✅ שמירת providers לפני await
+    final lists = context.read<ShoppingListsProvider>();
+    final sugg = context.read<SuggestionsProvider>();
     
     // ✅ טעינת רשימות - נפרד
     try {
-      final lists = context.read<ShoppingListsProvider>();
       await lists.loadLists();
       if (kDebugMode) {
         debugPrint('   ✅ רשימות נטענו: ${lists.lists.length}');
@@ -91,7 +93,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
     // ✅ טעינת הצעות - נפרד
     try {
-      final sugg = context.read<SuggestionsProvider>();
       await sugg.refreshSuggestions();
       if (kDebugMode) {
         debugPrint('   ✅ הצעות נטענו: ${sugg.suggestions.length}');
@@ -107,7 +108,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     await Future.delayed(const Duration(milliseconds: 300));
     
     if (context.mounted) {
-      HapticFeedback.lightImpact(); // ✨ רטט קל בסיום
+      await HapticFeedback.lightImpact(); // ✨ רטט קל בסיום
     }
     
     if (kDebugMode) {
@@ -161,7 +162,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   }
 
   void _showCreateListDialog(BuildContext context) {
-    HapticFeedback.lightImpact(); // ✨ רטט קל
+    HapticFeedback.lightImpact().ignore(); // ✨ רטט קל
     if (kDebugMode) {
       debugPrint('🏠 HomeDashboard: פותח דיאלוג יצירת רשימה');
     }
@@ -199,7 +200,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               
               // ✅ שימוש ב-scaffoldMessenger שנשמר
               if (mounted) {
-                HapticFeedback.lightImpact(); // ✨ רטט הצלחה
+                HapticFeedback.lightImpact().ignore(); // ✨ רטט הצלחה
                 scaffoldMessenger.showSnackBar(
                   SnackBar(
                     content: Row(
@@ -215,7 +216,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                       ],
                     ),
                     backgroundColor: Colors.green.shade700,
-                    behavior: SnackBarBehavior.floating,
                     duration: const Duration(seconds: 3),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(kBorderRadius),
@@ -229,7 +229,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               }
               
               if (mounted) {
-                HapticFeedback.heavyImpact(); // ✨ רטט חזק לשגיאה
+                HapticFeedback.heavyImpact().ignore(); // ✨ רטט חזק לשגיאה
                 scaffoldMessenger.showSnackBar(
                   SnackBar(
                     content: Row(
@@ -352,7 +352,7 @@ class _Content extends StatelessWidget {
             child: TextButton.icon(
               onPressed: () {
                 // Navigate to lists tab (index 1)
-                DefaultTabController.of(context)?.animateTo(1);
+                DefaultTabController.of(context).animateTo(1);
               },
               icon: const Icon(Icons.list_alt),
               label: Text(
@@ -367,7 +367,7 @@ class _Content extends StatelessWidget {
                   horizontal: kSpacingLarge,
                   vertical: kSpacingMedium,
                 ),
-              ),
+              )
             ),
           )
             .animate()
@@ -429,7 +429,7 @@ class _ImprovedEmptyState extends StatelessWidget {
 
     return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           vertical: kSpacingLarge * 2.67, // 64px
           horizontal: kSpacingXLarge,
         ),

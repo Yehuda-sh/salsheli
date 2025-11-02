@@ -114,6 +114,7 @@ const Duration kAnimationDuration = Duration(milliseconds: 250);       // Defaul
 const Duration kAnimationDurationShort = Duration(milliseconds: 150);  // Short animation
 const Duration kAnimationDurationMedium = Duration(milliseconds: 350); // Medium animation
 const Duration kAnimationDurationLong = Duration(milliseconds: 500);   // Long animation
+const Duration kAnimationDurationSlow = Duration(milliseconds: 2000);  // Slow animation (shimmer)
 
 const Duration kSnackBarDuration = Duration(seconds: 3);      // Default SnackBar
 const Duration kSnackBarDurationShort = Duration(seconds: 2); // Short SnackBar
@@ -164,6 +165,9 @@ const double kCardElevationHigh = 4.0;      // High card elevation
 // OPACITY
 // ═══════════════════════════════════════════════════════════════════════════
 
+const double kOpacityMinimal = 0.05; // Minimal opacity (shimmer effect)
+const double kOpacityVeryLow = 0.1;  // Very low opacity
+const double kOpacityLow = 0.2;      // Low opacity
 const double kOpacityLight = 0.3;   // Light opacity
 const double kOpacityMedium = 0.5;  // Medium opacity
 
@@ -259,3 +263,7 @@ const double kStickyLogoShadowPrimaryOffsetY = 4.0;   // Logo primary shadow Y o
 const double kStickyLogoShadowSecondaryOpacity = 0.2; // Logo secondary shadow opacity
 const double kStickyLogoShadowSecondaryBlur = 12.0;   // Logo secondary shadow blur
 const double kStickyLogoShadowSecondaryOffsetY = 8.0; // Logo secondary shadow Y offset
+
+// Logo Glow Effect
+const double kLogoGlowPadding = 32.0;  // Padding around logo for glow effect
+const double kShimmerAngle = 0.0;      // Shimmer effect angle (radians)
