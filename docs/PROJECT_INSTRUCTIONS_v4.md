@@ -1,6 +1,6 @@
-# 📋 MemoZap Project Instructions v4.7
+# 📋 MemoZap Project Instructions v4.8
 
-> Machine-Readable | Full YAML Format | Updated: 29/10/2025
+> Machine-Readable | Full YAML Format | Updated: 02/11/2025
 
 ---
 
@@ -310,16 +310,17 @@ code_review_protocol:
   step_1: read_file(target_file) FULL - not partial!
   step_2: search_files(lib, filename) # check external imports
   step_3: |
-    6-Step Dead Code Verification (CRITICAL!):
+    7-Step Dead Code Verification (CRITICAL!):
     1. search_files - check imports across project
     2. read_file FULL - read entire file (not partial!)
     3. in-file usage - check usage within file itself
     4. constants usage - search for k[ClassName] patterns
     5. static usage - search for ClassName.method patterns
     6. final approval - only after 5 negative checks
+    7. PowerShell verification - for large files (500+ lines) with 0 results, ask user to run PowerShell command
   step_4: |
     Final decision:
-    IF all 6 checks negative:
+    IF all 7 checks negative:
       report "💀 Dead Code - not used"
     ELSE:
       report "✅ ACTIVE - used via [mechanism]"
@@ -347,15 +348,17 @@ code_review_protocol:
   
   critical_warning: |
     ⚠️ FALSE-POSITIVE PREVENTION:
-    search_files misses 3 usage types:
+    search_files misses 4 usage types:
     1. in-file usage (AppStrings.layout.title)
     2. constants usage (kMinFamilySize)
     3. static class usage (StoresConfig.isValid)
+    4. class name vs filename (StorageLocationManager vs storage_location_manager)
     
     Impact: DELETING ACTIVE CODE breaks entire app!
     Rule: When in doubt - DON'T DELETE!
+    Step 7: For large files, ask user to verify with PowerShell (see CODE_REVIEW_CHECKLIST v2.3)
     
-    Real mistakes: sessions 41, 43 (2 active files deleted)
+    Real mistakes: sessions 41, 43, 48 (3 active files almost deleted)
 ```
 
 ---
@@ -790,14 +793,22 @@ error_11_most_recent:
   fix_12: Check ui_constants.dart first, add missing constants if needed
   learning_12: Before using new constants - verify they exist or add them
   impact_12: Medium - 8 compilation errors, fixed by adding 4 constants
+  
+  error_13: storage_location_manager.dart false dead code (session 48)
+  cause_13: search_files('storage_location_manager') = 0 imports, missed class name usage
+  actual_usage_13: StorageLocationManager used in my_pantry_screen.dart line 754
+  pattern_missed_13: Searched for filename, not class name (storage_location_manager vs StorageLocationManager)
+  fix_13: ALWAYS search for BOTH filename AND class name. Better: ask user for PowerShell verification
+  learning_13: PowerShell > MCP search_files for definitive file usage proof
+  impact_13: CRITICAL - almost deleted 990 lines of active code, user caught with PowerShell
 
 top_6_common_errors:
   1:
     name: false dead code detection
     impact: DELETING ACTIVE CODE (breaks entire app!)
     frequency: very_high
-    recent: 3 files (sessions 41-43: app_strings, constants, stores_config)
-    fix: Use 6-step protocol (not just search_files!)
+    recent: 4 files (sessions 41-43, 48: app_strings, constants, stores_config, storage_location_manager)
+    fix: Use 6-step protocol + PowerShell verification for large files (see CODE_REVIEW_CHECKLIST v2.3)
   
   2:
     name: bash_tool with Windows paths
@@ -959,7 +970,15 @@ critical_checklist_before_commit:
 - ✅ Documented: Always use write_file instead
 - ✅ Impact: Prevents wasting tool calls on broken tool
 
+**Updates v4.8 (session 48 - POWERSHELL VERIFICATION):**
+- ✅ Added error_13: storage_location_manager.dart false positive (990 lines)
+- ✅ Enhanced code_review_protocol: 6→7 steps (added PowerShell verification)
+- ✅ Updated critical_warning: 3→4 usage types that search_files misses
+- ✅ Updated top_6_common_errors: 3→4 false positive files
+- ✅ Added reference to CODE_REVIEW_CHECKLIST v2.3 (Step 7 protocol)
+- ✅ Impact: PowerShell verification prevents false positives on large files
+
 **Total:** 500 lines | Format: Pure YAML  
-**Version:** 4.7
-**Last Updated:** 29/10/2025  
+**Version:** 4.8
+**Last Updated:** 02/11/2025  
 **Maintainer:** MemoZap AI System

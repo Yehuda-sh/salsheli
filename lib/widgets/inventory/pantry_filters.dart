@@ -27,6 +27,7 @@ import 'package:flutter/material.dart';
 
 import 'package:memozap/config/filters_config.dart';
 import 'package:memozap/core/ui_constants.dart';
+import 'package:memozap/l10n/app_strings.dart';
 import 'package:memozap/theme/app_theme.dart';
 
 class PantryFilters extends StatelessWidget {
@@ -56,14 +57,14 @@ class PantryFilters extends StatelessWidget {
     final brand = theme.extension<AppBrand>();
 
     return Semantics(
-      label: 'סינון מזווה',
+      label: AppStrings.inventory.filterLabel,
       child: Container(
         padding: const EdgeInsets.all(kSpacingMedium),
         decoration: BoxDecoration(
           color: cs.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(kBorderRadius),
           border: Border.all(
-            color: cs.outline.withOpacity(0.3),
+            color: cs.outline.withValues(alpha: 0.3),
           ),
         ),
         child: Column(
@@ -74,7 +75,7 @@ class PantryFilters extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  'סינון לפי קטגוריה',
+                  AppStrings.inventory.filterByCategory,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     fontSize: kFontSizeBody,
@@ -109,7 +110,7 @@ class PantryFilters extends StatelessWidget {
                     color: brand?.accent ?? cs.primary,
                   ),
                   label: Text(
-                    'איפוס סינון',
+                    AppStrings.common.resetFilter,
                     style: TextStyle(
                       color: brand?.accent ?? cs.primary,
                       fontWeight: FontWeight.w600,
@@ -126,94 +127,100 @@ class PantryFilters extends StatelessWidget {
 
   /// בנייה של Dropdown לבחירת קטגוריה
   ///
+  /// מפוצל ל-2 פונקציות עזר: _buildDropdownLabel + _buildDropdownField
+  Widget _buildCategoryDropdown(BuildContext context) {
+    final currentText = getCategoryLabel(currentCategory);
+
+    return Semantics(
+      label: '${AppStrings.inventory.filterByCategory}: $currentText',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          _buildDropdownLabel(context),
+          const SizedBox(height: kSpacingSmall),
+          _buildDropdownField(context),
+        ],
+      ),
+    );
+  }
+
+  /// בנייה של תווית הDropdown
+  Widget _buildDropdownLabel(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return Text(
+      AppStrings.inventory.categoryLabel,
+      style: theme.textTheme.bodyMedium?.copyWith(
+        fontSize: kFontSizeSmall,
+        fontWeight: FontWeight.w500,
+        color: cs.onSurface,
+      ),
+    );
+  }
+
+  /// בנייה של שדה הDropdown עצמו
+  ///
   /// תכונות:
   /// - DropdownButtonFormField עם כל הקטגוריות מ-kCategories
   /// - RTL support: textDirection: TextDirection.rtl
   /// - Theme-aware: צבעים מ-AppBrand + colorScheme
-  /// - Accessibility: Semantics label + proper contrast
   /// - Styling: border, focused color, dropdownColor
-  /// - onChanged callback: קורא ל-onCategoryChanged עם הקטגוריה החדשה
-  ///
-  /// [context] - BuildContext לקבלת theme + AppBrand
-  /// Returns: Widget עם Dropdown מלא + Label
-  Widget _buildCategoryDropdown(BuildContext context) {
+  Widget _buildDropdownField(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
 
-    // קבלת הטקסט הנוכחי
-    final currentText = getCategoryLabel(currentCategory);
-
-    return Semantics(
-      label: 'סינון לפי קטגוריה: $currentText',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          // תווית
-          Text(
-            'קטגוריה',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontSize: kFontSizeSmall,
-              fontWeight: FontWeight.w500,
-              color: cs.onSurface,
-            ),
+    return DropdownButtonFormField<String>(
+      initialValue: currentCategory,
+      onChanged: (newCategory) {
+        if (newCategory != null) {
+          onCategoryChanged(newCategory);
+        }
+      },
+      isExpanded: true,
+      decoration: InputDecoration(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+          borderSide: BorderSide(color: cs.outline),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+          borderSide: BorderSide(color: cs.outline),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+          borderSide: BorderSide(
+            color: brand?.accent ?? cs.primary,
+            width: 2,
           ),
-          const SizedBox(height: kSpacingSmall),
-
-          // Dropdown
-          DropdownButtonFormField<String>(
-            initialValue: currentCategory,
-            onChanged: (newCategory) {
-              if (newCategory != null) {
-                onCategoryChanged(newCategory);
-              }
-            },
-            isExpanded: true,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                borderSide: BorderSide(color: cs.outline),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                borderSide: BorderSide(color: cs.outline),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                borderSide: BorderSide(
-                  color: brand?.accent ?? cs.primary,
-                  width: 2,
-                ),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: kSpacingSmallPlus,
-                vertical: kSpacingSmallPlus + 2,
-              ),
-              filled: true,
-              fillColor: cs.surface,
-            ),
-            dropdownColor: cs.surfaceContainerHigh,
-            style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurface),
-            icon: Icon(Icons.arrow_drop_down, color: cs.onSurfaceVariant),
-            items: kCategories.map((id) {
-              final displayText = getCategoryLabel(id);
-              return DropdownMenuItem<String>(
-                value: id,
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    displayText,
-                    textDirection: TextDirection.rtl,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: cs.onSurface,
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-        ],
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: kSpacingSmallPlus,
+          vertical: kSpacingSmallPlus + 2,
+        ),
+        filled: true,
+        fillColor: cs.surface,
       ),
+      dropdownColor: cs.surfaceContainerHigh,
+      style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurface),
+      icon: Icon(Icons.arrow_drop_down, color: cs.onSurfaceVariant),
+      items: kCategories.map((id) {
+        final displayText = getCategoryLabel(id);
+        return DropdownMenuItem<String>(
+          value: id,
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              displayText,
+              textDirection: TextDirection.rtl,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: cs.onSurface,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 }

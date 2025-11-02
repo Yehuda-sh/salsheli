@@ -188,6 +188,7 @@ class _CommonStrings {
   String get add => 'הוסף';
   String get search => 'חיפוש';
   String get retry => 'נסה שוב';
+  String get resetFilter => 'איפוס סינון';
 
   // Confirmations
   String get yes => 'כן';
@@ -1078,6 +1079,13 @@ class _InventoryStrings {
 
   // Location Field
   String get locationLabel => 'מיקום';
+
+  // ========================================
+  // Filters (PantryFilters widget)
+  // ========================================
+
+  String get filterLabel => 'סינון מזווה';
+  String get filterByCategory => 'סינון לפי קטגוריה';
 
   // ========================================
   // Success Messages
