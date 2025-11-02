@@ -20,7 +20,7 @@
 //
 // 🎬 Animations (v3.0):
 // - AnimatedCounter על סטטיסטיקות (0 → value)
-// - AnimatedScale על כרטיסי סטטיסטיקות (scale effect)
+// - SimpleTappableCard על כרטיסי סטטיסטיקות (scale + haptic)
 // - StickyButton animations
 // - Skeleton Screen ל-Loading State
 //
@@ -40,7 +40,7 @@
 // 4. עדכון מחירים ידני (ProductsProvider.refreshProducts)
 // 5. התנתקות → ניקוי + חזרה ל-login
 //
-// Version: 3.2 - הסרת Debug Tools
+// Version: 3.3 - SimpleTappableCard refactor
 // Last Updated: 2/11/2025
 
 import 'package:flutter/material.dart';
@@ -59,6 +59,7 @@ import 'package:memozap/widgets/common/notebook_background.dart';
 import 'package:memozap/widgets/common/sticky_note.dart';
 import 'package:memozap/widgets/common/sticky_button.dart';
 import 'package:memozap/widgets/common/skeleton_loading.dart';
+import 'package:memozap/widgets/common/tappable_card.dart';
 import 'package:memozap/screens/settings/manage_users_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -995,8 +996,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 }
 
-// 🎨 Widget עזר - כרטיס סטטיסטיקה עם AnimatedCounter + TappableCard
-class _StatCard extends StatefulWidget {
+// 🎨 Widget עזר - כרטיס סטטיסטיקה עם AnimatedCounter + SimpleTappableCard
+class _StatCard extends StatelessWidget {
   final Color color;
   final IconData icon;
   final String label;
@@ -1005,60 +1006,45 @@ class _StatCard extends StatefulWidget {
   const _StatCard({required this.color, required this.icon, required this.label, required this.value});
 
   @override
-  State<_StatCard> createState() => _StatCardState();
-}
-
-class _StatCardState extends State<_StatCard> {
-  bool _isPressed = false;
-
-  @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
     return Semantics(
-      label: '${widget.label}: ${widget.value}',
-      child: GestureDetector(
-        onTapDown: (_) => setState(() => _isPressed = true),
-        onTapUp: (_) => setState(() => _isPressed = false),
-        onTapCancel: () => setState(() => _isPressed = false),
-        child: AnimatedScale(
-          scale: _isPressed ? 0.98 : 1.0,
-          duration: const Duration(milliseconds: 150),
-          curve: Curves.easeInOut,
-          child: Card(
-            color: cs.surfaceContainerHighest,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadius)),
-            child: Padding(
-              padding: const EdgeInsets.all(kSpacingSmallPlus),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: widget.color.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(widget.icon, color: widget.color, size: kIconSizeMedium + 2),
+      label: '$label: $value',
+      child: SimpleTappableCard(
+        child: Card(
+          color: cs.surfaceContainerHighest,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadius)),
+          child: Padding(
+            padding: const EdgeInsets.all(kSpacingSmallPlus),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  const SizedBox(width: kSpacingSmallPlus),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          widget.label,
-                          style: const TextStyle(fontSize: kFontSizeTiny, color: Colors.grey),
-                        ),
-                        _AnimatedCounter(
-                          value: widget.value,
-                          style: TextStyle(fontSize: kFontSizeLarge, color: widget.color, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
+                  child: Icon(icon, color: color, size: kIconSizeMedium + 2),
+                ),
+                const SizedBox(width: kSpacingSmallPlus),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        label,
+                        style: const TextStyle(fontSize: kFontSizeTiny, color: Colors.grey),
+                      ),
+                      _AnimatedCounter(
+                        value: value,
+                        style: TextStyle(fontSize: kFontSizeLarge, color: color, fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
