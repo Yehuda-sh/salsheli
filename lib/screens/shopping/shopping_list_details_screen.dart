@@ -21,11 +21,12 @@
 //     - מחשב עלות כוללת.
 //     - מציג UI רספונסיבי עם RTL.
 
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
-import 'dart:ui' as ui;
 
 import '../../models/shopping_list.dart';
 import '../../models/unified_list_item.dart';
@@ -36,9 +37,9 @@ import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../widgets/common/animated_button.dart';
 import '../../widgets/common/notebook_background.dart';
-import '../../widgets/common/sticky_note.dart';
-import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/pending_requests_section.dart';
+import '../../widgets/common/sticky_button.dart';
+import '../../widgets/common/sticky_note.dart';
 import '../lists/populate_list_screen.dart';
 import '../lists/share_list_screen.dart';
 
@@ -54,7 +55,7 @@ class ShoppingListDetailsScreen extends StatefulWidget {
 class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> with TickerProviderStateMixin {
   // 🔍 חיפוש ומיון
   String _searchQuery = '';
-  bool _groupByCategory = false;
+  final bool _groupByCategory = false;
   String _sortBy = 'none'; // none | price_desc | checked
   String? _selectedCategory; // קטגוריה נבחרת לסינון
 
@@ -352,7 +353,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                         const SizedBox(height: kSpacingSmall),
                         // עדיפות
                         DropdownButtonFormField<String>(
-                          value: selectedPriority,
+                          initialValue: selectedPriority,
                           decoration: InputDecoration(labelText: AppStrings.listDetails.priorityLabel),
                           items: [
                             DropdownMenuItem(value: 'low', child: Text(AppStrings.listDetails.priorityLow)),
@@ -453,7 +454,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
   /// 🔍 סינון ומיון פריטים
   List<UnifiedListItem> _getFilteredAndSortedItems(List<UnifiedListItem> items) {
-    var filtered = items.where((item) {
+    final filtered = items.where((item) {
       // סינון לפי חיפוש
       if (_searchQuery.isNotEmpty) {
         final query = _searchQuery.toLowerCase();
@@ -1105,9 +1106,9 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
             children: [
               // ✅ Checkbox
               AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                child: AnimatedButton(
-                  onTap: () {
+              duration: const Duration(milliseconds: 200),
+              child: AnimatedButton(
+              onPressed: () {
                     final provider = context.read<ShoppingListsProvider>();
                     provider.updateItemAt(
                       widget.list.id,
@@ -1295,7 +1296,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
             color: kStickyGreen,
             rotation: -0.015,
             child: Padding(
-              padding: const EdgeInsets.all(kSpacingXXLarge),
+              padding: const EdgeInsets.all(kSpacingXLarge),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [

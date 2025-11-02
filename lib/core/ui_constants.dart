@@ -63,6 +63,13 @@ const Color kStickyOrange = Color(0xFFFFAB91);  // Warnings
 const Color kNotebookBlue = Color(0xFF4285F4);   // Blue notebook lines
 const Color kNotebookRed = Color(0xFFE53935);    // Red notebook line
 
+// Notebook Background Properties
+const double kNotebookLineOpacity = 0.5;         // Opacity for blue lines
+const double kNotebookLineSpacing = 40.0;        // Spacing between blue lines
+const double kNotebookRedLineOpacity = 0.4;      // Opacity for red line
+const double kNotebookRedLineWidth = 2.0;        // Width of red line
+const double kNotebookRedLineOffset = 60.0;      // Offset of red line from left
+
 // ═══════════════════════════════════════════════════════════════════════════
 // COLORS - Backgrounds
 // ═══════════════════════════════════════════════════════════════════════════
@@ -199,6 +206,7 @@ const double kFontSizeXLarge = 28.0;  // Extra large text (titles)
 const double kIconSizeSmall = 16.0;    // Small icons
 const double kIconSize = 24.0;         // Default icon size (alias for Medium)
 const double kIconSizeMedium = 24.0;   // Medium icons (default)
+const double kIconSizeLarge = 36.0;    // Large icons
 const double kIconSizeProfile = 32.0;  // Profile icons
 const double kIconSizeXLarge = 48.0;   // Extra large icons
 const double kIconSizeXXLarge = 64.0;  // Extra extra large icons
@@ -232,3 +240,22 @@ const double kStickyShadowPrimaryOpacity = 0.3;   // Primary shadow opacity
 const double kStickyShadowPrimaryBlur = 6.0;      // Primary shadow blur radius
 const double kStickyShadowPrimaryOffsetX = 2.0;   // Primary shadow X offset
 const double kStickyShadowPrimaryOffsetY = 4.0;   // Primary shadow Y offset
+const double kStickyShadowSecondaryOpacity = 0.15; // Secondary shadow opacity
+const double kStickyShadowSecondaryBlur = 10.0;    // Secondary shadow blur radius
+const double kStickyShadowSecondaryOffsetY = 8.0;  // Secondary shadow Y offset
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STICKY NOTE STYLES
+// ═══════════════════════════════════════════════════════════════════════════
+
+const double kStickyNoteRadius = 2.0;     // Border radius for sticky notes
+const double kStickyLogoSize = 80.0;      // Size of sticky note logo (width & height)
+const double kStickyLogoIconSize = 40.0;  // Icon size in sticky logo
+
+// Logo Shadow Styles
+const double kStickyLogoShadowPrimaryOpacity = 0.4;   // Logo primary shadow opacity
+const double kStickyLogoShadowPrimaryBlur = 8.0;      // Logo primary shadow blur
+const double kStickyLogoShadowPrimaryOffsetY = 4.0;   // Logo primary shadow Y offset
+const double kStickyLogoShadowSecondaryOpacity = 0.2; // Logo secondary shadow opacity
+const double kStickyLogoShadowSecondaryBlur = 12.0;   // Logo secondary shadow blur
+const double kStickyLogoShadowSecondaryOffsetY = 8.0; // Logo secondary shadow Y offset

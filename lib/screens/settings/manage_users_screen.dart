@@ -20,16 +20,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:memozap/models/shopping_list.dart';
-import 'package:memozap/models/shared_user.dart';
+
+import 'package:memozap/core/ui_constants.dart';
 import 'package:memozap/models/enums/user_role.dart';
+import 'package:memozap/models/shared_user.dart';
+import 'package:memozap/models/shopping_list.dart';
 import 'package:memozap/providers/shopping_lists_provider.dart';
 import 'package:memozap/providers/user_context.dart';
 import 'package:memozap/services/share_list_service.dart';
 import 'package:memozap/widgets/common/notebook_background.dart';
 import 'package:memozap/widgets/common/sticky_button.dart';
-import 'package:memozap/l10n/app_strings.dart';
-import 'package:memozap/config/ui_constants.dart';
 
 /// 🇮🇱 מסך ניהול משתמשים משותפים
 /// 🇬🇧 Manage shared users screen
@@ -73,12 +73,13 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     }
 
     // אישור מהמשתמש
+    final displayName = user.userName ?? user.userId;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('הסרת משתמש'),
         content: Text(
-          'האם אתה בטוח שברצונך להסיר את ${user.userName ?? user.userId}?',
+          'האם אתה בטוח שברצונך להסיר את $displayName?',
         ),
         actions: [
           TextButton(
@@ -138,6 +139,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     }
 
     // בחירת תפקיד חדש
+    final displayName = user.userName ?? user.userId;
     final newRole = await showDialog<UserRole>(
       context: context,
       builder: (context) => AlertDialog(
@@ -145,7 +147,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('בחר תפקיד חדש עבור ${user.userName ?? user.userId}:'),
+            Text('בחר תפקיד חדש עבור $displayName:'),
             const SizedBox(height: kSpacingMedium),
             ...UserRole.values
                 .where((role) => role != UserRole.owner)
@@ -272,7 +274,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             ),
             const SizedBox(height: kSpacingMedium),
             StickyButton(
-              text: 'נסה שוב 🔄',
+              label: 'נסה שוב 🔄',
               color: kStickyCyan,
               onPressed: _loadUsers,
             ),
@@ -319,6 +321,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
   Widget _buildUserCard(SharedUser user, bool isOwner) {
     final isUserOwner = user.role == UserRole.owner;
+    final displayName = user.userName ?? user.userId;
 
     return Card(
       elevation: 2,
@@ -334,7 +337,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
           ),
         ),
         title: Text(
-          user.userName ?? user.userId,
+          displayName,
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
