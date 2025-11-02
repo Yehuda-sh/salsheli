@@ -19,11 +19,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/inventory_item.dart';
-import '../../providers/inventory_provider.dart';
 import '../../config/storage_locations_config.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
+import '../../models/inventory_item.dart';
+import '../../providers/inventory_provider.dart';
 import '../../theme/app_theme.dart';
 
 enum PantryItemDialogMode {
@@ -126,8 +126,8 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
     // Validation
     if (_nameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('נא להזין שם פריט'),
+        SnackBar(
+          content: Text(AppStrings.inventory.productNameRequired),
           duration: kSnackBarDuration,
         ),
       );
@@ -136,8 +136,8 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
 
     if (_categoryController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('נא להזין קטגוריה'),
+        SnackBar(
+          content: Text(AppStrings.inventory.categoryRequired),
           duration: kSnackBarDuration,
         ),
       );
@@ -179,8 +179,8 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(widget.mode == PantryItemDialogMode.add
-              ? 'הפריט נוסף בהצלחה'
-              : 'הפריט עודכן בהצלחה'),
+              ? AppStrings.inventory.itemAdded
+              : AppStrings.inventory.itemUpdated),
           duration: kSnackBarDuration,
         ),
       );
@@ -199,8 +199,8 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(widget.mode == PantryItemDialogMode.add
-              ? 'שגיאה בהוספת פריט'
-              : 'שגיאה בעדכון פריט'),
+              ? AppStrings.inventory.addError
+              : AppStrings.inventory.updateError),
           backgroundColor: Colors.red,
           duration: kSnackBarDuration,
         ),
@@ -215,15 +215,17 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
     final accent = brand?.accent ?? cs.primary;
 
     final title = widget.mode == PantryItemDialogMode.add 
-        ? 'הוספת פריט' 
-        : 'עריכת פריט';
+        ? AppStrings.inventory.addDialogTitle
+        : AppStrings.inventory.editDialogTitle;
 
     final actionLabel = widget.mode == PantryItemDialogMode.add 
-        ? 'הוסף' 
-        : 'שמור';
+        ? AppStrings.inventory.addButton
+        : AppStrings.inventory.saveButton;
 
-    return StatefulBuilder(
-      builder: (context, setDialogState) => AlertDialog(
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
         backgroundColor: cs.surface,
         title: Text(
           title,
@@ -238,9 +240,9 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                 controller: _nameController,
                 style: TextStyle(color: cs.onSurface),
                 decoration: InputDecoration(
-                  labelText: 'שם הפריט',
+                  labelText: AppStrings.inventory.productNameLabel,
                   labelStyle: TextStyle(color: cs.onSurfaceVariant),
-                  hintText: 'לדוגמה: חלב',
+                  hintText: AppStrings.inventory.productNameHint,
                   hintStyle: TextStyle(
                     color: cs.onSurfaceVariant.withValues(alpha: 0.5),
                   ),
@@ -254,9 +256,9 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                 controller: _categoryController,
                 style: TextStyle(color: cs.onSurface),
                 decoration: InputDecoration(
-                  labelText: 'קטגוריה',
+                  labelText: AppStrings.inventory.categoryLabel,
                   labelStyle: TextStyle(color: cs.onSurfaceVariant),
-                  hintText: 'לדוגמה: חלבי',
+                  hintText: AppStrings.inventory.categoryHint,
                   hintStyle: TextStyle(
                     color: cs.onSurfaceVariant.withValues(alpha: 0.5),
                   ),
@@ -274,7 +276,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                       keyboardType: TextInputType.number,
                       style: TextStyle(color: cs.onSurface),
                       decoration: InputDecoration(
-                        labelText: 'כמות',
+                        labelText: AppStrings.inventory.quantityLabel,
                         labelStyle: TextStyle(color: cs.onSurfaceVariant),
                       ),
                       enabled: !_isLoading,
@@ -286,9 +288,9 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                       controller: _unitController,
                       style: TextStyle(color: cs.onSurface),
                       decoration: InputDecoration(
-                        labelText: 'יחידה',
+                        labelText: AppStrings.inventory.unitLabel,
                         labelStyle: TextStyle(color: cs.onSurfaceVariant),
-                        hintText: 'יח\', ק"ג, ליטר',
+                        hintText: AppStrings.inventory.unitHint,
                         hintStyle: TextStyle(
                           color: cs.onSurfaceVariant.withValues(alpha: 0.5),
                         ),
@@ -302,17 +304,15 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
 
               // Location dropdown
               DropdownButtonFormField<String>(
-                value: _selectedLocation,
+                initialValue: _selectedLocation,
                 dropdownColor: cs.surface,
                 style: TextStyle(color: cs.onSurface),
                 decoration: InputDecoration(
-                  labelText: 'מיקום',
+                  labelText: AppStrings.inventory.locationLabel,
                   labelStyle: TextStyle(color: cs.onSurfaceVariant),
                   enabled: !_isLoading,
                 ),
-                items: (widget.mode == PantryItemDialogMode.add
-                        ? StorageLocationsConfig.primaryLocations
-                        : StorageLocationsConfig.allLocationIds)
+                items: StorageLocationsConfig.allLocations
                     .map((locationId) {
                   final info = StorageLocationsConfig.getLocationInfo(locationId);
                   return DropdownMenuItem(
@@ -366,6 +366,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                 : Text(actionLabel),
           ),
         ],
+        ),
       ),
     );
   }

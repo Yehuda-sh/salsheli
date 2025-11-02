@@ -125,6 +125,12 @@ class AppStrings {
   // ========================================
 
   static const createListDialog = _CreateListDialogStrings();
+
+  // ========================================
+  // Inventory (Pantry)
+  // ========================================
+
+  static const inventory = _InventoryStrings();
 }
 
 // ========================================
@@ -1026,4 +1032,64 @@ class _CreateListDialogStrings {
   String createListError(String error) => 'שגיאה ביצירת הרשימה';
   String get createListErrorGeneric => 'אירעה שגיאה ביצירת הרשימה. נסה שוב.';
   String get networkError => 'בעיית רשת. בדוק את החיבור לאינטרנט';
+}
+
+// ========================================
+// Inventory Strings (Pantry)
+// ========================================
+
+class _InventoryStrings {
+  const _InventoryStrings();
+
+  // ========================================
+  // Dialog Titles
+  // ========================================
+
+  String get addDialogTitle => 'הוספת פריט';
+  String get editDialogTitle => 'עריכת פריט';
+
+  // ========================================
+  // Action Buttons
+  // ========================================
+
+  String get addButton => 'הוסף';
+  String get saveButton => 'שמור';
+
+  // ========================================
+  // Form Fields
+  // ========================================
+
+  // Product Name Field
+  String get productNameLabel => 'שם הפריט';
+  String get productNameHint => 'לדוגמה: חלב';
+  String get productNameRequired => 'נא להזין שם פריט';
+
+  // Category Field
+  String get categoryLabel => 'קטגוריה';
+  String get categoryHint => 'לדוגמה: חלבי';
+  String get categoryRequired => 'נא להזין קטגוריה';
+
+  // Quantity Field
+  String get quantityLabel => 'כמות';
+
+  // Unit Field
+  String get unitLabel => 'יחידה';
+  String get unitHint => 'יח\', ק"ג, ליטר';
+
+  // Location Field
+  String get locationLabel => 'מיקום';
+
+  // ========================================
+  // Success Messages
+  // ========================================
+
+  String get itemAdded => 'הפריט נוסף בהצלחה';
+  String get itemUpdated => 'הפריט עודכן בהצלחה';
+
+  // ========================================
+  // Error Messages
+  // ========================================
+
+  String get addError => 'שגיאה בהוספת פריט';
+  String get updateError => 'שגיאה בעדכון פריט';
 }
