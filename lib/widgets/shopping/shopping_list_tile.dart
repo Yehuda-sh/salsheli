@@ -29,6 +29,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:memozap/l10n/app_strings.dart';
+import 'package:memozap/widgets/common/tappable_card.dart';
 import '../../core/status_colors.dart';
 import '../../core/ui_constants.dart';
 import '../../models/shopping_list.dart';
@@ -101,44 +103,7 @@ class ShoppingListTile extends StatelessWidget {
     );
   }
 
-  /// 🇮🇱 אייקון מותאם לפי סטטוס הרשימה (לא בשימוש - הוחלף ב-_getListIcon)
-  /// 🇬🇧 Status-based icon with tooltip for accessibility
-  ///
-  /// תומך ב-3 סטטוסים:
-  /// - statusCompleted: ✓ ירוק
-  /// - statusArchived: 📦 אפור
-  /// - statusActive (default): 🛒 כחול
-  ///
-  /// כל icon כולל Tooltip בעברית לנגישות
-  ///
-  /// Returns: Icon widget עם Tooltip
-  Widget _statusIcon(BuildContext context) {
-    final IconData iconData;
-    final String status;
-    final String tooltip;
 
-    switch (list.status) {
-      case ShoppingList.statusCompleted:
-        iconData = Icons.check_circle;
-        status = 'success';
-        tooltip = 'רשימה הושלמה';
-        break;
-      case ShoppingList.statusArchived:
-        iconData = Icons.archive;
-        status = 'pending';
-        tooltip = 'רשימה בארכיון';
-        break;
-      default:
-        iconData = Icons.shopping_cart;
-        status = 'info';
-        tooltip = 'רשימה פעילה';
-    }
-
-    return Tooltip(
-      message: tooltip,
-      child: Icon(iconData, color: StatusColors.getStatusColor(status, context)),
-    );
-  }
 
   /// 🇮🇱 חישוב דחיפות לפי תאריך יעד
   /// 🇬🇧 Calculate urgency based on target date
@@ -323,6 +288,11 @@ class ShoppingListTile extends StatelessWidget {
         child: const Icon(Icons.delete, color: Colors.white),
       ),
       confirmDismiss: (_) async {
+        // 🔒 Capture context references BEFORE any async operations
+        final messenger = ScaffoldMessenger.of(context);
+        final successColor = StatusColors.getStatusColor('success', context);
+        final errorColor = StatusColors.getStatusColor('error', context);
+
         debugPrint('🗑️ ShoppingListTile.confirmDismiss: מוחק רשימה "${list.name}" (${list.id})');
         debugPrint('   📊 סטטוס: ${list.status} | פריטים: ${list.items.length}');
 
@@ -335,12 +305,12 @@ class ShoppingListTile extends StatelessWidget {
           debugPrint('   ✅ onDelete() הופעל');
 
           // ✅ הצגת Snackbar עם אפשרות Undo
-          ScaffoldMessenger.of(context).showSnackBar(
+          messenger.showSnackBar(
             SnackBar(
-              content: Text('הרשימה "${deletedList.name}" נמחקה'),
-              backgroundColor: StatusColors.getStatusColor('success', context),
+              content: Text(AppStrings.shopping.listDeleted(deletedList.name)),
+              backgroundColor: successColor,
               action: SnackBarAction(
-                label: 'בטל',
+                label: AppStrings.shopping.undoButton,
                 onPressed: () {
                   debugPrint('🔄 ShoppingListTile: Undo - משחזר רשימה "${deletedList.name}"');
                   try {
@@ -349,10 +319,10 @@ class ShoppingListTile extends StatelessWidget {
                     debugPrint('   ✅ רשימה שוחזרה בהצלחה');
                   } catch (e) {
                     debugPrint('   ❌ שגיאה בשחזור: $e');
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    messenger.showSnackBar(
                       SnackBar(
-                        content: const Text('שגיאה בשחזור הרשימה'),
-                        backgroundColor: StatusColors.getStatusColor('error', context),
+                        content: Text(AppStrings.shopping.restoreError),
+                        backgroundColor: errorColor,
                       ),
                     );
                   }
@@ -368,10 +338,10 @@ class ShoppingListTile extends StatelessWidget {
           debugPrint('❌ ShoppingListTile.confirmDismiss: שגיאה במחיקה - $e');
 
           // הצג הודעת שגיאה
-          ScaffoldMessenger.of(context).showSnackBar(
+          messenger.showSnackBar(
             SnackBar(
-              content: const Text('שגיאה במחיקת הרשימה'),
-              backgroundColor: StatusColors.getStatusColor('error', context),
+              content: Text(AppStrings.shopping.deleteError),
+              backgroundColor: errorColor,
             ),
           );
 
@@ -435,7 +405,7 @@ class ShoppingListTile extends StatelessWidget {
                               Icon(Icons.group, size: kIconSizeSmall, color: theme.colorScheme.onSecondaryContainer),
                               const SizedBox(width: kSpacingTiny),
                               Text(
-                                'משותפת',
+                                AppStrings.shopping.sharedLabel,
                                 style: TextStyle(
                                   color: theme.colorScheme.onSecondaryContainer,
                                   fontSize: kFontSizeTiny,
@@ -473,25 +443,29 @@ class ShoppingListTile extends StatelessWidget {
                   decoration: BoxDecoration(
                     border: Border(top: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.2))),
                   ),
-                  child: InkWell(
-                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(kBorderRadius)),
+                  child: SimpleTappableCard(
                     onTap: onStartShopping,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmallPlus),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.shopping_cart_checkout, color: theme.colorScheme.primary, size: kIconSizeMedium),
-                          const SizedBox(width: kSpacingSmall),
-                          Text(
-                            'התחל קנייה',
-                            style: TextStyle(
-                              fontSize: kFontSizeBody,
-                              fontWeight: FontWeight.bold,
-                              color: theme.colorScheme.primary,
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.vertical(bottom: Radius.circular(kBorderRadius)),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmallPlus),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.shopping_cart_checkout, color: theme.colorScheme.primary, size: kIconSizeMedium),
+                            const SizedBox(width: kSpacingSmall),
+                            Text(
+                              AppStrings.shopping.startShoppingButton,
+                              style: TextStyle(
+                                fontSize: kFontSizeBody,
+                                fontWeight: FontWeight.bold,
+                                color: theme.colorScheme.primary,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -503,28 +477,32 @@ class ShoppingListTile extends StatelessWidget {
                   decoration: BoxDecoration(
                     border: Border(top: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.2))),
                   ),
-                  child: InkWell(
-                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(kBorderRadius)),
+                  child: SimpleTappableCard(
                     onTap: () {
                       debugPrint('➕ ShoppingListTile: כפתור "הוסף מוצרים" נלחץ - רשימה: ${list.name}');
                       onTap?.call();
                     },
-                    child: Padding(
-                      padding: const EdgeInsets.all(kSpacingSmallPlus),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.add_circle_outline, size: kIconSizeMedium, color: theme.colorScheme.primary),
-                          const SizedBox(width: kSpacingSmall),
-                          Text(
-                            'הוסף מוצרים כדי להתחיל',
-                            style: TextStyle(
-                              fontSize: kFontSizeBody,
-                              fontWeight: FontWeight.bold,
-                              color: theme.colorScheme.primary,
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.vertical(bottom: Radius.circular(kBorderRadius)),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(kSpacingSmallPlus),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.add_circle_outline, size: kIconSizeMedium, color: theme.colorScheme.primary),
+                            const SizedBox(width: kSpacingSmall),
+                            Text(
+                              AppStrings.shopping.addProductsToStart,
+                              style: TextStyle(
+                                fontSize: kFontSizeBody,
+                                fontWeight: FontWeight.bold,
+                                color: theme.colorScheme.primary,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),

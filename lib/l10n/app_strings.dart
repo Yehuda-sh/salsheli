@@ -328,6 +328,15 @@ class _ShoppingStrings {
   String get listEmpty => 'הרשימה ריקה';
   String get noItemsToBuy => 'אין פריטים לקנייה';
 
+  // Shopping List Tile
+  String get sharedLabel => 'משותפת';
+  String get startShoppingButton => 'התחל קנייה';
+  String get addProductsToStart => 'הוסף מוצרים כדי להתחיל';
+  String listDeleted(String name) => 'הרשימה "$name" נמחקה';
+  String get undoButton => 'בטל';
+  String get restoreError => 'שגיאה בשחזור הרשימה';
+  String get deleteError => 'שגיאה במחיקת הרשימה';
+
   // Active Shopping - Summary Dialog
   String get summaryTitle => 'סיכום קנייה';
   String get summaryShoppingTime => 'זמן קנייה';
