@@ -24,6 +24,18 @@
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
+    "name": "טחינה גולמית סלה 500 גרם",
+    "category": "שמנים ורטבים",
+    "icon": "🫗",
+    "price": 16.9,
+    "barcode": "7296073596387",
+    "brand": "אר ג'י אם תעשיות מזון",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7296073596387/files/360_assets/index/images/7296073596387_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
     "name": "ממרח במרקם קרמי 490 גרם",
     "category": "שמנים ורטבים",
     "icon": "🫗",
@@ -72,6 +84,42 @@
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
+    "name": "סלט טחינה שופרסל 250 גרם",
+    "category": "שמנים ורטבים",
+    "icon": "🫗",
+    "price": 13.7,
+    "barcode": "7296073401568",
+    "brand": "סלטי שמיר 2006 בע\"\\מ",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7296073401568/files/360_assets/index/images/7296073401568_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "סרדינ.בשמן זית רוברט115 ג",
+    "category": "שמנים ורטבים",
+    "icon": "🫗",
+    "price": 12.9,
+    "barcode": "7290002353836",
+    "brand": "קונסרבס פורטוגל נורטה",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290002353836/files/360_assets/index/images/7290002353836_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "רוטב טריאקי 560 גרם",
+    "category": "שמנים ורטבים",
+    "icon": "🫗",
+    "price": 10.9,
+    "barcode": "7290016711240",
+    "brand": "כללי",
+    "unit": "יחידה",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290016711240/files/360_assets/index/images/7290016711240_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
     "name": "שמן זית אורגני 750 מ\"ל",
     "category": "שמנים ורטבים",
     "icon": "🫗",
@@ -81,6 +129,30 @@
     "unit": "100 מ\"ל",
     "store": "שופרסל",
     "image_url": "https://media.shufersal.co.il/product_images/products_360/7296073703792/files/360_assets/index/images/7296073703792_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "שמן זית כתית נריה 750 מל",
+    "category": "שמנים ורטבים",
+    "icon": "🫗",
+    "price": 44.9,
+    "barcode": "7296073703785",
+    "brand": "CAVANNA OLI SNC",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7296073703785/files/360_assets/index/images/7296073703785_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "שמן קנולהנוגדי חימצון1 ל",
+    "category": "שמנים ורטבים",
+    "icon": "🫗",
+    "price": 17.9,
+    "barcode": "7290000144474",
+    "brand": "שמן תעשיות",
+    "unit": "ליטר",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000144474/files/360_assets/index/images/7290000144474_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   }
 ]

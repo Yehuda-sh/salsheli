@@ -1,5 +1,41 @@
 [
   {
+    "name": "ספיד סטיק ג'ל ספורט 85 ג",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 20.1,
+    "barcode": "7290005008481",
+    "brand": "קולגייט-פלמוליב",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290005008481/files/360_assets/index/images/7290005008481_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פינוק 2 ב1 שמפומרכך 700 מל",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 13.9,
+    "barcode": "7290112492463",
+    "brand": "יוניליוור ישראל טיפוח",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290112492463/files/360_assets/index/images/7290112492463_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "שישיית מב. שיניים זיג זג",
+    "category": "היגיינה אישית",
+    "icon": "🧴",
+    "price": 11.9,
+    "barcode": "8901314308436",
+    "brand": "קולגייט-פלמוליב",
+    "unit": "יחידה",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/8901314308436/files/360_assets/index/images/8901314308436_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
     "name": "שמפו Dream Long משקם500 מ",
     "category": "היגיינה אישית",
     "icon": "🧴",

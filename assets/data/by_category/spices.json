@@ -1,5 +1,29 @@
 [
   {
+    "name": "לבבות דקל שלמים במי מלח",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 13.9,
+    "barcode": "7290002881735",
+    "brand": "אינדטרופ אס.אי",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290002881735/files/360_assets/index/images/7290002881735_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "לורפק פחות שומן ל.מלח250",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 21.9,
+    "barcode": "5740900403260",
+    "brand": "ארלה פודס אמבה",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/5740900403260/files/360_assets/index/images/5740900403260_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
     "name": "מלפפונים במלח ט.ביתי1.65",
     "category": "תבלינים ואפייה",
     "icon": "🧂",
@@ -9,6 +33,102 @@
     "unit": "ק\"ג",
     "store": "שופרסל",
     "image_url": "https://media.shufersal.co.il/product_images/products_360/7296073006640/files/360_assets/index/images/7296073006640_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "מעיין סוכריות קופצות אבט",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 9.9,
+    "barcode": "710497376259",
+    "brand": "כללי",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/710497376259/files/360_assets/index/images/710497376259_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "מעיין סוכריות קופצות תות",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 9.9,
+    "barcode": "710497376136",
+    "brand": "כללי",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/710497376136/files/360_assets/index/images/710497376136_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "סוכרה דיאט 100 שקיות",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 32.9,
+    "barcode": "7290000518220",
+    "brand": "מתוק וקל בעמ",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000518220/files/360_assets/index/images/7290000518220_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "סוכריות דחוסות בטעמים פש",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 12.9,
+    "barcode": "811146031496",
+    "brand": "כללי",
+    "unit": "יחידה",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/811146031496/files/360_assets/index/images/811146031496_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "סוכריות כיס ללא סוכר פשק",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 3.9,
+    "barcode": "7290004985615",
+    "brand": "כללי",
+    "unit": "יחידה",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290004985615/files/360_assets/index/images/7290004985615_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "סוכריות סודה בצורת חותמת",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 19.9,
+    "barcode": "7290018195666",
+    "brand": "Haibao Chaowan GuangDong",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290018195666/files/360_assets/index/images/7290018195666_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "סוכריות קשות בטעם מנטה",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 17.9,
+    "barcode": "8699905720049",
+    "brand": "כללי",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/8699905720049/files/360_assets/index/images/8699905720049_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "סוכריות שעונים משפחתי 28",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 9.9,
+    "barcode": "25675124691",
+    "brand": "כללי",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/25675124691/files/360_assets/index/images/25675124691_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
@@ -33,6 +153,18 @@
     "unit": "ק\"ג",
     "store": "שופרסל",
     "image_url": "https://media.shufersal.co.il/product_images/products_360/7296073173335/files/360_assets/index/images/7296073173335_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "קרקר גראהם עם קינמון 408",
+    "category": "תבלינים ואפייה",
+    "icon": "🧂",
+    "price": 36.9,
+    "barcode": "43427130462",
+    "brand": "ביי וואלי פודס",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/43427130462/files/360_assets/index/images/43427130462_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   }
 ]

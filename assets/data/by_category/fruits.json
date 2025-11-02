@@ -12,6 +12,102 @@
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
+    "name": "אגס אנג'ו ארגנטינה",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 17.9,
+    "barcode": "7290000964911",
+    "brand": "כללי",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000964911/files/360_assets/index/images/7290000964911_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "אגס סנטה מריה איטליה",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 17.9,
+    "barcode": "7290000992204",
+    "brand": "קטיף.",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000992204/files/360_assets/index/images/7290000992204_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "אגס ספדונה 55",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 17.9,
+    "barcode": "7290000964829",
+    "brand": "קטיף.",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000964829/files/360_assets/index/images/7290000964829_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "אגס קוסטיה 50",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 17.9,
+    "barcode": "7290000964867",
+    "brand": "קטיף.",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000964867/files/360_assets/index/images/7290000964867_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "בחושה תפוז",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 9.9,
+    "barcode": "7290119733804",
+    "brand": "כללי",
+    "unit": "יחידה",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290119733804/files/360_assets/index/images/7290119733804_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "בננה אורגנית",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 20.9,
+    "barcode": "7290000965772",
+    "brand": "",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000965772/files/360_assets/index/images/7290000965772_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "ג'אמפ תות בננה 1.5 ליטר",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 7.9,
+    "barcode": "7290000136561",
+    "brand": "טמפו משקאות בע\"\\מ",
+    "unit": "ליטר",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000136561/files/360_assets/index/images/7290000136561_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "חטיף תפוחים קראנצי פרי20",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 9.9,
+    "barcode": "7290014021549",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290014021549/files/360_assets/index/images/7290014021549_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
     "name": "חתיכות אננס קפוא 300 גרם",
     "category": "פירות",
     "icon": "🍎",
@@ -21,6 +117,18 @@
     "unit": "100 גרם",
     "store": "שופרסל",
     "image_url": "https://media.shufersal.co.il/product_images/products_360/7296073283805/files/360_assets/index/images/7296073283805_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "טוויסטר מנגו תפוח תות56 ג",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 6.9,
+    "barcode": "7290018755280",
+    "brand": "מיוצר ע\"\\י מנא ס.א, רחוב",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290018755280/files/360_assets/index/images/7290018755280_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
@@ -36,6 +144,18 @@
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
+    "name": "מארז בננה אורגנית",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 20.9,
+    "barcode": "7290009130157",
+    "brand": "CP",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290009130157/files/360_assets/index/images/7290009130157_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
     "name": "מארז מנגו אורגני",
     "category": "פירות",
     "icon": "🍎",
@@ -48,6 +168,54 @@
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
+    "name": "מיץ ענבים \"יש\" 1 ליטר",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 11.9,
+    "barcode": "7296073719595",
+    "brand": "יקבי ארזה",
+    "unit": "ליטר",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7296073719595/files/360_assets/index/images/7296073719595_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "מלון גסטין",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 9.9,
+    "barcode": "7290000965611",
+    "brand": "קטיף.",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000965611/files/360_assets/index/images/7290000965611_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "מלון מובחר",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 9.9,
+    "barcode": "7290000965055",
+    "brand": "קטיף.",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000965055/files/360_assets/index/images/7290000965055_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "מלון ספרדי",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 9.9,
+    "barcode": "7290000965062",
+    "brand": "קטיף.",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000965062/files/360_assets/index/images/7290000965062_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
     "name": "מנגו אורגני במשקל",
     "category": "פירות",
     "icon": "🍎",
@@ -57,6 +225,42 @@
     "unit": "ק\"ג",
     "store": "שופרסל",
     "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000963334/files/360_assets/index/images/7290000963334_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "מסטיק אורביט אבטיח 64 גר",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 11.9,
+    "barcode": "4009900420198",
+    "brand": "ריגלי פולין",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/4009900420198/files/360_assets/index/images/4009900420198_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "סודה בטעם תפוח שוופס 1 ל",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 2.9,
+    "barcode": "7290019153306",
+    "brand": "יפאורה תבורי בע\"\\מ",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290019153306/files/360_assets/index/images/7290019153306_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "סירופ בטעם ענבים 4 ליטר",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 28.9,
+    "barcode": "7290013927408",
+    "brand": "אחדות ביח\"ר לטחינה",
+    "unit": "ליטר",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290013927408/files/360_assets/index/images/7290013927408_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
@@ -84,6 +288,18 @@
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
+    "name": "פס טעים טעם אבטיח150 גרם",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 14.9,
+    "barcode": "7290012206450",
+    "brand": "כללי",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290012206450/files/360_assets/index/images/7290012206450_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
     "name": "קוביות מנגו מוקפאות 300",
     "category": "פירות",
     "icon": "🍎",
@@ -93,6 +309,18 @@
     "unit": "100 גרם",
     "store": "שופרסל",
     "image_url": "https://media.shufersal.co.il/product_images/products_360/7296073283812/files/360_assets/index/images/7296073283812_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "שוופס מוגז פירות תפוח330",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 2.9,
+    "barcode": "7290017023182",
+    "brand": "יפאורה תבורי בעמ",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290017023182/files/360_assets/index/images/7290017023182_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
@@ -120,6 +348,30 @@
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
+    "name": "תירוש מיץ ענבים אדום750 מ",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 15.9,
+    "barcode": "7296073527282",
+    "brand": "כרם מהדרין",
+    "unit": "100 מ\"ל",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7296073527282/files/360_assets/index/images/7296073527282_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "תפוזינה תפוזים לייט1.5 ל",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 8.9,
+    "barcode": "7290019056430",
+    "brand": "יפאורה תבורי בע\"\\מ",
+    "unit": "ליטר",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290019056430/files/360_assets/index/images/7290019056430_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
     "name": "תפוח גאלה",
     "category": "פירות",
     "icon": "🍎",
@@ -129,6 +381,42 @@
     "unit": "ק\"ג",
     "store": "שופרסל",
     "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000995021/files/360_assets/index/images/7290000995021_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "תפוח עץ יונתן 65",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 18.9,
+    "barcode": "7290000963228",
+    "brand": "קטיף.",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000963228/files/360_assets/index/images/7290000963228_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "תפוח עץ מוזהב 70",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 14.9,
+    "barcode": "7290000963082",
+    "brand": "קטיף.",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000963082/files/360_assets/index/images/7290000963082_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "תפוח עץ פינקריספי 70",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 19.9,
+    "barcode": "7290000963372",
+    "brand": "קטיף.",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000963372/files/360_assets/index/images/7290000963372_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   }
 ]

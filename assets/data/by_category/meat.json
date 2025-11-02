@@ -84,6 +84,18 @@
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
+    "name": "אצבעות שניצל 600 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 34.9,
+    "barcode": "7290019204381",
+    "brand": "עוף טוב",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290019204381/files/360_assets/index/images/7290019204381_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
     "name": "בשר טחון מהדרין1 ק\"ג",
     "category": "בשר ודגים",
     "icon": "🥩",
@@ -93,6 +105,30 @@
     "unit": "ק\"ג",
     "store": "שופרסל",
     "image_url": "https://media.shufersal.co.il/product_images/products_360/7290008469005/files/360_assets/index/images/7290008469005_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "דג לברק שלם נקי טרי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 59.9,
+    "barcode": "7290001127742",
+    "brand": "נטו מלינדה סחר-דגים טריי",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290001127742/files/360_assets/index/images/7290001127742_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "דג קרפיון שלם נקי טרי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290001126806",
+    "brand": "ון דר מולן",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290001126806/files/360_assets/index/images/7290001126806_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
@@ -108,6 +144,42 @@
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
+    "name": "חזה עוף חצוי טרי ארוז שו",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290005590139",
+    "brand": "עוף הגליל",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290005590139/files/360_assets/index/images/7290005590139_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "חזה עוף חצוי טרי תפ שופר",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290008458207",
+    "brand": "עוף הגליל",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290008458207/files/360_assets/index/images/7290008458207_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "חזה עוף טרי א.דיל עצמי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290009806571",
+    "brand": "כללי",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290009806571/files/360_assets/index/images/7290009806571_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
     "name": "חזה עוף טרי ארוז",
     "category": "בשר ודגים",
     "icon": "🥩",
@@ -117,6 +189,114 @@
     "unit": "ק\"ג",
     "store": "שופרסל",
     "image_url": "https://media.shufersal.co.il/product_images/products_360/7290004859671/files/360_assets/index/images/7290004859671_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "חזה עוף טרי ארוז",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290006707345",
+    "brand": "עוף טוב",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290006707345/files/360_assets/index/images/7290006707345_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "חזה עוף טרי ארוז דיל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290006708595",
+    "brand": "מוצרי עוף טוב",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290006708595/files/360_assets/index/images/7290006708595_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "חזה עוף טרי ארוז דיל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290006708205",
+    "brand": "עוף טוב",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290006708205/files/360_assets/index/images/7290006708205_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "חזה עוף טרי ארוז דיל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290003115556",
+    "brand": "מילועוף",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290003115556/files/360_assets/index/images/7290003115556_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "חזה עוף טרי ארוז דיל לקג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290001303061",
+    "brand": "עוף עוז",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290001303061/files/360_assets/index/images/7290001303061_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "חזה עוף טרי ארוז חזה עוף",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290009148060",
+    "brand": "מילועוף",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290009148060/files/360_assets/index/images/7290009148060_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "חזה עוף טרי ארוז עטרה לק",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 35.9,
+    "barcode": "7290002939108",
+    "brand": "שונות",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290002939108/files/360_assets/index/images/7290002939108_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "חזה עוף טרי ארוז עצמי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290009805291",
+    "brand": "כללי",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290009805291/files/360_assets/index/images/7290009805291_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "חזה עוף טרי ארוז קג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290002649069",
+    "brand": "יסכה",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290002649069/files/360_assets/index/images/7290002649069_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
@@ -141,6 +321,186 @@
     "unit": "ק\"ג",
     "store": "שופרסל",
     "image_url": "https://media.shufersal.co.il/product_images/products_360/7290005590320/files/360_assets/index/images/7290005590320_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "חזה עוף טרי שופרסל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290002684053",
+    "brand": "קורניש",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290002684053/files/360_assets/index/images/7290002684053_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "חזה עוף טרי תפזורת עצמי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290001158722",
+    "brand": "שונות",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290001158722/files/360_assets/index/images/7290001158722_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "ירכיים עוף טרי ארוז עטרה",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290001209370",
+    "brand": "שונות",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290001209370/files/360_assets/index/images/7290001209370_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "כבד עוף ארוז קפוא",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 7.9,
+    "barcode": "7290008458320",
+    "brand": "עוף הגליל",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290008458320/files/360_assets/index/images/7290008458320_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "כבד עוף טרי ארוז דיל לקג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 12.9,
+    "barcode": "7290001303085",
+    "brand": "עוף עוז",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290001303085/files/360_assets/index/images/7290001303085_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "כבד עוף טרי ארוז דיל מחי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 12.9,
+    "barcode": "7290006708632",
+    "brand": "מוצרי עוף טוב",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290006708632/files/360_assets/index/images/7290006708632_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "כבד עוף טרי ארוז קג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 12.9,
+    "barcode": "7290002649090",
+    "brand": "יסכה",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290002649090/files/360_assets/index/images/7290002649090_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "כבד עוף טרי ארוז שופרסל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 12.9,
+    "barcode": "7290005590115",
+    "brand": "עוף הגליל",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290005590115/files/360_assets/index/images/7290005590115_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "כבד עוף טרי ארוז שלי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 12.9,
+    "barcode": "7290000616841",
+    "brand": "עוף עוז",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000616841/files/360_assets/index/images/7290000616841_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "כבד עוף טרי ארוז שלי קג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 12.9,
+    "barcode": "7290005590306",
+    "brand": "עוף הגליל",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290005590306/files/360_assets/index/images/7290005590306_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "כבד עוף טרי שופרסל קג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 12.9,
+    "barcode": "7290002685128",
+    "brand": "קורניש",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290002685128/files/360_assets/index/images/7290002685128_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "כבד עוף קפוא",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 7.9,
+    "barcode": "7290000631004",
+    "brand": "קורניש",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000631004/files/360_assets/index/images/7290000631004_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "כדורי בשר צמחוניים500 ג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 41.9,
+    "barcode": "7290111564666",
+    "brand": "טבעול",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290111564666/files/360_assets/index/images/7290111564666_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "כנפי עוף טרי א.דיל עצמי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 7.5,
+    "barcode": "7290009804591",
+    "brand": "כללי",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290009804591/files/360_assets/index/images/7290009804591_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "כנפי עוף טרי תפזורת עצמי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 8.9,
+    "barcode": "7290001158500",
+    "brand": "שונות",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290001158500/files/360_assets/index/images/7290001158500_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
@@ -240,6 +600,30 @@
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
+    "name": "כנפיים עוף טרי תפ",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 9.9,
+    "barcode": "7290000611181",
+    "brand": "עוף עוז",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000611181/files/360_assets/index/images/7290000611181_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "כרעי עוף טרי א.דיל עצמי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 19.9,
+    "barcode": "7290009802221",
+    "brand": "כללי",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290009802221/files/360_assets/index/images/7290009802221_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
     "name": "כרעי עוף טרי ארוז",
     "category": "בשר ודגים",
     "icon": "🥩",
@@ -249,6 +633,102 @@
     "unit": "ק\"ג",
     "store": "שופרסל",
     "image_url": "https://media.shufersal.co.il/product_images/products_360/7290004859688/files/360_assets/index/images/7290004859688_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "כרעי עוף טרי ארוז",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 19.9,
+    "barcode": "7290006707369",
+    "brand": "עוף טוב",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290006707369/files/360_assets/index/images/7290006707369_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "כרעי עוף טרי ארוז דיל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 19.9,
+    "barcode": "7290003115563",
+    "brand": "מילועוף",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290003115563/files/360_assets/index/images/7290003115563_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "כרעי עוף טרי ארוז עצמי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 19.9,
+    "barcode": "7290009802214",
+    "brand": "כללי",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290009802214/files/360_assets/index/images/7290009802214_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "כרעיים עוף טרי ארוז דיל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 19.9,
+    "barcode": "7290001303047",
+    "brand": "עוף עוז",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290001303047/files/360_assets/index/images/7290001303047_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "כרעיים עוף טרי ארוז עטרה",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290001209356",
+    "brand": "שונות",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290001209356/files/360_assets/index/images/7290001209356_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "כרעיים עוף טרי ארוז קג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 19.9,
+    "barcode": "7290002649021",
+    "brand": "יסכה",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290002649021/files/360_assets/index/images/7290002649021_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "כרעיים עוף טרי ארוז קג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 19.9,
+    "barcode": "7290009148077",
+    "brand": "מילועוף",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290009148077/files/360_assets/index/images/7290009148077_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "כרעיים עוף טרי ארוז שופר",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 19.9,
+    "barcode": "7290005590023",
+    "brand": "עוף הגליל",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290005590023/files/360_assets/index/images/7290005590023_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
@@ -264,6 +744,30 @@
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
+    "name": "כרעיים עוף טרי שופרסל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 19.9,
+    "barcode": "7290002684022",
+    "brand": "קורניש",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290002684022/files/360_assets/index/images/7290002684022_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "כרעיים עוף טרי תפ",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 24.0,
+    "barcode": "7290000611518",
+    "brand": "עוף עוז",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000611518/files/360_assets/index/images/7290000611518_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
     "name": "כרעים עוף טרי ארוז שלי ל",
     "category": "בשר ודגים",
     "icon": "🥩",
@@ -273,6 +777,30 @@
     "unit": "ק\"ג",
     "store": "שופרסל",
     "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000616803/files/360_assets/index/images/7290000616803_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "לב עוף טרי ארוז",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 19.9,
+    "barcode": "7290004859732",
+    "brand": "מילועוף",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290004859732/files/360_assets/index/images/7290004859732_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "לב עוף טרי ארוז דיל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 19.9,
+    "barcode": "7290006708663",
+    "brand": "מוצרי עוף טוב",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290006708663/files/360_assets/index/images/7290006708663_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
@@ -300,6 +828,30 @@
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
+    "name": "לב עוף טרי שופרסל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 19.9,
+    "barcode": "7290002684138",
+    "brand": "קורניש",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290002684138/files/360_assets/index/images/7290002684138_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "לבבות עוף טרי ארוז",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 19.9,
+    "barcode": "7290001303092",
+    "brand": "עוף עוז",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290001303092/files/360_assets/index/images/7290001303092_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
     "name": "לבבות עוף טרי ארוז קג",
     "category": "בשר ודגים",
     "icon": "🥩",
@@ -324,6 +876,42 @@
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
+    "name": "מדבקות יהלום מעורב דגמים",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 2.5,
+    "barcode": "7291083260761",
+    "brand": "שופרסל סטוק",
+    "unit": "יחידה",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7291083260761/files/360_assets/index/images/7291083260761_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "נתחי סלמון טרי שופרסל לק",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 120.0,
+    "barcode": "7290009011128",
+    "brand": "דגת הארץ",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290009011128/files/360_assets/index/images/7290009011128_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "סלמון פילה מנות לפי משקל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 94.9,
+    "barcode": "7290004645106",
+    "brand": "---",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290004645106/files/360_assets/index/images/7290004645106_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
     "name": "עוף טחון",
     "category": "בשר ודגים",
     "icon": "🥩",
@@ -336,6 +924,54 @@
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
+    "name": "עוף טרי ארוז עטרה",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 21.9,
+    "barcode": "7290001209349",
+    "brand": "שונות",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290001209349/files/360_assets/index/images/7290001209349_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "עוף טרי מוכשר תפ",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 15.9,
+    "barcode": "7290000611273",
+    "brand": "עוף עוז",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000611273/files/360_assets/index/images/7290000611273_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "עוף טרי שלם תפ",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 15.9,
+    "barcode": "7290000611624",
+    "brand": "עוף עוז",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000611624/files/360_assets/index/images/7290000611624_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "עוף שלם טרי א.דיל ארוז",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 15.9,
+    "barcode": "7290009802191",
+    "brand": "כללי",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290009802191/files/360_assets/index/images/7290009802191_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
     "name": "עוף שלם טרי ארוז",
     "category": "בשר ודגים",
     "icon": "🥩",
@@ -345,6 +981,54 @@
     "unit": "ק\"ג",
     "store": "שופרסל",
     "image_url": "https://media.shufersal.co.il/product_images/products_360/7290004859664/files/360_assets/index/images/7290004859664_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "עוף שלם טרי ארוז דיל לקג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 15.9,
+    "barcode": "7290001303016",
+    "brand": "עוף עוז",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290001303016/files/360_assets/index/images/7290001303016_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "עוף שלם טרי ארוז עצמי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 11.0,
+    "barcode": "7290009802146",
+    "brand": "כללי",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290009802146/files/360_assets/index/images/7290009802146_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "עוף שלם טרי ארוז קג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 15.9,
+    "barcode": "7290002649014",
+    "brand": "יסכה",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290002649014/files/360_assets/index/images/7290002649014_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "עוף שלם טרי ארוז שופרסל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 15.9,
+    "barcode": "7290005590016",
+    "brand": "עוף הגליל",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290005590016/files/360_assets/index/images/7290005590016_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
@@ -384,6 +1068,30 @@
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
+    "name": "עוף שלם טרי שופרסל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 15.9,
+    "barcode": "7290002684015",
+    "brand": "קורניש",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290002684015/files/360_assets/index/images/7290002684015_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "עוף שלם טרי תפזורת עצמי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 15.9,
+    "barcode": "7290000922591",
+    "brand": "שונות",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000922591/files/360_assets/index/images/7290000922591_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
     "name": "פילה אדמונית טרי שופרסל",
     "category": "בשר ודגים",
     "icon": "🥩",
@@ -393,6 +1101,66 @@
     "unit": "ק\"ג",
     "store": "שופרסל",
     "image_url": "https://media.shufersal.co.il/product_images/products_360/7290009011098/files/360_assets/index/images/7290009011098_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פילה אמנון טרי שופרסל קג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 69.9,
+    "barcode": "7290009011043",
+    "brand": "דגת הארץ",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290009011043/files/360_assets/index/images/7290009011043_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פילה באס טרי שופרסל לקג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 89.9,
+    "barcode": "7290009011067",
+    "brand": "דגת הארץ",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290009011067/files/360_assets/index/images/7290009011067_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פילה בורי טרי שופרסל לקג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 79.9,
+    "barcode": "7290009011050",
+    "brand": "דגת הארץ",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290009011050/files/360_assets/index/images/7290009011050_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פילה בקר טרי מוכשר",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 179.9,
+    "barcode": "7290009393149",
+    "brand": "כללי",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290009393149/files/360_assets/index/images/7290009393149_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פילה דג ברמונדי טרי קג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 89.9,
+    "barcode": "7290009391985",
+    "brand": "דגת הארץ",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290009391985/files/360_assets/index/images/7290009391985_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
@@ -408,6 +1176,54 @@
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
+    "name": "פילה דג הרינג סקנדינבי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 19.9,
+    "barcode": "4810168058999",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/4810168058999/files/360_assets/index/images/4810168058999_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פילה דג לברק טרי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 99.9,
+    "barcode": "7290008255578",
+    "brand": "פילוסופיש אי.סי",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290008255578/files/360_assets/index/images/7290008255578_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פילה דניס טרי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 99.9,
+    "barcode": "7290008255509",
+    "brand": "פילוסופיש אי.סי",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290008255509/files/360_assets/index/images/7290008255509_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פילה דניס טרי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 99.9,
+    "barcode": "7290002866084",
+    "brand": "כללי",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290002866084/files/360_assets/index/images/7290002866084_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
     "name": "פילה לברק טרי ארוז קג",
     "category": "בשר ודגים",
     "icon": "🥩",
@@ -417,6 +1233,42 @@
     "unit": "ק\"ג",
     "store": "שופרסל",
     "image_url": "https://media.shufersal.co.il/product_images/products_360/7290009392012/files/360_assets/index/images/7290009392012_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פילה לברק קפוא ארוז20מי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 54.9,
+    "barcode": "7290017615714",
+    "brand": "צאנגל",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290017615714/files/360_assets/index/images/7290017615714_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פילה מדומה טרי מוכשר",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 59.9,
+    "barcode": "7290009393163",
+    "brand": "רונפו",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290009393163/files/360_assets/index/images/7290009393163_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פילה סלמון קפוא ללא עור",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 94.9,
+    "barcode": "7290004645540",
+    "brand": "רוזנרס פיש",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290004645540/files/360_assets/index/images/7290004645540_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
@@ -432,15 +1284,99 @@
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
-    "name": "פילה עוף טרי ארוז שלי לק",
+    "name": "פילה סלמון קפוא עם עור",
     "category": "בשר ודגים",
     "icon": "🥩",
-    "price": 34.9,
-    "barcode": "7290005590269",
+    "price": 69.9,
+    "barcode": "7290000975603",
+    "brand": "כללי",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000975603/files/360_assets/index/images/7290000975603_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פילה עוף טרי א.דיל עצמי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 21.1,
+    "barcode": "7290009814316",
+    "brand": "כללי",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290009814316/files/360_assets/index/images/7290009814316_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פילה עוף טרי ארוז דיל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290006708717",
+    "brand": "מוצרי עוף טוב",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290006708717/files/360_assets/index/images/7290006708717_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פילה עוף טרי ארוז דיל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290001303009",
+    "brand": "עוף עוז",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290001303009/files/360_assets/index/images/7290001303009_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פילה עוף טרי ארוז לפי מש",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 21.1,
+    "barcode": "7290006706201",
+    "brand": "מוצרי עוף טוב",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290006706201/files/360_assets/index/images/7290006706201_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פילה עוף טרי ארוז עצמי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290009814309",
+    "brand": "כללי",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290009814309/files/360_assets/index/images/7290009814309_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פילה עוף טרי ארוז קג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290002649083",
+    "brand": "יסכה",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290002649083/files/360_assets/index/images/7290002649083_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פילה עוף טרי ארוז שופרסל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290005590078",
     "brand": "עוף הגליל",
     "unit": "ק\"ג",
     "store": "שופרסל",
-    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290005590269/files/360_assets/index/images/7290005590269_1.jpg",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290005590078/files/360_assets/index/images/7290005590078_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
@@ -453,6 +1389,66 @@
     "unit": "ק\"ג",
     "store": "שופרסל",
     "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000616766/files/360_assets/index/images/7290000616766_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פילה עוף טרי ארוז שלי לק",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 34.9,
+    "barcode": "7290005590269",
+    "brand": "עוף הגליל",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290005590269/files/360_assets/index/images/7290005590269_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פילה עוף טרי שופרסל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290002684060",
+    "brand": "קורניש",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290002684060/files/360_assets/index/images/7290002684060_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פילה עוף טרי ת עצמי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 34.9,
+    "barcode": "7290000910406",
+    "brand": "שונות",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000910406/files/360_assets/index/images/7290000910406_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פילה עוף טרי תפ",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290000611242",
+    "brand": "עוף עוז",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000611242/files/360_assets/index/images/7290000611242_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פסטרמה גחלים זוגלובק 330",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 33.7,
+    "barcode": "7290006742278",
+    "brand": "זוגלובק",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290006742278/files/360_assets/index/images/7290006742278_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
@@ -471,12 +1467,36 @@
     "name": "פרגיות עוף טרי ארוז",
     "category": "בשר ודגים",
     "icon": "🥩",
+    "price": 38.0,
+    "barcode": "7290009811896",
+    "brand": "כללי",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290009811896/files/360_assets/index/images/7290009811896_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פרגיות עוף טרי ארוז",
+    "category": "בשר ודגים",
+    "icon": "🥩",
     "price": 44.9,
     "barcode": "7290001879184",
     "brand": "מילועוף",
     "unit": "ק\"ג",
     "store": "שופרסל",
     "image_url": "https://media.shufersal.co.il/product_images/products_360/7290001879184/files/360_assets/index/images/7290001879184_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פרגיות עוף טרי ארוז",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 49.9,
+    "barcode": "7290006707390",
+    "brand": "עוף טוב",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290006707390/files/360_assets/index/images/7290006707390_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
@@ -489,6 +1509,30 @@
     "unit": "ק\"ג",
     "store": "שופרסל",
     "image_url": "https://media.shufersal.co.il/product_images/products_360/7290001303139/files/360_assets/index/images/7290001303139_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פרגיות עוף טרי ארוז דיל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 49.9,
+    "barcode": "7290003115532",
+    "brand": "מילועוף",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290003115532/files/360_assets/index/images/7290003115532_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פרגיות עוף טרי ארוז לקג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 49.9,
+    "barcode": "7290000616896",
+    "brand": "עוף עוז",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000616896/files/360_assets/index/images/7290000616896_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
@@ -507,12 +1551,36 @@
     "name": "פרגיות עוף טרי שופרסל",
     "category": "בשר ודגים",
     "icon": "🥩",
+    "price": 49.9,
+    "barcode": "7290002685098",
+    "brand": "קורניש",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290002685098/files/360_assets/index/images/7290002685098_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פרגיות עוף טרי שופרסל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
     "price": 44.9,
     "barcode": "7290002684091",
     "brand": "קורניש",
     "unit": "ק\"ג",
     "store": "שופרסל",
     "image_url": "https://media.shufersal.co.il/product_images/products_360/7290002684091/files/360_assets/index/images/7290002684091_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פרגיות עוף טרי ת עצמי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 49.9,
+    "barcode": "7290001158661",
+    "brand": "שונות",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290001158661/files/360_assets/index/images/7290001158661_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
@@ -528,6 +1596,30 @@
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
+    "name": "קוקטייל עוף טרי ארוז דיל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 19.9,
+    "barcode": "7290001303023",
+    "brand": "עוף עוז",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290001303023/files/360_assets/index/images/7290001303023_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "קוקטייל עוף טרי ארוז קג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 19.9,
+    "barcode": "7290002649052",
+    "brand": "יסכה",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290002649052/files/360_assets/index/images/7290002649052_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
     "name": "קוקטייל עוף טרי ארוז שלי",
     "category": "בשר ודגים",
     "icon": "🥩",
@@ -540,6 +1632,18 @@
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
+    "name": "קוקטיל עוף טרי ארוז שופר",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 19.9,
+    "barcode": "7290005590030",
+    "brand": "עוף הגליל",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290005590030/files/360_assets/index/images/7290005590030_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
     "name": "קורקבן עוף טרי",
     "category": "בשר ודגים",
     "icon": "🥩",
@@ -549,6 +1653,18 @@
     "unit": "ק\"ג",
     "store": "שופרסל",
     "image_url": "https://media.shufersal.co.il/product_images/products_360/7290001303443/files/360_assets/index/images/7290001303443_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "קורקבן עוף טרי ארוז",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 7.9,
+    "barcode": "7290004859749",
+    "brand": "מילועוף",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290004859749/files/360_assets/index/images/7290004859749_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
@@ -588,6 +1704,102 @@
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
+    "name": "קורקבן עוף טריא.דיל עצמי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 7.9,
+    "barcode": "7290009814347",
+    "brand": "כללי",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290009814347/files/360_assets/index/images/7290009814347_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "ש.עוף מיני דובונים600 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 34.9,
+    "barcode": "7290019205609",
+    "brand": "מוצרי עוף טוב",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290019205609/files/360_assets/index/images/7290019205609_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "ש.עוף מיני דינוזאור600 גר",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 34.9,
+    "barcode": "7290019205708",
+    "brand": "מוצרי עוף טוב",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290019205708/files/360_assets/index/images/7290019205708_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "שווארמה עוף טרי ארוז שופ",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 49.9,
+    "barcode": "7290005590092",
+    "brand": "עוף הגליל",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290005590092/files/360_assets/index/images/7290005590092_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "שווארמה עוף טרי ארוז שלי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 49.9,
+    "barcode": "7290005590283",
+    "brand": "עוף הגליל",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290005590283/files/360_assets/index/images/7290005590283_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "שוקי עוף טרי ארוז",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 24.9,
+    "barcode": "7290004859701",
+    "brand": "מילועוף",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290004859701/files/360_assets/index/images/7290004859701_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "שוקי עוף טרי ארוז",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 24.9,
+    "barcode": "7290006707383",
+    "brand": "עוף טוב",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290006707383/files/360_assets/index/images/7290006707383_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "שוקי עוף טרי ארוז דיל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 24.9,
+    "barcode": "7290001303030",
+    "brand": "עוף עוז",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290001303030/files/360_assets/index/images/7290001303030_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
     "name": "שוקי עוף טרי ארוז עצמי",
     "category": "בשר ודגים",
     "icon": "🥩",
@@ -597,6 +1809,42 @@
     "unit": "ק\"ג",
     "store": "שופרסל",
     "image_url": "https://media.shufersal.co.il/product_images/products_360/7290009807646/files/360_assets/index/images/7290009807646_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "שוקי עוף טרי תפזורת עצמי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 24.9,
+    "barcode": "7290001158531",
+    "brand": "שונות",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290001158531/files/360_assets/index/images/7290001158531_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "שוקיים עוף טרי ארוז",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 24.9,
+    "barcode": "7290002649045",
+    "brand": "יסכה",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290002649045/files/360_assets/index/images/7290002649045_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "שוקיים עוף טרי ארוז עטרה",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 31.9,
+    "barcode": "7290001209387",
+    "brand": "שונות",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290001209387/files/360_assets/index/images/7290001209387_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
@@ -624,6 +1872,54 @@
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
+    "name": "שוקיים עוף טרי שופרסל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 24.9,
+    "barcode": "7290002684107",
+    "brand": "קורניש",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290002684107/files/360_assets/index/images/7290002684107_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "שניצל דק דק טרי שופרסל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 34.9,
+    "barcode": "7290002684084",
+    "brand": "קורניש",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290002684084/files/360_assets/index/images/7290002684084_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "שניצל דק טרי ארוז",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 34.9,
+    "barcode": "7290006708151",
+    "brand": "עוף טוב",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290006708151/files/360_assets/index/images/7290006708151_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "שניצל דק צילי מן הצומח",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 38.9,
+    "barcode": "7290109580838",
+    "brand": "---",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290109580838/files/360_assets/index/images/7290109580838_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
     "name": "שניצל עוף טרי א.דיל עצמי",
     "category": "בשר ודגים",
     "icon": "🥩",
@@ -633,6 +1929,42 @@
     "unit": "ק\"ג",
     "store": "שופרסל",
     "image_url": "https://media.shufersal.co.il/product_images/products_360/7290009811490/files/360_assets/index/images/7290009811490_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "שניצל עוף טרי ארוז",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 34.9,
+    "barcode": "7290006708519",
+    "brand": "מוצרי עוף טוב",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290006708519/files/360_assets/index/images/7290006708519_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "שניצל עוף טרי ארוז דיל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 34.9,
+    "barcode": "7290006708557",
+    "brand": "מוצרי עוף טוב",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290006708557/files/360_assets/index/images/7290006708557_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "שניצל עוף טרי ארוז דיל ל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 34.9,
+    "barcode": "7290001303122",
+    "brand": "עוף עוז",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290001303122/files/360_assets/index/images/7290001303122_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {
@@ -717,6 +2049,30 @@
     "unit": "ק\"ג",
     "store": "שופרסל",
     "image_url": "https://media.shufersal.co.il/product_images/products_360/7290001158524/files/360_assets/index/images/7290001158524_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "שניצל פרימ' טרי אר' עטרה",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 42.9,
+    "barcode": "7290002285816",
+    "brand": "נטו",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290002285816/files/360_assets/index/images/7290002285816_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "שניצל תירס 1.75 קג בדצ",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 48.9,
+    "barcode": "7290109580043",
+    "brand": "---",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290109580043/files/360_assets/index/images/7290109580043_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   },
   {

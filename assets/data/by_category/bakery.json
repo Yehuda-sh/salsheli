@@ -1,5 +1,41 @@
 [
   {
+    "name": "לחם ברמן לעניין פלוס500 ג",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 17.9,
+    "barcode": "7290000497426",
+    "brand": "י.את.א.ברמן בע\"\\מ",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000497426/files/360_assets/index/images/7290000497426_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "לחם קסטן דני כפרי 600 גר",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 22.9,
+    "barcode": "7290000498782",
+    "brand": "מאפית ברמן",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000498782/files/360_assets/index/images/7290000498782_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "מאפה בצק טבעוני פטה600",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 24.9,
+    "barcode": "7290109640761",
+    "brand": "כללי",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290109640761/files/360_assets/index/images/7290109640761_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
     "name": "מאפה בצק טבעוני פיצה600 ג",
     "category": "מאפים",
     "icon": "🍞",

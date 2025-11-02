@@ -1,5 +1,101 @@
 [
   {
+    "name": "ארוחת נודלס בטעם ירקות70",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 5.9,
+    "barcode": "7290002715528",
+    "brand": "",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290002715528/files/360_assets/index/images/7290002715528_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "מנה חמה נודלס פיקנטי 71 ג",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 9.5,
+    "barcode": "7290000073774",
+    "brand": "PUB FOODS PRESIDENT THAI",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000073774/files/360_assets/index/images/7290000073774_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "ספגטי מס 5 מוריני 500 ג",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 9.9,
+    "barcode": "7296073124399",
+    "brand": "פסטה ברוטו",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7296073124399/files/360_assets/index/images/7296073124399_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פסטה בוגטיני 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 3.9,
+    "barcode": "7290020080707",
+    "brand": "כללי",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290020080707/files/360_assets/index/images/7290020080707_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פסטה ספגטי מס 8 אסם 500 ג",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 7.9,
+    "barcode": "7290000060880",
+    "brand": "פסטה זארה",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000060880/files/360_assets/index/images/7290000060880_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פסטה פנה מוריני 500 ג",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 9.9,
+    "barcode": "7296073011217",
+    "brand": "פסטה ברוטו",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7296073011217/files/360_assets/index/images/7296073011217_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פריכונים מאורז מלא 140 גר",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 11.9,
+    "barcode": "7290000068343",
+    "brand": "פרח תעשיות מזון בע\"מ",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000068343/files/360_assets/index/images/7290000068343_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פתיתי קוסקוס 350 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 9.9,
+    "barcode": "7290006567048",
+    "brand": "קוסקוס מזון",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290006567048/files/360_assets/index/images/7290006567048_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
     "name": "פתיתים אורז 500 גרם",
     "category": "אורז ופסטה",
     "icon": "🍚",
@@ -21,6 +117,42 @@
     "unit": "100 גרם",
     "store": "שופרסל",
     "image_url": "https://media.shufersal.co.il/product_images/products_360/7290020080950/files/360_assets/index/images/7290020080950_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "פתיתים קוסקוס 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 2.9,
+    "barcode": "7290015339551",
+    "brand": "מוטלו, מקרונהציליק סאן.ו",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290015339551/files/360_assets/index/images/7290015339551_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "קוסקוס בינוני 350 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 9.9,
+    "barcode": "7290000064758",
+    "brand": "קוסקוס מזון",
+    "unit": "100 גרם",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000064758/files/360_assets/index/images/7290000064758_1.jpg",
+    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+  },
+  {
+    "name": "תיבול לאורז",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 98.0,
+    "barcode": "7290000906898",
+    "brand": "כללי",
+    "unit": "ק\"ג",
+    "store": "שופרסל",
+    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000906898/files/360_assets/index/images/7290000906898_1.jpg",
     "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
   }
 ]
