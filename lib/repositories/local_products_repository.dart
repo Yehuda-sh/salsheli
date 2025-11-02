@@ -2,15 +2,20 @@
 // Repository למוצרים מקובץ JSON מקומי
 //
 // 🎯 Purpose:
-// - טוען מוצרים מ-assets/data/products.json
-// - Cache חכם (פעם אחת בלבד)
+// - טוען מוצרים מ-assets/data/list_types/{type}.json
+// - Cache חכם (נפרד לכל סוג רשימה)
+// - Fallback ל-supermarket.json אם הקובץ לא קיים
 // - ממיר ProductsRepository interface
 //
 // 💡 Usage:
 // ```dart
 // final repo = LocalProductsRepository();
-// final products = await repo.getAllProducts();
+// final products = await repo.getProductsByListType('bakery');
 // ```
+//
+// 📦 Supported List Types:
+// - supermarket, pharmacy, greengrocer, butcher, bakery, market
+// - household, other → fallback to supermarket
 
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
@@ -18,48 +23,89 @@ import 'package:flutter/services.dart';
 import 'products_repository.dart';
 
 class LocalProductsRepository implements ProductsRepository {
-  // Cache של המוצרים
-  List<Map<String, dynamic>>? _cachedProducts;
-  bool _isLoading = false;
+  // Cache של מוצרים - נפרד לכל list_type
+  final Map<String, List<Map<String, dynamic>>> _cache = {};
+  final Set<String> _loading = {};
 
-  /// טוען את כל המוצרים מה-JSON
+  // List types עם JSON ייעודי
+  static const Set<String> _supportedTypes = {
+    'supermarket',
+    'pharmacy',
+    'greengrocer',
+    'butcher',
+    'bakery',
+    'market',
+  };
+
+  // Fallback type
+  static const String _fallbackType = 'supermarket';
+
+  /// טוען מוצרים לפי סוג רשימה
+  /// 
+  /// [listType] - סוג הרשימה (supermarket, bakery, וכו')
+  /// [limit] - מספר מקסימלי של מוצרים
+  /// [offset] - כמה מוצרים לדלג (pagination)
+  /// 
+  /// Returns: רשימת מוצרים מסוננת לפי סוג הרשימה
+  Future<List<Map<String, dynamic>>> getProductsByListType(
+    String listType, {
+    int? limit,
+    int? offset,
+  }) async {
+    // קבע איזה קובץ לטעון
+    final fileType = _supportedTypes.contains(listType) ? listType : _fallbackType;
+
+    // אם יש cache - החזר אותו
+    if (_cache.containsKey(fileType)) {
+      return _applyPagination(_cache[fileType]!, limit: limit, offset: offset);
+    }
+
+    // אם כבר טוען - חכה
+    if (_loading.contains(fileType)) {
+      while (_loading.contains(fileType)) {
+        await Future.delayed(const Duration(milliseconds: 50));
+      }
+      return _applyPagination(_cache[fileType]!, limit: limit, offset: offset);
+    }
+
+    try {
+      _loading.add(fileType);
+      final path = 'assets/data/list_types/$fileType.json';
+      debugPrint('📥 טוען מוצרים מ-$path...');
+
+      final jsonString = await rootBundle.loadString(path);
+      final List<dynamic> jsonData = json.decode(jsonString);
+
+      _cache[fileType] = jsonData.cast<Map<String, dynamic>>();
+      debugPrint('✅ נטענו ${_cache[fileType]!.length} מוצרים מ-$fileType');
+
+      return _applyPagination(_cache[fileType]!, limit: limit, offset: offset);
+    } catch (e) {
+      debugPrint('❌ שגיאה בטעינת מוצרים מ-$fileType: $e');
+
+      // Fallback ל-supermarket אם נכשל
+      if (fileType != _fallbackType) {
+        debugPrint('⚠️ נסה fallback ל-$_fallbackType...');
+        return getProductsByListType(_fallbackType, limit: limit, offset: offset);
+      }
+
+      _cache[fileType] = [];
+      return [];
+    } finally {
+      _loading.remove(fileType);
+    }
+  }
+
+  /// טוען את כל המוצרים (מכל הסוגים)
+  /// 
+  /// ⚠️ Legacy method - עדיף להשתמש ב-getProductsByListType!
   @override
   Future<List<Map<String, dynamic>>> getAllProducts({
     int? limit,
     int? offset,
   }) async {
-    // אם יש cache - החזר אותו עם pagination
-    if (_cachedProducts != null) {
-      return _applyPagination(_cachedProducts!, limit: limit, offset: offset);
-    }
-
-    // טוען רק פעם אחת
-    if (_isLoading) {
-      // מחכה עד שהטעינה תסתיים
-      while (_isLoading) {
-        await Future.delayed(const Duration(milliseconds: 50));
-      }
-      return _applyPagination(_cachedProducts!, limit: limit, offset: offset);
-    }
-
-    try {
-      _isLoading = true;
-      debugPrint('📥 טוען מוצרים מ-assets/data/products.json...');
-
-      final jsonString = await rootBundle.loadString('assets/data/products.json');
-      final List<dynamic> jsonData = json.decode(jsonString);
-
-      _cachedProducts = jsonData.cast<Map<String, dynamic>>();
-      debugPrint('✅ נטענו ${_cachedProducts!.length} מוצרים מ-JSON');
-
-      return _applyPagination(_cachedProducts!, limit: limit, offset: offset);
-    } catch (e) {
-      debugPrint('❌ שגיאה בטעינת מוצרים: $e');
-      _cachedProducts = [];
-      return [];
-    } finally {
-      _isLoading = false;
-    }
+    // Default: טוען מ-supermarket
+    return getProductsByListType(_fallbackType, limit: limit, offset: offset);
   }
 
   /// מיישם pagination על רשימה
@@ -80,13 +126,24 @@ class LocalProductsRepository implements ProductsRepository {
 
   @override
   Future<List<Map<String, dynamic>>> getProductsByCategory(String category) async {
-    final all = await getAllProducts();
+    // טוען מסופרמרקט (הכי מקיף)
+    final all = await getProductsByListType(_fallbackType);
     return all.where((p) => p['category'] == category).toList();
   }
 
   @override
   Future<Map<String, dynamic>?> getProductByBarcode(String barcode) async {
-    final all = await getAllProducts();
+    // חפש בכל הקבצים שנטענו ב-cache
+    for (final products in _cache.values) {
+      try {
+        return products.firstWhere((p) => p['barcode'] == barcode);
+      } catch (_) {
+        // ממשיך לקובץ הבא
+      }
+    }
+
+    // אם לא נמצא - טען מסופרמרקט וחפש
+    final all = await getProductsByListType(_fallbackType);
     try {
       return all.firstWhere((p) => p['barcode'] == barcode);
     } catch (e) {
@@ -96,37 +153,76 @@ class LocalProductsRepository implements ProductsRepository {
 
   @override
   Future<List<Map<String, dynamic>>> searchProducts(String query) async {
-    final all = await getAllProducts();
+    // חפש בכל הקבצים שנטענו ב-cache
+    final results = <Map<String, dynamic>>[];
     final lowerQuery = query.toLowerCase();
 
-    return all.where((product) {
-      final name = (product['name'] ?? '').toString().toLowerCase();
-      final brand = (product['brand'] ?? '').toString().toLowerCase();
-      return name.contains(lowerQuery) || brand.contains(lowerQuery);
-    }).toList();
+    for (final products in _cache.values) {
+      results.addAll(
+        products.where((product) {
+          final name = (product['name'] ?? '').toString().toLowerCase();
+          final brand = (product['brand'] ?? '').toString().toLowerCase();
+          return name.contains(lowerQuery) || brand.contains(lowerQuery);
+        }),
+      );
+    }
+
+    // אם אין תוצאות - חפש בסופרמרקט
+    if (results.isEmpty) {
+      final all = await getProductsByListType(_fallbackType);
+      results.addAll(
+        all.where((product) {
+          final name = (product['name'] ?? '').toString().toLowerCase();
+          final brand = (product['brand'] ?? '').toString().toLowerCase();
+          return name.contains(lowerQuery) || brand.contains(lowerQuery);
+        }),
+      );
+    }
+
+    return results;
   }
 
   @override
   Future<List<String>> getCategories() async {
-    final all = await getAllProducts();
-    return all
-        .map((p) => p['category']?.toString() ?? 'אחר')
-        .toSet()
-        .toList()
-      ..sort();
+    // איסוף קטגוריות מכל הקבצים שנטענו
+    final categories = <String>{};
+
+    for (final products in _cache.values) {
+      categories.addAll(
+        products.map((p) => p['category']?.toString() ?? 'אחר'),
+      );
+    }
+
+    // אם אין cache - טען מסופרמרקט
+    if (categories.isEmpty) {
+      final all = await getProductsByListType(_fallbackType);
+      categories.addAll(
+        all.map((p) => p['category']?.toString() ?? 'אחר'),
+      );
+    }
+
+    return categories.toList()..sort();
   }
 
   @override
   Future<void> refreshProducts({bool force = false}) async {
     if (force) {
-      _cachedProducts = null;
+      _cache.clear();
+      debugPrint('🧹 Cache נוקה');
     }
-    await getAllProducts();
+    // טען מחדש את supermarket
+    await getProductsByListType(_fallbackType);
   }
 
   /// ניקוי cache
   void clearCache() {
-    _cachedProducts = null;
-    debugPrint('🧹 Cache נוקה');
+    _cache.clear();
+    debugPrint('🧹 Cache נוקה - ${_cache.length} קבצים');
+  }
+
+  /// ניקוי cache של סוג רשימה ספציפי
+  void clearCacheForType(String listType) {
+    _cache.remove(listType);
+    debugPrint('🧹 Cache נוקה עבור $listType');
   }
 }

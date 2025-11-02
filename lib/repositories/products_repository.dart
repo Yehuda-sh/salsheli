@@ -115,4 +115,37 @@ abstract class ProductsRepository {
   /// await repository.refreshProducts(force: true);
   /// ```
   Future<void> refreshProducts({bool force = false});
+
+  /// טוען מוצרים לפי סוג רשימה (list_type)
+  ///
+  /// [listType] - סוג הרשימה:
+  ///   - 'supermarket' - כל המוצרים
+  ///   - 'pharmacy' - היגיינה וניקיון
+  ///   - 'greengrocer' - פירות וירקות
+  ///   - 'butcher' - בשר ועוף
+  ///   - 'bakery' - לחם ומאפים
+  ///   - 'market' - מעורב
+  ///   - 'household' - כלי בית (fallback)
+  ///   - 'other' - אחר (fallback)
+  ///
+  /// [limit] - מספר מקסימלי של מוצרים להחזיר (null = הכל)
+  /// [offset] - כמה מוצרים לדלג (לדפדוף)
+  ///
+  /// Returns: רשימת מוצרים מסוננת לפי סוג הרשימה
+  ///
+  /// Example:
+  /// ```dart
+  /// // טען מוצרי מאפייה
+  /// final bakeryProducts = await repository.getProductsByListType('bakery');
+  /// 
+  /// // טען 100 ראשונים מסופרמרקט
+  /// final first100 = await repository.getProductsByListType('supermarket', limit: 100);
+  /// ```
+  ///
+  /// Note: אם הקובץ לא קיים (household/other), ייעשה fallback ל-supermarket
+  Future<List<Map<String, dynamic>>> getProductsByListType(
+    String listType, {
+    int? limit,
+    int? offset,
+  });
 }
