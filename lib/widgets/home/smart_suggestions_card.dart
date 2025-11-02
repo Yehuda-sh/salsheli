@@ -405,6 +405,9 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
     SmartSuggestion suggestion,
     SuggestionsProvider provider,
   ) async {
+    // ✅ Capture messenger before await
+    final messenger = ScaffoldMessenger.of(context);
+    
     try {
       // Get shopping lists provider
       final listsProvider = context.read<ShoppingListsProvider>();
@@ -415,7 +418,7 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
 
       if (lists.isEmpty) {
         // TODO: Create default list
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           const SnackBar(
             content: Text('אין רשימות פעילות - צור רשימה חדשה'),
             backgroundColor: kStickyOrange,
@@ -444,7 +447,7 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
       if (!context.mounted) return;
 
       // Show success
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(
           content: Text('נוסף "${suggestion.productName}" לרשימה ✅'),
           backgroundColor: kStickyGreen,
@@ -452,7 +455,7 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
       );
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(
           content: Text('שגיאה בהוספה: $e'),
           backgroundColor: kStickyPink,
@@ -466,12 +469,15 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
     SmartSuggestion suggestion,
     SuggestionsProvider provider,
   ) async {
+    // ✅ Capture messenger before await
+    final messenger = ScaffoldMessenger.of(context);
+    
     try {
       await provider.dismissCurrentSuggestion();
 
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(
           content: Text('דחיתי "${suggestion.productName}" לשבוע ⏰'),
           backgroundColor: kStickyCyan,
@@ -479,7 +485,7 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
       );
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(
           content: Text('שגיאה: $e'),
           backgroundColor: kStickyPink,
@@ -515,12 +521,15 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
 
     if (confirmed != true) return;
 
+    // ✅ Capture messenger before await
+    final messenger = ScaffoldMessenger.of(context);
+
     try {
       await provider.deleteCurrentSuggestion(null);
 
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(
           content: Text('נמחק "${suggestion.productName}" 🗑️'),
           backgroundColor: kStickyPink,
@@ -528,7 +537,7 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
       );
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(
           content: Text('שגיאה: $e'),
           backgroundColor: kStickyPink,

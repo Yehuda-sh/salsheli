@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
 import '../../models/smart_suggestion.dart';
-import '../../models/unified_list_item.dart';
+
 import '../../providers/shopping_lists_provider.dart';
 import '../../providers/suggestions_provider.dart';
 
@@ -12,10 +12,7 @@ import '../../providers/suggestions_provider.dart';
 class LastChanceBanner extends StatelessWidget {
   final String activeListId;
 
-  const LastChanceBanner({
-    super.key,
-    required this.activeListId,
-  });
+  const LastChanceBanner({super.key, required this.activeListId});
 
   @override
   Widget build(BuildContext context) {
@@ -28,10 +25,7 @@ class LastChanceBanner extends StatelessWidget {
           return const SizedBox.shrink();
         }
 
-        return _LastChanceBannerContent(
-          suggestion: suggestion,
-          activeListId: activeListId,
-        );
+        return _LastChanceBannerContent(suggestion: suggestion, activeListId: activeListId);
       },
     );
   }
@@ -42,14 +36,10 @@ class _LastChanceBannerContent extends StatefulWidget {
   final SmartSuggestion suggestion;
   final String activeListId;
 
-  const _LastChanceBannerContent({
-    required this.suggestion,
-    required this.activeListId,
-  });
+  const _LastChanceBannerContent({required this.suggestion, required this.activeListId});
 
   @override
-  State<_LastChanceBannerContent> createState() =>
-      _LastChanceBannerContentState();
+  State<_LastChanceBannerContent> createState() => _LastChanceBannerContentState();
 }
 
 class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
@@ -76,21 +66,12 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
     final suggestion = widget.suggestion;
 
     return Container(
-      margin: const EdgeInsets.symmetric(
-        horizontal: kSpacingMedium,
-        vertical: kSpacingSmall,
-      ),
+      margin: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
       padding: const EdgeInsets.all(kSpacingMedium),
       decoration: BoxDecoration(
         color: kStickyOrange,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,20 +80,12 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
           // כותרת
           Row(
             children: [
-              const Icon(
-                Icons.warning_amber,
-                color: Colors.white,
-                size: 24,
-              ),
+              const Icon(Icons.warning_amber, color: Colors.white, size: 24),
               const SizedBox(width: kSpacingSmall),
               Expanded(
                 child: Text(
                   'רגע! שכחת משהו?',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                   textDirection: TextDirection.rtl,
                 ),
               ),
@@ -131,10 +104,7 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
             child: Row(
               children: [
                 // אמוג'י דחיפות
-                Text(
-                  _getUrgencyEmoji(suggestion.urgency),
-                  style: const TextStyle(fontSize: 32),
-                ),
+                Text(_getUrgencyEmoji(suggestion.urgency), style: const TextStyle(fontSize: 32)),
                 const SizedBox(width: kSpacingSmall),
 
                 // פרטים
@@ -144,20 +114,13 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
                     children: [
                       Text(
                         suggestion.productName,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                         textDirection: TextDirection.rtl,
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'נותרו: ${suggestion.currentStock} יחידות במלאי',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white.withValues(alpha: 0.9),
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.9)),
                         textDirection: TextDirection.rtl,
                       ),
                     ],
@@ -183,9 +146,7 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
                       backgroundColor: kStickyGreen,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                   ),
                 ),
@@ -202,9 +163,7 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
                       foregroundColor: Colors.white,
                       side: const BorderSide(color: Colors.white, width: 2),
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                   ),
                 ),
@@ -216,9 +175,7 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
             const Center(
               child: Padding(
                 padding: EdgeInsets.all(kSpacingSmall),
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                ),
+                child: CircularProgressIndicator(color: Colors.white),
               ),
             ),
         ],
@@ -233,10 +190,8 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
 
     try {
       final suggestion = widget.suggestion;
-      final listsProvider =
-          Provider.of<ShoppingListsProvider>(context, listen: false);
-      final suggestionsProvider =
-          Provider.of<SuggestionsProvider>(context, listen: false);
+      final listsProvider = Provider.of<ShoppingListsProvider>(context, listen: false);
+      final suggestionsProvider = Provider.of<SuggestionsProvider>(context, listen: false);
 
       // יצירת פריט מההמלצה (השתמש במתודה המוכנה)
       final item = suggestion.toUnifiedListItem();
@@ -260,12 +215,7 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
     } catch (e) {
       if (!mounted) return;
       final messenger = ScaffoldMessenger.of(context);
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text('שגיאה בהוספה: $e'),
-          backgroundColor: kStickyPink,
-        ),
-      );
+      messenger.showSnackBar(SnackBar(content: Text('שגיאה בהוספה: $e'), backgroundColor: kStickyPink));
     } finally {
       if (mounted) {
         setState(() => _isProcessing = false);
@@ -279,8 +229,7 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
     setState(() => _isProcessing = true);
 
     try {
-      final suggestionsProvider =
-          Provider.of<SuggestionsProvider>(context, listen: false);
+      final suggestionsProvider = Provider.of<SuggestionsProvider>(context, listen: false);
 
       // דחייה (המתודה משתמשת ב-Duration קבוע של 7 ימים)
       await suggestionsProvider.dismissCurrentSuggestion();
@@ -297,12 +246,7 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
     } catch (e) {
       if (!mounted) return;
       final messenger = ScaffoldMessenger.of(context);
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text('שגיאה: $e'),
-          backgroundColor: kStickyPink,
-        ),
-      );
+      messenger.showSnackBar(SnackBar(content: Text('שגיאה: $e'), backgroundColor: kStickyPink));
     } finally {
       if (mounted) {
         setState(() => _isProcessing = false);
