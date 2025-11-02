@@ -31,18 +31,18 @@
 // - 🎨 Icons: people_outline, checklist, auto_awesome, inventory_2
 // - 📏 Same optimization: 4 benefits + 2 buttons, no scrolling
 
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../theme/app_theme.dart';
-import '../widgets/common/notebook_background.dart';
-import '../widgets/common/sticky_note.dart';
-import '../widgets/common/sticky_button.dart';
-import '../widgets/common/benefit_tile.dart';
 
-import '../widgets/common/tappable_card.dart';
 import '../core/ui_constants.dart';
 import '../l10n/app_strings.dart';
+import '../theme/app_theme.dart';
+import '../widgets/common/benefit_tile.dart';
+import '../widgets/common/notebook_background.dart';
+import '../widgets/common/sticky_button.dart';
+import '../widgets/common/sticky_note.dart';
+import '../widgets/common/tappable_card.dart';
 
 // 🔧 Wrapper ללוגים - פועל רק ב-debug mode
 void _log(String message) {
@@ -92,7 +92,6 @@ class WelcomeScreen extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: kSpacingMedium,
-                  vertical: 0,
                 ),
                 child: Column(
                   children: [
@@ -107,7 +106,6 @@ class WelcomeScreen extends StatelessWidget {
                           color: brand?.stickyYellow ?? kStickyYellow,
                           icon: Icons.shopping_basket_outlined,
                           iconColor: accent,
-                          rotation: -0.03,
                         ),
                       ),
                     ),
@@ -144,7 +142,7 @@ class WelcomeScreen extends StatelessWidget {
                     const SizedBox(height: kSpacingLarge),
 
                     // 📌 יתרונות כפתקים צבעוניים עם אנימציות כניסה
-                    TappableCard(
+                    SimpleTappableCard(
                       onTap: () => _log('💛 benefit 1 tapped'),
                       child: BenefitTile(
                         icon: Icons.people_outline,
@@ -156,7 +154,7 @@ class WelcomeScreen extends StatelessWidget {
                       ),
                     ).animate().fadeIn(duration: 300.ms, delay: 100.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
                     const SizedBox(height: kSpacingSmall),
-                    TappableCard(
+                    SimpleTappableCard(
                       onTap: () => _log('🌸 benefit 2 tapped'),
                       child: BenefitTile(
                         icon: Icons.checklist,
@@ -168,7 +166,7 @@ class WelcomeScreen extends StatelessWidget {
                       ),
                     ).animate().fadeIn(duration: 300.ms, delay: 200.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
                     const SizedBox(height: kSpacingSmall),
-                    TappableCard(
+                    SimpleTappableCard(
                       onTap: () => _log('💚 benefit 3 tapped'),
                       child: BenefitTile(
                         icon: Icons.auto_awesome,
@@ -180,7 +178,7 @@ class WelcomeScreen extends StatelessWidget {
                       ),
                     ).animate().fadeIn(duration: 300.ms, delay: 300.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
                     const SizedBox(height: kSpacingSmall),
-                    TappableCard(
+                    SimpleTappableCard(
                       onTap: () => _log('💙 benefit 4 tapped'),
                       child: BenefitTile(
                         icon: Icons.inventory_2_outlined,
