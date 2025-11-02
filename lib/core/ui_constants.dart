@@ -11,9 +11,15 @@
 // Note: These constants are used across the app for consistency.
 // Refer to DESIGN.md for full design system documentation.
 //
-// Version: 2.1
+// Version: 2.2
 // Created: 31/10/2025
-// Last Updated: 29/10/2025
+// Last Updated: 2/11/2025
+//
+// ⭐ Version 2.2 Changes (2/11/2025):
+// - Added kIconSizeProfile (32.0) for profile icons
+// - Added kAvatarRadiusTiny (12.0) for tiny avatars
+// - Added kAvatarRadiusSmall (16.0) for small avatars
+// - Added kAvatarRadius (32.0) for default avatars
 //
 // ⭐ Version 2.1 Changes (29/10/2025):
 // - Added kDoubleTapTimeout (2 seconds) for double-tap detection
@@ -94,6 +100,7 @@ const double kListTilePaddingEnd = 8.0;     // ListTile end padding (RTL)
 
 const Duration kAnimationDuration = Duration(milliseconds: 250);       // Default animation
 const Duration kAnimationDurationShort = Duration(milliseconds: 150);  // Short animation
+const Duration kAnimationDurationMedium = Duration(milliseconds: 350); // Medium animation
 const Duration kAnimationDurationLong = Duration(milliseconds: 500);   // Long animation
 
 const Duration kSnackBarDuration = Duration(seconds: 3);      // Default SnackBar
@@ -142,6 +149,7 @@ const double kOpacityMedium = 0.5;  // Medium opacity
 // ═══════════════════════════════════════════════════════════════════════════
 
 const double kProgressIndicatorHeight = 4.0;  // Linear progress indicator height
+const double kProgressIndicatorBackgroundAlpha = 0.2;  // Background opacity
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SPLASH GRADIENT COLORS
@@ -174,8 +182,17 @@ const double kFontSizeXLarge = 28.0;  // Extra large text (titles)
 
 const double kIconSizeSmall = 16.0;    // Small icons
 const double kIconSizeMedium = 24.0;   // Medium icons (default)
+const double kIconSizeProfile = 32.0;  // Profile icons
 const double kIconSizeXLarge = 48.0;   // Extra large icons
 const double kIconSizeXXLarge = 64.0;  // Extra extra large icons
+
+// ═══════════════════════════════════════════════════════════════════════════
+// AVATAR SIZES
+// ═══════════════════════════════════════════════════════════════════════════
+
+const double kAvatarRadiusTiny = 12.0;   // Tiny avatar radius
+const double kAvatarRadiusSmall = 16.0;  // Small avatar radius
+const double kAvatarRadius = 32.0;       // Default avatar radius
 
 // ═══════════════════════════════════════════════════════════════════════════
 // FORM FIELD SIZES
@@ -183,3 +200,18 @@ const double kIconSizeXXLarge = 64.0;  // Extra extra large icons
 
 const double kFieldWidthNarrow = 80.0;   // Narrow field width (quantity inputs)
 const double kChipHeight = 48.0;          // Filter chip container height
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STICKY BUTTON STYLES
+// ═══════════════════════════════════════════════════════════════════════════
+
+const double kStickyButtonRadius = 12.0;  // Border radius for sticky buttons
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SHADOW STYLES
+// ═══════════════════════════════════════════════════════════════════════════
+
+const double kStickyShadowPrimaryOpacity = 0.3;   // Primary shadow opacity
+const double kStickyShadowPrimaryBlur = 6.0;      // Primary shadow blur radius
+const double kStickyShadowPrimaryOffsetX = 2.0;   // Primary shadow X offset
+const double kStickyShadowPrimaryOffsetY = 4.0;   // Primary shadow Y offset

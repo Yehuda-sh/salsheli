@@ -6,59 +6,52 @@
 // - Automatic user loading from SharedPreferences
 // - Dynamic Color Support (Android 12+ Material You) 🎨
 
+import 'package:dynamic_color/dynamic_color.dart'; // 🎨 Material You!
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:dynamic_color/dynamic_color.dart'; // 🎨 Material You!
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
 // Models
 import 'models/shopping_list.dart';
 
 // Providers
-import 'providers/user_context.dart';
-import 'providers/shopping_lists_provider.dart';
-import 'providers/inventory_provider.dart';
-import 'providers/receipt_provider.dart';
-import 'providers/products_provider.dart';
-import 'providers/suggestions_provider.dart';
-import 'providers/locations_provider.dart';
 import 'providers/habits_provider.dart';
+import 'providers/inventory_provider.dart';
+import 'providers/locations_provider.dart';
 import 'providers/product_location_provider.dart';
+import 'providers/products_provider.dart';
+import 'providers/receipt_provider.dart';
+import 'providers/shopping_lists_provider.dart';
+import 'providers/suggestions_provider.dart';
+import 'providers/user_context.dart';
 
 // Repositories
-import 'repositories/firebase_shopping_lists_repository.dart'; // 🔥 Firebase Shopping Lists!
-import 'repositories/user_repository.dart';
-import 'repositories/firebase_user_repository.dart'; // 🔥 Firebase User!
-import 'repositories/firebase_receipt_repository.dart'; // 🔥 Firebase Receipts!
-import 'repositories/firebase_inventory_repository.dart'; // 🔥 Firebase Inventory!
-import 'repositories/local_products_repository.dart'; // 📦 Local JSON!
 import 'repositories/firebase_habits_repository.dart'; // 🔥 Firebase Habits!
+import 'repositories/firebase_inventory_repository.dart'; // 🔥 Firebase Inventory!
 import 'repositories/firebase_locations_repository.dart'; // 🔥 Firebase Locations!
-
+import 'repositories/firebase_receipt_repository.dart'; // 🔥 Firebase Receipts!
+import 'repositories/firebase_shopping_lists_repository.dart'; // 🔥 Firebase Shopping Lists!
+import 'repositories/firebase_user_repository.dart'; // 🔥 Firebase User!
+import 'repositories/local_products_repository.dart'; // 📦 Local JSON!
+import 'repositories/user_repository.dart';
 // Services
 import 'services/auth_service.dart'; // 🔐 Firebase Auth!
 
 // Screens
-import 'screens/index_screen.dart';
-import 'screens/onboarding/onboarding_screen.dart';
-import 'screens/main_navigation_screen.dart';
-
-import 'screens/insights/insights_screen.dart';
-
-import 'screens/shopping/shopping_lists_screen.dart';
-import 'screens/shopping/active_shopping_screen.dart';
-import 'screens/shopping/shopping_list_details_screen.dart';
-import 'screens/lists/populate_list_screen.dart';
-// ❌ Receipt Import Screen removed (no more manual receipt scanning)
-import 'screens/pantry/my_pantry_screen.dart';
-
-import 'screens/shopping/shopping_summary_screen.dart';
-// Auth screens
 import 'screens/auth/login_screen.dart' as auth_login;
 import 'screens/auth/register_screen.dart' as auth_register;
+import 'screens/index_screen.dart';
+import 'screens/lists/populate_list_screen.dart';
+import 'screens/main_navigation_screen.dart';
+import 'screens/onboarding/onboarding_screen.dart';
+import 'screens/pantry/my_pantry_screen.dart';
+import 'screens/shopping/active_shopping_screen.dart';
+import 'screens/shopping/shopping_list_details_screen.dart';
+import 'screens/shopping/shopping_lists_screen.dart';
+import 'screens/shopping/shopping_summary_screen.dart';
 
 // Theme
 import 'theme/app_theme.dart';
@@ -98,7 +91,7 @@ void main() async {
   // ⏸️ Wait a moment to ensure Firebase is fully ready before creating Providers
   // This prevents race condition where Providers try to access Firebase
   // (e.g., AuthService calling FirebaseAuth.instance) before initialization completes
-  await Future.delayed(Duration(milliseconds: 100));
+  await Future.delayed(const Duration(milliseconds: 100));
   if (kDebugMode) debugPrint('⏳ Waited for Firebase stabilization');
 
   // 📦 Create Local Products Repository
@@ -372,7 +365,7 @@ class _MyAppState extends State<MyApp> {
             '/login': (context) => const auth_login.LoginScreen(),
             '/register': (context) => const auth_register.RegisterScreen(),
 
-            '/insights': (context) => const InsightsScreen(),
+            // ❌ '/insights' route removed (insights screen deleted)
             // ❌ '/receipts' route removed (no manual receipt import)
             '/pantry': (context) => const MyPantryScreen(),
             '/inventory': (context) => const MyPantryScreen(), // alias for pantry

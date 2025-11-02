@@ -20,8 +20,8 @@
 //
 // 🎬 Animations (v3.0):
 // - AnimatedCounter על סטטיסטיקות (0 → value)
-// - TappableCard על כרטיסי סטטיסטיקות (scale effect)
-// - Button animations על כל הכפתורים
+// - AnimatedScale על כרטיסי סטטיסטיקות (scale effect)
+// - StickyButton animations
 // - Skeleton Screen ל-Loading State
 //
 // 🔗 תלויות:
@@ -40,8 +40,8 @@
 // 4. עדכון מחירים ידני (ProductsProvider.refreshProducts)
 // 5. התנתקות → ניקוי + חזרה ל-login
 //
-// Version: 3.1 - תוקן + NotebookBackground
-// Last Updated: 15/10/2025
+// Version: 3.2 - הסרת Debug Tools
+// Last Updated: 2/11/2025
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -58,6 +58,7 @@ import 'package:memozap/config/household_config.dart';
 import 'package:memozap/widgets/common/notebook_background.dart';
 import 'package:memozap/widgets/common/sticky_note.dart';
 import 'package:memozap/widgets/common/sticky_button.dart';
+import 'package:memozap/screens/settings/manage_users_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -81,13 +82,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _isEditingHouseholdName = false;
   final TextEditingController _householdNameController = TextEditingController();
 
-  // TODO: חברים (דמה - בעתיד מה-Provider או HouseholdProvider)
-  // FIXME: Hardcoded data - צריך להתחבר ל-UserContext/HouseholdProvider
-  final List<Map<String, String>> _members = [
-    {"name": "יוסי כהן", "role": "owner"},
-    {"name": "דנה לוי", "role": "editor"},
-    {"name": "נועם", "role": "viewer"},
-  ];
+
 
   // חנויות מועדפות
   final List<String> _preferredStores = ["שופרסל", "רמי לוי"];
@@ -402,6 +397,81 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _loadSettings();
   }
 
+  /// ניהול חברים - מציג בחירת רשימה או ניווט ישיר
+  Future<void> _manageMembers(BuildContext context) async {
+    final listsProvider = context.read<ShoppingListsProvider>();
+    final userContext = context.read<UserContext>();
+    final currentUserId = userContext.userId;
+
+    // מציאת רשימות שהמשתמש הוא Owner שלהן
+    final myOwnedLists = listsProvider.lists
+        .where((list) => list.createdBy == currentUserId)
+        .toList();
+
+    if (myOwnedLists.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('אין לך רשימות שאתה בעלים שלהן'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
+
+    // אם יש רק רשימה אחת - ניווט ישיר
+    if (myOwnedLists.length == 1) {
+      if (!mounted) return;
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => ManageUsersScreen(list: myOwnedLists.first),
+        ),
+      );
+      return;
+    }
+
+    // אם יש יותר מרשימה אחת - תן למשתמש לבחור
+    final selectedList = await showDialog<ShoppingList>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('בחר רשימה לניהול'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: myOwnedLists.length,
+            itemBuilder: (context, index) {
+              final list = myOwnedLists[index];
+              return ListTile(
+                leading: const Icon(Icons.list),
+                title: Text(list.name),
+                subtitle: Text(
+                  'חברים: ${list.sharedUsers.length}',
+                  style: const TextStyle(fontSize: 12),
+                ),
+                onTap: () => Navigator.of(context).pop(list),
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('ביטול'),
+          ),
+        ],
+      ),
+    );
+
+    if (selectedList != null && mounted) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => ManageUsersScreen(list: selectedList),
+        ),
+      );
+    }
+  }
+
   /// Skeleton Screen ל-Loading State
   Widget _buildLoadingSkeleton(ColorScheme cs) {
     return ListView(
@@ -601,36 +671,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 const SizedBox(height: kSpacingMedium),
 
-                // 🛠️ Debug Tools (זמני)
-                // TODO: להחליט - להשאיר או להעביר למסך נפרד
-                StickyNote(
-                  color: Colors.orange.shade100,
-                  rotation: -0.02,
-                  child: ListTile(
-                    leading: const Icon(Icons.bug_report, color: Colors.orange),
-                    title: const Text(
-                      '🧹 ניקוי מלאי פגום',
-                      style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(
-                      'כלי Debug - מחיקת פריטים עם productName=null',
-                      style: TextStyle(fontSize: kFontSizeSmall),
-                    ),
-                    trailing: const Icon(Icons.chevron_left, color: Colors.orange),
-                    onTap: () {
-                      final householdId = userContext.user?.householdId ?? '';
-                      if (householdId.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('שגיאה: אין household ID'), backgroundColor: Colors.red),
-                        );
-                        return;
-                      }
-                    },
-                  ),
-                ),
-
-                const SizedBox(height: kSpacingLarge),
-
                 // 🔹 ניהול קבוצה
                 StickyNote(
                   color: kStickyPink,
@@ -704,28 +744,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         const Divider(height: kSpacingLarge),
                         Text(
-                          AppStrings.settings.membersCount(_members.length),
+                          _getTotalSharedUsersText(listsProvider),
                           style: TextStyle(
                             fontSize: kFontSizeSmall,
                             fontWeight: FontWeight.w600,
                             color: cs.onSurfaceVariant,
-                          ),
-                        ),
-                        const SizedBox(height: kSpacingSmall),
-                        ..._members.map(
-                          (member) => ListTile(
-                            leading: CircleAvatar(
-                              radius: kAvatarRadiusSmall,
-                              backgroundColor: cs.primary.withValues(alpha: 0.15),
-                              child: Icon(Icons.person, color: cs.primary, size: kIconSizeMedium),
-                            ),
-                            title: Text(member['name']!),
-                            subtitle: Text(
-                              _getRoleLabel(member['role']!),
-                              style: TextStyle(fontSize: kFontSizeSmall - 2, color: cs.onSurfaceVariant),
-                            ),
-                            dense: true,
-                            contentPadding: EdgeInsets.zero,
                           ),
                         ),
                         const SizedBox(height: kSpacingSmall),
@@ -735,14 +758,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           color: Colors.white,
                           textColor: cs.primary,
                           height: 44,
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(AppStrings.settings.manageMembersComingSoon),
-                                duration: kSnackBarDuration,
-                              ),
-                            );
-                          },
+                          onPressed: () => _manageMembers(context),
                         ),
                       ],
                     ),
@@ -944,18 +960,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  /// Helper: תרגום role
-  String _getRoleLabel(String role) {
-    switch (role) {
-      case 'owner':
-        return AppStrings.settings.roleOwner;
-      case 'editor':
-        return AppStrings.settings.roleEditor;
-      case 'viewer':
-        return AppStrings.settings.roleViewer;
-      default:
-        return role;
+  /// סטטיסטיקה אמיתית של משתמשים משותפים
+  String _getTotalSharedUsersText(ShoppingListsProvider listsProvider) {
+    final userContext = context.read<UserContext>();
+    final currentUserId = userContext.userId;
+    
+    // מציאת רשימות שהמשתמש הוא Owner שלהן
+    final myOwnedLists = listsProvider.lists
+        .where((list) => list.createdBy == currentUserId)
+        .toList();
+    
+    if (myOwnedLists.isEmpty) {
+      return 'אין רשימות משותפות';
     }
+    
+    // חישוב סה"כ משתמשים ייחודיים
+    final Set<String> uniqueUsers = {};
+    for (final list in myOwnedLists) {
+      uniqueUsers.add(list.createdBy); // Owner
+      for (final sharedUser in list.sharedUsers) {
+        uniqueUsers.add(sharedUser.userId);
+      }
+    }
+    
+    final totalUsers = uniqueUsers.length;
+    final totalShared = totalUsers - 1; // בלי ה-Owner
+    
+    if (totalShared == 0) {
+      return 'אין חברים משותפים';
+    }
+    
+    return 'חברים: $totalShared ברשימות שלך';
   }
 }
 

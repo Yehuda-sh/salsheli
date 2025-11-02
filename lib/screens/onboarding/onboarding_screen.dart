@@ -84,7 +84,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         duration: kAnimationDurationMedium,
         curve: Curves.easeOut,
       );
-      unawaited(_haptic());
+      // ignore: unawaited_futures
+      _haptic();
     } else {
       _finishOnboarding();
     }
@@ -102,7 +103,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         duration: kAnimationDurationShort,
         curve: Curves.easeOut,
       );
-      unawaited(_haptic());
+      // ignore: unawaited_futures
+      _haptic();
     }
   }
 
