@@ -174,9 +174,49 @@ class AddProductScreen extends StatefulWidget {
 // LocationsProvider - only needed during shopping
 ```
 
+**Real implementation (ProductsProvider):**
+```dart
+class ProductsProvider extends ChangeNotifier {
+  bool _hasInitialized = false;
+  static const int _batchSize = 100;
+  
+  ProductsProvider(this._repository, this._userContext) {
+    // ✅ DON'T load here!
+    _userContext.addListener(_onUserChanged);
+  }
+  
+  // ✅ Lazy loading: טוען רק 100 מוצרים ראשונים
+  Future<void> loadProducts() async {
+    final initialProducts = await _loadProductsByTypeOrAll(limit: _batchSize);
+    _products = initialProducts;
+    _hasLoadedAll = initialProducts.length < _batchSize;
+    
+    // 🚀 טען את השאר ברקע (לא חוסם UI)
+    if (hasMore) {
+      _loadAllInBackground();
+    }
+  }
+  
+  // טעינה ברקע של שאר המוצרים
+  Future<void> _loadAllInBackground() async {
+    const step = 200; // טען 200 בכל שלב
+    while (!_hasLoadedAll) {
+      await Future.delayed(const Duration(milliseconds: 50));
+      final moreProducts = await _loadProductsByTypeOrAll(
+        limit: step,
+        offset: _products.length,
+      );
+      _products.addAll(moreProducts);
+      notifyListeners(); // עדכן UI כל 200 מוצרים
+    }
+  }
+}
+```
+
 **Performance impact:**
 - Before: 11 Providers loaded at startup
 - After: 5 essential Providers → 50% faster startup!
+- ProductsProvider: 100 initial → 5000+ in background (no UI block)
 
 ### Critical Rules
 
@@ -354,6 +394,57 @@ Future<List<Task>> getTasks(String userId, String householdId) async {
       .where('household_id', isEqualTo: householdId) // MUST HAVE!
       .where('user_id', isEqualTo: userId)
       .get(); // Only THIS household
+}
+```
+
+#### Real Example from Project (FirebaseShoppingListsRepository):
+
+```dart
+// ✅ CORRECT - כל query מסנן לפי household_id
+@override
+Future<List<ShoppingList>> fetchLists(String householdId) async {
+  try {
+    final snapshot = await _firestore
+        .collection(FirestoreCollections.shoppingLists)
+        .where(FirestoreFields.householdId, isEqualTo: householdId) // ✅
+        .orderBy(FirestoreFields.updatedDate, descending: true)
+        .get();
+
+    return snapshot.docs
+        .map((doc) => ShoppingList.fromJson(doc.data()))
+        .toList();
+  } catch (e, stackTrace) {
+    debugPrint('❌ fetchLists: שגיאה - $e');
+    throw ShoppingListRepositoryException(
+      'Failed to fetch shopping lists for $householdId',
+      e,
+    );
+  }
+}
+
+// ✅ CORRECT - גם במחיקה יש בדיקת household_id
+@override
+Future<void> deleteList(String id, String householdId) async {
+  // וידוא שהרשימה שייכת ל-household
+  final doc = await _firestore
+      .collection(FirestoreCollections.shoppingLists)
+      .doc(id)
+      .get();
+
+  if (!doc.exists) return;
+
+  final data = doc.data();
+  if (data?[FirestoreFields.householdId] != householdId) {
+    throw ShoppingListRepositoryException(
+      'Shopping list does not belong to household',
+      null,
+    );
+  }
+
+  await _firestore
+      .collection(FirestoreCollections.shoppingLists)
+      .doc(id)
+      .delete();
 }
 ```
 
@@ -698,6 +789,10 @@ import 'package:memozap/models/shopping_list.dart';
 5. **SkeletonLoading** - Loading state
 
 **📍 מיקום:** `lib/widgets/common/`
+
+**📝 הערה חשובה:**
+- SimpleTappableCard נמצא ב-`tappable_card.dart` (יחד עם TappableCard ו-AnimatedCard)
+- AnimatedButton נמצא ב-`animated_button.dart` (קובץ נפרד)
 
 ---
 
