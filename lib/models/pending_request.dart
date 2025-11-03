@@ -117,6 +117,7 @@ class PendingRequest {
 
   /// יצירת בקשה חדשה
   factory PendingRequest.newRequest({
+    String? id,
     required String listId,
     required String requesterId,
     required RequestType type,
@@ -124,7 +125,7 @@ class PendingRequest {
     String? requesterName,
   }) {
     return PendingRequest(
-      id: const Uuid().v4(),
+      id: id ?? const Uuid().v4(),
       listId: listId,
       requesterId: requesterId,
       type: type,

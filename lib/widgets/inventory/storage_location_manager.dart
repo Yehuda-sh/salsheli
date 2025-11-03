@@ -726,11 +726,12 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                 /// 📦 רשימת מיקומים
                 SizedBox(
                   height: gridMode ? (kChipHeight * 4) : (kChipHeight * 3),
-                  child: GridView.count(
-                    crossAxisCount: gridMode ? 3 : 1,
-                    childAspectRatio: gridMode ? 1.2 : 5,
-                    padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
-                    children: [
+                  child: gridMode 
+                    ? GridView.count(
+                        crossAxisCount: 3,
+                        childAspectRatio: 1.2,
+                        padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
+                        children: [
                       // כרטיס "הכל"
                       _buildLocationCard(
                         key: 'all',
@@ -766,8 +767,51 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                           isCustom: true,
                         );
                       }),
-                    ],
-                  ),
+                        ],
+                      )
+                    : SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
+                        child: Row(
+                          children: [
+                            // כרטיס "הכל"
+                            _buildLocationCard(
+                              key: 'all',
+                              name: 'הכל',
+                              emoji: '🏪',
+                              count: widget.inventory.length,
+                              customLocations: customLocations,
+                            ),
+
+                            // מיקומי ברירת מחדל
+                            ...kStorageLocations.entries.map((entry) {
+                              final key = entry.key;
+                              final config = entry.value;
+                              final count = widget.inventory.where((i) => i.location == key).length;
+                              return _buildLocationCard(
+                                key: key,
+                                name: config['name'] ?? '',
+                                emoji: config['emoji'] ?? '📍',
+                                count: count,
+                                customLocations: customLocations,
+                              );
+                            }),
+
+                            // מיקומים מותאמים
+                            ...customLocations.map((loc) {
+                              final count = widget.inventory.where((i) => i.location == loc.key).length;
+                              return _buildLocationCard(
+                                key: loc.key,
+                                name: loc.name,
+                                emoji: loc.emoji,
+                                count: count,
+                                customLocations: customLocations,
+                                isCustom: true,
+                              );
+                            }),
+                          ],
+                        ),
+                      ),
                 ),
 
                 const Divider(),

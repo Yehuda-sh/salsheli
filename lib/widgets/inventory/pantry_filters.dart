@@ -59,7 +59,10 @@ class PantryFilters extends StatelessWidget {
     return Semantics(
       label: AppStrings.inventory.filterLabel,
       child: Container(
-        padding: const EdgeInsets.all(kSpacingMedium),
+        padding: const EdgeInsets.symmetric(
+          horizontal: kSpacingSmall,
+          vertical: kSpacingXTiny,
+        ),
         decoration: BoxDecoration(
           color: cs.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(kBorderRadius),
@@ -67,60 +70,113 @@ class PantryFilters extends StatelessWidget {
             color: cs.outline.withValues(alpha: 0.3),
           ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
+        child: Row(
           children: [
-            // כותרת
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text(
-                  AppStrings.inventory.filterByCategory,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontSize: kFontSizeBody,
-                    color: cs.onSurface,
-                  ),
-                ),
-                const SizedBox(width: kSpacingSmall),
-                Icon(
-                  Icons.filter_list,
-                  color: brand?.accent ?? cs.primary,
-                  size: kIconSizeMedium,
-                ),
-              ],
-            ),
-            const SizedBox(height: kSpacingMedium),
-
-            // Dropdown קטגוריה
-            _buildCategoryDropdown(context),
-            
-            const SizedBox(height: kSpacingMedium),
-
             // כפתור איפוס
-            Align(
-              alignment: Alignment.centerLeft,
-              child: SizedBox(
-                height: kButtonHeight,
-                child: TextButton.icon(
-                  onPressed: _resetFilter,
-                  icon: Icon(
-                    Icons.refresh,
-                    size: 18,
-                    color: brand?.accent ?? cs.primary,
-                  ),
-                  label: Text(
-                    AppStrings.common.resetFilter,
-                    style: TextStyle(
-                      color: brand?.accent ?? cs.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
+            IconButton(
+              onPressed: _resetFilter,
+              icon: Icon(
+                Icons.refresh,
+                size: 18,
+                color: brand?.accent ?? cs.primary,
+              ),
+              tooltip: AppStrings.common.resetFilter,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(
+                minWidth: 32,
+                minHeight: 32,
+              ),
+            ),
+            
+            const SizedBox(width: kSpacingSmall),
+            
+            // Dropdown קטגוריה
+            Expanded(
+              child: _buildCompactDropdown(context),
+            ),
+            
+            const SizedBox(width: kSpacingSmall),
+            
+            // אייקון וכותרת
+            Icon(
+              Icons.filter_list,
+              color: brand?.accent ?? cs.primary,
+              size: kIconSizeSmall,
+            ),
+            const SizedBox(width: kSpacingXTiny),
+            Text(
+              AppStrings.inventory.filterByCategory,
+              style: theme.textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: cs.onSurface,
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// בנייה של Dropdown קומפקטי לבחירת קטגוריה
+  Widget _buildCompactDropdown(BuildContext context) {
+    final currentText = getCategoryLabel(currentCategory);
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
+
+    return Semantics(
+      label: '${AppStrings.inventory.filterByCategory}: $currentText',
+      child: DropdownButtonFormField<String>(
+        value: currentCategory,
+        onChanged: (newCategory) {
+          if (newCategory != null) {
+            onCategoryChanged(newCategory);
+          }
+        },
+        isExpanded: true,
+        isDense: true,
+        decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+            borderSide: BorderSide(color: cs.outline),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+            borderSide: BorderSide(color: cs.outline),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+            borderSide: BorderSide(
+              color: brand?.accent ?? cs.primary,
+              width: 2,
+            ),
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: kSpacingSmall,
+            vertical: kSpacingXTiny,
+          ),
+          filled: true,
+          fillColor: cs.surface,
+        ),
+        dropdownColor: cs.surfaceContainerHigh,
+        style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurface),
+        icon: Icon(Icons.arrow_drop_down, color: cs.onSurfaceVariant),
+        items: kCategories.map((id) {
+          final displayText = getCategoryLabel(id);
+          return DropdownMenuItem<String>(
+            value: id,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                displayText,
+                textDirection: TextDirection.rtl,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: cs.onSurface,
+                ),
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }

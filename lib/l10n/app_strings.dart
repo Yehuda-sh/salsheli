@@ -1120,7 +1120,7 @@ class _InventoryStrings {
   // Storage Location Manager
   // ========================================
 
-  static const storageManager = _StorageManagerStrings();
+  // static const storageManager = _StorageManagerStrings(); // Unused - commented out
 }
 
 // ========================================

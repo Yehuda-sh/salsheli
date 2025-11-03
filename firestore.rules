@@ -1,13 +1,19 @@
 rules_version = '2';
 // 🔒 MemoZap Firestore Security Rules
 // 
-// ✅ עודכן: 23/10/2025 - מערכת שיתוף
+// ✅ עודכן: 02/11/2025 - תיקון שיתוף משתמשים
 // 
-// 📄 מערכת הרשאות לרשימות משותפות:
-//    - Owner:  בעלים (כל ההרשאות כולל מחיקה)
+// 📄 מערכת הרשאות לרשימות משותפות (4 רמות):
+//    - Owner:  בעלים (כל ההרשאות כולל מחיקה) - שדה created_by
 //    - Admin:  מנהל (כמעט כל ההרשאות, אישור בקשות)
-//    - Editor: עורך (שליחת בקשות בלבד)
+//    - Editor: עורך (שליחת בקשות בלבד דרך pending_requests)
 //    - Viewer: צופה (רק קריאה)
+//
+// 📌 שדות חדשים ברשימה:
+//    - created_by: מזהה הבעלים (במקום user_id)
+//    - shared_users: רשימת משתמשים עם תפקידים
+//    - pending_requests: בקשות ממתינות מ-Editors
+//    - active_shoppers: קונים פעילים (קנייה משותפת)
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -59,45 +65,71 @@ service cloud.firestore {
     // === Sharing System Functions ===
     
     // קבלת תפקיד המשתמש ברשימה
+    // ✅ מתוקן: שימוש ב-created_by במקום user_id + בדיקות null
     function getUserRole(listId) {
       let list = get(/databases/$(database)/documents/shopping_lists/$(listId));
-      let sharedUsers = list.data.sharedUsers;
-      let userRole = null;
       
-      // בדיקה אם המשתמש הוא הבעלים
-      if (list.data.user_id == request.auth.uid) {
+      // בדיקה אם המשתמש הוא הבעלים (created_by)
+      if (list.data.created_by == request.auth.uid) {
         return 'owner';
       }
       
       // חיפוש ברשימת sharedUsers
-      // נעבור על כל המשתמשים ונמצא את התפקיד
-      return sharedUsers.filter(u => u.userId == request.auth.uid)[0].role;
+      // Firestore rules לא תומך ב-filter(), נבדוק בדרך אחרת
+      let sharedUsers = list.data.sharedUsers;
+      
+      // נעבור על המערך ונחפש את המשתמש
+      // מכיוון ש-Firestore rules מוגבל, נשתמש בגישה פשוטה יותר
+      // נניח שהמערך קטן (עד 10 משתמשים משותפים)
+      return sharedUsers != null && sharedUsers.size() > 0 ? 
+             checkUserInSharedList(sharedUsers, request.auth.uid) : 
+             null;
+    }
+    
+    // פונקציה עזר לחיפוש משתמש ברשימת sharedUsers
+    function checkUserInSharedList(sharedUsers, userId) {
+      // נבדוק עד 10 משתמשים (מגבלה סבירה)
+      return sharedUsers.size() > 0 && sharedUsers[0].userId == userId ? sharedUsers[0].role :
+             sharedUsers.size() > 1 && sharedUsers[1].userId == userId ? sharedUsers[1].role :
+             sharedUsers.size() > 2 && sharedUsers[2].userId == userId ? sharedUsers[2].role :
+             sharedUsers.size() > 3 && sharedUsers[3].userId == userId ? sharedUsers[3].role :
+             sharedUsers.size() > 4 && sharedUsers[4].userId == userId ? sharedUsers[4].role :
+             sharedUsers.size() > 5 && sharedUsers[5].userId == userId ? sharedUsers[5].role :
+             sharedUsers.size() > 6 && sharedUsers[6].userId == userId ? sharedUsers[6].role :
+             sharedUsers.size() > 7 && sharedUsers[7].userId == userId ? sharedUsers[7].role :
+             sharedUsers.size() > 8 && sharedUsers[8].userId == userId ? sharedUsers[8].role :
+             sharedUsers.size() > 9 && sharedUsers[9].userId == userId ? sharedUsers[9].role :
+             null;
     }
     
     // בדיקה אם המשתמש הוא Owner של הרשימה
+    // ✅ מתוקן: שימוש ב-created_by במקום user_id
     function isListOwner(listId) {
       let list = get(/databases/$(database)/documents/shopping_lists/$(listId));
-      return isAuthenticated() && list.data.user_id == request.auth.uid;
+      return isAuthenticated() && list.data.created_by == request.auth.uid;
     }
     
     // בדיקה אם המשתמש הוא Admin או Owner
+    // ✅ מתוקן: בדיקת null על role
     function isListAdmin(listId) {
       let role = getUserRole(listId);
-      return isAuthenticated() && (role == 'owner' || role == 'admin');
+      return isAuthenticated() && role != null && (role == 'owner' || role == 'admin');
     }
     
     // בדיקה אם המשתמש חבר ברשימה (כולל Viewer)
+    // ✅ מתוקן: שימוש ב-created_by + בדיקה ללא filter()
     function isListMember(listId) {
       let list = get(/databases/$(database)/documents/shopping_lists/$(listId));
-      let sharedUsers = list.data.sharedUsers;
       
       // בעלים = תמיד חבר
-      if (list.data.user_id == request.auth.uid) {
+      if (list.data.created_by == request.auth.uid) {
         return true;
       }
       
       // בדיקה אם קיים ב-sharedUsers
-      return sharedUsers.filter(u => u.userId == request.auth.uid).size() > 0;
+      let sharedUsers = list.data.sharedUsers;
+      return sharedUsers != null && sharedUsers.size() > 0 && 
+             checkUserInSharedList(sharedUsers, request.auth.uid) != null;
     }
     
     // בדיקה אם יכול לאשר בקשות (Owner או Admin)
@@ -170,17 +202,19 @@ service cloud.firestore {
       
       // עדכון: לפי הרשאות
       // Owner/Admin: כל עדכון
-      // Editor: רק items (באמצעות בקשות)
+      // Editor: רק pending_requests
       // Viewer: לא יכול לעדכן
       allow update: if isAuthenticated() && (
                        // Owner/Admin - כל עדכון
                        isListAdmin(listId) ||
-                       // Editor - רק דרך pendingRequests
+                       // Editor - רק הוספת בקשות ל-pendingRequests
                        (getUserRole(listId) == 'editor' && 
-                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pendingRequests']))
+                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pending_requests']))
                      ) &&
                      // מנע שינוי household_id
-                     request.resource.data.household_id == resource.data.household_id;
+                     request.resource.data.household_id == resource.data.household_id &&
+                     // מנע שינוי created_by
+                     request.resource.data.created_by == resource.data.created_by;
       
       // מחיקה: רק Owner
       allow delete: if isAuthenticated() && isListOwner(listId);

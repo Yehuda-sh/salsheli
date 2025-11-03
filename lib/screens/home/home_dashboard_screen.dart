@@ -70,11 +70,12 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     if (kDebugMode) {
       debugPrint('🏠 HomeDashboard: מתחיל refresh...');
     }
-    await HapticFeedback.mediumImpact(); // ✨ רטט בהתחלת refresh
     
     // ✅ שמירת providers לפני await
     final lists = context.read<ShoppingListsProvider>();
     final sugg = context.read<SuggestionsProvider>();
+    
+    await HapticFeedback.mediumImpact(); // ✨ רטט בהתחלת refresh
     
     // ✅ טעינת רשימות - נפרד
     try {
@@ -146,6 +147,11 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                       .animate()
                       .fadeIn(duration: 300.ms)
                       .slideY(begin: 0.05, end: 0)
+                  else if (listsProvider.errorMessage != null)
+                    _ErrorState(
+                      message: listsProvider.errorMessage!,
+                      onRetry: listsProvider.loadLists,
+                    )
                   else if (listsProvider.lists.isEmpty)
                     _ImprovedEmptyState(
                       onCreateList: () => _showCreateListDialog(context),
@@ -245,8 +251,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                       ],
                     ),
                     backgroundColor: Colors.red.shade700,
-                    behavior: SnackBarBehavior.floating,
-                    duration: const Duration(seconds: 4),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(kBorderRadius),
                     ),
@@ -413,6 +417,90 @@ class _Content extends StatelessWidget {
 
 
 
+}
+
+class _ErrorState extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+  
+  const _ErrorState({
+    required this.message, 
+    required this.onRetry,
+  });
+  
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context).textTheme;
+    final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
+    final accent = brand?.accent ?? cs.primary;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: kSpacingLarge * 2.67, // 64px
+          horizontal: kSpacingXLarge,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                color: kStickyPink.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.error_outline,
+                size: 64,
+                color: kStickyPink,
+              ),
+            ),
+            
+            const SizedBox(height: kSpacingLarge),
+            
+            Text(
+              'שגיאה בטעינת הנתונים',
+              style: t.headlineSmall?.copyWith(
+                color: cs.onSurface,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            
+            const SizedBox(height: kBorderRadius),
+            
+            Text(
+              message,
+              style: t.bodyLarge?.copyWith(
+                color: cs.onSurfaceVariant,
+                height: 1.5,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            
+            const SizedBox(height: kSpacingXLarge),
+            
+            FilledButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh),
+              label: const Text('נסה שוב'),
+              style: FilledButton.styleFrom(
+                backgroundColor: accent,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: kSpacingXLarge,
+                  vertical: kSpacingMedium,
+                ),
+                textStyle: t.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.2, end: 0);
+  }
 }
 
 class _ImprovedEmptyState extends StatelessWidget {

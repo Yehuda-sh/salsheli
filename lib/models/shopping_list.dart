@@ -27,6 +27,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:uuid/uuid.dart';
 import 'receipt.dart';
 import 'unified_list_item.dart';
 import 'enums/item_type.dart';
@@ -344,7 +345,7 @@ class ShoppingList {
   /// 🇮🇱 יצירת רשימה חדשה בקלות
   /// 🇬🇧 Easily create a new list
   factory ShoppingList.newList({
-    required String id,
+    String? id,
     required String name,
     required String createdBy,
     String type = typeSupermarket,
@@ -361,7 +362,7 @@ class ShoppingList {
   }) {
     final timestamp = now ?? DateTime.now();
     return ShoppingList(
-      id: id,
+      id: id ?? const Uuid().v4(),
       name: name,
       createdBy: createdBy,
       type: type,
@@ -383,7 +384,7 @@ class ShoppingList {
   /// 🇮🇱 יצירת רשימה מתבנית
   /// 🇬🇧 Create a list from a template
   factory ShoppingList.fromTemplate({
-    required String id,
+    String? id,
     required String templateId,
     required String name,
     required String createdBy,
@@ -399,7 +400,7 @@ class ShoppingList {
   }) {
     final timestamp = now ?? DateTime.now();
     return ShoppingList(
-      id: id,
+      id: id ?? const Uuid().v4(),
       name: name,
       createdBy: createdBy,
       type: type,

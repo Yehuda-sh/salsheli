@@ -1,20 +1,23 @@
 // 🧪 Test: PendingRequestsService
 // Tests for pending requests functionality
 
+// ignore_for_file: directives_ordering, avoid_redundant_argument_values
+
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
-import 'package:memozap/models/shopping_list.dart';
-import 'package:memozap/models/pending_request.dart';
-import 'package:memozap/models/unified_list_item.dart';
-import 'package:memozap/models/enums/request_type.dart';
+import 'package:mockito/mockito.dart';
+
 import 'package:memozap/models/enums/request_status.dart';
+import 'package:memozap/models/enums/request_type.dart';
 import 'package:memozap/models/enums/user_role.dart';
+import 'package:memozap/models/pending_request.dart';
 import 'package:memozap/models/shared_user.dart';
+import 'package:memozap/models/shopping_list.dart';
+import 'package:memozap/models/unified_list_item.dart';
+import 'package:memozap/providers/user_context.dart';
 import 'package:memozap/repositories/shopping_lists_repository.dart';
 import 'package:memozap/services/pending_requests_service.dart';
 import 'package:memozap/services/share_list_service.dart';
-import 'package:memozap/providers/user_context.dart';
 
 // Generate mocks
 @GenerateMocks([ShoppingListsRepository, UserContext])
@@ -29,7 +32,6 @@ void main() {
     late ShoppingList testList;
 
     const ownerId = 'owner-123';
-    const adminId = 'admin-456';
     const editorId = 'editor-789';
 
     setUp(() {
@@ -43,27 +45,13 @@ void main() {
       when(mockUserContext.householdId).thenReturn('household-001');
 
       // Create service
-      service = PendingRequestsService(
-        mockRepository,
-        ShareListService(),
-        mockUserContext,
-      );
+      service = PendingRequestsService(mockRepository, ShareListService(), mockUserContext);
 
       // Create test list with Editor
-      testList = ShoppingList.newList(
-        name: 'רשימת קניות',
-        createdBy: ownerId,
-        items: [],
-      ).copyWith(
+      testList = ShoppingList.newList(name: 'רשימת קניות', createdBy: ownerId).copyWith(
         id: 'list-001',
-        sharedUsers: [
-          SharedUser(
-            userId: editorId,
-            role: UserRole.editor,
-            sharedAt: DateTime.now(),
-          ),
-        ],
-        pendingRequests: [],
+        sharedUsers: [SharedUser(userId: editorId, role: UserRole.editor, sharedAt: DateTime.now())],
+        pendingRequests: const [],
         isShared: true,
       );
     });
@@ -81,18 +69,12 @@ void main() {
         await service.createRequest(
           list: testList,
           type: RequestType.addItem,
-          requestData: {
-            'name': 'חלב',
-            'quantity': 2,
-            'unitPrice': 5.0,
-          },
+          requestData: {'name': 'חלב', 'quantity': 2, 'unitPrice': 5.0},
         );
 
         // Assert
         verify(mockRepository.saveList(any, any)).called(1);
-        final captured =
-            verify(mockRepository.saveList(captureAny, any)).captured.single
-                as ShoppingList;
+        final captured = verify(mockRepository.saveList(captureAny, any)).captured.single as ShoppingList;
         expect(captured.pendingRequests.length, 1);
         expect(captured.pendingRequests[0].type, RequestType.addItem);
         expect(captured.pendingRequests[0].requestData['name'], 'חלב');
@@ -104,16 +86,8 @@ void main() {
 
         // Act & Assert
         expect(
-          () => service.createRequest(
-            list: testList,
-            type: RequestType.addItem,
-            requestData: {'name': 'חלב'},
-          ),
-          throwsA(
-            predicate(
-              (e) => e.toString().contains('אין צורך בבקשה'),
-            ),
-          ),
+          () => service.createRequest(list: testList, type: RequestType.addItem, requestData: {'name': 'חלב'}),
+          throwsA(predicate((e) => e.toString().contains('אין צורך בבקשה'))),
         );
 
         verifyNever(mockRepository.saveList(any, any));
@@ -123,21 +97,14 @@ void main() {
         // Arrange
         when(mockRepository.saveList(any, any)).thenAnswer((_) async => testList);
 
-        final item = UnifiedListItem.product(
-          name: 'לחם',
-          quantity: 1,
-          unitPrice: 8.0,
-          unit: 'יח\'',
-        );
+        final item = UnifiedListItem.product(name: 'לחם', quantity: 1, unitPrice: 8.0, unit: 'יח\'');
 
         // Act
         await service.createAddItemRequest(list: testList, item: item);
 
         // Assert
         verify(mockRepository.saveList(any, any)).called(1);
-        final captured =
-            verify(mockRepository.saveList(captureAny, any)).captured.single
-                as ShoppingList;
+        final captured = verify(mockRepository.saveList(captureAny, any)).captured.single as ShoppingList;
         expect(captured.pendingRequests.length, 1);
         expect(captured.pendingRequests[0].requestData['name'], 'לחם');
         expect(captured.pendingRequests[0].requestData['quantity'], 1);
@@ -157,14 +124,11 @@ void main() {
         listWithPendingRequest = testList.copyWith(
           pendingRequests: [
             PendingRequest.newRequest(
+              id: 'req-001',
               listId: testList.id,
               requesterId: editorId,
               type: RequestType.addItem,
-              requestData: {
-                'name': 'חלב',
-                'quantity': 2,
-                'unitPrice': 5.0,
-              },
+              requestData: {'name': 'חלב', 'quantity': 2, 'unitPrice': 5.0},
               requesterName: 'Editor User',
             ),
           ],
@@ -182,16 +146,11 @@ void main() {
         final requestId = listWithPendingRequest.pendingRequests[0].id;
 
         // Act
-        await service.approveRequest(
-          list: listWithPendingRequest,
-          requestId: requestId,
-        );
+        await service.approveRequest(list: listWithPendingRequest, requestId: requestId);
 
         // Assert
         verify(mockRepository.saveList(any, any)).called(1);
-        final captured =
-            verify(mockRepository.saveList(captureAny, any)).captured.single
-                as ShoppingList;
+        final captured = verify(mockRepository.saveList(captureAny, any)).captured.single as ShoppingList;
 
         // Check item added
         expect(captured.items.length, 1);
@@ -211,15 +170,8 @@ void main() {
 
         // Act & Assert
         expect(
-          () => service.approveRequest(
-            list: listWithPendingRequest,
-            requestId: requestId,
-          ),
-          throwsA(
-            predicate(
-              (e) => e.toString().contains('אין לך הרשאה לאשר בקשות'),
-            ),
-          ),
+          () => service.approveRequest(list: listWithPendingRequest, requestId: requestId),
+          throwsA(predicate((e) => e.toString().contains('אין לך הרשאה לאשר בקשות'))),
         );
 
         verifyNever(mockRepository.saveList(any, any));
@@ -228,42 +180,25 @@ void main() {
       test('Cannot approve non-existing request', () async {
         // Act & Assert
         expect(
-          () => service.approveRequest(
-            list: listWithPendingRequest,
-            requestId: 'non-existing-id',
-          ),
-          throwsA(
-            predicate(
-              (e) => e.toString().contains('בקשה לא נמצאה'),
-            ),
-          ),
+          () => service.approveRequest(list: listWithPendingRequest, requestId: 'non-existing-id'),
+          throwsA(predicate((e) => e.toString().contains('בקשה לא נמצאה'))),
         );
       });
 
       test('Cannot approve already-approved request', () async {
         // Arrange - Mark request as approved
-        final approvedRequest =
-            listWithPendingRequest.pendingRequests[0].copyWith(
+        final approvedRequest = listWithPendingRequest.pendingRequests[0].copyWith(
           status: RequestStatus.approved,
           reviewerId: ownerId,
           reviewedAt: DateTime.now(),
         );
 
-        final listWithApprovedRequest = listWithPendingRequest.copyWith(
-          pendingRequests: [approvedRequest],
-        );
+        final listWithApprovedRequest = listWithPendingRequest.copyWith(pendingRequests: [approvedRequest]);
 
         // Act & Assert
         expect(
-          () => service.approveRequest(
-            list: listWithApprovedRequest,
-            requestId: approvedRequest.id,
-          ),
-          throwsA(
-            predicate(
-              (e) => e.toString().contains('הבקשה כבר טופלה'),
-            ),
-          ),
+          () => service.approveRequest(list: listWithApprovedRequest, requestId: approvedRequest.id),
+          throwsA(predicate((e) => e.toString().contains('הבקשה כבר טופלה'))),
         );
       });
     });
@@ -280,6 +215,7 @@ void main() {
         listWithPendingRequest = testList.copyWith(
           pendingRequests: [
             PendingRequest.newRequest(
+              id: 'req-002',
               listId: testList.id,
               requesterId: editorId,
               type: RequestType.addItem,
@@ -301,17 +237,11 @@ void main() {
         final requestId = listWithPendingRequest.pendingRequests[0].id;
 
         // Act
-        await service.rejectRequest(
-          list: listWithPendingRequest,
-          requestId: requestId,
-          reason: 'לא רלוונטי',
-        );
+        await service.rejectRequest(list: listWithPendingRequest, requestId: requestId, reason: 'לא רלוונטי');
 
         // Assert
         verify(mockRepository.saveList(any, any)).called(1);
-        final captured =
-            verify(mockRepository.saveList(captureAny, any)).captured.single
-                as ShoppingList;
+        final captured = verify(mockRepository.saveList(captureAny, any)).captured.single as ShoppingList;
 
         // Check request status
         expect(captured.pendingRequests.length, 1);
@@ -331,15 +261,8 @@ void main() {
 
         // Act & Assert
         expect(
-          () => service.rejectRequest(
-            list: listWithPendingRequest,
-            requestId: requestId,
-          ),
-          throwsA(
-            predicate(
-              (e) => e.toString().contains('אין לך הרשאה לדחות בקשות'),
-            ),
-          ),
+          () => service.rejectRequest(list: listWithPendingRequest, requestId: requestId),
+          throwsA(predicate((e) => e.toString().contains('אין לך הרשאה לדחות בקשות'))),
         );
 
         verifyNever(mockRepository.saveList(any, any));
@@ -353,31 +276,33 @@ void main() {
     group('cleanupOldRejectedRequests()', () {
       test('Removes rejected requests older than 7 days', () async {
         // Arrange
-        final oldRejectedRequest = PendingRequest.newRequest(
-          listId: testList.id,
-          requesterId: editorId,
-          type: RequestType.addItem,
-          requestData: {'name': 'חלב'},
-          requesterName: 'Editor',
-        ).copyWith(
-          status: RequestStatus.rejected,
-          reviewedAt: DateTime.now().subtract(const Duration(days: 8)), // 8 days ago
-        );
+        final oldRejectedRequest =
+            PendingRequest.newRequest(
+              id: 'req-old',
+              listId: testList.id,
+              requesterId: editorId,
+              type: RequestType.addItem,
+              requestData: {'name': 'חלב'},
+              requesterName: 'Editor',
+            ).copyWith(
+              status: RequestStatus.rejected,
+              reviewedAt: DateTime.now().subtract(const Duration(days: 8)), // 8 days ago
+            );
 
-        final recentRejectedRequest = PendingRequest.newRequest(
-          listId: testList.id,
-          requesterId: editorId,
-          type: RequestType.addItem,
-          requestData: {'name': 'לחם'},
-          requesterName: 'Editor',
-        ).copyWith(
-          status: RequestStatus.rejected,
-          reviewedAt: DateTime.now().subtract(const Duration(days: 3)), // 3 days ago
-        );
+        final recentRejectedRequest =
+            PendingRequest.newRequest(
+              id: 'req-recent',
+              listId: testList.id,
+              requesterId: editorId,
+              type: RequestType.addItem,
+              requestData: {'name': 'לחם'},
+              requesterName: 'Editor',
+            ).copyWith(
+              status: RequestStatus.rejected,
+              reviewedAt: DateTime.now().subtract(const Duration(days: 3)), // 3 days ago
+            );
 
-        final listWithOldRequests = testList.copyWith(
-          pendingRequests: [oldRejectedRequest, recentRejectedRequest],
-        );
+        final listWithOldRequests = testList.copyWith(pendingRequests: [oldRejectedRequest, recentRejectedRequest]);
 
         when(mockRepository.saveList(any, any)).thenAnswer((_) async => listWithOldRequests);
 
@@ -386,21 +311,17 @@ void main() {
 
         // Assert
         verify(mockRepository.saveList(any, any)).called(1);
-        final captured =
-            verify(mockRepository.saveList(captureAny, any)).captured.single
-                as ShoppingList;
+        final captured = verify(mockRepository.saveList(captureAny, any)).captured.single as ShoppingList;
 
         // Only recent request remains
         expect(captured.pendingRequests.length, 1);
-        expect(
-          captured.pendingRequests[0].requestData['name'],
-          'לחם',
-        ); // Recent one
+        expect(captured.pendingRequests[0].requestData['name'], 'לחם'); // Recent one
       });
 
       test('Does not remove pending or approved requests', () async {
         // Arrange
         final pendingRequest = PendingRequest.newRequest(
+          id: 'req-pending',
           listId: testList.id,
           requesterId: editorId,
           type: RequestType.addItem,
@@ -409,19 +330,15 @@ void main() {
         );
 
         final approvedRequest = PendingRequest.newRequest(
+          id: 'req-approved',
           listId: testList.id,
           requesterId: editorId,
           type: RequestType.addItem,
           requestData: {'name': 'לחם'},
           requesterName: 'Editor',
-        ).copyWith(
-          status: RequestStatus.approved,
-          reviewedAt: DateTime.now().subtract(const Duration(days: 10)),
-        );
+        ).copyWith(status: RequestStatus.approved, reviewedAt: DateTime.now().subtract(const Duration(days: 10)));
 
-        final listWithRequests = testList.copyWith(
-          pendingRequests: [pendingRequest, approvedRequest],
-        );
+        final listWithRequests = testList.copyWith(pendingRequests: [pendingRequest, approvedRequest]);
 
         // Act
         await service.cleanupOldRejectedRequests(listWithRequests);
@@ -442,6 +359,7 @@ void main() {
         listWithVariousRequests = testList.copyWith(
           pendingRequests: [
             PendingRequest.newRequest(
+              id: 'req-1',
               listId: testList.id,
               requesterId: editorId,
               type: RequestType.addItem,
@@ -449,25 +367,21 @@ void main() {
               requesterName: 'Editor',
             ), // Pending
             PendingRequest.newRequest(
+              id: 'req-2',
               listId: testList.id,
               requesterId: editorId,
               type: RequestType.addItem,
               requestData: {'name': 'לחם'},
               requesterName: 'Editor',
-            ).copyWith(
-              status: RequestStatus.approved,
-              reviewerId: ownerId,
-            ), // Approved
+            ).copyWith(status: RequestStatus.approved, reviewerId: ownerId), // Approved
             PendingRequest.newRequest(
+              id: 'req-3',
               listId: testList.id,
               requesterId: editorId,
               type: RequestType.addItem,
               requestData: {'name': 'גבינה'},
               requesterName: 'Editor',
-            ).copyWith(
-              status: RequestStatus.rejected,
-              reviewerId: ownerId,
-            ), // Rejected
+            ).copyWith(status: RequestStatus.rejected, reviewerId: ownerId), // Rejected
           ],
         );
       });
@@ -500,20 +414,14 @@ void main() {
 
       test('getRequestsByStatus() filters by status', () {
         // Act - Get approved
-        final approved = service.getRequestsByStatus(
-          listWithVariousRequests,
-          RequestStatus.approved,
-        );
+        final approved = service.getRequestsByStatus(listWithVariousRequests, RequestStatus.approved);
 
         // Assert
         expect(approved.length, 1);
         expect(approved[0].requestData['name'], 'לחם');
 
         // Act - Get rejected
-        final rejected = service.getRequestsByStatus(
-          listWithVariousRequests,
-          RequestStatus.rejected,
-        );
+        final rejected = service.getRequestsByStatus(listWithVariousRequests, RequestStatus.rejected);
 
         // Assert
         expect(rejected.length, 1);
@@ -522,10 +430,7 @@ void main() {
 
       test('getRequestsByUser() filters by user', () {
         // Act
-        final byEditor = service.getRequestsByUser(
-          listWithVariousRequests,
-          editorId,
-        );
+        final byEditor = service.getRequestsByUser(listWithVariousRequests, editorId);
 
         // Assert
         expect(byEditor.length, 3); // All from same editor
@@ -542,6 +447,7 @@ void main() {
         final listWithRequests = testList.copyWith(
           pendingRequests: [
             PendingRequest.newRequest(
+              id: 'req-stat-1',
               listId: testList.id,
               requesterId: editorId,
               type: RequestType.addItem,
@@ -549,6 +455,7 @@ void main() {
               requesterName: 'Editor',
             ), // Pending
             PendingRequest.newRequest(
+              id: 'req-stat-2',
               listId: testList.id,
               requesterId: editorId,
               type: RequestType.addItem,
@@ -556,6 +463,7 @@ void main() {
               requesterName: 'Editor',
             ).copyWith(status: RequestStatus.approved), // Approved
             PendingRequest.newRequest(
+              id: 'req-stat-3',
               listId: testList.id,
               requesterId: editorId,
               type: RequestType.addItem,
@@ -580,6 +488,7 @@ void main() {
         final listWithPending = testList.copyWith(
           pendingRequests: [
             PendingRequest.newRequest(
+              id: 'req-has-pending',
               listId: testList.id,
               requesterId: editorId,
               type: RequestType.addItem,

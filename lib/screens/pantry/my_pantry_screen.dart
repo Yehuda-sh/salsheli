@@ -217,31 +217,33 @@ class _MyPantryScreenState extends State<MyPantryScreen>
     required Color color,
     required Color stickyColor,
   }) {
-    return StickyNote(
-      color: stickyColor,
-      child: Padding(
-        padding: const EdgeInsets.all(kSpacingSmall),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: color, size: kIconSizeMedium),
-            const SizedBox(height: kSpacingXTiny),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: kFontSizeTiny,
-                color: Colors.black87,
+    // Wrap with Expanded to constrain width in Row
+    return Expanded(
+      child: StickyNote(
+        color: stickyColor,
+        child: Padding(
+          padding: const EdgeInsets.all(kSpacingXTiny),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: color, size: kIconSizeSmall),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: Colors.black87,
+                ),
               ),
-            ),
-            Text(
-              value,
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.bold,
-                fontSize: kFontSizeBody,
+              Text(
+                value,
+                style: TextStyle(
+                  color: color,
+                  fontWeight: FontWeight.bold,
+                  fontSize: kFontSizeSmall,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -370,10 +372,10 @@ class _MyPantryScreenState extends State<MyPantryScreen>
         // סינון קטגוריה
         Container(
           padding: const EdgeInsets.fromLTRB(
-            kSpacingMedium,
-            kSpacingMedium,
-            kSpacingMedium,
             kSpacingSmall,
+            kSpacingSmall,
+            kSpacingSmall,
+            kSpacingXTiny,
           ),
           color: cs.surfaceContainerLow,
           child: PantryFilters(
@@ -387,7 +389,10 @@ class _MyPantryScreenState extends State<MyPantryScreen>
         
         // Search bar
         Container(
-          padding: const EdgeInsets.all(kSpacingMedium),
+          padding: const EdgeInsets.symmetric(
+            horizontal: kSpacingSmall,
+            vertical: kSpacingXTiny,
+          ),
           color: kPaperBackground,
           child: StickyNote(
             color: kStickyYellow,
@@ -421,9 +426,10 @@ class _MyPantryScreenState extends State<MyPantryScreen>
                         )
                       : null,
                   border: InputBorder.none,
+                  isDense: true,
                   contentPadding: const EdgeInsets.symmetric(
-                    horizontal: kSpacingMedium,
-                    vertical: kSpacingSmall,
+                    horizontal: kSpacingSmall,
+                    vertical: kSpacingXTiny,
                   ),
                 ),
               ),
@@ -434,8 +440,8 @@ class _MyPantryScreenState extends State<MyPantryScreen>
         // Stats bar
         Container(
           padding: const EdgeInsets.symmetric(
-            horizontal: kSpacingMedium,
-            vertical: kSpacingSmallPlus,
+            horizontal: kSpacingSmall,
+            vertical: kSpacingXTiny,
           ),
           color: Colors.transparent,
           child: Row(
@@ -470,7 +476,7 @@ class _MyPantryScreenState extends State<MyPantryScreen>
         Expanded(
           child: filteredItems.isEmpty
               ? Center(
-                  child: Padding(
+                  child: SingleChildScrollView(
                     padding: const EdgeInsets.all(kSpacingXLarge),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
