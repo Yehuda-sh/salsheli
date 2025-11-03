@@ -1,5 +1,6 @@
 // 📄 File: lib/screens/home/home_dashboard_screen.dart
 // 🎯 Purpose: מסך דשבורד הבית - Dashboard Screen
+// 📦 Helper File: home_dashboard_screen_ux.dart (skeleton loading)
 //
 // 📋 Features:
 // ✅ Pull-to-Refresh (רשימות + הצעות)
@@ -40,7 +41,7 @@ import '../../widgets/common/sticky_note.dart';
 import '../../widgets/home/smart_suggestions_card.dart';
 import '../../widgets/home/upcoming_shop_card.dart';
 import '../../widgets/shopping/create_list_dialog.dart';
-import 'home_dashboard_screen_ux.dart';
+import 'home_dashboard_screen_ux.dart'; // 📦 Skeleton loading components
 
 class HomeDashboardScreen extends StatefulWidget {
   const HomeDashboardScreen({super.key});
@@ -349,34 +350,54 @@ class _Content extends StatelessWidget {
           .slideY(begin: 0.15, end: 0) // ✨ יותר דרמטי
           .scale(begin: const Offset(0.95, 0.95), end: const Offset(1, 1)), // ✨ זום!
         
-        const SizedBox(height: kSpacingMedium),
-        
-        if (otherLists.isNotEmpty)
-          Center(
-            child: TextButton.icon(
-              onPressed: () {
-                // Navigate to lists tab (index 1)
-                DefaultTabController.of(context).animateTo(1);
-              },
-              icon: const Icon(Icons.list_alt),
-              label: Text(
-                'יש לך עוד ${otherLists.length} רשימות - לחץ לצפייה',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
+        // רשימות נוספות
+        if (otherLists.isNotEmpty) ...[
+          const SizedBox(height: kSpacingMedium),
+          
+          // כותרת לרשימות נוספות
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'רשימות פעילות נוספות (${otherLists.length})',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: kSpacingLarge,
-                  vertical: kSpacingMedium,
+                TextButton(
+                  onPressed: () {
+                    // Navigate to lists tab (index 1)
+                    DefaultTabController.of(context).animateTo(1);
+                  },
+                  child: const Text('ראה הכל'),
                 ),
-              )
+              ],
             ),
           )
             .animate()
             .fadeIn(duration: 600.ms, delay: 300.ms)
-            .slideY(begin: 0.15, end: 0),
+            .slideX(begin: -0.1, end: 0),
+          
+          const SizedBox(height: kSpacingSmall),
+          
+          // רשימת כרטיסים של שאר הרשימות
+          ...otherLists.asMap().entries.map((entry) {
+            final index = entry.key;
+            final list = entry.value;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: kSpacingSmall),
+              child: _ActiveListCard(list: list)
+                .animate()
+                .fadeIn(
+                  duration: 500.ms, 
+                  delay: Duration(milliseconds: 400 + (index * 100))
+                )
+                .slideX(begin: 0.1, end: 0),
+            );
+          }),
+        ],
       ],
     );
   }
@@ -594,6 +615,168 @@ class _ImprovedEmptyState extends StatelessWidget {
         ),
       ),
     ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.2, end: 0);
+  }
+}
+
+/// כרטיס קומפקטי לרשימה פעילה
+class _ActiveListCard extends StatelessWidget {
+  final ShoppingList list;
+  
+  const _ActiveListCard({required this.list});
+  
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context).textTheme;
+    final cs = Theme.of(context).colorScheme;
+    
+    // בחירת צבע לפי סוג הרשימה
+    final Color noteColor = _getColorForListType(list.type);
+    final String typeIcon = _getIconForListType(list.type);
+    final int itemCount = list.items.length;
+    
+    return InkWell(
+      borderRadius: BorderRadius.circular(kBorderRadius),
+      onTap: () {
+        HapticFeedback.lightImpact().ignore();
+        Navigator.pushNamed(
+          context, 
+          '/shopping-list-details',
+          arguments: list,
+        );
+      },
+      child: StickyNote(
+        color: noteColor,
+        rotation: 0.005 * (list.id.hashCode % 3 - 1), // סיבוב אקראי קל
+        child: Padding(
+          padding: const EdgeInsets.all(kSpacingSmall),
+          child: Row(
+            children: [
+              // אייקון סוג הרשימה
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: cs.surface.withValues(alpha: 0.9),
+                  borderRadius: BorderRadius.circular(kBorderRadius),
+                ),
+                child: Center(
+                  child: Text(
+                    typeIcon,
+                    style: const TextStyle(fontSize: 24),
+                  ),
+                ),
+              ),
+              
+              const SizedBox(width: kSpacingSmall),
+              
+              // פרטי הרשימה
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      list.name,
+                      style: t.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '$itemCount פריטים',
+                      style: t.bodySmall?.copyWith(
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              // זמן עדכון אחרון
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const Icon(
+                    Icons.chevron_right,
+                    color: Colors.black38,
+                    size: 20,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    _getRelativeTime(list.updatedDate),
+                    style: t.bodySmall?.copyWith(
+                      color: Colors.black38,
+                      fontSize: 10,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  
+  Color _getColorForListType(String? type) {
+    switch (type) {
+      case 'supermarket':
+        return kStickyYellow;
+      case 'pharmacy':
+        return kStickyCyan;
+      case 'greengrocer':
+        return kStickyGreen;
+      case 'butcher':
+        return kStickyPink;
+      case 'bakery':
+        return kStickyOrange;
+      case 'market':
+        return kStickyPurple;
+      case 'household':
+        return kStickyCyan;
+      default:
+        return kStickyYellow;
+    }
+  }
+  
+  String _getIconForListType(String? type) {
+    switch (type) {
+      case 'supermarket':
+        return '🛒';
+      case 'pharmacy':
+        return '💊';
+      case 'greengrocer':
+        return '🥦';
+      case 'butcher':
+        return '🥩';
+      case 'bakery':
+        return '🥖';
+      case 'market':
+        return '🏪';
+      case 'household':
+        return '🏠';
+      default:
+        return '📝';
+    }
+  }
+  
+  String _getRelativeTime(DateTime date) {
+    final now = DateTime.now();
+    final difference = now.difference(date);
+    
+    if (difference.inMinutes < 1) {
+      return 'עכשיו';
+    } else if (difference.inMinutes < 60) {
+      return 'לפני ${difference.inMinutes} דק\'';
+    } else if (difference.inHours < 24) {
+      return 'לפני ${difference.inHours} שעות';
+    } else if (difference.inDays < 7) {
+      return 'לפני ${difference.inDays} ימים';
+    } else {
+      return 'לפני ${(difference.inDays / 7).round()} שבועות';
+    }
   }
 }
 

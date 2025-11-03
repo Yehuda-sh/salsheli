@@ -77,7 +77,8 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
   @override
   void dispose() {
     _userContext.removeListener(_onUserContextChanged);
-    _productsProvider?.clearListType();
+    // clearListType עם notify=false כדי למנוע notifyListeners במהלך dispose
+    _productsProvider?.clearListType(notify: false);
     _searchController.dispose();
     _customQuantityController.dispose();
     super.dispose();

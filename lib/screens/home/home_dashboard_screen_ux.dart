@@ -1,5 +1,24 @@
 // 📄 File: lib/screens/home/home_dashboard_screen_ux.dart
 // 🎨 UX Improvements: Skeleton Loading with Sticky Notes Design
+//
+// 🔗 Purpose: Helper file for home_dashboard_screen.dart
+// 📦 Contains: DashboardSkeleton widget for loading states
+// 🎯 Used by: home_dashboard_screen.dart (line 142)
+//
+// 💡 Why separate file?
+// - Keeps main screen file cleaner (673 → 574 lines)
+// - Reusable skeleton component
+// - Easier to maintain loading states
+//
+// 📐 Structure:
+// - DashboardSkeleton: Public widget exported to main screen
+// - _SkeletonCard: Private helper for individual skeleton cards
+//
+// 🎨 Design:
+// - Matches sticky note colors from main screen
+// - Yellow → UpcomingShopCard
+// - Pink → SmartSuggestionsCard  
+// - Green → Other active lists
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';

@@ -237,22 +237,39 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
         debugPrint('✅ פריטים הועברו לרשימה הבאה');
       }
 
-      // 3️⃣ סמן רשימה כהושלמה
-      debugPrint('🏁 מסמן רשימה כהושלמה');
-      final provider = context.read<ShoppingListsProvider>();
-      await provider.updateListStatus(widget.list.id, ShoppingList.statusCompleted);
-      debugPrint('✅ רשימה הושלמה!');
+      // 3️⃣ בדוק אם יש פריטים שלא טופלו (נשארו במצב pending)
+      final pendingItems = widget.list.items.where((item) {
+        final status = _itemStatuses[item.id];
+        return status == ShoppingItemStatus.pending;
+      }).toList();
+      
+      // סמן רשימה כהושלמה רק אם אין פריטים ב-pending
+      if (pendingItems.isEmpty) {
+        debugPrint('🏁 מסמן רשימה כהושלמה - כל הפריטים סומנו');
+        final provider = context.read<ShoppingListsProvider>();
+        await provider.updateListStatus(widget.list.id, ShoppingList.statusCompleted);
+        debugPrint('✅ רשימה הושלמה!');
+      } else {
+        debugPrint('🔄 הרשימה נשארת פעילה - ${pendingItems.length} פריטים לא סומנו');
+        debugPrint('   פריטים שלא סומנו: ${pendingItems.map((i) => i.name).join(", ")}');
+      }
 
       // ✅ בדוק אם עדיין mounted לפני שימוש ב-context
       if (!mounted) return;
       
       // הצג הודעת הצלחה עם פרטים
-      String message = AppStrings.shopping.shoppingCompletedSuccess;
+      String message = pendingItems.isEmpty 
+          ? AppStrings.shopping.shoppingCompletedSuccess
+          : 'הקנייה נשמרה';
+          
       if (purchasedItems.isNotEmpty) {
         message += '\n${AppStrings.shopping.pantryUpdated(purchasedItems.length)}';
       }
       if (unpurchasedItems.isNotEmpty) {
         message += '\n${AppStrings.shopping.itemsMovedToNext(unpurchasedItems.length)}';
+      }
+      if (pendingItems.isNotEmpty) {
+        message += '\n⚠️ ${pendingItems.length} פריטים לא סומנו והרשימה נשארת פעילה';
       }
         
         messenger.showSnackBar(

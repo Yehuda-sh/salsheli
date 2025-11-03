@@ -1,15 +1,15 @@
-// 📄 File: lib/screens/shopping/shopping_list_details_screen.dart - V3.0 MODERN UI/UX
+// 📄 File: lib/screens/shopping/shopping_list_details_screen.dart - V3.1 MODERN UI/UX
+// 📦 Helper File: shopping_list_details_screen_ux.dart (skeleton & states)
 //
-// ✨ שיפורים חדשים (v3.0):
-// 1. 💀 Skeleton Screen: טעינה מודרנית במקום spinner
+// ✨ שיפורים חדשים (v3.1):
+// 1. 💀 Skeleton Screen: הועבר לקובץ _ux נפרד (1258 → 1088 שורות)
 // 2. 🎬 Staggered Animations: פריטים מופיעים אחד אחד
 // 3. 🎯 Micro Animations: כל כפתור מגיב ללחיצה
-// 4. 🎨 Empty States מעוצבים: gradients + אנימציות
-// 5. ❌ Error Recovery: טיפול מלא בשגיאות
-// 6. 💰 Animated Total: הסכום משתנה בחלקות
-// 7. 📊 Animated Counter: מונה פריטים מונפש
-// 8. 💬 Dialog Animations: fade + scale
-// 9. 📝 Logging מפורט: עם אימוג'י
+// 4. 🎨 Empty/Error States: הועברו לקובץ _ux
+// 5. 💰 Animated Total: הסכום משתנה בחלקות
+// 6. 📊 Animated Counter: מונה פריטים מונפש
+// 7. 💬 Dialog Animations: fade + scale
+// 8. 📝 Logging מפורט: עם אימוג'י
 //
 // 🔍 תכונות קיימות (v2.0):
 // 1. 🔍 חיפוש פריט בתוך הרשימה
@@ -42,6 +42,7 @@ import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/sticky_note.dart';
 import '../../widgets/shopping/product_selection_bottom_sheet.dart';
 import '../settings/manage_users_screen.dart';
+import 'shopping_list_details_screen_ux.dart'; // 📦 Skeleton & states
 
 class ShoppingListDetailsScreen extends StatefulWidget {
   final ShoppingList list;
@@ -591,13 +592,23 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                 // 📋 תוכן
                 Expanded(
                   child: _isLoading
-                      ? _buildLoadingSkeleton(theme)
+                      ? const ShoppingDetailsLoadingSkeleton()
                       : _errorMessage != null
-                      ? _buildErrorState(theme)
+                      ? ShoppingDetailsErrorState(
+                          errorMessage: _errorMessage,
+                          onRetry: _loadData,
+                        )
                       : filteredItems.isEmpty && allItems.isNotEmpty
-                      ? _buildEmptySearchResults()
+                      ? ShoppingDetailsEmptySearch(
+                          onClearSearch: () {
+                            setState(() => _searchQuery = '');
+                            debugPrint('🧹 ShoppingListDetailsScreen: ניקוי חיפוש מ-Empty Search');
+                          },
+                        )
                       : filteredItems.isEmpty
-                      ? _buildEmptyState(theme)
+                      ? ShoppingDetailsEmptyState(
+                          onAddFromCatalog: _navigateToPopulateScreen,
+                        )
                       : _groupByCategory
                       ? _buildGroupedList(filteredItems, theme)
                       : _buildFlatList(filteredItems, theme),
@@ -819,137 +830,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     }
   }
 
-  /// 💀 Skeleton Screen לטעינה
-  Widget _buildLoadingSkeleton(ThemeData theme) {
-    final stickyColors = [kStickyYellow, kStickyPink, kStickyGreen];
-    final stickyRotations = [0.01, -0.015, 0.01];
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(kSpacingMedium),
-      itemCount: 8,
-      itemBuilder: (context, index) {
-        final colorIndex = index % stickyColors.length;
-        return Padding(
-          padding: const EdgeInsets.only(bottom: kSpacingMedium),
-          child: StickyNote(
-            color: stickyColors[colorIndex],
-            rotation: stickyRotations[colorIndex],
-            child: Padding(
-              padding: const EdgeInsets.all(kSpacingMedium),
-              child: Row(
-                children: [
-                  // אייקון
-                  _buildSkeletonBox(width: 40, height: 40, borderRadius: 20, delay: index * 100),
-                  const SizedBox(width: kSpacingMedium),
-                  // תוכן
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildSkeletonBox(width: double.infinity, height: 16, delay: index * 100 + 50),
-                        const SizedBox(height: kSpacingSmall),
-                        _buildSkeletonBox(width: 120, height: 14, delay: index * 100 + 100),
-                      ],
-                    ),
-                  ),
-                  // כפתורים
-                  Row(
-                    children: [
-                      _buildSkeletonBox(width: 40, height: 40, borderRadius: 20, delay: index * 100 + 150),
-                      const SizedBox(width: kSpacingSmall),
-                      _buildSkeletonBox(width: 40, height: 40, borderRadius: 20, delay: index * 100 + 200),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  /// 💀 Skeleton Box עם Shimmer
-  Widget _buildSkeletonBox({
-    required double width,
-    required double height,
-    double borderRadius = kBorderRadius,
-    int delay = 0,
-  }) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.3, end: 1.0),
-      duration: const Duration(milliseconds: 1000),
-      curve: Curves.easeInOut,
-      builder: (context, value, child) {
-        return Opacity(
-          opacity: value,
-          child: Container(
-            width: width,
-            height: height,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [
-                  Theme.of(context).colorScheme.surfaceContainerHighest,
-                  Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                  Theme.of(context).colorScheme.surfaceContainerHighest,
-                ],
-                stops: [0.0, value, 1.0],
-              ),
-              borderRadius: BorderRadius.circular(borderRadius),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  /// ❌ מצב שגיאה
-  Widget _buildErrorState(ThemeData theme) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(kSpacingXLarge),
-        child: TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0.0, end: 1.0),
-          duration: const Duration(milliseconds: 600),
-          curve: Curves.elasticOut,
-          builder: (context, value, child) {
-            return Transform.scale(scale: value, child: child);
-          },
-          child: StickyNote(
-            color: kStickyPink,
-            rotation: -0.02,
-            child: Padding(
-              padding: const EdgeInsets.all(kSpacingXLarge),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.error_outline, size: kIconSizeXXLarge, color: Colors.red.shade700),
-                  const SizedBox(height: kSpacingMedium),
-                  Text(AppStrings.listDetails.errorTitle, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: kSpacingSmall),
-                  Text(
-                    AppStrings.listDetails.errorMessage(_errorMessage),
-                    style: theme.textTheme.bodyMedium,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: kSpacingLarge),
-                  StickyButton(
-                    color: Colors.red.shade100,
-                    textColor: Colors.red.shade700,
-                    label: AppStrings.common.retry,
-                    icon: Icons.refresh,
-                    onPressed: () => _loadData(),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 
   /// 📋 רשימה שטוחה (flat) עם Staggered Animation
   Widget _buildFlatList(List<UnifiedListItem> items, ThemeData theme) {
@@ -1180,7 +1061,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: Colors.green.shade100,
+                              color: theme.colorScheme.primaryContainer,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -1188,7 +1069,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.green.shade700,
+                                color: theme.colorScheme.onPrimaryContainer,
                               ),
                             ),
                           ),
@@ -1300,96 +1181,4 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     );
   }
 
-
-
-  /// 📭 תוצאות חיפוש ריקות
-  Widget _buildEmptySearchResults() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(kSpacingXLarge),
-        child: TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0.0, end: 1.0),
-          duration: const Duration(milliseconds: 600),
-          curve: Curves.elasticOut,
-          builder: (context, value, child) {
-            return Transform.scale(scale: value, child: child);
-          },
-          child: StickyNote(
-            color: kStickyYellow,
-            rotation: 0.015,
-            child: Padding(
-              padding: const EdgeInsets.all(kSpacingXLarge),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.search_off, size: kIconSizeXXLarge, color: Colors.orange.shade700),
-                  const SizedBox(height: kSpacingLarge),
-                  Text(
-                    AppStrings.listDetails.noSearchResultsTitle,
-                    style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: kSpacingSmall),
-                  Text(AppStrings.listDetails.noSearchResultsMessage),
-                  const SizedBox(height: kSpacingLarge),
-                  StickyButtonSmall(
-                    color: Colors.orange.shade100,
-                    textColor: Colors.orange.shade700,
-                    label: AppStrings.listDetails.clearSearchButton,
-                    icon: Icons.clear_all,
-                    onPressed: () {
-                      setState(() => _searchQuery = '');
-                      debugPrint('🧹 ShoppingListDetailsScreen: ניקוי חיפוש מ-Empty Results');
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// 📋 מצב ריק
-  Widget _buildEmptyState(ThemeData theme) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(kSpacingXLarge),
-        child: TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0.0, end: 1.0),
-          duration: const Duration(milliseconds: 800),
-          curve: Curves.elasticOut,
-          builder: (context, value, child) {
-            return Transform.scale(scale: value, child: child);
-          },
-          child: StickyNote(
-            color: kStickyGreen,
-            rotation: -0.015,
-            child: Padding(
-              padding: const EdgeInsets.all(kSpacingXLarge),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.shopping_basket_outlined, size: kIconSizeXXLarge, color: Colors.green.shade700),
-                  const SizedBox(height: kSpacingXLarge),
-                  Text(AppStrings.listDetails.emptyListTitle, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: kSpacingMedium),
-                  Text(AppStrings.listDetails.emptyListMessage, style: const TextStyle(fontSize: kFontSizeMedium)),
-                  const SizedBox(height: kSpacingSmall),
-                  Text(AppStrings.listDetails.emptyListSubMessage, style: const TextStyle(fontSize: kFontSizeSmall)),
-                  const SizedBox(height: kSpacingLarge),
-                  StickyButton(
-                    color: kStickyCyan,
-                    label: AppStrings.listDetails.populateFromCatalog,
-                    icon: Icons.library_add,
-                    onPressed: () => _navigateToPopulateScreen(),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
