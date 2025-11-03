@@ -1,8 +1,8 @@
 // 📄 File: lib/data/onboarding_data.dart
 // תיאור: מודל נתוני Onboarding + פונקציות שמירה/טעינה/ניהול
 //
-// Version: 2.1 - Using kValidChildrenAges constant
-// Last Updated: 22/10/2025
+// Version: 2.2 - Added store category helpers
+// Last Updated: 03/11/2025
 //
 // כולל:
 // - מודל OnboardingData עם כל שדות ההעדפות
@@ -13,6 +13,7 @@
 // - Namespacing למפתחות (onboarding.*)
 // - Schema versioning למיגרציות עתידיות
 // - TimeOfDay helpers
+// - Store category helpers (NEW in v2.2)
 //
 // שימוש:
 // ```dart
@@ -32,6 +33,12 @@
 // // TimeOfDay helpers
 // final time = OnboardingData.parseTime('09:30'); // TimeOfDay(hour: 9, minute: 30)
 // final str = OnboardingData.formatTime(TimeOfDay(hour: 9, minute: 30)); // '09:30'
+//
+// // Store category helpers (NEW in v2.2)
+// final supermarkets = data.getStoresByCategory(StoreCategory.supermarket);
+// final hasPharmacy = data.hasStoresInCategory(StoreCategory.pharmacy);
+// final categories = data.getPreferredCategories();
+// final grouped = data.getStoresGroupedByCategory();
 // ```
 
 import 'package:flutter/foundation.dart';
@@ -102,6 +109,7 @@ const int kCurrentSchemaVersion = 1;
 /// - ניהול סטטוס "סיים Onboarding"
 /// - Namespacing למניעת התנגשויות
 /// - Schema versioning למיגרציות
+/// - Store category helpers (v2.2)
 class OnboardingData {
   final int familySize;
   final Set<String> preferredStores;
@@ -323,6 +331,79 @@ class OnboardingData {
       shareLists: shareLists ?? this.shareLists,
       reminderTime: reminderTime ?? this.reminderTime,
     );
+  }
+
+  // ========================================
+  // Store Category Helpers
+  // ========================================
+
+  /// קבלת חנויות מועדפות לפי קטגוריה
+  /// 
+  /// דוגמה:
+  /// ```dart
+  /// final supermarkets = data.getStoresByCategory(StoreCategory.supermarket);
+  /// // ['שופרסל', 'רמי לוי']
+  /// ```
+  List<String> getStoresByCategory(StoreCategory category) {
+    return preferredStores
+        .where((store) => StoresConfig.getCategory(store) == category)
+        .toList();
+  }
+
+  /// קבלת כל הקטגוריות שהמשתמש בחר חנויות מהן
+  /// 
+  /// מחזיר Set של קטגוריות ייחודיות.
+  /// 
+  /// דוגמה:
+  /// ```dart
+  /// final categories = data.getPreferredCategories();
+  /// // {StoreCategory.supermarket, StoreCategory.pharmacy}
+  /// ```
+  Set<StoreCategory> getPreferredCategories() {
+    return preferredStores
+        .map((store) => StoresConfig.getCategory(store))
+        .whereType<StoreCategory>()
+        .toSet();
+  }
+
+  /// בדיקה אם יש חנויות מועדפות בקטגוריה מסוימת
+  /// 
+  /// דוגמה:
+  /// ```dart
+  /// if (data.hasStoresInCategory(StoreCategory.pharmacy)) {
+  ///   print('משתמש קונה בבית מרקחת');
+  /// }
+  /// ```
+  bool hasStoresInCategory(StoreCategory category) {
+    return preferredStores.any(
+      (store) => StoresConfig.getCategory(store) == category,
+    );
+  }
+
+  /// קבלת חנויות מקובצות לפי קטגוריה
+  /// 
+  /// חוזר Map שבו כל קטגוריה מצביעה על רשימת החנויות שלה.
+  /// שימושי ל-UI מקובץ.
+  /// 
+  /// דוגמה:
+  /// ```dart
+  /// final grouped = data.getStoresGroupedByCategory();
+  /// // {
+  /// //   StoreCategory.supermarket: ['שופרסל', 'רמי לוי'],
+  /// //   StoreCategory.pharmacy: ['סופר פארם'],
+  /// // }
+  /// ```
+  Map<StoreCategory, List<String>> getStoresGroupedByCategory() {
+    final grouped = <StoreCategory, List<String>>{};
+    
+    for (final store in preferredStores) {
+      final category = StoresConfig.getCategory(store);
+      if (category != null) {
+        grouped.putIfAbsent(category, () => []).add(store);
+      }
+    }
+    
+    return grouped;
   }
 
   /// המרה ל-Map (לצורך JSON)

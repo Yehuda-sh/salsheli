@@ -18,8 +18,8 @@
 // 🔮 עתיד: כשנוסיף flutter_localizations, נחליף את הקובץ הזה
 //          ב-AppLocalizations generated class
 //
-// Version: 3.2 - הסרת list_type_mappings_strings שבור (session 42)
-// Last Updated: 29/10/2025
+// Version: 3.4 - הסרת _StorageManagerStrings (unused) (session 50)
+// Last Updated: 03/11/2025
 
 
 
@@ -137,6 +137,12 @@ class AppStrings {
   // ========================================
 
   static const listDetails = _ShoppingListDetailsStrings();
+
+  // ========================================
+  // User Sharing System (Phase 3B)
+  // ========================================
+
+  static const sharing = _SharingStrings();
 }
 
 // ========================================
@@ -1120,7 +1126,7 @@ class _InventoryStrings {
   // Storage Location Manager
   // ========================================
 
-  // static const storageManager = _StorageManagerStrings(); // Unused - commented out
+  // Note: StorageManager strings removed - not currently in use
 }
 
 // ========================================
@@ -1240,94 +1246,201 @@ class _ShoppingListDetailsStrings {
   String errorMessage(String? error) => error ?? 'אירעה שגיאה בטעינת הנתונים';
 }
 
+
+
 // ========================================
-// Storage Manager Strings (Inventory)
+// User Sharing System Strings (Phase 3B)
 // ========================================
 
-class _StorageManagerStrings {
-  const _StorageManagerStrings();
+class _SharingStrings {
+  const _SharingStrings();
 
   // ========================================
-  // Dialog Titles
+  // User Roles - Labels
   // ========================================
 
-  String get addLocationTitle => 'הוספת מיקום חדש';
-  String get editLocationTitle => 'עריכת מיקום';
-  String get deleteLocationTitle => 'מחיקת מיקום';
+  String get roleOwner => 'בעלים';
+  String get roleAdmin => 'מנהל';
+  String get roleEditor => 'עורך';
+  String get roleViewer => 'צופה';
 
   // ========================================
-  // Form Fields
+  // User Roles - Descriptions
   // ========================================
 
-  String get emojiLabel => 'בחר אמוג\'י:';
-  String get locationNameLabel => 'שם המיקום';
-  String get locationNameHint => 'לדוגמה: "מקרר קטן"';
+  String get roleOwnerDesc => 'גישה מלאה + מחיקת רשימה + ניהול משתמשים';
+  String get roleAdminDesc => 'גישה מלאה + ניהול משתמשים (ללא מחיקה)';
+  String get roleEditorDesc => 'קריאה + הוספת פריטים דרך בקשות (צריך אישור)';
+  String get roleViewerDesc => 'קריאה בלבד (לא יכול לערוך כלום)';
 
   // ========================================
-  // Action Buttons (override common when needed)
+  // Invite Users Screen
   // ========================================
 
+  String get inviteTitle => 'הזמנת משתמשים';
+  String get inviteSubtitle => 'הזמן אנשים לשתף את הרשימה';
+  String get emailLabel => 'אימייל';
+  String get emailHint => 'example@email.com';
+  String get emailRequired => 'נא להזין כתובת אימייל';
+  String get emailInvalid => 'אימייל לא תקין';
+  String get selectRoleLabel => 'בחר תפקיד';
+  String get inviteButton => 'שלח הזמנה';
+  String get inviting => 'שולח...';
   String get cancelButton => 'ביטול';
-  String get addButton => 'הוסף';
-  String get saveButton => 'שמור';
-  String get deleteButton => 'מחק';
-  String get undoButton => 'בטל';
 
-  // ========================================
   // Success Messages
-  // ========================================
+  String inviteSent(String email) => 'ההזמנה נשלחה ל-$email 📧';
+  String inviteResent(String email) => 'ההזמנה נשלחה שוב ל-$email';
 
-  String locationAdded(String name) => 'נוסף מיקום חדש: $name';
-  String get locationUpdated => 'המיקום עודכן';
-  String get locationDeleted => 'המיקום נמחק';
-
-  // ========================================
   // Error Messages
-  // ========================================
-
-  String get locationExists => 'מיקום זה כבר קיים';
-
-  // ========================================
-  // Delete Confirmation
-  // ========================================
-
-  String deleteConfirmMessage(String name) => 'האם למחוק את "$name"?';
+  String get userNotFound => 'משתמש לא נמצא במערכת';
+  String get userAlreadyInList => 'המשתמש כבר ברשימה';
+  String get cannotInviteSelf => 'לא ניתן להזמין את עצמך';
+  String inviteError(String error) => 'שגיאה בשליחת הזמנה: $error';
 
   // ========================================
-  // UI Labels (Header)
+  // Manage Users Screen
   // ========================================
 
-  String get headerTitle => 'ניהול אזורי אחסון';
-  String get sortTooltip => 'מיון';
-  String get sortByName => 'לפי שם';
-  String get sortByQuantity => 'לפי כמות';
-  String get sortByCategory => 'לפי קטגוריה';
-  String get gridViewTooltip => 'תצוגת רשת';
-  String get listViewTooltip => 'תצוגת רשימה';
-  String get addLocationTooltip => 'הוסף מיקום חדש';
+  String get manageUsersTitle => 'ניהול משתמשים';
+  String usersCount(int count) => '$count משתמשים';
+  String get inviteUserButton => 'הזמן משתמש';
+  String get searchUserHint => 'חפש משתמש...';
+  String get noUsers => 'אין משתמשים ברשימה';
+  String get ownerLabel => '(אתה)';
+
+  // User Actions
+  String get changeRoleTooltip => 'שנה תפקיד';
+  String get removeUserTooltip => 'הסר משתמש';
+  String get resendInviteTooltip => 'שלח הזמנה שוב';
+
+  // Change Role Dialog
+  String get changeRoleTitle => 'שינוי תפקיד';
+  String changeRoleMessage(String userName) => 'בחר תפקיד חדש עבור $userName:';
+  String get changeRoleButton => 'שנה';
+  String roleChanged(String userName, String newRole) => '$userName עודכן ל-$newRole';
+  String changeRoleError(String error) => 'שגיאה בשינוי תפקיד: $error';
+
+  // Remove User Dialog
+  String get removeUserTitle => 'הסרת משתמש';
+  String removeUserMessage(String userName) => 'האם להסיר את $userName מהרשימה?';
+  String get removeButton => 'הסר';
+  String userRemoved(String userName) => '$userName הוסר מהרשימה';
+  String removeUserError(String error) => 'שגיאה בהסרת משתמש: $error';
+
+  // Restrictions
+  String get cannotChangeOwnRole => 'לא ניתן לשנות את התפקיד שלך';
+  String get cannotRemoveSelf => 'לא ניתן להסיר את עצמך';
+  String get cannotRemoveOwner => 'לא ניתן להסיר את הבעלים';
+  String get onlyOwnerCanDelete => 'רק הבעלים יכול למחוק את הרשימה';
 
   // ========================================
-  // Search
+  // Pending Requests Screen
   // ========================================
 
-  String get searchLabel => 'חיפוש פריט';
-  String get clearSearchTooltip => 'נקה';
+  String get pendingRequestsTitle => 'בקשות ממתינות';
+  String pendingCount(int count) => '$count בקשות';
+  String get noPendingRequests => 'אין בקשות ממתינות';
+  String get noPendingMessage => 'כשעורכים יוסיפו פריטים, הם יופיעו כאן לאישור';
+
+  // Request Types
+  String get requestTypeAdd => 'הוספה';
+  String get requestTypeEdit => 'עריכה';
+  String get requestTypeDelete => 'מחיקה';
+
+  // Request Card
+  String requestedBy(String userName) => 'נתבקש על ידי $userName';
+  String requestedAt(String time) => 'לפני $time';
+  String get viewDetailsButton => 'פרטים';
+  String get approveButton => 'אשר ✅';
+  String get rejectButton => 'דחה ❌';
+
+  // Request Details Dialog
+  String get requestDetailsTitle => 'פרטי בקשה';
+  String get itemNameLabel => 'שם פריט';
+  String get quantityLabel => 'כמות';
+  String get categoryLabel => 'קטגוריה';
+  String get priceLabel => 'מחיר';
+  String get notesLabel => 'הערות';
+  String get closeButton => 'סגור';
+
+  // Approve/Reject
+  String requestApproved(String itemName) => '✅ הבקשה להוספת "$itemName" אושרה';
+  String requestRejected(String itemName) => '❌ הבקשה להוספת "$itemName" נדחתה';
+  String approveError(String error) => 'שגיאה באישור: $error';
+  String rejectError(String error) => 'שגיאה בדחייה: $error';
+
+  // Bulk Actions
+  String get approveAllButton => 'אשר הכל';
+  String get rejectAllButton => 'דחה הכל';
+  String get approveAllConfirm => 'לאשר את כל הבקשות?';
+  String get rejectAllConfirm => 'לדחות את כל הבקשות?';
+  String allApproved(int count) => '✅ $count בקשות אושרו';
+  String allRejected(int count) => '❌ $count בקשות נדחו';
 
   // ========================================
-  // Location Cards
+  // Permission Validation Messages
   // ========================================
 
-  String get allLocationsLabel => 'הכל';
-  String get emptyLocationLabel => 'ריק';
-  String get editLocationTooltip => 'לחץ לעריכה, לחץ ארוכה למחיקה';
+  String get noPermissionTitle => 'אין הרשאה';
+  String get editorCannotAddDirectly => 'עורכים יכולים להוסיף פריטים רק דרך בקשות שדורשות אישור';
+  String get viewerCannotEdit => 'צופים יכולים לראות את הרשימה בלבד, ללא אפשרות עריכה';
+  String get editorCannotEditExisting => 'עורכים לא יכולים לערוך פריטים קיימים';
+  String get editorCannotDelete => 'עורכים לא יכולים למחוק פריטים';
+  String get viewerCannotDelete => 'צופים לא יכולים למחוק פריטים';
+  String get onlyOwnerCanChangePermissions => 'רק הבעלים יכול לשנות הרשאות';
+  String get mustBeOwnerOrAdmin => 'חייבים להיות בעלים או מנהל לביצוע פעולה זו';
+
+  // Request Creation
+  String get requestCreated => 'הבקשה נשלחה לאישור הבעלים/מנהלים';
+  String get requestWaitingApproval => 'הפריט ימתין לאישור לפני שיופיע ברשימה';
+  String requestCreationError(String error) => 'שגיאה ביצירת בקשה: $error';
 
   // ========================================
-  // Items Section
+  // Sharing Notifications
   // ========================================
 
-  String get allItemsTitle => 'כל הפריטים';
-  String itemsCount(int count) => '$count פריטים';
-  String get noItemsFound => 'לא נמצאו פריטים';
-  String get noItemsInLocation => 'אין פריטים במיקום זה';
-  String get editItemTooltip => 'ערוך פריט';
+  String get notificationInviteTitle => 'הזמנה לרשימה משותפת';
+  String notificationInviteBody(String listName, String inviterName) =>
+      '$inviterName הזמין אותך לרשימה "$listName"';
+
+  String get notificationRequestApprovedTitle => 'בקשה אושרה';
+  String notificationRequestApprovedBody(String itemName, String listName) =>
+      'הבקשה שלך להוסיף "$itemName" ל"$listName" אושרה ✅';
+
+  String get notificationRequestRejectedTitle => 'בקשה נדחתה';
+  String notificationRequestRejectedBody(String itemName, String listName) =>
+      'הבקשה שלך להוסיף "$itemName" ל"$listName" נדחתה ❌';
+
+  String get notificationNewRequestTitle => 'בקשה חדשה';
+  String notificationNewRequestBody(String requesterName, String itemName) =>
+      '$requesterName ביקש להוסיף "$itemName" לרשימה';
+
+  String get notificationRoleChangedTitle => 'התפקיד שלך שונה';
+  String notificationRoleChangedBody(String newRole, String listName) =>
+      'התפקיד שלך ב"$listName" שונה ל-$newRole';
+
+  String get notificationRemovedTitle => 'הוסרת מרשימה';
+  String notificationRemovedBody(String listName) =>
+      'הוסרת מהרשימה "$listName"';
+
+  // ========================================
+  // Shared List Indicators
+  // ========================================
+
+  String get sharedListBadge => 'משותפת';
+  String sharedWith(int count) => 'משותפת עם $count אנשים';
+  String get youAreOwner => 'אתה הבעלים';
+  String get youAreAdmin => 'אתה מנהל';
+  String get youAreEditor => 'אתה עורך';
+  String get youAreViewer => 'אתה צופה';
+
+  // ========================================
+  // Loading & Error States
+  // ========================================
+
+  String get loadingUsers => 'טוען משתמשים...';
+  String get loadingRequests => 'טוען בקשות...';
+  String get loadingError => 'שגיאה בטעינת נתונים';
+  String get retryButton => 'נסה שוב';
 }

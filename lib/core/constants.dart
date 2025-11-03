@@ -6,13 +6,16 @@
 // - Family size limits
 // - Children age groups  
 // - Schema versioning
+// - Category emojis
+// - Storage locations
 //
 // Note: UI constants (colors, spacing) are in ui_constants.dart
 // Note: Firestore constants are in repositories/constants/repository_constants.dart
 //
-// Version: 1.0
+// Version: 1.1
 // Created: 29/10/2025
-// Last Updated: 29/10/2025
+// Last Updated: 03/11/2025
+// Changes: Updated kCategoryEmojis to match filters_config.dart categories
 
 // ═══════════════════════════════════════════════════════════════════════════
 // FAMILY SIZE
@@ -68,20 +71,18 @@ const Map<String, Map<String, String>> kStorageLocations = {
 // CATEGORY EMOJIS
 // ═══════════════════════════════════════════════════════════════════════════
 
-/// אמוג'י לפי קטגוריה (אנגלית)
+/// אמוג'י לפי קטגוריה (מסונכרן עם filters_config.dart)
+/// 
+/// Categories match the product JSON files in assets/data/categories/
 const Map<String, String> kCategoryEmojis = {
+  'coffee_tea': '☕',
   'dairy': '🥛',
-  'vegetables': '🥬',
   'fruits': '🍎',
-  'meat': '🥩',
-  'chicken': '🍗',
-  'fish': '🐟',
-  'bread': '🍞',
-  'snacks': '🍿',
-  'drinks': '🥤',
-  'cleaning': '🧼',
-  'canned': '🥫',
-  'frozen': '🧊',
-  'spices': '🧂',
+  'meat_fish': '🥩',
   'other': '📦',
+  'personal_hygiene': '🧴',
+  'rice_pasta': '🍝',
+  'spices_baking': '🧂',
+  'sweets_snacks': '🍬',
+  'vegetables': '🥬',
 };

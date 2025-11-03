@@ -25,9 +25,10 @@
 // backgroundColor: StatusColors.successOverlay
 // ```
 //
-// Version: 2.3 - Actively used in 2 files (shopping_list_tile, create_list_dialog)
-// Last Updated: 29/10/2025
-// Note: add_receipt_dialog.dart was removed in v2.9 (receipt scanning feature removed)
+// Version: 2.4 - Actively used in 6 files
+// Last Updated: 03/11/2025
+// Files: shopping_item_status, active_shopping_screen, shopping_summary_screen,
+//        create_list_dialog, shopping_list_tile, status_colors (self-reference)
 
 import 'package:flutter/material.dart';
 

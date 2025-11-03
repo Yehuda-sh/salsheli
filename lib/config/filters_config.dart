@@ -5,50 +5,53 @@
 // Defines the available categories for filtering inventory items.
 // Used by PantryFilters widget to filter items by category.
 //
-// Version: 1.0
-// Created: 02/11/2025
+// Version: 1.1
+// Updated: 03/11/2025
+// Changes: Updated categories to match actual product JSON files
 
 /// Available inventory categories for filtering
 /// 
-/// Categories are based on common household product types:
+/// Categories match the product JSON files in assets/data/categories/:
 /// - all: Show all items (no filter)
-/// - dairy: Milk products, cheese, yogurt, etc.
-/// - meat: Meat, chicken, fish
-/// - vegetables: Fresh vegetables
-/// - fruits: Fresh fruits
-/// - bakery: Bread, pastries, baked goods
-/// - dry_goods: Pasta, rice, canned goods
-/// - cleaning: Cleaning products
-/// - toiletries: Personal hygiene products
-/// - frozen: Frozen foods
-/// - beverages: Drinks (water, juice, soda)
+/// - coffee_tea: Coffee and tea products
+/// - dairy: Milk products, cheese, yogurt, eggs
+/// - fruits: Fresh and processed fruits
+/// - meat_fish: Meat, poultry, fish, and seafood
+/// - other: Miscellaneous products
+/// - personal_hygiene: Personal care and hygiene products
+/// - rice_pasta: Rice, pasta, and grain products
+/// - spices_baking: Spices, herbs, and baking ingredients
+/// - sweets_snacks: Sweets, snacks, and treats
+/// - vegetables: Fresh and processed vegetables
 const List<String> kCategories = [
   'all',
+  'coffee_tea',
   'dairy',
-  'meat',
-  'vegetables',
   'fruits',
-  'bakery',
-  'dry_goods',
-  'cleaning',
-  'toiletries',
-  'frozen',
-  'beverages',
+  'meat_fish',
+  'other',
+  'personal_hygiene',
+  'rice_pasta',
+  'spices_baking',
+  'sweets_snacks',
+  'vegetables',
 ];
 
 /// Category display names in Hebrew
+/// 
+/// Labels match the category names used in product JSON files
 const Map<String, String> kCategoryLabels = {
   'all': 'הכל',
-  'dairy': 'חלב וביצים',
-  'meat': 'בשר ודגים',
-  'vegetables': 'ירקות',
+  'coffee_tea': 'קפה ותה',
+  'dairy': 'מוצרי חלב',
   'fruits': 'פירות',
-  'bakery': 'לחם ומאפים',
-  'dry_goods': 'מוצרים יבשים',
-  'cleaning': 'חומרי ניקיון',
-  'toiletries': 'טואלטיקה',
-  'frozen': 'קפואים',
-  'beverages': 'משקאות',
+  'meat_fish': 'בשר ודגים',
+  'other': 'אחר',
+  'personal_hygiene': 'טיפוח אישי',
+  'rice_pasta': 'אורז ופסטה',
+  'spices_baking': 'תבלינים ואפייה',
+  'sweets_snacks': 'ממתקים וחטיפים',
+  'vegetables': 'ירקות',
 };
 
 /// Get display label for a category
