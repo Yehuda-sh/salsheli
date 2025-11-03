@@ -1115,6 +1115,12 @@ class _InventoryStrings {
 
   String get addError => 'שגיאה בהוספת פריט';
   String get updateError => 'שגיאה בעדכון פריט';
+
+  // ========================================
+  // Storage Location Manager
+  // ========================================
+
+  static const storageManager = _StorageManagerStrings();
 }
 
 // ========================================
@@ -1232,4 +1238,96 @@ class _ShoppingListDetailsStrings {
   String get loadingError => 'שגיאה בטעינת הנתונים';
   String get errorTitle => 'אופס! משהו השתבש';
   String errorMessage(String? error) => error ?? 'אירעה שגיאה בטעינת הנתונים';
+}
+
+// ========================================
+// Storage Manager Strings (Inventory)
+// ========================================
+
+class _StorageManagerStrings {
+  const _StorageManagerStrings();
+
+  // ========================================
+  // Dialog Titles
+  // ========================================
+
+  String get addLocationTitle => 'הוספת מיקום חדש';
+  String get editLocationTitle => 'עריכת מיקום';
+  String get deleteLocationTitle => 'מחיקת מיקום';
+
+  // ========================================
+  // Form Fields
+  // ========================================
+
+  String get emojiLabel => 'בחר אמוג\'י:';
+  String get locationNameLabel => 'שם המיקום';
+  String get locationNameHint => 'לדוגמה: "מקרר קטן"';
+
+  // ========================================
+  // Action Buttons (override common when needed)
+  // ========================================
+
+  String get cancelButton => 'ביטול';
+  String get addButton => 'הוסף';
+  String get saveButton => 'שמור';
+  String get deleteButton => 'מחק';
+  String get undoButton => 'בטל';
+
+  // ========================================
+  // Success Messages
+  // ========================================
+
+  String locationAdded(String name) => 'נוסף מיקום חדש: $name';
+  String get locationUpdated => 'המיקום עודכן';
+  String get locationDeleted => 'המיקום נמחק';
+
+  // ========================================
+  // Error Messages
+  // ========================================
+
+  String get locationExists => 'מיקום זה כבר קיים';
+
+  // ========================================
+  // Delete Confirmation
+  // ========================================
+
+  String deleteConfirmMessage(String name) => 'האם למחוק את "$name"?';
+
+  // ========================================
+  // UI Labels (Header)
+  // ========================================
+
+  String get headerTitle => 'ניהול אזורי אחסון';
+  String get sortTooltip => 'מיון';
+  String get sortByName => 'לפי שם';
+  String get sortByQuantity => 'לפי כמות';
+  String get sortByCategory => 'לפי קטגוריה';
+  String get gridViewTooltip => 'תצוגת רשת';
+  String get listViewTooltip => 'תצוגת רשימה';
+  String get addLocationTooltip => 'הוסף מיקום חדש';
+
+  // ========================================
+  // Search
+  // ========================================
+
+  String get searchLabel => 'חיפוש פריט';
+  String get clearSearchTooltip => 'נקה';
+
+  // ========================================
+  // Location Cards
+  // ========================================
+
+  String get allLocationsLabel => 'הכל';
+  String get emptyLocationLabel => 'ריק';
+  String get editLocationTooltip => 'לחץ לעריכה, לחץ ארוכה למחיקה';
+
+  // ========================================
+  // Items Section
+  // ========================================
+
+  String get allItemsTitle => 'כל הפריטים';
+  String itemsCount(int count) => '$count פריטים';
+  String get noItemsFound => 'לא נמצאו פריטים';
+  String get noItemsInLocation => 'אין פריטים במיקום זה';
+  String get editItemTooltip => 'ערוך פריט';
 }

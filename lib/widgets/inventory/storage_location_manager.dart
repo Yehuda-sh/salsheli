@@ -644,9 +644,9 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                         value: 'name',
                         child: Row(
                           children: [
-                            Icon(Icons.sort_by_alpha),
-                            SizedBox(width: kSpacingSmall),
-                            Text('לפי שם'),
+                            const Icon(Icons.sort_by_alpha),
+                            const SizedBox(width: kSpacingSmall),
+                            const Text('לפי שם'),
                           ],
                         ),
                       ),
@@ -654,15 +654,15 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                         value: 'quantity',
                         child: Row(
                           children: [
-                            Icon(Icons.numbers),
-                            SizedBox(width: kSpacingSmall),
-                            Text('לפי כמות'),
+                            const Icon(Icons.numbers),
+                            const SizedBox(width: kSpacingSmall),
+                            const Text('לפי כמות'),
                           ],
                         ),
                       ),
                       const PopupMenuItem(
                         value: 'category',
-                        child: Row(children: [Icon(Icons.category), SizedBox(width: 8), Text('לפי קטגוריה')]),
+                        child: Row(children: [const Icon(Icons.category), const SizedBox(width: 8), const Text('לפי קטגוריה')]),
                       ),
                     ],
                   ),

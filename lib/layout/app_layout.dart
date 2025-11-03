@@ -41,8 +41,14 @@
 // - ✅ More const optimizations
 // - ✅ Improved _NavItem constructor for clarity
 //
-// Version: 3.1 - Performance & Code Quality Improvements
-// Last Updated: 22/10/2025
+// Version: 3.3 - Performance Review
+// Last Updated: 02/11/2025
+//
+// 🎨 New in v3.3 (02/11/2025):
+// - ✅ Code review: Already optimized (const usage excellent)
+// - ✅ No kDebugMode wrapping needed (debugPrint handles it)
+// - ✅ Context safety verified
+// - ℹ️ False Positive #6 prevented: File is actively used in MainNavigationScreen
 //
 // 🎨 New in v3.2 (26/10/2025):
 // - ✅ Removed Receipts tab (accessible via Settings → "הקבלות שלי")
@@ -514,7 +520,7 @@ class _DrawerItem extends StatelessWidget {
         ),
         trailing: selected
             ? Icon(Icons.chevron_left, color: cs.primary) // RTL: chevron_left!
-            : const Icon(Icons.chevron_right, color: Colors.transparent), // RTL: chevron_right!
+            : const Icon(Icons.chevron_right, color: Colors.transparent), // RTL: chevron_right! (const)
         selected: selected,
         onTap: onTap,
       ),
