@@ -1,6 +1,6 @@
 # TECH.md - MemoZap Technical Reference
 
-> Machine-readable | Firebase + Security + Models | Updated: 29/10/2025
+> Machine-readable | Firebase + Security + Models | Updated: 03/11/2025
 
 ---
 
@@ -158,30 +158,90 @@ deploy_command: firebase deploy --only firestore:rules
 ```dart
 // SharedUser - represents a user with access to a shopping list
 class SharedUser {
+  // Core fields
+  @JsonKey(name: 'user_id')
   final String userId;
   final UserRole role;  // owner, admin, editor, viewer
+  @JsonKey(name: 'shared_at')
   final DateTime sharedAt;
+  
+  // Cache fields (metadata from users collection)
+  @JsonKey(name: 'user_name')
+  final String? userName;        // Display name for UI
+  @JsonKey(name: 'user_email')
+  final String? userEmail;       // Email for contact
+  @JsonKey(name: 'user_avatar')
+  final String? userAvatar;      // Avatar URL
 }
 
 enum UserRole {
-  owner,   // Full access + delete + manage users
-  admin,   // Full access + manage users (no delete)
-  editor,  // Read + create pending requests
-  viewer,  // Read-only
+  owner,   // 👑 Full access + delete + manage users (canManageUsers, canDeleteList)
+  admin,   // 🔧 Full access + manage users (no delete) (canApproveRequests, canManageUsers)
+  editor,  // ✏️ Read + create pending requests (canRequest)
+  viewer,  // 👀 Read-only (canRead only)
+  
+  // Permissions helpers:
+  // - canAddDirectly (owner/admin)
+  // - canEditDirectly (owner/admin)
+  // - canDeleteDirectly (owner/admin)
+  // - canApproveRequests (owner/admin)
+  // - canManageUsers (owner only)
+  // - canDeleteList (owner only)
+  // - canRequest (editor only)
+  // - canRead (all)
 }
 
-// PendingRequest - Editor's item addition request
+// PendingRequest - Editor's item addition/edit/delete request
 class PendingRequest {
+  // Core fields
   final String id;
-  final String requesterId;  // userId who created request
-  final Map<String, dynamic> itemData;  // UnifiedListItem data
-  final RequestStatus status;  // pending, approved, rejected
-  final RequestType type;  // addItem, editItem, deleteItem
-  final DateTime requestedAt;
+  @JsonKey(name: 'list_id')
+  final String listId;           // Which list this request belongs to
+  @JsonKey(name: 'requester_id')
+  final String requesterId;      // userId who created request
+  final RequestType type;        // addItem, editItem, deleteItem
+  final RequestStatus status;    // pending, approved, rejected
+  @JsonKey(name: 'created_at')
+  final DateTime createdAt;      // When request was created
+  
+  // Request data (varies by type)
+  @JsonKey(name: 'request_data')
+  final Map<String, dynamic> requestData;
+  // Examples:
+  // - addItem: { name, quantity, unitPrice, ... }
+  // - editItem: { itemId, changes: { name: 'new', quantity: 5 } }
+  // - deleteItem: { itemId }
+  
+  // Review fields
+  @JsonKey(name: 'reviewer_id')
+  final String? reviewerId;      // userId who approved/rejected
+  @JsonKey(name: 'reviewed_at')
+  final DateTime? reviewedAt;    // When approved/rejected
+  @JsonKey(name: 'rejection_reason')
+  final String? rejectionReason; // Why rejected
+  
+  // Cache fields
+  @JsonKey(name: 'requester_name')
+  final String? requesterName;   // Requester display name
+  @JsonKey(name: 'reviewer_name')
+  final String? reviewerName;    // Reviewer display name
+  
+  // Helpers:
+  // - isPending, isApproved, isRejected
+  // - minutesAgo, timeAgoText
 }
 
-enum RequestStatus { pending, approved, rejected }
-enum RequestType { addItem, editItem, deleteItem }
+enum RequestStatus {
+  pending,   // 🔵 Waiting for approval
+  approved,  // ✅ Approved by owner/admin
+  rejected,  // ❌ Rejected by owner/admin
+}
+
+enum RequestType {
+  addItem,    // ➕ Request to add new item
+  editItem,   // ✏️ Request to edit existing item
+  deleteItem, // 🗑️ Request to delete item
+}
 ```
 
 ### Receipt to Inventory System
@@ -189,26 +249,87 @@ enum RequestType { addItem, editItem, deleteItem }
 ```dart
 // ActiveShopper - tracks who's shopping in real-time
 class ActiveShopper {
+  @JsonKey(name: 'user_id')
   final String userId;
+  @JsonKey(name: 'joined_at')
   final DateTime joinedAt;
+  @JsonKey(name: 'is_starter')
   final bool isStarter;  // First person = starter (can finish shopping)
-  final bool isActive;   // Still shopping or left
+  @JsonKey(name: 'is_active')
+  final bool isActive;   // Still shopping or left (default: true)
+  
+  // Factory constructors:
+  // - ActiveShopper.starter(userId) - creates starter
+  // - ActiveShopper.helper(userId) - creates helper
 }
 
-// Receipt fields (added to existing Receipt model)
+// Receipt - complete receipt model
 class Receipt {
-  // ... existing fields ...
+  // Core fields
+  final String id;
+  @JsonKey(name: 'store_name')
+  final String storeName;
+  final DateTime date;
+  @JsonKey(name: 'created_date')
+  final DateTime? createdDate;
+  @JsonKey(name: 'total_amount')
+  final double totalAmount;
+  final List<ReceiptItem> items;
+  
+  // File fields
+  @JsonKey(name: 'original_url')
+  final String? originalUrl;     // Original receipt link
+  @JsonKey(name: 'file_url')
+  final String? fileUrl;         // Firebase Storage URL
+  
+  // Collaborative shopping fields
+  @JsonKey(name: 'linked_shopping_list_id')
   final String? linkedShoppingListId;  // Connection to shopping list
-  final bool isVirtual;  // true = auto-created, false = scanned
-  final String? createdBy;  // userId who created receipt
+  @JsonKey(name: 'is_virtual')
+  final bool isVirtual;          // true = auto-created, false = scanned
+  @JsonKey(name: 'created_by')
+  final String? createdBy;       // userId who created (starter)
+  
+  // Security
+  @JsonKey(name: 'household_id')
+  final String householdId;      // CRITICAL - required!
+  
+  // Helpers:
+  // - isVirtualReceipt (virtual + no scan)
+  // - isRealConnected (virtual + has scan)
+  // - isRealScanned (not virtual + has scan)
+  
+  // Factory constructors:
+  // - Receipt.newReceipt(...) - regular receipt
+  // - Receipt.virtual(...) - virtual receipt from shopping
 }
 
-// ReceiptItem fields (added to existing ReceiptItem model)
+// ReceiptItem - item in receipt
 class ReceiptItem {
-  // ... existing fields ...
-  final String? checkedBy;  // userId who marked as purchased
-  final DateTime? checkedAt;  // When marked as purchased
-  final bool isChecked;  // Kept for backward compatibility
+  // Core fields
+  final String id;
+  final String? name;
+  final int quantity;            // >= 0
+  @JsonKey(name: 'unit_price')
+  final double unitPrice;        // >= 0
+  @JsonKey(name: 'is_checked')
+  final bool isChecked;          // Backward compatibility
+  
+  // Product metadata
+  final String? barcode;
+  final String? manufacturer;
+  final String? category;
+  final String? unit;
+  
+  // Collaborative shopping fields
+  @JsonKey(name: 'checked_by')
+  final String? checkedBy;       // userId who marked as purchased
+  @JsonKey(name: 'checked_at')
+  final DateTime? checkedAt;     // When marked as purchased
+  
+  // Helpers:
+  // - totalPrice (quantity * unitPrice)
+  // - wasChecked (has checkedBy)
 }
 ```
 
@@ -457,7 +578,7 @@ ios:
 ---
 
 End of Technical Reference
-Version: 1.3 | Date: 02/11/2025
+Version: 1.4 | Date: 03/11/2025
 Optimized for AI parsing - minimal formatting, maximum data density.
 
 **Updates v1.1 (29/10/2025):**
@@ -482,3 +603,14 @@ Optimized for AI parsing - minimal formatting, maximum data density.
 - Added list_type field to shopping_lists
 - Added linked_shopping_list_id index for receipt lookups
 - Documented Editor restrictions (pending requests workflow)
+
+**Updates v1.4 (03/11/2025 - session 50):**
+- COMPLETE MODEL DOCUMENTATION: Expanded all models with full field details
+- SharedUser: Added cache fields (userName, userEmail, userAvatar)
+- PendingRequest: Added ALL fields (listId, reviewer fields, cache fields, helpers)
+- UserRole: Added complete permission matrix (canAddDirectly, canManageUsers, etc.)
+- Receipt: Complete model (storeName, dates, files, security, helpers, factory constructors)
+- ReceiptItem: Complete model (all core fields, metadata, collaborative shopping fields)
+- ActiveShopper: Added factory constructors documentation
+- All enums documented with emojis and Hebrew names
+- Added @JsonKey annotations for all snake_case fields
