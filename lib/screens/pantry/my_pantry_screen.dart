@@ -41,7 +41,6 @@ import 'package:provider/provider.dart';
 
 import '../../config/storage_locations_config.dart';
 import '../../core/ui_constants.dart';
-import '../../l10n/app_strings.dart';
 import '../../models/inventory_item.dart';
 import '../../providers/inventory_provider.dart';
 import '../../providers/shopping_lists_provider.dart';
@@ -68,6 +67,10 @@ class _MyPantryScreenState extends State<MyPantryScreen>
   
   late TabController _tabController;
   final Set<String> _selectedItemIds = {}; // פריטים מסומנים להוספה לרשימה
+  
+  // Undo functionality
+  InventoryItem? _lastDeletedItem;
+  Timer? _undoTimer;
 
   @override
   void initState() {
@@ -87,6 +90,7 @@ class _MyPantryScreenState extends State<MyPantryScreen>
   void dispose() {
     debugPrint('🗑️ MyPantryScreen: dispose');
     _debounceTimer?.cancel();
+    _undoTimer?.cancel();
     _searchController.dispose();
     _tabController.dispose();
     super.dispose();
@@ -107,8 +111,38 @@ class _MyPantryScreenState extends State<MyPantryScreen>
       debugPrint('🔢 MyPantryScreen: עדכון כמות - ${item.productName}: ${item.quantity} → $newQuantity');
 
       if (newQuantity == 0) {
-        debugPrint('⚠️ MyPantryScreen: כמות 0 - מציג אישור מחיקה');
-        _confirmRemoveItem(itemId);
+        debugPrint('⚠️ MyPantryScreen: כמות 0 - מחיקה אוטומטית עם Undo');
+        
+        // שמור פריט ל-Undo
+        setState(() {
+          _lastDeletedItem = item;
+          _undoTimer?.cancel();
+        });
+        
+        await provider.deleteItem(itemId);
+        debugPrint('✅ MyPantryScreen: פריט נמחק');
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('הפריט "${item.productName}" הוסר מהמזווה'),
+              duration: const Duration(seconds: 5),
+              action: SnackBarAction(
+                label: 'ביטול',
+                textColor: kStickyYellow,
+                onPressed: _undoDelete,
+              ),
+            ),
+          );
+          
+          // מחק את הפריט השמור אחרי 5 שניות
+          _undoTimer = Timer(const Duration(seconds: 5), () {
+            setState(() {
+              _lastDeletedItem = null;
+            });
+          });
+        }
         return;
       }
 
@@ -129,68 +163,48 @@ class _MyPantryScreenState extends State<MyPantryScreen>
     }
   }
 
-  /// מציג דיאלוג אישור להסרת פריט מהמזווה
-  void _confirmRemoveItem(String itemId) {
-    debugPrint('🗑️ MyPantryScreen: _confirmRemoveItem - $itemId');
+  /// שחזור פריט שנמחק (Undo)
+  Future<void> _undoDelete() async {
+    if (_lastDeletedItem == null) return;
+    
     final provider = context.read<InventoryProvider>();
-    final item = provider.items.firstWhere((i) => i.id == itemId);
-    final cs = Theme.of(context).colorScheme;
-
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: cs.surface,
-        title: Text('הסרת פריט', style: TextStyle(color: cs.primary)),
-        content: Text(
-          'להסיר את ${item.productName} מהמזווה?',
-          style: TextStyle(color: cs.onSurface),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              debugPrint('❌ MyPantryScreen: מחיקה בוטלה');
-              Navigator.pop(dialogContext);
-            },
-            child: Text(AppStrings.common.cancel),
+    final itemToRestore = _lastDeletedItem!;
+    
+    setState(() {
+      _lastDeletedItem = null;
+      _undoTimer?.cancel();
+    });
+    
+    try {
+      await provider.createItem(
+        productName: itemToRestore.productName,
+        category: itemToRestore.category,
+        location: itemToRestore.location,
+        quantity: itemToRestore.quantity,
+        unit: itemToRestore.unit,
+      );
+      debugPrint('✅ MyPantryScreen: פריט שוחזר - ${itemToRestore.productName}');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('הפריט "${itemToRestore.productName}" שוחזר'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              minimumSize: const Size(kButtonHeight, kButtonHeight),
-            ),
-            onPressed: () async {
-              debugPrint('✅ MyPantryScreen: מאשר מחיקה - ${item.productName}');
-              Navigator.pop(dialogContext);
-              if (!context.mounted) return;
-              try {
-                await provider.deleteItem(itemId);
-                debugPrint('✅ MyPantryScreen: פריט נמחק');
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('הפריט הוסר מהמזווה'),
-                      duration: kSnackBarDuration,
-                    ),
-                  );
-                }
-              } catch (e) {
-                debugPrint('❌ MyPantryScreen: שגיאה במחיקה - $e');
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('שגיאה בהסרת פריט: $e'),
-                      backgroundColor: Colors.red,
-                      duration: kSnackBarDuration,
-                    ),
-                  );
-                }
-              }
-            },
-            child: const Text('הסר'),
+        );
+      }
+    } catch (e) {
+      debugPrint('❌ MyPantryScreen: שגיאה בשחזור - $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('שגיאה בשחזור הפריט: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
           ),
-        ],
-      ),
-    );
+        );
+      }
+    }
   }
 
   /// מציג דיאלוג להוספת פריט חדש למזווה
@@ -326,10 +340,10 @@ class _MyPantryScreenState extends State<MyPantryScreen>
           label: 'צפה ברשימה',
           textColor: Colors.white,
           onPressed: () => Navigator.pushNamed(
-            context,
-            '/manage-list',
-            arguments: {'listId': targetListId},
-          ),
+              context,
+              '/manage-list',
+              arguments: {'listId': targetListId},
+            ),
         ),
       ),
     );
@@ -445,15 +459,8 @@ class _MyPantryScreenState extends State<MyPantryScreen>
           ),
           color: Colors.transparent,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildStatChip(
-                icon: Icons.inventory,
-                label: 'סה״כ',
-                value: items.length.toString(),
-                color: Colors.blue,
-                stickyColor: kStickyCyan,
-              ),
               _buildStatChip(
                 icon: Icons.warning,
                 label: 'כמות נמוכה',
@@ -461,6 +468,7 @@ class _MyPantryScreenState extends State<MyPantryScreen>
                 color: Colors.orange,
                 stickyColor: kStickyOrange,
               ),
+              const SizedBox(width: kSpacingMedium),
               _buildStatChip(
                 icon: Icons.location_on,
                 label: 'מיקומים',
@@ -727,22 +735,46 @@ class _MyPantryScreenState extends State<MyPantryScreen>
                   tooltip: 'הוסף פריט',
                 ),
               ],
-              bottom: TabBar(
-                controller: _tabController,
-                tabs: const [
-                  Tab(icon: Icon(Icons.list), text: 'רשימה'),
-                  Tab(icon: Icon(Icons.location_on), text: 'מיקומים'),
-                ],
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(36),
+                child: TabBar(
+                  controller: _tabController,
+                  labelPadding: EdgeInsets.zero,
+                  tabs: const [
+                    Tab(
+                      height: 36,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.list, size: 18),
+                          SizedBox(width: 4),
+                          Text('רשימה', style: TextStyle(fontSize: 12)),
+                        ],
+                      ),
+                    ),
+                    Tab(
+                      height: 36,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.location_on, size: 18),
+                          SizedBox(width: 4),
+                          Text('מיקומים', style: TextStyle(fontSize: 12)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             body: provider.isLoading
-                ? Center(
+                ? const Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         CircularProgressIndicator(color: kStickyCyan),
-                        const SizedBox(height: kSpacingMedium),
-                        const Text('טוען...'),
+                        SizedBox(height: kSpacingMedium),
+                        Text('טוען...'),
                       ],
                     ),
                   )
