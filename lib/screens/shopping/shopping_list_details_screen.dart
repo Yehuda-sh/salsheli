@@ -153,7 +153,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   }
 
   /// === דיאלוג הוספה/עריכה עם אנימציה ===
-  void _showItemDialog(BuildContext context, {UnifiedListItem? item, int? index}) {
+  void _showItemDialog(BuildContext context, {UnifiedListItem? item}) {
     final provider = context.read<ShoppingListsProvider>();
 
     // Controllers - יש לסגור אותם!
@@ -264,9 +264,17 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                     if (item == null) {
                       provider.addUnifiedItem(widget.list.id, newItem);
                       debugPrint('✅ ShoppingListDetailsScreen: הוסף מוצר "$name"');
-                    } else if (index != null) {
-                      provider.updateItemAt(widget.list.id, index, (_) => newItem);
-                      debugPrint('✅ ShoppingListDetailsScreen: עדכן מוצר "$name"');
+                    } else {
+                      // מצא את האינדקס המקורי ברשימה
+                      final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id);
+                      final originalIndex = currentList.items.indexWhere((i) => i.id == item.id);
+                      
+                      if (originalIndex != -1) {
+                        provider.updateItemAt(widget.list.id, originalIndex, (_) => newItem);
+                        debugPrint('✅ ShoppingListDetailsScreen: עדכן מוצר "$name" (index: $originalIndex)');
+                      } else {
+                        debugPrint('❌ ShoppingListDetailsScreen: לא נמצא פריט לעריכה');
+                      }
                     }
 
                     Navigator.pop(context);
@@ -284,7 +292,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   }
 
   /// === דיאלוג הוספת משימה עם אנימציה ===
-  void _showTaskDialog(BuildContext context, {UnifiedListItem? item, int? index}) {
+  void _showTaskDialog(BuildContext context, {UnifiedListItem? item}) {
     final provider = context.read<ShoppingListsProvider>();
 
     // Controllers - יש לסגור אותם!
@@ -411,9 +419,17 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                           // הוספה - נשתמש ב-addUnifiedItem החדש!
                           provider.addUnifiedItem(widget.list.id, newItem);
                           debugPrint('✅ ShoppingListDetailsScreen: הוסף משימה "$name"');
-                        } else if (index != null) {
-                          provider.updateItemAt(widget.list.id, index, (_) => newItem);
-                          debugPrint('✅ ShoppingListDetailsScreen: עדכן משימה "$name"');
+                        } else {
+                          // מצא את האינדקס המקורי ברשימה
+                          final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id);
+                          final originalIndex = currentList.items.indexWhere((i) => i.id == item.id);
+                          
+                          if (originalIndex != -1) {
+                            provider.updateItemAt(widget.list.id, originalIndex, (_) => newItem);
+                            debugPrint('✅ ShoppingListDetailsScreen: עדכן משימה "$name" (index: $originalIndex)');
+                          } else {
+                            debugPrint('❌ ShoppingListDetailsScreen: לא נמצא משימה לעריכה');
+                          }
                         }
 
                         Navigator.pop(context);
@@ -433,11 +449,21 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   }
 
   /// === מחיקת פריט עם אנימציה ===
-  void _deleteItem(BuildContext context, int index, UnifiedListItem removed) {
+  void _deleteItem(BuildContext context, UnifiedListItem removed) {
     final provider = context.read<ShoppingListsProvider>();
-    provider.removeItemFromList(widget.list.id, index);
+    
+    // מצא את האינדקס המקורי ברשימה (לא אחרי סינון)
+    final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id);
+    final originalIndex = currentList.items.indexWhere((item) => item.id == removed.id);
+    
+    if (originalIndex == -1) {
+      debugPrint('❌ ShoppingListDetailsScreen: לא נמצא פריט עם id ${removed.id}');
+      return;
+    }
+    
+    provider.removeItemFromList(widget.list.id, originalIndex);
 
-    debugPrint('🗑️ ShoppingListDetailsScreen: מחק מוצר "${removed.name ?? 'ללא שם'}"');
+    debugPrint('🗑️ ShoppingListDetailsScreen: מחק מוצר "${removed.name ?? 'ללא שם'}" (index: $originalIndex)');
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -793,7 +819,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
         ),
         itemBuilder: (context) => [
           _buildSortMenuItem('none', AppStrings.listDetails.sortNone, Icons.clear),
-          _buildSortMenuItem('price_desc', AppStrings.listDetails.sortPriceDesc, Icons.arrow_downward),
+          // מיון לפי מחיר הוסר - אין תצוגת מחירים
           _buildSortMenuItem('checked', AppStrings.listDetails.sortStatus, Icons.check_circle_outline),
         ],
         onSelected: (value) {
@@ -821,8 +847,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   /// קבלת אייקון לפי סוג המיון
   IconData _getSortIcon() {
     switch (_sortBy) {
-      case 'price_desc':
-        return Icons.arrow_downward;
       case 'checked':
         return Icons.check_circle_outline;
       default:
@@ -981,7 +1005,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
           ),
         );
       },
-      onDismissed: (_) => _deleteItem(context, index, item),
+      onDismissed: (_) => _deleteItem(context, item),
       child: StickyNote(
         color: actualColor,
         rotation: rotation,
@@ -1005,11 +1029,17 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
               child: AnimatedButton(
               onPressed: () {
                     final provider = context.read<ShoppingListsProvider>();
-                    provider.updateItemAt(
-                      widget.list.id,
-                      index,
-                      (current) => current.copyWith(isChecked: !current.isChecked),
-                    );
+                    // מצא את האינדקס המקורי ברשימה
+                    final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id);
+                    final originalIndex = currentList.items.indexWhere((i) => i.id == item.id);
+                    
+                    if (originalIndex != -1) {
+                      provider.updateItemAt(
+                        widget.list.id,
+                        originalIndex,
+                        (current) => current.copyWith(isChecked: !current.isChecked),
+                      );
+                    }
                   },
                   child: item.isChecked
                       ? Icon(
@@ -1056,24 +1086,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                           isProduct ? AppStrings.listDetails.quantityDisplay(item.quantity ?? 1) : AppStrings.listDetails.taskLabel,
                           style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                         ),
-                        if (isProduct && item.unitPrice != null && item.unitPrice! > 0) ...[
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.primaryContainer,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              '₪${item.unitPrice!.toStringAsFixed(2)}',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: theme.colorScheme.onPrimaryContainer,
-                              ),
-                            ),
-                          ),
-                        ],
+                        // מחירים מוסתרים לפי בקשת המשתמש
                       ],
                     ),
                   ],
@@ -1092,9 +1105,9 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                     constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                     onPressed: () {
                       if (isProduct) {
-                        _showItemDialog(context, item: item, index: index);
+                        _showItemDialog(context, item: item);
                       } else {
-                        _showTaskDialog(context, item: item, index: index);
+                        _showTaskDialog(context, item: item);
                       }
                     },
                   ),
@@ -1104,7 +1117,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                   tooltip: AppStrings.listDetails.deleteTooltip,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                    onPressed: () => _deleteItem(context, index, item),
+                    onPressed: () => _deleteItem(context, item),
                   ),
                 ],
               ),

@@ -1,7 +1,7 @@
 [
   {
     "name": "בשר טחון",
-    "category": "בשר ודגים",
+    "category": "בקר",
     "icon": "🥩",
     "price": 39.9,
     "barcode": "2900001000001",
@@ -13,7 +13,7 @@
   },
   {
     "name": "חזה עוף",
-    "category": "בשר ודגים",
+    "category": "עוף",
     "icon": "🍗",
     "price": 44.9,
     "barcode": "2900001000002",
@@ -25,7 +25,7 @@
   },
   {
     "name": "סטייק אנטריקוט",
-    "category": "בשר ודגים",
+    "category": "בקר",
     "icon": "🥩",
     "price": 149.9,
     "barcode": "2900001000003",
@@ -37,7 +37,7 @@
   },
   {
     "name": "כרעיים עוף",
-    "category": "בשר ודגים",
+    "category": "עוף",
     "icon": "🍗",
     "price": 19.9,
     "barcode": "2900001000004",
@@ -49,7 +49,7 @@
   },
   {
     "name": "צלעות טלה",
-    "category": "בשר ודגים",
+    "category": "טלה וכבש",
     "icon": "🥩",
     "price": 99.9,
     "barcode": "2900001000005",
@@ -60,8 +60,8 @@
     "imageUrl": null
   },
   {
-    "name": "דגני בוקר קיטקט 330 גרם",
-    "category": "בשר ודגים",
+    "name": "קבב",
+    "category": "טלה וכבש",
     "icon": "🥩",
     "price": 59.9,
     "barcode": "2900001000006",
@@ -73,7 +73,7 @@
   },
   {
     "name": "שוקיים עוף",
-    "category": "בשר ודגים",
+    "category": "עוף",
     "icon": "🍗",
     "price": 24.9,
     "barcode": "2900001000007",
@@ -85,7 +85,7 @@
   },
   {
     "name": "בשר צלי",
-    "category": "בשר ודגים",
+    "category": "בקר",
     "icon": "🥩",
     "price": 79.9,
     "barcode": "2900001000008",
@@ -97,7 +97,7 @@
   },
   {
     "name": "כנפיים עוף",
-    "category": "בשר ודגים",
+    "category": "עוף",
     "icon": "🍗",
     "price": 14.9,
     "barcode": "2900001000009",
@@ -109,7 +109,7 @@
   },
   {
     "name": "המבורגר",
-    "category": "בשר ודגים",
+    "category": "בקר",
     "icon": "🍔",
     "price": 49.9,
     "barcode": "2900001000010",
@@ -121,7 +121,7 @@
   },
   {
     "name": "עוף שלם",
-    "category": "בשר ודגים",
+    "category": "עוף",
     "icon": "🍗",
     "price": 17.9,
     "barcode": "2900001000011",
@@ -133,7 +133,7 @@
   },
   {
     "name": "שניצל עוף",
-    "category": "בשר ודגים",
+    "category": "עוף",
     "icon": "🍗",
     "price": 54.9,
     "barcode": "2900001000012",
@@ -141,11 +141,11 @@
     "unit": "ק\"ג",
     "store": "אטליז",
     "description": "שניצל עוף מוכן בפירורים",
-    "imageUrl": null
+    "imageUrl": "assets/images/snichel.png"
   },
   {
     "name": "סטייק סינטה",
-    "category": "בשר ודגים",
+    "category": "בקר",
     "icon": "🥩",
     "price": 129.9,
     "barcode": "2900001000013",
@@ -157,7 +157,7 @@
   },
   {
     "name": "צלעות בקר",
-    "category": "בשר ודגים",
+    "category": "בקר",
     "icon": "🥩",
     "price": 89.9,
     "barcode": "2900001000014",
@@ -169,7 +169,7 @@
   },
   {
     "name": "נקניקיות מרגז",
-    "category": "בשר ודגים",
+    "category": "אחר",
     "icon": "🌭",
     "price": 69.9,
     "barcode": "2900001000015",
@@ -181,7 +181,7 @@
   },
   {
     "name": "שיפודי פרגית",
-    "category": "בשר ודגים",
+    "category": "עוף",
     "icon": "🍗",
     "price": 49.9,
     "barcode": "2900001000016",
@@ -193,7 +193,7 @@
   },
   {
     "name": "בשר גולש",
-    "category": "בשר ודגים",
+    "category": "בקר",
     "icon": "🥩",
     "price": 69.9,
     "barcode": "2900001000017",
@@ -205,7 +205,7 @@
   },
   {
     "name": "עוף טחון",
-    "category": "בשר ודגים",
+    "category": "עוף",
     "icon": "🍗",
     "price": 34.9,
     "barcode": "2900001000018",
@@ -217,7 +217,7 @@
   },
   {
     "name": "אסאדו",
-    "category": "בשר ודגים",
+    "category": "בקר",
     "icon": "🥩",
     "price": 94.9,
     "barcode": "2900001000019",
@@ -229,7 +229,7 @@
   },
   {
     "name": "לבבות עוף",
-    "category": "בשר ודגים",
+    "category": "עוף",
     "icon": "🍗",
     "price": 29.9,
     "barcode": "2900001000020",
@@ -241,7 +241,7 @@
   },
   {
     "name": "כבד עוף",
-    "category": "בשר ודגים",
+    "category": "עוף",
     "icon": "🍗",
     "price": 24.9,
     "barcode": "2900001000021",
@@ -253,7 +253,7 @@
   },
   {
     "name": "סטייק דנבר",
-    "category": "בשר ודגים",
+    "category": "בקר",
     "icon": "🥩",
     "price": 109.9,
     "barcode": "2900001000022",
@@ -265,7 +265,7 @@
   },
   {
     "name": "חזה הודו",
-    "category": "בשר ודגים",
+    "category": "הודו",
     "icon": "🦃",
     "price": 64.9,
     "barcode": "2900001000023",
@@ -277,7 +277,7 @@
   },
   {
     "name": "שוק טלה",
-    "category": "בשר ודגים",
+    "category": "טלה וכבש",
     "icon": "🥩",
     "price": 84.9,
     "barcode": "2900001000024",
@@ -289,7 +289,7 @@
   },
   {
     "name": "ציפס עוף",
-    "category": "בשר ודגים",
+    "category": "עוף",
     "icon": "🍗",
     "price": 44.9,
     "barcode": "2900001000025",
@@ -297,11 +297,11 @@
     "unit": "ק\"ג",
     "store": "אטליז",
     "description": "רצועות עוף בפירורים",
-    "imageUrl": null
+    "imageUrl": "assets/images/snichel.png"
   },
   {
     "name": "בשר שרירים",
-    "category": "בשר ודגים",
+    "category": "בקר",
     "icon": "🥩",
     "price": 74.9,
     "barcode": "2900001000026",
@@ -313,7 +313,7 @@
   },
   {
     "name": "פילה עוף",
-    "category": "בשר ודגים",
+    "category": "עוף",
     "icon": "🍗",
     "price": 49.9,
     "barcode": "2900001000027",
@@ -325,7 +325,7 @@
   },
   {
     "name": "סטייק טי-בון",
-    "category": "בשר ודגים",
+    "category": "בקר",
     "icon": "🥩",
     "price": 159.9,
     "barcode": "2900001000028",
@@ -337,7 +337,7 @@
   },
   {
     "name": "קורקבנים",
-    "category": "בשר ודגים",
+    "category": "עוף",
     "icon": "🍗",
     "price": 19.9,
     "barcode": "2900001000029",
@@ -349,7 +349,7 @@
   },
   {
     "name": "בשר ראש",
-    "category": "בשר ודגים",
+    "category": "בקר",
     "icon": "🥩",
     "price": 59.9,
     "barcode": "2900001000030",
@@ -357,6 +357,366 @@
     "unit": "ק\"ג",
     "store": "אטליז",
     "description": "בשר ראש לקציצות",
+    "imageUrl": null
+  },
+  {
+    "name": "סלמון פילה",
+    "category": "דגים",
+    "icon": "🐟",
+    "price": 89.9,
+    "barcode": "2900001000031",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "פילה סלמון טרי",
+    "imageUrl": null
+  },
+  {
+    "name": "דניס שלם",
+    "category": "דגים",
+    "icon": "🐟",
+    "price": 49.9,
+    "barcode": "2900001000032",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "דניס שלם טרי",
+    "imageUrl": null
+  },
+  {
+    "name": "בורי פילה",
+    "category": "דגים",
+    "icon": "🐟",
+    "price": 54.9,
+    "barcode": "2900001000033",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "פילה בורי נקי",
+    "imageUrl": null
+  },
+  {
+    "name": "קרפיון פרוסות",
+    "category": "דגים",
+    "icon": "🐟",
+    "price": 39.9,
+    "barcode": "2900001000034",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "פרוסות קרפיון לגפילטע",
+    "imageUrl": null
+  },
+  {
+    "name": "פורל שלם",
+    "category": "דגים",
+    "icon": "🐟",
+    "price": 69.9,
+    "barcode": "2900001000035",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "פורל שלם מנוקה",
+    "imageUrl": null
+  },
+  {
+    "name": "מוסר פילה",
+    "category": "דגים",
+    "icon": "🐟",
+    "price": 79.9,
+    "barcode": "2900001000036",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "פילה מוסר ים ללא עצמות",
+    "imageUrl": null
+  },
+  {
+    "name": "טונה סטייק",
+    "category": "דגים",
+    "icon": "🐟",
+    "price": 119.9,
+    "barcode": "2900001000037",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "סטייק טונה לגריל",
+    "imageUrl": null
+  },
+  {
+    "name": "בקלה פילה",
+    "category": "דגים",
+    "icon": "🐟",
+    "price": 64.9,
+    "barcode": "2900001000038",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "פילה בקלה מנוקה",
+    "imageUrl": null
+  },
+  {
+    "name": "אמנון פילה",
+    "category": "דגים",
+    "icon": "🐟",
+    "price": 44.9,
+    "barcode": "2900001000039",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "פילה אמנון נקי",
+    "imageUrl": null
+  },
+  {
+    "name": "לברק פילה",
+    "category": "דגים",
+    "icon": "🐟",
+    "price": 74.9,
+    "barcode": "2900001000040",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "פילה לברק ים",
+    "imageUrl": null
+  },
+  {
+    "name": "כבש טחון",
+    "category": "טלה וכבש",
+    "icon": "🥩",
+    "price": 54.9,
+    "barcode": "2900001000041",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "כבש טחון טרי לקבב",
+    "imageUrl": null
+  },
+  {
+    "name": "כתף טלה",
+    "category": "טלה וכבש",
+    "icon": "🥩",
+    "price": 89.9,
+    "barcode": "2900001000042",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "כתף טלה לצלייה",
+    "imageUrl": null
+  },
+  {
+    "name": "צוואר טלה",
+    "category": "טלה וכבש",
+    "icon": "🥩",
+    "price": 69.9,
+    "barcode": "2900001000043",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "צוואר טלה לבישול איטי",
+    "imageUrl": null
+  },
+  {
+    "name": "לשון טלה",
+    "category": "טלה וכבש",
+    "icon": "🥩",
+    "price": 49.9,
+    "barcode": "2900001000044",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "לשון טלה מנוקה",
+    "imageUrl": null
+  },
+  {
+    "name": "חזה טלה",
+    "category": "טלה וכבש",
+    "icon": "🥩",
+    "price": 79.9,
+    "barcode": "2900001000045",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "חזה טלה עם עצם",
+    "imageUrl": null
+  },
+  {
+    "name": "שוקיים הודו",
+    "category": "הודו",
+    "icon": "🦃",
+    "price": 39.9,
+    "barcode": "2900001000046",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "שוקיים הודו טריות",
+    "imageUrl": null
+  },
+  {
+    "name": "כרעיים הודו",
+    "category": "הודו",
+    "icon": "🦃",
+    "price": 34.9,
+    "barcode": "2900001000047",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "כרעיים הודו טריות",
+    "imageUrl": null
+  },
+  {
+    "name": "הודו טחון",
+    "category": "הודו",
+    "icon": "🦃",
+    "price": 44.9,
+    "barcode": "2900001000048",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "בשר הודו טחון דל שומן",
+    "imageUrl": null
+  },
+  {
+    "name": "שניצל הודו",
+    "category": "הודו",
+    "icon": "🦃",
+    "price": 59.9,
+    "barcode": "2900001000049",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "שניצל הודו בפירורים",
+    "imageUrl": "assets/images/snichel.png"
+  },
+  {
+    "name": "נקניקיות הודו",
+    "category": "הודו",
+    "icon": "🦃",
+    "price": 49.9,
+    "barcode": "2900001000050",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "נקניקיות הודו דלות שומן",
+    "imageUrl": null
+  },
+  {
+    "name": "נקניקיות ווינה",
+    "category": "אחר",
+    "icon": "🌭",
+    "price": 39.9,
+    "barcode": "2900001000051",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "נקניקיות ווינה עדינות",
+    "imageUrl": null
+  },
+  {
+    "name": "פסטרמה",
+    "category": "אחר",
+    "icon": "🥩",
+    "price": 89.9,
+    "barcode": "2900001000052",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "פסטרמה מעושנת",
+    "imageUrl": null
+  },
+  {
+    "name": "קורנד ביף",
+    "category": "אחר",
+    "icon": "🥩",
+    "price": 79.9,
+    "barcode": "2900001000053",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "קורנד ביף במלח גס",
+    "imageUrl": null
+  },
+  {
+    "name": "רולדה",
+    "category": "אחר",
+    "icon": "🥩",
+    "price": 74.9,
+    "barcode": "2900001000054",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "רולדת בשר ממולאת",
+    "imageUrl": null
+  },
+  {
+    "name": "צ'וריסוס",
+    "category": "אחר",
+    "icon": "🌭",
+    "price": 64.9,
+    "barcode": "2900001000055",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "נקניקיות צ'וריסוס חריפות",
+    "imageUrl": null
+  },
+  {
+    "name": "כנפיים הודו",
+    "category": "הודו",
+    "icon": "🦃",
+    "price": 29.9,
+    "barcode": "2900001000056",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "כנפיים הודו טריות",
+    "imageUrl": null
+  },
+  {
+    "name": "סטייק כבש",
+    "category": "טלה וכבש",
+    "icon": "🥩",
+    "price": 139.9,
+    "barcode": "2900001000057",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "סטייק כבש מובחר",
+    "imageUrl": null
+  },
+  {
+    "name": "בייקון",
+    "category": "אחר",
+    "icon": "🥓",
+    "price": 59.9,
+    "barcode": "2900001000058",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "בייקון מעושן פרוס",
+    "imageUrl": null
+  },
+  {
+    "name": "סלמי",
+    "category": "אחר",
+    "icon": "🌭",
+    "price": 84.9,
+    "barcode": "2900001000059",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "סלמי איטלקי מיושן",
+    "imageUrl": null
+  },
+  {
+    "name": "כבדי טלה",
+    "category": "טלה וכבש",
+    "icon": "🥩",
+    "price": 44.9,
+    "barcode": "2900001000060",
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "store": "אטליז",
+    "description": "כבדי טלה טריים",
     "imageUrl": null
   }
 ]
