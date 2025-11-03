@@ -1,4 +1,4 @@
-# 📋 MemoZap Project Instructions v4.11
+# 📋 MemoZap Project Instructions v4.12
 
 > Machine-Readable | Full YAML Format | Updated: 03/11/2025
 
@@ -227,6 +227,7 @@ docs_5_files:
   TECH.md:
     content: Firebase + Security + Models
     size: 400_lines
+    version: v1.4
     read_when:
       - עבודה עם Firestore
       - household_id security
@@ -235,6 +236,7 @@ docs_5_files:
   CODE_REVIEW_CHECKLIST.md:
     content: Review protocol + Dead code detection
     size: 300_lines
+    version: v2.5
     read_when:
       - user says "תבדוק [file]"
       - לפני commit
@@ -363,7 +365,7 @@ code_review_protocol:
     
     Impact: DELETING ACTIVE CODE breaks entire app!
     Rule: When in doubt - DON'T DELETE!
-    Step 7: For large files, ask user to verify with PowerShell (see CODE_REVIEW_CHECKLIST v2.3)
+    Step 7: For large files, ask user to verify with PowerShell (see CODE_REVIEW_CHECKLIST v2.5)
     
     Real mistakes: sessions 41, 43, 48, 49 (4 active files almost deleted)
 ```
@@ -835,6 +837,20 @@ error_11_most_recent:
   fix_16: Use list_directory recursively to find files, NOT search_files for filenames
   learning_16: search_files good for code patterns, BAD for finding files by name
   impact_16: MEDIUM - wastes time, requires manual directory navigation
+  
+  error_17: Ignoring user context during work continuation (session 50)
+  cause_17: When user says "תבדוק מה צריך עדכון", started reviewing without checking actual project state first
+  symptom_17: Worked on wrong assumptions, missed critical context from memory
+  fix_17: ALWAYS read current memory entities before starting work to understand context
+  learning_17: Memory exists for a reason - use it to inform decisions, don't work in vacuum
+  impact_17: MEDIUM - worked on wrong assumptions, had to restart with proper context
+  
+  error_18: Incomplete code review protocol execution (session 50)
+  cause_18: Suggested reviewing ManageUsersScreen but didn't complete the actual review process with checklist
+  symptom_18: Identified files to review but didn't perform actual review when user asked
+  fix_18: When user asks "תבדוק", must follow complete CODE_REVIEW_CHECKLIST protocol (read file → search usage → apply checklist → format response)
+  learning_18: Don't just identify files to review - actually PERFORM the review when asked
+  impact_18: MEDIUM - user had to explicitly ask "תבדוק" again to get actual review
 
 top_6_common_errors:
   1:
@@ -1031,7 +1047,14 @@ critical_checklist_before_commit:
 - ✅ Solution: Use list_directory for finding files, search_files only for code patterns
 - ✅ Impact: Prevents time waste on unreliable tool for wrong use case
 
+**Updates v4.12 (session 50 - DOCUMENTATION SYNC):**
+- ✅ Updated CODE_REVIEW_CHECKLIST.md version: v2.4 → v2.5
+- ✅ Updated TECH.md version: v1.3 → v1.4
+- ✅ Added error_17: Ignoring user context during work continuation
+- ✅ Added error_18: Incomplete code review protocol execution
+- ✅ Impact: Better protocol adherence, use memory before starting work
+
 **Total:** 500 lines | Format: Pure YAML  
-**Version:** 4.11
+**Version:** 4.12
 **Last Updated:** 03/11/2025  
 **Maintainer:** MemoZap AI System
