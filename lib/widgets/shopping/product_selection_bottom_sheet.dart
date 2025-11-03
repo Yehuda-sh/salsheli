@@ -26,6 +26,7 @@ import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../models/receipt.dart';
 import '../../models/shopping_list.dart';
+import '../../models/unified_list_item.dart';
 import '../../providers/products_provider.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../providers/user_context.dart';
@@ -47,7 +48,6 @@ class ProductSelectionBottomSheet extends StatefulWidget {
 
 class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomSheet> with TickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
-  final TextEditingController _customQuantityController = TextEditingController(text: '1');
 
   ProductsProvider? _productsProvider;
   late UserContext _userContext;
@@ -58,6 +58,10 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
   late AnimationController _slideController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+
+  // ✅ פידבק הוספת מוצר
+  String? _lastAddedProduct;
+  String? _addingProductId;
 
   @override
   void initState() {
@@ -108,8 +112,94 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
     _fadeController.dispose();
     _slideController.dispose();
     _searchController.dispose();
-    _customQuantityController.dispose();
     super.dispose();
+  }
+
+  /// 📝 עדכון כמות למוצר קיים
+  Future<void> _updateProductQuantity(
+    Map<String, dynamic> product,
+    int newQuantity,
+  ) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final theme = Theme.of(context);
+    final provider = context.read<ShoppingListsProvider>();
+    final productName = product['name'] as String;
+    final productId = product['id']?.toString() ?? productName;
+
+    setState(() {
+      _addingProductId = productId;
+    });
+
+    debugPrint('🔄 ProductSelectionBottomSheet: מעדכן "$productName" לכמות $newQuantity');
+
+    try {
+      // מצא את הפריט ברשימה
+      final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id);
+      final itemIndex = currentList.items.indexWhere(
+        (item) => item.name.toLowerCase() == productName.toLowerCase(),
+      );
+
+      if (itemIndex != -1) {
+        if (newQuantity <= 0) {
+          // מחק את הפריט אם הכמות 0
+          await provider.removeItemFromList(widget.list.id, itemIndex);
+          debugPrint('   🗑️ פריט נמחק (כמות 0)');
+          
+          if (!mounted) return;
+          setState(() {
+            _lastAddedProduct = '$productName הוסר מהרשימה';
+            _addingProductId = null;
+          });
+        } else {
+          // עדכן את הכמות
+          final currentItem = currentList.items[itemIndex];
+          final updatedItem = currentItem.copyWith(
+            productData: {
+              ...?currentItem.productData,
+              'quantity': newQuantity,
+            },
+          );
+          
+          await provider.updateItemAt(
+            widget.list.id,
+            itemIndex,
+            (_) => updatedItem,
+          );
+
+          if (!mounted) return;
+
+          setState(() {
+            _lastAddedProduct = '$productName (עודכן ל-$newQuantity)';
+            _addingProductId = null;
+          });
+          
+          debugPrint('   ✅ עודכן לכמות $newQuantity');
+        }
+
+        Future.delayed(const Duration(seconds: 2), () {
+          if (mounted) {
+            setState(() {
+              _lastAddedProduct = null;
+            });
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint('   ❌ שגיאה: $e');
+      if (!mounted) return;
+
+      setState(() {
+        _addingProductId = null;
+      });
+
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('שגיאה בעדכון מוצר: ${e.toString()}'),
+          backgroundColor: theme.colorScheme.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   Future<void> _addProduct(Map<String, dynamic> product) async {
@@ -117,7 +207,13 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
     final theme = Theme.of(context);
 
     final provider = context.read<ShoppingListsProvider>();
-    final quantity = int.tryParse(_customQuantityController.text.trim()) ?? 1;
+    const quantity = 1; // תמיד מתחיל ב-1, משנים דרך +/-
+    final productId = product['id']?.toString() ?? product['name'].toString();
+
+    // 🎬 הצג אנימציה על הכפתור
+    setState(() {
+      _addingProductId = productId;
+    });
 
     debugPrint('➕ ProductSelectionBottomSheet: מוסיף "${product['name']}" (x$quantity)');
 
@@ -142,16 +238,27 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
 
       if (!mounted) return;
 
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text('${newItem.name} נוסף לרשימה'),
-          duration: kSnackBarDuration,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      // ✅ הצג הודעה בולטת למעלה
+      setState(() {
+        _lastAddedProduct = newItem.name;
+        _addingProductId = null;
+      });
+
+      // 🎬 הסתר את ההודעה אחרי 2 שניות
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          setState(() {
+            _lastAddedProduct = null;
+          });
+        }
+      });
     } catch (e) {
       debugPrint('   ❌ שגיאה: $e');
       if (!mounted) return;
+
+      setState(() {
+        _addingProductId = null;
+      });
 
       messenger.showSnackBar(
         SnackBar(
@@ -264,39 +371,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                           ),
                         ),
 
-                        const SizedBox(height: kSpacingTiny),
-
-                        // כמות
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
-                          child: Row(
-                            children: [
-                              Text(AppStrings.listDetails.quantityLabel),
-                              const SizedBox(width: kSpacingSmall),
-                              SizedBox(
-                                width: kFieldWidthNarrow,
-                                child: TextField(
-                                  controller: _customQuantityController,
-                                  keyboardType: TextInputType.number,
-                                  textAlign: TextAlign.center,
-                                  decoration: InputDecoration(
-                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall)),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: kSpacingSmall,
-                                      vertical: kSpacingSmallPlus,
-                                    ),
-                                    filled: true,
-                                    fillColor: cs.surfaceContainerHighest,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: kSpacingSmall),
-                              Text('יחידות', style: TextStyle(color: cs.onSurfaceVariant)),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(height: kSpacingTiny),
+                        const SizedBox(height: kSpacingSmall),
 
                         // רשימת מוצרים
                         Expanded(child: _buildProductsList(productsProvider, products, cs, scrollController)),
@@ -304,6 +379,59 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                     ),
                   ),
                 ),
+
+                // ✅ באנר הצלחה צף - לא משפיע על layout
+                if (_lastAddedProduct != null)
+                  Positioned(
+                    top: 80,
+                    left: kSpacingMedium,
+                    right: kSpacingMedium,
+                    child: TweenAnimationBuilder<double>(
+                      key: ValueKey(_lastAddedProduct), // מונע rebuild בזמן אנימציה
+                      duration: const Duration(milliseconds: 400),
+                      tween: Tween(begin: 0.0, end: 1.0),
+                      curve: Curves.easeOutBack,
+                      builder: (context, value, child) {
+                        return Transform.translate(
+                          offset: Offset(0, -20 * (1 - value)),
+                          child: Opacity(
+                            opacity: value.clamp(0.0, 1.0), // ✅ מגביל בין 0-1
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(kSpacingMedium),
+                        decoration: BoxDecoration(
+                          color: kStickyGreen,
+                          borderRadius: BorderRadius.circular(kBorderRadius),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.3),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.check_circle, color: Colors.white, size: 24),
+                            const SizedBox(width: kSpacingSmall),
+                            Expanded(
+                              child: Text(
+                                '$_lastAddedProduct נוסף לרשימה! ✓',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
           );
@@ -437,6 +565,20 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
   final description = product['description'] as String?;
   final hasImage = product['imageUrl'] != null;
 
+  // 🔍 בדיקה אם המוצר כבר ברשימה
+  final provider = context.read<ShoppingListsProvider>();
+  final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id);
+  UnifiedListItem? existingItem;
+  try {
+    existingItem = currentList.items.firstWhere(
+      (item) => item.name.toLowerCase() == name.toLowerCase(),
+    );
+  } catch (_) {
+    existingItem = null;
+  }
+  final currentQuantity = existingItem?.quantity ?? 0;
+  final isInList = existingItem != null;
+
   // צבעים לפי קטגוריה
   final Color stickyColor = _getCategoryColor(category);
 
@@ -497,7 +639,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                     if (description != null)
                       Text(
                         description,
-                        style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+                        style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -510,11 +652,11 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                             color: cs.secondaryContainer,
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: Text(category, style: TextStyle(fontSize: 10, color: cs.onSecondaryContainer)),
+                          child: Text(category, style: TextStyle(fontSize: 12, color: cs.onSecondaryContainer)),
                         ),
                         if (manufacturer != null) ...[
                           const SizedBox(width: 4),
-                          Text('• $manufacturer', style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant)),
+                          Text('• $manufacturer', style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
                         ],
                       ],
                     ),
@@ -522,22 +664,97 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                 ),
               ),
               const SizedBox(width: kSpacingSmall),
-              // כפתור הוספה
-              AnimatedButton(
-                onPressed: () => _addProduct(product),
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: kStickyGreen,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4, offset: const Offset(0, 2)),
-                    ],
-                  ),
-                  child: const Icon(Icons.add, color: Colors.white, size: 20),
-                ),
-              ),
+              // כפתור הוספה/עדכון עם אנימציה
+              isInList
+                  ? Row(
+                      children: [
+                        // כפתור פלוס (ראשון בקוד = ימין במסך RTL)
+                        AnimatedButton(
+                          onPressed: () => _updateProductQuantity(product, currentQuantity + 1),
+                          child: Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: kStickyGreen,
+                              borderRadius: BorderRadius.circular(22),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.2),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(Icons.add, color: Colors.white, size: 20),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        // כמות נוכחית (מרכז)
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: kStickyCyan,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            '$currentQuantity',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        // כפתור מינוס (אחרון בקוד = שמאל במסך RTL)
+                        AnimatedButton(
+                          onPressed: () => _updateProductQuantity(product, currentQuantity - 1),
+                          child: Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: kStickyPink,
+                              borderRadius: BorderRadius.circular(22),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.2),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(Icons.remove, color: Colors.white, size: 20),
+                          ),
+                        ),
+                      ],
+                    )
+                  : AnimatedButton(
+                      onPressed: () => _addProduct(product),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: _addingProductId == (product['id']?.toString() ?? product['name'].toString())
+                              ? Colors.green.shade700
+                              : kStickyGreen,
+                          borderRadius: BorderRadius.circular(22),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: _addingProductId == (product['id']?.toString() ?? product['name'].toString()) ? 0.4 : 0.2),
+                              blurRadius: _addingProductId == (product['id']?.toString() ?? product['name'].toString()) ? 8 : 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: AnimatedScale(
+                          scale: _addingProductId == (product['id']?.toString() ?? product['name'].toString()) ? 1.2 : 1.0,
+                          duration: const Duration(milliseconds: 300),
+                          child: const Icon(Icons.add, color: Colors.white, size: 22),
+                        ),
+                      ),
+                    ),
             ],
           ),
         ),

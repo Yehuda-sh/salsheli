@@ -1,6 +1,6 @@
-# 📋 MemoZap Project Instructions v4.9
+# 📋 MemoZap Project Instructions v4.11
 
-> Machine-Readable | Full YAML Format | Updated: 02/11/2025
+> Machine-Readable | Full YAML Format | Updated: 03/11/2025
 
 ---
 
@@ -31,9 +31,11 @@ project:
 ```yaml
 filesystem_primary_80_percent:
   read_file:
-    usage: קריאת קבצים
+    usage: קריאת קבצים Windows paths
     params: path, view_range (optional)
     example: read_file("C:\projects\salsheli\lib\models\task.dart")
+    critical: Use this for Windows paths (C:\), NOT view tool!
+    note: view tool requires Linux paths (/mnt/...) - use read_file for project files
   
   edit_file:
     usage: עריכת קבצים קיימים
@@ -63,9 +65,14 @@ filesystem_primary_80_percent:
       Always use write_file for new files
   
   search_files:
-    usage: חיפוש בפרויקט
+    usage: חיפוש בפרויקט (code patterns ONLY!)
     params: path, pattern, excludePatterns
     example: search_files("C:\projects\salsheli\lib", "kCategories")
+    warning: NOT reliable for finding files by name!
+    note: |
+      search_files good for: code patterns, class names, constants
+      search_files BAD for: finding files by filename
+      Use list_directory instead for finding files
   
   list_directory:
     usage: רשימת תיכנים
@@ -581,6 +588,11 @@ never_do:
     why: User explicitly prefers edit_file
     use: Filesystem:edit_file always
   
+  view_tool_windows_paths:
+    why: view requires Linux paths (/mnt/...), not Windows (C:\)
+    use: Filesystem:read_file for ALL project files
+    impact: HIGH - wastes tool calls
+  
   sequential_thinking_simple:
     why: Waste tokens on 1-2 step fixes
     use: Only for complex 5+ step problems
@@ -809,6 +821,20 @@ error_11_most_recent:
   fix_14: ALWAYS check widgets/common/ files for component imports
   learning_14: Shared components are often imported by other shared components
   impact_14: CRITICAL - almost deleted 98 lines of active animation code, user caught with PowerShell
+  
+  error_15: view tool with Windows paths (session 50)
+  cause_15: Used view("C:\\projects\\salsheli\\...") - view requires Linux paths (/mnt/...)
+  symptom_15: Tool fails silently or returns incorrect results
+  fix_15: ALWAYS use Filesystem:read_file for Windows paths
+  learning_15: view tool = Linux paths only (/mnt/...), Filesystem:read_file = Windows paths (C:\)
+  impact_15: HIGH - wastes tool calls, delays work
+  
+  error_16: search_files unreliable for finding files by name (session 50)
+  cause_16: Used search_files("add_product_dialog") returned "No matches found" but file exists
+  symptom_16: search_files returns 0 results even when file exists in project
+  fix_16: Use list_directory recursively to find files, NOT search_files for filenames
+  learning_16: search_files good for code patterns, BAD for finding files by name
+  impact_16: MEDIUM - wastes time, requires manual directory navigation
 
 top_6_common_errors:
   1:
@@ -993,7 +1019,19 @@ critical_checklist_before_commit:
 - ✅ New pattern: shared components import other shared components
 - ✅ Impact: Documented 5th false positive, emphasizing component checks
 
+**Updates v4.10 (session 50 - VIEW TOOL FIX):**
+- ✅ Added error_15: view tool with Windows paths
+- ✅ Enhanced read_file documentation: critical note about Windows paths
+- ✅ Added view_tool_windows_paths to ANTI-PATTERNS
+- ✅ Impact: Prevents wasting tool calls on wrong tool usage
+
+**Updates v4.11 (session 50 - SEARCH_FILES LIMITATION):**
+- ✅ Added error_16: search_files unreliable for finding files by name
+- ✅ Enhanced search_files documentation: warning + usage notes
+- ✅ Solution: Use list_directory for finding files, search_files only for code patterns
+- ✅ Impact: Prevents time waste on unreliable tool for wrong use case
+
 **Total:** 500 lines | Format: Pure YAML  
-**Version:** 4.9
-**Last Updated:** 02/11/2025  
+**Version:** 4.11
+**Last Updated:** 03/11/2025  
 **Maintainer:** MemoZap AI System
