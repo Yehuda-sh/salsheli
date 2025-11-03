@@ -649,7 +649,10 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
         floatingActionButton: ScaleTransition(
           scale: fabAnimation,
           child: Padding(
-            padding: const EdgeInsets.all(kSpacingMedium),
+            padding: const EdgeInsets.only(
+              left: kSpacingMedium, // שמאל המסך
+              bottom: kSpacingMedium,
+            ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -856,13 +859,17 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
 
 
-  /// 📋 רשימה שטוחה (flat) עם Staggered Animation
+  /// 📋 רשימה שטוחה (flat) עם Staggered Animation - מסונכרן עם שורות המחברת
   Widget _buildFlatList(List<UnifiedListItem> items, ThemeData theme) {
     final stickyColors = [kStickyYellow, kStickyPink, kStickyGreen, kStickyCyan];
-    final stickyRotations = [0.01, -0.015, 0.01, -0.01];
 
     return ListView.builder(
-      padding: const EdgeInsets.all(kSpacingMedium),
+      padding: const EdgeInsets.only(
+        top: kNotebookLineSpacing - 8, // מעט לפני השורה הראשונה
+        left: kNotebookRedLineOffset + kSpacingSmall, // אחרי הקו האדום
+        right: kSpacingMedium,
+        bottom: kSpacingMedium,
+      ),
       itemCount: items.length,
       itemBuilder: (context, index) {
         final item = items[index];
@@ -879,25 +886,26 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
               child: Opacity(opacity: value, child: child),
             );
           },
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: kSpacingMedium),
-            child: _buildItemCard(item, originalIndex, theme, stickyColors[colorIndex], stickyRotations[colorIndex]),
-          ),
+          child: _buildItemCard(item, originalIndex, theme, stickyColors[colorIndex], 0.0), // rotation = 0
         );
       },
     );
   }
 
-  /// 🏷️ רשימה מקובצת לפי קטגוריה
+  /// 🏷️ רשימה מקובצת לפי קטגוריה - מסונכרן עם שורות המחברת
   Widget _buildGroupedList(List<UnifiedListItem> items, ThemeData theme) {
     final grouped = _groupItemsByCategory(items);
     final categories = grouped.keys.toList()..sort();
     final stickyColors = [kStickyYellow, kStickyPink, kStickyGreen, kStickyCyan];
-    final stickyRotations = [0.01, -0.015, 0.01, -0.01];
     int globalIndex = 0;
 
     return ListView.builder(
-      padding: const EdgeInsets.all(kSpacingMedium),
+      padding: const EdgeInsets.only(
+        top: kNotebookLineSpacing - 8, // מעט לפני השורה הראשונה
+        left: kNotebookRedLineOffset + kSpacingSmall, // אחרי הקו האדום
+        right: kSpacingMedium,
+        bottom: kSpacingMedium,
+      ),
       itemCount: categories.length,
       itemBuilder: (context, catIndex) {
         final category = categories[catIndex];
@@ -918,10 +926,10 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
             children: [
               // כותרת קטגוריה
               Padding(
-                padding: const EdgeInsets.only(bottom: kSpacingMedium),
+                padding: const EdgeInsets.only(bottom: kNotebookLineSpacing),
                 child: StickyNote(
                   color: kStickyPurple,
-                  rotation: -0.01,
+                  rotation: 0.0, // ישר כמו כתיבה במחברת
                   child: Padding(
                     padding: const EdgeInsets.all(kSpacingMedium),
                     child: Row(
@@ -951,15 +959,12 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                 final originalIndex = widget.list.items.indexOf(item);
                 final colorIndex = globalIndex % stickyColors.length;
                 globalIndex++;
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: kSpacingMedium),
-                  child: _buildItemCard(
-                    item,
-                    originalIndex,
-                    theme,
-                    stickyColors[colorIndex],
-                    stickyRotations[colorIndex],
-                  ),
+                return _buildItemCard(
+                  item,
+                  originalIndex,
+                  theme,
+                  stickyColors[colorIndex],
+                  0.0, // rotation = 0
                 );
               }),
             ],
@@ -969,11 +974,10 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     );
   }
 
-  /// 🎴 כרטיס פריט מונפש - עם תמונה
+  /// 🎴 כרטיס פריט מונפש - עם תמונה - ישירות על שורות המחברת (minimal)
   Widget _buildItemCard(UnifiedListItem item, int index, ThemeData theme, Color stickyColor, double rotation) {
     // 🎯 איקונים וצבעים לפי סוג
     final isProduct = item.type == ItemType.product;
-    final actualColor = isProduct ? kStickyYellow : kStickyCyan;
 
     // קטגוריה עם אימוג'י
     final category = item.category ?? AppStrings.listDetails.categoryOther;
@@ -1006,190 +1010,169 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
         );
       },
       onDismissed: (_) => _deleteItem(context, item),
-      child: StickyNote(
-        color: actualColor,
-        rotation: rotation,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.all(kSpacingMedium),
-          decoration: BoxDecoration(
-            color: item.isChecked ? theme.colorScheme.surfaceContainerHighest : theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(kBorderRadius),
-          ),
-          child: Row(
-            children: [
-              // 🖼️ תמונת מוצר
-              _buildProductImage(item, theme),
-              
-              const SizedBox(width: kSpacingMedium),
-
-              // ✅ Checkbox
-              AnimatedSwitcher(
+      child: Container(
+        height: kNotebookLineSpacing, // 40px = שורה אחת במחברת (סינכרון!)
+        decoration: !isProduct ? BoxDecoration(
+          color: kStickyPurple.withValues(alpha: 0.3), // רקע סגול בולט (כמו highlighter!)
+          borderRadius: BorderRadius.circular(4),
+        ) : null,
+        child: Row(
+          children: [
+            // ✅ Checkbox - שמאל
+            AnimatedSwitcher(
               duration: const Duration(milliseconds: 200),
               child: AnimatedButton(
-              onPressed: () {
-                    final provider = context.read<ShoppingListsProvider>();
-                    // מצא את האינדקס המקורי ברשימה
-                    final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id);
-                    final originalIndex = currentList.items.indexWhere((i) => i.id == item.id);
-                    
-                    if (originalIndex != -1) {
-                      provider.updateItemAt(
-                        widget.list.id,
-                        originalIndex,
-                        (current) => current.copyWith(isChecked: !current.isChecked),
-                      );
-                    }
-                  },
-                  child: item.isChecked
-                      ? Icon(
-                          Icons.check_circle,
-                          key: const ValueKey('checked'),
-                          color: theme.colorScheme.primary,
-                          size: kIconSizeMedium,
-                        )
-                      : Icon(
-                          Icons.radio_button_unchecked,
-                          key: const ValueKey('unchecked'),
-                          color: theme.colorScheme.onSurfaceVariant,
-                          size: kIconSizeMedium,
-                        ),
+                onPressed: () {
+                  final provider = context.read<ShoppingListsProvider>();
+                  final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id);
+                  final originalIndex = currentList.items.indexWhere((i) => i.id == item.id);
+                  
+                  if (originalIndex != -1) {
+                    provider.updateItemAt(
+                      widget.list.id,
+                      originalIndex,
+                      (current) => current.copyWith(isChecked: !current.isChecked),
+                    );
+                  }
+                },
+                child: Icon(
+                  item.isChecked ? Icons.check_circle : Icons.radio_button_unchecked,
+                  key: ValueKey(item.isChecked),
+                  color: item.isChecked 
+                      ? theme.colorScheme.primary 
+                      : theme.colorScheme.onSurfaceVariant,
+                  size: 22,
                 ),
               ),
+            ),
 
-              const SizedBox(width: kSpacingSmall),
+            const SizedBox(width: kSpacingSmall),
 
-              // 📝 שם + קטגוריה + מחיר
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
+            // 📝 שם + קטגוריה - במרכז (פונט גדול ובולט)
+            Expanded(
+              child: AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 200),
+                style: theme.textTheme.bodyLarge!.copyWith(
+                  decoration: item.isChecked ? TextDecoration.lineThrough : null,
+                  color: item.isChecked 
+                      ? theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6)
+                      : theme.colorScheme.onSurface,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start, // יישור לשמאל (לא צמוד ל-checkbox)
                   children: [
-                    AnimatedDefaultTextStyle(
-                      duration: const Duration(milliseconds: 200),
-                      style: theme.textTheme.titleSmall!.copyWith(
-                        decoration: item.isChecked ? TextDecoration.lineThrough : null,
-                        color: item.isChecked ? theme.colorScheme.onSurfaceVariant : theme.colorScheme.onSurface,
-                        fontWeight: FontWeight.w600,
+                    Flexible(
+                      child: Text(
+                        item.name ?? 'ללא שם',
+                        maxLines: 1,
+                        overflow: TextOverflow.clip, // חיתוך ללא נקודות
+                        textAlign: TextAlign.start,
                       ),
-                      child: Text(item.name ?? 'ללא שם', maxLines: 2, overflow: TextOverflow.ellipsis),
                     ),
-                    const SizedBox(height: 2),
-                    Row(
-                      children: [
-                        Text(
-                          categoryEmoji,
-                          style: const TextStyle(fontSize: 12),
+                    if (isProduct) ...[
+                      const SizedBox(width: 8),
+                      // 🔢 תג כמות מעוצב
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          isProduct ? AppStrings.listDetails.quantityDisplay(item.quantity ?? 1) : AppStrings.listDetails.taskLabel,
-                          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primaryContainer,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                            width: 1,
+                          ),
                         ),
-                        // מחירים מוסתרים לפי בקשת המשתמש
-                      ],
-                    ),
+                        child: Text(
+                          '×${item.quantity ?? 1}',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onPrimaryContainer,
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
+            ),
 
-              // 🔘 כפתורי פעולה
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                  icon: const Icon(Icons.edit, size: 18),
-                  color: Colors.blue,
-                  tooltip: AppStrings.listDetails.editTooltip,
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                    onPressed: () {
-                      if (isProduct) {
-                        _showItemDialog(context, item: item);
-                      } else {
-                        _showTaskDialog(context, item: item);
-                      }
-                    },
-                  ),
-                  IconButton(
-                  icon: const Icon(Icons.delete, size: 18),
-                  color: Colors.red,
-                  tooltip: AppStrings.listDetails.deleteTooltip,
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                    onPressed: () => _deleteItem(context, item),
-                  ),
-                ],
+            const SizedBox(width: kSpacingSmall),
+
+            // 🖼️ תמונת מוצר - מוסתרת כרגע
+            // Container(
+            //   width: 48,
+            //   height: 48,
+            //   decoration: BoxDecoration(
+            //     color: theme.colorScheme.surfaceContainerHighest,
+            //     borderRadius: BorderRadius.circular(6),
+            //     border: Border.all(
+            //       color: theme.colorScheme.outline.withValues(alpha: 0.2),
+            //       width: 1,
+            //     ),
+            //   ),
+            //   child: ClipRRect(
+            //     borderRadius: BorderRadius.circular(5),
+            //     child: item.imageUrl != null && item.imageUrl!.isNotEmpty
+            //         ? Image.network(
+            //             item.imageUrl!,
+            //             fit: BoxFit.cover,
+            //             errorBuilder: (_, __, ___) => Icon(
+            //               isProduct ? Icons.shopping_bag : Icons.task_alt,
+            //               size: 24,
+            //               color: theme.colorScheme.onSurfaceVariant,
+            //             ),
+            //           )
+            //         : Icon(
+            //             isProduct ? Icons.shopping_bag : Icons.task_alt,
+            //             size: 24,
+            //             color: theme.colorScheme.onSurfaceVariant,
+            //           ),
+            //   ),
+            // ),
+
+            const SizedBox(width: kSpacingSmall),
+
+            // ✏️ כפתור עריכה - צמוד למחיקה
+            Transform.translate(
+              offset: const Offset(-56, 0), // צמוד למחיקה (אותו offset)
+              child: IconButton(
+                icon: const Icon(Icons.edit_outlined, size: 18),
+                color: theme.colorScheme.primary,
+                tooltip: AppStrings.listDetails.editTooltip,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                onPressed: () {
+                  if (isProduct) {
+                    _showItemDialog(context, item: item);
+                  } else {
+                    _showTaskDialog(context, item: item);
+                  }
+                },
               ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+            ),
 
-  /// 🖼️ בניית תמונת מוצר עם placeholder
-  Widget _buildProductImage(UnifiedListItem item, ThemeData theme) {
-    final hasImage = item.imageUrl != null && item.imageUrl!.isNotEmpty;
-    final isProduct = item.type == ItemType.product;
+            const SizedBox(width: kSpacingSmall),
 
-    return Container(
-      width: 60,
-      height: 60,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(kBorderRadius),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.3),
-          width: 1,
+            // 🗑️ כפתור מחיקה - ימין ממש (מעבר לפס האדום!)
+            Transform.translate(
+              offset: const Offset(-56, 0), // דוחף הרבה יותר ימינה (56px)
+              child: IconButton(
+                icon: const Icon(Icons.delete_outline, size: 18),
+                color: theme.colorScheme.error,
+                tooltip: AppStrings.listDetails.deleteTooltip,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                onPressed: () => _deleteItem(context, item),
+              ),
+            ),
+          ],
         ),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(kBorderRadius - 1),
-        child: hasImage
-            ? Image.network(
-                item.imageUrl!,
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Center(
-                    child: SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                            : null,
-                        strokeWidth: 2,
-                      ),
-                    ),
-                  );
-                },
-                errorBuilder: (context, error, stackTrace) {
-                  return _buildPlaceholderIcon(isProduct, theme);
-                },
-              )
-            : _buildPlaceholderIcon(isProduct, theme),
-      ),
-    );
-  }
-
-  /// 🎨 אייקון placeholder כשאין תמונה
-  Widget _buildPlaceholderIcon(bool isProduct, ThemeData theme) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: isProduct
-              ? [Colors.amber.shade100, Colors.amber.shade200]
-              : [Colors.blue.shade100, Colors.blue.shade200],
-        ),
-      ),
-      child: Icon(
-        isProduct ? Icons.shopping_bag : Icons.task_alt,
-        color: isProduct ? Colors.amber.shade700 : Colors.blue.shade700,
-        size: 32,
       ),
     );
   }
