@@ -82,23 +82,12 @@ service cloud.firestore {
     // קבלת תפקיד המשתמש ברשימה
     // ✅ מתוקן: שימוש ב-created_by במקום user_id + בדיקות null
     function getUserRole(listId) {
-      let list = get(/databases/$(database)/documents/shopping_lists/$(listId));
-      
-      // בדיקה אם המשתמש הוא הבעלים (created_by)
-      if (list.data.created_by == request.auth.uid) {
-        return 'owner';
-      }
-      
-      // חיפוש ברשימת sharedUsers
-      // Firestore rules לא תומך ב-filter(), נבדוק בדרך אחרת
-      let sharedUsers = list.data.sharedUsers;
-      
-      // נעבור על המערך ונחפש את המשתמש
-      // מכיוון ש-Firestore rules מוגבל, נשתמש בגישה פשוטה יותר
-      // נניח שהמערך קטן (עד 10 משתמשים משותפים)
-      return sharedUsers != null && sharedUsers.size() > 0 ? 
-             checkUserInSharedList(sharedUsers, request.auth.uid) : 
-             null;
+      return get(/databases/$(database)/documents/shopping_lists/$(listId)).data.created_by == request.auth.uid
+        ? 'owner'
+        : (get(/databases/$(database)/documents/shopping_lists/$(listId)).data.sharedUsers != null && 
+           get(/databases/$(database)/documents/shopping_lists/$(listId)).data.sharedUsers.size() > 0
+            ? checkUserInSharedList(get(/databases/$(database)/documents/shopping_lists/$(listId)).data.sharedUsers, request.auth.uid)
+            : null);
     }
     
     // פונקציה עזר לחיפוש משתמש ברשימת sharedUsers
@@ -134,17 +123,10 @@ service cloud.firestore {
     // בדיקה אם המשתמש חבר ברשימה (כולל Viewer)
     // ✅ מתוקן: שימוש ב-created_by + בדיקה ללא filter()
     function isListMember(listId) {
-      let list = get(/databases/$(database)/documents/shopping_lists/$(listId));
-      
-      // בעלים = תמיד חבר
-      if (list.data.created_by == request.auth.uid) {
-        return true;
-      }
-      
-      // בדיקה אם קיים ב-sharedUsers
-      let sharedUsers = list.data.sharedUsers;
-      return sharedUsers != null && sharedUsers.size() > 0 && 
-             checkUserInSharedList(sharedUsers, request.auth.uid) != null;
+      return get(/databases/$(database)/documents/shopping_lists/$(listId)).data.created_by == request.auth.uid ||
+             (get(/databases/$(database)/documents/shopping_lists/$(listId)).data.sharedUsers != null && 
+              get(/databases/$(database)/documents/shopping_lists/$(listId)).data.sharedUsers.size() > 0 && 
+              checkUserInSharedList(get(/databases/$(database)/documents/shopping_lists/$(listId)).data.sharedUsers, request.auth.uid) != null);
     }
     
     // בדיקה אם יכול לאשר בקשות (Owner או Admin)
