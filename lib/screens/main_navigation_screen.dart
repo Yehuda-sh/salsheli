@@ -1,44 +1,18 @@
 // 📄 File: lib/screens/main_navigation_screen.dart
 //
-// 🇮🇱 **מסך הניווט הראשי** - Main Navigation Shell
+// 🇮🇱 **מסך הניווט הראשי** - Bottom Navigation Shell
 //
-// **מבנה:**
-// - Bottom Navigation Bar עם 4 טאבים
-// - AnimatedSwitcher עם fade transitions (200ms)
-// - Badges דינמיים (מספר רשימות פעילות)
-// - יציאה בטוחה (double-tap back)
-//
-// **Tabs:**
+// **4 Tabs:**
 // 0. 🏠 דשבורד - HomeDashboardScreen
-// 1. 📝 רשימות - ShoppingListsScreen (עם badge)
+// 1. 📝 רשימות - ShoppingListsScreen
 // 2. 📦 מזווה - MyPantryScreen
 // 3. ⚙️ הגדרות - SettingsScreen
 //
-// **Dependencies:**
-// - `AppLayout` - Bottom navigation wrapper
+// **Back Button:**
+// - מטאב 1-3 → חזרה לדשבורד (tab 0)
+// - מדשבורד → double-tap ליציאה (2 שניות)
 //
-// **Behavior:**
-// - Back ← מטאב 1-3: חזרה לדשבורד (tab 0)
-// - Back ← מדשבורד: double-tap ליציאה (2 שניות timeout)
-// - SnackBar feedback: "לחץ שוב לסגירת האפליקציה"
-//
-// **Version:** 2.5 (Cleanup & Optimization)
-//
-// **שיפורים בגרסה 2.5 (29/10/2025):**
-// - הסרת 3 imports מיותרים (provider, shopping_list, shopping_lists_provider)
-// - const optimization על _pages list
-// - תיקון סדר imports (alphabetically)
-// - עדכון ui_constants.dart עם 4 קונסטנטות חסרות
-//
-// **שיפורים בגרסה 2.4 (27/10/2025):**
-// - שינוי שם מ-HomeScreen ל-MainNavigationScreen
-// - העברה מ-lib/screens/home/ ל-lib/screens/
-// - שם ברור יותר שמשקף את תפקיד המסך
-//
-// **שיפורים בגרסה 2.3 (26/10/2025):**
-// - Bounds Check: מונע RangeError עם index לא חוקי
-// - 🔍 Debug: לוג כשטאב לא חוקי מזוהה
-// - ציון איכות: 100/100 ✅
+// **Version:** 2.6 (03/11/2025) - Documentation cleanup
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
