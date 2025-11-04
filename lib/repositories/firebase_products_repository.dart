@@ -9,7 +9,7 @@
 // 💾 מצב נוכחי:
 //     ⚠️ לא בשימוש כרגע! הפרויקט משתמש ב-LocalProductsRepository.
 //     לשימוש ב-Firebase:
-//     1. העלה מוצרים ל-Firestore (ראה scripts/upload_to_firebase.js).
+//     1. העלה מוצרים ל-Firestore (upload script required).
 //     2. עדכן main.dart להשתמש ב-FirebaseProductsRepository.
 //     3. ודא ש-firebase_options.dart מוגדר נכון.
 //
@@ -28,7 +28,7 @@
 // 💾 Current state:
 //     ⚠️ Not in use! Project uses LocalProductsRepository.
 //     To use Firebase:
-//     1. Upload products to Firestore (see scripts/upload_to_firebase.js).
+//     1. Upload products to Firestore (upload script required).
 //     2. Update main.dart to use FirebaseProductsRepository.
 //     3. Ensure firebase_options.dart is configured.
 //
@@ -41,7 +41,6 @@
 // 🔗 Related:
 //     - ProductsRepository (interface)
 //     - LocalProductsRepository (current implementation)
-//     - scripts/upload_to_firebase.js (upload script)
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
