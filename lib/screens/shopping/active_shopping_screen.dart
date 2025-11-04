@@ -304,8 +304,8 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
         await Future.delayed(const Duration(milliseconds: 800));
         if (!mounted) return;
 
-        debugPrint('🚪 _saveAndFinish: חוזר למסך קודם');
-        navigator.pop();
+        debugPrint('🚪 _saveAndFinish: מעבר למסך סיכום');
+        navigator.pushReplacementNamed('/shopping-summary', arguments: widget.list.id);
     } catch (e) {
       debugPrint('❌ _saveAndFinish Error: $e');
 
