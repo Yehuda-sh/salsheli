@@ -603,21 +603,22 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                   ],
                 ),
               ),
-            // כפתור שיתוף
-            ScaleTransition(
-              scale: Tween<double>(
-                begin: 0.0,
-                end: 1.0,
-              ).animate(CurvedAnimation(parent: _fabController, curve: Curves.elasticOut)),
-              child: IconButton(
-                icon: const Icon(Icons.share),
-                tooltip: AppStrings.listDetails.shareListTooltip,
-                onPressed: () {
-                  final navigator = Navigator.of(context);
-                  navigator.push(MaterialPageRoute(builder: (context) => ManageUsersScreen(list: currentList)));
-                },
+            // כפתור שיתוף - 🔒 רק Owner/Admin
+            if (currentList.canCurrentUserManage)
+              ScaleTransition(
+                scale: Tween<double>(
+                  begin: 0.0,
+                  end: 1.0,
+                ).animate(CurvedAnimation(parent: _fabController, curve: Curves.elasticOut)),
+                child: IconButton(
+                  icon: const Icon(Icons.share),
+                  tooltip: AppStrings.listDetails.shareListTooltip,
+                  onPressed: () {
+                    final navigator = Navigator.of(context);
+                    navigator.push(MaterialPageRoute(builder: (context) => ManageUsersScreen(list: currentList)));
+                  },
+                ),
               ),
-            ),
             // כפתור הוספה מהקטלוג
             ScaleTransition(
               scale: Tween<double>(
@@ -693,49 +694,51 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
             ),
           ],
         ),
-        floatingActionButton: ScaleTransition(
-          scale: fabAnimation,
-          child: Padding(
-            padding: const EdgeInsets.only(
-              left: kSpacingMedium, // שמאל המסך
-              bottom: kSpacingMedium,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // 📋 הוסף משימה
-                Flexible(
-                  child: StickyButton(
-                    color: kStickyCyan,
-                    label: AppStrings.listDetails.addTaskButton,
-                    icon: Icons.task_alt,
-                    onPressed: () {
-                      _fabController.reverse().then((_) {
-                        _fabController.forward();
-                      });
-                      _showTaskDialog(context);
-                    },
+        floatingActionButton: currentList.canCurrentUserEdit
+            ? ScaleTransition(
+                scale: fabAnimation,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: kSpacingMedium, // שמאל המסך
+                    bottom: kSpacingMedium,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // 📋 הוסף משימה
+                      Flexible(
+                        child: StickyButton(
+                          color: kStickyCyan,
+                          label: AppStrings.listDetails.addTaskButton,
+                          icon: Icons.task_alt,
+                          onPressed: () {
+                            _fabController.reverse().then((_) {
+                              _fabController.forward();
+                            });
+                            _showTaskDialog(context);
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: kSpacingSmall),
+                      // 🛒 הוסף מוצר
+                      Flexible(
+                        child: StickyButton(
+                          color: kStickyYellow,
+                          label: AppStrings.listDetails.addProductButton,
+                          icon: Icons.shopping_basket,
+                          onPressed: () {
+                            _fabController.reverse().then((_) {
+                              _fabController.forward();
+                            });
+                            _showItemDialog(context);
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: kSpacingSmall),
-                // 🛒 הוסף מוצר
-                Flexible(
-                  child: StickyButton(
-                    color: kStickyYellow,
-                    label: AppStrings.listDetails.addProductButton,
-                    icon: Icons.shopping_basket,
-                    onPressed: () {
-                      _fabController.reverse().then((_) {
-                        _fabController.forward();
-                      });
-                      _showItemDialog(context);
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+              )
+            : null, // 🔒 Viewer/Editor אין רשאים להוסיף
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
     );

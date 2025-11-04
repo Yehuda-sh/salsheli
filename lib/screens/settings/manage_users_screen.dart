@@ -54,6 +54,37 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   @override
   void initState() {
     super.initState();
+    debugPrint('📝 ManageUsersScreen: פתיחת מסך ניהול משתמשים');
+
+    // 🔒 Validation: רק Owner/Admin יכולים לנהל
+    if (!widget.list.canCurrentUserManage) {
+      debugPrint('⛔ ManageUsersScreen: אין הרשאה - רק Owner/Admin יכולים לנהל');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          final messenger = ScaffoldMessenger.of(context);
+          final navigator = Navigator.of(context);
+
+          messenger.showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.block, color: kStickyPink),
+                  const SizedBox(width: kSpacingSmall),
+                  const Expanded(
+                    child: Text('אין לך הרשאה לנהל משתמשים (רק Owner/Admin)'),
+                  ),
+                ],
+              ),
+              backgroundColor: kStickyPink,
+            ),
+          );
+
+          navigator.pop();
+        }
+      });
+      return; // אל תטען את הרשימה אם אין הרשאה
+    }
+
     _loadUsers();
   }
 

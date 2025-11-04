@@ -167,11 +167,11 @@ part_a_lists:
         - cannot_edit_anything
     
     completed_ui:
-      - invite_users_screen: 100_percent (with_owner_validation)
-      - pending_requests_screen: 100_percent (with_owner_admin_validation)
+      - invite_users_screen: 100_percent (owner_validation)
+      - pending_requests_screen: 100_percent (owner_admin_validation)
+      - manage_users_screen: 100_percent (owner_admin_validation)
     
     remaining_ui:
-      - manage_users_screen_list_edit_roles
       - shopping_list_details_buttons_by_role
       - notifications_approved_rejected_invited
       - firebase_security_rules
@@ -308,7 +308,8 @@ recent_work:
         - shopping_list_model_6_permission_getters
         - invite_users_screen_owner_validation
         - pending_requests_screen_owner_admin_validation
-      progress: phase_3b_22_to_65_percent
+        - manage_users_screen_owner_admin_validation
+      progress: phase_3b_44_to_65_percent
 ```
 
 ---
@@ -372,9 +373,13 @@ current_status:
         session: 51
         status: 100_percent
         validation: owner_admin_can_view
+      
+      manage_users_screen:
+        session: 51
+        status: 100_percent
+        validation: owner_admin_can_manage
     
     remaining_ui:
-      - manage_users_screen
       - shopping_list_details_buttons_by_role
       - notifications
       - firebase_security_rules
