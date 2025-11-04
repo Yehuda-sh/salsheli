@@ -112,7 +112,7 @@ part_a_lists:
     week: 2_3
     priority: HIGH
     started: session_46
-    progress: 65_percent
+    progress: 75_percent
     
     models_done:
       - shared_user: userId_role_sharedAt
@@ -170,9 +170,9 @@ part_a_lists:
       - invite_users_screen: 100_percent (owner_validation)
       - pending_requests_screen: 100_percent (owner_admin_validation)
       - manage_users_screen: 100_percent (owner_admin_validation)
+      - shopping_list_details_buttons: 100_percent (edit=owner/admin/editor, delete=owner/admin)
     
     remaining_ui:
-      - shopping_list_details_buttons_by_role
       - notifications_approved_rejected_invited
       - firebase_security_rules
       - testing_4_permission_levels
@@ -309,7 +309,8 @@ recent_work:
         - invite_users_screen_owner_validation
         - pending_requests_screen_owner_admin_validation
         - manage_users_screen_owner_admin_validation
-      progress: phase_3b_44_to_65_percent
+        - shopping_list_details_buttons_validation
+      progress: phase_3b_65_to_75_percent
 ```
 
 ---
@@ -328,7 +329,7 @@ current_status:
   phase_3b_user_sharing:
     status: IN_PROGRESS
     started: session_46
-    progress: 65_percent
+    progress: 75_percent
     
     completed_services:
       share_list_service:
@@ -378,12 +379,18 @@ current_status:
         session: 51
         status: 100_percent
         validation: owner_admin_can_manage
+      
+      shopping_list_details_buttons:
+        session: 51
+        status: 100_percent
+        validation:
+          - edit_button: owner/admin/editor (canCurrentUserEdit)
+          - delete_button: owner/admin (canCurrentUserManage)
     
     remaining_ui:
-      - shopping_list_details_buttons_by_role
-      - notifications
+      - notifications_approved_rejected_invited
       - firebase_security_rules
-      - ui_testing_4_roles
+      - testing_4_permission_levels
   
   phase_3_ui_ux:
     status: PAUSED

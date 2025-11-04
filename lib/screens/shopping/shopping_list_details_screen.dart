@@ -1188,39 +1188,41 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
             const SizedBox(width: kSpacingSmall),
 
-            // ✏️ כפתור עריכה - צמוד למחיקה
-            Transform.translate(
-              offset: const Offset(-56, 0), // צמוד למחיקה (אותו offset)
-              child: IconButton(
-                icon: const Icon(Icons.edit_outlined, size: 18),
-                color: theme.colorScheme.primary,
-                tooltip: AppStrings.listDetails.editTooltip,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                onPressed: () {
-                  if (isProduct) {
-                    _showItemDialog(context, item: item);
-                  } else {
-                    _showTaskDialog(context, item: item);
-                  }
-                },
+            // ✏️ כפתור עריכה - צמוד למחיקה - 🔒 רק Owner/Admin/Editor
+            if (widget.list.canCurrentUserEdit)
+              Transform.translate(
+                offset: const Offset(-56, 0), // צמוד למחיקה (אותו offset)
+                child: IconButton(
+                  icon: const Icon(Icons.edit_outlined, size: 18),
+                  color: theme.colorScheme.primary,
+                  tooltip: AppStrings.listDetails.editTooltip,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  onPressed: () {
+                    if (isProduct) {
+                      _showItemDialog(context, item: item);
+                    } else {
+                      _showTaskDialog(context, item: item);
+                    }
+                  },
+                ),
               ),
-            ),
 
             const SizedBox(width: kSpacingSmall),
 
-            // 🗑️ כפתור מחיקה - ימין ממש (מעבר לפס האדום!)
-            Transform.translate(
-              offset: const Offset(-56, 0), // דוחף הרבה יותר ימינה (56px)
-              child: IconButton(
-                icon: const Icon(Icons.delete_outline, size: 18),
-                color: theme.colorScheme.error,
-                tooltip: AppStrings.listDetails.deleteTooltip,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                onPressed: () => _deleteItem(context, item),
+            // 🗑️ כפתור מחיקה - ימין ממש (מעבר לפס האדום!) - 🔒 רק Owner/Admin
+            if (widget.list.canCurrentUserManage)
+              Transform.translate(
+                offset: const Offset(-56, 0), // דוחף הרבה יותר ימינה (56px)
+                child: IconButton(
+                  icon: const Icon(Icons.delete_outline, size: 18),
+                  color: theme.colorScheme.error,
+                  tooltip: AppStrings.listDetails.deleteTooltip,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  onPressed: () => _deleteItem(context, item),
+                ),
               ),
-            ),
           ],
         ),
       ),
