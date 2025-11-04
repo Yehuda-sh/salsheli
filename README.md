@@ -5,7 +5,7 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.27+-02569B?logo=flutter)](https://flutter.dev)
 [![Firebase](https://img.shields.io/badge/Firebase-Enabled-FFCA28?logo=firebase)](https://firebase.google.com)
 [![License](https://img.shields.io/badge/License-Proprietary-red)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-2.9-blue)](#)
+[![Version](https://img.shields.io/badge/Version-2.10-blue)](#)
 
 ---
 
@@ -53,21 +53,35 @@
 
 ## 💾 Work Sessions & Checkpoints
 
-### Session Continuity
+### Automatic Session Tracking
 
-- Every 3-5 file changes → Auto-checkpoint in Memory
-- Memory system tracks session state automatically
-- Use `search_nodes("Current Work Context")` for latest status
-- Zero manual documentation needed
+**The system automatically tracks everything:**
+- ✅ **Auto-checkpoint** every 3-5 file changes
+- ✅ **Memory entities** store work context
+- ✅ **Zero maintenance** - no manual documentation
+- ✅ **Perfect continuity** - "המשך" resumes seamlessly
 
-### For AI Assistants
+**Quick Commands:**
+```bash
+# Load latest state
+search_nodes("Current Work Context")
 
-```markdown
-## How to resume work:
-1. recent_chats(n=2) - Load previous session
-2. search_nodes("Current Work Context") - Get latest state
-3. Continue from "Next Steps" automatically
+# Resume previous session
+recent_chats(n=2)  # Then continue from "Next Steps"
 ```
+
+**What's tracked automatically:**
+- Current task and progress (%)
+- Files modified + specific changes
+- Next steps for continuation
+- Architectural decisions
+- Critical context needed
+
+**Continuation Protocol:**
+1. User types: **"המשך"**
+2. AI loads: Memory + Recent chat
+3. AI continues: Exactly from "Next Steps"
+4. Zero context loss ✅
 
 ---
 
@@ -77,11 +91,11 @@
 
 | Document | Purpose | When to Read |
 |----------|---------|--------------|
-| **[PROJECT_INSTRUCTIONS_v4.md](docs/PROJECT_INSTRUCTIONS_v4.md)** | Complete AI instructions (Environment + Tools + Protocols) | 🔴 Always 2nd (after README) |
+| **[PROJECT_INSTRUCTIONS_v4.12.md](docs/PROJECT_INSTRUCTIONS_v4.md)** | Complete AI instructions (Environment + Tools + Protocols) | 🔴 Always 2nd (after README) |
 | **[CODE.md](docs/CODE.md)** | Code patterns, architecture, testing, mistakes | Before coding/reviewing |
 | **[DESIGN.md](docs/DESIGN.md)** | Sticky Notes design system (RTL + Components) | Before UI work |
-| **[TECH.md](docs/TECH.md)** | Firebase, security, models, dependencies | Before backend work |
-| **[CODE_REVIEW_CHECKLIST.md](docs/CODE_REVIEW_CHECKLIST.md)** | Code review protocols + dead code detection | Before reviewing/deleting code |
+| **[TECH.md](docs/TECH.md)** | Firebase v1.4, security (4-tier permissions), models | Before backend work |
+| **[CODE_REVIEW_CHECKLIST.md](docs/CODE_REVIEW_CHECKLIST.md)** | Code review protocols v2.5 + 7-step dead code detection | Before reviewing/deleting code |
 | **[WORK_PLAN.md](docs/WORK_PLAN.md)** | 8-week roadmap (Lists + Inventory systems) | Planning new features |
 
 ### By Task Type
@@ -129,31 +143,45 @@
 
 ---
 
-## 🆕 What's New (v2.9 - Oct 29, 2025)
+## 🆕 What's New (v2.10 - Nov 03, 2025)
 
-### ✅ Track 3 Complete - Smart Suggestions System
+### 🔄 Phase 3B In Progress - User Sharing System (22%)
 
-#### 🧠 Smart Suggestions
-- SuggestionsService with predictive logic
-- Smart suggestion cards on home screen
-- Last Chance Banner during shopping
-- 15/15 unit tests passing
+#### ✅ Services Complete
+- **ShareListService** (460 lines)
+  - Invite/remove/update users with role management
+  - 7 permission helper methods
+  - Owner-only security for deletions
+- **PendingRequestsService** (410 lines)
+  - Editor approval workflow (add/approve/reject)
+  - Auto-cleanup (7-day old requests)
+  - 7 query methods for pending items
+- **64 unit tests passing** (100% service coverage)
+- **4-tier permission system**:
+  - Owner: Full access + delete + manage users
+  - Admin: Full access + manage users (no delete)
+  - Editor: Read + create pending requests (needs approval)
+  - Viewer: Read-only access
 
-#### 🛒 Shopping Lists V5.0
-- Unified active + history view
-- Complete Purchase flow
-- Auto-inventory update
-- Move unpurchased items to new list
+#### 🔜 Remaining: UI Components
+- Invite Users Screen (email + role selection)
+- Manage Users Screen (list users + edit roles)
+- Pending Requests Screen (badge + approve/reject)
+- Permission validation UI
+- Notifications (approved/rejected/invited)
+- Firebase Security Rules
+- UI Integration Testing
 
-#### 📋 Previous Tracks (v2.8)
+#### 📋 Previous Releases (v2.9)
+- **Track 3:** Smart Suggestions System
+- **Track 2:** User Sharing infrastructure
 - **Track 1:** Tasks + Products (Hybrid lists)
-- **Track 2:** User Sharing (4 permission levels)
-- Receipt Scanning removed (11 files cleaned)
 
 ### 🧪 Technical Improvements
-- Documentation overhaul: 10→7 files (-38% redundancy)
-- Enhanced CODE_REVIEW_CHECKLIST (6-step protocol)
-- Bug fixes: 10+ files (compilation errors, RangeError, product loading)
+- Documentation optimization: 10→5 files (-50% redundancy)
+- Memory system: 10 optimized entities (zero maintenance)
+- Enhanced CODE_REVIEW_CHECKLIST v2.5 (7-step dead code protocol)
+- Bug fixes: 10+ compilation errors resolved
 - Code cleanup: 1,500+ lines dead code removed
 - Testing: 179 tests passing (90%+ coverage)
 
@@ -313,6 +341,6 @@ Special thanks to the open source community and all contributors!
 ---
 
 **Made with ❤️ in Israel** 🇮🇱  
-**Version:** 2.9 | **Updated:** 29/10/2025
+**Version:** 2.10 | **Updated:** 03/11/2025
 
 **🚀 Ready to start?** → Read [Quick Start](#-quick-start) above
