@@ -1,5 +1,5 @@
 # WORK_PLAN.md - MemoZap Roadmap
-> Machine-Readable | AI-Optimized | Updated: 02/11/2025 v1.4
+> Machine-Readable | AI-Optimized | Updated: 03/11/2025 v1.5
 
 ```yaml
 status: ACTIVE
@@ -230,9 +230,9 @@ building:
 related_docs:
   - CODE.md: v2.2_500_lines
   - DESIGN.md: v1.1_300_lines
-  - TECH.md: v1.3_400_lines
-  - PROJECT_INSTRUCTIONS.md: v4.11_500_lines
-  - CODE_REVIEW_CHECKLIST.md: v2.4_300_lines
+  - TECH.md: v1.4_400_lines
+  - PROJECT_INSTRUCTIONS.md: v4.12_500_lines
+  - CODE_REVIEW_CHECKLIST.md: v2.5_300_lines
   total: 5_files_2000_lines
 ```
 
@@ -441,15 +441,141 @@ part_b_inventory:
   phase_8a_predictive_stock:
     status: TODO_FUTURE
     week: 7
-    priority: LOW
+    priority: MEDIUM
+    
+    overview:
+      goal: smart_shopping_habits_learning
+      concept:
+        - learn_purchase_frequency_per_product
+        - predict_when_product_runs_out
+        - suggest_repurchase_before_out_of_stock
+        - integrate_with_my_pantry_screen
+    
+    infrastructure_ready:
+      repository: firebase_habits_repository.dart (200+ lines)
+      provider: habits_provider.dart (300+ lines)
+      model: habit_preference.dart (with .g.dart)
+      firebase_collection: habit_preferences
+      status: ✅ ACTIVE (verified session 50)
+    
+    ui_components:
+      habits_suggestions_dialog:
+        trigger: badge_or_button_in_my_pantry_screen
+        display: floating_dialog_with_due_products
+        actions:
+          - add_to_list: auto_route_by_product_type
+          - snooze_3_days: postpone_suggestion
+          - delete_habit: remove_tracking
+        example: |
+          "חלב תנובה 3% - לא קנית 7 ימים ✅"
+          כפתור: "הוסף לסופר" → auto_add_to_supermarket_list
+      
+      badge_in_pantry:
+        text: "🧠 3 הצעות חכמות"
+        location: my_pantry_screen_top_or_floating
+        tap_action: open_habits_suggestions_dialog
+      
+      integration_points:
+        - my_pantry_screen: main_entry_point
+        - shopping_lists_screen: auto_add_to_appropriate_list
+        - inventory_screen: track_quantity_depletion
+    
+    services_needed:
+      habits_suggestion_service:
+        methods:
+          - calculateDueHabits: check_frequency_vs_last_purchase
+          - addToAppropriateList: route_by_product_category
+          - snoozeHabit: postpone_3_days
+          - updateLastPurchased: auto_update_on_shopping
+        integration:
+          - habits_provider: existing_data_layer
+          - list_type_filter_service: auto_routing
+          - threshold_monitor: combine_with_low_stock
+    
     tasks:
-      - stock_prediction_service
-      - track_purchase_frequency
-      - calculate_consumption_rate
-      - predict_runout_time
-      - auto_add_before_runout
-      - predicted_low_stock_badge
-      - testing_2_weeks_data_needed
+      ui_layer:
+        - habits_suggestions_dialog_widget
+        - badge_component_my_pantry
+        - empty_state_no_habits_yet
+        - settings_enable_disable_habits
+      
+      service_layer:
+        - habits_suggestion_service_create
+        - calculateDueHabits_algorithm
+        - addToAppropriateList_routing
+        - snoozeHabit_logic
+      
+      integration:
+        - connect_to_my_pantry_screen
+        - auto_update_on_purchase_phase_13
+        - combine_with_threshold_system_phase_6a
+        - notification_habits_due_optional
+      
+      testing:
+        - habits_suggestion_service_tests
+        - ui_dialog_tests
+        - integration_pantry_to_lists
+        - edge_cases_no_habits
+    
+    user_flow:
+      learning_phase:
+        - user_purchases_milk_every_7_days
+        - system_records_last_purchased_frequency
+        - habit_created_automatically_or_manually
+      
+      suggestion_phase:
+        - 7_days_passed_since_milk_purchase
+        - badge_shows_1_suggestion_in_pantry
+        - user_taps_badge_opens_dialog
+      
+      action_phase:
+        - user_sees_milk_suggestion
+        - taps_add_routes_to_supermarket_list
+        - item_added_habit_updated
+    
+    integration_with_other_phases:
+      phase_6a_threshold:
+        combine: |
+          "חלב: יש לך 1 בקרטון, אבל בדרך כלל
+           קונה כל 7 ימים → הצעה: קנה עוד 2"
+        logic: habits_frequency + current_quantity
+      
+      phase_13_purchased_to_inventory:
+        update: |
+          When user marks item as purchased:
+          1. Add to inventory (cumulative)
+          2. Update habit.last_purchased (auto)
+          3. Improve prediction (learning)
+    
+    examples:
+      milk_habit:
+        product: חלב תנובה 3%
+        frequency: 7_days
+        last_purchased: 2025-10-27
+        next_due: 2025-11-03
+        suggestion: "חלב - לא קנית 7 ימים"
+        action: add_to_supermarket_list
+      
+      shampoo_habit:
+        product: שמפו הד אנד שולדרס
+        frequency: 30_days
+        last_purchased: 2025-10-01
+        next_due: 2025-10-31
+        suggestion: "שמפו - לא קנית 30 ימים"
+        action: add_to_pharmacy_list
+    
+    benefits:
+      - never_forget_essentials: milk_bread_eggs
+      - no_need_to_remember: auto_tracking
+      - time_saving: one_tap_add
+      - smart_routing: right_list_automatically
+      - learning_system: improves_over_time
+    
+    testing_requirements:
+      - 2_weeks_data_needed: establish_patterns
+      - test_multiple_frequencies: 3_7_14_30_days
+      - test_list_routing: 8_list_types
+      - test_edge_cases: deleted_habits_snoozed
 ```
 
 ---
@@ -586,6 +712,19 @@ success_metrics:
 
 ---
 
-**End of WORK_PLAN.md v1.4**  
+**End of WORK_PLAN.md v1.5**  
 **Machine-Readable Format | AI-Optimized**  
 **Last Updated:** 03/11/2025 Session 50
+
+---
+
+**Updates v1.5 (03/11/2025 - Session 50):**
+- Enhanced Phase 8a (Predictive Stock): Complete redesign with Habits System integration
+- Priority: LOW → MEDIUM (key feature for user experience)
+- Added UI Components: HabitsSuggestionsDialog + Badge in My Pantry Screen
+- Added Services: HabitsSuggestionService with 4 core methods
+- Added User Flow: Learning → Suggestion → Action (3 phases)
+- Added Integration Points: Phase 6a (Threshold) + Phase 13 (Purchased to Inventory)
+- Added Examples: Milk (7 days) + Shampoo (30 days) habits
+- Infrastructure Ready: Repository + Provider + Model already ACTIVE (verified session 50)
+- Benefits: Never forget essentials, time-saving, smart routing, learning system
