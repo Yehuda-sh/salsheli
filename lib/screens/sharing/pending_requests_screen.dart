@@ -20,6 +20,7 @@ import 'package:memozap/models/shopping_list.dart';
 import 'package:memozap/models/pending_request.dart';
 import 'package:memozap/services/pending_requests_service.dart';
 import 'package:memozap/services/share_list_service.dart';
+import 'package:memozap/services/notifications_service.dart';
 import 'package:memozap/providers/user_context.dart';
 import 'package:memozap/repositories/shopping_lists_repository.dart';
 import 'package:memozap/l10n/app_strings.dart';
@@ -115,9 +116,15 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
     setState(() => _isProcessing = true);
 
     try {
+      final userContext = Provider.of<UserContext>(context, listen: false);
+      final notificationsService = NotificationsService();
+      final approverName = userContext.displayName ?? 'מנהל';
+
       await _service.approveRequest(
         list: widget.list,
         requestId: request.id,
+        approverName: approverName,
+        notificationsService: notificationsService,
       );
 
       if (!mounted) return;
@@ -174,10 +181,16 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
     setState(() => _isProcessing = true);
 
     try {
+      final userContext = Provider.of<UserContext>(context, listen: false);
+      final notificationsService = NotificationsService();
+      final rejecterName = userContext.displayName ?? 'מנהל';
+
       await _service.rejectRequest(
         list: widget.list,
         requestId: request.id,
         reason: reason.isEmpty ? null : reason,
+        rejecterName: rejecterName,
+        notificationsService: notificationsService,
       );
 
       if (!mounted) return;

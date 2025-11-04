@@ -16,10 +16,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:memozap/l10n/app_strings.dart';
 import 'package:memozap/models/shopping_list.dart';
 import 'package:memozap/models/user_role.dart';
 import 'package:memozap/providers/user_context.dart';
+import 'package:memozap/services/notifications_service.dart';
 import 'package:memozap/services/share_list_service.dart';
 import 'package:memozap/widgets/common/notebook_background.dart';
 import 'package:memozap/widgets/common/sticky_button.dart';
@@ -40,7 +42,7 @@ class InviteUsersScreen extends StatefulWidget {
 class _InviteUsersScreenState extends State<InviteUsersScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
-  late final ShareListService _shareService;
+  late final NotificationsService _notificationsService;
 
   UserRole _selectedRole = UserRole.editor; // Default to Editor
   bool _isLoading = false;
@@ -51,7 +53,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
     debugPrint('📝 InviteUsersScreen: פתיחת מסך הזמנת משתמשים');
 
     final userContext = context.read<UserContext>();
-    _shareService = ShareListService(userContext);
+    _notificationsService = NotificationsService(FirebaseFirestore.instance);
 
     // 🔒 Validation: רק Owner יכול להזמין
     final currentUserId = userContext.userId;
@@ -104,12 +106,21 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
       // Capture context before async
       final messenger = ScaffoldMessenger.of(context);
       final navigator = Navigator.of(context);
+      final userContext = context.read<UserContext>();
+      final currentUserId = userContext.userId;
+      final currentUserName = userContext.user?.displayName ?? 'משתמש';
 
-      await _shareService.inviteUser(
-        widget.list,
-        _emailController.text.trim(),
-        _selectedRole,
+      // Call static method with NotificationsService
+      final updatedList = await ShareListService.inviteUser(
+        list: widget.list,
+        currentUserId: currentUserId,
+        invitedUserId: _emailController.text.trim(), // TODO: Should be userId not email
+        role: _selectedRole,
+        inviterName: currentUserName,
+        notificationsService: _notificationsService,
       );
+
+      // TODO: Update list in Firebase/Provider
 
       // Check if widget still mounted
       if (!mounted) return;

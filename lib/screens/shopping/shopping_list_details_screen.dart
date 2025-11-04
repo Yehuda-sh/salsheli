@@ -41,6 +41,7 @@ import '../../widgets/common/pending_requests_section.dart';
 import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/sticky_note.dart';
 import '../../widgets/shopping/product_selection_bottom_sheet.dart';
+import '../../services/pending_requests_service.dart';
 import '../settings/manage_users_screen.dart';
 import '../sharing/pending_requests_screen.dart';
 import 'shopping_list_details_screen_ux.dart'; // 📦 Skeleton & states
@@ -96,6 +97,68 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     // 🚀 Start animations
     _fabController.forward();
     _loadData();
+    _checkEditorNotifications();
+  }
+
+  /// 🔔 A1a: בדיקת בקשות Editor שאושרו/נדחו לאחרונה
+  Future<void> _checkEditorNotifications() async {
+    final provider = context.read<ShoppingListsProvider>();
+    final userContext = context.read<UserContext>();
+    final requestsService = PendingRequestsService(
+      provider.repository,
+      ShareListService(provider.repository, userContext),
+      userContext,
+    );
+
+    final currentUserId = userContext.userId;
+    if (currentUserId == null) return;
+
+    // בדיקה אם המשתמש הוא Editor (לא Owner/Admin)
+    if (widget.list.canCurrentUserManage) {
+      // Owner/Admin - אין צורך בהודעה
+      return;
+    }
+
+    // שליפת בקשות של המשתמש
+    final myRequests = requestsService.getRequestsByUser(widget.list, currentUserId);
+
+    // סינון: רק בקשות שאושרו/נדחו ב-24 שעות האחרונות
+    final now = DateTime.now();
+    final recentApproved = myRequests.where((r) {
+      if (!r.isApproved && !r.isRejected) return false;
+      final reviewedAt = r.reviewedAt;
+      if (reviewedAt == null) return false;
+      return now.difference(reviewedAt).inHours <= 24;
+    }).toList();
+
+    if (recentApproved.isEmpty) return;
+
+    // הודעה למשתמש
+    if (mounted) {
+      final messenger = ScaffoldMessenger.of(context);
+      final approved = recentApproved.where((r) => r.isApproved).length;
+      final rejected = recentApproved.where((r) => r.isRejected).length;
+
+      String message;
+      if (approved > 0 && rejected > 0) {
+        message = '✅ $approved בקשות אושרו | ❌ $rejected נדחו';
+      } else if (approved > 0) {
+        message = '✅ $approved מהבקשות שלך אושרו!';
+      } else {
+        message = '❌ $rejected מהבקשות שלך נדחו';
+      }
+
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (mounted) {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(message),
+            duration: const Duration(seconds: 5),
+            backgroundColor: approved > 0 ? Colors.green.shade700 : Colors.orange.shade700,
+          ),
+        );
+      }
+    }
   }
 
   @override

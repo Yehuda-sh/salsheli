@@ -21,12 +21,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:memozap/core/ui_constants.dart';
 import 'package:memozap/models/shared_user.dart';
 import 'package:memozap/models/enums/user_role.dart';
 import 'package:memozap/models/shopping_list.dart';
 import 'package:memozap/providers/shopping_lists_provider.dart';
 import 'package:memozap/providers/user_context.dart';
+import 'package:memozap/services/notifications_service.dart';
 import 'package:memozap/services/share_list_service.dart';
 import 'package:memozap/widgets/common/notebook_background.dart';
 import 'package:memozap/widgets/common/sticky_button.dart';
@@ -48,6 +50,7 @@ class ManageUsersScreen extends StatefulWidget {
 
 class _ManageUsersScreenState extends State<ManageUsersScreen> {
   late List<SharedUser> _users;
+  late final NotificationsService _notificationsService;
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -55,6 +58,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   void initState() {
     super.initState();
     debugPrint('📝 ManageUsersScreen: פתיחת מסך ניהול משתמשים');
+
+    _notificationsService = NotificationsService(FirebaseFirestore.instance);
 
     // 🔒 Validation: רק Owner/Admin יכולים לנהל
     if (!widget.list.canCurrentUserManage) {
@@ -147,10 +152,14 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final updatedList = ShareListService.removeUser(
+      final currentUserName = userContext.user?.displayName ?? 'משתמש';
+      
+      final updatedList = await ShareListService.removeUser(
         list: widget.list,
         currentUserId: currentUserId,
         removedUserId: user.userId,
+        removerName: currentUserName,
+        notificationsService: _notificationsService,
       );
 
       // שמירה ב-Firebase
@@ -222,11 +231,15 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final updatedList = ShareListService.updateUserRole(
+      final currentUserName = userContext.user?.displayName ?? 'משתמש';
+      
+      final updatedList = await ShareListService.updateUserRole(
         list: widget.list,
         currentUserId: currentUserId,
         targetUserId: user.userId,
         newRole: newRole,
+        changerName: currentUserName,
+        notificationsService: _notificationsService,
       );
 
       // שמירה ב-Firebase

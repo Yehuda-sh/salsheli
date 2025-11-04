@@ -27,6 +27,7 @@ import 'package:flutter/foundation.dart';
 import 'package:memozap/models/shopping_list.dart';
 import 'package:memozap/models/shared_user.dart';
 import 'package:memozap/models/enums/user_role.dart';
+import 'package:memozap/services/notifications_service.dart';
 
 /// 🇮🇱 שירות שיתוף רשימות
 /// 🇬🇧 Share list service
@@ -50,7 +51,7 @@ class ShareListService {
   /// - 'user_already_shared' אם המשתמש כבר משותף
   /// - 'cannot_invite_owner' אם מנסים להזמין את ה-Owner
   /// - 'invalid_role' אם מנסים ליצור Owner נוסף
-  static ShoppingList inviteUser({
+  static Future<ShoppingList> inviteUser({
     required ShoppingList list,
     required String currentUserId,
     required String invitedUserId,
@@ -58,7 +59,9 @@ class ShareListService {
     String? userName,
     String? userEmail,
     String? userAvatar,
-  }) {
+    required String inviterName,
+    NotificationsService? notificationsService,
+  }) async {
     if (kDebugMode) {
       debugPrint('👥 ShareListService.inviteUser():');
       debugPrint('   List: ${list.name}');
@@ -120,6 +123,27 @@ class ShareListService {
       debugPrint('   Total shared users: ${updatedSharedUsers.length}');
     }
 
+    // שליחת התראה למשתמש המוזמן
+    if (notificationsService != null) {
+      try {
+        await notificationsService.createInviteNotification(
+          userId: invitedUserId,
+          householdId: list.householdId,
+          listId: list.id,
+          listName: list.name,
+          inviterName: inviterName,
+          role: role.hebrewName,
+        );
+        if (kDebugMode) {
+          debugPrint('   📬 Notification sent to $invitedUserId');
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('   ⚠️ Failed to send notification: $e');
+        }
+      }
+    }
+
     return list.copyWith(
       sharedUsers: updatedSharedUsers,
       updatedDate: DateTime.now(),
@@ -141,11 +165,13 @@ class ShareListService {
   /// - 'permission_denied' אם המשתמש הנוכחי לא Owner
   /// - 'cannot_remove_owner' אם מנסים להסיר את ה-Owner
   /// - 'user_not_found' אם המשתמש לא נמצא ברשימה
-  static ShoppingList removeUser({
+  static Future<ShoppingList> removeUser({
     required ShoppingList list,
     required String currentUserId,
     required String removedUserId,
-  }) {
+    required String removerName,
+    NotificationsService? notificationsService,
+  }) async {
     if (kDebugMode) {
       debugPrint('🗑️ ShareListService.removeUser():');
       debugPrint('   List: ${list.name}');
@@ -189,6 +215,26 @@ class ShareListService {
       debugPrint('   Remaining shared users: ${updatedSharedUsers.length}');
     }
 
+    // שליחת התראה למשתמש שהוסר
+    if (notificationsService != null) {
+      try {
+        await notificationsService.createUserRemovedNotification(
+          userId: removedUserId,
+          householdId: list.householdId,
+          listId: list.id,
+          listName: list.name,
+          removerName: removerName,
+        );
+        if (kDebugMode) {
+          debugPrint('   📬 Notification sent to $removedUserId');
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('   ⚠️ Failed to send notification: $e');
+        }
+      }
+    }
+
     return list.copyWith(
       sharedUsers: updatedSharedUsers,
       updatedDate: DateTime.now(),
@@ -212,12 +258,14 @@ class ShareListService {
   /// - 'cannot_change_owner_role' אם מנסים לשנות תפקיד של Owner
   /// - 'invalid_role' אם מנסים ליצור Owner נוסף
   /// - 'user_not_found' אם המשתמש לא נמצא ברשימה
-  static ShoppingList updateUserRole({
+  static Future<ShoppingList> updateUserRole({
     required ShoppingList list,
     required String currentUserId,
     required String targetUserId,
     required UserRole newRole,
-  }) {
+    required String changerName,
+    NotificationsService? notificationsService,
+  }) async {
     if (kDebugMode) {
       debugPrint('✏️ ShareListService.updateUserRole():');
       debugPrint('   List: ${list.name}');
@@ -273,6 +321,28 @@ class ShareListService {
       debugPrint('   ✅ Role updated successfully');
       debugPrint('   Old role: ${targetUser.role.hebrewName}');
       debugPrint('   New role: ${newRole.hebrewName}');
+    }
+
+    // שליחת התראה למשתמש שהתפקיד שלו השתנה
+    if (notificationsService != null) {
+      try {
+        await notificationsService.createRoleChangedNotification(
+          userId: targetUserId,
+          householdId: list.householdId,
+          listId: list.id,
+          listName: list.name,
+          oldRole: targetUser.role.hebrewName,
+          newRole: newRole.hebrewName,
+          changerName: changerName,
+        );
+        if (kDebugMode) {
+          debugPrint('   📬 Notification sent to $targetUserId');
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('   ⚠️ Failed to send notification: $e');
+        }
+      }
     }
 
     return list.copyWith(

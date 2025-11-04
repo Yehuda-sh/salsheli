@@ -6,6 +6,7 @@ import 'package:memozap/models/enums/request_type.dart';
 import 'package:memozap/models/enums/request_status.dart';
 import 'package:memozap/repositories/shopping_lists_repository.dart';
 import 'package:memozap/services/share_list_service.dart';
+import 'package:memozap/services/notifications_service.dart';
 import 'package:memozap/providers/user_context.dart';
 
 /// 🇮🇱 שירות לניהול בקשות ממתינות
@@ -129,6 +130,7 @@ class PendingRequestsService {
   /// 3. עדכון סטטוס → approved
   /// 4. ביצוע הפעולה המבוקשת (הוספת מוצר וכו')
   /// 5. עדכון Firebase
+  /// 6. שליחת התראה למבקש
   /// 
   /// Throws:
   /// - Exception: אם אין הרשאה
@@ -137,6 +139,8 @@ class PendingRequestsService {
   Future<void> approveRequest({
     required ShoppingList list,
     required String requestId,
+    required String approverName,
+    required NotificationsService notificationsService,
   }) async {
     final currentUserId = _userContext.userId;
     if (currentUserId == null) {
@@ -207,6 +211,20 @@ class PendingRequestsService {
         householdId,
       );
       log('✅ בקשה אושרה בהצלחה [PendingRequestsService]');
+
+      // שליחת התראה למבקש (non-critical)
+      try {
+        await notificationsService.createRequestApprovedNotification(
+          userId: request.requesterId,
+          listName: list.name,
+          itemName: request.requestData['name'] as String? ?? 'מוצר',
+          approverName: approverName,
+        );
+        log('📬 התראת אישור נשלחה למבקש [PendingRequestsService]');
+      } catch (e) {
+        log('⚠️ כשל בשליחת התראת אישור: $e [PendingRequestsService]');
+        // Don't throw - notification is not critical
+      }
     } catch (e) {
       log('❌ כשל באישור בקשה: $e [PendingRequestsService]');
       rethrow;
@@ -226,6 +244,7 @@ class PendingRequestsService {
   /// 3. עדכון סטטוס → rejected
   /// 4. הסרת הבקשה מהרשימה (מחיקה אחרי 7 ימים)
   /// 5. עדכון Firebase
+  /// 6. שליחת התראה למבקש
   /// 
   /// Throws:
   /// - Exception: אם אין הרשאה
@@ -235,6 +254,8 @@ class PendingRequestsService {
     required ShoppingList list,
     required String requestId,
     String? reason,
+    required String rejecterName,
+    required NotificationsService notificationsService,
   }) async {
     final currentUserId = _userContext.userId;
     if (currentUserId == null) {
@@ -282,6 +303,21 @@ class PendingRequestsService {
         householdId,
       );
       log('✅ בקשה נדחתה [PendingRequestsService]');
+
+      // שליחת התראה למבקש (non-critical)
+      try {
+        await notificationsService.createRequestRejectedNotification(
+          userId: request.requesterId,
+          listName: list.name,
+          itemName: request.requestData['name'] as String? ?? 'מוצר',
+          rejecterName: rejecterName,
+          reason: reason,
+        );
+        log('📬 התראת דחייה נשלחה למבקש [PendingRequestsService]');
+      } catch (e) {
+        log('⚠️ כשל בשליחת התראת דחייה: $e [PendingRequestsService]');
+        // Don't throw - notification is not critical
+      }
     } catch (e) {
       log('❌ כשל בדחיית בקשה: $e [PendingRequestsService]');
       rethrow;
