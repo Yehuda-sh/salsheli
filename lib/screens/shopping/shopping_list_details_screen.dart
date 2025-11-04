@@ -42,6 +42,7 @@ import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/sticky_note.dart';
 import '../../widgets/shopping/product_selection_bottom_sheet.dart';
 import '../settings/manage_users_screen.dart';
+import '../sharing/pending_requests_screen.dart';
 import 'shopping_list_details_screen_ux.dart'; // 📦 Skeleton & states
 
 class ShoppingListDetailsScreen extends StatefulWidget {
@@ -556,6 +557,52 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
         appBar: AppBar(
           title: Text(currentList.name),
           actions: [
+            // 🔔 Badge בקשות ממתינות
+            if (currentList.pendingRequestsForReview.isNotEmpty && currentList.canCurrentUserApprove)
+              ScaleTransition(
+                scale: Tween<double>(
+                  begin: 0.0,
+                  end: 1.0,
+                ).animate(CurvedAnimation(parent: _fabController, curve: Curves.elasticOut)),
+                child: Stack(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.notifications),
+                      tooltip: 'בקשות ממתינות',
+                      onPressed: () {
+                        final navigator = Navigator.of(context);
+                        navigator.push(MaterialPageRoute(
+                          builder: (context) => PendingRequestsScreen(list: currentList),
+                        ));
+                      },
+                    ),
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: kStickyPink,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          '${currentList.pendingRequestsForReview.length}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             // כפתור שיתוף
             ScaleTransition(
               scale: Tween<double>(

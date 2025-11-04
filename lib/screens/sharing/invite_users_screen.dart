@@ -48,8 +48,41 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
   @override
   void initState() {
     super.initState();
+    debugPrint('📝 InviteUsersScreen: פתיחת מסך הזמנת משתמשים');
+
     final userContext = context.read<UserContext>();
     _shareService = ShareListService(userContext);
+
+    // 🔒 Validation: רק Owner יכול להזמין
+    final currentUserId = userContext.userId;
+    final isOwner = widget.list.createdBy == currentUserId;
+
+    if (!isOwner) {
+      debugPrint('⛔ InviteUsersScreen: אין הרשאה - רק Owner יכול להזמין');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          final messenger = ScaffoldMessenger.of(context);
+          final navigator = Navigator.of(context);
+
+          messenger.showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.block, color: Color(0xFFF48FB1)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(AppStrings.sharing.noPermissionInvite),
+                  ),
+                ],
+              ),
+              backgroundColor: const Color(0xFFF48FB1),
+            ),
+          );
+
+          navigator.pop();
+        }
+      });
+    }
   }
 
   @override

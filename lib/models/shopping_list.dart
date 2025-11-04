@@ -263,10 +263,34 @@ class ShoppingList {
   /// 🇬🇧 Is the current user the owner
   bool get isCurrentUserOwner => currentUserRole == UserRole.owner;
 
-  /// 🇮🇱 האם המשתמש הנוכחי יכול לאשר בקשות
-  /// 🇬🇧 Can the current user approve requests
+  /// 🇮🇱 האם המשתמש הנוכחי יכול לערוך (owner/admin/editor)
+  /// 🇬🇧 Can the current user edit (owner/admin/editor)
+  bool get canCurrentUserEdit =>
+      currentUserRole == UserRole.owner ||
+      currentUserRole == UserRole.admin ||
+      currentUserRole == UserRole.editor;
+
+  /// 🇮🇱 האם המשתמש הנוכחי יכול לאשר בקשות (owner/admin)
+  /// 🇬🇧 Can the current user approve requests (owner/admin)
   bool get canCurrentUserApprove =>
       currentUserRole == UserRole.owner || currentUserRole == UserRole.admin;
+
+  /// 🇮🇱 האם המשתמש הנוכחי יכול לנהל משתמשים (owner/admin)
+  /// 🇬🇧 Can the current user manage users (owner/admin)
+  bool get canCurrentUserManage =>
+      currentUserRole == UserRole.owner || currentUserRole == UserRole.admin;
+
+  /// 🇮🇱 האם המשתמש הנוכחי צריך לבקש אישור (editor)
+  /// 🇬🇧 Should the current user request approval (editor)
+  bool get shouldCurrentUserRequest => currentUserRole == UserRole.editor;
+
+  /// 🇮🇱 האם המשתמש הנוכחי יכול להזמין משתמשים (owner בלבד!)
+  /// 🇬🇧 Can the current user invite users (owner only!)
+  bool get canCurrentUserInvite => currentUserRole == UserRole.owner;
+
+  /// 🇮🇱 האם המשתמש הנוכחי יכול למחוק את הרשימה (owner בלבד!)
+  /// 🇬🇧 Can the current user delete the list (owner only!)
+  bool get canCurrentUserDelete => currentUserRole == UserRole.owner;
 
   /// 🇮🇱 בקשות ממתינות של המשתמש הנוכחי
   /// 🇬🇧 Pending requests by the current user

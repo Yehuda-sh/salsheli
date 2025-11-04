@@ -1,11 +1,11 @@
 # WORK_PLAN.md - MemoZap Roadmap
-> Machine-Readable | AI-Optimized | Updated: 03/11/2025 v1.5
+> Machine-Readable | AI-Optimized | Updated: 04/11/2025 v1.6
 
 ```yaml
 status: ACTIVE
 current_phase: 3B_user_sharing
-last_session: 50
-last_updated: 03/11/2025
+last_session: 51
+last_updated: 04/11/2025
 
 goals:
   primary:
@@ -112,12 +112,13 @@ part_a_lists:
     week: 2_3
     priority: HIGH
     started: session_46
-    progress: 22_percent
+    progress: 65_percent
     
     models_done:
       - shared_user: userId_role_sharedAt
       - pending_request: id_requesterId_itemData_status_requestedAt
       - user_role_enum: owner_admin_editor_viewer
+      - shopping_list: 6_permission_getters (session_51)
     
     services_done:
       share_list_service:
@@ -165,11 +166,13 @@ part_a_lists:
         - cannot_add_requests
         - cannot_edit_anything
     
+    completed_ui:
+      - invite_users_screen: 100_percent (with_owner_validation)
+      - pending_requests_screen: 100_percent (with_owner_admin_validation)
+    
     remaining_ui:
-      - invite_users_screen_email_role
       - manage_users_screen_list_edit_roles
-      - pending_requests_screen_badge_approve_reject
-      - permission_validation_ui
+      - shopping_list_details_buttons_by_role
       - notifications_approved_rejected_invited
       - firebase_security_rules
       - testing_4_permission_levels
@@ -291,6 +294,21 @@ recent_work:
       code_md: v2.1_to_v2.2_component_reuse
       design_md: v1.0_to_v1.1_advanced_components
       added: decision_tree_ai_protocol
+  
+  session_50_51:
+    focus: phase_3b_ui_layer
+    
+    session_50:
+      - habits_system_verification
+      - infrastructure_ready_confirmed
+    
+    session_51:
+      date: 04/11/2025
+      completed:
+        - shopping_list_model_6_permission_getters
+        - invite_users_screen_owner_validation
+        - pending_requests_screen_owner_admin_validation
+      progress: phase_3b_22_to_65_percent
 ```
 
 ---
@@ -309,11 +327,12 @@ current_status:
   phase_3b_user_sharing:
     status: IN_PROGRESS
     started: session_46
-    progress: 22_percent_services_only
+    progress: 65_percent
     
     completed_services:
       share_list_service:
         lines: 460
+        session: 46
         features:
           - invite_remove_update_users
           - 7_permission_helpers
@@ -321,6 +340,7 @@ current_status:
       
       pending_requests_service:
         lines: 410
+        session: 47
         features:
           - create_approve_reject
           - 7_query_methods
@@ -330,14 +350,35 @@ current_status:
         total: 64_unit_tests
         coverage: services_100_percent
     
+    completed_models:
+      shopping_list:
+        session: 51
+        added: 6_permission_getters
+        getters:
+          - canCurrentUserEdit: owner_admin_editor
+          - canCurrentUserApprove: owner_admin
+          - canCurrentUserManage: owner_admin
+          - shouldCurrentUserRequest: editor_only
+          - canCurrentUserInvite: owner_only
+          - canCurrentUserDelete: owner_only
+    
+    completed_ui:
+      invite_users_screen:
+        session: 51
+        status: 100_percent
+        validation: owner_only_can_invite
+      
+      pending_requests_screen:
+        session: 51
+        status: 100_percent
+        validation: owner_admin_can_view
+    
     remaining_ui:
-      - invite_users_screen
       - manage_users_screen
-      - pending_requests_screen
-      - permission_validation
+      - shopping_list_details_buttons_by_role
       - notifications
       - firebase_security_rules
-      - ui_testing
+      - ui_testing_4_roles
   
   phase_3_ui_ux:
     status: PAUSED
@@ -712,11 +753,20 @@ success_metrics:
 
 ---
 
-**End of WORK_PLAN.md v1.5**  
+**End of WORK_PLAN.md v1.6**  
 **Machine-Readable Format | AI-Optimized**  
-**Last Updated:** 03/11/2025 Session 50
+**Last Updated:** 04/11/2025 Session 51
 
 ---
+
+**Updates v1.6 (04/11/2025 - Session 51):**
+- Phase 3B progress: 22% → 65% (services + models + 2 UI screens complete)
+- Added ShoppingList model: 6 permission getters (canCurrentUserEdit, canCurrentUserApprove, canCurrentUserManage, shouldCurrentUserRequest, canCurrentUserInvite, canCurrentUserDelete)
+- Completed InviteUsersScreen: 100% with Owner-only validation
+- Completed PendingRequestsScreen: 100% with Owner/Admin validation
+- Updated current_status section with detailed breakdown
+- Added session_50_51 to recent_work
+- Remaining: ManageUsersScreen + shopping list details buttons + testing
 
 **Updates v1.5 (03/11/2025 - Session 50):**
 - Enhanced Phase 8a (Predictive Stock): Complete redesign with Habits System integration
