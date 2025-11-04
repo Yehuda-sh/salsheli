@@ -19,20 +19,21 @@
 // גרסה: v1.0 | תאריך: 02/11/2025
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+
 import 'package:memozap/core/ui_constants.dart';
-import 'package:memozap/models/shared_user.dart';
 import 'package:memozap/models/enums/user_role.dart';
+import 'package:memozap/models/shared_user.dart';
 import 'package:memozap/models/shopping_list.dart';
 import 'package:memozap/providers/shopping_lists_provider.dart';
 import 'package:memozap/providers/user_context.dart';
+import 'package:memozap/screens/sharing/invite_users_screen.dart';
 import 'package:memozap/services/notifications_service.dart';
 import 'package:memozap/services/share_list_service.dart';
 import 'package:memozap/widgets/common/notebook_background.dart';
 import 'package:memozap/widgets/common/sticky_button.dart';
-import 'package:memozap/screens/sharing/invite_users_screen.dart';
 
 /// 🇮🇱 מסך ניהול משתמשים משותפים
 /// 🇬🇧 Manage shared users screen
@@ -70,12 +71,12 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
           final navigator = Navigator.of(context);
 
           messenger.showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Row(
                 children: [
-                  const Icon(Icons.block, color: kStickyPink),
-                  const SizedBox(width: kSpacingSmall),
-                  const Expanded(
+                  Icon(Icons.block, color: kStickyPink),
+                  SizedBox(width: kSpacingSmall),
+                  Expanded(
                     child: Text('אין לך הרשאה לנהל משתמשים (רק Owner/Admin)'),
                   ),
                 ],
@@ -152,7 +153,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final currentUserName = userContext.user?.displayName ?? 'משתמש';
+      final currentUserName = userContext.displayName ?? 'משתמש';
+      final provider = context.read<ShoppingListsProvider>();
       
       final updatedList = await ShareListService.removeUser(
         list: widget.list,
@@ -163,7 +165,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       );
 
       // שמירה ב-Firebase
-      await context.read<ShoppingListsProvider>().updateList(updatedList);
+      await provider.updateList(updatedList);
 
       if (mounted) {
         _loadUsers();
@@ -231,7 +233,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final currentUserName = userContext.user?.displayName ?? 'משתמש';
+      final currentUserName = userContext.displayName ?? 'משתמש';
+      final provider = context.read<ShoppingListsProvider>();
       
       final updatedList = await ShareListService.updateUserRole(
         list: widget.list,
@@ -243,7 +246,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       );
 
       // שמירה ב-Firebase
-      await context.read<ShoppingListsProvider>().updateList(updatedList);
+      await provider.updateList(updatedList);
 
       if (mounted) {
         _loadUsers();
@@ -412,7 +415,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     return ListView.separated(
       padding: const EdgeInsets.all(kSpacingMedium),
       itemCount: _users.length,
-      separatorBuilder: (_, __) => const SizedBox(height: kSpacingSmall),
+      separatorBuilder: (_, _) => const SizedBox(height: kSpacingSmall),
       itemBuilder: (context, index) {
         final user = _users[index];
         return _buildUserCard(user, isOwner);

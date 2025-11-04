@@ -1339,9 +1339,11 @@ class _SharingStrings {
   // ========================================
 
   String get pendingRequestsTitle => 'בקשות ממתינות';
+  String get noPermissionViewRequests => 'רק בעלים/מנהלים יכולים לראות בקשות';
   String pendingCount(int count) => '$count בקשות';
   String get noPendingRequests => 'אין בקשות ממתינות';
   String get noPendingMessage => 'כשעורכים יוסיפו פריטים, הם יופיעו כאן לאישור';
+  String get noPendingRequestsSubtitle => 'בקשות מעורכים יופיעו כאן לאישור';
 
   // Request Types
   String get requestTypeAdd => 'הוספה';
@@ -1366,7 +1368,11 @@ class _SharingStrings {
 
   // Approve/Reject
   String requestApproved(String itemName) => '✅ הבקשה להוספת "$itemName" אושרה';
+  String get requestApprovedSuccess => 'הבקשה אושרה בהצלחה';
+  String get requestApprovedError => 'שגיאה באישור הבקשה';
   String requestRejected(String itemName) => '❌ הבקשה להוספת "$itemName" נדחתה';
+  String get requestRejectedSuccess => 'הבקשה נדחתה';
+  String get requestRejectedError => 'שגיאה בדחיית הבקשה';
   String approveError(String error) => 'שגיאה באישור: $error';
   String rejectError(String error) => 'שגיאה בדחייה: $error';
 
@@ -1375,6 +1381,9 @@ class _SharingStrings {
   String get rejectAllButton => 'דחה הכל';
   String get approveAllConfirm => 'לאשר את כל הבקשות?';
   String get rejectAllConfirm => 'לדחות את כל הבקשות?';
+  String get rejectDialogTitle => 'דחיית בקשה';
+  String get rejectDialogMessage => 'למה לדחות את הבקשה? (אופציונלי)';
+  String get rejectReasonHint => 'סיבת הדחייה...';
   String allApproved(int count) => '✅ $count בקשות אושרו';
   String allRejected(int count) => '❌ $count בקשות נדחו';
 
