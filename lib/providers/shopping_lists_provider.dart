@@ -121,6 +121,9 @@ class ShoppingListsProvider with ChangeNotifier {
     _userContext!.addListener(_onUserChanged);
     _listening = true;
     _initialize();
+    
+    // 🔄 קריאה ידנית לטעינה ראשונית (listener לא מופעל אוטומטית בפעם הראשונה)
+    _onUserChanged();
   }
 
   void _onUserChanged() {
@@ -136,11 +139,13 @@ class ShoppingListsProvider with ChangeNotifier {
       _lists = [];
       _errorMessage = null;
       _currentHouseholdId = newHouseholdId;
-    }
-    
-    // טען רשימות רק אם יש משתמש מחובר
-    if (_userContext?.isLoggedIn == true && newHouseholdId != null) {
-      loadLists();
+      
+      // ✅ טען רשימות רק אם יש household_id חדש
+      if (_userContext?.isLoggedIn == true && newHouseholdId != null) {
+        loadLists();
+      }
+    } else {
+      debugPrint('⏭️ _onUserChanged: אותו household_id, מדלג');
     }
   }
 
@@ -148,8 +153,7 @@ class ShoppingListsProvider with ChangeNotifier {
     final householdId = _userContext?.user?.householdId;
     
     if (_userContext?.isLoggedIn == true && householdId != null) {
-      _currentHouseholdId = householdId;
-      loadLists();
+      // ⏭️ אל תגדיר _currentHouseholdId כאן! _onUserChanged() יטפל בזה
     } else {
       _lists = [];
       _currentHouseholdId = null;

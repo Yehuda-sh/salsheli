@@ -81,8 +81,8 @@ class SuggestionsProvider with ChangeNotifier {
     // האזנה לשינויים במלאי
     _inventoryProvider.addListener(_onInventoryChanged);
     
-    // טעינה ראשונית
-    refreshSuggestions();
+    // 🔄 קריאה ידנית לטעינה ראשונית (listener לא מופעל אוטומטית בפעם הראשונה)
+    _onInventoryChanged();
   }
 
   /// 🗑️ מחיקת מוצר מרשימת המוחרגים (שחזור המלצות)
@@ -109,6 +109,12 @@ class SuggestionsProvider with ChangeNotifier {
   }
 
   void _onInventoryChanged() {
+    // ⏭️ דלג אם המלאי עדיין טוען (isLoading=true)
+    if (_inventoryProvider.isLoading) {
+      debugPrint('⏭️ [SuggestionsProvider] מלאי טוען, ממתין לסיום');
+      return;
+    }
+    
     debugPrint('💡 [SuggestionsProvider] מלאי השתנה - מעדכן המלצות');
     refreshSuggestions();
   }

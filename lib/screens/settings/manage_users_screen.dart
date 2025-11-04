@@ -30,7 +30,7 @@ import 'package:memozap/providers/user_context.dart';
 import 'package:memozap/services/share_list_service.dart';
 import 'package:memozap/widgets/common/notebook_background.dart';
 import 'package:memozap/widgets/common/sticky_button.dart';
-import 'package:memozap/widgets/dialogs/invite_user_dialog.dart';
+import 'package:memozap/screens/sharing/invite_users_screen.dart';
 
 /// 🇮🇱 מסך ניהול משתמשים משותפים
 /// 🇬🇧 Manage shared users screen
@@ -229,7 +229,11 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   }
 
   Future<void> _inviteUser() async {
-    final result = await showInviteUserDialog(context, widget.list);
+    final result = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (context) => InviteUsersScreen(list: widget.list),
+      ),
+    );
     
     if (result == true && mounted) {
       // רענון רשימת המשתמשים
