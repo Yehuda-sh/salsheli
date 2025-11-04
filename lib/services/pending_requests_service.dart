@@ -25,12 +25,10 @@ import 'package:memozap/providers/user_context.dart';
 /// 5. Owner/Admin דוחה → rejectRequest() → בקשה נמחקת
 class PendingRequestsService {
   final ShoppingListsRepository _repository;
-  final ShareListService _shareService;
   final UserContext _userContext;
 
   PendingRequestsService(
     this._repository,
-    this._shareService,
     this._userContext,
   );
 

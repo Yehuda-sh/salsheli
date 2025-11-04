@@ -89,6 +89,9 @@ class ShoppingListsProvider with ChangeNotifier {
   String? get errorMessage => _errorMessage;
   DateTime? get lastUpdated => _lastUpdated;
   bool get isEmpty => _lists.isEmpty;
+  
+  /// Repository access for services
+  ShoppingListsRepository get repository => _repository;
 
   /// רשימות פעילות בלבד (לא הושלמו)
   List<ShoppingList> get activeLists => _lists

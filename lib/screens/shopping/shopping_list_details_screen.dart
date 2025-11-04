@@ -24,14 +24,13 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../models/shopping_list.dart';
 import '../../models/unified_list_item.dart';
 import '../../models/enums/item_type.dart';
 import '../../providers/shopping_lists_provider.dart';
+import '../../providers/user_context.dart';
 
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
@@ -41,6 +40,8 @@ import '../../widgets/common/pending_requests_section.dart';
 import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/sticky_note.dart';
 import '../../widgets/shopping/product_selection_bottom_sheet.dart';
+import '../../widgets/shopping/add_edit_product_dialog.dart';
+import '../../widgets/shopping/add_edit_task_dialog.dart';
 import '../../services/pending_requests_service.dart';
 import '../settings/manage_users_screen.dart';
 import '../sharing/pending_requests_screen.dart';
@@ -106,7 +107,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     final userContext = context.read<UserContext>();
     final requestsService = PendingRequestsService(
       provider.repository,
-      ShareListService(provider.repository, userContext),
       userContext,
     );
 
@@ -216,301 +216,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     }
   }
 
-  /// === דיאלוג הוספה/עריכה עם אנימציה ===
-  void _showItemDialog(BuildContext context, {UnifiedListItem? item}) {
-    final provider = context.read<ShoppingListsProvider>();
 
-    // Controllers - יש לסגור אותם!
-    final nameController = TextEditingController(text: item?.name ?? "");
-    final quantityController = TextEditingController(text: item?.quantity?.toString() ?? "1");
-    final priceController = TextEditingController(text: item?.unitPrice?.toString() ?? "");
-
-    debugPrint(
-      item == null
-          ? '➕ ShoppingListDetailsScreen: פתיחת דיאלוג הוספת מוצר'
-          : '✏️ ShoppingListDetailsScreen: פתיחת דיאלוג עריכת "${item.name}"',
-    );
-
-    // פונקציה לניקוי controllers
-    void disposeControllers() {
-      nameController.dispose();
-      quantityController.dispose();
-      priceController.dispose();
-    }
-
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      transitionDuration: const Duration(milliseconds: 200),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return ScaleTransition(
-          scale: CurvedAnimation(parent: animation, curve: Curves.easeOutBack),
-          child: FadeTransition(
-            opacity: animation,
-            child: AlertDialog(
-              title: Text(item == null ? AppStrings.listDetails.addProductTitle : AppStrings.listDetails.editProductTitle),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: nameController,
-                    decoration: InputDecoration(labelText: AppStrings.listDetails.productNameLabel),
-                    textDirection: ui.TextDirection.rtl,
-                  ),
-                  const SizedBox(height: kSpacingSmall),
-                  TextField(
-                    controller: quantityController,
-                    decoration: InputDecoration(labelText: AppStrings.listDetails.quantityLabel),
-                    keyboardType: TextInputType.number,
-                    textDirection: ui.TextDirection.rtl,
-                  ),
-                  const SizedBox(height: kSpacingSmall),
-                  TextField(
-                    controller: priceController,
-                    decoration: InputDecoration(labelText: AppStrings.listDetails.priceLabel),
-                    keyboardType: TextInputType.number,
-                    textDirection: ui.TextDirection.rtl,
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    debugPrint('❌ ShoppingListDetailsScreen: ביטול דיאלוג');
-                    Navigator.pop(context);
-                    // Dispose אחרי שהאנימציה נגמרת
-                    Future.delayed(const Duration(milliseconds: 250), disposeControllers);
-                  },
-                  child: Text(AppStrings.common.cancel),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    final name = nameController.text.trim();
-                    final qtyText = quantityController.text.trim();
-                    final priceText = priceController.text.trim();
-
-                    // ✅ Validation מלא
-                    if (name.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(AppStrings.listDetails.productNameEmpty), backgroundColor: Colors.red),
-                      );
-                      return;
-                    }
-
-                    final qty = int.tryParse(qtyText);
-                    if (qty == null || qty <= 0 || qty > 9999) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(AppStrings.listDetails.quantityInvalid), backgroundColor: Colors.red),
-                      );
-                      return;
-                    }
-
-                    final unitPrice = double.tryParse(priceText);
-                    if (unitPrice == null || unitPrice < 0) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(AppStrings.listDetails.priceInvalid),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                      return;
-                    }
-
-                    final newItem = UnifiedListItem.product(
-                      id: const Uuid().v4(),
-                      name: name,
-                      quantity: qty ?? 1,
-                      unitPrice: unitPrice,
-                      unit: "יח'",
-                    );
-
-                    if (item == null) {
-                      provider.addUnifiedItem(widget.list.id, newItem);
-                      debugPrint('✅ ShoppingListDetailsScreen: הוסף מוצר "$name"');
-                    } else {
-                      // מצא את האינדקס המקורי ברשימה
-                      final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id);
-                      final originalIndex = currentList.items.indexWhere((i) => i.id == item.id);
-                      
-                      if (originalIndex != -1) {
-                        provider.updateItemAt(widget.list.id, originalIndex, (_) => newItem);
-                        debugPrint('✅ ShoppingListDetailsScreen: עדכן מוצר "$name" (index: $originalIndex)');
-                      } else {
-                        debugPrint('❌ ShoppingListDetailsScreen: לא נמצא פריט לעריכה');
-                      }
-                    }
-
-                    Navigator.pop(context);
-                    // Dispose אחרי שהאנימציה נגמרת
-                    Future.delayed(const Duration(milliseconds: 250), disposeControllers);
-                  },
-                  child: Text(AppStrings.common.save),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  /// === דיאלוג הוספת משימה עם אנימציה ===
-  void _showTaskDialog(BuildContext context, {UnifiedListItem? item}) {
-    final provider = context.read<ShoppingListsProvider>();
-
-    // Controllers - יש לסגור אותם!
-    final nameController = TextEditingController(text: item?.name ?? "");
-    final notesController = TextEditingController(text: item?.notes ?? "");
-    DateTime? selectedDueDate = item?.dueDate;
-    String selectedPriority = item?.priority ?? 'medium';
-
-    debugPrint(
-      item == null
-          ? '➕ ShoppingListDetailsScreen: פתיחת דיאלוג הוספת משימה'
-          : '✏️ ShoppingListDetailsScreen: פתיחת דיאלוג עריכת "${item.name}"',
-    );
-
-    // פונקציה לניקוי controllers
-    void disposeControllers() {
-      nameController.dispose();
-      notesController.dispose();
-    }
-
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      transitionDuration: const Duration(milliseconds: 200),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return ScaleTransition(
-              scale: CurvedAnimation(parent: animation, curve: Curves.easeOutBack),
-              child: FadeTransition(
-                opacity: animation,
-                child: AlertDialog(
-                  title: Text(item == null ? AppStrings.listDetails.addTaskTitle : AppStrings.listDetails.editTaskTitle),
-                  content: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextField(
-                          controller: nameController,
-                          decoration: InputDecoration(labelText: AppStrings.listDetails.taskNameLabel),
-                          textDirection: ui.TextDirection.rtl,
-                        ),
-                        const SizedBox(height: kSpacingSmall),
-                        TextField(
-                          controller: notesController,
-                          decoration: InputDecoration(labelText: AppStrings.listDetails.notesLabel),
-                          textDirection: ui.TextDirection.rtl,
-                          maxLines: 3,
-                        ),
-                        const SizedBox(height: kSpacingMedium),
-                        // תאריך יעד
-                        ListTile(
-                          title: Text(
-                            selectedDueDate != null
-                                ? AppStrings.listDetails.dueDateSelected(DateFormat('dd/MM/yyyy').format(selectedDueDate!))
-                                : AppStrings.listDetails.dueDateLabel,
-                            style: TextStyle(color: selectedDueDate != null ? Colors.green : Colors.grey),
-                          ),
-                          leading: const Icon(Icons.calendar_today),
-                          onTap: () async {
-                            final picked = await showDatePicker(
-                              context: context,
-                              initialDate: selectedDueDate ?? DateTime.now(),
-                              firstDate: DateTime.now(),
-                              lastDate: DateTime.now().add(const Duration(days: 365)),
-                            );
-                            if (picked != null) {
-                              setState(() => selectedDueDate = picked);
-                            }
-                          },
-                        ),
-                        const SizedBox(height: kSpacingSmall),
-                        // עדיפות
-                        DropdownButtonFormField<String>(
-                          initialValue: selectedPriority,
-                          decoration: InputDecoration(labelText: AppStrings.listDetails.priorityLabel),
-                          items: [
-                            DropdownMenuItem(value: 'low', child: Text(AppStrings.listDetails.priorityLow)),
-                            DropdownMenuItem(value: 'medium', child: Text(AppStrings.listDetails.priorityMedium)),
-                            DropdownMenuItem(value: 'high', child: Text(AppStrings.listDetails.priorityHigh)),
-                          ],
-                          onChanged: (value) {
-                            if (value != null) {
-                              setState(() => selectedPriority = value);
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        debugPrint('❌ ShoppingListDetailsScreen: ביטול דיאלוג משימה');
-                        Navigator.pop(context);
-                        // Dispose אחרי שהאנימציה נגמרת
-                        Future.delayed(const Duration(milliseconds: 250), disposeControllers);
-                      },
-                      child: Text(AppStrings.common.cancel),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        final name = nameController.text.trim();
-                        final notes = notesController.text.trim();
-
-                        // ✅ Validation מלא
-                        if (name.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(AppStrings.listDetails.taskNameEmpty), backgroundColor: Colors.red),
-                          );
-                          return;
-                        }
-
-                        final newItem = UnifiedListItem.task(
-                          id: item?.id ?? const Uuid().v4(),
-                          name: name,
-                          dueDate: selectedDueDate,
-                          priority: selectedPriority,
-                          notes: notes.isNotEmpty ? notes : null,
-                        );
-
-                        if (item == null) {
-                          // הוספה - נשתמש ב-addUnifiedItem החדש!
-                          provider.addUnifiedItem(widget.list.id, newItem);
-                          debugPrint('✅ ShoppingListDetailsScreen: הוסף משימה "$name"');
-                        } else {
-                          // מצא את האינדקס המקורי ברשימה
-                          final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id);
-                          final originalIndex = currentList.items.indexWhere((i) => i.id == item.id);
-                          
-                          if (originalIndex != -1) {
-                            provider.updateItemAt(widget.list.id, originalIndex, (_) => newItem);
-                            debugPrint('✅ ShoppingListDetailsScreen: עדכן משימה "$name" (index: $originalIndex)');
-                          } else {
-                            debugPrint('❌ ShoppingListDetailsScreen: לא נמצא משימה לעריכה');
-                          }
-                        }
-
-                        Navigator.pop(context);
-                        // Dispose אחרי שהאנימציה נגמרת
-                        Future.delayed(const Duration(milliseconds: 250), disposeControllers);
-                      },
-                      child: Text(AppStrings.common.save),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
 
   /// === מחיקת פריט עם אנימציה ===
   void _deleteItem(BuildContext context, UnifiedListItem removed) {
@@ -538,16 +244,80 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
           label: AppStrings.common.cancel,
           textColor: Colors.white,
           onPressed: () {
-            provider.addItemToList(
-              widget.list.id,
-              removed.name ?? 'מוצר ללא שם',
-              removed.quantity ?? 1,
-              removed.unit ?? "יח'",
-            );
+          provider.addItemToList(
+          widget.list.id,
+          removed.name ?? '',
+          removed.quantity ?? 1,
+          removed.unit ?? 'יח\'',
+          );
             debugPrint('↩️ ShoppingListDetailsScreen: שחזר מוצר "${removed.name}"');
           },
         ),
       ),
+    );
+  }
+
+  /// 🛒 הוספת מוצר חדש
+  Future<void> _handleAddProduct() async {
+    final provider = context.read<ShoppingListsProvider>();
+    
+    await showAddEditProductDialog(
+      context,
+      onSave: (item) {
+        provider.addUnifiedItem(widget.list.id, item);
+        debugPrint('✅ ShoppingListDetailsScreen: הוסף מוצר "${item.name}"');
+      },
+    );
+  }
+
+  /// ✏️ עריכת מוצר קיים
+  Future<void> _handleEditProduct(UnifiedListItem item) async {
+    final provider = context.read<ShoppingListsProvider>();
+    
+    await showAddEditProductDialog(
+      context,
+      item: item,
+      onSave: (updatedItem) {
+        final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id);
+        final originalIndex = currentList.items.indexWhere((i) => i.id == item.id);
+        
+        if (originalIndex != -1) {
+          provider.updateItemAt(widget.list.id, originalIndex, (_) => updatedItem);
+          debugPrint('✅ ShoppingListDetailsScreen: עדכן מוצר "${updatedItem.name}" (index: $originalIndex)');
+        }
+      },
+    );
+  }
+
+  /// 📋 הוספת משימה חדשה
+  Future<void> _handleAddTask() async {
+    final provider = context.read<ShoppingListsProvider>();
+    
+    await showAddEditTaskDialog(
+      context,
+      onSave: (item) {
+        provider.addUnifiedItem(widget.list.id, item);
+        debugPrint('✅ ShoppingListDetailsScreen: הוסף משימה "${item.name}"');
+      },
+    );
+  }
+
+  /// ✏️ עריכת משימה קיימת
+  Future<void> _handleEditTask(UnifiedListItem item) async {
+    final provider = context.read<ShoppingListsProvider>();
+    
+    await showAddEditTaskDialog(
+      context,
+      item: item,
+      onSave: (updatedItem) {
+        final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id);
+        final originalIndex = currentList.items.indexWhere((i) => i.id == item.id);
+        
+        if (originalIndex != -1) {
+          provider.updateItemAt(widget.list.id, originalIndex, (_) => updatedItem);
+          debugPrint('✅ ShoppingListDetailsScreen: עדכן משימה "${updatedItem.name}" (index: $originalIndex)');
+        }
+      },
     );
   }
 
@@ -563,7 +333,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
       // סינון לפי קטגוריה
       if (_selectedCategory != null && _selectedCategory != AppStrings.listDetails.categoryAll) {
-        final itemCategory = item.category ?? AppStrings.listDetails.categoryOther;
+        final itemCategory = item.category;
         if (itemCategory != _selectedCategory) return false;
       }
 
@@ -778,7 +548,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                             _fabController.reverse().then((_) {
                               _fabController.forward();
                             });
-                            _showTaskDialog(context);
+                            _handleAddTask();
                           },
                         ),
                       ),
@@ -793,7 +563,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                             _fabController.reverse().then((_) {
                               _fabController.forward();
                             });
-                            _showItemDialog(context);
+                            _handleAddProduct();
                           },
                         ),
                       ),
@@ -1094,7 +864,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
     // קטגוריה עם אימוג'י
     final category = item.category ?? AppStrings.listDetails.categoryOther;
-    final categoryEmoji = _categoryEmojis[category] ?? '📋';
 
     return Dismissible(
       key: Key(item.id),
@@ -1201,8 +970,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                           ),
                         ),
                         child: Text(
-                          '×${item.quantity ?? 1}',
-                          style: theme.textTheme.bodySmall?.copyWith(
+                        '×${item.quantity}',
+                        style: theme.textTheme.bodySmall?.copyWith(
                             color: theme.colorScheme.onPrimaryContainer,
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
@@ -1263,9 +1032,9 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                   constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                   onPressed: () {
                     if (isProduct) {
-                      _showItemDialog(context, item: item);
+                      _handleEditProduct(item);
                     } else {
-                      _showTaskDialog(context, item: item);
+                      _handleEditTask(item);
                     }
                   },
                 ),
