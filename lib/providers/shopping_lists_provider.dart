@@ -817,6 +817,54 @@ class ShoppingListsProvider with ChangeNotifier {
     }
   }
 
+  /// מעדכן סטטוס פריט (לשימוש ב-ActiveShoppingScreen)
+  /// מקבל ShoppingItemStatus ומתרגם ל-isChecked
+  /// 
+  /// Example:
+  /// ```dart
+  /// await provider.updateItemStatus(listId, itemId, ShoppingItemStatus.purchased);
+  /// ```
+  Future<void> updateItemStatus(
+    String listId,
+    String itemId,
+    dynamic status, // ShoppingItemStatus or any status object
+  ) async {
+    debugPrint('📝 updateItemStatus: מעדכן פריט $itemId (list: $listId, status: $status)');
+    final list = getById(listId);
+    if (list == null) {
+      debugPrint('❌ updateItemStatus: רשימה לא נמצאה');
+      throw Exception('רשימה $listId לא נמצאה');
+    }
+
+    // מצא את האינדקס של הפריט
+    final itemIndex = list.items.indexWhere((item) => item.id == itemId);
+    if (itemIndex == -1) {
+      debugPrint('❌ updateItemStatus: פריט לא נמצא');
+      throw Exception('פריט $itemId לא נמצא');
+    }
+
+    _errorMessage = null;
+
+    try {
+      // תרגם status ל-isChecked
+      // אם הסטטוס הוא purchased → סמן כנבחר
+      // במקרים אחרים, השאר את isChecked כמו שהוא (הסטטוס נשמר במקומי בלבד)
+      final statusString = status.toString();
+      final isChecked = statusString.contains('purchased');
+
+      await updateItemAt(listId, itemIndex, (item) {
+        return item.copyWith(isChecked: isChecked);
+      });
+
+      debugPrint('✅ updateItemStatus: פריט $itemId עודכן (isChecked: $isChecked)');
+    } catch (e) {
+      debugPrint('❌ updateItemStatus: שגיאה - $e');
+      _errorMessage = 'שגיאה בעדכון סטטוס פריט: ${e.toString()}';
+      notifyListeners();
+      rethrow;
+    }
+  }
+
   /// מסיים קנייה משותפת - רק ה-Starter יכול!
   /// יוצר קבלה וירטואלית מכל הפריטים המסומנים
   /// 

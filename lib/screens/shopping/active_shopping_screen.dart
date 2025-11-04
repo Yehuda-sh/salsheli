@@ -36,8 +36,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/status_colors.dart';
-import '../../l10n/app_strings.dart';
 import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
 import '../../models/enums/shopping_item_status.dart';
 import '../../models/shopping_list.dart';
 import '../../models/unified_list_item.dart';
@@ -51,7 +51,10 @@ import '../../widgets/common/skeleton_loading.dart';
 import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/sticky_note.dart';
 import '../../widgets/common/tappable_card.dart';
+import '../../services/shopping_patterns_service.dart';
 import '../../widgets/home/last_chance_banner.dart';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ActiveShoppingScreen extends StatefulWidget {
   final ShoppingList list;
@@ -63,11 +66,6 @@ class ActiveShoppingScreen extends StatefulWidget {
 }
 
 class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with SingleTickerProviderStateMixin {
-  // ⏱️ טיימר
-  late DateTime _startTime;
-  Timer? _timer;
-  Duration _elapsed = Duration.zero;
-
   // 📊 מצבי פריטים (item.id → status)
   final Map<String, ShoppingItemStatus> _itemStatuses = {};
 
@@ -88,7 +86,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
     _userContext = context.read<UserContext>();
     _userContext.addListener(_onUserContextChanged);
 
-    _startTime = DateTime.now();
     _initializeScreen();
   }
 
@@ -106,16 +103,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
       await Future.delayed(const Duration(milliseconds: 300));
       if (!mounted) return;
 
-      // התחל טיימר שמתעדכן כל שנייה
-      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-        if (mounted) {
-          setState(() {
-            _elapsed = DateTime.now().difference(_startTime);
-          });
-        }
-      });
-
-      // אתחל את כל הפריטים כ-pending
+      // אתחל את כל הפריטים כ-pending (או טען drafts אם קיימים)
       for (final item in widget.list.items) {
         _itemStatuses[item.id] = ShoppingItemStatus.pending;
       }
@@ -149,19 +137,27 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
   @override
   void dispose() {
     debugPrint('🗑️ ActiveShoppingScreen.dispose');
-    _timer?.cancel();
     _userContext.removeListener(_onUserContextChanged); // ✅ חובה!
     super.dispose();
   }
 
-  /// עדכון סטטוס פריט
-  void _updateItemStatus(UnifiedListItem item, ShoppingItemStatus newStatus) {
+  /// עדכון סטטוס פריט + שמירה אוטומטית
+  Future<void> _updateItemStatus(UnifiedListItem item, ShoppingItemStatus newStatus) async {
     debugPrint('📝 _updateItemStatus: ${item.name} → ${newStatus.label}');
 
     setState(() {
       _itemStatuses[item.id] = newStatus;
     });
-    debugPrint('✅ _updateItemStatus: עודכן בהצלחה');
+
+    // 💾 Auto-save - שמור מיידית ל-Firebase
+    try {
+      final provider = context.read<ShoppingListsProvider>();
+      await provider.updateItemStatus(widget.list.id, item.id, newStatus);
+      debugPrint('✅ _updateItemStatus: נשמר אוטומטית');
+    } catch (e) {
+      debugPrint('❌ _updateItemStatus Auto-save Error: $e');
+      // לא מציג שגיאה למשתמש - נשמר בזיכרון מקומי
+    }
   }
 
   /// סיום קנייה - מעבר למסך סיכום
@@ -178,7 +174,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
       context: context,
       builder: (context) => _ShoppingSummaryDialog(
         listName: widget.list.name,
-        duration: _elapsed,
         total: widget.list.items.length,
         purchased: purchased,
         outOfStock: outOfStock,
@@ -220,6 +215,24 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
         final inventoryProvider = context.read<InventoryProvider>();
         await inventoryProvider.updateStockAfterPurchase(purchasedItems);
         debugPrint('✅ מלאי עודכן בהצלחה');
+
+        // 📊 שמור דפוס קנייה (מערכת למידה)
+        try {
+          final patternsService = ShoppingPatternsService(
+            firestore: FirebaseFirestore.instance,
+            userContext: _userContext,
+          );
+          
+          // שמור את סדר הקנייה
+          final purchasedNames = purchasedItems.map((item) => item.name).toList();
+          await patternsService.saveShoppingPattern(
+            listType: widget.list.type,
+            purchasedItems: purchasedNames,
+          );
+          debugPrint('✅ דפוס קנייה נשמר בהצלחה');
+        } catch (e) {
+          debugPrint('⚠️ שמירת דפוס נכשלה (לא קריטי): $e');
+        }
       }
 
       // 2️⃣ העבר פריטים שלא נקנו לרשימה הבאה
@@ -396,17 +409,11 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
           appBar: AppBar(
             backgroundColor: accent,
             foregroundColor: Colors.white,
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.list.name,
-                  style: const TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-                Text('⏱️ ${_formatDuration(_elapsed)}', style: const TextStyle(fontSize: kFontSizeSmall)),
-              ],
+            title: Text(
+              widget.list.name,
+              style: const TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
             actions: [
               Semantics(
@@ -539,13 +546,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
     );
   }
 
-  /// פורמט משך זמן (HH:MM:SS)
-  String _formatDuration(Duration duration) {
-    final hours = duration.inHours.toString().padLeft(2, '0');
-    final minutes = (duration.inMinutes % 60).toString().padLeft(2, '0');
-    final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
-    return '$hours:$minutes:$seconds';
-  }
+
 }
 
 // ========================================
@@ -596,10 +597,9 @@ class _LoadingSkeletonScreen extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        SkeletonBox(
+                        const SkeletonBox(
                           width: 40,
                           height: 40,
-                          borderRadius: BorderRadius.circular(20),
                         ),
                         const SizedBox(width: kSpacingSmall),
                         const Expanded(child: SkeletonBox(height: 20)),
@@ -758,13 +758,13 @@ class _StatCard extends StatelessWidget {
 }
 
 // ========================================
-// Widget: פריט בקנייה פעילה - Sticky Note Style
+// Widget: פריט בקנייה פעילה - Checkbox Style
 // ========================================
 
 class _ActiveShoppingItemTile extends StatelessWidget {
   final UnifiedListItem item;
   final ShoppingItemStatus status;
-  final Function(ShoppingItemStatus) onStatusChanged;
+  final Future<void> Function(ShoppingItemStatus) onStatusChanged;
 
   const _ActiveShoppingItemTile({
     required this.item,
@@ -881,54 +881,61 @@ class _ActiveShoppingItemTile extends StatelessWidget {
 
               const SizedBox(height: kSpacingSmallPlus),
 
-              // שורה תחתונה: 4 כפתורי פעולה
+              // שורה תחתונה: Checkbox + תפריט
               Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // שורה 1: קנוי + אזל
-                  Row(
-                  children: [
-                      Expanded(
-                        child: _ActionButton(
-                          icon: Icons.check_circle,
-                          label: AppStrings.shopping.activePurchased,
-                          color: StatusColors.success,
-                          isSelected: status == ShoppingItemStatus.purchased,
-                          onTap: () => onStatusChanged(ShoppingItemStatus.purchased),
-                        ),
-                      ),
-                      const SizedBox(width: kSpacingSmall),
-                      Expanded(
-                        child: _ActionButton(
-                          icon: Icons.remove_shopping_cart,
-                          label: AppStrings.shopping.itemStatusOutOfStock,
-                          color: StatusColors.error,
-                          isSelected: status == ShoppingItemStatus.outOfStock,
-                          onTap: () => onStatusChanged(ShoppingItemStatus.outOfStock),
-                        ),
-                      ),
-                    ],
+                  // ✅ Checkbox = קנוי
+                  CheckboxListTile(
+                    value: status == ShoppingItemStatus.purchased,
+                    onChanged: (checked) {
+                      if (checked == true) {
+                        onStatusChanged(ShoppingItemStatus.purchased);
+                      } else {
+                        onStatusChanged(ShoppingItemStatus.pending);
+                      }
+                    },
+                    title: Text(
+                      AppStrings.shopping.activePurchased,
+                      style: const TextStyle(fontSize: kFontSizeBody, fontWeight: FontWeight.w600),
+                    ),
+                    activeColor: StatusColors.success,
+                    contentPadding: EdgeInsets.zero,
+                    dense: true,
                   ),
+
                   const SizedBox(height: kSpacingSmall),
-                  // שורה 2: דחה לאחר כך + לא צריך
+
+                  // שורת כפתורים: אין בחנות + מוצר חלופי
                   Row(
                     children: [
+                      // ❌ כפתור "אין בחנות"
                       Expanded(
-                        child: _ActionButton(
-                          icon: Icons.schedule,
-                          label: AppStrings.shopping.itemStatusDeferred,
-                          color: StatusColors.warning,
-                          isSelected: status == ShoppingItemStatus.deferred,
-                          onTap: () => onStatusChanged(ShoppingItemStatus.deferred),
+                        child: StickyButton(
+                          label: 'אין בחנות',
+                          icon: Icons.remove_shopping_cart,
+                          color: status == ShoppingItemStatus.outOfStock ? StatusColors.error : Colors.white,
+                          textColor: status == ShoppingItemStatus.outOfStock ? Colors.white : StatusColors.error,
+                          height: 40,
+                          onPressed: () => onStatusChanged(ShoppingItemStatus.outOfStock),
                         ),
                       ),
+
                       const SizedBox(width: kSpacingSmall),
+
+                      // 🔄 כפתור "מוצר חלופי"
                       Expanded(
-                        child: _ActionButton(
-                          icon: Icons.block,
-                          label: AppStrings.shopping.itemStatusNotNeeded,
-                          color: Colors.grey.shade700,
-                          isSelected: status == ShoppingItemStatus.notNeeded,
-                          onTap: () => onStatusChanged(ShoppingItemStatus.notNeeded),
+                        child: StickyButton(
+                          label: 'מוצר חלופי',
+                          icon: Icons.swap_horiz,
+                          color: kStickyPurple,
+                          textColor: Colors.white,
+                          height: 40,
+                          onPressed: () {
+                            // TODO: פתח דיאלוג בחירת מוצר חלופי
+                            // לעת עתה - סמן כנקנה
+                            onStatusChanged(ShoppingItemStatus.purchased);
+                          },
                         ),
                       ),
                     ],
@@ -943,49 +950,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
   }
 }
 
-// ========================================
-// Widget: כפתור פעולה - Sticky Button Style
-// ========================================
 
-class _ActionButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _ActionButton({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    // Sticky Button style with proper colors
-    final buttonColor = isSelected ? color : Colors.white;
-    final textColor = isSelected ? Colors.white : color;
-
-    return Semantics(
-      label: label,
-      button: true,
-      selected: isSelected,
-      child: Transform.scale(
-        scale: isSelected ? 1.02 : 1.0,
-        child: StickyButton(
-          label: label,
-          icon: icon,
-          color: buttonColor,
-          textColor: textColor,
-          height: 44, // Compact height
-          onPressed: onTap,
-        ),
-      ),
-    );
-  }
-}
 
 // ========================================
 // Dialog: סיכום קנייה
@@ -993,7 +958,6 @@ class _ActionButton extends StatelessWidget {
 
 class _ShoppingSummaryDialog extends StatelessWidget {
   final String listName;
-  final Duration duration;
   final int total;
   final int purchased;
   final int outOfStock;
@@ -1003,7 +967,6 @@ class _ShoppingSummaryDialog extends StatelessWidget {
 
   const _ShoppingSummaryDialog({
     required this.listName,
-    required this.duration,
     required this.total,
     required this.purchased,
     required this.outOfStock,
@@ -1011,12 +974,6 @@ class _ShoppingSummaryDialog extends StatelessWidget {
     required this.notNeeded,
     required this.pending,
   });
-
-  String _formatDuration(Duration d) {
-    final minutes = d.inMinutes;
-    final seconds = d.inSeconds % 60;
-    return '$minutes דק\' $seconds שנ\'';
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -1050,14 +1007,6 @@ class _ShoppingSummaryDialog extends StatelessWidget {
               maxLines: 1,
             ),
             const SizedBox(height: kSpacingMedium),
-
-            // ⏱️ זמן קנייה
-            _SummaryRow(
-              icon: Icons.timer,
-              label: AppStrings.shopping.summaryShoppingTime,
-              value: _formatDuration(duration),
-              color: StatusColors.info,
-            ),
 
             const Divider(height: kSpacingLarge),
 
