@@ -1,19 +1,34 @@
 rules_version = '2';
 // 🔒 MemoZap Firestore Security Rules
 // 
-// ✅ עודכן: 02/11/2025 - תיקון שיתוף משתמשים
+// ✅ עודכן: 04/11/2025 - Phase 3B - 4-Tier Permission System
 // 
 // 📄 מערכת הרשאות לרשימות משותפות (4 רמות):
-//    - Owner:  בעלים (כל ההרשאות כולל מחיקה) - שדה created_by
-//    - Admin:  מנהל (כמעט כל ההרשאות, אישור בקשות)
-//    - Editor: עורך (שליחת בקשות בלבד דרך pending_requests)
-//    - Viewer: צופה (רק קריאה)
+//    1️⃣ Owner (created_by):
+//       - הרשאות: read ✅ + create ✅ + update ✅ + delete ✅
+//       - ניהול: manage users ✅ + approve requests ✅
+//       - הערות: יכול למחוק רשימה!
+//    
+//    2️⃣ Admin (shared_users role='admin'):
+//       - הרשאות: read ✅ + create ✅ + update ✅ + delete ❌
+//       - ניהול: manage users ✅ + approve requests ✅
+//       - הערות: לא יכול למחוק רשימה (Owner בלבד)
+//    
+//    3️⃣ Editor (shared_users role='editor'):
+//       - הרשאות: read ✅ + create pending_requests ✅ + update items ❌
+//       - ניהול: ❌ לא יכול לנהל משתמשים או לאשר בקשות
+//       - הערות: כל הוספה דורשת אישור Owner/Admin
+//    
+//    4️⃣ Viewer (shared_users role='viewer'):
+//       - הרשאות: read ✅ בלבד
+//       - ניהול: ❌ אין הרשאות ניהול
+//       - הערות: read-only access
 //
-// 📌 שדות חדשים ברשימה:
-//    - created_by: מזהה הבעלים (במקום user_id)
-//    - shared_users: רשימת משתמשים עם תפקידים
-//    - pending_requests: בקשות ממתינות מ-Editors
-//    - active_shoppers: קונים פעילים (קנייה משותפת)
+// 📌 שדות ברשימה:
+//    - created_by: מזהה הבעלים (Owner)
+//    - shared_users: [{userId, role, sharedAt}]
+//    - pending_requests: [{id, requesterId, itemData, status, requestedAt}]
+//    - active_shoppers: [{userId, joinedAt, isStarter, isActive}]
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -190,33 +205,42 @@ service cloud.firestore {
     }
     
     // === Shopping Lists Collection ===
+    // 4-Tier Permission System:
+    // 1. Owner (created_by): Full access + delete + manage users
+    // 2. Admin (shared_users role='admin'): Full access + manage users (no delete)
+    // 3. Editor (shared_users role='editor'): Read + create pending_requests only
+    // 4. Viewer (shared_users role='viewer'): Read-only
     match /shopping_lists/{listId} {
-      // קריאה: household member או shared user
+      // ✅ קריאה: כל חבר household או משתמש משותף (כולל Viewer)
       allow read: if isAuthenticated() && (
                        isHouseholdMember(resource.data.household_id) ||
                        isListMember(listId)
                      );
       
-      // יצירה: רק household member
+      // ✅ יצירה: כל household member
       allow create: if isAuthenticated() && hasValidHouseholdId();
       
-      // עדכון: לפי הרשאות
-      // Owner/Admin: כל עדכון
-      // Editor: רק pending_requests
-      // Viewer: לא יכול לעדכן
-      allow update: if isAuthenticated() && (
-                       // Owner/Admin - כל עדכון
-                       isListAdmin(listId) ||
-                       // Editor - רק הוספת בקשות ל-pendingRequests
-                       (getUserRole(listId) == 'editor' && 
-                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pending_requests']))
-                     ) &&
-                     // מנע שינוי household_id
-                     request.resource.data.household_id == resource.data.household_id &&
-                     // מנע שינוי created_by
-                     request.resource.data.created_by == resource.data.created_by;
+      // ✅ עדכון רגיל: Owner/Admin בלבד
+      // מותר לעדכן: items, name, list_type, updated_date, active_shoppers
+      // אסור לשנות: household_id, created_by, created_date
+      allow update: if isAuthenticated() &&
+                       isListAdmin(listId) &&
+                       // מנע שינוי שדות קריטיים
+                       request.resource.data.household_id == resource.data.household_id &&
+                       request.resource.data.created_by == resource.data.created_by;
       
-      // מחיקה: רק Owner
+      // ✅ עדכון מיוחד: Editor - רק pending_requests
+      // Editor יכול רק להוסיף בקשות חדשות, לא לשנות כלום אחר
+      allow update: if isAuthenticated() &&
+                       getUserRole(listId) == 'editor' &&
+                       // רק pending_requests השתנה
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pending_requests', 'updated_date']) &&
+                       // מנע שינוי שדות קריטיים
+                       request.resource.data.household_id == resource.data.household_id &&
+                       request.resource.data.created_by == resource.data.created_by &&
+                       request.resource.data.items == resource.data.items; // Editor לא יכול לשנות items!
+      
+      // ✅ מחיקה: Owner בלבד (לא Admin!)
       allow delete: if isAuthenticated() && isListOwner(listId);
     }
     
