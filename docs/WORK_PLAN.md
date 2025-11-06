@@ -523,24 +523,32 @@ part_b_inventory:
       - testing_real_data
   
   phase_8a_predictive_stock:
-    status: TODO_FUTURE
+    status: DEFERRED
     week: 7
-    priority: MEDIUM
+    priority: LOW
     
-    overview:
-      goal: smart_shopping_habits_learning
-      concept:
-        - learn_purchase_frequency_per_product
-        - predict_when_product_runs_out
-        - suggest_repurchase_before_out_of_stock
-        - integrate_with_my_pantry_screen
+    deferred_reason: |
+      Feature removed in session 52 (04/11/2025).
+      Previous implementation was too complex and not well-designed.
+      Will be rebuilt from scratch when needed, based on actual usage patterns.
     
-    infrastructure_ready:
-      repository: firebase_habits_repository.dart (200+ lines)
-      provider: habits_provider.dart (300+ lines)
-      model: habit_preference.dart (with .g.dart)
-      firebase_collection: habit_preferences
-      status: ✅ ACTIVE (verified session 50)
+    removed_files:
+      - lib/models/habit_preference.dart
+      - lib/models/habit_preference.g.dart
+      - lib/repositories/habits_repository.dart
+      - lib/repositories/firebase_habits_repository.dart
+      - lib/providers/habits_provider.dart
+      - repository_constants: habitPreferences, preferredProduct, lastPurchased
+    
+    future_considerations:
+      - learn_from_purchase_patterns
+      - suggest_products_before_runout
+      - integrate_with_threshold_system
+      - smart_routing_to_list_types
+      - start_simple_manual_habits
+      - build_based_on_real_behavior
+      - consider_simpler_algorithms
+      - design_ui_after_understanding_needs
     
     ui_components:
       habits_suggestions_dialog:

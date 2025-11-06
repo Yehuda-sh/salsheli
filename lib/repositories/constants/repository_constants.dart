@@ -11,7 +11,6 @@ class FirestoreCollections {
   static const String products = 'products';
   static const String users = 'users';
   static const String households = 'households';
-  static const String habitPreferences = 'habit_preferences';
   static const String customLocations = 'custom_locations';
 }
 
@@ -45,10 +44,6 @@ class FirestoreFields {
   static const String category = 'category';
   static const String barcode = 'barcode';
   static const String brand = 'brand';
-  
-  // Habit Preference fields
-  static const String preferredProduct = 'preferred_product';
-  static const String lastPurchased = 'last_purchased';
   
   // Location fields
   static const String locationName = 'location_name';
