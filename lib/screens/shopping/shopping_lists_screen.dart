@@ -16,10 +16,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../config/list_types_config.dart';
 import '../../core/ui_constants.dart';
 import '../../models/shopping_list.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../widgets/common/notebook_background.dart';
+import '../../widgets/common/skeleton_loader.dart';
 import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/sticky_note.dart';
 import '../../widgets/shopping/create_list_dialog.dart';
@@ -229,10 +231,10 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
           style: const TextStyle(fontSize: kFontSizeSmall, color: Colors.black87),
           items: [
             const DropdownMenuItem(value: 'all', child: Text('כל הסוגים')),
-            ...listTypes.entries.map((entry) {
+            ...ListTypes.all.map((typeConfig) {
               return DropdownMenuItem(
-                value: entry.key,
-                child: Text('${entry.value} ${_getTypeShortName(entry.key)}'),
+                value: typeConfig.key,
+                child: Text('${typeConfig.emoji} ${typeConfig.shortName}'),
               );
             }),
           ],
@@ -245,29 +247,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
         ),
       ),
     );
-  }
-
-  /// קיצור שמות הסוגים
-  String _getTypeShortName(String type) {
-    switch (type) {
-      case ShoppingList.typeSupermarket:
-        return 'סופר';
-      case ShoppingList.typePharmacy:
-        return 'מרקחת';
-      case ShoppingList.typeGreengrocer:
-        return 'ירקן';
-      case ShoppingList.typeButcher:
-        return 'אטליז';
-      case ShoppingList.typeBakery:
-        return 'מאפייה';
-      case ShoppingList.typeMarket:
-        return 'שוק';
-      case ShoppingList.typeHousehold:
-        return 'בית';
-      case ShoppingList.typeOther:
-      default:
-        return 'אחר';
-    }
   }
 
   /// 📊 כפתור מיון קומפקטי
@@ -345,95 +324,10 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
     }
   }
 
-  /// 💀 Skeleton Box - קופסה מהבהבת
-  Widget _buildSkeletonBox({required double width, required double height, BorderRadius? borderRadius}) {
-    final cs = Theme.of(context).colorScheme;
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 800),
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            cs.surfaceContainerHighest.withValues(alpha: 0.3),
-            cs.surfaceContainerHighest.withValues(alpha: 0.1),
-            cs.surfaceContainerHighest.withValues(alpha: 0.3),
-          ],
-          stops: const [0.0, 0.5, 1.0],
-        ),
-        borderRadius: borderRadius ?? BorderRadius.circular(kBorderRadiusSmall),
-      ),
-    );
-  }
-
-  /// 💀 Skeleton של כרטיס רשימה
-  Widget _buildListCardSkeleton() {
-    // 🎨 צבעים לפתקים (rotation)
-    final stickyColors = [kStickyYellow, kStickyPink, kStickyGreen];
-    final stickyRotations = [0.01, -0.015, 0.01];
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
-      child: StickyNote(
-        color: stickyColors[DateTime.now().millisecond % 3],
-        rotation: stickyRotations[DateTime.now().millisecond % 3],
-        child: Padding(
-          padding: const EdgeInsets.all(kSpacingMedium),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  // אייקון
-                  _buildSkeletonBox(width: 40, height: 40, borderRadius: BorderRadius.circular(20)),
-                  const SizedBox(width: kSpacingMedium),
-                  // כותרת
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildSkeletonBox(width: double.infinity, height: 18),
-                        const SizedBox(height: kSpacingSmall),
-                        _buildSkeletonBox(width: 100, height: 14),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: kSpacingMedium),
-              // סטטיסטיקות
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  for (int i = 0; i < 3; i++)
-                    Column(
-                      children: [
-                        _buildSkeletonBox(width: 40, height: 12),
-                        const SizedBox(height: kSpacingTiny),
-                        _buildSkeletonBox(width: 50, height: 10),
-                      ],
-                    ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   /// 💀 Loading State - עם Skeleton Screens
   Widget _buildLoadingState() {
     debugPrint('⏳ _buildLoadingState()');
-
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: kSpacingSmall),
-      itemCount: 5,
-      itemBuilder: (context, index) => _buildListCardSkeleton(),
-    );
+    return const SkeletonListView.listCards(itemCount: 5);
   }
 
   /// 📌 מציג דיאלוג ליצירת רשימה חדשה
@@ -992,56 +886,16 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
 
           const Divider(),
 
-          // 🛒 סוגי רשימות (7 סוגים)
-          _buildDrawerItem(
-            context: context,
-            title: 'סופרמרקט',
-            icon: Icons.shopping_cart,
-            type: 'supermarket',
-            isSelected: _selectedType == 'supermarket',
-          ),
-          _buildDrawerItem(
-            context: context,
-            title: 'בית מרקחת',
-            icon: Icons.medication,
-            type: 'pharmacy',
-            isSelected: _selectedType == 'pharmacy',
-          ),
-          _buildDrawerItem(
-            context: context,
-            title: 'ירקן',
-            icon: Icons.local_florist,
-            type: 'greengrocer',
-            isSelected: _selectedType == 'greengrocer',
-          ),
-          _buildDrawerItem(
-            context: context,
-            title: 'אטליז',
-            icon: Icons.set_meal,
-            type: 'butcher',
-            isSelected: _selectedType == 'butcher',
-          ),
-          _buildDrawerItem(
-            context: context,
-            title: 'מאפייה',
-            icon: Icons.bakery_dining,
-            type: 'bakery',
-            isSelected: _selectedType == 'bakery',
-          ),
-          _buildDrawerItem(
-            context: context,
-            title: 'שוק',
-            icon: Icons.store,
-            type: 'market',
-            isSelected: _selectedType == 'market',
-          ),
-          _buildDrawerItem(
-            context: context,
-            title: 'אחר',
-            icon: Icons.more_horiz,
-            type: 'household',
-            isSelected: _selectedType == 'household',
-          ),
+          // 🛒 סוגי רשימות - דינמי מה-config
+          ...ListTypes.all.map((typeConfig) {
+            return _buildDrawerItem(
+              context: context,
+              title: typeConfig.fullName,
+              icon: typeConfig.icon,
+              type: typeConfig.key,
+              isSelected: _selectedType == typeConfig.key,
+            );
+          }),
         ],
       ),
     );

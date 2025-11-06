@@ -274,11 +274,13 @@ class _CreateListDialogState extends State<CreateListDialog> {
   /// - onSelected: עדכון _type
   /// - Disabled כשהדיאלוג משתמש בשליחה (_isSubmitting)
   ///
-  /// [type] - סוג הרשימה (string key מ-kListTypes)
+  /// [type] - סוג הרשימה (string key מ-ListTypes)
   /// Returns: FilterChip interactive
   Widget _buildTypeChip(String type) {
     final theme = Theme.of(context);
-    final typeInfo = kListTypes[type]!;
+    final typeInfo = ListTypes.getByKey(type);
+    if (typeInfo == null) return const SizedBox.shrink();
+    
     final isSelected = _type == type;
 
     return FilterChip(
@@ -286,10 +288,10 @@ class _CreateListDialogState extends State<CreateListDialog> {
       label: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(typeInfo['name']!),
+          Text(typeInfo.fullName),
           const SizedBox(width: kSpacingXTiny),
           Text(
-            typeInfo['icon']!,
+            typeInfo.emoji,
             style: const TextStyle(fontSize: kIconSizeSmall),
           ),
         ],
@@ -403,7 +405,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          kListTypes[_type]!['icon']!,
+                          ListTypes.getByKey(_type)?.emoji ?? '📋',
                           style: const TextStyle(fontSize: 32.0),
                         ),
                         const SizedBox(width: kSpacingSmall),
@@ -412,14 +414,9 @@ class _CreateListDialogState extends State<CreateListDialog> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                kListTypes[_type]!['name']!,
+                                ListTypes.getByKey(_type)?.fullName ?? 'אחר',
                                 style: theme.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                kListTypes[_type]!['description']!,
-                                style: theme.textTheme.bodySmall,
+                                  fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),

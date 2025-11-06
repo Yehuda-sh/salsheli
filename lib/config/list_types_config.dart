@@ -1,87 +1,146 @@
 // 📄 File: lib/config/list_types_config.dart
 //
-// 📋 List Types Configuration
+// 🎯 מטרה: הגדרה מרכזית של כל סוגי הרשימות
 // 
-// Defines the 8 smart list types with their properties:
-// - name: Display name in Hebrew
-// - icon: Emoji representation
-// - description: Brief description
-//
-// Used by:
-// - create_list_dialog.dart - List type selection UI
-// - list_type_filter_service.dart - Product filtering logic
-//
-// Related: WORK_PLAN.md Phase 1 (List Types)
-//
-// Version: 1.0
-// Created: 29/10/2025
+// ✨ יתרונות:
+// - מקור אמת יחיד (Single Source of Truth)
+// - קל להוסיף סוג חדש (רק במקום אחד)
+// - עקביות בכל האפליקציה
+// - קל לתחזוקה ולבדיקה
 
-/// Configuration for the 8 smart list types
-/// 
-/// Each type filters products from different categories:
-/// - supermarket: All products (5000+)
-/// - pharmacy: Hygiene & cleaning products
-/// - greengrocer: Fruits & vegetables
-/// - butcher: Meat & poultry
-/// - bakery: Bread & pastries
-/// - market: Mixed fresh products
-/// - household: Custom household items
-/// - other: Fallback for uncategorized items
-const Map<String, Map<String, String>> kListTypes = {
-  'supermarket': {
-    'name': 'סופרמרקט',
-    'icon': '🛒',
-    'description': 'קניות כלליות - כל המוצרים',
-  },
-  'pharmacy': {
-    'name': 'בית מרקחת',
-    'icon': '💊',
-    'description': 'היגיינה וניקיון',
-  },
-  'greengrocer': {
-    'name': 'ירקן',
-    'icon': '🥬',
-    'description': 'פירות וירקות טריים',
-  },
-  'butcher': {
-    'name': 'אטליז',
-    'icon': '🥩',
-    'description': 'בשר ועוף',
-  },
-  'bakery': {
-    'name': 'מאפייה',
-    'icon': '🍞',
-    'description': 'לחם ומאפים',
-  },
-  'market': {
-    'name': 'שוק',
-    'icon': '🧺',
-    'description': 'מוצרים טריים מעורבבים',
-  },
-  'household': {
-    'name': 'כלי בית',
-    'icon': '🏠',
-    'description': 'פריטים מותאמים אישית',
-  },
-  'other': {
-    'name': 'אחר',
-    'icon': '📦',
-    'description': 'קטגוריה כללית',
-  },
-};
+import 'package:flutter/material.dart';
+import 'package:memozap/models/shopping_list.dart';
 
-/// Get list of all type keys
-List<String> get allListTypes => kListTypes.keys.toList();
+/// 📦 הגדרת סוג רשימה אחד
+/// מכיל את כל המידע הויזואלי והטקסטואלי
+class ListTypeConfig {
+  /// מפתח ייחודי (תואם ל-ShoppingList constants)
+  final String key;
+  
+  /// שם מלא להצגה (למשל ב-Drawer)
+  final String fullName;
+  
+  /// שם קצר להצגה (למשל ב-Dropdown)
+  final String shortName;
+  
+  /// אימוג'י ייצוגי
+  final String emoji;
+  
+  /// אייקון Material
+  final IconData icon;
+  
+  /// צבע אופציונלי (לשימוש עתידי)
+  final Color? color;
 
-/// Check if a type is valid
-bool isValidListType(String type) => kListTypes.containsKey(type);
+  const ListTypeConfig({
+    required this.key,
+    required this.fullName,
+    required this.shortName,
+    required this.emoji,
+    required this.icon,
+    this.color,
+  });
+}
 
-/// Get display name for a type
-String getListTypeName(String type) => kListTypes[type]?['name'] ?? 'לא ידוע';
+/// 🗂️ כל סוגי הרשימות במערכת
+class ListTypes {
+  /// רשימת כל הסוגים (7 סוגים + "אחר")
+  static const List<ListTypeConfig> all = [
+    ListTypeConfig(
+      key: ShoppingList.typeSupermarket,
+      fullName: 'סופרמרקט',
+      shortName: 'סופר',
+      emoji: '🛒',
+      icon: Icons.shopping_cart,
+    ),
+    ListTypeConfig(
+      key: ShoppingList.typePharmacy,
+      fullName: 'בית מרקחת',
+      shortName: 'מרקחת',
+      emoji: '💊',
+      icon: Icons.medication,
+    ),
+    ListTypeConfig(
+      key: ShoppingList.typeGreengrocer,
+      fullName: 'ירקן',
+      shortName: 'ירקן',
+      emoji: '🥬',
+      icon: Icons.local_florist,
+    ),
+    ListTypeConfig(
+      key: ShoppingList.typeButcher,
+      fullName: 'אטליז',
+      shortName: 'אטליז',
+      emoji: '🥩',
+      icon: Icons.set_meal,
+    ),
+    ListTypeConfig(
+      key: ShoppingList.typeBakery,
+      fullName: 'מאפייה',
+      shortName: 'מאפייה',
+      emoji: '🥖',
+      icon: Icons.bakery_dining,
+    ),
+    ListTypeConfig(
+      key: ShoppingList.typeMarket,
+      fullName: 'שוק',
+      shortName: 'שוק',
+      emoji: '🏪',
+      icon: Icons.store,
+    ),
+    ListTypeConfig(
+      key: ShoppingList.typeHousehold,
+      fullName: 'צרכי בית',
+      shortName: 'בית',
+      emoji: '🏠',
+      icon: Icons.home,
+    ),
+    ListTypeConfig(
+      key: ShoppingList.typeOther,
+      fullName: 'אחר',
+      shortName: 'אחר',
+      emoji: '📝',
+      icon: Icons.more_horiz,
+    ),
+  ];
 
-/// Get icon for a type
-String getListTypeIcon(String type) => kListTypes[type]?['icon'] ?? '📦';
+  /// 🔍 מצא config לפי key
+  static ListTypeConfig? getByKey(String key) {
+    try {
+      return all.firstWhere((config) => config.key == key);
+    } catch (e) {
+      return null;
+    }
+  }
 
-/// Get description for a type
-String getListTypeDescription(String type) => 
-    kListTypes[type]?['description'] ?? 'אין תיאור';
+  /// 🎨 קבל אימוג'י לפי key
+  static String getEmoji(String key) {
+    final config = getByKey(key);
+    return config?.emoji ?? '📝';
+  }
+
+  /// 📝 קבל שם מלא לפי key
+  static String getFullName(String key) {
+    final config = getByKey(key);
+    return config?.fullName ?? 'אחר';
+  }
+
+  /// 📋 קבל שם קצר לפי key
+  static String getShortName(String key) {
+    final config = getByKey(key);
+    return config?.shortName ?? 'אחר';
+  }
+
+  /// 🎭 קבל אייקון לפי key
+  static IconData getIcon(String key) {
+    final config = getByKey(key);
+    return config?.icon ?? Icons.more_horiz;
+  }
+
+  /// 🗺️ Map של אימוג'ים (לתאימות לאחור)
+  static Map<String, String> get emojis {
+    return Map.fromEntries(
+      all.map((config) => MapEntry(config.key, config.emoji)),
+    );
+  }
+}
