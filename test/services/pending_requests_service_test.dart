@@ -128,7 +128,7 @@ void main() {
               listId: testList.id,
               requesterId: editorId,
               type: RequestType.addItem,
-              requestData: {'name': 'חלב', 'quantity': 2, 'unitPrice': 5.0},
+              re ata: {'name': 'חלב', 'quantity': 2, 'unitPrice': 5.0},
               requesterName: 'Editor User',
             ),
           ],

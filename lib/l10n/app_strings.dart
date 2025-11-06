@@ -1332,6 +1332,7 @@ class _SharingStrings {
   String get cannotChangeOwnRole => 'לא ניתן לשנות את התפקיד שלך';
   String get cannotRemoveSelf => 'לא ניתן להסיר את עצמך';
   String get cannotRemoveOwner => 'לא ניתן להסיר את הבעלים';
+  String get noPermissionInvite => 'רק הבעלים יכול להזמין משתמשים';
   String get onlyOwnerCanDelete => 'רק הבעלים יכול למחוק את הרשימה';
 
   // ========================================

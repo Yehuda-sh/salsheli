@@ -15,9 +15,10 @@
 // Last Updated: 04/11/2025
 
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:memozap/core/ui_constants.dart';
 import 'package:memozap/l10n/app_strings.dart';
@@ -53,9 +54,8 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
 
     final userContext = Provider.of<UserContext>(context, listen: false);
     final repository = context.read<ShoppingListsRepository>();
-    final shareService = context.read<ShareListService>();
 
-    _service = PendingRequestsService(repository, shareService, userContext);
+    _service = PendingRequestsService(repository, userContext);
 
     // 🔒 Validation: רק Owner/Admin יכולים לראות בקשות
     final currentUserId = userContext.userId!;
@@ -156,21 +156,20 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
   Future<void> _rejectRequest(PendingRequest request) async {
     if (_isProcessing) return;
 
+    // Capture before async
+    final messenger = ScaffoldMessenger.of(context);
+    final strings = AppStrings.sharing;
+    final userContext = Provider.of<UserContext>(context, listen: false);
+    final notificationsService = NotificationsService(FirebaseFirestore.instance);
+    final rejecterName = userContext.displayName ?? 'מנהל';
+
     // Show rejection reason dialog
     final reason = await _showRejectDialog();
     if (reason == null) return; // User canceled
 
-    // Capture before async
-    final messenger = ScaffoldMessenger.of(context);
-    final strings = AppStrings.sharing;
-
     setState(() => _isProcessing = true);
 
     try {
-      final userContext = Provider.of<UserContext>(context, listen: false);
-      final notificationsService = NotificationsService(FirebaseFirestore.instance);
-      final rejecterName = userContext.displayName ?? 'מנהל';
-
       await _service.rejectRequest(
         list: widget.list,
         requestId: request.id,

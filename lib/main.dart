@@ -13,13 +13,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart'; // 📦 Hive!
 import 'package:provider/provider.dart';
+
 import 'firebase_options.dart';
 
 // Models
 import 'models/shopping_list.dart';
 
 // Providers
-import 'providers/habits_provider.dart';
 import 'providers/inventory_provider.dart';
 import 'providers/locations_provider.dart';
 import 'providers/product_location_provider.dart';
@@ -30,7 +30,6 @@ import 'providers/suggestions_provider.dart';
 import 'providers/user_context.dart';
 
 // Repositories
-import 'repositories/firebase_habits_repository.dart'; // 🔥 Firebase Habits!
 import 'repositories/firebase_inventory_repository.dart'; // 🔥 Firebase Inventory!
 import 'repositories/firebase_locations_repository.dart'; // 🔥 Firebase Locations!
 import 'repositories/firebase_receipt_repository.dart'; // 🔥 Firebase Receipts!
@@ -38,6 +37,7 @@ import 'repositories/firebase_shopping_lists_repository.dart'; // 🔥 Firebase 
 import 'repositories/firebase_user_repository.dart'; // 🔥 Firebase User!
 import 'repositories/local_products_repository.dart'; // 📦 Local JSON!
 import 'repositories/user_repository.dart';
+
 // Services
 import 'services/auth_service.dart'; // 🔐 Firebase Auth!
 
@@ -223,27 +223,6 @@ void main() async {
           update: (context, inventoryProvider, previous) =>
               previous ?? SuggestionsProvider(inventoryProvider: inventoryProvider),
         ),
-
-        // === Habits Provider === 🧠 Firebase!
-        ChangeNotifierProxyProvider<UserContext, HabitsProvider>(
-          create: (context) {
-            final provider = HabitsProvider(
-              FirebaseHabitsRepository(), // 🔥 Firebase!
-            );
-            final userContext = context.read<UserContext>();
-            provider.updateUserContext(userContext);
-            return provider;
-          },
-          update: (context, userContext, previous) {
-            final provider =
-                previous ??
-                HabitsProvider(
-                  FirebaseHabitsRepository(), // 🔥 Firebase!
-                );
-            provider.updateUserContext(userContext);
-            return provider;
-          },
-        ),
       ],
       child: const MyApp(),
     ),
@@ -274,7 +253,6 @@ class _MyAppState extends State<MyApp> {
 
           darkTheme: darkDynamic != null ? AppTheme.fromDynamicColors(darkDynamic, dark: true) : AppTheme.darkTheme,
 
-          themeMode: ThemeMode.system,
           locale: const Locale('he', 'IL'),
           supportedLocales: const [Locale('he', 'IL')],
           localizationsDelegates: const [

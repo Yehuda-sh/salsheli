@@ -17,9 +17,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:memozap/l10n/app_strings.dart';
+import 'package:memozap/models/enums/user_role.dart';
 import 'package:memozap/models/shopping_list.dart';
-import 'package:memozap/models/user_role.dart';
 import 'package:memozap/providers/user_context.dart';
 import 'package:memozap/services/notifications_service.dart';
 import 'package:memozap/services/share_list_service.dart';
@@ -108,10 +109,15 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
       final navigator = Navigator.of(context);
       final userContext = context.read<UserContext>();
       final currentUserId = userContext.userId;
-      final currentUserName = userContext.user?.displayName ?? 'משתמש';
+      final currentUserName = userContext.user?.name ?? 'משתמש';
+
+      // Validate user is logged in
+      if (currentUserId == null) {
+        throw Exception('user_not_logged_in');
+      }
 
       // Call static method with NotificationsService
-      final updatedList = await ShareListService.inviteUser(
+      await ShareListService.inviteUser(
         list: widget.list,
         currentUserId: currentUserId,
         invitedUserId: _emailController.text.trim(), // TODO: Should be userId not email
@@ -304,7 +310,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                           // Cancel Button
                           Expanded(
                             child: StickyButton(
-                              text: AppStrings.sharing.cancelButton,
+                              label: AppStrings.sharing.cancelButton,
                               color: Colors.grey,
                               onPressed: _isLoading
                                   ? null
@@ -318,7 +324,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                           Expanded(
                             flex: 2,
                             child: StickyButton(
-                              text: _isLoading
+                              label: _isLoading
                                   ? AppStrings.sharing.inviting
                                   : AppStrings.sharing.inviteButton,
                               color: const Color(0xFFA5D6A7), // kStickyGreen
