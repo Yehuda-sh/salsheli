@@ -42,7 +42,6 @@ import '../widgets/common/benefit_tile.dart';
 import '../widgets/common/notebook_background.dart';
 import '../widgets/common/sticky_button.dart';
 import '../widgets/common/sticky_note.dart';
-import '../widgets/common/tappable_card.dart';
 
 // 🔧 Wrapper ללוגים - פועל רק ב-debug mode
 void _log(String message) {
@@ -142,52 +141,40 @@ class WelcomeScreen extends StatelessWidget {
                     const SizedBox(height: kSpacingLarge),
 
                     // 📌 יתרונות כפתקים צבעוניים עם אנימציות כניסה
-                    SimpleTappableCard(
-                      onTap: () => _log('💛 benefit 1 tapped'),
-                      child: BenefitTile(
-                        icon: Icons.people_outline,
-                        title: AppStrings.welcome.benefit1Title,
-                        subtitle: AppStrings.welcome.benefit1Subtitle,
-                        color: brand?.stickyYellow ?? kStickyYellow,
-                        rotation: 0.01,
-                        iconColor: accent,
-                      ),
+                    BenefitTile(
+                      icon: Icons.people_outline,
+                      title: AppStrings.welcome.benefit1Title,
+                      subtitle: AppStrings.welcome.benefit1Subtitle,
+                      color: brand?.stickyYellow ?? kStickyYellow,
+                      rotation: 0.01,
+                      iconColor: accent,
                     ).animate().fadeIn(duration: 300.ms, delay: 100.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
                     const SizedBox(height: kSpacingSmall),
-                    SimpleTappableCard(
-                      onTap: () => _log('🌸 benefit 2 tapped'),
-                      child: BenefitTile(
-                        icon: Icons.checklist,
-                        title: AppStrings.welcome.benefit2Title,
-                        subtitle: AppStrings.welcome.benefit2Subtitle,
-                        color: brand?.stickyPink ?? kStickyPink,
-                        rotation: -0.015,
-                        iconColor: accent,
-                      ),
+                    BenefitTile(
+                      icon: Icons.checklist,
+                      title: AppStrings.welcome.benefit2Title,
+                      subtitle: AppStrings.welcome.benefit2Subtitle,
+                      color: brand?.stickyPink ?? kStickyPink,
+                      rotation: -0.015,
+                      iconColor: accent,
                     ).animate().fadeIn(duration: 300.ms, delay: 200.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
                     const SizedBox(height: kSpacingSmall),
-                    SimpleTappableCard(
-                      onTap: () => _log('💚 benefit 3 tapped'),
-                      child: BenefitTile(
-                        icon: Icons.auto_awesome,
-                        title: AppStrings.welcome.benefit3Title,
-                        subtitle: AppStrings.welcome.benefit3Subtitle,
-                        color: brand?.stickyGreen ?? kStickyGreen,
-                        rotation: 0.01,
-                        iconColor: accent,
-                      ),
+                    BenefitTile(
+                      icon: Icons.auto_awesome,
+                      title: AppStrings.welcome.benefit3Title,
+                      subtitle: AppStrings.welcome.benefit3Subtitle,
+                      color: brand?.stickyGreen ?? kStickyGreen,
+                      rotation: 0.01,
+                      iconColor: accent,
                     ).animate().fadeIn(duration: 300.ms, delay: 300.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
                     const SizedBox(height: kSpacingSmall),
-                    SimpleTappableCard(
-                      onTap: () => _log('💙 benefit 4 tapped'),
-                      child: BenefitTile(
-                        icon: Icons.inventory_2_outlined,
-                        title: AppStrings.welcome.benefit4Title,
-                        subtitle: AppStrings.welcome.benefit4Subtitle,
-                        color: brand?.stickyCyan ?? kStickyCyan,
-                        rotation: -0.015,
-                        iconColor: accent,
-                      ),
+                    BenefitTile(
+                      icon: Icons.inventory_2_outlined,
+                      title: AppStrings.welcome.benefit4Title,
+                      subtitle: AppStrings.welcome.benefit4Subtitle,
+                      color: brand?.stickyCyan ?? kStickyCyan,
+                      rotation: -0.015,
+                      iconColor: accent,
                     ).animate().fadeIn(duration: 300.ms, delay: 400.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
 
                     // 🔘 כפתורי פעולה בסגנון פתקים - קומפקטיים
