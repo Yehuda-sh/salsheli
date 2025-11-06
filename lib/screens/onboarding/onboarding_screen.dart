@@ -362,11 +362,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   /// - disabled בשלב הראשון עם empty callback () {}
   /// 
   /// **כפתור "הבא/סיום":**
-  /// - במצב loading: Container מותאם אישית עם CircularProgressIndicator
-  /// - במצב רגיל: StickyButton עם אייקון משתנה (חץ / V)
-  /// 
-  /// ⚠️ **לקח:** StickyButton לא תומך ב-isLoading parameter,
-  /// לכן אנחנו מחליפים אותו ב-Container כשיש loading!
+  /// - תומך במצב loading דרך פרמטר isLoading
+  /// - במצב loading: מציג CircularProgressIndicator
+  /// - במצב רגיל: מציג אייקון משתנה (חץ / V)
   Widget _buildNavigationButtons(ColorScheme cs, Color accent, int totalSteps) {
     return Row(
       children: [
@@ -386,45 +384,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
         // כפתור "הבא" / "סיום" - Sticky Notes Design ⭐
         Expanded(
-          child: _isLoading
-              ? Container(
-                  height: kButtonHeight,
-                  decoration: BoxDecoration(
-                    color: accent,
-                    borderRadius: BorderRadius.circular(kStickyButtonRadius),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: kStickyShadowPrimaryOpacity),
-                        blurRadius: kStickyShadowPrimaryBlur,
-                        offset: const Offset(
-                          kStickyShadowPrimaryOffsetX,
-                          kStickyShadowPrimaryOffsetY,
-                        ),
-                      ),
-                    ],
-                  ),
-                  child: const Center(
-                    child: SizedBox(
-                      height: kIconSizeSmall,
-                      width: kIconSizeSmall,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    ),
-                  ),
-                )
-              : StickyButton(
-                  color: accent,
-                  textColor: Colors.white,
-                  label: _currentStep == totalSteps - 1
-                      ? AppStrings.onboarding.finish
-                      : AppStrings.onboarding.next,
-                  icon: _currentStep == totalSteps - 1
-                      ? Icons.check
-                      : Icons.arrow_forward,
-                  onPressed: () => _nextStep(totalSteps),
-                ),
+          child: StickyButton(
+            color: accent,
+            textColor: Colors.white,
+            label: _currentStep == totalSteps - 1
+                ? AppStrings.onboarding.finish
+                : AppStrings.onboarding.next,
+            icon: _currentStep == totalSteps - 1
+                ? Icons.check
+                : Icons.arrow_forward,
+            onPressed: _isLoading ? () {} : () => _nextStep(totalSteps),
+            isLoading: _isLoading,
+          ),
         ),
       ],
     );

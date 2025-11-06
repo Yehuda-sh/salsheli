@@ -8,7 +8,7 @@
 // ✅ AppStrings - i18n ready
 // ✅ ui_constants - עיצוב עקבי
 // ✅ Sticky Notes Design System 🎨📝 ⭐ חדש!
-// 🔒 PopScope - חסימת Back (חובה להשלים הרשמה)
+// 🔙 PopScope - חזרה ל-login (לא חסימה)
 // 🚫 הוסרה כניסת Demo (26/10/2025)
 //
 // 🎨 UI/UX Improvements (15/10/2025): ⭐
@@ -26,8 +26,8 @@
 // - LoginScreen - התחברות לחשבון קיים
 // - AppStrings.auth - מחרוזות UI
 //
-// 📝 Version: 3.2 - Removed Demo Login
-// 📅 Updated: 26/10/2025
+// 📝 Version: 3.3 - Changed PopScope behavior (allow back to login)
+// 📅 Updated: 06/11/2025
 
 import 'dart:async';
 
@@ -240,20 +240,17 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     final brand = theme.extension<AppBrand>();
     final accent = brand?.accent ?? cs.primary;
 
-    // 💡 שמור messenger לפני PopScope
-    final messenger = ScaffoldMessenger.of(context);
-
-    // 🔒 חסימת Back - המשתמש חייב להשלים הרשמה
+    // 🔒 חזרה ל-login במקום welcome
     return PopScope(
-      canPop: false,
+      canPop: true,
       onPopInvokedWithResult: (didPop, result) {
-        if (!didPop) {
-          messenger.showSnackBar(
-            SnackBar(
-              content: Text(AppStrings.auth.mustCompleteRegister),
-              duration: kSnackBarDuration,
-            ),
-          );
+        if (didPop) {
+          // נווט ל-login במקום ל-welcome
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              Navigator.pushReplacementNamed(context, '/login');
+            }
+          });
         }
       },
       child: Scaffold(

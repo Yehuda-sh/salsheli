@@ -86,6 +86,9 @@ class StickyButton extends StatelessWidget {
   /// גובה הכפתור (ברירת מחדל: 48px)
   final double height;
 
+  /// האם להציג מצב טעינה
+  final bool isLoading;
+
   const StickyButton({
     super.key,
     this.color,
@@ -94,6 +97,7 @@ class StickyButton extends StatelessWidget {
     this.icon,
     this.onPressed,
     this.height = kButtonHeight,
+    this.isLoading = false,
   });
 
   @override
@@ -130,20 +134,31 @@ class StickyButton extends StatelessWidget {
               ),
             ],
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (icon != null) ...[Icon(icon, color: btnTextColor, size: kIconSize), const SizedBox(width: kSpacingSmall)],
-              Text(
-                label,
-                style: TextStyle(
-                  color: btnTextColor,
-                  fontSize: kFontSizeLarge,
-                  fontWeight: FontWeight.w600,
+          child: isLoading
+              ? Center(
+                  child: SizedBox(
+                    height: kIconSizeSmall,
+                    width: kIconSizeSmall,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(btnTextColor),
+                    ),
+                  ),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (icon != null) ...[Icon(icon, color: btnTextColor, size: kIconSize), const SizedBox(width: kSpacingSmall)],
+                    Text(
+                      label,
+                      style: TextStyle(
+                        color: btnTextColor,
+                        fontSize: kFontSizeLarge,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
         ),
       ),
     );
