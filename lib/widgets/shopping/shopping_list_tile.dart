@@ -54,44 +54,9 @@ class ShoppingListTile extends StatelessWidget {
   /// 🎨 אייקון לפי סוג הרשימה
   /// מחזיר אייקון ייחודי לכל סוג רשימה
   Widget _getListIcon(BuildContext context) {
-    IconData iconData;
-    Color iconColor;
-
-    switch (list.type) {
-      case ShoppingList.typeSupermarket:
-        iconData = Icons.shopping_cart;
-        iconColor = kStickyGreen;
-        break;
-      case ShoppingList.typePharmacy:
-        iconData = Icons.medication;
-        iconColor = kStickyCyan;
-        break;
-      case ShoppingList.typeGreengrocer:
-        iconData = Icons.local_florist;
-        iconColor = kStickyGreen;
-        break;
-      case ShoppingList.typeButcher:
-        iconData = Icons.set_meal;
-        iconColor = kStickyPink;
-        break;
-      case ShoppingList.typeBakery:
-        iconData = Icons.bakery_dining;
-        iconColor = kStickyYellow;
-        break;
-      case ShoppingList.typeMarket:
-        iconData = Icons.store;
-        iconColor = kStickyYellow;
-        break;
-      case ShoppingList.typeHousehold:
-        iconData = Icons.home;
-        iconColor = kStickyPurple;
-        break;
-      case ShoppingList.typeOther:
-      default:
-        iconData = Icons.shopping_bag;
-        iconColor = kStickyPurple;
-        break;
-    }
+    // ✅ שימוש ב-getters מהמודל (במקום switch case)
+    final iconData = list.typeIcon;
+    final iconColor = list.stickyColor;
 
     return Container(
       padding: const EdgeInsets.all(kSpacingSmall),

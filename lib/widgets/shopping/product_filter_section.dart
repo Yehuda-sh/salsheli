@@ -325,7 +325,7 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
                     count: widget.productsProvider.filteredProductsCount,
                     isSelected: widget.productsProvider.selectedCategory == null,
                     onTap: () => widget.productsProvider.clearCategory(),
-                    emoji: _getListTypeEmoji(),
+                    emoji: widget.list.typeEmoji, // ✅ שימוש ב-getter מהמודל
                     color: kStickyPurple,
                   ),
                   
@@ -446,24 +446,7 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
     );
   }
 
-  String _getListTypeEmoji() {
-    switch (widget.list.type) {
-      case 'butcher':
-        return '🥩';
-      case 'pharmacy':
-        return '💊';
-      case 'greengrocer':
-        return '🥬';
-      case 'bakery':
-        return '🥖';
-      case 'market':
-        return '🛒';
-      case 'household':
-        return '🏠';
-      default:
-        return '📦';
-    }
-  }
+  // ✅ פונקציה _getListTypeEmoji הוסרה - השתמש ב-widget.list.typeEmoji במקום
 
   String _getCategoryEmoji(String category) {
     // אטליז

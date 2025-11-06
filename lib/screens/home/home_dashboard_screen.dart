@@ -629,9 +629,9 @@ class _ActiveListCard extends StatelessWidget {
     final t = Theme.of(context).textTheme;
     final cs = Theme.of(context).colorScheme;
     
-    // בחירת צבע לפי סוג הרשימה
-    final Color noteColor = _getColorForListType(list.type);
-    final String typeIcon = _getIconForListType(list.type);
+    // ✅ שימוש ב-getters מהמודל (במקום פונקציות מקומיות)
+    final Color noteColor = list.stickyColor;
+    final String typeIcon = list.typeEmoji;
     final int itemCount = list.items.length;
     
     return InkWell(
@@ -720,47 +720,8 @@ class _ActiveListCard extends StatelessWidget {
     );
   }
   
-  Color _getColorForListType(String? type) {
-    switch (type) {
-      case 'supermarket':
-        return kStickyYellow;
-      case 'pharmacy':
-        return kStickyCyan;
-      case 'greengrocer':
-        return kStickyGreen;
-      case 'butcher':
-        return kStickyPink;
-      case 'bakery':
-        return kStickyOrange;
-      case 'market':
-        return kStickyPurple;
-      case 'household':
-        return kStickyCyan;
-      default:
-        return kStickyYellow;
-    }
-  }
-  
-  String _getIconForListType(String? type) {
-    switch (type) {
-      case 'supermarket':
-        return '🛒';
-      case 'pharmacy':
-        return '💊';
-      case 'greengrocer':
-        return '🥦';
-      case 'butcher':
-        return '🥩';
-      case 'bakery':
-        return '🥖';
-      case 'market':
-        return '🏪';
-      case 'household':
-        return '🏠';
-      default:
-        return '📝';
-    }
-  }
+  // ✅ פונקציות _getColorForListType ו-_getIconForListType הוסרו
+  // ✅ השתמש ב-list.stickyColor ו-list.typeEmoji במקום
   
   String _getRelativeTime(DateTime date) {
     final now = DateTime.now();

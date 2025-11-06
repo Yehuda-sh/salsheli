@@ -26,6 +26,7 @@
 //
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 import 'receipt.dart';
@@ -333,6 +334,77 @@ class ShoppingList {
   /// 🇬🇧 Get the role of a user
   UserRole? getUserRole(String userId) {
     return getSharedUser(userId)?.role;
+  }
+
+  // ==== 🎨 UI Helpers - Type-based styling ====
+
+  /// 🇮🇱 צבע פתק לפי סוג הרשימה
+  /// 🇬🇧 Sticky note color by list type
+  Color get stickyColor {
+    switch (type) {
+      case typeSupermarket:
+        return const Color(0xFFFFF59D); // kStickyYellow
+      case typePharmacy:
+        return const Color(0xFF80DEEA); // kStickyCyan
+      case typeGreengrocer:
+        return const Color(0xFFA5D6A7); // kStickyGreen
+      case typeButcher:
+        return const Color(0xFFF48FB1); // kStickyPink
+      case typeBakery:
+        return const Color(0xFFFFCC80); // kStickyOrange
+      case typeMarket:
+        return const Color(0xFFCE93D8); // kStickyPurple
+      case typeHousehold:
+        return const Color(0xFF80DEEA); // kStickyCyan
+      default:
+        return const Color(0xFFFFF59D); // kStickyYellow (default)
+    }
+  }
+
+  /// 🇮🇱 אימוג'י לפי סוג הרשימה
+  /// 🇬🇧 Emoji by list type
+  String get typeEmoji {
+    switch (type) {
+      case typeSupermarket:
+        return '🛒';
+      case typePharmacy:
+        return '💊';
+      case typeGreengrocer:
+        return '🥦';
+      case typeButcher:
+        return '🥩';
+      case typeBakery:
+        return '🥖';
+      case typeMarket:
+        return '🏪';
+      case typeHousehold:
+        return '🏠';
+      default:
+        return '📝';
+    }
+  }
+
+  /// 🇮🇱 אייקון Material לפי סוג הרשימה
+  /// 🇬🇧 Material icon by list type
+  IconData get typeIcon {
+    switch (type) {
+      case typeSupermarket:
+        return Icons.shopping_cart;
+      case typePharmacy:
+        return Icons.medication;
+      case typeGreengrocer:
+        return Icons.local_florist;
+      case typeButcher:
+        return Icons.set_meal;
+      case typeBakery:
+        return Icons.bakery_dining;
+      case typeMarket:
+        return Icons.store;
+      case typeHousehold:
+        return Icons.home;
+      default:
+        return Icons.shopping_bag;
+    }
   }
 
   /// Constructor
