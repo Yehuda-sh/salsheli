@@ -128,11 +128,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _weeklyReminders = prefs.getBool(_kWeeklyReminders) ?? true;
         _habitsAnalysis = prefs.getBool(_kHabitsAnalysis) ?? true;
 
-        final storesJson = prefs.getString(_kPreferredStores);
-        if (storesJson != null && storesJson.isNotEmpty) {
-          final List<String> decoded = storesJson.split(',');
-          _preferredStores.clear();
-          _preferredStores.addAll(decoded);
+        final storesList = prefs.getStringList(_kPreferredStores);
+        _preferredStores.clear();
+        if (storesList != null) {
+          _preferredStores.addAll(storesList);
         }
 
         _householdNameController.text = _householdName;
@@ -158,7 +157,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await prefs.setInt(_kFamilySize, _familySize);
       await prefs.setBool(_kWeeklyReminders, _weeklyReminders);
       await prefs.setBool(_kHabitsAnalysis, _habitsAnalysis);
-      await prefs.setString(_kPreferredStores, _preferredStores.join(','));
+      await prefs.setStringList(_kPreferredStores, _preferredStores);
 
       final messenger = ScaffoldMessenger.of(context);
       if (mounted) {
@@ -898,21 +897,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Column(
                     children: [
                       ListTile(
-                        leading: Icon(Icons.receipt_long, color: cs.primary),
-                        title: Text(AppStrings.settings.myReceipts),
+                        leading: const Icon(Icons.receipt_long, color: Colors.grey),
+                        title: Text(AppStrings.settings.myReceipts, style: const TextStyle(color: Colors.grey)),
                         trailing: const Icon(Icons.chevron_left),
-                        onTap: () {
-                          Navigator.pushNamed(context, '/receipts');
-                        },
+                        onTap: null,
                       ),
                       const Divider(height: 1),
                       ListTile(
-                        leading: Icon(Icons.psychology, color: cs.primary),
-                        title: const Text('הרגלי קנייה שלי'),
+                        leading: const Icon(Icons.psychology, color: Colors.grey),
+                        title: const Text('הרגלי קנייה שלי', style: TextStyle(color: Colors.grey)),
                         trailing: const Icon(Icons.chevron_left),
-                        onTap: () {
-                          Navigator.pushNamed(context, '/habits');
-                        },
+                        onTap: null,
                       ),
                       const Divider(height: 1),
                       ListTile(
@@ -925,12 +920,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       const Divider(height: 1),
                       ListTile(
-                        leading: Icon(Icons.price_change_outlined, color: cs.primary),
-                        title: Text(AppStrings.settings.priceComparison),
+                        leading: const Icon(Icons.price_change_outlined, color: Colors.grey),
+                        title: Text(AppStrings.settings.priceComparison, style: const TextStyle(color: Colors.grey)),
                         trailing: const Icon(Icons.chevron_left),
-                        onTap: () {
-                          Navigator.pushNamed(context, '/price-compare');
-                        },
+                        onTap: null,
                       ),
                       const Divider(height: 1),
                       ListTile(
