@@ -2,9 +2,9 @@
 // Tests for user sharing functionality
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:memozap/models/shopping_list.dart';
-import 'package:memozap/models/shared_user.dart';
 import 'package:memozap/models/enums/user_role.dart';
+import 'package:memozap/models/shared_user.dart';
+import 'package:memozap/models/shopping_list.dart';
 import 'package:memozap/services/share_list_service.dart';
 
 void main() {
@@ -14,6 +14,7 @@ void main() {
     const ownerId = 'owner-123';
     const userId1 = 'user-456';
     const userId2 = 'user-789';
+    const householdId = 'household-001';
 
     setUp(() {
       // רשימה בסיסית עם Owner בלבד
@@ -21,7 +22,6 @@ void main() {
         id: 'list-001',
         name: 'רשימת קניות',
         createdBy: ownerId,
-        items: [],
       );
     });
 
@@ -30,15 +30,17 @@ void main() {
     // ════════════════════════════════════════════
 
     group('inviteUser()', () {
-      test('Owner can invite user as Admin', () {
+      test('Owner can invite user as Admin', () async {
         // Act
-        final updatedList = ShareListService.inviteUser(
+        final updatedList = await ShareListService.inviteUser(
           list: testList,
           currentUserId: ownerId,
           invitedUserId: userId1,
           role: UserRole.admin,
           userName: 'User 1',
           userEmail: 'user1@example.com',
+          inviterName: 'Owner',
+          householdId: householdId,
         );
 
         // Assert
@@ -49,13 +51,15 @@ void main() {
         expect(updatedList.isShared, true);
       });
 
-      test('Owner can invite user as Editor', () {
+      test('Owner can invite user as Editor', () async {
         // Act
-        final updatedList = ShareListService.inviteUser(
+        final updatedList = await ShareListService.inviteUser(
           list: testList,
           currentUserId: ownerId,
           invitedUserId: userId1,
           role: UserRole.editor,
+          inviterName: 'Owner',
+          householdId: householdId,
         );
 
         // Assert
@@ -63,13 +67,15 @@ void main() {
         expect(updatedList.sharedUsers[0].role, UserRole.editor);
       });
 
-      test('Owner can invite user as Viewer', () {
+      test('Owner can invite user as Viewer', () async {
         // Act
-        final updatedList = ShareListService.inviteUser(
+        final updatedList = await ShareListService.inviteUser(
           list: testList,
           currentUserId: ownerId,
           invitedUserId: userId1,
           role: UserRole.viewer,
+          inviterName: 'Owner',
+          householdId: householdId,
         );
 
         // Assert
@@ -85,6 +91,8 @@ void main() {
             currentUserId: userId1, // Not owner!
             invitedUserId: userId2,
             role: UserRole.admin,
+            inviterName: 'User 1',
+            householdId: householdId,
           ),
           throwsA(
             predicate(
@@ -94,13 +102,15 @@ void main() {
         );
       });
 
-      test('Cannot invite same user twice', () {
+      test('Cannot invite same user twice', () async {
         // Arrange - invite user1 first
-        final listWithUser = ShareListService.inviteUser(
+        final listWithUser = await ShareListService.inviteUser(
           list: testList,
           currentUserId: ownerId,
           invitedUserId: userId1,
           role: UserRole.admin,
+          inviterName: 'Owner',
+          householdId: householdId,
         );
 
         // Act & Assert - try to invite again
@@ -110,6 +120,8 @@ void main() {
             currentUserId: ownerId,
             invitedUserId: userId1, // Same user!
             role: UserRole.editor,
+            inviterName: 'Owner',
+            householdId: householdId,
           ),
           throwsA(
             predicate(
@@ -127,6 +139,8 @@ void main() {
             currentUserId: ownerId,
             invitedUserId: ownerId, // Owner trying to invite himself!
             role: UserRole.admin,
+            inviterName: 'Owner',
+            householdId: householdId,
           ),
           throwsA(
             predicate(
@@ -144,6 +158,8 @@ void main() {
             currentUserId: ownerId,
             invitedUserId: userId1,
             role: UserRole.owner, // Trying to create second owner!
+            inviterName: 'Owner',
+            householdId: householdId,
           ),
           throwsA(
             predicate(
@@ -153,20 +169,24 @@ void main() {
         );
       });
 
-      test('Invite multiple users', () {
+      test('Invite multiple users', () async {
         // Act - invite 2 users
-        var updatedList = ShareListService.inviteUser(
+        var updatedList = await ShareListService.inviteUser(
           list: testList,
           currentUserId: ownerId,
           invitedUserId: userId1,
           role: UserRole.admin,
+          inviterName: 'Owner',
+          householdId: householdId,
         );
 
-        updatedList = ShareListService.inviteUser(
+        updatedList = await ShareListService.inviteUser(
           list: updatedList,
           currentUserId: ownerId,
           invitedUserId: userId2,
           role: UserRole.editor,
+          inviterName: 'Owner',
+          householdId: householdId,
         );
 
         // Assert
@@ -202,12 +222,14 @@ void main() {
         );
       });
 
-      test('Owner can remove user', () {
+      test('Owner can remove user', () async {
         // Act
-        final updatedList = ShareListService.removeUser(
+        final updatedList = await ShareListService.removeUser(
           list: listWithUsers,
           currentUserId: ownerId,
           removedUserId: userId1,
+          removerName: 'Owner',
+          householdId: householdId,
         );
 
         // Assert
@@ -216,7 +238,7 @@ void main() {
         expect(updatedList.isShared, true); // Still shared (1 user left)
       });
 
-      test('Removing last user sets isShared to false', () {
+      test('Removing last user sets isShared to false', () async {
         // Arrange - list with only 1 shared user
         final listWithOneUser = testList.copyWith(
           sharedUsers: [
@@ -230,10 +252,12 @@ void main() {
         );
 
         // Act
-        final updatedList = ShareListService.removeUser(
+        final updatedList = await ShareListService.removeUser(
           list: listWithOneUser,
           currentUserId: ownerId,
           removedUserId: userId1,
+          removerName: 'Owner',
+          householdId: householdId,
         );
 
         // Assert
@@ -248,6 +272,8 @@ void main() {
             list: listWithUsers,
             currentUserId: userId1, // Not owner!
             removedUserId: userId2,
+            removerName: 'User 1',
+            householdId: householdId,
           ),
           throwsA(
             predicate(
@@ -264,6 +290,8 @@ void main() {
             list: listWithUsers,
             currentUserId: ownerId,
             removedUserId: ownerId, // Trying to remove himself!
+            removerName: 'Owner',
+            householdId: householdId,
           ),
           throwsA(
             predicate(
@@ -280,6 +308,8 @@ void main() {
             list: listWithUsers,
             currentUserId: ownerId,
             removedUserId: 'user-999', // Doesn't exist!
+            removerName: 'Owner',
+            householdId: householdId,
           ),
           throwsA(
             predicate(
@@ -316,13 +346,15 @@ void main() {
         );
       });
 
-      test('Owner can update user role from Admin to Editor', () {
+      test('Owner can update user role from Admin to Editor', () async {
         // Act
-        final updatedList = ShareListService.updateUserRole(
+        final updatedList = await ShareListService.updateUserRole(
           list: listWithUsers,
           currentUserId: ownerId,
           targetUserId: userId1,
           newRole: UserRole.editor,
+          changerName: 'Owner',
+          householdId: householdId,
         );
 
         // Assert
@@ -332,13 +364,15 @@ void main() {
         expect(updatedUser.role, UserRole.editor); // Changed!
       });
 
-      test('Owner can update user role from Editor to Viewer', () {
+      test('Owner can update user role from Editor to Viewer', () async {
         // Act
-        final updatedList = ShareListService.updateUserRole(
+        final updatedList = await ShareListService.updateUserRole(
           list: listWithUsers,
           currentUserId: ownerId,
           targetUserId: userId2,
           newRole: UserRole.viewer,
+          changerName: 'Owner',
+          householdId: householdId,
         );
 
         // Assert
@@ -355,6 +389,8 @@ void main() {
             currentUserId: userId1, // Not owner!
             targetUserId: userId2,
             newRole: UserRole.viewer,
+            changerName: 'User 1',
+            householdId: householdId,
           ),
           throwsA(
             predicate(
@@ -372,6 +408,8 @@ void main() {
             currentUserId: ownerId,
             targetUserId: ownerId, // Trying to change owner!
             newRole: UserRole.admin,
+            changerName: 'Owner',
+            householdId: householdId,
           ),
           throwsA(
             predicate(
@@ -389,6 +427,8 @@ void main() {
             currentUserId: ownerId,
             targetUserId: userId1,
             newRole: UserRole.owner, // Trying to create second owner!
+            changerName: 'Owner',
+            householdId: householdId,
           ),
           throwsA(
             predicate(
@@ -406,6 +446,8 @@ void main() {
             currentUserId: ownerId,
             targetUserId: 'user-999', // Doesn't exist!
             newRole: UserRole.viewer,
+            changerName: 'Owner',
+            householdId: householdId,
           ),
           throwsA(
             predicate(

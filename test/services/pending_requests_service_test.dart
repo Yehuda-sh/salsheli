@@ -16,11 +16,11 @@ import 'package:memozap/models/shopping_list.dart';
 import 'package:memozap/models/unified_list_item.dart';
 import 'package:memozap/providers/user_context.dart';
 import 'package:memozap/repositories/shopping_lists_repository.dart';
+import 'package:memozap/services/notifications_service.dart';
 import 'package:memozap/services/pending_requests_service.dart';
-import 'package:memozap/services/share_list_service.dart';
 
 // Generate mocks
-@GenerateMocks([ShoppingListsRepository, UserContext])
+@GenerateMocks([ShoppingListsRepository, UserContext, NotificationsService])
 import 'pending_requests_service_test.mocks.dart';
 
 void main() {
@@ -28,6 +28,7 @@ void main() {
     // Test data
     late MockShoppingListsRepository mockRepository;
     late MockUserContext mockUserContext;
+    late MockNotificationsService mockNotificationsService;
     late PendingRequestsService service;
     late ShoppingList testList;
 
@@ -38,6 +39,7 @@ void main() {
       // Setup mocks
       mockRepository = MockShoppingListsRepository();
       mockUserContext = MockUserContext();
+      mockNotificationsService = MockNotificationsService();
 
       // Mock UserContext
       when(mockUserContext.userId).thenReturn(editorId);
@@ -45,7 +47,7 @@ void main() {
       when(mockUserContext.householdId).thenReturn('household-001');
 
       // Create service
-      service = PendingRequestsService(mockRepository, ShareListService(), mockUserContext);
+      service = PendingRequestsService(mockRepository, mockUserContext);
 
       // Create test list with Editor
       testList = ShoppingList.newList(name: 'רשימת קניות', createdBy: ownerId).copyWith(
@@ -73,7 +75,6 @@ void main() {
         );
 
         // Assert
-        verify(mockRepository.saveList(any, any)).called(1);
         final captured = verify(mockRepository.saveList(captureAny, any)).captured.single as ShoppingList;
         expect(captured.pendingRequests.length, 1);
         expect(captured.pendingRequests[0].type, RequestType.addItem);
@@ -103,7 +104,6 @@ void main() {
         await service.createAddItemRequest(list: testList, item: item);
 
         // Assert
-        verify(mockRepository.saveList(any, any)).called(1);
         final captured = verify(mockRepository.saveList(captureAny, any)).captured.single as ShoppingList;
         expect(captured.pendingRequests.length, 1);
         expect(captured.pendingRequests[0].requestData['name'], 'לחם');
@@ -142,14 +142,26 @@ void main() {
       test('Owner can approve request and add item', () async {
         // Arrange
         when(mockRepository.saveList(any, any)).thenAnswer((_) async => listWithPendingRequest);
+        when(mockNotificationsService.createRequestApprovedNotification(
+          userId: anyNamed('userId'),
+          householdId: anyNamed('householdId'),
+          listId: anyNamed('listId'),
+          listName: anyNamed('listName'),
+          itemName: anyNamed('itemName'),
+          approverName: anyNamed('approverName'),
+        )).thenAnswer((_) async => {});
 
         final requestId = listWithPendingRequest.pendingRequests[0].id;
 
         // Act
-        await service.approveRequest(list: listWithPendingRequest, requestId: requestId);
+        await service.approveRequest(
+          list: listWithPendingRequest,
+          requestId: requestId,
+          approverName: 'Owner User',
+          notificationsService: mockNotificationsService,
+        );
 
         // Assert
-        verify(mockRepository.saveList(any, any)).called(1);
         final captured = verify(mockRepository.saveList(captureAny, any)).captured.single as ShoppingList;
 
         // Check item added
@@ -170,7 +182,12 @@ void main() {
 
         // Act & Assert
         expect(
-          () => service.approveRequest(list: listWithPendingRequest, requestId: requestId),
+          () => service.approveRequest(
+            list: listWithPendingRequest,
+            requestId: requestId,
+            approverName: 'Editor User',
+            notificationsService: mockNotificationsService,
+          ),
           throwsA(predicate((e) => e.toString().contains('אין לך הרשאה לאשר בקשות'))),
         );
 
@@ -180,7 +197,12 @@ void main() {
       test('Cannot approve non-existing request', () async {
         // Act & Assert
         expect(
-          () => service.approveRequest(list: listWithPendingRequest, requestId: 'non-existing-id'),
+          () => service.approveRequest(
+            list: listWithPendingRequest,
+            requestId: 'non-existing-id',
+            approverName: 'Owner User',
+            notificationsService: mockNotificationsService,
+          ),
           throwsA(predicate((e) => e.toString().contains('בקשה לא נמצאה'))),
         );
       });
@@ -197,7 +219,12 @@ void main() {
 
         // Act & Assert
         expect(
-          () => service.approveRequest(list: listWithApprovedRequest, requestId: approvedRequest.id),
+          () => service.approveRequest(
+            list: listWithApprovedRequest,
+            requestId: approvedRequest.id,
+            approverName: 'Owner User',
+            notificationsService: mockNotificationsService,
+          ),
           throwsA(predicate((e) => e.toString().contains('הבקשה כבר טופלה'))),
         );
       });
@@ -233,14 +260,28 @@ void main() {
       test('Owner can reject request', () async {
         // Arrange
         when(mockRepository.saveList(any, any)).thenAnswer((_) async => listWithPendingRequest);
+        when(mockNotificationsService.createRequestRejectedNotification(
+          userId: anyNamed('userId'),
+          householdId: anyNamed('householdId'),
+          listId: anyNamed('listId'),
+          listName: anyNamed('listName'),
+          itemName: anyNamed('itemName'),
+          reviewerName: anyNamed('reviewerName'),
+          reason: anyNamed('reason'),
+        )).thenAnswer((_) async => {});
 
         final requestId = listWithPendingRequest.pendingRequests[0].id;
 
         // Act
-        await service.rejectRequest(list: listWithPendingRequest, requestId: requestId, reason: 'לא רלוונטי');
+        await service.rejectRequest(
+          list: listWithPendingRequest,
+          requestId: requestId,
+          reason: 'לא רלוונטי',
+          rejecterName: 'Owner User',
+          notificationsService: mockNotificationsService,
+        );
 
         // Assert
-        verify(mockRepository.saveList(any, any)).called(1);
         final captured = verify(mockRepository.saveList(captureAny, any)).captured.single as ShoppingList;
 
         // Check request status
@@ -261,7 +302,12 @@ void main() {
 
         // Act & Assert
         expect(
-          () => service.rejectRequest(list: listWithPendingRequest, requestId: requestId),
+          () => service.rejectRequest(
+            list: listWithPendingRequest,
+            requestId: requestId,
+            rejecterName: 'Editor User',
+            notificationsService: mockNotificationsService,
+          ),
           throwsA(predicate((e) => e.toString().contains('אין לך הרשאה לדחות בקשות'))),
         );
 
@@ -310,7 +356,6 @@ void main() {
         await service.cleanupOldRejectedRequests(listWithOldRequests);
 
         // Assert
-        verify(mockRepository.saveList(any, any)).called(1);
         final captured = verify(mockRepository.saveList(captureAny, any)).captured.single as ShoppingList;
 
         // Only recent request remains

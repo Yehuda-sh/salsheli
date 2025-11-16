@@ -7,10 +7,12 @@ import 'dart:async' as _i4;
 import 'dart:ui' as _i9;
 
 import 'package:flutter/material.dart' as _i7;
+import 'package:memozap/models/notification.dart' as _i11;
 import 'package:memozap/models/shopping_list.dart' as _i2;
 import 'package:memozap/models/user_entity.dart' as _i8;
 import 'package:memozap/providers/user_context.dart' as _i6;
 import 'package:memozap/repositories/shopping_lists_repository.dart' as _i3;
+import 'package:memozap/services/notifications_service.dart' as _i10;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i5;
 
@@ -413,4 +415,226 @@ class MockUserContext extends _i1.Mock implements _i6.UserContext {
     Invocation.method(#notifyListeners, []),
     returnValueForMissingStub: null,
   );
+}
+
+/// A class which mocks [NotificationsService].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockNotificationsService extends _i1.Mock
+    implements _i10.NotificationsService {
+  MockNotificationsService() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i4.Future<void> createInviteNotification({
+    required String? userId,
+    required String? householdId,
+    required String? listId,
+    required String? listName,
+    required String? inviterName,
+    required String? role,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#createInviteNotification, [], {
+              #userId: userId,
+              #householdId: householdId,
+              #listId: listId,
+              #listName: listName,
+              #inviterName: inviterName,
+              #role: role,
+            }),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> createRequestApprovedNotification({
+    required String? userId,
+    required String? householdId,
+    required String? listId,
+    required String? listName,
+    required String? itemName,
+    required String? approverName,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#createRequestApprovedNotification, [], {
+              #userId: userId,
+              #householdId: householdId,
+              #listId: listId,
+              #listName: listName,
+              #itemName: itemName,
+              #approverName: approverName,
+            }),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> createRequestRejectedNotification({
+    required String? userId,
+    required String? householdId,
+    required String? listId,
+    required String? listName,
+    required String? itemName,
+    required String? reviewerName,
+    String? reason,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#createRequestRejectedNotification, [], {
+              #userId: userId,
+              #householdId: householdId,
+              #listId: listId,
+              #listName: listName,
+              #itemName: itemName,
+              #reviewerName: reviewerName,
+              #reason: reason,
+            }),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> createRoleChangedNotification({
+    required String? userId,
+    required String? householdId,
+    required String? listId,
+    required String? listName,
+    required String? oldRole,
+    required String? newRole,
+    required String? changerName,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#createRoleChangedNotification, [], {
+              #userId: userId,
+              #householdId: householdId,
+              #listId: listId,
+              #listName: listName,
+              #oldRole: oldRole,
+              #newRole: newRole,
+              #changerName: changerName,
+            }),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> createUserRemovedNotification({
+    required String? userId,
+    required String? householdId,
+    required String? listId,
+    required String? listName,
+    required String? removerName,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#createUserRemovedNotification, [], {
+              #userId: userId,
+              #householdId: householdId,
+              #listId: listId,
+              #listName: listName,
+              #removerName: removerName,
+            }),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<List<_i11.AppNotification>> getUserNotifications({
+    required String? userId,
+    int? limit = 50,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#getUserNotifications, [], {
+              #userId: userId,
+              #limit: limit,
+            }),
+            returnValue: _i4.Future<List<_i11.AppNotification>>.value(
+              <_i11.AppNotification>[],
+            ),
+          )
+          as _i4.Future<List<_i11.AppNotification>>);
+
+  @override
+  _i4.Future<List<_i11.AppNotification>> getUnreadNotifications({
+    required String? userId,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#getUnreadNotifications, [], {#userId: userId}),
+            returnValue: _i4.Future<List<_i11.AppNotification>>.value(
+              <_i11.AppNotification>[],
+            ),
+          )
+          as _i4.Future<List<_i11.AppNotification>>);
+
+  @override
+  _i4.Future<int> getUnreadCount({required String? userId}) =>
+      (super.noSuchMethod(
+            Invocation.method(#getUnreadCount, [], {#userId: userId}),
+            returnValue: _i4.Future<int>.value(0),
+          )
+          as _i4.Future<int>);
+
+  @override
+  _i4.Stream<int> watchUnreadCount({required String? userId}) =>
+      (super.noSuchMethod(
+            Invocation.method(#watchUnreadCount, [], {#userId: userId}),
+            returnValue: _i4.Stream<int>.empty(),
+          )
+          as _i4.Stream<int>);
+
+  @override
+  _i4.Future<void> markAsRead(String? notificationId) =>
+      (super.noSuchMethod(
+            Invocation.method(#markAsRead, [notificationId]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> markAllAsRead({required String? userId}) =>
+      (super.noSuchMethod(
+            Invocation.method(#markAllAsRead, [], {#userId: userId}),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> deleteNotification(String? notificationId) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteNotification, [notificationId]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<int> cleanupOldNotifications({
+    required String? userId,
+    int? daysOld = 30,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#cleanupOldNotifications, [], {
+              #userId: userId,
+              #daysOld: daysOld,
+            }),
+            returnValue: _i4.Future<int>.value(0),
+          )
+          as _i4.Future<int>);
+
+  @override
+  _i4.Future<Map<String, int>> getNotificationStats({
+    required String? userId,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#getNotificationStats, [], {#userId: userId}),
+            returnValue: _i4.Future<Map<String, int>>.value(<String, int>{}),
+          )
+          as _i4.Future<Map<String, int>>);
 }
