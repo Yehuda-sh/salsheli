@@ -24,9 +24,10 @@
 //     - Support 4 permission levels (Owner, Admin, Editor, Viewer)
 
 import 'package:flutter/foundation.dart';
-import 'package:memozap/models/shopping_list.dart';
-import 'package:memozap/models/shared_user.dart';
+
 import 'package:memozap/models/enums/user_role.dart';
+import 'package:memozap/models/shared_user.dart';
+import 'package:memozap/models/shopping_list.dart';
 import 'package:memozap/services/notifications_service.dart';
 
 /// 🇮🇱 שירות שיתוף רשימות
@@ -60,6 +61,7 @@ class ShareListService {
     String? userEmail,
     String? userAvatar,
     required String inviterName,
+    required String householdId,
     NotificationsService? notificationsService,
   }) async {
     if (kDebugMode) {
@@ -128,7 +130,7 @@ class ShareListService {
       try {
         await notificationsService.createInviteNotification(
           userId: invitedUserId,
-          householdId: list.householdId,
+          householdId: householdId,
           listId: list.id,
           listName: list.name,
           inviterName: inviterName,
@@ -170,6 +172,7 @@ class ShareListService {
     required String currentUserId,
     required String removedUserId,
     required String removerName,
+    required String householdId,
     NotificationsService? notificationsService,
   }) async {
     if (kDebugMode) {
@@ -220,7 +223,7 @@ class ShareListService {
       try {
         await notificationsService.createUserRemovedNotification(
           userId: removedUserId,
-          householdId: list.householdId,
+          householdId: householdId,
           listId: list.id,
           listName: list.name,
           removerName: removerName,
@@ -264,6 +267,7 @@ class ShareListService {
     required String targetUserId,
     required UserRole newRole,
     required String changerName,
+    required String householdId,
     NotificationsService? notificationsService,
   }) async {
     if (kDebugMode) {
@@ -328,7 +332,7 @@ class ShareListService {
       try {
         await notificationsService.createRoleChangedNotification(
           userId: targetUserId,
-          householdId: list.householdId,
+          householdId: householdId,
           listId: list.id,
           listName: list.name,
           oldRole: targetUser.role.hebrewName,
