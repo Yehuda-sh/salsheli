@@ -24,12 +24,13 @@
 // - צללים מציאותיים לאפקט הדבקה
 // - סיבובים קלים לכל פתק
 //
-// Version: 7.0 - Updated Core Messages (25/10/2025) 🎨✨
-// - 🎯 New focus: Smart suggestions from pantry, unified lists (products+tasks)
-// - 📝 Title: "קניות ומטלות חכמות" | Subtitle: "מה שקונים מתווסף אוטומטית למזווה"
-// - 🔄 Benefits: 1) שיתוף 2) מוצרים+מטלות 3) המלצות חכמות 4) מזווה מאורגן
-// - 🎨 Icons: people_outline, checklist, auto_awesome, inventory_2
-// - 📏 Same optimization: 4 benefits + 2 buttons, no scrolling
+// Version: 8.0 - UI/UX Optimization (16/11/2025) 🎨✨
+// - 📏 Reduced to 3 benefits (optimal screen fit, no scrolling on small devices)
+// - 📝 Title: "MemoZap" (clean) | Subtitle: improved clarity
+// - 🔄 Benefits: 1) שיתוף בזמן אמת 2) מוצרים+מטלות ביחד 3) מזווה חכם
+// - 💬 Value-focused descriptions (not lists)
+// - ⚠️ Improved error handling with user feedback
+// - 🎨 Better text contrast (black87 instead of black54)
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -54,22 +55,39 @@ class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
   /// מטפל בלחיצה על כפתור התחברות
-  static void _handleLogin(BuildContext context) {
+  static Future<void> _handleLogin(BuildContext context) async {
     _log('🔐 WelcomeScreen: התחברות נלחץ');
-    Navigator.pushNamed(context, '/login').catchError((error) {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await Navigator.pushNamed(context, '/login');
+    } catch (error) {
       _log('❌ שגיאה בניווט ל-login: $error');
-      return null;
-    });
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('שגיאה: לא ניתן לפתוח את מסך ההתחברות'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   /// מטפל בלחיצה על כפתור הרשמה
-  static void _handleRegister(BuildContext context) {
+  static Future<void> _handleRegister(BuildContext context) async {
     _log('📝 WelcomeScreen: הרשמה נלחץ');
-    Navigator.pushNamed(context, '/onboarding').catchError((error) {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await Navigator.pushNamed(context, '/onboarding');
+    } catch (error) {
       _log('❌ שגיאה בניווט ל-onboarding: $error');
-      return null;
-    });
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('שגיאה: לא ניתן לפתוח את מסך ההרשמה'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +141,7 @@ class WelcomeScreen extends StatelessWidget {
                             style: theme.textTheme.headlineLarge?.copyWith(
                               color: Colors.black87,
                               fontWeight: FontWeight.bold,
-                              fontSize: 28,
+                              fontSize: 32,
                             ),
                           ),
                           const SizedBox(height: kSpacingXTiny), // 6px
@@ -131,7 +149,7 @@ class WelcomeScreen extends StatelessWidget {
                             AppStrings.welcome.subtitle,
                             textAlign: TextAlign.center,
                             style: theme.textTheme.bodyLarge?.copyWith(
-                              color: Colors.black54,
+                              color: Colors.black87,
                               height: 1.5,
                             ),
                           ),
@@ -140,7 +158,7 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: kSpacingLarge),
 
-                    // 📌 יתרונות כפתקים צבעוניים עם אנימציות כניסה
+                    // 📌 יתרונות כפתקים צבעוניים עם אנימציות כניסה (3 benefits for optimal screen fit)
                     BenefitTile(
                       icon: Icons.people_outline,
                       title: AppStrings.welcome.benefit1Title,
@@ -160,24 +178,16 @@ class WelcomeScreen extends StatelessWidget {
                     ).animate().fadeIn(duration: 300.ms, delay: 200.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
                     const SizedBox(height: kSpacingSmall),
                     BenefitTile(
-                      icon: Icons.auto_awesome,
+                      icon: Icons.inventory_2_outlined,
                       title: AppStrings.welcome.benefit3Title,
                       subtitle: AppStrings.welcome.benefit3Subtitle,
                       color: brand?.stickyGreen ?? kStickyGreen,
                       rotation: 0.01,
                       iconColor: accent,
                     ).animate().fadeIn(duration: 300.ms, delay: 300.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
-                    const SizedBox(height: kSpacingSmall),
-                    BenefitTile(
-                      icon: Icons.inventory_2_outlined,
-                      title: AppStrings.welcome.benefit4Title,
-                      subtitle: AppStrings.welcome.benefit4Subtitle,
-                      color: brand?.stickyCyan ?? kStickyCyan,
-                      rotation: -0.015,
-                      iconColor: accent,
-                    ).animate().fadeIn(duration: 300.ms, delay: 400.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
 
                     // 🔘 כפתורי פעולה בסגנון פתקים - קומפקטיים
+                    const SizedBox(height: kSpacingMedium),
                     StickyButton(
                       color: accent,
                       label: AppStrings.welcome.loginButton,

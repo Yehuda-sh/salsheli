@@ -414,20 +414,19 @@ class _WelcomeStrings {
   const _WelcomeStrings();
 
   // Screen
-  String get title => 'MemoZap - קניות ומטלות חכמות 🛒✅';
-  String get subtitle => 'מה שקונים מתווסף אוטומטית למזווה';
+  String get title => 'MemoZap';
+  String get subtitle => 'קניות ומטלות חכמות - מה שקונים מתווסף למזווה';
 
-  // Benefits - Updated Version (25/10/2025)
-  // 📏 Shorter texts for single-screen layout (4 benefits + no scroll)
-  // 🎯 Focus on core features: sharing, unified lists, smart suggestions, organized pantry
-  String get benefit1Title => 'שיתוף חכם';
-  String get benefit1Subtitle => 'זוג, משפחה, ועד, עבודה';
-  String get benefit2Title => 'מוצרים + מטלות';
-  String get benefit2Subtitle => 'ברשימה אחת';
-  String get benefit3Title => 'המלצות חכמות';
-  String get benefit3Subtitle => 'המזווה יודע מה חסר';
-  String get benefit4Title => 'מזווה מאורגן';
-  String get benefit4Subtitle => 'לפי ארון, מדף, חדר';
+  // Benefits - Updated Version (16/11/2025) - UI/UX Optimization
+  // 📏 Reduced to 3 benefits for single-screen layout (no scroll on small devices)
+  // 🎯 Focus on core features: sharing, unified lists, smart pantry with suggestions
+  // 💬 Value-focused descriptions instead of lists
+  String get benefit1Title => 'שיתוף בזמן אמת';
+  String get benefit1Subtitle => 'כולם רואים ומעדכנים - זוג, משפחה או עבודה';
+  String get benefit2Title => 'מוצרים ומטלות ביחד';
+  String get benefit2Subtitle => 'רשימה אחת לכל מה שצריך - מהסופר ועד המטלות';
+  String get benefit3Title => 'מזווה חכם ומאורגן';
+  String get benefit3Subtitle => 'המלצות אוטומטיות למה חסר + ארגון לפי מדפים';
 
   // Buttons
   String get loginButton => 'התחברות';
