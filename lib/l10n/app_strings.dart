@@ -239,7 +239,7 @@ class _OnboardingStrings {
       'ניהול רשימות מעולם לא היה קל כל כך! 🎉\n🛒 קניות • 📝 מטלות • 🎁 אירועים - עם בת הזוג, המשפחה, החברים או כל קבוצה';
 
   // Family Size Step
-  String get familySizeTitle => 'כמה אנשים בקבוצה?';
+  String get familySizeTitle => 'כמה אנשים במשפחה?';
 
   // Stores Step
   String get storesTitle => 'בחר חנויות מועדפות:';
@@ -252,8 +252,8 @@ class _OnboardingStrings {
   String get categoriesTitle => 'אילו קטגוריות חשובות לכם במיוחד?';
 
   // Sharing Step
-  String get sharingTitle => 'האם תרצה לשתף רשימות עם הקבוצה?';
-  String get sharingOption => 'שיתוף רשימות עם הקבוצה';
+  String get sharingTitle => 'האם תרצה לשתף רשימות עם המשפחה?';
+  String get sharingOption => 'שיתוף רשימות עם המשפחה';
 
   // Reminder Step
   String get reminderTitle => 'באיזו שעה נוח לך לקבל תזכורות?';
@@ -262,7 +262,7 @@ class _OnboardingStrings {
   // Summary Step
   String get summaryTitle => 'סיכום ההעדפות שלך';
   String get summaryFinishHint => 'לחץ על \'סיום\' כדי להמשיך להרשמה.';
-  String familySizeSummary(int size) => 'קבוצה: $size אנשים';
+  String familySizeSummary(int size) => 'משפחה: $size אנשים';
   String storesSummary(String stores) => 'חנויות: $stores';
   String get noStoresSelected => 'לא נבחר';
   String budgetSummary(double amount) => 'תקציב חודשי: ${amount.toStringAsFixed(0)} ₪';

@@ -30,9 +30,10 @@ const int kMaxFamilySize = 10;
 
 /// Valid children age groups for onboarding
 const Set<String> kValidChildrenAges = {
-  '0-2',   // תינוקות
-  '3-5',   // פעוטות
-  '6-12',  // ילדים
+  '0-1',   // תינוקות
+  '2-3',   // גיל הרך
+  '4-6',   // גן
+  '7-12',  // בית ספר
   '13-18', // נוער
 };
 

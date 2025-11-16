@@ -41,11 +41,14 @@
 // final grouped = data.getStoresGroupedByCategory();
 // ```
 
+import 'dart:convert'; // ✅ להמרת JSON
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants.dart';
 import '../config/stores_config.dart';
+import 'child.dart'; // ✅ מודל Child
 
 // ========================================
 // מפתחות SharedPreferences
@@ -69,7 +72,7 @@ class OnboardingPrefsKeys {
 
   // Schema version - לעדכון עתידי של מבנה נתונים
   static const schemaVersion = 'onboarding.schemaVersion';
-  
+
   // נתוני Onboarding
   static const seenOnboarding = 'onboarding.seenOnboarding';
   static const familySize = 'onboarding.familySize';
@@ -77,7 +80,8 @@ class OnboardingPrefsKeys {
   static const shoppingFrequency = 'onboarding.shoppingFrequency'; // פעמים בשבוע
   static const shoppingDays = 'onboarding.shoppingDays'; // ימים קבועים (0-6)
   static const hasChildren = 'onboarding.hasChildren';
-  static const childrenAges = 'onboarding.childrenAges'; // גילאי ילדים
+  static const childrenAges = 'onboarding.childrenAges'; // DEPRECATED - נשאר לתאימות
+  static const children = 'onboarding.children'; // ✅ NEW - רשימת ילדים עם שמות
   static const shareLists = 'onboarding.shareLists';
   static const reminderTime = 'onboarding.reminderTime'; // פורמט: HH:MM
 }
@@ -116,7 +120,7 @@ class OnboardingData {
   final int shoppingFrequency; // פעמים בשבוע (1-7)
   final Set<int> shoppingDays; // ימים קבועים (0=ראשון, 6=שבת)
   final bool hasChildren;
-  final Set<String> childrenAges; // גילאי ילדים
+  final List<Child> children; // ✅ NEW - רשימת ילדים עם שמות וגילאים
   final bool shareLists;
   final String reminderTime; // פורמט: HH:MM
 
@@ -126,14 +130,14 @@ class OnboardingData {
     int? shoppingFrequency,
     Set<int>? shoppingDays,
     this.hasChildren = false,
-    Set<String>? childrenAges,
+    List<Child>? children,
     this.shareLists = false,
     String? reminderTime,
   })  : familySize = _validateFamilySize(familySize ?? 2),
         preferredStores = _filterValidStores(preferredStores ?? {}),
         shoppingFrequency = _validateShoppingFrequency(shoppingFrequency ?? 2),
         shoppingDays = _filterValidDays(shoppingDays ?? {}),
-        childrenAges = _filterValidAges(childrenAges ?? {}),
+        children = children ?? [], // ✅ לא מסננים כאן - רק בשמירה
         reminderTime = _validateTime(reminderTime ?? '09:00');
 
   // ========================================
@@ -196,17 +200,24 @@ class OnboardingData {
     return validDays;
   }
 
-  /// סינון גילאי ילדים תקינים בלבד
-  static Set<String> _filterValidAges(Set<String> ages) {
-    final filtered = ages.where(kValidChildrenAges.contains).toSet();
-    
-    if (kDebugMode && ages.length != filtered.length) {
-      final invalid = ages.difference(filtered);
+  /// סינון ילדים תקינים בלבד
+  ///
+  /// מסיר ילדים עם שמות ריקים או גילאים לא תקינים
+  static List<Child> _filterValidChildren(List<Child> children) {
+    final filtered = children.where((child) {
+      // שם לא יכול להיות ריק
+      if (child.name.trim().isEmpty) return false;
+      // קטגוריית גיל חייבת להיות תקינה
+      if (!kValidChildrenAges.contains(child.ageCategory)) return false;
+      return true;
+    }).toList();
+
+    if (kDebugMode && children.length != filtered.length) {
       debugPrint(
-        '⚠️ OnboardingData: הוסרו גילאים לא תקינים: ${invalid.join(', ')}',
+        '⚠️ OnboardingData: הוסרו ${children.length - filtered.length} ילדים לא תקינים',
       );
     }
-    
+
     return filtered;
   }
 
@@ -317,7 +328,7 @@ class OnboardingData {
     int? shoppingFrequency,
     Set<int>? shoppingDays,
     bool? hasChildren,
-    Set<String>? childrenAges,
+    List<Child>? children,
     bool? shareLists,
     String? reminderTime,
   }) {
@@ -327,7 +338,7 @@ class OnboardingData {
       shoppingFrequency: shoppingFrequency ?? this.shoppingFrequency,
       shoppingDays: shoppingDays ?? this.shoppingDays,
       hasChildren: hasChildren ?? this.hasChildren,
-      childrenAges: childrenAges ?? this.childrenAges,
+      children: children ?? this.children,
       shareLists: shareLists ?? this.shareLists,
       reminderTime: reminderTime ?? this.reminderTime,
     );
@@ -407,7 +418,7 @@ class OnboardingData {
   }
 
   /// המרה ל-Map (לצורך JSON)
-  /// 
+  ///
   /// רשימות ממוינות לדטרמיניזם
   Map<String, dynamic> toJson() {
     return {
@@ -416,7 +427,7 @@ class OnboardingData {
       'shoppingFrequency': shoppingFrequency,
       'shoppingDays': shoppingDays.toList()..sort(),
       'hasChildren': hasChildren,
-      'childrenAges': childrenAges.toList()..sort(),
+      'children': children.map((c) => c.toJson()).toList(),
       'shareLists': shareLists,
       'reminderTime': reminderTime,
     };
@@ -431,7 +442,7 @@ class OnboardingData {
         'frequency: $shoppingFrequency, '
         'days: ${shoppingDays.length}, '
         'hasChildren: $hasChildren, '
-        'childrenAges: ${childrenAges.length}, '
+        'children: ${children.length}, '
         'shareLists: $shareLists, '
         'reminderTime: $reminderTime'
         ')';
@@ -459,7 +470,7 @@ class OnboardingData {
       final validatedTime = _validateTime(reminderTime);
       final validatedStores = _filterValidStores(preferredStores);
       final validatedDays = _filterValidDays(shoppingDays);
-      final validatedAges = _filterValidAges(childrenAges);
+      final validatedChildren = _filterValidChildren(children);
 
       // שמירת schema version
       await prefs.setInt(OnboardingPrefsKeys.schemaVersion, kCurrentSchemaVersion);
@@ -507,14 +518,15 @@ class OnboardingData {
         () => prefs.setBool(OnboardingPrefsKeys.hasChildren, hasChildren),
       )) {failedFields.add('hasChildren');}
 
+      // ✅ שמירת ילדים כ-JSON
       if (!await _saveField(
         prefs,
-        OnboardingPrefsKeys.childrenAges,
-        () => prefs.setStringList(
-          OnboardingPrefsKeys.childrenAges,
-          validatedAges.toList()..sort(),
+        OnboardingPrefsKeys.children,
+        () => prefs.setString(
+          OnboardingPrefsKeys.children,
+          jsonEncode(validatedChildren.map((c) => c.toJson()).toList()),
         ),
-      )) {failedFields.add('childrenAges');}
+      )) {failedFields.add('children');}
 
       if (!await _saveField(
         prefs,
@@ -625,9 +637,21 @@ class OnboardingData {
         debugPrint('   ⚠️ hasChildren לא נמצא, משתמש בברירת מחדל: false');
       }
 
-      final agesValue = prefs.getStringList(OnboardingPrefsKeys.childrenAges);
-      if (kDebugMode && (agesValue == null || agesValue.isEmpty)) {
-        debugPrint('   ⚠️ childrenAges ריק, משתמש בברירת מחדל: []');
+      // ✅ טעינת ילדים מ-JSON
+      final childrenValue = prefs.getString(OnboardingPrefsKeys.children);
+      List<Child> childrenList = [];
+      if (childrenValue != null && childrenValue.isNotEmpty) {
+        try {
+          final jsonList = jsonDecode(childrenValue) as List<dynamic>;
+          childrenList = jsonList.map((json) => Child.fromJson(json as Map<String, dynamic>)).toList();
+        } catch (e) {
+          if (kDebugMode) {
+            debugPrint('   ⚠️ שגיאה בטעינת children: $e');
+          }
+        }
+      }
+      if (kDebugMode && childrenList.isEmpty) {
+        debugPrint('   ⚠️ children ריק, משתמש בברירת מחדל: []');
       }
 
       final reminderValue = prefs.getString(OnboardingPrefsKeys.reminderTime);
@@ -641,7 +665,7 @@ class OnboardingData {
         shoppingFrequency: frequencyValue,
         shoppingDays: daysSet,
         hasChildren: hasChildrenValue ?? false,
-        childrenAges: (agesValue ?? []).toSet(),
+        children: childrenList,
         shareLists: prefs.getBool(OnboardingPrefsKeys.shareLists) ?? false,
         reminderTime: reminderValue,
       );

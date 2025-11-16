@@ -227,8 +227,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       onHasChildrenChanged: (v) => setState(() {
         _data = _data.copyWith(hasChildren: v);
       }),
-      onChildrenAgesChanged: (v) => setState(() {
-        _data = _data.copyWith(childrenAges: v);
+      onChildrenChanged: (v) => setState(() {
+        _data = _data.copyWith(children: v);
       }),
       onShareChanged: (v) => setState(() {
         _data = _data.copyWith(shareLists: v);
@@ -251,13 +251,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           backgroundColor: kPaperBackground,
           extendBodyBehindAppBar: true,
           appBar: AppBar(
-            backgroundColor: Colors.transparent,
+            backgroundColor: kPaperBackground.withValues(alpha: 0.95), // ✅ רקע semi-transparent
             elevation: 0,
             centerTitle: true,
             title: Text(
               AppStrings.onboarding.title,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith( // ✅ גדול יותר
                 color: cs.onSurface,
+                fontWeight: FontWeight.bold, // ✅ bold
               ),
             ),
             actions: [
@@ -266,8 +267,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 child: Text(
                   AppStrings.onboarding.skip,
                   style: TextStyle(
-                    color: _isLoading ? cs.onSurfaceVariant : cs.onSurface.withValues(alpha: 0.6),
-                    fontSize: 14,
+                    color: _isLoading ? cs.onSurfaceVariant : cs.onSurface.withValues(alpha: 0.7), // ✅ בולט יותר
+                    fontSize: 16, // ✅ מוגדל מ-14
+                    fontWeight: FontWeight.w600, // ✅ bold
                   ),
                 ),
               ),
@@ -325,8 +327,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   /// בונה מחוון התקדמות בראש המסך
-  /// 
-  /// מציג LinearProgressIndicator עם טקסט "שלב X/Y"
+  ///
+  /// מציג LinearProgressIndicator עם טקסט דינמי "שלב X/Y"
   /// הצבע מתאים ל-accent מה-theme
   Widget _buildProgressIndicator(ColorScheme cs, Color accent, int totalSteps) {
     return Row(
@@ -338,17 +340,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               value: (_currentStep + 1) / totalSteps,
               backgroundColor: cs.surfaceContainerHighest.withValues(alpha: kProgressIndicatorBackgroundAlpha),
               color: accent,
-              minHeight: kSpacingSmall,
+              minHeight: 10, // מוגדל מ-8px
             ),
           ),
         ),
         const SizedBox(width: kSpacingSmall),
         Text(
-          AppStrings.onboarding.progress,
+          'שלב ${_currentStep + 1}/$totalSteps', // ✅ דינמי במקום סטטי
           style: TextStyle(
             color: cs.onSurface,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
+            fontSize: 16, // מוגדל מ-14
+            fontWeight: FontWeight.w600, // מוגדל מ-w500
           ),
         ),
       ],
@@ -356,11 +358,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   /// בונה כפתורי ניווט - "הקודם" ו "הבא/סיום"
-  /// 
+  ///
   /// **כפתור "הקודם":**
   /// - שימוש ב-StickyButton לבן
-  /// - disabled בשלב הראשון עם empty callback () {}
-  /// 
+  /// - disabled בשלב הראשון עם null (לא empty callback)
+  ///
   /// **כפתור "הבא/סיום":**
   /// - תומך במצב loading דרך פרמטר isLoading
   /// - במצב loading: מציג CircularProgressIndicator
@@ -377,7 +379,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 : accent,
             label: AppStrings.onboarding.previous,
             icon: Icons.arrow_back,
-            onPressed: _currentStep == 0 || _isLoading ? () {} : _prevStep,
+            onPressed: _currentStep == 0 || _isLoading ? null : _prevStep, // ✅ null במקום () {}
           ),
         ),
         const SizedBox(width: kSpacingSmall),
@@ -393,7 +395,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             icon: _currentStep == totalSteps - 1
                 ? Icons.check
                 : Icons.arrow_forward,
-            onPressed: _isLoading ? () {} : () => _nextStep(totalSteps),
+            onPressed: _isLoading ? null : () => _nextStep(totalSteps), // ✅ null במקום () {}
             isLoading: _isLoading,
           ),
         ),
@@ -410,6 +412,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 /// - נקודה פעילה: גדולה ומלאה עם זוהר
 /// - נקודות אחרות: קטנות ושקופות
 /// - אנימציה חלקה במעברים (300ms)
+/// - נגישות: Semantics label לקוראי מסך
 class _ProgressDots extends StatelessWidget {
   final int currentStep;
   final int totalSteps;
@@ -423,36 +426,33 @@ class _ProgressDots extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(
-        totalSteps,
-        (index) => AnimatedContainer(
-          duration: kAnimationDurationMedium,
-          curve: Curves.easeInOut,
-          margin: const EdgeInsets.symmetric(horizontal: 5),
-          width: index == currentStep ? 16 : 10,
-          height: index == currentStep ? 16 : 10,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: index == currentStep
-                ? accent
-                : accent.withValues(alpha: kOpacityLight),
-            boxShadow: index == currentStep
-                ? [
-                    BoxShadow(
-                      color: accent.withValues(alpha: 0.4),
-                      blurRadius: 10,
-                      spreadRadius: 3,
-                    ),
-                  ]
-                : [
-                    BoxShadow(
-                      color: accent.withValues(alpha: 0.1),
-                      blurRadius: 4,
-                      spreadRadius: 1,
-                    ),
-                  ],
+    return Semantics(
+      label: 'שלב ${currentStep + 1} מתוך $totalSteps',
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(
+          totalSteps,
+          (index) => AnimatedContainer(
+            duration: kAnimationDurationMedium,
+            curve: Curves.easeInOut,
+            margin: const EdgeInsets.symmetric(horizontal: 6), // מוגדל מ-5
+            width: index == currentStep ? 20 : 12, // מוגדל מ-16/10
+            height: index == currentStep ? 20 : 12, // מוגדל מ-16/10
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: index == currentStep
+                  ? accent
+                  : accent.withValues(alpha: kOpacityLight),
+              boxShadow: index == currentStep
+                  ? [
+                      BoxShadow(
+                        color: accent.withValues(alpha: 0.5), // מוגבר מ-0.4
+                        blurRadius: 12, // מוגדל מ-10
+                        spreadRadius: 4, // מוגדל מ-3
+                      ),
+                    ]
+                  : null, // הוסר shadow מנקודות לא פעילות
+            ),
           ),
         ),
       ),

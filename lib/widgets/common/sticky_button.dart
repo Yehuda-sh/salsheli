@@ -104,35 +104,42 @@ class StickyButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final buttonColor = color ?? theme.colorScheme.primary;
+    final isDisabled = onPressed == null && !isLoading;
 
     // בחר צבע טקסט אוטומטית לפי בהירות הרקע
-    final btnTextColor = textColor ??
-        (ThemeData.estimateBrightnessForColor(buttonColor) == Brightness.light
-            ? Colors.black
-            : Colors.white);
+    final btnTextColor = isDisabled
+        ? theme.colorScheme.onSurfaceVariant // ✅ צבע disabled
+        : (textColor ??
+            (ThemeData.estimateBrightnessForColor(buttonColor) == Brightness.light
+                ? Colors.black
+                : Colors.white));
 
     return Semantics(
       button: true,
       label: label,
       enabled: onPressed != null,
-      child: AnimatedButton(
-        onPressed: onPressed ?? () {},
-        child: Container(
+      child: IgnorePointer(
+        ignoring: isDisabled, // ✅ בטל לחיצות כש-disabled
+        child: AnimatedButton(
+          onPressed: onPressed ?? () {}, // חייב callback, אבל IgnorePointer מונע לחיצה
+          child: Container(
           width: double.infinity,
           height: height,
           decoration: BoxDecoration(
-            color: onPressed == null ? buttonColor.withValues(alpha: 0.5) : buttonColor,
+            color: isDisabled ? buttonColor.withValues(alpha: 0.5) : buttonColor, // ✅ שקוף כש-disabled
             borderRadius: BorderRadius.circular(kStickyButtonRadius),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: kStickyShadowPrimaryOpacity),
-                blurRadius: kStickyShadowPrimaryBlur,
-                offset: const Offset(
-                  kStickyShadowPrimaryOffsetX,
-                  kStickyShadowPrimaryOffsetY,
-                ),
-              ),
-            ],
+            boxShadow: isDisabled
+                ? null // ✅ הסר shadow כש-disabled
+                : [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: kStickyShadowPrimaryOpacity),
+                      blurRadius: kStickyShadowPrimaryBlur,
+                      offset: const Offset(
+                        kStickyShadowPrimaryOffsetX,
+                        kStickyShadowPrimaryOffsetY,
+                      ),
+                    ),
+                  ],
           ),
           child: isLoading
               ? Center(
@@ -159,6 +166,7 @@ class StickyButton extends StatelessWidget {
                     ),
                   ],
                 ),
+          ),
         ),
       ),
     );

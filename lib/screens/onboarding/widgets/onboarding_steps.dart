@@ -45,6 +45,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../config/stores_config.dart';
 import '../../../core/constants.dart';
 import '../../../core/ui_constants.dart';
+import '../../../data/child.dart'; // ✅ NEW
 import '../../../data/onboarding_data.dart';
 import '../../../l10n/app_strings.dart';
 import '../../../l10n/onboarding_extensions.dart';
@@ -59,16 +60,20 @@ class OnboardingSteps {
     required ValueChanged<int> onShoppingFrequencyChanged,
     required ValueChanged<Set<int>> onShoppingDaysChanged,
     required ValueChanged<bool> onHasChildrenChanged,
-    required ValueChanged<Set<String>> onChildrenAgesChanged,
+    required ValueChanged<List<Child>> onChildrenChanged,
     required ValueChanged<bool> onShareChanged,
     required ValueChanged<String> onReminderChanged,
   }) {
-    debugPrint('📋 onboarding: בניית 8 שלבים');
+    debugPrint('📋 onboarding: בניית 7 שלבים');
     return [
       const _WelcomeStep(),
       _FamilySizeStep(
         value: data.familySize,
         onChanged: onFamilySizeChanged,
+        hasChildren: data.hasChildren,
+        children: data.children,
+        onHasChildrenChanged: onHasChildrenChanged,
+        onChildrenChanged: onChildrenChanged,
         stickyColor: kStickyYellow,
         rotation: -0.015,
       ),
@@ -88,14 +93,6 @@ class OnboardingSteps {
         onDaysChanged: onShoppingDaysChanged,
         stickyColor: kStickyGreen,
         rotation: -0.01,
-      ),
-      _ChildrenStep(
-        hasChildren: data.hasChildren,
-        selectedAges: data.childrenAges,
-        onHasChildrenChanged: onHasChildrenChanged,
-        onAgesChanged: onChildrenAgesChanged,
-        stickyColor: kStickyPurple,
-        rotation: 0.015,
       ),
       _SharingStep(
         value: data.shareLists,
@@ -152,21 +149,22 @@ class _StepWrapper extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: kIconSizeXLarge, color: accent),
-            const SizedBox(height: kSpacingMedium),
+            Icon(icon, size: 72, color: accent), // ✅ מוגדל מ-kIconSizeXLarge (64)
+            const SizedBox(height: kSpacingLarge), // ✅ מוגדל מ-Medium
             Text(
               title,
               textAlign: TextAlign.center,
-              style: t.titleLarge?.copyWith(
+              style: t.headlineSmall?.copyWith( // ✅ מוגדל מ-titleLarge
                 color: cs.onSurface,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.bold, // ✅ bold במקום w600
               ),
             ),
             const SizedBox(height: kSpacingLarge),
-            // ⭐ עטיפה ב-StickyNote לעיצוב אחיד!
+            // ⭐ עטיפה ב-StickyNote לעיצוב אחיד - מוגדל!
             StickyNote(
               color: noteColor,
               rotation: rotation,
+              padding: kSpacingLarge, // ✅ padding מוגדל (24px במקום 16px)
               child: child,
             ),
           ],
@@ -276,19 +274,32 @@ class _AnimatedWelcomeIcon extends StatelessWidget {
 // שלב 2: Family Size
 // ========================================
 
-class _FamilySizeStep extends StatelessWidget {
+class _FamilySizeStep extends StatefulWidget {
   final int value;
   final ValueChanged<int> onChanged;
+  final bool hasChildren;
+  final List<Child> children;
+  final ValueChanged<bool> onHasChildrenChanged;
+  final ValueChanged<List<Child>> onChildrenChanged;
   final Color? stickyColor;
   final double rotation;
 
   const _FamilySizeStep({
     required this.value,
     required this.onChanged,
+    required this.hasChildren,
+    required this.children,
+    required this.onHasChildrenChanged,
+    required this.onChildrenChanged,
     this.stickyColor,
     this.rotation = 0.01,
   });
 
+  @override
+  State<_FamilySizeStep> createState() => _FamilySizeStepState();
+}
+
+class _FamilySizeStepState extends State<_FamilySizeStep> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -296,13 +307,14 @@ class _FamilySizeStep extends StatelessWidget {
 
     return _StepWrapper(
       icon: Icons.family_restroom,
-      title: AppStrings.onboarding.familySizeTitle,
-      stickyColor: stickyColor,
-      rotation: rotation,
+      title: 'כמה אנשים במשפחה?', // ✅ טקסט מעודכן
+      stickyColor: widget.stickyColor,
+      rotation: widget.rotation,
       child: Column(
         children: [
+          // מספר אנשים
           Text(
-            "$value",
+            "${widget.value}",
             style: t.displayLarge?.copyWith(
               color: cs.primary,
               fontWeight: FontWeight.bold,
@@ -310,19 +322,190 @@ class _FamilySizeStep extends StatelessWidget {
           ),
           const SizedBox(height: kSpacingMedium),
           Slider(
-            value: value.toDouble(),
+            value: widget.value.toDouble(),
             min: kMinFamilySize.toDouble(),
             max: kMaxFamilySize.toDouble(),
             divisions: kMaxFamilySize - kMinFamilySize,
             onChanged: (v) {
               final newSize = v.toInt();
               debugPrint('👨‍👩‍👧‍👦 onboarding: Family size = $newSize');
-              onChanged(newSize);
+              widget.onChanged(newSize);
+            },
+          ),
+
+          // אם יש יותר מ-2 אנשים, שאל על ילדים
+          if (widget.value > 2) ...[
+            const SizedBox(height: kSpacingLarge),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Checkbox(
+                  value: widget.hasChildren,
+                  onChanged: (val) {
+                    widget.onHasChildrenChanged(val ?? false);
+                  },
+                ),
+                Text(
+                  'יש לכם ילדים?',
+                  style: t.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ],
+
+          // אם יש ילדים, הצג טופס
+          if (widget.hasChildren && widget.value > 2) ...[
+            const SizedBox(height: kSpacingMedium),
+            ...widget.children.asMap().entries.map((entry) {
+              final index = entry.key;
+              final child = entry.value;
+              return _ChildForm(
+                key: ValueKey('child_$index'), // ✅ key ייחודי לכל ילד
+                child: child,
+                index: index,
+                onChanged: (updated) {
+                  final newList = List<Child>.from(widget.children);
+                  newList[index] = updated;
+                  widget.onChildrenChanged(newList);
+                },
+                onRemove: () {
+                  final newList = List<Child>.from(widget.children);
+                  newList.removeAt(index);
+                  widget.onChildrenChanged(newList);
+                },
+              );
+            }),
+            const SizedBox(height: kSpacingSmall),
+            TextButton.icon(
+              onPressed: () {
+                final newList = List<Child>.from(widget.children)
+                  ..add(const Child(name: '', ageCategory: '0-1'));
+                widget.onChildrenChanged(newList);
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('הוסף ילד נוסף'),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+// ✅ טופס ילד בודד
+class _ChildForm extends StatelessWidget {
+  final Child child;
+  final int index;
+  final ValueChanged<Child> onChanged;
+  final VoidCallback onRemove;
+
+  const _ChildForm({
+    super.key,
+    required this.child,
+    required this.index,
+    required this.onChanged,
+    required this.onRemove,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context).textTheme;
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: kSpacingSmall),
+      padding: const EdgeInsets.all(kSpacingSmall),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                '${_getChildIcon(child.ageCategory)} ילד ${index + 1}',
+                style: t.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const Spacer(),
+              IconButton(
+                icon: const Icon(Icons.delete_outline, size: 20),
+                onPressed: onRemove,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ],
+          ),
+          const SizedBox(height: kSpacingSmall),
+          TextField(
+            decoration: const InputDecoration(
+              labelText: 'שם',
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
+            controller: TextEditingController(text: child.name),
+            onChanged: (val) => onChanged(child.copyWith(name: val)),
+          ),
+          const SizedBox(height: kSpacingSmall),
+          DropdownButtonFormField<String>(
+            value: child.ageCategory,
+            decoration: const InputDecoration(
+              labelText: 'גיל',
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
+            items: kValidChildrenAges.map((age) {
+              return DropdownMenuItem(
+                value: age,
+                child: Text(_getAgeLabel(age)),
+              );
+            }).toList(),
+            onChanged: (val) {
+              if (val != null) {
+                onChanged(child.copyWith(ageCategory: val));
+              }
             },
           ),
         ],
       ),
     );
+  }
+
+  String _getChildIcon(String age) {
+    switch (age) {
+      case '0-1':
+        return '👶';
+      case '2-3':
+        return '🧒';
+      case '4-6':
+        return '🧒';
+      case '7-12':
+        return '👦';
+      case '13-18':
+        return '🧑';
+      default:
+        return '👶';
+    }
+  }
+
+  String _getAgeLabel(String age) {
+    switch (age) {
+      case '0-1':
+        return 'תינוק/ת (0-1)';
+      case '2-3':
+        return 'גיל הרך (2-3)';
+      case '4-6':
+        return 'גן (4-6)';
+      case '7-12':
+        return 'בית ספר (7-12)';
+      case '13-18':
+        return 'נוער (13-18)';
+      default:
+        return age;
+    }
   }
 }
 
@@ -365,8 +548,18 @@ class _MultiSelectStep extends StatelessWidget {
         children: options.map((opt) {
           final isSelected = selected.contains(opt);
           return FilterChip(
-            label: Text(opt),
+            label: Text(
+              opt,
+              style: const TextStyle(
+                fontSize: 16, // ✅ מוגדל מ-14 (ברירת מחדל)
+                fontWeight: FontWeight.w500,
+              ),
+            ),
             selected: isSelected,
+            padding: const EdgeInsets.symmetric(
+              horizontal: kSpacingMedium, // ✅ padding מוגדל
+              vertical: kSpacingSmall,
+            ),
             onSelected: (val) {
               final newSet = Set<String>.from(selected);
               if (val) {
@@ -482,6 +675,12 @@ class _ShoppingFrequencyStep extends StatelessWidget {
                   }
                   debugPrint('✅ onboarding: סה"צ נבחרו ${newSet.length} ימים');
                   onDaysChanged(newSet);
+
+                  // ✅ עדכון אוטומטי של התדירות לפי מספר הימים שנבחרו
+                  if (newSet.isNotEmpty && newSet.length != frequency) {
+                    debugPrint('🔄 onboarding: מעדכן תדירות ל-${newSet.length} (לפי ימים נבחרים)');
+                    onFrequencyChanged(newSet.length);
+                  }
                 },
                 backgroundColor: cs.surfaceContainerHighest.withValues(alpha: 0.18),
                 selectedColor: cs.primaryContainer,
@@ -495,115 +694,7 @@ class _ShoppingFrequencyStep extends StatelessWidget {
 }
 
 // ========================================
-// שלב 5: Children (Conditional!) 🆕
-// ========================================
-
-class _ChildrenStep extends StatelessWidget {
-  final bool hasChildren;
-  final Set<String> selectedAges;
-  final ValueChanged<bool> onHasChildrenChanged;
-  final ValueChanged<Set<String>> onAgesChanged;
-  final Color? stickyColor;
-  final double rotation;
-
-  const _ChildrenStep({
-    required this.hasChildren,
-    required this.selectedAges,
-    required this.onHasChildrenChanged,
-    required this.onAgesChanged,
-    this.stickyColor,
-    this.rotation = 0.01,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final t = Theme.of(context).textTheme;
-    final brand = Theme.of(context).extension<AppBrand>();
-    final accent = brand?.accent ?? cs.primary;
-
-    return _StepWrapper(
-      icon: Icons.child_care,
-      title: 'ילדים',
-      stickyColor: stickyColor,
-      rotation: rotation,
-      child: Column(
-        children: [
-          // שאלה 1: יש לכם ילדים?
-          SwitchListTile(
-            contentPadding: const EdgeInsetsDirectional.only(
-              start: kSpacingSmall,
-              end: kSpacingTiny,
-            ),
-            title: Text(
-              'יש לכם ילדים?',
-              textAlign: TextAlign.right,
-              style: t.bodyLarge?.copyWith(color: cs.onSurface),
-            ),
-            value: hasChildren,
-            activeThumbColor: accent,
-            onChanged: (val) {
-              debugPrint('👶 onboarding: יש ילדים = ${val ? "כן" : "לא"}');
-              onHasChildrenChanged(val);
-              
-              // אם בחר "לא" - נקה את הגילאים
-              if (!val && selectedAges.isNotEmpty) {
-                debugPrint('➖ onboarding: מנקה גילאים כי בחר "לא"');
-                onAgesChanged({});
-              }
-            },
-          ),
-          
-          // שאלה 2: גילאים (רק אם יש ילדים!)
-          if (hasChildren) ...[
-            const SizedBox(height: kSpacingLarge),
-            Text(
-              'באילו גילאים?',
-              style: t.titleSmall?.copyWith(color: cs.onSurface),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: kSpacingSmall),
-            Text(
-              '(בחירה מרובה)',
-              style: t.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-            ),
-            const SizedBox(height: kSpacingMedium),
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: kSpacingSmall,
-              runSpacing: kSpacingSmall,
-              children: OnboardingExtensions.allAges.map((age) {
-                final isSelected = selectedAges.contains(age);
-                final ageLabel = OnboardingExtensions.getAgeLabel(age);
-                return FilterChip(
-                  label: Text(ageLabel),
-                  selected: isSelected,
-                  onSelected: (val) {
-                    final newSet = Set<String>.from(selectedAges);
-                    if (val) {
-                      newSet.add(age);
-                      debugPrint('➕ onboarding: נוסף גיל - $ageLabel');
-                    } else {
-                      newSet.remove(age);
-                      debugPrint('➖ onboarding: הוסר גיל - $ageLabel');
-                    }
-                    debugPrint('✅ onboarding: סה"צ נבחרו ${newSet.length} גילאים');
-                    onAgesChanged(newSet);
-                  },
-                  backgroundColor: cs.surfaceContainerHighest.withValues(alpha: 0.18),
-                  selectedColor: cs.primaryContainer,
-                );
-              }).toList(),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-// ========================================
-// שלב 6: Sharing
+// שלב 5: Sharing
 // ========================================
 
 class _SharingStep extends StatelessWidget {
@@ -810,7 +901,7 @@ class _SummaryStep extends StatelessWidget {
                   const SizedBox(height: kSpacingXTiny),
                   _RtlSummaryRow(
                     leadingEmojiOrIconText: "👶",
-                    text: 'ילדים: ${data.childrenAges.isEmpty ? 'כן' : data.childrenAges.map((a) => OnboardingExtensions.getAgeLabel(a)).join(', ')}',
+                    text: 'ילדים: ${data.children.isEmpty ? 'כן' : data.children.map((c) => '${c.name} (${c.ageDescription})').join(', ')}',
                   ),
                 ],
                 const SizedBox(height: kSpacingXTiny),
