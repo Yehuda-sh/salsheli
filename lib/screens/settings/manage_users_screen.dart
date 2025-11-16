@@ -21,8 +21,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:provider/provider.dart';
-
 import 'package:memozap/core/ui_constants.dart';
 import 'package:memozap/models/enums/user_role.dart';
 import 'package:memozap/models/shared_user.dart';
@@ -34,6 +32,7 @@ import 'package:memozap/services/notifications_service.dart';
 import 'package:memozap/services/share_list_service.dart';
 import 'package:memozap/widgets/common/notebook_background.dart';
 import 'package:memozap/widgets/common/sticky_button.dart';
+import 'package:provider/provider.dart';
 
 /// 🇮🇱 מסך ניהול משתמשים משותפים
 /// 🇬🇧 Manage shared users screen
@@ -154,13 +153,21 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
     try {
       final currentUserName = userContext.displayName ?? 'משתמש';
+      final householdId = userContext.householdId;
       final provider = context.read<ShoppingListsProvider>();
-      
+
+      // בדיקה שיש householdId
+      if (householdId == null) {
+        _showError('שגיאה: משתמש לא משויך למשק בית');
+        return;
+      }
+
       final updatedList = await ShareListService.removeUser(
         list: widget.list,
         currentUserId: currentUserId,
         removedUserId: user.userId,
         removerName: currentUserName,
+        householdId: householdId,
         notificationsService: _notificationsService,
       );
 
@@ -234,14 +241,22 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
     try {
       final currentUserName = userContext.displayName ?? 'משתמש';
+      final householdId = userContext.householdId;
       final provider = context.read<ShoppingListsProvider>();
-      
+
+      // בדיקה שיש householdId
+      if (householdId == null) {
+        _showError('שגיאה: משתמש לא משויך למשק בית');
+        return;
+      }
+
       final updatedList = await ShareListService.updateUserRole(
         list: widget.list,
         currentUserId: currentUserId,
         targetUserId: user.userId,
         newRole: newRole,
         changerName: currentUserName,
+        householdId: householdId,
         notificationsService: _notificationsService,
       );
 

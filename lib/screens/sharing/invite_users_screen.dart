@@ -14,10 +14,8 @@
 // Last Updated: 03/11/2025
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:memozap/l10n/app_strings.dart';
 import 'package:memozap/models/enums/user_role.dart';
 import 'package:memozap/models/shopping_list.dart';
@@ -27,6 +25,7 @@ import 'package:memozap/services/share_list_service.dart';
 import 'package:memozap/widgets/common/notebook_background.dart';
 import 'package:memozap/widgets/common/sticky_button.dart';
 import 'package:memozap/widgets/common/sticky_note.dart';
+import 'package:provider/provider.dart';
 
 class InviteUsersScreen extends StatefulWidget {
   final ShoppingList list;
@@ -110,10 +109,16 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
       final userContext = context.read<UserContext>();
       final currentUserId = userContext.userId;
       final currentUserName = userContext.user?.name ?? 'משתמש';
+      final householdId = userContext.householdId;
 
       // Validate user is logged in
       if (currentUserId == null) {
         throw Exception('user_not_logged_in');
+      }
+
+      // Validate household ID exists
+      if (householdId == null) {
+        throw Exception('household_not_found');
       }
 
       // Call static method with NotificationsService
@@ -123,6 +128,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
         invitedUserId: _emailController.text.trim(), // TODO: Should be userId not email
         role: _selectedRole,
         inviterName: currentUserName,
+        householdId: householdId,
         notificationsService: _notificationsService,
       );
 
