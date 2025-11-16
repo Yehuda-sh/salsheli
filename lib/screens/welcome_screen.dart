@@ -104,21 +104,25 @@ class WelcomeScreen extends StatelessWidget {
           // 📄 רקע נייר עם קווים
           const NotebookBackground(),
           SafeArea(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: kSpacingMedium,
-                ),
-                child: Column(
-                  children: [
-                    const SizedBox(height: kSpacingSmall),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: kSpacingMedium,
+              ),
+              child: Column(
+                children: [
+                  // 📱 תוכן עליון - scrollable
+                  Expanded(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: kSpacingSmall),
 
-                    // 📝 לוגו על פתק צהוב - קומפקטי מאוד
+                    // 📝 לוגו על פתק צהוב - גודל מוגדל
                     Hero(
                       tag: 'app_logo',
                       child: Transform.scale(
-                        scale: 0.75,
+                        scale: MediaQuery.of(context).size.width < 360 ? 0.85 : 1.0,
                         child: StickyNoteLogo(
                           color: brand?.stickyYellow ?? kStickyYellow,
                           icon: Icons.shopping_basket_outlined,
@@ -128,11 +132,10 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: kSpacingSmall),
 
-                    // 📋 כותרת על פתק לבן - קומפקטי
+                    // 📋 כותרת על פתק לבן - מוגדל
                     StickyNote(
                       color: Colors.white,
                       rotation: -0.02,
-                      padding: kSpacingSmall, // 8px במקום 16px
                       child: Column(
                         children: [
                           Text(
@@ -141,16 +144,17 @@ class WelcomeScreen extends StatelessWidget {
                             style: theme.textTheme.headlineLarge?.copyWith(
                               color: Colors.black87,
                               fontWeight: FontWeight.bold,
-                              fontSize: 32,
+                              fontSize: 36, // מוגדל מ-32
                             ),
                           ),
-                          const SizedBox(height: kSpacingXTiny), // 6px
+                          const SizedBox(height: kSpacingSmall), // מוגדל מ-6px
                           Text(
                             AppStrings.welcome.subtitle,
                             textAlign: TextAlign.center,
                             style: theme.textTheme.bodyLarge?.copyWith(
                               color: Colors.black87,
-                              height: 1.5,
+                              height: 1.6, // מוגדל מ-1.5
+                              fontSize: 16, // הוספת גודל מפורש
                             ),
                           ),
                         ],
@@ -185,28 +189,28 @@ class WelcomeScreen extends StatelessWidget {
                       rotation: 0.01,
                       iconColor: accent,
                     ).animate().fadeIn(duration: 300.ms, delay: 300.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
+                        ],
+                      ),
+                    ),
+                  ),
 
-                    // 🔘 כפתורי פעולה בסגנון פתקים - קומפקטיים
-                    const SizedBox(height: kSpacingMedium),
-                    StickyButton(
-                      color: accent,
-                      label: AppStrings.welcome.loginButton,
-                      icon: Icons.login,
-                      height: 44,
-                      onPressed: () => _handleLogin(context),
-                    ),
-                    const SizedBox(height: kSpacingSmall),
-                    StickyButton(
-                      color: Colors.white,
-                      textColor: accent,
-                      label: AppStrings.welcome.registerButton,
-                      icon: Icons.app_registration_outlined,
-                      height: 44,
-                      onPressed: () => _handleRegister(context),
-                    ),
-                    const SizedBox(height: kSpacingLarge),
-                  ],
-                ),
+                  // 🔘 כפתורי פעולה בסגנון פתקים - צמודים לתחתית
+                  StickyButton(
+                    color: accent,
+                    label: AppStrings.welcome.loginButton,
+                    icon: Icons.login,
+                    onPressed: () => _handleLogin(context),
+                  ),
+                  const SizedBox(height: kSpacingSmall),
+                  StickyButton(
+                    color: Colors.white,
+                    textColor: accent,
+                    label: AppStrings.welcome.registerButton,
+                    icon: Icons.app_registration_outlined,
+                    onPressed: () => _handleRegister(context),
+                  ),
+                  const SizedBox(height: kSpacingMedium),
+                ],
               ),
             ),
           ),

@@ -127,26 +127,26 @@ class BenefitTile extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // אייקון במעגל
+            // אייקון במעגל - מוגדל
             Container(
-              width: kIconSizeProfile + 20, // 56px (36 + 20)
-              height: kIconSizeProfile + 20,
+              width: 64, // מוגדל מ-56px
+              height: 64,
               decoration: BoxDecoration(
                 color: effectiveIconColor.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: iconSize, color: effectiveIconColor),
+              child: Icon(icon, size: 36, color: effectiveIconColor), // מוגדל מ-32
             ),
             const SizedBox(width: kSpacingMedium),
 
-            // טקסט
+            // טקסט - מוגדל
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: theme.textTheme.titleMedium?.copyWith(
+                    style: theme.textTheme.titleLarge?.copyWith( // שונה מ-titleMedium
                       fontWeight: FontWeight.bold,
                       color: cs.onSurface,
                     ),
@@ -154,9 +154,9 @@ class BenefitTile extends StatelessWidget {
                   const SizedBox(height: kSpacingTiny),
                   Text(
                     subtitle,
-                    style: theme.textTheme.bodyMedium?.copyWith(
+                    style: theme.textTheme.bodyLarge?.copyWith( // שונה מ-bodyMedium
                       color: cs.onSurfaceVariant,
-                      height: 1.4,
+                      height: 1.5, // מוגדל מ-1.4
                     ),
                   ),
                 ],
