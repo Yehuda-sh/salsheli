@@ -1,13 +1,14 @@
 import 'dart:developer';
+
+import 'package:memozap/models/enums/request_status.dart';
+import 'package:memozap/models/enums/request_type.dart';
 import 'package:memozap/models/pending_request.dart';
 import 'package:memozap/models/shopping_list.dart';
 import 'package:memozap/models/unified_list_item.dart';
-import 'package:memozap/models/enums/request_type.dart';
-import 'package:memozap/models/enums/request_status.dart';
-import 'package:memozap/repositories/shopping_lists_repository.dart';
-import 'package:memozap/services/share_list_service.dart';
-import 'package:memozap/services/notifications_service.dart';
 import 'package:memozap/providers/user_context.dart';
+import 'package:memozap/repositories/shopping_lists_repository.dart';
+import 'package:memozap/services/notifications_service.dart';
+import 'package:memozap/services/share_list_service.dart';
 
 /// 🇮🇱 שירות לניהול בקשות ממתינות
 /// 🇬🇧 Service for managing pending requests
@@ -170,7 +171,7 @@ class PendingRequestsService {
     );
 
     // ביצוע הפעולה המבוקשת
-    List<UnifiedListItem> updatedItems = [...list.items];
+    final List<UnifiedListItem> updatedItems = [...list.items];
 
     switch (request.type) {
       case RequestType.addItem:
@@ -214,6 +215,8 @@ class PendingRequestsService {
       try {
         await notificationsService.createRequestApprovedNotification(
           userId: request.requesterId,
+          householdId: householdId,
+          listId: list.id,
           listName: list.name,
           itemName: request.requestData['name'] as String? ?? 'מוצר',
           approverName: approverName,
@@ -306,9 +309,11 @@ class PendingRequestsService {
       try {
         await notificationsService.createRequestRejectedNotification(
           userId: request.requesterId,
+          householdId: householdId,
+          listId: list.id,
           listName: list.name,
           itemName: request.requestData['name'] as String? ?? 'מוצר',
-          rejecterName: rejecterName,
+          reviewerName: rejecterName,
           reason: reason,
         );
         log('📬 התראת דחייה נשלחה למבקש [PendingRequestsService]');
