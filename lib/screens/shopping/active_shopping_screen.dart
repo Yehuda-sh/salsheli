@@ -32,7 +32,9 @@
 
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/status_colors.dart';
@@ -45,16 +47,14 @@ import '../../providers/inventory_provider.dart';
 import '../../providers/products_provider.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../providers/user_context.dart';
+import '../../services/shopping_patterns_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/skeleton_loading.dart';
 import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/sticky_note.dart';
 import '../../widgets/common/tappable_card.dart';
-import '../../services/shopping_patterns_service.dart';
 import '../../widgets/home/last_chance_banner.dart';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ActiveShoppingScreen extends StatefulWidget {
   final ShoppingList list;
@@ -76,6 +76,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
 
   // 🧑 UserContext Listener
   late UserContext _userContext;
+  bool _listenerAdded = false; // 🔧 עוקב אחרי הוספת listener
 
   @override
   void initState() {
@@ -85,6 +86,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
     // ✅ UserContext Listener - לאזור לשינויים בנתוני המשתמש
     _userContext = context.read<UserContext>();
     _userContext.addListener(_onUserContextChanged);
+    _listenerAdded = true; // 🔧 מסמן שהוספנו listener
 
     _initializeScreen();
   }
@@ -137,7 +139,12 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
   @override
   void dispose() {
     debugPrint('🗑️ ActiveShoppingScreen.dispose');
-    _userContext.removeListener(_onUserContextChanged); // ✅ חובה!
+
+    // ✅ ניקוי listener - רק אם הוסף
+    if (_listenerAdded) {
+      _userContext.removeListener(_onUserContextChanged);
+    }
+
     super.dispose();
   }
 
@@ -163,6 +170,9 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
   /// סיום קנייה - מעבר למסך סיכום
   Future<void> _finishShopping() async {
     debugPrint('🏁 _finishShopping: מתחיל סיכום');
+
+    // ✨ Haptic feedback למשוב מישוש
+    unawaited(HapticFeedback.mediumImpact());
 
     final purchased = _itemStatuses.values.where((s) => s == ShoppingItemStatus.purchased).length;
     final outOfStock = _itemStatuses.values.where((s) => s == ShoppingItemStatus.outOfStock).length;
@@ -196,13 +206,20 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
     // ✅ תפוס context לפני await
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
-    
+
+    // 🔧 מנקה SnackBar קודם אם קיים (מונע duplicates)
+    messenger.clearSnackBars();
+
     setState(() {
       _isSaving = true;
     });
 
     try {
       debugPrint('💾 _saveAndFinish: מתחיל תהליך סיום קנייה');
+
+      // 🔧 שמור providers לפני כל await
+      final inventoryProvider = context.read<InventoryProvider>();
+      final shoppingProvider = context.read<ShoppingListsProvider>();
 
       // 1️⃣ עדכן מלאי - רק פריטים שנקנו ✅
       final purchasedItems = widget.list.items.where((item) {
@@ -212,7 +229,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
 
       if (purchasedItems.isNotEmpty) {
         debugPrint('📦 מעדכן מלאי: ${purchasedItems.length} פריטים');
-        final inventoryProvider = context.read<InventoryProvider>();
         await inventoryProvider.updateStockAfterPurchase(purchasedItems);
         debugPrint('✅ מלאי עודכן בהצלחה');
 
@@ -245,8 +261,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
 
       if (unpurchasedItems.isNotEmpty) {
         debugPrint('🔄 מעביר ${unpurchasedItems.length} פריטים לרשימה הבאה');
-        final provider = context.read<ShoppingListsProvider>();
-        await provider.addToNextList(unpurchasedItems);
+        await shoppingProvider.addToNextList(unpurchasedItems);
         debugPrint('✅ פריטים הועברו לרשימה הבאה');
       }
 
@@ -255,12 +270,11 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
         final status = _itemStatuses[item.id];
         return status == ShoppingItemStatus.pending;
       }).toList();
-      
+
       // סמן רשימה כהושלמה רק אם אין פריטים ב-pending
       if (pendingItems.isEmpty) {
         debugPrint('🏁 מסמן רשימה כהושלמה - כל הפריטים סומנו');
-        final provider = context.read<ShoppingListsProvider>();
-        await provider.updateListStatus(widget.list.id, ShoppingList.statusCompleted);
+        await shoppingProvider.updateListStatus(widget.list.id, ShoppingList.statusCompleted);
         debugPrint('✅ רשימה הושלמה!');
       } else {
         debugPrint('🔄 הרשימה נשארת פעילה - ${pendingItems.length} פריטים לא סומנו');
@@ -305,7 +319,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
         if (!mounted) return;
 
         debugPrint('🚪 _saveAndFinish: מעבר למסך סיכום');
-        navigator.pushReplacementNamed('/shopping-summary', arguments: widget.list.id);
+        unawaited(navigator.pushReplacementNamed('/shopping-summary', arguments: widget.list.id));
     } catch (e) {
       debugPrint('❌ _saveAndFinish Error: $e');
 
@@ -325,11 +339,20 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
                 Text(AppStrings.shopping.saveError),
               ],
             ),
-            content: Text(AppStrings.shopping.saveErrorMessage, style: TextStyle(fontSize: kFontSizeBody)),
+            content: Text(AppStrings.shopping.saveErrorMessage, style: const TextStyle(fontSize: kFontSizeBody)),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(context, false), child: Text(AppStrings.common.cancel)),
+              TextButton(
+                onPressed: () {
+                  unawaited(HapticFeedback.lightImpact());
+                  Navigator.pop(context, false);
+                },
+                child: Text(AppStrings.common.cancel),
+              ),
               FilledButton.icon(
-                onPressed: () => Navigator.pop(context, true),
+                onPressed: () {
+                  unawaited(HapticFeedback.mediumImpact());
+                  Navigator.pop(context, true);
+                },
                 icon: const Icon(Icons.refresh),
                 label: Text(AppStrings.common.retry),
               ),
@@ -808,7 +831,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
     }
 
     return SimpleTappableCard(
-      onTap: null, // לא צריך onTap - הכפתורים בפנים מטפלים
+      // לא צריך onTap - הכפתורים בפנים מטפלים
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -889,6 +912,9 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                   CheckboxListTile(
                     value: status == ShoppingItemStatus.purchased,
                     onChanged: (checked) {
+                      // ✨ Haptic feedback למשוב מישוש
+                      unawaited(HapticFeedback.selectionClick());
+
                       if (checked == true) {
                         onStatusChanged(ShoppingItemStatus.purchased);
                       } else {
@@ -917,7 +943,11 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                           color: status == ShoppingItemStatus.outOfStock ? StatusColors.error : Colors.white,
                           textColor: status == ShoppingItemStatus.outOfStock ? Colors.white : StatusColors.error,
                           height: 40,
-                          onPressed: () => onStatusChanged(ShoppingItemStatus.outOfStock),
+                          onPressed: () {
+                            // ✨ Haptic feedback למשוב מישוש
+                            unawaited(HapticFeedback.lightImpact());
+                            onStatusChanged(ShoppingItemStatus.outOfStock);
+                          },
                         ),
                       ),
 
@@ -932,6 +962,9 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                           textColor: Colors.white,
                           height: 40,
                           onPressed: () {
+                            // ✨ Haptic feedback למשוב מישוש
+                            unawaited(HapticFeedback.lightImpact());
+
                             // TODO: פתח דיאלוג בחירת מוצר חלופי
                             // לעת עתה - סמן כנקנה
                             onStatusChanged(ShoppingItemStatus.purchased);
@@ -1055,7 +1088,13 @@ class _ShoppingSummaryDialog extends StatelessWidget {
         Semantics(
           label: 'חזור לרשימה',
           button: true,
-          child: TextButton(onPressed: () => Navigator.pop(context, false), child: Text(AppStrings.shopping.summaryBack)),
+          child: TextButton(
+            onPressed: () {
+              unawaited(HapticFeedback.lightImpact());
+              Navigator.pop(context, false);
+            },
+            child: Text(AppStrings.shopping.summaryBack),
+          ),
         ),
         Semantics(
           label: 'סיים קנייה ושמור',
@@ -1063,7 +1102,10 @@ class _ShoppingSummaryDialog extends StatelessWidget {
           child: StickyButton(
             label: AppStrings.shopping.summaryFinishShopping,
             icon: Icons.check,
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () {
+              unawaited(HapticFeedback.mediumImpact());
+              Navigator.pop(context, true);
+            },
             color: StatusColors.success,
             textColor: Colors.white,
             height: 44,

@@ -57,20 +57,34 @@ class IndexScreen extends StatefulWidget {
 class _IndexScreenState extends State<IndexScreen> {
   bool _hasNavigated = false; // מונע navigation כפול
   bool _hasError = false; // מצב שגיאה
+  bool _listenerAdded = false; // עוקב אחרי הוספת listener
+  Timer? _delayTimer; // Timer לביטול במקרה של dispose
 
   @override
   void initState() {
     super.initState();
     _log('🚀 IndexScreen.initState() - מתחיל Splash Screen');
 
-    // ⚡ טעינה אסינכרונית משופרת - עם delay ל-Firebase Auth
+    // ⚡ טעינה אסינכרונית משופרת - delay חכם ל-Firebase Auth
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // ⏱️ המתנה של 600ms כדי לתת ל-Firebase Auth זמן להחזיר את המשתמש
-      unawaited(Future.delayed(const Duration(milliseconds: 600), () {
+      if (!mounted) return;
+
+      final userContext = Provider.of<UserContext>(context, listen: false);
+
+      // 🔧 אם Firebase כבר טעון - אין צורך ב-delay
+      if (!userContext.isLoading) {
+        _log('   ⚡ Firebase כבר טעון - מדלג על delay');
+        _setupListener();
+        return;
+      }
+
+      // ⏱️ אחרת - המתן עד 600ms לתת ל-Firebase זמן
+      _log('   ⏳ Firebase טוען - ממתין עד 600ms');
+      _delayTimer = Timer(const Duration(milliseconds: 600), () {
         if (mounted) {
           _setupListener();
         }
-      }));
+      });
     });
   }
 
@@ -80,6 +94,7 @@ class _IndexScreenState extends State<IndexScreen> {
 
     // ✅ האזן לשינויים ב-UserContext
     userContext.addListener(_onUserContextChanged);
+    _listenerAdded = true; // 🔧 מסמן שהוספנו listener
 
     // ✅ בדוק מיידית אם כבר נטען
     _checkAndNavigate();
@@ -178,12 +193,18 @@ class _IndexScreenState extends State<IndexScreen> {
   @override
   void dispose() {
     _log('🗑️ IndexScreen.dispose()');
-    // ✅ ניקוי listener
-    try {
-      final userContext = Provider.of<UserContext>(context, listen: false);
-      userContext.removeListener(_onUserContextChanged);
-    } catch (e) {
-      // אם כבר נמחק, לא נורא
+
+    // 🔧 בטל Timer אם עדיין רץ
+    _delayTimer?.cancel();
+
+    // ✅ ניקוי listener - רק אם הוסף
+    if (_listenerAdded) {
+      try {
+        final userContext = Provider.of<UserContext>(context, listen: false);
+        userContext.removeListener(_onUserContextChanged);
+      } catch (e) {
+        _log('⚠️ שגיאה בהסרת listener: $e');
+      }
     }
     super.dispose();
   }

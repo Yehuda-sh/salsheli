@@ -21,9 +21,11 @@
 //     - מחשב עלות כוללת.
 //     - מציג UI רספונסיבי עם RTL.
 
+import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/shopping_list.dart';
@@ -105,10 +107,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   Future<void> _checkEditorNotifications() async {
     final provider = context.read<ShoppingListsProvider>();
     final userContext = context.read<UserContext>();
-    final requestsService = PendingRequestsService(
-      provider.repository,
-      userContext,
-    );
+    final requestsService = PendingRequestsService(provider.repository, userContext);
 
     final currentUserId = userContext.userId;
     if (currentUserId == null) return;
@@ -216,21 +215,19 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     }
   }
 
-
-
   /// === מחיקת פריט עם אנימציה ===
   void _deleteItem(BuildContext context, UnifiedListItem removed) {
     final provider = context.read<ShoppingListsProvider>();
-    
+
     // מצא את האינדקס המקורי ברשימה (לא אחרי סינון)
     final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id);
     final originalIndex = currentList.items.indexWhere((item) => item.id == removed.id);
-    
+
     if (originalIndex == -1) {
       debugPrint('❌ ShoppingListDetailsScreen: לא נמצא פריט עם id ${removed.id}');
       return;
     }
-    
+
     provider.removeItemFromList(widget.list.id, originalIndex);
 
     debugPrint('🗑️ ShoppingListDetailsScreen: מחק מוצר "${removed.name ?? 'ללא שם'}" (index: $originalIndex)');
@@ -244,12 +241,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
           label: AppStrings.common.cancel,
           textColor: Colors.white,
           onPressed: () {
-          provider.addItemToList(
-          widget.list.id,
-          removed.name ?? '',
-          removed.quantity ?? 1,
-          removed.unit ?? 'יח\'',
-          );
+            provider.addItemToList(widget.list.id, removed.name ?? '', removed.quantity ?? 1, removed.unit ?? 'יח\'');
             debugPrint('↩️ ShoppingListDetailsScreen: שחזר מוצר "${removed.name}"');
           },
         ),
@@ -260,7 +252,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   /// 🛒 הוספת מוצר חדש
   Future<void> _handleAddProduct() async {
     final provider = context.read<ShoppingListsProvider>();
-    
+
     await showAddEditProductDialog(
       context,
       onSave: (item) {
@@ -273,14 +265,14 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   /// ✏️ עריכת מוצר קיים
   Future<void> _handleEditProduct(UnifiedListItem item) async {
     final provider = context.read<ShoppingListsProvider>();
-    
+
     await showAddEditProductDialog(
       context,
       item: item,
       onSave: (updatedItem) {
         final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id);
         final originalIndex = currentList.items.indexWhere((i) => i.id == item.id);
-        
+
         if (originalIndex != -1) {
           provider.updateItemAt(widget.list.id, originalIndex, (_) => updatedItem);
           debugPrint('✅ ShoppingListDetailsScreen: עדכן מוצר "${updatedItem.name}" (index: $originalIndex)');
@@ -292,7 +284,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   /// 📋 הוספת משימה חדשה
   Future<void> _handleAddTask() async {
     final provider = context.read<ShoppingListsProvider>();
-    
+
     await showAddEditTaskDialog(
       context,
       onSave: (item) {
@@ -305,14 +297,14 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   /// ✏️ עריכת משימה קיימת
   Future<void> _handleEditTask(UnifiedListItem item) async {
     final provider = context.read<ShoppingListsProvider>();
-    
+
     await showAddEditTaskDialog(
       context,
       item: item,
       onSave: (updatedItem) {
         final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id);
         final originalIndex = currentList.items.indexWhere((i) => i.id == item.id);
-        
+
         if (originalIndex != -1) {
           provider.updateItemAt(widget.list.id, originalIndex, (_) => updatedItem);
           debugPrint('✅ ShoppingListDetailsScreen: עדכן משימה "${updatedItem.name}" (index: $originalIndex)');
@@ -403,10 +395,13 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                       icon: const Icon(Icons.notifications),
                       tooltip: 'בקשות ממתינות',
                       onPressed: () {
+                        // ✨ Haptic feedback למשוב מישוש
+                        unawaited(HapticFeedback.lightImpact());
+
                         final navigator = Navigator.of(context);
-                        navigator.push(MaterialPageRoute(
-                          builder: (context) => PendingRequestsScreen(list: currentList),
-                        ));
+                        navigator.push(
+                          MaterialPageRoute(builder: (context) => PendingRequestsScreen(list: currentList)),
+                        );
                       },
                     ),
                     Positioned(
@@ -414,21 +409,11 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                       top: 8,
                       child: Container(
                         padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: kStickyPink,
-                          shape: BoxShape.circle,
-                        ),
-                        constraints: const BoxConstraints(
-                          minWidth: 16,
-                          minHeight: 16,
-                        ),
+                        decoration: const BoxDecoration(color: kStickyPink, shape: BoxShape.circle),
+                        constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
                         child: Text(
                           '${currentList.pendingRequestsForReview.length}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -447,6 +432,9 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                   icon: const Icon(Icons.share),
                   tooltip: AppStrings.listDetails.shareListTooltip,
                   onPressed: () {
+                    // ✨ Haptic feedback למשוב מישוש
+                    unawaited(HapticFeedback.lightImpact());
+
                     final navigator = Navigator.of(context);
                     navigator.push(MaterialPageRoute(builder: (context) => ManageUsersScreen(list: currentList)));
                   },
@@ -461,7 +449,12 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
               child: IconButton(
                 icon: const Icon(Icons.library_add),
                 tooltip: AppStrings.listDetails.addFromCatalogTooltip,
-                onPressed: () => _navigateToPopulateScreen(),
+                onPressed: () {
+                  // ✨ Haptic feedback למשוב מישוש
+                  unawaited(HapticFeedback.lightImpact());
+
+                  _navigateToPopulateScreen();
+                },
               ),
             ),
             // כפתור חיפוש
@@ -473,6 +466,9 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
               child: IconButton(
                 icon: const Icon(Icons.search),
                 onPressed: () {
+                  // ✨ Haptic feedback למשוב מישוש
+                  unawaited(HapticFeedback.lightImpact());
+
                   setState(() {
                     if (_searchQuery.isNotEmpty) {
                       _searchQuery = '';
@@ -501,10 +497,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                   child: _isLoading
                       ? const ShoppingDetailsLoadingSkeleton()
                       : _errorMessage != null
-                      ? ShoppingDetailsErrorState(
-                          errorMessage: _errorMessage,
-                          onRetry: _loadData,
-                        )
+                      ? ShoppingDetailsErrorState(errorMessage: _errorMessage, onRetry: _loadData)
                       : filteredItems.isEmpty && allItems.isNotEmpty
                       ? ShoppingDetailsEmptySearch(
                           onClearSearch: () {
@@ -513,9 +506,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                           },
                         )
                       : filteredItems.isEmpty
-                      ? ShoppingDetailsEmptyState(
-                          onAddFromCatalog: _navigateToPopulateScreen,
-                        )
+                      ? ShoppingDetailsEmptyState(onAddFromCatalog: _navigateToPopulateScreen)
                       : _groupByCategory
                       ? _buildGroupedList(filteredItems, theme)
                       : _buildFlatList(filteredItems, theme),
@@ -595,6 +586,9 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                     ? IconButton(
                         icon: const Icon(Icons.clear),
                         onPressed: () {
+                          // ✨ Haptic feedback למשוב מישוש
+                          unawaited(HapticFeedback.lightImpact());
+
                           setState(() => _searchQuery = '');
                           debugPrint('🧹 ShoppingListDetailsScreen: ניקוי חיפוש');
                         },
@@ -632,11 +626,11 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                         key: ValueKey<int>(allItems.length),
                         padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingSmall),
                         decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(kBorderRadius),
+                          color: Theme.of(context).colorScheme.primaryContainer,
+                          borderRadius: BorderRadius.circular(kBorderRadius),
                         ),
                         child: Text(
-                        '📦 ${AppStrings.listDetails.itemsCount(allItems.length)}',
+                          '📦 ${AppStrings.listDetails.itemsCount(allItems.length)}',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
@@ -739,8 +733,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
         return Icons.sort;
     }
   }
-
-
 
   /// 📋 רשימה שטוחה (flat) עם Staggered Animation - מסונכרן עם שורות המחברת
   Widget _buildFlatList(List<UnifiedListItem> items, ThemeData theme) {
@@ -878,10 +870,10 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
         return await showDialog(
           context: context,
           builder: (context) => AlertDialog(
-          title: Text(AppStrings.listDetails.deleteTitle),
-          content: Text(AppStrings.listDetails.deleteMessage(item.name ?? 'ללא שם')),
+            title: Text(AppStrings.listDetails.deleteTitle),
+            content: Text(AppStrings.listDetails.deleteMessage(item.name ?? 'ללא שם')),
             actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(AppStrings.common.cancel)),
+              TextButton(onPressed: () => Navigator.pop(context, false), child: Text(AppStrings.common.cancel)),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, true),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
@@ -894,10 +886,12 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
       onDismissed: (_) => _deleteItem(context, item),
       child: Container(
         height: kNotebookLineSpacing, // 40px = שורה אחת במחברת (סינכרון!)
-        decoration: !isProduct ? BoxDecoration(
-          color: kStickyPurple.withValues(alpha: 0.3), // רקע סגול בולט (כמו highlighter!)
-          borderRadius: BorderRadius.circular(4),
-        ) : null,
+        decoration: !isProduct
+            ? BoxDecoration(
+                color: kStickyPurple.withValues(alpha: 0.3), // רקע סגול בולט (כמו highlighter!)
+                borderRadius: BorderRadius.circular(4),
+              )
+            : null,
         child: Row(
           children: [
             // ✅ Checkbox - שמאל
@@ -908,7 +902,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                   final provider = context.read<ShoppingListsProvider>();
                   final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id);
                   final originalIndex = currentList.items.indexWhere((i) => i.id == item.id);
-                  
+
                   if (originalIndex != -1) {
                     provider.updateItemAt(
                       widget.list.id,
@@ -920,9 +914,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                 child: Icon(
                   item.isChecked ? Icons.check_circle : Icons.radio_button_unchecked,
                   key: ValueKey(item.isChecked),
-                  color: item.isChecked 
-                      ? theme.colorScheme.primary 
-                      : theme.colorScheme.onSurfaceVariant,
+                  color: item.isChecked ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
                   size: 22,
                 ),
               ),
@@ -936,7 +928,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                 duration: const Duration(milliseconds: 200),
                 style: theme.textTheme.bodyLarge!.copyWith(
                   decoration: item.isChecked ? TextDecoration.lineThrough : null,
-                  color: item.isChecked 
+                  color: item.isChecked
                       ? theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6)
                       : theme.colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
@@ -957,21 +949,15 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                       const SizedBox(width: 8),
                       // 🔢 תג כמות מעוצב
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
                           color: theme.colorScheme.primaryContainer,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: theme.colorScheme.primary.withValues(alpha: 0.3),
-                            width: 1,
-                          ),
+                          border: Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.3), width: 1),
                         ),
                         child: Text(
-                        '×${item.quantity}',
-                        style: theme.textTheme.bodySmall?.copyWith(
+                          '×${item.quantity}',
+                          style: theme.textTheme.bodySmall?.copyWith(
                             color: theme.colorScheme.onPrimaryContainer,
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
@@ -1017,7 +1003,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
             //           ),
             //   ),
             // ),
-
             const SizedBox(width: kSpacingSmall),
 
             // ✏️ כפתור עריכה - צמוד למחיקה - 🔒 רק Owner/Admin/Editor
@@ -1060,5 +1045,4 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
       ),
     );
   }
-
 }

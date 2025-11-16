@@ -16,6 +16,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:memozap/core/ui_constants.dart';
 import 'package:memozap/l10n/app_strings.dart';
@@ -68,9 +69,15 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       }
       return;
     }
-    
+
     if (_selectedIndex == index) return;
-    
+
+    // 🔧 איפוס טיימר double-tap כשעוברים בין טאבים
+    _lastBackPress = null;
+
+    // ✨ Haptic feedback קל למשוב מישוש
+    HapticFeedback.selectionClick();
+
     if (kDebugMode) {
       debugPrint('🏠 MainNavigationScreen: מעבר לטאב $_selectedIndex → $index');
     }
@@ -98,7 +105,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       // ✅ בדיקת mounted ו-context נשמרים לפני כל פעולה
       if (!mounted) return Future.value(false);
       final messenger = ScaffoldMessenger.of(context);
-      
+
+      // 🔧 מנקה SnackBar קודם אם קיים (מונע duplicates)
+      messenger.clearSnackBars();
+
+      // ✨ Haptic feedback למשוב מישוש
+      HapticFeedback.lightImpact();
+
       messenger.showSnackBar(
         SnackBar(
             content: Text(

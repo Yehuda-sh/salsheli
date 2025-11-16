@@ -111,8 +111,6 @@ class _SkeletonBox extends StatelessWidget {
             height: height,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
                 colors: [
                   Theme.of(context).colorScheme.surfaceContainerHighest,
                   Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),

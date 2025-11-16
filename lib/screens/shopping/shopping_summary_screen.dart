@@ -24,6 +24,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/status_colors.dart';
@@ -142,7 +143,13 @@ class ShoppingSummaryScreen extends StatelessWidget {
                       color: kStickyYellow,
                       onPressed: () {
                         _log('   🏠 ניווט חזרה לדף הבית');
-                        Navigator.of(context).popUntil((route) => route.isFirst);
+
+                        // ✨ Haptic feedback למשוב מישוש
+                        HapticFeedback.lightImpact();
+
+                        // 🔧 שמור Navigator לפני שימוש
+                        final navigator = Navigator.of(context);
+                        navigator.popUntil((route) => route.isFirst);
                       },
                     ),
                   ],
@@ -276,7 +283,13 @@ class ShoppingSummaryScreen extends StatelessWidget {
                     color: kStickyYellow,
                     onPressed: () {
                       _log('   🏠 לחיצה על כפתור חזרה - popUntil');
-                      Navigator.of(context).popUntil((route) => route.isFirst);
+
+                      // ✨ Haptic feedback למשוב מישוש
+                      HapticFeedback.lightImpact();
+
+                      // 🔧 שמור Navigator לפני שימוש
+                      final navigator = Navigator.of(context);
+                      navigator.popUntil((route) => route.isFirst);
                     },
                   ),
                 ],
@@ -312,6 +325,10 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textColor = Theme.of(context).brightness == Brightness.dark
+        ? Colors.black87  // כהה ברקע בהיר של StickyNote
+        : Colors.black54;
+
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Row(
@@ -328,9 +345,9 @@ class _SummaryCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: Colors.black54,
+                    color: textColor,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -346,9 +363,9 @@ class _SummaryCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     subtitle!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: Colors.black54,
+                      color: textColor,
                     ),
                   ),
                 ],
@@ -380,6 +397,10 @@ class _StatBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textColor = Theme.of(context).brightness == Brightness.dark
+        ? Colors.black87  // כהה ברקע בהיר של StickyNote
+        : Colors.black54;
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -397,9 +418,9 @@ class _StatBox extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
-              color: Colors.black54,
+              color: textColor,
             ),
           ),
         ],

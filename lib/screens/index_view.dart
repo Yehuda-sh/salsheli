@@ -20,6 +20,7 @@
 // - ui_constants.dart - קבועי עיצוב
 // - app_strings.dart - טקסטים
 
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -43,6 +44,9 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
   late AnimationController _shimmerController;
   late AnimationController _textController;
   late AnimationController _waveController;
+
+  // ⏱️ Timer להחלפת הודעות
+  Timer? _messageTimer;
 
   // ⏱️ Animation Durations
   static const _logoAnimationDuration = Duration(milliseconds: 1200);
@@ -101,8 +105,11 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
 
   /// מחליף הודעות טעינה
   void _startMessageRotation() {
-    Future.delayed(_messageRotationDelay, () {
-      if (!mounted) return;
+    _messageTimer = Timer.periodic(_messageRotationDelay, (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
 
       setState(() {
         _currentMessageIndex =
@@ -111,13 +118,12 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
 
       _textController.reset();
       _textController.forward();
-
-      _startMessageRotation(); // המשך rotation
     });
   }
 
   @override
   void dispose() {
+    _messageTimer?.cancel();
     _logoController.dispose();
     _pulseController.dispose();
     _shimmerController.dispose();
