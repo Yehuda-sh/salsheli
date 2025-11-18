@@ -40,6 +40,7 @@ import 'repositories/user_repository.dart';
 
 // Services
 import 'services/auth_service.dart'; // 🔐 Firebase Auth!
+import 'services/auto_sync_initializer.dart'; // 🔄 Auto Price Sync!
 
 // Screens
 import 'screens/auth/login_screen.dart' as auth_login;
@@ -86,6 +87,9 @@ void main() async {
 
   // 📦 Create Local Products Repository
   final productsRepo = LocalProductsRepository();
+
+  // 🔄 Initialize Auto Price Sync (runs in background)
+  AutoSyncInitializer.initialize();
 
   runApp(
     MultiProvider(
