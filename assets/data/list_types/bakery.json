@@ -1,5 +1,245 @@
 [
   {
+    "name": "בורקס גבינה",
+    "category": "מאפים",
+    "icon": "🥐",
+    "price": 6.5,
+    "barcode": "BAKERY-001",
+    "brand": "",
+    "unit": "יחידה",
+    "store": "כללי"
+  },
+  {
+    "name": "בורקס תפוחי אדמה",
+    "category": "מאפים",
+    "icon": "🥐",
+    "price": 6.5,
+    "barcode": "BAKERY-002",
+    "brand": "",
+    "unit": "יחידה",
+    "store": "כללי"
+  },
+  {
+    "name": "בורקס פיצה",
+    "category": "מאפים",
+    "icon": "🥐",
+    "price": 6.5,
+    "barcode": "BAKERY-003",
+    "brand": "",
+    "unit": "יחידה",
+    "store": "כללי"
+  },
+  {
+    "name": "קרואסון חמאה",
+    "category": "מאפים",
+    "icon": "🥐",
+    "price": 7.0,
+    "barcode": "BAKERY-004",
+    "brand": "",
+    "unit": "יחידה",
+    "store": "כללי"
+  },
+  {
+    "name": "קרואסון שוקולד",
+    "category": "מאפים",
+    "icon": "🥐",
+    "price": 8.0,
+    "barcode": "BAKERY-005",
+    "brand": "",
+    "unit": "יחידה",
+    "store": "כללי"
+  },
+  {
+    "name": "קרואסון שקדים",
+    "category": "מאפים",
+    "icon": "🥐",
+    "price": 8.5,
+    "barcode": "BAKERY-006",
+    "brand": "",
+    "unit": "יחידה",
+    "store": "כללי"
+  },
+  {
+    "name": "לחמניית קייזר",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 3.0,
+    "barcode": "BAKERY-007",
+    "brand": "",
+    "unit": "יחידה",
+    "store": "כללי"
+  },
+  {
+    "name": "לחמנייה שומשום",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 3.5,
+    "barcode": "BAKERY-008",
+    "brand": "",
+    "unit": "יחידה",
+    "store": "כללי"
+  },
+  {
+    "name": "לחמנייה זיתים",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 4.0,
+    "barcode": "BAKERY-009",
+    "brand": "",
+    "unit": "יחידה",
+    "store": "כללי"
+  },
+  {
+    "name": "כעך שומשום",
+    "category": "מאפים",
+    "icon": "🥨",
+    "price": 5.0,
+    "barcode": "BAKERY-010",
+    "brand": "",
+    "unit": "יחידה",
+    "store": "כללי"
+  },
+  {
+    "name": "כעך ירושלמי",
+    "category": "מאפים",
+    "icon": "🥨",
+    "price": 5.5,
+    "barcode": "BAKERY-011",
+    "brand": "",
+    "unit": "יחידה",
+    "store": "כללי"
+  },
+  {
+    "name": "דניש גבינה",
+    "category": "מאפים",
+    "icon": "🥐",
+    "price": 9.0,
+    "barcode": "BAKERY-012",
+    "brand": "",
+    "unit": "יחידה",
+    "store": "כללי"
+  },
+  {
+    "name": "דניש שזיפים",
+    "category": "מאפים",
+    "icon": "🥐",
+    "price": 9.0,
+    "barcode": "BAKERY-013",
+    "brand": "",
+    "unit": "יחידה",
+    "store": "כללי"
+  },
+  {
+    "name": "עוגיות שוקולד צ'יפס",
+    "category": "עוגיות ומתוקים",
+    "icon": "🍪",
+    "price": 45.0,
+    "barcode": "BAKERY-014",
+    "brand": "",
+    "unit": "ק\"ג",
+    "store": "כללי"
+  },
+  {
+    "name": "עוגיות חמאה",
+    "category": "עוגיות ומתוקים",
+    "icon": "🍪",
+    "price": 40.0,
+    "barcode": "BAKERY-015",
+    "brand": "",
+    "unit": "ק\"ג",
+    "store": "כללי"
+  },
+  {
+    "name": "עוגיות שקדים",
+    "category": "עוגיות ומתוקים",
+    "icon": "🍪",
+    "price": 50.0,
+    "barcode": "BAKERY-016",
+    "brand": "",
+    "unit": "ק\"ג",
+    "store": "כללי"
+  },
+  {
+    "name": "עוגת גבינה (פרוסה)",
+    "category": "עוגות",
+    "icon": "🍰",
+    "price": 12.0,
+    "barcode": "BAKERY-017",
+    "brand": "",
+    "unit": "פרוסה",
+    "store": "כללי"
+  },
+  {
+    "name": "עוגת שוקולד (פרוסה)",
+    "category": "עוגות",
+    "icon": "🍰",
+    "price": 12.0,
+    "barcode": "BAKERY-018",
+    "brand": "",
+    "unit": "פרוסה",
+    "store": "כללי"
+  },
+  {
+    "name": "עוגת גזר (פרוסה)",
+    "category": "עוגות",
+    "icon": "🍰",
+    "price": 11.0,
+    "barcode": "BAKERY-019",
+    "brand": "",
+    "unit": "פרוסה",
+    "store": "כללי"
+  },
+  {
+    "name": "עוגת תפוחים (פרוסה)",
+    "category": "עוגות",
+    "icon": "🍰",
+    "price": 10.0,
+    "barcode": "BAKERY-020",
+    "brand": "",
+    "unit": "פרוסה",
+    "store": "כללי"
+  },
+  {
+    "name": "לחם לבן פרוס",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 8.0,
+    "barcode": "BAKERY-021",
+    "brand": "",
+    "unit": "יחידה",
+    "store": "כללי"
+  },
+  {
+    "name": "לחם מלא פרוס",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 9.0,
+    "barcode": "BAKERY-022",
+    "brand": "",
+    "unit": "יחידה",
+    "store": "כללי"
+  },
+  {
+    "name": "חלה פרוסה",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 12.0,
+    "barcode": "BAKERY-023",
+    "brand": "",
+    "unit": "יחידה",
+    "store": "כללי"
+  },
+  {
+    "name": "בגט צרפתי",
+    "category": "מאפים",
+    "icon": "🥖",
+    "price": 8.0,
+    "barcode": "BAKERY-024",
+    "brand": "",
+    "unit": "יחידה",
+    "store": "כללי"
+  },
+  {
     "name": "באן מאפה מאודה",
     "category": "מאפים",
     "icon": "🍞",
