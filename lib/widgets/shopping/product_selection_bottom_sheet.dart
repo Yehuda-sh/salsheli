@@ -30,6 +30,7 @@ import '../../models/unified_list_item.dart';
 import '../../providers/products_provider.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../providers/user_context.dart';
+import '../../services/category_detection_service.dart';
 import '../common/animated_button.dart';
 import '../common/notebook_background.dart';
 import '../common/sticky_button.dart';
@@ -228,13 +229,24 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
     );
 
     try {
+      // 🤖 זיהוי אוטומטי של קטגוריה (תיקון לקטגוריות שגויות ב-JSON)
+      final detectedCategory = CategoryDetectionService.detectFromProductJson(product);
+
       await provider.addItemToList(
         widget.list.id,
         newItem.name ?? 'מוצר ללא שם',
         newItem.quantity,
         newItem.unit ?? "יח'",
+        category: detectedCategory,
       );
-      debugPrint('   ✅ נוסף בהצלחה');
+
+      // 📊 דיווח אם תוקנה קטגוריה
+      final originalCategory = product['category'] as String?;
+      if (originalCategory != detectedCategory && originalCategory != null) {
+        debugPrint('   🔧 קטגוריה תוקנה: "$originalCategory" → "$detectedCategory"');
+      } else {
+        debugPrint('   ✅ נוסף בהצלחה עם קטגוריה: $detectedCategory');
+      }
 
       if (!mounted) return;
 

@@ -391,8 +391,8 @@ class ShoppingListsProvider with ChangeNotifier {
   }
 
   // === Add Item To List ===
-  Future<void> addItemToList(String listId, String name, int quantity, String unit) async {
-    debugPrint('➕ addItemToList: מוסיף פריט "$name" לרשימה $listId');
+  Future<void> addItemToList(String listId, String name, int quantity, String unit, {String? category}) async {
+    debugPrint('➕ addItemToList: מוסיף פריט "$name" לרשימה $listId (קטגוריה: $category)');
     final list = getById(listId);
     if (list == null) {
       debugPrint('❌ addItemToList: רשימה $listId לא נמצאה');
@@ -407,11 +407,12 @@ class ShoppingListsProvider with ChangeNotifier {
       unit: unit,
       unitPrice: 0.0,
       isChecked: false,
+      category: category,
     );
-    
+
     final updatedList = list.withItemAdded(item);
     await updateList(updatedList);
-    debugPrint('✅ addItemToList: פריט "$name" נוסף');
+    debugPrint('✅ addItemToList: פריט "$name" נוסף עם קטגוריה "$category"');
   }
 
   // === 🆕 Add UnifiedListItem (Product or Task) ===

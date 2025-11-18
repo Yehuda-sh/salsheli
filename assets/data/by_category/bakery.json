@@ -1,62 +1,330 @@
 [
   {
-    "name": "לחם ברמן לעניין פלוס500 ג",
+    "name": "לחם לבן",
     "category": "מאפים",
     "icon": "🍞",
-    "price": 17.9,
-    "barcode": "7290000497426",
-    "brand": "י.את.א.ברמן בע\"\\מ",
-    "unit": "100 גרם",
-    "store": "שופרסל",
-    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000497426/files/360_assets/index/images/7290000497426_1.jpg",
-    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+    "unit": "יחידה",
+    "price": 10.0,
+    "image_url": "https://source.unsplash.com/400x300/?white-bread"
   },
   {
-    "name": "לחם קסטן דני כפרי 600 גר",
+    "name": "לחם מלא",
     "category": "מאפים",
     "icon": "🍞",
-    "price": 22.9,
-    "barcode": "7290000498782",
-    "brand": "מאפית ברמן",
-    "unit": "100 גרם",
-    "store": "שופרסל",
-    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290000498782/files/360_assets/index/images/7290000498782_1.jpg",
-    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+    "unit": "יחידה",
+    "price": 12.0,
+    "image_url": "https://source.unsplash.com/400x300/?whole-wheat-bread"
   },
   {
-    "name": "מאפה בצק טבעוני פטה600",
+    "name": "חלה",
     "category": "מאפים",
-    "icon": "🍞",
-    "price": 24.9,
-    "barcode": "7290109640761",
-    "brand": "כללי",
-    "unit": "100 גרם",
-    "store": "שופרסל",
-    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290109640761/files/360_assets/index/images/7290109640761_1.jpg",
-    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+    "icon": "🥖",
+    "unit": "יחידה",
+    "price": 15.0,
+    "image_url": "https://source.unsplash.com/400x300/?challah-bread"
   },
   {
-    "name": "מאפה בצק טבעוני פיצה600 ג",
+    "name": "בורקס גבינה",
     "category": "מאפים",
-    "icon": "🍞",
-    "price": 25.9,
-    "barcode": "7290109640785",
-    "brand": "כללי",
+    "icon": "🥐",
     "unit": "100 גרם",
-    "store": "שופרסל",
-    "image_url": "https://media.shufersal.co.il/product_images/products_360/7290109640785/files/360_assets/index/images/7290109640785_1.jpg",
-    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+    "price": 8.0,
+    "image_url": "https://source.unsplash.com/400x300/?cheese-pastry"
   },
   {
-    "name": "קמח לאפיית לחם 1 ק\"ג",
+    "name": "בורקס תורכי",
+    "category": "מאפים",
+    "icon": "🥐",
+    "unit": "100 גרם",
+    "price": 9.0,
+    "image_url": "https://source.unsplash.com/400x300/?borek-pastry"
+  },
+  {
+    "name": "בורקס תפוח אדמה",
+    "category": "מאפים",
+    "icon": "🥐",
+    "unit": "100 גרם",
+    "price": 8.5,
+    "image_url": "https://source.unsplash.com/400x300/?potato-pastry"
+  },
+  {
+    "name": "בורקס פיצה",
+    "category": "מאפים",
+    "icon": "🥐",
+    "unit": "100 גרם",
+    "price": 8.5,
+    "image_url": "https://source.unsplash.com/400x300/?pizza-pastry"
+  },
+  {
+    "name": "בורקס זיתים",
+    "category": "מאפים",
+    "icon": "🥐",
+    "unit": "100 גרם",
+    "price": 8.5,
+    "image_url": "https://source.unsplash.com/400x300/?olive-pastry"
+  },
+  {
+    "name": "בורקס תרד",
+    "category": "מאפים",
+    "icon": "🥐",
+    "unit": "100 גרם",
+    "price": 8.5,
+    "image_url": "https://source.unsplash.com/400x300/?spinach-pastry"
+  },
+  {
+    "name": "סמבוסק גבינה",
+    "category": "מאפים",
+    "icon": "🥟",
+    "unit": "100 גרם",
+    "price": 9.0,
+    "image_url": "https://source.unsplash.com/400x300/?sambusak-cheese"
+  },
+  {
+    "name": "סמבוסק תפוח אדמה",
+    "category": "מאפים",
+    "icon": "🥟",
+    "unit": "100 גרם",
+    "price": 9.0,
+    "image_url": "https://source.unsplash.com/400x300/?sambusak-potato"
+  },
+  {
+    "name": "פיצה משולשת",
+    "category": "מאפים",
+    "icon": "🍕",
+    "unit": "יחידה",
+    "price": 12.0,
+    "image_url": "https://source.unsplash.com/400x300/?pizza-slice"
+  },
+  {
+    "name": "פיתה",
+    "category": "מאפים",
+    "icon": "🫓",
+    "unit": "יחידה",
+    "price": 3.0,
+    "image_url": "https://source.unsplash.com/400x300/?pita-bread"
+  },
+  {
+    "name": "לאפה עיראקית",
+    "category": "מאפים",
+    "icon": "🫓",
+    "unit": "יחידה",
+    "price": 5.0,
+    "image_url": "https://source.unsplash.com/400x300/?iraqi-laffa"
+  },
+  {
+    "name": "בגט צרפתי",
+    "category": "מאפים",
+    "icon": "🥖",
+    "unit": "יחידה",
+    "price": 12.0,
+    "image_url": "https://source.unsplash.com/400x300/?french-baguette"
+  },
+  {
+    "name": "לחמנייה",
+    "category": "מאפים",
+    "icon": "🍔",
+    "unit": "יחידה",
+    "price": 3.5,
+    "image_url": "https://source.unsplash.com/400x300/?bread-roll"
+  },
+  {
+    "name": "רוגלך שוקולד",
+    "category": "מאפים",
+    "icon": "🥐",
+    "unit": "100 גרם",
+    "price": 10.0,
+    "image_url": "https://source.unsplash.com/400x300/?chocolate-rugelach"
+  },
+  {
+    "name": "רוגלך קינמון",
+    "category": "מאפים",
+    "icon": "🥐",
+    "unit": "100 גרם",
+    "price": 10.0,
+    "image_url": "https://source.unsplash.com/400x300/?cinnamon-rugelach"
+  },
+  {
+    "name": "רוגלך חלבה",
+    "category": "מאפים",
+    "icon": "🥐",
+    "unit": "100 גרם",
+    "price": 10.0,
+    "image_url": "https://source.unsplash.com/400x300/?halva-rugelach"
+  },
+  {
+    "name": "עוגיות שוקולד צ'יפס",
+    "category": "מאפים",
+    "icon": "🍪",
+    "unit": "100 גרם",
+    "price": 8.0,
+    "image_url": "https://source.unsplash.com/400x300/?chocolate-chip-cookies"
+  },
+  {
+    "name": "עוגיות חמאה",
+    "category": "מאפים",
+    "icon": "🍪",
+    "unit": "100 גרם",
+    "price": 7.5,
+    "image_url": "https://source.unsplash.com/400x300/?butter-cookies"
+  },
+  {
+    "name": "עוגיות שקדים",
+    "category": "מאפים",
+    "icon": "🍪",
+    "unit": "100 גרם",
+    "price": 9.0,
+    "image_url": "https://source.unsplash.com/400x300/?almond-cookies"
+  },
+  {
+    "name": "מאפה שמרים",
+    "category": "מאפים",
+    "icon": "🥐",
+    "unit": "יחידה",
+    "price": 6.0,
+    "image_url": "https://source.unsplash.com/400x300/?yeast-pastry"
+  },
+  {
+    "name": "דונאט",
+    "category": "מאפים",
+    "icon": "🍩",
+    "unit": "יחידה",
+    "price": 7.0,
+    "image_url": "https://source.unsplash.com/400x300/?donut"
+  },
+  {
+    "name": "קרואסון",
+    "category": "מאפים",
+    "icon": "🥐",
+    "unit": "יחידה",
+    "price": 8.0,
+    "image_url": "https://source.unsplash.com/400x300/?croissant"
+  },
+  {
+    "name": "קרואסון שוקולד",
+    "category": "מאפים",
+    "icon": "🥐",
+    "unit": "יחידה",
+    "price": 9.0,
+    "image_url": "https://source.unsplash.com/400x300/?chocolate-croissant"
+  },
+  {
+    "name": "עוגת גבינה אישית",
+    "category": "מאפים",
+    "icon": "🍰",
+    "unit": "יחידה",
+    "price": 15.0,
+    "image_url": "https://source.unsplash.com/400x300/?cheesecake"
+  },
+  {
+    "name": "מאפין שוקולד",
+    "category": "מאפים",
+    "icon": "🧁",
+    "unit": "יחידה",
+    "price": 8.0,
+    "image_url": "https://source.unsplash.com/400x300/?chocolate-muffin"
+  },
+  {
+    "name": "מאפין פרג",
+    "category": "מאפים",
+    "icon": "🧁",
+    "unit": "יחידה",
+    "price": 8.0,
+    "image_url": "https://source.unsplash.com/400x300/?poppy-seed-muffin"
+  },
+  {
+    "name": "ג'חנון",
+    "category": "מאפים",
+    "icon": "🫓",
+    "unit": "יחידה",
+    "price": 7.0,
+    "image_url": "https://source.unsplash.com/400x300/?jachnun"
+  },
+  {
+    "name": "מלאווח",
+    "category": "מאפים",
+    "icon": "🫓",
+    "unit": "יחידה",
+    "price": 7.0,
+    "image_url": "https://source.unsplash.com/400x300/?malawach"
+  },
+  {
+    "name": "סחוג",
+    "category": "מאפים",
+    "icon": "🫓",
+    "unit": "יחידה",
+    "price": 6.0,
+    "image_url": "https://source.unsplash.com/400x300/?yemeni-bread"
+  },
+  {
+    "name": "זעתר במשקל",
+    "category": "מאפים",
+    "icon": "🥟",
+    "unit": "100 גרם",
+    "price": 5.0,
+    "image_url": "https://source.unsplash.com/400x300/?zaatar-bread"
+  },
+  {
+    "name": "לחם כוסמין",
     "category": "מאפים",
     "icon": "🍞",
-    "price": 8.9,
-    "barcode": "7296073661795",
-    "brand": "טחנות ישראליות בעמ",
-    "unit": "ק\"ג",
-    "store": "שופרסל",
-    "image_url": "https://media.shufersal.co.il/product_images/products_360/7296073661795/files/360_assets/index/images/7296073661795_1.jpg",
-    "fallback_image_url": "https://media.shufersal.co.il/product_images/products_360/default/files/360_assets/index/images/default_1.jpg"
+    "unit": "יחידה",
+    "price": 14.0,
+    "image_url": "https://source.unsplash.com/400x300/?spelt-bread"
+  },
+  {
+    "name": "לחם שיפון",
+    "category": "מאפים",
+    "icon": "🍞",
+    "unit": "יחידה",
+    "price": 13.0,
+    "image_url": "https://source.unsplash.com/400x300/?rye-bread"
+  },
+  {
+    "name": "לחם בריאות",
+    "category": "מאפים",
+    "icon": "🍞",
+    "unit": "יחידה",
+    "price": 14.0,
+    "image_url": "https://source.unsplash.com/400x300/?health-bread"
+  },
+  {
+    "name": "לחם קל",
+    "category": "מאפים",
+    "icon": "🍞",
+    "unit": "יחידה",
+    "price": 12.0,
+    "image_url": "https://source.unsplash.com/400x300/?light-bread"
+  },
+  {
+    "name": "פרוסות לחם קל",
+    "category": "מאפים",
+    "icon": "🍞",
+    "unit": "יחידה",
+    "price": 13.0,
+    "image_url": "https://source.unsplash.com/400x300/?sliced-bread"
+  },
+  {
+    "name": "בריוש",
+    "category": "מאפים",
+    "icon": "🥐",
+    "unit": "יחידה",
+    "price": 10.0,
+    "image_url": "https://source.unsplash.com/400x300/?brioche"
+  },
+  {
+    "name": "שבלול קינמון",
+    "category": "מאפים",
+    "icon": "🥐",
+    "unit": "יחידה",
+    "price": 9.0,
+    "image_url": "https://source.unsplash.com/400x300/?cinnamon-roll"
+  },
+  {
+    "name": "פחזניה",
+    "category": "מאפים",
+    "icon": "🍰",
+    "unit": "יחידה",
+    "price": 12.0,
+    "image_url": "https://source.unsplash.com/400x300/?pastry-cake"
   }
 ]

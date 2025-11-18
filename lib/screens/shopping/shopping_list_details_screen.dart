@@ -59,10 +59,9 @@ class ShoppingListDetailsScreen extends StatefulWidget {
 }
 
 class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> with TickerProviderStateMixin {
-  // 🔍 חיפוש ומיון
+  // 🔍 חיפוש וסינון
   String _searchQuery = '';
   final bool _groupByCategory = false;
-  String _sortBy = 'none'; // none | price_desc | checked
   String? _selectedCategory; // קטגוריה נבחרת לסינון
 
   // 🏷️ קטגוריות עם אימוג'י
@@ -313,7 +312,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     );
   }
 
-  /// 🔍 סינון ומיון פריטים
+  /// 🔍 סינון פריטים
   List<UnifiedListItem> _getFilteredAndSortedItems(List<UnifiedListItem> items) {
     final filtered = items.where((item) {
       // סינון לפי חיפוש
@@ -326,28 +325,75 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
       // סינון לפי קטגוריה
       if (_selectedCategory != null && _selectedCategory != AppStrings.listDetails.categoryAll) {
         final itemCategory = item.category;
-        if (itemCategory != _selectedCategory) return false;
+
+        // מוצרים ללא קטגוריה - מופיעים רק ב"אחר"
+        if (itemCategory == null || itemCategory.isEmpty) {
+          return _selectedCategory == AppStrings.listDetails.categoryOther;
+        }
+
+        // מיפוי בין קטגוריות UI לקטגוריות המוצרים
+        final matches = _categoryMatches(_selectedCategory!, itemCategory);
+        if (!matches) {
+          return false;
+        }
       }
 
       return true;
     }).toList();
 
-    // מיון
-    switch (_sortBy) {
-      case 'price_desc':
-        filtered.sort((a, b) => (b.unitPrice ?? 0).compareTo(a.unitPrice ?? 0));
-        debugPrint('📊 ShoppingListDetailsScreen: מיון לפי מחיר (יקר→זול)');
-        break;
-      case 'checked':
-        filtered.sort((a, b) {
-          if (a.isChecked == b.isChecked) return 0;
-          return a.isChecked ? 1 : -1; // unchecked קודם
-        });
-        debugPrint('📊 ShoppingListDetailsScreen: מיון לפי סטטוס');
-        break;
+    debugPrint('🔍 סינון: ${items.length} → ${filtered.length} פריטים (קטגוריה: "$_selectedCategory")');
+    return filtered;
+  }
+
+  /// בדיקה אם קטגוריית מוצר תואמת לקטגוריית UI
+  bool _categoryMatches(String uiCategory, String itemCategory) {
+    // "ירקות ופירות" תואם גם "ירקות" וגם "פירות"
+    if (uiCategory == AppStrings.listDetails.categoryVegetables) {
+      return itemCategory == 'ירקות' || itemCategory == 'פירות';
     }
 
-    return filtered;
+    // "בשר ודגים" תואם "בשר ודגים"
+    if (uiCategory == AppStrings.listDetails.categoryMeat) {
+      return itemCategory == 'בשר ודגים';
+    }
+
+    // "חלב וביצים" תואם "מוצרי חלב" או "חלב וביצים"
+    if (uiCategory == AppStrings.listDetails.categoryDairy) {
+      return itemCategory == 'מוצרי חלב' || itemCategory == 'חלב וביצים';
+    }
+
+    // "לחם ומאפים" תואם "מאפים" או "לחמים" או "לחם ומאפים"
+    if (uiCategory == AppStrings.listDetails.categoryBakery) {
+      return itemCategory == 'מאפים' || itemCategory == 'לחמים' || itemCategory == 'לחם ומאפים';
+    }
+
+    // "שימורים" תואם "שימורים"
+    if (uiCategory == AppStrings.listDetails.categoryCanned) {
+      return itemCategory == 'שימורים';
+    }
+
+    // "קפואים" תואם "קפואים"
+    if (uiCategory == AppStrings.listDetails.categoryFrozen) {
+      return itemCategory == 'קפואים';
+    }
+
+    // "ניקיון" תואם "מוצרי ניקיון" או "חומרי ניקיון"
+    if (uiCategory == AppStrings.listDetails.categoryCleaning) {
+      return itemCategory == 'מוצרי ניקיון' || itemCategory == 'חומרי ניקיון';
+    }
+
+    // "היגיינה" תואם "היגיינה אישית" או "היגיינה"
+    if (uiCategory == AppStrings.listDetails.categoryHygiene) {
+      return itemCategory == 'היגיינה אישית' || itemCategory == 'היגיינה';
+    }
+
+    // "אחר" תואם "אחר"
+    if (uiCategory == AppStrings.listDetails.categoryOther) {
+      return itemCategory == 'אחר';
+    }
+
+    // התאמה מדויקת אם לא נמצא מיפוי
+    return uiCategory == itemCategory;
   }
 
   /// 🏷️ קיבוץ לפי קטגוריה
@@ -613,36 +659,27 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
               const SizedBox(height: kSpacingSmall),
             ],
 
-            // 📊 שורת מיון ומונה
-            Row(
-              children: [
-                Expanded(child: _buildSortButton()),
-                if (allItems.isNotEmpty) ...[
-                  const SizedBox(width: kSpacingSmall),
-                  Expanded(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      child: Container(
-                        key: ValueKey<int>(allItems.length),
-                        padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingSmall),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(kBorderRadius),
-                        ),
-                        child: Text(
-                          '📦 ${AppStrings.listDetails.itemsCount(allItems.length)}',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onPrimaryContainer,
-                          ),
-                        ),
-                      ),
+            // 📊 מונה פריטים
+            if (allItems.isNotEmpty)
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child: Container(
+                  key: ValueKey<int>(allItems.length),
+                  padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingSmall),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(kBorderRadius),
+                  ),
+                  child: Text(
+                    '📦 ${AppStrings.listDetails.itemsCount(allItems.length)}',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
                     ),
                   ),
-                ],
-              ],
-            ),
+                ),
+              ),
           ],
         ),
       ),
@@ -676,63 +713,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     );
   }
 
-  /// 📊 כפתור מיון מונפש
-  Widget _buildSortButton() {
-    return AnimatedScale(
-      scale: _sortBy != 'none' ? 1.05 : 1.0,
-      duration: const Duration(milliseconds: 150),
-      child: PopupMenuButton<String>(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingSmall),
-          decoration: BoxDecoration(
-            border: Border.all(color: Theme.of(context).colorScheme.outline),
-            borderRadius: BorderRadius.circular(kBorderRadius),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(_getSortIcon(), size: kIconSizeMedium),
-              const SizedBox(width: kSpacingTiny),
-              Text(AppStrings.listDetails.sortButton),
-            ],
-          ),
-        ),
-        itemBuilder: (context) => [
-          _buildSortMenuItem('none', AppStrings.listDetails.sortNone, Icons.clear),
-          // מיון לפי מחיר הוסר - אין תצוגת מחירים
-          _buildSortMenuItem('checked', AppStrings.listDetails.sortStatus, Icons.check_circle_outline),
-        ],
-        onSelected: (value) {
-          setState(() => _sortBy = value);
-          debugPrint('📊 ShoppingListDetailsScreen: מיון לפי $value');
-        },
-      ),
-    );
-  }
-
-  /// פריט תפריט מיון
-  PopupMenuItem<String> _buildSortMenuItem(String value, String label, IconData icon) {
-    return PopupMenuItem(
-      value: value,
-      child: Row(
-        children: [
-          Icon(icon, size: kIconSizeSmall, color: _sortBy == value ? Theme.of(context).colorScheme.primary : null),
-          const SizedBox(width: kSpacingSmall),
-          Text(label, style: TextStyle(fontWeight: _sortBy == value ? FontWeight.bold : FontWeight.normal)),
-        ],
-      ),
-    );
-  }
-
-  /// קבלת אייקון לפי סוג המיון
-  IconData _getSortIcon() {
-    switch (_sortBy) {
-      case 'checked':
-        return Icons.check_circle_outline;
-      default:
-        return Icons.sort;
-    }
-  }
 
   /// 📋 רשימה שטוחה (flat) עם Staggered Animation - מסונכרן עם שורות המחברת
   Widget _buildFlatList(List<UnifiedListItem> items, ThemeData theme) {
