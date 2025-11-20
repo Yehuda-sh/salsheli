@@ -32,7 +32,6 @@
 // - ⚠️ Improved error handling with user feedback
 // - 🎨 Better text contrast (black87 instead of black54)
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
@@ -44,24 +43,15 @@ import '../widgets/common/notebook_background.dart';
 import '../widgets/common/sticky_button.dart';
 import '../widgets/common/sticky_note.dart';
 
-// 🔧 Wrapper ללוגים - פועל רק ב-debug mode
-void _log(String message) {
-  if (kDebugMode) {
-    debugPrint(message);
-  }
-}
-
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
   /// מטפל בלחיצה על כפתור התחברות
   static Future<void> _handleLogin(BuildContext context) async {
-    _log('🔐 WelcomeScreen: התחברות נלחץ');
     final messenger = ScaffoldMessenger.of(context);
     try {
       await Navigator.pushNamed(context, '/login');
     } catch (error) {
-      _log('❌ שגיאה בניווט ל-login: $error');
       messenger.showSnackBar(
         const SnackBar(
           content: Text('שגיאה: לא ניתן לפתוח את מסך ההתחברות'),
@@ -73,12 +63,10 @@ class WelcomeScreen extends StatelessWidget {
 
   /// מטפל בלחיצה על כפתור הרשמה
   static Future<void> _handleRegister(BuildContext context) async {
-    _log('📝 WelcomeScreen: הרשמה נלחץ');
     final messenger = ScaffoldMessenger.of(context);
     try {
       await Navigator.pushNamed(context, '/onboarding');
     } catch (error) {
-      _log('❌ שגיאה בניווט ל-onboarding: $error');
       messenger.showSnackBar(
         const SnackBar(
           content: Text('שגיאה: לא ניתן לפתוח את מסך ההרשמה'),
@@ -91,8 +79,6 @@ class WelcomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _log('🏠 WelcomeScreen.build()');
-
     final theme = Theme.of(context);
     final brand = theme.extension<AppBrand>();
     final accent = brand?.accent ?? theme.colorScheme.primary;

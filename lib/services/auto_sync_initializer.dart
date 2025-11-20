@@ -13,7 +13,6 @@
 // AutoSyncInitializer.initialize();
 // ```
 
-import 'package:flutter/foundation.dart';
 import 'price_sync_service.dart';
 
 class AutoSyncInitializer {
@@ -25,26 +24,17 @@ class AutoSyncInitializer {
   /// לא חוסם את הפעלת האפליקציה
   static void initialize() {
     if (_initialized) {
-      debugPrint('⚠️  AutoSyncInitializer: כבר אותחל');
       return;
     }
 
     _initialized = true;
-    debugPrint('🚀 AutoSyncInitializer: מתחיל אתחול...');
 
     // רץ ברקע - לא חוסם את האפליקציה
     Future.microtask(() async {
       try {
         final syncService = PriceSyncService();
-        final didSync = await syncService.syncIfNeeded();
-
-        if (didSync) {
-          debugPrint('✅ AutoSyncInitializer: סנכרון הושלם בהצלחה');
-        } else {
-          debugPrint('ℹ️  AutoSyncInitializer: אין צורך בסנכרון');
-        }
+        await syncService.syncIfNeeded();
       } catch (e) {
-        debugPrint('❌ AutoSyncInitializer: שגיאה בסנכרון: $e');
         // לא עושים כלום - האפליקציה תמשיך לעבוד רגיל
       }
     });
@@ -54,13 +44,10 @@ class AutoSyncInitializer {
   ///
   /// שימושי אם המשתמש לוחץ על כפתור "רענן"
   static Future<bool> forceSync() async {
-    debugPrint('🔄 AutoSyncInitializer: סנכרון מאולץ...');
-
     try {
       final syncService = PriceSyncService();
       return await syncService.forceSync();
     } catch (e) {
-      debugPrint('❌ AutoSyncInitializer: שגיאה בסנכרון מאולץ: $e');
       return false;
     }
   }

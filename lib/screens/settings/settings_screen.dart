@@ -128,10 +128,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _weeklyReminders = prefs.getBool(_kWeeklyReminders) ?? true;
         _habitsAnalysis = prefs.getBool(_kHabitsAnalysis) ?? true;
 
-        final storesList = prefs.getStringList(_kPreferredStores);
+        // טעינת רשימת חנויות - עם fallback אם הפורמט ישן
         _preferredStores.clear();
-        if (storesList != null) {
-          _preferredStores.addAll(storesList);
+        try {
+          final storesList = prefs.getStringList(_kPreferredStores);
+          if (storesList != null) {
+            _preferredStores.addAll(storesList);
+          }
+        } catch (e) {
+          // אם היה שמור כ-String (גרסה ישנה), נקה אותו
+          debugPrint('⚠️ _loadSettings: _kPreferredStores בפורמט ישן, מנקה');
+          prefs.remove(_kPreferredStores);
         }
 
         _householdNameController.text = _householdName;

@@ -26,12 +26,15 @@
 // - Error handling עם fallback
 // - Logging מפורט
 //
-// ⚠️ Critical Changes (14/10/2025):
-// - ⏱️ Fixed Race Condition: 600ms delay before navigation check (allows Firebase Auth to load)
+// ⚠️ Critical Changes (20/11/2025):
+// - 🔧 Fixed Race Condition: Now checks Firebase Auth directly to detect if user is logged in
+//   but UserContext hasn't synced yet. Waits for UserContext to update before navigating.
+// - 🐛 Previous issue: User would land on WelcomeScreen despite being logged in because
+//   _checkAndNavigate() ran before UserContext.isLoggedIn became true
 
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -39,13 +42,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/user_context.dart';
 import 'index_view.dart';
 import 'welcome_screen.dart';
-
-// 🔧 Wrapper ללוגים - פועל רק ב-debug mode
-void _log(String message) {
-  if (kDebugMode) {
-    debugPrint(message);
-  }
-}
 
 class IndexScreen extends StatefulWidget {
   const IndexScreen({super.key});
@@ -63,7 +59,6 @@ class _IndexScreenState extends State<IndexScreen> {
   @override
   void initState() {
     super.initState();
-    _log('🚀 IndexScreen.initState() - מתחיל Splash Screen');
 
     // ⚡ טעינה אסינכרונית משופרת - delay חכם ל-Firebase Auth
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -73,13 +68,11 @@ class _IndexScreenState extends State<IndexScreen> {
 
       // 🔧 אם Firebase כבר טעון - אין צורך ב-delay
       if (!userContext.isLoading) {
-        _log('   ⚡ Firebase כבר טעון - מדלג על delay');
         _setupListener();
         return;
       }
 
       // ⏱️ אחרת - המתן עד 600ms לתת ל-Firebase זמן
-      _log('   ⏳ Firebase טוען - ממתין עד 600ms');
       _delayTimer = Timer(const Duration(milliseconds: 600), () {
         if (mounted) {
           _setupListener();
@@ -102,7 +95,6 @@ class _IndexScreenState extends State<IndexScreen> {
 
   /// מופעל כל פעם ש-UserContext משתנה
   void _onUserContextChanged() {
-    _log('👂 IndexScreen: UserContext השתנה');
     if (!_hasNavigated && mounted) {
       _checkAndNavigate();
     }
@@ -111,26 +103,25 @@ class _IndexScreenState extends State<IndexScreen> {
   Future<void> _checkAndNavigate() async {
     if (_hasNavigated) return; // כבר ניווטנו
 
-    _log('\n🏗️ IndexScreen._checkAndNavigate() - מתחיל...');
-
     try {
       // ✅ מקור אמת יחיד - UserContext!
       final userContext = Provider.of<UserContext>(context, listen: false);
 
-      _log('   📊 UserContext state:');
-      _log('      isLoggedIn: ${userContext.isLoggedIn}');
-      _log('      user: ${userContext.user?.email ?? "null"}');
-      _log('      isLoading: ${userContext.isLoading}');
+      // 🔥 בדיקה נוספת: האם Firebase Auth מצביע על משתמש מחובר?
+      final firebaseUser = firebase_auth.FirebaseAuth.instance.currentUser;
 
       // ⏳ אם UserContext עדיין טוען, נחכה
       if (userContext.isLoading) {
-        _log('   ⏳ UserContext טוען, ממתין לסיום...');
         return; // ה-listener יקרא לנו שוב כש-isLoading ישתנה
+      }
+
+      // 🔧 FIX: אם Firebase Auth מצביע על משתמש אבל UserContext עדיין לא עדכן - נחכה!
+      if (firebaseUser != null && !userContext.isLoggedIn) {
+        return; // ה-listener יקרא לנו שוב כשה-UserContext יתעדכן
       }
 
       // ✅ מצב 1: משתמש מחובר → ישר לדף הבית
       if (userContext.isLoggedIn) {
-        _log('   ✅ משתמש מחובר (${userContext.userEmail}) → ניווט ל-/home');
         _hasNavigated = true;
         if (mounted) {
           // הסר את ה-listener לפני ניווט
@@ -151,27 +142,25 @@ class _IndexScreenState extends State<IndexScreen> {
       if (!mounted) return;
 
       final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
-      _log('   📋 seenOnboarding (local): $seenOnboarding');
 
       if (!seenOnboarding) {
         // ✅ מצב 2: לא ראה welcome → שולח לשם
-        _log('   ➡️ לא ראה onboarding → ניווט ל-WelcomeScreen');
         _hasNavigated = true;
         userContext.removeListener(_onUserContextChanged);
-        unawaited(navigator.pushReplacement(
-          MaterialPageRoute(builder: (_) => const WelcomeScreen()),
-        ));
+        unawaited(
+          navigator.pushReplacement(
+            MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+          ),
+        );
         return;
       }
 
       // ✅ מצב 3: ראה welcome אבל לא מחובר → שולח ל-login
-      _log('   ➡️ ראה onboarding אבל לא מחובר → ניווט ל-/login');
       _hasNavigated = true;
       userContext.removeListener(_onUserContextChanged);
       unawaited(navigator.pushReplacementNamed('/login'));
     } catch (e) {
       // ✅ במקרה של שגיאה - הצג מסך שגיאה
-      _log('❌ שגיאה ב-IndexScreen._checkAndNavigate: $e');
       if (mounted) {
         setState(() {
           _hasError = true;
@@ -182,7 +171,6 @@ class _IndexScreenState extends State<IndexScreen> {
 
   /// retry לאחר שגיאה
   void _retry() {
-    _log('🔄 IndexScreen: retry לאחר שגיאה');
     setState(() {
       _hasError = false;
       _hasNavigated = false;
@@ -192,8 +180,6 @@ class _IndexScreenState extends State<IndexScreen> {
 
   @override
   void dispose() {
-    _log('🗑️ IndexScreen.dispose()');
-
     // 🔧 בטל Timer אם עדיין רץ
     _delayTimer?.cancel();
 
@@ -203,7 +189,7 @@ class _IndexScreenState extends State<IndexScreen> {
         final userContext = Provider.of<UserContext>(context, listen: false);
         userContext.removeListener(_onUserContextChanged);
       } catch (e) {
-        _log('⚠️ שגיאה בהסרת listener: $e');
+        // Silent failure - widget already disposed
       }
     }
     super.dispose();

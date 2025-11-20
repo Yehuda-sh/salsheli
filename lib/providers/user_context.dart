@@ -463,14 +463,20 @@ class UserContext with ChangeNotifier {
 
   // === התנתקות ===
 
-  /// מתנתק מהמערכת
-  /// 
+  /// התנתקות רגילה מהמערכת
+  ///
+  /// **מה נשמר:** seenOnboarding (המשתמש לא יצטרך לראות Welcome שוב)
+  /// **מה נמחק:** כל שאר ההעדפות (theme, compact view, הגדרות, וכו')
+  ///
   /// תהליך:
-  /// 1. התנתקות מ-Firebase Auth
-  /// 2. ה-Listener של authStateChanges מנקה את ה-state
-  /// 
+  /// 1. שומר את seenOnboarding
+  /// 2. מנקה את כל SharedPreferences
+  /// 3. מחזיר את seenOnboarding
+  /// 4. מנקה את ה-state המקומי
+  /// 5. מתנתק מ-Firebase Auth
+  ///
   /// זורק Exception רק במקרה של שגיאה קריטית.
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// try {
@@ -480,18 +486,40 @@ class UserContext with ChangeNotifier {
   ///   print('שגיאה בהתנתקות: $e');
   /// }
   /// ```
-  /// 
+  ///
   /// See also:
-  /// - [signOutAndClearAllData] - התנתקות + מחיקת כל הנתונים
+  /// - [signOutAndClearAllData] - התנתקות מלאה (מוחקת גם seenOnboarding - למסך הגדרות)
   /// - [logout] - Alias ל-signOut
   /// - [signIn] - התחברות
   Future<void> signOut() async {
+    debugPrint('🚪 UserContext.signOut: התנתקות רגילה (שומר seenOnboarding)');
     _errorMessage = null;
 
     try {
+      // 1️⃣ שמור את seenOnboarding לפני ניקוי
+      final prefs = await SharedPreferences.getInstance();
+      final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
+
+      // 2️⃣ נקה את כל SharedPreferences
+      await prefs.clear();
+
+      // 3️⃣ החזר את seenOnboarding
+      if (seenOnboarding) {
+        await prefs.setBool('seenOnboarding', true);
+      }
+
+      // 4️⃣ נקה את ה-state המקומי
+      _user = null;
+      _errorMessage = null;
+      _isLoading = false;
+      _resetPreferences();
+
+      // 5️⃣ התנתק מ-Firebase Auth
       await _authService.signOut();
-      
-      // ה-listener של authStateChanges יטפל בניקוי ה-state
+
+      debugPrint('✅ UserContext.signOut: הושלם בהצלחה (seenOnboarding=$seenOnboarding נשמר)');
+
+      // ה-listener של authStateChanges יטפל בעדכון הסופי
     } catch (e) {
       debugPrint('❌ UserContext.signOut: שגיאה - $e');
       _errorMessage = 'שגיאה בהתנתקות';
