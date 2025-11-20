@@ -23,7 +23,6 @@
 
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -44,17 +43,13 @@ class ProductImageService {
   }) async {
     // אם אין ברקוד - אין תמונה
     if (barcode == null || barcode.isEmpty) {
-      debugPrint('🖼️ ProductImageService: אין ברקוד');
       return null;
     }
-
-    debugPrint('🖼️ ProductImageService: מחפש תמונה לברקוד $barcode');
 
     // בדוק אם יש ב-cache
     if (useCache) {
       final cachedUrl = await _getCachedImageUrl(barcode);
       if (cachedUrl != null) {
-        debugPrint('✅ נמצא ב-cache: $cachedUrl');
         return cachedUrl;
       }
     }
@@ -62,7 +57,6 @@ class ProductImageService {
     try {
       // קרא ל-API
       final url = Uri.parse('$_baseUrl/$barcode');
-      debugPrint('🌐 קורא ל-API: $url');
 
       final response = await http.get(
         url,
@@ -71,10 +65,7 @@ class ProductImageService {
         },
       ).timeout(const Duration(seconds: 5));
 
-      debugPrint('📡 תגובת API: ${response.statusCode}');
-
       if (response.statusCode != 200) {
-        debugPrint('❌ API החזיר שגיאה: ${response.statusCode}');
         return null;
       }
 

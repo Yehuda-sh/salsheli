@@ -33,7 +33,6 @@ import '../../providers/user_context.dart';
 import '../../services/category_detection_service.dart';
 import '../common/animated_button.dart';
 import '../common/notebook_background.dart';
-import '../common/product_image_widget.dart';
 import '../common/sticky_button.dart';
 import '../common/sticky_note.dart';
 import '../common/tappable_card.dart';
@@ -605,11 +604,20 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
           padding: const EdgeInsets.all(kSpacingSmall),
           child: Row(
             children: [
-              // תמונה גדולה בצד שמאל - עם משיכה אוטומטית לפי ברקוד
-              ProductImageWidget(
-                barcode: product['barcode'] as String?,
-                category: category,
-                icon: _getCategoryEmoji(category),
+              // אייקון קטגוריה
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: Text(
+                    _getCategoryEmoji(category),
+                    style: const TextStyle(fontSize: 30),
+                  ),
+                ),
               ),
               const SizedBox(width: kSpacingSmall),
               // תוכן
@@ -779,6 +787,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
   }
 
   String _getCategoryEmoji(String category) {
+    // אטליז - קטגוריות מיוחדות
     switch (category) {
       case 'בקר':
         return '🐄';
@@ -790,10 +799,42 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
         return '🐑';
       case 'הודו':
         return '🦃';
-      case 'אחר':
-        return '🌭';
-      default:
+
+      // קטגוריות כלליות
+      case 'היגיינה אישית':
+        return '🧼';
+      case 'מוצרי ניקיון':
+        return '🧹';
+      case 'מוצרי תינוקות':
+        return '👶';
+      case 'ירקות':
+        return '🥬';
+      case 'פירות':
+        return '🍎';
+      case 'מוצרי חלב':
+        return '🥛';
+      case 'בשר ודגים':
         return '🥩';
+      case 'משקאות':
+        return '🥤';
+      case 'מאפים':
+        return '🍞';
+      case 'ממתקים וחטיפים':
+        return '🍫';
+      case 'שמנים ורטבים':
+        return '🫗';
+      case 'תבלינים ואפייה':
+        return '🧂';
+      case 'קפה ותה':
+        return '☕';
+      case 'קפואים':
+        return '🧊';
+      case 'אורז ופסטה':
+        return '🍚';
+      case 'אחר':
+        return '📦';
+      default:
+        return '🛒';
     }
   }
 
