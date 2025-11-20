@@ -33,6 +33,7 @@ import '../../providers/user_context.dart';
 import '../../services/category_detection_service.dart';
 import '../common/animated_button.dart';
 import '../common/notebook_background.dart';
+import '../common/product_image_widget.dart';
 import '../common/sticky_button.dart';
 import '../common/sticky_note.dart';
 import '../common/tappable_card.dart';
@@ -575,7 +576,6 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
   final category = product['category'] as String? ?? 'אחר';
   final manufacturer = product['manufacturer'] as String?;
   final description = product['description'] as String?;
-  final hasImage = product['imageUrl'] != null;
 
   // 🔍 בדיקה אם המוצר כבר ברשימה
   final provider = context.read<ShoppingListsProvider>();
@@ -605,34 +605,11 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
           padding: const EdgeInsets.all(kSpacingSmall),
           child: Row(
             children: [
-              // תמונה גדולה בצד שמאל
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: cs.outline.withValues(alpha: 0.2), width: 1),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(7),
-                  child: hasImage
-                      ? Image.asset(
-                          product['imageUrl'],
-                          width: 60,
-                          height: 60,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: cs.surfaceContainerHighest,
-                              child: Icon(_getCategoryIcon(category), size: 28, color: cs.onSurfaceVariant),
-                            );
-                          },
-                        )
-                      : Container(
-                          color: cs.surfaceContainerHighest,
-                          child: Center(child: Text(_getCategoryEmoji(category), style: const TextStyle(fontSize: 28))),
-                        ),
-                ),
+              // תמונה גדולה בצד שמאל - עם משיכה אוטומטית לפי ברקוד
+              ProductImageWidget(
+                barcode: product['barcode'] as String?,
+                category: category,
+                icon: _getCategoryEmoji(category),
               ),
               const SizedBox(width: kSpacingSmall),
               // תוכן
@@ -820,26 +797,6 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
     }
   }
 
-  IconData _getCategoryIcon(String category) {
-    switch (category.toLowerCase()) {
-      case 'מזון':
-        return Icons.restaurant;
-      case 'ניקיון':
-        return Icons.cleaning_services;
-      case 'טיפוח':
-        return Icons.spa;
-      case 'משקאות':
-        return Icons.local_drink;
-      case 'חלב וביצים':
-        return Icons.egg;
-      case 'בשר ודגים':
-        return Icons.set_meal;
-      case 'פירות וירקות':
-        return Icons.eco;
-      default:
-        return Icons.shopping_basket;
-    }
-  }
 }
 
 
