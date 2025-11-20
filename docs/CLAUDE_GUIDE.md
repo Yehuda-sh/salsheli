@@ -1,6 +1,6 @@
 # 🤖 הנחיות עבודה עם Claude - MemoZap
 
-> **גרסה:** 1.0 Clean | **תאריך:** 04/11/2025  
+> **גרסה:** 2.0 | **תאריך:** 20/11/2024
 > **מטרה:** כללי עבודה פשוטים ויעילים
 
 ---
@@ -24,10 +24,10 @@
   📄 קובץ: [שם]
   סטטוס: [✅/⚠️/❌]
   סיכום: [משפט אחד]
-  
+
   🚨 בעיות קריטיות:
   - [רשימה]
-  
+
   🔧 צעדים:
   1. [מה לעשות]
   ```
@@ -58,10 +58,13 @@ C:\projects\salsheli\
 │   ├── widgets/          # Reusable widgets
 │   ├── services/         # Business logic
 │   └── main.dart         # Entry point
+├── assets/
+│   ├── data/             # JSON data files
+│   │   └── list_types/   # Product lists (bakery, butcher, etc.)
+│   ├── images/           # Product images
+│   └── templates/        # Templates
 ├── test/                 # Tests
 └── docs/                 # Documentation
-    ├── MCP_GUIDE.md      # 👈 MCP tools guide
-    └── [others]
 ```
 
 ---
@@ -80,27 +83,6 @@ C:\projects\salsheli\
 - ../../../ imports
 - context אחרי await (ללא mounted)
 - לשכוח removeListener
-```
-
-### חיפוש
-```dart
-✅ טוב:
-- חפש שם קובץ: searchType="files"
-- חפש בתוכן: searchType="content"
-- הוסף filePattern="*.dart"
-
-❌ לא טוב:
-- לא לציין searchType
-- pattern רחב מדי
-```
-
-### הרצת פקודות
-```powershell
-✅ עובד:
-cd C:\projects\salsheli; flutter test
-
-❌ לא עובד:
-bash_tool עם C:\...
 ```
 
 ---
@@ -154,83 +136,30 @@ find.byWidgetPredicate(...)          // ❌
 
 ---
 
-## 📊 ניהול זיכרון
+## 📊 ניהול Barcodes
 
-### Memory Entities (10 מקסימום):
-1. Current Work Context
-2. Recent Sessions (3-5 last)
-3. Active Issues
-4. Feature Progress
-5. Learning from Mistakes
-6. Project Info
-7. Standards
-8. Critical Protocols
-9. Tool Errors
-10. Environment
-
-**עדכון:** אחרי 3-5 קבצים או לפני החלפת נושא
-
----
-
-## 🚦 Token Management
-
-| רמה | פעולה |
-|-----|-------|
-| **70%** | התראה - שאל אם להמשיך או checkpoint |
-| **85%** | Checkpoint אוטומטי + מצב תמציתי |
-| **90%** | שמירת חירום + סיום |
-
----
-
-## 🎓 למידה מטעויות
-
-### דוגמה:
-```yaml
-טעות: שכחתי removeListener ב-dispose
-סיבה: Provider ממשיך להאזין אחרי dispose
-תיקון: הוספתי removeListener
-לקח: תמיד בדוק dispose - checklist חובה
+### קונבנציה:
+```
+BAKERY-001, BAKERY-002, ...    # מאפייה
+BUTCHER-001, BUTCHER-002, ...  # קצב
+GREENGROCER-001, ...           # ירקן
+SUPERMARKET-001, ...           # סופר
 ```
 
----
-
-## 📝 Changelog מומלץ
-
-```markdown
-## Session X - [תאריך]
-
-**מה עשינו:**
-- ✅ [משימה 1]
-- ⚠️ [בעיה שנתקלנו]
-- 🔄 [מה נשאר]
-
-**קבצים שונו:**
-- file1.dart: [מה]
-- file2.dart: [מה]
-
-**Next Steps:**
-1. [צעד 1]
-2. [צעד 2]
+### שדות מוצר:
+```json
+{
+  "name": "בורקס גבינה",
+  "category": "מאפים",
+  "icon": "🥐",
+  "price": 6.5,
+  "barcode": "BAKERY-001",
+  "brand": "",
+  "unit": "יחידה",
+  "store": "כללי",
+  "imageUrl": "https://..."  // אופציונלי
+}
 ```
-
----
-
-## 🔧 פתרון בעיות מהיר
-
-### "הקובץ לא נוצר"
-→ בדוק שלא השתמשת ב-`create_file`  
-→ השתמש ב-`write_file`
-
-### "לא מוצא את הקובץ"
-→ בדוק full path  
-→ רץ `list_directory` לאימות
-
-### "PowerShell לא רץ בפרויקט"
-→ הוסף `cd C:\projects\salsheli;` לפני הפקודה
-
-### "חיפוש לא מצא כלום"
-→ בדוק searchType (files vs content)  
-→ נסה pattern יותר רחב
 
 ---
 
@@ -249,10 +178,11 @@ find.byWidgetPredicate(...)          // ❌
 - [ ] StickyButton (לא Elevated)
 - [ ] RTL + EdgeInsetsDirectional
 
-### תיעוד:
-- [ ] עדכון WORK_PLAN.md אם רלוונטי
-- [ ] עדכון memory entities
-- [ ] Next Steps ברור
+### נתונים:
+- [ ] Barcodes ייחודיים
+- [ ] Categories נכונים
+- [ ] Units סטנדרטיים (יחידה, ק"ג, 100 גרם)
+- [ ] imageUrl או null
 
 ---
 
@@ -264,12 +194,12 @@ find.byWidgetPredicate(...)          // ❌
 🤖 Claude:
 1. אקרא את הקובץ
 2. אאתר את הבעיה
-3. אתקן עם edit_block
+3. אתקן
 4. אסביר מה תיקנתי
 
-[מריץ read_file]
+[קורא את הקובץ]
 [מוצא את הבעיה - חסר removeListener]
-[מריץ edit_block]
+[מתקן]
 
 תיקנתי! הוספתי:
 ```dart
@@ -292,18 +222,17 @@ Next: לבדוק Providers נוספים עם אותה בעיה?
 
 1. **Full paths תמיד** - אל תסתמך על working directory
 2. **קרא לפני שינוי** - אל תנחש מה בקובץ
-3. **write_file בלבד** - create_file שבור
-4. **PowerShell דרך start_process** - לא bash_tool
-5. **household_id חובה** - אבטחה לא מתפשרת
-6. **dispose מנקה הכל** - memory leaks זה רע
-7. **4 מצבי UI** - אל תשכח Empty/Error
-8. **const חוסך rebuilds** - performance חשוב
+3. **household_id חובה** - אבטחה לא מתפשרת
+4. **dispose מנקה הכל** - memory leaks זה רע
+5. **4 מצבי UI** - אל תשכח Empty/Error
+6. **const חוסך rebuilds** - performance חשוב
+7. **Barcodes ייחודיים** - שמור על קונבנציה
+8. **Categories עקביים** - בדוק שהכל נכון
 
 ---
 
 **📍 סיום**
 
-זה הכל! מסמך פשוט ויעיל.  
-כל השאר - ב-`MCP_GUIDE.md` למידע טכני מפורט.
+זה הכל! מסמך פשוט ויעיל.
 
 **🎯 זכור:** Simple > Complex. Working > Perfect.
