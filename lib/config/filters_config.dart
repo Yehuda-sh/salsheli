@@ -1,28 +1,15 @@
-// 📄 File: lib/config/filters_config.dart
+// 📄 lib/config/filters_config.dart
 //
-// 🎯 Purpose: Configuration for inventory/pantry category filters
+// 🎯 הגדרות סינון קטגוריות למזווה
+// 📦 11 קטגוריות + תרגום לעברית
+// 🔗 משמש ב: my_pantry_screen.dart → PantryFilters widget (Dropdown סינון)
 //
-// Defines the available categories for filtering inventory items.
-// Used by PantryFilters widget to filter items by category.
-//
-// Version: 1.1
-// Updated: 03/11/2025
-// Changes: Updated categories to match actual product JSON files
+// 💡 איך לראות בממשק:
+//    1. פתח את מסך "המזווה שלי" (My Pantry)
+//    2. בראש המסך יש Dropdown עם רשימת קטגוריות
+//    3. בחר קטגוריה → מסנן את הפריטים לפי הקטגוריה הנבחרת
 
-/// Available inventory categories for filtering
-/// 
-/// Categories match the product JSON files in assets/data/categories/:
-/// - all: Show all items (no filter)
-/// - coffee_tea: Coffee and tea products
-/// - dairy: Milk products, cheese, yogurt, eggs
-/// - fruits: Fresh and processed fruits
-/// - meat_fish: Meat, poultry, fish, and seafood
-/// - other: Miscellaneous products
-/// - personal_hygiene: Personal care and hygiene products
-/// - rice_pasta: Rice, pasta, and grain products
-/// - spices_baking: Spices, herbs, and baking ingredients
-/// - sweets_snacks: Sweets, snacks, and treats
-/// - vegetables: Fresh and processed vegetables
+/// 11 קטגוריות זמינות לסינון פריטי מזווה
 const List<String> kCategories = [
   'all',
   'coffee_tea',
@@ -37,9 +24,7 @@ const List<String> kCategories = [
   'vegetables',
 ];
 
-/// Category display names in Hebrew
-/// 
-/// Labels match the category names used in product JSON files
+/// תרגום קטגוריות לעברית (להצגה ב-UI)
 const Map<String, String> kCategoryLabels = {
   'all': 'הכל',
   'coffee_tea': 'קפה ותה',
@@ -54,15 +39,7 @@ const Map<String, String> kCategoryLabels = {
   'vegetables': 'ירקות',
 };
 
-/// Get display label for a category
-/// 
-/// Returns the Hebrew label for the given category ID.
-/// If category is not found, returns 'לא ידוע' (Unknown).
+/// מחזיר שם בעברית לקטגוריה | ברירת מחדל: 'לא ידוע'
 String getCategoryLabel(String categoryId) {
   return kCategoryLabels[categoryId] ?? 'לא ידוע';
-}
-
-/// Check if a category ID is valid
-bool isValidCategory(String categoryId) {
-  return kCategories.contains(categoryId);
 }

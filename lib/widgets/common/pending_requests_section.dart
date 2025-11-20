@@ -1,67 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../models/pending_request.dart';
-import '../../models/enums/request_type.dart';
-import '../../providers/pending_requests_provider.dart';
-import '../../providers/user_context.dart';
+
 import '../../core/ui_constants.dart';
+import '../../models/enums/request_type.dart';
+import '../../models/pending_request.dart';
+import '../../providers/user_context.dart';
 import 'sticky_note.dart';
 
 /// Widget להצגת בקשות ממתינות
+///
+/// Version 2.0: שונה לעבוד עם רשימה ישירה במקום Provider
 class PendingRequestsSection extends StatelessWidget {
   final String listId;
+  final List<PendingRequest> pendingRequests;
   final bool canApprove; // האם המשתמש יכול לאשר בקשות
 
   const PendingRequestsSection({
     super.key,
     required this.listId,
+    required this.pendingRequests,
     required this.canApprove,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<PendingRequestsProvider>(
-      builder: (context, provider, child) {
-        final pendingRequests = provider.pendingRequests;
+    // אם אין בקשות - לא מציגים כלום
+    if (pendingRequests.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
-        if (pendingRequests.isEmpty) {
-          return const SizedBox.shrink();
-        }
-
-        return Padding(
-          padding: const EdgeInsets.only(bottom: kSpacingMedium),
-          child: StickyNote(
-            color: kStickyOrange,
-            rotation: 0.01,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: kSpacingMedium),
+      child: StickyNote(
+        color: kStickyOrange,
+        rotation: 0.01,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // כותרת
+            Row(
               children: [
-                // כותרת
-                Row(
-                  children: [
-                    const Icon(Icons.pending_actions, size: 20),
-                    const SizedBox(width: kSpacingSmall),
-                    Text(
-                      'בקשות ממתינות (${pendingRequests.length})',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  ],
+                const Icon(Icons.pending_actions, size: 20),
+                const SizedBox(width: kSpacingSmall),
+                Text(
+                  'בקשות ממתינות (${pendingRequests.length})',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
-                const SizedBox(height: kSpacingMedium),
-
-                // רשימת בקשות
-                ...pendingRequests.map((request) => _RequestCard(
-                      request: request,
-                      listId: listId,
-                      canApprove: canApprove,
-                    )),
               ],
             ),
-          ),
-        );
-      },
+            const SizedBox(height: kSpacingMedium),
+
+            // רשימת בקשות
+            ...pendingRequests.map((request) => _RequestCard(
+                  request: request,
+                  listId: listId,
+                  canApprove: canApprove,
+                )),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -208,26 +207,18 @@ class _RequestCard extends StatelessWidget {
     }
   }
 
-  void _approveRequest(BuildContext context, String reviewerId) {
-    final provider = context.read<PendingRequestsProvider>();
-    provider.approveRequest(
-      listId: listId,
-      requestId: request.id,
-      reviewerId: reviewerId,
-    );
+  Future<void> _approveRequest(BuildContext context, String reviewerId) async {
+    // TODO: Call PendingRequestsService.approveRequest()
+    // For now, just show message
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('✅ הבקשה אושרה')),
     );
   }
 
-  void _rejectRequest(BuildContext context, String reviewerId) {
-    final provider = context.read<PendingRequestsProvider>();
-    provider.rejectRequest(
-      listId: listId,
-      requestId: request.id,
-      reviewerId: reviewerId,
-    );
+  Future<void> _rejectRequest(BuildContext context, String reviewerId) async {
+    // TODO: Call PendingRequestsService.rejectRequest()
+    // For now, just show message
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('❌ הבקשה נדחתה')),

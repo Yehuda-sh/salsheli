@@ -536,7 +536,11 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
                 // 📝 בקשות ממתינות
                 if (currentList.pendingRequestsForReview.isNotEmpty && currentList.canCurrentUserApprove)
-                  PendingRequestsSection(listId: currentList.id, canApprove: currentList.canCurrentUserApprove),
+                  PendingRequestsSection(
+                    listId: currentList.id,
+                    pendingRequests: currentList.pendingRequestsForReview,
+                    canApprove: currentList.canCurrentUserApprove,
+                  ),
 
                 // 📋 תוכן
                 Expanded(

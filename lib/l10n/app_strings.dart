@@ -18,8 +18,8 @@
 // 🔮 עתיד: כשנוסיף flutter_localizations, נחליף את הקובץ הזה
 //          ב-AppLocalizations generated class
 //
-// Version: 3.4 - הסרת _StorageManagerStrings (unused) (session 50)
-// Last Updated: 03/11/2025
+// Version: 3.5 - הסרת _FiltersStrings (unused - קטגוריות עברו ל-filters_config.dart)
+// Last Updated: 20/11/2025
 
 
 
@@ -57,12 +57,6 @@ class AppStrings {
   // ========================================
 
   static const shopping = _ShoppingStrings();
-
-  // ========================================
-  // Filters
-  // ========================================
-
-  static const filters = _FiltersStrings();
 
   // ========================================
   // Index (Splash)
@@ -358,34 +352,6 @@ class _ShoppingStrings {
   String priceFormat(double price) => '₪${price.toStringAsFixed(2)}';
   String get noPrice => 'אין מחיר';
   String get categoryGeneral => 'כללי';
-}
-
-// ========================================
-// Filters Strings
-// ========================================
-
-class _FiltersStrings {
-  const _FiltersStrings();
-
-  // Categories
-  String get allCategories => 'כל הקטגוריות';
-  String get categoryDairy => 'חלב וביצים';
-  String get categoryMeat => 'בשר ודגים';
-  String get categoryVegetables => 'ירקות';
-  String get categoryFruits => 'פירות';
-  String get categoryBakery => 'לחם ומאפים';
-  String get categoryDryGoods => 'מוצרים יבשים';
-  String get categoryCleaning => 'חומרי ניקיון';
-  String get categoryToiletries => 'טואלטיקה';
-  String get categoryFrozen => 'קפואים';
-  String get categoryBeverages => 'משקאות';
-
-  // Statuses
-  String get allStatuses => 'כל הסטטוסים';
-  String get statusPending => 'ממתין';
-  String get statusTaken => 'נלקח';
-  String get statusMissing => 'חסר';
-  String get statusReplaced => 'הוחלף';
 }
 
 // ========================================

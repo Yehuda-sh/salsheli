@@ -5,7 +5,7 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.27+-02569B?logo=flutter)](https://flutter.dev)
 [![Firebase](https://img.shields.io/badge/Firebase-Enabled-FFCA28?logo=firebase)](https://firebase.google.com)
 [![License](https://img.shields.io/badge/License-Proprietary-red)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-2.10-blue)](#)
+[![Version](https://img.shields.io/badge/Version-1.0.0-blue)](#)
 
 ---
 
@@ -87,16 +87,17 @@ recent_chats(n=2)  # Then continue from "Next Steps"
 
 ## 📚 Documentation
 
-### Core Documentation (5 Files)
+### Core Documentation (7 Files)
 
 | Document | Purpose | When to Read |
 |----------|---------|--------------|
-| **[PROJECT_INSTRUCTIONS_v4.12.md](docs/PROJECT_INSTRUCTIONS_v4.md)** | Complete AI instructions (Environment + Tools + Protocols) | 🔴 Always 2nd (after README) |
+| **[PROJECT_INSTRUCTIONS_v4.md](docs/PROJECT_INSTRUCTIONS_v4.md)** | Complete AI instructions (Environment + Tools + Protocols) | 🔴 Always 2nd (after README) |
 | **[CODE.md](docs/CODE.md)** | Code patterns, architecture, testing, mistakes | Before coding/reviewing |
 | **[DESIGN.md](docs/DESIGN.md)** | Sticky Notes design system (RTL + Components) | Before UI work |
 | **[TECH.md](docs/TECH.md)** | Firebase v1.4, security (4-tier permissions), models | Before backend work |
 | **[CODE_REVIEW_CHECKLIST.md](docs/CODE_REVIEW_CHECKLIST.md)** | Code review protocols v2.5 + 7-step dead code detection | Before reviewing/deleting code |
 | **[WORK_PLAN.md](docs/WORK_PLAN.md)** | 8-week roadmap (Lists + Inventory systems) | Planning new features |
+| **[CLAUDE_GUIDE.md](docs/CLAUDE_GUIDE.md)** | Quick reference for AI assistants (barcodes, patterns) | Quick lookup during work |
 
 ### By Task Type
 
@@ -117,7 +118,7 @@ recent_chats(n=2)  # Then continue from "Next Steps"
 | Category | Technology |
 |----------|-----------|
 | **Framework** | Flutter 3.27+ |
-| **Language** | Dart 3.6+ |
+| **Language** | Dart 3.8.1+ |
 | **Backend** | Firebase (Auth, Firestore, Functions) |
 | **State Management** | Provider |
 | **Database** | Cloud Firestore |
@@ -131,59 +132,66 @@ recent_chats(n=2)  # Then continue from "Next Steps"
 
 ## 📊 Project Stats
 
-- 📁 **100+ Dart files**
+- 📁 **130 Dart files**
 - 🧪 **179 tests passing** (90%+ model coverage)
-- 📋 **11 data models**
-- 🔄 **9 providers**
-- 🗄️ **17 repositories**
-- 🎨 **30+ screens**
-- 🧩 **25+ widgets**
-- 📖 **5 documentation files** (~2,000 lines - machine-optimized)
+- 📋 **20 data models**
+- 🔄 **8 providers** (moved to Services architecture)
+- 🗄️ **15 repositories**
+- 💼 **15 services**
+- 🎨 **20 screens**
+- 🧩 **23 widgets**
+- 📖 **7 documentation files** (~3,500 lines - machine-optimized)
 - 🌐 **Full Hebrew RTL support**
 
 ---
 
-## 🆕 What's New (v2.10 - Nov 03, 2025)
+## 🆕 What's New (v1.0.0 - Nov 20, 2025)
 
-### 🔄 Phase 3B In Progress - User Sharing System (22%)
+### 🎉 Phase 3B Complete - User Sharing System (100%)
 
-#### ✅ Services Complete
-- **ShareListService** (460 lines)
-  - Invite/remove/update users with role management
+#### ✅ Fully Implemented
+- **Services** (870 lines total)
+  - **ShareListService** (460 lines) - Invite/remove/update users with role management
+  - **PendingRequestsService** (410 lines) - Editor approval workflow (add/approve/reject)
   - 7 permission helper methods
-  - Owner-only security for deletions
-- **PendingRequestsService** (410 lines)
-  - Editor approval workflow (add/approve/reject)
   - Auto-cleanup (7-day old requests)
-  - 7 query methods for pending items
-- **64 unit tests passing** (100% service coverage)
+
+- **Models** (5 classes)
+  - SharedUser, PendingRequest
+  - UserRole (4 levels), RequestType (3 types), RequestStatus (3 states)
+
+- **UI Screens** (3 screens + 1 widget)
+  - InviteUsersScreen - Email + role selection
+  - ManageUsersScreen - List users + edit roles
+  - PendingRequestsScreen - Badge + approve/reject
+  - PendingRequestsSection v2.0 - Inline widget (no Provider dependency)
+
 - **4-tier permission system**:
   - Owner: Full access + delete + manage users
   - Admin: Full access + manage users (no delete)
   - Editor: Read + create pending requests (needs approval)
   - Viewer: Read-only access
 
-#### 🔜 Remaining: UI Components
-- Invite Users Screen (email + role selection)
-- Manage Users Screen (list users + edit roles)
-- Pending Requests Screen (badge + approve/reject)
-- Permission validation UI
-- Notifications (approved/rejected/invited)
-- Firebase Security Rules
-- UI Integration Testing
+- **Architecture**: Services-based (no Providers) - cleaner and more efficient
+
+#### 🔜 Next: Phase 4
+- Firebase Security Rules integration
+- End-to-end testing
+- Push notifications for sharing events
 
 #### 📋 Previous Releases (v2.9)
 - **Track 3:** Smart Suggestions System
 - **Track 2:** User Sharing infrastructure
 - **Track 1:** Tasks + Products (Hybrid lists)
 
-### 🧪 Technical Improvements
-- Documentation optimization: 10→5 files (-50% redundancy)
-- Memory system: 10 optimized entities (zero maintenance)
-- Enhanced CODE_REVIEW_CHECKLIST v2.5 (7-step dead code protocol)
-- Bug fixes: 10+ compilation errors resolved
-- Code cleanup: 1,500+ lines dead code removed
-- Testing: 179 tests passing (90%+ coverage)
+### 🧪 Technical Improvements (Nov 2025)
+- **Code cleanup**: 989 lines dead code removed (filters, providers, screens)
+- **Documentation**: 5→7 optimized files (+CLAUDE_GUIDE.md, +WORK_PLAN.md)
+- **Architecture**: Migrated from Providers to Services pattern (Phase 3B)
+- **Widgets**: PendingRequestsSection v2.0 - removed Provider dependency
+- **Models**: 11→20 data models (added sharing system models)
+- **Services**: 7→15 services (major expansion)
+- **Testing**: 179 tests passing (90%+ coverage)
 
 **📖 Version history:** Check Memory (`search_nodes("Recent Sessions")`)
 
@@ -195,24 +203,25 @@ recent_chats(n=2)  # Then continue from "Next Steps"
 memozap/
 ├── lib/
 │   ├── core/              # UI constants, theme
-│   ├── models/            # 11 data models
-│   ├── providers/         # 9 state providers
-│   ├── repositories/      # 17 data repositories
-│   ├── services/          # 7 services
-│   ├── screens/           # 30+ screens
-│   ├── widgets/           # 25+ reusable widgets
+│   ├── models/            # 20 data models
+│   ├── providers/         # 8 state providers
+│   ├── repositories/      # 15 data repositories
+│   ├── services/          # 15 services (ShareList, PendingRequests, etc.)
+│   ├── screens/           # 20 screens
+│   ├── widgets/           # 23 reusable widgets
 │   ├── config/            # Business logic config
 │   ├── l10n/              # Localization (Hebrew + English)
 │   └── main.dart          # App entry point
-├── test/                  # 50+ tests
-├── assets/                # Images, fonts
-└── docs/                  # Documentation (5 files)
-    ├── PROJECT_INSTRUCTIONS_v4.md # Complete AI instructions (450 lines)
-    ├── CODE.md            # Code patterns & architecture (500 lines)
-    ├── DESIGN.md          # Sticky Notes design system (300 lines)
-    ├── TECH.md            # Firebase, security, models (400 lines)
-    ├── CODE_REVIEW_CHECKLIST.md # Review protocols (300 lines)
-    └── WORK_PLAN.md       # 8-week roadmap (500 lines)
+├── test/                  # 179 tests passing
+├── assets/                # Images, fonts, data (list_types JSON)
+└── docs/                  # Documentation (7 files)
+    ├── PROJECT_INSTRUCTIONS_v4.md # Complete AI instructions (1,110 lines)
+    ├── CODE.md            # Code patterns & architecture (1,247 lines)
+    ├── DESIGN.md          # Sticky Notes design system (687 lines)
+    ├── TECH.md            # Firebase, security, models (617 lines)
+    ├── CODE_REVIEW_CHECKLIST.md # Review protocols (695 lines)
+    ├── WORK_PLAN.md       # 8-week roadmap (832 lines)
+    └── CLAUDE_GUIDE.md    # Quick reference for AI (238 lines)
 ```
 
 ---
@@ -340,7 +349,7 @@ Special thanks to the open source community and all contributors!
 
 ---
 
-**Made with ❤️ in Israel** 🇮🇱  
-**Version:** 2.10 | **Updated:** 03/11/2025
+**Made with ❤️ in Israel** 🇮🇱
+**Version:** 1.0.0 | **Updated:** 20/11/2025
 
 **🚀 Ready to start?** → Read [Quick Start](#-quick-start) above

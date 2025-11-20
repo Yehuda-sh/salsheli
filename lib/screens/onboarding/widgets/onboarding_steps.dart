@@ -11,7 +11,6 @@
 // 🔗 Dependencies:
 // - flutter_animate: אנימציות (300ms fade + slide)
 // - ../../../data/onboarding_data.dart: מודל OnboardingData
-// - ../../../config/filters_config.dart: kCategories
 // - ../../../config/stores_config.dart: StoresConfig.allStores
 // - ../../../l10n/app_strings.dart: כל המחרוזות
 // - ../../../core/ui_constants.dart: spacing + icon sizes
