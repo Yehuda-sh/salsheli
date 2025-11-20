@@ -1,7 +1,7 @@
 [
   {
     "name": "בשר טחון",
-    "category": "בשר ודגים",
+    "category": "בקר",
     "icon": "🥩",
     "price": 39.9,
     "barcode": "BUTCHER-001",
@@ -12,7 +12,7 @@
   },
   {
     "name": "חזה עוף",
-    "category": "בשר ודגים",
+    "category": "עוף",
     "icon": "🍗",
     "price": 44.9,
     "barcode": "BUTCHER-002",
@@ -34,7 +34,7 @@
   },
   {
     "name": "כרעיים עוף",
-    "category": "בשר ודגים",
+    "category": "עוף",
     "icon": "🍗",
     "price": 19.9,
     "barcode": "BUTCHER-004",
@@ -56,7 +56,7 @@
   },
   {
     "name": "קבב",
-    "category": "בשר ודגים",
+    "category": "בקר",
     "icon": "🥩",
     "price": 59.9,
     "barcode": "BUTCHER-006",
@@ -67,7 +67,7 @@
   },
   {
     "name": "שוקיים עוף",
-    "category": "בשר ודגים",
+    "category": "עוף",
     "icon": "🍗",
     "price": 24.9,
     "barcode": "BUTCHER-007",
@@ -78,7 +78,7 @@
   },
   {
     "name": "בשר צלי",
-    "category": "בשר ודגים",
+    "category": "בקר",
     "icon": "🥩",
     "price": 79.9,
     "barcode": "BUTCHER-008",
@@ -89,7 +89,7 @@
   },
   {
     "name": "כנפיים עוף",
-    "category": "בשר ודגים",
+    "category": "עוף",
     "icon": "🍗",
     "price": 14.9,
     "barcode": "BUTCHER-009",
@@ -100,7 +100,7 @@
   },
   {
     "name": "המבורגר",
-    "category": "בשר ודגים",
+    "category": "בקר",
     "icon": "🍔",
     "price": 49.9,
     "barcode": "BUTCHER-010",
@@ -111,7 +111,7 @@
   },
   {
     "name": "עוף שלם",
-    "category": "בשר ודגים",
+    "category": "עוף",
     "icon": "🍗",
     "price": 17.9,
     "barcode": "BUTCHER-011",
@@ -122,7 +122,7 @@
   },
   {
     "name": "שניצל עוף",
-    "category": "בשר ודגים",
+    "category": "עוף",
     "icon": "🍗",
     "price": 54.9,
     "barcode": "BUTCHER-012",
@@ -144,7 +144,7 @@
   },
   {
     "name": "צלעות בקר",
-    "category": "בשר ודגים",
+    "category": "בקר",
     "icon": "🥩",
     "price": 89.9,
     "barcode": "BUTCHER-014",
@@ -177,7 +177,7 @@
   },
   {
     "name": "בשר גולש",
-    "category": "בשר ודגים",
+    "category": "בקר",
     "icon": "🥩",
     "price": 69.9,
     "barcode": "BUTCHER-017",
@@ -188,7 +188,7 @@
   },
   {
     "name": "עוף טחון",
-    "category": "בשר ודגים",
+    "category": "עוף",
     "icon": "🍗",
     "price": 34.9,
     "barcode": "BUTCHER-018",
@@ -210,7 +210,7 @@
   },
   {
     "name": "לבבות עוף",
-    "category": "בשר ודגים",
+    "category": "עוף",
     "icon": "🍗",
     "price": 29.9,
     "barcode": "BUTCHER-020",
@@ -221,7 +221,7 @@
   },
   {
     "name": "כבד עוף",
-    "category": "בשר ודגים",
+    "category": "עוף",
     "icon": "🍗",
     "price": 24.9,
     "barcode": "BUTCHER-021",
@@ -243,7 +243,7 @@
   },
   {
     "name": "חזה הודו",
-    "category": "בשר ודגים",
+    "category": "הודו",
     "icon": "🦃",
     "price": 64.9,
     "barcode": "BUTCHER-023",
@@ -265,7 +265,7 @@
   },
   {
     "name": "ציפס עוף",
-    "category": "בשר ודגים",
+    "category": "עוף",
     "icon": "🍗",
     "price": 44.9,
     "barcode": "BUTCHER-025",
@@ -276,7 +276,7 @@
   },
   {
     "name": "בשר שרירים",
-    "category": "בשר ודגים",
+    "category": "בקר",
     "icon": "🥩",
     "price": 74.9,
     "barcode": "BUTCHER-026",
@@ -287,7 +287,7 @@
   },
   {
     "name": "פילה עוף",
-    "category": "בשר ודגים",
+    "category": "עוף",
     "icon": "🍗",
     "price": 49.9,
     "barcode": "BUTCHER-027",
@@ -320,7 +320,7 @@
   },
   {
     "name": "בשר ראש",
-    "category": "בשר ודגים",
+    "category": "בקר",
     "icon": "🥩",
     "price": 59.9,
     "barcode": "BUTCHER-030",
@@ -331,7 +331,7 @@
   },
   {
     "name": "סלמון פילה",
-    "category": "בשר ודגים",
+    "category": "דגים",
     "icon": "🐟",
     "price": 89.9,
     "barcode": "BUTCHER-031",
@@ -397,7 +397,7 @@
   },
   {
     "name": "טונה סטייק",
-    "category": "בשר ודגים",
+    "category": "דגים",
     "icon": "🐟",
     "price": 119.9,
     "barcode": "BUTCHER-037",
@@ -441,7 +441,7 @@
   },
   {
     "name": "כבש טחון",
-    "category": "בשר ודגים",
+    "category": "טלה וכבש",
     "icon": "🥩",
     "price": 54.9,
     "barcode": "BUTCHER-041",
@@ -496,7 +496,7 @@
   },
   {
     "name": "שוקיים הודו",
-    "category": "בשר ודגים",
+    "category": "הודו",
     "icon": "🦃",
     "price": 39.9,
     "barcode": "BUTCHER-046",
@@ -507,7 +507,7 @@
   },
   {
     "name": "כרעיים הודו",
-    "category": "בשר ודגים",
+    "category": "הודו",
     "icon": "🦃",
     "price": 34.9,
     "barcode": "BUTCHER-047",
@@ -518,7 +518,7 @@
   },
   {
     "name": "הודו טחון",
-    "category": "בשר ודגים",
+    "category": "הודו",
     "icon": "🦃",
     "price": 44.9,
     "barcode": "BUTCHER-048",
@@ -529,7 +529,7 @@
   },
   {
     "name": "שניצל הודו",
-    "category": "בשר ודגים",
+    "category": "הודו",
     "icon": "🦃",
     "price": 59.9,
     "barcode": "BUTCHER-049",
@@ -540,7 +540,7 @@
   },
   {
     "name": "נקניקיות הודו",
-    "category": "בשר ודגים",
+    "category": "הודו",
     "icon": "🦃",
     "price": 49.9,
     "barcode": "BUTCHER-050",
@@ -563,7 +563,7 @@
   {
     "name": "פסטרמה",
     "category": "אחר",
-    "icon": "🥩",
+    "icon": "🌭",
     "price": 89.9,
     "barcode": "BUTCHER-052",
     "brand": "טרי",
@@ -574,7 +574,7 @@
   {
     "name": "קורנד ביף",
     "category": "אחר",
-    "icon": "🥩",
+    "icon": "🌭",
     "price": 79.9,
     "barcode": "BUTCHER-053",
     "brand": "טרי",
@@ -585,7 +585,7 @@
   {
     "name": "רולדה",
     "category": "אחר",
-    "icon": "🥩",
+    "icon": "🌭",
     "price": 74.9,
     "barcode": "BUTCHER-054",
     "brand": "טרי",
@@ -606,7 +606,7 @@
   },
   {
     "name": "כנפיים הודו",
-    "category": "בשר ודגים",
+    "category": "הודו",
     "icon": "🦃",
     "price": 29.9,
     "barcode": "BUTCHER-056",
@@ -617,7 +617,7 @@
   },
   {
     "name": "סטייק כבש",
-    "category": "בשר ודגים",
+    "category": "טלה וכבש",
     "icon": "🥩",
     "price": 139.9,
     "barcode": "BUTCHER-057",
@@ -629,7 +629,7 @@
   {
     "name": "בייקון",
     "category": "אחר",
-    "icon": "🥓",
+    "icon": "🌭",
     "price": 59.9,
     "barcode": "BUTCHER-058",
     "brand": "טרי",
