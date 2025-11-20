@@ -6,7 +6,9 @@
       "Bash(cat:*)",
       "Bash(flutter build:*)",
       "Bash(dart scripts/sync_bakery_categories.dart:*)",
-      "Bash(dart run:*)"
+      "Bash(dart run:*)",
+      "Bash(flutter run:*)",
+      "Bash(adb shell:*)"
     ],
     "deny": [],
     "ask": []
