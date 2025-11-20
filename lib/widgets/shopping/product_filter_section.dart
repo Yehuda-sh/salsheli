@@ -481,6 +481,8 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
         return '🧹';
       case 'טיפוח':
         return '💄';
+      case 'מוצרי תינוקות':
+        return '👶';
       default:
         return '📦';
     }

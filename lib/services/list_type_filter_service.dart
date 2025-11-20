@@ -32,6 +32,7 @@ class ListTypeFilterService {
     ExtendedListType.pharmacy: [
       'היגיינה אישית',
       'מוצרי ניקיון',
+      'מוצרי תינוקות',
       'משחת שיניים',
       'שמפו',
       'סבון',
