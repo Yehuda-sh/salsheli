@@ -1,33 +1,77 @@
 {
   "templateName": "קניות שבועיות",
+  "description": "מוצרי יסוד לשבוע",
+  "icon": "🛒",
   "items": [
     {
-      "barcode": null,
-      "name": "לחם פרנה",
-      "quantity": 1,
+      "source": "bakery",
+      "searchTerm": "לחם",
+      "quantity": 2,
       "unit": "יח'",
-      "estimatedPrice": null
+      "fallbackName": "לחם"
     },
     {
-      "barcode": null,
-      "name": "חלב 3%",
-      "quantity": 1,
+      "source": "supermarket",
+      "searchTerm": "חלב 3",
+      "quantity": 2,
       "unit": "ליטר",
-      "estimatedPrice": null
+      "fallbackName": "חלב 3%"
     },
     {
-      "barcode": null,
-      "name": "ביצים",
+      "source": "supermarket",
+      "searchTerm": "ביצים",
       "quantity": 12,
       "unit": "יח'",
-      "estimatedPrice": null
+      "fallbackName": "ביצים"
     },
     {
-      "barcode": null,
-      "name": "גבינה צהובה",
+      "source": "supermarket",
+      "searchTerm": "גבינה צהובה",
       "quantity": 0.5,
-      "unit": "ק״ג",
-      "estimatedPrice": null
+      "unit": "ק\"ג",
+      "fallbackName": "גבינה צהובה"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "חמאה",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "חמאה"
+    },
+    {
+      "source": "greengrocer",
+      "searchTerm": "עגבניה",
+      "quantity": 1,
+      "unit": "ק\"ג",
+      "fallbackName": "עגבניות"
+    },
+    {
+      "source": "greengrocer",
+      "searchTerm": "מלפפון",
+      "quantity": 4,
+      "unit": "יח'",
+      "fallbackName": "מלפפונים"
+    },
+    {
+      "source": "greengrocer",
+      "searchTerm": "בצל",
+      "quantity": 1,
+      "unit": "ק\"ג",
+      "fallbackName": "בצל"
+    },
+    {
+      "source": "greengrocer",
+      "searchTerm": "תפוח עץ",
+      "quantity": 1,
+      "unit": "ק\"ג",
+      "fallbackName": "תפוחים"
+    },
+    {
+      "source": "greengrocer",
+      "searchTerm": "בננה",
+      "quantity": 1,
+      "unit": "ק\"ג",
+      "fallbackName": "בננות"
     }
   ]
 }

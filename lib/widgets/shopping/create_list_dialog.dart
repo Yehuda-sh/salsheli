@@ -40,7 +40,9 @@ import '../../config/list_types_config.dart';
 import '../../core/status_colors.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
+import '../../models/unified_list_item.dart';
 import '../../providers/shopping_lists_provider.dart';
+import '../../services/template_service.dart';
 
 class CreateListDialog extends StatefulWidget {
   final Future<void> Function(Map<String, dynamic>) onCreateList;
@@ -54,16 +56,17 @@ class CreateListDialog extends StatefulWidget {
 class _CreateListDialogState extends State<CreateListDialog> {
   final _formKey = GlobalKey<FormState>();
   final _budgetController = TextEditingController();
+  final _nameController = TextEditingController();
 
   String _name = '';
   String _type = 'supermarket';
   double? _budget;
   DateTime? _eventDate;
   bool _isSubmitting = false;
-  
-  // Template selection (disabled for now - models not implemented)
-  // Template? _selectedTemplate;
-  // List<UnifiedListItem> _templateItems = [];
+
+  // 📋 Template selection
+  TemplateInfo? _selectedTemplate;
+  List<UnifiedListItem> _templateItems = [];
 
   @override
   void initState() {
@@ -80,6 +83,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
   void dispose() {
     debugPrint('🔵 CreateListDialog.dispose() - Dialog נסגר');
     _budgetController.dispose();
+    _nameController.dispose();
     super.dispose();
   }
 
@@ -115,6 +119,7 @@ class _CreateListDialogState extends State<CreateListDialog> {
       'status': 'active',
       if (_budget != null) 'budget': _budget,
       if (_eventDate != null) 'eventDate': _eventDate,
+      if (_templateItems.isNotEmpty) 'items': _templateItems,
     };
 
     try {
@@ -346,12 +351,80 @@ class _CreateListDialogState extends State<CreateListDialog> {
             mainAxisSize: MainAxisSize.min,
             children: [
               // ========================================
-              // 📋 Templates feature disabled
+              // 📋 Template Selection
               // ========================================
-              // Template button removed - feature not implemented yet
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.list_alt),
+                  label: Text(
+                    _selectedTemplate == null
+                        ? '📋 בחר תבנית מוכנה'
+                        : '✨ ${_selectedTemplate!.name}',
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 48),
+                    backgroundColor: _selectedTemplate != null
+                        ? Theme.of(context).primaryColor.withOpacity(0.1)
+                        : null,
+                  ),
+                  onPressed: () async {
+                    try {
+                      final templates =
+                          await TemplateService.loadTemplatesList();
+
+                      if (!mounted) return;
+
+                      final selected = await showDialog<TemplateInfo>(
+                        context: context,
+                        builder: (context) =>
+                            _TemplatePickerDialog(templates: templates),
+                      );
+
+                      if (selected != null) {
+                        debugPrint(
+                            '📋 [CreateListDialog] נבחרה תבנית: ${selected.name}');
+
+                        // טען את הפריטים מהתבנית
+                        final items = await TemplateService.loadTemplateItems(
+                          selected.templateFile,
+                        );
+
+                        setState(() {
+                          _selectedTemplate = selected;
+                          _nameController.text = selected.name;
+                          _templateItems = items;
+                        });
+
+                        if (!mounted) return;
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              '✨ תבנית "${selected.name}" נטענה! ${items.length} מוצרים הוכנו',
+                            ),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      debugPrint('❌ [CreateListDialog] שגיאה בטעינת תבניות: $e');
+                      if (!mounted) return;
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('❌ שגיאה בטעינת התבניות'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ),
 
               // 📝 שם הרשימה
               TextFormField(
+                controller: _nameController,
                 decoration: InputDecoration(
                   labelText: strings.nameLabel,
                   hintText: strings.nameHint,
@@ -576,6 +649,74 @@ class _CreateListDialogState extends State<CreateListDialog> {
                   )
                 : Text(strings.createButton),
           ),
+        ),
+      ],
+    );
+  }
+}
+
+// ════════════════════════════════════════════
+// Template Picker Dialog
+// ════════════════════════════════════════════
+
+/// דיאלוג לבחירת תבנית רשימה מוכנה
+class _TemplatePickerDialog extends StatelessWidget {
+  final List<TemplateInfo> templates;
+
+  const _TemplatePickerDialog({required this.templates});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('בחר תבנית מוכנה'),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: templates.isEmpty
+            ? const Padding(
+                padding: EdgeInsets.all(32.0),
+                child: Center(
+                  child: Text(
+                    'אין תבניות זמינות',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
+              )
+            : ListView.builder(
+                shrinkWrap: true,
+                itemCount: templates.length,
+                itemBuilder: (context, index) {
+                  final template = templates[index];
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    child: ListTile(
+                      leading: Text(
+                        template.icon,
+                        style: const TextStyle(fontSize: 32),
+                      ),
+                      title: Text(
+                        template.name,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: template.description != null
+                          ? Text(template.description!)
+                          : null,
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      onTap: () => Navigator.pop(context, template),
+                    ),
+                  );
+                },
+              ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('ביטול'),
         ),
       ],
     );

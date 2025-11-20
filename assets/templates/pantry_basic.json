@@ -1,33 +1,84 @@
 {
   "templateName": "מזווה בסיסי",
+  "description": "מילוי מזווה עם מוצרי יסוד",
+  "icon": "🏺",
   "items": [
     {
-      "barcode": null,
-      "name": "קמח",
+      "source": "supermarket",
+      "searchTerm": "קמח",
       "quantity": 1,
-      "unit": "ק״ג",
-      "estimatedPrice": null
+      "unit": "ק\"ג",
+      "fallbackName": "קמח"
     },
     {
-      "barcode": null,
-      "name": "אורז",
+      "source": "supermarket",
+      "searchTerm": "סוכר",
       "quantity": 1,
-      "unit": "ק״ג",
-      "estimatedPrice": null
+      "unit": "ק\"ג",
+      "fallbackName": "סוכר"
     },
     {
-      "barcode": null,
-      "name": "עדשים",
+      "source": "supermarket",
+      "searchTerm": "אורז",
+      "quantity": 1,
+      "unit": "ק\"ג",
+      "fallbackName": "אורז"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "פסטה",
       "quantity": 0.5,
-      "unit": "ק״ג",
-      "estimatedPrice": null
+      "unit": "ק\"ג",
+      "fallbackName": "פסטה"
     },
     {
-      "barcode": null,
-      "name": "קפה נמס",
+      "source": "supermarket",
+      "searchTerm": "שמן זית",
       "quantity": 1,
-      "unit": "ק״ג",
-      "estimatedPrice": null
+      "unit": "ליטר",
+      "fallbackName": "שמן זית"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "רסק עגבניות",
+      "quantity": 2,
+      "unit": "יח'",
+      "fallbackName": "רסק עגבניות"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "שימורי טונה",
+      "quantity": 4,
+      "unit": "יח'",
+      "fallbackName": "טונה בשמן"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "קפה",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "קפה נמס"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "תה",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "תה שחור"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "מלח",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "מלח"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "פלפל שחור",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "פלפל שחור"
     }
   ]
 }

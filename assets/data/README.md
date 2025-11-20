@@ -9,13 +9,15 @@
 ```
 assets/
 ├── data/
-│   └── list_types/          ✅ קבצי מוצרים לפי סוג רשימה
-│       ├── supermarket.json
-│       ├── bakery.json
-│       ├── butcher.json
-│       ├── greengrocer.json
-│       ├── pharmacy.json
-│       └── market.json
+│   ├── list_types/          ✅ קבצי מוצרים לפי סוג רשימה
+│   │   ├── supermarket.json
+│   │   ├── market.json
+│   │   ├── bakery.json
+│   │   ├── butcher.json
+│   │   ├── greengrocer.json
+│   │   └── pharmacy.json
+│   ├── IMAGE_URLS.md        ✅ רשימת קישורי תמונות
+│   └── README.md            ✅ תיעוד זה
 │
 ├── templates/               ✅ תבניות רשימות מוכנות
 │   ├── list_templates.json
@@ -24,7 +26,12 @@ assets/
 │   └── pantry_basic.json
 │
 ├── images/                  ✅ תמונות
+│   ├── placeholder.png
+│   └── snichel.png
+│
 └── fonts/                   ✅ פונטים
+    ├── Assistant-Regular.ttf
+    └── Assistant-Bold.ttf
 ```
 
 ---
@@ -44,9 +51,7 @@ assets/
   "price": 10.0,
   "barcode": "7290001234567",
   "brand": "שם המותג",
-  "unit": "יחידה / 100 גרם / ליטר",
-  "store": "שופרסל / אחר",
-  "image_url": "קישור לתמונה (אופציונלי)"
+  "unit": "יחידה / 100 גרם / ליטר"
 }
 ```
 
@@ -58,7 +63,7 @@ assets/
 | **bakery.json** | מוצרים למאפייה | לחם, חלה, בורקס, עוגיות, קרואסון |
 | **butcher.json** | מוצרים לקצב | בשר בקר, עוף, כבש, נקניקים |
 | **greengrocer.json** | מוצרים לירקן | עגבניות, מלפפון, בצל, תפוחים, בננות |
-| **pharmacy.json** | מוצרים לבית מרקחת | תרופות, ויטמינים, חיתולים, מסכות |
+| **pharmacy.json** | מוצרים לבית מרקחת | תרופות, ויטמינים, חיתולים, משחת שיניים, קוסמטיקה |
 | **market.json** | מוצרים לשוק | כל סוגי המוצרים לשוק |
 
 ---
@@ -125,39 +130,37 @@ dart run scripts/fix_json_categories.dart
 
 ---
 
-## 📊 סטטיסטיקה
+## 📊 סטטיסטיקה (עדכני)
 
-| קובץ | גודל | מוצרים (בערך) |
-|------|------|---------------|
-| supermarket.json | ~430KB | ~2,000 מוצרים |
-| greengrocer.json | ~50KB | ~200 מוצרים |
-| market.json | ~95KB | ~400 מוצרים |
-| pharmacy.json | ~28KB | ~100 מוצרים |
-| butcher.json | ~18KB | ~70 מוצרים |
-| bakery.json | ~5KB | ~20 מוצרים |
+| קובץ | גודל | מוצרים |
+|------|------|--------|
+| **supermarket.json** | 394KB | 1,701 מוצרים |
+| **market.json** | 86KB | 371 מוצרים |
+| **butcher.json** | 24KB | 92 מוצרים |
+| **pharmacy.json** | 14KB | 61 מוצרים |
+| **greengrocer.json** | 13KB | 75 מוצרים |
+| **bakery.json** | 8KB | 40 מוצרים |
+| **סה"כ** | **~540KB** | **2,340 מוצרים** |
 
 ---
 
-## 🧹 ניקיון שבוצע
+## 🧹 תיקונים שבוצעו לאחרונה
 
-התיקיות והקבצים הבאים **נמחקו** כי לא היו בשימוש:
+### ✅ תיקוני pharmacy.json
+- ✅ הוסרו כל מוצרי המזון (זרעי פשתן, טורטיות, תבלינים, תערובות אפייה)
+- ✅ תוקנה קטגוריזציה (מרכך שיער, קצף גילוח, מטליות)
+- ✅ נוספו מוצרים רלוונטיים לבית מרקחת:
+  - 💊 תרופות ללא מרשם (7 מוצרים)
+  - 🌞 ויטמינים ותוספי תזונה (7 מוצרים)
+  - 👶 מוצרי תינוקות (9 מוצרים)
+  - 🦷 טיפוח הפה (7 מוצרים)
+  - 💆 קוסמטיקה וטיפוח (5 מוצרים)
+  - 🩹 עזרה ראשונה (6 מוצרים)
 
-### ❌ תיקיות שנמחקו:
-- `by_category/` - שימשו רק לסקריפטי fetch ישנים
-- `by_list_type/` - כפילות מיותרת של `list_types/`
-- `categories/` - גרסה ישנה ומיושנת
-
-### ❌ קבצים שנמחקו:
-- `products.json` - קובץ גדול אחד (17K שורות) שלא נמצא בשימוש
-
-### ❌ סקריפטים שנמחקו:
-- `fetch_shufersal_products.dart` - ישן
-- `fetch_multiple_pages.dart` - ישן
-- `split_products_by_category.dart` - ישן
-- `sync_bakery_categories.dart` - ישן
-- `debug_shufersal_files.dart` - debug
-- `check_all_dates.dart` - debug
-- `deep_search_files.dart` - debug
+### ✅ תיקוני supermarket.json
+- ✅ תוקנו **149 מוצרים** עם תווי backslash מיותרים במותגים (`בע\"מ` → `בע"מ`)
+- ✅ תוקנו **8 מוצרים** עם רווחים כפולים בשמות ומותגים
+- ✅ הקובץ עכשיו נקי לחלוטין משגיאות כתיב וקידוד
 
 ---
 
@@ -170,4 +173,4 @@ dart run scripts/fix_json_categories.dart
 
 ---
 
-**תאריך עדכון אחרון:** 18.11.2024
+**תאריך עדכון אחרון:** 20.11.2025 ✨
