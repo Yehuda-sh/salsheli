@@ -46,7 +46,7 @@ const double kSpacingLarge = 24.0;  // Large spacing
 const double kSpacingXLarge = 32.0; // Extra large spacing
 
 // ═══════════════════════════════════════════════════════════════════════════
-// COLORS - Sticky Notes Palette
+// COLORS - Sticky Notes Palette (Light Mode)
 // ═══════════════════════════════════════════════════════════════════════════
 
 const Color kStickyYellow = Color(0xFFFFF59D);  // Primary, Logo
@@ -55,6 +55,17 @@ const Color kStickyGreen = Color(0xFFA5D6A7);   // Success, Add
 const Color kStickyCyan = Color(0xFF80DEEA);    // Info, Secondary
 const Color kStickyPurple = Color(0xFFCE93D8);  // Creative features
 const Color kStickyOrange = Color(0xFFFFAB91);  // Warnings
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COLORS - Sticky Notes Palette (Dark Mode)
+// ═══════════════════════════════════════════════════════════════════════════
+
+const Color kStickyYellowDark = Color(0xFFD4B830);  // Primary, Logo (darker yellow)
+const Color kStickyPinkDark = Color(0xFFC2185B);    // Alerts, Delete (darker pink)
+const Color kStickyGreenDark = Color(0xFF66BB6A);   // Success, Add (darker green)
+const Color kStickyCyanDark = Color(0xFF00ACC1);    // Info, Secondary (darker cyan)
+const Color kStickyPurpleDark = Color(0xFF9C27B0);  // Creative features (darker purple)
+const Color kStickyOrangeDark = Color(0xFFFF5722);  // Warnings (darker orange)
 
 // ═══════════════════════════════════════════════════════════════════════════
 // COLORS - Notebook Lines

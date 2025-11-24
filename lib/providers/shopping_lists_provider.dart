@@ -131,24 +131,18 @@ class ShoppingListsProvider with ChangeNotifier {
 
   void _onUserChanged() {
     final newHouseholdId = _userContext?.user?.householdId;
-    
+
     // 🔍 בדוק אם המשתמש השתנה
     if (newHouseholdId != _currentHouseholdId) {
-      debugPrint('🔄 _onUserChanged: household_id השתנה');
-      debugPrint('   ישן: $_currentHouseholdId');
-      debugPrint('   חדש: $newHouseholdId');
-      
       // נקה רשימות ישנות
       _lists = [];
       _errorMessage = null;
       _currentHouseholdId = newHouseholdId;
-      
+
       // ✅ טען רשימות רק אם יש household_id חדש
       if (_userContext?.isLoggedIn == true && newHouseholdId != null) {
         loadLists();
       }
-    } else {
-      debugPrint('⏭️ _onUserChanged: אותו household_id, מדלג');
     }
   }
 
@@ -165,27 +159,24 @@ class ShoppingListsProvider with ChangeNotifier {
   }
 
   /// טוען את כל הרשימות מחדש מה-Repository
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// await shoppingListsProvider.loadLists();
   /// ```
   Future<void> loadLists() async {
     final householdId = _userContext?.user?.householdId;
-    
+
     // 🛡️ Guard: אל תטען אם אין משתמש או אין household_id
     if (householdId == null || _userContext?.user == null) {
-      debugPrint('⚠️ loadLists: householdId או user לא זמינים');
-      return;
-    }
-    
-    // 🛡️ Guard: אל תטען אם זה לא ה-household הנוכחי
-    if (_currentHouseholdId != null && householdId != _currentHouseholdId) {
-      debugPrint('⚠️ loadLists: household_id לא תואם (נוכחי: $_currentHouseholdId, מבוקש: $householdId)');
       return;
     }
 
-    debugPrint('📥 loadLists: מתחיל טעינה (householdId: $householdId)');
+    // 🛡️ Guard: אל תטען אם זה לא ה-household הנוכחי
+    if (_currentHouseholdId != null && householdId != _currentHouseholdId) {
+      return;
+    }
+
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -193,7 +184,6 @@ class ShoppingListsProvider with ChangeNotifier {
     try {
       _lists = await _repository.fetchLists(householdId);
       _lastUpdated = DateTime.now();
-      debugPrint('✅ loadLists: נטענו ${_lists.length} רשימות');
     } catch (e) {
       _errorMessage = e.toString();
       debugPrint('❌ loadLists: שגיאה - $e');

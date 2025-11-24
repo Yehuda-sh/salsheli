@@ -7,7 +7,8 @@
 // - צללים מציאותיים
 // - אייקון במעגל + כותרת + תיאור
 // - RTL Support מלא
-// - אנימציות כניסה
+// - 🌓 תמיכה במצב אפל (Dark Mode)
+// - 📱 גמישות לפי גודל מסך (Responsive)
 //
 // 🔗 Related:
 // - StickyNote - הרכיב הבסיסי
@@ -15,31 +16,32 @@
 // - ui_constants.dart - צבעי פתקים וקבועים
 //
 // 🎨 Design:
-// - צבעים: kStickyYellow, kStickyPink, kStickyGreen, kStickyCyan
+// - צבעים (Light): kStickyYellow, kStickyPink, kStickyGreen, kStickyCyan
+// - צבעים (Dark): kStickyYellowDark, kStickyPinkDark, kStickyGreenDark, kStickyCyanDark
 // - סיבוב: -0.02 עד 0.02 רדיאנים
-// - אייקון: במעגל 56x56px
+// - אייקון: במעגל 56px-64px (לפי גודל מסך)
 //
 // Usage:
 // ```dart
-// // שימוש בסיסי
+// // שימוש בסיסי (צבע אוטומטי לפי מצב)
 // BenefitTile(
 //   icon: Icons.check_circle,
 //   title: 'יתרון',
 //   subtitle: 'תיאור קצר',
 // )
 //
-// // עם צבע מותאם
+// // עם צבע מותאם (ידני)
 // BenefitTile(
 //   icon: Icons.star,
 //   title: 'מעולה',
 //   subtitle: 'זה עובד מצוין',
-//   color: kStickyPink,
+//   color: kStickyPink, // ידני - לא משתנה במצב אפל
 //   rotation: -0.015,
 // )
 // ```
 //
-// Version: 3.0 - Sticky Notes Design System
-// Updated: 18/10/2025
+// Version: 3.1 - Dark Mode + Responsive Support
+// Updated: 24/11/2025
 
 import 'package:flutter/material.dart';
 import '../../core/ui_constants.dart';
@@ -113,11 +115,23 @@ class BenefitTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final cardColor = color ?? kStickyYellow;
+    final isDark = theme.brightness == Brightness.dark;
+
+    // 🌓 תמיכה במצב אפל: בחירת צבע מותאם
+    final cardColor = color ?? (isDark ? kStickyYellowDark : kStickyYellow);
     final cardRotation = rotation ?? 0.01;
 
     // צבע אייקון: מותאם אישית > primary
     final effectiveIconColor = iconColor ?? cs.primary;
+
+    // 📱 גמישות לפי גודל מסך
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+
+    final circleSize = isSmallScreen ? 56.0 : 64.0;
+    final iconSizeValue = isSmallScreen ? 28.0 : 36.0;
+    final titleStyle = isSmallScreen ? theme.textTheme.titleMedium : theme.textTheme.titleLarge;
+    final bodyStyle = isSmallScreen ? theme.textTheme.bodyMedium : theme.textTheme.bodyLarge;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: kSpacingSmallPlus),
@@ -127,26 +141,26 @@ class BenefitTile extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // אייקון במעגל - מוגדל
+            // אייקון במעגל - גמיש
             Container(
-              width: 64, // מוגדל מ-56px
-              height: 64,
+              width: circleSize,
+              height: circleSize,
               decoration: BoxDecoration(
                 color: effectiveIconColor.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: 36, color: effectiveIconColor), // מוגדל מ-32
+              child: Icon(icon, size: iconSizeValue, color: effectiveIconColor),
             ),
             const SizedBox(width: kSpacingMedium),
 
-            // טקסט - מוגדל
+            // טקסט - גמיש
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: theme.textTheme.titleLarge?.copyWith( // שונה מ-titleMedium
+                    style: titleStyle?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: cs.onSurface,
                     ),
@@ -154,9 +168,9 @@ class BenefitTile extends StatelessWidget {
                   const SizedBox(height: kSpacingTiny),
                   Text(
                     subtitle,
-                    style: theme.textTheme.bodyLarge?.copyWith( // שונה מ-bodyMedium
+                    style: bodyStyle?.copyWith(
                       color: cs.onSurfaceVariant,
-                      height: 1.5, // מוגדל מ-1.4
+                      height: 1.5,
                     ),
                   ),
                 ],

@@ -247,24 +247,20 @@ class UserContext with ChangeNotifier {
   /// ⚠️ **חשוב:** ה-subscription מתבטל ב-dispose()!
   /// ⚠️ **Performance:** משתמש ב-.then() במקום await למניעת blocking
   void _listenToAuthChanges() {
-    debugPrint('👂 UserContext: מתחיל להאזין לשינויים ב-Auth');
-
     // 🔒 ביטול listener קיים לפני יצירת חדש (למניעת האזנה כפולה)
     _authSubscription?.cancel();
 
     _authSubscription = _authService.authStateChanges.listen(
       (firebaseUser) {
-        debugPrint('🔄 UserContext: שינוי ב-Auth state');
-
         if (firebaseUser != null) {
           // 🔒 אם אנחנו בתהליך רישום - אל תיצור משתמש כאן!
           if (_isSigningUp) {
             return;
           }
-          
+
           // משתמש התחבר - טען את הפרטים מ-Firestore (async)
           _loadUserFromFirestore(firebaseUser.uid).catchError((error) {
-            debugPrint('   ❌ שגיאה בטעינת משתמש: $error');
+            debugPrint('❌ שגיאה בטעינת משתמש: $error');
           });
         } else {
           // משתמש התנתק - נקה state

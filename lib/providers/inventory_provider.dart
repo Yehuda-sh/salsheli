@@ -63,14 +63,11 @@ class InventoryProvider with ChangeNotifier {
   /// מעדכן את ה-UserContext ומאזין לשינויים
   /// נקרא אוטומטית מ-ProxyProvider
   void updateUserContext(UserContext newContext) {
-    debugPrint('🔄 InventoryProvider.updateUserContext');
-    
     // מניעת update כפול של אותו context
     if (_userContext == newContext) {
-      debugPrint('   ⏭️ אותו UserContext, מדלג');
       return;
     }
-    
+
     if (_listening && _userContext != null) {
       _userContext!.removeListener(_onUserChanged);
       _listening = false;
@@ -78,80 +75,64 @@ class InventoryProvider with ChangeNotifier {
     _userContext = newContext;
     _userContext!.addListener(_onUserChanged);
     _listening = true;
-    
+
     // אתחול רק בפעם הראשונה
     if (!_hasInitialized) {
-      debugPrint('✅ Listener הוסף, מתחיל initialization');
       _hasInitialized = true;
       _initialize();
-    } else {
-      debugPrint('   ⏭️ כבר אותחל, מדלג');
     }
   }
 
   void _onUserChanged() {
-    debugPrint('👤 InventoryProvider._onUserChanged: משתמש השתנה');
     _loadItems();
   }
 
   void _initialize() {
-    debugPrint('🔧 InventoryProvider._initialize');
     _loadItems();  // _doLoad יטפל בכל הלוגיקה (מחובר/לא מחובר)
   }
 
   // === טעינת פריטים ===
   
   Future<void> _loadItems() {
-    debugPrint('📥 InventoryProvider._loadItems');
-    
     if (_loadingFuture != null) {
-      debugPrint('   ⏳ טעינה כבר בתהליך, ממתין...');
       return _loadingFuture!;
     }
-    
+
     _loadingFuture = _doLoad().whenComplete(() => _loadingFuture = null);
     return _loadingFuture!;
   }
 
   Future<void> _doLoad() async {
-    debugPrint('🔄 InventoryProvider._doLoad: מתחיל טעינה');
-    
     final householdId = _userContext?.user?.householdId;
     if (_userContext?.isLoggedIn != true || householdId == null) {
-      debugPrint('   ⚠️ אין household_id, מנקה רשימה');
       _items = [];
       notifyListeners();
-      debugPrint('   🔔 InventoryProvider: notifyListeners() (no household_id)');
       return;
     }
 
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
-    debugPrint('   🔔 InventoryProvider: notifyListeners() (isLoading=true)');
 
     try {
       _items = await _repository.fetchItems(householdId);
-      debugPrint('✅ InventoryProvider._doLoad: נטענו ${_items.length} פריטים');
     } catch (e, st) {
-      _errorMessage = "שגיאה בטעינת מלאי: $e";
+      _errorMessage = 'שגיאה בטעינת מלאי: $e';
       debugPrint('❌ InventoryProvider._doLoad: שגיאה - $e');
       debugPrintStack(label: 'InventoryProvider._doLoad', stackTrace: st);
     }
 
     _isLoading = false;
     notifyListeners();
-    debugPrint('   🔔 InventoryProvider: notifyListeners() (isLoading=false, items=${_items.length})');
   }
 
   /// טוען את כל הפריטים מחדש מה-Repository
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// await inventoryProvider.loadItems();
   /// ```
   Future<void> loadItems() {
-    debugPrint('🔄 InventoryProvider.loadItems: רענון ידני');
     return _loadItems();
   }
 
@@ -176,13 +157,9 @@ class InventoryProvider with ChangeNotifier {
     int quantity = 1,
     String unit = "יח'",
   }) async {
-    debugPrint('➕ InventoryProvider.createItem: $productName');
-    debugPrint('   קטגוריה: $category, מיקום: $location, כמות: $quantity');
-    
     final householdId = _userContext?.user?.householdId;
     if (householdId == null) {
-      debugPrint('❌ householdId לא נמצא');
-      throw Exception("❌ householdId לא נמצא");
+      throw Exception('❌ householdId לא נמצא');
     }
 
     try {
@@ -196,19 +173,16 @@ class InventoryProvider with ChangeNotifier {
       );
 
       await _repository.saveItem(newItem, householdId);
-      debugPrint('✅ פריט נשמר ב-Repository: ${newItem.id}');
-      
+
       // אופטימיזציה: הוספה local במקום ריענון מלא
       _items.add(newItem);
       notifyListeners();
-      debugPrint('   🔔 InventoryProvider: notifyListeners() (item created: ${newItem.id})');
-      
+
       return newItem;
     } catch (e) {
       debugPrint('❌ InventoryProvider.createItem: שגיאה - $e');
       _errorMessage = 'שגיאה ביצירת פריט';
       notifyListeners();
-      debugPrint('   🔔 InventoryProvider: notifyListeners() (error)');
       rethrow;
     }
   }
@@ -221,34 +195,26 @@ class InventoryProvider with ChangeNotifier {
   /// await inventoryProvider.updateItem(updatedItem);
   /// ```
   Future<void> updateItem(InventoryItem item) async {
-    debugPrint('✏️ InventoryProvider.updateItem: ${item.id}');
-    debugPrint('   מוצר: ${item.productName}, כמות: ${item.quantity}');
-    
     final householdId = _userContext?.user?.householdId;
     if (householdId == null) {
-      debugPrint('⚠️ householdId לא נמצא, מדלג');
       return;
     }
 
     try {
       await _repository.saveItem(item, householdId);
-      debugPrint('✅ פריט עודכן ב-Repository');
-      
+
       // אופטימיזציה: עדכון local במקום ריענון מלא
       final index = _items.indexWhere((i) => i.id == item.id);
       if (index != -1) {
         _items[index] = item;
         notifyListeners();
-        debugPrint('   🔔 InventoryProvider: notifyListeners() (item updated: ${item.id})');
       } else {
-        debugPrint('⚠️ פריט לא נמצא ברשימה, מבצע ריענון מלא');
         await _loadItems();
       }
     } catch (e) {
       debugPrint('❌ InventoryProvider.updateItem: שגיאה - $e');
       _errorMessage = 'שגיאה בעדכון פריט';
       notifyListeners();
-      debugPrint('   🔔 InventoryProvider: notifyListeners() (error)');
       rethrow;
     }
   }
@@ -260,27 +226,21 @@ class InventoryProvider with ChangeNotifier {
   /// await inventoryProvider.deleteItem(item.id);
   /// ```
   Future<void> deleteItem(String id) async {
-    debugPrint('🗑️ InventoryProvider.deleteItem: $id');
-    
     final householdId = _userContext?.user?.householdId;
     if (householdId == null) {
-      debugPrint('⚠️ householdId לא נמצא, מדלג');
       return;
     }
 
     try {
       await _repository.deleteItem(id, householdId);
-      debugPrint('✅ פריט נמחק מ-Repository');
-      
+
       // אופטימיזציה: מחיקה local במקום ריענון מלא
       _items.removeWhere((i) => i.id == id);
       notifyListeners();
-      debugPrint('   🔔 InventoryProvider: notifyListeners() (item deleted: $id)');
     } catch (e) {
       debugPrint('❌ InventoryProvider.deleteItem: שגיאה - $e');
       _errorMessage = 'שגיאה במחיקת פריט';
       notifyListeners();
-      debugPrint('   🔔 InventoryProvider: notifyListeners() (error)');
       rethrow;
     }
   }
@@ -296,26 +256,22 @@ class InventoryProvider with ChangeNotifier {
   /// }
   /// ```
   Future<void> retry() async {
-    debugPrint('🔄 InventoryProvider.retry: מנסה שוב');
     _errorMessage = null;
     notifyListeners();
-    debugPrint('   🔔 InventoryProvider: notifyListeners() (error cleared)');
     await _loadItems();
   }
 
   /// מנקה את כל הנתונים והשגיאות
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// inventoryProvider.clearAll();
   /// ```
   void clearAll() {
-    debugPrint('🧹 InventoryProvider.clearAll: מנקה הכל');
     _items = [];
     _errorMessage = null;
     _isLoading = false;
     notifyListeners();
-    debugPrint('   🔔 InventoryProvider: notifyListeners() (all cleared)');
   }
 
   // === פילטרים נוחים ===
@@ -327,27 +283,21 @@ class InventoryProvider with ChangeNotifier {
   /// final milkProducts = provider.itemsByCategory('מוצרי חלב');
   /// ```
   List<InventoryItem> itemsByCategory(String category) {
-    final filtered = _items.where((i) => i.category == category).toList();
-    debugPrint('🔍 itemsByCategory($category): ${filtered.length} פריטים');
-    return filtered;
+    return _items.where((i) => i.category == category).toList();
   }
 
   /// מחזיר מוצרים שאוזלים (מתחת לסף מוגדר)
-  /// 
+  ///
   /// Parameters:
   /// - threshold: סף מינימום (default: 2)
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final lowStock = provider.getLowStockItems(); // threshold=2
   /// final veryLowStock = provider.getLowStockItems(threshold: 1);
   /// ```
   List<InventoryItem> getLowStockItems({int threshold = 2}) {
-    final lowStock = _items.where((item) {
-      return item.quantity <= threshold;
-    }).toList();
-    debugPrint('📦 getLowStockItems(threshold: $threshold): ${lowStock.length} מוצרים');
-    return lowStock;
+    return _items.where((item) => item.quantity <= threshold).toList();
   }
 
   /// מוסיף מלאי למוצר קיים (חיבור!)
@@ -357,35 +307,29 @@ class InventoryProvider with ChangeNotifier {
   /// await provider.addStock('חלב', 2); // +2 יחידות
   /// ```
   Future<void> addStock(String productName, int quantity) async {
-    debugPrint('➕ addStock: $productName +$quantity');
-    
     final householdId = _userContext?.user?.householdId;
     if (householdId == null) {
-      debugPrint('⚠️ householdId לא נמצא');
       return;
     }
 
     try {
       // מצא פריט לפי שם
       final existingItem = _items.where((i) => i.productName.trim().toLowerCase() == productName.trim().toLowerCase()).firstOrNull;
-      
+
       if (existingItem != null) {
         // עדכן מלאי - חיבור!
         final updatedItem = existingItem.copyWith(
           quantity: existingItem.quantity + quantity,
         );
-        
+
         await _repository.saveItem(updatedItem, householdId);
-        debugPrint('✅ מלאי עודכן: ${existingItem.quantity} -> ${updatedItem.quantity}');
-        
+
         // עדכון local
         final index = _items.indexWhere((i) => i.id == existingItem.id);
         if (index != -1) {
           _items[index] = updatedItem;
           notifyListeners();
         }
-      } else {
-        debugPrint('⚠️ מוצר "$productName" לא נמצא במזווה');
       }
     } catch (e) {
       debugPrint('❌ addStock: שגיאה - $e');
@@ -407,34 +351,27 @@ class InventoryProvider with ChangeNotifier {
   /// print('עודכנו $successCount מתוך ${checkedItems.length} פריטים');
   /// ```
   Future<int> updateStockAfterPurchase(List<UnifiedListItem> purchasedItems) async {
-    debugPrint('🛍️ updateStockAfterPurchase: ${purchasedItems.length} פריטים');
-    
     int successCount = 0;
     int failureCount = 0;
     final failures = <String>[];
-    
+
     for (final item in purchasedItems) {
       if (item.type == ItemType.product && item.quantity != null) {
         try {
           await addStock(item.name, item.quantity!);
           successCount++;
-          debugPrint('   ✅ ${item.name}: +${item.quantity}');
         } catch (e) {
           failureCount++;
           failures.add(item.name);
-          debugPrint('   ❌ ${item.name}: שגיאה - $e');
         }
       }
     }
-    
+
     if (failureCount > 0) {
       _errorMessage = 'עודכנו $successCount פריטים, נכשלו $failureCount: ${failures.join(", ")}';
       notifyListeners();
-      debugPrint('⚠️ updateStockAfterPurchase: נכשלו $failureCount פריטים');
-    } else {
-      debugPrint('✅ מלאי עודכן אוטומטית: $successCount/$successCount');
     }
-    
+
     return successCount;
   }
 
@@ -445,22 +382,17 @@ class InventoryProvider with ChangeNotifier {
   /// final fridgeItems = provider.itemsByLocation('מקרר');
   /// ```
   List<InventoryItem> itemsByLocation(String location) {
-    final filtered = _items.where((i) => i.location == location).toList();
-    debugPrint('🔍 itemsByLocation($location): ${filtered.length} פריטים');
-    return filtered;
+    return _items.where((i) => i.location == location).toList();
   }
 
   // === Cleanup ===
-  
+
   @override
   void dispose() {
-    debugPrint('🧹 InventoryProvider.dispose');
-    
     if (_listening && _userContext != null) {
       _userContext!.removeListener(_onUserChanged);
-      debugPrint('   ✅ Listener הוסר');
     }
-    
+
     super.dispose();
   }
 }

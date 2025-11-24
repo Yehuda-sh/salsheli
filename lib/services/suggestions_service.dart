@@ -25,7 +25,6 @@
 //     - Manages suggestions queue
 //     - Tracks status (pending/added/dismissed/deleted)
 
-import 'package:flutter/foundation.dart';
 import '../models/smart_suggestion.dart';
 import '../models/inventory_item.dart';
 import '../models/enums/suggestion_status.dart';
@@ -62,20 +61,12 @@ class SuggestionsService {
     Map<String, int>? customThresholds,
     Set<String>? excludedProducts,
   }) {
-    if (kDebugMode) {
-      debugPrint('🧠 SuggestionsService.generateSuggestions():');
-      debugPrint('   📦 Total inventory items: ${inventoryItems.length}');
-    }
-
     final suggestions = <SmartSuggestion>[];
     final now = DateTime.now();
 
     for (final item in inventoryItems) {
       // בדיקה: האם המוצר לא נמחק לצמיתות
       if (excludedProducts?.contains(item.productName) ?? false) {
-        if (kDebugMode) {
-          debugPrint('   ⏭️ Skipping excluded: ${item.productName}');
-        }
         continue;
       }
 
@@ -96,13 +87,6 @@ class SuggestionsService {
         );
 
         suggestions.add(suggestion);
-
-        if (kDebugMode) {
-          debugPrint(
-            '   💡 Created suggestion: ${item.productName} '
-            '(${{ item.quantity}}/$threshold) - ${suggestion.urgency}',
-          );
-        }
       }
     }
 
@@ -125,14 +109,6 @@ class SuggestionsService {
       // אם אותה רמת דחיפות, מיין לפי שם
       return a.productName.compareTo(b.productName);
     });
-
-    if (kDebugMode) {
-      debugPrint('   ✅ Generated ${suggestions.length} suggestions');
-      if (suggestions.isNotEmpty) {
-        debugPrint('   🥇 Top suggestion: ${suggestions.first.productName} '
-            '(${suggestions.first.urgency})');
-      }
-    }
 
     return suggestions;
   }
@@ -157,7 +133,7 @@ class SuggestionsService {
 
   /// 🇮🇱 קבלת ההמלצה הבאה מהתור
   /// 🇬🇧 Get the next suggestion from the queue
-  /// 
+  ///
   /// מחזיר את ההמלצה הדחופה ביותר שעדיין פעילה
   static SmartSuggestion? getNextSuggestion(
     List<SmartSuggestion> suggestions,
@@ -165,36 +141,22 @@ class SuggestionsService {
     final active = getActiveSuggestions(suggestions);
 
     if (active.isEmpty) {
-      if (kDebugMode) {
-        debugPrint('🔵 No active suggestions available');
-      }
       return null;
     }
 
     // ההמלצה הראשונה היא הדחופה ביותר (כבר ממוין)
-    final next = active.first;
-
-    if (kDebugMode) {
-      debugPrint('🎯 Next suggestion: ${next.productName} (${next.urgency})');
-    }
-
-    return next;
+    return active.first;
   }
 
   /// 🇮🇱 דחיית המלצה זמנית
   /// 🇬🇧 Dismiss suggestion temporarily
-  /// 
+  ///
   /// דוחה את ההמלצה למשך זמן מסוים (ברירת מחדל: שבוע)
   static SmartSuggestion dismissSuggestion(
     SmartSuggestion suggestion, {
     Duration duration = defaultDismissalDuration,
   }) {
     final dismissedUntil = DateTime.now().add(duration);
-
-    if (kDebugMode) {
-      debugPrint('⏭️ Dismissing: ${suggestion.productName}');
-      debugPrint('   Until: ${dismissedUntil.toIso8601String()}');
-    }
 
     return suggestion.copyWith(
       status: SuggestionStatus.dismissed,
@@ -204,10 +166,10 @@ class SuggestionsService {
 
   /// 🇮🇱 מחיקת המלצה (זמנית או קבועה)
   /// 🇬🇧 Delete suggestion (temporary or permanent)
-  /// 
+  ///
   /// פרמטרים:
   /// - duration: null = לצמיתות, Duration = זמני
-  /// 
+  ///
   /// דוגמאות:
   /// - deleteSuggestion(s, duration: null) → לעולם לא
   /// - deleteSuggestion(s, duration: Duration(days: 1)) → יום אחד
@@ -219,10 +181,6 @@ class SuggestionsService {
   }) {
     if (duration == null) {
       // מחיקה קבועה
-      if (kDebugMode) {
-        debugPrint('❌ Deleting permanently: ${suggestion.productName}');
-      }
-
       return suggestion.copyWith(
         status: SuggestionStatus.deleted,
         dismissedUntil: null,
@@ -230,11 +188,6 @@ class SuggestionsService {
     } else {
       // מחיקה זמנית (כמו dismiss)
       final dismissedUntil = DateTime.now().add(duration);
-
-      if (kDebugMode) {
-        debugPrint('❌ Deleting temporarily: ${suggestion.productName}');
-        debugPrint('   Until: ${dismissedUntil.toIso8601String()}');
-      }
 
       return suggestion.copyWith(
         status: SuggestionStatus.dismissed,
@@ -245,17 +198,12 @@ class SuggestionsService {
 
   /// 🇮🇱 סימון המלצה כנוספה לרשימה
   /// 🇬🇧 Mark suggestion as added to list
-  /// 
+  ///
   /// משנה סטטוס ל-added ושומר איזו רשימה נוספה אליה
   static SmartSuggestion markAsAdded(
     SmartSuggestion suggestion, {
     required String listId,
   }) {
-    if (kDebugMode) {
-      debugPrint('✅ Marking as added: ${suggestion.productName}');
-      debugPrint('   To list: $listId');
-    }
-
     return suggestion.copyWith(
       status: SuggestionStatus.added,
       addedAt: DateTime.now(),
