@@ -61,6 +61,7 @@ import 'package:memozap/widgets/common/sticky_button.dart';
 import 'package:memozap/widgets/common/skeleton_loading.dart';
 import 'package:memozap/widgets/common/tappable_card.dart';
 import 'package:memozap/screens/settings/manage_users_screen.dart';
+import 'package:memozap/tools/load_demo_data_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -941,6 +942,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         onTap: () => _updatePrices(context),
                       ),
                     ],
+                  ),
+                ),
+
+                const SizedBox(height: kSpacingMedium),
+
+                // 🔹 טעינת נתוני דמו (Developer Tools)
+                StickyNote(
+                  color: Colors.deepPurple.shade50,
+                  rotation: -0.01,
+                  child: ListTile(
+                    leading: const Icon(Icons.science, color: Colors.deepPurple),
+                    title: const Text('🧪 טעינת נתוני דמו', style: TextStyle(color: Colors.deepPurple)),
+                    subtitle: const Text('טען 5 משתמשי דמו ל-Firebase'),
+                    trailing: const Icon(Icons.chevron_left),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LoadDemoDataScreen()),
+                      );
+                    },
                   ),
                 ),
 
