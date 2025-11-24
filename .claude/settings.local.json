@@ -9,7 +9,10 @@
       "Bash(dart run:*)",
       "Bash(flutter run:*)",
       "Bash(adb shell:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(tree:*)",
+      "Bash(git mv:*)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []

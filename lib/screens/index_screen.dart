@@ -41,7 +41,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../providers/user_context.dart';
 import 'index_view.dart';
-import 'welcome_screen.dart';
+import 'welcome/welcome_screen.dart';
 
 class IndexScreen extends StatefulWidget {
   const IndexScreen({super.key});

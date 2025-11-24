@@ -49,9 +49,9 @@ import 'screens/index_screen.dart';
 import 'screens/main_navigation_screen.dart';
 import 'screens/onboarding/onboarding_screen.dart';
 import 'screens/pantry/my_pantry_screen.dart';
-import 'screens/shopping/active_shopping_screen.dart';
-import 'screens/shopping/shopping_list_details_screen.dart';
-import 'screens/shopping/shopping_lists_screen.dart';
+import 'screens/shopping/active/active_shopping_screen.dart';
+import 'screens/shopping/details/shopping_list_details_screen.dart';
+import 'screens/shopping/lists/shopping_lists_screen.dart';
 import 'screens/shopping/shopping_summary_screen.dart';
 
 // Theme

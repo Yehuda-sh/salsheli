@@ -6,11 +6,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/ui_constants.dart';
-import '../../models/shopping_list.dart';
-import '../../providers/shopping_lists_provider.dart';
-import '../common/dashboard_card.dart';
-import '../shopping/create_list_dialog.dart';
+import '../../../../core/ui_constants.dart';
+import '../../../../models/shopping_list.dart';
+import '../../../../providers/shopping_lists_provider.dart';
+import '../../../../widgets/common/dashboard_card.dart';
+import '../../../../widgets/shopping/create_list_dialog.dart';
 
 class UpcomingShopCard extends StatelessWidget {
   final ShoppingList? list;

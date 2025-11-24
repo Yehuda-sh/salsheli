@@ -29,19 +29,18 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/ui_constants.dart';
-import '../../l10n/app_strings.dart';
-import '../../models/shopping_list.dart';
-import '../../providers/shopping_lists_provider.dart';
-import '../../providers/suggestions_provider.dart';
-import '../../providers/user_context.dart';
-import '../../theme/app_theme.dart';
-import '../../widgets/common/notebook_background.dart';
-import '../../widgets/common/sticky_note.dart';
-import '../../widgets/home/smart_suggestions_card.dart';
-import '../../widgets/home/upcoming_shop_card.dart';
-import '../../widgets/shopping/create_list_dialog.dart';
-import 'home_dashboard_screen_ux.dart'; // 📦 Skeleton loading components
+import '../../../core/ui_constants.dart';
+import '../../../l10n/app_strings.dart';
+import '../../../models/shopping_list.dart';
+import '../../../providers/shopping_lists_provider.dart';
+import '../../../providers/suggestions_provider.dart';
+import '../../../providers/user_context.dart';
+import '../../../theme/app_theme.dart';
+import '../../../widgets/common/notebook_background.dart';
+import '../../../widgets/common/sticky_note.dart';
+import '../../../widgets/shopping/create_list_dialog.dart';
+import 'widgets/smart_suggestions_card.dart';
+import 'widgets/upcoming_shop_card.dart';
 
 class HomeDashboardScreen extends StatefulWidget {
   const HomeDashboardScreen({super.key});
@@ -142,12 +141,11 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   _Header(userName: userContext.displayName),
                   const SizedBox(height: kSpacingMedium),
 
-                  // ✨ Skeleton loading עם אנימציות
+                  // Loading state
                   if (listsProvider.isLoading)
-                    const DashboardSkeleton()
-                      .animate()
-                      .fadeIn(duration: 300.ms)
-                      .slideY(begin: 0.05, end: 0)
+                    const Center(
+                      child: CircularProgressIndicator(),
+                    )
                   else if (listsProvider.errorMessage != null)
                     _ErrorState(
                       message: listsProvider.errorMessage!,

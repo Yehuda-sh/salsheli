@@ -28,26 +28,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/shopping_list.dart';
-import '../../models/unified_list_item.dart';
-import '../../models/enums/item_type.dart';
-import '../../providers/shopping_lists_provider.dart';
-import '../../providers/user_context.dart';
+import '../../../models/shopping_list.dart';
+import '../../../models/unified_list_item.dart';
+import '../../../models/enums/item_type.dart';
+import '../../../providers/shopping_lists_provider.dart';
+import '../../../providers/user_context.dart';
 
-import '../../core/ui_constants.dart';
-import '../../l10n/app_strings.dart';
-import '../../widgets/common/animated_button.dart';
-import '../../widgets/common/notebook_background.dart';
-import '../../widgets/common/pending_requests_section.dart';
-import '../../widgets/common/sticky_button.dart';
-import '../../widgets/common/sticky_note.dart';
-import '../../widgets/shopping/product_selection_bottom_sheet.dart';
-import '../../widgets/shopping/add_edit_product_dialog.dart';
-import '../../widgets/shopping/add_edit_task_dialog.dart';
-import '../../services/pending_requests_service.dart';
-import '../settings/manage_users_screen.dart';
-import '../sharing/pending_requests_screen.dart';
-import 'shopping_list_details_screen_ux.dart'; // 📦 Skeleton & states
+import '../../../core/ui_constants.dart';
+import '../../../l10n/app_strings.dart';
+import '../../../widgets/common/animated_button.dart';
+import '../../../widgets/common/notebook_background.dart';
+import '../../../widgets/common/pending_requests_section.dart';
+import '../../../widgets/common/sticky_button.dart';
+import '../../../widgets/common/sticky_note.dart';
+import '../../../widgets/shopping/product_selection_bottom_sheet.dart';
+import '../../../widgets/shopping/add_edit_product_dialog.dart';
+import '../../../widgets/shopping/add_edit_task_dialog.dart';
+import '../../../services/pending_requests_service.dart';
+import '../../settings/manage_users_screen.dart';
+import '../../sharing/pending_requests_screen.dart';
 
 class ShoppingListDetailsScreen extends StatefulWidget {
   final ShoppingList list;
@@ -545,18 +544,38 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                 // 📋 תוכן
                 Expanded(
                   child: _isLoading
-                      ? const ShoppingDetailsLoadingSkeleton()
+                      ? const Center(child: CircularProgressIndicator())
                       : _errorMessage != null
-                      ? ShoppingDetailsErrorState(errorMessage: _errorMessage, onRetry: _loadData)
+                      ? Center(child: Text('שגיאה: $_errorMessage'))
                       : filteredItems.isEmpty && allItems.isNotEmpty
-                      ? ShoppingDetailsEmptySearch(
-                          onClearSearch: () {
-                            setState(() => _searchQuery = '');
-                            debugPrint('🧹 ShoppingListDetailsScreen: ניקוי חיפוש מ-Empty Search');
-                          },
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text('לא נמצאו פריטים'),
+                              TextButton(
+                                onPressed: () {
+                                  setState(() => _searchQuery = '');
+                                  debugPrint('🧹 ShoppingListDetailsScreen: ניקוי חיפוש מ-Empty Search');
+                                },
+                                child: const Text('נקה חיפוש'),
+                              ),
+                            ],
+                          ),
                         )
                       : filteredItems.isEmpty
-                      ? ShoppingDetailsEmptyState(onAddFromCatalog: _navigateToPopulateScreen)
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text('הרשימה ריקה'),
+                              TextButton(
+                                onPressed: _navigateToPopulateScreen,
+                                child: const Text('הוסף פריטים'),
+                              ),
+                            ],
+                          ),
+                        )
                       : _groupByCategory
                       ? _buildGroupedList(filteredItems, theme)
                       : _buildFlatList(filteredItems, theme),

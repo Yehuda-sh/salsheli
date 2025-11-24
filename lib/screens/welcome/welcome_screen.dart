@@ -35,13 +35,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-import '../core/ui_constants.dart';
-import '../l10n/app_strings.dart';
-import '../theme/app_theme.dart';
-import '../widgets/common/benefit_tile.dart';
-import '../widgets/common/notebook_background.dart';
-import '../widgets/common/sticky_button.dart';
-import '../widgets/common/sticky_note.dart';
+import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
+import '../../theme/app_theme.dart';
+import '../../widgets/common/benefit_tile.dart';
+import '../../widgets/common/notebook_background.dart';
+import '../../widgets/common/sticky_button.dart';
+import '../../widgets/common/sticky_note.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});

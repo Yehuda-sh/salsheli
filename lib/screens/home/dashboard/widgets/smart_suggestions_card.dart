@@ -10,12 +10,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/ui_constants.dart';
-import '../../models/shopping_list.dart';
-import '../../models/smart_suggestion.dart';
-import '../../models/unified_list_item.dart';
-import '../../providers/shopping_lists_provider.dart';
-import '../../providers/suggestions_provider.dart';
+import '../../../../core/ui_constants.dart';
+import '../../../../models/shopping_list.dart';
+import '../../../../models/smart_suggestion.dart';
+import '../../../../models/unified_list_item.dart';
+import '../../../../providers/shopping_lists_provider.dart';
+import '../../../../providers/suggestions_provider.dart';
 
 class SmartSuggestionsCard extends StatefulWidget {
   const SmartSuggestionsCard({super.key});

@@ -18,13 +18,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:memozap/core/ui_constants.dart';
-import 'package:memozap/l10n/app_strings.dart';
-import 'package:memozap/layout/app_layout.dart';
-import 'package:memozap/screens/home/home_dashboard_screen.dart';
-import 'package:memozap/screens/pantry/my_pantry_screen.dart';
-import 'package:memozap/screens/settings/settings_screen.dart';
-import 'package:memozap/screens/shopping/shopping_lists_screen.dart';
+import '../core/ui_constants.dart';
+import '../l10n/app_strings.dart';
+import '../layout/app_layout.dart';
+import 'home/dashboard/home_dashboard_screen.dart';
+import 'pantry/my_pantry_screen.dart';
+import 'settings/settings_screen.dart';
+import 'shopping/lists/shopping_lists_screen.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
