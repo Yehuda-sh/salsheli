@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/smart_suggestion.dart';
-import '../models/enums/suggestion_status.dart';
 import '../services/suggestions_service.dart';
 import 'inventory_provider.dart';
 

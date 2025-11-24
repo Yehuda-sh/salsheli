@@ -1,0 +1,477 @@
+{
+  "demo_users": [
+    {
+      "user": {
+        "id": "user_001_demo",
+        "name": "שרה כהן",
+        "email": "sarah.cohen@demo.memozap.com",
+        "household_id": "household_cohen_family",
+        "profile_image_url": null,
+        "joined_at": "2025-01-15T08:30:00Z",
+        "last_login_at": "2025-11-24T09:15:00Z",
+        "preferred_stores": ["רמי לוי", "שופרסל"],
+        "favorite_products": ["7290000001012", "7290000002019", "7290000003023"],
+        "weekly_budget": 800.0,
+        "is_admin": true
+      },
+      "household": {
+        "id": "household_cohen_family",
+        "name": "משפחת כהן",
+        "members": ["user_001_demo", "user_002_demo"],
+        "created_at": "2025-01-15T08:30:00Z"
+      },
+      "shopping_lists": [
+        {
+          "id": "list_cohen_001",
+          "name": "קניות השבוע",
+          "created_by": "user_001_demo",
+          "household_id": "household_cohen_family",
+          "type": "supermarket",
+          "status": "active",
+          "format": "shared",
+          "is_shared": true,
+          "shared_with": ["user_002_demo"],
+          "budget": 500.0,
+          "event_date": null,
+          "target_date": "2025-11-27T18:00:00Z",
+          "created_date": "2025-11-20T10:00:00Z",
+          "updated_date": "2025-11-24T09:15:00Z",
+          "created_from_template": false,
+          "template_id": null,
+          "items": [
+            {
+              "id": "item_001",
+              "name": "חלב 3%",
+              "type": "product",
+              "quantity": 4,
+              "unit": "יח'",
+              "unit_price": 6.5,
+              "category": "מוצרי חלב",
+              "is_checked": true,
+              "barcode": "7290000001012"
+            },
+            {
+              "id": "item_002",
+              "name": "לחם פרוס",
+              "type": "product",
+              "quantity": 2,
+              "unit": "יח'",
+              "unit_price": 8.9,
+              "category": "מאפים",
+              "is_checked": true,
+              "barcode": "7290000002019"
+            },
+            {
+              "id": "item_003",
+              "name": "עגבניות שרי",
+              "type": "product",
+              "quantity": 1,
+              "unit": "ק''ג",
+              "unit_price": 12.9,
+              "category": "פירות וירקות",
+              "is_checked": false
+            },
+            {
+              "id": "item_004",
+              "name": "תפוחים אדומים",
+              "type": "product",
+              "quantity": 2,
+              "unit": "ק''ג",
+              "unit_price": 9.9,
+              "category": "פירות וירקות",
+              "is_checked": false
+            }
+          ],
+          "active_shoppers": [
+            {
+              "user_id": "user_001_demo",
+              "joined_at": "2025-11-24T09:00:00Z",
+              "is_starter": true
+            }
+          ],
+          "shared_users": [
+            {
+              "user_id": "user_002_demo",
+              "role": "editor",
+              "shared_at": "2025-11-20T10:05:00Z"
+            }
+          ],
+          "pending_requests": []
+        }
+      ],
+      "inventory": [
+        {
+          "id": "inv_cohen_001",
+          "product_name": "חלב 3%",
+          "category": "מוצרי חלב",
+          "location": "מקרר",
+          "quantity": 2,
+          "unit": "יח'"
+        },
+        {
+          "id": "inv_cohen_002",
+          "product_name": "גבינה לבנה 5%",
+          "category": "מוצרי חלב",
+          "location": "מקרר",
+          "quantity": 1,
+          "unit": "יח'"
+        },
+        {
+          "id": "inv_cohen_003",
+          "product_name": "ביצים L",
+          "category": "מוצרי חלב",
+          "location": "מקרר",
+          "quantity": 8,
+          "unit": "יח'"
+        },
+        {
+          "id": "inv_cohen_004",
+          "product_name": "אורז לבן",
+          "category": "דגנים",
+          "location": "ארון",
+          "quantity": 1,
+          "unit": "ק''ג"
+        }
+      ],
+      "smart_suggestions": [
+        {
+          "id": "sug_cohen_001",
+          "product_id": "inv_cohen_001",
+          "product_name": "חלב 3%",
+          "category": "מוצרי חלב",
+          "current_stock": 2,
+          "threshold": 6,
+          "quantity_needed": 4,
+          "unit": "יח'",
+          "status": "added",
+          "suggested_at": "2025-11-20T08:00:00Z",
+          "dismissed_until": null,
+          "added_at": "2025-11-20T10:01:00Z",
+          "added_to_list_id": "list_cohen_001"
+        },
+        {
+          "id": "sug_cohen_002",
+          "product_id": "inv_cohen_003",
+          "product_name": "ביצים L",
+          "category": "מוצרי חלב",
+          "current_stock": 8,
+          "threshold": 12,
+          "quantity_needed": 4,
+          "unit": "יח'",
+          "status": "pending",
+          "suggested_at": "2025-11-24T07:00:00Z",
+          "dismissed_until": null,
+          "added_at": null,
+          "added_to_list_id": null
+        }
+      ]
+    },
+    {
+      "user": {
+        "id": "user_002_demo",
+        "name": "דוד כהן",
+        "email": "david.cohen@demo.memozap.com",
+        "household_id": "household_cohen_family",
+        "profile_image_url": null,
+        "joined_at": "2025-01-15T09:00:00Z",
+        "last_login_at": "2025-11-23T20:45:00Z",
+        "preferred_stores": ["רמי לוי"],
+        "favorite_products": ["7290000004030"],
+        "weekly_budget": 0.0,
+        "is_admin": false
+      }
+    },
+    {
+      "user": {
+        "id": "user_003_demo",
+        "name": "מיכל לוי",
+        "email": "michal.levi@demo.memozap.com",
+        "household_id": "household_levi_single",
+        "profile_image_url": null,
+        "joined_at": "2025-02-10T12:00:00Z",
+        "last_login_at": "2025-11-24T07:30:00Z",
+        "preferred_stores": ["שופרסל", "ויקטורי"],
+        "favorite_products": ["7290000005040", "7290000006057"],
+        "weekly_budget": 400.0,
+        "is_admin": true
+      },
+      "household": {
+        "id": "household_levi_single",
+        "name": "בית של מיכל",
+        "members": ["user_003_demo"],
+        "created_at": "2025-02-10T12:00:00Z"
+      },
+      "shopping_lists": [
+        {
+          "id": "list_levi_001",
+          "name": "קניית ערב שבת",
+          "created_by": "user_003_demo",
+          "household_id": "household_levi_single",
+          "type": "supermarket",
+          "status": "active",
+          "format": "personal",
+          "is_shared": false,
+          "shared_with": [],
+          "budget": 300.0,
+          "event_date": "2025-11-29T18:00:00Z",
+          "target_date": "2025-11-28T16:00:00Z",
+          "created_date": "2025-11-24T07:30:00Z",
+          "updated_date": "2025-11-24T07:35:00Z",
+          "created_from_template": false,
+          "template_id": null,
+          "items": [
+            {
+              "id": "item_levi_001",
+              "name": "חלה גדולה",
+              "type": "product",
+              "quantity": 2,
+              "unit": "יח'",
+              "unit_price": 12.0,
+              "category": "מאפים",
+              "is_checked": false
+            },
+            {
+              "id": "item_levi_002",
+              "name": "יין אדום מרלו",
+              "type": "product",
+              "quantity": 1,
+              "unit": "בקבוק",
+              "unit_price": 35.0,
+              "category": "משקאות אלכוהוליים",
+              "is_checked": false
+            },
+            {
+              "id": "item_levi_003",
+              "name": "להזמין פרחים",
+              "type": "task",
+              "quantity": 1,
+              "unit": "יח'",
+              "unit_price": 0.0,
+              "category": "משימות",
+              "is_checked": false
+            }
+          ],
+          "active_shoppers": [],
+          "shared_users": [],
+          "pending_requests": []
+        }
+      ],
+      "inventory": [
+        {
+          "id": "inv_levi_001",
+          "product_name": "קפה נמס",
+          "category": "משקאות חמים",
+          "location": "ארון",
+          "quantity": 1,
+          "unit": "צנצנת"
+        },
+        {
+          "id": "inv_levi_002",
+          "product_name": "סוכר",
+          "category": "מתוק",
+          "location": "ארון",
+          "quantity": 0,
+          "unit": "ק''ג"
+        },
+        {
+          "id": "inv_levi_003",
+          "product_name": "שמן זית",
+          "category": "שמנים",
+          "location": "ארון",
+          "quantity": 1,
+          "unit": "בקבוק"
+        }
+      ],
+      "smart_suggestions": [
+        {
+          "id": "sug_levi_001",
+          "product_id": "inv_levi_002",
+          "product_name": "סוכר",
+          "category": "מתוק",
+          "current_stock": 0,
+          "threshold": 1,
+          "quantity_needed": 1,
+          "unit": "ק''ג",
+          "status": "pending",
+          "suggested_at": "2025-11-24T07:00:00Z",
+          "dismissed_until": null,
+          "added_at": null,
+          "added_to_list_id": null
+        }
+      ]
+    },
+    {
+      "user": {
+        "id": "user_004_demo",
+        "name": "אביב מזרחי",
+        "email": "aviv.mizrahi@demo.memozap.com",
+        "household_id": "household_mizrahi_family",
+        "profile_image_url": null,
+        "joined_at": "2025-03-05T14:20:00Z",
+        "last_login_at": "2025-11-24T10:00:00Z",
+        "preferred_stores": ["מגה בעיר", "שופרסל דיל"],
+        "favorite_products": [],
+        "weekly_budget": 1200.0,
+        "is_admin": true
+      },
+      "household": {
+        "id": "household_mizrahi_family",
+        "name": "משפחת מזרחי",
+        "members": ["user_004_demo", "user_005_demo"],
+        "created_at": "2025-03-05T14:20:00Z"
+      },
+      "shopping_lists": [
+        {
+          "id": "list_mizrahi_001",
+          "name": "מסיבת יום הולדת",
+          "created_by": "user_004_demo",
+          "household_id": "household_mizrahi_family",
+          "type": "supermarket",
+          "status": "completed",
+          "format": "shared",
+          "is_shared": true,
+          "shared_with": ["user_005_demo"],
+          "budget": 600.0,
+          "event_date": "2025-11-20T17:00:00Z",
+          "target_date": "2025-11-19T12:00:00Z",
+          "created_date": "2025-11-15T09:00:00Z",
+          "updated_date": "2025-11-19T15:30:00Z",
+          "created_from_template": false,
+          "template_id": null,
+          "items": [
+            {
+              "id": "item_mizrahi_001",
+              "name": "עוגת יום הולדת",
+              "type": "product",
+              "quantity": 1,
+              "unit": "יח'",
+              "unit_price": 120.0,
+              "category": "מאפים",
+              "is_checked": true
+            },
+            {
+              "id": "item_mizrahi_002",
+              "name": "משקאות קלים",
+              "type": "product",
+              "quantity": 6,
+              "unit": "בקבוקים",
+              "unit_price": 5.5,
+              "category": "משקאות",
+              "is_checked": true
+            },
+            {
+              "id": "item_mizrahi_003",
+              "name": "צ'יפס",
+              "type": "product",
+              "quantity": 4,
+              "unit": "שקיות",
+              "unit_price": 7.9,
+              "category": "חטיפים",
+              "is_checked": true
+            }
+          ],
+          "active_shoppers": [],
+          "shared_users": [
+            {
+              "user_id": "user_005_demo",
+              "role": "editor",
+              "shared_at": "2025-11-15T09:05:00Z"
+            }
+          ],
+          "pending_requests": []
+        },
+        {
+          "id": "list_mizrahi_002",
+          "name": "קניות חודשיות",
+          "created_by": "user_004_demo",
+          "household_id": "household_mizrahi_family",
+          "type": "supermarket",
+          "status": "active",
+          "format": "shared",
+          "is_shared": true,
+          "shared_with": ["user_005_demo"],
+          "budget": 1000.0,
+          "event_date": null,
+          "target_date": null,
+          "created_date": "2025-11-22T08:00:00Z",
+          "updated_date": "2025-11-24T10:00:00Z",
+          "created_from_template": false,
+          "template_id": null,
+          "items": [
+            {
+              "id": "item_mizrahi_004",
+              "name": "שמן קנולה",
+              "type": "product",
+              "quantity": 2,
+              "unit": "בקבוקים",
+              "unit_price": 18.9,
+              "category": "שמנים",
+              "is_checked": false
+            },
+            {
+              "id": "item_mizrahi_005",
+              "name": "קמח לבן",
+              "type": "product",
+              "quantity": 3,
+              "unit": "ק''ג",
+              "unit_price": 6.5,
+              "category": "דגנים",
+              "is_checked": false
+            }
+          ],
+          "active_shoppers": [],
+          "shared_users": [
+            {
+              "user_id": "user_005_demo",
+              "role": "admin",
+              "shared_at": "2025-11-22T08:02:00Z"
+            }
+          ],
+          "pending_requests": []
+        }
+      ],
+      "inventory": [
+        {
+          "id": "inv_mizrahi_001",
+          "product_name": "קטשופ",
+          "category": "רטבים",
+          "location": "ארון",
+          "quantity": 3,
+          "unit": "יח'"
+        },
+        {
+          "id": "inv_mizrahi_002",
+          "product_name": "מיונז",
+          "category": "רטבים",
+          "location": "מקרר",
+          "quantity": 2,
+          "unit": "יח'"
+        },
+        {
+          "id": "inv_mizrahi_003",
+          "product_name": "טונה בשמן",
+          "category": "שימורים",
+          "location": "ארון",
+          "quantity": 4,
+          "unit": "קופסאות"
+        }
+      ],
+      "smart_suggestions": []
+    },
+    {
+      "user": {
+        "id": "user_005_demo",
+        "name": "נועה מזרחי",
+        "email": "noa.mizrahi@demo.memozap.com",
+        "household_id": "household_mizrahi_family",
+        "profile_image_url": null,
+        "joined_at": "2025-03-05T15:00:00Z",
+        "last_login_at": "2025-11-24T08:20:00Z",
+        "preferred_stores": ["שופרסל"],
+        "favorite_products": ["7290000007064"],
+        "weekly_budget": 0.0,
+        "is_admin": false
+      }
+    }
+  ]
+}

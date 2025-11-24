@@ -9,8 +9,6 @@
 //     - task: Task to do (book DJ, rent photographer, etc.)
 //
 
-import 'package:json_annotation/json_annotation.dart';
-
 /// 🇮🇱 סוגי פריטים ברשימה
 /// 🇬🇧 Item types in list
 enum ItemType {

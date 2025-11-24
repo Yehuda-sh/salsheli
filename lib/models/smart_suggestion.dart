@@ -25,7 +25,6 @@ import 'package:json_annotation/json_annotation.dart';
 import 'enums/suggestion_status.dart';
 import 'timestamp_converter.dart';
 import 'unified_list_item.dart';
-import 'enums/item_type.dart';
 
 part 'smart_suggestion.g.dart';
 

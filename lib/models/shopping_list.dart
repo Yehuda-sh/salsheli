@@ -29,7 +29,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
-import 'receipt.dart';
 import 'unified_list_item.dart';
 import 'enums/item_type.dart';
 import 'timestamp_converter.dart';
