@@ -50,6 +50,7 @@ import 'screens/main_navigation_screen.dart';
 import 'screens/onboarding/onboarding_screen.dart';
 import 'screens/pantry/my_pantry_screen.dart';
 import 'screens/shopping/active/active_shopping_screen.dart';
+import 'screens/shopping/create/create_list_screen.dart';
 import 'screens/shopping/details/shopping_list_details_screen.dart';
 import 'screens/shopping/lists/shopping_lists_screen.dart';
 import 'screens/shopping/shopping_summary_screen.dart';
@@ -277,6 +278,7 @@ class _MyAppState extends State<MyApp> {
             '/inventory': (context) => const MyPantryScreen(), // alias for pantry
 
             '/shopping-lists': (context) => const ShoppingListsScreen(),
+            '/create-list': (context) => const CreateListScreen(),
           },
           onGenerateRoute: (settings) {
             // shopping-summary - receives listId

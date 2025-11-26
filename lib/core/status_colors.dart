@@ -25,10 +25,10 @@
 // backgroundColor: StatusColors.successOverlay
 // ```
 //
-// Version: 2.4 - Actively used in 6 files
-// Last Updated: 03/11/2025
+// Version: 2.5 - Actively used in 6 files
+// Last Updated: 26/11/2025
 // Files: shopping_item_status, active_shopping_screen, shopping_summary_screen,
-//        create_list_dialog, shopping_list_tile, status_colors (self-reference)
+//        create_list_screen, shopping_list_tile, status_colors (self-reference)
 
 import 'package:flutter/material.dart';
 
@@ -43,7 +43,7 @@ import 'package:flutter/material.dart';
 ///
 /// 📍 שימוש בפרויקט:
 /// - lib/widgets/shopping_list_tile.dart (סטטוס רשימות, דחיפות, borders, SnackBars)
-/// - lib/widgets/create_list_dialog.dart (SnackBars, error states)
+/// - lib/screens/shopping/create/create_list_screen.dart (SnackBars, error states)
 class StatusColors {
   // מניעת instances
   const StatusColors._();

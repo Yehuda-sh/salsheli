@@ -38,7 +38,6 @@ import '../../../providers/user_context.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/common/notebook_background.dart';
 import '../../../widgets/common/sticky_note.dart';
-import '../../../widgets/shopping/create_list_dialog.dart';
 import 'widgets/smart_suggestions_card.dart';
 import 'widgets/upcoming_shop_card.dart';
 
@@ -153,7 +152,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     )
                   else if (listsProvider.lists.isEmpty)
                     _ImprovedEmptyState(
-                      onCreateList: () => _showCreateListDialog(context),
+                      onCreateList: () => Navigator.pushNamed(context, '/create-list'),
                     )
                   else
                     _Content(allLists: listsProvider.lists),
@@ -162,108 +161,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  void _showCreateListDialog(BuildContext context) {
-    HapticFeedback.lightImpact().ignore(); // ✨ רטט קל
-    if (kDebugMode) {
-      debugPrint('🏠 HomeDashboard: פותח דיאלוג יצירת רשימה');
-    }
-    
-    final provider = context.read<ShoppingListsProvider>();
-    // ✅ שמירת scaffoldMessenger לפני async
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-
-    showDialog(
-      context: context,
-      builder: (dialogContext) => CreateListDialog(
-        onCreateList: (listData) async {
-          Navigator.of(dialogContext).pop();
-
-          final name = listData['name'] as String?;
-          final type = listData['type'] as String? ?? 'super';
-          final budget = listData['budget'] as double?;
-          final eventDate = listData['eventDate'] as DateTime?;
-
-          if (kDebugMode) {
-            debugPrint('🏠 HomeDashboard: יוצר רשימה "$name" (סוג: $type, תאריך: $eventDate)');
-          }
-
-          if (name != null && name.trim().isNotEmpty) {
-            try {
-              await provider.createList(
-                name: name, 
-                type: type, 
-                budget: budget,
-                eventDate: eventDate,
-              );
-              if (kDebugMode) {
-                debugPrint('   ✅ רשימה נוצרה בהצלחה');
-              }
-              
-              // ✅ שימוש ב-scaffoldMessenger שנשמר
-              if (mounted) {
-                HapticFeedback.lightImpact().ignore(); // ✨ רטט הצלחה
-                scaffoldMessenger.showSnackBar(
-                  SnackBar(
-                    content: Row(
-                      children: [
-                        const Icon(Icons.check_circle, color: Colors.white, size: 24),
-                        const SizedBox(width: kSpacingSmall),
-                        Expanded(
-                          child: Text(
-                            'הרשימה "$name" נוצרה בהצלחה ✨',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ],
-                    ),
-                    backgroundColor: Colors.green.shade700,
-                    duration: const Duration(seconds: 3),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(kBorderRadius),
-                    ),
-                  ),
-                );
-              }
-            } on Exception catch (e) {
-              if (kDebugMode) {
-                debugPrint('   ❌ שגיאה ביצירת רשימה: $e');
-              }
-              
-              if (mounted) {
-                HapticFeedback.heavyImpact().ignore(); // ✨ רטט חזק לשגיאה
-                scaffoldMessenger.showSnackBar(
-                  SnackBar(
-                    content: Row(
-                      children: [
-                        const Icon(Icons.error_outline, color: Colors.white, size: 24),
-                        const SizedBox(width: kSpacingSmall),
-                        Expanded(
-                          child: Text(
-                            AppStrings.home.createListError(e.toString()),
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ],
-                    ),
-                    backgroundColor: Colors.red.shade700,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(kBorderRadius),
-                    ),
-                    action: SnackBarAction(
-                      label: 'נסה שוב',
-                      textColor: Colors.white,
-                      onPressed: () => _showCreateListDialog(context),
-                    ),
-                  ),
-                );
-              }
-            }
-          }
-        },
       ),
     );
   }

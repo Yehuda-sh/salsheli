@@ -25,7 +25,6 @@ import '../../../widgets/common/notebook_background.dart';
 import '../../../widgets/common/skeleton_loader.dart';
 import '../../../widgets/common/sticky_button.dart';
 import '../../../widgets/common/sticky_note.dart';
-import '../../../widgets/shopping/create_list_dialog.dart';
 import '../../../widgets/shopping/shopping_list_tile.dart';
 import '../active/active_shopping_screen.dart';
 
@@ -153,7 +152,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
             HapticFeedback.mediumImpact();
 
             _fabController.forward().then((_) => _fabController.reverse());
-            _showCreateListDialog(context, provider);
+            Navigator.pushNamed(context, '/create-list');
           },
         ),
       ),
@@ -343,51 +342,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
   Widget _buildLoadingState() {
     debugPrint('⏳ _buildLoadingState()');
     return const SkeletonListView.listCards();
-  }
-
-  /// 📌 מציג דיאלוג ליצירת רשימה חדשה
-  void _showCreateListDialog(BuildContext context, ShoppingListsProvider provider) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => CreateListDialog(
-        onCreateList: (listData) async {
-          debugPrint('🔵 shopping_lists_screen: קיבל נתונים מהדיאלוג');
-
-          final name = listData['name'] as String?;
-          final type = listData['type'] as String? ?? 'super';
-          final budget = listData['budget'] as double?;
-
-          debugPrint('   name: $name, type: $type, budget: $budget');
-
-          if (name != null && name.isNotEmpty) {
-            try {
-              // שמירת navigators לפני async
-              final navigator = Navigator.of(context);
-              final dialogNavigator = Navigator.of(dialogContext, rootNavigator: true);
-
-              final newList = await provider.createList(name: name, type: type, budget: budget);
-
-              debugPrint('   ✅ רשימה נוצרה: ${newList.id}');
-
-              // ✅ בדיקת mounted לפני שימוש ב-context
-              if (!mounted) {
-                debugPrint('   ⚠️ widget לא mounted - מדלג');
-                return;
-              }
-
-              // סגור דיאלוג
-              dialogNavigator.pop();
-
-              debugPrint('   ➡️ ניווט ל-populate-list');
-              await navigator.pushNamed('/populate-list', arguments: newList);
-            } catch (e) {
-              debugPrint('   ❌ שגיאה ביצירת רשימה: $e');
-              rethrow;
-            }
-          }
-        },
-      ),
-    );
   }
 
   /// 📌 בונה את גוף המסך לפי מצב הטעינה / שגיאה / נתונים
@@ -841,7 +795,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
                 // ✨ Haptic feedback למשוב מישוש
                 HapticFeedback.mediumImpact();
 
-                _showCreateListDialog(context, provider);
+                Navigator.pushNamed(context, '/create-list');
               },
             ),
             const SizedBox(height: kSpacingLarge),

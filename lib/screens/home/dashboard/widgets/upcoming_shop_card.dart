@@ -4,52 +4,21 @@
 // - פישוט card ל-basics: שם + ספירה + כפתור
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../../../core/ui_constants.dart';
 import '../../../../models/shopping_list.dart';
-import '../../../../providers/shopping_lists_provider.dart';
 import '../../../../widgets/common/dashboard_card.dart';
-import '../../../../widgets/shopping/create_list_dialog.dart';
 
 class UpcomingShopCard extends StatelessWidget {
   final ShoppingList? list;
 
   const UpcomingShopCard({super.key, this.list});
 
-  /// הצגת דיאלוג ליצירת רשימה קניות חדשה
-  void _showCreateListDialog(BuildContext context) {
-    final provider = context.read<ShoppingListsProvider>();
-
-    showDialog(
-      context: context,
-      builder: (dialogContext) => CreateListDialog(
-        onCreateList: (Map<String, dynamic> listData) async {
-          Navigator.of(dialogContext).pop();
-
-          final name = listData['name'] as String?;
-          final type = listData['type'] as String? ?? 'super';
-          final budget = listData['budget'] as double?;
-          final eventDate = listData['eventDate'] as DateTime?;
-
-          if (name != null && name.trim().isNotEmpty) {
-            await provider.createList(
-              name: name,
-              type: type,
-              budget: budget,
-              eventDate: eventDate,
-            );
-          }
-        },
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return list == null
         ? _EmptyUpcomingCard(
-            onCreateList: () => _showCreateListDialog(context),
+            onCreateList: () => Navigator.pushNamed(context, '/create-list'),
           )
         : DashboardCard(
             title: 'הקנייה הקרובה',
