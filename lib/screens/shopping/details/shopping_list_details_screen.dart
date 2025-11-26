@@ -60,7 +60,6 @@ class ShoppingListDetailsScreen extends StatefulWidget {
 class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> with TickerProviderStateMixin {
   // 🔍 חיפוש וסינון
   String _searchQuery = '';
-  final bool _groupByCategory = false;
   String? _selectedCategory; // קטגוריה נבחרת לסינון
 
   // 🏷️ קטגוריות עם אימוג'י
@@ -576,7 +575,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                             ],
                           ),
                         )
-                      : _groupByCategory
+                      // 🏷️ קיבוץ אוטומטי מעל 10 פריטים
+                      : filteredItems.length >= 10
                       ? _buildGroupedList(filteredItems, theme)
                       : _buildFlatList(filteredItems, theme),
                 ),

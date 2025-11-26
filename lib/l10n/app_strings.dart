@@ -1108,6 +1108,9 @@ class _ShoppingListDetailsStrings {
   String get addProductTitle => 'הוספת מוצר';
   String get editProductTitle => 'עריכת מוצר';
   String get productNameLabel => 'שם מוצר';
+  String get brandLabel => 'חברה/מותג (אופציונלי)';
+  String get categoryLabel => 'קטגוריה';
+  String get selectCategory => 'בחר קטגוריה';
   String get quantityLabel => 'כמות';
   String get priceLabel => 'מחיר ליחידה';
 

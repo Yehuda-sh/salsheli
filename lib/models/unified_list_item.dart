@@ -103,6 +103,10 @@ class UnifiedListItem {
   /// 🇬🇧 Unit (products only)
   String? get unit => productData?['unit'] as String? ?? 'יח\'';
 
+  /// 🇮🇱 מותג/חברה (רק למוצרים)
+  /// 🇬🇧 Brand (products only)
+  String? get brand => productData?['brand'] as String?;
+
   /// 🇮🇱 מחיר כולל (כמות × מחיר ליחידה)
   /// 🇬🇧 Total price (quantity × unit price)
   double? get totalPrice {
@@ -151,6 +155,7 @@ class UnifiedListItem {
     required double unitPrice,
     String? barcode,
     String unit = 'יח\'',
+    String? brand,
     bool isChecked = false,
     String? category,
     String? notes,
@@ -171,6 +176,7 @@ class UnifiedListItem {
         'unitPrice': unitPrice,
         if (barcode != null) 'barcode': barcode,
         'unit': unit,
+        if (brand != null) 'brand': brand,
       },
       taskData: null,
       checkedBy: checkedBy,
