@@ -41,6 +41,7 @@ class ShoppingListTile extends StatelessWidget {
   final VoidCallback? onDelete;
   final Function(ShoppingList)? onRestore;
   final VoidCallback? onStartShopping;
+  final VoidCallback? onEdit;
 
   const ShoppingListTile({
     super.key,
@@ -49,6 +50,7 @@ class ShoppingListTile extends StatelessWidget {
     this.onDelete,
     this.onRestore,
     this.onStartShopping,
+    this.onEdit,
   });
 
   /// 🎨 אייקון לפי סוג הרשימה
@@ -238,83 +240,70 @@ class ShoppingListTile extends StatelessWidget {
     );
   }
 
+  /// 🗑️ הצגת דיאלוג אישור מחיקה
+  void _showDeleteConfirmation(BuildContext context) {
+    final messenger = ScaffoldMessenger.of(context);
+    final successColor = StatusColors.getStatusColor('success', context);
+    final errorColor = StatusColors.getStatusColor('error', context);
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('מחיקת רשימה'),
+        content: Text('האם למחוק את הרשימה "${list.name}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('ביטול'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+
+              debugPrint('🗑️ ShoppingListTile: מוחק רשימה "${list.name}" (${list.id})');
+
+              try {
+                final deletedList = list;
+                onDelete?.call();
+
+                messenger.showSnackBar(
+                  SnackBar(
+                    content: Text(AppStrings.shopping.listDeleted(deletedList.name)),
+                    backgroundColor: successColor,
+                    action: SnackBarAction(
+                      label: AppStrings.shopping.undoButton,
+                      onPressed: () {
+                        debugPrint('🔄 ShoppingListTile: Undo - משחזר רשימה "${deletedList.name}"');
+                        onRestore?.call(deletedList);
+                      },
+                    ),
+                    duration: const Duration(seconds: 5),
+                  ),
+                );
+              } catch (e) {
+                debugPrint('❌ שגיאה במחיקה: $e');
+                messenger.showSnackBar(
+                  SnackBar(
+                    content: Text(AppStrings.shopping.deleteError),
+                    backgroundColor: errorColor,
+                  ),
+                );
+              }
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('מחק'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final dateFormatted = DateFormat('dd/MM/yyyy – HH:mm').format(list.updatedDate);
 
-    return Dismissible(
-      key: Key(list.id),
-      direction: DismissDirection.endToStart,
-      background: Container(
-        alignment: AlignmentDirectional.centerEnd,
-        padding: const EdgeInsets.symmetric(horizontal: kButtonPaddingHorizontal),
-        color: Colors.redAccent,
-        child: const Icon(Icons.delete, color: Colors.white),
-      ),
-      confirmDismiss: (_) async {
-        // 🔒 Capture context references BEFORE any async operations
-        final messenger = ScaffoldMessenger.of(context);
-        final successColor = StatusColors.getStatusColor('success', context);
-        final errorColor = StatusColors.getStatusColor('error', context);
-
-        debugPrint('🗑️ ShoppingListTile.confirmDismiss: מוחק רשימה "${list.name}" (${list.id})');
-        debugPrint('   📊 סטטוס: ${list.status} | פריטים: ${list.items.length}');
-
-        try {
-          // ✅ שמירת כל הנתונים לפני מחיקה
-          final deletedList = list;
-
-          // ✅ מחיקה מיידית
-          onDelete?.call();
-          debugPrint('   ✅ onDelete() הופעל');
-
-          // ✅ הצגת Snackbar עם אפשרות Undo
-          messenger.showSnackBar(
-            SnackBar(
-              content: Text(AppStrings.shopping.listDeleted(deletedList.name)),
-              backgroundColor: successColor,
-              action: SnackBarAction(
-                label: AppStrings.shopping.undoButton,
-                onPressed: () {
-                  debugPrint('🔄 ShoppingListTile: Undo - משחזר רשימה "${deletedList.name}"');
-                  try {
-                    // ✅ שחזור הרשימה
-                    onRestore?.call(deletedList);
-                    debugPrint('   ✅ רשימה שוחזרה בהצלחה');
-                  } catch (e) {
-                    debugPrint('   ❌ שגיאה בשחזור: $e');
-                    messenger.showSnackBar(
-                      SnackBar(
-                        content: Text(AppStrings.shopping.restoreError),
-                        backgroundColor: errorColor,
-                      ),
-                    );
-                  }
-                },
-              ),
-              duration: const Duration(seconds: 5),
-            ),
-          );
-
-          // ✅ מאשר מחיקה מיידית (כבר מחקנו)
-          return true;
-        } catch (e) {
-          debugPrint('❌ ShoppingListTile.confirmDismiss: שגיאה במחיקה - $e');
-
-          // הצג הודעת שגיאה
-          messenger.showSnackBar(
-            SnackBar(
-              content: Text(AppStrings.shopping.deleteError),
-              backgroundColor: errorColor,
-            ),
-          );
-
-          // ביטול מחיקה
-          return false;
-        }
-      },
-      child: Material(
+    return Material(
         elevation: kCardElevation,
         borderRadius: BorderRadius.circular(kBorderRadius),
         child: Container(
@@ -397,7 +386,41 @@ class ShoppingListTile extends StatelessWidget {
                         ),
                     ],
                   ),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: PopupMenuButton<String>(
+                    icon: const Icon(Icons.more_vert),
+                    onSelected: (value) {
+                      switch (value) {
+                        case 'edit':
+                          onEdit?.call();
+                          break;
+                        case 'delete':
+                          _showDeleteConfirmation(context);
+                          break;
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 'edit',
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit, size: 20),
+                            SizedBox(width: 8),
+                            Text('עריכת רשימה'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'delete',
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete, size: 20, color: Colors.red),
+                            SizedBox(width: 8),
+                            Text('מחיקה', style: TextStyle(color: Colors.red)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
 
@@ -475,7 +498,6 @@ class ShoppingListTile extends StatelessWidget {
             ],
           ),
         ),
-      ),
     );
   }
 }

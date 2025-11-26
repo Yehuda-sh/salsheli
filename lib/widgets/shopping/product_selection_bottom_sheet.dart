@@ -52,7 +52,11 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
 
   ProductsProvider? _productsProvider;
   late UserContext _userContext;
-  bool _showFilters = false;
+  bool _showFilters = true;
+
+  // 📜 Scroll tracking for auto-hide filters
+  double _lastScrollOffset = 0;
+  bool _userToggledFilters = false; // אם המשתמש שינה ידנית
 
   // 🎬 Animation Controllers
   late AnimationController _fadeController;
@@ -103,6 +107,33 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
     if (mounted && _productsProvider != null) {
       _productsProvider!.loadProducts();
     }
+  }
+
+  /// 📜 טיפול בגלילה - הסתרה/הצגה אוטומטית של פילטרים
+  void _handleScrollNotification(ScrollNotification notification) {
+    if (notification is! ScrollUpdateNotification) return;
+
+    final currentOffset = notification.metrics.pixels;
+    final delta = currentOffset - _lastScrollOffset;
+
+    // סף מינימלי למניעת רעידות
+    if (delta.abs() < 5) return;
+
+    // גולל למטה - הסתר פילטרים
+    if (delta > 0 && _showFilters && currentOffset > 50) {
+      setState(() {
+        _showFilters = false;
+        _userToggledFilters = false;
+      });
+    }
+    // גולל למעלה או בראש הדף - הצג פילטרים
+    else if ((delta < 0 || currentOffset < 20) && !_showFilters && !_userToggledFilters) {
+      setState(() {
+        _showFilters = true;
+      });
+    }
+
+    _lastScrollOffset = currentOffset;
   }
 
   @override
@@ -346,7 +377,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                           ),
                         ),
 
-                        // 🎯 Filter Section
+                        // 🎯 Filter Section (כולל שדה חיפוש)
                         ProductFilterSection(
                           productsProvider: productsProvider,
                           list: widget.list,
@@ -354,39 +385,33 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                           onToggleFilters: () {
                             setState(() {
                               _showFilters = !_showFilters;
+                              _userToggledFilters = true; // המשתמש שינה ידנית
                             });
                           },
-                        ),
-
-                        // חיפוש
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
-                          child: TextField(
-                            controller: _searchController,
-                            onChanged: (value) => productsProvider.setSearchQuery(value.trim()),
-                            decoration: InputDecoration(
-                              hintText: AppStrings.priceComparison.searchHint,
-                              prefixIcon: const Icon(Icons.search),
-                              suffixIcon: _searchController.text.isNotEmpty
-                                  ? IconButton(
-                                      icon: const Icon(Icons.clear),
-                                      onPressed: () {
-                                        _searchController.clear();
-                                        productsProvider.clearSearch();
-                                      },
-                                    )
-                                  : null,
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(kBorderRadius)),
-                              filled: true,
-                              fillColor: cs.surfaceContainerHighest,
-                            ),
-                          ),
+                          searchController: _searchController,
+                          onSearchChanged: (value) {
+                            productsProvider.setSearchQuery(value.trim());
+                            setState(() {}); // לרענון כפתור ה-clear
+                          },
+                          onSearchClear: () {
+                            _searchController.clear();
+                            productsProvider.clearSearch();
+                            setState(() {});
+                          },
                         ),
 
                         const SizedBox(height: kSpacingSmall),
 
-                        // רשימת מוצרים
-                        Expanded(child: _buildProductsList(productsProvider, products, cs, scrollController)),
+                        // רשימת מוצרים עם מעקב גלילה
+                        Expanded(
+                          child: NotificationListener<ScrollNotification>(
+                            onNotification: (notification) {
+                              _handleScrollNotification(notification);
+                              return false;
+                            },
+                            child: _buildProductsList(productsProvider, products, cs, scrollController),
+                          ),
+                        ),
                       ],
                     ),
                   ),

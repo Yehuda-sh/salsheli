@@ -48,8 +48,6 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:memozap/providers/user_context.dart';
 import 'package:memozap/providers/shopping_lists_provider.dart';
-import 'package:memozap/providers/receipt_provider.dart';
-import 'package:memozap/providers/inventory_provider.dart';
 import 'package:memozap/providers/products_provider.dart';
 import 'package:memozap/models/shopping_list.dart';
 import 'package:memozap/l10n/app_strings.dart';
@@ -59,7 +57,6 @@ import 'package:memozap/widgets/common/notebook_background.dart';
 import 'package:memozap/widgets/common/sticky_note.dart';
 import 'package:memozap/widgets/common/sticky_button.dart';
 import 'package:memozap/widgets/common/skeleton_loading.dart';
-import 'package:memozap/widgets/common/tappable_card.dart';
 import 'package:memozap/screens/settings/manage_users_screen.dart';
 import 'package:memozap/tools/load_demo_data_screen.dart';
 
@@ -406,6 +403,218 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _loadSettings();
   }
 
+  /// רשימת אווטארים לבחירה
+  static const List<String> _avatarOptions = [
+    '👤', '👩', '👨', '👧', '👦', '👴', '👵',
+    '🧑‍🍳', '🛒', '🏠', '👨‍👩‍👧', '👨‍👩‍👧‍👦',
+    '🌟', '💜', '💚', '🧡', '💙', '❤️',
+  ];
+
+  /// Bottom Sheet לעריכת פרופיל
+  Future<void> _showEditProfileBottomSheet() async {
+    final userContext = context.read<UserContext>();
+    final currentName = userContext.user?.name ?? '';
+    final currentAvatar = userContext.user?.profileImageUrl ?? '👤';
+
+    final nameController = TextEditingController(text: currentName);
+    String selectedAvatar = _avatarOptions.contains(currentAvatar) ? currentAvatar : '👤';
+    bool isSaving = false;
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (bottomSheetContext) => StatefulBuilder(
+        builder: (context, setBottomSheetState) {
+          final cs = Theme.of(context).colorScheme;
+
+          return Container(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            decoration: BoxDecoration(
+              color: cs.surface,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(kSpacingLarge),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Handle bar
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: cs.onSurfaceVariant.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: kSpacingMedium),
+
+                  // כותרת
+                  Text(
+                    'עריכת פרופיל',
+                    style: TextStyle(
+                      fontSize: kFontSizeLarge,
+                      fontWeight: FontWeight.bold,
+                      color: cs.primary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: kSpacingLarge),
+
+                  // בחירת אווטאר
+                  Text(
+                    'בחר אווטאר:',
+                    style: TextStyle(
+                      fontSize: kFontSizeBody,
+                      fontWeight: FontWeight.w600,
+                      color: cs.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: kSpacingSmall),
+
+                  Wrap(
+                    spacing: kSpacingSmall,
+                    runSpacing: kSpacingSmall,
+                    alignment: WrapAlignment.center,
+                    children: _avatarOptions.map((avatar) {
+                      final isSelected = avatar == selectedAvatar;
+                      return GestureDetector(
+                        onTap: () {
+                          setBottomSheetState(() => selectedAvatar = avatar);
+                        },
+                        child: Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? cs.primary.withValues(alpha: 0.2)
+                                : cs.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(12),
+                            border: isSelected
+                                ? Border.all(color: cs.primary, width: 2)
+                                : null,
+                          ),
+                          child: Center(
+                            child: Text(
+                              avatar,
+                              style: const TextStyle(fontSize: 24),
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: kSpacingLarge),
+
+                  // שדה שם
+                  Text(
+                    'שם תצוגה:',
+                    style: TextStyle(
+                      fontSize: kFontSizeBody,
+                      fontWeight: FontWeight.w600,
+                      color: cs.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: kSpacingSmall),
+
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      hintText: 'הכנס את שמך',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(kBorderRadius),
+                      ),
+                      prefixIcon: const Icon(Icons.person_outline),
+                    ),
+                    maxLength: 30,
+                    textAlign: TextAlign.right,
+                    textDirection: TextDirection.rtl,
+                  ),
+                  const SizedBox(height: kSpacingLarge),
+
+                  // כפתורים
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: isSaving ? null : () => Navigator.pop(context),
+                          child: const Text('ביטול'),
+                        ),
+                      ),
+                      const SizedBox(width: kSpacingMedium),
+                      Expanded(
+                        flex: 2,
+                        child: FilledButton(
+                          onPressed: isSaving ? null : () async {
+                            final newName = nameController.text.trim();
+                            if (newName.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('נא להזין שם')),
+                              );
+                              return;
+                            }
+
+                            setBottomSheetState(() => isSaving = true);
+
+                            try {
+                              await userContext.updateUserProfile(
+                                name: newName,
+                                avatar: selectedAvatar,
+                              );
+
+                              if (mounted) {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('הפרופיל עודכן בהצלחה'),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              setBottomSheetState(() => isSaving = false);
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('שגיאה בעדכון: $e'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                          child: isSaving
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Text('שמור'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: kSpacingSmall),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+
+    nameController.dispose();
+  }
+
   /// ניהול חברים - מציג בחירת רשימה או ניווט ישיר
   Future<void> _manageMembers(BuildContext context) async {
     final listsProvider = context.read<ShoppingListsProvider>();
@@ -508,13 +717,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final cs = Theme.of(context).colorScheme;
     final userContext = context.watch<UserContext>();
     final listsProvider = context.watch<ShoppingListsProvider>();
-    final receiptsProvider = context.watch<ReceiptProvider>();
-    final inventoryProvider = context.watch<InventoryProvider>();
-
-    // חישוב סטטיסטיקות בזמן אמיתי
-    final activeLists = listsProvider.lists.where((l) => l.status != ShoppingList.statusCompleted).length;
-    final totalReceipts = receiptsProvider.receipts.length;
-    final pantryItems = inventoryProvider.items.length;
 
     // פרטי משתמש
     final userName = userContext.user?.name ?? AppStrings.home.guestUser;
@@ -595,7 +797,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         CircleAvatar(
                           radius: kAvatarRadius,
                           backgroundColor: cs.primary.withValues(alpha: 0.15),
-                          child: Icon(Icons.person, color: cs.primary, size: kIconSizeProfile),
+                          child: _avatarOptions.contains(userContext.user?.profileImageUrl)
+                              ? Text(
+                                  userContext.user!.profileImageUrl!,
+                                  style: const TextStyle(fontSize: 28),
+                                )
+                              : Icon(Icons.person, color: cs.primary, size: kIconSizeProfile),
                         ),
                         const SizedBox(width: kSpacingMedium),
                         Expanded(
@@ -628,56 +835,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             height: 44,
                             color: cs.primary,
                             textColor: Colors.white,
-                            onPressed: () {
-                              ScaffoldMessenger.of(
-                                context,
-                              ).showSnackBar(SnackBar(content: Text(AppStrings.settings.editProfileButton)));
-                            },
+                            onPressed: _showEditProfileBottomSheet,
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
-
-                const SizedBox(height: kSpacingMedium),
-
-                // 🔹 סטטיסטיקות מהירות
-                Row(
-                  children: [
-                    Expanded(
-                      child: _StatCard(
-                        color: Colors.amber,
-                        icon: Icons.shopping_cart_outlined,
-                        label: AppStrings.settings.statsActiveLists,
-                        value: activeLists,
-                      ),
-                    ),
-                    const SizedBox(width: kSpacingSmallPlus),
-                    Expanded(
-                      child: _StatCard(
-                        color: Colors.green,
-                        icon: Icons.receipt_long_outlined,
-                        label: AppStrings.settings.statsReceipts,
-                        value: totalReceipts,
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: kSpacingSmallPlus),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: _StatCard(
-                        color: Colors.blue,
-                        icon: Icons.inventory_2_outlined,
-                        label: AppStrings.settings.statsPantryItems,
-                        value: pantryItems,
-                      ),
-                    ),
-                  ],
                 ),
 
                 const SizedBox(height: kSpacingMedium),
@@ -992,16 +1155,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String _getTotalSharedUsersText(ShoppingListsProvider listsProvider) {
     final userContext = context.read<UserContext>();
     final currentUserId = userContext.userId;
-    
+
     // מציאת רשימות שהמשתמש הוא Owner שלהן
     final myOwnedLists = listsProvider.lists
         .where((list) => list.createdBy == currentUserId)
         .toList();
-    
+
     if (myOwnedLists.isEmpty) {
       return 'אין רשימות משותפות';
     }
-    
+
     // חישוב סה"כ משתמשים ייחודיים
     final Set<String> uniqueUsers = {};
     for (final list in myOwnedLists) {
@@ -1010,91 +1173,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         uniqueUsers.add(sharedUser.userId);
       }
     }
-    
+
     final totalUsers = uniqueUsers.length;
     final totalShared = totalUsers - 1; // בלי ה-Owner
-    
+
     if (totalShared == 0) {
       return 'אין חברים משותפים';
     }
-    
+
     return 'חברים: $totalShared ברשימות שלך';
-  }
-}
-
-// 🎨 Widget עזר - כרטיס סטטיסטיקה עם AnimatedCounter + SimpleTappableCard
-class _StatCard extends StatelessWidget {
-  final Color color;
-  final IconData icon;
-  final String label;
-  final int value;
-
-  const _StatCard({required this.color, required this.icon, required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Semantics(
-      label: '$label: $value',
-      child: SimpleTappableCard(
-        child: Card(
-          color: cs.surfaceContainerHighest,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadius)),
-          child: Padding(
-            padding: const EdgeInsets.all(kSpacingSmallPlus),
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(icon, color: color, size: kIconSizeMedium + 2),
-                ),
-                const SizedBox(width: kSpacingSmallPlus),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        label,
-                        style: const TextStyle(fontSize: kFontSizeTiny, color: Colors.grey),
-                      ),
-                      _AnimatedCounter(
-                        value: value,
-                        style: TextStyle(fontSize: kFontSizeLarge, color: color, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// 🎬 AnimatedCounter - ספירה מ-0 לערך האמיתי
-class _AnimatedCounter extends StatelessWidget {
-  final int value;
-  final TextStyle? style;
-
-  const _AnimatedCounter({required this.value, this.style});
-
-  @override
-  Widget build(BuildContext context) {
-    return TweenAnimationBuilder<int>(
-      tween: IntTween(begin: 0, end: value),
-      duration: const Duration(milliseconds: 800),
-      curve: Curves.easeOut,
-      builder: (context, value, child) {
-        return Text('$value', style: style);
-      },
-    );
   }
 }

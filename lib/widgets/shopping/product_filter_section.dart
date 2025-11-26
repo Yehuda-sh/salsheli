@@ -24,6 +24,9 @@ class ProductFilterSection extends StatefulWidget {
   final ShoppingList list;
   final bool showFilters;
   final VoidCallback onToggleFilters;
+  final TextEditingController searchController;
+  final ValueChanged<String> onSearchChanged;
+  final VoidCallback onSearchClear;
 
   const ProductFilterSection({
     super.key,
@@ -31,16 +34,22 @@ class ProductFilterSection extends StatefulWidget {
     required this.list,
     required this.showFilters,
     required this.onToggleFilters,
+    required this.searchController,
+    required this.onSearchChanged,
+    required this.onSearchClear,
   });
 
   @override
   State<ProductFilterSection> createState() => _ProductFilterSectionState();
 }
 
-class _ProductFilterSectionState extends State<ProductFilterSection> 
+class _ProductFilterSectionState extends State<ProductFilterSection>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _expandAnimation;
+  late ScrollController _scrollController;
+  bool _showLeftFade = false;
+  bool _showRightFade = true; // Start with right indicator visible
 
   @override
   void initState() {
@@ -54,9 +63,41 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
       curve: Curves.easeInOut,
     );
 
+    _scrollController = ScrollController();
+    _scrollController.addListener(_updateFadeIndicators);
+
     if (widget.showFilters) {
       _animationController.forward();
     }
+
+    // עדכון אינדיקטורים אחרי הבנייה הראשונית
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateFadeIndicators();
+    });
+  }
+
+  void _updateFadeIndicators() {
+    if (!_scrollController.hasClients) return;
+
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.offset;
+
+    // אם אין מה לגלול, לא מציגים אינדיקטורים
+    if (maxScroll <= 0) {
+      setState(() {
+        _showLeftFade = false;
+        _showRightFade = false;
+      });
+      return;
+    }
+
+    setState(() {
+      // LTR layout:
+      // - Left arrow shows when can scroll left (offset > 0)
+      // - Right arrow shows when can scroll right (offset < max)
+      _showLeftFade = currentScroll > 10;
+      _showRightFade = currentScroll < maxScroll - 10;
+    });
   }
 
   @override
@@ -74,6 +115,7 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
   @override
   void dispose() {
     _animationController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -84,22 +126,20 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
 
     return Column(
       children: [
-        // 🎯 Compact Filter & Stats Bar
+        // 🎯 Compact Filter & Stats Bar (כולל חיפוש)
         _buildStatsBar(context, theme),
-        
-        const SizedBox(height: kSpacingSmallPlus),
-        
-        // 🎯 Animated Filters Section
+
+        // 🎯 Animated Filters Section - רווח מינימלי
         AnimatedSize(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
           child: widget.showFilters && categories.isNotEmpty
-              ? _buildFilterCategories(context, theme, categories)
+              ? Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: _buildFilterCategories(context, theme, categories),
+                )
               : const SizedBox.shrink(),
         ),
-        
-        if (widget.showFilters && categories.isNotEmpty) 
-          const SizedBox(height: kSpacingTiny),
       ],
     );
   }
@@ -125,58 +165,86 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
       ),
       child: Row(
         children: [
-          // מספר מוצרים
-          _buildStatChip(
-            icon: Icons.inventory_2,
-            label: '${widget.productsProvider.filteredProductsCount} מוצרים',
-            color: kStickyPurple,
-          ),
-          
+          // כפתור הצגת/הסתרת פילטרים
+          _buildFilterToggleButton(theme),
+
           const SizedBox(width: 8),
-          
+
+          // שדה חיפוש
+          Expanded(
+            child: _buildSearchField(theme),
+          ),
+
           // קטגוריה נבחרת
           if (widget.productsProvider.selectedCategory != null) ...[
+            const SizedBox(width: 8),
             _buildSelectedCategoryChip(
               category: widget.productsProvider.selectedCategory!,
               onClear: () => widget.productsProvider.clearCategory(),
               theme: theme,
             ),
           ],
-          
-          const Spacer(),
-          
-          // כפתור הצגת/הסתרת פילטרים
-          _buildFilterToggleButton(theme),
         ],
       ),
     );
   }
 
-  Widget _buildStatChip({
-    required IconData icon,
-    required String label,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: color),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: color,
+  Widget _buildSearchField(ThemeData theme) {
+    return SizedBox(
+      height: 36,
+      child: TextField(
+        controller: widget.searchController,
+        onChanged: widget.onSearchChanged,
+        style: const TextStyle(fontSize: 14),
+        decoration: InputDecoration(
+          hintText: 'חפש מוצר...',
+          hintStyle: TextStyle(
+            fontSize: 14,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+          ),
+          prefixIcon: Icon(
+            Icons.search,
+            size: 20,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+          ),
+          prefixIconConstraints: const BoxConstraints(minWidth: 36),
+          suffixIcon: widget.searchController.text.isNotEmpty
+              ? IconButton(
+                  icon: Icon(
+                    Icons.clear,
+                    size: 18,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
+                  onPressed: widget.onSearchClear,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 32),
+                )
+              : null,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(18),
+            borderSide: BorderSide(
+              color: theme.colorScheme.outline.withValues(alpha: 0.3),
+              width: 1,
             ),
           ),
-        ],
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(18),
+            borderSide: BorderSide(
+              color: theme.colorScheme.outline.withValues(alpha: 0.3),
+              width: 1,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(18),
+            borderSide: BorderSide(
+              color: kStickyPurple,
+              width: 1.5,
+            ),
+          ),
+          filled: true,
+          fillColor: theme.colorScheme.surface,
+        ),
       ),
     );
   }
@@ -221,9 +289,11 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
       onTap: widget.onToggleFilters,
       borderRadius: BorderRadius.circular(20),
       child: Container(
-        padding: const EdgeInsets.all(6),
+        padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
+          color: widget.showFilters
+              ? kStickyPurple.withValues(alpha: 0.15)
+              : theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -237,8 +307,8 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
           turns: widget.showFilters ? 0.5 : 0,
           duration: const Duration(milliseconds: 300),
           child: Icon(
-            Icons.tune,
-            size: 18,
+            widget.showFilters ? Icons.expand_less : Icons.expand_more,
+            size: 22,
             color: widget.showFilters
                 ? kStickyPurple
                 : theme.colorScheme.onSurface.withValues(alpha: 0.6),
@@ -314,24 +384,59 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
                 const SizedBox(height: 4),
               ],
               
-              // רשימת הקטגוריות
-              Wrap(
-                spacing: 5,
-                runSpacing: 5,
-                children: [
-                  // כפתור "הכל"
-                  _buildModernFilterChip(
-                    label: 'הכל',
-                    count: widget.productsProvider.filteredProductsCount,
-                    isSelected: widget.productsProvider.selectedCategory == null,
-                    onTap: () => widget.productsProvider.clearCategory(),
-                    emoji: widget.list.typeEmoji, // ✅ שימוש ב-getter מהמודל
-                    color: kStickyPurple,
-                  ),
-                  
-                  // שאר הקטגוריות
-                  ...categories.map((category) => _buildCategoryChip(category)),
-                ],
+              // רשימת הקטגוריות - גלילה אופקית
+              SizedBox(
+                height: 40,
+                child: Stack(
+                  children: [
+                    // רשימת הקטגוריות עם גלילה
+                    SingleChildScrollView(
+                      controller: _scrollController,
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      child: Row(
+                        children: [
+                          // כפתור "הכל" (ללא מספר מוצרים)
+                          _buildModernFilterChip(
+                            label: 'הכל',
+                            count: null,
+                            isSelected: widget.productsProvider.selectedCategory == null,
+                            onTap: () => widget.productsProvider.clearCategory(),
+                            emoji: widget.list.typeEmoji,
+                            color: kStickyPurple,
+                            theme: theme,
+                          ),
+                          const SizedBox(width: 6),
+                          // שאר הקטגוריות
+                          ...categories.map((category) => Padding(
+                            padding: const EdgeInsets.only(left: 6),
+                            child: _buildCategoryChip(category, theme),
+                          )),
+                          // רווח בסוף לאינדיקטור
+                          const SizedBox(width: 24),
+                        ],
+                      ),
+                    ),
+
+                    // אינדיקטור גלילה שמאלי (יש עוד תוכן משמאל)
+                    if (_showLeftFade)
+                      Positioned(
+                        left: 0,
+                        top: 0,
+                        bottom: 0,
+                        child: _buildScrollIndicator(isLeft: true, theme: theme),
+                      ),
+
+                    // אינדיקטור גלילה ימני (יש עוד תוכן מימין)
+                    if (_showRightFade)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        bottom: 0,
+                        child: _buildScrollIndicator(isLeft: false, theme: theme),
+                      ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -341,13 +446,43 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
   }
 
 
-  Widget _buildCategoryChip(String category) {
+  Widget _buildScrollIndicator({required bool isLeft, required ThemeData theme}) {
+    return Container(
+      width: 28,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: isLeft ? Alignment.centerLeft : Alignment.centerRight,
+          end: isLeft ? Alignment.centerRight : Alignment.centerLeft,
+          colors: [
+            theme.colorScheme.surfaceContainerHighest,
+            theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0),
+          ],
+        ),
+      ),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: kStickyPurple.withValues(alpha: 0.15),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            isLeft ? Icons.chevron_left : Icons.chevron_right,
+            size: 16,
+            color: kStickyPurple,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryChip(String category, ThemeData theme) {
     final count = widget.productsProvider.productsByCategory[category] ?? 0;
     final isSelected = widget.productsProvider.selectedCategory == category;
-    
+
     final emoji = _getCategoryEmoji(category);
     final color = _getCategoryColor(category);
-    
+
     return _buildModernFilterChip(
       label: category,
       count: count,
@@ -355,17 +490,21 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
       onTap: () => widget.productsProvider.setCategory(category),
       emoji: emoji,
       color: color,
+      theme: theme,
     );
   }
 
   Widget _buildModernFilterChip({
     required String label,
-    required int count,
+    int? count,
     required bool isSelected,
     required VoidCallback onTap,
     required String emoji,
     required Color color,
+    required ThemeData theme,
   }) {
+    final colorScheme = theme.colorScheme;
+
     return AnimatedScale(
       scale: isSelected ? 1.03 : 1.0,
       duration: const Duration(milliseconds: 150),
@@ -388,12 +527,12 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
                       end: Alignment.bottomRight,
                     )
                   : null,
-              color: isSelected ? null : Theme.of(context).colorScheme.surface,
+              color: isSelected ? null : colorScheme.surface,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isSelected 
-                    ? color 
-                    : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                color: isSelected
+                    ? color
+                    : colorScheme.outline.withValues(alpha: 0.3),
                 width: isSelected ? 2 : 1,
               ),
               boxShadow: [
@@ -418,26 +557,27 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
                     color: isSelected ? color : null,
                   ),
                 ),
-                const SizedBox(width: 4),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? color.withValues(alpha: 0.2)
-                        : Theme.of(context).colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    count.toString(),
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: isSelected 
-                          ? color
-                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                // מציג מספר רק אם יש ערך
+                if (count != null) ...[
+                  const SizedBox(width: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? color.withValues(alpha: 0.2)
+                          : colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      count.toString(),
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: isSelected ? color : colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
-                ),
+                ],
               ],
             ),
           ),
@@ -466,25 +606,97 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
           return '🌭';
       }
     }
-    
-    // כללי
-    switch (category.toLowerCase()) {
-      case 'חלב וביצים':
-        return '🥛';
-      case 'פירות וירקות':
+
+    // סופרמרקט - כל הקטגוריות
+    switch (category) {
+      // פירות וירקות
+      case 'פירות':
+        return '🍎';
+      case 'ירקות':
         return '🥬';
+      case 'פירות יבשים':
+        return '🥜';
+
+      // מוצרי חלב וביצים
+      case 'מוצרי חלב':
+        return '🥛';
+      case 'תחליפי חלב':
+        return '🌱';
+
+      // בשר ודגים
       case 'בשר ודגים':
         return '🥩';
+      case 'תחליפי בשר':
+        return '🌿';
+
+      // לחם ומאפים
+      case 'מאפים':
+        return '🥖';
+
+      // דגנים ופסטה
+      case 'אורז ופסטה':
+        return '🍝';
+      case 'דגנים':
+        return '🥣';
+      case 'קטניות ודגנים':
+        return '🫘';
+
+      // ממתקים וחטיפים
+      case 'ממתקים וחטיפים':
+        return '🍫';
+      case 'ממרחים מתוקים':
+        return '🍯';
+      case 'אגוזים וגרעינים':
+        return '🥜';
+
+      // משקאות
       case 'משקאות':
         return '🥤';
-      case 'ניקיון':
+      case 'קפה ותה':
+        return '☕';
+
+      // שימורים ורטבים
+      case 'שימורים':
+        return '🥫';
+      case 'שמנים ורטבים':
+        return '🫒';
+      case 'סלטים מוכנים':
+        return '🥗';
+
+      // תבלינים ואפייה
+      case 'תבלינים ואפייה':
+        return '🧂';
+
+      // קפואים
+      case 'קפואים':
+        return '🧊';
+
+      // ניקיון ובית
+      case 'מוצרי ניקיון':
         return '🧹';
-      case 'טיפוח':
-        return '💄';
+      case 'מוצרי בית':
+        return '🏠';
+      case 'חד פעמי':
+        return '🍽️';
+      case 'מוצרי גינה':
+        return '🌻';
+
+      // היגיינה וטיפוח
+      case 'היגיינה אישית':
+        return '🧴';
+
+      // תינוקות וחיות
       case 'מוצרי תינוקות':
         return '👶';
-      default:
+      case 'מזון לחיות מחמד':
+        return '🐕';
+
+      // אחר
+      case 'אחר':
         return '📦';
+
+      default:
+        return '🛒';
     }
   }
 

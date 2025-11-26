@@ -101,7 +101,22 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
   // Helper: מחזיר שם תצוגה (תמיד String, לא nullable)
   String _getDisplayName(SharedUser user) {
-    return user.userName ?? user.userId;
+    // אם יש userName - השתמש בו
+    if (user.userName != null && user.userName!.isNotEmpty) {
+      return user.userName!;
+    }
+
+    // אם זה המשתמש הנוכחי - קח את השם מ-UserContext
+    final userContext = context.read<UserContext>();
+    if (user.userId == userContext.userId) {
+      return userContext.displayName ?? 'אני';
+    }
+
+    // ברירת מחדל - הצג "משתמש" עם 4 תווים אחרונים של ה-ID
+    final shortId = user.userId.length > 4
+        ? user.userId.substring(user.userId.length - 4)
+        : user.userId;
+    return 'משתמש #$shortId';
   }
 
   Future<void> _removeUser(SharedUser user) async {
@@ -439,7 +454,9 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   }
 
   Widget _buildUserCard(SharedUser user, bool isOwner) {
+    final userContext = context.read<UserContext>();
     final isUserOwner = user.role == UserRole.owner;
+    final isCurrentUser = user.userId == userContext.userId;
     final displayName = _getDisplayName(user);
 
     return Card(
@@ -455,12 +472,34 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             style: const TextStyle(fontSize: 24),
           ),
         ),
-        title: Text(
-          displayName,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                displayName,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            if (isCurrentUser)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: kStickyGreen.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  'אתה',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.green,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+          ],
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

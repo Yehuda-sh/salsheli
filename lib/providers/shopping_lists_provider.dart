@@ -55,6 +55,7 @@ import '../models/receipt.dart';
 import '../models/shopping_list.dart';
 import '../models/unified_list_item.dart';
 import '../models/enums/item_type.dart';
+import '../models/enums/user_role.dart';
 import '../models/active_shopper.dart';
 import '../repositories/shopping_lists_repository.dart';
 import '../repositories/receipt_repository.dart';
@@ -109,6 +110,37 @@ class ShoppingListsProvider with ChangeNotifier {
     return _lists
         .where((list) => list.updatedDate.isAfter(cutoff))
         .toList();
+  }
+
+  // === חישוב הרשאות משתמש ===
+
+  /// מעשיר רשימות עם currentUserRole לפי המשתמש הנוכחי
+  List<ShoppingList> _enrichListsWithUserRole(List<ShoppingList> lists) {
+    final currentUserId = _userContext?.user?.id;
+    if (currentUserId == null) return lists;
+
+    return lists.map((list) {
+      final role = _calculateUserRole(list, currentUserId);
+      return list.copyWith(currentUserRole: role);
+    }).toList();
+  }
+
+  /// מחשב את ה-role של משתמש ברשימה מסוימת
+  UserRole _calculateUserRole(ShoppingList list, String userId) {
+    // 1. בדוק אם המשתמש הוא היוצר (Owner)
+    if (list.createdBy == userId) {
+      return UserRole.owner;
+    }
+
+    // 2. חפש ב-sharedUsers
+    for (final sharedUser in list.sharedUsers) {
+      if (sharedUser.userId == userId) {
+        return sharedUser.role;
+      }
+    }
+
+    // 3. ברירת מחדל - Viewer (אם נמצא ברשימה אבל לא ב-sharedUsers)
+    return UserRole.viewer;
   }
 
   // === חיבור UserContext ===
@@ -182,7 +214,9 @@ class ShoppingListsProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      _lists = await _repository.fetchLists(householdId);
+      final fetchedLists = await _repository.fetchLists(householdId);
+      // 🔑 חישוב currentUserRole לכל רשימה
+      _lists = _enrichListsWithUserRole(fetchedLists);
       _lastUpdated = DateTime.now();
     } catch (e) {
       _errorMessage = e.toString();

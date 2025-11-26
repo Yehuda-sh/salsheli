@@ -617,6 +617,10 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
                 debugPrint('🛒 התחלת קנייה: ${list.name}');
                 Navigator.push(context, MaterialPageRoute(builder: (context) => ActiveShoppingScreen(list: list)));
               } : null, // היסטוריה - אין אפשרות קנייה
+              onEdit: () {
+                debugPrint('✏️ עריכת רשימה: ${list.name}');
+                Navigator.pushNamed(context, '/populate-list', arguments: list);
+              },
             ),
           ),
         ),
