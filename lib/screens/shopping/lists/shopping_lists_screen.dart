@@ -32,7 +32,7 @@ import '../active/active_shopping_screen.dart';
 // 🔧 Wrapper ללוגים - פועל רק ב-debug mode
 void _log(String message) {
   if (kDebugMode) {
-    _log(message);
+    debugPrint(message);
   }
 }
 

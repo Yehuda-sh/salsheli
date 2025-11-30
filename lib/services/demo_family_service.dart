@@ -144,113 +144,147 @@ class DemoFamilyService {
   Future<UserCredential> signInAsDemoUser(DemoUser user) async {
     debugPrint('🔐 DemoFamilyService: מתחבר כ-${user.name}...');
 
-    UserCredential credential;
+    // 1️⃣ קודם - יוצר/מתחבר לכל משתמשי הדמו כדי לקבל את ה-UIDs שלהם
+    final Map<String, String> demoUserUids = await _ensureAllDemoUsersExist();
 
-    try {
-      // 1️⃣ קודם - נסה להתחבר
-      credential = await _auth.signInWithEmailAndPassword(
+    // 2️⃣ מתחבר לדוד (הבעלים) כדי ליצור את הנתונים המשותפים
+    final ownerUid = demoUserUids['david.demo@memozap.app']!;
+    final sharedHouseholdId = 'house_$ownerUid';
+
+    await _auth.signInWithEmailAndPassword(
+      email: 'david.demo@memozap.app',
+      password: 'Demo123!',
+    );
+    debugPrint('🏠 DemoFamilyService: מחובר כדוד, יוצר נתונים ב-$sharedHouseholdId');
+
+    // 3️⃣ צור נתוני דמו עם כל בני המשפחה (כדוד - הבעלים)
+    await _createSharedDemoData(sharedHouseholdId, demoUserUids);
+
+    // 4️⃣ עכשיו מתחבר למשתמש שנבחר
+    if (user.email != 'david.demo@memozap.app') {
+      await _auth.signOut();
+      final credential = await _auth.signInWithEmailAndPassword(
         email: user.email,
         password: user.password,
       );
-      debugPrint('✅ DemoFamilyService: התחבר בהצלחה');
-    } on FirebaseAuthException catch (e) {
-      // המשתמש לא קיים או credentials לא נכונים - צור אותו
-      if (e.code == 'user-not-found' ||
-          e.code == 'invalid-credential' ||
-          e.code == 'wrong-password') {
-        debugPrint('👤 DemoFamilyService: יוצר משתמש ${user.name}... (${e.code})');
-        try {
-          credential = await _auth.createUserWithEmailAndPassword(
-            email: user.email,
-            password: user.password,
+      debugPrint('✅ DemoFamilyService: התחבר בהצלחה כ-${user.name}');
+      return credential;
+    }
+
+    debugPrint('✅ DemoFamilyService: נשאר מחובר כ-${user.name}');
+    // אם בחרו בדוד - כבר מחוברים
+    return await _auth.signInWithEmailAndPassword(
+      email: user.email,
+      password: user.password,
+    );
+  }
+
+  /// יוצר/מתחבר לכל משתמשי הדמו ומחזיר מפה של email -> uid
+  Future<Map<String, String>> _ensureAllDemoUsersExist() async {
+    final Map<String, String> uids = {};
+
+    for (final demoUser in demoUsers) {
+      try {
+        // נסה להתחבר
+        final credential = await _auth.signInWithEmailAndPassword(
+          email: demoUser.email,
+          password: demoUser.password,
+        );
+        uids[demoUser.email] = credential.user!.uid;
+        debugPrint('✅ ${demoUser.name}: uid=${credential.user!.uid}');
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'user-not-found' || e.code == 'invalid-credential') {
+          // צור משתמש חדש
+          final credential = await _auth.createUserWithEmailAndPassword(
+            email: demoUser.email,
+            password: demoUser.password,
           );
-          await credential.user?.updateDisplayName(user.name);
-          debugPrint('✅ DemoFamilyService: משתמש נוצר');
-        } on FirebaseAuthException catch (createError) {
-          if (createError.code == 'email-already-in-use') {
-            // המשתמש קיים אבל הסיסמה לא נכונה - זו בעיה
-            debugPrint('❌ DemoFamilyService: משתמש קיים עם סיסמה אחרת');
-            throw Exception('משתמש דמו קיים עם סיסמה שונה. נסה למחוק את המשתמש מ-Firebase Console.');
-          }
+          await credential.user?.updateDisplayName(demoUser.name);
+          uids[demoUser.email] = credential.user!.uid;
+          debugPrint('👤 ${demoUser.name} נוצר: uid=${credential.user!.uid}');
+        } else {
+          debugPrint('❌ שגיאה עם ${demoUser.name}: ${e.code}');
           rethrow;
         }
-      } else {
-        debugPrint('❌ DemoFamilyService: שגיאת התחברות: ${e.code}');
-        rethrow;
       }
     }
 
-    // 2️⃣ השתמש ב-household של המשתמש שנוצר (house_<uid>)
-    final userHouseholdId = 'house_${credential.user!.uid}';
-    debugPrint('🏠 DemoFamilyService: משתמש ב-household: $userHouseholdId');
+    // התנתק כדי שנוכל להתחבר למשתמש הנכון
+    await _auth.signOut();
 
-    // 3️⃣ צור נתוני דמו ב-household של המשתמש
-    await _createDemoDataInUserHousehold(userHouseholdId, user, credential.user!.uid);
-
-    return credential;
+    return uids;
   }
 
-  /// יוצר נתוני דמו ב-household של המשתמש
-  Future<void> _createDemoDataInUserHousehold(
+  /// יוצר נתוני דמו משותפים לכל המשפחה
+  Future<void> _createSharedDemoData(
     String householdId,
-    DemoUser demoUser,
-    String realUid,
+    Map<String, String> demoUserUids,
   ) async {
-    debugPrint('🏗️ DemoFamilyService: יוצר נתוני דמו ב-$householdId...');
+    debugPrint('🏗️ DemoFamilyService: יוצר נתוני דמו משותפים...');
 
     try {
-      // צור רשימות קניות דמו (עם ID קבוע כדי למנוע כפילויות)
-      await _createDemoShoppingListsInHousehold(householdId, realUid, demoUser);
+      // בדוק אם הרשימה כבר קיימת
+      final listDoc = await _firestore.collection('shopping_lists').doc('demo_list_shared').get();
+      if (listDoc.exists) {
+        debugPrint('✅ DemoFamilyService: נתוני דמו כבר קיימים');
+        return;
+      }
+
+      // צור רשימת קניות משותפת עם כל בני המשפחה
+      await _createSharedDemoShoppingList(householdId, demoUserUids);
 
       // צור פריטי מלאי דמו
       await _createDemoInventoryInHousehold(householdId);
 
-      debugPrint('🎉 DemoFamilyService: נתוני דמו נוצרו בהצלחה!');
+      debugPrint('🎉 DemoFamilyService: נתוני דמו משותפים נוצרו בהצלחה!');
     } catch (e) {
       debugPrint('❌ DemoFamilyService: שגיאה ביצירת נתוני דמו: $e');
-      // לא זורקים שגיאה - המשתמש יכול להמשיך גם בלי נתוני דמו
     }
   }
 
-  /// יוצר רשימות דמו ב-collection הראשי (לפי Security Rules)
-  Future<void> _createDemoShoppingListsInHousehold(
+  /// יוצר רשימת קניות משותפת עם כל בני המשפחה
+  Future<void> _createSharedDemoShoppingList(
     String householdId,
-    String realUid,
-    DemoUser demoUser,
+    Map<String, String> demoUserUids,
   ) async {
     final now = DateTime.now();
+    final ownerUid = demoUserUids['david.demo@memozap.app']!;
 
-    // ID קבוע לרשימת הדמו (כדי למנוע כפילויות)
-    final demoListId = 'demo_list_$realUid';
+    // בניית רשימת shared_users עם כל בני המשפחה
+    final List<Map<String, dynamic>> sharedUsers = [];
+    final List<String> sharedWith = [];
 
-    // שמירה ב-Firestore - ישירות ל-shopping_lists collection (לפי ה-Rules)
+    for (final demoUser in demoUsers) {
+      final uid = demoUserUids[demoUser.email]!;
+      sharedWith.add(uid);
+      sharedUsers.add({
+        'user_id': uid,
+        'role': demoUser.role.name,
+        'shared_at': now.toIso8601String(),
+        'user_name': demoUser.name,
+      });
+    }
+
     final listData = {
-      'id': demoListId,
+      'id': 'demo_list_shared',
       'name': 'קניות לשבת 🛒',
       'type': 'super',
       'status': 'active',
       'created_date': Timestamp.fromDate(now.subtract(const Duration(days: 2))),
       'updated_date': Timestamp.fromDate(now),
-      'created_by': realUid,
-      'is_shared': false,
-      'shared_with': [realUid],
+      'created_by': ownerUid,
+      'is_shared': true,
+      'shared_with': sharedWith,
       'format': 'personal',
       'created_from_template': false,
-      'household_id': householdId, // חובה לפי Security Rules!
+      'household_id': householdId,
       'isDemo': true,
-      'shared_users': [
-        {
-          'user_id': realUid,
-          'role': demoUser.role.name,
-          'shared_at': now.toIso8601String(),
-          'user_name': demoUser.name,
-        }
-      ],
+      'shared_users': sharedUsers,
       'items': _createDemoItemsJson(),
     };
 
-    await _firestore.collection('shopping_lists').doc(demoListId).set(listData);
-    debugPrint('✅ DemoFamilyService: רשימת דמו נוצרה');
+    await _firestore.collection('shopping_lists').doc('demo_list_shared').set(listData);
+    debugPrint('✅ DemoFamilyService: רשימת דמו משותפת נוצרה עם ${sharedUsers.length} משתמשים');
   }
 
   /// יוצר פריטי מלאי דמו ב-collection הראשי
