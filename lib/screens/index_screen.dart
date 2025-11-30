@@ -59,6 +59,7 @@ class _IndexScreenState extends State<IndexScreen> {
   @override
   void initState() {
     super.initState();
+    debugPrint('🔵 IndexScreen.initState()');
 
     // ⚡ טעינה אסינכרונית משופרת - delay חכם ל-Firebase Auth
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -122,6 +123,7 @@ class _IndexScreenState extends State<IndexScreen> {
 
       // ✅ מצב 1: משתמש מחובר → ישר לדף הבית
       if (userContext.isLoggedIn) {
+        debugPrint('🔵 IndexScreen: משתמש מחובר → ניווט ל-/home');
         _hasNavigated = true;
         if (mounted) {
           // הסר את ה-listener לפני ניווט

@@ -13,7 +13,9 @@
       "Bash(tree:*)",
       "Bash(git mv:*)",
       "Bash(git rm:*)",
-      "Bash(dart scripts/fix_categories.dart:*)"
+      "Bash(dart scripts/fix_categories.dart:*)",
+      "Bash(flutter pub get:*)",
+      "Bash(flutter clean:*)"
     ],
     "deny": [],
     "ask": []

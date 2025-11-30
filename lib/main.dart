@@ -14,49 +14,49 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart'; // 📦 Hive!
 import 'package:provider/provider.dart';
 
-import 'firebase_options.dart';
+import 'package:memozap/firebase_options.dart';
 
 // Models
-import 'models/shopping_list.dart';
+import 'package:memozap/models/shopping_list.dart';
 
 // Providers
-import 'providers/inventory_provider.dart';
-import 'providers/locations_provider.dart';
-import 'providers/product_location_provider.dart';
-import 'providers/products_provider.dart';
-import 'providers/receipt_provider.dart';
-import 'providers/shopping_lists_provider.dart';
-import 'providers/suggestions_provider.dart';
-import 'providers/user_context.dart';
+import 'package:memozap/providers/inventory_provider.dart';
+import 'package:memozap/providers/locations_provider.dart';
+import 'package:memozap/providers/product_location_provider.dart';
+import 'package:memozap/providers/products_provider.dart';
+import 'package:memozap/providers/receipt_provider.dart';
+import 'package:memozap/providers/shopping_lists_provider.dart';
+import 'package:memozap/providers/suggestions_provider.dart';
+import 'package:memozap/providers/user_context.dart';
 
 // Repositories
-import 'repositories/firebase_inventory_repository.dart'; // 🔥 Firebase Inventory!
-import 'repositories/firebase_locations_repository.dart'; // 🔥 Firebase Locations!
-import 'repositories/firebase_receipt_repository.dart'; // 🔥 Firebase Receipts!
-import 'repositories/firebase_shopping_lists_repository.dart'; // 🔥 Firebase Shopping Lists!
-import 'repositories/firebase_user_repository.dart'; // 🔥 Firebase User!
-import 'repositories/local_products_repository.dart'; // 📦 Local JSON!
-import 'repositories/user_repository.dart';
+import 'package:memozap/repositories/firebase_inventory_repository.dart'; // 🔥 Firebase Inventory!
+import 'package:memozap/repositories/firebase_locations_repository.dart'; // 🔥 Firebase Locations!
+import 'package:memozap/repositories/firebase_receipt_repository.dart'; // 🔥 Firebase Receipts!
+import 'package:memozap/repositories/firebase_shopping_lists_repository.dart'; // 🔥 Firebase Shopping Lists!
+import 'package:memozap/repositories/firebase_user_repository.dart'; // 🔥 Firebase User!
+import 'package:memozap/repositories/local_products_repository.dart'; // 📦 Local JSON!
+import 'package:memozap/repositories/user_repository.dart';
 
 // Services
-import 'services/auth_service.dart'; // 🔐 Firebase Auth!
-import 'services/auto_sync_initializer.dart'; // 🔄 Auto Price Sync!
+import 'package:memozap/services/auth_service.dart'; // 🔐 Firebase Auth!
+import 'package:memozap/services/auto_sync_initializer.dart'; // 🔄 Auto Price Sync!
 
 // Screens
-import 'screens/auth/login_screen.dart' as auth_login;
-import 'screens/auth/register_screen.dart' as auth_register;
-import 'screens/index_screen.dart';
-import 'screens/main_navigation_screen.dart';
-import 'screens/onboarding/onboarding_screen.dart';
-import 'screens/pantry/my_pantry_screen.dart';
-import 'screens/shopping/active/active_shopping_screen.dart';
-import 'screens/shopping/create/create_list_screen.dart';
-import 'screens/shopping/details/shopping_list_details_screen.dart';
-import 'screens/shopping/lists/shopping_lists_screen.dart';
-import 'screens/shopping/shopping_summary_screen.dart';
+import 'package:memozap/screens/auth/login_screen.dart' as auth_login;
+import 'package:memozap/screens/auth/register_screen.dart' as auth_register;
+import 'package:memozap/screens/index_screen.dart';
+import 'package:memozap/screens/main_navigation_screen.dart';
+import 'package:memozap/screens/onboarding/onboarding_screen.dart';
+import 'package:memozap/screens/pantry/my_pantry_screen.dart';
+import 'package:memozap/screens/shopping/active/active_shopping_screen.dart';
+import 'package:memozap/screens/shopping/create/create_list_screen.dart';
+import 'package:memozap/screens/shopping/details/shopping_list_details_screen.dart';
+import 'package:memozap/screens/shopping/lists/shopping_lists_screen.dart';
+import 'package:memozap/screens/shopping/shopping_summary_screen.dart';
 
 // Theme
-import 'theme/app_theme.dart';
+import 'package:memozap/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
