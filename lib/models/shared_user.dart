@@ -1,7 +1,28 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'enums/user_role.dart';
 
 part 'shared_user.g.dart';
+
+/// Converter that handles both Timestamp and String for DateTime
+class FlexibleDateTimeConverter implements JsonConverter<DateTime, dynamic> {
+  const FlexibleDateTimeConverter();
+
+  @override
+  DateTime fromJson(dynamic json) {
+    if (json is Timestamp) {
+      return json.toDate();
+    } else if (json is String) {
+      return DateTime.parse(json);
+    } else if (json is DateTime) {
+      return json;
+    }
+    throw ArgumentError('Cannot convert $json to DateTime');
+  }
+
+  @override
+  dynamic toJson(DateTime object) => object.toIso8601String();
+}
 
 /// משתמש משותף ברשימה
 @JsonSerializable()
@@ -14,6 +35,7 @@ class SharedUser {
   final UserRole role;
 
   /// מתי שותף
+  @FlexibleDateTimeConverter()
   @JsonKey(name: 'shared_at')
   final DateTime sharedAt;
 

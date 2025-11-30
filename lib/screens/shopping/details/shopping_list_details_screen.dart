@@ -45,6 +45,8 @@ import '../../../widgets/shopping/product_selection_bottom_sheet.dart';
 import '../../../widgets/shopping/add_edit_product_dialog.dart';
 import '../../../widgets/shopping/add_edit_task_dialog.dart';
 import '../../../services/pending_requests_service.dart';
+import '../../../repositories/shopping_lists_repository.dart';
+import '../../../models/enums/request_type.dart';
 import '../../settings/manage_users_screen.dart';
 import '../../sharing/pending_requests_screen.dart';
 
@@ -249,12 +251,50 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   /// 🛒 הוספת מוצר חדש
   Future<void> _handleAddProduct() async {
     final provider = context.read<ShoppingListsProvider>();
+    final userContext = context.read<UserContext>();
+    final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id);
+
+    // 🔒 בדיקה: האם המשתמש הוא Editor (צריך לשלוח בקשה)?
+    final isEditor = currentList.currentUserRole?.canRequest == true;
 
     await showAddEditProductDialog(
       context,
-      onSave: (item) {
-        provider.addUnifiedItem(widget.list.id, item);
-        debugPrint('✅ ShoppingListDetailsScreen: הוסף מוצר "${item.name}"');
+      onSave: (item) async {
+        if (isEditor) {
+          // 📝 Editor - שלח בקשה לאישור
+          try {
+            final repository = context.read<ShoppingListsRepository>();
+            final service = PendingRequestsService(repository, userContext);
+            await service.createAddItemRequest(list: currentList, item: item);
+
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      const Icon(Icons.hourglass_empty, color: Colors.white),
+                      const SizedBox(width: kSpacingSmall),
+                      Expanded(child: Text(AppStrings.sharing.requestCreated)),
+                    ],
+                  ),
+                  backgroundColor: kStickyOrange,
+                ),
+              );
+            }
+            debugPrint('📝 ShoppingListDetailsScreen: בקשה נשלחה להוספת "${item.name}"');
+          } catch (e) {
+            debugPrint('❌ ShoppingListDetailsScreen: שגיאה בשליחת בקשה: $e');
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('שגיאה: $e'), backgroundColor: Colors.red),
+              );
+            }
+          }
+        } else {
+          // ✅ Owner/Admin - הוסף ישירות
+          unawaited(provider.addUnifiedItem(widget.list.id, item));
+          debugPrint('✅ ShoppingListDetailsScreen: הוסף מוצר "${item.name}"');
+        }
       },
     );
   }
@@ -281,12 +321,59 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   /// 📋 הוספת משימה חדשה
   Future<void> _handleAddTask() async {
     final provider = context.read<ShoppingListsProvider>();
+    final userContext = context.read<UserContext>();
+    final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id);
+
+    // 🔒 בדיקה: האם המשתמש הוא Editor (צריך לשלוח בקשה)?
+    final isEditor = currentList.currentUserRole?.canRequest == true;
 
     await showAddEditTaskDialog(
       context,
-      onSave: (item) {
-        provider.addUnifiedItem(widget.list.id, item);
-        debugPrint('✅ ShoppingListDetailsScreen: הוסף משימה "${item.name}"');
+      onSave: (item) async {
+        if (isEditor) {
+          // 📝 Editor - שלח בקשה לאישור
+          try {
+            final repository = context.read<ShoppingListsRepository>();
+            final service = PendingRequestsService(repository, userContext);
+            await service.createRequest(
+              list: currentList,
+              type: RequestType.addItem,
+              requestData: {
+                'name': item.name,
+                'quantity': item.quantity ?? 1,
+                'notes': item.notes,
+                'type': 'task',
+              },
+            );
+
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      const Icon(Icons.hourglass_empty, color: Colors.white),
+                      const SizedBox(width: kSpacingSmall),
+                      Expanded(child: Text(AppStrings.sharing.requestCreated)),
+                    ],
+                  ),
+                  backgroundColor: kStickyOrange,
+                ),
+              );
+            }
+            debugPrint('📝 ShoppingListDetailsScreen: בקשה נשלחה להוספת משימה "${item.name}"');
+          } catch (e) {
+            debugPrint('❌ ShoppingListDetailsScreen: שגיאה בשליחת בקשה: $e');
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('שגיאה: $e'), backgroundColor: Colors.red),
+              );
+            }
+          }
+        } else {
+          // ✅ Owner/Admin - הוסף ישירות
+          unawaited(provider.addUnifiedItem(widget.list.id, item));
+          debugPrint('✅ ShoppingListDetailsScreen: הוסף משימה "${item.name}"');
+        }
       },
     );
   }
@@ -484,23 +571,24 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                   },
                 ),
               ),
-            // כפתור הוספה מהקטלוג
-            ScaleTransition(
-              scale: Tween<double>(
-                begin: 0.0,
-                end: 1.0,
-              ).animate(CurvedAnimation(parent: _fabController, curve: Curves.elasticOut)),
-              child: IconButton(
-                icon: const Icon(Icons.library_add),
-                tooltip: AppStrings.listDetails.addFromCatalogTooltip,
-                onPressed: () {
-                  // ✨ Haptic feedback למשוב מישוש
-                  unawaited(HapticFeedback.lightImpact());
+            // כפתור הוספה מהקטלוג - 🔒 רק Owner/Admin/Editor
+            if (currentList.canCurrentUserEdit)
+              ScaleTransition(
+                scale: Tween<double>(
+                  begin: 0.0,
+                  end: 1.0,
+                ).animate(CurvedAnimation(parent: _fabController, curve: Curves.elasticOut)),
+                child: IconButton(
+                  icon: const Icon(Icons.library_add),
+                  tooltip: AppStrings.listDetails.addFromCatalogTooltip,
+                  onPressed: () {
+                    // ✨ Haptic feedback למשוב מישוש
+                    unawaited(HapticFeedback.lightImpact());
 
-                  _navigateToPopulateScreen();
-                },
+                    _navigateToPopulateScreen();
+                  },
+                ),
               ),
-            ),
             // כפתור חיפוש
             ScaleTransition(
               scale: Tween<double>(
@@ -860,16 +948,19 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     // קטגוריה עם אימוג'י
     final category = item.category ?? AppStrings.listDetails.categoryOther;
 
+    // 🔒 Dismissible רק ל-Owner/Admin
+    final canDelete = widget.list.canCurrentUserManage;
+
     return Dismissible(
       key: Key(item.id),
-      direction: DismissDirection.endToStart,
+      direction: canDelete ? DismissDirection.endToStart : DismissDirection.none,
       background: Container(
         alignment: Alignment.centerLeft,
         padding: const EdgeInsets.only(left: kSpacingLarge),
         color: Colors.red,
         child: const Icon(Icons.delete, color: Colors.white),
       ),
-      confirmDismiss: (direction) async {
+      confirmDismiss: canDelete ? (direction) async {
         return await showDialog(
           context: context,
           builder: (context) => AlertDialog(
@@ -885,8 +976,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
             ],
           ),
         );
-      },
-      onDismissed: (_) => _deleteItem(context, item),
+      } : null,
+      onDismissed: canDelete ? (_) => _deleteItem(context, item) : null,
       child: Container(
         height: kNotebookLineSpacing, // 40px = שורה אחת במחברת (סינכרון!)
         decoration: !isProduct

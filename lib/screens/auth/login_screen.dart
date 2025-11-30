@@ -42,6 +42,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/sticky_note.dart';
+import '../demo/demo_user_selection_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -578,6 +579,20 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                 ],
                               ),
                             ),
+                          ),
+                          const SizedBox(height: kSpacingSmall),
+
+                          // 🎭 כפתור דמו - נסה כמשפחת כהן
+                          StickyButton(
+                            color: kStickyPurple,
+                            textColor: Colors.white,
+                            label: 'נסה כמשפחת דמו 👨‍👩‍👧‍👦',
+                            icon: Icons.play_circle_outline,
+                            onPressed: _isLoading ? null : () => Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const DemoUserSelectionScreen()),
+                            ),
+                            height: 44,
                           ),
                           const SizedBox(height: kSpacingSmall), // 📐 רווח קטן בתחתית
                         ],
