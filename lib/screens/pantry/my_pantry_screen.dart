@@ -36,6 +36,10 @@ class MyPantryScreen extends StatefulWidget {
 }
 
 class _MyPantryScreenState extends State<MyPantryScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  bool _isSearching = false;
+  String _searchQuery = '';
+
   @override
   void initState() {
     super.initState();
@@ -109,15 +113,44 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             backgroundColor: kPaperBackground,
             appBar: AppBar(
               backgroundColor: kStickyCyan,
-              title: const Text('המזווה שלי'),
+              title: _isSearching
+                  ? TextField(
+                      controller: _searchController,
+                      autofocus: true,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        hintText: 'חיפוש...',
+                        hintStyle: TextStyle(color: Colors.white70),
+                        border: InputBorder.none,
+                      ),
+                      onChanged: (value) => setState(() => _searchQuery = value),
+                    )
+                  : const Text('המזווה שלי'),
               actions: [
+                // חיפוש
                 IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: _addItemDialog,
-                  tooltip: 'הוסף פריט',
+                  icon: Icon(_isSearching ? Icons.close : Icons.search),
+                  onPressed: () {
+                    setState(() {
+                      _isSearching = !_isSearching;
+                      if (!_isSearching) {
+                        _searchController.clear();
+                        _searchQuery = '';
+                      }
+                    });
+                  },
+                  tooltip: _isSearching ? 'סגור חיפוש' : 'חיפוש',
                 ),
               ],
             ),
+            // כפתור צף להוספת מוצר - בצד שמאל למטה (כי RTL)
+            floatingActionButton: FloatingActionButton(
+              onPressed: _addItemDialog,
+              backgroundColor: kStickyCyan,
+              tooltip: 'הוסף מוצר',
+              child: const Icon(Icons.add, color: Colors.white),
+            ),
+            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
             body: provider.isLoading
                 ? const Center(
                     child: Column(
@@ -134,6 +167,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                       const NotebookBackground(),
                       StorageLocationManager(
                         inventory: items,
+                        searchQuery: _searchQuery,
                         onEditItem: _editItemDialog,
                         onDeleteItem: _deleteItem,
                         onUpdateQuantity: _updateQuantity,

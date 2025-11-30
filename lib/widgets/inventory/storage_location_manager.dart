@@ -25,11 +25,19 @@ import 'package:memozap/providers/locations_provider.dart';
 
 class StorageLocationManager extends StatefulWidget {
   final List<InventoryItem> inventory;
+  final String searchQuery;
   final Function(InventoryItem)? onEditItem;
   final Function(InventoryItem)? onDeleteItem;
   final Function(InventoryItem, int)? onUpdateQuantity;
 
-  const StorageLocationManager({super.key, required this.inventory, this.onEditItem, this.onDeleteItem, this.onUpdateQuantity});
+  const StorageLocationManager({
+    super.key,
+    required this.inventory,
+    this.searchQuery = '',
+    this.onEditItem,
+    this.onDeleteItem,
+    this.onUpdateQuantity,
+  });
 
   @override
   State<StorageLocationManager> createState() => _StorageLocationManagerState();
@@ -37,12 +45,10 @@ class StorageLocationManager extends StatefulWidget {
 
 class _StorageLocationManagerState extends State<StorageLocationManager> {
   String selectedLocation = 'all';
-  String searchQuery = '';
   bool gridMode = true;
   String sortBy = 'name'; // name, quantity, category
 
   final TextEditingController newLocationController = TextEditingController();
-  final TextEditingController searchController = TextEditingController();
 
   // Cache לביצועים
   List<InventoryItem> _cachedFilteredItems = [];
@@ -91,7 +97,6 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
   @override
   void dispose() {
     newLocationController.dispose();
-    searchController.dispose();
     super.dispose();
   }
 
@@ -145,7 +150,7 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
   ///
   /// Returns: List&lt;InventoryItem&gt; מסננת ומסודרת
   List<InventoryItem> get filteredInventory {
-    final cacheKey = '$selectedLocation|$searchQuery|$sortBy';
+    final cacheKey = '$selectedLocation|${widget.searchQuery}|$sortBy';
 
     if (cacheKey == _lastCacheKey && _cachedFilteredItems.isNotEmpty) {
       return _cachedFilteredItems;
@@ -160,8 +165,8 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
     }
 
     // סינון לפי חיפוש - לא רגיש לאותיות גדולות/קטנות
-    if (searchQuery.isNotEmpty) {
-      final query = searchQuery.toLowerCase();
+    if (widget.searchQuery.isNotEmpty) {
+      final query = widget.searchQuery.toLowerCase();
       items = items
           .where(
             (i) =>
@@ -214,6 +219,36 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
 
     // נסה ישירות כמפתח אנגלית
     return getCategoryEmoji(category);
+  }
+
+  /// הצגת תפריט מיון
+  void _showSortMenu(BuildContext context) {
+    final RenderBox button = context.findRenderObject() as RenderBox;
+    final RenderBox overlay = Navigator.of(context).overlay!.context.findRenderObject() as RenderBox;
+    final RelativeRect position = RelativeRect.fromRect(
+      Rect.fromPoints(
+        button.localToGlobal(Offset.zero, ancestor: overlay),
+        button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay),
+      ),
+      Offset.zero & overlay.size,
+    );
+
+    showMenu<String>(
+      context: context,
+      position: position,
+      items: [
+        const PopupMenuItem(value: 'name', child: Text('לפי שם')),
+        const PopupMenuItem(value: 'quantity', child: Text('לפי כמות')),
+        const PopupMenuItem(value: 'category', child: Text('לפי קטגוריה')),
+      ],
+    ).then((value) {
+      if (value != null) {
+        setState(() {
+          sortBy = value;
+          _lastCacheKey = '';
+        });
+      }
+    });
   }
 
   /// הצגת דיאלוג להוספת מיקום אחסון חדש
@@ -753,7 +788,7 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                         : isEmpty
                             ? cs.onSurfaceVariant
                             : null,
-                    fontSize: 10,
+                    fontSize: kFontSizeTiny, // 12
                   ),
                   textAlign: TextAlign.center,
                   overflow: TextOverflow.ellipsis,
@@ -766,13 +801,13 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                     Text(
                       isEmpty ? 'ריק' : '$count',
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: kFontSizeTiny, // 12
                         fontWeight: FontWeight.bold,
                         color: isEmpty ? cs.onSurfaceVariant.withValues(alpha: 0.6) : cs.primary,
                       ),
                     ),
                     if (lowStockCount > 0)
-                      Icon(Icons.warning_amber_rounded, size: 10, color: cs.error),
+                      Icon(Icons.warning_amber_rounded, size: kIconSizeSmall, color: cs.error),
                   ],
                 ),
               ],
@@ -794,109 +829,34 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
       textDirection: TextDirection.rtl,
       child: Column(
         children: [
-          /// 🔝 כותרת וכפתורים
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(kSpacingSmallPlus),
-              child: Row(
-                children: [
-                  Icon(Icons.location_on, color: cs.primary),
-                  const SizedBox(width: kSpacingSmall),
-                  const Text(
-                    'ניהול אזורי אחסון',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: kFontSizeBody),
-                  ),
-                  const Spacer(),
-                  // מיון
-                  PopupMenuButton<String>(
-                    icon: const Icon(Icons.sort),
-                    tooltip: 'מיון',
-                    onSelected: (value) {
-                      setState(() {
-                        sortBy = value;
-                        _lastCacheKey = ''; // נקה cache
-                      });
-                    },
-                    itemBuilder: (context) => [
-                      const PopupMenuItem(
-                        value: 'name',
-                        child: Row(
-                          children: [
-                            const Icon(Icons.sort_by_alpha),
-                            const SizedBox(width: kSpacingSmall),
-                            const Text('לפי שם'),
-                          ],
-                        ),
-                      ),
-                      const PopupMenuItem(
-                        value: 'quantity',
-                        child: Row(
-                          children: [
-                            const Icon(Icons.numbers),
-                            const SizedBox(width: kSpacingSmall),
-                            const Text('לפי כמות'),
-                          ],
-                        ),
-                      ),
-                      const PopupMenuItem(
-                        value: 'category',
-                        child: Row(children: [const Icon(Icons.category), const SizedBox(width: 8), const Text('לפי קטגוריה')]),
-                      ),
-                    ],
-                  ),
-                  // תצוגה
-                  IconButton(
-                    icon: Icon(gridMode ? Icons.list : Icons.grid_view),
-                    tooltip: gridMode ? 'תצוגת רשימה' : 'תצוגת רשת',
-                    onPressed: () {
-                      setState(() {
-                        gridMode = !gridMode;
-                      });
-                      _saveGridMode(gridMode);
-                    },
-                  ),
-                  // הוספה
-                  IconButton(
-                    icon: const Icon(Icons.add_location),
-                    tooltip: 'הוסף מיקום חדש',
-                    onPressed: _showAddLocationDialog,
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          /// 🔍 שדה חיפוש
+          /// 🔝 סרגל כלים קומפקטי
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingSmall),
-            child: TextField(
-              controller: searchController,
-              decoration: InputDecoration(
-                labelText: 'חיפוש פריט',
-                hintText: 'הקלד שם מוצר או קטגוריה...',
-                prefixIcon: Icon(Icons.search, color: cs.primary),
-                suffixIcon: searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: Icon(Icons.clear, color: cs.onSurfaceVariant),
-                        onPressed: () {
-                          searchController.clear();
-                          setState(() {
-                            searchQuery = '';
-                            _lastCacheKey = '';
-                          });
-                        },
-                      )
-                    : null,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(kBorderRadius)),
-                filled: true,
-                fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.3),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  searchQuery = value;
-                  _lastCacheKey = '';
-                });
-              },
+            padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingTiny),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                // מיון
+                IconButton(
+                  icon: Icon(Icons.sort, color: cs.onSurfaceVariant),
+                  tooltip: 'מיון',
+                  onPressed: () => _showSortMenu(context),
+                ),
+                // תצוגה
+                IconButton(
+                  icon: Icon(gridMode ? Icons.view_list : Icons.grid_view),
+                  tooltip: gridMode ? 'רשימה' : 'רשת',
+                  onPressed: () {
+                    setState(() => gridMode = !gridMode);
+                    _saveGridMode(gridMode);
+                  },
+                ),
+                // הוספת מיקום אחסון
+                IconButton(
+                  icon: Icon(Icons.create_new_folder_outlined, color: cs.primary),
+                  tooltip: 'הוסף מיקום אחסון',
+                  onPressed: _showAddLocationDialog,
+                ),
+              ],
             ),
           ),
 
@@ -993,111 +953,149 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                       ),
                 ),
 
-                const Divider(),
+                const SizedBox(height: kSpacingMedium),
 
-                /// 📋 פריטים
+                /// 📋 כותרת פריטים - עם רקע מרקר צהוב
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+                  padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingTiny),
+                  decoration: BoxDecoration(
+                    color: kStickyYellow.withValues(alpha: 0.7),
+                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.inventory_2, color: Colors.brown.shade700, size: kIconSize),
+                      const SizedBox(width: kSpacingSmall),
+                      Text(
+                        _getLocationTitle(customLocations),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.brown.shade800,
+                          fontSize: kFontSizeBody,
+                        ),
+                      ),
+                      const SizedBox(width: kSpacingSmall),
+                      Text(
+                        '(${filteredInventory.length})',
+                        style: TextStyle(color: Colors.brown.shade600, fontSize: kFontSizeTiny),
+                      ),
+                    ],
+                  ),
+                ),
+
+                /// 📋 פריטים - רקע שקוף כדי לראות את קווי המחברת
                 Expanded(
-                  child: Card(
-                    margin: const EdgeInsets.all(kSpacingSmall),
-                    child: Column(
-                      children: [
-                        // כותרת
-                        Container(
-                          padding: const EdgeInsets.all(kSpacingSmallPlus),
-                          decoration: BoxDecoration(
-                            color: cs.primaryContainer,
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(kSpacingTiny),
-                              topRight: Radius.circular(kSpacingTiny),
-                            ),
-                          ),
-                          child: Row(
+                  child: filteredInventory.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.inventory_2, color: cs.primary),
-                              const SizedBox(width: kSpacingSmall),
-                              Text(
-                                _getLocationTitle(customLocations),
-                                style: TextStyle(fontWeight: FontWeight.bold, color: cs.primary),
+                              Icon(
+                                widget.searchQuery.isNotEmpty ? Icons.search_off : Icons.inventory_2_outlined,
+                                size: kIconSizeXLarge,
+                                color: cs.surfaceContainerHighest,
                               ),
-                              const Spacer(),
+                              const SizedBox(height: kSpacingMedium),
                               Text(
-                                '${filteredInventory.length} פריטים',
-                                style: TextStyle(color: cs.primary, fontSize: kFontSizeTiny),
+                                widget.searchQuery.isNotEmpty ? 'לא נמצאו פריטים' : 'אין פריטים במיקום זה',
+                                style: TextStyle(color: cs.onSurfaceVariant),
                               ),
                             ],
                           ),
-                        ),
-
-                        // רשימה
-                        Expanded(
-                          child: filteredInventory.isEmpty
-                              ? Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        searchQuery.isNotEmpty ? Icons.search_off : Icons.inventory_2_outlined,
-                                        size: kIconSizeXLarge,
-                                        color: cs.surfaceContainerHighest,
-                                      ),
-                                      const SizedBox(height: kSpacingMedium),
-                                      Text(
-                                        searchQuery.isNotEmpty ? 'לא נמצאו פריטים' : 'אין פריטים במיקום זה',
-                                        style: TextStyle(color: cs.onSurfaceVariant),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              : ListView.builder(
-                                  itemCount: filteredInventory.length,
-                                  itemBuilder: (_, index) {
-                                    final item = filteredInventory[index];
-                                    return ListTile(
-                                      onTap: widget.onUpdateQuantity != null
-                                          ? () => _showQuickQuantityDialog(item)
-                                          : null,
-                                      leading: CircleAvatar(
-                                        backgroundColor: cs.primaryContainer,
-                                        child: Text(
-                                          _getProductEmoji(item.category),
-                                          style: const TextStyle(fontSize: kFontSizeMedium),
-                                        ),
-                                      ),
-                                      title: Text(
+                        )
+                      : ListView.builder(
+                          // padding למעלה כדי להתחיל מהשורה הבאה
+                          padding: const EdgeInsets.only(top: kNotebookLineSpacing),
+                          itemCount: filteredInventory.length,
+                          itemBuilder: (_, index) {
+                            final item = filteredInventory[index];
+                            // כל פריט בגובה 48px = שורה אחת במחברת
+                            return GestureDetector(
+                              onTap: widget.onUpdateQuantity != null
+                                  ? () => _showQuickQuantityDialog(item)
+                                  : null,
+                              child: Container(
+                                height: kNotebookLineSpacing,
+                                padding: const EdgeInsets.only(
+                                  left: kSpacingMedium,
+                                  right: kSpacingMedium,
+                                  bottom: kSpacingTiny, // רווח קטן מעל הקו
+                                ),
+                                child: Row(
+                                  children: [
+                                    // אמוג'י קטגוריה
+                                    Text(
+                                      _getProductEmoji(item.category),
+                                      style: const TextStyle(fontSize: kFontSizeMedium),
+                                    ),
+                                    const SizedBox(width: kSpacingSmall),
+                                    // שם המוצר
+                                    Expanded(
+                                      child: Text(
                                         item.productName,
-                                        style: const TextStyle(fontWeight: FontWeight.w500),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: kFontSizeLarge, // גדול יותר - 20
+                                        ),
                                         overflow: TextOverflow.ellipsis,
                                         maxLines: 1,
                                       ),
-                                      subtitle: Row(
+                                    ),
+                                    // כמות - עיצוב משופר, גודל זהה לשם המוצר
+                                    Container(
+                                      margin: const EdgeInsets.only(left: kSpacingSmall), // רווח ימינה
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: kSpacingSmall,
+                                        vertical: kSpacingXTiny,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: item.isLowStock
+                                            ? cs.errorContainer.withValues(alpha: 0.3)
+                                            : cs.primaryContainer.withValues(alpha: 0.3),
+                                        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Icon(Icons.inventory, size: kIconSizeSmall, color: cs.onSurfaceVariant),
-                                          const SizedBox(width: kSpacingTiny),
                                           Text(
-                                            '${item.quantity} ${item.unit}',
+                                            '${item.quantity}',
                                             style: TextStyle(
-                                              color: item.isLowStock ? cs.error : null,
-                                              fontWeight: item.isLowStock ? FontWeight.bold : null,
+                                              color: item.isLowStock ? cs.error : cs.primary,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: kFontSizeLarge, // כמו שם המוצר - 20
+                                            ),
+                                          ),
+                                          const SizedBox(width: kSpacingXTiny),
+                                          Text(
+                                            item.unit,
+                                            style: TextStyle(
+                                              color: item.isLowStock ? cs.error : cs.onSurfaceVariant,
+                                              fontSize: kFontSizeSmall, // קטן יותר - 12
                                             ),
                                           ),
                                           if (item.isLowStock) ...[
                                             const SizedBox(width: kSpacingTiny),
-                                            Icon(Icons.warning, color: cs.error, size: kIconSizeSmall),
+                                            Icon(Icons.warning, color: cs.error, size: kIconSize),
                                           ],
                                         ],
                                       ),
-                                      trailing: IconButton(
-                                        icon: const Icon(Icons.more_vert),
-                                        onPressed: () => _showItemMenu(item),
-                                        tooltip: 'אפשרויות נוספות',
-                                      ),
-                                    );
-                                  },
+                                    ),
+                                    // כפתור תפריט
+                                    IconButton(
+                                      icon: const Icon(Icons.more_vert, size: kIconSize),
+                                      onPressed: () => _showItemMenu(item),
+                                      visualDensity: VisualDensity.compact,
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(),
+                                    ),
+                                  ],
                                 ),
+                              ),
+                            );
+                          },
                         ),
-                      ],
-                    ),
-                  ),
                 ),
               ],
             ),
