@@ -2,9 +2,10 @@
 // Description: Main entry point + Providers setup
 //
 // ✅ Recent Updates:
-// - Using FirebaseProductsRepository directly (Hive removed)
+// - Using FirebaseProductsRepository directly
 // - Automatic user loading from SharedPreferences
 // - Dynamic Color Support (Android 12+ Material You) 🎨
+// - Hive for local storage
 
 import 'package:dynamic_color/dynamic_color.dart'; // 🎨 Material You!
 import 'package:firebase_core/firebase_core.dart';
@@ -79,15 +80,17 @@ void main() async {
   };
 
   // ⏸️ Wait a moment to ensure Firebase is fully ready before creating Providers
-  // This prevents race condition where Providers try to access Firebase
-  // (e.g., AuthService calling FirebaseAuth.instance) before initialization completes
   await Future.delayed(const Duration(milliseconds: 100));
 
   // 📦 Initialize Hive for local storage
   await Hive.initFlutter();
 
-  // 📦 Create Local Products Repository
+  // 📦 Create Repositories (single instance each)
   final productsRepo = LocalProductsRepository();
+  final locationsRepo = FirebaseLocationsRepository();
+  final shoppingListsRepo = FirebaseShoppingListsRepository();
+  final receiptRepo = FirebaseReceiptRepository();
+  final inventoryRepo = FirebaseInventoryRepository();
 
   // 🔄 Initialize Auto Price Sync (runs in background)
   AutoSyncInitializer.initialize();
@@ -146,13 +149,13 @@ void main() async {
         ChangeNotifierProxyProvider<UserContext, LocationsProvider>(
           create: (context) => LocationsProvider(
             userContext: context.read<UserContext>(),
-            repository: FirebaseLocationsRepository(), // 🔥 Firebase!
+            repository: locationsRepo,
           ),
           update: (context, userContext, previous) =>
               (previous ??
                     LocationsProvider(
                       userContext: userContext,
-                      repository: FirebaseLocationsRepository(), // 🔥 Firebase!
+                      repository: locationsRepo,
                     ))
                 ..updateUserContext(userContext),
         ),
@@ -161,8 +164,8 @@ void main() async {
         ChangeNotifierProxyProvider<UserContext, ShoppingListsProvider>(
           create: (context) {
             final provider = ShoppingListsProvider(
-              repository: FirebaseShoppingListsRepository(), // 🔥 Firebase!
-              receiptRepository: FirebaseReceiptRepository(), // 🔥 Firebase Receipts!
+              repository: shoppingListsRepo,
+              receiptRepository: receiptRepo,
             );
             final userContext = context.read<UserContext>();
             provider.updateUserContext(userContext);
@@ -172,8 +175,8 @@ void main() async {
             final provider =
                 previous ??
                 ShoppingListsProvider(
-                  repository: FirebaseShoppingListsRepository(), // 🔥 Firebase!
-                  receiptRepository: FirebaseReceiptRepository(), // 🔥 Firebase Receipts!
+                  repository: shoppingListsRepo,
+                  receiptRepository: receiptRepo,
                 );
             provider.updateUserContext(userContext);
             return provider;
@@ -184,13 +187,13 @@ void main() async {
         ChangeNotifierProxyProvider<UserContext, InventoryProvider>(
           create: (context) => InventoryProvider(
             userContext: context.read<UserContext>(),
-            repository: FirebaseInventoryRepository(), // 🔥 Firebase!
+            repository: inventoryRepo,
           ),
           update: (context, userContext, previous) =>
               (previous ??
                     InventoryProvider(
                       userContext: userContext,
-                      repository: FirebaseInventoryRepository(), // 🔥 Firebase!
+                      repository: inventoryRepo,
                     ))
                 ..updateUserContext(userContext),
         ),
@@ -208,13 +211,13 @@ void main() async {
         ChangeNotifierProxyProvider<UserContext, ReceiptProvider>(
           create: (context) => ReceiptProvider(
             userContext: context.read<UserContext>(),
-            repository: FirebaseReceiptRepository(), // 🔥 Firebase!
+            repository: receiptRepo,
           ),
           update: (context, userContext, previous) =>
               (previous ??
                     ReceiptProvider(
                       userContext: userContext,
-                      repository: FirebaseReceiptRepository(), // 🔥 Firebase!
+                      repository: receiptRepo,
                     ))
                 ..updateUserContext(userContext),
         ),
@@ -272,8 +275,6 @@ class _MyAppState extends State<MyApp> {
             '/login': (context) => const auth_login.LoginScreen(),
             '/register': (context) => const auth_register.RegisterScreen(),
 
-            // ❌ '/insights' route removed (insights screen deleted)
-            // ❌ '/receipts' route removed (no manual receipt import)
             '/pantry': (context) => const MyPantryScreen(),
             '/inventory': (context) => const MyPantryScreen(), // alias for pantry
 
