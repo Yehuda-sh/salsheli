@@ -98,30 +98,35 @@ class PriceSyncService {
 
   /// 📥 מוריד עדכוני מחירים מ-Shufersal
   ///
-  /// ⚠️ כרגע זה דמה! צריך לממש את הלוגיקה האמיתית
+  /// 🔮 פיתוח עתידי:
+  /// - לחבר ל-ShufersalPricesService.getProducts()
+  /// - להשוות barcodes מול ה-JSONים הקיימים
+  /// - לעדכן רק מחירים (לא להוסיף מוצרים חדשים)
+  /// - לשמור ב-SharedPreferences כ-cache
+  ///
+  /// ⚠️ דרישות לפני הפעלה:
+  /// - לבדוק שה-API של שופרסל עדיין עובד
+  /// - להתמודד עם timeout (הורדה יכולה לקחת דקות)
+  /// - לבדוק על מכשיר אמיתי (לא אמולטור)
   Future<List<Map<String, dynamic>>> _fetchPriceUpdates() async {
-    // TODO: ממש את הלוגיקה האמיתית
-    // לדוגמה:
-    // 1. קרא API של Shufersal
-    // 2. פענח XML/JSON
-    // 3. החזר רשימת מוצרים מעודכנים
-
-    debugPrint('   🌐 מוריד עדכונים מ-Shufersal...');
-
-    // דוגמה - החזר רשימה ריקה כרגע
-    // כשתממש את הלוגיקה, תחליף את זה
-    return [];
-
-    // דוגמה למבנה שצריך להחזיר:
+    // TODO: פיתוח עתידי - חיבור ל-ShufersalPricesService
+    //
+    // הקוד צריך להיות:
+    // 1. final shufersalProducts = await ShufersalPricesService.getProducts();
+    // 2. להשוות barcodes מול המוצרים הקיימים
+    // 3. להחזיר רק מוצרים שיש להם barcode תואם + מחיר שונה
+    //
+    // מבנה התוצאה:
     // return [
     //   {
     //     'barcode': '7290001234567',
-    //     'name': 'חלב 3%',
     //     'price': 5.9,
-    //     'category': 'מוצרי חלב',
     //     'list_type': 'supermarket',
     //   },
     // ];
+
+    debugPrint('   ⏸️ סנכרון מחירים - פיתוח עתידי');
+    return [];
   }
 
   /// 🏷️ מקבץ מוצרים לפי list_type

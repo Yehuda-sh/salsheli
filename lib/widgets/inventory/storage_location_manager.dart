@@ -16,6 +16,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // ignore: directives_ordering
+import 'package:memozap/config/filters_config.dart';
 import 'package:memozap/core/constants.dart';
 import 'package:memozap/core/ui_constants.dart';
 import 'package:memozap/models/custom_location.dart';
@@ -44,24 +45,6 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
   // Cache לביצועים
   List<InventoryItem> _cachedFilteredItems = [];
   String _lastCacheKey = '';
-
-  // מיפוי קטגוריות עברית -> אמוג'י
-  final Map<String, String> _hebrewCategoryEmojis = {
-    'חלבי': '🥛',
-    'ירקות': '🥬',
-    'פירות': '🍎',
-    'בשר': '🥩',
-    'עוף': '🍗',
-    'דגים': '🐟',
-    'לחם': '🍞',
-    'חטיפים': '🍿',
-    'משקאות': '🥤',
-    'ניקיון': '🧼',
-    'שימורים': '🥫',
-    'קפואים': '🧊',
-    'תבלינים': '🧂',
-    'אחר': '📦',
-  };
 
   // רשימת אמוג'י לבחירה
   final List<String> _availableEmojis = [
@@ -195,32 +178,29 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
     return items;
   }
 
-  /// קבלת אמוג'י לפי קטגוריה (תמיכה בעברית)
+  /// קבלת אמוג'י לפי קטגוריה (תמיכה בעברית ואנגלית)
   ///
   /// חיפוש:
-  /// 1. בקטגוריות עברית (_hebrewCategoryEmojis)
-  /// 2. בקטגוריות אנגלית (kCategoryEmojis)
+  /// 1. בקטגוריות עברית → המרה לאנגלית → אמוג'י
+  /// 2. בקטגוריות אנגלית ישירות
   /// 3. ברירת מחדל: "📦" אם לא נמצא
   ///
   /// דוגמאות:
-  /// - "חלבי" → "🥛"
+  /// - "מוצרי חלב" → "🥛"
+  /// - "dairy" → "🥛"
   /// - "ירקות" → "🥬"
-  /// - "אחר" → "📦"
   ///
   /// [category] - שם הקטגוריה בעברית או אנגלית
-  /// Returns: Emoji string (single character)
+  /// Returns: Emoji string
   String _getProductEmoji(String category) {
-    // חיפוש קודם בעברית
-    if (_hebrewCategoryEmojis.containsKey(category)) {
-      return _hebrewCategoryEmojis[category]!;
+    // נסה להמיר מעברית לאנגלית
+    final englishKey = hebrewCategoryToEnglish(category);
+    if (englishKey != null) {
+      return getCategoryEmoji(englishKey);
     }
 
-    // נסיון בקטגוריות אנגלית
-    if (kCategoryEmojis.containsKey(category)) {
-      return kCategoryEmojis[category]!;
-    }
-
-    return '📦';
+    // נסה ישירות כמפתח אנגלית
+    return getCategoryEmoji(category);
   }
 
   /// הצגת דיאלוג להוספת מיקום אחסון חדש

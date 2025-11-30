@@ -39,6 +39,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../config/filters_config.dart';
 import '../../config/storage_locations_config.dart';
 import '../../core/ui_constants.dart';
 import '../../models/inventory_item.dart';
@@ -356,15 +357,23 @@ class _MyPantryScreenState extends State<MyPantryScreen>
     final filteredItems = items.where((item) {
       // סינון לפי קטגוריה
       if (_selectedCategory != 'all') {
-        final categoryLower = item.category.toLowerCase();
-        final selectedLower = _selectedCategory.toLowerCase();
-        
-        if (!categoryLower.contains(selectedLower) && 
-            categoryLower != selectedLower) {
-          return false;
+        // המר קטגוריה עברית לאנגלית לצורך השוואה
+        final itemCategoryKey = hebrewCategoryToEnglish(item.category);
+
+        // אם לא נמצא מפתח אנגלי, נסה התאמה ישירה
+        if (itemCategoryKey != null) {
+          if (itemCategoryKey != _selectedCategory) {
+            return false;
+          }
+        } else {
+          // fallback: השוואה ישירה לשם העברי של הקטגוריה הנבחרת
+          final selectedLabel = getCategoryLabel(_selectedCategory);
+          if (item.category != selectedLabel) {
+            return false;
+          }
         }
       }
-      
+
       // סינון לפי חיפוש טקסט
       if (searchTerm.isEmpty) return true;
       final searchLower = searchTerm.toLowerCase();

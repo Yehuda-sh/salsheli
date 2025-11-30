@@ -8,46 +8,46 @@
       "searchTerm": "פרגיות",
       "quantity": 1,
       "unit": "ק\"ג",
-      "fallbackName": "פרגיות עוף"
+      "fallbackName": "פרגיות"
     },
     {
       "source": "butcher",
-      "searchTerm": "קבב בקר",
+      "searchTerm": "קבב",
       "quantity": 1,
       "unit": "ק\"ג",
-      "fallbackName": "קבב בקר"
+      "fallbackName": "קבב"
     },
     {
       "source": "butcher",
-      "searchTerm": "נקניק",
+      "searchTerm": "נקניקיות",
       "quantity": 0.5,
       "unit": "ק\"ג",
-      "fallbackName": "נקניקים"
+      "fallbackName": "נקניקיות"
     },
     {
       "source": "bakery",
-      "searchTerm": "פיתה",
+      "searchTerm": "פיתות",
       "quantity": 6,
       "unit": "יח'",
       "fallbackName": "פיתות"
     },
     {
       "source": "bakery",
-      "searchTerm": "לחמניה",
-      "quantity": 6,
+      "searchTerm": "לחמניות",
+      "quantity": 8,
       "unit": "יח'",
-      "fallbackName": "לחמניות המבורגר"
+      "fallbackName": "לחמניות"
     },
     {
       "source": "greengrocer",
-      "searchTerm": "עגבניה",
+      "searchTerm": "עגבניות",
       "quantity": 0.5,
       "unit": "ק\"ג",
       "fallbackName": "עגבניות"
     },
     {
       "source": "greengrocer",
-      "searchTerm": "מלפפון",
+      "searchTerm": "מלפפונים",
       "quantity": 3,
       "unit": "יח'",
       "fallbackName": "מלפפונים"
@@ -72,6 +72,34 @@
       "quantity": 1,
       "unit": "יח'",
       "fallbackName": "פחמים למנגל"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "חומוס",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "חומוס"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "טחינה",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "טחינה"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "עמבה",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "עמבה"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "מלפפון חמוץ",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "מלפפונים חמוצים"
     },
     {
       "source": "supermarket",

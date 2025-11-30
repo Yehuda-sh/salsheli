@@ -71,19 +71,5 @@ const Map<String, Map<String, String>> kStorageLocations = {
 // ═══════════════════════════════════════════════════════════════════════════
 // CATEGORY EMOJIS
 // ═══════════════════════════════════════════════════════════════════════════
-
-/// אמוג'י לפי קטגוריה (מסונכרן עם filters_config.dart)
-/// 
-/// Categories match the product JSON files in assets/data/categories/
-const Map<String, String> kCategoryEmojis = {
-  'coffee_tea': '☕',
-  'dairy': '🥛',
-  'fruits': '🍎',
-  'meat_fish': '🥩',
-  'other': '📦',
-  'personal_hygiene': '🧴',
-  'rice_pasta': '🍝',
-  'spices_baking': '🧂',
-  'sweets_snacks': '🍬',
-  'vegetables': '🥬',
-};
+// Note: Category emojis moved to filters_config.dart
+// Use getCategoryEmoji(categoryId) instead of kCategoryEmojis
