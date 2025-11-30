@@ -1,6 +1,10 @@
 // 📄 File: lib/models/inventory_item.dart
-// Version: 2.2
-// Last Updated: 15/10/2025
+// Version: 2.3
+// Last Updated: 30/11/2025
+//
+// ✅ Improvements in v2.3:
+// - Added minQuantity field for low stock threshold per item
+// - Fixed product_name snake_case for Firestore index compatibility
 //
 // ✅ Improvements in v2.2:
 // - Added @JsonKey(defaultValue) for safe defaults
@@ -38,7 +42,7 @@ class InventoryItem {
   final String id;
 
   /// שם המוצר (e.g., "חלב 3%")
-  @JsonKey(defaultValue: 'מוצר לא ידוע')
+  @JsonKey(name: 'product_name', defaultValue: 'מוצר לא ידוע')
   final String productName;
 
   /// קטגוריה (e.g., "מוצרי חלב", "ירקות")
@@ -57,6 +61,11 @@ class InventoryItem {
   @JsonKey(defaultValue: 'יח\'')
   final String unit;
 
+  /// כמות מינימלית - מתחת לסף הזה יוצג כ"מלאי נמוך"
+  /// ברירת מחדל: 2
+  @JsonKey(name: 'min_quantity', defaultValue: 2)
+  final int minQuantity;
+
   const InventoryItem({
     required this.id,
     required this.productName,
@@ -64,6 +73,7 @@ class InventoryItem {
     required this.location,
     required this.quantity,
     required this.unit,
+    this.minQuantity = 2,
   });
 
   // =========================================================
@@ -97,7 +107,7 @@ class InventoryItem {
   // =========================================================
 
   /// יצירת עותק חדש עם עדכונים (id נשאר קבוע)
-  InventoryItem copyWith({String? productName, String? category, String? location, int? quantity, String? unit}) {
+  InventoryItem copyWith({String? productName, String? category, String? location, int? quantity, String? unit, int? minQuantity}) {
     return InventoryItem(
       id: id,
       productName: productName ?? this.productName,
@@ -105,15 +115,19 @@ class InventoryItem {
       location: location ?? this.location,
       quantity: quantity ?? this.quantity,
       unit: unit ?? this.unit,
+      minQuantity: minQuantity ?? this.minQuantity,
     );
   }
+
+  /// האם הפריט במלאי נמוך (מתחת למינימום שהוגדר)
+  bool get isLowStock => quantity <= minQuantity;
 
   // =========================================================
   // 🧾 Debug / Equality
   // =========================================================
 
   @override
-  String toString() => 'InventoryItem(id: $id, name: $productName, qty: $quantity $unit, location: $location)';
+  String toString() => 'InventoryItem(id: $id, name: $productName, qty: $quantity $unit, min: $minQuantity, location: $location)';
 
   @override
   bool operator ==(Object other) =>
@@ -124,8 +138,9 @@ class InventoryItem {
           other.category == category &&
           other.location == location &&
           other.quantity == quantity &&
-          other.unit == unit;
+          other.unit == unit &&
+          other.minQuantity == minQuantity;
 
   @override
-  int get hashCode => Object.hash(id, productName, category, location, quantity, unit);
+  int get hashCode => Object.hash(id, productName, category, location, quantity, unit, minQuantity);
 }

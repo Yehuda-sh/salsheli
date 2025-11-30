@@ -23,8 +23,10 @@ import '../../config/filters_config.dart';
 import '../../config/storage_locations_config.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
+import '../../models/custom_location.dart';
 import '../../models/inventory_item.dart';
 import '../../providers/inventory_provider.dart';
+import '../../providers/locations_provider.dart';
 import '../../theme/app_theme.dart';
 
 enum PantryItemDialogMode {
@@ -87,6 +89,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
   late final TextEditingController _nameController;
   late final TextEditingController _quantityController;
   late final TextEditingController _unitController;
+  late final TextEditingController _minQuantityController;
   late String _selectedCategory;
   late String _selectedLocation;
 
@@ -103,6 +106,8 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
       _quantityController =
           TextEditingController(text: item.quantity.toString());
       _unitController = TextEditingController(text: item.unit);
+      _minQuantityController =
+          TextEditingController(text: item.minQuantity.toString());
       // המר קטגוריה עברית למפתח אנגלית, או השתמש ב-other כברירת מחדל
       _selectedCategory = hebrewCategoryToEnglish(item.category) ?? 'other';
       _selectedLocation = item.location;
@@ -110,6 +115,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
       _nameController = TextEditingController();
       _quantityController = TextEditingController(text: '1');
       _unitController = TextEditingController(text: 'יח\'');
+      _minQuantityController = TextEditingController(text: '2');
       _selectedCategory = 'other';
       _selectedLocation = StorageLocationsConfig.mainPantry;
     }
@@ -120,6 +126,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
     _nameController.dispose();
     _quantityController.dispose();
     _unitController.dispose();
+    _minQuantityController.dispose();
     super.dispose();
   }
 
@@ -137,6 +144,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
     }
 
     final quantity = int.tryParse(_quantityController.text) ?? 1;
+    final minQuantity = int.tryParse(_minQuantityController.text) ?? 2;
     final productName = _nameController.text.trim();
     // שמור את הקטגוריה בעברית (לתאימות עם שאר המערכת)
     final category = getCategoryLabel(_selectedCategory);
@@ -154,6 +162,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
           location: _selectedLocation,
           quantity: quantity,
           unit: unit,
+          minQuantity: minQuantity,
         );
       } else {
         final updatedItem = widget.item!.copyWith(
@@ -162,6 +171,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
           location: _selectedLocation,
           quantity: quantity,
           unit: unit,
+          minQuantity: minQuantity,
         );
         await provider.updateItem(updatedItem);
       }
@@ -276,7 +286,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
               ),
               const SizedBox(height: kSpacingMedium),
 
-              // Quantity and unit fields
+              // Quantity, unit, and min quantity fields
               Row(
                 children: [
                   Expanded(
@@ -291,7 +301,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                       enabled: !_isLoading,
                     ),
                   ),
-                  const SizedBox(width: kSpacingMedium),
+                  const SizedBox(width: kSpacingSmall),
                   Expanded(
                     child: TextField(
                       controller: _unitController,
@@ -307,40 +317,91 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                       enabled: !_isLoading,
                     ),
                   ),
+                  const SizedBox(width: kSpacingSmall),
+                  // מינימום - מתי להתריע על מלאי נמוך
+                  SizedBox(
+                    width: 70,
+                    child: TextField(
+                      controller: _minQuantityController,
+                      keyboardType: TextInputType.number,
+                      style: TextStyle(color: cs.onSurface),
+                      decoration: InputDecoration(
+                        labelText: 'מינ\'',
+                        labelStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: kFontSizeSmall),
+                        helperText: 'התראה',
+                        helperStyle: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.6), fontSize: kFontSizeTiny),
+                      ),
+                      enabled: !_isLoading,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: kSpacingMedium),
 
-              // Location dropdown
-              DropdownButtonFormField<String>(
-                initialValue: _selectedLocation,
-                dropdownColor: cs.surface,
-                style: TextStyle(color: cs.onSurface),
-                decoration: InputDecoration(
-                  labelText: AppStrings.inventory.locationLabel,
-                  labelStyle: TextStyle(color: cs.onSurfaceVariant),
-                ),
-                items: StorageLocationsConfig.allLocations.map((locationId) {
-                  final info =
-                      StorageLocationsConfig.getLocationInfo(locationId);
-                  return DropdownMenuItem(
-                    value: locationId,
-                    child: Row(
-                      children: [
-                        Text(info.emoji),
-                        const SizedBox(width: kSpacingSmall),
-                        Text(info.name),
-                      ],
+              // Location dropdown (כולל מיקומים מותאמים)
+              Consumer<LocationsProvider>(
+                builder: (context, locationsProvider, _) {
+                  final customLocations = locationsProvider.customLocations;
+                  final allLocations = [
+                    ...StorageLocationsConfig.allLocations,
+                    ...customLocations.map((c) => c.key),
+                  ];
+
+                  // ודא שהמיקום הנבחר קיים ברשימה
+                  if (!allLocations.contains(_selectedLocation)) {
+                    // אם המיקום לא קיים, הוסף אותו (לתאימות לאחור)
+                    allLocations.add(_selectedLocation);
+                  }
+
+                  return DropdownButtonFormField<String>(
+                    // ignore: deprecated_member_use
+                    value: _selectedLocation,
+                    dropdownColor: cs.surface,
+                    style: TextStyle(color: cs.onSurface),
+                    decoration: InputDecoration(
+                      labelText: AppStrings.inventory.locationLabel,
+                      labelStyle: TextStyle(color: cs.onSurfaceVariant),
                     ),
+                    items: allLocations.map((locationId) {
+                      // בדוק אם זה מיקום מותאם
+                      final customLoc = customLocations.cast<CustomLocation?>().firstWhere(
+                        (c) => c?.key == locationId,
+                        orElse: () => null,
+                      );
+                      if (customLoc != null) {
+                        return DropdownMenuItem(
+                          value: locationId,
+                          child: Row(
+                            children: [
+                              Text(customLoc.emoji),
+                              const SizedBox(width: kSpacingSmall),
+                              Text(customLoc.name),
+                            ],
+                          ),
+                        );
+                      }
+                      // מיקום ברירת מחדל
+                      final info = StorageLocationsConfig.getLocationInfo(locationId);
+                      return DropdownMenuItem(
+                        value: locationId,
+                        child: Row(
+                          children: [
+                            Text(info.emoji),
+                            const SizedBox(width: kSpacingSmall),
+                            Text(info.name),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: _isLoading
+                        ? null
+                        : (val) {
+                            if (val != null) {
+                              setState(() => _selectedLocation = val);
+                            }
+                          },
                   );
-                }).toList(),
-                onChanged: _isLoading
-                    ? null
-                    : (val) {
-                        if (val != null) {
-                          setState(() => _selectedLocation = val);
-                        }
-                      },
+                },
               ),
             ],
           ),

@@ -26,8 +26,10 @@ import 'package:memozap/providers/locations_provider.dart';
 class StorageLocationManager extends StatefulWidget {
   final List<InventoryItem> inventory;
   final Function(InventoryItem)? onEditItem;
+  final Function(InventoryItem)? onDeleteItem;
+  final Function(InventoryItem, int)? onUpdateQuantity;
 
-  const StorageLocationManager({super.key, required this.inventory, this.onEditItem});
+  const StorageLocationManager({super.key, required this.inventory, this.onEditItem, this.onDeleteItem, this.onUpdateQuantity});
 
   @override
   State<StorageLocationManager> createState() => _StorageLocationManagerState();
@@ -74,6 +76,16 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
   void initState() {
     super.initState();
     _loadGridMode();
+  }
+
+  @override
+  void didUpdateWidget(StorageLocationManager oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // נקה cache כשה-inventory משתנה
+    if (widget.inventory != oldWidget.inventory) {
+      _lastCacheKey = '';
+      _cachedFilteredItems = [];
+    }
   }
 
   @override
@@ -139,7 +151,8 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
       return _cachedFilteredItems;
     }
 
-    var items = widget.inventory;
+    // יצירת עותק modifiable של הרשימה
+    var items = List<InventoryItem>.from(widget.inventory);
 
     // סינון לפי מיקום
     if (selectedLocation != 'all') {
@@ -484,6 +497,173 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
     }
   }
 
+  /// מציג דיאלוג אישור מחיקה לפריט
+  void _confirmDeleteItem(InventoryItem item) {
+    final cs = Theme.of(context).colorScheme;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: AlertDialog(
+          title: const Text('מחיקת פריט'),
+          content: Text('האם למחוק את "${item.productName}"?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('ביטול'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: cs.error,
+                foregroundColor: cs.onError,
+              ),
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                widget.onDeleteItem?.call(item);
+              },
+              child: const Text('מחק'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// מציג דיאלוג מהיר לשינוי כמות
+  void _showQuickQuantityDialog(InventoryItem item) {
+    final cs = Theme.of(context).colorScheme;
+    int quantity = item.quantity;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => Directionality(
+          textDirection: TextDirection.rtl,
+          child: AlertDialog(
+            title: Text(
+              item.productName,
+              style: TextStyle(fontSize: kFontSizeMedium, color: cs.primary),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('עדכון כמות:'),
+                const SizedBox(height: kSpacingMedium),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton.filled(
+                      icon: const Icon(Icons.remove),
+                      onPressed: quantity > 0
+                          ? () => setDialogState(() => quantity--)
+                          : null,
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge),
+                      child: Text(
+                        '$quantity',
+                        style: TextStyle(
+                          fontSize: kFontSizeLarge,
+                          fontWeight: FontWeight.bold,
+                          color: quantity <= item.minQuantity ? cs.error : cs.onSurface,
+                        ),
+                      ),
+                    ),
+                    IconButton.filled(
+                      icon: const Icon(Icons.add),
+                      onPressed: quantity < 99
+                          ? () => setDialogState(() => quantity++)
+                          : null,
+                    ),
+                  ],
+                ),
+                if (quantity <= item.minQuantity)
+                  Padding(
+                    padding: const EdgeInsets.only(top: kSpacingSmall),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.warning, color: cs.error, size: kIconSizeSmall),
+                        const SizedBox(width: kSpacingTiny),
+                        Text('מלאי נמוך (מינימום: ${item.minQuantity})', style: TextStyle(color: cs.error, fontSize: kFontSizeTiny)),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: const Text('ביטול'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(dialogContext);
+                  if (quantity != item.quantity) {
+                    widget.onUpdateQuantity?.call(item, quantity);
+                  }
+                },
+                child: const Text('שמור'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// מציג תפריט 3 נקודות עבור פריט
+  void _showItemMenu(InventoryItem item) {
+    final cs = Theme.of(context).colorScheme;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (sheetContext) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // כותרת
+              Padding(
+                padding: const EdgeInsets.all(kSpacingMedium),
+                child: Text(
+                  item.productName,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: kFontSizeMedium, color: cs.primary),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const Divider(height: 1),
+              // עריכה מלאה
+              ListTile(
+                leading: const Icon(Icons.edit),
+                title: const Text('עריכה מלאה'),
+                subtitle: const Text('שם, קטגוריה, מיקום, מינימום'),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _editItem(item);
+                },
+              ),
+              // מחיקה
+              ListTile(
+                leading: Icon(Icons.delete_outline, color: cs.error),
+                title: Text('מחק פריט', style: TextStyle(color: cs.error)),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _confirmDeleteItem(item);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   /// בנייה של כרטיס מיקום אחסון עם סטטיסטיקה
   ///
   /// תכונות:
@@ -511,7 +691,9 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
   }) {
     final cs = Theme.of(context).colorScheme;
     final isSelected = selectedLocation == key;
-    final lowStockCount = widget.inventory.where((i) => i.location == key && i.quantity <= 2).length;
+    final lowStockCount = widget.inventory.where((i) => i.location == key && i.isLowStock).length;
+
+    final isEmpty = count == 0;
 
     return GestureDetector(
       onTap: () {
@@ -521,22 +703,35 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
         });
       },
       onLongPress: isCustom ? () => _deleteCustomLocation(key, name, emoji) : null,
-      child: Card(
-        elevation: isSelected ? kCardElevationHigh : kCardElevationLow,
-        color: isSelected ? cs.primaryContainer : null,
-        child: Padding(
-          padding: const EdgeInsets.all(kSpacingSmallPlus),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Row(
-                children: [
-                  Text(emoji, style: const TextStyle(fontSize: kIconSize)),
-                  const Spacer(),
-                  if (isCustom)
-                    Tooltip(
-                      message: 'לחץ לעריכה, לחץ ארוכה למחיקה',
-                      child: GestureDetector(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        child: Card(
+          elevation: isSelected ? kCardElevationHigh : kCardElevationLow,
+          color: isSelected
+              ? cs.primaryContainer
+              : isEmpty
+                  ? cs.surfaceContainerHighest.withValues(alpha: 0.5)
+                  : null,
+          child: Padding(
+            padding: const EdgeInsets.all(kSpacingXTiny),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // אמוג'י + כפתור עריכה
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      emoji,
+                      style: TextStyle(
+                        fontSize: kFontSizeLarge,
+                        color: isEmpty ? Colors.grey : null,
+                      ),
+                    ),
+                    // הצג כפתור עריכה רק כשנבחר
+                    if (isCustom && isSelected)
+                      GestureDetector(
                         onTap: () {
                           final loc = customLocations.firstWhere(
                             (l) => l.key == key,
@@ -544,41 +739,44 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                           );
                           _showEditLocationDialog(loc);
                         },
-                        child: Icon(Icons.edit, size: kIconSizeSmall, color: cs.onSurfaceVariant),
+                        child: Icon(Icons.edit, size: 12, color: cs.onSurfaceVariant),
+                      ),
+                  ],
+                ),
+                // שם המיקום
+                Text(
+                  name,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: isSelected
+                        ? cs.primary
+                        : isEmpty
+                            ? cs.onSurfaceVariant
+                            : null,
+                    fontSize: 10,
+                  ),
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                // מספר פריטים + אזהרה
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      isEmpty ? 'ריק' : '$count',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: isEmpty ? cs.onSurfaceVariant.withValues(alpha: 0.6) : cs.primary,
                       ),
                     ),
-                ],
-              ),
-              const SizedBox(height: kSpacingTiny),
-              Text(
-                name,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: isSelected ? cs.primary : null,
-                  fontSize: kFontSizeTiny,
-                ),
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: kSpacingTiny),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    count == 0 ? 'ריק' : '$count',
-                    style: TextStyle(
-                      fontSize: kFontSizeSmall,
-                      fontWeight: FontWeight.bold,
-                      color: count == 0 ? cs.onSurfaceVariant : cs.primary,
-                    ),
-                  ),
-                  if (lowStockCount > 0) ...[
-                    const SizedBox(width: kSpacingTiny),
-                    Icon(Icons.warning, size: kIconSizeSmall, color: cs.error),
+                    if (lowStockCount > 0)
+                      Icon(Icons.warning_amber_rounded, size: 10, color: cs.error),
                   ],
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -670,15 +868,16 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
 
           /// 🔍 שדה חיפוש
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingTiny),
+            padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingSmall),
             child: TextField(
               controller: searchController,
               decoration: InputDecoration(
                 labelText: 'חיפוש פריט',
-                prefixIcon: const Icon(Icons.search),
+                hintText: 'הקלד שם מוצר או קטגוריה...',
+                prefixIcon: Icon(Icons.search, color: cs.primary),
                 suffixIcon: searchQuery.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear),
+                        icon: Icon(Icons.clear, color: cs.onSurfaceVariant),
                         onPressed: () {
                           searchController.clear();
                           setState(() {
@@ -688,7 +887,9 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                         },
                       )
                     : null,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall)),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(kBorderRadius)),
+                filled: true,
+                fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.3),
               ),
               onChanged: (value) {
                 setState(() {
@@ -705,11 +906,13 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
               children: [
                 /// 📦 רשימת מיקומים
                 SizedBox(
-                  height: gridMode ? (kChipHeight * 4) : (kChipHeight * 3),
-                  child: gridMode 
+                  height: gridMode ? (kChipHeight * 4) : (kChipHeight * 2.5),
+                  child: gridMode
                     ? GridView.count(
                         crossAxisCount: 3,
-                        childAspectRatio: 1.2,
+                        childAspectRatio: 1.3,
+                        mainAxisSpacing: kSpacingTiny,
+                        crossAxisSpacing: kSpacingTiny,
                         padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
                         children: [
                       // כרטיס "הכל"
@@ -850,6 +1053,9 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                                   itemBuilder: (_, index) {
                                     final item = filteredInventory[index];
                                     return ListTile(
+                                      onTap: widget.onUpdateQuantity != null
+                                          ? () => _showQuickQuantityDialog(item)
+                                          : null,
                                       leading: CircleAvatar(
                                         backgroundColor: cs.primaryContainer,
                                         child: Text(
@@ -867,25 +1073,23 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                                         children: [
                                           Icon(Icons.inventory, size: kIconSizeSmall, color: cs.onSurfaceVariant),
                                           const SizedBox(width: kSpacingTiny),
-                                          Text('${item.quantity} ${item.unit}'),
-                                          const SizedBox(width: kSpacingSmallPlus),
-                                          Icon(Icons.category, size: kIconSizeSmall, color: cs.onSurfaceVariant),
-                                          const SizedBox(width: kSpacingTiny),
-                                          Text(item.category),
+                                          Text(
+                                            '${item.quantity} ${item.unit}',
+                                            style: TextStyle(
+                                              color: item.isLowStock ? cs.error : null,
+                                              fontWeight: item.isLowStock ? FontWeight.bold : null,
+                                            ),
+                                          ),
+                                          if (item.isLowStock) ...[
+                                            const SizedBox(width: kSpacingTiny),
+                                            Icon(Icons.warning, color: cs.error, size: kIconSizeSmall),
+                                          ],
                                         ],
                                       ),
-                                      trailing: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          if (item.quantity <= 2)
-                                            Icon(Icons.warning, color: cs.error, size: kFontSizeMedium),
-                                          if (widget.onEditItem != null)
-                                            IconButton(
-                                              icon: const Icon(Icons.edit),
-                                              onPressed: () => _editItem(item),
-                                              tooltip: 'ערוך פריט',
-                                            ),
-                                        ],
+                                      trailing: IconButton(
+                                        icon: const Icon(Icons.more_vert),
+                                        onPressed: () => _showItemMenu(item),
+                                        tooltip: 'אפשרויות נוספות',
                                       ),
                                     );
                                   },

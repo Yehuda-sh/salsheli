@@ -92,10 +92,10 @@ class StorageLocationsConfig {
     ),
     countertop: LocationInfo(
       id: countertop,
-      name: 'משטח',
-      emoji: '🍎',
-      icon: Icons.countertops,
-      description: 'משטח מטבח - פירות וירקות',
+      name: 'ארון מטבח',
+      emoji: '🗄️',
+      icon: Icons.door_sliding,
+      description: 'ארון מטבח - מוצרים כלליים',
     ),
     other: LocationInfo(
       id: other,

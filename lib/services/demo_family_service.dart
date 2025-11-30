@@ -183,6 +183,7 @@ class DemoFamilyService {
   Future<Map<String, String>> _ensureAllDemoUsersExist() async {
     final Map<String, String> uids = {};
 
+    // 1️⃣ קודם יוצר/מתחבר לכל משתמש כדי לקבל UIDs
     for (final demoUser in demoUsers) {
       try {
         // נסה להתחבר
@@ -209,6 +210,33 @@ class DemoFamilyService {
       }
     }
 
+    // 2️⃣ יצירת household_id מבוסס על ה-owner (דוד)
+    final ownerUid = uids['david.demo@memozap.app']!;
+    final sharedHouseholdId = 'house_$ownerUid';
+    debugPrint('🏠 DemoFamilyService: household_id משותף = $sharedHouseholdId');
+
+    // 3️⃣ עדכון/יצירת פרופיל משתמש עם household_id לכל משתמש דמו
+    // חייבים להיות מחוברים כמשתמש כדי לעדכן את הפרופיל שלו (Security Rules)
+    for (final demoUser in demoUsers) {
+      final uid = uids[demoUser.email]!;
+
+      // התחבר למשתמש כדי לעדכן את הפרופיל שלו
+      await _auth.signInWithEmailAndPassword(
+        email: demoUser.email,
+        password: demoUser.password,
+      );
+
+      await _firestore.collection('users').doc(uid).set({
+        'uid': uid,
+        'email': demoUser.email,
+        'display_name': demoUser.name,
+        'household_id': sharedHouseholdId, // כולם באותו household!
+        'isDemo': true,
+        'created_at': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+      debugPrint('📝 עודכן פרופיל ל-${demoUser.name} עם household_id=$sharedHouseholdId');
+    }
+
     // התנתק כדי שנוכל להתחבר למשתמש הנכון
     await _auth.signOut();
 
@@ -223,14 +251,11 @@ class DemoFamilyService {
     debugPrint('🏗️ DemoFamilyService: יוצר נתוני דמו משותפים...');
 
     try {
-      // בדוק אם הרשימה כבר קיימת
-      final listDoc = await _firestore.collection('shopping_lists').doc('demo_list_shared').get();
-      if (listDoc.exists) {
-        debugPrint('✅ DemoFamilyService: נתוני דמו כבר קיימים');
-        return;
-      }
+      // המתן קצת כדי שה-auth state יתעדכן ב-Firestore
+      await Future.delayed(const Duration(milliseconds: 500));
 
       // צור רשימת קניות משותפת עם כל בני המשפחה
+      // משתמש ב-set() שיוצר או מעדכן - ללא בדיקת קיום מראש
       await _createSharedDemoShoppingList(householdId, demoUserUids);
 
       // צור פריטי מלאי דמו

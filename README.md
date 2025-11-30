@@ -41,14 +41,13 @@ Smart family shopping list manager with unique Sticky Notes design.
 
 | Type | Count |
 |------|-------|
-| Dart files | 130 |
-| Models | 26 |
+| Dart files | ~105 |
+| Models | 19 |
 | Providers | 8 |
 | Repositories | 15 |
-| Services | 20 |
-| Screens | 23 |
+| Services | 17 |
+| Screens | 24 |
 | Widgets | 19 |
-| Documentation | 7 files |
 
 ---
 
@@ -104,20 +103,6 @@ dart format lib/ -w
 # Build APK
 flutter build apk --release
 ```
-
----
-
-## Documentation
-
-Documentation files are in the `/docs` folder:
-
-- `PROJECT_INSTRUCTIONS_v4.md` - AI instructions
-- `CODE.md` - Code patterns & architecture
-- `DESIGN.md` - Sticky Notes design system
-- `TECH.md` - Firebase & security
-- `CODE_REVIEW_CHECKLIST.md` - Review protocols
-- `WORK_PLAN.md` - Roadmap
-- `CLAUDE_GUIDE.md` - Quick reference
 
 ---
 

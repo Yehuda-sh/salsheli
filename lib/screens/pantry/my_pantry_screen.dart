@@ -1,55 +1,31 @@
 // 📄 File: lib/screens/pantry/my_pantry_screen.dart
 //
-// 🎯 מטרה: מסך ניהול מזווה - ניהול פריטי מלאי
+// 🎯 מטרה: מסך ניהול מזווה - ניהול פריטי מלאי לפי מיקומים
 //
 // 📋 כולל:
-// - 2 טאבים: תצוגת רשימה + ניהול מיקומים
-// - סינון לפי קטגוריה + חיפוש טקסט
+// - תצוגת פריטים לפי מיקומי אחסון
+// - חיפוש וסינון
 // - CRUD מלא: הוספה, עריכה, מחיקה, עדכון כמות
-// - קיבוץ לפי מיקומי אחסון
-// - סטטיסטיקות: סה"כ פריטים, כמות נמוכה, מספר מיקומים
-// - שימוש ב-PantryItemDialog מאוחד (חיסכון ~335 שורות קוד)
+// - ניהול מיקומים מותאמים
 //
 // 🔗 Dependencies:
 // - InventoryProvider: ניהול state
 // - StorageLocationsConfig: תצורת מיקומים
-// - PantryFilters: widget סינון
 // - StorageLocationManager: widget ניהול מיקומים
 //
-// 🎯 שימוש:
-// ```dart
-// Navigator.push(context, MaterialPageRoute(
-//   builder: (_) => const MyPantryScreen(),
-// ));
-// ```
-//
-// 📝 הערות:
-// - כל הconstants מ-ui_constants.dart
-// - Theme-aware (ColorScheme)
-// - RTL support מלא
-// - Logging מפורט לכל פעולה
-// - Touch targets 48x48
-//
-// Version: 3.1
-// Last Updated: 26/10/2025
-// Changes: Refactored to use unified PantryItemDialog
-
-import 'dart:async';
+// Version: 4.0
+// Last Updated: 30/11/2025
+// Changes: Simplified to single view (locations only)
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../config/filters_config.dart';
-import '../../config/storage_locations_config.dart';
 import '../../core/ui_constants.dart';
 import '../../models/inventory_item.dart';
 import '../../providers/inventory_provider.dart';
-import '../../providers/shopping_lists_provider.dart';
 import '../../widgets/common/notebook_background.dart';
-import '../../widgets/common/sticky_button.dart';
-import '../../widgets/common/sticky_note.dart';
-import '../../widgets/inventory/pantry_filters.dart';
 import '../../widgets/inventory/pantry_item_dialog.dart';
+import '../../widgets/inventory/pantry_product_selection_sheet.dart';
 import '../../widgets/inventory/storage_location_manager.dart';
 
 class MyPantryScreen extends StatefulWidget {
@@ -59,26 +35,12 @@ class MyPantryScreen extends StatefulWidget {
   State<MyPantryScreen> createState() => _MyPantryScreenState();
 }
 
-class _MyPantryScreenState extends State<MyPantryScreen>
-    with SingleTickerProviderStateMixin {
-  final TextEditingController _searchController = TextEditingController();
-  String searchTerm = '';
-  String _selectedCategory = 'all';
-  Timer? _debounceTimer;
-  
-  late TabController _tabController;
-  final Set<String> _selectedItemIds = {}; // פריטים מסומנים להוספה לרשימה
-  
-  // Undo functionality
-  InventoryItem? _lastDeletedItem;
-  Timer? _undoTimer;
-
+class _MyPantryScreenState extends State<MyPantryScreen> {
   @override
   void initState() {
     super.initState();
     debugPrint('📦 MyPantryScreen: initState');
-    _tabController = TabController(length: 2, vsync: this);
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         debugPrint('🔄 MyPantryScreen: טעינת פריטים');
@@ -87,131 +49,10 @@ class _MyPantryScreenState extends State<MyPantryScreen>
     });
   }
 
-  @override
-  void dispose() {
-    debugPrint('🗑️ MyPantryScreen: dispose');
-    _debounceTimer?.cancel();
-    _undoTimer?.cancel();
-    _searchController.dispose();
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  // ========================================
-  // Actions
-  // ========================================
-
-  /// מעדכן את כמות הפריט - מוסיף או מוריד delta
-  /// אם הכמות מגיעה ל-0, מציג דיאלוג אישור מחיקה
-  void _updateQuantity(String itemId, int delta) async {
-    try {
-      final provider = context.read<InventoryProvider>();
-      final item = provider.items.firstWhere((i) => i.id == itemId);
-
-      final newQuantity = (item.quantity + delta).clamp(0, 99);
-      debugPrint('🔢 MyPantryScreen: עדכון כמות - ${item.productName}: ${item.quantity} → $newQuantity');
-
-      if (newQuantity == 0) {
-        debugPrint('⚠️ MyPantryScreen: כמות 0 - מחיקה אוטומטית עם Undo');
-        
-        // שמור פריט ל-Undo
-        setState(() {
-          _lastDeletedItem = item;
-          _undoTimer?.cancel();
-        });
-        
-        await provider.deleteItem(itemId);
-        debugPrint('✅ MyPantryScreen: פריט נמחק');
-        
-        if (mounted) {
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('הפריט "${item.productName}" הוסר מהמזווה'),
-              duration: const Duration(seconds: 5),
-              action: SnackBarAction(
-                label: 'ביטול',
-                textColor: kStickyYellow,
-                onPressed: _undoDelete,
-              ),
-            ),
-          );
-          
-          // מחק את הפריט השמור אחרי 5 שניות
-          _undoTimer = Timer(const Duration(seconds: 5), () {
-            setState(() {
-              _lastDeletedItem = null;
-            });
-          });
-        }
-        return;
-      }
-
-      final updatedItem = item.copyWith(quantity: newQuantity);
-      await provider.updateItem(updatedItem);
-      debugPrint('✅ MyPantryScreen: כמות עודכנה');
-    } catch (e) {
-      debugPrint('❌ MyPantryScreen: שגיאה בעדכון כמות - $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('שגיאה בעדכון כמות'),
-            backgroundColor: Colors.red,
-            duration: kSnackBarDuration,
-          ),
-        );
-      }
-    }
-  }
-
-  /// שחזור פריט שנמחק (Undo)
-  Future<void> _undoDelete() async {
-    if (_lastDeletedItem == null) return;
-    
-    final provider = context.read<InventoryProvider>();
-    final itemToRestore = _lastDeletedItem!;
-    
-    setState(() {
-      _lastDeletedItem = null;
-      _undoTimer?.cancel();
-    });
-    
-    try {
-      await provider.createItem(
-        productName: itemToRestore.productName,
-        category: itemToRestore.category,
-        location: itemToRestore.location,
-        quantity: itemToRestore.quantity,
-        unit: itemToRestore.unit,
-      );
-      debugPrint('✅ MyPantryScreen: פריט שוחזר - ${itemToRestore.productName}');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('הפריט "${itemToRestore.productName}" שוחזר'),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
-    } catch (e) {
-      debugPrint('❌ MyPantryScreen: שגיאה בשחזור - $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('שגיאה בשחזור הפריט: $e'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
-    }
-  }
-
-  /// מציג דיאלוג להוספת פריט חדש למזווה
+  /// מציג bottom sheet לבחירת מוצר מהקטלוג
   void _addItemDialog() {
-    debugPrint('➕ MyPantryScreen: פתיחת דיאלוג הוספת פריט');
-    PantryItemDialog.showAddDialog(context);
+    debugPrint('➕ MyPantryScreen: פתיחת בחירת מוצר מהקטלוג');
+    PantryProductSelectionSheet.show(context);
   }
 
   /// מציג דיאלוג לעריכת פרטי פריט קיים
@@ -220,500 +61,41 @@ class _MyPantryScreenState extends State<MyPantryScreen>
     PantryItemDialog.showEditDialog(context, item);
   }
 
-  // ========================================
-  // UI Helpers
-  // ========================================
-
-  /// בונה chip סטטיסטיקה קטן עם אייקון, תווית וערך
-  Widget _buildStatChip({
-    required IconData icon,
-    required String label,
-    required String value,
-    required Color color,
-    required Color stickyColor,
-  }) {
-    // Wrap with Expanded to constrain width in Row
-    return Expanded(
-      child: StickyNote(
-        color: stickyColor,
-        child: Padding(
-          padding: const EdgeInsets.all(kSpacingXTiny),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: color, size: kIconSizeSmall),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 10,
-                  color: Colors.black87,
-                ),
-              ),
-              Text(
-                value,
-                style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.bold,
-                  fontSize: kFontSizeSmall,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// מוסיף פריטים מסומנים לרשימת קניות
-  Future<void> _addSelectedToShoppingList() async {
-    if (_selectedItemIds.isEmpty) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('אנא בחר פריטים להוספה'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-      return;
-    }
-
-    final provider = context.read<InventoryProvider>();
-    final listsProvider = context.read<ShoppingListsProvider>();
-    
-    // קבל את הרשימה הפעילה הראשונה או צור חדשה
-    String? targetListId;
-    final activeLists = listsProvider.lists
-        .where((l) => l.status == 'active')
-        .toList();
-    
-    if (activeLists.isNotEmpty) {
-      // יש רשימה פעילה - הוסף אליה
-      targetListId = activeLists.first.id;
-    } else {
-      // צור רשימה חדשה
-      try {
-        final newList = await listsProvider.createList(
-          name: 'רשימת קניות חדשה',
-          type: 'grocery',
-        );
-        targetListId = newList.id;
-      } catch (e) {
-        debugPrint('❌ שגיאה ביצירת רשימה: $e');
-        if (!mounted) return;
+  /// מוחק פריט מהמזווה
+  Future<void> _deleteItem(InventoryItem item) async {
+    debugPrint('🗑️ MyPantryScreen: מחיקת פריט - ${item.id}');
+    try {
+      await context.read<InventoryProvider>().deleteItem(item.id);
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('שגיאה ביצירת רשימה: $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('${item.productName} נמחק')),
         );
-        return;
       }
-    }
-    
-    // הוסף את הפריטים המסומנים לרשימה
-    int addedCount = 0;
-    for (var itemId in _selectedItemIds) {
-      final item = provider.items.firstWhere((i) => i.id == itemId);
-      
-      try {
-        await listsProvider.addItemToList(
-          targetListId,
-          item.productName,
-          1, // כמות ברירת מחדל
-          item.unit,
+    } catch (e) {
+      debugPrint('❌ MyPantryScreen: שגיאה במחיקת פריט - $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('שגיאה במחיקת פריט')),
         );
-        addedCount++;
-      } catch (e) {
-        debugPrint('❌ שגיאה בהוספת ${item.productName}: $e');
       }
     }
-    
-    setState(() {
-      _selectedItemIds.clear();
-    });
-    
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('✅ נוספו $addedCount פריטים לרשימת הקניות'),
-        backgroundColor: Colors.green,
-        action: SnackBarAction(
-          label: 'צפה ברשימה',
-          textColor: Colors.white,
-          onPressed: () => Navigator.pushNamed(
-              context,
-              '/manage-list',
-              arguments: {'listId': targetListId},
-            ),
-        ),
-      ),
-    );
-  }
-  
-  /// בונה את תצוגת הרשימה המלאה עם סינון וקיבוץ לפי מיקומים
-  Widget _buildListView(List<InventoryItem> items) {
-    final cs = Theme.of(context).colorScheme;
-    
-    final filteredItems = items.where((item) {
-      // סינון לפי קטגוריה
-      if (_selectedCategory != 'all') {
-        // המר קטגוריה עברית לאנגלית לצורך השוואה
-        final itemCategoryKey = hebrewCategoryToEnglish(item.category);
-
-        // אם לא נמצא מפתח אנגלי, נסה התאמה ישירה
-        if (itemCategoryKey != null) {
-          if (itemCategoryKey != _selectedCategory) {
-            return false;
-          }
-        } else {
-          // fallback: השוואה ישירה לשם העברי של הקטגוריה הנבחרת
-          final selectedLabel = getCategoryLabel(_selectedCategory);
-          if (item.category != selectedLabel) {
-            return false;
-          }
-        }
-      }
-
-      // סינון לפי חיפוש טקסט
-      if (searchTerm.isEmpty) return true;
-      final searchLower = searchTerm.toLowerCase();
-      final locationName = StorageLocationsConfig.getName(item.location);
-      return item.productName.toLowerCase().contains(searchLower) ||
-          locationName.toLowerCase().contains(searchLower);
-    }).toList();
-
-    final Map<String, List<InventoryItem>> grouped = {};
-    for (var item in filteredItems) {
-      final key = StorageLocationsConfig.isValidLocation(item.location)
-          ? item.location
-          : StorageLocationsConfig.other;
-      grouped.putIfAbsent(key, () => []).add(item);
-    }
-
-    return Column(
-      children: [
-        // סינון קטגוריה
-        Container(
-          padding: const EdgeInsets.fromLTRB(
-            kSpacingSmall,
-            kSpacingSmall,
-            kSpacingSmall,
-            kSpacingXTiny,
-          ),
-          color: cs.surfaceContainerLow,
-          child: PantryFilters(
-            currentCategory: _selectedCategory,
-            onCategoryChanged: (category) {
-              debugPrint('🔄 MyPantryScreen: Category changed: $category');
-              setState(() => _selectedCategory = category);
-            },
-          ),
-        ),
-        
-        // Search bar
-        Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: kSpacingSmall,
-            vertical: kSpacingXTiny,
-          ),
-          color: kPaperBackground,
-          child: StickyNote(
-            color: kStickyYellow,
-            child: Padding(
-              padding: const EdgeInsets.all(kSpacingSmall),
-              child: TextField(
-                controller: _searchController,
-                onChanged: (val) {
-                  // Debounce: המתן 300ms לפני חיפוש
-                  _debounceTimer?.cancel();
-                  _debounceTimer = Timer(const Duration(milliseconds: 300), () {
-                    if (mounted) {
-                      debugPrint('🔍 MyPantryScreen: חיפוש - "$val"');
-                      setState(() => searchTerm = val);
-                    }
-                  });
-                },
-                style: const TextStyle(color: Colors.black87),
-                decoration: InputDecoration(
-                  hintText: 'חיפוש פריט או מיקום...',
-                  hintStyle: TextStyle(color: Colors.black.withValues(alpha: 0.5)),
-                  prefixIcon: Icon(Icons.search, color: Colors.black.withValues(alpha: 0.5)),
-                  suffixIcon: searchTerm.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear, color: Colors.black54),
-                          onPressed: () {
-                            debugPrint('❌ MyPantryScreen: ניקוי חיפוש');
-                            _searchController.clear();
-                            setState(() => searchTerm = '');
-                          },
-                        )
-                      : null,
-                  border: InputBorder.none,
-                  isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: kSpacingSmall,
-                    vertical: kSpacingXTiny,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-
-        // Stats bar
-        Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: kSpacingSmall,
-            vertical: kSpacingXTiny,
-          ),
-          color: Colors.transparent,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildStatChip(
-                icon: Icons.warning,
-                label: 'כמות נמוכה',
-                value: items.where((i) => i.quantity <= 1).length.toString(),
-                color: Colors.orange,
-                stickyColor: kStickyOrange,
-              ),
-              const SizedBox(width: kSpacingMedium),
-              _buildStatChip(
-                icon: Icons.location_on,
-                label: 'מיקומים',
-                value: grouped.length.toString(),
-                color: Colors.purple,
-                stickyColor: kStickyPurple,
-              ),
-            ],
-          ),
-        ),
-
-        // Items list
-        Expanded(
-          child: filteredItems.isEmpty
-              ? Center(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(kSpacingXLarge),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          searchTerm.isNotEmpty
-                              ? Icons.search_off
-                              : Icons.kitchen_outlined,
-                          size: 120,
-                          color: cs.onSurfaceVariant.withValues(alpha: 0.3),
-                        ),
-                        const SizedBox(height: kSpacingLarge),
-                        Text(
-                          searchTerm.isNotEmpty
-                              ? 'לא נמצאו פריטים'
-                              : 'המזווה שלך ריקה 🎉',
-                          style: TextStyle(
-                            color: cs.onSurface,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: kSpacingSmall),
-                        Text(
-                          searchTerm.isNotEmpty
-                              ? 'נסה לחפש משהו אחר'
-                              : 'התחל לנהל את המלאי שלך',
-                          style: TextStyle(
-                            color: cs.onSurfaceVariant,
-                            fontSize: 16,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        if (searchTerm.isEmpty) ...[
-                          const SizedBox(height: kSpacingXLarge),
-                          StickyButton(
-                            label: 'הוסף פריט ראשון',
-                            color: kStickyGreen,
-                            onPressed: _addItemDialog,
-                            icon: Icons.add,
-                          ),
-                          const SizedBox(height: kSpacingMedium),
-                          Text(
-                            'טיפ: תוכל גם להוסיף פריטים בסיום קנייה',
-                            style: TextStyle(
-                              color: cs.onSurfaceVariant,
-                              fontSize: 14,
-                              fontStyle: FontStyle.italic,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(kSpacingMedium),
-                  itemCount: grouped.length,
-                  itemBuilder: (context, index) {
-                    final entry = grouped.entries.elementAt(index);
-                    final location = entry.key;
-                    final locationItems = entry.value;
-                    final locationInfo = StorageLocationsConfig.getLocationInfo(location);
-
-                    final stickyColors = [kStickyYellow, kStickyCyan, kStickyGreen, kStickyPurple, kStickyOrange];
-                    final stickyColor = stickyColors[index % stickyColors.length];
-                    final rotation = (index % 3 - 1) * 0.01; // -0.01, 0, 0.01
-                    
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: kSpacingMedium),
-                      child: StickyNote(
-                        color: stickyColor,
-                        rotation: rotation,
-                        child: Column(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(kSpacingSmallPlus),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withValues(alpha: 0.05),
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(kBorderRadius),
-                                  topRight: Radius.circular(kBorderRadius),
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    locationInfo.emoji,
-                                    style: const TextStyle(fontSize: kFontSizeLarge),
-                                  ),
-                                  const SizedBox(width: kSpacingSmall),
-                                  Text(
-                                    locationInfo.name,
-                                    style: const TextStyle(
-                                      color: Colors.black87,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: kFontSizeBody,
-                                    ),
-                                  ),
-                                  const Spacer(),
-                                  Text(
-                                    '${locationItems.length} פריטים',
-                                    style: TextStyle(
-                                      color: Colors.black.withValues(alpha: 0.7),
-                                      fontSize: kFontSizeSmall,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            ...locationItems.map((item) {
-                              final isSelected = _selectedItemIds.contains(item.id);
-                              final needsRefill = item.quantity <= 1;
-                              
-                              return ListTile(
-                                tileColor: isSelected 
-                                    ? Colors.white.withValues(alpha: 0.5)
-                                    : null,
-                                leading: Checkbox(
-                                value: isSelected,
-                                onChanged: (value) {
-                                  setState(() {
-                                    if (value == true) {
-                                      _selectedItemIds.add(item.id);
-                                    } else {
-                                      _selectedItemIds.remove(item.id);
-                                    }
-                                  });
-                                },
-                                activeColor: kStickyGreen,
-                              ),
-                              title: Row(
-                                children: [
-                                  Expanded(
-                                      child: Text(
-                                        item.productName,
-                                        style: TextStyle(
-                                          color: Colors.black87,
-                                          decoration: needsRefill 
-                                              ? TextDecoration.lineThrough 
-                                              : null,
-                                        ),
-                                      ),
-                                  ),
-                                  if (needsRefill)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 6,
-                                        vertical: 2,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.orange.withValues(alpha: 0.2),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: const Text(
-                                        'חסר',
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          color: Colors.orange,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                                subtitle: Text(
-                                  '${item.quantity} ${item.unit}',
-                                  style: TextStyle(
-                                    color: item.quantity == 0 
-                                        ? Colors.red 
-                                        : Colors.black54,
-                                    fontWeight: item.quantity == 0 
-                                        ? FontWeight.bold 
-                                        : FontWeight.normal,
-                                  ),
-                                ),
-                                trailing: SizedBox(
-                                  width: kMinTouchTarget * 2,
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Expanded(
-                                        child: IconButton(
-                                          icon: const Icon(
-                                            Icons.remove_circle_outline,
-                                            color: Colors.red,
-                                          ),
-                                          onPressed: () => _updateQuantity(item.id, -1),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: IconButton(
-                                          icon: const Icon(
-                                            Icons.add_circle_outline,
-                                            color: Colors.green,
-                                          ),
-                                          onPressed: () => _updateQuantity(item.id, 1),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            }),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-        ),
-      ],
-    );
   }
 
-  // ========================================
-  // Build
-  // ========================================
+  /// מעדכן כמות פריט במזווה
+  Future<void> _updateQuantity(InventoryItem item, int newQuantity) async {
+    debugPrint('📦 MyPantryScreen: עדכון כמות - ${item.id} -> $newQuantity');
+    try {
+      final updatedItem = item.copyWith(quantity: newQuantity);
+      await context.read<InventoryProvider>().updateItem(updatedItem);
+    } catch (e) {
+      debugPrint('❌ MyPantryScreen: שגיאה בעדכון כמות - $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('שגיאה בעדכון כמות')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -727,54 +109,14 @@ class _MyPantryScreenState extends State<MyPantryScreen>
             backgroundColor: kPaperBackground,
             appBar: AppBar(
               backgroundColor: kStickyCyan,
-              title: Text(_selectedItemIds.isEmpty 
-                  ? 'המזווה שלי' 
-                  : '${_selectedItemIds.length} נבחרו'),
+              title: const Text('המזווה שלי'),
               actions: [
-                if (_selectedItemIds.isNotEmpty)
-                  IconButton(
-                    icon: const Icon(Icons.add_shopping_cart),
-                    onPressed: _addSelectedToShoppingList,
-                    tooltip: 'הוסף לרשימת קניות',
-                    color: Colors.green,
-                  ),
                 IconButton(
                   icon: const Icon(Icons.add),
                   onPressed: _addItemDialog,
                   tooltip: 'הוסף פריט',
                 ),
               ],
-              bottom: PreferredSize(
-                preferredSize: const Size.fromHeight(36),
-                child: TabBar(
-                  controller: _tabController,
-                  labelPadding: EdgeInsets.zero,
-                  tabs: const [
-                    Tab(
-                      height: 36,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.list, size: 18),
-                          SizedBox(width: 4),
-                          Text('רשימה', style: TextStyle(fontSize: 12)),
-                        ],
-                      ),
-                    ),
-                    Tab(
-                      height: 36,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.location_on, size: 18),
-                          SizedBox(width: 4),
-                          Text('מיקומים', style: TextStyle(fontSize: 12)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ),
             body: provider.isLoading
                 ? const Center(
@@ -790,18 +132,11 @@ class _MyPantryScreenState extends State<MyPantryScreen>
                 : Stack(
                     children: [
                       const NotebookBackground(),
-                      TabBarView(
-                        controller: _tabController,
-                        children: [
-                          // טאב 1: תצוגת רשימה
-                          _buildListView(items),
-                          
-                          // טאב 2: ניהול מיקומים
-                          StorageLocationManager(
-                            inventory: items,
-                            onEditItem: _editItemDialog,
-                          ),
-                        ],
+                      StorageLocationManager(
+                        inventory: items,
+                        onEditItem: _editItemDialog,
+                        onDeleteItem: _deleteItem,
+                        onUpdateQuantity: _updateQuantity,
                       ),
                     ],
                   ),

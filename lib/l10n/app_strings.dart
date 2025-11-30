@@ -337,6 +337,32 @@ class _ShoppingStrings {
   String get restoreError => 'שגיאה בשחזור הרשימה';
   String get deleteError => 'שגיאה במחיקת הרשימה';
 
+  // Shopping List Tile - Urgency
+  String get urgencyPassed => 'עבר!';
+  String get urgencyToday => 'היום!';
+  String get urgencyTomorrow => 'מחר';
+  String urgencyDaysLeft(int days) => 'עוד $days ימים';
+
+  // Shopping List Tile - List Types
+  String get typeSupermarket => 'סופרמרקט';
+  String get typePharmacy => 'בית מרקחת';
+  String get typeGreengrocer => 'ירקן';
+  String get typeButcher => 'אטליז';
+  String get typeBakery => 'מאפייה';
+  String get typeMarket => 'שוק';
+  String get typeHousehold => 'כלי בית';
+  String get typeOther => 'אחר';
+
+  // Shopping List Tile - Delete Dialog
+  String get deleteListTitle => 'מחיקת רשימה';
+  String deleteListMessage(String name) => 'האם למחוק את הרשימה "$name"?';
+  String get deleteButton => 'מחק';
+
+  // Shopping List Tile - Item Info
+  String itemsAndDate(int count, String date) => 'פריטים: $count • עודכן: $date';
+  String get editListButton => 'עריכת רשימה';
+  String get deleteListButton => 'מחיקה';
+
   // Active Shopping - Summary Dialog
   String get summaryTitle => 'סיכום קנייה';
   String get summaryShoppingTime => 'זמן קנייה';
@@ -348,10 +374,25 @@ class _ShoppingStrings {
   String summaryPurchased(int purchased, int total) => '$purchased מתוך $total';
 
   // Price & Quantity
-  String quantityMultiplier(int quantity) => '${quantity}×';
+  String quantityMultiplier(int quantity) => '$quantity×';
   String priceFormat(double price) => '₪${price.toStringAsFixed(2)}';
   String get noPrice => 'אין מחיר';
   String get categoryGeneral => 'כללי';
+
+  // Product Selection Bottom Sheet
+  String addProductsTitle(String listName) => 'הוספת מוצרים: $listName';
+  String productRemovedFromList(String name) => '$name הוסר מהרשימה';
+  String productUpdatedQuantity(String name, int quantity) => '$name (עודכן ל-$quantity)';
+  String productAddedToList(String name) => '$name נוסף לרשימה! ✓';
+  String get loadingProducts => 'טוען מוצרים...';
+  String noProductsMatchingSearch(String query) => 'לא נמצאו מוצרים התואמים "$query"';
+  String get noProductsAvailable => 'אין מוצרים זמינים כרגע';
+  String get tryDifferentSearch => 'נסה לחפש משהו אחר';
+  String get loadProductsFromServer => 'טען מוצרים מהשרת';
+  String get loadProductsButton => 'טען מוצרים';
+  String get productNoName => 'ללא שם';
+  String updateProductError(String error) => 'שגיאה בעדכון מוצר: $error';
+  String addProductError(String error) => 'שגיאה בהוספת מוצר: $error';
 }
 
 // ========================================
@@ -1092,6 +1133,17 @@ class _InventoryStrings {
   // ========================================
 
   // Note: StorageManager strings removed - not currently in use
+
+  // ========================================
+  // Pantry Product Selection (Catalog)
+  // ========================================
+
+  String get addFromCatalogTitle => 'הוספה מהקטלוג';
+  String get searchProductsHint => 'חיפוש מוצר...';
+  String get loadingProducts => 'טוען מוצרים...';
+  String get noProductsFound => 'לא נמצאו מוצרים';
+  String get noProductsAvailable => 'אין מוצרים זמינים';
+  String productAddedSuccess(String name) => '$name נוסף למזווה!';
 }
 
 // ========================================

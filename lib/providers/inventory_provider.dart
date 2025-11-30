@@ -156,6 +156,7 @@ class InventoryProvider with ChangeNotifier {
     required String location,
     int quantity = 1,
     String unit = "יח'",
+    int minQuantity = 2,
   }) async {
     final householdId = _userContext?.user?.householdId;
     if (householdId == null) {
@@ -170,6 +171,7 @@ class InventoryProvider with ChangeNotifier {
         location: location,
         quantity: quantity,
         unit: unit,
+        minQuantity: minQuantity,
       );
 
       await _repository.saveItem(newItem, householdId);
@@ -203,14 +205,14 @@ class InventoryProvider with ChangeNotifier {
     try {
       await _repository.saveItem(item, householdId);
 
-      // אופטימיזציה: עדכון local במקום ריענון מלא
+      // עדכון local - יוצר רשימה חדשה כדי ש-Flutter יזהה את השינוי
       final index = _items.indexWhere((i) => i.id == item.id);
       if (index != -1) {
-        _items[index] = item;
-        notifyListeners();
+        _items = List.from(_items)..[index] = item;
       } else {
-        await _loadItems();
+        _items = [..._items, item];
       }
+      notifyListeners();
     } catch (e) {
       debugPrint('❌ InventoryProvider.updateItem: שגיאה - $e');
       _errorMessage = 'שגיאה בעדכון פריט';
@@ -234,8 +236,8 @@ class InventoryProvider with ChangeNotifier {
     try {
       await _repository.deleteItem(id, householdId);
 
-      // אופטימיזציה: מחיקה local במקום ריענון מלא
-      _items.removeWhere((i) => i.id == id);
+      // מחיקה local - יוצר רשימה חדשה כדי ש-Flutter יזהה את השינוי
+      _items = _items.where((i) => i.id != id).toList();
       notifyListeners();
     } catch (e) {
       debugPrint('❌ InventoryProvider.deleteItem: שגיאה - $e');
@@ -286,18 +288,16 @@ class InventoryProvider with ChangeNotifier {
     return _items.where((i) => i.category == category).toList();
   }
 
-  /// מחזיר מוצרים שאוזלים (מתחת לסף מוגדר)
+  /// מחזיר מוצרים שאוזלים (מתחת למינימום שהוגדר לכל פריט)
   ///
-  /// Parameters:
-  /// - threshold: סף מינימום (default: 2)
+  /// כל פריט יש לו minQuantity משלו, כך שהסף מותאם אישית.
   ///
   /// Example:
   /// ```dart
-  /// final lowStock = provider.getLowStockItems(); // threshold=2
-  /// final veryLowStock = provider.getLowStockItems(threshold: 1);
+  /// final lowStock = provider.getLowStockItems();
   /// ```
-  List<InventoryItem> getLowStockItems({int threshold = 2}) {
-    return _items.where((item) => item.quantity <= threshold).toList();
+  List<InventoryItem> getLowStockItems() {
+    return _items.where((item) => item.isLowStock).toList();
   }
 
   /// מוסיף מלאי למוצר קיים (חיבור!)

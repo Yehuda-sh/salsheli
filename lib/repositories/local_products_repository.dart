@@ -214,6 +214,39 @@ class LocalProductsRepository implements ProductsRepository {
     await getProductsByListType(_fallbackType);
   }
 
+  /// טוען מוצרים מכל סוגי הרשימות (למזווה)
+  ///
+  /// משלב מוצרים מכל הקבצים: supermarket, pharmacy, greengrocer, butcher, bakery, market
+  /// מסיר כפילויות לפי שם מוצר
+  ///
+  /// Returns: רשימת כל המוצרים מכל הסוגים
+  Future<List<Map<String, dynamic>>> getAllListTypesProducts() async {
+    final allProducts = <Map<String, dynamic>>[];
+    final seenNames = <String>{};
+
+    for (final listType in _supportedTypes) {
+      try {
+        final products = await getProductsByListType(listType);
+        for (final product in products) {
+          final name = (product['name'] as String?)?.toLowerCase() ?? '';
+          if (name.isNotEmpty && !seenNames.contains(name)) {
+            seenNames.add(name);
+            // הוסף שדה source לזיהוי מאיפה המוצר
+            allProducts.add({
+              ...product,
+              'source': listType,
+            });
+          }
+        }
+      } catch (e) {
+        debugPrint('⚠️ שגיאה בטעינת $listType: $e');
+      }
+    }
+
+    debugPrint('✅ נטענו ${allProducts.length} מוצרים מכל הסוגים');
+    return allProducts;
+  }
+
   /// ניקוי cache
   void clearCache() {
     _cache.clear();

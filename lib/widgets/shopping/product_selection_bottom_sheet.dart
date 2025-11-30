@@ -179,7 +179,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
           
           if (!mounted) return;
           setState(() {
-            _lastAddedProduct = '$productName הוסר מהרשימה';
+            _lastAddedProduct = AppStrings.shopping.productRemovedFromList(productName);
             _addingProductId = null;
           });
         } else {
@@ -201,7 +201,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
           if (!mounted) return;
 
           setState(() {
-            _lastAddedProduct = '$productName (עודכן ל-$newQuantity)';
+            _lastAddedProduct = AppStrings.shopping.productUpdatedQuantity(productName, newQuantity);
             _addingProductId = null;
           });
           
@@ -226,7 +226,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
 
       messenger.showSnackBar(
         SnackBar(
-          content: Text('שגיאה בעדכון מוצר: ${e.toString()}'),
+          content: Text(AppStrings.shopping.updateProductError(e.toString())),
           backgroundColor: theme.colorScheme.error,
           behavior: SnackBarBehavior.floating,
         ),
@@ -305,7 +305,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
 
       messenger.showSnackBar(
         SnackBar(
-          content: Text('שגיאה בהוספת מוצר: ${e.toString()}'),
+          content: Text(AppStrings.shopping.addProductError(e.toString())),
           backgroundColor: theme.colorScheme.error,
           behavior: SnackBarBehavior.floating,
         ),
@@ -368,7 +368,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                             children: [
                               Expanded(
                                 child: Text(
-                                  'הוספת מוצרים: ${widget.list.name}',
+                                  AppStrings.shopping.addProductsTitle(widget.list.name),
                                   style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -456,7 +456,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                             const SizedBox(width: kSpacingSmall),
                             Expanded(
                               child: Text(
-                                '$_lastAddedProduct נוסף לרשימה! ✓',
+                                AppStrings.shopping.productAddedToList(_lastAddedProduct!),
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -485,13 +485,13 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
 ) {
   if (provider.isLoading) {
     // 🎨 Loading state
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(),
-          SizedBox(height: kSpacingMedium),
-          Text('טוען מוצרים...'),
+          const CircularProgressIndicator(),
+          const SizedBox(height: kSpacingMedium),
+          Text(AppStrings.shopping.loadingProducts),
         ],
       ),
     );
@@ -546,21 +546,23 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
             const SizedBox(height: kSpacingMedium),
             Text(
               provider.searchQuery.isNotEmpty
-                  ? 'לא נמצאו מוצרים התואמים "${provider.searchQuery}"'
-                  : 'אין מוצרים זמינים כרגע',
+                  ? AppStrings.shopping.noProductsMatchingSearch(provider.searchQuery)
+                  : AppStrings.shopping.noProductsAvailable,
               style: const TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: kSpacingSmall),
             Text(
-              provider.searchQuery.isNotEmpty ? 'נסה לחפש משהו אחר' : 'טען מוצרים מהשרת',
+              provider.searchQuery.isNotEmpty
+                  ? AppStrings.shopping.tryDifferentSearch
+                  : AppStrings.shopping.loadProductsFromServer,
               style: TextStyle(color: cs.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
             if (provider.searchQuery.isEmpty) ...[
               const SizedBox(height: kSpacingLarge),
               StickyButton(
-                label: 'טען מוצרים',
+                label: AppStrings.shopping.loadProductsButton,
                 icon: Icons.refresh,
                 color: kStickyGreen,
                 onPressed: () => provider.loadProducts(),
@@ -596,22 +598,18 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
   }
 
   Widget _buildProductCard(Map<String, dynamic> product, ColorScheme cs) {
-  final name = product['name'] as String? ?? 'ללא שם';
-  final category = product['category'] as String? ?? 'אחר';
+  final name = product['name'] as String? ?? AppStrings.shopping.productNoName;
+  final category = product['category'] as String? ?? AppStrings.shopping.typeOther;
   final manufacturer = product['manufacturer'] as String?;
   final description = product['description'] as String?;
 
   // 🔍 בדיקה אם המוצר כבר ברשימה
   final provider = context.read<ShoppingListsProvider>();
   final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id);
-  UnifiedListItem? existingItem;
-  try {
-    existingItem = currentList.items.firstWhere(
-      (item) => item.name.toLowerCase() == name.toLowerCase(),
-    );
-  } catch (_) {
-    existingItem = null;
-  }
+  final existingItem = currentList.items.cast<UnifiedListItem?>().firstWhere(
+    (item) => item?.name.toLowerCase() == name.toLowerCase(),
+    orElse: () => null,
+  );
   final currentQuantity = existingItem?.quantity ?? 0;
   final isInList = existingItem != null;
 
@@ -862,7 +860,4 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
         return '🛒';
     }
   }
-
 }
-
-

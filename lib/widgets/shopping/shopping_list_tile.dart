@@ -1,4 +1,4 @@
-// 📄 File: lib/widgets/shopping_list_tile.dart
+// 📄 File: lib/widgets/shopping/shopping_list_tile.dart
 //
 // 🇮🇱 ווידג'ט להצגת רשימת קניות:
 //     - מציג שם רשימה, מספר פריטים, תאריך עדכון.
@@ -83,8 +83,8 @@ class ShoppingListTile extends StatelessWidget {
   /// - targetDate 1-7 ימים: כתום "עוד X ימים"
   /// - targetDate 7+ ימים: ירוק "עוד X ימים"
   ///
-  /// Returns: Map עם 'color', 'text', 'icon' או null
-  Map<String, dynamic>? _getUrgencyData() {
+  /// Returns: Record עם status, text, icon או null
+  ({String status, String text, IconData icon})? _getUrgencyData() {
     if (list.targetDate == null) return null;
 
     final now = DateTime.now();
@@ -92,23 +92,23 @@ class ShoppingListTile extends StatelessWidget {
 
     // אם התאריך עבר
     if (target.isBefore(now)) {
-      return {'status': 'error', 'text': 'עבר!', 'icon': Icons.warning};
+      return (status: 'error', text: AppStrings.shopping.urgencyPassed, icon: Icons.warning);
     }
 
     final daysLeft = target.difference(now).inDays;
 
     if (daysLeft == 0) {
       // היום!
-      return {'status': 'error', 'text': 'היום!', 'icon': Icons.access_time};
+      return (status: 'error', text: AppStrings.shopping.urgencyToday, icon: Icons.access_time);
     } else if (daysLeft <= 1) {
       // מחר
-      return {'status': 'warning', 'text': 'מחר', 'icon': Icons.access_time};
+      return (status: 'warning', text: AppStrings.shopping.urgencyTomorrow, icon: Icons.access_time);
     } else if (daysLeft <= 7) {
       // בקרוב (1-7 ימים)
-      return {'status': 'warning', 'text': 'עוד $daysLeft ימים', 'icon': Icons.access_time};
+      return (status: 'warning', text: AppStrings.shopping.urgencyDaysLeft(daysLeft), icon: Icons.access_time);
     } else {
       // יש זמן (7+ ימים)
-      return {'status': 'success', 'text': 'עוד $daysLeft ימים', 'icon': Icons.check_circle_outline};
+      return (status: 'success', text: AppStrings.shopping.urgencyDaysLeft(daysLeft), icon: Icons.check_circle_outline);
     }
   }
 
@@ -124,43 +124,43 @@ class ShoppingListTile extends StatelessWidget {
     switch (list.type) {
       case ShoppingList.typeSupermarket:
         typeEmoji = '🛒';
-        typeLabel = 'סופרמרקט';
+        typeLabel = AppStrings.shopping.typeSupermarket;
         typeColor = kStickyGreen;
         break;
       case ShoppingList.typePharmacy:
         typeEmoji = '💊';
-        typeLabel = 'בית מרקחת';
+        typeLabel = AppStrings.shopping.typePharmacy;
         typeColor = kStickyCyan;
         break;
       case ShoppingList.typeGreengrocer:
         typeEmoji = '🥬';
-        typeLabel = 'ירקן';
+        typeLabel = AppStrings.shopping.typeGreengrocer;
         typeColor = kStickyGreen;
         break;
       case ShoppingList.typeButcher:
         typeEmoji = '🥩';
-        typeLabel = 'אטליז';
+        typeLabel = AppStrings.shopping.typeButcher;
         typeColor = kStickyPink;
         break;
       case ShoppingList.typeBakery:
         typeEmoji = '🍞';
-        typeLabel = 'מאפייה';
+        typeLabel = AppStrings.shopping.typeBakery;
         typeColor = kStickyYellow;
         break;
       case ShoppingList.typeMarket:
         typeEmoji = '🧺';
-        typeLabel = 'שוק';
+        typeLabel = AppStrings.shopping.typeMarket;
         typeColor = kStickyYellow;
         break;
       case ShoppingList.typeHousehold:
         typeEmoji = '🏠';
-        typeLabel = 'כלי בית';
+        typeLabel = AppStrings.shopping.typeHousehold;
         typeColor = kStickyPurple;
         break;
       case ShoppingList.typeOther:
       default:
         typeEmoji = '📦';
-        typeLabel = 'אחר';
+        typeLabel = AppStrings.shopping.typeOther;
         typeColor = kStickyPurple;
         break;
     }
@@ -211,9 +211,8 @@ class ShoppingListTile extends StatelessWidget {
     if (urgencyData == null) return null;
 
     final theme = Theme.of(context);
-    final status = urgencyData['status'] as String;
-    final statusColor = StatusColors.getStatusColor(status, context);
-    final overlayColor = StatusColors.getStatusOverlay(status, context);
+    final statusColor = StatusColors.getStatusColor(urgencyData.status, context);
+    final overlayColor = StatusColors.getStatusOverlay(urgencyData.status, context);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingTiny),
@@ -225,10 +224,10 @@ class ShoppingListTile extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(urgencyData['icon'] as IconData, size: kIconSizeSmall, color: statusColor),
+          Icon(urgencyData.icon, size: kIconSizeSmall, color: statusColor),
           const SizedBox(width: kSpacingTiny),
           Text(
-            urgencyData['text'] as String,
+            urgencyData.text,
             style: theme.textTheme.bodySmall?.copyWith(
               color: statusColor,
               fontWeight: FontWeight.bold,
@@ -249,12 +248,12 @@ class ShoppingListTile extends StatelessWidget {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('מחיקת רשימה'),
-        content: Text('האם למחוק את הרשימה "${list.name}"?'),
+        title: Text(AppStrings.shopping.deleteListTitle),
+        content: Text(AppStrings.shopping.deleteListMessage(list.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('ביטול'),
+            child: Text(AppStrings.common.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -291,7 +290,7 @@ class ShoppingListTile extends StatelessWidget {
               }
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('מחק'),
+            child: Text(AppStrings.shopping.deleteButton),
           ),
         ],
       ),
@@ -342,8 +341,8 @@ class ShoppingListTile extends StatelessWidget {
                       _buildListTypeTag(context),
                       const SizedBox(width: kSpacingSmall),
                       // תג דחיפות
-                      if (_buildUrgencyTag(context) != null) ...[
-                        _buildUrgencyTag(context)!,
+                      if (_buildUrgencyTag(context) case final urgencyTag?) ...[
+                        urgencyTag,
                         const SizedBox(width: kSpacingSmall),
                       ],
                       // תג משותפת
@@ -373,7 +372,7 @@ class ShoppingListTile extends StatelessWidget {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('פריטים: ${list.items.length} • עודכן: $dateFormatted', style: theme.textTheme.bodySmall),
+                      Text(AppStrings.shopping.itemsAndDate(list.items.length, dateFormatted), style: theme.textTheme.bodySmall),
                       const SizedBox(height: kSpacingTiny),
                       if (list.items.isNotEmpty)
                         LinearProgressIndicator(
@@ -399,23 +398,23 @@ class ShoppingListTile extends StatelessWidget {
                       }
                     },
                     itemBuilder: (context) => [
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'edit',
                         child: Row(
                           children: [
-                            Icon(Icons.edit, size: 20),
-                            SizedBox(width: 8),
-                            Text('עריכת רשימה'),
+                            const Icon(Icons.edit, size: 20),
+                            const SizedBox(width: 8),
+                            Text(AppStrings.shopping.editListButton),
                           ],
                         ),
                       ),
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'delete',
                         child: Row(
                           children: [
-                            Icon(Icons.delete, size: 20, color: Colors.red),
-                            SizedBox(width: 8),
-                            Text('מחיקה', style: TextStyle(color: Colors.red)),
+                            const Icon(Icons.delete, size: 20, color: Colors.red),
+                            const SizedBox(width: 8),
+                            Text(AppStrings.shopping.deleteListButton, style: const TextStyle(color: Colors.red)),
                           ],
                         ),
                       ),
