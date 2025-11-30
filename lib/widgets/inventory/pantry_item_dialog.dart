@@ -19,6 +19,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../config/filters_config.dart';
 import '../../config/storage_locations_config.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
@@ -84,9 +85,9 @@ class PantryItemDialog extends StatefulWidget {
 
 class _PantryItemDialogState extends State<PantryItemDialog> {
   late final TextEditingController _nameController;
-  late final TextEditingController _categoryController;
   late final TextEditingController _quantityController;
   late final TextEditingController _unitController;
+  late String _selectedCategory;
   late String _selectedLocation;
 
   bool _isLoading = false;
@@ -94,20 +95,22 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize controllers with values based on mode
     if (widget.mode == PantryItemDialogMode.edit && widget.item != null) {
       final item = widget.item!;
       _nameController = TextEditingController(text: item.productName);
-      _categoryController = TextEditingController(text: item.category);
-      _quantityController = TextEditingController(text: item.quantity.toString());
+      _quantityController =
+          TextEditingController(text: item.quantity.toString());
       _unitController = TextEditingController(text: item.unit);
+      // המר קטגוריה עברית למפתח אנגלית, או השתמש ב-other כברירת מחדל
+      _selectedCategory = hebrewCategoryToEnglish(item.category) ?? 'other';
       _selectedLocation = item.location;
     } else {
       _nameController = TextEditingController();
-      _categoryController = TextEditingController();
       _quantityController = TextEditingController(text: '1');
       _unitController = TextEditingController(text: 'יח\'');
+      _selectedCategory = 'other';
       _selectedLocation = StorageLocationsConfig.mainPantry;
     }
   }
@@ -115,7 +118,6 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
   @override
   void dispose() {
     _nameController.dispose();
-    _categoryController.dispose();
     _quantityController.dispose();
     _unitController.dispose();
     super.dispose();
@@ -134,19 +136,10 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
       return;
     }
 
-    if (_categoryController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppStrings.inventory.categoryRequired),
-          duration: kSnackBarDuration,
-        ),
-      );
-      return;
-    }
-
     final quantity = int.tryParse(_quantityController.text) ?? 1;
     final productName = _nameController.text.trim();
-    final category = _categoryController.text.trim();
+    // שמור את הקטגוריה בעברית (לתאימות עם שאר המערכת)
+    final category = getCategoryLabel(_selectedCategory);
     final unit = _unitController.text.trim();
 
     setState(() => _isLoading = true);
@@ -224,8 +217,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
 
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
+      child: AlertDialog(
         backgroundColor: cs.surface,
         title: Text(
           title,
@@ -251,19 +243,36 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
               ),
               const SizedBox(height: kSpacingMedium),
 
-              // Category field
-              TextField(
-                controller: _categoryController,
+              // Category dropdown
+              DropdownButtonFormField<String>(
+                initialValue: _selectedCategory,
+                dropdownColor: cs.surface,
                 style: TextStyle(color: cs.onSurface),
                 decoration: InputDecoration(
                   labelText: AppStrings.inventory.categoryLabel,
                   labelStyle: TextStyle(color: cs.onSurfaceVariant),
-                  hintText: AppStrings.inventory.categoryHint,
-                  hintStyle: TextStyle(
-                    color: cs.onSurfaceVariant.withValues(alpha: 0.5),
-                  ),
                 ),
-                enabled: !_isLoading,
+                items: kCategoryInfo.entries
+                    .where((e) => e.key != 'all') // לא להציג "הכל"
+                    .map((entry) {
+                  return DropdownMenuItem(
+                    value: entry.key,
+                    child: Row(
+                      children: [
+                        Text(entry.value.emoji),
+                        const SizedBox(width: kSpacingSmall),
+                        Text(entry.value.label),
+                      ],
+                    ),
+                  );
+                }).toList(),
+                onChanged: _isLoading
+                    ? null
+                    : (val) {
+                        if (val != null) {
+                          setState(() => _selectedCategory = val);
+                        }
+                      },
               ),
               const SizedBox(height: kSpacingMedium),
 
@@ -310,11 +319,10 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                 decoration: InputDecoration(
                   labelText: AppStrings.inventory.locationLabel,
                   labelStyle: TextStyle(color: cs.onSurfaceVariant),
-                  enabled: !_isLoading,
                 ),
-                items: StorageLocationsConfig.allLocations
-                    .map((locationId) {
-                  final info = StorageLocationsConfig.getLocationInfo(locationId);
+                items: StorageLocationsConfig.allLocations.map((locationId) {
+                  final info =
+                      StorageLocationsConfig.getLocationInfo(locationId);
                   return DropdownMenuItem(
                     value: locationId,
                     child: Row(
@@ -330,7 +338,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                     ? null
                     : (val) {
                         if (val != null) {
-                          setDialogState(() => _selectedLocation = val);
+                          setState(() => _selectedLocation = val);
                         }
                       },
               ),
@@ -366,7 +374,6 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                 : Text(actionLabel),
           ),
         ],
-        ),
       ),
     );
   }

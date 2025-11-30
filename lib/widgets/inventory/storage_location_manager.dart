@@ -17,7 +17,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // ignore: directives_ordering
 import 'package:memozap/config/filters_config.dart';
-import 'package:memozap/core/constants.dart';
+import 'package:memozap/config/storage_locations_config.dart';
 import 'package:memozap/core/ui_constants.dart';
 import 'package:memozap/models/custom_location.dart';
 import 'package:memozap/models/inventory_item.dart';
@@ -722,14 +722,12 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                       ),
 
                       // מיקומי ברירת מחדל
-                      ...kStorageLocations.entries.map((entry) {
-                        final key = entry.key;
-                        final config = entry.value;
-                        final count = widget.inventory.where((i) => i.location == key).length;
+                      ...StorageLocationsConfig.getAllLocationInfo().map((info) {
+                        final count = widget.inventory.where((i) => i.location == info.id).length;
                         return _buildLocationCard(
-                          key: key,
-                          name: config['name'] ?? '',
-                          emoji: config['emoji'] ?? '📍',
+                          key: info.id,
+                          name: info.name,
+                          emoji: info.emoji,
                           count: count,
                           customLocations: customLocations,
                         );
@@ -764,14 +762,12 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                             ),
 
                             // מיקומי ברירת מחדל
-                            ...kStorageLocations.entries.map((entry) {
-                              final key = entry.key;
-                              final config = entry.value;
-                              final count = widget.inventory.where((i) => i.location == key).length;
+                            ...StorageLocationsConfig.getAllLocationInfo().map((info) {
+                              final count = widget.inventory.where((i) => i.location == info.id).length;
                               return _buildLocationCard(
-                                key: key,
-                                name: config['name'] ?? '',
-                                emoji: config['emoji'] ?? '📍',
+                                key: info.id,
+                                name: info.name,
+                                emoji: info.emoji,
                                 count: count,
                                 customLocations: customLocations,
                               );
@@ -911,7 +907,7 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
   ///
   /// לוגיקה:
   /// - אם selectedLocation == "all" → "כל הפריטים"
-  /// - אם selectedLocation במיקומי ברירת מחדל → שם מ-kStorageLocations
+  /// - אם selectedLocation במיקומי ברירת מחדל → שם מ-StorageLocationsConfig
   /// - אם selectedLocation במיקומים מותאמים → שם מ-customLocations
   /// - אחרת → selectedLocation כ-fallback
   ///
@@ -920,8 +916,8 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
   String _getLocationTitle(List<CustomLocation> customLocations) {
     if (selectedLocation == 'all') return 'כל הפריטים';
 
-    if (kStorageLocations.containsKey(selectedLocation)) {
-      return kStorageLocations[selectedLocation]!['name']!;
+    if (StorageLocationsConfig.isValidLocation(selectedLocation)) {
+      return StorageLocationsConfig.getName(selectedLocation);
     }
 
     try {

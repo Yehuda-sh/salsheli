@@ -1,4 +1,4 @@
-// 📄 File: lib/screens/welcome_screen.dart
+// 📄 File: lib/screens/welcome/welcome_screen.dart
 // 🎯 Purpose: מסך קבלת פנים - מציג לוגו, יתרונות, וכפתורי התחברות/הרשמה
 //
 // 📋 Features:
@@ -47,35 +47,14 @@ class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
   /// מטפל בלחיצה על כפתור התחברות
-  static Future<void> _handleLogin(BuildContext context) async {
-    final messenger = ScaffoldMessenger.of(context);
-    try {
-      await Navigator.pushNamed(context, '/login');
-    } catch (error) {
-      messenger.showSnackBar(
-        const SnackBar(
-          content: Text('שגיאה: לא ניתן לפתוח את מסך ההתחברות'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+  void _handleLogin(BuildContext context) {
+    Navigator.pushNamed(context, '/login');
   }
 
   /// מטפל בלחיצה על כפתור הרשמה
-  static Future<void> _handleRegister(BuildContext context) async {
-    final messenger = ScaffoldMessenger.of(context);
-    try {
-      await Navigator.pushNamed(context, '/onboarding');
-    } catch (error) {
-      messenger.showSnackBar(
-        const SnackBar(
-          content: Text('שגיאה: לא ניתן לפתוח את מסך ההרשמה'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+  void _handleRegister(BuildContext context) {
+    Navigator.pushNamed(context, '/onboarding');
   }
-
 
   @override
   Widget build(BuildContext context) {

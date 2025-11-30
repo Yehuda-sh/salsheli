@@ -333,7 +333,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
           builder: (context) => AlertDialog(
             title: Row(
               children: [
-                Icon(Icons.error_outline, color: StatusColors.error),
+                const Icon(Icons.error_outline, color: StatusColors.error),
                 const SizedBox(width: kSpacingSmall),
                 Text(AppStrings.shopping.saveError),
               ],
@@ -690,27 +690,27 @@ class _LoadingSkeletonScreen extends StatelessWidget {
           child: ListView.builder(
             padding: const EdgeInsets.all(kSpacingMedium),
             itemCount: 5,
-            itemBuilder: (context, index) => Card(
-              margin: const EdgeInsets.only(bottom: kSpacingSmall),
+            itemBuilder: (context, index) => const Card(
+              margin: EdgeInsets.only(bottom: kSpacingSmall),
               child: Padding(
-                padding: const EdgeInsets.all(kSpacingSmallPlus),
+                padding: EdgeInsets.all(kSpacingSmallPlus),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        const SkeletonBox(
+                        SkeletonBox(
                           width: 40,
                           height: 40,
                         ),
-                        const SizedBox(width: kSpacingSmall),
-                        const Expanded(child: SkeletonBox(height: 20)),
-                        const SizedBox(width: kSpacingSmall),
-                        const SkeletonBox(width: 60, height: 30),
+                        SizedBox(width: kSpacingSmall),
+                        Expanded(child: SkeletonBox(height: 20)),
+                        SizedBox(width: kSpacingSmall),
+                        SkeletonBox(width: 60, height: 30),
                       ],
                     ),
-                    const SizedBox(height: kSpacingSmall),
-                    const Row(
+                    SizedBox(height: kSpacingSmall),
+                    Row(
                       children: [
                         Expanded(child: SkeletonBox(height: kButtonHeight)),
                         SizedBox(width: kSpacingSmall),
@@ -748,7 +748,7 @@ class _ErrorStateScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: kIconSizeXLarge * 2, color: StatusColors.error),
+            const Icon(Icons.error_outline, size: kIconSizeXLarge * 2, color: StatusColors.error),
             const SizedBox(height: kSpacingMedium),
             Text(
               AppStrings.shopping.oopsError,

@@ -60,243 +60,242 @@ class ShoppingSummaryScreen extends StatelessWidget {
         children: [
           const NotebookBackground(),
           SafeArea(
-        child: Consumer<ShoppingListsProvider>(
-          builder: (context, provider, _) {
-            // 1️⃣ Loading State
-            if (provider.isLoading) {
-              _log('   ⏳ Loading...');
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircularProgressIndicator(color: cs.primary),
-                    const SizedBox(height: 16),
-                    Text(
-                      'טוען סיכום...',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: cs.onSurface,
-                      ),
+            child: Consumer<ShoppingListsProvider>(
+              builder: (context, provider, _) {
+                // 1️⃣ Loading State
+                if (provider.isLoading) {
+                  _log('   ⏳ Loading...');
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(color: cs.primary),
+                        const SizedBox(height: kSpacingMedium),
+                        Text(
+                          'טוען סיכום...',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: cs.onSurface,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              );
-            }
+                  );
+                }
 
-            // 2️⃣ Error State
-            if (provider.errorMessage != null) {
-              _log('   ❌ Error: ${provider.errorMessage}');
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.error_outline, size: 64, color: cs.error),
-                    const SizedBox(height: 16),
-                    Text(
-                      'שגיאה בטעינת הסיכום',
-                      style: TextStyle(fontSize: 18, color: cs.onSurface),
+                // 2️⃣ Error State
+                if (provider.errorMessage != null) {
+                  _log('   ❌ Error: ${provider.errorMessage}');
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.error_outline, size: 64, color: cs.error),
+                        const SizedBox(height: kSpacingMedium),
+                        Text(
+                          'שגיאה בטעינת הסיכום',
+                          style: TextStyle(fontSize: 18, color: cs.onSurface),
+                        ),
+                        const SizedBox(height: kSpacingSmall),
+                        Text(
+                          provider.errorMessage ?? 'שגיאה לא ידועה',
+                          style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
+                        ),
+                        const SizedBox(height: kSpacingLarge),
+                        StickyButton(
+                          label: 'חזור',
+                          icon: Icons.arrow_back,
+                          color: kStickyYellow,
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      provider.errorMessage ?? 'שגיאה לא ידועה',
-                      style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
+                  );
+                }
+
+                // 3️⃣ Not Found State
+                final list = provider.getById(listId);
+                if (list == null) {
+                  _log('   ⚠️ List not found: $listId');
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.search_off, size: 80, color: cs.onSurfaceVariant),
+                        const SizedBox(height: kSpacingMedium),
+                        Text(
+                          'הרשימה לא נמצאה',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: cs.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: kSpacingSmall),
+                        Text(
+                          'ייתכן שהרשימה נמחקה',
+                          style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
+                        ),
+                        const SizedBox(height: kSpacingLarge),
+                        StickyButton(
+                          label: 'חזרה לדף הבית',
+                          icon: Icons.home,
+                          color: kStickyYellow,
+                          onPressed: () {
+                            _log('   🏠 ניווט חזרה לדף הבית');
+
+                            // ✨ Haptic feedback למשוב מישוש
+                            HapticFeedback.lightImpact();
+
+                            // 🔧 שמור Navigator לפני שימוש
+                            final navigator = Navigator.of(context);
+                            navigator.popUntil((route) => route.isFirst);
+                          },
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 24),
-                    StickyButton(
-                      label: 'חזור',
-                      icon: Icons.arrow_back,
-                      color: kStickyYellow,
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ],
-                ),
-              );
-            }
+                  );
+                }
 
-            // 3️⃣ Not Found State
-            final list = provider.getById(listId);
-            if (list == null) {
-              _log('   ⚠️ List not found: $listId');
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.search_off, size: 80, color: cs.onSurfaceVariant),
-                    const SizedBox(height: 16),
-                    Text(
-                      'הרשימה לא נמצאה',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: cs.onSurface,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'ייתכן שהרשימה נמחקה',
-                      style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
-                    ),
-                    const SizedBox(height: 24),
-                    StickyButton(
-                      label: 'חזרה לדף הבית',
-                      icon: Icons.home,
-                      color: kStickyYellow,
-                      onPressed: () {
-                        _log('   🏠 ניווט חזרה לדף הבית');
+                // 4️⃣ Content - חישוב סטטיסטיקות
+                _log('   ✅ מציג סיכום: ${list.name}');
+                final total = list.items.length;
+                final purchased = list.items.where((item) => item.isChecked).length;
+                final missing = total - purchased;
+                final spentAmount = list.items
+                    .where((item) => item.isChecked)
+                    .fold(0.0, (sum, item) => sum + (item.totalPrice ?? 0.0));
+                final budget = list.budget ?? 0.0;
+                final budgetDiff = budget - spentAmount;
+                final successRate = total > 0 ? (purchased / total) * 100 : 0;
 
-                        // ✨ Haptic feedback למשוב מישוש
-                        HapticFeedback.lightImpact();
+                _log('   📊 נקנו: $purchased/$total');
+                _log('   💰 הוצאו: ₪${spentAmount.toStringAsFixed(2)}');
+                _log('   📈 אחוז הצלחה: ${successRate.toStringAsFixed(1)}%');
 
-                        // 🔧 שמור Navigator לפני שימוש
-                        final navigator = Navigator.of(context);
-                        navigator.popUntil((route) => route.isFirst);
-                      },
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            // 4️⃣ Content - חישוב סטטיסטיקות
-            _log('   ✅ מציג סיכום: ${list.name}');
-            final total = list.items.length;
-            final purchased = list.items.where((item) => item.isChecked).length;
-            final missing = total - purchased;
-            final spentAmount = list.items
-                .where((item) => item.isChecked)
-                .fold(0.0, (sum, item) => sum + (item.totalPrice ?? 0.0));
-            final budget = list.budget ?? 0.0;
-            final budgetDiff = budget - spentAmount;
-            final successRate = total > 0 ? (purchased / total) * 100 : 0;
-
-            _log('   📊 נקנו: $purchased/$total');
-            _log('   💰 הוצאו: ₪${spentAmount.toStringAsFixed(2)}');
-            _log('   📈 אחוז הצלחה: ${successRate.toStringAsFixed(1)}%');
-
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // 🎉 כותרת
-                  Column(
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(kSpacingMedium),
+                  child: Column(
                     children: [
-                      CircleAvatar(
-                        radius: 48,
-                        backgroundColor: cs.primaryContainer,
-                        child: const Text(
-                          '🎉',
-                          style: TextStyle(fontSize: 40),
+                      // 🎉 כותרת
+                      Column(
+                        children: [
+                          CircleAvatar(
+                            radius: 48,
+                            backgroundColor: cs.primaryContainer,
+                            child: const Text(
+                              '🎉',
+                              style: TextStyle(fontSize: 40),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'קנייה הושלמה בהצלחה!',
+                            style: TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                              color: cs.onSurface,
+                            ),
+                          ),
+                          const SizedBox(height: kSpacingSmall),
+                          Text(
+                            list.name,
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: cs.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // 💰 תקציב
+                      StickyNote(
+                        color: kStickyYellow,
+                        rotation: -0.02,
+                        child: _SummaryCard(
+                          icon: Icons.account_balance_wallet,
+                          title: 'תקציב',
+                          value: '₪${spentAmount.toStringAsFixed(2)}',
+                          subtitle: budget > 0
+                              ? '${budgetDiff >= 0 ? 'נשאר' : 'חריגה'}: ₪${budgetDiff.abs().toStringAsFixed(2)}'
+                              : null,
+                          color: budgetDiff >= 0 ? StatusColors.success : StatusColors.error,
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'קנייה הושלמה בהצלחה!',
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: cs.onSurface,
+
+                      const SizedBox(height: kSpacingMedium),
+
+                      // ✅ הצלחה
+                      StickyNote(
+                        color: kStickyGreen,
+                        rotation: 0.015,
+                        child: _SummaryCard(
+                          icon: Icons.trending_up,
+                          title: 'אחוז הצלחה',
+                          value: '${successRate.toStringAsFixed(1)}%',
+                          subtitle: '$purchased מתוך $total פריטים נרכשו',
+                          color: StatusColors.info,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        list.name,
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: cs.onSurfaceVariant,
-                        ),
+
+                      const SizedBox(height: kSpacingMedium),
+
+                      // 📊 פירוט פריטים
+                      Row(
+                        children: [
+                          Expanded(
+                            child: StickyNote(
+                              color: kStickyPink,
+                              rotation: -0.01,
+                              child: _StatBox(
+                                icon: Icons.check_circle,
+                                label: 'נרכשו',
+                                value: '$purchased',
+                                color: StatusColors.success,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: StickyNote(
+                              color: kStickyCyan,
+                              rotation: 0.01,
+                              child: _StatBox(
+                                icon: Icons.cancel,
+                                label: 'חסרו',
+                                value: '$missing',
+                                color: StatusColors.error,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // 🔙 כפתור חזרה
+                      StickyButton(
+                        label: 'חזרה לדף הבית',
+                        icon: Icons.home,
+                        color: kStickyYellow,
+                        onPressed: () {
+                          _log('   🏠 לחיצה על כפתור חזרה - popUntil');
+
+                          // ✨ Haptic feedback למשוב מישוש
+                          HapticFeedback.lightImpact();
+
+                          // 🔧 שמור Navigator לפני שימוש
+                          final navigator = Navigator.of(context);
+                          navigator.popUntil((route) => route.isFirst);
+                        },
                       ),
                     ],
                   ),
-
-                  const SizedBox(height: 32),
-
-                  // 💰 תקציב
-                  StickyNote(
-                    color: kStickyYellow,
-                    rotation: -0.02,
-                    child: _SummaryCard(
-                      icon: Icons.account_balance_wallet,
-                      title: 'תקציב',
-                      value: '₪${spentAmount.toStringAsFixed(2)}',
-                      subtitle: budget > 0
-                          ? '${budgetDiff >= 0 ? 'נשאר' : 'חריגה'}: ₪${budgetDiff.abs().toStringAsFixed(2)}'
-                          : null,
-                      color: budgetDiff >= 0 ? StatusColors.success : StatusColors.error,
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // ✅ הצלחה
-                  StickyNote(
-                    color: kStickyGreen,
-                    rotation: 0.015,
-                    child: _SummaryCard(
-                      icon: Icons.trending_up,
-                      title: 'אחוז הצלחה',
-                      value: '${successRate.toStringAsFixed(1)}%',
-                      subtitle: '$purchased מתוך $total פריטים נרכשו',
-                      color: StatusColors.info,
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // 📊 פירוט פריטים
-                  Row(
-                    children: [
-                      Expanded(
-                        child: StickyNote(
-                          color: kStickyPink,
-                          rotation: -0.01,
-                          child: _StatBox(
-                            icon: Icons.check_circle,
-                            label: 'נרכשו',
-                            value: '$purchased',
-                            color: StatusColors.success,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: StickyNote(
-                          color: kStickyCyan,
-                          rotation: 0.01,
-                          child: _StatBox(
-                            icon: Icons.cancel,
-                            label: 'חסרו',
-                            value: '$missing',
-                            color: StatusColors.error,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  // 🔙 כפתור חזרה
-                  StickyButton(
-                    label: 'חזרה לדף הבית',
-                    icon: Icons.home,
-                    color: kStickyYellow,
-                    onPressed: () {
-                      _log('   🏠 לחיצה על כפתור חזרה - popUntil');
-
-                      // ✨ Haptic feedback למשוב מישוש
-                      HapticFeedback.lightImpact();
-
-                      // 🔧 שמור Navigator לפני שימוש
-                      final navigator = Navigator.of(context);
-                      navigator.popUntil((route) => route.isFirst);
-                    },
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -325,12 +324,14 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // StickyNote תמיד בהיר - צריך טקסט כהה
+    // ב-dark mode המערכת רוצה טקסט בהיר, אז מתקנים ל-black87
     final textColor = Theme.of(context).brightness == Brightness.dark
-        ? Colors.black87  // כהה ברקע בהיר של StickyNote
+        ? Colors.black87
         : Colors.black54;
 
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(kSpacingLarge),
       child: Row(
         children: [
           CircleAvatar(
@@ -397,12 +398,13 @@ class _StatBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // StickyNote תמיד בהיר - צריך טקסט כהה
     final textColor = Theme.of(context).brightness == Brightness.dark
-        ? Colors.black87  // כהה ברקע בהיר של StickyNote
+        ? Colors.black87
         : Colors.black54;
 
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(kSpacingMedium),
       child: Column(
         children: [
           Icon(icon, color: color, size: 32),
