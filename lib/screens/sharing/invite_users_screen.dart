@@ -19,10 +19,12 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:memozap/l10n/app_strings.dart';
 import 'package:memozap/models/enums/user_role.dart';
+import 'package:memozap/models/saved_contact.dart';
 import 'package:memozap/models/shopping_list.dart';
 import 'package:memozap/providers/user_context.dart';
 import 'package:memozap/services/notifications_service.dart';
-import 'package:memozap/services/share_list_service.dart';
+import 'package:memozap/services/pending_invites_service.dart';
+import 'package:memozap/services/saved_contacts_service.dart';
 import 'package:memozap/widgets/common/notebook_background.dart';
 import 'package:memozap/widgets/common/sticky_button.dart';
 import 'package:memozap/widgets/common/sticky_note.dart';
@@ -86,9 +88,16 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   late final NotificationsService _notificationsService;
+  late final SavedContactsService _savedContactsService;
+  late final PendingInvitesService _pendingInvitesService;
 
   UserRole _selectedRole = UserRole.editor; // Default to Editor
   bool _isLoading = false;
+  bool _isLoadingContacts = true;
+
+  // 📇 Saved contacts
+  List<SavedContact> _savedContacts = [];
+  SavedContact? _selectedSavedContact;
 
   // 🧪 Demo mode - select from predefined demo users
   _DemoUser? _selectedDemoUser;
@@ -100,6 +109,8 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
 
     final userContext = context.read<UserContext>();
     _notificationsService = NotificationsService(FirebaseFirestore.instance);
+    _savedContactsService = SavedContactsService();
+    _pendingInvitesService = PendingInvitesService();
 
     // 🔒 Validation: רק Owner יכול להזמין
     final currentUserId = userContext.userId;
@@ -130,6 +141,32 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
           navigator.pop();
         }
       });
+    } else {
+      // 📇 Load saved contacts
+      _loadSavedContacts();
+    }
+  }
+
+  /// טעינת אנשי קשר שמורים
+  Future<void> _loadSavedContacts() async {
+    final userContext = context.read<UserContext>();
+    final currentUserId = userContext.userId;
+
+    if (currentUserId == null) return;
+
+    try {
+      final contacts = await _savedContactsService.getContacts(currentUserId);
+      if (mounted) {
+        setState(() {
+          _savedContacts = contacts;
+          _isLoadingContacts = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('❌ Error loading saved contacts: $e');
+      if (mounted) {
+        setState(() => _isLoadingContacts = false);
+      }
     }
   }
 
@@ -146,8 +183,10 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
   Future<void> _inviteUser() async {
     // 🧪 In debug mode with demo user selected, skip email validation
     final bool usingDemoUser = kDebugMode && _selectedDemoUser != null;
+    // 📇 Saved contact selected
+    final bool usingSavedContact = _selectedSavedContact != null;
 
-    if (!usingDemoUser && !_formKey.currentState!.validate()) return;
+    if (!usingDemoUser && !usingSavedContact && !_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
@@ -170,35 +209,72 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
         throw Exception('household_not_found');
       }
 
-      // 🧪 Use demo user ID or email input
+      // Determine invited user details
       final String invitedUserId;
       final String? invitedUserName;
+      final String? invitedUserEmail;
       final String displayName;
 
       if (usingDemoUser) {
+        // 🧪 Demo user
         invitedUserId = _selectedDemoUser!.id;
         invitedUserName = _selectedDemoUser!.name;
+        invitedUserEmail = _selectedDemoUser!.email;
         displayName = _selectedDemoUser!.name;
         debugPrint('🧪 Inviting demo user: $invitedUserName ($invitedUserId)');
+      } else if (usingSavedContact) {
+        // 📇 Saved contact
+        invitedUserId = _selectedSavedContact!.userId;
+        invitedUserName = _selectedSavedContact!.userName;
+        invitedUserEmail = _selectedSavedContact!.userEmail;
+        displayName = _selectedSavedContact!.displayName;
+        debugPrint('📇 Inviting saved contact: $displayName ($invitedUserId)');
       } else {
+        // ✉️ Email input
         invitedUserId = _emailController.text.trim();
         invitedUserName = null;
+        invitedUserEmail = _emailController.text.trim();
         displayName = _emailController.text.trim();
       }
 
-      // Call static method with NotificationsService
-      await ShareListService.inviteUser(
-        list: widget.list,
-        currentUserId: currentUserId,
-        invitedUserId: invitedUserId,
-        role: _selectedRole,
+      // יצירת הזמנה ממתינה - המוזמן יצטרך לאשר
+      await _pendingInvitesService.createInvite(
+        listId: widget.list.id,
+        listName: widget.list.name,
+        inviterId: currentUserId,
         inviterName: currentUserName,
+        invitedUserId: invitedUserId,
+        invitedUserEmail: invitedUserEmail ?? invitedUserId,
+        invitedUserName: invitedUserName,
+        role: _selectedRole,
         householdId: householdId,
-        notificationsService: _notificationsService,
-        userName: invitedUserName,
       );
 
-      // TODO: Update list in Firebase/Provider
+      // שליחת התראה למוזמן
+      await _notificationsService.createInviteNotification(
+        userId: invitedUserId,
+        householdId: householdId,
+        listId: widget.list.id,
+        listName: widget.list.name,
+        inviterName: currentUserName,
+        role: _selectedRole.hebrewName,
+      );
+
+      // 💾 Save contact for future use (or update last_invited_at)
+      if (invitedUserEmail != null) {
+        try {
+          await _savedContactsService.saveContact(
+            currentUserId: currentUserId,
+            contactUserId: invitedUserId,
+            contactUserName: invitedUserName,
+            contactUserEmail: invitedUserEmail,
+          );
+          debugPrint('💾 Contact saved: $displayName');
+        } catch (e) {
+          debugPrint('⚠️ Failed to save contact: $e');
+          // Don't fail the invite if saving contact fails
+        }
+      }
 
       // Check if widget still mounted
       if (!mounted) return;
@@ -207,7 +283,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(
-            AppStrings.sharing.inviteSent(displayName),
+            'הזמנה נשלחה ל$displayName - ממתינה לאישור',
           ),
           backgroundColor: Colors.green,
         ),
@@ -285,6 +361,63 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
 
                       const SizedBox(height: 24),
 
+                      // 📇 Saved Contacts Section
+                      if (_savedContacts.isNotEmpty) ...[
+                        StickyNote(
+                          color: const Color(0xFFB3E5FC), // Light blue
+                          rotation: 0.01,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Row(
+                                  children: [
+                                    Text('📇', style: TextStyle(fontSize: 20)),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'אנשי קשר שמורים',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                const Text(
+                                  'בחר מאנשי קשר שהזמנת בעבר',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                ..._savedContacts.map(_buildSavedContactOption),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Center(
+                          child: Text(
+                            '── או הזן אימייל חדש ──',
+                            style: TextStyle(
+                              color: Colors.black54,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ] else if (_isLoadingContacts) ...[
+                        const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(16),
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
+                      ],
+
                       // 🧪 Demo User Selection (Debug Mode Only)
                       if (kDebugMode) ...[
                         StickyNote(
@@ -315,15 +448,16 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        const Center(
-                          child: Text(
-                            '── או הזן אימייל ידנית ──',
-                            style: TextStyle(
-                              color: Colors.black54,
-                              fontSize: 14,
+                        if (_savedContacts.isEmpty)
+                          const Center(
+                            child: Text(
+                              '── או הזן אימייל ידנית ──',
+                              style: TextStyle(
+                                color: Colors.black54,
+                                fontSize: 14,
+                              ),
                             ),
                           ),
-                        ),
                         const SizedBox(height: 16),
                       ],
 
@@ -357,22 +491,27 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                   ),
                                 ),
                                 validator: _validateEmail,
-                                enabled: !_isLoading && _selectedDemoUser == null,
+                                enabled: !_isLoading && _selectedDemoUser == null && _selectedSavedContact == null,
                                 onChanged: (_) {
-                                  // Clear demo user selection when typing email
-                                  if (_selectedDemoUser != null) {
-                                    setState(() => _selectedDemoUser = null);
+                                  // Clear selections when typing email
+                                  if (_selectedDemoUser != null || _selectedSavedContact != null) {
+                                    setState(() {
+                                      _selectedDemoUser = null;
+                                      _selectedSavedContact = null;
+                                    });
                                   }
                                 },
                               ),
-                              if (_selectedDemoUser != null)
+                              if (_selectedDemoUser != null || _selectedSavedContact != null)
                                 Padding(
                                   padding: const EdgeInsets.only(top: 8),
                                   child: Text(
-                                    'משתמש דמו נבחר - האימייל לא ישמש',
+                                    _selectedSavedContact != null
+                                        ? 'איש קשר נבחר - האימייל לא ישמש'
+                                        : 'משתמש דמו נבחר - האימייל לא ישמש',
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Colors.orange.shade700,
+                                      color: Colors.blue.shade700,
                                       fontStyle: FontStyle.italic,
                                     ),
                                   ),
@@ -471,6 +610,150 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // Saved Contact Option Widget
+  // ============================================================
+
+  Widget _buildSavedContactOption(SavedContact contact) {
+    final isSelected = _selectedSavedContact?.userId == contact.userId;
+    final isAlreadyShared = widget.list.sharedUsers.any((u) => u.userId == contact.userId);
+    final isOwner = widget.list.createdBy == contact.userId;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: GestureDetector(
+        onTap: (isAlreadyShared || isOwner || _isLoading)
+            ? null
+            : () {
+                setState(() {
+                  _selectedSavedContact = isSelected ? null : contact;
+                  _selectedDemoUser = null; // Clear demo user selection
+                  if (!isSelected) {
+                    _emailController.clear();
+                  }
+                });
+              },
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? Colors.white
+                : (isAlreadyShared || isOwner)
+                    ? Colors.grey.shade200
+                    : Colors.white.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isSelected ? Colors.blue : Colors.transparent,
+              width: 2,
+            ),
+          ),
+          child: Row(
+            children: [
+              // Checkbox Icon
+              Icon(
+                isSelected ? Icons.check_circle : Icons.circle_outlined,
+                color: isSelected
+                    ? Colors.blue
+                    : (isAlreadyShared || isOwner)
+                        ? Colors.grey
+                        : Colors.black54,
+              ),
+              const SizedBox(width: 12),
+              // Avatar
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: Colors.blue.shade100,
+                child: contact.userAvatar != null
+                    ? ClipOval(
+                        child: Image.network(
+                          contact.userAvatar!,
+                          width: 36,
+                          height: 36,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Text(
+                            contact.initials,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue,
+                            ),
+                          ),
+                        ),
+                      )
+                    : Text(
+                        contact.initials,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                        ),
+                      ),
+              ),
+              const SizedBox(width: 12),
+              // User Info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            contact.displayName,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              color: (isAlreadyShared || isOwner) ? Colors.grey : Colors.black,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (isOwner) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.purple.shade100,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              'בעלים',
+                              style: TextStyle(fontSize: 10, color: Colors.purple),
+                            ),
+                          ),
+                        ],
+                        if (isAlreadyShared && !isOwner) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.shade100,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              'כבר שותף',
+                              style: TextStyle(fontSize: 10, color: Colors.orange),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    if (contact.userName != null)
+                      Text(
+                        contact.userEmail,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: (isAlreadyShared || isOwner) ? Colors.grey : Colors.black54,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

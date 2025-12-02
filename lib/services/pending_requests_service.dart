@@ -189,6 +189,11 @@ class PendingRequestsService {
         // מחיקת מוצר (not implemented yet)
         log('⚠️ RequestType.deleteItem not implemented yet');
         break;
+
+      case RequestType.inviteToList:
+        // הזמנות מטופלות ב-PendingInvitesService
+        log('⚠️ RequestType.inviteToList should be handled by PendingInvitesService');
+        break;
     }
 
     // עדכון הבקשות (להחליף את הבקשה המאושרת)

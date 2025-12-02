@@ -48,7 +48,6 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:memozap/providers/user_context.dart';
 import 'package:memozap/providers/shopping_lists_provider.dart';
-import 'package:memozap/providers/products_provider.dart';
 import 'package:memozap/models/shopping_list.dart';
 import 'package:memozap/l10n/app_strings.dart';
 import 'package:memozap/core/ui_constants.dart';
@@ -58,7 +57,6 @@ import 'package:memozap/widgets/common/sticky_note.dart';
 import 'package:memozap/widgets/common/sticky_button.dart';
 import 'package:memozap/widgets/common/skeleton_loading.dart';
 import 'package:memozap/screens/settings/manage_users_screen.dart';
-import 'package:memozap/tools/load_demo_data_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -71,10 +69,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // Keys לשמירה מקומית
   static const _kHouseholdName = 'settings.householdName';
   static const _kHouseholdType = 'settings.householdType';
-  static const _kPreferredStores = 'settings.preferredStores';
   static const _kFamilySize = 'settings.familySize';
-  static const _kWeeklyReminders = 'settings.weeklyReminders';
-  static const _kHabitsAnalysis = 'settings.habitsAnalysis';
 
   // מצב UI
   String _householdName = "הקבוצה שלי";
@@ -82,17 +77,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _isEditingHouseholdName = false;
   final TextEditingController _householdNameController = TextEditingController();
 
-
-
-  // חנויות מועדפות
-  final List<String> _preferredStores = ["שופרסל", "רמי לוי"];
-  final TextEditingController _storeController = TextEditingController();
-
   // הגדרות
   int _familySize = 3;
   late final TextEditingController _familySizeController;
-  bool _weeklyReminders = true;
-  bool _habitsAnalysis = true;
 
   bool _loading = true;
   String? _errorMessage;
@@ -110,7 +97,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void dispose() {
     debugPrint('🗑️ SettingsScreen: dispose');
     _householdNameController.dispose();
-    _storeController.dispose();
     _familySizeController.dispose();
     super.dispose();
   }
@@ -123,21 +109,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _householdName = prefs.getString(_kHouseholdName) ?? _householdName;
         _householdType = prefs.getString(_kHouseholdType) ?? _householdType;
         _familySize = prefs.getInt(_kFamilySize) ?? _familySize;
-        _weeklyReminders = prefs.getBool(_kWeeklyReminders) ?? true;
-        _habitsAnalysis = prefs.getBool(_kHabitsAnalysis) ?? true;
-
-        // טעינת רשימת חנויות - עם fallback אם הפורמט ישן
-        _preferredStores.clear();
-        try {
-          final storesList = prefs.getStringList(_kPreferredStores);
-          if (storesList != null) {
-            _preferredStores.addAll(storesList);
-          }
-        } catch (e) {
-          // אם היה שמור כ-String (גרסה ישנה), נקה אותו
-          debugPrint('⚠️ _loadSettings: _kPreferredStores בפורמט ישן, מנקה');
-          prefs.remove(_kPreferredStores);
-        }
 
         _householdNameController.text = _householdName;
         _familySizeController.text = _familySize.toString();
@@ -160,9 +131,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await prefs.setString(_kHouseholdName, _householdName);
       await prefs.setString(_kHouseholdType, _householdType);
       await prefs.setInt(_kFamilySize, _familySize);
-      await prefs.setBool(_kWeeklyReminders, _weeklyReminders);
-      await prefs.setBool(_kHabitsAnalysis, _habitsAnalysis);
-      await prefs.setStringList(_kPreferredStores, _preferredStores);
 
       final messenger = ScaffoldMessenger.of(context);
       if (mounted) {
@@ -201,27 +169,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  /// הוספת חנות מועדפת
-  void _addStore() {
-    final text = _storeController.text.trim();
-    if (text.isNotEmpty && !_preferredStores.contains(text)) {
-      setState(() {
-        _preferredStores.add(text);
-        _storeController.clear();
-      });
-      _saveSettings();
-      debugPrint('✅ _addStore: הוספה הצליחה');
-    } else {
-      debugPrint('⚠️ _addStore: חנות קיימת או ריקה');
-    }
-  }
-
-  /// הסרת חנות
-  void _removeStore(int index) {
-    setState(() => _preferredStores.removeAt(index));
-    _saveSettings();
-  }
-
   /// שינוי סוג הקבוצה
   void _changeHouseholdType(String? newType) {
     if (newType != null) {
@@ -238,62 +185,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _saveSettings();
     } else {
       debugPrint('❌ _updateFamilySize: ערך לא תקין');
-    }
-  }
-
-  /// עדכון מחירים ידני
-  Future<void> _updatePrices(BuildContext context) async {
-    debugPrint('💰 _updatePrices: מתחיל עדכון');
-    final productsProvider = context.read<ProductsProvider>();
-    final messenger = ScaffoldMessenger.of(context);
-
-    if (!mounted) return;
-    messenger.showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
-            ),
-            const SizedBox(width: kSpacingMedium),
-            Text(AppStrings.settings.updatingPrices),
-          ],
-        ),
-        duration: const Duration(minutes: 5),
-      ),
-    );
-
-    try {
-      await productsProvider.refreshProducts(force: true);
-
-      if (!mounted) return;
-      messenger.hideCurrentSnackBar();
-
-      final withPrice = productsProvider.productsWithPrice;
-      final total = productsProvider.totalProducts;
-
-      if (!mounted) return;
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(AppStrings.settings.pricesUpdated(withPrice, total)),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 4),
-        ),
-      );
-      debugPrint('✅ _updatePrices: הצליח - $withPrice/$total');
-    } catch (e) {
-      debugPrint('❌ _updatePrices: שגיאה - $e');
-      if (!mounted) return;
-      messenger.hideCurrentSnackBar();
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(AppStrings.settings.pricesUpdateError(e.toString())),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 4),
-        ),
-      );
     }
   }
 
@@ -944,59 +835,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 const SizedBox(height: kSpacingMedium),
 
-                // 🔹 חנויות מועדפות
-                StickyNote(
-                  color: kStickyGreen,
-                  rotation: -0.01,
-                  child: Padding(
-                    padding: const EdgeInsets.all(kSpacingMedium),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          AppStrings.settings.storesTitle,
-                          style: TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold, color: cs.primary),
-                        ),
-                        const SizedBox(height: kSpacingSmallPlus),
-                        Wrap(
-                          spacing: kSpacingSmall,
-                          runSpacing: kSpacingSmall,
-                          children: List.generate(
-                            _preferredStores.length,
-                            (index) => Chip(
-                              label: Text(_preferredStores[index]),
-                              deleteIcon: const Icon(Icons.close, size: kIconSizeSmall + 2),
-                              onDeleted: () => _removeStore(index),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: kSpacingSmallPlus),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: _storeController,
-                                decoration: InputDecoration(hintText: AppStrings.settings.addStoreHint, isDense: true),
-                                maxLength: 25,
-                                textInputAction: TextInputAction.done,
-                                onSubmitted: (_) => _addStore(),
-                              ),
-                            ),
-                            const SizedBox(width: kSpacingSmall),
-                            IconButton(
-                              onPressed: _addStore,
-                              icon: Icon(Icons.add, color: cs.primary),
-                              tooltip: AppStrings.settings.addStoreTooltip,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: kSpacingMedium),
-
                 // 🔹 הגדרות אישיות
                 StickyNote(
                   color: kStickyCyan,
@@ -1033,27 +871,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                           ],
                         ),
-                        const Divider(height: kSpacingLarge),
-                        SwitchListTile(
-                          title: Text(AppStrings.settings.weeklyRemindersLabel),
-                          subtitle: Text(AppStrings.settings.weeklyRemindersSubtitle),
-                          value: _weeklyReminders,
-                          onChanged: (val) {
-                            setState(() => _weeklyReminders = val);
-                            _saveSettings();
-                          },
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                        SwitchListTile(
-                          title: Text(AppStrings.settings.habitsAnalysisLabel),
-                          subtitle: Text(AppStrings.settings.habitsAnalysisSubtitle),
-                          value: _habitsAnalysis,
-                          onChanged: (val) {
-                            setState(() => _habitsAnalysis = val);
-                            _saveSettings();
-                          },
-                          contentPadding: EdgeInsets.zero,
-                        ),
                       ],
                     ),
                   ),
@@ -1068,20 +885,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Column(
                     children: [
                       ListTile(
-                        leading: const Icon(Icons.receipt_long, color: Colors.grey),
-                        title: Text(AppStrings.settings.myReceipts, style: const TextStyle(color: Colors.grey)),
-                        trailing: const Icon(Icons.chevron_left),
-                        onTap: null,
-                      ),
-                      const Divider(height: 1),
-                      ListTile(
-                        leading: const Icon(Icons.psychology, color: Colors.grey),
-                        title: const Text('הרגלי קנייה שלי', style: TextStyle(color: Colors.grey)),
-                        trailing: const Icon(Icons.chevron_left),
-                        onTap: null,
-                      ),
-                      const Divider(height: 1),
-                      ListTile(
                         leading: Icon(Icons.inventory_2_outlined, color: cs.primary),
                         title: Text(AppStrings.settings.myPantry),
                         trailing: const Icon(Icons.chevron_left),
@@ -1091,18 +894,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       const Divider(height: 1),
                       ListTile(
-                        leading: const Icon(Icons.price_change_outlined, color: Colors.grey),
-                        title: Text(AppStrings.settings.priceComparison, style: const TextStyle(color: Colors.grey)),
+                        leading: Icon(Icons.mail_outline, color: cs.primary),
+                        title: const Text('הזמנות ממתינות'),
+                        subtitle: const Text('הזמנות שקיבלת לרשימות'),
                         trailing: const Icon(Icons.chevron_left),
-                        onTap: null,
-                      ),
-                      const Divider(height: 1),
-                      ListTile(
-                        leading: Icon(Icons.sync, color: cs.primary),
-                        title: Text(AppStrings.settings.updatePricesTitle),
-                        subtitle: Text(AppStrings.settings.updatePricesSubtitle),
-                        trailing: const Icon(Icons.chevron_left),
-                        onTap: () => _updatePrices(context),
+                        onTap: () {
+                          Navigator.pushNamed(context, '/pending-invites');
+                        },
                       ),
                     ],
                   ),
@@ -1110,25 +908,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 const SizedBox(height: kSpacingMedium),
 
-                // 🔹 טעינת נתוני דמו (Developer Tools)
-                StickyNote(
-                  color: Colors.deepPurple.shade50,
-                  rotation: -0.01,
-                  child: ListTile(
-                    leading: const Icon(Icons.science, color: Colors.deepPurple),
-                    title: const Text('🧪 טעינת נתוני דמו', style: TextStyle(color: Colors.deepPurple)),
-                    subtitle: const Text('טען 5 משתמשי דמו ל-Firebase'),
-                    trailing: const Icon(Icons.chevron_left),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const LoadDemoDataScreen()),
-                      );
-                    },
-                  ),
-                ),
-
-                const SizedBox(height: kSpacingMedium),
 
                 // 🔹 התנתקות
                 StickyNote(

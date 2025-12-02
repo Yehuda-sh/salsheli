@@ -2,12 +2,15 @@
 enum RequestType {
   /// בקשה להוסיף פריט חדש
   addItem,
-  
+
   /// בקשה לערוך פריט קיים
   editItem,
-  
+
   /// בקשה למחוק פריט
-  deleteItem;
+  deleteItem,
+
+  /// הזמנה להצטרף לרשימה/משפחה
+  inviteToList;
 
   /// שם בעברית
   String get hebrewName {
@@ -18,6 +21,8 @@ enum RequestType {
         return 'עריכת פריט';
       case RequestType.deleteItem:
         return 'מחיקת פריט';
+      case RequestType.inviteToList:
+        return 'הזמנה לרשימה';
     }
   }
 
@@ -30,6 +35,8 @@ enum RequestType {
         return '✏️';
       case RequestType.deleteItem:
         return '🗑️';
+      case RequestType.inviteToList:
+        return '👥';
     }
   }
 }

@@ -55,6 +55,7 @@ import 'package:memozap/screens/shopping/create/create_list_screen.dart';
 import 'package:memozap/screens/shopping/details/shopping_list_details_screen.dart';
 import 'package:memozap/screens/shopping/lists/shopping_lists_screen.dart';
 import 'package:memozap/screens/shopping/shopping_summary_screen.dart';
+import 'package:memozap/screens/sharing/pending_invites_screen.dart';
 
 // Theme
 import 'package:memozap/theme/app_theme.dart';
@@ -280,6 +281,8 @@ class _MyAppState extends State<MyApp> {
 
             '/shopping-lists': (context) => const ShoppingListsScreen(),
             '/create-list': (context) => const CreateListScreen(),
+
+            '/pending-invites': (context) => const PendingInvitesScreen(),
           },
           onGenerateRoute: (settings) {
             // shopping-summary - receives listId

@@ -166,6 +166,8 @@ class _RequestCard extends StatelessWidget {
         return '✏️';
       case RequestType.deleteItem:
         return '🗑️';
+      case RequestType.inviteToList:
+        return '👥';
     }
   }
 
@@ -177,6 +179,8 @@ class _RequestCard extends StatelessWidget {
         return 'בקשה לעריכת פריט';
       case RequestType.deleteItem:
         return 'בקשה למחיקת פריט';
+      case RequestType.inviteToList:
+        return 'הזמנה לרשימה';
     }
   }
 
@@ -204,6 +208,11 @@ class _RequestCard extends StatelessWidget {
       case RequestType.deleteItem:
         final itemName = data['itemName'] ?? 'פריט';
         return 'מחיקת: $itemName';
+
+      case RequestType.inviteToList:
+        final listName = data['list_name'] ?? 'רשימה';
+        final role = data['role'] ?? 'משתמש';
+        return 'הזמנה לרשימה "$listName" כ-$role';
     }
   }
 
