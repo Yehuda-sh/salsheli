@@ -13,7 +13,6 @@
 // Version: 1.0
 // Last Updated: 03/11/2025
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -29,48 +28,6 @@ import 'package:memozap/widgets/common/notebook_background.dart';
 import 'package:memozap/widgets/common/sticky_button.dart';
 import 'package:memozap/widgets/common/sticky_note.dart';
 import 'package:provider/provider.dart';
-
-/// 🧪 Demo users for development/testing
-/// These can be used to test sharing functionality without real users
-class _DemoUser {
-  final String id;
-  final String name;
-  final String email;
-
-  const _DemoUser({
-    required this.id,
-    required this.name,
-    required this.email,
-  });
-}
-
-const List<_DemoUser> _demoUsers = [
-  _DemoUser(
-    id: 'user_001_demo',
-    name: 'שרה כהן',
-    email: 'sarah.cohen@demo.memozap.com',
-  ),
-  _DemoUser(
-    id: 'user_002_demo',
-    name: 'דוד כהן',
-    email: 'david.cohen@demo.memozap.com',
-  ),
-  _DemoUser(
-    id: 'user_003_demo',
-    name: 'מיכל לוי',
-    email: 'michal.levi@demo.memozap.com',
-  ),
-  _DemoUser(
-    id: 'user_004_demo',
-    name: 'אביב מזרחי',
-    email: 'aviv.mizrahi@demo.memozap.com',
-  ),
-  _DemoUser(
-    id: 'user_005_demo',
-    name: 'נועה מזרחי',
-    email: 'noa.mizrahi@demo.memozap.com',
-  ),
-];
 
 class InviteUsersScreen extends StatefulWidget {
   final ShoppingList list;
@@ -98,9 +55,6 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
   // 📇 Saved contacts
   List<SavedContact> _savedContacts = [];
   SavedContact? _selectedSavedContact;
-
-  // 🧪 Demo mode - select from predefined demo users
-  _DemoUser? _selectedDemoUser;
 
   @override
   void initState() {
@@ -181,12 +135,10 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
   // ============================================================
 
   Future<void> _inviteUser() async {
-    // 🧪 In debug mode with demo user selected, skip email validation
-    final bool usingDemoUser = kDebugMode && _selectedDemoUser != null;
     // 📇 Saved contact selected
     final bool usingSavedContact = _selectedSavedContact != null;
 
-    if (!usingDemoUser && !usingSavedContact && !_formKey.currentState!.validate()) return;
+    if (!usingSavedContact && !_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
@@ -215,14 +167,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
       final String? invitedUserEmail;
       final String displayName;
 
-      if (usingDemoUser) {
-        // 🧪 Demo user
-        invitedUserId = _selectedDemoUser!.id;
-        invitedUserName = _selectedDemoUser!.name;
-        invitedUserEmail = _selectedDemoUser!.email;
-        displayName = _selectedDemoUser!.name;
-        debugPrint('🧪 Inviting demo user: $invitedUserName ($invitedUserId)');
-      } else if (usingSavedContact) {
+      if (usingSavedContact) {
         // 📇 Saved contact
         invitedUserId = _selectedSavedContact!.userId;
         invitedUserName = _selectedSavedContact!.userName;
@@ -418,49 +363,6 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                         ),
                       ],
 
-                      // 🧪 Demo User Selection (Debug Mode Only)
-                      if (kDebugMode) ...[
-                        StickyNote(
-                          color: const Color(0xFFFFCDD2), // Light red for demo
-                          rotation: 0.02,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Row(
-                                  children: [
-                                    Text('🧪', style: TextStyle(fontSize: 20)),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'בחר משתמש דמו (מצב פיתוח)',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                ..._demoUsers.map(_buildDemoUserOption),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        if (_savedContacts.isEmpty)
-                          const Center(
-                            child: Text(
-                              '── או הזן אימייל ידנית ──',
-                              style: TextStyle(
-                                color: Colors.black54,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                        const SizedBox(height: 16),
-                      ],
-
                       // Email Field (StickyNote Yellow)
                       StickyNote(
                         color: const Color(0xFFFFF59D), // kStickyYellow
@@ -491,24 +393,21 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                   ),
                                 ),
                                 validator: _validateEmail,
-                                enabled: !_isLoading && _selectedDemoUser == null && _selectedSavedContact == null,
+                                enabled: !_isLoading && _selectedSavedContact == null,
                                 onChanged: (_) {
                                   // Clear selections when typing email
-                                  if (_selectedDemoUser != null || _selectedSavedContact != null) {
+                                  if (_selectedSavedContact != null) {
                                     setState(() {
-                                      _selectedDemoUser = null;
                                       _selectedSavedContact = null;
                                     });
                                   }
                                 },
                               ),
-                              if (_selectedDemoUser != null || _selectedSavedContact != null)
+                              if (_selectedSavedContact != null)
                                 Padding(
                                   padding: const EdgeInsets.only(top: 8),
                                   child: Text(
-                                    _selectedSavedContact != null
-                                        ? 'איש קשר נבחר - האימייל לא ישמש'
-                                        : 'משתמש דמו נבחר - האימייל לא ישמש',
+                                    'איש קשר נבחר - האימייל לא ישמש',
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: Colors.blue.shade700,
@@ -632,7 +531,6 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
             : () {
                 setState(() {
                   _selectedSavedContact = isSelected ? null : contact;
-                  _selectedDemoUser = null; // Clear demo user selection
                   if (!isSelected) {
                     _emailController.clear();
                   }
@@ -749,129 +647,6 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                           color: (isAlreadyShared || isOwner) ? Colors.grey : Colors.black54,
                         ),
                       ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ============================================================
-  // Demo User Option Widget (Debug Mode Only)
-  // ============================================================
-
-  Widget _buildDemoUserOption(_DemoUser user) {
-    final isSelected = _selectedDemoUser?.id == user.id;
-    final isAlreadyShared = widget.list.sharedUsers.any((u) => u.userId == user.id);
-    final isOwner = widget.list.createdBy == user.id;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: GestureDetector(
-        onTap: (isAlreadyShared || isOwner || _isLoading)
-            ? null
-            : () {
-                setState(() {
-                  _selectedDemoUser = isSelected ? null : user;
-                  if (!isSelected) {
-                    _emailController.clear();
-                  }
-                });
-              },
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? Colors.white
-                : (isAlreadyShared || isOwner)
-                    ? Colors.grey.shade200
-                    : Colors.white.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: isSelected ? Colors.green : Colors.transparent,
-              width: 2,
-            ),
-          ),
-          child: Row(
-            children: [
-              // Checkbox Icon
-              Icon(
-                isSelected ? Icons.check_circle : Icons.circle_outlined,
-                color: isSelected
-                    ? Colors.green
-                    : (isAlreadyShared || isOwner)
-                        ? Colors.grey
-                        : Colors.black54,
-              ),
-              const SizedBox(width: 12),
-              // Avatar
-              CircleAvatar(
-                radius: 18,
-                backgroundColor: Colors.blue.shade100,
-                child: Text(
-                  user.name.substring(0, 1),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              // User Info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          user.name,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                            color: (isAlreadyShared || isOwner) ? Colors.grey : Colors.black,
-                          ),
-                        ),
-                        if (isOwner) ...[
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.purple.shade100,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: const Text(
-                              'בעלים',
-                              style: TextStyle(fontSize: 10, color: Colors.purple),
-                            ),
-                          ),
-                        ],
-                        if (isAlreadyShared && !isOwner) ...[
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.orange.shade100,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: const Text(
-                              'כבר שותף',
-                              style: TextStyle(fontSize: 10, color: Colors.orange),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                    Text(
-                      user.email,
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: (isAlreadyShared || isOwner) ? Colors.grey : Colors.black54,
-                      ),
-                    ),
                   ],
                 ),
               ),

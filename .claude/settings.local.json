@@ -15,7 +15,12 @@
       "Bash(git rm:*)",
       "Bash(dart scripts/fix_categories.dart:*)",
       "Bash(flutter pub get:*)",
-      "Bash(flutter clean:*)"
+      "Bash(flutter clean:*)",
+      "Bash(find:*)",
+      "Bash(dir:*)",
+      "Bash(xargs:*)",
+      "Bash(rm:*)",
+      "Bash(rmdir:*)"
     ],
     "deny": [],
     "ask": []

@@ -80,8 +80,7 @@ class OnboardingPrefsKeys {
   static const shoppingFrequency = 'onboarding.shoppingFrequency'; // פעמים בשבוע
   static const shoppingDays = 'onboarding.shoppingDays'; // ימים קבועים (0-6)
   static const hasChildren = 'onboarding.hasChildren';
-  static const childrenAges = 'onboarding.childrenAges'; // DEPRECATED - נשאר לתאימות
-  static const children = 'onboarding.children'; // ✅ NEW - רשימת ילדים עם שמות
+  static const children = 'onboarding.children'; // רשימת ילדים עם שמות
   static const shareLists = 'onboarding.shareLists';
   static const reminderTime = 'onboarding.reminderTime'; // פורמט: HH:MM
 }
@@ -775,7 +774,7 @@ class OnboardingData {
         OnboardingPrefsKeys.shoppingFrequency,
         OnboardingPrefsKeys.shoppingDays,
         OnboardingPrefsKeys.hasChildren,
-        OnboardingPrefsKeys.childrenAges,
+        OnboardingPrefsKeys.children,
         OnboardingPrefsKeys.shareLists,
         OnboardingPrefsKeys.reminderTime,
       ];

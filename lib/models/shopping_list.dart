@@ -144,6 +144,12 @@ class ShoppingList {
   @JsonKey(name: 'pending_requests', defaultValue: [])
   final List<PendingRequest> pendingRequests;
 
+  /// 🆕 האם הרשימה פרטית (לא משותפת עם ה-household)
+  /// 🇬🇧 Is the list private (not shared with the household)
+  /// ברירת מחדל: false - רשימות משותפות עם כל ה-household
+  @JsonKey(name: 'is_private', defaultValue: false)
+  final bool isPrivate;
+
   /// 🆕 הרשאה של המשתמש הנוכחי (מחושב, לא נשמר)
   /// 🇬🇧 Current user's role (computed, not saved)
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -167,9 +173,6 @@ class ShoppingList {
   static const String typeHousehold = 'household';     // 🏠 כלי בית - מוצרים מותאמים
   static const String typeOther = 'other';             // ➕ אחר
   
-  // Legacy support (deprecated)
-  @Deprecated('Use typeSupermarket instead')
-  static const String typeSuper = 'super';
 
   // ---- Active Shopping Getters ----
 
@@ -427,6 +430,7 @@ class ShoppingList {
     List<ActiveShopper> activeShoppers = const [],
     List<SharedUser> sharedUsers = const [],
     List<PendingRequest> pendingRequests = const [],
+    this.isPrivate = false,
     this.currentUserRole,
   })  : createdDate = createdDate ?? updatedDate,
         sharedWith = List<String>.unmodifiable(sharedWith),
@@ -448,6 +452,7 @@ class ShoppingList {
     DateTime? eventDate,
     DateTime? targetDate,
     bool isShared = false,
+    bool isPrivate = false,
     List<String> sharedWith = const [],
     List<UnifiedListItem> items = const [],
     String? templateId,
@@ -465,6 +470,7 @@ class ShoppingList {
       eventDate: eventDate,
       targetDate: targetDate,
       isShared: isShared,
+      isPrivate: isPrivate,
       sharedWith: List<String>.unmodifiable(sharedWith),
       items: List<UnifiedListItem>.unmodifiable(items),
       templateId: templateId,
@@ -490,6 +496,7 @@ class ShoppingList {
     DateTime? eventDate,
     DateTime? targetDate,
     bool isShared = false,
+    bool isPrivate = false,
     List<String> sharedWith = const [],
     DateTime? now,
   }) {
@@ -504,6 +511,7 @@ class ShoppingList {
       eventDate: eventDate,
       targetDate: targetDate,
       isShared: isShared,
+      isPrivate: isPrivate,
       sharedWith: List<String>.unmodifiable(sharedWith),
       items: List<UnifiedListItem>.unmodifiable(items),
       templateId: templateId,
@@ -532,6 +540,7 @@ class ShoppingList {
     Object? eventDate = _sentinel,  // Using Object? to allow explicit null
     Object? targetDate = _sentinel,  // Using Object? to allow explicit null
     bool? isShared,
+    bool? isPrivate,
     String? createdBy,
     List<String>? sharedWith,
     List<UnifiedListItem>? items,
@@ -550,21 +559,22 @@ class ShoppingList {
       createdDate: createdDate ?? this.createdDate,
       status: status ?? this.status,
       type: type ?? this.type,
-      budget: identical(budget, _sentinel) 
-          ? this.budget 
+      budget: identical(budget, _sentinel)
+          ? this.budget
           : budget as double?,  // Allow explicit null
-      eventDate: identical(eventDate, _sentinel) 
-          ? this.eventDate 
+      eventDate: identical(eventDate, _sentinel)
+          ? this.eventDate
           : eventDate as DateTime?,  // Allow explicit null
-      targetDate: identical(targetDate, _sentinel) 
-          ? this.targetDate 
+      targetDate: identical(targetDate, _sentinel)
+          ? this.targetDate
           : targetDate as DateTime?,  // Allow explicit null
       isShared: isShared ?? this.isShared,
+      isPrivate: isPrivate ?? this.isPrivate,
       createdBy: createdBy ?? this.createdBy,
       sharedWith: sharedWith ?? this.sharedWith,
       items: items ?? this.items,
-      templateId: identical(templateId, _sentinel) 
-          ? this.templateId 
+      templateId: identical(templateId, _sentinel)
+          ? this.templateId
           : templateId as String?,  // Allow explicit null
       format: format ?? this.format,
       createdFromTemplate: createdFromTemplate ?? this.createdFromTemplate,

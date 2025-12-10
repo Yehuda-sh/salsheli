@@ -1,7 +1,7 @@
 rules_version = '2';
 // 🔒 MemoZap Firestore Security Rules
-// 
-// ✅ עודכן: 04/11/2025 - Phase 3B - 4-Tier Permission System
+//
+// ✅ עודכן: 04/12/2025 - Phase 4 - Household Invite System
 // 
 // 📄 מערכת הרשאות לרשימות משותפות (4 רמות):
 //    1️⃣ Owner (created_by):
@@ -256,6 +256,137 @@ service cloud.firestore {
                        resource.data.user_id == request.auth.uid;
     }
     
+    // === Household Invites Collection ===
+    // קודי הזמנה למשפחה
+    match /household_invites/{inviteId} {
+      // קריאה: כל משתמש מחובר יכול לבדוק קוד
+      allow read: if isAuthenticated();
+
+      // יצירה: רק Owner של ה-household יכול ליצור
+      allow create: if isAuthenticated() &&
+                       request.resource.data.household_id == getUserHouseholdId() &&
+                       request.resource.data.created_by == request.auth.uid;
+
+      // עדכון: רק Owner של ה-household (לשינוי סטטוס)
+      allow update: if isAuthenticated() &&
+                       isHouseholdMember(resource.data.household_id) &&
+                       resource.data.created_by == request.auth.uid;
+
+      // מחיקה: רק מי שיצר
+      allow delete: if isAuthenticated() &&
+                       resource.data.created_by == request.auth.uid;
+    }
+
+    // === Household Join Requests Collection ===
+    // בקשות הצטרפות למשפחה
+    match /household_join_requests/{requestId} {
+      // קריאה: המבקש או חברי ה-household
+      allow read: if isAuthenticated() && (
+                       resource.data.requester_id == request.auth.uid ||
+                       isHouseholdMember(resource.data.household_id)
+                     );
+
+      // יצירה: כל משתמש מחובר יכול לבקש להצטרף
+      allow create: if isAuthenticated() &&
+                       request.resource.data.requester_id == request.auth.uid &&
+                       request.resource.data.status == 'pending';
+
+      // עדכון: רק Owner/Admin של ה-household (לאישור/דחייה)
+      allow update: if isAuthenticated() &&
+                       isHouseholdMember(resource.data.household_id);
+
+      // מחיקה: רק המבקש או Owner של ה-household
+      allow delete: if isAuthenticated() && (
+                       resource.data.requester_id == request.auth.uid ||
+                       isHouseholdMember(resource.data.household_id)
+                     );
+    }
+
+    // === Household Members Collection ===
+    // חברי משפחה
+    match /household_members/{memberId} {
+      // קריאה: רק חברי אותו household
+      allow read: if isAuthenticated() &&
+                     isHouseholdMember(resource.data.household_id);
+
+      // יצירה: רק מי שמוסיף את עצמו או Owner שמאשר בקשה
+      allow create: if isAuthenticated() && (
+                       request.resource.data.user_id == request.auth.uid ||
+                       isHouseholdMember(request.resource.data.household_id)
+                     );
+
+      // עדכון: רק Owner של ה-household
+      allow update: if isAuthenticated() &&
+                       isHouseholdMember(resource.data.household_id);
+
+      // מחיקה: רק Owner של ה-household
+      allow delete: if isAuthenticated() &&
+                       isHouseholdMember(resource.data.household_id);
+    }
+
+    // === Pending Invites Collection (List Sharing) ===
+    // הזמנות ממתינות לשיתוף רשימות
+    match /pending_invites/{inviteId} {
+      // קריאה: המזמין או המוזמן
+      allow read: if isAuthenticated() && (
+                       resource.data.requester_id == request.auth.uid ||
+                       resource.data.request_data.invited_user_id == request.auth.uid
+                     );
+
+      // יצירה: משתמש מחובר
+      allow create: if isAuthenticated() &&
+                       request.resource.data.requester_id == request.auth.uid;
+
+      // עדכון: המוזמן או המזמין
+      allow update: if isAuthenticated() && (
+                       resource.data.requester_id == request.auth.uid ||
+                       resource.data.request_data.invited_user_id == request.auth.uid
+                     );
+
+      // מחיקה: המזמין בלבד
+      allow delete: if isAuthenticated() &&
+                       resource.data.requester_id == request.auth.uid;
+    }
+
+    // === Saved Contacts Collection ===
+    // אנשי קשר שמורים
+    match /saved_contacts/{contactId} {
+      // קריאה: רק הבעלים
+      allow read: if isAuthenticated() &&
+                     resource.data.owner_id == request.auth.uid;
+
+      // יצירה: משתמש יכול ליצור לעצמו
+      allow create: if isAuthenticated() &&
+                       request.resource.data.owner_id == request.auth.uid;
+
+      // עדכון: רק הבעלים
+      allow update: if isAuthenticated() &&
+                       resource.data.owner_id == request.auth.uid;
+
+      // מחיקה: רק הבעלים
+      allow delete: if isAuthenticated() &&
+                       resource.data.owner_id == request.auth.uid;
+    }
+
+    // === Notifications Collection ===
+    // התראות
+    match /notifications/{notificationId} {
+      // קריאה: רק הנמען
+      allow read: if isAuthenticated() &&
+                     resource.data.user_id == request.auth.uid;
+
+      // יצירה: משתמש מחובר (מערכת שולחת)
+      allow create: if isAuthenticated();
+
+      // עדכון: רק הנמען (לסימון כנקרא)
+      allow update: if isAuthenticated() &&
+                       resource.data.user_id == request.auth.uid;
+
+      // מחיקה: רק הנמען
+      allow delete: if isAuthenticated() &&
+                       resource.data.user_id == request.auth.uid;
+    }
+
     // === Custom Locations Collection ===
     match /custom_locations/{locationId} {
       allow read: if isAuthenticated() && 

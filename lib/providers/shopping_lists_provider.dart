@@ -264,7 +264,7 @@ class ShoppingListsProvider with ChangeNotifier {
   /// ```dart
   /// final list = await provider.createList(
   ///   name: 'קניות שבועיות',
-  ///   type: ShoppingList.typeSuper,
+  ///   type: ShoppingList.typeSupermarket,
   ///   budget: 500.0,
   ///   eventDate: DateTime(2025, 10, 15), // אירוע ב-15/10
   ///   items: [...], // 🆕 פריטים מתבנית
@@ -272,7 +272,7 @@ class ShoppingListsProvider with ChangeNotifier {
   /// ```
   Future<ShoppingList> createList({
     required String name,
-    String type = ShoppingList.typeSuper,
+    String type = ShoppingList.typeSupermarket,
     double? budget,
     DateTime? eventDate,
     bool isShared = false,
@@ -651,7 +651,6 @@ class ShoppingListsProvider with ChangeNotifier {
         debugPrint('   ➕ יוצר רשימה חדשה "קניות כלליות"');
         await createList(
           name: 'קניות כלליות',
-          type: ShoppingList.typeSuper,
           items: items,
         );
         debugPrint('✅ addToNextList: רשימה חדשה נוצרה עם ${items.length} פריטים');

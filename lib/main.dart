@@ -6,15 +6,20 @@
 // - Automatic user loading from SharedPreferences
 // - Dynamic Color Support (Android 12+ Material You) 🎨
 // - Hive for local storage
+// - Firebase Emulators support for development 🔥
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dynamic_color/dynamic_color.dart'; // 🎨 Material You!
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart'; // 📦 Hive!
 import 'package:provider/provider.dart';
 
+import 'package:memozap/config/app_config.dart'; // ⚙️ App Config!
 import 'package:memozap/firebase_options.dart';
 
 // Models
@@ -41,7 +46,6 @@ import 'package:memozap/repositories/user_repository.dart';
 
 // Services
 import 'package:memozap/services/auth_service.dart'; // 🔐 Firebase Auth!
-import 'package:memozap/services/auto_sync_initializer.dart'; // 🔄 Auto Price Sync!
 
 // Screens
 import 'package:memozap/screens/auth/login_screen.dart' as auth_login;
@@ -60,6 +64,23 @@ import 'package:memozap/screens/sharing/pending_invites_screen.dart';
 // Theme
 import 'package:memozap/theme/app_theme.dart';
 
+/// 🔥 חיבור ל-Firebase Emulators (לפיתוח מקומי)
+Future<void> _connectToEmulators() async {
+  final host = AppConfig.emulatorHost;
+
+  // Firestore Emulator
+  FirebaseFirestore.instance.useFirestoreEmulator(host, AppConfig.firestorePort);
+  debugPrint('🔥 Connected to Firestore Emulator at $host:${AppConfig.firestorePort}');
+
+  // Auth Emulator
+  await FirebaseAuth.instance.useAuthEmulator(host, AppConfig.authPort);
+  debugPrint('🔐 Connected to Auth Emulator at $host:${AppConfig.authPort}');
+
+  // Storage Emulator
+  await FirebaseStorage.instance.useStorageEmulator(host, AppConfig.storagePort);
+  debugPrint('📦 Connected to Storage Emulator at $host:${AppConfig.storagePort}');
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -69,10 +90,20 @@ void main() async {
     if (Firebase.apps.isEmpty) {
       await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
     }
+
+    // 🔥 חיבור ל-Firebase Emulators במצב פיתוח
+    if (AppConfig.useEmulators) {
+      await _connectToEmulators();
+    }
   } catch (e) {
     if (kDebugMode) {
       debugPrint('❌ Firebase initialization error: $e');
     }
+  }
+
+  // 📊 הדפסת הגדרות (רק ב-debug)
+  if (kDebugMode) {
+    AppConfig.printConfig();
   }
 
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -92,9 +123,6 @@ void main() async {
   final shoppingListsRepo = FirebaseShoppingListsRepository();
   final receiptRepo = FirebaseReceiptRepository();
   final inventoryRepo = FirebaseInventoryRepository();
-
-  // 🔄 Initialize Auto Price Sync (runs in background)
-  AutoSyncInitializer.initialize();
 
   runApp(
     MultiProvider(
