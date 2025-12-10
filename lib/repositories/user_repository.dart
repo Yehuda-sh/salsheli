@@ -301,26 +301,34 @@ abstract class UserRepository {
   Future<void> updateLastLogin(String userId);
 
   /// יוצר משתמש חדש במערכת
-  /// 
+  ///
   /// פונקציה עוטפת נוחה ל-[saveUser] שמטפלת ביצירת משתמש חדש.
-  /// 
+  ///
   /// אם המשתמש כבר קיים - מחזיר את המשתמש הקיים (לא יוצר כפילות).
-  /// 
+  ///
   /// **פרמטרים:**
   /// - [userId] - מזהה ייחודי (בד"כ מ-Firebase Auth)
   /// - [email] - כתובת אימייל (מנורמלת אוטומטית)
   /// - [name] - שם המשתמש
   /// - [householdId] - מזהה משק בית (אופציונלי)
-  /// 
+  /// - 🆕 [preferredStores] - חנויות מועדפות (מ-Onboarding)
+  /// - 🆕 [familySize] - גודל משפחה (מ-Onboarding)
+  /// - 🆕 [shoppingFrequency] - תדירות קניות (מ-Onboarding)
+  /// - 🆕 [shoppingDays] - ימי קניות קבועים (מ-Onboarding)
+  /// - 🆕 [hasChildren] - האם יש ילדים (מ-Onboarding)
+  /// - 🆕 [shareLists] - האם לשתף רשימות (מ-Onboarding)
+  /// - 🆕 [reminderTime] - זמן תזכורת (מ-Onboarding)
+  /// - 🆕 [seenOnboarding] - האם עבר Onboarding (מ-Onboarding)
+  ///
   /// מחזיר את המשתמש החדש/הקיים.
-  /// 
+  ///
   /// שימושי ב:
   /// - תהליך הרשמה (Sign Up)
   /// - יצירת משתמשי דמו
   /// - מיגרציה של משתמשים
-  /// 
+  ///
   /// זורק [UserRepositoryException] במקרה של שגיאה.
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final user = await repository.createUser(
@@ -328,10 +336,14 @@ abstract class UserRepository {
   ///   email: 'user@example.com',
   ///   name: 'יוני כהן',
   ///   householdId: 'house_demo',
+  ///   // 🆕 Onboarding data
+  ///   preferredStores: ['שופרסל', 'רמי לוי'],
+  ///   familySize: 4,
+  ///   seenOnboarding: true,
   /// );
   /// print('משתמש נוצר: ${user.id}');
   /// ```
-  /// 
+  ///
   /// See also:
   /// - [saveUser] - שמירה/עדכון משתמש קיים
   /// - [existsUser] - בדיקת קיום משתמש
@@ -340,6 +352,15 @@ abstract class UserRepository {
     required String email,
     required String name,
     String? householdId,
+    // 🆕 Onboarding fields
+    List<String>? preferredStores,
+    int? familySize,
+    int? shoppingFrequency,
+    List<int>? shoppingDays,
+    bool? hasChildren,
+    bool? shareLists,
+    String? reminderTime,
+    bool? seenOnboarding,
   });
 
   /// מעדכן פרופיל של משתמש (עדכון חלקי)

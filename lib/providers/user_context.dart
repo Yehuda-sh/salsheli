@@ -60,6 +60,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:memozap/models/user_entity.dart';
 import 'package:memozap/repositories/user_repository.dart';
 import 'package:memozap/services/auth_service.dart';
+import 'package:memozap/data/onboarding_data.dart';
 
 /// Provider המנהל את הקשר המשתמש באפליקציה
 /// 
@@ -278,14 +279,15 @@ class UserContext with ChangeNotifier {
   // === טעינת משתמש מ-Firestore ===
 
   /// טוען משתמש מ-Firestore לפי ID
-  /// 
+  ///
   /// נקרא אוטומטית כש-Firebase Auth מזהה התחברות.
-  /// 
+  ///
   /// תהליך:
   /// 1. ניסיון לטעון מ-Repository
   /// 2. אם לא נמצא → יוצר משתמש חדש דרך Repository
-  /// 3. מעדכן state + notifyListeners
-  /// 
+  /// 3. 🆕 סנכרון נתוני Onboarding מהשרת ל-SharedPreferences
+  /// 4. מעדכן state + notifyListeners
+  ///
   /// במקרה של שגיאה:
   /// - State נשאר ללא שינוי
   /// - errorMessage מתעדכן
@@ -304,6 +306,9 @@ class UserContext with ChangeNotifier {
             name: firebaseUser.displayName ?? 'משתמש חדש',
           );
         }
+      } else {
+        // 🆕 סנכרון נתוני Onboarding מהשרת למכשיר
+        await _syncOnboardingFromServer(_user!);
       }
 
       _errorMessage = null; // נקה שגיאות קודמות
@@ -315,21 +320,59 @@ class UserContext with ChangeNotifier {
     notifyListeners();
   }
 
+  /// 🆕 סנכרון נתוני Onboarding מהשרת ל-SharedPreferences
+  ///
+  /// נקרא כשמשתמש מתחבר ממכשיר חדש/מתקין מחדש.
+  /// מעדכן את SharedPreferences עם הנתונים מהשרת.
+  Future<void> _syncOnboardingFromServer(UserEntity user) async {
+    try {
+      debugPrint('🔄 UserContext: מסנכרן נתוני Onboarding מהשרת...');
+
+      // יצירת OnboardingData מהנתונים בשרת
+      final serverOnboarding = OnboardingData(
+        familySize: user.familySize,
+        preferredStores: user.preferredStores.toSet(),
+        shoppingFrequency: user.shoppingFrequency,
+        shoppingDays: user.shoppingDays.toSet(),
+        hasChildren: user.hasChildren,
+        shareLists: user.shareLists,
+        reminderTime: user.reminderTime,
+      );
+
+      // שמירה ב-SharedPreferences
+      await serverOnboarding.save();
+
+      // עדכון סטטוס seenOnboarding
+      if (user.seenOnboarding) {
+        await OnboardingData.markAsCompleted();
+      }
+
+      debugPrint('✅ UserContext: נתוני Onboarding סונכרנו מהשרת');
+      debugPrint('   • גודל משפחה: ${user.familySize}');
+      debugPrint('   • חנויות מועדפות: ${user.preferredStores.length}');
+      debugPrint('   • ראה Onboarding: ${user.seenOnboarding}');
+    } catch (e) {
+      debugPrint('⚠️ UserContext._syncOnboardingFromServer: שגיאה - $e');
+      // לא זורקים שגיאה - זה לא קריטי
+    }
+  }
+
   // === רישום משתמש חדש ===
 
   /// רושם משתמש חדש עם Firebase Auth ויוצר רשומה ב-Firestore
-  /// 
+  ///
   /// תהליך:
   /// 1. רישום ב-Firebase Auth
-  /// 2. יצירת UserEntity חדש דרך Repository
-  /// 3. שמירה ב-Firestore דרך Repository
-  /// 4. ה-Listener של authStateChanges מטפל בעדכון הסופי
-  /// 
+  /// 2. 🆕 טעינת נתוני Onboarding מ-SharedPreferences
+  /// 3. יצירת UserEntity חדש דרך Repository (כולל נתוני Onboarding)
+  /// 4. שמירה ב-Firestore דרך Repository
+  /// 5. ה-Listener של authStateChanges מטפל בעדכון הסופי
+  ///
   /// זורק Exception במקרה של:
   /// - אימייל כבר קיים
   /// - סיסמה חלשה
   /// - שגיאת רשת
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// try {
@@ -344,7 +387,7 @@ class UserContext with ChangeNotifier {
   ///   showDialog(...);
   /// }
   /// ```
-  /// 
+  ///
   /// See also:
   /// - [signIn] - התחברות למשתמש קיים
   Future<void> signUp({
@@ -367,11 +410,32 @@ class UserContext with ChangeNotifier {
 
       // ✅ יצירת רשומה ב-Firestore דרך Repository.createUser()
       if (credential.user != null) {
+        // 🆕 טעינת נתוני Onboarding מ-SharedPreferences
+        final onboardingData = await OnboardingData.load();
+        final hasSeenOnboarding = await OnboardingData.hasSeenOnboarding();
+
+        debugPrint('📋 UserContext.signUp: טוען נתוני Onboarding לסנכרון');
+        debugPrint('   • גודל משפחה: ${onboardingData.familySize}');
+        debugPrint('   • חנויות מועדפות: ${onboardingData.preferredStores.length}');
+        debugPrint('   • תדירות קניות: ${onboardingData.shoppingFrequency}');
+        debugPrint('   • ראה Onboarding: $hasSeenOnboarding');
+
         _user = await _repository.createUser(
           userId: credential.user!.uid,
           email: email,
           name: name,
+          // 🆕 נתוני Onboarding נשמרים בשרת!
+          preferredStores: onboardingData.preferredStores.toList(),
+          familySize: onboardingData.familySize,
+          shoppingFrequency: onboardingData.shoppingFrequency,
+          shoppingDays: onboardingData.shoppingDays.toList(),
+          hasChildren: onboardingData.hasChildren,
+          shareLists: onboardingData.shareLists,
+          reminderTime: onboardingData.reminderTime,
+          seenOnboarding: hasSeenOnboarding,
         );
+
+        debugPrint('✅ UserContext.signUp: נתוני Onboarding נשמרו בשרת!');
       }
 
       // ה-listener של authStateChanges יטפל בעדכון הסופי
