@@ -356,15 +356,18 @@ class PendingInvitesService {
       final list = ShoppingList.fromJson({...listData, 'id': listId});
 
       // בדיקה שהמשתמש לא כבר שותף
-      if (list.sharedUsers.any((u) => u.userId == sharedUser.userId)) {
+      if (list.sharedUsers.containsKey(sharedUser.userId)) {
         throw Exception('user_already_shared');
       }
 
-      // הוספת המשתמש
-      final updatedSharedUsers = [...list.sharedUsers, sharedUser];
+      // הוספת המשתמש - Map format
+      final updatedSharedUsers = {
+        ...list.sharedUsers,
+        sharedUser.userId: sharedUser,
+      };
 
       transaction.update(listRef, {
-        'shared_users': updatedSharedUsers.map((u) => u.toJson()).toList(),
+        'shared_users': updatedSharedUsers.map((key, value) => MapEntry(key, value.toJson())),
         'is_shared': true,
         'updated_date': FieldValue.serverTimestamp(),
       });

@@ -96,9 +96,8 @@ class ShareListService {
     }
 
     // בדיקה 4: האם המשתמש כבר משותף
-    final existingUser = list.sharedUsers
-        .where((u) => u.userId == invitedUserId)
-        .firstOrNull;
+    // 🆕 Map lookup - O(1)
+    final existingUser = list.sharedUsers[invitedUserId];
 
     if (existingUser != null) {
       if (kDebugMode) {
@@ -117,8 +116,9 @@ class ShareListService {
       userAvatar: userAvatar,
     );
 
-    // עדכון הרשימה
-    final updatedSharedUsers = [...list.sharedUsers, newSharedUser];
+    // 🆕 עדכון המפה (Map)
+    final updatedSharedUsers = Map<String, SharedUser>.from(list.sharedUsers)
+      ..[invitedUserId] = newSharedUser;
 
     if (kDebugMode) {
       debugPrint('   ✅ User invited successfully');
@@ -198,8 +198,8 @@ class ShareListService {
     }
 
     // בדיקה 3: האם המשתמש קיים ברשימה
-    final userExists = list.sharedUsers
-        .any((u) => u.userId == removedUserId);
+    // 🆕 Map lookup - O(1)
+    final userExists = list.sharedUsers.containsKey(removedUserId);
 
     if (!userExists) {
       if (kDebugMode) {
@@ -208,10 +208,9 @@ class ShareListService {
       throw Exception('user_not_found');
     }
 
-    // הסרת המשתמש
-    final updatedSharedUsers = list.sharedUsers
-        .where((u) => u.userId != removedUserId)
-        .toList();
+    // 🆕 הסרת המשתמש מהמפה
+    final updatedSharedUsers = Map<String, SharedUser>.from(list.sharedUsers)
+      ..remove(removedUserId);
 
     if (kDebugMode) {
       debugPrint('   ✅ User removed successfully');
@@ -302,9 +301,8 @@ class ShareListService {
     }
 
     // בדיקה 4: האם המשתמש קיים ברשימה
-    final targetUser = list.sharedUsers
-        .where((u) => u.userId == targetUserId)
-        .firstOrNull;
+    // 🆕 Map lookup - O(1)
+    final targetUser = list.sharedUsers[targetUserId];
 
     if (targetUser == null) {
       if (kDebugMode) {
@@ -313,13 +311,9 @@ class ShareListService {
       throw Exception('user_not_found');
     }
 
-    // עדכון התפקיד
-    final updatedSharedUsers = list.sharedUsers.map((u) {
-      if (u.userId == targetUserId) {
-        return u.copyWith(role: newRole);
-      }
-      return u;
-    }).toList();
+    // 🆕 עדכון התפקיד במפה
+    final updatedSharedUsers = Map<String, SharedUser>.from(list.sharedUsers)
+      ..[targetUserId] = targetUser.copyWith(role: newRole);
 
     if (kDebugMode) {
       debugPrint('   ✅ Role updated successfully');
@@ -387,8 +381,8 @@ class ShareListService {
       users.add(owner);
     }
 
-    // הוספת שאר המשתמשים
-    users.addAll(list.sharedUsers);
+    // 🆕 הוספת שאר המשתמשים מהמפה
+    users.addAll(list.sharedUsers.values);
 
     if (kDebugMode) {
       debugPrint('   Total users: ${users.length}');

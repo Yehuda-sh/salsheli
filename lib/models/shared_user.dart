@@ -25,10 +25,21 @@ class FlexibleDateTimeConverter implements JsonConverter<DateTime, dynamic> {
 }
 
 /// משתמש משותף ברשימה
+///
+/// במבנה Map החדש, ה-userId הוא המפתח במפה (לא חלק מהאובייקט).
+/// הערך במפה מכיל: role, sharedAt, ומטאדאטה (cache).
+///
+/// מבנה ב-Firestore:
+/// ```json
+/// "shared_users": {
+///   "user123": { "role": "admin", "shared_at": ..., "user_name": "יוני" },
+///   "user456": { "role": "viewer", "shared_at": ..., "user_name": "דנה" }
+/// }
+/// ```
 @JsonSerializable()
 class SharedUser {
-  /// מזהה המשתמש
-  @JsonKey(name: 'user_id')
+  /// מזהה המשתמש (המפתח במפה - לא נשמר ב-JSON של הערך)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   final String userId;
 
   /// תפקיד המשתמש ברשימה
@@ -54,7 +65,7 @@ class SharedUser {
   final String? userAvatar;
 
   const SharedUser({
-    required this.userId,
+    this.userId = '', // Will be set from Map key via copyWith
     required this.role,
     required this.sharedAt,
     this.userName,
@@ -62,11 +73,36 @@ class SharedUser {
     this.userAvatar,
   });
 
-  /// JSON serialization
+  /// JSON serialization (for Map value - without userId)
   factory SharedUser.fromJson(Map<String, dynamic> json) =>
       _$SharedUserFromJson(json);
 
   Map<String, dynamic> toJson() => _$SharedUserToJson(this);
+
+  /// יצירה מ-Map entry (userId הוא המפתח)
+  ///
+  /// Example:
+  /// ```dart
+  /// final entry = MapEntry('user123', {'role': 'admin', 'shared_at': ...});
+  /// final user = SharedUser.fromMapEntry(entry);
+  /// ```
+  factory SharedUser.fromMapEntry(MapEntry<String, dynamic> entry) {
+    final json = Map<String, dynamic>.from(entry.value as Map);
+    final user = SharedUser.fromJson(json);
+    return user.copyWith(userId: entry.key);
+  }
+
+  /// המרה ל-Map entry (userId הופך למפתח)
+  ///
+  /// Example:
+  /// ```dart
+  /// final entry = sharedUser.toMapEntry();
+  /// // entry.key = 'user123'
+  /// // entry.value = {'role': 'admin', 'shared_at': ...}
+  /// ```
+  MapEntry<String, Map<String, dynamic>> toMapEntry() {
+    return MapEntry(userId, toJson());
+  }
 
   /// Copy with
   SharedUser copyWith({

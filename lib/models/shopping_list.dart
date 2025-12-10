@@ -39,6 +39,53 @@ import 'enums/user_role.dart';
 
 part 'shopping_list.g.dart';
 
+/// Converter for Map<String, SharedUser> to/from Firestore
+///
+/// Converts between:
+/// - Dart: Map<String, SharedUser> (userId as key)
+/// - Firestore: Map<String, Map<String, dynamic>>
+///
+/// Example Firestore structure:
+/// ```json
+/// "shared_users": {
+///   "user123": { "role": "admin", "shared_at": "2024-01-01T00:00:00Z" },
+///   "user456": { "role": "viewer", "shared_at": "2024-01-02T00:00:00Z" }
+/// }
+/// ```
+class SharedUsersMapConverter
+    implements JsonConverter<Map<String, SharedUser>, Map<String, dynamic>?> {
+  const SharedUsersMapConverter();
+
+  @override
+  Map<String, SharedUser> fromJson(Map<String, dynamic>? json) {
+    if (json == null || json.isEmpty) {
+      return {};
+    }
+
+    final result = <String, SharedUser>{};
+    for (final entry in json.entries) {
+      try {
+        final userData = Map<String, dynamic>.from(entry.value as Map);
+        final user = SharedUser.fromJson(userData);
+        // Set the userId from the map key
+        result[entry.key] = user.copyWith(userId: entry.key);
+      } catch (e) {
+        debugPrint('⚠️ SharedUsersMapConverter: Failed to parse user ${entry.key}: $e');
+      }
+    }
+    return result;
+  }
+
+  @override
+  Map<String, dynamic> toJson(Map<String, SharedUser> users) {
+    final result = <String, dynamic>{};
+    for (final entry in users.entries) {
+      result[entry.key] = entry.value.toJson();
+    }
+    return result;
+  }
+}
+
 // Sentinel value for detecting when nullable fields should be explicitly set to null
 const _sentinel = Object();
 
@@ -132,12 +179,19 @@ class ShoppingList {
   @JsonKey(name: 'active_shoppers', defaultValue: [])
   final List<ActiveShopper> activeShoppers;
 
-  // ==== 🆕 שיתוף משתמשים ====
+  // ==== 🆕 שיתוף משתמשים (Map Structure for Scalability) ====
 
-  /// 🆕 רשימת משתמשים משותפים (מלבד ה-owner)
-  /// 🇬🇧 List of shared users (besides the owner)
-  @JsonKey(name: 'shared_users', defaultValue: [])
-  final List<SharedUser> sharedUsers;
+  /// 🆕 מפת משתמשים משותפים (מלבד ה-owner)
+  /// 🇬🇧 Map of shared users (besides the owner)
+  ///
+  /// מבנה: userId -> SharedUser data
+  /// יתרונות:
+  /// - O(1) lookup by userId
+  /// - No limit on number of users
+  /// - Simple Security Rules (uid in sharedUsers)
+  @SharedUsersMapConverter()
+  @JsonKey(name: 'shared_users', defaultValue: {})
+  final Map<String, SharedUser> sharedUsers;
 
   /// 🆕 בקשות ממתינות לאישור (רק עבור Editors)
   /// 🇬🇧 Pending requests for approval (only for Editors)
@@ -325,11 +379,8 @@ class ShoppingList {
       );
     }
 
-    try {
-      return sharedUsers.firstWhere((u) => u.userId == userId);
-    } catch (e) {
-      return null;
-    }
+    // Map lookup - O(1)
+    return sharedUsers[userId];
   }
 
   /// 🇮🇱 קבל את התפקיד של משתמש
@@ -428,7 +479,7 @@ class ShoppingList {
     required this.format,
     required this.createdFromTemplate,
     List<ActiveShopper> activeShoppers = const [],
-    List<SharedUser> sharedUsers = const [],
+    Map<String, SharedUser> sharedUsers = const {},
     List<PendingRequest> pendingRequests = const [],
     this.isPrivate = false,
     this.currentUserRole,
@@ -436,7 +487,7 @@ class ShoppingList {
         sharedWith = List<String>.unmodifiable(sharedWith),
         items = List<UnifiedListItem>.unmodifiable(items),
         activeShoppers = List<ActiveShopper>.unmodifiable(activeShoppers),
-        sharedUsers = List<SharedUser>.unmodifiable(sharedUsers),
+        sharedUsers = Map<String, SharedUser>.unmodifiable(sharedUsers),
         pendingRequests = List<PendingRequest>.unmodifiable(pendingRequests);
 
   // ---- Factory Constructors ----
@@ -548,7 +599,7 @@ class ShoppingList {
     String? format,
     bool? createdFromTemplate,
     List<ActiveShopper>? activeShoppers,
-    List<SharedUser>? sharedUsers,
+    Map<String, SharedUser>? sharedUsers,
     List<PendingRequest>? pendingRequests,
     UserRole? currentUserRole,
   }) {

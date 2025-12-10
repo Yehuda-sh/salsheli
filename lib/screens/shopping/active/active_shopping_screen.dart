@@ -50,7 +50,7 @@ import '../../../providers/user_context.dart';
 import '../../../services/shopping_patterns_service.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/common/notebook_background.dart';
-import '../../../widgets/common/skeleton_loading.dart';
+import '../../../widgets/common/skeleton_loader.dart';
 import '../../../widgets/common/sticky_button.dart';
 import '../../../widgets/common/sticky_note.dart';
 import '../../home/dashboard/widgets/last_chance_banner.dart';
@@ -704,7 +704,7 @@ class _LoadingSkeletonScreen extends StatelessWidget {
                           height: 40,
                         ),
                         SizedBox(width: kSpacingSmall),
-                        Expanded(child: SkeletonBox(height: 20)),
+                        Expanded(child: SkeletonBox(width: double.infinity, height: 20)),
                         SizedBox(width: kSpacingSmall),
                         SkeletonBox(width: 60, height: 30),
                       ],
@@ -712,9 +712,9 @@ class _LoadingSkeletonScreen extends StatelessWidget {
                     SizedBox(height: kSpacingSmall),
                     Row(
                       children: [
-                        Expanded(child: SkeletonBox(height: kButtonHeight)),
+                        Expanded(child: SkeletonBox(width: double.infinity, height: kButtonHeight)),
                         SizedBox(width: kSpacingSmall),
-                        Expanded(child: SkeletonBox(height: kButtonHeight)),
+                        Expanded(child: SkeletonBox(width: double.infinity, height: kButtonHeight)),
                       ],
                     ),
                   ],

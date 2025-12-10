@@ -43,20 +43,22 @@
 // Version: 3.3 - SimpleTappableCard refactor
 // Last Updated: 2/11/2025
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:memozap/config/household_config.dart';
+import 'package:memozap/core/ui_constants.dart';
+import 'package:memozap/l10n/app_strings.dart';
+import 'package:memozap/models/shopping_list.dart';
+import 'package:memozap/providers/shopping_lists_provider.dart';
+import 'package:memozap/providers/user_context.dart';
+import 'package:memozap/screens/settings/manage_users_screen.dart';
+import 'package:memozap/widgets/common/notebook_background.dart';
+import 'package:memozap/widgets/common/skeleton_loader.dart';
+import 'package:memozap/widgets/common/sticky_button.dart';
+import 'package:memozap/widgets/common/sticky_note.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:memozap/providers/user_context.dart';
-import 'package:memozap/providers/shopping_lists_provider.dart';
-import 'package:memozap/models/shopping_list.dart';
-import 'package:memozap/l10n/app_strings.dart';
-import 'package:memozap/core/ui_constants.dart';
-import 'package:memozap/config/household_config.dart';
-import 'package:memozap/widgets/common/notebook_background.dart';
-import 'package:memozap/widgets/common/sticky_note.dart';
-import 'package:memozap/widgets/common/sticky_button.dart';
-import 'package:memozap/widgets/common/skeleton_loading.dart';
-import 'package:memozap/screens/settings/manage_users_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -72,7 +74,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   static const _kFamilySize = 'settings.familySize';
 
   // מצב UI
-  String _householdName = "הקבוצה שלי";
+  String _householdName = 'הקבוצה שלי';
   String _householdType = HouseholdConfig.family; // default
   bool _isEditingHouseholdName = false;
   final TextEditingController _householdNameController = TextEditingController();
@@ -211,7 +213,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.warning_amber_rounded, color: Colors.orange, size: kIconSizeMedium),
+                  const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: kIconSizeMedium),
                   const SizedBox(width: kSpacingSmall),
                   Expanded(
                     child: Text(
@@ -242,7 +244,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       try {
         if (!mounted) return;
-        showDialog(
+        unawaited(showDialog(
           context: context,
           barrierDismissible: false,
           builder: (context) => const PopScope(
@@ -255,15 +257,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       CircularProgressIndicator(),
-                      const SizedBox(height: kSpacingMedium),
-                      const Text('ממחק נתונים...'),
+                      SizedBox(height: kSpacingMedium),
+                      Text('ממחק נתונים...'),
                     ],
                   ),
                 ),
               ),
             ),
           ),
-        );
+        ));
 
         await context.read<UserContext>().signOutAndClearAllData();
 
@@ -271,7 +273,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
         if (!mounted) return;
         Navigator.of(context).pop();
-        Navigator.pushNamedAndRemoveUntil(context, '/login', (r) => false);
+        unawaited(Navigator.pushNamedAndRemoveUntil(context, '/login', (r) => false));
       } catch (e) {
         debugPrint('❌ _logout: שגיאה - $e');
         if (!mounted) return;
@@ -531,11 +533,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // אם יש רק רשימה אחת - ניווט ישיר
     if (myOwnedLists.length == 1) {
       if (!mounted) return;
-      Navigator.of(context).push(
+      unawaited(Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => ManageUsersScreen(list: myOwnedLists.first),
         ),
-      );
+      ));
       return;
     }
 
@@ -573,11 +575,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
 
     if (selectedList != null && mounted) {
-      Navigator.of(context).push(
+      unawaited(Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => ManageUsersScreen(list: selectedList),
         ),
-      );
+      ));
     }
   }
 
@@ -585,20 +587,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildLoadingSkeleton(ColorScheme cs) {
     return ListView(
       padding: const EdgeInsets.all(kSpacingMedium),
-      children: [
-        const SkeletonBox(width: double.infinity, height: 100),
-        const SizedBox(height: kSpacingMedium),
-        const Row(
+      children: const [
+        SkeletonBox(width: double.infinity, height: 100),
+        SizedBox(height: kSpacingMedium),
+        Row(
           children: [
             Expanded(child: SkeletonBox(width: double.infinity, height: 80)),
             SizedBox(width: kSpacingSmallPlus),
             Expanded(child: SkeletonBox(width: double.infinity, height: 80)),
           ],
         ),
-        const SizedBox(height: kSpacingSmallPlus),
-        const SkeletonBox(width: double.infinity, height: 80),
-        const SizedBox(height: kSpacingLarge),
-        const SkeletonBox(width: double.infinity, height: 200),
+        SizedBox(height: kSpacingSmallPlus),
+        SkeletonBox(width: double.infinity, height: 80),
+        SizedBox(height: kSpacingLarge),
+        SkeletonBox(width: double.infinity, height: 200),
       ],
     );
   }
@@ -611,7 +613,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     // פרטי משתמש
     final userName = userContext.user?.name ?? AppStrings.home.guestUser;
-    final userEmail = userContext.user?.email ?? "email@example.com";
+    final userEmail = userContext.user?.email ?? 'email@example.com';
 
     // Loading State
     if (_loading) {
@@ -948,7 +950,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final Set<String> uniqueUsers = {};
     for (final list in myOwnedLists) {
       uniqueUsers.add(list.createdBy); // Owner
-      for (final sharedUser in list.sharedUsers) {
+      for (final sharedUser in list.sharedUsers.values) {
         uniqueUsers.add(sharedUser.userId);
       }
     }

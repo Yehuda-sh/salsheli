@@ -51,14 +51,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
+import '../models/active_shopper.dart';
+import '../models/enums/item_type.dart';
+import '../models/enums/user_role.dart';
 import '../models/receipt.dart';
 import '../models/shopping_list.dart';
 import '../models/unified_list_item.dart';
-import '../models/enums/item_type.dart';
-import '../models/enums/user_role.dart';
-import '../models/active_shopper.dart';
-import '../repositories/shopping_lists_repository.dart';
 import '../repositories/receipt_repository.dart';
+import '../repositories/shopping_lists_repository.dart';
 import 'user_context.dart';
 
 class ShoppingListsProvider with ChangeNotifier {
@@ -127,20 +127,11 @@ class ShoppingListsProvider with ChangeNotifier {
 
   /// מחשב את ה-role של משתמש ברשימה מסוימת
   UserRole _calculateUserRole(ShoppingList list, String userId) {
-    // 1. בדוק אם המשתמש הוא היוצר (Owner)
-    if (list.createdBy == userId) {
-      return UserRole.owner;
-    }
+    // 🆕 Use ShoppingList's built-in method (O(1) Map lookup)
+    final role = list.getUserRole(userId);
 
-    // 2. חפש ב-sharedUsers
-    for (final sharedUser in list.sharedUsers) {
-      if (sharedUser.userId == userId) {
-        return sharedUser.role;
-      }
-    }
-
-    // 3. ברירת מחדל - Viewer (אם נמצא ברשימה אבל לא ב-sharedUsers)
-    return UserRole.viewer;
+    // ברירת מחדל - Viewer (אם נמצא ברשימה אבל לא ב-sharedUsers)
+    return role ?? UserRole.viewer;
   }
 
   // === חיבור UserContext ===
@@ -430,7 +421,6 @@ class ShoppingListsProvider with ChangeNotifier {
       quantity: quantity,
       unit: unit,
       unitPrice: 0.0,
-      isChecked: false,
       category: category,
     );
 
@@ -936,8 +926,6 @@ class ShoppingListsProvider with ChangeNotifier {
                 unit: item.unit,
                 barcode: item.barcode,
                 isChecked: item.isChecked,
-                checkedBy: null, // UnifiedListItem לא מחזיק checkedBy
-                checkedAt: null,
               ))
           .toList();
       debugPrint('   📦 נמצאו ${checkedItems.length} פריטים מסומנים (מוצרים)');

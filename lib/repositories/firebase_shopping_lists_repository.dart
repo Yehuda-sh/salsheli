@@ -135,7 +135,19 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
     }
   }
 
-  // ===== 🆕 Sharing & Permissions Methods =====
+  // ===== 🆕 Sharing & Permissions Methods (Map Structure) =====
+  //
+  // שינוי מבנה: מ-Array ל-Map לשיפור Scalability
+  // מבנה חדש:
+  // "shared_users": {
+  //   "user123": { "role": "admin", "shared_at": ..., "user_name": ... },
+  //   "user456": { "role": "viewer", "shared_at": ..., "user_name": ... }
+  // }
+  //
+  // יתרונות:
+  // - O(1) lookup by userId
+  // - No limit on number of users
+  // - Simple Security Rules (uid in sharedUsers)
 
   @override
   Future<void> addSharedUser(
@@ -152,21 +164,22 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
 
       final docRef = _firestore.collection(FirestoreCollections.shoppingLists).doc(listId);
 
-      // יצירת SharedUser object
-      final sharedUser = {
-        FirestoreFields.userId: userId,
+      // 🆕 Map structure: userId is the key
+      // SharedUser data (without userId - it's the key)
+      final sharedUserData = {
         FirestoreFields.role: role,
         'shared_at': FieldValue.serverTimestamp(),
         if (userName != null) FirestoreFields.userName: userName,
         if (userEmail != null) FirestoreFields.email: userEmail,
       };
 
+      // 🆕 Update using dot notation: shared_users.{userId} = data
       await docRef.update({
-        FirestoreFields.sharedUsers: FieldValue.arrayUnion([sharedUser]),
+        '${FirestoreFields.sharedUsers}.$userId': sharedUserData,
         FirestoreFields.updatedDate: FieldValue.serverTimestamp(),
       });
 
-      debugPrint('✅ משתמש נוסף בהצלחה');
+      debugPrint('✅ משתמש נוסף בהצלחה (Map structure)');
     } catch (e, stackTrace) {
       debugPrint('❌ FirebaseShoppingListsRepository.addSharedUser: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
@@ -185,26 +198,14 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
       );
 
       final docRef = _firestore.collection(FirestoreCollections.shoppingLists).doc(listId);
-      final doc = await docRef.get();
 
-      if (!doc.exists) {
-        throw ShoppingListRepositoryException('List not found', null);
-      }
-
-      final data = doc.data()!;
-      final sharedUsers = List<Map<String, dynamic>>.from(
-        data[FirestoreFields.sharedUsers] ?? [],
-      );
-
-      // הסרת המשתמש מהרשימה
-      sharedUsers.removeWhere((user) => user[FirestoreFields.userId] == userId);
-
+      // 🆕 Delete key from Map using FieldValue.delete()
       await docRef.update({
-        FirestoreFields.sharedUsers: sharedUsers,
+        '${FirestoreFields.sharedUsers}.$userId': FieldValue.delete(),
         FirestoreFields.updatedDate: FieldValue.serverTimestamp(),
       });
 
-      debugPrint('✅ משתמש הוסר בהצלחה');
+      debugPrint('✅ משתמש הוסר בהצלחה (Map structure)');
     } catch (e, stackTrace) {
       debugPrint(
         '❌ FirebaseShoppingListsRepository.removeSharedUser: שגיאה - $e',
@@ -229,34 +230,14 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
       );
 
       final docRef = _firestore.collection(FirestoreCollections.shoppingLists).doc(listId);
-      final doc = await docRef.get();
 
-      if (!doc.exists) {
-        throw ShoppingListRepositoryException('List not found', null);
-      }
-
-      final data = doc.data()!;
-      final sharedUsers = List<Map<String, dynamic>>.from(
-        data[FirestoreFields.sharedUsers] ?? [],
-      );
-
-      // מציאת המשתמש ועדכון התפקיד
-      final userIndex = sharedUsers.indexWhere(
-        (user) => user[FirestoreFields.userId] == userId,
-      );
-
-      if (userIndex == -1) {
-        throw ShoppingListRepositoryException('User not found in list', null);
-      }
-
-      sharedUsers[userIndex][FirestoreFields.role] = newRole;
-
+      // 🆕 Direct update using dot notation: shared_users.{userId}.role = newRole
       await docRef.update({
-        FirestoreFields.sharedUsers: sharedUsers,
+        '${FirestoreFields.sharedUsers}.$userId.${FirestoreFields.role}': newRole,
         FirestoreFields.updatedDate: FieldValue.serverTimestamp(),
       });
 
-      debugPrint('✅ תפקיד עודכן בהצלחה');
+      debugPrint('✅ תפקיד עודכן בהצלחה (Map structure)');
     } catch (e, stackTrace) {
       debugPrint(
         '❌ FirebaseShoppingListsRepository.updateUserRole: שגיאה - $e',
@@ -281,34 +262,25 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
       );
 
       final docRef = _firestore.collection(FirestoreCollections.shoppingLists).doc(listId);
-      final doc = await docRef.get();
 
-      if (!doc.exists) {
-        throw ShoppingListRepositoryException('List not found', null);
-      }
-
-      final data = doc.data()!;
-      final sharedUsers = List<Map<String, dynamic>>.from(
-        data[FirestoreFields.sharedUsers] ?? [],
-      );
-
-      // מסירים את הבעלים החדש מרשימת shared_users (אם הוא שם)
-      sharedUsers.removeWhere((user) => user[FirestoreFields.userId] == newOwnerId);
-
-      // מוסיפים את הבעלים הנוכחי כ-Admin
-      sharedUsers.add({
-        FirestoreFields.userId: currentOwnerId,
-        FirestoreFields.role: 'admin',
-        'shared_at': FieldValue.serverTimestamp(),
-      });
-
+      // 🆕 Map structure:
+      // 1. Remove new owner from shared_users (will become created_by)
+      // 2. Add current owner as admin in shared_users
+      // 3. Update created_by to new owner
       await docRef.update({
+        // Remove new owner from shared_users
+        '${FirestoreFields.sharedUsers}.$newOwnerId': FieldValue.delete(),
+        // Add current owner as admin
+        '${FirestoreFields.sharedUsers}.$currentOwnerId': {
+          FirestoreFields.role: 'admin',
+          'shared_at': FieldValue.serverTimestamp(),
+        },
+        // Change ownership
         FirestoreFields.createdBy: newOwnerId,
-        FirestoreFields.sharedUsers: sharedUsers,
         FirestoreFields.updatedDate: FieldValue.serverTimestamp(),
       });
 
-      debugPrint('✅ בעלות הועברה בהצלחה');
+      debugPrint('✅ בעלות הועברה בהצלחה (Map structure)');
     } catch (e, stackTrace) {
       debugPrint(
         '❌ FirebaseShoppingListsRepository.transferOwnership: שגיאה - $e',

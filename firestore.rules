@@ -1,427 +1,143 @@
 rules_version = '2';
+
 // 🔒 MemoZap Firestore Security Rules
 //
-// ✅ עודכן: 04/12/2025 - Phase 4 - Household Invite System
+// ✅ עודכן: Phase 5 - Scalable RBAC with Maps
 // 
-// 📄 מערכת הרשאות לרשימות משותפות (4 רמות):
-//    1️⃣ Owner (created_by):
-//       - הרשאות: read ✅ + create ✅ + update ✅ + delete ✅
-//       - ניהול: manage users ✅ + approve requests ✅
-//       - הערות: יכול למחוק רשימה!
-//    
-//    2️⃣ Admin (shared_users role='admin'):
-//       - הרשאות: read ✅ + create ✅ + update ✅ + delete ❌
-//       - ניהול: manage users ✅ + approve requests ✅
-//       - הערות: לא יכול למחוק רשימה (Owner בלבד)
-//    
-//    3️⃣ Editor (shared_users role='editor'):
-//       - הרשאות: read ✅ + create pending_requests ✅ + update items ❌
-//       - ניהול: ❌ לא יכול לנהל משתמשים או לאשר בקשות
-//       - הערות: כל הוספה דורשת אישור Owner/Admin
-//    
-//    4️⃣ Viewer (shared_users role='viewer'):
-//       - הרשאות: read ✅ בלבד
-//       - ניהול: ❌ אין הרשאות ניהול
-//       - הערות: read-only access
+// 📄 מערכת הרשאות לרשימות משותפות (Map-Based):
+//    במקום מערך, משתמשים במפה: shared_users = { "uid": { role: "..." } }
+//    זה מאפשר בדיקות מהירות (O(1)) ותמיכה באינסוף משתמשים.
 //
-// 📌 שדות ברשימה:
-//    - created_by: מזהה הבעלים (Owner)
-//    - shared_users: [{userId, role, sharedAt}]
-//    - pending_requests: [{id, requesterId, itemData, status, requestedAt}]
-//    - active_shoppers: [{userId, joinedAt, isStarter, isActive}]
+// 🎭 תפקידים:
+//    1️⃣ Owner (created_by): הכל כולל מחיקת הרשימה.
+//    2️⃣ Admin (role='admin'): עריכה מלאה וניהול משתמשים (ללא מחיקת רשימה).
+//    3️⃣ Editor (role='editor'): עריכת מוצרים בלבד.
+//    4️⃣ Viewer (role='viewer'): צפייה בלבד.
 
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // === Helper Functions ===
-    
-    // בדיקה אם המשתמש מחובר
+    // =========================================================
+    // 🛠️ Helper Functions
+    // =========================================================
+
+    // בדיקה בסיסית - האם המשתמש מחובר?
     function isAuthenticated() {
       return request.auth != null;
     }
-    
-    // בדיקה אם המשתמש הוא הבעלים של הנתונים
-    function isOwner(userId) {
+
+    // בדיקה אם המשתמש הוא הבעלים של מסמך אישי
+    function isDocOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
-    
-    // קבלת household_id של המשתמש הנוכחי
-    // ✅ מתוקן: בדיקת exists() לפני get()
+
+    // שליפת ה-Household ID (דורש קריאה נוספת)
     function getUserHouseholdId() {
-      return exists(/databases/$(database)/documents/users/$(request.auth.uid))
-        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.household_id
-        : null;
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.household_id;
     }
-    
-    // בדיקה אם המשתמש שייך ל-household
-    // ✅ מתוקן: בדיקת exists() + null check
+
+    // בדיקה אם המשתמש שייך ל-Household ספציפי
     function isHouseholdMember(householdId) {
-      let userHouseholdId = getUserHouseholdId();
       return isAuthenticated() && 
-             userHouseholdId != null &&
-             userHouseholdId == householdId;
+             getUserHouseholdId() == householdId;
     }
-    
-    // בדיקה אם שני משתמשים באותו household
-    function sameHousehold(otherUserId) {
-      return isAuthenticated() &&
-             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-             exists(/databases/$(database)/documents/users/$(otherUserId)) &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.household_id ==
-             get(/databases/$(database)/documents/users/$(otherUserId)).data.household_id;
-    }
-    
+
     // בדיקה שהמסמך החדש מכיל household_id תקין
     function hasValidHouseholdId() {
-      return request.resource.data.keys().hasAll(['household_id']) &&
-             request.resource.data.household_id == getUserHouseholdId();
+       return request.resource.data.keys().hasAll(['household_id']) &&
+              request.resource.data.household_id == getUserHouseholdId();
     }
-    
-    // === Sharing System Functions ===
-    
-    // קבלת תפקיד המשתמש ברשימה
-    // ✅ מתוקן: שימוש ב-created_by במקום user_id + בדיקות null
-    function getUserRole(listId) {
-      return get(/databases/$(database)/documents/shopping_lists/$(listId)).data.created_by == request.auth.uid
-        ? 'owner'
-        : (get(/databases/$(database)/documents/shopping_lists/$(listId)).data.sharedUsers != null && 
-           get(/databases/$(database)/documents/shopping_lists/$(listId)).data.sharedUsers.size() > 0
-            ? checkUserInSharedList(get(/databases/$(database)/documents/shopping_lists/$(listId)).data.sharedUsers, request.auth.uid)
-            : null);
+
+    // =========================================================
+    // 🔐 List Permissions Logic (Map Based 🗺️)
+    // =========================================================
+
+    // פונקציה שמחזירה את התפקיד של המשתמש ברשימה
+    // מקבלת את הנתונים של המסמך (listData)
+    function getListRole(listData) {
+      return listData.created_by == request.auth.uid 
+             ? 'owner' // אם אני יצרתי -> אני הבעלים
+             : (
+                 listData.shared_users != null && 
+                 request.auth.uid in listData.shared_users // 🔥 בדיקה מהירה במפה!
+                 ? listData.shared_users[request.auth.uid].role 
+                 : null
+               );
     }
-    
-    // פונקציה עזר לחיפוש משתמש ברשימת sharedUsers
-    function checkUserInSharedList(sharedUsers, userId) {
-      // נבדוק עד 10 משתמשים (מגבלה סבירה)
-      return sharedUsers.size() > 0 && sharedUsers[0].userId == userId ? sharedUsers[0].role :
-             sharedUsers.size() > 1 && sharedUsers[1].userId == userId ? sharedUsers[1].role :
-             sharedUsers.size() > 2 && sharedUsers[2].userId == userId ? sharedUsers[2].role :
-             sharedUsers.size() > 3 && sharedUsers[3].userId == userId ? sharedUsers[3].role :
-             sharedUsers.size() > 4 && sharedUsers[4].userId == userId ? sharedUsers[4].role :
-             sharedUsers.size() > 5 && sharedUsers[5].userId == userId ? sharedUsers[5].role :
-             sharedUsers.size() > 6 && sharedUsers[6].userId == userId ? sharedUsers[6].role :
-             sharedUsers.size() > 7 && sharedUsers[7].userId == userId ? sharedUsers[7].role :
-             sharedUsers.size() > 8 && sharedUsers[8].userId == userId ? sharedUsers[8].role :
-             sharedUsers.size() > 9 && sharedUsers[9].userId == userId ? sharedUsers[9].role :
-             null;
-    }
-    
-    // בדיקה אם המשתמש הוא Owner של הרשימה
-    // ✅ מתוקן: שימוש ב-created_by במקום user_id
-    function isListOwner(listId) {
-      let list = get(/databases/$(database)/documents/shopping_lists/$(listId));
-      return isAuthenticated() && list.data.created_by == request.auth.uid;
-    }
-    
-    // בדיקה אם המשתמש הוא Admin או Owner
-    // ✅ מתוקן: בדיקת null על role
-    function isListAdmin(listId) {
-      let role = getUserRole(listId);
-      return isAuthenticated() && role != null && (role == 'owner' || role == 'admin');
-    }
-    
-    // בדיקה אם המשתמש חבר ברשימה (כולל Viewer)
-    // ✅ מתוקן: שימוש ב-created_by + בדיקה ללא filter()
-    function isListMember(listId) {
-      return get(/databases/$(database)/documents/shopping_lists/$(listId)).data.created_by == request.auth.uid ||
-             (get(/databases/$(database)/documents/shopping_lists/$(listId)).data.sharedUsers != null && 
-              get(/databases/$(database)/documents/shopping_lists/$(listId)).data.sharedUsers.size() > 0 && 
-              checkUserInSharedList(get(/databases/$(database)/documents/shopping_lists/$(listId)).data.sharedUsers, request.auth.uid) != null);
-    }
-    
-    // בדיקה אם יכול לאשר בקשות (Owner או Admin)
-    function canApproveRequests(listId) {
-      return isListAdmin(listId);
-    }
-    
-    // === Users Collection ===
+
+    // =========================================================
+    // 📂 Collections Rules
+    // =========================================================
+
+    // === Users ===
     match /users/{userId} {
-      // ✅ מתוקן: משתמש יכול לקרוא את עצמו + משתמשים מאותו household
-      allow read: if isOwner(userId) || 
-                     (isAuthenticated() && sameHousehold(userId));
-      
-      // כתיבה: רק עצמי
-      allow write: if isOwner(userId);
+      allow read: if isAuthenticated(); 
+      allow write: if isDocOwner(userId);
     }
-    
-    // === Receipts Collection ===
-    match /receipts/{receiptId} {
-      // קריאה: רק משתמשים מאותו household
-      allow read: if isAuthenticated() && 
-                     isHouseholdMember(resource.data.household_id);
-      
-      // ✅ מתוקן: יצירה - חובה שהמסמך יכלול household_id תקין
-      allow create: if isAuthenticated() && hasValidHouseholdId();
-      
-      allow update: if isAuthenticated() && 
-                       isHouseholdMember(resource.data.household_id) &&
-                       request.resource.data.household_id == resource.data.household_id; // מנע שינוי household_id
-      
-      allow delete: if isAuthenticated() && 
-                       isHouseholdMember(resource.data.household_id);
-    }
-    
-    // === Inventory Collection ===
-    match /inventory/{itemId} {
-      allow read: if isAuthenticated() && 
-                     isHouseholdMember(resource.data.household_id);
-      
-      // ✅ מתוקן: יצירה
-      allow create: if isAuthenticated() && hasValidHouseholdId();
-      
-      allow update: if isAuthenticated() && 
-                       isHouseholdMember(resource.data.household_id) &&
-                       request.resource.data.household_id == resource.data.household_id;
-      
-      allow delete: if isAuthenticated() && 
-                       isHouseholdMember(resource.data.household_id);
-    }
-    
-    // === Products Collection ===
-    match /products/{productId} {
-      // ✅ מתוקן: מוצרים פומביים - כולם יכולים לקרוא
-      allow read: if true;
-      
-      // ✅ מתוקן: רק admin via Firebase Functions
-      allow write: if false;
-    }
-    
-    // === Shopping Lists Collection ===
-    // 4-Tier Permission System:
-    // 1. Owner (created_by): Full access + delete + manage users
-    // 2. Admin (shared_users role='admin'): Full access + manage users (no delete)
-    // 3. Editor (shared_users role='editor'): Read + create pending_requests only
-    // 4. Viewer (shared_users role='viewer'): Read-only
+
+    // === Shopping Lists (הלב של המערכת) ===
     match /shopping_lists/{listId} {
-      // ✅ קריאה: כל חבר household או משתמש משותף (כולל Viewer)
+      
+      // 👁️ קריאה: בעלים, חברי משפחה, או מי שמשותף ברשימה
       allow read: if isAuthenticated() && (
-                       isHouseholdMember(resource.data.household_id) ||
-                       isListMember(listId)
-                     );
-      
-      // ✅ יצירה: כל household member
-      allow create: if isAuthenticated() && hasValidHouseholdId();
-      
-      // ✅ עדכון רגיל: Owner/Admin בלבד
-      // מותר לעדכן: items, name, list_type, updated_date, active_shoppers
-      // אסור לשנות: household_id, created_by, created_date
-      allow update: if isAuthenticated() &&
-                       isListAdmin(listId) &&
-                       // מנע שינוי שדות קריטיים
-                       request.resource.data.household_id == resource.data.household_id &&
-                       request.resource.data.created_by == resource.data.created_by;
-      
-      // ✅ עדכון מיוחד: Editor - רק pending_requests
-      // Editor יכול רק להוסיף בקשות חדשות, לא לשנות כלום אחר
-      allow update: if isAuthenticated() &&
-                       getUserRole(listId) == 'editor' &&
-                       // רק pending_requests השתנה
-                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pending_requests', 'updated_date']) &&
-                       // מנע שינוי שדות קריטיים
-                       request.resource.data.household_id == resource.data.household_id &&
-                       request.resource.data.created_by == resource.data.created_by &&
-                       request.resource.data.items == resource.data.items; // Editor לא יכול לשנות items!
-      
-      // ✅ מחיקה: Owner בלבד (לא Admin!)
-      allow delete: if isAuthenticated() && isListOwner(listId);
-    }
-    
-    // === Templates Collection ===
-    match /templates/{templateId} {
-      // קריאה: 
-      // 1. תבניות מערכת (is_system=true)
-      // 2. תבניות שאני יצרתי
-      // 3. תבניות shared של חברי household
-      allow read: if isAuthenticated() && (
-        resource.data.is_system == true ||
-        resource.data.user_id == request.auth.uid ||
-        (resource.data.default_format == 'shared' && resource.data.household_id == getUserHouseholdId())
+        resource.data.created_by == request.auth.uid || 
+        isHouseholdMember(resource.data.household_id) ||
+        (resource.data.shared_users != null && request.auth.uid in resource.data.shared_users)
       );
-      
-      // ✅ מתוקן: יצירה - רק תבניות משתמש עם household_id תקין
+
+      // ➕ יצירה: כל משתמש מחובר (חובה להגדיר household_id ו-created_by)
       allow create: if isAuthenticated() && 
-                       request.resource.data.is_system == false &&
-                       request.resource.data.user_id == request.auth.uid &&
-                       hasValidHouseholdId();
-      
-      // עדכון: רק תבניות שאני יצרתי + אותו household
-      allow update: if isAuthenticated() && 
-                       resource.data.is_system == false &&
-                       resource.data.user_id == request.auth.uid &&
-                       request.resource.data.household_id == resource.data.household_id;
-      
-      // מחיקה: רק תבניות שאני יצרתי
-      allow delete: if isAuthenticated() && 
-                       resource.data.is_system == false &&
-                       resource.data.user_id == request.auth.uid;
-    }
-    
-    // === Household Invites Collection ===
-    // קודי הזמנה למשפחה
-    match /household_invites/{inviteId} {
-      // קריאה: כל משתמש מחובר יכול לבדוק קוד
-      allow read: if isAuthenticated();
+                    hasValidHouseholdId() &&
+                    request.resource.data.created_by == request.auth.uid;
 
-      // יצירה: רק Owner של ה-household יכול ליצור
-      allow create: if isAuthenticated() &&
-                       request.resource.data.household_id == getUserHouseholdId() &&
-                       request.resource.data.created_by == request.auth.uid;
-
-      // עדכון: רק Owner של ה-household (לשינוי סטטוס)
-      allow update: if isAuthenticated() &&
-                       isHouseholdMember(resource.data.household_id) &&
-                       resource.data.created_by == request.auth.uid;
-
-      // מחיקה: רק מי שיצר
-      allow delete: if isAuthenticated() &&
-                       resource.data.created_by == request.auth.uid;
-    }
-
-    // === Household Join Requests Collection ===
-    // בקשות הצטרפות למשפחה
-    match /household_join_requests/{requestId} {
-      // קריאה: המבקש או חברי ה-household
-      allow read: if isAuthenticated() && (
-                       resource.data.requester_id == request.auth.uid ||
-                       isHouseholdMember(resource.data.household_id)
-                     );
-
-      // יצירה: כל משתמש מחובר יכול לבקש להצטרף
-      allow create: if isAuthenticated() &&
-                       request.resource.data.requester_id == request.auth.uid &&
-                       request.resource.data.status == 'pending';
-
-      // עדכון: רק Owner/Admin של ה-household (לאישור/דחייה)
-      allow update: if isAuthenticated() &&
-                       isHouseholdMember(resource.data.household_id);
-
-      // מחיקה: רק המבקש או Owner של ה-household
-      allow delete: if isAuthenticated() && (
-                       resource.data.requester_id == request.auth.uid ||
-                       isHouseholdMember(resource.data.household_id)
-                     );
-    }
-
-    // === Household Members Collection ===
-    // חברי משפחה
-    match /household_members/{memberId} {
-      // קריאה: רק חברי אותו household
-      allow read: if isAuthenticated() &&
-                     isHouseholdMember(resource.data.household_id);
-
-      // יצירה: רק מי שמוסיף את עצמו או Owner שמאשר בקשה
-      allow create: if isAuthenticated() && (
-                       request.resource.data.user_id == request.auth.uid ||
-                       isHouseholdMember(request.resource.data.household_id)
-                     );
-
-      // עדכון: רק Owner של ה-household
-      allow update: if isAuthenticated() &&
-                       isHouseholdMember(resource.data.household_id);
-
-      // מחיקה: רק Owner של ה-household
-      allow delete: if isAuthenticated() &&
-                       isHouseholdMember(resource.data.household_id);
-    }
-
-    // === Pending Invites Collection (List Sharing) ===
-    // הזמנות ממתינות לשיתוף רשימות
-    match /pending_invites/{inviteId} {
-      // קריאה: המזמין או המוזמן
-      allow read: if isAuthenticated() && (
-                       resource.data.requester_id == request.auth.uid ||
-                       resource.data.request_data.invited_user_id == request.auth.uid
-                     );
-
-      // יצירה: משתמש מחובר
-      allow create: if isAuthenticated() &&
-                       request.resource.data.requester_id == request.auth.uid;
-
-      // עדכון: המוזמן או המזמין
+      // ✏️ עדכון: לוגיקה מפוצלת לפי תפקידים
       allow update: if isAuthenticated() && (
-                       resource.data.requester_id == request.auth.uid ||
-                       resource.data.request_data.invited_user_id == request.auth.uid
-                     );
+        
+        // 1. Owner: יכול לעשות הכל (כולל שינוי שם, מחיקת משתמשים וכו')
+        getListRole(resource.data) == 'owner' ||
 
-      // מחיקה: המזמין בלבד
-      allow delete: if isAuthenticated() &&
-                       resource.data.requester_id == request.auth.uid;
-    }
+        // 2. Admin: יכול לערוך הכל חוץ מלשנות את הבעלים עצמו
+        (getListRole(resource.data) == 'admin' && 
+         request.resource.data.created_by == resource.data.created_by) ||
 
-    // === Saved Contacts Collection ===
-    // אנשי קשר שמורים
-    match /saved_contacts/{contactId} {
-      // קריאה: רק הבעלים
-      allow read: if isAuthenticated() &&
-                     resource.data.owner_id == request.auth.uid;
+        // 3. Editor: יכול לערוך רק את מערך ה-items (מוצרים) ו-updated_date
+        // אסור לו לשנות שם רשימה, או לגעת במשתמשים אחרים!
+        (getListRole(resource.data) == 'editor' && 
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['items', 'updated_date', 'pending_requests'])) ||
+         
+        // 4. Viewer: לא יכול לערוך כלום (אין allow update ל-viewer)
+        
+        // 5. מקרים מיוחדים: הצטרפות/עזיבה עצמית (אופציונלי, כרגע מנוהל ע"י Owner)
+        false
+      );
 
-      // יצירה: משתמש יכול ליצור לעצמו
-      allow create: if isAuthenticated() &&
-                       request.resource.data.owner_id == request.auth.uid;
-
-      // עדכון: רק הבעלים
-      allow update: if isAuthenticated() &&
-                       resource.data.owner_id == request.auth.uid;
-
-      // מחיקה: רק הבעלים
-      allow delete: if isAuthenticated() &&
-                       resource.data.owner_id == request.auth.uid;
-    }
-
-    // === Notifications Collection ===
-    // התראות
-    match /notifications/{notificationId} {
-      // קריאה: רק הנמען
-      allow read: if isAuthenticated() &&
-                     resource.data.user_id == request.auth.uid;
-
-      // יצירה: משתמש מחובר (מערכת שולחת)
-      allow create: if isAuthenticated();
-
-      // עדכון: רק הנמען (לסימון כנקרא)
-      allow update: if isAuthenticated() &&
-                       resource.data.user_id == request.auth.uid;
-
-      // מחיקה: רק הנמען
-      allow delete: if isAuthenticated() &&
-                       resource.data.user_id == request.auth.uid;
-    }
-
-    // === Custom Locations Collection ===
-    match /custom_locations/{locationId} {
-      allow read: if isAuthenticated() && 
-                     isHouseholdMember(resource.data.household_id);
-      
-      // ✅ כבר טוב! משתמש ב-getUserHouseholdId() ישירות
-      allow create: if isAuthenticated() && 
-                       request.resource.data.keys().hasAll(['household_id']) &&
-                       request.resource.data.household_id == getUserHouseholdId();
-      
-      allow update: if isAuthenticated() && 
-                       isHouseholdMember(resource.data.household_id) &&
-                       request.resource.data.household_id == resource.data.household_id;
-      
+      // 🗑️ מחיקה: רק הבעלים המקורי (Owner) יכול למחוק את הרשימה לנצח!
       allow delete: if isAuthenticated() && 
-                       isHouseholdMember(resource.data.household_id);
+                    resource.data.created_by == request.auth.uid;
+    }
+
+    // === Products (Global Catalog) ===
+    match /products/{productId} {
+      allow read: if true; 
+      allow write: if false; 
+    }
+
+    // === Receipts & Inventory ===
+    match /receipts/{receiptId} {
+      allow read, write: if isHouseholdMember(resource.data.household_id);
     }
     
-    // === Habits Collection ===
-    match /habits/{habitId} {
-      allow read: if isAuthenticated() && 
-                     isHouseholdMember(resource.data.household_id);
-      
-      // ✅ מתוקן: יצירה
-      allow create: if isAuthenticated() && hasValidHouseholdId();
-      
-      allow update: if isAuthenticated() && 
-                       isHouseholdMember(resource.data.household_id) &&
-                       request.resource.data.household_id == resource.data.household_id;
-      
-      allow delete: if isAuthenticated() && 
-                       isHouseholdMember(resource.data.household_id);
+    match /inventory/{itemId} {
+      allow read, write: if isHouseholdMember(resource.data.household_id);
     }
-    
-    // === Deny All Other Collections ===
+
+    // === Pending Invites & Requests ===
+    match /pending_invites/{inviteId} {
+      allow read, write: if isAuthenticated() && 
+        (resource.data.requester_id == request.auth.uid || resource.data.request_data.invited_user_id == request.auth.uid);
+    }
+
+    // חסימת כל השאר
     match /{document=**} {
       allow read, write: if false;
     }

@@ -13,9 +13,8 @@
 // Version: 1.0
 // Last Updated: 03/11/2025
 
-import 'package:flutter/material.dart';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:memozap/l10n/app_strings.dart';
 import 'package:memozap/models/enums/user_role.dart';
 import 'package:memozap/models/saved_contact.dart';
@@ -189,7 +188,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
         inviterId: currentUserId,
         inviterName: currentUserName,
         invitedUserId: invitedUserId,
-        invitedUserEmail: invitedUserEmail ?? invitedUserId,
+        invitedUserEmail: invitedUserEmail,
         invitedUserName: invitedUserName,
         role: _selectedRole,
         householdId: householdId,
@@ -206,7 +205,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
       );
 
       // 💾 Save contact for future use (or update last_invited_at)
-      if (invitedUserEmail != null) {
+      {
         try {
           await _savedContactsService.saveContact(
             currentUserId: currentUserId,
@@ -520,7 +519,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
 
   Widget _buildSavedContactOption(SavedContact contact) {
     final isSelected = _selectedSavedContact?.userId == contact.userId;
-    final isAlreadyShared = widget.list.sharedUsers.any((u) => u.userId == contact.userId);
+    final isAlreadyShared = widget.list.sharedUsers.values.any((u) => u.userId == contact.userId);
     final isOwner = widget.list.createdBy == contact.userId;
 
     return Padding(
@@ -573,7 +572,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                           width: 36,
                           height: 36,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Text(
+                          errorBuilder: (_, _, _) => Text(
                             contact.initials,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
