@@ -929,6 +929,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 const SizedBox(height: kSpacingMedium),
 
+                // 🔹 קבוצות
+                StickyNote(
+                  color: kStickyGreen,
+                  rotation: 0.008,
+                  child: Column(
+                    children: [
+                      ListTile(
+                        leading: Icon(Icons.group_add, color: cs.primary),
+                        title: const Text('יצירת קבוצה חדשה'),
+                        subtitle: const Text('משפחה, ועד בית, חברים...'),
+                        trailing: const Icon(Icons.chevron_left),
+                        onTap: () {
+                          Navigator.pushNamed(context, '/create-group');
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: kSpacingMedium),
 
                 // 🔹 התנתקות
                 StickyNote(

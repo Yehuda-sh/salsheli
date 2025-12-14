@@ -34,6 +34,7 @@ import 'package:memozap/providers/receipt_provider.dart';
 import 'package:memozap/providers/shopping_lists_provider.dart';
 import 'package:memozap/providers/suggestions_provider.dart';
 import 'package:memozap/providers/user_context.dart';
+import 'package:memozap/providers/groups_provider.dart';
 
 // Repositories
 import 'package:memozap/repositories/firebase_inventory_repository.dart'; // 🔥 Firebase Inventory!
@@ -41,6 +42,7 @@ import 'package:memozap/repositories/firebase_locations_repository.dart'; // �
 import 'package:memozap/repositories/firebase_receipt_repository.dart'; // 🔥 Firebase Receipts!
 import 'package:memozap/repositories/firebase_shopping_lists_repository.dart'; // 🔥 Firebase Shopping Lists!
 import 'package:memozap/repositories/firebase_user_repository.dart'; // 🔥 Firebase User!
+import 'package:memozap/repositories/firebase_group_repository.dart'; // 🔥 Firebase Groups!
 import 'package:memozap/repositories/local_products_repository.dart'; // 📦 Local JSON!
 import 'package:memozap/repositories/user_repository.dart';
 
@@ -61,6 +63,7 @@ import 'package:memozap/screens/shopping/details/shopping_list_details_screen.da
 import 'package:memozap/screens/shopping/lists/shopping_lists_screen.dart';
 import 'package:memozap/screens/shopping/shopping_summary_screen.dart';
 import 'package:memozap/screens/sharing/pending_invites_screen.dart';
+import 'package:memozap/screens/groups/create_group_screen.dart';
 
 // Theme
 import 'package:memozap/theme/app_theme.dart';
@@ -261,6 +264,19 @@ void main() async {
           update: (context, inventoryProvider, previous) =>
               previous ?? SuggestionsProvider(inventoryProvider: inventoryProvider),
         ),
+
+        // === Groups Provider === 👥 Firebase Groups!
+        ChangeNotifierProxyProvider<UserContext, GroupsProvider>(
+          create: (context) => GroupsProvider(
+            repository: FirebaseGroupRepository(),
+          ),
+          update: (context, userContext, previous) {
+            if (previous != null) {
+              previous.updateUserContext(userContext);
+            }
+            return previous ?? GroupsProvider(repository: FirebaseGroupRepository());
+          },
+        ),
       ],
       child: const MyApp(),
     ),
@@ -311,6 +327,7 @@ class _MyAppState extends State<MyApp> {
             '/create-list': (context) => const CreateListScreen(),
 
             '/pending-invites': (context) => const PendingInvitesScreen(),
+            '/create-group': (context) => const CreateGroupScreen(),
           },
           onGenerateRoute: (settings) {
             // shopping-summary - receives listId

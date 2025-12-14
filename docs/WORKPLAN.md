@@ -4156,7 +4156,8 @@ Feed של עדכונים מכל הקבוצות:
 | Welcome | ✅ מושלם | 100% |
 | Login | ✅ מושלם | 100% |
 | Register | ✅ מושלם | 100% |
-| Onboarding | ✅ מושלם+ | 100%+ (7 שלבים במקום 3!) |
+| ~~Onboarding~~ | 🔄 הוחלף | הוחלף ב-Tutorial |
+| Tutorial | ✅ חדש | 100% (Dialog-based, 4 שלבים) |
 | Splash (Index) | ✅ מושלם | 100% |
 
 #### ✅ Welcome Screen - מושלם!
@@ -4195,14 +4196,24 @@ Feed של עדכונים מכל הקבוצות:
 - [x] Firebase Auth + יצירת מסמך User (כולל phone!)
 - [x] קישור להתחברות
 
-#### ✅ Onboarding Screen - מושלם ומורחב!
-**קבצים:**
+#### ✅ Onboarding Screen - הוחלף ב-Tutorial! (עדכון: 14/12/2025)
+
+> ⚠️ **שינוי ארכיטקטורי:** מערכת ה-Onboarding הוחלפה במערכת Tutorial חדשה.
+> המסכים הישנים נשמרים אך לא בשימוש. במקומם יש Dialog-based Tutorial.
+
+**מערכת חדשה - TutorialService:**
+- `lib/services/tutorial_service.dart` - שירות ראשי
+- Dialog-based tutorial עם 4 שלבים
+- נפתח אוטומטית למשתמשים חדשים ב-HomeDashboardScreen
+- שמירת מצב ב-SharedPreferences
+
+**קבצים ישנים (לא בשימוש):**
 - `lib/screens/onboarding/onboarding_screen.dart`
 - `lib/screens/onboarding/widgets/onboarding_steps.dart`
 - `lib/data/onboarding_data.dart`
 - `lib/services/onboarding_service.dart`
 
-**7 שלבים (יותר מהאיפיון!):**
+**7 שלבים (מערכת ישנה):**
 1. [x] Welcome - ברוכים הבאים עם אנימציות
 2. [x] Family Size - בחירת גודל משפחה (slider 1-10)
 3. [x] Children - הוספת ילדים (שם + קטגוריית גיל)
@@ -4244,11 +4255,26 @@ Feed של עדכונים מכל הקבוצות:
 - [x] עדכון מסך הרשמה (`register_screen.dart`)
 - [ ] עדכון Firebase Security Rules (אופציונלי)
 
-### שלב 2: מערכת קבוצות
-- [ ] יצירת מודל `Group`
-- [ ] יצירת collection `/groups/{groupId}` ב-Firestore
-- [ ] מסך יצירת קבוצה (כמו וואטסאפ)
-- [ ] בחירת סוג קבוצה (משפחה/ועד בית/ועד גן/אחר)
+### שלב 2: מערכת קבוצות (בתהליך - 14/12/2025)
+- [x] יצירת מודל `Group` (`lib/models/group.dart`)
+  - GroupType enum (7 סוגים: family, building, kindergarten, friends, event, roommates, other)
+  - GroupMember class עם תפקידים
+  - GroupSettings class להגדרות התראות
+  - Feature flags לפי סוג (hasPantry, hasShoppingMode, hasVoting, hasWhosBringing)
+- [x] יצירת collection `/groups/{groupId}` ב-Firestore
+  - `lib/repositories/group_repository.dart` (interface)
+  - `lib/repositories/firebase_group_repository.dart` (implementation)
+  - Transactions לעדכונים אטומיים של חברים
+- [x] יצירת Provider לניהול קבוצות
+  - `lib/providers/groups_provider.dart`
+  - אינטגרציה עם UserContext
+  - תמיכה ב-Streams לעדכונים בזמן אמת
+- [x] מסך יצירת קבוצה (כמו וואטסאפ)
+  - `lib/screens/groups/create_group_screen.dart`
+  - עיצוב Sticky Notes
+  - תצוגת תכונות דינמית לפי סוג קבוצה
+- [x] בחירת סוג קבוצה (משפחה/ועד בית/ועד גן/חברים/אירוע/שותפים/אחר)
+- [x] אינטגרציה במסך הגדרות (כפתור "יצירת קבוצה חדשה")
 - [ ] הוספת חברים מאנשי קשר
 - [ ] הגדרת הרשאות לחברים (בעלים/אדמין/חבר)
 - [ ] מסך פרטי קבוצה ועריכה
