@@ -21,11 +21,7 @@ class HouseholdConfig {
   static const String kindergarten = 'kindergarten';
 
   // All available types
-  static const List<String> allTypes = [
-    family,
-    building,
-    kindergarten,
-  ];
+  static const List<String> allTypes = [family, building, kindergarten];
 
   // Get icon for household type
   static IconData getIcon(String type) {

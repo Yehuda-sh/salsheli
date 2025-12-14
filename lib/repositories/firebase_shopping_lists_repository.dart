@@ -1,21 +1,25 @@
 // 📄 File: lib/repositories/firebase_shopping_lists_repository.dart
 //
 // 🇮🇱 Repository לרשימות קניות עם Firestore:
-//     - שמירת רשימות ב-Firestore
-//     - טעינת רשימות לפי householdId
-//     - עדכון רשימות
-//     - מחיקת רשימות
+//     - תמיכה ב-2 קולקציות: private_lists + shared_lists
+//     - טעינה ממוזגת של רשימות פרטיות ומשותפות
+//     - שמירה לפי isPrivate (פרטי/משותף)
+//     - העברת רשימה מפרטית למשותפת
 //     - Real-time updates
 //
 // 🇬🇧 Shopping Lists repository with Firestore:
-//     - Save shopping lists to Firestore
-//     - Load shopping lists by householdId
-//     - Update shopping lists
-//     - Delete shopping lists
+//     - Support for 2 collections: private_lists + shared_lists
+//     - Merged loading of private and shared lists
+//     - Save based on isPrivate flag
+//     - Transfer list from private to shared
 //     - Real-time updates
 //
-// 📝 Version: 2.0 - Naming consistency (FirebaseShoppingListsRepository)
-// 📅 Last Updated: 09/10/2025
+// 🏗️ Database Structure:
+//     - /users/{userId}/private_lists/{listId} - רשימות פרטיות
+//     - /households/{householdId}/shared_lists/{listId} - רשימות משותפות
+//
+// 📝 Version: 3.0 - Dual collection support
+// 📅 Last Updated: 14/12/2025
 //
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -30,61 +34,128 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
   FirebaseShoppingListsRepository({FirebaseFirestore? firestore})
     : _firestore = firestore ?? FirebaseFirestore.instance;
 
-  // === Fetch Shopping Lists ===
+  // ========================================
+  // Collection References
+  // ========================================
+
+  /// רשימות פרטיות: /users/{userId}/private_lists
+  CollectionReference<Map<String, dynamic>> _privateListsCollection(String userId) =>
+      _firestore
+          .collection(FirestoreCollections.users)
+          .doc(userId)
+          .collection(FirestoreCollections.privateLists);
+
+  /// רשימות משותפות: /households/{householdId}/shared_lists
+  CollectionReference<Map<String, dynamic>> _sharedListsCollection(String householdId) =>
+      _firestore
+          .collection(FirestoreCollections.households)
+          .doc(householdId)
+          .collection(FirestoreCollections.sharedLists);
+
+  // ========================================
+  // Fetch Lists (Merged)
+  // ========================================
 
   @override
-  Future<List<ShoppingList>> fetchLists(String householdId) async {
+  Future<List<ShoppingList>> fetchLists(String userId, String? householdId) async {
     try {
       debugPrint(
-        '📥 FirebaseShoppingListsRepository.fetchLists: טוען רשימות ל-$householdId',
+        '📥 FirebaseShoppingListsRepository.fetchLists: טוען רשימות (user: $userId, household: $householdId)',
       );
 
-      final snapshot = await _firestore
-          .collection(FirestoreCollections.shoppingLists)
-          .where(FirestoreFields.householdId, isEqualTo: householdId)
-          .orderBy(FirestoreFields.updatedDate, descending: true)
-          .get();
+      // טען רשימות פרטיות + משותפות במקביל
+      final privateFuture = _fetchPrivateLists(userId);
+      final sharedFuture = householdId != null
+          ? _fetchSharedLists(householdId)
+          : Future.value(<ShoppingList>[]);
 
-      final lists = snapshot.docs.map((doc) {
-        final data = Map<String, dynamic>.from(doc.data());
-        return ShoppingList.fromJson(data);
-      }).toList();
+      final results = await Future.wait([privateFuture, sharedFuture]);
+      final privateLists = results[0];
+      final sharedLists = results[1];
+
+      // מיזוג הרשימות
+      final allLists = [...privateLists, ...sharedLists];
+
+      // מיון לפי תאריך עדכון (חדש ביותר ראשון)
+      allLists.sort((a, b) => b.updatedDate.compareTo(a.updatedDate));
 
       debugPrint(
-        '✅ FirebaseShoppingListsRepository.fetchLists: נטענו ${lists.length} רשימות',
+        '✅ FirebaseShoppingListsRepository.fetchLists: נטענו ${allLists.length} רשימות '
+        '(${privateLists.length} פרטיות, ${sharedLists.length} משותפות)',
       );
-      return lists;
+      return allLists;
     } catch (e, stackTrace) {
       debugPrint('❌ FirebaseShoppingListsRepository.fetchLists: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw ShoppingListRepositoryException(
-        'Failed to fetch shopping lists for $householdId',
+        'Failed to fetch shopping lists',
         e,
       );
     }
   }
 
-  // === Save Shopping List ===
+  /// טוען רשימות פרטיות בלבד
+  Future<List<ShoppingList>> _fetchPrivateLists(String userId) async {
+    final snapshot = await _privateListsCollection(userId)
+        .orderBy(FirestoreFields.updatedDate, descending: true)
+        .get();
+
+    return snapshot.docs.map((doc) {
+      final data = Map<String, dynamic>.from(doc.data());
+      // וודא שהרשימה מסומנת כפרטית
+      data[FirestoreFields.isPrivate] = true;
+      return ShoppingList.fromJson(data);
+    }).toList();
+  }
+
+  /// טוען רשימות משותפות בלבד
+  Future<List<ShoppingList>> _fetchSharedLists(String householdId) async {
+    final snapshot = await _sharedListsCollection(householdId)
+        .orderBy(FirestoreFields.updatedDate, descending: true)
+        .get();
+
+    return snapshot.docs.map((doc) {
+      final data = Map<String, dynamic>.from(doc.data());
+      // וודא שהרשימה מסומנת כמשותפת
+      data[FirestoreFields.isPrivate] = false;
+      return ShoppingList.fromJson(data);
+    }).toList();
+  }
+
+  // ========================================
+  // Save List (Route by isPrivate)
+  // ========================================
 
   @override
-  Future<ShoppingList> saveList(ShoppingList list, String householdId) async {
+  Future<ShoppingList> saveList(ShoppingList list, String userId, String? householdId) async {
     try {
       debugPrint(
-        '💾 FirebaseShoppingListsRepository.saveList: שומר רשימה ${list.id} (${list.name})',
+        '💾 FirebaseShoppingListsRepository.saveList: שומר רשימה ${list.id} (${list.name}) '
+        '[isPrivate: ${list.isPrivate}]',
       );
 
-      // המרת המודל ל-JSON
       final data = list.toJson();
 
-      // הוספת household_id
-      data[FirestoreFields.householdId] = householdId;
+      if (list.isPrivate) {
+        // שמירה לרשימות פרטיות
+        await _privateListsCollection(userId)
+            .doc(list.id)
+            .set(data, SetOptions(merge: true));
+        debugPrint('✅ רשימה נשמרה ב-private_lists');
+      } else {
+        // שמירה לרשימות משותפות
+        if (householdId == null) {
+          throw ShoppingListRepositoryException(
+            'Cannot save shared list without householdId',
+            null,
+          );
+        }
+        await _sharedListsCollection(householdId)
+            .doc(list.id)
+            .set(data, SetOptions(merge: true));
+        debugPrint('✅ רשימה נשמרה ב-shared_lists');
+      }
 
-      await _firestore
-          .collection(FirestoreCollections.shoppingLists)
-          .doc(list.id)
-          .set(data, SetOptions(merge: true));
-
-      debugPrint('✅ FirebaseShoppingListsRepository.saveList: רשימה נשמרה');
       return list;
     } catch (e, stackTrace) {
       debugPrint('❌ FirebaseShoppingListsRepository.saveList: שגיאה - $e');
@@ -96,35 +167,32 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
     }
   }
 
-  // === Delete Shopping List ===
+  // ========================================
+  // Delete List
+  // ========================================
 
   @override
-  Future<void> deleteList(String id, String householdId) async {
+  Future<void> deleteList(String id, String userId, String? householdId, bool isPrivate) async {
     try {
       debugPrint(
-        '🗑️ FirebaseShoppingListsRepository.deleteList: מוחק רשימה $id',
+        '🗑️ FirebaseShoppingListsRepository.deleteList: מוחק רשימה $id [isPrivate: $isPrivate]',
       );
 
-      // וידוא שהרשימה שייכת ל-household
-      final doc = await _firestore.collection(FirestoreCollections.shoppingLists).doc(id).get();
-
-      if (!doc.exists) {
-        debugPrint('⚠️ רשימה לא קיימת');
-        return;
+      if (isPrivate) {
+        // מחיקה מרשימות פרטיות
+        await _privateListsCollection(userId).doc(id).delete();
+        debugPrint('✅ רשימה נמחקה מ-private_lists');
+      } else {
+        // מחיקה מרשימות משותפות
+        if (householdId == null) {
+          throw ShoppingListRepositoryException(
+            'Cannot delete shared list without householdId',
+            null,
+          );
+        }
+        await _sharedListsCollection(householdId).doc(id).delete();
+        debugPrint('✅ רשימה נמחקה מ-shared_lists');
       }
-
-      final data = doc.data();
-      if (data?[FirestoreFields.householdId] != householdId) {
-        debugPrint('⚠️ רשימה לא שייכת ל-household זה');
-        throw ShoppingListRepositoryException(
-          'Shopping list does not belong to household',
-          null,
-        );
-      }
-
-      await _firestore.collection(FirestoreCollections.shoppingLists).doc(id).delete();
-
-      debugPrint('✅ FirebaseShoppingListsRepository.deleteList: רשימה נמחקה');
     } catch (e, stackTrace) {
       debugPrint('❌ FirebaseShoppingListsRepository.deleteList: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
@@ -135,22 +203,67 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
     }
   }
 
-  // ===== 🆕 Sharing & Permissions Methods (Map Structure) =====
-  //
-  // שינוי מבנה: מ-Array ל-Map לשיפור Scalability
-  // מבנה חדש:
-  // "shared_users": {
-  //   "user123": { "role": "admin", "shared_at": ..., "user_name": ... },
-  //   "user456": { "role": "viewer", "shared_at": ..., "user_name": ... }
-  // }
-  //
-  // יתרונות:
-  // - O(1) lookup by userId
-  // - No limit on number of users
-  // - Simple Security Rules (uid in sharedUsers)
+  // ========================================
+  // Share List to Household
+  // ========================================
+
+  @override
+  Future<ShoppingList> shareListToHousehold(
+    String listId,
+    String userId,
+    String householdId,
+  ) async {
+    try {
+      debugPrint(
+        '🔄 FirebaseShoppingListsRepository.shareListToHousehold: '
+        'מעביר רשימה $listId מפרטית למשותפת',
+      );
+
+      // 1. טען את הרשימה מ-private_lists
+      final privateDoc = await _privateListsCollection(userId).doc(listId).get();
+
+      if (!privateDoc.exists) {
+        throw ShoppingListRepositoryException(
+          'Private list $listId not found',
+          null,
+        );
+      }
+
+      final data = Map<String, dynamic>.from(privateDoc.data()!);
+
+      // 2. עדכן את הדגלים
+      data[FirestoreFields.isPrivate] = false;
+      data[FirestoreFields.updatedDate] = FieldValue.serverTimestamp();
+
+      // 3. שמור ב-shared_lists
+      await _sharedListsCollection(householdId).doc(listId).set(data);
+
+      // 4. מחק מ-private_lists
+      await _privateListsCollection(userId).doc(listId).delete();
+
+      debugPrint('✅ רשימה הועברה בהצלחה מפרטית למשותפת');
+
+      // החזר את הרשימה המעודכנת
+      data[FirestoreFields.isPrivate] = false;
+      return ShoppingList.fromJson(data);
+    } catch (e, stackTrace) {
+      debugPrint('❌ FirebaseShoppingListsRepository.shareListToHousehold: שגיאה - $e');
+      debugPrintStack(stackTrace: stackTrace);
+      throw ShoppingListRepositoryException(
+        'Failed to share list $listId to household',
+        e,
+      );
+    }
+  }
+
+  // ========================================
+  // Sharing & Permissions Methods
+  // (Only for shared lists)
+  // ========================================
 
   @override
   Future<void> addSharedUser(
+    String householdId,
     String listId,
     String userId,
     String role,
@@ -159,13 +272,12 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
   ) async {
     try {
       debugPrint(
-        '📝 FirebaseShoppingListsRepository.addSharedUser: מוסיף משתמש $userId לרשימה $listId כ-$role',
+        '📝 FirebaseShoppingListsRepository.addSharedUser: '
+        'מוסיף משתמש $userId לרשימה $listId כ-$role',
       );
 
-      final docRef = _firestore.collection(FirestoreCollections.shoppingLists).doc(listId);
+      final docRef = _sharedListsCollection(householdId).doc(listId);
 
-      // 🆕 Map structure: userId is the key
-      // SharedUser data (without userId - it's the key)
       final sharedUserData = {
         FirestoreFields.role: role,
         'shared_at': FieldValue.serverTimestamp(),
@@ -173,13 +285,12 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         if (userEmail != null) FirestoreFields.email: userEmail,
       };
 
-      // 🆕 Update using dot notation: shared_users.{userId} = data
       await docRef.update({
         '${FirestoreFields.sharedUsers}.$userId': sharedUserData,
         FirestoreFields.updatedDate: FieldValue.serverTimestamp(),
       });
 
-      debugPrint('✅ משתמש נוסף בהצלחה (Map structure)');
+      debugPrint('✅ משתמש נוסף בהצלחה');
     } catch (e, stackTrace) {
       debugPrint('❌ FirebaseShoppingListsRepository.addSharedUser: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
@@ -191,25 +302,23 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
   }
 
   @override
-  Future<void> removeSharedUser(String listId, String userId) async {
+  Future<void> removeSharedUser(String householdId, String listId, String userId) async {
     try {
       debugPrint(
-        '🗑️ FirebaseShoppingListsRepository.removeSharedUser: מסיר משתמש $userId מרשימה $listId',
+        '🗑️ FirebaseShoppingListsRepository.removeSharedUser: '
+        'מסיר משתמש $userId מרשימה $listId',
       );
 
-      final docRef = _firestore.collection(FirestoreCollections.shoppingLists).doc(listId);
+      final docRef = _sharedListsCollection(householdId).doc(listId);
 
-      // 🆕 Delete key from Map using FieldValue.delete()
       await docRef.update({
         '${FirestoreFields.sharedUsers}.$userId': FieldValue.delete(),
         FirestoreFields.updatedDate: FieldValue.serverTimestamp(),
       });
 
-      debugPrint('✅ משתמש הוסר בהצלחה (Map structure)');
+      debugPrint('✅ משתמש הוסר בהצלחה');
     } catch (e, stackTrace) {
-      debugPrint(
-        '❌ FirebaseShoppingListsRepository.removeSharedUser: שגיאה - $e',
-      );
+      debugPrint('❌ FirebaseShoppingListsRepository.removeSharedUser: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw ShoppingListRepositoryException(
         'Failed to remove shared user from list $listId',
@@ -220,28 +329,27 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
 
   @override
   Future<void> updateUserRole(
+    String householdId,
     String listId,
     String userId,
     String newRole,
   ) async {
     try {
       debugPrint(
-        '🔄 FirebaseShoppingListsRepository.updateUserRole: משנה תפקיד $userId ברשימה $listId ל-$newRole',
+        '🔄 FirebaseShoppingListsRepository.updateUserRole: '
+        'משנה תפקיד $userId ברשימה $listId ל-$newRole',
       );
 
-      final docRef = _firestore.collection(FirestoreCollections.shoppingLists).doc(listId);
+      final docRef = _sharedListsCollection(householdId).doc(listId);
 
-      // 🆕 Direct update using dot notation: shared_users.{userId}.role = newRole
       await docRef.update({
         '${FirestoreFields.sharedUsers}.$userId.${FirestoreFields.role}': newRole,
         FirestoreFields.updatedDate: FieldValue.serverTimestamp(),
       });
 
-      debugPrint('✅ תפקיד עודכן בהצלחה (Map structure)');
+      debugPrint('✅ תפקיד עודכן בהצלחה');
     } catch (e, stackTrace) {
-      debugPrint(
-        '❌ FirebaseShoppingListsRepository.updateUserRole: שגיאה - $e',
-      );
+      debugPrint('❌ FirebaseShoppingListsRepository.updateUserRole: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw ShoppingListRepositoryException(
         'Failed to update user role in list $listId',
@@ -252,39 +360,32 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
 
   @override
   Future<void> transferOwnership(
+    String householdId,
     String listId,
     String currentOwnerId,
     String newOwnerId,
   ) async {
     try {
       debugPrint(
-        '👑 FirebaseShoppingListsRepository.transferOwnership: מעביר בעלות מ-$currentOwnerId ל-$newOwnerId',
+        '👑 FirebaseShoppingListsRepository.transferOwnership: '
+        'מעביר בעלות מ-$currentOwnerId ל-$newOwnerId',
       );
 
-      final docRef = _firestore.collection(FirestoreCollections.shoppingLists).doc(listId);
+      final docRef = _sharedListsCollection(householdId).doc(listId);
 
-      // 🆕 Map structure:
-      // 1. Remove new owner from shared_users (will become created_by)
-      // 2. Add current owner as admin in shared_users
-      // 3. Update created_by to new owner
       await docRef.update({
-        // Remove new owner from shared_users
         '${FirestoreFields.sharedUsers}.$newOwnerId': FieldValue.delete(),
-        // Add current owner as admin
         '${FirestoreFields.sharedUsers}.$currentOwnerId': {
           FirestoreFields.role: 'admin',
           'shared_at': FieldValue.serverTimestamp(),
         },
-        // Change ownership
         FirestoreFields.createdBy: newOwnerId,
         FirestoreFields.updatedDate: FieldValue.serverTimestamp(),
       });
 
-      debugPrint('✅ בעלות הועברה בהצלחה (Map structure)');
+      debugPrint('✅ בעלות הועברה בהצלחה');
     } catch (e, stackTrace) {
-      debugPrint(
-        '❌ FirebaseShoppingListsRepository.transferOwnership: שגיאה - $e',
-      );
+      debugPrint('❌ FirebaseShoppingListsRepository.transferOwnership: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw ShoppingListRepositoryException(
         'Failed to transfer ownership of list $listId',
@@ -293,10 +394,14 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
     }
   }
 
-  // ===== 🆕 Pending Requests Methods =====
+  // ========================================
+  // Pending Requests Methods
+  // (Only for shared lists)
+  // ========================================
 
   @override
   Future<String> createRequest(
+    String householdId,
     String listId,
     String requesterId,
     String type,
@@ -305,12 +410,12 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
   ) async {
     try {
       debugPrint(
-        '📝 FirebaseShoppingListsRepository.createRequest: יוצר בקשה מסוג $type לרשימה $listId',
+        '📝 FirebaseShoppingListsRepository.createRequest: '
+        'יוצר בקשה מסוג $type לרשימה $listId',
       );
 
-      final docRef = _firestore.collection(FirestoreCollections.shoppingLists).doc(listId);
+      final docRef = _sharedListsCollection(householdId).doc(listId);
 
-      // יצירת request ID
       final requestId = '${DateTime.now().millisecondsSinceEpoch}_$requesterId';
 
       final request = {
@@ -331,9 +436,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
       debugPrint('✅ בקשה נוצרה: $requestId');
       return requestId;
     } catch (e, stackTrace) {
-      debugPrint(
-        '❌ FirebaseShoppingListsRepository.createRequest: שגיאה - $e',
-      );
+      debugPrint('❌ FirebaseShoppingListsRepository.createRequest: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw ShoppingListRepositoryException(
         'Failed to create request for list $listId',
@@ -344,6 +447,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
 
   @override
   Future<void> approveRequest(
+    String householdId,
     String listId,
     String requestId,
     String reviewerId,
@@ -354,7 +458,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         '✅ FirebaseShoppingListsRepository.approveRequest: מאשר בקשה $requestId',
       );
 
-      final docRef = _firestore.collection(FirestoreCollections.shoppingLists).doc(listId);
+      final docRef = _sharedListsCollection(householdId).doc(listId);
       final doc = await docRef.get();
 
       if (!doc.exists) {
@@ -366,7 +470,6 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         data[FirestoreFields.pendingRequests] ?? [],
       );
 
-      // מציאת הבקשה
       final requestIndex = pendingRequests.indexWhere(
         (req) => req['id'] == requestId,
       );
@@ -375,16 +478,12 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         throw ShoppingListRepositoryException('Request not found', null);
       }
 
-      // עדכון סטטוס הבקשה
       pendingRequests[requestIndex][FirestoreFields.status] = 'approved';
       pendingRequests[requestIndex]['reviewer_id'] = reviewerId;
       pendingRequests[requestIndex]['reviewed_at'] = FieldValue.serverTimestamp();
       if (reviewerName != null) {
         pendingRequests[requestIndex]['reviewer_name'] = reviewerName;
       }
-
-      // TODO: כאן צריך לבצע את הפעולה עצמה (הוספה/עריכה/מחיקה)
-      // זה יועבר ל-Provider לטיפול
 
       await docRef.update({
         FirestoreFields.pendingRequests: pendingRequests,
@@ -393,9 +492,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
 
       debugPrint('✅ בקשה אושרה בהצלחה');
     } catch (e, stackTrace) {
-      debugPrint(
-        '❌ FirebaseShoppingListsRepository.approveRequest: שגיאה - $e',
-      );
+      debugPrint('❌ FirebaseShoppingListsRepository.approveRequest: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw ShoppingListRepositoryException(
         'Failed to approve request $requestId',
@@ -406,6 +503,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
 
   @override
   Future<void> rejectRequest(
+    String householdId,
     String listId,
     String requestId,
     String reviewerId,
@@ -417,7 +515,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         '❌ FirebaseShoppingListsRepository.rejectRequest: דוחה בקשה $requestId',
       );
 
-      final docRef = _firestore.collection(FirestoreCollections.shoppingLists).doc(listId);
+      final docRef = _sharedListsCollection(householdId).doc(listId);
       final doc = await docRef.get();
 
       if (!doc.exists) {
@@ -429,7 +527,6 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         data[FirestoreFields.pendingRequests] ?? [],
       );
 
-      // מציאת הבקשה
       final requestIndex = pendingRequests.indexWhere(
         (req) => req['id'] == requestId,
       );
@@ -438,7 +535,6 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         throw ShoppingListRepositoryException('Request not found', null);
       }
 
-      // עדכון סטטוס הבקשה
       pendingRequests[requestIndex][FirestoreFields.status] = 'rejected';
       pendingRequests[requestIndex]['reviewer_id'] = reviewerId;
       pendingRequests[requestIndex]['reviewed_at'] = FieldValue.serverTimestamp();
@@ -454,9 +550,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
 
       debugPrint('✅ בקשה נדחתה בהצלחה');
     } catch (e, stackTrace) {
-      debugPrint(
-        '❌ FirebaseShoppingListsRepository.rejectRequest: שגיאה - $e',
-      );
+      debugPrint('❌ FirebaseShoppingListsRepository.rejectRequest: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw ShoppingListRepositoryException(
         'Failed to reject request $requestId',
@@ -466,13 +560,16 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> getPendingRequests(String listId) async {
+  Future<List<Map<String, dynamic>>> getPendingRequests(
+    String householdId,
+    String listId,
+  ) async {
     try {
       debugPrint(
         '📝 FirebaseShoppingListsRepository.getPendingRequests: מביא בקשות ממתינות',
       );
 
-      final doc = await _firestore.collection(FirestoreCollections.shoppingLists).doc(listId).get();
+      final doc = await _sharedListsCollection(householdId).doc(listId).get();
 
       if (!doc.exists) {
         throw ShoppingListRepositoryException('List not found', null);
@@ -483,7 +580,6 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         data[FirestoreFields.pendingRequests] ?? [],
       );
 
-      // סינון רק בקשות pending
       final pendingRequests = allRequests
           .where((req) => req[FirestoreFields.status] == 'pending')
           .toList();
@@ -491,9 +587,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
       debugPrint('✅ נמצאו ${pendingRequests.length} בקשות ממתינות');
       return pendingRequests;
     } catch (e, stackTrace) {
-      debugPrint(
-        '❌ FirebaseShoppingListsRepository.getPendingRequests: שגיאה - $e',
-      );
+      debugPrint('❌ FirebaseShoppingListsRepository.getPendingRequests: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw ShoppingListRepositoryException(
         'Failed to get pending requests for list $listId',
@@ -502,149 +596,64 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
     }
   }
 
-  // === 🆕 פונקציות נוספות ===
+  // ========================================
+  // Additional Helper Methods
+  // ========================================
 
-  /// מחזיר stream של רשימות (real-time updates)
-  ///
-  /// Example:
-  /// ```dart
-  /// repository.watchLists('house_demo').listen((lists) {
-  ///   print('Lists updated: ${lists.length}');
-  /// });
-  /// ```
-  Stream<List<ShoppingList>> watchLists(String householdId) {
-    return _firestore
-        .collection(FirestoreCollections.shoppingLists)
-        .where(FirestoreFields.householdId, isEqualTo: householdId)
+  /// מחזיר stream של רשימות (real-time updates) - ממוזג
+  Stream<List<ShoppingList>> watchLists(String userId, String? householdId) {
+    // TODO: לממש stream ממוזג עם rxdart או CombineLatestStream
+    // לעת עתה, מחזיר רק את הרשימות הפרטיות
+    return _privateListsCollection(userId)
         .orderBy(FirestoreFields.updatedDate, descending: true)
         .snapshots()
         .map((snapshot) {
           return snapshot.docs.map((doc) {
             final data = Map<String, dynamic>.from(doc.data());
+            data[FirestoreFields.isPrivate] = true;
             return ShoppingList.fromJson(data);
           }).toList();
         });
   }
 
-  /// מחזיר רשימה לפי ID
-  ///
-  /// Example:
-  /// ```dart
-  /// final list = await repository.getListById('list_123', 'house_demo');
-  /// ```
-  Future<ShoppingList?> getListById(String listId, String householdId) async {
+  /// מחזיר רשימה לפי ID (חיפוש בשתי הקולקציות)
+  Future<ShoppingList?> getListById(
+    String listId,
+    String userId,
+    String? householdId,
+  ) async {
     try {
       debugPrint(
         '🔍 FirebaseShoppingListsRepository.getListById: מחפש רשימה $listId',
       );
 
-      final doc = await _firestore
-          .collection(FirestoreCollections.shoppingLists)
-          .doc(listId)
-          .get();
-
-      if (!doc.exists) {
-        debugPrint('⚠️ רשימה לא נמצאה');
-        return null;
+      // חפש קודם ברשימות פרטיות
+      final privateDoc = await _privateListsCollection(userId).doc(listId).get();
+      if (privateDoc.exists) {
+        final data = Map<String, dynamic>.from(privateDoc.data()!);
+        data[FirestoreFields.isPrivate] = true;
+        debugPrint('✅ רשימה נמצאה ב-private_lists');
+        return ShoppingList.fromJson(data);
       }
 
-      final data = Map<String, dynamic>.from(doc.data()!);
-
-      // בדיקה שהרשימה שייכת ל-household
-      if (data[FirestoreFields.householdId] != householdId) {
-        debugPrint('⚠️ רשימה לא שייכת ל-household זה');
-        return null;
+      // חפש ברשימות משותפות
+      if (householdId != null) {
+        final sharedDoc = await _sharedListsCollection(householdId).doc(listId).get();
+        if (sharedDoc.exists) {
+          final data = Map<String, dynamic>.from(sharedDoc.data()!);
+          data[FirestoreFields.isPrivate] = false;
+          debugPrint('✅ רשימה נמצאה ב-shared_lists');
+          return ShoppingList.fromJson(data);
+        }
       }
 
-      final list = ShoppingList.fromJson(data);
-      debugPrint('✅ רשימה נמצאה');
-
-      return list;
+      debugPrint('⚠️ רשימה לא נמצאה');
+      return null;
     } catch (e, stackTrace) {
       debugPrint('❌ FirebaseShoppingListsRepository.getListById: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw ShoppingListRepositoryException(
         'Failed to get shopping list by id',
-        e,
-      );
-    }
-  }
-
-  /// מחזיר רשימות לפי סטטוס
-  ///
-  /// Example:
-  /// ```dart
-  /// final activeLists = await repository.getListsByStatus('active', 'house_demo');
-  /// ```
-  Future<List<ShoppingList>> getListsByStatus(
-    String status,
-    String householdId,
-  ) async {
-    try {
-      debugPrint(
-        '📋 FirebaseShoppingListsRepository.getListsByStatus: מחפש רשימות עם סטטוס $status',
-      );
-
-      final snapshot = await _firestore
-          .collection(FirestoreCollections.shoppingLists)
-          .where(FirestoreFields.householdId, isEqualTo: householdId)
-          .where(FirestoreFields.status, isEqualTo: status)
-          .orderBy(FirestoreFields.updatedDate, descending: true)
-          .get();
-
-      final lists = snapshot.docs.map((doc) {
-        final data = Map<String, dynamic>.from(doc.data());
-        return ShoppingList.fromJson(data);
-      }).toList();
-
-      debugPrint('✅ נמצאו ${lists.length} רשימות');
-      return lists;
-    } catch (e, stackTrace) {
-      debugPrint(
-        '❌ FirebaseShoppingListsRepository.getListsByStatus: שגיאה - $e',
-      );
-      debugPrintStack(stackTrace: stackTrace);
-      throw ShoppingListRepositoryException(
-        'Failed to get shopping lists by status',
-        e,
-      );
-    }
-  }
-
-  /// מחזיר רשימות לפי סוג
-  ///
-  /// Example:
-  /// ```dart
-  /// final superLists = await repository.getListsByType('super', 'house_demo');
-  /// ```
-  Future<List<ShoppingList>> getListsByType(
-    String type,
-    String householdId,
-  ) async {
-    try {
-      debugPrint(
-        '🛒 FirebaseShoppingListsRepository.getListsByType: מחפש רשימות מסוג $type',
-      );
-
-      final snapshot = await _firestore
-          .collection(FirestoreCollections.shoppingLists)
-          .where(FirestoreFields.householdId, isEqualTo: householdId)
-          .where(FirestoreFields.type, isEqualTo: type)
-          .orderBy(FirestoreFields.updatedDate, descending: true)
-          .get();
-
-      final lists = snapshot.docs.map((doc) {
-        final data = Map<String, dynamic>.from(doc.data());
-        return ShoppingList.fromJson(data);
-      }).toList();
-
-      debugPrint('✅ נמצאו ${lists.length} רשימות');
-      return lists;
-    } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseShoppingListsRepository.getListsByType: שגיאה - $e');
-      debugPrintStack(stackTrace: stackTrace);
-      throw ShoppingListRepositoryException(
-        'Failed to get shopping lists by type',
         e,
       );
     }

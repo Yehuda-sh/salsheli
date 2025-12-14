@@ -80,12 +80,14 @@ class PendingRequestsService {
 
     // עדכון Firebase
     try {
+      final userId = _userContext.userId;
       final householdId = _userContext.householdId;
       if (householdId == null) {
         throw Exception('משתמש לא משויך למשק בית');
       }
       await _repository.saveList(
         list.copyWith(pendingRequests: updatedRequests),
+        userId!,
         householdId,
       );
       log('✅ בקשה נוצרה בהצלחה [PendingRequestsService]');
@@ -212,6 +214,7 @@ class PendingRequestsService {
           items: updatedItems,
           pendingRequests: updatedRequests,
         ),
+        currentUserId,
         householdId,
       );
       log('✅ בקשה אושרה בהצלחה [PendingRequestsService]');
@@ -306,6 +309,7 @@ class PendingRequestsService {
       }
       await _repository.saveList(
         list.copyWith(pendingRequests: updatedRequests),
+        currentUserId,
         householdId,
       );
       log('✅ בקשה נדחתה [PendingRequestsService]');
@@ -356,12 +360,14 @@ class PendingRequestsService {
     // אם יש שינוי - עדכון Firebase
     if (updatedRequests.length != list.pendingRequests.length) {
       try {
+        final userId = _userContext.userId;
         final householdId = _userContext.householdId;
-        if (householdId == null) {
-          throw Exception('משתמש לא משויך למשק בית');
+        if (userId == null || householdId == null) {
+          throw Exception('משתמש לא מחובר או לא משויך למשק בית');
         }
         await _repository.saveList(
           list.copyWith(pendingRequests: updatedRequests),
+          userId,
           householdId,
         );
         final removed = list.pendingRequests.length - updatedRequests.length;

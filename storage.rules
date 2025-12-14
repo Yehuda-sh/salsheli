@@ -1,0 +1,36 @@
+rules_version = '2';
+
+// Storage Rules for MemoZap
+// Last Updated: 14/12/2025
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // === Helper Functions ===
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // === User Profile Images ===
+    // Path: /users/{userId}/profile/*
+    match /users/{userId}/profile/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId);
+    }
+
+    // === Receipt Images ===
+    // Path: /households/{householdId}/receipts/{receiptId}/*
+    match /households/{householdId}/receipts/{receiptId}/{fileName} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // === Default Deny ===
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

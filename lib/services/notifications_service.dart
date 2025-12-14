@@ -4,19 +4,22 @@ import 'package:memozap/repositories/constants/repository_constants.dart';
 import 'package:uuid/uuid.dart';
 
 /// 📬 Notifications Service
-/// 
+///
 /// Manages in-app notifications for Phase 3B User Sharing System
-/// 
+///
 /// Features:
 /// - Create notifications for invite/approve/reject/role change
 /// - Mark as read
 /// - Get unread count (for badge)
 /// - Query user notifications
 /// - Auto-cleanup old read notifications (30 days)
-/// 
-/// Version: 1.0
+///
+/// 🏗️ Database Structure:
+///     - /users/{userId}/notifications/{notificationId}
+///
+/// Version: 2.0 - Subcollection support
 /// Created: 04/11/2025
-/// Lines: ~350
+/// Last Updated: 14/12/2025
 
 class NotificationsService {
   final FirebaseFirestore _firestore;
@@ -25,9 +28,17 @@ class NotificationsService {
   NotificationsService(this._firestore, [Uuid? uuid])
       : _uuid = uuid ?? const Uuid();
 
-  // Collection reference
-  CollectionReference get _notificationsCollection =>
-      _firestore.collection('notifications');
+  // ========================================
+  // Collection Reference
+  // ========================================
+
+  /// מחזיר reference לקולקציית ההתראות של משתמש
+  /// Path: /users/{userId}/notifications
+  CollectionReference<Map<String, dynamic>> _notificationsCollection(String userId) =>
+      _firestore
+          .collection(FirestoreCollections.users)
+          .doc(userId)
+          .collection(FirestoreCollections.notifications);
 
   // ============================================================
   // CREATE NOTIFICATIONS
@@ -59,7 +70,8 @@ class NotificationsService {
       createdAt: DateTime.now(),
     );
 
-    await _notificationsCollection.doc(notification.id).set(notification.toJson());
+    // 🆕 שימוש ב-subcollection - הבעלות מאומתת דרך הנתיב
+    await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
   }
 
   /// ✅ Create request approved notification
@@ -88,7 +100,8 @@ class NotificationsService {
       createdAt: DateTime.now(),
     );
 
-    await _notificationsCollection.doc(notification.id).set(notification.toJson());
+    // 🆕 שימוש ב-subcollection
+    await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
   }
 
   /// ❌ Create request rejected notification
@@ -123,7 +136,8 @@ class NotificationsService {
       createdAt: DateTime.now(),
     );
 
-    await _notificationsCollection.doc(notification.id).set(notification.toJson());
+    // 🆕 שימוש ב-subcollection
+    await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
   }
 
   /// 🔄 Create role changed notification
@@ -154,7 +168,8 @@ class NotificationsService {
       createdAt: DateTime.now(),
     );
 
-    await _notificationsCollection.doc(notification.id).set(notification.toJson());
+    // 🆕 שימוש ב-subcollection
+    await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
   }
 
   /// 🚫 Create user removed notification
@@ -181,7 +196,8 @@ class NotificationsService {
       createdAt: DateTime.now(),
     );
 
-    await _notificationsCollection.doc(notification.id).set(notification.toJson());
+    // 🆕 שימוש ב-subcollection
+    await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
   }
 
   // ============================================================
@@ -193,14 +209,14 @@ class NotificationsService {
     required String userId,
     int limit = 50,
   }) async {
-    final snapshot = await _notificationsCollection
-        .where(FirestoreFields.userId, isEqualTo: userId)
+    // 🆕 שימוש ב-subcollection - לא צריך where על user_id
+    final snapshot = await _notificationsCollection(userId)
         .orderBy(FirestoreFields.createdAt, descending: true)
         .limit(limit)
         .get();
 
     return snapshot.docs
-        .map((doc) => AppNotification.fromJson(doc.data() as Map<String, dynamic>))
+        .map((doc) => AppNotification.fromJson(doc.data()))
         .toList();
   }
 
@@ -208,21 +224,21 @@ class NotificationsService {
   Future<List<AppNotification>> getUnreadNotifications({
     required String userId,
   }) async {
-    final snapshot = await _notificationsCollection
-        .where(FirestoreFields.userId, isEqualTo: userId)
+    // 🆕 שימוש ב-subcollection - לא צריך where על user_id
+    final snapshot = await _notificationsCollection(userId)
         .where('is_read', isEqualTo: false)
         .orderBy(FirestoreFields.createdAt, descending: true)
         .get();
 
     return snapshot.docs
-        .map((doc) => AppNotification.fromJson(doc.data() as Map<String, dynamic>))
+        .map((doc) => AppNotification.fromJson(doc.data()))
         .toList();
   }
 
   /// 🔢 Get unread count (for badge)
   Future<int> getUnreadCount({required String userId}) async {
-    final snapshot = await _notificationsCollection
-        .where(FirestoreFields.userId, isEqualTo: userId)
+    // 🆕 שימוש ב-subcollection - לא צריך where על user_id
+    final snapshot = await _notificationsCollection(userId)
         .where('is_read', isEqualTo: false)
         .get();
 
@@ -231,8 +247,8 @@ class NotificationsService {
 
   /// 📊 Stream unread count (real-time badge)
   Stream<int> watchUnreadCount({required String userId}) {
-    return _notificationsCollection
-        .where(FirestoreFields.userId, isEqualTo: userId)
+    // 🆕 שימוש ב-subcollection - לא צריך where על user_id
+    return _notificationsCollection(userId)
         .where('is_read', isEqualTo: false)
         .snapshots()
         .map((snapshot) => snapshot.docs.length);
@@ -243,8 +259,13 @@ class NotificationsService {
   // ============================================================
 
   /// ✅ Mark notification as read
-  Future<void> markAsRead(String notificationId) async {
-    await _notificationsCollection.doc(notificationId).update({
+  ///
+  /// 🆕 נדרש userId כדי לגשת ל-subcollection הנכון
+  Future<void> markAsRead({
+    required String notificationId,
+    required String userId,
+  }) async {
+    await _notificationsCollection(userId).doc(notificationId).update({
       'is_read': true,
       'read_at': FieldValue.serverTimestamp(),
     });
@@ -254,8 +275,8 @@ class NotificationsService {
   Future<void> markAllAsRead({required String userId}) async {
     final batch = _firestore.batch();
 
-    final snapshot = await _notificationsCollection
-        .where(FirestoreFields.userId, isEqualTo: userId)
+    // 🆕 שימוש ב-subcollection - לא צריך where על user_id
+    final snapshot = await _notificationsCollection(userId)
         .where('is_read', isEqualTo: false)
         .get();
 
@@ -274,8 +295,13 @@ class NotificationsService {
   // ============================================================
 
   /// 🗑️ Delete notification
-  Future<void> deleteNotification(String notificationId) async {
-    await _notificationsCollection.doc(notificationId).delete();
+  ///
+  /// 🆕 נדרש userId כדי לגשת ל-subcollection הנכון
+  Future<void> deleteNotification({
+    required String notificationId,
+    required String userId,
+  }) async {
+    await _notificationsCollection(userId).doc(notificationId).delete();
   }
 
   /// 🧹 Cleanup old read notifications (30 days)
@@ -286,8 +312,8 @@ class NotificationsService {
   }) async {
     final cutoffDate = DateTime.now().subtract(Duration(days: daysOld));
 
-    final snapshot = await _notificationsCollection
-        .where(FirestoreFields.userId, isEqualTo: userId)
+    // 🆕 שימוש ב-subcollection - לא צריך where על user_id
+    final snapshot = await _notificationsCollection(userId)
         .where('is_read', isEqualTo: true)
         .where('read_at', isLessThan: Timestamp.fromDate(cutoffDate))
         .get();
@@ -307,12 +333,10 @@ class NotificationsService {
 
   /// 📊 Get notification stats
   Future<Map<String, int>> getNotificationStats({required String userId}) async {
-    final allSnapshot = await _notificationsCollection
-        .where(FirestoreFields.userId, isEqualTo: userId)
-        .get();
+    // 🆕 שימוש ב-subcollection - לא צריך where על user_id
+    final allSnapshot = await _notificationsCollection(userId).get();
 
-    final unreadSnapshot = await _notificationsCollection
-        .where(FirestoreFields.userId, isEqualTo: userId)
+    final unreadSnapshot = await _notificationsCollection(userId)
         .where('is_read', isEqualTo: false)
         .get();
 

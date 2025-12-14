@@ -205,7 +205,10 @@ class ShoppingListsProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final fetchedLists = await _repository.fetchLists(householdId);
+      final userId = _userContext?.user?.id;
+      if (userId == null) return;
+
+      final fetchedLists = await _repository.fetchLists(userId, householdId);
       // 🔑 חישוב currentUserRole לכל רשימה
       _lists = _enrichListsWithUserRole(fetchedLists);
       _lastUpdated = DateTime.now();
@@ -309,7 +312,7 @@ class ShoppingListsProvider with ChangeNotifier {
               createdFromTemplate: items != null && items.isNotEmpty,
             );
 
-      await _repository.saveList(newList, householdId);
+      await _repository.saveList(newList, userId, householdId);
       await loadLists();
       debugPrint('✅ createList: רשימה "$name" נוצרה בהצלחה!');
       return newList;
@@ -322,23 +325,28 @@ class ShoppingListsProvider with ChangeNotifier {
   }
 
   /// מחיק רשימה
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// await provider.deleteList(listId);
   /// ```
   Future<void> deleteList(String id) async {
+    final userId = _userContext?.user?.id;
     final householdId = _userContext?.user?.householdId;
-    if (householdId == null) {
-      debugPrint('❌ deleteList: householdId לא נמצא');
-      throw Exception('❌ householdId לא נמצא');
+    if (userId == null) {
+      debugPrint('❌ deleteList: userId לא נמצא');
+      throw Exception('❌ userId לא נמצא');
     }
 
-    debugPrint('🗑️ deleteList: מוחק רשימה $id');
+    // מצא את הרשימה כדי לדעת אם היא פרטית או משותפת
+    final list = getById(id);
+    final isPrivate = list?.isPrivate ?? true;
+
+    debugPrint('🗑️ deleteList: מוחק רשימה $id [isPrivate: $isPrivate]');
     _errorMessage = null;
 
     try {
-      await _repository.deleteList(id, householdId);
+      await _repository.deleteList(id, userId, householdId, isPrivate);
       await loadLists();
       debugPrint('✅ deleteList: רשימה $id נמחקה בהצלחה');
     } catch (e) {
@@ -350,47 +358,85 @@ class ShoppingListsProvider with ChangeNotifier {
   }
 
   /// משחזר רשימה שנמחקה (Undo)
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// await provider.restoreList(deletedList);
   /// ```
   Future<void> restoreList(ShoppingList list) async {
+    final userId = _userContext?.user?.id;
     final householdId = _userContext?.user?.householdId;
-    if (householdId == null) {
-      debugPrint('❌ restoreList: householdId לא נמצא');
-      throw Exception('❌ householdId לא נמצא');
+    if (userId == null) {
+      debugPrint('❌ restoreList: userId לא נמצא');
+      throw Exception('❌ userId לא נמצא');
     }
 
     debugPrint('↩️ restoreList: משחזר רשימה ${list.id}');
-    await _repository.saveList(list, householdId);
+    await _repository.saveList(list, userId, householdId);
     await loadLists();
     debugPrint('✅ restoreList: רשימה ${list.id} שוחזרה');
   }
 
   /// מעדכן רשימה קיימת
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// await provider.updateList(updatedList);
   /// ```
   Future<void> updateList(ShoppingList updated) async {
+    final userId = _userContext?.user?.id;
     final householdId = _userContext?.user?.householdId;
-    if (householdId == null) {
-      debugPrint('❌ updateList: householdId לא נמצא');
-      throw Exception('❌ householdId לא נמצא');
+    if (userId == null) {
+      debugPrint('❌ updateList: userId לא נמצא');
+      throw Exception('❌ userId לא נמצא');
     }
 
     debugPrint('📝 updateList: מעדכן רשימה ${updated.id}');
     _errorMessage = null;
 
     try {
-      await _repository.saveList(updated, householdId);
+      await _repository.saveList(updated, userId, householdId);
       await loadLists();
       debugPrint('✅ updateList: רשימה ${updated.id} עודכנה בהצלחה');
     } catch (e) {
       debugPrint('❌ updateList: שגיאה - $e');
       _errorMessage = 'שגיאה בעדכון רשימה ${updated.id}: ${e.toString()}';
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  /// משתף רשימה פרטית למשק הבית
+  ///
+  /// מעביר רשימה מ-private_lists ל-shared_lists
+  ///
+  /// Example:
+  /// ```dart
+  /// await provider.shareListToHousehold(listId);
+  /// ```
+  Future<void> shareListToHousehold(String listId) async {
+    final userId = _userContext?.user?.id;
+    final householdId = _userContext?.user?.householdId;
+
+    if (userId == null) {
+      debugPrint('❌ shareListToHousehold: userId לא נמצא');
+      throw Exception('❌ userId לא נמצא');
+    }
+    if (householdId == null) {
+      debugPrint('❌ shareListToHousehold: householdId לא נמצא - משתמש לא במשפחה');
+      throw Exception('❌ לא ניתן לשתף רשימה ללא משק בית');
+    }
+
+    debugPrint('🔄 shareListToHousehold: משתף רשימה $listId למשק בית $householdId');
+    _errorMessage = null;
+
+    try {
+      await _repository.shareListToHousehold(listId, userId, householdId);
+      await loadLists();
+      debugPrint('✅ shareListToHousehold: רשימה $listId שותפה בהצלחה');
+    } catch (e) {
+      debugPrint('❌ shareListToHousehold: שגיאה - $e');
+      _errorMessage = 'שגיאה בשיתוף רשימה $listId: ${e.toString()}';
       notifyListeners();
       rethrow;
     }

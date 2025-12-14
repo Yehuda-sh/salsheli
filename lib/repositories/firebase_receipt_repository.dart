@@ -14,8 +14,11 @@
 //     - Delete receipts
 //     - Real-time updates
 //
-// Version: 2.0 - Helper method + Constants
-// Last Updated: 09/10/2025
+// 🏗️ Database Structure:
+//     - /households/{householdId}/receipts/{receiptId}
+//
+// Version: 3.0 - Subcollection support
+// Last Updated: 14/12/2025
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -31,7 +34,17 @@ class FirebaseReceiptRepository implements ReceiptRepository {
   FirebaseReceiptRepository({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
+  // ========================================
+  // Collection Reference
+  // ========================================
 
+  /// מחזיר reference לקולקציית הקבלות של משק בית
+  /// Path: /households/{householdId}/receipts
+  CollectionReference<Map<String, dynamic>> _receiptsCollection(String householdId) =>
+      _firestore
+          .collection(FirestoreCollections.households)
+          .doc(householdId)
+          .collection(FirestoreCollections.householdReceipts);
 
   // === Fetch Receipts ===
 
@@ -40,9 +53,8 @@ class FirebaseReceiptRepository implements ReceiptRepository {
     try {
       debugPrint('📥 FirebaseReceiptRepository.fetchReceipts: טוען קבלות ל-$householdId');
 
-      final snapshot = await _firestore
-          .collection(FirestoreCollections.receipts)
-          .where(FirestoreFields.householdId, isEqualTo: householdId)
+      // 🆕 שימוש ב-subcollection - לא צריך where על household_id
+      final snapshot = await _receiptsCollection(householdId)
           .orderBy(FirestoreFields.date, descending: true)
           .get();
 
@@ -69,12 +81,11 @@ class FirebaseReceiptRepository implements ReceiptRepository {
     try {
       debugPrint('💾 FirebaseReceiptRepository.saveReceipt: שומר קבלה ${receipt.id}');
 
-      // הוספת household_id לנתונים
+      // 🆕 לא צריך להוסיף household_id - הוא בנתיב
       final data = receipt.toJson();
-      data[FirestoreFields.householdId] = householdId;
 
-      await _firestore
-          .collection(FirestoreCollections.receipts)
+      // 🆕 שימוש ב-subcollection
+      await _receiptsCollection(householdId)
           .doc(receipt.id)
           .set(data, SetOptions(merge: true));
 
@@ -94,27 +105,8 @@ class FirebaseReceiptRepository implements ReceiptRepository {
     try {
       debugPrint('🗑️ FirebaseReceiptRepository.deleteReceipt: מוחק קבלה $id');
 
-      // וידוא שהקבלה שייכת ל-household
-      final doc = await _firestore
-          .collection(FirestoreCollections.receipts)
-          .doc(id)
-          .get();
-      
-      if (!doc.exists) {
-        debugPrint('⚠️ קבלה לא קיימת');
-        return;
-      }
-
-      final data = doc.data();
-      if (data?[FirestoreFields.householdId] != householdId) {
-        debugPrint('⚠️ קבלה לא שייכת ל-household זה');
-        throw ReceiptRepositoryException('Receipt does not belong to household', null);
-      }
-
-      await _firestore
-          .collection(FirestoreCollections.receipts)
-          .doc(id)
-          .delete();
+      // 🆕 מחיקה ישירה - הבעלות מאומתת דרך ה-subcollection path
+      await _receiptsCollection(householdId).doc(id).delete();
 
       debugPrint('✅ FirebaseReceiptRepository.deleteReceipt: קבלה נמחקה');
     } catch (e, stackTrace) {
@@ -127,7 +119,7 @@ class FirebaseReceiptRepository implements ReceiptRepository {
   // === 🆕 פונקציות נוספות ===
 
   /// מחזיר stream של קבלות (real-time updates)
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// repository.watchReceipts('house_demo').listen((receipts) {
@@ -135,9 +127,8 @@ class FirebaseReceiptRepository implements ReceiptRepository {
   /// });
   /// ```
   Stream<List<Receipt>> watchReceipts(String householdId) {
-    return _firestore
-        .collection(FirestoreCollections.receipts)
-        .where(FirestoreFields.householdId, isEqualTo: householdId)
+    // 🆕 שימוש ב-subcollection - לא צריך where
+    return _receiptsCollection(householdId)
         .orderBy(FirestoreFields.date, descending: true)
         .snapshots()
         .map((snapshot) {
@@ -151,7 +142,7 @@ class FirebaseReceiptRepository implements ReceiptRepository {
   }
 
   /// מחזיר קבלה לפי ID
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final receipt = await repository.getReceiptById('receipt_123', 'house_demo');
@@ -160,10 +151,8 @@ class FirebaseReceiptRepository implements ReceiptRepository {
     try {
       debugPrint('🔍 FirebaseReceiptRepository.getReceiptById: מחפש קבלה $receiptId');
 
-      final doc = await _firestore
-          .collection(FirestoreCollections.receipts)
-          .doc(receiptId)
-          .get();
+      // 🆕 שימוש ב-subcollection - הבעלות מאומתת דרך הנתיב
+      final doc = await _receiptsCollection(householdId).doc(receiptId).get();
 
       if (!doc.exists) {
         debugPrint('⚠️ קבלה לא נמצאה');
@@ -171,17 +160,10 @@ class FirebaseReceiptRepository implements ReceiptRepository {
       }
 
       final data = Map<String, dynamic>.from(doc.data()!);
-      
-      // בדיקה שהקבלה שייכת ל-household
-      if (data[FirestoreFields.householdId] != householdId) {
-        debugPrint('⚠️ קבלה לא שייכת ל-household זה');
-        return null;
-      }
-
       final convertedData = FirestoreUtils.convertTimestamps(data);
       final receipt = Receipt.fromJson(convertedData);
       debugPrint('✅ קבלה נמצאה');
-      
+
       return receipt;
     } catch (e, stackTrace) {
       debugPrint('❌ FirebaseReceiptRepository.getReceiptById: שגיאה - $e');
@@ -191,7 +173,7 @@ class FirebaseReceiptRepository implements ReceiptRepository {
   }
 
   /// מחזיר קבלות לפי חנות
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final receipts = await repository.getReceiptsByStore('שופרסל', 'house_demo');
@@ -200,9 +182,8 @@ class FirebaseReceiptRepository implements ReceiptRepository {
     try {
       debugPrint('🏪 FirebaseReceiptRepository.getReceiptsByStore: מחפש קבלות מ-$storeName');
 
-      final snapshot = await _firestore
-          .collection(FirestoreCollections.receipts)
-          .where(FirestoreFields.householdId, isEqualTo: householdId)
+      // 🆕 שימוש ב-subcollection - לא צריך where על household_id
+      final snapshot = await _receiptsCollection(householdId)
           .where(FirestoreFields.storeName, isEqualTo: storeName)
           .orderBy(FirestoreFields.date, descending: true)
           .get();
@@ -224,7 +205,7 @@ class FirebaseReceiptRepository implements ReceiptRepository {
   }
 
   /// מחזיר קבלות בטווח תאריכים
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final receipts = await repository.getReceiptsByDateRange(
@@ -241,9 +222,8 @@ class FirebaseReceiptRepository implements ReceiptRepository {
     try {
       debugPrint('📅 FirebaseReceiptRepository.getReceiptsByDateRange: מחפש קבלות');
 
-      final snapshot = await _firestore
-          .collection(FirestoreCollections.receipts)
-          .where(FirestoreFields.householdId, isEqualTo: householdId)
+      // 🆕 שימוש ב-subcollection - לא צריך where על household_id
+      final snapshot = await _receiptsCollection(householdId)
           .where(FirestoreFields.date, isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
           .where(FirestoreFields.date, isLessThanOrEqualTo: Timestamp.fromDate(endDate))
           .orderBy(FirestoreFields.date, descending: true)

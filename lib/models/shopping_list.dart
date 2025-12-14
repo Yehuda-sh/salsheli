@@ -53,27 +53,56 @@ part 'shopping_list.g.dart';
 /// }
 /// ```
 class SharedUsersMapConverter
-    implements JsonConverter<Map<String, SharedUser>, Map<String, dynamic>?> {
+    implements JsonConverter<Map<String, SharedUser>, dynamic> {
   const SharedUsersMapConverter();
 
   @override
-  Map<String, SharedUser> fromJson(Map<String, dynamic>? json) {
-    if (json == null || json.isEmpty) {
+  Map<String, SharedUser> fromJson(dynamic json) {
+    if (json == null) {
       return {};
     }
 
-    final result = <String, SharedUser>{};
-    for (final entry in json.entries) {
-      try {
-        final userData = Map<String, dynamic>.from(entry.value as Map);
-        final user = SharedUser.fromJson(userData);
-        // Set the userId from the map key
-        result[entry.key] = user.copyWith(userId: entry.key);
-      } catch (e) {
-        debugPrint('⚠️ SharedUsersMapConverter: Failed to parse user ${entry.key}: $e');
+    // Handle old List format (backward compatibility)
+    if (json is List) {
+      debugPrint('⚠️ SharedUsersMapConverter: Converting old List format to Map');
+      final result = <String, SharedUser>{};
+      for (final item in json) {
+        try {
+          if (item is Map) {
+            final userData = Map<String, dynamic>.from(item);
+            // Old format had userId inside the object
+            final userId = userData['user_id'] as String? ?? userData['userId'] as String?;
+            if (userId != null && userId.isNotEmpty) {
+              final user = SharedUser.fromJson(userData);
+              result[userId] = user.copyWith(userId: userId);
+            }
+          }
+        } catch (e) {
+          debugPrint('⚠️ SharedUsersMapConverter: Failed to parse user from list: $e');
+        }
       }
+      return result;
     }
-    return result;
+
+    // Handle new Map format
+    if (json is Map) {
+      final result = <String, SharedUser>{};
+      for (final entry in json.entries) {
+        try {
+          final key = entry.key as String;
+          final userData = Map<String, dynamic>.from(entry.value as Map);
+          final user = SharedUser.fromJson(userData);
+          // Set the userId from the map key
+          result[key] = user.copyWith(userId: key);
+        } catch (e) {
+          debugPrint('⚠️ SharedUsersMapConverter: Failed to parse user ${entry.key}: $e');
+        }
+      }
+      return result;
+    }
+
+    debugPrint('⚠️ SharedUsersMapConverter: Unexpected type ${json.runtimeType}');
+    return {};
   }
 
   @override
