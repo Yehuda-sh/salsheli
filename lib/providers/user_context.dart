@@ -394,6 +394,7 @@ class UserContext with ChangeNotifier {
     required String email,
     required String password,
     required String name,
+    String? phone,
   }) async {
     _isLoading = true;
     _isSigningUp = true; // 🔒 נעילת listener
@@ -424,6 +425,7 @@ class UserContext with ChangeNotifier {
           userId: credential.user!.uid,
           email: email,
           name: name,
+          phone: phone,
           // 🆕 נתוני Onboarding נשמרים בשרת!
           preferredStores: onboardingData.preferredStores.toList(),
           familySize: onboardingData.familySize,

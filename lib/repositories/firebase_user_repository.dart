@@ -341,10 +341,12 @@ class FirebaseUserRepository implements UserRepository {
   /// See also:
   /// - [saveUser] - עדכון משתמש קיים
   /// - [existsUser] - בדיקת קיום משתמש
+  @override
   Future<UserEntity> createUser({
     required String userId,
     required String email,
     required String name,
+    String? phone,
     String? householdId,
     // 🆕 Onboarding fields
     List<String>? preferredStores,
@@ -371,6 +373,7 @@ class FirebaseUserRepository implements UserRepository {
         id: userId,
         email: email.toLowerCase().trim(),
         name: name,
+        phone: phone,
         householdId: householdId,
         // 🆕 Onboarding fields
         preferredStores: preferredStores,

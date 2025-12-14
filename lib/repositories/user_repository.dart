@@ -351,6 +351,7 @@ abstract class UserRepository {
     required String userId,
     required String email,
     required String name,
+    String? phone,
     String? householdId,
     // 🆕 Onboarding fields
     List<String>? preferredStores,

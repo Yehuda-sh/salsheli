@@ -527,6 +527,8 @@ class _AuthStrings {
   String get confirmPasswordHint => '••••••••';
   String get nameLabel => 'שם מלא';
   String get nameHint => 'יוסי כהן';
+  String get phoneLabel => 'טלפון';
+  String get phoneHint => '050-1234567';
 
   // ========================================
   // Links
@@ -555,6 +557,8 @@ class _AuthStrings {
   String get passwordsDoNotMatch => 'הסיסמאות לא תואמות';
   String get nameRequired => 'שדה חובה';
   String get nameTooShort => 'שם חייב להכיל לפחות 2 תווים';
+  String get phoneRequired => 'שדה חובה';
+  String get phoneInvalid => 'מספר טלפון לא תקין (05X-XXXXXXX)';
 
   // ========================================
   // Firebase Error Messages

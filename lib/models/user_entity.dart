@@ -49,6 +49,10 @@ class UserEntity {
   /// 🇬🇧 Email address
   final String email;
 
+  /// 🇮🇱 מספר טלפון (פורמט ישראלי 05XXXXXXXX)
+  /// 🇬🇧 Phone number (Israeli format 05XXXXXXXX)
+  final String? phone;
+
   /// 🇮🇱 מזהה משק בית (מאפשר שיתוף נתונים)
   /// 🇬🇧 Household ID (enables data sharing)
   @JsonKey(name: 'household_id')
@@ -130,6 +134,7 @@ class UserEntity {
     required this.id,
     required this.name,
     required this.email,
+    this.phone,
     required this.householdId,
     required this.joinedAt,
     this.lastLoginAt,
@@ -154,6 +159,7 @@ class UserEntity {
       : id = '',
         name = '',
         email = '',
+        phone = null,
         householdId = '',
         joinedAt = DateTime(1970, 1, 1),
         lastLoginAt = null,
@@ -207,6 +213,7 @@ class UserEntity {
     required String id,
     required String email,
     required String name,
+    String? phone,
     String? householdId,
     // 🆕 Onboarding fields (optional)
     List<String>? preferredStores,
@@ -222,6 +229,7 @@ class UserEntity {
       id: id,
       name: name,
       email: email,
+      phone: phone,
       householdId: householdId ?? 'house_$id',
       joinedAt: DateTime.now(),
       lastLoginAt: DateTime.now(),
@@ -274,6 +282,8 @@ class UserEntity {
     String? id,
     String? name,
     String? email,
+    String? phone,
+    bool clearPhone = false,
     String? householdId,
     String? profileImageUrl,
     bool clearProfileImageUrl = false,
@@ -298,6 +308,7 @@ class UserEntity {
       id: id ?? this.id,
       name: name ?? this.name,
       email: email ?? this.email,
+      phone: clearPhone ? null : (phone ?? this.phone),
       householdId: householdId ?? this.householdId,
       profileImageUrl: clearProfileImageUrl ? null : (profileImageUrl ?? this.profileImageUrl),
       joinedAt: joinedAt ?? this.joinedAt,

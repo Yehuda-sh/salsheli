@@ -53,22 +53,27 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  
+
   // 🎬 Animation controller לשגיאות
   late AnimationController _shakeController;
   late Animation<double> _shakeAnimation;
-  
+
   // 🎯 Focus nodes for auto-focus
   final FocusNode _nameFocusNode = FocusNode();
   final FocusNode _emailFocusNode = FocusNode();
+  final FocusNode _phoneFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
   final FocusNode _confirmPasswordFocusNode = FocusNode();
+
+  // 📱 ולידציית טלפון ישראלי
+  static final _phoneRegex = RegExp(r'^05[0-9]-?[0-9]{7}$');
 
   @override
   void initState() {
@@ -107,11 +112,13 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _shakeController.dispose();
     _nameFocusNode.dispose();
     _emailFocusNode.dispose();
+    _phoneFocusNode.dispose();
     _passwordFocusNode.dispose();
     _confirmPasswordFocusNode.dispose();
     super.dispose();
@@ -137,6 +144,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     try {
       final name = _nameController.text.trim();
       final email = _emailController.text.trim();
+      final phone = _phoneController.text.trim().replaceAll('-', '').replaceAll(' ', '');
       final password = _passwordController.text;
 
       // רישום דרך UserContext
@@ -146,6 +154,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         email: email,
         password: password,
         name: name,
+        phone: phone,
       );
 
       // ✅ הרישום הצליח!
@@ -392,6 +401,43 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                 }
                                 if (!value.contains('@')) {
                                   return AppStrings.auth.emailInvalid;
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: kSpacingSmall),
+
+                          // 🟠 שדה טלפון בפתק כתום
+                          StickyNote(
+                            color: kStickyOrange,
+                            rotation: 0.008,
+                            child: TextFormField(
+                              controller: _phoneController,
+                              focusNode: _phoneFocusNode,
+                              decoration: InputDecoration(
+                                labelText: AppStrings.auth.phoneLabel,
+                                hintText: AppStrings.auth.phoneHint,
+                                prefixIcon: const Icon(Icons.phone_outlined),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(kBorderRadius),
+                                ),
+                                filled: true,
+                                fillColor: cs.surface.withValues(alpha: 0.9),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: kSpacingMedium,
+                                  vertical: kSpacingSmall,
+                                ),
+                              ),
+                              keyboardType: TextInputType.phone,
+                              textInputAction: TextInputAction.next,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return AppStrings.auth.phoneRequired;
+                                }
+                                final normalized = value.replaceAll('-', '').replaceAll(' ', '');
+                                if (!_phoneRegex.hasMatch(normalized)) {
+                                  return AppStrings.auth.phoneInvalid;
                                 }
                                 return null;
                               },
