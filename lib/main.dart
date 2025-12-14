@@ -52,7 +52,8 @@ import 'package:memozap/screens/auth/login_screen.dart' as auth_login;
 import 'package:memozap/screens/auth/register_screen.dart' as auth_register;
 import 'package:memozap/screens/index_screen.dart';
 import 'package:memozap/screens/main_navigation_screen.dart';
-import 'package:memozap/screens/onboarding/onboarding_screen.dart';
+// Onboarding הוסר - הוחלף ב-Tutorial אינטראקטיבי
+// import 'package:memozap/screens/onboarding/onboarding_screen.dart';
 import 'package:memozap/screens/pantry/my_pantry_screen.dart';
 import 'package:memozap/screens/shopping/active/active_shopping_screen.dart';
 import 'package:memozap/screens/shopping/create/create_list_screen.dart';
@@ -300,7 +301,6 @@ class _MyAppState extends State<MyApp> {
           home: const IndexScreen(),
           routes: {
             '/home': (context) => const MainNavigationScreen(),
-            '/onboarding': (context) => const OnboardingScreen(),
             '/login': (context) => const auth_login.LoginScreen(),
             '/register': (context) => const auth_register.RegisterScreen(),
 

@@ -60,6 +60,8 @@ import 'package:memozap/widgets/common/sticky_note.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../services/tutorial_service.dart';
+
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -902,6 +904,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         trailing: const Icon(Icons.chevron_left),
                         onTap: () {
                           Navigator.pushNamed(context, '/pending-invites');
+                        },
+                      ),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: Icon(Icons.school_outlined, color: cs.primary),
+                        title: const Text('הצג הדרכה מחדש'),
+                        subtitle: const Text('צפה שוב בהדרכת האפליקציה'),
+                        trailing: const Icon(Icons.chevron_left),
+                        onTap: () async {
+                          await TutorialService.resetTutorial();
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('ההדרכה תוצג בכניסה הבאה לדף הבית'),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
                         },
                       ),
                     ],

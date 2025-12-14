@@ -53,7 +53,7 @@ class WelcomeScreen extends StatelessWidget {
 
   /// מטפל בלחיצה על כפתור הרשמה
   void _handleRegister(BuildContext context) {
-    Navigator.pushNamed(context, '/onboarding');
+    Navigator.pushNamed(context, '/register');
   }
 
   @override

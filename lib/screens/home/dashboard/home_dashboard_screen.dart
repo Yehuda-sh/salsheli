@@ -30,6 +30,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/ui_constants.dart';
+import '../../../services/tutorial_service.dart';
 import '../../../l10n/app_strings.dart';
 import '../../../models/shopping_list.dart';
 import '../../../providers/shopping_lists_provider.dart';
@@ -55,6 +56,13 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     if (kDebugMode) {
       debugPrint('🏠 HomeDashboardScreen.initState()');
     }
+
+    // 📚 הצג הדרכה למשתמשים חדשים
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        TutorialService.showHomeTutorialIfNeeded(context);
+      }
+    });
   }
 
   @override
