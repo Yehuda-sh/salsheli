@@ -553,6 +553,30 @@ class ShoppingListsProvider with ChangeNotifier {
     debugPrint('✅ updateItemAt: פריט #$index עודכן');
   }
 
+  // === Update Item By ID ===
+  /// עדכון פריט לפי ID (שימושי לרשימות "מי מביא")
+  Future<void> updateItemById(String listId, UnifiedListItem updatedItem) async {
+    debugPrint('📝 updateItemById: מעדכן פריט ${updatedItem.id} ברשימה $listId');
+    final list = getById(listId);
+    if (list == null) {
+      debugPrint('❌ updateItemById: רשימה $listId לא נמצאה');
+      throw Exception('רשימה $listId לא נמצאה');
+    }
+
+    final index = list.items.indexWhere((item) => item.id == updatedItem.id);
+    if (index == -1) {
+      debugPrint('❌ updateItemById: פריט ${updatedItem.id} לא נמצא');
+      throw Exception('פריט ${updatedItem.id} לא נמצא');
+    }
+
+    final newItems = List<UnifiedListItem>.from(list.items);
+    newItems[index] = updatedItem;
+
+    final updatedList = list.copyWith(items: newItems);
+    await updateList(updatedList);
+    debugPrint('✅ updateItemById: פריט ${updatedItem.id} עודכן');
+  }
+
   // === Toggle All Items Checked ===
   Future<void> toggleAllItemsChecked(String listId, bool isChecked) async {
     debugPrint('✔️ toggleAllItemsChecked: מסמן הכל = $isChecked ברשימה $listId');

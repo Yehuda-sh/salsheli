@@ -31,6 +31,11 @@ class FirestoreCollections {
   static const String notifications = 'notifications';
   static const String pendingInvites = 'pending_invites';
   static const String savedContacts = 'saved_contacts';
+  static const String userInventory = 'inventory'; // מזווה אישי
+
+  // === Groups collection ===
+  static const String groups = 'groups';
+  static const String groupInventory = 'inventory'; // מזווה קבוצתי
 
   // === Household subcollections ===
   static const String sharedLists = 'shared_lists';

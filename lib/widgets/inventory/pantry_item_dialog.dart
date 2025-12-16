@@ -7,16 +7,21 @@
 // - ולידציה מלאה של שדות
 // - בחירת מיקום אחסון עם אמוג'י
 // - תצוגה אדפטיבית לפי theme
+// - תאריך תפוגה (DatePicker)
+// - הערות (TextField)
+// - מוצר קבוע (Checkbox)
+// - סטטיסטיקות קנייה (read-only)
 //
 // 🔗 Dependencies:
 // - InventoryItem: המודל של הפריט
 // - StorageLocationsConfig: הגדרות מיקומים
 // - InventoryProvider: ניהול state
 //
-// Version: 1.0
-// Last Updated: 26/10/2025
+// Version: 2.0
+// Last Updated: 16/12/2025
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import 'package:provider/provider.dart';
 
 import '../../config/filters_config.dart';
@@ -90,8 +95,13 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
   late final TextEditingController _quantityController;
   late final TextEditingController _unitController;
   late final TextEditingController _minQuantityController;
+  late final TextEditingController _notesController;
   late String _selectedCategory;
   late String _selectedLocation;
+
+  // שדות חדשים v3.0
+  DateTime? _expiryDate;
+  bool _isRecurring = false;
 
   bool _isLoading = false;
 
@@ -108,14 +118,19 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
       _unitController = TextEditingController(text: item.unit);
       _minQuantityController =
           TextEditingController(text: item.minQuantity.toString());
+      _notesController = TextEditingController(text: item.notes ?? '');
       // המר קטגוריה עברית למפתח אנגלית, או השתמש ב-other כברירת מחדל
       _selectedCategory = hebrewCategoryToEnglish(item.category) ?? 'other';
       _selectedLocation = item.location;
+      // שדות חדשים
+      _expiryDate = item.expiryDate;
+      _isRecurring = item.isRecurring;
     } else {
       _nameController = TextEditingController();
       _quantityController = TextEditingController(text: '1');
       _unitController = TextEditingController(text: 'יח\'');
       _minQuantityController = TextEditingController(text: '2');
+      _notesController = TextEditingController();
       _selectedCategory = 'other';
       _selectedLocation = StorageLocationsConfig.mainPantry;
     }
@@ -127,7 +142,93 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
     _quantityController.dispose();
     _unitController.dispose();
     _minQuantityController.dispose();
+    _notesController.dispose();
     super.dispose();
+  }
+
+  /// בונה widget סטטיסטיקות
+  Widget _buildStatistics(InventoryItem item, ColorScheme cs) {
+    final dateFormat = DateFormat('dd/MM/yyyy');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'סטטיסטיקות',
+          style: TextStyle(
+            fontSize: kFontSizeSmall,
+            fontWeight: FontWeight.bold,
+            color: cs.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: kSpacingSmall),
+        Row(
+          children: [
+            const Icon(Icons.shopping_cart, size: 16),
+            const SizedBox(width: 4),
+            Text(
+              'נקנה ${item.purchaseCount} פעמים',
+              style: TextStyle(
+                fontSize: kFontSizeSmall,
+                color: cs.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+        if (item.lastPurchased != null) ...[
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              const Icon(Icons.history, size: 16),
+              const SizedBox(width: 4),
+              Text(
+                'קנייה אחרונה: ${dateFormat.format(item.lastPurchased!)}',
+                style: TextStyle(
+                  fontSize: kFontSizeSmall,
+                  color: cs.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ],
+        if (item.isPopular) ...[
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              const Icon(Icons.trending_up, size: 16, color: Colors.green),
+              const SizedBox(width: 4),
+              Text(
+                'מוצר פופולרי!',
+                style: TextStyle(
+                  fontSize: kFontSizeSmall,
+                  color: Colors.green[700],
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+
+  /// בחירת תאריך תפוגה
+  Future<void> _selectExpiryDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _expiryDate ?? now.add(const Duration(days: 30)),
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 365 * 5)),
+      locale: const Locale('he', 'IL'),
+      helpText: 'בחר תאריך תפוגה',
+      cancelText: 'ביטול',
+      confirmText: 'אישור',
+    );
+
+    if (picked != null) {
+      setState(() => _expiryDate = picked);
+    }
   }
 
   /// מבצע ולידציה ושומר את הפריט
@@ -149,6 +250,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
     // שמור את הקטגוריה בעברית (לתאימות עם שאר המערכת)
     final category = getCategoryLabel(_selectedCategory);
     final unit = _unitController.text.trim();
+    final notes = _notesController.text.trim().isEmpty ? null : _notesController.text.trim();
 
     setState(() => _isLoading = true);
 
@@ -163,6 +265,9 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
           quantity: quantity,
           unit: unit,
           minQuantity: minQuantity,
+          expiryDate: _expiryDate,
+          notes: notes,
+          isRecurring: _isRecurring,
         );
       } else {
         final updatedItem = widget.item!.copyWith(
@@ -172,6 +277,11 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
           quantity: quantity,
           unit: unit,
           minQuantity: minQuantity,
+          expiryDate: _expiryDate,
+          clearExpiryDate: _expiryDate == null && widget.item!.expiryDate != null,
+          notes: notes,
+          clearNotes: notes == null && widget.item!.notes != null,
+          isRecurring: _isRecurring,
         );
         await provider.updateItem(updatedItem);
       }
@@ -403,6 +513,88 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                   );
                 },
               ),
+              const SizedBox(height: kSpacingMedium),
+
+              // === שדות חדשים v3.0 ===
+
+              // תאריך תפוגה
+              InkWell(
+                onTap: _isLoading ? null : _selectExpiryDate,
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    labelText: 'תאריך תפוגה',
+                    labelStyle: TextStyle(color: cs.onSurfaceVariant),
+                    suffixIcon: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (_expiryDate != null)
+                          IconButton(
+                            icon: const Icon(Icons.clear, size: 18),
+                            onPressed: _isLoading
+                                ? null
+                                : () => setState(() => _expiryDate = null),
+                            tooltip: 'נקה תאריך',
+                          ),
+                        const Icon(Icons.calendar_today, size: 18),
+                      ],
+                    ),
+                  ),
+                  child: Text(
+                    _expiryDate != null
+                        ? DateFormat('dd/MM/yyyy').format(_expiryDate!)
+                        : 'לא הוגדר',
+                    style: TextStyle(
+                      color: _expiryDate != null
+                          ? cs.onSurface
+                          : cs.onSurfaceVariant.withValues(alpha: 0.5),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: kSpacingMedium),
+
+              // הערות
+              TextField(
+                controller: _notesController,
+                style: TextStyle(color: cs.onSurface),
+                maxLines: 2,
+                decoration: InputDecoration(
+                  labelText: 'הערות',
+                  labelStyle: TextStyle(color: cs.onSurfaceVariant),
+                  hintText: 'הערות נוספות (אופציונלי)',
+                  hintStyle: TextStyle(
+                    color: cs.onSurfaceVariant.withValues(alpha: 0.5),
+                  ),
+                ),
+                enabled: !_isLoading,
+              ),
+              const SizedBox(height: kSpacingSmall),
+
+              // מוצר קבוע
+              CheckboxListTile(
+                value: _isRecurring,
+                onChanged: _isLoading
+                    ? null
+                    : (val) => setState(() => _isRecurring = val ?? false),
+                title: const Text('מוצר קבוע'),
+                subtitle: const Text(
+                  'יתווסף אוטומטית לרשימות חדשות',
+                  style: TextStyle(fontSize: 12),
+                ),
+                secondary: Icon(
+                  _isRecurring ? Icons.star : Icons.star_border,
+                  color: _isRecurring ? Colors.amber : cs.onSurfaceVariant,
+                ),
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+              ),
+
+              // סטטיסטיקות (רק במצב עריכה)
+              if (widget.mode == PantryItemDialogMode.edit &&
+                  widget.item != null) ...[
+                const Divider(),
+                _buildStatistics(widget.item!, cs),
+              ],
             ],
           ),
         ),

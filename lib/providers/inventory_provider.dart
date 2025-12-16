@@ -1,47 +1,80 @@
 // 📄 File: lib/providers/inventory_provider.dart
+// Version: 4.0
+// Last Updated: 16/12/2025
+//
+// ✅ Improvements in v4.0:
+// - תמיכה במזווה אישי (/users/{userId}/inventory)
+// - תמיכה במזווה קבוצתי (/groups/{groupId}/inventory)
+// - זיהוי אוטומטי של מיקום מזווה לפי חברות בקבוצת משפחה
+// - העברת מזווה אישי לקבוצה בעת הצטרפות
+// - מחיקת מזווה אישי בעת הצטרפות לקבוצה
 //
 // 🇮🇱 מנהל את פריטי המלאי (Inventory) עם טעינה בטוחה וסנכרון אוטומטי:
-//     - טוען פריטים מ-Repository לפי household_id
-//     - מאזין לשינויים ב-UserContext ומריענן אוטומטית
+//     - זיהוי אוטומטי: user inventory או group inventory
+//     - מאזין לשינויים ב-UserContext וב-GroupsProvider
 //     - מספק CRUD מלא עם error handling
 //     - אופטימיזציה: עדכון local במקום ריענון מלא
 //     - פילטרים נוחים: לפי קטגוריה/מיקום
+//     - תמיכה בהעברת מזווה בין אישי לקבוצתי
 //
 // 🇬🇧 Manages inventory items with safe loading and auto-sync:
-//     - Loads items from Repository by household_id
-//     - Listens to UserContext changes and auto-refreshes
+//     - Auto-detect: user inventory vs group inventory
+//     - Listens to UserContext and GroupsProvider changes
 //     - Provides full CRUD with error handling
 //     - Optimization: local updates instead of full reload
 //     - Convenient filters: by category/location
+//     - Support for transferring inventory between personal and group
 //
 // Dependencies:
-//     - InventoryRepository: data source
-//     - UserContext: household_id + auth state
+//     - InventoryRepository: data source (user & group inventory)
+//     - UserContext: user auth state
+//     - GroupsProvider: detect family group membership
 //
 // Usage:
 //     final provider = context.watch<InventoryProvider>();
 //     await provider.createItem(productName: 'חלב', ...);
 //     final milkItems = provider.itemsByCategory('מוצרי חלב');
+//
+//     // העברת מזווה לקבוצה
+//     await provider.transferToGroup(groupId);
 
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
+
+import '../models/enums/item_type.dart';
+import '../models/group.dart';
 import '../models/inventory_item.dart';
 import '../models/unified_list_item.dart';
-import '../models/enums/item_type.dart';
 import '../repositories/inventory_repository.dart';
+import 'groups_provider.dart';
 import 'user_context.dart';
+
+/// מיקום המזווה הנוכחי
+enum InventoryMode {
+  /// מזווה אישי - /users/{userId}/inventory
+  personal,
+
+  /// מזווה קבוצתי - /groups/{groupId}/inventory
+  group,
+}
 
 class InventoryProvider with ChangeNotifier {
   final InventoryRepository _repository;
   UserContext? _userContext;
-  bool _listening = false;
+  GroupsProvider? _groupsProvider;
+  bool _listeningToUser = false;
+  bool _listeningToGroups = false;
   bool _hasInitialized = false; // מניעת אתחול כפול
 
   bool _isLoading = false;
   String? _errorMessage;
   List<InventoryItem> _items = [];
 
-  static final Uuid _uuid = Uuid();
+  // מצב מזווה נוכחי
+  InventoryMode _currentMode = InventoryMode.personal;
+  String? _currentGroupId; // ID של הקבוצה אם במצב group
+
+  static const Uuid _uuid = Uuid();
   Future<void>? _loadingFuture; // מניעת טעינות כפולות
 
   InventoryProvider({
@@ -58,8 +91,20 @@ class InventoryProvider with ChangeNotifier {
   bool get isEmpty => _items.isEmpty;
   List<InventoryItem> get items => List.unmodifiable(_items);
 
+  /// מצב המזווה הנוכחי (אישי או קבוצתי)
+  InventoryMode get currentMode => _currentMode;
+
+  /// האם המזווה הוא קבוצתי
+  bool get isGroupMode => _currentMode == InventoryMode.group;
+
+  /// ID של הקבוצה הנוכחית (null אם מזווה אישי)
+  String? get currentGroupId => _currentGroupId;
+
+  /// שם המזווה להצגה
+  String get inventoryTitle => isGroupMode ? 'מזווה משותף' : 'המזווה שלי';
+
   // === חיבור UserContext ===
-  
+
   /// מעדכן את ה-UserContext ומאזין לשינויים
   /// נקרא אוטומטית מ-ProxyProvider
   void updateUserContext(UserContext newContext) {
@@ -68,13 +113,13 @@ class InventoryProvider with ChangeNotifier {
       return;
     }
 
-    if (_listening && _userContext != null) {
+    if (_listeningToUser && _userContext != null) {
       _userContext!.removeListener(_onUserChanged);
-      _listening = false;
+      _listeningToUser = false;
     }
     _userContext = newContext;
     _userContext!.addListener(_onUserChanged);
-    _listening = true;
+    _listeningToUser = true;
 
     // אתחול רק בפעם הראשונה
     if (!_hasInitialized) {
@@ -83,16 +128,93 @@ class InventoryProvider with ChangeNotifier {
     }
   }
 
+  /// מעדכן את ה-GroupsProvider ומאזין לשינויים
+  /// נקרא אוטומטית מ-ProxyProvider
+  void updateGroupsProvider(GroupsProvider? newProvider) {
+    if (_groupsProvider == newProvider) return;
+
+    if (_listeningToGroups && _groupsProvider != null) {
+      _groupsProvider!.removeListener(_onGroupsChanged);
+      _listeningToGroups = false;
+    }
+
+    _groupsProvider = newProvider;
+    if (newProvider != null) {
+      newProvider.addListener(_onGroupsChanged);
+      _listeningToGroups = true;
+      // עדכון מיקום מזווה בהתבסס על קבוצות
+      _updateInventoryLocation();
+    }
+  }
+
   void _onUserChanged() {
-    _loadItems();
+    _updateInventoryLocation();
+  }
+
+  void _onGroupsChanged() {
+    _updateInventoryLocation();
   }
 
   void _initialize() {
-    _loadItems();  // _doLoad יטפל בכל הלוגיקה (מחובר/לא מחובר)
+    _updateInventoryLocation();
+  }
+
+  /// מזהה את מיקום המזווה הנכון וטוען את הפריטים
+  void _updateInventoryLocation() {
+    final userId = _userContext?.userId;
+    if (userId == null || _userContext?.isLoggedIn != true) {
+      _currentMode = InventoryMode.personal;
+      _currentGroupId = null;
+      _items = [];
+      notifyListeners();
+      return;
+    }
+
+    // חפש קבוצה עם מזווה משותף (family/roommates)
+    final pantryGroup = _findPantryGroup(userId);
+
+    if (pantryGroup != null) {
+      // יש קבוצה עם מזווה - עבור למצב קבוצתי
+      final newGroupId = pantryGroup.id;
+      if (_currentMode != InventoryMode.group || _currentGroupId != newGroupId) {
+        _currentMode = InventoryMode.group;
+        _currentGroupId = newGroupId;
+        if (kDebugMode) {
+          debugPrint('🏠 InventoryProvider: מעבר למזווה קבוצתי - ${pantryGroup.name}');
+        }
+        _loadItems();
+      }
+    } else {
+      // אין קבוצה עם מזווה - מצב אישי
+      if (_currentMode != InventoryMode.personal) {
+        _currentMode = InventoryMode.personal;
+        _currentGroupId = null;
+        if (kDebugMode) {
+          debugPrint('👤 InventoryProvider: מעבר למזווה אישי');
+        }
+        _loadItems();
+      } else if (_items.isEmpty && !_isLoading) {
+        // טעינה ראשונית
+        _loadItems();
+      }
+    }
+  }
+
+  /// מוצא קבוצה עם מזווה משותף שהמשתמש חבר בה
+  Group? _findPantryGroup(String userId) {
+    if (_groupsProvider == null) return null;
+
+    // חפש קבוצה מסוג family או roommates (hasPantry=true)
+    for (final group in _groupsProvider!.groups) {
+      if (group.type.hasPantry && group.isMember(userId)) {
+        return group;
+      }
+    }
+    return null;
   }
 
   // === טעינת פריטים ===
-  
+
   Future<void> _loadItems() {
     if (_loadingFuture != null) {
       return _loadingFuture!;
@@ -103,8 +225,8 @@ class InventoryProvider with ChangeNotifier {
   }
 
   Future<void> _doLoad() async {
-    final householdId = _userContext?.user?.householdId;
-    if (_userContext?.isLoggedIn != true || householdId == null) {
+    final userId = _userContext?.userId;
+    if (_userContext?.isLoggedIn != true || userId == null) {
       _items = [];
       notifyListeners();
       return;
@@ -115,7 +237,19 @@ class InventoryProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      _items = await _repository.fetchItems(householdId);
+      if (_currentMode == InventoryMode.group && _currentGroupId != null) {
+        // טעינה ממזווה קבוצתי
+        if (kDebugMode) {
+          debugPrint('📦 InventoryProvider: טוען ממזווה קבוצתי $_currentGroupId');
+        }
+        _items = await _repository.fetchGroupItems(_currentGroupId!);
+      } else {
+        // טעינה ממזווה אישי
+        if (kDebugMode) {
+          debugPrint('📦 InventoryProvider: טוען ממזווה אישי $userId');
+        }
+        _items = await _repository.fetchUserItems(userId);
+      }
     } catch (e, st) {
       _errorMessage = 'שגיאה בטעינת מלאי: $e';
       debugPrint('❌ InventoryProvider._doLoad: שגיאה - $e');
@@ -137,9 +271,9 @@ class InventoryProvider with ChangeNotifier {
   }
 
   // === יצירה/עדכון/מחיקה ===
-  
+
   /// יוצר פריט מלאי חדש ומוסיף לרשימה
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final item = await inventoryProvider.createItem(
@@ -157,10 +291,14 @@ class InventoryProvider with ChangeNotifier {
     int quantity = 1,
     String unit = "יח'",
     int minQuantity = 2,
+    DateTime? expiryDate,
+    String? notes,
+    bool isRecurring = false,
+    String? emoji,
   }) async {
-    final householdId = _userContext?.user?.householdId;
-    if (householdId == null) {
-      throw Exception('❌ householdId לא נמצא');
+    final userId = _userContext?.userId;
+    if (userId == null) {
+      throw Exception('❌ משתמש לא מחובר');
     }
 
     try {
@@ -172,12 +310,21 @@ class InventoryProvider with ChangeNotifier {
         quantity: quantity,
         unit: unit,
         minQuantity: minQuantity,
+        expiryDate: expiryDate,
+        notes: notes,
+        isRecurring: isRecurring,
+        emoji: emoji,
       );
 
-      await _repository.saveItem(newItem, householdId);
+      // שמירה למיקום הנכון
+      if (_currentMode == InventoryMode.group && _currentGroupId != null) {
+        await _repository.saveGroupItem(newItem, _currentGroupId!);
+      } else {
+        await _repository.saveUserItem(newItem, userId);
+      }
 
       // אופטימיזציה: הוספה local במקום ריענון מלא
-      _items.add(newItem);
+      _items = [..._items, newItem];
       notifyListeners();
 
       return newItem;
@@ -190,20 +337,23 @@ class InventoryProvider with ChangeNotifier {
   }
 
   /// מעדכן פריט קיים במלאי
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final updatedItem = item.copyWith(quantity: 5);
   /// await inventoryProvider.updateItem(updatedItem);
   /// ```
   Future<void> updateItem(InventoryItem item) async {
-    final householdId = _userContext?.user?.householdId;
-    if (householdId == null) {
-      return;
-    }
+    final userId = _userContext?.userId;
+    if (userId == null) return;
 
     try {
-      await _repository.saveItem(item, householdId);
+      // שמירה למיקום הנכון
+      if (_currentMode == InventoryMode.group && _currentGroupId != null) {
+        await _repository.saveGroupItem(item, _currentGroupId!);
+      } else {
+        await _repository.saveUserItem(item, userId);
+      }
 
       // עדכון local - יוצר רשימה חדשה כדי ש-Flutter יזהה את השינוי
       final index = _items.indexWhere((i) => i.id == item.id);
@@ -222,19 +372,22 @@ class InventoryProvider with ChangeNotifier {
   }
 
   /// מחיק פריט מהמלאי
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// await inventoryProvider.deleteItem(item.id);
   /// ```
   Future<void> deleteItem(String id) async {
-    final householdId = _userContext?.user?.householdId;
-    if (householdId == null) {
-      return;
-    }
+    final userId = _userContext?.userId;
+    if (userId == null) return;
 
     try {
-      await _repository.deleteItem(id, householdId);
+      // מחיקה מהמיקום הנכון
+      if (_currentMode == InventoryMode.group && _currentGroupId != null) {
+        await _repository.deleteGroupItem(id, _currentGroupId!);
+      } else {
+        await _repository.deleteUserItem(id, userId);
+      }
 
       // מחיקה local - יוצר רשימה חדשה כדי ש-Flutter יזהה את השינוי
       _items = _items.where((i) => i.id != id).toList();
@@ -301,16 +454,14 @@ class InventoryProvider with ChangeNotifier {
   }
 
   /// מוסיף מלאי למוצר קיים (חיבור!)
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// await provider.addStock('חלב', 2); // +2 יחידות
   /// ```
   Future<void> addStock(String productName, int quantity) async {
-    final householdId = _userContext?.user?.householdId;
-    if (householdId == null) {
-      return;
-    }
+    final userId = _userContext?.userId;
+    if (userId == null) return;
 
     try {
       // מצא פריט לפי שם
@@ -322,12 +473,17 @@ class InventoryProvider with ChangeNotifier {
           quantity: existingItem.quantity + quantity,
         );
 
-        await _repository.saveItem(updatedItem, householdId);
+        // שמירה למיקום הנכון
+        if (_currentMode == InventoryMode.group && _currentGroupId != null) {
+          await _repository.saveGroupItem(updatedItem, _currentGroupId!);
+        } else {
+          await _repository.saveUserItem(updatedItem, userId);
+        }
 
         // עדכון local
         final index = _items.indexWhere((i) => i.id == existingItem.id);
         if (index != -1) {
-          _items[index] = updatedItem;
+          _items = List.from(_items)..[index] = updatedItem;
           notifyListeners();
         }
       }
@@ -376,7 +532,7 @@ class InventoryProvider with ChangeNotifier {
   }
 
   /// מחזיר פריטים לפי מיקום
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final fridgeItems = provider.itemsByLocation('מקרר');
@@ -385,12 +541,125 @@ class InventoryProvider with ChangeNotifier {
     return _items.where((i) => i.location == location).toList();
   }
 
+  // === העברת מזווה ===
+
+  /// בודק אם למשתמש יש פריטים במזווה האישי
+  ///
+  /// שימושי לפני הצטרפות לקבוצה - כדי לשאול אם להעביר את המזווה
+  Future<bool> hasPersonalInventory() async {
+    final userId = _userContext?.userId;
+    if (userId == null) return false;
+
+    try {
+      final userItems = await _repository.fetchUserItems(userId);
+      return userItems.isNotEmpty;
+    } catch (e) {
+      debugPrint('❌ hasPersonalInventory: שגיאה - $e');
+      return false;
+    }
+  }
+
+  /// מחזיר את מספר הפריטים במזווה האישי
+  Future<int> getPersonalInventoryCount() async {
+    final userId = _userContext?.userId;
+    if (userId == null) return 0;
+
+    try {
+      final userItems = await _repository.fetchUserItems(userId);
+      return userItems.length;
+    } catch (e) {
+      debugPrint('❌ getPersonalInventoryCount: שגיאה - $e');
+      return 0;
+    }
+  }
+
+  /// מעביר את כל המזווה האישי לקבוצה
+  ///
+  /// משמש בעת הצטרפות לקבוצה עם מזווה (משפחה/שותפים)
+  ///
+  /// Example:
+  /// ```dart
+  /// final count = await provider.transferToGroup('grp_xxx');
+  /// print('הועברו $count פריטים לקבוצה');
+  /// ```
+  Future<int> transferToGroup(String groupId) async {
+    final userId = _userContext?.userId;
+    if (userId == null) {
+      throw Exception('❌ משתמש לא מחובר');
+    }
+
+    try {
+      if (kDebugMode) {
+        debugPrint('📦 InventoryProvider: מעביר מזווה אישי לקבוצה $groupId');
+      }
+
+      final transferredCount = await _repository.transferUserItemsToGroup(
+        userId,
+        groupId,
+      );
+
+      if (kDebugMode) {
+        debugPrint('✅ InventoryProvider: הועברו $transferredCount פריטים');
+      }
+
+      // עדכון המצב לקבוצתי וטעינה מחדש
+      _currentMode = InventoryMode.group;
+      _currentGroupId = groupId;
+      await _loadItems();
+
+      return transferredCount;
+    } catch (e) {
+      debugPrint('❌ InventoryProvider.transferToGroup: שגיאה - $e');
+      _errorMessage = 'שגיאה בהעברת מזווה לקבוצה';
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  /// מוחק את כל המזווה האישי
+  ///
+  /// משמש בעת הצטרפות לקבוצה - אם המשתמש בוחר לא להעביר
+  ///
+  /// Example:
+  /// ```dart
+  /// final count = await provider.deletePersonalInventory();
+  /// print('נמחקו $count פריטים');
+  /// ```
+  Future<int> deletePersonalInventory() async {
+    final userId = _userContext?.userId;
+    if (userId == null) {
+      throw Exception('❌ משתמש לא מחובר');
+    }
+
+    try {
+      if (kDebugMode) {
+        debugPrint('🗑️ InventoryProvider: מוחק מזווה אישי של $userId');
+      }
+
+      final deletedCount = await _repository.deleteAllUserItems(userId);
+
+      if (kDebugMode) {
+        debugPrint('✅ InventoryProvider: נמחקו $deletedCount פריטים');
+      }
+
+      return deletedCount;
+    } catch (e) {
+      debugPrint('❌ InventoryProvider.deletePersonalInventory: שגיאה - $e');
+      _errorMessage = 'שגיאה במחיקת מזווה אישי';
+      notifyListeners();
+      rethrow;
+    }
+  }
+
   // === Cleanup ===
 
   @override
   void dispose() {
-    if (_listening && _userContext != null) {
+    if (_listeningToUser && _userContext != null) {
       _userContext!.removeListener(_onUserChanged);
+    }
+    if (_listeningToGroups && _groupsProvider != null) {
+      _groupsProvider!.removeListener(_onGroupsChanged);
     }
 
     super.dispose();

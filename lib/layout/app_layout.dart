@@ -448,14 +448,14 @@ class _NavItem {
 }
 
 /// 📋 Navigation Items List
-/// 
+///
 /// Note: Uses AppStrings for consistent i18n support.
 /// These items define the bottom navigation structure.
-/// Version 3.2: Removed Receipts tab - accessible via Settings → "הקבלות שלי"
+/// Version 4.0: New navigation - Home | Family | Groups | Settings
 final List<_NavItem> _navItems = [
   _NavItem(icon: Icons.home, label: AppStrings.navigation.home),
-  _NavItem(icon: Icons.shopping_cart, label: AppStrings.navigation.lists),
-  _NavItem(icon: Icons.inventory, label: AppStrings.navigation.pantry),
+  _NavItem(icon: Icons.family_restroom, label: AppStrings.navigation.family),
+  _NavItem(icon: Icons.groups, label: AppStrings.navigation.groups),
   _NavItem(icon: Icons.settings, label: AppStrings.navigation.settings),
 ];
 

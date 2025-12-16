@@ -22,7 +22,10 @@
       "Bash(rm:*)",
       "Bash(rmdir:*)",
       "Bash(ls:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(dart pub get:*)",
+      "Bash(dart --version:*)",
+      "Bash(dart analyze:*)"
     ],
     "deny": [],
     "ask": []

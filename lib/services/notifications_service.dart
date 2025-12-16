@@ -201,6 +201,185 @@ class NotificationsService {
   }
 
   // ============================================================
+  // STAGE 6: NEW NOTIFICATION TYPES
+  // ============================================================
+
+  /// 👥 Create group invite notification
+  /// User invited to a group
+  Future<void> createGroupInviteNotification({
+    required String userId,
+    required String householdId,
+    required String groupId,
+    required String groupName,
+    required String inviterName,
+  }) async {
+    final notification = AppNotification(
+      id: _uuid.v4(),
+      userId: userId,
+      householdId: householdId,
+      type: NotificationType.groupInvite,
+      title: 'הזמנה לקבוצה',
+      message: '$inviterName הזמין אותך להצטרף לקבוצה "$groupName"',
+      actionData: {
+        'groupId': groupId,
+        'groupName': groupName,
+        'inviterName': inviterName,
+      },
+      createdAt: DateTime.now(),
+    );
+
+    await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
+  }
+
+  /// 🙋 Create "who brings" volunteer notification
+  /// Someone volunteered to bring an item
+  Future<void> createWhoBringsVolunteerNotification({
+    required String userId,
+    required String householdId,
+    required String listId,
+    required String listName,
+    required String itemName,
+    required String volunteerName,
+  }) async {
+    final notification = AppNotification(
+      id: _uuid.v4(),
+      userId: userId,
+      householdId: householdId,
+      type: NotificationType.whoBringsVolunteer,
+      title: 'התנדבות חדשה 🙋',
+      message: '$volunteerName התנדב להביא "$itemName" לרשימה "$listName"',
+      actionData: {
+        'listId': listId,
+        'listName': listName,
+        'itemName': itemName,
+        'volunteerName': volunteerName,
+      },
+      createdAt: DateTime.now(),
+    );
+
+    await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
+  }
+
+  /// 🗳️ Create new vote notification
+  /// Someone voted on an item
+  Future<void> createNewVoteNotification({
+    required String userId,
+    required String householdId,
+    required String listId,
+    required String listName,
+    required String itemName,
+    required String voterName,
+    required String voteType, // 'for', 'against', 'abstain'
+  }) async {
+    final voteEmoji = voteType == 'for' ? '👍' : (voteType == 'against' ? '👎' : '🤷');
+    final voteHebrew = voteType == 'for' ? 'בעד' : (voteType == 'against' ? 'נגד' : 'נמנע');
+
+    final notification = AppNotification(
+      id: _uuid.v4(),
+      userId: userId,
+      householdId: householdId,
+      type: NotificationType.newVote,
+      title: 'הצבעה חדשה $voteEmoji',
+      message: '$voterName הצביע $voteHebrew ב"$itemName" ברשימה "$listName"',
+      actionData: {
+        'listId': listId,
+        'listName': listName,
+        'itemName': itemName,
+        'voterName': voterName,
+        'voteType': voteType,
+      },
+      createdAt: DateTime.now(),
+    );
+
+    await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
+  }
+
+  /// ⚖️ Create vote tie notification (for owners)
+  /// Voting ended in a tie
+  Future<void> createVoteTieNotification({
+    required String userId,
+    required String householdId,
+    required String listId,
+    required String listName,
+    required String itemName,
+    required int votesFor,
+    required int votesAgainst,
+  }) async {
+    final notification = AppNotification(
+      id: _uuid.v4(),
+      userId: userId,
+      householdId: householdId,
+      type: NotificationType.voteTie,
+      title: 'תיקו בהצבעה ⚖️',
+      message: 'ההצבעה על "$itemName" ברשימה "$listName" הסתיימה בתיקו ($votesFor-$votesAgainst). נדרשת החלטת בעלים.',
+      actionData: {
+        'listId': listId,
+        'listName': listName,
+        'itemName': itemName,
+        'votesFor': votesFor,
+        'votesAgainst': votesAgainst,
+      },
+      createdAt: DateTime.now(),
+    );
+
+    await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
+  }
+
+  /// 👋 Create member left notification (for admins)
+  /// A member left the group
+  Future<void> createMemberLeftNotification({
+    required String userId,
+    required String householdId,
+    required String groupId,
+    required String groupName,
+    required String memberName,
+  }) async {
+    final notification = AppNotification(
+      id: _uuid.v4(),
+      userId: userId,
+      householdId: householdId,
+      type: NotificationType.memberLeft,
+      title: 'חבר עזב את הקבוצה 👋',
+      message: '$memberName עזב את הקבוצה "$groupName"',
+      actionData: {
+        'groupId': groupId,
+        'groupName': groupName,
+        'memberName': memberName,
+      },
+      createdAt: DateTime.now(),
+    );
+
+    await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
+  }
+
+  /// 📦 Create low stock notification (for household)
+  /// An item is running low
+  Future<void> createLowStockNotification({
+    required String userId,
+    required String householdId,
+    required String productName,
+    required int currentStock,
+    required int minStock,
+  }) async {
+    final notification = AppNotification(
+      id: _uuid.v4(),
+      userId: userId,
+      householdId: householdId,
+      type: NotificationType.lowStock,
+      title: 'מלאי נמוך 📦',
+      message: 'המלאי של "$productName" נמוך ($currentStock יחידות). מומלץ להוסיף לרשימת קניות.',
+      actionData: {
+        'productName': productName,
+        'currentStock': currentStock,
+        'minStock': minStock,
+      },
+      createdAt: DateTime.now(),
+    );
+
+    await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
+  }
+
+  // ============================================================
   // QUERY NOTIFICATIONS
   // ============================================================
 

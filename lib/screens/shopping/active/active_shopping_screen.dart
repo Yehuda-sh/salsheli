@@ -41,10 +41,12 @@ import '../../../core/status_colors.dart';
 import '../../../core/ui_constants.dart';
 import '../../../l10n/app_strings.dart';
 import '../../../models/enums/shopping_item_status.dart';
+import '../../../models/receipt.dart';
 import '../../../models/shopping_list.dart';
 import '../../../models/unified_list_item.dart';
 import '../../../providers/inventory_provider.dart';
 import '../../../providers/products_provider.dart';
+import '../../../providers/receipt_provider.dart';
 import '../../../providers/shopping_lists_provider.dart';
 import '../../../providers/user_context.dart';
 import '../../../services/shopping_patterns_service.dart';
@@ -219,6 +221,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
       // 🔧 שמור providers לפני כל await
       final inventoryProvider = context.read<InventoryProvider>();
       final shoppingProvider = context.read<ShoppingListsProvider>();
+      final receiptProvider = context.read<ReceiptProvider>();
 
       // 1️⃣ עדכן מלאי - רק פריטים שנקנו ✅
       final purchasedItems = widget.list.items.where((item) {
@@ -278,6 +281,35 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
       } else {
         debugPrint('🔄 הרשימה נשארת פעילה - ${pendingItems.length} פריטים לא סומנו');
         debugPrint('   פריטים שלא סומנו: ${pendingItems.map((i) => i.name).join(", ")}');
+      }
+
+      // 4️⃣ צור קבלה וירטואלית מהפריטים שנקנו
+      if (purchasedItems.isNotEmpty) {
+        try {
+          debugPrint('🧾 יוצר קבלה וירטואלית...');
+          final userId = _userContext.user?.id;
+          final listName = widget.list.name;
+
+          // המר UnifiedListItem ל-ReceiptItem
+          final receiptItems = purchasedItems.map((item) => ReceiptItem(
+            id: item.id,
+            name: item.name,
+            quantity: item.quantity ?? 1,
+            isChecked: true,
+            category: item.category,
+            checkedBy: userId,
+            checkedAt: DateTime.now(),
+          )).toList();
+
+          await receiptProvider.createReceipt(
+            storeName: listName,
+            date: DateTime.now(),
+            items: receiptItems,
+          );
+          debugPrint('✅ קבלה וירטואלית נוצרה בהצלחה');
+        } catch (e) {
+          debugPrint('⚠️ יצירת קבלה וירטואלית נכשלה (לא קריטי): $e');
+        }
       }
 
       // ✅ בדוק אם עדיין mounted לפני שימוש ב-context

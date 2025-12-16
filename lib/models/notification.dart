@@ -101,18 +101,38 @@ class AppNotification {
 enum NotificationType {
   @JsonValue('invite')
   invite, // הזמנה לרשימה משותפת
-  
+
   @JsonValue('request_approved')
   requestApproved, // בקשה אושרה
-  
+
   @JsonValue('request_rejected')
   requestRejected, // בקשה נדחתה
-  
+
   @JsonValue('role_changed')
   roleChanged, // תפקיד השתנה
-  
+
   @JsonValue('user_removed')
   userRemoved, // הוסרת מהרשימה
+
+  // === Stage 6: New notification types ===
+
+  @JsonValue('group_invite')
+  groupInvite, // הזמנה לקבוצה
+
+  @JsonValue('who_brings_volunteer')
+  whoBringsVolunteer, // מישהו התנדב להביא פריט
+
+  @JsonValue('new_vote')
+  newVote, // מישהו הצביע בהצבעה
+
+  @JsonValue('vote_tie')
+  voteTie, // תיקו בהצבעה (לבעלים)
+
+  @JsonValue('member_left')
+  memberLeft, // חבר עזב את הקבוצה (לאדמינים)
+
+  @JsonValue('low_stock')
+  lowStock, // מלאי נמוך במזווה
 }
 
 /// Extension for display
@@ -129,9 +149,21 @@ extension NotificationTypeExtension on NotificationType {
         return '🔄';
       case NotificationType.userRemoved:
         return '🚫';
+      case NotificationType.groupInvite:
+        return '👥';
+      case NotificationType.whoBringsVolunteer:
+        return '🙋';
+      case NotificationType.newVote:
+        return '🗳️';
+      case NotificationType.voteTie:
+        return '⚖️';
+      case NotificationType.memberLeft:
+        return '👋';
+      case NotificationType.lowStock:
+        return '📦';
     }
   }
-  
+
   String get hebrewName {
     switch (this) {
       case NotificationType.invite:
@@ -144,6 +176,18 @@ extension NotificationTypeExtension on NotificationType {
         return 'שינוי תפקיד';
       case NotificationType.userRemoved:
         return 'הסרה';
+      case NotificationType.groupInvite:
+        return 'הזמנה לקבוצה';
+      case NotificationType.whoBringsVolunteer:
+        return 'התנדבות';
+      case NotificationType.newVote:
+        return 'הצבעה';
+      case NotificationType.voteTie:
+        return 'תיקו';
+      case NotificationType.memberLeft:
+        return 'עזיבה';
+      case NotificationType.lowStock:
+        return 'מלאי נמוך';
     }
   }
 }

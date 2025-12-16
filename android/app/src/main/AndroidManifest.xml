@@ -1,5 +1,9 @@
 <!-- android/app/src/main/AndroidManifest.xml -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Contacts permission for inviting group members -->
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+
     <application
         android:label="MemoZap"
         android:name="${applicationName}"

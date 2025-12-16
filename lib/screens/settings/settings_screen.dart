@@ -49,10 +49,7 @@ import 'package:flutter/material.dart';
 import 'package:memozap/config/household_config.dart';
 import 'package:memozap/core/ui_constants.dart';
 import 'package:memozap/l10n/app_strings.dart';
-import 'package:memozap/models/shopping_list.dart';
-import 'package:memozap/providers/shopping_lists_provider.dart';
 import 'package:memozap/providers/user_context.dart';
-import 'package:memozap/screens/settings/manage_users_screen.dart';
 import 'package:memozap/widgets/common/notebook_background.dart';
 import 'package:memozap/widgets/common/skeleton_loader.dart';
 import 'package:memozap/widgets/common/sticky_button.dart';
@@ -78,8 +75,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // מצב UI
   String _householdName = 'הקבוצה שלי';
   String _householdType = HouseholdConfig.family; // default
-  bool _isEditingHouseholdName = false;
-  final TextEditingController _householdNameController = TextEditingController();
 
   // הגדרות
   int _familySize = 3;
@@ -92,7 +87,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     debugPrint('⚙️ SettingsScreen: initState');
-    _householdNameController.text = _householdName;
     _familySizeController = TextEditingController(text: _familySize.toString());
     _loadSettings();
   }
@@ -100,7 +94,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void dispose() {
     debugPrint('🗑️ SettingsScreen: dispose');
-    _householdNameController.dispose();
     _familySizeController.dispose();
     super.dispose();
   }
@@ -114,7 +107,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _householdType = prefs.getString(_kHouseholdType) ?? _householdType;
         _familySize = prefs.getInt(_kFamilySize) ?? _familySize;
 
-        _householdNameController.text = _householdName;
         _familySizeController.text = _familySize.toString();
         _loading = false;
         _errorMessage = null;
@@ -157,27 +149,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         );
       }
-    }
-  }
-
-  /// עריכת שם הקבוצה
-  void _toggleEditHousehold() {
-    if (_isEditingHouseholdName) {
-      setState(() {
-        _householdName = _householdNameController.text.trim();
-        _isEditingHouseholdName = false;
-      });
-      _saveSettings();
-    } else {
-      setState(() => _isEditingHouseholdName = true);
-    }
-  }
-
-  /// שינוי סוג הקבוצה
-  void _changeHouseholdType(String? newType) {
-    if (newType != null) {
-      setState(() => _householdType = newType);
-      _saveSettings();
     }
   }
 
@@ -510,81 +481,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     nameController.dispose();
   }
 
-  /// ניהול חברים - מציג בחירת רשימה או ניווט ישיר
-  Future<void> _manageMembers(BuildContext context) async {
-    final listsProvider = context.read<ShoppingListsProvider>();
-    final userContext = context.read<UserContext>();
-    final currentUserId = userContext.userId;
-
-    // מציאת רשימות שהמשתמש הוא Owner שלהן
-    final myOwnedLists = listsProvider.lists
-        .where((list) => list.createdBy == currentUserId)
-        .toList();
-
-    if (myOwnedLists.isEmpty) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('אין לך רשימות שאתה בעלים שלהן'),
-          duration: Duration(seconds: 3),
-        ),
-      );
-      return;
-    }
-
-    // אם יש רק רשימה אחת - ניווט ישיר
-    if (myOwnedLists.length == 1) {
-      if (!mounted) return;
-      unawaited(Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => ManageUsersScreen(list: myOwnedLists.first),
-        ),
-      ));
-      return;
-    }
-
-    // אם יש יותר מרשימה אחת - תן למשתמש לבחור
-    final selectedList = await showDialog<ShoppingList>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('בחר רשימה לניהול'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: myOwnedLists.length,
-            itemBuilder: (context, index) {
-              final list = myOwnedLists[index];
-              return ListTile(
-                leading: const Icon(Icons.list),
-                title: Text(list.name),
-                subtitle: Text(
-                  'חברים: ${list.sharedUsers.length}',
-                  style: const TextStyle(fontSize: 12),
-                ),
-                onTap: () => Navigator.of(context).pop(list),
-              );
-            },
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('ביטול'),
-          ),
-        ],
-      ),
-    );
-
-    if (selectedList != null && mounted) {
-      unawaited(Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => ManageUsersScreen(list: selectedList),
-        ),
-      ));
-    }
-  }
-
   /// Skeleton Screen ל-Loading State
   Widget _buildLoadingSkeleton(ColorScheme cs) {
     return ListView(
@@ -611,7 +507,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final userContext = context.watch<UserContext>();
-    final listsProvider = context.watch<ShoppingListsProvider>();
 
     // פרטי משתמש
     final userName = userContext.user?.name ?? AppStrings.home.guestUser;
@@ -740,7 +635,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 const SizedBox(height: kSpacingMedium),
 
-                // 🔹 ניהול קבוצה
+                // 🔹 התראות
                 StickyNote(
                   color: kStickyPink,
                   rotation: 0.015,
@@ -749,88 +644,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          AppStrings.settings.householdTitle,
-                          style: TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold, color: cs.primary),
+                        Row(
+                          children: [
+                            Icon(Icons.notifications_outlined, color: cs.primary),
+                            const SizedBox(width: kSpacingSmall),
+                            Text(
+                              'התראות',
+                              style: TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold, color: cs.primary),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: kSpacingMedium),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _isEditingHouseholdName
-                                  ? TextField(
-                                      controller: _householdNameController,
-                                      decoration: InputDecoration(
-                                        hintText: AppStrings.settings.householdNameHint,
-                                        isDense: true,
-                                      ),
-                                      maxLength: 30,
-                                      textInputAction: TextInputAction.done,
-                                      onSubmitted: (_) => _toggleEditHousehold(),
-                                    )
-                                  : Text(
-                                      _householdName,
-                                      style: const TextStyle(fontSize: kFontSizeBody, fontWeight: FontWeight.w600),
-                                    ),
-                            ),
-                            IconButton(
-                              onPressed: _toggleEditHousehold,
-                              icon: Icon(_isEditingHouseholdName ? Icons.check : Icons.edit, color: cs.primary),
-                              tooltip: _isEditingHouseholdName
-                                  ? AppStrings.settings.editHouseholdNameSave
-                                  : AppStrings.settings.editHouseholdNameEdit,
-                            ),
-                          ],
+                        _NotificationToggle(
+                          title: 'התראות קנייה',
+                          subtitle: 'כשמישהו מסיים קנייה',
+                          value: true,
+                          onChanged: (val) {
+                            // TODO: שמירה ב-SharedPreferences
+                          },
                         ),
-                        const SizedBox(height: kSpacingSmallPlus),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              AppStrings.settings.householdType,
-                              style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
-                            ),
-                            DropdownButton<String>(
-                              value: _householdType,
-                              items: HouseholdConfig.allTypes
-                                  .map(
-                                    (type) => DropdownMenuItem(
-                                      value: type,
-                                      child: Row(
-                                        children: [
-                                          Icon(HouseholdConfig.getIcon(type), size: kIconSizeSmall),
-                                          const SizedBox(width: kSpacingSmall),
-                                          Text(HouseholdConfig.getLabel(type)),
-                                        ],
-                                      ),
-                                    ),
-                                  )
-                                  .toList(),
-                              onChanged: _changeHouseholdType,
-                              underline: Container(),
-                            ),
-                          ],
+                        _NotificationToggle(
+                          title: 'התראות מלאי',
+                          subtitle: 'כשמוצר במזווה אוזל',
+                          value: true,
+                          onChanged: (val) {
+                            // TODO: שמירה ב-SharedPreferences
+                          },
                         ),
-                        const Divider(height: kSpacingLarge),
-                        Text(
-                          _getTotalSharedUsersText(listsProvider),
-                          style: TextStyle(
-                            fontSize: kFontSizeSmall,
-                            fontWeight: FontWeight.w600,
-                            color: cs.onSurfaceVariant,
-                          ),
-                        ),
-                        const SizedBox(height: kSpacingSmall),
-                        SizedBox(
-                          width: double.infinity,
-                          child: StickyButton(
-                            label: AppStrings.settings.manageMembersButton,
-                            icon: Icons.group_add,
-                            color: Colors.white,
-                            textColor: cs.primary,
-                            height: 44,
-                            onPressed: () => _manageMembers(context),
-                          ),
+                        _NotificationToggle(
+                          title: 'התראות קבוצה',
+                          subtitle: 'הזמנות וחברים חדשים',
+                          value: true,
+                          onChanged: (val) {
+                            // TODO: שמירה ב-SharedPreferences
+                          },
                         ),
                       ],
                     ),
@@ -839,7 +686,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 const SizedBox(height: kSpacingMedium),
 
-                // 🔹 הגדרות אישיות
+                // 🔹 הגדרות כלליות
                 StickyNote(
                   color: kStickyCyan,
                   rotation: 0.01,
@@ -848,11 +695,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          AppStrings.settings.personalSettingsTitle,
-                          style: TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold, color: cs.primary),
+                        Row(
+                          children: [
+                            Icon(Icons.settings_outlined, color: cs.primary),
+                            const SizedBox(width: kSpacingSmall),
+                            Text(
+                              'הגדרות כלליות',
+                              style: TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold, color: cs.primary),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: kSpacingSmallPlus),
+                        const SizedBox(height: kSpacingMedium),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('ערכת נושא'),
+                            SegmentedButton<String>(
+                              segments: const [
+                                ButtonSegment(value: 'light', label: Text('בהיר')),
+                                ButtonSegment(value: 'dark', label: Text('כהה')),
+                                ButtonSegment(value: 'system', label: Text('מערכת')),
+                              ],
+                              selected: const {'system'},
+                              onSelectionChanged: (selection) {
+                                // TODO: שינוי ערכת נושא
+                              },
+                              style: const ButtonStyle(
+                                visualDensity: VisualDensity.compact,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: kSpacingSmall),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -889,11 +763,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Column(
                     children: [
                       ListTile(
-                        leading: Icon(Icons.inventory_2_outlined, color: cs.primary),
-                        title: Text(AppStrings.settings.myPantry),
+                        leading: Icon(Icons.receipt_long_outlined, color: cs.primary),
+                        title: const Text('הקבלות שלי'),
+                        subtitle: const Text('היסטוריית קניות'),
                         trailing: const Icon(Icons.chevron_left),
                         onTap: () {
-                          Navigator.pushNamed(context, '/inventory');
+                          Navigator.pushNamed(context, '/receipts');
                         },
                       ),
                       const Divider(height: 1),
@@ -929,19 +804,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 const SizedBox(height: kSpacingMedium),
 
-                // 🔹 קבוצות
+                // 🔹 מידע
                 StickyNote(
                   color: kStickyGreen,
                   rotation: 0.008,
                   child: Column(
                     children: [
                       ListTile(
-                        leading: Icon(Icons.group_add, color: cs.primary),
-                        title: const Text('יצירת קבוצה חדשה'),
-                        subtitle: const Text('משפחה, ועד בית, חברים...'),
+                        leading: Icon(Icons.info_outline, color: cs.primary),
+                        title: const Text('אודות'),
+                        subtitle: const Text('גרסה 1.0.0'),
                         trailing: const Icon(Icons.chevron_left),
                         onTap: () {
-                          Navigator.pushNamed(context, '/create-group');
+                          showAboutDialog(
+                            context: context,
+                            applicationName: 'סל שלי',
+                            applicationVersion: '1.0.0',
+                            applicationIcon: const Text('🛒', style: TextStyle(fontSize: 48)),
+                            children: [
+                              const Text('אפליקציה לניהול רשימות קניות משפחתיות'),
+                            ],
+                          );
+                        },
+                      ),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: Icon(Icons.description_outlined, color: cs.primary),
+                        title: const Text('תנאי שימוש'),
+                        trailing: const Icon(Icons.chevron_left),
+                        onTap: () {
+                          // TODO: Navigate to terms
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('תנאי שימוש - בקרוב')),
+                          );
+                        },
+                      ),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: Icon(Icons.privacy_tip_outlined, color: cs.primary),
+                        title: const Text('מדיניות פרטיות'),
+                        trailing: const Icon(Icons.chevron_left),
+                        onTap: () {
+                          // TODO: Navigate to privacy policy
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('מדיניות פרטיות - בקרוב')),
+                          );
                         },
                       ),
                     ],
@@ -970,37 +877,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
+}
 
-  /// סטטיסטיקה אמיתית של משתמשים משותפים
-  String _getTotalSharedUsersText(ShoppingListsProvider listsProvider) {
-    final userContext = context.read<UserContext>();
-    final currentUserId = userContext.userId;
+/// 🔔 Toggle להגדרות התראות
+class _NotificationToggle extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final bool value;
+  final ValueChanged<bool> onChanged;
 
-    // מציאת רשימות שהמשתמש הוא Owner שלהן
-    final myOwnedLists = listsProvider.lists
-        .where((list) => list.createdBy == currentUserId)
-        .toList();
+  const _NotificationToggle({
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.onChanged,
+  });
 
-    if (myOwnedLists.isEmpty) {
-      return 'אין רשימות משותפות';
-    }
-
-    // חישוב סה"כ משתמשים ייחודיים
-    final Set<String> uniqueUsers = {};
-    for (final list in myOwnedLists) {
-      uniqueUsers.add(list.createdBy); // Owner
-      for (final sharedUser in list.sharedUsers.values) {
-        uniqueUsers.add(sharedUser.userId);
-      }
-    }
-
-    final totalUsers = uniqueUsers.length;
-    final totalShared = totalUsers - 1; // בלי ה-Owner
-
-    if (totalShared == 0) {
-      return 'אין חברים משותפים';
-    }
-
-    return 'חברים: $totalShared ברשימות שלך';
+  @override
+  Widget build(BuildContext context) {
+    return SwitchListTile(
+      title: Text(
+        title,
+        style: const TextStyle(fontSize: kFontSizeBody),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: TextStyle(
+          fontSize: kFontSizeSmall,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+      ),
+      value: value,
+      onChanged: onChanged,
+      dense: true,
+      contentPadding: EdgeInsets.zero,
+    );
   }
 }

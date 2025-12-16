@@ -17,9 +17,11 @@ import 'package:provider/provider.dart';
 import '../../core/ui_constants.dart';
 import '../../models/group.dart';
 import '../../providers/groups_provider.dart';
+import '../../services/contact_picker_service.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/sticky_note.dart';
+import 'contact_picker_screen.dart';
 
 class CreateGroupScreen extends StatefulWidget {
   const CreateGroupScreen({super.key});
@@ -36,6 +38,9 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
   GroupType _selectedType = GroupType.family;
   bool _isLoading = false;
+
+  /// אנשי קשר נבחרים להזמנה
+  List<SelectedContact> _selectedContacts = [];
 
   @override
   void dispose() {
@@ -124,6 +129,33 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  /// פתיחת מסך בחירת אנשי קשר
+  Future<void> _openContactPicker() async {
+    final result = await Navigator.of(context).push<List<SelectedContact>>(
+      MaterialPageRoute(
+        builder: (context) => ContactPickerScreen(
+          initialSelection: _selectedContacts,
+        ),
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedContacts = result;
+      });
+    }
+  }
+
+  /// הסרת איש קשר מהרשימה
+  void _removeContact(SelectedContact contact) {
+    HapticFeedback.selectionClick();
+    setState(() {
+      _selectedContacts = _selectedContacts
+          .where((c) => c.id != contact.id)
+          .toList();
+    });
   }
 
   /// שם השדה הנוסף לפי סוג הקבוצה
@@ -392,6 +424,111 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                       ),
                     ),
 
+                    const SizedBox(height: kSpacingMedium),
+
+                    // === הזמנת חברים ===
+                    StickyNote(
+                      color: kStickyOrange,
+                      rotation: 0.005,
+                      child: Padding(
+                        padding: const EdgeInsets.all(kSpacingMedium),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.people_alt,
+                                  size: 20,
+                                  color: cs.primary,
+                                ),
+                                const SizedBox(width: kSpacingSmall),
+                                const Expanded(
+                                  child: Text(
+                                    'הזמן חברים (אופציונלי)',
+                                    style: TextStyle(
+                                      fontSize: kFontSizeMedium,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                TextButton.icon(
+                                  onPressed: _openContactPicker,
+                                  icon: const Icon(Icons.add, size: 18),
+                                  label: Text(
+                                    _selectedContacts.isEmpty
+                                        ? 'בחר מאנשי קשר'
+                                        : 'הוסף עוד',
+                                  ),
+                                  style: TextButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            if (_selectedContacts.isEmpty)
+                              const Padding(
+                                padding: EdgeInsets.only(top: kSpacingSmall),
+                                child: Text(
+                                  'תוכל להזמין חברים עכשיו או אחרי יצירת הקבוצה',
+                                  style: TextStyle(
+                                    fontSize: kFontSizeSmall,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              )
+                            else ...[
+                              const SizedBox(height: kSpacingSmall),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: _selectedContacts.map((contact) {
+                                  return Chip(
+                                    avatar: contact.photo != null
+                                        ? CircleAvatar(
+                                            backgroundImage:
+                                                MemoryImage(contact.photo!),
+                                          )
+                                        : CircleAvatar(
+                                            backgroundColor:
+                                                cs.primaryContainer,
+                                            child: Text(
+                                              contact.displayName[0]
+                                                  .toUpperCase(),
+                                              style: TextStyle(
+                                                color: cs.onPrimaryContainer,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ),
+                                    label: Text(
+                                      contact.displayName,
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                    deleteIcon:
+                                        const Icon(Icons.close, size: 16),
+                                    onDeleted: () => _removeContact(contact),
+                                    backgroundColor: Colors.white,
+                                    side: BorderSide(color: Colors.grey[300]!),
+                                  );
+                                }).toList(),
+                              ),
+                              const SizedBox(height: kSpacingSmall),
+                              Text(
+                                'נבחרו ${_selectedContacts.length} אנשי קשר',
+                                style: TextStyle(
+                                  fontSize: kFontSizeSmall,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+
                     // === שדה נוסף (לפי סוג) ===
                     if (extraFieldLabel != null) ...[
                       const SizedBox(height: kSpacingMedium),
@@ -443,9 +580,11 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                     const SizedBox(height: kSpacingMedium),
 
                     // === הערה ===
-                    const Text(
-                      '💡 לאחר יצירת הקבוצה, תוכל להזמין חברים באמצעות קוד הזמנה',
-                      style: TextStyle(
+                    Text(
+                      _selectedContacts.isEmpty
+                          ? '💡 לאחר יצירת הקבוצה, תוכל להזמין חברים באמצעות קוד הזמנה'
+                          : '💡 הזמנות ישלחו לחברים שנבחרו לאחר יצירת הקבוצה',
+                      style: const TextStyle(
                         fontSize: kFontSizeSmall,
                         color: Colors.black54,
                         fontStyle: FontStyle.italic,

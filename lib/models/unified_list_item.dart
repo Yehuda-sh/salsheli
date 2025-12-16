@@ -143,6 +143,144 @@ class UnifiedListItem {
   }
 
   // ════════════════════════════════════════════
+  // "Who Brings" Helpers (גישה קלה לשדות מי מביא)
+  // ════════════════════════════════════════════
+
+  /// 🇮🇱 כמות אנשים נדרשים להביא (ברשימות "מי מביא")
+  /// 🇬🇧 Number of people needed to bring (for "Who Brings" lists)
+  int get neededCount => taskData?['neededCount'] as int? ?? 1;
+
+  /// 🇮🇱 רשימת מתנדבים שאמרו "אני מביא"
+  /// 🇬🇧 List of volunteers who said "I'll bring"
+  List<Map<String, dynamic>> get volunteers {
+    final list = taskData?['volunteers'] as List<dynamic>?;
+    if (list == null) return [];
+    return list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+  }
+
+  /// 🇮🇱 כמות מתנדבים נוכחית
+  /// 🇬🇧 Current volunteer count
+  int get volunteerCount => volunteers.length;
+
+  /// 🇮🇱 האם הפריט מלא (כל המתנדבים הצטרפו)
+  /// 🇬🇧 Is the item full (all volunteers joined)
+  bool get isVolunteersFull => volunteerCount >= neededCount;
+
+  /// 🇮🇱 האם משתמש מסוים כבר התנדב
+  /// 🇬🇧 Has a specific user already volunteered
+  bool hasUserVolunteered(String userId) {
+    return volunteers.any((v) => v['userId'] == userId);
+  }
+
+  /// 🇮🇱 קבל שמות המתנדבים
+  /// 🇬🇧 Get volunteer names
+  List<String> get volunteerNames {
+    return volunteers
+        .map((v) => v['displayName'] as String? ?? 'אנונימי')
+        .toList();
+  }
+
+  /// 🇮🇱 קבל תצוגת מתנדבים (עם "..." אם יותר מדי)
+  /// 🇬🇧 Get volunteer display (with "..." if too many)
+  String getVolunteerDisplay({int maxNames = 2}) {
+    final names = volunteerNames;
+    if (names.isEmpty) return '';
+    if (names.length <= maxNames) return names.join(', ');
+    return '${names.take(maxNames).join(', ')}...';
+  }
+
+  // ════════════════════════════════════════════
+  // Voting Helpers (גישה קלה לשדות הצבעה)
+  // ════════════════════════════════════════════
+
+  /// 🇮🇱 רשימת מצביעים בעד
+  /// 🇬🇧 List of voters in favor
+  List<Map<String, dynamic>> get votesFor {
+    final list = taskData?['votesFor'] as List<dynamic>?;
+    if (list == null) return [];
+    return list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+  }
+
+  /// 🇮🇱 רשימת מצביעים נגד
+  /// 🇬🇧 List of voters against
+  List<Map<String, dynamic>> get votesAgainst {
+    final list = taskData?['votesAgainst'] as List<dynamic>?;
+    if (list == null) return [];
+    return list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+  }
+
+  /// 🇮🇱 רשימת נמנעים
+  /// 🇬🇧 List of abstained voters
+  List<Map<String, dynamic>> get votesAbstain {
+    final list = taskData?['votesAbstain'] as List<dynamic>?;
+    if (list == null) return [];
+    return list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+  }
+
+  /// 🇮🇱 סה"כ מצביעים
+  /// 🇬🇧 Total vote count
+  int get totalVotes => votesFor.length + votesAgainst.length + votesAbstain.length;
+
+  /// 🇮🇱 אחוז בעד
+  /// 🇬🇧 Percentage in favor
+  double get forPercentage {
+    if (totalVotes == 0) return 0;
+    return (votesFor.length / totalVotes) * 100;
+  }
+
+  /// 🇮🇱 אחוז נגד
+  /// 🇬🇧 Percentage against
+  double get againstPercentage {
+    if (totalVotes == 0) return 0;
+    return (votesAgainst.length / totalVotes) * 100;
+  }
+
+  /// 🇮🇱 האם הצבעה חשאית
+  /// 🇬🇧 Is voting anonymous
+  bool get isAnonymousVoting => taskData?['isAnonymous'] as bool? ?? false;
+
+  /// 🇮🇱 תאריך סיום הצבעה
+  /// 🇬🇧 Voting end date
+  DateTime? get votingEndDate {
+    final dateStr = taskData?['votingEndDate'] as String?;
+    return dateStr != null ? DateTime.parse(dateStr) : null;
+  }
+
+  /// 🇮🇱 האם ההצבעה הסתיימה
+  /// 🇬🇧 Has voting ended
+  bool get hasVotingEnded {
+    final endDate = votingEndDate;
+    if (endDate == null) return false;
+    return DateTime.now().isAfter(endDate);
+  }
+
+  /// 🇮🇱 האם משתמש כבר הצביע
+  /// 🇬🇧 Has a user already voted
+  bool hasUserVoted(String userId) {
+    return votesFor.any((v) => v['userId'] == userId) ||
+        votesAgainst.any((v) => v['userId'] == userId) ||
+        votesAbstain.any((v) => v['userId'] == userId);
+  }
+
+  /// 🇮🇱 קבל את ההצבעה של משתמש
+  /// 🇬🇧 Get user's vote (for/against/abstain/null)
+  String? getUserVote(String userId) {
+    if (votesFor.any((v) => v['userId'] == userId)) return 'for';
+    if (votesAgainst.any((v) => v['userId'] == userId)) return 'against';
+    if (votesAbstain.any((v) => v['userId'] == userId)) return 'abstain';
+    return null;
+  }
+
+  /// 🇮🇱 תוצאת ההצבעה (for/against/tie/pending)
+  /// 🇬🇧 Voting result
+  String get votingResult {
+    if (!hasVotingEnded) return 'pending';
+    if (votesFor.length > votesAgainst.length) return 'for';
+    if (votesAgainst.length > votesFor.length) return 'against';
+    return 'tie';
+  }
+
+  // ════════════════════════════════════════════
   // Factory Constructors
   // ════════════════════════════════════════════
 
@@ -215,6 +353,65 @@ class UnifiedListItem {
       },
       checkedBy: checkedBy,
       checkedAt: checkedAt,
+    );
+  }
+
+  /// 🇮🇱 יצירת פריט "מי מביא"
+  /// 🇬🇧 Create "Who Brings" item
+  factory UnifiedListItem.whoBrings({
+    String? id,
+    required String name,
+    int neededCount = 1,
+    List<Map<String, dynamic>>? volunteers,
+    bool isChecked = false,
+    String? category,
+    String? notes,
+    String? imageUrl,
+  }) {
+    return UnifiedListItem(
+      id: id ?? const Uuid().v4(),
+      name: name,
+      type: ItemType.task, // משתמש ב-task כי זה לא מוצר רגיל
+      isChecked: isChecked,
+      category: category,
+      notes: notes,
+      imageUrl: imageUrl,
+      taskData: {
+        'neededCount': neededCount,
+        'volunteers': volunteers ?? [],
+        'itemType': 'whoBrings', // סימון מיוחד לזיהוי הסוג
+      },
+    );
+  }
+
+  /// 🇮🇱 יצירת פריט הצבעה
+  /// 🇬🇧 Create voting item
+  factory UnifiedListItem.voting({
+    String? id,
+    required String name,
+    DateTime? votingEndDate,
+    bool isAnonymous = false,
+    bool isChecked = false,
+    String? category,
+    String? notes,
+    String? imageUrl,
+  }) {
+    return UnifiedListItem(
+      id: id ?? const Uuid().v4(),
+      name: name,
+      type: ItemType.task,
+      isChecked: isChecked,
+      category: category,
+      notes: notes,
+      imageUrl: imageUrl,
+      taskData: {
+        'votesFor': const <Map<String, dynamic>>[],
+        'votesAgainst': const <Map<String, dynamic>>[],
+        'votesAbstain': const <Map<String, dynamic>>[],
+        'isAnonymous': isAnonymous,
+        if (votingEndDate != null) 'votingEndDate': votingEndDate.toIso8601String(),
+        'itemType': 'voting', // סימון מיוחד לזיהוי הסוג
+      },
     );
   }
 

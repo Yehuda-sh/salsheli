@@ -171,6 +171,8 @@ class _NavigationStrings {
   const _NavigationStrings();
 
   String get home => 'בית';
+  String get family => 'משפחה';
+  String get groups => 'קבוצות';
   String get lists => 'רשימות';
   String get pantry => 'מזווה';
   String get receipts => 'קבלות';
@@ -422,12 +424,37 @@ class _WelcomeStrings {
 
   // Screen
   String get title => 'MemoZap';
-  String get subtitle => 'קניות ומטלות חכמות - מה שקונים מתווסף למזווה';
+  String get subtitle => 'רשימות משותפות. מקום אחד.';
 
-  // Benefits - Updated Version (16/11/2025) - UI/UX Optimization
-  // 📏 Reduced to 3 benefits for single-screen layout (no scroll on small devices)
-  // 🎯 Focus on core features: sharing, unified lists, smart pantry with suggestions
-  // 💬 Value-focused descriptions instead of lists
+  // Group Cards - Updated Version (16/12/2025) - New Welcome Design
+  // 🎯 Focus on group types with questions and features
+  // 👨‍👩‍👧‍👦 Family, 🏠 Building Committee, 🎒 Kindergarten Committee
+
+  // Family Card
+  String get group1Emoji => '👨‍👩‍👧‍👦';
+  String get group1Title => 'משפחה';
+  String get group1Question => '"מה לקנות? מה יש?"';
+  String get group1Feature1 => 'קניות 🛒';
+  String get group1Feature2 => 'מזווה 📦';
+
+  // Building Committee Card
+  String get group2Emoji => '🏠';
+  String get group2Title => 'ועד בית';
+  String get group2Question => '"מה צריך? מי בעד?"';
+  String get group2Feature1 => 'משימות ✅';
+  String get group2Feature2 => 'הצבעות 🗳️';
+
+  // Kindergarten Committee Card
+  String get group3Emoji => '🎒';
+  String get group3Title => 'ועד גן';
+  String get group3Question => '"מי מביא מה?"';
+  String get group3Feature1 => 'חלוקה 🙋';
+  String get group3Feature2 => 'רשימה 📋';
+
+  // More groups hint
+  String get moreGroupsHint => '+ שותפים, אירועים...';
+
+  // Legacy benefits (kept for backward compatibility)
   String get benefit1Title => 'שיתוף בזמן אמת';
   String get benefit1Subtitle => 'כולם רואים ומעדכנים - זוג, משפחה או עבודה';
   String get benefit2Title => 'מוצרים ומטלות ביחד';
@@ -436,7 +463,9 @@ class _WelcomeStrings {
   String get benefit3Subtitle => 'המלצות אוטומטיות למה חסר + ארגון לפי מדפים';
 
   // Buttons
+  String get startButton => 'בואו נתחיל!';
   String get loginButton => 'התחברות';
+  String get loginLink => 'יש לי חשבון? להתחבר';
   String get registerButton => 'הרשמה';
   String get guestButton => 'המשך כאורח';
   String get socialLoginLabel => 'או התחבר עם:';

@@ -1,17 +1,20 @@
 // 📄 File: lib/config/storage_locations_config.dart
-// Version: 2.0
-// Last Updated: 29/10/2025
+// Version: 2.1
+// Last Updated: 16/12/2025
+//
+// ✅ Changes in v2.1:
+// - Fixed emojis: מקרר 🧊, מקפיא ❄️, מזווה 🗄️, ארון מטבח 🍳
 //
 // 🎯 Purpose:
 //   מגדיר את מיקומי האחסון האפשריים במזווה
 //   שימושי ל-InventoryItem ו-ProductLocationProvider
 //
 // 🏠 Storage Locations:
-//   1. mainPantry - מזווה ראשי
-//   2. refrigerator - מקרר
-//   3. freezer - מקפיא
-//   4. countertop - משטח מטבח
-//   5. other - אחר
+//   1. mainPantry - מזווה ראשי (🗄️)
+//   2. refrigerator - מקרר (🧊)
+//   3. freezer - מקפיא (❄️)
+//   4. countertop - משטח מטבח (🍳)
+//   5. other - אחר (📦)
 //
 // 📝 Features:
 //   - getName(): שם בעברית
@@ -72,30 +75,30 @@ class StorageLocationsConfig {
     mainPantry: LocationInfo(
       id: mainPantry,
       name: 'מזווה',
-      emoji: '🏠',
+      emoji: '🗄️',
       icon: Icons.kitchen,
       description: 'מזווה ראשי - מוצרים יבשים',
     ),
     refrigerator: LocationInfo(
       id: refrigerator,
       name: 'מקרר',
-      emoji: '❄️',
+      emoji: '🧊',
       icon: Icons.kitchen,
       description: 'מקרר - מוצרים טריים',
     ),
     freezer: LocationInfo(
       id: freezer,
       name: 'מקפיא',
-      emoji: '🧊',
+      emoji: '❄️',
       icon: Icons.ac_unit,
       description: 'מקפיא - מוצרים קפואים',
     ),
     countertop: LocationInfo(
       id: countertop,
-      name: 'ארון מטבח',
-      emoji: '🗄️',
-      icon: Icons.door_sliding,
-      description: 'ארון מטבח - מוצרים כלליים',
+      name: 'משטח מטבח',
+      emoji: '🍳',
+      icon: Icons.countertops,
+      description: 'משטח מטבח - פירות וירקות',
     ),
     other: LocationInfo(
       id: other,

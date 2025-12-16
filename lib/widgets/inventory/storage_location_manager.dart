@@ -1,6 +1,12 @@
 // 📄 File: lib/widgets/inventory/storage_location_manager.dart
 // תיאור: ווידג'ט לניהול ותצוגה של פריטים לפי מיקומי אחסון
 //
+// ✅ תיקונים גרסה 3.0 (16/12/2025):
+// 1. תצוגת תאריך תפוגה עם צבע לפי קרבה
+// 2. אייקון מוצר קבוע (⭐) ליד שם המוצר
+// 3. כפתור "הוסף לרשימה" לפריטים במלאי נמוך
+// 4. סינון לפי תפוגה (תפריט מיון מורחב)
+//
 // ✅ תיקונים גרסה 2.0:
 // 1. תיקון keys של מיקומים (refrigerator במקום fridge)
 // 2. מיפוי אמוג'י קטגוריות - תמיכה בעברית
@@ -12,6 +18,7 @@
 // 8. בחירת אמוג'י בעת הוספה
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -29,6 +36,7 @@ class StorageLocationManager extends StatefulWidget {
   final Function(InventoryItem)? onEditItem;
   final Function(InventoryItem)? onDeleteItem;
   final Function(InventoryItem, int)? onUpdateQuantity;
+  final Function(InventoryItem)? onAddToList;
 
   const StorageLocationManager({
     super.key,
@@ -37,6 +45,7 @@ class StorageLocationManager extends StatefulWidget {
     this.onEditItem,
     this.onDeleteItem,
     this.onUpdateQuantity,
+    this.onAddToList,
   });
 
   @override
@@ -185,6 +194,20 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
       case 'category':
         items.sort((a, b) => a.category.compareTo(b.category));
         break;
+      case 'expiry':
+        // מיון לפי תפוגה - פגי תוקף ראשונים, אחריהם קרובים לתפוגה, אחרונים ללא תפוגה
+        items.sort((a, b) {
+          // אם לשניהם אין תפוגה - לפי שם
+          if (a.expiryDate == null && b.expiryDate == null) {
+            return a.productName.compareTo(b.productName);
+          }
+          // אם רק לאחד אין תפוגה - הוא בסוף
+          if (a.expiryDate == null) return 1;
+          if (b.expiryDate == null) return -1;
+          // שניהם עם תפוגה - לפי תאריך
+          return a.expiryDate!.compareTo(b.expiryDate!);
+        });
+        break;
       case 'name':
       default:
         items.sort((a, b) => a.productName.compareTo(b.productName));
@@ -240,6 +263,7 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
         const PopupMenuItem(value: 'name', child: Text('לפי שם')),
         const PopupMenuItem(value: 'quantity', child: Text('לפי כמות')),
         const PopupMenuItem(value: 'category', child: Text('לפי קטגוריה')),
+        const PopupMenuItem(value: 'expiry', child: Text('לפי תפוגה')),
       ],
     ).then((value) {
       if (value != null) {
@@ -1031,6 +1055,12 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                                       style: const TextStyle(fontSize: kFontSizeMedium),
                                     ),
                                     const SizedBox(width: kSpacingSmall),
+                                    // אייקון מוצר קבוע (כוכב)
+                                    if (item.isRecurring)
+                                      const Padding(
+                                        padding: EdgeInsets.only(left: kSpacingTiny),
+                                        child: Text('⭐', style: TextStyle(fontSize: kFontSizeSmall)),
+                                      ),
                                     // שם המוצר
                                     Expanded(
                                       child: Text(
@@ -1043,6 +1073,22 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                                         maxLines: 1,
                                       ),
                                     ),
+                                    // תאריך תפוגה (אם קיים)
+                                    if (item.expiryDate != null)
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: kSpacingSmall),
+                                        child: _buildExpiryBadge(item, cs),
+                                      ),
+                                    // כפתור הוסף לרשימה (מלאי נמוך)
+                                    if (item.isLowStock && widget.onAddToList != null)
+                                      IconButton(
+                                        icon: Icon(Icons.add_shopping_cart, color: cs.primary, size: kIconSize),
+                                        tooltip: 'הוסף לרשימה',
+                                        onPressed: () => widget.onAddToList!(item),
+                                        visualDensity: VisualDensity.compact,
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                      ),
                                     // כמות - עיצוב משופר, גודל זהה לשם המוצר
                                     Container(
                                       margin: const EdgeInsets.only(left: kSpacingSmall), // רווח ימינה
@@ -1098,6 +1144,65 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                         ),
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// בניית תג תאריך תפוגה עם צבע לפי קרבה
+  ///
+  /// צבעים:
+  /// - אדום: פג תוקף או יפוג היום
+  /// - כתום: יפוג תוך 7 ימים
+  /// - ירוק: יותר מ-7 ימים
+  ///
+  /// [item] - הפריט עם תאריך התפוגה
+  /// [cs] - ColorScheme לצבעים
+  Widget _buildExpiryBadge(InventoryItem item, ColorScheme cs) {
+    final isExpired = item.isExpired;
+    final isExpiringSoon = item.isExpiringSoon;
+
+    // קביעת צבע לפי מצב
+    Color bgColor;
+    Color textColor;
+    String icon;
+
+    if (isExpired) {
+      bgColor = cs.errorContainer;
+      textColor = cs.error;
+      icon = '⚠️';
+    } else if (isExpiringSoon) {
+      bgColor = Colors.orange.shade100;
+      textColor = Colors.orange.shade800;
+      icon = '⏰';
+    } else {
+      bgColor = Colors.green.shade100;
+      textColor = Colors.green.shade800;
+      icon = '✓';
+    }
+
+    // פורמט תאריך קצר
+    final dateStr = DateFormat('dd/MM').format(item.expiryDate!);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: kSpacingTiny, vertical: 2),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(icon, style: const TextStyle(fontSize: 10)),
+          const SizedBox(width: 2),
+          Text(
+            dateStr,
+            style: TextStyle(
+              color: textColor,
+              fontSize: kFontSizeTiny,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],

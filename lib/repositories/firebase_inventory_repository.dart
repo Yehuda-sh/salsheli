@@ -11,7 +11,9 @@
 //     - Queries מתקדמים (לפי מיקום, קטגוריה, כמות נמוכה)
 //
 // 🏗️ Database Structure:
-//     - /households/{householdId}/inventory/{itemId}
+//     - /households/{householdId}/inventory/{itemId}  ← legacy
+//     - /users/{userId}/inventory/{itemId}            ← מזווה אישי
+//     - /groups/{groupId}/inventory/{itemId}          ← מזווה קבוצתי
 //
 // 🔒 Security:
 //     - גישה רק לחברי משק הבית (דרך Firestore Rules)
@@ -22,9 +24,9 @@
 //     - כל הפונקציות זורקות InventoryRepositoryException בשגיאה
 //     - Error handling מלא + logging
 //
-// Version: 3.0
-// Last Updated: 14/12/2025
-// Changes: ✅ מעבר ל-subcollection תחת households
+// Version: 4.0
+// Last Updated: 16/12/2025
+// Changes: ✅ תמיכה במזווה אישי (/users) ומשותף (/groups)
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -70,16 +72,32 @@ class FirebaseInventoryRepository implements InventoryRepository {
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
   // ========================================
-  // Collection Reference
+  // Collection References
   // ========================================
 
-  /// מחזיר reference לקולקציית המלאי של משק בית
+  /// מחזיר reference לקולקציית המלאי של משק בית (legacy)
   /// Path: /households/{householdId}/inventory
   CollectionReference<Map<String, dynamic>> _inventoryCollection(String householdId) =>
       _firestore
           .collection(FirestoreCollections.households)
           .doc(householdId)
           .collection(FirestoreCollections.householdInventory);
+
+  /// מחזיר reference לקולקציית המזווה האישי של משתמש
+  /// Path: /users/{userId}/inventory
+  CollectionReference<Map<String, dynamic>> _userInventoryCollection(String userId) =>
+      _firestore
+          .collection(FirestoreCollections.users)
+          .doc(userId)
+          .collection(FirestoreCollections.userInventory);
+
+  /// מחזיר reference לקולקציית המזווה המשותף של קבוצה
+  /// Path: /groups/{groupId}/inventory
+  CollectionReference<Map<String, dynamic>> _groupInventoryCollection(String groupId) =>
+      _firestore
+          .collection(FirestoreCollections.groups)
+          .doc(groupId)
+          .collection(FirestoreCollections.groupInventory);
 
   // ========================================
   // CRUD Operations - פעולות בסיסיות
@@ -524,6 +542,271 @@ class FirebaseInventoryRepository implements InventoryRepository {
       debugPrintStack(stackTrace: stackTrace);
       throw InventoryRepositoryException('Failed to update quantity', e);
     }
+  }
+
+  // ========================================
+  // User Inventory - מזווה אישי
+  // ========================================
+
+  /// טוען את כל פריטי המזווה האישי של משתמש
+  /// Path: /users/{userId}/inventory
+  @override
+  Future<List<InventoryItem>> fetchUserItems(String userId) async {
+    try {
+      debugPrint('📥 FirebaseInventoryRepository.fetchUserItems: טוען מזווה אישי ל-$userId');
+
+      final snapshot = await _userInventoryCollection(userId)
+          .orderBy(FirestoreFields.productName)
+          .get();
+
+      final items = <InventoryItem>[];
+      int skippedCount = 0;
+
+      for (final doc in snapshot.docs) {
+        try {
+          final data = Map<String, dynamic>.from(doc.data());
+          final item = InventoryItem.fromJson(data);
+          items.add(item);
+        } catch (e) {
+          skippedCount++;
+          debugPrint('⚠️ דולג על פריט פגום: ${doc.id} - $e');
+        }
+      }
+
+      if (skippedCount > 0) {
+        debugPrint('⚠️ fetchUserItems: דולג על $skippedCount פריטים פגומים');
+      }
+
+      debugPrint('✅ fetchUserItems: נטענו ${items.length} פריטים');
+      return items;
+    } catch (e, stackTrace) {
+      debugPrint('❌ fetchUserItems: שגיאה - $e');
+      debugPrintStack(stackTrace: stackTrace);
+      throw InventoryRepositoryException('Failed to fetch user inventory for $userId', e);
+    }
+  }
+
+  /// שומר פריט למזווה אישי
+  @override
+  Future<InventoryItem> saveUserItem(InventoryItem item, String userId) async {
+    try {
+      debugPrint('💾 saveUserItem: שומר פריט ${item.id} למזווה אישי');
+
+      final data = item.toJson();
+      await _userInventoryCollection(userId)
+          .doc(item.id)
+          .set(data, SetOptions(merge: true));
+
+      debugPrint('✅ saveUserItem: פריט נשמר');
+      return item;
+    } catch (e, stackTrace) {
+      debugPrint('❌ saveUserItem: שגיאה - $e');
+      debugPrintStack(stackTrace: stackTrace);
+      throw InventoryRepositoryException('Failed to save user item ${item.id}', e);
+    }
+  }
+
+  /// מוחק פריט ממזווה אישי
+  @override
+  Future<void> deleteUserItem(String itemId, String userId) async {
+    try {
+      debugPrint('🗑️ deleteUserItem: מוחק פריט $itemId ממזווה אישי');
+
+      await _userInventoryCollection(userId).doc(itemId).delete();
+
+      debugPrint('✅ deleteUserItem: פריט נמחק');
+    } catch (e, stackTrace) {
+      debugPrint('❌ deleteUserItem: שגיאה - $e');
+      debugPrintStack(stackTrace: stackTrace);
+      throw InventoryRepositoryException('Failed to delete user item $itemId', e);
+    }
+  }
+
+  /// מוחק את כל פריטי המזווה האישי
+  @override
+  Future<int> deleteAllUserItems(String userId) async {
+    try {
+      debugPrint('🗑️ deleteAllUserItems: מוחק את כל פריטי המזווה האישי של $userId');
+
+      final snapshot = await _userInventoryCollection(userId).get();
+      final batch = _firestore.batch();
+
+      for (final doc in snapshot.docs) {
+        batch.delete(doc.reference);
+      }
+
+      await batch.commit();
+
+      debugPrint('✅ deleteAllUserItems: נמחקו ${snapshot.docs.length} פריטים');
+      return snapshot.docs.length;
+    } catch (e, stackTrace) {
+      debugPrint('❌ deleteAllUserItems: שגיאה - $e');
+      debugPrintStack(stackTrace: stackTrace);
+      throw InventoryRepositoryException('Failed to delete all user items', e);
+    }
+  }
+
+  // ========================================
+  // Group Inventory - מזווה קבוצתי
+  // ========================================
+
+  /// טוען את כל פריטי המזווה המשותף של קבוצה
+  /// Path: /groups/{groupId}/inventory
+  @override
+  Future<List<InventoryItem>> fetchGroupItems(String groupId) async {
+    try {
+      debugPrint('📥 fetchGroupItems: טוען מזווה קבוצתי ל-$groupId');
+
+      final snapshot = await _groupInventoryCollection(groupId)
+          .orderBy(FirestoreFields.productName)
+          .get();
+
+      final items = <InventoryItem>[];
+      int skippedCount = 0;
+
+      for (final doc in snapshot.docs) {
+        try {
+          final data = Map<String, dynamic>.from(doc.data());
+          final item = InventoryItem.fromJson(data);
+          items.add(item);
+        } catch (e) {
+          skippedCount++;
+          debugPrint('⚠️ דולג על פריט פגום: ${doc.id} - $e');
+        }
+      }
+
+      if (skippedCount > 0) {
+        debugPrint('⚠️ fetchGroupItems: דולג על $skippedCount פריטים פגומים');
+      }
+
+      debugPrint('✅ fetchGroupItems: נטענו ${items.length} פריטים');
+      return items;
+    } catch (e, stackTrace) {
+      debugPrint('❌ fetchGroupItems: שגיאה - $e');
+      debugPrintStack(stackTrace: stackTrace);
+      throw InventoryRepositoryException('Failed to fetch group inventory for $groupId', e);
+    }
+  }
+
+  /// שומר פריט למזווה קבוצתי
+  @override
+  Future<InventoryItem> saveGroupItem(InventoryItem item, String groupId) async {
+    try {
+      debugPrint('💾 saveGroupItem: שומר פריט ${item.id} למזווה קבוצתי');
+
+      final data = item.toJson();
+      await _groupInventoryCollection(groupId)
+          .doc(item.id)
+          .set(data, SetOptions(merge: true));
+
+      debugPrint('✅ saveGroupItem: פריט נשמר');
+      return item;
+    } catch (e, stackTrace) {
+      debugPrint('❌ saveGroupItem: שגיאה - $e');
+      debugPrintStack(stackTrace: stackTrace);
+      throw InventoryRepositoryException('Failed to save group item ${item.id}', e);
+    }
+  }
+
+  /// מוחק פריט ממזווה קבוצתי
+  @override
+  Future<void> deleteGroupItem(String itemId, String groupId) async {
+    try {
+      debugPrint('🗑️ deleteGroupItem: מוחק פריט $itemId ממזווה קבוצתי');
+
+      await _groupInventoryCollection(groupId).doc(itemId).delete();
+
+      debugPrint('✅ deleteGroupItem: פריט נמחק');
+    } catch (e, stackTrace) {
+      debugPrint('❌ deleteGroupItem: שגיאה - $e');
+      debugPrintStack(stackTrace: stackTrace);
+      throw InventoryRepositoryException('Failed to delete group item $itemId', e);
+    }
+  }
+
+  // ========================================
+  // Transfer Operations - העברת פריטים
+  // ========================================
+
+  /// מעביר פריטים ממזווה אישי למזווה קבוצתי
+  ///
+  /// [userId] - מזהה המשתמש (מקור)
+  /// [groupId] - מזהה הקבוצה (יעד)
+  /// [itemIds] - רשימת מזהי הפריטים להעברה (null = הכל)
+  @override
+  Future<int> transferUserItemsToGroup(
+    String userId,
+    String groupId, [
+    List<String>? itemIds,
+  ]) async {
+    try {
+      debugPrint('📦 transferUserItemsToGroup: מעביר פריטים מ-$userId ל-$groupId');
+
+      // טען פריטים מהמזווה האישי
+      final userItems = await fetchUserItems(userId);
+
+      // סנן לפי itemIds אם צוין
+      final itemsToTransfer = itemIds != null
+          ? userItems.where((item) => itemIds.contains(item.id)).toList()
+          : userItems;
+
+      if (itemsToTransfer.isEmpty) {
+        debugPrint('⚠️ transferUserItemsToGroup: אין פריטים להעברה');
+        return 0;
+      }
+
+      // השתמש ב-batch לביצועים טובים יותר
+      final batch = _firestore.batch();
+
+      for (final item in itemsToTransfer) {
+        // הוסף לקבוצה
+        final groupRef = _groupInventoryCollection(groupId).doc(item.id);
+        batch.set(groupRef, item.toJson(), SetOptions(merge: true));
+
+        // מחק מהאישי
+        final userRef = _userInventoryCollection(userId).doc(item.id);
+        batch.delete(userRef);
+      }
+
+      await batch.commit();
+
+      debugPrint('✅ transferUserItemsToGroup: הועברו ${itemsToTransfer.length} פריטים');
+      return itemsToTransfer.length;
+    } catch (e, stackTrace) {
+      debugPrint('❌ transferUserItemsToGroup: שגיאה - $e');
+      debugPrintStack(stackTrace: stackTrace);
+      throw InventoryRepositoryException('Failed to transfer items to group', e);
+    }
+  }
+
+  // ========================================
+  // Real-time Streams - מזווה אישי/קבוצתי
+  // ========================================
+
+  /// מחזיר stream של מזווה אישי (real-time updates)
+  Stream<List<InventoryItem>> watchUserInventory(String userId) {
+    return _userInventoryCollection(userId)
+        .orderBy(FirestoreFields.productName)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = Map<String, dynamic>.from(doc.data());
+        return InventoryItem.fromJson(data);
+      }).toList();
+    });
+  }
+
+  /// מחזיר stream של מזווה קבוצתי (real-time updates)
+  Stream<List<InventoryItem>> watchGroupInventory(String groupId) {
+    return _groupInventoryCollection(groupId)
+        .orderBy(FirestoreFields.productName)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = Map<String, dynamic>.from(doc.data());
+        return InventoryItem.fromJson(data);
+      }).toList();
+    });
   }
 }
 

@@ -1,27 +1,16 @@
 // 📄 File: lib/screens/home/home_dashboard_screen.dart
 // 🎯 Purpose: מסך דשבורד הבית - Dashboard Screen
-// 📦 Helper File: home_dashboard_screen_ux.dart (skeleton loading)
 //
 // 📋 Features:
-// ✅ Pull-to-Refresh (רשימות + הצעות)
-// ✅ מיון חכם לפי priority (אירועים + עדכונים)
-// ✅ Empty state משופר עם אנימציה
-// ✅ כרטיסים: הקנייה הבאה, הצעות חכמות, קבלות, תובנות, רשימות פעילות
-// ✅ Dismissible lists עם undo
-// ✅ AppStrings - i18n ready
-// ✅ ui_constants - עיצוב עקבי
+// ✅ Header עם ברכה
+// ✅ אזור "דורש תשומת לב" - התראות חשובות
+// ✅ כפתורי גישה מהירה (מזווה + קנייה)
+// ✅ פעילות אחרונה
+// ✅ קיצורי קבוצות
+// ✅ Pull-to-Refresh
 //
-// 🔗 Dependencies:
-// - ShoppingListsProvider - רשימות קניות
-// - SuggestionsProvider - הצעות חכמות
-// - UserContext - פרטי משתמש
-// - ReceiptProvider - קבלות
-// - flutter_animate - אנימציות
-//
-// 🎨 Material 3:
-// - צבעים רק דרך Theme/ColorScheme
-// - RTL support מלא
-// - Accessibility compliant
+// 📝 Version: 2.0
+// 📅 Updated: 14/12/2025
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -32,15 +21,15 @@ import 'package:provider/provider.dart';
 import '../../../core/ui_constants.dart';
 import '../../../services/tutorial_service.dart';
 import '../../../l10n/app_strings.dart';
+import '../../../models/group.dart';
 import '../../../models/shopping_list.dart';
+import '../../../providers/groups_provider.dart';
 import '../../../providers/shopping_lists_provider.dart';
 import '../../../providers/suggestions_provider.dart';
 import '../../../providers/user_context.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/common/notebook_background.dart';
 import '../../../widgets/common/sticky_note.dart';
-import 'widgets/smart_suggestions_card.dart';
-import 'widgets/upcoming_shop_card.dart';
 
 class HomeDashboardScreen extends StatefulWidget {
   const HomeDashboardScreen({super.key});
@@ -77,14 +66,12 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     if (kDebugMode) {
       debugPrint('🏠 HomeDashboard: מתחיל refresh...');
     }
-    
-    // ✅ שמירת providers לפני await
+
     final lists = context.read<ShoppingListsProvider>();
     final sugg = context.read<SuggestionsProvider>();
-    
-    await HapticFeedback.mediumImpact(); // ✨ רטט בהתחלת refresh
-    
-    // ✅ טעינת רשימות - נפרד
+
+    await HapticFeedback.mediumImpact();
+
     try {
       await lists.loadLists();
       if (kDebugMode) {
@@ -94,12 +81,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       if (kDebugMode) {
         debugPrint('   ❌ שגיאה בטעינת רשימות: $e');
       }
-      // ממשיכים להצעות
     }
 
     if (!context.mounted) return;
 
-    // ✅ טעינת הצעות - נפרד
     try {
       await sugg.refreshSuggestions();
       if (kDebugMode) {
@@ -109,16 +94,14 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       if (kDebugMode) {
         debugPrint('   ⚠️ לא ניתן לטעון הצעות: $e');
       }
-      // זה לא קריטי
     }
-    
-    // ✨ עיכוב קצר כדי לראות את ההתקדמות
+
     await Future.delayed(const Duration(milliseconds: 300));
-    
+
     if (context.mounted) {
-      await HapticFeedback.lightImpact(); // ✨ רטט קל בסיום
+      await HapticFeedback.lightImpact();
     }
-    
+
     if (kDebugMode) {
       debugPrint('🏠 HomeDashboard: refresh הושלם');
     }
@@ -127,43 +110,73 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final listsProvider = context.watch<ShoppingListsProvider>();
+    final groupsProvider = context.watch<GroupsProvider>();
     final userContext = context.watch<UserContext>();
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: kPaperBackground,  // ✅ Sticky Notes background
+      backgroundColor: kPaperBackground,
       body: Stack(
         children: [
-          const NotebookBackground(),  // ✅ רקע מחברת
+          const NotebookBackground(),
           SafeArea(
             child: RefreshIndicator(
-              color: Theme.of(context).extension<AppBrand>()?.accent ?? cs.primary,
+              color: Theme.of(context).extension<AppBrand>()?.accent ??
+                  cs.primary,
               backgroundColor: kPaperBackground,
-              strokeWidth: 4.0, // ✨ עבה יותר
-              displacement: 50.0, // ✨ יותר רחוק
+              strokeWidth: 4.0,
+              displacement: 50.0,
               onRefresh: () => _refresh(context),
               child: ListView(
                 padding: const EdgeInsets.all(kSpacingMedium),
                 children: [
-                  _Header(userName: userContext.displayName),
+                  // === 1. Header עם ברכה ===
+                  _GreetingHeader(userName: userContext.displayName)
+                      .animate()
+                      .fadeIn(duration: 500.ms)
+                      .slideY(begin: -0.1, end: 0),
+
                   const SizedBox(height: kSpacingMedium),
 
-                  // Loading state
-                  if (listsProvider.isLoading)
-                    const Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  else if (listsProvider.errorMessage != null)
-                    _ErrorState(
-                      message: listsProvider.errorMessage!,
-                      onRetry: listsProvider.loadLists,
-                    )
-                  else if (listsProvider.lists.isEmpty)
-                    _ImprovedEmptyState(
-                      onCreateList: () => Navigator.pushNamed(context, '/create-list'),
-                    )
-                  else
-                    _Content(allLists: listsProvider.lists),
+                  // === 2. דורש תשומת לב ===
+                  _AttentionSection(
+                    lists: listsProvider.lists,
+                    groups: groupsProvider.groups,
+                  )
+                      .animate()
+                      .fadeIn(duration: 500.ms, delay: 100.ms)
+                      .slideX(begin: -0.1, end: 0),
+
+                  const SizedBox(height: kSpacingMedium),
+
+                  // === 3. כפתורי גישה מהירה ===
+                  _QuickAccessButtons(
+                    hasActiveLists: listsProvider.lists
+                        .any((l) => l.status == ShoppingList.statusActive),
+                  )
+                      .animate()
+                      .fadeIn(duration: 500.ms, delay: 200.ms)
+                      .scale(
+                          begin: const Offset(0.95, 0.95),
+                          end: const Offset(1, 1)),
+
+                  const SizedBox(height: kSpacingMedium),
+
+                  // === 4. פעילות אחרונה ===
+                  _RecentActivitySection(lists: listsProvider.lists)
+                      .animate()
+                      .fadeIn(duration: 500.ms, delay: 300.ms)
+                      .slideY(begin: 0.1, end: 0),
+
+                  const SizedBox(height: kSpacingMedium),
+
+                  // === 5. קיצורי קבוצות ===
+                  _GroupsShortcuts(groups: groupsProvider.groups)
+                      .animate()
+                      .fadeIn(duration: 500.ms, delay: 400.ms)
+                      .slideY(begin: 0.1, end: 0),
+
+                  const SizedBox(height: kSpacingLarge),
                 ],
               ),
             ),
@@ -174,447 +187,340 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   }
 }
 
-class _Header extends StatelessWidget {
+// =============================================================================
+// 1. GREETING HEADER
+// =============================================================================
+
+class _GreetingHeader extends StatelessWidget {
   final String? userName;
-  const _Header({required this.userName});
+  const _GreetingHeader({required this.userName});
 
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
     final cs = Theme.of(context).colorScheme;
-    final brand = Theme.of(context).extension<AppBrand>();
 
-    // ✅ Header על פתק צהוב
+    final greeting = _getGreeting();
+    final displayName = (userName?.trim().isEmpty ?? true)
+        ? AppStrings.home.guestUser
+        : userName!;
+
     return StickyNote(
       color: kStickyYellow,
-      rotation: -0.02,
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: kSpacingMedium, // 16px
-            backgroundColor: (brand?.accent ?? cs.secondary).withValues(
-              alpha: 0.18,
-            ),
-            child: Icon(
-              Icons.home_outlined,
-              size: kIconSizeSmall, // 16px
-              color: brand?.accent ?? cs.secondary,
-            ),
-          ),
-          const SizedBox(width: kSpacingSmall),
-          Expanded(
-            child: Text(
-              AppStrings.home.welcomeUser(
-                (userName?.trim().isEmpty ?? true) 
-                  ? AppStrings.home.guestUser 
-                  : userName!,
+      rotation: -0.015,
+      child: Padding(
+        padding: const EdgeInsets.all(kSpacingMedium),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: cs.primary.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
               ),
-              style: t.titleMedium?.copyWith(
-                color: Colors.black87,  // ✅ טקסט כהה על פתק צהוב
-                fontWeight: FontWeight.bold,
+              child: Center(
+                child: Text(
+                  _getGreetingEmoji(),
+                  style: const TextStyle(fontSize: 24),
+                ),
               ),
-              overflow: TextOverflow.ellipsis,
             ),
-          ),
-        ],
+            const SizedBox(width: kSpacingSmall),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '$greeting,',
+                    style: t.bodyMedium?.copyWith(
+                      color: Colors.black54,
+                    ),
+                  ),
+                  Text(
+                    displayName,
+                    style: t.titleLarge?.copyWith(
+                      color: Colors.black87,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 5) return 'לילה טוב';
+    if (hour < 12) return 'בוקר טוב';
+    if (hour < 17) return 'צהריים טובים';
+    if (hour < 21) return 'ערב טוב';
+    return 'לילה טוב';
+  }
+
+  String _getGreetingEmoji() {
+    final hour = DateTime.now().hour;
+    if (hour < 5) return '🌙';
+    if (hour < 12) return '☀️';
+    if (hour < 17) return '🌤️';
+    if (hour < 21) return '🌆';
+    return '🌙';
+  }
 }
 
-class _Content extends StatelessWidget {
-  final List<ShoppingList> allLists;
-  const _Content({required this.allLists});
+// =============================================================================
+// 2. ATTENTION SECTION - דורש תשומת לב
+// =============================================================================
+
+class _AttentionSection extends StatelessWidget {
+  final List<ShoppingList> lists;
+  final List<Group> groups;
+
+  const _AttentionSection({
+    required this.lists,
+    required this.groups,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final activeLists = _getActiveLists();
-    final mostRecentList = _getMostRecentList(activeLists);
-    final otherLists = _getOtherLists(activeLists);
+    final alerts = _getAlerts();
 
-    if (kDebugMode) {
-      debugPrint('🏠 HomeDashboard._Content: פעילות=${activeLists.length}, אחרות=${otherLists.length}');
+    // אם אין התראות, לא מציג כלום
+    if (alerts.isEmpty) {
+      return const SizedBox.shrink();
     }
 
-    return Column(
-      children: [
-        // ✨ אנימציות יותר איטיות ודרמטיות!
-        UpcomingShopCard(list: mostRecentList)
-          .animate()
-          .fadeIn(duration: 600.ms) // ✨ יותר איטי
-          .slideY(begin: 0.15, end: 0) // ✨ יותר דרמטי
-          .scale(begin: const Offset(0.95, 0.95), end: const Offset(1, 1)), // ✨ זום!
-        
-        const SizedBox(height: kSpacingMedium),
-        
-        const SmartSuggestionsCard()
-          .animate()
-          .fadeIn(duration: 600.ms, delay: 150.ms) // ✨ יותר איטי
-          .slideY(begin: 0.15, end: 0) // ✨ יותר דרמטי
-          .scale(begin: const Offset(0.95, 0.95), end: const Offset(1, 1)), // ✨ זום!
-        
-        // רשימות נוספות
-        if (otherLists.isNotEmpty) ...[
-          const SizedBox(height: kSpacingMedium),
-          
-          // כותרת לרשימות נוספות
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return StickyNote(
+      color: kStickyPink,
+      rotation: 0.01,
+      child: Padding(
+        padding: const EdgeInsets.all(kSpacingMedium),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
               children: [
+                Icon(Icons.warning_amber, color: Colors.red, size: 20),
+                SizedBox(width: kSpacingSmall),
                 Text(
-                  'רשימות פעילות נוספות (${otherLists.length})',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  'דורש תשומת לב',
+                  style: TextStyle(
+                    fontSize: kFontSizeMedium,
                     fontWeight: FontWeight.bold,
+                    color: Colors.black87,
                   ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    // Navigate to lists tab (index 1)
-                    DefaultTabController.of(context).animateTo(1);
-                  },
-                  child: const Text('ראה הכל'),
                 ),
               ],
             ),
-          )
-            .animate()
-            .fadeIn(duration: 600.ms, delay: 300.ms)
-            .slideX(begin: -0.1, end: 0),
-          
-          const SizedBox(height: kSpacingSmall),
-          
-          // רשימת כרטיסים של שאר הרשימות
-          ...otherLists.asMap().entries.map((entry) {
-            final index = entry.key;
-            final list = entry.value;
-            return Padding(
-              padding: const EdgeInsets.only(bottom: kSpacingSmall),
-              child: _ActiveListCard(list: list)
-                .animate()
-                .fadeIn(
-                  duration: 500.ms, 
-                  delay: Duration(milliseconds: 400 + (index * 100))
-                )
-                .slideX(begin: 0.1, end: 0),
-            );
-          }),
-        ],
+            const SizedBox(height: kSpacingSmall),
+            ...alerts.map((alert) => Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Row(
+                    children: [
+                      Text(alert.emoji, style: const TextStyle(fontSize: 14)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          alert.message,
+                          style: const TextStyle(
+                            fontSize: kFontSizeSmall,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<_Alert> _getAlerts() {
+    final alerts = <_Alert>[];
+
+    // התראות על רשימות
+    final activeLists =
+        lists.where((l) => l.status == ShoppingList.statusActive).toList();
+
+    // רשימות ריקות
+    final emptyLists = activeLists.where((l) => l.items.isEmpty).toList();
+    if (emptyLists.length == 1) {
+      alerts.add(_Alert('📝', '${emptyLists.first.name} - אין פריטים'));
+    } else if (emptyLists.length > 1) {
+      alerts.add(_Alert('📝', '${emptyLists.length} רשימות ריקות'));
+    }
+
+    // רשימות עם פריטים רבים שלא נקנו
+    for (final list in activeLists) {
+      final uncheckedCount =
+          list.items.where((i) => !i.isChecked).length;
+      if (uncheckedCount >= 10) {
+        alerts.add(_Alert('🛒', '${list.name} - $uncheckedCount פריטים ממתינים'));
+      }
+    }
+
+    return alerts.take(5).toList(); // מקסימום 5 התראות
+  }
+}
+
+class _Alert {
+  final String emoji;
+  final String message;
+  _Alert(this.emoji, this.message);
+}
+
+// =============================================================================
+// 3. QUICK ACCESS BUTTONS - כפתורי גישה מהירה
+// =============================================================================
+
+class _QuickAccessButtons extends StatelessWidget {
+  final bool hasActiveLists;
+
+  const _QuickAccessButtons({required this.hasActiveLists});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        // כפתור משפחה (רשימות + מזווה)
+        Expanded(
+          child: _QuickAccessButton(
+            emoji: '👨‍👩‍👧',
+            label: 'משפחה',
+            color: kStickyPink,
+            onTap: () {
+              HapticFeedback.lightImpact();
+              // Navigate to Family tab (index 1)
+              _navigateToTab(context, 1);
+            },
+          ),
+        ),
+        const SizedBox(width: kSpacingSmall),
+        // כפתור קנייה
+        Expanded(
+          child: _QuickAccessButton(
+            emoji: '🛒',
+            label: 'קנייה',
+            color: kStickyCyan,
+            badge: hasActiveLists ? null : 'חדש',
+            onTap: () {
+              HapticFeedback.lightImpact();
+              if (hasActiveLists) {
+                // Navigate to Family tab (lists)
+                _navigateToTab(context, 1);
+              } else {
+                // Create new list
+                Navigator.pushNamed(context, '/create-list');
+              }
+            },
+          ),
+        ),
+        const SizedBox(width: kSpacingSmall),
+        // כפתור קבוצות
+        Expanded(
+          child: _QuickAccessButton(
+            emoji: '👥',
+            label: 'קבוצות',
+            color: kStickyPurple,
+            onTap: () {
+              HapticFeedback.lightImpact();
+              // Navigate to Groups tab (index 2)
+              _navigateToTab(context, 2);
+            },
+          ),
+        ),
       ],
     );
   }
 
-  /// ✅ מחזיר רק רשימות פעילות
-  List<ShoppingList> _getActiveLists() {
-    return allLists
-        .where((l) => l.status == ShoppingList.statusActive)
-        .toList();
-  }
-
-  /// ✅ מחזיר את הרשימה עם העדכון האחרון
-  ShoppingList? _getMostRecentList(List<ShoppingList> activeLists) {
-    if (activeLists.isEmpty) return null;
-
-    if (kDebugMode) {
-      debugPrint('🧠 ממיין ${activeLists.length} רשימות לפי עדכון אחרון');
+  void _navigateToTab(BuildContext context, int index) {
+    // Use a callback to notify the parent MainNavigationScreen
+    // For now, just show a message
+    final scaffold = Scaffold.maybeOf(context);
+    if (scaffold != null) {
+      // Navigate using named route with tab index
+      Navigator.of(context).pushReplacementNamed('/home', arguments: index);
     }
-    
-    // מיון לפי תאריך עדכון (החדש ביותר ראשון)
-    activeLists.sort((a, b) => b.updatedDate.compareTo(a.updatedDate));
-
-    final list = activeLists.first;
-    if (kDebugMode) {
-      debugPrint('   ✅ הקנייה הקרובה: "${list.name}" (עודכן: ${list.updatedDate})');
-    }
-    
-    return list;
   }
-
-  /// ✅ מחזיר רשימות נוספות (ללא הדחופה ביותר)
-  List<ShoppingList> _getOtherLists(List<ShoppingList> activeLists) {
-    return activeLists.length > 1 
-        ? activeLists.sublist(1) 
-        : const <ShoppingList>[];
-  }
-
-
-
-
 }
 
-class _ErrorState extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-  
-  const _ErrorState({
-    required this.message, 
-    required this.onRetry,
+class _QuickAccessButton extends StatelessWidget {
+  final String emoji;
+  final String label;
+  final Color color;
+  final String? badge;
+  final VoidCallback onTap;
+
+  const _QuickAccessButton({
+    required this.emoji,
+    required this.label,
+    required this.color,
+    required this.onTap,
+    this.badge,
   });
-  
-  @override
-  Widget build(BuildContext context) {
-    final t = Theme.of(context).textTheme;
-    final cs = Theme.of(context).colorScheme;
-    final brand = Theme.of(context).extension<AppBrand>();
-    final accent = brand?.accent ?? cs.primary;
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: kSpacingLarge * 2.67, // 64px
-          horizontal: kSpacingXLarge,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: kStickyPink.withValues(alpha: 0.15),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.error_outline,
-                size: 64,
-                color: kStickyPink,
-              ),
-            ),
-            
-            const SizedBox(height: kSpacingLarge),
-            
-            Text(
-              'שגיאה בטעינת הנתונים',
-              style: t.headlineSmall?.copyWith(
-                color: cs.onSurface,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            
-            const SizedBox(height: kBorderRadius),
-            
-            Text(
-              message,
-              style: t.bodyLarge?.copyWith(
-                color: cs.onSurfaceVariant,
-                height: 1.5,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            
-            const SizedBox(height: kSpacingXLarge),
-            
-            FilledButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh),
-              label: const Text('נסה שוב'),
-              style: FilledButton.styleFrom(
-                backgroundColor: accent,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: kSpacingXLarge,
-                  vertical: kSpacingMedium,
-                ),
-                textStyle: t.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.2, end: 0);
-  }
-}
-
-class _ImprovedEmptyState extends StatelessWidget {
-  final VoidCallback onCreateList;
-
-  const _ImprovedEmptyState({required this.onCreateList});
 
   @override
   Widget build(BuildContext context) {
-    final t = Theme.of(context).textTheme;
-    final cs = Theme.of(context).colorScheme;
-    final brand = Theme.of(context).extension<AppBrand>();
-    final accent = brand?.accent ?? cs.primary;
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: kSpacingLarge * 2.67, // 64px
-          horizontal: kSpacingXLarge,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: accent.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.shopping_cart_outlined,
-                    size: 64,
-                    color: accent,
-                  ),
-                )
-                .animate(
-                  onPlay: (controller) => controller.repeat(reverse: true),
-                )
-                .scale(
-                  duration: 2000.ms,
-                  begin: const Offset(0.95, 0.95),
-                  end: const Offset(1.05, 1.05),
-                )
-                .then()
-                .scale(
-                  duration: 2000.ms,
-                  begin: const Offset(1.05, 1.05),
-                  end: const Offset(0.95, 0.95),
-                ),
-
-            const SizedBox(height: kSpacingLarge),
-
-            Text(
-              AppStrings.home.noActiveLists,
-              style: t.headlineSmall?.copyWith(
-                color: cs.onSurface,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-
-            const SizedBox(height: kBorderRadius),
-
-            Text(
-              AppStrings.home.emptyStateMessage,
-              style: t.bodyLarge?.copyWith(
-                color: cs.onSurfaceVariant,
-                height: 1.5,
-              ),
-              textAlign: TextAlign.center,
-            ),
-
-            const SizedBox(height: kSpacingXLarge),
-
-            FilledButton.icon(
-              onPressed: onCreateList,
-              icon: const Icon(Icons.add_circle_outline),
-              label: Text(AppStrings.home.createFirstList),
-              style: FilledButton.styleFrom(
-                backgroundColor: accent,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: kSpacingXLarge,
-                  vertical: kSpacingMedium,
-                ),
-                textStyle: t.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.2, end: 0);
-  }
-}
-
-/// כרטיס קומפקטי לרשימה פעילה
-class _ActiveListCard extends StatelessWidget {
-  final ShoppingList list;
-  
-  const _ActiveListCard({required this.list});
-  
-  @override
-  Widget build(BuildContext context) {
-    final t = Theme.of(context).textTheme;
-    final cs = Theme.of(context).colorScheme;
-    
-    // ✅ שימוש ב-getters מהמודל (במקום פונקציות מקומיות)
-    final Color noteColor = list.stickyColor;
-    final String typeIcon = list.typeEmoji;
-    final int itemCount = list.items.length;
-    
     return InkWell(
+      onTap: onTap,
       borderRadius: BorderRadius.circular(kBorderRadius),
-      onTap: () {
-        HapticFeedback.lightImpact().ignore();
-        Navigator.pushNamed(
-          context, 
-          '/shopping-list-details',
-          arguments: list,
-        );
-      },
       child: StickyNote(
-        color: noteColor,
-        rotation: 0.005 * (list.id.hashCode % 3 - 1), // סיבוב אקראי קל
+        color: color,
         child: Padding(
-          padding: const EdgeInsets.all(kSpacingSmall),
-          child: Row(
+          padding: const EdgeInsets.symmetric(
+            vertical: kSpacingMedium,
+            horizontal: kSpacingSmall,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // אייקון סוג הרשימה
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: cs.surface.withValues(alpha: 0.9),
-                  borderRadius: BorderRadius.circular(kBorderRadius),
-                ),
-                child: Center(
-                  child: Text(
-                    typeIcon,
-                    style: const TextStyle(fontSize: 24),
-                  ),
-                ),
-              ),
-              
-              const SizedBox(width: kSpacingSmall),
-              
-              // פרטי הרשימה
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      list.name,
-                      style: t.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '$itemCount פריטים',
-                      style: t.bodySmall?.copyWith(
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              // זמן עדכון אחרון
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+              Stack(
+                clipBehavior: Clip.none,
                 children: [
-                  const Icon(
-                    Icons.chevron_right,
-                    color: Colors.black38,
-                    size: 20,
-                  ),
-                  const SizedBox(height: 2),
                   Text(
-                    _getRelativeTime(list.updatedDate),
-                    style: t.bodySmall?.copyWith(
-                      color: Colors.black38,
-                      fontSize: 10,
-                    ),
+                    emoji,
+                    style: const TextStyle(fontSize: 32),
                   ),
+                  if (badge != null)
+                    Positioned(
+                      top: -4,
+                      right: -8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          badge!,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 8,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: kFontSizeSmall,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
               ),
             ],
           ),
@@ -622,14 +528,133 @@ class _ActiveListCard extends StatelessWidget {
       ),
     );
   }
-  
-  // ✅ פונקציות _getColorForListType ו-_getIconForListType הוסרו
-  // ✅ השתמש ב-list.stickyColor ו-list.typeEmoji במקום
-  
+}
+
+// =============================================================================
+// 4. RECENT ACTIVITY - פעילות אחרונה
+// =============================================================================
+
+class _RecentActivitySection extends StatelessWidget {
+  final List<ShoppingList> lists;
+
+  const _RecentActivitySection({required this.lists});
+
+  @override
+  Widget build(BuildContext context) {
+    // מציג 5 רשימות אחרונות
+    final recentLists = lists.take(5).toList();
+
+    if (recentLists.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return StickyNote(
+      color: kStickyYellow.withValues(alpha: 0.7),
+      rotation: -0.005,
+      child: Padding(
+        padding: const EdgeInsets.all(kSpacingMedium),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.history, size: 18, color: Colors.black54),
+                    SizedBox(width: 6),
+                    Text(
+                      'פעילות אחרונה',
+                      style: TextStyle(
+                        fontSize: kFontSizeMedium,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
+                TextButton(
+                  onPressed: () {
+                    DefaultTabController.of(context).animateTo(1);
+                  },
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: const Text('ראה הכל'),
+                ),
+              ],
+            ),
+            const SizedBox(height: kSpacingSmall),
+            ...recentLists.map((list) => _ActivityItem(list: list)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ActivityItem extends StatelessWidget {
+  final ShoppingList list;
+
+  const _ActivityItem({required this.list});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        Navigator.pushNamed(
+          context,
+          '/shopping-list-details',
+          arguments: list,
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Row(
+          children: [
+            Text(list.typeEmoji, style: const TextStyle(fontSize: 18)),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    list.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    '${list.items.length} פריטים • ${_getRelativeTime(list.updatedDate)}',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.chevron_right,
+              size: 18,
+              color: Colors.grey[400],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   String _getRelativeTime(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
-    
+
     if (difference.inMinutes < 1) {
       return 'עכשיו';
     } else if (difference.inMinutes < 60) {
@@ -644,4 +669,129 @@ class _ActiveListCard extends StatelessWidget {
   }
 }
 
+// =============================================================================
+// 5. GROUPS SHORTCUTS - קיצורי קבוצות
+// =============================================================================
 
+class _GroupsShortcuts extends StatelessWidget {
+  final List<Group> groups;
+
+  const _GroupsShortcuts({required this.groups});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return StickyNote(
+      color: kStickyGreen.withValues(alpha: 0.7),
+      rotation: 0.008,
+      child: Padding(
+        padding: const EdgeInsets.all(kSpacingMedium),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.groups, size: 18, color: Colors.black54),
+                SizedBox(width: 6),
+                Text(
+                  'הקבוצות שלי',
+                  style: TextStyle(
+                    fontSize: kFontSizeMedium,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: kSpacingSmall),
+            if (groups.isEmpty)
+              // אין קבוצות - הצג הודעה וכפתור יצירה
+              InkWell(
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  Navigator.pushNamed(context, '/create-group');
+                },
+                borderRadius: BorderRadius.circular(kBorderRadius),
+                child: Container(
+                  padding: const EdgeInsets.all(kSpacingMedium),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(kBorderRadius),
+                    border: Border.all(
+                      color: cs.primary.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.add_circle_outline,
+                          color: cs.primary, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        'צור את הקבוצה הראשונה שלך',
+                        style: TextStyle(
+                          color: cs.primary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else
+              // יש קבוצות - הצג chips
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  ...groups.take(5).map((group) => _GroupChip(group: group)),
+                  // כפתור + ליצירת קבוצה חדשה
+                  ActionChip(
+                    avatar: const Icon(Icons.add, size: 16),
+                    label: const Text('חדש'),
+                    backgroundColor: Colors.white,
+                    side: BorderSide(color: Colors.grey[300]!),
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      Navigator.pushNamed(context, '/create-group');
+                    },
+                  ),
+                ],
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _GroupChip extends StatelessWidget {
+  final Group group;
+
+  const _GroupChip({required this.group});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return ActionChip(
+      avatar: Text(group.type.emoji, style: const TextStyle(fontSize: 14)),
+      label: Text(
+        group.name,
+        style: const TextStyle(fontSize: 12),
+      ),
+      backgroundColor: cs.primaryContainer.withValues(alpha: 0.3),
+      side: BorderSide.none,
+      onPressed: () {
+        HapticFeedback.lightImpact();
+        // Navigate to group details
+        Navigator.pushNamed(
+          context,
+          '/group-details',
+          arguments: group.id,
+        );
+      },
+    );
+  }
+}

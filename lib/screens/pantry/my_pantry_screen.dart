@@ -17,13 +17,18 @@
 // Last Updated: 30/11/2025
 // Changes: Simplified to single view (locations only)
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
 import '../../models/inventory_item.dart';
+import '../../providers/groups_provider.dart';
 import '../../providers/inventory_provider.dart';
+import '../../providers/user_context.dart';
+import '../../services/notifications_service.dart';
 import '../../widgets/common/notebook_background.dart';
+import '../../widgets/inventory/pantry_empty_state.dart';
 import '../../widgets/inventory/pantry_item_dialog.dart';
 import '../../widgets/inventory/pantry_product_selection_sheet.dart';
 import '../../widgets/inventory/storage_location_manager.dart';
@@ -89,8 +94,17 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   Future<void> _updateQuantity(InventoryItem item, int newQuantity) async {
     debugPrint('📦 MyPantryScreen: עדכון כמות - ${item.id} -> $newQuantity');
     try {
+      // בדוק אם הפריט עובר למלאי נמוך (לפני שהיה מעל הסף)
+      final wasAboveMin = item.quantity > item.minQuantity;
+      final willBeLow = newQuantity <= item.minQuantity;
+
       final updatedItem = item.copyWith(quantity: newQuantity);
       await context.read<InventoryProvider>().updateItem(updatedItem);
+
+      // שלח התראות אם הפריט הפך למלאי נמוך
+      if (wasAboveMin && willBeLow) {
+        await _sendLowStockNotification(updatedItem);
+      }
     } catch (e) {
       debugPrint('❌ MyPantryScreen: שגיאה בעדכון כמות - $e');
       if (mounted) {
@@ -98,6 +112,44 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           const SnackBar(content: Text('שגיאה בעדכון כמות')),
         );
       }
+    }
+  }
+
+  /// שולח התראה על מלאי נמוך לכל חברי הקבוצה (מזווה משותף)
+  Future<void> _sendLowStockNotification(InventoryItem item) async {
+    try {
+      final inventoryProvider = context.read<InventoryProvider>();
+      final userContext = context.read<UserContext>();
+      final groupsProvider = context.read<GroupsProvider>();
+
+      // אם זה מזווה קבוצתי - שלח התראה לכל החברים
+      if (inventoryProvider.isGroupMode && inventoryProvider.currentGroupId != null) {
+        final groupId = inventoryProvider.currentGroupId!;
+        final group = groupsProvider.groups.where((g) => g.id == groupId).firstOrNull;
+
+        if (group != null) {
+          final notificationsService = NotificationsService(FirebaseFirestore.instance);
+          final currentUserId = userContext.userId;
+
+          // שלח לכל חברי הקבוצה (חוץ מהמשתמש הנוכחי)
+          for (final member in group.membersList) {
+            if (member.userId != currentUserId) {
+              await notificationsService.createLowStockNotification(
+                userId: member.userId,
+                householdId: group.id, // Group ID serves as householdId for family groups
+                productName: item.productName,
+                currentStock: item.quantity,
+                minStock: item.minQuantity,
+              );
+            }
+          }
+
+          debugPrint('📬 נשלחו התראות מלאי נמוך לחברי הקבוצה: ${item.productName}');
+        }
+      }
+    } catch (e) {
+      debugPrint('⚠️ שגיאה בשליחת התראת מלאי נמוך: $e');
+      // לא מפריע למשתמש - התראה היא nice-to-have
     }
   }
 
@@ -162,18 +214,33 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                       ],
                     ),
                   )
-                : Stack(
-                    children: [
-                      const NotebookBackground(),
-                      StorageLocationManager(
-                        inventory: items,
-                        searchQuery: _searchQuery,
-                        onEditItem: _editItemDialog,
-                        onDeleteItem: _deleteItem,
-                        onUpdateQuantity: _updateQuantity,
+                : items.isEmpty && !_isSearching
+                    // מסך ריק כשאין פריטים בכלל
+                    ? Stack(
+                        children: [
+                          const NotebookBackground(),
+                          PantryEmptyState(
+                            isGroupMode: provider.isGroupMode,
+                            groupName: provider.isGroupMode
+                                ? provider.inventoryTitle
+                                : null,
+                            onAddItem: _addItemDialog,
+                          ),
+                        ],
+                      )
+                    // תצוגה רגילה
+                    : Stack(
+                        children: [
+                          const NotebookBackground(),
+                          StorageLocationManager(
+                            inventory: items,
+                            searchQuery: _searchQuery,
+                            onEditItem: _editItemDialog,
+                            onDeleteItem: _deleteItem,
+                            onUpdateQuantity: _updateQuantity,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
           );
         },
       ),
