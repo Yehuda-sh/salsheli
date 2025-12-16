@@ -83,49 +83,11 @@ class WelcomeScreen extends StatelessWidget {
                         children: [
                           SizedBox(height: isSmallScreen ? kSpacingSmall : kSpacingMedium),
 
-                          // 📝 לוגו על פתק צהוב
-                          Hero(
-                            tag: 'app_logo',
-                            child: Transform.scale(
-                              scale: isSmallScreen ? 0.75 : 0.85,
-                              child: StickyNoteLogo(
-                                color: brand?.stickyYellow ?? kStickyYellow,
-                                icon: Icons.shopping_basket_outlined,
-                                iconColor: accent,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: kSpacingSmall),
-
-                          // 📋 כותרת וסלוגן על פתק לבן
-                          StickyNote(
-                            color: Colors.white,
-                            rotation: -0.01,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    AppStrings.welcome.title,
-                                    textAlign: TextAlign.center,
-                                    style: theme.textTheme.headlineLarge?.copyWith(
-                                      color: Colors.black87,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: isSmallScreen ? 26 : 30,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    AppStrings.welcome.subtitle,
-                                    textAlign: TextAlign.center,
-                                    style: theme.textTheme.bodyLarge?.copyWith(
-                                      color: Colors.black54,
-                                      fontSize: isSmallScreen ? 13 : 15,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                          // 🎨 לוגו וסלוגן משולבים - עיצוב חדש
+                          _LogoAndSlogan(
+                            accent: accent,
+                            stickyYellow: brand?.stickyYellow ?? kStickyYellow,
+                            isSmallScreen: isSmallScreen,
                           ),
                           SizedBox(height: isSmallScreen ? kSpacingSmall : kSpacingMedium),
 
@@ -137,6 +99,9 @@ class WelcomeScreen extends StatelessWidget {
                             color: brand?.stickyPink ?? kStickyPink,
                             rotation: 0.012,
                             previewWidget: const _MiniShoppingList(),
+                            clipColor: Colors.red.shade400,
+                            clipPosition: 0.12,
+                            clipAngle: 0.15,
                           ).animate().fadeIn(duration: 300.ms, delay: 100.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
                           const SizedBox(height: kSpacingSmall),
 
@@ -148,6 +113,9 @@ class WelcomeScreen extends StatelessWidget {
                             color: brand?.stickyYellow ?? kStickyYellow,
                             rotation: -0.01,
                             previewWidget: const _MiniTasksVoting(),
+                            clipColor: Colors.blue.shade400,
+                            clipPosition: 0.18,
+                            clipAngle: -0.1,
                           ).animate().fadeIn(duration: 300.ms, delay: 200.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
                           const SizedBox(height: kSpacingSmall),
 
@@ -159,6 +127,9 @@ class WelcomeScreen extends StatelessWidget {
                             color: kStickyOrange,
                             rotation: 0.008,
                             previewWidget: const _MiniAssignment(),
+                            clipColor: Colors.green.shade500,
+                            clipPosition: 0.08,
+                            clipAngle: 0.05,
                           ).animate().fadeIn(duration: 300.ms, delay: 300.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
                           const SizedBox(height: kSpacingSmall),
 
@@ -210,8 +181,62 @@ class WelcomeScreen extends StatelessWidget {
   }
 }
 
+/// 🎨 שם וסלוגן - עיצוב נקי בלי לוגו
+class _LogoAndSlogan extends StatelessWidget {
+  final Color accent;
+  final Color stickyYellow;
+  final bool isSmallScreen;
+
+  const _LogoAndSlogan({
+    required this.accent,
+    required this.stickyYellow,
+    required this.isSmallScreen,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Column(
+      children: [
+        // 📝 שם האפליקציה - גדול ובולט
+        Text(
+          AppStrings.welcome.title,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.headlineLarge?.copyWith(
+            color: Colors.black87,
+            fontWeight: FontWeight.w800,
+            fontSize: isSmallScreen ? 36 : 44,
+            letterSpacing: 2,
+            shadows: [
+              Shadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 4,
+                offset: const Offset(1, 2),
+              ),
+            ],
+          ),
+        ).animate().fadeIn(duration: 400.ms),
+
+        const SizedBox(height: 8),
+
+        // 🏷️ סלוגן - טקסט ברור יותר
+        Text(
+          AppStrings.welcome.subtitle,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodyLarge?.copyWith(
+            color: Colors.black54,
+            fontWeight: FontWeight.w500,
+            fontSize: isSmallScreen ? 15 : 17,
+          ),
+        ).animate().fadeIn(duration: 400.ms, delay: 150.ms),
+      ],
+    );
+  }
+}
+
 /// 📌 כרטיס קבוצה עם Mini UI Preview
-/// מציג סוג קבוצה עם תצוגה מוחשית של הממשק
+/// מציג סוג קבוצה עם תצוגה מוחשית של הממשק - כמו פתק מודבק על מחברת
 class _GroupCardWithPreview extends StatelessWidget {
   final String emoji;
   final String title;
@@ -219,6 +244,9 @@ class _GroupCardWithPreview extends StatelessWidget {
   final Color color;
   final double rotation;
   final Widget previewWidget;
+  final Color? clipColor;
+  final double clipPosition; // 0.0-1.0 מיקום יחסי מימין
+  final double clipAngle;
 
   const _GroupCardWithPreview({
     required this.emoji,
@@ -227,69 +255,172 @@ class _GroupCardWithPreview extends StatelessWidget {
     required this.color,
     required this.previewWidget,
     this.rotation = 0.0,
+    this.clipColor,
+    this.clipPosition = 0.15,
+    this.clipAngle = 0.1,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final actualClipColor = clipColor ?? Colors.grey.shade500;
 
-    return StickyNote(
-      color: color,
-      rotation: rotation,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            // צד ימין: Emoji + Title + Question
-            Expanded(
-              flex: 3,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Emoji + Title
-                  Row(
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        // 📌 הפתק עצמו - גדול יותר
+        StickyNote(
+          color: color,
+          rotation: rotation,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 20, right: 16, bottom: 16, left: 16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // צד ימין (ב-RTL): Emoji + Title + Question
+                Expanded(
+                  flex: 4,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        emoji,
-                        style: const TextStyle(fontSize: 28, height: 1.0),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          title,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: Colors.black87,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 17,
+                      // Emoji + Title
+                      Row(
+                        children: [
+                          Text(
+                            emoji,
+                            style: const TextStyle(fontSize: 34, height: 1.0),
                           ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              title,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                color: Colors.black87,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 19,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      // Question - סגנון כתב יד
+                      Text(
+                        question,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: Colors.black54,
+                          fontStyle: FontStyle.italic,
+                          fontSize: 14,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  // Question
-                  Text(
-                    question,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: Colors.black54,
-                      fontStyle: FontStyle.italic,
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 12),
+                // צד שמאל (ב-RTL): Mini UI Preview
+                Expanded(
+                  flex: 5,
+                  child: previewWidget,
+                ),
+              ],
             ),
-            const SizedBox(width: 12),
-            // צד שמאל: Mini UI Preview
-            Expanded(
-              flex: 2,
-              child: previewWidget,
-            ),
-          ],
+          ),
         ),
-      ),
+        // 📎 סיכת נייר / קליפס מתכתי למעלה
+        Positioned(
+          top: -8,
+          right: MediaQuery.of(context).size.width * clipPosition,
+          child: Transform.rotate(
+            angle: clipAngle,
+            child: _PaperClip(color: actualClipColor),
+          ),
+        ),
+      ],
     );
   }
+}
+
+/// 📎 קליפס מתכתי מציאותי
+class _PaperClip extends StatelessWidget {
+  final Color color;
+
+  const _PaperClip({required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: const Size(16, 36),
+      painter: _PaperClipPainter(color: color),
+    );
+  }
+}
+
+/// 🎨 ציור קליפס מתכתי
+class _PaperClipPainter extends CustomPainter {
+  final Color color;
+
+  _PaperClipPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.5
+      ..strokeCap = StrokeCap.round;
+
+    // צל
+    final shadowPaint = Paint()
+      ..color = Colors.black.withValues(alpha: 0.2)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.5
+      ..strokeCap = StrokeCap.round
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1);
+
+    final path = Path();
+
+    // צורת קליפס קלאסית
+    final w = size.width;
+    final h = size.height;
+
+    // קו חיצוני למעלה
+    path.moveTo(w * 0.2, h * 0.1);
+    path.lineTo(w * 0.2, h * 0.85);
+    path.quadraticBezierTo(w * 0.2, h * 0.95, w * 0.5, h * 0.95);
+    path.quadraticBezierTo(w * 0.8, h * 0.95, w * 0.8, h * 0.85);
+    path.lineTo(w * 0.8, h * 0.25);
+    path.quadraticBezierTo(w * 0.8, h * 0.15, w * 0.5, h * 0.15);
+    path.quadraticBezierTo(w * 0.35, h * 0.15, w * 0.35, h * 0.25);
+    path.lineTo(w * 0.35, h * 0.75);
+    path.quadraticBezierTo(w * 0.35, h * 0.82, w * 0.5, h * 0.82);
+    path.quadraticBezierTo(w * 0.65, h * 0.82, w * 0.65, h * 0.75);
+    path.lineTo(w * 0.65, h * 0.35);
+
+    // ציור צל
+    canvas.save();
+    canvas.translate(1.5, 1.5);
+    canvas.drawPath(path, shadowPaint);
+    canvas.restore();
+
+    // ציור קליפס
+    canvas.drawPath(path, paint);
+
+    // הייליט מתכתי
+    final highlightPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.4)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0
+      ..strokeCap = StrokeCap.round;
+
+    final highlightPath = Path();
+    highlightPath.moveTo(w * 0.25, h * 0.15);
+    highlightPath.lineTo(w * 0.25, h * 0.5);
+    canvas.drawPath(highlightPath, highlightPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 /// 🛒 Mini Shopping List Preview - רשימת קניות מיניאטורית עם כמויות
@@ -299,7 +430,7 @@ class _MiniShoppingList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(8),
@@ -310,7 +441,7 @@ class _MiniShoppingList extends StatelessWidget {
         children: [
           // כותרת הרשימה
           _MiniHeader(text: '🛒 סופר'),
-          SizedBox(height: 4),
+          SizedBox(height: 6),
           _MiniListItemWithQty(text: 'חלב', qty: '2', checked: true),
           _MiniListItemWithQty(text: 'לחם', qty: '1', checked: true),
           _MiniListItemWithQty(text: 'ביצים', qty: 'L', checked: false),
@@ -327,7 +458,7 @@ class _MiniTasksVoting extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(8),
@@ -338,7 +469,7 @@ class _MiniTasksVoting extends StatelessWidget {
         children: [
           // כותרת ההצבעה
           _MiniHeader(text: '🗳️ צבע לובי?'),
-          SizedBox(height: 4),
+          SizedBox(height: 6),
           _MiniVoteOption(text: 'לבן', votes: 3, selected: true),
           _MiniVoteOption(text: 'בז\'', votes: 2, selected: false),
           _MiniVoteOption(text: 'אפור', votes: 1, selected: false),
@@ -355,7 +486,7 @@ class _MiniAssignment extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(8),
@@ -366,7 +497,7 @@ class _MiniAssignment extends StatelessWidget {
         children: [
           // כותרת הרשימה
           _MiniHeader(text: '🕎 מסיבת חנוכה'),
-          SizedBox(height: 4),
+          SizedBox(height: 6),
           _MiniAssignItem(item: 'סופגניות', person: 'דנה'),
           _MiniAssignItem(item: 'נרות', person: 'יוסי'),
           _MiniAssignItem(item: 'צלחות', person: 'מיכל'),
@@ -388,7 +519,7 @@ class _MiniHeader extends StatelessWidget {
     return Text(
       text,
       style: const TextStyle(
-        fontSize: 10,
+        fontSize: 12,
         fontWeight: FontWeight.bold,
         color: Colors.black87,
       ),
@@ -411,18 +542,18 @@ class _MiniListItemWithQty extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 1),
+      padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         children: [
           Icon(
             checked ? Icons.check_box : Icons.check_box_outline_blank,
-            size: 12,
+            size: 14,
             color: checked ? Colors.green : Colors.grey,
           ),
-          const SizedBox(width: 3),
+          const SizedBox(width: 4),
           // כמות ליד השם
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
             decoration: BoxDecoration(
               color: Colors.grey.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(3),
@@ -430,19 +561,19 @@ class _MiniListItemWithQty extends StatelessWidget {
             child: Text(
               qty,
               style: const TextStyle(
-                fontSize: 8,
+                fontSize: 9,
                 fontWeight: FontWeight.bold,
                 color: Colors.black54,
               ),
             ),
           ),
-          const SizedBox(width: 3),
+          const SizedBox(width: 4),
           // שם המוצר
           Expanded(
             child: Text(
               text,
               style: TextStyle(
-                fontSize: 10,
+                fontSize: 11,
                 color: Colors.black87,
                 decoration: checked ? TextDecoration.lineThrough : null,
                 decorationColor: Colors.black54,
@@ -470,27 +601,27 @@ class _MiniVoteOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 1),
+      padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         children: [
           Icon(
             selected ? Icons.radio_button_checked : Icons.radio_button_off,
-            size: 12,
+            size: 14,
             color: selected ? Colors.deepPurple : Colors.grey,
           ),
-          const SizedBox(width: 3),
+          const SizedBox(width: 4),
           Expanded(
             child: Text(
               text,
               style: TextStyle(
-                fontSize: 10,
+                fontSize: 11,
                 color: Colors.black87,
                 fontWeight: selected ? FontWeight.bold : FontWeight.normal,
               ),
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
             decoration: BoxDecoration(
               color: selected
                   ? Colors.deepPurple.withValues(alpha: 0.2)
@@ -500,7 +631,7 @@ class _MiniVoteOption extends StatelessWidget {
             child: Text(
               '$votes',
               style: TextStyle(
-                fontSize: 9,
+                fontSize: 10,
                 fontWeight: FontWeight.bold,
                 color: selected ? Colors.deepPurple : Colors.black54,
               ),
@@ -523,26 +654,26 @@ class _MiniAssignItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final isUnassigned = person == '?';
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 1),
+      padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         children: [
           Icon(
             isUnassigned ? Icons.help_outline : Icons.person,
-            size: 10,
+            size: 12,
             color: isUnassigned ? Colors.orange : Colors.green,
           ),
-          const SizedBox(width: 3),
+          const SizedBox(width: 4),
           Expanded(
             child: Text(
               item,
-              style: const TextStyle(fontSize: 10, color: Colors.black87),
+              style: const TextStyle(fontSize: 11, color: Colors.black87),
               overflow: TextOverflow.ellipsis,
             ),
           ),
           Text(
             person,
             style: TextStyle(
-              fontSize: 9,
+              fontSize: 10,
               fontWeight: FontWeight.bold,
               color: isUnassigned ? Colors.orange : Colors.black54,
             ),
