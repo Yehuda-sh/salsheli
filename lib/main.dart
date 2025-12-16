@@ -35,6 +35,7 @@ import 'package:memozap/providers/shopping_lists_provider.dart';
 import 'package:memozap/providers/suggestions_provider.dart';
 import 'package:memozap/providers/user_context.dart';
 import 'package:memozap/providers/groups_provider.dart';
+import 'package:memozap/providers/pending_invites_provider.dart';
 
 // Repositories
 import 'package:memozap/repositories/firebase_inventory_repository.dart'; // 🔥 Firebase Inventory!
@@ -64,6 +65,8 @@ import 'package:memozap/screens/shopping/lists/shopping_lists_screen.dart';
 import 'package:memozap/screens/shopping/shopping_summary_screen.dart';
 import 'package:memozap/screens/sharing/pending_invites_screen.dart';
 import 'package:memozap/screens/groups/create_group_screen.dart';
+import 'package:memozap/screens/groups/group_details_screen.dart';
+import 'package:memozap/screens/groups/pending_group_invites_screen.dart';
 
 // Theme
 import 'package:memozap/theme/app_theme.dart';
@@ -277,6 +280,11 @@ void main() async {
             return previous ?? GroupsProvider(repository: FirebaseGroupRepository());
           },
         ),
+
+        // === Pending Invites Provider === 📨 Group Invitations!
+        ChangeNotifierProvider<PendingInvitesProvider>(
+          create: (_) => PendingInvitesProvider(),
+        ),
       ],
       child: const MyApp(),
     ),
@@ -327,6 +335,7 @@ class _MyAppState extends State<MyApp> {
             '/create-list': (context) => const CreateListScreen(),
 
             '/pending-invites': (context) => const PendingInvitesScreen(),
+            '/pending-group-invites': (context) => const PendingGroupInvitesScreen(),
             '/create-group': (context) => const CreateGroupScreen(),
           },
           onGenerateRoute: (settings) {
@@ -372,6 +381,17 @@ class _MyAppState extends State<MyApp> {
                 );
               }
               return MaterialPageRoute(builder: (_) => ShoppingListDetailsScreen(list: list));
+            }
+
+            // group-details - receives groupId
+            if (settings.name == '/group-details') {
+              final groupId = settings.arguments as String?;
+              if (groupId == null) {
+                return MaterialPageRoute(
+                  builder: (_) => const Scaffold(body: Center(child: Text('Group ID missing'))),
+                );
+              }
+              return MaterialPageRoute(builder: (_) => GroupDetailsScreen(groupId: groupId));
             }
 
             return null;

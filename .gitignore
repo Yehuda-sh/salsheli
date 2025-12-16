@@ -111,6 +111,7 @@ app.*.map.json
 scripts/firebase-service-account.json
 serviceAccountKey.json
 firebase-service-account.json
+emulator-data/
 
 # ----------------------------
 # Certificates / profiles

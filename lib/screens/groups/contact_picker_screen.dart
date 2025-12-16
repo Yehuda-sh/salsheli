@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/ui_constants.dart';
+import '../../models/enums/user_role.dart';
 import '../../services/contact_picker_service.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_note.dart';
@@ -203,6 +204,37 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
 
     return Column(
       children: [
+        // === כפתור הזמנה ידנית ===
+        Padding(
+          padding: const EdgeInsets.fromLTRB(kSpacingMedium, kSpacingMedium, kSpacingMedium, 0),
+          child: StickyNote(
+            color: kStickyGreen,
+            rotation: 0.005,
+            child: InkWell(
+              onTap: () => _showManualInviteDialog(cs),
+              child: Padding(
+                padding: const EdgeInsets.all(kSpacingSmall),
+                child: Row(
+                  children: [
+                    Icon(Icons.person_add, color: Colors.green[700]),
+                    const SizedBox(width: kSpacingSmall),
+                    const Expanded(
+                      child: Text(
+                        'הזמנה ידנית (מייל או טלפון)',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                    Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[600]),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+
         // === שורת חיפוש ===
         Padding(
           padding: const EdgeInsets.all(kSpacingMedium),
@@ -302,47 +334,84 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
   }
 
   Widget _buildPermissionRequest(ColorScheme cs) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(kSpacingLarge),
-        child: StickyNote(
-          color: kStickyPink,
-          rotation: -0.02,
-          child: Padding(
-            padding: const EdgeInsets.all(kSpacingLarge),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.contacts,
-                  size: 64,
-                  color: cs.primary,
+    return Padding(
+      padding: const EdgeInsets.all(kSpacingMedium),
+      child: Column(
+        children: [
+          // === כפתור הזמנה ידנית ===
+          StickyNote(
+            color: kStickyGreen,
+            rotation: 0.005,
+            child: InkWell(
+              onTap: () => _showManualInviteDialog(cs),
+              child: Padding(
+                padding: const EdgeInsets.all(kSpacingSmall),
+                child: Row(
+                  children: [
+                    Icon(Icons.person_add, color: Colors.green[700]),
+                    const SizedBox(width: kSpacingSmall),
+                    const Expanded(
+                      child: Text(
+                        'הזמנה ידנית (מייל או טלפון)',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                    Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[600]),
+                  ],
                 ),
-                const SizedBox(height: kSpacingMedium),
-                const Text(
-                  'נדרשת גישה לאנשי קשר',
-                  style: TextStyle(
-                    fontSize: kFontSizeLarge,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: kSpacingSmall),
-                const Text(
-                  'כדי להזמין חברים לקבוצה, נא לאשר גישה לאנשי הקשר בהגדרות המכשיר',
-                  style: TextStyle(fontSize: kFontSizeSmall),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: kSpacingMedium),
-                ElevatedButton.icon(
-                  onPressed: _loadContacts,
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('נסה שוב'),
-                ),
-              ],
+              ),
             ),
           ),
-        ),
+
+          const SizedBox(height: kSpacingLarge),
+
+          // === הודעה על הרשאות ===
+          Expanded(
+            child: Center(
+              child: StickyNote(
+                color: kStickyPink,
+                rotation: -0.02,
+                child: Padding(
+                  padding: const EdgeInsets.all(kSpacingLarge),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.contacts,
+                        size: 64,
+                        color: cs.primary,
+                      ),
+                      const SizedBox(height: kSpacingMedium),
+                      const Text(
+                        'נדרשת גישה לאנשי קשר',
+                        style: TextStyle(
+                          fontSize: kFontSizeLarge,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: kSpacingSmall),
+                      const Text(
+                        'כדי לראות אנשי קשר מהטלפון, נא לאשר גישה בהגדרות\nאו השתמש בהזמנה ידנית למעלה',
+                        style: TextStyle(fontSize: kFontSizeSmall),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: kSpacingMedium),
+                      ElevatedButton.icon(
+                        onPressed: _loadContacts,
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('נסה שוב'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -384,41 +453,289 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
     );
   }
 
-  Widget _buildEmptyState(ColorScheme cs) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(kSpacingLarge),
-        child: StickyNote(
-          color: kStickyCyan,
-          rotation: -0.01,
-          child: Padding(
-            padding: const EdgeInsets.all(kSpacingLarge),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.people_outline,
-                  size: 64,
-                  color: cs.primary,
+  /// דיאלוג להזמנה ידנית
+  void _showManualInviteDialog(ColorScheme cs) {
+    final nameController = TextEditingController();
+    final contactController = TextEditingController();
+    String contactType = 'email'; // 'email' or 'phone'
+    UserRole selectedRole = UserRole.editor; // ברירת מחדל: עורך
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text(
+                'הזמנה ידנית',
+                textAlign: TextAlign.center,
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // שם
+                    TextField(
+                      controller: nameController,
+                      textDirection: TextDirection.rtl,
+                      decoration: const InputDecoration(
+                        labelText: 'שם',
+                        hintText: 'הזן שם...',
+                        prefixIcon: Icon(Icons.person),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: kSpacingMedium),
+
+                    // בחירת סוג פרטי קשר
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ChoiceChip(
+                            label: const Text('אימייל'),
+                            selected: contactType == 'email',
+                            onSelected: (selected) {
+                              if (selected) {
+                                setDialogState(() => contactType = 'email');
+                              }
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: kSpacingSmall),
+                        Expanded(
+                          child: ChoiceChip(
+                            label: const Text('טלפון'),
+                            selected: contactType == 'phone',
+                            onSelected: (selected) {
+                              if (selected) {
+                                setDialogState(() => contactType = 'phone');
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: kSpacingMedium),
+
+                    // שדה פרטי קשר
+                    TextField(
+                      controller: contactController,
+                      textDirection: contactType == 'email'
+                          ? TextDirection.ltr
+                          : TextDirection.ltr,
+                      keyboardType: contactType == 'email'
+                          ? TextInputType.emailAddress
+                          : TextInputType.phone,
+                      decoration: InputDecoration(
+                        labelText: contactType == 'email' ? 'אימייל' : 'טלפון',
+                        hintText: contactType == 'email'
+                            ? 'example@mail.com'
+                            : '050-1234567',
+                        prefixIcon: Icon(
+                          contactType == 'email' ? Icons.email : Icons.phone,
+                        ),
+                        border: const OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: kSpacingMedium),
+
+                    // בחירת תפקיד
+                    const Text(
+                      'תפקיד בקבוצה:',
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    const SizedBox(height: kSpacingSmall),
+                    Wrap(
+                      spacing: 8,
+                      children: [
+                        ChoiceChip(
+                          label: const Text('מנהל'),
+                          selected: selectedRole == UserRole.admin,
+                          onSelected: (selected) {
+                            if (selected) {
+                              setDialogState(() => selectedRole = UserRole.admin);
+                            }
+                          },
+                          avatar: const Icon(Icons.admin_panel_settings, size: 18),
+                        ),
+                        ChoiceChip(
+                          label: const Text('עורך'),
+                          selected: selectedRole == UserRole.editor,
+                          onSelected: (selected) {
+                            if (selected) {
+                              setDialogState(() => selectedRole = UserRole.editor);
+                            }
+                          },
+                          avatar: const Icon(Icons.edit, size: 18),
+                        ),
+                        ChoiceChip(
+                          label: const Text('צופה'),
+                          selected: selectedRole == UserRole.viewer,
+                          onSelected: (selected) {
+                            if (selected) {
+                              setDialogState(() => selectedRole = UserRole.viewer);
+                            }
+                          },
+                          avatar: const Icon(Icons.visibility, size: 18),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                const SizedBox(height: kSpacingMedium),
-                const Text(
-                  'אין אנשי קשר',
-                  style: TextStyle(
-                    fontSize: kFontSizeLarge,
-                    fontWeight: FontWeight.bold,
-                  ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('ביטול'),
                 ),
-                const SizedBox(height: kSpacingSmall),
-                const Text(
-                  'לא נמצאו אנשי קשר עם טלפון או אימייל',
-                  style: TextStyle(fontSize: kFontSizeSmall),
-                  textAlign: TextAlign.center,
+                FilledButton(
+                  onPressed: () {
+                    final name = nameController.text.trim();
+                    final contact = contactController.text.trim();
+
+                    // ולידציה
+                    if (name.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('נא להזין שם'),
+                          backgroundColor: Colors.orange,
+                        ),
+                      );
+                      return;
+                    }
+
+                    if (contact.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            contactType == 'email'
+                                ? 'נא להזין אימייל'
+                                : 'נא להזין טלפון',
+                          ),
+                          backgroundColor: Colors.orange,
+                        ),
+                      );
+                      return;
+                    }
+
+                    // יצירת איש קשר ידני עם התפקיד שנבחר
+                    final manualContact = SelectedContact(
+                      id: 'manual_${DateTime.now().millisecondsSinceEpoch}',
+                      displayName: name,
+                      phone: contactType == 'phone' ? contact : null,
+                      email: contactType == 'email' ? contact : null,
+                      role: selectedRole,
+                    );
+
+                    Navigator.pop(context);
+
+                    // הוספה לרשימה
+                    setState(() {
+                      _contacts.insert(0, manualContact);
+                      _selectedIds.add(manualContact.id);
+                      // עדכון הרשימה המסוננת ישירות
+                      final query = _searchController.text;
+                      if (query.isEmpty) {
+                        _filteredContacts = List.from(_contacts);
+                      } else {
+                        final lowerQuery = query.toLowerCase();
+                        _filteredContacts = _contacts.where((c) {
+                          return c.displayName.toLowerCase().contains(lowerQuery) ||
+                              (c.phone?.contains(query) ?? false) ||
+                              (c.email?.toLowerCase().contains(lowerQuery) ?? false);
+                        }).toList();
+                      }
+                    });
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('$name נוסף להזמנה'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  },
+                  child: const Text('הוסף'),
                 ),
               ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildEmptyState(ColorScheme cs) {
+    return Padding(
+      padding: const EdgeInsets.all(kSpacingMedium),
+      child: Column(
+        children: [
+          // === כפתור הזמנה ידנית ===
+          StickyNote(
+            color: kStickyGreen,
+            rotation: 0.005,
+            child: InkWell(
+              onTap: () => _showManualInviteDialog(cs),
+              child: Padding(
+                padding: const EdgeInsets.all(kSpacingSmall),
+                child: Row(
+                  children: [
+                    Icon(Icons.person_add, color: Colors.green[700]),
+                    const SizedBox(width: kSpacingSmall),
+                    const Expanded(
+                      child: Text(
+                        'הזמנה ידנית (מייל או טלפון)',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                    Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[600]),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
+
+          const SizedBox(height: kSpacingLarge),
+
+          // === הודעה שאין אנשי קשר ===
+          Expanded(
+            child: Center(
+              child: StickyNote(
+                color: kStickyCyan,
+                rotation: -0.01,
+                child: Padding(
+                  padding: const EdgeInsets.all(kSpacingLarge),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.people_outline,
+                        size: 64,
+                        color: cs.primary,
+                      ),
+                      const SizedBox(height: kSpacingMedium),
+                      const Text(
+                        'אין אנשי קשר',
+                        style: TextStyle(
+                          fontSize: kFontSizeLarge,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: kSpacingSmall),
+                      const Text(
+                        'לא נמצאו אנשי קשר עם טלפון או אימייל\nניתן להשתמש בהזמנה ידנית למעלה',
+                        style: TextStyle(fontSize: kFontSizeSmall),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

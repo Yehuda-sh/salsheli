@@ -11,6 +11,8 @@
 // 📝 Version: 1.0
 // 📅 Created: 16/12/2025
 
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,6 +23,8 @@ import '../../models/enums/user_role.dart';
 import '../../models/group.dart';
 import '../../providers/groups_provider.dart';
 import '../../providers/user_context.dart';
+import '../../models/group_invite.dart';
+import '../../repositories/group_invite_repository.dart';
 import '../../services/contact_picker_service.dart';
 import '../../services/notifications_service.dart';
 import '../../widgets/common/notebook_background.dart';
@@ -144,13 +148,80 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       ),
     );
 
-    if (result != null && result.isNotEmpty) {
-      // TODO: שליחת הזמנות לאנשי הקשר שנבחרו
-      if (!mounted) return;
+    if (result == null || result.isEmpty || !mounted) return;
+
+    final userContext = context.read<UserContext>();
+    final provider = context.read<GroupsProvider>();
+    final currentUserId = userContext.userId ?? '';
+    final currentUserName = userContext.displayName ?? 'משתמש';
+    final inviteRepository = GroupInviteRepository();
+
+    // הצגת מצב טעינה
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('מוסיף ${result.length} חברים לקבוצה...'),
+        backgroundColor: Colors.blue,
+        duration: const Duration(seconds: 1),
+      ),
+    );
+
+    int successCount = 0;
+    int failCount = 0;
+
+    for (final contact in result) {
+      // יצירת מזהה משתמש זמני (מבוסס על אימייל או טלפון)
+      final tempUserId = 'invited_${contact.email ?? contact.phone ?? contact.id}';
+
+      final success = await provider.addMember(
+        groupId: group.id,
+        userId: tempUserId,
+        name: contact.displayName,
+        email: contact.email ?? '',
+        role: contact.role,
+        invitedBy: currentUserId,
+      );
+
+      if (success) {
+        successCount++;
+
+        // יצירת הזמנה ב-collection להזמנות ממתינות
+        try {
+          final invite = GroupInvite.create(
+            groupId: group.id,
+            groupName: group.name,
+            invitedPhone: contact.phone,
+            invitedEmail: contact.email?.toLowerCase(),
+            invitedName: contact.displayName,
+            role: contact.role,
+            invitedBy: currentUserId,
+            invitedByName: currentUserName,
+          );
+          await inviteRepository.createInvite(invite);
+          debugPrint('📨 הזמנה נוצרה: ${contact.displayName}');
+        } catch (e) {
+          debugPrint('⚠️ שגיאה ביצירת הזמנה (לא קריטי): $e');
+        }
+      } else {
+        failCount++;
+      }
+    }
+
+    if (!mounted) return;
+
+    // הודעת סיכום
+    if (failCount == 0) {
+      unawaited(HapticFeedback.mediumImpact());
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('נבחרו ${result.length} אנשי קשר להזמנה'),
-          backgroundColor: Colors.blue,
+          content: Text('נוספו $successCount חברים לקבוצה בהצלחה!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('נוספו $successCount, נכשלו $failCount'),
+          backgroundColor: Colors.orange,
         ),
       );
     }
@@ -507,13 +578,13 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
 
           const SizedBox(height: kSpacingMedium),
 
-          // === תכונות הקבוצה ===
-          _buildFeaturesCard(group, cs),
+          // === חברים (הועבר למעלה - יותר חשוב) ===
+          _buildMembersCard(group, permissions, cs),
 
           const SizedBox(height: kSpacingMedium),
 
-          // === חברים ===
-          _buildMembersCard(group, permissions, cs),
+          // === תכונות הקבוצה ===
+          _buildFeaturesCard(group, cs),
 
           const SizedBox(height: kSpacingMedium),
 
@@ -788,7 +859,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     ColorScheme cs,
   ) {
     return StickyNote(
-      color: kStickyPink,
+      color: kStickyGray, // צבע ניטרלי - פעולות הרסניות
       rotation: 0.01,
       child: Padding(
         padding: const EdgeInsets.all(kSpacingMedium),
@@ -979,6 +1050,15 @@ class _FeatureChip extends StatelessWidget {
   }
 }
 
+/// סטטוס חבר בקבוצה
+enum _MemberStatus {
+  /// מוזמן - טרם אישר
+  invited,
+
+  /// פעיל - אישר והצטרף
+  active,
+}
+
 /// כרטיס חבר
 class _MemberTile extends StatelessWidget {
   final GroupMember member;
@@ -997,32 +1077,91 @@ class _MemberTile extends StatelessWidget {
     this.onRemove,
   });
 
+  /// קביעת סטטוס החבר לפי ה-userId
+  _MemberStatus get _status {
+    // אם ה-userId מתחיל ב-invited_ - זה מוזמן שטרם אישר
+    if (member.userId.startsWith('invited_')) {
+      return _MemberStatus.invited;
+    }
+    return _MemberStatus.active;
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final status = _status;
+    final isInvited = status == _MemberStatus.invited;
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
-      color: isCurrentUser ? cs.primaryContainer.withValues(alpha: 0.3) : Colors.white,
+      color: isCurrentUser
+          ? cs.primaryContainer.withValues(alpha: 0.3)
+          : isInvited
+              ? Colors.orange.shade50
+              : Colors.white,
       child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: cs.primaryContainer,
-          child: Text(
-            member.name[0].toUpperCase(),
-            style: TextStyle(
-              color: cs.onPrimaryContainer,
-              fontWeight: FontWeight.bold,
+        leading: Stack(
+          children: [
+            CircleAvatar(
+              backgroundColor: isInvited ? Colors.orange.shade200 : cs.primaryContainer,
+              child: isInvited
+                  ? const Icon(Icons.hourglass_empty, size: 20, color: Colors.orange)
+                  : Text(
+                      member.name[0].toUpperCase(),
+                      style: TextStyle(
+                        color: cs.onPrimaryContainer,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
             ),
-          ),
+            // Badge סטטוס
+            if (isInvited)
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: Colors.orange,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                ),
+              ),
+          ],
         ),
         title: Row(
           children: [
             Expanded(
-              child: Text(
-                member.name + (isCurrentUser ? ' (את/ה)' : ''),
-                style: TextStyle(
-                  fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.normal,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    member.name + (isCurrentUser ? ' (את/ה)' : ''),
+                    style: TextStyle(
+                      fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                  // תג סטטוס
+                  if (isInvited)
+                    Container(
+                      margin: const EdgeInsets.only(top: 2),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        'ממתין לאישור',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.orange,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
             // תג תפקיד
@@ -1043,8 +1182,12 @@ class _MemberTile extends StatelessWidget {
           ],
         ),
         subtitle: Text(
-          member.email,
-          style: const TextStyle(fontSize: 12),
+          member.email.isNotEmpty ? member.email : 'ללא אימייל',
+          style: TextStyle(
+            fontSize: 12,
+            fontStyle: member.email.isEmpty ? FontStyle.italic : FontStyle.normal,
+            color: member.email.isEmpty ? Colors.grey : null,
+          ),
         ),
         trailing: canModify
             ? PopupMenuButton<String>(

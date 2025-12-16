@@ -44,5 +44,9 @@
       "port": 4000
     },
     "singleProjectMode": true
+  },
+  "emulatorDataPath": {
+    "import": "./emulator-data",
+    "export": "./emulator-data"
   }
 }

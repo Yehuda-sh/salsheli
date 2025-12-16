@@ -242,21 +242,23 @@ class FirebaseGroupRepository implements GroupRepository {
         debugPrint('   Member: ${member.name} (${member.role.hebrewName})');
       }
 
-      // Transaction לעדכון אטומי
-      await _firestore.runTransaction((transaction) async {
-        // עדכון הקבוצה
-        final groupRef = _collection.doc(groupId);
-        transaction.update(groupRef, {
-          'members.${member.userId}': member.toJson(),
-          'updated_at': FieldValue.serverTimestamp(),
-        });
-
-        // עדכון ה-user
-        final userRef = _firestore.collection('users').doc(member.userId);
-        transaction.update(userRef, {
-          'group_ids': FieldValue.arrayUnion([groupId]),
-        });
+      // עדכון הקבוצה
+      final groupRef = _collection.doc(groupId);
+      await groupRef.update({
+        'members.${member.userId}': member.toJson(),
+        'updated_at': FieldValue.serverTimestamp(),
       });
+
+      // עדכון ה-user רק אם הוא קיים במערכת (לא מוזמן חיצוני)
+      if (!member.userId.startsWith('invited_')) {
+        final userRef = _firestore.collection('users').doc(member.userId);
+        final userDoc = await userRef.get();
+        if (userDoc.exists) {
+          await userRef.update({
+            'group_ids': FieldValue.arrayUnion([groupId]),
+          });
+        }
+      }
 
       if (kDebugMode) {
         debugPrint('✅ Member added successfully');

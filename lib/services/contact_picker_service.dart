@@ -13,6 +13,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 
+import '../models/enums/user_role.dart';
+
 /// מודל פשוט לאיש קשר נבחר
 class SelectedContact {
   final String id;
@@ -21,13 +23,29 @@ class SelectedContact {
   final String? email;
   final Uint8List? photo;
 
+  /// תפקיד להזמנה (ברירת מחדל: editor)
+  final UserRole role;
+
   SelectedContact({
     required this.id,
     required this.displayName,
     this.phone,
     this.email,
     this.photo,
+    this.role = UserRole.editor,
   });
+
+  /// העתקה עם שינוי תפקיד
+  SelectedContact copyWith({UserRole? role}) {
+    return SelectedContact(
+      id: id,
+      displayName: displayName,
+      phone: phone,
+      email: email,
+      photo: photo,
+      role: role ?? this.role,
+    );
+  }
 
   /// האם יש מידע ליצירת קשר
   bool get hasContactInfo => phone != null || email != null;

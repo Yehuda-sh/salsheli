@@ -232,6 +232,32 @@ service cloud.firestore {
     }
 
     // =========================================================
+    // 👥 Groups Collection
+    // =========================================================
+
+    match /groups/{groupId} {
+      // 👁️ קריאה: רק חברי הקבוצה
+      allow read: if isAuthenticated() && (
+        resource.data.created_by == request.auth.uid ||
+        (resource.data.members != null && request.auth.uid in resource.data.members)
+      );
+
+      // ➕ יצירה: כל משתמש מחובר יכול ליצור קבוצה
+      allow create: if isAuthenticated() &&
+                    request.resource.data.created_by == request.auth.uid;
+
+      // ✏️ עדכון: רק היוצר או חבר קבוצה עם הרשאות
+      allow update: if isAuthenticated() && (
+        resource.data.created_by == request.auth.uid ||
+        (resource.data.members != null && request.auth.uid in resource.data.members)
+      );
+
+      // 🗑️ מחיקה: רק היוצר
+      allow delete: if isAuthenticated() &&
+                    resource.data.created_by == request.auth.uid;
+    }
+
+    // =========================================================
     // 📦 Global Collections
     // =========================================================
 
@@ -278,6 +304,32 @@ service cloud.firestore {
       allow read: if isAuthenticated() &&
                   resource.data.user_id == request.auth.uid;
       allow write: if false; // Read-only during migration
+    }
+
+    // =========================================================
+    // 📨 Group Invites Collection
+    // =========================================================
+
+    match /group_invites/{inviteId} {
+      // 👁️ קריאה:
+      // - המזמין יכול לראות הזמנות שהוא שלח
+      // - המוזמן יכול לראות הזמנות שנשלחו אליו (לפי טלפון/אימייל)
+      // - חברי הקבוצה יכולים לראות הזמנות לקבוצה שלהם
+      allow read: if isAuthenticated();
+
+      // ➕ יצירה: כל משתמש מחובר יכול ליצור הזמנה
+      allow create: if isAuthenticated() &&
+                    request.resource.data.invited_by == request.auth.uid;
+
+      // ✏️ עדכון: המזמין או מי שמקבל את ההזמנה יכול לעדכן
+      allow update: if isAuthenticated() && (
+        resource.data.invited_by == request.auth.uid ||
+        request.resource.data.accepted_by_user_id == request.auth.uid
+      );
+
+      // 🗑️ מחיקה: רק המזמין
+      allow delete: if isAuthenticated() &&
+                    resource.data.invited_by == request.auth.uid;
     }
 
     // =========================================================

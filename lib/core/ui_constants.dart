@@ -55,6 +55,7 @@ const Color kStickyGreen = Color(0xFFA5D6A7);   // Success, Add
 const Color kStickyCyan = Color(0xFF80DEEA);    // Info, Secondary
 const Color kStickyPurple = Color(0xFFCE93D8);  // Creative features
 const Color kStickyOrange = Color(0xFFFFAB91);  // Warnings
+const Color kStickyGray = Color(0xFFE0E0E0);    // Neutral, Actions
 
 // ═══════════════════════════════════════════════════════════════════════════
 // COLORS - Sticky Notes Palette (Dark Mode)

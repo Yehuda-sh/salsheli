@@ -710,18 +710,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text('ערכת נושא'),
-                            SegmentedButton<String>(
-                              segments: const [
-                                ButtonSegment(value: 'light', label: Text('בהיר')),
-                                ButtonSegment(value: 'dark', label: Text('כהה')),
-                                ButtonSegment(value: 'system', label: Text('מערכת')),
-                              ],
-                              selected: const {'system'},
-                              onSelectionChanged: (selection) {
-                                // TODO: שינוי ערכת נושא
-                              },
-                              style: const ButtonStyle(
-                                visualDensity: VisualDensity.compact,
+                            const SizedBox(width: kSpacingSmall),
+                            Flexible(
+                              child: SegmentedButton<String>(
+                                segments: const [
+                                  ButtonSegment(value: 'light', label: Text('בהיר')),
+                                  ButtonSegment(value: 'dark', label: Text('כהה')),
+                                  ButtonSegment(value: 'system', label: Text('מערכת')),
+                                ],
+                                selected: const {'system'},
+                                onSelectionChanged: (selection) {
+                                  // TODO: שינוי ערכת נושא
+                                },
+                                style: const ButtonStyle(
+                                  visualDensity: VisualDensity.compact,
+                                ),
                               ),
                             ),
                           ],
