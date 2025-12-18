@@ -175,32 +175,82 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       if (mounted) {
         setState(() => _isLoading = false);
 
-        // 🎉 הודעת הצלחה
-        scaffoldMessenger.showSnackBar(
-          SnackBar(
-            content: const Row(
-              children: [
-                Icon(Icons.check_circle, color: Colors.white, size: 24),
-                SizedBox(width: kSpacingSmall),
-                Text('הרשמת בהצלחה! מעביר לדף הבית...'),
+        final pendingInvitesProvider = context.read<PendingInvitesProvider>();
+        final hasPendingInvites = pendingInvitesProvider.pendingCount > 0;
+
+        if (hasPendingInvites) {
+          // 📨 יש הזמנות ממתינות - הצג דיאלוג
+          final goToInvites = await showDialog<bool>(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => AlertDialog(
+              title: const Row(
+                children: [
+                  Icon(Icons.group_add, color: Colors.orange, size: 28),
+                  SizedBox(width: kSpacingSmall),
+                  Text('הזמנות ממתינות!'),
+                ],
+              ),
+              content: Text(
+                'יש לך ${pendingInvitesProvider.pendingCount} הזמנות לקבוצות ממתינות לאישור.\n\nהאם לעבור למסך ההזמנות?',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('אחר כך'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('צפה בהזמנות'),
+                ),
               ],
             ),
-            backgroundColor: Colors.green.shade700,
-            duration: const Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(kBorderRadius),
+          );
+
+          if (mounted) {
+            if (goToInvites == true) {
+              // נווט למסך ההזמנות
+              await navigator.pushNamedAndRemoveUntil('/home', (route) => false);
+              if (mounted) {
+                await navigator.pushNamed('/pending-group-invites');
+              }
+            } else {
+              // נווט לדף הבית
+              await navigator.pushNamedAndRemoveUntil('/home', (route) => false);
+            }
+          }
+        } else {
+          // 🎉 הודעת הצלחה רגילה
+          scaffoldMessenger.showSnackBar(
+            SnackBar(
+              content: const Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.white, size: 24),
+                  SizedBox(width: kSpacingSmall),
+                  Text('הרשמת בהצלחה! מעביר לדף הבית...'),
+                ],
+              ),
+              backgroundColor: Colors.green.shade700,
+              duration: const Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(kBorderRadius),
+              ),
+              margin: const EdgeInsets.all(kSpacingMedium),
             ),
-            margin: const EdgeInsets.all(kSpacingMedium),
-          ),
-        );
+          );
 
-        // ⏱️ המתנה קצרה לפני ניווט
-        await Future.delayed(const Duration(milliseconds: 1500));
+          // ⏱️ המתנה קצרה לפני ניווט
+          await Future.delayed(const Duration(milliseconds: 1500));
 
-        if (mounted) {
-          debugPrint('🔄 _handleRegister() | Navigating to home screen');
-          await navigator.pushNamedAndRemoveUntil('/home', (route) => false);
+          if (mounted) {
+            debugPrint('🔄 _handleRegister() | Navigating to home screen');
+            await navigator.pushNamedAndRemoveUntil('/home', (route) => false);
+          }
         }
       }
     } catch (e) {

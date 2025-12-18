@@ -15,6 +15,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
+import '../../models/enums/user_role.dart';
 import '../../models/group.dart';
 import '../../providers/groups_provider.dart';
 import '../../services/contact_picker_service.dart';
@@ -52,6 +53,8 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
   /// יצירת הקבוצה
   Future<void> _createGroup() async {
+    // מניעת לחיצה כפולה
+    if (_isLoading) return;
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
@@ -87,6 +90,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
             ? null
             : _descriptionController.text.trim(),
         extraFields: extraFields,
+        invitedContacts: _selectedContacts.isNotEmpty ? _selectedContacts : null,
       );
 
       if (!mounted) return;
@@ -155,6 +159,16 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
       _selectedContacts = _selectedContacts
           .where((c) => c.id != contact.id)
           .toList();
+    });
+  }
+
+  /// עדכון תפקיד של איש קשר נבחר
+  void _updateContactRole(SelectedContact contact, UserRole newRole) {
+    setState(() {
+      final index = _selectedContacts.indexWhere((c) => c.id == contact.id);
+      if (index != -1) {
+        _selectedContacts[index] = _selectedContacts[index].copyWith(role: newRole);
+      }
     });
   }
 
@@ -485,33 +499,11 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                                 spacing: 8,
                                 runSpacing: 8,
                                 children: _selectedContacts.map((contact) {
-                                  return Chip(
-                                    avatar: contact.photo != null
-                                        ? CircleAvatar(
-                                            backgroundImage:
-                                                MemoryImage(contact.photo!),
-                                          )
-                                        : CircleAvatar(
-                                            backgroundColor:
-                                                cs.primaryContainer,
-                                            child: Text(
-                                              contact.displayName[0]
-                                                  .toUpperCase(),
-                                              style: TextStyle(
-                                                color: cs.onPrimaryContainer,
-                                                fontSize: 12,
-                                              ),
-                                            ),
-                                          ),
-                                    label: Text(
-                                      contact.displayName,
-                                      style: const TextStyle(fontSize: 12),
-                                    ),
-                                    deleteIcon:
-                                        const Icon(Icons.close, size: 16),
+                                  return _ContactChipWithRole(
+                                    contact: contact,
                                     onDeleted: () => _removeContact(contact),
-                                    backgroundColor: Colors.white,
-                                    side: BorderSide(color: Colors.grey[300]!),
+                                    onRoleChanged: (role) =>
+                                        _updateContactRole(contact, role),
                                   );
                                 }).toList(),
                               ),
@@ -658,6 +650,113 @@ class _FeatureChip extends StatelessWidget {
               color: Colors.black54,
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Chip של איש קשר עם בחירת תפקיד
+class _ContactChipWithRole extends StatelessWidget {
+  final SelectedContact contact;
+  final VoidCallback onDeleted;
+  final ValueChanged<UserRole> onRoleChanged;
+
+  const _ContactChipWithRole({
+    required this.contact,
+    required this.onDeleted,
+    required this.onRoleChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // אווטאר
+          Padding(
+            padding: const EdgeInsets.only(left: 4),
+            child: contact.photo != null
+                ? CircleAvatar(
+                    backgroundImage: MemoryImage(contact.photo!),
+                    radius: 14,
+                  )
+                : CircleAvatar(
+                    backgroundColor: cs.primaryContainer,
+                    radius: 14,
+                    child: Text(
+                      contact.displayName[0].toUpperCase(),
+                      style: TextStyle(
+                        color: cs.onPrimaryContainer,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ),
+          ),
+          // שם
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(
+              contact.displayName,
+              style: const TextStyle(fontSize: 12),
+            ),
+          ),
+          // בורר תפקיד
+          PopupMenuButton<UserRole>(
+            initialValue: contact.role,
+            onSelected: onRoleChanged,
+            tooltip: 'שנה תפקיד',
+            padding: EdgeInsets.zero,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: cs.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    contact.role.emoji,
+                    style: const TextStyle(fontSize: 10),
+                  ),
+                  const Icon(Icons.arrow_drop_down, size: 14),
+                ],
+              ),
+            ),
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: UserRole.admin,
+                child: Text('${UserRole.admin.emoji} מנהל'),
+              ),
+              PopupMenuItem(
+                value: UserRole.editor,
+                child: Text('${UserRole.editor.emoji} עורך'),
+              ),
+              PopupMenuItem(
+                value: UserRole.viewer,
+                child: Text('${UserRole.viewer.emoji} צופה'),
+              ),
+            ],
+          ),
+          // כפתור מחיקה
+          InkWell(
+            onTap: onDeleted,
+            borderRadius: BorderRadius.circular(12),
+            child: const Padding(
+              padding: EdgeInsets.all(4),
+              child: Icon(Icons.close, size: 16),
+            ),
+          ),
+          const SizedBox(width: 4),
         ],
       ),
     );

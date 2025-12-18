@@ -24,6 +24,7 @@ import '../../../l10n/app_strings.dart';
 import '../../../models/group.dart';
 import '../../../models/shopping_list.dart';
 import '../../../providers/groups_provider.dart';
+import '../../../providers/pending_invites_provider.dart';
 import '../../../providers/shopping_lists_provider.dart';
 import '../../../providers/suggestions_provider.dart';
 import '../../../providers/user_context.dart';
@@ -50,8 +51,51 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         TutorialService.showHomeTutorialIfNeeded(context);
+        // 📨 בדוק הזמנות ממתינות
+        _checkPendingInvites();
       }
     });
+  }
+
+  /// 📨 בדיקת הזמנות ממתינות לקבוצות
+  Future<void> _checkPendingInvites() async {
+    final userContext = context.read<UserContext>();
+    final pendingInvitesProvider = context.read<PendingInvitesProvider>();
+
+    // אל תבדוק שוב אם כבר בדקנו
+    if (pendingInvitesProvider.hasChecked) {
+      if (kDebugMode) {
+        debugPrint('📨 HomeDashboard: Already checked, skipping');
+      }
+      return;
+    }
+
+    // חכה לטעינת המשתמש אם צריך (מקסימום 3 שניות)
+    for (int i = 0; i < 30 && mounted; i++) {
+      if (userContext.user != null) break;
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+
+    final user = userContext.user;
+    if (user == null) {
+      if (kDebugMode) {
+        debugPrint('📨 HomeDashboard: User is null, skipping invite check');
+      }
+      return;
+    }
+
+    if (kDebugMode) {
+      debugPrint('📨 HomeDashboard: Checking invites for phone=${user.phone}, email=${user.email}');
+    }
+
+    await pendingInvitesProvider.checkPendingInvites(
+      phone: user.phone,
+      email: user.email,
+    );
+
+    if (kDebugMode) {
+      debugPrint('📨 HomeDashboard: Found ${pendingInvitesProvider.pendingCount} pending invites');
+    }
   }
 
   @override
@@ -111,6 +155,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   Widget build(BuildContext context) {
     final listsProvider = context.watch<ShoppingListsProvider>();
     final groupsProvider = context.watch<GroupsProvider>();
+    final pendingInvitesProvider = context.watch<PendingInvitesProvider>();
     final userContext = context.watch<UserContext>();
     final cs = Theme.of(context).colorScheme;
 
@@ -138,13 +183,25 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
                   const SizedBox(height: kSpacingMedium),
 
-                  // === 2. דורש תשומת לב ===
+                  // === 2. הזמנות ממתינות ===
+                  if (pendingInvitesProvider.pendingCount > 0)
+                    _PendingInvitesCard(
+                      count: pendingInvitesProvider.pendingCount,
+                    )
+                        .animate()
+                        .fadeIn(duration: 500.ms, delay: 100.ms)
+                        .slideX(begin: -0.1, end: 0),
+
+                  if (pendingInvitesProvider.pendingCount > 0)
+                    const SizedBox(height: kSpacingMedium),
+
+                  // === 3. דורש תשומת לב ===
                   _AttentionSection(
                     lists: listsProvider.lists,
                     groups: groupsProvider.groups,
                   )
                       .animate()
-                      .fadeIn(duration: 500.ms, delay: 100.ms)
+                      .fadeIn(duration: 500.ms, delay: 150.ms)
                       .slideX(begin: -0.1, end: 0),
 
                   const SizedBox(height: kSpacingMedium),
@@ -792,6 +849,109 @@ class _GroupChip extends StatelessWidget {
           arguments: group.id,
         );
       },
+    );
+  }
+}
+
+// =============================================================================
+// 6. PENDING INVITES CARD - הזמנות ממתינות
+// =============================================================================
+
+class _PendingInvitesCard extends StatelessWidget {
+  final int count;
+
+  const _PendingInvitesCard({required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        Navigator.pushNamed(context, '/pending-group-invites');
+      },
+      borderRadius: BorderRadius.circular(kBorderRadius),
+      child: StickyNote(
+        color: Colors.orange.shade100,
+        rotation: 0.01,
+        child: Padding(
+          padding: const EdgeInsets.all(kSpacingMedium),
+          child: Row(
+            children: [
+              // אייקון עם badge
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withValues(alpha: 0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.group_add,
+                      color: Colors.orange,
+                      size: 28,
+                    ),
+                  ),
+                  Positioned(
+                    top: -4,
+                    right: -4,
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        '$count',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: kSpacingMedium),
+              // טקסט
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      count == 1
+                          ? 'יש לך הזמנה לקבוצה!'
+                          : 'יש לך $count הזמנות לקבוצות!',
+                      style: const TextStyle(
+                        fontSize: kFontSizeMedium,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    const Text(
+                      'לחץ כדי לצפות ולאשר',
+                      style: TextStyle(
+                        fontSize: kFontSizeSmall,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // חץ
+              const Icon(
+                Icons.chevron_left,
+                color: Colors.orange,
+                size: 28,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

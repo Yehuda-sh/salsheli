@@ -235,21 +235,30 @@ service cloud.firestore {
     // 👥 Groups Collection
     // =========================================================
 
+    // פונקציה לבדיקה אם למשתמש יש גישה לקבוצה דרך group_ids שלו
+    function userHasGroupInList(groupId) {
+      let userData = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      // group_ids הוא array, לכן משתמשים ב-hasAny עם array של פריט אחד
+      return userData.group_ids != null && userData.group_ids.hasAny([groupId]);
+    }
+
     match /groups/{groupId} {
-      // 👁️ קריאה: רק חברי הקבוצה
+      // 👁️ קריאה: חברי הקבוצה או מי שיש לו את הקבוצה ב-group_ids (אחרי אישור הזמנה)
       allow read: if isAuthenticated() && (
         resource.data.created_by == request.auth.uid ||
-        (resource.data.members != null && request.auth.uid in resource.data.members)
+        (resource.data.members != null && request.auth.uid in resource.data.members) ||
+        userHasGroupInList(groupId)
       );
 
       // ➕ יצירה: כל משתמש מחובר יכול ליצור קבוצה
       allow create: if isAuthenticated() &&
                     request.resource.data.created_by == request.auth.uid;
 
-      // ✏️ עדכון: רק היוצר או חבר קבוצה עם הרשאות
+      // ✏️ עדכון: היוצר, חבר קבוצה, או מי שיש לו את הקבוצה ב-group_ids
       allow update: if isAuthenticated() && (
         resource.data.created_by == request.auth.uid ||
-        (resource.data.members != null && request.auth.uid in resource.data.members)
+        (resource.data.members != null && request.auth.uid in resource.data.members) ||
+        userHasGroupInList(groupId)
       );
 
       // 🗑️ מחיקה: רק היוצר

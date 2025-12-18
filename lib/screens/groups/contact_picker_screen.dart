@@ -130,6 +130,21 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
     });
   }
 
+  /// עדכון תפקיד של איש קשר נבחר
+  void _updateContactRole(SelectedContact contact, UserRole newRole) {
+    setState(() {
+      final index = _contacts.indexWhere((c) => c.id == contact.id);
+      if (index != -1) {
+        _contacts[index] = _contacts[index].copyWith(role: newRole);
+      }
+      // עדכון גם ברשימה המסוננת
+      final filteredIndex = _filteredContacts.indexWhere((c) => c.id == contact.id);
+      if (filteredIndex != -1) {
+        _filteredContacts[filteredIndex] = _filteredContacts[filteredIndex].copyWith(role: newRole);
+      }
+    });
+  }
+
   void _confirmSelection() {
     final selectedContacts =
         _contacts.where((c) => _selectedIds.contains(c.id)).toList();
@@ -289,6 +304,9 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
                       contact: contact,
                       isSelected: isSelected,
                       onTap: () => _toggleSelection(contact),
+                      onRoleChanged: isSelected
+                          ? (role) => _updateContactRole(contact, role)
+                          : null,
                     );
                   },
                 ),
@@ -454,10 +472,11 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
   }
 
   /// דיאלוג להזמנה ידנית
+  /// עכשיו תומך בהזנת גם אימייל וגם טלפון לשיפור מציאת הזמנות
   void _showManualInviteDialog(ColorScheme cs) {
     final nameController = TextEditingController();
-    final contactController = TextEditingController();
-    String contactType = 'email'; // 'email' or 'phone'
+    final emailController = TextEditingController();
+    final phoneController = TextEditingController();
     UserRole selectedRole = UserRole.editor; // ברירת מחדל: עורך
 
     showDialog(
@@ -479,7 +498,7 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
                       controller: nameController,
                       textDirection: TextDirection.rtl,
                       decoration: const InputDecoration(
-                        labelText: 'שם',
+                        labelText: 'שם *',
                         hintText: 'הזן שם...',
                         prefixIcon: Icon(Icons.person),
                         border: OutlineInputBorder(),
@@ -487,55 +506,43 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
                     ),
                     const SizedBox(height: kSpacingMedium),
 
-                    // בחירת סוג פרטי קשר
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ChoiceChip(
-                            label: const Text('אימייל'),
-                            selected: contactType == 'email',
-                            onSelected: (selected) {
-                              if (selected) {
-                                setDialogState(() => contactType = 'email');
-                              }
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: kSpacingSmall),
-                        Expanded(
-                          child: ChoiceChip(
-                            label: const Text('טלפון'),
-                            selected: contactType == 'phone',
-                            onSelected: (selected) {
-                              if (selected) {
-                                setDialogState(() => contactType = 'phone');
-                              }
-                            },
-                          ),
-                        ),
-                      ],
+                    // אימייל
+                    TextField(
+                      controller: emailController,
+                      textDirection: TextDirection.ltr,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: const InputDecoration(
+                        labelText: 'אימייל',
+                        hintText: 'example@mail.com',
+                        prefixIcon: Icon(Icons.email),
+                        border: OutlineInputBorder(),
+                      ),
                     ),
                     const SizedBox(height: kSpacingMedium),
 
-                    // שדה פרטי קשר
+                    // טלפון
                     TextField(
-                      controller: contactController,
-                      textDirection: contactType == 'email'
-                          ? TextDirection.ltr
-                          : TextDirection.ltr,
-                      keyboardType: contactType == 'email'
-                          ? TextInputType.emailAddress
-                          : TextInputType.phone,
-                      decoration: InputDecoration(
-                        labelText: contactType == 'email' ? 'אימייל' : 'טלפון',
-                        hintText: contactType == 'email'
-                            ? 'example@mail.com'
-                            : '050-1234567',
-                        prefixIcon: Icon(
-                          contactType == 'email' ? Icons.email : Icons.phone,
-                        ),
-                        border: const OutlineInputBorder(),
+                      controller: phoneController,
+                      textDirection: TextDirection.ltr,
+                      keyboardType: TextInputType.phone,
+                      decoration: const InputDecoration(
+                        labelText: 'טלפון',
+                        hintText: '050-1234567',
+                        prefixIcon: Icon(Icons.phone),
+                        border: OutlineInputBorder(),
                       ),
+                    ),
+                    const SizedBox(height: kSpacingSmall),
+
+                    // הערה
+                    Text(
+                      '💡 מומלץ להזין גם אימייל וגם טלפון לשיפור הסיכוי שההזמנה תימצא',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey[600],
+                        fontStyle: FontStyle.italic,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: kSpacingMedium),
 
@@ -591,7 +598,8 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
                 FilledButton(
                   onPressed: () {
                     final name = nameController.text.trim();
-                    final contact = contactController.text.trim();
+                    final email = emailController.text.trim();
+                    final phone = phoneController.text.trim();
 
                     // ולידציה
                     if (name.isEmpty) {
@@ -604,26 +612,22 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
                       return;
                     }
 
-                    if (contact.isEmpty) {
+                    if (email.isEmpty && phone.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            contactType == 'email'
-                                ? 'נא להזין אימייל'
-                                : 'נא להזין טלפון',
-                          ),
+                        const SnackBar(
+                          content: Text('נא להזין לפחות אימייל או טלפון'),
                           backgroundColor: Colors.orange,
                         ),
                       );
                       return;
                     }
 
-                    // יצירת איש קשר ידני עם התפקיד שנבחר
+                    // יצירת איש קשר ידני עם שני הפרטים (אם קיימים)
                     final manualContact = SelectedContact(
                       id: 'manual_${DateTime.now().millisecondsSinceEpoch}',
                       displayName: name,
-                      phone: contactType == 'phone' ? contact : null,
-                      email: contactType == 'email' ? contact : null,
+                      phone: phone.isNotEmpty ? phone : null,
+                      email: email.isNotEmpty ? email.toLowerCase() : null,
                       role: selectedRole,
                     );
 
@@ -746,11 +750,13 @@ class _ContactTile extends StatelessWidget {
   final SelectedContact contact;
   final bool isSelected;
   final VoidCallback onTap;
+  final ValueChanged<UserRole>? onRoleChanged;
 
   const _ContactTile({
     required this.contact,
     required this.isSelected,
     required this.onTap,
+    this.onRoleChanged,
   });
 
   @override
@@ -809,16 +815,77 @@ class _ContactTile extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          contact.phone ?? contact.email ?? '',
+          _buildContactSubtitle(contact),
           style: TextStyle(
             fontSize: 12,
             color: Colors.grey[600],
           ),
+          maxLines: 2,
         ),
         trailing: isSelected
-            ? Icon(Icons.check_circle, color: cs.primary)
+            ? _buildRoleSelector(context, cs)
             : Icon(Icons.circle_outlined, color: Colors.grey[400]),
       ),
     );
+  }
+
+  /// בורר תפקיד קומפקטי
+  Widget _buildRoleSelector(BuildContext context, ColorScheme cs) {
+    return PopupMenuButton<UserRole>(
+      initialValue: contact.role,
+      onSelected: onRoleChanged,
+      tooltip: 'שנה תפקיד',
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: cs.primary,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '${contact.role.emoji} ${contact.role.hebrewName}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const Icon(
+              Icons.arrow_drop_down,
+              size: 16,
+              color: Colors.white,
+            ),
+          ],
+        ),
+      ),
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: UserRole.admin,
+          child: Text('${UserRole.admin.emoji} מנהל'),
+        ),
+        PopupMenuItem(
+          value: UserRole.editor,
+          child: Text('${UserRole.editor.emoji} עורך'),
+        ),
+        PopupMenuItem(
+          value: UserRole.viewer,
+          child: Text('${UserRole.viewer.emoji} צופה'),
+        ),
+      ],
+    );
+  }
+
+  /// בניית טקסט subtitle עם אימייל וטלפון
+  String _buildContactSubtitle(SelectedContact contact) {
+    final parts = <String>[];
+    if (contact.phone != null && contact.phone!.isNotEmpty) {
+      parts.add('📱 ${contact.phone}');
+    }
+    if (contact.email != null && contact.email!.isNotEmpty) {
+      parts.add('✉️ ${contact.email}');
+    }
+    return parts.join('\n');
   }
 }

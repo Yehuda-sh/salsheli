@@ -90,9 +90,14 @@ class FirebaseUserRepository implements UserRepository {
   Future<UserEntity> saveUser(UserEntity user) async {
     try {
       debugPrint('💾 FirebaseUserRepository.saveUser: שומר משתמש ${user.id}');
+      debugPrint('   📧 Email: ${user.email}');
+      debugPrint('   📱 Phone: ${user.phone}');
 
       // עדכון lastLoginAt
       final updatedUser = user.copyWith(lastLoginAt: DateTime.now());
+
+      final jsonData = updatedUser.toJson();
+      debugPrint('   📦 JSON to save: $jsonData');
 
       await _firestore
           .collection(FirestoreCollections.users)

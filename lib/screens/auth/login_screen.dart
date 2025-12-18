@@ -37,7 +37,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
-import '../../providers/pending_invites_provider.dart';
 import '../../providers/user_context.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
@@ -130,22 +129,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       await prefs.setBool('seen_onboarding', true);
       debugPrint('✅ _handleLogin() | Onboarding flag saved');
 
-      // 📨 בדיקת הזמנות ממתינות לקבוצות
-      if (mounted) {
-        final pendingInvitesProvider = context.read<PendingInvitesProvider>();
-        // בהתחברות יש לנו רק אימייל, הטלפון יכול להיות ב-user profile
-        final userPhone = userContext.user?.phone;
-        await pendingInvitesProvider.checkPendingInvites(
-          phone: userPhone,
-          email: email,
-        );
-        debugPrint('📨 Checked pending invites: ${pendingInvitesProvider.pendingCount} found');
-      }
-
       // 🔹 3. הצגת feedback ויזואלי + ניווט
       if (mounted) {
         setState(() => _isLoading = false);
-        
+
         // 🎉 הצגת הודעת הצלחה קצרה
         final messenger = ScaffoldMessenger.of(context);
         messenger.showSnackBar(
@@ -166,10 +153,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             margin: const EdgeInsets.all(kSpacingMedium),
           ),
         );
-        
+
         // ⏱️ המתנה קצרה לפני ניווט (feedback ויזואלי)
         await Future.delayed(const Duration(milliseconds: 1500));
-        
+
         if (mounted) {
           debugPrint('🔄 _handleLogin() | Navigating to home screen');
           await navigator.pushNamedAndRemoveUntil('/home', (route) => false);

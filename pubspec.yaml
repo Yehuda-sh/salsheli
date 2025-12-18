@@ -69,6 +69,7 @@ dev_dependencies:
   json_serializable: ^6.8.0
   mockito: ^5.4.4  # For testing
   test: ^1.25.0  # For testing utilities
+  fake_cloud_firestore: ^4.0.0  # For Firestore mocking in tests
 
 flutter_gen:
   output: lib/gen/

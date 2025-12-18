@@ -273,7 +273,7 @@ class GroupInviteRepository {
   Future<void> rejectInvite(String inviteId) async {
     try {
       if (kDebugMode) {
-        debugPrint('❌ GroupInviteRepository.rejectInvite: $inviteId');
+        debugPrint('👎 GroupInviteRepository.rejectInvite: $inviteId');
       }
 
       await _collection.doc(inviteId).update({
@@ -387,14 +387,11 @@ class GroupInviteRepository {
         debugPrint('   Group: ${invite.groupName}');
       }
 
-      // 1. קבלת הקבוצה
-      final groupDoc =
-          await _firestore.collection('groups').doc(invite.groupId).get();
-      if (!groupDoc.exists) {
-        throw GroupInviteException('Group not found');
-      }
+      final groupRef = _firestore.collection('groups').doc(invite.groupId);
+      final userRef = _firestore.collection('users').doc(userId);
+      final inviteRef = _collection.doc(invite.id);
 
-      // 2. יצירת חבר חדש
+      // יצירת חבר חדש
       final member = GroupMember.invited(
         userId: userId,
         name: userName,
@@ -404,42 +401,48 @@ class GroupInviteRepository {
         invitedBy: invite.invitedBy,
       );
 
-      // 3. Transaction: עדכון הקבוצה + סימון ההזמנה כהתקבלה + עדכון user
-      await _firestore.runTransaction((transaction) async {
-        // עדכון הקבוצה
-        transaction.update(groupDoc.reference, {
-          'members.$userId': member.toJson(),
-          'updated_at': FieldValue.serverTimestamp(),
-        });
-
-        // סימון ההזמנה כהתקבלה
-        transaction.update(_collection.doc(invite.id), {
-          'status': 'accepted',
-          'responded_at': FieldValue.serverTimestamp(),
-          'accepted_by_user_id': userId,
-        });
-
-        // עדכון ה-user
-        final userRef = _firestore.collection('users').doc(userId);
-        transaction.update(userRef, {
-          'group_ids': FieldValue.arrayUnion([invite.groupId]),
-        });
-      });
-
-      // 4. מחיקת החבר "המוזמן" הישן (invited_XXX)
+      // מזהה החבר המוזמן הישן (לפני שהצטרף)
       final invitedUserId =
           'invited_${invite.invitedEmail ?? invite.invitedPhone ?? invite.id}';
-      await _firestore.collection('groups').doc(invite.groupId).update({
-        'members.$invitedUserId': FieldValue.delete(),
+
+      // Step 1: עדכון ההזמנה ל-accepted (יש הרשאה לזה)
+      await inviteRef.update({
+        'status': 'accepted',
+        'responded_at': FieldValue.serverTimestamp(),
+        'accepted_by_user_id': userId,
       });
 
       if (kDebugMode) {
+        debugPrint('   ✅ Invite marked as accepted');
+      }
+
+      // Step 2: עדכון ה-user להוסיף את הקבוצה (יש הרשאה לזה)
+      await userRef.update({
+        'group_ids': FieldValue.arrayUnion([invite.groupId]),
+      });
+
+      if (kDebugMode) {
+        debugPrint('   ✅ User group_ids updated');
+      }
+
+      // Step 3: עדכון הקבוצה - הוספת החבר החדש והסרת המוזמן הישן
+      // עכשיו יש למשתמש הרשאה כי הוא כבר ב-group_ids
+      await groupRef.update({
+        'members.$userId': member.toJson(),
+        'members.$invitedUserId': FieldValue.delete(),
+        'updated_at': FieldValue.serverTimestamp(),
+      });
+
+      if (kDebugMode) {
+        debugPrint('   ✅ Group members updated');
         debugPrint('✅ User joined group successfully');
       }
 
       // החזרת הקבוצה המעודכנת
-      final updatedGroupDoc =
-          await _firestore.collection('groups').doc(invite.groupId).get();
+      final updatedGroupDoc = await groupRef.get();
+      if (!updatedGroupDoc.exists) {
+        return null;
+      }
       final data = updatedGroupDoc.data()!;
       return Group.fromJson({...data, 'id': updatedGroupDoc.id});
     } catch (e, stackTrace) {

@@ -57,6 +57,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../providers/pending_invites_provider.dart';
 import '../providers/user_context.dart';
 import '../l10n/app_strings.dart';
 import '../core/ui_constants.dart';
@@ -136,6 +137,9 @@ class _AppLayoutState extends State<AppLayout> {
     final navigator = Navigator.of(context);
 
     try {
+      // 📨 ניקוי הזמנות ממתינות (לפני logout)
+      context.read<PendingInvitesProvider>().clear();
+
       // 🔐 Logout via UserContext Provider
       // ✅ זה מנקה גם Firebase Auth וגם SharedPreferences!
       await context.read<UserContext>().logout();

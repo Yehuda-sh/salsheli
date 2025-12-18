@@ -18,11 +18,15 @@ import 'package:uuid/uuid.dart';
 
 import '../models/enums/user_role.dart';
 import '../models/group.dart';
+import '../models/group_invite.dart';
+import '../repositories/group_invite_repository.dart';
 import '../repositories/group_repository.dart';
+import '../services/contact_picker_service.dart';
 import 'user_context.dart';
 
 class GroupsProvider with ChangeNotifier {
   final GroupRepository _repository;
+  final GroupInviteRepository _inviteRepository;
   final _uuid = const Uuid();
 
   // State
@@ -35,8 +39,12 @@ class GroupsProvider with ChangeNotifier {
   UserContext? _userContext;
   StreamSubscription<List<Group>>? _groupsSubscription;
 
-  GroupsProvider({required GroupRepository repository})
-      : _repository = repository;
+  GroupsProvider({
+    required GroupRepository repository,
+    GroupInviteRepository? inviteRepository,
+  })
+      : _repository = repository,
+        _inviteRepository = inviteRepository ?? GroupInviteRepository();
 
   // === Getters ===
 
@@ -194,6 +202,7 @@ class GroupsProvider with ChangeNotifier {
     String? description,
     String? imageUrl,
     Map<String, dynamic>? extraFields,
+    List<SelectedContact>? invitedContacts,
   }) async {
     final user = _userContext?.user;
     if (user == null) {
@@ -208,6 +217,9 @@ class GroupsProvider with ChangeNotifier {
 
       if (kDebugMode) {
         debugPrint('📝 GroupsProvider.createGroup: $name (${type.hebrewName})');
+        if (invitedContacts != null && invitedContacts.isNotEmpty) {
+          debugPrint('   📨 Will invite ${invitedContacts.length} contacts');
+        }
       }
 
       final group = Group.create(
@@ -224,6 +236,16 @@ class GroupsProvider with ChangeNotifier {
       );
 
       final createdGroup = await _repository.createGroup(group);
+
+      // שליחת הזמנות לאנשי הקשר
+      if (invitedContacts != null && invitedContacts.isNotEmpty) {
+        await _sendInvites(
+          group: createdGroup,
+          contacts: invitedContacts,
+          inviterId: user.id,
+          inviterName: user.name,
+        );
+      }
 
       // הוסף לרשימה המקומית
       _groups = [createdGroup, ..._groups];
@@ -242,6 +264,40 @@ class GroupsProvider with ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  /// שליחת הזמנות לאנשי קשר
+  Future<void> _sendInvites({
+    required Group group,
+    required List<SelectedContact> contacts,
+    required String inviterId,
+    required String inviterName,
+  }) async {
+    for (final contact in contacts) {
+      try {
+        final invite = GroupInvite.create(
+          groupId: group.id,
+          groupName: group.name,
+          invitedPhone: contact.phone,
+          invitedEmail: contact.email,
+          invitedName: contact.displayName,
+          role: contact.role,
+          invitedBy: inviterId,
+          invitedByName: inviterName,
+        );
+
+        await _inviteRepository.createInvite(invite);
+
+        if (kDebugMode) {
+          debugPrint('   ✅ Invite sent to ${contact.displayName}');
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('   ❌ Failed to invite ${contact.displayName}: $e');
+        }
+        // ממשיכים לשלוח לאחרים גם אם אחד נכשל
+      }
     }
   }
 
