@@ -9,7 +9,7 @@
 // Version: 1.0
 // Created: 16/12/2025
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 import '../models/group_invite.dart';
 import '../repositories/group_invite_repository.dart';
@@ -28,8 +28,11 @@ class PendingInvitesProvider with ChangeNotifier {
 
   // === Getters ===
 
+  /// גישה ל-repository (לשימוש על ידי providers אחרים)
+  GroupInviteRepository get repository => _repository;
+
   /// רשימת הזמנות ממתינות
-  List<GroupInvite> get pendingInvites => _pendingInvites;
+  List<GroupInvite> get pendingInvites => List.unmodifiable(_pendingInvites);
 
   /// מספר הזמנות ממתינות (ל-badge)
   int get pendingCount => _pendingInvites.length;
@@ -55,7 +58,6 @@ class PendingInvitesProvider with ChangeNotifier {
     String? email,
   }) async {
     if (phone == null && email == null) {
-      debugPrint('⚠️ PendingInvitesProvider: No phone or email to check');
       return;
     }
 
@@ -64,10 +66,6 @@ class PendingInvitesProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      debugPrint('🔍 PendingInvitesProvider.checkPendingInvites:');
-      debugPrint('   Phone: $phone');
-      debugPrint('   Email: $email');
-
       _pendingInvites = await _repository.findPendingInvites(
         phone: phone,
         email: email,
@@ -75,9 +73,13 @@ class PendingInvitesProvider with ChangeNotifier {
 
       _hasChecked = true;
 
-      debugPrint('✅ Found ${_pendingInvites.length} pending invites');
+      if (kDebugMode) {
+        debugPrint('✅ PendingInvitesProvider: Found ${_pendingInvites.length} pending invites');
+      }
     } catch (e) {
-      debugPrint('❌ PendingInvitesProvider.checkPendingInvites failed: $e');
+      if (kDebugMode) {
+        debugPrint('❌ PendingInvitesProvider.checkPendingInvites: $e');
+      }
       _errorMessage = 'שגיאה בבדיקת הזמנות';
       _pendingInvites = [];
     } finally {
@@ -95,8 +97,6 @@ class PendingInvitesProvider with ChangeNotifier {
     String? userAvatar,
   }) async {
     try {
-      debugPrint('✅ PendingInvitesProvider.acceptInvite: ${invite.groupName}');
-
       await _repository.acceptInviteAndJoinGroup(
         invite: invite,
         userId: userId,
@@ -106,12 +106,14 @@ class PendingInvitesProvider with ChangeNotifier {
       );
 
       // הסר מהרשימה המקומית
-      _pendingInvites.removeWhere((i) => i.id == invite.id);
+      _pendingInvites = _pendingInvites.where((i) => i.id != invite.id).toList();
       notifyListeners();
 
       return true;
     } catch (e) {
-      debugPrint('❌ PendingInvitesProvider.acceptInvite failed: $e');
+      if (kDebugMode) {
+        debugPrint('❌ PendingInvitesProvider.acceptInvite: $e');
+      }
       _errorMessage = 'שגיאה באישור ההזמנה';
       notifyListeners();
       return false;
@@ -121,17 +123,17 @@ class PendingInvitesProvider with ChangeNotifier {
   /// דחיית הזמנה
   Future<bool> rejectInvite(GroupInvite invite) async {
     try {
-      debugPrint('❌ PendingInvitesProvider.rejectInvite: ${invite.groupName}');
-
       await _repository.rejectInvite(invite.id);
 
       // הסר מהרשימה המקומית
-      _pendingInvites.removeWhere((i) => i.id == invite.id);
+      _pendingInvites = _pendingInvites.where((i) => i.id != invite.id).toList();
       notifyListeners();
 
       return true;
     } catch (e) {
-      debugPrint('❌ PendingInvitesProvider.rejectInvite failed: $e');
+      if (kDebugMode) {
+        debugPrint('❌ PendingInvitesProvider.rejectInvite: $e');
+      }
       _errorMessage = 'שגיאה בדחיית ההזמנה';
       notifyListeners();
       return false;

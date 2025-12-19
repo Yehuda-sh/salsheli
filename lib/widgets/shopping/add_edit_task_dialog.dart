@@ -8,15 +8,22 @@
 // - Validation מלא
 // - RTL Support
 // - Controllers cleanup אוטומטי
+// - Haptic Feedback
+// - Semantics לנגישות
 
+import 'dart:async';
 import 'dart:ui' as ui;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../models/unified_list_item.dart';
+import '../../core/status_colors.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
+import '../../models/unified_list_item.dart';
 
 class AddEditTaskDialog extends StatefulWidget {
   final UnifiedListItem? item;
@@ -41,27 +48,32 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.item?.name ?? "");
-    _notesController = TextEditingController(text: widget.item?.notes ?? "");
+    _nameController = TextEditingController(text: widget.item?.name ?? '');
+    _notesController = TextEditingController(text: widget.item?.notes ?? '');
     _selectedDueDate = widget.item?.dueDate;
     _selectedPriority = widget.item?.priority ?? 'medium';
 
-    debugPrint(
-      widget.item == null
-          ? '➕ AddEditTaskDialog: פתיחת דיאלוג הוספת משימה'
-          : '✏️ AddEditTaskDialog: פתיחת דיאלוג עריכת "${widget.item!.name}"',
-    );
+    if (kDebugMode) {
+      debugPrint(
+        widget.item == null
+            ? '➕ AddEditTaskDialog: פתיחת דיאלוג הוספת משימה'
+            : '✏️ AddEditTaskDialog: פתיחת דיאלוג עריכת "${widget.item!.name}"',
+      );
+    }
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     _notesController.dispose();
-    debugPrint('🗑️ AddEditTaskDialog: Controllers disposed');
+    if (kDebugMode) {
+      debugPrint('🗑️ AddEditTaskDialog: Controllers disposed');
+    }
     super.dispose();
   }
 
   Future<void> _selectDate() async {
+    unawaited(HapticFeedback.selectionClick());
     final picked = await showDatePicker(
       context: context,
       initialDate: _selectedDueDate ?? DateTime.now(),
@@ -70,8 +82,26 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
     );
 
     if (picked != null && mounted) {
+      unawaited(HapticFeedback.lightImpact());
       setState(() => _selectedDueDate = picked);
     }
+  }
+
+  void _showErrorSnackBar(String message) {
+    unawaited(HapticFeedback.heavyImpact());
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.error_outline, color: Colors.white),
+            const SizedBox(width: kSpacingSmall),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: StatusColors.error,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   void _handleSave() {
@@ -80,14 +110,12 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
 
     // ✅ Validation מלא
     if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppStrings.listDetails.taskNameEmpty),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showErrorSnackBar(AppStrings.listDetails.taskNameEmpty);
       return;
     }
+
+    // ✨ Haptic feedback להצלחה
+    unawaited(HapticFeedback.mediumImpact());
 
     final newItem = UnifiedListItem.task(
       id: widget.item?.id ?? const Uuid().v4(),
@@ -100,11 +128,13 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
     widget.onSave(newItem);
     Navigator.pop(context);
 
-    debugPrint(
-      widget.item == null
-          ? '✅ AddEditTaskDialog: הוסף משימה "$name"'
-          : '✅ AddEditTaskDialog: עדכן משימה "$name"',
-    );
+    if (kDebugMode) {
+      debugPrint(
+        widget.item == null
+            ? '✅ AddEditTaskDialog: הוסף משימה "$name"'
+            : '✅ AddEditTaskDialog: עדכן משימה "$name"',
+      );
+    }
   }
 
   @override
@@ -154,7 +184,7 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
             const SizedBox(height: kSpacingSmall),
             // עדיפות
             DropdownButtonFormField<String>(
-              value: _selectedPriority,
+              initialValue: _selectedPriority,
               decoration: InputDecoration(
                 labelText: AppStrings.listDetails.priorityLabel,
               ),
@@ -174,6 +204,7 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
               ],
               onChanged: (value) {
                 if (value != null) {
+                  unawaited(HapticFeedback.selectionClick());
                   setState(() => _selectedPriority = value);
                 }
               },
@@ -182,16 +213,27 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () {
-            debugPrint('❌ AddEditTaskDialog: ביטול דיאלוג');
-            Navigator.pop(context);
-          },
-          child: Text(AppStrings.common.cancel),
+        Semantics(
+          label: AppStrings.common.cancel,
+          button: true,
+          child: TextButton(
+            onPressed: () {
+              unawaited(HapticFeedback.lightImpact());
+              if (kDebugMode) {
+                debugPrint('❌ AddEditTaskDialog: ביטול דיאלוג');
+              }
+              Navigator.pop(context);
+            },
+            child: Text(AppStrings.common.cancel),
+          ),
         ),
-        ElevatedButton(
-          onPressed: _handleSave,
-          child: Text(AppStrings.common.save),
+        Semantics(
+          label: AppStrings.common.save,
+          button: true,
+          child: ElevatedButton(
+            onPressed: _handleSave,
+            child: Text(AppStrings.common.save),
+          ),
         ),
       ],
     );
@@ -208,7 +250,8 @@ Future<void> showAddEditTaskDialog(
     context: context,
     barrierDismissible: true,
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-    transitionDuration: const Duration(milliseconds: 200),
+    barrierColor: Colors.black.withValues(alpha: 0.5),
+    transitionDuration: const Duration(milliseconds: 200), // ignore: avoid_redundant_argument_values
     pageBuilder: (context, animation, secondaryAnimation) {
       return ScaleTransition(
         scale: CurvedAnimation(

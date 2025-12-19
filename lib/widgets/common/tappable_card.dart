@@ -16,6 +16,8 @@
 // Version: 1.0
 // Created: 14/10/2025
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -114,7 +116,7 @@ class _TappableCardState extends State<TappableCard> {
   /// Build animated child with scale and elevation
   Widget _buildAnimatedChild() {
     // If child is already a Card, don't wrap in another
-    bool isCard = widget.child is Card;
+    final isCard = widget.child is Card;
 
     Widget content = widget.child;
 
@@ -150,7 +152,7 @@ class _TappableCardState extends State<TappableCard> {
 
     // Haptic feedback
     if (widget.hapticFeedback) {
-      HapticFeedback.lightImpact();
+      unawaited(HapticFeedback.lightImpact());
     }
   }
 
@@ -208,7 +210,6 @@ class AnimatedCard extends StatelessWidget {
               ),
               offset: Offset(0, isPressed ? 2 : 4),
               blurRadius: isPressed ? 4 : 8,
-              spreadRadius: 0,
             ),
           ],
         ),
@@ -292,7 +293,7 @@ class _SimpleTappableCardState extends State<SimpleTappableCard> {
     setState(() => _isPressed = true);
 
     if (widget.hapticFeedback) {
-      HapticFeedback.lightImpact();
+      unawaited(HapticFeedback.lightImpact());
     }
   }
 

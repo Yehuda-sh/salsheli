@@ -494,5 +494,73 @@ void main() {
         expect(found, isEmpty);
       });
     });
+
+    group('deleteAllGroupInvites', () {
+      test('should delete all pending invites for a group', () async {
+        // Create multiple invites for the same group
+        final invite1 = GroupInvite.create(
+          groupId: testGroupId,
+          groupName: testGroupName,
+          invitedPhone: userBPhone,
+          role: UserRole.editor,
+          invitedBy: testInviterUserId,
+          invitedByName: testInviterName,
+        );
+        await repository.createInvite(invite1);
+
+        final invite2 = GroupInvite.create(
+          groupId: testGroupId,
+          groupName: testGroupName,
+          invitedEmail: 'another@example.com',
+          role: UserRole.viewer,
+          invitedBy: testInviterUserId,
+          invitedByName: testInviterName,
+        );
+        await repository.createInvite(invite2);
+
+        // Verify both invites exist
+        final beforeDelete = await repository.getGroupInvites(testGroupId);
+        expect(beforeDelete.where((i) => i.isPending).length, 2);
+
+        // Delete all group invites
+        await repository.deleteAllGroupInvites(testGroupId);
+
+        // Verify no pending invites remain
+        final afterDelete = await repository.getGroupInvites(testGroupId);
+        expect(afterDelete.where((i) => i.isPending).length, 0);
+      });
+
+      test('should not delete invites from other groups', () async {
+        // Create invite for group 1
+        final invite1 = GroupInvite.create(
+          groupId: 'group-1',
+          groupName: 'קבוצה 1',
+          invitedPhone: userBPhone,
+          role: UserRole.editor,
+          invitedBy: testInviterUserId,
+          invitedByName: testInviterName,
+        );
+        await repository.createInvite(invite1);
+
+        // Create invite for group 2
+        final invite2 = GroupInvite.create(
+          groupId: 'group-2',
+          groupName: 'קבוצה 2',
+          invitedPhone: userBPhone,
+          role: UserRole.editor,
+          invitedBy: testInviterUserId,
+          invitedByName: testInviterName,
+        );
+        await repository.createInvite(invite2);
+
+        // Delete invites for group 1 only
+        await repository.deleteAllGroupInvites('group-1');
+
+        // Verify group 2 invite still exists
+        final found = await repository.findPendingInvites(phone: userBPhone);
+        expect(found, hasLength(1));
+        expect(found.first.groupId, 'group-2');
+      });
+    });
   });
 }

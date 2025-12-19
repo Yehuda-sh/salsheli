@@ -54,13 +54,15 @@
 // - ✅ Removed Receipts tab (accessible via Settings → "הקבלות שלי")
 // - ✅ Fixed RangeError: 4 tabs instead of 5
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../core/ui_constants.dart';
+import '../l10n/app_strings.dart';
 import '../providers/pending_invites_provider.dart';
 import '../providers/user_context.dart';
-import '../l10n/app_strings.dart';
-import '../core/ui_constants.dart';
+import '../widgets/common/sticky_note.dart';
 
 class AppLayout extends StatefulWidget {
   final Widget child;
@@ -88,7 +90,9 @@ class _AppLayoutState extends State<AppLayout> {
   void initState() {
     super.initState();
     _updateBadgeCache();
-    debugPrint('📱 AppLayout.initState: currentIndex=${widget.currentIndex}, badges=${widget.badges}');
+    if (kDebugMode) {
+      debugPrint('📱 AppLayout.initState: currentIndex=${widget.currentIndex}, badges=${widget.badges}');
+    }
   }
 
   @override
@@ -101,7 +105,9 @@ class _AppLayoutState extends State<AppLayout> {
 
   @override
   void dispose() {
-    debugPrint('🗑️ AppLayout.dispose');
+    if (kDebugMode) {
+      debugPrint('🗑️ AppLayout.dispose');
+    }
     super.dispose();
   }
 
@@ -130,7 +136,9 @@ class _AppLayoutState extends State<AppLayout> {
   /// - Context safety after async
   /// - User feedback with SnackBar
   Future<void> _logout(BuildContext context) async {
-    debugPrint('🚪 AppLayout.logout: התחלת התנתקות');
+    if (kDebugMode) {
+      debugPrint('🚪 AppLayout.logout: התחלת התנתקות');
+    }
 
     // 💾 Save context before async (Context Safety)
     final scaffoldMessenger = ScaffoldMessenger.of(context);
@@ -143,17 +151,23 @@ class _AppLayoutState extends State<AppLayout> {
       // 🔐 Logout via UserContext Provider
       // ✅ זה מנקה גם Firebase Auth וגם SharedPreferences!
       await context.read<UserContext>().logout();
-      debugPrint('   ✅ UserContext.logout() הושלם בהצלחה');
+      if (kDebugMode) {
+        debugPrint('   ✅ UserContext.logout() הושלם בהצלחה');
+      }
 
       // ✅ Context safety check
       if (!mounted) return;
 
       // 🏠 Navigate to login (Clear stack)
-      navigator.pushNamedAndRemoveUntil('/login', (r) => false);
-      debugPrint('   ✅ ניווט ל-/login');
+      await navigator.pushNamedAndRemoveUntil('/login', (r) => false);
+      if (kDebugMode) {
+        debugPrint('   ✅ ניווט ל-/login');
+      }
 
     } catch (e) {
-      debugPrint('   ❌ AppLayout.logout: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('   ❌ AppLayout.logout: שגיאה - $e');
+      }
 
       // 🚨 Show error to user
       scaffoldMessenger.showSnackBar(
@@ -271,7 +285,9 @@ class _AppLayoutState extends State<AppLayout> {
                 selected: safeIndex == e.key,
                 badgeCount: widget.badges?[e.key],
                 onTap: () {
-                  debugPrint('🔄 AppLayout.tabSelected: ${e.key} (${e.value.label})');
+                  if (kDebugMode) {
+                    debugPrint('🔄 AppLayout.tabSelected: ${e.key} (${e.value.label})');
+                  }
                   Navigator.pop(context);
                   widget.onTabSelected(e.key);
                 },
@@ -294,19 +310,60 @@ class _AppLayoutState extends State<AppLayout> {
     );
   }
 
-  /// 👤 Build Drawer Header
+  /// 👤 Build Drawer Header - סגנון StickyNote
   Widget _buildDrawerHeader(BuildContext context, ColorScheme cs) {
-    return UserAccountsDrawerHeader(
-      decoration: BoxDecoration(color: cs.primary),
-      accountName: Text(AppStrings.layout.hello),
-      accountEmail: Text(
-        totalBadgeCount > 0
-            ? AppStrings.layout.welcomeWithUpdates(totalBadgeCount)
-            : AppStrings.layout.welcome,
-      ),
-      currentAccountPicture: CircleAvatar(
-        backgroundColor: cs.onPrimary.withValues(alpha: 0.15),
-        child: Icon(Icons.person, color: cs.onPrimary),
+    return Padding(
+      padding: const EdgeInsets.all(kSpacingMedium),
+      child: StickyNote(
+        color: kStickyYellow,
+        rotation: -0.01,
+        child: Row(
+          children: [
+            // אווטאר
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: cs.primary.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Icon(
+                  Icons.person,
+                  size: 32,
+                  color: cs.primary,
+                ),
+              ),
+            ),
+            const SizedBox(width: kSpacingSmall),
+            // טקסט
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppStrings.layout.hello,
+                    style: const TextStyle(
+                      fontSize: kFontSizeLarge,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: kSpacingXTiny),
+                  Text(
+                    totalBadgeCount > 0
+                        ? AppStrings.layout.welcomeWithUpdates(totalBadgeCount)
+                        : AppStrings.layout.welcome,
+                    style: const TextStyle(
+                      fontSize: kFontSizeBody,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -247,8 +247,7 @@ class GroupsProvider with ChangeNotifier {
         );
       }
 
-      // הוסף לרשימה המקומית
-      _groups = [createdGroup, ..._groups];
+      // הערה: לא מוסיפים ידנית לרשימה - ה-Stream (watchUserGroups) יעשה זאת אוטומטית
 
       if (kDebugMode) {
         debugPrint('✅ GroupsProvider.createGroup: Created ${createdGroup.id}');
@@ -310,10 +309,10 @@ class GroupsProvider with ChangeNotifier {
 
       await _repository.updateGroup(group);
 
-      // עדכון ברשימה המקומית
+      // עדכון ברשימה המקומית (immutable)
       final index = _groups.indexWhere((g) => g.id == group.id);
       if (index != -1) {
-        _groups[index] = group;
+        _groups = List.from(_groups)..[index] = group;
         notifyListeners();
       }
 
@@ -339,17 +338,25 @@ class GroupsProvider with ChangeNotifier {
         debugPrint('🗑️ GroupsProvider.deleteGroup: $groupId');
       }
 
+      // מחיקת כל ההזמנות הממתינות של הקבוצה
+      try {
+        await _inviteRepository.deleteAllGroupInvites(groupId);
+      } catch (e) {
+        // לא נכשל את כל הפעולה אם מחיקת ההזמנות נכשלה
+        if (kDebugMode) {
+          debugPrint('⚠️ Failed to delete group invites: $e');
+        }
+      }
+
       await _repository.deleteGroup(groupId);
 
-      // הסרה מהרשימה המקומית
-      _groups = _groups.where((g) => g.id != groupId).toList();
+      // הערה: לא מסירים ידנית מהרשימה - ה-Stream יעשה זאת אוטומטית
 
       // אם הקבוצה הנבחרת נמחקה
       if (_selectedGroup?.id == groupId) {
         _selectedGroup = null;
+        notifyListeners();
       }
-
-      notifyListeners();
 
       if (kDebugMode) {
         debugPrint('✅ GroupsProvider.deleteGroup: Success');
@@ -371,10 +378,7 @@ class GroupsProvider with ChangeNotifier {
     if (groupId == null) {
       _selectedGroup = null;
     } else {
-      _selectedGroup = _groups.firstWhere(
-        (g) => g.id == groupId,
-        orElse: () => _groups.first,
-      );
+      _selectedGroup = _groups.where((g) => g.id == groupId).firstOrNull;
     }
     notifyListeners();
   }
@@ -407,10 +411,10 @@ class GroupsProvider with ChangeNotifier {
 
       await _repository.addMember(groupId, member);
 
-      // עדכון מקומי
+      // עדכון מקומי (immutable)
       final index = _groups.indexWhere((g) => g.id == groupId);
       if (index != -1) {
-        _groups[index] = _groups[index].addMember(member);
+        _groups = List.from(_groups)..[index] = _groups[index].addMember(member);
         notifyListeners();
       }
 
@@ -438,10 +442,10 @@ class GroupsProvider with ChangeNotifier {
 
       await _repository.removeMember(groupId, userId);
 
-      // עדכון מקומי
+      // עדכון מקומי (immutable)
       final index = _groups.indexWhere((g) => g.id == groupId);
       if (index != -1) {
-        _groups[index] = _groups[index].removeMember(userId);
+        _groups = List.from(_groups)..[index] = _groups[index].removeMember(userId);
         notifyListeners();
       }
 
@@ -475,10 +479,10 @@ class GroupsProvider with ChangeNotifier {
 
       await _repository.updateMemberRole(groupId, userId, newRole);
 
-      // עדכון מקומי
+      // עדכון מקומי (immutable)
       final index = _groups.indexWhere((g) => g.id == groupId);
       if (index != -1) {
-        _groups[index] = _groups[index].updateMemberRole(userId, newRole);
+        _groups = List.from(_groups)..[index] = _groups[index].updateMemberRole(userId, newRole);
         notifyListeners();
       }
 
@@ -501,11 +505,7 @@ class GroupsProvider with ChangeNotifier {
 
   /// קבלת קבוצה לפי ID
   Group? getGroup(String groupId) {
-    try {
-      return _groups.firstWhere((g) => g.id == groupId);
-    } catch (_) {
-      return null;
-    }
+    return _groups.where((g) => g.id == groupId).firstOrNull;
   }
 
   /// בדיקה אם המשתמש חבר בקבוצה

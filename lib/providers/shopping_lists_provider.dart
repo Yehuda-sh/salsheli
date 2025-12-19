@@ -214,7 +214,9 @@ class ShoppingListsProvider with ChangeNotifier {
       _lastUpdated = DateTime.now();
     } catch (e) {
       _errorMessage = e.toString();
-      debugPrint('❌ loadLists: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ loadLists: שגיאה - $e');
+      }
       notifyListeners(); // ← עדכון UI מיידי על שגיאה
     } finally {
       _isLoading = false;
@@ -223,7 +225,7 @@ class ShoppingListsProvider with ChangeNotifier {
   }
 
   /// ניסיון חוזר אחרי שגיאה
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// if (provider.hasError) {
@@ -231,19 +233,23 @@ class ShoppingListsProvider with ChangeNotifier {
   /// }
   /// ```
   Future<void> retry() async {
-    debugPrint('🔄 retry: מנסה שוב לטעון רשימות');
+    if (kDebugMode) {
+      debugPrint('🔄 retry: מנסה שוב לטעון רשימות');
+    }
     _errorMessage = null;
     await loadLists();
   }
 
   /// מנקה את כל ה-state (שימושי ב-logout)
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// await provider.clearAll();
   /// ```
   void clearAll() {
-    debugPrint('🧹 clearAll: מנקה state');
+    if (kDebugMode) {
+      debugPrint('🧹 clearAll: מנקה state');
+    }
     _lists = [];
     _errorMessage = null;
     _isLoading = false;
@@ -277,12 +283,16 @@ class ShoppingListsProvider with ChangeNotifier {
     final householdId = _userContext?.user?.householdId;
     
     if (userId == null || householdId == null) {
-      debugPrint('❌ createList: משתמש לא מחובר');
+      if (kDebugMode) {
+        debugPrint('❌ createList: משתמש לא מחובר');
+      }
       throw Exception('❌ משתמש לא מחובר');
     }
 
-    debugPrint('➕ createList: "$name" (סוג: $type, תקציב: $budget, תאריך: $eventDate)');
-    debugPrint('   🆕 פריטים: ${items?.length ?? 0}, תבנית: ${templateId ?? "ללא"}');
+    if (kDebugMode) {
+      debugPrint('➕ createList: "$name" (סוג: $type, תקציב: $budget, תאריך: $eventDate)');
+      debugPrint('   🆕 פריטים: ${items?.length ?? 0}, תבנית: ${templateId ?? "ללא"}');
+    }
     _errorMessage = null;
 
     try {
@@ -314,10 +324,14 @@ class ShoppingListsProvider with ChangeNotifier {
 
       await _repository.saveList(newList, userId, householdId);
       await loadLists();
-      debugPrint('✅ createList: רשימה "$name" נוצרה בהצלחה!');
+      if (kDebugMode) {
+        debugPrint('✅ createList: רשימה "$name" נוצרה בהצלחה!');
+      }
       return newList;
     } catch (e) {
-      debugPrint('❌ createList: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ createList: שגיאה - $e');
+      }
       _errorMessage = 'שגיאה ביצירת רשימה "$name": ${e.toString()}';
       notifyListeners();
       rethrow;
@@ -334,7 +348,9 @@ class ShoppingListsProvider with ChangeNotifier {
     final userId = _userContext?.user?.id;
     final householdId = _userContext?.user?.householdId;
     if (userId == null) {
-      debugPrint('❌ deleteList: userId לא נמצא');
+      if (kDebugMode) {
+        debugPrint('❌ deleteList: userId לא נמצא');
+      }
       throw Exception('❌ userId לא נמצא');
     }
 
@@ -342,15 +358,21 @@ class ShoppingListsProvider with ChangeNotifier {
     final list = getById(id);
     final isPrivate = list?.isPrivate ?? true;
 
-    debugPrint('🗑️ deleteList: מוחק רשימה $id [isPrivate: $isPrivate]');
+    if (kDebugMode) {
+      debugPrint('🗑️ deleteList: מוחק רשימה $id [isPrivate: $isPrivate]');
+    }
     _errorMessage = null;
 
     try {
       await _repository.deleteList(id, userId, householdId, isPrivate);
       await loadLists();
-      debugPrint('✅ deleteList: רשימה $id נמחקה בהצלחה');
+      if (kDebugMode) {
+        debugPrint('✅ deleteList: רשימה $id נמחקה בהצלחה');
+      }
     } catch (e) {
-      debugPrint('❌ deleteList: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ deleteList: שגיאה - $e');
+      }
       _errorMessage = 'שגיאה במחיקת רשימה $id: ${e.toString()}';
       notifyListeners();
       rethrow;
@@ -367,14 +389,20 @@ class ShoppingListsProvider with ChangeNotifier {
     final userId = _userContext?.user?.id;
     final householdId = _userContext?.user?.householdId;
     if (userId == null) {
-      debugPrint('❌ restoreList: userId לא נמצא');
+      if (kDebugMode) {
+        debugPrint('❌ restoreList: userId לא נמצא');
+      }
       throw Exception('❌ userId לא נמצא');
     }
 
-    debugPrint('↩️ restoreList: משחזר רשימה ${list.id}');
+    if (kDebugMode) {
+      debugPrint('↩️ restoreList: משחזר רשימה ${list.id}');
+    }
     await _repository.saveList(list, userId, householdId);
     await loadLists();
-    debugPrint('✅ restoreList: רשימה ${list.id} שוחזרה');
+    if (kDebugMode) {
+      debugPrint('✅ restoreList: רשימה ${list.id} שוחזרה');
+    }
   }
 
   /// מעדכן רשימה קיימת
@@ -387,19 +415,27 @@ class ShoppingListsProvider with ChangeNotifier {
     final userId = _userContext?.user?.id;
     final householdId = _userContext?.user?.householdId;
     if (userId == null) {
-      debugPrint('❌ updateList: userId לא נמצא');
+      if (kDebugMode) {
+        debugPrint('❌ updateList: userId לא נמצא');
+      }
       throw Exception('❌ userId לא נמצא');
     }
 
-    debugPrint('📝 updateList: מעדכן רשימה ${updated.id}');
+    if (kDebugMode) {
+      debugPrint('📝 updateList: מעדכן רשימה ${updated.id}');
+    }
     _errorMessage = null;
 
     try {
       await _repository.saveList(updated, userId, householdId);
       await loadLists();
-      debugPrint('✅ updateList: רשימה ${updated.id} עודכנה בהצלחה');
+      if (kDebugMode) {
+        debugPrint('✅ updateList: רשימה ${updated.id} עודכנה בהצלחה');
+      }
     } catch (e) {
-      debugPrint('❌ updateList: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ updateList: שגיאה - $e');
+      }
       _errorMessage = 'שגיאה בעדכון רשימה ${updated.id}: ${e.toString()}';
       notifyListeners();
       rethrow;
@@ -419,23 +455,33 @@ class ShoppingListsProvider with ChangeNotifier {
     final householdId = _userContext?.user?.householdId;
 
     if (userId == null) {
-      debugPrint('❌ shareListToHousehold: userId לא נמצא');
+      if (kDebugMode) {
+        debugPrint('❌ shareListToHousehold: userId לא נמצא');
+      }
       throw Exception('❌ userId לא נמצא');
     }
     if (householdId == null) {
-      debugPrint('❌ shareListToHousehold: householdId לא נמצא - משתמש לא במשפחה');
+      if (kDebugMode) {
+        debugPrint('❌ shareListToHousehold: householdId לא נמצא - משתמש לא במשפחה');
+      }
       throw Exception('❌ לא ניתן לשתף רשימה ללא משק בית');
     }
 
-    debugPrint('🔄 shareListToHousehold: משתף רשימה $listId למשק בית $householdId');
+    if (kDebugMode) {
+      debugPrint('🔄 shareListToHousehold: משתף רשימה $listId למשק בית $householdId');
+    }
     _errorMessage = null;
 
     try {
       await _repository.shareListToHousehold(listId, userId, householdId);
       await loadLists();
-      debugPrint('✅ shareListToHousehold: רשימה $listId שותפה בהצלחה');
+      if (kDebugMode) {
+        debugPrint('✅ shareListToHousehold: רשימה $listId שותפה בהצלחה');
+      }
     } catch (e) {
-      debugPrint('❌ shareListToHousehold: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ shareListToHousehold: שגיאה - $e');
+      }
       _errorMessage = 'שגיאה בשיתוף רשימה $listId: ${e.toString()}';
       notifyListeners();
       rethrow;
@@ -444,19 +490,19 @@ class ShoppingListsProvider with ChangeNotifier {
 
   // === Get List By ID ===
   ShoppingList? getById(String id) {
-    try {
-      return _lists.firstWhere((list) => list.id == id);
-    } catch (_) {
-      return null;
-    }
+    return _lists.where((list) => list.id == id).firstOrNull;
   }
 
   // === Add Item To List ===
   Future<void> addItemToList(String listId, String name, int quantity, String unit, {String? category}) async {
-    debugPrint('➕ addItemToList: מוסיף פריט "$name" לרשימה $listId (קטגוריה: $category)');
+    if (kDebugMode) {
+      debugPrint('➕ addItemToList: מוסיף פריט "$name" לרשימה $listId (קטגוריה: $category)');
+    }
     final list = getById(listId);
     if (list == null) {
-      debugPrint('❌ addItemToList: רשימה $listId לא נמצאה');
+      if (kDebugMode) {
+        debugPrint('❌ addItemToList: רשימה $listId לא נמצאה');
+      }
       throw Exception('רשימה $listId לא נמצאה');
     }
 
@@ -472,7 +518,9 @@ class ShoppingListsProvider with ChangeNotifier {
 
     final updatedList = list.withItemAdded(item);
     await updateList(updatedList);
-    debugPrint('✅ addItemToList: פריט "$name" נוסף עם קטגוריה "$category"');
+    if (kDebugMode) {
+      debugPrint('✅ addItemToList: פריט "$name" נוסף עם קטגוריה "$category"');
+    }
   }
 
   // === 🆕 Add UnifiedListItem (Product or Task) ===
@@ -500,30 +548,42 @@ class ShoppingListsProvider with ChangeNotifier {
   /// await provider.addUnifiedItem(listId, task);
   /// ```
   Future<void> addUnifiedItem(String listId, UnifiedListItem item) async {
-    debugPrint('➕ addUnifiedItem: מוסיף ${item.type == ItemType.product ? "מוצר" : "משימה"} "${item.name}" לרשימה $listId');
+    if (kDebugMode) {
+      debugPrint('➕ addUnifiedItem: מוסיף ${item.type == ItemType.product ? "מוצר" : "משימה"} "${item.name}" לרשימה $listId');
+    }
     final list = getById(listId);
     if (list == null) {
-      debugPrint('❌ addUnifiedItem: רשימה $listId לא נמצאה');
+      if (kDebugMode) {
+        debugPrint('❌ addUnifiedItem: רשימה $listId לא נמצאה');
+      }
       throw Exception('רשימה $listId לא נמצאה');
     }
 
     final updatedList = list.withItemAdded(item);
     await updateList(updatedList);
-    debugPrint('✅ addUnifiedItem: ${item.type == ItemType.product ? "מוצר" : "משימה"} "${item.name}" נוסף');
+    if (kDebugMode) {
+      debugPrint('✅ addUnifiedItem: ${item.type == ItemType.product ? "מוצר" : "משימה"} "${item.name}" נוסף');
+    }
   }
 
   // === Remove Item From List ===
   Future<void> removeItemFromList(String listId, int index) async {
-    debugPrint('🗑️ removeItemFromList: מוחק פריט #$index מרשימה $listId');
+    if (kDebugMode) {
+      debugPrint('🗑️ removeItemFromList: מוחק פריט #$index מרשימה $listId');
+    }
     final list = getById(listId);
     if (list == null) {
-      debugPrint('❌ removeItemFromList: רשימה $listId לא נמצאה');
+      if (kDebugMode) {
+        debugPrint('❌ removeItemFromList: רשימה $listId לא נמצאה');
+      }
       throw Exception('רשימה $listId לא נמצאה');
     }
 
     final updatedList = list.withItemRemoved(index);
     await updateList(updatedList);
-    debugPrint('✅ removeItemFromList: פריט #$index הוסר');
+    if (kDebugMode) {
+      debugPrint('✅ removeItemFromList: פריט #$index הוסר');
+    }
   }
 
   // === Update Item At Index ===
@@ -532,15 +592,21 @@ class ShoppingListsProvider with ChangeNotifier {
     int index,
     UnifiedListItem Function(UnifiedListItem) updateFn,
   ) async {
-    debugPrint('📝 updateItemAt: מעדכן פריט #$index ברשימה $listId');
+    if (kDebugMode) {
+      debugPrint('📝 updateItemAt: מעדכן פריט #$index ברשימה $listId');
+    }
     final list = getById(listId);
     if (list == null) {
-      debugPrint('❌ updateItemAt: רשימה $listId לא נמצאה');
+      if (kDebugMode) {
+        debugPrint('❌ updateItemAt: רשימה $listId לא נמצאה');
+      }
       throw Exception('רשימה $listId לא נמצאה');
     }
 
     if (index < 0 || index >= list.items.length) {
-      debugPrint('❌ updateItemAt: אינדקס לא חוקי $index');
+      if (kDebugMode) {
+        debugPrint('❌ updateItemAt: אינדקס לא חוקי $index');
+      }
       throw Exception('אינדקס לא חוקי: $index');
     }
 
@@ -550,22 +616,30 @@ class ShoppingListsProvider with ChangeNotifier {
 
     final updatedList = list.copyWith(items: newItems);
     await updateList(updatedList);
-    debugPrint('✅ updateItemAt: פריט #$index עודכן');
+    if (kDebugMode) {
+      debugPrint('✅ updateItemAt: פריט #$index עודכן');
+    }
   }
 
   // === Update Item By ID ===
   /// עדכון פריט לפי ID (שימושי לרשימות "מי מביא")
   Future<void> updateItemById(String listId, UnifiedListItem updatedItem) async {
-    debugPrint('📝 updateItemById: מעדכן פריט ${updatedItem.id} ברשימה $listId');
+    if (kDebugMode) {
+      debugPrint('📝 updateItemById: מעדכן פריט ${updatedItem.id} ברשימה $listId');
+    }
     final list = getById(listId);
     if (list == null) {
-      debugPrint('❌ updateItemById: רשימה $listId לא נמצאה');
+      if (kDebugMode) {
+        debugPrint('❌ updateItemById: רשימה $listId לא נמצאה');
+      }
       throw Exception('רשימה $listId לא נמצאה');
     }
 
     final index = list.items.indexWhere((item) => item.id == updatedItem.id);
     if (index == -1) {
-      debugPrint('❌ updateItemById: פריט ${updatedItem.id} לא נמצא');
+      if (kDebugMode) {
+        debugPrint('❌ updateItemById: פריט ${updatedItem.id} לא נמצא');
+      }
       throw Exception('פריט ${updatedItem.id} לא נמצא');
     }
 
@@ -574,15 +648,21 @@ class ShoppingListsProvider with ChangeNotifier {
 
     final updatedList = list.copyWith(items: newItems);
     await updateList(updatedList);
-    debugPrint('✅ updateItemById: פריט ${updatedItem.id} עודכן');
+    if (kDebugMode) {
+      debugPrint('✅ updateItemById: פריט ${updatedItem.id} עודכן');
+    }
   }
 
   // === Toggle All Items Checked ===
   Future<void> toggleAllItemsChecked(String listId, bool isChecked) async {
-    debugPrint('✔️ toggleAllItemsChecked: מסמן הכל = $isChecked ברשימה $listId');
+    if (kDebugMode) {
+      debugPrint('✔️ toggleAllItemsChecked: מסמן הכל = $isChecked ברשימה $listId');
+    }
     final list = getById(listId);
     if (list == null) {
-      debugPrint('❌ toggleAllItemsChecked: רשימה $listId לא נמצאה');
+      if (kDebugMode) {
+        debugPrint('❌ toggleAllItemsChecked: רשימה $listId לא נמצאה');
+      }
       throw Exception('רשימה $listId לא נמצאה');
     }
 
@@ -592,7 +672,9 @@ class ShoppingListsProvider with ChangeNotifier {
 
     final updatedList = list.copyWith(items: newItems);
     await updateList(updatedList);
-    debugPrint('✅ toggleAllItemsChecked: ${newItems.length} פריטים עודכנו');
+    if (kDebugMode) {
+      debugPrint('✅ toggleAllItemsChecked: ${newItems.length} פריטים עודכנו');
+    }
   }
 
   /// מחזיר סטטיסטיקות על רשימה
@@ -624,16 +706,22 @@ class ShoppingListsProvider with ChangeNotifier {
   /// await provider.updateListStatus(listId, ShoppingList.statusCompleted);
   /// ```
   Future<void> updateListStatus(String listId, String newStatus) async {
-    debugPrint('🔄 updateListStatus: משנה סטטוס ל-$newStatus (רשימה $listId)');
+    if (kDebugMode) {
+      debugPrint('🔄 updateListStatus: משנה סטטוס ל-$newStatus (רשימה $listId)');
+    }
     final list = getById(listId);
     if (list == null) {
-      debugPrint('❌ updateListStatus: רשימה $listId לא נמצאה');
+      if (kDebugMode) {
+        debugPrint('❌ updateListStatus: רשימה $listId לא נמצאה');
+      }
       throw Exception('רשימה $listId לא נמצאה');
     }
 
     final updatedList = list.copyWith(status: newStatus);
     await updateList(updatedList);
-    debugPrint('✅ updateListStatus: סטטוס עודכן ל-$newStatus');
+    if (kDebugMode) {
+      debugPrint('✅ updateListStatus: סטטוס עודכן ל-$newStatus');
+    }
   }
 
   /// מארכבת רשימה
@@ -650,7 +738,9 @@ class ShoppingListsProvider with ChangeNotifier {
   List<UnifiedListItem> getUnpurchasedItems(String listId) {
     final list = getById(listId);
     if (list == null) {
-      debugPrint('⚠️ getUnpurchasedItems: רשימה $listId לא נמצאה');
+      if (kDebugMode) {
+        debugPrint('⚠️ getUnpurchasedItems: רשימה $listId לא נמצאה');
+      }
       return [];
     }
 
@@ -675,18 +765,24 @@ class ShoppingListsProvider with ChangeNotifier {
   /// await provider.addToNextList(unpurchased);
   /// ```
   Future<void> addToNextList(List<UnifiedListItem> items) async {
-    debugPrint('🔄 addToNextList: מעביר ${items.length} פריטים לרשימה הבאה');
-    
+    if (kDebugMode) {
+      debugPrint('🔄 addToNextList: מעביר ${items.length} פריטים לרשימה הבאה');
+    }
+
     if (items.isEmpty) {
-      debugPrint('   ⏭️ אין פריטים להעביר');
+      if (kDebugMode) {
+        debugPrint('   ⏭️ אין פריטים להעביר');
+      }
       return;
     }
 
     final userId = _userContext?.user?.id;
     final householdId = _userContext?.user?.householdId;
-    
+
     if (userId == null || householdId == null) {
-      debugPrint('❌ addToNextList: משתמש לא מחובר');
+      if (kDebugMode) {
+        debugPrint('❌ addToNextList: משתמש לא מחובר');
+      }
       throw Exception('❌ משתמש לא מחובר');
     }
 
@@ -708,22 +804,32 @@ class ShoppingListsProvider with ChangeNotifier {
 
       if (existingList.id.isEmpty) {
         // צור רשימה חדשה "קניות כלליות"
-        debugPrint('   ➕ יוצר רשימה חדשה "קניות כלליות"');
+        if (kDebugMode) {
+          debugPrint('   ➕ יוצר רשימה חדשה "קניות כלליות"');
+        }
         await createList(
           name: 'קניות כלליות',
           items: items,
         );
-        debugPrint('✅ addToNextList: רשימה חדשה נוצרה עם ${items.length} פריטים');
+        if (kDebugMode) {
+          debugPrint('✅ addToNextList: רשימה חדשה נוצרה עם ${items.length} פריטים');
+        }
       } else {
         // הוסף לרשימה קיימת
-        debugPrint('   📝 מוסיף ל"${existingList.name}"');
+        if (kDebugMode) {
+          debugPrint('   📝 מוסיף ל"${existingList.name}"');
+        }
         final updatedItems = [...existingList.items, ...items];
         final updatedList = existingList.copyWith(items: updatedItems);
         await updateList(updatedList);
-        debugPrint('✅ addToNextList: ${items.length} פריטים הוספו ל"${existingList.name}"');
+        if (kDebugMode) {
+          debugPrint('✅ addToNextList: ${items.length} פריטים הוספו ל"${existingList.name}"');
+        }
       }
     } catch (e) {
-      debugPrint('❌ addToNextList: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ addToNextList: שגיאה - $e');
+      }
       _errorMessage = 'שגיאה בהוספת פריטים לרשימה הבאה: ${e.toString()}';
       notifyListeners();
       rethrow;
@@ -741,16 +847,22 @@ class ShoppingListsProvider with ChangeNotifier {
   /// await provider.startCollaborativeShopping(listId, userId);
   /// ```
   Future<void> startCollaborativeShopping(String listId, String userId) async {
-    debugPrint('🛒 startCollaborativeShopping: מתחיל קנייה (list: $listId, user: $userId)');
+    if (kDebugMode) {
+      debugPrint('🛒 startCollaborativeShopping: מתחיל קנייה (list: $listId, user: $userId)');
+    }
     final list = getById(listId);
     if (list == null) {
-      debugPrint('❌ startCollaborativeShopping: רשימה לא נמצאה');
+      if (kDebugMode) {
+        debugPrint('❌ startCollaborativeShopping: רשימה לא נמצאה');
+      }
       throw Exception('רשימה $listId לא נמצאה');
     }
 
     // בדוק שאין כבר קנייה פעילה
     if (list.isBeingShopped) {
-      debugPrint('⚠️ startCollaborativeShopping: יש כבר קנייה פעילה');
+      if (kDebugMode) {
+        debugPrint('⚠️ startCollaborativeShopping: יש כבר קנייה פעילה');
+      }
       throw Exception('יש כבר קנייה פעילה ברשימה הזו');
     }
 
@@ -759,7 +871,7 @@ class ShoppingListsProvider with ChangeNotifier {
     try {
       // צור Starter
       final starter = ActiveShopper.starter(userId: userId);
-      
+
       // עדכן רשימה
       final updatedList = list.copyWith(
         activeShoppers: [starter],
@@ -767,9 +879,13 @@ class ShoppingListsProvider with ChangeNotifier {
       );
 
       await updateList(updatedList);
-      debugPrint('✅ startCollaborativeShopping: קנייה התחילה!');
+      if (kDebugMode) {
+        debugPrint('✅ startCollaborativeShopping: קנייה התחילה!');
+      }
     } catch (e) {
-      debugPrint('❌ startCollaborativeShopping: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ startCollaborativeShopping: שגיאה - $e');
+      }
       _errorMessage = 'שגיאה בהתחלת קנייה: ${e.toString()}';
       notifyListeners();
       rethrow;
@@ -783,22 +899,30 @@ class ShoppingListsProvider with ChangeNotifier {
   /// await provider.joinCollaborativeShopping(listId, userId);
   /// ```
   Future<void> joinCollaborativeShopping(String listId, String userId) async {
-    debugPrint('🤝 joinCollaborativeShopping: מצטרף לקנייה (list: $listId, user: $userId)');
+    if (kDebugMode) {
+      debugPrint('🤝 joinCollaborativeShopping: מצטרף לקנייה (list: $listId, user: $userId)');
+    }
     final list = getById(listId);
     if (list == null) {
-      debugPrint('❌ joinCollaborativeShopping: רשימה לא נמצאה');
+      if (kDebugMode) {
+        debugPrint('❌ joinCollaborativeShopping: רשימה לא נמצאה');
+      }
       throw Exception('רשימה $listId לא נמצאה');
     }
 
     // בדוק שיש קנייה פעילה
     if (!list.isBeingShopped) {
-      debugPrint('⚠️ joinCollaborativeShopping: אין קנייה פעילה');
+      if (kDebugMode) {
+        debugPrint('⚠️ joinCollaborativeShopping: אין קנייה פעילה');
+      }
       throw Exception('אין קנייה פעילה ברשימה הזו');
     }
 
     // בדוק שהמשתמש לא כבר קונה
     if (list.isUserShopping(userId)) {
-      debugPrint('⚠️ joinCollaborativeShopping: המשתמש כבר קונה');
+      if (kDebugMode) {
+        debugPrint('⚠️ joinCollaborativeShopping: המשתמש כבר קונה');
+      }
       throw Exception('אתה כבר קונה ברשימה הזו');
     }
 
@@ -807,7 +931,7 @@ class ShoppingListsProvider with ChangeNotifier {
     try {
       // צור Helper
       final helper = ActiveShopper.helper(userId: userId);
-      
+
       // הוסף לרשימת קונים
       final updatedList = list.copyWith(
         activeShoppers: [...list.activeShoppers, helper],
@@ -815,9 +939,13 @@ class ShoppingListsProvider with ChangeNotifier {
       );
 
       await updateList(updatedList);
-      debugPrint('✅ joinCollaborativeShopping: הצטרף בהצלחה!');
+      if (kDebugMode) {
+        debugPrint('✅ joinCollaborativeShopping: הצטרף בהצלחה!');
+      }
     } catch (e) {
-      debugPrint('❌ joinCollaborativeShopping: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ joinCollaborativeShopping: שגיאה - $e');
+      }
       _errorMessage = 'שגיאה בהצטרפות לקנייה: ${e.toString()}';
       notifyListeners();
       rethrow;
@@ -831,10 +959,14 @@ class ShoppingListsProvider with ChangeNotifier {
   /// await provider.leaveCollaborativeShopping(listId, userId);
   /// ```
   Future<void> leaveCollaborativeShopping(String listId, String userId) async {
-    debugPrint('👋 leaveCollaborativeShopping: עוזב קנייה (list: $listId, user: $userId)');
+    if (kDebugMode) {
+      debugPrint('👋 leaveCollaborativeShopping: עוזב קנייה (list: $listId, user: $userId)');
+    }
     final list = getById(listId);
     if (list == null) {
-      debugPrint('❌ leaveCollaborativeShopping: רשימה לא נמצאה');
+      if (kDebugMode) {
+        debugPrint('❌ leaveCollaborativeShopping: רשימה לא נמצאה');
+      }
       throw Exception('רשימה $listId לא נמצאה');
     }
 
@@ -855,9 +987,13 @@ class ShoppingListsProvider with ChangeNotifier {
       );
 
       await updateList(updatedList);
-      debugPrint('✅ leaveCollaborativeShopping: עזב בהצלחה!');
+      if (kDebugMode) {
+        debugPrint('✅ leaveCollaborativeShopping: עזב בהצלחה!');
+      }
     } catch (e) {
-      debugPrint('❌ leaveCollaborativeShopping: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ leaveCollaborativeShopping: שגיאה - $e');
+      }
       _errorMessage = 'שגיאה ביציאה מקנייה: ${e.toString()}';
       notifyListeners();
       rethrow;
@@ -875,16 +1011,22 @@ class ShoppingListsProvider with ChangeNotifier {
     int itemIndex,
     String userId,
   ) async {
-    debugPrint('✓ markItemAsChecked: מסמן פריט #$itemIndex (list: $listId, user: $userId)');
+    if (kDebugMode) {
+      debugPrint('✓ markItemAsChecked: מסמן פריט #$itemIndex (list: $listId, user: $userId)');
+    }
     final list = getById(listId);
     if (list == null) {
-      debugPrint('❌ markItemAsChecked: רשימה לא נמצאה');
+      if (kDebugMode) {
+        debugPrint('❌ markItemAsChecked: רשימה לא נמצאה');
+      }
       throw Exception('רשימה $listId לא נמצאה');
     }
 
     // בדוק שהמשתמש קונה
     if (!list.isUserShopping(userId)) {
-      debugPrint('⚠️ markItemAsChecked: המשתמש לא קונה');
+      if (kDebugMode) {
+        debugPrint('⚠️ markItemAsChecked: המשתמש לא קונה');
+      }
       throw Exception('אתה לא קונה ברשימה הזו');
     }
 
@@ -899,9 +1041,13 @@ class ShoppingListsProvider with ChangeNotifier {
         );
       });
 
-      debugPrint('✅ markItemAsChecked: פריט #$itemIndex סומן!');
+      if (kDebugMode) {
+        debugPrint('✅ markItemAsChecked: פריט #$itemIndex סומן!');
+      }
     } catch (e) {
-      debugPrint('❌ markItemAsChecked: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ markItemAsChecked: שגיאה - $e');
+      }
       _errorMessage = 'שגיאה בסימון פריט: ${e.toString()}';
       notifyListeners();
       rethrow;
@@ -920,17 +1066,23 @@ class ShoppingListsProvider with ChangeNotifier {
     String itemId,
     dynamic status, // ShoppingItemStatus or any status object
   ) async {
-    debugPrint('📝 updateItemStatus: מעדכן פריט $itemId (list: $listId, status: $status)');
+    if (kDebugMode) {
+      debugPrint('📝 updateItemStatus: מעדכן פריט $itemId (list: $listId, status: $status)');
+    }
     final list = getById(listId);
     if (list == null) {
-      debugPrint('❌ updateItemStatus: רשימה לא נמצאה');
+      if (kDebugMode) {
+        debugPrint('❌ updateItemStatus: רשימה לא נמצאה');
+      }
       throw Exception('רשימה $listId לא נמצאה');
     }
 
     // מצא את האינדקס של הפריט
     final itemIndex = list.items.indexWhere((item) => item.id == itemId);
     if (itemIndex == -1) {
-      debugPrint('❌ updateItemStatus: פריט לא נמצא');
+      if (kDebugMode) {
+        debugPrint('❌ updateItemStatus: פריט לא נמצא');
+      }
       throw Exception('פריט $itemId לא נמצא');
     }
 
@@ -947,9 +1099,13 @@ class ShoppingListsProvider with ChangeNotifier {
         return item.copyWith(isChecked: isChecked);
       });
 
-      debugPrint('✅ updateItemStatus: פריט $itemId עודכן (isChecked: $isChecked)');
+      if (kDebugMode) {
+        debugPrint('✅ updateItemStatus: פריט $itemId עודכן (isChecked: $isChecked)');
+      }
     } catch (e) {
-      debugPrint('❌ updateItemStatus: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ updateItemStatus: שגיאה - $e');
+      }
       _errorMessage = 'שגיאה בעדכון סטטוס פריט: ${e.toString()}';
       notifyListeners();
       rethrow;
@@ -964,16 +1120,22 @@ class ShoppingListsProvider with ChangeNotifier {
   /// await provider.finishCollaborativeShopping(listId, userId);
   /// ```
   Future<void> finishCollaborativeShopping(String listId, String userId) async {
-    debugPrint('🏁 finishCollaborativeShopping: מסיים קנייה (list: $listId, user: $userId)');
+    if (kDebugMode) {
+      debugPrint('🏁 finishCollaborativeShopping: מסיים קנייה (list: $listId, user: $userId)');
+    }
     final list = getById(listId);
     if (list == null) {
-      debugPrint('❌ finishCollaborativeShopping: רשימה לא נמצאה');
+      if (kDebugMode) {
+        debugPrint('❌ finishCollaborativeShopping: רשימה לא נמצאה');
+      }
       throw Exception('רשימה $listId לא נמצאה');
     }
 
     // בדוק שהמשתמש יכול לסיים (רק Starter)
     if (!list.canUserFinish(userId)) {
-      debugPrint('⚠️ finishCollaborativeShopping: רק מי שהתחיל יכול לסיים');
+      if (kDebugMode) {
+        debugPrint('⚠️ finishCollaborativeShopping: רק מי שהתחיל יכול לסיים');
+      }
       throw Exception('רק מי שהתחיל את הקנייה יכול לסיים');
     }
 
@@ -998,7 +1160,9 @@ class ShoppingListsProvider with ChangeNotifier {
                 isChecked: item.isChecked,
               ))
           .toList();
-      debugPrint('   📦 נמצאו ${checkedItems.length} פריטים מסומנים (מוצרים)');
+      if (kDebugMode) {
+        debugPrint('   📦 נמצאו ${checkedItems.length} פריטים מסומנים (מוצרים)');
+      }
 
       // 3. צור קבלה וירטואלית
       if (checkedItems.isNotEmpty) {
@@ -1018,7 +1182,9 @@ class ShoppingListsProvider with ChangeNotifier {
 
         // שמור קבלה ב-ReceiptRepository
         await _receiptRepository.saveReceipt(receipt: receipt, householdId: householdId);
-        debugPrint('   📄 קבלה וירטואלית נוצרה ונשמרה: ${receipt.id}');
+        if (kDebugMode) {
+          debugPrint('   📄 קבלה וירטואלית נוצרה ונשמרה: ${receipt.id}');
+        }
       }
 
       // 4. עדכן רשימה: סטטוס + inactiveShoppers
@@ -1029,9 +1195,13 @@ class ShoppingListsProvider with ChangeNotifier {
       );
 
       await updateList(updatedList);
-      debugPrint('✅ finishCollaborativeShopping: קנייה הסתיימה!');
+      if (kDebugMode) {
+        debugPrint('✅ finishCollaborativeShopping: קנייה הסתיימה!');
+      }
     } catch (e) {
-      debugPrint('❌ finishCollaborativeShopping: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ finishCollaborativeShopping: שגיאה - $e');
+      }
       _errorMessage = 'שגיאה בסיום קנייה: ${e.toString()}';
       notifyListeners();
       rethrow;
@@ -1045,22 +1215,30 @@ class ShoppingListsProvider with ChangeNotifier {
   /// await provider.cleanupAbandonedSessions();
   /// ```
   Future<void> cleanupAbandonedSessions() async {
-    debugPrint('🧹 cleanupAbandonedSessions: בודק sessions נטושים');
-    
+    if (kDebugMode) {
+      debugPrint('🧹 cleanupAbandonedSessions: בודק sessions נטושים');
+    }
+
     final timedOutLists = _lists.where((list) => list.isShoppingTimedOut).toList();
-    
+
     if (timedOutLists.isEmpty) {
-      debugPrint('   ✓ אין sessions נטושים');
+      if (kDebugMode) {
+        debugPrint('   ✓ אין sessions נטושים');
+      }
       return;
     }
 
-    debugPrint('   ⚠️ נמצאו ${timedOutLists.length} sessions נטושים');
+    if (kDebugMode) {
+      debugPrint('   ⚠️ נמצאו ${timedOutLists.length} sessions נטושים');
+    }
     _errorMessage = null;
 
     try {
       for (final list in timedOutLists) {
-        debugPrint('   🧹 מנקה session של רשימה ${list.id}');
-        
+        if (kDebugMode) {
+          debugPrint('   🧹 מנקה session של רשימה ${list.id}');
+        }
+
         // סמן את כל הקונים כלא פעילים
         final inactiveShoppers = list.activeShoppers.map((shopper) {
           return shopper.copyWith(isActive: false);
@@ -1074,9 +1252,13 @@ class ShoppingListsProvider with ChangeNotifier {
         await updateList(updatedList);
       }
 
-      debugPrint('✅ cleanupAbandonedSessions: ${timedOutLists.length} sessions נוקו!');
+      if (kDebugMode) {
+        debugPrint('✅ cleanupAbandonedSessions: ${timedOutLists.length} sessions נוקו!');
+      }
     } catch (e) {
-      debugPrint('❌ cleanupAbandonedSessions: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ cleanupAbandonedSessions: שגיאה - $e');
+      }
       _errorMessage = 'שגיאה בניקוי sessions: ${e.toString()}';
       notifyListeners();
       rethrow;
@@ -1085,7 +1267,9 @@ class ShoppingListsProvider with ChangeNotifier {
 
   @override
   void dispose() {
-    debugPrint('🗑️ ShoppingListsProvider.dispose()');
+    if (kDebugMode) {
+      debugPrint('🗑️ ShoppingListsProvider.dispose()');
+    }
     if (_listening && _userContext != null) {
       _userContext!.removeListener(_onUserChanged);
     }

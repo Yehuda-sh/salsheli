@@ -77,6 +77,20 @@ class InventoryProvider with ChangeNotifier {
   static const Uuid _uuid = Uuid();
   Future<void>? _loadingFuture; // מניעת טעינות כפולות
 
+  // === Validation Helpers ===
+
+  /// בודק אם שם מוצר תקין (לא ריק)
+  bool _isValidProductName(String? name) =>
+      name != null && name.trim().isNotEmpty;
+
+  /// בודק אם ID תקין (לא ריק)
+  bool _isValidId(String? id) =>
+      id != null && id.trim().isNotEmpty;
+
+  /// בודק אם כמות תקינה (חיובית)
+  bool _isValidQuantity(int? qty) =>
+      qty != null && qty > 0;
+
   InventoryProvider({
     required InventoryRepository repository,
     required UserContext userContext,
@@ -252,8 +266,10 @@ class InventoryProvider with ChangeNotifier {
       }
     } catch (e, st) {
       _errorMessage = 'שגיאה בטעינת מלאי: $e';
-      debugPrint('❌ InventoryProvider._doLoad: שגיאה - $e');
-      debugPrintStack(label: 'InventoryProvider._doLoad', stackTrace: st);
+      if (kDebugMode) {
+        debugPrint('❌ InventoryProvider._doLoad: שגיאה - $e');
+        debugPrintStack(label: 'InventoryProvider._doLoad', stackTrace: st);
+      }
     }
 
     _isLoading = false;
@@ -301,6 +317,14 @@ class InventoryProvider with ChangeNotifier {
       throw Exception('❌ משתמש לא מחובר');
     }
 
+    // ולידציה
+    if (!_isValidProductName(productName)) {
+      throw ArgumentError('שם מוצר לא תקין');
+    }
+    if (!_isValidQuantity(quantity)) {
+      throw ArgumentError('כמות חייבת להיות חיובית');
+    }
+
     try {
       final newItem = InventoryItem(
         id: _uuid.v4(),
@@ -329,7 +353,9 @@ class InventoryProvider with ChangeNotifier {
 
       return newItem;
     } catch (e) {
-      debugPrint('❌ InventoryProvider.createItem: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ InventoryProvider.createItem: שגיאה - $e');
+      }
       _errorMessage = 'שגיאה ביצירת פריט';
       notifyListeners();
       rethrow;
@@ -364,7 +390,9 @@ class InventoryProvider with ChangeNotifier {
       }
       notifyListeners();
     } catch (e) {
-      debugPrint('❌ InventoryProvider.updateItem: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ InventoryProvider.updateItem: שגיאה - $e');
+      }
       _errorMessage = 'שגיאה בעדכון פריט';
       notifyListeners();
       rethrow;
@@ -381,6 +409,11 @@ class InventoryProvider with ChangeNotifier {
     final userId = _userContext?.userId;
     if (userId == null) return;
 
+    // ולידציה
+    if (!_isValidId(id)) {
+      throw ArgumentError('ID פריט לא תקין');
+    }
+
     try {
       // מחיקה מהמיקום הנכון
       if (_currentMode == InventoryMode.group && _currentGroupId != null) {
@@ -393,7 +426,9 @@ class InventoryProvider with ChangeNotifier {
       _items = _items.where((i) => i.id != id).toList();
       notifyListeners();
     } catch (e) {
-      debugPrint('❌ InventoryProvider.deleteItem: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ InventoryProvider.deleteItem: שגיאה - $e');
+      }
       _errorMessage = 'שגיאה במחיקת פריט';
       notifyListeners();
       rethrow;
@@ -463,6 +498,14 @@ class InventoryProvider with ChangeNotifier {
     final userId = _userContext?.userId;
     if (userId == null) return;
 
+    // ולידציה
+    if (!_isValidProductName(productName)) {
+      throw ArgumentError('שם מוצר לא תקין');
+    }
+    if (!_isValidQuantity(quantity)) {
+      throw ArgumentError('כמות חייבת להיות חיובית');
+    }
+
     try {
       // מצא פריט לפי שם
       final existingItem = _items.where((i) => i.productName.trim().toLowerCase() == productName.trim().toLowerCase()).firstOrNull;
@@ -488,7 +531,9 @@ class InventoryProvider with ChangeNotifier {
         }
       }
     } catch (e) {
-      debugPrint('❌ addStock: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ addStock: שגיאה - $e');
+      }
       _errorMessage = 'שגיאה בעדכון מלאי';
       notifyListeners();
       rethrow;
@@ -554,7 +599,9 @@ class InventoryProvider with ChangeNotifier {
       final userItems = await _repository.fetchUserItems(userId);
       return userItems.isNotEmpty;
     } catch (e) {
-      debugPrint('❌ hasPersonalInventory: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ hasPersonalInventory: שגיאה - $e');
+      }
       return false;
     }
   }
@@ -568,7 +615,9 @@ class InventoryProvider with ChangeNotifier {
       final userItems = await _repository.fetchUserItems(userId);
       return userItems.length;
     } catch (e) {
-      debugPrint('❌ getPersonalInventoryCount: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ getPersonalInventoryCount: שגיאה - $e');
+      }
       return 0;
     }
   }
@@ -609,7 +658,9 @@ class InventoryProvider with ChangeNotifier {
 
       return transferredCount;
     } catch (e) {
-      debugPrint('❌ InventoryProvider.transferToGroup: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ InventoryProvider.transferToGroup: שגיאה - $e');
+      }
       _errorMessage = 'שגיאה בהעברת מזווה לקבוצה';
       notifyListeners();
       rethrow;
@@ -644,7 +695,9 @@ class InventoryProvider with ChangeNotifier {
 
       return deletedCount;
     } catch (e) {
-      debugPrint('❌ InventoryProvider.deletePersonalInventory: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ InventoryProvider.deletePersonalInventory: שגיאה - $e');
+      }
       _errorMessage = 'שגיאה במחיקת מזווה אישי';
       notifyListeners();
       rethrow;

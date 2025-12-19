@@ -128,8 +128,8 @@ class ProductsProvider with ChangeNotifier {
 
   /// 🧹 ניקוי נתונים (כשמשתמש מתנתק)
   void _clearData() {
-    _products.clear();
-    _categories.clear();
+    _products = [];
+    _categories = [];
     _hasInitialized = false;
     _lastUpdated = null;
     _errorMessage = null;
@@ -216,7 +216,7 @@ class ProductsProvider with ChangeNotifier {
 
     _isLoading = true;
     _errorMessage = null;
-    _products.clear(); // נקה מוצרים קודמים
+    _products = []; // נקה מוצרים קודמים
     _hasLoadedAll = false;
     notifyListeners();
 
@@ -271,7 +271,7 @@ class ProductsProvider with ChangeNotifier {
           _hasLoadedAll = true;
         }
 
-        _products.addAll(moreProducts);
+        _products = [..._products, ...moreProducts];
         loadedCount += moreProducts.length;
 
         // 🏷️ עדכן קטגוריות מכל המוצרים שנטענו עד כה
@@ -307,7 +307,7 @@ class ProductsProvider with ChangeNotifier {
       if (moreProducts.isEmpty || moreProducts.length < _batchSize) {
         _hasLoadedAll = true;
       } else {
-        _products.addAll(moreProducts);
+        _products = [..._products, ...moreProducts];
       }
     } catch (e) {
       _errorMessage = 'שגיאה בטעינת מוצרים נוספים: $e';
@@ -487,22 +487,18 @@ class ProductsProvider with ChangeNotifier {
     final lowerName = name.toLowerCase().trim();
 
     // 1. נסה התאמה מדויקת
-    final exact = _products.firstWhere(
-      (p) => (p['name'] as String).toLowerCase().trim() == lowerName,
-      orElse: () => {},
-    );
+    final exact = _products
+        .where((p) => (p['name'] as String).toLowerCase().trim() == lowerName)
+        .firstOrNull;
 
-    if (exact.isNotEmpty) {
+    if (exact != null) {
       return exact;
     }
 
     // 2. נסה התאמה חלקית
-    final partial = _products.firstWhere(
-      (p) => (p['name'] as String).toLowerCase().contains(lowerName),
-      orElse: () => {},
-    );
-
-    return partial.isNotEmpty ? partial : null;
+    return _products
+        .where((p) => (p['name'] as String).toLowerCase().contains(lowerName))
+        .firstOrNull;
   }
 
   // === Search Products (async) ===
@@ -559,8 +555,8 @@ class ProductsProvider with ChangeNotifier {
       _listening = false;
     }
 
-    _products.clear();
-    _categories.clear();
+    _products = [];
+    _categories = [];
     super.dispose();
   }
 }

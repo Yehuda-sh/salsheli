@@ -16,6 +16,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
 import '../../models/shopping_list.dart';
 import '../../providers/products_provider.dart';
 
@@ -197,7 +198,7 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
         onChanged: widget.onSearchChanged,
         style: const TextStyle(fontSize: 14),
         decoration: InputDecoration(
-          hintText: 'חפש מוצר...',
+          hintText: AppStrings.common.searchProductHint,
           hintStyle: TextStyle(
             fontSize: 14,
             color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
@@ -346,7 +347,9 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
                 Row(
                   children: [
                     Text(
-                      widget.list.type == 'butcher' ? 'סוגי בשר' : 'קטגוריות',
+                      widget.list.type == 'butcher'
+                          ? AppStrings.common.meatTypes
+                          : AppStrings.common.categories,
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
@@ -362,7 +365,7 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
                         child: Row(
                           children: [
                             Text(
-                              'נקה הכל',
+                              AppStrings.common.clearAll,
                               style: TextStyle(
                                 fontSize: 11,
                                 color: kStickyPurple,
@@ -398,7 +401,7 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
                         children: [
                           // כפתור "הכל" (ללא מספר מוצרים)
                           _buildModernFilterChip(
-                            label: 'הכל',
+                            label: AppStrings.common.all,
                             count: null,
                             isSelected: widget.productsProvider.selectedCategory == null,
                             onTap: () => widget.productsProvider.clearCategory(),

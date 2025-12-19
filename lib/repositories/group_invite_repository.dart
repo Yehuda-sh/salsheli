@@ -308,6 +308,44 @@ class GroupInviteRepository {
     }
   }
 
+  /// מחיקת כל ההזמנות הממתינות של קבוצה
+  /// (נקרא כשמוחקים קבוצה)
+  Future<void> deleteAllGroupInvites(String groupId) async {
+    try {
+      if (kDebugMode) {
+        debugPrint('🗑️ GroupInviteRepository.deleteAllGroupInvites: $groupId');
+      }
+
+      final query = await _collection
+          .where('group_id', isEqualTo: groupId)
+          .where('status', isEqualTo: 'pending')
+          .get();
+
+      if (query.docs.isEmpty) {
+        if (kDebugMode) {
+          debugPrint('   ℹ️ No pending invites to delete');
+        }
+        return;
+      }
+
+      final batch = _firestore.batch();
+      for (final doc in query.docs) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
+
+      if (kDebugMode) {
+        debugPrint('✅ Deleted ${query.docs.length} pending invites for group');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+            '❌ GroupInviteRepository.deleteAllGroupInvites failed: $e');
+      }
+      throw GroupInviteException('Failed to delete group invites', e);
+    }
+  }
+
   /// מחיקת הזמנות ממתינות לאיש קשר בקבוצה
   /// (למשל כשמסירים חבר מוזמן מהקבוצה)
   Future<void> deleteInvitesForContact({

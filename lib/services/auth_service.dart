@@ -88,7 +88,9 @@ class AuthService {
     required String name,
   }) async {
     try {
-      debugPrint('🔐 AuthService.signUp: רושם משתמש חדש - $email');
+      if (kDebugMode) {
+        debugPrint('🔐 AuthService.signUp: רושם משתמש חדש');
+      }
 
       // יצירת משתמש ב-Firebase Auth
       final credential = await _auth.createUserWithEmailAndPassword(
@@ -100,16 +102,22 @@ class AuthService {
       await credential.user?.updateDisplayName(name);
       await credential.user?.reload();
 
-      debugPrint('✅ AuthService.signUp: רישום הושלם - ${credential.user?.uid}');
+      if (kDebugMode) {
+        debugPrint('✅ AuthService.signUp: רישום הושלם - ${credential.user?.uid}');
+      }
       return credential;
     } on FirebaseAuthException catch (e) {
-      debugPrint('❌ AuthService.signUp: שגיאת Firebase - ${e.code}');
+      if (kDebugMode) {
+        debugPrint('❌ AuthService.signUp: שגיאת Firebase - ${e.code}');
+      }
 
       // המרת קודי שגיאה לעברית דרך AppStrings
       final errorMessage = _getSignUpErrorMessage(e.code);
       throw Exception(errorMessage);
     } catch (e) {
-      debugPrint('❌ AuthService.signUp: שגיאה כללית - $e');
+      if (kDebugMode) {
+        debugPrint('❌ AuthService.signUp: שגיאה כללית - $e');
+      }
       throw Exception(AppStrings.auth.signUpError(e.toString()));
     }
   }
@@ -138,23 +146,31 @@ class AuthService {
     required String password,
   }) async {
     try {
-      debugPrint('🔐 AuthService.signIn: מתחבר - $email');
+      if (kDebugMode) {
+        debugPrint('🔐 AuthService.signIn: מתחבר');
+      }
 
       final credential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      debugPrint('✅ AuthService.signIn: התחברות הושלמה - ${credential.user?.uid}');
+      if (kDebugMode) {
+        debugPrint('✅ AuthService.signIn: התחברות הושלמה - ${credential.user?.uid}');
+      }
       return credential;
     } on FirebaseAuthException catch (e) {
-      debugPrint('❌ AuthService.signIn: שגיאת Firebase - ${e.code}');
+      if (kDebugMode) {
+        debugPrint('❌ AuthService.signIn: שגיאת Firebase - ${e.code}');
+      }
 
       // המרת קודי שגיאה לעברית דרך AppStrings
       final errorMessage = _getSignInErrorMessage(e.code);
       throw Exception(errorMessage);
     } catch (e) {
-      debugPrint('❌ AuthService.signIn: שגיאה כללית - $e');
+      if (kDebugMode) {
+        debugPrint('❌ AuthService.signIn: שגיאה כללית - $e');
+      }
       throw Exception(AppStrings.auth.signInError(e.toString()));
     }
   }
@@ -169,11 +185,17 @@ class AuthService {
   /// ```
   Future<void> signOut() async {
     try {
-      debugPrint('🔐 AuthService.signOut: מתנתק');
+      if (kDebugMode) {
+        debugPrint('🔐 AuthService.signOut: מתנתק');
+      }
       await _auth.signOut();
-      debugPrint('✅ AuthService.signOut: התנתקות הושלמה');
+      if (kDebugMode) {
+        debugPrint('✅ AuthService.signOut: התנתקות הושלמה');
+      }
     } catch (e) {
-      debugPrint('❌ AuthService.signOut: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ AuthService.signOut: שגיאה - $e');
+      }
       throw Exception(AppStrings.auth.signOutError(e.toString()));
     }
   }
@@ -196,16 +218,24 @@ class AuthService {
   /// ```
   Future<void> sendPasswordResetEmail(String email) async {
     try {
-      debugPrint('🔐 AuthService.sendPasswordResetEmail: שולח מייל ל-$email');
+      if (kDebugMode) {
+        debugPrint('🔐 AuthService.sendPasswordResetEmail: שולח מייל');
+      }
       await _auth.sendPasswordResetEmail(email: email);
-      debugPrint('✅ AuthService.sendPasswordResetEmail: מייל נשלח');
+      if (kDebugMode) {
+        debugPrint('✅ AuthService.sendPasswordResetEmail: מייל נשלח');
+      }
     } on FirebaseAuthException catch (e) {
-      debugPrint('❌ AuthService.sendPasswordResetEmail: שגיאת Firebase - ${e.code}');
+      if (kDebugMode) {
+        debugPrint('❌ AuthService.sendPasswordResetEmail: שגיאת Firebase - ${e.code}');
+      }
 
       final errorMessage = _getResetPasswordErrorMessage(e.code);
       throw Exception(errorMessage);
     } catch (e) {
-      debugPrint('❌ AuthService.sendPasswordResetEmail: שגיאה כללית - $e');
+      if (kDebugMode) {
+        debugPrint('❌ AuthService.sendPasswordResetEmail: שגיאה כללית - $e');
+      }
       throw Exception(AppStrings.auth.resetEmailError(e.toString()));
     }
   }
@@ -232,11 +262,17 @@ class AuthService {
         throw Exception(AppStrings.auth.errorNoUserLoggedIn);
       }
 
-      debugPrint('🔐 AuthService.sendEmailVerification: שולח מייל אימות');
+      if (kDebugMode) {
+        debugPrint('🔐 AuthService.sendEmailVerification: שולח מייל אימות');
+      }
       await _auth.currentUser!.sendEmailVerification();
-      debugPrint('✅ AuthService.sendEmailVerification: מייל נשלח');
+      if (kDebugMode) {
+        debugPrint('✅ AuthService.sendEmailVerification: מייל נשלח');
+      }
     } catch (e) {
-      debugPrint('❌ AuthService.sendEmailVerification: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ AuthService.sendEmailVerification: שגיאה - $e');
+      }
       throw Exception(AppStrings.auth.verificationEmailError(e.toString()));
     }
   }
@@ -263,12 +299,18 @@ class AuthService {
         throw Exception(AppStrings.auth.errorNoUserLoggedIn);
       }
 
-      debugPrint('🔐 AuthService.updateDisplayName: מעדכן שם ל-$displayName');
+      if (kDebugMode) {
+        debugPrint('🔐 AuthService.updateDisplayName: מעדכן שם');
+      }
       await _auth.currentUser!.updateDisplayName(displayName);
       await _auth.currentUser!.reload();
-      debugPrint('✅ AuthService.updateDisplayName: שם עודכן');
+      if (kDebugMode) {
+        debugPrint('✅ AuthService.updateDisplayName: שם עודכן');
+      }
     } catch (e) {
-      debugPrint('❌ AuthService.updateDisplayName: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ AuthService.updateDisplayName: שגיאה - $e');
+      }
       throw Exception(AppStrings.auth.updateDisplayNameError(e.toString()));
     }
   }
@@ -300,12 +342,18 @@ class AuthService {
         throw Exception(AppStrings.auth.errorNoUserLoggedIn);
       }
 
-      debugPrint('🔐 AuthService.updateEmail: מעדכן אימייל ל-$newEmail');
+      if (kDebugMode) {
+        debugPrint('🔐 AuthService.updateEmail: מעדכן אימייל');
+      }
       await _auth.currentUser!.verifyBeforeUpdateEmail(newEmail);
       await _auth.currentUser!.reload();
-      debugPrint('✅ AuthService.updateEmail: אימייל עודכן');
+      if (kDebugMode) {
+        debugPrint('✅ AuthService.updateEmail: אימייל עודכן');
+      }
     } on FirebaseAuthException catch (e) {
-      debugPrint('❌ AuthService.updateEmail: שגיאת Firebase - ${e.code}');
+      if (kDebugMode) {
+        debugPrint('❌ AuthService.updateEmail: שגיאת Firebase - ${e.code}');
+      }
 
       if (e.code == 'requires-recent-login') {
         throw Exception(AppStrings.auth.errorRequiresRecentLogin);
@@ -317,7 +365,9 @@ class AuthService {
 
       throw Exception(AppStrings.auth.updateEmailError(e.message));
     } catch (e) {
-      debugPrint('❌ AuthService.updateEmail: שגיאה כללית - $e');
+      if (kDebugMode) {
+        debugPrint('❌ AuthService.updateEmail: שגיאה כללית - $e');
+      }
       throw Exception(AppStrings.auth.updateEmailError(e.toString()));
     }
   }
@@ -349,11 +399,17 @@ class AuthService {
         throw Exception(AppStrings.auth.errorNoUserLoggedIn);
       }
 
-      debugPrint('🔐 AuthService.updatePassword: מעדכן סיסמה');
+      if (kDebugMode) {
+        debugPrint('🔐 AuthService.updatePassword: מעדכן סיסמה');
+      }
       await _auth.currentUser!.updatePassword(newPassword);
-      debugPrint('✅ AuthService.updatePassword: סיסמה עודכנה');
+      if (kDebugMode) {
+        debugPrint('✅ AuthService.updatePassword: סיסמה עודכנה');
+      }
     } on FirebaseAuthException catch (e) {
-      debugPrint('❌ AuthService.updatePassword: שגיאת Firebase - ${e.code}');
+      if (kDebugMode) {
+        debugPrint('❌ AuthService.updatePassword: שגיאת Firebase - ${e.code}');
+      }
 
       if (e.code == 'requires-recent-login') {
         throw Exception(AppStrings.auth.errorRequiresRecentLogin);
@@ -363,7 +419,9 @@ class AuthService {
 
       throw Exception(AppStrings.auth.updatePasswordError(e.message));
     } catch (e) {
-      debugPrint('❌ AuthService.updatePassword: שגיאה כללית - $e');
+      if (kDebugMode) {
+        debugPrint('❌ AuthService.updatePassword: שגיאה כללית - $e');
+      }
       throw Exception(AppStrings.auth.updatePasswordError(e.toString()));
     }
   }
@@ -402,7 +460,9 @@ class AuthService {
         throw Exception(AppStrings.auth.errorNoUserLoggedIn);
       }
 
-      debugPrint('🔐 AuthService.reauthenticate: מבצע re-authentication');
+      if (kDebugMode) {
+        debugPrint('🔐 AuthService.reauthenticate: מבצע re-authentication');
+      }
 
       final credential = EmailAuthProvider.credential(
         email: email,
@@ -410,14 +470,20 @@ class AuthService {
       );
 
       await _auth.currentUser!.reauthenticateWithCredential(credential);
-      debugPrint('✅ AuthService.reauthenticate: הושלם בהצלחה');
+      if (kDebugMode) {
+        debugPrint('✅ AuthService.reauthenticate: הושלם בהצלחה');
+      }
     } on FirebaseAuthException catch (e) {
-      debugPrint('❌ AuthService.reauthenticate: שגיאת Firebase - ${e.code}');
+      if (kDebugMode) {
+        debugPrint('❌ AuthService.reauthenticate: שגיאת Firebase - ${e.code}');
+      }
 
       final errorMessage = _getSignInErrorMessage(e.code);
       throw Exception(errorMessage);
     } catch (e) {
-      debugPrint('❌ AuthService.reauthenticate: שגיאה כללית - $e');
+      if (kDebugMode) {
+        debugPrint('❌ AuthService.reauthenticate: שגיאה כללית - $e');
+      }
       throw Exception(AppStrings.auth.signInError(e.toString()));
     }
   }
@@ -449,11 +515,17 @@ class AuthService {
         throw Exception(AppStrings.auth.errorNoUserLoggedIn);
       }
 
-      debugPrint('🔐 AuthService.deleteAccount: מוחק חשבון');
+      if (kDebugMode) {
+        debugPrint('🔐 AuthService.deleteAccount: מוחק חשבון');
+      }
       await _auth.currentUser!.delete();
-      debugPrint('✅ AuthService.deleteAccount: חשבון נמחק');
+      if (kDebugMode) {
+        debugPrint('✅ AuthService.deleteAccount: חשבון נמחק');
+      }
     } on FirebaseAuthException catch (e) {
-      debugPrint('❌ AuthService.deleteAccount: שגיאת Firebase - ${e.code}');
+      if (kDebugMode) {
+        debugPrint('❌ AuthService.deleteAccount: שגיאת Firebase - ${e.code}');
+      }
 
       if (e.code == 'requires-recent-login') {
         throw Exception(AppStrings.auth.errorRequiresRecentLogin);
@@ -461,7 +533,9 @@ class AuthService {
 
       throw Exception(AppStrings.auth.deleteAccountError(e.message));
     } catch (e) {
-      debugPrint('❌ AuthService.deleteAccount: שגיאה כללית - $e');
+      if (kDebugMode) {
+        debugPrint('❌ AuthService.deleteAccount: שגיאה כללית - $e');
+      }
       throw Exception(AppStrings.auth.deleteAccountError(e.toString()));
     }
   }
@@ -491,11 +565,17 @@ class AuthService {
         throw Exception(AppStrings.auth.errorNoUserLoggedIn);
       }
 
-      debugPrint('🔐 AuthService.reloadUser: טוען מחדש');
+      if (kDebugMode) {
+        debugPrint('🔐 AuthService.reloadUser: טוען מחדש');
+      }
       await _auth.currentUser!.reload();
-      debugPrint('✅ AuthService.reloadUser: נטען מחדש');
+      if (kDebugMode) {
+        debugPrint('✅ AuthService.reloadUser: נטען מחדש');
+      }
     } catch (e) {
-      debugPrint('❌ AuthService.reloadUser: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ AuthService.reloadUser: שגיאה - $e');
+      }
       throw Exception(AppStrings.auth.reloadUserError(e.toString()));
     }
   }

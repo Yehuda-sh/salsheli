@@ -81,7 +81,6 @@
 //
 // Version: 3.0 - Dynamic Color + M3 Surface Containers + Typography Improvements
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../core/ui_constants.dart';
@@ -225,7 +224,6 @@ class AppTheme {
   // סכמות צבע לפי Material 3 - עם Fidelity variant לצבעים חיים יותר
   static final _lightScheme = ColorScheme.fromSeed(
     seedColor: _Brand.primarySeed,
-    brightness: Brightness.light,
     dynamicSchemeVariant: DynamicSchemeVariant.fidelity, // צבעים נאמנים ל-seed
   );
 

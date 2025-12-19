@@ -17,59 +17,50 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart'; // 📦 Hive!
-import 'package:provider/provider.dart';
-
 import 'package:memozap/config/app_config.dart'; // ⚙️ App Config!
 import 'package:memozap/firebase_options.dart';
-
 // Models
 import 'package:memozap/models/shopping_list.dart';
-
 // Providers
+import 'package:memozap/providers/groups_provider.dart';
 import 'package:memozap/providers/inventory_provider.dart';
 import 'package:memozap/providers/locations_provider.dart';
+import 'package:memozap/providers/pending_invites_provider.dart';
 import 'package:memozap/providers/product_location_provider.dart';
 import 'package:memozap/providers/products_provider.dart';
 import 'package:memozap/providers/receipt_provider.dart';
 import 'package:memozap/providers/shopping_lists_provider.dart';
 import 'package:memozap/providers/suggestions_provider.dart';
 import 'package:memozap/providers/user_context.dart';
-import 'package:memozap/providers/groups_provider.dart';
-import 'package:memozap/providers/pending_invites_provider.dart';
-
 // Repositories
+import 'package:memozap/repositories/firebase_group_repository.dart'; // 🔥 Firebase Groups!
 import 'package:memozap/repositories/firebase_inventory_repository.dart'; // 🔥 Firebase Inventory!
 import 'package:memozap/repositories/firebase_locations_repository.dart'; // 🔥 Firebase Locations!
 import 'package:memozap/repositories/firebase_receipt_repository.dart'; // 🔥 Firebase Receipts!
 import 'package:memozap/repositories/firebase_shopping_lists_repository.dart'; // 🔥 Firebase Shopping Lists!
 import 'package:memozap/repositories/firebase_user_repository.dart'; // 🔥 Firebase User!
-import 'package:memozap/repositories/firebase_group_repository.dart'; // 🔥 Firebase Groups!
 import 'package:memozap/repositories/local_products_repository.dart'; // 📦 Local JSON!
 import 'package:memozap/repositories/user_repository.dart';
-
-// Services
-import 'package:memozap/services/auth_service.dart'; // 🔐 Firebase Auth!
-
 // Screens
 import 'package:memozap/screens/auth/login_screen.dart' as auth_login;
 import 'package:memozap/screens/auth/register_screen.dart' as auth_register;
+import 'package:memozap/screens/groups/create_group_screen.dart';
+import 'package:memozap/screens/groups/group_details_screen.dart';
+import 'package:memozap/screens/groups/pending_group_invites_screen.dart';
 import 'package:memozap/screens/index_screen.dart';
 import 'package:memozap/screens/main_navigation_screen.dart';
-// Onboarding הוסר - הוחלף ב-Tutorial אינטראקטיבי
-// import 'package:memozap/screens/onboarding/onboarding_screen.dart';
 import 'package:memozap/screens/pantry/my_pantry_screen.dart';
+import 'package:memozap/screens/sharing/pending_invites_screen.dart';
 import 'package:memozap/screens/shopping/active/active_shopping_screen.dart';
 import 'package:memozap/screens/shopping/create/create_list_screen.dart';
 import 'package:memozap/screens/shopping/details/shopping_list_details_screen.dart';
 import 'package:memozap/screens/shopping/lists/shopping_lists_screen.dart';
 import 'package:memozap/screens/shopping/shopping_summary_screen.dart';
-import 'package:memozap/screens/sharing/pending_invites_screen.dart';
-import 'package:memozap/screens/groups/create_group_screen.dart';
-import 'package:memozap/screens/groups/group_details_screen.dart';
-import 'package:memozap/screens/groups/pending_group_invites_screen.dart';
-
+// Services
+import 'package:memozap/services/auth_service.dart'; // 🔐 Firebase Auth!
 // Theme
 import 'package:memozap/theme/app_theme.dart';
+import 'package:provider/provider.dart';
 
 /// 🔥 חיבור ל-Firebase Emulators (לפיתוח מקומי)
 Future<void> _connectToEmulators() async {
@@ -268,22 +259,27 @@ void main() async {
               previous ?? SuggestionsProvider(inventoryProvider: inventoryProvider),
         ),
 
+        // === Pending Invites Provider === 📨 Group Invitations!
+        // ⚠️ חייב להיות לפני GroupsProvider כי הוא משתף את ה-repository
+        ChangeNotifierProvider<PendingInvitesProvider>(
+          create: (_) => PendingInvitesProvider(),
+        ),
+
         // === Groups Provider === 👥 Firebase Groups!
-        ChangeNotifierProxyProvider<UserContext, GroupsProvider>(
+        ChangeNotifierProxyProvider2<UserContext, PendingInvitesProvider, GroupsProvider>(
           create: (context) => GroupsProvider(
             repository: FirebaseGroupRepository(),
+            inviteRepository: context.read<PendingInvitesProvider>().repository,
           ),
-          update: (context, userContext, previous) {
+          update: (context, userContext, pendingInvites, previous) {
             if (previous != null) {
               previous.updateUserContext(userContext);
             }
-            return previous ?? GroupsProvider(repository: FirebaseGroupRepository());
+            return previous ?? GroupsProvider(
+              repository: FirebaseGroupRepository(),
+              inviteRepository: pendingInvites.repository,
+            );
           },
-        ),
-
-        // === Pending Invites Provider === 📨 Group Invitations!
-        ChangeNotifierProvider<PendingInvitesProvider>(
-          create: (_) => PendingInvitesProvider(),
         ),
       ],
       child: const MyApp(),

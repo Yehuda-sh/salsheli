@@ -93,7 +93,6 @@ class LocationsProvider with ChangeNotifier {
   /// מעדכן את ה-UserContext ומאזין לשינויים
   /// נקרא אוטומטית מ-ProxyProvider
   void updateUserContext(UserContext newContext) {
-    debugPrint('🔄 LocationsProvider.updateUserContext');
     if (_listening && _userContext != null) {
       _userContext!.removeListener(_onUserChanged);
       _listening = false;
@@ -101,73 +100,64 @@ class LocationsProvider with ChangeNotifier {
     _userContext = newContext;
     _userContext!.addListener(_onUserChanged);
     _listening = true;
-    debugPrint('✅ Listener הוסף, מתחיל initialization');
     _initialize();
   }
 
   void _onUserChanged() {
-    debugPrint('👤 LocationsProvider._onUserChanged: משתמש השתנה');
     _loadLocations();
   }
 
   void _initialize() {
-    debugPrint('🔧 LocationsProvider._initialize');
-    _loadLocations();  // _doLoad יטפל בכל הלוגיקה (מחובר/לא מחובר)
+    _loadLocations();
   }
 
   // === טעינת מיקומים ===
-  
+
   Future<void> _loadLocations() {
-    debugPrint('📥 LocationsProvider._loadLocations');
-    
     if (_loadingFuture != null) {
-      debugPrint('   ⏳ טעינה כבר בתהליך, ממתין...');
       return _loadingFuture!;
     }
-    
+
     _loadingFuture = _doLoad().whenComplete(() => _loadingFuture = null);
     return _loadingFuture!;
   }
 
   Future<void> _doLoad() async {
-    debugPrint('🔄 LocationsProvider._doLoad: מתחיל טעינה');
-    
     final householdId = _userContext?.user?.householdId;
     if (_userContext?.isLoggedIn != true || householdId == null) {
-      debugPrint('   ⚠️ אין household_id, מנקה רשימה');
       _customLocations = [];
       notifyListeners();
-      debugPrint('   🔔 LocationsProvider: notifyListeners() (no household_id)');
       return;
     }
 
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
-    debugPrint('   🔔 LocationsProvider: notifyListeners() (isLoading=true)');
 
     try {
       _customLocations = await _repository.fetchLocations(householdId);
-      debugPrint('✅ LocationsProvider._doLoad: נטענו ${_customLocations.length} מיקומים');
+      if (kDebugMode) {
+        debugPrint('✅ LocationsProvider: נטענו ${_customLocations.length} מיקומים');
+      }
     } catch (e, st) {
-      _errorMessage = "שגיאה בטעינת מיקומים: $e";
-      debugPrint('❌ LocationsProvider._doLoad: שגיאה - $e');
-      debugPrintStack(label: 'LocationsProvider._doLoad', stackTrace: st);
+      _errorMessage = 'שגיאה בטעינת מיקומים: $e';
+      if (kDebugMode) {
+        debugPrint('❌ LocationsProvider._doLoad: שגיאה - $e');
+        debugPrintStack(label: 'LocationsProvider._doLoad', stackTrace: st);
+      }
     }
 
     _isLoading = false;
     notifyListeners();
-    debugPrint('   🔔 LocationsProvider: notifyListeners() (isLoading=false, locations=${_customLocations.length})');
   }
 
   /// טוען את כל המיקומים מחדש מה-Repository
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// await locationsProvider.loadLocations();
   /// ```
   Future<void> loadLocations() {
-    debugPrint('🔄 LocationsProvider.loadLocations: רענון ידני');
     return _loadLocations();
   }
 
@@ -186,7 +176,7 @@ class LocationsProvider with ChangeNotifier {
   }
 
   /// חיפוש מיקום לפי key
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final location = provider.getLocationByKey('מקפיא_נוסף');
@@ -195,17 +185,13 @@ class LocationsProvider with ChangeNotifier {
   /// }
   /// ```
   CustomLocation? getLocationByKey(String key) {
-    try {
-      return _customLocations.firstWhere((loc) => loc.key == key);
-    } catch (e) {
-      return null;
-    }
+    return _customLocations.where((loc) => loc.key == key).firstOrNull;
   }
 
   /// נרמול key - ממיר שם למפתח תקני
-  /// "מקפיא נוסף" → "מקפיא_נוסף"
+  /// 'מקפיא נוסף' → 'מקפיא_נוסף'
   String _normalizeKey(String input) {
-    return input.trim().toLowerCase().replaceAll(" ", "_");
+    return input.trim().toLowerCase().replaceAll(' ', '_');
   }
 
   // === יצירה/מחיקה ===
@@ -213,48 +199,41 @@ class LocationsProvider with ChangeNotifier {
   /// הוספת מיקום מותאם חדש
   ///
   /// Returns: true אם הצליח, false אם המיקום כבר קיים או השם ריק
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final success = await locationsProvider.addLocation(
   ///   'מקפיא נוסף',
   ///   emoji: '🧊',
   /// );
-  /// 
+  ///
   /// if (success) {
   ///   print('מיקום נוסף בהצלחה');
   /// } else {
   ///   print('מיקום כבר קיים');
   /// }
   /// ```
-  Future<bool> addLocation(String name, {String emoji = "📍"}) async {
-    debugPrint('➕ LocationsProvider.addLocation: "$name" ($emoji)');
-    
+  Future<bool> addLocation(String name, {String emoji = '📍'}) async {
     final householdId = _userContext?.user?.householdId;
     if (householdId == null) {
-      debugPrint('❌ householdId לא נמצא');
       return false;
     }
-    
+
     if (name.trim().isEmpty) {
-      debugPrint('   ⚠️ שם ריק - מבטל');
       return false;
     }
 
     // בדיקת תווים לא חוקיים
     final invalidChars = RegExp(r'[/\\:*?"<>|]');
     if (invalidChars.hasMatch(name)) {
-      debugPrint('   ⚠️ תווים לא חוקיים בשם - מבטל');
       return false;
     }
 
     // יצירת key ייחודי: "מקפיא נוסף" → "מקפיא_נוסף"
     final key = _normalizeKey(name);
-    debugPrint('   🔑 Key: "$key"');
 
     // בדיקה אם קיים
     if (locationExists(key)) {
-      debugPrint('   ⚠️ מיקום "$key" כבר קיים');
       return false;
     }
 
@@ -267,19 +246,18 @@ class LocationsProvider with ChangeNotifier {
       );
 
       await _repository.saveLocation(newLocation, householdId);
-      debugPrint('✅ מיקום נשמר ב-Repository: ${newLocation.emoji} ${newLocation.name}');
-      
+
       // אופטימיזציה: הוספה local במקום ריענון מלא
-      _customLocations.add(newLocation);
+      _customLocations = [..._customLocations, newLocation];
       notifyListeners();
-      debugPrint('   🔔 LocationsProvider: notifyListeners() (location added: ${newLocation.key})');
-      
+
       return true;
     } catch (e) {
-      debugPrint('❌ LocationsProvider.addLocation: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ LocationsProvider.addLocation: שגיאה - $e');
+      }
       _errorMessage = 'שגיאה בהוספת מיקום';
       notifyListeners();
-      debugPrint('   🔔 LocationsProvider: notifyListeners() (error)');
       return false;
     }
   }
@@ -287,58 +265,55 @@ class LocationsProvider with ChangeNotifier {
   /// מחיקת מיקום מותאם
   ///
   /// Returns: true אם הצליח למחוק, false אם לא נמצא
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final deleted = await locationsProvider.deleteLocation('מקפיא_נוסף');
-  /// 
+  ///
   /// if (deleted) {
   ///   print('מיקום נמחק');
   /// }
   /// ```
   Future<bool> deleteLocation(String nameOrKey) async {
-    debugPrint('🗑️ LocationsProvider.deleteLocation: "$nameOrKey"');
-    
     final householdId = _userContext?.user?.householdId;
     if (householdId == null) {
-      debugPrint('⚠️ householdId לא נמצא, מדלג');
       return false;
     }
-    
+
+    // ולידציה
+    if (nameOrKey.trim().isEmpty) {
+      return false;
+    }
+
     // תמיכה בשם או key
     final key = _normalizeKey(nameOrKey);
-    debugPrint('   🔑 Normalized key: "$key"');
-    
-    final exists = locationExists(key);
-    
-    if (!exists) {
-      debugPrint('   ⚠️ מיקום "$key" לא נמצא למחיקה');
+
+    if (!locationExists(key)) {
       return false;
     }
 
     try {
       await _repository.deleteLocation(key, householdId);
-      debugPrint('✅ מיקום נמחק מ-Repository');
-      
+
       // אופטימיזציה: מחיקה local במקום ריענון מלא
-      _customLocations.removeWhere((loc) => loc.key == key);
+      _customLocations = _customLocations.where((loc) => loc.key != key).toList();
       notifyListeners();
-      debugPrint('   🔔 LocationsProvider: notifyListeners() (location deleted: $key)');
-      
+
       return true;
     } catch (e) {
-      debugPrint('❌ LocationsProvider.deleteLocation: שגיאה - $e');
+      if (kDebugMode) {
+        debugPrint('❌ LocationsProvider.deleteLocation: שגיאה - $e');
+      }
       _errorMessage = 'שגיאה במחיקת מיקום';
       notifyListeners();
-      debugPrint('   🔔 LocationsProvider: notifyListeners() (error)');
       return false;
     }
   }
 
   // === Error Recovery ===
-  
+
   /// מנקה שגיאות ומטעין מחדש את המיקומים
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// if (provider.hasError) {
@@ -346,39 +321,32 @@ class LocationsProvider with ChangeNotifier {
   /// }
   /// ```
   Future<void> retry() async {
-    debugPrint('🔄 LocationsProvider.retry: מנסה שוב');
     _errorMessage = null;
     notifyListeners();
-    debugPrint('   🔔 LocationsProvider: notifyListeners() (error cleared)');
     await _loadLocations();
   }
 
   /// מנקה את כל הנתונים והשגיאות
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// locationsProvider.clearAll();
   /// ```
   void clearAll() {
-    debugPrint('🧹 LocationsProvider.clearAll: מנקה הכל');
     _customLocations = [];
     _errorMessage = null;
     _isLoading = false;
     notifyListeners();
-    debugPrint('   🔔 LocationsProvider: notifyListeners() (all cleared)');
   }
 
   // === Cleanup ===
-  
+
   @override
   void dispose() {
-    debugPrint('🧹 LocationsProvider.dispose');
-    
     if (_listening && _userContext != null) {
       _userContext!.removeListener(_onUserChanged);
-      debugPrint('   ✅ Listener הוסר');
     }
-    
+
     super.dispose();
   }
 }

@@ -2,10 +2,11 @@
 //
 // 🎯 מטרה: ניהול זיכרון מיקומי אחסון למוצרים
 
-import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/product_location_memory.dart';
+import 'package:flutter/foundation.dart';
+
 import '../config/storage_locations_config.dart';
+import '../models/product_location_memory.dart';
 import 'user_context.dart';
 
 class ProductLocationProvider with ChangeNotifier {
@@ -35,16 +36,20 @@ class ProductLocationProvider with ChangeNotifier {
           .doc(householdId)
           .collection('product_locations')
           .get();
-          
+
       _locationMemory.clear();
       for (var doc in snapshot.docs) {
         final memory = ProductLocationMemory.fromJson(doc.data());
         _locationMemory[memory.productName.toLowerCase()] = memory;
       }
-      
-      debugPrint('📍 Loaded ${_locationMemory.length} product locations');
+
+      if (kDebugMode) {
+        debugPrint('📍 ProductLocationProvider: Loaded ${_locationMemory.length} locations');
+      }
     } catch (e) {
-      debugPrint('❌ Error loading product locations: $e');
+      if (kDebugMode) {
+        debugPrint('❌ ProductLocationProvider._loadMemory: $e');
+      }
     }
     
     _isLoading = false;
@@ -98,13 +103,13 @@ class ProductLocationProvider with ChangeNotifier {
           .collection('product_locations')
           .doc(normalizedName)
           .set(memory.toJson());
-          
+
       _locationMemory[normalizedName] = memory;
       notifyListeners();
-      
-      debugPrint('✅ Saved location for $productName: $location');
     } catch (e) {
-      debugPrint('❌ Error saving product location: $e');
+      if (kDebugMode) {
+        debugPrint('❌ ProductLocationProvider.saveProductLocation: $e');
+      }
     }
   }
   
@@ -135,5 +140,5 @@ class ProductLocationProvider with ChangeNotifier {
   }
   
   /// קבלת רשימת כל המוצרים הידועים
-  List<String> get knownProducts => _locationMemory.keys.toList();
+  List<String> get knownProducts => List.unmodifiable(_locationMemory.keys.toList());
 }

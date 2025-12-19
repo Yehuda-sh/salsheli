@@ -169,13 +169,17 @@ class CategoryDetectionService {
     String? brand,
     String? currentCategory,
   }) {
-    debugPrint('🤖 CategoryDetection: מזהה קטגוריה עבור "$productName" (brand: $brand, current: $currentCategory)');
+    if (kDebugMode) {
+      debugPrint('🤖 CategoryDetection: מזהה קטגוריה עבור "$productName" (brand: $brand, current: $currentCategory)');
+    }
 
     // אם יש קטגוריה קיימת ותקינה - השתמש בה
     if (currentCategory != null &&
         currentCategory != 'אחר' &&
         currentCategory.isNotEmpty) {
-      debugPrint('   ✅ משתמש בקטגוריה קיימת: $currentCategory');
+      if (kDebugMode) {
+        debugPrint('   ✅ משתמש בקטגוריה קיימת: $currentCategory');
+      }
       return currentCategory;
     }
 
@@ -186,7 +190,9 @@ class CategoryDetectionService {
       final brandLower = brand.toLowerCase();
       for (final entry in _brandToCategory.entries) {
         if (brandLower.contains(entry.key.toLowerCase())) {
-          debugPrint('   ✅ זוהה לפי מותג: ${entry.value}');
+          if (kDebugMode) {
+            debugPrint('   ✅ זוהה לפי מותג: ${entry.value}');
+          }
           return entry.value;
         }
       }
@@ -196,14 +202,18 @@ class CategoryDetectionService {
     for (final entry in _categoryKeywords.entries) {
       for (final keyword in entry.value) {
         if (nameLower.contains(keyword.toLowerCase())) {
-          debugPrint('   ✅ זוהה לפי מילת מפתח "$keyword": ${entry.key}');
+          if (kDebugMode) {
+            debugPrint('   ✅ זוהה לפי מילת מפתח "$keyword": ${entry.key}');
+          }
           return entry.key;
         }
       }
     }
 
     // 3. לא הצליח לזהות
-    debugPrint('   ❌ לא הצליח לזהות קטגוריה');
+    if (kDebugMode) {
+      debugPrint('   ❌ לא הצליח לזהות קטגוריה');
+    }
     return currentCategory ?? 'אחר';
   }
 

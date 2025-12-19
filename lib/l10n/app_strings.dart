@@ -197,6 +197,11 @@ class _CommonStrings {
   String get search => 'חיפוש';
   String get retry => 'נסה שוב';
   String get resetFilter => 'איפוס סינון';
+  String get clearAll => 'נקה הכל';
+  String get searchProductHint => 'חפש מוצר...';
+  String get categories => 'קטגוריות';
+  String get meatTypes => 'סוגי בשר';
+  String get all => 'הכל';
 
   // Confirmations
   String get yes => 'כן';

@@ -89,10 +89,10 @@ class SkeletonListCard extends StatelessWidget {
                   ),
                   const SizedBox(width: kSpacingMedium),
                   // כותרת
-                  Expanded(
+                  const Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         SkeletonBox(width: double.infinity, height: 18),
                         SizedBox(height: kSpacingSmall),
                         SkeletonBox(width: 100, height: 14),
@@ -107,8 +107,8 @@ class SkeletonListCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   for (int i = 0; i < 3; i++)
-                    Column(
-                      children: const [
+                    const Column(
+                      children: [
                         SkeletonBox(width: 40, height: 12),
                         SizedBox(height: kSpacingTiny),
                         SkeletonBox(width: 50, height: 10),
