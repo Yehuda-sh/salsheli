@@ -47,54 +47,49 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       debugPrint('🏠 HomeDashboardScreen.initState()');
     }
 
-    // 📚 הצג הדרכה למשתמשים חדשים
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         TutorialService.showHomeTutorialIfNeeded(context);
-        // 📨 בדוק הזמנות ממתינות
-        _checkPendingInvites();
+        _initInviteCheck();
       }
     });
   }
 
-  /// 📨 בדיקת הזמנות ממתינות לקבוצות
-  Future<void> _checkPendingInvites() async {
+  void _initInviteCheck() {
+    final userContext = context.read<UserContext>();
+
+    // 1. If user exists - check immediately
+    if (userContext.user != null) {
+      _performInviteCheck();
+    } else {
+      // 2. If not - Listen for changes
+      void userListener() {
+        if (userContext.user != null) {
+          userContext.removeListener(userListener);
+          if (mounted) _performInviteCheck();
+        }
+      }
+      userContext.addListener(userListener);
+    }
+  }
+
+  Future<void> _performInviteCheck() async {
+    if (!mounted) return;
+
     final userContext = context.read<UserContext>();
     final pendingInvitesProvider = context.read<PendingInvitesProvider>();
 
-    // אל תבדוק שוב אם כבר בדקנו
-    if (pendingInvitesProvider.hasChecked) {
-      if (kDebugMode) {
-        debugPrint('📨 HomeDashboard: Already checked, skipping');
-      }
-      return;
-    }
-
-    // חכה לטעינת המשתמש אם צריך (מקסימום 3 שניות)
-    for (int i = 0; i < 30 && mounted; i++) {
-      if (userContext.user != null) break;
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
+    if (pendingInvitesProvider.hasChecked) return;
 
     final user = userContext.user;
-    if (user == null) {
+    if (user != null) {
       if (kDebugMode) {
-        debugPrint('📨 HomeDashboard: User is null, skipping invite check');
+        debugPrint('📨 HomeDashboard: Checking invites for ${user.email}');
       }
-      return;
-    }
-
-    if (kDebugMode) {
-      debugPrint('📨 HomeDashboard: Checking invites for phone=${user.phone}, email=${user.email}');
-    }
-
-    await pendingInvitesProvider.checkPendingInvites(
-      phone: user.phone,
-      email: user.email,
-    );
-
-    if (kDebugMode) {
-      debugPrint('📨 HomeDashboard: Found ${pendingInvitesProvider.pendingCount} pending invites');
+      await pendingInvitesProvider.checkPendingInvites(
+        phone: user.phone,
+        email: user.email,
+      );
     }
   }
 
@@ -313,11 +308,17 @@ class _GreetingHeader extends StatelessWidget {
 
   String _getGreeting() {
     final hour = DateTime.now().hour;
-    if (hour < 5) return 'לילה טוב';
-    if (hour < 12) return 'בוקר טוב';
-    if (hour < 17) return 'צהריים טובים';
-    if (hour < 21) return 'ערב טוב';
-    return 'לילה טוב';
+
+    const morning = 'בוקר טוב';
+    const noon = 'צהריים טובים';
+    const evening = 'ערב טוב';
+    const night = 'לילה טוב';
+
+    if (hour < 5) return night;
+    if (hour < 12) return morning;
+    if (hour < 17) return noon;
+    if (hour < 21) return evening;
+    return night;
   }
 
   String _getGreetingEmoji() {
