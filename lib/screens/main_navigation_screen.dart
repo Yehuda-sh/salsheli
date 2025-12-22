@@ -53,6 +53,25 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Check if a tab index was passed via arguments
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is int && args >= 0 && args < _pages.length) {
+      // Only update if different to prevent loops
+      if (_selectedIndex != args) {
+        setState(() {
+          _selectedIndex = args;
+        });
+        if (kDebugMode) {
+          debugPrint('🏠 MainNavigation: Switched to tab $args via arguments');
+        }
+      }
+    }
+  }
+
+  @override
   void dispose() {
     if (kDebugMode) {
       debugPrint('🏠 MainNavigationScreen.dispose()');

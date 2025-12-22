@@ -18,6 +18,7 @@
 // Changes: Simplified to single view (locations only)
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -48,31 +49,47 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint('📦 MyPantryScreen: initState');
+    if (kDebugMode) {
+      debugPrint('📦 MyPantryScreen: initState');
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        debugPrint('🔄 MyPantryScreen: טעינת פריטים');
+        if (kDebugMode) {
+          debugPrint('🔄 MyPantryScreen: טעינת פריטים');
+        }
         context.read<InventoryProvider>().loadItems();
       }
     });
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   /// מציג bottom sheet לבחירת מוצר מהקטלוג
   void _addItemDialog() {
-    debugPrint('➕ MyPantryScreen: פתיחת בחירת מוצר מהקטלוג');
+    if (kDebugMode) {
+      debugPrint('➕ MyPantryScreen: פתיחת בחירת מוצר מהקטלוג');
+    }
     PantryProductSelectionSheet.show(context);
   }
 
   /// מציג דיאלוג לעריכת פרטי פריט קיים
   void _editItemDialog(InventoryItem item) {
-    debugPrint('✏️ MyPantryScreen: עריכת פריט - ${item.id}');
+    if (kDebugMode) {
+      debugPrint('✏️ MyPantryScreen: עריכת פריט - ${item.id}');
+    }
     PantryItemDialog.showEditDialog(context, item);
   }
 
   /// מוחק פריט מהמזווה
   Future<void> _deleteItem(InventoryItem item) async {
-    debugPrint('🗑️ MyPantryScreen: מחיקת פריט - ${item.id}');
+    if (kDebugMode) {
+      debugPrint('🗑️ MyPantryScreen: מחיקת פריט - ${item.id}');
+    }
     try {
       await context.read<InventoryProvider>().deleteItem(item.id);
       if (mounted) {
@@ -81,7 +98,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         );
       }
     } catch (e) {
-      debugPrint('❌ MyPantryScreen: שגיאה במחיקת פריט - $e');
+      if (kDebugMode) {
+        debugPrint('❌ MyPantryScreen: שגיאה במחיקת פריט - $e');
+      }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('שגיאה במחיקת פריט')),
@@ -92,7 +111,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
   /// מעדכן כמות פריט במזווה
   Future<void> _updateQuantity(InventoryItem item, int newQuantity) async {
-    debugPrint('📦 MyPantryScreen: עדכון כמות - ${item.id} -> $newQuantity');
+    if (kDebugMode) {
+      debugPrint('📦 MyPantryScreen: עדכון כמות - ${item.id} -> $newQuantity');
+    }
     try {
       // בדוק אם הפריט עובר למלאי נמוך (לפני שהיה מעל הסף)
       final wasAboveMin = item.quantity > item.minQuantity;
@@ -106,7 +127,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         await _sendLowStockNotification(updatedItem);
       }
     } catch (e) {
-      debugPrint('❌ MyPantryScreen: שגיאה בעדכון כמות - $e');
+      if (kDebugMode) {
+        debugPrint('❌ MyPantryScreen: שגיאה בעדכון כמות - $e');
+      }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('שגיאה בעדכון כמות')),
@@ -144,11 +167,15 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             }
           }
 
-          debugPrint('📬 נשלחו התראות מלאי נמוך לחברי הקבוצה: ${item.productName}');
+          if (kDebugMode) {
+            debugPrint('📬 נשלחו התראות מלאי נמוך לחברי הקבוצה: ${item.productName}');
+          }
         }
       }
     } catch (e) {
-      debugPrint('⚠️ שגיאה בשליחת התראת מלאי נמוך: $e');
+      if (kDebugMode) {
+        debugPrint('⚠️ שגיאה בשליחת התראת מלאי נמוך: $e');
+      }
       // לא מפריע למשתמש - התראה היא nice-to-have
     }
   }

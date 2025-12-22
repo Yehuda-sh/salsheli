@@ -18,6 +18,7 @@
 //
 // גרסה: v1.0 | תאריך: 02/11/2025
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -49,7 +50,7 @@ class ManageUsersScreen extends StatefulWidget {
 }
 
 class _ManageUsersScreenState extends State<ManageUsersScreen> {
-  late List<SharedUser> _users;
+  List<SharedUser> _users = [];
   late final NotificationsService _notificationsService;
   bool _isLoading = false;
   String? _errorMessage;
@@ -57,13 +58,17 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint('📝 ManageUsersScreen: פתיחת מסך ניהול משתמשים');
+    if (kDebugMode) {
+      debugPrint('📝 ManageUsersScreen: פתיחת מסך ניהול משתמשים');
+    }
 
     _notificationsService = NotificationsService(FirebaseFirestore.instance);
 
     // 🔒 Validation: רק Owner/Admin יכולים לנהל
     if (!widget.list.canCurrentUserManage) {
-      debugPrint('⛔ ManageUsersScreen: אין הרשאה - רק Owner/Admin יכולים לנהל');
+      if (kDebugMode) {
+        debugPrint('⛔ ManageUsersScreen: אין הרשאה - רק Owner/Admin יכולים לנהל');
+      }
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           final messenger = ScaffoldMessenger.of(context);

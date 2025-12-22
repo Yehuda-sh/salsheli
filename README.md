@@ -15,11 +15,14 @@ Smart family shopping list manager with unique Sticky Notes design.
 ### Features
 
 - **Multi-user collaboration** - Share lists with household members
+- **Groups system** - Family groups with role-based permissions
 - **Sticky Notes theme** - Beautiful post-it style UI
+- **Smart inventory (Pantry)** - Track stock with auto low-stock alerts
+- **Collaborative shopping** - Real-time multi-user shopping sessions
 - **Smart suggestions** - Pantry-based recommendations
-- **Smart inventory** - Auto-update pantry after shopping
 - **Household-based security** - Your data stays private
 - **8 smart list types** - Filtered product catalogs per store type
+- **Push notifications** - Low stock alerts, shopping invites
 - **Hebrew RTL support** - Fully localized interface
 
 ---
@@ -30,7 +33,7 @@ Smart family shopping list manager with unique Sticky Notes design.
 |----------|-----------|
 | Framework | Flutter 3.27+ |
 | Language | Dart 3.8.1+ |
-| Backend | Firebase (Auth, Firestore) |
+| Backend | Firebase (Auth, Firestore, Storage, Messaging) |
 | State Management | Provider |
 | Design System | Sticky Notes (Custom) |
 | Localization | Hebrew RTL + English |
@@ -41,13 +44,13 @@ Smart family shopping list manager with unique Sticky Notes design.
 
 | Type | Count |
 |------|-------|
-| Dart files | ~105 |
-| Models | 19 |
-| Providers | 8 |
-| Repositories | 15 |
-| Services | 17 |
-| Screens | 24 |
-| Widgets | 19 |
+| Dart files | ~160 |
+| Models | 37 |
+| Providers | 10 |
+| Repositories | 16 |
+| Services | 16 |
+| Screens | 35 |
+| Widgets | 26 |
 
 ---
 
@@ -116,4 +119,4 @@ Proprietary software. Unauthorized copying, modification, or distribution is pro
 
 **Made in Israel**
 
-**Version:** 1.0.0 | **Updated:** 30/11/2025
+**Version:** 1.1.0 | **Updated:** 19/12/2025

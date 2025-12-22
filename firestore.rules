@@ -82,7 +82,11 @@ service cloud.firestore {
 
     // === User Profile ===
     match /users/{userId} {
-      allow read: if isAuthenticated();
+      // קריאה: רק הבעלים יכול לקרוא את הפרופיל המלא שלו
+      // משתמשים אחרים יכולים לקרוא רק אם הם באותו משק בית או קבוצה
+      allow read: if isDocOwner(userId) ||
+                  (isAuthenticated() && getUserHouseholdId() != null &&
+                   getUserHouseholdId() == get(/databases/$(database)/documents/users/$(userId)).data.household_id);
       allow write: if isDocOwner(userId);
 
       // === 🆕 Private Lists (Subcollection) ===
@@ -105,6 +109,8 @@ service cloud.firestore {
 
       // === 🆕 Notifications (Subcollection) ===
       // Path: /users/{userId}/notifications/{notificationId}
+      // ⚠️ NOTE: Rate limiting should be implemented via Cloud Functions
+      //    to prevent spam/abuse. Firestore rules cannot enforce rate limits.
       match /notifications/{notificationId} {
         // קריאה ומחיקה: רק הבעלים
         allow read, delete: if isDocOwner(userId);
@@ -113,7 +119,9 @@ service cloud.firestore {
         allow update: if isDocOwner(userId);
 
         // יצירה: כל משתמש מחובר יכול לשלוח התראה למשתמש אחר
-        allow create: if isAuthenticated();
+        // חובה לציין את השולח כדי למנוע התחזות
+        allow create: if isAuthenticated() &&
+                      request.resource.data.sender_id == request.auth.uid;
       }
 
       // === Pending Invites (Subcollection) ===
@@ -171,12 +179,11 @@ service cloud.firestore {
           (getListRole(resource.data) == 'admin' &&
            request.resource.data.created_by == resource.data.created_by) ||
 
-          // 3. Editor: יכול לערוך רק items ו-updated_date ו-pending_requests
+          // 3. Editor: יכול לערוך רק items ו-updated_date
           (getListRole(resource.data) == 'editor' &&
-           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['items', 'updated_date', 'pending_requests'])) ||
+           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['items', 'updated_date']))
 
-          // 4. Household member (לא Owner/Admin/Editor) - צפייה בלבד
-          false
+          // 4. Viewer: צפייה בלבד - לא יכול לעדכן (אין צורך בכלל כאן)
         );
 
         // 🗑️ מחיקה: רק הבעלים המקורי
@@ -200,7 +207,22 @@ service cloud.firestore {
       // Path: /households/{householdId}/members/{memberId}
       match /members/{memberId} {
         allow read: if isHouseholdMember(householdId);
-        allow write: if isHouseholdMember(householdId);
+
+        // יצירה: רק אם המשתמש מוסיף את עצמו (הצטרפות למשק בית)
+        allow create: if isAuthenticated() && memberId == request.auth.uid;
+
+        // עדכון: חבר יכול לעדכן רק את עצמו, או admin יכול לעדכן אחרים
+        allow update: if isHouseholdMember(householdId) && (
+          memberId == request.auth.uid ||
+          get(/databases/$(database)/documents/households/$(householdId)/members/$(request.auth.uid)).data.role == 'admin'
+        );
+
+        // מחיקה: חבר יכול להסיר את עצמו, או admin יכול להסיר אחרים (לא את עצמו)
+        allow delete: if isHouseholdMember(householdId) && (
+          memberId == request.auth.uid ||
+          (get(/databases/$(database)/documents/households/$(householdId)/members/$(request.auth.uid)).data.role == 'admin' &&
+           memberId != request.auth.uid)
+        );
       }
 
       // === Invites (Subcollection) ===
@@ -277,6 +299,50 @@ service cloud.firestore {
     }
 
     // =========================================================
+    // 📋 Templates Collection
+    // =========================================================
+    // תבניות רשימות קניות מוכנות
+    // סוגים:
+    //   1. System templates (is_system=true): קריאה לכולם, כתיבה רק admin
+    //   2. User templates (user_id): פרטיות למשתמש
+    //   3. Household templates (household_id): משותפות למשק בית
+
+    match /templates/{templateId} {
+      // 👁️ קריאה:
+      // - תבניות מערכת: כולם (גם לא מחוברים - לטובת UX)
+      // - תבניות משתמש: רק הבעלים
+      // - תבניות משק בית: חברי משק הבית
+      allow read: if resource.data.is_system == true ||
+                  (isAuthenticated() && (
+                    resource.data.user_id == request.auth.uid ||
+                    (resource.data.household_id != null && isHouseholdMember(resource.data.household_id))
+                  ));
+
+      // ➕ יצירה: משתמש מחובר יכול ליצור תבנית פרטית או למשק בית שלו
+      // אסור ליצור תבניות מערכת (is_system=true) מהקליינט
+      allow create: if isAuthenticated() &&
+                    request.resource.data.is_system != true &&
+                    request.resource.data.created_by == request.auth.uid &&
+                    (
+                      request.resource.data.user_id == request.auth.uid ||
+                      (request.resource.data.household_id != null && isHouseholdMember(request.resource.data.household_id))
+                    );
+
+      // ✏️ עדכון: רק הבעלים או חבר משק הבית (לא תבניות מערכת)
+      allow update: if isAuthenticated() &&
+                    resource.data.is_system != true &&
+                    (
+                      resource.data.user_id == request.auth.uid ||
+                      (resource.data.household_id != null && isHouseholdMember(resource.data.household_id))
+                    );
+
+      // 🗑️ מחיקה: רק היוצר (לא תבניות מערכת)
+      allow delete: if isAuthenticated() &&
+                    resource.data.is_system != true &&
+                    resource.data.created_by == request.auth.uid;
+    }
+
+    // =========================================================
     // 🚫 Legacy Collections (Deprecated)
     // =========================================================
     // These rules are kept for backward compatibility during migration
@@ -323,17 +389,21 @@ service cloud.firestore {
       // 👁️ קריאה:
       // - המזמין יכול לראות הזמנות שהוא שלח
       // - המוזמן יכול לראות הזמנות שנשלחו אליו (לפי טלפון/אימייל)
-      // - חברי הקבוצה יכולים לראות הזמנות לקבוצה שלהם
-      allow read: if isAuthenticated();
+      allow read: if isAuthenticated() && (
+        resource.data.invited_by == request.auth.uid ||
+        resource.data.invited_phone == request.auth.token.phone_number ||
+        resource.data.invited_email == request.auth.token.email
+      );
 
       // ➕ יצירה: כל משתמש מחובר יכול ליצור הזמנה
       allow create: if isAuthenticated() &&
                     request.resource.data.invited_by == request.auth.uid;
 
-      // ✏️ עדכון: המזמין או מי שמקבל את ההזמנה יכול לעדכן
+      // ✏️ עדכון: המזמין או המוזמן (לפי טלפון/אימייל) יכול לעדכן
       allow update: if isAuthenticated() && (
         resource.data.invited_by == request.auth.uid ||
-        request.resource.data.accepted_by_user_id == request.auth.uid
+        resource.data.invited_phone == request.auth.token.phone_number ||
+        resource.data.invited_email == request.auth.token.email
       );
 
       // 🗑️ מחיקה: רק המזמין

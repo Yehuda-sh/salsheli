@@ -1,7 +1,7 @@
 rules_version = '2';
 
 // Storage Rules for MemoZap
-// Last Updated: 14/12/2025
+// Last Updated: 19/12/2025
 
 service firebase.storage {
   match /b/{bucket}/o {
@@ -15,17 +15,43 @@ service firebase.storage {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
+    // בדיקה אם המשתמש חבר במשק בית
+    function isHouseholdMember(householdId) {
+      return isAuthenticated() &&
+        firestore.exists(/databases/(default)/documents/households/$(householdId)/members/$(request.auth.uid));
+    }
+
+    // בדיקה אם הקובץ הוא תמונה תקינה (עד 5MB)
+    function isValidImage() {
+      return request.resource.contentType.matches('image/.*')
+             && request.resource.size < 5 * 1024 * 1024;
+    }
+
+    // בדיקה אם הקובץ PDF תקין (עד 10MB)
+    function isValidPdf() {
+      return request.resource.contentType == 'application/pdf'
+             && request.resource.size < 10 * 1024 * 1024;
+    }
+
     // === User Profile Images ===
     // Path: /users/{userId}/profile/*
     match /users/{userId}/profile/{fileName} {
       allow read: if isAuthenticated();
-      allow write: if isOwner(userId);
+      allow write: if isOwner(userId) && isValidImage();
     }
 
     // === Receipt Images ===
     // Path: /households/{householdId}/receipts/{receiptId}/*
     match /households/{householdId}/receipts/{receiptId}/{fileName} {
-      allow read, write: if isAuthenticated();
+      allow read: if isHouseholdMember(householdId);
+      allow write: if isHouseholdMember(householdId) && (isValidImage() || isValidPdf());
+    }
+
+    // === Group Images ===
+    // Path: /groups/{groupId}/images/*
+    match /groups/{groupId}/images/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isValidImage();
     }
 
     // === Default Deny ===

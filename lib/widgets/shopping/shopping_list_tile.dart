@@ -70,8 +70,6 @@ class ShoppingListTile extends StatelessWidget {
     );
   }
 
-
-
   /// 🇮🇱 חישוב דחיפות לפי תאריך יעד
   /// 🇬🇧 Calculate urgency based on target date
   ///
@@ -87,24 +85,27 @@ class ShoppingListTile extends StatelessWidget {
   ({String status, String text, IconData icon})? _getUrgencyData() {
     if (list.targetDate == null) return null;
 
+    // נרמול לתאריכים בלבד (ללא שעות) למניעת באגים
     final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
     final target = list.targetDate!;
+    final targetDay = DateTime(target.year, target.month, target.day);
 
-    // אם התאריך עבר
-    if (target.isBefore(now)) {
+    // אם התאריך עבר (לפני היום)
+    if (targetDay.isBefore(today)) {
       return (status: 'error', text: AppStrings.shopping.urgencyPassed, icon: Icons.warning);
     }
 
-    final daysLeft = target.difference(now).inDays;
+    final daysLeft = targetDay.difference(today).inDays;
 
     if (daysLeft == 0) {
       // היום!
       return (status: 'error', text: AppStrings.shopping.urgencyToday, icon: Icons.access_time);
-    } else if (daysLeft <= 1) {
+    } else if (daysLeft == 1) {
       // מחר
       return (status: 'warning', text: AppStrings.shopping.urgencyTomorrow, icon: Icons.access_time);
     } else if (daysLeft <= 7) {
-      // בקרוב (1-7 ימים)
+      // בקרוב (2-7 ימים)
       return (status: 'warning', text: AppStrings.shopping.urgencyDaysLeft(daysLeft), icon: Icons.access_time);
     } else {
       // יש זמן (7+ ימים)
@@ -115,55 +116,12 @@ class ShoppingListTile extends StatelessWidget {
   /// 🏷️ ווידג׳ט תג סוג רשימה
   /// 🇬🇧 List type tag widget
   ///
-  /// מציג תג עם סוג הרשימה - תומך בכל 8 הסוגים החדשים
+  /// מציג תג עם סוג הרשימה - משתמש ב-getters מהמודל
   Widget _buildListTypeTag(BuildContext context) {
-    final String typeLabel;
-    final Color typeColor;
-    final String typeEmoji;
-
-    switch (list.type) {
-      case ShoppingList.typeSupermarket:
-        typeEmoji = '🛒';
-        typeLabel = AppStrings.shopping.typeSupermarket;
-        typeColor = kStickyGreen;
-        break;
-      case ShoppingList.typePharmacy:
-        typeEmoji = '💊';
-        typeLabel = AppStrings.shopping.typePharmacy;
-        typeColor = kStickyCyan;
-        break;
-      case ShoppingList.typeGreengrocer:
-        typeEmoji = '🥬';
-        typeLabel = AppStrings.shopping.typeGreengrocer;
-        typeColor = kStickyGreen;
-        break;
-      case ShoppingList.typeButcher:
-        typeEmoji = '🥩';
-        typeLabel = AppStrings.shopping.typeButcher;
-        typeColor = kStickyPink;
-        break;
-      case ShoppingList.typeBakery:
-        typeEmoji = '🍞';
-        typeLabel = AppStrings.shopping.typeBakery;
-        typeColor = kStickyYellow;
-        break;
-      case ShoppingList.typeMarket:
-        typeEmoji = '🧺';
-        typeLabel = AppStrings.shopping.typeMarket;
-        typeColor = kStickyYellow;
-        break;
-      case ShoppingList.typeHousehold:
-        typeEmoji = '🏠';
-        typeLabel = AppStrings.shopping.typeHousehold;
-        typeColor = kStickyPurple;
-        break;
-      case ShoppingList.typeOther:
-      default:
-        typeEmoji = '📦';
-        typeLabel = AppStrings.shopping.typeOther;
-        typeColor = kStickyPurple;
-        break;
-    }
+    // שימוש ב-getters מהמודל במקום switch case כפול
+    final typeEmoji = list.typeEmoji;
+    final typeColor = list.stickyColor;
+    final typeLabel = _getTypeLabel(list.type);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 4),
@@ -192,6 +150,72 @@ class ShoppingListTile extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// 🏷️ תרגום סוג רשימה לטקסט
+  String _getTypeLabel(String type) {
+    switch (type) {
+      case ShoppingList.typeSupermarket:
+        return AppStrings.shopping.typeSupermarket;
+      case ShoppingList.typePharmacy:
+        return AppStrings.shopping.typePharmacy;
+      case ShoppingList.typeGreengrocer:
+        return AppStrings.shopping.typeGreengrocer;
+      case ShoppingList.typeButcher:
+        return AppStrings.shopping.typeButcher;
+      case ShoppingList.typeBakery:
+        return AppStrings.shopping.typeBakery;
+      case ShoppingList.typeMarket:
+        return AppStrings.shopping.typeMarket;
+      case ShoppingList.typeHousehold:
+        return AppStrings.shopping.typeHousehold;
+      default:
+        return AppStrings.shopping.typeOther;
+    }
+  }
+
+  /// 🔘 כפתור פעולה בתחתית הכרטיס
+  /// "התחל קנייה" אם יש מוצרים, "הוסף מוצרים" אם ריק
+  Widget _buildBottomActionButton(BuildContext context, ThemeData theme) {
+    final hasItems = list.items.isNotEmpty;
+    final icon = hasItems ? Icons.shopping_cart_checkout : Icons.add_circle_outline;
+    final label = hasItems
+        ? AppStrings.shopping.startShoppingButton
+        : AppStrings.shopping.addProductsToStart;
+    final onPressed = hasItems ? onStartShopping : onTap;
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.2))),
+      ),
+      child: SimpleTappableCard(
+        onTap: onPressed,
+        child: Container(
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(kBorderRadius)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmallPlus),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: theme.colorScheme.primary, size: kIconSizeMedium),
+                const SizedBox(width: kSpacingSmall),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: kFontSizeBody,
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -376,9 +400,7 @@ class ShoppingListTile extends StatelessWidget {
                       const SizedBox(height: kSpacingTiny),
                       if (list.items.isNotEmpty)
                         LinearProgressIndicator(
-                          value: list.items.isEmpty
-                              ? 0.0
-                              : list.items.where((item) => item.isChecked).length / list.items.length,
+                          value: list.items.where((item) => item.isChecked).length / list.items.length,
                           minHeight: kSpacingTiny,
                           backgroundColor: theme.colorScheme.surfaceContainerHighest,
                           color: theme.colorScheme.primary,
@@ -423,77 +445,9 @@ class ShoppingListTile extends StatelessWidget {
                 ),
               ),
 
-              // ⭐ כפתור "התחל קנייה" - רק לרשימות פעילות עם מוצרים
-              if (list.status == ShoppingList.statusActive && list.items.isNotEmpty)
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    border: Border(top: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.2))),
-                  ),
-                  child: SimpleTappableCard(
-                    onTap: onStartShopping,
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.vertical(bottom: Radius.circular(kBorderRadius)),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmallPlus),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.shopping_cart_checkout, color: theme.colorScheme.primary, size: kIconSizeMedium),
-                            const SizedBox(width: kSpacingSmall),
-                            Text(
-                              AppStrings.shopping.startShoppingButton,
-                              style: TextStyle(
-                                fontSize: kFontSizeBody,
-                                fontWeight: FontWeight.bold,
-                                color: theme.colorScheme.primary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                )
-              // 📝 כפתור להוספת מוצרים - רשימה ריקה
-              else if (list.status == ShoppingList.statusActive && list.items.isEmpty)
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    border: Border(top: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.2))),
-                  ),
-                  child: SimpleTappableCard(
-                    onTap: () {
-                      debugPrint('➕ ShoppingListTile: כפתור "הוסף מוצרים" נלחץ - רשימה: ${list.name}');
-                      onTap?.call();
-                    },
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.vertical(bottom: Radius.circular(kBorderRadius)),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(kSpacingSmallPlus),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.add_circle_outline, size: kIconSizeMedium, color: theme.colorScheme.primary),
-                            const SizedBox(width: kSpacingSmall),
-                            Text(
-                              AppStrings.shopping.addProductsToStart,
-                              style: TextStyle(
-                                fontSize: kFontSizeBody,
-                                fontWeight: FontWeight.bold,
-                                color: theme.colorScheme.primary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+              // ⭐ כפתור פעולה - רק לרשימות פעילות
+              if (list.status == ShoppingList.statusActive)
+                _buildBottomActionButton(context, theme),
             ],
           ),
         ),
