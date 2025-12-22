@@ -1,19 +1,10 @@
-// 📄 File: lib/screens/shopping/lists/shopping_lists_screen.dart - V5.0 ACTIVE + HISTORY
+// 📄 File: lib/screens/shopping/lists/shopping_lists_screen.dart
 //
-// ✨ שיפורים חדשים (v5.0 - 24/10/2025):
-// 1. 📋 הפרדה בין פעילות (🔵) להיסטוריה (✅)
-// 2. 📊 פעילות למעלה, היסטוריה למטה
-// 3. 📦 טעינת 10 שורות היסטוריה + "טען עוד"
-// 4. 🎨 אייקונים שונים לפי סטטוס
+// מסך רשימות קניות - הפרדה בין פעילות להיסטוריה עם Sticky Notes Design.
 //
-// ✨ שיפורים קודמים (v4.0 - 17/10/2025):
-// 1. 📝 המרה מלאה ל-Sticky Notes Design System
-// 2. 🎨 NotebookBackground + kPaperBackground
-// 3. 📋 כל הכרטיסים ב-StickyNote
-// 4. 🔘 FAB → StickyButton מרחף
-// 5. 🎨 Sticky Colors: Yellow/Pink/Green + rotation
+// Version: 5.0
+// Updated: 24/10/2025
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -29,12 +20,6 @@ import '../../../widgets/common/sticky_note.dart';
 import '../../../widgets/shopping/shopping_list_tile.dart';
 import '../active/active_shopping_screen.dart';
 
-// 🔧 Wrapper ללוגים - פועל רק ב-debug mode
-void _log(String message) {
-  if (kDebugMode) {
-    debugPrint(message);
-  }
-}
 
 class ShoppingListsScreen extends StatefulWidget {
   const ShoppingListsScreen({super.key});
@@ -65,7 +50,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
   @override
   void initState() {
     super.initState();
-    _log('📋 ShoppingListsScreen.initState()');
+    debugPrint('📋 ShoppingListsScreen.initState()');
 
     // FAB Animation Controller
     _fabController = AnimationController(vsync: this, duration: const Duration(milliseconds: 150));
@@ -89,7 +74,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
           provider.lists.isEmpty &&
           provider.errorMessage == null &&
           provider.lastUpdated == null) {
-        _log('🔄 טוען רשימות ראשונית');
+        debugPrint('🔄 טוען רשימות ראשונית');
         provider.loadLists();
       }
       _initialLoadRequested = true;
@@ -98,7 +83,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
 
   @override
   void dispose() {
-    _log('🗑️ ShoppingListsScreen.dispose()');
+    debugPrint('🗑️ ShoppingListsScreen.dispose()');
     _fabController.dispose();
     _searchController.dispose();
     super.dispose();
@@ -109,20 +94,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
     final provider = context.watch<ShoppingListsProvider>();
 
     return Scaffold(
-      backgroundColor: kPaperBackground,
-      appBar: AppBar(
-        title: const Text('רשימות קניות'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: 'רענן',
-            onPressed: () {
-              _log('🔄 רענון ידני');
-              provider.loadLists();
-            },
-          ),
-        ],
-      ),
+      backgroundColor: Colors.transparent,
       body: Stack(
         children: [
           const NotebookBackground(),
@@ -136,7 +108,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
                 Expanded(
                   child: RefreshIndicator(
                     onRefresh: () async {
-                      _log('🔄 Pull to refresh');
+                      debugPrint('🔄 Pull to refresh');
                       await provider.loadLists();
                     },
                     child: _buildBody(context, provider),
@@ -154,7 +126,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
           label: 'רשימה חדשה',
           icon: Icons.add,
           onPressed: () {
-            _log('➕ יצירת רשימה חדשה');
+            debugPrint('➕ יצירת רשימה חדשה');
 
             // ✨ Haptic feedback למשוב מישוש
             HapticFeedback.mediumImpact();
@@ -260,7 +232,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
           ],
           onChanged: (value) {
             if (value != null) {
-              _log('🏷️ סינון לפי: $value');
+              debugPrint('🏷️ סינון לפי: $value');
               setState(() => _selectedType = value);
             }
           },
@@ -299,7 +271,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
         _buildCompactSortMenuItem('budget_asc', 'תקציב ↑', Icons.money_off),
       ],
       onSelected: (value) {
-        _log('📊 מיון לפי: $value');
+        debugPrint('📊 מיון לפי: $value');
         setState(() => _sortBy = value);
       },
     );
@@ -348,7 +320,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
 
   /// 💀 Loading State - עם Skeleton Screens
   Widget _buildLoadingState() {
-    _log('⏳ _buildLoadingState()');
+    debugPrint('⏳ _buildLoadingState()');
     return const SkeletonListView.listCards();
   }
 
@@ -443,7 +415,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
     final hasMoreHistory = completedLists.length > _currentHistoryLimit;
 
     return ListView(
-      padding: const EdgeInsets.all(kSpacingMedium),
+      padding: const EdgeInsets.fromLTRB(kSpacingMedium, kSpacingMedium, kSpacingMedium, 80),
       children: [
         // 🔵 פעילות
         if (activeLists.isNotEmpty) ...[
@@ -545,25 +517,25 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
           child: ShoppingListTile(
             list: list,
             onTap: () {
-              _log('📋 פתיחת רשימה: ${list.name}');
+              debugPrint('📋 פתיחת רשימה: ${list.name}');
               Navigator.pushNamed(context, '/populate-list', arguments: list);
             },
             onDelete: () {
-              _log('🗑️ מחיקת רשימה: ${list.name}');
+              debugPrint('🗑️ מחיקת רשימה: ${list.name}');
               final provider = context.read<ShoppingListsProvider>();
               provider.deleteList(list.id);
             },
             onRestore: (deletedList) {
-              _log('↩️ שחזור רשימה: ${deletedList.name}');
+              debugPrint('↩️ שחזור רשימה: ${deletedList.name}');
               final provider = context.read<ShoppingListsProvider>();
               provider.restoreList(deletedList);
             },
             onStartShopping: isActive ? () {
-              _log('🛒 התחלת קנייה: ${list.name}');
+              debugPrint('🛒 התחלת קנייה: ${list.name}');
               Navigator.push(context, MaterialPageRoute(builder: (context) => ActiveShoppingScreen(list: list)));
             } : null, // היסטוריה - אין אפשרות קנייה
             onEdit: () {
-              _log('✏️ עריכת רשימה: ${list.name}');
+              debugPrint('✏️ עריכת רשימה: ${list.name}');
               Navigator.pushNamed(context, '/populate-list', arguments: list);
             },
           ),
@@ -592,7 +564,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
 
   /// ❌ מצב שגיאה - משופר עם אנימציות
   Widget _buildErrorState(ShoppingListsProvider provider) {
-    _log('❌ _buildErrorState()');
+    debugPrint('❌ _buildErrorState()');
     final cs = Theme.of(context).colorScheme;
 
     return Center(
@@ -633,7 +605,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
               label: 'נסה שוב',
               icon: Icons.refresh,
               onPressed: () {
-                _log('🔄 retry - טוען מחדש');
+                debugPrint('🔄 retry - טוען מחדש');
 
                 // ✨ Haptic feedback למשוב מישוש
                 HapticFeedback.lightImpact();
@@ -649,7 +621,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
 
   /// 📭 תוצאות חיפוש ריקות - משופר עם אנימציות
   Widget _buildEmptySearchResults() {
-    _log('🔍 _buildEmptySearchResults()');
+    debugPrint('🔍 _buildEmptySearchResults()');
     final cs = Theme.of(context).colorScheme;
 
     return Center(
@@ -699,7 +671,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
               label: 'נקה סינון',
               icon: Icons.clear_all,
               onPressed: () {
-                _log('🧹 ניקוי סינון');
+                debugPrint('🧹 ניקוי סינון');
 
                 // ✨ Haptic feedback למשוב מישוש
                 HapticFeedback.lightImpact();
@@ -719,7 +691,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
 
   /// 📋 מצב ריק – אין רשימות להצגה - משופר עם אנימציות
   Widget _buildEmptyState(BuildContext context, ShoppingListsProvider provider) {
-    _log('📭 _buildEmptyState()');
+    debugPrint('📭 _buildEmptyState()');
     final cs = Theme.of(context).colorScheme;
 
     return Center(
@@ -797,7 +769,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> with SingleTi
               label: 'צור רשימה חדשה',
               icon: Icons.add,
               onPressed: () {
-                _log('➕ יצירת רשימה ראשונה');
+                debugPrint('➕ יצירת רשימה ראשונה');
 
                 // ✨ Haptic feedback למשוב מישוש
                 HapticFeedback.mediumImpact();

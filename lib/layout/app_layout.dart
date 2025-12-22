@@ -1,58 +1,10 @@
 // 📄 File: lib/layout/app_layout.dart
 //
-// 🇮🇱 קובץ זה מגדיר את פריסת האפליקציה (AppLayout):
-//     - מציג AppBar עם התראות והתנתקות.
-//     - Drawer עם פרטי משתמש ותפריט ניווט.
-//     - BottomNavigationBar עם באדג'ים לכל טאב.
-//     - ניהול child (תוכן דינמי לפי הטאב הנבחר).
-//     - תמיכה מלאה ב-RTL (עברית).
-//     - Micro Animations למעבר חלק.
+// פריסה ראשית של האפליקציה - AppBar, Drawer, BottomNavigation.
+// תומך RTL ומכיל אנימציות מיקרו לחוויית משתמש חלקה.
 //
-// 🇬🇧 This file defines the main app layout (AppLayout):
-//     - Displays AppBar with notifications and logout.
-//     - Drawer with user profile and navigation menu.
-//     - BottomNavigationBar with badges per tab.
-//     - Manages the child (dynamic content per selected tab).
-//     - Full RTL support (Hebrew).
-//     - Micro Animations for smooth transitions.
-//
-// 📖 Usage Example:
-// ```dart
-// AppLayout(
-//   currentIndex: 0,
-//   onTabSelected: (index) => setState(() => _currentTab = index),
-//   badges: {1: 3, 2: 1}, // 3 ברשימות, 1 במזווה
-//   child: IndexedStack(
-//     index: _currentTab,
-//     children: [HomeScreen(), ListsScreen(), PantryScreen(), ...],
-//   ),
-// )
-// ```
-//
-// 🎨 New in v3.0 (14/10/2025):
-// - ✅ UserContext Provider integration (לא SharedPreferences ישירות!)
-// - ✅ Firebase Auth logout (מתנתק גם מהשרת)
-// - ✅ RTL Support מלא (Directionality wrapper)
-// - ✅ Button Animations (Scale effect ללוגאוט)
-// - ✅ Badge Count Animations (TweenAnimationBuilder)
-// - ✅ Error Handling ללוגאוט
-// - ✅ Cached totalBadgeCount (Performance)
-// - ✅ Context safety after async
-// - ✅ More const optimizations
-// - ✅ Improved _NavItem constructor for clarity
-//
-// Version: 3.3 - Performance Review
-// Last Updated: 02/11/2025
-//
-// 🎨 New in v3.3 (02/11/2025):
-// - ✅ Code review: Already optimized (const usage excellent)
-// - ✅ No kDebugMode wrapping needed (debugPrint handles it)
-// - ✅ Context safety verified
-// - ℹ️ False Positive #6 prevented: File is actively used in MainNavigationScreen
-//
-// 🎨 New in v3.2 (26/10/2025):
-// - ✅ Removed Receipts tab (accessible via Settings → "הקבלות שלי")
-// - ✅ Fixed RangeError: 4 tabs instead of 5
+// Version: 3.3
+// Updated: 02/11/2025
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -172,14 +124,14 @@ class _AppLayoutState extends State<AppLayout> {
       // 🚨 Show error to user
       scaffoldMessenger.showSnackBar(
         SnackBar(
-          content: Row(
+          content: const Row(
             children: [
-              const Icon(Icons.error_outline, color: Colors.white),
-              const SizedBox(width: kSpacingSmall),
+              Icon(Icons.error_outline, color: Colors.white),
+              SizedBox(width: kSpacingSmall),
               Expanded(
                 child: Text(
-                  'שגיאה בהתנתקות: ${e.toString()}',
-                  style: const TextStyle(fontSize: 14),
+                  'שגיאה בהתנתקות, נסה שוב',
+                  style: TextStyle(fontSize: 14),
                 ),
               ),
             ],
@@ -579,9 +531,7 @@ class _DrawerItem extends StatelessWidget {
           ),
           textAlign: TextAlign.right,
         ),
-        trailing: selected
-            ? Icon(Icons.chevron_left, color: cs.primary) // RTL: chevron_left!
-            : const Icon(Icons.chevron_right, color: Colors.transparent), // RTL: chevron_right! (const)
+        trailing: selected ? Icon(Icons.chevron_left, color: cs.primary) : null,
         selected: selected,
         onTap: onTap,
       ),
