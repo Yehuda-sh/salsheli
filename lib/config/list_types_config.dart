@@ -112,35 +112,4 @@ class ListTypes {
       return null;
     }
   }
-
-  /// 🎨 קבל אימוג'י לפי key
-  static String getEmoji(String key) {
-    final config = getByKey(key);
-    return config?.emoji ?? '📝';
-  }
-
-  /// 📝 קבל שם מלא לפי key
-  static String getFullName(String key) {
-    final config = getByKey(key);
-    return config?.fullName ?? 'אחר';
-  }
-
-  /// 📋 קבל שם קצר לפי key
-  static String getShortName(String key) {
-    final config = getByKey(key);
-    return config?.shortName ?? 'אחר';
-  }
-
-  /// 🎭 קבל אייקון לפי key
-  static IconData getIcon(String key) {
-    final config = getByKey(key);
-    return config?.icon ?? Icons.more_horiz;
-  }
-
-  /// 🗺️ Map של אימוג'ים (לתאימות לאחור)
-  static Map<String, String> get emojis {
-    return Map.fromEntries(
-      all.map((config) => MapEntry(config.key, config.emoji)),
-    );
-  }
 }

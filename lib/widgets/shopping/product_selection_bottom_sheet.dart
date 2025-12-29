@@ -462,7 +462,7 @@ class _ProductSelectionBottomSheetState
       child: ClipRRect(
         borderRadius: BorderRadius.circular(24),
         child: BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          filter: ui.ImageFilter.blur(sigmaX: kGlassBlurSigma, sigmaY: kGlassBlurSigma),
           child: Container(
             height: 48,
             decoration: BoxDecoration(

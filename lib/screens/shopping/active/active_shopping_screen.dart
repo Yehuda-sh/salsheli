@@ -37,6 +37,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../../config/filters_config.dart';
 import '../../../core/status_colors.dart';
 import '../../../core/ui_constants.dart';
 import '../../../l10n/app_strings.dart';
@@ -54,7 +55,6 @@ import '../../../theme/app_theme.dart';
 import '../../../widgets/common/notebook_background.dart';
 import '../../../widgets/common/skeleton_loader.dart';
 import '../../../widgets/common/sticky_button.dart';
-import '../../../widgets/common/sticky_note.dart';
 import '../../home/dashboard/widgets/last_chance_banner.dart';
 
 class ActiveShoppingScreen extends StatefulWidget {
@@ -66,7 +66,7 @@ class ActiveShoppingScreen extends StatefulWidget {
   State<ActiveShoppingScreen> createState() => _ActiveShoppingScreenState();
 }
 
-class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with SingleTickerProviderStateMixin {
+class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
   // 📊 מצבי פריטים (item.id → status)
   final Map<String, ShoppingItemStatus> _itemStatuses = {};
 
@@ -101,10 +101,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
       });
 
       debugPrint('🔄 _initializeScreen: מתחיל טעינה');
-
-      // סימולציה של delay קל (במקרה הזה זה מיידי אבל מוכן לעתיד)
-      await Future.delayed(const Duration(milliseconds: 300));
-      if (!mounted) return;
 
       // אתחל את כל הפריטים כ-pending (או טען drafts אם קיימים)
       for (final item in widget.list.items) {
@@ -405,9 +401,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
     final brand = theme.extension<AppBrand>();
     final accent = brand?.accent ?? cs.primary;
 
-    // 🔐 Prevent build during saving
-    if (_isSaving && !mounted) return const SizedBox.shrink();
-
     // 🔄 Loading State
     if (_isLoading) {
       return Scaffold(
@@ -445,30 +438,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
     final completed = purchased + notNeeded;
     final total = widget.list.items.length;
 
-    // 🏷️ מיפוי קטגוריות לאימוג'י
-    final categoryEmojis = <String, String>{
-      'ירקות': '🥬',
-      'פירות': '🍎',
-      'ירקות ופירות': '🥬',
-      'בשר ודגים': '🍖',
-      'מוצרי חלב': '🥛',
-      'חלב וביצים': '🥛',
-      'מאפים': '🍞',
-      'לחמים': '🍞',
-      'לחם ומאפים': '🍞',
-      'שימורים': '🥫',
-      'קפואים': '❄️',
-      'מוצרי ניקיון': '🧽',
-      'חומרי ניקיון': '🧽',
-      'היגיינה אישית': '🚿',
-      'היגיינה': '🚿',
-      'קפה ותה': '☕',
-      'חטיפים': '🍿',
-      'משקאות': '🥤',
-      'תבלינים': '🧂',
-      'כללי': '📦',
-      'אחר': '📋',
-    };
 
     // קבץ לפי קטגוריה
     final productsProvider = context.watch<ProductsProvider>();
@@ -494,111 +463,91 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
             ),
-            actions: [
-              Semantics(
-                label: _isSaving ? 'שומר נתונים' : 'סיים קנייה',
-                button: true,
-                enabled: !_isSaving,
-                child: TextButton.icon(
-                  onPressed: _isSaving ? null : _finishShopping,
-                  icon: const Icon(Icons.check, color: Colors.white),
-                  label: Text(
-                    _isSaving ? AppStrings.shopping.activeSaving : AppStrings.shopping.activeFinish,
-                    style: TextStyle(color: _isSaving ? Colors.white.withValues(alpha: 0.5) : Colors.white),
-                  ),
-                ),
-              ),
-            ],
           ),
+          // 🏁 FAB - כפתור סיום קנייה
+          floatingActionButton: _isSaving
+              ? null
+              : FloatingActionButton.large(
+                  onPressed: _finishShopping,
+                  backgroundColor: StatusColors.success,
+                  child: const Icon(Icons.check, color: Colors.white, size: 36),
+                ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
           body: Column(
             children: [
-              // 📊 Header קומפקטי - סטטיסטיקות + מדריך בשורה אחת
-              Padding(
+              // 📊 Header קומפקטי - סטטיסטיקות (flat design)
+              Container(
                 padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
-                  decoration: BoxDecoration(
-                    color: kStickyYellow.withValues(alpha: 0.8),
-                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                decoration: BoxDecoration(
+                  color: kStickyYellow.withValues(alpha: kHighlightOpacity),
+                  border: const Border(
+                    bottom: BorderSide(color: Colors.black12),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      // ✅ קניתי
-                      _CompactStat(
-                        icon: Icons.check_circle,
-                        value: purchased,
-                        total: total,
-                        color: StatusColors.success,
-                      ),
-                      _buildDivider(),
-                      // 🚫 לא צריך
-                      _CompactStat(
-                        icon: Icons.block,
-                        value: notNeeded,
-                        color: Colors.grey,
-                      ),
-                      _buildDivider(),
-                      // 🛒 נותרו
-                      _CompactStat(
-                        icon: Icons.shopping_cart,
-                        value: total - completed,
-                        color: StatusColors.info,
-                        highlight: true,
-                      ),
-                    ],
-                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    // ✅ קניתי
+                    _CompactStat(
+                      icon: Icons.check_circle,
+                      value: purchased,
+                      total: total,
+                      color: StatusColors.success,
+                    ),
+                    _buildDivider(),
+                    // 🚫 לא צריך
+                    _CompactStat(
+                      icon: Icons.block,
+                      value: notNeeded,
+                      color: Colors.grey,
+                    ),
+                    _buildDivider(),
+                    // 🛒 נותרו
+                    _CompactStat(
+                      icon: Icons.shopping_cart,
+                      value: total - completed,
+                      color: StatusColors.info,
+                      highlight: true,
+                    ),
+                  ],
                 ),
               ),
 
-              // 📖 מדריך אייקונים
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingTiny),
-                  decoration: BoxDecoration(
-                    color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      // ✓ קניתי
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.check_circle, color: StatusColors.success, size: 20),
-                          const SizedBox(width: 4),
-                          Text('קניתי', style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant)),
-                        ],
-                      ),
-                      // 🛒❌ אין במלאי
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.remove_shopping_cart, color: StatusColors.error, size: 20),
-                          const SizedBox(width: 4),
-                          Text('אין במלאי', style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant)),
-                        ],
-                      ),
-                      // 🚫 לא צריך
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.block, color: Colors.grey, size: 20),
-                          const SizedBox(width: 4),
-                          Text('לא צריך', style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant)),
-                        ],
-                      ),
-                    ],
-                  ),
+              // 📖 מדריך אייקונים (flat design)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingTiny),
+                color: cs.surfaceContainerHighest.withValues(alpha: 0.2),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    // ✓ קניתי
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.check_circle, color: StatusColors.success, size: 18),
+                        const SizedBox(width: 4),
+                        Text('קניתי', style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant)),
+                      ],
+                    ),
+                    // 🛒❌ אין במלאי
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.remove_shopping_cart, color: StatusColors.error, size: 18),
+                        const SizedBox(width: 4),
+                        Text('אין במלאי', style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant)),
+                      ],
+                    ),
+                    // 🚫 לא צריך
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.block, color: Colors.grey, size: 18),
+                        const SizedBox(width: 4),
+                        Text('לא צריך', style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant)),
+                      ],
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: kSpacingSmall),
@@ -618,16 +567,57 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // כותרת קטגוריה - בתוך StickyNote עם אימוג'י
-                        StickyNote(
-                          color: kStickyCyan,
-                          rotation: 0.01,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingTiny),
-                            child: Text(
-                              '${categoryEmojis[category] ?? '📦'} $category',
-                              style: const TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold),
+                        // 📌 כותרת קטגוריה - Highlighter style
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.only(
+                            right: kSpacingMedium,
+                            top: kSpacingXTiny,
+                            bottom: kSpacingXTiny,
+                          ),
+                          decoration: BoxDecoration(
+                            color: kStickyCyan.withValues(alpha: kHighlightOpacity),
+                            border: const Border(
+                              right: BorderSide(color: Colors.black12, width: 4),
                             ),
+                          ),
+                          child: Row(
+                            children: [
+                              Text(
+                                getCategoryEmoji(hebrewCategoryToEnglish(category) ?? 'other'),
+                                style: const TextStyle(fontSize: kFontSizeLarge),
+                              ),
+                              const SizedBox(width: kSpacingSmall),
+                              Expanded(
+                                child: Text(
+                                  category,
+                                  style: const TextStyle(
+                                    fontSize: kFontSizeMedium,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ),
+                              // 🔢 מספר פריטים בקטגוריה
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: kSpacingSmall,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  '${items.length}',
+                                  style: const TextStyle(
+                                    fontSize: kFontSizeSmall,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(height: kSpacingSmall),
@@ -656,9 +646,12 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> with Single
           Container(
             color: Colors.black.withValues(alpha: 0.5),
             child: Center(
-              child: StickyNote(
+              child: Card(
                 color: kStickyYellow,
-                rotation: 0.01,
+                elevation: kCardElevation,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(kBorderRadius),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(kSpacingLarge),
                   child: Column(
@@ -924,7 +917,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
     }
 
     return Container(
-      height: kNotebookLineSpacing, // 40px = שורה אחת במחברת
+      height: kNotebookLineSpacing, // 48px = שורה אחת במחברת
       decoration: backgroundColor != null
           ? BoxDecoration(
               color: backgroundColor,
@@ -1009,7 +1002,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(width: kSpacingSmall),
+          const SizedBox(width: kSpacingXTiny),
 
           // ❌ כפתור "אין במלאי"
           GestureDetector(
@@ -1021,25 +1014,18 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                 onStatusChanged(ShoppingItemStatus.outOfStock);
               }
             },
-            child: Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: status == ShoppingItemStatus.outOfStock
-                    ? StatusColors.error
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Icon(
-                Icons.remove_shopping_cart,
-                size: 26,
-                color: status == ShoppingItemStatus.outOfStock
-                    ? Colors.white
-                    : StatusColors.error,
+            child: Icon(
+              status == ShoppingItemStatus.outOfStock
+                  ? Icons.remove_shopping_cart
+                  : Icons.remove_shopping_cart_outlined,
+              size: kIconSizeMedium,
+              color: StatusColors.error.withValues(
+                alpha: status == ShoppingItemStatus.outOfStock ? 1.0 : 0.6,
               ),
             ),
           ),
 
-          const SizedBox(width: kSpacingSmall),
+          const SizedBox(width: kSpacingXTiny),
 
           // 🚫 כפתור "לא צריך"
           GestureDetector(
@@ -1051,20 +1037,11 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                 onStatusChanged(ShoppingItemStatus.notNeeded);
               }
             },
-            child: Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: status == ShoppingItemStatus.notNeeded
-                    ? Colors.grey
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Icon(
-                Icons.block,
-                size: 26,
-                color: status == ShoppingItemStatus.notNeeded
-                    ? Colors.white
-                    : Colors.grey,
+            child: Icon(
+              Icons.block,
+              size: kIconSizeMedium,
+              color: Colors.grey.withValues(
+                alpha: status == ShoppingItemStatus.notNeeded ? 1.0 : 0.5,
               ),
             ),
           ),

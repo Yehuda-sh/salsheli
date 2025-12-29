@@ -804,13 +804,9 @@ class _GroupsShortcuts extends StatelessWidget {
                 runSpacing: 8,
                 children: [
                   ...groups.take(5).map((group) => _GroupChip(group: group)),
-                  // כפתור + ליצירת קבוצה חדשה
-                  ActionChip(
-                    avatar: const Icon(Icons.add, size: 16),
-                    label: const Text('חדש'),
-                    backgroundColor: Colors.white,
-                    side: BorderSide(color: Colors.grey[300]!),
-                    onPressed: () {
+                  // כפתור + ליצירת קבוצה חדשה (עיצוב מקווקו)
+                  _AddGroupButton(
+                    onTap: () {
                       HapticFeedback.lightImpact();
                       Navigator.pushNamed(context, '/create-group');
                     },
@@ -852,6 +848,108 @@ class _GroupChip extends StatelessWidget {
       },
     );
   }
+}
+
+// =============================================================================
+// 5.1 ADD GROUP BUTTON - כפתור הוספת קבוצה עם גבול מקווקו
+// =============================================================================
+
+class _AddGroupButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _AddGroupButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: CustomPaint(
+        painter: _DashedBorderPainter(
+          color: cs.primary.withValues(alpha: 0.5),
+          strokeWidth: 1.5,
+          dashWidth: 4,
+          dashSpace: 3,
+          borderRadius: 20,
+        ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.add, size: 16, color: cs.primary),
+              const SizedBox(width: 4),
+              Text(
+                'חדש',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: cs.primary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Painter לציור גבול מקווקו
+class _DashedBorderPainter extends CustomPainter {
+  final Color color;
+  final double strokeWidth;
+  final double dashWidth;
+  final double dashSpace;
+  final double borderRadius;
+
+  _DashedBorderPainter({
+    required this.color,
+    required this.strokeWidth,
+    required this.dashWidth,
+    required this.dashSpace,
+    required this.borderRadius,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke;
+
+    final path = Path()
+      ..addRRect(RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, 0, size.width, size.height),
+        Radius.circular(borderRadius),
+      ));
+
+    // ציור הגבול המקווקו
+    final dashPath = _createDashedPath(path);
+    canvas.drawPath(dashPath, paint);
+  }
+
+  Path _createDashedPath(Path source) {
+    final dashedPath = Path();
+    for (final metric in source.computeMetrics()) {
+      double distance = 0;
+      while (distance < metric.length) {
+        final start = distance;
+        final end = (distance + dashWidth).clamp(0, metric.length);
+        dashedPath.addPath(
+          metric.extractPath(start, end.toDouble()),
+          Offset.zero,
+        );
+        distance += dashWidth + dashSpace;
+      }
+    }
+    return dashedPath;
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 // =============================================================================

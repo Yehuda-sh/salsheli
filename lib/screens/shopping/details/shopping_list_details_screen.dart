@@ -60,19 +60,130 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   String _searchQuery = '';
   String? _selectedCategory; // קטגוריה נבחרת לסינון
 
-  // 🏷️ קטגוריות עם אימוג'י
-  Map<String, String> get _categoryEmojis => {
-    AppStrings.listDetails.categoryAll: '📦',
-    AppStrings.listDetails.categoryVegetables: '🥬',
-    AppStrings.listDetails.categoryMeat: '🍖',
-    AppStrings.listDetails.categoryDairy: '🥛',
-    AppStrings.listDetails.categoryBakery: '🍞',
-    AppStrings.listDetails.categoryCanned: '🥫',
-    AppStrings.listDetails.categoryFrozen: '❄️',
-    AppStrings.listDetails.categoryCleaning: '🧽',
-    AppStrings.listDetails.categoryHygiene: '🚿',
-    AppStrings.listDetails.categoryOther: '📋',
-  };
+  // 🏷️ קטגוריות דינמיות - נגזרות מהפריטים ברשימה
+  List<String> get _availableCategories {
+    final categories = widget.list.items
+        .map((item) => item.category)
+        .where((c) => c != null && c.isNotEmpty)
+        .cast<String>()
+        .toSet()
+        .toList();
+    categories.sort();
+    return categories;
+  }
+
+  /// 🎯 אימוג'י לפי קטגוריה - תואם לקטלוג המוצרים
+  String _getCategoryEmoji(String category) {
+    // אטליז
+    if (widget.list.type == ShoppingList.typeButcher) {
+      switch (category) {
+        case 'בקר':
+          return '🐄';
+        case 'עוף':
+          return '🐔';
+        case 'דגים':
+          return '🐟';
+        case 'טלה וכבש':
+          return '🐑';
+        case 'הודו':
+          return '🦃';
+        default:
+          return '🌭';
+      }
+    }
+
+    // סופרמרקט - כל הקטגוריות
+    switch (category) {
+      // פירות וירקות
+      case 'פירות':
+        return '🍎';
+      case 'ירקות':
+        return '🥬';
+      case 'פירות יבשים':
+        return '🥜';
+
+      // מוצרי חלב וביצים
+      case 'מוצרי חלב':
+        return '🥛';
+      case 'תחליפי חלב':
+        return '🌱';
+
+      // בשר ודגים
+      case 'בשר ודגים':
+        return '🥩';
+      case 'תחליפי בשר':
+        return '🌿';
+
+      // לחם ומאפים
+      case 'מאפים':
+        return '🥖';
+
+      // דגנים ופסטה
+      case 'אורז ופסטה':
+        return '🍝';
+      case 'דגנים':
+        return '🥣';
+      case 'קטניות ודגנים':
+        return '🫘';
+
+      // ממתקים וחטיפים
+      case 'ממתקים וחטיפים':
+        return '🍫';
+      case 'ממרחים מתוקים':
+        return '🍯';
+      case 'אגוזים וגרעינים':
+        return '🥜';
+
+      // משקאות
+      case 'משקאות':
+        return '🥤';
+      case 'קפה ותה':
+        return '☕';
+
+      // שימורים ורטבים
+      case 'שימורים':
+        return '🥫';
+      case 'שמנים ורטבים':
+        return '🫒';
+      case 'סלטים מוכנים':
+        return '🥗';
+
+      // תבלינים ואפייה
+      case 'תבלינים ואפייה':
+        return '🧂';
+
+      // קפואים
+      case 'קפואים':
+        return '🧊';
+
+      // ניקיון ובית
+      case 'מוצרי ניקיון':
+        return '🧹';
+      case 'מוצרי בית':
+        return '🏠';
+      case 'חד פעמי':
+        return '🍽️';
+      case 'מוצרי גינה':
+        return '🌻';
+
+      // היגיינה וטיפוח
+      case 'היגיינה אישית':
+        return '🧴';
+
+      // תינוקות וחיות
+      case 'מוצרי תינוקות':
+        return '👶';
+      case 'מזון לחיות מחמד':
+        return '🐕';
+
+      // אחר
+      case 'אחר':
+        return '📦';
+
+      default:
+        return '🛒';
+    }
+  }
 
   // 🎬 Animation Controllers
   late AnimationController _fabController;
@@ -348,7 +459,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     );
   }
 
-  /// 🔍 סינון פריטים
+  /// 🔍 סינון פריטים - דינמי לפי קטגוריות הפריטים בפועל
   List<UnifiedListItem> _getFilteredAndSortedItems(List<UnifiedListItem> items) {
     final filtered = items.where((item) {
       // סינון לפי חיפוש
@@ -358,18 +469,17 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
         if (!name.contains(query)) return false;
       }
 
-      // סינון לפי קטגוריה
+      // סינון לפי קטגוריה (דינמי - השוואה ישירה)
       if (_selectedCategory != null && _selectedCategory != AppStrings.listDetails.categoryAll) {
         final itemCategory = item.category;
 
-        // מוצרים ללא קטגוריה - מופיעים רק ב"אחר"
+        // מוצרים ללא קטגוריה - לא מתאימים לאף קטגוריה ספציפית
         if (itemCategory == null || itemCategory.isEmpty) {
-          return _selectedCategory == AppStrings.listDetails.categoryOther;
+          return false;
         }
 
-        // מיפוי בין קטגוריות UI לקטגוריות המוצרים
-        final matches = _categoryMatches(_selectedCategory!, itemCategory);
-        if (!matches) {
+        // השוואה ישירה - הקטגוריות עכשיו דינמיות ותואמות את המוצרים
+        if (itemCategory != _selectedCategory) {
           return false;
         }
       }
@@ -379,57 +489,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
     debugPrint('🔍 סינון: ${items.length} → ${filtered.length} פריטים (קטגוריה: "$_selectedCategory")');
     return filtered;
-  }
-
-  /// בדיקה אם קטגוריית מוצר תואמת לקטגוריית UI
-  bool _categoryMatches(String uiCategory, String itemCategory) {
-    // "ירקות ופירות" תואם גם "ירקות" וגם "פירות"
-    if (uiCategory == AppStrings.listDetails.categoryVegetables) {
-      return itemCategory == 'ירקות' || itemCategory == 'פירות';
-    }
-
-    // "בשר ודגים" תואם "בשר ודגים"
-    if (uiCategory == AppStrings.listDetails.categoryMeat) {
-      return itemCategory == 'בשר ודגים';
-    }
-
-    // "חלב וביצים" תואם "מוצרי חלב" או "חלב וביצים"
-    if (uiCategory == AppStrings.listDetails.categoryDairy) {
-      return itemCategory == 'מוצרי חלב' || itemCategory == 'חלב וביצים';
-    }
-
-    // "לחם ומאפים" תואם "מאפים" או "לחמים" או "לחם ומאפים"
-    if (uiCategory == AppStrings.listDetails.categoryBakery) {
-      return itemCategory == 'מאפים' || itemCategory == 'לחמים' || itemCategory == 'לחם ומאפים';
-    }
-
-    // "שימורים" תואם "שימורים"
-    if (uiCategory == AppStrings.listDetails.categoryCanned) {
-      return itemCategory == 'שימורים';
-    }
-
-    // "קפואים" תואם "קפואים"
-    if (uiCategory == AppStrings.listDetails.categoryFrozen) {
-      return itemCategory == 'קפואים';
-    }
-
-    // "ניקיון" תואם "מוצרי ניקיון" או "חומרי ניקיון"
-    if (uiCategory == AppStrings.listDetails.categoryCleaning) {
-      return itemCategory == 'מוצרי ניקיון' || itemCategory == 'חומרי ניקיון';
-    }
-
-    // "היגיינה" תואם "היגיינה אישית" או "היגיינה"
-    if (uiCategory == AppStrings.listDetails.categoryHygiene) {
-      return itemCategory == 'היגיינה אישית' || itemCategory == 'היגיינה';
-    }
-
-    // "אחר" תואם "אחר"
-    if (uiCategory == AppStrings.listDetails.categoryOther) {
-      return itemCategory == 'אחר';
-    }
-
-    // התאמה מדויקת אם לא נמצא מיפוי
-    return uiCategory == itemCategory;
   }
 
   /// 🏷️ קיבוץ לפי קטגוריה (מתוקן - מונע כותרות ריקות)
@@ -680,7 +739,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
           child: ClipRRect(
             borderRadius: BorderRadius.circular(24),
             child: BackdropFilter(
-              filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10), // טשטוש הרקע
+              filter: ui.ImageFilter.blur(sigmaX: kGlassBlurSigma, sigmaY: kGlassBlurSigma), // טשטוש הרקע
               child: Container(
                 height: 48, // גובה קבוע וקטן יותר
                 decoration: BoxDecoration(
@@ -720,7 +779,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
         ),
 
         // 2. רשימת קטגוריות נגללת אופקית (כמו ב-YouTube/Spotify)
-        if (widget.list.type == ShoppingList.typeSupermarket)
+        // מוצג לכל סוגי הרשימות (סופרמרקט, אטליז וכו') - רק אם יש קטגוריות
+        if (_availableCategories.isNotEmpty)
           SizedBox(
             height: 40, // גובה קבוע לשורת הקטגוריות
             child: ListView(
@@ -736,10 +796,20 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     );
   }
 
-  /// 🏷️ יצירת צ'יפים של קטגוריות (לגלילה אופקית)
+  /// 🏷️ יצירת צ'יפים של קטגוריות (לגלילה אופקית) - דינמי!
   List<Widget> _buildCategoryChipsCompact() {
-    return _categoryEmojis.entries.map((entry) {
-      final isSelected = _selectedCategory == entry.key || (_selectedCategory == null && entry.key == AppStrings.listDetails.categoryAll);
+    final categories = _availableCategories;
+
+    // אם אין קטגוריות, לא מציגים כלום
+    if (categories.isEmpty) return [];
+
+    // יוצרים רשימה עם "הכל" בהתחלה + כל הקטגוריות
+    final allCategories = [AppStrings.listDetails.categoryAll, ...categories];
+
+    return allCategories.map((category) {
+      final isAll = category == AppStrings.listDetails.categoryAll;
+      final isSelected = _selectedCategory == category || (_selectedCategory == null && isAll);
+      final emoji = isAll ? '📦' : _getCategoryEmoji(category);
 
       return Padding(
         padding: const EdgeInsets.only(left: 8.0), // ריווח בין צ'יפים
@@ -749,7 +819,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
           child: FilterChip(
             showCheckmark: false, // חוסך מקום
             label: Text(
-              '${entry.value} ${entry.key}',
+              '$emoji $category',
               style: TextStyle(
                 fontSize: 13,
                 color: isSelected ? Colors.black : Colors.black87,
@@ -759,7 +829,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
             selected: isSelected,
             onSelected: (selected) {
               setState(() {
-                _selectedCategory = entry.key == AppStrings.listDetails.categoryAll ? null : entry.key;
+                _selectedCategory = isAll ? null : category;
               });
             },
             backgroundColor: Colors.white.withValues(alpha: 0.8),
@@ -866,7 +936,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                     const SizedBox(width: kNotebookRedLineOffset),
 
                     Text(
-                      '${_categoryEmojis[category] ?? ''} $category',
+                      '${_getCategoryEmoji(category)} $category',
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Colors.black87,

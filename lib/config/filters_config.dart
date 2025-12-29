@@ -21,16 +21,21 @@ const Map<String, CategoryInfo> kCategoryInfo = {
   // === כללי ===
   'all': CategoryInfo('הכל', '📋'),
   'other': CategoryInfo('אחר', '📦'),
+  'general': CategoryInfo('כללי', '📦'),
 
   // === מזון בסיסי ===
   'dairy': CategoryInfo('מוצרי חלב', '🥛'),
+  'dairy_eggs': CategoryInfo('חלב וביצים', '🥛'),
   'vegetables': CategoryInfo('ירקות', '🥬'),
   'fruits': CategoryInfo('פירות', '🍎'),
+  'vegetables_fruits': CategoryInfo('ירקות ופירות', '🥬'),
   'meat_fish': CategoryInfo('בשר ודגים', '🥩'),
   'rice_pasta': CategoryInfo('אורז ופסטה', '🍝'),
   'spices_baking': CategoryInfo('תבלינים ואפייה', '🧂'),
+  'spices': CategoryInfo('תבלינים', '🧂'),
   'coffee_tea': CategoryInfo('קפה ותה', '☕'),
   'sweets_snacks': CategoryInfo('ממתקים וחטיפים', '🍬'),
+  'snacks': CategoryInfo('חטיפים', '🍿'),
 
   // === בשר מפורט ===
   'beef': CategoryInfo('בקר', '🥩'),
@@ -42,6 +47,8 @@ const Map<String, CategoryInfo> kCategoryInfo = {
 
   // === מאפים ולחם ===
   'bakery': CategoryInfo('מאפים', '🥖'),
+  'bread': CategoryInfo('לחמים', '🍞'),
+  'bread_bakery': CategoryInfo('לחם ומאפים', '🍞'),
   'cookies_sweets': CategoryInfo('עוגיות ומתוקים', '🍪'),
   'cakes': CategoryInfo('עוגות', '🎂'),
 
@@ -64,12 +71,14 @@ const Map<String, CategoryInfo> kCategoryInfo = {
 
   // === היגיינה וטיפוח ===
   'personal_hygiene': CategoryInfo('היגיינה אישית', '🧴'),
+  'hygiene': CategoryInfo('היגיינה', '🚿'),
   'oral_care': CategoryInfo('טיפוח הפה', '🦷'),
   'cosmetics': CategoryInfo('קוסמטיקה וטיפוח', '💄'),
   'feminine_hygiene': CategoryInfo('היגיינה נשית', '🌸'),
 
   // === בית וניקיון ===
   'cleaning': CategoryInfo('מוצרי ניקיון', '🧹'),
+  'cleaning_supplies': CategoryInfo('חומרי ניקיון', '🧽'),
   'home_products': CategoryInfo('מוצרי בית', '🏠'),
   'disposable': CategoryInfo('חד פעמי', '🥤'),
   'garden': CategoryInfo('מוצרי גינה', '🌱'),

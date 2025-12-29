@@ -132,7 +132,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     // Validation
     if (!_formKey.currentState!.validate()) {
       debugPrint('❌ _handleRegister() | Form validation failed');
-      _shakeController.forward(from: 0); // 🎬 Shake animation
+      unawaited(_shakeController.forward(from: 0)); // 🎬 Shake animation
       return;
     }
 
@@ -260,8 +260,8 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
 
       if (mounted) {
         setState(() => _isLoading = false);
-        _shakeController.forward(from: 0); // 🎬 Shake animation
-        
+        unawaited(_shakeController.forward(from: 0)); // 🎬 Shake animation
+
         // 🎨 הודעת שגיאה משופרת
         scaffoldMessenger.showSnackBar(
           SnackBar(
@@ -357,19 +357,20 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     final accent = brand?.accent ?? cs.primary;
 
     // 🔒 חזרה ל-login במקום welcome
-    return PopScope(
-      canPop: true,
-      onPopInvokedWithResult: (didPop, result) {
-        if (didPop) {
-          // נווט ל-login במקום ל-welcome
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (context.mounted) {
-              Navigator.pushReplacementNamed(context, '/login');
-            }
-          });
-        }
-      },
-      child: Scaffold(
+    return Directionality(
+      textDirection: TextDirection.rtl, // 🔄 תמיכה מלאה ב-RTL
+      child: PopScope(
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) {
+            // נווט ל-login במקום ל-welcome
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (context.mounted) {
+                Navigator.pushReplacementNamed(context, '/login');
+              }
+            });
+          }
+        },
+        child: Scaffold(
         backgroundColor: kPaperBackground, // 🎨 צבע רקע מחברת
         body: Stack(
           children: [
@@ -599,6 +600,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
           ],
         ),
       ),
+    ),
     );
   }
 }

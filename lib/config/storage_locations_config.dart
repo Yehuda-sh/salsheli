@@ -178,8 +178,6 @@ class StorageLocationsConfig {
   /// }
   /// ```
   static List<LocationInfo> getAllLocationInfo() {
-    return allLocations
-        .map((id) => getLocationInfo(id))
-        .toList();
+    return allLocations.map(getLocationInfo).toList();
   }
 }

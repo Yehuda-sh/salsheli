@@ -26,7 +26,8 @@
       "Bash(dart pub get:*)",
       "Bash(dart --version:*)",
       "Bash(dart analyze:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(dart format:*)"
     ],
     "deny": [],
     "ask": []

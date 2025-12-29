@@ -75,7 +75,7 @@ class StoresConfig {
   }
 
   /// Get category for a store
-  /// 
+  ///
   /// Returns null if store not found
   static StoreCategory? getCategory(String store) {
     if (supermarkets.contains(store)) return StoreCategory.supermarket;
@@ -83,41 +83,5 @@ class StoresConfig {
     if (pharmacies.contains(store)) return StoreCategory.pharmacy;
     if (liquorStores.contains(store)) return StoreCategory.liquorStore;
     return null;
-  }
-
-  /// Get category display name (Hebrew)
-  static String getCategoryDisplayName(StoreCategory category) {
-    switch (category) {
-      case StoreCategory.supermarket:
-        return 'סופרמרקט';
-      case StoreCategory.minimarket:
-        return 'מינימרקט';
-      case StoreCategory.pharmacy:
-        return 'בית מרקחת';
-      case StoreCategory.liquorStore:
-        return 'חנות משקאות';
-    }
-  }
-
-  /// Get stores by category
-  static List<String> getStoresByCategory(StoreCategory category) {
-    switch (category) {
-      case StoreCategory.supermarket:
-        return supermarkets;
-      case StoreCategory.minimarket:
-        return minimarkets;
-      case StoreCategory.pharmacy:
-        return pharmacies;
-      case StoreCategory.liquorStore:
-        return liquorStores;
-    }
-  }
-
-  /// Get store display name (for UI)
-  /// 
-  /// Currently returns the same name, but can be extended
-  /// to add icons, format, or translate to English
-  static String getDisplayName(String store) {
-    return store;
   }
 }

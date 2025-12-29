@@ -82,6 +82,10 @@ const double kNotebookRedLineOpacity = 0.4;      // Opacity for red line
 const double kNotebookRedLineWidth = 2.0;        // Width of red line
 const double kNotebookRedLineOffset = 60.0;      // Offset of red line from left
 
+// Glass/Blur Effect Properties
+const double kGlassBlurSigma = 10.0;             // Blur sigma for frosted glass effect
+const double kHighlightOpacity = 0.3;            // Opacity for highlighter effect on headers
+
 // ═══════════════════════════════════════════════════════════════════════════
 // COLORS - Backgrounds
 // ═══════════════════════════════════════════════════════════════════════════
@@ -140,6 +144,12 @@ const Duration kDoubleTapTimeout = Duration(seconds: 2);      // Double-tap dete
 
 const double kSnackBarBottomMargin = 80.0;      // Bottom margin (above nav bar)
 const double kSnackBarHorizontalMargin = 16.0;  // Left & right margins
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FAB MARGINS
+// ═══════════════════════════════════════════════════════════════════════════
+
+const double kFabMargin = 16.0;                 // FAB margin from edges
 
 // ═══════════════════════════════════════════════════════════════════════════
 // INPUT PADDING

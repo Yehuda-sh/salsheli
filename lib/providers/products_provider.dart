@@ -476,9 +476,11 @@ class ProductsProvider with ChangeNotifier {
   }
 
   // === Get Product by Name (sync) ===
-  /// חיפוש מוצר לפי שם (מחזיר את ההתאמה הראשונה)
+  /// חיפוש מוצר לפי שם (מחזיר את ההתאמה הטובה ביותר)
   ///
-  /// מחפש התאמה מדויקת, ואם לא מוצא - מחפש התאמה חלקית.
+  /// סדר עדיפויות:
+  /// 1. התאמה מדויקת (שם זהה)
+  /// 2. התאמה חלקית - מתעדף את השם הקצר ביותר שמכיל את החיפוש
   ///
   /// Returns: Map עם נתוני המוצר או null אם לא נמצא
   Map<String, dynamic>? getByName(String name) {
@@ -495,10 +497,19 @@ class ProductsProvider with ChangeNotifier {
       return exact;
     }
 
-    // 2. נסה התאמה חלקית
-    return _products
+    // 2. נסה התאמה חלקית - תעדף את השם הקצר ביותר
+    // (למנוע מצב שבו "בננה" מתאים ל"מחית בננה לתינוקות" במקום ל"בננה")
+    final partialMatches = _products
         .where((p) => (p['name'] as String).toLowerCase().contains(lowerName))
-        .firstOrNull;
+        .toList();
+
+    if (partialMatches.isEmpty) return null;
+
+    // מיין לפי אורך השם - הקצר ביותר קודם
+    partialMatches.sort((a, b) =>
+        (a['name'] as String).length.compareTo((b['name'] as String).length));
+
+    return partialMatches.first;
   }
 
   // === Search Products (async) ===

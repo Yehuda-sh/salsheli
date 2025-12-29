@@ -1144,6 +1144,14 @@ class _InventoryStrings {
 
   // Location Field
   String get locationLabel => 'מיקום';
+  String get addLocationButton => 'הוסף';
+  String get addLocationTitle => 'הוספת מיקום חדש';
+  String get locationNameLabel => 'שם המיקום';
+  String get locationNameHint => 'לדוגמה: "מקרר קטן"';
+  String get selectEmojiLabel => 'בחר אמוג\'י:';
+  String get locationAdded => 'מיקום חדש נוסף בהצלחה! 📍';
+  String get locationExists => 'מיקום זה כבר קיים';
+  String get locationNameRequired => 'נא להזין שם מיקום';
 
   // ========================================
   // Filters (PantryFilters widget)
