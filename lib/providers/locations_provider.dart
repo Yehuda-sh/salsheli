@@ -100,7 +100,9 @@ class LocationsProvider with ChangeNotifier {
     _userContext = newContext;
     _userContext!.addListener(_onUserChanged);
     _listening = true;
-    _initialize();
+
+    // ⚠️ חייב להיות ב-microtask כי updateUserContext נקרא מ-ProxyProvider במהלך build
+    Future.microtask(_initialize);
   }
 
   void _onUserChanged() {
@@ -223,13 +225,8 @@ class LocationsProvider with ChangeNotifier {
       return false;
     }
 
-    // בדיקת תווים לא חוקיים
-    final invalidChars = RegExp(r'[/\\:*?"<>|]');
-    if (invalidChars.hasMatch(name)) {
-      return false;
-    }
-
     // יצירת key ייחודי: "מקפיא נוסף" → "מקפיא_נוסף"
+    // הערה: לא מגבילים תווים - _normalizeKey יוצר key בטוח לשימוש ב-Firestore
     final key = _normalizeKey(name);
 
     // בדיקה אם קיים

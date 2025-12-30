@@ -502,6 +502,10 @@ class UserContext with ChangeNotifier {
     _errorMessage = null;
 
     try {
+      // 🔒 קודם כל מתנתקים מ-Firebase - אם זה נכשל, לא מנקים state מקומי
+      await _authService.signOut();
+
+      // רק אחרי הצלחת ההתנתקות - מנקים נתונים מקומיים
       final prefs = await SharedPreferences.getInstance();
       final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
 
@@ -516,8 +520,6 @@ class UserContext with ChangeNotifier {
       _isLoading = false;
       _hasAuthButNoProfile = false;
       _resetPreferences();
-
-      await _authService.signOut();
 
       debugPrint('✅ UserContext.signOut: הושלם בהצלחה');
     } catch (e) {
@@ -536,6 +538,10 @@ class UserContext with ChangeNotifier {
     _errorMessage = null;
 
     try {
+      // 🔒 קודם כל מתנתקים מ-Firebase - אם זה נכשל, לא מנקים state מקומי
+      await _authService.signOut();
+
+      // רק אחרי הצלחת ההתנתקות - מנקים נתונים מקומיים
       final prefs = await SharedPreferences.getInstance();
       await prefs.clear();
 
@@ -544,8 +550,6 @@ class UserContext with ChangeNotifier {
       _isLoading = false;
       _hasAuthButNoProfile = false;
       _resetPreferences();
-
-      await _authService.signOut();
 
       debugPrint('🎉 UserContext.signOutAndClearAllData: הושלם בהצלחה!');
     } catch (e) {
@@ -617,12 +621,19 @@ class UserContext with ChangeNotifier {
   Future<void> retry() async {
     if (_isDisposed) return;
 
+    // 🔄 חיווי טעינה למשתמש
+    _isLoading = true;
     _errorMessage = null;
     _notifySafe();
 
-    final currentUser = _authService.currentUser;
-    if (currentUser != null) {
-      await _loadUserFromFirestore(currentUser.uid);
+    try {
+      final currentUser = _authService.currentUser;
+      if (currentUser != null) {
+        await _loadUserFromFirestore(currentUser.uid);
+      }
+    } finally {
+      _isLoading = false;
+      _notifySafe();
     }
   }
 

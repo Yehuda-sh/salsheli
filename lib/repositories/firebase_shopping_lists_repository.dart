@@ -102,6 +102,8 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
 
     return snapshot.docs.map((doc) {
       final data = Map<String, dynamic>.from(doc.data());
+      // 🔧 הוסף את ה-id מהמסמך אם לא קיים
+      data['id'] ??= doc.id;
       // וודא שהרשימה מסומנת כפרטית
       data[FirestoreFields.isPrivate] = true;
       return ShoppingList.fromJson(data);
@@ -116,6 +118,8 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
 
     return snapshot.docs.map((doc) {
       final data = Map<String, dynamic>.from(doc.data());
+      // 🔧 הוסף את ה-id מהמסמך אם לא קיים
+      data['id'] ??= doc.id;
       // וודא שהרשימה מסומנת כמשותפת
       data[FirestoreFields.isPrivate] = false;
       return ShoppingList.fromJson(data);
@@ -233,19 +237,32 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
 
       // 2. עדכן את הדגלים
       data[FirestoreFields.isPrivate] = false;
-      data[FirestoreFields.updatedDate] = FieldValue.serverTimestamp();
+      // 🔧 שימוש ב-Timestamp לעקביות עם שאר המסמכים (לא String!)
+      data[FirestoreFields.updatedDate] = Timestamp.now();
 
-      // 3. שמור ב-shared_lists
-      await _sharedListsCollection(householdId).doc(listId).set(data);
+      // 3. 🔧 WriteBatch - אטומי! שתי הפעולות יצליחו או ייכשלו יחד
+      final batch = _firestore.batch();
 
-      // 4. מחק מ-private_lists
-      await _privateListsCollection(userId).doc(listId).delete();
+      // שמור ב-shared_lists
+      batch.set(_sharedListsCollection(householdId).doc(listId), data);
 
-      debugPrint('✅ רשימה הועברה בהצלחה מפרטית למשותפת');
+      // מחק מ-private_lists
+      batch.delete(_privateListsCollection(userId).doc(listId));
 
-      // החזר את הרשימה המעודכנת
-      data[FirestoreFields.isPrivate] = false;
-      return ShoppingList.fromJson(data);
+      // ביצוע אטומי
+      await batch.commit();
+
+      debugPrint('✅ רשימה הועברה בהצלחה מפרטית למשותפת (atomic batch)');
+
+      // 🔧 קרא מחדש את המסמך כדי לקבל את הנתונים הסופיים
+      final savedDoc = await _sharedListsCollection(householdId).doc(listId).get();
+      if (!savedDoc.exists) {
+        throw ShoppingListRepositoryException('List not found after transfer', null);
+      }
+      final savedData = Map<String, dynamic>.from(savedDoc.data()!);
+      savedData['id'] ??= savedDoc.id;
+      savedData[FirestoreFields.isPrivate] = false;
+      return ShoppingList.fromJson(savedData);
     } catch (e, stackTrace) {
       debugPrint('❌ FirebaseShoppingListsRepository.shareListToHousehold: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
@@ -373,17 +390,37 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
 
       final docRef = _sharedListsCollection(householdId).doc(listId);
 
-      await docRef.update({
-        '${FirestoreFields.sharedUsers}.$newOwnerId': FieldValue.delete(),
-        '${FirestoreFields.sharedUsers}.$currentOwnerId': {
-          FirestoreFields.role: 'admin',
-          'shared_at': FieldValue.serverTimestamp(),
-        },
-        FirestoreFields.createdBy: newOwnerId,
-        FirestoreFields.updatedDate: FieldValue.serverTimestamp(),
+      // 🔧 Transaction - מבטיח עקביות ומונע race conditions
+      await _firestore.runTransaction((transaction) async {
+        final doc = await transaction.get(docRef);
+
+        if (!doc.exists) {
+          throw ShoppingListRepositoryException('List not found', null);
+        }
+
+        // 🔧 לוגיקה נכונה:
+        // - הבעלים החדש הופך ל-owner (לא נמחק!)
+        // - הבעלים הישן הופך ל-admin
+        // - ownerId מתעדכן לבעלים החדש (שדה מפורש לבעלות)
+        transaction.update(docRef, {
+          // הבעלים החדש הופך ל-owner
+          '${FirestoreFields.sharedUsers}.$newOwnerId': {
+            FirestoreFields.role: 'owner',
+            'shared_at': Timestamp.now(),
+          },
+          // הבעלים הישן הופך ל-admin (נשאר ברשימה)
+          '${FirestoreFields.sharedUsers}.$currentOwnerId': {
+            FirestoreFields.role: 'admin',
+            'shared_at': Timestamp.now(),
+          },
+          // 🔧 שדה מפורש לבעלות - מקור אמת ברור
+          FirestoreFields.ownerId: newOwnerId,
+          // createdBy נשאר כמו שהיה (מי יצר את הרשימה במקור)
+          FirestoreFields.updatedDate: FieldValue.serverTimestamp(),
+        });
       });
 
-      debugPrint('✅ בעלות הועברה בהצלחה');
+      debugPrint('✅ בעלות הועברה בהצלחה (transaction)');
     } catch (e, stackTrace) {
       debugPrint('❌ FirebaseShoppingListsRepository.transferOwnership: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
@@ -418,12 +455,14 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
 
       final requestId = '${DateTime.now().millisecondsSinceEpoch}_$requesterId';
 
+      // 🔧 שימוש ב-Timestamp.now() במקום FieldValue.serverTimestamp() בתוך array
+      // FieldValue לא תמיד עובד טוב בתוך מערכים/אובייקטים מקוננים
       final request = {
         'id': requestId,
         'requester_id': requesterId,
         FirestoreFields.type: type,
         FirestoreFields.status: 'pending',
-        'created_at': FieldValue.serverTimestamp(),
+        'created_at': Timestamp.now(),
         'request_data': requestData,
         if (requesterName != null) 'requester_name': requesterName,
       };
@@ -459,38 +498,48 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
       );
 
       final docRef = _sharedListsCollection(householdId).doc(listId);
-      final doc = await docRef.get();
 
-      if (!doc.exists) {
-        throw ShoppingListRepositoryException('List not found', null);
-      }
+      // 🔧 Transaction - מונע race conditions כששני אנשים מאשרים/דוחים במקביל
+      await _firestore.runTransaction((transaction) async {
+        final doc = await transaction.get(docRef);
 
-      final data = doc.data()!;
-      final pendingRequests = List<Map<String, dynamic>>.from(
-        data[FirestoreFields.pendingRequests] ?? [],
-      );
+        if (!doc.exists) {
+          throw ShoppingListRepositoryException('List not found', null);
+        }
 
-      final requestIndex = pendingRequests.indexWhere(
-        (req) => req['id'] == requestId,
-      );
+        final data = doc.data()!;
+        final pendingRequests = List<Map<String, dynamic>>.from(
+          data[FirestoreFields.pendingRequests] ?? [],
+        );
 
-      if (requestIndex == -1) {
-        throw ShoppingListRepositoryException('Request not found', null);
-      }
+        final requestIndex = pendingRequests.indexWhere(
+          (req) => req['id'] == requestId,
+        );
 
-      pendingRequests[requestIndex][FirestoreFields.status] = 'approved';
-      pendingRequests[requestIndex]['reviewer_id'] = reviewerId;
-      pendingRequests[requestIndex]['reviewed_at'] = FieldValue.serverTimestamp();
-      if (reviewerName != null) {
-        pendingRequests[requestIndex]['reviewer_name'] = reviewerName;
-      }
+        if (requestIndex == -1) {
+          throw ShoppingListRepositoryException('Request not found', null);
+        }
 
-      await docRef.update({
-        FirestoreFields.pendingRequests: pendingRequests,
-        FirestoreFields.updatedDate: FieldValue.serverTimestamp(),
+        // בדוק שהבקשה עדיין pending (לא טופלה כבר)
+        if (pendingRequests[requestIndex][FirestoreFields.status] != 'pending') {
+          throw ShoppingListRepositoryException('Request already processed', null);
+        }
+
+        // 🔧 שימוש ב-Timestamp.now() לעקביות עם created_at
+        pendingRequests[requestIndex][FirestoreFields.status] = 'approved';
+        pendingRequests[requestIndex]['reviewer_id'] = reviewerId;
+        pendingRequests[requestIndex]['reviewed_at'] = Timestamp.now();
+        if (reviewerName != null) {
+          pendingRequests[requestIndex]['reviewer_name'] = reviewerName;
+        }
+
+        transaction.update(docRef, {
+          FirestoreFields.pendingRequests: pendingRequests,
+          FirestoreFields.updatedDate: FieldValue.serverTimestamp(),
+        });
       });
 
-      debugPrint('✅ בקשה אושרה בהצלחה');
+      debugPrint('✅ בקשה אושרה בהצלחה (transaction)');
     } catch (e, stackTrace) {
       debugPrint('❌ FirebaseShoppingListsRepository.approveRequest: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
@@ -516,39 +565,49 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
       );
 
       final docRef = _sharedListsCollection(householdId).doc(listId);
-      final doc = await docRef.get();
 
-      if (!doc.exists) {
-        throw ShoppingListRepositoryException('List not found', null);
-      }
+      // 🔧 Transaction - מונע race conditions כששני אנשים מאשרים/דוחים במקביל
+      await _firestore.runTransaction((transaction) async {
+        final doc = await transaction.get(docRef);
 
-      final data = doc.data()!;
-      final pendingRequests = List<Map<String, dynamic>>.from(
-        data[FirestoreFields.pendingRequests] ?? [],
-      );
+        if (!doc.exists) {
+          throw ShoppingListRepositoryException('List not found', null);
+        }
 
-      final requestIndex = pendingRequests.indexWhere(
-        (req) => req['id'] == requestId,
-      );
+        final data = doc.data()!;
+        final pendingRequests = List<Map<String, dynamic>>.from(
+          data[FirestoreFields.pendingRequests] ?? [],
+        );
 
-      if (requestIndex == -1) {
-        throw ShoppingListRepositoryException('Request not found', null);
-      }
+        final requestIndex = pendingRequests.indexWhere(
+          (req) => req['id'] == requestId,
+        );
 
-      pendingRequests[requestIndex][FirestoreFields.status] = 'rejected';
-      pendingRequests[requestIndex]['reviewer_id'] = reviewerId;
-      pendingRequests[requestIndex]['reviewed_at'] = FieldValue.serverTimestamp();
-      pendingRequests[requestIndex]['rejection_reason'] = reason;
-      if (reviewerName != null) {
-        pendingRequests[requestIndex]['reviewer_name'] = reviewerName;
-      }
+        if (requestIndex == -1) {
+          throw ShoppingListRepositoryException('Request not found', null);
+        }
 
-      await docRef.update({
-        FirestoreFields.pendingRequests: pendingRequests,
-        FirestoreFields.updatedDate: FieldValue.serverTimestamp(),
+        // בדוק שהבקשה עדיין pending (לא טופלה כבר)
+        if (pendingRequests[requestIndex][FirestoreFields.status] != 'pending') {
+          throw ShoppingListRepositoryException('Request already processed', null);
+        }
+
+        // 🔧 שימוש ב-Timestamp.now() לעקביות עם created_at
+        pendingRequests[requestIndex][FirestoreFields.status] = 'rejected';
+        pendingRequests[requestIndex]['reviewer_id'] = reviewerId;
+        pendingRequests[requestIndex]['reviewed_at'] = Timestamp.now();
+        pendingRequests[requestIndex]['rejection_reason'] = reason;
+        if (reviewerName != null) {
+          pendingRequests[requestIndex]['reviewer_name'] = reviewerName;
+        }
+
+        transaction.update(docRef, {
+          FirestoreFields.pendingRequests: pendingRequests,
+          FirestoreFields.updatedDate: FieldValue.serverTimestamp(),
+        });
       });
 
-      debugPrint('✅ בקשה נדחתה בהצלחה');
+      debugPrint('✅ בקשה נדחתה בהצלחה (transaction)');
     } catch (e, stackTrace) {
       debugPrint('❌ FirebaseShoppingListsRepository.rejectRequest: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
@@ -610,6 +669,8 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         .map((snapshot) {
           return snapshot.docs.map((doc) {
             final data = Map<String, dynamic>.from(doc.data());
+            // 🔧 הוסף את ה-id מהמסמך אם לא קיים
+            data['id'] ??= doc.id;
             data[FirestoreFields.isPrivate] = true;
             return ShoppingList.fromJson(data);
           }).toList();
@@ -631,6 +692,8 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
       final privateDoc = await _privateListsCollection(userId).doc(listId).get();
       if (privateDoc.exists) {
         final data = Map<String, dynamic>.from(privateDoc.data()!);
+        // 🔧 הוסף את ה-id מהמסמך אם לא קיים
+        data['id'] ??= privateDoc.id;
         data[FirestoreFields.isPrivate] = true;
         debugPrint('✅ רשימה נמצאה ב-private_lists');
         return ShoppingList.fromJson(data);
@@ -641,6 +704,8 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         final sharedDoc = await _sharedListsCollection(householdId).doc(listId).get();
         if (sharedDoc.exists) {
           final data = Map<String, dynamic>.from(sharedDoc.data()!);
+          // 🔧 הוסף את ה-id מהמסמך אם לא קיים
+          data['id'] ??= sharedDoc.id;
           data[FirestoreFields.isPrivate] = false;
           debugPrint('✅ רשימה נמצאה ב-shared_lists');
           return ShoppingList.fromJson(data);

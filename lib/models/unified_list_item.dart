@@ -5,7 +5,8 @@
 //     - שדות משותפים: id, name, type, isChecked, category, notes
 //     - שדות ייחודיים למוצרים: productData (quantity, unitPrice, barcode, unit)
 //     - שדות ייחודיים למשימות: taskData (dueDate, assignedTo, priority)
-//     - Helpers: quantity, totalPrice, dueDate, isUrgent
+//     - סוגי משנה: task/whoBrings/voting (דרך itemSubType)
+//     - Helpers: quantity, totalPrice, dueDate, isUrgent, isWhoBrings, isVoting
 //     - Migration: fromReceiptItem() להמרה מהמבנה הישן
 //
 // 🇬🇧 Unified list item (Hybrid Approach):
@@ -13,8 +14,12 @@
 //     - Shared fields: id, name, type, isChecked, category, notes
 //     - Product-specific: productData (quantity, unitPrice, barcode, unit)
 //     - Task-specific: taskData (dueDate, assignedTo, priority)
+//     - Sub-types: task/whoBrings/voting (via itemSubType)
 //     - Helpers for easy access
 //     - Migration support from ReceiptItem
+//
+// Version: 2.0 - Fixed casting, added itemSubType, immutable Maps
+// Last Updated: 29/12/2025
 //
 
 import 'package:flutter/foundation.dart';
@@ -89,11 +94,13 @@ class UnifiedListItem {
 
   /// 🇮🇱 כמות (רק למוצרים)
   /// 🇬🇧 Quantity (products only)
-  int? get quantity => productData?['quantity'] as int?;
+  /// 🔧 תומך ב-int ו-num מ-Firestore/JSON
+  int? get quantity => (productData?['quantity'] as num?)?.toInt();
 
   /// 🇮🇱 מחיר ליחידה (רק למוצרים)
   /// 🇬🇧 Unit price (products only)
-  double? get unitPrice => productData?['unitPrice'] as double?;
+  /// 🔧 תומך ב-int, double ו-num מ-Firestore/JSON
+  double? get unitPrice => (productData?['unitPrice'] as num?)?.toDouble();
 
   /// 🇮🇱 ברקוד (רק למוצרים)
   /// 🇬🇧 Barcode (products only)
@@ -118,6 +125,27 @@ class UnifiedListItem {
   // Task Helpers (גישה קלה לשדות משימה)
   // ════════════════════════════════════════════
 
+  /// 🇮🇱 סוג פריט משנה (task/whoBrings/voting)
+  /// 🇬🇧 Sub item type (task/whoBrings/voting)
+  ///
+  /// מזהה את הסוג המדויק של פריט מסוג task:
+  /// - 'task' - משימה רגילה
+  /// - 'whoBrings' - פריט "מי מביא"
+  /// - 'voting' - פריט הצבעה
+  String get itemSubType => taskData?['itemType'] as String? ?? 'task';
+
+  /// 🇮🇱 האם פריט "מי מביא"
+  /// 🇬🇧 Is this a "Who Brings" item
+  bool get isWhoBrings => itemSubType == 'whoBrings';
+
+  /// 🇮🇱 האם פריט הצבעה
+  /// 🇬🇧 Is this a voting item
+  bool get isVoting => itemSubType == 'voting';
+
+  /// 🇮🇱 האם משימה רגילה (לא whoBrings ולא voting)
+  /// 🇬🇧 Is this a regular task (not whoBrings or voting)
+  bool get isRegularTask => type == ItemType.task && itemSubType == 'task';
+
   /// 🇮🇱 תאריך יעד (רק למשימות)
   /// 🇬🇧 Due date (tasks only)
   DateTime? get dueDate {
@@ -135,8 +163,11 @@ class UnifiedListItem {
 
   /// 🇮🇱 האם משימה דחופה (פחות מ-3 ימים)
   /// 🇬🇧 Is task urgent (less than 3 days)
+  ///
+  /// ⚠️ עובד רק למשימות רגילות (לא whoBrings/voting)
   bool get isUrgent {
-    if (type != ItemType.task) return false;
+    // רק משימות רגילות יכולות להיות דחופות
+    if (!isRegularTask) return false;
     final due = dueDate;
     if (due == null) return false;
     return due.difference(DateTime.now()).inDays <= 3;
@@ -148,7 +179,8 @@ class UnifiedListItem {
 
   /// 🇮🇱 כמות אנשים נדרשים להביא (ברשימות "מי מביא")
   /// 🇬🇧 Number of people needed to bring (for "Who Brings" lists)
-  int get neededCount => taskData?['neededCount'] as int? ?? 1;
+  /// 🔧 תומך ב-int ו-num מ-Firestore/JSON
+  int get neededCount => (taskData?['neededCount'] as num?)?.toInt() ?? 1;
 
   /// 🇮🇱 רשימת מתנדבים שאמרו "אני מביא"
   /// 🇬🇧 List of volunteers who said "I'll bring"
@@ -434,22 +466,23 @@ class UnifiedListItem {
 
   /// 🇮🇱 יצירה מתוכן בקשה (למערכת Sharing)
   /// 🇬🇧 Create from request data (for Sharing system)
-  /// 
+  ///
   /// מקבל Map עם השדות:
   /// - name (חובה)
   /// - quantity (אופציונלי, ברירת מחדל: 1)
   /// - unitPrice (אופציונלי, ברירת מחדל: 0.0)
-  /// - barcode, unit, category, notes (אופציונליים)
+  /// - barcode, unit, category, notes, image_url (אופציונליים)
   factory UnifiedListItem.fromRequestData(Map<String, dynamic> data) {
     return UnifiedListItem.product(
       name: data['name'] as String,
-      quantity: data['quantity'] as int? ?? 1,
+      quantity: (data['quantity'] as num?)?.toInt() ?? 1,
       unitPrice: (data['unitPrice'] as num?)?.toDouble() ?? 0.0,
       barcode: data['barcode'] as String?,
       unit: data['unit'] as String? ?? 'יח\'',
       category: data['category'] as String?,
       notes: data['notes'] as String?,
-      imageUrl: data['imageUrl'] as String?,
+      // 🔧 תומך גם ב-imageUrl וגם ב-image_url (לעקביות עם JSON)
+      imageUrl: data['image_url'] as String? ?? data['imageUrl'] as String?,
     );
   }
 
@@ -482,6 +515,10 @@ class UnifiedListItem {
   // CopyWith & Equality
   // ════════════════════════════════════════════
 
+  /// 🔧 יוצר עותק חדש עם שינויים
+  ///
+  /// **הערה:** productData ו-taskData מועתקים (deep copy) לשמירה על immutability.
+  /// אם אתה רוצה לשנות ערך ב-productData, העבר Map חדש עם הערכים הרצויים.
   UnifiedListItem copyWith({
     String? id,
     String? name,
@@ -503,8 +540,13 @@ class UnifiedListItem {
       category: category ?? this.category,
       notes: notes ?? this.notes,
       imageUrl: imageUrl ?? this.imageUrl,
-      productData: productData ?? this.productData,
-      taskData: taskData ?? this.taskData,
+      // 🔧 Deep copy כדי לשמור על immutability
+      productData: productData != null
+          ? Map<String, dynamic>.from(productData)
+          : (this.productData != null ? Map<String, dynamic>.from(this.productData!) : null),
+      taskData: taskData != null
+          ? Map<String, dynamic>.from(taskData)
+          : (this.taskData != null ? Map<String, dynamic>.from(this.taskData!) : null),
       checkedBy: checkedBy ?? this.checkedBy,
       checkedAt: checkedAt ?? this.checkedAt,
     );
@@ -514,6 +556,21 @@ class UnifiedListItem {
   String toString() =>
       'UnifiedListItem(id: $id, name: $name, type: $type, isChecked: $isChecked)';
 
+  /// 🔧 שוויון לפי id בלבד
+  ///
+  /// **הערה חשובה:** השוואה נעשית לפי `id` בלבד, לא לפי barcode או שדות אחרים.
+  ///
+  /// משמעות:
+  /// - שני פריטים עם אותו barcode אבל id שונה נחשבים **שונים**
+  /// - מאפשר להחזיק כמה פריטים מאותו מוצר ברשימה
+  /// - אם צריך למזג פריטים לפי barcode, יש לעשות זאת בשכבת הלוגיקה העסקית
+  ///
+  /// דוגמה:
+  /// ```dart
+  /// final item1 = UnifiedListItem.product(id: 'a', name: 'חלב', barcode: '123');
+  /// final item2 = UnifiedListItem.product(id: 'b', name: 'חלב', barcode: '123');
+  /// print(item1 == item2); // false - id שונה
+  /// ```
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||

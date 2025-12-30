@@ -66,6 +66,9 @@ class InventoryProvider with ChangeNotifier {
   bool _listeningToGroups = false;
   bool _hasInitialized = false; // מניעת אתחול כפול
 
+  // 🔒 דגל לבדיקה אם ה-provider כבר disposed
+  bool _isDisposed = false;
+
   bool _isLoading = false;
   String? _errorMessage;
   List<InventoryItem> _items = [];
@@ -76,6 +79,15 @@ class InventoryProvider with ChangeNotifier {
 
   static const Uuid _uuid = Uuid();
   Future<void>? _loadingFuture; // מניעת טעינות כפולות
+
+  // === Safe Notification ===
+
+  /// 🔒 קורא ל-notifyListeners() רק אם ה-provider לא disposed
+  void _notifySafe() {
+    if (!_isDisposed) {
+      notifyListeners();
+    }
+  }
 
   // === Validation Helpers ===
 
@@ -206,6 +218,10 @@ class InventoryProvider with ChangeNotifier {
         if (kDebugMode) {
           debugPrint('👤 InventoryProvider: מעבר למזווה אישי');
         }
+        // 🔒 ניקוי פריטי הקבוצה לפני טעינת המזווה האישי
+        // מונע הצגת פריטי קבוצה תחת "המזווה שלי"
+        _items = [];
+        notifyListeners();
         _loadItems();
       } else if (_items.isEmpty && !_isLoading) {
         // טעינה ראשונית
@@ -570,7 +586,7 @@ class InventoryProvider with ChangeNotifier {
 
     if (failureCount > 0) {
       _errorMessage = 'עודכנו $successCount פריטים, נכשלו $failureCount: ${failures.join(", ")}';
-      notifyListeners();
+      _notifySafe(); // 🔒 בטוח גם אם המשתמש יצא מהמסך
     }
 
     return successCount;
@@ -708,6 +724,8 @@ class InventoryProvider with ChangeNotifier {
 
   @override
   void dispose() {
+    _isDisposed = true;
+
     if (_listeningToUser && _userContext != null) {
       _userContext!.removeListener(_onUserChanged);
     }

@@ -5,39 +5,20 @@
 // 📋 Features:
 // - שמירת פרטי משתמשים שהוזמנו בעבר
 // - גישה מהירה להזמנה חוזרת
-// - תמיכה ב-JSON serialization
+// - תמיכה ב-JSON serialization (Timestamp ל-Firestore)
 //
 // 🔗 Related:
-// - shared_user.dart - משתמש משותף ברשימה
+// - shared_user.dart - משתמש משותף ברשימה (משתמש באותו Converter)
 // - share_list_service.dart - שירות שיתוף
 //
-// Version: 1.0
-// Created: 30/11/2025
+// Version: 1.1 - Use shared FlexibleDateTimeConverter, fix initials
+// Last Updated: 30/12/2025
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import 'shared_user.dart' show FlexibleDateTimeConverter;
+
 part 'saved_contact.g.dart';
-
-/// Converter that handles both Timestamp and String for DateTime
-class _FlexibleDateTimeConverter implements JsonConverter<DateTime, dynamic> {
-  const _FlexibleDateTimeConverter();
-
-  @override
-  DateTime fromJson(dynamic json) {
-    if (json is Timestamp) {
-      return json.toDate();
-    } else if (json is String) {
-      return DateTime.parse(json);
-    } else if (json is DateTime) {
-      return json;
-    }
-    throw ArgumentError('Cannot convert $json to DateTime');
-  }
-
-  @override
-  dynamic toJson(DateTime object) => object.toIso8601String();
-}
 
 /// איש קשר שמור לשיתוף קל של רשימות
 ///
@@ -62,12 +43,12 @@ class SavedContact {
   final String? userAvatar;
 
   /// מתי נוסף לאנשי הקשר
-  @_FlexibleDateTimeConverter()
+  @FlexibleDateTimeConverter()
   @JsonKey(name: 'added_at')
   final DateTime addedAt;
 
   /// מתי הוזמן לאחרונה (לצורך מיון)
-  @_FlexibleDateTimeConverter()
+  @FlexibleDateTimeConverter()
   @JsonKey(name: 'last_invited_at')
   final DateTime lastInvitedAt;
 
@@ -108,15 +89,24 @@ class SavedContact {
   String get displayName => userName ?? userEmail;
 
   /// ראשי תיבות לאווטאר
+  ///
+  /// 🔧 תומך בשמות עבריים, מקפים, ורווחים כפולים
   String get initials {
     if (userName != null && userName!.isNotEmpty) {
-      final parts = userName!.split(' ');
+      // נקה רווחים מיותרים ופצל לפי רווח או מקף
+      final cleaned = userName!.trim().replaceAll(RegExp(r'\s+'), ' ');
+      final parts = cleaned.split(RegExp(r'[\s\-]+')).where((p) => p.isNotEmpty).toList();
       if (parts.length >= 2) {
         return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
       }
-      return userName![0].toUpperCase();
+      if (parts.isNotEmpty && parts[0].isNotEmpty) {
+        return parts[0][0].toUpperCase();
+      }
     }
-    return userEmail[0].toUpperCase();
+    if (userEmail.isNotEmpty) {
+      return userEmail[0].toUpperCase();
+    }
+    return '?';
   }
 
   /// Copy with

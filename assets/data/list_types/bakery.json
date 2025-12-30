@@ -5,7 +5,6 @@
     "icon": "🥐",
     "price": 6.5,
     "barcode": "BAKERY-001",
-    "brand": "",
     "unit": "יחידה"
   },
   {
@@ -14,7 +13,6 @@
     "icon": "🥐",
     "price": 6.5,
     "barcode": "BAKERY-002",
-    "brand": "",
     "unit": "יחידה"
   },
   {
@@ -23,7 +21,6 @@
     "icon": "🥐",
     "price": 6.5,
     "barcode": "BAKERY-003",
-    "brand": "",
     "unit": "יחידה"
   },
   {
@@ -32,7 +29,6 @@
     "icon": "🥐",
     "price": 7.0,
     "barcode": "BAKERY-004",
-    "brand": "",
     "unit": "יחידה"
   },
   {
@@ -41,7 +37,6 @@
     "icon": "🥐",
     "price": 8.0,
     "barcode": "BAKERY-005",
-    "brand": "",
     "unit": "יחידה"
   },
   {
@@ -50,7 +45,6 @@
     "icon": "🥐",
     "price": 8.5,
     "barcode": "BAKERY-006",
-    "brand": "",
     "unit": "יחידה"
   },
   {
@@ -59,7 +53,6 @@
     "icon": "🍞",
     "price": 3.0,
     "barcode": "BAKERY-007",
-    "brand": "",
     "unit": "יחידה"
   },
   {
@@ -68,7 +61,6 @@
     "icon": "🍞",
     "price": 3.5,
     "barcode": "BAKERY-008",
-    "brand": "",
     "unit": "יחידה"
   },
   {
@@ -77,7 +69,6 @@
     "icon": "🍞",
     "price": 4.0,
     "barcode": "BAKERY-009",
-    "brand": "",
     "unit": "יחידה"
   },
   {
@@ -86,7 +77,6 @@
     "icon": "🥨",
     "price": 5.0,
     "barcode": "BAKERY-010",
-    "brand": "",
     "unit": "יחידה"
   },
   {
@@ -95,7 +85,6 @@
     "icon": "🥨",
     "price": 5.5,
     "barcode": "BAKERY-011",
-    "brand": "",
     "unit": "יחידה"
   },
   {
@@ -104,7 +93,6 @@
     "icon": "🥐",
     "price": 9.0,
     "barcode": "BAKERY-012",
-    "brand": "",
     "unit": "יחידה"
   },
   {
@@ -113,7 +101,6 @@
     "icon": "🥐",
     "price": 9.0,
     "barcode": "BAKERY-013",
-    "brand": "",
     "unit": "יחידה"
   },
   {
@@ -122,7 +109,6 @@
     "icon": "🍪",
     "price": 45.0,
     "barcode": "BAKERY-014",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -131,7 +117,6 @@
     "icon": "🍪",
     "price": 40.0,
     "barcode": "BAKERY-015",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -140,7 +125,6 @@
     "icon": "🍪",
     "price": 50.0,
     "barcode": "BAKERY-016",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -149,7 +133,6 @@
     "icon": "🍰",
     "price": 12.0,
     "barcode": "BAKERY-017",
-    "brand": "",
     "unit": "פרוסה"
   },
   {
@@ -158,7 +141,6 @@
     "icon": "🍰",
     "price": 12.0,
     "barcode": "BAKERY-018",
-    "brand": "",
     "unit": "פרוסה"
   },
   {
@@ -167,7 +149,6 @@
     "icon": "🍰",
     "price": 11.0,
     "barcode": "BAKERY-019",
-    "brand": "",
     "unit": "פרוסה"
   },
   {
@@ -176,7 +157,6 @@
     "icon": "🍰",
     "price": 10.0,
     "barcode": "BAKERY-020",
-    "brand": "",
     "unit": "פרוסה"
   },
   {
@@ -185,7 +165,6 @@
     "icon": "🍞",
     "price": 8.0,
     "barcode": "BAKERY-021",
-    "brand": "",
     "unit": "יחידה"
   },
   {
@@ -194,7 +173,6 @@
     "icon": "🍞",
     "price": 9.0,
     "barcode": "BAKERY-022",
-    "brand": "",
     "unit": "יחידה"
   },
   {
@@ -203,7 +181,6 @@
     "icon": "🍞",
     "price": 12.0,
     "barcode": "BAKERY-023",
-    "brand": "",
     "unit": "יחידה"
   },
   {
@@ -212,7 +189,6 @@
     "icon": "🥖",
     "price": 8.0,
     "barcode": "BAKERY-024",
-    "brand": "",
     "unit": "יחידה"
   },
   {
@@ -284,7 +260,6 @@
     "icon": "🍞",
     "price": 24.9,
     "barcode": "7290013121776",
-    "brand": "",
     "unit": "100 גרם"
   },
   {
@@ -293,7 +268,6 @@
     "icon": "🍞",
     "price": 25.9,
     "barcode": "7290013121752",
-    "brand": "",
     "unit": "100 גרם"
   },
   {
@@ -302,7 +276,6 @@
     "icon": "🍞",
     "price": 14.9,
     "barcode": "8006837000918",
-    "brand": "---",
     "unit": "100 גרם"
   },
   {
@@ -338,7 +311,6 @@
     "icon": "🍞",
     "price": 29.9,
     "barcode": "7290109640785",
-    "brand": "כללי",
     "unit": "100 גרם"
   },
   {

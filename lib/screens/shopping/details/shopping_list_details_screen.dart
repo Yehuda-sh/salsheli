@@ -60,6 +60,12 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   String _searchQuery = '';
   String? _selectedCategory; // קטגוריה נבחרת לסינון
 
+  // 📦 Memoization - מונע חישוב סינון מיותר בכל build
+  List<UnifiedListItem>? _cachedFilteredItems;
+  String? _lastSearchQuery;
+  String? _lastSelectedCategory;
+  int _lastItemsCount = -1;
+
   // 🏷️ קטגוריות דינמיות - נגזרות מהפריטים ברשימה
   List<String> get _availableCategories {
     final categories = widget.list.items
@@ -193,6 +199,9 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   bool _isLoading = true;
   String? _errorMessage;
 
+  // 🎬 דגל למניעת אנימציות חוזרות אחרי הטעינה הראשונית
+  bool _animationsDone = false;
+
   @override
   void initState() {
     super.initState();
@@ -207,6 +216,17 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     _fabController.forward();
     _loadData();
     _checkEditorNotifications();
+  }
+
+  @override
+  void didUpdateWidget(ShoppingListDetailsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // 📦 ניקוי cache כאשר הרשימה משתנה (פריטים התווספו/נמחקו)
+    if (widget.list.items.length != oldWidget.list.items.length ||
+        widget.list.id != oldWidget.list.id) {
+      _cachedFilteredItems = null;
+    }
   }
 
   /// 🔔 A1a: בדיקת בקשות Editor שאושרו/נדחו לאחרונה
@@ -309,6 +329,14 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
         });
         unawaited(_listController.forward());
         debugPrint('✅ ShoppingListDetailsScreen: טעינה הושלמה');
+
+        // 🎬 סימון שהאנימציות הסתיימו אחרי זמן מספיק
+        // מונע אנימציות חוזרות בעת checkbox/סינון/חיפוש
+        Future.delayed(const Duration(milliseconds: 800), () {
+          if (mounted && !_animationsDone) {
+            setState(() => _animationsDone = true);
+          }
+        });
       }
     } catch (e) {
       if (mounted) {
@@ -461,6 +489,14 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
   /// 🔍 סינון פריטים - דינמי לפי קטגוריות הפריטים בפועל
   List<UnifiedListItem> _getFilteredAndSortedItems(List<UnifiedListItem> items) {
+    // 📦 Memoization - החזר cache אם לא השתנה כלום
+    if (_cachedFilteredItems != null &&
+        _lastSearchQuery == _searchQuery &&
+        _lastSelectedCategory == _selectedCategory &&
+        _lastItemsCount == items.length) {
+      return _cachedFilteredItems!;
+    }
+
     final filtered = items.where((item) {
       // סינון לפי חיפוש
       if (_searchQuery.isNotEmpty) {
@@ -486,6 +522,12 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
       return true;
     }).toList();
+
+    // 📦 עדכון cache
+    _cachedFilteredItems = filtered;
+    _lastSearchQuery = _searchQuery;
+    _lastSelectedCategory = _selectedCategory;
+    _lastItemsCount = items.length;
 
     debugPrint('🔍 סינון: ${items.length} → ${filtered.length} פריטים (קטגוריה: "$_selectedCategory")');
     return filtered;
@@ -852,6 +894,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   /// 📋 רשימה שטוחה (flat) עם Staggered Animation - מסונכרן עם שורות המחברת
   Widget _buildFlatList(List<UnifiedListItem> items, ThemeData theme) {
     final stickyColors = [kStickyYellow, kStickyPink, kStickyGreen, kStickyCyan];
+    // 🎬 הגבלת אנימציות - רק 8 פריטים ראשונים ורק בטעינה ראשונית
+    const maxAnimatedItems = 8;
 
     return ListView.builder(
       padding: const EdgeInsets.only(
@@ -866,18 +910,32 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
         final originalIndex = widget.list.items.indexOf(item);
         final colorIndex = index % stickyColors.length;
 
-        return TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0.0, end: 1.0),
-          duration: Duration(milliseconds: 300 + (index * 50)),
-          curve: Curves.easeOut,
-          builder: (context, value, child) {
-            return Transform.translate(
-              offset: Offset((1 - value) * 50, 0),
-              child: Opacity(opacity: value, child: child),
-            );
-          },
-          child: _buildItemCard(item, originalIndex, theme, stickyColors[colorIndex], 0.0), // rotation = 0
+        final cardWidget = _buildItemCard(
+          item,
+          originalIndex,
+          theme,
+          stickyColors[colorIndex],
+          0.0, // rotation = 0
         );
+
+        // 🎬 אנימציה רק בטעינה ראשונית ורק לפריטים הראשונים
+        if (!_animationsDone && index < maxAnimatedItems) {
+          return TweenAnimationBuilder<double>(
+            key: ValueKey('anim_${item.id}'),
+            tween: Tween(begin: 0.0, end: 1.0),
+            duration: Duration(milliseconds: 300 + (index * 50)),
+            curve: Curves.easeOut,
+            builder: (context, value, child) {
+              return Transform.translate(
+                offset: Offset((1 - value) * 50, 0),
+                child: Opacity(opacity: value, child: child),
+              );
+            },
+            child: cardWidget,
+          );
+        }
+
+        return cardWidget;
       },
     );
   }

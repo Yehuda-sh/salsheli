@@ -147,9 +147,10 @@ class ShoppingListsProvider with ChangeNotifier {
     _userContext!.addListener(_onUserChanged);
     _listening = true;
     _initialize();
-    
+
     // 🔄 קריאה ידנית לטעינה ראשונית (listener לא מופעל אוטומטית בפעם הראשונה)
-    _onUserChanged();
+    // ⚠️ חייב להיות ב-microtask כי updateUserContext נקרא מ-ProxyProvider במהלך build
+    Future.microtask(_onUserChanged);
   }
 
   void _onUserChanged() {
@@ -815,15 +816,35 @@ class ShoppingListsProvider with ChangeNotifier {
           debugPrint('✅ addToNextList: רשימה חדשה נוצרה עם ${items.length} פריטים');
         }
       } else {
-        // הוסף לרשימה קיימת
+        // הוסף לרשימה קיימת - עם בדיקת כפילויות
         if (kDebugMode) {
           debugPrint('   📝 מוסיף ל"${existingList.name}"');
         }
-        final updatedItems = [...existingList.items, ...items];
+
+        // 🔧 מניעת כפילויות - בודק לפי id ושם
+        final existingIds = existingList.items.map((i) => i.id).toSet();
+        final existingNames = existingList.items
+            .map((i) => i.name.toLowerCase())
+            .toSet();
+
+        final newItems = items.where((item) {
+          // בדוק גם לפי id וגם לפי שם
+          return !existingIds.contains(item.id) &&
+                 !existingNames.contains(item.name.toLowerCase());
+        }).toList();
+
+        if (newItems.isEmpty) {
+          if (kDebugMode) {
+            debugPrint('   ⏭️ כל הפריטים כבר קיימים ברשימה');
+          }
+          return;
+        }
+
+        final updatedItems = [...existingList.items, ...newItems];
         final updatedList = existingList.copyWith(items: updatedItems);
         await updateList(updatedList);
         if (kDebugMode) {
-          debugPrint('✅ addToNextList: ${items.length} פריטים הוספו ל"${existingList.name}"');
+          debugPrint('✅ addToNextList: ${newItems.length} פריטים הוספו ל"${existingList.name}" (${items.length - newItems.length} כפילויות סוננו)');
         }
       }
     } catch (e) {

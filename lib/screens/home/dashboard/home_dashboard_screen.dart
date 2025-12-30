@@ -633,7 +633,8 @@ class _RecentActivitySection extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    DefaultTabController.of(context).animateTo(1);
+                    // ניווט לטאב משפחה (אינדקס 1) - שם נמצאות הרשימות
+                    Navigator.of(context).pushReplacementNamed('/home', arguments: 1);
                   },
                   style: TextButton.styleFrom(
                     padding: EdgeInsets.zero,
@@ -802,6 +803,7 @@ class _GroupsShortcuts extends StatelessWidget {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   ...groups.take(5).map((group) => _GroupChip(group: group)),
                   // כפתור + ליצירת קבוצה חדשה (עיצוב מקווקו)
@@ -851,7 +853,7 @@ class _GroupChip extends StatelessWidget {
 }
 
 // =============================================================================
-// 5.1 ADD GROUP BUTTON - כפתור הוספת קבוצה עם גבול מקווקו
+// 5.1 ADD GROUP BUTTON - כפתור עיגול עם + להוספת קבוצה
 // =============================================================================
 
 class _AddGroupButton extends StatelessWidget {
@@ -863,93 +865,32 @@ class _AddGroupButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: CustomPaint(
-        painter: _DashedBorderPainter(
-          color: cs.primary.withValues(alpha: 0.5),
-          strokeWidth: 1.5,
-          dashWidth: 4,
-          dashSpace: 3,
-          borderRadius: 20,
-        ),
+    // גובה זהה ל-ActionChip (כ-32 פיקסל)
+    return SizedBox(
+      height: 32,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.add, size: 16, color: cs.primary),
-              const SizedBox(width: 4),
-              Text(
-                'חדש',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: cs.primary,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: cs.primary.withValues(alpha: 0.15),
+            border: Border.all(
+              color: cs.primary.withValues(alpha: 0.4),
+              width: 1.5,
+            ),
+          ),
+          child: Icon(
+            Icons.add,
+            size: 20,
+            color: cs.primary,
           ),
         ),
       ),
     );
   }
-}
-
-/// Painter לציור גבול מקווקו
-class _DashedBorderPainter extends CustomPainter {
-  final Color color;
-  final double strokeWidth;
-  final double dashWidth;
-  final double dashSpace;
-  final double borderRadius;
-
-  _DashedBorderPainter({
-    required this.color,
-    required this.strokeWidth,
-    required this.dashWidth,
-    required this.dashSpace,
-    required this.borderRadius,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = strokeWidth
-      ..style = PaintingStyle.stroke;
-
-    final path = Path()
-      ..addRRect(RRect.fromRectAndRadius(
-        Rect.fromLTWH(0, 0, size.width, size.height),
-        Radius.circular(borderRadius),
-      ));
-
-    // ציור הגבול המקווקו
-    final dashPath = _createDashedPath(path);
-    canvas.drawPath(dashPath, paint);
-  }
-
-  Path _createDashedPath(Path source) {
-    final dashedPath = Path();
-    for (final metric in source.computeMetrics()) {
-      double distance = 0;
-      while (distance < metric.length) {
-        final start = distance;
-        final end = (distance + dashWidth).clamp(0, metric.length);
-        dashedPath.addPath(
-          metric.extractPath(start, end.toDouble()),
-          Offset.zero,
-        );
-        distance += dashWidth + dashSpace;
-      }
-    }
-    return dashedPath;
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 // =============================================================================

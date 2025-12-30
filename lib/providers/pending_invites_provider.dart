@@ -23,8 +23,20 @@ class PendingInvitesProvider with ChangeNotifier {
   String? _errorMessage;
   bool _hasChecked = false;
 
+  // 🔒 דגל לבדיקה אם ה-provider כבר disposed
+  bool _isDisposed = false;
+
   PendingInvitesProvider({GroupInviteRepository? repository})
       : _repository = repository ?? GroupInviteRepository();
+
+  // === Safe Notification ===
+
+  /// 🔒 קורא ל-notifyListeners() רק אם ה-provider לא disposed
+  void _notifySafe() {
+    if (!_isDisposed) {
+      notifyListeners();
+    }
+  }
 
   // === Getters ===
 
@@ -61,9 +73,12 @@ class PendingInvitesProvider with ChangeNotifier {
       return;
     }
 
+    // 🔒 מניעת קריאות כפולות
+    if (_isLoading) return;
+
     _isLoading = true;
     _errorMessage = null;
-    notifyListeners();
+    _notifySafe();
 
     try {
       _pendingInvites = await _repository.findPendingInvites(
@@ -84,7 +99,7 @@ class PendingInvitesProvider with ChangeNotifier {
       _pendingInvites = [];
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _notifySafe();
     }
   }
 
@@ -107,7 +122,7 @@ class PendingInvitesProvider with ChangeNotifier {
 
       // הסר מהרשימה המקומית
       _pendingInvites = _pendingInvites.where((i) => i.id != invite.id).toList();
-      notifyListeners();
+      _notifySafe();
 
       return true;
     } catch (e) {
@@ -115,7 +130,7 @@ class PendingInvitesProvider with ChangeNotifier {
         debugPrint('❌ PendingInvitesProvider.acceptInvite: $e');
       }
       _errorMessage = 'שגיאה באישור ההזמנה';
-      notifyListeners();
+      _notifySafe();
       return false;
     }
   }
@@ -127,7 +142,7 @@ class PendingInvitesProvider with ChangeNotifier {
 
       // הסר מהרשימה המקומית
       _pendingInvites = _pendingInvites.where((i) => i.id != invite.id).toList();
-      notifyListeners();
+      _notifySafe();
 
       return true;
     } catch (e) {
@@ -135,7 +150,7 @@ class PendingInvitesProvider with ChangeNotifier {
         debugPrint('❌ PendingInvitesProvider.rejectInvite: $e');
       }
       _errorMessage = 'שגיאה בדחיית ההזמנה';
-      notifyListeners();
+      _notifySafe();
       return false;
     }
   }
@@ -145,12 +160,20 @@ class PendingInvitesProvider with ChangeNotifier {
     _pendingInvites = [];
     _hasChecked = false;
     _errorMessage = null;
-    notifyListeners();
+    _notifySafe();
   }
 
   /// רענון הזמנות
   Future<void> refresh({String? phone, String? email}) async {
     _hasChecked = false;
     await checkPendingInvites(phone: phone, email: email);
+  }
+
+  // === Lifecycle ===
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
   }
 }

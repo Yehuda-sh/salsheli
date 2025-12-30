@@ -654,7 +654,6 @@
     "icon": "🔥",
     "price": 12.9,
     "barcode": "BUTCHER-060",
-    "brand": "",
     "unit": "שק 3 ק\"ג",
     "description": "פחמים איכותיים לגריל",
     "imageUrl": null
@@ -665,7 +664,6 @@
     "icon": "🧂",
     "price": 8.9,
     "barcode": "BUTCHER-061",
-    "brand": "",
     "unit": "יחידה",
     "description": "תערובת תבלינים לבשר",
     "imageUrl": null
@@ -676,7 +674,6 @@
     "icon": "🧂",
     "price": 7.9,
     "barcode": "BUTCHER-062",
-    "brand": "",
     "unit": "יחידה",
     "description": "תערובת תבלינים לעוף",
     "imageUrl": null
@@ -687,7 +684,6 @@
     "icon": "🧂",
     "price": 9.9,
     "barcode": "BUTCHER-063",
-    "brand": "",
     "unit": "יחידה",
     "description": "תערובת תבלינים לדגים",
     "imageUrl": null
@@ -698,7 +694,6 @@
     "icon": "🧂",
     "price": 8.5,
     "barcode": "BUTCHER-064",
-    "brand": "",
     "unit": "יחידה",
     "description": "תערובת תבלינים לקבב",
     "imageUrl": null
@@ -709,7 +704,6 @@
     "icon": "🧂",
     "price": 5.9,
     "barcode": "BUTCHER-065",
-    "brand": "",
     "unit": "יחידה",
     "description": "מלח ים גס לבשר",
     "imageUrl": null
@@ -720,7 +714,6 @@
     "icon": "🧂",
     "price": 6.9,
     "barcode": "BUTCHER-066",
-    "brand": "",
     "unit": "יחידה",
     "description": "פלפל שחור טחון",
     "imageUrl": null
@@ -731,7 +724,6 @@
     "icon": "🧂",
     "price": 9.5,
     "barcode": "BUTCHER-067",
-    "brand": "",
     "unit": "יחידה",
     "description": "פפריקה מעושנת",
     "imageUrl": null
@@ -742,7 +734,6 @@
     "icon": "🧂",
     "price": 7.5,
     "barcode": "BUTCHER-068",
-    "brand": "",
     "unit": "יחידה",
     "description": "שום מיובש גרנולות",
     "imageUrl": null
@@ -753,7 +744,6 @@
     "icon": "🧂",
     "price": 8.9,
     "barcode": "BUTCHER-069",
-    "brand": "",
     "unit": "יחידה",
     "description": "רוזמרין מיובש",
     "imageUrl": null
@@ -764,7 +754,6 @@
     "icon": "🧂",
     "price": 6.9,
     "barcode": "BUTCHER-070",
-    "brand": "",
     "unit": "יחידה",
     "description": "כמון שלם",
     "imageUrl": null
@@ -775,7 +764,6 @@
     "icon": "🍯",
     "price": 12.9,
     "barcode": "BUTCHER-071",
-    "brand": "",
     "unit": "בקבוק",
     "description": "רטב ברביקיו מתוק חריף",
     "imageUrl": null
@@ -786,7 +774,6 @@
     "icon": "🍯",
     "price": 14.9,
     "barcode": "BUTCHER-072",
-    "brand": "",
     "unit": "בקבוק",
     "description": "רטב צ'ימיצ'ורי ארגנטינאי",
     "imageUrl": null
@@ -797,7 +784,6 @@
     "icon": "🍯",
     "price": 16.9,
     "barcode": "BUTCHER-073",
-    "brand": "",
     "unit": "בקבוק",
     "description": "רטב טריאקי יפני",
     "imageUrl": null
@@ -808,7 +794,6 @@
     "icon": "🍯",
     "price": 11.9,
     "barcode": "BUTCHER-074",
-    "brand": "",
     "unit": "בקבוק",
     "description": "רטב חרדל עם דבש",
     "imageUrl": null
@@ -819,7 +804,6 @@
     "icon": "🍯",
     "price": 9.9,
     "barcode": "BUTCHER-075",
-    "brand": "",
     "unit": "בקבוק",
     "description": "רטב סויה קלאסי",
     "imageUrl": null
@@ -830,7 +814,6 @@
     "icon": "🫒",
     "price": 24.9,
     "barcode": "BUTCHER-076",
-    "brand": "",
     "unit": "בקבוק",
     "description": "שמן זית איכותי לגריל",
     "imageUrl": null
@@ -841,7 +824,6 @@
     "icon": "📄",
     "price": 8.9,
     "barcode": "BUTCHER-077",
-    "brand": "",
     "unit": "גליל",
     "description": "נייר אפייה למנגל",
     "imageUrl": null
@@ -852,7 +834,6 @@
     "icon": "📄",
     "price": 12.9,
     "barcode": "BUTCHER-078",
-    "brand": "",
     "unit": "גליל",
     "description": "נייר אלומיניום למנגל",
     "imageUrl": null
@@ -863,7 +844,6 @@
     "icon": "🍢",
     "price": 6.9,
     "barcode": "BUTCHER-079",
-    "brand": "",
     "unit": "חבילה",
     "description": "שיפודי עץ למנגל",
     "imageUrl": null
@@ -874,7 +854,6 @@
     "icon": "🍞",
     "price": 9.9,
     "barcode": "BUTCHER-080",
-    "brand": "",
     "unit": "אריזה 500 גרם",
     "description": "פירורי לחם לשניצל",
     "imageUrl": null
@@ -885,7 +864,6 @@
     "icon": "🍞",
     "price": 12.9,
     "barcode": "BUTCHER-081",
-    "brand": "",
     "unit": "אריזה 500 גרם",
     "description": "קמח מצה לציפוי",
     "imageUrl": null
@@ -896,7 +874,6 @@
     "icon": "🥚",
     "price": 18.9,
     "barcode": "BUTCHER-082",
-    "brand": "",
     "unit": "מארז 12 יחידות",
     "description": "ביצים טריות",
     "imageUrl": null
@@ -907,7 +884,6 @@
     "icon": "🫒",
     "price": 14.9,
     "barcode": "BUTCHER-083",
-    "brand": "",
     "unit": "בקבוק ליטר",
     "description": "שמן צמחי לטיגון",
     "imageUrl": null
@@ -918,7 +894,6 @@
     "icon": "🍯",
     "price": 8.9,
     "barcode": "BUTCHER-084",
-    "brand": "",
     "unit": "בקבוק",
     "description": "קטשופ עגבניות",
     "imageUrl": null
@@ -929,7 +904,6 @@
     "icon": "🍯",
     "price": 7.9,
     "barcode": "BUTCHER-085",
-    "brand": "",
     "unit": "בקבוק",
     "description": "חרדל צהוב קלאסי",
     "imageUrl": null
@@ -940,7 +914,6 @@
     "icon": "🍯",
     "price": 9.9,
     "barcode": "BUTCHER-086",
-    "brand": "",
     "unit": "בקבוק",
     "description": "מיונז",
     "imageUrl": null
@@ -951,7 +924,6 @@
     "icon": "🍶",
     "price": 6.9,
     "barcode": "BUTCHER-087",
-    "brand": "",
     "unit": "בקבוק",
     "description": "חומץ לבן למרינדות",
     "imageUrl": null
@@ -962,7 +934,6 @@
     "icon": "🍋",
     "price": 4.9,
     "barcode": "BUTCHER-088",
-    "brand": "",
     "unit": "ק\"ג",
     "description": "לימונים טריים",
     "imageUrl": null
@@ -973,7 +944,6 @@
     "icon": "🧅",
     "price": 3.9,
     "barcode": "BUTCHER-089",
-    "brand": "",
     "unit": "ק\"ג",
     "description": "בצל יבש",
     "imageUrl": null
@@ -984,7 +954,6 @@
     "icon": "🧄",
     "price": 15.9,
     "barcode": "BUTCHER-090",
-    "brand": "",
     "unit": "ק\"ג",
     "description": "שום טרי",
     "imageUrl": null
@@ -995,7 +964,6 @@
     "icon": "🍽️",
     "price": 12.9,
     "barcode": "BUTCHER-091",
-    "brand": "",
     "unit": "חבילה",
     "description": "צלחות פלסטיק חד פעמי",
     "imageUrl": null
@@ -1006,7 +974,6 @@
     "icon": "🥤",
     "price": 9.9,
     "barcode": "BUTCHER-092",
-    "brand": "",
     "unit": "חבילה",
     "description": "כוסות פלסטיק חד פעמי",
     "imageUrl": null

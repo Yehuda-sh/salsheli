@@ -6,7 +6,7 @@
 // - ⏱️ טיימר - מודד כמה זמן עובר מתחילת הקנייה
 // - 📊 מונים - כמה נקנה / כמה נשאר / כמה לא היה
 // - 🗂️ סידור לפי קטגוריות
-// - ✅ סימון מוצרים: נקנה / לא במלאי / דחוי
+// - ✅ סימון מוצרים: נקנה / לא במלאי / לא צריך
 // - 📱 כפתורי פעולה מהירה
 // - 🏁 סיכום מפורט בסיום
 // - 🎨 Skeleton Screen & Error Handling
@@ -75,6 +75,9 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
   String? _errorMessage;
   bool _isSaving = false;
 
+  // 🔄 Sync status - מצב סנכרון עם השרת
+  bool _hasSyncError = false;
+
   // 🧑 UserContext Listener
   late UserContext _userContext;
   bool _listenerAdded = false; // 🔧 עוקב אחרי הוספת listener
@@ -89,7 +92,8 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     _userContext.addListener(_onUserContextChanged);
     _listenerAdded = true; // 🔧 מסמן שהוספנו listener
 
-    _initializeScreen();
+    // ⚠️ עטיפה ב-microtask למניעת setState במהלך build
+    Future.microtask(_initializeScreen);
   }
 
   /// אתחול המסך - טעינת נתונים
@@ -102,15 +106,28 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
 
       debugPrint('🔄 _initializeScreen: מתחיל טעינה');
 
-      // אתחל את כל הפריטים כ-pending (או טען drafts אם קיימים)
+      // 🔧 ניקוי מפה קודמת למניעת "זבל" מפריטים ישנים
+      _itemStatuses.clear();
+
+      // 🔧 שחזור סטטוס קיים מהמודל
+      // הערה: המודל תומך רק ב-isChecked (בוליאני), לכן:
+      // - isChecked=true → purchased
+      // - isChecked=false → pending
+      // ⚠️ סטטוסים כמו outOfStock/notNeeded לא נשמרים כרגע במודל
       for (final item in widget.list.items) {
-        _itemStatuses[item.id] = ShoppingItemStatus.pending;
+        if (item.isChecked) {
+          _itemStatuses[item.id] = ShoppingItemStatus.purchased;
+          debugPrint('  ✅ ${item.name}: שוחזר כ-purchased');
+        } else {
+          _itemStatuses[item.id] = ShoppingItemStatus.pending;
+        }
       }
 
-      debugPrint('✅ _initializeScreen: ${widget.list.items.length} פריטים');
+      final purchasedCount = _itemStatuses.values.where((s) => s == ShoppingItemStatus.purchased).length;
+      debugPrint('✅ _initializeScreen: ${widget.list.items.length} פריטים, $purchasedCount כבר נקנו');
 
       if (!mounted) return;
-      
+
       setState(() {
         _isLoading = false;
       });
@@ -147,7 +164,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
 
   /// עדכון סטטוס פריט + שמירה אוטומטית
   Future<void> _updateItemStatus(UnifiedListItem item, ShoppingItemStatus newStatus) async {
-    debugPrint('📝 _updateItemStatus: ${item.name} → ${newStatus.label}');
+    debugPrint('📝 _updateItemStatus: ${item.name} → ${newStatus.name}');
 
     setState(() {
       _itemStatuses[item.id] = newStatus;
@@ -158,9 +175,18 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       final provider = context.read<ShoppingListsProvider>();
       await provider.updateItemStatus(widget.list.id, item.id, newStatus);
       debugPrint('✅ _updateItemStatus: נשמר אוטומטית');
+
+      // ✅ סנכרון הצליח - נקה שגיאה קודמת אם הייתה
+      if (_hasSyncError && mounted) {
+        setState(() => _hasSyncError = false);
+      }
     } catch (e) {
       debugPrint('❌ _updateItemStatus Auto-save Error: $e');
-      // לא מציג שגיאה למשתמש - נשמר בזיכרון מקומי
+
+      // ⚠️ הצג אינדיקציה למשתמש שיש בעיית סנכרון
+      if (mounted && !_hasSyncError) {
+        setState(() => _hasSyncError = true);
+      }
     }
   }
 
@@ -171,11 +197,18 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     // ✨ Haptic feedback למשוב מישוש
     unawaited(HapticFeedback.mediumImpact());
 
-    final purchased = _itemStatuses.values.where((s) => s == ShoppingItemStatus.purchased).length;
-    final outOfStock = _itemStatuses.values.where((s) => s == ShoppingItemStatus.outOfStock).length;
-    final deferred = _itemStatuses.values.where((s) => s == ShoppingItemStatus.deferred).length;
-    final notNeeded = _itemStatuses.values.where((s) => s == ShoppingItemStatus.notNeeded).length;
-    final pending = _itemStatuses.values.where((s) => s == ShoppingItemStatus.pending).length;
+    // 🔧 ספור לפי widget.list.items כדי לכלול גם פריטים שלא במפה (null = pending)
+    final purchased = widget.list.items.where((item) =>
+        _itemStatuses[item.id] == ShoppingItemStatus.purchased).length;
+    final outOfStock = widget.list.items.where((item) =>
+        _itemStatuses[item.id] == ShoppingItemStatus.outOfStock).length;
+    final notNeeded = widget.list.items.where((item) =>
+        _itemStatuses[item.id] == ShoppingItemStatus.notNeeded).length;
+    // pending כולל גם פריטים שלא במפה (null)
+    final pending = widget.list.items.where((item) {
+      final status = _itemStatuses[item.id];
+      return status == null || status == ShoppingItemStatus.pending;
+    }).length;
 
     final result = await showDialog<bool>(
       context: context,
@@ -184,7 +217,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         total: widget.list.items.length,
         purchased: purchased,
         outOfStock: outOfStock,
-        deferred: deferred,
         notNeeded: notNeeded,
         pending: pending,
       ),
@@ -249,24 +281,24 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         }
       }
 
-      // 2️⃣ העבר פריטים שלא נקנו לרשימה הבאה
-      final unpurchasedItems = widget.list.items.where((item) {
+      // 2️⃣ העבר פריטים חסרים במלאי לרשימה הבאה
+      // ⚠️ לא מעבירים pending - הם נשארים רק ברשימה הנוכחית למניעת כפילויות
+      final itemsToTransfer = widget.list.items.where((item) {
         final status = _itemStatuses[item.id];
-        return status == ShoppingItemStatus.pending ||
-               status == ShoppingItemStatus.deferred ||
-               status == ShoppingItemStatus.outOfStock;
+        return status == ShoppingItemStatus.outOfStock;
       }).toList();
 
-      if (unpurchasedItems.isNotEmpty) {
-        debugPrint('🔄 מעביר ${unpurchasedItems.length} פריטים לרשימה הבאה');
-        await shoppingProvider.addToNextList(unpurchasedItems);
+      if (itemsToTransfer.isNotEmpty) {
+        debugPrint('🔄 מעביר ${itemsToTransfer.length} פריטים לרשימה הבאה (outOfStock)');
+        await shoppingProvider.addToNextList(itemsToTransfer);
         debugPrint('✅ פריטים הועברו לרשימה הבאה');
       }
 
       // 3️⃣ בדוק אם יש פריטים שלא טופלו (נשארו במצב pending)
+      // 🔧 null נחשב כ-pending (פריט שהתווסף מסנכרון ולא טופל)
       final pendingItems = widget.list.items.where((item) {
         final status = _itemStatuses[item.id];
-        return status == ShoppingItemStatus.pending;
+        return status == null || status == ShoppingItemStatus.pending;
       }).toList();
 
       // סמן רשימה כהושלמה רק אם אין פריטים ב-pending
@@ -319,8 +351,8 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       if (purchasedItems.isNotEmpty) {
         message += '\n${AppStrings.shopping.pantryUpdated(purchasedItems.length)}';
       }
-      if (unpurchasedItems.isNotEmpty) {
-        message += '\n${AppStrings.shopping.itemsMovedToNext(unpurchasedItems.length)}';
+      if (itemsToTransfer.isNotEmpty) {
+        message += '\n${AppStrings.shopping.itemsMovedToNext(itemsToTransfer.length)}';
       }
       if (pendingItems.isNotEmpty) {
         message += '\n⚠️ ${pendingItems.length} פריטים לא סומנו והרשימה נשארת פעילה';
@@ -433,9 +465,15 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     }
 
     // חשב סטטיסטיקות
-    final purchased = _itemStatuses.values.where((s) => s == ShoppingItemStatus.purchased).length;
-    final notNeeded = _itemStatuses.values.where((s) => s == ShoppingItemStatus.notNeeded).length;
-    final completed = purchased + notNeeded;
+    // 🔧 ספור לפי widget.list.items כדי לכלול גם פריטים שלא במפה (null = pending)
+    final purchased = widget.list.items.where((item) =>
+        _itemStatuses[item.id] == ShoppingItemStatus.purchased).length;
+    final notNeeded = widget.list.items.where((item) =>
+        _itemStatuses[item.id] == ShoppingItemStatus.notNeeded).length;
+    final outOfStock = widget.list.items.where((item) =>
+        _itemStatuses[item.id] == ShoppingItemStatus.outOfStock).length;
+    // 🔧 outOfStock נחשב כ"טופל" - המשתמש טיפל בפריט (סימן שאין במלאי)
+    final completed = purchased + notNeeded + outOfStock;
     final total = widget.list.items.length;
 
 
@@ -463,6 +501,21 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
             ),
+            actions: [
+              // ⚠️ אינדיקציה לבעיית סנכרון
+              if (_hasSyncError)
+                Tooltip(
+                  message: AppStrings.common.syncError,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: kSpacingSmall),
+                    child: Icon(
+                      Icons.cloud_off,
+                      color: Colors.white.withValues(alpha: 0.9),
+                      size: 20,
+                    ),
+                  ),
+                ),
+            ],
           ),
           // 🏁 FAB - כפתור סיום קנייה
           floatingActionButton: _isSaving
@@ -495,13 +548,22 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                       color: StatusColors.success,
                     ),
                     _buildDivider(),
+                    // ❌ לא במלאי
+                    if (outOfStock > 0)
+                      _CompactStat(
+                        icon: Icons.remove_shopping_cart,
+                        value: outOfStock,
+                        color: StatusColors.error,
+                      ),
+                    if (outOfStock > 0) _buildDivider(),
                     // 🚫 לא צריך
-                    _CompactStat(
-                      icon: Icons.block,
-                      value: notNeeded,
-                      color: Colors.grey,
-                    ),
-                    _buildDivider(),
+                    if (notNeeded > 0)
+                      _CompactStat(
+                        icon: Icons.block,
+                        value: notNeeded,
+                        color: Colors.grey,
+                      ),
+                    if (notNeeded > 0) _buildDivider(),
                     // 🛒 נותרו
                     _CompactStat(
                       icon: Icons.shopping_cart,
@@ -626,7 +688,8 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                         ...items.map<Widget>(
                           (item) => _ActiveShoppingItemTile(
                             item: item,
-                            status: _itemStatuses[item.id]!,
+                            // 🔧 Fallback ל-pending אם פריט לא קיים במפה (הגנה מקריסה)
+                            status: _itemStatuses[item.id] ?? ShoppingItemStatus.pending,
                             onStatusChanged: (newStatus) => _updateItemStatus(item, newStatus),
                           ),
                         ),
@@ -1062,7 +1125,6 @@ class _ShoppingSummaryDialog extends StatelessWidget {
   final int total;
   final int purchased;
   final int outOfStock;
-  final int deferred;
   final int notNeeded;
   final int pending;
 
@@ -1071,7 +1133,6 @@ class _ShoppingSummaryDialog extends StatelessWidget {
     required this.total,
     required this.purchased,
     required this.outOfStock,
-    required this.deferred,
     required this.notNeeded,
     required this.pending,
   });
@@ -1130,15 +1191,6 @@ class _ShoppingSummaryDialog extends StatelessWidget {
                 label: AppStrings.shopping.summaryOutOfStock,
                 value: '$outOfStock',
                 color: StatusColors.error,
-              ),
-
-            // ⏭️ נדחו
-            if (deferred > 0)
-              _SummaryRow(
-                icon: Icons.schedule,
-                label: AppStrings.shopping.summaryDeferred,
-                value: '$deferred',
-                color: StatusColors.warning,
               ),
 
             // ⏸️ לא סומנו

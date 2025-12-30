@@ -140,9 +140,11 @@ class FirebaseUserRepository implements UserRepository {
     try {
       final doc = await _firestore.collection(FirestoreCollections.users).doc(userId).get();
       return doc.exists;
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('❌ FirebaseUserRepository.existsUser: שגיאה - $e');
-      return false;
+      debugPrintStack(stackTrace: stackTrace);
+      // 🔧 זורק Exception במקום להחזיר false - כדי להבדיל בין "לא קיים" לבין "שגיאת רשת"
+      throw UserRepositoryException('Failed to check if user exists', e);
     }
   }
 
@@ -450,7 +452,8 @@ class FirebaseUserRepository implements UserRepository {
   /// See also:
   /// - [saveUser] - עדכון מלא של כל הפרופיל
   /// - [fetchUser] - קריאת הפרופיל הנוכחי
-  Future<void> updateProfile({
+  @override
+  Future<UserEntity> updateProfile({
     required String userId,
     String? name,
     String? avatar,
@@ -463,8 +466,12 @@ class FirebaseUserRepository implements UserRepository {
       if (avatar != null) updates['profile_image_url'] = avatar;
 
       if (updates.isEmpty) {
-        debugPrint('⚠️ אין שדות לעדכון');
-        return;
+        debugPrint('⚠️ אין שדות לעדכון - מחזיר משתמש קיים');
+        final existing = await fetchUser(userId);
+        if (existing == null) {
+          throw UserRepositoryException('User not found: $userId');
+        }
+        return existing;
       }
 
       await _firestore
@@ -473,7 +480,15 @@ class FirebaseUserRepository implements UserRepository {
           .update(updates);
 
       debugPrint('✅ FirebaseUserRepository.updateProfile: פרופיל עודכן (${updates.length} שדות)');
+
+      // 🔧 מחזיר את המשתמש המעודכן
+      final updated = await fetchUser(userId);
+      if (updated == null) {
+        throw UserRepositoryException('User not found after update: $userId');
+      }
+      return updated;
     } catch (e, stackTrace) {
+      if (e is UserRepositoryException) rethrow;
       debugPrint('❌ FirebaseUserRepository.updateProfile: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw UserRepositoryException('Failed to update profile', e);
@@ -538,6 +553,7 @@ class FirebaseUserRepository implements UserRepository {
   /// See also:
   /// - [fetchUser] - קריאה חד-פעמית
   /// - [saveUser] - עדכון המשתמש
+  @override
   Stream<UserEntity?> watchUser(String userId) {
     return _firestore
         .collection(FirestoreCollections.users)

@@ -2,36 +2,15 @@
 enum RequestStatus {
   /// ממתין לאישור
   pending,
-  
+
   /// אושר
   approved,
-  
+
   /// נדחה
   rejected;
 
-  /// שם בעברית
-  String get hebrewName {
-    switch (this) {
-      case RequestStatus.pending:
-        return 'ממתין לאישור';
-      case RequestStatus.approved:
-        return 'אושר';
-      case RequestStatus.rejected:
-        return 'נדחה';
-    }
-  }
-
-  /// אימוג'י לסטטוס
-  String get emoji {
-    switch (this) {
-      case RequestStatus.pending:
-        return '🔵';
-      case RequestStatus.approved:
-        return '✅';
-      case RequestStatus.rejected:
-        return '❌';
-    }
-  }
+  // Note: hebrewName and emoji were removed - use AppStrings in UI layer
+  // if localized status names are needed.
 
   /// האם הבקשה עדיין ממתינה
   bool get isPending => this == RequestStatus.pending;

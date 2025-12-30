@@ -34,39 +34,15 @@ enum SuggestionStatus {
 
   final String value;
 
-  /// 🇮🇱 שם בעברית
-  /// 🇬🇧 Hebrew name
-  String get hebrewName {
-    switch (this) {
-      case SuggestionStatus.pending:
-        return 'ממתין';
-      case SuggestionStatus.added:
-        return 'נוסף';
-      case SuggestionStatus.dismissed:
-        return 'נדחה';
-      case SuggestionStatus.deleted:
-        return 'נמחק';
-    }
-  }
+  // Note: hebrewName and emoji were removed - use AppStrings in UI layer
+  // if localized status names are needed.
 
-  /// 🇮🇱 אמוג'י מייצג
-  /// 🇬🇧 Representative emoji
-  String get emoji {
-    switch (this) {
-      case SuggestionStatus.pending:
-        return '🔵';
-      case SuggestionStatus.added:
-        return '✅';
-      case SuggestionStatus.dismissed:
-        return '⏭️';
-      case SuggestionStatus.deleted:
-        return '❌';
-    }
-  }
-
-  /// 🇮🇱 האם ההמלצה פעילה (pending)
-  /// 🇬🇧 Is the suggestion active (pending)
-  bool get isActive => this == SuggestionStatus.pending;
+  /// 🇮🇱 האם הסטטוס ממתין (pending)
+  /// 🇬🇧 Is the status pending
+  ///
+  /// Note: For full "is active" check including `dismissedUntil`,
+  /// use `SmartSuggestion.isActive` instead.
+  bool get isPending => this == SuggestionStatus.pending;
 
   /// 🇮🇱 האם נוסף לרשימה
   /// 🇬🇧 Was it added to a list

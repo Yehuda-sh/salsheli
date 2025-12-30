@@ -86,6 +86,9 @@ class GroupsProvider with ChangeNotifier {
   void updateUserContext(UserContext userContext) {
     if (_userContext == userContext) return;
 
+    // 🛡️ הסרת listener מה-context הישן למניעת דליפת זיכרון
+    _userContext?.removeListener(_onUserChanged);
+
     _userContext = userContext;
     _userContext!.addListener(_onUserChanged);
 
@@ -309,12 +312,7 @@ class GroupsProvider with ChangeNotifier {
 
       await _repository.updateGroup(group);
 
-      // עדכון ברשימה המקומית (immutable)
-      final index = _groups.indexWhere((g) => g.id == group.id);
-      if (index != -1) {
-        _groups = List.from(_groups)..[index] = group;
-        notifyListeners();
-      }
+      // הערה: לא מעדכנים ידנית - ה-Stream (watchUserGroups) יעשה זאת אוטומטית
 
       if (kDebugMode) {
         debugPrint('✅ GroupsProvider.updateGroup: Success');
@@ -411,12 +409,7 @@ class GroupsProvider with ChangeNotifier {
 
       await _repository.addMember(groupId, member);
 
-      // עדכון מקומי (immutable)
-      final index = _groups.indexWhere((g) => g.id == groupId);
-      if (index != -1) {
-        _groups = List.from(_groups)..[index] = _groups[index].addMember(member);
-        notifyListeners();
-      }
+      // הערה: לא מעדכנים ידנית - ה-Stream (watchUserGroups) יעשה זאת אוטומטית
 
       if (kDebugMode) {
         debugPrint('✅ GroupsProvider.addMember: Success');
@@ -442,12 +435,7 @@ class GroupsProvider with ChangeNotifier {
 
       await _repository.removeMember(groupId, userId);
 
-      // עדכון מקומי (immutable)
-      final index = _groups.indexWhere((g) => g.id == groupId);
-      if (index != -1) {
-        _groups = List.from(_groups)..[index] = _groups[index].removeMember(userId);
-        notifyListeners();
-      }
+      // הערה: לא מעדכנים ידנית - ה-Stream (watchUserGroups) יעשה זאת אוטומטית
 
       if (kDebugMode) {
         debugPrint('✅ GroupsProvider.removeMember: Success');
@@ -479,12 +467,7 @@ class GroupsProvider with ChangeNotifier {
 
       await _repository.updateMemberRole(groupId, userId, newRole);
 
-      // עדכון מקומי (immutable)
-      final index = _groups.indexWhere((g) => g.id == groupId);
-      if (index != -1) {
-        _groups = List.from(_groups)..[index] = _groups[index].updateMemberRole(userId, newRole);
-        notifyListeners();
-      }
+      // הערה: לא מעדכנים ידנית - ה-Stream (watchUserGroups) יעשה זאת אוטומטית
 
       if (kDebugMode) {
         debugPrint('✅ GroupsProvider.updateMemberRole: Success');

@@ -25,25 +25,25 @@
 
 //
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
-import 'unified_list_item.dart';
-import 'enums/item_type.dart';
-import 'timestamp_converter.dart';
+
 import 'active_shopper.dart';
-import 'shared_user.dart';
-import 'pending_request.dart';
+import 'enums/item_type.dart';
 import 'enums/user_role.dart';
+import 'pending_request.dart';
+import 'shared_user.dart';
+import 'timestamp_converter.dart';
+import 'unified_list_item.dart';
 
 part 'shopping_list.g.dart';
 
-/// Converter for Map<String, SharedUser> to/from Firestore
+/// Converter for `Map<String, SharedUser>` to/from Firestore
 ///
 /// Converts between:
-/// - Dart: Map<String, SharedUser> (userId as key)
-/// - Firestore: Map<String, Map<String, dynamic>>
+/// - Dart: `Map<String, SharedUser>` (userId as key)
+/// - Firestore: `Map<String, Map<String, dynamic>>`
 ///
 /// Example Firestore structure:
 /// ```json

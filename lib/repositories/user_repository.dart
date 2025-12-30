@@ -32,6 +32,8 @@
 // 📝 Version: 2.0 - Full Documentation
 // 📅 Updated: 09/10/2025
 
+import 'package:meta/meta.dart';
+
 import '../models/user_entity.dart';
 
 // === Exceptions ===
@@ -176,22 +178,31 @@ abstract class UserRepository {
   Future<void> deleteUser(String userId);
 
   /// בודק האם משתמש קיים במערכת
-  /// 
+  ///
   /// מחזיר `true` אם המשתמש קיים, `false` אחרת.
-  /// 
+  ///
   /// פעולה זו מהירה יותר מ-[fetchUser] כי לא טוענת את כל הנתונים.
-  /// 
-  /// מחזיר `false` גם במקרה של שגיאה (במקום לזרוק Exception).
-  /// 
+  ///
+  /// זורק [UserRepositoryException] במקרה של:
+  /// - שגיאת רשת
+  /// - שגיאת מסד נתונים
+  ///
+  /// ⚠️ **חשוב:** פונקציה זו זורקת Exception בשגיאה!
+  /// אל תניח ש-`false` אומר "לא קיים" - יכול להיות שגיאת רשת.
+  ///
   /// Example:
   /// ```dart
-  /// if (await repository.existsUser('abc123')) {
-  ///   print('משתמש קיים');
-  /// } else {
-  ///   print('משתמש לא קיים');
+  /// try {
+  ///   if (await repository.existsUser('abc123')) {
+  ///     print('משתמש קיים');
+  ///   } else {
+  ///     print('משתמש לא קיים');
+  ///   }
+  /// } on UserRepositoryException catch (e) {
+  ///   print('שגיאה בבדיקה: $e');
   /// }
   /// ```
-  /// 
+  ///
   /// See also:
   /// - [fetchUser] - קבלת נתוני המשתמש המלאים
   Future<bool> existsUser(String userId);
@@ -365,53 +376,56 @@ abstract class UserRepository {
   });
 
   /// מעדכן פרופיל של משתמש (עדכון חלקי)
-  /// 
+  ///
   /// מעדכן רק את השדות שנשלחו (לא null).
   /// שאר השדות נשארים ללא שינוי.
-  /// 
+  ///
+  /// **מחזיר:** את המשתמש המעודכן - כדי שה-Provider יוכל לעדכן מצב מקומי.
+  ///
   /// **פרמטרים:**
   /// - [userId] - מזהה המשתמש לעדכון (חובה)
   /// - [name] - שם חדש (אופציונלי)
   /// - [avatar] - URL לתמונת פרופיל (אופציונלי)
-  /// 
+  ///
   /// שימושי ב:
   /// - מסך הגדרות פרופיל
   /// - עדכון שם/תמונה מהיר
   /// - עדכון חלקי ללא טעינת כל הנתונים
-  /// 
+  ///
   /// ⚠️ **הערה:** לא מעדכן את `lastLoginAt` (בניגוד ל-saveUser).
-  /// 
+  ///
   /// זורק [UserRepositoryException] במקרה של:
   /// - משתמש לא קיים
   /// - שגיאת רשת
   /// - אין שדות לעדכון
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// // עדכון שם בלבד
-  /// await repository.updateProfile(
+  /// final updatedUser = await repository.updateProfile(
   ///   userId: 'abc123',
   ///   name: 'יוני כהן החדש',
   /// );
-  /// 
+  /// print('שם עודכן ל: ${updatedUser.name}');
+  ///
   /// // עדכון תמונה בלבד
-  /// await repository.updateProfile(
+  /// final user = await repository.updateProfile(
   ///   userId: 'abc123',
   ///   avatar: 'https://example.com/avatar.jpg',
   /// );
-  /// 
+  ///
   /// // עדכון שניהם
-  /// await repository.updateProfile(
+  /// final result = await repository.updateProfile(
   ///   userId: 'abc123',
   ///   name: 'יוני',
   ///   avatar: 'https://example.com/avatar.jpg',
   /// );
   /// ```
-  /// 
+  ///
   /// See also:
   /// - [saveUser] - עדכון מלא של כל הפרופיל
   /// - [fetchUser] - קריאת הפרופיל הנוכחי
-  Future<void> updateProfile({
+  Future<UserEntity> updateProfile({
     required String userId,
     String? name,
     String? avatar,
@@ -490,39 +504,42 @@ abstract class UserRepository {
   Stream<UserEntity?> watchUser(String userId);
 
   /// מוחק את כל המשתמשים מהמערכת
-  /// 
+  ///
   /// 💡 **Dynamic filtering:** מקבל פרמטר אופציונלי [householdId]:
   /// - אם [householdId] מסופק → מוחק רק משתמשים של אותו משק בית ✅
   /// - אם [householdId] הוא null → מוחק **כל** המשתמשים (מסוכן!) ⚠️
-  /// 
+  ///
   /// ⚠️ **אזהרה קריטית:** פעולה זו בלתי הפיכה!
-  /// 
+  ///
+  /// 🧪 **מיועד לטסטים בלבד!** מסומן כ-@visibleForTesting.
+  ///
   /// שימושי **רק** ל:
   /// - ניקוי משק בית מסוים (עם householdId) ✅
   /// - איפוס מסד נתונים בטסטים (ללא householdId)
   /// - סביבת פיתוח (dev/staging)
   /// - סקריפטים של ניקוי
-  /// 
+  ///
   /// ❌ **אסור להשתמש ב-Production ללא householdId!**
-  /// 
+  ///
   /// זורק [UserRepositoryException] במקרה של שגיאה.
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// // ניקוי משק בית מסוים (מומלץ)
   /// await repository.clearAll(householdId: 'house_abc123');
   /// print('משתמשי המשק נמחקו');
-  /// 
+  ///
   /// // ניקוי כל המשתמשים (בטסטים בלבד!)
   /// await repository.clearAll();
   /// print('כל המשתמשים נמחקו');
-  /// 
+  ///
   /// // בדיקה
   /// final users = await repository.getAllUsers();
   /// assert(users.isEmpty);
   /// ```
-  /// 
+  ///
   /// See also:
   /// - [deleteUser] - מחיקת משתמש בודד
+  @visibleForTesting
   Future<void> clearAll({String? householdId});
 }

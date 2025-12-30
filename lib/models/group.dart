@@ -1,18 +1,36 @@
 // 📄 File: lib/models/group.dart
-// 🎯 Purpose: מודל קבוצה (Group) - תומך בכל סוגי הקבוצות
 //
-// 📋 Features:
-// - סוגי קבוצות: משפחה, ועד בית, ועד גן, חברים, אירוע, שותפים, אחר
-// - ניהול חברים עם הרשאות שונות
-// - הגדרות מותאמות לכל סוג קבוצה
-// - תמיכה ב-JSON serialization
+// 🇮🇱 מודל קבוצה (Group) - תומך בכל סוגי הקבוצות:
+//     - סוגי קבוצות: משפחה, ועד בית, ועד גן, חברים, אירוע, שותפים, אחר
+//     - ניהול חברים עם הרשאות שונות (כמו SharedUser)
+//     - הגדרות מותאמות לכל סוג קבוצה
+//     - תמיכה ב-JSON serialization עם Firestore
 //
-// 📝 Version: 1.0
-// 📅 Created: 14/12/2025
+// 🇬🇧 Group model - supports all group types:
+//     - Group types: family, building, kindergarten, friends, event, roommates, other
+//     - Member management with different roles (like SharedUser)
+//     - Custom settings per group type
+//     - JSON serialization with Firestore support
+//
+// 🏗️ Firestore Structure:
+//     groups/{groupId}: {
+//       name, type, created_by, created_at, updated_at,
+//       members: { "userId1": { role, name, email, ... }, ... },
+//       settings: { notifications, ... },
+//       extra_fields: { ... }
+//     }
+//
+// 🔗 Related:
+//     - shared_user.dart - דפוס דומה ל-members כ-Map
+//     - user_role.dart - תפקידים (owner/admin/editor/viewer)
+//
+// Version: 1.1 - Safe casting, firstOrNull fix, immutability, auto-id
+// Last Updated: 30/12/2025
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';
+import 'package:uuid/uuid.dart';
 
 import 'enums/user_role.dart';
 import 'timestamp_converter.dart';
@@ -86,23 +104,34 @@ enum GroupType {
     }
   }
 
-  /// אייקון Material
-  IconData get icon {
+  /// 🔧 מזהה אייקון Material (למיפוי ב-UI)
+  ///
+  /// השימוש ב-String מאפשר לשמור את המודל נקי מתלות ב-Flutter UI.
+  /// ב-UI יש למפות את המזהה ל-IconData:
+  /// ```dart
+  /// IconData getIcon(GroupType type) {
+  ///   switch (type.iconName) {
+  ///     case 'family_restroom': return Icons.family_restroom;
+  ///     // ...
+  ///   }
+  /// }
+  /// ```
+  String get iconName {
     switch (this) {
       case GroupType.family:
-        return Icons.family_restroom;
+        return 'family_restroom';
       case GroupType.building:
-        return Icons.apartment;
+        return 'apartment';
       case GroupType.kindergarten:
-        return Icons.child_care;
+        return 'child_care';
       case GroupType.friends:
-        return Icons.group;
+        return 'group';
       case GroupType.event:
-        return Icons.celebration;
+        return 'celebration';
       case GroupType.roommates:
-        return Icons.home;
+        return 'home';
       case GroupType.other:
-        return Icons.list_alt;
+        return 'list_alt';
     }
   }
 
@@ -412,8 +441,10 @@ class Group {
   });
 
   /// יצירת קבוצה חדשה
+  ///
+  /// 🔧 אם לא עובר id, נוצר אוטומטית עם Uuid
   factory Group.create({
-    required String id,
+    String? id,
     required String name,
     required GroupType type,
     String? description,
@@ -433,7 +464,7 @@ class Group {
     );
 
     return Group(
-      id: id,
+      id: id ?? const Uuid().v4(),
       name: name,
       type: type,
       description: description,
@@ -443,7 +474,7 @@ class Group {
       updatedAt: now,
       members: {creatorId: owner},
       settings: GroupSettings.defaults(),
-      extraFields: extraFields,
+      extraFields: extraFields != null ? Map<String, dynamic>.from(extraFields) : null,
     );
   }
 
@@ -456,8 +487,11 @@ class Group {
   List<GroupMember> get membersList => members.values.toList();
 
   /// הבעלים של הקבוצה
-  GroupMember? get owner =>
-      members.values.where((m) => m.isOwner).firstOrNull;
+  /// 🔧 שימוש ב-cast + firstWhere במקום firstOrNull (תואם Dart ישן יותר)
+  GroupMember? get owner {
+    final owners = members.values.where((m) => m.isOwner);
+    return owners.isEmpty ? null : owners.first;
+  }
 
   /// האדמינים בקבוצה
   List<GroupMember> get admins =>
@@ -505,13 +539,55 @@ class Group {
   Map<String, dynamic> toJson() => _$GroupToJson(this);
 
   /// יצירה מ-Firestore document
+  ///
+  /// 🔧 המרה בטוחה של Maps מ-Firestore
   factory Group.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+    final rawData = doc.data();
+    if (rawData == null) {
+      throw ArgumentError('Document data is null for id: ${doc.id}');
+    }
+
+    // המרה בטוחה של ה-data הראשי
+    final Map<String, dynamic> data;
+    if (rawData is Map<String, dynamic>) {
+      data = rawData;
+    } else if (rawData is Map) {
+      data = Map<String, dynamic>.from(
+        rawData.map((k, v) => MapEntry(k.toString(), v)),
+      );
+    } else {
+      throw ArgumentError('Cannot convert ${rawData.runtimeType} to Map<String, dynamic>');
+    }
+
+    // 🔧 המרה בטוחה של members (nested Map)
+    final rawMembers = data['members'];
+    if (rawMembers != null && rawMembers is Map && rawMembers is! Map<String, dynamic>) {
+      data['members'] = Map<String, dynamic>.from(
+        rawMembers.map((k, v) {
+          final memberData = v is Map<String, dynamic>
+              ? v
+              : Map<String, dynamic>.from((v as Map).map((mk, mv) => MapEntry(mk.toString(), mv)));
+          return MapEntry(k.toString(), memberData);
+        }),
+      );
+    }
+
+    // 🔧 המרה בטוחה של extra_fields (nested Map)
+    final rawExtraFields = data['extra_fields'];
+    if (rawExtraFields != null && rawExtraFields is Map && rawExtraFields is! Map<String, dynamic>) {
+      data['extra_fields'] = Map<String, dynamic>.from(
+        rawExtraFields.map((k, v) => MapEntry(k.toString(), v)),
+      );
+    }
+
     return Group.fromJson({...data, 'id': doc.id});
   }
 
   // === Copy With ===
 
+  /// 🔧 יוצר עותק חדש עם שינויים
+  ///
+  /// **הערה:** members ו-extraFields מועתקים (shallow copy) לשמירה על immutability.
   Group copyWith({
     String? id,
     String? name,
@@ -534,9 +610,14 @@ class Group {
       createdBy: createdBy ?? this.createdBy,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? DateTime.now(),
-      members: members ?? this.members,
+      // 🔧 Deep copy של Maps לשמירה על immutability
+      members: members != null
+          ? Map<String, GroupMember>.from(members)
+          : Map<String, GroupMember>.from(this.members),
       settings: settings ?? this.settings,
-      extraFields: extraFields ?? this.extraFields,
+      extraFields: extraFields != null
+          ? Map<String, dynamic>.from(extraFields)
+          : (this.extraFields != null ? Map<String, dynamic>.from(this.extraFields!) : null),
     );
   }
 

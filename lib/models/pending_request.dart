@@ -1,7 +1,37 @@
+// 📄 File: lib/models/pending_request.dart
+//
+// 🇮🇱 מודל לבקשה ממתינה לאישור:
+//     - Editor שולח בקשה להוספה/עריכה/מחיקה
+//     - Owner/Admin מאשר או דוחה
+//     - תומך ב-3 סוגי בקשות: addItem, editItem, deleteItem
+//     - כולל מטאדאטה (cache) לשמות המבקש והמאשר
+//     - ולידציה לפי type (isValidForType)
+//
+// 🇬🇧 Model for pending approval request:
+//     - Editor sends request for add/edit/delete
+//     - Owner/Admin approves or rejects
+//     - Supports 3 request types: addItem, editItem, deleteItem
+//     - Includes metadata (cache) for requester/reviewer names
+//     - Validation by type (isValidForType)
+//
+// 📋 Request Data Structure (by type):
+//     - addItem:    { name, quantity?, unitPrice?, barcode?, ... }
+//     - editItem:   { itemId, changes: { name?, quantity?, ... } }
+//     - deleteItem: { itemId }
+//
+// 🔗 Related:
+//     - request_type.dart - סוגי בקשות (addItem/editItem/deleteItem)
+//     - request_status.dart - סטטוסים (pending/approved/rejected)
+//     - firebase_shopping_lists_repository.dart - שמירה/אישור/דחייה
+//
+// Version: 1.1 - DateTime converter, validation helpers, equality fix
+// Last Updated: 30/12/2025
+
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 import 'enums/request_type.dart';
 import 'enums/request_status.dart';
+import 'shared_user.dart' show FlexibleDateTimeConverter, NullableFlexibleDateTimeConverter;
 
 part 'pending_request.g.dart';
 
@@ -26,6 +56,7 @@ class PendingRequest {
   final RequestStatus status;
 
   /// מתי נוצרה הבקשה
+  @FlexibleDateTimeConverter()
   @JsonKey(name: 'created_at')
   final DateTime createdAt;
 
@@ -45,6 +76,7 @@ class PendingRequest {
   final String? reviewerId;
 
   /// מתי אושר/נדחה
+  @NullableFlexibleDateTimeConverter()
   @JsonKey(name: 'reviewed_at')
   final DateTime? reviewedAt;
 
@@ -62,6 +94,10 @@ class PendingRequest {
   @JsonKey(name: 'reviewer_name')
   final String? reviewerName;
 
+  /// 🔧 שם הרשימה (cache) - לתצוגה ברשימת בקשות ללא fetch נוסף
+  @JsonKey(name: 'list_name')
+  final String? listName;
+
   const PendingRequest({
     required this.id,
     required this.listId,
@@ -75,6 +111,7 @@ class PendingRequest {
     this.rejectionReason,
     this.requesterName,
     this.reviewerName,
+    this.listName,
   });
 
   /// JSON serialization
@@ -113,6 +150,62 @@ class PendingRequest {
     return 'לפני $days ימים';
   }
 
+  // === Request Data Helpers ===
+  // 🔧 גישה בטוחה לנתוני הבקשה לפי type
+
+  /// 🔧 מזהה הפריט (ל-editItem/deleteItem)
+  String? get targetItemId => requestData['itemId'] as String?;
+
+  /// 🔧 שם המוצר המבוקש (ל-addItem)
+  String? get requestedName => requestData['name'] as String?;
+
+  /// 🔧 השינויים המבוקשים (ל-editItem)
+  Map<String, dynamic>? get changes {
+    final data = requestData['changes'];
+    if (data is Map<String, dynamic>) return data;
+    if (data is Map) return Map<String, dynamic>.from(data);
+    return null;
+  }
+
+  /// 🔧 האם הבקשה תקינה לפי הסוג שלה
+  ///
+  /// - addItem: חייב להיות name
+  /// - editItem: חייב להיות itemId + changes
+  /// - deleteItem: חייב להיות itemId
+  /// - inviteToList: חייב להיות userId או email
+  bool get isValidForType {
+    switch (type) {
+      case RequestType.addItem:
+        return requestedName != null && requestedName!.isNotEmpty;
+      case RequestType.editItem:
+        return targetItemId != null && targetItemId!.isNotEmpty && changes != null;
+      case RequestType.deleteItem:
+        return targetItemId != null && targetItemId!.isNotEmpty;
+      case RequestType.inviteToList:
+        final userId = requestData['userId'] as String?;
+        final email = requestData['email'] as String?;
+        return (userId?.isNotEmpty ?? false) || (email?.isNotEmpty ?? false);
+    }
+  }
+
+  // === Reviewer Validation Helpers ===
+
+  /// 🔧 האם יש נתוני reviewer מלאים (id + תאריך)
+  bool get hasReviewerData => reviewerId != null && reviewedAt != null;
+
+  /// 🔧 האם יש סיבת דחייה (רלוונטי רק ל-rejected)
+  bool get hasRejectionReason => isRejected && (rejectionReason?.isNotEmpty ?? false);
+
+  /// 🔧 האם הבקשה תקינה מבחינת נתוני אישור/דחייה
+  ///
+  /// - pending: לא צריך reviewer data
+  /// - approved/rejected: צריך reviewer data
+  /// - rejected: עדיף שיהיה גם rejectionReason
+  bool get hasValidReviewData {
+    if (isPending) return true; // לא צריך עדיין
+    return hasReviewerData;
+  }
+
   // === Factory Constructors ===
 
   /// יצירת בקשה חדשה
@@ -123,6 +216,7 @@ class PendingRequest {
     required RequestType type,
     required Map<String, dynamic> requestData,
     String? requesterName,
+    String? listName,
   }) {
     return PendingRequest(
       id: id ?? const Uuid().v4(),
@@ -133,6 +227,7 @@ class PendingRequest {
       createdAt: DateTime.now(),
       requestData: requestData,
       requesterName: requesterName,
+      listName: listName,
     );
   }
 
@@ -150,6 +245,7 @@ class PendingRequest {
     String? rejectionReason,
     String? requesterName,
     String? reviewerName,
+    String? listName,
   }) {
     return PendingRequest(
       id: id ?? this.id,
@@ -164,21 +260,21 @@ class PendingRequest {
       rejectionReason: rejectionReason ?? this.rejectionReason,
       requesterName: requesterName ?? this.requesterName,
       reviewerName: reviewerName ?? this.reviewerName,
+      listName: listName ?? this.listName,
     );
   }
+
+  // === Equality ===
+  // 🔧 שוויון לפי id בלבד - כמו בשאר המודלים
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-
-    return other is PendingRequest &&
-        other.id == id &&
-        other.listId == listId &&
-        other.requesterId == requesterId;
+    return other is PendingRequest && other.id == id;
   }
 
   @override
-  int get hashCode => id.hashCode ^ listId.hashCode ^ requesterId.hashCode;
+  int get hashCode => id.hashCode;
 
   @override
   String toString() {

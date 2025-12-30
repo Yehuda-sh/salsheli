@@ -31,12 +31,15 @@ class FirebaseGroupRepository implements GroupRepository {
   // Collection name
   static const String _collectionName = 'groups';
 
-  FirebaseGroupRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+  // 🔧 Cache למניעת טעינות מיותרות ב-watchUserGroups
+  // כאשר משתמש משנה תמונת פרופיל, לא צריך לטעון שוב את כל הקבוצות!
+  List<String>? _lastGroupIds;
+  List<Group>? _cachedGroups;
+
+  FirebaseGroupRepository({FirebaseFirestore? firestore}) : _firestore = firestore ?? FirebaseFirestore.instance;
 
   /// Reference ל-collection
-  CollectionReference<Map<String, dynamic>> get _collection =>
-      _firestore.collection(_collectionName);
+  CollectionReference<Map<String, dynamic>> get _collection => _firestore.collection(_collectionName);
 
   // ============================================================
   // GROUP CRUD
@@ -138,9 +141,7 @@ class FirebaseGroupRepository implements GroupRepository {
 
       for (var i = 0; i < groupIds.length; i += 30) {
         final batch = groupIds.skip(i).take(30).toList();
-        final snapshot = await _collection
-            .where(FieldPath.documentId, whereIn: batch)
-            .get();
+        final snapshot = await _collection.where(FieldPath.documentId, whereIn: batch).get();
 
         for (final doc in snapshot.docs) {
           final data = doc.data();
@@ -172,10 +173,7 @@ class FirebaseGroupRepository implements GroupRepository {
         debugPrint('✏️ FirebaseGroupRepository.updateGroup: ${group.id}');
       }
 
-      await _collection.doc(group.id).update({
-        ...group.toJson(),
-        'updated_at': FieldValue.serverTimestamp(),
-      });
+      await _collection.doc(group.id).update({...group.toJson(), 'updated_at': FieldValue.serverTimestamp()});
 
       if (kDebugMode) {
         debugPrint('✅ Group updated successfully');
@@ -244,10 +242,7 @@ class FirebaseGroupRepository implements GroupRepository {
 
       // עדכון הקבוצה
       final groupRef = _collection.doc(groupId);
-      await groupRef.update({
-        'members.${member.userId}': member.toJson(),
-        'updated_at': FieldValue.serverTimestamp(),
-      });
+      await groupRef.update({'members.${member.userId}': member.toJson(), 'updated_at': FieldValue.serverTimestamp()});
 
       // עדכון ה-user רק אם הוא קיים במערכת (לא מוזמן חיצוני)
       if (!member.userId.startsWith('invited_')) {
@@ -310,11 +305,7 @@ class FirebaseGroupRepository implements GroupRepository {
   }
 
   @override
-  Future<void> updateMemberRole(
-    String groupId,
-    String userId,
-    UserRole newRole,
-  ) async {
+  Future<void> updateMemberRole(String groupId, String userId, UserRole newRole) async {
     try {
       if (kDebugMode) {
         debugPrint('🔄 FirebaseGroupRepository.updateMemberRole:');
@@ -325,9 +316,7 @@ class FirebaseGroupRepository implements GroupRepository {
 
       // לא ניתן לשנות ל-owner
       if (newRole == UserRole.owner) {
-        throw GroupRepositoryException(
-          'Cannot assign owner role directly',
-        );
+        throw GroupRepositoryException('Cannot assign owner role directly');
       }
 
       await _collection.doc(groupId).update({
@@ -371,26 +360,43 @@ class FirebaseGroupRepository implements GroupRepository {
     }
 
     // האזנה לשינויים ב-user document
-    return _firestore
-        .collection('users')
-        .doc(userId)
-        .snapshots()
-        .asyncMap((userDoc) async {
-      if (!userDoc.exists) return <Group>[];
+    return _firestore.collection('users').doc(userId).snapshots().asyncMap((userDoc) async {
+      if (!userDoc.exists) {
+        _lastGroupIds = null;
+        _cachedGroups = null;
+        return <Group>[];
+      }
 
       final userData = userDoc.data()!;
       final groupIds = List<String>.from(userData['group_ids'] ?? []);
 
-      if (groupIds.isEmpty) return <Group>[];
+      if (groupIds.isEmpty) {
+        _lastGroupIds = [];
+        _cachedGroups = [];
+        return <Group>[];
+      }
+
+      // 🔧 בדיקה אם group_ids השתנו - אם לא, מחזיר cache
+      // זה מונע טעינות מיותרות כשהמשתמש משנה תמונת פרופיל וכד'
+      if (_lastGroupIds != null &&
+          _cachedGroups != null &&
+          listEquals(_lastGroupIds, groupIds)) {
+        if (kDebugMode) {
+          debugPrint('   📦 Using cached groups (group_ids unchanged)');
+        }
+        return _cachedGroups!;
+      }
+
+      if (kDebugMode) {
+        debugPrint('   🔄 Loading groups from Firestore (group_ids changed)');
+      }
 
       // טעינת כל הקבוצות
       final List<Group> groups = [];
 
       for (var i = 0; i < groupIds.length; i += 30) {
         final batch = groupIds.skip(i).take(30).toList();
-        final snapshot = await _collection
-            .where(FieldPath.documentId, whereIn: batch)
-            .get();
+        final snapshot = await _collection.where(FieldPath.documentId, whereIn: batch).get();
 
         for (final doc in snapshot.docs) {
           final data = doc.data();
@@ -399,6 +405,11 @@ class FirebaseGroupRepository implements GroupRepository {
       }
 
       groups.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+
+      // 🔧 שמירה ב-cache
+      _lastGroupIds = List.from(groupIds);
+      _cachedGroups = groups;
+
       return groups;
     });
   }
@@ -408,11 +419,7 @@ class FirebaseGroupRepository implements GroupRepository {
   // ============================================================
 
   /// עדכון רשימת הקבוצות של משתמש
-  Future<void> _updateUserGroups(
-    String userId,
-    String groupId, {
-    required bool add,
-  }) async {
+  Future<void> _updateUserGroups(String userId, String groupId, {required bool add}) async {
     final userRef = _firestore.collection('users').doc(userId);
 
     if (add) {

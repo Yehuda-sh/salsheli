@@ -74,6 +74,9 @@ class _CreateListScreenState extends State<CreateListScreen> {
   Future<void> _handleSubmit() async {
     debugPrint('🔵 CreateListScreen._handleSubmit()');
 
+    // 🔧 סגירת מקלדת לפני פעולות אסינכרוניות
+    FocusManager.instance.primaryFocus?.unfocus();
+
     if (!(_formKey.currentState?.validate() ?? false)) {
       debugPrint('   ⚠️ Validation נכשל');
       _showErrorSnackBar(AppStrings.createListDialog.validationFailed);
@@ -192,7 +195,10 @@ class _CreateListScreenState extends State<CreateListScreen> {
 
         setState(() {
           _selectedTemplate = selected;
-          _nameController.text = selected.name;
+          // 🔧 עדכון שם רק אם השדה ריק - שומר על כוונת המשתמש
+          if (_nameController.text.trim().isEmpty) {
+            _nameController.text = selected.name;
+          }
           _templateItems = items;
         });
 
@@ -223,6 +229,10 @@ class _CreateListScreenState extends State<CreateListScreen> {
   /// פתיחת DatePicker
   Future<void> _selectEventDate() async {
     debugPrint('📅 פותח DatePicker');
+
+    // 🔧 סגירת מקלדת לפני פתיחת הדיאלוג
+    FocusManager.instance.primaryFocus?.unfocus();
+
     final strings = AppStrings.createListDialog;
 
     final selectedDate = await showDatePicker(
@@ -245,7 +255,8 @@ class _CreateListScreenState extends State<CreateListScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final strings = AppStrings.createListDialog;
-    final provider = context.read<ShoppingListsProvider>();
+    // 🔧 שימוש ב-watch כדי שהולידציה תתעדכן אם נוספה רשימה ברקע
+    final provider = context.watch<ShoppingListsProvider>();
 
     return Scaffold(
       appBar: AppBar(
@@ -368,15 +379,8 @@ class _CreateListScreenState extends State<CreateListScreen> {
 
   Widget _buildTypeSelector(ThemeData theme) {
     final strings = AppStrings.createListDialog;
-    const types = [
-      'supermarket',
-      'pharmacy',
-      'greengrocer',
-      'butcher',
-      'bakery',
-      'market',
-      'other',
-    ];
+    // 🔧 שימוש בקונסטנטים מהקונפיגורציה במקום מחרוזות קשיחות
+    final types = ListTypes.all.map((t) => t.key).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

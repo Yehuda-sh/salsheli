@@ -1,20 +1,18 @@
 // 📄 File: lib/widgets/shopping/shopping_list_tile.dart
 //
 // 🇮🇱 ווידג'ט להצגת רשימת קניות:
-//     - מציג שם רשימה, מספר פריטים, תאריך עדכון.
-//     - תומך במחיקה ב-Swipe (כולל Undo).
-//     - מציג אייקון מותאם לפי סטטוס הרשימה.
-//     - מציג פס התקדמות (כמה פריטים כבר נקנו).
-//     - תומך בלחיצה כדי לפתוח את הרשימה.
-//     - כפתור "התחל קנייה" לרשימות פעילות.
+//     - מציג שם רשימה, מספר פריטים, תאריך עדכון
+//     - מציג פס התקדמות (כמה פריטים כבר נקנו)
+//     - תומך בלחיצה כדי לפתוח את הרשימה
+//     - כפתור "התחל קנייה" לרשימות פעילות
+//     - תפריט פעולות (עריכה, מחיקה)
 //
 // 🇬🇧 Widget for displaying a shopping list:
-//     - Shows list name, item count, last update date.
-//     - Supports swipe-to-delete with Undo action.
-//     - Displays icon based on list status.
-//     - Shows progress bar (checked vs total items).
-//     - Supports tap to navigate into the list.
-//     - "Start Shopping" button for active lists.
+//     - Shows list name, item count, last update date
+//     - Shows progress bar (checked vs total items)
+//     - Supports tap to navigate into the list
+//     - "Start Shopping" button for active lists
+//     - Actions menu (edit, delete)
 //
 // 📖 Usage:
 // ```dart
@@ -52,23 +50,6 @@ class ShoppingListTile extends StatelessWidget {
     this.onStartShopping,
     this.onEdit,
   });
-
-  /// 🎨 אייקון לפי סוג הרשימה
-  /// מחזיר אייקון ייחודי לכל סוג רשימה
-  Widget _getListIcon(BuildContext context) {
-    // ✅ שימוש ב-getters מהמודל (במקום switch case)
-    final iconData = list.typeIcon;
-    final iconColor = list.stickyColor;
-
-    return Container(
-      padding: const EdgeInsets.all(kSpacingSmall),
-      decoration: BoxDecoration(
-        color: iconColor.withValues(alpha: 0.2),
-        shape: BoxShape.circle,
-      ),
-      child: Icon(iconData, color: iconColor, size: kIconSizeMedium),
-    );
-  }
 
   /// 🇮🇱 חישוב דחיפות לפי תאריך יעד
   /// 🇬🇧 Calculate urgency based on target date
@@ -126,26 +107,22 @@ class ShoppingListTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 4),
       decoration: BoxDecoration(
-        color: typeColor,
+        color: typeColor.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 4,
-            offset: const Offset(2, 2),
-          ),
-        ],
+        border: Border.all(
+          color: typeColor.withValues(alpha: 0.6),
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(typeEmoji, style: const TextStyle(fontSize: 16)),
+          Text(typeEmoji, style: const TextStyle(fontSize: 14)),
           const SizedBox(width: 4),
           Text(
             typeLabel,
             style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
               color: Colors.black87,
             ),
           ),
@@ -327,20 +304,16 @@ class ShoppingListTile extends StatelessWidget {
     final dateFormatted = DateFormat('dd/MM/yyyy – HH:mm').format(list.updatedDate);
 
     return Material(
-        elevation: kCardElevation,
+        elevation: 1, // צל עדין יותר
         borderRadius: BorderRadius.circular(kBorderRadius),
+        // 🎨 רקע צהבהב חם - כמו נייר ממו
+        color: kStickyYellow.withValues(alpha: 0.4),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(kBorderRadius),
-            border: BorderDirectional(
-              start: BorderSide(
-                color: list.status == ShoppingList.statusCompleted
-                    ? StatusColors.getStatusColor('success', context)
-                    : list.status == ShoppingList.statusArchived
-                    ? StatusColors.getStatusColor('pending', context)
-                    : theme.colorScheme.primary,
-                width: kBorderWidthExtraThick,
-              ),
+            // גבול עדין בצבע הסוג
+            border: Border.all(
+              color: list.stickyColor.withValues(alpha: 0.5),
             ),
           ),
           child: Column(
@@ -349,7 +322,6 @@ class ShoppingListTile extends StatelessWidget {
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(kBorderRadius)),
                 onTap: onTap,
                 child: ListTile(
-                  leading: _getListIcon(context),
                   contentPadding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmallPlus),
                   title: Row(
                     children: [

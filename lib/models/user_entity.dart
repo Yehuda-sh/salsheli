@@ -161,7 +161,7 @@ class UserEntity {
         email = '',
         phone = null,
         householdId = '',
-        joinedAt = DateTime(1970, 1, 1),
+        joinedAt = DateTime(1970),
         lastLoginAt = null,
         profileImageUrl = null,
         preferredStores = const [],
@@ -192,18 +192,6 @@ class UserEntity {
       householdId: householdId ?? 'house_${id.hashCode.abs()}',
       joinedAt: DateTime.now(),
       lastLoginAt: DateTime.now(),
-      preferredStores: const [],
-      favoriteProducts: const [],
-      weeklyBudget: 0.0,
-      isAdmin: false,
-      // 🆕 Onboarding fields - defaults
-      familySize: 2,
-      shoppingFrequency: 2,
-      shoppingDays: const [],
-      hasChildren: false,
-      shareLists: false,
-      reminderTime: null,
-      seenOnboarding: false,
     );
   }
 
@@ -234,8 +222,6 @@ class UserEntity {
       joinedAt: DateTime.now(),
       lastLoginAt: DateTime.now(),
       preferredStores: preferredStores ?? const [],
-      favoriteProducts: const [],
-      weeklyBudget: 0.0,
       isAdmin: true, // משתמש חדש הוא admin של משק הבית שלו
       // 🆕 Onboarding fields
       familySize: familySize ?? 2,
@@ -266,7 +252,7 @@ class UserEntity {
   /// 🇬🇧 Convert list from JSON
   static List<UserEntity> listFromJson(List<dynamic>? arr) => (arr ?? [])
       .whereType<Map<String, dynamic>>()
-      .map((j) => UserEntity.fromJson(j))
+      .map(UserEntity.fromJson)
       .toList();
 
   /// 🇮🇱 המרת רשימה ל-JSON

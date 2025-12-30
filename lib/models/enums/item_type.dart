@@ -14,29 +14,10 @@
 enum ItemType {
   /// 🛒 מוצר לקנייה
   product,
-  
+
   /// ✅ משימה לביצוע
   task;
 
-  /// 🇮🇱 שם בעברית
-  /// 🇬🇧 Hebrew name
-  String get hebrewName {
-    switch (this) {
-      case ItemType.product:
-        return 'מוצר';
-      case ItemType.task:
-        return 'משימה';
-    }
-  }
-
-  /// 🇮🇱 אייקון מתאים
-  /// 🇬🇧 Appropriate icon
-  String get emoji {
-    switch (this) {
-      case ItemType.product:
-        return '🛒';
-      case ItemType.task:
-        return '✅';
-    }
-  }
+  // Note: hebrewName and emoji were removed - use AppStrings in UI layer
+  // if localized type names are needed.
 }

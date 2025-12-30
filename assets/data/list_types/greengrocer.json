@@ -5,7 +5,6 @@
     "icon": "🍅",
     "price": 5.9,
     "barcode": "GREEN-001",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -14,7 +13,6 @@
     "icon": "🍅",
     "price": 9.9,
     "barcode": "GREEN-063",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -23,7 +21,6 @@
     "icon": "🍅",
     "price": 12.9,
     "barcode": "GREEN-064",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -32,7 +29,6 @@
     "icon": "🥒",
     "price": 4.9,
     "barcode": "GREEN-002",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -41,7 +37,6 @@
     "icon": "🥒",
     "price": 8.9,
     "barcode": "GREEN-065",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -50,7 +45,6 @@
     "icon": "🥬",
     "price": 5.9,
     "barcode": "GREEN-003",
-    "brand": "",
     "unit": "יחידה"
   },
   {
@@ -59,7 +53,6 @@
     "icon": "🥬",
     "price": 6.9,
     "barcode": "GREEN-059",
-    "brand": "",
     "unit": "יחידה"
   },
   {
@@ -68,7 +61,6 @@
     "icon": "🥬",
     "price": 7.9,
     "barcode": "GREEN-060",
-    "brand": "",
     "unit": "יחידה"
   },
   {
@@ -77,7 +69,6 @@
     "icon": "🥬",
     "price": 12.9,
     "barcode": "GREEN-061",
-    "brand": "",
     "unit": "אריזה"
   },
   {
@@ -86,7 +77,6 @@
     "icon": "🥬",
     "price": 9.9,
     "barcode": "GREEN-062",
-    "brand": "",
     "unit": "אריזה"
   },
   {
@@ -95,7 +85,6 @@
     "icon": "🧅",
     "price": 3.9,
     "barcode": "GREEN-004",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -104,7 +93,6 @@
     "icon": "🧅",
     "price": 5.9,
     "barcode": "GREEN-056",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -113,7 +101,6 @@
     "icon": "🧅",
     "price": 4.9,
     "barcode": "GREEN-057",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -122,7 +109,6 @@
     "icon": "🧅",
     "price": 2.9,
     "barcode": "GREEN-058",
-    "brand": "",
     "unit": "אגודה"
   },
   {
@@ -131,7 +117,6 @@
     "icon": "🧄",
     "price": 15.9,
     "barcode": "GREEN-005",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -140,7 +125,6 @@
     "icon": "🥔",
     "price": 4.9,
     "barcode": "GREEN-006",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -149,7 +133,6 @@
     "icon": "🥔",
     "price": 6.9,
     "barcode": "GREEN-066",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -158,7 +141,6 @@
     "icon": "🥔",
     "price": 9.9,
     "barcode": "GREEN-067",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -167,7 +149,6 @@
     "icon": "🍠",
     "price": 8.9,
     "barcode": "GREEN-007",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -176,7 +157,6 @@
     "icon": "🥕",
     "price": 3.9,
     "barcode": "GREEN-008",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -185,7 +165,6 @@
     "icon": "🫑",
     "price": 12.9,
     "barcode": "GREEN-009",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -194,7 +173,6 @@
     "icon": "🫑",
     "price": 9.9,
     "barcode": "GREEN-010",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -203,7 +181,6 @@
     "icon": "🫑",
     "price": 12.9,
     "barcode": "GREEN-011",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -212,7 +189,6 @@
     "icon": "🫑",
     "price": 12.9,
     "barcode": "GREEN-012",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -221,7 +197,6 @@
     "icon": "🌶️",
     "price": 12.9,
     "barcode": "GREEN-013",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -230,7 +205,6 @@
     "icon": "🥦",
     "price": 9.9,
     "barcode": "GREEN-014",
-    "brand": "",
     "unit": "יחידה"
   },
   {
@@ -239,7 +213,6 @@
     "icon": "🥦",
     "price": 12.9,
     "barcode": "GREEN-015",
-    "brand": "",
     "unit": "יחידה"
   },
   {
@@ -248,7 +221,6 @@
     "icon": "🥬",
     "price": 4.9,
     "barcode": "GREEN-016",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -257,7 +229,6 @@
     "icon": "🥬",
     "price": 5.9,
     "barcode": "GREEN-017",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -266,7 +237,6 @@
     "icon": "🥒",
     "price": 5.9,
     "barcode": "GREEN-018",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -275,7 +245,6 @@
     "icon": "🍆",
     "price": 8.9,
     "barcode": "GREEN-019",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -284,7 +253,6 @@
     "icon": "🎃",
     "price": 3.9,
     "barcode": "GREEN-020",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -293,7 +261,6 @@
     "icon": "🌽",
     "price": 3.5,
     "barcode": "GREEN-021",
-    "brand": "",
     "unit": "יחידה"
   },
   {
@@ -302,7 +269,6 @@
     "icon": "🥬",
     "price": 6.9,
     "barcode": "GREEN-022",
-    "brand": "",
     "unit": "יחידה"
   },
   {
@@ -311,7 +277,6 @@
     "icon": "🌿",
     "price": 2.9,
     "barcode": "GREEN-023",
-    "brand": "",
     "unit": "אגודה"
   },
   {
@@ -320,7 +285,6 @@
     "icon": "🌿",
     "price": 2.9,
     "barcode": "GREEN-024",
-    "brand": "",
     "unit": "אגודה"
   },
   {
@@ -329,7 +293,6 @@
     "icon": "🌿",
     "price": 2.9,
     "barcode": "GREEN-025",
-    "brand": "",
     "unit": "אגודה"
   },
   {
@@ -338,7 +301,6 @@
     "icon": "🌿",
     "price": 4.9,
     "barcode": "GREEN-026",
-    "brand": "",
     "unit": "אגודה"
   },
   {
@@ -347,7 +309,6 @@
     "icon": "🌿",
     "price": 2.9,
     "barcode": "GREEN-027",
-    "brand": "",
     "unit": "אגודה"
   },
   {
@@ -356,7 +317,6 @@
     "icon": "🥬",
     "price": 4.9,
     "barcode": "GREEN-028",
-    "brand": "",
     "unit": "אגודה"
   },
   {
@@ -365,7 +325,6 @@
     "icon": "🥬",
     "price": 5.9,
     "barcode": "GREEN-029",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -374,7 +333,6 @@
     "icon": "🥬",
     "price": 14.9,
     "barcode": "GREEN-030",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -383,7 +341,6 @@
     "icon": "🥬",
     "price": 9.9,
     "barcode": "GREEN-068",
-    "brand": "",
     "unit": "אגודה"
   },
   {
@@ -392,7 +349,6 @@
     "icon": "🥬",
     "price": 7.9,
     "barcode": "GREEN-069",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -401,7 +357,6 @@
     "icon": "🍄",
     "price": 24.9,
     "barcode": "GREEN-070",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -410,7 +365,6 @@
     "icon": "🍄",
     "price": 29.9,
     "barcode": "GREEN-071",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -419,7 +373,6 @@
     "icon": "🥬",
     "price": 14.9,
     "barcode": "GREEN-072",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -428,7 +381,6 @@
     "icon": "🥬",
     "price": 29.9,
     "barcode": "GREEN-073",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -437,7 +389,6 @@
     "icon": "🥬",
     "price": 49.9,
     "barcode": "GREEN-074",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -446,7 +397,6 @@
     "icon": "🥬",
     "price": 6.9,
     "barcode": "GREEN-075",
-    "brand": "",
     "unit": "אגודה"
   },
   {
@@ -455,7 +405,6 @@
     "icon": "🍎",
     "price": 9.9,
     "barcode": "GREEN-031",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -464,7 +413,6 @@
     "icon": "🍏",
     "price": 12.9,
     "barcode": "GREEN-032",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -473,7 +421,6 @@
     "icon": "🍌",
     "price": 7.9,
     "barcode": "GREEN-033",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -482,7 +429,6 @@
     "icon": "🍊",
     "price": 5.9,
     "barcode": "GREEN-034",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -491,7 +437,6 @@
     "icon": "🍊",
     "price": 8.9,
     "barcode": "GREEN-035",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -500,7 +445,6 @@
     "icon": "🍋",
     "price": 9.9,
     "barcode": "GREEN-036",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -509,7 +453,6 @@
     "icon": "🍊",
     "price": 6.9,
     "barcode": "GREEN-037",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -518,7 +461,6 @@
     "icon": "🍉",
     "price": 3.9,
     "barcode": "GREEN-038",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -527,7 +469,6 @@
     "icon": "🍈",
     "price": 7.9,
     "barcode": "GREEN-039",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -536,7 +477,6 @@
     "icon": "🍇",
     "price": 24.9,
     "barcode": "GREEN-040",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -545,7 +485,6 @@
     "icon": "🍇",
     "price": 24.9,
     "barcode": "GREEN-041",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -554,7 +493,6 @@
     "icon": "🍐",
     "price": 14.9,
     "barcode": "GREEN-042",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -563,7 +501,6 @@
     "icon": "🍑",
     "price": 19.9,
     "barcode": "GREEN-043",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -572,7 +509,6 @@
     "icon": "🍑",
     "price": 19.9,
     "barcode": "GREEN-044",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -581,7 +517,6 @@
     "icon": "🍑",
     "price": 24.9,
     "barcode": "GREEN-045",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -590,7 +525,6 @@
     "icon": "🍑",
     "price": 22.9,
     "barcode": "GREEN-046",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -599,7 +533,6 @@
     "icon": "🍒",
     "price": 39.9,
     "barcode": "GREEN-047",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -608,7 +541,6 @@
     "icon": "🍓",
     "price": 29.9,
     "barcode": "GREEN-048",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -617,7 +549,6 @@
     "icon": "🥝",
     "price": 19.9,
     "barcode": "GREEN-049",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -626,7 +557,6 @@
     "icon": "🥭",
     "price": 24.9,
     "barcode": "GREEN-050",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -635,7 +565,6 @@
     "icon": "🍍",
     "price": 19.9,
     "barcode": "GREEN-051",
-    "brand": "",
     "unit": "יחידה"
   },
   {
@@ -644,7 +573,6 @@
     "icon": "🥑",
     "price": 29.9,
     "barcode": "GREEN-052",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -653,7 +581,6 @@
     "icon": "🍎",
     "price": 14.9,
     "barcode": "GREEN-053",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -662,7 +589,6 @@
     "icon": "🥭",
     "price": 49.9,
     "barcode": "GREEN-054",
-    "brand": "",
     "unit": "ק\"ג"
   },
   {
@@ -671,7 +597,6 @@
     "icon": "🍎",
     "price": 34.9,
     "barcode": "GREEN-055",
-    "brand": "",
     "unit": "ק\"ג"
   }
 ]

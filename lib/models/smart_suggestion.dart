@@ -120,6 +120,9 @@ class SmartSuggestion {
 
   /// 🇮🇱 יצירת המלצה חדשה מניתוח מזווה
   /// 🇬🇧 Create a new suggestion from pantry analysis
+  ///
+  /// Note: Uses local time for `suggestedAt`. Firestore will convert to UTC
+  /// on storage via `TimestampConverter`.
   factory SmartSuggestion.fromInventory({
     required String id,
     required String productId,
@@ -131,7 +134,7 @@ class SmartSuggestion {
     DateTime? now,
   }) {
     final timestamp = now ?? DateTime.now();
-    final needed = (threshold - currentStock).clamp(1, 999);
+    final needed = (threshold - currentStock).clamp(0, 999);
 
     return SmartSuggestion(
       id: id,
@@ -151,13 +154,16 @@ class SmartSuggestion {
 
   /// 🇮🇱 האם ההמלצה פעילה (pending ולא נדחתה)
   /// 🇬🇧 Is the suggestion active (pending and not dismissed)
+  ///
+  /// Note: Uses local time for comparison. `dismissedUntil` is stored in UTC
+  /// and converted back to local time via `TimestampConverter`.
   bool get isActive {
     if (status != SuggestionStatus.pending) return false;
     if (dismissedUntil == null) return true;
     return DateTime.now().isAfter(dismissedUntil!);
   }
 
-  /// �י🇱 האם המלאי אזל לגמרי
+  /// 🇮🇱 האם המלאי אזל לגמרי
   /// 🇬🇧 Is the stock completely out
   bool get isOutOfStock => currentStock <= 0;
 
@@ -181,12 +187,17 @@ class SmartSuggestion {
   /// 🇮🇱 אחוז מלאי מהסף (0-100)
   /// 🇬🇧 Stock percentage of threshold (0-100)
   int get stockPercentage {
-    if (threshold == 0) return 100;
+    if (threshold <= 0) return 100;
     return ((currentStock / threshold) * 100).clamp(0, 100).round();
   }
 
   /// 🇮🇱 טקסט תיאור המלאי
   /// 🇬🇧 Stock description text
+  ///
+  /// ⚠️ Deprecated: Use AppStrings.inventory.stockOutOfStock /
+  /// stockOnlyOneLeft / stockOnlyFewLeft in UI layer instead.
+  /// Models should not contain hardcoded localized strings.
+  @Deprecated('Use AppStrings.inventory stock methods in UI layer')
   String get stockDescription {
     if (isOutOfStock) {
       return 'נגמר! צריך לקנות';

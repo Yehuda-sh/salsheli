@@ -611,22 +611,47 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // כותרת
+            // === כותרת עם אייקון ===
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(group.type.icon, size: 28, color: cs.primary),
+                // אייקון סוג הקבוצה בעיגול
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: cs.primaryContainer.withValues(alpha: 0.5),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      group.type.emoji,
+                      style: const TextStyle(fontSize: 24),
+                    ),
+                  ),
+                ),
                 const SizedBox(width: kSpacingSmall),
+                // פרטים
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'פרטי הקבוצה',
-                        style: TextStyle(
-                          fontSize: kFontSizeMedium,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      // כותרת + סוג
+                      Row(
+                        children: [
+                          Icon(group.type.icon, size: 18, color: cs.primary),
+                          const SizedBox(width: 4),
+                          const Text(
+                            'פרטי הקבוצה',
+                            style: TextStyle(
+                              fontSize: kFontSizeMedium,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
                       ),
+                      const SizedBox(height: 2),
                       Text(
                         group.type.hebrewName,
                         style: TextStyle(
@@ -637,28 +662,14 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                     ],
                   ),
                 ),
-                // תג סוג
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: cs.primaryContainer,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    group.type.emoji,
-                    style: const TextStyle(fontSize: 20),
-                  ),
-                ),
               ],
             ),
 
             const SizedBox(height: kSpacingMedium),
 
-            // שם הקבוצה
-            if (_isEditing)
+            // === שדות מידע ===
+            if (_isEditing) ...[
+              // מצב עריכה - שם
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
@@ -676,18 +687,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                   }
                   return null;
                 },
-              )
-            else
-              _InfoRow(
-                icon: Icons.badge,
-                label: 'שם',
-                value: group.name,
               ),
-
-            const SizedBox(height: kSpacingSmall),
-
-            // תיאור
-            if (_isEditing)
+              const SizedBox(height: kSpacingSmall),
+              // מצב עריכה - תיאור
               TextFormField(
                 controller: _descriptionController,
                 decoration: InputDecoration(
@@ -700,31 +702,33 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 ),
                 maxLines: 2,
                 maxLength: 100,
-              )
-            else if (group.description != null)
-              _InfoRow(
-                icon: Icons.description,
-                label: 'תיאור',
-                value: group.description!,
               ),
-
-            // שדות נוספים
-            if (group.extraFields != null) ...[
-              const SizedBox(height: kSpacingSmall),
-              ...group.extraFields!.entries.map((e) => _InfoRow(
-                    icon: Icons.info_outline,
-                    label: _getExtraFieldLabel(e.key),
-                    value: e.value.toString(),
-                  )),
+            ] else ...[
+              // מצב צפייה - עיצוב נקי יותר
+              _buildInfoField(
+                icon: Icons.badge_outlined,
+                label: 'שם',
+                value: group.name,
+              ),
+              if (group.description != null && group.description!.isNotEmpty)
+                _buildInfoField(
+                  icon: Icons.notes,
+                  label: 'תיאור',
+                  value: group.description!,
+                ),
+              _buildInfoField(
+                icon: Icons.calendar_today_outlined,
+                label: 'נוצרה',
+                value: _formatDate(group.createdAt),
+              ),
+              // שדות נוספים
+              if (group.extraFields != null)
+                ...group.extraFields!.entries.map((e) => _buildInfoField(
+                      icon: Icons.info_outline,
+                      label: _getExtraFieldLabel(e.key),
+                      value: e.value.toString(),
+                    )),
             ],
-
-            // תאריך יצירה
-            const SizedBox(height: kSpacingSmall),
-            _InfoRow(
-              icon: Icons.calendar_today,
-              label: 'נוצרה',
-              value: _formatDate(group.createdAt),
-            ),
 
             // כפתור שמירה
             if (_isEditing) ...[
@@ -738,6 +742,49 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             ],
           ],
         ),
+      ),
+    );
+  }
+
+  /// שדה מידע בעיצוב נקי
+  Widget _buildInfoField({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: kSpacingSmall),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 18, color: Colors.black45),
+          const SizedBox(width: kSpacingSmall),
+          Expanded(
+            child: RichText(
+              text: TextSpan(
+                style: const TextStyle(
+                  fontSize: kFontSizeSmall,
+                  color: Colors.black87,
+                ),
+                children: [
+                  TextSpan(
+                    text: '$label: ',
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  TextSpan(
+                    text: value,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -968,46 +1015,6 @@ class _UserPermissions {
         canDelete: false,
         canLeave: false,
       );
-}
-
-/// שורת מידע
-class _InfoRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-
-  const _InfoRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 16, color: Colors.grey[600]),
-          const SizedBox(width: 8),
-          Text(
-            '$label: ',
-            style: TextStyle(
-              fontSize: kFontSizeSmall,
-              color: Colors.grey[600],
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(fontSize: kFontSizeSmall),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 /// Chip תכונה

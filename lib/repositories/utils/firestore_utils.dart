@@ -18,7 +18,10 @@ class FirestoreUtils {
         converted[key] = convertTimestamps(Map<String, dynamic>.from(value));
       } else if (value is List) {
         converted[key] = value.map((item) {
-          if (item is Map) {
+          if (item is Timestamp) {
+            // 🔧 תמיכה ברשימת תאריכים: [Timestamp, Timestamp, ...]
+            return item.toDate();
+          } else if (item is Map) {
             return convertTimestamps(Map<String, dynamic>.from(item));
           }
           return item;

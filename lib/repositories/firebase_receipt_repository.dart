@@ -17,8 +17,8 @@
 // 🏗️ Database Structure:
 //     - /households/{householdId}/receipts/{receiptId}
 //
-// Version: 3.0 - Subcollection support
-// Last Updated: 14/12/2025
+// Version: 3.1 - Added id injection, timestamps, date range fix
+// Last Updated: 29/12/2025
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -62,6 +62,8 @@ class FirebaseReceiptRepository implements ReceiptRepository {
         final data = FirestoreUtils.convertTimestamps(
           Map<String, dynamic>.from(doc.data()),
         );
+        // 🔧 הזרקת id מהמסמך אם לא קיים
+        data['id'] ??= doc.id;
         return Receipt.fromJson(data);
       }).toList();
 
@@ -79,18 +81,41 @@ class FirebaseReceiptRepository implements ReceiptRepository {
   @override
   Future<Receipt> saveReceipt({required Receipt receipt, required String householdId}) async {
     try {
-      debugPrint('💾 FirebaseReceiptRepository.saveReceipt: שומר קבלה ${receipt.id}');
+      // 🔧 אם אין id - יוצר חדש
+      final receiptId = (receipt.id.isEmpty)
+          ? _receiptsCollection(householdId).doc().id
+          : receipt.id;
+
+      final isNew = receipt.id.isEmpty;
+      debugPrint('💾 FirebaseReceiptRepository.saveReceipt: ${isNew ? "יוצר" : "מעדכן"} קבלה $receiptId');
 
       // 🆕 לא צריך להוסיף household_id - הוא בנתיב
       final data = receipt.toJson();
 
+      // 🔧 הזרקת id לנתונים
+      data['id'] = receiptId;
+
+      // 🔧 timestamps עקביים
+      final now = FieldValue.serverTimestamp();
+      if (isNew) {
+        data[FirestoreFields.createdDate] = now;
+      }
+      data[FirestoreFields.updatedDate] = now;
+
       // 🆕 שימוש ב-subcollection
       await _receiptsCollection(householdId)
-          .doc(receipt.id)
+          .doc(receiptId)
           .set(data, SetOptions(merge: true));
 
+      // 🔧 קורא בחזרה כדי לקבל timestamps אמיתיים
+      final savedDoc = await _receiptsCollection(householdId).doc(receiptId).get();
+      final savedData = FirestoreUtils.convertTimestamps(
+        Map<String, dynamic>.from(savedDoc.data()!),
+      );
+      savedData['id'] = receiptId;
+
       debugPrint('✅ FirebaseReceiptRepository.saveReceipt: קבלה נשמרה');
-      return receipt;
+      return Receipt.fromJson(savedData);
     } catch (e, stackTrace) {
       debugPrint('❌ FirebaseReceiptRepository.saveReceipt: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
@@ -136,6 +161,8 @@ class FirebaseReceiptRepository implements ReceiptRepository {
         final data = FirestoreUtils.convertTimestamps(
           Map<String, dynamic>.from(doc.data()),
         );
+        // 🔧 הזרקת id מהמסמך אם לא קיים
+        data['id'] ??= doc.id;
         return Receipt.fromJson(data);
       }).toList();
     });
@@ -161,6 +188,8 @@ class FirebaseReceiptRepository implements ReceiptRepository {
 
       final data = Map<String, dynamic>.from(doc.data()!);
       final convertedData = FirestoreUtils.convertTimestamps(data);
+      // 🔧 הזרקת id מהמסמך אם לא קיים
+      convertedData['id'] ??= doc.id;
       final receipt = Receipt.fromJson(convertedData);
       debugPrint('✅ קבלה נמצאה');
 
@@ -192,6 +221,8 @@ class FirebaseReceiptRepository implements ReceiptRepository {
         final data = FirestoreUtils.convertTimestamps(
           Map<String, dynamic>.from(doc.data()),
         );
+        // 🔧 הזרקת id מהמסמך אם לא קיים
+        data['id'] ??= doc.id;
         return Receipt.fromJson(data);
       }).toList();
 
@@ -222,10 +253,14 @@ class FirebaseReceiptRepository implements ReceiptRepository {
     try {
       debugPrint('📅 FirebaseReceiptRepository.getReceiptsByDateRange: מחפש קבלות');
 
+      // 🔧 מתחיל מתחילת startDate ומסיים בסוף endDate
+      final normalizedStart = DateTime(startDate.year, startDate.month, startDate.day);
+      final normalizedEnd = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59, 999);
+
       // 🆕 שימוש ב-subcollection - לא צריך where על household_id
       final snapshot = await _receiptsCollection(householdId)
-          .where(FirestoreFields.date, isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
-          .where(FirestoreFields.date, isLessThanOrEqualTo: Timestamp.fromDate(endDate))
+          .where(FirestoreFields.date, isGreaterThanOrEqualTo: Timestamp.fromDate(normalizedStart))
+          .where(FirestoreFields.date, isLessThanOrEqualTo: Timestamp.fromDate(normalizedEnd))
           .orderBy(FirestoreFields.date, descending: true)
           .get();
 
@@ -233,6 +268,8 @@ class FirebaseReceiptRepository implements ReceiptRepository {
         final data = FirestoreUtils.convertTimestamps(
           Map<String, dynamic>.from(doc.data()),
         );
+        // 🔧 הזרקת id מהמסמך אם לא קיים
+        data['id'] ??= doc.id;
         return Receipt.fromJson(data);
       }).toList();
 

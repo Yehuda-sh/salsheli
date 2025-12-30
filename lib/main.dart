@@ -7,6 +7,7 @@
 // - Dynamic Color Support (Android 12+ Material You) 🎨
 // - Hive for local storage
 // - Firebase Emulators support for development 🔥
+// - Async error handling with PlatformDispatcher 🛡️
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dynamic_color/dynamic_color.dart'; // 🎨 Material You!
@@ -104,13 +105,17 @@ void main() async {
     AppConfig.printConfig();
   }
 
+  // 🛡️ תפיסת שגיאות Flutter (UI)
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
-    if (kDebugMode) debugPrint('Flutter Error: ${details.exception}');
+    if (kDebugMode) debugPrint('🔴 Flutter Error: ${details.exception}');
   };
 
-  // ⏸️ Wait a moment to ensure Firebase is fully ready before creating Providers
-  await Future.delayed(const Duration(milliseconds: 100));
+  // 🛡️ תפיסת שגיאות אסינכרוניות (Futures, Isolates)
+  PlatformDispatcher.instance.onError = (error, stack) {
+    if (kDebugMode) debugPrint('🔴 Async Error: $error\n$stack');
+    return true; // מונע קריסה שקטה
+  };
 
   // 📦 Initialize Hive for local storage
   await Hive.initFlutter();
@@ -287,6 +292,65 @@ void main() async {
   );
 }
 
+/// 🚨 מסך שגיאת ניתוב - עם AppBar לחזרה
+class _RouteErrorScreen extends StatelessWidget {
+  final String message;
+  final String? routeName;
+
+  const _RouteErrorScreen({
+    required this.message,
+    this.routeName,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('שגיאה'),
+        centerTitle: true,
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 64,
+                color: cs.error,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                message,
+                style: Theme.of(context).textTheme.titleMedium,
+                textAlign: TextAlign.center,
+              ),
+              if (routeName != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  'Route: $routeName',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: cs.onSurfaceVariant,
+                  ),
+                ),
+              ],
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false),
+                icon: const Icon(Icons.home),
+                label: const Text('חזור לדף הבית'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -340,7 +404,10 @@ class _MyAppState extends State<MyApp> {
               final listId = settings.arguments as String?;
               if (listId == null) {
                 return MaterialPageRoute(
-                  builder: (_) => const Scaffold(body: Center(child: Text('List ID missing'))),
+                  builder: (_) => _RouteErrorScreen(
+                    message: 'מזהה רשימה חסר',
+                    routeName: settings.name,
+                  ),
                 );
               }
               return MaterialPageRoute(builder: (_) => ShoppingSummaryScreen(listId: listId));
@@ -351,7 +418,10 @@ class _MyAppState extends State<MyApp> {
               final list = settings.arguments as ShoppingList?;
               if (list == null) {
                 return MaterialPageRoute(
-                  builder: (_) => const Scaffold(body: Center(child: Text('List not found'))),
+                  builder: (_) => _RouteErrorScreen(
+                    message: 'רשימת קניות לא נמצאה',
+                    routeName: settings.name,
+                  ),
                 );
               }
               return MaterialPageRoute(builder: (_) => ActiveShoppingScreen(list: list));
@@ -362,7 +432,10 @@ class _MyAppState extends State<MyApp> {
               final list = settings.arguments as ShoppingList?;
               if (list == null) {
                 return MaterialPageRoute(
-                  builder: (_) => const Scaffold(body: Center(child: Text('List not found'))),
+                  builder: (_) => _RouteErrorScreen(
+                    message: 'רשימת קניות לא נמצאה',
+                    routeName: settings.name,
+                  ),
                 );
               }
               return MaterialPageRoute(builder: (_) => ShoppingListDetailsScreen(list: list));
@@ -373,7 +446,10 @@ class _MyAppState extends State<MyApp> {
               final list = settings.arguments as ShoppingList?;
               if (list == null) {
                 return MaterialPageRoute(
-                  builder: (_) => const Scaffold(body: Center(child: Text('List not found'))),
+                  builder: (_) => _RouteErrorScreen(
+                    message: 'רשימת קניות לא נמצאה',
+                    routeName: settings.name,
+                  ),
                 );
               }
               return MaterialPageRoute(builder: (_) => ShoppingListDetailsScreen(list: list));
@@ -384,7 +460,10 @@ class _MyAppState extends State<MyApp> {
               final groupId = settings.arguments as String?;
               if (groupId == null) {
                 return MaterialPageRoute(
-                  builder: (_) => const Scaffold(body: Center(child: Text('Group ID missing'))),
+                  builder: (_) => _RouteErrorScreen(
+                    message: 'מזהה קבוצה חסר',
+                    routeName: settings.name,
+                  ),
                 );
               }
               return MaterialPageRoute(builder: (_) => GroupDetailsScreen(groupId: groupId));

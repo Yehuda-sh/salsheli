@@ -213,6 +213,7 @@ class _CommonStrings {
   String get error => 'שגיאה';
   String get success => 'הצלחה';
   String get noData => 'אין נתונים';
+  String get syncError => 'בעיית סנכרון - השינויים נשמרו מקומית';
 }
 
 // ========================================
@@ -1190,6 +1191,14 @@ class _InventoryStrings {
   String get noProductsFound => 'לא נמצאו מוצרים';
   String get noProductsAvailable => 'אין מוצרים זמינים';
   String productAddedSuccess(String name) => '$name נוסף למזווה!';
+
+  // ========================================
+  // Smart Suggestions (Stock Descriptions)
+  // ========================================
+
+  String get stockOutOfStock => 'נגמר! צריך לקנות';
+  String stockOnlyOneLeft(String unit) => 'נשאר 1 $unit בלבד';
+  String stockOnlyFewLeft(int count, String unit) => 'נשארו רק $count $unit';
 }
 
 // ========================================

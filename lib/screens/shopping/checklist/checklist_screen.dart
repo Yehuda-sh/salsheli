@@ -3,10 +3,10 @@
 // 🎯 Purpose: מסך צ'קליסט פשוט - סימון V פשוט
 //
 // ✨ Features:
-// - ✅ סימון פריטים פשוט
+// - ✅ סימון פריטים פשוט (optimistic update)
 // - 📊 מונה התקדמות
-// - 🔄 סידור מחדש (drag & drop)
 // - 🎨 עיצוב Sticky Note
+// - ⚠️ אינדיקציית שגיאת סנכרון
 //
 // 🔗 Related:
 // - unified_list_item.dart - מודל פריט
@@ -22,6 +22,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/ui_constants.dart';
+import '../../../l10n/app_strings.dart';
 import '../../../models/shopping_list.dart';
 import '../../../models/unified_list_item.dart';
 import '../../../providers/shopping_lists_provider.dart';
@@ -38,7 +39,7 @@ class ChecklistScreen extends StatefulWidget {
 
 class _ChecklistScreenState extends State<ChecklistScreen> {
   late ShoppingList _list;
-  bool _isLoading = false;
+  bool _hasSyncError = false;
 
   @override
   void initState() {
@@ -59,14 +60,17 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
     try {
       final provider = context.read<ShoppingListsProvider>();
       await provider.updateItemById(_list.id, updatedItem);
+
+      // ✅ הצלחה - נקה שגיאת סנכרון
+      if (_hasSyncError && mounted) {
+        setState(() => _hasSyncError = false);
+      }
     } catch (e) {
       debugPrint('❌ Error toggling item: $e');
       // החזר למצב הקודם
       _updateLocalList(item);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('שגיאה בעדכון')),
-        );
+        setState(() => _hasSyncError = true);
       }
     }
   }
@@ -85,34 +89,38 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
     });
   }
 
-  /// סמן הכל / בטל הכל
+  /// סמן הכל / בטל הכל (optimistic update)
   Future<void> _toggleAll(bool checked) async {
     unawaited(HapticFeedback.mediumImpact());
 
-    setState(() => _isLoading = true);
+    // 🔄 שמור מצב קודם ל-rollback
+    final previousItems = List<UnifiedListItem>.from(_list.items);
+
+    // ⚡ עדכון אופטימיסטי מיידי
+    final updatedItems = _list.items.map((item) {
+      return item.copyWith(isChecked: checked);
+    }).toList();
+
+    setState(() {
+      _list = _list.copyWith(items: updatedItems);
+    });
 
     try {
       final provider = context.read<ShoppingListsProvider>();
       await provider.toggleAllItemsChecked(_list.id, checked);
 
-      // עדכן מקומית
-      final updatedItems = _list.items.map((item) {
-        return item.copyWith(isChecked: checked);
-      }).toList();
-
-      setState(() {
-        _list = _list.copyWith(items: updatedItems);
-      });
+      // ✅ הצלחה - נקה שגיאת סנכרון
+      if (_hasSyncError && mounted) {
+        setState(() => _hasSyncError = false);
+      }
     } catch (e) {
       debugPrint('❌ Error toggling all: $e');
+      // ↩️ Rollback למצב הקודם
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('שגיאה בעדכון')),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {
+          _list = _list.copyWith(items: previousItems);
+          _hasSyncError = true;
+        });
       }
     }
   }
@@ -155,6 +163,15 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
               ],
             ),
             actions: [
+              // ⚠️ אינדיקציית שגיאת סנכרון
+              if (_hasSyncError)
+                Tooltip(
+                  message: AppStrings.common.syncError,
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: kSpacingSmall),
+                    child: Icon(Icons.cloud_off, color: Colors.amber, size: 20),
+                  ),
+                ),
               // כפתור סמן/בטל הכל
               PopupMenuButton<bool>(
                 icon: const Icon(Icons.more_vert),
@@ -269,9 +286,12 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                         itemCount: _list.items.length,
                         itemBuilder: (context, index) {
                           final item = _list.items[index];
-                          return _ChecklistItemTile(
-                            item: item,
-                            onToggle: () => _toggleItem(item),
+                          return KeyedSubtree(
+                            key: ValueKey(item.id),
+                            child: _ChecklistItemTile(
+                              item: item,
+                              onToggle: () => _toggleItem(item),
+                            ),
                           );
                         },
                       ),
@@ -279,15 +299,6 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
             ],
           ),
         ),
-
-        // Loading Overlay
-        if (_isLoading)
-          Container(
-            color: Colors.black.withValues(alpha: 0.3),
-            child: const Center(
-              child: CircularProgressIndicator(),
-            ),
-          ),
       ],
     );
   }

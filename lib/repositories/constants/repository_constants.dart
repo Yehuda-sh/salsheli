@@ -7,18 +7,24 @@
 // 🏗️ Database Structure:
 //   /users/{userId}/
 //     ├── private_lists/{listId}      ← רשימות פרטיות
+//     ├── inventory/{itemId}          ← מזווה אישי
 //     ├── notifications/{notifId}
 //     ├── pending_invites/{inviteId}
 //     └── saved_contacts/{contactId}
 //
-//   /households/{householdId}/
+//   /households/{householdId}/         ← משק בית (נוצר אוטומטית)
 //     ├── info
 //     ├── members/{memberId}
-//     ├── inventory/{itemId}          ← מזווה משותפת
+//     ├── inventory/{itemId}          ← מזווה משק בית
 //     ├── receipts/{receiptId}
 //     ├── shared_lists/{listId}       ← רשימות משותפות
 //     ├── invites/{inviteId}
 //     └── join_requests/{requestId}
+//
+//   /groups/{groupId}/                 ← קבוצות (נוצר ידנית)
+//     ├── members: Map<userId, GroupMember>
+//     ├── settings: GroupSettings
+//     └── inventory/{itemId}          ← מזווה קבוצתי
 
 class FirestoreCollections {
   // === Top-level collections ===
@@ -74,6 +80,9 @@ class FirestoreFields {
   static const String name = 'name';
   static const String createdBy = 'created_by';
   static const String status = 'status';
+  static const String shoppingListId = 'shopping_list_id';
+  static const String activeshoppers = 'active_shoppers';
+  static const String isShared = 'is_shared';
   
   // Inventory fields
   static const String productId = 'product_id';
@@ -81,6 +90,14 @@ class FirestoreFields {
   static const String quantity = 'quantity';
   static const String location = 'location';
   static const String expiryDate = 'expiry_date';
+
+  // List Item fields (UnifiedListItem)
+  static const String unitPrice = 'unit_price';
+  static const String imageUrl = 'image_url';
+  static const String notes = 'notes';
+  static const String isChecked = 'is_checked';
+  static const String checkedBy = 'checked_by';
+  static const String checkedAt = 'checked_at';
   
   // Product fields
   static const String category = 'category';

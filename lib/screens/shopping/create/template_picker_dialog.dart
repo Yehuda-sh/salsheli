@@ -6,6 +6,7 @@
 // Last Updated: 26/11/2025
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../l10n/app_strings.dart';
 import '../../../services/template_service.dart';
@@ -74,7 +75,10 @@ class TemplatePickerDialog extends StatelessWidget {
                           ? Text(template.description!)
                           : null,
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () => Navigator.pop(context, template),
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        Navigator.pop(context, template);
+                      },
                     ),
                   );
                 },
