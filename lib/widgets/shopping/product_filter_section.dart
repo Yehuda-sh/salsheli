@@ -1,17 +1,9 @@
-// 📄 File: lib/widgets/shopping/product_filter_section.dart
-// תיאור: רכיב פילטור מוצרים מתקדם עבור ProductSelectionBottomSheet
+// 📄 lib/widgets/shopping/product_filter_section.dart
 //
-// ✨ תכונות:
-// - סטטיסטיקות מוצרים בזמן אמת
-// - פילטור לפי קטגוריות עם אנימציות
-// - עיצוב Sticky Notes עם צבעים דינמיים
-// - תמיכה בסוגי רשימות שונים (כולל אטליז)
+// רכיב פילטור מוצרים - חיפוש וסינון לפי קטגוריות.
+// כולל chips אנימטיביים, אינדיקטורי גלילה, ותמיכה בסוגי רשימות.
 //
-// 🎨 עיצוב:
-// - Modern filter chips עם emojis
-// - אנימציות נפילה וסיבוב
-// - גרדיאנטים וצללים
-// - תמיכה מלאה ב-RTL
+// 🔗 Related: ProductsProvider, ProductSelectionBottomSheet, ShoppingList
 
 import 'package:flutter/material.dart';
 

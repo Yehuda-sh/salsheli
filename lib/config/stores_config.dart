@@ -1,21 +1,9 @@
-// 📄 File: lib/config/stores_config.dart
+// 📄 lib/config/stores_config.dart
 //
-// 🏪 Stores Configuration
-// 
-// Defines available stores in the app with categorization and validation logic
+// הגדרות חנויות נתמכות - סופרמרקטים, מיניקמטים, בתי מרקחת וחנויות משקאות.
+// כולל קטגוריזציה לפי סוג חנות ופונקציות עזר לולידציה.
 //
-// Categories:
-// - Supermarkets: full-size stores with all products
-// - Minimarkets: convenience stores
-// - Pharmacies: health & hygiene products
-// - Liquor Stores: wine & alcohol
-//
-// Used by:
-// - onboarding_data.dart - validates preferred stores
-//
-// Version: 2.0
-// Created: 29/10/2025
-// Last Updated: 03/11/2025
+// 🔗 Related: onboarding_data, StoreCategory
 
 /// Store category types
 enum StoreCategory {

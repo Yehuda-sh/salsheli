@@ -15,8 +15,8 @@
 // 🎨 Design:
 // - קווים כחולים בהירים (opacity 0.5)
 // - קו אדום בולט (opacity 0.4)
-// - מרווח 40px בין קווים
-// - קו אדום במרחק 60px משמאל
+// - מרווח 48px בין קווים (kNotebookLineSpacing)
+// - קו אדום במרחק 60px משמאל (kNotebookRedLineOffset)
 //
 // Usage:
 // ```dart
@@ -59,37 +59,47 @@ class NotebookBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<AppBrand>();
+    final brightness = Theme.of(context).brightness;
+
     return SizedBox.expand(
       child: CustomPaint(
-        painter: _NotebookPainter(context),
+        painter: _NotebookPainter(
+          brightness: brightness,
+          notebookBlue: brand?.notebookBlue ?? kNotebookBlue,
+          notebookRed: brand?.notebookRed ?? kNotebookRed,
+        ),
       ),
     );
   }
 }
 
 /// Painter עבור רקע המחברת
-/// 
+///
 /// מצייר:
 /// 1. קווים אופקיים כחולים (כמו שורות במחברת)
 /// 2. קו אדום אנכי משמאל (כמו במחברת בית ספר)
-/// 
+///
 /// הצבעים לקוחים מ-AppBrand כדי לתמוך ב-theming.
 class _NotebookPainter extends CustomPainter {
-  final BuildContext context;
+  final Brightness brightness;
+  final Color notebookBlue;
+  final Color notebookRed;
 
-  _NotebookPainter(this.context);
+  _NotebookPainter({
+    required this.brightness,
+    required this.notebookBlue,
+    required this.notebookRed,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final brand = Theme.of(context).extension<AppBrand>();
-    final brightness = Theme.of(context).brightness;
-
     // רקע נייר (בהיר/כהה לפי Theme)
     final bgPaint = Paint()
-      ..color = brightness == Brightness.dark 
-          ? kDarkPaperBackground 
+      ..color = brightness == Brightness.dark
+          ? kDarkPaperBackground
           : kPaperBackground;
-    
+
     canvas.drawRect(
       Offset.zero & size,
       bgPaint,
@@ -97,8 +107,7 @@ class _NotebookPainter extends CustomPainter {
 
     // קווים כחולים כמו במחברת אמיתית 📘
     final bluePaint = Paint()
-      ..color = (brand?.notebookBlue ?? kNotebookBlue)
-          .withValues(alpha: kNotebookLineOpacity)
+      ..color = notebookBlue.withValues(alpha: kNotebookLineOpacity)
       ..strokeWidth = 1.0;
 
     // קווים אופקיים כמו במחברת
@@ -114,8 +123,7 @@ class _NotebookPainter extends CustomPainter {
 
     // קו אדום משמאל (כמו במחברת אמיתית) 📕
     final redLinePaint = Paint()
-      ..color = (brand?.notebookRed ?? kNotebookRed)
-          .withValues(alpha: kNotebookRedLineOpacity)
+      ..color = notebookRed.withValues(alpha: kNotebookRedLineOpacity)
       ..strokeWidth = kNotebookRedLineWidth;
 
     canvas.drawLine(
@@ -126,5 +134,9 @@ class _NotebookPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _NotebookPainter oldDelegate) {
+    return brightness != oldDelegate.brightness ||
+        notebookBlue != oldDelegate.notebookBlue ||
+        notebookRed != oldDelegate.notebookRed;
+  }
 }

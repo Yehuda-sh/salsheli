@@ -1,34 +1,11 @@
-// 📄 File: lib/screens/auth/login_screen.dart
-// 🎯 Purpose: מסך התחברות - טופס login עם Firebase Auth + session management
+// 📄 lib/screens/auth/login_screen.dart
 //
-// 📋 Features:
-// ✅ Firebase Authentication (email/password)
-// ✅ Form validation עם הודעות שגיאה
-// ✅ AuthButton עם loading state + animations
-// ✅ AppStrings - i18n ready
-// ✅ ui_constants - עיצוב עקבי
-// ✅ Sticky Notes Design System 🎨📝 ⭐ חדש!
-// 🔒 PopScope - חסימת Back (חובה להשלים התחברות)
-// 🚫 הוסרה כניסת Demo (26/10/2025)
+// מסך התחברות עם Firebase Auth ועיצוב Sticky Notes.
+// - Form validation + shake animation לשגיאות
+// - Password reset בלחיצה על "שכחת סיסמה"
+// - PopScope חוסם Back (חובה להתחבר)
 //
-// 🎨 UI/UX Improvements (15/10/2025): ⭐
-// - מעוצב כולו עם Sticky Notes Design System!
-// - רקע מחברת עם קווים כחולים וקו אדום
-// - לוגו בפתק צהוב מסובב
-// - כותרת בפתק לבן מסובב
-// - שדות טקסט בפתקים צבעוניים (תכלת וירוק)
-// - כפתורים בסגנון StickyButton
-// - קישור הרשמה בפתק ורוד
-// - רווחים מותאמים למסך אחד ללא גלילה 📐
-//
-// 🔗 Related:
-// - UserContext - state management + Firebase Auth
-// - RegisterScreen - יצירת חשבון חדש
-// - SharedPreferences - שמירת seenOnboarding בלבד (לא user_id!)
-// - AppStrings.auth - מחרוזות UI
-//
-// 📝 Version: 3.3 - Removed Demo Login
-// 📅 Updated: 26/10/2025
+// 🔗 Related: UserContext, RegisterScreen, AppStrings.auth
 
 import 'dart:async';
 
@@ -65,9 +42,8 @@ class _LoginScreenState extends State<LoginScreen>
   late AnimationController _shakeController;
   late Animation<double> _shakeAnimation;
 
-  // 🎯 Focus nodes for auto-focus
+  // 🎯 Focus node for auto-focus
   final FocusNode _emailFocusNode = FocusNode();
-  final FocusNode _passwordFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -94,7 +70,6 @@ class _LoginScreenState extends State<LoginScreen>
     _passwordController.dispose();
     _shakeController.dispose();
     _emailFocusNode.dispose();
-    _passwordFocusNode.dispose();
     super.dispose();
   }
 
@@ -469,7 +444,6 @@ class _LoginScreenState extends State<LoginScreen>
                               rotation: -0.015,
                               child: TextFormField(
                                 controller: _passwordController,
-                                focusNode: _passwordFocusNode,
                                 decoration: InputDecoration(
                                   labelText: AppStrings.auth.passwordLabel,
                                   hintText: AppStrings.auth.passwordHint,

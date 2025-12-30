@@ -1,18 +1,18 @@
-// 📄 File: lib/widgets/dialogs/expiry_alert_dialog.dart
-// 🎯 Purpose: דיאלוג התראת תפוגה קרובה - מוצג בכניסה לאפליקציה
+// 📄 lib/widgets/dialogs/expiry_alert_dialog.dart
 //
-// 📋 Features:
-// - הצגת מוצרים שפג תוקפם או עומדים לפוג
-// - צבעים לפי דחיפות (אדום - פג, כתום - קרוב)
-// - כפתור "אל תציג שוב היום"
-// - עיצוב sticky note
+// דיאלוג התראת תפוגה קרובה - מוצג בכניסה לאפליקציה.
+// כולל צבעים לפי דחיפות, כפתור "אל תציג שוב היום", ועיצוב sticky note.
 //
-// 🔗 Related:
-// - inventory_provider.dart - קבלת פריטים לפי תפוגה
-// - inventory_settings_dialog.dart - הגדרת ימים להתראה
+// ✅ תיקונים:
+//    - צבעים מ-Theme (scheme.error/brand.warning) במקום Colors קשיחים
+//    - חישוב ימים מבוסס תאריך בלבד (ללא שעות)
+//    - barrierDismissible: false למניעת סגירה בטעות
+//    - כל הטקסטים מ-AppStrings
+//    - "הצג עוד X מוצרים" הפך לכפתור לחיץ
 //
-// Version: 1.0
-// Created: 16/12/2025
+// 🔗 Related: InventoryItem, InventoryProvider, StickyNote, AppBrand
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,7 +20,9 @@ import 'package:intl/intl.dart' hide TextDirection;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
 import '../../models/inventory_item.dart';
+import '../../theme/app_theme.dart';
 import '../common/sticky_note.dart';
 
 /// מפתח שמירה להסתרת התראה היום
@@ -73,17 +75,22 @@ Future<bool> shouldShowExpiryAlert({
 
 /// מסנן פריטים לפי תפוגה
 ///
-/// מחזיר פריטים שפג תוקפם או עומדים לפוג תוך [daysThreshold] ימים
+/// מחזיר פריטים שפג תוקפם או עומדים לפוג תוך [daysThreshold] ימים.
+/// מגביל פריטים שפגו לפני [maxDaysExpired] ימים (ברירת מחדל: 30).
 List<InventoryItem> filterExpiringItems(
   List<InventoryItem> items, {
   int daysThreshold = 7,
+  int maxDaysExpired = 30,
 }) {
-  final now = DateTime.now();
-  final threshold = now.add(Duration(days: daysThreshold));
+  final today = _dateOnly(DateTime.now());
+  final threshold = today.add(Duration(days: daysThreshold));
+  final oldestExpired = today.subtract(Duration(days: maxDaysExpired));
 
   return items.where((item) {
     if (item.expiryDate == null) return false;
-    return item.expiryDate!.isBefore(threshold);
+    final expiryDate = _dateOnly(item.expiryDate!);
+    // ✅ Inclusive: כולל גם את הגבולות (עד 7 ימים כולל, עד 30 יום אחורה כולל)
+    return !expiryDate.isBefore(oldestExpired) && !expiryDate.isAfter(threshold);
   }).toList()
     // מיון: פג תוקף ראשון, אחריו הקרובים ביותר
     ..sort((a, b) {
@@ -91,6 +98,16 @@ List<InventoryItem> filterExpiringItems(
       if (b.expiryDate == null) return -1;
       return a.expiryDate!.compareTo(b.expiryDate!);
     });
+}
+
+/// ✅ Helper: תאריך בלי שעה (למניעת חישוב שגוי של ימים)
+DateTime _dateOnly(DateTime dt) => DateTime(dt.year, dt.month, dt.day);
+
+/// ✅ חישוב ימים עד תפוגה מבוסס תאריך בלבד
+int _daysUntilExpiry(DateTime expiryDate) {
+  final today = _dateOnly(DateTime.now());
+  final expiry = _dateOnly(expiryDate);
+  return expiry.difference(today).inDays;
 }
 
 /// מציג דיאלוג התראת תפוגה
@@ -112,6 +129,8 @@ Future<ExpiryAlertResult?> showExpiryAlertDialog({
 }) async {
   return showDialog<ExpiryAlertResult>(
     context: context,
+    // ✅ מניעת סגירה בלחיצה מחוץ לדיאלוג
+    barrierDismissible: false,
     builder: (context) => _ExpiryAlertDialog(
       expiringItems: expiringItems,
     ),
@@ -139,9 +158,28 @@ class _ExpiryAlertDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ספירת פגי תוקף וקרובים לתפוגה
-    final expiredCount = expiringItems.where((i) => i.isExpired).length;
+    final scheme = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
+
+    // ✅ ספירה מבוססת daysUntilExpiry לעקביות עם התצוגה
+    final expiredCount = expiringItems.where((i) {
+      if (i.expiryDate == null) return false;
+      return _daysUntilExpiry(i.expiryDate!) < 0;
+    }).length;
     final expiringSoonCount = expiringItems.length - expiredCount;
+
+    // ✅ צבעים מה-Theme במקום Colors קשיחים
+    final isExpiredMode = expiredCount > 0;
+    final stickyColor = isExpiredMode
+        ? (brand?.stickyPink ?? kStickyPink)
+        : (brand?.stickyYellow ?? kStickyYellow);
+    final accentColor = isExpiredMode ? scheme.error : (brand?.warning ?? scheme.tertiary);
+    final containerColor = isExpiredMode
+        ? scheme.errorContainer
+        : (brand?.warningContainer ?? scheme.tertiaryContainer);
+    final onContainerColor = isExpiredMode
+        ? scheme.onErrorContainer
+        : (brand?.onWarningContainer ?? scheme.onTertiaryContainer);
 
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -150,7 +188,7 @@ class _ExpiryAlertDialog extends StatelessWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 400, maxHeight: 500),
           child: StickyNote(
-            color: expiredCount > 0 ? kStickyPink : kStickyOrange,
+            color: stickyColor,
             child: Padding(
               padding: const EdgeInsets.all(kSpacingMedium),
               child: Column(
@@ -163,13 +201,11 @@ class _ExpiryAlertDialog extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: expiredCount > 0
-                              ? Colors.red.shade100
-                              : Colors.orange.shade100,
+                          color: containerColor,
                           borderRadius: BorderRadius.circular(kBorderRadius),
                         ),
                         child: Text(
-                          expiredCount > 0 ? '⚠️' : '⏰',
+                          isExpiredMode ? '⚠️' : '⏰',
                           style: const TextStyle(fontSize: 24),
                         ),
                       ),
@@ -179,30 +215,32 @@ class _ExpiryAlertDialog extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              expiredCount > 0 ? 'פג תוקף!' : 'תפוגה קרובה',
+                              isExpiredMode
+                                  ? AppStrings.inventory.expiryAlertTitleExpired
+                                  : AppStrings.inventory.expiryAlertTitleExpiringSoon,
                               style: TextStyle(
                                 fontSize: kFontSizeLarge,
                                 fontWeight: FontWeight.bold,
-                                color: expiredCount > 0
-                                    ? Colors.red.shade800
-                                    : Colors.orange.shade800,
+                                color: onContainerColor,
                               ),
                             ),
                             Text(
-                              _buildSubtitle(expiredCount, expiringSoonCount),
+                              AppStrings.inventory.expiryAlertSubtitle(
+                                expiredCount,
+                                expiringSoonCount,
+                              ),
                               style: TextStyle(
                                 fontSize: kFontSizeSmall,
-                                color: Colors.grey.shade700,
+                                color: scheme.onSurfaceVariant,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      // כפתור סגירה
+                      // ✅ כפתור סגירה - מתנהג כמו "אל תציג שוב היום" לחוויה שקטה יותר
                       IconButton(
                         icon: const Icon(Icons.close),
-                        onPressed: () =>
-                            Navigator.of(context).pop(ExpiryAlertResult.dismiss),
+                        onPressed: () => _dismissToday(context),
                         visualDensity: VisualDensity.compact,
                       ),
                     ],
@@ -214,35 +252,44 @@ class _ExpiryAlertDialog extends StatelessWidget {
                   Container(
                     constraints: const BoxConstraints(maxHeight: 250),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.5),
+                      color: scheme.surface.withValues(alpha: 0.7),
                       borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                     ),
                     child: ListView.separated(
                       shrinkWrap: true,
                       padding: const EdgeInsets.all(kSpacingSmall),
-                      itemCount:
-                          expiringItems.length > 6 ? 6 : expiringItems.length,
-                      separatorBuilder: (context, index) =>
-                          const Divider(height: 1),
+                      itemCount: expiringItems.length > 6 ? 6 : expiringItems.length,
+                      separatorBuilder: (context, index) => const Divider(height: 1),
                       itemBuilder: (context, index) {
                         final item = expiringItems[index];
-                        return _ExpiryItemTile(item: item);
+                        return _ExpiryItemTile(
+                          item: item,
+                          scheme: scheme,
+                          brand: brand,
+                        );
                       },
                     ),
                   ),
 
-                  // הודעה אם יש יותר מ-6 פריטים
+                  // ✅ "הצג עוד X מוצרים" כפתור לחיץ
                   if (expiringItems.length > 6)
                     Padding(
                       padding: const EdgeInsets.only(top: kSpacingSmall),
-                      child: Text(
-                        'ועוד ${expiringItems.length - 6} מוצרים...',
-                        style: TextStyle(
-                          fontSize: kFontSizeSmall,
-                          color: Colors.grey.shade600,
-                          fontStyle: FontStyle.italic,
+                      child: TextButton(
+                        onPressed: () {
+                          unawaited(HapticFeedback.selectionClick());
+                          Navigator.of(context).pop(ExpiryAlertResult.goToPantry);
+                        },
+                        child: Text(
+                          AppStrings.inventory.expiryAlertMoreItems(
+                            expiringItems.length - 6,
+                          ),
+                          style: TextStyle(
+                            fontSize: kFontSizeSmall,
+                            color: accentColor,
+                            fontStyle: FontStyle.italic,
+                          ),
                         ),
-                        textAlign: TextAlign.center,
                       ),
                     ),
 
@@ -251,15 +298,16 @@ class _ExpiryAlertDialog extends StatelessWidget {
                   // === כפתורי פעולה ===
                   ElevatedButton.icon(
                     onPressed: () {
-                      HapticFeedback.mediumImpact();
+                      unawaited(HapticFeedback.mediumImpact());
                       Navigator.of(context).pop(ExpiryAlertResult.goToPantry);
                     },
                     icon: const Icon(Icons.inventory_2),
-                    label: const Text('עבור למזווה'),
+                    label: Text(AppStrings.inventory.expiryAlertGoToPantry),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          expiredCount > 0 ? Colors.red : Colors.orange,
-                      foregroundColor: Colors.white,
+                      backgroundColor: accentColor,
+                      foregroundColor: isExpiredMode
+                          ? scheme.onError
+                          : (brand?.onWarningContainer ?? scheme.onTertiary),
                     ),
                   ),
 
@@ -269,9 +317,9 @@ class _ExpiryAlertDialog extends StatelessWidget {
                   TextButton(
                     onPressed: () => _dismissToday(context),
                     child: Text(
-                      'אל תציג שוב היום',
+                      AppStrings.inventory.expiryAlertDismissToday,
                       style: TextStyle(
-                        color: Colors.grey.shade600,
+                        color: scheme.onSurfaceVariant,
                         fontSize: kFontSizeSmall,
                       ),
                     ),
@@ -284,31 +332,34 @@ class _ExpiryAlertDialog extends StatelessWidget {
       ),
     );
   }
-
-  String _buildSubtitle(int expiredCount, int expiringSoonCount) {
-    final parts = <String>[];
-    if (expiredCount > 0) {
-      parts.add('$expiredCount פג תוקף');
-    }
-    if (expiringSoonCount > 0) {
-      parts.add('$expiringSoonCount קרוב לתפוגה');
-    }
-    return parts.join(' | ');
-  }
 }
 
 /// שורת פריט בתפוגה
 class _ExpiryItemTile extends StatelessWidget {
   final InventoryItem item;
+  final ColorScheme scheme;
+  final AppBrand? brand;
 
-  const _ExpiryItemTile({required this.item});
+  const _ExpiryItemTile({
+    required this.item,
+    required this.scheme,
+    required this.brand,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final isExpired = item.isExpired;
-    final daysUntilExpiry = item.expiryDate != null
-        ? item.expiryDate!.difference(DateTime.now()).inDays
-        : 0;
+    // ✅ חישוב ימים מבוסס תאריך בלבד - מקור אמת אחד
+    final daysUntilExpiry =
+        item.expiryDate != null ? _daysUntilExpiry(item.expiryDate!) : 0;
+    final isExpired = daysUntilExpiry < 0;
+
+    // ✅ צבעים מה-Theme
+    final containerColor = isExpired
+        ? scheme.errorContainer
+        : (brand?.warningContainer ?? scheme.tertiaryContainer);
+    final textColor = isExpired
+        ? scheme.onErrorContainer
+        : (brand?.onWarningContainer ?? scheme.onTertiaryContainer);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: kSpacingTiny),
@@ -318,7 +369,7 @@ class _ExpiryItemTile extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: isExpired ? Colors.red.shade100 : Colors.orange.shade100,
+              color: containerColor,
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
@@ -337,7 +388,7 @@ class _ExpiryItemTile extends StatelessWidget {
                   item.productName,
                   style: TextStyle(
                     fontWeight: FontWeight.w500,
-                    color: isExpired ? Colors.red.shade800 : null,
+                    color: isExpired ? scheme.error : scheme.onSurface,
                     decoration: isExpired ? TextDecoration.lineThrough : null,
                   ),
                   maxLines: 1,
@@ -347,9 +398,7 @@ class _ExpiryItemTile extends StatelessWidget {
                   _formatExpiryText(isExpired, daysUntilExpiry),
                   style: TextStyle(
                     fontSize: kFontSizeTiny,
-                    color: isExpired
-                        ? Colors.red.shade600
-                        : Colors.orange.shade700,
+                    color: textColor,
                   ),
                 ),
               ],
@@ -364,14 +413,13 @@ class _ExpiryItemTile extends StatelessWidget {
                 vertical: kSpacingXTiny,
               ),
               decoration: BoxDecoration(
-                color: isExpired ? Colors.red.shade100 : Colors.orange.shade100,
+                color: containerColor,
                 borderRadius: BorderRadius.circular(kBorderRadiusSmall),
               ),
               child: Text(
                 DateFormat('dd/MM').format(item.expiryDate!),
                 style: TextStyle(
-                  color:
-                      isExpired ? Colors.red.shade800 : Colors.orange.shade800,
+                  color: textColor,
                   fontWeight: FontWeight.bold,
                   fontSize: kFontSizeSmall,
                 ),
@@ -382,16 +430,17 @@ class _ExpiryItemTile extends StatelessWidget {
     );
   }
 
+  /// ✅ פורמט טקסט תפוגה מ-AppStrings
   String _formatExpiryText(bool isExpired, int daysUntilExpiry) {
     if (isExpired) {
       final daysAgo = -daysUntilExpiry;
-      if (daysAgo == 0) return 'פג היום';
-      if (daysAgo == 1) return 'פג אתמול';
-      return 'פג לפני $daysAgo ימים';
+      if (daysAgo == 0) return AppStrings.inventory.expiryExpiredToday;
+      if (daysAgo == 1) return AppStrings.inventory.expiryExpiredYesterday;
+      return AppStrings.inventory.expiryExpiredDaysAgo(daysAgo);
     } else {
-      if (daysUntilExpiry == 0) return 'פג היום!';
-      if (daysUntilExpiry == 1) return 'פג מחר';
-      return 'פג בעוד $daysUntilExpiry ימים';
+      if (daysUntilExpiry == 0) return AppStrings.inventory.expiryExpiresToday;
+      if (daysUntilExpiry == 1) return AppStrings.inventory.expiryExpiresTomorrow;
+      return AppStrings.inventory.expiryExpiresInDays(daysUntilExpiry);
     }
   }
 }

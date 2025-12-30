@@ -1,29 +1,9 @@
-// 📄 File: lib/models/shopping_list.dart
+// 📄 lib/models/shopping_list.dart
 //
-// 🇮🇱 מודל רשימת קניות:
-//     - מייצג רשימת קניות עם פריטים, תקציב, וסטטוס.
-//     - תומך בשיתוף בין משתמשים במשק בית.
-//     - כולל סוגי רשימות: סופרמרקט, בית מרקחת, אחר.
-//     - מחשב אוטומטית התקדמות, סכומים, וחריגה מתקציב.
-//     - נתמך ע"י JSON לצורך סנכרון עם Firebase Firestore.
+// מודל רשימת קניות - פריטים, תקציב, סטטוס ושיתוף.
+// תומך בסוגי רשימות (סופר/מרקחת/ירקן...) ובקנייה משותפת.
 //
-// 🔥 Firebase Integration:
-//     - household_id מנוהל ע"י Repository (לא חלק מהמודל)
-//     - כל רשימה שייכת למשק בית אחד
-//     - Repository מוסיף את household_id בזמן שמירה
-//     - Repository מסנן לפי household_id בזמן טעינה
-//
-
-//
-// 🇬🇧 Shopping list model:
-//     - Represents a shopping list with items, budget, and status.
-//     - Supports sharing between household members.
-//     - Includes list types: supermarket, pharmacy, other.
-//     - Auto-calculates progress, totals, and budget overruns.
-//     - Supports JSON for server sync and local storage.
-//
-
-//
+// 🔗 Related: UnifiedListItem, SharedUser, ActiveShopper
 
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -148,9 +128,9 @@ class ShoppingList {
   @JsonKey(defaultValue: 'active')
   final String status;
 
-  /// 🇮🇱 סוג הרשימה: "super" | "pharmacy" | "other"
-  /// 🇬🇧 List type: "super" | "pharmacy" | "other"
-  @JsonKey(defaultValue: 'super')
+  /// 🇮🇱 סוג הרשימה: "supermarket" | "pharmacy" | "other" וכו'
+  /// 🇬🇧 List type: "supermarket" | "pharmacy" | "other" etc.
+  @JsonKey(defaultValue: 'supermarket')
   final String type;
 
   /// 🇮🇱 תקציב משוער (אופציונלי, ₪)
@@ -186,6 +166,7 @@ class ShoppingList {
 
   /// 🇮🇱 פריטי הקניות ברשימה (מוצרים + משימות)
   /// 🇬🇧 Shopping items in the list (products + tasks)
+  @JsonKey(defaultValue: [])
   final List<UnifiedListItem> items;
 
   /// 🆕 מזהה התבנית ממנה נוצרה הרשימה (null אם ידנית)
@@ -463,6 +444,29 @@ class ShoppingList {
         return '🏠';
       default:
         return '📝';
+    }
+  }
+
+  /// 🇮🇱 שם סוג הרשימה בעברית
+  /// 🇬🇧 List type name in Hebrew
+  String get typeName {
+    switch (type) {
+      case typeSupermarket:
+        return 'סופרמרקט';
+      case typePharmacy:
+        return 'בית מרקחת';
+      case typeGreengrocer:
+        return 'ירקן';
+      case typeButcher:
+        return 'אטליז';
+      case typeBakery:
+        return 'מאפייה';
+      case typeMarket:
+        return 'שוק';
+      case typeHousehold:
+        return 'כלי בית';
+      default:
+        return 'כללי';
     }
   }
 

@@ -1,13 +1,9 @@
-// 📄 File: lib/main.dart
-// Description: Main entry point + Providers setup
+// 📄 lib/main.dart
 //
-// ✅ Recent Updates:
-// - Using FirebaseProductsRepository directly
-// - Automatic user loading from SharedPreferences
-// - Dynamic Color Support (Android 12+ Material You) 🎨
-// - Hive for local storage
-// - Firebase Emulators support for development 🔥
-// - Async error handling with PlatformDispatcher 🛡️
+// נקודת הכניסה לאפליקציה - אתחול Firebase, Hive, ו-Providers.
+// תומך ב-Dynamic Color (Material You) ו-Firebase Emulators.
+//
+// 🔗 Related: UserContext, AppConfig, MainNavigationScreen
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dynamic_color/dynamic_color.dart'; // 🎨 Material You!

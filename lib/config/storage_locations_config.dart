@@ -1,44 +1,68 @@
-// 📄 File: lib/config/storage_locations_config.dart
-// Version: 2.1
-// Last Updated: 16/12/2025
+// 📄 lib/config/storage_locations_config.dart
 //
-// ✅ Changes in v2.1:
-// - Fixed emojis: מקרר 🧊, מקפיא ❄️, מזווה 🗄️, ארון מטבח 🍳
+// הגדרות מיקומי אחסון במזווה - מזווה, מקרר, מקפיא ואחר.
+// כולל אמוג'י, אייקון, ופונקציות לקבלת שם/תיאור מ-AppStrings.
 //
-// 🎯 Purpose:
-//   מגדיר את מיקומי האחסון האפשריים במזווה
-//   שימושי ל-InventoryItem ו-ProductLocationProvider
+// ✅ תיקונים:
+//    - טקסטים מ-AppStrings (i18n ready)
+//    - אייקונים ייחודיים לכל מיקום (תוקן: מזווה ≠ מקרר)
+//    - הוסר "משטח מטבח" - לא מיקום אחסון אמיתי
 //
-// 🏠 Storage Locations:
-//   1. mainPantry - מזווה ראשי (🗄️)
-//   2. refrigerator - מקרר (🧊)
-//   3. freezer - מקפיא (❄️)
-//   4. countertop - משטח מטבח (🍳)
-//   5. other - אחר (📦)
-//
-// 📝 Features:
-//   - getName(): שם בעברית
-//   - getIcon(): אייקון מתאים
-//   - getLocationInfo(): כל המידע ביחד
-//   - isValidLocation(): בדיקת תקינות
+// 🔗 Related: InventoryItem, LocationsProvider, AppStrings.inventory
 
 import 'package:flutter/material.dart';
+
+import '../l10n/app_strings.dart';
 
 /// מידע על מיקום אחסון
 class LocationInfo {
   final String id;
-  final String name;
   final String emoji;
   final IconData icon;
-  final String description;
+
+  /// Getter לשם - מ-AppStrings
+  String get name => _getLocalizedName(id);
+
+  /// Getter לתיאור - מ-AppStrings
+  String get description => _getLocalizedDescription(id);
 
   const LocationInfo({
     required this.id,
-    required this.name,
     required this.emoji,
     required this.icon,
-    required this.description,
   });
+
+  /// שם מתורגם לפי id
+  static String _getLocalizedName(String id) {
+    switch (id) {
+      case StorageLocationsConfig.mainPantry:
+        return AppStrings.inventory.locationMainPantry;
+      case StorageLocationsConfig.refrigerator:
+        return AppStrings.inventory.locationRefrigerator;
+      case StorageLocationsConfig.freezer:
+        return AppStrings.inventory.locationFreezer;
+      case StorageLocationsConfig.other:
+        return AppStrings.inventory.locationOther;
+      default:
+        return AppStrings.inventory.locationUnknown;
+    }
+  }
+
+  /// תיאור מתורגם לפי id
+  static String _getLocalizedDescription(String id) {
+    switch (id) {
+      case StorageLocationsConfig.mainPantry:
+        return AppStrings.inventory.locationMainPantryDesc;
+      case StorageLocationsConfig.refrigerator:
+        return AppStrings.inventory.locationRefrigeratorDesc;
+      case StorageLocationsConfig.freezer:
+        return AppStrings.inventory.locationFreezerDesc;
+      case StorageLocationsConfig.other:
+        return AppStrings.inventory.locationOtherDesc;
+      default:
+        return AppStrings.inventory.locationUnknownDesc;
+    }
+  }
 }
 
 /// תצורת מיקומי אחסון במזווה
@@ -52,7 +76,6 @@ class StorageLocationsConfig {
   static const String mainPantry = 'main_pantry';
   static const String refrigerator = 'refrigerator';
   static const String freezer = 'freezer';
-  static const String countertop = 'countertop';
   static const String other = 'other';
 
   // ========================================
@@ -63,7 +86,6 @@ class StorageLocationsConfig {
     mainPantry,
     refrigerator,
     freezer,
-    countertop,
     other,
   ];
 
@@ -71,41 +93,27 @@ class StorageLocationsConfig {
   // מיפוי למידע מלא
   // ========================================
 
+  // ✅ אייקונים ייחודיים לכל מיקום (תוקן: מזווה ≠ מקרר)
   static const Map<String, LocationInfo> _locationData = {
     mainPantry: LocationInfo(
       id: mainPantry,
-      name: 'מזווה',
       emoji: '🗄️',
-      icon: Icons.kitchen,
-      description: 'מזווה ראשי - מוצרים יבשים',
+      icon: Icons.shelves, // ✅ מדפים - מתאים למזווה
     ),
     refrigerator: LocationInfo(
       id: refrigerator,
-      name: 'מקרר',
-      emoji: '🧊',
+      emoji: '🥛', // חלב = מקרר (יותר אינטואיטיבי מ-🧊)
       icon: Icons.kitchen,
-      description: 'מקרר - מוצרים טריים',
     ),
     freezer: LocationInfo(
       id: freezer,
-      name: 'מקפיא',
-      emoji: '❄️',
+      emoji: '🧊', // קרח = מקפיא
       icon: Icons.ac_unit,
-      description: 'מקפיא - מוצרים קפואים',
-    ),
-    countertop: LocationInfo(
-      id: countertop,
-      name: 'משטח מטבח',
-      emoji: '🍳',
-      icon: Icons.countertops,
-      description: 'משטח מטבח - פירות וירקות',
     ),
     other: LocationInfo(
       id: other,
-      name: 'אחר',
       emoji: '📦',
-      icon: Icons.inventory_2,
-      description: 'מיקום אחר',
+      icon: Icons.inventory_2, // קופסה
     ),
   };
 
@@ -113,19 +121,19 @@ class StorageLocationsConfig {
   // Getters
   // ========================================
 
-  /// מחזיר את שם המיקום בעברית
-  /// 
+  /// מחזיר את שם המיקום בעברית (מ-AppStrings)
+  ///
   /// Example:
   /// ```dart
   /// final name = StorageLocationsConfig.getName('refrigerator');
   /// // 'מקרר'
   /// ```
   static String getName(String locationId) {
-    return _locationData[locationId]?.name ?? 'לא ידוע';
+    return _locationData[locationId]?.name ?? AppStrings.inventory.locationUnknown;
   }
 
   /// מחזיר את האייקון של המיקום
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final icon = StorageLocationsConfig.getIcon('freezer');
@@ -136,21 +144,19 @@ class StorageLocationsConfig {
   }
 
   /// מחזיר את המידע המלא על המיקום
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final info = StorageLocationsConfig.getLocationInfo('main_pantry');
-  /// print(info.emoji); // 🏠
+  /// print(info.emoji); // 🗄️
   /// print(info.name);  // מזווה
   /// ```
   static LocationInfo getLocationInfo(String locationId) {
     return _locationData[locationId] ??
         const LocationInfo(
           id: 'unknown',
-          name: 'לא ידוע',
           emoji: '❓',
           icon: Icons.help_outline,
-          description: 'מיקום לא מוכר',
         );
   }
 

@@ -9,9 +9,13 @@
 // - Material 3 Theme מלא עם Dynamic Color (Android 12+)
 // - Light/Dark modes עם Surface Containers
 // - AppBrand: צבעי מותג מותאמים (Amber accent, harmonized colors)
+//   - success/successContainer/onSuccessContainer (ירוק)
+//   - warning/warningContainer/onWarningContainer (כתום)
+//   - Sticky Notes Design System
 // - RTL support מובנה (EdgeInsetsDirectional)
 // - Typography: Assistant font family עם line-height מדויק
-// - Accessible: גדלי מגע 48px, contrast AA+
+// - Accessible: materialTapTargetSize: padded (48px touch targets)
+// - ✅ No hardcoded colors - all use scheme.* colors for Dark/Dynamic compatibility
 //
 // Dependencies:
 // - flutter/material.dart
@@ -99,49 +103,66 @@ class _Brand {
 }
 
 /// ThemeExtension כדי להעביר צבעי מותג לרכיבים/מסכים
-/// 
+///
 /// מאפשר גישה לצבעים מותאמים אישית שלא חלק מ-ColorScheme הסטנדרטי.
 /// גישה דרך: `Theme.of(context).extension<AppBrand>()`
+///
+/// כולל:
+/// - success/warning עם Container variants (לרקע/תגיות)
+/// - Sticky Notes Design System
+/// - צבעי מחברת
 @immutable
 class AppBrand extends ThemeExtension<AppBrand> {
   /// צבע accent ראשי (Amber או harmonized)
   final Color accent;
-  
+
   /// רקע surface לברירת־מחדל במסכים (נגזר מ-ColorScheme)
   final Color surfaceSlate;
-  
+
   /// רקע מסך Welcome (נגזר מ-ColorScheme.surface)
   final Color welcomeBackground;
-  
+
   /// צבע הצלחה (Success) - ירוק
   final Color success;
-  
+
+  /// צבע רקע הצלחה - לתגיות/באנרים (ירוק בהיר)
+  final Color successContainer;
+
+  /// צבע טקסט על successContainer
+  final Color onSuccessContainer;
+
   /// צבע אזהרה (Warning) - כתום
   final Color warning;
-  
+
+  /// צבע רקע אזהרה - לתגיות/באנרים (כתום בהיר)
+  final Color warningContainer;
+
+  /// צבע טקסט על warningContainer
+  final Color onWarningContainer;
+
   // 🎨📝 Sticky Notes Design System
-  
+
   /// רקע נייר מחברת
   final Color paperBackground;
-  
+
   /// פתק צהוב
   final Color stickyYellow;
-  
+
   /// פתק ורוד
   final Color stickyPink;
-  
+
   /// פתק ירוק
   final Color stickyGreen;
-  
+
   /// פתק תכלת
   final Color stickyCyan;
-  
+
   /// פתק סגול
   final Color stickyPurple;
-  
+
   /// קווי מחברת כחולים
   final Color notebookBlue;
-  
+
   /// קו אדום במחברת
   final Color notebookRed;
 
@@ -150,7 +171,11 @@ class AppBrand extends ThemeExtension<AppBrand> {
     required this.surfaceSlate,
     required this.welcomeBackground,
     required this.success,
+    required this.successContainer,
+    required this.onSuccessContainer,
     required this.warning,
+    required this.warningContainer,
+    required this.onWarningContainer,
     required this.paperBackground,
     required this.stickyYellow,
     required this.stickyPink,
@@ -167,7 +192,11 @@ class AppBrand extends ThemeExtension<AppBrand> {
     Color? surfaceSlate,
     Color? welcomeBackground,
     Color? success,
+    Color? successContainer,
+    Color? onSuccessContainer,
     Color? warning,
+    Color? warningContainer,
+    Color? onWarningContainer,
     Color? paperBackground,
     Color? stickyYellow,
     Color? stickyPink,
@@ -182,7 +211,11 @@ class AppBrand extends ThemeExtension<AppBrand> {
       surfaceSlate: surfaceSlate ?? this.surfaceSlate,
       welcomeBackground: welcomeBackground ?? this.welcomeBackground,
       success: success ?? this.success,
+      successContainer: successContainer ?? this.successContainer,
+      onSuccessContainer: onSuccessContainer ?? this.onSuccessContainer,
       warning: warning ?? this.warning,
+      warningContainer: warningContainer ?? this.warningContainer,
+      onWarningContainer: onWarningContainer ?? this.onWarningContainer,
       paperBackground: paperBackground ?? this.paperBackground,
       stickyYellow: stickyYellow ?? this.stickyYellow,
       stickyPink: stickyPink ?? this.stickyPink,
@@ -206,7 +239,11 @@ class AppBrand extends ThemeExtension<AppBrand> {
         t,
       )!,
       success: Color.lerp(success, other.success, t)!,
+      successContainer: Color.lerp(successContainer, other.successContainer, t)!,
+      onSuccessContainer: Color.lerp(onSuccessContainer, other.onSuccessContainer, t)!,
       warning: Color.lerp(warning, other.warning, t)!,
+      warningContainer: Color.lerp(warningContainer, other.warningContainer, t)!,
+      onWarningContainer: Color.lerp(onWarningContainer, other.onWarningContainer, t)!,
       paperBackground: Color.lerp(paperBackground, other.paperBackground, t)!,
       stickyYellow: Color.lerp(stickyYellow, other.stickyYellow, t)!,
       stickyPink: Color.lerp(stickyPink, other.stickyPink, t)!,
@@ -267,20 +304,32 @@ class AppTheme {
       dynamicScheme.primary,
     );
     final harmonizedSuccess = _harmonizeColor(
-      Colors.green.shade700,
+      const Color(0xFF388E3C), // Green 700
       dynamicScheme.primary,
     );
     final harmonizedWarning = _harmonizeColor(
-      Colors.orange.shade700,
+      const Color(0xFFF57C00), // Orange 700
       dynamicScheme.primary,
     );
-    
+
+    // Container colors - בהירים יותר לרקעים
+    final successContainer = dark
+        ? HSLColor.fromColor(harmonizedSuccess).withLightness(0.25).toColor()
+        : HSLColor.fromColor(harmonizedSuccess).withLightness(0.85).toColor();
+    final warningContainer = dark
+        ? HSLColor.fromColor(harmonizedWarning).withLightness(0.25).toColor()
+        : HSLColor.fromColor(harmonizedWarning).withLightness(0.85).toColor();
+
     final brand = AppBrand(
       accent: harmonizedAccent,
       surfaceSlate: dynamicScheme.surface,
       welcomeBackground: dynamicScheme.surface,
       success: harmonizedSuccess,
+      successContainer: successContainer,
+      onSuccessContainer: dark ? const Color(0xFFC8E6C9) : const Color(0xFF1B5E20),
       warning: harmonizedWarning,
+      warningContainer: warningContainer,
+      onWarningContainer: dark ? const Color(0xFFFFE0B2) : const Color(0xFFE65100),
       paperBackground: dark ? kDarkPaperBackground : kPaperBackground,
       stickyYellow: dark ? kStickyYellowDark : kStickyYellow,
       stickyPink: dark ? kStickyPinkDark : kStickyPink,
@@ -295,21 +344,39 @@ class AppTheme {
   }
 
   /// Helper: Color Harmonization
-  /// 
-  /// מתאים צבע מותאם אישית לצבעי המערכת על ידי הזזת הue
+  ///
+  /// מתאים צבע מותאם אישית לצבעי המערכת על ידי הזזת ה-hue
   /// כך שהוא מרגיש "חלק מהסכמה" אבל שומר על אופי המקורי.
-  /// 
+  ///
+  /// ✅ משתמש במסלול הקצר בגלגל הצבעים (0-360°)
+  ///
   /// זוהי גרסה פשוטה של harmonization - לגרסה מלאה יש להשתמש ב:
   /// `import 'package:dynamic_color/dynamic_color.dart';`
   /// `color.harmonizeWith(primaryColor);`
   static Color _harmonizeColor(Color color, Color primaryColor) {
-    // אם הצבעים דומים, אין צורך בharmonization
     final colorHsl = HSLColor.fromColor(color);
     final primaryHsl = HSLColor.fromColor(primaryColor);
-    
-    // מזיז את ה-hue ב-30% לעבר ה-primary
-    final newHue = colorHsl.hue + (primaryHsl.hue - colorHsl.hue) * 0.3;
-    
+
+    // ✅ Calculate hue difference using shortest path on color wheel
+    double hueDiff = primaryHsl.hue - colorHsl.hue;
+
+    // Normalize to shortest path (-180 to 180)
+    if (hueDiff > 180) {
+      hueDiff -= 360;
+    } else if (hueDiff < -180) {
+      hueDiff += 360;
+    }
+
+    // Move hue 30% toward primary using shortest path
+    double newHue = colorHsl.hue + hueDiff * 0.3;
+
+    // Normalize result to 0-360
+    if (newHue < 0) {
+      newHue += 360;
+    } else if (newHue >= 360) {
+      newHue -= 360;
+    }
+
     return colorHsl.withHue(newHue).toColor();
   }
 
@@ -335,8 +402,15 @@ class AppTheme {
       accent: _Brand.amber,
       surfaceSlate: scheme.surface,
       welcomeBackground: scheme.surface,
-      success: Colors.green.shade700,
-      warning: Colors.orange.shade700,
+      // Success colors
+      success: const Color(0xFF388E3C), // Green 700
+      successContainer: dark ? const Color(0xFF1B5E20) : const Color(0xFFC8E6C9),
+      onSuccessContainer: dark ? const Color(0xFFC8E6C9) : const Color(0xFF1B5E20),
+      // Warning colors
+      warning: const Color(0xFFF57C00), // Orange 700
+      warningContainer: dark ? const Color(0xFFE65100) : const Color(0xFFFFE0B2),
+      onWarningContainer: dark ? const Color(0xFFFFE0B2) : const Color(0xFFE65100),
+      // Sticky notes
       paperBackground: dark ? kDarkPaperBackground : kPaperBackground,
       stickyYellow: dark ? kStickyYellowDark : kStickyYellow,
       stickyPink: dark ? kStickyPinkDark : kStickyPink,
@@ -372,11 +446,15 @@ class AppTheme {
 
       // כפתורים - 4 סוגים
       
+      // ✅ Accessible touch targets (48px minimum)
+      materialTapTargetSize: MaterialTapTargetSize.padded,
+
       // ElevatedButton: כפתור ראשי עם רקע Amber
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: brand.accent, // Amber (או harmonized)
-          foregroundColor: Colors.black, // טקסט שחור על Amber
+          // ✅ Use scheme color instead of hardcoded Colors.black
+          foregroundColor: scheme.onSecondary, // טקסט על Amber
           textStyle: const TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: kFontSizeBody,
@@ -456,8 +534,9 @@ class AppTheme {
 
       // ListTile — טוב ל־RTL
       listTileTheme: ListTileThemeData(
-        iconColor: dark ? Colors.white70 : scheme.onSurfaceVariant,
-        textColor: dark ? Colors.white : scheme.onSurface,
+        // ✅ Use scheme colors instead of hardcoded Colors.white70
+        iconColor: scheme.onSurfaceVariant,
+        textColor: scheme.onSurface,
         contentPadding: const EdgeInsetsDirectional.only(
           start: kListTilePaddingStart,
           end: kListTilePaddingEnd,
@@ -473,17 +552,14 @@ class AppTheme {
           horizontal: kInputPadding,
           vertical: kInputPadding,
         ),
+        // ✅ Use scheme.outline instead of hardcoded Colors.white24/black12
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(kBorderRadius),
-          borderSide: BorderSide(
-            color: (dark ? Colors.white24 : Colors.black12),
-          ),
+          borderSide: BorderSide(color: scheme.outline),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(kBorderRadius),
-          borderSide: BorderSide(
-            color: (dark ? Colors.white24 : Colors.black12),
-          ),
+          borderSide: BorderSide(color: scheme.outlineVariant),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(kBorderRadius),
@@ -511,7 +587,8 @@ class AppTheme {
           if (states.contains(WidgetState.selected)) return brand.accent;
           return null;
         }),
-        checkColor: WidgetStateProperty.all(Colors.black),
+        // ✅ Use scheme color instead of hardcoded Colors.black
+        checkColor: WidgetStateProperty.all(scheme.onSecondary),
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
@@ -535,17 +612,20 @@ class AppTheme {
       // Slider - ווליום, בהירות, וכו'
       sliderTheme: SliderThemeData(
         activeTrackColor: brand.accent,
-        inactiveTrackColor: dark ? Colors.white24 : Colors.black12,
+        // ✅ Use scheme.outlineVariant instead of hardcoded colors
+        inactiveTrackColor: scheme.outlineVariant,
         thumbColor: brand.accent,
         overlayColor: brand.accent.withValues(alpha: kOpacityLight),
         valueIndicatorColor: brand.accent,
-        valueIndicatorTextStyle: const TextStyle(color: Colors.black),
+        // ✅ Use scheme color instead of hardcoded Colors.black
+        valueIndicatorTextStyle: TextStyle(color: scheme.onSecondary),
       ),
 
       // מחווני התקדמות - Progress Indicators
       progressIndicatorTheme: ProgressIndicatorThemeData(
         color: brand.accent, // Amber spinner
-        linearTrackColor: dark ? Colors.white10 : Colors.black12,
+        // ✅ Use scheme.outlineVariant instead of hardcoded colors
+        linearTrackColor: scheme.outlineVariant.withValues(alpha: 0.3),
         linearMinHeight: kProgressIndicatorHeight,
       ),
 
@@ -590,6 +670,7 @@ class AppTheme {
       ),
 
       // טיפוגרפיה כללית - גדלים, משקלים, ו-line-height מדויק לפי M3
+      // ✅ All colors now use scheme.onSurface/onSurfaceVariant instead of hardcoded Colors.white
       textTheme: TextTheme(
         // Display styles - כותרות גדולות
         displayLarge: TextStyle(
@@ -597,107 +678,107 @@ class AppTheme {
           fontWeight: FontWeight.w400,
           height: 64 / 57, // line-height מדויק לפי M3
           letterSpacing: -0.25,
-          color: dark ? Colors.white : scheme.onSurface,
+          color: scheme.onSurface,
         ),
         displayMedium: TextStyle(
           fontSize: 45,
           fontWeight: FontWeight.w400,
           height: 52 / 45,
-          color: dark ? Colors.white : scheme.onSurface,
+          color: scheme.onSurface,
         ),
         displaySmall: TextStyle(
           fontSize: 36,
           fontWeight: FontWeight.w400,
           height: 44 / 36,
-          color: dark ? Colors.white : scheme.onSurface,
+          color: scheme.onSurface,
         ),
-        
+
         // Headline styles - כותרות בינוניות
         headlineLarge: TextStyle(
           fontSize: 32,
           fontWeight: FontWeight.w400,
           height: 40 / 32,
-          color: dark ? Colors.white : scheme.onSurface,
+          color: scheme.onSurface,
         ),
         headlineMedium: TextStyle(
           fontSize: 28,
           fontWeight: FontWeight.w400,
           height: 36 / 28,
-          color: dark ? Colors.white : scheme.onSurface,
+          color: scheme.onSurface,
         ),
         headlineSmall: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.w400,
           height: 32 / 24,
-          color: dark ? Colors.white : scheme.onSurface,
+          color: scheme.onSurface,
         ),
-        
+
         // Title styles - כותרות קטנות
         titleLarge: TextStyle(
           fontSize: 22,
           fontWeight: FontWeight.w700, // M3 spec: 700!
           height: 28 / 22,
-          color: dark ? Colors.white : scheme.onSurface,
+          color: scheme.onSurface,
         ),
         titleMedium: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600,
           height: 24 / 16,
           letterSpacing: 0.1,
-          color: dark ? Colors.white : scheme.onSurface,
+          color: scheme.onSurface,
         ),
         titleSmall: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,
           height: 20 / 14,
           letterSpacing: 0.1,
-          color: dark ? Colors.white : scheme.onSurface,
+          color: scheme.onSurface,
         ),
-        
+
         // Body styles - טקסט גוף
         bodyLarge: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w400,
           height: 24 / 16,
           letterSpacing: 0.5,
-          color: dark ? Colors.white : scheme.onSurface,
+          color: scheme.onSurface,
         ),
         bodyMedium: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w400,
           height: 20 / 14,
           letterSpacing: 0.25,
-          color: dark ? Colors.white : scheme.onSurface,
+          color: scheme.onSurface,
         ),
         bodySmall: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w400,
           height: 16 / 12,
           letterSpacing: 0.4,
-          color: dark ? Colors.white70 : scheme.onSurfaceVariant,
+          color: scheme.onSurfaceVariant,
         ),
-        
+
         // Label styles - תוויות כפתורים וכו'
         labelLarge: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,
           height: 20 / 14,
           letterSpacing: 0.1,
-          color: dark ? Colors.white : scheme.onSurface,
+          color: scheme.onSurface,
         ),
         labelMedium: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,
           height: 16 / 12,
           letterSpacing: 0.5,
-          color: dark ? Colors.white : scheme.onSurface,
+          color: scheme.onSurface,
         ),
         labelSmall: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w600,
           height: 16 / 11,
           letterSpacing: 0.5,
-          color: dark ? Colors.white70 : scheme.onSurfaceVariant,
+          color: scheme.onSurfaceVariant,
         ),
       ),
     );

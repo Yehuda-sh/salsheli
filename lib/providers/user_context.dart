@@ -1,57 +1,9 @@
-// 📄 File: lib/providers/user_context.dart
+// 📄 lib/providers/user_context.dart
 //
-// 🇮🇱 מנהל את ההקשר של המשתמש באפליקציה עם Firebase Authentication:
-//     - מחזיק את פרטי המשתמש (UserEntity) והעדפותיו
-//     - מאזין לשינויים ב-Firebase Auth (real-time)
-//     - טוען/שומר/מוחק משתמש דרך UserRepository
-//     - עוקב אחרי סטטיסטיקות ושומר העדפות UI
-//     - מספק Single Source of Truth למצב משתמש
+// Provider לניהול הקשר המשתמש - פרופיל, אימות, והעדפות UI.
+// מאזין ל-Firebase Auth ומספק Single Source of Truth למצב משתמש.
 //
-// 🇬🇧 Manages user context in the app with Firebase Authentication:
-//     - Holds user profile (UserEntity) and preferences
-//     - Listens to Firebase Auth changes (real-time)
-//     - Loads/saves/deletes user via UserRepository
-//     - Tracks stats and UI preferences
-//     - Provides Single Source of Truth for user state
-//
-// 📦 Dependencies:
-//     - firebase_auth - Firebase Authentication
-//     - shared_preferences - UI preferences storage
-//     - models/user_entity.dart - מודל המשתמש
-//     - repositories/user_repository.dart - Repository interface
-//     - services/auth_service.dart - שירות אימות
-//
-// 🔗 Related:
-//     - firebase_user_repository.dart - המימוש של Repository
-//     - auth_service.dart - שירות ההתחברות
-//     - main.dart - רישום ה-Provider
-//
-// 🎯 Usage:
-//     ```dart
-//     // קריאה
-//     final userContext = context.watch<UserContext>();
-//     if (userContext.isLoggedIn) {
-//       print('User: ${userContext.displayName}');
-//     }
-//
-//     // פעולות
-//     await userContext.signIn(email: '...', password: '...');
-//     await userContext.signOut();
-//
-//     // העדפות UI
-//     userContext.setThemeMode(ThemeMode.dark);
-//     userContext.toggleCompactView();
-//     ```
-//
-// 📝 Version: 2.2 - Dispose Safety & Error Handling Improvements
-// 📅 Updated: 22/12/2025
-//
-// 🆕 Changes in v2.2:
-//     - 🔒 Added _notifySafe() wrapper to prevent disposed object crashes
-//     - 🔒 Added _runAsync() helper to reduce boilerplate and ensure safety
-//     - 🔄 Improved state sync: hasAuthButNoProfile state for recovery
-//     - 📝 Better error logging with operation context
-//     - 🧹 Reduced code repetition with generic async handler
+// 🔗 Related: UserEntity, UserRepository, AuthService
 
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;

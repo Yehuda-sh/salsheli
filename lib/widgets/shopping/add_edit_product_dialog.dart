@@ -1,17 +1,17 @@
-// 📄 File: lib/widgets/shopping/add_edit_product_dialog.dart
-// 🎯 דיאלוג הוספה/עריכה של מוצר
+// 📄 lib/widgets/shopping/add_edit_product_dialog.dart
 //
-// תכונות:
-// - אנימציות fade + scale
-// - Validation מלא
-// - תמיכה במצב הוספה ועריכה
-// - RTL Support
-// - Controllers cleanup אוטומטי
-// - בחירת קטגוריה וחברה/מותג
-// - Sticky Notes Design System
-// - Haptic Feedback
-// - StatusColors לשגיאות
-// - Semantics לנגישות
+// דיאלוג הוספה/עריכה של מוצר - שם, מותג, קטגוריה, כמות ומחיר.
+// כולל validation, Sticky Notes design, אנימציות ותמיכה בנגישות.
+//
+// ✅ אבטחות:
+//    - מניעת קריסה כשקטגוריה לא קיימת ברשימה
+//    - null safety מלא ל-quantity/unitPrice
+//    - מניעת שמירה כפולה (_isSaving flag)
+//    - אישור יציאה כשיש שינויים לא שמורים
+//    - InputFormatters למניעת קלט לא תקין
+//    - תמיכה בפסיק כמפריד עשרוני (12,5 → 12.5)
+//
+// 🔗 Related: UnifiedListItem, StickyNote, StickyButton, showGeneralDialog
 
 import 'dart:async';
 import 'dart:ui' as ui;
@@ -49,15 +49,43 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
   late final TextEditingController _quantityController;
   late final TextEditingController _priceController;
   String? _selectedCategory;
+  bool _isSaving = false;
+  bool _hasChanges = false;
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.item?.name ?? '');
     _brandController = TextEditingController(text: widget.item?.brand ?? '');
-    _quantityController = TextEditingController(text: widget.item?.quantity.toString() ?? '1');
-    _priceController = TextEditingController(text: widget.item?.unitPrice.toString() ?? '');
-    _selectedCategory = widget.item?.category;
+
+    // ✅ Safe null handling for quantity and price
+    final quantity = widget.item?.quantity;
+    _quantityController = TextEditingController(
+      text: quantity != null ? quantity.toString() : '1',
+    );
+
+    final price = widget.item?.unitPrice;
+    _priceController = TextEditingController(
+      text: price != null && price > 0 ? price.toString() : '',
+    );
+
+    // ✅ Validate category exists in list, otherwise set to null
+    final itemCategory = widget.item?.category;
+    _selectedCategory = (itemCategory != null && widget.categories.contains(itemCategory))
+        ? itemCategory
+        : null;
+
+    // Track changes for exit confirmation
+    _nameController.addListener(_markChanged);
+    _brandController.addListener(_markChanged);
+    _quantityController.addListener(_markChanged);
+    _priceController.addListener(_markChanged);
+  }
+
+  void _markChanged() {
+    if (!_hasChanges) {
+      setState(() => _hasChanges = true);
+    }
   }
 
   @override
@@ -86,26 +114,65 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
     );
   }
 
+  /// ✅ Exit confirmation when form has unsaved changes
+  Future<bool> _confirmExit() async {
+    if (!_hasChanges) return true;
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppStrings.common.unsavedChangesTitle),
+        content: Text(AppStrings.common.unsavedChangesMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(AppStrings.common.stayHere),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(AppStrings.common.exitWithoutSaving),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
+  }
+
+  void _handleCancel() async {
+    if (await _confirmExit()) {
+      unawaited(HapticFeedback.lightImpact());
+      if (mounted) Navigator.pop(context);
+    }
+  }
+
   void _handleSave() {
+    // ✅ Prevent double-save
+    if (_isSaving) return;
+    setState(() => _isSaving = true);
+
     final name = _nameController.text.trim();
     final brand = _brandController.text.trim();
     final qtyText = _quantityController.text.trim();
-    final priceText = _priceController.text.trim();
+    // ✅ Support comma as decimal separator (Israeli convention)
+    final priceText = _priceController.text.trim().replaceAll(',', '.');
 
     // ✅ Validation מלא
     if (name.isEmpty) {
+      setState(() => _isSaving = false);
       _showErrorSnackBar(AppStrings.listDetails.productNameEmpty);
       return;
     }
 
     final qty = int.tryParse(qtyText);
     if (qty == null || qty <= 0 || qty > 9999) {
+      setState(() => _isSaving = false);
       _showErrorSnackBar(AppStrings.listDetails.quantityInvalid);
       return;
     }
 
     final unitPrice = priceText.isEmpty ? 0.0 : double.tryParse(priceText);
     if (unitPrice == null || unitPrice < 0) {
+      setState(() => _isSaving = false);
       _showErrorSnackBar(AppStrings.listDetails.priceInvalid);
       return;
     }
@@ -258,8 +325,15 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                           fillColor: Colors.white.withValues(alpha: 0.7),
                         ),
                         keyboardType: TextInputType.number,
-                        textDirection: ui.TextDirection.rtl,
+                        // ✅ LTR for numbers - looks more natural
+                        textDirection: ui.TextDirection.ltr,
+                        textAlign: TextAlign.center,
                         textInputAction: TextInputAction.next,
+                        // ✅ Only allow digits
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(4),
+                        ],
                       ),
                     ),
                     const SizedBox(width: kSpacingSmall),
@@ -277,9 +351,16 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                           fillColor: Colors.white.withValues(alpha: 0.7),
                         ),
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        textDirection: ui.TextDirection.rtl,
+                        // ✅ LTR for numbers - looks more natural
+                        textDirection: ui.TextDirection.ltr,
+                        textAlign: TextAlign.center,
                         textInputAction: TextInputAction.done,
                         onSubmitted: (_) => _handleSave(),
+                        // ✅ Allow digits, dot, and comma (Israeli decimal separator)
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[\d.,]')),
+                          LengthLimitingTextInputFormatter(10),
+                        ],
                       ),
                     ),
                   ],
@@ -300,10 +381,8 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                           icon: Icons.close,
                           color: Colors.white,
                           textColor: cs.onSurface,
-                          onPressed: () {
-                            unawaited(HapticFeedback.lightImpact());
-                            Navigator.pop(context);
-                          },
+                          // ✅ Use _handleCancel for exit confirmation
+                          onPressed: _handleCancel,
                         ),
                       ),
                     ),
@@ -314,16 +393,22 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                         label: AppStrings.common.save,
                         button: true,
                         child: StickyButton(
-                          label: AppStrings.common.save,
-                          icon: Icons.check,
+                          label: _isSaving
+                              ? AppStrings.common.loading
+                              : AppStrings.common.save,
+                          icon: _isSaving ? Icons.hourglass_empty : Icons.check,
                           color: StatusColors.success,
                           textColor: Colors.white,
-                          onPressed: _handleSave,
+                          // ✅ Disable button while saving
+                          onPressed: _isSaving ? null : _handleSave,
                         ),
                       ),
                     ),
                   ],
                 ),
+
+                // ✅ Keyboard padding - prevents fields from hiding behind keyboard
+                SizedBox(height: MediaQuery.of(context).viewInsets.bottom > 0 ? kSpacingMedium : 0),
               ],
             ),
           ),
@@ -342,7 +427,9 @@ Future<void> showAddEditProductDialog(
 }) {
   return showGeneralDialog(
     context: context,
-    barrierDismissible: true,
+    // ✅ Disabled barrier dismiss to prevent accidental data loss
+    // Exit confirmation is handled inside the dialog
+    barrierDismissible: false,
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
     barrierColor: Colors.black.withValues(alpha: 0.5),
     transitionDuration: const Duration(milliseconds: 200),

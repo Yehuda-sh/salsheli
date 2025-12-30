@@ -1,34 +1,9 @@
-// 📄 File: lib/core/status_colors.dart
+// 📄 lib/core/status_colors.dart
 //
-// 🎯 מטרה: צבעי סטטוס סמנטיים לאפליקציה
-//
-// 📋 כולל:
-// - צבעי סטטוס למצבי פריטים (pending, success, error, warning, info)
-// - צבעים עקביים בכל האפליקציה
-// - תמיכה ב-Light/Dark themes
-// - גרסאות overlay לרקעים
-//
-// 📝 הערות:
-// - צבעים סמנטיים: ירוק=הצלחה, אדום=שגיאה, כתום=אזהרה, אפור=ממתין, כחול=מידע
-// - תומך בLight/Dark themes
-// - כולל פונקציה theme-aware לקבלת הצבע הנכון אוטומטית
-// - debugPrint warning לסטטוסים לא ידועים
-//
-// Usage Example:
-// ```dart
-// import 'package:memozap/core/status_colors.dart';
-//
-// // שימוש פשוט עם context
-// color: StatusColors.getStatusColor('success', context)
-//
-// // overlay לרקעים
-// backgroundColor: StatusColors.successOverlay
-// ```
-//
-// Version: 2.5 - Actively used in 6 files
-// Last Updated: 26/11/2025
-// Files: shopping_item_status, active_shopping_screen, shopping_summary_screen,
-//        create_list_screen, shopping_list_tile, status_colors (self-reference)
+// צבעי סטטוס סמנטיים עם תמיכה ב-Light/Dark themes.
+// - pending (אפור), success (ירוק), error (אדום), warning (כתום), info (כחול)
+// - getStatusColor() / getStatusOverlay() - theme-aware אוטומטי
+// - גרסאות overlay לרקעים עם שקיפות
 
 import 'package:flutter/material.dart';
 
@@ -225,52 +200,3 @@ class StatusColors {
     }
   }
 }
-
-// ========================================
-// 💡 דוגמאות שימוש מעודכנות
-// ========================================
-//
-// ```dart
-// // ✅ שימוש חדש (מומלץ) - theme-aware אוטומטי
-// Icon(
-//   Icons.check_circle,
-//   color: StatusColors.getStatusColor('success', context),
-// )
-//
-// Container(
-//   color: StatusColors.getStatusOverlay('error', context),
-//   child: Text('שגיאה',
-//     style: TextStyle(
-//       color: StatusColors.getStatusColor('error', context),
-//     ),
-//   ),
-// )
-//
-// // ✅ שימוש ב-info (חדש!)
-// Icon(
-//   Icons.info_outline,
-//   color: StatusColors.getStatusColor('info', context),
-// )
-//
-// Container(
-//   color: StatusColors.getStatusOverlay('info', context),
-//   child: Text('מידע'),
-// )
-//
-// // ✅ שימוש ישן (עדיין תקין) - בחירה ידנית
-// final isDark = Theme.of(context).brightness == Brightness.dark;
-// Icon(
-//   Icons.check,
-//   color: isDark ? StatusColors.successDark : StatusColors.successLight,
-// )
-//
-// // ✅ שימוש overlay ישיר
-// Container(
-//   color: StatusColors.successOverlay, // Light mode בלבד
-//   child: Text('הצלחה'),
-// )
-//
-// // ⚠️ Typo warning - יזהה אוטומטית!
-// StatusColors.getStatusColor('succes', context) // typo!
-// // Debug output: ⚠️ StatusColors.getStatusColor: Unknown status "succes"
-// ```

@@ -1,16 +1,9 @@
-// 📄 File: lib/screens/history/receipt_details_screen.dart
+// 📄 lib/screens/history/receipt_details_screen.dart
 //
-// 🎯 Purpose: מסך פרטי קבלה - צפייה בפרטי קנייה בודדת
+// מסך פרטי קבלה - צפייה בקנייה בודדת.
+// מציג רשימת פריטים, סיכום מחירים, תאריך וחנות.
 //
-// ✨ Features:
-// - 📋 רשימת פריטים שנקנו
-// - 💰 סיכום מחירים
-// - 📅 תאריך וחנות
-// - 🖼️ תמונת קבלה (אם קיימת)
-// - 🎨 עיצוב Sticky Note
-//
-// Version: 1.0
-// Created: 16/12/2025
+// 🔗 Related: Receipt, ShoppingHistoryScreen
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' hide TextDirection;

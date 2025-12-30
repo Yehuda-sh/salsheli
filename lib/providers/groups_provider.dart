@@ -1,15 +1,9 @@
-// 📄 File: lib/providers/groups_provider.dart
-// 🎯 Purpose: Provider לניהול קבוצות (Groups)
+// 📄 lib/providers/groups_provider.dart
 //
-// 📋 Features:
-// - טעינת קבוצות של המשתמש
-// - CRUD לקבוצות
-// - ניהול חברים
-// - Stream לעדכונים בזמן אמת
-// - שילוב עם UserContext
+// Provider לניהול קבוצות - CRUD, חברים, והזמנות.
+// מאזין לשינויים בזמן אמת דרך Stream מ-Firestore.
 //
-// 📝 Version: 1.0
-// 📅 Created: 14/12/2025
+// 🔗 Related: Group, GroupRepository, GroupInviteRepository, UserContext
 
 import 'dart:async';
 
@@ -38,6 +32,7 @@ class GroupsProvider with ChangeNotifier {
   // User Context
   UserContext? _userContext;
   StreamSubscription<List<Group>>? _groupsSubscription;
+  String? _watchedUserId; // מניעת restart מיותר של ה-Stream
 
   GroupsProvider({
     required GroupRepository repository,
@@ -100,12 +95,25 @@ class GroupsProvider with ChangeNotifier {
 
   /// מופעל כאשר UserContext משתנה
   void _onUserChanged() {
-    if (_userContext?.isLoggedIn ?? false) {
-      _startWatchingGroups();
-    } else {
+    final userId = _userContext?.userId;
+    final isLoggedIn = _userContext?.isLoggedIn ?? false;
+
+    if (!isLoggedIn) {
+      // התנתקות - עצור ונקה
       _stopWatchingGroups();
       _clearState();
+      _watchedUserId = null;
+      return;
     }
+
+    // מחובר - בדוק אם באמת צריך להתחיל מחדש
+    if (userId == _watchedUserId && _groupsSubscription != null) {
+      // אותו userId ויש כבר subscription פעילה - לא צריך לעשות כלום
+      return;
+    }
+
+    // userId חדש או אין subscription - התחל להאזין
+    _startWatchingGroups();
   }
 
   /// התחלת האזנה לקבוצות
@@ -113,11 +121,17 @@ class GroupsProvider with ChangeNotifier {
     final userId = _userContext?.userId;
     if (userId == null) return;
 
+    // אם כבר מאזינים לאותו userId - לא צריך להתחיל מחדש
+    if (userId == _watchedUserId && _groupsSubscription != null) {
+      return;
+    }
+
     if (kDebugMode) {
       debugPrint('👁️ GroupsProvider: Starting to watch groups for $userId');
     }
 
     _groupsSubscription?.cancel();
+    _watchedUserId = userId;
     _groupsSubscription = _repository.watchUserGroups(userId).listen(
       (groups) {
         _groups = groups;
@@ -148,6 +162,7 @@ class GroupsProvider with ChangeNotifier {
   void _stopWatchingGroups() {
     _groupsSubscription?.cancel();
     _groupsSubscription = null;
+    _watchedUserId = null;
   }
 
   /// ניקוי state

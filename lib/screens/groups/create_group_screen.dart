@@ -1,14 +1,9 @@
-// 📄 File: lib/screens/groups/create_group_screen.dart
-// 🎯 Purpose: מסך יצירת קבוצה חדשה (כמו וואטסאפ)
+// 📄 lib/screens/groups/create_group_screen.dart
 //
-// 📋 Flow:
-// 1. בחירת סוג קבוצה
-// 2. הזנת שם + תיאור (אופציונלי)
-// 3. שדות נוספים לפי סוג (כתובת/שם גן/תאריך)
-// 4. יצירת הקבוצה
+// מסך יצירת קבוצה חדשה - בחירת סוג, שם, תיאור והזמנת חברים.
+// שדות דינמיים לפי סוג הקבוצה (בניין/גן/אירוע).
 //
-// 📝 Version: 1.0
-// 📅 Created: 14/12/2025
+// 🔗 Related: Group, GroupType, GroupsProvider, ContactPickerScreen
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

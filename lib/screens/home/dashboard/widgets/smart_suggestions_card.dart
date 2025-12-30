@@ -1,11 +1,9 @@
-// 📄 File: lib/widgets/home/smart_suggestions_card.dart
-// Description: Smart suggestions carousel for home dashboard
+// 📄 lib/screens/home/dashboard/widgets/smart_suggestions_card.dart
 //
-// ✅ עדכון (26/10/2025) - Carousel UI:
-// - PageView עם swipe ימינה/שמאלה
-// - Dots indicator בתחתית
-// - כרטיס ירוק, שם, מלאי, 3 כפתורים
-// - Loading/Error/Empty states
+// קרוסלת המלצות חכמות בדשבורד - מציג מוצרים שכדאי לקנות.
+// כולל PageView עם swipe, dots indicator, ו-3 כפתורים (הוסף/דחה/מחק).
+//
+// 🔗 Related: SmartSuggestion, SuggestionsProvider
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

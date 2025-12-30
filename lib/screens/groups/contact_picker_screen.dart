@@ -1,14 +1,9 @@
-// 📄 File: lib/screens/groups/contact_picker_screen.dart
-// 🎯 Purpose: מסך בחירת אנשי קשר להזמנה לקבוצה
+// 📄 lib/screens/groups/contact_picker_screen.dart
 //
-// 📋 Features:
-// - רשימת אנשי קשר מהטלפון
-// - חיפוש אנשי קשר
-// - בחירה מרובה
-// - תצוגת אנשי קשר נבחרים
+// מסך בחירת אנשי קשר להזמנה לקבוצה - מהטלפון או ידנית.
+// תומך בחיפוש, בחירה מרובה, ובחירת תפקיד לכל מוזמן.
 //
-// 📝 Version: 1.0
-// 📅 Created: 14/12/2025
+// 🔗 Related: ContactPickerService, SelectedContact, UserRole
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

@@ -1,13 +1,9 @@
-// 📄 File: lib/config/app_config.dart
-// 🎯 Purpose: הגדרות סביבה לאפליקציה (Development/Production)
+// 📄 lib/config/app_config.dart
 //
-// 📋 Features:
-// - הגדרת סביבה (development/production)
-// - הגדרות חיבור ל-Firebase Emulators
-// - host דינמי לפי פלטפורמה (Android/iOS/Web)
+// הגדרות סביבה לאפליקציה - development עם Emulators, production עם Firebase Cloud.
+// כולל host דינמי לפי פלטפורמה ו-ports לכל שירות.
 //
-// 📝 Version: 1.0
-// 📅 Created: 04/12/2025
+// 🔗 Related: Firebase, main.dart
 
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -15,21 +11,32 @@ import 'package:flutter/foundation.dart';
 /// 🌍 סביבות האפליקציה
 enum AppEnvironment {
   development, // פיתוח מקומי עם Emulators
-  production,  // ייצור עם Firebase Cloud
+  production, // ייצור עם Firebase Cloud
 }
 
 /// ⚙️ הגדרות האפליקציה
+///
+/// כל השדות static - אין צורך ליצור instance.
+/// Constructor פרטי מונע יצירה בטעות.
 class AppConfig {
-  // === Singleton ===
-  static final AppConfig _instance = AppConfig._internal();
-  factory AppConfig() => _instance;
-  AppConfig._internal();
+  // מניעת יצירת instances
+  AppConfig._();
 
   /// 🌍 סביבה נוכחית
-  /// ב-debug mode → development (Emulators)
-  /// ב-release mode → production (Cloud)
-  static AppEnvironment get environment =>
-      kDebugMode ? AppEnvironment.development : AppEnvironment.production;
+  ///
+  /// ✅ לוגיקה: Release בלבד = production, כל השאר = development
+  /// (כולל Profile mode לבדיקת ביצועים)
+  ///
+  /// ניתן לדרוס עם: --dart-define=ENV=production
+  static AppEnvironment get environment {
+    // בדיקת override ידני מ-dart-define
+    const envOverride = String.fromEnvironment('ENV');
+    if (envOverride == 'production') return AppEnvironment.production;
+    if (envOverride == 'development') return AppEnvironment.development;
+
+    // ברירת מחדל: רק Release = production
+    return kReleaseMode ? AppEnvironment.production : AppEnvironment.development;
+  }
 
   /// 🔥 האם להשתמש ב-Emulators?
   static bool get useEmulators => environment == AppEnvironment.development;

@@ -1,16 +1,9 @@
-// 📄 File: lib/screens/home/home_dashboard_screen.dart
-// 🎯 Purpose: מסך דשבורד הבית - Dashboard Screen
+// 📄 lib/screens/home/dashboard/home_dashboard_screen.dart
 //
-// 📋 Features:
-// ✅ Header עם ברכה
-// ✅ אזור "דורש תשומת לב" - התראות חשובות
-// ✅ כפתורי גישה מהירה (מזווה + קנייה)
-// ✅ פעילות אחרונה
-// ✅ קיצורי קבוצות
-// ✅ Pull-to-Refresh
+// מסך דשבורד הבית - ברכה, התראות, כפתורי גישה מהירה,
+// פעילות אחרונה וקיצורי קבוצות. תומך ב-Pull-to-Refresh.
 //
-// 📝 Version: 2.0
-// 📅 Updated: 14/12/2025
+// 🔗 Related: ShoppingListsProvider, GroupsProvider
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +12,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/ui_constants.dart';
-import '../../../services/tutorial_service.dart';
 import '../../../l10n/app_strings.dart';
 import '../../../models/group.dart';
 import '../../../models/shopping_list.dart';
@@ -28,6 +20,7 @@ import '../../../providers/pending_invites_provider.dart';
 import '../../../providers/shopping_lists_provider.dart';
 import '../../../providers/suggestions_provider.dart';
 import '../../../providers/user_context.dart';
+import '../../../services/tutorial_service.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/common/notebook_background.dart';
 import '../../../widgets/common/sticky_note.dart';

@@ -1,35 +1,10 @@
-// 📄 File: lib/widgets/common/sticky_button.dart
-// 🎯 Purpose: כפתור בסגנון פתק מודבק
+// 📄 lib/widgets/common/sticky_button.dart
 //
-// 📋 Features:
-// - כפתור עם עיצוב פתק Post-it
-// - צללים מציאותיים
-// - אנימציית לחיצה (AnimatedButton)
-// - נגישות מלאה (Semantics)
-// - גובה מינימלי 48px לנגישות
+// כפתור בסגנון פתק Post-it עם צללים ואנימציות.
+// - StickyButton (48px) + StickyButtonSmall (36px)
+// - תמיכה ב-isLoading, disabled state, נגישות (Semantics)
 //
-// 🔗 Related:
-// - AnimatedButton - אנימציית לחיצה
-// - ui_constants.dart - קבועי גדלים
-// - app_theme.dart - AppBrand
-//
-// 🎨 Design:
-// - רקע צבעוני (ניתן להתאמה)
-// - צל בודד חזק
-// - פינות מעוגלות (4px)
-// - אייקון + טקסט
-//
-// Usage:
-// ```dart
-// StickyButton(
-//   color: Colors.green,
-//   label: 'לחץ כאן',
-//   icon: Icons.check,
-//   onPressed: () => print('נלחץ!'),
-// )
-// ```
-//
-// Version: 1.0 - Sticky Notes Design System (15/10/2025)
+// 🔗 Related: AnimatedButton, ui_constants.dart
 
 import 'package:flutter/material.dart';
 import '../../core/ui_constants.dart';
@@ -104,7 +79,7 @@ class StickyButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final buttonColor = color ?? theme.colorScheme.primary;
-    final isDisabled = onPressed == null && !isLoading;
+    final isDisabled = onPressed == null;
 
     // בחר צבע טקסט אוטומטית לפי בהירות הרקע
     final btnTextColor = isDisabled
@@ -117,12 +92,10 @@ class StickyButton extends StatelessWidget {
     return Semantics(
       button: true,
       label: label,
-      enabled: onPressed != null,
-      child: IgnorePointer(
-        ignoring: isDisabled, // ✅ בטל לחיצות כש-disabled
-        child: AnimatedButton(
-          onPressed: onPressed ?? () {}, // חייב callback, אבל IgnorePointer מונע לחיצה
-          child: Container(
+      enabled: onPressed != null && !isLoading,
+      child: AnimatedButton(
+        onPressed: isLoading ? null : onPressed, // ✅ disabled כש-loading או onPressed == null
+        child: Container(
           width: double.infinity,
           height: height,
           decoration: BoxDecoration(
@@ -166,7 +139,6 @@ class StickyButton extends StatelessWidget {
                     ),
                   ],
                 ),
-          ),
         ),
       ),
     );

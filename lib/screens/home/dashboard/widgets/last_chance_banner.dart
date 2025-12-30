@@ -1,15 +1,9 @@
-// 📄 File: lib/screens/home/dashboard/widgets/last_chance_banner.dart
-// 🎯 Purpose: בנר "הזדמנות אחרונה" - תזכורת חכמה בזמן קנייה
+// 📄 lib/screens/home/dashboard/widgets/last_chance_banner.dart
 //
-// 📋 Features:
-// ✅ הצגת המלצה נוכחית עם מידע על מלאי
-// ✅ אינדיקטור דחיפות (critical/high/medium/low)
-// ✅ כפתור הוספה לרשימה
-// ✅ כפתור דחייה להמלצה הבאה
-// ✅ אינדיקטור loading בזמן עיבוד
+// בנר "הזדמנות אחרונה" - תזכורת חכמה בזמן קנייה פעילה.
+// מציג המלצה נוכחית עם מלאי, כפתור הוספה וכפתור "הבא".
 //
-// 📝 Version: 1.0
-// 📅 Created: 22/12/2025
+// 🔗 Related: SmartSuggestion, SuggestionsProvider
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

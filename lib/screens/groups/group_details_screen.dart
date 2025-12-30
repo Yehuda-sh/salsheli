@@ -1,15 +1,9 @@
-// 📄 File: lib/screens/groups/group_details_screen.dart
-// 🎯 Purpose: מסך פרטי קבוצה ועריכה
+// 📄 lib/screens/groups/group_details_screen.dart
 //
-// 📋 Features:
-// - צפייה בפרטי הקבוצה
-// - עריכת שם ותיאור (לבעלים/אדמין)
-// - ניהול חברים (רשימה, הרשאות, הסרה)
-// - עזיבת קבוצה
-// - מחיקת קבוצה (רק לבעלים)
+// מסך פרטי קבוצה - צפייה ועריכה (שם, תיאור, חברים).
+// כולל הזמנת חברים, שינוי תפקידים, עזיבה ומחיקת קבוצה.
 //
-// 📝 Version: 1.0
-// 📅 Created: 16/12/2025
+// 🔗 Related: Group, GroupsProvider, GroupInvite, ContactPickerScreen
 
 import 'dart:async';
 
@@ -450,7 +444,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             Text(
               'פעולה זו תמחק:\n'
               '• את הקבוצה\n'
-              '• את כל הרשימות (${group.memberCount} חברים)\n\n'
+              '• את כל הרשימות המשותפות\n'
+              '• ${group.memberCount} חברים יוסרו\n\n'
               'פעולה זו בלתי הפיכה!',
               style: const TextStyle(fontSize: 12, color: Colors.red),
             ),
@@ -1114,7 +1109,7 @@ class _MemberTile extends StatelessWidget {
               child: isInvited
                   ? const Icon(Icons.hourglass_empty, size: 20, color: Colors.orange)
                   : Text(
-                      member.name[0].toUpperCase(),
+                      member.name.isNotEmpty ? member.name[0].toUpperCase() : '?',
                       style: TextStyle(
                         color: cs.onPrimaryContainer,
                         fontWeight: FontWeight.bold,

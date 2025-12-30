@@ -1,10 +1,9 @@
-// 📄 File: lib/layout/app_layout.dart
+// 📄 lib/layout/app_layout.dart
 //
 // פריסה ראשית של האפליקציה - AppBar, Drawer, BottomNavigation.
-// תומך RTL ומכיל אנימציות מיקרו לחוויית משתמש חלקה.
+// תומך RTL, badges על ניווט, ואנימציות מיקרו לחוויית משתמש חלקה.
 //
-// Version: 3.3
-// Updated: 02/11/2025
+// 🔗 Related: AppStrings.layout, UserContext, PendingInvitesProvider
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

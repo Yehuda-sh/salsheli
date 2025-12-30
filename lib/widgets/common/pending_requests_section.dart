@@ -1,3 +1,10 @@
+// 📄 lib/widgets/common/pending_requests_section.dart
+//
+// מציג בקשות ממתינות לאישור (הוספה/עריכה/מחיקה של פריטים).
+// מופיע בפתק כתום עם כפתורי אישור/דחייה למי שיש הרשאה.
+//
+// 🔗 Related: PendingRequest, StickyNote
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

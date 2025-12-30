@@ -214,6 +214,12 @@ class _CommonStrings {
   String get success => 'הצלחה';
   String get noData => 'אין נתונים';
   String get syncError => 'בעיית סנכרון - השינויים נשמרו מקומית';
+
+  // Unsaved Changes Dialog
+  String get unsavedChangesTitle => 'שינויים לא נשמרו';
+  String get unsavedChangesMessage => 'יש שינויים שלא נשמרו. האם לצאת בלי לשמור?';
+  String get stayHere => 'הישאר';
+  String get exitWithoutSaving => 'צא בלי לשמור';
 }
 
 // ========================================
@@ -1199,6 +1205,102 @@ class _InventoryStrings {
   String get stockOutOfStock => 'נגמר! צריך לקנות';
   String stockOnlyOneLeft(String unit) => 'נשאר 1 $unit בלבד';
   String stockOnlyFewLeft(int count, String unit) => 'נשארו רק $count $unit';
+
+  // ========================================
+  // Expiry Alert Dialog
+  // ========================================
+
+  String get expiryAlertTitleExpired => 'פג תוקף!';
+  String get expiryAlertTitleExpiringSoon => 'תפוגה קרובה';
+  String expiryAlertSubtitle(int expiredCount, int expiringSoonCount) {
+    final parts = <String>[];
+    if (expiredCount > 0) parts.add('$expiredCount פג תוקף');
+    if (expiringSoonCount > 0) parts.add('$expiringSoonCount קרוב לתפוגה');
+    return parts.join(' | ');
+  }
+  String get expiryAlertGoToPantry => 'עבור למזווה';
+  String get expiryAlertDismissToday => 'אל תציג שוב היום';
+  String expiryAlertMoreItems(int count) => 'הצג עוד $count מוצרים...';
+
+  // Expiry status text
+  String get expiryExpiredToday => 'פג היום';
+  String get expiryExpiredYesterday => 'פג אתמול';
+  String expiryExpiredDaysAgo(int days) => 'פג לפני $days ימים';
+  String get expiryExpiresToday => 'פג היום!';
+  String get expiryExpiresTomorrow => 'פג מחר';
+  String expiryExpiresInDays(int days) => 'פג בעוד $days ימים';
+
+  // ========================================
+  // Inventory Settings Dialog
+  // ========================================
+
+  String get settingsTitle => 'הגדרות מזווה';
+
+  // Pantry Mode
+  String get pantryModePersonal => 'מזווה אישי - רק שלך';
+  String get pantryModeGroup => 'מחובר למזווה משותף של הקבוצה';
+
+  // Alerts Section
+  String get alertsSectionTitle => 'התראות';
+  String get settingsLowStockAlertTitle => 'התראת מלאי נמוך';
+  String get settingsLowStockAlertSubtitle => 'קבל התראה כשפריט מגיע למינימום';
+  String get settingsExpiryAlertTitle => 'התראת תפוגה';
+  String get settingsExpiryAlertSubtitle => 'קבל התראה על מוצרים שעומדים לפוג';
+  String get settingsExpiryAlertDaysPrefix => 'התראה ';
+  String get settingsExpiryAlertDaysSuffix => ' ימים לפני תפוגה';
+
+  // Display Section
+  String get displaySectionTitle => 'תצוגה';
+  String get showExpiredFirstTitle => 'הצג פגי תוקף ראשונים';
+  String get showExpiredFirstSubtitle => 'פריטים שפג תוקפם יופיעו בראש הרשימה';
+
+  // ========================================
+  // Inventory Transfer Dialog
+  // ========================================
+
+  String get transferDialogTitle => 'המזווה שלך';
+  String transferDialogItemCount(int count) =>
+      count == 1 ? 'פריט אחד' : '$count פריטים';
+  String transferDialogDescription(String groupName, int count) =>
+      'אתה מצטרף ל"$groupName" שיש לה מזווה משותף.\n'
+      'מה ברצונך לעשות עם ${count == 1 ? "הפריט" : "$count הפריטים"} במזווה האישי שלך?';
+  String get transferOptionTitle => 'העבר למזווה הקבוצה';
+  String get transferOptionSubtitle => 'כל הפריטים יועברו למזווה המשותף';
+  String get deleteOptionTitle => 'מחק את המזווה האישי';
+  String get deleteOptionSubtitle => 'התחל מחדש עם המזווה המשותף';
+  String get cancelJoinOption => 'ביטול - לא להצטרף';
+
+  // Delete Confirmation Sub-dialog
+  String get deleteConfirmTitle => 'אישור מחיקה';
+  String deleteConfirmMessage(int count) =>
+      'האם אתה בטוח שברצונך למחוק ${count == 1 ? "פריט אחד" : "$count פריטים"} מהמזווה האישי?\n\nפעולה זו לא ניתנת לביטול.';
+  String get deleteConfirmButton => 'מחק הכל';
+
+  // ========================================
+  // Low Stock Alert Dialog
+  // ========================================
+
+  String get lowStockAlertTitle => 'מלאי נמוך';
+  String lowStockAlertSubtitle(int count) => '$count מוצרים עומדים להיגמר';
+  String get lowStockAlertAddToList => 'הוסף לרשימה';
+  String get lowStockAlertGoToPantry => 'למזווה';
+  String get lowStockAlertDismissToday => 'אל תציג שוב היום';
+  String lowStockAlertMoreItems(int count) => 'ועוד $count מוצרים...';
+
+  // ========================================
+  // Storage Locations
+  // ========================================
+
+  String get locationMainPantry => 'מזווה';
+  String get locationMainPantryDesc => 'מזווה ראשי - מוצרים יבשים';
+  String get locationRefrigerator => 'מקרר';
+  String get locationRefrigeratorDesc => 'מקרר - מוצרים טריים';
+  String get locationFreezer => 'מקפיא';
+  String get locationFreezerDesc => 'מקפיא - מוצרים קפואים';
+  String get locationOther => 'אחר';
+  String get locationOtherDesc => 'מיקום אחר';
+  String get locationUnknown => 'לא ידוע';
+  String get locationUnknownDesc => 'מיקום לא מוכר';
 }
 
 // ========================================

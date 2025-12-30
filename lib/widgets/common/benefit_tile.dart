@@ -1,47 +1,9 @@
-// 📄 File: lib/widgets/common/benefit_tile.dart
-// 🎯 Purpose: כרטיס יתרון/פיצ'ר בסגנון Sticky Notes
+// 📄 lib/widgets/common/benefit_tile.dart
 //
-// 📋 Features:
-// - עיצוב פתק מודבק (Post-it style)
-// - סיבוב קל לאפקט אותנטי
-// - צללים מציאותיים
-// - אייקון במעגל + כותרת + תיאור
-// - RTL Support מלא
-// - 🌓 תמיכה במצב אפל (Dark Mode)
-// - 📱 גמישות לפי גודל מסך (Responsive)
+// פתק צבעוני שמציג יתרון של האפליקציה (אייקון + כותרת + תיאור).
+// משמש במסך הפתיחה להצגת 3 היתרונות המרכזיים.
 //
-// 🔗 Related:
-// - StickyNote - הרכיב הבסיסי
-// - welcome_screen.dart - השימוש העיקרי (3 יתרונות)
-// - ui_constants.dart - צבעי פתקים וקבועים
-//
-// 🎨 Design:
-// - צבעים (Light): kStickyYellow, kStickyPink, kStickyGreen, kStickyCyan
-// - צבעים (Dark): kStickyYellowDark, kStickyPinkDark, kStickyGreenDark, kStickyCyanDark
-// - סיבוב: -0.02 עד 0.02 רדיאנים
-// - אייקון: במעגל 56px-64px (לפי גודל מסך)
-//
-// Usage:
-// ```dart
-// // שימוש בסיסי (צבע אוטומטי לפי מצב)
-// BenefitTile(
-//   icon: Icons.check_circle,
-//   title: 'יתרון',
-//   subtitle: 'תיאור קצר',
-// )
-//
-// // עם צבע מותאם (ידני)
-// BenefitTile(
-//   icon: Icons.star,
-//   title: 'מעולה',
-//   subtitle: 'זה עובד מצוין',
-//   color: kStickyPink, // ידני - לא משתנה במצב אפל
-//   rotation: -0.015,
-// )
-// ```
-//
-// Version: 3.1 - Dark Mode + Responsive Support
-// Updated: 24/11/2025
+// 🔗 Related: StickyNote, welcome_screen.dart
 
 import 'package:flutter/material.dart';
 import '../../core/ui_constants.dart';

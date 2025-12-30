@@ -1,14 +1,9 @@
-// File: lib/screens/groups/pending_group_invites_screen.dart
-// Purpose: מסך הזמנות ממתינות לקבוצות
+// 📄 lib/screens/groups/pending_group_invites_screen.dart
 //
-// Features:
-// - תצוגת הזמנות ממתינות לקבוצות
-// - אישור הזמנה (הצטרפות לקבוצה)
-// - דחיית הזמנה
-// - תג badge במסך הבית
+// מסך הזמנות ממתינות לקבוצות - אישור או דחיית הזמנות.
+// כולל pull-to-refresh ועיצוב כרטיסים מודרני.
 //
-// Version: 1.1 - Improved Design
-// Created: 16/12/2025
+// 🔗 Related: GroupInvite, PendingInvitesProvider, GroupsProvider
 
 import 'dart:async';
 

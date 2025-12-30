@@ -1,42 +1,9 @@
-// 📄 File: lib/screens/onboarding/widgets/onboarding_steps.dart
+// 📄 lib/screens/onboarding/widgets/onboarding_steps.dart
 //
-// 🎯 מטרה: רכיבי שלבי Onboarding - 8 שלבים interactives
+// רכיבי שלבי Onboarding - 7 שלבים אינטראקטיביים.
+// כולל Welcome, גודל משפחה, חנויות, תדירות, שיתוף, תזכורת וסיכום.
 //
-// 📋 כולל:
-// - 8 שלבים: Welcome, Family Size, Stores, Budget, Categories, Sharing, Reminder, Summary
-// - אנימציות חלקות עם flutter_animate
-// - תמיכה RTL מלאה
-// - עיצוב אחיד עם AppBrand
-//
-// 🔗 Dependencies:
-// - flutter_animate: אנימציות (300ms fade + slide)
-// - ../../../data/onboarding_data.dart: מודל OnboardingData
-// - ../../../config/stores_config.dart: StoresConfig.allStores
-// - ../../../l10n/app_strings.dart: כל המחרוזות
-// - ../../../core/ui_constants.dart: spacing + icon sizes
-// - ../../../core/constants.dart: kMinFamilySize, kMaxFamilySize, kMinMonthlyBudget, kMaxMonthlyBudget
-// - ../../../theme/app_theme.dart: AppBrand extension
-//
-// 🎯 שימוש:
-// ```dart
-// final steps = OnboardingSteps.build(
-//   data: onboardingData,
-//   onFamilySizeChanged: (size) => setState(() => data.familySize = size),
-//   onStoresChanged: (stores) => setState(() => data.preferredStores = stores),
-//   onBudgetChanged: (budget) => setState(() => data.monthlyBudget = budget),
-//   onCategoriesChanged: (cats) => setState(() => data.importantCategories = cats),
-//   onShareChanged: (share) => setState(() => data.shareLists = share),
-//   onReminderChanged: (time) => setState(() => data.reminderTime = time),
-// );
-// ```
-//
-// 📝 הערות:
-// - כל שלב הוא Widget נפרד עם _StepWrapper משותף
-// - Callbacks מעדכנים את OnboardingData
-// - Logging מפורט בפעולות (time picker, בחירות)
-//
-// Version: 2.0
-// Last Updated: 08/10/2025
+// 🔗 Related: OnboardingData, OnboardingScreen, StickyNote
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';

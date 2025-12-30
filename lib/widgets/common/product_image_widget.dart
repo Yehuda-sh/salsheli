@@ -1,25 +1,9 @@
-// 📄 File: lib/widgets/common/product_image_widget.dart
-// 🎯 Purpose: Widget להצגת תמונת מוצר עם fallback לאייקון
+// 📄 lib/widgets/common/product_image_widget.dart
 //
-// ✨ Features:
-// - 🖼️ טעינת תמונה מ-URL (Open Food Facts)
-// - 🎨 Fallback לאייקון קטגוריה אם אין תמונה
-// - ⏳ Loading state מעוצב
-// - 🚫 Error state עם אייקון
-// - 📱 Responsive לגדלים שונים
+// Widget להצגת תמונת מוצר מ-Open Food Facts עם fallback לאייקון קטגוריה.
+// כולל loading state, error handling, ותמיכה בגדלים שונים עם CachedNetworkImage.
 //
-// 📝 Usage:
-// ```dart
-// ProductImageWidget(
-//   barcode: '7290000000000',
-//   category: 'פירות',
-//   icon: '🍎',
-//   size: 60,
-// )
-// ```
-//
-// Version: 1.0
-// Created: 20/11/2025
+// 🔗 Related: ProductImageService, CachedNetworkImage
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';

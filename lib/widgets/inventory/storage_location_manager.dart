@@ -1,21 +1,9 @@
-// 📄 File: lib/widgets/inventory/storage_location_manager.dart
-// תיאור: ווידג'ט לניהול ותצוגה של פריטים לפי מיקומי אחסון
+// 📄 lib/widgets/inventory/storage_location_manager.dart
 //
-// ✅ תיקונים גרסה 3.0 (16/12/2025):
-// 1. תצוגת תאריך תפוגה עם צבע לפי קרבה
-// 2. אייקון מוצר קבוע (⭐) ליד שם המוצר
-// 3. כפתור "הוסף לרשימה" לפריטים במלאי נמוך
-// 4. סינון לפי תפוגה (תפריט מיון מורחב)
+// ווידג'ט לניהול מלאי לפי מיקומי אחסון - מקרר, מזווה, הקפאה וכו'.
+// כולל סינון, מיון, תפוגה צבעונית, מיקומים מותאמים עם Undo, ו-cache לביצועים.
 //
-// ✅ תיקונים גרסה 2.0:
-// 1. תיקון keys של מיקומים (refrigerator במקום fridge)
-// 2. מיפוי אמוג'י קטגוריות - תמיכה בעברית
-// 3. Undo למחיקת מיקום
-// 4. Cache לביצועים
-// 5. עריכת מיקומים מותאמים
-// 6. שמירת gridMode
-// 7. סטטיסטיקות משופרות
-// 8. בחירת אמוג'י בעת הוספה
+// 🔗 Related: InventoryItem, LocationsProvider, StorageLocationsConfig
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' hide TextDirection;
@@ -25,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 // ignore: directives_ordering
 import 'package:memozap/config/filters_config.dart';
 import 'package:memozap/config/storage_locations_config.dart';
+import 'package:memozap/core/status_colors.dart';
 import 'package:memozap/core/ui_constants.dart';
 import 'package:memozap/models/custom_location.dart';
 import 'package:memozap/models/inventory_item.dart';
@@ -110,21 +99,18 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
   }
 
   /// טעינת העדפת תצוגה (grid vs list) מ-SharedPreferences
-  ///
-  /// שמירת העדפת המשתמש: grid (true) או list (false)
-  /// ברירת מחדל: true (grid mode)
-  /// שגיאות: מוגדל ל-true בברירת מחדל
-  ///
-  /// Updates: setState עם gridMode החדש
   Future<void> _loadGridMode() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final savedMode = prefs.getBool('storage_grid_mode') ?? true;
+      // ✅ בדיקת mounted אחרי async operation
+      if (!mounted) return;
       setState(() {
         gridMode = savedMode;
       });
     } catch (e) {
       // ברירת מחדל
+      if (!mounted) return;
       setState(() {
         gridMode = true;
       });
@@ -161,7 +147,8 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
   List<InventoryItem> get filteredInventory {
     final cacheKey = '$selectedLocation|${widget.searchQuery}|$sortBy';
 
-    if (cacheKey == _lastCacheKey && _cachedFilteredItems.isNotEmpty) {
+    // ✅ Cache תקף גם לרשימות ריקות - בדיקת cacheKey מספיקה
+    if (cacheKey == _lastCacheKey) {
       return _cachedFilteredItems;
     }
 
@@ -386,18 +373,12 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
 
   /// עריכת מיקום אחסון מותאם (custom location)
   ///
-  /// תכונות:
-  /// - בחירת אמוג'י מרשימה (_availableEmojis)
-  /// - TextField לשם המיקום (טעום מהערך הקיים)
-  /// - RTL support (Directionality)
-  /// - Validation: שם לא יכול להיות ריק
-  /// - עריכה: מחק זקן + הוסף חדש (delete + add pattern)
-  /// - UI Feedback: SnackBar בהצלחה
-  /// - Provider integration: LocationsProvider (delete + addLocation)
+  /// 🔒 מאפשר רק עריכת אמוג'י - שינוי שם יגרום לאיבוד קישור לפריטי מלאי
+  /// (key נגזר מהשם, ולכן שינוי שם = key חדש = פריטים יתומים)
   ///
   /// [loc] - ה-CustomLocation לעריכה (מכיל key, name, emoji)
   void _showEditLocationDialog(CustomLocation loc) {
-    newLocationController.text = loc.name;
+    final cs = Theme.of(context).colorScheme;
     String selectedEmoji = loc.emoji;
 
     showDialog(
@@ -408,10 +389,20 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
             return Directionality(
               textDirection: TextDirection.rtl,
               child: AlertDialog(
-                title: const Text('עריכת מיקום'),
+                title: const Text('עריכת אמוג\'י'),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // הצגת שם המיקום (לא ניתן לעריכה)
+                    Text(
+                      loc.name,
+                      style: TextStyle(
+                        fontSize: kFontSizeMedium,
+                        fontWeight: FontWeight.bold,
+                        color: cs.primary,
+                      ),
+                    ),
+                    const SizedBox(height: kSpacingMedium),
                     // בחירת אמוג'י
                     const Text('בחר אמוג\'י:', style: TextStyle(fontSize: kFontSizeTiny)),
                     const SizedBox(height: kSpacingSmall),
@@ -429,10 +420,10 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                           child: Container(
                             padding: const EdgeInsets.all(kSpacingSmall),
                             decoration: BoxDecoration(
-                              color: isSelected ? Colors.indigo.shade100 : Colors.grey.shade100,
+                              color: isSelected ? cs.primaryContainer : cs.surfaceContainerHighest,
                               borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                               border: Border.all(
-                                color: isSelected ? Colors.indigo : Colors.transparent,
+                                color: isSelected ? cs.primary : Colors.transparent,
                                 width: kBorderWidthThick,
                               ),
                             ),
@@ -441,33 +432,29 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                         );
                       }).toList(),
                     ),
-                    const SizedBox(height: kSpacingMedium),
-                    TextField(
-                      controller: newLocationController,
-                      decoration: const InputDecoration(labelText: 'שם המיקום', border: OutlineInputBorder()),
-                      textDirection: TextDirection.rtl,
-                    ),
                   ],
                 ),
                 actions: [
                   TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('ביטול')),
                   ElevatedButton(
                     onPressed: () async {
-                      final name = newLocationController.text.trim();
-                      if (name.isEmpty) {
+                      // רק אם האמוג'י השתנה
+                      if (selectedEmoji == loc.emoji) {
+                        Navigator.pop(dialogContext);
                         return;
                       }
+
                       final provider = context.read<LocationsProvider>();
                       final messenger = ScaffoldMessenger.of(context);
                       final navigator = Navigator.of(dialogContext);
 
-                      // מחק את הישן והוסף חדש
+                      // עדכון אמוג'י בלבד - שימוש באותו שם = אותו key = פריטים נשארים מקושרים
                       await provider.deleteLocation(loc.key);
-                      await provider.addLocation(name, emoji: selectedEmoji);
+                      await provider.addLocation(loc.name, emoji: selectedEmoji);
 
                       if (mounted) {
                         navigator.pop();
-                        messenger.showSnackBar(const SnackBar(content: Text('המיקום עודכן')));
+                        messenger.showSnackBar(const SnackBar(content: Text('האמוג\'י עודכן')));
                       }
                     },
                     child: const Text('שמור'),
@@ -1151,35 +1138,27 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
     );
   }
 
-  /// בניית תג תאריך תפוגה עם צבע לפי קרבה
-  ///
-  /// צבעים:
-  /// - אדום: פג תוקף או יפוג היום
-  /// - כתום: יפוג תוך 7 ימים
-  /// - ירוק: יותר מ-7 ימים
-  ///
-  /// [item] - הפריט עם תאריך התפוגה
-  /// [cs] - ColorScheme לצבעים
+  /// בניית תג תאריך תפוגה עם צבע לפי קרבה (theme-aware)
   Widget _buildExpiryBadge(InventoryItem item, ColorScheme cs) {
     final isExpired = item.isExpired;
     final isExpiringSoon = item.isExpiringSoon;
 
-    // קביעת צבע לפי מצב
-    Color bgColor;
-    Color textColor;
-    String icon;
+    // ✅ קביעת צבע לפי מצב - theme-aware
+    final Color bgColor;
+    final Color textColor;
+    final String icon;
 
     if (isExpired) {
-      bgColor = cs.errorContainer;
-      textColor = cs.error;
+      bgColor = StatusColors.getStatusOverlay('error', context);
+      textColor = StatusColors.getStatusColor('error', context);
       icon = '⚠️';
     } else if (isExpiringSoon) {
-      bgColor = Colors.orange.shade100;
-      textColor = Colors.orange.shade800;
+      bgColor = StatusColors.getStatusOverlay('warning', context);
+      textColor = StatusColors.getStatusColor('warning', context);
       icon = '⏰';
     } else {
-      bgColor = Colors.green.shade100;
-      textColor = Colors.green.shade800;
+      bgColor = StatusColors.getStatusOverlay('success', context);
+      textColor = StatusColors.getStatusColor('success', context);
       icon = '✓';
     }
 

@@ -1,19 +1,9 @@
-// 📄 File: lib/screens/family/family_screen.dart
+// 📄 lib/screens/family/family_screen.dart
 //
-// 🎯 Purpose: מסך המשפחה - TabBar עם 3 טאבים פנימיים
+// מסך המשפחה - TabBar עם 3 טאבים: רשימות, מזווה, אישי.
+// מאגד את כל התוכן המשפחתי במקום אחד.
 //
-// 📋 Tabs:
-// - 📝 רשימות - רשימות קניות משפחתיות
-// - 📦 מזווה - מזווה משותף
-// - 👤 אישי - רשימות אישיות
-//
-// 🔗 Dependencies:
-// - ShoppingListsScreen
-// - MyPantryScreen
-// - Personal lists (filtered from ShoppingListsScreen)
-//
-// Version: 1.0
-// Created: 16/12/2025
+// 🔗 Related: ShoppingListsScreen, MyPantryScreen
 
 import 'package:flutter/material.dart';
 

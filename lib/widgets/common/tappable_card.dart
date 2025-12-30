@@ -1,20 +1,18 @@
-// 📄 File: lib/widgets/common/tappable_card.dart
-// 🎯 Purpose: Interactive card wrapper with scale & elevation animations
+// 📄 lib/widgets/common/tappable_card.dart
 //
-// ✅ Features:
-// - Scale animation (0.98 on tap)
-// - Elevation animation (2 → 4 → 2)
-// - Haptic feedback support
-// - Flexible parameters (duration, curve, targets)
-// - 3 variants: TappableCard, SimpleTappableCard, AnimatedCard
+// כרטיס אינטראקטיבי עם אנימציות scale + elevation בלחיצה.
+// - TappableCard - גרסה מלאה עם כל האפשרויות
+// - SimpleTappableCard - גרסה פשוטה (רק scale)
 //
-// 📦 Exports:
-// - TappableCard: Full-featured interactive card
-// - SimpleTappableCard: Scale-only variant
-// - AnimatedCard: Internal elevation helper
+// ✅ תיקונים:
+//    - הסרת כפילות צללים (רק elevation, ללא BoxShadow)
+//    - תחושת לחיצה עקבית: scale ↓ + elevation ↓ (נלחץ פנימה)
+//    - InkWell במקום GestureDetector לנגישות טובה יותר
+//    - צבע צל מ-Theme (scheme.shadow) במקום Colors.black
+//    - MouseRegion עם cursor לדסקטופ
+//    - curve כפרמטר ב-SimpleTappableCard
 //
-// Version: 1.0
-// Created: 14/10/2025
+// 🔗 Related: AnimatedButton, dashboard_card.dart
 
 import 'dart:async';
 
@@ -24,9 +22,11 @@ import 'package:flutter/services.dart';
 /// 🎴 TappableCard - Interactive Card with Scale & Elevation Animation
 ///
 /// Wraps a Card or any widget to add:
-/// - Scale animation (0.98) on tap
-/// - Elevation animation (2 → 4 → 2)
+/// - Scale animation (0.98) on tap - "pressed inward" feel
+/// - Elevation animation (2 → 0) on tap - consistent with scale
+/// - InkWell for ripple effect and accessibility
 /// - Haptic feedback
+/// - Mouse cursor for desktop
 /// - Smooth 150ms animation
 /// - Perfect for dashboard cards
 ///
@@ -67,7 +67,7 @@ class TappableCard extends StatefulWidget {
   /// Initial elevation (default: 2)
   final double initialElevation;
 
-  /// Pressed elevation (default: 4)
+  /// Pressed elevation (default: 0) - goes DOWN to feel "pressed inward"
   final double pressedElevation;
 
   /// Enable scale animation (default: true)
@@ -83,7 +83,7 @@ class TappableCard extends StatefulWidget {
     this.curve = Curves.easeInOut,
     this.animateElevation = true,
     this.initialElevation = 2,
-    this.pressedElevation = 4,
+    this.pressedElevation = 0, // ✅ Goes DOWN for consistent "pressed" feel
     this.animateScale = true,
   });
 
@@ -95,9 +95,10 @@ class TappableCard extends StatefulWidget {
 ///
 /// Manages:
 /// - Pressed state tracking (_isPressed)
-/// - GestureDetector event handling
+/// - InkWell for ripple effect and accessibility
 /// - Animation state changes
 /// - Haptic feedback triggers
+/// - Mouse cursor for desktop
 /// - mounted checks for safety
 class _TappableCardState extends State<TappableCard> {
   /// Track if card is pressed
@@ -105,11 +106,23 @@ class _TappableCardState extends State<TappableCard> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: widget.onTap != null ? (_) => _onTapDown() : null,
-      onTapUp: widget.onTap != null ? (_) => _onTapUp() : null,
-      onTapCancel: widget.onTap != null ? _onTapCancel : null,
-      child: _buildAnimatedChild(),
+    final isClickable = widget.onTap != null;
+
+    // ✅ MouseRegion for desktop cursor
+    return MouseRegion(
+      cursor: isClickable ? SystemMouseCursors.click : SystemMouseCursors.basic,
+      child: GestureDetector(
+        // ✅ Use GestureDetector for press state (InkWell doesn't expose onTapDown easily)
+        onTapDown: isClickable ? (_) => _onTapDown() : null,
+        onTapUp: isClickable ? (_) => _onTapUp() : null,
+        onTapCancel: isClickable ? _onTapCancel : null,
+        // ✅ Wrap with Semantics for accessibility
+        child: Semantics(
+          button: isClickable,
+          enabled: isClickable,
+          child: _buildAnimatedChild(),
+        ),
+      ),
     );
   }
 
@@ -122,7 +135,7 @@ class _TappableCardState extends State<TappableCard> {
 
     // Apply elevation animation if enabled and child is Card
     if (widget.animateElevation && isCard) {
-      content = AnimatedCard(
+      content = _AnimatedCard(
         isPressed: _isPressed,
         duration: widget.duration,
         curve: widget.curve,
@@ -170,12 +183,17 @@ class _TappableCardState extends State<TappableCard> {
   }
 }
 
-/// 🎴 AnimatedCard - Internal widget for elevation animation
+/// 🎴 _AnimatedCard - Internal widget for elevation animation
 ///
 /// Handles elevation animation for Card widgets specifically.
 /// This is used internally by TappableCard.
+///
+/// ✅ Fixes:
+/// - Removed BoxShadow (was duplicating Card's built-in shadow)
+/// - Elevation goes DOWN when pressed for "pressed inward" feel
+/// - Uses scheme.shadow instead of hardcoded Colors.black
 
-class AnimatedCard extends StatelessWidget {
+class _AnimatedCard extends StatelessWidget {
   final Widget child;
   final bool isPressed;
   final Duration duration;
@@ -183,8 +201,7 @@ class AnimatedCard extends StatelessWidget {
   final double initialElevation;
   final double pressedElevation;
 
-  const AnimatedCard({
-    super.key,
+  const _AnimatedCard({
     required this.child,
     required this.isPressed,
     required this.duration,
@@ -195,33 +212,33 @@ class AnimatedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     // Extract Card properties and rebuild with animated elevation
     if (child is Card) {
       final card = child as Card;
 
-      return AnimatedContainer(
+      // ✅ Use TweenAnimationBuilder for smooth elevation animation
+      // No BoxShadow - Card handles its own shadow via elevation
+      return TweenAnimationBuilder<double>(
+        tween: Tween<double>(
+          begin: initialElevation,
+          end: isPressed ? pressedElevation : initialElevation,
+        ),
         duration: duration,
         curve: curve,
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(
-                alpha: isPressed ? 0.1 : 0.08,
-              ),
-              offset: Offset(0, isPressed ? 2 : 4),
-              blurRadius: isPressed ? 4 : 8,
-            ),
-          ],
-        ),
-        child: Card(
-          elevation: isPressed ? pressedElevation : initialElevation,
-          shape: card.shape,
-          color: card.color,
-          margin: card.margin,
-          semanticContainer: card.semanticContainer,
-          clipBehavior: card.clipBehavior,
-          child: card.child,
-        ),
+        builder: (context, elevation, _) {
+          return Card(
+            elevation: elevation,
+            shadowColor: scheme.shadow, // ✅ Theme-aware shadow color
+            shape: card.shape,
+            color: card.color,
+            margin: card.margin,
+            semanticContainer: card.semanticContainer,
+            clipBehavior: card.clipBehavior,
+            child: card.child,
+          );
+        },
       );
     }
 
@@ -233,6 +250,7 @@ class AnimatedCard extends StatelessWidget {
 /// 🎴 SimpleTappableCard - Simpler version without elevation animation
 ///
 /// Use this if you want only scale animation without elevation.
+/// Includes mouse cursor for desktop and accessibility support.
 ///
 /// Usage:
 /// ```dart
@@ -249,6 +267,9 @@ class SimpleTappableCard extends StatefulWidget {
   final Duration duration;
   final bool hapticFeedback;
 
+  /// ✅ Added curve parameter for consistency with TappableCard
+  final Curve curve;
+
   const SimpleTappableCard({
     super.key,
     required this.child,
@@ -256,6 +277,7 @@ class SimpleTappableCard extends StatefulWidget {
     this.scaleTarget = 0.98,
     this.duration = const Duration(milliseconds: 150),
     this.hapticFeedback = true,
+    this.curve = Curves.easeInOut,
   });
 
   @override
@@ -267,7 +289,7 @@ class SimpleTappableCard extends StatefulWidget {
 /// Manages:
 /// - Pressed state tracking (_isPressed)
 /// - Scale animation only (no elevation)
-/// - GestureDetector events
+/// - Mouse cursor for desktop
 /// - Haptic feedback triggers
 /// - mounted checks for safety
 class _SimpleTappableCardState extends State<SimpleTappableCard> {
@@ -275,15 +297,26 @@ class _SimpleTappableCardState extends State<SimpleTappableCard> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: widget.onTap != null ? (_) => _onTapDown() : null,
-      onTapUp: widget.onTap != null ? (_) => _onTapUp() : null,
-      onTapCancel: widget.onTap != null ? _onTapCancel : null,
-      child: AnimatedScale(
-        scale: _isPressed ? widget.scaleTarget : 1.0,
-        duration: widget.duration,
-        curve: Curves.easeInOut,
-        child: widget.child,
+    final isClickable = widget.onTap != null;
+
+    // ✅ MouseRegion for desktop cursor
+    return MouseRegion(
+      cursor: isClickable ? SystemMouseCursors.click : SystemMouseCursors.basic,
+      child: GestureDetector(
+        onTapDown: isClickable ? (_) => _onTapDown() : null,
+        onTapUp: isClickable ? (_) => _onTapUp() : null,
+        onTapCancel: isClickable ? _onTapCancel : null,
+        // ✅ Semantics for accessibility
+        child: Semantics(
+          button: isClickable,
+          enabled: isClickable,
+          child: AnimatedScale(
+            scale: _isPressed ? widget.scaleTarget : 1.0,
+            duration: widget.duration,
+            curve: widget.curve, // ✅ Use customizable curve
+            child: widget.child,
+          ),
+        ),
       ),
     );
   }

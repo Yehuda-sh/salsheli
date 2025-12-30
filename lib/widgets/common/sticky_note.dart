@@ -1,34 +1,10 @@
-// 📄 File: lib/widgets/common/sticky_note.dart
-// 🎯 Purpose: פתק צבעוני בסגנון Post-it
+// 📄 lib/widgets/common/sticky_note.dart
 //
-// 📋 Features:
-// - פתק צבעוני עם צללים מציאותיים
-// - סיבוב קל (rotation) לאפקט אותנטי
-// - צבעים ניתנים להתאמה
-// - אנימציות fadeIn + slideY מובנות
-// - שימוש בקבועים מ-ui_constants.dart
+// פתק צבעוני בסגנון Post-it עם צללים וסיבוב.
+// - StickyNote - פתק כללי עם child
+// - StickyNoteLogo - פתק מרובע עם אייקון (ללוגו)
 //
-// 🔗 Related:
-// - ui_constants.dart - קבועי גדלים וצללים
-// - app_theme.dart - AppBrand
-// - flutter_animate - אנימציות
-//
-// 🎨 Design:
-// - צללים כפולים לעומק
-// - פינות מעוקלות קלות (2px)
-// - סיבוב קל (+/- 0.03 רדיאנים)
-// - אנימציות כניסה חלקות
-//
-// Usage:
-// ```dart
-// StickyNote(
-//   color: kStickyYellow,
-//   rotation: 0.01,
-//   child: Text('תוכן הפתק'),
-// )
-// ```
-//
-// Version: 1.0 - Sticky Notes Design System (15/10/2025)
+// 🔗 Related: ui_constants.dart, flutter_animate
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';

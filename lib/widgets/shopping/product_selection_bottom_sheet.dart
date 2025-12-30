@@ -1,15 +1,9 @@
-// 📄 File: lib/widgets/shopping/product_selection_bottom_sheet.dart
-// תיאור: Bottom Sheet לבחירת מוצרים מהקטלוג
+// 📄 lib/widgets/shopping/product_selection_bottom_sheet.dart
 //
-// ✨ V2.0 - Clean Notebook Design:
-// - שורות נקיות על רקע המחברת (לא Sticky Notes כבדות)
-// - חיפוש עם אפקט זכוכית מט (BackdropFilter)
-// - פילטרים בגלילה אופקית קומפקטית
-// - כפתורי הוספה/כמות קומפקטיים
+// Bottom Sheet לבחירת מוצרים מהקטלוג - חיפוש, פילטרים והוספה לרשימה.
+// עיצוב נקי על רקע מחברת עם אפקט זכוכית מט.
 //
-// 📦 תלויות:
-// - ProductsProvider - ניהול קטלוג המוצרים
-// - ShoppingListsProvider - ניהול רשימות הקניות
+// 🔗 Related: ProductsProvider, ShoppingListsProvider, ShoppingList
 
 import 'dart:ui' as ui;
 
@@ -49,8 +43,8 @@ class _ProductSelectionBottomSheetState
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
-  // ✅ פידבק הוספת מוצר
-  String? _lastAddedProduct;
+  // ✅ פידבק הוספת/עדכון/הסרת מוצר
+  String? _feedbackMessage;
   String? _addingProductId;
 
   @override
@@ -122,7 +116,14 @@ class _ProductSelectionBottomSheetState
 
     try {
       final currentList =
-          provider.lists.firstWhere((l) => l.id == widget.list.id);
+          provider.lists.where((l) => l.id == widget.list.id).firstOrNull;
+
+      if (currentList == null) {
+        debugPrint('   ⚠️ הרשימה לא נמצאה - ייתכן שנמחקה');
+        if (mounted) Navigator.pop(context);
+        return;
+      }
+
       final itemIndex = currentList.items.indexWhere(
         (item) => item.name.toLowerCase() == productName.toLowerCase(),
       );
@@ -134,7 +135,7 @@ class _ProductSelectionBottomSheetState
 
           if (!mounted) return;
           setState(() {
-            _lastAddedProduct =
+            _feedbackMessage =
                 AppStrings.shopping.productRemovedFromList(productName);
             _addingProductId = null;
           });
@@ -156,7 +157,7 @@ class _ProductSelectionBottomSheetState
           if (!mounted) return;
 
           setState(() {
-            _lastAddedProduct = AppStrings.shopping
+            _feedbackMessage = AppStrings.shopping
                 .productUpdatedQuantity(productName, newQuantity);
             _addingProductId = null;
           });
@@ -167,7 +168,7 @@ class _ProductSelectionBottomSheetState
         Future.delayed(const Duration(seconds: 2), () {
           if (mounted) {
             setState(() {
-              _lastAddedProduct = null;
+              _feedbackMessage = null;
             });
           }
         });
@@ -204,13 +205,13 @@ class _ProductSelectionBottomSheetState
         if (!mounted) return;
 
         setState(() {
-          _lastAddedProduct = item.name;
+          _feedbackMessage = AppStrings.shopping.productAddedToList(item.name);
         });
 
         Future.delayed(const Duration(seconds: 2), () {
           if (mounted) {
             setState(() {
-              _lastAddedProduct = null;
+              _feedbackMessage = null;
             });
           }
         });
@@ -223,17 +224,18 @@ class _ProductSelectionBottomSheetState
     final theme = Theme.of(context);
 
     final provider = context.read<ShoppingListsProvider>();
-    final productId = product['id']?.toString() ?? product['name'].toString();
+    final productName = product['name']?.toString() ?? AppStrings.shopping.productNoName;
+    final productId = product['id']?.toString() ?? productName;
 
     setState(() {
       _addingProductId = productId;
     });
 
-    debugPrint('➕ ProductSelectionBottomSheet: מוסיף "${product['name']}"');
+    debugPrint('➕ ProductSelectionBottomSheet: מוסיף "$productName"');
 
     final newItem = ReceiptItem(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      name: product['name'] as String,
+      name: productName,
       unitPrice: (product['price'] as num?)?.toDouble() ?? 0.0,
       barcode: product['barcode'] as String?,
       manufacturer: product['manufacturer'] as String?,
@@ -262,14 +264,14 @@ class _ProductSelectionBottomSheetState
       if (!mounted) return;
 
       setState(() {
-        _lastAddedProduct = newItem.name;
+        _feedbackMessage = AppStrings.shopping.productAddedToList(newItem.name ?? 'מוצר');
         _addingProductId = null;
       });
 
       Future.delayed(const Duration(seconds: 2), () {
         if (mounted) {
           setState(() {
-            _lastAddedProduct = null;
+            _feedbackMessage = null;
           });
         }
       });
@@ -387,19 +389,18 @@ class _ProductSelectionBottomSheetState
                     backgroundColor: kStickyYellow,
                     tooltip: 'הוסף מוצר חדש',
                     onPressed: _handleAddCustomProduct,
-                    child:
-                        const Icon(Icons.edit_note, color: Colors.black87, size: 28),
+                    child: Icon(Icons.edit_note, color: cs.onSurface, size: 28),
                   ),
                 ),
 
-                // ✅ באנר הצלחה צף
-                if (_lastAddedProduct != null)
+                // ✅ באנר פידבק צף (הוספה/עדכון/הסרה)
+                if (_feedbackMessage != null)
                   Positioned(
                     top: 80,
                     left: kSpacingMedium,
                     right: kSpacingMedium,
                     child: TweenAnimationBuilder<double>(
-                      key: ValueKey(_lastAddedProduct),
+                      key: ValueKey(_feedbackMessage),
                       duration: const Duration(milliseconds: 400),
                       tween: Tween(begin: 0.0, end: 1.0),
                       curve: Curves.easeOutBack,
@@ -432,8 +433,7 @@ class _ProductSelectionBottomSheetState
                             const SizedBox(width: kSpacingSmall),
                             Expanded(
                               child: Text(
-                                AppStrings.shopping
-                                    .productAddedToList(_lastAddedProduct!),
+                                _feedbackMessage!,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -489,7 +489,6 @@ class _ProductSelectionBottomSheetState
                         onPressed: () {
                           _searchController.clear();
                           productsProvider.clearSearch();
-                          setState(() {});
                         },
                       )
                     : null,
@@ -499,7 +498,6 @@ class _ProductSelectionBottomSheetState
               ),
               onChanged: (value) {
                 productsProvider.setSearchQuery(value.trim());
-                setState(() {});
               },
             ),
           ),
@@ -674,7 +672,13 @@ class _ProductSelectionBottomSheetState
     // 🔍 בדיקה אם המוצר כבר ברשימה
     final provider = context.read<ShoppingListsProvider>();
     final currentList =
-        provider.lists.firstWhere((l) => l.id == widget.list.id);
+        provider.lists.where((l) => l.id == widget.list.id).firstOrNull;
+
+    // אם הרשימה לא קיימת - מציגים את המוצר כלא ברשימה
+    if (currentList == null) {
+      return _buildDisabledProductRow(name, category, cs);
+    }
+
     final existingItem = currentList.items.cast<UnifiedListItem?>().firstWhere(
           (item) => item?.name.toLowerCase() == name.toLowerCase(),
           orElse: () => null,
@@ -733,6 +737,31 @@ class _ProductSelectionBottomSheetState
     );
   }
 
+  /// 🚫 שורת מוצר מושבתת (כאשר הרשימה לא קיימת)
+  Widget _buildDisabledProductRow(String name, String category, ColorScheme cs) {
+    return SizedBox(
+      height: kNotebookLineSpacing,
+      child: Row(
+        children: [
+          Text(_getCategoryEmoji(category), style: const TextStyle(fontSize: 18)),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              name,
+              style: TextStyle(
+                fontSize: 15,
+                color: cs.onSurface.withValues(alpha: 0.3),
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Icon(Icons.error_outline, color: cs.error.withValues(alpha: 0.5), size: 20),
+        ],
+      ),
+    );
+  }
+
   /// ➕ כפתור הוספה עדין - רק אייקון ירוק
   Widget _buildAddButton(bool isAdding) {
     return AnimatedScale(
@@ -785,23 +814,33 @@ class _ProductSelectionBottomSheetState
     );
   }
 
-  /// 🔘 כפתור עגול קטן
+  /// 🔘 כפתור עגול קטן עם נגישות
   Widget _buildSmallCircleButton({
     required IconData icon,
     required Color color,
     required VoidCallback onTap,
+    String? tooltip,
   }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        width: 28,
-        height: 28,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(14),
+    final button = Container(
+      width: 28,
+      height: 28,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Icon(icon, color: Colors.white, size: 16),
+    );
+
+    return Tooltip(
+      message: tooltip ?? (icon == Icons.add ? 'הוסף כמות' : 'הפחת כמות'),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        // הגדלת אזור הלחיצה
+        child: Padding(
+          padding: const EdgeInsets.all(6),
+          child: button,
         ),
-        child: Icon(icon, color: Colors.white, size: 16),
       ),
     );
   }

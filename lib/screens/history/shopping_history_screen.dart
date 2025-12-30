@@ -1,20 +1,9 @@
-// 📄 File: lib/screens/history/shopping_history_screen.dart
+// 📄 lib/screens/history/shopping_history_screen.dart
 //
-// 🎯 Purpose: מסך היסטוריית קניות - צפייה בקבלות קודמות
+// מסך היסטוריית קניות - צפייה בקבלות קודמות.
+// כולל חיפוש, מיון, וסטטיסטיקות הוצאות.
 //
-// ✨ Features:
-// - 📋 רשימת קבלות לפי תאריך
-// - 🔍 חיפוש לפי חנות / תאריך
-// - 📊 סטטיסטיקות: סה"כ הוצאות, ממוצע לקנייה
-// - 📄 לחיצה על קבלה → פרטים מלאים
-// - 🎨 עיצוב Sticky Note
-//
-// 🔗 Related:
-// - receipt_provider.dart - ניהול קבלות
-// - receipt.dart - מודל קבלה
-//
-// Version: 1.0
-// Created: 16/12/2025
+// 🔗 Related: ReceiptProvider, Receipt, ReceiptDetailsScreen
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' hide TextDirection;

@@ -1,36 +1,9 @@
-/// 📄 File: lib/services/auth_service.dart
-///
-/// 📋 Description:
-/// Instance-based authentication service wrapping Firebase Authentication.
-/// Provides user sign up, sign in, sign out, password reset, and auth state tracking.
-///
-/// 🎯 Purpose:
-/// - Centralized Firebase Auth operations
-/// - Error handling with Hebrew translations (via AppStrings)
-/// - Stream-based auth state monitoring
-/// - Profile management (display name, email, password)
-/// - Account deletion with re-authentication
-///
-/// ⚠️ Note: Instance-based (not Static) because:
-/// - Allows dependency injection for testing
-/// - Can mock FirebaseAuth in tests
-/// - Supports multiple auth instances if needed
-/// - No dispose() needed - FirebaseAuth manages its own resources
-///
-/// ✨ Features:
-/// - i18n ready - all messages via AppStrings.auth
-/// - Comprehensive logging with emojis
-/// - Email verification support
-/// - Display name, email, password updates
-/// - Account deletion with re-auth requirement
-/// - Re-authentication helper for sensitive operations
-///
-/// 📱 Mobile Only: Yes
-///
-/// Version: 3.0 - i18n Integration + New Methods
-/// Last Updated: 11/10/2025
-
-library;
+// 📄 lib/services/auth_service.dart
+//
+// שירות אימות עוטף Firebase Auth - הרשמה, התחברות, התנתקות, איפוס סיסמה.
+// כולל הודעות שגיאה בעברית (AppStrings), עדכון פרופיל, ומחיקת חשבון.
+//
+// 🔗 Related: FirebaseAuth, AppStrings.auth, UserContext
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';

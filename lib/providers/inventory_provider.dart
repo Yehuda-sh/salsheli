@@ -1,42 +1,9 @@
-// 📄 File: lib/providers/inventory_provider.dart
-// Version: 4.0
-// Last Updated: 16/12/2025
+// 📄 lib/providers/inventory_provider.dart
 //
-// ✅ Improvements in v4.0:
-// - תמיכה במזווה אישי (/users/{userId}/inventory)
-// - תמיכה במזווה קבוצתי (/groups/{groupId}/inventory)
-// - זיהוי אוטומטי של מיקום מזווה לפי חברות בקבוצת משפחה
-// - העברת מזווה אישי לקבוצה בעת הצטרפות
-// - מחיקת מזווה אישי בעת הצטרפות לקבוצה
+// Provider לניהול מזווה - אישי או קבוצתי (לפי חברות בקבוצת משפחה).
+// CRUD מלא, פילטרים, והעברת מזווה בין אישי לקבוצתי.
 //
-// 🇮🇱 מנהל את פריטי המלאי (Inventory) עם טעינה בטוחה וסנכרון אוטומטי:
-//     - זיהוי אוטומטי: user inventory או group inventory
-//     - מאזין לשינויים ב-UserContext וב-GroupsProvider
-//     - מספק CRUD מלא עם error handling
-//     - אופטימיזציה: עדכון local במקום ריענון מלא
-//     - פילטרים נוחים: לפי קטגוריה/מיקום
-//     - תמיכה בהעברת מזווה בין אישי לקבוצתי
-//
-// 🇬🇧 Manages inventory items with safe loading and auto-sync:
-//     - Auto-detect: user inventory vs group inventory
-//     - Listens to UserContext and GroupsProvider changes
-//     - Provides full CRUD with error handling
-//     - Optimization: local updates instead of full reload
-//     - Convenient filters: by category/location
-//     - Support for transferring inventory between personal and group
-//
-// Dependencies:
-//     - InventoryRepository: data source (user & group inventory)
-//     - UserContext: user auth state
-//     - GroupsProvider: detect family group membership
-//
-// Usage:
-//     final provider = context.watch<InventoryProvider>();
-//     await provider.createItem(productName: 'חלב', ...);
-//     final milkItems = provider.itemsByCategory('מוצרי חלב');
-//
-//     // העברת מזווה לקבוצה
-//     await provider.transferToGroup(groupId);
+// 🔗 Related: InventoryItem, InventoryRepository, UserContext, GroupsProvider
 
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';

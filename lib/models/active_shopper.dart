@@ -5,7 +5,7 @@
 // ✨ Features:
 // - תמיכה בקנייה משותפת (מספר אנשים קונים ביחד)
 // - מעקב אחרי מי התחיל את הקנייה (isStarter)
-// - מעקב אחרי מי פעיל ומי עזב (isActive)
+// - מעקב אחרי מי פעיל ומי עזב (isActive, hasLeft)
 // - JSON serialization לסנכרון עם Firebase
 //
 // 🔄 Usage:
@@ -26,6 +26,7 @@
 //
 // // עזיבה - אבא עוזב
 // final left = starter.copyWith(isActive: false);
+// print(left.hasLeft); // true
 // ```
 
 import 'package:flutter/foundation.dart';
@@ -59,6 +60,12 @@ class ActiveShopper {
   /// 🇬🇧 Is still active (or left)
   @JsonKey(name: 'is_active', defaultValue: true)
   final bool isActive;
+
+  // ---- Helper Getters ----
+
+  /// 🇮🇱 האם הקונה עזב את הקנייה
+  /// 🇬🇧 Has the shopper left the shopping session
+  bool get hasLeft => !isActive;
 
   const ActiveShopper({
     required this.userId,

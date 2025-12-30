@@ -1,15 +1,9 @@
-// 📄 File: lib/widgets/shopping/add_edit_task_dialog.dart
-// 🎯 דיאלוג הוספה/עריכה של משימה
+// 📄 lib/widgets/shopping/add_edit_task_dialog.dart
 //
-// תכונות:
-// - אנימציות fade + scale
-// - DatePicker לתאריך יעד
-// - Dropdown לעדיפות
-// - Validation מלא
-// - RTL Support
-// - Controllers cleanup אוטומטי
-// - Haptic Feedback
-// - Semantics לנגישות
+// דיאלוג הוספה/עריכה של משימה - שם, הערות, תאריך יעד ועדיפות.
+// כולל validation, אנימציות fade+scale, haptic feedback ותמיכה בנגישות.
+//
+// 🔗 Related: UnifiedListItem, AppStrings, showGeneralDialog
 
 import 'dart:async';
 import 'dart:ui' as ui;
@@ -44,6 +38,7 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
   late final TextEditingController _notesController;
   DateTime? _selectedDueDate;
   String _selectedPriority = 'medium';
+  bool _isSaving = false; // 🛡️ מניעת שמירה כפולה
 
   @override
   void initState() {
@@ -74,11 +69,21 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
 
   Future<void> _selectDate() async {
     unawaited(HapticFeedback.selectionClick());
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    // 🛡️ תיקון: אם יש תאריך ישן בעבר, מאפשרים firstDate מוקדם יותר
+    // אחרת initialDate חייב להיות בטווח ו-Flutter יקרוס
+    final hasOldDate = _selectedDueDate != null && _selectedDueDate!.isBefore(today);
+    final firstDate = hasOldDate ? _selectedDueDate! : today;
+    final initialDate = _selectedDueDate ?? today;
+
     final picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDueDate ?? DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
+      initialDate: initialDate,
+      firstDate: firstDate,
+      lastDate: today.add(const Duration(days: 365)),
     );
 
     if (picked != null && mounted) {
@@ -105,6 +110,9 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
   }
 
   void _handleSave() {
+    // 🛡️ מניעת לחיצה כפולה
+    if (_isSaving) return;
+
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
 
@@ -113,6 +121,8 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
       _showErrorSnackBar(AppStrings.listDetails.taskNameEmpty);
       return;
     }
+
+    setState(() => _isSaving = true);
 
     // ✨ Haptic feedback להצלחה
     unawaited(HapticFeedback.mediumImpact());
@@ -139,6 +149,9 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
     return AlertDialog(
       title: Text(
         widget.item == null
@@ -155,6 +168,8 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
                 labelText: AppStrings.listDetails.taskNameLabel,
               ),
               textDirection: ui.TextDirection.rtl,
+              textInputAction: TextInputAction.next,
+              autofocus: true,
             ),
             const SizedBox(height: kSpacingSmall),
             TextField(
@@ -163,23 +178,30 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
                 labelText: AppStrings.listDetails.notesLabel,
               ),
               textDirection: ui.TextDirection.rtl,
+              textInputAction: TextInputAction.done,
               maxLines: 3,
             ),
             const SizedBox(height: kSpacingMedium),
             // תאריך יעד
-            ListTile(
-              title: Text(
-                _selectedDueDate != null
-                    ? AppStrings.listDetails.dueDateSelected(
-                        DateFormat('dd/MM/yyyy').format(_selectedDueDate!),
-                      )
-                    : AppStrings.listDetails.dueDateLabel,
-                style: TextStyle(
-                  color: _selectedDueDate != null ? Colors.green : Colors.grey,
+            Semantics(
+              label: AppStrings.listDetails.dueDateLabel,
+              button: true,
+              child: ListTile(
+                title: Text(
+                  _selectedDueDate != null
+                      ? AppStrings.listDetails.dueDateSelected(
+                          DateFormat('dd/MM/yyyy').format(_selectedDueDate!),
+                        )
+                      : AppStrings.listDetails.dueDateLabel,
+                  style: TextStyle(
+                    color: _selectedDueDate != null
+                        ? StatusColors.getStatusColor('success', context)
+                        : cs.onSurfaceVariant,
+                  ),
                 ),
+                leading: Icon(Icons.calendar_today, color: cs.primary),
+                onTap: _selectDate,
               ),
-              leading: const Icon(Icons.calendar_today),
-              onTap: _selectDate,
             ),
             const SizedBox(height: kSpacingSmall),
             // עדיפות
@@ -231,8 +253,14 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
           label: AppStrings.common.save,
           button: true,
           child: ElevatedButton(
-            onPressed: _handleSave,
-            child: Text(AppStrings.common.save),
+            onPressed: _isSaving ? null : _handleSave,
+            child: _isSaving
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(AppStrings.common.save),
           ),
         ),
       ],
@@ -248,7 +276,7 @@ Future<void> showAddEditTaskDialog(
 }) {
   return showGeneralDialog(
     context: context,
-    barrierDismissible: true,
+    barrierDismissible: false, // 🛡️ מונע סגירה בטעות ואיבוד נתונים
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
     barrierColor: Colors.black.withValues(alpha: 0.5),
     transitionDuration: const Duration(milliseconds: 200), // ignore: avoid_redundant_argument_values

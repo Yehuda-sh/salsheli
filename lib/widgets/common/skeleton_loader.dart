@@ -1,12 +1,9 @@
-// 📄 File: lib/widgets/common/skeleton_loader.dart
+// 📄 lib/widgets/common/skeleton_loader.dart
 //
-// 🎯 מטרה: Skeleton widgets לטעינה חזותית
-// 
-// ✨ יתרונות:
-// - משותף לכל האפליקציה
-// - עקביות בעיצוב הטעינה
-// - קל לתחזוקה
-// - ניתן להרחבה
+// Skeleton widgets לטעינה חזותית - SkeletonBox, SkeletonListCard, SkeletonListView.
+// אנימציית gradient מהבהבת, עיצוב StickyNote, ושימוש משותף לכל האפליקציה.
+//
+// 🔗 Related: StickyNote, ui_constants
 
 import 'package:flutter/material.dart';
 import 'package:memozap/core/ui_constants.dart';

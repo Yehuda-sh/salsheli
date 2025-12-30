@@ -1,20 +1,9 @@
-// 📄 File: lib/screens/groups/groups_list_screen.dart
+// 📄 lib/screens/groups/groups_list_screen.dart
 //
-// 🎯 Purpose: מסך רשימת הקבוצות - מציג את כל הקבוצות שהמשתמש חבר בהן
+// מסך רשימת הקבוצות - מציג את כל הקבוצות שהמשתמש חבר בהן.
+// כולל חיפוש, יצירת קבוצה חדשה, וכרטיסי קבוצה צבעוניים.
 //
-// 📋 Features:
-// - 👥 הצגת כל הקבוצות
-// - ➕ יצירת קבוצה חדשה
-// - 🔍 חיפוש קבוצות
-// - 📊 סיכום פעילות לכל קבוצה
-//
-// 🔗 Dependencies:
-// - GroupsProvider
-// - Group model
-// - CreateGroupScreen
-//
-// Version: 1.0
-// Created: 16/12/2025
+// 🔗 Related: Group, GroupsProvider, CreateGroupScreen, GroupDetailsScreen
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

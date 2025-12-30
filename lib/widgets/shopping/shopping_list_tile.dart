@@ -1,29 +1,9 @@
-// 📄 File: lib/widgets/shopping/shopping_list_tile.dart
+// 📄 lib/widgets/shopping/shopping_list_tile.dart
 //
-// 🇮🇱 ווידג'ט להצגת רשימת קניות:
-//     - מציג שם רשימה, מספר פריטים, תאריך עדכון
-//     - מציג פס התקדמות (כמה פריטים כבר נקנו)
-//     - תומך בלחיצה כדי לפתוח את הרשימה
-//     - כפתור "התחל קנייה" לרשימות פעילות
-//     - תפריט פעולות (עריכה, מחיקה)
+// ווידג'ט להצגת רשימת קניות - שם, פריטים, התקדמות ותאריך.
+// כולל כפתור "התחל קנייה" ותפריט פעולות (עריכה, מחיקה).
 //
-// 🇬🇧 Widget for displaying a shopping list:
-//     - Shows list name, item count, last update date
-//     - Shows progress bar (checked vs total items)
-//     - Supports tap to navigate into the list
-//     - "Start Shopping" button for active lists
-//     - Actions menu (edit, delete)
-//
-// 📖 Usage:
-// ```dart
-// ShoppingListTile(
-//   list: myShoppingList,
-//   onTap: () => Navigator.push(...),
-//   onDelete: () => provider.deleteList(list.id),
-//   onRestore: (list) => provider.restoreList(list),
-//   onStartShopping: () => Navigator.push(...),
-// )
-// ```
+// 🔗 Related: ShoppingList, ShoppingListsScreen, TappableCard
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -36,8 +16,8 @@ import '../../models/shopping_list.dart';
 class ShoppingListTile extends StatelessWidget {
   final ShoppingList list;
   final VoidCallback? onTap;
-  final VoidCallback? onDelete;
-  final Function(ShoppingList)? onRestore;
+  final Future<void> Function()? onDelete;
+  final Future<void> Function(ShoppingList list)? onRestore;
   final VoidCallback? onStartShopping;
   final VoidCallback? onEdit;
 
@@ -99,10 +79,11 @@ class ShoppingListTile extends StatelessWidget {
   ///
   /// מציג תג עם סוג הרשימה - משתמש ב-getters מהמודל
   Widget _buildListTypeTag(BuildContext context) {
-    // שימוש ב-getters מהמודל במקום switch case כפול
+    final theme = Theme.of(context);
+    // שימוש ב-getters מהמודל
     final typeEmoji = list.typeEmoji;
     final typeColor = list.stickyColor;
-    final typeLabel = _getTypeLabel(list.type);
+    final typeLabel = list.typeName;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 4),
@@ -120,37 +101,15 @@ class ShoppingListTile extends StatelessWidget {
           const SizedBox(width: 4),
           Text(
             typeLabel,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: Colors.black87,
+              color: theme.colorScheme.onSurface,
             ),
           ),
         ],
       ),
     );
-  }
-
-  /// 🏷️ תרגום סוג רשימה לטקסט
-  String _getTypeLabel(String type) {
-    switch (type) {
-      case ShoppingList.typeSupermarket:
-        return AppStrings.shopping.typeSupermarket;
-      case ShoppingList.typePharmacy:
-        return AppStrings.shopping.typePharmacy;
-      case ShoppingList.typeGreengrocer:
-        return AppStrings.shopping.typeGreengrocer;
-      case ShoppingList.typeButcher:
-        return AppStrings.shopping.typeButcher;
-      case ShoppingList.typeBakery:
-        return AppStrings.shopping.typeBakery;
-      case ShoppingList.typeMarket:
-        return AppStrings.shopping.typeMarket;
-      case ShoppingList.typeHousehold:
-        return AppStrings.shopping.typeHousehold;
-      default:
-        return AppStrings.shopping.typeOther;
-    }
   }
 
   /// 🔘 כפתור פעולה בתחתית הכרטיס
@@ -193,6 +152,32 @@ class ShoppingListTile extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  /// 🏷️ תג "משותפת"
+  Widget _buildSharedTag(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingTiny),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.group, size: kIconSizeSmall, color: theme.colorScheme.onSecondaryContainer),
+          const SizedBox(width: kSpacingTiny),
+          Text(
+            AppStrings.shopping.sharedLabel,
+            style: TextStyle(
+              color: theme.colorScheme.onSecondaryContainer,
+              fontSize: kFontSizeTiny,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -257,14 +242,15 @@ class ShoppingListTile extends StatelessWidget {
             child: Text(AppStrings.common.cancel),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(dialogContext);
 
-              debugPrint('🗑️ ShoppingListTile: מוחק רשימה "${list.name}" (${list.id})');
+              // שומרים את הרשימה לפני המחיקה לצורך Undo
+              final deletedList = list;
+              debugPrint('🗑️ ShoppingListTile: מוחק רשימה "${deletedList.name}" (${deletedList.id})');
 
               try {
-                final deletedList = list;
-                onDelete?.call();
+                await onDelete?.call();
 
                 messenger.showSnackBar(
                   SnackBar(
@@ -302,8 +288,13 @@ class ShoppingListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final dateFormatted = DateFormat('dd/MM/yyyy – HH:mm').format(list.updatedDate);
+    final checkedCount = list.items.where((item) => item.isChecked).length;
+    final totalCount = list.items.length;
 
-    return Material(
+    return Semantics(
+      label: '${list.name}, ${totalCount} פריטים, ${checkedCount} סומנו',
+      button: true,
+      child: Material(
         elevation: 1, // צל עדין יותר
         borderRadius: BorderRadius.circular(kBorderRadius),
         // 🎨 רקע צהבהב חם - כמו נייר ממו
@@ -323,51 +314,29 @@ class ShoppingListTile extends StatelessWidget {
                 onTap: onTap,
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmallPlus),
-                  title: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          list.name,
-                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                      ),
-                      // תג סוג רשימה
-                      _buildListTypeTag(context),
-                      const SizedBox(width: kSpacingSmall),
-                      // תג דחיפות
-                      if (_buildUrgencyTag(context) case final urgencyTag?) ...[
-                        urgencyTag,
-                        const SizedBox(width: kSpacingSmall),
-                      ],
-                      // תג משותפת
-                      if (list.isShared)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingTiny),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.secondaryContainer,
-                            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(Icons.group, size: kIconSizeSmall, color: theme.colorScheme.onSecondaryContainer),
-                              const SizedBox(width: kSpacingTiny),
-                              Text(
-                                AppStrings.shopping.sharedLabel,
-                                style: TextStyle(
-                                  color: theme.colorScheme.onSecondaryContainer,
-                                  fontSize: kFontSizeTiny,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
+                  title: Text(
+                    list.name,
+                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      const SizedBox(height: kSpacingTiny),
+                      // תגים בשורה נפרדת עם Wrap למסכים קטנים
+                      Wrap(
+                        spacing: kSpacingSmall,
+                        runSpacing: kSpacingTiny,
+                        children: [
+                          _buildListTypeTag(context),
+                          if (_buildUrgencyTag(context) case final urgencyTag?)
+                            urgencyTag,
+                          if (list.isShared)
+                            _buildSharedTag(context),
+                        ],
+                      ),
+                      const SizedBox(height: kSpacingSmall),
                       Text(AppStrings.shopping.itemsAndDate(list.items.length, dateFormatted), style: theme.textTheme.bodySmall),
                       const SizedBox(height: kSpacingTiny),
                       if (list.items.isNotEmpty)
@@ -380,6 +349,7 @@ class ShoppingListTile extends StatelessWidget {
                     ],
                   ),
                   trailing: PopupMenuButton<String>(
+                    tooltip: 'אפשרויות נוספות',
                     icon: const Icon(Icons.more_vert),
                     onSelected: (value) {
                       switch (value) {
@@ -423,6 +393,7 @@ class ShoppingListTile extends StatelessWidget {
             ],
           ),
         ),
+      ),
     );
   }
 }

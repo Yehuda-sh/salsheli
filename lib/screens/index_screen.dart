@@ -1,36 +1,14 @@
-// 📄 File: lib/screens/index_screen.dart - V4.0 LOGIC-ONLY
-// 🎯 Purpose: מסך פתיחה ראשוני - Splash screen שבודק מצב משתמש ומנווט למסך המתאים
+// 📄 lib/screens/index_screen.dart
 //
-// ✨ שיפור מבני (v4.0):
-// - 🧹 Separation of Concerns: הפרדת לוגיקה מעיצוב
-// - 📁 View Components: כל האנימציות ב-index_view.dart
-// - 🎯 Logic Only: קובץ זה מכיל רק את ההחלטות והניווט
+// מסך פתיחה (Splash) - בודק מצב משתמש ומנווט למסך המתאים.
+// Flow: מחובר→/home, לא ראה welcome→WelcomeScreen, אחרת→/login.
 //
-// 📋 Flow Logic (עודכן 09/10/2025):
-// 1. משתמש מחובר (UserContext.isLoggedIn)? → /home (ישר לאפליקציה)
-// 2. לא מחובר + לא ראה onboarding? → WelcomeScreen (הצגת יתרונות)
-// 3. לא מחובר + ראה onboarding? → /login (התחברות)
+// ✅ תיקונים:
+//    - _isChecking flag למניעת race condition בבדיקות מקבילות
+//    - ביטול Timer כש-isLoading נהיה false (ניווט מהיר יותר)
+//    - timeout לזיהוי מצב "תקוע" (Firebase מחובר אבל UserContext לא מסתנכרן)
 //
-// 🔗 Related:
-// - index_view.dart - מרכיבים חזותיים (אנימציות)
-// - UserContext - מקור האמת היחיד למצב משתמש (Firebase Auth)
-// - WelcomeScreen - מסך קבלת פנים ראשוני
-// - LoginScreen - מסך התחברות (/login)
-// - MainNavigationScreen - מסך ראשי עם ניווט (/home)
-// - SharedPreferences - אחסון seenOnboarding (מקומי בלבד)
-//
-// 💡 Features:
-// - Single Source of Truth - UserContext בלבד (לא SharedPreferences.userId!)
-// - Real-time sync - מגיב לשינויים ב-Firebase Auth אוטומטית
-// - Wait for initial load - ממתין עד ש-Firebase מסיים לטעון
-// - Error handling עם fallback
-// - Logging מפורט
-//
-// ⚠️ Critical Changes (20/11/2025):
-// - 🔧 Fixed Race Condition: Now checks Firebase Auth directly to detect if user is logged in
-//   but UserContext hasn't synced yet. Waits for UserContext to update before navigating.
-// - 🐛 Previous issue: User would land on WelcomeScreen despite being logged in because
-//   _checkAndNavigate() ran before UserContext.isLoggedIn became true
+// 🔗 Related: index_view, UserContext, WelcomeScreen, SharedPreferences
 
 import 'dart:async';
 
@@ -54,7 +32,14 @@ class _IndexScreenState extends State<IndexScreen> {
   bool _hasNavigated = false; // מונע navigation כפול
   bool _hasError = false; // מצב שגיאה
   bool _listenerAdded = false; // עוקב אחרי הוספת listener
+  bool _isChecking = false; // ✅ מונע בדיקות מקבילות (race condition fix)
   Timer? _delayTimer; // Timer לביטול במקרה של dispose
+  Timer? _syncTimeoutTimer; // ✅ Timeout למצב "תקוע" (Firebase מחובר, UserContext לא)
+  DateTime? _waitingForSyncSince; // ✅ מתי התחלנו לחכות לסנכרון
+
+  // ⏱️ קבועים
+  static const _initialDelayMs = 600;
+  static const _syncTimeoutSeconds = 8; // timeout לסנכרון Firebase↔UserContext
 
   @override
   void initState() {
@@ -72,10 +57,13 @@ class _IndexScreenState extends State<IndexScreen> {
         return;
       }
 
-      // ⏱️ אחרת - המתן עד 600ms לתת ל-Firebase זמן
-      _delayTimer = Timer(const Duration(milliseconds: 600), () {
-        if (mounted) {
-          _setupListener();
+      // ✅ הוסף listener מיידית - כדי לבטל את הטיימר אם הטעינה נגמרת מוקדם
+      _setupListener();
+
+      // ⏱️ Timer כ-fallback - רק למקרה שה-listener לא נורה
+      _delayTimer = Timer(const Duration(milliseconds: _initialDelayMs), () {
+        if (mounted && !_hasNavigated) {
+          _checkAndNavigate();
         }
       });
     });
@@ -96,12 +84,16 @@ class _IndexScreenState extends State<IndexScreen> {
   /// מופעל כל פעם ש-UserContext משתנה
   void _onUserContextChanged() {
     if (!_hasNavigated && mounted) {
+      // ✅ בטל את הטיימר - כבר קיבלנו עדכון מה-listener
+      _delayTimer?.cancel();
       _checkAndNavigate();
     }
   }
 
   Future<void> _checkAndNavigate() async {
-    if (_hasNavigated) return; // כבר ניווטנו
+    // ✅ מניעת בדיקות מקבילות (race condition fix)
+    if (_hasNavigated || _isChecking) return;
+    _isChecking = true;
 
     try {
       // ✅ מקור אמת יחיד - UserContext!
@@ -112,17 +104,60 @@ class _IndexScreenState extends State<IndexScreen> {
 
       // ⏳ אם UserContext עדיין טוען, נחכה
       if (userContext.isLoading) {
+        _isChecking = false;
         return; // ה-listener יקרא לנו שוב כש-isLoading ישתנה
       }
 
       // 🔧 FIX: אם Firebase Auth מצביע על משתמש אבל UserContext עדיין לא עדכן - נחכה!
       if (firebaseUser != null && !userContext.isLoggedIn) {
-        return; // ה-listener יקרא לנו שוב כשה-UserContext יתעדכן
+        // ✅ התחל לעקוב אחרי זמן ההמתנה
+        _waitingForSyncSince ??= DateTime.now();
+
+        // ⏱️ בדוק timeout - אם חיכינו יותר מדי זמן, משהו תקוע
+        final waitingSeconds =
+            DateTime.now().difference(_waitingForSyncSince!).inSeconds;
+        if (waitingSeconds >= _syncTimeoutSeconds) {
+          // 🚨 Timeout! נסה לרענן את UserContext או הצג שגיאה
+          _syncTimeoutTimer?.cancel();
+          _isChecking = false;
+
+          // ניסיון אחד לרענן
+          try {
+            await userContext.retry();
+            if (!mounted) return;
+
+            // אם עדיין לא מסתנכרן - הצג שגיאה
+            if (!userContext.isLoggedIn) {
+              setState(() => _hasError = true);
+              return;
+            }
+          } catch (e) {
+            if (mounted) setState(() => _hasError = true);
+            return;
+          }
+        } else {
+          // ✅ הגדר timeout timer אם עוד לא קיים
+          _syncTimeoutTimer ??= Timer(
+            Duration(seconds: _syncTimeoutSeconds - waitingSeconds),
+            () {
+              if (mounted && !_hasNavigated) {
+                _checkAndNavigate();
+              }
+            },
+          );
+          _isChecking = false;
+          return; // ה-listener יקרא לנו שוב כשה-UserContext יתעדכן
+        }
       }
+
+      // ✅ איפוס מעקב המתנה - כבר לא מחכים לסנכרון
+      _waitingForSyncSince = null;
+      _syncTimeoutTimer?.cancel();
 
       // ✅ מצב 1: משתמש מחובר → ישר לדף הבית
       if (userContext.isLoggedIn) {
         _hasNavigated = true;
+        _isChecking = false;
         if (mounted) {
           // הסר את ה-listener לפני ניווט
           userContext.removeListener(_onUserContextChanged);
@@ -139,13 +174,17 @@ class _IndexScreenState extends State<IndexScreen> {
       final prefs = await SharedPreferences.getInstance();
 
       // Check mounted after await
-      if (!mounted) return;
+      if (!mounted) {
+        _isChecking = false;
+        return;
+      }
 
       final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
 
       if (!seenOnboarding) {
         // ✅ מצב 2: לא ראה welcome → שולח לשם
         _hasNavigated = true;
+        _isChecking = false;
         userContext.removeListener(_onUserContextChanged);
         unawaited(
           navigator.pushReplacement(
@@ -157,9 +196,11 @@ class _IndexScreenState extends State<IndexScreen> {
 
       // ✅ מצב 3: ראה welcome אבל לא מחובר → שולח ל-login
       _hasNavigated = true;
+      _isChecking = false;
       userContext.removeListener(_onUserContextChanged);
       unawaited(navigator.pushReplacementNamed('/login'));
     } catch (e) {
+      _isChecking = false;
       // ✅ במקרה של שגיאה - הצג מסך שגיאה
       if (mounted) {
         setState(() {
@@ -180,8 +221,9 @@ class _IndexScreenState extends State<IndexScreen> {
 
   @override
   void dispose() {
-    // 🔧 בטל Timer אם עדיין רץ
+    // 🔧 בטל Timers אם עדיין רצים
     _delayTimer?.cancel();
+    _syncTimeoutTimer?.cancel();
 
     // ✅ ניקוי listener - רק אם הוסף
     if (_listenerAdded) {

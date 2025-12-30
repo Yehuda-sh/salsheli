@@ -1,28 +1,16 @@
+// 📄 lib/widgets/common/animated_button.dart
+//
+// Wrapper שמוסיף אנימציית לחיצה (scale 0.95) + haptic feedback.
+// משמש את StickyButton ושאר כפתורים באפליקציה.
+//
+// 🔗 Related: StickyButton
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-/// 🎯 AnimatedButton - Interactive Button with Scale & Haptic Feedback
-/// 
-/// Wraps any button widget to add:
-/// - Scale animation (0.95) on tap
-/// - Haptic feedback (haptic.call)
-/// - Smooth 150ms animation
-/// - Works with all button types
-/// 
-/// Usage:
-/// ```dart
-/// AnimatedButton(
-///   onPressed: () => print('Pressed!'),
-///   child: ElevatedButton(
-///     onPressed: null,  // AnimatedButton handles this
-///     child: Text('Press Me'),
-///   ),
-/// )
-/// ```
-
 class AnimatedButton extends StatefulWidget {
-  /// Callback when button is tapped
-  final VoidCallback onPressed;
+  /// Callback when button is tapped (null = disabled)
+  final VoidCallback? onPressed;
 
   /// Button widget to wrap (ElevatedButton, OutlinedButton, TextButton, etc.)
   final Widget child;
@@ -41,13 +29,16 @@ class AnimatedButton extends StatefulWidget {
 
   const AnimatedButton({
     super.key,
-    required this.onPressed,
+    this.onPressed,
     required this.child,
     this.scaleTarget = 0.95,
     this.duration = const Duration(milliseconds: 150),
     this.hapticFeedback = true,
     this.curve = Curves.easeInOut,
   });
+
+  /// האם הכפתור פעיל (לא disabled)
+  bool get isEnabled => onPressed != null;
 
   @override
   State<AnimatedButton> createState() => _AnimatedButtonState();
@@ -74,9 +65,9 @@ class _AnimatedButtonState extends State<AnimatedButton> {
 
   /// Handle tap down - trigger animation and haptic feedback
   void _onTapDown() {
-    if (!mounted) return;
+    if (!mounted || !widget.isEnabled) return;
     setState(() => _isPressed = true);
-    
+
     // ✅ Haptic feedback on tap
     if (widget.hapticFeedback) {
       HapticFeedback.lightImpact();
@@ -85,9 +76,9 @@ class _AnimatedButtonState extends State<AnimatedButton> {
 
   /// Handle tap up - trigger callback
   void _onTapUp() {
-    if (!mounted) return;
+    if (!mounted || !widget.isEnabled) return;
     setState(() => _isPressed = false);
-    widget.onPressed();
+    widget.onPressed?.call();
   }
 
   /// Handle tap cancel

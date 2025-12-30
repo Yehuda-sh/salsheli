@@ -1,35 +1,10 @@
-// 📄 File: lib/core/ui_constants.dart
+// 📄 lib/core/ui_constants.dart
 //
-// 🎨 UI Constants for MemoZap
-// 
-// Centralized constants for consistent UI design:
-// - Spacing (8dp grid system)
-// - Colors (Sticky Notes palette + backgrounds)
-// - Sizes (buttons, touch targets, etc.)
-// - Durations (animations, snackbars)
-//
-// Note: These constants are used across the app for consistency.
-// Refer to DESIGN.md for full design system documentation.
-//
-// Version: 2.3
-// Created: 31/10/2025
-// Last Updated: 2/11/2025
-//
-// ⭐ Version 2.3 Changes (2/11/2025):
-// - Added kBorderWidth (1.0) for default border
-// - Added kBorderWidthExtraThick (4.0) for thick borders
-// - Added kCardElevation (2.0) for card shadows
-//
-// ⭐ Version 2.2 Changes (2/11/2025):
-// - Added kIconSizeProfile (32.0) for profile icons
-// - Added kAvatarRadiusTiny (12.0) for tiny avatars
-// - Added kAvatarRadiusSmall (16.0) for small avatars
-// - Added kAvatarRadius (32.0) for default avatars
-//
-// ⭐ Version 2.1 Changes (29/10/2025):
-// - Added kDoubleTapTimeout (2 seconds) for double-tap detection
-// - Added SnackBar margins (kSnackBarBottomMargin, kSnackBarHorizontalMargin)
-// - Added Border Radius constants (kBorderRadiusSmall/Medium/Large)
+// קבועי UI מרכזיים לעיצוב עקבי באפליקציה.
+// - Spacing (מבוסס 8dp grid)
+// - Colors (פלטת Sticky Notes + רקעים)
+// - Sizes (כפתורים, אייקונים, אווטארים)
+// - Durations (אנימציות, snackbars)
 
 import 'dart:ui';
 

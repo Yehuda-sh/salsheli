@@ -579,15 +579,15 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
             debugPrint('📋 פתיחת רשימה: ${list.name}');
             Navigator.pushNamed(context, '/populate-list', arguments: list);
           },
-          onDelete: () {
+          onDelete: () async {
             debugPrint('🗑️ מחיקת רשימה: ${list.name}');
             final provider = context.read<ShoppingListsProvider>();
-            provider.deleteList(list.id);
+            await provider.deleteList(list.id);
           },
-          onRestore: (deletedList) {
+          onRestore: (deletedList) async {
             debugPrint('↩️ שחזור רשימה: ${deletedList.name}');
             final provider = context.read<ShoppingListsProvider>();
-            provider.restoreList(deletedList);
+            await provider.restoreList(deletedList);
           },
           onStartShopping: isActive ? () {
             debugPrint('🛒 התחלת קנייה: ${list.name}');

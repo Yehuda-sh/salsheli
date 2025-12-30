@@ -1,59 +1,9 @@
-// 📄 File: lib/providers/locations_provider.dart
+// 📄 lib/providers/locations_provider.dart
 //
-// 🎯 Purpose: Provider לניהול מיקומי אחסון מותאמים אישית - משותף לכל household
+// Provider לניהול מיקומי אחסון מותאמים אישית - משותף לכל household.
+// CRUD מלא עם סנכרון אוטומטי ב-Firestore.
 //
-// 🏗️ Architecture: Provider + Repository + UserContext
-//     - טוען מיקומים מ-Repository לפי household_id
-//     - מאזין לשינויים ב-UserContext ומריענן אוטומטית
-//     - מספק CRUD מלא עם error handling
-//     - אופטימיזציה: עדכון local במקום ריענון מלא
-//
-// 📦 Dependencies:
-//     - LocationsRepository: data source
-//     - UserContext: household_id + auth state
-//
-// ✨ Features:
-//     - ➕ הוספת מיקומים: יצירת מיקומי אחסון חדשים עם אימוג'י
-//     - 🗑️ מחיקת מיקומים: הסרת מיקומים מותאמים
-//     - 🔄 Auto-sync: סנכרון אוטומטי בין כל המכשירים ב-household
-//     - ✅ Validation: בדיקת קיום + שם ריק + תווים לא חוקיים
-//     - 💾 Cloud Storage: שמירה ב-Firestore (משותף לכל household)
-//     - 🐛 Logging מפורט: כל פעולה עם debugPrint
-//
-// 📝 Usage:
-// ```dart
-// // בקריאת נתונים:
-// final provider = context.watch<LocationsProvider>();
-// final customLocations = provider.customLocations;
-//
-// // בהוספת מיקום:
-// final success = await provider.addLocation('מקפיא נוסף', emoji: '🧊');
-//
-// // במחיקת מיקום:
-// await provider.deleteLocation('מקפיא_נוסף');
-//
-// // Error Recovery:
-// if (provider.hasError) {
-//   await provider.retry();
-// }
-// ```
-//
-// 🔑 Key Generation:
-//     שם: "מקפיא נוסף" → key: "מקפיא_נוסף" (lowercase + spaces→underscores)
-//
-// 🔄 State Flow:
-//     1. UserContext changes → _onUserChanged() → _loadLocations()
-//     2. User action → addLocation/deleteLocation → _repository.save/delete → _loadLocations()
-//     3. _loadLocations() → Repository.fetch(household_id) → notifyListeners()
-//
-// ⚠️ Note:
-//     - כל המיקומים משותפים לכל household
-//     - מיקומים נשמרים ב-Firestore
-//     - עדכון במכשיר אחד משפיע על כל המכשירים
-//
-// Version: 3.0 - Firebase Integration
-// Last Updated: 13/10/2025
-//
+// 🔗 Related: CustomLocation, LocationsRepository, UserContext
 
 import 'package:flutter/foundation.dart';
 

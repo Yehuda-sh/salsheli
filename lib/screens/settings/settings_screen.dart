@@ -31,7 +31,7 @@
 // - InventoryProvider (סטטיסטיקות)
 // - ProductsProvider (עדכון מחירים)
 // - SharedPreferences (שמירת הגדרות מקומית)
-// - HouseholdConfig (סוגי קבוצות)
+// - Household types: 'family' (inline constant)
 //
 // 📊 Flow:
 // 1. טעינת הגדרות מ-SharedPreferences
@@ -46,7 +46,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:memozap/config/household_config.dart';
 import 'package:memozap/core/ui_constants.dart';
 import 'package:memozap/l10n/app_strings.dart';
 import 'package:memozap/providers/user_context.dart';
@@ -74,7 +73,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   // מצב UI
   String _householdName = 'הקבוצה שלי';
-  String _householdType = HouseholdConfig.family; // default
+  String _householdType = 'family'; // default household type
 
   // הגדרות
   int _familySize = 3;

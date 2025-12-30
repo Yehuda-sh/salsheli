@@ -29,6 +29,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart' show immutable;
+import 'package:flutter/material.dart' show IconData, Icons;
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 
@@ -132,6 +133,26 @@ enum GroupType {
         return 'home';
       case GroupType.other:
         return 'list_alt';
+    }
+  }
+
+  /// אייקון Material לסוג הקבוצה
+  IconData get icon {
+    switch (this) {
+      case GroupType.family:
+        return Icons.family_restroom;
+      case GroupType.building:
+        return Icons.apartment;
+      case GroupType.kindergarten:
+        return Icons.child_care;
+      case GroupType.friends:
+        return Icons.group;
+      case GroupType.event:
+        return Icons.celebration;
+      case GroupType.roommates:
+        return Icons.home;
+      case GroupType.other:
+        return Icons.list_alt;
     }
   }
 

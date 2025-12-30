@@ -1,33 +1,12 @@
-// 📄 File: lib/screens/auth/register_screen.dart
-// 🎯 Purpose: מסך הרשמה - טופס יצירת חשבון עם Firebase Auth
+// 📄 lib/screens/auth/register_screen.dart
 //
-// 📋 Features:
-// ✅ Firebase Authentication (email/password + name)
-// ✅ Form validation עם אימות סיסמה
-// ✅ StickyButton עם loading state + animations
-// ✅ AppStrings - i18n ready
-// ✅ ui_constants - עיצוב עקבי
-// ✅ Sticky Notes Design System 🎨📝 ⭐ חדש!
-// 🔙 PopScope - חזרה ל-login (לא חסימה)
-// 🚫 הוסרה כניסת Demo (26/10/2025)
+// מסך הרשמה עם Firebase Auth ועיצוב Sticky Notes.
+// - שדות: שם, אימייל, סיסמה, אימות סיסמה, טלפון (בפתקים צהובים)
+// - Form validation + shake animation לשגיאות
+// - בדיקת הזמנות ממתינות לקבוצות אחרי הרשמה
+// - PopScope מחזיר ל-login
 //
-// 🎨 UI/UX Improvements (15/10/2025): ⭐
-// - מעוצב כולו עם Sticky Notes Design System!
-// - רקע מחברת עם קווים כחולים וקו אדום
-// - לוגו בפתק צהוב מסובב
-// - כותרת בפתק לבן מסובב
-// - שדות טקסט בפתקים צבעוניים (סגול, תכלת, ירוק, ורוד)
-// - כפתורים בסגנון StickyButton
-// - קישור התחברות בפתק תכלת
-// - רווחים מותאמים למסך אחד ללא גלילה 📐
-//
-// 🔗 Related:
-// - UserContext - state management + Firebase Auth (Single Source of Truth)
-// - LoginScreen - התחברות לחשבון קיים
-// - AppStrings.auth - מחרוזות UI
-//
-// 📝 Version: 4.0 - Clean design without logo, unified colors
-// 📅 Updated: 16/12/2025
+// 🔗 Related: UserContext, LoginScreen, PendingInvitesProvider
 
 import 'dart:async';
 

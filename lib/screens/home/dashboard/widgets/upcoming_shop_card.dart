@@ -1,7 +1,9 @@
-// 📄 File: lib/widgets/home/upcoming_shop_card.dart
-// ✅ עדכון (26/10/2025) - Simplified UI:
-// - הסרת animations מורכבות
-// - פישוט card ל-basics: שם + ספירה + כפתור
+// 📄 lib/screens/home/dashboard/widgets/upcoming_shop_card.dart
+//
+// כרטיס "הקנייה הקרובה" בדשבורד - מציג רשימה פעילה או מצב ריק.
+// כולל שם רשימה, תג סוג, ספירת פריטים וכפתור "התחל קנייה".
+//
+// 🔗 Related: DashboardCard, ShoppingList
 
 import 'package:flutter/material.dart';
 
@@ -55,10 +57,10 @@ class _EmptyUpcomingCard extends StatelessWidget {
       rotation: -0.01,
       child: Column(
         children: [
-          const Icon(
+          Icon(
             Icons.shopping_bag_outlined,
             size: 48,
-            color: Color(0x4D000000),
+            color: cs.onSurfaceVariant,
           ),
           const SizedBox(height: kBorderRadius),
           Text(
@@ -86,25 +88,15 @@ class _ListSummary extends StatelessWidget {
 
   const _ListSummary({required this.list});
 
-  /// 🏷️ מקבל את התג והצבע לסוג הרשימה
-  (String label, Color color) _getTypeTagInfo() {
-    switch (list.type) {
-      case ShoppingList.typeSupermarket:
-        return ('🛒 סופרמרקט', kStickyGreen);
-      case ShoppingList.typePharmacy:
-        return ('💊 בית מרקחת', kStickyCyan);
-      case ShoppingList.typeOther:
-      default:
-        return ('📋 כללי', kStickyPurple);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final itemsCount = list.items.length;
-    final (typeLabel, typeColor) = _getTypeTagInfo();
+
+    // שימוש ב-helpers מהמודל (תומך בכל הסוגים)
+    final typeLabel = '${list.typeEmoji} ${list.typeName}';
+    final typeColor = list.stickyColor;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,7 +136,7 @@ class _ListSummary extends StatelessWidget {
                 typeLabel,
                 style: theme.textTheme.labelSmall?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: cs.onSurface,
                 ),
               ),
             ),

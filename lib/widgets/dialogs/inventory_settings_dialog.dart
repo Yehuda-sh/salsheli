@@ -1,20 +1,28 @@
-// 📄 File: lib/widgets/dialogs/inventory_settings_dialog.dart
-// 🎯 Purpose: דיאלוג הגדרות מזווה מהירות
+// 📄 lib/widgets/dialogs/inventory_settings_dialog.dart
 //
-// 📋 Features:
-// - הגדרת התראות מלאי נמוך
-// - הגדרת התראות תפוגה
-// - הגדרות תצוגה
-// - מצב מזווה (אישי/משותף)
+// דיאלוג הגדרות מזווה - התראות מלאי נמוך, תפוגה, ותצוגה.
+// כולל מצב מזווה (אישי/משותף), שמירה ב-SharedPreferences, ועיצוב sticky note.
 //
-// Version: 1.0
-// Created: 16/12/2025
+// ✅ תיקונים:
+//    - SingleChildScrollView למניעת overflow במסכים קטנים
+//    - צבעים מ-Theme (scheme/brand) במקום Colors קשיחים
+//    - כל הטקסטים מ-AppStrings
+//    - שורת switch קליקבילית במלואה (InkWell)
+//    - barrierDismissible: false למניעת סגירה בטעות
+//    - EdgeInsetsDirectional במקום EdgeInsets.only(right:)
+//
+// 🔗 Related: InventorySettings, InventoryProvider, StickyNote, AppBrand
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
 import '../../providers/inventory_provider.dart';
+import '../../theme/app_theme.dart';
 import '../common/sticky_note.dart';
 
 /// מפתחות שמירה ב-SharedPreferences
@@ -108,6 +116,8 @@ Future<InventorySettings?> showInventorySettingsDialog({
 
   return showDialog<InventorySettings>(
     context: context,
+    // ✅ מניעת סגירה בלחיצה מחוץ לדיאלוג
+    barrierDismissible: false,
     builder: (context) => _InventorySettingsDialog(
       initialSettings: settings,
       inventoryProvider: inventoryProvider,
@@ -139,18 +149,25 @@ class _InventorySettingsDialogState extends State<_InventorySettingsDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final scheme = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
     final provider = widget.inventoryProvider;
+
+    // ✅ צבעים מ-Theme במקום Colors קשיחים
+    final successColor = brand?.success ?? scheme.primary;
+    final successContainerColor = brand?.successContainer ?? scheme.primaryContainer;
+    final onSuccessContainerColor = brand?.onSuccessContainer ?? scheme.onPrimaryContainer;
 
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Dialog(
         backgroundColor: Colors.transparent,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 400),
+          constraints: const BoxConstraints(maxWidth: 400, maxHeight: 500),
           child: StickyNote(
             color: kStickyYellow,
-            child: Padding(
+            // ✅ SingleChildScrollView למניעת overflow
+            child: SingleChildScrollView(
               padding: const EdgeInsets.all(kSpacingLarge),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -159,13 +176,14 @@ class _InventorySettingsDialogState extends State<_InventorySettingsDialog> {
                   // === כותרת ===
                   Row(
                     children: [
-                      Icon(Icons.settings, color: cs.primary),
+                      Icon(Icons.settings, color: scheme.primary),
                       const SizedBox(width: kSpacingSmall),
-                      const Text(
-                        'הגדרות מזווה',
+                      Text(
+                        AppStrings.inventory.settingsTitle,
                         style: TextStyle(
                           fontSize: kFontSizeLarge,
                           fontWeight: FontWeight.bold,
+                          color: scheme.onSurface,
                         ),
                       ),
                     ],
@@ -179,13 +197,13 @@ class _InventorySettingsDialogState extends State<_InventorySettingsDialog> {
                       padding: const EdgeInsets.all(kSpacingSmall),
                       decoration: BoxDecoration(
                         color: provider.isGroupMode
-                            ? Colors.green.shade50
-                            : Colors.blue.shade50,
+                            ? successContainerColor
+                            : scheme.primaryContainer,
                         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                         border: Border.all(
                           color: provider.isGroupMode
-                              ? Colors.green.shade200
-                              : Colors.blue.shade200,
+                              ? successColor.withValues(alpha: 0.5)
+                              : scheme.primary.withValues(alpha: 0.5),
                         ),
                       ),
                       child: Row(
@@ -195,8 +213,8 @@ class _InventorySettingsDialogState extends State<_InventorySettingsDialog> {
                                 ? Icons.family_restroom
                                 : Icons.person,
                             color: provider.isGroupMode
-                                ? Colors.green.shade700
-                                : Colors.blue.shade700,
+                                ? successColor
+                                : scheme.primary,
                           ),
                           const SizedBox(width: kSpacingSmall),
                           Expanded(
@@ -208,17 +226,17 @@ class _InventorySettingsDialogState extends State<_InventorySettingsDialog> {
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: provider.isGroupMode
-                                        ? Colors.green.shade800
-                                        : Colors.blue.shade800,
+                                        ? onSuccessContainerColor
+                                        : scheme.onPrimaryContainer,
                                   ),
                                 ),
                                 Text(
                                   provider.isGroupMode
-                                      ? 'מחובר למזווה משותף של הקבוצה'
-                                      : 'מזווה אישי - רק שלך',
+                                      ? AppStrings.inventory.pantryModeGroup
+                                      : AppStrings.inventory.pantryModePersonal,
                                   style: TextStyle(
                                     fontSize: kFontSizeSmall,
-                                    color: Colors.grey.shade600,
+                                    color: scheme.onSurfaceVariant,
                                   ),
                                 ),
                               ],
@@ -233,11 +251,12 @@ class _InventorySettingsDialogState extends State<_InventorySettingsDialog> {
                   ],
 
                   // === סעיף התראות ===
-                  const Text(
-                    'התראות',
+                  Text(
+                    AppStrings.inventory.alertsSectionTitle,
                     style: TextStyle(
                       fontSize: kFontSizeMedium,
                       fontWeight: FontWeight.bold,
+                      color: scheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: kSpacingSmall),
@@ -245,11 +264,12 @@ class _InventorySettingsDialogState extends State<_InventorySettingsDialog> {
                   // התראת מלאי נמוך
                   _SettingSwitch(
                     icon: Icons.inventory_2,
-                    iconColor: Colors.orange,
-                    title: 'התראת מלאי נמוך',
-                    subtitle: 'קבל התראה כשפריט מגיע למינימום',
+                    iconColor: brand?.warning ?? scheme.tertiary,
+                    title: AppStrings.inventory.settingsLowStockAlertTitle,
+                    subtitle: AppStrings.inventory.settingsLowStockAlertSubtitle,
                     value: _settings.lowStockAlert,
                     onChanged: (value) {
+                      unawaited(HapticFeedback.selectionClick());
                       setState(() {
                         _settings = _settings.copyWith(lowStockAlert: value);
                       });
@@ -259,11 +279,12 @@ class _InventorySettingsDialogState extends State<_InventorySettingsDialog> {
                   // התראת תפוגה
                   _SettingSwitch(
                     icon: Icons.event_busy,
-                    iconColor: Colors.red,
-                    title: 'התראת תפוגה',
-                    subtitle: 'קבל התראה על מוצרים שעומדים לפוג',
+                    iconColor: scheme.error,
+                    title: AppStrings.inventory.settingsExpiryAlertTitle,
+                    subtitle: AppStrings.inventory.settingsExpiryAlertSubtitle,
                     value: _settings.expiryAlert,
                     onChanged: (value) {
+                      unawaited(HapticFeedback.selectionClick());
                       setState(() {
                         _settings = _settings.copyWith(expiryAlert: value);
                       });
@@ -273,15 +294,19 @@ class _InventorySettingsDialogState extends State<_InventorySettingsDialog> {
                   // ימים לפני תפוגה
                   if (_settings.expiryAlert)
                     Padding(
-                      padding: const EdgeInsets.only(right: 40, top: kSpacingSmall),
+                      // ✅ EdgeInsetsDirectional במקום EdgeInsets.only(right:)
+                      padding: const EdgeInsetsDirectional.only(start: 40, top: kSpacingSmall),
                       child: Row(
                         children: [
-                          const Text('התראה '),
+                          Text(
+                            AppStrings.inventory.settingsExpiryAlertDaysPrefix,
+                            style: TextStyle(color: scheme.onSurface),
+                          ),
                           DropdownButton<int>(
                             value: _settings.expiryAlertDays,
                             underline: Container(
                               height: 1,
-                              color: cs.primary,
+                              color: scheme.primary,
                             ),
                             items: [3, 5, 7, 14, 30].map((days) {
                               return DropdownMenuItem(
@@ -291,13 +316,17 @@ class _InventorySettingsDialogState extends State<_InventorySettingsDialog> {
                             }).toList(),
                             onChanged: (value) {
                               if (value != null) {
+                                unawaited(HapticFeedback.selectionClick());
                                 setState(() {
                                   _settings = _settings.copyWith(expiryAlertDays: value);
                                 });
                               }
                             },
                           ),
-                          const Text(' ימים לפני תפוגה'),
+                          Text(
+                            AppStrings.inventory.settingsExpiryAlertDaysSuffix,
+                            style: TextStyle(color: scheme.onSurface),
+                          ),
                         ],
                       ),
                     ),
@@ -307,11 +336,12 @@ class _InventorySettingsDialogState extends State<_InventorySettingsDialog> {
                   const SizedBox(height: kSpacingSmall),
 
                   // === סעיף תצוגה ===
-                  const Text(
-                    'תצוגה',
+                  Text(
+                    AppStrings.inventory.displaySectionTitle,
                     style: TextStyle(
                       fontSize: kFontSizeMedium,
                       fontWeight: FontWeight.bold,
+                      color: scheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: kSpacingSmall),
@@ -319,11 +349,12 @@ class _InventorySettingsDialogState extends State<_InventorySettingsDialog> {
                   // הצג פגי תוקף ראשונים
                   _SettingSwitch(
                     icon: Icons.sort,
-                    iconColor: Colors.purple,
-                    title: 'הצג פגי תוקף ראשונים',
-                    subtitle: 'פריטים שפג תוקפם יופיעו בראש הרשימה',
+                    iconColor: scheme.secondary,
+                    title: AppStrings.inventory.showExpiredFirstTitle,
+                    subtitle: AppStrings.inventory.showExpiredFirstSubtitle,
                     value: _settings.showExpiredFirst,
                     onChanged: (value) {
+                      unawaited(HapticFeedback.selectionClick());
                       setState(() {
                         _settings = _settings.copyWith(showExpiredFirst: value);
                       });
@@ -337,18 +368,22 @@ class _InventorySettingsDialogState extends State<_InventorySettingsDialog> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('ביטול'),
+                        onPressed: () {
+                          unawaited(HapticFeedback.lightImpact());
+                          Navigator.pop(context);
+                        },
+                        child: Text(AppStrings.common.cancel),
                       ),
                       const SizedBox(width: kSpacingSmall),
                       ElevatedButton(
                         onPressed: () async {
+                          unawaited(HapticFeedback.mediumImpact());
                           await _settings.save();
                           if (context.mounted) {
                             Navigator.pop(context, _settings);
                           }
                         },
-                        child: const Text('שמור'),
+                        child: Text(AppStrings.common.save),
                       ),
                     ],
                   ),
@@ -362,7 +397,7 @@ class _InventorySettingsDialogState extends State<_InventorySettingsDialog> {
   }
 }
 
-/// Switch עם אייקון וכותרת
+/// Switch עם אייקון וכותרת - קליקבילי במלואו
 class _SettingSwitch extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
@@ -382,44 +417,52 @@ class _SettingSwitch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: kSpacingTiny),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: iconColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+    final scheme = Theme.of(context).colorScheme;
+
+    // ✅ InkWell עוטף את כל השורה לקליקביליות מלאה
+    return InkWell(
+      onTap: () => onChanged(!value),
+      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: kSpacingTiny),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: iconColor.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+              ),
+              child: Icon(icon, color: iconColor, size: 20),
             ),
-            child: Icon(icon, color: iconColor, size: 20),
-          ),
-          const SizedBox(width: kSpacingSmall),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
+            const SizedBox(width: kSpacingSmall),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: scheme.onSurface,
+                    ),
                   ),
-                ),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: kFontSizeSmall,
-                    color: Colors.grey.shade600,
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: kFontSizeSmall,
+                      color: scheme.onSurfaceVariant,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Switch(
-            value: value,
-            onChanged: onChanged,
-          ),
-        ],
+            Switch(
+              value: value,
+              onChanged: onChanged,
+            ),
+          ],
+        ),
       ),
     );
   }
