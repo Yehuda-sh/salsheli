@@ -210,7 +210,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       return status == null || status == ShoppingItemStatus.pending;
     }).length;
 
-    final result = await showDialog<bool>(
+    final result = await showDialog<ShoppingSummaryResult>(
       context: context,
       builder: (context) => _ShoppingSummaryDialog(
         listName: widget.list.name,
@@ -222,16 +222,24 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       ),
     );
 
-    if (result == true && mounted) {
-      debugPrint('✅ _finishShopping: משתמש אישר סיום');
-      await _saveAndFinish();
+    if (result != null && result != ShoppingSummaryResult.cancel && mounted) {
+      debugPrint('✅ _finishShopping: משתמש אישר סיום עם אופציה: ${result.name}');
+      await _saveAndFinish(pendingAction: result);
     } else {
       debugPrint('❌ _finishShopping: משתמש ביטל');
     }
   }
 
   /// שמירה וסיום - עם עדכון מלאי אוטומטי
-  Future<void> _saveAndFinish() async {
+  ///
+  /// [pendingAction] - מה לעשות עם פריטים ב-pending:
+  /// - finishAndTransferPending: העבר לרשימה הבאה
+  /// - finishAndLeavePending: השאר ברשימה (הרשימה תישאר פעילה)
+  /// - finishAndDeletePending: מחק (סמן כ-notNeeded)
+  /// - finishNoPending: אין פריטים ב-pending
+  Future<void> _saveAndFinish({
+    ShoppingSummaryResult pendingAction = ShoppingSummaryResult.finishNoPending,
+  }) async {
     // ✅ תפוס context לפני await
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
@@ -244,7 +252,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     });
 
     try {
-      debugPrint('💾 _saveAndFinish: מתחיל תהליך סיום קנייה');
+      debugPrint('💾 _saveAndFinish: מתחיל תהליך סיום קנייה (pendingAction: ${pendingAction.name})');
 
       // 🔧 שמור providers לפני כל await
       final inventoryProvider = context.read<InventoryProvider>();
@@ -268,7 +276,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
             firestore: FirebaseFirestore.instance,
             userContext: _userContext,
           );
-          
+
           // שמור את סדר הקנייה
           final purchasedNames = purchasedItems.map((item) => item.name).toList();
           await patternsService.saveShoppingPattern(
@@ -281,37 +289,70 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         }
       }
 
-      // 2️⃣ העבר פריטים חסרים במלאי לרשימה הבאה
-      // ⚠️ לא מעבירים pending - הם נשארים רק ברשימה הנוכחית למניעת כפילויות
-      final itemsToTransfer = widget.list.items.where((item) {
+      // 2️⃣ טיפול בפריטי outOfStock - תמיד מעבירים לרשימה הבאה
+      final outOfStockItems = widget.list.items.where((item) {
         final status = _itemStatuses[item.id];
         return status == ShoppingItemStatus.outOfStock;
       }).toList();
 
-      if (itemsToTransfer.isNotEmpty) {
-        debugPrint('🔄 מעביר ${itemsToTransfer.length} פריטים לרשימה הבאה (outOfStock)');
-        await shoppingProvider.addToNextList(itemsToTransfer);
-        debugPrint('✅ פריטים הועברו לרשימה הבאה');
-      }
-
-      // 3️⃣ בדוק אם יש פריטים שלא טופלו (נשארו במצב pending)
-      // 🔧 null נחשב כ-pending (פריט שהתווסף מסנכרון ולא טופל)
+      // 3️⃣ טיפול בפריטי pending - לפי בחירת המשתמש
       final pendingItems = widget.list.items.where((item) {
         final status = _itemStatuses[item.id];
         return status == null || status == ShoppingItemStatus.pending;
       }).toList();
 
-      // סמן רשימה כהושלמה רק אם אין פריטים ב-pending
-      if (pendingItems.isEmpty) {
-        debugPrint('🏁 מסמן רשימה כהושלמה - כל הפריטים סומנו');
+      // רשימת פריטים שיועברו לרשימה הבאה
+      final List<UnifiedListItem> itemsToTransfer = [...outOfStockItems];
+
+      // ✅ טפל ב-pending לפי בחירת המשתמש
+      switch (pendingAction) {
+        case ShoppingSummaryResult.finishAndTransferPending:
+          // העבר pending לרשימה הבאה
+          itemsToTransfer.addAll(pendingItems);
+          debugPrint('🔄 מעביר ${pendingItems.length} פריטי pending לרשימה הבאה');
+          break;
+
+        case ShoppingSummaryResult.finishAndDeletePending:
+          // סמן pending כ-notNeeded (מוחק למעשה)
+          for (final item in pendingItems) {
+            _itemStatuses[item.id] = ShoppingItemStatus.notNeeded;
+          }
+          debugPrint('🗑️ מסמן ${pendingItems.length} פריטי pending כ-notNeeded');
+          break;
+
+        case ShoppingSummaryResult.finishAndLeavePending:
+          // השאר ברשימה - לא עושים כלום, הרשימה תישאר פעילה
+          debugPrint('📌 משאיר ${pendingItems.length} פריטי pending ברשימה');
+          break;
+
+        case ShoppingSummaryResult.finishNoPending:
+        case ShoppingSummaryResult.cancel:
+          // אין pending או ביטול - לא עושים כלום
+          break;
+      }
+
+      // 4️⃣ העבר פריטים לרשימה הבאה (outOfStock + pending אם נבחר)
+      if (itemsToTransfer.isNotEmpty) {
+        debugPrint('🔄 מעביר ${itemsToTransfer.length} פריטים לרשימה הבאה');
+        await shoppingProvider.addToNextList(itemsToTransfer);
+        debugPrint('✅ פריטים הועברו לרשימה הבאה');
+      }
+
+      // 5️⃣ קבע אם הרשימה הושלמה
+      // הרשימה הושלמה אם:
+      // - אין pending, או
+      // - המשתמש בחר להעביר/למחוק את ה-pending
+      final shouldCompleteList = pendingAction != ShoppingSummaryResult.finishAndLeavePending;
+
+      if (shouldCompleteList) {
+        debugPrint('🏁 מסמן רשימה כהושלמה');
         await shoppingProvider.updateListStatus(widget.list.id, ShoppingList.statusCompleted);
         debugPrint('✅ רשימה הושלמה!');
       } else {
-        debugPrint('🔄 הרשימה נשארת פעילה - ${pendingItems.length} פריטים לא סומנו');
-        debugPrint('   פריטים שלא סומנו: ${pendingItems.map((i) => i.name).join(", ")}');
+        debugPrint('🔄 הרשימה נשארת פעילה - ${pendingItems.length} פריטים נשארו');
       }
 
-      // 4️⃣ צור קבלה וירטואלית מהפריטים שנקנו
+      // 6️⃣ צור קבלה וירטואלית מהפריטים שנקנו
       if (purchasedItems.isNotEmpty) {
         try {
           debugPrint('🧾 יוצר קבלה וירטואלית...');
@@ -342,22 +383,22 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
 
       // ✅ בדוק אם עדיין mounted לפני שימוש ב-context
       if (!mounted) return;
-      
+
       // הצג הודעת הצלחה עם פרטים
-      String message = pendingItems.isEmpty 
+      String message = shouldCompleteList
           ? AppStrings.shopping.shoppingCompletedSuccess
           : 'הקנייה נשמרה';
-          
+
       if (purchasedItems.isNotEmpty) {
         message += '\n${AppStrings.shopping.pantryUpdated(purchasedItems.length)}';
       }
       if (itemsToTransfer.isNotEmpty) {
         message += '\n${AppStrings.shopping.itemsMovedToNext(itemsToTransfer.length)}';
       }
-      if (pendingItems.isNotEmpty) {
-        message += '\n⚠️ ${pendingItems.length} פריטים לא סומנו והרשימה נשארת פעילה';
+      if (!shouldCompleteList && pendingItems.isNotEmpty) {
+        message += '\n⚠️ ${pendingItems.length} פריטים נשארו והרשימה פעילה';
       }
-        
+
         messenger.showSnackBar(
           SnackBar(
             content: Row(
@@ -420,7 +461,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         );
 
         if (shouldRetry == true && mounted) {
-          await _saveAndFinish(); // Retry
+          await _saveAndFinish(pendingAction: pendingAction); // Retry with same action
         }
       }
     }
@@ -1116,11 +1157,20 @@ class _ActiveShoppingItemTile extends StatelessWidget {
 
 
 
+/// תוצאת דיאלוג סיכום קנייה
+enum ShoppingSummaryResult {
+  cancel, // חזור לרשימה
+  finishAndTransferPending, // סיים והעבר pending לרשימה הבאה
+  finishAndLeavePending, // סיים והשאר pending ברשימה
+  finishAndDeletePending, // סיים ומחק pending
+  finishNoPending, // סיים (אין pending)
+}
+
 // ========================================
 // Dialog: סיכום קנייה
 // ========================================
 
-class _ShoppingSummaryDialog extends StatelessWidget {
+class _ShoppingSummaryDialog extends StatefulWidget {
   final String listName;
   final int total;
   final int purchased;
@@ -1138,10 +1188,24 @@ class _ShoppingSummaryDialog extends StatelessWidget {
   });
 
   @override
+  State<_ShoppingSummaryDialog> createState() => _ShoppingSummaryDialogState();
+}
+
+class _ShoppingSummaryDialogState extends State<_ShoppingSummaryDialog> {
+  // מצב: האם להציג את אפשרויות ה-pending
+  bool _showPendingOptions = false;
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
+    // אם יש pending ומציגים אפשרויות - הצג מסך בחירה
+    if (_showPendingOptions && widget.pending > 0) {
+      return _buildPendingOptionsDialog(cs);
+    }
+
+    // מסך סיכום רגיל
     return AlertDialog(
       title: Row(
         children: [
@@ -1163,7 +1227,7 @@ class _ShoppingSummaryDialog extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              listName,
+              widget.listName,
               style: TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold, color: cs.primary),
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
@@ -1176,29 +1240,29 @@ class _ShoppingSummaryDialog extends StatelessWidget {
             _SummaryRow(
               icon: Icons.check_circle,
               label: AppStrings.shopping.activePurchased,
-              value: AppStrings.shopping.summaryPurchased(purchased, total),
+              value: AppStrings.shopping.summaryPurchased(widget.purchased, widget.total),
               color: StatusColors.success,
             ),
 
             // 🚫 לא צריך
-            if (notNeeded > 0)
-              _SummaryRow(icon: Icons.block, label: AppStrings.shopping.activeNotNeeded, value: '$notNeeded', color: Colors.grey.shade700),
+            if (widget.notNeeded > 0)
+              _SummaryRow(icon: Icons.block, label: AppStrings.shopping.activeNotNeeded, value: '${widget.notNeeded}', color: Colors.grey.shade700),
 
             // ❌ אזלו
-            if (outOfStock > 0)
+            if (widget.outOfStock > 0)
               _SummaryRow(
                 icon: Icons.remove_shopping_cart,
                 label: AppStrings.shopping.summaryOutOfStock,
-                value: '$outOfStock',
+                value: '${widget.outOfStock}',
                 color: StatusColors.error,
               ),
 
             // ⏸️ לא סומנו
-            if (pending > 0)
+            if (widget.pending > 0)
               _SummaryRow(
                 icon: Icons.radio_button_unchecked,
                 label: AppStrings.shopping.summaryNotMarked,
-                value: '$pending',
+                value: '${widget.pending}',
                 color: StatusColors.pending,
               ),
           ],
@@ -1211,7 +1275,7 @@ class _ShoppingSummaryDialog extends StatelessWidget {
           child: TextButton(
             onPressed: () {
               unawaited(HapticFeedback.lightImpact());
-              Navigator.pop(context, false);
+              Navigator.pop(context, ShoppingSummaryResult.cancel);
             },
             child: Text(AppStrings.shopping.summaryBack),
           ),
@@ -1224,7 +1288,12 @@ class _ShoppingSummaryDialog extends StatelessWidget {
             icon: Icons.check,
             onPressed: () {
               unawaited(HapticFeedback.mediumImpact());
-              Navigator.pop(context, true);
+              // אם יש pending - הצג אפשרויות, אחרת סיים ישר
+              if (widget.pending > 0) {
+                setState(() => _showPendingOptions = true);
+              } else {
+                Navigator.pop(context, ShoppingSummaryResult.finishNoPending);
+              }
             },
             color: StatusColors.success,
             textColor: Colors.white,
@@ -1232,6 +1301,147 @@ class _ShoppingSummaryDialog extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  /// דיאלוג בחירת אפשרות עבור פריטים ב-pending
+  Widget _buildPendingOptionsDialog(ColorScheme cs) {
+    return AlertDialog(
+      title: Row(
+        children: [
+          const Icon(Icons.help_outline, color: StatusColors.pending, size: kIconSizeLarge),
+          const SizedBox(width: kSpacingSmallPlus),
+          Expanded(
+            child: Text(
+              AppStrings.shopping.summaryPendingQuestion(widget.pending),
+              style: TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold, color: cs.onSurface),
+            ),
+          ),
+        ],
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            AppStrings.shopping.summaryPendingSubtitle,
+            style: TextStyle(fontSize: kFontSizeBody, color: cs.onSurfaceVariant),
+          ),
+          const SizedBox(height: kSpacingMedium),
+
+          // ✅ אופציה 1: העבר לרשימה הבאה
+          _PendingOptionTile(
+            icon: Icons.arrow_forward,
+            iconColor: StatusColors.info,
+            title: AppStrings.shopping.summaryPendingTransfer,
+            subtitle: AppStrings.shopping.summaryPendingTransferSubtitle,
+            onTap: () {
+              unawaited(HapticFeedback.mediumImpact());
+              Navigator.pop(context, ShoppingSummaryResult.finishAndTransferPending);
+            },
+          ),
+
+          const SizedBox(height: kSpacingSmall),
+
+          // 📌 אופציה 2: השאר ברשימה
+          _PendingOptionTile(
+            icon: Icons.pause_circle_outline,
+            iconColor: StatusColors.pending,
+            title: AppStrings.shopping.summaryPendingLeave,
+            subtitle: AppStrings.shopping.summaryPendingLeaveSubtitle,
+            onTap: () {
+              unawaited(HapticFeedback.mediumImpact());
+              Navigator.pop(context, ShoppingSummaryResult.finishAndLeavePending);
+            },
+          ),
+
+          const SizedBox(height: kSpacingSmall),
+
+          // 🗑️ אופציה 3: מחק
+          _PendingOptionTile(
+            icon: Icons.delete_outline,
+            iconColor: StatusColors.error,
+            title: AppStrings.shopping.summaryPendingDelete,
+            subtitle: AppStrings.shopping.summaryPendingDeleteSubtitle,
+            onTap: () {
+              unawaited(HapticFeedback.mediumImpact());
+              Navigator.pop(context, ShoppingSummaryResult.finishAndDeletePending);
+            },
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            unawaited(HapticFeedback.lightImpact());
+            setState(() => _showPendingOptions = false);
+          },
+          child: Text(AppStrings.shopping.summaryBack),
+        ),
+      ],
+    );
+  }
+}
+
+/// כרטיס אפשרות עבור pending items
+class _PendingOptionTile extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _PendingOptionTile({
+    required this.icon,
+    required this.iconColor,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+      child: Container(
+        padding: const EdgeInsets.all(kSpacingSmall),
+        decoration: BoxDecoration(
+          color: iconColor.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+          border: Border.all(color: iconColor.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: iconColor, size: kIconSizeMedium),
+            const SizedBox(width: kSpacingSmall),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: cs.onSurface,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: kFontSizeSmall,
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_left, color: cs.onSurfaceVariant),
+          ],
+        ),
+      ),
     );
   }
 }

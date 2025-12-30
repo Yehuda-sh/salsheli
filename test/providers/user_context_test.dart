@@ -1,10 +1,9 @@
-// 📄 File: test/providers/user_context_test.dart
+// 📄 test/providers/user_context_test.dart
 //
-// Unit tests for UserContext provider
-// Tests: Dispose safety, state synchronization, error handling
+// בדיקות יחידה ל-UserContext Provider - אימות, סנכרון מצב, dispose בטוח.
+// כולל Mocks ל-UserRepository ו-AuthService.
 //
-// Version: 1.0
-// Created: 22/12/2025
+// 🔗 Related: UserContext, UserRepository, AuthService, UserEntity
 
 import 'dart:async';
 
@@ -95,11 +94,32 @@ class MockUserRepository implements UserRepository {
   Future<void> deleteUser(String userId) async {}
 
   @override
-  Future<void> updateProfile({
+  Future<UserEntity> updateProfile({
     required String userId,
     String? name,
     String? avatar,
-  }) async {}
+  }) async {
+    if (_mockUser != null) {
+      _mockUser = _mockUser!.copyWith(
+        name: name ?? _mockUser!.name,
+      );
+      return _mockUser!;
+    }
+    return UserEntity(
+      id: userId,
+      name: name ?? 'Unknown',
+      email: 'test@example.com',
+      householdId: 'test-household',
+      joinedAt: DateTime.now(),
+      preferredStores: const [],
+      familySize: 2,
+      shoppingFrequency: 1,
+      shoppingDays: const [],
+      hasChildren: false,
+      shareLists: false,
+      seenOnboarding: true,
+    );
+  }
 
   @override
   Future<void> clearAll({String? householdId}) async {}

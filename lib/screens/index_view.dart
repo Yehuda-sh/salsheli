@@ -1,24 +1,9 @@
-// 📄 File: lib/screens/index_view.dart - V4.0 VIEW COMPONENTS
-// 🎯 Purpose: מרכיבים חזותיים למסך הפתיחה - אנימציות וגרפיקה
+// 📄 lib/screens/index_view.dart
 //
-// ✨ תוכן:
-// - IndexLoadingView - מסך טעינה מונפש
-// - IndexErrorView - מסך שגיאה
-// - _WavePainter - Custom painter לגלים
+// מרכיבים חזותיים למסך הפתיחה - IndexLoadingView, IndexErrorView.
+// כולל אנימציות logo, גלים, gradient, והודעות טעינה מתחלפות.
 //
-// 🎨 Features:
-// - Dark Mode Support
-// - Gradient animations
-// - Logo animations (fade, scale, rotate)
-// - Pulsing circle effect
-// - Shimmer waves
-// - Rotating loading messages
-// - Wave animation
-//
-// 🔗 Related:
-// - index_screen.dart - הלוגיקה הראשית
-// - ui_constants.dart - קבועי עיצוב
-// - app_strings.dart - טקסטים
+// 🔗 Related: index_screen, ui_constants, AppStrings.index
 
 import 'dart:async';
 import 'dart:math' as math;

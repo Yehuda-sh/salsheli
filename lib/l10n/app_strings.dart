@@ -387,6 +387,17 @@ class _ShoppingStrings {
   String get summaryFinishShopping => 'סיים קנייה';
   String summaryPurchased(int purchased, int total) => '$purchased מתוך $total';
 
+  // Pending Items Dialog
+  String summaryPendingQuestion(int count) =>
+      count == 1 ? 'יש פריט אחד שלא סומן.' : 'יש $count פריטים שלא סומנו.';
+  String get summaryPendingSubtitle => 'מה לעשות איתם?';
+  String get summaryPendingTransfer => 'העבר לרשימה הבאה';
+  String get summaryPendingTransferSubtitle => 'הפריטים יועברו לקנייה הבאה';
+  String get summaryPendingLeave => 'השאר ברשימה';
+  String get summaryPendingLeaveSubtitle => 'הרשימה תישאר פעילה';
+  String get summaryPendingDelete => 'מחק ולא צריך';
+  String get summaryPendingDeleteSubtitle => 'הפריטים יוסרו לגמרי';
+
   // Price & Quantity
   String quantityMultiplier(int quantity) => '$quantity×';
   String priceFormat(double price) => '₪${price.toStringAsFixed(2)}';
