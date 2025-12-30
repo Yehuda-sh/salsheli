@@ -249,6 +249,14 @@ class GroupMember {
   @JsonKey(name: 'invited_by')
   final String? invitedBy;
 
+  /// 🆕 האם יכול להתחיל קנייה (ניתן ע"י owner/admin)
+  /// 🇬🇧 Can start shopping (granted by owner/admin)
+  ///
+  /// ברירת מחדל: false - רק owner/admin יכולים להתחיל קנייה.
+  /// כשמופעל: גם editor יכול להתחיל קנייה בקבוצה זו.
+  @JsonKey(name: 'can_start_shopping', defaultValue: false)
+  final bool canStartShopping;
+
   const GroupMember({
     required this.userId,
     required this.name,
@@ -257,6 +265,7 @@ class GroupMember {
     required this.role,
     this.joinedAt,
     this.invitedBy,
+    this.canStartShopping = false,
   });
 
   /// יצירת Owner
@@ -304,6 +313,12 @@ class GroupMember {
   bool get canInvite => role == UserRole.owner || role == UserRole.admin;
   bool get canEdit => role != UserRole.viewer;
 
+  /// 🆕 האם יכול להתחיל קנייה
+  /// owner/admin - תמיד יכולים
+  /// editor - רק אם canStartShopping מופעל
+  /// viewer - לעולם לא
+  bool get canShop => role == UserRole.owner || role == UserRole.admin || (role == UserRole.editor && canStartShopping);
+
   // === JSON ===
 
   factory GroupMember.fromJson(Map<String, dynamic> json) =>
@@ -321,6 +336,7 @@ class GroupMember {
     UserRole? role,
     DateTime? joinedAt,
     String? invitedBy,
+    bool? canStartShopping,
   }) {
     return GroupMember(
       userId: userId ?? this.userId,
@@ -330,6 +346,7 @@ class GroupMember {
       role: role ?? this.role,
       joinedAt: joinedAt ?? this.joinedAt,
       invitedBy: invitedBy ?? this.invitedBy,
+      canStartShopping: canStartShopping ?? this.canStartShopping,
     );
   }
 

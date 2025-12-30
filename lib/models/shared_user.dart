@@ -114,6 +114,14 @@ class SharedUser {
   @JsonKey(name: 'user_avatar')
   final String? userAvatar;
 
+  /// 🆕 האם יכול להתחיל קנייה (ניתן ע"י owner/admin)
+  /// 🇬🇧 Can start shopping (granted by owner/admin)
+  ///
+  /// ברירת מחדל: false - רק owner/admin יכולים להתחיל קנייה.
+  /// כשמופעל: גם editor יכול להתחיל קנייה ברשימה זו.
+  @JsonKey(name: 'can_start_shopping', defaultValue: false)
+  final bool canStartShopping;
+
   const SharedUser({
     this.userId = '', // Will be set from Map key via copyWith
     required this.role,
@@ -121,6 +129,7 @@ class SharedUser {
     this.userName,
     this.userEmail,
     this.userAvatar,
+    this.canStartShopping = false,
   });
 
   /// JSON serialization (for Map value - without userId)
@@ -178,6 +187,7 @@ class SharedUser {
     String? userName,
     String? userEmail,
     String? userAvatar,
+    bool? canStartShopping,
   }) {
     return SharedUser(
       userId: userId ?? this.userId,
@@ -186,6 +196,7 @@ class SharedUser {
       userName: userName ?? this.userName,
       userEmail: userEmail ?? this.userEmail,
       userAvatar: userAvatar ?? this.userAvatar,
+      canStartShopping: canStartShopping ?? this.canStartShopping,
     );
   }
 
@@ -206,6 +217,14 @@ class SharedUser {
 
   /// האם רק צופה (viewer)
   bool get isViewerOnly => role == UserRole.viewer;
+
+  /// 🆕 האם יכול להתחיל קנייה
+  /// 🇬🇧 Can this user start shopping
+  ///
+  /// owner/admin - תמיד יכולים
+  /// editor - רק אם canStartShopping מופעל
+  /// viewer - לעולם לא
+  bool get canShop => role == UserRole.owner || role == UserRole.admin || (role == UserRole.editor && canStartShopping);
 
   // === Equality ===
   // 🔧 שוויון לפי userId בלבד - אותו משתמש נחשב זהה גם אם role או sharedAt שונים.
