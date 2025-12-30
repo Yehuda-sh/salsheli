@@ -1,129 +1,59 @@
 // 📄 lib/core/status_colors.dart
 //
-// צבעי סטטוס סמנטיים עם תמיכה ב-Light/Dark themes.
-// - pending (אפור), success (ירוק), error (אדום), warning (כתום), info (כחול)
-// - getStatusColor() / getStatusOverlay() - theme-aware אוטומטי
-// - גרסאות overlay לרקעים עם שקיפות
+// צבעי סטטוס סמנטיים - עטיפה ל-Theme (AppBrand + ColorScheme).
+// מספק API אחיד לצבעי success/error/warning/pending/info.
+//
+// 🔗 Related: app_theme.dart (AppBrand), ColorScheme
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-/// צבעי סטטוס סמנטיים
+import '../theme/app_theme.dart';
+
+/// צבעי סטטוס סמנטיים - Theme-Aware
 ///
-/// צבעים קבועים לשימוש במצבי סטטוס שונים:
-/// - pending (אפור) - פריט ממתין לפעולה
-/// - success (ירוק) - פעולה הצליחה / פריט נקנה
-/// - error (אדום) - שגיאה / כשלון
-/// - warning (כתום) - אזהרה / דחיפות
-/// - info (כחול) - מידע / רשימה פעילה
+/// ✅ משתמש ב-Theme כמקור אמת יחיד!
+/// - success/warning → מ-AppBrand (תומך Dynamic Color)
+/// - error → מ-ColorScheme.error
+/// - pending → מ-ColorScheme.outline (ניטרלי, תומך Dynamic Color)
+/// - info → מ-ColorScheme.secondary (תומך Dynamic Color)
 ///
 /// 📍 שימוש בפרויקט:
-/// - lib/widgets/shopping_list_tile.dart (סטטוס רשימות, דחיפות, borders, SnackBars)
-/// - lib/screens/shopping/create/create_list_screen.dart (SnackBars, error states)
+/// - lib/widgets/shopping_list_tile.dart (סטטוס רשימות, דחיפות)
+/// - lib/screens/shopping/create/create_list_screen.dart (SnackBars)
 class StatusColors {
-  // מניעת instances
   const StatusColors._();
 
   // ========================================
-  // צבעי סטטוס בסיסיים
+  // צבעי Fallback (צבעי מותג - כשאין AppBrand זמין)
   // ========================================
 
-  /// אפור - ממתין לפעולה
-  static const pending = Colors.grey;
+  /// ירוק מותג - Fallback ל-success (מתואם ל-app_theme.dart)
+  static const _successFallback = Color(0xFF388E3C); // Green 700
 
-  /// ירוק - הצלחה
-  static const success = Colors.green;
+  /// כתום מותג - Fallback ל-warning (מתואם ל-app_theme.dart)
+  static const _warningFallback = Color(0xFFF57C00); // Orange 700
 
-  /// אדום - שגיאה / כשלון
-  static const error = Colors.red;
+  /// Container fallbacks (גרסאות בהירות יותר)
+  static const _successContainerFallback = Color(0xFFC8E6C9); // Green 100
+  static const _warningContainerFallback = Color(0xFFFFE0B2); // Orange 100
 
-  /// כתום - אזהרה / דחייה
-  static const warning = Colors.orange;
-
-  /// כחול - מידע / לא צריך
-  static const info = Colors.blueGrey;
-
-  // ========================================
-  // גוונים נוספים (Light/Dark variants)
-  // ========================================
-
-  /// אפור בהיר - pending בLight mode
-  static const pendingLight = Color(0xFF9E9E9E); // Colors.grey.shade400
-
-  /// אפור כהה - pending בDark mode
-  static const pendingDark = Color(0xFF757575); // Colors.grey.shade600
-
-  /// ירוק בהיר - success בLight mode
-  static const successLight = Color(0xFF66BB6A); // Colors.green.shade400
-
-  /// ירוק כהה - success בDark mode
-  static const successDark = Color(0xFF4CAF50); // Colors.green.shade500
-
-  /// אדום בהיר - error בLight mode
-  static const errorLight = Color(0xFFEF5350); // Colors.red.shade400
-
-  /// אדום כהה - error בDark mode
-  static const errorDark = Color(0xFFF44336); // Colors.red.shade500
-
-  /// כתום בהיר - warning בLight mode
-  static const warningLight = Color(0xFFFFA726); // Colors.orange.shade400
-
-  /// כתום כהה - warning בDark mode
-  static const warningDark = Color(0xFFFF9800); // Colors.orange.shade500
-
-  /// כחול בהיר - info בLight mode
-  static const infoLight = Color(0xFF78909C); // Colors.blueGrey.shade400
-
-  /// כחול כהה - info בDark mode
-  static const infoDark = Color(0xFF607D8B); // Colors.blueGrey.shade500
-
-  // ========================================
-  // צבעי Overlay (רקעים עם שקיפות)
-  // ========================================
-
-  /// ירוק overlay - לרקע הצלחה (10% שקיפות)
-  static final successOverlay = successLight.withValues(alpha: 0.1);
-
-  /// ירוק overlay כהה - לרקע הצלחה בDark mode (15% שקיפות)
-  static final successOverlayDark = successDark.withValues(alpha: 0.15);
-
-  /// אדום overlay - לרקע שגיאה (10% שקיפות)
-  static final errorOverlay = errorLight.withValues(alpha: 0.1);
-
-  /// אדום overlay כהה - לרקע שגיאה בDark mode (15% שקיפות)
-  static final errorOverlayDark = errorDark.withValues(alpha: 0.15);
-
-  /// כתום overlay - לרקע אזהרה (10% שקיפות)
-  static final warningOverlay = warningLight.withValues(alpha: 0.1);
-
-  /// כתום overlay כהה - לרקע אזהרה בDark mode (15% שקיפות)
-  static final warningOverlayDark = warningDark.withValues(alpha: 0.15);
-
-  /// אפור overlay - לרקע pending (10% שקיפות)
-  static final pendingOverlay = pendingLight.withValues(alpha: 0.1);
-
-  /// אפור overlay כהה - לרקע pending בDark mode (15% שקיפות)
-  static final pendingOverlayDark = pendingDark.withValues(alpha: 0.15);
-
-  /// כחול overlay - לרקע מידע (10% שקיפות)
-  static final infoOverlay = infoLight.withValues(alpha: 0.1);
-
-  /// כחול overlay כהה - לרקע מידע בDark mode (15% שקיפות)
-  static final infoOverlayDark = infoDark.withValues(alpha: 0.15);
+  /// OnContainer fallbacks (גרסאות כהות לטקסט)
+  static const _onSuccessContainerFallback = Color(0xFF1B5E20); // Green 900
+  static const _onWarningContainerFallback = Color(0xFFE65100); // Orange 900
 
   // ========================================
   // פונקציות עזר (Theme-Aware)
   // ========================================
 
-  /// מחזיר את צבע הסטטוס המתאים לפי theme mode
+  /// מחזיר את צבע הסטטוס המתאים לפי Theme
   ///
   /// **Status types:**
-  /// - 'success' - הצלחה (ירוק)
-  /// - 'error' - שגיאה (אדום)
-  /// - 'warning' - אזהרה (כתום)
-  /// - 'pending' - ממתין (אפור)
-  /// - 'info' - מידע (כחול)
-  ///
-  /// **Fallback:** סטטוס לא ידוע יחזיר `pending` + debug warning
+  /// - 'success' - הצלחה (ירוק מ-AppBrand)
+  /// - 'error' - שגיאה (אדום מ-ColorScheme)
+  /// - 'warning' - אזהרה (כתום מ-AppBrand)
+  /// - 'pending' - ממתין (outline מ-ColorScheme)
+  /// - 'info' - מידע (secondary מ-ColorScheme)
   ///
   /// **Usage:**
   /// ```dart
@@ -133,70 +63,179 @@ class StatusColors {
   /// )
   /// ```
   static Color getStatusColor(String status, BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final brand = theme.extension<AppBrand>();
+    final cs = theme.colorScheme;
 
     switch (status.toLowerCase()) {
       case 'success':
-        return isDark ? successDark : successLight;
+        // ✅ מ-AppBrand (תומך Dynamic Color)
+        return brand?.success ?? _successFallback;
       case 'error':
-        return isDark ? errorDark : errorLight;
+        // ✅ מ-ColorScheme (תומך Dynamic Color)
+        return cs.error;
       case 'warning':
-        return isDark ? warningDark : warningLight;
+        // ✅ מ-AppBrand (תומך Dynamic Color)
+        return brand?.warning ?? _warningFallback;
       case 'pending':
-        return isDark ? pendingDark : pendingLight;
+        // ✅ ניטרלי - outline מ-Theme (תומך Dynamic Color)
+        return cs.outline;
       case 'info':
-        return isDark ? infoDark : infoLight;
+        // ✅ secondary מ-Theme (תומך Dynamic Color)
+        return cs.secondary;
       default:
-        // ⚠️ Warning: סטטוס לא ידוע - עוזר לתפוס typos!
-        debugPrint(
-          '⚠️ StatusColors.getStatusColor: Unknown status "$status" - '
-          'falling back to pending. '
-          'Valid: success, error, warning, pending, info',
-        );
-        return isDark ? pendingDark : pendingLight;
+        if (kDebugMode) {
+          debugPrint(
+            '⚠️ StatusColors.getStatusColor: Unknown status "$status" - '
+            'falling back to pending. '
+            'Valid: success, error, warning, pending, info',
+          );
+        }
+        return cs.outline;
     }
   }
 
-  /// מחזיר את צבע ה-overlay (רקע עם שקיפות) המתאים לפי theme mode
-  ///
-  /// **Status types:**
-  /// - 'success' - הצלחה (ירוק)
-  /// - 'error' - שגיאה (אדום)
-  /// - 'warning' - אזהרה (כתום)
-  /// - 'pending' - ממתין (אפור)
-  /// - 'info' - מידע (כחול)
-  ///
-  /// **Fallback:** סטטוס לא ידוע יחזיר `pendingOverlay` + debug warning
+  /// מחזיר את צבע ה-container (רקע) המתאים לפי Theme
   ///
   /// **Usage:**
   /// ```dart
   /// Container(
-  ///   color: StatusColors.getStatusOverlay('success', context),
+  ///   color: StatusColors.getStatusContainer('success', context),
   ///   child: Text('הושלם'),
   /// )
   /// ```
-  static Color getStatusOverlay(String status, BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+  static Color getStatusContainer(String status, BuildContext context) {
+    final theme = Theme.of(context);
+    final brand = theme.extension<AppBrand>();
+    final cs = theme.colorScheme;
 
     switch (status.toLowerCase()) {
       case 'success':
-        return isDark ? successOverlayDark : successOverlay;
+        // ✅ מ-AppBrand (תומך Dynamic Color)
+        return brand?.successContainer ?? _successContainerFallback;
       case 'error':
-        return isDark ? errorOverlayDark : errorOverlay;
+        // ✅ מ-ColorScheme (תומך Dynamic Color)
+        return cs.errorContainer;
       case 'warning':
-        return isDark ? warningOverlayDark : warningOverlay;
+        // ✅ מ-AppBrand (תומך Dynamic Color)
+        return brand?.warningContainer ?? _warningContainerFallback;
       case 'pending':
-        return isDark ? pendingOverlayDark : pendingOverlay;
+        // ✅ surfaceContainerHighest - רקע ניטרלי בולט (תומך Dynamic Color)
+        return cs.surfaceContainerHighest;
       case 'info':
-        return isDark ? infoOverlayDark : infoOverlay;
+        // ✅ secondaryContainer מ-Theme (תומך Dynamic Color)
+        return cs.secondaryContainer;
       default:
-        // ⚠️ Warning: סטטוס לא ידוע - עוזר לתפוס typos!
-        debugPrint(
-          '⚠️ StatusColors.getStatusOverlay: Unknown status "$status" - '
-          'falling back to pending. '
-          'Valid: success, error, warning, pending, info',
-        );
-        return isDark ? pendingOverlayDark : pendingOverlay;
+        if (kDebugMode) {
+          debugPrint(
+            '⚠️ StatusColors.getStatusContainer: Unknown status "$status" - '
+            'falling back to pending.',
+          );
+        }
+        return cs.surfaceContainerHighest;
     }
   }
+
+  /// מחזיר את צבע הטקסט על container המתאים לפי Theme
+  ///
+  /// **Usage:**
+  /// ```dart
+  /// Text(
+  ///   'הושלם',
+  ///   style: TextStyle(
+  ///     color: StatusColors.getOnStatusContainer('success', context),
+  ///   ),
+  /// )
+  /// ```
+  static Color getOnStatusContainer(String status, BuildContext context) {
+    final theme = Theme.of(context);
+    final brand = theme.extension<AppBrand>();
+    final cs = theme.colorScheme;
+
+    switch (status.toLowerCase()) {
+      case 'success':
+        return brand?.onSuccessContainer ?? _onSuccessContainerFallback;
+      case 'error':
+        return cs.onErrorContainer;
+      case 'warning':
+        return brand?.onWarningContainer ?? _onWarningContainerFallback;
+      case 'pending':
+        // ✅ onSurfaceVariant - רך יותר מ-onSurface (מתאים לתגיות/badges)
+        return cs.onSurfaceVariant;
+      case 'info':
+        // ✅ onSecondaryContainer מ-Theme (תומך Dynamic Color)
+        return cs.onSecondaryContainer;
+      default:
+        return cs.onSurfaceVariant;
+    }
+  }
+
+  // ========================================
+  // Legacy API (לתאימות אחורה)
+  // ========================================
+
+  /// @deprecated השתמש ב-getStatusContainer במקום
+  static Color getStatusOverlay(String status, BuildContext context) {
+    return getStatusContainer(status, context);
+  }
+
+  // ========================================
+  // Static Getters (Fallback colors - לשימוש ללא context)
+  // ========================================
+  //
+  // ⚠️ שימו לב: צבעים אלה הם fallback בלבד!
+  // לצבעים Theme-aware השתמשו ב-getStatusColor/getStatusContainer.
+  // צבעים אלה שימושיים ב:
+  // - const widgets
+  // - מקומות שאין גישה ל-context
+  // - ערכי ברירת מחדל
+
+  /// ירוק הצלחה (fallback)
+  static const Color success = _successFallback;
+
+  /// אדום שגיאה (fallback - Material error)
+  static const Color error = Color(0xFFD32F2F); // Red 700
+
+  /// כתום אזהרה (fallback)
+  static const Color warning = _warningFallback;
+
+  /// אפור ממתין (fallback - outline equivalent)
+  static const Color pending = Color(0xFF757575); // Grey 600
+
+  /// כחול מידע (fallback - secondary equivalent)
+  static const Color info = Color(0xFF1976D2); // Blue 700
+
+  // Container variants (רקעים בהירים)
+
+  /// רקע הצלחה (fallback)
+  static const Color successContainer = _successContainerFallback;
+
+  /// רקע שגיאה (fallback)
+  static const Color errorContainer = Color(0xFFFFCDD2); // Red 100
+
+  /// רקע אזהרה (fallback)
+  static const Color warningContainer = _warningContainerFallback;
+
+  /// רקע ממתין (fallback)
+  static const Color pendingContainer = Color(0xFFEEEEEE); // Grey 200
+
+  /// רקע מידע (fallback)
+  static const Color infoContainer = Color(0xFFBBDEFB); // Blue 100
+
+  // Overlay variants (שכבות עם שקיפות)
+
+  /// שכבת הצלחה (fallback)
+  static Color get successOverlay => success.withValues(alpha: 0.15);
+
+  /// שכבת שגיאה (fallback)
+  static Color get errorOverlay => error.withValues(alpha: 0.15);
+
+  /// שכבת אזהרה (fallback)
+  static Color get warningOverlay => warning.withValues(alpha: 0.15);
+
+  /// שכבת ממתין (fallback)
+  static Color get pendingOverlay => pending.withValues(alpha: 0.15);
+
+  /// שכבת מידע (fallback)
+  static Color get infoOverlay => info.withValues(alpha: 0.15);
 }

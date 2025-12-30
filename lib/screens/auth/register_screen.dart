@@ -13,6 +13,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/status_colors.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../providers/pending_invites_provider.dart';
@@ -162,32 +163,36 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
           final goToInvites = await showDialog<bool>(
             context: context,
             barrierDismissible: false,
-            builder: (context) => AlertDialog(
-              title: const Row(
-                children: [
-                  Icon(Icons.group_add, color: Colors.orange, size: 28),
-                  SizedBox(width: kSpacingSmall),
-                  Text('הזמנות ממתינות!'),
-                ],
-              ),
-              content: Text(
-                'יש לך ${pendingInvitesProvider.pendingCount} הזמנות לקבוצות ממתינות לאישור.\n\nהאם לעבור למסך ההזמנות?',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context, false),
-                  child: const Text('אחר כך'),
+            builder: (dialogContext) {
+              final dialogBrand = Theme.of(dialogContext).extension<AppBrand>();
+              final dialogCs = Theme.of(dialogContext).colorScheme;
+              // ✅ צבע אזהרה מ-Theme (תומך Dynamic Color)
+              final warningColor = dialogBrand?.warning ?? dialogCs.tertiary;
+
+              return AlertDialog(
+                title: Row(
+                  children: [
+                    Icon(Icons.group_add, color: warningColor, size: 28),
+                    const SizedBox(width: kSpacingSmall),
+                    const Text('הזמנות ממתינות!'),
+                  ],
                 ),
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(context, true),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    foregroundColor: Colors.white,
+                content: Text(
+                  'יש לך ${pendingInvitesProvider.pendingCount} הזמנות לקבוצות ממתינות לאישור.\n\nהאם לעבור למסך ההזמנות?',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(dialogContext, false),
+                    child: const Text('אחר כך'),
                   ),
-                  child: const Text('צפה בהזמנות'),
-                ),
-              ],
-            ),
+                  // ✅ כפתור ללא style מותאם - נותן ל-Theme להחליט
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(dialogContext, true),
+                    child: const Text('צפה בהזמנות'),
+                  ),
+                ],
+              );
+            },
           );
 
           if (mounted) {
@@ -204,16 +209,20 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
           }
         } else {
           // 🎉 הודעת הצלחה רגילה
+          // ✅ שימוש ב-StatusColors API
           scaffoldMessenger.showSnackBar(
             SnackBar(
-              content: const Row(
+              content: Row(
                 children: [
-                  Icon(Icons.check_circle, color: Colors.white, size: 24),
-                  SizedBox(width: kSpacingSmall),
-                  Text('הרשמת בהצלחה! מעביר לדף הבית...'),
+                  Icon(Icons.check_circle, color: StatusColors.getOnStatusContainer('success', context), size: 24),
+                  const SizedBox(width: kSpacingSmall),
+                  Text(
+                    'הרשמת בהצלחה! מעביר לדף הבית...',
+                    style: TextStyle(color: StatusColors.getOnStatusContainer('success', context)),
+                  ),
                 ],
               ),
-              backgroundColor: Colors.green.shade700,
+              backgroundColor: StatusColors.getStatusContainer('success', context),
               duration: const Duration(seconds: 2),
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
@@ -242,21 +251,22 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         unawaited(_shakeController.forward(from: 0)); // 🎬 Shake animation
 
         // 🎨 הודעת שגיאה משופרת
+        // ✅ שימוש ב-StatusColors API
         scaffoldMessenger.showSnackBar(
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.error_outline, color: Colors.white, size: 24),
+                Icon(Icons.error_outline, color: StatusColors.getOnStatusContainer('error', context), size: 24),
                 const SizedBox(width: kSpacingSmall),
                 Expanded(
                   child: Text(
                     errorMessage,
-                    style: const TextStyle(fontSize: kFontSizeSmall),
+                    style: TextStyle(fontSize: kFontSizeSmall, color: StatusColors.getOnStatusContainer('error', context)),
                   ),
                 ),
               ],
             ),
-            backgroundColor: Theme.of(context).colorScheme.error,
+            backgroundColor: StatusColors.getStatusContainer('error', context),
             duration: kSnackBarDurationLong,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -334,6 +344,8 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
     final accent = brand?.accent ?? cs.primary;
+    // ✅ צבע Sticky Note מ-Theme (תומך Dark Mode)
+    final yellow = brand?.stickyYellow ?? kStickyYellow;
 
     // 🔒 חזרה ל-login במקום welcome
     return Directionality(
@@ -350,7 +362,8 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
           }
         },
         child: Scaffold(
-        backgroundColor: kPaperBackground, // 🎨 צבע רקע מחברת
+        // ✅ צבע רקע מ-Theme (תומך Dark Mode)
+        backgroundColor: brand?.paperBackground ?? theme.scaffoldBackgroundColor,
         body: Stack(
           children: [
             // 📓 רקע מחברת עם קווים
@@ -386,7 +399,8 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                             style: theme.textTheme.headlineLarge?.copyWith(
                               fontWeight: FontWeight.w800,
                               fontSize: 36,
-                              color: Colors.black87,
+                              // ✅ צבע מ-Theme (תומך Dark Mode)
+                              color: cs.onSurface,
                               letterSpacing: 1,
                             ),
                             textAlign: TextAlign.center,
@@ -395,7 +409,8 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                           Text(
                             AppStrings.auth.registerSubtitle,
                             style: theme.textTheme.bodyMedium?.copyWith(
-                              color: Colors.black54,
+                              // ✅ צבע מ-Theme (תומך Dark Mode)
+                              color: cs.onSurfaceVariant,
                               fontSize: 15,
                             ),
                             textAlign: TextAlign.center,
@@ -409,7 +424,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                             label: AppStrings.auth.nameLabel,
                             hint: AppStrings.auth.nameHint,
                             icon: Icons.person_outlined,
-                            color: kStickyYellow,
+                            color: yellow,
                             rotation: 0.008,
                             textInputAction: TextInputAction.next,
                             validator: (value) {
@@ -431,7 +446,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                             label: AppStrings.auth.emailLabel,
                             hint: AppStrings.auth.emailHint,
                             icon: Icons.email_outlined,
-                            color: kStickyYellow,
+                            color: yellow,
                             rotation: -0.01,
                             keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.next,
@@ -454,7 +469,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                             label: AppStrings.auth.passwordLabel,
                             hint: AppStrings.auth.passwordHint,
                             icon: Icons.lock_outlined,
-                            color: kStickyYellow,
+                            color: yellow,
                             rotation: 0.012,
                             obscureText: _obscurePassword,
                             suffixIcon: IconButton(
@@ -485,7 +500,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                             label: AppStrings.auth.confirmPasswordLabel,
                             hint: AppStrings.auth.confirmPasswordHint,
                             icon: Icons.lock_outlined,
-                            color: kStickyYellow,
+                            color: yellow,
                             rotation: -0.008,
                             obscureText: _obscureConfirmPassword,
                             suffixIcon: IconButton(
@@ -516,7 +531,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                             label: AppStrings.auth.phoneLabel,
                             hint: AppStrings.auth.phoneHint,
                             icon: Icons.phone_outlined,
-                            color: kStickyYellow,
+                            color: yellow,
                             rotation: 0.006,
                             keyboardType: TextInputType.phone,
                             textInputAction: TextInputAction.done,
@@ -550,8 +565,9 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                             children: [
                               Text(
                                 AppStrings.auth.haveAccount,
-                                style: const TextStyle(
-                                  color: Colors.black54,
+                                // ✅ צבע מ-Theme (תומך Dark Mode)
+                                style: TextStyle(
+                                  color: cs.onSurfaceVariant,
                                   fontSize: 15,
                                 ),
                               ),
@@ -559,8 +575,9 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                 onPressed: _isLoading ? null : _navigateToLogin,
                                 child: Text(
                                   AppStrings.auth.loginButton,
-                                  style: const TextStyle(
-                                    color: Colors.black87,
+                                  // ✅ צבע מ-Theme (תומך Dark Mode)
+                                  style: TextStyle(
+                                    color: cs.onSurface,
                                     fontWeight: FontWeight.w600,
                                     fontSize: 15,
                                   ),

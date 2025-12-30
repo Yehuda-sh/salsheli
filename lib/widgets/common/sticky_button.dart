@@ -4,10 +4,15 @@
 // - StickyButton (48px) + StickyButtonSmall (36px)
 // - תמיכה ב-isLoading, disabled state, נגישות (Semantics)
 //
-// 🔗 Related: AnimatedButton, ui_constants.dart
+// ✅ תיקונים:
+//    - ברירת מחדל לצבע: brand.accent (צבע מותג) במקום primary
+//    - עקביות עם ElevatedButton שמשתמש ב-accent
+//
+// 🔗 Related: AnimatedButton, ui_constants.dart, AppBrand
 
 import 'package:flutter/material.dart';
 import '../../core/ui_constants.dart';
+import '../../theme/app_theme.dart';
 import 'animated_button.dart';
 
 /// כפתור בסגנון פתק מודבק עם צללים ואנימציות
@@ -78,7 +83,9 @@ class StickyButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final buttonColor = color ?? theme.colorScheme.primary;
+    final brand = theme.extension<AppBrand>();
+    // ✅ ברירת מחדל: brand.accent (צבע מותג) לעקביות עם ElevatedButton
+    final buttonColor = color ?? brand?.accent ?? theme.colorScheme.primary;
     final isDisabled = onPressed == null;
 
     // בחר צבע טקסט אוטומטית לפי בהירות הרקע

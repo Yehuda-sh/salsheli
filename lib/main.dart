@@ -159,17 +159,19 @@ void main() async {
             skipInitialLoad: true,
           ),
           update: (context, userContext, previous) {
-            if (previous == null) {
-              return ProductsProvider(repository: productsRepo);
-            }
+            // ✅ FIX: שמירת עקביות - תמיד עם skipInitialLoad: true
+            final provider = previous ?? ProductsProvider(
+              repository: productsRepo,
+              skipInitialLoad: true,
+            );
 
             // If user logged in - initialize and load products בצורה אסינכרונית
-            if (userContext.isLoggedIn && !previous.hasInitialized) {
+            if (userContext.isLoggedIn && !provider.hasInitialized) {
               // ⚡ אופטימיזציה: טעינה אסינכרונית שלא חוסמת
-              Future.microtask(() => previous.initializeAndLoad());
+              Future.microtask(() => provider.initializeAndLoad());
             }
 
-            return previous;
+            return provider;
           },
         ),
 

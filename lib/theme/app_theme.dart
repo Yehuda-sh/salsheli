@@ -1,89 +1,9 @@
-// 📄 File: lib/theme/app_theme.dart
-// תיאור: עיצוב האפליקציה - צבעים, טיפוגרפיה, ו-Theme components
+// 📄 lib/theme/app_theme.dart
 //
-// Purpose:
-// מערכת Theme מרכזית לכל האפליקציה - מגדירה צבעים, טיפוגרפיה, ועיצוב רכיבים.
-// תומכת ב-Light/Dark modes עם Material 3 ומותג מותאם אישית (AppBrand).
+// מערכת Theme מרכזית - Material 3, Light/Dark, Dynamic Color, AppBrand.
+// כולל צבעי מותג (Amber), success/warning, Sticky Notes, ו-Typography מדויק.
 //
-// Features:
-// - Material 3 Theme מלא עם Dynamic Color (Android 12+)
-// - Light/Dark modes עם Surface Containers
-// - AppBrand: צבעי מותג מותאמים (Amber accent, harmonized colors)
-//   - success/successContainer/onSuccessContainer (ירוק)
-//   - warning/warningContainer/onWarningContainer (כתום)
-//   - Sticky Notes Design System
-// - RTL support מובנה (EdgeInsetsDirectional)
-// - Typography: Assistant font family עם line-height מדויק
-// - Accessible: materialTapTargetSize: padded (48px touch targets)
-// - ✅ No hardcoded colors - all use scheme.* colors for Dark/Dynamic compatibility
-//
-// Dependencies:
-// - flutter/material.dart
-// - Assistant font (pubspec.yaml)
-// - dynamic_color (optional, for Android 12+ Material You support)
-//
-// Usage:
-//
-// Example 1 - Apply theme in MaterialApp (basic):
-// ```dart
-// MaterialApp(
-//   theme: AppTheme.lightTheme,
-//   darkTheme: AppTheme.darkTheme,
-//   themeMode: ThemeMode.system,
-//   home: HomeScreen(),
-// )
-// ```
-//
-// Example 2 - With Dynamic Color (Android 12+ Material You):
-// ```dart
-// import 'package:dynamic_color/dynamic_color.dart';
-// 
-// DynamicColorBuilder(
-//   builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
-//     return MaterialApp(
-//       theme: lightDynamic != null
-//           ? AppTheme.fromDynamicColors(lightDynamic, dark: false)
-//           : AppTheme.lightTheme,
-//       darkTheme: darkDynamic != null
-//           ? AppTheme.fromDynamicColors(darkDynamic, dark: true)
-//           : AppTheme.darkTheme,
-//       themeMode: ThemeMode.system,
-//       home: HomeScreen(),
-//     );
-//   },
-// )
-// ```
-//
-// Example 3 - Access brand colors in widgets:
-// ```dart
-// final brand = Theme.of(context).extension<AppBrand>();
-// Container(
-//   color: brand?.accent, // Amber (or harmonized if using dynamic color)
-// )
-// 
-// SnackBar(
-//   backgroundColor: brand?.success, // Green (success)
-// )
-// 
-// SnackBar(
-//   backgroundColor: brand?.warning, // Orange (warning)
-// )
-// ```
-//
-// Example 4 - Use theme colors:
-// ```dart
-// final cs = Theme.of(context).colorScheme;
-// Text('Hello', style: TextStyle(color: cs.primary))
-// ```
-//
-// Color Palette:
-// - Primary Seed (#4CAF50): Green base for Material 3 palette
-// - Amber (#FFC107): Accent color (buttons, highlights)
-// - Green (#689F38): Success color (SnackBar, feedback)
-// - Orange (#FF9800): Warning color (SnackBar, alerts)
-// - Surface Containers: M3 surface system (surfaceContainerLow/High/Highest)
-//
-// Version: 3.0 - Dynamic Color + M3 Surface Containers + Typography Improvements
+// 🔗 Related: AppBrand, ui_constants, ColorScheme
 
 import 'package:flutter/material.dart';
 
@@ -437,11 +357,14 @@ class AppTheme {
       scaffoldBackgroundColor: scheme.surface,
 
       // AppBar - עליון של מסכים
+      // ✅ AppBar נייטרלי - עקבי עם AppLayout (surfaceContainer)
+      // הצבעים הבולטים נשארים ל-Buttons/Badges/Highlights
       appBarTheme: AppBarTheme(
-        elevation: 2,
+        elevation: 0,
+        scrolledUnderElevation: 2,
         centerTitle: true,
-        backgroundColor: dark ? scheme.surface : scheme.primary,
-        foregroundColor: dark ? scheme.onSurface : scheme.onPrimary,
+        backgroundColor: scheme.surfaceContainer,
+        foregroundColor: scheme.onSurface,
       ),
 
       // כפתורים - 4 סוגים

@@ -35,12 +35,16 @@ import '../../core/ui_constants.dart';
 import '../../theme/app_theme.dart';
 
 /// רקע בסגנון מחברת עם קווים אופקיים וקו אדום אנכי
-/// 
+///
 /// מציג רקע נייר עם קווים כחולים כמו במחברת בית ספר אמיתית,
-/// כולל קו אדום משמאל למראה אותנטי.
-/// 
+/// כולל קו אדום מצד שמאל (או ימין ב-RTL) למראה אותנטי.
+///
 /// הרכיב משתמש ב-CustomPaint לציור יעיל של הקווים.
-/// 
+///
+/// ✅ תיקונים:
+///    - צבע רקע מ-AppBrand.paperBackground (תומך Dark Mode)
+///    - קו אדום במיקום RTL-aware (ימין באפליקציה עברית)
+///
 /// דוגמה:
 /// ```dart
 /// Scaffold(
@@ -59,15 +63,19 @@ class NotebookBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final brand = Theme.of(context).extension<AppBrand>();
-    final brightness = Theme.of(context).brightness;
+    final theme = Theme.of(context);
+    final brand = theme.extension<AppBrand>();
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     return SizedBox.expand(
       child: CustomPaint(
         painter: _NotebookPainter(
-          brightness: brightness,
+          // ✅ צבע רקע מ-AppBrand (תומך Dark Mode)
+          paperBackground: brand?.paperBackground ??
+              (theme.brightness == Brightness.dark ? kDarkPaperBackground : kPaperBackground),
           notebookBlue: brand?.notebookBlue ?? kNotebookBlue,
           notebookRed: brand?.notebookRed ?? kNotebookRed,
+          isRtl: isRtl,
         ),
       ),
     );
@@ -78,27 +86,28 @@ class NotebookBackground extends StatelessWidget {
 ///
 /// מצייר:
 /// 1. קווים אופקיים כחולים (כמו שורות במחברת)
-/// 2. קו אדום אנכי משמאל (כמו במחברת בית ספר)
+/// 2. קו אדום אנכי (מימין ב-RTL, משמאל ב-LTR)
 ///
-/// הצבעים לקוחים מ-AppBrand כדי לתמוך ב-theming.
+/// ✅ תיקונים:
+///    - צבע רקע מ-AppBrand.paperBackground (לא מ-brightness)
+///    - קו אדום RTL-aware (ימין באפליקציה עברית)
 class _NotebookPainter extends CustomPainter {
-  final Brightness brightness;
+  final Color paperBackground;
   final Color notebookBlue;
   final Color notebookRed;
+  final bool isRtl;
 
   _NotebookPainter({
-    required this.brightness,
+    required this.paperBackground,
     required this.notebookBlue,
     required this.notebookRed,
+    required this.isRtl,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    // רקע נייר (בהיר/כהה לפי Theme)
-    final bgPaint = Paint()
-      ..color = brightness == Brightness.dark
-          ? kDarkPaperBackground
-          : kPaperBackground;
+    // ✅ רקע נייר מ-Theme (כבר מחושב לפי Dark/Light)
+    final bgPaint = Paint()..color = paperBackground;
 
     canvas.drawRect(
       Offset.zero & size,
@@ -121,22 +130,28 @@ class _NotebookPainter extends CustomPainter {
       );
     }
 
-    // קו אדום משמאל (כמו במחברת אמיתית) 📕
+    // ✅ קו אדום - RTL-aware (ימין באפליקציה עברית) 📕
     final redLinePaint = Paint()
       ..color = notebookRed.withValues(alpha: kNotebookRedLineOpacity)
       ..strokeWidth = kNotebookRedLineWidth;
 
+    // מיקום הקו: מימין ב-RTL, משמאל ב-LTR
+    final redLineX = isRtl
+        ? size.width - kNotebookRedLineOffset
+        : kNotebookRedLineOffset;
+
     canvas.drawLine(
-      const Offset(kNotebookRedLineOffset, 0),
-      Offset(kNotebookRedLineOffset, size.height),
+      Offset(redLineX, 0),
+      Offset(redLineX, size.height),
       redLinePaint,
     );
   }
 
   @override
   bool shouldRepaint(covariant _NotebookPainter oldDelegate) {
-    return brightness != oldDelegate.brightness ||
+    return paperBackground != oldDelegate.paperBackground ||
         notebookBlue != oldDelegate.notebookBlue ||
-        notebookRed != oldDelegate.notebookRed;
+        notebookRed != oldDelegate.notebookRed ||
+        isRtl != oldDelegate.isRtl;
   }
 }

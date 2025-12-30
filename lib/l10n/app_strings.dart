@@ -1,25 +1,9 @@
-// 📄 File: lib/l10n/app_strings.dart
+// 📄 lib/l10n/app_strings.dart
 //
-// 🌍 מטרה: מחרוזות UI לאפליקציה (Localization-ready)
+// מחרוזות UI מקובצות לפי מסכים - עברית בלבד, מוכן ל-i18n.
+// מבנה: AppStrings.layout, .common, .auth, .inventory, .shoppingList, וכו'.
 //
-// 📝 הערות:
-// - נבנה להיות תואם למעבר ל-flutter_localizations בעתיד
-// - כרגע עברית בלבד, אבל המבנה תומך בהוספת שפות
-// - כל המחרוזות מקובצות לפי קטגוריות לוגיות
-//
-// 🎯 שימוש:
-// ```dart
-// import 'package:memozap/l10n/app_strings.dart';
-//
-// Text(AppStrings.layout.appTitle)  // "MemoZap"
-// Text(AppStrings.common.logout)    // "התנתק"
-// ```
-//
-// 🔮 עתיד: כשנוסיף flutter_localizations, נחליף את הקובץ הזה
-//          ב-AppLocalizations generated class
-//
-// Version: 3.5 - הסרת _FiltersStrings (unused - קטגוריות עברו ל-filters_config.dart)
-// Last Updated: 20/11/2025
+// 🔗 Related: All screens and widgets, filters_config (for categories)
 
 
 

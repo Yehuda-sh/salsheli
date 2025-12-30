@@ -13,6 +13,7 @@ import '../core/ui_constants.dart';
 import '../l10n/app_strings.dart';
 import '../providers/pending_invites_provider.dart';
 import '../providers/user_context.dart';
+import '../theme/app_theme.dart'; // ✅ AppBrand extension
 import '../widgets/common/sticky_note.dart';
 
 class AppLayout extends StatefulWidget {
@@ -49,9 +50,8 @@ class _AppLayoutState extends State<AppLayout> {
   @override
   void didUpdateWidget(AppLayout oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.badges != oldWidget.badges) {
-      _updateBadgeCache();
-    }
+    // ✅ FIX: תמיד מחשב מחדש - גם אם אותו אובייקט Map עם ערכים שונים
+    _updateBadgeCache();
   }
 
   @override
@@ -94,6 +94,7 @@ class _AppLayoutState extends State<AppLayout> {
     // 💾 Save context before async (Context Safety)
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
+    final cs = Theme.of(context).colorScheme;
 
     try {
       // 📨 ניקוי הזמנות ממתינות (לפני logout)
@@ -121,25 +122,26 @@ class _AppLayoutState extends State<AppLayout> {
       }
 
       // 🚨 Show error to user
+      // ✅ שימוש ב-Theme colors במקום hardcoded
       scaffoldMessenger.showSnackBar(
         SnackBar(
-          content: const Row(
+          content: Row(
             children: [
-              Icon(Icons.error_outline, color: Colors.white),
-              SizedBox(width: kSpacingSmall),
+              Icon(Icons.error_outline, color: cs.onErrorContainer),
+              const SizedBox(width: kSpacingSmall),
               Expanded(
                 child: Text(
                   'שגיאה בהתנתקות, נסה שוב',
-                  style: TextStyle(fontSize: 14),
+                  style: TextStyle(fontSize: 14, color: cs.onErrorContainer),
                 ),
               ),
             ],
           ),
-          backgroundColor: Colors.red.shade700,
+          backgroundColor: cs.errorContainer,
           duration: kSnackBarDurationLong,
           action: SnackBarAction(
             label: 'נסה שוב',
-            textColor: Colors.white,
+            textColor: cs.onErrorContainer,
             onPressed: () => _logout(context),
           ),
         ),
@@ -157,7 +159,7 @@ class _AppLayoutState extends State<AppLayout> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: cs.surface,
+        // ✅ הוסר: backgroundColor - מגיע מ-scaffoldBackgroundColor בTheme
         appBar: _buildAppBar(context, cs),
         drawer: _buildDrawer(context, cs, safeIndex),
         body: widget.child,
@@ -167,12 +169,12 @@ class _AppLayoutState extends State<AppLayout> {
   }
 
   /// 🎨 Build AppBar
+  /// ✅ צבעים מגיעים מ-AppBarTheme (מקור אמת יחיד)
   PreferredSizeWidget _buildAppBar(BuildContext context, ColorScheme cs) {
     final theme = Theme.of(context);
 
     return AppBar(
-      backgroundColor: cs.surfaceContainer,
-      foregroundColor: cs.onSurface,
+      // ✅ הוסר: backgroundColor/foregroundColor - מגיעים מ-Theme
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -262,11 +264,19 @@ class _AppLayoutState extends State<AppLayout> {
   }
 
   /// 👤 Build Drawer Header - סגנון StickyNote
+  /// ✅ FIX: שימוש ב-AppBrand לצבעים (תמיכה ב-Dark Mode)
   Widget _buildDrawerHeader(BuildContext context, ColorScheme cs) {
+    final brand = Theme.of(context).extension<AppBrand>();
+    // צבע פתק מ-Theme (או fallback לצהוב קבוע)
+    final stickyColor = brand?.stickyYellow ?? kStickyYellow;
+    // צבעי טקסט על פתק צהוב - תמיד כהים (לקריאות)
+    const stickyTextPrimary = Color(0xDD000000); // ~87% black
+    const stickyTextSecondary = Color(0x89000000); // ~54% black
+
     return Padding(
       padding: const EdgeInsets.all(kSpacingMedium),
       child: StickyNote(
-        color: kStickyYellow,
+        color: stickyColor,
         rotation: -0.01,
         child: Row(
           children: [
@@ -297,7 +307,7 @@ class _AppLayoutState extends State<AppLayout> {
                     style: const TextStyle(
                       fontSize: kFontSizeLarge,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: stickyTextPrimary,
                     ),
                   ),
                   const SizedBox(height: kSpacingXTiny),
@@ -307,7 +317,7 @@ class _AppLayoutState extends State<AppLayout> {
                         : AppStrings.layout.welcome,
                     style: const TextStyle(
                       fontSize: kFontSizeBody,
-                      color: Colors.black54,
+                      color: stickyTextSecondary,
                     ),
                   ),
                 ],
@@ -415,29 +425,41 @@ class _AnimatedIconButtonState extends State<_AnimatedIconButton> {
 }
 
 /// 🎯 Animated Badge Count (Counter Animation)
-/// 
-/// מה זה עושה:
-/// - כשהמספר משתנה → סופר מ-0 לערך החדש (800ms)
-/// - Curve: easeOut (התחלה מהירה, סיום איטי)
-/// - נותן תחושה של "ספירה חיה"!
-/// 
+///
+/// ✅ FIX: סופר מהערך הקודם לחדש (לא מ-0!)
+///
 /// דוגמה:
 /// Badge count משתנה מ-3 ל-5:
 /// - 0ms: 3
-/// - 400ms: 4
-/// - 800ms: 5 ✨
-/// 
-/// New in v3.0 - Modern UI Pattern
-class _AnimatedBadgeCount extends StatelessWidget {
+/// - 200ms: 4
+/// - 400ms: 5 ✨
+class _AnimatedBadgeCount extends StatefulWidget {
   final int count;
 
   const _AnimatedBadgeCount({required this.count});
 
   @override
+  State<_AnimatedBadgeCount> createState() => _AnimatedBadgeCountState();
+}
+
+class _AnimatedBadgeCountState extends State<_AnimatedBadgeCount> {
+  int _previousCount = 0;
+
+  @override
+  void didUpdateWidget(_AnimatedBadgeCount oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // ✅ שומר את הערך הקודם לאנימציה
+    if (oldWidget.count != widget.count) {
+      _previousCount = oldWidget.count;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return TweenAnimationBuilder<int>(
-      tween: IntTween(begin: 0, end: count),
-      duration: const Duration(milliseconds: 800),
+      // ✅ FIX: אנימציה מהערך הקודם לחדש
+      tween: IntTween(begin: _previousCount, end: widget.count),
+      duration: const Duration(milliseconds: 400),
       curve: Curves.easeOut,
       builder: (context, value, child) {
         return Text(value.toString());

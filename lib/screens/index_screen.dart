@@ -71,6 +71,9 @@ class _IndexScreenState extends State<IndexScreen> {
 
   /// מגדיר listener ל-UserContext שיגיב לשינויים
   void _setupListener() {
+    // ✅ FIX: Guard למניעת listener כפול
+    if (_listenerAdded) return;
+
     final userContext = Provider.of<UserContext>(context, listen: false);
 
     // ✅ האזן לשינויים ב-UserContext

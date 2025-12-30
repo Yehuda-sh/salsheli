@@ -1,12 +1,9 @@
-// 📄 File: lib/l10n/onboarding_extensions.dart
+// 📄 lib/l10n/onboarding_extensions.dart
 //
-// 🎯 מטרה: Extensions למחרוזות Onboarding - תרגומים לגילאי ילדים וימי שבוע
+// Extensions למחרוזות Onboarding - תרגום גילאי ילדים וימי שבוע לעברית.
+// כולל getAgeLabel, getDayLabel, ורשימות allAges/allDays.
 //
-// שימוש:
-// ```dart
-// final ageLabel = OnboardingExtensions.getAgeLabel('babies'); // "תינוקות (0-2)"
-// final dayLabel = OnboardingExtensions.getDayLabel(0); // "ראשון"
-// ```
+// 🔗 Related: onboarding_screen, onboarding_data, AppStrings
 
 class OnboardingExtensions {
   const OnboardingExtensions._();

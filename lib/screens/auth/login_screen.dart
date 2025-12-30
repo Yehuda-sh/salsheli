@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/status_colors.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../providers/user_context.dart';
@@ -102,8 +103,9 @@ class _LoginScreenState extends State<LoginScreen>
       );
 
       // 🔹 2. שמירה ב-SharedPreferences (רק seenOnboarding!)
+      // ✅ FIX: שם עקבי עם IndexScreen ו-UserContext
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('seen_onboarding', true);
+      await prefs.setBool('seenOnboarding', true);
       debugPrint('✅ _handleLogin() | Onboarding flag saved');
 
       // 🔹 3. הצגת feedback ויזואלי + ניווט
@@ -111,17 +113,21 @@ class _LoginScreenState extends State<LoginScreen>
         setState(() => _isLoading = false);
 
         // 🎉 הצגת הודעת הצלחה קצרה
+        // ✅ שימוש ב-StatusColors API
         final messenger = ScaffoldMessenger.of(context);
         messenger.showSnackBar(
           SnackBar(
-            content: const Row(
+            content: Row(
               children: [
-                Icon(Icons.check_circle, color: Colors.white, size: 24),
-                SizedBox(width: kSpacingSmall),
-                Text('התחברת בהצלחה! מעביר לדף הבית...'),
+                Icon(Icons.check_circle, color: StatusColors.getOnStatusContainer('success', context), size: 24),
+                const SizedBox(width: kSpacingSmall),
+                Text(
+                  'התחברת בהצלחה! מעביר לדף הבית...',
+                  style: TextStyle(color: StatusColors.getOnStatusContainer('success', context)),
+                ),
               ],
             ),
-            backgroundColor: Colors.green.shade700,
+            backgroundColor: StatusColors.getStatusContainer('success', context),
             duration: const Duration(seconds: 2),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -135,8 +141,10 @@ class _LoginScreenState extends State<LoginScreen>
         await Future.delayed(const Duration(milliseconds: 1500));
 
         if (mounted) {
-          debugPrint('🔄 _handleLogin() | Navigating to home screen');
-          await navigator.pushNamedAndRemoveUntil('/home', (route) => false);
+          // ✅ FIX: ניווט ל-Index במקום Home
+          // Index מטפל ב-sync profile ומחליט לאן לנווט
+          debugPrint('🔄 _handleLogin() | Navigating to index screen');
+          await navigator.pushNamedAndRemoveUntil('/', (route) => false);
         }
       }
     } catch (e) {
@@ -148,22 +156,23 @@ class _LoginScreenState extends State<LoginScreen>
         unawaited(_shakeController.forward(from: 0)); // 🎬 Shake animation
 
         // 🎨 הודעת שגיאה משופרת
+        // ✅ שימוש ב-StatusColors API
         final messenger = ScaffoldMessenger.of(context);
         messenger.showSnackBar(
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.error_outline, color: Colors.white, size: 24),
+                Icon(Icons.error_outline, color: StatusColors.getOnStatusContainer('error', context), size: 24),
                 const SizedBox(width: kSpacingSmall),
                 Expanded(
                   child: Text(
                     errorMsg,
-                    style: const TextStyle(fontSize: kFontSizeSmall),
+                    style: TextStyle(fontSize: kFontSizeSmall, color: StatusColors.getOnStatusContainer('error', context)),
                   ),
                 ),
               ],
             ),
-            backgroundColor: Colors.red.shade700,
+            backgroundColor: StatusColors.getStatusContainer('error', context),
             duration: kSnackBarDurationLong,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -189,22 +198,27 @@ class _LoginScreenState extends State<LoginScreen>
 
     // בדוק אם יש אימייל בשדה
     final email = _emailController.text.trim();
+
     if (email.isEmpty) {
+      // ✅ שימוש ב-StatusColors API
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Row(
+          content: Row(
             children: [
-              Icon(Icons.info_outline, color: Colors.white),
-              SizedBox(width: kSpacingSmall),
+              Icon(Icons.info_outline, color: StatusColors.getOnStatusContainer('warning', context)),
+              const SizedBox(width: kSpacingSmall),
               Expanded(
                 child: Text(
                   'אנא הזן את כתובת האימייל שלך בשדה למעלה',
-                  style: TextStyle(fontSize: kFontSizeSmall),
+                  style: TextStyle(
+                    fontSize: kFontSizeSmall,
+                    color: StatusColors.getOnStatusContainer('warning', context),
+                  ),
                 ),
               ),
             ],
           ),
-          backgroundColor: Colors.orange.shade700,
+          backgroundColor: StatusColors.getStatusContainer('warning', context),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(kBorderRadius),
@@ -216,10 +230,14 @@ class _LoginScreenState extends State<LoginScreen>
     }
 
     if (!email.contains('@')) {
+      // ✅ שימוש ב-StatusColors API
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('כתובת אימייל לא תקינה'),
-          backgroundColor: Colors.red.shade700,
+          content: Text(
+            'כתובת אימייל לא תקינה',
+            style: TextStyle(color: StatusColors.getOnStatusContainer('error', context)),
+          ),
+          backgroundColor: StatusColors.getStatusContainer('error', context),
         ),
       );
       return;
@@ -237,22 +255,25 @@ class _LoginScreenState extends State<LoginScreen>
         setState(() => _isLoading = false);
 
         // הצג הודעת הצלחה
+        // ✅ שימוש ב-StatusColors API
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.check_circle, color: Colors.white),
+                Icon(Icons.check_circle, color: StatusColors.getOnStatusContainer('success', context)),
                 const SizedBox(width: kSpacingSmall),
                 Expanded(
                   child: Text(
                     'נשלח מייל לאיפוס סיסמה ל-$email',
-                    style: const TextStyle(fontSize: kFontSizeSmall),
+                    style: TextStyle(
+                      fontSize: kFontSizeSmall,
+                      color: StatusColors.getOnStatusContainer('success', context),
+                    ),
                   ),
                 ),
               ],
             ),
-            backgroundColor: Colors.green.shade700,
-            duration: const Duration(seconds: 4),
+            backgroundColor: StatusColors.getStatusContainer('success', context),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(kBorderRadius),
@@ -267,21 +288,22 @@ class _LoginScreenState extends State<LoginScreen>
       if (mounted) {
         setState(() => _isLoading = false);
 
+        // ✅ שימוש ב-StatusColors API
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Row(
+            content: Row(
               children: [
-                Icon(Icons.error_outline, color: Colors.white),
-                SizedBox(width: kSpacingSmall),
+                Icon(Icons.error_outline, color: StatusColors.getOnStatusContainer('error', context)),
+                const SizedBox(width: kSpacingSmall),
                 Expanded(
                   child: Text(
                     'שגיאה בשליחת מייל איפוס',
-                    style: TextStyle(fontSize: kFontSizeSmall),
+                    style: TextStyle(fontSize: kFontSizeSmall, color: StatusColors.getOnStatusContainer('error', context)),
                   ),
                 ),
               ],
             ),
-            backgroundColor: Colors.red.shade700,
+            backgroundColor: StatusColors.getStatusContainer('error', context),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(kBorderRadius),
@@ -321,7 +343,8 @@ class _LoginScreenState extends State<LoginScreen>
           }
         },
         child: Scaffold(
-          backgroundColor: kPaperBackground, // 🎨 צבע רקע מחברת
+          // ✅ רקע מ-Theme (AppBrand.paperBackground או scaffoldBackgroundColor)
+          backgroundColor: brand?.paperBackground ?? theme.scaffoldBackgroundColor,
           body: Stack(
             children: [
               // 📓 רקע מחברת עם קווים
@@ -353,24 +376,25 @@ class _LoginScreenState extends State<LoginScreen>
                               height: kSpacingSmall,
                             ), // 📐 רווח קטן מלמעלה
                             // 🟨 לוגו בפתק צהוב מסובב - גודל מצומצם
+                            // ✅ Dark-aware: שימוש ב-AppBrand
                             Hero(
                               tag: 'app_logo',
                               child: Transform.scale(
                                 scale: 0.85, // 📐 הקטנת הלוגו ב-15%
                                 child: StickyNoteLogo(
-                                  color: kStickyYellow,
+                                  color: brand?.stickyYellow ?? kStickyYellow,
                                   icon: Icons.shopping_basket_outlined,
                                   iconColor: accent,
-                                  rotation: -0.03,
                                 ),
                               ),
                             ),
                             const SizedBox(
                               height: kSpacingSmall,
                             ), // 📐 צמצום מ-Large ל-Small
-                            // 📝 כותרת בפתק לבן מסובב - גודל מצומצם
+                            // 📝 כותרת בפתק - גודל מצומצם
+                            // ✅ Dark-aware: surfaceContainerHighest במקום לבן
                             StickyNote(
-                              color: Colors.white,
+                              color: cs.surfaceContainerHighest,
                               rotation: -0.02,
                               child: Column(
                                 children: [
@@ -400,8 +424,9 @@ class _LoginScreenState extends State<LoginScreen>
                               height: kSpacingMedium,
                             ), // 📐 צמצום מ-XLarge ל-Medium
                             // 🔵 שדה אימייל בפתק תכלת
+                            // ✅ Dark-aware: שימוש ב-AppBrand
                             StickyNote(
-                              color: kStickyCyan,
+                              color: brand?.stickyCyan ?? kStickyCyan,
                               rotation: 0.01,
                               child: TextFormField(
                                 controller: _emailController,
@@ -439,8 +464,9 @@ class _LoginScreenState extends State<LoginScreen>
                               height: kSpacingSmall,
                             ), // 📐 צמצום מ-Medium ל-Small
                             // 🟩 שדה סיסמה בפתק ירוק
+                            // ✅ Dark-aware: שימוש ב-AppBrand
                             StickyNote(
-                              color: kStickyGreen,
+                              color: brand?.stickyGreen ?? kStickyGreen,
                               rotation: -0.015,
                               child: TextFormField(
                                 controller: _passwordController,
@@ -522,21 +548,22 @@ class _LoginScreenState extends State<LoginScreen>
                               height: kSpacingSmall,
                             ), // 📐 רווח קטן
                             // 🔘 כפתור התחברות - StickyButton ירוק
+                            // ✅ FIX: שימוש ב-isLoading במקום onPressed: () {}
                             StickyButton(
                               color: accent,
-                              label: _isLoading
-                                  ? 'מתחבר...'
-                                  : AppStrings.auth.loginButton,
-                              icon: _isLoading ? null : Icons.login,
-                              onPressed: _isLoading ? () {} : _handleLogin,
+                              label: AppStrings.auth.loginButton,
+                              icon: Icons.login,
+                              isLoading: _isLoading,
+                              onPressed: _handleLogin,
                               height: 44, // 📐 הקטנת גובה הכפתור מעט
                             ),
                             const SizedBox(
                               height: kSpacingSmall,
                             ), // 📐 צמצום מ-Large ל-Small
                             // 🌸 קישור להרשמה בפתק ורוד - compact
+                            // ✅ Dark-aware: שימוש ב-AppBrand
                             StickyNote(
-                              color: kStickyPink,
+                              color: brand?.stickyPink ?? kStickyPink,
                               rotation: 0.01,
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
