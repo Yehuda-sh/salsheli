@@ -36,6 +36,7 @@ class MainNavigationScreen extends StatefulWidget {
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _selectedIndex = 0;
   DateTime? _lastBackPress;
+  bool _initialArgsHandled = false; // ✅ דגל: כבר טיפלתי ב-args הראשוניים
 
   late final List<Widget> _pages = const <Widget>[
     HomeDashboardScreen(),
@@ -56,10 +57,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // Check if a tab index was passed via arguments
+    // ✅ טיפול ב-args פעם אחת בלבד (מונע בדיקות מיותרות)
+    if (_initialArgsHandled) return;
+    _initialArgsHandled = true; // ✅ סימון מיידי - גם אם אין args
+
     final args = ModalRoute.of(context)?.settings.arguments;
     if (args is int && args >= 0 && args < _pages.length) {
-      // Only update if different to prevent loops
       if (_selectedIndex != args) {
         setState(() {
           _selectedIndex = args;
@@ -76,7 +79,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     if (kDebugMode) {
       debugPrint('🏠 MainNavigationScreen.dispose()');
     }
-    _lastBackPress = null; // ניקוי
     super.dispose();
   }
 
@@ -166,27 +168,21 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       canPop: false,
       onPopInvokedWithResult: (bool didPop, dynamic result) async {
         if (didPop) return;
-        
-        // ✅ שמור Navigator לפני await
-        final navigator = Navigator.of(context);
-        
+
         final shouldPop = await _onWillPop();
         if (shouldPop && mounted) {
-          navigator.pop();
+          // ✅ SystemNavigator.pop() - יוצא מהאפליקציה לגמרי (לא חוזר ל-route קודם)
+          await SystemNavigator.pop();
         }
       },
       child: AppLayout(
         currentIndex: _selectedIndex,
         onTabSelected: _onItemTapped,
-        // אנימציית fade חלקה בין מסכים
-        child: AnimatedSwitcher(
-          duration: kAnimationDurationShort,
-          switchInCurve: Curves.easeIn,
-          switchOutCurve: Curves.easeOut,
-          child: KeyedSubtree(
-            key: ValueKey<int>(_selectedIndex),
-            child: _pages[_selectedIndex],
-          ),
+        // ✅ IndexedStack: שומר מצב של כל הטאבים (גלילה, פילטרים, חיפוש)
+        // כל ה-pages נשארים בזיכרון, רק הנראות משתנה
+        child: IndexedStack(
+          index: _selectedIndex,
+          children: _pages,
         ),
       ),
     );

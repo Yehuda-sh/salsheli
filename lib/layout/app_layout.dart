@@ -149,6 +149,71 @@ class _AppLayoutState extends State<AppLayout> {
     }
   }
 
+  /// 🔔 הצגת תפריט בחירת סוג הזמנות
+  void _showNotificationsMenu(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: cs.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Container(
+              margin: const EdgeInsets.only(top: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: cs.outlineVariant,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: kSpacingMedium),
+            // כותרת
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+              child: Text(
+                'הזמנות ממתינות',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(height: kSpacingSmall),
+            // הזמנות לקבוצות
+            ListTile(
+              leading: Icon(Icons.family_restroom, color: cs.primary),
+              title: const Text('הזמנות לקבוצות'),
+              subtitle: const Text('הצטרפות למשפחה / Household'),
+              trailing: const Icon(Icons.chevron_left),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).pushNamed('/pending-group-invites');
+              },
+            ),
+            // הזמנות לרשימות
+            ListTile(
+              leading: Icon(Icons.list_alt, color: cs.secondary),
+              title: const Text('הזמנות לרשימות'),
+              subtitle: const Text('שיתוף רשימות קניות'),
+              trailing: const Icon(Icons.chevron_left),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).pushNamed('/pending-invites');
+              },
+            ),
+            const SizedBox(height: kSpacingMedium),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -191,7 +256,7 @@ class _AppLayoutState extends State<AppLayout> {
       ),
       centerTitle: true,
       actions: [
-        // 🔔 Notifications Button
+        // 🔔 Notifications Button - פותח תפריט בחירת סוג הזמנות
         _AnimatedIconButton(
           tooltip: AppStrings.layout.notifications,
           icon: Badge.count(
@@ -199,17 +264,7 @@ class _AppLayoutState extends State<AppLayout> {
             isLabelVisible: totalBadgeCount > 0,
             child: const Icon(Icons.notifications_outlined),
           ),
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  totalBadgeCount > 0
-                      ? AppStrings.layout.notificationsCount(totalBadgeCount)
-                      : AppStrings.layout.noNotifications,
-                ),
-              ),
-            );
-          },
+          onPressed: () => _showNotificationsMenu(context),
         ),
         // 🚪 Logout Button with Animation
         _AnimatedIconButton(
@@ -411,12 +466,12 @@ class _AnimatedIconButtonState extends State<_AnimatedIconButton> {
       ),
       color: widget.color,
       onPressed: () {
-        // Animate press
+        // ✅ FIX: פעולה מיידית + אנימציה במקביל (תגובה מהירה!)
+        widget.onPressed(); // פעולה מיידית
         setState(() => _isPressed = true);
-        Future.delayed(const Duration(milliseconds: 100), () {
+        Future.delayed(const Duration(milliseconds: 150), () {
           if (mounted) {
             setState(() => _isPressed = false);
-            widget.onPressed();
           }
         });
       },
@@ -443,21 +498,35 @@ class _AnimatedBadgeCount extends StatefulWidget {
 }
 
 class _AnimatedBadgeCountState extends State<_AnimatedBadgeCount> {
-  int _previousCount = 0;
+  late int _previousCount;
+  bool _isFirstBuild = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // ✅ FIX: בפעם הראשונה, התחל מאותו ערך (ללא אנימציה)
+    _previousCount = widget.count;
+  }
 
   @override
   void didUpdateWidget(_AnimatedBadgeCount oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // ✅ שומר את הערך הקודם לאנימציה
+    // ✅ שומר את הערך הקודם לאנימציה (רק אחרי build ראשון)
     if (oldWidget.count != widget.count) {
       _previousCount = oldWidget.count;
+      _isFirstBuild = false;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // ✅ FIX: בפעם הראשונה - הצג מיידית ללא אנימציה
+    if (_isFirstBuild) {
+      _isFirstBuild = false;
+      return Text(widget.count.toString());
+    }
+
     return TweenAnimationBuilder<int>(
-      // ✅ FIX: אנימציה מהערך הקודם לחדש
       tween: IntTween(begin: _previousCount, end: widget.count),
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeOut,

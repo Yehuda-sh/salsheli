@@ -15,14 +15,18 @@
 // Version: 1.0
 // Created: 30/11/2025
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/status_colors.dart';
 import '../../core/ui_constants.dart';
 import '../../models/enums/user_role.dart';
 import '../../models/pending_request.dart';
 import '../../providers/user_context.dart';
 import '../../services/pending_invites_service.dart';
+import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_note.dart';
 
@@ -50,11 +54,11 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
     final userContext = context.read<UserContext>();
     final userId = userContext.userId;
 
+    // ✅ FIX: אם אין משתמש - מעבירים ל-Login (לא מציגים הודעת שגיאה)
     if (userId == null) {
-      setState(() {
-        _isLoading = false;
-        _error = 'לא מחובר';
-      });
+      if (mounted) {
+        unawaited(Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false));
+      }
       return;
     }
 
@@ -93,13 +97,15 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
       );
 
       if (mounted) {
+        final listName = _safeString(invite.requestData['list_name']) ?? 'רשימה';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('הצטרפת לרשימה "${invite.requestData['list_name']}"'),
-            backgroundColor: Colors.green,
+            content: Text('הצטרפת לרשימה "$listName"'),
+            // ✅ Theme-aware: StatusColors API
+            backgroundColor: StatusColors.getStatusContainer('success', context),
           ),
         );
-        _loadInvites(); // Refresh list
+        unawaited(_loadInvites()); // Refresh list
       }
     } catch (e) {
       if (mounted) {
@@ -107,7 +113,8 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('שגיאה באישור ההזמנה: $e'),
-            backgroundColor: Colors.red,
+            // ✅ Theme-aware: StatusColors API
+            backgroundColor: StatusColors.getStatusContainer('error', context),
           ),
         );
       }
@@ -121,12 +128,15 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
 
     if (userId == null) return;
 
+    final cs = Theme.of(context).colorScheme;
+    final listName = _safeString(invite.requestData['list_name']) ?? 'רשימה';
+
     // שאלת אישור
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('דחיית הזמנה'),
-        content: Text('לדחות את ההזמנה לרשימה "${invite.requestData['list_name']}"?'),
+        content: Text('לדחות את ההזמנה לרשימה "$listName"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -134,7 +144,8 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            // ✅ Theme-aware: צבע שגיאה
+            style: TextButton.styleFrom(foregroundColor: cs.error),
             child: const Text('דחה'),
           ),
         ],
@@ -154,12 +165,13 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('ההזמנה נדחתה'),
-            backgroundColor: Colors.orange,
+          SnackBar(
+            content: const Text('ההזמנה נדחתה'),
+            // ✅ Theme-aware: StatusColors API
+            backgroundColor: StatusColors.getStatusContainer('warning', context),
           ),
         );
-        _loadInvites(); // Refresh list
+        unawaited(_loadInvites()); // Refresh list
       }
     } catch (e) {
       if (mounted) {
@@ -167,7 +179,8 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('שגיאה בדחיית ההזמנה: $e'),
-            backgroundColor: Colors.red,
+            // ✅ Theme-aware: StatusColors API
+            backgroundColor: StatusColors.getStatusContainer('error', context),
           ),
         );
       }
@@ -176,12 +189,19 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: kPaperBackground,
+        // ✅ Theme-aware: רקע מ-AppBrand
+        backgroundColor: brand?.paperBackground ?? theme.scaffoldBackgroundColor,
         appBar: AppBar(
-          backgroundColor: kStickyCyan,
+          // ✅ Theme-aware: צבע מ-AppBrand
+          backgroundColor: brand?.stickyCyan ?? cs.primaryContainer,
+          foregroundColor: cs.onPrimaryContainer,
           title: const Text('הזמנות ממתינות'),
           centerTitle: true,
         ),
@@ -198,14 +218,17 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
   }
 
   Widget _buildContent() {
+    final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
+
     if (_isLoading) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(color: kStickyCyan),
-            SizedBox(height: kSpacingMedium),
-            Text('טוען הזמנות...'),
+            CircularProgressIndicator(color: brand?.stickyCyan ?? cs.primary),
+            const SizedBox(height: kSpacingMedium),
+            const Text('טוען הזמנות...'),
           ],
         ),
       );
@@ -216,9 +239,9 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            Icon(Icons.error_outline, size: 64, color: cs.error),
             const SizedBox(height: kSpacingMedium),
-            Text(_error!, style: const TextStyle(color: Colors.red)),
+            Text(_error!, style: TextStyle(color: cs.error)),
             const SizedBox(height: kSpacingMedium),
             ElevatedButton(
               onPressed: _loadInvites,
@@ -234,20 +257,20 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.mail_outline, size: 64, color: Colors.grey.shade400),
+            Icon(Icons.mail_outline, size: 64, color: cs.outline),
             const SizedBox(height: kSpacingMedium),
             Text(
               'אין הזמנות ממתינות',
               style: TextStyle(
                 fontSize: kFontSizeLarge,
-                color: Colors.grey.shade600,
+                color: cs.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: kSpacingSmall),
             Text(
               'כאשר מישהו יזמין אותך לרשימה,\nההזמנה תופיע כאן',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey.shade500),
+              style: TextStyle(color: cs.outline),
             ),
           ],
         ),
@@ -268,9 +291,13 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
   }
 
   Widget _buildInviteCard(PendingRequest invite) {
-    final listName = invite.requestData['list_name'] as String? ?? 'רשימה';
+    final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
+
+    // ✅ null safety - גישה בטוחה ל-requestData
+    final listName = _safeString(invite.requestData['list_name']) ?? 'רשימה';
     final inviterName = invite.requesterName ?? 'משתמש';
-    final roleName = invite.requestData['role'] as String? ?? 'editor';
+    final roleName = _safeString(invite.requestData['role']) ?? 'editor';
     final role = UserRole.values.firstWhere(
       (r) => r.name == roleName,
       orElse: () => UserRole.editor,
@@ -279,7 +306,8 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: kSpacingMedium),
       child: StickyNote(
-        color: kStickyYellow,
+        // ✅ Theme-aware: צבע פתק מ-AppBrand
+        color: brand?.stickyYellow ?? kStickyYellow,
         rotation: 0.01,
         child: Padding(
           padding: const EdgeInsets.all(kSpacingMedium),
@@ -320,7 +348,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                     'תפקיד: ',
                     style: TextStyle(
                       fontSize: kFontSizeSmall,
-                      color: Colors.grey.shade700,
+                      color: cs.onSurfaceVariant,
                     ),
                   ),
                   Container(
@@ -329,14 +357,15 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                       vertical: kSpacingXTiny,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.blue.shade100,
+                      // ✅ Theme-aware: צבע תפקיד
+                      color: cs.secondaryContainer,
                       borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                     ),
                     child: Text(
                       '${role.emoji} ${role.hebrewName}',
                       style: TextStyle(
                         fontSize: kFontSizeTiny,
-                        color: Colors.blue.shade800,
+                        color: cs.onSecondaryContainer,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -351,7 +380,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                 invite.timeAgoText,
                 style: TextStyle(
                   fontSize: kFontSizeTiny,
-                  color: Colors.grey.shade500,
+                  color: cs.outline,
                 ),
               ),
 
@@ -367,8 +396,9 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                       icon: const Icon(Icons.close, size: 18),
                       label: const Text('דחה'),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.red,
-                        side: const BorderSide(color: Colors.red),
+                        // ✅ Theme-aware: צבע שגיאה
+                        foregroundColor: cs.error,
+                        side: BorderSide(color: cs.error),
                       ),
                     ),
                   ),
@@ -383,7 +413,8 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                       icon: const Icon(Icons.check, size: 18),
                       label: const Text('הצטרף'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: kStickyGreen,
+                        // ✅ Theme-aware: צבע הצלחה מ-AppBrand
+                        backgroundColor: brand?.stickyGreen ?? StatusColors.success,
                         foregroundColor: Colors.black87,
                       ),
                     ),
@@ -395,5 +426,12 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
         ),
       ),
     );
+  }
+
+  /// ✅ Helper: גישה בטוחה ל-String מ-dynamic
+  String? _safeString(dynamic value) {
+    if (value is String) return value;
+    if (value != null) return value.toString();
+    return null;
   }
 }

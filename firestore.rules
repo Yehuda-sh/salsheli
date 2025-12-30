@@ -135,6 +135,13 @@ service cloud.firestore {
       match /saved_contacts/{contactId} {
         allow read, write: if isDocOwner(userId);
       }
+
+      // === 🆕 User Inventory (Subcollection) ===
+      // Path: /users/{userId}/inventory/{itemId}
+      // מזווה אישי - למשתמשים ללא קבוצת משפחה
+      match /inventory/{itemId} {
+        allow read, write: if isDocOwner(userId);
+      }
     }
 
     // =========================================================
@@ -286,6 +293,18 @@ service cloud.firestore {
       // 🗑️ מחיקה: רק היוצר
       allow delete: if isAuthenticated() &&
                     resource.data.created_by == request.auth.uid;
+
+      // === 🆕 Group Inventory (Subcollection) ===
+      // Path: /groups/{groupId}/inventory/{itemId}
+      // מזווה קבוצתי - לקבוצות משפחה/שותפים
+      match /inventory/{itemId} {
+        allow read, write: if isAuthenticated() && (
+          get(/databases/$(database)/documents/groups/$(groupId)).data.created_by == request.auth.uid ||
+          (get(/databases/$(database)/documents/groups/$(groupId)).data.members != null &&
+           request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.members) ||
+          userHasGroupInList(groupId)
+        );
+      }
     }
 
     // =========================================================
@@ -382,28 +401,71 @@ service cloud.firestore {
     }
 
     // =========================================================
+    // 📍 Custom Locations Collection
+    // =========================================================
+    // מיקומי אחסון מותאמים אישית (מקרר, מזווה וכו')
+    // מסוננים לפי household_id או group_id
+
+    match /custom_locations/{locationId} {
+      // 👁️ קריאה: חברי משק הבית או הקבוצה
+      allow read: if isAuthenticated() && (
+        // לפי household_id
+        (resource.data.household_id != null && isHouseholdMember(resource.data.household_id)) ||
+        // לפי group_id
+        (resource.data.group_id != null && userHasGroupInList(resource.data.group_id))
+      );
+
+      // ➕ יצירה: חברי משק הבית או קבוצה
+      allow create: if isAuthenticated() && (
+        (request.resource.data.household_id != null && isHouseholdMember(request.resource.data.household_id)) ||
+        (request.resource.data.group_id != null && userHasGroupInList(request.resource.data.group_id))
+      );
+
+      // ✏️ עדכון: חברי משק הבית או קבוצה
+      allow update: if isAuthenticated() && (
+        (resource.data.household_id != null && isHouseholdMember(resource.data.household_id)) ||
+        (resource.data.group_id != null && userHasGroupInList(resource.data.group_id))
+      );
+
+      // 🗑️ מחיקה: חברי משק הבית או קבוצה
+      allow delete: if isAuthenticated() && (
+        (resource.data.household_id != null && isHouseholdMember(resource.data.household_id)) ||
+        (resource.data.group_id != null && userHasGroupInList(resource.data.group_id))
+      );
+    }
+
+    // =========================================================
     // 📨 Group Invites Collection
     // =========================================================
+
+    // פונקציה לבדיקה אם המשתמש הוא המוזמן
+    function isInvitedUser(inviteData) {
+      // בדיקה לפי טלפון או אימייל מה-token
+      let byPhone = request.auth.token.phone_number != null &&
+                    inviteData.invited_phone == request.auth.token.phone_number;
+      let byEmail = request.auth.token.email != null &&
+                    inviteData.invited_email == request.auth.token.email;
+      // בדיקה לפי invited_user_id אם קיים
+      let byUserId = inviteData.invited_user_id != null &&
+                     inviteData.invited_user_id == request.auth.uid;
+      return byPhone || byEmail || byUserId;
+    }
 
     match /group_invites/{inviteId} {
       // 👁️ קריאה:
       // - המזמין יכול לראות הזמנות שהוא שלח
-      // - המוזמן יכול לראות הזמנות שנשלחו אליו (לפי טלפון/אימייל)
-      allow read: if isAuthenticated() && (
-        resource.data.invited_by == request.auth.uid ||
-        resource.data.invited_phone == request.auth.token.phone_number ||
-        resource.data.invited_email == request.auth.token.email
-      );
+      // - המוזמן יכול לראות הזמנות שנשלחו אליו (לפי טלפון/אימייל/userId)
+      // - כל משתמש מחובר יכול לחפש הזמנות (ה-query יסנן)
+      allow read: if isAuthenticated();
 
       // ➕ יצירה: כל משתמש מחובר יכול ליצור הזמנה
       allow create: if isAuthenticated() &&
                     request.resource.data.invited_by == request.auth.uid;
 
-      // ✏️ עדכון: המזמין או המוזמן (לפי טלפון/אימייל) יכול לעדכן
+      // ✏️ עדכון: המזמין או המוזמן יכול לעדכן
       allow update: if isAuthenticated() && (
         resource.data.invited_by == request.auth.uid ||
-        resource.data.invited_phone == request.auth.token.phone_number ||
-        resource.data.invited_email == request.auth.token.email
+        isInvitedUser(resource.data)
       );
 
       // 🗑️ מחיקה: רק המזמין

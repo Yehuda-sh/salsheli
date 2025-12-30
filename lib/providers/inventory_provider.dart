@@ -124,19 +124,56 @@ class InventoryProvider with ChangeNotifier {
   /// מעדכן את ה-GroupsProvider ומאזין לשינויים
   /// נקרא אוטומטית מ-ProxyProvider
   void updateGroupsProvider(GroupsProvider? newProvider) {
-    if (_groupsProvider == newProvider) return;
+    if (kDebugMode) {
+      debugPrint('🔗 InventoryProvider.updateGroupsProvider: newProvider=${newProvider != null}, same=${_groupsProvider == newProvider}, groups=${newProvider?.groups.length ?? 0}');
+    }
+
+    // אם זה אותו provider
+    if (_groupsProvider == newProvider) {
+      // 🔧 בדיקה: אם יש קבוצות אבל המזווה ריק - נטען מחדש
+      // זה פותר race condition כאשר GroupsProvider נטען אחרי InventoryProvider
+      if (newProvider != null &&
+          newProvider.groups.isNotEmpty &&
+          _items.isEmpty &&
+          !_isLoading) {
+        if (kDebugMode) {
+          debugPrint('🔄 InventoryProvider: קבוצות זמינות אך מזווה ריק - טוען מחדש');
+        }
+        _updateInventoryLocation();
+      }
+      return;
+    }
 
     if (_listeningToGroups && _groupsProvider != null) {
       _groupsProvider!.removeListener(_onGroupsChanged);
       _listeningToGroups = false;
+      if (kDebugMode) {
+        debugPrint('🔗 InventoryProvider: הסרת listener מ-GroupsProvider ישן');
+      }
     }
 
     _groupsProvider = newProvider;
     if (newProvider != null) {
       newProvider.addListener(_onGroupsChanged);
       _listeningToGroups = true;
+      if (kDebugMode) {
+        debugPrint('🔗 InventoryProvider: נרשם listener ל-GroupsProvider, קבוצות כרגע: ${newProvider.groups.length}');
+      }
       // עדכון מיקום מזווה בהתבסס על קבוצות
       _updateInventoryLocation();
+
+      // 🔧 אם יש כבר קבוצות - ייתכן שפספסנו את ה-notifyListeners
+      // קורא שוב אחרי frame אחד כדי לתפוס מקרי קצה
+      if (newProvider.groups.isNotEmpty) {
+        Future.microtask(() {
+          if (!_isDisposed && _items.isEmpty && !_isLoading) {
+            if (kDebugMode) {
+              debugPrint('🔄 InventoryProvider: microtask - קבוצות קיימות, מזווה עדיין ריק - מנסה שוב');
+            }
+            _updateInventoryLocation();
+          }
+        });
+      }
     }
   }
 
@@ -145,6 +182,13 @@ class InventoryProvider with ChangeNotifier {
   }
 
   void _onGroupsChanged() {
+    if (kDebugMode) {
+      final groups = _groupsProvider?.groups ?? [];
+      debugPrint('🔄 InventoryProvider._onGroupsChanged: קבוצות השתנו, מספר: ${groups.length}');
+      for (final g in groups) {
+        debugPrint('   - ${g.name} (${g.type.name}, hasPantry=${g.type.hasPantry})');
+      }
+    }
     _updateInventoryLocation();
   }
 
@@ -155,6 +199,9 @@ class InventoryProvider with ChangeNotifier {
   /// מזהה את מיקום המזווה הנכון וטוען את הפריטים
   void _updateInventoryLocation() {
     final userId = _userContext?.userId;
+    if (kDebugMode) {
+      debugPrint('📍 InventoryProvider._updateInventoryLocation: userId=$userId, isLoggedIn=${_userContext?.isLoggedIn}, groupsCount=${_groupsProvider?.groups.length ?? 0}');
+    }
     if (userId == null || _userContext?.isLoggedIn != true) {
       _currentMode = InventoryMode.personal;
       _currentGroupId = null;
@@ -165,6 +212,9 @@ class InventoryProvider with ChangeNotifier {
 
     // חפש קבוצה עם מזווה משותף (family/roommates)
     final pantryGroup = _findPantryGroup(userId);
+    if (kDebugMode) {
+      debugPrint('📍 InventoryProvider: pantryGroup=${pantryGroup?.name ?? 'null'}');
+    }
 
     if (pantryGroup != null) {
       // יש קבוצה עם מזווה - עבור למצב קבוצתי

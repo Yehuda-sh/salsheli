@@ -12,7 +12,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/ui_constants.dart';
-import '../../../l10n/app_strings.dart';
 import '../../../models/group.dart';
 import '../../../models/shopping_list.dart';
 import '../../../providers/groups_provider.dart';
@@ -48,30 +47,15 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     });
   }
 
-  void _initInviteCheck() {
-    final userContext = context.read<UserContext>();
-
-    // 1. If user exists - check immediately
-    if (userContext.user != null) {
-      _performInviteCheck();
-    } else {
-      // 2. If not - Listen for changes
-      void userListener() {
-        if (userContext.user != null) {
-          userContext.removeListener(userListener);
-          if (mounted) _performInviteCheck();
-        }
-      }
-      userContext.addListener(userListener);
-    }
-  }
-
-  Future<void> _performInviteCheck() async {
+  /// ✅ FIX: פישוט - הדשבורד נטען רק אחרי שיש משתמש מחובר
+  /// אין צורך ב-Listener מסובך - פשוט בודקים פעם אחת
+  Future<void> _initInviteCheck() async {
     if (!mounted) return;
 
     final userContext = context.read<UserContext>();
     final pendingInvitesProvider = context.read<PendingInvitesProvider>();
 
+    // אם כבר בדקנו - לא צריך שוב
     if (pendingInvitesProvider.hasChecked) return;
 
     final user = userContext.user;
@@ -145,18 +129,22 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     final groupsProvider = context.watch<GroupsProvider>();
     final pendingInvitesProvider = context.watch<PendingInvitesProvider>();
     final userContext = context.watch<UserContext>();
-    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
+
+    // ✅ Theme-aware background
+    final paperBg = brand?.paperBackground ?? theme.scaffoldBackgroundColor;
 
     return Scaffold(
-      backgroundColor: kPaperBackground,
+      backgroundColor: paperBg,
       body: Stack(
         children: [
           const NotebookBackground(),
           SafeArea(
             child: RefreshIndicator(
-              color: Theme.of(context).extension<AppBrand>()?.accent ??
-                  cs.primary,
-              backgroundColor: kPaperBackground,
+              color: brand?.accent ?? cs.primary,
+              backgroundColor: paperBg,
               strokeWidth: 4.0,
               displacement: 50.0,
               onRefresh: () => _refresh(context),
@@ -244,14 +232,15 @@ class _GreetingHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
 
     final greeting = _getGreeting();
-    final displayName = (userName?.trim().isEmpty ?? true)
-        ? AppStrings.home.guestUser
-        : userName!;
+    // ✅ FIX: אם אין שם - הצג רק ברכה ללא שם (לא "אורח")
+    final hasName = userName?.trim().isNotEmpty ?? false;
 
     return StickyNote(
-      color: kStickyYellow,
+      // ✅ Theme-aware
+      color: brand?.stickyYellow ?? kStickyYellow,
       rotation: -0.015,
       child: Padding(
         padding: const EdgeInsets.all(kSpacingMedium),
@@ -276,20 +265,30 @@ class _GreetingHeader extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '$greeting,',
-                    style: t.bodyMedium?.copyWith(
-                      color: Colors.black54,
+                  // ✅ FIX: אם יש שם - "בוקר טוב," + שם. אם אין - רק "בוקר טוב!"
+                  if (hasName) ...[
+                    Text(
+                      '$greeting,',
+                      style: t.bodyMedium?.copyWith(
+                        color: Colors.black54,
+                      ),
                     ),
-                  ),
-                  Text(
-                    displayName,
-                    style: t.titleLarge?.copyWith(
-                      color: Colors.black87,
-                      fontWeight: FontWeight.bold,
+                    Text(
+                      userName!,
+                      style: t.titleLarge?.copyWith(
+                        color: Colors.black87,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  ] else
+                    Text(
+                      '$greeting!',
+                      style: t.titleLarge?.copyWith(
+                        color: Colors.black87,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                 ],
               ),
             ),

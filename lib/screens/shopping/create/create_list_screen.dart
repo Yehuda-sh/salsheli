@@ -139,19 +139,24 @@ class _CreateListScreenState extends State<CreateListScreen> {
 
       if (!mounted) return;
       setState(() => _isSubmitting = false);
-      _showErrorSnackBar(_getFriendlyErrorMessage(e));
+      final errorMsg = _getFriendlyErrorMessage(e);
+      if (errorMsg != null) {
+        _showErrorSnackBar(errorMsg);
+      }
     }
   }
 
-  String _getFriendlyErrorMessage(dynamic error) {
+  String? _getFriendlyErrorMessage(dynamic error) {
     final errorStr = error.toString().toLowerCase();
 
     if (errorStr.contains('network') || errorStr.contains('connection')) {
       return AppStrings.createListDialog.networkError;
     }
 
+    // ✅ FIX: אם המשתמש לא מחובר - מעבירים ל-Login במקום להציג הודעה
     if (errorStr.contains('not logged in') || errorStr.contains('user')) {
-      return AppStrings.createListDialog.userNotLoggedIn;
+      Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+      return null; // לא מציגים snackbar
     }
 
     return AppStrings.createListDialog.createListErrorGeneric;

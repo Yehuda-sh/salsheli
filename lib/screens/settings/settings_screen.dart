@@ -507,9 +507,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final cs = Theme.of(context).colorScheme;
     final userContext = context.watch<UserContext>();
 
-    // פרטי משתמש
-    final userName = userContext.user?.name ?? AppStrings.home.guestUser;
-    final userEmail = userContext.user?.email ?? 'email@example.com';
+    // ✅ FIX: אם אין משתמש - מעבירים ל-Login (מסך הגדרות מוגן)
+    if (userContext.user == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+        }
+      });
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    // פרטי משתמש - תמיד יש user בשלב זה
+    final userName = userContext.user!.name;
+    final userEmail = userContext.user!.email;
 
     // Loading State
     if (_loading) {

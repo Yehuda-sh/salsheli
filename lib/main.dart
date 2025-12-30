@@ -213,21 +213,6 @@ void main() async {
           },
         ),
 
-        // === Inventory === 🔥 Firebase!
-        ChangeNotifierProxyProvider<UserContext, InventoryProvider>(
-          create: (context) => InventoryProvider(
-            userContext: context.read<UserContext>(),
-            repository: inventoryRepo,
-          ),
-          update: (context, userContext, previous) =>
-              (previous ??
-                    InventoryProvider(
-                      userContext: userContext,
-                      repository: inventoryRepo,
-                    ))
-                ..updateUserContext(userContext),
-        ),
-
         // === Product Location Memory === 📍
         ChangeNotifierProxyProvider<UserContext, ProductLocationProvider>(
           create: (context) => ProductLocationProvider(),
@@ -252,16 +237,6 @@ void main() async {
                 ..updateUserContext(userContext),
         ),
 
-        // === Suggestions Provider ===
-        // ℹ️ Note: This provider doesn't need UserContext because it only
-        //    analyzes data already loaded by InventoryProvider.
-        //    It doesn't access household_id directly.
-        ChangeNotifierProxyProvider<InventoryProvider, SuggestionsProvider>(
-          create: (context) => SuggestionsProvider(inventoryProvider: context.read<InventoryProvider>()),
-          update: (context, inventoryProvider, previous) =>
-              previous ?? SuggestionsProvider(inventoryProvider: inventoryProvider),
-        ),
-
         // === Pending Invites Provider === 📨 Group Invitations!
         // ⚠️ חייב להיות לפני GroupsProvider כי הוא משתף את ה-repository
         ChangeNotifierProvider<PendingInvitesProvider>(
@@ -283,6 +258,35 @@ void main() async {
               inviteRepository: pendingInvites.repository,
             );
           },
+        ),
+
+        // === Inventory === 🔥 Firebase!
+        // ⚠️ חייב להיות אחרי GroupsProvider כדי להאזין לשינויים בקבוצות
+        ChangeNotifierProxyProvider2<UserContext, GroupsProvider, InventoryProvider>(
+          create: (context) => InventoryProvider(
+            userContext: context.read<UserContext>(),
+            repository: inventoryRepo,
+          ),
+          update: (context, userContext, groupsProvider, previous) {
+            final provider = previous ??
+                InventoryProvider(
+                  userContext: userContext,
+                  repository: inventoryRepo,
+                );
+            provider.updateUserContext(userContext);
+            provider.updateGroupsProvider(groupsProvider);
+            return provider;
+          },
+        ),
+
+        // === Suggestions Provider ===
+        // ℹ️ Note: This provider doesn't need UserContext because it only
+        //    analyzes data already loaded by InventoryProvider.
+        //    It doesn't access household_id directly.
+        ChangeNotifierProxyProvider<InventoryProvider, SuggestionsProvider>(
+          create: (context) => SuggestionsProvider(inventoryProvider: context.read<InventoryProvider>()),
+          update: (context, inventoryProvider, previous) =>
+              previous ?? SuggestionsProvider(inventoryProvider: inventoryProvider),
         ),
       ],
       child: const MyApp(),

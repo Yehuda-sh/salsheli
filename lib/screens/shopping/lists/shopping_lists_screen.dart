@@ -66,15 +66,20 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
 
     // ✅ טעינה ראשונית - רק פעם אחת
     if (!_initialLoadRequested) {
+      _initialLoadRequested = true;
       final provider = context.read<ShoppingListsProvider>();
       if (!provider.isLoading &&
           provider.lists.isEmpty &&
           provider.errorMessage == null &&
           provider.lastUpdated == null) {
-        debugPrint('🔄 טוען רשימות ראשונית');
-        provider.loadLists();
+        // 🔧 דחייה לאחר ה-build כדי למנוע setState during build
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            debugPrint('🔄 טוען רשימות ראשונית');
+            provider.loadLists();
+          }
+        });
       }
-      _initialLoadRequested = true;
     }
   }
 
