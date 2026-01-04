@@ -14,24 +14,23 @@
 // Version: 1.0
 // Last Updated: 04/11/2025
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-import 'package:memozap/core/ui_constants.dart';
-import 'package:memozap/l10n/app_strings.dart';
-import 'package:memozap/models/pending_request.dart';
-import 'package:memozap/models/shopping_list.dart';
-import 'package:memozap/providers/user_context.dart';
-import 'package:memozap/repositories/shopping_lists_repository.dart';
-import 'package:memozap/services/notifications_service.dart';
-import 'package:memozap/services/pending_requests_service.dart';
-import 'package:memozap/services/share_list_service.dart';
-import 'package:memozap/widgets/common/notebook_background.dart';
-import 'package:memozap/widgets/common/sticky_button.dart';
-import 'package:memozap/widgets/common/sticky_note.dart';
+import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
+import '../../models/pending_request.dart';
+import '../../models/shopping_list.dart';
+import '../../providers/user_context.dart';
+import '../../repositories/shopping_lists_repository.dart';
+import '../../services/notifications_service.dart';
+import '../../services/pending_requests_service.dart';
+import '../../services/share_list_service.dart';
+import '../../widgets/common/notebook_background.dart';
+import '../../widgets/common/sticky_button.dart';
+import '../../widgets/common/sticky_note.dart';
 
 class PendingRequestsScreen extends StatefulWidget {
   final ShoppingList list;
@@ -44,7 +43,7 @@ class PendingRequestsScreen extends StatefulWidget {
 
 class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
   late PendingRequestsService _service;
-  bool _isProcessing = false;
+  String? _processingRequestId; // ID של הבקשה שנמצאת בעיבוד (null = אף אחת)
   List<PendingRequest> _pendingRequests = [];
 
   @override
@@ -97,13 +96,13 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
   }
 
   Future<void> _approveRequest(PendingRequest request) async {
-    if (_isProcessing) return;
+    if (_processingRequestId != null) return;
 
     // Capture before async
     final messenger = ScaffoldMessenger.of(context);
     final strings = AppStrings.sharing;
 
-    setState(() => _isProcessing = true);
+    setState(() => _processingRequestId = request.id);
 
     try {
       final userContext = Provider.of<UserContext>(context, listen: false);
@@ -148,13 +147,13 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
       );
     } finally {
       if (mounted) {
-        setState(() => _isProcessing = false);
+        setState(() => _processingRequestId = null);
       }
     }
   }
 
   Future<void> _rejectRequest(PendingRequest request) async {
-    if (_isProcessing) return;
+    if (_processingRequestId != null) return;
 
     // Capture before async
     final messenger = ScaffoldMessenger.of(context);
@@ -167,7 +166,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
     final reason = await _showRejectDialog();
     if (reason == null) return; // User canceled
 
-    setState(() => _isProcessing = true);
+    setState(() => _processingRequestId = request.id);
 
     try {
       await _service.rejectRequest(
@@ -209,7 +208,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
       );
     } finally {
       if (mounted) {
-        setState(() => _isProcessing = false);
+        setState(() => _processingRequestId = null);
       }
     }
   }
@@ -238,7 +237,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.of(context).pop(null), child: Text(strings.cancelButton)),
+            TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(strings.cancelButton)),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(controller.text),
               style: ElevatedButton.styleFrom(backgroundColor: kStickyPink),
@@ -300,21 +299,57 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
 
   Widget _buildEmptyState() {
     final strings = AppStrings.sharing;
+    final cs = Theme.of(context).colorScheme;
 
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.inbox, size: 64, color: Colors.grey),
-          const SizedBox(height: kSpacingMedium),
-          Text(strings.noPendingRequests, style: const TextStyle(fontSize: 18), textAlign: TextAlign.center),
-          const SizedBox(height: kSpacingSmall),
-          Text(
-            strings.noPendingRequestsSubtitle,
-            style: const TextStyle(color: Colors.grey),
-            textAlign: TextAlign.center,
-          ),
-        ],
+      child: Container(
+        margin: const EdgeInsets.all(kSpacingLarge),
+        padding: const EdgeInsets.all(kSpacingXLarge),
+        decoration: BoxDecoration(
+          // 🎨 בועה לבנה שקופה - נקי וקריא על רקע מחברת
+          color: Colors.white.withValues(alpha: 0.85),
+          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(kSpacingLarge),
+              decoration: BoxDecoration(
+                color: cs.primaryContainer.withValues(alpha: 0.3),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.inbox_outlined, size: 64, color: cs.primary),
+            ),
+            const SizedBox(height: kSpacingLarge),
+            Text(
+              strings.noPendingRequests,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: kSpacingSmall),
+            Text(
+              strings.noPendingRequestsSubtitle,
+              style: TextStyle(color: cs.onSurfaceVariant),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: kSpacingLarge),
+            StickyButtonSmall(
+              color: kStickyGreen,
+              label: 'חזור',
+              icon: Icons.arrow_back,
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -386,7 +421,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                   child: StickyButton(
                     label: AppStrings.sharing.approveButton,
                     color: kStickyGreen,
-                    onPressed: _isProcessing ? null : () => _approveRequest(request),
+                    onPressed: _processingRequestId != null ? null : () => _approveRequest(request),
                     icon: Icons.check_circle,
                   ),
                 ),
@@ -397,15 +432,15 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                   child: StickyButton(
                     label: AppStrings.sharing.rejectButton,
                     color: kStickyPink,
-                    onPressed: _isProcessing ? null : () => _rejectRequest(request),
+                    onPressed: _processingRequestId != null ? null : () => _rejectRequest(request),
                     icon: Icons.cancel,
                   ),
                 ),
               ],
             ),
 
-            // Processing indicator
-            if (_isProcessing) ...[
+            // Processing indicator - רק עבור הכרטיס הספציפי שבעיבוד
+            if (_processingRequestId == request.id) ...[
               const SizedBox(height: kSpacingSmall),
               const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))),
             ],

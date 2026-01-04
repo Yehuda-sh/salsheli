@@ -77,10 +77,17 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
 
   // 🔄 Sync status - מצב סנכרון עם השרת
   bool _hasSyncError = false;
+  int _failedSyncCount = 0; // 🔧 ספירת כשלונות סנכרון רצופים
 
   // 🧑 UserContext Listener
   late UserContext _userContext;
   bool _listenerAdded = false; // 🔧 עוקב אחרי הוספת listener
+  String? _lastUserId; // 🔧 שמירת userId אחרון לזיהוי שינוי אמיתי
+  String? _lastHouseholdId; // 🔧 שמירת householdId אחרון
+
+  // ⏱️ Debounce למניעת הצפת שמירות
+  final Map<String, Timer> _saveTimers = {}; // item.id → Timer
+  static const Duration _saveDebounce = Duration(milliseconds: 300);
 
   @override
   void initState() {
@@ -89,6 +96,11 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
 
     // ✅ UserContext Listener - לאזור לשינויים בנתוני המשתמש
     _userContext = context.read<UserContext>();
+
+    // 🔧 שמירת ערכים התחלתיים לזיהוי שינויים אמיתיים
+    _lastUserId = _userContext.userId;
+    _lastHouseholdId = _userContext.householdId;
+
     _userContext.addListener(_onUserContextChanged);
     _listenerAdded = true; // 🔧 מסמן שהוספנו listener
 
@@ -143,8 +155,26 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
   }
 
   /// 🔄 בעת שינוי household_id או משתמש
+  /// 🔧 FIX: רק אם השתנה userId או householdId - לא בכל שינוי!
+  /// זה מונע איבוד סטטוסים (outOfStock/notNeeded) באמצע קנייה
   void _onUserContextChanged() {
-    debugPrint('🔄 _onUserContextChanged: שינוי בהקשר המשתמש');
+    final newUserId = _userContext.userId;
+    final newHouseholdId = _userContext.householdId;
+
+    // ✅ בדוק אם באמת השתנה משהו רלוונטי
+    if (newUserId == _lastUserId && newHouseholdId == _lastHouseholdId) {
+      // אין שינוי אמיתי - התעלם (למשל: שינוי שם, אווטר וכו')
+      return;
+    }
+
+    debugPrint('🔄 _onUserContextChanged: שינוי אמיתי בהקשר המשתמש');
+    debugPrint('   userId: $_lastUserId → $newUserId');
+    debugPrint('   householdId: $_lastHouseholdId → $newHouseholdId');
+
+    // עדכן את הערכים השמורים
+    _lastUserId = newUserId;
+    _lastHouseholdId = newHouseholdId;
+
     if (mounted) {
       _initializeScreen();
     }
@@ -159,33 +189,90 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       _userContext.removeListener(_onUserContextChanged);
     }
 
+    // 🔧 ביטול כל הטיימרים של debounce
+    for (final timer in _saveTimers.values) {
+      timer.cancel();
+    }
+    _saveTimers.clear();
+
     super.dispose();
   }
 
-  /// עדכון סטטוס פריט + שמירה אוטומטית
-  Future<void> _updateItemStatus(UnifiedListItem item, ShoppingItemStatus newStatus) async {
+  /// עדכון סטטוס פריט + שמירה אוטומטית עם debounce
+  void _updateItemStatus(UnifiedListItem item, ShoppingItemStatus newStatus) {
     debugPrint('📝 _updateItemStatus: ${item.name} → ${newStatus.name}');
 
+    // 🔄 עדכון מיידי ב-UI (optimistic update)
     setState(() {
       _itemStatuses[item.id] = newStatus;
     });
 
-    // 💾 Auto-save - שמור מיידית ל-Firebase
+    // ⏱️ Debounce: בטל טיימר קודם אם קיים
+    _saveTimers[item.id]?.cancel();
+
+    // 💾 תזמן שמירה אחרי debounce
+    _saveTimers[item.id] = Timer(_saveDebounce, () {
+      _saveItemStatus(item.id, newStatus);
+    });
+  }
+
+  /// 💾 שמירת סטטוס פריט ל-Firebase (נקרא אחרי debounce)
+  Future<void> _saveItemStatus(String itemId, ShoppingItemStatus status) async {
     try {
       final provider = context.read<ShoppingListsProvider>();
-      await provider.updateItemStatus(widget.list.id, item.id, newStatus);
-      debugPrint('✅ _updateItemStatus: נשמר אוטומטית');
+      await provider.updateItemStatus(widget.list.id, itemId, status);
+      debugPrint('✅ _saveItemStatus: נשמר אוטומטית');
 
       // ✅ סנכרון הצליח - נקה שגיאה קודמת אם הייתה
-      if (_hasSyncError && mounted) {
-        setState(() => _hasSyncError = false);
+      if (mounted) {
+        setState(() {
+          _hasSyncError = false;
+          _failedSyncCount = 0;
+        });
       }
     } catch (e) {
-      debugPrint('❌ _updateItemStatus Auto-save Error: $e');
+      debugPrint('❌ _saveItemStatus Auto-save Error: $e');
 
       // ⚠️ הצג אינדיקציה למשתמש שיש בעיית סנכרון
-      if (mounted && !_hasSyncError) {
-        setState(() => _hasSyncError = true);
+      if (mounted) {
+        setState(() {
+          _failedSyncCount++;
+          _hasSyncError = true;
+        });
+      }
+    }
+  }
+
+  /// 🔄 ניסיון חוזר לסנכרון כל הפריטים שנכשלו
+  Future<void> _retrySyncAll() async {
+    debugPrint('🔄 _retrySyncAll: מנסה לסנכרן הכל...');
+
+    final provider = context.read<ShoppingListsProvider>();
+    bool anyFailed = false;
+
+    for (final entry in _itemStatuses.entries) {
+      try {
+        await provider.updateItemStatus(widget.list.id, entry.key, entry.value);
+      } catch (e) {
+        anyFailed = true;
+        debugPrint('❌ Failed to sync ${entry.key}: $e');
+      }
+    }
+
+    if (mounted) {
+      setState(() {
+        _hasSyncError = anyFailed;
+        if (!anyFailed) _failedSyncCount = 0;
+      });
+
+      if (!anyFailed) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ הסנכרון הצליח!'),
+            backgroundColor: StatusColors.success,
+            duration: Duration(seconds: 2),
+          ),
+        );
       }
     }
   }
@@ -418,16 +505,15 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         await Future.delayed(const Duration(milliseconds: 800));
         if (!mounted) return;
 
+        // 🔧 FIX: איפוס _isSaving לפני ניווט למקרה שנכשל
+        setState(() => _isSaving = false);
+
         debugPrint('🚪 _saveAndFinish: מעבר למסך סיכום');
         unawaited(navigator.pushReplacementNamed('/shopping-summary', arguments: widget.list.id));
     } catch (e) {
       debugPrint('❌ _saveAndFinish Error: $e');
 
       if (mounted) {
-        setState(() {
-          _isSaving = false;
-        });
-
         // הצג הודעת שגיאה עם אפשרות retry
         final shouldRetry = await showDialog<bool>(
           context: context,
@@ -463,6 +549,11 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         if (shouldRetry == true && mounted) {
           await _saveAndFinish(pendingAction: pendingAction); // Retry with same action
         }
+      }
+    } finally {
+      // 🔧 FIX: תמיד איפוס _isSaving בסיום (finally)
+      if (mounted && _isSaving) {
+        setState(() => _isSaving = false);
       }
     }
   }
@@ -543,16 +634,19 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
               maxLines: 1,
             ),
             actions: [
-              // ⚠️ אינדיקציה לבעיית סנכרון
+              // ⚠️ אינדיקציה לבעיית סנכרון - לחיץ לניסיון חוזר
               if (_hasSyncError)
-                Tooltip(
-                  message: AppStrings.common.syncError,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: kSpacingSmall),
-                    child: Icon(
+                IconButton(
+                  onPressed: _retrySyncAll,
+                  tooltip: 'לא מסונכרן - לחץ לנסות שוב',
+                  icon: Badge(
+                    label: Text('$_failedSyncCount'),
+                    isLabelVisible: _failedSyncCount > 1,
+                    backgroundColor: StatusColors.error,
+                    child: const Icon(
                       Icons.cloud_off,
-                      color: Colors.white.withValues(alpha: 0.9),
-                      size: 20,
+                      color: Colors.white,
+                      size: 22,
                     ),
                   ),
                 ),
@@ -991,7 +1085,7 @@ Widget _buildDivider() {
 class _ActiveShoppingItemTile extends StatelessWidget {
   final UnifiedListItem item;
   final ShoppingItemStatus status;
-  final Future<void> Function(ShoppingItemStatus) onStatusChanged;
+  final void Function(ShoppingItemStatus) onStatusChanged; // 🔧 Changed from Future<void>
 
   const _ActiveShoppingItemTile({
     required this.item,
@@ -1031,26 +1125,31 @@ class _ActiveShoppingItemTile extends StatelessWidget {
       child: Row(
         children: [
           // ✅ Checkbox - סימון כנקנה
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
-            child: GestureDetector(
-              onTap: () {
-                unawaited(HapticFeedback.selectionClick());
-                if (status == ShoppingItemStatus.purchased) {
-                  onStatusChanged(ShoppingItemStatus.pending);
-                } else {
-                  onStatusChanged(ShoppingItemStatus.purchased);
-                }
-              },
-              child: Icon(
-                status == ShoppingItemStatus.purchased
-                    ? Icons.check_circle
-                    : Icons.radio_button_unchecked,
-                key: ValueKey(status == ShoppingItemStatus.purchased),
-                color: status == ShoppingItemStatus.purchased
-                    ? StatusColors.success
-                    : cs.onSurfaceVariant,
-                size: 28,
+          // 🔧 FIX: אזור לחיץ גדול יותר (48x48 לפי Material guidelines)
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              unawaited(HapticFeedback.selectionClick());
+              if (status == ShoppingItemStatus.purchased) {
+                onStatusChanged(ShoppingItemStatus.pending);
+              } else {
+                onStatusChanged(ShoppingItemStatus.purchased);
+              }
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  status == ShoppingItemStatus.purchased
+                      ? Icons.check_circle
+                      : Icons.radio_button_unchecked,
+                  key: ValueKey(status == ShoppingItemStatus.purchased),
+                  color: status == ShoppingItemStatus.purchased
+                      ? StatusColors.success
+                      : cs.onSurfaceVariant,
+                  size: 28,
+                ),
               ),
             ),
           ),
@@ -1106,10 +1205,10 @@ class _ActiveShoppingItemTile extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(width: kSpacingXTiny),
-
           // ❌ כפתור "אין במלאי"
+          // 🔧 FIX: אזור לחיץ גדול יותר עם padding
           GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () {
               unawaited(HapticFeedback.lightImpact());
               if (status == ShoppingItemStatus.outOfStock) {
@@ -1118,21 +1217,24 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                 onStatusChanged(ShoppingItemStatus.outOfStock);
               }
             },
-            child: Icon(
-              status == ShoppingItemStatus.outOfStock
-                  ? Icons.remove_shopping_cart
-                  : Icons.remove_shopping_cart_outlined,
-              size: kIconSizeMedium,
-              color: StatusColors.error.withValues(
-                alpha: status == ShoppingItemStatus.outOfStock ? 1.0 : 0.6,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+              child: Icon(
+                status == ShoppingItemStatus.outOfStock
+                    ? Icons.remove_shopping_cart
+                    : Icons.remove_shopping_cart_outlined,
+                size: kIconSizeMedium,
+                color: StatusColors.error.withValues(
+                  alpha: status == ShoppingItemStatus.outOfStock ? 1.0 : 0.6,
+                ),
               ),
             ),
           ),
 
-          const SizedBox(width: kSpacingXTiny),
-
           // 🚫 כפתור "לא צריך"
+          // 🔧 FIX: אזור לחיץ גדול יותר עם padding
           GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () {
               unawaited(HapticFeedback.lightImpact());
               if (status == ShoppingItemStatus.notNeeded) {
@@ -1141,11 +1243,14 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                 onStatusChanged(ShoppingItemStatus.notNeeded);
               }
             },
-            child: Icon(
-              Icons.block,
-              size: kIconSizeMedium,
-              color: Colors.grey.withValues(
-                alpha: status == ShoppingItemStatus.notNeeded ? 1.0 : 0.5,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+              child: Icon(
+                Icons.block,
+                size: kIconSizeMedium,
+                color: Colors.grey.withValues(
+                  alpha: status == ShoppingItemStatus.notNeeded ? 1.0 : 0.5,
+                ),
               ),
             ),
           ),

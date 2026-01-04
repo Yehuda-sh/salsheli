@@ -153,8 +153,18 @@ class _CreateListScreenState extends State<CreateListScreen> {
       return AppStrings.createListDialog.networkError;
     }
 
-    // ✅ FIX: אם המשתמש לא מחובר - מעבירים ל-Login במקום להציג הודעה
-    if (errorStr.contains('not logged in') || errorStr.contains('user')) {
+    // 🔧 FIX: זיהוי ספציפי יותר של בעיית התחברות
+    // מונע זיהוי שגוי של שגיאות אחרות שמכילות "user"
+    final authErrors = [
+      'not logged in',
+      'user_not_logged_in',
+      'user not authenticated',
+      'unauthenticated',
+      'permission-denied', // Firebase Auth
+      'requires-authentication',
+    ];
+
+    if (authErrors.any(errorStr.contains)) {
       Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
       return null; // לא מציגים snackbar
     }
@@ -198,6 +208,9 @@ class _CreateListScreenState extends State<CreateListScreen> {
           selected.templateFile,
         );
 
+        // 🔧 FIX: בדיקת mounted אחרי await - לפני setState
+        if (!mounted) return;
+
         setState(() {
           _selectedTemplate = selected;
           // 🔧 עדכון שם רק אם השדה ריק - שומר על כוונת המשתמש
@@ -207,14 +220,12 @@ class _CreateListScreenState extends State<CreateListScreen> {
           _templateItems = items;
         });
 
-        if (!mounted) return;
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
               AppStrings.createListDialog.templateApplied(selected.name, items.length),
             ),
-            backgroundColor: Colors.green,
+            backgroundColor: StatusColors.getStatusColor('success', context),
           ),
         );
       }
@@ -225,7 +236,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(AppStrings.createListDialog.loadingTemplatesError),
-          backgroundColor: Colors.red,
+          backgroundColor: StatusColors.getStatusColor('error', context),
         ),
       );
     }
@@ -330,22 +341,84 @@ class _CreateListScreenState extends State<CreateListScreen> {
 
   Widget _buildTemplateButton() {
     final strings = AppStrings.createListDialog;
+    final theme = Theme.of(context);
 
+    // 🔧 אם נבחרה תבנית - הצג עם כפתור הסרה
+    if (_selectedTemplate != null) {
+      return Container(
+        decoration: BoxDecoration(
+          color: theme.primaryColor.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(kBorderRadius),
+          border: Border.all(color: theme.primaryColor.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          children: [
+            // כפתור שינוי תבנית
+            Expanded(
+              child: InkWell(
+                onTap: _isSubmitting ? null : _selectTemplate,
+                borderRadius: const BorderRadius.horizontal(
+                  right: Radius.circular(kBorderRadius),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: kSpacingMedium,
+                    vertical: kSpacingSmall + 4,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.list_alt, color: theme.primaryColor),
+                      const SizedBox(width: kSpacingSmall),
+                      Flexible(
+                        child: Text(
+                          '✨ ${_selectedTemplate!.name}',
+                          style: TextStyle(color: theme.primaryColor),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            // כפתור הסרת תבנית
+            Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  right: BorderSide(
+                    color: theme.primaryColor.withValues(alpha: 0.3),
+                  ),
+                ),
+              ),
+              child: IconButton(
+                icon: Icon(Icons.close, color: theme.colorScheme.error),
+                tooltip: 'הסר תבנית',
+                onPressed: _isSubmitting ? null : _removeTemplate,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // אין תבנית - כפתור רגיל
     return OutlinedButton.icon(
       icon: const Icon(Icons.list_alt),
-      label: Text(
-        _selectedTemplate == null
-            ? strings.useTemplateButton
-            : '✨ ${_selectedTemplate!.name}',
-      ),
+      label: Text(strings.useTemplateButton),
       style: OutlinedButton.styleFrom(
         minimumSize: const Size(double.infinity, 48),
-        backgroundColor: _selectedTemplate != null
-            ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
-            : null,
       ),
       onPressed: _isSubmitting ? null : _selectTemplate,
     );
+  }
+
+  /// הסרת תבנית שנבחרה
+  void _removeTemplate() {
+    setState(() {
+      _selectedTemplate = null;
+      _templateItems = [];
+    });
   }
 
   Widget _buildNameField(ShoppingListsProvider provider) {
@@ -553,7 +626,8 @@ class _CreateListScreenState extends State<CreateListScreen> {
       ),
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r'^\d+([.,]\d{0,2})?$')),
+        // 🔧 FIX: \d* במקום \d+ - מאפשר שדה ריק (למחיקה ידנית)
+        FilteringTextInputFormatter.allow(RegExp(r'^\d*([.,]\d{0,2})?$')),
       ],
       validator: (value) {
         if (value != null && value.isNotEmpty) {

@@ -65,10 +65,13 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   String? _lastSearchQuery;
   String? _lastSelectedCategory;
   int _lastItemsCount = -1;
+  // 🔧 FIX: הוספת hash לזיהוי שינויים בתוכן הפריטים (לא רק באורך)
+  int _lastItemsHash = 0;
 
   // 🏷️ קטגוריות דינמיות - נגזרות מהפריטים ברשימה
-  List<String> get _availableCategories {
-    final categories = widget.list.items
+  // 🔧 FIX: קבלת list כפרמטר במקום widget.list
+  List<String> _getAvailableCategories(ShoppingList list) {
+    final categories = list.items
         .map((item) => item.category)
         .where((c) => c != null && c.isNotEmpty)
         .cast<String>()
@@ -79,9 +82,10 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   }
 
   /// 🎯 אימוג'י לפי קטגוריה - תואם לקטלוג המוצרים
-  String _getCategoryEmoji(String category) {
+  /// 🔧 FIX: קבלת listType כפרמטר במקום widget.list.type
+  String _getCategoryEmoji(String category, String listType) {
     // אטליז
-    if (widget.list.type == ShoppingList.typeButcher) {
+    if (listType == ShoppingList.typeButcher) {
       switch (category) {
         case 'בקר':
           return '🐄';
@@ -222,9 +226,11 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   void didUpdateWidget(ShoppingListDetailsScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // 📦 ניקוי cache כאשר הרשימה משתנה (פריטים התווספו/נמחקו)
-    if (widget.list.items.length != oldWidget.list.items.length ||
-        widget.list.id != oldWidget.list.id) {
+    // 📦 ניקוי cache כאשר הרשימה משתנה
+    // 🔧 FIX: נקה cache גם כשהתוכן משתנה (לא רק אורך) - שימוש ב-updatedDate
+    if (widget.list.id != oldWidget.list.id ||
+        widget.list.items.length != oldWidget.list.items.length ||
+        widget.list.updatedDate != oldWidget.list.updatedDate) {
       _cachedFilteredItems = null;
     }
   }
@@ -295,14 +301,18 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   }
 
   /// 🛒 פתיחת Bottom Sheet לבחירת מוצרים
+  /// 🔧 FIX: שימוש ב-currentList מה-provider במקום widget.list
   Future<void> _navigateToPopulateScreen() async {
     debugPrint('🛒 ShoppingListDetailsScreen: פתיחת Bottom Sheet');
+
+    final provider = context.read<ShoppingListsProvider>();
+    final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id, orElse: () => widget.list);
 
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => ProductSelectionBottomSheet(list: widget.list),
+      builder: (context) => ProductSelectionBottomSheet(list: currentList),
     );
 
     // רענון הרשימה אחרי סגירה
@@ -489,11 +499,15 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
   /// 🔍 סינון פריטים - דינמי לפי קטגוריות הפריטים בפועל
   List<UnifiedListItem> _getFilteredAndSortedItems(List<UnifiedListItem> items) {
-    // 📦 Memoization - החזר cache אם לא השתנה כלום
+    // 🔧 FIX: חישוב hash של תוכן הפריטים לזיהוי שינויים
+    final itemsHash = Object.hashAll(items.map((i) => Object.hash(i.id, i.name, i.category, i.isChecked)));
+
+    // 📦 Memoization - החזר cache אם לא השתנה כלום (כולל תוכן!)
     if (_cachedFilteredItems != null &&
         _lastSearchQuery == _searchQuery &&
         _lastSelectedCategory == _selectedCategory &&
-        _lastItemsCount == items.length) {
+        _lastItemsCount == items.length &&
+        _lastItemsHash == itemsHash) {
       return _cachedFilteredItems!;
     }
 
@@ -523,11 +537,12 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
       return true;
     }).toList();
 
-    // 📦 עדכון cache
+    // 📦 עדכון cache (כולל hash לזיהוי שינויים בתוכן)
     _cachedFilteredItems = filtered;
     _lastSearchQuery = _searchQuery;
     _lastSelectedCategory = _selectedCategory;
     _lastItemsCount = items.length;
+    _lastItemsHash = itemsHash;
 
     debugPrint('🔍 סינון: ${items.length} → ${filtered.length} פריטים (קטגוריה: "$_selectedCategory")');
     return filtered;
@@ -672,7 +687,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
             Column(
               children: [
                 // 🔍 חיפוש וסינון
-                _buildFiltersSection(allItems),
+                _buildFiltersSection(allItems, currentList),
 
                 // 📝 בקשות ממתינות
                 if (currentList.pendingRequestsForReview.isNotEmpty && currentList.canCurrentUserApprove)
@@ -693,13 +708,14 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text('לא נמצאו פריטים'),
+                              // 🔧 FIX: שימוש ב-AppStrings במקום מחרוזת קשיחה
+                              Text(AppStrings.listDetails.noSearchResultsTitle),
                               TextButton(
                                 onPressed: () {
                                   setState(() => _searchQuery = '');
                                   debugPrint('🧹 ShoppingListDetailsScreen: ניקוי חיפוש מ-Empty Search');
                                 },
-                                child: const Text('נקה חיפוש'),
+                                child: Text(AppStrings.listDetails.clearSearchButton),
                               ),
                             ],
                           ),
@@ -709,18 +725,18 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text('הרשימה ריקה'),
+                              Text(AppStrings.listDetails.emptyListTitle),
                               TextButton(
                                 onPressed: _navigateToPopulateScreen,
-                                child: const Text('הוסף פריטים'),
+                                child: Text(AppStrings.listDetails.populateFromCatalog),
                               ),
                             ],
                           ),
                         )
                       // 🏷️ קיבוץ אוטומטי מעל 10 פריטים
                       : filteredItems.length >= 10
-                      ? _buildGroupedList(filteredItems, theme)
-                      : _buildFlatList(filteredItems, theme),
+                      ? _buildGroupedList(filteredItems, theme, currentList)
+                      : _buildFlatList(filteredItems, theme, currentList),
                 ),
 
                 // 💰 סה"כ מונפש - מוסתר כרגע
@@ -762,13 +778,14 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                   ],
                 ),
               )
-            : null, // 🔒 Viewer/Editor אין רשאים להוסיף
+            : null, // 🔒 Viewer בלבד אינו רשאי להוסיף (Editor יכול דרך בקשות)
       ),
     );
   }
 
   /// 🔍 סעיף חיפוש וסינון - גרסה קומפקטית (חוסכת מקום!)
-  Widget _buildFiltersSection(List<UnifiedListItem> allItems) {
+  /// 🔧 FIX: קבלת currentList כפרמטר במקום שימוש ב-widget.list
+  Widget _buildFiltersSection(List<UnifiedListItem> allItems, ShoppingList currentList) {
     // אם אין פריטים בכלל, אין טעם להציג פילטרים
     if (allItems.isEmpty) return const SizedBox.shrink();
 
@@ -822,13 +839,13 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
         // 2. רשימת קטגוריות נגללת אופקית (כמו ב-YouTube/Spotify)
         // מוצג לכל סוגי הרשימות (סופרמרקט, אטליז וכו') - רק אם יש קטגוריות
-        if (_availableCategories.isNotEmpty)
+        if (_getAvailableCategories(currentList).isNotEmpty)
           SizedBox(
             height: 40, // גובה קבוע לשורת הקטגוריות
             child: ListView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
-              children: _buildCategoryChipsCompact(),
+              children: _buildCategoryChipsCompact(currentList),
             ),
           ),
 
@@ -839,8 +856,9 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   }
 
   /// 🏷️ יצירת צ'יפים של קטגוריות (לגלילה אופקית) - דינמי!
-  List<Widget> _buildCategoryChipsCompact() {
-    final categories = _availableCategories;
+  /// 🔧 FIX: קבלת currentList כפרמטר
+  List<Widget> _buildCategoryChipsCompact(ShoppingList currentList) {
+    final categories = _getAvailableCategories(currentList);
 
     // אם אין קטגוריות, לא מציגים כלום
     if (categories.isEmpty) return [];
@@ -851,7 +869,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     return allCategories.map((category) {
       final isAll = category == AppStrings.listDetails.categoryAll;
       final isSelected = _selectedCategory == category || (_selectedCategory == null && isAll);
-      final emoji = isAll ? '📦' : _getCategoryEmoji(category);
+      final emoji = isAll ? '📦' : _getCategoryEmoji(category, currentList.type);
 
       return Padding(
         padding: const EdgeInsets.only(left: 8.0), // ריווח בין צ'יפים
@@ -892,8 +910,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
 
   /// 📋 רשימה שטוחה (flat) עם Staggered Animation - מסונכרן עם שורות המחברת
-  Widget _buildFlatList(List<UnifiedListItem> items, ThemeData theme) {
-    final stickyColors = [kStickyYellow, kStickyPink, kStickyGreen, kStickyCyan];
+  /// 🔧 FIX: קבלת currentList כפרמטר
+  Widget _buildFlatList(List<UnifiedListItem> items, ThemeData theme, ShoppingList currentList) {
     // 🎬 הגבלת אנימציות - רק 8 פריטים ראשונים ורק בטעינה ראשונית
     const maxAnimatedItems = 8;
 
@@ -907,15 +925,13 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
       itemCount: items.length,
       itemBuilder: (context, index) {
         final item = items[index];
-        final originalIndex = widget.list.items.indexOf(item);
-        final colorIndex = index % stickyColors.length;
+        final originalIndex = currentList.items.indexOf(item);
 
         final cardWidget = _buildItemCard(
           item,
           originalIndex,
           theme,
-          stickyColors[colorIndex],
-          0.0, // rotation = 0
+          currentList,
         );
 
         // 🎬 אנימציה רק בטעינה ראשונית ורק לפריטים הראשונים
@@ -941,7 +957,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   }
 
   /// 🏷️ רשימה מקובצת - עיצוב "מרקר" (Highlighter) רחב
-  Widget _buildGroupedList(List<UnifiedListItem> items, ThemeData theme) {
+  /// 🔧 FIX: קבלת currentList כפרמטר
+  Widget _buildGroupedList(List<UnifiedListItem> items, ThemeData theme, ShoppingList currentList) {
     final grouped = _groupItemsByCategory(items);
     final categories = grouped.keys.toList()..sort();
 
@@ -994,7 +1011,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                     const SizedBox(width: kNotebookRedLineOffset),
 
                     Text(
-                      '${_getCategoryEmoji(category)} $category',
+                      '${_getCategoryEmoji(category, currentList.type)} $category',
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Colors.black87,
@@ -1021,13 +1038,12 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
             // === פריטים בקטגוריה ===
             ...categoryItems.map((item) {
-              final originalIndex = widget.list.items.indexOf(item);
+              final originalIndex = currentList.items.indexOf(item);
               return _buildItemCard(
                 item,
                 originalIndex,
                 theme,
-                Colors.transparent, // ללא רקע לפריט עצמו
-                0.0,
+                currentList,
               );
             }),
           ],
@@ -1037,10 +1053,11 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   }
 
   /// 🎴 כרטיס פריט נקי - ללא כפתורי רעש (Swipe למחיקה, Tap לעריכה)
-  Widget _buildItemCard(UnifiedListItem item, int index, ThemeData theme, Color stickyColor, double rotation) {
+  /// 🔧 FIX: קבלת currentList כפרמטר + הסרת פרמטרים שלא בשימוש (stickyColor, rotation)
+  Widget _buildItemCard(UnifiedListItem item, int index, ThemeData theme, ShoppingList currentList) {
     final isProduct = item.type == ItemType.product;
-    final canManage = widget.list.canCurrentUserManage; // Owner/Admin
-    final canEdit = widget.list.canCurrentUserEdit; // Owner/Admin/Editor
+    final canManage = currentList.canCurrentUserManage; // Owner/Admin
+    final canEdit = currentList.canCurrentUserEdit; // Owner/Admin/Editor
 
     return Dismissible(
       key: Key(item.id),
@@ -1049,11 +1066,11 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
         alignment: Alignment.centerLeft,
         padding: const EdgeInsets.only(left: kSpacingLarge),
         color: Colors.red.shade400,
-        child: const Row(
+        child: Row(
           children: [
-            Icon(Icons.delete_outline, color: Colors.white),
-            SizedBox(width: 8),
-            Text('מחיקה', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            const Icon(Icons.delete_outline, color: Colors.white),
+            const SizedBox(width: 8),
+            Text(AppStrings.common.delete, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
@@ -1092,11 +1109,11 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                 activeColor: theme.colorScheme.primary,
                 side: BorderSide(color: theme.colorScheme.onSurfaceVariant, width: 2),
                 onChanged: (val) {
+                  // 🔧 FIX: שימוש ב-currentList שהתקבל כפרמטר
                   final provider = context.read<ShoppingListsProvider>();
-                  final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id);
                   final originalIndex = currentList.items.indexWhere((i) => i.id == item.id);
                   if (originalIndex != -1) {
-                    provider.updateItemAt(widget.list.id, originalIndex, (c) => c.copyWith(isChecked: val));
+                    provider.updateItemAt(currentList.id, originalIndex, (c) => c.copyWith(isChecked: val));
                   }
                 },
               ),

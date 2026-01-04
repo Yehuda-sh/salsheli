@@ -402,6 +402,67 @@ class _ShoppingStrings {
   String get productNoName => 'ללא שם';
   String updateProductError(String error) => 'שגיאה בעדכון מוצר: $error';
   String addProductError(String error) => 'שגיאה בהוספת מוצר: $error';
+
+  // ========================================
+  // Shopping Lists Screen (Browse)
+  // ========================================
+
+  // Top Bar & Menu
+  String get searchAndFilter => 'חיפוש וסינון';
+  String get filterActive => 'סינון פעיל';
+  String get searchMenuLabel => 'חיפוש';
+  String get filterByTypeLabel => 'סינון לפי סוג';
+  String get sortLabel => 'מיון';
+  String get clearFilterLabel => 'נקה סינון';
+  String get newListTooltip => 'רשימה חדשה';
+
+  // Search Sheet
+  String get searchListTitle => 'חיפוש רשימה';
+  String get searchListHint => 'הקלד שם רשימה...';
+  String get clearButton => 'נקה';
+  String get searchButton => 'חפש';
+
+  // Filter Sheet
+  String get filterByTypeTitle => 'סינון לפי סוג';
+  String get allTypesLabel => 'הכל';
+
+  // Sort Sheet
+  String get sortTitle => 'מיון';
+  String get sortDateDesc => 'חדש → ישן';
+  String get sortDateAsc => 'ישן → חדש';
+  String get sortNameAZ => 'א-ת';
+  String get sortBudgetDesc => 'תקציב גבוה → נמוך';
+  String get sortBudgetAsc => 'תקציב נמוך → גבוה';
+  String get sortLabelNew => 'חדש';
+  String get sortLabelOld => 'ישן';
+  String get sortLabelAZ => 'א-ת';
+
+  // Section Headers
+  String get activeLists => '🔵 רשימות פעילות';
+  String get historyLists => '✅ היסטוריה';
+  String get historyListsNote => '(לפי עדכון אחרון)';
+
+  // Empty States
+  String get noListsFoundTitle => 'לא נמצאו רשימות';
+  String get noListsFoundSubtitle => 'נסה לשנות את החיפוש או הסינון';
+  String get noListsTitle => 'אין רשימות קניות';
+  String get noListsSubtitle => 'לחץ על הכפתור מטה ליצירת\nהרשימה הראשונה שלך!';
+  String get createNewListButton => 'צור רשימה חדשה';
+  String get orScanReceiptHint => 'או סרוק קבלה במסך הקבלות';
+
+  // Error State
+  String get loadingListsError => 'שגיאה בטעינת הרשימות';
+  String get somethingWentWrong => 'משהו השתבש...';
+  String get tryAgainButton => 'נסה שוב';
+
+  // Pagination
+  String loadMoreLists(int remaining) => 'טען עוד רשימות ($remaining נותרו)';
+
+  // Tooltips & Actions
+  String get moreOptionsTooltip => 'אפשרויות נוספות';
+
+  // Default List Names
+  String get defaultShoppingListName => 'קניות כלליות';
 }
 
 // ========================================
@@ -470,18 +531,26 @@ class _WelcomeStrings {
   String get benefit3Subtitle => 'המלצות אוטומטיות למה חסר + ארגון לפי מדפים';
 
   // Buttons
-  String get startButton => 'בואו נתחיל!';
+  String get startButton => 'הרשמה';
   String get loginButton => 'התחברות';
-  String get loginLink => 'יש לי חשבון? להתחבר';
+  String get loginLink => 'כבר יש לי חשבון — התחברות';
+  String get authExplanation => 'כדי להשתמש באפליקציה צריך להתחבר או להירשם';
   String get registerButton => 'הרשמה';
-  String get guestButton => 'המשך כאורח';
   String get socialLoginLabel => 'או התחבר עם:';
   String get googleButton => 'Google';
   String get facebookButton => 'Facebook';
 
+  // Legal links
+  String get termsOfService => 'תנאי שימוש';
+  String get privacyPolicy => 'מדיניות פרטיות';
+
   // Accessibility
   String get logoLabel => 'לוגו אפליקציית MemoZap';
   String socialLoginButtonLabel(String provider) => 'התחבר עם $provider';
+
+  // ⚠️ DEPRECATED: Guest mode removed - auth is required
+  @Deprecated('Guest mode removed - auth is required')
+  String get guestButton => 'המשך כאורח';
 }
 
 // ========================================
@@ -650,6 +719,9 @@ class _HomeStrings {
 
   // Welcome Header
   String welcomeUser(String userName) => 'שלום $userName! 👋';
+
+  // ⚠️ DEPRECATED: Guest mode removed - auth is required
+  @Deprecated('Guest mode removed - auth is required')
   String get guestUser => 'אורח';
 
   // Sort

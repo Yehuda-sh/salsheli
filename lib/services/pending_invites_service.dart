@@ -118,21 +118,46 @@ class PendingInvitesService {
   // ============================================================
 
   /// שליפת הזמנות ממתינות למשתמש (הזמנות שהוא קיבל)
-  Future<List<PendingRequest>> getPendingInvitesForUser(String userId) async {
+  ///
+  /// מחפש לפי UID ראשית, ואז גם לפי אימייל (למקרה שההזמנה נשלחה
+  /// לפני שהמשתמש נרשם לאפליקציה).
+  Future<List<PendingRequest>> getPendingInvitesForUser(
+    String userId, {
+    String? userEmail,
+  }) async {
     if (kDebugMode) {
       debugPrint('📋 PendingInvitesService.getPendingInvitesForUser():');
       debugPrint('   User: $userId');
+      debugPrint('   Email: $userEmail');
     }
 
-    final snapshot = await _invitesRef
+    // 🔍 חיפוש לפי UID
+    final uidSnapshot = await _invitesRef
         .where('request_data.invited_user_id', isEqualTo: userId)
         .where('status', isEqualTo: RequestStatus.pending.name)
         .orderBy('created_at', descending: true)
         .get();
 
-    final invites = snapshot.docs
+    final invites = uidSnapshot.docs
         .map((doc) => PendingRequest.fromJson(doc.data()))
         .toList();
+
+    // 🔍 חיפוש גם לפי אימייל (למקרה שהוזמן לפני שנרשם)
+    if (userEmail != null && userEmail.isNotEmpty) {
+      final emailSnapshot = await _invitesRef
+          .where('request_data.invited_user_id', isEqualTo: userEmail.toLowerCase())
+          .where('status', isEqualTo: RequestStatus.pending.name)
+          .orderBy('created_at', descending: true)
+          .get();
+
+      // הוספת הזמנות שנמצאו לפי אימייל (ללא כפילויות)
+      for (final doc in emailSnapshot.docs) {
+        final invite = PendingRequest.fromJson(doc.data());
+        if (!invites.any((i) => i.id == invite.id)) {
+          invites.add(invite);
+        }
+      }
+    }
 
     if (kDebugMode) {
       debugPrint('   Found ${invites.length} pending invites');
@@ -142,6 +167,9 @@ class PendingInvitesService {
   }
 
   /// Stream של הזמנות ממתינות (real-time)
+  ///
+  /// 💡 הערה: Stream לא תומך בחיפוש לפי אימייל בנפרד.
+  /// למימוש מלא עם אימייל, השתמש ב-getPendingInvitesForUser עם Timer.
   Stream<List<PendingRequest>> watchPendingInvitesForUser(String userId) {
     return _invitesRef
         .where('request_data.invited_user_id', isEqualTo: userId)
@@ -154,16 +182,39 @@ class PendingInvitesService {
   }
 
   /// מספר הזמנות ממתינות (לbadge)
-  Future<int> getPendingInvitesCount(String userId) async {
-    final snapshot = await _invitesRef
+  ///
+  /// מחפש לפי UID ואימייל (למקרה שהוזמן לפני הרשמה).
+  Future<int> getPendingInvitesCount(String userId, {String? userEmail}) async {
+    final uidSnapshot = await _invitesRef
         .where('request_data.invited_user_id', isEqualTo: userId)
         .where('status', isEqualTo: RequestStatus.pending.name)
         .get();
 
-    return snapshot.docs.length;
+    int count = uidSnapshot.docs.length;
+
+    // חיפוש גם לפי אימייל
+    if (userEmail != null && userEmail.isNotEmpty) {
+      final emailSnapshot = await _invitesRef
+          .where('request_data.invited_user_id', isEqualTo: userEmail.toLowerCase())
+          .where('status', isEqualTo: RequestStatus.pending.name)
+          .get();
+
+      // ספירת הזמנות ייחודיות (לא כפולות)
+      final uidIds = uidSnapshot.docs.map((d) => d.id).toSet();
+      for (final doc in emailSnapshot.docs) {
+        if (!uidIds.contains(doc.id)) {
+          count++;
+        }
+      }
+    }
+
+    return count;
   }
 
   /// Stream של מספר הזמנות ממתינות (real-time badge)
+  ///
+  /// 💡 הערה: Stream לא תומך בחיפוש לפי אימייל בנפרד.
+  /// למימוש מלא עם אימייל, השתמש ב-getPendingInvitesCount עם Timer.
   Stream<int> watchPendingInvitesCount(String userId) {
     return _invitesRef
         .where('request_data.invited_user_id', isEqualTo: userId)

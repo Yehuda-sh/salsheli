@@ -40,19 +40,40 @@ class PendingInvitesScreen extends StatefulWidget {
 class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
   late final PendingInvitesService _invitesService;
   List<PendingRequest> _pendingInvites = [];
-  bool _isLoading = true;
+  bool _isInitialLoading = true; // רק לטעינה ראשונית
+  String? _processingInviteId; // ID של ההזמנה שבעיבוד (null = אף אחת)
   String? _error;
+  Timer? _refreshTimer;
+
+  // 🔄 רענון אוטומטי כל 30 שניות (כמעט real-time)
+  static const Duration _refreshInterval = Duration(seconds: 30);
 
   @override
   void initState() {
     super.initState();
     _invitesService = PendingInvitesService();
     _loadInvites();
+    _startAutoRefresh();
   }
 
-  Future<void> _loadInvites() async {
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startAutoRefresh() {
+    _refreshTimer = Timer.periodic(_refreshInterval, (_) {
+      if (mounted && _processingInviteId == null) {
+        _loadInvites(silent: true); // רענון שקט ללא spinner
+      }
+    });
+  }
+
+  Future<void> _loadInvites({bool silent = false}) async {
     final userContext = context.read<UserContext>();
     final userId = userContext.userId;
+    final userEmail = userContext.user?.email;
 
     // ✅ FIX: אם אין משתמש - מעבירים ל-Login (לא מציגים הודעת שגיאה)
     if (userId == null) {
@@ -63,17 +84,22 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
     }
 
     try {
-      final invites = await _invitesService.getPendingInvitesForUser(userId);
+      // 🔍 חיפוש לפי UID ואימייל (למקרה שהוזמן לפני הרשמה)
+      final invites = await _invitesService.getPendingInvitesForUser(
+        userId,
+        userEmail: userEmail,
+      );
       if (mounted) {
         setState(() {
           _pendingInvites = invites;
-          _isLoading = false;
+          _isInitialLoading = false;
+          _error = null;
         });
       }
     } catch (e) {
-      if (mounted) {
+      if (mounted && !silent) {
         setState(() {
-          _isLoading = false;
+          _isInitialLoading = false;
           _error = 'שגיאה בטעינת הזמנות';
         });
       }
@@ -81,13 +107,15 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
   }
 
   Future<void> _acceptInvite(PendingRequest invite) async {
+    if (_processingInviteId != null) return; // כבר מעבד הזמנה אחרת
+
     final userContext = context.read<UserContext>();
     final userId = userContext.userId;
     final userName = userContext.user?.name;
 
     if (userId == null) return;
 
-    setState(() => _isLoading = true);
+    setState(() => _processingInviteId = invite.id);
 
     try {
       await _invitesService.acceptInvite(
@@ -105,11 +133,12 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
             backgroundColor: StatusColors.getStatusContainer('success', context),
           ),
         );
+        setState(() => _processingInviteId = null);
         unawaited(_loadInvites()); // Refresh list
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() => _processingInviteId = null);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('שגיאה באישור ההזמנה: $e'),
@@ -122,6 +151,8 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
   }
 
   Future<void> _declineInvite(PendingRequest invite) async {
+    if (_processingInviteId != null) return; // כבר מעבד הזמנה אחרת
+
     final userContext = context.read<UserContext>();
     final userId = userContext.userId;
     final userName = userContext.user?.name;
@@ -154,7 +185,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
 
     if (confirmed != true) return;
 
-    setState(() => _isLoading = true);
+    setState(() => _processingInviteId = invite.id);
 
     try {
       await _invitesService.declineInvite(
@@ -171,11 +202,12 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
             backgroundColor: StatusColors.getStatusContainer('warning', context),
           ),
         );
+        setState(() => _processingInviteId = null);
         unawaited(_loadInvites()); // Refresh list
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() => _processingInviteId = null);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('שגיאה בדחיית ההזמנה: $e'),
@@ -221,7 +253,8 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
     final cs = Theme.of(context).colorScheme;
     final brand = Theme.of(context).extension<AppBrand>();
 
-    if (_isLoading) {
+    // 🔄 טעינה ראשונית - spinner במרכז
+    if (_isInitialLoading) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -234,49 +267,122 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
       );
     }
 
+    // ❌ שגיאה - עם Pull-to-Refresh
     if (_error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error_outline, size: 64, color: cs.error),
-            const SizedBox(height: kSpacingMedium),
-            Text(_error!, style: TextStyle(color: cs.error)),
-            const SizedBox(height: kSpacingMedium),
-            ElevatedButton(
-              onPressed: _loadInvites,
-              child: const Text('נסה שוב'),
-            ),
-          ],
-        ),
-      );
-    }
-
-    if (_pendingInvites.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.mail_outline, size: 64, color: cs.outline),
-            const SizedBox(height: kSpacingMedium),
-            Text(
-              'אין הזמנות ממתינות',
-              style: TextStyle(
-                fontSize: kFontSizeLarge,
-                color: cs.onSurfaceVariant,
+      return RefreshIndicator(
+        onRefresh: _loadInvites,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.7,
+            child: Center(
+              child: Container(
+                margin: const EdgeInsets.all(kSpacingLarge),
+                padding: const EdgeInsets.all(kSpacingXLarge),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.85),
+                  borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(kSpacingLarge),
+                      decoration: BoxDecoration(
+                        color: cs.errorContainer.withValues(alpha: 0.3),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.error_outline, size: 64, color: cs.error),
+                    ),
+                    const SizedBox(height: kSpacingLarge),
+                    Text(_error!, style: TextStyle(color: cs.error, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: kSpacingMedium),
+                    ElevatedButton.icon(
+                      onPressed: _loadInvites,
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('נסה שוב'),
+                    ),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: kSpacingSmall),
-            Text(
-              'כאשר מישהו יזמין אותך לרשימה,\nההזמנה תופיע כאן',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: cs.outline),
-            ),
-          ],
+          ),
         ),
       );
     }
 
+    // 📭 אין הזמנות - עם Pull-to-Refresh ובועה לבנה
+    if (_pendingInvites.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: _loadInvites,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.7,
+            child: Center(
+              child: Container(
+                margin: const EdgeInsets.all(kSpacingLarge),
+                padding: const EdgeInsets.all(kSpacingXLarge),
+                decoration: BoxDecoration(
+                  // 🎨 בועה לבנה שקופה - נקי וקריא על רקע מחברת
+                  color: Colors.white.withValues(alpha: 0.85),
+                  borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(kSpacingLarge),
+                      decoration: BoxDecoration(
+                        color: cs.primaryContainer.withValues(alpha: 0.3),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.mail_outline, size: 64, color: cs.primary),
+                    ),
+                    const SizedBox(height: kSpacingLarge),
+                    Text(
+                      'אין הזמנות ממתינות',
+                      style: TextStyle(
+                        fontSize: kFontSizeLarge,
+                        fontWeight: FontWeight.bold,
+                        color: cs.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: kSpacingSmall),
+                    Text(
+                      'כאשר מישהו יזמין אותך לרשימה,\nההזמנה תופיע כאן',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: cs.onSurfaceVariant),
+                    ),
+                    const SizedBox(height: kSpacingLarge),
+                    Text(
+                      '↓ משוך לרענון',
+                      style: TextStyle(fontSize: kFontSizeTiny, color: cs.outline),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // 📋 יש הזמנות - רשימה עם Pull-to-Refresh
     return RefreshIndicator(
       onRefresh: _loadInvites,
       child: ListView.builder(
@@ -386,36 +492,51 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
 
               const SizedBox(height: kSpacingMedium),
 
-              // כפתורי פעולה
-              Row(
-                children: [
-                  // דחה
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => _declineInvite(invite),
-                      icon: const Icon(Icons.close, size: 18),
-                      label: const Text('דחה'),
-                      style: OutlinedButton.styleFrom(
-                        // ✅ Theme-aware: צבע שגיאה
-                        foregroundColor: cs.error,
-                        side: BorderSide(color: cs.error),
-                      ),
+              // כפתורי פעולה או spinner
+              if (_processingInviteId == invite.id)
+                // 🔄 מעבד הזמנה זו
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: kSpacingSmall),
+                    child: SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
                     ),
                   ),
+                )
+              else
+                Row(
+                  children: [
+                    // דחה
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        // נעול אם מעבדים הזמנה אחרת
+                        onPressed: _processingInviteId != null ? null : () => _declineInvite(invite),
+                        icon: const Icon(Icons.close, size: 18),
+                        label: const Text('דחה'),
+                        style: OutlinedButton.styleFrom(
+                          // ✅ Theme-aware: צבע שגיאה
+                          foregroundColor: cs.error,
+                          side: BorderSide(color: cs.error),
+                        ),
+                      ),
+                    ),
 
-                  const SizedBox(width: kSpacingSmall),
+                    const SizedBox(width: kSpacingSmall),
 
-                  // אשר
-                  Expanded(
-                    flex: 2,
-                    child: ElevatedButton.icon(
-                      onPressed: () => _acceptInvite(invite),
-                      icon: const Icon(Icons.check, size: 18),
-                      label: const Text('הצטרף'),
-                      style: ElevatedButton.styleFrom(
-                        // ✅ Theme-aware: צבע הצלחה מ-AppBrand
-                        backgroundColor: brand?.stickyGreen ?? StatusColors.success,
-                        foregroundColor: Colors.black87,
+                    // אשר
+                    Expanded(
+                      flex: 2,
+                      child: ElevatedButton.icon(
+                        // נעול אם מעבדים הזמנה אחרת
+                        onPressed: _processingInviteId != null ? null : () => _acceptInvite(invite),
+                        icon: const Icon(Icons.check, size: 18),
+                        label: const Text('הצטרף'),
+                        style: ElevatedButton.styleFrom(
+                          // ✅ Theme-aware: צבע הצלחה מ-AppBrand
+                          backgroundColor: brand?.stickyGreen ?? StatusColors.success,
+                          foregroundColor: Colors.black87,
                       ),
                     ),
                   ),

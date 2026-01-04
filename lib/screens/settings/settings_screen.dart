@@ -800,7 +800,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         subtitle: const Text('צפה שוב בהדרכת האפליקציה'),
                         trailing: const Icon(Icons.chevron_left),
                         onTap: () async {
-                          await TutorialService.resetTutorial();
+                          await TutorialService.resetTutorial(context);
                           if (!mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(

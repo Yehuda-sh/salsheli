@@ -130,6 +130,11 @@ class UserEntity {
   @JsonKey(name: 'seen_onboarding')
   final bool seenOnboarding;
 
+  /// 🇮🇱 האם ראה את הדרכת הבית
+  /// 🇬🇧 Whether seen home tutorial
+  @JsonKey(name: 'seen_tutorial')
+  final bool seenTutorial;
+
   const UserEntity({
     required this.id,
     required this.name,
@@ -151,6 +156,7 @@ class UserEntity {
     this.shareLists = false,
     this.reminderTime,
     this.seenOnboarding = false,
+    this.seenTutorial = false,
   });
 
   /// 🇮🇱 משתמש ריק (ברירת מחדל)
@@ -175,7 +181,8 @@ class UserEntity {
         hasChildren = false,
         shareLists = false,
         reminderTime = null,
-        seenOnboarding = false;
+        seenOnboarding = false,
+        seenTutorial = false;
 
   /// 🇮🇱 משתמש דמה לבדיקות
   /// 🇬🇧 Demo user for testing
@@ -212,6 +219,7 @@ class UserEntity {
     bool? shareLists,
     String? reminderTime,
     bool? seenOnboarding,
+    bool? seenTutorial,
   }) {
     return UserEntity(
       id: id,
@@ -231,6 +239,7 @@ class UserEntity {
       shareLists: shareLists ?? false,
       reminderTime: reminderTime,
       seenOnboarding: seenOnboarding ?? false,
+      seenTutorial: seenTutorial ?? false,
     );
   }
 
@@ -289,6 +298,7 @@ class UserEntity {
     String? reminderTime,
     bool clearReminderTime = false,
     bool? seenOnboarding,
+    bool? seenTutorial,
   }) {
     return UserEntity(
       id: id ?? this.id,
@@ -311,6 +321,7 @@ class UserEntity {
       shareLists: shareLists ?? this.shareLists,
       reminderTime: clearReminderTime ? null : (reminderTime ?? this.reminderTime),
       seenOnboarding: seenOnboarding ?? this.seenOnboarding,
+      seenTutorial: seenTutorial ?? this.seenTutorial,
     );
   }
 

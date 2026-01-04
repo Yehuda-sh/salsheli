@@ -27,7 +27,12 @@
       "Bash(dart --version:*)",
       "Bash(dart analyze:*)",
       "Bash(curl:*)",
-      "Bash(dart format:*)"
+      "Bash(dart format:*)",
+      "Bash(cmd //c \"dir \"\"C:\\\\Program Files\\\\Eclipse Adoptium\"\" 2>nul\")",
+      "Bash(cmd //c \"where java 2>nul\")",
+      "Bash(cmd //c \"winget list Eclipse\")",
+      "Bash(cmd //c \"dir \"\"C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-21*\"\" /b 2>nul\")",
+      "Bash(dart:*)"
     ],
     "deny": [],
     "ask": []

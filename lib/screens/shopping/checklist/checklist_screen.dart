@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/status_colors.dart';
 import '../../../core/ui_constants.dart';
 import '../../../l10n/app_strings.dart';
 import '../../../models/shopping_list.dart';
@@ -41,15 +42,41 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
   late ShoppingList _list;
   bool _hasSyncError = false;
 
+  /// פריטים שנמצאים בעיבוד (מניעת race condition)
+  final Set<String> _busyItems = {};
+
+  /// האם מעבד toggleAll כרגע
+  bool _isProcessingAll = false;
+
   @override
   void initState() {
     super.initState();
     _list = widget.list;
   }
 
+  @override
+  void didUpdateWidget(covariant ChecklistScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // עדכון הרשימה אם ההורה שלח רשימה חדשה
+    if (widget.list.id != oldWidget.list.id ||
+        widget.list.updatedDate != oldWidget.list.updatedDate) {
+      setState(() {
+        _list = widget.list;
+      });
+    }
+  }
+
   /// סימון/ביטול סימון פריט
   Future<void> _toggleItem(UnifiedListItem item) async {
+    // 🛡️ מניעת race condition - אם הפריט או כל הרשימה בעיבוד, התעלם
+    if (_busyItems.contains(item.id) || _isProcessingAll) {
+      return;
+    }
+
     unawaited(HapticFeedback.selectionClick());
+
+    // סמן כעסוק
+    _busyItems.add(item.id);
 
     final newChecked = !item.isChecked;
 
@@ -72,6 +99,9 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
       if (mounted) {
         setState(() => _hasSyncError = true);
       }
+    } finally {
+      // שחרר את הנעילה
+      _busyItems.remove(item.id);
     }
   }
 
@@ -89,9 +119,37 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
     });
   }
 
+  /// הצגת Snackbar עם שגיאת סנכרון
+  void _showSyncErrorSnackbar() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(AppStrings.common.syncError),
+        backgroundColor: StatusColors.warning,
+        behavior: SnackBarBehavior.floating,
+        action: SnackBarAction(
+          label: 'הבנתי',
+          textColor: Colors.white,
+          onPressed: () {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          },
+        ),
+      ),
+    );
+  }
+
   /// סמן הכל / בטל הכל (optimistic update)
   Future<void> _toggleAll(bool checked) async {
+    // 🛡️ מניעת התנגשויות - אם כבר מעבד או יש פריטים עסוקים
+    if (_isProcessingAll || _busyItems.isNotEmpty) {
+      return;
+    }
+
     unawaited(HapticFeedback.mediumImpact());
+
+    // נעל את כל הפעולות
+    setState(() {
+      _isProcessingAll = true;
+    });
 
     // 🔄 שמור מצב קודם ל-rollback
     final previousItems = List<UnifiedListItem>.from(_list.items);
@@ -120,6 +178,13 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
         setState(() {
           _list = _list.copyWith(items: previousItems);
           _hasSyncError = true;
+        });
+      }
+    } finally {
+      // שחרר את הנעילה
+      if (mounted) {
+        setState(() {
+          _isProcessingAll = false;
         });
       }
     }
@@ -163,14 +228,12 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
               ],
             ),
             actions: [
-              // ⚠️ אינדיקציית שגיאת סנכרון
+              // ⚠️ אינדיקציית שגיאת סנכרון - לחיץ להצגת הודעה
               if (_hasSyncError)
-                Tooltip(
-                  message: AppStrings.common.syncError,
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: kSpacingSmall),
-                    child: Icon(Icons.cloud_off, color: Colors.amber, size: 20),
-                  ),
+                IconButton(
+                  icon: const Icon(Icons.cloud_off, color: Colors.amber, size: 20),
+                  tooltip: AppStrings.common.syncError,
+                  onPressed: _showSyncErrorSnackbar,
                 ),
               // כפתור סמן/בטל הכל
               PopupMenuButton<bool>(
@@ -181,7 +244,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                     value: true,
                     child: Row(
                       children: [
-                        Icon(Icons.check_box, color: Colors.green),
+                        Icon(Icons.check_box, color: StatusColors.success),
                         SizedBox(width: kSpacingSmall),
                         Text('סמן הכל'),
                       ],
@@ -229,7 +292,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                           style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
-                            color: allChecked ? Colors.green : cs.primary,
+                            color: allChecked ? StatusColors.success : cs.primary,
                           ),
                         ),
                         Text(
@@ -256,7 +319,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                         value: progress,
                         backgroundColor: Colors.grey.withValues(alpha: 0.2),
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          allChecked ? Colors.green : cs.primary,
+                          allChecked ? StatusColors.success : cs.primary,
                         ),
                         minHeight: 8,
                       ),
@@ -335,12 +398,12 @@ class _ChecklistItemTile extends StatelessWidget {
             padding: const EdgeInsets.all(kSpacingMedium),
             decoration: BoxDecoration(
               color: isChecked
-                  ? Colors.green.withValues(alpha: 0.1)
+                  ? StatusColors.success.withValues(alpha: 0.1)
                   : Colors.white.withValues(alpha: 0.8),
               borderRadius: BorderRadius.circular(kBorderRadius),
               border: Border.all(
                 color: isChecked
-                    ? Colors.green.withValues(alpha: 0.3)
+                    ? StatusColors.success.withValues(alpha: 0.3)
                     : Colors.grey.withValues(alpha: 0.2),
               ),
               boxShadow: [
@@ -359,10 +422,10 @@ class _ChecklistItemTile extends StatelessWidget {
                   width: 28,
                   height: 28,
                   decoration: BoxDecoration(
-                    color: isChecked ? Colors.green : Colors.transparent,
+                    color: isChecked ? StatusColors.success : Colors.transparent,
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(
-                      color: isChecked ? Colors.green : Colors.grey,
+                      color: isChecked ? StatusColors.success : Colors.grey,
                       width: 2,
                     ),
                   ),

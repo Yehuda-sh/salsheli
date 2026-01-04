@@ -349,7 +349,7 @@ class ShoppingListTile extends StatelessWidget {
                     ],
                   ),
                   trailing: PopupMenuButton<String>(
-                    tooltip: 'אפשרויות נוספות',
+                    tooltip: AppStrings.shopping.moreOptionsTooltip,
                     icon: const Icon(Icons.more_vert),
                     onSelected: (value) {
                       switch (value) {

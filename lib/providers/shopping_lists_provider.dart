@@ -51,6 +51,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
+import '../l10n/app_strings.dart';
 import '../models/active_shopper.dart';
 import '../models/enums/item_type.dart';
 import '../models/enums/user_role.dart';
@@ -790,9 +791,10 @@ class ShoppingListsProvider with ChangeNotifier {
     _errorMessage = null;
 
     try {
-      // מצא רשימה פעילה קיימת (לא "קניות כלליות")
+      // מצא רשימה פעילה קיימת (לא רשימת ברירת מחדל)
+      final defaultListName = AppStrings.shopping.defaultShoppingListName;
       final existingList = activeLists.firstWhere(
-        (list) => list.name != 'קניות כלליות',
+        (list) => list.name != defaultListName,
         orElse: () {
           // אין רשימה פעילה → צור חדשה
           return ShoppingList.newList(
@@ -804,12 +806,12 @@ class ShoppingListsProvider with ChangeNotifier {
       );
 
       if (existingList.id.isEmpty) {
-        // צור רשימה חדשה "קניות כלליות"
+        // צור רשימה חדשה עם שם ברירת מחדל
         if (kDebugMode) {
-          debugPrint('   ➕ יוצר רשימה חדשה "קניות כלליות"');
+          debugPrint('   ➕ יוצר רשימה חדשה "$defaultListName"');
         }
         await createList(
-          name: 'קניות כלליות',
+          name: defaultListName,
           items: items,
         );
         if (kDebugMode) {

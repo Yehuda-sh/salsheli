@@ -5,6 +5,8 @@
 // Version: 1.0
 // Last Updated: 26/11/2025
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -21,7 +23,10 @@ class TemplatePickerDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final strings = AppStrings.createListDialog;
 
-    return AlertDialog(
+    // 🔧 RTL wrapper להבטחת כיווניות נכונה
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: AlertDialog(
       title: Text(strings.selectTemplateTitle),
       content: SizedBox(
         width: double.maxFinite,
@@ -76,7 +81,7 @@ class TemplatePickerDialog extends StatelessWidget {
                           : null,
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                       onTap: () {
-                        HapticFeedback.selectionClick();
+                        unawaited(HapticFeedback.selectionClick());
                         Navigator.pop(context, template);
                       },
                     ),
@@ -90,6 +95,7 @@ class TemplatePickerDialog extends StatelessWidget {
           child: Text(strings.cancelButton),
         ),
       ],
+    ),
     );
   }
 }

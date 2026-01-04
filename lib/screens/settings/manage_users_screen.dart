@@ -18,22 +18,22 @@
 //
 // גרסה: v1.0 | תאריך: 02/11/2025
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:memozap/core/ui_constants.dart';
-import 'package:memozap/models/enums/user_role.dart';
-import 'package:memozap/models/shared_user.dart';
-import 'package:memozap/models/shopping_list.dart';
-import 'package:memozap/providers/shopping_lists_provider.dart';
-import 'package:memozap/providers/user_context.dart';
-import 'package:memozap/screens/sharing/invite_users_screen.dart';
-import 'package:memozap/services/notifications_service.dart';
-import 'package:memozap/services/share_list_service.dart';
-import 'package:memozap/widgets/common/notebook_background.dart';
-import 'package:memozap/widgets/common/sticky_button.dart';
 import 'package:provider/provider.dart';
+
+import '../../core/ui_constants.dart';
+import '../../models/enums/user_role.dart';
+import '../../models/shared_user.dart';
+import '../../models/shopping_list.dart';
+import '../../providers/shopping_lists_provider.dart';
+import '../../providers/user_context.dart';
+import '../../services/notifications_service.dart';
+import '../../services/share_list_service.dart';
+import '../../widgets/common/notebook_background.dart';
+import '../../widgets/common/sticky_button.dart';
+import '../sharing/invite_users_screen.dart';
 
 /// 🇮🇱 מסך ניהול משתמשים משותפים
 /// 🇬🇧 Manage shared users screen
@@ -52,6 +52,7 @@ class ManageUsersScreen extends StatefulWidget {
 class _ManageUsersScreenState extends State<ManageUsersScreen> {
   List<SharedUser> _users = [];
   late final NotificationsService _notificationsService;
+  late ShoppingList _currentList; // 🔧 רשימה עדכנית (לא widget.list הישן)
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -63,36 +64,12 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     }
 
     _notificationsService = NotificationsService(FirebaseFirestore.instance);
+    _currentList = widget.list; // 🔧 אתחול הרשימה הנוכחית
 
-    // 🔒 Validation: רק Owner/Admin יכולים לנהל
-    if (!widget.list.canCurrentUserManage) {
-      if (kDebugMode) {
-        debugPrint('⛔ ManageUsersScreen: אין הרשאה - רק Owner/Admin יכולים לנהל');
-      }
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          final messenger = ScaffoldMessenger.of(context);
-          final navigator = Navigator.of(context);
-
-          messenger.showSnackBar(
-            const SnackBar(
-              content: Row(
-                children: [
-                  Icon(Icons.block, color: kStickyPink),
-                  SizedBox(width: kSpacingSmall),
-                  Expanded(
-                    child: Text('אין לך הרשאה לנהל משתמשים (רק Owner/Admin)'),
-                  ),
-                ],
-              ),
-              backgroundColor: kStickyPink,
-            ),
-          );
-
-          navigator.pop();
-        }
-      });
-      return; // אל תטען את הרשימה אם אין הרשאה
+    // 🔒 Note: גם משתמשים ללא הרשאת ניהול יכולים לראות (read-only mode)
+    // FAB והתפריט לא יוצגו להם
+    if (kDebugMode && !widget.list.canCurrentUserManage) {
+      debugPrint('ℹ️ ManageUsersScreen: מצב צפייה בלבד (read-only)');
     }
 
     _loadUsers();
@@ -100,7 +77,11 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
   void _loadUsers() {
     setState(() {
-      _users = ShareListService.getUsersForList(widget.list);
+      // 🔧 שימוש ב-_currentList (לא widget.list) כדי לקבל נתונים עדכניים
+      _users = ShareListService.getUsersForList(_currentList);
+
+      // 📊 מיון לפי תפקיד: Owner → Admin → Editor → Viewer
+      _users.sort((a, b) => a.role.index.compareTo(b.role.index));
     });
   }
 
@@ -134,8 +115,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       return;
     }
 
-    // בדיקת הרשאות
-    if (!ShareListService.canUserManage(widget.list, currentUserId)) {
+    // בדיקת הרשאות - שימוש ב-_currentList
+    if (!ShareListService.canUserManage(_currentList, currentUserId)) {
       _showError('אין לך הרשאה להסיר משתמשים');
       return;
     }
@@ -183,7 +164,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       }
 
       final updatedList = await ShareListService.removeUser(
-        list: widget.list,
+        list: _currentList, // 🔧 שימוש ב-_currentList
         currentUserId: currentUserId,
         removedUserId: user.userId,
         removerName: currentUserName,
@@ -195,6 +176,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       await provider.updateList(updatedList);
 
       if (mounted) {
+        // 🔧 עדכון הרשימה המקומית לפני רענון המשתמשים
+        _currentList = updatedList;
         _loadUsers();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('משתמש הוסר בהצלחה')),
@@ -221,8 +204,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       return;
     }
 
-    // בדיקת הרשאות
-    if (!ShareListService.canUserManage(widget.list, currentUserId)) {
+    // בדיקת הרשאות - שימוש ב-_currentList
+    if (!ShareListService.canUserManage(_currentList, currentUserId)) {
       _showError('אין לך הרשאה לשנות תפקידים');
       return;
     }
@@ -271,7 +254,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       }
 
       final updatedList = await ShareListService.updateUserRole(
-        list: widget.list,
+        list: _currentList, // 🔧 שימוש ב-_currentList
         currentUserId: currentUserId,
         targetUserId: user.userId,
         newRole: newRole,
@@ -284,6 +267,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       await provider.updateList(updatedList);
 
       if (mounted) {
+        // 🔧 עדכון הרשימה המקומית לפני רענון המשתמשים
+        _currentList = updatedList;
         _loadUsers();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('התפקיד עודכן ל-${newRole.hebrewName}')),
@@ -311,14 +296,21 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   }
 
   Future<void> _inviteUser() async {
-    final result = await Navigator.of(context).push<bool>(
+    await Navigator.of(context).push<bool>(
       MaterialPageRoute(
-        builder: (context) => InviteUsersScreen(list: widget.list),
+        builder: (context) => InviteUsersScreen(list: _currentList),
       ),
     );
-    
-    if (result == true && mounted) {
-      // רענון רשימת המשתמשים
+
+    // 🔧 רענון תמיד אחרי חזרה מהזמנה
+    // כי ייתכן שהוזמנו משתמשים (הזמנות ממתינות, לא sharedUsers)
+    if (mounted) {
+      // משיכת הרשימה העדכנית מה-Provider
+      final provider = context.read<ShoppingListsProvider>();
+      final updatedList = provider.getById(_currentList.id);
+      if (updatedList != null) {
+        _currentList = updatedList;
+      }
       _loadUsers();
     }
   }
@@ -356,7 +348,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       );
     }
     
-    final isOwner = ShareListService.canUserManage(widget.list, currentUserId);
+    final isOwner = ShareListService.canUserManage(_currentList, currentUserId);
 
     return Scaffold(
       backgroundColor: kPaperBackground,
@@ -438,9 +430,12 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
               style: TextStyle(fontSize: 18),
             ),
             const SizedBox(height: kSpacingSmall),
-            const Text(
-              'לחץ על + להזמנת משתמשים',
-              style: TextStyle(color: Colors.grey),
+            // 🔧 טקסט שונה לפי הרשאות
+            Text(
+              isOwner
+                  ? 'לחץ על + להזמנת משתמשים'
+                  : 'רק בעל הרשימה יכול להזמין משתמשים',
+              style: const TextStyle(color: Colors.grey),
             ),
           ],
         ),

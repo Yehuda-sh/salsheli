@@ -46,6 +46,7 @@ class InventoryProvider with ChangeNotifier {
 
   static const Uuid _uuid = Uuid();
   Future<void>? _loadingFuture; // מניעת טעינות כפולות
+  int _loadGeneration = 0; // זיהוי גרסת טעינה - לביטול טעינות ישנות
 
   // === Safe Notification ===
 
@@ -263,15 +264,29 @@ class InventoryProvider with ChangeNotifier {
   // === טעינת פריטים ===
 
   Future<void> _loadItems() {
+    // 🔒 הגדלת הדור - מבטל טעינות קודמות
+    _loadGeneration++;
+    final currentGeneration = _loadGeneration;
+
+    // אם יש טעינה קיימת מאותו מצב - המתן לה
+    // אחרת התחל טעינה חדשה (המצב השתנה)
     if (_loadingFuture != null) {
+      // בדוק אם צריך להתחיל טעינה חדשה אחרי שהקודמת תסתיים
+      _loadingFuture!.whenComplete(() {
+        if (_loadGeneration == currentGeneration && !_isDisposed) {
+          // הטעינה הקודמת הסתיימה, התחל חדשה אם עדיין רלוונטי
+          _loadingFuture = null;
+          _loadItems();
+        }
+      });
       return _loadingFuture!;
     }
 
-    _loadingFuture = _doLoad().whenComplete(() => _loadingFuture = null);
+    _loadingFuture = _doLoad(currentGeneration).whenComplete(() => _loadingFuture = null);
     return _loadingFuture!;
   }
 
-  Future<void> _doLoad() async {
+  Future<void> _doLoad(int generation) async {
     final userId = _userContext?.userId;
     if (_userContext?.isLoggedIn != true || userId == null) {
       _items = [];
@@ -279,25 +294,54 @@ class InventoryProvider with ChangeNotifier {
       return;
     }
 
+    // 🔒 שמירת המצב בתחילת הטעינה - לזיהוי race condition
+    final loadingMode = _currentMode;
+    final loadingGroupId = _currentGroupId;
+
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      if (_currentMode == InventoryMode.group && _currentGroupId != null) {
+      List<InventoryItem> loadedItems;
+
+      if (loadingMode == InventoryMode.group && loadingGroupId != null) {
         // טעינה ממזווה קבוצתי
         if (kDebugMode) {
-          debugPrint('📦 InventoryProvider: טוען ממזווה קבוצתי $_currentGroupId');
+          debugPrint('📦 InventoryProvider: טוען ממזווה קבוצתי $loadingGroupId');
         }
-        _items = await _repository.fetchGroupItems(_currentGroupId!);
+        loadedItems = await _repository.fetchGroupItems(loadingGroupId);
       } else {
         // טעינה ממזווה אישי
         if (kDebugMode) {
           debugPrint('📦 InventoryProvider: טוען ממזווה אישי $userId');
         }
-        _items = await _repository.fetchUserItems(userId);
+        loadedItems = await _repository.fetchUserItems(userId);
       }
+
+      // 🔒 בדיקה: אם הדור השתנה או המצב השתנה - לא לעדכן!
+      if (_loadGeneration != generation) {
+        if (kDebugMode) {
+          debugPrint('⚠️ InventoryProvider: דור טעינה השתנה - מתעלם מתוצאות');
+        }
+        return; // אל תשנה isLoading - הטעינה החדשה תטפל בזה
+      }
+
+      if (_currentMode != loadingMode || _currentGroupId != loadingGroupId) {
+        if (kDebugMode) {
+          debugPrint('⚠️ InventoryProvider: מצב השתנה תוך כדי טעינה - מתעלם מתוצאות');
+          debugPrint('   טעינה: $loadingMode/$loadingGroupId → נוכחי: $_currentMode/$_currentGroupId');
+        }
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
+
+      _items = loadedItems;
     } catch (e, st) {
+      // בדוק שוב שהדור לא השתנה לפני עדכון שגיאה
+      if (_loadGeneration != generation) return;
+
       _errorMessage = 'שגיאה בטעינת מלאי: $e';
       if (kDebugMode) {
         debugPrint('❌ InventoryProvider._doLoad: שגיאה - $e');

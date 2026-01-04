@@ -3,46 +3,64 @@
 //
 // 📋 Features:
 // - הדרכה פשוטה עם Dialog slides
-// - שמירת מצב ב-SharedPreferences
+// - שמירת מצב ב-Firestore (נשמר עם המשתמש)
 // - RTL support מלא
 // - אנימציות חלקות
 //
-// Version: 1.0
-// Created: 14/12/2025
+// Version: 2.0 - Firestore persistence
+// Updated: 01/01/2026
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 
 import '../core/ui_constants.dart';
+import '../providers/user_context.dart';
 
 /// שירות הדרכה אינטראקטיבית
 class TutorialService {
   TutorialService._();
 
-  static const String _keySeenHomeTutorial = 'seen_home_tutorial';
-
   // ========================================
-  // בדיקת מצב
+  // בדיקת מצב (מ-Firestore)
   // ========================================
 
   /// האם המשתמש ראה את הדרכת הבית?
-  static Future<bool> hasSeenHomeTutorial() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_keySeenHomeTutorial) ?? false;
+  static bool hasSeenHomeTutorial(BuildContext context) {
+    final userContext = context.read<UserContext>();
+    return userContext.user?.seenTutorial ?? false;
   }
 
-  /// סימון שהמשתמש ראה את הדרכת הבית
-  static Future<void> markHomeTutorialAsSeen() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_keySeenHomeTutorial, true);
-    debugPrint('✅ TutorialService: Home tutorial marked as seen');
+  /// סימון שהמשתמש ראה את הדרכת הבית (שומר ב-Firestore)
+  static Future<void> markHomeTutorialAsSeen(BuildContext context) async {
+    final userContext = context.read<UserContext>();
+    final user = userContext.user;
+
+    if (user == null) {
+      debugPrint('⚠️ TutorialService: No user logged in, cannot mark tutorial');
+      return;
+    }
+
+    try {
+      await userContext.saveUser(user.copyWith(seenTutorial: true));
+      debugPrint('✅ TutorialService: Home tutorial marked as seen in Firestore');
+    } catch (e) {
+      debugPrint('❌ TutorialService: Failed to mark tutorial: $e');
+    }
   }
 
   /// איפוס ההדרכה (לבדיקות או מהגדרות)
-  static Future<void> resetTutorial() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_keySeenHomeTutorial);
-    debugPrint('🔄 TutorialService: Tutorial reset');
+  static Future<void> resetTutorial(BuildContext context) async {
+    final userContext = context.read<UserContext>();
+    final user = userContext.user;
+
+    if (user == null) return;
+
+    try {
+      await userContext.saveUser(user.copyWith(seenTutorial: false));
+      debugPrint('🔄 TutorialService: Tutorial reset in Firestore');
+    } catch (e) {
+      debugPrint('❌ TutorialService: Failed to reset tutorial: $e');
+    }
   }
 
   // ========================================
@@ -51,7 +69,7 @@ class TutorialService {
 
   /// הצגת הדרכת הבית אם עדיין לא נראתה
   static Future<void> showHomeTutorialIfNeeded(BuildContext context) async {
-    final seen = await hasSeenHomeTutorial();
+    final seen = hasSeenHomeTutorial(context);
     if (seen) {
       debugPrint('ℹ️ TutorialService: Home tutorial already seen, skipping');
       return;
@@ -66,10 +84,10 @@ class TutorialService {
       context: context,
       barrierDismissible: false,
       barrierColor: Colors.black87,
-      builder: (context) => const _TutorialDialog(),
+      builder: (dialogContext) => _TutorialDialog(
+        onComplete: () => markHomeTutorialAsSeen(context),
+      ),
     );
-
-    await markHomeTutorialAsSeen();
   }
 }
 
@@ -78,7 +96,9 @@ class TutorialService {
 // ========================================
 
 class _TutorialDialog extends StatefulWidget {
-  const _TutorialDialog();
+  final VoidCallback onComplete;
+
+  const _TutorialDialog({required this.onComplete});
 
   @override
   State<_TutorialDialog> createState() => _TutorialDialogState();
@@ -115,11 +135,13 @@ class _TutorialDialogState extends State<_TutorialDialog> {
     if (_currentStep < _steps.length - 1) {
       setState(() => _currentStep++);
     } else {
+      widget.onComplete();
       Navigator.of(context).pop();
     }
   }
 
   void _skip() {
+    widget.onComplete();
     Navigator.of(context).pop();
   }
 

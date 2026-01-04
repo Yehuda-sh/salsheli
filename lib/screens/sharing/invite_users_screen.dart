@@ -15,18 +15,21 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:memozap/l10n/app_strings.dart';
-import 'package:memozap/models/enums/user_role.dart';
-import 'package:memozap/models/saved_contact.dart';
-import 'package:memozap/models/shopping_list.dart';
-import 'package:memozap/providers/user_context.dart';
-import 'package:memozap/services/notifications_service.dart';
-import 'package:memozap/services/pending_invites_service.dart';
-import 'package:memozap/services/saved_contacts_service.dart';
-import 'package:memozap/widgets/common/notebook_background.dart';
-import 'package:memozap/widgets/common/sticky_button.dart';
-import 'package:memozap/widgets/common/sticky_note.dart';
 import 'package:provider/provider.dart';
+
+import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
+import '../../models/enums/user_role.dart';
+import '../../models/saved_contact.dart';
+import '../../models/shopping_list.dart';
+import '../../providers/user_context.dart';
+import '../../repositories/firebase_user_repository.dart';
+import '../../services/notifications_service.dart';
+import '../../services/pending_invites_service.dart';
+import '../../services/saved_contacts_service.dart';
+import '../../widgets/common/notebook_background.dart';
+import '../../widgets/common/sticky_button.dart';
+import '../../widgets/common/sticky_note.dart';
 
 class InviteUsersScreen extends StatefulWidget {
   final ShoppingList list;
@@ -54,6 +57,8 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
   // 📇 Saved contacts
   List<SavedContact> _savedContacts = [];
   SavedContact? _selectedSavedContact;
+  bool _showAllContacts = false; // הצגת כל אנשי הקשר (pagination)
+  static const int _initialContactsToShow = 3; // כמה להציג בהתחלה
 
   @override
   void initState() {
@@ -80,14 +85,14 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
             SnackBar(
               content: Row(
                 children: [
-                  const Icon(Icons.block, color: Color(0xFFF48FB1)),
+                  const Icon(Icons.block, color: kStickyPink),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(AppStrings.sharing.noPermissionInvite),
                   ),
                 ],
               ),
-              backgroundColor: const Color(0xFFF48FB1),
+              backgroundColor: kStickyPink,
             ),
           );
 
@@ -129,6 +134,27 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
     super.dispose();
   }
 
+  /// מחזיר רשימת אנשי קשר לתצוגה (עם pagination)
+  List<SavedContact> _getVisibleContacts() {
+    if (_showAllContacts || _savedContacts.length <= _initialContactsToShow) {
+      return _savedContacts;
+    }
+    return _savedContacts.take(_initialContactsToShow).toList();
+  }
+
+  /// טקסט אישור - מסביר מה יקרה בלחיצה על "הזמן"
+  String _getConfirmationText() {
+    final String recipient;
+    if (_selectedSavedContact != null) {
+      recipient = _selectedSavedContact!.displayName;
+    } else {
+      recipient = _emailController.text.trim();
+    }
+
+    final roleName = _selectedRole.hebrewName;
+    return 'הזמנה תישלח ל-$recipient כ$roleName ברשימה "${widget.list.name}"';
+  }
+
   // ============================================================
   // Invite User
   // ============================================================
@@ -161,51 +187,72 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
       }
 
       // Determine invited user details
-      final String invitedUserId;
+      final String? invitedUserId;
       final String? invitedUserName;
-      final String? invitedUserEmail;
+      final String invitedUserEmail;
       final String displayName;
+      bool userExists = true; // האם המשתמש רשום באפליקציה
 
       if (usingSavedContact) {
-        // 📇 Saved contact
-        invitedUserId = _selectedSavedContact!.userId;
-        invitedUserName = _selectedSavedContact!.userName;
-        invitedUserEmail = _selectedSavedContact!.userEmail;
-        displayName = _selectedSavedContact!.displayName;
+        // 📇 Saved contact - יש לנו כבר את ה-UID
+        final contact = _selectedSavedContact!;
+        invitedUserId = contact.userId;
+        invitedUserName = contact.userName;
+        invitedUserEmail = contact.userEmail;
+        displayName = contact.displayName;
         debugPrint('📇 Inviting saved contact: $displayName ($invitedUserId)');
       } else {
-        // ✉️ Email input
-        invitedUserId = _emailController.text.trim();
-        invitedUserName = null;
-        invitedUserEmail = _emailController.text.trim();
-        displayName = _emailController.text.trim();
+        // ✉️ Email input - צריך לחפש את המשתמש לפי אימייל
+        invitedUserEmail = _emailController.text.trim().toLowerCase();
+        displayName = invitedUserEmail;
+
+        // 🔍 חיפוש המשתמש לפי אימייל כדי לקבל את ה-UID האמיתי
+        final userRepository = FirebaseUserRepository();
+        final foundUser = await userRepository.findByEmail(invitedUserEmail);
+
+        if (foundUser != null) {
+          // ✅ משתמש נמצא - משתמשים ב-UID שלו
+          invitedUserId = foundUser.id;
+          invitedUserName = foundUser.name;
+          debugPrint('✅ Found user by email: ${foundUser.name} (${foundUser.id})');
+        } else {
+          // ⚠️ משתמש לא רשום - שומרים הזמנה לפי אימייל
+          invitedUserId = null;
+          invitedUserName = null;
+          userExists = false;
+          debugPrint('⚠️ User not registered yet: $invitedUserEmail');
+        }
       }
 
       // יצירת הזמנה ממתינה - המוזמן יצטרך לאשר
+      // 🔧 אם אין UID, משתמשים באימייל כמזהה (המשתמש עדיין לא רשום)
       await _pendingInvitesService.createInvite(
         listId: widget.list.id,
         listName: widget.list.name,
         inviterId: currentUserId,
         inviterName: currentUserName,
-        invitedUserId: invitedUserId,
+        invitedUserId: invitedUserId ?? invitedUserEmail, // אימייל כ-fallback
         invitedUserEmail: invitedUserEmail,
         invitedUserName: invitedUserName,
         role: _selectedRole,
         householdId: householdId,
       );
 
-      // שליחת התראה למוזמן
-      await _notificationsService.createInviteNotification(
-        userId: invitedUserId,
-        householdId: householdId,
-        listId: widget.list.id,
-        listName: widget.list.name,
-        inviterName: currentUserName,
-        role: _selectedRole.hebrewName,
-      );
+      // שליחת התראה למוזמן - רק אם המשתמש רשום
+      if (userExists && invitedUserId != null) {
+        await _notificationsService.createInviteNotification(
+          userId: invitedUserId,
+          householdId: householdId,
+          listId: widget.list.id,
+          listName: widget.list.name,
+          inviterName: currentUserName,
+          role: _selectedRole.hebrewName,
+        );
+      }
 
       // 💾 Save contact for future use (or update last_invited_at)
-      {
+      // רק אם יש UID אמיתי (לא אימייל)
+      if (userExists && invitedUserId != null) {
         try {
           await _savedContactsService.saveContact(
             currentUserId: currentUserId,
@@ -224,23 +271,25 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
       if (!mounted) return;
 
       // Success - show message and go back
+      final successMessage = userExists
+          ? 'הזמנה נשלחה ל$displayName - ממתינה לאישור'
+          : 'הזמנה נשלחה ל$displayName - יראה אותה כשיירשם לאפליקציה';
+
       messenger.showSnackBar(
         SnackBar(
-          content: Text(
-            'הזמנה נשלחה ל$displayName - ממתינה לאישור',
-          ),
-          backgroundColor: Colors.green,
+          content: Text(successMessage),
+          backgroundColor: userExists ? kStickyGreen : kStickyOrange,
         ),
       );
 
-      navigator.pop();
+      navigator.pop(true); // 🔧 מחזיר true לסימון הצלחה
     } catch (e) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(AppStrings.sharing.inviteError(e.toString())),
-          backgroundColor: Colors.red,
+          backgroundColor: kStickyPink,
         ),
       );
     } finally {
@@ -277,7 +326,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF5F5F5),
+        backgroundColor: kPaperBackground,
         appBar: AppBar(
           title: Text(AppStrings.sharing.inviteTitle),
           centerTitle: true,
@@ -308,7 +357,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                       // 📇 Saved Contacts Section
                       if (_savedContacts.isNotEmpty) ...[
                         StickyNote(
-                          color: const Color(0xFFB3E5FC), // Light blue
+                          color: kStickyCyan,
                           rotation: 0.01,
                           child: Padding(
                             padding: const EdgeInsets.all(16),
@@ -337,7 +386,22 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 12),
-                                ..._savedContacts.map(_buildSavedContactOption),
+                                // 📄 Pagination: הצגת 3 אנשי קשר ראשונים + "הצג עוד"
+                                ..._getVisibleContacts().map(_buildSavedContactOption),
+                                if (_savedContacts.length > _initialContactsToShow && !_showAllContacts)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 8),
+                                    child: Center(
+                                      child: TextButton.icon(
+                                        onPressed: () => setState(() => _showAllContacts = true),
+                                        icon: const Icon(Icons.expand_more, size: 18),
+                                        label: Text(
+                                          'הצג עוד ${_savedContacts.length - _initialContactsToShow} אנשי קשר',
+                                          style: const TextStyle(fontSize: 12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                               ],
                             ),
                           ),
@@ -364,7 +428,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
 
                       // Email Field (StickyNote Yellow)
                       StickyNote(
-                        color: const Color(0xFFFFF59D), // kStickyYellow
+                        color: kStickyYellow,
                         rotation: 0.01,
                         child: Padding(
                           padding: const EdgeInsets.all(16),
@@ -423,7 +487,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
 
                       // Role Selector (StickyNote Cyan)
                       StickyNote(
-                        color: const Color(0xFF80DEEA), // kStickyCyan
+                        color: kStickyCyan,
                         rotation: -0.01,
                         child: Padding(
                           padding: const EdgeInsets.all(16),
@@ -471,7 +535,41 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                         ),
                       ),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 16),
+
+                      // 📝 Confirmation Text - מה יקרה בלחיצה
+                      if (_selectedSavedContact != null ||
+                          _emailController.text.trim().isNotEmpty)
+                        Container(
+                          padding: const EdgeInsets.all(kSpacingSmall),
+                          margin: const EdgeInsets.only(bottom: kSpacingMedium),
+                          decoration: BoxDecoration(
+                            color: kStickyGreen.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                            border: Border.all(
+                              color: kStickyGreen.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline,
+                                size: 16,
+                                color: kStickyGreen.withValues(alpha: 0.8),
+                              ),
+                              const SizedBox(width: kSpacingSmall),
+                              Expanded(
+                                child: Text(
+                                  _getConfirmationText(),
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
 
                       // Action Buttons
                       Row(
@@ -496,7 +594,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                               label: _isLoading
                                   ? AppStrings.sharing.inviting
                                   : AppStrings.sharing.inviteButton,
-                              color: const Color(0xFFA5D6A7), // kStickyGreen
+                              color: kStickyGreen,
                               onPressed: _isLoading ? null : _inviteUser,
                             ),
                           ),
@@ -613,12 +711,12 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: Colors.purple.shade100,
+                              color: kStickyPurple.withValues(alpha: 0.3),
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: const Text(
+                            child: Text(
                               'בעלים',
-                              style: TextStyle(fontSize: 10, color: Colors.purple),
+                              style: TextStyle(fontSize: 10, color: kStickyPurple.withValues(alpha: 0.8)),
                             ),
                           ),
                         ],
@@ -627,12 +725,12 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: Colors.orange.shade100,
+                              color: kStickyOrange.withValues(alpha: 0.3),
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: const Text(
+                            child: Text(
                               'כבר שותף',
-                              style: TextStyle(fontSize: 10, color: Colors.orange),
+                              style: TextStyle(fontSize: 10, color: kStickyOrange.withValues(alpha: 0.8)),
                             ),
                           ),
                         ],

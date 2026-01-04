@@ -1,11 +1,10 @@
 // 📄 File: lib/screens/shopping/lists/shopping_lists_screen.dart
 //
-// מסך רשימות קניות - הפרדה בין פעילות להיסטוריה עם Sticky Notes Design.
+// מסך רשימות קניות - עיצוב נקי עם תפריט שלוש נקודות.
+// סינון/חיפוש/מיון נגישים דרך התפריט, לא תופסים מקום קבוע.
 //
-// Version: 5.0
-// Updated: 24/10/2025
-
-import 'dart:ui' as ui;
+// Version: 6.0 - Clean UI with menu
+// Updated: 01/01/2026
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +12,7 @@ import 'package:provider/provider.dart';
 
 import '../../../config/list_types_config.dart';
 import '../../../core/ui_constants.dart';
+import '../../../l10n/app_strings.dart';
 import '../../../models/shopping_list.dart';
 import '../../../providers/shopping_lists_provider.dart';
 import '../../../widgets/common/notebook_background.dart';
@@ -38,26 +38,20 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
   static const int _historyPageSize = 10;
   int _currentHistoryLimit = 10;
 
-  // 🔍 Search Controller
-  final TextEditingController _searchController = TextEditingController();
-
   // 🔄 האם כבר ביקשנו טעינה ראשונית
   bool _initialLoadRequested = false;
 
   // 🎬 האם הטעינה הראשונית הושלמה (למניעת אנימציות בחיפוש)
   bool _isFirstLoadComplete = false;
 
+  /// האם יש סינון/חיפוש פעיל
+  bool get _hasActiveFilters =>
+      _searchQuery.isNotEmpty || _selectedType != 'all' || _sortBy != 'date_desc';
+
   @override
   void initState() {
     super.initState();
     debugPrint('📋 ShoppingListsScreen.initState()');
-
-    // סנכרון search controller עם state
-    _searchController.addListener(() {
-      if (_searchQuery != _searchController.text) {
-        setState(() => _searchQuery = _searchController.text);
-      }
-    });
   }
 
   @override
@@ -72,7 +66,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
           provider.lists.isEmpty &&
           provider.errorMessage == null &&
           provider.lastUpdated == null) {
-        // 🔧 דחייה לאחר ה-build כדי למנוע setState during build
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
             debugPrint('🔄 טוען רשימות ראשונית');
@@ -81,13 +74,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
         });
       }
     }
-  }
-
-  @override
-  void dispose() {
-    debugPrint('🗑️ ShoppingListsScreen.dispose()');
-    _searchController.dispose();
-    super.dispose();
   }
 
   @override
@@ -102,8 +88,11 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
           SafeArea(
             child: Column(
               children: [
-                // 🔍 חיפוש וסינון
-                _buildFiltersSection(),
+                // 🎛️ סרגל פעולות עליון - נקי
+                _buildTopBar(),
+
+                // 🏷️ פס סיכום סינון (מופיע רק אם יש סינון פעיל)
+                if (_hasActiveFilters) _buildActiveFiltersStrip(),
 
                 // 📋 תוכן
                 Expanded(
@@ -128,240 +117,535 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
           Navigator.pushNamed(context, '/create-list');
         },
         backgroundColor: kStickyYellow,
-        tooltip: 'רשימה חדשה',
+        tooltip: AppStrings.shopping.newListTooltip,
         child: const Icon(Icons.add, color: Colors.black87),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
-  /// 🔍 סעיף חיפוש וסינון
-  Widget _buildFiltersSection() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // שדה חיפוש + כפתור מיון
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(24),
-            child: BackdropFilter(
-              filter: ui.ImageFilter.blur(sigmaX: kGlassBlurSigma, sigmaY: kGlassBlurSigma),
-              child: Container(
-                height: 48,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.6),
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    // שדה חיפוש
-                    Expanded(
-                      child: TextField(
-                        controller: _searchController,
-                        textAlignVertical: TextAlignVertical.center,
-                        decoration: InputDecoration(
-                          hintText: 'חפש רשימה...',
-                          hintStyle: const TextStyle(fontSize: 14),
-                          prefixIcon: const Icon(Icons.search, size: 20),
-                          suffixIcon: _searchQuery.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear, size: 18),
-                                  onPressed: _searchController.clear,
-                                )
-                              : null,
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                          isDense: true,
-                        ),
-                      ),
-                    ),
-                    // מפריד אנכי
-                    Container(
-                      height: 24,
-                      width: 1,
-                      color: Colors.black12,
-                    ),
-                    // כפתור מיון
-                    _buildSortButtonCompact(),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-
-        // FilterChips
-        SizedBox(
-          height: 40,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
-            children: _buildTypeFilterChips(),
-          ),
-        ),
-
-        const SizedBox(height: kSpacingSmall),
-      ],
-    );
-  }
-
-  /// 🏷️ יצירת FilterChips לסינון סוגים
-  List<Widget> _buildTypeFilterChips() {
-    // רשימת כל הסוגים עם "הכל" בהתחלה
-    final allTypes = [
-      ('all', '📦', 'הכל'),
-      ...ListTypes.all.map((t) => (t.key, t.emoji, t.shortName)),
-    ];
-
-    return allTypes.map((typeData) {
-      final (key, emoji, name) = typeData;
-      final isSelected = _selectedType == key;
-
-      return Padding(
-        padding: const EdgeInsets.only(left: 8.0),
-        child: AnimatedScale(
-          scale: isSelected ? 1.05 : 1.0,
-          duration: const Duration(milliseconds: 150),
-          child: FilterChip(
-            showCheckmark: false,
-            label: Text(
-              '$emoji $name',
-              style: TextStyle(
-                fontSize: 13,
-                color: isSelected ? Colors.black : Colors.black87,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-            selected: isSelected,
-            onSelected: (selected) {
-              HapticFeedback.selectionClick();
-              setState(() => _selectedType = key);
-              debugPrint('🏷️ סינון לפי: $key');
-            },
-            backgroundColor: Colors.white.withValues(alpha: 0.8),
-            selectedColor: kStickyCyan,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-              side: BorderSide(
-                color: isSelected ? Colors.black12 : Colors.transparent,
-              ),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            visualDensity: VisualDensity.compact,
-          ),
-        ),
-      );
-    }).toList();
-  }
-
-  /// 📊 כפתור מיון קומפקטי - בתוך שורת החיפוש
-  Widget _buildSortButtonCompact() {
+  /// 🎛️ סרגל עליון נקי - כפתור גלולה עם טקסט
+  Widget _buildTopBar() {
     final cs = Theme.of(context).colorScheme;
 
-    return PopupMenuButton<String>(
-      padding: EdgeInsets.zero,
-      tooltip: 'מיון',
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(_getSortIcon(), size: 18, color: cs.primary),
-            const SizedBox(width: 4),
-            Text(
-              _getSortLabel(),
-              style: TextStyle(fontSize: 13, color: cs.primary, fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(width: 2),
-            Icon(Icons.arrow_drop_down, size: 18, color: cs.primary),
-          ],
-        ),
-      ),
-      itemBuilder: (context) => [
-        _buildSortMenuItem('date_desc', 'חדש → ישן', Icons.arrow_downward),
-        _buildSortMenuItem('date_asc', 'ישן → חדש', Icons.arrow_upward),
-        _buildSortMenuItem('name', 'א-ת', Icons.sort_by_alpha),
-        _buildSortMenuItem('budget_desc', 'תקציב ↓', Icons.attach_money),
-        _buildSortMenuItem('budget_asc', 'תקציב ↑', Icons.money_off),
-      ],
-      onSelected: (value) {
-        HapticFeedback.selectionClick();
-        debugPrint('📊 מיון לפי: $value');
-        setState(() => _sortBy = value);
-      },
-    );
-  }
-
-  /// פריט תפריט מיון
-  PopupMenuItem<String> _buildSortMenuItem(String value, String label, IconData icon) {
-    final isSelected = _sortBy == value;
-    return PopupMenuItem(
-      value: value,
-      height: 40,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingTiny),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Icon(
-            icon,
-            size: 18,
-            color: isSelected ? Theme.of(context).colorScheme.primary : Colors.black54,
-          ),
-          const SizedBox(width: kSpacingSmall),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              color: isSelected ? Theme.of(context).colorScheme.primary : Colors.black87,
+          // 🎛️ כפתור כלים/סינון בסגנון גלולה
+          PopupMenuButton<String>(
+            tooltip: AppStrings.shopping.searchAndFilter,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(kBorderRadiusMedium),
+            ),
+            offset: const Offset(0, 40),
+            itemBuilder: (context) => [
+              _buildMenuItem(
+                value: 'search',
+                icon: Icons.search,
+                label: AppStrings.shopping.searchMenuLabel,
+                isActive: _searchQuery.isNotEmpty,
+              ),
+              _buildMenuItem(
+                value: 'filter',
+                icon: Icons.filter_list,
+                label: AppStrings.shopping.filterByTypeLabel,
+                isActive: _selectedType != 'all',
+              ),
+              _buildMenuItem(
+                value: 'sort',
+                icon: Icons.sort,
+                label: AppStrings.shopping.sortLabel,
+                subtitle: _getSortLabel(),
+              ),
+              if (_hasActiveFilters) ...[
+                const PopupMenuDivider(),
+                _buildMenuItem(
+                  value: 'clear',
+                  icon: Icons.clear_all,
+                  label: AppStrings.shopping.clearFilterLabel,
+                  isDestructive: true,
+                ),
+              ],
+            ],
+            onSelected: _handleMenuAction,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: _hasActiveFilters
+                    ? cs.primaryContainer
+                    : Colors.white.withValues(alpha: 0.8),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: _hasActiveFilters ? cs.primary : Colors.black12,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.tune,
+                    size: 18,
+                    color: _hasActiveFilters ? cs.primary : Colors.black54,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    _hasActiveFilters ? AppStrings.shopping.filterActive : AppStrings.shopping.searchMenuLabel,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: _hasActiveFilters ? cs.primary : Colors.black54,
+                      fontWeight: _hasActiveFilters ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                  // Badge נקודה כשיש סינון
+                  if (_hasActiveFilters) ...[
+                    const SizedBox(width: 4),
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: cs.primary,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
           ),
-          if (isSelected) ...[
-            const Spacer(),
-            Icon(Icons.check, size: 18, color: Theme.of(context).colorScheme.primary),
-          ],
         ],
       ),
     );
   }
 
-  /// קבלת אייקון לפי סוג המיון
-  IconData _getSortIcon() {
-    switch (_sortBy) {
-      case 'date_desc':
-      case 'budget_desc':
-        return Icons.arrow_downward;
-      case 'date_asc':
-      case 'budget_asc':
-        return Icons.arrow_upward;
-      case 'name':
-        return Icons.sort_by_alpha;
-      default:
-        return Icons.sort;
+  /// בניית פריט תפריט
+  PopupMenuItem<String> _buildMenuItem({
+    required String value,
+    required IconData icon,
+    required String label,
+    String? subtitle,
+    bool isActive = false,
+    bool isDestructive = false,
+  }) {
+    final cs = Theme.of(context).colorScheme;
+    final color = isDestructive
+        ? cs.error
+        : isActive
+            ? cs.primary
+            : Colors.black87;
+
+    return PopupMenuItem(
+      value: value,
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: color),
+          const SizedBox(width: kSpacingMedium),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
+                if (subtitle != null)
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          if (isActive)
+            Icon(Icons.check_circle, size: 18, color: cs.primary),
+        ],
+      ),
+    );
+  }
+
+  /// טיפול בבחירה מהתפריט
+  void _handleMenuAction(String action) {
+    HapticFeedback.selectionClick();
+
+    switch (action) {
+      case 'search':
+        _showSearchSheet();
+        break;
+      case 'filter':
+        _showFilterSheet();
+        break;
+      case 'sort':
+        _showSortSheet();
+        break;
+      case 'clear':
+        _clearAllFilters();
+        break;
     }
+  }
+
+  /// 🔍 Bottom Sheet לחיפוש
+  void _showSearchSheet() {
+    final controller = TextEditingController(text: _searchQuery);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          padding: const EdgeInsets.all(kSpacingLarge),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // כותרת
+              Row(
+                children: [
+                  const Icon(Icons.search, size: 24),
+                  const SizedBox(width: kSpacingSmall),
+                  Text(
+                    AppStrings.shopping.searchListTitle,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: kSpacingLarge),
+
+              // שדה חיפוש
+              TextField(
+                controller: controller,
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: AppStrings.shopping.searchListHint,
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: controller.clear,
+                  ),
+                  filled: true,
+                  fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(kBorderRadiusMedium),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                onSubmitted: (value) {
+                  setState(() {
+                    _searchQuery = value.trim();
+                    _currentHistoryLimit = _historyPageSize; // 🔄 איפוס pagination
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+              const SizedBox(height: kSpacingLarge),
+
+              // כפתורים
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        controller.clear();
+                        setState(() => _searchQuery = '');
+                        Navigator.pop(context);
+                      },
+                      child: Text(AppStrings.shopping.clearButton),
+                    ),
+                  ),
+                  const SizedBox(width: kSpacingMedium),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () {
+                        setState(() {
+                          _searchQuery = controller.text.trim();
+                          _currentHistoryLimit = _historyPageSize; // 🔄 איפוס pagination
+                        });
+                        Navigator.pop(context);
+                      },
+                      child: Text(AppStrings.shopping.searchButton),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: kSpacingSmall),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 🏷️ Bottom Sheet לסינון לפי סוג
+  void _showFilterSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.all(kSpacingLarge),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // כותרת
+            Row(
+              children: [
+                const Icon(Icons.filter_list, size: 24),
+                const SizedBox(width: kSpacingSmall),
+                Text(
+                  AppStrings.shopping.filterByTypeTitle,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ],
+            ),
+            const SizedBox(height: kSpacingLarge),
+
+            // אפשרויות סינון
+            Wrap(
+              spacing: kSpacingSmall,
+              runSpacing: kSpacingSmall,
+              children: [
+                _buildFilterChip('all', '📦', AppStrings.shopping.allTypesLabel),
+                ...ListTypes.all.map((t) => _buildFilterChip(t.key, t.emoji, t.shortName)),
+              ],
+            ),
+            const SizedBox(height: kSpacingLarge),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// צ'יפ סינון
+  Widget _buildFilterChip(String key, String emoji, String name) {
+    final isSelected = _selectedType == key;
+
+    return FilterChip(
+      showCheckmark: false,
+      label: Text(
+        '$emoji $name',
+        style: TextStyle(
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        ),
+      ),
+      selected: isSelected,
+      onSelected: (selected) {
+        HapticFeedback.selectionClick();
+        setState(() {
+          _selectedType = key;
+          _currentHistoryLimit = _historyPageSize; // 🔄 איפוס pagination
+        });
+        Navigator.pop(context);
+      },
+      backgroundColor: Colors.white,
+      selectedColor: kStickyCyan,
+    );
+  }
+
+  /// 📊 Bottom Sheet למיון
+  void _showSortSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.all(kSpacingLarge),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // כותרת
+            Row(
+              children: [
+                const Icon(Icons.sort, size: 24),
+                const SizedBox(width: kSpacingSmall),
+                Text(
+                  AppStrings.shopping.sortTitle,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ],
+            ),
+            const SizedBox(height: kSpacingMedium),
+
+            // אפשרויות מיון
+            _buildSortOption('date_desc', AppStrings.shopping.sortDateDesc, Icons.arrow_downward),
+            _buildSortOption('date_asc', AppStrings.shopping.sortDateAsc, Icons.arrow_upward),
+            _buildSortOption('name', AppStrings.shopping.sortNameAZ, Icons.sort_by_alpha),
+            _buildSortOption('budget_desc', AppStrings.shopping.sortBudgetDesc, Icons.attach_money),
+            _buildSortOption('budget_asc', AppStrings.shopping.sortBudgetAsc, Icons.money_off),
+
+            const SizedBox(height: kSpacingSmall),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// אפשרות מיון
+  Widget _buildSortOption(String value, String label, IconData icon) {
+    final isSelected = _sortBy == value;
+    final cs = Theme.of(context).colorScheme;
+
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: isSelected ? cs.primary : Colors.black54,
+      ),
+      title: Text(
+        label,
+        style: TextStyle(
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          color: isSelected ? cs.primary : Colors.black87,
+        ),
+      ),
+      trailing: isSelected ? Icon(Icons.check, color: cs.primary) : null,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+      ),
+      onTap: () {
+        HapticFeedback.selectionClick();
+        setState(() {
+          _sortBy = value;
+          _currentHistoryLimit = _historyPageSize; // 🔄 איפוס pagination
+        });
+        Navigator.pop(context);
+      },
+    );
+  }
+
+  /// 🧹 ניקוי כל הסינונים
+  void _clearAllFilters() {
+    HapticFeedback.lightImpact();
+    setState(() {
+      _searchQuery = '';
+      _selectedType = 'all';
+      _sortBy = 'date_desc';
+      _currentHistoryLimit = _historyPageSize; // 🔄 איפוס pagination
+    });
+  }
+
+  /// 🏷️ פס סיכום סינון פעיל
+  Widget _buildActiveFiltersStrip() {
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+      padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
+      decoration: BoxDecoration(
+        color: cs.primaryContainer.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(kBorderRadiusMedium),
+      ),
+      child: Row(
+        children: [
+          // אייקון סינון
+          Icon(Icons.filter_alt, size: 16, color: cs.primary),
+          const SizedBox(width: kSpacingSmall),
+
+          // תגיות סינון (לחיצות לפתיחת Sheet)
+          Expanded(
+            child: Wrap(
+              spacing: kSpacingSmall,
+              children: [
+                if (_searchQuery.isNotEmpty)
+                  _buildFilterTag('🔍 "$_searchQuery"', onTap: _showSearchSheet),
+                if (_selectedType != 'all')
+                  _buildFilterTag('🏷️ ${_getTypeLabel(_selectedType)}', onTap: _showFilterSheet),
+                if (_sortBy != 'date_desc')
+                  _buildFilterTag('📊 ${_getSortLabel()}', onTap: _showSortSheet),
+              ],
+            ),
+          ),
+
+          // כפתור ניקוי
+          IconButton(
+            icon: const Icon(Icons.close, size: 18),
+            onPressed: _clearAllFilters,
+            tooltip: AppStrings.shopping.clearFilterLabel,
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// תגית סינון בודדת (לחיצה פותחת את ה-Sheet המתאים)
+  Widget _buildFilterTag(String label, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.7),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: const TextStyle(fontSize: 12),
+            ),
+            if (onTap != null) ...[
+              const SizedBox(width: 2),
+              const Icon(Icons.edit, size: 10, color: Colors.black45),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// קבלת תווית סוג
+  String _getTypeLabel(String type) {
+    if (type == 'all') return AppStrings.shopping.allTypesLabel;
+    final listType = ListTypes.all.where((t) => t.key == type).firstOrNull;
+    return listType?.shortName ?? type;
   }
 
   /// קבלת תווית מיון
   String _getSortLabel() {
     switch (_sortBy) {
       case 'date_desc':
-        return 'חדש';
+        return AppStrings.shopping.sortLabelNew;
       case 'date_asc':
-        return 'ישן';
+        return AppStrings.shopping.sortLabelOld;
       case 'name':
-        return 'א-ת';
+        return AppStrings.shopping.sortLabelAZ;
       case 'budget_desc':
         return '₪↓';
       case 'budget_asc':
         return '₪↑';
       default:
-        return 'מיין';
+        return AppStrings.shopping.sortLabel;
     }
   }
 
@@ -381,7 +665,8 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
     }
 
     // 🎬 סימון שהטעינה הראשונית הושלמה (למניעת אנימציות בחיפוש)
-    if (!_isFirstLoadComplete && provider.lists.isNotEmpty) {
+    // 🔧 FIX: סימון גם אם אין רשימות - אחרת אנימציות ימשיכו לרוץ
+    if (!_isFirstLoadComplete) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) setState(() => _isFirstLoadComplete = true);
       });
@@ -460,9 +745,13 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
 
   /// 📌 מציג פעילות + היסטוריה
   Widget _buildListsView(List<ShoppingList> activeLists, List<ShoppingList> completedLists) {
-    // הגבל היסטוריה
-    final limitedHistory = completedLists.take(_currentHistoryLimit).toList();
-    final hasMoreHistory = completedLists.length > _currentHistoryLimit;
+    // 🔧 FIX: כשיש סינון פעיל - הצג את כל ההיסטוריה (בלי pagination)
+    // כדי שהמשתמש יראה את כל התוצאות שמתאימות לחיפוש
+    final showAllHistory = _hasActiveFilters;
+    final limitedHistory = showAllHistory
+        ? completedLists
+        : completedLists.take(_currentHistoryLimit).toList();
+    final hasMoreHistory = !showAllHistory && completedLists.length > _currentHistoryLimit;
 
     return ListView(
       // 📏 Padding מתואם לקווי המחברת (48px בין קווים)
@@ -471,7 +760,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
       children: [
         // 🔵 פעילות
         if (activeLists.isNotEmpty) ...[
-          _buildSectionHeader('🔵 רשימות פעילות', activeLists.length),
+          _buildSectionHeader(AppStrings.shopping.activeLists, activeLists.length),
           const SizedBox(height: kSpacingMedium),
           ..._buildListCards(activeLists, isActive: true),
           const SizedBox(height: kSpacingLarge),
@@ -479,17 +768,23 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
 
         // ✅ היסטוריה
         if (limitedHistory.isNotEmpty) ...[
-          _buildSectionHeader('✅ היסטוריה', completedLists.length),
+          // 🔧 FIX: הוספת הערה שההיסטוריה ממוינת לפי עדכון אחרון
+          _buildSectionHeader(
+            AppStrings.shopping.historyLists,
+            completedLists.length,
+            subtitle: AppStrings.shopping.historyListsNote,
+            isActive: false, // 🔧 FIX: צבע ירוק להיסטוריה
+          ),
           const SizedBox(height: kSpacingSmall),
           ..._buildListCards(limitedHistory, isActive: false),
-          
-          // כפתור "טען עוד"
+
+          // כפתור "טען עוד" - רק אם לא בסינון
           if (hasMoreHistory) ...[
             const SizedBox(height: kSpacingMedium),
             Center(
               child: StickyButtonSmall(
                 color: kStickyCyan,
-                label: 'טען עוד רשימות (${completedLists.length - _currentHistoryLimit} נותרו)',
+                label: AppStrings.shopping.loadMoreLists(completedLists.length - _currentHistoryLimit),
                 icon: Icons.expand_more,
                 onPressed: () {
                   // ✨ Haptic feedback למשוב מישוש
@@ -503,17 +798,17 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
             ),
           ],
         ],
-
       ],
     );
   }
 
   /// 🏷️ כותרת קטגוריה - סגנון highlighter על מחברת
-  Widget _buildSectionHeader(String title, int count) {
+  /// 🔧 FIX: הוספת פרמטרים subtitle ו-isActive (במקום title.contains שנשבר עם AppStrings)
+  Widget _buildSectionHeader(String title, int count, {String? subtitle, bool isActive = true}) {
     final cs = Theme.of(context).colorScheme;
 
-    // צבע highlighter לפי סוג הכותרת
-    final highlightColor = title.contains('פעילות')
+    // 🔧 FIX: צבע highlighter לפי פרמטר isActive (לא לפי תוכן הכותרת!)
+    final highlightColor = isActive
         ? kStickyCyan.withValues(alpha: kHighlightOpacity)
         : kStickyGreen.withValues(alpha: kHighlightOpacity);
 
@@ -539,6 +834,17 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
               ),
             ),
           ),
+          // הערה קטנה (למשל: "לפי עדכון אחרון")
+          if (subtitle != null) ...[
+            const SizedBox(width: kSpacingTiny),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: kFontSizeSmall,
+                color: cs.onSurfaceVariant,
+              ),
+            ),
+          ],
           const SizedBox(width: kSpacingSmall),
           // מונה פריטים
           Container(
@@ -594,10 +900,13 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
             final provider = context.read<ShoppingListsProvider>();
             await provider.restoreList(deletedList);
           },
-          onStartShopping: isActive ? () {
-            debugPrint('🛒 התחלת קנייה: ${list.name}');
-            Navigator.push(context, MaterialPageRoute(builder: (context) => ActiveShoppingScreen(list: list)));
-          } : null,
+          onStartShopping: isActive
+              ? () {
+                  debugPrint('🛒 התחלת קנייה: ${list.name}');
+                  Navigator.push(
+                      context, MaterialPageRoute(builder: (context) => ActiveShoppingScreen(list: list)));
+                }
+              : null,
           onEdit: () {
             debugPrint('✏️ עריכת רשימה: ${list.name}');
             Navigator.pushNamed(context, '/populate-list', arguments: list);
@@ -657,19 +966,19 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
             ),
             const SizedBox(height: kSpacingLarge),
             Text(
-              'שגיאה בטעינת הרשימות',
+              AppStrings.shopping.loadingListsError,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: kSpacingSmall),
             Text(
-              provider.errorMessage ?? 'משהו השתבש...',
+              provider.errorMessage ?? AppStrings.shopping.somethingWentWrong,
               style: TextStyle(color: cs.error),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: kSpacingLarge),
             StickyButton(
               color: kStickyPink,
-              label: 'נסה שוב',
+              label: AppStrings.shopping.tryAgainButton,
               icon: Icons.refresh,
               onPressed: () {
                 debugPrint('🔄 retry - טוען מחדש');
@@ -729,29 +1038,18 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
               },
             ),
             const SizedBox(height: kSpacingLarge),
-            const Text(
-              'לא נמצאו רשימות',
-              style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold),
+            Text(
+              AppStrings.shopping.noListsFoundTitle,
+              style: const TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: kSpacingSmall),
-            Text('נסה לשנות את החיפוש או הסינון', style: TextStyle(color: cs.onSurfaceVariant)),
+            Text(AppStrings.shopping.noListsFoundSubtitle, style: TextStyle(color: cs.onSurfaceVariant)),
             const SizedBox(height: kSpacingLarge),
             StickyButtonSmall(
               color: kStickyGreen,
-              label: 'נקה סינון',
+              label: AppStrings.shopping.clearFilterLabel,
               icon: Icons.clear_all,
-              onPressed: () {
-                debugPrint('🧹 ניקוי סינון');
-
-                // ✨ Haptic feedback למשוב מישוש
-                HapticFeedback.lightImpact();
-
-                _searchController.clear();
-                setState(() {
-                  _searchQuery = '';
-                  _selectedType = 'all';
-                });
-              },
+              onPressed: _clearAllFilters,
             ),
           ],
         ),
@@ -811,16 +1109,16 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                   child: Column(
                     children: [
                       Text(
-                      'אין רשימות קניות',
+                        AppStrings.shopping.noListsTitle,
                         style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: kSpacingSmall),
                       Text(
-                        'לחץ על הכפתור מטה ליצירת\nהרשימה הראשונה שלך!',
+                        AppStrings.shopping.noListsSubtitle,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
                       ),
                     ],
                   ),
@@ -830,7 +1128,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
             const SizedBox(height: kSpacingXLarge),
             StickyButton(
               color: kStickyYellow,
-              label: 'צור רשימה חדשה',
+              label: AppStrings.shopping.createNewListButton,
               icon: Icons.add,
               onPressed: () {
                 debugPrint('➕ יצירת רשימה ראשונה');
@@ -843,7 +1141,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
             ),
             const SizedBox(height: kSpacingLarge),
             Text(
-              'או סרוק קבלה במסך הקבלות',
+              AppStrings.shopping.orScanReceiptHint,
               textAlign: TextAlign.center,
               style: Theme.of(
                 context,
@@ -854,5 +1152,4 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
       ),
     );
   }
-
 }

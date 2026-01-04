@@ -85,8 +85,6 @@ class WelcomeScreen extends StatelessWidget {
 
                           // 🎨 לוגו וסלוגן משולבים - עיצוב חדש
                           _LogoAndSlogan(
-                            accent: accent,
-                            stickyYellow: brand?.stickyYellow ?? kStickyYellow,
                             isSmallScreen: isSmallScreen,
                           ),
                           SizedBox(height: isSmallScreen ? kSpacingSmall : kSpacingMedium),
@@ -137,7 +135,7 @@ class WelcomeScreen extends StatelessWidget {
                           Text(
                             AppStrings.welcome.moreGroupsHint,
                             style: theme.textTheme.bodyMedium?.copyWith(
-                              color: Colors.black54,
+                              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                               fontWeight: FontWeight.w500,
                               fontSize: 14,
                             ),
@@ -153,10 +151,21 @@ class WelcomeScreen extends StatelessWidget {
                   StickyButton(
                     color: accent,
                     label: AppStrings.welcome.startButton,
-                    icon: Icons.rocket_launch,
+                    icon: Icons.person_add,
                     onPressed: () => _handleRegister(context),
                   ),
-                  const SizedBox(height: kSpacingMedium),
+                  const SizedBox(height: kSpacingSmall),
+
+                  // 💡 הסבר קצר למה צריך להירשם
+                  Text(
+                    AppStrings.welcome.authExplanation,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: kSpacingSmall),
 
                   // לינק התחברות - בולט יותר
                   TextButton(
@@ -164,13 +173,63 @@ class WelcomeScreen extends StatelessWidget {
                     child: Text(
                       AppStrings.welcome.loginLink,
                       style: theme.textTheme.bodyLarge?.copyWith(
-                        color: Colors.black87,
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.87),
                         fontWeight: FontWeight.w500,
                         fontSize: 16,
                       ),
                     ),
                   ),
-                  const SizedBox(height: kSpacingMedium),
+                  const SizedBox(height: kSpacingSmall),
+
+                  // 📜 לינקים משפטיים - תנאי שימוש ופרטיות
+                  // ♿ שומרים אזור לחיצה מינימלי לנגישות (48x48)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          // TODO: Navigate to Terms of Service
+                        },
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          minimumSize: const Size(48, 36),
+                        ),
+                        child: Text(
+                          AppStrings.welcome.termsOfService,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                            fontSize: 12,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        ' • ',
+                        style: TextStyle(
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                          fontSize: 12,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          // TODO: Navigate to Privacy Policy
+                        },
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          minimumSize: const Size(48, 36),
+                        ),
+                        child: Text(
+                          AppStrings.welcome.privacyPolicy,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                            fontSize: 12,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: kSpacingSmall),
                 ],
               ),
             ),
@@ -183,54 +242,55 @@ class WelcomeScreen extends StatelessWidget {
 
 /// 🎨 שם וסלוגן - עיצוב נקי בלי לוגו
 class _LogoAndSlogan extends StatelessWidget {
-  final Color accent;
-  final Color stickyYellow;
   final bool isSmallScreen;
 
   const _LogoAndSlogan({
-    required this.accent,
-    required this.stickyYellow,
     required this.isSmallScreen,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final onSurface = theme.colorScheme.onSurface;
 
-    return Column(
-      children: [
-        // 📝 שם האפליקציה - גדול ובולט
-        Text(
-          AppStrings.welcome.title,
-          textAlign: TextAlign.center,
-          style: theme.textTheme.headlineLarge?.copyWith(
-            color: Colors.black87,
-            fontWeight: FontWeight.w800,
-            fontSize: isSmallScreen ? 36 : 44,
-            letterSpacing: 2,
-            shadows: [
-              Shadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 4,
-                offset: const Offset(1, 2),
-              ),
-            ],
-          ),
-        ).animate().fadeIn(duration: 400.ms),
+    return Semantics(
+      header: true,
+      label: '${AppStrings.welcome.title} - ${AppStrings.welcome.subtitle}',
+      child: Column(
+        children: [
+          // 📝 שם האפליקציה - גדול ובולט
+          Text(
+            AppStrings.welcome.title,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.headlineLarge?.copyWith(
+              color: onSurface.withValues(alpha: 0.87),
+              fontWeight: FontWeight.w800,
+              fontSize: isSmallScreen ? 36 : 44,
+              letterSpacing: 2,
+              shadows: [
+                Shadow(
+                  color: onSurface.withValues(alpha: 0.1),
+                  blurRadius: 4,
+                  offset: const Offset(1, 2),
+                ),
+              ],
+            ),
+          ).animate().fadeIn(duration: 400.ms),
 
-        const SizedBox(height: 8),
+          const SizedBox(height: 8),
 
-        // 🏷️ סלוגן - טקסט ברור יותר
-        Text(
-          AppStrings.welcome.subtitle,
-          textAlign: TextAlign.center,
-          style: theme.textTheme.bodyLarge?.copyWith(
-            color: Colors.black54,
-            fontWeight: FontWeight.w500,
-            fontSize: isSmallScreen ? 15 : 17,
-          ),
-        ).animate().fadeIn(duration: 400.ms, delay: 150.ms),
-      ],
+          // 🏷️ סלוגן - טקסט ברור יותר
+          Text(
+            AppStrings.welcome.subtitle,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: onSurface.withValues(alpha: 0.6),
+              fontWeight: FontWeight.w500,
+              fontSize: isSmallScreen ? 15 : 17,
+            ),
+          ).animate().fadeIn(duration: 400.ms, delay: 150.ms),
+        ],
+      ),
     );
   }
 }
@@ -263,80 +323,85 @@ class _GroupCardWithPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final onSurface = theme.colorScheme.onSurface;
     final actualClipColor = clipColor ?? Colors.grey.shade500;
 
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        // 📌 הפתק עצמו - גדול יותר
-        StickyNote(
-          color: color,
-          rotation: rotation,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 20, right: 16, bottom: 16, left: 16),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // צד ימין (ב-RTL): Emoji + Title + Question
-                Expanded(
-                  flex: 4,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Emoji + Title
-                      Row(
-                        children: [
-                          Text(
-                            emoji,
-                            style: const TextStyle(fontSize: 34, height: 1.0),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              title,
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                color: Colors.black87,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 19,
+    // ♿ Semantics: קורא מסך יקרא רק את ה-label הכולל, לא את הילדים
+    return Semantics(
+      label: '$title - $question',
+      excludeSemantics: true,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // 📌 הפתק עצמו - גדול יותר
+          StickyNote(
+            color: color,
+            rotation: rotation,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 20, right: 16, bottom: 16, left: 16),
+              child: Row(
+                children: [
+                  // צד ימין (ב-RTL): Emoji + Title + Question
+                  Expanded(
+                    flex: 4,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Emoji + Title
+                        Row(
+                          children: [
+                            Text(
+                              emoji,
+                              style: const TextStyle(fontSize: 34, height: 1.0),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                title,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  color: onSurface.withValues(alpha: 0.87),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 19,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      // Question - סגנון כתב יד
-                      Text(
-                        question,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: Colors.black54,
-                          fontStyle: FontStyle.italic,
-                          fontSize: 14,
+                          ],
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 6),
+                        // Question - סגנון כתב יד
+                        Text(
+                          question,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: onSurface.withValues(alpha: 0.6),
+                            fontStyle: FontStyle.italic,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                // צד שמאל (ב-RTL): Mini UI Preview
-                Expanded(
-                  flex: 5,
-                  child: previewWidget,
-                ),
-              ],
+                  const SizedBox(width: 12),
+                  // צד שמאל (ב-RTL): Mini UI Preview - דקורטיבי
+                  Expanded(
+                    flex: 5,
+                    child: previewWidget,
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-        // 📎 סיכת נייר / קליפס מתכתי למעלה
-        Positioned(
-          top: -8,
-          right: MediaQuery.of(context).size.width * clipPosition,
-          child: Transform.rotate(
-            angle: clipAngle,
-            child: _PaperClip(color: actualClipColor),
+          // 📎 סיכת נייר / קליפס מתכתי למעלה
+          Positioned(
+            top: -8,
+            right: MediaQuery.of(context).size.width * clipPosition,
+            child: Transform.rotate(
+              angle: clipAngle,
+              child: _PaperClip(color: actualClipColor),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

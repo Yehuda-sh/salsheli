@@ -179,6 +179,7 @@ final Map<String, Map<String, dynamic>> users = {
     'share_lists': true,
     'reminder_time': '10:00',
     'seen_onboarding': true,
+    'seen_tutorial': true,
   },
   ronitUserId: {
     'id': ronitUserId,
@@ -199,6 +200,7 @@ final Map<String, Map<String, dynamic>> users = {
     'share_lists': true,
     'reminder_time': '09:00',
     'seen_onboarding': true,
+    'seen_tutorial': true,
   },
   yuvalUserId: {
     'id': yuvalUserId,
@@ -219,6 +221,7 @@ final Map<String, Map<String, dynamic>> users = {
     'share_lists': true,
     'reminder_time': null,
     'seen_onboarding': true,
+    'seen_tutorial': true,
   },
   noaUserId: {
     'id': noaUserId,
@@ -239,6 +242,7 @@ final Map<String, Map<String, dynamic>> users = {
     'share_lists': true,
     'reminder_time': null,
     'seen_onboarding': true,
+    'seen_tutorial': true,
   },
 };
 
@@ -267,6 +271,7 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
     'share_lists': true,
     'reminder_time': '18:00',
     'seen_onboarding': true,
+    'seen_tutorial': true,
   },
   mayaUserId: {
     'id': mayaUserId,
@@ -287,6 +292,7 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
     'share_lists': true,
     'reminder_time': '19:00',
     'seen_onboarding': true,
+    'seen_tutorial': true,
   },
 
   // Single Person - Tomer Bar (lives alone, active shopper)
@@ -309,6 +315,7 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
     'share_lists': false,
     'reminder_time': '20:00',
     'seen_onboarding': true,
+    'seen_tutorial': true,
   },
 
   // New User - Shiran Gal (just joined, has rich pantry but no shopping history)
@@ -331,6 +338,7 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
     'share_lists': false,
     'reminder_time': null,
     'seen_onboarding': true,
+    'seen_tutorial': true,
   },
 };
 
