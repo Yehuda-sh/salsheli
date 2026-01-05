@@ -1,0 +1,147 @@
+{
+  "templateName": "מסיבת יום הולדת",
+  "description": "כל מה שצריך למסיבה מושלמת",
+  "icon": "🎂",
+  "items": [
+    {
+      "source": "bakery",
+      "searchTerm": "עוגה",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "עוגת יום הולדת"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "נרות",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "נרות ליום הולדת"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "בלונים",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "בלונים"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "צ'יפס",
+      "quantity": 4,
+      "unit": "יח'",
+      "fallbackName": "צ'יפס"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "במבה",
+      "quantity": 3,
+      "unit": "יח'",
+      "fallbackName": "במבה"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "ביסלי",
+      "quantity": 3,
+      "unit": "יח'",
+      "fallbackName": "ביסלי"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "שוקולד",
+      "quantity": 3,
+      "unit": "יח'",
+      "fallbackName": "שוקולד"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "סוכריות",
+      "quantity": 2,
+      "unit": "יח'",
+      "fallbackName": "סוכריות"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "ממתקים",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "ממתקים לשקיות"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "פופקורן",
+      "quantity": 2,
+      "unit": "יח'",
+      "fallbackName": "פופקורן"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "קוקה קולה",
+      "quantity": 6,
+      "unit": "יח'",
+      "fallbackName": "קוקה קולה"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "מיץ ענבים",
+      "quantity": 2,
+      "unit": "ליטר",
+      "fallbackName": "מיץ ענבים"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "מים מינרליים",
+      "quantity": 6,
+      "unit": "יח'",
+      "fallbackName": "מים מינרליים"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "כוסות",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "כוסות חד פעמיות"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "צלחות",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "צלחות חד פעמיות"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "מפיות",
+      "quantity": 2,
+      "unit": "יח'",
+      "fallbackName": "מפיות צבעוניות"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "סכין פלסטיק",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "סכו\"ם חד פעמי"
+    },
+    {
+      "source": "greengrocer",
+      "searchTerm": "תפוח עץ",
+      "quantity": 1,
+      "unit": "ק\"ג",
+      "fallbackName": "תפוחים"
+    },
+    {
+      "source": "greengrocer",
+      "searchTerm": "בננה",
+      "quantity": 1,
+      "unit": "ק\"ג",
+      "fallbackName": "בננות"
+    },
+    {
+      "source": "greengrocer",
+      "searchTerm": "ענבים",
+      "quantity": 0.5,
+      "unit": "ק\"ג",
+      "fallbackName": "ענבים"
+    }
+  ]
+}

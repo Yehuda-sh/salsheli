@@ -580,17 +580,17 @@ Map<String, dynamic> createListItem({
     'id': id,
     'name': name,
     'type': 'product',
-    'isChecked': isChecked,
+    'is_checked': isChecked,
     'category': category,
     'notes': null,
     'image_url': null,
-    'productData': {
+    'product_data': {
       'quantity': quantity,
-      'unitPrice': unitPrice,
+      'unit_price': unitPrice,
       'barcode': barcode,
       'unit': 'יח\'',
     },
-    'taskData': null,
+    'task_data': null,
     'checked_by': checkedBy,
     'checked_at': checkedAt?.toIso8601String(),
   };
@@ -1033,9 +1033,7 @@ Map<String, dynamic> createInventoryItemFromProduct(
     'last_purchased': now.subtract(Duration(days: Random().nextInt(30) + 1)).toIso8601String(),
     'purchase_count': purchaseCount,
     'emoji': product['icon'] as String?,
-    'barcode': product['barcode'] as String?,
-    'price': product['price'] as double?,
-    'brand': product['brand'] as String?,
+    // הוסרו: barcode, price, brand - לא קיימים במודל InventoryItem
   };
 }
 

@@ -94,8 +94,25 @@ class InventoryProvider with ChangeNotifier {
   /// ID של הקבוצה הנוכחית (null אם מזווה אישי)
   String? get currentGroupId => _currentGroupId;
 
+  /// שם הקבוצה הנוכחית (null אם מזווה אישי)
+  String? get currentGroupName {
+    if (!isGroupMode || _currentGroupId == null || _groupsProvider == null) {
+      return null;
+    }
+    return _groupsProvider!.groups
+        .where((g) => g.id == _currentGroupId)
+        .firstOrNull
+        ?.name;
+  }
+
   /// שם המזווה להצגה
-  String get inventoryTitle => isGroupMode ? 'מזווה משותף' : 'המזווה שלי';
+  String get inventoryTitle {
+    if (isGroupMode) {
+      final groupName = currentGroupName;
+      return groupName != null ? 'מזווה $groupName' : 'מזווה משותף';
+    }
+    return 'המזווה שלי';
+  }
 
   // === חיבור UserContext ===
 
@@ -739,6 +756,56 @@ class InventoryProvider with ChangeNotifier {
         debugPrint('❌ InventoryProvider.transferToGroup: שגיאה - $e');
       }
       _errorMessage = 'שגיאה בהעברת מזווה לקבוצה';
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  /// 🏺 מוסיף פריטי starter למזווה (Onboarding)
+  ///
+  /// מקבל רשימת InventoryItem ומוסיף אותם למזווה הנוכחי.
+  /// משמש להוספת מוצרי יסוד בפעם הראשונה שמשתמש נכנס למזווה ריק.
+  ///
+  /// Example:
+  /// ```dart
+  /// final items = await TemplateService.loadPantryStarterItems();
+  /// await provider.addStarterItems(items);
+  /// ```
+  Future<int> addStarterItems(List<InventoryItem> items) async {
+    final userId = _userContext?.userId;
+    if (userId == null) {
+      throw Exception('משתמש לא מחובר');
+    }
+
+    if (items.isEmpty) return 0;
+
+    int successCount = 0;
+
+    try {
+      for (final item in items) {
+        // שמירה למיקום הנכון
+        if (_currentMode == InventoryMode.group && _currentGroupId != null) {
+          await _repository.saveGroupItem(item, _currentGroupId!);
+        } else {
+          await _repository.saveUserItem(item, userId);
+        }
+        successCount++;
+      }
+
+      // עדכון local
+      _items = [..._items, ...items];
+      notifyListeners();
+
+      if (kDebugMode) {
+        debugPrint('✅ InventoryProvider: נוספו $successCount פריטי starter למזווה');
+      }
+
+      return successCount;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('❌ InventoryProvider.addStarterItems: שגיאה - $e');
+      }
+      _errorMessage = 'שגיאה בהוספת פריטים';
       notifyListeners();
       rethrow;
     }

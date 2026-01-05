@@ -189,6 +189,32 @@ class ShoppingListTile extends StatelessWidget {
     );
   }
 
+  /// 🔒 תג "אישית" - מוצג רק לרשימות פרטיות שלא משותפות
+  Widget _buildPrivacyTag(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingTiny),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.tertiaryContainer,
+        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.person, size: kIconSizeSmall, color: theme.colorScheme.onTertiaryContainer),
+          const SizedBox(width: kSpacingTiny),
+          Text(
+            'אישית',
+            style: TextStyle(
+              color: theme.colorScheme.onTertiaryContainer,
+              fontSize: kFontSizeTiny,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// 🇮🇱 ווידג׳ט תג דחיפות
   /// 🇬🇧 Urgency tag widget
   ///
@@ -341,6 +367,9 @@ class ShoppingListTile extends StatelessWidget {
                             urgencyTag,
                           if (list.isShared)
                             _buildSharedTag(context),
+                          // 🔒 תג אישית - רק אם פרטית ולא משותפת
+                          if (!list.isShared && list.isPrivate)
+                            _buildPrivacyTag(context),
                         ],
                       ),
                       const SizedBox(height: kSpacingSmall),

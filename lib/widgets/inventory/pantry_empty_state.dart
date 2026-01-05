@@ -36,11 +36,15 @@ class PantryEmptyState extends StatelessWidget {
   /// Callback להוספת פריט
   final VoidCallback? onAddItem;
 
+  /// Callback להוספת פריטי starter (מוצרי יסוד)
+  final VoidCallback? onAddStarterItems;
+
   const PantryEmptyState({
     super.key,
     this.isGroupMode = false,
     this.groupName,
     this.onAddItem,
+    this.onAddStarterItems,
   });
 
   @override
@@ -158,7 +162,60 @@ class PantryEmptyState extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: kSpacingLarge),
+              const SizedBox(height: kSpacingMedium),
+
+              // === הצעת Starter - מוצרי יסוד ===
+              if (onAddStarterItems != null)
+                StickyNote(
+                  color: kStickyGreen,
+                  rotation: -0.01,
+                  child: Padding(
+                    padding: const EdgeInsets.all(kSpacingMedium),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            const Text('🎁', style: TextStyle(fontSize: 20)),
+                            const SizedBox(width: kSpacingSmall),
+                            Expanded(
+                              child: Text(
+                                'רוצה להתחיל עם מוצרי יסוד?',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: kFontSizeMedium,
+                                  color: cs.onSurface,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: kSpacingSmall),
+                        Text(
+                          'קמח, סוכר, שמן, אורז ועוד - נוסיף אותם אוטומטית',
+                          style: TextStyle(
+                            fontSize: kFontSizeSmall,
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: kSpacingMedium),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            StickyButton(
+                              color: kStickyYellow,
+                              label: 'כן, הוסף!',
+                              icon: Icons.check,
+                              onPressed: onAddStarterItems,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+              if (onAddStarterItems != null)
+                const SizedBox(height: kSpacingLarge),
 
               // === מידע על מצב המזווה ===
               if (isGroupMode && groupName != null)

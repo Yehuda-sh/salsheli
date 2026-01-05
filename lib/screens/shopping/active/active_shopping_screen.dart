@@ -352,7 +352,9 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         return status == ShoppingItemStatus.purchased;
       }).toList();
 
-      if (purchasedItems.isNotEmpty) {
+      // 📦 עדכן מזווה ודפוסים - רק לרשימות משותפות (לא אירועים ולא אישיות)
+      if (purchasedItems.isNotEmpty &&
+          ShoppingList.shouldUpdatePantry(widget.list.type, isPrivate: widget.list.isPrivate)) {
         debugPrint('📦 מעדכן מלאי: ${purchasedItems.length} פריטים');
         await inventoryProvider.updateStockAfterPurchase(purchasedItems);
         debugPrint('✅ מלאי עודכן בהצלחה');
@@ -374,6 +376,8 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         } catch (e) {
           debugPrint('⚠️ שמירת דפוס נכשלה (לא קריטי): $e');
         }
+      } else if (purchasedItems.isNotEmpty) {
+        debugPrint('🔒 רשימה אישית/אירוע - דילוג על עדכון מזווה ודפוסי קנייה');
       }
 
       // 2️⃣ טיפול בפריטי outOfStock - תמיד מעבירים לרשימה הבאה

@@ -210,8 +210,8 @@ class ShoppingList {
 
   /// 🆕 האם הרשימה פרטית (לא משותפת עם ה-household)
   /// 🇬🇧 Is the list private (not shared with the household)
-  /// ברירת מחדל: false - רשימות משותפות עם כל ה-household
-  @JsonKey(name: 'is_private', defaultValue: false)
+  /// ברירת מחדל: true - רשימות חדשות הן אישיות עד שמשתפים אותן
+  @JsonKey(name: 'is_private', defaultValue: true)
   final bool isPrivate;
 
   /// 🆕 הרשאה של המשתמש הנוכחי (מחושב, לא נשמר)
@@ -235,8 +235,20 @@ class ShoppingList {
   static const String typeBakery = 'bakery';           // 🍞 מאפייה - לחם ומאפים
   static const String typeMarket = 'market';           // 🏪 שוק - מעורב
   static const String typeHousehold = 'household';     // 🏠 כלי בית - מוצרים מותאמים
+  static const String typeEvent = 'event';             // 🎉 אירוע - מסיבות ומנגלים
   static const String typeOther = 'other';             // ➕ אחר
-  
+
+  /// 🇮🇱 האם הרשימה צריכה לעדכן מזווה משפחתי ולשמור דפוסי קנייה?
+  /// 🇬🇧 Should this list update household pantry and save shopping patterns?
+  /// - רשימות אירועים (על האש, יום הולדת) - לא מעדכנות
+  /// - רשימות אישיות (isPrivate=true) - לא מעדכנות מזווה משפחתי
+  static bool shouldUpdatePantry(String type, {required bool isPrivate}) {
+    // רשימות אירוע - לא מעדכנות מזווה
+    if (type == typeEvent) return false;
+    // רשימות אישיות - לא מעדכנות מזווה משפחתי (פרטיות!)
+    if (isPrivate) return false;
+    return true;
+  }
 
   // ---- Active Shopping Getters ----
 
@@ -419,6 +431,8 @@ class ShoppingList {
         return const Color(0xFFCE93D8); // kStickyPurple
       case typeHousehold:
         return const Color(0xFF80DEEA); // kStickyCyan
+      case typeEvent:
+        return const Color(0xFFCE93D8); // kStickyPurple - אירועים
       default:
         return const Color(0xFFFFF59D); // kStickyYellow (default)
     }
@@ -442,6 +456,8 @@ class ShoppingList {
         return '🏪';
       case typeHousehold:
         return '🏠';
+      case typeEvent:
+        return '🎉';
       default:
         return '📝';
     }
@@ -465,6 +481,8 @@ class ShoppingList {
         return 'שוק';
       case typeHousehold:
         return 'כלי בית';
+      case typeEvent:
+        return 'אירוע';
       default:
         return 'כללי';
     }
@@ -488,6 +506,8 @@ class ShoppingList {
         return Icons.store;
       case typeHousehold:
         return Icons.home;
+      case typeEvent:
+        return Icons.celebration;
       default:
         return Icons.shopping_bag;
     }
@@ -536,7 +556,7 @@ class ShoppingList {
     DateTime? eventDate,
     DateTime? targetDate,
     bool isShared = false,
-    bool isPrivate = false,
+    bool isPrivate = true,
     List<String> sharedWith = const [],
     List<UnifiedListItem> items = const [],
     String? templateId,
@@ -580,7 +600,7 @@ class ShoppingList {
     DateTime? eventDate,
     DateTime? targetDate,
     bool isShared = false,
-    bool isPrivate = false,
+    bool isPrivate = true,
     List<String> sharedWith = const [],
     DateTime? now,
   }) {

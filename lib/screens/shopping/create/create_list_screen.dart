@@ -25,6 +25,10 @@ import '../../../l10n/app_strings.dart';
 import '../../../models/unified_list_item.dart';
 import '../../../providers/shopping_lists_provider.dart';
 import '../../../services/template_service.dart';
+import '../../../theme/app_theme.dart';
+import '../../../widgets/common/notebook_background.dart';
+import '../../../widgets/common/sticky_button.dart';
+import '../../../widgets/common/sticky_note.dart';
 import 'template_picker_dialog.dart';
 
 class CreateListScreen extends StatefulWidget {
@@ -46,6 +50,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
   String _type = 'supermarket';
   DateTime? _eventDate;
   bool _isSubmitting = false;
+  bool _isPrivate = true; // 🔒 ברירת מחדל: רשימה אישית
 
   // 📋 Template selection
   TemplateInfo? _selectedTemplate;
@@ -105,6 +110,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
         type: _type,
         budget: budget,
         eventDate: _eventDate,
+        isPrivate: _isPrivate,
         items: _templateItems.isNotEmpty ? _templateItems : null,
       );
 
@@ -217,6 +223,8 @@ class _CreateListScreenState extends State<CreateListScreen> {
           if (_nameController.text.trim().isEmpty) {
             _nameController.text = selected.name;
           }
+          // 🎉 עדכון סוג הרשימה לפי התבנית
+          _type = TemplateService.getListTypeForTemplate(selected.id);
           _templateItems = items;
         });
 
@@ -270,72 +278,89 @@ class _CreateListScreenState extends State<CreateListScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final brand = theme.extension<AppBrand>();
     final strings = AppStrings.createListDialog;
     // 🔧 שימוש ב-watch כדי שהולידציה תתעדכן אם נוספה רשימה ברקע
     final provider = context.watch<ShoppingListsProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(strings.title),
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          tooltip: strings.cancelTooltip,
-          onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(left: kSpacingSmall),
-            child: ElevatedButton(
-              onPressed: _isSubmitting ? null : _handleSubmit,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.primary,
-                foregroundColor: theme.colorScheme.onPrimary,
-              ),
-              child: _isSubmitting
-                  ? const SizedBox(
-                      width: kIconSizeMedium,
-                      height: kIconSizeMedium,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                  : Text(strings.createButton),
+        backgroundColor: brand?.paperBackground ?? theme.scaffoldBackgroundColor,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: Text(
+            strings.title,
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
             ),
           ),
-        ],
-      ),
-      body: Form(
-        key: _formKey,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        child: ListView(
-          padding: const EdgeInsets.all(kSpacingMedium),
+          leading: IconButton(
+            icon: const Icon(Icons.close),
+            tooltip: strings.cancelTooltip,
+            onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
+          ),
+        ),
+        body: Stack(
           children: [
-            // 📋 כפתור בחירת תבנית
-            _buildTemplateButton(),
-            const SizedBox(height: kSpacingLarge),
+            // 📓 רקע מחברת
+            const NotebookBackground(),
 
-            // 📝 שם הרשימה
-            _buildNameField(provider),
-            const SizedBox(height: kSpacingMedium),
+            // 📝 תוכן
+            SafeArea(
+              child: Form(
+                key: _formKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: ListView(
+                  padding: EdgeInsets.only(
+                    left: kSpacingMedium,
+                    right: kSpacingMedium,
+                    top: kSpacingSmall,
+                    bottom: MediaQuery.of(context).viewInsets.bottom + kSpacingLarge,
+                  ),
+                  children: [
+                    // 📋 כפתור בחירת תבנית
+                    _buildTemplateButton(),
+                    const SizedBox(height: kSpacingMedium),
 
-            // 📋 סוג הרשימה
-            _buildTypeSelector(theme),
-            const SizedBox(height: kSpacingMedium),
+                    // 📝 שם הרשימה - Yellow StickyNote
+                    StickyNote(
+                      color: brand?.stickyYellow ?? kStickyYellow,
+                      rotation: 0.008,
+                      child: _buildNameField(provider),
+                    ),
+                    const SizedBox(height: kSpacingMedium),
 
-            // ✨ Preview
-            _buildTypePreview(theme),
-            const SizedBox(height: kSpacingMedium),
+                    // 📋 סוג הרשימה
+                    _buildTypeSelector(theme),
+                    const SizedBox(height: kSpacingMedium),
 
-            // 📅 תאריך אירוע
-            _buildEventDateField(theme),
-            const SizedBox(height: kSpacingMedium),
+                    // 🔒 אישית/משפחתית
+                    _buildPrivacyToggle(theme),
+                    const SizedBox(height: kSpacingMedium),
 
-            // 💰 תקציב
-            _buildBudgetField(),
+                    // 📅 תאריך אירוע
+                    _buildEventDateField(theme),
+                    const SizedBox(height: kSpacingMedium),
+
+                    // 💰 תקציב
+                    _buildBudgetField(),
+                    const SizedBox(height: kSpacingLarge),
+
+                    // ✅ כפתור יצירה
+                    StickyButton(
+                      color: brand?.stickyGreen ?? kStickyGreen,
+                      label: strings.createButton,
+                      icon: Icons.add_task,
+                      isLoading: _isSubmitting,
+                      onPressed: _isSubmitting ? null : _handleSubmit,
+                    ),
+                    const SizedBox(height: kSpacingMedium),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
-      ),
     );
   }
 
@@ -473,7 +498,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          alignment: WrapAlignment.end,
+          alignment: WrapAlignment.center,
           children: types.map((type) => _buildTypeChip(type, theme)).toList(),
         ),
       ],
@@ -521,48 +546,52 @@ class _CreateListScreenState extends State<CreateListScreen> {
     );
   }
 
-  Widget _buildTypePreview(ThemeData theme) {
-    final typeInfo = ListTypes.getByKey(_type);
-
-    return Container(
-      padding: const EdgeInsets.all(kSpacingMedium),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: kOpacityMedium),
-        borderRadius: BorderRadius.circular(kBorderRadius),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: kOpacityLight),
+  Widget _buildPrivacyToggle(ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // כותרת
+        Text(
+          'מי יראה את הרשימה?',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.primary,
+          ),
         ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            typeInfo?.emoji ?? '📋',
-            style: const TextStyle(fontSize: 40.0),
-          ),
-          const SizedBox(width: kSpacingMedium),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  typeInfo?.fullName ?? 'אחר',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                if (_selectedTemplate != null)
-                  Text(
-                    '${_templateItems.length} פריטים מתבנית',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.primary,
-                    ),
-                  ),
-              ],
+        const SizedBox(height: kSpacingSmall),
+        // SegmentedButton
+        SegmentedButton<bool>(
+          segments: const [
+            ButtonSegment(
+              value: true,
+              label: Text('🔒 אישית'),
             ),
+            ButtonSegment(
+              value: false,
+              label: Text('👨‍👩‍👧 משפחתית'),
+            ),
+          ],
+          selected: {_isPrivate},
+          onSelectionChanged: _isSubmitting
+              ? null
+              : (selection) {
+                  setState(() => _isPrivate = selection.first);
+                },
+          style: const ButtonStyle(
+            visualDensity: VisualDensity.comfortable,
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: kSpacingTiny),
+        // הסבר
+        Text(
+          _isPrivate
+              ? 'רק אתה תראה את הרשימה הזו'
+              : 'כל המשפחה תוכל לראות ולערוך',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 

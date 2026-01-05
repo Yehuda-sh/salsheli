@@ -9,11 +9,6 @@
       "id": "event",
       "name": "אירועים",
       "templateFile": null
-    },
-    {
-      "id": "pantry",
-      "name": "מזווה",
-      "templateFile": "pantry_basic.json"
     }
   ],
   "subTemplates": [
@@ -28,12 +23,12 @@
         {
           "id": "friends",
           "name": "ישיבה עם חברים",
-          "templateFile": null
+          "templateFile": "event_friends.json"
         },
         {
           "id": "birthday",
           "name": "מסיבת יום הולדת",
-          "templateFile": null
+          "templateFile": "event_birthday.json"
         }
       ]
     }

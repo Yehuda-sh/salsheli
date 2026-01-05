@@ -16,6 +16,8 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:uuid/uuid.dart';
+import '../models/inventory_item.dart';
 import '../models/unified_list_item.dart';
 
 /// מידע על תבנית זמינה
@@ -254,6 +256,24 @@ class TemplateService {
     }
   }
 
+  /// מחזיר סוג רשימה לפי ID תבנית
+  ///
+  /// משמש לקביעת הסוג האוטומטי כשבוחרים תבנית
+  static String getListTypeForTemplate(String templateId) {
+    switch (templateId) {
+      case 'bbq':
+      case 'birthday':
+      case 'friends':
+        return 'event';
+      case 'shopping':
+        return 'supermarket';
+      case 'pantry':
+        return 'household';
+      default:
+        return 'supermarket';
+    }
+  }
+
   /// מחזיר אייקון לפי מקור המוצר
   static String _getIconForSource(String source) {
     switch (source) {
@@ -270,6 +290,52 @@ class TemplateService {
       default:
         return '🛒';
     }
+  }
+
+  /// 🏺 טוען פריטי starter למזווה (Onboarding)
+  ///
+  /// מחזיר רשימת InventoryItem מוכנה להוספה למזווה
+  /// משמש כאשר משתמש נכנס למזווה ריק ורוצה להתחיל עם מוצרי יסוד
+  static Future<List<InventoryItem>> loadPantryStarterItems() async {
+    debugPrint('🏺 [TemplateService] טוען פריטי starter למזווה...');
+
+    // 1. ודא שהמוצרים נטענו
+    await _loadProductsIfNeeded();
+
+    // 2. קרא את קובץ התבנית
+    final String json = await rootBundle.loadString(
+      'assets/templates/pantry_basic.json',
+    );
+    final data = jsonDecode(json) as Map<String, dynamic>;
+
+    final items = <InventoryItem>[];
+    const uuid = Uuid();
+
+    // 3. לכל item בתבנית
+    for (var templateItem in data['items'] as List) {
+      final source = templateItem['source'] as String;
+      final searchTerm = templateItem['searchTerm'] as String;
+      final quantity = (templateItem['quantity'] as num).toInt();
+      final unit = templateItem['unit'] as String;
+      final fallbackName = templateItem['fallbackName'] as String;
+
+      // 4. חפש את המוצר האמיתי
+      final product = findProduct(source, searchTerm);
+
+      // 5. צור InventoryItem
+      items.add(InventoryItem(
+        id: uuid.v4(),
+        productName: product?['name'] as String? ?? fallbackName,
+        category: product?['category'] as String? ?? 'מזווה',
+        location: 'מזווה', // ברירת מחדל
+        quantity: quantity,
+        unit: (product?['unit'] as String?) ?? unit,
+        minQuantity: 1, // סף מינימלי
+      ));
+    }
+
+    debugPrint('✅ [TemplateService] נטענו ${items.length} פריטי starter למזווה');
+    return items;
   }
 
   /// מנקה את המטמון (לדוגמה: אחרי עדכון מוצרים)

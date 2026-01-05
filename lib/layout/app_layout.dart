@@ -1,12 +1,11 @@
 // 📄 lib/layout/app_layout.dart
 //
-// **פריסת היישום הראשית** - AppBar, Drawer, BottomNavigation.
+// **פריסת היישום הראשית** - AppBar + BottomNavigation.
 // מרכז את הניווט הראשי של האפליקציה עם תמיכה מלאה ב-RTL, badges אנימטיביים,
 // ואנימציות מיקרו לחוויית משתמש חלקה.
 //
 // ✅ Features:
 //    - AppBar עם כותרת, התראות ו-logout
-//    - Drawer עם ניווט + StickyNote header
 //    - NavigationBar (Material 3) עם animated badges
 //    - RTL support מלא (Directionality wrapper)
 //    - Theme-aware colors (Dark Mode support)
@@ -16,13 +15,6 @@
 //
 // 🔗 Related: AppStrings.layout, UserContext, PendingInvitesProvider
 // 🔗 Parent: MainNavigationScreen (manages state)
-//
-// ----------------------------------------------------------------------------
-// The AppLayout widget provides the main scaffold for the application.
-// Includes AppBar with notifications/logout, responsive Drawer navigation,
-// and Material 3 NavigationBar with animated badge counters.
-// All text is RTL Hebrew, with full accessibility support.
-// ----------------------------------------------------------------------------
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -32,8 +24,6 @@ import '../core/ui_constants.dart';
 import '../l10n/app_strings.dart';
 import '../providers/pending_invites_provider.dart';
 import '../providers/user_context.dart';
-import '../theme/app_theme.dart'; // ✅ AppBrand extension
-import '../widgets/common/sticky_note.dart';
 
 class AppLayout extends StatefulWidget {
   final Widget child;
@@ -243,9 +233,7 @@ class _AppLayoutState extends State<AppLayout> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        // ✅ הוסר: backgroundColor - מגיע מ-scaffoldBackgroundColor בTheme
         appBar: _buildAppBar(context, cs),
-        drawer: _buildDrawer(context, cs, safeIndex),
         body: widget.child,
         bottomNavigationBar: _buildBottomNav(context, cs, safeIndex),
       ),
@@ -293,121 +281,6 @@ class _AppLayoutState extends State<AppLayout> {
           onPressed: () => _logout(context),
         ),
       ],
-    );
-  }
-
-  /// 🗂️ Build Drawer
-  Widget _buildDrawer(BuildContext context, ColorScheme cs, int safeIndex) {
-    return Drawer(
-      backgroundColor: cs.surfaceContainerHighest,
-      child: SafeArea(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            _buildDrawerHeader(context, cs),
-            ..._navItems.asMap().entries.map(
-              (e) => _DrawerItem(
-                icon: e.value.icon,
-                label: e.value.label,
-                selected: safeIndex == e.key,
-                badgeCount: widget.badges?[e.key],
-                onTap: () {
-                  if (kDebugMode) {
-                    debugPrint('🔄 AppLayout.tabSelected: ${e.key} (${e.value.label})');
-                  }
-                  Navigator.pop(context);
-                  widget.onTabSelected(e.key);
-                },
-              ),
-            ),
-            const Divider(),
-            _DrawerItem(
-              icon: Icons.logout,
-              label: AppStrings.common.logoutAction,
-              selected: false,
-              color: cs.error,
-              onTap: () {
-                Navigator.pop(context);
-                _logout(context);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// 👤 Build Drawer Header - סגנון StickyNote
-  /// ✅ FIX: שימוש ב-AppBrand לצבעים (תמיכה ב-Dark Mode)
-  Widget _buildDrawerHeader(BuildContext context, ColorScheme cs) {
-    final brand = Theme.of(context).extension<AppBrand>();
-    // צבע פתק מ-Theme (או fallback לצהוב קבוע)
-    final stickyColor = brand?.stickyYellow ?? kStickyYellow;
-    // צבעי טקסט על פתק צהוב - תמיד כהים (לקריאות)
-    const stickyTextPrimary = Color(0xDD000000); // ~87% black
-    const stickyTextSecondary = Color(0x89000000); // ~54% black
-
-    // ✅ Semantics לנגישות - תיאור מפורט של ההדר
-    final semanticLabel = totalBadgeCount > 0
-        ? 'שלום! יש לך $totalBadgeCount עדכונים חדשים'
-        : 'שלום! ברוך הבא לסל שלי';
-
-    return Semantics(
-      label: semanticLabel,
-      child: Padding(
-        padding: const EdgeInsets.all(kSpacingMedium),
-        child: StickyNote(
-          color: stickyColor,
-          rotation: -0.01,
-          child: Row(
-          children: [
-            // אווטאר
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: cs.primary.withValues(alpha: 0.15),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Icon(
-                  Icons.person,
-                  size: 32,
-                  color: cs.primary,
-                ),
-              ),
-            ),
-            const SizedBox(width: kSpacingSmall),
-            // טקסט
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    AppStrings.layout.hello,
-                    style: const TextStyle(
-                      fontSize: kFontSizeLarge,
-                      fontWeight: FontWeight.bold,
-                      color: stickyTextPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: kSpacingXTiny),
-                  Text(
-                    totalBadgeCount > 0
-                        ? AppStrings.layout.welcomeWithUpdates(totalBadgeCount)
-                        : AppStrings.layout.welcome,
-                    style: const TextStyle(
-                      fontSize: kFontSizeBody,
-                      color: stickyTextSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        ),
-      ),
     );
   }
 
@@ -596,82 +469,3 @@ final List<_NavItem> _navItems = [
   _NavItem(icon: Icons.settings, label: AppStrings.navigation.settings),
 ];
 
-// === Drawer Item Widget ===
-
-/// 🗂️ Drawer Item with Animation
-/// 
-/// מה זה עושה:
-/// - Selected item: Background color + Icon color change
-/// - Badge: Animated count (TweenAnimationBuilder)
-/// - Smooth transitions (AnimatedContainer)
-/// 
-/// New in v3.0 - Modern UI Pattern
-class _DrawerItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  final int? badgeCount;
-  final Color? color;
-
-  const _DrawerItem({
-    required this.icon,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-    this.badgeCount,
-    this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final effectiveColor = color ?? (selected ? cs.primary : cs.onSurfaceVariant);
-
-    Widget leadingIcon = Icon(icon, color: effectiveColor);
-
-    // 🎯 Add animated badge if count > 0
-    if (badgeCount != null && badgeCount! > 0) {
-      leadingIcon = Badge(
-        backgroundColor: cs.error,
-        textColor: cs.onError,
-        label: _AnimatedBadgeCount(count: badgeCount!),
-        child: leadingIcon,
-      );
-    }
-
-    // ✅ Semantics לנגישות - תיאור מצב הפריט
-    final semanticLabel = selected
-        ? '$label, נבחר${badgeCount != null && badgeCount! > 0 ? ', $badgeCount עדכונים' : ''}'
-        : '$label${badgeCount != null && badgeCount! > 0 ? ', $badgeCount עדכונים' : ''}';
-
-    return Semantics(
-      label: semanticLabel,
-      button: true,
-      selected: selected,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-        decoration: BoxDecoration(
-          // ✅ FIX: Theme-aware color במקום Colors.transparent
-          color: selected
-              ? cs.primary.withValues(alpha: 0.08)
-              : cs.surface.withValues(alpha: 0),
-        ),
-        child: ListTile(
-          leading: leadingIcon,
-          title: Text(
-            label,
-            style: TextStyle(
-              color: color ?? (selected ? cs.primary : cs.onSurface),
-            ),
-            textAlign: TextAlign.right,
-          ),
-          trailing: selected ? Icon(Icons.chevron_left, color: cs.primary) : null,
-          selected: selected,
-          onTap: onTap,
-        ),
-      ),
-    );
-  }
-}

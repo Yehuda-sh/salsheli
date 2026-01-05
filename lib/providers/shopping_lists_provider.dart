@@ -278,6 +278,7 @@ class ShoppingListsProvider with ChangeNotifier {
     double? budget,
     DateTime? eventDate,
     bool isShared = false,
+    bool isPrivate = true, // 🆕 ברירת מחדל: רשימה אישית
     List<UnifiedListItem>? items, // 🆕 פריטים אופציונליים (UnifiedListItem)
     String? templateId, // 🆕 מזהה תבנית
   }) async {
@@ -311,6 +312,7 @@ class ShoppingListsProvider with ChangeNotifier {
               budget: budget,
               eventDate: eventDate,
               isShared: isShared,
+              isPrivate: isPrivate,
             )
           : ShoppingList.newList(
               id: _uuid.v4(),
@@ -320,6 +322,7 @@ class ShoppingListsProvider with ChangeNotifier {
               budget: budget,
               eventDate: eventDate,
               isShared: isShared,
+              isPrivate: isPrivate,
               items: items ?? [], // 🆕 העברת פריטים
               createdFromTemplate: items != null && items.isNotEmpty,
             );

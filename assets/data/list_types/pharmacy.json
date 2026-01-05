@@ -547,5 +547,365 @@
     "barcode": "5900627084474",
     "brand": "איירוויק",
     "unit": "יחידה"
+  },
+  {
+    "name": "אבקת חלבון וניל 900 גרם",
+    "category": "מזון בריאות",
+    "icon": "🥗",
+    "price": 129.9,
+    "barcode": "7290017250014",
+    "brand": "אופטימום",
+    "unit": "יחידה"
+  },
+  {
+    "name": "אבקת חלבון שוקולד 900 גרם",
+    "category": "מזון בריאות",
+    "icon": "🥗",
+    "price": 129.9,
+    "barcode": "7290017250021",
+    "brand": "אופטימום",
+    "unit": "יחידה"
+  },
+  {
+    "name": "חטיף חלבון שוקולד 60 גרם",
+    "category": "מזון בריאות",
+    "icon": "🥗",
+    "price": 12.9,
+    "barcode": "7290017250038",
+    "brand": "קווסט",
+    "unit": "יחידה"
+  },
+  {
+    "name": "גרנולה טבעית 500 גרם",
+    "category": "מזון בריאות",
+    "icon": "🥗",
+    "price": 29.9,
+    "barcode": "7290017250045",
+    "brand": "תלמה",
+    "unit": "יחידה"
+  },
+  {
+    "name": "גרעיני צ'יה 300 גרם",
+    "category": "מזון בריאות",
+    "icon": "🥗",
+    "price": 34.9,
+    "barcode": "7290017250052",
+    "brand": "סופהרב",
+    "unit": "יחידה"
+  },
+  {
+    "name": "קמח שקדים 400 גרם",
+    "category": "מזון בריאות",
+    "icon": "🥗",
+    "price": 42.9,
+    "barcode": "7290017250069",
+    "brand": "שקדיה",
+    "unit": "יחידה"
+  },
+  {
+    "name": "חמאת בוטנים טבעית 350 גרם",
+    "category": "מזון בריאות",
+    "icon": "🥗",
+    "price": 28.9,
+    "barcode": "7290017250076",
+    "brand": "סקיפי",
+    "unit": "יחידה"
+  },
+  {
+    "name": "דבש טבעי 500 גרם",
+    "category": "מזון בריאות",
+    "icon": "🥗",
+    "price": 45.9,
+    "barcode": "7290017250083",
+    "brand": "יד מרדכי",
+    "unit": "יחידה"
+  },
+  {
+    "name": "שיבולת שועל 500 גרם",
+    "category": "מזון בריאות",
+    "icon": "🥗",
+    "price": 18.9,
+    "barcode": "7290017250090",
+    "brand": "קווקר",
+    "unit": "יחידה"
+  },
+  {
+    "name": "קינואה 500 גרם",
+    "category": "מזון בריאות",
+    "icon": "🥗",
+    "price": 32.9,
+    "barcode": "7290017250106",
+    "brand": "סופהרב",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מד סוכר דיגיטלי",
+    "category": "מוצרי עזר רפואיים",
+    "icon": "🩼",
+    "price": 89.9,
+    "barcode": "7290017251011",
+    "brand": "אקו-צ'ק",
+    "unit": "יחידה"
+  },
+  {
+    "name": "רצועות בדיקה לסוכר 50 יח",
+    "category": "מוצרי עזר רפואיים",
+    "icon": "🩼",
+    "price": 79.9,
+    "barcode": "7290017251028",
+    "brand": "אקו-צ'ק",
+    "unit": "יחידה"
+  },
+  {
+    "name": "גרביים אלסטיות רפואיות",
+    "category": "מוצרי עזר רפואיים",
+    "icon": "🩼",
+    "price": 69.9,
+    "barcode": "7290017251035",
+    "brand": "סיגוריס",
+    "unit": "יחידה"
+  },
+  {
+    "name": "משאף לאסטמה 200 מנות",
+    "category": "מוצרי עזר רפואיים",
+    "icon": "🩼",
+    "price": 54.9,
+    "barcode": "7290017251042",
+    "brand": "טבע",
+    "unit": "יחידה"
+  },
+  {
+    "name": "תחבושת קיבוע אלסטית 7.5 ס\"מ",
+    "category": "מוצרי עזר רפואיים",
+    "icon": "🩼",
+    "price": 22.9,
+    "barcode": "7290017251059",
+    "brand": "טבע",
+    "unit": "יחידה"
+  },
+  {
+    "name": "שרוול לחץ לברך",
+    "category": "מוצרי עזר רפואיים",
+    "icon": "🩼",
+    "price": 49.9,
+    "barcode": "7290017251066",
+    "brand": "מולר",
+    "unit": "יחידה"
+  },
+  {
+    "name": "כרית חימום חשמלית",
+    "category": "מוצרי עזר רפואיים",
+    "icon": "🩼",
+    "price": 79.9,
+    "barcode": "7290017251073",
+    "brand": "בוירר",
+    "unit": "יחידה"
+  },
+  {
+    "name": "קולר צוואר רך",
+    "category": "מוצרי עזר רפואיים",
+    "icon": "🩼",
+    "price": 59.9,
+    "barcode": "7290017251080",
+    "brand": "מולר",
+    "unit": "יחידה"
+  },
+  {
+    "name": "סד אצבע אלומיניום",
+    "category": "מוצרי עזר רפואיים",
+    "icon": "🩼",
+    "price": 19.9,
+    "barcode": "7290017251097",
+    "brand": "טבע",
+    "unit": "יחידה"
+  },
+  {
+    "name": "סד פרק כף יד",
+    "category": "מוצרי עזר רפואיים",
+    "icon": "🩼",
+    "price": 69.9,
+    "barcode": "7290017251103",
+    "brand": "מולר",
+    "unit": "יחידה"
+  },
+  {
+    "name": "סכיני גילוח נשיים 4+1",
+    "category": "מוצרי גילוח",
+    "icon": "🪒",
+    "price": 39.9,
+    "barcode": "7290017252018",
+    "brand": "וונוס",
+    "unit": "יחידה"
+  },
+  {
+    "name": "קרם גילוח לנשים 200 מ\"ל",
+    "category": "מוצרי גילוח",
+    "icon": "🪒",
+    "price": 24.9,
+    "barcode": "7290017252025",
+    "brand": "וויט",
+    "unit": "יחידה"
+  },
+  {
+    "name": "פסי שעווה להסרת שיער 20 יח",
+    "category": "מוצרי גילוח",
+    "icon": "🪒",
+    "price": 32.9,
+    "barcode": "7290017252032",
+    "brand": "וויט",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מכונת גילוח חשמלית לגברים",
+    "category": "מוצרי גילוח",
+    "icon": "🪒",
+    "price": 189.9,
+    "barcode": "7290017252049",
+    "brand": "פיליפס",
+    "unit": "יחידה"
+  },
+  {
+    "name": "אפטר שייב 100 מ\"ל",
+    "category": "מוצרי גילוח",
+    "icon": "🪒",
+    "price": 34.9,
+    "barcode": "7290017252056",
+    "brand": "ניוויאה מן",
+    "unit": "יחידה"
+  },
+  {
+    "name": "קרם לאחר גילוח מרגיע 100 מ\"ל",
+    "category": "מוצרי גילוח",
+    "icon": "🪒",
+    "price": 29.9,
+    "barcode": "7290017252063",
+    "brand": "ניוויאה מן",
+    "unit": "יחידה"
+  },
+  {
+    "name": "סכיני גילוח מאך 3 8 יח",
+    "category": "מוצרי גילוח",
+    "icon": "🪒",
+    "price": 54.9,
+    "barcode": "7290017252070",
+    "brand": "ג'ילט",
+    "unit": "יחידה"
+  },
+  {
+    "name": "סבון גילוח 100 גרם",
+    "category": "מוצרי גילוח",
+    "icon": "🪒",
+    "price": 18.9,
+    "barcode": "7290017252087",
+    "brand": "פרורזו",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מברשת גילוח קלאסית",
+    "category": "מוצרי גילוח",
+    "icon": "🪒",
+    "price": 45.9,
+    "barcode": "7290017252094",
+    "brand": "פרורזו",
+    "unit": "יחידה"
+  },
+  {
+    "name": "שמן לזקן 30 מ\"ל",
+    "category": "מוצרי גילוח",
+    "icon": "🪒",
+    "price": 59.9,
+    "barcode": "7290017252100",
+    "brand": "פרורזו",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מברשת שיער מקצועית",
+    "category": "אביזרי שיער",
+    "icon": "💇",
+    "price": 34.9,
+    "barcode": "7290017253015",
+    "brand": "טנגל טיזר",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מסרק צר לשיער",
+    "category": "אביזרי שיער",
+    "icon": "💇",
+    "price": 12.9,
+    "barcode": "7290017253022",
+    "brand": "קנט",
+    "unit": "יחידה"
+  },
+  {
+    "name": "גומיות לשיער 30 יח",
+    "category": "אביזרי שיער",
+    "icon": "💇",
+    "price": 14.9,
+    "barcode": "7290017253039",
+    "brand": "גומי",
+    "unit": "יחידה"
+  },
+  {
+    "name": "סיכות שיער 50 יח",
+    "category": "אביזרי שיער",
+    "icon": "💇",
+    "price": 9.9,
+    "barcode": "7290017253046",
+    "brand": "בובי",
+    "unit": "יחידה"
+  },
+  {
+    "name": "קשת לשיער",
+    "category": "אביזרי שיער",
+    "icon": "💇",
+    "price": 19.9,
+    "barcode": "7290017253053",
+    "brand": "גומי",
+    "unit": "יחידה"
+  },
+  {
+    "name": "ג'ל לעיצוב שיער 300 מ\"ל",
+    "category": "אביזרי שיער",
+    "icon": "💇",
+    "price": 24.9,
+    "barcode": "7290017253060",
+    "brand": "שוורצקופף",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מוס לשיער 200 מ\"ל",
+    "category": "אביזרי שיער",
+    "icon": "💇",
+    "price": 26.9,
+    "barcode": "7290017253077",
+    "brand": "שוורצקופף",
+    "unit": "יחידה"
+  },
+  {
+    "name": "ספריי לעיצוב שיער 250 מ\"ל",
+    "category": "אביזרי שיער",
+    "icon": "💇",
+    "price": 28.9,
+    "barcode": "7290017253084",
+    "brand": "שוורצקופף",
+    "unit": "יחידה"
+  },
+  {
+    "name": "שמן ארגן לשיער 100 מ\"ל",
+    "category": "אביזרי שיער",
+    "icon": "💇",
+    "price": 49.9,
+    "barcode": "7290017253091",
+    "brand": "מורוקן אויל",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מסכה מזינה לשיער 250 מ\"ל",
+    "category": "אביזרי שיער",
+    "icon": "💇",
+    "price": 39.9,
+    "barcode": "7290017253107",
+    "brand": "לוריאל",
+    "unit": "יחידה"
   }
 ]

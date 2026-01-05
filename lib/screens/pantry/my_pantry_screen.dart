@@ -42,6 +42,7 @@ import '../../providers/inventory_provider.dart';
 import '../../providers/locations_provider.dart';
 import '../../providers/user_context.dart';
 import '../../services/notifications_service.dart';
+import '../../services/template_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/inventory/pantry_empty_state.dart';
@@ -207,6 +208,55 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     PantryProductSelectionSheet.show(context);
   }
 
+  /// 🏺 מוסיף פריטי starter למזווה (Onboarding)
+  Future<void> _addStarterItems() async {
+    if (_isProcessing) return;
+    setState(() => _isProcessing = true);
+
+    try {
+      if (kDebugMode) {
+        debugPrint('🏺 MyPantryScreen: מוסיף פריטי starter...');
+      }
+
+      // שומרים הפניות לפני async
+      final provider = context.read<InventoryProvider>();
+
+      // טוען את הפריטים מהתבנית
+      final items = await TemplateService.loadPantryStarterItems();
+
+      if (items.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('לא נמצאו מוצרי יסוד')),
+          );
+        }
+        return;
+      }
+
+      // מוסיף למזווה
+      final count = await provider.addStarterItems(items);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('נוספו $count מוצרי יסוד למזווה')),
+        );
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('❌ MyPantryScreen: שגיאה בהוספת starter - $e');
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('שגיאה בהוספת מוצרי יסוד')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isProcessing = false);
+      }
+    }
+  }
+
   /// מציג דיאלוג לעריכת פרטי פריט קיים
   void _editItemDialog(InventoryItem item) {
     if (kDebugMode) {
@@ -354,7 +404,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                 appBar: AppBar(
                   backgroundColor: primaryColor,
                   foregroundColor: scheme.onPrimaryContainer,
-                  title: const Text('המזווה שלי'),
+                  title: Text(provider.inventoryTitle),
                 ),
                 body: Center(
                   child: Column(
@@ -390,7 +440,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
               appBar: AppBar(
                 backgroundColor: primaryColor,
                 foregroundColor: isDark ? scheme.onSurface : scheme.onPrimaryContainer,
-                title: const Text('המזווה שלי'),
+                title: Text(provider.inventoryTitle),
               ),
               floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
               floatingActionButton: Padding(
@@ -426,6 +476,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                               isGroupMode: provider.isGroupMode,
                               groupName: provider.isGroupMode ? provider.inventoryTitle : null,
                               onAddItem: _addItemDialog,
+                              onAddStarterItems: _addStarterItems,
                             ),
                           ],
                         )
