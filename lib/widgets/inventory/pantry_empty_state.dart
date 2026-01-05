@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/status_colors.dart';
 import '../../core/ui_constants.dart';
+import '../common/sticky_button.dart';
 import '../common/sticky_note.dart';
 
 /// Empty State למזווה - מוצג כאשר אין פריטים
@@ -227,26 +228,11 @@ class PantryEmptyState extends StatelessWidget {
 
               // === כפתור הוספה ===
               if (onAddItem != null)
-                Semantics(
-                  label: 'הוסף מוצר ראשון למזווה',
-                  button: true,
-                  child: ElevatedButton.icon(
-                    onPressed: onAddItem,
-                    icon: const Icon(Icons.add),
-                    label: const Text('הוסף מוצר ראשון'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: cs.primary,
-                      foregroundColor: cs.onPrimary,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: kSpacingLarge,
-                        vertical: kSpacingMedium,
-                      ),
-                      textStyle: const TextStyle(
-                        fontSize: kFontSizeMedium,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+                StickyButton(
+                  color: kStickyGreen,
+                  label: 'הוסף מוצר ראשון',
+                  icon: Icons.add,
+                  onPressed: onAddItem,
                 ),
             ],
           ),
