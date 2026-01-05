@@ -1,34 +1,15 @@
-// 📄 File: lib/widgets/common/notebook_background.dart
-// 🎯 Purpose: רקע מחברת עם קווים כחולים וקו אדום
+// 📄 lib/widgets/common/notebook_background.dart
 //
-// 📋 Features:
-// - קווים אופקיים כחולים כמו במחברת אמיתית
-// - קו אדום אנכי משמאל
-// - שימוש בקבועים מ-ui_constants.dart
-// - צבעים מ-AppBrand
-// - נגיש וקל לשימוש
+// רקע מחברת עם קווים כחולים וקו אדום - CustomPaint יעיל.
+// קווים אופקיים כחולים + קו אדום אנכי RTL-aware.
 //
-// 🔗 Related:
-// - ui_constants.dart - קבועי גדלים וצבעים
-// - app_theme.dart - AppBrand
+// ✅ תיקונים:
+//    - הוספת RepaintBoundary לביצועים (מונע רינדור חוזר)
+//    - הוספת ExcludeSemantics (רקע דקורטיבי, לא לקוראי מסך)
+//    - צבע רקע מ-AppBrand.paperBackground (תומך Dark Mode)
+//    - קו אדום RTL-aware (ימין באפליקציה עברית)
 //
-// 🎨 Design:
-// - קווים כחולים בהירים (opacity 0.5)
-// - קו אדום בולט (opacity 0.4)
-// - מרווח 48px בין קווים (kNotebookLineSpacing)
-// - קו אדום במרחק 60px משמאל (kNotebookRedLineOffset)
-//
-// Usage:
-// ```dart
-// Stack(
-//   children: [
-//     NotebookBackground(),
-//     // תוכן שלך כאן
-//   ],
-// )
-// ```
-//
-// Version: 1.0 - Sticky Notes Design System (15/10/2025)
+// 🔗 Related: ui_constants.dart, app_theme.dart (AppBrand)
 
 import 'package:flutter/material.dart';
 import '../../core/ui_constants.dart';
@@ -41,9 +22,11 @@ import '../../theme/app_theme.dart';
 ///
 /// הרכיב משתמש ב-CustomPaint לציור יעיל של הקווים.
 ///
-/// ✅ תיקונים:
-///    - צבע רקע מ-AppBrand.paperBackground (תומך Dark Mode)
-///    - קו אדום במיקום RTL-aware (ימין באפליקציה עברית)
+/// Features:
+/// - RepaintBoundary למניעת רינדור חוזר מיותר
+/// - ExcludeSemantics - רקע דקורטיבי, לא לקוראי מסך
+/// - צבע רקע מ-AppBrand.paperBackground (תומך Dark Mode)
+/// - קו אדום RTL-aware (ימין באפליקציה עברית)
 ///
 /// דוגמה:
 /// ```dart
@@ -67,15 +50,21 @@ class NotebookBackground extends StatelessWidget {
     final brand = theme.extension<AppBrand>();
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
-    return SizedBox.expand(
-      child: CustomPaint(
-        painter: _NotebookPainter(
-          // ✅ צבע רקע מ-AppBrand (תומך Dark Mode)
-          paperBackground: brand?.paperBackground ??
-              (theme.brightness == Brightness.dark ? kDarkPaperBackground : kPaperBackground),
-          notebookBlue: brand?.notebookBlue ?? kNotebookBlue,
-          notebookRed: brand?.notebookRed ?? kNotebookRed,
-          isRtl: isRtl,
+    // ✅ ExcludeSemantics - רקע דקורטיבי, לא רלוונטי לקוראי מסך
+    // ✅ RepaintBoundary - מונע רינדור חוזר כשהתוכן מעל משתנה
+    return ExcludeSemantics(
+      child: RepaintBoundary(
+        child: SizedBox.expand(
+          child: CustomPaint(
+            painter: _NotebookPainter(
+              // ✅ צבע רקע מ-AppBrand (תומך Dark Mode)
+              paperBackground: brand?.paperBackground ??
+                  (theme.brightness == Brightness.dark ? kDarkPaperBackground : kPaperBackground),
+              notebookBlue: brand?.notebookBlue ?? kNotebookBlue,
+              notebookRed: brand?.notebookRed ?? kNotebookRed,
+              isRtl: isRtl,
+            ),
+          ),
         ),
       ),
     );
@@ -85,12 +74,9 @@ class NotebookBackground extends StatelessWidget {
 /// Painter עבור רקע המחברת
 ///
 /// מצייר:
-/// 1. קווים אופקיים כחולים (כמו שורות במחברת)
-/// 2. קו אדום אנכי (מימין ב-RTL, משמאל ב-LTR)
-///
-/// ✅ תיקונים:
-///    - צבע רקע מ-AppBrand.paperBackground (לא מ-brightness)
-///    - קו אדום RTL-aware (ימין באפליקציה עברית)
+/// 1. רקע נייר (מ-AppBrand.paperBackground)
+/// 2. קווים אופקיים כחולים (כמו שורות במחברת)
+/// 3. קו אדום אנכי (מימין ב-RTL, משמאל ב-LTR)
 class _NotebookPainter extends CustomPainter {
   final Color paperBackground;
   final Color notebookBlue;

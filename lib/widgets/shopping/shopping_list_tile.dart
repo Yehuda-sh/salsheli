@@ -127,28 +127,35 @@ class ShoppingListTile extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border(top: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.2))),
       ),
-      child: SimpleTappableCard(
-        onTap: onPressed,
-        child: Container(
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.vertical(bottom: Radius.circular(kBorderRadius)),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmallPlus),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, color: theme.colorScheme.primary, size: kIconSizeMedium),
-                const SizedBox(width: kSpacingSmall),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: kFontSizeBody,
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.primary,
-                  ),
+      child: Tooltip(
+        message: label, // ✅ Tooltip לנגישות
+        child: Semantics(
+          label: label,
+          button: true,
+          child: SimpleTappableCard(
+            onTap: onPressed,
+            child: Container(
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.vertical(bottom: Radius.circular(kBorderRadius)),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmallPlus),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(icon, color: theme.colorScheme.primary, size: kIconSizeMedium),
+                    const SizedBox(width: kSpacingSmall),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: kFontSizeBody,
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
@@ -276,7 +283,7 @@ class ShoppingListTile extends StatelessWidget {
                 );
               }
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: errorColor), // ✅ StatusColors
             child: Text(AppStrings.shopping.deleteButton),
           ),
         ],
@@ -361,28 +368,37 @@ class ShoppingListTile extends StatelessWidget {
                           break;
                       }
                     },
-                    itemBuilder: (context) => [
-                      PopupMenuItem(
-                        value: 'edit',
-                        child: Row(
-                          children: [
-                            const Icon(Icons.edit, size: 20),
-                            const SizedBox(width: 8),
-                            Text(AppStrings.shopping.editListButton),
-                          ],
+                    itemBuilder: (context) {
+                      final deleteColor = StatusColors.getStatusColor('error', context);
+                      return [
+                        PopupMenuItem(
+                          value: 'edit',
+                          child: Semantics(
+                            label: AppStrings.shopping.editListButton,
+                            child: Row(
+                              children: [
+                                const Icon(Icons.edit, size: 20),
+                                const SizedBox(width: 8),
+                                Text(AppStrings.shopping.editListButton),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
-                      PopupMenuItem(
-                        value: 'delete',
-                        child: Row(
-                          children: [
-                            const Icon(Icons.delete, size: 20, color: Colors.red),
-                            const SizedBox(width: 8),
-                            Text(AppStrings.shopping.deleteListButton, style: const TextStyle(color: Colors.red)),
-                          ],
+                        PopupMenuItem(
+                          value: 'delete',
+                          child: Semantics(
+                            label: AppStrings.shopping.deleteListButton,
+                            child: Row(
+                              children: [
+                                Icon(Icons.delete, size: 20, color: deleteColor), // ✅ StatusColors
+                                const SizedBox(width: 8),
+                                Text(AppStrings.shopping.deleteListButton, style: TextStyle(color: deleteColor)),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
+                      ];
+                    },
                   ),
                 ),
               ),

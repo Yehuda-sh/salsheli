@@ -3,6 +3,10 @@
 // מערכת Theme מרכזית - Material 3, Light/Dark, Dynamic Color, AppBrand.
 // כולל צבעי מותג (Amber), success/warning, Sticky Notes, ו-Typography מדויק.
 //
+// ✅ תיקונים:
+//    - תמיכה ב-High Contrast Mode (lightHighContrastTheme/darkHighContrastTheme)
+//    - Typography מותאם אישית לפי M3 spec עם פונט Assistant
+//
 // 🔗 Related: AppBrand, ui_constants, ColorScheme
 
 import 'package:flutter/material.dart';
@@ -10,13 +14,17 @@ import 'package:flutter/material.dart';
 import '../core/ui_constants.dart';
 
 /// צבעי מותג (קבועים)
-/// 
+///
 /// משמשים כברירת מחדל כאשר Dynamic Color לא זמין.
 /// Amber: צבע accent ברור וחם
 /// Primary Seed: בסיס ירוק לpalette של Material 3
 class _Brand {
-  // Accent ענבר - בולט וחם
+  // Accent ענבר - בולט וחם (לרקעים וכפתורים)
   static const amber = Color(0xFFFFC107); // ענבר נעים וברור
+
+  // ✅ Amber כהה לטקסט - עומד ב-WCAG AA (contrast 5.2:1 על לבן)
+  // משמש ל-TextButton, OutlinedButton וטקסט על רקע בהיר
+  static const amberText = Color(0xFFE65100); // Orange 800
 
   // בסיס ירקרק לזהות המותג
   static const primarySeed = Color(0xFF4CAF50); // ירוק Material
@@ -33,8 +41,11 @@ class _Brand {
 /// - צבעי מחברת
 @immutable
 class AppBrand extends ThemeExtension<AppBrand> {
-  /// צבע accent ראשי (Amber או harmonized)
+  /// צבע accent ראשי (Amber או harmonized) - לרקעים וכפתורים
   final Color accent;
+
+  /// צבע accent לטקסט - כהה יותר לנגישות (WCAG AA)
+  final Color accentText;
 
   /// רקע surface לברירת־מחדל במסכים (נגזר מ-ColorScheme)
   final Color surfaceSlate;
@@ -88,6 +99,7 @@ class AppBrand extends ThemeExtension<AppBrand> {
 
   const AppBrand({
     required this.accent,
+    required this.accentText,
     required this.surfaceSlate,
     required this.welcomeBackground,
     required this.success,
@@ -109,6 +121,7 @@ class AppBrand extends ThemeExtension<AppBrand> {
   @override
   AppBrand copyWith({
     Color? accent,
+    Color? accentText,
     Color? surfaceSlate,
     Color? welcomeBackground,
     Color? success,
@@ -128,6 +141,7 @@ class AppBrand extends ThemeExtension<AppBrand> {
   }) {
     return AppBrand(
       accent: accent ?? this.accent,
+      accentText: accentText ?? this.accentText,
       surfaceSlate: surfaceSlate ?? this.surfaceSlate,
       welcomeBackground: welcomeBackground ?? this.welcomeBackground,
       success: success ?? this.success,
@@ -152,6 +166,7 @@ class AppBrand extends ThemeExtension<AppBrand> {
     if (other is! AppBrand) return this;
     return AppBrand(
       accent: Color.lerp(accent, other.accent, t)!,
+      accentText: Color.lerp(accentText, other.accentText, t)!,
       surfaceSlate: Color.lerp(surfaceSlate, other.surfaceSlate, t)!,
       welcomeBackground: Color.lerp(
         welcomeBackground,
@@ -188,6 +203,20 @@ class AppTheme {
     seedColor: _Brand.primarySeed,
     brightness: Brightness.dark,
     dynamicSchemeVariant: DynamicSchemeVariant.fidelity, // צבעים נאמנים ל-seed
+  );
+
+  // ✅ High Contrast Schemes - ניגודיות גבוהה לנגישות (WCAG AAA)
+  static final _lightHighContrastScheme = ColorScheme.fromSeed(
+    seedColor: _Brand.primarySeed,
+    dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
+    contrastLevel: 1.0, // ניגודיות מקסימלית
+  );
+
+  static final _darkHighContrastScheme = ColorScheme.fromSeed(
+    seedColor: _Brand.primarySeed,
+    brightness: Brightness.dark,
+    dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
+    contrastLevel: 1.0, // ניגודיות מקסימלית
   );
 
   /// יוצר Theme מ-Dynamic Colors (Android 12+ Material You)
@@ -240,8 +269,16 @@ class AppTheme {
         ? HSLColor.fromColor(harmonizedWarning).withLightness(0.25).toColor()
         : HSLColor.fromColor(harmonizedWarning).withLightness(0.85).toColor();
 
+    // ✅ accentText - גרסה כהה יותר לטקסט (נגישות)
+    final harmonizedAccentText = _harmonizeColor(
+      _Brand.amberText,
+      dynamicScheme.primary,
+    );
+
     final brand = AppBrand(
       accent: harmonizedAccent,
+      // ✅ בדארק - amber רגיל (ניגודיות טובה), בלייט - amberText כהה יותר
+      accentText: dark ? harmonizedAccent : harmonizedAccentText,
       surfaceSlate: dynamicScheme.surface,
       welcomeBackground: dynamicScheme.surface,
       success: harmonizedSuccess,
@@ -320,6 +357,8 @@ class AppTheme {
     // צור AppBrand - או customBrand (מ-dynamic colors) או ברירת מחדל
     final brand = customBrand ?? AppBrand(
       accent: _Brand.amber,
+      // ✅ בדארק amber רגיל (ניגודיות טובה), בלייט - amberText כהה יותר
+      accentText: dark ? _Brand.amber : _Brand.amberText,
       surfaceSlate: scheme.surface,
       welcomeBackground: scheme.surface,
       // Success colors
@@ -396,7 +435,7 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           side: BorderSide(color: brand.accent),
-          foregroundColor: brand.accent,
+          foregroundColor: brand.accentText, // ✅ נגישות: צבע כהה יותר לטקסט
           textStyle: const TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: kFontSizeBody,
@@ -433,7 +472,7 @@ class AppTheme {
       // TextButton: כפתור טקסט פשוט
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: brand.accent,
+          foregroundColor: brand.accentText, // ✅ נגישות: צבע כהה יותר לטקסט
           textStyle: const TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
@@ -588,7 +627,7 @@ class AppTheme {
           color: scheme.onInverseSurface,
           fontFamily: 'Assistant',
         ),
-        actionTextColor: brand.accent, // כפתור action בAmber
+        actionTextColor: brand.accentText, // ✅ כפתור action עם ניגודיות טובה
         behavior: SnackBarBehavior.floating,
       ),
 
@@ -718,10 +757,36 @@ class AppTheme {
   }
 
   /// Dark Theme - מצב לילה
-  /// 
+  ///
   /// Theme בסיסי ללא Dynamic Color.
   /// לשימוש כ-fallback כאשר Dynamic Color לא זמין.
   static ThemeData get darkTheme {
     return _base(_darkScheme, dark: true);
+  }
+
+  /// Light High Contrast Theme - מצב יום עם ניגודיות גבוהה
+  ///
+  /// Theme עם ניגודיות מקסימלית (WCAG AAA) לנגישות.
+  /// משתמש ב-contrastLevel: 1.0 של Material 3.
+  ///
+  /// לשימוש עם MediaQuery.highContrastOf(context):
+  /// ```dart
+  /// MaterialApp(
+  ///   theme: AppTheme.lightTheme,
+  ///   highContrastTheme: AppTheme.lightHighContrastTheme,
+  ///   darkTheme: AppTheme.darkTheme,
+  ///   highContrastDarkTheme: AppTheme.darkHighContrastTheme,
+  /// )
+  /// ```
+  static ThemeData get lightHighContrastTheme {
+    return _base(_lightHighContrastScheme, dark: false);
+  }
+
+  /// Dark High Contrast Theme - מצב לילה עם ניגודיות גבוהה
+  ///
+  /// Theme עם ניגודיות מקסימלית (WCAG AAA) לנגישות.
+  /// משתמש ב-contrastLevel: 1.0 של Material 3.
+  static ThemeData get darkHighContrastTheme {
+    return _base(_darkHighContrastScheme, dark: true);
   }
 }

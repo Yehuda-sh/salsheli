@@ -20,12 +20,16 @@
 // Version: 2.0
 // Last Updated: 16/12/2025
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:provider/provider.dart';
 
 import '../../config/filters_config.dart';
 import '../../config/storage_locations_config.dart';
+import '../../core/status_colors.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../models/custom_location.dart';
@@ -104,6 +108,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
   bool _isRecurring = false;
 
   bool _isLoading = false;
+  bool _hasChanges = false; // 🛡️ מעקב אחר שינויים לאישור יציאה
 
   @override
   void initState() {
@@ -133,6 +138,50 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
       _notesController = TextEditingController();
       _selectedCategory = 'other';
       _selectedLocation = StorageLocationsConfig.mainPantry;
+    }
+
+    // 🛡️ Track changes for exit confirmation
+    _nameController.addListener(_markChanged);
+    _quantityController.addListener(_markChanged);
+    _unitController.addListener(_markChanged);
+    _minQuantityController.addListener(_markChanged);
+    _notesController.addListener(_markChanged);
+  }
+
+  void _markChanged() {
+    if (!_hasChanges) {
+      setState(() => _hasChanges = true);
+    }
+  }
+
+  /// ✅ Exit confirmation when form has unsaved changes
+  Future<bool> _confirmExit() async {
+    if (!_hasChanges) return true;
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppStrings.common.unsavedChangesTitle),
+        content: Text(AppStrings.common.unsavedChangesMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(AppStrings.common.stayHere),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(AppStrings.common.exitWithoutSaving),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
+  }
+
+  void _handleCancel() async {
+    if (await _confirmExit()) {
+      unawaited(HapticFeedback.lightImpact());
+      if (mounted) Navigator.pop(context, false);
     }
   }
 
@@ -195,13 +244,13 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
           const SizedBox(height: 4),
           Row(
             children: [
-              const Icon(Icons.trending_up, size: 16, color: Colors.green),
+              Icon(Icons.trending_up, size: 16, color: StatusColors.getStatusColor('success', context)),
               const SizedBox(width: 4),
               Text(
                 'מוצר פופולרי!',
                 style: TextStyle(
                   fontSize: kFontSizeSmall,
-                  color: Colors.green[700],
+                  color: StatusColors.getStatusColor('success', context),
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -226,25 +275,47 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
       confirmText: 'אישור',
     );
 
-    if (picked != null) {
-      setState(() => _expiryDate = picked);
+    if (picked != null && mounted) {
+      unawaited(HapticFeedback.lightImpact());
+      setState(() {
+        _expiryDate = picked;
+        _hasChanges = true; // 🛡️ Track change
+      });
     }
   }
 
   /// מבצע ולידציה ושומר את הפריט
   Future<void> _saveItem() async {
-    // Validation
+    // 🛡️ מניעת לחיצה כפולה
+    if (_isLoading) return;
+
+    // Validation - שם
     if (_nameController.text.trim().isEmpty) {
+      unawaited(HapticFeedback.heavyImpact());
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(AppStrings.inventory.productNameRequired),
+          backgroundColor: StatusColors.getStatusColor('error', context),
           duration: kSnackBarDuration,
         ),
       );
       return;
     }
 
-    final quantity = int.tryParse(_quantityController.text) ?? 1;
+    // Validation - כמות
+    final quantity = int.tryParse(_quantityController.text) ?? 0;
+    if (quantity <= 0) {
+      unawaited(HapticFeedback.heavyImpact());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('כמות חייבת להיות גדולה מאפס'),
+          backgroundColor: StatusColors.getStatusColor('error', context),
+          duration: kSnackBarDuration,
+        ),
+      );
+      return;
+    }
+
     final minQuantity = int.tryParse(_minQuantityController.text) ?? 2;
     final productName = _nameController.text.trim();
     // שמור את הקטגוריה בעברית (לתאימות עם שאר המערכת)
@@ -253,6 +324,9 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
     final notes = _notesController.text.trim().isEmpty ? null : _notesController.text.trim();
 
     setState(() => _isLoading = true);
+
+    // ✨ Haptic feedback לתחילת שמירה
+    unawaited(HapticFeedback.mediumImpact());
 
     try {
       final provider = context.read<InventoryProvider>();
@@ -314,7 +388,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
           content: Text(widget.mode == PantryItemDialogMode.add
               ? AppStrings.inventory.addError
               : AppStrings.inventory.updateError),
-          backgroundColor: Colors.red,
+          backgroundColor: StatusColors.getStatusColor('error', context),
           duration: kSnackBarDuration,
         ),
       );
@@ -351,6 +425,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
               TextField(
                 controller: _nameController,
                 style: TextStyle(color: cs.onSurface),
+                textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
                   labelText: AppStrings.inventory.productNameLabel,
                   labelStyle: TextStyle(color: cs.onSurfaceVariant),
@@ -403,6 +478,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                     child: TextField(
                       controller: _quantityController,
                       keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.next,
                       style: TextStyle(color: cs.onSurface),
                       decoration: InputDecoration(
                         labelText: AppStrings.inventory.quantityLabel,
@@ -415,6 +491,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                   Expanded(
                     child: TextField(
                       controller: _unitController,
+                      textInputAction: TextInputAction.next,
                       style: TextStyle(color: cs.onSurface),
                       decoration: InputDecoration(
                         labelText: AppStrings.inventory.unitLabel,
@@ -434,6 +511,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                     child: TextField(
                       controller: _minQuantityController,
                       keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.next,
                       style: TextStyle(color: cs.onSurface),
                       decoration: InputDecoration(
                         labelText: 'מינ\'',
@@ -558,6 +636,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                 controller: _notesController,
                 style: TextStyle(color: cs.onSurface),
                 maxLines: 2,
+                textInputAction: TextInputAction.done,
                 decoration: InputDecoration(
                   labelText: 'הערות',
                   labelStyle: TextStyle(color: cs.onSurfaceVariant),
@@ -575,7 +654,13 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                 value: _isRecurring,
                 onChanged: _isLoading
                     ? null
-                    : (val) => setState(() => _isRecurring = val ?? false),
+                    : (val) {
+                        unawaited(HapticFeedback.selectionClick());
+                        setState(() {
+                          _isRecurring = val ?? false;
+                          _hasChanges = true; // 🛡️ Track change
+                        });
+                      },
                 title: const Text('מוצר קבוע'),
                 subtitle: const Text(
                   'יתווסף אוטומטית לרשימות חדשות',
@@ -583,7 +668,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                 ),
                 secondary: Icon(
                   _isRecurring ? Icons.star : Icons.star_border,
-                  color: _isRecurring ? Colors.amber : cs.onSurfaceVariant,
+                  color: _isRecurring ? accent : cs.onSurfaceVariant,
                 ),
                 dense: true,
                 contentPadding: EdgeInsets.zero,
@@ -600,31 +685,37 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
         ),
         actions: [
           // Cancel button
-          TextButton(
-            onPressed: _isLoading
-                ? null
-                : () => Navigator.pop(context, false),
-            child: Text(AppStrings.common.cancel),
-          ),
-          
-          // Save/Add button
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: accent,
-              foregroundColor: Colors.white,
-              minimumSize: const Size(kButtonHeight, kButtonHeight),
+          Semantics(
+            label: AppStrings.common.cancel,
+            button: true,
+            child: TextButton(
+              onPressed: _isLoading ? null : _handleCancel,
+              child: Text(AppStrings.common.cancel),
             ),
-            onPressed: _isLoading ? null : _saveItem,
-            child: _isLoading
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                : Text(actionLabel),
+          ),
+
+          // Save/Add button
+          Semantics(
+            label: actionLabel,
+            button: true,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: accent,
+                foregroundColor: cs.onPrimary,
+                minimumSize: const Size(kButtonHeight, kButtonHeight),
+              ),
+              onPressed: _isLoading ? null : _saveItem,
+              child: _isLoading
+                  ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(cs.onPrimary),
+                      ),
+                    )
+                  : Text(actionLabel),
+            ),
           ),
         ],
       ),

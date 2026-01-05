@@ -9,6 +9,10 @@
 //    - barrierDismissible: false למניעת סגירה בטעות
 //    - כל הטקסטים מ-AppStrings
 //    - "הצג עוד X מוצרים" הפך לכפתור לחיץ
+//    - המרה ל-StatefulWidget עם _isProcessing flag
+//    - הוספת Semantics wrapper לדיאלוג
+//    - הוספת Tooltips לכפתורים
+//    - תמיכה ב-Dark Mode (kStickyPinkDark/kStickyYellowDark)
 //
 // 🔗 Related: InventoryItem, InventoryProvider, StickyNote, AppBrand
 
@@ -87,11 +91,12 @@ List<InventoryItem> filterExpiringItems(
   final oldestExpired = today.subtract(Duration(days: maxDaysExpired));
 
   return items.where((item) {
-    if (item.expiryDate == null) return false;
-    final expiryDate = _dateOnly(item.expiryDate!);
-    // ✅ Inclusive: כולל גם את הגבולות (עד 7 ימים כולל, עד 30 יום אחורה כולל)
-    return !expiryDate.isBefore(oldestExpired) && !expiryDate.isAfter(threshold);
-  }).toList()
+      if (item.expiryDate == null) return false;
+      final expiryDate = _dateOnly(item.expiryDate!);
+      // ✅ Inclusive: כולל גם את הגבולות (עד 7 ימים כולל, עד 30 יום אחורה כולל)
+      return !expiryDate.isBefore(oldestExpired) &&
+          !expiryDate.isAfter(threshold);
+    }).toList()
     // מיון: פג תוקף ראשון, אחריו הקרובים ביותר
     ..sort((a, b) {
       if (a.expiryDate == null) return 1;
@@ -131,49 +136,65 @@ Future<ExpiryAlertResult?> showExpiryAlertDialog({
     context: context,
     // ✅ מניעת סגירה בלחיצה מחוץ לדיאלוג
     barrierDismissible: false,
-    builder: (context) => _ExpiryAlertDialog(
-      expiringItems: expiringItems,
-    ),
+    builder: (context) => _ExpiryAlertDialog(expiringItems: expiringItems),
   );
 }
 
-class _ExpiryAlertDialog extends StatelessWidget {
+class _ExpiryAlertDialog extends StatefulWidget {
   final List<InventoryItem> expiringItems;
 
-  const _ExpiryAlertDialog({
-    required this.expiringItems,
-  });
+  const _ExpiryAlertDialog({required this.expiringItems});
 
-  Future<void> _dismissToday(BuildContext context) async {
+  @override
+  State<_ExpiryAlertDialog> createState() => _ExpiryAlertDialogState();
+}
+
+class _ExpiryAlertDialogState extends State<_ExpiryAlertDialog> {
+  bool _isProcessing = false;
+
+  Future<void> _dismissToday() async {
+    // ✅ מניעת לחיצות כפולות
+    if (_isProcessing) return;
+
+    setState(() => _isProcessing = true);
+
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_kLastDismissedKey, DateTime.now().toIso8601String());
+      await prefs.setString(
+        _kLastDismissedKey,
+        DateTime.now().toIso8601String(),
+      );
     } catch (e) {
       // ignore
     }
-    if (context.mounted) {
-      Navigator.of(context).pop(ExpiryAlertResult.dismissToday);
-    }
+
+    if (!mounted) return;
+
+    Navigator.of(context).pop(ExpiryAlertResult.dismissToday);
   }
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final brand = Theme.of(context).extension<AppBrand>();
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
+    final isDark = theme.brightness == Brightness.dark;
 
     // ✅ ספירה מבוססת daysUntilExpiry לעקביות עם התצוגה
-    final expiredCount = expiringItems.where((i) {
+    final expiredCount = widget.expiringItems.where((i) {
       if (i.expiryDate == null) return false;
       return _daysUntilExpiry(i.expiryDate!) < 0;
     }).length;
-    final expiringSoonCount = expiringItems.length - expiredCount;
+    final expiringSoonCount = widget.expiringItems.length - expiredCount;
 
-    // ✅ צבעים מה-Theme במקום Colors קשיחים
+    // ✅ צבעים מה-Theme במקום Colors קשיחים + Dark Mode
     final isExpiredMode = expiredCount > 0;
     final stickyColor = isExpiredMode
-        ? (brand?.stickyPink ?? kStickyPink)
-        : (brand?.stickyYellow ?? kStickyYellow);
-    final accentColor = isExpiredMode ? scheme.error : (brand?.warning ?? scheme.tertiary);
+        ? (brand?.stickyPink ?? (isDark ? kStickyPinkDark : kStickyPink))
+        : (brand?.stickyYellow ?? (isDark ? kStickyYellowDark : kStickyYellow));
+    final accentColor = isExpiredMode
+        ? scheme.error
+        : (brand?.warning ?? scheme.tertiary);
     final containerColor = isExpiredMode
         ? scheme.errorContainer
         : (brand?.warningContainer ?? scheme.tertiaryContainer);
@@ -181,150 +202,177 @@ class _ExpiryAlertDialog extends StatelessWidget {
         ? scheme.onErrorContainer
         : (brand?.onWarningContainer ?? scheme.onTertiaryContainer);
 
+    // ✅ Semantics wrapper לנגישות
+    final dialogLabel = isExpiredMode
+        ? 'התראת תפוגה: $expiredCount פריטים פגי תוקף, $expiringSoonCount עומדים לפוג'
+        : 'התראת תפוגה: $expiringSoonCount פריטים עומדים לפוג בקרוב';
+
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: Dialog(
-        backgroundColor: Colors.transparent,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 400, maxHeight: 500),
-          child: StickyNote(
-            color: stickyColor,
-            child: Padding(
-              padding: const EdgeInsets.all(kSpacingMedium),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // === כותרת ===
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: containerColor,
-                          borderRadius: BorderRadius.circular(kBorderRadius),
+      child: Semantics(
+        label: dialogLabel,
+        container: true,
+        child: Dialog(
+          backgroundColor: Colors.transparent,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 400, maxHeight: 500),
+            child: StickyNote(
+              color: stickyColor,
+              child: Padding(
+                padding: const EdgeInsets.all(kSpacingMedium),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // === כותרת ===
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: containerColor,
+                            borderRadius: BorderRadius.circular(kBorderRadius),
+                          ),
+                          child: Text(
+                            isExpiredMode ? '⚠️' : '⏰',
+                            style: const TextStyle(fontSize: 24),
+                          ),
                         ),
-                        child: Text(
-                          isExpiredMode ? '⚠️' : '⏰',
-                          style: const TextStyle(fontSize: 24),
+                        const SizedBox(width: kSpacingSmall),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                isExpiredMode
+                                    ? AppStrings
+                                          .inventory
+                                          .expiryAlertTitleExpired
+                                    : AppStrings
+                                          .inventory
+                                          .expiryAlertTitleExpiringSoon,
+                                style: TextStyle(
+                                  fontSize: kFontSizeLarge,
+                                  fontWeight: FontWeight.bold,
+                                  color: onContainerColor,
+                                ),
+                              ),
+                              Text(
+                                AppStrings.inventory.expiryAlertSubtitle(
+                                  expiredCount,
+                                  expiringSoonCount,
+                                ),
+                                style: TextStyle(
+                                  fontSize: kFontSizeSmall,
+                                  color: scheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: kSpacingSmall),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              isExpiredMode
-                                  ? AppStrings.inventory.expiryAlertTitleExpired
-                                  : AppStrings.inventory.expiryAlertTitleExpiringSoon,
-                              style: TextStyle(
-                                fontSize: kFontSizeLarge,
-                                fontWeight: FontWeight.bold,
-                                color: onContainerColor,
-                              ),
-                            ),
-                            Text(
-                              AppStrings.inventory.expiryAlertSubtitle(
-                                expiredCount,
-                                expiringSoonCount,
-                              ),
-                              style: TextStyle(
-                                fontSize: kFontSizeSmall,
-                                color: scheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
+                        // ✅ כפתור סגירה - מתנהג כמו "אל תציג שוב היום" לחוויה שקטה יותר
+                        Tooltip(
+                          message: 'סגור (אל תציג שוב היום)',
+                          child: IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: _isProcessing ? null : _dismissToday,
+                            visualDensity: VisualDensity.compact,
+                          ),
                         ),
-                      ),
-                      // ✅ כפתור סגירה - מתנהג כמו "אל תציג שוב היום" לחוויה שקטה יותר
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => _dismissToday(context),
-                        visualDensity: VisualDensity.compact,
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: kSpacingMedium),
-
-                  // === רשימת פריטים ===
-                  Container(
-                    constraints: const BoxConstraints(maxHeight: 250),
-                    decoration: BoxDecoration(
-                      color: scheme.surface.withValues(alpha: 0.7),
-                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                      ],
                     ),
-                    child: ListView.separated(
-                      shrinkWrap: true,
-                      padding: const EdgeInsets.all(kSpacingSmall),
-                      itemCount: expiringItems.length > 6 ? 6 : expiringItems.length,
-                      separatorBuilder: (context, index) => const Divider(height: 1),
-                      itemBuilder: (context, index) {
-                        final item = expiringItems[index];
-                        return _ExpiryItemTile(
-                          item: item,
-                          scheme: scheme,
-                          brand: brand,
-                        );
-                      },
-                    ),
-                  ),
 
-                  // ✅ "הצג עוד X מוצרים" כפתור לחיץ
-                  if (expiringItems.length > 6)
-                    Padding(
-                      padding: const EdgeInsets.only(top: kSpacingSmall),
-                      child: TextButton(
+                    const SizedBox(height: kSpacingMedium),
+
+                    // === רשימת פריטים ===
+                    Container(
+                      constraints: const BoxConstraints(maxHeight: 250),
+                      decoration: BoxDecoration(
+                        color: scheme.surface.withValues(alpha: 0.7),
+                        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                      ),
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        padding: const EdgeInsets.all(kSpacingSmall),
+                        itemCount: widget.expiringItems.length > 6
+                            ? 6
+                            : widget.expiringItems.length,
+                        separatorBuilder: (context, index) =>
+                            const Divider(height: 1),
+                        itemBuilder: (context, index) {
+                          final item = widget.expiringItems[index];
+                          return _ExpiryItemTile(
+                            item: item,
+                            scheme: scheme,
+                            brand: brand,
+                          );
+                        },
+                      ),
+                    ),
+
+                    // ✅ "הצג עוד X מוצרים" כפתור לחיץ
+                    if (widget.expiringItems.length > 6)
+                      Padding(
+                        padding: const EdgeInsets.only(top: kSpacingSmall),
+                        child: TextButton(
+                          onPressed: () {
+                            unawaited(HapticFeedback.selectionClick());
+                            Navigator.of(
+                              context,
+                            ).pop(ExpiryAlertResult.goToPantry);
+                          },
+                          child: Text(
+                            AppStrings.inventory.expiryAlertMoreItems(
+                              widget.expiringItems.length - 6,
+                            ),
+                            style: TextStyle(
+                              fontSize: kFontSizeSmall,
+                              color: accentColor,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                    const SizedBox(height: kSpacingMedium),
+
+                    // === כפתורי פעולה ===
+                    Tooltip(
+                      message: 'עבור למזווה לצפייה בכל הפריטים',
+                      child: ElevatedButton.icon(
                         onPressed: () {
-                          unawaited(HapticFeedback.selectionClick());
+                          unawaited(HapticFeedback.mediumImpact());
                           Navigator.of(context).pop(ExpiryAlertResult.goToPantry);
                         },
-                        child: Text(
-                          AppStrings.inventory.expiryAlertMoreItems(
-                            expiringItems.length - 6,
-                          ),
-                          style: TextStyle(
-                            fontSize: kFontSizeSmall,
-                            color: accentColor,
-                            fontStyle: FontStyle.italic,
-                          ),
+                        icon: const Icon(Icons.inventory_2),
+                        label: Text(AppStrings.inventory.expiryAlertGoToPantry),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: accentColor,
+                          foregroundColor: isExpiredMode
+                              ? scheme.onError
+                              : (brand?.onWarningContainer ?? scheme.onTertiary),
                         ),
                       ),
                     ),
 
-                  const SizedBox(height: kSpacingMedium),
+                    const SizedBox(height: kSpacingSmall),
 
-                  // === כפתורי פעולה ===
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      unawaited(HapticFeedback.mediumImpact());
-                      Navigator.of(context).pop(ExpiryAlertResult.goToPantry);
-                    },
-                    icon: const Icon(Icons.inventory_2),
-                    label: Text(AppStrings.inventory.expiryAlertGoToPantry),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: accentColor,
-                      foregroundColor: isExpiredMode
-                          ? scheme.onError
-                          : (brand?.onWarningContainer ?? scheme.onTertiary),
-                    ),
-                  ),
-
-                  const SizedBox(height: kSpacingSmall),
-
-                  // אל תציג שוב היום
-                  TextButton(
-                    onPressed: () => _dismissToday(context),
-                    child: Text(
-                      AppStrings.inventory.expiryAlertDismissToday,
-                      style: TextStyle(
-                        color: scheme.onSurfaceVariant,
-                        fontSize: kFontSizeSmall,
+                    // אל תציג שוב היום
+                    Tooltip(
+                      message: 'התראה זו לא תוצג שוב היום',
+                      child: TextButton(
+                        onPressed: _isProcessing ? null : _dismissToday,
+                        child: Text(
+                          AppStrings.inventory.expiryAlertDismissToday,
+                          style: TextStyle(
+                            color: scheme.onSurfaceVariant,
+                            fontSize: kFontSizeSmall,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -349,8 +397,9 @@ class _ExpiryItemTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // ✅ חישוב ימים מבוסס תאריך בלבד - מקור אמת אחד
-    final daysUntilExpiry =
-        item.expiryDate != null ? _daysUntilExpiry(item.expiryDate!) : 0;
+    final daysUntilExpiry = item.expiryDate != null
+        ? _daysUntilExpiry(item.expiryDate!)
+        : 0;
     final isExpired = daysUntilExpiry < 0;
 
     // ✅ צבעים מה-Theme
@@ -396,10 +445,7 @@ class _ExpiryItemTile extends StatelessWidget {
                 ),
                 Text(
                   _formatExpiryText(isExpired, daysUntilExpiry),
-                  style: TextStyle(
-                    fontSize: kFontSizeTiny,
-                    color: textColor,
-                  ),
+                  style: TextStyle(fontSize: kFontSizeTiny, color: textColor),
                 ),
               ],
             ),
@@ -439,7 +485,9 @@ class _ExpiryItemTile extends StatelessWidget {
       return AppStrings.inventory.expiryExpiredDaysAgo(daysAgo);
     } else {
       if (daysUntilExpiry == 0) return AppStrings.inventory.expiryExpiresToday;
-      if (daysUntilExpiry == 1) return AppStrings.inventory.expiryExpiresTomorrow;
+      if (daysUntilExpiry == 1) {
+        return AppStrings.inventory.expiryExpiresTomorrow;
+      }
       return AppStrings.inventory.expiryExpiresInDays(daysUntilExpiry);
     }
   }

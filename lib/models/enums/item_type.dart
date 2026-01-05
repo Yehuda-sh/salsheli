@@ -9,14 +9,20 @@
 //     - task: Task to do (book DJ, rent photographer, etc.)
 //
 
+import 'package:json_annotation/json_annotation.dart';
+
 /// 🇮🇱 סוגי פריטים ברשימה
 /// 🇬🇧 Item types in list
+@JsonEnum(valueField: 'value')
 enum ItemType {
   /// 🛒 מוצר לקנייה
-  product,
+  product('product'),
 
   /// ✅ משימה לביצוע
-  task;
+  task('task');
+
+  const ItemType(this.value);
+  final String value;
 
   // Note: hebrewName and emoji were removed - use AppStrings in UI layer
   // if localized type names are needed.

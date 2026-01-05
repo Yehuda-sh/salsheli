@@ -3,11 +3,19 @@
 // פתק צבעוני שמציג יתרון של האפליקציה (אייקון + כותרת + תיאור).
 // משמש במסך הפתיחה להצגת 3 היתרונות המרכזיים.
 //
-// 🔗 Related: StickyNote, welcome_screen.dart
+// ✅ תיקונים:
+//    - הוספת Semantics לנגישות
+//    - הוספת onTap / onLongPress לאינטראקטיביות אופציונלית
+//    - הוספת tooltip / semanticLabel לנגישות
+//    - הוספת elevation / animate להעברה ל-StickyNote
+//    - הוספת maxLines + TextOverflow.ellipsis למניעת overflow
+//
+// 🔗 Related: StickyNote, SimpleTappableCard, welcome_screen.dart
 
 import 'package:flutter/material.dart';
 import '../../core/ui_constants.dart';
 import 'sticky_note.dart';
+import 'tappable_card.dart';
 
 /// כרטיס יתרון/פיצ'ר בסגנון פתק מודבק (Sticky Notes)
 /// 
@@ -29,6 +37,14 @@ import 'sticky_note.dart';
 /// - [rotation]: סיבוב ברדיאנים (ברירת מחדל: 0.01)
 /// - [iconColor]: צבע אייקון מותאם (אופציונלי)
 /// - [iconSize]: גודל אייקון (ברירת מחדל: kIconSizeLarge = 32)
+/// - [onTap]: פונקציה לקריאה בלחיצה (אופציונלי)
+/// - [onLongPress]: פונקציה לקריאה בלחיצה ארוכה (אופציונלי)
+/// - [semanticLabel]: תווית לנגישות (ברירת מחדל: title - subtitle)
+/// - [tooltip]: טקסט tooltip לנגישות (אופציונלי)
+/// - [elevation]: רמת צל (0.0-1.0, ברירת מחדל: 1.0)
+/// - [animate]: האם להפעיל אנימציית כניסה (ברירת מחדל: true)
+/// - [titleMaxLines]: מספר שורות מקסימלי לכותרת (ברירת מחדל: 1)
+/// - [subtitleMaxLines]: מספר שורות מקסימלי לתיאור (ברירת מחדל: 2)
 /// 
 /// דוגמה:
 /// ```dart
@@ -62,6 +78,30 @@ class BenefitTile extends StatelessWidget {
   /// גודל אייקון (ברירת מחדל: kIconSizeLarge = 32)
   final double iconSize;
 
+  /// פונקציה לקריאה בלחיצה על הכרטיס (אופציונלי)
+  final VoidCallback? onTap;
+
+  /// פונקציה לקריאה בלחיצה ארוכה (אופציונלי)
+  final VoidCallback? onLongPress;
+
+  /// תווית לנגישות (ברירת מחדל: title - subtitle)
+  final String? semanticLabel;
+
+  /// טקסט tooltip לנגישות (אופציונלי)
+  final String? tooltip;
+
+  /// רמת צל (0.0-1.0, ברירת מחדל: 1.0)
+  final double elevation;
+
+  /// האם להפעיל אנימציית כניסה (ברירת מחדל: true)
+  final bool animate;
+
+  /// מספר שורות מקסימלי לכותרת (ברירת מחדל: 1)
+  final int titleMaxLines;
+
+  /// מספר שורות מקסימלי לתיאור (ברירת מחדל: 2)
+  final int subtitleMaxLines;
+
   const BenefitTile({
     super.key,
     required this.icon,
@@ -71,6 +111,14 @@ class BenefitTile extends StatelessWidget {
     this.rotation,
     this.iconColor,
     this.iconSize = kIconSizeLarge,
+    this.onTap,
+    this.onLongPress,
+    this.semanticLabel,
+    this.tooltip,
+    this.elevation = 1.0,
+    this.animate = true,
+    this.titleMaxLines = 1,
+    this.subtitleMaxLines = 2,
   });
 
   @override
@@ -95,52 +143,83 @@ class BenefitTile extends StatelessWidget {
     final titleStyle = isSmallScreen ? theme.textTheme.titleMedium : theme.textTheme.titleLarge;
     final bodyStyle = isSmallScreen ? theme.textTheme.bodyMedium : theme.textTheme.bodyLarge;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: kSpacingSmallPlus),
-      child: StickyNote(
-        color: cardColor,
-        rotation: cardRotation,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // אייקון במעגל - גמיש
-            Container(
-              width: circleSize,
-              height: circleSize,
-              decoration: BoxDecoration(
-                color: effectiveIconColor.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, size: iconSizeValue, color: effectiveIconColor),
-            ),
-            const SizedBox(width: kSpacingMedium),
+    // ✅ תווית נגישות ברירת מחדל
+    final effectiveSemanticLabel = semanticLabel ?? '$title - $subtitle';
 
-            // טקסט - גמיש
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: titleStyle?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: cs.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: kSpacingTiny),
-                  Text(
-                    subtitle,
-                    style: bodyStyle?.copyWith(
-                      color: cs.onSurfaceVariant,
-                      height: 1.5,
-                    ),
-                  ),
-                ],
-              ),
+    final content = StickyNote(
+      color: cardColor,
+      rotation: cardRotation,
+      elevation: elevation,
+      animate: animate,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // אייקון במעגל - גמיש
+          Container(
+            width: circleSize,
+            height: circleSize,
+            decoration: BoxDecoration(
+              color: effectiveIconColor.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
             ),
-          ],
-        ),
+            child: Icon(icon, size: iconSizeValue, color: effectiveIconColor),
+          ),
+          const SizedBox(width: kSpacingMedium),
+
+          // טקסט - גמיש
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: titleStyle?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: cs.onSurface,
+                  ),
+                  maxLines: titleMaxLines,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: kSpacingTiny),
+                Text(
+                  subtitle,
+                  style: bodyStyle?.copyWith(
+                    color: cs.onSurfaceVariant,
+                    height: 1.5,
+                  ),
+                  maxLines: subtitleMaxLines,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
+
+    // ✅ עטוף ב-SimpleTappableCard אם יש אינטראקטיביות
+    Widget result = Padding(
+      padding: const EdgeInsets.symmetric(vertical: kSpacingSmallPlus),
+      child: onTap != null || onLongPress != null
+          ? SimpleTappableCard(
+              onTap: onTap,
+              onLongPress: onLongPress,
+              tooltip: tooltip,
+              semanticLabel: effectiveSemanticLabel,
+              child: content,
+            )
+          : content,
+    );
+
+    // ✅ הוסף Semantics אם אין אינטראקטיביות (SimpleTappableCard כבר מטפל)
+    if (onTap == null && onLongPress == null) {
+      result = Semantics(
+        label: effectiveSemanticLabel,
+        container: true,
+        child: result,
+      );
+    }
+
+    return result;
   }
 }

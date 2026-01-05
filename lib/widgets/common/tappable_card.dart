@@ -11,6 +11,10 @@
 //    - צבע צל מ-Theme (scheme.shadow) במקום Colors.black
 //    - MouseRegion עם cursor לדסקטופ
 //    - curve כפרמטר ב-SimpleTappableCard
+//    - הוספת onLongPress parameter
+//    - הוספת tooltip parameter לנגישות
+//    - הוספת semanticLabel parameter לקוראי מסך
+//    - הוספת Focus widget לניווט מקלדת
 //
 // 🔗 Related: AnimatedButton, dashboard_card.dart
 
@@ -46,6 +50,9 @@ class TappableCard extends StatefulWidget {
   /// Callback when card is tapped
   final VoidCallback? onTap;
 
+  /// Callback when card is long-pressed (optional)
+  final VoidCallback? onLongPress;
+
   /// Card widget or any widget to wrap
   final Widget child;
 
@@ -73,10 +80,17 @@ class TappableCard extends StatefulWidget {
   /// Enable scale animation (default: true)
   final bool animateScale;
 
+  /// Tooltip text for accessibility (optional)
+  final String? tooltip;
+
+  /// Semantic label for screen readers (optional)
+  final String? semanticLabel;
+
   const TappableCard({
     super.key,
     required this.child,
     this.onTap,
+    this.onLongPress,
     this.scaleTarget = 0.98,
     this.duration = const Duration(milliseconds: 150),
     this.hapticFeedback = true,
@@ -85,6 +99,8 @@ class TappableCard extends StatefulWidget {
     this.initialElevation = 2,
     this.pressedElevation = 0, // ✅ Goes DOWN for consistent "pressed" feel
     this.animateScale = true,
+    this.tooltip,
+    this.semanticLabel,
   });
 
   @override
@@ -107,23 +123,48 @@ class _TappableCardState extends State<TappableCard> {
   @override
   Widget build(BuildContext context) {
     final isClickable = widget.onTap != null;
+    final hasLongPress = widget.onLongPress != null;
 
-    // ✅ MouseRegion for desktop cursor
-    return MouseRegion(
+    // ✅ Build the interactive widget
+    Widget result = MouseRegion(
       cursor: isClickable ? SystemMouseCursors.click : SystemMouseCursors.basic,
       child: GestureDetector(
         // ✅ Use GestureDetector for press state (InkWell doesn't expose onTapDown easily)
         onTapDown: isClickable ? (_) => _onTapDown() : null,
         onTapUp: isClickable ? (_) => _onTapUp() : null,
         onTapCancel: isClickable ? _onTapCancel : null,
-        // ✅ Wrap with Semantics for accessibility
-        child: Semantics(
-          button: isClickable,
-          enabled: isClickable,
-          child: _buildAnimatedChild(),
-        ),
+        // ✅ Long press support
+        onLongPress: hasLongPress ? _onLongPress : null,
+        child: _buildAnimatedChild(),
       ),
     );
+
+    // ✅ Wrap with Focus for keyboard navigation
+    if (isClickable) {
+      result = Focus(
+        canRequestFocus: true,
+        child: result,
+      );
+    }
+
+    // ✅ Wrap with Semantics for accessibility
+    result = Semantics(
+      button: isClickable,
+      enabled: isClickable,
+      label: widget.semanticLabel,
+      hint: hasLongPress ? 'לחיצה ארוכה לפעולות נוספות' : null,
+      child: result,
+    );
+
+    // ✅ Wrap with Tooltip if provided
+    if (widget.tooltip != null) {
+      result = Tooltip(
+        message: widget.tooltip!,
+        child: result,
+      );
+    }
+
+    return result;
   }
 
   /// Build animated child with scale and elevation
@@ -180,6 +221,15 @@ class _TappableCardState extends State<TappableCard> {
   void _onTapCancel() {
     if (!mounted) return;
     setState(() => _isPressed = false);
+  }
+
+  /// Handle long press
+  void _onLongPress() {
+    if (!mounted) return;
+    if (widget.hapticFeedback) {
+      unawaited(HapticFeedback.mediumImpact());
+    }
+    widget.onLongPress?.call();
   }
 }
 
@@ -262,6 +312,7 @@ class _AnimatedCard extends StatelessWidget {
 
 class SimpleTappableCard extends StatefulWidget {
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
   final Widget child;
   final double scaleTarget;
   final Duration duration;
@@ -270,14 +321,23 @@ class SimpleTappableCard extends StatefulWidget {
   /// ✅ Added curve parameter for consistency with TappableCard
   final Curve curve;
 
+  /// Tooltip text for accessibility (optional)
+  final String? tooltip;
+
+  /// Semantic label for screen readers (optional)
+  final String? semanticLabel;
+
   const SimpleTappableCard({
     super.key,
     required this.child,
     this.onTap,
+    this.onLongPress,
     this.scaleTarget = 0.98,
     this.duration = const Duration(milliseconds: 150),
     this.hapticFeedback = true,
     this.curve = Curves.easeInOut,
+    this.tooltip,
+    this.semanticLabel,
   });
 
   @override
@@ -298,27 +358,52 @@ class _SimpleTappableCardState extends State<SimpleTappableCard> {
   @override
   Widget build(BuildContext context) {
     final isClickable = widget.onTap != null;
+    final hasLongPress = widget.onLongPress != null;
 
-    // ✅ MouseRegion for desktop cursor
-    return MouseRegion(
+    // ✅ Build the interactive widget
+    Widget result = MouseRegion(
       cursor: isClickable ? SystemMouseCursors.click : SystemMouseCursors.basic,
       child: GestureDetector(
         onTapDown: isClickable ? (_) => _onTapDown() : null,
         onTapUp: isClickable ? (_) => _onTapUp() : null,
         onTapCancel: isClickable ? _onTapCancel : null,
-        // ✅ Semantics for accessibility
-        child: Semantics(
-          button: isClickable,
-          enabled: isClickable,
-          child: AnimatedScale(
-            scale: _isPressed ? widget.scaleTarget : 1.0,
-            duration: widget.duration,
-            curve: widget.curve, // ✅ Use customizable curve
-            child: widget.child,
-          ),
+        // ✅ Long press support
+        onLongPress: hasLongPress ? _onLongPress : null,
+        child: AnimatedScale(
+          scale: _isPressed ? widget.scaleTarget : 1.0,
+          duration: widget.duration,
+          curve: widget.curve,
+          child: widget.child,
         ),
       ),
     );
+
+    // ✅ Wrap with Focus for keyboard navigation
+    if (isClickable) {
+      result = Focus(
+        canRequestFocus: true,
+        child: result,
+      );
+    }
+
+    // ✅ Wrap with Semantics for accessibility
+    result = Semantics(
+      button: isClickable,
+      enabled: isClickable,
+      label: widget.semanticLabel,
+      hint: hasLongPress ? 'לחיצה ארוכה לפעולות נוספות' : null,
+      child: result,
+    );
+
+    // ✅ Wrap with Tooltip if provided
+    if (widget.tooltip != null) {
+      result = Tooltip(
+        message: widget.tooltip!,
+        child: result,
+      );
+    }
+
+    return result;
   }
 
   void _onTapDown() {
@@ -339,5 +424,13 @@ class _SimpleTappableCardState extends State<SimpleTappableCard> {
   void _onTapCancel() {
     if (!mounted) return;
     setState(() => _isPressed = false);
+  }
+
+  void _onLongPress() {
+    if (!mounted) return;
+    if (widget.hapticFeedback) {
+      unawaited(HapticFeedback.mediumImpact());
+    }
+    widget.onLongPress?.call();
   }
 }

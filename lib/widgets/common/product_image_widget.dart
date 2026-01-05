@@ -3,11 +3,19 @@
 // Widget להצגת תמונת מוצר מ-Open Food Facts עם fallback לאייקון קטגוריה.
 // כולל loading state, error handling, ותמיכה בגדלים שונים עם CachedNetworkImage.
 //
+// ✅ תיקונים:
+//    - החלפת Colors.grey קשיחים בצבעי Theme (cs.surfaceContainerHighest)
+//    - החלפת borderRadius קשיח בקבוע kBorderRadius
+//    - הוספת Semantics לנגישות עם semanticLabel
+//    - הוספת fadeInDuration/fadeOutDuration לאנימציית טעינה חלקה
+//    - תמיכה ב-Dark Mode
+//
 // 🔗 Related: ProductImageService, CachedNetworkImage
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/ui_constants.dart';
 import '../../services/product_image_service.dart';
 
 class ProductImageWidget extends StatefulWidget {
@@ -18,6 +26,9 @@ class ProductImageWidget extends StatefulWidget {
   final BoxFit fit;
   final BorderRadius? borderRadius;
 
+  /// תווית נגישות לקוראי מסך (אופציונלי)
+  final String? semanticLabel;
+
   const ProductImageWidget({
     super.key,
     this.barcode,
@@ -26,6 +37,7 @@ class ProductImageWidget extends StatefulWidget {
     this.size = 60,
     this.fit = BoxFit.cover,
     this.borderRadius,
+    this.semanticLabel,
   });
 
   @override
@@ -82,26 +94,36 @@ class _ProductImageWidgetState extends State<ProductImageWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final borderRadius = widget.borderRadius ?? BorderRadius.circular(12);
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final borderRadius = widget.borderRadius ?? BorderRadius.circular(kBorderRadius);
 
-    return Container(
-      width: widget.size,
-      height: widget.size,
-      decoration: BoxDecoration(
-        borderRadius: borderRadius,
-        color: Colors.grey[100],
-      ),
-      child: ClipRRect(
-        borderRadius: borderRadius,
-        child: _buildContent(),
+    // ✅ תווית נגישות ברירת מחדל
+    final effectiveSemanticLabel = widget.semanticLabel ??
+        (widget.category != null ? 'תמונת מוצר - ${widget.category}' : 'תמונת מוצר');
+
+    return Semantics(
+      image: true,
+      label: effectiveSemanticLabel,
+      child: Container(
+        width: widget.size,
+        height: widget.size,
+        decoration: BoxDecoration(
+          borderRadius: borderRadius,
+          color: cs.surfaceContainerHighest, // ✅ Theme-aware במקום Colors.grey[100]
+        ),
+        child: ClipRRect(
+          borderRadius: borderRadius,
+          child: _buildContent(cs),
+        ),
       ),
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(ColorScheme cs) {
     // מצב טעינה
     if (_isLoading) {
-      return _buildPlaceholder();
+      return _buildPlaceholder(cs);
     }
 
     // יש תמונה - הצג אותה
@@ -109,17 +131,19 @@ class _ProductImageWidgetState extends State<ProductImageWidget> {
       return CachedNetworkImage(
         imageUrl: _imageUrl!,
         fit: widget.fit,
-        placeholder: (context, url) => _buildPlaceholder(),
-        errorWidget: (context, url, error) => _buildFallbackIcon(),
+        fadeInDuration: const Duration(milliseconds: 300), // ✅ אנימציית fade-in חלקה
+        fadeOutDuration: const Duration(milliseconds: 150),
+        placeholder: (context, url) => _buildPlaceholder(cs),
+        errorWidget: (context, url, error) => _buildFallbackIcon(cs),
       );
     }
 
     // אין תמונה - הצג אייקון
-    return _buildFallbackIcon();
+    return _buildFallbackIcon(cs);
   }
 
   /// Placeholder בזמן טעינה
-  Widget _buildPlaceholder() {
+  Widget _buildPlaceholder(ColorScheme cs) {
     return Center(
       child: SizedBox(
         width: widget.size * 0.3,
@@ -127,7 +151,7 @@ class _ProductImageWidgetState extends State<ProductImageWidget> {
         child: CircularProgressIndicator(
           strokeWidth: 2,
           valueColor: AlwaysStoppedAnimation<Color>(
-            Colors.grey[400]!,
+            cs.onSurfaceVariant, // ✅ Theme-aware במקום Colors.grey[400]
           ),
         ),
       ),
@@ -135,11 +159,11 @@ class _ProductImageWidgetState extends State<ProductImageWidget> {
   }
 
   /// Fallback לאייקון קטגוריה
-  Widget _buildFallbackIcon() {
+  Widget _buildFallbackIcon(ColorScheme cs) {
     final icon = widget.icon ?? '📦';
 
     return Container(
-      color: Colors.grey[50],
+      color: cs.surfaceContainerLow, // ✅ Theme-aware במקום Colors.grey[50]
       child: Center(
         child: Text(
           icon,

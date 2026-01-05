@@ -1,7 +1,7 @@
 // 📄 lib/core/ui_constants.dart
 //
 // קבועי UI מרכזיים לעיצוב עקבי באפליקציה.
-// - Spacing (מבוסס 8dp grid)
+// - Spacing (גריד גמיש - ערכים נפוצים לפי צורך עיצובי)
 // - Colors (פלטת Sticky Notes + רקעים)
 // - Sizes (כפתורים, אייקונים, אווטארים)
 // - Durations (אנימציות, snackbars)
@@ -9,16 +9,16 @@
 import 'dart:ui';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// SPACING (8dp Grid System)
+// SPACING (Flexible Grid - ערכים מותאמים לעיצוב, לא 8dp מדויק)
 // ═══════════════════════════════════════════════════════════════════════════
 
-const double kSpacingXTiny = 4.0;   // Extra tiny spacing
-const double kSpacingTiny = 6.0;    // Tiny spacing
-const double kSpacingSmall = 8.0;   // Small spacing
-const double kSpacingSmallPlus = 12.0; // Between small and medium
-const double kSpacingMedium = 16.0; // Default spacing ⭐
-const double kSpacingLarge = 24.0;  // Large spacing
-const double kSpacingXLarge = 32.0; // Extra large spacing
+const double kSpacingXTiny = 4.0;      // 4dp - Extra tiny spacing
+const double kSpacingTiny = 6.0;       // 6dp - Tiny spacing (fine-tuned)
+const double kSpacingSmall = 8.0;      // 8dp - Small spacing
+const double kSpacingSmallPlus = 12.0; // 12dp - Between small and medium
+const double kSpacingMedium = 16.0;    // 16dp - Default spacing ⭐
+const double kSpacingLarge = 24.0;     // 24dp - Large spacing
+const double kSpacingXLarge = 32.0;    // 32dp - Extra large spacing
 
 // ═══════════════════════════════════════════════════════════════════════════
 // COLORS - Sticky Notes Palette (Light Mode)
@@ -203,12 +203,14 @@ const double kFontSizeXLarge = 28.0;  // Extra large text (titles)
 // ═══════════════════════════════════════════════════════════════════════════
 // ICON SIZES
 // ═══════════════════════════════════════════════════════════════════════════
+// Note: kIconSize is an alias for kIconSizeMedium (both 24.0)
+// Use kIconSize for semantic default, kIconSizeMedium for explicit sizing
 
 const double kIconSizeSmall = 16.0;    // Small icons
-const double kIconSize = 24.0;         // Default icon size (alias for Medium)
-const double kIconSizeMedium = 24.0;   // Medium icons (default)
-const double kIconSizeLarge = 36.0;    // Large icons
+const double kIconSizeMedium = 24.0;   // Medium icons (Material default)
+const double kIconSize = kIconSizeMedium; // Alias: default icon size
 const double kIconSizeProfile = 32.0;  // Profile icons
+const double kIconSizeLarge = 36.0;    // Large icons
 const double kIconSizeXLarge = 48.0;   // Extra large icons
 const double kIconSizeXXLarge = 64.0;  // Extra extra large icons
 

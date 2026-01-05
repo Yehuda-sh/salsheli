@@ -1,6 +1,6 @@
 // 📄 lib/config/filters_config.dart
 //
-// הגדרות סינון קטגוריות למזווה - 43 קטגוריות עם תרגום לעברית ואמוג'י.
+// הגדרות סינון קטגוריות למזווה - 53 קטגוריות עם תרגום לעברית ואמוג'י.
 // משמש ב-PantryFilters (Dropdown סינון) ובכל מקום שצריך תרגום קטגוריה.
 //
 // 🔗 Related: my_pantry_screen, StorageLocationManager, CategoryInfo
@@ -216,6 +216,9 @@ String getCategoryEmoji(String categoryId) {
 /// משמש לסינון כשה-JSON מכיל קטגוריות בעברית
 /// כולל נורמליזציה: trim + החלפת רווחים כפולים
 String? hebrewCategoryToEnglish(String hebrewCategory) {
+  // 🔍 בדיקת כפילויות labels בפעם הראשונה (debug mode בלבד)
+  ensureNoDuplicateLabels();
+
   final normalized = hebrewCategory
       .trim()
       .replaceAll(RegExp(r'\s+'), ' '); // רווחים כפולים → רווח בודד

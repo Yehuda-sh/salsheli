@@ -10,6 +10,46 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 
+// ========================================
+// 🔧 Type-Safe Status Enum
+// ========================================
+
+/// סוגי סטטוס תקפים - מונע טייפואים בקוד!
+///
+/// **Usage (type-safe):**
+/// ```dart
+/// StatusColors.getColor(StatusType.success, context)
+/// ```
+///
+/// **Legacy (string-based):**
+/// ```dart
+/// StatusColors.getStatusColor('success', context) // עדיין עובד
+/// ```
+enum StatusType {
+  success,
+  error,
+  warning,
+  pending,
+  info;
+
+  /// המרה מ-String ל-StatusType (עם fallback)
+  static StatusType fromString(String value) {
+    return StatusType.values.firstWhere(
+      (e) => e.name == value.toLowerCase(),
+      orElse: () {
+        if (kDebugMode) {
+          debugPrint(
+            '⚠️ StatusType.fromString: Unknown status "$value" - '
+            'falling back to pending. '
+            'Valid: ${StatusType.values.map((e) => e.name).join(", ")}',
+          );
+        }
+        return StatusType.pending;
+      },
+    );
+  }
+}
+
 /// צבעי סטטוס סמנטיים - Theme-Aware
 ///
 /// ✅ משתמש ב-Theme כמקור אמת יחיד!
@@ -43,131 +83,96 @@ class StatusColors {
   static const _onWarningContainerFallback = Color(0xFFE65100); // Orange 900
 
   // ========================================
-  // פונקציות עזר (Theme-Aware)
+  // 🆕 Type-Safe API (מומלץ לשימוש!)
   // ========================================
 
-  /// מחזיר את צבע הסטטוס המתאים לפי Theme
-  ///
-  /// **Status types:**
-  /// - 'success' - הצלחה (ירוק מ-AppBrand)
-  /// - 'error' - שגיאה (אדום מ-ColorScheme)
-  /// - 'warning' - אזהרה (כתום מ-AppBrand)
-  /// - 'pending' - ממתין (outline מ-ColorScheme)
-  /// - 'info' - מידע (secondary מ-ColorScheme)
+  /// 🆕 מחזיר צבע סטטוס - Type-Safe!
   ///
   /// **Usage:**
   /// ```dart
   /// Icon(
   ///   Icons.check_circle,
-  ///   color: StatusColors.getStatusColor('success', context),
+  ///   color: StatusColors.getColor(StatusType.success, context),
   /// )
   /// ```
-  static Color getStatusColor(String status, BuildContext context) {
+  static Color getColor(StatusType type, BuildContext context) {
     final theme = Theme.of(context);
     final brand = theme.extension<AppBrand>();
     final cs = theme.colorScheme;
 
-    switch (status.toLowerCase()) {
-      case 'success':
-        // ✅ מ-AppBrand (תומך Dynamic Color)
+    switch (type) {
+      case StatusType.success:
         return brand?.success ?? _successFallback;
-      case 'error':
-        // ✅ מ-ColorScheme (תומך Dynamic Color)
+      case StatusType.error:
         return cs.error;
-      case 'warning':
-        // ✅ מ-AppBrand (תומך Dynamic Color)
+      case StatusType.warning:
         return brand?.warning ?? _warningFallback;
-      case 'pending':
-        // ✅ ניטרלי - outline מ-Theme (תומך Dynamic Color)
+      case StatusType.pending:
         return cs.outline;
-      case 'info':
-        // ✅ secondary מ-Theme (תומך Dynamic Color)
+      case StatusType.info:
         return cs.secondary;
-      default:
-        if (kDebugMode) {
-          debugPrint(
-            '⚠️ StatusColors.getStatusColor: Unknown status "$status" - '
-            'falling back to pending. '
-            'Valid: success, error, warning, pending, info',
-          );
-        }
-        return cs.outline;
     }
   }
 
-  /// מחזיר את צבע ה-container (רקע) המתאים לפי Theme
-  ///
-  /// **Usage:**
-  /// ```dart
-  /// Container(
-  ///   color: StatusColors.getStatusContainer('success', context),
-  ///   child: Text('הושלם'),
-  /// )
-  /// ```
-  static Color getStatusContainer(String status, BuildContext context) {
+  /// 🆕 מחזיר צבע container - Type-Safe!
+  static Color getContainer(StatusType type, BuildContext context) {
     final theme = Theme.of(context);
     final brand = theme.extension<AppBrand>();
     final cs = theme.colorScheme;
 
-    switch (status.toLowerCase()) {
-      case 'success':
-        // ✅ מ-AppBrand (תומך Dynamic Color)
+    switch (type) {
+      case StatusType.success:
         return brand?.successContainer ?? _successContainerFallback;
-      case 'error':
-        // ✅ מ-ColorScheme (תומך Dynamic Color)
+      case StatusType.error:
         return cs.errorContainer;
-      case 'warning':
-        // ✅ מ-AppBrand (תומך Dynamic Color)
+      case StatusType.warning:
         return brand?.warningContainer ?? _warningContainerFallback;
-      case 'pending':
-        // ✅ surfaceContainerHighest - רקע ניטרלי בולט (תומך Dynamic Color)
+      case StatusType.pending:
         return cs.surfaceContainerHighest;
-      case 'info':
-        // ✅ secondaryContainer מ-Theme (תומך Dynamic Color)
+      case StatusType.info:
         return cs.secondaryContainer;
-      default:
-        if (kDebugMode) {
-          debugPrint(
-            '⚠️ StatusColors.getStatusContainer: Unknown status "$status" - '
-            'falling back to pending.',
-          );
-        }
-        return cs.surfaceContainerHighest;
     }
   }
 
-  /// מחזיר את צבע הטקסט על container המתאים לפי Theme
-  ///
-  /// **Usage:**
-  /// ```dart
-  /// Text(
-  ///   'הושלם',
-  ///   style: TextStyle(
-  ///     color: StatusColors.getOnStatusContainer('success', context),
-  ///   ),
-  /// )
-  /// ```
-  static Color getOnStatusContainer(String status, BuildContext context) {
+  /// 🆕 מחזיר צבע טקסט על container - Type-Safe!
+  static Color getOnContainer(StatusType type, BuildContext context) {
     final theme = Theme.of(context);
     final brand = theme.extension<AppBrand>();
     final cs = theme.colorScheme;
 
-    switch (status.toLowerCase()) {
-      case 'success':
+    switch (type) {
+      case StatusType.success:
         return brand?.onSuccessContainer ?? _onSuccessContainerFallback;
-      case 'error':
+      case StatusType.error:
         return cs.onErrorContainer;
-      case 'warning':
+      case StatusType.warning:
         return brand?.onWarningContainer ?? _onWarningContainerFallback;
-      case 'pending':
-        // ✅ onSurfaceVariant - רך יותר מ-onSurface (מתאים לתגיות/badges)
+      case StatusType.pending:
         return cs.onSurfaceVariant;
-      case 'info':
-        // ✅ onSecondaryContainer מ-Theme (תומך Dynamic Color)
+      case StatusType.info:
         return cs.onSecondaryContainer;
-      default:
-        return cs.onSurfaceVariant;
     }
+  }
+
+  // ========================================
+  // Legacy String API (לתאימות אחורה)
+  // ========================================
+
+  /// @deprecated השתמש ב-getColor(StatusType, context) במקום
+  ///
+  /// מחזיר את צבע הסטטוס המתאים לפי Theme
+  static Color getStatusColor(String status, BuildContext context) {
+    return getColor(StatusType.fromString(status), context);
+  }
+
+  /// @deprecated השתמש ב-getContainer(StatusType, context) במקום
+  static Color getStatusContainer(String status, BuildContext context) {
+    return getContainer(StatusType.fromString(status), context);
+  }
+
+  /// @deprecated השתמש ב-getOnContainer(StatusType, context) במקום
+  static Color getOnStatusContainer(String status, BuildContext context) {
+    return getOnContainer(StatusType.fromString(status), context);
   }
 
   // ========================================

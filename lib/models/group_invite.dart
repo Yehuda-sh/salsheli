@@ -8,15 +8,16 @@
 //   - group_name: string
 //   - invited_phone: string?
 //   - invited_email: string?
+//   - invited_name: string?
 //   - role: string (admin/editor/viewer)
 //   - invited_by: string (userId)
 //   - invited_by_name: string
 //   - created_at: timestamp
 //   - status: string (pending/accepted/rejected/expired)
-//   - accepted_at: timestamp?
+//   - responded_at: timestamp?
 //   - accepted_by_user_id: string?
 //
-// Version: 1.0
+// Version: 1.1 - Fixed field names in documentation
 // Created: 16/12/2025
 
 import 'package:cloud_firestore/cloud_firestore.dart';

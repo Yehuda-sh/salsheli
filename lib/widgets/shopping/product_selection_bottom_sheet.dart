@@ -5,6 +5,7 @@
 //
 // 🔗 Related: ProductsProvider, ShoppingListsProvider, ShoppingList
 
+import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -28,12 +29,10 @@ class ProductSelectionBottomSheet extends StatefulWidget {
   const ProductSelectionBottomSheet({super.key, required this.list});
 
   @override
-  State<ProductSelectionBottomSheet> createState() =>
-      _ProductSelectionBottomSheetState();
+  State<ProductSelectionBottomSheet> createState() => _ProductSelectionBottomSheetState();
 }
 
-class _ProductSelectionBottomSheetState
-    extends State<ProductSelectionBottomSheet> with TickerProviderStateMixin {
+class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomSheet> with TickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
 
   ProductsProvider? _productsProvider;
@@ -47,6 +46,10 @@ class _ProductSelectionBottomSheetState
   String? _feedbackMessage;
   String? _addingProductId;
 
+  // ✅ Timers - ניתנים לביטול ב-dispose
+  Timer? _debounceTimer;
+  Timer? _feedbackTimer;
+
   @override
   void initState() {
     super.initState();
@@ -55,14 +58,8 @@ class _ProductSelectionBottomSheetState
     _userContext.addListener(_onUserContextChanged);
 
     // 🎬 Initialize animations
-    _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-    _fadeAnimation = CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeIn,
-    );
+    _fadeController = AnimationController(duration: const Duration(milliseconds: 300), vsync: this);
+    _fadeAnimation = CurvedAnimation(parent: _fadeController, curve: Curves.easeIn);
 
     _fadeController.forward();
 
@@ -70,8 +67,7 @@ class _ProductSelectionBottomSheetState
       if (!mounted) return;
       _productsProvider = context.read<ProductsProvider>();
 
-      debugPrint(
-          '🎯 ProductSelectionBottomSheet: סוג רשימה = ${widget.list.type}');
+      debugPrint('🎯 ProductSelectionBottomSheet: סוג רשימה = ${widget.list.type}');
       _productsProvider!.setListType(widget.list.type);
 
       if (_productsProvider!.isEmpty && !_productsProvider!.isLoading) {
@@ -93,14 +89,32 @@ class _ProductSelectionBottomSheetState
     _productsProvider?.clearListType(notify: false);
     _fadeController.dispose();
     _searchController.dispose();
+    _debounceTimer?.cancel();
+    _feedbackTimer?.cancel();
     super.dispose();
   }
 
+  /// ✅ Debounced search - מונע קריאות מיותרות בזמן הקלדה
+  void _onSearchChangedDebounced(String value, ProductsProvider provider) {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      provider.setSearchQuery(value.trim());
+    });
+  }
+
+  /// ✅ הצגת פידבק עם Timer מבוטל
+  void _showFeedback(String message) {
+    _feedbackTimer?.cancel();
+    setState(() => _feedbackMessage = message);
+    _feedbackTimer = Timer(const Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() => _feedbackMessage = null);
+      }
+    });
+  }
+
   /// 📝 עדכון כמות למוצר קיים
-  Future<void> _updateProductQuantity(
-    Map<String, dynamic> product,
-    int newQuantity,
-  ) async {
+  Future<void> _updateProductQuantity(Map<String, dynamic> product, int newQuantity) async {
     final messenger = ScaffoldMessenger.of(context);
     final theme = Theme.of(context);
     final provider = context.read<ShoppingListsProvider>();
@@ -111,12 +125,10 @@ class _ProductSelectionBottomSheetState
       _addingProductId = productId;
     });
 
-    debugPrint(
-        '🔄 ProductSelectionBottomSheet: מעדכן "$productName" לכמות $newQuantity');
+    debugPrint('🔄 ProductSelectionBottomSheet: מעדכן "$productName" לכמות $newQuantity');
 
     try {
-      final currentList =
-          provider.lists.where((l) => l.id == widget.list.id).firstOrNull;
+      final currentList = provider.lists.where((l) => l.id == widget.list.id).firstOrNull;
 
       if (currentList == null) {
         debugPrint('   ⚠️ הרשימה לא נמצאה - ייתכן שנמחקה');
@@ -124,9 +136,7 @@ class _ProductSelectionBottomSheetState
         return;
       }
 
-      final itemIndex = currentList.items.indexWhere(
-        (item) => item.name.toLowerCase() == productName.toLowerCase(),
-      );
+      final itemIndex = currentList.items.indexWhere((item) => item.name.toLowerCase() == productName.toLowerCase());
 
       if (itemIndex != -1) {
         if (newQuantity <= 0) {
@@ -134,44 +144,21 @@ class _ProductSelectionBottomSheetState
           debugPrint('   🗑️ פריט נמחק (כמות 0)');
 
           if (!mounted) return;
-          setState(() {
-            _feedbackMessage =
-                AppStrings.shopping.productRemovedFromList(productName);
-            _addingProductId = null;
-          });
+          setState(() => _addingProductId = null);
+          _showFeedback(AppStrings.shopping.productRemovedFromList(productName));
         } else {
           final currentItem = currentList.items[itemIndex];
-          final updatedItem = currentItem.copyWith(
-            productData: {
-              ...?currentItem.productData,
-              'quantity': newQuantity,
-            },
-          );
+          final updatedItem = currentItem.copyWith(productData: {...?currentItem.productData, 'quantity': newQuantity});
 
-          await provider.updateItemAt(
-            widget.list.id,
-            itemIndex,
-            (_) => updatedItem,
-          );
+          await provider.updateItemAt(widget.list.id, itemIndex, (_) => updatedItem);
 
           if (!mounted) return;
 
-          setState(() {
-            _feedbackMessage = AppStrings.shopping
-                .productUpdatedQuantity(productName, newQuantity);
-            _addingProductId = null;
-          });
+          setState(() => _addingProductId = null);
+          _showFeedback(AppStrings.shopping.productUpdatedQuantity(productName, newQuantity));
 
           debugPrint('   ✅ עודכן לכמות $newQuantity');
         }
-
-        Future.delayed(const Duration(seconds: 2), () {
-          if (mounted) {
-            setState(() {
-              _feedbackMessage = null;
-            });
-          }
-        });
       }
     } catch (e) {
       debugPrint('   ❌ שגיאה: $e');
@@ -199,22 +186,10 @@ class _ProductSelectionBottomSheetState
       context,
       onSave: (item) async {
         await provider.addUnifiedItem(widget.list.id, item);
-        debugPrint(
-            '✅ ProductSelectionBottomSheet: הוסף מוצר חדש "${item.name}"');
+        debugPrint('✅ ProductSelectionBottomSheet: הוסף מוצר חדש "${item.name}"');
 
         if (!mounted) return;
-
-        setState(() {
-          _feedbackMessage = AppStrings.shopping.productAddedToList(item.name);
-        });
-
-        Future.delayed(const Duration(seconds: 2), () {
-          if (mounted) {
-            setState(() {
-              _feedbackMessage = null;
-            });
-          }
-        });
+        _showFeedback(AppStrings.shopping.productAddedToList(item.name));
       },
     );
   }
@@ -242,8 +217,7 @@ class _ProductSelectionBottomSheetState
     );
 
     try {
-      final detectedCategory =
-          CategoryDetectionService.detectFromProductJson(product);
+      final detectedCategory = CategoryDetectionService.detectFromProductJson(product);
 
       await provider.addItemToList(
         widget.list.id,
@@ -255,26 +229,15 @@ class _ProductSelectionBottomSheetState
 
       final originalCategory = product['category'] as String?;
       if (originalCategory != detectedCategory && originalCategory != null) {
-        debugPrint(
-            '   🔧 קטגוריה תוקנה: "$originalCategory" → "$detectedCategory"');
+        debugPrint('   🔧 קטגוריה תוקנה: "$originalCategory" → "$detectedCategory"');
       } else {
         debugPrint('   ✅ נוסף בהצלחה עם קטגוריה: $detectedCategory');
       }
 
       if (!mounted) return;
 
-      setState(() {
-        _feedbackMessage = AppStrings.shopping.productAddedToList(newItem.name ?? 'מוצר');
-        _addingProductId = null;
-      });
-
-      Future.delayed(const Duration(seconds: 2), () {
-        if (mounted) {
-          setState(() {
-            _feedbackMessage = null;
-          });
-        }
-      });
+      setState(() => _addingProductId = null);
+      _showFeedback(AppStrings.shopping.productAddedToList(newItem.name ?? 'מוצר'));
     } catch (e) {
       debugPrint('   ❌ שגיאה: $e');
       if (!mounted) return;
@@ -300,6 +263,10 @@ class _ProductSelectionBottomSheetState
     final productsProvider = context.watch<ProductsProvider>();
     final products = productsProvider.products;
 
+    // ✅ Watch ShoppingListsProvider כדי לעדכן כשמוסיפים/מסירים מוצרים
+    final listsProvider = context.watch<ShoppingListsProvider>();
+    final currentList = listsProvider.lists.where((l) => l.id == widget.list.id).firstOrNull;
+
     return Directionality(
       textDirection: ui.TextDirection.rtl,
       child: DraggableScrollableSheet(
@@ -311,16 +278,14 @@ class _ProductSelectionBottomSheetState
           return Container(
             decoration: const BoxDecoration(
               color: kPaperBackground,
-              borderRadius:
-                  BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
             ),
             child: Stack(
               children: [
                 // 🎨 Notebook background
                 const Positioned.fill(
                   child: ClipRRect(
-                    borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(kBorderRadiusLarge)),
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
                     child: NotebookBackground(),
                   ),
                 ),
@@ -343,22 +308,16 @@ class _ProductSelectionBottomSheetState
 
                       // כותרת
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: kSpacingMedium, vertical: kSpacingSmall),
+                        padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
                         child: Row(
                           children: [
                             Expanded(
                               child: Text(
-                                AppStrings.shopping
-                                    .addProductsTitle(widget.list.name),
-                                style: theme.textTheme.titleLarge
-                                    ?.copyWith(fontWeight: FontWeight.bold),
+                                AppStrings.shopping.addProductsTitle(widget.list.name),
+                                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                               ),
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.close),
-                              onPressed: () => Navigator.pop(context),
-                            ),
+                            IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
                           ],
                         ),
                       ),
@@ -373,8 +332,7 @@ class _ProductSelectionBottomSheetState
 
                       // רשימת מוצרים
                       Expanded(
-                        child: _buildProductsList(
-                            productsProvider, products, cs, scrollController),
+                        child: _buildProductsList(productsProvider, products, cs, scrollController, currentList),
                       ),
                     ],
                   ),
@@ -407,10 +365,7 @@ class _ProductSelectionBottomSheetState
                       builder: (context, value, child) {
                         return Transform.translate(
                           offset: Offset(0, -20 * (1 - value)),
-                          child: Opacity(
-                            opacity: value.clamp(0.0, 1.0),
-                            child: child,
-                          ),
+                          child: Opacity(opacity: value.clamp(0.0, 1.0), child: child),
                         );
                       },
                       child: Container(
@@ -428,17 +383,12 @@ class _ProductSelectionBottomSheetState
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.check_circle,
-                                color: Colors.white, size: 24),
+                            const Icon(Icons.check_circle, color: Colors.white, size: 24),
                             const SizedBox(width: kSpacingSmall),
                             Expanded(
                               child: Text(
                                 _feedbackMessage!,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                               ),
                             ),
                           ],
@@ -457,8 +407,7 @@ class _ProductSelectionBottomSheetState
   /// 🔍 שורת חיפוש עם אפקט זכוכית מט (Frosted Glass)
   Widget _buildFrostedSearchBar(ProductsProvider productsProvider) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-          horizontal: kSpacingMedium, vertical: kSpacingSmall),
+      padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(24),
         child: BackdropFilter(
@@ -469,11 +418,7 @@ class _ProductSelectionBottomSheetState
               color: Colors.white.withValues(alpha: 0.6),
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
+                BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2)),
               ],
             ),
             child: TextField(
@@ -497,7 +442,7 @@ class _ProductSelectionBottomSheetState
                 isDense: true,
               ),
               onChanged: (value) {
-                productsProvider.setSearchQuery(value.trim());
+                _onSearchChangedDebounced(value, productsProvider); // ✅ Debounce
               },
             ),
           ),
@@ -526,15 +471,17 @@ class _ProductSelectionBottomSheetState
           ),
           const SizedBox(width: 8),
           // קטגוריות
-          ...categories.map((category) => Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child: _buildCompactFilterChip(
-                  label: category,
-                  emoji: _getCategoryEmoji(category),
-                  isSelected: productsProvider.selectedCategory == category,
-                  onTap: () => productsProvider.setCategory(category),
-                ),
-              )),
+          ...categories.map(
+            (category) => Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: _buildCompactFilterChip(
+                label: category,
+                emoji: _getCategoryEmoji(category),
+                isSelected: productsProvider.selectedCategory == category,
+                onTap: () => productsProvider.setCategory(category),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -566,9 +513,7 @@ class _ProductSelectionBottomSheetState
         selectedColor: kStickyCyan,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: BorderSide(
-            color: isSelected ? Colors.black12 : Colors.transparent,
-          ),
+          side: BorderSide(color: isSelected ? Colors.black12 : Colors.transparent),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 4),
         visualDensity: VisualDensity.compact,
@@ -581,6 +526,7 @@ class _ProductSelectionBottomSheetState
     List<Map<String, dynamic>> products,
     ColorScheme cs,
     ScrollController scrollController,
+    ShoppingList? currentList, // ✅ מקבל את הרשימה מ-watch
   ) {
     if (provider.isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -610,16 +556,13 @@ class _ProductSelectionBottomSheetState
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.inbox,
-                size: 64, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
+            Icon(Icons.inbox, size: 64, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
             const SizedBox(height: kSpacingMedium),
             Text(
               provider.searchQuery.isNotEmpty
-                  ? AppStrings.shopping
-                      .noProductsMatchingSearch(provider.searchQuery)
+                  ? AppStrings.shopping.noProductsMatchingSearch(provider.searchQuery)
                   : AppStrings.shopping.noProductsAvailable,
-              style:
-                  const TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             if (provider.searchQuery.isEmpty) ...[
@@ -666,13 +609,11 @@ class _ProductSelectionBottomSheetState
   /// 🎴 שורת מוצר נקייה - על קווי המחברת (RTL optimized)
   Widget _buildCleanProductRow(Map<String, dynamic> product, ColorScheme cs) {
     final name = product['name'] as String? ?? AppStrings.shopping.productNoName;
-    final category =
-        product['category'] as String? ?? AppStrings.shopping.typeOther;
+    final category = product['category'] as String? ?? AppStrings.shopping.typeOther;
 
     // 🔍 בדיקה אם המוצר כבר ברשימה
     final provider = context.read<ShoppingListsProvider>();
-    final currentList =
-        provider.lists.where((l) => l.id == widget.list.id).firstOrNull;
+    final currentList = provider.lists.where((l) => l.id == widget.list.id).firstOrNull;
 
     // אם הרשימה לא קיימת - מציגים את המוצר כלא ברשימה
     if (currentList == null) {
@@ -680,9 +621,9 @@ class _ProductSelectionBottomSheetState
     }
 
     final existingItem = currentList.items.cast<UnifiedListItem?>().firstWhere(
-          (item) => item?.name.toLowerCase() == name.toLowerCase(),
-          orElse: () => null,
-        );
+      (item) => item?.name.toLowerCase() == name.toLowerCase(),
+      orElse: () => null,
+    );
     final currentQuantity = existingItem?.quantity ?? 0;
     final isInList = existingItem != null;
     final productId = product['id']?.toString() ?? name;
@@ -699,10 +640,7 @@ class _ProductSelectionBottomSheetState
           child: Row(
             children: [
               // 🏷️ אייקון קטגוריה (ימין/Start ב-RTL)
-              Text(
-                _getCategoryEmoji(category),
-                style: const TextStyle(fontSize: 18),
-              ),
+              Text(_getCategoryEmoji(category), style: const TextStyle(fontSize: 18)),
 
               const SizedBox(width: 6),
 
@@ -715,9 +653,7 @@ class _ProductSelectionBottomSheetState
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold, // Bold לקריאות
-                      color: isInList
-                          ? cs.onSurface.withValues(alpha: 0.5)
-                          : cs.onSurface,
+                      color: isInList ? cs.onSurface.withValues(alpha: 0.5) : cs.onSurface,
                       height: 1.0,
                     ),
                     maxLines: 1,
@@ -727,9 +663,7 @@ class _ProductSelectionBottomSheetState
               ),
 
               // ➕ כפתור הוספה/כמות (שמאל/End ב-RTL)
-              isInList
-                  ? _buildQuantityControls(product, currentQuantity)
-                  : _buildAddButton(isAdding),
+              isInList ? _buildQuantityControls(product, currentQuantity) : _buildAddButton(isAdding),
             ],
           ),
         ),
@@ -748,10 +682,7 @@ class _ProductSelectionBottomSheetState
           Expanded(
             child: Text(
               name,
-              style: TextStyle(
-                fontSize: 15,
-                color: cs.onSurface.withValues(alpha: 0.3),
-              ),
+              style: TextStyle(fontSize: 15, color: cs.onSurface.withValues(alpha: 0.3)),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -776,8 +707,7 @@ class _ProductSelectionBottomSheetState
   }
 
   /// 🔢 בקרי כמות קומפקטיים
-  Widget _buildQuantityControls(
-      Map<String, dynamic> product, int currentQuantity) {
+  Widget _buildQuantityControls(Map<String, dynamic> product, int currentQuantity) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -791,17 +721,10 @@ class _ProductSelectionBottomSheetState
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 4),
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-          decoration: BoxDecoration(
-            color: kStickyCyan,
-            borderRadius: BorderRadius.circular(10),
-          ),
+          decoration: BoxDecoration(color: kStickyCyan, borderRadius: BorderRadius.circular(10)),
           child: Text(
             '$currentQuantity',
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
           ),
         ),
         // כפתור -
@@ -824,10 +747,7 @@ class _ProductSelectionBottomSheetState
     final button = Container(
       width: 28,
       height: 28,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(14),
-      ),
+      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(14)),
       child: Icon(icon, color: Colors.white, size: 16),
     );
 
@@ -837,10 +757,7 @@ class _ProductSelectionBottomSheetState
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
         // הגדלת אזור הלחיצה
-        child: Padding(
-          padding: const EdgeInsets.all(6),
-          child: button,
-        ),
+        child: Padding(padding: const EdgeInsets.all(6), child: button),
       ),
     );
   }

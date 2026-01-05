@@ -3,9 +3,23 @@
 // מציג בקשות ממתינות לאישור (הוספה/עריכה/מחיקה של פריטים).
 // מופיע בפתק כתום עם כפתורי אישור/דחייה למי שיש הרשאה.
 //
+// ✅ תיקונים:
+//    - המרת _RequestCard ל-StatefulWidget עם _isProcessing flag
+//    - הוספת try-catch + mounted checks לפעולות async
+//    - הוספת HapticFeedback (lightImpact לאישור, mediumImpact לדחייה)
+//    - הוספת unawaited() לקריאות HapticFeedback
+//    - הוספת Semantics wrapper לסקשן ולכרטיסים
+//    - הוספת tooltips לכפתורי אישור/דחייה
+//    - תמיכה ב-Dark Mode (kStickyOrangeDark)
+//    - הוספת loading indicator בזמן עיבוד
+//    - הוספת maxLines + TextOverflow.ellipsis לטקסטים
+//
 // 🔗 Related: PendingRequest, StickyNote
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
@@ -36,36 +50,50 @@ class PendingRequestsSection extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: kSpacingMedium),
-      child: StickyNote(
-        color: kStickyOrange,
-        rotation: 0.01,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // כותרת
-            Row(
-              children: [
-                const Icon(Icons.pending_actions, size: 20),
-                const SizedBox(width: kSpacingSmall),
-                Text(
-                  'בקשות ממתינות (${pendingRequests.length})',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    // ✅ תמיכה ב-Dark Mode
+    final stickyColor = isDark ? kStickyOrangeDark : kStickyOrange;
+
+    return Semantics(
+      label: 'בקשות ממתינות לאישור, ${pendingRequests.length} בקשות',
+      container: true,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: kSpacingMedium),
+        child: StickyNote(
+          color: stickyColor,
+          rotation: 0.01,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // כותרת
+              Row(
+                children: [
+                  const Icon(Icons.pending_actions, size: 20),
+                  const SizedBox(width: kSpacingSmall),
+                  Expanded(
+                    child: Text(
+                      'בקשות ממתינות (${pendingRequests.length})',
+                      style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
-                ),
-              ],
-            ),
-            const SizedBox(height: kSpacingMedium),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: kSpacingMedium),
 
-            // רשימת בקשות
-            ...pendingRequests.map((request) => _RequestCard(
-                  request: request,
-                  listId: listId,
-                  canApprove: canApprove,
-                )),
-          ],
+              // רשימת בקשות
+              ...pendingRequests.map((request) => _RequestCard(
+                    request: request,
+                    listId: listId,
+                    canApprove: canApprove,
+                  )),
+            ],
+          ),
         ),
       ),
     );
@@ -73,7 +101,9 @@ class PendingRequestsSection extends StatelessWidget {
 }
 
 /// כרטיס בקשה בודדת
-class _RequestCard extends StatelessWidget {
+///
+/// ✅ Version 2.0: StatefulWidget עם _isProcessing flag, HapticFeedback, Semantics
+class _RequestCard extends StatefulWidget {
   final PendingRequest request;
   final String listId;
   final bool canApprove;
@@ -85,81 +115,126 @@ class _RequestCard extends StatelessWidget {
   });
 
   @override
+  State<_RequestCard> createState() => _RequestCardState();
+}
+
+class _RequestCardState extends State<_RequestCard> {
+  bool _isProcessing = false;
+
+  @override
   Widget build(BuildContext context) {
     final userContext = context.read<UserContext>();
     final theme = Theme.of(context);
+    final cs = theme.colorScheme;
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: kSpacingSmall),
-      child: Padding(
-        padding: const EdgeInsets.all(kSpacingMedium),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header - סוג בקשה + זמן
-            Row(
-              children: [
-                Text(
-                  _getRequestIcon(request.type),
-                  style: const TextStyle(fontSize: 20),
-                ),
-                const SizedBox(width: kSpacingSmall),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _getRequestTitle(request.type),
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        '${request.requesterName ?? 'משתמש'} • ${request.timeAgoText}',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+    final requestTitle = _getRequestTitle(widget.request.type);
+    final requestContent = _getRequestContent(widget.request);
 
-            const SizedBox(height: kSpacingSmall),
-
-            // תוכן הבקשה
-            Text(
-              _getRequestContent(request),
-              style: theme.textTheme.bodyMedium,
-            ),
-
-            // כפתורי אישור/דחייה (רק אם יש הרשאה)
-            if (canApprove) ...[
-              const SizedBox(height: kSpacingMedium),
+    return Semantics(
+      label: '$requestTitle: $requestContent',
+      container: true,
+      child: Card(
+        margin: const EdgeInsets.only(bottom: kSpacingSmall),
+        child: Padding(
+          padding: const EdgeInsets.all(kSpacingMedium),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header - סוג בקשה + זמן
               Row(
-                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  // דחה
-                  TextButton.icon(
-                    onPressed: () => _rejectRequest(context, userContext.userId!),
-                    icon: const Icon(Icons.close, size: 18),
-                    label: const Text('דחה'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: theme.colorScheme.error,
-                    ),
+                  Text(
+                    _getRequestIcon(widget.request.type),
+                    style: const TextStyle(fontSize: 20),
                   ),
                   const SizedBox(width: kSpacingSmall),
-                  // אשר
-                  FilledButton.icon(
-                    onPressed: () => _approveRequest(context, userContext.userId!),
-                    icon: const Icon(Icons.check, size: 18),
-                    label: const Text('אשר'),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          requestTitle,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          '${widget.request.requesterName ?? 'משתמש'} • ${widget.request.timeAgoText}',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
+
+              const SizedBox(height: kSpacingSmall),
+
+              // תוכן הבקשה
+              Text(
+                requestContent,
+                style: theme.textTheme.bodyMedium,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+
+              // כפתורי אישור/דחייה (רק אם יש הרשאה)
+              if (widget.canApprove) ...[
+                const SizedBox(height: kSpacingMedium),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    // ✅ Loading indicator בזמן עיבוד
+                    if (_isProcessing)
+                      Padding(
+                        padding: const EdgeInsets.only(left: kSpacingSmall),
+                        child: SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(cs.primary),
+                          ),
+                        ),
+                      ),
+
+                    // דחה
+                    Tooltip(
+                      message: 'דחה את הבקשה',
+                      child: TextButton.icon(
+                        onPressed: _isProcessing
+                            ? null
+                            : () => _rejectRequest(userContext.userId!),
+                        icon: const Icon(Icons.close, size: 18),
+                        label: const Text('דחה'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: cs.error,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: kSpacingSmall),
+                    // אשר
+                    Tooltip(
+                      message: 'אשר את הבקשה',
+                      child: FilledButton.icon(
+                        onPressed: _isProcessing
+                            ? null
+                            : () => _approveRequest(userContext.userId!),
+                        icon: const Icon(Icons.check, size: 18),
+                        label: const Text('אשר'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -223,21 +298,67 @@ class _RequestCard extends StatelessWidget {
     }
   }
 
-  Future<void> _approveRequest(BuildContext context, String reviewerId) async {
-    // TODO: Call PendingRequestsService.approveRequest()
-    // For now, just show message
+  Future<void> _approveRequest(String reviewerId) async {
+    // ✅ מניעת לחיצות כפולות
+    if (_isProcessing) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('✅ הבקשה אושרה')),
-    );
+    setState(() => _isProcessing = true);
+
+    // ✅ HapticFeedback - lightImpact לאישור
+    unawaited(HapticFeedback.lightImpact());
+
+    try {
+      // TODO: Call PendingRequestsService.approveRequest()
+      // For now, just show message after delay
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('✅ הבקשה אושרה')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('שגיאה באישור הבקשה: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isProcessing = false);
+      }
+    }
   }
 
-  Future<void> _rejectRequest(BuildContext context, String reviewerId) async {
-    // TODO: Call PendingRequestsService.rejectRequest()
-    // For now, just show message
+  Future<void> _rejectRequest(String reviewerId) async {
+    // ✅ מניעת לחיצות כפולות
+    if (_isProcessing) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('❌ הבקשה נדחתה')),
-    );
+    setState(() => _isProcessing = true);
+
+    // ✅ HapticFeedback - mediumImpact לדחייה (פעולה יותר "כבדה")
+    unawaited(HapticFeedback.mediumImpact());
+
+    try {
+      // TODO: Call PendingRequestsService.rejectRequest()
+      // For now, just show message after delay
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('❌ הבקשה נדחתה')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('שגיאה בדחיית הבקשה: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isProcessing = false);
+      }
+    }
   }
 }

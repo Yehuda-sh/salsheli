@@ -12,6 +12,7 @@
 
 import 'package:flutter/material.dart';
 
+import '../../core/status_colors.dart';
 import '../../core/ui_constants.dart';
 import '../common/sticky_note.dart';
 
@@ -54,17 +55,21 @@ class PantryEmptyState extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // === אייקון ראשי ===
-              Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  color: kStickyCyan.withValues(alpha: 0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: const Center(
-                  child: Text(
-                    '🏪',
-                    style: TextStyle(fontSize: 60),
+              Semantics(
+                label: 'מזווה ריק',
+                excludeSemantics: true,
+                child: Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    color: kStickyCyan.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Center(
+                    child: Text(
+                      '🏪',
+                      style: TextStyle(fontSize: 60),
+                    ),
                   ),
                 ),
               ),
@@ -115,7 +120,7 @@ class PantryEmptyState extends StatelessWidget {
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: kFontSizeMedium,
-                              color: Colors.brown.shade800,
+                              color: cs.onSurface,
                             ),
                           ),
                         ],
@@ -124,14 +129,17 @@ class PantryEmptyState extends StatelessWidget {
                       _buildTip(
                         '1️⃣',
                         'לחץ על הכפתור + למטה',
+                        cs.onSurfaceVariant,
                       ),
                       _buildTip(
                         '2️⃣',
                         'בחר מוצר מהקטלוג או הוסף חדש',
+                        cs.onSurfaceVariant,
                       ),
                       _buildTip(
                         '3️⃣',
                         'הגדר כמות ומיקום אחסון',
+                        cs.onSurfaceVariant,
                       ),
                       const SizedBox(height: kSpacingSmall),
                       const Divider(),
@@ -140,7 +148,7 @@ class PantryEmptyState extends StatelessWidget {
                         '✨ המזווה יעזור לך לעקוב אחרי מה שיש לך בבית',
                         style: TextStyle(
                           fontSize: kFontSizeSmall,
-                          color: Colors.brown.shade600,
+                          color: cs.onSurfaceVariant,
                           fontStyle: FontStyle.italic,
                         ),
                       ),
@@ -159,23 +167,25 @@ class PantryEmptyState extends StatelessWidget {
                     vertical: kSpacingSmall,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.green.shade50,
+                    color: StatusColors.getStatusOverlay('success', context),
                     borderRadius: BorderRadius.circular(kBorderRadius),
-                    border: Border.all(color: Colors.green.shade200),
+                    border: Border.all(
+                      color: StatusColors.getStatusColor('success', context).withValues(alpha: 0.5),
+                    ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         Icons.family_restroom,
-                        color: Colors.green.shade700,
+                        color: StatusColors.getStatusColor('success', context),
                         size: 20,
                       ),
                       const SizedBox(width: kSpacingSmall),
                       Text(
                         'מזווה משותף - $groupName',
                         style: TextStyle(
-                          color: Colors.green.shade800,
+                          color: StatusColors.getStatusColor('success', context),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -189,23 +199,23 @@ class PantryEmptyState extends StatelessWidget {
                     vertical: kSpacingSmall,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
+                    color: cs.primaryContainer.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(kBorderRadius),
-                    border: Border.all(color: Colors.blue.shade200),
+                    border: Border.all(color: cs.primary.withValues(alpha: 0.5)),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         Icons.person,
-                        color: Colors.blue.shade700,
+                        color: cs.primary,
                         size: 20,
                       ),
                       const SizedBox(width: kSpacingSmall),
                       Text(
                         'המזווה האישי שלך',
                         style: TextStyle(
-                          color: Colors.blue.shade800,
+                          color: cs.primary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -217,20 +227,24 @@ class PantryEmptyState extends StatelessWidget {
 
               // === כפתור הוספה ===
               if (onAddItem != null)
-                ElevatedButton.icon(
-                  onPressed: onAddItem,
-                  icon: const Icon(Icons.add),
-                  label: const Text('הוסף מוצר ראשון'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: kStickyCyan,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: kSpacingLarge,
-                      vertical: kSpacingMedium,
-                    ),
-                    textStyle: const TextStyle(
-                      fontSize: kFontSizeMedium,
-                      fontWeight: FontWeight.bold,
+                Semantics(
+                  label: 'הוסף מוצר ראשון למזווה',
+                  button: true,
+                  child: ElevatedButton.icon(
+                    onPressed: onAddItem,
+                    icon: const Icon(Icons.add),
+                    label: const Text('הוסף מוצר ראשון'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: cs.primary,
+                      foregroundColor: cs.onPrimary,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: kSpacingLarge,
+                        vertical: kSpacingMedium,
+                      ),
+                      textStyle: const TextStyle(
+                        fontSize: kFontSizeMedium,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -242,7 +256,7 @@ class PantryEmptyState extends StatelessWidget {
   }
 
   /// בונה שורת טיפ
-  Widget _buildTip(String number, String text) {
+  Widget _buildTip(String number, String text, Color textColor) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: kSpacingTiny),
       child: Row(
@@ -255,7 +269,7 @@ class PantryEmptyState extends StatelessWidget {
               text,
               style: TextStyle(
                 fontSize: kFontSizeSmall,
-                color: Colors.brown.shade700,
+                color: textColor,
               ),
             ),
           ),

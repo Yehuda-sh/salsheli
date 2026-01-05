@@ -1,13 +1,14 @@
 // 📄 File: lib/config/list_types_config.dart
 //
-// 🎯 מטרה: הגדרה מרכזית של כל סוגי הרשימות
-// 
+// 🎯 מטרה: הגדרה מרכזית של כל סוגי הרשימות (8 סוגים)
+//
 // ✨ יתרונות:
 // - מקור אמת יחיד (Single Source of Truth)
 // - קל להוסיף סוג חדש (רק במקום אחד)
 // - עקביות בכל האפליקציה
 // - קל לתחזוקה ולבדיקה
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:memozap/models/shopping_list.dart';
 
@@ -104,12 +105,47 @@ class ListTypes {
     ),
   ];
 
+  // ========================================
+  // 🔍 Lookup API
+  // ========================================
+
   /// 🔍 מצא config לפי key
   static ListTypeConfig? getByKey(String key) {
+    // בדיקת ייחודיות מפתחות בזמן פיתוח
+    _ensureNoDuplicateKeys();
+
     try {
       return all.firstWhere((config) => config.key == key);
     } catch (e) {
       return null;
+    }
+  }
+
+  // ========================================
+  // 🔧 Debug Validation
+  // ========================================
+
+  static bool _keysValidated = false;
+
+  /// 🔍 בדיקת ייחודיות keys (רצה פעם אחת בדיבאג)
+  static void _ensureNoDuplicateKeys() {
+    if (_keysValidated) return;
+    _keysValidated = true;
+
+    final keys = <String, int>{};
+    for (var i = 0; i < all.length; i++) {
+      final key = all[i].key;
+      if (keys.containsKey(key)) {
+        assert(false,
+          'כפילות key בסוגי רשימות! '
+          'Key: "$key" מופיע באינדקס ${keys[key]} ו-$i',
+        );
+      }
+      keys[key] = i;
+    }
+
+    if (kDebugMode) {
+      debugPrint('✅ ListTypes: ${all.length} סוגים, כל המפתחות ייחודיים');
     }
   }
 }

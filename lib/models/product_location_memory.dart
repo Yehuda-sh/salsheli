@@ -6,11 +6,12 @@
 // 📋 Features:
 // - זיכרון מיקום ברירת מחדל למוצר
 // - זיהוי יציב לפי barcode (עדיף) או שם מנורמל
-// - לוגיקת confidence: רק אחרי 3 פעמים אותו מיקום = default
+// - defaultLocation = המיקום האחרון שנבחר (משתנה מיד)
+// - isConfident = true רק אחרי 3 פעמים ברצף באותו מיקום
 // - נרמול מיקומים (trim, רווחים כפולים)
 //
-// Version: 1.1 - DateTime converter, barcode, confidence, normalization
-// Last Updated: 30/12/2025
+// Version: 1.2 - Fixed documentation to match actual behavior
+// Last Updated: 04/01/2026
 
 import 'package:json_annotation/json_annotation.dart';
 

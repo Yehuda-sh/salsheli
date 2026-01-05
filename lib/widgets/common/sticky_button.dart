@@ -7,8 +7,12 @@
 // ✅ תיקונים:
 //    - ברירת מחדל לצבע: brand.accent (צבע מותג) במקום primary
 //    - עקביות עם ElevatedButton שמשתמש ב-accent
+//    - הוספת elevation parameter לשליטה בצללים
+//    - הוספת Tooltip לנגישות
+//    - הוספת HapticFeedback בלחיצה
+//    - שימוש בצבע צל מ-Theme (לא Colors.black)
 //
-// 🔗 Related: AnimatedButton, ui_constants.dart, AppBrand
+// 🔗 Related: AnimatedButton, ui_constants.dart, AppBrand, sticky_note.dart
 
 import 'package:flutter/material.dart';
 import '../../core/ui_constants.dart';
@@ -16,10 +20,10 @@ import '../../theme/app_theme.dart';
 import 'animated_button.dart';
 
 /// כפתור בסגנון פתק מודבק עם צללים ואנימציות
-/// 
+///
 /// כפתור אינטראקטיבי שנראה כמו פתק Post-it מודבק.
 /// כולל אנימציית לחיצה, נגישות מלאה, ועיצוב עקבי.
-/// 
+///
 /// Parameters:
 /// - [color]: צבע רקע הכפתור (ברירת מחדל: accent מה-Theme)
 /// - [textColor]: צבע הטקסט והאייקון (ברירת מחדל: לבן או שחור לפי הצבע)
@@ -27,7 +31,9 @@ import 'animated_button.dart';
 /// - [icon]: אייקון להצגה (אופציונלי)
 /// - [onPressed]: פעולה בלחיצה
 /// - [height]: גובה הכפתור (ברירת מחדל: 48px לנגישות)
-/// 
+/// - [elevation]: רמת צל (0.0-1.0, ברירת מחדל: 1.0)
+/// - [tooltip]: טקסט tooltip לנגישות (אופציונלי, ברירת מחדל: label)
+///
 /// דוגמה בסיסית:
 /// ```dart
 /// StickyButton(
@@ -36,7 +42,7 @@ import 'animated_button.dart';
 ///   onPressed: () => Navigator.push(...),
 /// )
 /// ```
-/// 
+///
 /// דוגמה מתקדמת:
 /// ```dart
 /// StickyButton(
@@ -44,6 +50,7 @@ import 'animated_button.dart';
 ///   textColor: Colors.pink.shade900,
 ///   label: 'מחק',
 ///   icon: Icons.delete_outline,
+///   elevation: 0.5,
 ///   onPressed: () => showDeleteDialog(),
 /// )
 /// ```
@@ -69,6 +76,13 @@ class StickyButton extends StatelessWidget {
   /// האם להציג מצב טעינה
   final bool isLoading;
 
+  /// רמת צל (0.0-1.0, ברירת מחדל: 1.0)
+  /// 0.0 = ללא צל, 1.0 = צל מלא
+  final double elevation;
+
+  /// טקסט tooltip לנגישות (אופציונלי)
+  final String? tooltip;
+
   const StickyButton({
     super.key,
     this.color,
@@ -78,6 +92,8 @@ class StickyButton extends StatelessWidget {
     this.onPressed,
     this.height = kButtonHeight,
     this.isLoading = false,
+    this.elevation = 1.0,
+    this.tooltip,
   });
 
   @override
@@ -87,6 +103,8 @@ class StickyButton extends StatelessWidget {
     // ✅ ברירת מחדל: brand.accent (צבע מותג) לעקביות עם ElevatedButton
     final buttonColor = color ?? brand?.accent ?? theme.colorScheme.primary;
     final isDisabled = onPressed == null;
+    // ✅ צבע צל מ-Theme במקום Colors.black
+    final shadowColor = theme.shadowColor;
 
     // בחר צבע טקסט אוטומטית לפי בהירות הרקע
     final btnTextColor = isDisabled
@@ -96,27 +114,31 @@ class StickyButton extends StatelessWidget {
                 ? Colors.black
                 : Colors.white));
 
-    return Semantics(
+    // ✅ AnimatedButton already handles HapticFeedback - no need to add here
+    final wrappedOnPressed = (onPressed != null && !isLoading) ? onPressed : null;
+
+    final Widget buttonWidget = Semantics(
       button: true,
       label: label,
       enabled: onPressed != null && !isLoading,
       child: AnimatedButton(
-        onPressed: isLoading ? null : onPressed, // ✅ disabled כש-loading או onPressed == null
+        onPressed: wrappedOnPressed,
         child: Container(
           width: double.infinity,
           height: height,
           decoration: BoxDecoration(
             color: isDisabled ? buttonColor.withValues(alpha: 0.5) : buttonColor, // ✅ שקוף כש-disabled
             borderRadius: BorderRadius.circular(kStickyButtonRadius),
-            boxShadow: isDisabled
-                ? null // ✅ הסר shadow כש-disabled
+            boxShadow: isDisabled || elevation <= 0
+                ? null // ✅ הסר shadow כש-disabled או elevation == 0
                 : [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: kStickyShadowPrimaryOpacity),
-                      blurRadius: kStickyShadowPrimaryBlur,
-                      offset: const Offset(
+                      color: shadowColor.withValues(
+                          alpha: kStickyShadowPrimaryOpacity * elevation),
+                      blurRadius: kStickyShadowPrimaryBlur * elevation,
+                      offset: Offset(
                         kStickyShadowPrimaryOffsetX,
-                        kStickyShadowPrimaryOffsetY,
+                        kStickyShadowPrimaryOffsetY * elevation,
                       ),
                     ),
                   ],
@@ -149,14 +171,20 @@ class StickyButton extends StatelessWidget {
         ),
       ),
     );
+
+    // ✅ הוסף Tooltip לנגישות
+    return Tooltip(
+      message: tooltip ?? label,
+      child: buttonWidget,
+    );
   }
 }
 
 /// כפתור פתק קטן - לפעולות משניות
-/// 
+///
 /// גרסה קטנה יותר של StickyButton לשימוש בממשקים צפופים
 /// או כפתורי פעולה משניים.
-/// 
+///
 /// דוגמה:
 /// ```dart
 /// StickyButtonSmall(
@@ -181,6 +209,12 @@ class StickyButtonSmall extends StatelessWidget {
   /// פעולה בלחיצה
   final VoidCallback? onPressed;
 
+  /// רמת צל (0.0-1.0, ברירת מחדל: 1.0)
+  final double elevation;
+
+  /// טקסט tooltip לנגישות (אופציונלי)
+  final String? tooltip;
+
   const StickyButtonSmall({
     super.key,
     this.color,
@@ -188,6 +222,8 @@ class StickyButtonSmall extends StatelessWidget {
     required this.label,
     this.icon,
     this.onPressed,
+    this.elevation = 1.0,
+    this.tooltip,
   });
 
   @override
@@ -199,6 +235,8 @@ class StickyButtonSmall extends StatelessWidget {
       icon: icon,
       onPressed: onPressed,
       height: kButtonHeightSmall,
+      elevation: elevation,
+      tooltip: tooltip,
     );
   }
 }

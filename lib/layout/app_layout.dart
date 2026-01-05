@@ -131,7 +131,7 @@ class _AppLayoutState extends State<AppLayout> {
               const SizedBox(width: kSpacingSmall),
               Expanded(
                 child: Text(
-                  'שגיאה בהתנתקות, נסה שוב',
+                  AppStrings.layout.logoutError,
                   style: TextStyle(fontSize: 14, color: cs.onErrorContainer),
                 ),
               ),
@@ -140,7 +140,7 @@ class _AppLayoutState extends State<AppLayout> {
           backgroundColor: cs.errorContainer,
           duration: kSnackBarDurationLong,
           action: SnackBarAction(
-            label: 'נסה שוב',
+            label: AppStrings.common.retry,
             textColor: cs.onErrorContainer,
             onPressed: () => _logout(context),
           ),
@@ -178,7 +178,7 @@ class _AppLayoutState extends State<AppLayout> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
               child: Text(
-                'הזמנות ממתינות',
+                AppStrings.layout.pendingInvitesTitle,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -188,8 +188,8 @@ class _AppLayoutState extends State<AppLayout> {
             // הזמנות לקבוצות
             ListTile(
               leading: Icon(Icons.family_restroom, color: cs.primary),
-              title: const Text('הזמנות לקבוצות'),
-              subtitle: const Text('הצטרפות למשפחה / Household'),
+              title: Text(AppStrings.layout.groupInvites),
+              subtitle: Text(AppStrings.layout.groupInvitesSubtitle),
               trailing: const Icon(Icons.chevron_left),
               onTap: () {
                 Navigator.pop(context);
@@ -199,8 +199,8 @@ class _AppLayoutState extends State<AppLayout> {
             // הזמנות לרשימות
             ListTile(
               leading: Icon(Icons.list_alt, color: cs.secondary),
-              title: const Text('הזמנות לרשימות'),
-              subtitle: const Text('שיתוף רשימות קניות'),
+              title: Text(AppStrings.layout.listInvites),
+              subtitle: Text(AppStrings.layout.listInvitesSubtitle),
               trailing: const Icon(Icons.chevron_left),
               onTap: () {
                 Navigator.pop(context);

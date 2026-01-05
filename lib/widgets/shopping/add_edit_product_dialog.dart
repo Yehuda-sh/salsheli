@@ -190,8 +190,16 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
       category: _selectedCategory,
     );
 
-    widget.onSave(newItem);
-    Navigator.pop(context);
+    // ✅ Safe save with error handling
+    try {
+      widget.onSave(newItem);
+      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSaving = false);
+        _showErrorSnackBar(AppStrings.common.saveFailed);
+      }
+    }
   }
 
   @override

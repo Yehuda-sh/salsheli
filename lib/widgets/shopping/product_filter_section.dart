@@ -5,6 +5,8 @@
 //
 // 🔗 Related: ProductsProvider, ProductSelectionBottomSheet, ShoppingList
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../core/ui_constants.dart';
@@ -41,8 +43,13 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
   late AnimationController _animationController;
   late Animation<double> _expandAnimation;
   late ScrollController _scrollController;
-  bool _showLeftFade = false;
-  bool _showRightFade = true; // Start with right indicator visible
+
+  // ✅ ValueNotifier לאינדיקטורים - מונע rebuild של כל הווידג'ט
+  final ValueNotifier<bool> _showLeftFade = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> _showRightFade = ValueNotifier<bool>(true);
+
+  // ✅ Debounce לחיפוש - מונע קריאות מיותרות
+  Timer? _debounceTimer;
 
   @override
   void initState() {
@@ -77,20 +84,17 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
 
     // אם אין מה לגלול, לא מציגים אינדיקטורים
     if (maxScroll <= 0) {
-      setState(() {
-        _showLeftFade = false;
-        _showRightFade = false;
-      });
+      _showLeftFade.value = false;
+      _showRightFade.value = false;
       return;
     }
 
-    setState(() {
-      // LTR layout:
-      // - Left arrow shows when can scroll left (offset > 0)
-      // - Right arrow shows when can scroll right (offset < max)
-      _showLeftFade = currentScroll > 10;
-      _showRightFade = currentScroll < maxScroll - 10;
-    });
+    // ✅ ValueNotifier - לא קורא setState, רק מעדכן את האינדיקטורים
+    // LTR layout:
+    // - Left arrow shows when can scroll left (offset > 0)
+    // - Right arrow shows when can scroll right (offset < max)
+    _showLeftFade.value = currentScroll > 10;
+    _showRightFade.value = currentScroll < maxScroll - 10;
   }
 
   @override
@@ -109,7 +113,18 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
   void dispose() {
     _animationController.dispose();
     _scrollController.dispose();
+    _showLeftFade.dispose();
+    _showRightFade.dispose();
+    _debounceTimer?.cancel();
     super.dispose();
+  }
+
+  /// ✅ Debounced search - מונע קריאות מיותרות בזמן הקלדה
+  void _onSearchChangedDebounced(String value) {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      widget.onSearchChanged(value);
+    });
   }
 
   @override
@@ -187,7 +202,7 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
       height: 36,
       child: TextField(
         controller: widget.searchController,
-        onChanged: widget.onSearchChanged,
+        onChanged: _onSearchChangedDebounced, // ✅ Debounce
         style: const TextStyle(fontSize: 14),
         decoration: InputDecoration(
           hintText: AppStrings.common.searchProductHint,
@@ -413,23 +428,43 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
                       ),
                     ),
 
-                    // אינדיקטור גלילה שמאלי (יש עוד תוכן משמאל)
-                    if (_showLeftFade)
-                      Positioned(
-                        left: 0,
-                        top: 0,
-                        bottom: 0,
+                    // ✅ אינדיקטור גלילה שמאלי - ValueListenableBuilder + AnimatedOpacity
+                    Positioned(
+                      left: 0,
+                      top: 0,
+                      bottom: 0,
+                      child: ValueListenableBuilder<bool>(
+                        valueListenable: _showLeftFade,
+                        builder: (context, show, child) => AnimatedOpacity(
+                          opacity: show ? 1.0 : 0.0,
+                          duration: const Duration(milliseconds: 200),
+                          child: IgnorePointer(
+                            ignoring: !show,
+                            child: child,
+                          ),
+                        ),
                         child: _buildScrollIndicator(isLeft: true, theme: theme),
                       ),
+                    ),
 
-                    // אינדיקטור גלילה ימני (יש עוד תוכן מימין)
-                    if (_showRightFade)
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        bottom: 0,
+                    // ✅ אינדיקטור גלילה ימני - ValueListenableBuilder + AnimatedOpacity
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      bottom: 0,
+                      child: ValueListenableBuilder<bool>(
+                        valueListenable: _showRightFade,
+                        builder: (context, show, child) => AnimatedOpacity(
+                          opacity: show ? 1.0 : 0.0,
+                          duration: const Duration(milliseconds: 200),
+                          child: IgnorePointer(
+                            ignoring: !show,
+                            child: child,
+                          ),
+                        ),
                         child: _buildScrollIndicator(isLeft: false, theme: theme),
                       ),
+                    ),
                   ],
                 ),
               ),

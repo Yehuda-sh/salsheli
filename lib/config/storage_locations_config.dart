@@ -1,7 +1,12 @@
 // 📄 lib/config/storage_locations_config.dart
 //
-// הגדרות מיקומי אחסון במזווה - מזווה, מקרר, מקפיא ואחר.
+// הגדרות מיקומי אחסון במזווה - 4 מיקומים (מזווה, מקרר, מקפיא, אחר).
 // כולל אמוג'י, אייקון, ופונקציות לקבלת שם/תיאור מ-AppStrings.
+//
+// 📌 API מרכזי:
+//    - StorageLocationsConfig.getLocationInfo(id) - מחזיר LocationInfo מלא
+//    - StorageLocationsConfig.getName(id) - קיצור ל-getLocationInfo(id).name
+//    - StorageLocationsConfig.getIcon(id) - קיצור ל-getLocationInfo(id).icon
 //
 // ✅ תיקונים:
 //    - טקסטים מ-AppStrings (i18n ready)
@@ -10,6 +15,7 @@
 //
 // 🔗 Related: InventoryItem, LocationsProvider, AppStrings.inventory
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 
 import '../l10n/app_strings.dart';
@@ -118,32 +124,23 @@ class StorageLocationsConfig {
   };
 
   // ========================================
-  // Getters
+  // 🔍 Lookup API
   // ========================================
 
   /// מחזיר את שם המיקום בעברית (מ-AppStrings)
-  ///
-  /// Example:
-  /// ```dart
-  /// final name = StorageLocationsConfig.getName('refrigerator');
-  /// // 'מקרר'
-  /// ```
+  /// 📌 קיצור ל-getLocationInfo(id).name
   static String getName(String locationId) {
+    _ensureNoDuplicateIds();
     return _locationData[locationId]?.name ?? AppStrings.inventory.locationUnknown;
   }
 
   /// מחזיר את האייקון של המיקום
-  ///
-  /// Example:
-  /// ```dart
-  /// final icon = StorageLocationsConfig.getIcon('freezer');
-  /// // Icons.ac_unit
-  /// ```
+  /// 📌 קיצור ל-getLocationInfo(id).icon
   static IconData getIcon(String locationId) {
     return _locationData[locationId]?.icon ?? Icons.help_outline;
   }
 
-  /// מחזיר את המידע המלא על המיקום
+  /// מחזיר את המידע המלא על המיקום (API מרכזי)
   ///
   /// Example:
   /// ```dart
@@ -175,7 +172,7 @@ class StorageLocationsConfig {
   }
 
   /// מחזיר רשימת כל המיקומים עם המידע שלהם
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final locations = StorageLocationsConfig.getAllLocationInfo();
@@ -185,5 +182,36 @@ class StorageLocationsConfig {
   /// ```
   static List<LocationInfo> getAllLocationInfo() {
     return allLocations.map(getLocationInfo).toList();
+  }
+
+  // ========================================
+  // 🔧 Debug Validation
+  // ========================================
+
+  static bool _idsValidated = false;
+
+  /// 🔍 בדיקת ייחודיות IDs (רצה פעם אחת בדיבאג)
+  static void _ensureNoDuplicateIds() {
+    if (_idsValidated) return;
+    _idsValidated = true;
+
+    final ids = <String>{};
+    for (final id in allLocations) {
+      if (ids.contains(id)) {
+        assert(false, 'כפילות ID במיקומי אחסון! ID: "$id"');
+      }
+      ids.add(id);
+    }
+
+    // ודא שכל מיקום ב-allLocations קיים ב-_locationData
+    for (final id in allLocations) {
+      if (!_locationData.containsKey(id)) {
+        assert(false, 'מיקום "$id" נמצא ב-allLocations אך חסר ב-_locationData!');
+      }
+    }
+
+    if (kDebugMode) {
+      debugPrint('✅ StorageLocationsConfig: ${allLocations.length} מיקומים, כל ה-IDs ייחודיים');
+    }
   }
 }

@@ -3,7 +3,13 @@
 // דיאלוג התראת מלאי נמוך - מוצג בכניסה לאפליקציה.
 // כולל הוספה לרשימת קניות, כפתור "אל תציג שוב היום", ועיצוב sticky note.
 //
+// ✅ תיקונים:
+//    - הוספת unawaited() לקריאות HapticFeedback
+//    - תמיכה ב-Dark Mode (kStickyOrangeDark)
+//
 // 🔗 Related: InventoryItem, InventoryProvider, StickyNote
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -115,12 +121,15 @@ class _LowStockAlertDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final brand = Theme.of(context).extension<AppBrand>();
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
+    final isDark = theme.brightness == Brightness.dark;
     final itemCount = lowStockItems.length;
 
-    // ✅ צבעים מה-Theme במקום Colors קשיחים
+    // ✅ צבעים מה-Theme במקום Colors קשיחים + Dark Mode
     final warningContainerColor = brand?.warningContainer ?? scheme.tertiaryContainer;
+    final stickyColor = isDark ? kStickyOrangeDark : kStickyOrange;
 
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -129,7 +138,7 @@ class _LowStockAlertDialog extends StatelessWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 400, maxHeight: 500),
           child: StickyNote(
-            color: kStickyOrange,
+            color: stickyColor,
             child: Padding(
               padding: const EdgeInsets.all(kSpacingMedium),
               child: Column(
@@ -234,7 +243,7 @@ class _LowStockAlertDialog extends StatelessWidget {
                         flex: 2,
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            HapticFeedback.mediumImpact();
+                            unawaited(HapticFeedback.mediumImpact());
                             Navigator.of(context).pop(LowStockAlertResult.addToList);
                           },
                           icon: const Icon(Icons.add_shopping_cart),
@@ -252,7 +261,7 @@ class _LowStockAlertDialog extends StatelessWidget {
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () {
-                            HapticFeedback.selectionClick();
+                            unawaited(HapticFeedback.selectionClick());
                             Navigator.of(context).pop(LowStockAlertResult.goToPantry);
                           },
                           child: Text(AppStrings.inventory.lowStockAlertGoToPantry),

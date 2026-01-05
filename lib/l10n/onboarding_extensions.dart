@@ -3,22 +3,28 @@
 // Extensions למחרוזות Onboarding - תרגום גילאי ילדים וימי שבוע לעברית.
 // כולל getAgeLabel, getDayLabel, ורשימות allAges/allDays.
 //
-// 🔗 Related: onboarding_screen, onboarding_data, AppStrings
+// ⚠️ שימו לב: allAges חייב להיות מסונכרן עם kValidChildrenAges ב-constants.dart!
+//
+// 🔗 Related: onboarding_screen, onboarding_data, AppStrings, constants.dart
 
 class OnboardingExtensions {
   const OnboardingExtensions._();
 
   /// תרגום גיל ילדים לעברית
+  ///
+  /// ⚠️ הערכים חייבים להתאים ל-kValidChildrenAges ב-constants.dart!
   static String getAgeLabel(String age) {
     switch (age) {
-      case 'babies':
-        return 'תינוקות (0-2)';
-      case 'toddlers':
-        return 'פעוטות (3-6)';
-      case 'children':
-        return 'ילדים (7-12)';
-      case 'teens':
-        return 'בני נוער (13-18)';
+      case '0-1':
+        return 'תינוק/ת (0-1)';
+      case '2-3':
+        return 'גיל הרך (2-3)';
+      case '4-6':
+        return 'גן (4-6)';
+      case '7-12':
+        return 'בית ספר (7-12)';
+      case '13-18':
+        return 'נוער (13-18)';
       default:
         return age;
     }
@@ -47,7 +53,10 @@ class OnboardingExtensions {
   }
 
   /// רשימת כל גילאי הילדים
-  static const List<String> allAges = ['babies', 'toddlers', 'children', 'teens'];
+  ///
+  /// ⚠️ חייב להתאים ל-kValidChildrenAges ב-constants.dart!
+  /// סדר: תינוקות → גיל הרך → גן → בי"ס → נוער
+  static const List<String> allAges = ['0-1', '2-3', '4-6', '7-12', '13-18'];
 
   /// רשימת כל ימי השבוע
   static const List<int> allDays = [0, 1, 2, 3, 4, 5, 6];

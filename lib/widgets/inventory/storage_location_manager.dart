@@ -5,7 +5,10 @@
 //
 // 🔗 Related: InventoryItem, LocationsProvider, StorageLocationsConfig
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -45,6 +48,9 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
   String selectedLocation = 'all';
   bool gridMode = true;
   String sortBy = 'name'; // name, quantity, category
+
+  /// דגל למניעת לחיצות כפולות בזמן שמירה/מחיקה
+  bool _isSaving = false;
 
   final TextEditingController newLocationController = TextEditingController();
 
@@ -254,6 +260,7 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
       ],
     ).then((value) {
       if (value != null) {
+        unawaited(HapticFeedback.selectionClick());
         setState(() {
           sortBy = value;
           _lastCacheKey = '';
@@ -339,27 +346,35 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                 actions: [
                   TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('ביטול')),
                   ElevatedButton(
-                    onPressed: () async {
-                      final name = newLocationController.text.trim();
-                      if (name.isEmpty) {
-                        return;
-                      }
-                      final provider = context.read<LocationsProvider>();
-                      final messenger = ScaffoldMessenger.of(context);
-                      final navigator = Navigator.of(dialogContext);
+                    onPressed: _isSaving
+                        ? null
+                        : () async {
+                            final name = newLocationController.text.trim();
+                            if (name.isEmpty) {
+                              return;
+                            }
+                            setState(() => _isSaving = true);
+                            unawaited(HapticFeedback.lightImpact());
+                            final provider = context.read<LocationsProvider>();
+                            final messenger = ScaffoldMessenger.of(context);
+                            final navigator = Navigator.of(dialogContext);
 
-                      final success = await provider.addLocation(name, emoji: selectedEmoji);
+                            try {
+                              final success = await provider.addLocation(name, emoji: selectedEmoji);
 
-                      if (mounted) {
-                        navigator.pop();
+                              if (mounted) {
+                                navigator.pop();
 
-                        if (success) {
-                          messenger.showSnackBar(SnackBar(content: Text('נוסף מיקום חדש: $name')));
-                        } else {
-                          messenger.showSnackBar(const SnackBar(content: Text('מיקום זה כבר קיים')));
-                        }
-                      }
-                    },
+                                if (success) {
+                                  messenger.showSnackBar(SnackBar(content: Text('נוסף מיקום חדש: $name')));
+                                } else {
+                                  messenger.showSnackBar(const SnackBar(content: Text('מיקום זה כבר קיים')));
+                                }
+                              }
+                            } finally {
+                              if (mounted) setState(() => _isSaving = false);
+                            }
+                          },
                     child: const Text('הוסף'),
                   ),
                 ],
@@ -437,26 +452,38 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                 actions: [
                   TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('ביטול')),
                   ElevatedButton(
-                    onPressed: () async {
-                      // רק אם האמוג'י השתנה
-                      if (selectedEmoji == loc.emoji) {
-                        Navigator.pop(dialogContext);
-                        return;
-                      }
+                    onPressed: _isSaving
+                        ? null
+                        : () async {
+                            // רק אם האמוג'י השתנה
+                            if (selectedEmoji == loc.emoji) {
+                              Navigator.pop(dialogContext);
+                              return;
+                            }
 
-                      final provider = context.read<LocationsProvider>();
-                      final messenger = ScaffoldMessenger.of(context);
-                      final navigator = Navigator.of(dialogContext);
+                            setState(() => _isSaving = true);
+                            unawaited(HapticFeedback.lightImpact());
+                            final provider = context.read<LocationsProvider>();
+                            final messenger = ScaffoldMessenger.of(context);
+                            final navigator = Navigator.of(dialogContext);
 
-                      // עדכון אמוג'י בלבד - שימוש באותו שם = אותו key = פריטים נשארים מקושרים
-                      await provider.deleteLocation(loc.key);
-                      await provider.addLocation(loc.name, emoji: selectedEmoji);
+                            try {
+                              // עדכון אמוג'י בלבד - שימוש באותו שם = אותו key = פריטים נשארים מקושרים
+                              await provider.deleteLocation(loc.key);
+                              await provider.addLocation(loc.name, emoji: selectedEmoji);
 
-                      if (mounted) {
-                        navigator.pop();
-                        messenger.showSnackBar(const SnackBar(content: Text('האמוג\'י עודכן')));
-                      }
-                    },
+                              if (mounted) {
+                                navigator.pop();
+                                messenger.showSnackBar(const SnackBar(content: Text('האמוג\'י עודכן')));
+                              }
+                            } catch (e) {
+                              if (mounted) {
+                                messenger.showSnackBar(const SnackBar(content: Text('שגיאה בעדכון האמוג\'י')));
+                              }
+                            } finally {
+                              if (mounted) setState(() => _isSaving = false);
+                            }
+                          },
                     child: const Text('שמור'),
                   ),
                 ],
@@ -485,6 +512,8 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
   /// [name] - שם המיקום (לעריכה בעת Undo)
   /// [emoji] - האמוג'י של המיקום (לעריכה בעת Undo)
   void _deleteCustomLocation(String key, String name, String emoji) {
+    final cs = Theme.of(context).colorScheme;
+
     showDialog(
       context: context,
       builder: (dialogContext) {
@@ -496,32 +525,40 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
             actions: [
               TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('ביטול')),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-                onPressed: () async {
-                  final provider = context.read<LocationsProvider>();
-                  final messenger = ScaffoldMessenger.of(context);
-                  final navigator = Navigator.of(dialogContext);
+                style: ElevatedButton.styleFrom(backgroundColor: cs.error, foregroundColor: cs.onError),
+                onPressed: _isSaving
+                    ? null
+                    : () async {
+                        setState(() => _isSaving = true);
+                        unawaited(HapticFeedback.mediumImpact());
+                        final provider = context.read<LocationsProvider>();
+                        final messenger = ScaffoldMessenger.of(context);
+                        final navigator = Navigator.of(dialogContext);
 
-                  await provider.deleteLocation(key);
+                        try {
+                          await provider.deleteLocation(key);
 
-                  if (mounted) {
-                    navigator.pop();
+                          if (mounted) {
+                            navigator.pop();
 
-                    // הצג Snackbar עם Undo
-                    messenger.showSnackBar(
-                      SnackBar(
-                        content: const Text('המיקום נמחק'),
-                        action: SnackBarAction(
-                          label: 'בטל',
-                          onPressed: () async {
-                            await provider.addLocation(name, emoji: emoji);
-                          },
-                        ),
-                        duration: const Duration(seconds: 5),
-                      ),
-                    );
-                  }
-                },
+                            // הצג Snackbar עם Undo
+                            messenger.showSnackBar(
+                              SnackBar(
+                                content: const Text('המיקום נמחק'),
+                                action: SnackBarAction(
+                                  label: 'בטל',
+                                  onPressed: () async {
+                                    await provider.addLocation(name, emoji: emoji);
+                                  },
+                                ),
+                                duration: const Duration(seconds: 5),
+                              ),
+                            );
+                          }
+                        } finally {
+                          if (mounted) setState(() => _isSaving = false);
+                        }
+                      },
                 child: const Text('מחק'),
               ),
             ],
@@ -604,7 +641,10 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                     IconButton.filled(
                       icon: const Icon(Icons.remove),
                       onPressed: quantity > 0
-                          ? () => setDialogState(() => quantity--)
+                          ? () {
+                              unawaited(HapticFeedback.selectionClick());
+                              setDialogState(() => quantity--);
+                            }
                           : null,
                     ),
                     Container(
@@ -621,7 +661,10 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                     IconButton.filled(
                       icon: const Icon(Icons.add),
                       onPressed: quantity < 99
-                          ? () => setDialogState(() => quantity++)
+                          ? () {
+                              unawaited(HapticFeedback.selectionClick());
+                              setDialogState(() => quantity++);
+                            }
                           : null,
                     ),
                   ],
@@ -741,15 +784,30 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
 
     final isEmpty = count == 0;
 
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedLocation = key;
-          _lastCacheKey = ''; // נקה cache
-        });
-      },
-      onLongPress: isCustom ? () => _deleteCustomLocation(key, name, emoji) : null,
-      child: AnimatedContainer(
+    final semanticLabel = isEmpty
+        ? '$name - ריק'
+        : '$name - $count פריטים${lowStockCount > 0 ? ', $lowStockCount במלאי נמוך' : ''}';
+
+    return Semantics(
+      label: semanticLabel,
+      button: true,
+      selected: isSelected,
+      hint: isCustom ? 'לחץ לבחירה, לחיצה ארוכה למחיקה' : 'לחץ לבחירה',
+      child: GestureDetector(
+        onTap: () {
+          unawaited(HapticFeedback.selectionClick());
+          setState(() {
+            selectedLocation = key;
+            _lastCacheKey = ''; // נקה cache
+          });
+        },
+        onLongPress: isCustom
+            ? () {
+                unawaited(HapticFeedback.mediumImpact());
+                _deleteCustomLocation(key, name, emoji);
+              }
+            : null,
+        child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         child: Card(
           elevation: isSelected ? kCardElevationHigh : kCardElevationLow,
@@ -772,7 +830,7 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                       emoji,
                       style: TextStyle(
                         fontSize: kFontSizeLarge,
-                        color: isEmpty ? Colors.grey : null,
+                        color: isEmpty ? cs.onSurfaceVariant : null,
                       ),
                     ),
                     // הצג כפתור עריכה רק כשנבחר
@@ -826,6 +884,7 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
           ),
         ),
       ),
+      ),
     );
   }
 
@@ -847,25 +906,38 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 // מיון
-                IconButton(
-                  icon: Icon(Icons.sort, color: cs.onSurfaceVariant),
-                  tooltip: 'מיון',
-                  onPressed: () => _showSortMenu(context),
+                Semantics(
+                  label: 'מיון לפי $sortBy',
+                  button: true,
+                  child: IconButton(
+                    icon: Icon(Icons.sort, color: cs.onSurfaceVariant),
+                    tooltip: 'מיון',
+                    onPressed: () => _showSortMenu(context),
+                  ),
                 ),
                 // תצוגה
-                IconButton(
-                  icon: Icon(gridMode ? Icons.view_list : Icons.grid_view),
-                  tooltip: gridMode ? 'רשימה' : 'רשת',
-                  onPressed: () {
-                    setState(() => gridMode = !gridMode);
-                    _saveGridMode(gridMode);
-                  },
+                Semantics(
+                  label: gridMode ? 'עבור לתצוגת רשימה' : 'עבור לתצוגת רשת',
+                  button: true,
+                  child: IconButton(
+                    icon: Icon(gridMode ? Icons.view_list : Icons.grid_view),
+                    tooltip: gridMode ? 'רשימה' : 'רשת',
+                    onPressed: () {
+                      unawaited(HapticFeedback.selectionClick());
+                      setState(() => gridMode = !gridMode);
+                      _saveGridMode(gridMode);
+                    },
+                  ),
                 ),
                 // הוספת מיקום אחסון
-                IconButton(
-                  icon: Icon(Icons.create_new_folder_outlined, color: cs.primary),
-                  tooltip: 'הוסף מיקום אחסון',
-                  onPressed: _showAddLocationDialog,
+                Semantics(
+                  label: 'הוסף מיקום אחסון חדש',
+                  button: true,
+                  child: IconButton(
+                    icon: Icon(Icons.create_new_folder_outlined, color: cs.primary),
+                    tooltip: 'הוסף מיקום אחסון',
+                    onPressed: _showAddLocationDialog,
+                  ),
                 ),
               ],
             ),
@@ -977,20 +1049,20 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.inventory_2, color: Colors.brown.shade700, size: kIconSize),
+                      const Icon(Icons.inventory_2, color: kStickyYellowDark, size: kIconSize),
                       const SizedBox(width: kSpacingSmall),
                       Text(
                         _getLocationTitle(customLocations),
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Colors.brown.shade800,
+                          color: kStickyYellowDark,
                           fontSize: kFontSizeBody,
                         ),
                       ),
                       const SizedBox(width: kSpacingSmall),
                       Text(
                         '(${filteredInventory.length})',
-                        style: TextStyle(color: Colors.brown.shade600, fontSize: kFontSizeTiny),
+                        style: TextStyle(color: kStickyYellowDark.withValues(alpha: 0.7), fontSize: kFontSizeTiny),
                       ),
                     ],
                   ),
@@ -1022,12 +1094,23 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                           itemCount: filteredInventory.length,
                           itemBuilder: (_, index) {
                             final item = filteredInventory[index];
+                            final itemSemanticLabel =
+                                '${item.productName}, כמות: ${item.quantity} ${item.unit}'
+                                '${item.isLowStock ? ', מלאי נמוך' : ''}'
+                                '${item.isExpired ? ', פג תוקף' : item.isExpiringSoon ? ', קרוב לתפוגה' : ''}';
                             // כל פריט בגובה 48px = שורה אחת במחברת
-                            return GestureDetector(
-                              onTap: widget.onUpdateQuantity != null
-                                  ? () => _showQuickQuantityDialog(item)
-                                  : null,
-                              child: Container(
+                            return Semantics(
+                              label: itemSemanticLabel,
+                              button: widget.onUpdateQuantity != null,
+                              hint: widget.onUpdateQuantity != null ? 'לחץ לעדכון כמות' : null,
+                              child: GestureDetector(
+                                onTap: widget.onUpdateQuantity != null
+                                    ? () {
+                                        unawaited(HapticFeedback.selectionClick());
+                                        _showQuickQuantityDialog(item);
+                                      }
+                                    : null,
+                                child: Container(
                                 height: kNotebookLineSpacing,
                                 padding: const EdgeInsets.only(
                                   left: kSpacingMedium,
@@ -1125,6 +1208,7 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
                                     ),
                                   ],
                                 ),
+                              ),
                               ),
                             );
                           },

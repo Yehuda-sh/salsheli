@@ -24,6 +24,7 @@
 // - Theme colors (AppBrand)
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:memozap/config/filters_config.dart';
 import 'package:memozap/core/ui_constants.dart';
@@ -72,19 +73,26 @@ class PantryFilters extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // כפתור איפוס
-            IconButton(
-              onPressed: _resetFilter,
-              icon: Icon(
-                Icons.refresh,
-                size: 18,
-                color: brand?.accent ?? cs.primary,
-              ),
-              tooltip: AppStrings.common.resetFilter,
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(
-                minWidth: 32,
-                minHeight: 32,
+            // כפתור איפוס - disabled כשכבר ב-'all'
+            Semantics(
+              label: AppStrings.common.resetFilter,
+              button: true,
+              enabled: currentCategory != 'all',
+              child: IconButton(
+                onPressed: currentCategory == 'all' ? null : _resetFilter,
+                icon: Icon(
+                  Icons.refresh,
+                  size: 18,
+                  color: currentCategory == 'all'
+                      ? cs.onSurface.withValues(alpha: 0.3)
+                      : (brand?.accent ?? cs.primary),
+                ),
+                tooltip: AppStrings.common.resetFilter,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(
+                  minWidth: 32,
+                  minHeight: 32,
+                ),
               ),
             ),
             
@@ -97,10 +105,12 @@ class PantryFilters extends StatelessWidget {
             
             const SizedBox(width: kSpacingSmall),
             
-            // אייקון וכותרת
+            // אייקון וכותרת - עם אינדיקציה לפילטר פעיל
             Icon(
               Icons.filter_list,
-              color: brand?.accent ?? cs.primary,
+              color: currentCategory != 'all'
+                  ? cs.primary  // פילטר פעיל - צבע בולט
+                  : (brand?.accent ?? cs.primary),
               size: kIconSizeSmall,
             ),
             const SizedBox(width: kSpacingXTiny),
@@ -108,9 +118,31 @@ class PantryFilters extends StatelessWidget {
               AppStrings.inventory.filterByCategory,
               style: theme.textTheme.bodySmall?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: cs.onSurface,
+                color: currentCategory != 'all'
+                    ? cs.primary  // פילטר פעיל - צבע בולט
+                    : cs.onSurface,
               ),
             ),
+            // ✅ Badge לפילטר פעיל
+            if (currentCategory != 'all')
+              Container(
+                margin: const EdgeInsets.only(right: kSpacingXTiny),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: kSpacingXTiny,
+                  vertical: 2,
+                ),
+                decoration: BoxDecoration(
+                  color: cs.primary,
+                  borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                ),
+                child: Text(
+                  '1',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: cs.onPrimary,
+                    fontSize: 10,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -127,9 +159,10 @@ class PantryFilters extends StatelessWidget {
     return Semantics(
       label: '${AppStrings.inventory.filterByCategory}: $currentText',
       child: DropdownButtonFormField<String>(
-        value: currentCategory,
+        initialValue: currentCategory,
         onChanged: (newCategory) {
           if (newCategory != null) {
+            HapticFeedback.selectionClick();
             onCategoryChanged(newCategory);
           }
         },

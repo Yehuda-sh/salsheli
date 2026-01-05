@@ -39,6 +39,7 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
   DateTime? _selectedDueDate;
   String _selectedPriority = 'medium';
   bool _isSaving = false; // 🛡️ מניעת שמירה כפולה
+  bool _hasChanges = false; // 🛡️ מעקב אחר שינויים לאישור יציאה
 
   @override
   void initState() {
@@ -48,12 +49,22 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
     _selectedDueDate = widget.item?.dueDate;
     _selectedPriority = widget.item?.priority ?? 'medium';
 
+    // 🛡️ Track changes for exit confirmation
+    _nameController.addListener(_markChanged);
+    _notesController.addListener(_markChanged);
+
     if (kDebugMode) {
       debugPrint(
         widget.item == null
             ? '➕ AddEditTaskDialog: פתיחת דיאלוג הוספת משימה'
             : '✏️ AddEditTaskDialog: פתיחת דיאלוג עריכת "${widget.item!.name}"',
       );
+    }
+  }
+
+  void _markChanged() {
+    if (!_hasChanges) {
+      setState(() => _hasChanges = true);
     }
   }
 
@@ -88,7 +99,10 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
 
     if (picked != null && mounted) {
       unawaited(HapticFeedback.lightImpact());
-      setState(() => _selectedDueDate = picked);
+      setState(() {
+        _selectedDueDate = picked;
+        _hasChanges = true; // 🛡️ Track change
+      });
     }
   }
 
@@ -107,6 +121,40 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
         behavior: SnackBarBehavior.floating,
       ),
     );
+  }
+
+  /// ✅ Exit confirmation when form has unsaved changes
+  Future<bool> _confirmExit() async {
+    if (!_hasChanges) return true;
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppStrings.common.unsavedChangesTitle),
+        content: Text(AppStrings.common.unsavedChangesMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(AppStrings.common.stayHere),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(AppStrings.common.exitWithoutSaving),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
+  }
+
+  void _handleCancel() async {
+    if (await _confirmExit()) {
+      unawaited(HapticFeedback.lightImpact());
+      if (kDebugMode) {
+        debugPrint('❌ AddEditTaskDialog: ביטול דיאלוג');
+      }
+      if (mounted) Navigator.pop(context);
+    }
   }
 
   void _handleSave() {
@@ -135,15 +183,27 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
       notes: notes.isNotEmpty ? notes : null,
     );
 
-    widget.onSave(newItem);
-    Navigator.pop(context);
-
-    if (kDebugMode) {
-      debugPrint(
-        widget.item == null
-            ? '✅ AddEditTaskDialog: הוסף משימה "$name"'
-            : '✅ AddEditTaskDialog: עדכן משימה "$name"',
-      );
+    // ✅ Safe save with error handling
+    try {
+      widget.onSave(newItem);
+      if (mounted) {
+        Navigator.pop(context);
+        if (kDebugMode) {
+          debugPrint(
+            widget.item == null
+                ? '✅ AddEditTaskDialog: הוסף משימה "$name"'
+                : '✅ AddEditTaskDialog: עדכן משימה "$name"',
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSaving = false);
+        _showErrorSnackBar(AppStrings.common.saveFailed);
+        if (kDebugMode) {
+          debugPrint('❌ AddEditTaskDialog: שגיאה בשמירה: $e');
+        }
+      }
     }
   }
 
@@ -227,7 +287,10 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
               onChanged: (value) {
                 if (value != null) {
                   unawaited(HapticFeedback.selectionClick());
-                  setState(() => _selectedPriority = value);
+                  setState(() {
+                    _selectedPriority = value;
+                    _hasChanges = true; // 🛡️ Track change
+                  });
                 }
               },
             ),
@@ -239,13 +302,8 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
           label: AppStrings.common.cancel,
           button: true,
           child: TextButton(
-            onPressed: () {
-              unawaited(HapticFeedback.lightImpact());
-              if (kDebugMode) {
-                debugPrint('❌ AddEditTaskDialog: ביטול דיאלוג');
-              }
-              Navigator.pop(context);
-            },
+            // ✅ Use _handleCancel for exit confirmation
+            onPressed: _handleCancel,
             child: Text(AppStrings.common.cancel),
           ),
         ),

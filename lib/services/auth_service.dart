@@ -3,11 +3,134 @@
 // שירות אימות עוטף Firebase Auth - הרשמה, התחברות, התנתקות, איפוס סיסמה.
 // כולל הודעות שגיאה בעברית (AppStrings), עדכון פרופיל, ומחיקת חשבון.
 //
+// ✅ תיקונים:
+//    - AuthException typed exception עם AuthErrorCode enum
+//    - signOut() מחזיר bool להצלחה/כישלון
+//
 // 🔗 Related: FirebaseAuth, AppStrings.auth, UserContext
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import '../l10n/app_strings.dart';
+
+// ========================================
+// 🆕 Typed Auth Exceptions
+// ========================================
+
+/// קודי שגיאות אימות - Type-Safe!
+///
+/// מאפשר ל-UI layer לזהות סוג שגיאה בקלות:
+/// ```dart
+/// try {
+///   await authService.signIn(email: '...', password: '...');
+/// } on AuthException catch (e) {
+///   if (e.code == AuthErrorCode.requiresRecentLogin) {
+///     // בקש re-authentication
+///   }
+/// }
+/// ```
+enum AuthErrorCode {
+  // === שגיאות כלליות ===
+  unknown,
+  noUserLoggedIn,
+  networkError,
+
+  // === שגיאות התחברות/הרשמה ===
+  userNotFound,
+  wrongPassword,
+  invalidEmail,
+  emailInUse,
+  weakPassword,
+  userDisabled,
+  invalidCredential,
+  tooManyRequests,
+  operationNotAllowed,
+
+  // === שגיאות פעולות רגישות ===
+  requiresRecentLogin,
+}
+
+/// שגיאת אימות מותאמת - Type-Safe!
+///
+/// כוללת:
+/// - [code] - קוד שגיאה (enum) לזיהוי סוג השגיאה
+/// - [message] - הודעה בעברית להצגה למשתמש
+/// - [originalError] - השגיאה המקורית (לדיבוג)
+///
+/// **Usage:**
+/// ```dart
+/// try {
+///   await authService.signIn(email: '...', password: '...');
+/// } on AuthException catch (e) {
+///   switch (e.code) {
+///     case AuthErrorCode.userNotFound:
+///       // הצג הודעה מתאימה
+///       break;
+///     case AuthErrorCode.requiresRecentLogin:
+///       // בקש re-authentication
+///       break;
+///     default:
+///       ScaffoldMessenger.of(context).showSnackBar(
+///         SnackBar(content: Text(e.message)),
+///       );
+///   }
+/// }
+/// ```
+class AuthException implements Exception {
+  /// קוד השגיאה (enum)
+  final AuthErrorCode code;
+
+  /// הודעה בעברית להצגה למשתמש
+  final String message;
+
+  /// השגיאה המקורית (לדיבוג)
+  final Object? originalError;
+
+  const AuthException({
+    required this.code,
+    required this.message,
+    this.originalError,
+  });
+
+  @override
+  String toString() => 'AuthException($code): $message';
+
+  /// יצירת AuthException מקוד Firebase
+  factory AuthException.fromFirebaseCode(String firebaseCode, String message) {
+    final code = _mapFirebaseCode(firebaseCode);
+    return AuthException(code: code, message: message);
+  }
+
+  /// המרת קוד Firebase ל-AuthErrorCode
+  static AuthErrorCode _mapFirebaseCode(String firebaseCode) {
+    switch (firebaseCode) {
+      case 'user-not-found':
+        return AuthErrorCode.userNotFound;
+      case 'wrong-password':
+        return AuthErrorCode.wrongPassword;
+      case 'invalid-email':
+        return AuthErrorCode.invalidEmail;
+      case 'email-already-in-use':
+        return AuthErrorCode.emailInUse;
+      case 'weak-password':
+        return AuthErrorCode.weakPassword;
+      case 'user-disabled':
+        return AuthErrorCode.userDisabled;
+      case 'invalid-credential':
+        return AuthErrorCode.invalidCredential;
+      case 'too-many-requests':
+        return AuthErrorCode.tooManyRequests;
+      case 'operation-not-allowed':
+        return AuthErrorCode.operationNotAllowed;
+      case 'requires-recent-login':
+        return AuthErrorCode.requiresRecentLogin;
+      case 'network-request-failed':
+        return AuthErrorCode.networkError;
+      default:
+        return AuthErrorCode.unknown;
+    }
+  }
+}
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -38,10 +161,10 @@ class AuthService {
   // === רישום משתמש חדש ===
 
   /// רושם משתמש חדש עם אימייל וסיסמה
-  /// 
+  ///
   /// Throws:
-  /// - Exception עם הודעה בעברית מ-AppStrings.auth אם הרישום נכשל
-  /// 
+  /// - [AuthException] עם קוד שגיאה והודעה בעברית אם הרישום נכשל
+  ///
   /// Example:
   /// ```dart
   /// try {
@@ -51,8 +174,12 @@ class AuthService {
   ///     name: 'יוני כהן',
   ///   );
   ///   print('נרשמת בהצלחה!');
-  /// } catch (e) {
-  ///   print('שגיאה: $e'); // הודעה בעברית
+  /// } on AuthException catch (e) {
+  ///   if (e.code == AuthErrorCode.emailInUse) {
+  ///     print('האימייל כבר בשימוש');
+  ///   } else {
+  ///     print('שגיאה: ${e.message}');
+  ///   }
   /// }
   /// ```
   Future<UserCredential> signUp({
@@ -84,24 +211,28 @@ class AuthService {
         debugPrint('❌ AuthService.signUp: שגיאת Firebase - ${e.code}');
       }
 
-      // המרת קודי שגיאה לעברית דרך AppStrings
+      // ✅ AuthException typed במקום Exception גנרי
       final errorMessage = _getSignUpErrorMessage(e.code);
-      throw Exception(errorMessage);
+      throw AuthException.fromFirebaseCode(e.code, errorMessage);
     } catch (e) {
       if (kDebugMode) {
         debugPrint('❌ AuthService.signUp: שגיאה כללית - $e');
       }
-      throw Exception(AppStrings.auth.signUpError(e.toString()));
+      throw AuthException(
+        code: AuthErrorCode.unknown,
+        message: AppStrings.auth.signUpError(e.toString()),
+        originalError: e,
+      );
     }
   }
 
   // === התחברות ===
 
   /// מתחבר עם אימייל וסיסמה
-  /// 
+  ///
   /// Throws:
-  /// - Exception עם הודעה בעברית מ-AppStrings.auth אם ההתחברות נכשלה
-  /// 
+  /// - [AuthException] עם קוד שגיאה והודעה בעברית אם ההתחברות נכשלה
+  ///
   /// Example:
   /// ```dart
   /// try {
@@ -110,8 +241,12 @@ class AuthService {
   ///     password: 'password123',
   ///   );
   ///   print('התחברת בהצלחה!');
-  /// } catch (e) {
-  ///   print('שגיאה: $e'); // הודעה בעברית
+  /// } on AuthException catch (e) {
+  ///   if (e.code == AuthErrorCode.userNotFound) {
+  ///     print('משתמש לא קיים');
+  ///   } else {
+  ///     print('שגיאה: ${e.message}');
+  ///   }
   /// }
   /// ```
   Future<UserCredential> signIn({
@@ -137,26 +272,43 @@ class AuthService {
         debugPrint('❌ AuthService.signIn: שגיאת Firebase - ${e.code}');
       }
 
-      // המרת קודי שגיאה לעברית דרך AppStrings
+      // ✅ AuthException typed במקום Exception גנרי
       final errorMessage = _getSignInErrorMessage(e.code);
-      throw Exception(errorMessage);
+      throw AuthException.fromFirebaseCode(e.code, errorMessage);
     } catch (e) {
       if (kDebugMode) {
         debugPrint('❌ AuthService.signIn: שגיאה כללית - $e');
       }
-      throw Exception(AppStrings.auth.signInError(e.toString()));
+      throw AuthException(
+        code: AuthErrorCode.unknown,
+        message: AppStrings.auth.signInError(e.toString()),
+        originalError: e,
+      );
     }
   }
 
   // === התנתקות ===
 
   /// מתנתק מהמערכת
-  /// 
+  ///
+  /// ✅ מחזיר `true` אם ההתנתקות הצליחה, `false` אם נכשלה.
+  /// לא זורק שגיאות - מאפשר ל-Provider לדעת אם לנקות state נוסף.
+  ///
   /// Example:
   /// ```dart
-  /// await authService.signOut();
+  /// final success = await authService.signOut();
+  /// if (success) {
+  ///   // נקה caches, reset providers וכו'
+  ///   await inventoryProvider.clearCache();
+  ///   await shoppingListsProvider.clearCache();
+  /// } else {
+  ///   // הצג הודעת שגיאה
+  ///   ScaffoldMessenger.of(context).showSnackBar(
+  ///     SnackBar(content: Text('ההתנתקות נכשלה')),
+  ///   );
+  /// }
   /// ```
-  Future<void> signOut() async {
+  Future<bool> signOut() async {
     try {
       if (kDebugMode) {
         debugPrint('🔐 AuthService.signOut: מתנתק');
@@ -165,28 +317,29 @@ class AuthService {
       if (kDebugMode) {
         debugPrint('✅ AuthService.signOut: התנתקות הושלמה');
       }
+      return true;
     } catch (e) {
       if (kDebugMode) {
         debugPrint('❌ AuthService.signOut: שגיאה - $e');
       }
-      throw Exception(AppStrings.auth.signOutError(e.toString()));
+      return false;
     }
   }
 
   // === איפוס סיסמה ===
 
   /// שולח מייל לאיפוס סיסמה
-  /// 
+  ///
   /// Throws:
-  /// - Exception עם הודעה בעברית אם השליחה נכשלה
-  /// 
+  /// - [AuthException] עם קוד שגיאה והודעה בעברית אם השליחה נכשלה
+  ///
   /// Example:
   /// ```dart
   /// try {
   ///   await authService.sendPasswordResetEmail('user@example.com');
   ///   print(AppStrings.auth.resetEmailSent);
-  /// } catch (e) {
-  ///   print('שגיאה: $e');
+  /// } on AuthException catch (e) {
+  ///   print('שגיאה: ${e.message}');
   /// }
   /// ```
   Future<void> sendPasswordResetEmail(String email) async {
@@ -204,35 +357,42 @@ class AuthService {
       }
 
       final errorMessage = _getResetPasswordErrorMessage(e.code);
-      throw Exception(errorMessage);
+      throw AuthException.fromFirebaseCode(e.code, errorMessage);
     } catch (e) {
       if (kDebugMode) {
         debugPrint('❌ AuthService.sendPasswordResetEmail: שגיאה כללית - $e');
       }
-      throw Exception(AppStrings.auth.resetEmailError(e.toString()));
+      throw AuthException(
+        code: AuthErrorCode.unknown,
+        message: AppStrings.auth.resetEmailError(e.toString()),
+        originalError: e,
+      );
     }
   }
 
   // === שליחת אימות אימייל ===
 
   /// שולח מייל אימות למשתמש הנוכחי
-  /// 
+  ///
   /// Throws:
-  /// - Exception אם אין משתמש מחובר או אם השליחה נכשלה
-  /// 
+  /// - [AuthException] אם אין משתמש מחובר או אם השליחה נכשלה
+  ///
   /// Example:
   /// ```dart
   /// try {
   ///   await authService.sendEmailVerification();
   ///   print(AppStrings.auth.verificationEmailSent);
-  /// } catch (e) {
-  ///   print('שגיאה: $e');
+  /// } on AuthException catch (e) {
+  ///   print('שגיאה: ${e.message}');
   /// }
   /// ```
   Future<void> sendEmailVerification() async {
     try {
       if (_auth.currentUser == null) {
-        throw Exception(AppStrings.auth.errorNoUserLoggedIn);
+        throw AuthException(
+          code: AuthErrorCode.noUserLoggedIn,
+          message: AppStrings.auth.errorNoUserLoggedIn,
+        );
       }
 
       if (kDebugMode) {
@@ -242,34 +402,43 @@ class AuthService {
       if (kDebugMode) {
         debugPrint('✅ AuthService.sendEmailVerification: מייל נשלח');
       }
+    } on AuthException {
+      rethrow;
     } catch (e) {
       if (kDebugMode) {
         debugPrint('❌ AuthService.sendEmailVerification: שגיאה - $e');
       }
-      throw Exception(AppStrings.auth.verificationEmailError(e.toString()));
+      throw AuthException(
+        code: AuthErrorCode.unknown,
+        message: AppStrings.auth.verificationEmailError(e.toString()),
+        originalError: e,
+      );
     }
   }
 
   // === עדכון פרופיל ===
 
   /// מעדכן את שם התצוגה של המשתמש
-  /// 
+  ///
   /// Throws:
-  /// - Exception אם אין משתמש מחובר או אם העדכון נכשל
-  /// 
+  /// - [AuthException] אם אין משתמש מחובר או אם העדכון נכשל
+  ///
   /// Example:
   /// ```dart
   /// try {
   ///   await authService.updateDisplayName('יוני כהן');
   ///   print(AppStrings.auth.displayNameUpdated);
-  /// } catch (e) {
-  ///   print('שגיאה: $e');
+  /// } on AuthException catch (e) {
+  ///   print('שגיאה: ${e.message}');
   /// }
   /// ```
   Future<void> updateDisplayName(String displayName) async {
     try {
       if (_auth.currentUser == null) {
-        throw Exception(AppStrings.auth.errorNoUserLoggedIn);
+        throw AuthException(
+          code: AuthErrorCode.noUserLoggedIn,
+          message: AppStrings.auth.errorNoUserLoggedIn,
+        );
       }
 
       if (kDebugMode) {
@@ -280,29 +449,34 @@ class AuthService {
       if (kDebugMode) {
         debugPrint('✅ AuthService.updateDisplayName: שם עודכן');
       }
+    } on AuthException {
+      rethrow;
     } catch (e) {
       if (kDebugMode) {
         debugPrint('❌ AuthService.updateDisplayName: שגיאה - $e');
       }
-      throw Exception(AppStrings.auth.updateDisplayNameError(e.toString()));
+      throw AuthException(
+        code: AuthErrorCode.unknown,
+        message: AppStrings.auth.updateDisplayNameError(e.toString()),
+        originalError: e,
+      );
     }
   }
 
   /// מעדכן את האימייל של המשתמש
-  /// 
+  ///
   /// ⚠️ דורש re-authentication לפני שימוש!
-  /// 
+  ///
   /// Throws:
-  /// - Exception אם אין משתמש מחובר, אם דורש re-auth, או אם העדכון נכשל
-  /// 
+  /// - [AuthException] אם אין משתמש מחובר, אם דורש re-auth, או אם העדכון נכשל
+  ///
   /// Example:
   /// ```dart
   /// try {
-  ///   // רק אם המשתמש התחבר לאחרונה
   ///   await authService.updateEmail('newemail@example.com');
   ///   print(AppStrings.auth.emailUpdated);
-  /// } on Exception catch (e) {
-  ///   if (e.toString().contains('requires-recent-login')) {
+  /// } on AuthException catch (e) {
+  ///   if (e.code == AuthErrorCode.requiresRecentLogin) {
   ///     // צריך re-authentication
   ///     await authService.reauthenticate(email: '...', password: '...');
   ///     await authService.updateEmail('newemail@example.com');
@@ -312,7 +486,10 @@ class AuthService {
   Future<void> updateEmail(String newEmail) async {
     try {
       if (_auth.currentUser == null) {
-        throw Exception(AppStrings.auth.errorNoUserLoggedIn);
+        throw AuthException(
+          code: AuthErrorCode.noUserLoggedIn,
+          message: AppStrings.auth.errorNoUserLoggedIn,
+        );
       }
 
       if (kDebugMode) {
@@ -323,43 +500,51 @@ class AuthService {
       if (kDebugMode) {
         debugPrint('✅ AuthService.updateEmail: אימייל עודכן');
       }
+    } on AuthException {
+      rethrow;
     } on FirebaseAuthException catch (e) {
       if (kDebugMode) {
         debugPrint('❌ AuthService.updateEmail: שגיאת Firebase - ${e.code}');
       }
 
+      String errorMessage;
       if (e.code == 'requires-recent-login') {
-        throw Exception(AppStrings.auth.errorRequiresRecentLogin);
+        errorMessage = AppStrings.auth.errorRequiresRecentLogin;
       } else if (e.code == 'email-already-in-use') {
-        throw Exception(AppStrings.auth.errorEmailInUse);
+        errorMessage = AppStrings.auth.errorEmailInUse;
       } else if (e.code == 'invalid-email') {
-        throw Exception(AppStrings.auth.errorInvalidEmail);
+        errorMessage = AppStrings.auth.errorInvalidEmail;
+      } else {
+        errorMessage = AppStrings.auth.updateEmailError(e.message);
       }
 
-      throw Exception(AppStrings.auth.updateEmailError(e.message));
+      throw AuthException.fromFirebaseCode(e.code, errorMessage);
     } catch (e) {
       if (kDebugMode) {
         debugPrint('❌ AuthService.updateEmail: שגיאה כללית - $e');
       }
-      throw Exception(AppStrings.auth.updateEmailError(e.toString()));
+      throw AuthException(
+        code: AuthErrorCode.unknown,
+        message: AppStrings.auth.updateEmailError(e.toString()),
+        originalError: e,
+      );
     }
   }
 
   /// מעדכן את הסיסמה של המשתמש
-  /// 
+  ///
   /// ⚠️ דורש re-authentication לפני שימוש!
-  /// 
+  ///
   /// Throws:
-  /// - Exception אם אין משתמש מחובר, אם דורש re-auth, או אם העדכון נכשל
-  /// 
+  /// - [AuthException] אם אין משתמש מחובר, אם דורש re-auth, או אם העדכון נכשל
+  ///
   /// Example:
   /// ```dart
   /// try {
-  ///   // רק אם המשתמש התחבר לאחרונה
   ///   await authService.updatePassword('newPassword123');
   ///   print(AppStrings.auth.passwordUpdated);
-  /// } on Exception catch (e) {
-  ///   if (e.toString().contains('requires-recent-login')) {
+  /// } on AuthException catch (e) {
+  ///   if (e.code == AuthErrorCode.requiresRecentLogin) {
   ///     // צריך re-authentication
   ///     await authService.reauthenticate(email: '...', password: '...');
   ///     await authService.updatePassword('newPassword123');
@@ -369,7 +554,10 @@ class AuthService {
   Future<void> updatePassword(String newPassword) async {
     try {
       if (_auth.currentUser == null) {
-        throw Exception(AppStrings.auth.errorNoUserLoggedIn);
+        throw AuthException(
+          code: AuthErrorCode.noUserLoggedIn,
+          message: AppStrings.auth.errorNoUserLoggedIn,
+        );
       }
 
       if (kDebugMode) {
@@ -379,49 +567,57 @@ class AuthService {
       if (kDebugMode) {
         debugPrint('✅ AuthService.updatePassword: סיסמה עודכנה');
       }
+    } on AuthException {
+      rethrow;
     } on FirebaseAuthException catch (e) {
       if (kDebugMode) {
         debugPrint('❌ AuthService.updatePassword: שגיאת Firebase - ${e.code}');
       }
 
+      String errorMessage;
       if (e.code == 'requires-recent-login') {
-        throw Exception(AppStrings.auth.errorRequiresRecentLogin);
+        errorMessage = AppStrings.auth.errorRequiresRecentLogin;
       } else if (e.code == 'weak-password') {
-        throw Exception(AppStrings.auth.errorWeakPassword);
+        errorMessage = AppStrings.auth.errorWeakPassword;
+      } else {
+        errorMessage = AppStrings.auth.updatePasswordError(e.message);
       }
 
-      throw Exception(AppStrings.auth.updatePasswordError(e.message));
+      throw AuthException.fromFirebaseCode(e.code, errorMessage);
     } catch (e) {
       if (kDebugMode) {
         debugPrint('❌ AuthService.updatePassword: שגיאה כללית - $e');
       }
-      throw Exception(AppStrings.auth.updatePasswordError(e.toString()));
+      throw AuthException(
+        code: AuthErrorCode.unknown,
+        message: AppStrings.auth.updatePasswordError(e.toString()),
+        originalError: e,
+      );
     }
   }
 
   // === Re-Authentication ===
 
   /// מבצע re-authentication למשתמש הנוכחי
-  /// 
+  ///
   /// נדרש לפני פעולות רגישות כמו:
   /// - מחיקת חשבון
   /// - עדכון אימייל
   /// - עדכון סיסמה
-  /// 
+  ///
   /// Throws:
-  /// - Exception אם אין משתמש מחובר או אם ה-re-auth נכשל
-  /// 
+  /// - [AuthException] אם אין משתמש מחובר או אם ה-re-auth נכשל
+  ///
   /// Example:
   /// ```dart
   /// try {
-  ///   // לפני עדכון אימייל
   ///   await authService.reauthenticate(
   ///     email: currentUser.email!,
   ///     password: userPassword,
   ///   );
   ///   await authService.updateEmail('newemail@example.com');
-  /// } catch (e) {
-  ///   print('Re-authentication נכשל: $e');
+  /// } on AuthException catch (e) {
+  ///   print('Re-authentication נכשל: ${e.message}');
   /// }
   /// ```
   Future<void> reauthenticate({
@@ -430,7 +626,10 @@ class AuthService {
   }) async {
     try {
       if (_auth.currentUser == null) {
-        throw Exception(AppStrings.auth.errorNoUserLoggedIn);
+        throw AuthException(
+          code: AuthErrorCode.noUserLoggedIn,
+          message: AppStrings.auth.errorNoUserLoggedIn,
+        );
       }
 
       if (kDebugMode) {
@@ -446,31 +645,37 @@ class AuthService {
       if (kDebugMode) {
         debugPrint('✅ AuthService.reauthenticate: הושלם בהצלחה');
       }
+    } on AuthException {
+      rethrow;
     } on FirebaseAuthException catch (e) {
       if (kDebugMode) {
         debugPrint('❌ AuthService.reauthenticate: שגיאת Firebase - ${e.code}');
       }
 
       final errorMessage = _getSignInErrorMessage(e.code);
-      throw Exception(errorMessage);
+      throw AuthException.fromFirebaseCode(e.code, errorMessage);
     } catch (e) {
       if (kDebugMode) {
         debugPrint('❌ AuthService.reauthenticate: שגיאה כללית - $e');
       }
-      throw Exception(AppStrings.auth.signInError(e.toString()));
+      throw AuthException(
+        code: AuthErrorCode.unknown,
+        message: AppStrings.auth.signInError(e.toString()),
+        originalError: e,
+      );
     }
   }
 
   // === מחיקת חשבון ===
 
   /// מוחק את חשבון המשתמש הנוכחי
-  /// 
+  ///
   /// ⚠️ פעולה בלתי הפיכה!
   /// ⚠️ דורש re-authentication לפני שימוש!
-  /// 
+  ///
   /// Throws:
-  /// - Exception אם אין משתמש מחובר, אם דורש re-auth, או אם המחיקה נכשלה
-  /// 
+  /// - [AuthException] אם אין משתמש מחובר, אם דורש re-auth, או אם המחיקה נכשלה
+  ///
   /// Example:
   /// ```dart
   /// try {
@@ -478,14 +683,19 @@ class AuthService {
   ///   await authService.reauthenticate(email: '...', password: '...');
   ///   await authService.deleteAccount();
   ///   print(AppStrings.auth.accountDeleted);
-  /// } catch (e) {
-  ///   print('שגיאה: $e');
+  /// } on AuthException catch (e) {
+  ///   if (e.code == AuthErrorCode.requiresRecentLogin) {
+  ///     // צריך re-authentication
+  ///   }
   /// }
   /// ```
   Future<void> deleteAccount() async {
     try {
       if (_auth.currentUser == null) {
-        throw Exception(AppStrings.auth.errorNoUserLoggedIn);
+        throw AuthException(
+          code: AuthErrorCode.noUserLoggedIn,
+          message: AppStrings.auth.errorNoUserLoggedIn,
+        );
       }
 
       if (kDebugMode) {
@@ -495,47 +705,59 @@ class AuthService {
       if (kDebugMode) {
         debugPrint('✅ AuthService.deleteAccount: חשבון נמחק');
       }
+    } on AuthException {
+      rethrow;
     } on FirebaseAuthException catch (e) {
       if (kDebugMode) {
         debugPrint('❌ AuthService.deleteAccount: שגיאת Firebase - ${e.code}');
       }
 
+      String errorMessage;
       if (e.code == 'requires-recent-login') {
-        throw Exception(AppStrings.auth.errorRequiresRecentLogin);
+        errorMessage = AppStrings.auth.errorRequiresRecentLogin;
+      } else {
+        errorMessage = AppStrings.auth.deleteAccountError(e.message);
       }
 
-      throw Exception(AppStrings.auth.deleteAccountError(e.message));
+      throw AuthException.fromFirebaseCode(e.code, errorMessage);
     } catch (e) {
       if (kDebugMode) {
         debugPrint('❌ AuthService.deleteAccount: שגיאה כללית - $e');
       }
-      throw Exception(AppStrings.auth.deleteAccountError(e.toString()));
+      throw AuthException(
+        code: AuthErrorCode.unknown,
+        message: AppStrings.auth.deleteAccountError(e.toString()),
+        originalError: e,
+      );
     }
   }
 
   // === טעינה מחדש של המשתמש ===
 
   /// טוען מחדש את פרטי המשתמש מהשרת
-  /// 
+  ///
   /// שימושי לאחר:
   /// - עדכון פרופיל
   /// - אימות אימייל
   /// - כל שינוי בפרטי המשתמש
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// try {
   ///   await authService.updateDisplayName('שם חדש');
   ///   await authService.reloadUser(); // רענון הפרטים
   ///   print(authService.currentUserDisplayName); // שם מעודכן
-  /// } catch (e) {
-  ///   print('שגיאה: $e');
+  /// } on AuthException catch (e) {
+  ///   print('שגיאה: ${e.message}');
   /// }
   /// ```
   Future<void> reloadUser() async {
     try {
       if (_auth.currentUser == null) {
-        throw Exception(AppStrings.auth.errorNoUserLoggedIn);
+        throw AuthException(
+          code: AuthErrorCode.noUserLoggedIn,
+          message: AppStrings.auth.errorNoUserLoggedIn,
+        );
       }
 
       if (kDebugMode) {
@@ -545,11 +767,17 @@ class AuthService {
       if (kDebugMode) {
         debugPrint('✅ AuthService.reloadUser: נטען מחדש');
       }
+    } on AuthException {
+      rethrow;
     } catch (e) {
       if (kDebugMode) {
         debugPrint('❌ AuthService.reloadUser: שגיאה - $e');
       }
-      throw Exception(AppStrings.auth.reloadUserError(e.toString()));
+      throw AuthException(
+        code: AuthErrorCode.unknown,
+        message: AppStrings.auth.reloadUserError(e.toString()),
+        originalError: e,
+      );
     }
   }
 

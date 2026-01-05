@@ -13,25 +13,31 @@
 // - deferred (⏭️) - החלטתי לדחות לפעם הבאה
 // - notNeeded (🚫) - החלטתי שלא צריך בכלל
 //
-// Version: 1.3 - Removed UI properties (label/icon/color)
-// Last Updated: 29/12/2025
+// Version: 1.4 - Added JsonEnum for safe serialization
+// Last Updated: 04/01/2026
+
+import 'package:json_annotation/json_annotation.dart';
 
 /// מצבי פריט בקנייה פעילה
+@JsonEnum(valueField: 'value')
 enum ShoppingItemStatus {
   /// ⬜ ממתין - עדיין לא נקנה
-  pending,
+  pending('pending'),
 
   /// ✅ נקנה - הוכנס לעגלה הפיזית
-  purchased,
+  purchased('purchased'),
 
   /// ❌ לא במלאי - לא היה בחנות
-  outOfStock,
+  outOfStock('outOfStock'),
 
   /// ⏭️ דחוי - החלטתי לא לקנות עכשיו
-  deferred,
+  deferred('deferred'),
 
   /// 🚫 לא צריך - החלטתי שלא צריך בכלל
-  notNeeded;
+  notNeeded('notNeeded');
+
+  const ShoppingItemStatus(this.value);
+  final String value;
 
   // Note: label, icon and color were removed - use AppStrings/StatusColors
   // in UI layer if localized status names or visual properties are needed.

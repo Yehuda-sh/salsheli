@@ -16,10 +16,14 @@
 // Version: 1.0
 // Last Updated: 30/11/2025
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../config/storage_locations_config.dart';
+import '../../core/status_colors.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../models/custom_location.dart';
@@ -62,6 +66,10 @@ class _PantryProductSelectionSheetState
   String? _lastAddedProduct;
   String? _addingProductId;
 
+  // ✅ Timers - ניתנים לביטול ב-dispose
+  Timer? _debounceTimer;
+  Timer? _feedbackTimer;
+
   @override
   void initState() {
     super.initState();
@@ -71,7 +79,33 @@ class _PantryProductSelectionSheetState
   @override
   void dispose() {
     _searchController.dispose();
+    _debounceTimer?.cancel();
+    _feedbackTimer?.cancel();
     super.dispose();
+  }
+
+  /// ✅ Debounced search - מונע קריאות מיותרות בזמן הקלדה
+  void _onSearchChangedDebounced(String value) {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        setState(() {
+          _searchQuery = value;
+        });
+        _filterProducts();
+      }
+    });
+  }
+
+  /// ✅ הצגת פידבק עם Timer מבוטל
+  void _showFeedback(String productName) {
+    _feedbackTimer?.cancel();
+    setState(() => _lastAddedProduct = productName);
+    _feedbackTimer = Timer(const Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() => _lastAddedProduct = null);
+      }
+    });
   }
 
   Future<void> _loadProducts() async {
@@ -134,6 +168,7 @@ class _PantryProductSelectionSheetState
   Future<void> _addProductToPantry(Map<String, dynamic> product) async {
     final productId = product['barcode'] as String? ?? product['name'] as String;
 
+    unawaited(HapticFeedback.lightImpact()); // ✅ Haptic feedback
     setState(() {
       _addingProductId = productId;
     });
@@ -168,19 +203,8 @@ class _PantryProductSelectionSheetState
 
       if (!mounted) return;
 
-      setState(() {
-        _lastAddedProduct = name;
-        _addingProductId = null;
-      });
-
-      // נקה הודעה אחרי 2 שניות
-      Future.delayed(const Duration(seconds: 2), () {
-        if (mounted) {
-          setState(() {
-            _lastAddedProduct = null;
-          });
-        }
-      });
+      setState(() => _addingProductId = null);
+      _showFeedback(name); // ✅ Timer מבוטל במקום Future.delayed
     } catch (e) {
       if (!mounted) return;
 
@@ -242,7 +266,10 @@ class _PantryProductSelectionSheetState
                         IconButton(
                           icon: Icon(Icons.remove_circle, color: cs.error),
                           onPressed: quantity > 1
-                              ? () => setDialogState(() => quantity--)
+                              ? () {
+                                  unawaited(HapticFeedback.selectionClick());
+                                  setDialogState(() => quantity--);
+                                }
                               : null,
                         ),
                         Container(
@@ -266,7 +293,10 @@ class _PantryProductSelectionSheetState
                         IconButton(
                           icon: Icon(Icons.add_circle, color: cs.primary),
                           onPressed: quantity < 99
-                              ? () => setDialogState(() => quantity++)
+                              ? () {
+                                  unawaited(HapticFeedback.selectionClick());
+                                  setDialogState(() => quantity++);
+                                }
                               : null,
                         ),
                       ],
@@ -515,9 +545,14 @@ class _PantryProductSelectionSheetState
                           ),
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(context),
+                  Semantics(
+                    label: 'סגור',
+                    button: true,
+                    child: IconButton(
+                      icon: const Icon(Icons.close),
+                      tooltip: 'סגור',
+                      onPressed: () => Navigator.pop(context),
+                    ),
                   ),
                 ],
               ),
@@ -535,6 +570,7 @@ class _PantryProductSelectionSheetState
                       ? IconButton(
                           icon: const Icon(Icons.clear),
                           onPressed: () {
+                            unawaited(HapticFeedback.lightImpact());
                             _searchController.clear();
                             setState(() {
                               _searchQuery = '';
@@ -549,12 +585,7 @@ class _PantryProductSelectionSheetState
                   filled: true,
                   fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.3),
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    _searchQuery = value;
-                  });
-                  _filterProducts();
-                },
+                onChanged: _onSearchChangedDebounced, // ✅ Debounce
               ),
             ),
             const SizedBox(height: kSpacingSmall),
@@ -573,6 +604,7 @@ class _PantryProductSelectionSheetState
                       label: const Text('הכל'),
                       selected: _selectedCategory == null,
                       onSelected: (_) {
+                        unawaited(HapticFeedback.selectionClick());
                         setState(() {
                           _selectedCategory = null;
                         });
@@ -588,6 +620,7 @@ class _PantryProductSelectionSheetState
                         label: Text(category),
                         selected: _selectedCategory == category,
                         onSelected: (_) {
+                          unawaited(HapticFeedback.selectionClick());
                           setState(() {
                             _selectedCategory =
                                 _selectedCategory == category ? null : category;
@@ -608,18 +641,18 @@ class _PantryProductSelectionSheetState
                 margin: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
                 padding: const EdgeInsets.all(kSpacingSmall),
                 decoration: BoxDecoration(
-                  color: Colors.green,
+                  color: StatusColors.getStatusColor('success', context),
                   borderRadius: BorderRadius.circular(kBorderRadius),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.check_circle, color: Colors.white),
+                    Icon(Icons.check_circle, color: cs.onPrimary),
                     const SizedBox(width: kSpacingSmall),
                     Expanded(
                       child: Text(
                         AppStrings.inventory.productAddedSuccess(_lastAddedProduct!),
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: cs.onPrimary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -716,13 +749,17 @@ class _PantryProductSelectionSheetState
     final isAdding = _addingProductId == productId;
 
     // צבע לפי מקור
-    final sourceColor = _getSourceColor(source);
+    final sourceColor = _getSourceColor(source, cs);
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: kSpacingSmall),
-      child: InkWell(
-        onTap: isAdding ? null : () => _addProductToPantry(product),
-        borderRadius: BorderRadius.circular(kBorderRadius),
+    return Semantics(
+      label: '$name, $category. לחץ להוספה למזווה',
+      button: true,
+      enabled: !isAdding,
+      child: Card(
+        margin: const EdgeInsets.only(bottom: kSpacingSmall),
+        child: InkWell(
+          onTap: isAdding ? null : () => _addProductToPantry(product),
+          borderRadius: BorderRadius.circular(kBorderRadius),
         child: Padding(
           padding: const EdgeInsets.all(kSpacingSmall),
           child: Row(
@@ -807,24 +844,26 @@ class _PantryProductSelectionSheetState
           ),
         ),
       ),
+      ),
     );
   }
 
-  Color _getSourceColor(String source) {
+  /// צבע לפי מקור - משתמש בצבעי sticky notes מהtheme
+  Color _getSourceColor(String source, ColorScheme cs) {
     switch (source) {
       case 'pharmacy':
-        return Colors.red;
+        return kStickyPink;
       case 'greengrocer':
-        return Colors.green;
+        return kStickyGreen;
       case 'butcher':
-        return Colors.brown;
+        return kStickyYellow;
       case 'bakery':
-        return Colors.orange;
+        return kStickyYellow;
       case 'market':
-        return Colors.purple;
+        return kStickyCyan;
       case 'supermarket':
       default:
-        return Colors.blue;
+        return cs.primary;
     }
   }
 }

@@ -1,16 +1,22 @@
+import 'package:json_annotation/json_annotation.dart';
+
 /// 4 רמות הרשאות למשתמשים משותפים
+@JsonEnum(valueField: 'value')
 enum UserRole {
   /// בעלים - מלוא ההרשאות
-  owner,
-  
+  owner('owner'),
+
   /// מנהל - יכול הכל מלבד מחיקת רשימה ושינוי הרשאות
-  admin,
-  
+  admin('admin'),
+
   /// עורך - יכול לבקש הוספה/עריכה/מחיקה (עם אישור)
-  editor,
-  
+  editor('editor'),
+
   /// צופה - רק קריאה
-  viewer;
+  viewer('viewer');
+
+  const UserRole(this.value);
+  final String value;
 
   /// שם בעברית
   String get hebrewName {

@@ -1,13 +1,19 @@
+import 'package:json_annotation/json_annotation.dart';
+
 /// סטטוס של בקשה
+@JsonEnum(valueField: 'value')
 enum RequestStatus {
   /// ממתין לאישור
-  pending,
+  pending('pending'),
 
   /// אושר
-  approved,
+  approved('approved'),
 
   /// נדחה
-  rejected;
+  rejected('rejected');
+
+  const RequestStatus(this.value);
+  final String value;
 
   // Note: hebrewName and emoji were removed - use AppStrings in UI layer
   // if localized status names are needed.

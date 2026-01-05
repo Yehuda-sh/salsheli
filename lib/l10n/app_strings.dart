@@ -145,6 +145,16 @@ class _LayoutStrings {
 
   // Offline
   String get offline => 'אין חיבור לרשת';
+
+  // Logout Error
+  String get logoutError => 'שגיאה בהתנתקות, נסה שוב';
+
+  // Pending Invites Menu
+  String get pendingInvitesTitle => 'הזמנות ממתינות';
+  String get groupInvites => 'הזמנות לקבוצות';
+  String get groupInvitesSubtitle => 'הצטרפות למשפחה / Household';
+  String get listInvites => 'הזמנות לרשימות';
+  String get listInvitesSubtitle => 'שיתוף רשימות קניות';
 }
 
 // ========================================
@@ -198,6 +208,7 @@ class _CommonStrings {
   String get success => 'הצלחה';
   String get noData => 'אין נתונים';
   String get syncError => 'בעיית סנכרון - השינויים נשמרו מקומית';
+  String get saveFailed => 'השמירה נכשלה, נסה שוב';
 
   // Unsaved Changes Dialog
   String get unsavedChangesTitle => 'שינויים לא נשמרו';
