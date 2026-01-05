@@ -8,6 +8,10 @@
 import 'package:flutter/material.dart';
 
 import '../../core/ui_constants.dart';
+import '../../theme/app_theme.dart';
+import '../../widgets/common/notebook_background.dart';
+import '../../widgets/common/sticky_button.dart';
+import '../../widgets/common/sticky_note.dart';
 import '../pantry/my_pantry_screen.dart';
 import '../shopping/lists/shopping_lists_screen.dart';
 
@@ -107,53 +111,81 @@ class _FamilyListsTab extends StatelessWidget {
 
 /// 👤 Tab: רשימות אישיות
 /// מציג רשימות אישיות של המשתמש בלבד
+/// ✅ עיצוב StickyNote - תואם למסכי אימות
 class _PersonalListsTab extends StatelessWidget {
   const _PersonalListsTab();
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
 
     // TODO: להוסיף לוגיקה לסינון רשימות אישיות בלבד
-    // כרגע מציג placeholder
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.person_outline,
-            size: 64,
-            color: cs.onSurfaceVariant.withValues(alpha: 0.5),
-          ),
-          const SizedBox(height: kSpacingMedium),
-          Text(
-            'רשימות אישיות',
-            style: TextStyle(
-              fontSize: kFontSizeLarge,
-              fontWeight: FontWeight.bold,
-              color: cs.onSurface,
+    // כרגע מציג placeholder בעיצוב StickyNote על רקע מחברת
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // 📓 רקע מחברת עם קווים (כמו מסכי אימות)
+        const Positioned.fill(
+          child: NotebookBackground(),
+        ),
+
+        // 📝 תוכן
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.all(kSpacingLarge),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 280),
+              child: StickyNote(
+                color: brand?.stickyYellow ?? kStickyYellow,
+                rotation: -0.015,
+                semanticLabel: 'רשימות אישיות - בקרוב',
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.person_outline,
+                      size: 56,
+                      color: cs.onSurface.withValues(alpha: 0.6),
+                    ),
+                    const SizedBox(height: kSpacingSmall),
+                    Text(
+                      'רשימות אישיות',
+                      style: TextStyle(
+                        fontSize: kFontSizeLarge,
+                        fontWeight: FontWeight.bold,
+                        color: cs.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: kSpacingSmall),
+                    Text(
+                      'כאן יופיעו הרשימות הפרטיות שלך',
+                      style: TextStyle(
+                        color: cs.onSurfaceVariant,
+                        fontSize: kFontSizeMedium,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: kSpacingMedium),
+                    StickyButton(
+                      color: brand?.stickyGreen ?? kStickyGreen,
+                      label: 'רשימה חדשה',
+                      icon: Icons.add,
+                      onPressed: () {
+                        // TODO: יצירת רשימה אישית חדשה
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('יצירת רשימה אישית - בקרוב!')),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-          const SizedBox(height: kSpacingSmall),
-          Text(
-            'כאן יופיעו הרשימות הפרטיות שלך',
-            style: TextStyle(
-              color: cs.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: kSpacingLarge),
-          FilledButton.icon(
-            onPressed: () {
-              // TODO: יצירת רשימה אישית חדשה
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('יצירת רשימה אישית - בקרוב!')),
-              );
-            },
-            icon: const Icon(Icons.add),
-            label: const Text('רשימה חדשה'),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
