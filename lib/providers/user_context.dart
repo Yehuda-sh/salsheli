@@ -446,6 +446,63 @@ class UserContext with ChangeNotifier {
     );
   }
 
+  /// התחברות/הרשמה עם Google
+  ///
+  /// אם משתמש חדש - יוצר פרופיל אוטומטית מנתוני Google.
+  /// אם משתמש קיים - מתחבר כרגיל.
+  Future<void> signInWithGoogle() async {
+    await _runAsync(
+      operation: 'signInWithGoogle',
+      errorMessagePrefix: 'שגיאה בהתחברות עם Google',
+      action: () async {
+        final credential = await _authService.signInWithGoogle();
+        // בדיקה אם משתמש חדש - יצירת פרופיל
+        if (credential.additionalUserInfo?.isNewUser ?? false) {
+          await _createUserFromSocialLogin(credential);
+        }
+        // ה-listener של authStateChanges יטפל בטעינת המשתמש
+      },
+    );
+  }
+
+  /// התחברות/הרשמה עם Apple
+  ///
+  /// אם משתמש חדש - יוצר פרופיל אוטומטית מנתוני Apple.
+  /// אם משתמש קיים - מתחבר כרגיל.
+  Future<void> signInWithApple() async {
+    await _runAsync(
+      operation: 'signInWithApple',
+      errorMessagePrefix: 'שגיאה בהתחברות עם Apple',
+      action: () async {
+        final credential = await _authService.signInWithApple();
+        // בדיקה אם משתמש חדש - יצירת פרופיל
+        if (credential.additionalUserInfo?.isNewUser ?? false) {
+          await _createUserFromSocialLogin(credential);
+        }
+        // ה-listener של authStateChanges יטפל בטעינת המשתמש
+      },
+    );
+  }
+
+  /// יצירת משתמש חדש מ-Social Login (Google/Apple)
+  ///
+  /// מחלץ את פרטי המשתמש מ-credential ויוצר רשומה ב-Firestore.
+  Future<void> _createUserFromSocialLogin(firebase_auth.UserCredential credential) async {
+    final user = credential.user!;
+    final name = user.displayName ?? user.email?.split('@').first ?? 'משתמש';
+
+    debugPrint('📋 UserContext._createUserFromSocialLogin: יוצר פרופיל עבור ${user.uid}');
+
+    _user = await _repository.createUser(
+      userId: user.uid,
+      name: name,
+      email: user.email ?? '',
+      phone: user.phoneNumber ?? '',
+    );
+
+    debugPrint('✅ UserContext._createUserFromSocialLogin: פרופיל נוצר בהצלחה!');
+  }
+
   /// התנתקות רגילה מהמערכת (שומר seenOnboarding)
   Future<void> signOut() async {
     if (_isDisposed) return;

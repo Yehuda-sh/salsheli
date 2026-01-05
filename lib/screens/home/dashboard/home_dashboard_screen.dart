@@ -32,6 +32,9 @@ class HomeDashboardScreen extends StatefulWidget {
 }
 
 class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
+  // 🔄 State flags
+  bool _isRefreshing = false;
+
   @override
   void initState() {
     super.initState();
@@ -79,6 +82,11 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   }
 
   Future<void> _refresh(BuildContext context) async {
+    // 🔒 מניעת double-tap
+    if (_isRefreshing) return;
+
+    setState(() => _isRefreshing = true);
+
     if (kDebugMode) {
       debugPrint('🏠 HomeDashboard: מתחיל refresh...');
     }
@@ -120,6 +128,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
     if (kDebugMode) {
       debugPrint('🏠 HomeDashboard: refresh הושלם');
+    }
+
+    if (mounted) {
+      setState(() => _isRefreshing = false);
     }
   }
 
@@ -238,11 +250,14 @@ class _GreetingHeader extends StatelessWidget {
     // ✅ FIX: אם אין שם - הצג רק ברכה ללא שם (לא "אורח")
     final hasName = userName?.trim().isNotEmpty ?? false;
 
-    return StickyNote(
-      // ✅ Theme-aware
-      color: brand?.stickyYellow ?? kStickyYellow,
-      rotation: -0.015,
-      child: Padding(
+    return Semantics(
+      header: true,
+      label: hasName ? '$greeting, $userName' : greeting,
+      child: StickyNote(
+        // ✅ Theme-aware
+        color: brand?.stickyYellow ?? kStickyYellow,
+        rotation: -0.015,
+        child: Padding(
         padding: const EdgeInsets.all(kSpacingMedium),
         child: Row(
           children: [
@@ -266,6 +281,7 @@ class _GreetingHeader extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // ✅ FIX: אם יש שם - "בוקר טוב," + שם. אם אין - רק "בוקר טוב!"
+                  // 📝 Sticky Note תמיד רקע בהיר - טקסט כהה קבוע
                   if (hasName) ...[
                     Text(
                       '$greeting,',
@@ -294,6 +310,7 @@ class _GreetingHeader extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -345,28 +362,33 @@ class _AttentionSection extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return StickyNote(
-      color: kStickyPink,
-      rotation: 0.01,
-      child: Padding(
-        padding: const EdgeInsets.all(kSpacingMedium),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Row(
-              children: [
-                Icon(Icons.warning_amber, color: Colors.red, size: 20),
-                SizedBox(width: kSpacingSmall),
-                Text(
-                  'דורש תשומת לב',
-                  style: TextStyle(
-                    fontSize: kFontSizeMedium,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+    final cs = Theme.of(context).colorScheme;
+
+    return Semantics(
+      label: 'דורש תשומת לב, ${alerts.length} התראות',
+      child: StickyNote(
+        color: kStickyPink,
+        rotation: 0.01,
+        child: Padding(
+          padding: const EdgeInsets.all(kSpacingMedium),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.warning_amber, color: cs.error, size: 20),
+                  const SizedBox(width: kSpacingSmall),
+                  // 📝 Sticky Note תמיד רקע בהיר
+                  const Text(
+                    'דורש תשומת לב',
+                    style: TextStyle(
+                      fontSize: kFontSizeMedium,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
             const SizedBox(height: kSpacingSmall),
             ...alerts.map((alert) => Padding(
                   padding: const EdgeInsets.only(bottom: 4),
@@ -388,6 +410,7 @@ class _AttentionSection extends StatelessWidget {
                 )),
           ],
         ),
+      ),
       ),
     );
   }
@@ -518,61 +541,68 @@ class _QuickAccessButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(kBorderRadius),
-      child: StickyNote(
-        color: color,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: kSpacingMedium,
-            horizontal: kSpacingSmall,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Text(
-                    emoji,
-                    style: const TextStyle(fontSize: 32),
-                  ),
-                  if (badge != null)
-                    Positioned(
-                      top: -4,
-                      right: -8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 4,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          badge!,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 8,
-                            fontWeight: FontWeight.bold,
+    final cs = Theme.of(context).colorScheme;
+
+    return Semantics(
+      button: true,
+      label: badge != null ? '$label, $badge' : label,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(kBorderRadius),
+        child: StickyNote(
+          color: color,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: kSpacingMedium,
+              horizontal: kSpacingSmall,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Text(
+                      emoji,
+                      style: const TextStyle(fontSize: 32),
+                    ),
+                    if (badge != null)
+                      Positioned(
+                        top: -4,
+                        right: -8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: cs.error,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            badge!,
+                            style: TextStyle(
+                              color: cs.onError,
+                              fontSize: 8,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: kFontSizeSmall,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 4),
+                // 📝 Sticky Note תמיד רקע בהיר
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: kFontSizeSmall,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -598,20 +628,23 @@ class _RecentActivitySection extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return StickyNote(
-      color: kStickyYellow.withValues(alpha: 0.7),
-      rotation: -0.005,
-      child: Padding(
-        padding: const EdgeInsets.all(kSpacingMedium),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Row(
-                  children: [
-                    Icon(Icons.history, size: 18, color: Colors.black54),
+    return Semantics(
+      label: 'פעילות אחרונה, ${recentLists.length} רשימות',
+      child: StickyNote(
+        color: kStickyYellow.withValues(alpha: 0.7),
+        rotation: -0.005,
+        child: Padding(
+          padding: const EdgeInsets.all(kSpacingMedium),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // 📝 Sticky Note תמיד רקע בהיר
+                  const Row(
+                    children: [
+                      Icon(Icons.history, size: 18, color: Colors.black54),
                     SizedBox(width: 6),
                     Text(
                       'פעילות אחרונה',
@@ -642,6 +675,7 @@ class _RecentActivitySection extends StatelessWidget {
           ],
         ),
       ),
+      ),
     );
   }
 }
@@ -653,16 +687,19 @@ class _ActivityItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        Navigator.pushNamed(
-          context,
-          '/shopping-list-details',
-          arguments: list,
-        );
-      },
-      child: Padding(
+    return Semantics(
+      button: true,
+      label: '${list.name}, ${list.items.length} פריטים, לחץ לפרטים',
+      child: InkWell(
+        onTap: () {
+          HapticFeedback.lightImpact();
+          Navigator.pushNamed(
+            context,
+            '/shopping-list-details',
+            arguments: list,
+          );
+        },
+        child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 6),
         child: Row(
           children: [
@@ -699,6 +736,7 @@ class _ActivityItem extends StatelessWidget {
           ],
         ),
       ),
+      ),
     );
   }
 
@@ -733,62 +771,72 @@ class _GroupsShortcuts extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return StickyNote(
-      color: kStickyGreen.withValues(alpha: 0.7),
-      rotation: 0.008,
-      child: Padding(
-        padding: const EdgeInsets.all(kSpacingMedium),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Row(
-              children: [
-                Icon(Icons.groups, size: 18, color: Colors.black54),
-                SizedBox(width: 6),
-                Text(
-                  'הקבוצות שלי',
-                  style: TextStyle(
-                    fontSize: kFontSizeMedium,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: kSpacingSmall),
-            if (groups.isEmpty)
-              // אין קבוצות - הצג הודעה וכפתור יצירה
-              InkWell(
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  Navigator.pushNamed(context, '/create-group');
-                },
-                borderRadius: BorderRadius.circular(kBorderRadius),
-                child: Container(
-                  padding: const EdgeInsets.all(kSpacingMedium),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(kBorderRadius),
-                    border: Border.all(
-                      color: cs.primary.withValues(alpha: 0.3),
+    return Semantics(
+      label: groups.isEmpty
+          ? 'הקבוצות שלי, אין קבוצות'
+          : 'הקבוצות שלי, ${groups.length} קבוצות',
+      child: StickyNote(
+        color: kStickyGreen.withValues(alpha: 0.7),
+        rotation: 0.008,
+        child: Padding(
+          padding: const EdgeInsets.all(kSpacingMedium),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 📝 Sticky Note תמיד רקע בהיר
+              const Row(
+                children: [
+                  Icon(Icons.groups, size: 18, color: Colors.black54),
+                  SizedBox(width: 6),
+                  Text(
+                    'הקבוצות שלי',
+                    style: TextStyle(
+                      fontSize: kFontSizeMedium,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
                     ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.add_circle_outline,
-                          color: cs.primary, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        'צור את הקבוצה הראשונה שלך',
-                        style: TextStyle(
-                          color: cs.primary,
-                          fontWeight: FontWeight.w500,
+                ],
+              ),
+              const SizedBox(height: kSpacingSmall),
+              if (groups.isEmpty)
+                // אין קבוצות - הצג הודעה וכפתור יצירה
+                Semantics(
+                  button: true,
+                  label: 'צור קבוצה חדשה',
+                  child: InkWell(
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      Navigator.pushNamed(context, '/create-group');
+                    },
+                    borderRadius: BorderRadius.circular(kBorderRadius),
+                    child: Container(
+                      padding: const EdgeInsets.all(kSpacingMedium),
+                      decoration: BoxDecoration(
+                        // ✅ Theme-aware - רקע בהיר על sticky note
+                        color: cs.surface.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(kBorderRadius),
+                        border: Border.all(
+                          color: cs.primary.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.add_circle_outline,
+                              color: cs.primary, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            'צור את הקבוצה הראשונה שלך',
+                            style: TextStyle(
+                              color: cs.primary,
+                              fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
                   ),
                 ),
+              ),
               )
             else
               // יש קבוצות - הצג chips
@@ -810,6 +858,7 @@ class _GroupsShortcuts extends StatelessWidget {
           ],
         ),
       ),
+      ),
     );
   }
 }
@@ -823,23 +872,27 @@ class _GroupChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return ActionChip(
-      avatar: Text(group.type.emoji, style: const TextStyle(fontSize: 14)),
-      label: Text(
-        group.name,
-        style: const TextStyle(fontSize: 12),
+    return Semantics(
+      button: true,
+      label: 'קבוצת ${group.name}, לחץ לפרטים',
+      child: ActionChip(
+        avatar: Text(group.type.emoji, style: const TextStyle(fontSize: 14)),
+        label: Text(
+          group.name,
+          style: const TextStyle(fontSize: 12),
+        ),
+        backgroundColor: cs.primaryContainer.withValues(alpha: 0.3),
+        side: BorderSide.none,
+        onPressed: () {
+          HapticFeedback.lightImpact();
+          // Navigate to group details
+          Navigator.pushNamed(
+            context,
+            '/group-details',
+            arguments: group.id,
+          );
+        },
       ),
-      backgroundColor: cs.primaryContainer.withValues(alpha: 0.3),
-      side: BorderSide.none,
-      onPressed: () {
-        HapticFeedback.lightImpact();
-        // Navigate to group details
-        Navigator.pushNamed(
-          context,
-          '/group-details',
-          arguments: group.id,
-        );
-      },
     );
   }
 }
@@ -858,26 +911,30 @@ class _AddGroupButton extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     // גובה זהה ל-ActionChip (כ-32 פיקסל)
-    return SizedBox(
-      height: 32,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: cs.primary.withValues(alpha: 0.15),
-            border: Border.all(
-              color: cs.primary.withValues(alpha: 0.4),
-              width: 1.5,
+    return Semantics(
+      button: true,
+      label: 'הוסף קבוצה חדשה',
+      child: SizedBox(
+        height: 32,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: cs.primary.withValues(alpha: 0.15),
+              border: Border.all(
+                color: cs.primary.withValues(alpha: 0.4),
+                width: 1.5,
+              ),
             ),
-          ),
-          child: Icon(
-            Icons.add,
-            size: 20,
-            color: cs.primary,
+            child: Icon(
+              Icons.add,
+              size: 20,
+              color: cs.primary,
+            ),
           ),
         ),
       ),
@@ -896,91 +953,102 @@ class _PendingInvitesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        Navigator.pushNamed(context, '/pending-group-invites');
-      },
-      borderRadius: BorderRadius.circular(kBorderRadius),
-      child: StickyNote(
-        color: Colors.orange.shade100,
-        rotation: 0.01,
-        child: Padding(
-          padding: const EdgeInsets.all(kSpacingMedium),
-          child: Row(
-            children: [
-              // אייקון עם badge
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: Colors.orange.withValues(alpha: 0.2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.group_add,
-                      color: Colors.orange,
-                      size: 28,
-                    ),
-                  ),
-                  Positioned(
-                    top: -4,
-                    right: -4,
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
+    final cs = Theme.of(context).colorScheme;
+    // ✅ צבע כתום עקבי - מ-ui_constants
+    const stickyColor = kStickyOrange;
+    const accentColor = Color(0xFFFF9800); // Orange 500
+
+    return Semantics(
+      button: true,
+      label: count == 1
+          ? 'יש לך הזמנה לקבוצה, לחץ לצפייה'
+          : 'יש לך $count הזמנות לקבוצות, לחץ לצפייה',
+      child: InkWell(
+        onTap: () {
+          HapticFeedback.lightImpact();
+          Navigator.pushNamed(context, '/pending-group-invites');
+        },
+        borderRadius: BorderRadius.circular(kBorderRadius),
+        child: StickyNote(
+          color: stickyColor,
+          rotation: 0.01,
+          child: Padding(
+            padding: const EdgeInsets.all(kSpacingMedium),
+            child: Row(
+              children: [
+                // אייקון עם badge
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: accentColor.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
-                      child: Text(
-                        '$count',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
+                      child: const Icon(
+                        Icons.group_add,
+                        color: accentColor,
+                        size: 28,
+                      ),
+                    ),
+                    Positioned(
+                      top: -4,
+                      right: -4,
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: cs.error,
+                          shape: BoxShape.circle,
                         ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(width: kSpacingMedium),
-              // טקסט
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      count == 1
-                          ? 'יש לך הזמנה לקבוצה!'
-                          : 'יש לך $count הזמנות לקבוצות!',
-                      style: const TextStyle(
-                        fontSize: kFontSizeMedium,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    const Text(
-                      'לחץ כדי לצפות ולאשר',
-                      style: TextStyle(
-                        fontSize: kFontSizeSmall,
-                        color: Colors.black54,
+                        child: Text(
+                          '$count',
+                          style: TextStyle(
+                            color: cs.onError,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ),
-              // חץ
-              const Icon(
-                Icons.chevron_left,
-                color: Colors.orange,
-                size: 28,
-              ),
-            ],
+                const SizedBox(width: kSpacingMedium),
+                // טקסט - 📝 Sticky Note תמיד רקע בהיר
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        count == 1
+                            ? 'יש לך הזמנה לקבוצה!'
+                            : 'יש לך $count הזמנות לקבוצות!',
+                        style: const TextStyle(
+                          fontSize: kFontSizeMedium,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      const Text(
+                        'לחץ כדי לצפות ולאשר',
+                        style: TextStyle(
+                          fontSize: kFontSizeSmall,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // חץ
+                const Icon(
+                  Icons.chevron_left,
+                  color: accentColor,
+                  size: 28,
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -3,7 +3,24 @@
 // כרטיס "הקנייה הקרובה" בדשבורד - מציג רשימה פעילה או מצב ריק.
 // כולל שם רשימה, תג סוג, ספירת פריטים וכפתור "התחל קנייה".
 //
+// ✅ Features:
+//    - Theme-aware colors (Dark Mode support)
+//    - Accessibility with semanticLabel and tooltips
+//    - Empty state with CTA to create list
+//    - Hebrew RTL support
+//
 // 🔗 Related: DashboardCard, ShoppingList
+//
+// ----------------------------------------------------------------------------
+// The UpcomingShopCard widget displays the next shopping list to work on.
+// Appears on the Home Dashboard with list details and "Start Shopping" action.
+//
+// Features:
+// • Shows active list with item count and type tag
+// • Empty state with "Create List" CTA
+// • Theme-aware with Dark Mode support
+// • Accessibility with Semantics labels
+// ----------------------------------------------------------------------------
 
 import 'package:flutter/material.dart';
 
@@ -18,24 +35,32 @@ class UpcomingShopCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return list == null
-        ? _EmptyUpcomingCard(
-            onCreateList: () => Navigator.pushNamed(context, '/create-list'),
-          )
-        : DashboardCard(
-            title: 'הקנייה הקרובה',
-            icon: Icons.shopping_cart,
-            color: kStickyPink,
-            rotation: 0.015,
-            onTap: () {
-              Navigator.pushNamed(
-                context,
-                '/populate-list',
-                arguments: list,
-              );
-            },
-            child: _ListSummary(list: list!),
-          );
+    if (list == null) {
+      return _EmptyUpcomingCard(
+        onCreateList: () => Navigator.pushNamed(context, '/create-list'),
+      );
+    }
+
+    // ✅ Semantics - תיאור מפורט לנגישות
+    final itemCount = list!.items.length;
+    final semanticLabel = 'הקנייה הקרובה: ${list!.name}, $itemCount פריטים. לחץ לעריכת הרשימה';
+
+    return DashboardCard(
+      title: 'הקנייה הקרובה',
+      icon: Icons.shopping_cart,
+      color: kStickyPink,
+      rotation: 0.015,
+      semanticLabel: semanticLabel,
+      tooltip: 'לחץ לעריכת רשימת "${list!.name}"',
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          '/populate-list',
+          arguments: list,
+        );
+      },
+      child: _ListSummary(list: list!),
+    );
   }
 }
 
@@ -55,6 +80,8 @@ class _EmptyUpcomingCard extends StatelessWidget {
       icon: Icons.shopping_cart_outlined,
       color: kStickyCyan,
       rotation: -0.01,
+      // ✅ Semantics לנגישות
+      semanticLabel: 'אין רשימת קניות פעילה כרגע. לחץ ליצירת רשימה חדשה',
       child: Column(
         children: [
           Icon(
@@ -70,11 +97,15 @@ class _EmptyUpcomingCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: kSpacingMedium),
-          
-          FilledButton.icon(
-            onPressed: onCreateList,
-            icon: const Icon(Icons.add),
-            label: const Text('צור רשימה חדשה'),
+
+          // ✅ Tooltip לכפתור
+          Tooltip(
+            message: 'צור רשימת קניות חדשה',
+            child: FilledButton.icon(
+              onPressed: onCreateList,
+              icon: const Icon(Icons.add),
+              label: const Text('צור רשימה חדשה'),
+            ),
           ),
         ],
       ),
@@ -113,9 +144,9 @@ class _ListSummary extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              ),
-              const SizedBox(width: kSpacingSmall),
-              // תג סוג הרשימה
+            ),
+            const SizedBox(width: kSpacingSmall),
+            // תג סוג הרשימה
             Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: kSpacingSmall,
@@ -126,7 +157,8 @@ class _ListSummary extends StatelessWidget {
                 borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
+                    // ✅ Theme-aware shadow
+                    color: theme.shadowColor.withValues(alpha: 0.1),
                     blurRadius: 2,
                     offset: const Offset(1, 1),
                   ),
@@ -154,19 +186,22 @@ class _ListSummary extends StatelessWidget {
         ),
         const SizedBox(height: kSpacingMedium),
 
-        // כפתור התחל קנייה
-        FilledButton.icon(
-          onPressed: () {
-            Navigator.pushNamed(
-              context,
-              '/active-shopping',
-              arguments: list,
-            );
-          },
-          icon: const Icon(Icons.shopping_cart),
-          label: const Text('התחל קנייה'),
-          style: FilledButton.styleFrom(
-            minimumSize: const Size(double.infinity, 48),
+        // ✅ כפתור התחל קנייה עם Tooltip
+        Tooltip(
+          message: 'התחל קנייה מרשימת "${list.name}"',
+          child: FilledButton.icon(
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                '/active-shopping',
+                arguments: list,
+              );
+            },
+            icon: const Icon(Icons.shopping_cart),
+            label: const Text('התחל קנייה'),
+            style: FilledButton.styleFrom(
+              minimumSize: const Size(double.infinity, 48),
+            ),
           ),
         ),
       ],

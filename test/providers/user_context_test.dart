@@ -225,9 +225,20 @@ class MockAuthService implements AuthService {
   }
 
   @override
-  Future<void> signOut() async {
+  Future<bool> signOut() async {
     signOutCallCount++;
     simulateSignOut();
+    return true;
+  }
+
+  @override
+  Future<firebase_auth.UserCredential> signInWithGoogle() async {
+    throw UnimplementedError('Use simulateSignIn for testing');
+  }
+
+  @override
+  Future<firebase_auth.UserCredential> signInWithApple() async {
+    throw UnimplementedError('Use simulateSignIn for testing');
   }
 
   @override

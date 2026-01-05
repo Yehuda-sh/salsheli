@@ -576,7 +576,7 @@ class _AuthStrings {
   // ========================================
 
   String get loginTitle => 'התחברות';
-  String get loginSubtitle => 'ברוך שובך!';
+  String get loginSubtitle => 'נעים לראות אותך שוב 👋';
   String get loginButton => 'התחבר';
 
   // ========================================
@@ -584,7 +584,7 @@ class _AuthStrings {
   // ========================================
 
   String get registerTitle => 'הרשמה';
-  String get registerSubtitle => 'צור חשבון חדש';
+  String get registerSubtitle => 'צור חשבון חדש ותוכל לשתף ולנהל רשימות יחד עם אחרים ✨';
   String get registerButton => 'הירשם';
 
   // ========================================
@@ -660,6 +660,7 @@ class _AuthStrings {
   // ========================================
 
   String get or => 'או';
+  String get orContinueWith => 'או הירשם במהירות עם';
 
   // ========================================
   // Validation Errors
@@ -697,6 +698,10 @@ class _AuthStrings {
   String get errorRequiresRecentLogin => 'נדרשת התחברות מחדש לביצוע פעולה זו';
   String get errorNetworkRequestFailed => 'בעיית רשת. בדוק את החיבור לאינטרנט';
   String get errorNoUserLoggedIn => 'אין משתמש מחובר';
+
+  // Social Login Errors
+  String get socialLoginCancelled => 'ההתחברות בוטלה';
+  String get socialLoginError => 'שגיאה בהתחברות';
 
   // Generic Errors with Parameters
   String signUpError(String? message) => 'שגיאה ברישום${message != null ? ": $message" : ""}';

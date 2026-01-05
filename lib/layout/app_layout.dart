@@ -1,9 +1,28 @@
 // 📄 lib/layout/app_layout.dart
 //
-// פריסה ראשית של האפליקציה - AppBar, Drawer, BottomNavigation.
-// תומך RTL, badges על ניווט, ואנימציות מיקרו לחוויית משתמש חלקה.
+// **פריסת היישום הראשית** - AppBar, Drawer, BottomNavigation.
+// מרכז את הניווט הראשי של האפליקציה עם תמיכה מלאה ב-RTL, badges אנימטיביים,
+// ואנימציות מיקרו לחוויית משתמש חלקה.
+//
+// ✅ Features:
+//    - AppBar עם כותרת, התראות ו-logout
+//    - Drawer עם ניווט + StickyNote header
+//    - NavigationBar (Material 3) עם animated badges
+//    - RTL support מלא (Directionality wrapper)
+//    - Theme-aware colors (Dark Mode support)
+//    - Accessibility: Semantics + Tooltips
+//    - Micro-animations: Scale effect, badge counter animation
+//    - Error handling with user feedback
 //
 // 🔗 Related: AppStrings.layout, UserContext, PendingInvitesProvider
+// 🔗 Parent: MainNavigationScreen (manages state)
+//
+// ----------------------------------------------------------------------------
+// The AppLayout widget provides the main scaffold for the application.
+// Includes AppBar with notifications/logout, responsive Drawer navigation,
+// and Material 3 NavigationBar with animated badge counters.
+// All text is RTL Hebrew, with full accessibility support.
+// ----------------------------------------------------------------------------
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -328,12 +347,19 @@ class _AppLayoutState extends State<AppLayout> {
     const stickyTextPrimary = Color(0xDD000000); // ~87% black
     const stickyTextSecondary = Color(0x89000000); // ~54% black
 
-    return Padding(
-      padding: const EdgeInsets.all(kSpacingMedium),
-      child: StickyNote(
-        color: stickyColor,
-        rotation: -0.01,
-        child: Row(
+    // ✅ Semantics לנגישות - תיאור מפורט של ההדר
+    final semanticLabel = totalBadgeCount > 0
+        ? 'שלום! יש לך $totalBadgeCount עדכונים חדשים'
+        : 'שלום! ברוך הבא לסל שלי';
+
+    return Semantics(
+      label: semanticLabel,
+      child: Padding(
+        padding: const EdgeInsets.all(kSpacingMedium),
+        child: StickyNote(
+          color: stickyColor,
+          rotation: -0.01,
+          child: Row(
           children: [
             // אווטאר
             Container(
@@ -380,18 +406,25 @@ class _AppLayoutState extends State<AppLayout> {
             ),
           ],
         ),
+        ),
       ),
     );
   }
 
   /// 📱 Build Bottom Navigation Bar
+  /// ✅ עטוף ב-Semantics לנגישות
   Widget _buildBottomNav(BuildContext context, ColorScheme cs, int safeIndex) {
-    return NavigationBar(
-      selectedIndex: safeIndex,
-      onDestinationSelected: widget.onTabSelected,
-      backgroundColor: cs.surfaceContainer,
-      indicatorColor: cs.primary.withValues(alpha: 0.12),
-      destinations: _navItems.asMap().entries.map((entry) {
+    final currentTabLabel = _navItems[safeIndex].label;
+
+    return Semantics(
+      label: 'ניווט ראשי. טאב נבחר: $currentTabLabel',
+      hint: 'החלק ימינה או שמאלה לבחירת טאב אחר',
+      child: NavigationBar(
+        selectedIndex: safeIndex,
+        onDestinationSelected: widget.onTabSelected,
+        backgroundColor: cs.surfaceContainer,
+        indicatorColor: cs.primary.withValues(alpha: 0.12),
+        destinations: _navItems.asMap().entries.map((entry) {
         final index = entry.key;
         final item = entry.value;
         final badgeCount = widget.badges?[index];
@@ -410,6 +443,7 @@ class _AppLayoutState extends State<AppLayout> {
           label: item.label,
         );
       }).toList(),
+      ),
     );
   }
 
@@ -606,24 +640,37 @@ class _DrawerItem extends StatelessWidget {
       );
     }
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeInOut,
-      decoration: BoxDecoration(
-        color: selected ? cs.primary.withValues(alpha: 0.08) : Colors.transparent,
-      ),
-      child: ListTile(
-        leading: leadingIcon,
-        title: Text(
-          label,
-          style: TextStyle(
-            color: color ?? (selected ? cs.primary : cs.onSurface),
-          ),
-          textAlign: TextAlign.right,
+    // ✅ Semantics לנגישות - תיאור מצב הפריט
+    final semanticLabel = selected
+        ? '$label, נבחר${badgeCount != null && badgeCount! > 0 ? ', $badgeCount עדכונים' : ''}'
+        : '$label${badgeCount != null && badgeCount! > 0 ? ', $badgeCount עדכונים' : ''}';
+
+    return Semantics(
+      label: semanticLabel,
+      button: true,
+      selected: selected,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        decoration: BoxDecoration(
+          // ✅ FIX: Theme-aware color במקום Colors.transparent
+          color: selected
+              ? cs.primary.withValues(alpha: 0.08)
+              : cs.surface.withValues(alpha: 0),
         ),
-        trailing: selected ? Icon(Icons.chevron_left, color: cs.primary) : null,
-        selected: selected,
-        onTap: onTap,
+        child: ListTile(
+          leading: leadingIcon,
+          title: Text(
+            label,
+            style: TextStyle(
+              color: color ?? (selected ? cs.primary : cs.onSurface),
+            ),
+            textAlign: TextAlign.right,
+          ),
+          trailing: selected ? Icon(Icons.chevron_left, color: cs.primary) : null,
+          selected: selected,
+          onTap: onTap,
+        ),
       ),
     );
   }

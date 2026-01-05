@@ -81,6 +81,7 @@ class StatusColors {
   /// OnContainer fallbacks (גרסאות כהות לטקסט)
   static const _onSuccessContainerFallback = Color(0xFF1B5E20); // Green 900
   static const _onWarningContainerFallback = Color(0xFFE65100); // Orange 900
+  static const _onErrorContainerFallback = Color(0xFF5C0011); // Dark red - high contrast
 
   // ========================================
   // 🆕 Type-Safe API (מומלץ לשימוש!)
@@ -144,7 +145,9 @@ class StatusColors {
       case StatusType.success:
         return brand?.onSuccessContainer ?? _onSuccessContainerFallback;
       case StatusType.error:
-        return cs.onErrorContainer;
+        // ✅ FIX: שימוש ב-fallback כהה לניגודיות טובה יותר
+        // cs.onErrorContainer של Material 3 יכול להיות בהיר מדי
+        return _onErrorContainerFallback;
       case StatusType.warning:
         return brand?.onWarningContainer ?? _onWarningContainerFallback;
       case StatusType.pending:

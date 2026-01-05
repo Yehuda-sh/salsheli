@@ -3,14 +3,31 @@
 // בנר "הזדמנות אחרונה" - תזכורת חכמה בזמן קנייה פעילה.
 // מציג המלצה נוכחית עם מלאי, כפתור הוספה וכפתור "הבא".
 //
+// ✅ Features:
+//    - Theme-aware warning colors (Dark Mode support)
+//    - Accessibility labels and tooltips
+//    - Optimized with RepaintBoundary
+//    - AnimatedSwitcher for smooth transitions
+//    - Hebrew RTL support
+//
 // 🔗 Related: SmartSuggestion, SuggestionsProvider
+//
+// ----------------------------------------------------------------------------
+// The LastChanceBanner widget displays time-sensitive product alerts.
+// Appears on the Home Dashboard when products are near expiry or low stock.
+//
+// Features:
+// • Theme-aware warning colors
+// • Accessibility labels and tooltips
+// • Optimized with RepaintBoundary
+// • Supports Dark Mode and Hebrew RTL
+// ----------------------------------------------------------------------------
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/ui_constants.dart';
 import '../../../../models/smart_suggestion.dart';
-
 import '../../../../providers/shopping_lists_provider.dart';
 import '../../../../providers/suggestions_provider.dart';
 
@@ -27,12 +44,31 @@ class LastChanceBanner extends StatelessWidget {
       builder: (context, provider, _) {
         final suggestion = provider.currentSuggestion;
 
-        // אם אין המלצה נוכחית - לא מציגים כלום
-        if (suggestion == null) {
-          return const SizedBox.shrink();
-        }
-
-        return _LastChanceBannerContent(suggestion: suggestion, activeListId: activeListId);
+        // ✅ AnimatedSwitcher להופעה חלקה + RepaintBoundary לביצועים
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 400),
+          switchInCurve: Curves.easeOut,
+          switchOutCurve: Curves.easeIn,
+          transitionBuilder: (child, animation) => FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, -0.1),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            ),
+          ),
+          child: suggestion == null
+              ? const SizedBox.shrink()
+              : RepaintBoundary(
+                  key: ValueKey(suggestion.productName),
+                  child: _LastChanceBannerContent(
+                    suggestion: suggestion,
+                    activeListId: activeListId,
+                  ),
+                ),
+        );
       },
     );
   }
@@ -71,121 +107,158 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
   @override
   Widget build(BuildContext context) {
     final suggestion = widget.suggestion;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
-      padding: const EdgeInsets.all(kSpacingMedium),
-      decoration: BoxDecoration(
-        color: kStickyOrange,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 8, offset: const Offset(0, 2))],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // כותרת
-          Row(
-            children: [
-              const Icon(Icons.warning_amber, color: Colors.white, size: 24),
-              const SizedBox(width: kSpacingSmall),
-              Expanded(
-                child: Text(
-                  'רגע! שכחת משהו?',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                  textDirection: TextDirection.rtl,
-                ),
-              ),
-            ],
-          ),
+    // ✅ Theme-aware colors - רכים יותר ב-Dark Mode
+    // משתמש ב-errorContainer לאור רך יותר
+    final bannerBg = Color.alphaBlend(
+      cs.errorContainer.withValues(alpha: 0.65),
+      cs.surface,
+    );
+    final onBannerColor = cs.onErrorContainer;
+    final highlightBg = cs.error.withValues(alpha: 0.1);
 
-          const SizedBox(height: kSpacingSmall),
-
-          // פרטי מוצר
-          Container(
-            padding: const EdgeInsets.all(kSpacingSmall),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(8),
+    // ✅ Semantics - שפה טבעית וידידותית
+    return Semantics(
+      label: 'המוצר ${suggestion.productName} עומד להיגמר. נותרו ${suggestion.currentStock} יחידות במלאי.',
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
+        padding: const EdgeInsets.all(kSpacingMedium),
+        decoration: BoxDecoration(
+          color: bannerBg,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: theme.shadowColor.withValues(alpha: 0.15),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
-            child: Row(
-              children: [
-                // אמוג'י דחיפות
-                Text(_getUrgencyEmoji(suggestion.urgency), style: const TextStyle(fontSize: 32)),
-                const SizedBox(width: kSpacingSmall),
-
-                // פרטים
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        suggestion.productName,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                        textDirection: TextDirection.rtl,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'נותרו: ${suggestion.currentStock} יחידות במלאי',
-                        style: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.9)),
-                        textDirection: TextDirection.rtl,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: kSpacingMedium),
-
-          // כפתורי פעולה
-          if (!_isProcessing)
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // כותרת
             Row(
               children: [
-                // כפתור הוסף
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => _onAddPressed(context),
-                    icon: const Icon(Icons.add_shopping_cart, size: 20),
-                    label: const Text('הוסף לרשימה'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: kStickyGreen,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                  ),
-                ),
-
+                Icon(Icons.warning_amber, color: onBannerColor, size: 24),
                 const SizedBox(width: kSpacingSmall),
-
-                // כפתור דחה
                 Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => _onSkipPressed(context),
-                    icon: const Icon(Icons.skip_next, size: 20),
-                    label: const Text('הבא'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white, width: 2),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  child: Text(
+                    'רגע! שכחת משהו?',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: onBannerColor,
                     ),
+                    textDirection: TextDirection.rtl,
                   ),
                 ),
               ],
             ),
 
-          // אינדיקטור loading
-          if (_isProcessing)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(kSpacingSmall),
-                child: CircularProgressIndicator(color: Colors.white),
+            const SizedBox(height: kSpacingSmall),
+
+            // פרטי מוצר
+            Container(
+              padding: const EdgeInsets.all(kSpacingSmall),
+              decoration: BoxDecoration(
+                color: highlightBg,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  // אמוג'י דחיפות
+                  Text(_getUrgencyEmoji(suggestion.urgency), style: const TextStyle(fontSize: 32)),
+                  const SizedBox(width: kSpacingSmall),
+
+                  // פרטים
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          suggestion.productName,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: onBannerColor,
+                          ),
+                          textDirection: TextDirection.rtl,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'נותרו: ${suggestion.currentStock} יחידות במלאי',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: onBannerColor.withValues(alpha: 0.9),
+                          ),
+                          textDirection: TextDirection.rtl,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
-        ],
+
+            const SizedBox(height: kSpacingMedium),
+
+            // כפתורי פעולה
+            if (!_isProcessing)
+              Row(
+                children: [
+                  // ✅ כפתור הוסף עם Tooltip
+                  Expanded(
+                    child: Tooltip(
+                      message: 'הוסף "${suggestion.productName}" לרשימת הקניות',
+                      child: ElevatedButton.icon(
+                        onPressed: () => _onAddPressed(context),
+                        icon: const Icon(Icons.add_shopping_cart, size: 20),
+                        label: const Text('הוסף לרשימה'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: kStickyGreen,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: kSpacingSmall),
+
+                  // ✅ כפתור דחה עם Tooltip
+                  Expanded(
+                    child: Tooltip(
+                      message: 'דלג והמשך להמלצה הבאה',
+                      child: OutlinedButton.icon(
+                        onPressed: () => _onSkipPressed(context),
+                        icon: Icon(Icons.skip_next, size: 20, color: onBannerColor),
+                        label: Text('הבא', style: TextStyle(color: onBannerColor)),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: onBannerColor, width: 2),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+            // אינדיקטור loading
+            if (_isProcessing)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(kSpacingSmall),
+                  child: CircularProgressIndicator(color: onBannerColor),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -247,7 +320,7 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
         const SnackBar(
           content: Text('עברנו להמלצה הבאה 👍'),
           backgroundColor: kStickyCyan,
-          duration: const Duration(seconds: 2),
+          duration: Duration(seconds: 2),
         ),
       );
     } catch (e) {

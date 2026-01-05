@@ -32,7 +32,8 @@
       "Bash(cmd //c \"where java 2>nul\")",
       "Bash(cmd //c \"winget list Eclipse\")",
       "Bash(cmd //c \"dir \"\"C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-21*\"\" /b 2>nul\")",
-      "Bash(dart:*)"
+      "Bash(dart:*)",
+      "Bash(findstr:*)"
     ],
     "deny": [],
     "ask": []
