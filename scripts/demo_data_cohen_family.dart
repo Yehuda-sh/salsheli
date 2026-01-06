@@ -3,7 +3,8 @@
 // Purpose: Create demo data for Cohen family in Firebase Emulator
 //
 // Run with:
-//   dart run scripts/demo_data_cohen_family.dart
+//   dart run scripts/demo_data_cohen_family.dart           # רק יוצר נתונים
+//   dart run scripts/demo_data_cohen_family.dart --clean   # מוחק הכל ויוצר מחדש
 //
 // Environment Variables (optional):
 //   FIREBASE_AUTH_EMULATOR_HOST=localhost:9099
@@ -137,6 +138,47 @@ const String tomerId = 'demo_tomer_bar_020';
 
 // New User - Rich pantry, no history
 const String shiranId = 'demo_shiran_gal_030';
+
+// ═══════════════════════════════════════════════════════════════════
+// BUILDING COMMITTEE - "ועד בית רחוב הדקל 15"
+// ═══════════════════════════════════════════════════════════════════
+const String mosheUserId = 'demo_moshe_vaad_040';
+const String saraUserId = 'demo_sara_vaad_041';
+const String davidUserId = 'demo_david_vaad_042';
+const String michalUserId = 'demo_michal_vaad_043';
+
+const String mosheHouseholdId = 'household_moshe_040';
+const String saraHouseholdId = 'household_sara_041';
+const String davidHouseholdId = 'household_david_042';
+const String michalHouseholdId = 'household_michal_043';
+
+const String buildingGroupId = 'group_dekel_15_building';
+
+// ═══════════════════════════════════════════════════════════════════
+// KINDERGARTEN COMMITTEE - "ועד הורים גן שושנים"
+// ═══════════════════════════════════════════════════════════════════
+const String yaelUserId = 'demo_yael_gan_050';
+const String ornaUserId = 'demo_orna_gan_051';
+const String ramiUserId = 'demo_rami_gan_052';
+
+const String yaelHouseholdId = 'household_yael_050';
+const String ornaHouseholdId = 'household_orna_051';
+const String ramiHouseholdId = 'household_rami_052';
+
+const String kindergartenGroupId = 'group_gan_shoshanim';
+
+// ═══════════════════════════════════════════════════════════════════
+// WEDDING EVENT - "חתונת ליאור ונועם"
+// ═══════════════════════════════════════════════════════════════════
+const String liorUserId = 'demo_lior_event_060';
+const String noamUserId = 'demo_noam_event_061';
+const String eyalUserId = 'demo_eyal_event_062';
+
+const String liorHouseholdId = 'household_lior_060';
+const String noamHouseholdId = 'household_noam_061';
+const String eyalHouseholdId = 'household_eyal_062';
+
+const String weddingGroupId = 'group_lior_noam_wedding';
 
 // Household & Group IDs
 const String householdId = 'household_cohen_001';
@@ -340,6 +382,248 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
     'seen_onboarding': true,
     'seen_tutorial': true,
   },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // BUILDING COMMITTEE USERS - ועד בית רחוב הדקל 15
+  // ═══════════════════════════════════════════════════════════════════
+
+  // משה גולן - יו"ר ועד הבית (owner)
+  mosheUserId: {
+    'id': mosheUserId,
+    'name': 'משה גולן',
+    'email': 'moshe.golan@demo.com',
+    'phone': '0506667777',
+    'household_id': mosheHouseholdId,
+    'joined_at': DateTime(2024, 3, 1).toIso8601String(),
+    'last_login_at': DateTime.now().toIso8601String(),
+    'preferred_stores': ['שופרסל'],
+    'favorite_products': [],
+    'weekly_budget': 1500.0,
+    'is_admin': true,
+    'family_size': 3,
+    'shopping_frequency': 2,
+    'shopping_days': [4, 5], // Thursday, Friday
+    'has_children': true,
+    'share_lists': true,
+    'reminder_time': '09:00',
+    'seen_onboarding': true,
+    'seen_tutorial': true,
+  },
+
+  // שרה לוי - גזברית הוועד (admin)
+  saraUserId: {
+    'id': saraUserId,
+    'name': 'שרה לוי',
+    'email': 'sara.levi@demo.com',
+    'phone': '0507778888',
+    'household_id': saraHouseholdId,
+    'joined_at': DateTime(2024, 3, 15).toIso8601String(),
+    'last_login_at': DateTime.now().subtract(const Duration(hours: 5)).toIso8601String(),
+    'preferred_stores': ['רמי לוי', 'יוחננוף'],
+    'favorite_products': [],
+    'weekly_budget': 1200.0,
+    'is_admin': true,
+    'family_size': 2,
+    'shopping_frequency': 3,
+    'shopping_days': [0, 3, 5], // Sunday, Wednesday, Friday
+    'has_children': false,
+    'share_lists': true,
+    'reminder_time': '10:00',
+    'seen_onboarding': true,
+    'seen_tutorial': true,
+  },
+
+  // דוד כהן - חבר ועד (editor)
+  davidUserId: {
+    'id': davidUserId,
+    'name': 'דוד כהן',
+    'email': 'david.cohen.vaad@demo.com',
+    'phone': '0508889999',
+    'household_id': davidHouseholdId,
+    'joined_at': DateTime(2024, 4, 1).toIso8601String(),
+    'last_login_at': DateTime.now().subtract(const Duration(days: 1)).toIso8601String(),
+    'preferred_stores': ['שופרסל'],
+    'favorite_products': [],
+    'weekly_budget': 1800.0,
+    'is_admin': true,
+    'family_size': 4,
+    'shopping_frequency': 2,
+    'shopping_days': [5], // Friday
+    'has_children': true,
+    'share_lists': true,
+    'reminder_time': null,
+    'seen_onboarding': true,
+    'seen_tutorial': true,
+  },
+
+  // מיכל אברהם - דיירת חדשה (viewer)
+  michalUserId: {
+    'id': michalUserId,
+    'name': 'מיכל אברהם',
+    'email': 'michal.avraham@demo.com',
+    'phone': '0509990000',
+    'household_id': michalHouseholdId,
+    'joined_at': DateTime(2024, 10, 1).toIso8601String(),
+    'last_login_at': DateTime.now().subtract(const Duration(days: 3)).toIso8601String(),
+    'preferred_stores': ['AM:PM'],
+    'favorite_products': [],
+    'weekly_budget': 600.0,
+    'is_admin': true,
+    'family_size': 1,
+    'shopping_frequency': 1,
+    'shopping_days': [5], // Friday
+    'has_children': false,
+    'share_lists': false,
+    'reminder_time': null,
+    'seen_onboarding': true,
+    'seen_tutorial': false,
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // KINDERGARTEN COMMITTEE USERS - ועד הורים גן שושנים
+  // ═══════════════════════════════════════════════════════════════════
+
+  // יעל ברק - יו"ר ועד ההורים (owner)
+  yaelUserId: {
+    'id': yaelUserId,
+    'name': 'יעל ברק',
+    'email': 'yael.barak@demo.com',
+    'phone': '0521112222',
+    'household_id': yaelHouseholdId,
+    'joined_at': DateTime(2024, 9, 1).toIso8601String(),
+    'last_login_at': DateTime.now().toIso8601String(),
+    'preferred_stores': ['שופרסל', 'רמי לוי'],
+    'favorite_products': [],
+    'weekly_budget': 1400.0,
+    'is_admin': true,
+    'family_size': 4,
+    'shopping_frequency': 2,
+    'shopping_days': [3, 5], // Wednesday, Friday
+    'has_children': true,
+    'share_lists': true,
+    'reminder_time': '08:00',
+    'seen_onboarding': true,
+    'seen_tutorial': true,
+  },
+
+  // אורנה שלום - גזברית ועד הורים (admin)
+  ornaUserId: {
+    'id': ornaUserId,
+    'name': 'אורנה שלום',
+    'email': 'orna.shalom@demo.com',
+    'phone': '0522223333',
+    'household_id': ornaHouseholdId,
+    'joined_at': DateTime(2024, 9, 5).toIso8601String(),
+    'last_login_at': DateTime.now().subtract(const Duration(hours: 2)).toIso8601String(),
+    'preferred_stores': ['יוחננוף'],
+    'favorite_products': [],
+    'weekly_budget': 1600.0,
+    'is_admin': true,
+    'family_size': 3,
+    'shopping_frequency': 3,
+    'shopping_days': [0, 3, 5], // Sunday, Wednesday, Friday
+    'has_children': true,
+    'share_lists': true,
+    'reminder_time': '09:30',
+    'seen_onboarding': true,
+    'seen_tutorial': true,
+  },
+
+  // רמי דור - חבר ועד הורים (editor)
+  ramiUserId: {
+    'id': ramiUserId,
+    'name': 'רמי דור',
+    'email': 'rami.dor@demo.com',
+    'phone': '0523334444',
+    'household_id': ramiHouseholdId,
+    'joined_at': DateTime(2024, 9, 10).toIso8601String(),
+    'last_login_at': DateTime.now().subtract(const Duration(days: 2)).toIso8601String(),
+    'preferred_stores': ['שופרסל'],
+    'favorite_products': [],
+    'weekly_budget': 1300.0,
+    'is_admin': true,
+    'family_size': 4,
+    'shopping_frequency': 2,
+    'shopping_days': [5], // Friday
+    'has_children': true,
+    'share_lists': true,
+    'reminder_time': null,
+    'seen_onboarding': true,
+    'seen_tutorial': true,
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // WEDDING EVENT USERS - חתונת ליאור ונועם
+  // ═══════════════════════════════════════════════════════════════════
+
+  // ליאור כץ - החתן (owner)
+  liorUserId: {
+    'id': liorUserId,
+    'name': 'ליאור כץ',
+    'email': 'lior.katz@demo.com',
+    'phone': '0534445555',
+    'household_id': liorHouseholdId,
+    'joined_at': DateTime(2024, 6, 1).toIso8601String(),
+    'last_login_at': DateTime.now().toIso8601String(),
+    'preferred_stores': ['שופרסל', 'רמי לוי'],
+    'favorite_products': [],
+    'weekly_budget': 1000.0,
+    'is_admin': true,
+    'family_size': 2,
+    'shopping_frequency': 2,
+    'shopping_days': [4, 5], // Thursday, Friday
+    'has_children': false,
+    'share_lists': true,
+    'reminder_time': '10:00',
+    'seen_onboarding': true,
+    'seen_tutorial': true,
+  },
+
+  // נועם שפירא - הכלה (admin)
+  noamUserId: {
+    'id': noamUserId,
+    'name': 'נועם שפירא',
+    'email': 'noam.shapira@demo.com',
+    'phone': '0535556666',
+    'household_id': noamHouseholdId,
+    'joined_at': DateTime(2024, 6, 1).toIso8601String(),
+    'last_login_at': DateTime.now().subtract(const Duration(hours: 1)).toIso8601String(),
+    'preferred_stores': ['יוחננוף', 'שופרסל'],
+    'favorite_products': [],
+    'weekly_budget': 1200.0,
+    'is_admin': true,
+    'family_size': 2,
+    'shopping_frequency': 2,
+    'shopping_days': [3, 5], // Wednesday, Friday
+    'has_children': false,
+    'share_lists': true,
+    'reminder_time': '11:00',
+    'seen_onboarding': true,
+    'seen_tutorial': true,
+  },
+
+  // אייל כץ - אח החתן (editor)
+  eyalUserId: {
+    'id': eyalUserId,
+    'name': 'אייל כץ',
+    'email': 'eyal.katz@demo.com',
+    'phone': '0536667777',
+    'household_id': eyalHouseholdId,
+    'joined_at': DateTime(2024, 7, 1).toIso8601String(),
+    'last_login_at': DateTime.now().subtract(const Duration(days: 1)).toIso8601String(),
+    'preferred_stores': ['רמי לוי'],
+    'favorite_products': [],
+    'weekly_budget': 800.0,
+    'is_admin': true,
+    'family_size': 1,
+    'shopping_frequency': 1,
+    'shopping_days': [5], // Friday
+    'has_children': false,
+    'share_lists': true,
+    'reminder_time': null,
+    'seen_onboarding': true,
+    'seen_tutorial': true,
+  },
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -439,6 +723,1092 @@ Map<String, dynamic> generateEladInvite(Map<String, String> uids) {
   };
 }
 
+/// 📧 הזמנות ממתינות לשירן גל
+///
+/// שירן קיבלה הזמנות לקבוצות שעדיין לא קיבלה/דחתה
+List<Map<String, dynamic>> generateShiranPendingInvites(Map<String, String> uids) {
+  final ronitUid = uids[ronitUserId]!;
+  final yuvalUid = uids[yuvalUserId]!;
+
+  return [
+    // הזמנה למשפחת כהן מרונית
+    {
+      'id': 'invite_shiran_to_cohen',
+      'group_id': groupId,
+      'group_name': 'כהן בע"מ',
+      'invited_phone': '0504445555',
+      'invited_email': 'shiran.gal@demo.com',
+      'invited_name': 'שירן גל',
+      'role': 'viewer',
+      'invited_by': ronitUid,
+      'invited_by_name': 'רונית כהן',
+      'created_at': DateTime.now().subtract(const Duration(days: 2)).toIso8601String(),
+      'status': 'pending',
+      'responded_at': null,
+      'accepted_by_user_id': null,
+    },
+    // הזמנה לקבוצת ספורט מיובל
+    {
+      'id': 'invite_shiran_to_workout',
+      'group_id': 'group_workout_buddies',
+      'group_name': 'חברות לספורט',
+      'invited_phone': '0504445555',
+      'invited_email': 'shiran.gal@demo.com',
+      'invited_name': 'שירן גל',
+      'role': 'editor',
+      'invited_by': yuvalUid,
+      'invited_by_name': 'יובל כהן',
+      'created_at': DateTime.now().subtract(const Duration(days: 5)).toIso8601String(),
+      'status': 'pending',
+      'responded_at': null,
+      'accepted_by_user_id': null,
+    },
+  ];
+}
+
+/// 👥 קבוצת החברות של שירן
+///
+/// קבוצה שבה שירן היא הבעלים עם רונית ונועה כחברות
+const String shiranFriendsGroupId = 'group_shiran_friends';
+
+/// 🏋️ קבוצת חברים לספורט
+///
+/// קבוצה שיובל יצר עם תומר, ויש לה הזמנה ממתינה לשירן
+const String workoutBuddiesGroupId = 'group_workout_buddies';
+
+Map<String, dynamic> generateShiranFriendsGroup(Map<String, String> uids) {
+  final shiranUid = uids[shiranId]!;
+  final ronitUid = uids[ronitUserId]!;
+  final noaUid = uids[noaUserId]!;
+  final now = DateTime.now();
+
+  return {
+    'id': shiranFriendsGroupId,
+    'name': 'החברות של שירן',
+    'type': 'friends', // GroupType enum value
+    'description': 'קבוצה לתכנון פעילויות משותפות',
+    'created_at': now.subtract(const Duration(days: 14)).toIso8601String(),
+    'updated_at': now.subtract(const Duration(days: 1)).toIso8601String(),
+    'created_by': shiranUid,
+    'members': {
+      shiranUid: {
+        'user_id': shiranUid,
+        'name': 'שירן גל',
+        'email': 'shiran.gal@demo.com',
+        'role': 'owner',
+        'joined_at': now.subtract(const Duration(days: 14)).toIso8601String(),
+        'invited_by': null,
+        'can_start_shopping': true,
+      },
+      ronitUid: {
+        'user_id': ronitUid,
+        'name': 'רונית כהן',
+        'email': 'ronit.cohen@demo.com',
+        'role': 'admin',
+        'joined_at': now.subtract(const Duration(days: 12)).toIso8601String(),
+        'invited_by': shiranUid,
+        'can_start_shopping': true,
+      },
+      noaUid: {
+        'user_id': noaUid,
+        'name': 'נועה כהן',
+        'email': 'noa.cohen@demo.com',
+        'role': 'editor',
+        'joined_at': now.subtract(const Duration(days: 10)).toIso8601String(),
+        'invited_by': shiranUid,
+        'can_start_shopping': true,
+      },
+    },
+    // GroupSettings - matching the actual model
+    'settings': {
+      'notifications': true,
+      'low_stock_alerts': true,
+      'voting_alerts': true,
+      'whos_bringing_alerts': true,
+    },
+  };
+}
+
+/// 🏋️ קבוצת חברים לספורט
+///
+/// קבוצה שיובל יצר לתכנון אימונים משותפים.
+/// יובל הוא הבעלים, תומר חבר, ולשירן יש הזמנה ממתינה.
+Map<String, dynamic> generateWorkoutBuddiesGroup(Map<String, String> uids) {
+  final yuvalUid = uids[yuvalUserId]!;
+  final tomerUid = uids[tomerId]!;
+  final now = DateTime.now();
+
+  return {
+    'id': workoutBuddiesGroupId,
+    'name': 'חברות לספורט',
+    'type': 'friends', // GroupType enum value
+    'description': 'קבוצה לתיאום אימונים משותפים',
+    'created_at': now.subtract(const Duration(days: 21)).toIso8601String(),
+    'updated_at': now.subtract(const Duration(days: 2)).toIso8601String(),
+    'created_by': yuvalUid,
+    'members': {
+      yuvalUid: {
+        'user_id': yuvalUid,
+        'name': 'יובל כהן',
+        'email': 'yuval.cohen@demo.com',
+        'role': 'owner',
+        'joined_at': now.subtract(const Duration(days: 21)).toIso8601String(),
+        'invited_by': null,
+        'can_start_shopping': true,
+      },
+      tomerUid: {
+        'user_id': tomerUid,
+        'name': 'תומר בר',
+        'email': 'tomer.bar@demo.com',
+        'role': 'editor',
+        'joined_at': now.subtract(const Duration(days: 18)).toIso8601String(),
+        'invited_by': yuvalUid,
+        'can_start_shopping': true,
+      },
+    },
+    // GroupSettings - matching the actual model
+    'settings': {
+      'notifications': true,
+      'low_stock_alerts': true,
+      'voting_alerts': true,
+      'whos_bringing_alerts': true,
+    },
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// NEW GROUP TYPES - Building, Kindergarten, Wedding
+// ═══════════════════════════════════════════════════════════════════
+
+/// 🏢 קבוצת ועד בית - רחוב הדקל 15
+///
+/// קבוצה מסוג `building` עם 4 דיירים.
+/// כוללת הצבעות על שיפוצים ותקציבים.
+Map<String, dynamic> generateBuildingGroup(Map<String, String> uids) {
+  final mosheUid = uids[mosheUserId]!;
+  final saraUid = uids[saraUserId]!;
+  final davidUid = uids[davidUserId]!;
+  final michalUid = uids[michalUserId]!;
+  final now = DateTime.now();
+
+  return {
+    'id': buildingGroupId,
+    'name': 'ועד בית רחוב הדקל 15',
+    'type': 'building', // GroupType enum value
+    'description': 'ניהול הבניין המשותף - 8 דירות',
+    'created_at': now.subtract(const Duration(days: 90)).toIso8601String(),
+    'updated_at': now.subtract(const Duration(days: 1)).toIso8601String(),
+    'created_by': mosheUid,
+    'members': {
+      mosheUid: {
+        'user_id': mosheUid,
+        'name': 'משה גולן',
+        'email': 'moshe.golan@demo.com',
+        'role': 'owner',
+        'joined_at': now.subtract(const Duration(days: 90)).toIso8601String(),
+        'invited_by': null,
+        'can_start_shopping': false, // לא רלוונטי לועד בית
+      },
+      saraUid: {
+        'user_id': saraUid,
+        'name': 'שרה לוי',
+        'email': 'sara.levi@demo.com',
+        'role': 'admin',
+        'joined_at': now.subtract(const Duration(days: 88)).toIso8601String(),
+        'invited_by': mosheUid,
+        'can_start_shopping': false,
+      },
+      davidUid: {
+        'user_id': davidUid,
+        'name': 'דוד כהן',
+        'email': 'david.cohen.vaad@demo.com',
+        'role': 'editor',
+        'joined_at': now.subtract(const Duration(days: 60)).toIso8601String(),
+        'invited_by': mosheUid,
+        'can_start_shopping': false,
+      },
+      michalUid: {
+        'user_id': michalUid,
+        'name': 'מיכל אברהם',
+        'email': 'michal.avraham@demo.com',
+        'role': 'viewer',
+        'joined_at': now.subtract(const Duration(days: 30)).toIso8601String(),
+        'invited_by': saraUid,
+        'can_start_shopping': false,
+      },
+    },
+    // GroupSettings - building type
+    'settings': {
+      'notifications': true,
+      'low_stock_alerts': false, // לא רלוונטי לועד בית
+      'voting_alerts': true,
+      'whos_bringing_alerts': true,
+    },
+    'extra_fields': {
+      'address': 'רחוב הדקל 15, תל אביב',
+      'apartments_count': 8,
+    },
+  };
+}
+
+/// 🧒 קבוצת ועד הורים - גן שושנים
+///
+/// קבוצה מסוג `kindergarten` עם 3 הורים.
+/// כוללת רשימות "מי מביא" לאירועים.
+Map<String, dynamic> generateKindergartenGroup(Map<String, String> uids) {
+  final yaelUid = uids[yaelUserId]!;
+  final ornaUid = uids[ornaUserId]!;
+  final ramiUid = uids[ramiUserId]!;
+  final now = DateTime.now();
+
+  return {
+    'id': kindergartenGroupId,
+    'name': 'ועד הורים גן שושנים',
+    'type': 'kindergarten', // GroupType enum value
+    'description': 'תיאום אירועים והורים - כיתת הפרפרים',
+    'created_at': now.subtract(const Duration(days: 60)).toIso8601String(),
+    'updated_at': now.subtract(const Duration(hours: 12)).toIso8601String(),
+    'created_by': yaelUid,
+    'members': {
+      yaelUid: {
+        'user_id': yaelUid,
+        'name': 'יעל ברק',
+        'email': 'yael.barak@demo.com',
+        'role': 'owner',
+        'joined_at': now.subtract(const Duration(days: 60)).toIso8601String(),
+        'invited_by': null,
+        'can_start_shopping': false,
+      },
+      ornaUid: {
+        'user_id': ornaUid,
+        'name': 'אורנה שלום',
+        'email': 'orna.shalom@demo.com',
+        'role': 'admin',
+        'joined_at': now.subtract(const Duration(days: 55)).toIso8601String(),
+        'invited_by': yaelUid,
+        'can_start_shopping': false,
+      },
+      ramiUid: {
+        'user_id': ramiUid,
+        'name': 'רמי דור',
+        'email': 'rami.dor@demo.com',
+        'role': 'editor',
+        'joined_at': now.subtract(const Duration(days: 50)).toIso8601String(),
+        'invited_by': yaelUid,
+        'can_start_shopping': false,
+      },
+    },
+    // GroupSettings - kindergarten type
+    'settings': {
+      'notifications': true,
+      'low_stock_alerts': false,
+      'voting_alerts': true,
+      'whos_bringing_alerts': true,
+    },
+    'extra_fields': {
+      'kindergarten_name': 'גן שושנים',
+      'class_name': 'כיתת הפרפרים',
+      'teacher_name': 'גננת שרית',
+    },
+  };
+}
+
+/// 🎉 קבוצת אירוע - חתונת ליאור ונועם
+///
+/// קבוצה מסוג `event` עם 3 מארגנים.
+/// כוללת רשימת מתנות והצבעות.
+Map<String, dynamic> generateWeddingGroup(Map<String, String> uids) {
+  final liorUid = uids[liorUserId]!;
+  final noamUid = uids[noamUserId]!;
+  final eyalUid = uids[eyalUserId]!;
+  final now = DateTime.now();
+
+  return {
+    'id': weddingGroupId,
+    'name': 'חתונת ליאור ונועם',
+    'type': 'event', // GroupType enum value
+    'description': 'תכנון החתונה - 15.03.2026',
+    'created_at': now.subtract(const Duration(days: 120)).toIso8601String(),
+    'updated_at': now.subtract(const Duration(days: 3)).toIso8601String(),
+    'created_by': liorUid,
+    'members': {
+      liorUid: {
+        'user_id': liorUid,
+        'name': 'ליאור כץ',
+        'email': 'lior.katz@demo.com',
+        'role': 'owner',
+        'joined_at': now.subtract(const Duration(days: 120)).toIso8601String(),
+        'invited_by': null,
+        'can_start_shopping': false,
+      },
+      noamUid: {
+        'user_id': noamUid,
+        'name': 'נועם שפירא',
+        'email': 'noam.shapira@demo.com',
+        'role': 'admin',
+        'joined_at': now.subtract(const Duration(days: 120)).toIso8601String(),
+        'invited_by': liorUid,
+        'can_start_shopping': false,
+      },
+      eyalUid: {
+        'user_id': eyalUid,
+        'name': 'אייל כץ',
+        'email': 'eyal.katz@demo.com',
+        'role': 'editor',
+        'joined_at': now.subtract(const Duration(days: 90)).toIso8601String(),
+        'invited_by': liorUid,
+        'can_start_shopping': false,
+      },
+    },
+    // GroupSettings - event type
+    'settings': {
+      'notifications': true,
+      'low_stock_alerts': false,
+      'voting_alerts': true,
+      'whos_bringing_alerts': true,
+    },
+    'extra_fields': {
+      'event_date': '2026-03-15',
+      'venue': 'אולמי הגן, רמת גן',
+      'guests_count': 250,
+    },
+  };
+}
+
+/// 🗳️ רשימת הצבעות של ועד הבית
+///
+/// רשימה עם פריטי הצבעה (voting items) - שיפוץ חדר מדרגות
+List<Map<String, dynamic>> generateBuildingVotingList(Map<String, String> uids) {
+  final mosheUid = uids[mosheUserId]!;
+  final saraUid = uids[saraUserId]!;
+  final davidUid = uids[davidUserId]!;
+  final michalUid = uids[michalUserId]!;
+  final now = DateTime.now();
+
+  return [
+    {
+      'id': 'building_renovation_vote',
+      'name': 'הצבעה: שיפוץ חדר מדרגות',
+      'type': 'other',
+      'status': 'active',
+      'budget': 0.0,
+      'is_shared': true,
+      'is_private': false,
+      'created_by': mosheUid,
+      'created_date': now.subtract(const Duration(days: 7)).toIso8601String(),
+      'updated_date': now.subtract(const Duration(hours: 2)).toIso8601String(),
+      'shared_users': {
+        mosheUid: {
+          'role': 'owner',
+          'user_name': 'משה גולן',
+          'user_email': 'moshe.golan@demo.com',
+          'shared_at': now.subtract(const Duration(days: 7)).toIso8601String(),
+          'can_start_shopping': false,
+        },
+        saraUid: {
+          'role': 'admin',
+          'user_name': 'שרה לוי',
+          'user_email': 'sara.levi@demo.com',
+          'shared_at': now.subtract(const Duration(days: 7)).toIso8601String(),
+          'can_start_shopping': false,
+        },
+        davidUid: {
+          'role': 'editor',
+          'user_name': 'דוד כהן',
+          'user_email': 'david.cohen.vaad@demo.com',
+          'shared_at': now.subtract(const Duration(days: 7)).toIso8601String(),
+          'can_start_shopping': false,
+        },
+        michalUid: {
+          'role': 'viewer',
+          'user_name': 'מיכל אברהם',
+          'user_email': 'michal.avraham@demo.com',
+          'shared_at': now.subtract(const Duration(days: 7)).toIso8601String(),
+          'can_start_shopping': false,
+        },
+      },
+      'items': [
+        // פריט הצבעה 1 - אישור תקציב
+        {
+          'id': 'vote_renovation_budget',
+          'name': 'אישור תקציב 50,000₪ לשיפוץ חדר מדרגות',
+          'type': 'task',
+          'is_checked': false,
+          'category': 'הצבעות',
+          'notes': 'הצבעה על אישור התקציב לשיפוץ כללי של חדר המדרגות',
+          'task_data': {
+            'itemType': 'voting',
+            'votesFor': [
+              {'userId': mosheUid, 'displayName': 'משה גולן'},
+              {'userId': saraUid, 'displayName': 'שרה לוי'},
+            ],
+            'votesAgainst': [
+              {'userId': davidUid, 'displayName': 'דוד כהן'},
+            ],
+            'votesAbstain': [],
+            'isAnonymous': false,
+            'votingEndDate': now.add(const Duration(days: 7)).toIso8601String(),
+          },
+          'added_by': mosheUid,
+          'added_at': now.subtract(const Duration(days: 7)).toIso8601String(),
+        },
+        // פריט הצבעה 2 - בחירת צבע (תיקו!)
+        {
+          'id': 'vote_color_choice',
+          'name': 'בחירת צבע לקירות: לבן או בז\'',
+          'type': 'task',
+          'is_checked': false,
+          'category': 'הצבעות',
+          'notes': 'הצבעה על צבע הקירות החדש',
+          'task_data': {
+            'itemType': 'voting',
+            'votesFor': [
+              {'userId': mosheUid, 'displayName': 'משה גולן'},
+            ],
+            'votesAgainst': [
+              {'userId': saraUid, 'displayName': 'שרה לוי'},
+            ],
+            'votesAbstain': [
+              {'userId': davidUid, 'displayName': 'דוד כהן'},
+            ],
+            'isAnonymous': false,
+            'votingEndDate': now.add(const Duration(days: 3)).toIso8601String(),
+          },
+          'added_by': saraUid,
+          'added_at': now.subtract(const Duration(days: 5)).toIso8601String(),
+        },
+        // פריט הצבעה 3 - הצבעה אנונימית
+        {
+          'id': 'vote_cleaning_company',
+          'name': 'החלפת חברת הניקיון',
+          'type': 'task',
+          'is_checked': false,
+          'category': 'הצבעות',
+          'notes': 'הצבעה אנונימית על החלפת חברת הניקיון',
+          'task_data': {
+            'itemType': 'voting',
+            'votesFor': [
+              {'userId': mosheUid},
+              {'userId': saraUid},
+              {'userId': davidUid},
+            ],
+            'votesAgainst': [],
+            'votesAbstain': [
+              {'userId': michalUid},
+            ],
+            'isAnonymous': true, // הצבעה אנונימית!
+            'votingEndDate': now.add(const Duration(days: 14)).toIso8601String(),
+          },
+          'added_by': davidUid,
+          'added_at': now.subtract(const Duration(days: 2)).toIso8601String(),
+        },
+      ],
+      'pending_requests': [],
+    },
+  ];
+}
+
+/// 🙋 רשימת "מי מביא" של ועד הגן
+///
+/// רשימה עם פריטי whoBrings - מסיבת פורים
+List<Map<String, dynamic>> generateKindergartenPartyList(Map<String, String> uids) {
+  final yaelUid = uids[yaelUserId]!;
+  final ornaUid = uids[ornaUserId]!;
+  final ramiUid = uids[ramiUserId]!;
+  final now = DateTime.now();
+
+  return [
+    {
+      'id': 'gan_purim_party',
+      'name': 'מסיבת פורים - מי מביא מה?',
+      'type': 'other',
+      'status': 'active',
+      'budget': 0.0,
+      'is_shared': true,
+      'is_private': false,
+      'created_by': yaelUid,
+      'created_date': now.subtract(const Duration(days: 14)).toIso8601String(),
+      'updated_date': now.subtract(const Duration(hours: 5)).toIso8601String(),
+      'shared_users': {
+        yaelUid: {
+          'role': 'owner',
+          'user_name': 'יעל ברק',
+          'user_email': 'yael.barak@demo.com',
+          'shared_at': now.subtract(const Duration(days: 14)).toIso8601String(),
+          'can_start_shopping': false,
+        },
+        ornaUid: {
+          'role': 'admin',
+          'user_name': 'אורנה שלום',
+          'user_email': 'orna.shalom@demo.com',
+          'shared_at': now.subtract(const Duration(days: 14)).toIso8601String(),
+          'can_start_shopping': false,
+        },
+        ramiUid: {
+          'role': 'editor',
+          'user_name': 'רמי דור',
+          'user_email': 'rami.dor@demo.com',
+          'shared_at': now.subtract(const Duration(days: 14)).toIso8601String(),
+          'can_start_shopping': false,
+        },
+      },
+      'items': [
+        // פריט "מי מביא" 1 - צריך 2 הורים, יש 1
+        {
+          'id': 'bring_hamantashen',
+          'name': 'אוזני המן (30 יח\')',
+          'type': 'task',
+          'is_checked': false,
+          'category': 'מאכלים',
+          'notes': 'צריך 2 הורים שיביאו אוזני המן',
+          'task_data': {
+            'itemType': 'whoBrings',
+            'neededCount': 2,
+            'volunteers': [
+              {'userId': yaelUid, 'displayName': 'יעל ברק'},
+            ],
+          },
+          'added_by': yaelUid,
+          'added_at': now.subtract(const Duration(days: 14)).toIso8601String(),
+        },
+        // פריט "מי מביא" 2 - מלא!
+        {
+          'id': 'bring_drinks',
+          'name': 'שתייה (מיצים, מים)',
+          'type': 'task',
+          'is_checked': true, // סומן כמלא!
+          'category': 'משקאות',
+          'notes': 'מישהו כבר התנדב',
+          'task_data': {
+            'itemType': 'whoBrings',
+            'neededCount': 1,
+            'volunteers': [
+              {'userId': ornaUid, 'displayName': 'אורנה שלום'},
+            ],
+          },
+          'added_by': yaelUid,
+          'added_at': now.subtract(const Duration(days: 14)).toIso8601String(),
+          'checked_by': ornaUid,
+          'checked_at': now.subtract(const Duration(days: 10)).toIso8601String(),
+        },
+        // פריט "מי מביא" 3 - ריק!
+        {
+          'id': 'bring_decorations',
+          'name': 'קישוטים ובלונים',
+          'type': 'task',
+          'is_checked': false,
+          'category': 'קישוטים',
+          'notes': 'מחפשים מתנדב!',
+          'task_data': {
+            'itemType': 'whoBrings',
+            'neededCount': 1,
+            'volunteers': [], // אף אחד עדיין!
+          },
+          'added_by': ornaUid,
+          'added_at': now.subtract(const Duration(days: 12)).toIso8601String(),
+        },
+        // פריט "מי מביא" 4 - צריך 3 הורים
+        {
+          'id': 'bring_snacks',
+          'name': 'חטיפים מלוחים (שקיות גדולות)',
+          'type': 'task',
+          'is_checked': false,
+          'category': 'מאכלים',
+          'notes': 'כל הורה מביא שקית אחת גדולה',
+          'task_data': {
+            'itemType': 'whoBrings',
+            'neededCount': 3,
+            'volunteers': [
+              {'userId': ramiUid, 'displayName': 'רמי דור'},
+              {'userId': yaelUid, 'displayName': 'יעל ברק'},
+            ],
+          },
+          'added_by': ramiUid,
+          'added_at': now.subtract(const Duration(days: 10)).toIso8601String(),
+        },
+        // פריט רגיל (לא מי מביא)
+        {
+          'id': 'party_setup',
+          'name': 'להכין את החדר בשעה 9:00',
+          'type': 'task',
+          'is_checked': false,
+          'category': 'משימות',
+          'task_data': {
+            'itemType': 'task',
+            'dueDate': now.add(const Duration(days: 7)).toIso8601String(),
+            'assignedTo': yaelUid,
+            'priority': 'high',
+          },
+          'added_by': yaelUid,
+          'added_at': now.subtract(const Duration(days: 7)).toIso8601String(),
+        },
+      ],
+      'pending_requests': [],
+    },
+  ];
+}
+
+/// 🎁 רשימת החתונה - מתנות והצבעות
+///
+/// רשימה משולבת עם מתנות והצבעות
+List<Map<String, dynamic>> generateWeddingGiftList(Map<String, String> uids) {
+  final liorUid = uids[liorUserId]!;
+  final noamUid = uids[noamUserId]!;
+  final eyalUid = uids[eyalUserId]!;
+  final now = DateTime.now();
+
+  return [
+    {
+      'id': 'wedding_gift_registry',
+      'name': 'רשימת מתנות לחתונה',
+      'type': 'event',
+      'status': 'active',
+      'budget': 0.0,
+      'is_shared': true,
+      'is_private': false,
+      'created_by': liorUid,
+      'created_date': now.subtract(const Duration(days: 60)).toIso8601String(),
+      'updated_date': now.subtract(const Duration(days: 1)).toIso8601String(),
+      'event_date': '2026-03-15',
+      'shared_users': {
+        liorUid: {
+          'role': 'owner',
+          'user_name': 'ליאור כץ',
+          'user_email': 'lior.katz@demo.com',
+          'shared_at': now.subtract(const Duration(days: 60)).toIso8601String(),
+          'can_start_shopping': false,
+        },
+        noamUid: {
+          'role': 'admin',
+          'user_name': 'נועם שפירא',
+          'user_email': 'noam.shapira@demo.com',
+          'shared_at': now.subtract(const Duration(days: 60)).toIso8601String(),
+          'can_start_shopping': false,
+        },
+        eyalUid: {
+          'role': 'editor',
+          'user_name': 'אייל כץ',
+          'user_email': 'eyal.katz@demo.com',
+          'shared_at': now.subtract(const Duration(days: 55)).toIso8601String(),
+          'can_start_shopping': false,
+        },
+      },
+      'items': [
+        // מתנה 1 - מישהו לוקח
+        {
+          'id': 'gift_mixer',
+          'name': 'מיקסר מקצועי KitchenAid',
+          'type': 'task',
+          'is_checked': false,
+          'category': 'מטבח',
+          'notes': 'צבע: אדום',
+          'task_data': {
+            'itemType': 'whoBrings',
+            'neededCount': 1,
+            'volunteers': [
+              {'userId': eyalUid, 'displayName': 'אייל כץ'},
+            ],
+          },
+          'added_by': noamUid,
+          'added_at': now.subtract(const Duration(days: 55)).toIso8601String(),
+        },
+        // מתנה 2 - פנוי
+        {
+          'id': 'gift_vacuum',
+          'name': 'שואב אבק רובוטי',
+          'type': 'task',
+          'is_checked': false,
+          'category': 'בית',
+          'notes': 'Roomba או דומה',
+          'task_data': {
+            'itemType': 'whoBrings',
+            'neededCount': 1,
+            'volunteers': [],
+          },
+          'added_by': liorUid,
+          'added_at': now.subtract(const Duration(days: 50)).toIso8601String(),
+        },
+        // הצבעה - זמר לחתונה
+        {
+          'id': 'vote_wedding_singer',
+          'name': 'בחירת זמר לחתונה: עומר אדם או שטרוק',
+          'type': 'task',
+          'is_checked': false,
+          'category': 'הצבעות',
+          'notes': 'הצבעה על הזמר לאירוע',
+          'task_data': {
+            'itemType': 'voting',
+            'votesFor': [
+              {'userId': liorUid, 'displayName': 'ליאור כץ'},
+              {'userId': eyalUid, 'displayName': 'אייל כץ'},
+            ],
+            'votesAgainst': [
+              {'userId': noamUid, 'displayName': 'נועם שפירא'},
+            ],
+            'votesAbstain': [],
+            'isAnonymous': false,
+            'votingEndDate': now.add(const Duration(days: 30)).toIso8601String(),
+          },
+          'added_by': liorUid,
+          'added_at': now.subtract(const Duration(days: 14)).toIso8601String(),
+        },
+      ],
+      'pending_requests': [],
+    },
+  ];
+}
+
+/// 🔔 התראות למשתמשים קיימים
+///
+/// יוצר התראות ב-Firestore עם היסטוריה (נקראו/לא נקראו)
+Map<String, List<Map<String, dynamic>>> generateNotifications(Map<String, String> uids) {
+  final result = <String, List<Map<String, dynamic>>>{};
+  final now = DateTime.now();
+
+  // UIDs
+  final aviUid = uids[aviUserId];
+  final ronitUid = uids[ronitUserId];
+  final yuvalUid = uids[yuvalUserId];
+  final mosheUid = uids[mosheUserId];
+  final yaelUid = uids[yaelUserId];
+  final liorUid = uids[liorUserId];
+
+  // התראות לרונית כהן
+  if (ronitUid != null && yuvalUid != null) {
+    result[ronitUid] = [
+      // התראה על הצבעה חדשה (לא נקראה)
+      {
+        'id': 'notif_ronit_001',
+        'user_id': ronitUid,
+        'household_id': householdId,
+        'type': 'new_vote',
+        'title': 'הצבעה חדשה',
+        'message': 'יובל הצביע בעד ברשימת "קניות לשבת"',
+        'action_data': {'listId': 'list_weekly_current'},
+        'is_read': false,
+        'created_at': now.subtract(const Duration(hours: 2)).toIso8601String(),
+      },
+      // התראה על מתנדב חדש (נקראה)
+      {
+        'id': 'notif_ronit_002',
+        'user_id': ronitUid,
+        'household_id': householdId,
+        'type': 'who_brings_volunteer',
+        'title': 'מישהו התנדב!',
+        'message': 'שירן התנדבה להביא קינוחים למסיבה',
+        'action_data': {'listId': 'friends_party_planning'},
+        'is_read': true,
+        'created_at': now.subtract(const Duration(days: 1)).toIso8601String(),
+        'read_at': now.subtract(const Duration(hours: 20)).toIso8601String(),
+      },
+      // הזמנה לקבוצה (נקראה)
+      {
+        'id': 'notif_ronit_003',
+        'user_id': ronitUid,
+        'household_id': householdId,
+        'type': 'group_invite',
+        'title': 'הזמנה לקבוצה',
+        'message': 'שירן הזמינה אותך לקבוצת "החברות של שירן"',
+        'action_data': {'groupId': shiranFriendsGroupId},
+        'is_read': true,
+        'created_at': now.subtract(const Duration(days: 14)).toIso8601String(),
+        'read_at': now.subtract(const Duration(days: 14)).toIso8601String(),
+      },
+    ];
+  }
+
+  // התראות לאבי כהן
+  if (aviUid != null) {
+    result[aviUid] = [
+      // מלאי נמוך (לא נקראה)
+      {
+        'id': 'notif_avi_001',
+        'user_id': aviUid,
+        'household_id': householdId,
+        'type': 'low_stock',
+        'title': 'מלאי נמוך',
+        'message': 'חלב 3% נגמר במזווה',
+        'action_data': {'itemId': 'inv_milk_3'},
+        'is_read': false,
+        'created_at': now.subtract(const Duration(hours: 6)).toIso8601String(),
+      },
+      // שינוי תפקיד (נקראה)
+      {
+        'id': 'notif_avi_002',
+        'user_id': aviUid,
+        'household_id': householdId,
+        'type': 'role_changed',
+        'title': 'שינוי תפקיד',
+        'message': 'התפקיד שלך ברשימה "על האש" שונה ל-admin',
+        'action_data': {'listId': 'avi_bbq_list'},
+        'is_read': true,
+        'created_at': now.subtract(const Duration(days: 3)).toIso8601String(),
+        'read_at': now.subtract(const Duration(days: 2)).toIso8601String(),
+      },
+    ];
+  }
+
+  // התראות למשה גולן (ועד בית)
+  if (mosheUid != null) {
+    result[mosheUid] = [
+      // תיקו בהצבעה! (לא נקראה)
+      {
+        'id': 'notif_moshe_001',
+        'user_id': mosheUid,
+        'household_id': mosheHouseholdId,
+        'type': 'vote_tie',
+        'title': 'תיקו בהצבעה',
+        'message': 'ההצבעה על "בחירת צבע לקירות" הסתיימה בתיקו',
+        'action_data': {
+          'listId': 'building_renovation_vote',
+          'itemId': 'vote_color_choice',
+        },
+        'is_read': false,
+        'created_at': now.subtract(const Duration(hours: 1)).toIso8601String(),
+      },
+      // הצבעה חדשה (נקראה)
+      {
+        'id': 'notif_moshe_002',
+        'user_id': mosheUid,
+        'household_id': mosheHouseholdId,
+        'type': 'new_vote',
+        'title': 'הצבעה חדשה',
+        'message': 'דוד הצביע נגד בנושא אישור התקציב',
+        'action_data': {
+          'listId': 'building_renovation_vote',
+          'itemId': 'vote_renovation_budget',
+        },
+        'is_read': true,
+        'created_at': now.subtract(const Duration(days: 2)).toIso8601String(),
+        'read_at': now.subtract(const Duration(days: 1)).toIso8601String(),
+      },
+    ];
+  }
+
+  // התראות ליעל ברק (ועד גן)
+  if (yaelUid != null && uids[ornaUserId] != null) {
+    result[yaelUid] = [
+      // מתנדב חדש (לא נקראה)
+      {
+        'id': 'notif_yael_001',
+        'user_id': yaelUid,
+        'household_id': yaelHouseholdId,
+        'type': 'who_brings_volunteer',
+        'title': 'מתנדב חדש!',
+        'message': 'אורנה התנדבה להביא שתייה למסיבת פורים',
+        'action_data': {
+          'listId': 'gan_purim_party',
+          'itemId': 'bring_drinks',
+        },
+        'is_read': false,
+        'created_at': now.subtract(const Duration(hours: 3)).toIso8601String(),
+      },
+    ];
+  }
+
+  // התראות לליאור כץ (חתונה)
+  if (liorUid != null && uids[noamUserId] != null) {
+    result[liorUid] = [
+      // הצבעה חדשה (לא נקראה)
+      {
+        'id': 'notif_lior_001',
+        'user_id': liorUid,
+        'household_id': liorHouseholdId,
+        'type': 'new_vote',
+        'title': 'הצבעה חדשה',
+        'message': 'נועם הצביעה נגד בבחירת הזמר',
+        'action_data': {
+          'listId': 'wedding_gift_registry',
+          'itemId': 'vote_wedding_singer',
+        },
+        'is_read': false,
+        'created_at': now.subtract(const Duration(hours: 8)).toIso8601String(),
+      },
+      // מתנדב למתנה (נקראה)
+      {
+        'id': 'notif_lior_002',
+        'user_id': liorUid,
+        'household_id': liorHouseholdId,
+        'type': 'who_brings_volunteer',
+        'title': 'מישהו לוקח מתנה!',
+        'message': 'אייל לוקח את המיקסר מרשימת המתנות',
+        'action_data': {
+          'listId': 'wedding_gift_registry',
+          'itemId': 'gift_mixer',
+        },
+        'is_read': true,
+        'created_at': now.subtract(const Duration(days: 5)).toIso8601String(),
+        'read_at': now.subtract(const Duration(days: 4)).toIso8601String(),
+      },
+    ];
+  }
+
+  return result;
+}
+
+/// 📋 רשימות משותפות של קבוצת החברות
+///
+/// רשימות שהחברות משתפות ביניהן
+List<Map<String, dynamic>> generateFriendsGroupLists(Map<String, String> uids) {
+  final shiranUid = uids[shiranId]!;
+  final ronitUid = uids[ronitUserId]!;
+  final noaUid = uids[noaUserId]!;
+  final now = DateTime.now();
+
+  return [
+    // רשימה של שירן - יום כיף בנות
+    {
+      'id': 'friends_spa_day',
+      'name': 'יום כיף בנות',
+      'type': 'other',
+      'status': 'active',
+      'budget': 300.0,
+      'is_shared': true,
+      'is_private': false,
+      'created_by': shiranUid,
+      'created_date': now.subtract(const Duration(days: 7)).toIso8601String(),
+      'updated_date': now.subtract(const Duration(days: 1)).toIso8601String(),
+      'shared_users': {
+        shiranUid: {
+          'role': 'owner',
+          'user_name': 'שירן גל',
+          'user_email': 'shiran.gal@demo.com',
+          'shared_at': now.subtract(const Duration(days: 7)).toIso8601String(),
+          'can_start_shopping': true,
+        },
+        ronitUid: {
+          'role': 'admin',
+          'user_name': 'רונית כהן',
+          'user_email': 'ronit.cohen@demo.com',
+          'shared_at': now.subtract(const Duration(days: 6)).toIso8601String(),
+          'can_start_shopping': true,
+        },
+        noaUid: {
+          'role': 'editor',
+          'user_name': 'נועה כהן',
+          'user_email': 'noa.cohen@demo.com',
+          'shared_at': now.subtract(const Duration(days: 5)).toIso8601String(),
+          'can_start_shopping': true,
+        },
+      },
+      'items': [
+        {
+          'id': 'spa_item_1',
+          'name': 'קרם שיזוף',
+          'quantity': 1,
+          'unit': 'יח\'',
+          'is_checked': false,
+          'added_by': shiranUid,
+        },
+        {
+          'id': 'spa_item_2',
+          'name': 'חטיפים בריאים',
+          'quantity': 2,
+          'unit': 'שקיות',
+          'is_checked': true,
+          'added_by': ronitUid,
+        },
+        {
+          'id': 'spa_item_3',
+          'name': 'מים מינרליים',
+          'quantity': 6,
+          'unit': 'בקבוקים',
+          'is_checked': false,
+          'added_by': noaUid,
+        },
+        {
+          'id': 'spa_item_4',
+          'name': 'מגבות',
+          'quantity': 3,
+          'unit': 'יח\'',
+          'is_checked': false,
+          'added_by': shiranUid,
+        },
+      ],
+      'pending_requests': [],
+    },
+    // רשימה של רונית - מתכננות מסיבה
+    {
+      'id': 'friends_party_planning',
+      'name': 'מתכננות מסיבה',
+      'type': 'party',
+      'status': 'active',
+      'budget': 500.0,
+      'is_shared': true,
+      'is_private': false,
+      'created_by': ronitUid,
+      'created_date': now.subtract(const Duration(days: 3)).toIso8601String(),
+      'updated_date': now.subtract(const Duration(hours: 5)).toIso8601String(),
+      'shared_users': {
+        ronitUid: {
+          'role': 'owner',
+          'user_name': 'רונית כהן',
+          'user_email': 'ronit.cohen@demo.com',
+          'shared_at': now.subtract(const Duration(days: 3)).toIso8601String(),
+          'can_start_shopping': true,
+        },
+        shiranUid: {
+          'role': 'admin',
+          'user_name': 'שירן גל',
+          'user_email': 'shiran.gal@demo.com',
+          'shared_at': now.subtract(const Duration(days: 2)).toIso8601String(),
+          'can_start_shopping': true,
+        },
+        noaUid: {
+          'role': 'editor',
+          'user_name': 'נועה כהן',
+          'user_email': 'noa.cohen@demo.com',
+          'shared_at': now.subtract(const Duration(days: 2)).toIso8601String(),
+          'can_start_shopping': true,
+        },
+      },
+      'items': [
+        {
+          'id': 'party_item_1',
+          'name': 'בלונים',
+          'quantity': 20,
+          'unit': 'יח\'',
+          'is_checked': true,
+          'added_by': ronitUid,
+        },
+        {
+          'id': 'party_item_2',
+          'name': 'שרשראות קישוט',
+          'quantity': 5,
+          'unit': 'יח\'',
+          'is_checked': false,
+          'added_by': shiranUid,
+        },
+        {
+          'id': 'party_item_3',
+          'name': 'כוסות חד פעמיות',
+          'quantity': 30,
+          'unit': 'יח\'',
+          'is_checked': true,
+          'added_by': noaUid,
+        },
+        {
+          'id': 'party_item_4',
+          'name': 'צלחות חד פעמיות',
+          'quantity': 30,
+          'unit': 'יח\'',
+          'is_checked': false,
+          'added_by': ronitUid,
+        },
+        {
+          'id': 'party_item_5',
+          'name': 'עוגה',
+          'quantity': 1,
+          'unit': 'יח\'',
+          'is_checked': false,
+          'added_by': shiranUid,
+        },
+      ],
+      'pending_requests': [],
+    },
+  ];
+}
+
 // ═══════════════════════════════════════════════════════════════════
 // CUSTOM LOCATIONS
 // ═══════════════════════════════════════════════════════════════════
@@ -448,25 +1818,21 @@ final List<Map<String, dynamic>> customLocations = [
     'key': 'service_cabinet',
     'name': 'ארון שירות',
     'emoji': '🧹',
-    'household_id': householdId,
   },
   {
     'key': 'bathroom_cabinet',
     'name': 'ארון אמבטיה',
     'emoji': '🛁',
-    'household_id': householdId,
   },
   {
     'key': 'storage_room',
     'name': 'מחסן',
     'emoji': '📦',
-    'household_id': householdId,
   },
   {
     'key': 'medicine_cabinet',
     'name': 'ארון תרופות',
     'emoji': '💊',
-    'household_id': householdId,
   },
 ];
 
@@ -624,15 +1990,15 @@ List<Map<String, dynamic>> generateSharedLists(Map<String, String> uids) {
     'event_date': null,
     'target_date': now.add(const Duration(days: 2)).toIso8601String(),
     'items': [
-      createListItem(id: 'item_001', name: 'חלב תנובה 3% 1 ליטר', quantity: 3, unitPrice: 6.90, category: 'מוצרי חלב'),
-      createListItem(id: 'item_002', name: 'גבינה צהובה 28% עמק 200 גרם', quantity: 2, unitPrice: 12.90, category: 'מוצרי חלב'),
-      createListItem(id: 'item_003', name: 'לחם אחיד פרוס', quantity: 2, unitPrice: 7.90, category: 'לחם ומאפים'),
-      createListItem(id: 'item_004', name: 'ביצים חופש L 12 יח\'', quantity: 1, unitPrice: 19.90, category: 'ביצים'),
-      createListItem(id: 'item_005', name: 'חזה עוף טרי', quantity: 2, unitPrice: 34.90, category: 'בשר ועוף'),
-      createListItem(id: 'item_006', name: 'תפוחי עץ גולדן', quantity: 1, unitPrice: 8.90, category: 'פירות וירקות'),
-      createListItem(id: 'item_007', name: 'בננות', quantity: 1, unitPrice: 7.90, category: 'פירות וירקות'),
-      createListItem(id: 'item_008', name: 'עגבניות שרי', quantity: 2, unitPrice: 12.90, category: 'פירות וירקות'),
-      createListItem(id: 'item_009', name: 'מלפפונים', quantity: 1, unitPrice: 4.90, category: 'פירות וירקות'),
+      createListItem(id: 'item_001', name: 'חלב מועשר1% בקבוק 1 ליטר', quantity: 3, unitPrice: 6.90, category: 'מוצרי חלב'),
+      createListItem(id: 'item_002', name: 'גבינה צהובה נעם 22% 200 ג', quantity: 2, unitPrice: 12.90, category: 'מוצרי חלב'),
+      createListItem(id: 'item_003', name: 'לחם כפרי ללת"ס700 גרם', quantity: 2, unitPrice: 7.90, category: 'לחם ומאפים'),
+      createListItem(id: 'item_004', name: 'ביצים 12 יח', quantity: 1, unitPrice: 19.90, category: 'ביצים'),
+      createListItem(id: 'item_005', name: 'חזה דקדק טרי ארוז שלי', quantity: 2, unitPrice: 34.90, category: 'בשר ועוף'),
+      createListItem(id: 'item_006', name: 'תפוח עץ', quantity: 1, unitPrice: 8.90, category: 'פירות וירקות'),
+      createListItem(id: 'item_007', name: 'בננה', quantity: 1, unitPrice: 7.90, category: 'פירות וירקות'),
+      createListItem(id: 'item_008', name: 'עגבניה שרי', quantity: 2, unitPrice: 12.90, category: 'פירות וירקות'),
+      createListItem(id: 'item_009', name: 'מלפפון', quantity: 1, unitPrice: 4.90, category: 'פירות וירקות'),
     ],
     'template_id': null,
     'format': 'shared',
@@ -742,23 +2108,24 @@ List<Map<String, dynamic>> _generateCompletedWeeklyItems(int weekNumber, DateTim
 
   // Vary the items slightly per week
   final baseItems = [
-    createListItem(id: 'w${weekNumber}_001', name: 'חלב תנובה 3% 1 ליטר', quantity: 2 + (weekNumber % 2), unitPrice: 6.90, category: 'מוצרי חלב', isChecked: true, checkedBy: aviUid, checkedAt: completedAt),
-    createListItem(id: 'w${weekNumber}_002', name: 'לחם אחיד פרוס', quantity: 2, unitPrice: 7.90, category: 'לחם ומאפים', isChecked: true, checkedBy: aviUid, checkedAt: completedAt),
-    createListItem(id: 'w${weekNumber}_003', name: 'ביצים חופש L 12 יח\'', quantity: 1, unitPrice: 19.90, category: 'ביצים', isChecked: true, checkedBy: aviUid, checkedAt: completedAt),
-    createListItem(id: 'w${weekNumber}_004', name: 'בננות', quantity: 1, unitPrice: 7.90, category: 'פירות וירקות', isChecked: true, checkedBy: ronitUid, checkedAt: completedAt),
-    createListItem(id: 'w${weekNumber}_005', name: 'עגבניות שרי', quantity: 1 + weekNumber, unitPrice: 12.90, category: 'פירות וירקות', isChecked: true, checkedBy: ronitUid, checkedAt: completedAt),
+    // מוצרים אמיתיים מהקטלוג:
+    createListItem(id: 'w${weekNumber}_001', name: 'חלב מועשר1% בקבוק 1 ליטר', quantity: 2 + (weekNumber % 2), unitPrice: 6.90, category: 'מוצרי חלב', isChecked: true, checkedBy: aviUid, checkedAt: completedAt),
+    createListItem(id: 'w${weekNumber}_002', name: 'לחם כפרי ללת"ס700 גרם', quantity: 2, unitPrice: 7.90, category: 'לחם ומאפים', isChecked: true, checkedBy: aviUid, checkedAt: completedAt),
+    createListItem(id: 'w${weekNumber}_003', name: 'ביצים 12 יח', quantity: 1, unitPrice: 19.90, category: 'ביצים', isChecked: true, checkedBy: aviUid, checkedAt: completedAt),
+    createListItem(id: 'w${weekNumber}_004', name: 'בננה', quantity: 1, unitPrice: 7.90, category: 'פירות וירקות', isChecked: true, checkedBy: ronitUid, checkedAt: completedAt),
+    createListItem(id: 'w${weekNumber}_005', name: 'עגבניה שרי', quantity: 1 + weekNumber, unitPrice: 12.90, category: 'פירות וירקות', isChecked: true, checkedBy: ronitUid, checkedAt: completedAt),
   ];
 
-  // Add week-specific items
+  // Add week-specific items (מוצרים מהקטלוג)
   if (weekNumber == 1) {
-    baseItems.add(createListItem(id: 'w1_006', name: 'שניצל עוף טבעי', quantity: 2, unitPrice: 39.90, category: 'בשר ועוף', isChecked: true, checkedBy: aviUid, checkedAt: completedAt));
+    baseItems.add(createListItem(id: 'w1_006', name: 'שניצל תירס קלאסי 750 גרם', quantity: 2, unitPrice: 39.90, category: 'בשר ועוף', isChecked: true, checkedBy: aviUid, checkedAt: completedAt));
   } else if (weekNumber == 2) {
-    baseItems.add(createListItem(id: 'w2_006', name: 'חזה עוף טרי', quantity: 3, unitPrice: 34.90, category: 'בשר ועוף', isChecked: true, checkedBy: aviUid, checkedAt: completedAt));
-    baseItems.add(createListItem(id: 'w2_007', name: 'נייר טואלט 32 גלילים', quantity: 1, unitPrice: 39.90, category: 'מוצרי ניקיון', isChecked: true, checkedBy: ronitUid, checkedAt: completedAt));
+    baseItems.add(createListItem(id: 'w2_006', name: 'חזה דקדק טרי ארוז שלי', quantity: 3, unitPrice: 34.90, category: 'בשר ועוף', isChecked: true, checkedBy: aviUid, checkedAt: completedAt));
+    baseItems.add(createListItem(id: 'w2_007', name: 'נייר טואלט דו שכבתי48XPO', quantity: 1, unitPrice: 39.90, category: 'מוצרי ניקיון', isChecked: true, checkedBy: ronitUid, checkedAt: completedAt));
   } else if (weekNumber == 3) {
-    baseItems.add(createListItem(id: 'w3_006', name: 'טונה בשמן 4 יח\'', quantity: 2, unitPrice: 29.90, category: 'שימורים', isChecked: true, checkedBy: yuvalUid, checkedAt: completedAt));
+    baseItems.add(createListItem(id: 'w3_006', name: 'טונה בשמן ויליגר1404 גרם', quantity: 2, unitPrice: 29.90, category: 'שימורים', isChecked: true, checkedBy: yuvalUid, checkedAt: completedAt));
   } else {
-    baseItems.add(createListItem(id: 'w4_006', name: 'בשר טחון', quantity: 1, unitPrice: 49.90, category: 'בשר ועוף', isChecked: true, checkedBy: aviUid, checkedAt: completedAt));
+    baseItems.add(createListItem(id: 'w4_006', name: 'בשר טחון בקר טרי', quantity: 1, unitPrice: 49.90, category: 'בשר ועוף', isChecked: true, checkedBy: aviUid, checkedAt: completedAt));
   }
 
   return baseItems;
@@ -789,9 +2156,9 @@ Map<String, List<Map<String, dynamic>>> generatePrivateLists() {
         'event_date': now.add(const Duration(days: 7)).toIso8601String(),
         'target_date': now.add(const Duration(days: 6)).toIso8601String(),
         'items': [
-          createListItem(id: 'avi_bbq_001', name: 'אנטריקוט 1 ק"ג', quantity: 2, unitPrice: 120.0, category: 'בשר ועוף'),
+          createListItem(id: 'avi_bbq_001', name: 'סטייק אנטריקוט', quantity: 2, unitPrice: 120.0, category: 'בשר ועוף'),
           createListItem(id: 'avi_bbq_002', name: 'כנפיים עוף', quantity: 2, unitPrice: 29.90, category: 'בשר ועוף'),
-          createListItem(id: 'avi_bbq_003', name: 'קבב טחון', quantity: 1, unitPrice: 45.0, category: 'בשר ועוף'),
+          createListItem(id: 'avi_bbq_003', name: 'קבב', quantity: 1, unitPrice: 45.0, category: 'בשר ועוף'),
           createListItem(id: 'avi_bbq_004', name: 'פחמים 5 ק"ג', quantity: 2, unitPrice: 35.0, category: 'ציוד מנגל'),
         ],
         'template_id': null,
@@ -926,10 +2293,10 @@ Map<String, List<Map<String, dynamic>>> generatePrivateLists() {
         'shared_with': [],
         'event_date': now.add(const Duration(days: 3)).toIso8601String(),
         'items': [
-          createListItem(id: 'yuval_snack_001', name: 'ביסלי גריל', quantity: 3, unitPrice: 8.90, category: 'חטיפים וממתקים'),
-          createListItem(id: 'yuval_snack_002', name: 'במבה אסם', quantity: 3, unitPrice: 6.90, category: 'חטיפים וממתקים'),
-          createListItem(id: 'yuval_snack_003', name: 'קולה 1.5 ליטר', quantity: 4, unitPrice: 8.90, category: 'משקאות'),
-          createListItem(id: 'yuval_snack_004', name: 'פיצה משפחתית', quantity: 2, unitPrice: 34.90, category: 'מוקפאים'),
+          createListItem(id: 'yuval_snack_001', name: 'ביסלי פלאפל 200 גרם', quantity: 3, unitPrice: 8.90, category: 'חטיפים וממתקים'),
+          createListItem(id: 'yuval_snack_002', name: 'במבה 2510 גרם', quantity: 3, unitPrice: 6.90, category: 'חטיפים וממתקים'),
+          createListItem(id: 'yuval_snack_003', name: 'קוקה קולה בקבוק 1.5 ליטר', quantity: 4, unitPrice: 8.90, category: 'משקאות'),
+          createListItem(id: 'yuval_snack_004', name: 'מאמאמיה פיצה מקסיקנית', quantity: 2, unitPrice: 34.90, category: 'מוקפאים'),
         ],
         'template_id': null,
         'format': 'personal',
@@ -1058,7 +2425,7 @@ List<Map<String, dynamic>> generateInventoryItems() {
     final category = entry.key;
     final config = entry.value;
     final count = config['count'] as int;
-    final expiryDays = config['expiryDays'] as int?;
+    final expiryDays = config['expiryDays'];
     final minQty = config['minQty'] as int;
 
     final categoryProducts = productsByCategory[category] ?? [];
@@ -1227,12 +2594,12 @@ List<Map<String, dynamic>> generateLeviSharedLists() {
     'event_date': null,
     'target_date': now.add(const Duration(days: 3)).toIso8601String(),
     'items': [
-      createListItem(id: 'levi_001', name: 'חלב תנובה 3% 1 ליטר', quantity: 2, unitPrice: 6.90, category: 'מוצרי חלב'),
-      createListItem(id: 'levi_002', name: 'לחם אחיד פרוס', quantity: 1, unitPrice: 7.90, category: 'לחם ומאפים'),
-      createListItem(id: 'levi_003', name: 'גבינה צהובה 28% עמק 200 גרם', quantity: 1, unitPrice: 12.90, category: 'מוצרי חלב'),
-      createListItem(id: 'levi_004', name: 'עגבניות שרי', quantity: 1, unitPrice: 12.90, category: 'פירות וירקות'),
+      createListItem(id: 'levi_001', name: 'חלב מועשר1% בקבוק 1 ליטר', quantity: 2, unitPrice: 6.90, category: 'מוצרי חלב'),
+      createListItem(id: 'levi_002', name: 'לחם כפרי ללת"ס700 גרם', quantity: 1, unitPrice: 7.90, category: 'לחם ומאפים'),
+      createListItem(id: 'levi_003', name: 'גבינה צהובה נעם 22% 200 ג', quantity: 1, unitPrice: 12.90, category: 'מוצרי חלב'),
+      createListItem(id: 'levi_004', name: 'עגבניה שרי', quantity: 1, unitPrice: 12.90, category: 'פירות וירקות'),
       createListItem(id: 'levi_005', name: 'אבוקדו', quantity: 3, unitPrice: 6.90, category: 'פירות וירקות'),
-      createListItem(id: 'levi_006', name: 'קפה עלית נמס 200 גרם', quantity: 1, unitPrice: 34.90, category: 'קפה ותה'),
+      createListItem(id: 'levi_006', name: 'קפה נמס עלית 50 גרם', quantity: 1, unitPrice: 34.90, category: 'קפה ותה'),
     ],
     'template_id': null,
     'format': 'shared',
@@ -1266,11 +2633,12 @@ List<Map<String, dynamic>> generateLeviSharedLists() {
     'event_date': now.add(const Duration(days: 5)).toIso8601String(),
     'target_date': now.add(const Duration(days: 4)).toIso8601String(),
     'items': [
-      createListItem(id: 'levi_party_001', name: 'שניצל עוף טבעי', quantity: 2, unitPrice: 39.90, category: 'בשר ועוף'),
-      createListItem(id: 'levi_party_002', name: 'אורז בסמטי 1 ק"ג', quantity: 1, unitPrice: 15.90, category: 'אורז ופסטה'),
-      createListItem(id: 'levi_party_003', name: 'יין אדום', quantity: 2, unitPrice: 45.0, category: 'משקאות'),
-      createListItem(id: 'levi_party_004', name: 'שמנת מתוקה 38%', quantity: 2, unitPrice: 9.90, category: 'מוצרי חלב'),
-      createListItem(id: 'levi_party_005', name: 'שוקולד פרה מילקה', quantity: 3, unitPrice: 12.90, category: 'חטיפים וממתקים'),
+      // מוצרים אמיתיים מהקטלוג:
+      createListItem(id: 'levi_party_001', name: 'נגיסי עוף ישרלה מחבת600', quantity: 2, unitPrice: 39.90, category: 'בשר ועוף'),
+      createListItem(id: 'levi_party_002', name: 'אורז בסמטי טילדה 1 ק"ג', quantity: 1, unitPrice: 15.90, category: 'אורז ופסטה'),
+      createListItem(id: 'levi_party_003', name: 'יין אדום חצי יבש 750 מ"ל', quantity: 2, unitPrice: 45.0, category: 'משקאות'),
+      createListItem(id: 'levi_party_004', name: 'שמנת מתוקה להקצפה32% 250', quantity: 2, unitPrice: 9.90, category: 'מוצרי חלב'),
+      createListItem(id: 'levi_party_005', name: 'מאגדת מיני מילקה קרמל 6 י', quantity: 3, unitPrice: 12.90, category: 'חטיפים וממתקים'),
     ],
     'template_id': null,
     'format': 'shared',
@@ -1305,10 +2673,10 @@ List<Map<String, dynamic>> generateLeviSharedLists() {
     'event_date': null,
     'target_date': lastWeek.add(const Duration(days: 2)).toIso8601String(),
     'items': [
-      createListItem(id: 'levi_c1_001', name: 'חלב תנובה 3% 1 ליטר', quantity: 2, unitPrice: 6.90, category: 'מוצרי חלב', isChecked: true, checkedBy: danUserId, checkedAt: lastWeek),
-      createListItem(id: 'levi_c1_002', name: 'לחם אחיד פרוס', quantity: 1, unitPrice: 7.90, category: 'לחם ומאפים', isChecked: true, checkedBy: danUserId, checkedAt: lastWeek),
-      createListItem(id: 'levi_c1_003', name: 'ביצים חופש L 12 יח\'', quantity: 1, unitPrice: 19.90, category: 'ביצים', isChecked: true, checkedBy: mayaUserId, checkedAt: lastWeek),
-      createListItem(id: 'levi_c1_004', name: 'חזה עוף טרי', quantity: 1, unitPrice: 34.90, category: 'בשר ועוף', isChecked: true, checkedBy: mayaUserId, checkedAt: lastWeek),
+      createListItem(id: 'levi_c1_001', name: 'חלב מועשר1% בקבוק 1 ליטר', quantity: 2, unitPrice: 6.90, category: 'מוצרי חלב', isChecked: true, checkedBy: danUserId, checkedAt: lastWeek),
+      createListItem(id: 'levi_c1_002', name: 'לחם כפרי ללת"ס700 גרם', quantity: 1, unitPrice: 7.90, category: 'לחם ומאפים', isChecked: true, checkedBy: danUserId, checkedAt: lastWeek),
+      createListItem(id: 'levi_c1_003', name: 'ביצים 12 יח', quantity: 1, unitPrice: 19.90, category: 'ביצים', isChecked: true, checkedBy: mayaUserId, checkedAt: lastWeek),
+      createListItem(id: 'levi_c1_004', name: 'חזה דקדק טרי ארוז שלי', quantity: 1, unitPrice: 34.90, category: 'בשר ועוף', isChecked: true, checkedBy: mayaUserId, checkedAt: lastWeek),
     ],
     'template_id': null,
     'format': 'shared',
@@ -1464,11 +2832,11 @@ Map<String, List<Map<String, dynamic>>> generateTomerPrivateLists() {
         'event_date': null,
         'target_date': now.add(const Duration(days: 2)).toIso8601String(),
         'items': [
-          createListItem(id: 'tomer_001', name: 'חלב תנובה 3% 1 ליטר', quantity: 1, unitPrice: 6.90, category: 'מוצרי חלב'),
-          createListItem(id: 'tomer_002', name: 'לחם אחיד פרוס', quantity: 1, unitPrice: 7.90, category: 'לחם ומאפים'),
-          createListItem(id: 'tomer_003', name: 'יוגורט דנונה בננה', quantity: 4, unitPrice: 4.50, category: 'מוצרי חלב'),
-          createListItem(id: 'tomer_004', name: 'בננות', quantity: 1, unitPrice: 7.90, category: 'פירות וירקות'),
-          createListItem(id: 'tomer_005', name: 'טונה בשמן 4 יח\'', quantity: 1, unitPrice: 29.90, category: 'שימורים'),
+          createListItem(id: 'tomer_001', name: 'חלב מועשר1% בקבוק 1 ליטר', quantity: 1, unitPrice: 6.90, category: 'מוצרי חלב'),
+          createListItem(id: 'tomer_002', name: 'לחם כפרי ללת"ס700 גרם', quantity: 1, unitPrice: 7.90, category: 'לחם ומאפים'),
+          createListItem(id: 'tomer_003', name: 'יוגורט יופלה מנגו בננ3%', quantity: 4, unitPrice: 4.50, category: 'מוצרי חלב'),
+          createListItem(id: 'tomer_004', name: 'בננה', quantity: 1, unitPrice: 7.90, category: 'פירות וירקות'),
+          createListItem(id: 'tomer_005', name: 'טונה בשמן ויליגר1404 גרם', quantity: 1, unitPrice: 29.90, category: 'שימורים'),
         ],
         'template_id': null,
         'format': 'personal',
@@ -1491,10 +2859,10 @@ Map<String, List<Map<String, dynamic>>> generateTomerPrivateLists() {
         'created_by': tomerId,
         'shared_with': [],
         'items': [
-          createListItem(id: 'tomer_c1_001', name: 'חלב תנובה 3% 1 ליטר', quantity: 1, unitPrice: 6.90, category: 'מוצרי חלב', isChecked: true, checkedBy: tomerId),
-          createListItem(id: 'tomer_c1_002', name: 'ביצים חופש L 12 יח\'', quantity: 1, unitPrice: 19.90, category: 'ביצים', isChecked: true, checkedBy: tomerId),
-          createListItem(id: 'tomer_c1_003', name: 'פיצה משפחתית', quantity: 2, unitPrice: 34.90, category: 'מוקפאים', isChecked: true, checkedBy: tomerId),
-          createListItem(id: 'tomer_c1_004', name: 'קולה 1.5 ליטר', quantity: 2, unitPrice: 8.90, category: 'משקאות', isChecked: true, checkedBy: tomerId),
+          createListItem(id: 'tomer_c1_001', name: 'חלב מועשר1% בקבוק 1 ליטר', quantity: 1, unitPrice: 6.90, category: 'מוצרי חלב', isChecked: true, checkedBy: tomerId),
+          createListItem(id: 'tomer_c1_002', name: 'ביצים 12 יח', quantity: 1, unitPrice: 19.90, category: 'ביצים', isChecked: true, checkedBy: tomerId),
+          createListItem(id: 'tomer_c1_003', name: 'מאמאמיה פיצה מקסיקנית', quantity: 2, unitPrice: 34.90, category: 'מוקפאים', isChecked: true, checkedBy: tomerId),
+          createListItem(id: 'tomer_c1_004', name: 'קוקה קולה בקבוק 1.5 ליטר', quantity: 2, unitPrice: 8.90, category: 'משקאות', isChecked: true, checkedBy: tomerId),
         ],
         'template_id': null,
         'format': 'personal',
@@ -1517,9 +2885,9 @@ Map<String, List<Map<String, dynamic>>> generateTomerPrivateLists() {
         'created_by': tomerId,
         'shared_with': [],
         'items': [
-          createListItem(id: 'tomer_c2_001', name: 'חלב תנובה 3% 1 ליטר', quantity: 2, unitPrice: 6.90, category: 'מוצרי חלב', isChecked: true, checkedBy: tomerId),
-          createListItem(id: 'tomer_c2_002', name: 'לחם אחיד פרוס', quantity: 1, unitPrice: 7.90, category: 'לחם ומאפים', isChecked: true, checkedBy: tomerId),
-          createListItem(id: 'tomer_c2_003', name: 'במבה אסם', quantity: 3, unitPrice: 6.90, category: 'חטיפים וממתקים', isChecked: true, checkedBy: tomerId),
+          createListItem(id: 'tomer_c2_001', name: 'חלב מועשר1% בקבוק 1 ליטר', quantity: 2, unitPrice: 6.90, category: 'מוצרי חלב', isChecked: true, checkedBy: tomerId),
+          createListItem(id: 'tomer_c2_002', name: 'לחם כפרי ללת"ס700 גרם', quantity: 1, unitPrice: 7.90, category: 'לחם ומאפים', isChecked: true, checkedBy: tomerId),
+          createListItem(id: 'tomer_c2_003', name: 'במבה 2510 גרם', quantity: 3, unitPrice: 6.90, category: 'חטיפים וממתקים', isChecked: true, checkedBy: tomerId),
         ],
         'template_id': null,
         'format': 'personal',
@@ -2045,10 +3413,10 @@ Map<String, List<Map<String, dynamic>>> generateShiranPrivateLists() {
         'event_date': null,
         'target_date': now.add(const Duration(days: 4)).toIso8601String(),
         'items': [
-          createListItem(id: 'shiran_001', name: 'לחם אחיד פרוס', quantity: 2, unitPrice: 7.90, category: 'לחם ומאפים'),
-          createListItem(id: 'shiran_002', name: 'עגבניות שרי', quantity: 1, unitPrice: 12.90, category: 'פירות וירקות'),
-          createListItem(id: 'shiran_003', name: 'מלפפונים', quantity: 1, unitPrice: 4.90, category: 'פירות וירקות'),
-          createListItem(id: 'shiran_004', name: 'בננות', quantity: 1, unitPrice: 7.90, category: 'פירות וירקות'),
+          createListItem(id: 'shiran_001', name: 'לחם כפרי ללת"ס700 גרם', quantity: 2, unitPrice: 7.90, category: 'לחם ומאפים'),
+          createListItem(id: 'shiran_002', name: 'עגבניה שרי', quantity: 1, unitPrice: 12.90, category: 'פירות וירקות'),
+          createListItem(id: 'shiran_003', name: 'מלפפון', quantity: 1, unitPrice: 4.90, category: 'פירות וירקות'),
+          createListItem(id: 'shiran_004', name: 'בננה', quantity: 1, unitPrice: 7.90, category: 'פירות וירקות'),
         ],
         'template_id': null,
         'format': 'personal',
@@ -2134,6 +3502,316 @@ List<Map<String, dynamic>> generatePendingRequests() {
       'list_name': 'קניות שבועיות',
     },
   ];
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// EXTERNAL SHARED LISTS (שיתוף עם אנשים מחוץ למשפחה)
+// ═══════════════════════════════════════════════════════════════════
+
+/// 🔗 רשימות משותפות עם אנשים מחוץ ל-household
+///
+/// אלו רשימות עם `is_private: true` + `shared_users` - כך שהמזווה
+/// של הבעלים לא יופיע למשתף.
+Map<String, List<Map<String, dynamic>>> generateExternalSharedLists(
+  Map<String, String> allUids,
+) {
+  final now = DateTime.now();
+  final result = <String, List<Map<String, dynamic>>>{};
+
+  // קבלת ה-UIDs האמיתיים
+  final yuvalUid = allUids[yuvalUserId];
+  final tomerUid = allUids[tomerId];
+  final ronitUid = allUids[ronitUserId];
+  final shiranUid = allUids[shiranId];
+  final danUid = allUids[danUserId];
+  final aviUid = allUids[aviUserId];
+
+  // 1. יובל משתף רשימה עם תומר (חבר מחוץ למשפחה)
+  if (yuvalUid != null && tomerUid != null) {
+    final yuvalExternalList = {
+      'id': 'yuval_external_friends_party',
+      'name': 'מסיבה אצל תומר',
+      'updated_date': now.toIso8601String(),
+      'created_date': now.subtract(const Duration(days: 2)).toIso8601String(),
+      'status': 'active',
+      'type': 'event',
+      'budget': 300.0,
+      'is_shared': true,
+      'is_private': true,  // ⚠️ לא משותף עם household!
+      'created_by': yuvalUid,
+      'shared_with': [tomerUid],
+      'event_date': now.add(const Duration(days: 5)).toIso8601String(),
+      'target_date': now.add(const Duration(days: 4)).toIso8601String(),
+      'items': _generateItemsForExternalList('event', 8),
+      'format': 'shared',
+      'created_from_template': false,
+      'active_shoppers': [],
+      'shared_users': {
+        tomerUid: {
+          'role': 'editor',
+          'shared_at': now.subtract(const Duration(days: 2)).toIso8601String(),
+          'user_name': 'תומר בר',
+          'user_email': 'tomer.bar@demo.com',
+          'can_start_shopping': true,
+        },
+      },
+      'pending_requests': [],
+    };
+
+    result[yuvalUid] = [yuvalExternalList];
+  }
+
+  // 2. רונית משתפת רשימה עם שירן (חברה)
+  if (ronitUid != null && shiranUid != null) {
+    final ronitExternalList = {
+      'id': 'ronit_external_gifts',
+      'name': 'מתנות לחג',
+      'updated_date': now.toIso8601String(),
+      'created_date': now.subtract(const Duration(days: 1)).toIso8601String(),
+      'status': 'active',
+      'type': 'other',
+      'budget': 500.0,
+      'is_shared': true,
+      'is_private': true,  // ⚠️ לא משותף עם household!
+      'created_by': ronitUid,
+      'shared_with': [shiranUid],
+      'event_date': null,
+      'target_date': now.add(const Duration(days: 10)).toIso8601String(),
+      'items': _generateItemsForExternalList('other', 6),
+      'format': 'shared',
+      'created_from_template': false,
+      'active_shoppers': [],
+      'shared_users': {
+        shiranUid: {
+          'role': 'editor',
+          'shared_at': now.subtract(const Duration(days: 1)).toIso8601String(),
+          'user_name': 'שירן גל',
+          'user_email': 'shiran.gal@demo.com',
+          'can_start_shopping': true,
+        },
+      },
+      'pending_requests': [],
+    };
+
+    result[ronitUid] = [ronitExternalList];
+  }
+
+  // 3. דן (לוי) משתף רשימה עם אבי (כהן) - פיקניק בין משפחות
+  if (danUid != null && aviUid != null) {
+    final danExternalList = {
+      'id': 'dan_external_picnic',
+      'name': 'פיקניק משפחות בפארק',
+      'updated_date': now.toIso8601String(),
+      'created_date': now.subtract(const Duration(days: 3)).toIso8601String(),
+      'status': 'active',
+      'type': 'event',
+      'budget': 400.0,
+      'is_shared': true,
+      'is_private': true,  // ⚠️ לא משותף עם household של לוי!
+      'created_by': danUid,
+      'shared_with': [aviUid],
+      'event_date': now.add(const Duration(days: 7)).toIso8601String(),
+      'target_date': now.add(const Duration(days: 6)).toIso8601String(),
+      'items': _generateItemsForExternalList('event', 10),
+      'format': 'shared',
+      'created_from_template': false,
+      'active_shoppers': [],
+      'shared_users': {
+        aviUid: {
+          'role': 'editor',
+          'shared_at': now.subtract(const Duration(days: 3)).toIso8601String(),
+          'user_name': 'אבי כהן',
+          'user_email': 'avi.cohen@demo.com',
+          'can_start_shopping': true,
+        },
+      },
+      'pending_requests': [],
+    };
+
+    result[danUid] = [danExternalList];
+  }
+
+  return result;
+}
+
+/// יצירת פריטים לרשימה חיצונית (משתמש במוצרים מ-JSON)
+List<Map<String, dynamic>> _generateItemsForExternalList(String type, int count) {
+  final now = DateTime.now();
+  final items = <Map<String, dynamic>>[];
+
+  // בחר מוצרים אקראיים מהמאגר
+  final products = getRandomProductsFromAll(count);
+
+  for (var i = 0; i < products.length; i++) {
+    final product = products[i];
+    items.add({
+      'id': 'ext_item_${now.millisecondsSinceEpoch}_$i',
+      'type': 'product',
+      'name': product['name'] ?? 'מוצר',
+      'quantity': (i % 3) + 1,  // 1-3
+      'unit_price': (product['price'] as num?)?.toDouble() ?? 10.0,
+      'is_checked': i < 2,  // 2 פריטים ראשונים מסומנים
+      'checked_at': i < 2 ? now.subtract(const Duration(hours: 1)).toIso8601String() : null,
+      'checked_by': null,
+      'added_at': now.subtract(Duration(days: i)).toIso8601String(),
+      'category': product['category'] ?? 'כללי',
+      'barcode': product['barcode'],
+      'brand': product['brand'],
+      'unit': product['unit'] ?? 'יחידה',
+      'icon': product['icon'] ?? '📦',
+      'notes': null,
+      'priority': 'normal',
+      'added_by': null,
+    });
+  }
+
+  return items;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SAVED CONTACTS (אנשי קשר שמורים)
+// ═══════════════════════════════════════════════════════════════════
+
+/// 📇 אנשי קשר שמורים לכל משתמש
+///
+/// מאפשר הזמנה מהירה לרשימות בעתיד
+Map<String, List<Map<String, dynamic>>> generateSavedContacts(
+  Map<String, String> allUids,
+) {
+  final now = DateTime.now();
+  final result = <String, List<Map<String, dynamic>>>{};
+
+  // הגדרת כל המשתמשים עם הפרטים שלהם
+  final userDetails = <String, Map<String, String>>{
+    aviUserId: {'name': 'אבי כהן', 'email': 'avi.cohen@demo.com'},
+    ronitUserId: {'name': 'רונית כהן', 'email': 'ronit.cohen@demo.com'},
+    yuvalUserId: {'name': 'יובל כהן', 'email': 'yuval.cohen@demo.com'},
+    noaUserId: {'name': 'נועה כהן', 'email': 'noa.cohen@demo.com'},
+    danUserId: {'name': 'דן לוי', 'email': 'dan.levi@demo.com'},
+    mayaUserId: {'name': 'מאיה לוי', 'email': 'maya.levi@demo.com'},
+    tomerId: {'name': 'תומר בר', 'email': 'tomer.bar@demo.com'},
+    shiranId: {'name': 'שירן גל', 'email': 'shiran.gal@demo.com'},
+  };
+
+  // Helper function ליצירת איש קשר
+  Map<String, dynamic> createContact(String contactUserId, int daysAgo) {
+    final uid = allUids[contactUserId];
+    final details = userDetails[contactUserId]!;
+    return {
+      'user_id': uid ?? contactUserId,
+      'user_name': details['name'],
+      'user_email': details['email'],
+      'user_avatar': null,
+      'added_at': now.subtract(Duration(days: daysAgo + 10)).toIso8601String(),
+      'last_invited_at': now.subtract(Duration(days: daysAgo)).toIso8601String(),
+    };
+  }
+
+  // אבי - אנשי קשר: רונית, יובל, נועה, דן
+  final aviUid = allUids[aviUserId];
+  if (aviUid != null) {
+    result[aviUid] = [
+      createContact(ronitUserId, 1),
+      createContact(yuvalUserId, 3),
+      createContact(noaUserId, 5),
+      createContact(danUserId, 7),
+    ];
+  }
+
+  // רונית - אנשי קשר: אבי, יובל, נועה, שירן
+  final ronitUid = allUids[ronitUserId];
+  if (ronitUid != null) {
+    result[ronitUid] = [
+      createContact(aviUserId, 1),
+      createContact(yuvalUserId, 2),
+      createContact(noaUserId, 4),
+      createContact(shiranId, 1),
+    ];
+  }
+
+  // יובל - אנשי קשר: אבי, רונית, נועה, תומר
+  final yuvalUid = allUids[yuvalUserId];
+  if (yuvalUid != null) {
+    result[yuvalUid] = [
+      createContact(aviUserId, 5),
+      createContact(ronitUserId, 3),
+      createContact(noaUserId, 2),
+      createContact(tomerId, 2),
+    ];
+  }
+
+  // נועה - אנשי קשר: אבי, רונית, יובל
+  final noaUid = allUids[noaUserId];
+  if (noaUid != null) {
+    result[noaUid] = [
+      createContact(aviUserId, 4),
+      createContact(ronitUserId, 3),
+      createContact(yuvalUserId, 1),
+    ];
+  }
+
+  // דן - אנשי קשר: מאיה, אבי
+  final danUid = allUids[danUserId];
+  if (danUid != null) {
+    result[danUid] = [
+      createContact(mayaUserId, 1),
+      createContact(aviUserId, 3),
+    ];
+  }
+
+  // מאיה - אנשי קשר: דן
+  final mayaUid = allUids[mayaUserId];
+  if (mayaUid != null) {
+    result[mayaUid] = [
+      createContact(danUserId, 1),
+    ];
+  }
+
+  // תומר - אנשי קשר: יובל
+  final tomerUid = allUids[tomerId];
+  if (tomerUid != null) {
+    result[tomerUid] = [
+      createContact(yuvalUserId, 2),
+    ];
+  }
+
+  // שירן - אנשי קשר: רונית, נועה, יובל
+  final shiranUid = allUids[shiranId];
+  if (shiranUid != null) {
+    result[shiranUid] = [
+      createContact(ronitUserId, 1), // חברה קרובה
+      createContact(noaUserId, 3), // חברה מהקבוצה
+      createContact(yuvalUserId, 5), // שלחה לה הזמנה לספורט
+    ];
+  }
+
+  return result;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// HELPER FUNCTIONS
+// ═══════════════════════════════════════════════════════════════════
+
+/// Helper להשגת שם משתמש לפי UID
+String _getUserNameByUid(String uid, Map<String, String> allUids) {
+  // מיפוי הפוך: UID -> User ID -> Name
+  final userIdToName = <String, String>{
+    aviUserId: 'אבי כהן',
+    ronitUserId: 'רונית כהן',
+    yuvalUserId: 'יובל כהן',
+    noaUserId: 'נועה כהן',
+    danUserId: 'דן לוי',
+    mayaUserId: 'מאיה לוי',
+    tomerId: 'תומר בר',
+    shiranId: 'שירן גל',
+  };
+
+  for (final entry in allUids.entries) {
+    if (entry.value == uid) {
+      return userIdToName[entry.key] ?? entry.key;
+    }
+  }
+  return uid;
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -2289,14 +3967,69 @@ dynamic _convertValue(dynamic value) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
+// CLEANUP FUNCTIONS
+// ═══════════════════════════════════════════════════════════════════
+
+/// 🧹 מוחק את כל הנתונים מ-Firestore Emulator
+/// משתמש ב-endpoint המיוחד של האמולטור
+Future<void> cleanAllFirestoreData() async {
+  print('🧹 מוחק את כל הנתונים מ-Firestore...');
+
+  final url = Uri.parse(
+    'http://$firestoreHost/emulator/v1/projects/$projectId/databases/(default)/documents',
+  );
+
+  final response = await http.delete(url);
+
+  if (response.statusCode == 200) {
+    print('   ✅ כל הנתונים נמחקו בהצלחה');
+  } else {
+    print('   ⚠️ שגיאה במחיקה: ${response.statusCode} - ${response.body}');
+  }
+}
+
+/// 🧹 מוחק את כל המשתמשים מ-Auth Emulator
+Future<void> cleanAllAuthUsers() async {
+  print('🧹 מוחק את כל המשתמשים מ-Auth...');
+
+  final url = Uri.parse(
+    'http://$authHost/emulator/v1/projects/$projectId/accounts',
+  );
+
+  final response = await http.delete(url);
+
+  if (response.statusCode == 200) {
+    print('   ✅ כל המשתמשים נמחקו בהצלחה');
+  } else {
+    print('   ⚠️ שגיאה במחיקה: ${response.statusCode} - ${response.body}');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
 // MAIN
 // ═══════════════════════════════════════════════════════════════════
 
-void main() async {
+void main(List<String> args) async {
+  // 🆕 בדיקת flags
+  final shouldClean = args.contains('--clean');
+
   print('═' * 60);
   print('🏠 יוצר דאטה דמו - כל המשתמשים');
+  if (shouldClean) {
+    print('🧹 מצב ניקוי: מוחק נתונים קיימים לפני יצירה');
+  }
   print('═' * 60);
   print('');
+
+  // 🧹 ניקוי נתונים קיימים אם התבקש
+  if (shouldClean) {
+    print('━' * 60);
+    print('🧹 מנקה נתונים קיימים...');
+    print('━' * 60);
+    await cleanAllAuthUsers();
+    await cleanAllFirestoreData();
+    print('');
+  }
 
   // 📦 טעינת מוצרים מקבצי JSON
   print('━' * 60);
@@ -2321,6 +4054,22 @@ void main() async {
   print('');
   print('🆕 משתמש חדש - שירן גל:');
   print('   👤 שירן גל - מזווה עשיר, בלי היסטוריה');
+  print('');
+  print('🏢 ועד בית - הדקל 15:');
+  print('   👤 משה גולן - Owner (יו"ר)');
+  print('   👤 שרה לוי - Admin (גזברית)');
+  print('   👤 דוד כהן - Editor');
+  print('   👤 מיכל אברהם - Viewer');
+  print('');
+  print('🎒 ועד גן - שושנים:');
+  print('   👤 יעל ברק - Owner (יו"ר)');
+  print('   👤 אורנה שלום - Admin');
+  print('   👤 רמי דור - Editor');
+  print('');
+  print('💒 אירוע - חתונת ליאור ונועם:');
+  print('   👤 ליאור כץ - Owner (חתן)');
+  print('   👤 נועם שפירא - Admin (כלה)');
+  print('   👤 אייל כץ - Editor (אח)');
   print('');
   print('📍 Firebase Emulator:');
   print('   Auth: http://$authHost');
@@ -2414,9 +4163,18 @@ void main() async {
       // Update user data with real UID
       final userData = Map<String, dynamic>.from(entry.value);
       userData['id'] = uid;
-      // 🔧 הוספת group_ids - לוי שייכים לקבוצת לוי, תומר ושירן בלי קבוצה
+      // 🔧 הוספת group_ids לפי שיוך המשתמש
       if (entry.key == danUserId || entry.key == mayaUserId) {
         userData['group_ids'] = [leviGroupId];
+      } else if (entry.key == mosheUserId || entry.key == saraUserId ||
+                 entry.key == davidUserId || entry.key == michalUserId) {
+        userData['group_ids'] = [buildingGroupId];  // ועד בית
+      } else if (entry.key == yaelUserId || entry.key == ornaUserId ||
+                 entry.key == ramiUserId) {
+        userData['group_ids'] = [kindergartenGroupId];  // ועד גן
+      } else if (entry.key == liorUserId || entry.key == noamUserId ||
+                 entry.key == eyalUserId) {
+        userData['group_ids'] = [weddingGroupId];  // אירוע חתונה
       } else {
         userData['group_ids'] = <String>[]; // תומר ושירן - בלי קבוצות
       }
@@ -2445,6 +4203,39 @@ void main() async {
     print('   📝 ${leviGroupData['name']}');
     await writeDocument('groups', leviGroupId, leviGroupData);
     print('   ✅ קבוצת לוי נוצרה');
+    print('');
+
+    // 3c. Create Building Committee Group (ועד בית)
+    print('━' * 60);
+    print('🏢 יוצר קבוצת ועד בית...');
+    print('━' * 60);
+
+    final buildingGroupData = generateBuildingGroup(additionalUids);
+    print('   📝 ${buildingGroupData['name']}');
+    await writeDocument('groups', buildingGroupId, buildingGroupData);
+    print('   ✅ קבוצת ועד בית נוצרה');
+    print('');
+
+    // 3d. Create Kindergarten Committee Group (ועד גן)
+    print('━' * 60);
+    print('🎒 יוצר קבוצת ועד הורים גן...');
+    print('━' * 60);
+
+    final kindergartenGroupData = generateKindergartenGroup(additionalUids);
+    print('   📝 ${kindergartenGroupData['name']}');
+    await writeDocument('groups', kindergartenGroupId, kindergartenGroupData);
+    print('   ✅ קבוצת ועד גן נוצרה');
+    print('');
+
+    // 3e. Create Wedding Event Group (אירוע חתונה)
+    print('━' * 60);
+    print('💒 יוצר קבוצת אירוע חתונה...');
+    print('━' * 60);
+
+    final weddingGroupData = generateWeddingGroup(additionalUids);
+    print('   📝 ${weddingGroupData['name']}');
+    await writeDocument('groups', weddingGroupId, weddingGroupData);
+    print('   ✅ קבוצת אירוע חתונה נוצרה');
     print('');
 
     // 4. Create Group Invite (Elad) - with real UIDs
@@ -2686,6 +4477,179 @@ void main() async {
     print('   📊 אין קבלות - משתמש חדש');
     print('');
 
+    // ═══════════════════════════════════════════════════════════════
+    // EXTERNAL SHARED LISTS (שיתוף עם אנשים מחוץ למשפחה)
+    // ═══════════════════════════════════════════════════════════════
+
+    print('━' * 60);
+    print('🔗 יוצר רשימות משותפות חיצוניות...');
+    print('━' * 60);
+
+    // איחוד כל ה-UIDs
+    final allUids = <String, String>{
+      ...cohenUids,
+      ...additionalUids,
+    };
+
+    // ═══════════════════════════════════════════════════════════════
+    // SHIRAN'S PENDING INVITES & FRIENDS GROUP
+    // ═══════════════════════════════════════════════════════════════
+
+    print('━' * 60);
+    print('📨 יוצר הזמנות ממתינות לשירן...');
+    print('━' * 60);
+
+    final shiranInvites = generateShiranPendingInvites(allUids);
+    for (final invite in shiranInvites) {
+      print('   📧 ${invite['group_name']} (${invite['role']})');
+      await writeDocument('group_invites', invite['id'] as String, invite);
+    }
+    print('   ✅ ${shiranInvites.length} הזמנות ממתינות נוצרו לשירן');
+    print('');
+
+    print('━' * 60);
+    print('👯‍♀️ יוצר קבוצת החברות של שירן...');
+    print('━' * 60);
+
+    final shiranFriendsGroup = generateShiranFriendsGroup(allUids);
+    await writeDocument('groups', shiranFriendsGroupId, shiranFriendsGroup);
+    print('   ✅ קבוצת "החברות של שירן" נוצרה');
+    print('');
+
+    print('━' * 60);
+    print('🏋️ יוצר קבוצת חברים לספורט...');
+    print('━' * 60);
+
+    final workoutBuddiesGroup = generateWorkoutBuddiesGroup(allUids);
+    await writeDocument('groups', workoutBuddiesGroupId, workoutBuddiesGroup);
+    print('   ✅ קבוצת "חברות לספורט" נוצרה (יובל + תומר, הזמנה לשירן)');
+    print('');
+
+    print('━' * 60);
+    print('📋 יוצר רשימות משותפות לקבוצת החברות...');
+    print('━' * 60);
+
+    final friendsLists = generateFriendsGroupLists(allUids);
+    for (final list in friendsLists) {
+      print('   📝 ${list['name']} (${list['status']})');
+      await writeSubDocument(
+        'groups/$shiranFriendsGroupId/shared_lists',
+        list['id'] as String,
+        list,
+      );
+    }
+    print('   ✅ ${friendsLists.length} רשימות משותפות נוצרו לקבוצת החברות');
+    print('');
+
+    final externalLists = generateExternalSharedLists(allUids);
+    var externalCount = 0;
+    for (final entry in externalLists.entries) {
+      final userId = entry.key;
+      for (final list in entry.value) {
+        print('   📝 ${list['name']} (בעלים: ${_getUserNameByUid(userId, allUids)})');
+        await writeSubDocument(
+          'users/$userId/private_lists',
+          list['id'] as String,
+          list,
+        );
+        externalCount++;
+      }
+    }
+    print('   ✅ $externalCount רשימות משותפות חיצוניות נוצרו');
+    print('');
+
+    // ═══════════════════════════════════════════════════════════════
+    // SAVED CONTACTS (אנשי קשר שמורים)
+    // ═══════════════════════════════════════════════════════════════
+
+    print('━' * 60);
+    print('📇 יוצר אנשי קשר שמורים...');
+    print('━' * 60);
+
+    final savedContacts = generateSavedContacts(allUids);
+    var contactsCount = 0;
+    for (final entry in savedContacts.entries) {
+      final userId = entry.key;
+      final contacts = entry.value;
+      print('   👤 ${_getUserNameByUid(userId, allUids)}: ${contacts.length} אנשי קשר');
+      for (final contact in contacts) {
+        await writeSubDocument(
+          'users/$userId/saved_contacts',
+          contact['user_id'] as String,
+          contact,
+        );
+        contactsCount++;
+      }
+    }
+    print('   ✅ $contactsCount אנשי קשר שמורים נוצרו');
+    print('');
+
+    // ═══════════════════════════════════════════════════════════════
+    // VOTING LISTS (Building Committee)
+    // ═══════════════════════════════════════════════════════════════
+
+    print('━' * 60);
+    print('🗳️ יוצר רשימות הצבעה - ועד בית...');
+    print('━' * 60);
+
+    final votingLists = generateBuildingVotingList(additionalUids);
+    for (final list in votingLists) {
+      print('   📝 ${list['name']}');
+      await writeSubDocument(
+        'groups/$buildingGroupId/shared_lists',
+        list['id'] as String,
+        list,
+      );
+    }
+    print('   ✅ ${votingLists.length} רשימות הצבעה נוצרו');
+    print('');
+
+    // ═══════════════════════════════════════════════════════════════
+    // WHO'S BRINGING LISTS (Kindergarten Committee)
+    // ═══════════════════════════════════════════════════════════════
+
+    print('━' * 60);
+    print('🙋 יוצר רשימות "מי מביא" - ועד גן...');
+    print('━' * 60);
+
+    final whoBringsLists = generateKindergartenPartyList(additionalUids);
+    for (final list in whoBringsLists) {
+      print('   📝 ${list['name']}');
+      await writeSubDocument(
+        'groups/$kindergartenGroupId/shared_lists',
+        list['id'] as String,
+        list,
+      );
+    }
+    print('   ✅ ${whoBringsLists.length} רשימות "מי מביא" נוצרו');
+    print('');
+
+    // ═══════════════════════════════════════════════════════════════
+    // NOTIFICATIONS
+    // ═══════════════════════════════════════════════════════════════
+
+    print('━' * 60);
+    print('🔔 יוצר התראות...');
+    print('━' * 60);
+
+    final notifications = generateNotifications(allUids);
+    var notifCount = 0;
+    for (final entry in notifications.entries) {
+      final userId = entry.key;
+      final userNotifs = entry.value;
+      print('   👤 ${_getUserNameByUid(userId, allUids)}: ${userNotifs.length} התראות');
+      for (final notif in userNotifs) {
+        await writeSubDocument(
+          'users/$userId/notifications',
+          notif['id'] as String,
+          notif,
+        );
+        notifCount++;
+      }
+    }
+    print('   ✅ $notifCount התראות נוצרו');
+    print('');
+
     // Summary
     print('═' * 60);
     print('✅ הדאטה נוצר בהצלחה!');
@@ -2709,6 +4673,22 @@ void main() async {
     print('');
     print('   🆕 שירן גל:');
     print('      shiran.gal@demo.com');
+    print('');
+    print('   🏢 ועד בית (הדקל 15):');
+    print('      moshe.golan@demo.com (יו"ר)');
+    print('      sara.levi@demo.com (גזברית)');
+    print('      david.cohen@demo.com');
+    print('      michal.avraham@demo.com');
+    print('');
+    print('   🎒 ועד גן (שושנים):');
+    print('      yael.barak@demo.com (יו"ר)');
+    print('      orna.shalom@demo.com');
+    print('      rami.dor@demo.com');
+    print('');
+    print('   💒 חתונת ליאור ונועם:');
+    print('      lior.katz@demo.com (חתן)');
+    print('      noam.shapira@demo.com (כלה)');
+    print('      eyal.katz@demo.com (אח)');
     print('');
     print('⚠️ הערה: המחירים הם להמחשה בלבד');
     print('');

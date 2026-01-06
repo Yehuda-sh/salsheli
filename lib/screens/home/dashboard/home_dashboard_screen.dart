@@ -1,28 +1,30 @@
 // 📄 lib/screens/home/dashboard/home_dashboard_screen.dart
 //
-// מסך דשבורד הבית - ברכה, התראות, כפתורי גישה מהירה,
-// פעילות אחרונה וקיצורי קבוצות. תומך ב-Pull-to-Refresh.
+// מסך הבית החדש - פשוט ונקי:
+// 1. Header: "שלום, [שם]" + התראות
+// 2. רשימות פעילות (Cards)
+// 3. היסטוריה (ExpansionTile עם pagination)
 //
-// 🔗 Related: ShoppingListsProvider, GroupsProvider
+// Version: 5.0 (06/01/2026) - Simplified home screen
+// 🔗 Related: ShoppingListsProvider, ReceiptProvider
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/ui_constants.dart';
-import '../../../models/group.dart';
+import '../../../models/receipt.dart';
 import '../../../models/shopping_list.dart';
-import '../../../providers/groups_provider.dart';
 import '../../../providers/pending_invites_provider.dart';
+import '../../../providers/receipt_provider.dart';
 import '../../../providers/shopping_lists_provider.dart';
 import '../../../providers/suggestions_provider.dart';
 import '../../../providers/user_context.dart';
 import '../../../services/tutorial_service.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/common/notebook_background.dart';
-import '../../../widgets/common/sticky_note.dart';
+import '../../history/receipt_details_screen.dart';
 
 class HomeDashboardScreen extends StatefulWidget {
   const HomeDashboardScreen({super.key});
@@ -32,8 +34,9 @@ class HomeDashboardScreen extends StatefulWidget {
 }
 
 class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
-  // 🔄 State flags
   bool _isRefreshing = false;
+  bool _isHistoryExpanded = false;
+  int _receiptsToShow = 3;
 
   @override
   void initState() {
@@ -50,15 +53,12 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     });
   }
 
-  /// ✅ FIX: פישוט - הדשבורד נטען רק אחרי שיש משתמש מחובר
-  /// אין צורך ב-Listener מסובך - פשוט בודקים פעם אחת
   Future<void> _initInviteCheck() async {
     if (!mounted) return;
 
     final userContext = context.read<UserContext>();
     final pendingInvitesProvider = context.read<PendingInvitesProvider>();
 
-    // אם כבר בדקנו - לא צריך שוב
     if (pendingInvitesProvider.hasChecked) return;
 
     final user = userContext.user;
@@ -82,7 +82,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   }
 
   Future<void> _refresh(BuildContext context) async {
-    // 🔒 מניעת double-tap
     if (_isRefreshing) return;
 
     setState(() => _isRefreshing = true);
@@ -93,17 +92,21 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
     final lists = context.read<ShoppingListsProvider>();
     final sugg = context.read<SuggestionsProvider>();
+    final receipts = context.read<ReceiptProvider>();
 
     await HapticFeedback.mediumImpact();
 
     try {
-      await lists.loadLists();
+      await Future.wait([
+        lists.loadLists(),
+        receipts.loadReceipts(),
+      ]);
       if (kDebugMode) {
-        debugPrint('   ✅ רשימות נטענו: ${lists.lists.length}');
+        debugPrint('   ✅ רשימות וקבלות נטענו');
       }
     } on Exception catch (e) {
       if (kDebugMode) {
-        debugPrint('   ❌ שגיאה בטעינת רשימות: $e');
+        debugPrint('   ❌ שגיאה בטעינה: $e');
       }
     }
 
@@ -111,9 +114,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
     try {
       await sugg.refreshSuggestions();
-      if (kDebugMode) {
-        debugPrint('   ✅ הצעות נטענו: ${sugg.suggestions.length}');
-      }
     } on Exception catch (e) {
       if (kDebugMode) {
         debugPrint('   ⚠️ לא ניתן לטעון הצעות: $e');
@@ -138,18 +138,35 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final listsProvider = context.watch<ShoppingListsProvider>();
-    final groupsProvider = context.watch<GroupsProvider>();
+    final receiptProvider = context.watch<ReceiptProvider>();
     final pendingInvitesProvider = context.watch<PendingInvitesProvider>();
     final userContext = context.watch<UserContext>();
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
 
-    // ✅ Theme-aware background
     final paperBg = brand?.paperBackground ?? theme.scaffoldBackgroundColor;
+
+    // רשימות פעילות בלבד
+    final activeLists = listsProvider.lists
+        .where((l) => l.status == ShoppingList.statusActive)
+        .toList();
+
+    // קבלות ממוינות לפי תאריך (חדש לישן)
+    final sortedReceipts = List<Receipt>.from(receiptProvider.receipts)
+      ..sort((a, b) => b.date.compareTo(a.date));
 
     return Scaffold(
       backgroundColor: paperBg,
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'home_fab',
+        onPressed: () {
+          HapticFeedback.lightImpact();
+          Navigator.pushNamed(context, '/create-list');
+        },
+        icon: const Icon(Icons.add),
+        label: const Text('רשימה חדשה'),
+      ),
       body: Stack(
         children: [
           const NotebookBackground(),
@@ -163,65 +180,25 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(kSpacingMedium),
                 children: [
-                  // === 1. Header עם ברכה ===
-                  _GreetingHeader(userName: userContext.displayName)
-                      .animate()
-                      .fadeIn(duration: 500.ms)
-                      .slideY(begin: -0.1, end: 0),
-
-                  const SizedBox(height: kSpacingMedium),
-
-                  // === 2. הזמנות ממתינות ===
-                  if (pendingInvitesProvider.pendingCount > 0)
-                    _PendingInvitesCard(
-                      count: pendingInvitesProvider.pendingCount,
-                    )
-                        .animate()
-                        .fadeIn(duration: 500.ms, delay: 100.ms)
-                        .slideX(begin: -0.1, end: 0),
-
-                  if (pendingInvitesProvider.pendingCount > 0)
-                    const SizedBox(height: kSpacingMedium),
-
-                  // === 3. דורש תשומת לב ===
-                  _AttentionSection(
-                    lists: listsProvider.lists,
-                    groups: groupsProvider.groups,
-                  )
-                      .animate()
-                      .fadeIn(duration: 500.ms, delay: 150.ms)
-                      .slideX(begin: -0.1, end: 0),
-
-                  const SizedBox(height: kSpacingMedium),
-
-                  // === 3. כפתורי גישה מהירה ===
-                  _QuickAccessButtons(
-                    hasActiveLists: listsProvider.lists
-                        .any((l) => l.status == ShoppingList.statusActive),
-                  )
-                      .animate()
-                      .fadeIn(duration: 500.ms, delay: 200.ms)
-                      .scale(
-                          begin: const Offset(0.95, 0.95),
-                          end: const Offset(1, 1)),
-
-                  const SizedBox(height: kSpacingMedium),
-
-                  // === 4. פעילות אחרונה ===
-                  _RecentActivitySection(lists: listsProvider.lists)
-                      .animate()
-                      .fadeIn(duration: 500.ms, delay: 300.ms)
-                      .slideY(begin: 0.1, end: 0),
-
-                  const SizedBox(height: kSpacingMedium),
-
-                  // === 5. קיצורי קבוצות ===
-                  _GroupsShortcuts(groups: groupsProvider.groups)
-                      .animate()
-                      .fadeIn(duration: 500.ms, delay: 400.ms)
-                      .slideY(begin: 0.1, end: 0),
+                  // === 1. Header פשוט ===
+                  _buildHeader(
+                    context,
+                    userName: userContext.displayName,
+                    pendingCount: pendingInvitesProvider.pendingCount,
+                  ),
 
                   const SizedBox(height: kSpacingLarge),
+
+                  // === 2. רשימות פעילות ===
+                  _buildActiveListsSection(context, activeLists, cs),
+
+                  const SizedBox(height: kSpacingMedium),
+
+                  // === 3. היסטוריה ===
+                  _buildHistorySection(context, sortedReceipts, cs),
+
+                  // מרווח לפני FAB
+                  const SizedBox(height: 80),
                 ],
               ),
             ),
@@ -230,828 +207,461 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       ),
     );
   }
-}
 
-// =============================================================================
-// 1. GREETING HEADER
-// =============================================================================
+  // ============================================
+  // 1. HEADER - כרטיס ברכה צבעוני
+  // ============================================
+  Widget _buildHeader(
+    BuildContext context, {
+    required String? userName,
+    required int pendingCount,
+  }) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
 
-class _GreetingHeader extends StatelessWidget {
-  final String? userName;
-  const _GreetingHeader({required this.userName});
-
-  @override
-  Widget build(BuildContext context) {
-    final t = Theme.of(context).textTheme;
-    final cs = Theme.of(context).colorScheme;
-    final brand = Theme.of(context).extension<AppBrand>();
-
-    final greeting = _getGreeting();
-    // ✅ FIX: אם אין שם - הצג רק ברכה ללא שם (לא "אורח")
     final hasName = userName?.trim().isNotEmpty ?? false;
+    final greeting = hasName ? 'שלום, $userName!' : 'שלום!';
 
-    return Semantics(
-      header: true,
-      label: hasName ? '$greeting, $userName' : greeting,
-      child: StickyNote(
-        // ✅ Theme-aware
-        color: brand?.stickyYellow ?? kStickyYellow,
-        rotation: -0.015,
-        child: Padding(
+    return Card(
+      elevation: 0,
+      color: cs.primaryContainer.withValues(alpha: 0.5),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: cs.primary.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Padding(
         padding: const EdgeInsets.all(kSpacingMedium),
         child: Row(
           children: [
+            // אייקון/אימוג'י
             Container(
-              width: 48,
-              height: 48,
+              width: 56,
+              height: 56,
               decoration: BoxDecoration(
                 color: cs.primary.withValues(alpha: 0.15),
-                shape: BoxShape.circle,
+                borderRadius: BorderRadius.circular(16),
               ),
-              child: Center(
+              child: const Center(
                 child: Text(
-                  _getGreetingEmoji(),
-                  style: const TextStyle(fontSize: 24),
+                  '👋',
+                  style: TextStyle(fontSize: 28),
                 ),
               ),
             ),
-            const SizedBox(width: kSpacingSmall),
+            const SizedBox(width: kSpacingMedium),
+            // ברכה
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ✅ FIX: אם יש שם - "בוקר טוב," + שם. אם אין - רק "בוקר טוב!"
-                  // 📝 Sticky Note תמיד רקע בהיר - טקסט כהה קבוע
-                  if (hasName) ...[
-                    Text(
-                      '$greeting,',
-                      style: t.bodyMedium?.copyWith(
-                        color: Colors.black54,
-                      ),
+              child: Text(
+                greeting,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: cs.onSurface,
+                ),
+              ),
+            ),
+            // התראות
+            if (pendingCount > 0)
+              InkWell(
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  Navigator.pushNamed(context, '/pending-group-invites');
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Badge.count(
+                  count: pendingCount,
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: cs.surface,
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    Text(
-                      userName!,
-                      style: t.titleLarge?.copyWith(
-                        color: Colors.black87,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ] else
-                    Text(
-                      '$greeting!',
-                      style: t.titleLarge?.copyWith(
-                        color: Colors.black87,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                ],
+                    child: Icon(Icons.mail_outline, color: cs.primary),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ============================================
+  // 2. ACTIVE LISTS - רשימות פעילות
+  // ============================================
+  Widget _buildActiveListsSection(
+    BuildContext context,
+    List<ShoppingList> activeLists,
+    ColorScheme cs,
+  ) {
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // כותרת
+        Row(
+          children: [
+            Icon(Icons.shopping_cart_outlined, size: 20, color: cs.primary),
+            const SizedBox(width: 8),
+            Text(
+              'רשימות פעילות',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const Spacer(),
+            Text(
+              '${activeLists.length}',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: cs.onSurfaceVariant,
               ),
             ),
           ],
         ),
-      ),
-      ),
-    );
-  }
+        const SizedBox(height: kSpacingSmall),
 
-  String _getGreeting() {
-    final hour = DateTime.now().hour;
-
-    const morning = 'בוקר טוב';
-    const noon = 'צהריים טובים';
-    const evening = 'ערב טוב';
-    const night = 'לילה טוב';
-
-    if (hour < 5) return night;
-    if (hour < 12) return morning;
-    if (hour < 17) return noon;
-    if (hour < 21) return evening;
-    return night;
-  }
-
-  String _getGreetingEmoji() {
-    final hour = DateTime.now().hour;
-    if (hour < 5) return '🌙';
-    if (hour < 12) return '☀️';
-    if (hour < 17) return '🌤️';
-    if (hour < 21) return '🌆';
-    return '🌙';
-  }
-}
-
-// =============================================================================
-// 2. ATTENTION SECTION - דורש תשומת לב
-// =============================================================================
-
-class _AttentionSection extends StatelessWidget {
-  final List<ShoppingList> lists;
-  final List<Group> groups;
-
-  const _AttentionSection({
-    required this.lists,
-    required this.groups,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final alerts = _getAlerts();
-
-    // אם אין התראות, לא מציג כלום
-    if (alerts.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    final cs = Theme.of(context).colorScheme;
-
-    return Semantics(
-      label: 'דורש תשומת לב, ${alerts.length} התראות',
-      child: StickyNote(
-        color: kStickyPink,
-        rotation: 0.01,
-        child: Padding(
-          padding: const EdgeInsets.all(kSpacingMedium),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(Icons.warning_amber, color: cs.error, size: 20),
-                  const SizedBox(width: kSpacingSmall),
-                  // 📝 Sticky Note תמיד רקע בהיר
-                  const Text(
-                    'דורש תשומת לב',
-                    style: TextStyle(
-                      fontSize: kFontSizeMedium,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ],
+        // רשימה או הודעה
+        if (activeLists.isEmpty)
+          Card(
+            elevation: 0,
+            color: cs.secondaryContainer.withValues(alpha: 0.3),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(
+                color: cs.secondary.withValues(alpha: 0.2),
               ),
-            const SizedBox(height: kSpacingSmall),
-            ...alerts.map((alert) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Row(
-                    children: [
-                      Text(alert.emoji, style: const TextStyle(fontSize: 14)),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          alert.message,
-                          style: const TextStyle(
-                            fontSize: kFontSizeSmall,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                )),
-          ],
-        ),
-      ),
-      ),
-    );
-  }
-
-  List<_Alert> _getAlerts() {
-    final alerts = <_Alert>[];
-
-    // התראות על רשימות
-    final activeLists =
-        lists.where((l) => l.status == ShoppingList.statusActive).toList();
-
-    // רשימות ריקות
-    final emptyLists = activeLists.where((l) => l.items.isEmpty).toList();
-    if (emptyLists.length == 1) {
-      alerts.add(_Alert('📝', '${emptyLists.first.name} - אין פריטים'));
-    } else if (emptyLists.length > 1) {
-      alerts.add(_Alert('📝', '${emptyLists.length} רשימות ריקות'));
-    }
-
-    // רשימות עם פריטים רבים שלא נקנו
-    for (final list in activeLists) {
-      final uncheckedCount =
-          list.items.where((i) => !i.isChecked).length;
-      if (uncheckedCount >= 10) {
-        alerts.add(_Alert('🛒', '${list.name} - $uncheckedCount פריטים ממתינים'));
-      }
-    }
-
-    return alerts.take(5).toList(); // מקסימום 5 התראות
-  }
-}
-
-class _Alert {
-  final String emoji;
-  final String message;
-  _Alert(this.emoji, this.message);
-}
-
-// =============================================================================
-// 3. QUICK ACCESS BUTTONS - כפתורי גישה מהירה
-// =============================================================================
-
-class _QuickAccessButtons extends StatelessWidget {
-  final bool hasActiveLists;
-
-  const _QuickAccessButtons({required this.hasActiveLists});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        // כפתור משפחה (רשימות + מזווה)
-        Expanded(
-          child: _QuickAccessButton(
-            emoji: '👨‍👩‍👧',
-            label: 'משפחה',
-            color: kStickyPink,
-            onTap: () {
-              HapticFeedback.lightImpact();
-              // Navigate to Family tab (index 1)
-              _navigateToTab(context, 1);
-            },
-          ),
-        ),
-        const SizedBox(width: kSpacingSmall),
-        // כפתור קנייה
-        Expanded(
-          child: _QuickAccessButton(
-            emoji: '🛒',
-            label: 'קנייה',
-            color: kStickyCyan,
-            badge: hasActiveLists ? null : 'חדש',
-            onTap: () {
-              HapticFeedback.lightImpact();
-              if (hasActiveLists) {
-                // Navigate to Family tab (lists)
-                _navigateToTab(context, 1);
-              } else {
-                // Create new list
+            ),
+            child: InkWell(
+              onTap: () {
+                HapticFeedback.lightImpact();
                 Navigator.pushNamed(context, '/create-list');
-              }
-            },
-          ),
-        ),
-        const SizedBox(width: kSpacingSmall),
-        // כפתור קבוצות
-        Expanded(
-          child: _QuickAccessButton(
-            emoji: '👥',
-            label: 'קבוצות',
-            color: kStickyPurple,
-            onTap: () {
-              HapticFeedback.lightImpact();
-              // Navigate to Groups tab (index 2)
-              _navigateToTab(context, 2);
-            },
-          ),
-        ),
+              },
+              borderRadius: BorderRadius.circular(16),
+              child: Padding(
+                padding: const EdgeInsets.all(kSpacingLarge),
+                child: Column(
+                  children: [
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        color: cs.secondary.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Icon(
+                        Icons.add_shopping_cart,
+                        size: 32,
+                        color: cs.secondary,
+                      ),
+                    ),
+                    const SizedBox(height: kSpacingMedium),
+                    Text(
+                      'אין רשימות פעילות',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: cs.onSurface,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'לחץ כאן ליצירת רשימה חדשה',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: cs.secondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          )
+        else
+          ...activeLists.map((list) => _buildListCard(context, list, cs)),
       ],
     );
   }
 
-  void _navigateToTab(BuildContext context, int index) {
-    // Use a callback to notify the parent MainNavigationScreen
-    // For now, just show a message
-    final scaffold = Scaffold.maybeOf(context);
-    if (scaffold != null) {
-      // Navigate using named route with tab index
-      Navigator.of(context).pushReplacementNamed('/home', arguments: index);
-    }
-  }
-}
+  Widget _buildListCard(BuildContext context, ShoppingList list, ColorScheme cs) {
+    final theme = Theme.of(context);
+    final brand = theme.extension<AppBrand>();
+    final uncheckedCount = list.items.where((i) => !i.isChecked).length;
+    final checkedCount = list.items.where((i) => i.isChecked).length;
+    final totalCount = list.items.length;
+    final progress = totalCount > 0 ? checkedCount / totalCount : 0.0;
 
-class _QuickAccessButton extends StatelessWidget {
-  final String emoji;
-  final String label;
-  final Color color;
-  final String? badge;
-  final VoidCallback onTap;
+    // צבע לפי סוג הרשימה
+    final typeColor = _getListTypeColor(list.type, cs, brand);
 
-  const _QuickAccessButton({
-    required this.emoji,
-    required this.label,
-    required this.color,
-    required this.onTap,
-    this.badge,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Semantics(
-      button: true,
-      label: badge != null ? '$label, $badge' : label,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(kBorderRadius),
-        child: StickyNote(
-          color: color,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: kSpacingMedium,
-              horizontal: kSpacingSmall,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Text(
-                      emoji,
-                      style: const TextStyle(fontSize: 32),
-                    ),
-                    if (badge != null)
-                      Positioned(
-                        top: -4,
-                        right: -8,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 4,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: cs.error,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            badge!,
-                            style: TextStyle(
-                              color: cs.onError,
-                              fontSize: 8,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                // 📝 Sticky Note תמיד רקע בהיר
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: kFontSizeSmall,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// =============================================================================
-// 4. RECENT ACTIVITY - פעילות אחרונה
-// =============================================================================
-
-class _RecentActivitySection extends StatelessWidget {
-  final List<ShoppingList> lists;
-
-  const _RecentActivitySection({required this.lists});
-
-  @override
-  Widget build(BuildContext context) {
-    // מציג 5 רשימות אחרונות
-    final recentLists = lists.take(5).toList();
-
-    if (recentLists.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return Semantics(
-      label: 'פעילות אחרונה, ${recentLists.length} רשימות',
-      child: StickyNote(
-        color: kStickyYellow.withValues(alpha: 0.7),
-        rotation: -0.005,
-        child: Padding(
-          padding: const EdgeInsets.all(kSpacingMedium),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // 📝 Sticky Note תמיד רקע בהיר
-                  const Row(
-                    children: [
-                      Icon(Icons.history, size: 18, color: Colors.black54),
-                    SizedBox(width: 6),
-                    Text(
-                      'פעילות אחרונה',
-                      style: TextStyle(
-                        fontSize: kFontSizeMedium,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ],
-                ),
-                TextButton(
-                  onPressed: () {
-                    // ניווט לטאב משפחה (אינדקס 1) - שם נמצאות הרשימות
-                    Navigator.of(context).pushReplacementNamed('/home', arguments: 1);
-                  },
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.zero,
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                  child: const Text('ראה הכל'),
-                ),
-              ],
-            ),
-            const SizedBox(height: kSpacingSmall),
-            ...recentLists.map((list) => _ActivityItem(list: list)),
-          ],
-        ),
-      ),
-      ),
-    );
-  }
-}
-
-class _ActivityItem extends StatelessWidget {
-  final ShoppingList list;
-
-  const _ActivityItem({required this.list});
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      label: '${list.name}, ${list.items.length} פריטים, לחץ לפרטים',
+    return Card(
+      margin: const EdgeInsets.only(bottom: kSpacingSmall),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
           HapticFeedback.lightImpact();
           Navigator.pushNamed(
             context,
-            '/shopping-list-details',
+            '/list-details',
             arguments: list,
           );
         },
-        child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
-        child: Row(
+        child: Column(
           children: [
-            Text(list.typeEmoji, style: const TextStyle(fontSize: 18)),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            // פס צבע עליון
+            Container(
+              height: 4,
+              color: typeColor,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(kSpacingMedium),
+              child: Row(
                 children: [
-                  Text(
-                    list.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
+                  // אימוג'י בעיגול צבעוני
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: typeColor.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    '${list.items.length} פריטים • ${_getRelativeTime(list.updatedDate)}',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey[600],
+                    child: Center(
+                      child: Text(list.typeEmoji, style: const TextStyle(fontSize: 24)),
                     ),
                   ),
+                  const SizedBox(width: kSpacingMedium),
+                  // שם + מספר פריטים
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          list.name,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        if (totalCount == 0)
+                          Text(
+                            'רשימה ריקה',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: cs.onSurfaceVariant,
+                            ),
+                          )
+                        else
+                          Row(
+                            children: [
+                              Icon(
+                                uncheckedCount == 0
+                                    ? Icons.check_circle
+                                    : Icons.shopping_bag_outlined,
+                                size: 14,
+                                color: uncheckedCount == 0
+                                    ? Colors.green
+                                    : cs.onSurfaceVariant,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                uncheckedCount == 0
+                                    ? 'הושלם! ✓'
+                                    : 'נותרו $uncheckedCount פריטים',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: uncheckedCount == 0
+                                      ? Colors.green
+                                      : cs.onSurfaceVariant,
+                                  fontWeight: uncheckedCount == 0
+                                      ? FontWeight.w600
+                                      : FontWeight.normal,
+                                ),
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ),
+                  // חץ
+                  Icon(Icons.chevron_left, color: cs.onSurfaceVariant),
                 ],
               ),
             ),
-            Icon(
-              Icons.chevron_right,
-              size: 18,
-              color: Colors.grey[400],
-            ),
+            // Progress bar בתחתית
+            if (totalCount > 0)
+              LinearProgressIndicator(
+                value: progress,
+                backgroundColor: cs.surfaceContainerHighest,
+                valueColor: AlwaysStoppedAnimation(
+                  progress == 1.0 ? Colors.green : typeColor,
+                ),
+                minHeight: 3,
+              ),
           ],
         ),
-      ),
       ),
     );
   }
 
-  String _getRelativeTime(DateTime date) {
+  Color _getListTypeColor(String type, ColorScheme cs, AppBrand? brand) {
+    switch (type) {
+      case 'supermarket':
+      case 'market':
+        return brand?.stickyGreen ?? kStickyGreen;
+      case 'pharmacy':
+        return brand?.stickyPink ?? kStickyPink;
+      case 'greengrocer':
+        return brand?.stickyCyan ?? kStickyCyan;
+      case 'butcher':
+        return kStickyOrange;
+      case 'bakery':
+        return brand?.stickyYellow ?? kStickyYellow;
+      case 'household':
+        return brand?.stickyCyan ?? kStickyCyan;
+      case 'event':
+        return brand?.stickyPurple ?? kStickyPurple;
+      default:
+        return cs.primary;
+    }
+  }
+
+  // ============================================
+  // 3. HISTORY - היסטוריה
+  // ============================================
+  Widget _buildHistorySection(
+    BuildContext context,
+    List<Receipt> receipts,
+    ColorScheme cs,
+  ) {
+    final theme = Theme.of(context);
+
+    if (receipts.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Card(
+      child: Theme(
+        // מסיר את ה-divider של ExpansionTile
+        data: theme.copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          initiallyExpanded: _isHistoryExpanded,
+          onExpansionChanged: (expanded) {
+            setState(() {
+              _isHistoryExpanded = expanded;
+              if (!expanded) {
+                _receiptsToShow = 3; // איפוס כשסוגרים
+              }
+            });
+          },
+          leading: Icon(Icons.history, color: cs.primary),
+          title: Text(
+            'היסטוריה',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          subtitle: Text(
+            '${receipts.length} קבלות',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: cs.onSurfaceVariant,
+            ),
+          ),
+          children: [
+            const Divider(height: 1),
+            // הקבלות
+            ...receipts.take(_receiptsToShow).map(
+                  (receipt) => _buildReceiptTile(context, receipt, cs),
+                ),
+            // כפתור "טען עוד"
+            if (_receiptsToShow < receipts.length)
+              Padding(
+                padding: const EdgeInsets.all(kSpacingSmall),
+                child: TextButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      _receiptsToShow += 3;
+                    });
+                  },
+                  icon: const Icon(Icons.expand_more),
+                  label: Text(
+                    'טען עוד (${receipts.length - _receiptsToShow} נותרו)',
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReceiptTile(BuildContext context, Receipt receipt, ColorScheme cs) {
+    final theme = Theme.of(context);
+
+    return ListTile(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ReceiptDetailsScreen(receipt: receipt),
+          ),
+        );
+      },
+      leading: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: cs.primaryContainer,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(
+          receipt.isVirtual ? Icons.receipt_long : Icons.receipt,
+          color: cs.onPrimaryContainer,
+          size: 20,
+        ),
+      ),
+      title: Text(
+        receipt.storeName,
+        style: theme.textTheme.bodyMedium?.copyWith(
+          fontWeight: FontWeight.w500,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      subtitle: Text(
+        _formatDate(receipt.date),
+        style: theme.textTheme.bodySmall?.copyWith(
+          color: cs.onSurfaceVariant,
+        ),
+      ),
+      trailing: receipt.totalAmount > 0
+          ? Text(
+              '₪${receipt.totalAmount.toStringAsFixed(0)}',
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: cs.primary,
+              ),
+            )
+          : Text(
+              '${receipt.items.length} פריטים',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: cs.onSurfaceVariant,
+              ),
+            ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
 
-    if (difference.inMinutes < 1) {
-      return 'עכשיו';
-    } else if (difference.inMinutes < 60) {
-      return 'לפני ${difference.inMinutes} דק\'';
-    } else if (difference.inHours < 24) {
-      return 'לפני ${difference.inHours} שעות';
+    if (difference.inDays == 0) {
+      return 'היום';
+    } else if (difference.inDays == 1) {
+      return 'אתמול';
     } else if (difference.inDays < 7) {
       return 'לפני ${difference.inDays} ימים';
     } else {
-      return 'לפני ${(difference.inDays / 7).round()} שבועות';
+      return '${date.day}/${date.month}/${date.year}';
     }
-  }
-}
-
-// =============================================================================
-// 5. GROUPS SHORTCUTS - קיצורי קבוצות
-// =============================================================================
-
-class _GroupsShortcuts extends StatelessWidget {
-  final List<Group> groups;
-
-  const _GroupsShortcuts({required this.groups});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Semantics(
-      label: groups.isEmpty
-          ? 'הקבוצות שלי, אין קבוצות'
-          : 'הקבוצות שלי, ${groups.length} קבוצות',
-      child: StickyNote(
-        color: kStickyGreen.withValues(alpha: 0.7),
-        rotation: 0.008,
-        child: Padding(
-          padding: const EdgeInsets.all(kSpacingMedium),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 📝 Sticky Note תמיד רקע בהיר
-              const Row(
-                children: [
-                  Icon(Icons.groups, size: 18, color: Colors.black54),
-                  SizedBox(width: 6),
-                  Text(
-                    'הקבוצות שלי',
-                    style: TextStyle(
-                      fontSize: kFontSizeMedium,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: kSpacingSmall),
-              if (groups.isEmpty)
-                // אין קבוצות - הצג הודעה וכפתור יצירה
-                Semantics(
-                  button: true,
-                  label: 'צור קבוצה חדשה',
-                  child: InkWell(
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      Navigator.pushNamed(context, '/create-group');
-                    },
-                    borderRadius: BorderRadius.circular(kBorderRadius),
-                    child: Container(
-                      padding: const EdgeInsets.all(kSpacingMedium),
-                      decoration: BoxDecoration(
-                        // ✅ Theme-aware - רקע בהיר על sticky note
-                        color: cs.surface.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(kBorderRadius),
-                        border: Border.all(
-                          color: cs.primary.withValues(alpha: 0.3),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.add_circle_outline,
-                              color: cs.primary, size: 20),
-                          const SizedBox(width: 8),
-                          Text(
-                            'צור את הקבוצה הראשונה שלך',
-                            style: TextStyle(
-                              color: cs.primary,
-                              fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              )
-            else
-              // יש קבוצות - הצג chips
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  ...groups.take(5).map((group) => _GroupChip(group: group)),
-                  // כפתור + ליצירת קבוצה חדשה (עיצוב מקווקו)
-                  _AddGroupButton(
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      Navigator.pushNamed(context, '/create-group');
-                    },
-                  ),
-                ],
-              ),
-          ],
-        ),
-      ),
-      ),
-    );
-  }
-}
-
-class _GroupChip extends StatelessWidget {
-  final Group group;
-
-  const _GroupChip({required this.group});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Semantics(
-      button: true,
-      label: 'קבוצת ${group.name}, לחץ לפרטים',
-      child: ActionChip(
-        avatar: Text(group.type.emoji, style: const TextStyle(fontSize: 14)),
-        label: Text(
-          group.name,
-          style: const TextStyle(fontSize: 12),
-        ),
-        backgroundColor: cs.primaryContainer.withValues(alpha: 0.3),
-        side: BorderSide.none,
-        onPressed: () {
-          HapticFeedback.lightImpact();
-          // Navigate to group details
-          Navigator.pushNamed(
-            context,
-            '/group-details',
-            arguments: group.id,
-          );
-        },
-      ),
-    );
-  }
-}
-
-// =============================================================================
-// 5.1 ADD GROUP BUTTON - כפתור עיגול עם + להוספת קבוצה
-// =============================================================================
-
-class _AddGroupButton extends StatelessWidget {
-  final VoidCallback onTap;
-
-  const _AddGroupButton({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    // גובה זהה ל-ActionChip (כ-32 פיקסל)
-    return Semantics(
-      button: true,
-      label: 'הוסף קבוצה חדשה',
-      child: SizedBox(
-        height: 32,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: cs.primary.withValues(alpha: 0.15),
-              border: Border.all(
-                color: cs.primary.withValues(alpha: 0.4),
-                width: 1.5,
-              ),
-            ),
-            child: Icon(
-              Icons.add,
-              size: 20,
-              color: cs.primary,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// =============================================================================
-// 6. PENDING INVITES CARD - הזמנות ממתינות
-// =============================================================================
-
-class _PendingInvitesCard extends StatelessWidget {
-  final int count;
-
-  const _PendingInvitesCard({required this.count});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    // ✅ צבע כתום עקבי - מ-ui_constants
-    const stickyColor = kStickyOrange;
-    const accentColor = Color(0xFFFF9800); // Orange 500
-
-    return Semantics(
-      button: true,
-      label: count == 1
-          ? 'יש לך הזמנה לקבוצה, לחץ לצפייה'
-          : 'יש לך $count הזמנות לקבוצות, לחץ לצפייה',
-      child: InkWell(
-        onTap: () {
-          HapticFeedback.lightImpact();
-          Navigator.pushNamed(context, '/pending-group-invites');
-        },
-        borderRadius: BorderRadius.circular(kBorderRadius),
-        child: StickyNote(
-          color: stickyColor,
-          rotation: 0.01,
-          child: Padding(
-            padding: const EdgeInsets.all(kSpacingMedium),
-            child: Row(
-              children: [
-                // אייקון עם badge
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: accentColor.withValues(alpha: 0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.group_add,
-                        color: accentColor,
-                        size: 28,
-                      ),
-                    ),
-                    Positioned(
-                      top: -4,
-                      right: -4,
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: cs.error,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Text(
-                          '$count',
-                          style: TextStyle(
-                            color: cs.onError,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(width: kSpacingMedium),
-                // טקסט - 📝 Sticky Note תמיד רקע בהיר
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        count == 1
-                            ? 'יש לך הזמנה לקבוצה!'
-                            : 'יש לך $count הזמנות לקבוצות!',
-                        style: const TextStyle(
-                          fontSize: kFontSizeMedium,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      const Text(
-                        'לחץ כדי לצפות ולאשר',
-                        style: TextStyle(
-                          fontSize: kFontSizeSmall,
-                          color: Colors.black54,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // חץ
-                const Icon(
-                  Icons.chevron_left,
-                  color: accentColor,
-                  size: 28,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

@@ -4,7 +4,7 @@
 //
 // **4 Tabs:**
 // 0. 🏠 בית - HomeDashboardScreen
-// 1. 👨‍👩‍👧 משפחה - FamilyScreen (רשימות | מזווה | אישי)
+// 1. 📦 מזווה - MyPantryScreen
 // 2. 👥 קבוצות - GroupsListScreen
 // 3. ⚙️ הגדרות - SettingsScreen
 //
@@ -12,7 +12,7 @@
 // - מטאב 1-3 → חזרה לדשבורד (tab 0)
 // - מדשבורד → double-tap ליציאה (2 שניות)
 //
-// **Version:** 3.0 (16/12/2025) - New navigation structure
+// **Version:** 4.0 (06/01/2026) - Pantry replaces Family screen
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -21,9 +21,9 @@ import 'package:flutter/services.dart';
 import '../core/ui_constants.dart';
 import '../l10n/app_strings.dart';
 import '../layout/app_layout.dart';
-import 'family/family_screen.dart';
 import 'groups/groups_list_screen.dart';
 import 'home/dashboard/home_dashboard_screen.dart';
+import 'pantry/my_pantry_screen.dart';
 import 'settings/settings_screen.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -40,7 +40,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   late final List<Widget> _pages = const <Widget>[
     HomeDashboardScreen(),
-    FamilyScreen(),
+    MyPantryScreen(),
     GroupsListScreen(),
     SettingsScreen(),
   ];

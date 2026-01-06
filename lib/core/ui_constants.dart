@@ -55,7 +55,7 @@ const double kNotebookLineOpacity = 0.5;         // Opacity for blue lines
 const double kNotebookLineSpacing = 48.0;        // Spacing between blue lines (fits item row)
 const double kNotebookRedLineOpacity = 0.4;      // Opacity for red line
 const double kNotebookRedLineWidth = 2.0;        // Width of red line
-const double kNotebookRedLineOffset = 60.0;      // Offset of red line from left
+const double kNotebookRedLineOffset = 48.0;      // Offset of red line from edge (closer for more content space)
 
 // Glass/Blur Effect Properties
 const double kGlassBlurSigma = 10.0;             // Blur sigma for frosted glass effect

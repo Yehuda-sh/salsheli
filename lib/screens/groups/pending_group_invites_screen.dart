@@ -16,6 +16,7 @@ import '../../models/group_invite.dart';
 import '../../providers/groups_provider.dart';
 import '../../providers/pending_invites_provider.dart';
 import '../../providers/user_context.dart';
+import '../../services/notifications_service.dart';
 import '../../widgets/common/notebook_background.dart';
 
 class PendingGroupInvitesScreen extends StatefulWidget {
@@ -103,6 +104,8 @@ class _PendingGroupInvitesScreenState extends State<PendingGroupInvitesScreen> {
 
   /// דחיית הזמנה
   Future<void> _rejectInvite(GroupInvite invite) async {
+    final cs = Theme.of(context).colorScheme;
+
     // שאלת אישור
     final confirmed = await showDialog<bool>(
       context: context,
@@ -115,10 +118,10 @@ class _PendingGroupInvitesScreenState extends State<PendingGroupInvitesScreen> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.red.shade50,
+                color: cs.errorContainer,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.group_remove, color: Colors.red.shade400),
+              child: Icon(Icons.group_remove, color: cs.onErrorContainer),
             ),
             const SizedBox(width: 12),
             const Text('דחיית הזמנה'),
@@ -135,8 +138,8 @@ class _PendingGroupInvitesScreenState extends State<PendingGroupInvitesScreen> {
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+              backgroundColor: cs.error,
+              foregroundColor: cs.onError,
             ),
             child: const Text('דחה הזמנה'),
           ),
@@ -150,7 +153,25 @@ class _PendingGroupInvitesScreenState extends State<PendingGroupInvitesScreen> {
 
     try {
       final provider = context.read<PendingInvitesProvider>();
-      final success = await provider.rejectInvite(invite);
+      final userContext = context.read<UserContext>();
+
+      // 🛡️ NotificationsService might not be available - make it defensive
+      NotificationsService? notificationsService;
+      try {
+        notificationsService = context.read<NotificationsService>();
+      } catch (e) {
+        // Non-critical - rejection will still work, just without notification
+        debugPrint('⚠️ NotificationsService not available for rejection notification');
+      }
+
+      // 🆕 שולח התראה למזמין שההזמנה נדחתה
+      final success = await provider.rejectInvite(
+        invite,
+        rejectorName: userContext.displayName ?? 'משתמש',
+        senderId: userContext.userId, // 🔒 נדרש ל-Firestore rules
+        notificationsService: notificationsService,
+        householdId: userContext.householdId,
+      );
 
       if (!mounted) return;
 
@@ -190,8 +211,9 @@ class _PendingGroupInvitesScreenState extends State<PendingGroupInvitesScreen> {
         appBar: AppBar(
           title: const Text('הזמנות לקבוצות'),
           centerTitle: true,
-          backgroundColor: cs.primary,
-          foregroundColor: cs.onPrimary,
+          // ✅ Theme-aware - רך יותר, מתאים ל-Dark Mode
+          backgroundColor: cs.surfaceContainerHighest,
+          foregroundColor: cs.onSurface,
           elevation: 0,
         ),
         body: Stack(
@@ -208,11 +230,11 @@ class _PendingGroupInvitesScreenState extends State<PendingGroupInvitesScreen> {
                           Container(
                             padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: cs.surface,
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.1),
+                                  color: cs.shadow.withValues(alpha: 0.1),
                                   blurRadius: 20,
                                 ),
                               ],
@@ -226,7 +248,7 @@ class _PendingGroupInvitesScreenState extends State<PendingGroupInvitesScreen> {
                           Text(
                             _isProcessing ? 'מעבד...' : 'טוען הזמנות...',
                             style: TextStyle(
-                              color: Colors.grey.shade600,
+                              color: cs.onSurfaceVariant,
                               fontSize: 16,
                             ),
                           ),
@@ -250,6 +272,8 @@ class _PendingGroupInvitesScreenState extends State<PendingGroupInvitesScreen> {
   }
 
   Widget _buildEmptyState() {
+    final cs = Theme.of(context).colorScheme;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -260,13 +284,13 @@ class _PendingGroupInvitesScreenState extends State<PendingGroupInvitesScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.grey.shade100,
+                color: cs.surfaceContainerHighest,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.mail_outline_rounded,
                 size: 64,
-                color: Colors.grey.shade400,
+                color: cs.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 24),
@@ -275,7 +299,7 @@ class _PendingGroupInvitesScreenState extends State<PendingGroupInvitesScreen> {
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Colors.grey.shade700,
+                color: cs.onSurface,
               ),
             ),
             const SizedBox(height: 12),
@@ -284,7 +308,7 @@ class _PendingGroupInvitesScreenState extends State<PendingGroupInvitesScreen> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.grey.shade500,
+                color: cs.onSurfaceVariant,
                 height: 1.5,
               ),
             ),
@@ -351,53 +375,47 @@ class _InviteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    // ✅ Sticky-note style card with colored left border
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(12),
+        // ✅ Border משמאל (RTL = ימין ויזואלית) בצבע primary
+        border: Border(
+          right: BorderSide(color: cs.primary, width: 4),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
+            color: cs.shadow.withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Column(
-        children: [
-          // Header עם שם הקבוצה
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.blue.shade400,
-                  Colors.blue.shade600,
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
-            ),
-            child: Row(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header עם שם הקבוצה ותג תפקיד
+            Row(
               children: [
                 // אייקון קבוצה
                 Container(
-                  width: 56,
-                  height: 56,
+                  width: 48,
+                  height: 48,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(16),
+                    color: cs.primaryContainer,
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Center(
-                    child: Text('👥', style: TextStyle(fontSize: 28)),
+                    child: Text('👥', style: TextStyle(fontSize: 24)),
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 12),
                 // פרטי הקבוצה
                 Expanded(
                   child: Column(
@@ -405,27 +423,27 @@ class _InviteCard extends StatelessWidget {
                     children: [
                       Text(
                         invite.groupName,
-                        style: const TextStyle(
-                          fontSize: 20,
+                        style: TextStyle(
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: cs.onSurface,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
+                          horizontal: 8,
+                          vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(20),
+                          color: cs.secondaryContainer,
+                          borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
                           '${invite.role.emoji} ${invite.role.hebrewName}',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: Colors.white,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: cs.onSecondaryContainer,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -435,92 +453,85 @@ class _InviteCard extends StatelessWidget {
                 ),
               ],
             ),
-          ),
 
-          // פרטי ההזמנה
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
+            const SizedBox(height: 16),
+
+            // פרטי ההזמנה
+            _DetailRow(
+              icon: Icons.person_outline,
+              label: 'הוזמנת על ידי',
+              value: invite.invitedByName,
+            ),
+            const SizedBox(height: 8),
+            _DetailRow(
+              icon: Icons.schedule,
+              label: 'נשלח',
+              value: invite.timeAgoText,
+            ),
+
+            const SizedBox(height: 16),
+
+            // כפתורי פעולה
+            Row(
               children: [
-                // מזמין
-                _DetailRow(
-                  icon: Icons.person_outline,
-                  label: 'הוזמנת על ידי',
-                  value: invite.invitedByName,
-                ),
-                const SizedBox(height: 12),
-                // זמן
-                _DetailRow(
-                  icon: Icons.schedule,
-                  label: 'נשלח',
-                  value: invite.timeAgoText,
-                ),
-
-                const SizedBox(height: 20),
-
-                // כפתורי פעולה
-                Row(
-                  children: [
-                    // דחה
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: isProcessing ? null : onReject,
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.red.shade600,
-                          side: BorderSide(color: Colors.red.shade300),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text(
-                          'לא תודה',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                          ),
-                        ),
+                // דחה - כפתור משני
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: isProcessing ? null : onReject,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: cs.error,
+                      side: BorderSide(color: cs.error.withValues(alpha: 0.5)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-
-                    const SizedBox(width: 12),
-
-                    // אשר
-                    Expanded(
-                      flex: 2,
-                      child: ElevatedButton.icon(
-                        onPressed: isProcessing ? null : onAccept,
-                        icon: const Icon(Icons.check_rounded, size: 20),
-                        label: const Text(
-                          'הצטרף לקבוצה',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green.shade500,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
+                    child: const Text(
+                      'לא תודה',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
                       ),
                     ),
-                  ],
+                  ),
+                ),
+
+                const SizedBox(width: 12),
+
+                // אשר - כפתור ראשי
+                Expanded(
+                  flex: 2,
+                  child: ElevatedButton.icon(
+                    onPressed: isProcessing ? null : onAccept,
+                    icon: const Icon(Icons.check_rounded, size: 18),
+                    label: const Text(
+                      'הצטרף לקבוצה',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: kStickyGreen,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
-/// שורת פרט
+/// שורת פרט - theme-aware
 class _DetailRow extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -534,32 +545,35 @@ class _DetailRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
-            color: Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(8),
+            color: cs.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(6),
           ),
-          child: Icon(icon, size: 18, color: Colors.grey.shade600),
+          child: Icon(icon, size: 16, color: cs.onSurfaceVariant),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 10),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               label,
               style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey.shade500,
+                fontSize: 11,
+                color: cs.onSurfaceVariant,
               ),
             ),
             Text(
               value,
-              style: const TextStyle(
-                fontSize: 15,
+              style: TextStyle(
+                fontSize: 14,
                 fontWeight: FontWeight.w600,
+                color: cs.onSurface,
               ),
             ),
           ],

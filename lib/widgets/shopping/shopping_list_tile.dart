@@ -113,13 +113,10 @@ class ShoppingListTile extends StatelessWidget {
   }
 
   /// 🔘 כפתור פעולה בתחתית הכרטיס
-  /// "התחל קנייה" אם יש מוצרים, "הוסף מוצרים" אם ריק
+  /// מציג טקסט דינמי לפי סוג הרשימה ומצב האירוע
   Widget _buildBottomActionButton(BuildContext context, ThemeData theme) {
     final hasItems = list.items.isNotEmpty;
-    final icon = hasItems ? Icons.shopping_cart_checkout : Icons.add_circle_outline;
-    final label = hasItems
-        ? AppStrings.shopping.startShoppingButton
-        : AppStrings.shopping.addProductsToStart;
+    final (icon, label) = _getActionButtonConfig(hasItems);
     final onPressed = hasItems ? onStartShopping : onTap;
 
     return Container(
@@ -161,6 +158,29 @@ class ShoppingListTile extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// 🎯 מחזיר אייקון וטקסט לכפתור הפעולה לפי סוג הרשימה
+  (IconData, String) _getActionButtonConfig(bool hasItems) {
+    // אם אין פריטים - תמיד "הוסף מוצרים"
+    if (!hasItems) {
+      return (Icons.add_circle_outline, AppStrings.shopping.addProductsToStart);
+    }
+
+    // אירוע עם "מי מביא מה"
+    if (list.type == ShoppingList.typeEvent &&
+        list.eventMode == ShoppingList.eventModeWhoBrings) {
+      return (Icons.people, 'מי מביא מה');
+    }
+
+    // אירוע אישי (משימות / צ'קליסט)
+    if (list.type == ShoppingList.typeEvent &&
+        list.eventMode == ShoppingList.eventModeTasks) {
+      return (Icons.checklist, 'צ\'קליסט');
+    }
+
+    // כל השאר: חנויות + אירוע עם קנייה רגילה
+    return (Icons.shopping_cart_checkout, AppStrings.shopping.startShoppingButton);
   }
 
   /// 🏷️ תג "משותפת"

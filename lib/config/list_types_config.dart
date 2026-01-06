@@ -1,6 +1,6 @@
 // 📄 File: lib/config/list_types_config.dart
 //
-// 🎯 מטרה: הגדרה מרכזית של כל סוגי הרשימות (8 סוגים)
+// 🎯 מטרה: הגדרה מרכזית של כל סוגי הרשימות (9 סוגים)
 //
 // ✨ יתרונות:
 // - מקור אמת יחיד (Single Source of Truth)
@@ -45,7 +45,7 @@ class ListTypeConfig {
 
 /// 🗂️ כל סוגי הרשימות במערכת
 class ListTypes {
-  /// רשימת כל הסוגים (7 סוגים + "אחר")
+  /// רשימת כל הסוגים (8 סוגים + "אחר")
   static const List<ListTypeConfig> all = [
     ListTypeConfig(
       key: ShoppingList.typeSupermarket,
@@ -95,6 +95,13 @@ class ListTypes {
       shortName: 'בית',
       emoji: '🏠',
       icon: Icons.home,
+    ),
+    ListTypeConfig(
+      key: ShoppingList.typeEvent,
+      fullName: 'אירוע',
+      shortName: 'אירוע',
+      emoji: '🎉',
+      icon: Icons.celebration,
     ),
     ListTypeConfig(
       key: ShoppingList.typeOther,

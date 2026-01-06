@@ -56,8 +56,10 @@ import '../models/active_shopper.dart';
 import '../models/enums/item_type.dart';
 import '../models/enums/user_role.dart';
 import '../models/receipt.dart';
+import '../models/selected_contact.dart';
 import '../models/shopping_list.dart';
 import '../models/unified_list_item.dart';
+import '../repositories/firebase_shopping_lists_repository.dart';
 import '../repositories/receipt_repository.dart';
 import '../repositories/shopping_lists_repository.dart';
 import 'user_context.dart';
@@ -261,7 +263,7 @@ class ShoppingListsProvider with ChangeNotifier {
   }
 
   /// יוצר רשימת קניות חדשה
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final list = await provider.createList(
@@ -270,6 +272,7 @@ class ShoppingListsProvider with ChangeNotifier {
   ///   budget: 500.0,
   ///   eventDate: DateTime(2025, 10, 15), // אירוע ב-15/10
   ///   items: [...], // 🆕 פריטים מתבנית
+  ///   sharedContacts: [...], // 🆕 אנשי קשר לשיתוף ספציפי
   /// );
   /// ```
   Future<ShoppingList> createList({
@@ -281,10 +284,12 @@ class ShoppingListsProvider with ChangeNotifier {
     bool isPrivate = true, // 🆕 ברירת מחדל: רשימה אישית
     List<UnifiedListItem>? items, // 🆕 פריטים אופציונליים (UnifiedListItem)
     String? templateId, // 🆕 מזהה תבנית
+    List<SelectedContact>? sharedContacts, // 🆕 אנשי קשר לשיתוף ספציפי
+    String? eventMode, // 🆕 מצב אירוע (who_brings/shopping/tasks)
   }) async {
     final userId = _userContext?.user?.id;
     final householdId = _userContext?.user?.householdId;
-    
+
     if (userId == null || householdId == null) {
       if (kDebugMode) {
         debugPrint('❌ createList: משתמש לא מחובר');
@@ -295,6 +300,9 @@ class ShoppingListsProvider with ChangeNotifier {
     if (kDebugMode) {
       debugPrint('➕ createList: "$name" (סוג: $type, תקציב: $budget, תאריך: $eventDate)');
       debugPrint('   🆕 פריטים: ${items?.length ?? 0}, תבנית: ${templateId ?? "ללא"}');
+      if (sharedContacts != null && sharedContacts.isNotEmpty) {
+        debugPrint('   👥 שיתוף עם: ${sharedContacts.length} אנשי קשר');
+      }
     }
     _errorMessage = null;
 
@@ -313,6 +321,7 @@ class ShoppingListsProvider with ChangeNotifier {
               eventDate: eventDate,
               isShared: isShared,
               isPrivate: isPrivate,
+              eventMode: eventMode, // 🆕 מצב אירוע
             )
           : ShoppingList.newList(
               id: _uuid.v4(),
@@ -325,9 +334,33 @@ class ShoppingListsProvider with ChangeNotifier {
               isPrivate: isPrivate,
               items: items ?? [], // 🆕 העברת פריטים
               createdFromTemplate: items != null && items.isNotEmpty,
+              eventMode: eventMode, // 🆕 מצב אירוע
             );
 
       await _repository.saveList(newList, userId, householdId);
+
+      // 🆕 הוספת משתמשים משותפים (רק רשומים - pending מטופל ב-UI)
+      if (sharedContacts != null && sharedContacts.isNotEmpty && isPrivate) {
+        final firebaseRepo = _repository as FirebaseShoppingListsRepository;
+
+        for (final contact in sharedContacts) {
+          if (!contact.isPending && contact.userId != null) {
+            // משתמש רשום → הוסף ישירות
+            await firebaseRepo.addSharedUserToPrivateList(
+              ownerId: userId,
+              listId: newList.id,
+              sharedUserId: contact.userId!,
+              role: contact.role.name,
+              userName: contact.name,
+              userEmail: contact.email,
+            );
+            if (kDebugMode) {
+              debugPrint('   ✅ נוסף משתמש: ${contact.displayName} (${contact.role.hebrewName})');
+            }
+          }
+        }
+      }
+
       await loadLists();
       if (kDebugMode) {
         debugPrint('✅ createList: רשימה "$name" נוצרה בהצלחה!');

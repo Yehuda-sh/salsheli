@@ -214,6 +214,15 @@ class ShoppingList {
   @JsonKey(name: 'is_private', defaultValue: true)
   final bool isPrivate;
 
+  /// 🆕 מצב הרשימה (רק לאירועים)
+  /// 🇬🇧 Event mode (only for events)
+  /// - null: רשימת קנייה רגילה (לא אירוע)
+  /// - 'who_brings': מי מביא מה (חלוקה בין משתתפים)
+  /// - 'shopping': אירוע עם קנייה רגילה (אדם אחד קונה)
+  /// - 'tasks': משימות אישיות (צ'קליסט פשוט)
+  @JsonKey(name: 'event_mode')
+  final String? eventMode;
+
   /// 🆕 הרשאה של המשתמש הנוכחי (מחושב, לא נשמר)
   /// 🇬🇧 Current user's role (computed, not saved)
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -237,6 +246,14 @@ class ShoppingList {
   static const String typeHousehold = 'household';     // 🏠 כלי בית - מוצרים מותאמים
   static const String typeEvent = 'event';             // 🎉 אירוע - מסיבות ומנגלים
   static const String typeOther = 'other';             // ➕ אחר
+
+  // ---- Event Mode constants (לאירועים) ----
+  /// מי מביא מה - חלוקה בין משתתפים
+  static const String eventModeWhoBrings = 'who_brings';
+  /// קנייה רגילה - אדם אחד קונה הכל
+  static const String eventModeShopping = 'shopping';
+  /// משימות אישיות - צ'קליסט פשוט
+  static const String eventModeTasks = 'tasks';
 
   /// 🇮🇱 האם הרשימה צריכה לעדכן מזווה משפחתי ולשמור דפוסי קנייה?
   /// 🇬🇧 Should this list update household pantry and save shopping patterns?
@@ -535,6 +552,7 @@ class ShoppingList {
     Map<String, SharedUser> sharedUsers = const {},
     List<PendingRequest> pendingRequests = const [],
     this.isPrivate = false,
+    this.eventMode,
     this.currentUserRole,
   })  : createdDate = createdDate ?? updatedDate,
         sharedWith = List<String>.unmodifiable(sharedWith),
@@ -562,6 +580,7 @@ class ShoppingList {
     String? templateId,
     String format = 'shared',
     bool createdFromTemplate = false,
+    String? eventMode,
     DateTime? now,
   }) {
     final timestamp = now ?? DateTime.now();
@@ -580,6 +599,7 @@ class ShoppingList {
       templateId: templateId,
       format: format,
       createdFromTemplate: createdFromTemplate,
+      eventMode: eventMode,
       updatedDate: timestamp,
       createdDate: timestamp,
       status: statusActive,
@@ -602,6 +622,7 @@ class ShoppingList {
     bool isShared = false,
     bool isPrivate = true,
     List<String> sharedWith = const [],
+    String? eventMode,
     DateTime? now,
   }) {
     final timestamp = now ?? DateTime.now();
@@ -620,6 +641,7 @@ class ShoppingList {
       items: List<UnifiedListItem>.unmodifiable(items),
       templateId: templateId,
       createdFromTemplate: true,
+      eventMode: eventMode,
       updatedDate: timestamp,
       createdDate: timestamp,
       status: statusActive,
@@ -654,6 +676,7 @@ class ShoppingList {
     List<ActiveShopper>? activeShoppers,
     Map<String, SharedUser>? sharedUsers,
     List<PendingRequest>? pendingRequests,
+    Object? eventMode = _sentinel,  // Using Object? to allow explicit null
     UserRole? currentUserRole,
   }) {
     return ShoppingList(
@@ -685,6 +708,9 @@ class ShoppingList {
       activeShoppers: activeShoppers ?? this.activeShoppers,
       sharedUsers: sharedUsers ?? this.sharedUsers,
       pendingRequests: pendingRequests ?? this.pendingRequests,
+      eventMode: identical(eventMode, _sentinel)
+          ? this.eventMode
+          : eventMode as String?,  // Allow explicit null
       currentUserRole: currentUserRole ?? this.currentUserRole,
     );
   }

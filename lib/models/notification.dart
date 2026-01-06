@@ -119,6 +119,9 @@ enum NotificationType {
   @JsonValue('group_invite')
   groupInvite, // הזמנה לקבוצה
 
+  @JsonValue('group_invite_rejected')
+  groupInviteRejected, // 🆕 הזמנה לקבוצה נדחתה
+
   @JsonValue('who_brings_volunteer')
   whoBringsVolunteer, // מישהו התנדב להביא פריט
 
@@ -151,6 +154,8 @@ extension NotificationTypeExtension on NotificationType {
         return '🚫';
       case NotificationType.groupInvite:
         return '👥';
+      case NotificationType.groupInviteRejected:
+        return '🚫';
       case NotificationType.whoBringsVolunteer:
         return '🙋';
       case NotificationType.newVote:
@@ -178,6 +183,8 @@ extension NotificationTypeExtension on NotificationType {
         return 'הסרה';
       case NotificationType.groupInvite:
         return 'הזמנה לקבוצה';
+      case NotificationType.groupInviteRejected:
+        return 'הזמנה נדחתה';
       case NotificationType.whoBringsVolunteer:
         return 'התנדבות';
       case NotificationType.newVote:

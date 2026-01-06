@@ -274,6 +274,27 @@ class TemplateService {
     }
   }
 
+  /// האם התבנית היא של אירוע?
+  static bool isEventTemplate(String templateId) {
+    return ['bbq', 'birthday', 'friends'].contains(templateId);
+  }
+
+  /// מחזיר מצב אירוע ברירת מחדל לפי ID תבנית ונראות
+  ///
+  /// - תבנית אירוע + משותף (לא פרטי) → 'who_brings' (מי מביא מה)
+  /// - תבנית אירוע + פרטי → 'tasks' (משימות אישיות)
+  /// - תבנית רגילה → null (קנייה רגילה)
+  static String? getEventModeForTemplate(String templateId, {required bool isPrivate}) {
+    // רק תבניות אירוע מקבלות eventMode
+    if (!isEventTemplate(templateId)) {
+      return null;
+    }
+
+    // אירוע פרטי = משימות אישיות (צ'קליסט)
+    // אירוע משותף = מי מביא מה
+    return isPrivate ? 'tasks' : 'who_brings';
+  }
+
   /// מחזיר אייקון לפי מקור המוצר
   static String _getIconForSource(String source) {
     switch (source) {

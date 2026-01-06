@@ -220,13 +220,55 @@ class FirebaseUserRepository implements UserRepository {
 
       final user = UserEntity.fromJson(data);
       debugPrint('✅ FirebaseUserRepository.findByEmail: משתמש נמצא - ${user.id}');
-      
+
       return user;
     } catch (e, stackTrace) {
       debugPrint('❌ FirebaseUserRepository.findByEmail: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw UserRepositoryException('Failed to find user by email', e);
     }
+  }
+
+  // === Find By Phone ===
+
+  @override
+  Future<UserEntity?> findByPhone(String phone) async {
+    try {
+      if (phone.isEmpty) {
+        throw ArgumentError('Phone cannot be empty');
+      }
+
+      debugPrint('🔍 FirebaseUserRepository.findByPhone: מחפש משתמש עם טלפון $phone');
+
+      final normalizedPhone = _normalizePhone(phone);
+
+      final snapshot = await _firestore
+          .collection(FirestoreCollections.users)
+          .where(FirestoreFields.phone, isEqualTo: normalizedPhone)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isEmpty) {
+        debugPrint('⚠️ FirebaseUserRepository.findByPhone: משתמש לא נמצא');
+        return null;
+      }
+
+      final data = Map<String, dynamic>.from(snapshot.docs.first.data());
+
+      final user = UserEntity.fromJson(data);
+      debugPrint('✅ FirebaseUserRepository.findByPhone: משתמש נמצא - ${user.id}');
+
+      return user;
+    } catch (e, stackTrace) {
+      debugPrint('❌ FirebaseUserRepository.findByPhone: שגיאה - $e');
+      debugPrintStack(stackTrace: stackTrace);
+      throw UserRepositoryException('Failed to find user by phone', e);
+    }
+  }
+
+  /// נרמול מספר טלפון - הסרת רווחים, מקפים ותווים מיוחדים
+  String _normalizePhone(String phone) {
+    return phone.replaceAll(RegExp(r'[\s\-\(\)]'), '');
   }
 
   // === Update Last Login ===

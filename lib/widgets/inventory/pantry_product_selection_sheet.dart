@@ -30,6 +30,7 @@ import '../../models/custom_location.dart';
 import '../../providers/inventory_provider.dart';
 import '../../providers/locations_provider.dart';
 import '../../repositories/local_products_repository.dart';
+import '../common/notebook_background.dart';
 
 class PantryProductSelectionSheet extends StatefulWidget {
   const PantryProductSelectionSheet({super.key});
@@ -61,14 +62,21 @@ class _PantryProductSelectionSheetState
   String? _selectedCategory;
   String _searchQuery = '';
 
+  /// 🆕 שמות מוצרים שכבר קיימים במזווה (לתצוגת "במזווה")
+  Set<String> _existingProductNames = {};
+
   bool _isLoading = true;
   String? _errorMessage;
   String? _lastAddedProduct;
   String? _addingProductId;
 
+  /// 🆕 מזהה מוצר שזה עתה נוסף (לאפקט הדגשה)
+  String? _justAddedProductId;
+
   // ✅ Timers - ניתנים לביטול ב-dispose
   Timer? _debounceTimer;
   Timer? _feedbackTimer;
+  Timer? _pulseTimer;
 
   @override
   void initState() {
@@ -81,6 +89,7 @@ class _PantryProductSelectionSheetState
     _searchController.dispose();
     _debounceTimer?.cancel();
     _feedbackTimer?.cancel();
+    _pulseTimer?.cancel();
     super.dispose();
   }
 
@@ -97,6 +106,19 @@ class _PantryProductSelectionSheetState
     });
   }
 
+  /// 🆕 הוספת מוצר מותאם אישית (כשלא נמצא בקטלוג)
+  Future<void> _addCustomProduct(String productName) async {
+    // יצירת מוצר זמני עם השם שהמשתמש חיפש
+    final customProduct = {
+      'name': productName,
+      'category': 'אחר',
+      'icon': '📦',
+      'source': 'custom',
+      'barcode': 'custom_${productName.hashCode}',
+    };
+    await _addProductToPantry(customProduct);
+  }
+
   /// ✅ הצגת פידבק עם Timer מבוטל
   void _showFeedback(String productName) {
     _feedbackTimer?.cancel();
@@ -109,6 +131,9 @@ class _PantryProductSelectionSheetState
   }
 
   Future<void> _loadProducts() async {
+    // 🆕 שמור הפניה ל-provider לפני async gap
+    final inventoryProvider = context.read<InventoryProvider>();
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -126,13 +151,22 @@ class _PantryProductSelectionSheetState
         }
       }
 
+      // 🆕 קבל שמות מוצרים שכבר במזווה
+      final existingNames = inventoryProvider.items
+          .map((item) => item.productName.toLowerCase())
+          .toSet();
+
+      if (!mounted) return;
+
       setState(() {
         _allProducts = products;
         _filteredProducts = products;
         _categories = categories;
+        _existingProductNames = existingNames;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _errorMessage = 'שגיאה בטעינת מוצרים: $e';
         _isLoading = false;
@@ -203,8 +237,22 @@ class _PantryProductSelectionSheetState
 
       if (!mounted) return;
 
-      setState(() => _addingProductId = null);
+      setState(() {
+        _addingProductId = null;
+        // 🆕 עדכן את רשימת המוצרים הקיימים כדי שהתג יופיע מיד
+        _existingProductNames.add(name.toLowerCase());
+        // 🆕 אפקט הדגשה (pulse)
+        _justAddedProductId = productId;
+      });
       _showFeedback(name); // ✅ Timer מבוטל במקום Future.delayed
+
+      // 🆕 הסר את אפקט ההדגשה אחרי חצי שנייה
+      _pulseTimer?.cancel();
+      _pulseTimer = Timer(const Duration(milliseconds: 600), () {
+        if (mounted) {
+          setState(() => _justAddedProductId = null);
+        }
+      });
     } catch (e) {
       if (!mounted) return;
 
@@ -517,19 +565,30 @@ class _PantryProductSelectionSheetState
           top: Radius.circular(kBorderRadiusLarge),
         ),
       ),
-      child: Directionality(
-        textDirection: TextDirection.rtl,
-        child: Column(
-          children: [
-            // Handle
-            Container(
-              margin: const EdgeInsets.only(top: kSpacingSmall),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: cs.onSurfaceVariant.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(2),
-              ),
+      child: Stack(
+        children: [
+          // 🎨 רקע מחברת לעיצוב אחיד עם שאר האפליקציה
+          const Positioned.fill(
+            child: ClipRRect(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
+              child: NotebookBackground(),
+            ),
+          ),
+
+          // 📝 תוכן
+          Directionality(
+            textDirection: TextDirection.rtl,
+            child: Column(
+              children: [
+                // Handle
+                Container(
+                  margin: const EdgeInsets.only(top: kSpacingSmall),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: cs.onSurfaceVariant.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
             ),
 
             // כותרת
@@ -661,12 +720,14 @@ class _PantryProductSelectionSheetState
                 ),
               ),
 
-            // רשימת מוצרים
-            Expanded(
-              child: _buildProductsList(cs),
+                // רשימת מוצרים
+                Expanded(
+                  child: _buildProductsList(cs),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -710,7 +771,7 @@ class _PantryProductSelectionSheetState
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.inbox,
+              Icons.search_off,
               size: 64,
               color: cs.onSurfaceVariant.withValues(alpha: 0.5),
             ),
@@ -724,6 +785,23 @@ class _PantryProductSelectionSheetState
                 fontWeight: FontWeight.bold,
               ),
             ),
+            // 🆕 הוספת מוצר מותאם אישית
+            if (_searchQuery.isNotEmpty) ...[
+              const SizedBox(height: kSpacingSmall),
+              Text(
+                'לא מצאת? הוסף מוצר חדש',
+                style: TextStyle(
+                  fontSize: kFontSizeSmall,
+                  color: cs.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: kSpacingMedium),
+              FilledButton.tonalIcon(
+                onPressed: () => _addCustomProduct(_searchQuery),
+                icon: const Icon(Icons.add_circle_outline),
+                label: Text('הוסף "$_searchQuery"'),
+              ),
+            ],
           ],
         ),
       );
@@ -748,6 +826,12 @@ class _PantryProductSelectionSheetState
     final productId = product['barcode'] as String? ?? name;
     final isAdding = _addingProductId == productId;
 
+    // 🆕 בדוק אם המוצר כבר במזווה
+    final isInPantry = _existingProductNames.contains(name.toLowerCase());
+
+    // 🆕 בדוק אם המוצר זה עתה נוסף (לאפקט pulse)
+    final justAdded = _justAddedProductId == productId;
+
     // צבע לפי מקור
     final sourceColor = _getSourceColor(source, cs);
 
@@ -755,95 +839,176 @@ class _PantryProductSelectionSheetState
       label: '$name, $category. לחץ להוספה למזווה',
       button: true,
       enabled: !isAdding,
-      child: Card(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
         margin: const EdgeInsets.only(bottom: kSpacingSmall),
-        child: InkWell(
-          onTap: isAdding ? null : () => _addProductToPantry(product),
+        decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(kBorderRadius),
-        child: Padding(
-          padding: const EdgeInsets.all(kSpacingSmall),
-          child: Row(
-            children: [
-              // אייקון
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: sourceColor.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(kBorderRadius),
-                ),
-                child: Center(
-                  child: Text(icon, style: const TextStyle(fontSize: 24)),
-                ),
-              ),
-              const SizedBox(width: kSpacingSmall),
-
-              // פרטים
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: kFontSizeBody,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+          // 🆕 אפקט הדגשה כשזה עתה נוסף
+          boxShadow: justAdded
+              ? [
+                  BoxShadow(
+                    color: StatusColors.getStatusColor('success', context)
+                        .withValues(alpha: 0.4),
+                    blurRadius: 8,
+                    spreadRadius: 2,
+                  ),
+                ]
+              : null,
+        ),
+        child: Card(
+          margin: EdgeInsets.zero,
+          color: justAdded
+              ? StatusColors.getStatusColor('success', context)
+                  .withValues(alpha: 0.1)
+              : null,
+          child: InkWell(
+            onTap: isAdding ? null : () => _addProductToPantry(product),
+            borderRadius: BorderRadius.circular(kBorderRadius),
+            child: Padding(
+              padding: const EdgeInsets.all(kSpacingSmall),
+              child: Row(
+                children: [
+                  // אייקון
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: sourceColor.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(kBorderRadius),
                     ),
-                    Row(
+                    child: Center(
+                      child: Text(icon, style: const TextStyle(fontSize: 24)),
+                    ),
+                  ),
+                  const SizedBox(width: kSpacingSmall),
+
+                  // פרטים
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: kSpacingSmall,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: sourceColor.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                          ),
-                          child: Text(
-                            category,
-                            style: TextStyle(
-                              fontSize: kFontSizeTiny,
-                              color: sourceColor,
+                        // 🆕 שם + תג "במזווה" אם קיים
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: kFontSizeBody,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                          ),
+                            if (isInPantry) ...[
+                              const SizedBox(width: kSpacingSmall),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: StatusColors.getStatusColor(
+                                      'success', context),
+                                  borderRadius:
+                                      BorderRadius.circular(kBorderRadiusSmall),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.check,
+                                      size: 12,
+                                      color: cs.onPrimary,
+                                    ),
+                                    const SizedBox(width: 2),
+                                    Text(
+                                      'במזווה',
+                                      style: TextStyle(
+                                        fontSize: kFontSizeTiny,
+                                        color: cs.onPrimary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
-                        if (brand != null && brand != '---') ...[
-                          const SizedBox(width: kSpacingSmall),
-                          Text(
-                            brand,
-                            style: TextStyle(
-                              fontSize: kFontSizeTiny,
-                              color: cs.onSurfaceVariant,
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: kSpacingSmall,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: sourceColor.withValues(alpha: 0.1),
+                                borderRadius:
+                                    BorderRadius.circular(kBorderRadiusSmall),
+                              ),
+                              child: Text(
+                                category,
+                                style: TextStyle(
+                                  fontSize: kFontSizeTiny,
+                                  color: sourceColor,
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                            if (brand != null && brand != '---') ...[
+                              const SizedBox(width: kSpacingSmall),
+                              Text(
+                                brand,
+                                style: TextStyle(
+                                  fontSize: kFontSizeTiny,
+                                  color: cs.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
                       ],
                     ),
-                  ],
-                ),
-              ),
+                  ),
 
-              // כפתור הוספה
-              if (isAdding)
-                const SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              else
-                Icon(
-                  Icons.add_circle,
-                  color: cs.primary,
-                  size: kIconSize,
-                ),
-            ],
+                  // כפתור הוספה - גדול יותר עם אזור לחיצה נוח
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: isInPantry
+                          ? StatusColors.getStatusColor('success', context)
+                              .withValues(alpha: 0.1)
+                          : cs.primary.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: isAdding
+                        ? const Center(
+                            child: SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          )
+                        : Icon(
+                            isInPantry
+                                ? Icons.add_circle_outline
+                                : Icons.add_circle,
+                            color: isInPantry
+                                ? StatusColors.getStatusColor(
+                                    'success', context)
+                                : cs.primary,
+                            size: 32,
+                          ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
-      ),
       ),
     );
   }

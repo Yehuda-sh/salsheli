@@ -94,6 +94,12 @@ class MockUserRepository implements UserRepository {
   Future<void> deleteUser(String userId) async {}
 
   @override
+  Future<UserEntity?> findByPhone(String phone) async {
+    // Mock implementation - always returns null
+    return null;
+  }
+
+  @override
   Future<UserEntity> updateProfile({
     required String userId,
     String? name,

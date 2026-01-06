@@ -5,10 +5,15 @@ import '../services/suggestions_service.dart';
 import 'inventory_provider.dart';
 
 /// 💡 Provider לניהול המלצות חכמות
-/// 
+///
 /// מנהל תור המלצות מהמזווה ומתעדכן אוטומטית
-/// 
+///
 /// Persistence: מוצרים מוחרגים נשמרים ב-Hive
+///
+/// 🆕 תמיכה בקרוסלה:
+///    - [הוסף] → מוסיף לרשימה, לא יופיע שוב
+///    - [הבא] → עובר להמלצה הבאה, יחזור בסוף הסבב
+///    - [לא עכשיו] → לא יופיע בקנייה הזו, כן בקנייה הבאה
 class SuggestionsProvider with ChangeNotifier {
   final InventoryProvider _inventoryProvider;
   static const String _excludedProductsBoxName = 'excluded_products';
@@ -18,6 +23,10 @@ class SuggestionsProvider with ChangeNotifier {
   bool _isLoading = false;
   String? _error;
   Set<String> _excludedProducts = {}; // מוצרים שנמחקו לצמיתות (persistent)
+
+  // 🆕 Carousel state
+  int _currentIndex = 0; // אינדקס נוכחי בקרוסלה
+  final Set<String> _sessionSkippedProducts = {}; // מוצרים שנדלגו בסשן הזה בלבד
 
   SuggestionsProvider({
     required InventoryProvider inventoryProvider,
@@ -66,6 +75,19 @@ class SuggestionsProvider with ChangeNotifier {
   bool get hasCurrentSuggestion => _currentSuggestion != null;
   int get pendingSuggestionsCount =>
       _suggestions.where((s) => s.isActive).length;
+
+  /// 🆕 המלצות פעילות (לא כולל session skipped)
+  List<SmartSuggestion> get _activeSuggestions {
+    return SuggestionsService.getActiveSuggestions(_suggestions)
+        .where((s) => !_sessionSkippedProducts.contains(s.productName))
+        .toList();
+  }
+
+  /// 🆕 כמה המלצות פעילות יש בקרוסלה
+  int get carouselCount => _activeSuggestions.length;
+
+  /// 🆕 אינדקס נוכחי בקרוסלה (1-based לתצוגה)
+  int get currentPosition => carouselCount > 0 ? _currentIndex + 1 : 0;
 
   // ========== Initialization ==========
 
@@ -234,9 +256,92 @@ class SuggestionsProvider with ChangeNotifier {
     }
   }
 
-  /// 📊 טעינת המלצה הבאה מהתור
+  /// 📊 טעינת המלצה הבאה מהתור (קרוסלה)
   Future<void> _loadNextSuggestion() async {
-    _currentSuggestion = SuggestionsService.getNextSuggestion(_suggestions);
+    final active = _activeSuggestions;
+
+    if (active.isEmpty) {
+      _currentSuggestion = null;
+      _currentIndex = 0;
+      return;
+    }
+
+    // וודא שהאינדקס בטווח
+    if (_currentIndex >= active.length) {
+      _currentIndex = 0; // חזור להתחלה (קרוסלה)
+    }
+
+    _currentSuggestion = active[_currentIndex];
+  }
+
+  // ========== 🆕 Carousel Actions ==========
+
+  /// ⏭️ עבור להמלצה הבאה (קרוסלה - יחזור בסוף הסבב)
+  ///
+  /// משתמש בכפתור "הבא" - לא מוחק, רק עובר הלאה
+  Future<void> moveToNext() async {
+    final active = _activeSuggestions;
+
+    if (active.isEmpty) {
+      _currentSuggestion = null;
+      return;
+    }
+
+    // עבור לאינדקס הבא (עם wrap-around)
+    _currentIndex = (_currentIndex + 1) % active.length;
+    _currentSuggestion = active[_currentIndex];
+
+    notifyListeners();
+  }
+
+  /// ⏮️ חזור להמלצה הקודמת (קרוסלה)
+  Future<void> moveToPrevious() async {
+    final active = _activeSuggestions;
+
+    if (active.isEmpty) {
+      _currentSuggestion = null;
+      return;
+    }
+
+    // חזור לאינדקס הקודם (עם wrap-around)
+    _currentIndex = (_currentIndex - 1 + active.length) % active.length;
+    _currentSuggestion = active[_currentIndex];
+
+    notifyListeners();
+  }
+
+  /// 🚫 דלג על המלצה בסשן הזה בלבד (כפתור "לא עכשיו")
+  ///
+  /// לא יופיע בקנייה הנוכחית, אבל כן בקנייה הבאה
+  Future<void> skipForSession() async {
+    if (_currentSuggestion == null) return;
+
+    // הוסף לרשימת הדילוגים של הסשן
+    _sessionSkippedProducts.add(_currentSuggestion!.productName);
+
+    // עדכן את האינדקס והמלצה נוכחית
+    final active = _activeSuggestions;
+
+    if (active.isEmpty) {
+      _currentSuggestion = null;
+      _currentIndex = 0;
+    } else {
+      // וודא שהאינדקס בטווח
+      if (_currentIndex >= active.length) {
+        _currentIndex = 0;
+      }
+      _currentSuggestion = active[_currentIndex];
+    }
+
+    notifyListeners();
+  }
+
+  /// 🔄 נקה דילוגי סשן (קריאה כשמסיימים קנייה או יוצאים)
+  void clearSessionSkips() {
+    _sessionSkippedProducts.clear();
+    _currentIndex = 0;
+    _loadNextSuggestion();
+    notifyListeners();
   }
 
   /// 🔄 איפוס שגיאה

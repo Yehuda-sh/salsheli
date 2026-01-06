@@ -109,6 +109,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
 
   bool _isLoading = false;
   bool _hasChanges = false; // 🛡️ מעקב אחר שינויים לאישור יציאה
+  bool _moreSettingsExpanded = false; // 🆕 האם הגדרות נוספות פתוחות
 
   @override
   void initState() {
@@ -154,6 +155,77 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
     }
   }
 
+  /// 🆕 בונה שדה כמות עם כפתורי +/-
+  Widget _buildQuantityField({
+    required TextEditingController controller,
+    required String label,
+    required ColorScheme cs,
+    int minValue = 0,
+    int maxValue = 999,
+  }) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // כפתור מינוס
+        InkWell(
+          onTap: _isLoading
+              ? null
+              : () {
+                  final current = int.tryParse(controller.text) ?? 0;
+                  if (current > minValue) {
+                    unawaited(HapticFeedback.selectionClick());
+                    controller.text = (current - 1).toString();
+                  }
+                },
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(4),
+            child: Icon(Icons.remove_circle_outline, color: cs.primary, size: 24),
+          ),
+        ),
+        // ערך
+        SizedBox(
+          width: 40,
+          child: TextField(
+            controller: controller,
+            keyboardType: TextInputType.number,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: cs.onSurface,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+            decoration: InputDecoration(
+              labelText: label,
+              labelStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: kFontSizeSmall),
+              contentPadding: const EdgeInsets.symmetric(vertical: 4),
+              isDense: true,
+              border: InputBorder.none,
+            ),
+            enabled: !_isLoading,
+          ),
+        ),
+        // כפתור פלוס
+        InkWell(
+          onTap: _isLoading
+              ? null
+              : () {
+                  final current = int.tryParse(controller.text) ?? 0;
+                  if (current < maxValue) {
+                    unawaited(HapticFeedback.selectionClick());
+                    controller.text = (current + 1).toString();
+                  }
+                },
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(4),
+            child: Icon(Icons.add_circle_outline, color: cs.primary, size: 24),
+          ),
+        ),
+      ],
+    );
+  }
+
   /// ✅ Exit confirmation when form has unsaved changes
   Future<bool> _confirmExit() async {
     if (!_hasChanges) return true;
@@ -195,69 +267,87 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
     super.dispose();
   }
 
-  /// בונה widget סטטיסטיקות
+  /// 🆕 בונה widget סטטיסטיקות - עיצוב מינימלי ומעומעם
   Widget _buildStatistics(InventoryItem item, ColorScheme cs) {
     final dateFormat = DateFormat('dd/MM/yyyy');
+    final mutedColor = cs.onSurfaceVariant.withValues(alpha: 0.6);
+    const smallFont = 11.0;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'סטטיסטיקות',
-          style: TextStyle(
-            fontSize: kFontSizeSmall,
-            fontWeight: FontWeight.bold,
-            color: cs.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: kSpacingSmall),
-        Row(
-          children: [
-            const Icon(Icons.shopping_cart, size: 16),
-            const SizedBox(width: 4),
-            Text(
-              'נקנה ${item.purchaseCount} פעמים',
-              style: TextStyle(
-                fontSize: kFontSizeSmall,
-                color: cs.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
-        if (item.lastPurchased != null) ...[
-          const SizedBox(height: 4),
+    return Container(
+      padding: const EdgeInsets.all(kSpacingSmall),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // כותרת קטנה
           Row(
             children: [
-              const Icon(Icons.history, size: 16),
+              Icon(Icons.bar_chart, size: 14, color: mutedColor),
               const SizedBox(width: 4),
               Text(
-                'קנייה אחרונה: ${dateFormat.format(item.lastPurchased!)}',
+                'סטטיסטיקות',
                 style: TextStyle(
-                  fontSize: kFontSizeSmall,
-                  color: cs.onSurfaceVariant,
+                  fontSize: smallFont,
+                  fontWeight: FontWeight.w500,
+                  color: mutedColor,
                 ),
               ),
             ],
           ),
-        ],
-        if (item.isPopular) ...[
-          const SizedBox(height: 4),
-          Row(
+          const SizedBox(height: 6),
+          // שורת נתונים אופקית
+          Wrap(
+            spacing: 12,
+            runSpacing: 4,
             children: [
-              Icon(Icons.trending_up, size: 16, color: StatusColors.getStatusColor('success', context)),
-              const SizedBox(width: 4),
-              Text(
-                'מוצר פופולרי!',
-                style: TextStyle(
-                  fontSize: kFontSizeSmall,
-                  color: StatusColors.getStatusColor('success', context),
-                  fontWeight: FontWeight.bold,
-                ),
+              // כמה פעמים נקנה
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.shopping_cart_outlined, size: 12, color: mutedColor),
+                  const SizedBox(width: 3),
+                  Text(
+                    '${item.purchaseCount}×',
+                    style: TextStyle(fontSize: smallFont, color: mutedColor),
+                  ),
+                ],
               ),
+              // קנייה אחרונה
+              if (item.lastPurchased != null)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.history, size: 12, color: mutedColor),
+                    const SizedBox(width: 3),
+                    Text(
+                      dateFormat.format(item.lastPurchased!),
+                      style: TextStyle(fontSize: smallFont, color: mutedColor),
+                    ),
+                  ],
+                ),
+              // פופולרי
+              if (item.isPopular)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.trending_up, size: 12, color: StatusColors.getStatusColor('success', context).withValues(alpha: 0.7)),
+                    const SizedBox(width: 3),
+                    Text(
+                      'פופולרי',
+                      style: TextStyle(
+                        fontSize: smallFont,
+                        color: StatusColors.getStatusColor('success', context).withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ],
+                ),
             ],
           ),
         ],
-      ],
+      ),
     );
   }
 
@@ -420,11 +510,16 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Product name field
+              // ═══════════════════════════════════════════════════════════
+              // 🟢 שלב עליון: אזור מהיר (תמיד פתוח)
+              // ═══════════════════════════════════════════════════════════
+
+              // שם המוצר
               TextField(
                 controller: _nameController,
-                style: TextStyle(color: cs.onSurface),
+                style: TextStyle(color: cs.onSurface, fontSize: 16),
                 textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
                   labelText: AppStrings.inventory.productNameLabel,
@@ -433,100 +528,73 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                   hintStyle: TextStyle(
                     color: cs.onSurfaceVariant.withValues(alpha: 0.5),
                   ),
+                  prefixIcon: Icon(Icons.inventory_2_outlined, color: cs.primary),
                 ),
                 enabled: !_isLoading,
               ),
               const SizedBox(height: kSpacingMedium),
 
-              // Category dropdown
-              DropdownButtonFormField<String>(
-                initialValue: _selectedCategory,
-                dropdownColor: cs.surface,
-                style: TextStyle(color: cs.onSurface),
-                decoration: InputDecoration(
-                  labelText: AppStrings.inventory.categoryLabel,
-                  labelStyle: TextStyle(color: cs.onSurfaceVariant),
-                ),
-                items: kCategoryInfo.entries
-                    .where((e) => e.key != 'all') // לא להציג "הכל"
-                    .map((entry) {
-                  return DropdownMenuItem(
-                    value: entry.key,
-                    child: Row(
-                      children: [
-                        Text(entry.value.emoji),
-                        const SizedBox(width: kSpacingSmall),
-                        Text(entry.value.label),
-                      ],
-                    ),
-                  );
-                }).toList(),
-                onChanged: _isLoading
-                    ? null
-                    : (val) {
-                        if (val != null) {
-                          setState(() => _selectedCategory = val);
-                        }
-                      },
-              ),
-              const SizedBox(height: kSpacingMedium),
-
-              // Quantity, unit, and min quantity fields
+              // כמות + מינימום עם כפתורי +/-
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _quantityController,
-                      keyboardType: TextInputType.number,
-                      textInputAction: TextInputAction.next,
-                      style: TextStyle(color: cs.onSurface),
-                      decoration: InputDecoration(
-                        labelText: AppStrings.inventory.quantityLabel,
-                        labelStyle: TextStyle(color: cs.onSurfaceVariant),
-                      ),
-                      enabled: !_isLoading,
-                    ),
-                  ),
-                  const SizedBox(width: kSpacingSmall),
-                  Expanded(
-                    child: TextField(
-                      controller: _unitController,
-                      textInputAction: TextInputAction.next,
-                      style: TextStyle(color: cs.onSurface),
-                      decoration: InputDecoration(
-                        labelText: AppStrings.inventory.unitLabel,
-                        labelStyle: TextStyle(color: cs.onSurfaceVariant),
-                        hintText: AppStrings.inventory.unitHint,
-                        hintStyle: TextStyle(
-                          color: cs.onSurfaceVariant.withValues(alpha: 0.5),
+                  // כמות נוכחית
+                  Column(
+                    children: [
+                      Text(
+                        'כמות',
+                        style: TextStyle(
+                          fontSize: kFontSizeSmall,
+                          color: cs.onSurfaceVariant,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      enabled: !_isLoading,
-                    ),
-                  ),
-                  const SizedBox(width: kSpacingSmall),
-                  // מינימום - מתי להתריע על מלאי נמוך
-                  SizedBox(
-                    width: 70,
-                    child: TextField(
-                      controller: _minQuantityController,
-                      keyboardType: TextInputType.number,
-                      textInputAction: TextInputAction.next,
-                      style: TextStyle(color: cs.onSurface),
-                      decoration: InputDecoration(
-                        labelText: 'מינ\'',
-                        labelStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: kFontSizeSmall),
-                        helperText: 'התראה',
-                        helperStyle: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.6), fontSize: kFontSizeTiny),
+                      const SizedBox(height: 4),
+                      _buildQuantityField(
+                        controller: _quantityController,
+                        label: '',
+                        cs: cs,
+                        minValue: 1,
                       ),
-                      enabled: !_isLoading,
-                    ),
+                    ],
+                  ),
+                  // קו מפריד
+                  Container(
+                    height: 50,
+                    width: 1,
+                    color: cs.outlineVariant,
+                  ),
+                  // מינימום (התראה)
+                  Column(
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.notifications_outlined, size: 14, color: cs.onSurfaceVariant),
+                          const SizedBox(width: 2),
+                          Text(
+                            'מינימום',
+                            style: TextStyle(
+                              fontSize: kFontSizeSmall,
+                              color: cs.onSurfaceVariant,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      _buildQuantityField(
+                        controller: _minQuantityController,
+                        label: '',
+                        cs: cs,
+                      ),
+                    ],
                   ),
                 ],
               ),
               const SizedBox(height: kSpacingMedium),
 
-              // Location dropdown (כולל מיקומים מותאמים)
+              // מיקום אחסון
               Consumer<LocationsProvider>(
                 builder: (context, locationsProvider, _) {
                   final customLocations = locationsProvider.customLocations;
@@ -535,23 +603,20 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                     ...customLocations.map((c) => c.key),
                   ];
 
-                  // ודא שהמיקום הנבחר קיים ברשימה
                   if (!allLocations.contains(_selectedLocation)) {
-                    // אם המיקום לא קיים, הוסף אותו (לתאימות לאחור)
                     allLocations.add(_selectedLocation);
                   }
 
                   return DropdownButtonFormField<String>(
-                    // ignore: deprecated_member_use
-                    value: _selectedLocation,
+                    initialValue: _selectedLocation,
                     dropdownColor: cs.surface,
                     style: TextStyle(color: cs.onSurface),
                     decoration: InputDecoration(
                       labelText: AppStrings.inventory.locationLabel,
                       labelStyle: TextStyle(color: cs.onSurfaceVariant),
+                      prefixIcon: Icon(Icons.place_outlined, color: cs.primary),
                     ),
                     items: allLocations.map((locationId) {
-                      // בדוק אם זה מיקום מותאם
                       final customLoc = customLocations.cast<CustomLocation?>().firstWhere(
                         (c) => c?.key == locationId,
                         orElse: () => null,
@@ -568,7 +633,6 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                           ),
                         );
                       }
-                      // מיקום ברירת מחדל
                       final info = StorageLocationsConfig.getLocationInfo(locationId);
                       return DropdownMenuItem(
                         value: locationId,
@@ -585,99 +649,194 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                         ? null
                         : (val) {
                             if (val != null) {
-                              setState(() => _selectedLocation = val);
+                              setState(() {
+                                _selectedLocation = val;
+                                _hasChanges = true;
+                              });
                             }
                           },
                   );
                 },
               ),
+
               const SizedBox(height: kSpacingMedium),
 
-              // === שדות חדשים v3.0 ===
+              // ═══════════════════════════════════════════════════════════
+              // ⚪ שלב ביניים: הגדרות נוספות (מתקפל)
+              // ═══════════════════════════════════════════════════════════
 
-              // תאריך תפוגה
-              InkWell(
-                onTap: _isLoading ? null : _selectExpiryDate,
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    labelText: 'תאריך תפוגה',
-                    labelStyle: TextStyle(color: cs.onSurfaceVariant),
-                    suffixIcon: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (_expiryDate != null)
-                          IconButton(
-                            icon: const Icon(Icons.clear, size: 18),
-                            onPressed: _isLoading
-                                ? null
-                                : () => setState(() => _expiryDate = null),
-                            tooltip: 'נקה תאריך',
-                          ),
-                        const Icon(Icons.calendar_today, size: 18),
-                      ],
-                    ),
+              Theme(
+                // הסר צבע רקע מה-ExpansionTile
+                data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                child: ExpansionTile(
+                  initiallyExpanded: _moreSettingsExpanded,
+                  onExpansionChanged: (expanded) {
+                    setState(() => _moreSettingsExpanded = expanded);
+                  },
+                  tilePadding: EdgeInsets.zero,
+                  childrenPadding: const EdgeInsets.only(top: kSpacingSmall),
+                  leading: Icon(
+                    Icons.tune,
+                    size: 20,
+                    color: cs.onSurfaceVariant,
                   ),
-                  child: Text(
-                    _expiryDate != null
-                        ? DateFormat('dd/MM/yyyy').format(_expiryDate!)
-                        : 'לא הוגדר',
+                  title: Text(
+                    'הגדרות נוספות',
                     style: TextStyle(
-                      color: _expiryDate != null
-                          ? cs.onSurface
-                          : cs.onSurfaceVariant.withValues(alpha: 0.5),
+                      fontSize: 14,
+                      color: cs.onSurfaceVariant,
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(height: kSpacingMedium),
-
-              // הערות
-              TextField(
-                controller: _notesController,
-                style: TextStyle(color: cs.onSurface),
-                maxLines: 2,
-                textInputAction: TextInputAction.done,
-                decoration: InputDecoration(
-                  labelText: 'הערות',
-                  labelStyle: TextStyle(color: cs.onSurfaceVariant),
-                  hintText: 'הערות נוספות (אופציונלי)',
-                  hintStyle: TextStyle(
-                    color: cs.onSurfaceVariant.withValues(alpha: 0.5),
+                  trailing: Icon(
+                    _moreSettingsExpanded ? Icons.expand_less : Icons.expand_more,
+                    color: cs.onSurfaceVariant,
                   ),
-                ),
-                enabled: !_isLoading,
-              ),
-              const SizedBox(height: kSpacingSmall),
+                  children: [
+                    // קטגוריה
+                    DropdownButtonFormField<String>(
+                      initialValue: _selectedCategory,
+                      dropdownColor: cs.surface,
+                      style: TextStyle(color: cs.onSurface),
+                      decoration: InputDecoration(
+                        labelText: AppStrings.inventory.categoryLabel,
+                        labelStyle: TextStyle(color: cs.onSurfaceVariant),
+                        prefixIcon: Icon(Icons.category_outlined, color: cs.primary),
+                      ),
+                      items: kCategoryInfo.entries
+                          .where((e) => e.key != 'all')
+                          .map((entry) {
+                        return DropdownMenuItem(
+                          value: entry.key,
+                          child: Row(
+                            children: [
+                              Text(entry.value.emoji),
+                              const SizedBox(width: kSpacingSmall),
+                              Text(entry.value.label),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: _isLoading
+                          ? null
+                          : (val) {
+                              if (val != null) {
+                                setState(() {
+                                  _selectedCategory = val;
+                                  _hasChanges = true;
+                                });
+                              }
+                            },
+                    ),
+                    const SizedBox(height: kSpacingSmall),
 
-              // מוצר קבוע
-              CheckboxListTile(
-                value: _isRecurring,
-                onChanged: _isLoading
-                    ? null
-                    : (val) {
-                        unawaited(HapticFeedback.selectionClick());
-                        setState(() {
-                          _isRecurring = val ?? false;
-                          _hasChanges = true; // 🛡️ Track change
-                        });
-                      },
-                title: const Text('מוצר קבוע'),
-                subtitle: const Text(
-                  'יתווסף אוטומטית לרשימות חדשות',
-                  style: TextStyle(fontSize: 12),
+                    // יחידה
+                    TextField(
+                      controller: _unitController,
+                      textInputAction: TextInputAction.next,
+                      style: TextStyle(color: cs.onSurface),
+                      decoration: InputDecoration(
+                        labelText: AppStrings.inventory.unitLabel,
+                        labelStyle: TextStyle(color: cs.onSurfaceVariant),
+                        hintText: AppStrings.inventory.unitHint,
+                        hintStyle: TextStyle(
+                          color: cs.onSurfaceVariant.withValues(alpha: 0.5),
+                        ),
+                        prefixIcon: Icon(Icons.straighten_outlined, color: cs.primary),
+                      ),
+                      enabled: !_isLoading,
+                    ),
+                    const SizedBox(height: kSpacingSmall),
+
+                    // תאריך תפוגה
+                    InkWell(
+                      onTap: _isLoading ? null : _selectExpiryDate,
+                      borderRadius: BorderRadius.circular(8),
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          labelText: 'תאריך תפוגה',
+                          labelStyle: TextStyle(color: cs.onSurfaceVariant),
+                          prefixIcon: Icon(Icons.event_outlined, color: cs.primary),
+                          suffixIcon: _expiryDate != null
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear, size: 18),
+                                  onPressed: _isLoading
+                                      ? null
+                                      : () => setState(() {
+                                            _expiryDate = null;
+                                            _hasChanges = true;
+                                          }),
+                                  tooltip: 'נקה תאריך',
+                                )
+                              : const Icon(Icons.calendar_today, size: 18),
+                        ),
+                        child: Text(
+                          _expiryDate != null
+                              ? DateFormat('dd/MM/yyyy').format(_expiryDate!)
+                              : 'לא הוגדר',
+                          style: TextStyle(
+                            color: _expiryDate != null
+                                ? cs.onSurface
+                                : cs.onSurfaceVariant.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: kSpacingSmall),
+
+                    // הערות
+                    TextField(
+                      controller: _notesController,
+                      style: TextStyle(color: cs.onSurface),
+                      maxLines: 2,
+                      textInputAction: TextInputAction.done,
+                      decoration: InputDecoration(
+                        labelText: 'הערות',
+                        labelStyle: TextStyle(color: cs.onSurfaceVariant),
+                        hintText: 'הערות נוספות (אופציונלי)',
+                        hintStyle: TextStyle(
+                          color: cs.onSurfaceVariant.withValues(alpha: 0.5),
+                        ),
+                        prefixIcon: Icon(Icons.notes_outlined, color: cs.primary),
+                      ),
+                      enabled: !_isLoading,
+                    ),
+                    const SizedBox(height: kSpacingSmall),
+
+                    // מוצר קבוע
+                    CheckboxListTile(
+                      value: _isRecurring,
+                      onChanged: _isLoading
+                          ? null
+                          : (val) {
+                              unawaited(HapticFeedback.selectionClick());
+                              setState(() {
+                                _isRecurring = val ?? false;
+                                _hasChanges = true;
+                              });
+                            },
+                      title: const Text('מוצר קבוע'),
+                      subtitle: const Text(
+                        'יתווסף אוטומטית לרשימות חדשות',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      secondary: Icon(
+                        _isRecurring ? Icons.star : Icons.star_border,
+                        color: _isRecurring ? accent : cs.onSurfaceVariant,
+                      ),
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ],
                 ),
-                secondary: Icon(
-                  _isRecurring ? Icons.star : Icons.star_border,
-                  color: _isRecurring ? accent : cs.onSurfaceVariant,
-                ),
-                dense: true,
-                contentPadding: EdgeInsets.zero,
               ),
 
-              // סטטיסטיקות (רק במצב עריכה)
+              // ═══════════════════════════════════════════════════════════
+              // 🔵 שלב תחתון: סטטיסטיקות (רק במצב עריכה)
+              // ═══════════════════════════════════════════════════════════
+
               if (widget.mode == PantryItemDialogMode.edit &&
                   widget.item != null) ...[
-                const Divider(),
+                const SizedBox(height: kSpacingSmall),
                 _buildStatistics(widget.item!, cs),
               ],
             ],

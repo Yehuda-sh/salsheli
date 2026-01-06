@@ -69,15 +69,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // Keys לשמירה מקומית
   static const _kHouseholdName = 'settings.householdName';
   static const _kHouseholdType = 'settings.householdType';
-  static const _kFamilySize = 'settings.familySize';
 
   // מצב UI
   String _householdName = 'הקבוצה שלי';
   String _householdType = 'family'; // default household type
-
-  // הגדרות
-  int _familySize = 3;
-  late final TextEditingController _familySizeController;
 
   bool _loading = true;
   String? _errorMessage;
@@ -86,14 +81,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     debugPrint('⚙️ SettingsScreen: initState');
-    _familySizeController = TextEditingController(text: _familySize.toString());
     _loadSettings();
   }
 
   @override
   void dispose() {
     debugPrint('🗑️ SettingsScreen: dispose');
-    _familySizeController.dispose();
     super.dispose();
   }
 
@@ -104,9 +97,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       setState(() {
         _householdName = prefs.getString(_kHouseholdName) ?? _householdName;
         _householdType = prefs.getString(_kHouseholdType) ?? _householdType;
-        _familySize = prefs.getInt(_kFamilySize) ?? _familySize;
-
-        _familySizeController.text = _familySize.toString();
         _loading = false;
         _errorMessage = null;
       });
@@ -116,49 +106,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _errorMessage = AppStrings.settings.loadError(e.toString());
         _loading = false;
       });
-    }
-  }
-
-  /// שמירת הגדרות ב-SharedPreferences
-  Future<void> _saveSettings() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_kHouseholdName, _householdName);
-      await prefs.setString(_kHouseholdType, _householdType);
-      await prefs.setInt(_kFamilySize, _familySize);
-
-      final messenger = ScaffoldMessenger.of(context);
-      if (mounted) {
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text(AppStrings.common.success),
-            backgroundColor: Colors.green,
-            duration: kSnackBarDuration,
-          ),
-        );
-      }
-    } catch (e) {
-      debugPrint('❌ _saveSettings: שגיאה - $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppStrings.settings.saveError(e.toString())),
-            backgroundColor: Colors.red,
-            duration: kSnackBarDuration,
-          ),
-        );
-      }
-    }
-  }
-
-  /// עדכון גודל משפחה
-  void _updateFamilySize() {
-    final newSize = int.tryParse(_familySizeController.text);
-    if (newSize != null && newSize > 0 && newSize <= 20) {
-      setState(() => _familySize = newSize);
-      _saveSettings();
-    } else {
-      debugPrint('❌ _updateFamilySize: ערך לא תקין');
     }
   }
 
@@ -645,9 +592,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: kSpacingMedium),
 
                 // 🔹 התראות
-                StickyNote(
-                  color: kStickyPink,
-                  rotation: 0.015,
+                Card(
+                  elevation: 1,
                   child: Padding(
                     padding: const EdgeInsets.all(kSpacingMedium),
                     child: Column(
@@ -663,7 +609,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: kSpacingMedium),
+                        const SizedBox(height: kSpacingSmall),
                         _NotificationToggle(
                           title: 'התראות קנייה',
                           subtitle: 'כשמישהו מסיים קנייה',
@@ -696,9 +642,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: kSpacingMedium),
 
                 // 🔹 הגדרות כלליות
-                StickyNote(
-                  color: kStickyCyan,
-                  rotation: 0.01,
+                Card(
+                  elevation: 1,
                   child: Padding(
                     padding: const EdgeInsets.all(kSpacingMedium),
                     child: Column(
@@ -721,42 +666,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             const Text('ערכת נושא'),
                             const SizedBox(width: kSpacingSmall),
                             Flexible(
-                              child: SegmentedButton<String>(
+                              child: SegmentedButton<ThemeMode>(
                                 segments: const [
-                                  ButtonSegment(value: 'light', label: Text('בהיר')),
-                                  ButtonSegment(value: 'dark', label: Text('כהה')),
-                                  ButtonSegment(value: 'system', label: Text('מערכת')),
+                                  ButtonSegment(value: ThemeMode.light, label: Text('בהיר')),
+                                  ButtonSegment(value: ThemeMode.dark, label: Text('כהה')),
+                                  ButtonSegment(value: ThemeMode.system, label: Text('מערכת')),
                                 ],
-                                selected: const {'system'},
+                                selected: {userContext.themeMode},
                                 onSelectionChanged: (selection) {
-                                  // TODO: שינוי ערכת נושא
+                                  userContext.setThemeMode(selection.first);
                                 },
                                 style: const ButtonStyle(
                                   visualDensity: VisualDensity.compact,
                                 ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: kSpacingSmall),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(AppStrings.settings.familySizeLabel),
-                            SizedBox(
-                              width: kFieldWidthNarrow,
-                              child: TextField(
-                                controller: _familySizeController,
-                                keyboardType: TextInputType.number,
-                                textAlign: TextAlign.center,
-                                decoration: const InputDecoration(
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.symmetric(
-                                    horizontal: kSpacingSmall,
-                                    vertical: kSpacingSmall,
-                                  ),
-                                ),
-                                onSubmitted: (_) => _updateFamilySize(),
                               ),
                             ),
                           ],
@@ -769,9 +691,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: kSpacingMedium),
 
                 // 🔹 קישורים מהירים
-                StickyNote(
-                  color: kStickyPurple,
-                  rotation: -0.015,
+                Card(
+                  elevation: 1,
                   child: Column(
                     children: [
                       ListTile(
@@ -817,9 +738,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: kSpacingMedium),
 
                 // 🔹 מידע
-                StickyNote(
-                  color: kStickyGreen,
-                  rotation: 0.008,
+                Card(
+                  elevation: 1,
                   child: Column(
                     children: [
                       ListTile(

@@ -151,6 +151,7 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
               },
             ),
             floatingActionButton: FloatingActionButton.extended(
+              heroTag: 'groups_fab',
               onPressed: _createNewGroup,
               icon: const Icon(Icons.add),
               label: const Text('קבוצה חדשה'),

@@ -55,6 +55,7 @@ import 'package:memozap/screens/shopping/lists/shopping_lists_screen.dart';
 import 'package:memozap/screens/shopping/shopping_summary_screen.dart';
 // Services
 import 'package:memozap/services/auth_service.dart'; // 🔐 Firebase Auth!
+import 'package:memozap/services/notifications_service.dart'; // 🔔 Notifications!
 // Theme
 import 'package:memozap/theme/app_theme.dart';
 import 'package:provider/provider.dart';
@@ -129,6 +130,11 @@ void main() async {
         // === Auth Service === 🔐
         Provider(
           create: (_) => AuthService(),
+        ),
+
+        // === Notifications Service === 🔔
+        Provider<NotificationsService>(
+          create: (_) => NotificationsService(FirebaseFirestore.instance),
         ),
 
         // === Firebase User Repository === 🔥
@@ -367,6 +373,8 @@ class _MyAppState extends State<MyApp> {
     // Adapts app colors to user's wallpaper (Android 12+)
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
+        // 🌙 קבלת themeMode מ-UserContext
+        final userContext = context.watch<UserContext>();
 
         return MaterialApp(
           title: 'MemoZap',
@@ -376,6 +384,9 @@ class _MyAppState extends State<MyApp> {
           theme: lightDynamic != null ? AppTheme.fromDynamicColors(lightDynamic, dark: false) : AppTheme.lightTheme,
 
           darkTheme: darkDynamic != null ? AppTheme.fromDynamicColors(darkDynamic, dark: true) : AppTheme.darkTheme,
+
+          // 🌙 שימוש ב-themeMode מ-UserContext (בהיר/כהה/מערכת)
+          themeMode: userContext.themeMode,
 
           locale: const Locale('he', 'IL'),
           supportedLocales: const [Locale('he', 'IL')],

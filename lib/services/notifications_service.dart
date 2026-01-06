@@ -418,6 +418,53 @@ class NotificationsService {
     }
   }
 
+  /// 🚫 Create group invite rejected notification
+  /// User rejected invitation to join a group - notify the inviter
+  ///
+  /// ✅ מחזיר `true` אם ההתראה נוצרה בהצלחה
+  Future<bool> createGroupInviteRejectedNotification({
+    required String userId, // מזהה המזמין (מקבל ההתראה)
+    required String householdId,
+    required String groupId,
+    required String groupName,
+    required String rejectorName, // מי דחה את ההזמנה
+    required String senderId, // 🔒 מזהה הדוחה (נדרש ל-Firestore rules)
+  }) async {
+    try {
+      final notification = AppNotification(
+        id: _uuid.v4(),
+        userId: userId,
+        householdId: householdId,
+        type: NotificationType.groupInviteRejected,
+        title: 'הזמנה לקבוצה נדחתה',
+        message: '$rejectorName דחה את ההזמנה לקבוצה "$groupName"',
+        actionData: {
+          'groupId': groupId,
+          'groupName': groupName,
+          'rejectorName': rejectorName,
+        },
+        createdAt: DateTime.now(),
+      );
+
+      // 🔒 Firestore rules require sender_id to match authenticated user
+      final data = notification.toJson();
+      data['sender_id'] = senderId;
+
+      await _notificationsCollection(userId).doc(notification.id).set(data);
+
+      if (kDebugMode) {
+        debugPrint('✅ NotificationsService: Created groupInviteRejected notification for user $userId');
+      }
+      return true;
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        debugPrint('❌ NotificationsService.createGroupInviteRejectedNotification failed: $e');
+        debugPrintStack(stackTrace: stackTrace);
+      }
+      return false;
+    }
+  }
+
   /// 🙋 Create "who brings" volunteer notification
   /// Someone volunteered to bring an item
   ///

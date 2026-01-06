@@ -198,16 +198,11 @@ class PantryEmptyState extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: kSpacingMedium),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            StickyButton(
-                              color: kStickyYellow,
-                              label: 'כן, הוסף!',
-                              icon: Icons.check,
-                              onPressed: onAddStarterItems,
-                            ),
-                          ],
+                        StickyButton(
+                          color: kStickyYellow,
+                          label: 'כן, הוסף!',
+                          icon: Icons.check,
+                          onPressed: onAddStarterItems,
                         ),
                       ],
                     ),

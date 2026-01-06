@@ -206,14 +206,15 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
 
             const SizedBox(height: kSpacingMedium),
 
-            // כפתורי פעולה
+            // כפתורי פעולה (3 כפתורים: הוסף, הבא, לא עכשיו)
             if (!_isProcessing)
-              Row(
+              Column(
                 children: [
-                  // ✅ כפתור הוסף עם Tooltip
-                  Expanded(
-                    child: Tooltip(
-                      message: 'הוסף "${suggestion.productName}" לרשימת הקניות',
+                  // שורה עליונה: הוסף לרשימה
+                  Tooltip(
+                    message: 'הוסף "${suggestion.productName}" לרשימת הקניות',
+                    child: SizedBox(
+                      width: double.infinity,
                       child: ElevatedButton.icon(
                         onPressed: () => _onAddPressed(context),
                         icon: const Icon(Icons.add_shopping_cart, size: 20),
@@ -228,23 +229,48 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
                     ),
                   ),
 
-                  const SizedBox(width: kSpacingSmall),
+                  const SizedBox(height: kSpacingSmall),
 
-                  // ✅ כפתור דחה עם Tooltip
-                  Expanded(
-                    child: Tooltip(
-                      message: 'דלג והמשך להמלצה הבאה',
-                      child: OutlinedButton.icon(
-                        onPressed: () => _onSkipPressed(context),
-                        icon: Icon(Icons.skip_next, size: 20, color: onBannerColor),
-                        label: Text('הבא', style: TextStyle(color: onBannerColor)),
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: onBannerColor, width: 2),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  // שורה תחתונה: הבא + לא עכשיו
+                  Row(
+                    children: [
+                      // ✅ כפתור הבא (קרוסלה - יחזור)
+                      Expanded(
+                        child: Tooltip(
+                          message: 'עבור להמלצה הבאה (יחזור בסוף הסבב)',
+                          child: OutlinedButton.icon(
+                            onPressed: () => _onNextPressed(context),
+                            icon: Icon(Icons.skip_next, size: 20, color: onBannerColor),
+                            label: Text('הבא', style: TextStyle(color: onBannerColor)),
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: onBannerColor, width: 2),
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+
+                      const SizedBox(width: kSpacingSmall),
+
+                      // ✅ כפתור לא עכשיו (דילוג לסשן בלבד)
+                      Expanded(
+                        child: Tooltip(
+                          message: 'לא יופיע בקנייה הזו, כן בקנייה הבאה',
+                          child: TextButton.icon(
+                            onPressed: () => _onSkipSessionPressed(context),
+                            icon: Icon(Icons.snooze, size: 18, color: onBannerColor.withValues(alpha: 0.7)),
+                            label: Text(
+                              'לא עכשיו',
+                              style: TextStyle(color: onBannerColor.withValues(alpha: 0.7)),
+                            ),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -303,22 +329,37 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
     }
   }
 
-  Future<void> _onSkipPressed(BuildContext context) async {
+  /// ⏭️ כפתור "הבא" - קרוסלה (עובר להמלצה הבאה, יחזור בסוף הסבב)
+  Future<void> _onNextPressed(BuildContext context) async {
     if (_isProcessing) return;
-
-    setState(() => _isProcessing = true);
 
     try {
       final suggestionsProvider = Provider.of<SuggestionsProvider>(context, listen: false);
 
-      // דחייה (המתודה משתמשת ב-Duration קבוע של 7 ימים)
-      await suggestionsProvider.dismissCurrentSuggestion();
+      // עבור להמלצה הבאה (קרוסלה - לא מוחק, רק עובר)
+      await suggestionsProvider.moveToNext();
+    } catch (e) {
+      if (!mounted) return;
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.showSnackBar(SnackBar(content: Text('שגיאה: $e'), backgroundColor: kStickyPink));
+    }
+  }
+
+  /// 🚫 כפתור "לא עכשיו" - דילוג לסשן הזה בלבד
+  Future<void> _onSkipSessionPressed(BuildContext context) async {
+    if (_isProcessing) return;
+
+    try {
+      final suggestionsProvider = Provider.of<SuggestionsProvider>(context, listen: false);
+
+      // דלג לסשן הזה בלבד (יופיע בקנייה הבאה)
+      await suggestionsProvider.skipForSession();
 
       if (!mounted) return;
       final messenger = ScaffoldMessenger.of(context);
       messenger.showSnackBar(
         const SnackBar(
-          content: Text('עברנו להמלצה הבאה 👍'),
+          content: Text('לא יופיע בקנייה הזו'),
           backgroundColor: kStickyCyan,
           duration: Duration(seconds: 2),
         ),
@@ -327,10 +368,6 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
       if (!mounted) return;
       final messenger = ScaffoldMessenger.of(context);
       messenger.showSnackBar(SnackBar(content: Text('שגיאה: $e'), backgroundColor: kStickyPink));
-    } finally {
-      if (mounted) {
-        setState(() => _isProcessing = false);
-      }
     }
   }
 }

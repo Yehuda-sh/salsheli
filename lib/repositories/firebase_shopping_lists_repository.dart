@@ -318,6 +318,49 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
     }
   }
 
+  /// הוספת משתמש משותף לרשימה פרטית (לא household)
+  ///
+  /// משמש כאשר משתף רשימה עם אנשים ספציפיים מחוץ למשפחה.
+  /// הרשימה נשארת ב-private_lists אבל יש לה shared_users.
+  Future<void> addSharedUserToPrivateList({
+    required String ownerId,
+    required String listId,
+    required String sharedUserId,
+    required String role,
+    String? userName,
+    String? userEmail,
+  }) async {
+    try {
+      debugPrint(
+        '📝 FirebaseShoppingListsRepository.addSharedUserToPrivateList: '
+        'מוסיף משתמש $sharedUserId לרשימה פרטית $listId כ-$role',
+      );
+
+      final docRef = _privateListsCollection(ownerId).doc(listId);
+
+      final sharedUserData = {
+        FirestoreFields.role: role,
+        'shared_at': FieldValue.serverTimestamp(),
+        if (userName != null) FirestoreFields.userName: userName,
+        if (userEmail != null) FirestoreFields.email: userEmail,
+      };
+
+      await docRef.update({
+        '${FirestoreFields.sharedUsers}.$sharedUserId': sharedUserData,
+        FirestoreFields.updatedDate: FieldValue.serverTimestamp(),
+      });
+
+      debugPrint('✅ משתמש נוסף לרשימה פרטית בהצלחה');
+    } catch (e, stackTrace) {
+      debugPrint('❌ FirebaseShoppingListsRepository.addSharedUserToPrivateList: שגיאה - $e');
+      debugPrintStack(stackTrace: stackTrace);
+      throw ShoppingListRepositoryException(
+        'Failed to add shared user to private list $listId',
+        e,
+      );
+    }
+  }
+
   @override
   Future<void> removeSharedUser(String householdId, String listId, String userId) async {
     try {

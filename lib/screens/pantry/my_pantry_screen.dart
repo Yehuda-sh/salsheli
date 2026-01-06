@@ -440,7 +440,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
               appBar: AppBar(
                 backgroundColor: primaryColor,
                 foregroundColor: isDark ? scheme.onSurface : scheme.onPrimaryContainer,
-                title: Text(provider.inventoryTitle),
+                title: _buildPantryTitle(provider, isDark ? scheme.onSurface : scheme.onPrimaryContainer),
               ),
               floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
               floatingActionButton: Padding(
@@ -520,6 +520,54 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           },
         ),
       ),
+    );
+  }
+
+  /// 🏷️ כותרת המזווה - עם אייקון ושם הקבוצה
+  Widget _buildPantryTitle(InventoryProvider provider, Color foregroundColor) {
+    final groupName = provider.currentGroupName;
+
+    // מזווה אישי - כותרת עם אייקון
+    if (!provider.isGroupMode || groupName == null) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.kitchen_outlined, size: 22, color: foregroundColor),
+          const SizedBox(width: 6),
+          Text(provider.inventoryTitle),
+        ],
+      );
+    }
+
+    // מזווה קבוצתי - אייקון + "מזווה" + שם הקבוצה בולט
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(Icons.kitchen_outlined, size: 22, color: foregroundColor),
+        const SizedBox(width: 6),
+        RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: 'מזווה ',
+                style: TextStyle(
+                  color: foregroundColor.withValues(alpha: 0.7),
+                  fontSize: 18,
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
+              TextSpan(
+                text: groupName,
+                style: TextStyle(
+                  color: foregroundColor,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -807,10 +855,11 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   /// 📋 רשימה שטוחה
   Widget _buildFlatList(List<InventoryItem> items) {
     return ListView.builder(
+      physics: const BouncingScrollPhysics(), // 🎯 גלילה רכה כמו iOS
       padding: const EdgeInsets.only(
         top: kNotebookLineSpacing - 8,
-        left: kNotebookRedLineOffset + kSpacingSmall,
-        right: kSpacingMedium,
+        left: kSpacingMedium,
+        right: kNotebookRedLineOffset + kSpacingSmall, // 🧭 רווח מהקו האדום (RTL: בצד ימין)
         bottom: 100,
       ),
       itemCount: items.length,
@@ -855,8 +904,11 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           ];
 
     return ListView.builder(
+      physics: const BouncingScrollPhysics(), // 🎯 גלילה רכה כמו iOS
       padding: const EdgeInsets.only(
         top: kNotebookLineSpacing,
+        left: kSpacingMedium,
+        right: kNotebookRedLineOffset + kSpacingSmall, // 🧭 רווח מהקו האדום (RTL: בצד ימין)
         bottom: 100,
       ),
       itemCount: locations.length,
@@ -889,7 +941,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                 ),
                 child: Row(
                   children: [
-                    const SizedBox(width: kNotebookRedLineOffset),
+                    // Note: padding נוסף ב-ListView
                     Text(
                       '${_getLocationEmoji(location)} ${_getLocationName(location)}',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(

@@ -660,6 +660,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
           floatingActionButton: _isSaving
               ? null
               : FloatingActionButton.large(
+                  heroTag: 'active_shopping_fab',
                   onPressed: _finishShopping,
                   backgroundColor: StatusColors.success,
                   child: const Icon(Icons.check, color: Colors.white, size: 36),

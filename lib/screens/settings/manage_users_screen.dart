@@ -364,6 +364,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       ),
       floatingActionButton: isOwner
           ? FloatingActionButton.extended(
+              heroTag: 'manage_users_fab',
               onPressed: _inviteUser,
               backgroundColor: kStickyGreen,
               icon: const Icon(Icons.person_add),

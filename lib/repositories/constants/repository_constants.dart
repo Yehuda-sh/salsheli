@@ -112,7 +112,8 @@ class FirestoreFields {
   static const String userId = 'user_id';
   static const String userName = 'user_name';
   static const String email = 'email';
-  
+  static const String phone = 'phone';
+
   // Sharing fields
   static const String role = 'role';
   static const String type = 'type';

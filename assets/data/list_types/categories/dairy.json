@@ -1,0 +1,1836 @@
+[
+  {
+    "name": "חלב דל לקטוז 2% תנובה 1 ליטר",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 10.9,
+    "barcode": "",
+    "brand": "תנובה",
+    "unit": "ליטר"
+  },
+  {
+    "name": "חלב טרי 2% דל לקטוז 1 ליטר",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 8.9,
+    "barcode": "7290000040974",
+    "brand": "תנובה",
+    "unit": "ליטר"
+  },
+  {
+    "name": "חלב טרי 3% תנובה 1 ליטר",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 9.5,
+    "barcode": "",
+    "brand": "תנובה",
+    "unit": "ליטר"
+  },
+  {
+    "name": "חלב מועשר A+ 3.5% תנובה 1 ליטר",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 11.5,
+    "barcode": "",
+    "brand": "תנובה",
+    "unit": "ליטר"
+  },
+  {
+    "name": "חלב עמיד הומוגני 3% 1 ל'",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 9.9,
+    "barcode": "7290000042503",
+    "brand": "תנובה",
+    "unit": "ליטר"
+  },
+  {
+    "name": "חלב תנובה 1% 1 ליטר",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 8.5,
+    "barcode": "",
+    "brand": "תנובה",
+    "unit": "ליטר"
+  },
+  {
+    "name": "יוגורט חלבון GO 20 גרם חלבון 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 7.2,
+    "barcode": "7290116934402",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "יוגורט חלבון GO 25 גרם חלבון 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 7.2,
+    "barcode": "7290116935614",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מעדן חלב GO בטעם קרמל 120 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🍮",
+    "price": 6.8,
+    "barcode": "7290116930701",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "משקה חלב GO וניל חלבון 340 מ״ל",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 9.9,
+    "barcode": "7290110324773",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קוטג' GO חלבון 5% 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 8.9,
+    "barcode": "",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "יוגורט GO נטול לקטוז 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 7.2,
+    "barcode": "7290116932620",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "יוגורט אפונה GO תנובה 150 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 6.9,
+    "barcode": "",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "יוגורט טבעי GO 3% 500 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 11.9,
+    "barcode": "",
+    "brand": "GO (תנובה)",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "יוגורט יולו פירות יער 170 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 7.5,
+    "barcode": "",
+    "brand": "יולו (תנובה)",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "יוגורט יופלה אפרסק 3% 150 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 6.2,
+    "barcode": "7290000040080",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "יוגורט יופלה מנגו בננה 3% 150 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 6.2,
+    "barcode": "7290116935836",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "יוגורט פיראוס תות 3% 170 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 7.0,
+    "barcode": "",
+    "brand": "פיראוס (תנובה)",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "יוגורט תות GO תנובה 150 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 6.9,
+    "barcode": "",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "משקה יוגורט GO תות בננה 250 מ״ל",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 8.9,
+    "barcode": "7290110325114",
+    "brand": "תנובה",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "משקה יוגורט מנגו אננס 250 מ״ל",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 7.0,
+    "barcode": "7290116935713",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינת קוטג' 3% תנובה 500 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 12.0,
+    "barcode": "",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קוטג' בקטנה 5% 100 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 3.3,
+    "barcode": "7290110321277",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קוטג' תנובה 12% 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 7.0,
+    "barcode": "7290116931241",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינת נפוליאון שמנת 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧈",
+    "price": 20.0,
+    "barcode": "",
+    "brand": "נפוליאון (תנובה)",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שמנת חמוצה 15% תנובה 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧈",
+    "price": 9.9,
+    "barcode": "",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שמנת לבישול 15% תנובה 250 מ״ל",
+    "category": "מוצרי חלב",
+    "icon": "🧈",
+    "price": 8.5,
+    "barcode": "",
+    "brand": "תנובה",
+    "unit": "מ\"ל"
+  },
+  {
+    "name": "שמנת מתוקה 38% תנובה 250 מ״ל",
+    "category": "מוצרי חלב",
+    "icon": "🧈",
+    "price": 12.9,
+    "barcode": "",
+    "brand": "תנובה",
+    "unit": "מ\"ל"
+  },
+  {
+    "name": "שמנת מתוקה להקצפה 38% תנובה 250 מ״ל",
+    "category": "מוצרי חלב",
+    "icon": "🧈",
+    "price": 9.9,
+    "barcode": "7290000040202",
+    "brand": "תנובה",
+    "unit": "100 מ״ל"
+  },
+  {
+    "name": "חמאה מתוקה תנובה 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧈",
+    "price": 12.9,
+    "barcode": "7290000040165",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינה צהובה חריפה תנובה 26% 300 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 25.0,
+    "barcode": "",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינה צהובה עמק 22% פרוסות 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 22.9,
+    "barcode": "7290004120832",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינה בולגרית פיראוס 16% 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 28.9,
+    "barcode": "7290004120573",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אייס קפה GO תנובה 340 מ״ל",
+    "category": "מוצרי חלב",
+    "icon": "🍦",
+    "price": 9.9,
+    "barcode": "7290110325893",
+    "brand": "תנובה",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "אשל 3% תנובה 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 4.5,
+    "barcode": "7290000040257",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ג'לי תנובה טעם אננס 125 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🍮",
+    "price": 3.1,
+    "barcode": "7290116934242",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינת חמד לייט 5% 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 23.9,
+    "barcode": "7290004122676",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינת חמד פיראוס 16% 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 24.3,
+    "barcode": "7290000048413",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינת מוצרלה פרוסות תנובה 200 ג",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 18.9,
+    "barcode": "",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינת עמק 28% 250 גרם גוש",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 25.9,
+    "barcode": "7290004120870",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינת עמק פרוסות 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 18.5,
+    "barcode": "",
+    "brand": "עמק (תנובה)",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינת פטה פיראוס 20% 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 34.9,
+    "barcode": "7290004121839",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינת פרומעז 23% 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 33.9,
+    "barcode": "7290000045917",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינת ריקוטה תנובה 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 22.0,
+    "barcode": "",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גיל 3% תנובה 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 4.5,
+    "barcode": "7290000040264",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "יופלה דיאט תות 0% 150 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 6.1,
+    "barcode": "7290004124205",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לבנה שמן זית וזעתר 263 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 16.9,
+    "barcode": "7290000051710",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עין גדי קממבר 24% 125 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 24.9,
+    "barcode": "7290000040301",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עמק מגורדת 22% 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 19.9,
+    "barcode": "7290004120894",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פרוסות מוצרלה 150 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 22.3,
+    "barcode": "7290110320935",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פתיתי מוצרלה 22% 500 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 42.9,
+    "barcode": "7290110324025",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גלידה קרמיסימו ריבת חלב 1.33 ליטר",
+    "category": "מוצרי חלב",
+    "icon": "🍦",
+    "price": 22.9,
+    "barcode": "7290112493927",
+    "brand": "שטראוס",
+    "unit": "ליטר"
+  },
+  {
+    "name": "מעדן חלב טעם קרמל שטראוס 120 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🍮",
+    "price": 6.8,
+    "barcode": "",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "יוגורט GO פירות כתומים 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 7.5,
+    "barcode": "",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "יוגורט מילקי ווניל 120 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🍮",
+    "price": 4.3,
+    "barcode": "",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לבן שטראוס 4.5% 500 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 8.9,
+    "barcode": "7290110563172",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קוטג' שטראוס 5% 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 7.0,
+    "barcode": "7290110563011",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שמנת חמוצה 15% שטראוס 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧈",
+    "price": 6.9,
+    "barcode": "7290110563127",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שמנת מתוקה להקצפה שטראוס 38% 250 מ״ל",
+    "category": "מוצרי חלב",
+    "icon": "🧈",
+    "price": 10.5,
+    "barcode": "7290110563097",
+    "brand": "שטראוס",
+    "unit": "100 מ״ל"
+  },
+  {
+    "name": "גבינה צהובה שטראוס 22% 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 22.0,
+    "barcode": "7290110563998",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סקי מעדן גבינה וניל 125 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🍮",
+    "price": 4.5,
+    "barcode": "7290005838613",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אקטימל תות מארז 10X81.6 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 37.9,
+    "barcode": "7290119380916",
+    "brand": "שטראוס",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "אשל שטראוס 3% 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 4.3,
+    "barcode": "7290110563134",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גמדים לדרך תות בננה 100 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🍮",
+    "price": 6.4,
+    "barcode": "7290112339874",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גמדים לשתיה תות בננה 100X8 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🍮",
+    "price": 23.9,
+    "barcode": "7290010472307",
+    "brand": "שטראוס",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "גמדים סקוויז לדרך תות 100 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🍮",
+    "price": 6.4,
+    "barcode": "7290112339867",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "דנונה GO פירות יער 150 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🍮",
+    "price": 6.5,
+    "barcode": "",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "דנונה בר תות קורנפלקס 175 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🍮",
+    "price": 5.5,
+    "barcode": "7290010471669",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "דנונה לייט טעם קפוצ'ינו 150 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🍮",
+    "price": 5.0,
+    "barcode": "7290112339362",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "דנונה מולטי עם תפוח 200",
+    "category": "מוצרי חלב",
+    "icon": "🍮",
+    "price": 6.6,
+    "barcode": "7290119376636",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "דנונה מולטי צ'יה 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🍮",
+    "price": 5.7,
+    "barcode": "7290110573713",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "דני דנונה שוקולד 175 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🍮",
+    "price": 5.5,
+    "barcode": "",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "דני שוקולד 175 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🍮",
+    "price": 5.9,
+    "barcode": "",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "דניאלה בננה 88 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🍮",
+    "price": 4.4,
+    "barcode": "7290011194215",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "דניאלה טבעי 100 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🍮",
+    "price": 4.0,
+    "barcode": "",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "דניאלה תות 100 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🍮",
+    "price": 4.4,
+    "barcode": "",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חמאת שטראוס 82% 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧈",
+    "price": 12.5,
+    "barcode": "7290110563165",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "יופלה בטעם וניל 150 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 6.2,
+    "barcode": "",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "יופלה טבעי 3% 150 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 6.2,
+    "barcode": "",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מילקי שכבות שוקולד וקפה 108 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🍮",
+    "price": 4.3,
+    "barcode": "7290110557447",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סימפוניה 16% שום קונפי 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧈",
+    "price": 14.5,
+    "barcode": "7290112355751",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "צהובה מגורדת שטראוס 22% 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 21.5,
+    "barcode": "7290110564001",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "צהובה שטראוס 28% 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 25.0,
+    "barcode": "7290110563981",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חלב בטעם שוקו טרה 250 מ״ל",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 6.5,
+    "barcode": "",
+    "brand": "טרה",
+    "unit": "מ\"ל"
+  },
+  {
+    "name": "חלב טרה 1.5% 1 ליטר",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 9.0,
+    "barcode": "",
+    "brand": "טרה",
+    "unit": "ליטר"
+  },
+  {
+    "name": "חלב טרה 3% 1 ליטר",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 9.5,
+    "barcode": "",
+    "brand": "טרה",
+    "unit": "ליטר"
+  },
+  {
+    "name": "חלב שוקו טרה 500 מ״ל",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 7.0,
+    "barcode": "",
+    "brand": "טרה",
+    "unit": "מ\"ל"
+  },
+  {
+    "name": "יוגורט טרה בננה 170 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 6.5,
+    "barcode": "",
+    "brand": "טרה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "יוגורט טרה טבעי 3% 500 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 11.0,
+    "barcode": "",
+    "brand": "טרה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "יוגורט טרה לימון 170 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 6.5,
+    "barcode": "",
+    "brand": "טרה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "יוגורט לימון מולר 150 מ״ל",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 6.8,
+    "barcode": "7290102390489",
+    "brand": "טרה",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "יוגורט מולר טבעי 1.7% 1.5 ק״ג",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 19.9,
+    "barcode": "7290102395224",
+    "brand": "טרה",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "לבן טרה 3% 500 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 8.5,
+    "barcode": "7290002868934",
+    "brand": "טרה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קוטג' 5% שומן 250 ג טרה",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 7.0,
+    "barcode": "7290002868996",
+    "brand": "טרה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קוטג' טרה 3% 500 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 10.5,
+    "barcode": "",
+    "brand": "טרה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קוטג' טרה 5% 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 7.5,
+    "barcode": "",
+    "brand": "טרה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינת קרם שמנת טרה 150 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧈",
+    "price": 12.0,
+    "barcode": "",
+    "brand": "טרה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שמנת חמוצה טרה 15% 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧈",
+    "price": 6.9,
+    "barcode": "7290002868927",
+    "brand": "טרה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שמנת מתוקה טרה 33% 500 מ״ל",
+    "category": "מוצרי חלב",
+    "icon": "🧈",
+    "price": 18.9,
+    "barcode": "",
+    "brand": "טרה",
+    "unit": "מ\"ל"
+  },
+  {
+    "name": "שמנת מתוקה להקצפה טרה 32% 250 מ״ל",
+    "category": "מוצרי חלב",
+    "icon": "🧈",
+    "price": 9.0,
+    "barcode": "7290002868910",
+    "brand": "טרה",
+    "unit": "100 מ״ל"
+  },
+  {
+    "name": "חמאה טרה 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧈",
+    "price": 12.0,
+    "barcode": "7290002868972",
+    "brand": "טרה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינה צהובה טרה 15% דלת שומן 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 24.9,
+    "barcode": "7290002868736",
+    "brand": "טרה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינה צהובה טרה 22% פרוסות 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 23.5,
+    "barcode": "7290002868729",
+    "brand": "טרה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינה צהובה טרה 24% 300 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 23.0,
+    "barcode": "",
+    "brand": "טרה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינה צהובה מגורדת טרה 22% 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 20.9,
+    "barcode": "7290002868743",
+    "brand": "טרה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינה לבנה טרה 5% 500 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 8.9,
+    "barcode": "",
+    "brand": "טרה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינת מוצרלה נעם 23% 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 18.9,
+    "barcode": "",
+    "brand": "טרה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינת צהובה נעם 28% 300 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 22.0,
+    "barcode": "",
+    "brand": "טרה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינת קממבר טרה 125 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 18.9,
+    "barcode": "",
+    "brand": "טרה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מסקרפונה 38% 250 ג",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 28.9,
+    "barcode": "7290114312189",
+    "brand": "טרה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חלב בטעם מוקה יטבתה 1 ליטר",
+    "category": "משקאות חלב",
+    "icon": "🥛",
+    "price": 10.5,
+    "barcode": "",
+    "brand": "יטבתה",
+    "unit": "ליטר"
+  },
+  {
+    "name": "חלב יטבתה 3% 1 ליטר",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 9.9,
+    "barcode": "",
+    "brand": "יטבתה",
+    "unit": "ליטר"
+  },
+  {
+    "name": "חלב יטבתה 3.5% 1 ליטר",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 10.0,
+    "barcode": "",
+    "brand": "יטבתה",
+    "unit": "ליטר"
+  },
+  {
+    "name": "חלב יטבתה דל שומן 1% 1 ליטר",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 8.5,
+    "barcode": "",
+    "brand": "יטבתה",
+    "unit": "ליטר"
+  },
+  {
+    "name": "יוגורט יטבתה תות 170 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 7.0,
+    "barcode": "",
+    "brand": "יטבתה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "יוגורט יטבתה תות רביעייה (4x100)",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 19.0,
+    "barcode": "",
+    "brand": "יטבתה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "משקה יוגורט יטבתה אננס 250 מ״ל",
+    "category": "משקאות חלב",
+    "icon": "🥛",
+    "price": 7.9,
+    "barcode": "",
+    "brand": "יטבתה",
+    "unit": "מ\"ל"
+  },
+  {
+    "name": "שוקו יטבתה 1 ליטר",
+    "category": "משקאות חלב",
+    "icon": "🥛",
+    "price": 9.9,
+    "barcode": "",
+    "brand": "יטבתה",
+    "unit": "ליטר"
+  },
+  {
+    "name": "שוקו יטבתה 500 מ״ל",
+    "category": "משקאות חלב",
+    "icon": "🥛",
+    "price": 6.9,
+    "barcode": "",
+    "brand": "יטבתה",
+    "unit": "מ\"ל"
+  },
+  {
+    "name": "איירן 3% מחלבות גד 500 מ״ל",
+    "category": "משקאות חלב",
+    "icon": "🥛",
+    "price": 8.5,
+    "barcode": "",
+    "brand": "מחלבות גד",
+    "unit": "מ\"ל"
+  },
+  {
+    "name": "גבינה צהובה מחלבות גד 28% גוש 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 24.9,
+    "barcode": "7290019635406",
+    "brand": "מחלבות גד",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חמאה 82% מחלבות גד 100 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧈",
+    "price": 15.0,
+    "barcode": "",
+    "brand": "מחלבות גד",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "יוגורט לבן מחלבות גד 3% 500 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 10.5,
+    "barcode": "",
+    "brand": "מחלבות גד",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "צזיקי 5% מחלבות גד 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 9.5,
+    "barcode": "",
+    "brand": "מחלבות גד",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קוטג' עיזים 5% מחלבות גד 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 9.9,
+    "barcode": "7290019635352",
+    "brand": "מחלבות גד",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קשקבל מחלבות גד 28% 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 25.9,
+    "barcode": "7290019635413",
+    "brand": "מחלבות גד",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שמנת חמוצה מחלבות גד 15% 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧈",
+    "price": 8.5,
+    "barcode": "7290019635338",
+    "brand": "מחלבות גד",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שמנת חמוצה מחלבות גד 18% 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧈",
+    "price": 11.9,
+    "barcode": "",
+    "brand": "מחלבות גד",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינת שמנת זיתים 5% גד 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧈",
+    "price": 15.9,
+    "barcode": "7290019635116",
+    "brand": "מחלבות גד",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינה בולגרית למריחה 5% 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 21.9,
+    "barcode": "7290005992575",
+    "brand": "מחלבות גד בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קרם פטיסייר 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🍮",
+    "price": 25.5,
+    "barcode": "7290017065649",
+    "brand": "מחלבות גד בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חלב עיזים מלא 3.9% 1 ליטר",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 19.9,
+    "barcode": "",
+    "brand": "משק צוריאל",
+    "unit": "ליטר"
+  },
+  {
+    "name": "לבן עיזים משק צוריאל 3% 500 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 11.0,
+    "barcode": "7290005416460",
+    "brand": "משק צוריאל",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שמנת עיזים מתוקה משק צוריאל 32% 250 מ״ל",
+    "category": "מוצרי חלב",
+    "icon": "🧈",
+    "price": 12.5,
+    "barcode": "7290005416552",
+    "brand": "משק צוריאל",
+    "unit": "100 מ״ל"
+  },
+  {
+    "name": "חמאה עיזים משק צוריאל 82% 100 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧈",
+    "price": 14.5,
+    "barcode": "7290005416453",
+    "brand": "משק צוריאל",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינה צהובה עיזים 28% משק צוריאל 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 26.9,
+    "barcode": "7290005416308",
+    "brand": "משק צוריאל",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינה צאן רכה 5% 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 24.0,
+    "barcode": "",
+    "brand": "משק צוריאל",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינת בולגרית משק צוריאל 5% 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 24.9,
+    "barcode": "",
+    "brand": "משק צוריאל",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינת צאן רכה משק צוריאל 10% 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 26.0,
+    "barcode": "",
+    "brand": "משק צוריאל",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חלב מועשר 1% בקבוק 1 ליטר",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 10.0,
+    "barcode": "7290107932134",
+    "brand": "מחלבת יטבתה",
+    "unit": "ליטר"
+  },
+  {
+    "name": "מעדן חלבון GO שקד קרמל מלוח 150 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🍮",
+    "price": 33.9,
+    "barcode": "7290101113881",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "משקה חלב בטעם קפה 350 מ״ל",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 6.9,
+    "barcode": "7290011438142",
+    "brand": "מחלבת יטבתה",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "משקה חלב צמר גפן מתוק 1 ליטר",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 14.5,
+    "barcode": "7290114313124",
+    "brand": "מילקו תעשיות בעמ",
+    "unit": "ליטר"
+  },
+  {
+    "name": "שלישיית גלית תות חלבי 99 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 10.0,
+    "barcode": "7290101114369",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "יוגורט יופלה אפרסק ותות 3% 1.5 ק״ג",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 36.9,
+    "barcode": "7290004121525",
+    "brand": "מחלבת אלון תבור",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "יוגורט יופלה לבן מעודן 1.5% 1.5 ק״ג",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 24.5,
+    "barcode": "7290004133511",
+    "brand": "מחלבת אלון תבור",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "יוגורט עזים טבעי 3% 200 ג",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 7.5,
+    "barcode": "7290005416415",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "יוגורט עיזים פירות יער 500 מ״ל",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 16.9,
+    "barcode": "7290005416279",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "פודינג בטעם וניל לבן80 ג",
+    "category": "מוצרי חלב",
+    "icon": "🍮",
+    "price": 7.9,
+    "barcode": "7290013145826",
+    "brand": "א.ל ייצור ושיווק תבלינים",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קוטג 1% 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 6.4,
+    "barcode": "7290014758681",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קוטג' שום ושמיר 5% 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 7.5,
+    "barcode": "7290000052717",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קוטג' תנובה 3% שומן 250",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 6.4,
+    "barcode": "7290004127077",
+    "brand": "מחלבת אלון תבור",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ארלה גבינת שמנת טעם טבעי 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧈",
+    "price": 15.9,
+    "barcode": "5711953106583",
+    "brand": "ארלה פודס אמבה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גלידת RUD שמנת פיסטוק 275 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🍦",
+    "price": 32.9,
+    "barcode": "4820077162052",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מארז RUD גלידת שמנת וניל",
+    "category": "מוצרי חלב",
+    "icon": "🍦",
+    "price": 32.9,
+    "barcode": "4820077162038",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שמנת מתוקה להקצפה 32% 250 מ״ל",
+    "category": "מוצרי חלב",
+    "icon": "🧈",
+    "price": 9.7,
+    "barcode": "7290105368904",
+    "brand": "מחלבת יטבתה",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "מרגרינה בטעם חמאה 200 גר",
+    "category": "מוצרי חלב",
+    "icon": "🧈",
+    "price": 5.9,
+    "barcode": "7290000453897",
+    "brand": "פאקא תעשיות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינה צהובה הולנדית במשקל",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 51.0,
+    "barcode": "7290003189045",
+    "brand": "תעש' מזון יבנה",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "גבינה צהובה נעם 22% 200 ג",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 22.9,
+    "barcode": "7290102397204",
+    "brand": "מילקו תעשיות בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינה צהובה נעם 9% 360 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 29.9,
+    "barcode": "7290102396672",
+    "brand": "מילקו תעשיות בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינה לבנה עם זיתים 5% 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 7.7,
+    "barcode": "7290000056272",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינה אמנטל פרוסות 150 ג",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 20.9,
+    "barcode": "7290014083769",
+    "brand": "ויליפוד",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינה בולגרית מעודנת 5% במשקל",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 69.0,
+    "barcode": "7290002511236",
+    "brand": "מחלבת מושבה",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "גבינה גרוויר מחיר במשקל",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 169.0,
+    "barcode": "7290008866972",
+    "brand": "גבינות משק יעקבס",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "גבינה כחולה 100 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 21.9,
+    "barcode": "7290017065168",
+    "brand": "ST.CLEMENS-BOMHOLMWS",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינה למריחה 3% 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 6.5,
+    "barcode": "7290004129545",
+    "brand": "מחלבת אלון תבור",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינה מגורדת בסגנון מוצרלה 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 22.9,
+    "barcode": "7296073630838",
+    "brand": "קרמל",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינה פרובולונה 28% 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 29.9,
+    "barcode": "7290014083820",
+    "brand": "גלבוע",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינה קשקבל 180 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 25.9,
+    "barcode": "7290001258804",
+    "brand": "משק יעקבס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גלידה עוגת גבינה ותות",
+    "category": "מוצרי חלב",
+    "icon": "🍦",
+    "price": 27.9,
+    "barcode": "76840400218",
+    "brand": "מוצרי איכות אמריקאיים בע",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגת גבינה פירורים לייט 78 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 9.5,
+    "barcode": "7290005431920",
+    "brand": "עדן קינוחים",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פודינג טעם פאי גבינה לימון 75 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🍮",
+    "price": 5.9,
+    "barcode": "7290118428398",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פס גבינה מעודן אוכמניות 650 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 58.9,
+    "barcode": "7290009398748",
+    "brand": "עוף עוז",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בולגרית מסורתית 16% 250",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 26.9,
+    "barcode": "7296073641957",
+    "brand": "מחלבת טלית",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בולגרית מעודנת 5% 250 גר",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 24.9,
+    "barcode": "7296073641964",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בסגנון פטה יוונית 200 גר",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 27.5,
+    "barcode": "5292874001299",
+    "brand": "גרין ויה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בסגנון פטה יוונית אורגנו",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 31.9,
+    "barcode": "5292874001909",
+    "brand": "גרין ויה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בסגנון פטה פטינה 21%משקל",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 39.0,
+    "barcode": "7290005384899",
+    "brand": "קאאסמאקריג",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "ברי פקאן 22% משולש משקל",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 169.0,
+    "barcode": "7290001476208",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "ברי צרפתי 130 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 20.9,
+    "barcode": "7290019635215",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גאודה ויליפוד 30% 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 28.5,
+    "barcode": "7290014083783",
+    "brand": "ויליפוד",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינת בייבי בל 205 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 23.9,
+    "barcode": "3073781199918",
+    "brand": "מחלבות בל",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינת גאודה בקר כמהין 32% במשקל",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 189.0,
+    "barcode": "7290008606622",
+    "brand": "וונדר",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "גבינת גאודה חצי קשה משקל",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 149.0,
+    "barcode": "7290008403863",
+    "brand": "הנרי וויליך",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "גבינת גאודה עיזים 30% במשקל",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 149.0,
+    "barcode": "7290008606639",
+    "brand": "וונדר",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "גבינת גאודה פסטו אדום 32% במשקל",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 149.0,
+    "barcode": "7290008606608",
+    "brand": "וונדר",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "גבינת מוצרלה במשקל",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 75.0,
+    "barcode": "7290003578085",
+    "brand": "איבי",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "גבינת עזים 5% טל 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 16.9,
+    "barcode": "7290005416095",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינת עיזים שום עם תיבול 140 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 24.9,
+    "barcode": "3523230026888",
+    "brand": "אוריאל",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גבינת צ'דר משולשת מגורדת במשקל",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 149.0,
+    "barcode": "7290009137873",
+    "brand": "כושר דיירי",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "גבינת תבור לאפיה 5% 500 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 35.9,
+    "barcode": "7290102392049",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חלומי בקר 24% 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 24.9,
+    "barcode": "7296073641919",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לבנה גלילית 11% 750 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 31.9,
+    "barcode": "7290014762947",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מוצרלה מגורדת 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 11.9,
+    "barcode": "7290014692817",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מסקרפונה עם קרמל מלוח 1.2 ק״ג",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 27.9,
+    "barcode": "7290101114116",
+    "brand": "פלקו בעמ",
+    "unit": "ליטר"
+  },
+  {
+    "name": "משולש גבינת קשקבל 27% במשקל",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 159.0,
+    "barcode": "7290001258736",
+    "brand": "גבינות משק יעקבס",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "משולש גבינת רוקפור משקל",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 169.0,
+    "barcode": "7290001258040",
+    "brand": "גבינות משק יעקבס",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פטה כבשים 20% 250 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 28.9,
+    "barcode": "7296073641902",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פקורינו רומנו צאן 30%",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 189.0,
+    "barcode": "7290001258149",
+    "brand": "גבינות משק יעקבס",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פרובנציאל מטיאס 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 23.9,
+    "barcode": "7290016314762",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פריגורט עיזים פירות יער 500 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 21.9,
+    "barcode": "7290016606171",
+    "brand": "חוות גבעות עולם",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פריגורט תות אורגני 500 ג",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 21.9,
+    "barcode": "7290016606164",
+    "brand": "חוות גבעות עולם",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "צ'דר אדומה ויליפוד 33% 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 30.9,
+    "barcode": "7290014083790",
+    "brand": "ויליפוד",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ציזיקי לשתיה 250 מ״ל",
+    "category": "מוצרי חלב",
+    "icon": "🥛",
+    "price": 12.9,
+    "barcode": "7290004068028",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "קוביות בולגרית מעודנת 16% 200 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 27.9,
+    "barcode": "7290019635222",
+    "brand": "קוד יצרן DSH",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קשקבל צאנק 150 גרם",
+    "category": "מוצרי חלב",
+    "icon": "🧀",
+    "price": 22.9,
+    "barcode": "7290108504279",
+    "brand": "אל פסטור",
+    "unit": "100 גרם"
+  }
+]

@@ -13,6 +13,7 @@ import 'package:flutter/foundation.dart';
 
 import '../models/group_invite.dart';
 import '../repositories/group_invite_repository.dart';
+import '../services/notifications_service.dart';
 
 /// Provider לניהול הזמנות ממתינות לקבוצות
 class PendingInvitesProvider with ChangeNotifier {
@@ -136,13 +137,49 @@ class PendingInvitesProvider with ChangeNotifier {
   }
 
   /// דחיית הזמנה
-  Future<bool> rejectInvite(GroupInvite invite) async {
+  ///
+  /// [rejectorName] - שם הדוחה (לשליחת התראה למזמין)
+  /// [senderId] - מזהה הדוחה (נדרש ל-Firestore rules)
+  /// [notificationsService] - שירות התראות לשליחת התראה למזמין
+  /// [householdId] - מזהה משק בית (נדרש להתראה)
+  Future<bool> rejectInvite(
+    GroupInvite invite, {
+    String? rejectorName,
+    String? senderId,
+    NotificationsService? notificationsService,
+    String? householdId,
+  }) async {
     try {
       await _repository.rejectInvite(invite.id);
 
       // הסר מהרשימה המקומית
       _pendingInvites = _pendingInvites.where((i) => i.id != invite.id).toList();
       _notifySafe();
+
+      // 🆕 שליחת התראה למזמין (non-critical)
+      if (notificationsService != null &&
+          rejectorName != null &&
+          senderId != null &&
+          householdId != null) {
+        try {
+          await notificationsService.createGroupInviteRejectedNotification(
+            userId: invite.invitedBy, // המזמין מקבל התראה
+            householdId: householdId,
+            groupId: invite.groupId,
+            groupName: invite.groupName,
+            rejectorName: rejectorName,
+            senderId: senderId, // 🔒 נדרש ל-Firestore rules
+          );
+          if (kDebugMode) {
+            debugPrint('📬 PendingInvitesProvider: Sent rejection notification to ${invite.invitedBy}');
+          }
+        } catch (e) {
+          // Non-critical - continue anyway
+          if (kDebugMode) {
+            debugPrint('⚠️ PendingInvitesProvider: Failed to send rejection notification: $e');
+          }
+        }
+      }
 
       return true;
     } catch (e) {

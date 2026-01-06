@@ -461,10 +461,10 @@ class _NavItem {
 ///
 /// Note: Uses AppStrings for consistent i18n support.
 /// These items define the bottom navigation structure.
-/// Version 4.0: New navigation - Home | Family | Groups | Settings
+/// Version 5.0: New navigation - Home | Pantry | Groups | Settings
 final List<_NavItem> _navItems = [
   _NavItem(icon: Icons.home, label: AppStrings.navigation.home),
-  _NavItem(icon: Icons.family_restroom, label: AppStrings.navigation.family),
+  _NavItem(icon: Icons.inventory_2_outlined, label: AppStrings.navigation.pantry),
   _NavItem(icon: Icons.groups, label: AppStrings.navigation.groups),
   _NavItem(icon: Icons.settings, label: AppStrings.navigation.settings),
 ];

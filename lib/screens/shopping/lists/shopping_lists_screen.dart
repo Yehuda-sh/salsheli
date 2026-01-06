@@ -20,6 +20,8 @@ import '../../../widgets/common/skeleton_loader.dart';
 import '../../../widgets/common/sticky_button.dart';
 import '../../../widgets/shopping/shopping_list_tile.dart';
 import '../active/active_shopping_screen.dart';
+import '../checklist/checklist_screen.dart';
+import '../who_brings/who_brings_screen.dart';
 
 class ShoppingListsScreen extends StatefulWidget {
   const ShoppingListsScreen({super.key});
@@ -904,7 +906,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
               ? () {
                   debugPrint('🛒 התחלת קנייה: ${list.name}');
                   Navigator.push(
-                      context, MaterialPageRoute(builder: (context) => ActiveShoppingScreen(list: list)));
+                      context, MaterialPageRoute(builder: (context) => _getScreenForList(list)));
                 }
               : null,
           onEdit: () {
@@ -1151,5 +1153,26 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
         ),
       ),
     );
+  }
+
+  /// 🎯 מחזיר את המסך המתאים לפי סוג הרשימה ומצב האירוע
+  Widget _getScreenForList(ShoppingList list) {
+    // אירוע עם "מי מביא מה"
+    if (list.type == ShoppingList.typeEvent &&
+        list.eventMode == ShoppingList.eventModeWhoBrings) {
+      debugPrint('   → WhoBringsScreen (מי מביא מה)');
+      return WhoBringsScreen(list: list);
+    }
+
+    // אירוע אישי (משימות / צ'קליסט)
+    if (list.type == ShoppingList.typeEvent &&
+        list.eventMode == ShoppingList.eventModeTasks) {
+      debugPrint('   → ChecklistScreen (משימות)');
+      return ChecklistScreen(list: list);
+    }
+
+    // כל השאר: חנויות + אירוע עם קנייה רגילה
+    debugPrint('   → ActiveShoppingScreen (קנייה)');
+    return ActiveShoppingScreen(list: list);
   }
 }

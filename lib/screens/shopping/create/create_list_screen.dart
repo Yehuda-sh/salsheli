@@ -9,9 +9,10 @@
 // - ✅ Focus management עם FocusNodes
 // - ✅ Preview ויזואלי לסוג הרשימה
 // - ✅ תמיכה בתבניות מוכנות
+// - ✅ 3 אופציות נראות: אישית / משפחתית / שיתוף ספציפי
 //
-// Version: 3.0 - Screen-based refactor
-// Last Updated: 26/11/2025
+// Version: 4.0 - Added specific sharing option
+// Last Updated: 06/01/2026
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,6 +23,8 @@ import '../../../config/list_types_config.dart';
 import '../../../core/status_colors.dart';
 import '../../../core/ui_constants.dart';
 import '../../../l10n/app_strings.dart';
+import '../../../models/selected_contact.dart';
+import '../../../models/shopping_list.dart';
 import '../../../models/unified_list_item.dart';
 import '../../../providers/shopping_lists_provider.dart';
 import '../../../services/template_service.dart';
@@ -29,7 +32,20 @@ import '../../../theme/app_theme.dart';
 import '../../../widgets/common/notebook_background.dart';
 import '../../../widgets/common/sticky_button.dart';
 import '../../../widgets/common/sticky_note.dart';
+import 'contact_selector_dialog.dart';
 import 'template_picker_dialog.dart';
+
+/// סוג נראות הרשימה
+enum ListVisibility {
+  /// רשימה אישית - רק אני רואה
+  private,
+
+  /// משפחתית - כל משק הבית רואה
+  household,
+
+  /// שיתוף ספציפי - אנשים שאני בוחר (ללא גישה למזווה)
+  shared,
+}
 
 class CreateListScreen extends StatefulWidget {
   const CreateListScreen({super.key});
@@ -50,11 +66,23 @@ class _CreateListScreenState extends State<CreateListScreen> {
   String _type = 'supermarket';
   DateTime? _eventDate;
   bool _isSubmitting = false;
-  bool _isPrivate = true; // 🔒 ברירת מחדל: רשימה אישית
+
+  // 🔒 נראות הרשימה (3 אופציות)
+  ListVisibility _visibility = ListVisibility.private;
+
+  // 👥 אנשי קשר לשיתוף ספציפי
+  List<SelectedContact> _selectedContacts = [];
 
   // 📋 Template selection
   TemplateInfo? _selectedTemplate;
   List<UnifiedListItem> _templateItems = [];
+
+  // 🎉 Event mode (לאירועים בלבד)
+  // null = קנייה רגילה (לא אירוע)
+  // 'who_brings' = מי מביא מה
+  // 'shopping' = קנייה רגילה (אירוע)
+  // 'tasks' = משימות אישיות
+  String? _eventMode;
 
   // 📅 Date formatter
   final _dateFormat = DateFormat('dd/MM/yyyy');
@@ -110,8 +138,11 @@ class _CreateListScreenState extends State<CreateListScreen> {
         type: _type,
         budget: budget,
         eventDate: _eventDate,
-        isPrivate: _isPrivate,
+        isPrivate: _visibility != ListVisibility.household,
+        isShared: _visibility == ListVisibility.shared,
         items: _templateItems.isNotEmpty ? _templateItems : null,
+        sharedContacts: _visibility == ListVisibility.shared ? _selectedContacts : null,
+        eventMode: _type == ShoppingList.typeEvent ? _eventMode : null,
       );
 
       debugPrint('   ✅ רשימה נוצרה: ${newList.id}');
@@ -226,6 +257,11 @@ class _CreateListScreenState extends State<CreateListScreen> {
           // 🎉 עדכון סוג הרשימה לפי התבנית
           _type = TemplateService.getListTypeForTemplate(selected.id);
           _templateItems = items;
+          // 🎯 עדכון eventMode לתבניות אירוע
+          _eventMode = TemplateService.getEventModeForTemplate(
+            selected.id,
+            isPrivate: _visibility == ListVisibility.private,
+          );
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -337,6 +373,12 @@ class _CreateListScreenState extends State<CreateListScreen> {
                     // 🔒 אישית/משפחתית
                     _buildPrivacyToggle(theme),
                     const SizedBox(height: kSpacingMedium),
+
+                    // 🎉 מצב אירוע (רק כשהסוג הוא אירוע)
+                    if (_type == ShoppingList.typeEvent) ...[
+                      _buildEventModeSelector(theme),
+                      const SizedBox(height: kSpacingMedium),
+                    ],
 
                     // 📅 תאריך אירוע
                     _buildEventDateField(theme),
@@ -526,7 +568,17 @@ class _CreateListScreenState extends State<CreateListScreen> {
           : (selected) {
               if (selected) {
                 debugPrint('🔄 סוג רשימה שונה ל: $type');
-                setState(() => _type = type);
+                setState(() {
+                  _type = type;
+                  // 🎯 עדכון eventMode כשעוברים לאירוע
+                  if (type == ShoppingList.typeEvent) {
+                    _eventMode = _visibility == ListVisibility.private
+                        ? ShoppingList.eventModeTasks
+                        : ShoppingList.eventModeWhoBrings;
+                  } else {
+                    _eventMode = null;
+                  }
+                });
               }
             },
       backgroundColor: theme.colorScheme.surface,
@@ -558,23 +610,39 @@ class _CreateListScreenState extends State<CreateListScreen> {
           ),
         ),
         const SizedBox(height: kSpacingSmall),
-        // SegmentedButton
-        SegmentedButton<bool>(
+        // SegmentedButton עם 3 אופציות
+        SegmentedButton<ListVisibility>(
           segments: const [
             ButtonSegment(
-              value: true,
+              value: ListVisibility.private,
               label: Text('🔒 אישית'),
             ),
             ButtonSegment(
-              value: false,
+              value: ListVisibility.household,
               label: Text('👨‍👩‍👧 משפחתית'),
             ),
+            ButtonSegment(
+              value: ListVisibility.shared,
+              label: Text('👥 שיתוף'),
+            ),
           ],
-          selected: {_isPrivate},
+          selected: {_visibility},
           onSelectionChanged: _isSubmitting
               ? null
               : (selection) {
-                  setState(() => _isPrivate = selection.first);
+                  setState(() {
+                    _visibility = selection.first;
+                    // נקה אנשי קשר אם עוברים מ-shared לאופציה אחרת
+                    if (_visibility != ListVisibility.shared) {
+                      _selectedContacts = [];
+                    }
+                    // 🎯 עדכון eventMode אם זה אירוע
+                    if (_type == ShoppingList.typeEvent) {
+                      _eventMode = _visibility == ListVisibility.private
+                          ? ShoppingList.eventModeTasks
+                          : ShoppingList.eventModeWhoBrings;
+                    }
+                  });
                 },
           style: const ButtonStyle(
             visualDensity: VisualDensity.comfortable,
@@ -583,16 +651,281 @@ class _CreateListScreenState extends State<CreateListScreen> {
         const SizedBox(height: kSpacingTiny),
         // הסבר
         Text(
-          _isPrivate
-              ? 'רק אתה תראה את הרשימה הזו'
-              : 'כל המשפחה תוכל לראות ולערוך',
+          _getVisibilityDescription(),
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
           textAlign: TextAlign.center,
         ),
+        // 👥 בורר אנשי קשר - מוצג רק כש-visibility == shared
+        if (_visibility == ListVisibility.shared) ...[
+          const SizedBox(height: kSpacingMedium),
+          _buildContactsPicker(theme),
+        ],
       ],
     );
+  }
+
+  String _getVisibilityDescription() {
+    switch (_visibility) {
+      case ListVisibility.private:
+        return 'רק אתה תראה את הרשימה הזו';
+      case ListVisibility.household:
+        return 'כל המשפחה תוכל לראות ולערוך';
+      case ListVisibility.shared:
+        return 'שתף עם אנשים ספציפיים (ללא גישה למזווה שלך)';
+    }
+  }
+
+  /// 🎉 בורר מצב אירוע - מוצג רק כשהסוג הוא אירוע
+  Widget _buildEventModeSelector(ThemeData theme) {
+    final cs = theme.colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // כותרת
+        Text(
+          'איך תנהלו את הרשימה?',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: cs.primary,
+          ),
+        ),
+        const SizedBox(height: kSpacingSmall),
+
+        // אופציות
+        _buildEventModeOption(
+          theme: theme,
+          mode: ShoppingList.eventModeWhoBrings,
+          icon: Icons.people,
+          title: 'מי מביא מה',
+          description: 'כל משתתף מתנדב להביא פריטים',
+          isRecommended: _visibility != ListVisibility.private,
+        ),
+        const SizedBox(height: kSpacingSmall),
+
+        _buildEventModeOption(
+          theme: theme,
+          mode: ShoppingList.eventModeShopping,
+          icon: Icons.shopping_cart,
+          title: 'קנייה רגילה',
+          description: 'אדם אחד קונה את כל הרשימה',
+        ),
+        const SizedBox(height: kSpacingSmall),
+
+        _buildEventModeOption(
+          theme: theme,
+          mode: ShoppingList.eventModeTasks,
+          icon: Icons.checklist,
+          title: 'משימות אישיות',
+          description: 'צ\'קליסט פשוט רק לי',
+          isRecommended: _visibility == ListVisibility.private,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEventModeOption({
+    required ThemeData theme,
+    required String mode,
+    required IconData icon,
+    required String title,
+    required String description,
+    bool isRecommended = false,
+  }) {
+    final cs = theme.colorScheme;
+    final isSelected = _eventMode == mode;
+
+    return InkWell(
+      onTap: _isSubmitting
+          ? null
+          : () {
+              setState(() => _eventMode = mode);
+            },
+      borderRadius: BorderRadius.circular(kBorderRadiusMedium),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(kSpacingMedium),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? cs.primaryContainer.withValues(alpha: 0.5)
+              : cs.surfaceContainerHighest.withValues(alpha: 0.3),
+          borderRadius: BorderRadius.circular(kBorderRadiusMedium),
+          border: Border.all(
+            color: isSelected ? cs.primary : cs.outline.withValues(alpha: 0.3),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            // Radio indicator
+            Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected ? cs.primary : cs.outline,
+                  width: 2,
+                ),
+                color: isSelected ? cs.primary : Colors.transparent,
+              ),
+              child: isSelected
+                  ? const Icon(Icons.check, size: 16, color: Colors.white)
+                  : null,
+            ),
+            const SizedBox(width: kSpacingMedium),
+
+            // Icon
+            Icon(
+              icon,
+              color: isSelected ? cs.primary : cs.onSurfaceVariant,
+            ),
+            const SizedBox(width: kSpacingSmall),
+
+            // Text
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        title,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                          color: isSelected ? cs.primary : cs.onSurface,
+                        ),
+                      ),
+                      if (isRecommended) ...[
+                        const SizedBox(width: kSpacingTiny),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: cs.tertiaryContainer,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            'מומלץ',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: cs.onTertiaryContainer,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  Text(
+                    description,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContactsPicker(ThemeData theme) {
+    final cs = theme.colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.all(kSpacingSmall),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(kBorderRadiusMedium),
+        border: Border.all(color: cs.outline.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // אנשי קשר שנבחרו
+          if (_selectedContacts.isNotEmpty) ...[
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: _selectedContacts.map((contact) {
+                return Chip(
+                  avatar: contact.isPending
+                      ? Icon(Icons.hourglass_empty,
+                          size: 16, color: cs.onSecondaryContainer)
+                      : CircleAvatar(
+                          backgroundColor: cs.primaryContainer,
+                          radius: 12,
+                          child: Text(
+                            contact.initials,
+                            style: const TextStyle(fontSize: 10),
+                          ),
+                        ),
+                  label: Text(
+                    '${contact.displayName} (${contact.role.hebrewName})',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  deleteIcon: const Icon(Icons.close, size: 16),
+                  onDeleted: _isSubmitting
+                      ? null
+                      : () {
+                          setState(() {
+                            _selectedContacts
+                                .removeWhere((c) => c.email == contact.email);
+                          });
+                        },
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: kSpacingSmall),
+          ],
+          // כפתור הוספה
+          OutlinedButton.icon(
+            icon: const Icon(Icons.person_add),
+            label: Text(_selectedContacts.isEmpty
+                ? 'בחר אנשים לשיתוף'
+                : 'הוסף עוד אנשים'),
+            onPressed: _isSubmitting ? null : _openContactSelector,
+          ),
+          // הודעה אם יש pending
+          if (_selectedContacts.any((c) => c.isPending)) ...[
+            const SizedBox(height: kSpacingSmall),
+            Row(
+              children: [
+                Icon(Icons.info_outline, size: 14, color: cs.tertiary),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    'משתמשים שאינם רשומים יקבלו הזמנה ממתינה',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: cs.tertiary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Future<void> _openContactSelector() async {
+    final result = await ContactSelectorDialog.show(
+      context,
+      alreadySelected: _selectedContacts,
+    );
+
+    if (result != null && mounted) {
+      setState(() {
+        _selectedContacts = result;
+      });
+    }
   }
 
   Widget _buildEventDateField(ThemeData theme) {

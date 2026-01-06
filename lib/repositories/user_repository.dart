@@ -287,6 +287,29 @@ abstract class UserRepository {
   /// - [getAllUsers] - קבלת כל משתמשי המשק
   Future<UserEntity?> findByEmail(String email, {String? householdId});
 
+  /// מחפש משתמש לפי מספר טלפון
+  ///
+  /// מחזיר [UserEntity] אם נמצא משתמש עם הטלפון, אחרת `null`.
+  ///
+  /// ⚠️ **חשוב:** הטלפון מנורמל (ללא רווחים/מקפים) לפני החיפוש.
+  ///
+  /// שימושי ל:
+  /// - הוספת משתמש לרשימה משותפת
+  /// - חיפוש איש קשר
+  ///
+  /// זורק [UserRepositoryException] במקרה של:
+  /// - שגיאת רשת
+  /// - טלפון ריק (`ArgumentError`)
+  ///
+  /// Example:
+  /// ```dart
+  /// final user = await repository.findByPhone('0501234567');
+  /// if (user != null) {
+  ///   print('משתמש נמצא: ${user.name}');
+  /// }
+  /// ```
+  Future<UserEntity?> findByPhone(String phone);
+
   /// מעדכן את זמן ההתחברות האחרון של משתמש
   /// 
   /// מעדכן רק את השדה `lastLoginAt` ל-DateTime.now().

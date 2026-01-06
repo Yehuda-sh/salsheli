@@ -38,6 +38,10 @@ class SavedContact {
   @JsonKey(name: 'user_email')
   final String userEmail;
 
+  /// טלפון המשתמש
+  @JsonKey(name: 'user_phone')
+  final String? userPhone;
+
   /// אווטאר המשתמש
   @JsonKey(name: 'user_avatar')
   final String? userAvatar;
@@ -56,6 +60,7 @@ class SavedContact {
     required this.userId,
     this.userName,
     required this.userEmail,
+    this.userPhone,
     this.userAvatar,
     required this.addedAt,
     required this.lastInvitedAt,
@@ -66,6 +71,7 @@ class SavedContact {
     required String userId,
     String? userName,
     required String userEmail,
+    String? userPhone,
     String? userAvatar,
   }) {
     final now = DateTime.now();
@@ -73,6 +79,7 @@ class SavedContact {
       userId: userId,
       userName: userName,
       userEmail: userEmail,
+      userPhone: userPhone,
       userAvatar: userAvatar,
       addedAt: now,
       lastInvitedAt: now,
@@ -114,6 +121,7 @@ class SavedContact {
     String? userId,
     String? userName,
     String? userEmail,
+    String? userPhone,
     String? userAvatar,
     DateTime? addedAt,
     DateTime? lastInvitedAt,
@@ -122,6 +130,7 @@ class SavedContact {
       userId: userId ?? this.userId,
       userName: userName ?? this.userName,
       userEmail: userEmail ?? this.userEmail,
+      userPhone: userPhone ?? this.userPhone,
       userAvatar: userAvatar ?? this.userAvatar,
       addedAt: addedAt ?? this.addedAt,
       lastInvitedAt: lastInvitedAt ?? this.lastInvitedAt,
