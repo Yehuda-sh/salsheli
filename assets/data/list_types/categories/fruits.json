@@ -1,0 +1,416 @@
+[
+  {
+    "name": "אפרסק אורגני במשקל",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 40.9,
+    "barcode": "7290000995502",
+    "brand": "גרין",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "גויאבות",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 34.9,
+    "barcode": "7290000966618",
+    "brand": "קטיף.",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "חומץ תפוחים אורגני",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 21.9,
+    "barcode": "8017938005122",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "לימון אורגני",
+    "category": "פירות",
+    "icon": "🍋",
+    "price": 25.9,
+    "barcode": "7290000965826",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "ליצי ארוז",
+    "category": "פירות",
+    "icon": "🛒",
+    "price": 20.0,
+    "barcode": "7290000986845",
+    "brand": "קטיף.",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מארז אבוקדו בשל",
+    "category": "פירות",
+    "icon": "🥑",
+    "price": 12.9,
+    "barcode": "7290014462342",
+    "brand": "גליל שיווק מקומי אגש\"ח",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מארז אבוקדו בשל יחידה",
+    "category": "פירות",
+    "icon": "🥑",
+    "price": 12.9,
+    "barcode": "7290018732601",
+    "brand": "גרנות",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מארז ליים אורגני",
+    "category": "פירות",
+    "icon": "🥑",
+    "price": 29.9,
+    "barcode": "7290009136951",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "מחית תפוח אגס בפאוץ 100 גרם",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 4.9,
+    "barcode": "7296073627562",
+    "brand": ".SA AGROPHOENIX",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מחית תפוח בננה תות פאץ 90",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 7.3,
+    "barcode": "8445291107458",
+    "brand": "מפעל סברס, נסטלה ספרד ס.",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מחית תפוח בפאוץ 100 גרם",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 4.9,
+    "barcode": "7296073627555",
+    "brand": ".SA AGROPHOENIX",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מטרנה מחית תפוח בננה 90 גרם",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 7.3,
+    "barcode": "8445291050358",
+    "brand": "נסטלה ספרד ס.א, מפעל סבר",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מטרנה מחית תפוח עץ 190 גרם",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 7.9,
+    "barcode": "8445291028838",
+    "brand": "נסטלה פולסקה אס.איי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מלון אורגני במשקל",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 15.9,
+    "barcode": "7290000994956",
+    "brand": "קטיף.",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "מלון גסטין",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 7.9,
+    "barcode": "7290000965611",
+    "brand": "קטיף.",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "מלון מובחר",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 7.9,
+    "barcode": "7290000965055",
+    "brand": "קטיף.",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "סמוזי אגס",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 7.9,
+    "barcode": "8024985008044",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סמוזי שזיף אורגני 100 גרם",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 7.9,
+    "barcode": "8024985002950",
+    "brand": "נטורה נובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סמוזי שיבולת תפוחאפרסק",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 7.9,
+    "barcode": "8024985013468",
+    "brand": "נטורה נובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סמוזי תפוח אורגני 100 גרם",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 7.9,
+    "barcode": "8024985008037",
+    "brand": "נטורה נובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סמוזי תפוח תות בננה 100 גרם",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 7.9,
+    "barcode": "8024985011204",
+    "brand": "נטורה נובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ענב אדום ג'קס סלוט",
+    "category": "פירות",
+    "icon": "🍇",
+    "price": 29.9,
+    "barcode": "7290017593562",
+    "brand": "בננות החוף",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "ענב אדום סוויט סלבריישן",
+    "category": "פירות",
+    "icon": "🍇",
+    "price": 29.9,
+    "barcode": "7290017593531",
+    "brand": "בננות החוף",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "ענב ארלי אדורה",
+    "category": "פירות",
+    "icon": "🍇",
+    "price": 29.9,
+    "barcode": "7290005678202",
+    "brand": "מושב לכיש",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "ענבים טימפסון",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 24.9,
+    "barcode": "7290005678844",
+    "brand": "מושב לכיש",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "ענבים ירוקים מובחר",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 24.9,
+    "barcode": "7290000966038",
+    "brand": "קטיף.",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פאפיה אורגני",
+    "category": "פירות",
+    "icon": "🍈",
+    "price": 40.9,
+    "barcode": "7290000965819",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פומלה אדומה",
+    "category": "פירות",
+    "icon": "🍊",
+    "price": 7.9,
+    "barcode": "7290000964423",
+    "brand": "קטיף.",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "קוקוס לשתיה קשית יחידה",
+    "category": "פירות",
+    "icon": "🥥",
+    "price": 25.9,
+    "barcode": "8719325243659",
+    "brand": "פלורה קפיטל סי או בע\"מ",
+    "unit": "יחידה"
+  },
+  {
+    "name": "רסק תפו\"עתות שדה 1134 גרם",
+    "category": "פירות",
+    "icon": "🛒",
+    "price": 13.9,
+    "barcode": "7290017058139",
+    "brand": "אינדיאן סאמר קו אופ אינק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "רסק תפוחי עץ ללת\"ס 4113",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 13.9,
+    "barcode": "7290117266021",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "רסק תפוחים טבעי 670 גרם",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 13.9,
+    "barcode": "7290013903594",
+    "brand": "טעמי הגליל",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שזיף אדום 50",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 24.9,
+    "barcode": "7290000965338",
+    "brand": "קטיף.",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "תפוז ברשת למיץ",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 9.9,
+    "barcode": "7290000964348",
+    "brand": "קטיף.",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "תפוז ירוק ברשת למיץ",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 9.9,
+    "barcode": "7290000964317",
+    "brand": "קטיף.",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "תפוח זהוב אורגני במשקל",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 20.9,
+    "barcode": "7290000965765",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "תפוח עץ פינקריספי 70",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 22.9,
+    "barcode": "7290000963372",
+    "brand": "קטיף.",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "תרכיז תפוחים 650 מ\"ל",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 29.9,
+    "barcode": "7290014562462",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "חומץ תפוחים אורגני",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 21.9,
+    "barcode": "8017938005122",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "מחית תפוח אגס בפאוץ 100 גרם",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 4.9,
+    "barcode": "7296073627562",
+    "brand": ".SA AGROPHOENIX",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מחית תפוח בננה תות פאץ 90",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 7.3,
+    "barcode": "8445291107458",
+    "brand": "מפעל סברס, נסטלה ספרד ס.",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מטרנה מחית תפוח בננה 90 גרם",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 7.3,
+    "barcode": "8445291050358",
+    "brand": "נסטלה ספרד ס.א, מפעל סבר",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מטרנה מחית תפוח עץ 190 גרם",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 7.9,
+    "barcode": "8445291028838",
+    "brand": "נסטלה פולסקה אס.איי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סמוזי שזיף אורגני 100 גרם",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 7.9,
+    "barcode": "8024985002950",
+    "brand": "נטורה נובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סמוזי תפוח אורגני 100 גרם",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 7.9,
+    "barcode": "8024985008037",
+    "brand": "נטורה נובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סמוזי תפוח תות בננה 100 גרם",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 7.9,
+    "barcode": "8024985011204",
+    "brand": "נטורה נובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "רסק תפו\"עתות שדה 1134 גרם",
+    "category": "פירות",
+    "icon": "🛒",
+    "price": 13.9,
+    "barcode": "7290017058139",
+    "brand": "אינדיאן סאמר קו אופ אינק",
+    "unit": "100 גרם"
+  }
+]

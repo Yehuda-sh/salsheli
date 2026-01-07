@@ -1,0 +1,981 @@
+[
+  {
+    "name": "אסאדו עם עצם -חב\"ד קפוא",
+    "category": "קפואים",
+    "icon": "🛒",
+    "price": 49.9,
+    "barcode": "7290004329969",
+    "brand": "ויקטוריה",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "אפונה ירוקה וגזר קפוא 800",
+    "category": "קפואים",
+    "icon": "❄️",
+    "price": 20.9,
+    "barcode": "7296073224907",
+    "brand": "DUJARDIN",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אפונה עדינה קפוא אורג 600",
+    "category": "קפואים",
+    "icon": "🛒",
+    "price": 26.9,
+    "barcode": "7290013994806",
+    "brand": "פינגווין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ארטישוק ירושלמי קפוא 400",
+    "category": "קפואים",
+    "icon": "🧊",
+    "price": 26.9,
+    "barcode": "7290000103488",
+    "brand": "סנפרוסט בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בלינצס מילוי דובדבנים 360",
+    "category": "קפואים",
+    "icon": "🧊",
+    "price": 17.9,
+    "barcode": "4810168062200",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בלינצס תפו\"ע וקינמון 360",
+    "category": "קפואים",
+    "icon": "🧊",
+    "price": 17.9,
+    "barcode": "4810168062217",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בלינצסממרח קקאו אגוז 360",
+    "category": "קפואים",
+    "icon": "🧊",
+    "price": 17.9,
+    "barcode": "4810168062224",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בצל קצוץ מוקפא 600 גרם",
+    "category": "קפואים",
+    "icon": "❄️",
+    "price": 19.9,
+    "barcode": "7290000104225",
+    "brand": "סנפרוסט בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גלידה אייס קפה ובננה 475",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 37.5,
+    "barcode": "7290018011737",
+    "brand": "תמרה בע\"מ",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "גלידה מוצ'י טירמיסו 240 גרם",
+    "category": "קפואים",
+    "icon": "🍫",
+    "price": 35.9,
+    "barcode": "4820077162298",
+    "brand": "ללס \"טירס ט.מ מוסאיק\"",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גלידל שוקו 8 יחי",
+    "category": "קפואים",
+    "icon": "🛒",
+    "price": 39.9,
+    "barcode": "7290000490762",
+    "brand": "פלקו בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גלידת וניל מייפל DADU 31",
+    "category": "קפואים",
+    "icon": "🍨",
+    "price": 29.9,
+    "barcode": "4770166224324",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גרעיני תירס קפוא 800 גרם",
+    "category": "קפואים",
+    "icon": "🛒",
+    "price": 21.9,
+    "barcode": "7290000104690",
+    "brand": "סנפרוסט בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיפי פיצה זיתים 710 גרם",
+    "category": "קפואים",
+    "icon": "🧊",
+    "price": 39.9,
+    "barcode": "7290014218932",
+    "brand": "מעדנות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיפי קרח 7030 מ\"ל",
+    "category": "קפואים",
+    "icon": "🛒",
+    "price": 13.9,
+    "barcode": "7296073220121",
+    "unit": "ליטר"
+  },
+  {
+    "name": "חטיפי קרח גדולים 8100 מ״ל",
+    "category": "קפואים",
+    "icon": "🛒",
+    "price": 9.9,
+    "barcode": "7296073220398",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "חטיפי תירס טבעול 657 גרם",
+    "category": "קפואים",
+    "icon": "🧊",
+    "price": 40.9,
+    "barcode": "7290111566271",
+    "brand": "טבעול תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חמישיה שלגון וניל ש.מריר",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 28.9,
+    "barcode": "7290101114345",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חמישיה שלגון ונילש.פיסטו",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 28.9,
+    "barcode": "7290101114338",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "טבעות בצל 700 גרם",
+    "category": "קפואים",
+    "icon": "🧊",
+    "price": 22.9,
+    "barcode": "7290000334684",
+    "brand": "תפוגן תעשיות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "כרובית מוקפאת 800 גרם",
+    "category": "קפואים",
+    "icon": "❄️",
+    "price": 28.9,
+    "barcode": "7290000104744",
+    "brand": "סנפרוסט בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "כרובית מוקפאת 800 גרם",
+    "category": "קפואים",
+    "icon": "❄️",
+    "price": 17.9,
+    "barcode": "7296073705536",
+    "brand": "י.ש. ירקות עליים",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "כרישה קצוצה מוקפאת 145 גרם",
+    "category": "קפואים",
+    "icon": "❄️",
+    "price": 16.0,
+    "barcode": "7290018989401",
+    "brand": "כד בני דרום",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לביבות בטטה קארי 455 גרם",
+    "category": "קפואים",
+    "icon": "🧊",
+    "price": 39.9,
+    "barcode": "7290115201451",
+    "brand": "טבעול )מקבוצת אסם השקעות",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לביבות כרובית 490 גרם",
+    "category": "קפואים",
+    "icon": "🧊",
+    "price": 33.5,
+    "barcode": "7290002587590",
+    "brand": "שלושת האופים",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לה קרמריה שוקולד בלגי .1",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 25.9,
+    "barcode": "7290106576971",
+    "brand": "גלידות נסטלה",
+    "unit": "ליטר"
+  },
+  {
+    "name": "לה קרמריה תותים",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 25.9,
+    "barcode": "7290106576858",
+    "unit": "ליטר"
+  },
+  {
+    "name": "לה קרמריהשוקו וניל פרווה",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 25.9,
+    "barcode": "7290106576957",
+    "brand": "גלידות נסטלה",
+    "unit": "ליטר"
+  },
+  {
+    "name": "לקט בסגנון אסייתי 300 גרם",
+    "category": "קפואים",
+    "icon": "🛒",
+    "price": 12.9,
+    "barcode": "7296073719496",
+    "brand": "פרסקו חצבה 2006 בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לקט ירקות מעורבים 800 גרם",
+    "category": "קפואים",
+    "icon": "🛒",
+    "price": 26.9,
+    "barcode": "7290000104904",
+    "brand": "סנפרוסט בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לקט ירקות קפוא אורגני 800",
+    "category": "קפואים",
+    "icon": "🛒",
+    "price": 26.9,
+    "barcode": "7290013994790",
+    "brand": "פינגווין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לשון קפוא טאק טורו קג",
+    "category": "קפואים",
+    "icon": "🛒",
+    "price": 54.9,
+    "barcode": "7290001124680",
+    "brand": "נטו",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "מאגדת 4 שייק פרי תות 260 גרם",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 15.9,
+    "barcode": "7290101114659",
+    "brand": "פלקו בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מאגדת יוגורט תות 400 גרם",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 38.0,
+    "barcode": "7290018011713",
+    "brand": "תמרה בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מאגדת מיני טויסטר טרופי 8",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 30.9,
+    "barcode": "7290018755303",
+    "brand": "מנא ס.א",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מאגדת מיני מגנום קלאסי 5 יחידות",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 32.9,
+    "barcode": "7290112499943",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מאגדת מיני מילקה קרמל 6 יחידות",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 33.9,
+    "barcode": "7290019816928",
+    "brand": "פרונרי פולין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מאגדת מנגו פספלורה 264 גרם",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 32.9,
+    "barcode": "4770237060523",
+    "brand": "פיינה זבדגיס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מאגדת פינה קולדה 1004 גרם",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 32.9,
+    "barcode": "7290018441596",
+    "brand": "מוצרי איכות אמריקאיים בע",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מאגדת קלאסיק מיקס",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 32.9,
+    "barcode": "7290002026914",
+    "brand": "מוצרי איכות אמריקאיים בע",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "מאגדת שוקו בננה מצופים",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 31.9,
+    "barcode": "7290018652886",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מאגדת שלגוני פירות 360RUD",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 28.9,
+    "barcode": "4823097815359",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מאמאמיה פיצה מקסיקנית",
+    "category": "קפואים",
+    "icon": "🍕",
+    "price": 29.9,
+    "barcode": "7290018091142",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מאמאמיה פיצה עם תירס",
+    "category": "קפואים",
+    "icon": "🍕",
+    "price": 29.9,
+    "barcode": "7290018091937",
+    "brand": "מעדנות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מיני דק שניצל שומשום",
+    "category": "קפואים",
+    "icon": "🍗",
+    "price": 35.9,
+    "barcode": "7290008409049",
+    "brand": "תנובה גליל שותפות מוגבלת",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מנות נסיכה קפוא קג",
+    "category": "קפואים",
+    "icon": "🛒",
+    "price": 80.6,
+    "barcode": "7290009119695",
+    "brand": "פסקוביץ",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "מעטפות פילופטהתרד 300 גרם",
+    "category": "קפואים",
+    "icon": "🥟",
+    "price": 19.9,
+    "barcode": "7290117264430",
+    "brand": "הלניק קוואלטי פודס אס.אי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מעטפת בצק פילופטה 300 גרם",
+    "category": "קפואים",
+    "icon": "🥟",
+    "price": 19.9,
+    "barcode": "7290117264423",
+    "brand": "הלניק קוואלטי פודס אס.אי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מקלוני ירקות בטטה גזר 500",
+    "category": "קפואים",
+    "icon": "🧊",
+    "price": 39.9,
+    "barcode": "7290118425007",
+    "brand": "טבעול",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מקלוני ירקות כרובית 500",
+    "category": "קפואים",
+    "icon": "🧊",
+    "price": 39.9,
+    "barcode": "7290118424987",
+    "brand": "טבעול",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נטפליקס & צ'יל 2 442 גרם",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 27.9,
+    "barcode": "7290018441275",
+    "brand": "מוצרי איכות אמריקאיים בע",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סולטיד קרמל פיס פופ - מא",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 32.9,
+    "barcode": "8711327538719",
+    "brand": "אמפי אירה אודוס 88",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סורבה פינה קולדה 500 מ״ל",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 27.9,
+    "barcode": "7290018441480",
+    "brand": "מוצרי איכות אמריקאיים",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "סטייק אנטריקוט חלק קפוא",
+    "category": "קפואים",
+    "icon": "🛒",
+    "price": 49.9,
+    "barcode": "7290013580672",
+    "brand": "פריגוריפיקו קונספסיון",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פול ירוק מוקפא 600 גרם",
+    "category": "קפואים",
+    "icon": "🧊",
+    "price": 10.9,
+    "barcode": "7290120349803",
+    "brand": "דה נייל אגיפטיאן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פולרטי פירות חטיפי קרח",
+    "category": "קפואים",
+    "icon": "🛒",
+    "price": 12.9,
+    "barcode": "8002267002270",
+    "brand": "SPA DOLFIN",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "פיינט מילקה וניל ליבת שו",
+    "category": "קפואים",
+    "icon": "🍨",
+    "price": 25.9,
+    "barcode": "8606018615841",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פיינט שוקולד אגוזים כשלפ",
+    "category": "קפואים",
+    "icon": "🍨",
+    "price": 27.9,
+    "barcode": "7290018441558",
+    "brand": "מוצרי איכות אמריקאיים",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "פילה דג זהבון 80%דג 1 ק\"",
+    "category": "קפואים",
+    "icon": "🐟",
+    "price": 10.0,
+    "barcode": "7290019308683",
+    "brand": "דאליאן הונגדאו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פילה לברק יפני קפואע.עור",
+    "category": "קפואים",
+    "icon": "🥩",
+    "price": 54.9,
+    "barcode": "7290019587576",
+    "brand": "מאומינג פרודקס",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פילה לברק קפוא ארוז 20%מי",
+    "category": "קפואים",
+    "icon": "🥩",
+    "price": 54.9,
+    "barcode": "7290017615714",
+    "brand": "צאנגל",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פילה מדומה 6 קפוא בעדני",
+    "category": "קפואים",
+    "icon": "🥩",
+    "price": 54.9,
+    "barcode": "7290002919599",
+    "brand": "סן אנטוניו",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פיצה מרגריטה 485 גרם",
+    "category": "קפואים",
+    "icon": "🍕",
+    "price": 38.9,
+    "barcode": "7290117263716",
+    "brand": "איטלפיצה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פיצה מרגריטה ללא גלוטן",
+    "category": "קפואים",
+    "icon": "🍕",
+    "price": 31.9,
+    "barcode": "7290017040318",
+    "brand": "PAZZAMI",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פיצה עם זית 125 ג ויליפוד",
+    "category": "קפואים",
+    "icon": "🍕",
+    "price": 7.0,
+    "barcode": "7290117260289",
+    "brand": "מוטלוקל גידה סאנאי טיקרט",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פלאפל 1 קג",
+    "category": "קפואים",
+    "icon": "🧆",
+    "price": 25.9,
+    "barcode": "7290008343626",
+    "brand": "שלושת האופים בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "צ'ונגו שומשום 600 גרם",
+    "category": "קפואים",
+    "icon": "🍗",
+    "price": 41.9,
+    "barcode": "7290014749245",
+    "brand": "מוצרי עוף טוב",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "צונגו סופר קראנץ חריף 600",
+    "category": "קפואים",
+    "icon": "🍗",
+    "price": 41.9,
+    "barcode": "7290019204701",
+    "brand": "מוצרי עוף טוב",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "צלי כתף מס 5 חלק קפוא",
+    "category": "קפואים",
+    "icon": "🛒",
+    "price": 79.9,
+    "barcode": "7290002628170",
+    "brand": "בלדי",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "קובה חמוסטה 1 קג",
+    "category": "קפואים",
+    "icon": "🧊",
+    "price": 25.9,
+    "barcode": "7290002757146",
+    "brand": "שלושת האופים בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קובה למרק 1 קג'",
+    "category": "קפואים",
+    "icon": "🧊",
+    "price": 25.9,
+    "barcode": "7290004048679",
+    "brand": "שלושת האופים בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קובה סלק 400 גרם",
+    "category": "קפואים",
+    "icon": "❄️",
+    "price": 24.9,
+    "barcode": "7290109580647",
+    "brand": "זוגלובק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קורנטו בטעם ריבת חלב 636 גרם",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 37.9,
+    "barcode": "7290018755259",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קציצות עדשים כתומות 225 גרם",
+    "category": "קפואים",
+    "icon": "🌱",
+    "price": 31.5,
+    "barcode": "7290016156416",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "רביולי בטטה 330 גרם",
+    "category": "קפואים",
+    "icon": "🍝",
+    "price": 30.9,
+    "barcode": "7290013787408",
+    "brand": "דודו איטליאן פרודקטס בע",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "רביולי גבינות 300 גרם",
+    "category": "קפואים",
+    "icon": "🍝",
+    "price": 22.9,
+    "barcode": "7290016818635",
+    "brand": "דורום תעשיות מזון ופסטה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "רבע טלה קפוא חלק",
+    "category": "קפואים",
+    "icon": "🛒",
+    "price": 99.9,
+    "barcode": "7290008335485",
+    "brand": "יצרנים שונים",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "שניצל ברוקולי 99 קלוריות",
+    "category": "קפואים",
+    "icon": "🥦",
+    "price": 41.9,
+    "barcode": "7290111566561",
+    "brand": "טבעול תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שניצל ברוקולי טבעול 564",
+    "category": "קפואים",
+    "icon": "🥦",
+    "price": 41.9,
+    "barcode": "7290111566226",
+    "brand": "טבעול תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שניצל גונגל 700 גרם",
+    "category": "קפואים",
+    "icon": "🍗",
+    "price": 46.9,
+    "barcode": "7290008409124",
+    "brand": "תנובה גליל שותפות מוגבלת",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שניצל תרד וברוקולי 560 גרם",
+    "category": "קפואים",
+    "icon": "🥦",
+    "price": 41.9,
+    "barcode": "7290118426820",
+    "brand": "טבעול",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שניצלוני טופו 400 גרם",
+    "category": "קפואים",
+    "icon": "🌱",
+    "price": 35.9,
+    "barcode": "7290015673662",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שעועית עדינ.קפוא אורג 800",
+    "category": "קפואים",
+    "icon": "🛒",
+    "price": 26.9,
+    "barcode": "7290013994783",
+    "brand": "פינגווין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שעועית עדינה שלמה 600 גרם",
+    "category": "קפואים",
+    "icon": "🧊",
+    "price": 26.9,
+    "barcode": "7290000104836",
+    "brand": "סנפרוסט בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "תחתית פיצה מוכנה 250 גרם",
+    "category": "קפואים",
+    "icon": "🍕",
+    "price": 25.9,
+    "barcode": "7290018724330",
+    "brand": "תמי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אפונה ירוקה וגזר קפוא 800",
+    "category": "קפואים",
+    "icon": "❄️",
+    "price": 20.9,
+    "barcode": "7296073224907",
+    "brand": "DUJARDIN",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אפונה עדינה קפוא אורג 600",
+    "category": "קפואים",
+    "icon": "🛒",
+    "price": 26.9,
+    "barcode": "7290013994806",
+    "brand": "פינגווין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בלינצס מילוי דובדבנים 360",
+    "category": "קפואים",
+    "icon": "🧊",
+    "price": 17.9,
+    "barcode": "4810168062200",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בלינצס תפו\"ע וקינמון 360",
+    "category": "קפואים",
+    "icon": "🧊",
+    "price": 17.9,
+    "barcode": "4810168062217",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בלינצסממרח קקאו אגוז 360",
+    "category": "קפואים",
+    "icon": "🧊",
+    "price": 17.9,
+    "barcode": "4810168062224",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גלידה מוצ'י טירמיסו 240 גרם",
+    "category": "קפואים",
+    "icon": "🍫",
+    "price": 35.9,
+    "barcode": "4820077162298",
+    "brand": "ללס \"טירס ט.מ מוסאיק\"",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיפי קרח גדולים 8100 מ״ל",
+    "category": "קפואים",
+    "icon": "🛒",
+    "price": 9.9,
+    "barcode": "7296073220398",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "כרישה קצוצה מוקפאת 145 גרם",
+    "category": "קפואים",
+    "icon": "❄️",
+    "price": 16.0,
+    "barcode": "7290018989401",
+    "brand": "כד בני דרום",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לקט בסגנון אסייתי 300 גרם",
+    "category": "קפואים",
+    "icon": "🛒",
+    "price": 12.9,
+    "barcode": "7296073719496",
+    "brand": "פרסקו חצבה 2006 בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לקט ירקות קפוא אורגני 800",
+    "category": "קפואים",
+    "icon": "🛒",
+    "price": 26.9,
+    "barcode": "7290013994790",
+    "brand": "פינגווין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מאגדת 4 שייק פרי תות 260 גרם",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 15.9,
+    "barcode": "7290101114659",
+    "brand": "פלקו בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מאגדת מיני טויסטר טרופי 8",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 30.9,
+    "barcode": "7290018755303",
+    "brand": "מנא ס.א",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מאגדת מיני מילקה קרמל 6 יחידות",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 33.9,
+    "barcode": "7290019816928",
+    "brand": "פרונרי פולין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מאגדת מנגו פספלורה 264 גרם",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 32.9,
+    "barcode": "4770237060523",
+    "brand": "פיינה זבדגיס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מאגדת פינה קולדה 1004 גרם",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 32.9,
+    "barcode": "7290018441596",
+    "brand": "מוצרי איכות אמריקאיים בע",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מאגדת שלגוני פירות 360RUD",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 28.9,
+    "barcode": "4823097815359",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מעטפות פילופטהתרד 300 גרם",
+    "category": "קפואים",
+    "icon": "🥟",
+    "price": 19.9,
+    "barcode": "7290117264430",
+    "brand": "הלניק קוואלטי פודס אס.אי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מעטפת בצק פילופטה 300 גרם",
+    "category": "קפואים",
+    "icon": "🥟",
+    "price": 19.9,
+    "barcode": "7290117264423",
+    "brand": "הלניק קוואלטי פודס אס.אי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מקלוני ירקות בטטה גזר 500",
+    "category": "קפואים",
+    "icon": "🧊",
+    "price": 39.9,
+    "barcode": "7290118425007",
+    "brand": "טבעול",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סורבה פינה קולדה 500 מ״ל",
+    "category": "קפואים",
+    "icon": "🍦",
+    "price": 27.9,
+    "barcode": "7290018441480",
+    "brand": "מוצרי איכות אמריקאיים",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "פילה לברק קפוא ארוז 20%מי",
+    "category": "קפואים",
+    "icon": "🥩",
+    "price": 54.9,
+    "barcode": "7290017615714",
+    "brand": "צאנגל",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פיצה עם זית 125 ג ויליפוד",
+    "category": "קפואים",
+    "icon": "🍕",
+    "price": 7.0,
+    "barcode": "7290117260289",
+    "brand": "מוטלוקל גידה סאנאי טיקרט",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "צונגו סופר קראנץ חריף 600",
+    "category": "קפואים",
+    "icon": "🍗",
+    "price": 41.9,
+    "barcode": "7290019204701",
+    "brand": "מוצרי עוף טוב",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קציצות עדשים כתומות 225 גרם",
+    "category": "קפואים",
+    "icon": "🌱",
+    "price": 31.5,
+    "barcode": "7290016156416",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שניצל תרד וברוקולי 560 גרם",
+    "category": "קפואים",
+    "icon": "🥦",
+    "price": 41.9,
+    "barcode": "7290118426820",
+    "brand": "טבעול",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שעועית עדינ.קפוא אורג 800",
+    "category": "קפואים",
+    "icon": "🛒",
+    "price": 26.9,
+    "barcode": "7290013994783",
+    "brand": "פינגווין",
+    "unit": "100 גרם"
+  }
+]

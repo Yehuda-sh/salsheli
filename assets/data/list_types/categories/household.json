@@ -1,0 +1,110 @@
+[
+  {
+    "name": "בלונס צימרונים 2002 יחי",
+    "category": "מוצרי בית",
+    "icon": "🎈",
+    "price": 14.5,
+    "barcode": "7290004078263",
+    "brand": "ספטונה",
+    "unit": "יחידה"
+  },
+  {
+    "name": "דלי אוולי 15 ליטר יחידות",
+    "category": "מוצרי בית",
+    "icon": "🪣",
+    "price": 19.9,
+    "barcode": "7296073400196",
+    "brand": "מיקסליר",
+    "unit": "יחידה"
+  },
+  {
+    "name": "זוג רדידים 7.5 מטר",
+    "category": "מוצרי בית",
+    "icon": "🏠",
+    "price": 15.9,
+    "barcode": "7290019860440",
+    "brand": "אופל",
+    "unit": "יחידה"
+  },
+  {
+    "name": "ידית טלסקופית נפתח ל 1.5 מ״ל",
+    "category": "מוצרי בית",
+    "icon": "🏠",
+    "price": 14.9,
+    "barcode": "7290020196873",
+    "brand": "פיבי אמ",
+    "unit": "יחידה"
+  },
+  {
+    "name": "כוסות גדולות במיוחד 40 יחידות",
+    "category": "מוצרי בית",
+    "icon": "🏠",
+    "price": 15.9,
+    "barcode": "7290020130426",
+    "brand": "ר.שמאי",
+    "unit": "יחידה"
+  },
+  {
+    "name": "כף שקוף עבה ח\"פ 100 יחידות",
+    "category": "מוצרי בית",
+    "icon": "🏠",
+    "price": 17.9,
+    "barcode": "7296073285298",
+    "brand": "SUCCESS BIG",
+    "unit": "יחידה"
+  },
+  {
+    "name": "כפפות ניטרילS שחור 100 יחידות",
+    "category": "מוצרי בית",
+    "icon": "🏠",
+    "price": 24.9,
+    "barcode": "7290018608968",
+    "brand": "ר.שמאי",
+    "unit": "יחידה"
+  },
+  {
+    "name": "דלי אוולי 15 ליטר יחידות",
+    "category": "מוצרי בית",
+    "icon": "🪣",
+    "price": 19.9,
+    "barcode": "7296073400196",
+    "brand": "מיקסליר",
+    "unit": "יחידה"
+  },
+  {
+    "name": "ידית טלסקופית נפתח ל 1.5 מ״ל",
+    "category": "מוצרי בית",
+    "icon": "🏠",
+    "price": 14.9,
+    "barcode": "7290020196873",
+    "brand": "פיבי אמ",
+    "unit": "יחידה"
+  },
+  {
+    "name": "כוסות גדולות במיוחד 40 יחידות",
+    "category": "מוצרי בית",
+    "icon": "🏠",
+    "price": 15.9,
+    "barcode": "7290020130426",
+    "brand": "ר.שמאי",
+    "unit": "יחידה"
+  },
+  {
+    "name": "כף שקוף עבה ח\"פ 100 יחידות",
+    "category": "מוצרי בית",
+    "icon": "🏠",
+    "price": 17.9,
+    "barcode": "7296073285298",
+    "brand": "SUCCESS BIG",
+    "unit": "יחידה"
+  },
+  {
+    "name": "כפפות ניטרילS שחור 100 יחידות",
+    "category": "מוצרי בית",
+    "icon": "🏠",
+    "price": 24.9,
+    "barcode": "7290018608968",
+    "brand": "ר.שמאי",
+    "unit": "יחידה"
+  }
+]

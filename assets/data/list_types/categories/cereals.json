@@ -1,0 +1,269 @@
+[
+  {
+    "name": "ברנפלקס אורגני הרדוף 375 גרם",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 25.9,
+    "barcode": "7290017325927",
+    "brand": "לאמרי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גרנולה אגוז/פירות 300 גרם",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 20.9,
+    "barcode": "7290013433077",
+    "brand": "אפקטבעי בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גרנולה חמוציות ושקדים 330",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 23.9,
+    "barcode": "7290017962047",
+    "brand": "דני וגלית בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גרנולה לוז וקינמון 450 גרם",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 26.9,
+    "barcode": "7290106771369",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גרנולה מייפל פקאן 450 גרם",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 26.9,
+    "barcode": "7290106771161",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גרנולה ממותקת בסילאן 500 גרם",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 25.9,
+    "barcode": "7290001164266",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גרנולה פקאן 1 ק\"ג",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 31.9,
+    "barcode": "7290011131050",
+    "brand": "וויטליה",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "דגני בוקר הלו קיטי 311 גרם",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 26.9,
+    "barcode": "4005528115218",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "דגני בוקר קיטקט 330 גרם",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 25.7,
+    "barcode": "8445290964595",
+    "brand": "איטנקורט",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "דגני טבעות דבש לל\"ג 375 גרם",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 18.5,
+    "barcode": "7296073642022",
+    "brand": "סררה פודס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "דגני קוקו פבלס 311 גרם",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 25.9,
+    "barcode": "884912129512",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "האני באנצס רוסטד 340 גרם",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 26.9,
+    "barcode": "884912359155",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "האני בנצ'סחתיכות תות 312",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 26.9,
+    "barcode": "884912359483",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חגיגת גרנולה פ.יבשים 500 גרם",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 29.9,
+    "barcode": "7290011668570",
+    "brand": "אפקט טבעי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "טבעות תירס ואורז 325 גרם",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 33.9,
+    "barcode": "58449779032",
+    "brand": "נייטשר פאת'",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מיקס מיני דגני בוקר 200 גרם",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 21.9,
+    "barcode": "7613037276091",
+    "brand": "SPISAS",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קואלה קריספ דגני בוקר 326",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 33.9,
+    "barcode": "58449860037",
+    "brand": "נייטשר פאת'",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קליק קורנפלקס ופצפוצים 85",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 8.9,
+    "barcode": "7290107649605",
+    "brand": "יוניליוור ישראל מזון בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ברנפלקס אורגני הרדוף 375 גרם",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 25.9,
+    "barcode": "7290017325927",
+    "brand": "לאמרי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גרנולה אגוז/פירות 300 גרם",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 20.9,
+    "barcode": "7290013433077",
+    "brand": "אפקטבעי בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גרנולה חמוציות ושקדים 330",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 23.9,
+    "barcode": "7290017962047",
+    "brand": "דני וגלית בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גרנולה לוז וקינמון 450 גרם",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 26.9,
+    "barcode": "7290106771369",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גרנולה מייפל פקאן 450 גרם",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 26.9,
+    "barcode": "7290106771161",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גרנולה ממותקת בסילאן 500 גרם",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 25.9,
+    "barcode": "7290001164266",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "דגני בוקר הלו קיטי 311 גרם",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 26.9,
+    "barcode": "4005528115218",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "דגני טבעות דבש לל\"ג 375 גרם",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 18.5,
+    "barcode": "7296073642022",
+    "brand": "סררה פודס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "האני בנצ'סחתיכות תות 312",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 26.9,
+    "barcode": "884912359483",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חגיגת גרנולה פ.יבשים 500 גרם",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 29.9,
+    "barcode": "7290011668570",
+    "brand": "אפקט טבעי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מיקס מיני דגני בוקר 200 גרם",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 21.9,
+    "barcode": "7613037276091",
+    "brand": "SPISAS",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קואלה קריספ דגני בוקר 326",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 33.9,
+    "barcode": "58449860037",
+    "brand": "נייטשר פאת'",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קליק קורנפלקס ופצפוצים 85",
+    "category": "דגנים",
+    "icon": "🥣",
+    "price": 8.9,
+    "barcode": "7290107649605",
+    "brand": "יוניליוור ישראל מזון בעמ",
+    "unit": "100 גרם"
+  }
+]

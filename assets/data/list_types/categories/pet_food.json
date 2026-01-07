@@ -1,0 +1,91 @@
+[
+  {
+    "name": "בונזו בקר וכבד 3 ק\"ג",
+    "category": "מזון לחיות מחמד",
+    "icon": "🐾",
+    "price": 55.9,
+    "barcode": "7290005651366",
+    "brand": "united pet food",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "בונזו בשר 3 ק\"ג",
+    "category": "מזון לחיות מחמד",
+    "icon": "🐾",
+    "price": 55.9,
+    "barcode": "7290005111761",
+    "brand": "united pet food",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "דוגלי בוגר בקר 3 ק\"ג",
+    "category": "מזון לחיות מחמד",
+    "icon": "🐾",
+    "price": 49.9,
+    "barcode": "7613036105606",
+    "brand": "נסטלה פורינה",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "דוגלי גזע קטן 3 ק\"ג",
+    "category": "מזון לחיות מחמד",
+    "icon": "🐾",
+    "price": 49.9,
+    "barcode": "7613036105545",
+    "brand": "נסטלה פורינה",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "דנטלייף גזע בינוני 115 גרם",
+    "category": "מזון לחיות מחמד",
+    "icon": "🐾",
+    "price": 16.9,
+    "barcode": "7613035379794",
+    "brand": "נסטלה גרמניה ,AG",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לה קט מיקס 2.85 ק\"ג",
+    "category": "מזון לחיות מחמד",
+    "icon": "🐱",
+    "price": 69.9,
+    "barcode": "7290005651069",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "לה קט פטה בקר 100 גרם",
+    "category": "מזון לחיות מחמד",
+    "icon": "🐱",
+    "price": 6.5,
+    "barcode": "7290105474001",
+    "brand": "SA NORMANDISE LA",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פריסקיז יבש ברבקיו 1.43 קג",
+    "category": "מזון לחיות מחמד",
+    "icon": "🐾",
+    "price": 39.9,
+    "barcode": "50000084500",
+    "brand": "נסטלה פורינה",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "דנטלייף גזע בינוני 115 גרם",
+    "category": "מזון לחיות מחמד",
+    "icon": "🐾",
+    "price": 16.9,
+    "barcode": "7613035379794",
+    "brand": "נסטלה גרמניה ,AG",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פריסקיז יבש ברבקיו 1.43 קג",
+    "category": "מזון לחיות מחמד",
+    "icon": "🐾",
+    "price": 39.9,
+    "barcode": "50000084500",
+    "brand": "נסטלה פורינה",
+    "unit": "ק\"ג"
+  }
+]

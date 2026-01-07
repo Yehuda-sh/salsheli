@@ -1,0 +1,144 @@
+[
+  {
+    "name": "חיטה 1 ק\"ג סוגת",
+    "category": "קטניות ודגנים",
+    "icon": "🌾",
+    "price": 11.9,
+    "barcode": "7290100700006",
+    "brand": "סוגת",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "חיטה 500 גרם סוגת",
+    "category": "קטניות ודגנים",
+    "icon": "🌾",
+    "price": 7.9,
+    "barcode": "7290003643738",
+    "brand": "סוגת",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חיטה שופרסל 1 ק\"ג",
+    "category": "קטניות ודגנים",
+    "icon": "🌾",
+    "price": 9.9,
+    "barcode": "7296073006138",
+    "brand": "מיה תעשיות מזון",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "טורטיה חיטה מלאה 320 גרם",
+    "category": "קטניות ודגנים",
+    "icon": "🌾",
+    "price": 11.9,
+    "barcode": "7290114600927",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "כוסמין מלא 100% 750 גרם",
+    "category": "קטניות ודגנים",
+    "icon": "🌾",
+    "price": 19.9,
+    "barcode": "7290000574622",
+    "brand": "דגנית עין בר תעשיות מזון",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "כוסמת קלויה 1 ק\"ג",
+    "category": "קטניות ודגנים",
+    "icon": "🌾",
+    "price": 13.9,
+    "barcode": "7296073529439",
+    "brand": "מיה תעשיות מזון",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "מולטי צ'ריוס 500 גרם",
+    "category": "קטניות ודגנים",
+    "icon": "🥣",
+    "price": 24.9,
+    "barcode": "8445291301948",
+    "brand": "CPU",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מיני פריכיות כוסמת 80 גרם",
+    "category": "קטניות ודגנים",
+    "icon": "🌾",
+    "price": 11.9,
+    "barcode": "7290018371275",
+    "brand": "פרח תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מקלוני כוסמין וזעתר 200 גרם",
+    "category": "קטניות ודגנים",
+    "icon": "🌾",
+    "price": 22.9,
+    "barcode": "7290013453280",
+    "brand": "דני וגלית בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פולי סויה שלמים 1 ק ירוקים",
+    "category": "קטניות ודגנים",
+    "icon": "🫘",
+    "price": 19.9,
+    "barcode": "7296073691358",
+    "brand": "ז'נגז'ו רויפנג פודס קו.",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פליני חיטה מלאה 500 גרם",
+    "category": "קטניות ודגנים",
+    "icon": "🌾",
+    "price": 12.0,
+    "barcode": "7296073348993",
+    "brand": "GIROLOMONI",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פריקה 500 גרם סוגת",
+    "category": "קטניות ודגנים",
+    "icon": "🌾",
+    "price": 12.9,
+    "barcode": "7290100704745",
+    "brand": "סוגת תעשיות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פשתן טחון אורגני 300 גרם",
+    "category": "קטניות ודגנים",
+    "icon": "🌾",
+    "price": 11.9,
+    "barcode": "7290011426071",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מיני פריכיות כוסמת 80 גרם",
+    "category": "קטניות ודגנים",
+    "icon": "🌾",
+    "price": 11.9,
+    "barcode": "7290018371275",
+    "brand": "פרח תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מקלוני כוסמין וזעתר 200 גרם",
+    "category": "קטניות ודגנים",
+    "icon": "🌾",
+    "price": 22.9,
+    "barcode": "7290013453280",
+    "brand": "דני וגלית בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פולי סויה שלמים 1 ק ירוקים",
+    "category": "קטניות ודגנים",
+    "icon": "🫘",
+    "price": 19.9,
+    "barcode": "7296073691358",
+    "brand": "ז'נגז'ו רויפנג פודס קו.",
+    "unit": "ק\"ג"
+  }
+]

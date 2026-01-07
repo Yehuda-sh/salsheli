@@ -1,0 +1,164 @@
+[
+  {
+    "name": "מרלבורו גולד ארוך חפיסה",
+    "category": "טבק",
+    "icon": "🚬",
+    "price": 44.5,
+    "barcode": "7290115190076",
+    "brand": "פיליפ מוריס",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מרלבורו גולד ארוך פאקט",
+    "category": "טבק",
+    "icon": "🚬",
+    "price": 440.0,
+    "barcode": "7290115190069",
+    "brand": "פיליפ מוריס",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מרלבורו סאמר ספלאש חפיסה",
+    "category": "טבק",
+    "icon": "🚬",
+    "price": 38.5,
+    "barcode": "7290115191035",
+    "brand": "פיליפ מוריס",
+    "unit": "יחידה"
+  },
+  {
+    "name": "אל אם בלו ארוך חפיסה",
+    "category": "טבק",
+    "icon": "🚬",
+    "price": 40.5,
+    "barcode": "7290115190335",
+    "brand": "פיליפ מוריס",
+    "unit": "יחידה"
+  },
+  {
+    "name": "אל אם וויב סלימס חפיסה",
+    "category": "טבק",
+    "icon": "🚬",
+    "price": 40.5,
+    "barcode": "7290115190434",
+    "brand": "פיליפ מוריס",
+    "unit": "יחידה"
+  },
+  {
+    "name": "אל אמ פורוורד חפיסה",
+    "category": "טבק",
+    "icon": "🚬",
+    "price": 40.5,
+    "barcode": "7290115190373",
+    "brand": "פיליפ מוריס",
+    "unit": "יחידה"
+  },
+  {
+    "name": "אל די ארוך חפיסה",
+    "category": "טבק",
+    "icon": "🚬",
+    "price": 35.5,
+    "barcode": "7290121290302",
+    "brand": "JTI",
+    "unit": "יחידה"
+  },
+  {
+    "name": "גולף גולד ארוך",
+    "category": "טבק",
+    "icon": "🚬",
+    "price": 39.0,
+    "barcode": "72983997",
+    "unit": "יחידה",
+    "brand": ""
+  },
+  {
+    "name": "וינסטון כחול בוקס חפיסה",
+    "category": "טבק",
+    "icon": "🚬",
+    "price": 41.5,
+    "barcode": "7290121290036",
+    "brand": "JTI",
+    "unit": "יחידה"
+  },
+  {
+    "name": "וינסטון קוד חפיסה",
+    "category": "טבק",
+    "icon": "🚬",
+    "price": 38.5,
+    "barcode": "7290121290364",
+    "brand": "JTI",
+    "unit": "יחידה"
+  },
+  {
+    "name": "טיים רד פאקט",
+    "category": "טבק",
+    "icon": "🚬",
+    "price": 385.0,
+    "barcode": "7290000302027",
+    "brand": "דובק בע\"מ",
+    "unit": "יחידה"
+  },
+  {
+    "name": "נקסט פיין אדג' פאקט",
+    "category": "טבק",
+    "icon": "🚬",
+    "price": 330.0,
+    "barcode": "7290115190465",
+    "unit": "יחידה",
+    "brand": ""
+  },
+  {
+    "name": "נקסט פיין ארוך חפיסה",
+    "category": "טבק",
+    "icon": "🚬",
+    "price": 38.0,
+    "barcode": "7290115190496",
+    "brand": "פיליפ מוריס",
+    "unit": "יחידה"
+  },
+  {
+    "name": "נקסט ריסס ארוך פאקט",
+    "category": "טבק",
+    "icon": "🚬",
+    "price": 330.0,
+    "barcode": "7290115190526",
+    "brand": "פיליפ מוריס",
+    "unit": "יחידה"
+  },
+  {
+    "name": "נקסט ריסס קצר פאקט",
+    "category": "טבק",
+    "icon": "🚬",
+    "price": 330.0,
+    "barcode": "7290115190540",
+    "brand": "פיליפ מוריס",
+    "unit": "יחידה"
+  },
+  {
+    "name": "פאלמאל כחול קצר חפיסה",
+    "category": "טבק",
+    "icon": "🚬",
+    "price": 39.5,
+    "barcode": "8697530910743",
+    "brand": "bat",
+    "unit": "יחידה"
+  },
+  {
+    "name": "פאקט נקסט אדג' פאקט",
+    "category": "טבק",
+    "icon": "🚬",
+    "price": 330.0,
+    "barcode": "7290115190441",
+    "brand": "פיליפ מוריס",
+    "unit": "יחידה"
+  },
+  {
+    "name": "פרלמנט בלו ארוך חפיסה",
+    "category": "טבק",
+    "icon": "🚬",
+    "price": 49.5,
+    "barcode": "7290115190212",
+    "brand": "פיליפ מוריס",
+    "unit": "יחידה"
+  }
+]

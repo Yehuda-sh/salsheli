@@ -1,0 +1,2969 @@
+[
+  {
+    "name": "אורביט אוכמניות בקבוק 64 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 13.9,
+    "barcode": "4009900479998",
+    "brand": "ריגלי פולין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אורביט רפרשרס אבטיח 67 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.5,
+    "barcode": "4009900552165",
+    "brand": "מרס פולין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אורביט רפרשרס טרופיקל 67 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.5,
+    "barcode": "4009900540551",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אנרג'י מצופה שוקולד 286 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 16.5,
+    "barcode": "7290107947480",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אפרופו טיובס חמוץ חריף 50",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 7.9,
+    "barcode": "7290118428770",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בונבון טופיפי 250 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 21.9,
+    "barcode": "4014400903409",
+    "brand": "אוגוסט שטורק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בונבון לינדור 60% מריר 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 29.9,
+    "barcode": "8003340091280",
+    "brand": "לינדט ושפרונגלי קילשברג",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ביסלי פלאפל 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 7.9,
+    "barcode": "7290000066189",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ביסקוויט מצופה שוקו 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.9,
+    "barcode": "7622300503079",
+    "brand": "מונדלייז",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ביסקוטי כוסמין שוקולד 200",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 27.9,
+    "barcode": "7290013453501",
+    "brand": "דני וגלית בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ביצי קינדר סופרייז 203 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 16.9,
+    "barcode": "8000500406069",
+    "brand": "פררו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "במבה 2510 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 21.5,
+    "barcode": "7290105693341",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "במבה מילוי קרם נוגט 305 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.5,
+    "barcode": "7290107877619",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "במבה מתוקה 30 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 4.5,
+    "barcode": "7290000066295",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בננה צ'יפס 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍌",
+    "price": 9.9,
+    "barcode": "7290005686405",
+    "brand": "ארוז ומשווק על ידי דין ש",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בפלות בטעם לימון 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 8.5,
+    "barcode": "7290107951111",
+    "brand": "עלית",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ברוסקטות עם בצל 150 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 11.9,
+    "barcode": "7296073449096",
+    "brand": "INDUSTRY FOOD FOR SILVA",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ברוסקטות עם שום 150 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 11.9,
+    "barcode": "7296073449102",
+    "brand": "סנקי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ג'וני גלילת וופל למילוי",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 22.9,
+    "barcode": "7290013144317",
+    "brand": "הגביע",
+    "unit": "יחידה"
+  },
+  {
+    "name": "גומי מוברק מיקס קופסא 280",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 15.9,
+    "barcode": "7296073707806",
+    "brand": "דין שיווק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גלידה בצק עוגיות",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 27.9,
+    "barcode": "76840100583",
+    "brand": "מוצרי איכות אמריקאיים בע",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "גלידת וניל ופל YUKKI 75",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 7.9,
+    "barcode": "4810168038977",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גלידת שוקולד עוגיות 250DADU",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 29.9,
+    "barcode": "4770166223228",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גלידת שמנת סופלהYUKKI 65",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 7.9,
+    "barcode": "4810168060268",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גלילי ופל אגוזים 100 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 6.9,
+    "barcode": "7296073663775",
+    "brand": "גילרו בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גליליות רושן קוקוס 140 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 10.9,
+    "barcode": "4823077631856",
+    "brand": "ROSHEN",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "היט מיניס שוקו 130 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 9.9,
+    "barcode": "5901414200411",
+    "brand": "בלזן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "היידי- שוקולד חלב עם אגו",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 13.9,
+    "barcode": "5941021025571",
+    "brand": "היידי שוקולר בירונטי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "וופל Air קרם טעם שוקו 150",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 4.9,
+    "barcode": "7296073397182",
+    "brand": "גילרו בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "וופל בלגי ללא גלוטן 250 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 31.9,
+    "barcode": "7290012208768",
+    "brand": "מאפה פסח",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "וופל בלגי שוקולד 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 5.9,
+    "barcode": "7296073211969",
+    "brand": "גילרו בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "וופל נוטלה 132 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 18.9,
+    "barcode": "8000500227848",
+    "brand": "פררו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "וופל קוביות קרם אגוז 250 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 13.9,
+    "barcode": "7296073226536",
+    "brand": "בלקוני ס.פ.א",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "וופל רושן קוקוס שקדים 216",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 10.9,
+    "barcode": "4823077640988",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "וופלים בטעם שוקולד 1 ק\"ג",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 21.9,
+    "barcode": "7296073240853",
+    "brand": "מנעמים תעשיות מזון בע\"מ",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "ופלים בטעם שוקולד 500 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 12.9,
+    "barcode": "7296073220275",
+    "brand": "מנעמים תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ופלים גרדנה 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 18.9,
+    "barcode": "8000380007257",
+    "brand": "א. לואקר",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ופלים לואקר ט.אגוזים 175 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.9,
+    "barcode": "8000380007219",
+    "brand": "א. לואקר",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיף נייטשר וואלי מעורב 5 יחידות",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 22.9,
+    "barcode": "16000548909",
+    "brand": "ג'נרל מילס סאן אדריאן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיף שוקו.חלבחמאת בוטנ 42 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 7.9,
+    "barcode": "7290003444009",
+    "brand": "הרשי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיף FREE תמר וקינמון 5 יחידות",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 20.9,
+    "barcode": "7290100659090",
+    "brand": "טבעית מוצרים מן הטבע בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיף חלבון ט.בננה טופי 64",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.9,
+    "barcode": "7290121161930",
+    "brand": "Plc Group Nutrition",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיף מנגו מיובש בהקפאה 20",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 12.9,
+    "barcode": "7290014021716",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיף נייטשר וואלי דבש 5 יחידות",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 22.9,
+    "barcode": "16000548404",
+    "brand": "ג'נרל מילס סאן אדריאן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיף קוקומן שוקולד 216 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 18.9,
+    "barcode": "7290107646154",
+    "brand": "יוניליוור ישראל מזון",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיף קליק אין קרם חלבי 38",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 6.7,
+    "barcode": "7290116536781",
+    "brand": "יוניליוור ישראל מזון",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיף שיבולת שועל שוקולד מריר 425",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 14.5,
+    "barcode": "7296073448136",
+    "brand": "אפקטבעי בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיף שיבולת שועל מייפל 425 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 14.5,
+    "barcode": "7296073448129",
+    "brand": "אפקטבעי בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיף שוגי קורנפלקס 626 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 18.9,
+    "barcode": "7290107646147",
+    "brand": "יוניליוור ישראל מזון בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיףFREEבוטנשקדשוק 140 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 20.9,
+    "barcode": "7290107971522",
+    "brand": "ש.שסטוביץ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיפי FREE תמרבוטנים 5 יחידות",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 20.9,
+    "barcode": "7290105431516",
+    "brand": "טבעית מוצרים מן הטבע בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיפי פריכונים עם דבש 80 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 10.5,
+    "barcode": "7290000078762",
+    "brand": "הרטו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חלבון שוקולד לבן עוגיות 50",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 14.5,
+    "barcode": "7290019766063",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חמצוצים בטעם פטל 100 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 13.5,
+    "barcode": "25675120020",
+    "brand": "ירוג",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "טבלת טורינו מריר 100 ג'",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 23.9,
+    "barcode": "7610008641506",
+    "brand": "קמיל בלוך",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "טוויקס מיני 333 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 31.9,
+    "barcode": "5000159557689",
+    "brand": "מרס גי אם בי אייץ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "טוסו שוקולד מריר תפוז 100",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍎",
+    "price": 16.9,
+    "barcode": "7290119500536",
+    "brand": "אס. סי. אי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "טיק טק TWO מנטה עדין 40",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 9.9,
+    "barcode": "80785385",
+    "brand": "פררו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "כדורי שוקולד ללא גלוטן 400 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 33.9,
+    "barcode": "7290013121684",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "כדורים בט.שוקולד ללג 375 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 18.5,
+    "barcode": "7296073642008",
+    "brand": "CERERA",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לואקר מקסי אגוזי לוז 50",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 6.9,
+    "barcode": "80879114",
+    "brand": "לואקר",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לינדט אקסלנס פיסטוק 100",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 19.9,
+    "barcode": "3046920023047",
+    "brand": "לינדט ושפרונגלי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לקקן פין פופ 170 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍭",
+    "price": 9.9,
+    "barcode": "7702174066631",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לקריץ מוברק מיקס קופס 280",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 15.9,
+    "barcode": "7296073707813",
+    "brand": "דין שיווק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לקריץ מסוכר מיקס קופס 280",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 15.9,
+    "barcode": "7296073707837",
+    "brand": "דין שיווק וקלייה בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מארז טילון בצק עוגיות 1004",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 32.9,
+    "barcode": "7290018441220",
+    "brand": "מוצרי איכות אמריקאיים בע",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מאגדת 99 חלבה שוקולד 5 יחידות",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 32.9,
+    "barcode": "7290019816515",
+    "brand": "גלידות נסטלה )נגה גלידות",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מאגדת מיני קראנץ עוגיות 5",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 32.9,
+    "barcode": "7290019816034",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מטבעות שוקולד חלב 250 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 22.9,
+    "barcode": "7290019079736",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מטבעות שוקולד לבן 250 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 22.9,
+    "barcode": "7290019079743",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מטבעות שוקולד 60%ללתס 250",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 26.9,
+    "barcode": "7290019079712",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מטבעות שוקולד 70%מריר 250",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 26.9,
+    "barcode": "7290019079705",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מילקי קייק 34 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 4.0,
+    "barcode": "7290106663121",
+    "brand": "בובארד איטליה אס.פי.איי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מיני חלוה ללת\"ס 15 יח 10 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 13.9,
+    "barcode": "7290010328505",
+    "brand": "אחדות בע\"מ א.ת. ברקן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מיני פסק זמן ללא תוספת סוכר 220 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 27.9,
+    "barcode": "7290115670851",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מיני קרקרים מיקס 350 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🧂",
+    "price": 12.9,
+    "barcode": "8434165466326",
+    "brand": "CUETARA",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מיקס לילד 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 16.9,
+    "barcode": "7290019297802",
+    "brand": "דין שיווק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ממרח חרובים ט.שוקולד 350 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.9,
+    "barcode": "7290008989473",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ממרח שוקולד ללת\"ס 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 23.5,
+    "barcode": "8410342003508",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ממתק פנדה קרם נוגט 100 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 19.9,
+    "barcode": "7290016505023",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מנטוס בטעם פאנטה 4 37 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 14.9,
+    "barcode": "8723400796329",
+    "brand": "פרפטי ואן מלה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מנטוס טעם פירות 4 יח 37.5Xג",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 14.9,
+    "barcode": "87108712",
+    "brand": "פרפטי ואן מלה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מנטוס מנטה 4 יח 37.5X'גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 14.9,
+    "barcode": "87108651",
+    "brand": "פרפטי ואן מלה ברדה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מנטוס פיורוויט מנטה עדין",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 13.9,
+    "barcode": "80864295",
+    "brand": "פרפטי ואן מלה ג'ידה,סאן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מסטיק אבטיח מלון צנצנת 66 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 12.9,
+    "barcode": "7290112340252",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מסטיק אורביט ויט מנטה 64 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 13.9,
+    "barcode": "4009900403023",
+    "brand": "ריגלי פולין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מסטיק אורביט ספירמינט 64 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 13.9,
+    "barcode": "4009900531122",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מסטיק איירוויבז אוכמנ 64 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 13.5,
+    "barcode": "4009900426121",
+    "brand": "ריגלי פולין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מסטיק איירוויבז מנטה 64 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 13.5,
+    "barcode": "4009900426039",
+    "brand": "ריגלי פולין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מסטיק בזוקה קוביות צנצ 58",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 12.9,
+    "barcode": "7290107937641",
+    "brand": "אסקום קונפקשיין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מסטיק בקבוק M פפרמינט 84 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.5,
+    "barcode": "4009900484060",
+    "brand": "ריגלי פולין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מסטיק דובדבן צנצנת 66 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 12.9,
+    "barcode": "7290112340245",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מסטיק מאסט בטעם בזוקה 28 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 5.5,
+    "barcode": "7290102035007",
+    "brand": "עלית",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מסטיק מנטוס בקבוק תות 60 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 13.9,
+    "barcode": "80773429",
+    "brand": "פרפטי ואן מלה ג'ידה,סאן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מעדן סויה ט.שוקולד 1254 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 20.9,
+    "barcode": "54051157",
+    "brand": "אלפרו C.V.A",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מרסי מריר 250 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 19.9,
+    "barcode": "4014400901412",
+    "brand": "שטורק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נאצ'וס קמח תירס לבן 150 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🌮",
+    "price": 10.9,
+    "barcode": "8002183013572",
+    "brand": "S.P.A PATA",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נייטשר ואלי צ'ואי בוטן 5 יחידות",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 22.9,
+    "barcode": "8410076610492",
+    "brand": "ג'נרל מילס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נייטשר וואלי קינמון 5 יחידות",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 22.9,
+    "barcode": "16000548602",
+    "brand": "ג'נרל מילס סאן אדריאן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ס.דליס שוקולד חלב ל.ג 136 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.9,
+    "barcode": "8423207208260",
+    "brand": "ביסצ'ורי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סוכ.וורטר ל.סוכר בוקס 42 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 8.9,
+    "barcode": "4014400907902",
+    "brand": "שטורק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סוכ.טיק טק מנטה 416 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 14.9,
+    "barcode": "7290002752493",
+    "brand": "פררו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סוכ.טיק טק מנטה חזקה 416",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 14.9,
+    "barcode": "8000500353738",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סוכ.שוקולד לל\"ס 70 ג ורטר",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 10.9,
+    "barcode": "4014400920857",
+    "brand": "אוגוסט שטורק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סוכריות בים בום 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🧂",
+    "price": 10.9,
+    "barcode": "4823077612732",
+    "brand": "רושן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סוכריות חמאה וורטר 135 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 10.9,
+    "barcode": "4014400910063",
+    "brand": "אוגוסט שטורק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סוכריות טיק טק תות שדה 16",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 5.9,
+    "barcode": "80936848",
+    "brand": "פררו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סוכריות טיק-טק תפוז 16 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍎",
+    "price": 5.9,
+    "barcode": "80050025",
+    "brand": "פררו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סוכריות ממולא קרם חלב 150",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 10.9,
+    "barcode": "4823077623684",
+    "brand": "רושן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סלים דליס שוקו.מריר 6 יחידות",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.9,
+    "barcode": "8423207208703",
+    "brand": "סלים דליס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סלים דליס שוקולד מריר 6 יחידות",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.9,
+    "barcode": "8423207206495",
+    "brand": "סלים דליס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוג.כוסמין מלא שוקולד 250",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.9,
+    "barcode": "7290017894317",
+    "brand": "גנדולה ביסקוטי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוג.מילקה שוקומיני 150 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍪",
+    "price": 17.9,
+    "barcode": "7622300441715",
+    "brand": "מונדלייז",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוג.מעדן תמריםאגוז 200",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍪",
+    "price": 24.9,
+    "barcode": "7290119040377",
+    "brand": "קפולסקי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוג.מרוקאיות -פרווה 450",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍪",
+    "price": 21.9,
+    "barcode": "7290119049899",
+    "brand": "קפולסקי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוג.סנדוויץ היט קקאו 220 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍪",
+    "price": 12.9,
+    "barcode": "4017100364112",
+    "brand": "באלסן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוג.שוקולדאגוז לוז 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 24.9,
+    "barcode": "7290119040629",
+    "brand": "קפולסקי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוג.שוקוציפס לוביטה 150 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍪",
+    "price": 9.9,
+    "barcode": "4823077633324",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוג.שוקוציפס מרקם רך 175 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍪",
+    "price": 12.5,
+    "barcode": "8710502064814",
+    "brand": "י. מרבה ישראל בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות חמאה ללת\"ס 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 11.9,
+    "barcode": "7290000311463",
+    "brand": "רוקחמן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות חמאה פריכות 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 20.9,
+    "barcode": "7290010045006",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות כוכבים וניל 300 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 9.9,
+    "barcode": "7290000311722",
+    "brand": "רוקחמן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות כוסמין פירות יער",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 27.9,
+    "barcode": "7290013453068",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות כוסמין תפוחים 230 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 27.9,
+    "barcode": "7290013453136",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות כתר ריבה 450 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 21.9,
+    "barcode": "7290119049790",
+    "brand": "קפולסקי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות לוביטה קרם חלב 127",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 9.9,
+    "barcode": "4823077636400",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות לקפה 350 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.9,
+    "barcode": "7290119040902",
+    "brand": "קיראי סחר והשקעות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות מזרחיות שומשום 400",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 20.9,
+    "barcode": "7290002132011",
+    "brand": "מאפיית יוסף ושמחה עבאדי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות מלבני קצח 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 24.9,
+    "barcode": "7290119040520",
+    "brand": "קפולסקי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות מלוחות 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 24.9,
+    "barcode": "7290119040421",
+    "brand": "קפולסקי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות מלוחות מלח 350 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.9,
+    "barcode": "7290119044672",
+    "brand": "קפולסקי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות מלוחות רוסטיקו 350",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.9,
+    "barcode": "7290119040957",
+    "brand": "קיראי סחר והשקעות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות מרוקאיות עגול 350 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.9,
+    "barcode": "7290119041107",
+    "brand": "קיראי סחר והשקעות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות סגנון מרוקאי 350 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.9,
+    "barcode": "7290119041053",
+    "brand": "קיראי סחר והשקעות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות סובין קוקוס 225 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 24.9,
+    "barcode": "3760151011047",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות סובין שוקולד 225",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 24.9,
+    "barcode": "3760151011429",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות סובין שיבולת שועל",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 21.9,
+    "barcode": "3760151013287",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות פרפריות משקל",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 40.0,
+    "barcode": "7290005082146",
+    "brand": "שלגל מזון בע\"מ",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "עוגיות צ'יפ שוקולד 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 24.9,
+    "barcode": "7290119040674",
+    "brand": "קפולסקי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות ריפ'את 350 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.9,
+    "barcode": "7290119041152",
+    "brand": "קיראי סחר והשקעות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות שיבולת שועל שוקולד 168 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.9,
+    "barcode": "7622300270506",
+    "brand": "מונדלייז",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות שומשום ללת\"ס 200",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 24.9,
+    "barcode": "7290119040773",
+    "brand": "קפולסקי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות שומשום קריספי 200",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 24.9,
+    "barcode": "7290119040728",
+    "brand": "קפולסקי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות שוקולד צ'יפס לל\"ס",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 29.9,
+    "barcode": "7290013453044",
+    "brand": "דני וגלית בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות שוקוציפס ללת\"ס 150",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.5,
+    "barcode": "8410376052633",
+    "brand": "גלאטס גולון",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות שיבולת שועל טחינה",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 27.9,
+    "barcode": "7290013453075",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות תפוח קינמון 168 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 9.9,
+    "barcode": "4823077634178",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ערגליות מיניס תות 300 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 14.5,
+    "barcode": "7290118422723",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פיטנס דגנ.בוקר שוקולד 375",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 26.9,
+    "barcode": "7613032045753",
+    "brand": "סי. פי. צרפת",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פיטנס חטיף דגנים פ.יער 6 יחידות",
+    "category": "ממתקים וחטיפים",
+    "icon": "🥣",
+    "price": 18.9,
+    "barcode": "5900020029669",
+    "brand": "סי. פי. פולין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פיטנס חטיף דגנים ק.עוגיות 6",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 18.9,
+    "barcode": "5900020018908",
+    "brand": "סי. פי. פולין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פיטנס פריכיות דקות תירס",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍘",
+    "price": 13.9,
+    "barcode": "7290118426516",
+    "brand": "פרח תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פיטנס פריכיות שוקולד לבן 84 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🥣",
+    "price": 18.9,
+    "barcode": "7290109352916",
+    "brand": "כרמית תעשיות ממתקים בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פיקאפ שוקולד מריר 140 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.9,
+    "barcode": "4017100219016",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פריכ.דקות דגניםקטניות 80",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍘",
+    "price": 13.9,
+    "barcode": "7290118420811",
+    "brand": "פרח תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פריכונים תירסשומשום 80 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍘",
+    "price": 10.5,
+    "barcode": "7290000065977",
+    "brand": "פרח תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פריכיות תירס אורגני 150 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍘",
+    "price": 14.9,
+    "barcode": "9322969000046",
+    "brand": "ריאל פודס בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פריכיות תירססויה 150 כשלפ",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍘",
+    "price": 14.9,
+    "barcode": "9322969000022",
+    "brand": "אלגם גיל",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פרינגלס אורגינל 149 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🥔",
+    "price": 13.9,
+    "barcode": "38000232183",
+    "brand": "פרינגלס מנופקצ'ורינג קונ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פרינגלס שמנת בצל 158 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🥔",
+    "price": 13.9,
+    "barcode": "38000232176",
+    "brand": "פרינגלס מנופקצ'ורינג קונ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פריפלצת מנגו בננה 120 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 5.0,
+    "barcode": "7296073629740",
+    "brand": "DODACO",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פררו רושה קונוס 212 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 39.9,
+    "barcode": "8000500094976",
+    "brand": "פררו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פתיבר פינוקי וניל 220 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 14.9,
+    "barcode": "7290115200003",
+    "brand": "GERARD DR",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פתיבר קוקיז בטעם חמאה 155",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 13.5,
+    "barcode": "7290118425496",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פתיבר קוקיז בטעם קרמל 155",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 13.5,
+    "barcode": "7290118425540",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פתיבר קוקיז בטעם שוקו 155",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 13.5,
+    "barcode": "7290118425731",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "צ'יטוס איקס עיגול 200X10 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🥔",
+    "price": 15.5,
+    "barcode": "7290101551645",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "צ'יפס בטטה 500 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🥔",
+    "price": 21.9,
+    "barcode": "7290002026341",
+    "brand": "מוצרי איכות אמריקאיים",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "צ'יפס גלי 4532 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🥔",
+    "price": 5.5,
+    "barcode": "7290118422426",
+    "brand": "יורופסנקס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "צ'יפס למיקרו 1253 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🥔",
+    "price": 17.9,
+    "barcode": "7290000334325",
+    "brand": "תפוגן תעשיות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "צוקטה שוקול.מריר 70% 100 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 13.9,
+    "barcode": "7290018893401",
+    "brand": "קקאו דה בורגון סאס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ציפס אורז חום פפריקה 60 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🥔",
+    "price": 8.0,
+    "barcode": "7290002043225",
+    "brand": "נוהלס גי אס סי.",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ציפס בטטה זיגזג קפוא 500 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🥔",
+    "price": 18.9,
+    "barcode": "7296073459309",
+    "brand": "תפוגן תעשיות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "צנצנת בזוקה ענבים לל\"ס 66",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 12.9,
+    "barcode": "7290119382989",
+    "brand": "אסקום קונפקשיין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "צנצנת מסטיקים מאסט פירות",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 12.9,
+    "barcode": "7290119374298",
+    "brand": "אסקום קונפקשיין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "צנצנת קוביות תות 58 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 12.9,
+    "barcode": "7290110556563",
+    "brand": "אסקום קונפקשיין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קוקיס שוקולד לבן חלבי",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 59.0,
+    "barcode": "7290000099804",
+    "brand": "גידרון סהרון",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "קוקיס שוקושבבי שוקולד",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 59.0,
+    "barcode": "7290000099873",
+    "brand": "גידרון תעשיות בע\"מ",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "קוקיסשבבי שוקולד חלבי",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 59.0,
+    "barcode": "7290000099835",
+    "brand": "גידרון תעשיות בע\"מ",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "קורני חטיפי קוקוס שוק 6 יחידות",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.9,
+    "barcode": "4011800632519",
+    "brand": "Schwartauer",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קנופרס וופל מיניס 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 20.9,
+    "barcode": "4014400930474",
+    "brand": "שטורק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קצפיות מרנג טעם תות 180 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 17.9,
+    "barcode": "7296073565567",
+    "brand": "אחדות ביח\"ר לטחינה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קראנץ שוקולד חלבה 500 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 19.9,
+    "barcode": "7296073722861",
+    "brand": "אנטקוביץ בייקרס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קרמוגית שוקו במילוי וניל",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.5,
+    "barcode": "7290118423904",
+    "brand": "הגביע",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קרמיסימו וניל עוגיות 1.33 ליטר",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 22.9,
+    "barcode": "7290001327791",
+    "brand": "שטראוס",
+    "unit": "ליטר"
+  },
+  {
+    "name": "קרקר דק כוסמין ובצל 140 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 14.9,
+    "barcode": "7290118428299",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קרקר חומוס מתובל 225 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🫗",
+    "price": 29.5,
+    "barcode": "7290115251227",
+    "brand": "מאפיית פת במלח",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קרקר טופז שומשום 110 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 5.5,
+    "barcode": "7290011489595",
+    "brand": "אפיפית",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קרקר כוסמין 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍪",
+    "price": 16.5,
+    "barcode": "96086000577",
+    "brand": "מצות אביב 2014 מאפה בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קרקר קרם קרקר 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍪",
+    "price": 9.9,
+    "barcode": "8434165658523",
+    "brand": "CUETARA",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קרקר שמנת בצל 80 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 8.9,
+    "barcode": "7296073661337",
+    "brand": "ANITIN",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שוקולד לינדור מריר 60% 100 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 19.9,
+    "barcode": "8003340806808",
+    "brand": "לינדט ושפרונגלי אס.פי.אי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שוקולד לינדט מילק אגוזי לוז 150",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 34.9,
+    "barcode": "7610400075787",
+    "brand": "לינדט ושפרונגלי קילשברג",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שוקולד מריר לינדט 78% 100 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 19.9,
+    "barcode": "4000539280740",
+    "brand": "לינדט ושפרונגלי אס.איי.א",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שוקולד מריר לינדט מנטה 100 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 19.9,
+    "barcode": "3046920028752",
+    "brand": "לינדט ושפרונגלי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שוקולד חלב מקורמל 98 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.9,
+    "barcode": "7290119382248",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שוקולד חלב מקורמל 98 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.9,
+    "barcode": "7290119376582",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שוקולד לינדור דאבל שוקו",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 19.9,
+    "barcode": "743434015034",
+    "brand": "לינדט ושפרונגלי אס.פי.אי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שוקולד מריר 75% 100 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.9,
+    "barcode": "7296073382386",
+    "brand": "דליקה איי.ג'י",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שוקולד מריר לינדט מלח 10",
+    "category": "ממתקים וחטיפים",
+    "icon": "🧂",
+    "price": 19.9,
+    "barcode": "3046920029674",
+    "brand": "לינדט ושפרונגלי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שוקולד מריר פרימיום 81%",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.9,
+    "barcode": "7296073237631",
+    "brand": "דליקה איי.ג'י",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שוקולד סטרציאטלה 100 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 9.9,
+    "barcode": "4000415111908",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שוקולד פרה לבן 100 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 9.9,
+    "barcode": "7290112348548",
+    "brand": "תופינית בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שוקולד צ'יפס מריר 250 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 22.9,
+    "barcode": "7290019079729",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שוקולד שוגטן פופקורן 100 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 9.9,
+    "barcode": "4000415831905",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שקדים בציפוי שוקולד חלב",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 21.9,
+    "barcode": "7290117907641",
+    "brand": "דין שיווק וקליה בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "תערובת לעוגת שוקולד 425 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 22.9,
+    "barcode": "18000701223",
+    "brand": "ג'נרל מילס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "תפוצ'יפס ירקות שורש 45 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🥔",
+    "price": 8.9,
+    "barcode": "7290110557874",
+    "brand": "פלור פודס בי.וי.",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אורביט אוכמניות בקבוק 64 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 13.9,
+    "barcode": "4009900479998",
+    "brand": "ריגלי פולין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אורביט רפרשרס אבטיח 67 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.5,
+    "barcode": "4009900552165",
+    "brand": "מרס פולין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אורביט רפרשרס טרופיקל 67 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.5,
+    "barcode": "4009900540551",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אפרופו טיובס חמוץ חריף 50",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 7.9,
+    "barcode": "7290118428770",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בונבון טופיפי 250 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 21.9,
+    "barcode": "4014400903409",
+    "brand": "אוגוסט שטורק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בונבון לינדור 60% מריר 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 29.9,
+    "barcode": "8003340091280",
+    "brand": "לינדט ושפרונגלי קילשברג",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ביסקוויט מצופה שוקו 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.9,
+    "barcode": "7622300503079",
+    "brand": "מונדלייז",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ביסקוטי כוסמין שוקולד 200",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 27.9,
+    "barcode": "7290013453501",
+    "brand": "דני וגלית בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ביצי קינדר סופרייז 203 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 16.9,
+    "barcode": "8000500406069",
+    "brand": "פררו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "במבה מילוי קרם נוגט 305 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.5,
+    "barcode": "7290107877619",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גומי מוברק מיקס קופסא 280",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 15.9,
+    "barcode": "7296073707806",
+    "brand": "דין שיווק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גלידת שוקולד עוגיות 250DADU",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 29.9,
+    "barcode": "4770166223228",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גליליות רושן קוקוס 140 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 10.9,
+    "barcode": "4823077631856",
+    "brand": "ROSHEN",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "וופל Air קרם טעם שוקו 150",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 4.9,
+    "barcode": "7296073397182",
+    "brand": "גילרו בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "וופל בלגי ללא גלוטן 250 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 31.9,
+    "barcode": "7290012208768",
+    "brand": "מאפה פסח",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "וופל קוביות קרם אגוז 250 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 13.9,
+    "barcode": "7296073226536",
+    "brand": "בלקוני ס.פ.א",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "וופל רושן קוקוס שקדים 216",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 10.9,
+    "barcode": "4823077640988",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ופלים בטעם שוקולד 500 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 12.9,
+    "barcode": "7296073220275",
+    "brand": "מנעמים תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ופלים לואקר ט.אגוזים 175 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.9,
+    "barcode": "8000380007219",
+    "brand": "א. לואקר",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיף נייטשר וואלי מעורב 5 יחידות",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 22.9,
+    "barcode": "16000548909",
+    "brand": "ג'נרל מילס סאן אדריאן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיף שוקו.חלבחמאת בוטנ 42 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 7.9,
+    "barcode": "7290003444009",
+    "brand": "הרשי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיף FREE תמר וקינמון 5 יחידות",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 20.9,
+    "barcode": "7290100659090",
+    "brand": "טבעית מוצרים מן הטבע בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיף חלבון ט.בננה טופי 64",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.9,
+    "barcode": "7290121161930",
+    "brand": "Plc Group Nutrition",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיף מנגו מיובש בהקפאה 20",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 12.9,
+    "barcode": "7290014021716",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיף נייטשר וואלי דבש 5 יחידות",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 22.9,
+    "barcode": "16000548404",
+    "brand": "ג'נרל מילס סאן אדריאן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיף קוקומן שוקולד 216 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 18.9,
+    "barcode": "7290107646154",
+    "brand": "יוניליוור ישראל מזון",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיף קליק אין קרם חלבי 38",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 6.7,
+    "barcode": "7290116536781",
+    "brand": "יוניליוור ישראל מזון",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיף שיבולת שועל שוקולד מריר 425",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 14.5,
+    "barcode": "7296073448136",
+    "brand": "אפקטבעי בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיף שיבולת שועל מייפל 425 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 14.5,
+    "barcode": "7296073448129",
+    "brand": "אפקטבעי בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיף שוגי קורנפלקס 626 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 18.9,
+    "barcode": "7290107646147",
+    "brand": "יוניליוור ישראל מזון בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיףFREEבוטנשקדשוק 140 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 20.9,
+    "barcode": "7290107971522",
+    "brand": "ש.שסטוביץ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיפי FREE תמרבוטנים 5 יחידות",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 20.9,
+    "barcode": "7290105431516",
+    "brand": "טבעית מוצרים מן הטבע בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חטיפי פריכונים עם דבש 80 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 10.5,
+    "barcode": "7290000078762",
+    "brand": "הרטו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חלבון שוקולד לבן עוגיות 50",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 14.5,
+    "barcode": "7290019766063",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "טוסו שוקולד מריר תפוז 100",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍎",
+    "price": 16.9,
+    "barcode": "7290119500536",
+    "brand": "אס. סי. אי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "כדורי שוקולד ללא גלוטן 400 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 33.9,
+    "barcode": "7290013121684",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "כדורים בט.שוקולד ללג 375 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 18.5,
+    "barcode": "7296073642008",
+    "brand": "CERERA",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לקריץ מוברק מיקס קופס 280",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 15.9,
+    "barcode": "7296073707813",
+    "brand": "דין שיווק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לקריץ מסוכר מיקס קופס 280",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 15.9,
+    "barcode": "7296073707837",
+    "brand": "דין שיווק וקלייה בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מארז טילון בצק עוגיות 1004",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 32.9,
+    "barcode": "7290018441220",
+    "brand": "מוצרי איכות אמריקאיים בע",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מאגדת 99 חלבה שוקולד 5 יחידות",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 32.9,
+    "barcode": "7290019816515",
+    "brand": "גלידות נסטלה )נגה גלידות",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מאגדת מיני קראנץ עוגיות 5",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 32.9,
+    "barcode": "7290019816034",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מטבעות שוקולד חלב 250 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 22.9,
+    "barcode": "7290019079736",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מטבעות שוקולד לבן 250 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 22.9,
+    "barcode": "7290019079743",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מטבעות שוקולד 60%ללתס 250",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 26.9,
+    "barcode": "7290019079712",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מטבעות שוקולד 70%מריר 250",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 26.9,
+    "barcode": "7290019079705",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מיני חלוה ללת\"ס 15 יח 10 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 13.9,
+    "barcode": "7290010328505",
+    "brand": "אחדות בע\"מ א.ת. ברקן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מיני קרקרים מיקס 350 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🧂",
+    "price": 12.9,
+    "barcode": "8434165466326",
+    "brand": "CUETARA",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ממרח חרובים ט.שוקולד 350 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.9,
+    "barcode": "7290008989473",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ממרח שוקולד ללת\"ס 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 23.5,
+    "barcode": "8410342003508",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ממתק פנדה קרם נוגט 100 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 19.9,
+    "barcode": "7290016505023",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מנטוס בטעם פאנטה 4 37 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 14.9,
+    "barcode": "8723400796329",
+    "brand": "פרפטי ואן מלה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מנטוס טעם פירות 4 יח 37.5Xג",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 14.9,
+    "barcode": "87108712",
+    "brand": "פרפטי ואן מלה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מנטוס מנטה 4 יח 37.5X'גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 14.9,
+    "barcode": "87108651",
+    "brand": "פרפטי ואן מלה ברדה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מסטיק אורביט ויט מנטה 64 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 13.9,
+    "barcode": "4009900403023",
+    "brand": "ריגלי פולין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מסטיק אורביט ספירמינט 64 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 13.9,
+    "barcode": "4009900531122",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מסטיק איירוויבז אוכמנ 64 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 13.5,
+    "barcode": "4009900426121",
+    "brand": "ריגלי פולין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מסטיק איירוויבז מנטה 64 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 13.5,
+    "barcode": "4009900426039",
+    "brand": "ריגלי פולין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מסטיק בזוקה קוביות צנצ 58",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 12.9,
+    "barcode": "7290107937641",
+    "brand": "אסקום קונפקשיין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מסטיק בקבוק M פפרמינט 84 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.5,
+    "barcode": "4009900484060",
+    "brand": "ריגלי פולין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מסטיק מאסט בטעם בזוקה 28 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 5.5,
+    "barcode": "7290102035007",
+    "brand": "עלית",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מסטיק מנטוס בקבוק תות 60 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 13.9,
+    "barcode": "80773429",
+    "brand": "פרפטי ואן מלה ג'ידה,סאן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מעדן סויה ט.שוקולד 1254 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 20.9,
+    "barcode": "54051157",
+    "brand": "אלפרו C.V.A",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נאצ'וס קמח תירס לבן 150 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🌮",
+    "price": 10.9,
+    "barcode": "8002183013572",
+    "brand": "S.P.A PATA",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נייטשר ואלי צ'ואי בוטן 5 יחידות",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 22.9,
+    "barcode": "8410076610492",
+    "brand": "ג'נרל מילס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נייטשר וואלי קינמון 5 יחידות",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 22.9,
+    "barcode": "16000548602",
+    "brand": "ג'נרל מילס סאן אדריאן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ס.דליס שוקולד חלב ל.ג 136 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.9,
+    "barcode": "8423207208260",
+    "brand": "ביסצ'ורי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סוכ.וורטר ל.סוכר בוקס 42 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 8.9,
+    "barcode": "4014400907902",
+    "brand": "שטורק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סוכ.טיק טק מנטה חזקה 416",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 14.9,
+    "barcode": "8000500353738",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סוכריות חמאה וורטר 135 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 10.9,
+    "barcode": "4014400910063",
+    "brand": "אוגוסט שטורק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סוכריות טיק טק תות שדה 16",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 5.9,
+    "barcode": "80936848",
+    "brand": "פררו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סוכריות טיק-טק תפוז 16 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍎",
+    "price": 5.9,
+    "barcode": "80050025",
+    "brand": "פררו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סוכריות ממולא קרם חלב 150",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 10.9,
+    "barcode": "4823077623684",
+    "brand": "רושן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סלים דליס שוקו.מריר 6 יחידות",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.9,
+    "barcode": "8423207208703",
+    "brand": "סלים דליס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סלים דליס שוקולד מריר 6 יחידות",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.9,
+    "barcode": "8423207206495",
+    "brand": "סלים דליס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוג.כוסמין מלא שוקולד 250",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.9,
+    "barcode": "7290017894317",
+    "brand": "גנדולה ביסקוטי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוג.מילקה שוקומיני 150 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍪",
+    "price": 17.9,
+    "barcode": "7622300441715",
+    "brand": "מונדלייז",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוג.מעדן תמריםאגוז 200",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍪",
+    "price": 24.9,
+    "barcode": "7290119040377",
+    "brand": "קפולסקי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוג.סנדוויץ היט קקאו 220 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍪",
+    "price": 12.9,
+    "barcode": "4017100364112",
+    "brand": "באלסן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוג.שוקולדאגוז לוז 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 24.9,
+    "barcode": "7290119040629",
+    "brand": "קפולסקי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוג.שוקוציפס לוביטה 150 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍪",
+    "price": 9.9,
+    "barcode": "4823077633324",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוג.שוקוציפס מרקם רך 175 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍪",
+    "price": 12.5,
+    "barcode": "8710502064814",
+    "brand": "י. מרבה ישראל בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות חמאה ללת\"ס 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 11.9,
+    "barcode": "7290000311463",
+    "brand": "רוקחמן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות חמאה פריכות 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 20.9,
+    "barcode": "7290010045006",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות כוכבים וניל 300 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 9.9,
+    "barcode": "7290000311722",
+    "brand": "רוקחמן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות כוסמין תפוחים 230 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 27.9,
+    "barcode": "7290013453136",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות לוביטה קרם חלב 127",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 9.9,
+    "barcode": "4823077636400",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות מזרחיות שומשום 400",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 20.9,
+    "barcode": "7290002132011",
+    "brand": "מאפיית יוסף ושמחה עבאדי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות מלוחות מלח 350 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.9,
+    "barcode": "7290119044672",
+    "brand": "קפולסקי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות מלוחות רוסטיקו 350",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.9,
+    "barcode": "7290119040957",
+    "brand": "קיראי סחר והשקעות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות מרוקאיות עגול 350 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.9,
+    "barcode": "7290119041107",
+    "brand": "קיראי סחר והשקעות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות סגנון מרוקאי 350 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.9,
+    "barcode": "7290119041053",
+    "brand": "קיראי סחר והשקעות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות סובין קוקוס 225 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 24.9,
+    "barcode": "3760151011047",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות צ'יפ שוקולד 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 24.9,
+    "barcode": "7290119040674",
+    "brand": "קפולסקי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות שיבולת שועל שוקולד 168 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.9,
+    "barcode": "7622300270506",
+    "brand": "מונדלייז",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות שוקוציפס ללת\"ס 150",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.5,
+    "barcode": "8410376052633",
+    "brand": "גלאטס גולון",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגיות תפוח קינמון 168 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 9.9,
+    "barcode": "4823077634178",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ערגליות מיניס תות 300 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 14.5,
+    "barcode": "7290118422723",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פיטנס דגנ.בוקר שוקולד 375",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 26.9,
+    "barcode": "7613032045753",
+    "brand": "סי. פי. צרפת",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פיטנס חטיף דגנים פ.יער 6 יחידות",
+    "category": "ממתקים וחטיפים",
+    "icon": "🥣",
+    "price": 18.9,
+    "barcode": "5900020029669",
+    "brand": "סי. פי. פולין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פיטנס חטיף דגנים ק.עוגיות 6",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 18.9,
+    "barcode": "5900020018908",
+    "brand": "סי. פי. פולין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פיטנס פריכיות שוקולד לבן 84 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🥣",
+    "price": 18.9,
+    "barcode": "7290109352916",
+    "brand": "כרמית תעשיות ממתקים בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פיקאפ שוקולד מריר 140 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 15.9,
+    "barcode": "4017100219016",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פריכ.דקות דגניםקטניות 80",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍘",
+    "price": 13.9,
+    "barcode": "7290118420811",
+    "brand": "פרח תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פריכונים תירסשומשום 80 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍘",
+    "price": 10.5,
+    "barcode": "7290000065977",
+    "brand": "פרח תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פריכיות תירס אורגני 150 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍘",
+    "price": 14.9,
+    "barcode": "9322969000046",
+    "brand": "ריאל פודס בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פריכיות תירססויה 150 כשלפ",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍘",
+    "price": 14.9,
+    "barcode": "9322969000022",
+    "brand": "אלגם גיל",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פריפלצת מנגו בננה 120 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 5.0,
+    "barcode": "7296073629740",
+    "brand": "DODACO",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פתיבר קוקיז בטעם חמאה 155",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 13.5,
+    "barcode": "7290118425496",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פתיבר קוקיז בטעם קרמל 155",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 13.5,
+    "barcode": "7290118425540",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פתיבר קוקיז בטעם שוקו 155",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 13.5,
+    "barcode": "7290118425731",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "צ'יפס למיקרו 1253 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🥔",
+    "price": 17.9,
+    "barcode": "7290000334325",
+    "brand": "תפוגן תעשיות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "צוקטה שוקול.מריר 70% 100 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 13.9,
+    "barcode": "7290018893401",
+    "brand": "קקאו דה בורגון סאס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ציפס אורז חום פפריקה 60 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🥔",
+    "price": 8.0,
+    "barcode": "7290002043225",
+    "brand": "נוהלס גי אס סי.",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ציפס בטטה זיגזג קפוא 500 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🥔",
+    "price": 18.9,
+    "barcode": "7296073459309",
+    "brand": "תפוגן תעשיות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "צנצנת בזוקה ענבים לל\"ס 66",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 12.9,
+    "barcode": "7290119382989",
+    "brand": "אסקום קונפקשיין",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קורני חטיפי קוקוס שוק 6 יחידות",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 17.9,
+    "barcode": "4011800632519",
+    "brand": "Schwartauer",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קנופרס וופל מיניס 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 20.9,
+    "barcode": "4014400930474",
+    "brand": "שטורק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קצפיות מרנג טעם תות 180 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 17.9,
+    "barcode": "7296073565567",
+    "brand": "אחדות ביח\"ר לטחינה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קראנץ שוקולד חלבה 500 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 19.9,
+    "barcode": "7296073722861",
+    "brand": "אנטקוביץ בייקרס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קרקר דק כוסמין ובצל 140 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 14.9,
+    "barcode": "7290118428299",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שוקולד לינדור מריר 60% 100 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 19.9,
+    "barcode": "8003340806808",
+    "brand": "לינדט ושפרונגלי אס.פי.אי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שוקולד לינדט מילק אגוזי לוז 150",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 34.9,
+    "barcode": "7610400075787",
+    "brand": "לינדט ושפרונגלי קילשברג",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שוקולד מריר לינדט 78% 100 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 19.9,
+    "barcode": "4000539280740",
+    "brand": "לינדט ושפרונגלי אס.איי.א",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שוקולד מריר לינדט מנטה 100 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 19.9,
+    "barcode": "3046920028752",
+    "brand": "לינדט ושפרונגלי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שוקולד שוגטן פופקורן 100 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 9.9,
+    "barcode": "4000415831905",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "תערובת לעוגת שוקולד 425 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 22.9,
+    "barcode": "18000701223",
+    "brand": "ג'נרל מילס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "תפוצ'יפס ירקות שורש 45 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🥔",
+    "price": 8.9,
+    "barcode": "7290110557874",
+    "brand": "פלור פודס בי.וי.",
+    "unit": "100 גרם"
+  }
+]

@@ -1,0 +1,675 @@
+[
+  {
+    "name": "אורז בסמטי טילדה 1 ק\"ג",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 24.0,
+    "barcode": "5011157630281",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "אורז פרסי דאווט 1 ק\"ג",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 13.5,
+    "barcode": "7290108509700",
+    "brand": "אל.טי.פודס לימיטד",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "אטריות אורז רחבות 400 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 16.5,
+    "barcode": "7290112199768",
+    "brand": "יוניון רטצ'אבורי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אטריות דקיקות אסם 400 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 8.9,
+    "barcode": "7290000060972",
+    "brand": "פסטה זארה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אטריות ללא גלוטן ברילה 400 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 19.5,
+    "barcode": "8076809545440",
+    "brand": "ש.שסטוביץ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אטריות קונגאק ספגטי 270 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 14.5,
+    "barcode": "7290015129145",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אטריות רחבות 400 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 6.9,
+    "barcode": "7296073195924",
+    "brand": "שיבולים בני דרום",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "איטריות להקפצה נודלס 400 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 9.9,
+    "barcode": "7290008175692",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ארוחת נודלס בטעם בשר 85",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 4.9,
+    "barcode": "7290003121083",
+    "brand": "טאט הוי פוד",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ארוחת נודלס בטעם עוף 70 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 5.9,
+    "barcode": "7290002715504",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בורגול 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 6.5,
+    "barcode": "835811006985",
+    "brand": "יבוא ושיווק: הנמל אריזות",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בורגול אורגני 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 11.9,
+    "barcode": "7296073224488",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גריסי פנינה שופרסל 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🛒",
+    "price": 6.9,
+    "barcode": "7296073005865",
+    "brand": "מיה תעשיות מזון",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גריסים שופרסל 1 ק\"ג",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 9.5,
+    "barcode": "7296073006152",
+    "brand": "מיה תעשיות מזון",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "טליאטלה אטריות 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 18.9,
+    "barcode": "8076809523714",
+    "brand": "ש.שסטוביץ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ירקות ופסטה א-לה איטליה",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 27.9,
+    "barcode": "7290000107622",
+    "brand": "סנפרוסט בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לזניה 500 גרם PUMINO",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 15.9,
+    "barcode": "7296073707608",
+    "brand": "לנסי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מנה חומץ נודלס פאד תאי 70 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 14.9,
+    "barcode": "7290118427643",
+    "brand": "PUB FOODS PRESIDENT THAI",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מנה חמה נודלס פיקנטי 71 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 8.5,
+    "barcode": "7290000073774",
+    "brand": "PUB FOODS PRESIDENT THAI",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מנה חמה פסטה מוקרמת 55 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 8.5,
+    "barcode": "7290000065540",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מקלוני אורז ל\"ג 3 מ\"מ 454",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 13.9,
+    "barcode": "7290014860094",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מרק היום עוףאטריות 74 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 15.3,
+    "barcode": "7290112490759",
+    "brand": "יוניליוור ישראל מזון",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ספגטי מס 5 מוריני 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 8.9,
+    "barcode": "7296073124399",
+    "brand": "פסטה ברוטו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ספגטיני מס' MANTANINO 3",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 7.9,
+    "barcode": "7296073706519",
+    "brand": "F.LLI PASTIFICIO",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פנה מלא אורגני 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 12.0,
+    "barcode": "7296073205456",
+    "brand": "צעצועי שירן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פנה ריגאטה פרפקטו 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 8.3,
+    "barcode": "7290000069258",
+    "brand": "פסטה זארה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטה 15 בוקטיני 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 9.5,
+    "barcode": "8008857200156",
+    "brand": "פאסטופיציו אנטוניו פאלנט",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטה בלונז 400 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 24.9,
+    "barcode": "7290109581132",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטה מזי ריגטוני 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 9.5,
+    "barcode": "8004690053225",
+    "brand": "לה מוליזנה קמפובאסן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטה עם כורכום 400 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 15.9,
+    "barcode": "7296073676126",
+    "brand": "PASTIFICIO DI BARI",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטה עם תרד 400 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 15.9,
+    "barcode": "7296073612797",
+    "brand": "פאסטיפיקו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטה פוזילי 400 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 7.9,
+    "barcode": "4760161882148",
+    "brand": "אברומק אל.אל סי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטה פוסיליני ענק 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 16.9,
+    "barcode": "7296073625445",
+    "brand": "לבור",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטה פנה אורגני 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 12.0,
+    "barcode": "7296073205463",
+    "brand": "פרח תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטה פנה מוריני 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 8.9,
+    "barcode": "7296073011217",
+    "brand": "פסטה ברוטו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטה פנה ריגטה 400 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 7.9,
+    "barcode": "4760161882131",
+    "brand": "אברומק אל.אל סי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטה פנה ריגטה PUMINO",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 9.9,
+    "barcode": "7296073706786",
+    "brand": "F.LLI PASTIFICIO",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטה פרפלה 400 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 7.9,
+    "barcode": "4760161882155",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטה קוסקוס קונגאק 270 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 14.5,
+    "barcode": "7290015129220",
+    "brand": "סצ'ואן סנטאיואן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטה שב.שועל פטוציני 270 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 14.5,
+    "barcode": "7290015129756",
+    "brand": "סצואן סנטאיואן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטה שיב.שועל נודלס 270 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 14.5,
+    "barcode": "7290015129749",
+    "brand": "סצ'ואן סנטאיואן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטהפיטריות פורצ'יני 400",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 15.9,
+    "barcode": "7296073612803",
+    "brand": "פאסטיפיקו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פריכ.אורז מלא ללת\"מ 100 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 14.9,
+    "barcode": "7290017325422",
+    "brand": "פרח תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פריכ.אורז מלאקינואה 110 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 10.9,
+    "barcode": "7296073195269",
+    "brand": "פרח תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פתיתים אורז שופרסל 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 6.9,
+    "barcode": "7296073129455",
+    "brand": "אסיף תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פתיתים טבעות 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🛒",
+    "price": 8.9,
+    "barcode": "7290000060408",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פתיתים קוסקוס שופרסל 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 6.9,
+    "barcode": "7296073129431",
+    "brand": "אסיף תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קוסקוס בינוני 350 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 9.9,
+    "barcode": "7290000064758",
+    "brand": "קוסקוס מזון",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קוסקוס דק שופרסל 350 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 5.9,
+    "barcode": "7296073011118",
+    "brand": "אסיף תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קוסקוס עבה 350 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 6.0,
+    "barcode": "7290002040071",
+    "brand": "קוסקוס מזון",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קינואה אדומה אורגנית 500",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 21.9,
+    "barcode": "7290013994295",
+    "brand": "אלכסנדר",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קמח אורז ללא גלוטן 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 13.9,
+    "barcode": "7297488098183",
+    "brand": "דג\"ש",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אטריות אורז רחבות 400 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 16.5,
+    "barcode": "7290112199768",
+    "brand": "יוניון רטצ'אבורי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אטריות דקיקות אסם 400 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 8.9,
+    "barcode": "7290000060972",
+    "brand": "פסטה זארה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אטריות ללא גלוטן ברילה 400 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 19.5,
+    "barcode": "8076809545440",
+    "brand": "ש.שסטוביץ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אטריות קונגאק ספגטי 270 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 14.5,
+    "barcode": "7290015129145",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "איטריות להקפצה נודלס 400 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 9.9,
+    "barcode": "7290008175692",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ארוחת נודלס בטעם עוף 70 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 5.9,
+    "barcode": "7290002715504",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גריסי פנינה שופרסל 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🛒",
+    "price": 6.9,
+    "barcode": "7296073005865",
+    "brand": "מיה תעשיות מזון",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מנה חומץ נודלס פאד תאי 70 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 14.9,
+    "barcode": "7290118427643",
+    "brand": "PUB FOODS PRESIDENT THAI",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מנה חמה נודלס פיקנטי 71 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 8.5,
+    "barcode": "7290000073774",
+    "brand": "PUB FOODS PRESIDENT THAI",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מנה חמה פסטה מוקרמת 55 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 8.5,
+    "barcode": "7290000065540",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מרק היום עוףאטריות 74 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 15.3,
+    "barcode": "7290112490759",
+    "brand": "יוניליוור ישראל מזון",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ספגטי מס 5 מוריני 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 8.9,
+    "barcode": "7296073124399",
+    "brand": "פסטה ברוטו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פנה ריגאטה פרפקטו 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 8.3,
+    "barcode": "7290000069258",
+    "brand": "פסטה זארה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטה פנה אורגני 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 12.0,
+    "barcode": "7296073205463",
+    "brand": "פרח תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטה פנה מוריני 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 8.9,
+    "barcode": "7296073011217",
+    "brand": "פסטה ברוטו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטה קוסקוס קונגאק 270 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 14.5,
+    "barcode": "7290015129220",
+    "brand": "סצ'ואן סנטאיואן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטה שב.שועל פטוציני 270 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 14.5,
+    "barcode": "7290015129756",
+    "brand": "סצואן סנטאיואן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטה שיב.שועל נודלס 270 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 14.5,
+    "barcode": "7290015129749",
+    "brand": "סצ'ואן סנטאיואן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטהפיטריות פורצ'יני 400",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 15.9,
+    "barcode": "7296073612803",
+    "brand": "פאסטיפיקו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פריכ.אורז מלא ללת\"מ 100 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 14.9,
+    "barcode": "7290017325422",
+    "brand": "פרח תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פריכ.אורז מלאקינואה 110 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 10.9,
+    "barcode": "7296073195269",
+    "brand": "פרח תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פתיתים אורז שופרסל 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 6.9,
+    "barcode": "7296073129455",
+    "brand": "אסיף תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פתיתים קוסקוס שופרסל 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 6.9,
+    "barcode": "7296073129431",
+    "brand": "אסיף תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קמח אורז ללא גלוטן 500 גרם",
+    "category": "אורז ופסטה",
+    "icon": "🍚",
+    "price": 13.9,
+    "barcode": "7297488098183",
+    "brand": "דג\"ש",
+    "unit": "100 גרם"
+  }
+]

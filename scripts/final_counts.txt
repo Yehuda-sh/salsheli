@@ -1,0 +1,35 @@
+=== FINAL CATEGORY COUNTS ===
+
+snacks: 336
+hygiene: 321
+dairy: 251
+cleaning: 157
+oils_sauces: 133
+beverages: 117
+spices_baking: 114
+frozen: 111
+meat_fish: 111
+alcohol: 89
+other: 89
+bakery: 86
+canned: 81
+coffee_tea: 78
+rice_pasta: 76
+vegetables: 73
+fruits: 47
+baby: 40
+sweet_spreads: 35
+meat_alternatives: 34
+cereals: 31
+disposable: 22
+tobacco: 18
+nuts_seeds: 17
+legumes_grains: 16
+dairy_alternatives: 12
+household: 12
+pet_food: 10
+dried_fruits: 9
+prepared_salads: 6
+garden: 1
+
+TOTAL: 2533 products in 31 categories

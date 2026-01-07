@@ -1,0 +1,758 @@
+[
+  {
+    "name": "באן מאפה מאודה",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 18.9,
+    "barcode": "7290017456041",
+    "brand": "פרש אסיה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בגט גרעינים ללא גלוטן 240",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 17.5,
+    "barcode": "7296073389446",
+    "brand": "איתנס יצור עוגות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בורקס גבינה 4 יח 600 גרם",
+    "category": "מאפים",
+    "icon": "🥖",
+    "price": 21.9,
+    "barcode": "7290121010368",
+    "brand": "גידרון תעשיות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בורקס גבינה חלבי במשקל",
+    "category": "מאפים",
+    "icon": "🥖",
+    "price": 50.0,
+    "barcode": "7290000099248",
+    "brand": "גידרון תעשיות בע\"מ",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "בורקס יפו גבינה 600 גרם",
+    "category": "מאפים",
+    "icon": "🥖",
+    "price": 23.5,
+    "barcode": "7290014218321",
+    "brand": "מעדנות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בורקס פילאס פיצה זית משק",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 50.0,
+    "barcode": "7290003495405",
+    "brand": "גידרון סהרון",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "בורקס פילו גבינה בולגרית",
+    "category": "מאפים",
+    "icon": "🥖",
+    "price": 22.9,
+    "barcode": "7290002109372",
+    "brand": "שגמור בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ביגלה ירושלמי",
+    "category": "מאפים",
+    "icon": "🥖",
+    "price": 7.4,
+    "barcode": "7290006391025",
+    "brand": "זהר בשר עופות בע\"מ",
+    "unit": "יחידה"
+  },
+  {
+    "name": "בייגלה דקים שמנת ובצל 300",
+    "category": "מאפים",
+    "icon": "🥯",
+    "price": 14.9,
+    "barcode": "7290112491794",
+    "brand": "בייגל את בייגל מזון",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בייגלה פיטנס בטטה 150 גרם",
+    "category": "מאפים",
+    "icon": "🥯",
+    "price": 13.9,
+    "barcode": "7290115208269",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בייגלה פיטנס סלק 150 גרם",
+    "category": "מאפים",
+    "icon": "🥯",
+    "price": 13.9,
+    "barcode": "7290115208245",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בייגלה קיטו 170 גרם",
+    "category": "מאפים",
+    "icon": "🥯",
+    "price": 22.9,
+    "barcode": "7290014321229",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בסיס לפיצה ללא גלוטן 300 גרם",
+    "category": "מאפים",
+    "icon": "🥖",
+    "price": 37.9,
+    "barcode": "8008698002025",
+    "brand": "דר שר אי ג'י/אספי איי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בצק לפיצה ללא גלוטן 230 גרם",
+    "category": "מאפים",
+    "icon": "🥖",
+    "price": 23.9,
+    "barcode": "7290000453309",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בצק עלים ללא גלוטן 280 גרם",
+    "category": "מאפים",
+    "icon": "🥖",
+    "price": 23.9,
+    "barcode": "7290000453316",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בצק פילאס תורקי 600 גרם",
+    "category": "מאפים",
+    "icon": "🥖",
+    "price": 19.9,
+    "barcode": "7290005559990",
+    "brand": "מעדנות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ג'חנון בצק לאפיה 700 גרם",
+    "category": "מאפים",
+    "icon": "🥖",
+    "price": 25.9,
+    "barcode": "7290006271174",
+    "brand": "מעדנות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גריסיני קלאסי 200 גרם",
+    "category": "מאפים",
+    "icon": "🥖",
+    "price": 13.9,
+    "barcode": "7290017928821",
+    "brand": "מאיר את בייגל תעשיות בע",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חלה מתוקה עגולה",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 16.5,
+    "barcode": "7290006390752",
+    "brand": "שטיבל בע\"מ",
+    "unit": "יחידה"
+  },
+  {
+    "name": "חלה מתוקה קלועה עם צימוק",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 16.5,
+    "barcode": "7290006451392",
+    "brand": "גידרון תעשיות בע\"מ",
+    "unit": "יחידה"
+  },
+  {
+    "name": "חלה פרוסה 500 גר ארוז 231",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 12.9,
+    "barcode": "7290000497136",
+    "brand": "מאפית ברמן מקבוצת י. את",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חלת קונדיטוריה ארוזה 500 גרם",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 15.9,
+    "barcode": "7290000379258",
+    "brand": "מאפיית שלמה א. אנג'ל בע",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חלת שבת ללא גלוטן 500 גרם",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 27.9,
+    "barcode": "7290013121011",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חלת שושנים",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 19.9,
+    "barcode": "7290009399639",
+    "brand": "אסטוניש",
+    "unit": "יחידה"
+  },
+  {
+    "name": "טוסטעים פת קלויה 100 גרם",
+    "category": "מאפים",
+    "icon": "🥖",
+    "price": 13.5,
+    "barcode": "7290000080758",
+    "brand": "ון דר מולן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "טורטיה מוגברת חלבון 408 גרם",
+    "category": "מאפים",
+    "icon": "🌮",
+    "price": 13.9,
+    "barcode": "7296073597230",
+    "brand": "דליברדס יורופ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "טורטיות פשתן וצ'יה 40 ג 8",
+    "category": "מאפים",
+    "icon": "🌮",
+    "price": 13.9,
+    "barcode": "7296073553298",
+    "brand": "דליברדס יורופ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "טורטיות קמח כוסמת 408 גרם",
+    "category": "מאפים",
+    "icon": "🌮",
+    "price": 13.9,
+    "barcode": "7296073398325",
+    "brand": "PIP D.O.O",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לחם חצי ג'בטה כפרי",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 6.2,
+    "barcode": "7290000094373",
+    "brand": "לוטמלי תעשיות פלאסטיק",
+    "unit": "יחידה"
+  },
+  {
+    "name": "לחם כפרי ללת\"ס 700 גרם",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 24.9,
+    "barcode": "7290013121776",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לחם לבן ביתי ללא גלוטן 7",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 25.9,
+    "barcode": "7290013121752",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לחם מוראטו לבן 550 גרם",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 14.9,
+    "barcode": "8006837000918",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לחם מחמצת אגוזים 550 גרם",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 19.9,
+    "barcode": "7290006451934",
+    "brand": "גידרון תעשיות בע\"מ",
+    "unit": "יחידה"
+  },
+  {
+    "name": "לחם מחמצת סלק 550 גרם",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 19.9,
+    "barcode": "7290006451675",
+    "brand": "גידרון תעשיות בע\"מ",
+    "unit": "יחידה"
+  },
+  {
+    "name": "לחם מלא 100%שיפון-קל 750 גרם",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 17.9,
+    "barcode": "7290013027399",
+    "brand": "מאפיית שלמה א. אנג'ל בע",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לחמניות המבורגר ל.ג 904 גרם",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 17.9,
+    "barcode": "7296073345107",
+    "brand": "פאלאס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לחמניות חלומית 904 גרם",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 14.9,
+    "barcode": "7290004033583",
+    "brand": "י.את.א.ברמן בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מאפה בצק טבעוני פיצה 600 גרם",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 29.9,
+    "barcode": "7290109640785",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מאפה דונאטס וניל 111 גרם",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 21.5,
+    "barcode": "7290017040561",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מאפה דונאטס תות 111 גרם",
+    "category": "מאפים",
+    "icon": "🍩",
+    "price": 21.5,
+    "barcode": "7290017040554",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מארז בייגלה ירושלמי 3 יחידות",
+    "category": "מאפים",
+    "icon": "🥯",
+    "price": 17.5,
+    "barcode": "7290002759164",
+    "brand": "גידרון תעשיות בע\"מ",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מארז 4 יח לחמניית חלה קלה",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 17.5,
+    "barcode": "7290003158591",
+    "brand": "גידרון תעשיות בע\"מ",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מקלות בורקס פילו צרפתי 6",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 22.9,
+    "barcode": "7290004230364",
+    "brand": "נטו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סופגניה מיני מצופה 4 יחידות",
+    "category": "מאפים",
+    "icon": "🍩",
+    "price": 24.9,
+    "barcode": "7290009957525",
+    "brand": "גידרון תעשיות בע\"מ",
+    "unit": "יחידה"
+  },
+  {
+    "name": "עוגת דבש אגוזים תפוח 600 גרם",
+    "category": "מאפים",
+    "icon": "🥧",
+    "price": 24.9,
+    "barcode": "7290006451385",
+    "brand": "גידרון תעשיות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגת היער השחור 850 גרם",
+    "category": "מאפים",
+    "icon": "🥧",
+    "price": 79.9,
+    "barcode": "7296073432081",
+    "brand": "גידרון סהרון",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגת פס מוס בלגי פרווה",
+    "category": "מאפים",
+    "icon": "🥧",
+    "price": 60.0,
+    "barcode": "7290015726535",
+    "brand": "מחלבת רמת הגולן",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגת פס קפוצ'ינו",
+    "category": "מאפים",
+    "icon": "🥧",
+    "price": 42.9,
+    "barcode": "7290002472117",
+    "brand": "גידרון סהרון",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עוגת קראנץ פרג 500 גרם",
+    "category": "מאפים",
+    "icon": "🥧",
+    "price": 19.9,
+    "barcode": "7290119040667",
+    "brand": "קיראי סחר והשקעות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "עלים לקרמשניט 300 גרם",
+    "category": "מאפים",
+    "icon": "🥖",
+    "price": 14.9,
+    "barcode": "7290013145277",
+    "brand": "SRL MARISTELLA",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פירורי לחם קריספ זהוב 300",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 8.5,
+    "barcode": "7290008101318",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פירורי לחם תיבו.איטלק 350",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 10.9,
+    "barcode": "7296073266594",
+    "brand": "חטיפים מין הטבע בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פירורית זהב 200 גרם",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 8.9,
+    "barcode": "7290000067544",
+    "brand": "עינת תעשיות",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פיתות כוסמין 8 יח 50 גרם",
+    "category": "מאפים",
+    "icon": "🥙",
+    "price": 17.5,
+    "barcode": "7296073427315",
+    "brand": "מאפיית אורן משי בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קיטו מיני גריסיני 200 גרם",
+    "category": "מאפים",
+    "icon": "🥖",
+    "price": 27.5,
+    "barcode": "96086000003",
+    "brand": "מצות אביב",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "רוגלך שומשום 400 גרם",
+    "category": "מאפים",
+    "icon": "🥐",
+    "price": 14.9,
+    "barcode": "7290119040360",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ריבועי בצק עלים מוקפא 800",
+    "category": "מאפים",
+    "icon": "🥖",
+    "price": 27.9,
+    "barcode": "7290020239181",
+    "brand": "מעדנות בע\"מ n",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שטרודל גבינה",
+    "category": "מאפים",
+    "icon": "🥐",
+    "price": 33.9,
+    "barcode": "7290005718021",
+    "brand": "תמה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שערות קדאיף 450 ג ויליפוד",
+    "category": "מאפים",
+    "icon": "🥖",
+    "price": 24.9,
+    "barcode": "7290108501827",
+    "brand": "הלניק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שקדי מרק 400 גרם",
+    "category": "מאפים",
+    "icon": "🥖",
+    "price": 10.0,
+    "barcode": "7290003514007",
+    "brand": "מנה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לחמניות אצבע 7510 גרם",
+    "category": "לחם ומאפים",
+    "icon": "🛒",
+    "price": 15.4,
+    "barcode": "7290000481883",
+    "brand": "דגנית עין בר תעשיות מזון",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בגט גרעינים ללא גלוטן 240",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 17.5,
+    "barcode": "7296073389446",
+    "brand": "איתנס יצור עוגות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בייגלה דקים שמנת ובצל 300",
+    "category": "מאפים",
+    "icon": "🥯",
+    "price": 14.9,
+    "barcode": "7290112491794",
+    "brand": "בייגל את בייגל מזון",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בייגלה פיטנס בטטה 150 גרם",
+    "category": "מאפים",
+    "icon": "🥯",
+    "price": 13.9,
+    "barcode": "7290115208269",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בסיס לפיצה ללא גלוטן 300 גרם",
+    "category": "מאפים",
+    "icon": "🥖",
+    "price": 37.9,
+    "barcode": "8008698002025",
+    "brand": "דר שר אי ג'י/אספי איי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בצק לפיצה ללא גלוטן 230 גרם",
+    "category": "מאפים",
+    "icon": "🥖",
+    "price": 23.9,
+    "barcode": "7290000453309",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בצק עלים ללא גלוטן 280 גרם",
+    "category": "מאפים",
+    "icon": "🥖",
+    "price": 23.9,
+    "barcode": "7290000453316",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חלה פרוסה 500 גר ארוז 231",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 12.9,
+    "barcode": "7290000497136",
+    "brand": "מאפית ברמן מקבוצת י. את",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חלת קונדיטוריה ארוזה 500 גרם",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 15.9,
+    "barcode": "7290000379258",
+    "brand": "מאפיית שלמה א. אנג'ל בע",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חלת שבת ללא גלוטן 500 גרם",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 27.9,
+    "barcode": "7290013121011",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "טורטיה מוגברת חלבון 408 גרם",
+    "category": "מאפים",
+    "icon": "🌮",
+    "price": 13.9,
+    "barcode": "7296073597230",
+    "brand": "דליברדס יורופ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "טורטיות פשתן וצ'יה 40 ג 8",
+    "category": "מאפים",
+    "icon": "🌮",
+    "price": 13.9,
+    "barcode": "7296073553298",
+    "brand": "דליברדס יורופ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "טורטיות קמח כוסמת 408 גרם",
+    "category": "מאפים",
+    "icon": "🌮",
+    "price": 13.9,
+    "barcode": "7296073398325",
+    "brand": "PIP D.O.O",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לחם כפרי ללת\"ס 700 גרם",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 24.9,
+    "barcode": "7290013121776",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לחם מלא 100%שיפון-קל 750 גרם",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 17.9,
+    "barcode": "7290013027399",
+    "brand": "מאפיית שלמה א. אנג'ל בע",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "לחמניות המבורגר ל.ג 904 גרם",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 17.9,
+    "barcode": "7296073345107",
+    "brand": "פאלאס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מאפה בצק טבעוני פיצה 600 גרם",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 29.9,
+    "barcode": "7290109640785",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מארז בייגלה ירושלמי 3 יחידות",
+    "category": "מאפים",
+    "icon": "🥯",
+    "price": 17.5,
+    "barcode": "7290002759164",
+    "brand": "גידרון תעשיות בע\"מ",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מארז 4 יח לחמניית חלה קלה",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 17.5,
+    "barcode": "7290003158591",
+    "brand": "גידרון תעשיות בע\"מ",
+    "unit": "יחידה"
+  },
+  {
+    "name": "סופגניה מיני מצופה 4 יחידות",
+    "category": "מאפים",
+    "icon": "🍩",
+    "price": 24.9,
+    "barcode": "7290009957525",
+    "brand": "גידרון תעשיות בע\"מ",
+    "unit": "יחידה"
+  },
+  {
+    "name": "עוגת דבש אגוזים תפוח 600 גרם",
+    "category": "מאפים",
+    "icon": "🥧",
+    "price": 24.9,
+    "barcode": "7290006451385",
+    "brand": "גידרון תעשיות בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פירורי לחם קריספ זהוב 300",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 8.5,
+    "barcode": "7290008101318",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פירורי לחם תיבו.איטלק 350",
+    "category": "מאפים",
+    "icon": "🍞",
+    "price": 10.9,
+    "barcode": "7296073266594",
+    "brand": "חטיפים מין הטבע בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פיתות כוסמין 8 יח 50 גרם",
+    "category": "מאפים",
+    "icon": "🥙",
+    "price": 17.5,
+    "barcode": "7296073427315",
+    "brand": "מאפיית אורן משי בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קיטו מיני גריסיני 200 גרם",
+    "category": "מאפים",
+    "icon": "🥖",
+    "price": 27.5,
+    "barcode": "96086000003",
+    "brand": "מצות אביב",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ריבועי בצק עלים מוקפא 800",
+    "category": "מאפים",
+    "icon": "🥖",
+    "price": 27.9,
+    "barcode": "7290020239181",
+    "brand": "מעדנות בע\"מ n",
+    "unit": "100 גרם"
+  }
+]

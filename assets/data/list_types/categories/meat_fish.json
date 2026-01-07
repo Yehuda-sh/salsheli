@@ -1,0 +1,978 @@
+[
+  {
+    "name": "אנטריקוט דקדק טרי דנבר מ״ל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 179.9,
+    "barcode": "7290003354559",
+    "brand": "דנוור קאט רעננה",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "בסיגנון קוויאר שחור כדור",
+    "category": "בשר ודגים",
+    "icon": "🐟",
+    "price": 17.9,
+    "barcode": "4810168064075",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בשר בקר טחון חלק",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 39.9,
+    "barcode": "7290010922086",
+    "brand": "בלדי",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "הרינג מלוח מצונןתבלין",
+    "category": "בשר ודגים",
+    "icon": "🐟",
+    "price": 21.9,
+    "barcode": "4810168024512",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חזה דקדק טרי ארוז שלי",
+    "category": "בשר ודגים",
+    "icon": "🍗",
+    "price": 44.9,
+    "barcode": "7290005590344",
+    "brand": "עוף הגליל",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "חזה הודו ברביקיו במשקל",
+    "category": "בשר ודגים",
+    "icon": "🍗",
+    "price": 111.0,
+    "barcode": "7290000532400",
+    "brand": "זוגלובק",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "חזה הודו ברביקיו במשקל",
+    "category": "בשר ודגים",
+    "icon": "🍗",
+    "price": 75.0,
+    "barcode": "7290000150277",
+    "brand": "מוצרי עוף טוב",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "חזה עוף פרוס ארוז קפוא",
+    "category": "בשר ודגים",
+    "icon": "🍗",
+    "price": 44.9,
+    "barcode": "7290001303283",
+    "brand": "עוף עוז",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "חתיכ.פילה הרינג מומלח 500",
+    "category": "בשר ודגים",
+    "icon": "🐟",
+    "price": 31.9,
+    "barcode": "4810168062651",
+    "brand": "סנטה ברמור",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חתיכות הרינג מלוח מצונן",
+    "category": "בשר ודגים",
+    "icon": "🐟",
+    "price": 19.9,
+    "barcode": "4810168000011",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חתיכות פילה דג הרינג 260 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 21.9,
+    "barcode": "4810168058975",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "טונה בשמן ויליגר 1404 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 25.9,
+    "barcode": "7290002929642",
+    "brand": "אס.קי פודס פבליק קומפני",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "טונה בשמן זית 365 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290018440438",
+    "brand": "קאלוו קונסרבס ס.ל.יו. ,",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "טונה בשמן זית 803 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 32.9,
+    "barcode": "8004030344938",
+    "brand": "בולטון אלימנטרי בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "טונה בשמן צמחי 365 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 20.9,
+    "barcode": "8410090051349",
+    "brand": "קאלוו קונסרבס ס.ל.יו. ,",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ירכיים עוף קפוא",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 34.9,
+    "barcode": "7290001303238",
+    "brand": "עוף עוז",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "ירקות גינה עם טונה 160 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 20.9,
+    "barcode": "8004030022010",
+    "brand": "בולטון אלימנטרי בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "כנפים עוף טרי שלי קג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 13.9,
+    "barcode": "7290006707475",
+    "brand": "עוף טוב",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "כתף ע\"ח ע\"ע טרי לקג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 59.9,
+    "barcode": "7290002507536",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "מקרל עישון חםפלפל שחור 150",
+    "category": "בשר ודגים",
+    "icon": "🐟",
+    "price": 25.9,
+    "barcode": "5901576059490",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נגיסי עוף ישרלה מחבת 600",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 41.9,
+    "barcode": "7290019204183",
+    "brand": "מוצרי עוף טוב",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נקניק הודו בפפריקה 400 גרם",
+    "category": "בשר ודגים",
+    "icon": "🌭",
+    "price": 34.9,
+    "barcode": "7290003229109",
+    "brand": "טיב טירת צבי 2000",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נקניקיות \"ביס\" 380 גרם",
+    "category": "בשר ודגים",
+    "icon": "🌭",
+    "price": 12.9,
+    "barcode": "7290000318127",
+    "brand": "יחיעם",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נקניקיות בוקוורסט הודו",
+    "category": "בשר ודגים",
+    "icon": "🌭",
+    "price": 29.9,
+    "barcode": "7290012228278",
+    "brand": "זוגלובק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נקניקיות הודו פרמיום קנק",
+    "category": "בשר ודגים",
+    "icon": "🌭",
+    "price": 29.9,
+    "barcode": "7290012228261",
+    "brand": "זוגלובק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נקניקיות וינר 1 ק\"ג",
+    "category": "בשר ודגים",
+    "icon": "🌭",
+    "price": 29.9,
+    "barcode": "7290000530468",
+    "brand": "זוגלובק",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "נקניקיות עוף 1.5 ק\"ג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 31.9,
+    "barcode": "7290014046474",
+    "brand": "יחיעם",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "נקניקיות עוף 400 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 16.5,
+    "barcode": "7290000319131",
+    "brand": "יחיעם",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נקניקיות עוף בואקום 1 ק\"ג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290000364858",
+    "brand": "טיב טירת צבי 2000",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "נקניקיות עוף מוגזמות 480",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 19.9,
+    "barcode": "7290002900344",
+    "brand": "טיב טירת צבי 2000",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נקניקיות פרגיות 300 גרם",
+    "category": "בשר ודגים",
+    "icon": "🌭",
+    "price": 16.5,
+    "barcode": "7290013906052",
+    "brand": "טיב טירת צבי 2000",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נקנקיות מיני מרגז 400 גרם",
+    "category": "בשר ודגים",
+    "icon": "🌭",
+    "price": 30.9,
+    "barcode": "7290020002006",
+    "brand": "זהר בשר עופות ובשר בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נקנקיות מיני מרגז חריף",
+    "category": "בשר ודגים",
+    "icon": "🌭",
+    "price": 32.9,
+    "barcode": "7290001436790",
+    "brand": "בלדי בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נקנקיות רידיפיין בראטוור",
+    "category": "בשר ודגים",
+    "icon": "🥤",
+    "price": 38.9,
+    "barcode": "7290119760237",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נתחי טונה בשמן זית 1404 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 31.9,
+    "barcode": "7290019196259",
+    "brand": "תעשיות פילטונה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נתחי טונה בשמן זית 190 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.2,
+    "barcode": "7290117264980",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סטייק אנטריקוט חב\"ד",
+    "category": "בשר ודגים",
+    "icon": "🛒",
+    "price": 49.9,
+    "barcode": "7290001053683",
+    "brand": "ויקטוריה",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "סיגרים בשר 1 ק'ג שלושת",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 25.9,
+    "barcode": "7290008343558",
+    "brand": "שלושת האופים בע\"מ",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "סלט איקרה לבנה 180 גרם",
+    "category": "בשר ודגים",
+    "icon": "🐟",
+    "price": 17.9,
+    "barcode": "4810168064204",
+    "brand": "סנטה ברמור",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סלט טונה מקסיקני 150 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 15.9,
+    "barcode": "7290018440520",
+    "brand": "קאלוו קונסרבס ס.ל.יו. ,",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סלט טונה עם קוסקוס 150 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 15.9,
+    "barcode": "7290018440490",
+    "brand": "קאלוו קונסרבס ס.ל.יו. ,",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סלט טונה פיקנטי 160 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 6.9,
+    "barcode": "7290003525461",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סלמי איטלקי 300 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 31.9,
+    "barcode": "7290003229147",
+    "brand": "טיב טירת צבי 2000",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סלמי איטלקי מפולפל במשקל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 95.0,
+    "barcode": "7290000319728",
+    "brand": "יחיעם",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "סלמי גלילי מעושן 400 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290005996009",
+    "brand": "מעדני יחיעם",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סלמי מעושן 7000- 600 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 38.9,
+    "barcode": "7290000530086",
+    "brand": "זוגלובק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סלמי סרוולט 150 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 33.5,
+    "barcode": "7290000318677",
+    "brand": "יחיעם",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סלמי סרוולט 250 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 46.5,
+    "barcode": "7290000319124",
+    "brand": "יחיעם",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סלמיפסטרמה כפרית 700 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 28.9,
+    "barcode": "7290000152943",
+    "brand": "מוצרי עוף טוב",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סרדינים בשמן סויה 125 גרם",
+    "category": "בשר ודגים",
+    "icon": "🐟",
+    "price": 7.9,
+    "barcode": "6118000061090",
+    "brand": "סיוויק פסיפיק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פילה בורי טרי שופרסל לקג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 99.9,
+    "barcode": "7290009011050",
+    "brand": "דגת הארץ",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פילה דג ברמונדי טרי קג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 134.9,
+    "barcode": "7290009391985",
+    "brand": "דגת הארץ",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פילה דג הרינג בשמן 400 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 22.9,
+    "barcode": "4810168061487",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פילה הרינג מלוח 400 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 35.9,
+    "barcode": "4810168057435",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פילה הרינג סקנדינבי",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 31.9,
+    "barcode": "4810168062644",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פילה מדומה טרי חלק",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 84.9,
+    "barcode": "7290009393156",
+    "brand": "רקונקיסטה",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פילה מקרל מומלח עישון 150",
+    "category": "בשר ודגים",
+    "icon": "🐟",
+    "price": 25.9,
+    "barcode": "5901576059483",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פילה סלמון קפוא צילה",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 59.9,
+    "barcode": "7290001354735",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פילה סלמון קפואפרימיום",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 59.9,
+    "barcode": "7290003571116",
+    "brand": "סלמונס אוסטרל",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פילה סלמון ר.עגבניות 170 גרם",
+    "category": "בשר ודגים",
+    "icon": "🐟",
+    "price": 13.5,
+    "barcode": "4751007733229",
+    "brand": "KARAVELLA",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פילה עוף טרי ארוז שלי לק",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 44.9,
+    "barcode": "7290000616766",
+    "brand": "עוף עוז",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פסט במעשנה מנתח שלם 300",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 28.9,
+    "barcode": "7290018237410",
+    "brand": "מוצרי עוף טוב",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסט.מעושן חזה הודו משקל",
+    "category": "בשר ודגים",
+    "icon": "🍗",
+    "price": 75.0,
+    "barcode": "7290000152028",
+    "brand": "מוצרי עוף טוב",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פסטרמה בדבש זוגלובק 250 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 17.9,
+    "barcode": "7290109581262",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטרמה בדבש זוגלובק 330 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 33.5,
+    "barcode": "7290006742292",
+    "brand": "זוגלובק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטרמה גחלים זוגלובק 250",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 17.9,
+    "barcode": "7290109581248",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטרמה הודו מהמעשנה",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290000318950",
+    "brand": "מעדני יחיעם (1993) בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטרמה הודו מעושנת במשקל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 100.0,
+    "barcode": "7290001121146",
+    "brand": "יחיעם",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פסטרמה חרמוןתה 400400 גרם",
+    "category": "בשר ודגים",
+    "icon": "🛒",
+    "price": 24.9,
+    "barcode": "7290000530703",
+    "brand": "זוגלובק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטרמה כתף בקר מעושן 400",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 37.9,
+    "barcode": "7290003229192",
+    "brand": "טיב טירת צבי 2000",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטרמה של פעם משקל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 100.0,
+    "barcode": "7290001121023",
+    "brand": "יחיעם",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פרוסות נקניק ברביקיו 60",
+    "category": "בשר ודגים",
+    "icon": "🌭",
+    "price": 14.9,
+    "barcode": "7290000363318",
+    "brand": "טיב טירת צבי 2000",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "צוריסו נקניקיות עוף",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290109580739",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "צלי כתף טרי קג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 99.9,
+    "barcode": "7290000928388",
+    "brand": "שונות",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "קובה חמוסטה מילוי בשר 400",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 14.9,
+    "barcode": "7296073705178",
+    "brand": "חטיפי אלקיים בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קובה מרק במילוי בשר 400",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 14.9,
+    "barcode": "7296073705185",
+    "brand": "חטיפי אלקיים בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קוביות לקדירה טרי ארוז ליטר",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 69.9,
+    "barcode": "7290009011593",
+    "brand": "טיבון ויל אחזקות בע\"מ",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "קציצות דג סלמון לבשול 75",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 31.9,
+    "barcode": "7290002507451",
+    "brand": "דלידג בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ש.עוף מיני דינוזאור 600 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 39.9,
+    "barcode": "7290019205708",
+    "brand": "מוצרי עוף טוב",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שוקיים עוף ארוז קפוא",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 34.9,
+    "barcode": "7290001303276",
+    "brand": "עוף עוז",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "שניצל תירס 1.25 קג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 51.9,
+    "barcode": "7290109580036",
+    "brand": "זוגלובק",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "שניצל תירס מתקתק 750 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 35.9,
+    "barcode": "8445291373921",
+    "brand": "נסטלה סרביה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שניצל תירס קלאסי 750 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 35.9,
+    "barcode": "7290006739445",
+    "brand": "זוגלובק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שריר בשר מס 8 קפוא קג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290003632220",
+    "brand": "בלדי",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "אנטריקוט דקדק טרי דנבר מ״ל",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 179.9,
+    "barcode": "7290003354559",
+    "brand": "דנוור קאט רעננה",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "חתיכ.פילה הרינג מומלח 500",
+    "category": "בשר ודגים",
+    "icon": "🐟",
+    "price": 31.9,
+    "barcode": "4810168062651",
+    "brand": "סנטה ברמור",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "חתיכות פילה דג הרינג 260 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 21.9,
+    "barcode": "4810168058975",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "טונה בשמן ויליגר 1404 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 25.9,
+    "barcode": "7290002929642",
+    "brand": "אס.קי פודס פבליק קומפני",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "טונה בשמן זית 803 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 32.9,
+    "barcode": "8004030344938",
+    "brand": "בולטון אלימנטרי בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ירקות גינה עם טונה 160 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 20.9,
+    "barcode": "8004030022010",
+    "brand": "בולטון אלימנטרי בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מקרל עישון חםפל.שחור 150",
+    "category": "בשר ודגים",
+    "icon": "🐟",
+    "price": 25.9,
+    "barcode": "5901576059490",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נגיסי עוף ישרלה מחבת 600",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 41.9,
+    "barcode": "7290019204183",
+    "brand": "מוצרי עוף טוב",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נקניק הודו בפפריקה 400 גרם",
+    "category": "בשר ודגים",
+    "icon": "🌭",
+    "price": 34.9,
+    "barcode": "7290003229109",
+    "brand": "טיב טירת צבי 2000",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נקניקיות עוף מוגזמות 480",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 19.9,
+    "barcode": "7290002900344",
+    "brand": "טיב טירת צבי 2000",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נקנקיות מיני מרגז 400 גרם",
+    "category": "בשר ודגים",
+    "icon": "🌭",
+    "price": 30.9,
+    "barcode": "7290020002006",
+    "brand": "זהר בשר עופות ובשר בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נתחי טונה בשמן זית 1404 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 31.9,
+    "barcode": "7290019196259",
+    "brand": "תעשיות פילטונה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נתחי טונה בשמן זית 190 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.2,
+    "barcode": "7290117264980",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סלט טונה עם קוסקוס 150 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 15.9,
+    "barcode": "7290018440490",
+    "brand": "קאלוו קונסרבס ס.ל.יו. ,",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סלמי מעושן 7000- 600 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 38.9,
+    "barcode": "7290000530086",
+    "brand": "זוגלובק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סרדינים בשמן סויה 125 גרם",
+    "category": "בשר ודגים",
+    "icon": "🐟",
+    "price": 7.9,
+    "barcode": "6118000061090",
+    "brand": "סיוויק פסיפיק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פילה דג הרינג בשמן 400 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 22.9,
+    "barcode": "4810168061487",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פילה מקרל מומלח עישון 150",
+    "category": "בשר ודגים",
+    "icon": "🐟",
+    "price": 25.9,
+    "barcode": "5901576059483",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פילה סלמון ר.עגבניות 170 גרם",
+    "category": "בשר ודגים",
+    "icon": "🐟",
+    "price": 13.5,
+    "barcode": "4751007733229",
+    "brand": "KARAVELLA",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסט במעשנה מנתח שלם 300",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 28.9,
+    "barcode": "7290018237410",
+    "brand": "מוצרי עוף טוב",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטרמה בדבש זוגלובק 250 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 17.9,
+    "barcode": "7290109581262",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטרמה בדבש זוגלובק 330 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 33.5,
+    "barcode": "7290006742292",
+    "brand": "זוגלובק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטרמה חרמוןתה 400400 גרם",
+    "category": "בשר ודגים",
+    "icon": "🛒",
+    "price": 24.9,
+    "barcode": "7290000530703",
+    "brand": "זוגלובק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קובה חמוסטה מילוי בשר 400",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 14.9,
+    "barcode": "7296073705178",
+    "brand": "חטיפי אלקיים בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קוביות לקדירה טרי ארוז ליטר",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 69.9,
+    "barcode": "7290009011593",
+    "brand": "טיבון ויל אחזקות בע\"מ",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "ש.עוף מיני דינוזאור 600 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 39.9,
+    "barcode": "7290019205708",
+    "brand": "מוצרי עוף טוב",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שריר בשר מס 8 קפוא קג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 29.9,
+    "barcode": "7290003632220",
+    "brand": "בלדי",
+    "unit": "ק\"ג"
+  }
+]

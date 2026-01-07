@@ -1,0 +1,106 @@
+[
+  {
+    "name": "בריסטה נוט מילק שיבולת שועל 1 ליטר",
+    "category": "תחליפי חלב",
+    "icon": "🥛",
+    "price": 17.7,
+    "barcode": "5411188140146",
+    "brand": "אלפרו C.V.A",
+    "unit": "ליטר"
+  },
+  {
+    "name": "מעדן סויה בטעם וניל 125 גרם",
+    "category": "תחליפי חלב",
+    "icon": "🥛",
+    "price": 5.7,
+    "barcode": "7290014760134",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מעדן סויה ביו במתיקות מופחתת 200 גרם",
+    "category": "תחליפי חלב",
+    "icon": "🥛",
+    "price": 6.7,
+    "barcode": "7290110325305",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מעדן סויה ביו מעודנת 150 גרם",
+    "category": "תחליפי חלב",
+    "icon": "🥛",
+    "price": 5.9,
+    "barcode": "7290110329815",
+    "brand": "תנובה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מעדן סויה שוקולד מריר 1254 גרם",
+    "category": "תחליפי חלב",
+    "icon": "🥛",
+    "price": 20.9,
+    "barcode": "5411188094159",
+    "brand": "אלפרו C.V.A",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "משקה שיבולת שועל 0%סוכר 1 ליטר",
+    "category": "תחליפי חלב",
+    "icon": "🥛",
+    "price": 15.9,
+    "barcode": "7290017325972",
+    "brand": "ליקאוטס",
+    "unit": "ליטר"
+  },
+  {
+    "name": "פטה שקדים עשבי תיבול 200 גרם",
+    "category": "תחליפי חלב",
+    "icon": "🌱",
+    "price": 31.9,
+    "barcode": "7290018593011",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בריסטה נוט מילק שיבולת שועל 1 ליטר",
+    "category": "תחליפי חלב",
+    "icon": "🥛",
+    "price": 17.7,
+    "barcode": "5411188140146",
+    "brand": "אלפרו C.V.A",
+    "unit": "ליטר"
+  },
+  {
+    "name": "מעדן סויה בטעם וניל 125 גרם",
+    "category": "תחליפי חלב",
+    "icon": "🥛",
+    "price": 5.7,
+    "barcode": "7290014760134",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מעדן סויה שוקולד מריר 1254 גרם",
+    "category": "תחליפי חלב",
+    "icon": "🥛",
+    "price": 20.9,
+    "barcode": "5411188094159",
+    "brand": "אלפרו C.V.A",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "משקה שיבולת שועל 0%סוכר 1 ליטר",
+    "category": "תחליפי חלב",
+    "icon": "🥛",
+    "price": 15.9,
+    "barcode": "7290017325972",
+    "brand": "ליקאוטס",
+    "unit": "ליטר"
+  },
+  {
+    "name": "פטה שקדים עשבי תיבול 200 גרם",
+    "category": "תחליפי חלב",
+    "icon": "🌱",
+    "price": 31.9,
+    "barcode": "7290018593011",
+    "unit": "100 גרם"
+  }
+]

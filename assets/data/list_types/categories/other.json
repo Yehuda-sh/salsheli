@@ -1,0 +1,803 @@
+[
+  {
+    "name": "לקט לחמין 500 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 11.0,
+    "barcode": "7296073529460",
+    "brand": "מיה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מארז הפסקת אוכל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 12.9,
+    "barcode": "7290004136598",
+    "brand": "תנובה",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מארז הפסקת אוכל עוגי",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 12.9,
+    "barcode": "7290000051307",
+    "brand": "תנובה",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מארז פנגיאה לוז 300 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 36.9,
+    "barcode": "7290017516424",
+    "unit": "100 גרם",
+    "brand": ""
+  },
+  {
+    "name": "מדליק פחם 250 מ״ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 10.9,
+    "barcode": "7290012962448",
+    "brand": "S.C.B.V",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "מזלג שקוף עבה במיוחד 50 יחידות",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 14.9,
+    "barcode": "7296073230489",
+    "brand": "קיראי סחר והשקעות בע\"מ",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מזרה עגול צבעוני צנצ 100.",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 6.2,
+    "barcode": "7290002008224",
+    "brand": "ממתקי עלה בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מחצלת עגולה לסושי",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 8.9,
+    "barcode": "7290011996277",
+    "brand": "J FUZHOU",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מעדן משמש אורגני",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 25.9,
+    "barcode": "8001505000177",
+    "unit": "100 גרם",
+    "brand": ""
+  },
+  {
+    "name": "נר הבדלה דונג יחידה",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 5.9,
+    "barcode": "7290016898767",
+    "brand": "ר.שמאי",
+    "unit": "יחידה"
+  },
+  {
+    "name": "נרות חימום בשקית 50 יחיד",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 11.9,
+    "barcode": "7296073691754",
+    "brand": "FE GAOCHENG SHIJIAZHUANG",
+    "unit": "יחידה"
+  },
+  {
+    "name": "נרות חנוכה",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 4.9,
+    "barcode": "7290000432120",
+    "unit": "יחידה",
+    "brand": ""
+  },
+  {
+    "name": "נרות שבת 6 יחידות",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 5.9,
+    "barcode": "7290005095474",
+    "brand": "HQP",
+    "unit": "יחידה"
+  },
+  {
+    "name": "נרות שבת 72 יחידות",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 32.9,
+    "barcode": "7290005095245",
+    "brand": "HQP",
+    "unit": "יחידה"
+  },
+  {
+    "name": "נרות שבת 8 יחידות 8 יחיד",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 5.9,
+    "barcode": "7290005095481",
+    "brand": "משווק על ידי HQP",
+    "unit": "יחידה"
+  },
+  {
+    "name": "סוללות AA8AAA4 12 יחידו",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 12.9,
+    "barcode": "7296073693123",
+    "brand": "NINGBO WISE",
+    "unit": "יחידה"
+  },
+  {
+    "name": "פאלמאל כחול ארוך טיוב",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 39.5,
+    "barcode": "5208049015343",
+    "brand": "BAT",
+    "unit": "יחידה"
+  },
+  {
+    "name": "קליק עוגי 65 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 7.9,
+    "barcode": "7290112494290",
+    "brand": "יוניליוור ישראל מזון",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קלמנטינה",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 9.9,
+    "barcode": "7290000964560",
+    "brand": "קטיף.",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "קניידלך מיקס ללא גלוטן 130 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 21.9,
+    "barcode": "7297488199781",
+    "brand": "דג\"ש",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קנלוני 250 גרם MORINI",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 14.9,
+    "barcode": "7296073074649",
+    "brand": "פסטה ברוטו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קנלוני ברילה 250 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 17.5,
+    "barcode": "8076808070882",
+    "brand": "ברילה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קערית אובלית BASIC 25 יחידות",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 9.9,
+    "barcode": "7296073020400",
+    "brand": "פאלאס",
+    "unit": "יחידה"
+  },
+  {
+    "name": "קצח 40 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 8.9,
+    "barcode": "7290002517733",
+    "brand": "תבליני טעם וריח",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קר.לחות לתלתלים נטורל 400",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 23.5,
+    "barcode": "7290005418716",
+    "brand": "סנו",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "קראנץ' רולס 450 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 29.5,
+    "barcode": "7290109358765",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קראנצ'וס ברביקיו 55 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 4.0,
+    "barcode": "7290111930805",
+    "brand": "מנה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קרמוגית ממולא שוקו 200.גר",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 15.5,
+    "barcode": "7290000077017",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קרמיסימו שוקו צ'יפ 1.33 ליטר",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 22.9,
+    "barcode": "7290011081690",
+    "brand": "שטראוס",
+    "unit": "ליטר"
+  },
+  {
+    "name": "קרפצ'יו עגל 210 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 39.9,
+    "barcode": "7290011530945",
+    "brand": "בלדי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קשיו קלוי 150 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 18.9,
+    "barcode": "7290015652070",
+    "brand": "דין שיווק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "רדיד אלומיניום 60 מטר 30 ס",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 25.9,
+    "barcode": "7296073662457",
+    "brand": "נינגבו",
+    "unit": "מטר"
+  },
+  {
+    "name": "רוקפור צאן 32% במשקל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 129.0,
+    "barcode": "7290001258170",
+    "brand": "גבינות משק יעקבס",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "ריזלינג פרמייר 750 מ\"ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 29.9,
+    "barcode": "7290012576614",
+    "brand": "יקבי ברקן שיווק והפצה בע",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "רימון אורגני במשקל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 30.9,
+    "barcode": "7290000965956",
+    "brand": "יבולי בר אורגני",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "ריקוטה למריחה 5% 200 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 12.9,
+    "barcode": "7290017065137",
+    "brand": "מחלבות גד",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ריקוטה סגנון איטלק 5% 250",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 15.5,
+    "barcode": "7290014890176",
+    "brand": "משק יעקבס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ריקוטה פרסקה 9%",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 23.9,
+    "barcode": "7290011499846",
+    "unit": "100 גרם",
+    "brand": ""
+  },
+  {
+    "name": "רסק תפו\"ע 4 113 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 13.9,
+    "barcode": "7290012019258",
+    "brand": "אינדיאן סאמר קו אופ אינק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "רסק תפו\"ע ללת\"ס 1134 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 8.9,
+    "barcode": "7296073266310",
+    "brand": "FOODS HUIXANG JIANGSU",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "רקנאטי יסמין אדום 750 מ\"ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 44.9,
+    "barcode": "7290008670142",
+    "unit": "100 מ\"ל",
+    "brand": ""
+  },
+  {
+    "name": "רקסונה סטיק אינויזיבל 50",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 23.9,
+    "barcode": "4800888209382",
+    "brand": "יוניליוור ישראל טיפוח",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "רקסונה ספרי כותנה 150 מ״ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 20.8,
+    "barcode": "8717163655825",
+    "brand": "יוניליוור UK",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "רקסונה ספרי שאוור 150",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 20.8,
+    "barcode": "8717163655764",
+    "brand": "יוניליוור UK",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "רקסונה ספריי קוסלט",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 20.8,
+    "barcode": "8717163663493",
+    "brand": "יוניליוור אנגליה",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "שאטו טימברליי בורדו 750 מ״ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 99.9,
+    "barcode": "3500610150517",
+    "unit": "100 מ\"ל",
+    "brand": ""
+  },
+  {
+    "name": "שוופס לימונדה ורודה 1.5 ליטר",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 8.9,
+    "barcode": "7290018471906",
+    "brand": "יפאורה תבורי בע\"מ",
+    "unit": "ליטר"
+  },
+  {
+    "name": "שוופס מוגז פירות יער 500 מ״ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 7.9,
+    "barcode": "7290011051440",
+    "brand": "יפאורה תבורי בעמ",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "שוקולד מריר 100 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 9.9,
+    "barcode": "7290000170077",
+    "brand": "עלית",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שוקו רגואן בפחית 500 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 16.9,
+    "barcode": "7290000494616",
+    "brand": "רוני רגואן ושות 1986",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שוקולית 850 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 18.9,
+    "barcode": "7290010116980",
+    "brand": "שטראוס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שורש חזרת",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 44.9,
+    "barcode": "7290014015098",
+    "brand": "איקה חקלאות",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "שיפודי במבוק ג'מבו 50 יחידות",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 6.0,
+    "barcode": "7290013310101",
+    "unit": "יחידה",
+    "brand": ""
+  },
+  {
+    "name": "שיפודי במבוק שטוחים 25 יחידות",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 10.0,
+    "barcode": "7290013310477",
+    "unit": "יחידה",
+    "brand": ""
+  },
+  {
+    "name": "שיק הידרו 5 מכשירסכין",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 46.7,
+    "barcode": "6937266703038",
+    "brand": "שיק",
+    "unit": "יחידה"
+  },
+  {
+    "name": "שיק קווטרו טיטניום נשים",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 34.9,
+    "barcode": "4891228460242",
+    "brand": "שיק",
+    "unit": "יחידה"
+  },
+  {
+    "name": "שישיית מב.שיניים סופט 6 יחידות",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 9.9,
+    "barcode": "4987176231543",
+    "brand": "פרוקטר & גמבל",
+    "unit": "יחידה"
+  },
+  {
+    "name": "שעועית אפויה במים 550 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 10.9,
+    "barcode": "7290013531759",
+    "brand": "זנלכל בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שעועית ארגנטינאית 500 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 11.9,
+    "barcode": "7296073134930",
+    "brand": "מיה תעשיות מזון",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שעועית מעורבת שופרסל 500 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 15.0,
+    "barcode": "7296073006077",
+    "brand": "מיה תעשיות מזון",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שעועית מש אורגנית 500 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 13.9,
+    "barcode": "7296073225720",
+    "brand": "סנקי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "תורמוס 2 יח 200 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 11.9,
+    "barcode": "7290018989296",
+    "brand": "זנלכל בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "תיבול על האש 100 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 12.9,
+    "barcode": "7290011964689",
+    "brand": "תבליני טעם וריח",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "תערובת שתילה 5 ליטר 800",
+    "category": "אחר",
+    "icon": "🌱",
+    "price": 15.9,
+    "barcode": "4008717501007",
+    "brand": "German Klasmann-Deilmann",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "תרסיס קוטל יתושים 630 מ״ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 17.9,
+    "barcode": "7290020188700",
+    "brand": "סאסאטק אגש\"ח בע\"מ",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "מרכך לחות לרצפה ספאXPO 10",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 13.9,
+    "barcode": "7290020188045",
+    "brand": "סאסאטק אגש\"ח בע\"מ",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מארז פנגיאה לוז 300 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 36.9,
+    "barcode": "7290017516424",
+    "unit": "100 גרם",
+    "brand": ""
+  },
+  {
+    "name": "מדליק פחם 250 מ״ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 10.9,
+    "barcode": "7290012962448",
+    "brand": "S.C.B.V",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "מזלג שקוף עבה במיוחד 50 יחידות",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 14.9,
+    "barcode": "7296073230489",
+    "brand": "קיראי סחר והשקעות בע\"מ",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מזרה עגול צבעוני צנצ 100.",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 6.2,
+    "barcode": "7290002008224",
+    "brand": "ממתקי עלה בעמ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קניידלך מיקס ללא גלוטן 130 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 21.9,
+    "barcode": "7297488199781",
+    "brand": "דג\"ש",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קערית אובלית BASIC 25 יחידות",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 9.9,
+    "barcode": "7296073020400",
+    "brand": "פאלאס",
+    "unit": "יחידה"
+  },
+  {
+    "name": "קר.לחות לתלתלים נטורל 400",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 23.5,
+    "barcode": "7290005418716",
+    "brand": "סנו",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "קרמוגית ממולא שוקו 200.גר",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 15.5,
+    "barcode": "7290000077017",
+    "brand": "אסם תעשיות מזון בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "רדיד אלומיניום 60 מטר 30 ס",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 25.9,
+    "barcode": "7296073662457",
+    "brand": "נינגבו",
+    "unit": "מטר"
+  },
+  {
+    "name": "ריקוטה סגנון איטלק 5% 250",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 15.5,
+    "barcode": "7290014890176",
+    "brand": "משק יעקבס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "רסק תפו\"ע ללת\"ס 1134 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 8.9,
+    "barcode": "7296073266310",
+    "brand": "FOODS HUIXANG JIANGSU",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "רקסונה ספרי כותנה 150 מ״ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 20.8,
+    "barcode": "8717163655825",
+    "brand": "יוניליוור UK",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "שאטו טימברליי בורדו 750 מ״ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 99.9,
+    "barcode": "3500610150517",
+    "unit": "100 מ\"ל",
+    "brand": ""
+  },
+  {
+    "name": "שוופס לימונדה ורודה 1.5 ליטר",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 8.9,
+    "barcode": "7290018471906",
+    "brand": "יפאורה תבורי בע\"מ",
+    "unit": "ליטר"
+  },
+  {
+    "name": "שוופס מוגז פירות יער 500 מ״ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 7.9,
+    "barcode": "7290011051440",
+    "brand": "יפאורה תבורי בעמ",
+    "unit": "100 מ\"ל"
+  },
+  {
+    "name": "שוקולד מריר 100 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 9.9,
+    "barcode": "7290000170077",
+    "brand": "עלית",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שוקו רגואן בפחית 500 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 16.9,
+    "barcode": "7290000494616",
+    "brand": "רוני רגואן ושות 1986",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שיפודי במבוק ג'מבו 50 יחידות",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 6.0,
+    "barcode": "7290013310101",
+    "unit": "יחידה",
+    "brand": ""
+  },
+  {
+    "name": "שיפודי במבוק שטוחים 25 יחידות",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 10.0,
+    "barcode": "7290013310477",
+    "unit": "יחידה",
+    "brand": ""
+  },
+  {
+    "name": "שישיית מב.שיניים סופט 6 יחידות",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 9.9,
+    "barcode": "4987176231543",
+    "brand": "פרוקטר & גמבל",
+    "unit": "יחידה"
+  },
+  {
+    "name": "שעועית מעורבת שופרסל 500 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 15.0,
+    "barcode": "7296073006077",
+    "brand": "מיה תעשיות מזון",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שעועית מש אורגנית 500 גרם",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 13.9,
+    "barcode": "7296073225720",
+    "brand": "סנקי",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "תרסיס קוטל יתושים 630 מ״ל",
+    "category": "אחר",
+    "icon": "🛒",
+    "price": 17.9,
+    "barcode": "7290020188700",
+    "brand": "סאסאטק אגש\"ח בע\"מ",
+    "unit": "100 מ\"ל"
+  }
+]
