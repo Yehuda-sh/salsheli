@@ -974,5 +974,131 @@
     "barcode": "7290003632220",
     "brand": "בלדי",
     "unit": "ק\"ג"
+  },
+  {
+    "name": "שניצל עוף קלאסי 700 גרם",
+    "category": "בשר ודגים",
+    "icon": "🍗",
+    "price": 42.9,
+    "barcode": "7290000066318",
+    "brand": "זוגלובק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פרגיות טריות לק\"ג",
+    "category": "בשר ודגים",
+    "icon": "🍗",
+    "price": 34.9,
+    "barcode": "7290019200017",
+    "brand": "עוף טוב",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "כנפי עוף קפואות 1 ק\"ג",
+    "category": "בשר ודגים",
+    "icon": "🍗",
+    "price": 24.9,
+    "barcode": "7290014050013",
+    "brand": "עוף עוז",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "שוקיים עוף טריות ק\"ג",
+    "category": "בשר ודגים",
+    "icon": "🍗",
+    "price": 29.9,
+    "barcode": "7290017800015",
+    "brand": "עוף הגליל",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פילה אמנון טרי ק\"ג",
+    "category": "בשר ודגים",
+    "icon": "🐟",
+    "price": 59.9,
+    "barcode": "7290012000012",
+    "brand": "דגת הארץ",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פילה מושט קפוא 1 ק\"ג",
+    "category": "בשר ודגים",
+    "icon": "🐟",
+    "price": 44.9,
+    "barcode": "7290015000019",
+    "brand": "סנפרוסט",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "טונה במים 160 גרם",
+    "category": "בשר ודגים",
+    "icon": "🐟",
+    "price": 9.9,
+    "barcode": "7290000500010",
+    "brand": "ויליגר",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סרדינים בשמן זית 125 גרם",
+    "category": "בשר ודגים",
+    "icon": "🐟",
+    "price": 12.9,
+    "barcode": "8410090001018",
+    "brand": "קאלוו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נקניק סלמי איטלקי 300 גרם",
+    "category": "בשר ודגים",
+    "icon": "🌭",
+    "price": 32.9,
+    "barcode": "7290006200015",
+    "brand": "יחיעם",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטרמה עוף טבעית 300 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 28.9,
+    "barcode": "7290019200031",
+    "brand": "עוף טוב",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסטרמה על האש 300 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 31.9,
+    "barcode": "7290000066332",
+    "brand": "זוגלובק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שניצלוני עוף מתובלים 600 גרם",
+    "category": "בשר ודגים",
+    "icon": "🍗",
+    "price": 38.9,
+    "barcode": "7290000066349",
+    "brand": "זוגלובק",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קציצות בקר ברוטב 400 גרם",
+    "category": "בשר ודגים",
+    "icon": "🥘",
+    "price": 34.9,
+    "barcode": "7290008500012",
+    "brand": "מעדנות",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קבב בקר קפוא 1 ק\"ג",
+    "category": "בשר ודגים",
+    "icon": "🥩",
+    "price": 49.9,
+    "barcode": "7290019200048",
+    "brand": "עוף טוב",
+    "unit": "ק\"ג"
   }
 ]

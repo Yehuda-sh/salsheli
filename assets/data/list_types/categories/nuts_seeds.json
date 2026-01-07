@@ -139,5 +139,139 @@
     "price": 26.9,
     "barcode": "7290117906903",
     "unit": "100 גרם"
+  },
+  {
+    "name": "שקדים טבעיים 200 גרם",
+    "category": "אגוזים וגרעינים",
+    "icon": "🥜",
+    "price": 17.9,
+    "barcode": "7296073705802",
+    "brand": "קליית גת",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שקדים קלויים מלוחים 200 גרם",
+    "category": "אגוזים וגרעינים",
+    "icon": "🥜",
+    "price": 19.9,
+    "barcode": "7296073705826",
+    "brand": "קליית גת",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אגוז מלך חצאים 200 גרם",
+    "category": "אגוזים וגרעינים",
+    "icon": "🥜",
+    "price": 23.9,
+    "barcode": "7296073705796",
+    "brand": "דין שיווק וקלייה בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אגוז לוז טבעי 200 גרם",
+    "category": "אגוזים וגרעינים",
+    "icon": "🥜",
+    "price": 24.9,
+    "barcode": "7296073705819",
+    "brand": "קליית גת",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קשיו טבעי 200 גרם",
+    "category": "אגוזים וגרעינים",
+    "icon": "🥜",
+    "price": 25.9,
+    "barcode": "7296073705857",
+    "brand": "קליית גת",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קשיו קלוי מלוח 200 גרם",
+    "category": "אגוזים וגרעינים",
+    "icon": "🥜",
+    "price": 27.9,
+    "barcode": "7296073705871",
+    "brand": "דין שיווק וקלייה בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אגוז מקדמיה 150 גרם",
+    "category": "אגוזים וגרעינים",
+    "icon": "🥜",
+    "price": 32.9,
+    "barcode": "7296073705932",
+    "brand": "דין שיווק וקלייה בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "בוטנים קלויים מלוחים 200 גרם",
+    "category": "אגוזים וגרעינים",
+    "icon": "🥜",
+    "price": 9.9,
+    "barcode": "7296073705888",
+    "brand": "קליית גת",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "תערובת בריאות 250 גרם",
+    "category": "אגוזים וגרעינים",
+    "icon": "🥜",
+    "price": 22.9,
+    "barcode": "7296073706205",
+    "brand": "דין שיווק וקלייה בע\"מ",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "תערובת אנרגיה 250 גרם",
+    "category": "אגוזים וגרעינים",
+    "icon": "🥜",
+    "price": 24.9,
+    "barcode": "7296073706212",
+    "brand": "קליית גת",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שקד מולבן פרוס 150 גרם",
+    "category": "אגוזים וגרעינים",
+    "icon": "🥜",
+    "price": 18.9,
+    "barcode": "7296073705918",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אגוזים טחונים לאפייה 200 גרם",
+    "category": "אגוזים וגרעינים",
+    "icon": "🥜",
+    "price": 17.9,
+    "barcode": "7296073705949",
+    "brand": "מיה תעשיות מזון",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פיסטוק חלבי טבעי 150 גרם",
+    "category": "אגוזים וגרעינים",
+    "icon": "🥜",
+    "price": 28.9,
+    "barcode": "7296073706083",
+    "brand": "קליית גת",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גרעיני דלעת קלויים מלוחים 200 גרם",
+    "category": "אגוזים וגרעינים",
+    "icon": "🌻",
+    "price": 15.9,
+    "barcode": "7296073706021",
+    "brand": "קליית גת",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גרעיני חמנייה טבעיים 200 גרם",
+    "category": "אגוזים וגרעינים",
+    "icon": "🌻",
+    "price": 12.9,
+    "barcode": "7296073706038",
+    "brand": "קליית גת",
+    "unit": "100 גרם"
   }
 ]

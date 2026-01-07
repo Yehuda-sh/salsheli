@@ -102,5 +102,149 @@
     "price": 31.9,
     "barcode": "7290018593011",
     "unit": "100 גרם"
+  },
+  {
+    "name": "משקה שקדים ללא סוכר 1 ליטר",
+    "category": "תחליפי חלב",
+    "icon": "🥛",
+    "price": 14.9,
+    "barcode": "5411188107019",
+    "brand": "Alpro",
+    "unit": "ליטר"
+  },
+  {
+    "name": "משקה שקדים ממותק 1 ליטר",
+    "category": "תחליפי חלב",
+    "icon": "🥛",
+    "price": 14.9,
+    "barcode": "5411188117117",
+    "brand": "Alpro",
+    "unit": "ליטר"
+  },
+  {
+    "name": "משקה סויה טבעי 1 ליטר",
+    "category": "תחליפי חלב",
+    "icon": "🥛",
+    "price": 12.9,
+    "barcode": "7290110330583",
+    "brand": "תנובה Free",
+    "unit": "ליטר"
+  },
+  {
+    "name": "משקה סויה וניל 1 ליטר",
+    "category": "תחליפי חלב",
+    "icon": "🥛",
+    "price": 12.9,
+    "barcode": "7290110330576",
+    "brand": "תנובה Free",
+    "unit": "ליטר"
+  },
+  {
+    "name": "משקה שיבולת שועל באריסטה 1 ליטר",
+    "category": "תחליפי חלב",
+    "icon": "🥛",
+    "price": 17.9,
+    "barcode": "5411188114079",
+    "brand": "Alpro Barista",
+    "unit": "ליטר"
+  },
+  {
+    "name": "משקה שיבולת שועל טבעי 1 ליטר",
+    "category": "תחליפי חלב",
+    "icon": "🥛",
+    "price": 15.9,
+    "barcode": "7290017325989",
+    "brand": "ליקאוטס",
+    "unit": "ליטר"
+  },
+  {
+    "name": "משקה קוקוס טבעי 1 ליטר",
+    "category": "תחליפי חלב",
+    "icon": "🥥",
+    "price": 14.9,
+    "barcode": "5411188107033",
+    "brand": "Alpro",
+    "unit": "ליטר"
+  },
+  {
+    "name": "מעדן סויה שוקולד 125 גרם",
+    "category": "תחליפי חלב",
+    "icon": "🍮",
+    "price": 5.9,
+    "barcode": "7290110325299",
+    "brand": "תנובה Free",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מעדן סויה וניל 125 גרם",
+    "category": "תחליפי חלב",
+    "icon": "🍮",
+    "price": 5.9,
+    "barcode": "7290110325282",
+    "brand": "תנובה Free",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מעדן אלפרו וניל 125 גרם",
+    "category": "תחליפי חלב",
+    "icon": "🍮",
+    "price": 5.9,
+    "barcode": "5411188073086",
+    "brand": "Alpro",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מעדן אלפרו שוקולד 125 גרם",
+    "category": "תחליפי חלב",
+    "icon": "🍮",
+    "price": 5.9,
+    "barcode": "5411188073093",
+    "brand": "Alpro",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ממרח גבינה טבעונית בטעם טבעי 200 גרם",
+    "category": "תחליפי חלב",
+    "icon": "🌱",
+    "price": 15.9,
+    "barcode": "7290018593004",
+    "brand": "משומשו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ממרח גבינה טבעונית שום שמיר 200 גרם",
+    "category": "תחליפי חלב",
+    "icon": "🌱",
+    "price": 16.9,
+    "barcode": "7290018593028",
+    "brand": "משומשו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פטה סויה עם עשבי תיבול 200 גרם",
+    "category": "תחליפי חלב",
+    "icon": "🌱",
+    "price": 18.9,
+    "barcode": "7290018593035",
+    "brand": "משומשו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מעדן Free Kids בטעם שוקו 90 גרם",
+    "category": "תחליפי חלב",
+    "icon": "🍦",
+    "price": 4.9,
+    "barcode": "7290110376000",
+    "brand": "תנובה Free",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מעדן Free Kids בטעם וניל 90 גרם",
+    "category": "תחליפי חלב",
+    "icon": "🍦",
+    "price": 4.9,
+    "barcode": "7290110376017",
+    "brand": "תנובה Free",
+    "unit": "100 גרם"
   }
 ]

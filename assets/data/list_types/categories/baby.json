@@ -29,25 +29,61 @@
   {
     "name": "גונסון בייבי שמן 500 מ״ל",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
+    "icon": "🧴",
     "price": 32.9,
     "barcode": "3574660058857",
-    "brand": "CILAG GMBH INTERNATIONAL",
-    "unit": "100 מ\"ל"
+    "brand": "Johnson's Baby",
+    "unit": "100 מ״ל"
   },
   {
     "name": "דייסת וניל מטרנה 200 גרם",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
+    "icon": "🥣",
     "price": 19.9,
     "barcode": "7290006992390",
-    "brand": "מטרנה תעשיות ש.מ",
+    "brand": "מטרנה תעשיות ש.מ.",
     "unit": "100 גרם"
+  },
+  {
+    "name": "דייסת אורז מטרנה 200 גרם",
+    "category": "מוצרי תינוקות",
+    "icon": "🥣",
+    "price": 19.9,
+    "barcode": "7290006992383",
+    "brand": "מטרנה תעשיות ש.מ.",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "דייסת קוואקר וניל 250 גרם",
+    "category": "מוצרי תינוקות",
+    "icon": "🥣",
+    "price": 17.9,
+    "barcode": "7290000592856",
+    "brand": "קוואקר",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "דייסת מטרנה דגנים עם פירות 200 גרם",
+    "category": "מוצרי תינוקות",
+    "icon": "🥣",
+    "price": 19.9,
+    "barcode": "7290006992376",
+    "brand": "מטרנה תעשיות ש.מ.",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "האגיס אקסטרה קר מידה 3",
+    "category": "מוצרי תינוקות",
+    "icon": "🧷",
+    "price": 59.9,
+    "barcode": "7290000205908",
+    "brand": "חוגלה קימברלי",
+    "unit": "יחידה"
   },
   {
     "name": "האגיס אקסטרה קר מידה 4",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
+    "icon": "🧷",
     "price": 60.9,
     "barcode": "7290000205915",
     "brand": "חוגלה קימברלי",
@@ -56,24 +92,34 @@
   {
     "name": "האגיס פרידום דריי מידה 6",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
+    "icon": "🧷",
     "price": 48.9,
     "barcode": "7290000197678",
     "brand": "חוגלה קימברלי",
     "unit": "יחידה"
   },
   {
+    "name": "האגיס פרידום דריי שלב 5 44 יחידות",
+    "category": "מוצרי תינוקות",
+    "icon": "🧷",
+    "price": 56.9,
+    "barcode": "7290000197609",
+    "brand": "חוגלה קימברלי",
+    "unit": "יחידה"
+  },
+  {
     "name": "חטיפטף לפתן פירות 120 גרם",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
+    "icon": "🍎",
     "price": 6.7,
     "barcode": "7290015156790",
+    "brand": "פרוטה פודיווין איי.אס",
     "unit": "100 גרם"
   },
   {
     "name": "חטיפטף פרינוק פירות 120 גרם",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
+    "icon": "🍎",
     "price": 6.7,
     "barcode": "7290015155847",
     "brand": "פרוטה פודיווין איי.אס",
@@ -82,70 +128,142 @@
   {
     "name": "חטיפטף פרינוק תפוח 120 גרם",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
+    "icon": "🍎",
     "price": 6.7,
     "barcode": "7290015155823",
     "brand": "פרוטה פודיווין איי.אס",
     "unit": "100 גרם"
   },
   {
-    "name": "כוס הפלא עם ידית 240 מ\"ל",
+    "name": "חטיף תירס בייבי ביס 40 גרם",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
+    "icon": "🍿",
+    "price": 16.9,
+    "barcode": "7290011618230",
+    "brand": "want-want",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "כוס הפלא עם ידית 240 מ״ל",
+    "category": "מוצרי תינוקות",
+    "icon": "🍼",
     "price": 41.9,
     "barcode": "7296073375630",
     "brand": "LUV.N`CARE",
     "unit": "יחידה"
   },
   {
-    "name": "מרכך כביסה מרוכז בייבי 1 ל LU",
+    "name": "מרכך כביסה מרוכז בייבי 1 ליטר",
     "category": "מוצרי תינוקות",
-    "icon": "🛒",
+    "icon": "🧴",
     "price": 18.9,
     "barcode": "7296073723776",
     "brand": "גליל כימיקלים",
     "unit": "ליטר"
   },
   {
+    "name": "מרכך כביסה לתינוק האגיס 1 ליטר",
+    "category": "מוצרי תינוקות",
+    "icon": "🧴",
+    "price": 18.9,
+    "barcode": "7290002075189",
+    "brand": "Huggies Baby",
+    "unit": "ליטר"
+  },
+  {
     "name": "מגבוני דיסני מבושם 456 יחידות",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
+    "icon": "🧻",
     "price": 24.9,
     "barcode": "7290111346118",
-    "brand": "עלבד משואות יצחק בע\"מ,ד",
+    "brand": "עלבד משואות יצחק בע״מ",
     "unit": "יחידה"
   },
   {
-    "name": "מגבוני האגיס דיסני 4 56",
+    "name": "מגבוני האגיס דיסני 56 יחידות",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
+    "icon": "🧻",
     "price": 24.9,
     "barcode": "7290000201979",
-    "brand": "עלבד משואות יצחק בע\"מ,ד",
+    "brand": "עלבד משואות יצחק בע״מ",
     "unit": "יחידה"
   },
   {
-    "name": "מטרנה אקסטרה קר שלב 1 700",
+    "name": "מגבוני בייבי סנסיטיב 72 יחידות",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
+    "icon": "🧻",
+    "price": 10.9,
+    "barcode": "7290002075172",
+    "brand": "האגיס",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מגבוני פמפרס סנסיטיב 56 יחידות",
+    "category": "מוצרי תינוקות",
+    "icon": "🧻",
+    "price": 12.9,
+    "barcode": "8006540579723",
+    "brand": "Pampers",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מגבוני דוקטור פישר בייבי סנסיטיב 72 יחידות",
+    "category": "מוצרי תינוקות",
+    "icon": "🧻",
+    "price": 11.9,
+    "barcode": "7290008011105",
+    "brand": "Dr. Fischer",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מגבוני מג׳יקל קלאסיק 80 יחידות",
+    "category": "מוצרי תינוקות",
+    "icon": "🧻",
+    "price": 8.9,
+    "barcode": "7296073723783",
+    "brand": "Magical",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מגבוני שופרסל בייבי סנסיטיב 72 יחידות",
+    "category": "מוצרי תינוקות",
+    "icon": "🧻",
+    "price": 7.9,
+    "barcode": "7296073231059",
+    "brand": "שופרסל",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מטרנה אקסטרה קר שלב 1 700 גרם",
+    "category": "מוצרי תינוקות",
+    "icon": "🍼",
     "price": 66.9,
     "barcode": "7290013083661",
-    "brand": "מטרנה תעשיות ש.מ",
+    "brand": "מטרנה תעשיות ש.מ.",
     "unit": "100 גרם"
   },
   {
     "name": "מטרנה גולד פרו שלב 1 700 גרם",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
+    "icon": "🍼",
     "price": 82.9,
     "barcode": "7290018132661",
     "brand": "מטרנה תעשיות ש.מ.",
     "unit": "100 גרם"
   },
   {
+    "name": "מטרנה גולד פרו שלב 2 700 גרם",
+    "category": "מוצרי תינוקות",
+    "icon": "🍼",
+    "price": 81.9,
+    "barcode": "7290018132395",
+    "brand": "מטרנה תעשיות ש.מ.",
+    "unit": "100 גרם"
+  },
+  {
     "name": "מטרנה גולד שלב 2 700 גרם",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
+    "icon": "🍼",
     "price": 81.9,
     "barcode": "7290018132388",
     "brand": "מטרנה תעשיות ש.מ.",
@@ -154,15 +272,34 @@
   {
     "name": "משטחי החתלה מרופדים 8 יחידות",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
+    "icon": "🧒",
     "price": 14.9,
     "barcode": "7290018071069",
+    "brand": "האגיס",
     "unit": "יחידה"
+  },
+  {
+    "name": "נוזל כביסה בייבי סופט 1 ליטר",
+    "category": "מוצרי תינוקות",
+    "icon": "🧴",
+    "price": 22.9,
+    "barcode": "7290002590057",
+    "brand": "Softcare",
+    "unit": "ליטר"
+  },
+  {
+    "name": "אבקת כביסה בייבי סופט 2.5 ק״ג",
+    "category": "מוצרי תינוקות",
+    "icon": "🧼",
+    "price": 34.9,
+    "barcode": "7296073723875",
+    "brand": "Softcare",
+    "unit": "ק״ג"
   },
   {
     "name": "סט מברשות ומסרק לתינוק",
     "category": "מוצרי תינוקות",
-    "icon": "🛒",
+    "icon": "👶",
     "price": 14.9,
     "barcode": "7296073248446",
     "brand": "N.R.CO.LTD",
@@ -171,10 +308,19 @@
   {
     "name": "סימילאק גולד שלב 1 700 גרם",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
+    "icon": "🍼",
     "price": 80.9,
     "barcode": "5099864015577",
-    "brand": "אבוט אירלנד",
+    "brand": "Abbott",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "סימילאק גולד שלב 2 700 גרם",
+    "category": "מוצרי תינוקות",
+    "icon": "🍼",
+    "price": 81.9,
+    "barcode": "5099864015584",
+    "brand": "Abbott",
     "unit": "100 גרם"
   },
   {
@@ -187,27 +333,54 @@
     "unit": "יחידה"
   },
   {
-    "name": "פדיאשור ונילה 850",
+    "name": "פדיאשור ונילה 850 גרם",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
+    "icon": "🍼",
     "price": 74.9,
     "barcode": "8710428017000",
-    "brand": "ABBOT",
+    "brand": "Abbott",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פדיאשור שוקו 850 גרם",
+    "category": "מוצרי תינוקות",
+    "icon": "🥛",
+    "price": 74.9,
+    "barcode": "8710428017017",
+    "brand": "Abbott",
     "unit": "100 גרם"
   },
   {
     "name": "פמפרס בייבי דריי 43 שלב 2",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
+    "icon": "🧷",
     "price": 39.5,
     "barcode": "8700216350433",
-    "brand": "פרוקטר אנד גמבל",
+    "brand": "Pampers",
     "unit": "יחידה"
   },
   {
-    "name": "פרינוק גונ.סלט פירות 190",
+    "name": "פמפרס אקטיב בייבי שלב 3 58 יחידות",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
+    "icon": "🧷",
+    "price": 64.9,
+    "barcode": "8001090608039",
+    "brand": "Pampers",
+    "unit": "יחידה"
+  },
+  {
+    "name": "פמפרס פרימיום קייר שלב 3 60 יחידות",
+    "category": "מוצרי תינוקות",
+    "icon": "🧷",
+    "price": 65.9,
+    "barcode": "8006540733729",
+    "brand": "Pampers",
+    "unit": "יחידה"
+  },
+  {
+    "name": "פרינוק גונ.סלט פירות 190 גרם",
+    "category": "מוצרי תינוקות",
+    "icon": "🍎",
     "price": 7.2,
     "barcode": "7290010065349",
     "brand": "פרינוק",
@@ -216,144 +389,235 @@
   {
     "name": "פרינוק פירות ושיבולת 190 גרם",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
+    "icon": "🍎",
     "price": 7.2,
     "barcode": "7290018516379",
     "brand": "פרוטה פודיווין איי.אס",
     "unit": "100 גרם"
   },
   {
-    "name": "בייבי ביס טעם בננה 50 גרם",
+    "name": "פרינוק פירות בננה תפוח 190 גרם",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
-    "price": 18.9,
-    "barcode": "7290011618216",
-    "brand": "want-want",
+    "icon": "🍌",
+    "price": 7.2,
+    "barcode": "7290010065325",
+    "brand": "פרינוק",
     "unit": "100 גרם"
   },
   {
-    "name": "בייבי ביס נגיסי אורז 50 גרם",
+    "name": "פירות גמדים תפוח ובננה 100 גרם",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
-    "price": 18.9,
-    "barcode": "7290014126473",
-    "brand": "want-want",
+    "icon": "🍎",
+    "price": 6.5,
+    "barcode": "7290010471003",
+    "brand": "שטראוס",
     "unit": "100 גרם"
   },
   {
-    "name": "גונסון בייבי שמן 500 מ״ל",
+    "name": "פירות גמדים תות ואפרסק 100 גרם",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
-    "price": 32.9,
-    "barcode": "3574660058857",
-    "brand": "CILAG GMBH INTERNATIONAL",
-    "unit": "100 מ\"ל"
-  },
-  {
-    "name": "חטיפטף פרינוק פירות 120 גרם",
-    "category": "מוצרי תינוקות",
-    "icon": "👶",
-    "price": 6.7,
-    "barcode": "7290015155847",
-    "brand": "פרוטה פודיווין איי.אס",
+    "icon": "🍓",
+    "price": 6.5,
+    "barcode": "7290010471010",
+    "brand": "שטראוס",
     "unit": "100 גרם"
   },
   {
-    "name": "חטיפטף פרינוק תפוח 120 גרם",
+    "name": "פירות גמדים אפרסק 100 גרם",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
-    "price": 6.7,
-    "barcode": "7290015155823",
-    "brand": "פרוטה פודיווין איי.אס",
+    "icon": "🍑",
+    "price": 6.5,
+    "barcode": "7290010471034",
+    "brand": "שטראוס",
     "unit": "100 גרם"
   },
   {
-    "name": "מרכך כביסה מרוכז בייבי 1 ל LU",
+    "name": "נוטרילון שלב 1 700 גרם",
     "category": "מוצרי תינוקות",
-    "icon": "🛒",
-    "price": 18.9,
-    "barcode": "7296073723776",
-    "brand": "גליל כימיקלים",
-    "unit": "ליטר"
-  },
-  {
-    "name": "מגבוני דיסני מבושם 456 יחידות",
-    "category": "מוצרי תינוקות",
-    "icon": "👶",
-    "price": 24.9,
-    "barcode": "7290111346118",
-    "brand": "עלבד משואות יצחק בע\"מ,ד",
-    "unit": "יחידה"
-  },
-  {
-    "name": "מטרנה אקסטרה קר שלב 1 700",
-    "category": "מוצרי תינוקות",
-    "icon": "👶",
-    "price": 66.9,
-    "barcode": "7290013083661",
-    "brand": "מטרנה תעשיות ש.מ",
+    "icon": "🍼",
+    "price": 79.9,
+    "barcode": "8718117603124",
+    "brand": "Nutrilon",
     "unit": "100 גרם"
   },
   {
-    "name": "מטרנה גולד פרו שלב 1 700 גרם",
+    "name": "נוטרילון שלב 2 700 גרם",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
+    "icon": "🍼",
+    "price": 79.9,
+    "barcode": "8718117603131",
+    "brand": "Nutrilon",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "נוטרילון סנסיטיב 700 גרם",
+    "category": "מוצרי תינוקות",
+    "icon": "🍼",
+    "price": 84.9,
+    "barcode": "8718117603193",
+    "brand": "Nutrilon",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "היאבנס שלב 1 800 גרם",
+    "category": "מוצרי תינוקות",
+    "icon": "🍼",
     "price": 82.9,
-    "barcode": "7290018132661",
-    "brand": "מטרנה תעשיות ש.מ.",
+    "barcode": "7290115732016",
+    "brand": "HiPP",
     "unit": "100 גרם"
   },
   {
-    "name": "משטחי החתלה מרופדים 8 יחידות",
+    "name": "היאבנס שלב 2 800 גרם",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
-    "price": 14.9,
-    "barcode": "7290018071069",
+    "icon": "🍼",
+    "price": 82.9,
+    "barcode": "7290115732023",
+    "brand": "HiPP",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "היאבנס קומפורט 800 גרם",
+    "category": "מוצרי תינוקות",
+    "icon": "🍼",
+    "price": 85.9,
+    "barcode": "7290115732115",
+    "brand": "HiPP",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שמפו ג'ונסון בייבי 500 מ״ל",
+    "category": "מוצרי תינוקות",
+    "icon": "🧴",
+    "price": 29.9,
+    "barcode": "3574669909396",
+    "brand": "Johnson's Baby",
+    "unit": "100 מ״ל"
+  },
+  {
+    "name": "סבון ג'ונסון בייבי 500 מ״ל",
+    "category": "מוצרי תינוקות",
+    "icon": "🧴",
+    "price": 28.9,
+    "barcode": "3574669909358",
+    "brand": "Johnson's Baby",
+    "unit": "100 מ״ל"
+  },
+  {
+    "name": "קרם החתלה בייבי ג'ונסון 100 גרם",
+    "category": "מוצרי תינוקות",
+    "icon": "🧴",
+    "price": 24.9,
+    "barcode": "3574660058901",
+    "brand": "Johnson's Baby",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קרם החתלה וולדה קלנדולה 75 גרם",
+    "category": "מוצרי תינוקות",
+    "icon": "🌼",
+    "price": 39.9,
+    "barcode": "4001638096613",
+    "brand": "Weleda",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שמן גוף לתינוק סופטקר 250 מ״ל",
+    "category": "מוצרי תינוקות",
+    "icon": "🧴",
+    "price": 24.9,
+    "barcode": "7290002590064",
+    "brand": "Softcare",
+    "unit": "100 מ״ל"
+  },
+  {
+    "name": "תחליב לחות בייבי סופטקר 400 מ״ל",
+    "category": "מוצרי תינוקות",
+    "icon": "🧴",
+    "price": 27.9,
+    "barcode": "7290002590040",
+    "brand": "Softcare",
+    "unit": "100 מ״ל"
+  },
+  {
+    "name": "מוצץ סיליקון אוונט 6-18 חודשים",
+    "category": "מוצרי תינוקות",
+    "icon": "🍼",
+    "price": 29.9,
+    "barcode": "8710103666581",
+    "brand": "Philips Avent",
     "unit": "יחידה"
   },
   {
-    "name": "סימילאק גולד שלב 1 700 גרם",
+    "name": "בקבוק אוונט טבעי 260 מ״ל",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
-    "price": 80.9,
-    "barcode": "5099864015577",
-    "brand": "אבוט אירלנד",
-    "unit": "100 גרם"
-  },
-  {
-    "name": "פדיאשור ונילה 850",
-    "category": "מוצרי תינוקות",
-    "icon": "👶",
-    "price": 74.9,
-    "barcode": "8710428017000",
-    "brand": "ABBOT",
-    "unit": "100 גרם"
-  },
-  {
-    "name": "פמפרס בייבי דריי 43 שלב 2",
-    "category": "מוצרי תינוקות",
-    "icon": "👶",
-    "price": 39.5,
-    "barcode": "8700216350433",
-    "brand": "פרוקטר אנד גמבל",
+    "icon": "🍼",
+    "price": 44.9,
+    "barcode": "8710103875990",
+    "brand": "Philips Avent",
     "unit": "יחידה"
   },
   {
-    "name": "פרינוק גונ.סלט פירות 190",
+    "name": "פיטמת אוונט לזרימה איטית",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
-    "price": 7.2,
-    "barcode": "7290010065349",
-    "brand": "פרינוק",
-    "unit": "100 גרם"
+    "icon": "🍼",
+    "price": 24.9,
+    "barcode": "8710103513595",
+    "brand": "Philips Avent",
+    "unit": "יחידה"
   },
   {
-    "name": "פרינוק פירות ושיבולת 190 גרם",
+    "name": "מוצץ מאם 0-6 חודשים",
     "category": "מוצרי תינוקות",
-    "icon": "👶",
-    "price": 7.2,
-    "barcode": "7290018516379",
-    "brand": "פרוטה פודיווין איי.אס",
-    "unit": "100 גרם"
+    "icon": "🍼",
+    "price": 27.9,
+    "barcode": "9001616706875",
+    "brand": "MAM",
+    "unit": "יחידה"
+  },
+  {
+    "name": "בקבוק מאם Easy Start 260 מ״ל",
+    "category": "מוצרי תינוקות",
+    "icon": "🍼",
+    "price": 39.9,
+    "barcode": "9001616671807",
+    "brand": "MAM",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מברשת לניקוי בקבוקים מאם",
+    "category": "מוצרי תינוקות",
+    "icon": "🧽",
+    "price": 19.9,
+    "barcode": "9001616821912",
+    "brand": "MAM",
+    "unit": "יחידה"
+  },
+  {
+    "name": "משחת שיניים לתינוק 0-2 שנים Chicco 50 מ״ל",
+    "category": "מוצרי תינוקות",
+    "icon": "🦷",
+    "price": 22.9,
+    "barcode": "8058664050994",
+    "brand": "Chicco",
+    "unit": "100 מ״ל"
+  },
+  {
+    "name": "מברשת שיניים ראשונה לתינוק Chicco",
+    "category": "מוצרי תינוקות",
+    "icon": "🦷",
+    "price": 19.9,
+    "barcode": "8058664044955",
+    "brand": "Chicco",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מקלחות רחצה לתינוק מתקפל Chicco",
+    "category": "מוצרי תינוקות",
+    "icon": "🛁",
+    "price": 149.0,
+    "barcode": "8058664097890",
+    "brand": "Chicco",
+    "unit": "יחידה"
   }
 ]

@@ -87,5 +87,104 @@
     "barcode": "50000084500",
     "brand": "נסטלה פורינה",
     "unit": "ק\"ג"
+  },
+  {
+    "name": "פרו פלאן בוגר עוף 3 ק\"ג",
+    "category": "מזון לחיות מחמד",
+    "icon": "🐕",
+    "price": 119.9,
+    "barcode": "7613035118621",
+    "brand": "Purina Pro Plan",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "רויאל קנין מדיום אדולט 4 ק\"ג",
+    "category": "מזון לחיות מחמד",
+    "icon": "🐕",
+    "price": 169.9,
+    "barcode": "3182550402533",
+    "brand": "Royal Canin",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "בונזו גור 3 ק\"ג",
+    "category": "מזון לחיות מחמד",
+    "icon": "🐾",
+    "price": 59.9,
+    "barcode": "7290005651205",
+    "brand": "United Pet Food",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "טייסט אוף דה ווילד סלמון 2 ק\"ג",
+    "category": "מזון לחיות מחמד",
+    "icon": "🐾",
+    "price": 129.0,
+    "barcode": "074198609331",
+    "brand": "Taste of the Wild",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פריסקיז לחתול בוגר סלמון 1.4 ק\"ג",
+    "category": "מזון לחיות מחמד",
+    "icon": "🐱",
+    "price": 39.9,
+    "barcode": "7613035330023",
+    "brand": "Purina Friskies",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "לה קט טונה 2.85 ק\"ג",
+    "category": "מזון לחיות מחמד",
+    "icon": "🐱",
+    "price": 69.9,
+    "barcode": "7290005651076",
+    "brand": "United Pet Food",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "וויסקאס בוגר עוף 3 ק\"ג",
+    "category": "מזון לחיות מחמד",
+    "icon": "🐱",
+    "price": 79.9,
+    "barcode": "5900951265809",
+    "brand": "Whiskas",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "רויאל קנין חתול סטרילייזד 2 ק\"ג",
+    "category": "מזון לחיות מחמד",
+    "icon": "🐱",
+    "price": 139.9,
+    "barcode": "3182550702251",
+    "brand": "Royal Canin",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "צ'ואיז חטיף עוף לכלב 100 גרם",
+    "category": "מזון לחיות מחמד",
+    "icon": "🦴",
+    "price": 14.9,
+    "barcode": "7296073200017",
+    "brand": "Choize",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "דנטלייף גזע קטן 115 גרם",
+    "category": "מזון לחיות מחמד",
+    "icon": "🦴",
+    "price": 15.9,
+    "barcode": "7613035379787",
+    "brand": "Purina DentaLife",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "וויסקאס חטיפי חתולים בטעם סלמון 60 גרם",
+    "category": "מזון לחיות מחמד",
+    "icon": "🐾",
+    "price": 9.9,
+    "barcode": "5900951283513",
+    "brand": "Whiskas",
+    "unit": "100 גרם"
   }
 ]

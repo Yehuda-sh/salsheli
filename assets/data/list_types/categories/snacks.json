@@ -2965,5 +2965,176 @@
     "barcode": "7290110557874",
     "brand": "פלור פודס בי.וי.",
     "unit": "100 גרם"
+  },
+  {
+    "name": "במבה 80 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🥜",
+    "price": 9.5,
+    "barcode": "7290000066189",
+    "brand": "אסם",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ביסלי גריל 70 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍟",
+    "price": 8.9,
+    "barcode": "7290000066196",
+    "brand": "אסם",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ביסלי על האש 70 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍟",
+    "price": 8.9,
+    "barcode": "7290000066219",
+    "brand": "אסם",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "ביסלי בצל 70 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍟",
+    "price": 8.9,
+    "barcode": "7290000066202",
+    "brand": "אסם",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "במבה נוגט 60 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🥜",
+    "price": 9.9,
+    "barcode": "7290000066226",
+    "brand": "אסם",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "דוריטוס 185 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🌽",
+    "price": 14.9,
+    "barcode": "5060020430116",
+    "brand": "אסם",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "אפרופו 100 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🌽",
+    "price": 7.9,
+    "barcode": "7290000066004",
+    "brand": "אסם",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פרינגלס אוריגינל 165 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🥔",
+    "price": 13.9,
+    "barcode": "38000232183",
+    "brand": "פרינגלס",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קליק חלב 75 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 8.9,
+    "barcode": "7290014655550",
+    "brand": "עלית",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מקופלת 45 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 6.9,
+    "barcode": "7290012345607",
+    "brand": "עלית",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "טורטית 45 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 6.5,
+    "barcode": "7290012345614",
+    "brand": "עלית",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פסק זמן 45 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 6.5,
+    "barcode": "7290115670851",
+    "brand": "עלית",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "שוקולד פרה 100 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 9.9,
+    "barcode": "7290000066516",
+    "brand": "עלית",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מילקה חלב 100 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 10.9,
+    "barcode": "7622210444411",
+    "brand": "מילקה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "פררו רושה 200 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍫",
+    "price": 39.9,
+    "barcode": "8000500094976",
+    "brand": "פררו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "טיק טק מנטה 49 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 9.9,
+    "barcode": "80768123",
+    "brand": "פררו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "מנטוס פירות 37 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍬",
+    "price": 4.9,
+    "barcode": "87108712",
+    "brand": "פרפטי ואן מלה",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "גליליות שוקולד 180 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍪",
+    "price": 9.9,
+    "barcode": "7296073663775",
+    "brand": "גילרו",
+    "unit": "100 גרם"
+  },
+  {
+    "name": "קראנצ' פריכיות תירס 80 גרם",
+    "category": "ממתקים וחטיפים",
+    "icon": "🍘",
+    "price": 10.5,
+    "barcode": "7290000065977",
+    "brand": "פרח תעשיות מזון",
+    "unit": "100 גרם"
   }
 ]

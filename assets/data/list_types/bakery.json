@@ -330,5 +330,189 @@
     "barcode": "7290004230364",
     "brand": "נטו",
     "unit": "100 גרם"
+  },
+  {
+    "name": "לחם שיפון מלא 500 גרם",
+    "category": "לחמים ולחמניות",
+    "icon": "🍞",
+    "price": 16.9,
+    "barcode": "BAKERY-033",
+    "unit": "יחידה"
+  },
+  {
+    "name": "לחמניות המבורגר 6 יחידות",
+    "category": "לחמים ולחמניות",
+    "icon": "🍔",
+    "price": 14.9,
+    "barcode": "BAKERY-034",
+    "unit": "יחידה"
+  },
+  {
+    "name": "לחמניות נקניקייה 6 יחידות",
+    "category": "לחמים ולחמניות",
+    "icon": "🌭",
+    "price": 13.9,
+    "barcode": "BAKERY-035",
+    "unit": "יחידה"
+  },
+  {
+    "name": "פוקצ'ה רוזמרין",
+    "category": "באגטים ולחמים",
+    "icon": "🥖",
+    "price": 18.9,
+    "barcode": "BAKERY-036",
+    "unit": "יחידה"
+  },
+  {
+    "name": "צ'בטה איטלקית",
+    "category": "באגטים ולחמים",
+    "icon": "🥖",
+    "price": 12.9,
+    "barcode": "BAKERY-037",
+    "unit": "יחידה"
+  },
+  {
+    "name": "שמרית עם שוקולד",
+    "category": "מאפים מתוקים",
+    "icon": "🥮",
+    "price": 9.0,
+    "barcode": "BAKERY-038",
+    "unit": "יחידה"
+  },
+  {
+    "name": "שמרית עם קינמון וצימוקים",
+    "category": "מאפים מתוקים",
+    "icon": "🥮",
+    "price": 9.0,
+    "barcode": "BAKERY-039",
+    "unit": "יחידה"
+  },
+  {
+    "name": "רוגלך שוקולד",
+    "category": "מאפים מתוקים",
+    "icon": "🥐",
+    "price": 7.0,
+    "barcode": "BAKERY-040",
+    "unit": "יחידה"
+  },
+  {
+    "name": "רוגלך תמרים",
+    "category": "מאפים מתוקים",
+    "icon": "🥐",
+    "price": 7.0,
+    "barcode": "BAKERY-041",
+    "unit": "יחידה"
+  },
+  {
+    "name": "סופגנייה במילוי ריבה",
+    "category": "מאפים מתוקים",
+    "icon": "🍩",
+    "price": 6.0,
+    "barcode": "BAKERY-042",
+    "unit": "יחידה"
+  },
+  {
+    "name": "סופגנייה קרם וניל",
+    "category": "מאפים מתוקים",
+    "icon": "🍩",
+    "price": 7.0,
+    "barcode": "BAKERY-043",
+    "unit": "יחידה"
+  },
+  {
+    "name": "מעמול תמרים",
+    "category": "מאפים מזרחיים",
+    "icon": "🥮",
+    "price": 55.0,
+    "barcode": "BAKERY-044",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "מעמול אגוזים",
+    "category": "מאפים מזרחיים",
+    "icon": "🥮",
+    "price": 60.0,
+    "barcode": "BAKERY-045",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "עוגיות תמרים ביתיות",
+    "category": "עוגיות",
+    "icon": "🍪",
+    "price": 46.0,
+    "barcode": "BAKERY-046",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "עוגת שמרים במילוי גבינה",
+    "category": "עוגות",
+    "icon": "🍰",
+    "price": 45.0,
+    "barcode": "BAKERY-047",
+    "unit": "יחידה"
+  },
+  {
+    "name": "עוגת גבינה אפויה",
+    "category": "עוגות",
+    "icon": "🍰",
+    "price": 55.0,
+    "barcode": "BAKERY-048",
+    "unit": "יחידה"
+  },
+  {
+    "name": "עוגת שוקולד קלאסית",
+    "category": "עוגות",
+    "icon": "🍫",
+    "price": 49.0,
+    "barcode": "BAKERY-049",
+    "unit": "יחידה"
+  },
+  {
+    "name": "עוגת תפוחים",
+    "category": "עוגות",
+    "icon": "🍎",
+    "price": 42.0,
+    "barcode": "BAKERY-050",
+    "unit": "יחידה"
+  },
+  {
+    "name": "קוביות לוטוס",
+    "category": "עוגיות",
+    "icon": "🍪",
+    "price": 54.0,
+    "barcode": "BAKERY-051",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פיתה דרוזית גדולה",
+    "category": "לחמים ולחמניות",
+    "icon": "🫓",
+    "price": 6.0,
+    "barcode": "BAKERY-052",
+    "unit": "יחידה"
+  },
+  {
+    "name": "טורטייה קמח מלא 6 יחידות",
+    "category": "לחמים ולחמניות",
+    "icon": "🫓",
+    "price": 14.9,
+    "barcode": "BAKERY-053",
+    "unit": "יחידה"
+  },
+  {
+    "name": "קובאנה יתימית",
+    "category": "מאפים מזרחיים",
+    "icon": "🥞",
+    "price": 12.0,
+    "barcode": "BAKERY-054",
+    "unit": "יחידה"
+  },
+  {
+    "name": "פריך שומשום",
+    "category": "עוגיות",
+    "icon": "🍪",
+    "price": 42.0,
+    "barcode": "BAKERY-055",
+    "unit": "ק\"ג"
   }
 ]

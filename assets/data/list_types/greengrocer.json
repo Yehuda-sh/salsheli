@@ -598,5 +598,189 @@
     "price": 34.9,
     "barcode": "GREEN-055",
     "unit": "ק\"ג"
+  },
+  {
+    "name": "דלורית",
+    "category": "ירקות",
+    "icon": "🎃",
+    "price": 7.9,
+    "barcode": "GREEN-076",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "שורש סלרי (כרפס)",
+    "category": "ירקות",
+    "icon": "🥬",
+    "price": 8.9,
+    "barcode": "GREEN-077",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פטרוזיליה שורש",
+    "category": "ירקות",
+    "icon": "🥬",
+    "price": 9.9,
+    "barcode": "GREEN-078",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "מנגולד",
+    "category": "ירקות",
+    "icon": "🥬",
+    "price": 7.9,
+    "barcode": "GREEN-079",
+    "unit": "אגודה"
+  },
+  {
+    "name": "פלפל שושקה אדום",
+    "category": "ירקות",
+    "icon": "🌶️",
+    "price": 12.9,
+    "barcode": "GREEN-080",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פלפל חריף ירוק",
+    "category": "ירקות",
+    "icon": "🌶️",
+    "price": 10.9,
+    "barcode": "GREEN-081",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "עגבניות מגי",
+    "category": "ירקות",
+    "icon": "🍅",
+    "price": 7.9,
+    "barcode": "GREEN-082",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "טימין טרי",
+    "category": "ירקות תיבול",
+    "icon": "🌿",
+    "price": 3.9,
+    "barcode": "GREEN-083",
+    "unit": "אגודה"
+  },
+  {
+    "name": "אורגנו טרי",
+    "category": "ירקות תיבול",
+    "icon": "🌿",
+    "price": 3.9,
+    "barcode": "GREEN-084",
+    "unit": "אגודה"
+  },
+  {
+    "name": "רוזמרין טרי",
+    "category": "ירקות תיבול",
+    "icon": "🌿",
+    "price": 3.9,
+    "barcode": "GREEN-085",
+    "unit": "אגודה"
+  },
+  {
+    "name": "פסיפלורה",
+    "category": "פירות",
+    "icon": "🥭",
+    "price": 29.9,
+    "barcode": "GREEN-086",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "ליצ׳י",
+    "category": "פירות",
+    "icon": "🍒",
+    "price": 34.9,
+    "barcode": "GREEN-087",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פפאיה",
+    "category": "פירות",
+    "icon": "🥭",
+    "price": 22.9,
+    "barcode": "GREEN-088",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "גויאבה",
+    "category": "פירות",
+    "icon": "🍐",
+    "price": 18.9,
+    "barcode": "GREEN-089",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "אפרסמון",
+    "category": "פירות",
+    "icon": "🍊",
+    "price": 12.9,
+    "barcode": "GREEN-090",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "ענבים אדומים",
+    "category": "פירות",
+    "icon": "🍇",
+    "price": 24.9,
+    "barcode": "GREEN-091",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "תפוח עץ פינק ליידי",
+    "category": "פירות",
+    "icon": "🍎",
+    "price": 13.9,
+    "barcode": "GREEN-092",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "מלון גאליה",
+    "category": "פירות",
+    "icon": "🍈",
+    "price": 8.9,
+    "barcode": "GREEN-093",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "מלון כתום",
+    "category": "פירות",
+    "icon": "🍈",
+    "price": 9.9,
+    "barcode": "GREEN-094",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "אבוקדו מוכן לאכילה",
+    "category": "פירות",
+    "icon": "🥑",
+    "price": 34.9,
+    "barcode": "GREEN-095",
+    "unit": "אריזה"
+  },
+  {
+    "name": "ברוקוליני",
+    "category": "ירקות",
+    "icon": "🥦",
+    "price": 19.9,
+    "barcode": "GREEN-096",
+    "unit": "אריזה"
+  },
+  {
+    "name": "קולורבי ירוק",
+    "category": "ירקות",
+    "icon": "🥬",
+    "price": 7.9,
+    "barcode": "GREEN-097",
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "קולורבי לבן",
+    "category": "ירקות",
+    "icon": "🥬",
+    "price": 7.9,
+    "barcode": "GREEN-098",
+    "unit": "ק\"ג"
   }
 ]
