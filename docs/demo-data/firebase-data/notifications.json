@@ -109,6 +109,76 @@
           "created_at": "2025-12-28T10:00:00.000Z",
           "read_at": "2025-12-28T10:05:00.000Z",
           "action_url": "/lists/list_active_001"
+        },
+        "notif_008": {
+          "id": "notif_008",
+          "type": "volunteer_cancelled",
+          "title": "התנדבות בוטלה",
+          "body": "דני לוי ביטל את ההתנדבות להביא גלידה",
+          "data": {
+            "list_id": "list_birthday_001",
+            "list_name": "יום הולדת תומר",
+            "item_name": "גלידה",
+            "item_id": "wb_007",
+            "cancelled_by_name": "דני לוי",
+            "cancelled_by_id": "user_dani_001",
+            "cancel_reason": "לא אוכל להגיע בזמן, סליחה"
+          },
+          "is_read": false,
+          "created_at": "2025-12-15T09:00:00.000Z",
+          "action_url": "/groups/grp_birthday_001"
+        },
+        "notif_009": {
+          "id": "notif_009",
+          "type": "item_request",
+          "title": "בקשה להוספת פריט",
+          "body": "שרה מבקשת להוסיף 'שוקולד מריר' לרשימה",
+          "data": {
+            "list_id": "list_active_001",
+            "list_name": "קניות השבוע",
+            "request_id": "req_001",
+            "item_name": "שוקולד מריר",
+            "requested_by_name": "שרה כהן",
+            "requested_by_id": "user_sara_001"
+          },
+          "is_read": false,
+          "created_at": "2026-01-07T16:30:00.000Z",
+          "action_url": "/lists/list_active_001/requests"
+        },
+        "notif_010": {
+          "id": "notif_010",
+          "type": "join_request",
+          "title": "בקשת הצטרפות",
+          "body": "בן דוד יוסי מבקש להצטרף לבית משפחת כהן",
+          "data": {
+            "household_id": "house_cohen_001",
+            "request_id": "join_001",
+            "requester_name": "בן דוד יוסי",
+            "requester_phone": "0526666666",
+            "message": "היי יוגב, אני יוסי בן הדוד. רוצה להצטרף לרשימות המשפחה"
+          },
+          "is_read": false,
+          "created_at": "2026-01-06T12:00:00.000Z",
+          "action_url": "/settings/household/requests"
+        },
+        "notif_011": {
+          "id": "notif_011",
+          "type": "edit_request",
+          "title": "בקשה לעריכת פריט",
+          "body": "שרה מבקשת לשנות כמות חלב מ-3 ל-5",
+          "data": {
+            "list_id": "list_active_001",
+            "list_name": "קניות השבוע",
+            "request_id": "edit_001",
+            "item_name": "חלב 3%",
+            "requested_by_name": "שרה כהן",
+            "original_quantity": 3,
+            "requested_quantity": 5,
+            "reason": "הילדים שותים הרבה השבוע"
+          },
+          "is_read": false,
+          "created_at": "2026-01-08T08:00:00.000Z",
+          "action_url": "/lists/list_active_001/requests"
         }
       }
     },

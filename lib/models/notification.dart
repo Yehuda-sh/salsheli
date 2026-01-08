@@ -41,6 +41,14 @@ class AppNotification {
   @JsonKey(name: 'read_at')
   final DateTime? readAt;
 
+  /// 🆕 מזהה השולח - לצורך "השתק שולח"
+  @JsonKey(name: 'sender_id')
+  final String? senderId;
+
+  /// 🆕 שם השולח - להצגה
+  @JsonKey(name: 'sender_name')
+  final String? senderName;
+
   const AppNotification({
     required this.id,
     required this.userId,
@@ -52,6 +60,8 @@ class AppNotification {
     this.isRead = false,
     required this.createdAt,
     this.readAt,
+    this.senderId,
+    this.senderName,
   });
 
   // JSON serialization
@@ -71,6 +81,8 @@ class AppNotification {
     bool? isRead,
     DateTime? createdAt,
     DateTime? readAt,
+    String? senderId,
+    String? senderName,
   }) {
     return AppNotification(
       id: id ?? this.id,
@@ -83,6 +95,8 @@ class AppNotification {
       isRead: isRead ?? this.isRead,
       createdAt: createdAt ?? this.createdAt,
       readAt: readAt ?? this.readAt,
+      senderId: senderId ?? this.senderId,
+      senderName: senderName ?? this.senderName,
     );
   }
 

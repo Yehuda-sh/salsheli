@@ -398,27 +398,39 @@ class UserContext with ChangeNotifier {
       );
 
       if (credential.user != null && !_isDisposed) {
-        final onboardingData = await OnboardingData.load();
-        final hasSeenOnboarding = await OnboardingData.hasSeenOnboarding();
+        try {
+          final onboardingData = await OnboardingData.load();
+          final hasSeenOnboarding = await OnboardingData.hasSeenOnboarding();
 
-        debugPrint('📋 UserContext.signUp: טוען נתוני Onboarding לסנכרון');
+          debugPrint('📋 UserContext.signUp: טוען נתוני Onboarding לסנכרון');
 
-        _user = await _repository.createUser(
-          userId: credential.user!.uid,
-          email: email,
-          name: name,
-          phone: phone,
-          preferredStores: onboardingData.preferredStores.toList(),
-          familySize: onboardingData.familySize,
-          shoppingFrequency: onboardingData.shoppingFrequency,
-          shoppingDays: onboardingData.shoppingDays.toList(),
-          hasChildren: onboardingData.hasChildren,
-          shareLists: onboardingData.shareLists,
-          reminderTime: onboardingData.reminderTime,
-          seenOnboarding: hasSeenOnboarding,
-        );
+          _user = await _repository.createUser(
+            userId: credential.user!.uid,
+            email: email,
+            name: name,
+            phone: phone,
+            preferredStores: onboardingData.preferredStores.toList(),
+            familySize: onboardingData.familySize,
+            shoppingFrequency: onboardingData.shoppingFrequency,
+            shoppingDays: onboardingData.shoppingDays.toList(),
+            hasChildren: onboardingData.hasChildren,
+            shareLists: onboardingData.shareLists,
+            reminderTime: onboardingData.reminderTime,
+            seenOnboarding: hasSeenOnboarding,
+          );
 
-        debugPrint('✅ UserContext.signUp: נתוני Onboarding נשמרו בשרת!');
+          debugPrint('✅ UserContext.signUp: נתוני Onboarding נשמרו בשרת!');
+        } catch (profileError) {
+          // 🔄 Rollback: אם יצירת הפרופיל נכשלה - מחק את המשתמש מ-Auth
+          debugPrint('❌ UserContext.signUp: יצירת פרופיל נכשלה, מבצע rollback');
+          try {
+            await credential.user?.delete();
+            debugPrint('🗑️ UserContext.signUp: משתמש Auth נמחק (rollback)');
+          } catch (deleteError) {
+            debugPrint('⚠️ UserContext.signUp: לא הצלחתי למחוק Auth user - $deleteError');
+          }
+          rethrow;
+        }
       }
     } catch (e) {
       debugPrint('❌ UserContext.signUp: שגיאה - $e');

@@ -1475,6 +1475,7 @@ Map<String, List<Map<String, dynamic>>> generateNotifications(Map<String, String
 
   // התראות לרונית כהן
   if (ronitUid != null && yuvalUid != null) {
+    final shiranUid = uids[shiranId];
     result[ronitUid] = [
       // התראה על הצבעה חדשה (לא נקראה)
       {
@@ -1487,6 +1488,8 @@ Map<String, List<Map<String, dynamic>>> generateNotifications(Map<String, String
         'action_data': {'listId': 'list_weekly_current'},
         'is_read': false,
         'created_at': now.subtract(const Duration(hours: 2)).toIso8601String(),
+        'sender_id': yuvalUid,
+        'sender_name': 'יובל כהן',
       },
       // התראה על מתנדב חדש (נקראה)
       {
@@ -1500,6 +1503,8 @@ Map<String, List<Map<String, dynamic>>> generateNotifications(Map<String, String
         'is_read': true,
         'created_at': now.subtract(const Duration(days: 1)).toIso8601String(),
         'read_at': now.subtract(const Duration(hours: 20)).toIso8601String(),
+        'sender_id': shiranUid,
+        'sender_name': 'שירן גל',
       },
       // הזמנה לקבוצה (נקראה)
       {
@@ -1513,6 +1518,8 @@ Map<String, List<Map<String, dynamic>>> generateNotifications(Map<String, String
         'is_read': true,
         'created_at': now.subtract(const Duration(days: 14)).toIso8601String(),
         'read_at': now.subtract(const Duration(days: 14)).toIso8601String(),
+        'sender_id': shiranUid,
+        'sender_name': 'שירן גל',
       },
     ];
   }
@@ -1520,7 +1527,7 @@ Map<String, List<Map<String, dynamic>>> generateNotifications(Map<String, String
   // התראות לאבי כהן
   if (aviUid != null) {
     result[aviUid] = [
-      // מלאי נמוך (לא נקראה)
+      // מלאי נמוך (לא נקראה) - התראת מערכת
       {
         'id': 'notif_avi_001',
         'user_id': aviUid,
@@ -1531,6 +1538,8 @@ Map<String, List<Map<String, dynamic>>> generateNotifications(Map<String, String
         'action_data': {'itemId': 'inv_milk_3'},
         'is_read': false,
         'created_at': now.subtract(const Duration(hours: 6)).toIso8601String(),
+        'sender_id': null, // System notification
+        'sender_name': 'המערכת',
       },
       // שינוי תפקיד (נקראה)
       {
@@ -1544,14 +1553,17 @@ Map<String, List<Map<String, dynamic>>> generateNotifications(Map<String, String
         'is_read': true,
         'created_at': now.subtract(const Duration(days: 3)).toIso8601String(),
         'read_at': now.subtract(const Duration(days: 2)).toIso8601String(),
+        'sender_id': ronitUid,
+        'sender_name': 'רונית כהן',
       },
     ];
   }
 
   // התראות למשה גולן (ועד בית)
   if (mosheUid != null) {
+    final davidUid = uids[davidUserId];
     result[mosheUid] = [
-      // תיקו בהצבעה! (לא נקראה)
+      // תיקו בהצבעה! (לא נקראה) - התראת מערכת
       {
         'id': 'notif_moshe_001',
         'user_id': mosheUid,
@@ -1565,6 +1577,8 @@ Map<String, List<Map<String, dynamic>>> generateNotifications(Map<String, String
         },
         'is_read': false,
         'created_at': now.subtract(const Duration(hours: 1)).toIso8601String(),
+        'sender_id': null, // System notification
+        'sender_name': 'המערכת',
       },
       // הצבעה חדשה (נקראה)
       {
@@ -1581,12 +1595,15 @@ Map<String, List<Map<String, dynamic>>> generateNotifications(Map<String, String
         'is_read': true,
         'created_at': now.subtract(const Duration(days: 2)).toIso8601String(),
         'read_at': now.subtract(const Duration(days: 1)).toIso8601String(),
+        'sender_id': davidUid,
+        'sender_name': 'דוד לוי',
       },
     ];
   }
 
   // התראות ליעל ברק (ועד גן)
   if (yaelUid != null && uids[ornaUserId] != null) {
+    final ornaUid = uids[ornaUserId];
     result[yaelUid] = [
       // מתנדב חדש (לא נקראה)
       {
@@ -1602,12 +1619,16 @@ Map<String, List<Map<String, dynamic>>> generateNotifications(Map<String, String
         },
         'is_read': false,
         'created_at': now.subtract(const Duration(hours: 3)).toIso8601String(),
+        'sender_id': ornaUid,
+        'sender_name': 'אורנה שלום',
       },
     ];
   }
 
   // התראות לליאור כץ (חתונה)
   if (liorUid != null && uids[noamUserId] != null) {
+    final noamUid = uids[noamUserId];
+    final eyalUid = uids[eyalUserId];
     result[liorUid] = [
       // הצבעה חדשה (לא נקראה)
       {
@@ -1623,6 +1644,8 @@ Map<String, List<Map<String, dynamic>>> generateNotifications(Map<String, String
         },
         'is_read': false,
         'created_at': now.subtract(const Duration(hours: 8)).toIso8601String(),
+        'sender_id': noamUid,
+        'sender_name': 'נועם רוזן',
       },
       // מתנדב למתנה (נקראה)
       {
@@ -1639,6 +1662,8 @@ Map<String, List<Map<String, dynamic>>> generateNotifications(Map<String, String
         'is_read': true,
         'created_at': now.subtract(const Duration(days: 5)).toIso8601String(),
         'read_at': now.subtract(const Duration(days: 4)).toIso8601String(),
+        'sender_id': eyalUid,
+        'sender_name': 'אייל דוד',
       },
     ];
   }
@@ -2003,7 +2028,15 @@ List<Map<String, dynamic>> generateSharedLists(Map<String, String> uids) {
     'template_id': null,
     'format': 'shared',
     'created_from_template': false,
-    'active_shoppers': [],
+    // 🛒 Active shopping session - Yuval is shopping now!
+    'active_shoppers': [
+      {
+        'user_id': yuvalUid,
+        'joined_at': now.subtract(const Duration(minutes: 15)).toIso8601String(),
+        'is_starter': true,
+        'is_active': true,
+      },
+    ],
     'shared_users': {
       yuvalUid: {
         'role': 'editor',

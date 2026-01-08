@@ -253,13 +253,20 @@ households/house_abc123/shopping_lists/רשימה_id:
   status: "active"  // active, completed, archived
   is_private: false
   is_shared: false
-  owner_id: "יוגב_id"
+  created_by: "יוגב_id"
   created_at: timestamp
   updated_at: timestamp
   budget: 500.0
-  event_date: null
-  event_mode: null
-  shared_contacts: []
+  event_date: null      // לרשימות אירוע - תאריך האירוע
+  target_date: null     // לכל רשימה - תאריך יעד (אופציונלי)
+  event_mode: null      // who_brings / shopping / tasks
+  shared_users: {       // מפה של משתמשים משותפים (לא מערך!)
+    "user_id_1": {
+      role: "editor",   // owner / admin / editor / viewer
+      joined_at: timestamp
+    }
+  }
+  active_shoppers: []   // רשימת קונים פעילים בסשן קניות
   items: [
     {
       id: "פריט_id_1"
@@ -297,10 +304,10 @@ households/house_abc123/shopping_lists/רשימה_id:
 - ✅ קיבוץ לפי קטגוריה
 - ✅ חישוב סכום כולל
 
-### לבדוק:
-- ❓ מה קורה אם שני אנשים עורכים בו-זמנית?
-- ❓ האם יש גבול למספר מוצרים ברשימה?
-- ❓ מה קורה אם אין אינטרנט?
+### מה לא מטופל / דורש שיפור:
+- ❌ **עריכה בו-זמנית** - אין טיפול בקונפליקטים. משתמש ב-Last-Write-Wins (האחרון דורס). אין real-time listeners לעדכונים חיים
+- ❌ **גבול מוצרים** - אין הגבלה על כמות פריטים ברשימה (רק מגבלת Firestore של 1MB לדוקומנט)
+- ⚠️ **אין אינטרנט** - חלקי. Firestore תומך בקריאה מcache מובנה, אבל אין offline-first מפורש ואין queue לסנכרון שינויים
 
 ---
 

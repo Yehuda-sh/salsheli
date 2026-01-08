@@ -63,6 +63,6 @@ class DefaultFirebaseOptions {
     messagingSenderId: '804283551011',
     projectId: 'memozap-5ad30',
     storageBucket: 'memozap-5ad30.firebasestorage.app',
-    iosBundleId: 'com.example.memozap',
+    iosBundleId: 'com.memozap.app',
   );
 }

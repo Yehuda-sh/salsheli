@@ -48,10 +48,13 @@
 // Last Updated: 09/10/2025
 //
 
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
 import '../l10n/app_strings.dart';
+import '../services/analytics_service.dart';
 import '../models/active_shopper.dart';
 import '../models/enums/item_type.dart';
 import '../models/enums/user_role.dart';
@@ -365,6 +368,13 @@ class ShoppingListsProvider with ChangeNotifier {
       if (kDebugMode) {
         debugPrint('✅ createList: רשימה "$name" נוצרה בהצלחה!');
       }
+
+      // 📊 Analytics: track list creation (fire and forget)
+      unawaited(AnalyticsService.instance.logCreateList(
+        listType: type,
+        isShared: isShared || !isPrivate,
+      ));
+
       return newList;
     } catch (e) {
       if (kDebugMode) {
@@ -559,6 +569,12 @@ class ShoppingListsProvider with ChangeNotifier {
     if (kDebugMode) {
       debugPrint('✅ addItemToList: פריט "$name" נוסף עם קטגוריה "$category"');
     }
+
+    // 📊 Analytics: track item addition
+    unawaited(AnalyticsService.instance.logAddItem(
+      category: category ?? 'unknown',
+      isFromCatalog: false, // addItemToList is manual entry
+    ));
   }
 
   // === 🆕 Add UnifiedListItem (Product or Task) ===
@@ -601,6 +617,14 @@ class ShoppingListsProvider with ChangeNotifier {
     await updateList(updatedList);
     if (kDebugMode) {
       debugPrint('✅ addUnifiedItem: ${item.type == ItemType.product ? "מוצר" : "משימה"} "${item.name}" נוסף');
+    }
+
+    // 📊 Analytics: track item addition (only for products)
+    if (item.type == ItemType.product) {
+      unawaited(AnalyticsService.instance.logAddItem(
+        category: item.category ?? 'unknown',
+        isFromCatalog: true, // addUnifiedItem typically comes from catalog
+      ));
     }
   }
 
@@ -1103,6 +1127,12 @@ class ShoppingListsProvider with ChangeNotifier {
       if (kDebugMode) {
         debugPrint('✅ markItemAsChecked: פריט #$itemIndex סומן!');
       }
+
+      // 📊 Analytics: track item purchased
+      final isCollaborative = list.activeShoppers.where((s) => s.isActive).length > 1;
+      unawaited(AnalyticsService.instance.logMarkPurchased(
+        isCollaborative: isCollaborative,
+      ));
     } catch (e) {
       if (kDebugMode) {
         debugPrint('❌ markItemAsChecked: שגיאה - $e');

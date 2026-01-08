@@ -1,0 +1,206 @@
+{
+  "item_requests": {
+    "households": {
+      "house_cohen_001": {
+        "lists": {
+          "list_active_001": {
+            "requests": {
+              "req_001": {
+                "id": "req_001",
+                "type": "add_item",
+                "status": "pending",
+                "requested_by": "user_sara_001",
+                "requested_by_name": "שרה כהן",
+                "requested_at": "2026-01-07T16:30:00.000Z",
+                "item_data": {
+                  "name": "שוקולד מריר",
+                  "category": "חטיפים",
+                  "quantity": 2,
+                  "unit": "יח'",
+                  "notes": "לעוגה שאני מכינה",
+                  "emoji": "🍫"
+                },
+                "review_notes": null,
+                "reviewed_by": null,
+                "reviewed_at": null
+              },
+              "req_002": {
+                "id": "req_002",
+                "type": "add_item",
+                "status": "pending",
+                "requested_by": "user_sara_001",
+                "requested_by_name": "שרה כהן",
+                "requested_at": "2026-01-07T16:35:00.000Z",
+                "item_data": {
+                  "name": "קמח תופח",
+                  "category": "תבלינים ואפייה",
+                  "quantity": 1,
+                  "unit": "חבילה",
+                  "notes": null,
+                  "emoji": "🌾"
+                },
+                "review_notes": null,
+                "reviewed_by": null,
+                "reviewed_at": null
+              },
+              "req_003": {
+                "id": "req_003",
+                "type": "add_item",
+                "status": "approved",
+                "requested_by": "user_sara_001",
+                "requested_by_name": "שרה כהן",
+                "requested_at": "2026-01-05T10:00:00.000Z",
+                "item_data": {
+                  "name": "קרם לקפה",
+                  "category": "מוצרי חלב",
+                  "quantity": 1,
+                  "unit": "יח'",
+                  "notes": null,
+                  "emoji": "🥛"
+                },
+                "review_notes": null,
+                "reviewed_by": "user_yogev_001",
+                "reviewed_at": "2026-01-05T10:30:00.000Z"
+              },
+              "req_004": {
+                "id": "req_004",
+                "type": "add_item",
+                "status": "rejected",
+                "requested_by": "user_sara_001",
+                "requested_by_name": "שרה כהן",
+                "requested_at": "2026-01-04T14:00:00.000Z",
+                "item_data": {
+                  "name": "וודקה",
+                  "category": "משקאות",
+                  "quantity": 1,
+                  "unit": "בקבוק",
+                  "notes": "לאירוח",
+                  "emoji": "🍸"
+                },
+                "review_notes": "לא עכשיו, יש עדיין מהפעם הקודמת",
+                "reviewed_by": "user_yogev_001",
+                "reviewed_at": "2026-01-04T15:00:00.000Z"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "edit_requests": {
+    "households": {
+      "house_cohen_001": {
+        "lists": {
+          "list_active_001": {
+            "requests": {
+              "edit_001": {
+                "id": "edit_001",
+                "type": "edit_quantity",
+                "status": "pending",
+                "item_id": "item_100",
+                "item_name": "חלב 3%",
+                "requested_by": "user_sara_001",
+                "requested_by_name": "שרה כהן",
+                "requested_at": "2026-01-08T08:00:00.000Z",
+                "original_value": {
+                  "quantity": 3
+                },
+                "requested_value": {
+                  "quantity": 5
+                },
+                "reason": "הילדים שותים הרבה השבוע",
+                "reviewed_by": null,
+                "reviewed_at": null
+              },
+              "edit_002": {
+                "id": "edit_002",
+                "type": "delete_item",
+                "status": "pending",
+                "item_id": "item_103",
+                "item_name": "עוף שלם",
+                "requested_by": "user_sara_001",
+                "requested_by_name": "שרה כהן",
+                "requested_at": "2026-01-08T08:15:00.000Z",
+                "reason": "יש עוף במקפיא, לא צריך עוד",
+                "reviewed_by": null,
+                "reviewed_at": null
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "join_requests": {
+    "households": {
+      "house_cohen_001": {
+        "requests": {
+          "join_001": {
+            "id": "join_001",
+            "type": "join_household",
+            "status": "pending",
+            "requested_by_phone": "0526666666",
+            "requested_by_email": "cousin@email.com",
+            "requested_by_name": "בן דוד יוסי",
+            "requested_at": "2026-01-06T12:00:00.000Z",
+            "message": "היי יוגב, אני יוסי בן הדוד. רוצה להצטרף לרשימות המשפחה",
+            "requested_role": "viewer",
+            "reviewed_by": null,
+            "reviewed_at": null
+          }
+        }
+      }
+    },
+    "groups": {
+      "grp_birthday_001": {
+        "requests": {
+          "gjoin_001": {
+            "id": "gjoin_001",
+            "type": "join_group",
+            "status": "pending",
+            "requested_by_phone": "0527777777",
+            "requested_by_email": "friend@email.com",
+            "requested_by_name": "תמר",
+            "user_id": null,
+            "requested_at": "2026-01-07T14:00:00.000Z",
+            "message": "שמעתי שיש מסיבה לתומר, אשמח להצטרף!",
+            "requested_role": "viewer",
+            "reviewed_by": null,
+            "reviewed_at": null
+          },
+          "gjoin_002": {
+            "id": "gjoin_002",
+            "type": "join_group",
+            "status": "approved",
+            "requested_by_phone": "0529876543",
+            "requested_by_email": "dani@demo.com",
+            "requested_by_name": "דני לוי",
+            "user_id": "user_dani_001",
+            "requested_at": "2025-12-05T11:00:00.000Z",
+            "message": null,
+            "requested_role": "viewer",
+            "reviewed_by": "user_yogev_001",
+            "reviewed_at": "2025-12-05T11:30:00.000Z"
+          }
+        }
+      }
+    }
+  },
+  "permission_requests": {
+    "req_perm_001": {
+      "id": "req_perm_001",
+      "type": "role_upgrade",
+      "status": "pending",
+      "household_id": "house_cohen_001",
+      "list_id": null,
+      "requested_by": "user_sara_001",
+      "requested_by_name": "שרה כהן",
+      "current_role": "admin",
+      "requested_role": "owner",
+      "requested_at": "2026-01-02T10:00:00.000Z",
+      "reason": "יוגב נוסע לחו\"ל, צריכה ניהול מלא",
+      "reviewed_by": null,
+      "reviewed_at": null
+    }
+  }
+}

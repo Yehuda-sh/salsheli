@@ -41,6 +41,12 @@ class AppConfig {
   /// 🔥 האם להשתמש ב-Emulators?
   static bool get useEmulators => environment == AppEnvironment.development;
 
+  /// 🚀 האם אנחנו בסביבת production?
+  static bool get isProduction => environment == AppEnvironment.production;
+
+  /// 🛠️ האם אנחנו בסביבת development?
+  static bool get isDevelopment => environment == AppEnvironment.development;
+
   /// 🖥️ Host לחיבור ל-Emulators
   /// Android Emulator רואה את localhost כ-10.0.2.2
   /// iOS Simulator ו-Web משתמשים ב-localhost

@@ -7,8 +7,10 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dynamic_color/dynamic_color.dart'; // 🎨 Material You!
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +47,7 @@ import 'package:memozap/screens/groups/create_group_screen.dart';
 import 'package:memozap/screens/groups/group_details_screen.dart';
 import 'package:memozap/screens/groups/pending_group_invites_screen.dart';
 import 'package:memozap/screens/index_screen.dart';
+import 'package:memozap/screens/notifications/notifications_center_screen.dart';
 import 'package:memozap/screens/main_navigation_screen.dart';
 import 'package:memozap/screens/pantry/my_pantry_screen.dart';
 import 'package:memozap/screens/sharing/pending_invites_screen.dart';
@@ -58,6 +61,8 @@ import 'package:memozap/services/auth_service.dart'; // 🔐 Firebase Auth!
 import 'package:memozap/services/notifications_service.dart'; // 🔔 Notifications!
 // Theme
 import 'package:memozap/theme/app_theme.dart';
+// Widgets
+import 'package:memozap/widgets/dev_banner.dart';
 import 'package:provider/provider.dart';
 
 /// 🔥 חיבור ל-Firebase Emulators (לפיתוח מקומי)
@@ -91,6 +96,19 @@ void main() async {
     if (AppConfig.useEmulators) {
       await _connectToEmulators();
     }
+
+    // 📊 Initialize Firebase Analytics (production only)
+    if (AppConfig.isProduction) {
+      FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
+    }
+
+    // 🛡️ Initialize Crashlytics (production only)
+    if (AppConfig.isProduction) {
+      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+    } else {
+      // Disable Crashlytics in development
+      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
+    }
   } catch (e) {
     if (kDebugMode) {
       debugPrint('❌ Firebase initialization error: $e');
@@ -102,15 +120,25 @@ void main() async {
     AppConfig.printConfig();
   }
 
-  // 🛡️ תפיסת שגיאות Flutter (UI)
+  // 🛡️ תפיסת שגיאות Flutter (UI) - דיווח ל-Crashlytics
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
-    if (kDebugMode) debugPrint('🔴 Flutter Error: ${details.exception}');
+    if (kDebugMode) {
+      debugPrint('🔴 Flutter Error: ${details.exception}');
+    }
+    // Report to Crashlytics in production
+    if (AppConfig.isProduction) {
+      FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+    }
   };
 
-  // 🛡️ תפיסת שגיאות אסינכרוניות (Futures, Isolates)
+  // 🛡️ תפיסת שגיאות אסינכרוניות (Futures, Isolates) - דיווח ל-Crashlytics
   PlatformDispatcher.instance.onError = (error, stack) {
     if (kDebugMode) debugPrint('🔴 Async Error: $error\n$stack');
+    // Report to Crashlytics in production
+    if (AppConfig.isProduction) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    }
     return true; // מונע קריסה שקטה
   };
 
@@ -380,6 +408,16 @@ class _MyAppState extends State<MyApp> {
           title: 'MemoZap',
           debugShowCheckedModeBanner: false,
 
+          // 🏷️ DEV Banner - מוצג בכל המסכים במצב פיתוח
+          builder: (context, child) {
+            return Stack(
+              children: [
+                child!,
+                const DevBanner(),
+              ],
+            );
+          },
+
           // 🎨 Theme with Dynamic Color or Fallback
           theme: lightDynamic != null ? AppTheme.fromDynamicColors(lightDynamic, dark: false) : AppTheme.lightTheme,
 
@@ -410,6 +448,7 @@ class _MyAppState extends State<MyApp> {
             '/pending-invites': (context) => const PendingInvitesScreen(),
             '/pending-group-invites': (context) => const PendingGroupInvitesScreen(),
             '/create-group': (context) => const CreateGroupScreen(),
+            '/notifications': (context) => const NotificationsCenterScreen(),
           },
           onGenerateRoute: (settings) {
             // shopping-summary - receives listId

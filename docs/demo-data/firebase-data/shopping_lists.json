@@ -252,7 +252,6 @@
           "id": "list_birthday_001",
           "name": "מי מביא מה - יום הולדת תומר",
           "type": "event",
-          "event_mode": "who_brings",
           "status": "active",
           "created_by": "user_yogev_001",
           "created_date": "2025-12-05T12:00:00.000Z",
@@ -265,124 +264,164 @@
             {
               "id": "wb_001",
               "name": "עוגת יום הולדת",
-              "type": "who_brings",
+              "type": "task",
               "isChecked": true,
               "category": "אוכל",
-              "who_brings_data": {
-                "needed_quantity": 1,
+              "taskData": {
+                "itemType": "whoBrings",
+                "neededCount": 1,
                 "volunteers": [
                   {
-                    "user_id": "user_dani_001",
-                    "user_name": "דני לוי",
-                    "quantity": 1,
-                    "volunteered_at": "2025-12-15T14:30:00.000Z"
+                    "userId": "user_dani_001",
+                    "displayName": "דני לוי",
+                    "volunteeredAt": "2025-12-15T14:30:00.000Z"
                   }
-                ],
-                "is_fulfilled": true
+                ]
               },
-              "notes": "עוגת שוקולד עם 8 נרות",
-              "emoji": "🎂"
+              "notes": "עוגת שוקולד עם 8 נרות"
             },
             {
               "id": "wb_002",
               "name": "פיצה",
-              "type": "who_brings",
+              "type": "task",
               "isChecked": false,
               "category": "אוכל",
-              "who_brings_data": {
-                "needed_quantity": 2,
+              "taskData": {
+                "itemType": "whoBrings",
+                "neededCount": 2,
                 "volunteers": [
                   {
-                    "user_id": "user_yogev_001",
-                    "user_name": "יוגב כהן",
-                    "quantity": 1,
-                    "volunteered_at": "2025-12-06T10:00:00.000Z"
+                    "userId": "user_yogev_001",
+                    "displayName": "יוגב כהן",
+                    "volunteeredAt": "2025-12-06T10:00:00.000Z"
                   }
-                ],
-                "is_fulfilled": false
+                ]
               },
-              "notes": "צריך עוד מישהו!",
-              "emoji": "🍕"
+              "notes": "צריך עוד מישהו!"
             },
             {
               "id": "wb_003",
               "name": "משקאות קלים",
-              "type": "who_brings",
+              "type": "task",
               "isChecked": true,
               "category": "שתייה",
-              "who_brings_data": {
-                "needed_quantity": 3,
+              "taskData": {
+                "itemType": "whoBrings",
+                "neededCount": 3,
                 "volunteers": [
                   {
-                    "user_id": "user_sara_001",
-                    "user_name": "שרה כהן",
-                    "quantity": 2,
-                    "volunteered_at": "2025-12-06T11:00:00.000Z"
+                    "userId": "user_sara_001",
+                    "displayName": "שרה כהן",
+                    "volunteeredAt": "2025-12-06T11:00:00.000Z",
+                    "quantity": 2
                   },
                   {
-                    "user_id": "user_dani_001",
-                    "user_name": "דני לוי",
-                    "quantity": 1,
-                    "volunteered_at": "2025-12-07T09:00:00.000Z"
+                    "userId": "user_dani_001",
+                    "displayName": "דני לוי",
+                    "volunteeredAt": "2025-12-07T09:00:00.000Z",
+                    "quantity": 1
                   }
-                ],
-                "is_fulfilled": true
-              },
-              "emoji": "🥤"
+                ]
+              }
             },
             {
               "id": "wb_004",
               "name": "סלטים",
-              "type": "who_brings",
+              "type": "task",
               "isChecked": false,
               "category": "אוכל",
-              "who_brings_data": {
-                "needed_quantity": 2,
-                "volunteers": [],
-                "is_fulfilled": false
+              "taskData": {
+                "itemType": "whoBrings",
+                "neededCount": 2,
+                "volunteers": []
               },
-              "notes": "אף אחד לא התנדב עדיין!",
-              "emoji": "🥗"
+              "notes": "אף אחד לא התנדב עדיין!"
             },
             {
               "id": "wb_005",
               "name": "קישוטים ובלונים",
-              "type": "who_brings",
+              "type": "task",
               "isChecked": true,
               "category": "קישוטים",
-              "who_brings_data": {
-                "needed_quantity": 1,
+              "taskData": {
+                "itemType": "whoBrings",
+                "neededCount": 1,
                 "volunteers": [
                   {
-                    "user_id": "user_yogev_001",
-                    "user_name": "יוגב כהן",
-                    "quantity": 1,
-                    "volunteered_at": "2025-12-05T13:00:00.000Z"
+                    "userId": "user_yogev_001",
+                    "displayName": "יוגב כהן",
+                    "volunteeredAt": "2025-12-05T13:00:00.000Z"
                   }
-                ],
-                "is_fulfilled": true
-              },
-              "emoji": "🎈"
+                ]
+              }
             },
             {
               "id": "wb_006",
               "name": "חטיפים ונשנושים",
-              "type": "who_brings",
+              "type": "task",
               "isChecked": false,
               "category": "אוכל",
-              "who_brings_data": {
-                "needed_quantity": 2,
+              "taskData": {
+                "itemType": "whoBrings",
+                "neededCount": 2,
                 "volunteers": [
                   {
-                    "user_id": "user_sara_001",
-                    "user_name": "שרה כהן",
-                    "quantity": 1,
-                    "volunteered_at": "2025-12-10T14:00:00.000Z"
+                    "userId": "user_sara_001",
+                    "displayName": "שרה כהן",
+                    "volunteeredAt": "2025-12-10T14:00:00.000Z"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "wb_007",
+              "name": "גלידה",
+              "type": "task",
+              "isChecked": false,
+              "category": "קינוחים",
+              "taskData": {
+                "itemType": "whoBrings",
+                "neededCount": 2,
+                "volunteers": [
+                  {
+                    "userId": "user_yogev_001",
+                    "displayName": "יוגב כהן",
+                    "volunteeredAt": "2025-12-08T10:00:00.000Z"
                   }
                 ],
-                "is_fulfilled": false
+                "cancelledVolunteers": [
+                  {
+                    "userId": "user_dani_001",
+                    "displayName": "דני לוי",
+                    "volunteeredAt": "2025-12-07T15:00:00.000Z",
+                    "cancelledAt": "2025-12-15T09:00:00.000Z",
+                    "cancelReason": "לא אוכל להגיע בזמן, סליחה"
+                  }
+                ]
               },
-              "emoji": "🍿"
+              "notes": "דני ביטל - צריך מישהו אחר!"
+            },
+            {
+              "id": "wb_008",
+              "name": "פירות חתוכים",
+              "type": "task",
+              "isChecked": false,
+              "category": "אוכל",
+              "taskData": {
+                "itemType": "whoBrings",
+                "neededCount": 1,
+                "volunteers": [],
+                "cancelledVolunteers": [
+                  {
+                    "userId": "user_sara_001",
+                    "displayName": "שרה כהן",
+                    "volunteeredAt": "2025-12-06T16:00:00.000Z",
+                    "cancelledAt": "2025-12-18T11:00:00.000Z",
+                    "cancelReason": "לא מספיקה להכין, יש מישהו אחר?"
+                  }
+                ]
+              },
+              "notes": "שרה ביטלה - אין מתנדבים!"
             }
           ],
           "format": "who_brings"
@@ -391,7 +430,6 @@
           "id": "list_birthday_votes",
           "name": "הצבעות - יום הולדת תומר",
           "type": "event",
-          "event_mode": "voting",
           "status": "active",
           "created_by": "user_yogev_001",
           "created_date": "2025-12-08T09:00:00.000Z",
@@ -403,100 +441,89 @@
             {
               "id": "vote_001",
               "name": "להזמין DJ?",
-              "type": "vote",
+              "type": "task",
               "isChecked": false,
-              "vote_data": {
-                "vote_type": "yes_no",
-                "status": "closed",
-                "created_at": "2025-12-08T09:00:00.000Z",
-                "closed_at": "2025-12-12T18:00:00.000Z",
-                "votes": {
-                  "user_yogev_001": { "vote": "yes", "voted_at": "2025-12-08T09:05:00.000Z" },
-                  "user_sara_001": { "vote": "yes", "voted_at": "2025-12-08T10:00:00.000Z" },
-                  "user_dani_001": { "vote": "no", "voted_at": "2025-12-08T14:00:00.000Z" }
-                },
-                "result": {
-                  "yes": 2,
-                  "no": 1,
-                  "winner": "yes"
-                }
+              "taskData": {
+                "itemType": "voting",
+                "isAnonymous": false,
+                "votingEndDate": "2025-12-12T18:00:00.000Z",
+                "votesFor": [
+                  { "userId": "user_yogev_001", "displayName": "יוגב כהן", "votedAt": "2025-12-08T09:05:00.000Z" },
+                  { "userId": "user_sara_001", "displayName": "שרה כהן", "votedAt": "2025-12-08T10:00:00.000Z" }
+                ],
+                "votesAgainst": [
+                  { "userId": "user_dani_001", "displayName": "דני לוי", "votedAt": "2025-12-08T14:00:00.000Z" }
+                ],
+                "votesAbstain": []
               },
               "notes": "DJ לילדים, כ-300 ש\"ח לשעה"
             },
             {
               "id": "vote_002",
               "name": "להזמין ליצנים?",
-              "type": "vote",
+              "type": "task",
               "isChecked": false,
-              "vote_data": {
-                "vote_type": "yes_no",
-                "status": "closed",
-                "created_at": "2025-12-09T10:00:00.000Z",
-                "closed_at": "2025-12-13T18:00:00.000Z",
-                "votes": {
-                  "user_yogev_001": { "vote": "no", "voted_at": "2025-12-09T10:05:00.000Z" },
-                  "user_sara_001": { "vote": "yes", "voted_at": "2025-12-09T11:00:00.000Z" },
-                  "user_dani_001": { "vote": "abstain", "voted_at": "2025-12-09T15:00:00.000Z" }
-                },
-                "result": {
-                  "yes": 1,
-                  "no": 1,
-                  "abstain": 1,
-                  "winner": "tie"
-                }
+              "taskData": {
+                "itemType": "voting",
+                "isAnonymous": false,
+                "votingEndDate": "2025-12-13T18:00:00.000Z",
+                "votesFor": [
+                  { "userId": "user_sara_001", "displayName": "שרה כהן", "votedAt": "2025-12-09T11:00:00.000Z" }
+                ],
+                "votesAgainst": [
+                  { "userId": "user_yogev_001", "displayName": "יוגב כהן", "votedAt": "2025-12-09T10:05:00.000Z" }
+                ],
+                "votesAbstain": [
+                  { "userId": "user_dani_001", "displayName": "דני לוי", "votedAt": "2025-12-09T15:00:00.000Z" }
+                ]
               },
               "notes": "תיקו - יוגב מחליט"
             },
             {
               "id": "vote_003",
               "name": "איפה לעשות את המסיבה?",
-              "type": "vote",
+              "type": "task",
               "isChecked": false,
-              "vote_data": {
-                "vote_type": "multiple_choice",
-                "status": "open",
-                "created_at": "2025-12-10T09:00:00.000Z",
+              "taskData": {
+                "itemType": "voting",
+                "isAnonymous": false,
+                "votingEndDate": "2025-12-18T18:00:00.000Z",
                 "options": [
-                  { "id": "opt_1", "text": "בבית", "emoji": "🏠" },
-                  { "id": "opt_2", "text": "בפארק", "emoji": "🌳" },
-                  { "id": "opt_3", "text": "במסעדה", "emoji": "🍽️" },
-                  { "id": "opt_4", "text": "באולם משחקים", "emoji": "🎮" }
+                  { "id": "opt_1", "text": "בבית" },
+                  { "id": "opt_2", "text": "בפארק" },
+                  { "id": "opt_3", "text": "במסעדה" },
+                  { "id": "opt_4", "text": "באולם משחקים" }
                 ],
-                "votes": {
-                  "user_yogev_001": { "vote": "opt_1", "voted_at": "2025-12-10T09:05:00.000Z" },
-                  "user_sara_001": { "vote": "opt_4", "voted_at": "2025-12-10T12:00:00.000Z" }
-                },
-                "result": {
-                  "opt_1": 1,
-                  "opt_4": 1
-                }
+                "votesFor": [
+                  { "userId": "user_yogev_001", "displayName": "יוגב כהן", "votedAt": "2025-12-10T09:05:00.000Z", "option": "opt_1" },
+                  { "userId": "user_sara_001", "displayName": "שרה כהן", "votedAt": "2025-12-10T12:00:00.000Z", "option": "opt_4" }
+                ],
+                "votesAgainst": [],
+                "votesAbstain": []
               },
               "notes": "דני עדיין לא הצביע"
             },
             {
               "id": "vote_004",
               "name": "באיזו שעה להתחיל?",
-              "type": "vote",
+              "type": "task",
               "isChecked": false,
-              "vote_data": {
-                "vote_type": "multiple_choice",
-                "status": "open",
-                "created_at": "2025-12-11T08:00:00.000Z",
+              "taskData": {
+                "itemType": "voting",
+                "isAnonymous": false,
+                "votingEndDate": "2025-12-19T18:00:00.000Z",
                 "options": [
-                  { "id": "time_1", "text": "14:00", "emoji": "🕑" },
-                  { "id": "time_2", "text": "16:00", "emoji": "🕓" },
-                  { "id": "time_3", "text": "17:00", "emoji": "🕔" }
+                  { "id": "time_1", "text": "14:00" },
+                  { "id": "time_2", "text": "16:00" },
+                  { "id": "time_3", "text": "17:00" }
                 ],
-                "votes": {
-                  "user_yogev_001": { "vote": "time_2", "voted_at": "2025-12-11T08:30:00.000Z" },
-                  "user_sara_001": { "vote": "time_2", "voted_at": "2025-12-11T09:00:00.000Z" },
-                  "user_dani_001": { "vote": "time_3", "voted_at": "2025-12-11T18:00:00.000Z" }
-                },
-                "result": {
-                  "time_2": 2,
-                  "time_3": 1,
-                  "winner": "time_2"
-                }
+                "votesFor": [
+                  { "userId": "user_yogev_001", "displayName": "יוגב כהן", "votedAt": "2025-12-11T08:30:00.000Z", "option": "time_2" },
+                  { "userId": "user_sara_001", "displayName": "שרה כהן", "votedAt": "2025-12-11T09:00:00.000Z", "option": "time_2" },
+                  { "userId": "user_dani_001", "displayName": "דני לוי", "votedAt": "2025-12-11T18:00:00.000Z", "option": "time_3" }
+                ],
+                "votesAgainst": [],
+                "votesAbstain": []
               }
             }
           ],

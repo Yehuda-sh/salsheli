@@ -1,12 +1,15 @@
 // 📄 lib/screens/home/dashboard/home_dashboard_screen.dart
 //
 // מסך הבית החדש - פשוט ונקי:
-// 1. Header: "שלום, [שם]" + התראות
-// 2. רשימות פעילות (Cards)
-// 3. היסטוריה (ExpansionTile עם pagination)
+// 1. Header: "שלום, [שם]" + שם משפחה + התראות
+// 2. באנרים (Active Shopper, Pending Invite)
+// 3. Quick Add
+// 4. הצעות להיום (≤3 פריטים)
+// 5. רשימות פעילות (Cards)
+// 6. היסטוריה (2 קבלות + "ראה הכל")
 //
-// Version: 5.0 (06/01/2026) - Simplified home screen
-// 🔗 Related: ShoppingListsProvider, ReceiptProvider
+// Version: 6.0 (08/01/2026) - Enhanced home screen
+// 🔗 Related: ShoppingListsProvider, ReceiptProvider, NotificationsService
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -21,10 +24,15 @@ import '../../../providers/receipt_provider.dart';
 import '../../../providers/shopping_lists_provider.dart';
 import '../../../providers/suggestions_provider.dart';
 import '../../../providers/user_context.dart';
+import '../../../services/notifications_service.dart';
 import '../../../services/tutorial_service.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/common/notebook_background.dart';
 import '../../history/receipt_details_screen.dart';
+import 'widgets/active_shopper_banner.dart';
+import 'widgets/pending_invite_banner.dart';
+import 'widgets/quick_add_field.dart';
+import 'widgets/suggestions_today_card.dart';
 
 class HomeDashboardScreen extends StatefulWidget {
   const HomeDashboardScreen({super.key});
@@ -35,8 +43,6 @@ class HomeDashboardScreen extends StatefulWidget {
 
 class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   bool _isRefreshing = false;
-  bool _isHistoryExpanded = false;
-  int _receiptsToShow = 3;
 
   @override
   void initState() {
@@ -135,11 +141,32 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     }
   }
 
+  /// מחזיר שם משפחה להצגה
+  /// אם householdId מתחיל ב-"house_" + userId → "משפחה אישית"
+  /// אחרת → "בית [שם]" (כרגע placeholder עד שנטמיע Family model)
+  String _getFamilyDisplayName(UserContext userContext) {
+    final householdId = userContext.householdId;
+    final userId = userContext.userId;
+
+    if (householdId == null || userId == null) {
+      return 'משפחה אישית';
+    }
+
+    // בדיקה אם זו משפחה אישית (auto-generated)
+    if (householdId == 'house_$userId' ||
+        householdId == 'house_${userId.hashCode.abs()}') {
+      return 'משפחה אישית';
+    }
+
+    // משפחה משותפת - כרגע מציג placeholder
+    // TODO: Sprint 2 - טען שם משפחה מ-Family model
+    return 'משפחה משותפת';
+  }
+
   @override
   Widget build(BuildContext context) {
     final listsProvider = context.watch<ShoppingListsProvider>();
     final receiptProvider = context.watch<ReceiptProvider>();
-    final pendingInvitesProvider = context.watch<PendingInvitesProvider>();
     final userContext = context.watch<UserContext>();
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
@@ -155,6 +182,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     // קבלות ממוינות לפי תאריך (חדש לישן)
     final sortedReceipts = List<Receipt>.from(receiptProvider.receipts)
       ..sort((a, b) => b.date.compareTo(a.date));
+
+    // שם משפחה להצגה
+    final familyName = _getFamilyDisplayName(userContext);
 
     return Scaffold(
       backgroundColor: paperBg,
@@ -180,21 +210,35 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(kSpacingMedium),
                 children: [
-                  // === 1. Header פשוט ===
+                  // === 1. באנרים (לפי עדיפות: Active Shopper > Pending Invite) ===
+                  const ActiveShopperBanner(),
+                  const PendingInviteBanner(),
+
+                  // === 2. Header עם שם משפחה ===
                   _buildHeader(
                     context,
                     userName: userContext.displayName,
-                    pendingCount: pendingInvitesProvider.pendingCount,
+                    familyName: familyName,
                   ),
 
-                  const SizedBox(height: kSpacingLarge),
+                  const SizedBox(height: kSpacingMedium),
 
-                  // === 2. רשימות פעילות ===
+                  // === 3. Quick Add ===
+                  const QuickAddField(),
+
+                  const SizedBox(height: kSpacingMedium),
+
+                  // === 4. הצעות להיום ===
+                  const SuggestionsTodayCard(),
+
+                  const SizedBox(height: kSpacingMedium),
+
+                  // === 5. רשימות פעילות ===
                   _buildActiveListsSection(context, activeLists, cs),
 
                   const SizedBox(height: kSpacingMedium),
 
-                  // === 3. היסטוריה ===
+                  // === 6. היסטוריה ===
                   _buildHistorySection(context, sortedReceipts, cs),
 
                   // מרווח לפני FAB
@@ -209,15 +253,17 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   }
 
   // ============================================
-  // 1. HEADER - כרטיס ברכה צבעוני
+  // 1. HEADER - כרטיס ברכה צבעוני + שם משפחה
   // ============================================
   Widget _buildHeader(
     BuildContext context, {
     required String? userName,
-    required int pendingCount,
+    required String? familyName,
   }) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final userContext = context.watch<UserContext>();
+    final notificationsService = context.read<NotificationsService>();
 
     final hasName = userName?.trim().isNotEmpty ?? false;
     final greeting = hasName ? 'שלום, $userName!' : 'שלום!';
@@ -251,36 +297,69 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               ),
             ),
             const SizedBox(width: kSpacingMedium),
-            // ברכה
+            // ברכה + שם משפחה
             Expanded(
-              child: Text(
-                greeting,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: cs.onSurface,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    greeting,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: cs.onSurface,
+                    ),
+                  ),
+                  if (familyName != null) ...[
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.home_outlined,
+                          size: 14,
+                          color: cs.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          familyName,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
               ),
             ),
-            // התראות
-            if (pendingCount > 0)
-              InkWell(
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  Navigator.pushNamed(context, '/pending-group-invites');
-                },
-                borderRadius: BorderRadius.circular(12),
-                child: Badge.count(
-                  count: pendingCount,
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: cs.surface,
-                      borderRadius: BorderRadius.circular(12),
+            // התראות - bell icon עם StreamBuilder לספירת התראות
+            StreamBuilder<int>(
+              stream: userContext.userId != null
+                  ? notificationsService.watchUnreadCount(userId: userContext.userId!)
+                  : const Stream.empty(),
+              initialData: 0,
+              builder: (context, snapshot) {
+                final unreadCount = snapshot.data ?? 0;
+                return InkWell(
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    Navigator.pushNamed(context, '/notifications');
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Badge.count(
+                    count: unreadCount,
+                    isLabelVisible: unreadCount > 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: cs.surface,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(Icons.notifications_outlined, color: cs.primary),
                     ),
-                    child: Icon(Icons.mail_outline, color: cs.primary),
                   ),
-                ),
-              ),
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -525,7 +604,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   }
 
   // ============================================
-  // 3. HISTORY - היסטוריה
+  // 3. HISTORY - היסטוריה (2 קבלות + "ראה הכל")
   // ============================================
   Widget _buildHistorySection(
     BuildContext context,
@@ -538,58 +617,74 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       return const SizedBox.shrink();
     }
 
-    return Card(
-      child: Theme(
-        // מסיר את ה-divider של ExpansionTile
-        data: theme.copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          initiallyExpanded: _isHistoryExpanded,
-          onExpansionChanged: (expanded) {
-            setState(() {
-              _isHistoryExpanded = expanded;
-              if (!expanded) {
-                _receiptsToShow = 3; // איפוס כשסוגרים
-              }
-            });
-          },
-          leading: Icon(Icons.history, color: cs.primary),
-          title: Text(
-            'היסטוריה',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          subtitle: Text(
-            '${receipts.length} קבלות',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: cs.onSurfaceVariant,
-            ),
-          ),
+    // מציג רק 2 קבלות אחרונות
+    final recentReceipts = receipts.take(2).toList();
+    final hasMore = receipts.length > 2;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // כותרת
+        Row(
           children: [
-            const Divider(height: 1),
-            // הקבלות
-            ...receipts.take(_receiptsToShow).map(
-                  (receipt) => _buildReceiptTile(context, receipt, cs),
+            Icon(Icons.history, size: 20, color: cs.primary),
+            const SizedBox(width: 8),
+            Text(
+              'היסטוריה',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const Spacer(),
+            if (hasMore)
+              TextButton(
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  Navigator.pushNamed(context, '/history');
+                },
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-            // כפתור "טען עוד"
-            if (_receiptsToShow < receipts.length)
-              Padding(
-                padding: const EdgeInsets.all(kSpacingSmall),
-                child: TextButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      _receiptsToShow += 3;
-                    });
-                  },
-                  icon: const Icon(Icons.expand_more),
-                  label: Text(
-                    'טען עוד (${receipts.length - _receiptsToShow} נותרו)',
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'ראה הכל',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: cs.primary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(width: 2),
+                    Icon(Icons.chevron_left, size: 16, color: cs.primary),
+                  ],
                 ),
               ),
           ],
         ),
-      ),
+        const SizedBox(height: kSpacingSmall),
+
+        // כרטיסי קבלות
+        Card(
+          child: Column(
+            children: [
+              ...recentReceipts.asMap().entries.map((entry) {
+                final index = entry.key;
+                final receipt = entry.value;
+                return Column(
+                  children: [
+                    _buildReceiptTile(context, receipt, cs),
+                    if (index < recentReceipts.length - 1)
+                      const Divider(height: 1),
+                  ],
+                );
+              }),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

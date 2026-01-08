@@ -349,4 +349,67 @@ class SuggestionsProvider with ChangeNotifier {
     _error = null;
     notifyListeners();
   }
+
+  // ========== 🆕 Methods by ID (for multi-item views) ==========
+
+  /// ➕ הוספת המלצה לפי ID לרשימה
+  ///
+  /// משמש לתצוגות שמציגות מספר המלצות בו-זמנית (כמו SuggestionsTodayCard)
+  Future<void> addSuggestionById(String suggestionId, String listId) async {
+    final suggestionIndex = _suggestions.indexWhere((s) => s.id == suggestionId);
+    if (suggestionIndex == -1) return;
+
+    try {
+      final suggestion = _suggestions[suggestionIndex];
+
+      // עדכון סטטוס ל-added
+      final updatedSuggestion = SuggestionsService.markAsAdded(
+        suggestion,
+        listId: listId,
+      );
+
+      // עדכון ברשימה המקומית
+      _suggestions[suggestionIndex] = updatedSuggestion;
+
+      // אם זו ההמלצה הנוכחית - טען את הבאה
+      if (_currentSuggestion?.id == suggestionId) {
+        await _loadNextSuggestion();
+      }
+
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      debugPrint('❌ [SuggestionsProvider] שגיאה בהוספת המלצה לפי ID: $e');
+      notifyListeners();
+    }
+  }
+
+  /// ⏭️ דחיית המלצה לפי ID
+  ///
+  /// משמש לתצוגות שמציגות מספר המלצות בו-זמנית
+  Future<void> dismissSuggestionById(String suggestionId) async {
+    final suggestionIndex = _suggestions.indexWhere((s) => s.id == suggestionId);
+    if (suggestionIndex == -1) return;
+
+    try {
+      final suggestion = _suggestions[suggestionIndex];
+
+      // דחייה לשבוע
+      final updatedSuggestion = SuggestionsService.dismissSuggestion(suggestion);
+
+      // עדכון ברשימה המקומית
+      _suggestions[suggestionIndex] = updatedSuggestion;
+
+      // אם זו ההמלצה הנוכחית - טען את הבאה
+      if (_currentSuggestion?.id == suggestionId) {
+        await _loadNextSuggestion();
+      }
+
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      debugPrint('❌ [SuggestionsProvider] שגיאה בדחיית המלצה לפי ID: $e');
+      notifyListeners();
+    }
+  }
 }

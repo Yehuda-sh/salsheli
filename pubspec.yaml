@@ -58,6 +58,8 @@ dependencies:
   cloud_firestore: ^6.0.3
   firebase_auth: ^6.1.1
   firebase_storage: ^13.0.3
+  firebase_analytics: ^12.1.0
+  firebase_crashlytics: ^5.0.6
 
   # Social Login
   google_sign_in: ^6.2.1
@@ -69,7 +71,7 @@ dev_dependencies:
     sdk: flutter
 
   flutter_lints: ^6.0.0
-  analyzer: ^7.7.1  # Compatible with test package, still much newer than 6.4.1
+  analyzer: ^7.7.1  # Compatible with build_runner
   build_runner: ^2.4.13
   json_serializable: ^6.8.0
   mockito: ^5.4.4  # For testing
