@@ -1,0 +1,73 @@
+{
+  "groups": {
+    "grp_birthday_001": {
+      "id": "grp_birthday_001",
+      "name": "יום הולדת תומר",
+      "type": "event",
+      "description": "תומר בן 8! 🎂",
+      "image_url": null,
+      "created_by": "user_yogev_001",
+      "created_at": "2025-12-05T10:00:00.000Z",
+      "updated_at": "2025-12-20T16:00:00.000Z",
+      "members": {
+        "user_yogev_001": {
+          "user_id": "user_yogev_001",
+          "name": "יוגב כהן",
+          "email": "yogev@demo.com",
+          "avatar_url": null,
+          "role": "owner",
+          "joined_at": "2025-12-05T10:00:00.000Z",
+          "invited_by": null,
+          "can_start_shopping": true
+        },
+        "user_sara_001": {
+          "user_id": "user_sara_001",
+          "name": "שרה כהן",
+          "email": "sara@demo.com",
+          "avatar_url": null,
+          "role": "admin",
+          "joined_at": "2025-12-05T10:30:00.000Z",
+          "invited_by": "user_yogev_001",
+          "can_start_shopping": true
+        },
+        "user_dani_001": {
+          "user_id": "user_dani_001",
+          "name": "דני לוי",
+          "email": "dani@demo.com",
+          "avatar_url": null,
+          "role": "viewer",
+          "joined_at": "2025-12-05T11:30:00.000Z",
+          "invited_by": "user_yogev_001",
+          "can_start_shopping": false
+        }
+      },
+      "settings": {
+        "notifications": true,
+        "low_stock_alerts": false,
+        "voting_alerts": true,
+        "whos_bringing_alerts": true
+      },
+      "extra_fields": {
+        "event_date": "2025-12-20T14:00:00.000Z",
+        "event_location": "בית משפחת כהן"
+      }
+    }
+  },
+  "group_invites": {
+    "ginv_dani_001": {
+      "id": "ginv_dani_001",
+      "group_id": "grp_birthday_001",
+      "group_name": "יום הולדת תומר",
+      "invited_phone": "0529876543",
+      "invited_email": "dani@demo.com",
+      "invited_name": "דני לוי",
+      "role": "viewer",
+      "invited_by": "user_yogev_001",
+      "invited_by_name": "יוגב כהן",
+      "created_at": "2025-12-05T11:00:00.000Z",
+      "status": "accepted",
+      "responded_at": "2025-12-05T11:30:00.000Z",
+      "accepted_by_user_id": "user_dani_001"
+    }
+  }
+}

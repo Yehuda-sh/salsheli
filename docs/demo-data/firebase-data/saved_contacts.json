@@ -1,0 +1,156 @@
+{
+  "users": {
+    "user_yogev_001": {
+      "saved_contacts": {
+        "contact_001": {
+          "id": "contact_001",
+          "name": "שרה כהן",
+          "phone": "0547654321",
+          "email": "sara@demo.com",
+          "is_app_user": true,
+          "app_user_id": "user_sara_001",
+          "avatar_url": null,
+          "relationship": "בת זוג",
+          "created_at": "2025-10-15T14:00:00.000Z",
+          "last_invited": "2025-10-15T14:00:00.000Z",
+          "invite_count": 1,
+          "notes": null
+        },
+        "contact_002": {
+          "id": "contact_002",
+          "name": "דני לוי",
+          "phone": "0529876543",
+          "email": "dani@demo.com",
+          "is_app_user": true,
+          "app_user_id": "user_dani_001",
+          "avatar_url": null,
+          "relationship": "חבר",
+          "created_at": "2025-12-05T11:00:00.000Z",
+          "last_invited": "2025-12-05T11:00:00.000Z",
+          "invite_count": 1,
+          "notes": "הוזמן לקבוצת יום הולדת"
+        },
+        "contact_003": {
+          "id": "contact_003",
+          "name": "רונית כהן",
+          "phone": "0523456789",
+          "email": "ronit@email.com",
+          "is_app_user": false,
+          "app_user_id": null,
+          "avatar_url": null,
+          "relationship": "אחות",
+          "created_at": "2025-11-20T10:00:00.000Z",
+          "last_invited": "2026-01-03T10:00:00.000Z",
+          "invite_count": 2,
+          "notes": "לא הצטרפה עדיין"
+        },
+        "contact_004": {
+          "id": "contact_004",
+          "name": "דוד ישראלי",
+          "phone": null,
+          "email": "david.israeli@email.com",
+          "is_app_user": false,
+          "app_user_id": null,
+          "avatar_url": null,
+          "relationship": "עמית לעבודה",
+          "created_at": "2025-12-01T14:00:00.000Z",
+          "last_invited": null,
+          "invite_count": 0,
+          "notes": "אימייל בלבד"
+        },
+        "contact_005": {
+          "id": "contact_005",
+          "name": "אמא",
+          "phone": "0541111111",
+          "email": null,
+          "is_app_user": false,
+          "app_user_id": null,
+          "avatar_url": null,
+          "relationship": "משפחה",
+          "created_at": "2025-10-05T10:00:00.000Z",
+          "last_invited": "2025-11-15T10:00:00.000Z",
+          "invite_count": 3,
+          "notes": "לא מעוניינת באפליקציה"
+        },
+        "contact_006": {
+          "id": "contact_006",
+          "name": "סבתא מרים",
+          "phone": "0525555555",
+          "email": null,
+          "is_app_user": false,
+          "app_user_id": null,
+          "avatar_url": null,
+          "relationship": "משפחה",
+          "created_at": "2026-01-06T09:00:00.000Z",
+          "last_invited": "2026-01-06T09:00:00.000Z",
+          "invite_count": 1,
+          "notes": "הוזמנה לראות רשימות"
+        }
+      }
+    },
+    "user_sara_001": {
+      "saved_contacts": {
+        "contact_s_001": {
+          "id": "contact_s_001",
+          "name": "יוגב כהן",
+          "phone": "0541234567",
+          "email": "yogev@demo.com",
+          "is_app_user": true,
+          "app_user_id": "user_yogev_001",
+          "avatar_url": null,
+          "relationship": "בן זוג",
+          "created_at": "2025-10-15T14:00:00.000Z",
+          "last_invited": null,
+          "invite_count": 0,
+          "notes": null
+        },
+        "contact_s_002": {
+          "id": "contact_s_002",
+          "name": "נעמה לוי",
+          "phone": "0544444444",
+          "email": "naama@email.com",
+          "is_app_user": false,
+          "app_user_id": null,
+          "avatar_url": null,
+          "relationship": "חברה",
+          "created_at": "2025-11-10T16:00:00.000Z",
+          "last_invited": "2026-01-05T16:00:00.000Z",
+          "invite_count": 2,
+          "notes": "חברה מהעבודה"
+        },
+        "contact_s_003": {
+          "id": "contact_s_003",
+          "name": "מיכל לוי",
+          "phone": "0527654321",
+          "email": "michal@email.com",
+          "is_app_user": false,
+          "app_user_id": null,
+          "avatar_url": null,
+          "relationship": "שכנה",
+          "created_at": "2025-12-01T10:00:00.000Z",
+          "last_invited": "2026-01-06T14:00:00.000Z",
+          "invite_count": 1,
+          "notes": "הוזמנה ליום הולדת"
+        }
+      }
+    },
+    "user_dani_001": {
+      "saved_contacts": {
+        "contact_d_001": {
+          "id": "contact_d_001",
+          "name": "יוגב כהן",
+          "phone": "0541234567",
+          "email": "yogev@demo.com",
+          "is_app_user": true,
+          "app_user_id": "user_yogev_001",
+          "avatar_url": null,
+          "relationship": "חבר",
+          "created_at": "2025-12-05T11:30:00.000Z",
+          "last_invited": null,
+          "invite_count": 0,
+          "notes": "מכיר מהעבודה"
+        }
+      }
+    }
+  }
+}

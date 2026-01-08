@@ -1,0 +1,304 @@
+{
+  "households": {
+    "house_cohen_001": {
+      "receipts": {
+        "rcpt_001": {
+          "id": "rcpt_001",
+          "store_name": "רמי לוי",
+          "date": "2025-10-03T14:35:00.000Z",
+          "created_date": "2025-10-03T14:35:00.000Z",
+          "total_amount": 187.50,
+          "items": [
+            {
+              "id": "ri_001",
+              "name": "חלב 3%",
+              "quantity": 2,
+              "unit_price": 7.9,
+              "is_checked": true,
+              "category": "מוצרי חלב"
+            },
+            {
+              "id": "ri_002",
+              "name": "לחם פרוס",
+              "quantity": 1,
+              "unit_price": 12.0,
+              "is_checked": true,
+              "category": "לחם ומאפים"
+            },
+            {
+              "id": "ri_003",
+              "name": "ביצים L",
+              "quantity": 1,
+              "unit_price": 28.0,
+              "is_checked": true,
+              "category": "ביצים"
+            },
+            {
+              "id": "ri_004",
+              "name": "גבינה צהובה",
+              "quantity": 1,
+              "unit_price": 22.0,
+              "is_checked": true,
+              "category": "מוצרי חלב"
+            },
+            {
+              "id": "ri_005",
+              "name": "יוגורט",
+              "quantity": 4,
+              "unit_price": 5.5,
+              "is_checked": true,
+              "category": "מוצרי חלב"
+            },
+            {
+              "id": "ri_006",
+              "name": "עגבניות",
+              "quantity": 1,
+              "unit_price": 8.9,
+              "is_checked": true,
+              "category": "ירקות"
+            }
+          ],
+          "linked_shopping_list_id": "list_001",
+          "is_virtual": true,
+          "created_by": "user_yogev_001",
+          "household_id": "house_cohen_001"
+        },
+        "rcpt_002": {
+          "id": "rcpt_002",
+          "store_name": "סופר-פארם",
+          "date": "2025-10-10T10:15:00.000Z",
+          "created_date": "2025-10-10T10:15:00.000Z",
+          "total_amount": 124.0,
+          "items": [
+            {
+              "id": "ri_010",
+              "name": "אקמול",
+              "quantity": 1,
+              "unit_price": 25.0,
+              "is_checked": true,
+              "category": "תרופות"
+            },
+            {
+              "id": "ri_011",
+              "name": "ויטמין C",
+              "quantity": 1,
+              "unit_price": 45.0,
+              "is_checked": true,
+              "category": "ויטמינים"
+            },
+            {
+              "id": "ri_012",
+              "name": "משחת שיניים",
+              "quantity": 2,
+              "unit_price": 18.0,
+              "is_checked": true,
+              "category": "היגיינה"
+            },
+            {
+              "id": "ri_013",
+              "name": "סבון ידיים",
+              "quantity": 2,
+              "unit_price": 9.0,
+              "is_checked": true,
+              "category": "היגיינה"
+            }
+          ],
+          "linked_shopping_list_id": "list_002",
+          "is_virtual": true,
+          "created_by": "user_yogev_001",
+          "household_id": "house_cohen_001"
+        },
+        "rcpt_003": {
+          "id": "rcpt_003",
+          "store_name": "שופרסל",
+          "date": "2025-10-17T14:45:00.000Z",
+          "created_date": "2025-10-17T14:45:00.000Z",
+          "total_amount": 320.0,
+          "items": [
+            {
+              "id": "ri_020",
+              "name": "חלב 3%",
+              "quantity": 3,
+              "unit_price": 7.9,
+              "is_checked": true
+            },
+            {
+              "id": "ri_021",
+              "name": "גבינה לבנה",
+              "quantity": 2,
+              "unit_price": 8.5,
+              "is_checked": true
+            },
+            {
+              "id": "ri_022",
+              "name": "חטיפים לילדים",
+              "quantity": 2,
+              "unit_price": 15.0,
+              "is_checked": true
+            },
+            {
+              "id": "ri_023",
+              "name": "מיץ תפוזים",
+              "quantity": 2,
+              "unit_price": 12.0,
+              "is_checked": true
+            }
+          ],
+          "linked_shopping_list_id": "list_003",
+          "is_virtual": true,
+          "created_by": "user_yogev_001",
+          "household_id": "house_cohen_001"
+        },
+        "rcpt_004": {
+          "id": "rcpt_004",
+          "store_name": "שוק הכרמל",
+          "date": "2025-10-24T10:30:00.000Z",
+          "created_date": "2025-10-24T10:30:00.000Z",
+          "total_amount": 85.0,
+          "items": [
+            {
+              "id": "ri_030",
+              "name": "עגבניות שרי",
+              "quantity": 0.5,
+              "unit_price": 12.0,
+              "is_checked": true,
+              "category": "ירקות"
+            },
+            {
+              "id": "ri_031",
+              "name": "מלפפונים",
+              "quantity": 0.5,
+              "unit_price": 8.0,
+              "is_checked": true,
+              "category": "ירקות"
+            },
+            {
+              "id": "ri_032",
+              "name": "פלפל אדום",
+              "quantity": 0.3,
+              "unit_price": 15.0,
+              "is_checked": true,
+              "category": "ירקות"
+            },
+            {
+              "id": "ri_033",
+              "name": "תפוחים",
+              "quantity": 1,
+              "unit_price": 10.0,
+              "is_checked": true,
+              "category": "פירות"
+            },
+            {
+              "id": "ri_034",
+              "name": "אבוקדו",
+              "quantity": 0.5,
+              "unit_price": 20.0,
+              "is_checked": true,
+              "category": "ירקות"
+            }
+          ],
+          "linked_shopping_list_id": "list_005",
+          "is_virtual": true,
+          "created_by": "user_yogev_001",
+          "household_id": "house_cohen_001"
+        },
+        "rcpt_005": {
+          "id": "rcpt_005",
+          "store_name": "יוחננוף",
+          "date": "2025-11-06T16:30:00.000Z",
+          "created_date": "2025-11-06T16:30:00.000Z",
+          "total_amount": 156.0,
+          "items": [
+            {
+              "id": "ri_040",
+              "name": "חלב 3%",
+              "quantity": 3,
+              "unit_price": 7.9,
+              "is_checked": true
+            },
+            {
+              "id": "ri_041",
+              "name": "גבינה לבנה",
+              "quantity": 2,
+              "unit_price": 8.5,
+              "is_checked": true
+            },
+            {
+              "id": "ri_042",
+              "name": "לבן",
+              "quantity": 4,
+              "unit_price": 6.0,
+              "is_checked": true
+            },
+            {
+              "id": "ri_043",
+              "name": "לחם",
+              "quantity": 2,
+              "unit_price": 12.0,
+              "is_checked": true
+            }
+          ],
+          "linked_shopping_list_id": "list_006",
+          "is_virtual": true,
+          "created_by": "user_sara_001",
+          "household_id": "house_cohen_001"
+        },
+        "rcpt_006": {
+          "id": "rcpt_006",
+          "store_name": "רמי לוי",
+          "date": "2025-12-08T14:35:00.000Z",
+          "created_date": "2025-12-08T14:35:00.000Z",
+          "total_amount": 215.0,
+          "items": [
+            {
+              "id": "ri_060",
+              "name": "חטיפים מתוקים",
+              "quantity": 3,
+              "unit_price": 15.0,
+              "is_checked": true
+            },
+            {
+              "id": "ri_061",
+              "name": "חטיפים מלוחים",
+              "quantity": 2,
+              "unit_price": 12.0,
+              "is_checked": true
+            },
+            {
+              "id": "ri_062",
+              "name": "משקאות קלים",
+              "quantity": 6,
+              "unit_price": 8.0,
+              "is_checked": true
+            },
+            {
+              "id": "ri_063",
+              "name": "כוסות חד פעמי",
+              "quantity": 1,
+              "unit_price": 15.0,
+              "is_checked": true
+            },
+            {
+              "id": "ri_064",
+              "name": "צלחות חד פעמי",
+              "quantity": 1,
+              "unit_price": 18.0,
+              "is_checked": true
+            },
+            {
+              "id": "ri_065",
+              "name": "בלונים",
+              "quantity": 1,
+              "unit_price": 25.0,
+              "is_checked": true
+            }
+          ],
+          "linked_shopping_list_id": "list_birthday_001",
+          "is_virtual": true,
+          "created_by": "user_yogev_001",
+          "household_id": "house_cohen_001"
+        }
+      }
+    }
+  }
+}

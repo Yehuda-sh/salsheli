@@ -1,0 +1,194 @@
+{
+  "users": {
+    "user_sara_001": {
+      "private_lists": {
+        "plist_sara_001": {
+          "id": "plist_sara_001",
+          "name": "מתנות סוד לתומר",
+          "type": "household",
+          "status": "active",
+          "created_by": "user_sara_001",
+          "created_date": "2025-12-01T10:00:00.000Z",
+          "updated_date": "2025-12-18T14:00:00.000Z",
+          "is_shared": false,
+          "is_private": true,
+          "notes": "סודי! יוגב לא אמור לראות",
+          "items": [
+            {
+              "id": "pitem_001",
+              "name": "לגו סטאר וורז",
+              "type": "product",
+              "isChecked": true,
+              "category": "צעצועים",
+              "productData": {
+                "quantity": 1,
+                "unitPrice": 350.0,
+                "unit": "יח'"
+              },
+              "checked_at": "2025-12-15T11:00:00.000Z",
+              "notes": "נקנה בטויס אר אס"
+            },
+            {
+              "id": "pitem_002",
+              "name": "ספר הארי פוטר 3",
+              "type": "product",
+              "isChecked": true,
+              "category": "ספרים",
+              "productData": {
+                "quantity": 1,
+                "unitPrice": 89.0,
+                "unit": "יח'"
+              },
+              "checked_at": "2025-12-16T15:30:00.000Z"
+            },
+            {
+              "id": "pitem_003",
+              "name": "כרטיס לסרט",
+              "type": "product",
+              "isChecked": false,
+              "category": "בילויים",
+              "productData": {
+                "quantity": 4,
+                "unitPrice": 50.0,
+                "unit": "יח'"
+              },
+              "notes": "לכל המשפחה"
+            },
+            {
+              "id": "pitem_004",
+              "name": "בלונים",
+              "type": "product",
+              "isChecked": true,
+              "category": "קישוטים",
+              "productData": {
+                "quantity": 20,
+                "unitPrice": 2.0,
+                "unit": "יח'"
+              },
+              "checked_at": "2025-12-18T14:00:00.000Z"
+            }
+          ],
+          "format": "private"
+        },
+        "plist_sara_002": {
+          "id": "plist_sara_002",
+          "name": "קניות אישיות",
+          "type": "household",
+          "status": "active",
+          "created_by": "user_sara_001",
+          "created_date": "2025-11-20T09:00:00.000Z",
+          "updated_date": "2025-12-25T10:00:00.000Z",
+          "is_shared": false,
+          "is_private": true,
+          "items": [
+            {
+              "id": "pitem_010",
+              "name": "קרם פנים",
+              "type": "product",
+              "isChecked": false,
+              "category": "טיפוח",
+              "productData": {
+                "quantity": 1,
+                "unitPrice": 120.0,
+                "unit": "יח'"
+              }
+            },
+            {
+              "id": "pitem_011",
+              "name": "שמפו ללא סולפטים",
+              "type": "product",
+              "isChecked": false,
+              "category": "טיפוח",
+              "productData": {
+                "quantity": 1,
+                "unitPrice": 65.0,
+                "unit": "בקבוק"
+              }
+            },
+            {
+              "id": "pitem_012",
+              "name": "ויטמינים לנשים",
+              "type": "product",
+              "isChecked": true,
+              "category": "ויטמינים",
+              "productData": {
+                "quantity": 1,
+                "unitPrice": 89.0,
+                "unit": "חבילה"
+              },
+              "checked_at": "2025-12-20T11:00:00.000Z"
+            }
+          ],
+          "format": "private"
+        }
+      }
+    },
+    "user_dani_001": {
+      "private_lists": {
+        "plist_dani_001": {
+          "id": "plist_dani_001",
+          "name": "קניות לשבת",
+          "type": "supermarket",
+          "status": "active",
+          "created_by": "user_dani_001",
+          "created_date": "2025-12-19T08:00:00.000Z",
+          "updated_date": "2025-12-19T08:30:00.000Z",
+          "is_shared": false,
+          "is_private": true,
+          "budget": 200.0,
+          "items": [
+            {
+              "id": "pitem_d_001",
+              "name": "סטייק אנטריקוט",
+              "type": "product",
+              "isChecked": false,
+              "category": "בשר ועוף",
+              "productData": {
+                "quantity": 0.5,
+                "unitPrice": 180.0,
+                "unit": "ק\"ג"
+              }
+            },
+            {
+              "id": "pitem_d_002",
+              "name": "יין אדום",
+              "type": "product",
+              "isChecked": false,
+              "category": "משקאות",
+              "productData": {
+                "quantity": 1,
+                "unitPrice": 70.0,
+                "unit": "בקבוק"
+              }
+            },
+            {
+              "id": "pitem_d_003",
+              "name": "גבינות לנשנוש",
+              "type": "product",
+              "isChecked": false,
+              "category": "מוצרי חלב",
+              "productData": {
+                "quantity": 1,
+                "unitPrice": 45.0,
+                "unit": "מגש"
+              }
+            },
+            {
+              "id": "pitem_d_004",
+              "name": "לחם מחמצת",
+              "type": "product",
+              "isChecked": false,
+              "category": "לחם ומאפים",
+              "productData": {
+                "quantity": 1,
+                "unitPrice": 25.0,
+                "unit": "יח'"
+              }
+            }
+          ],
+          "format": "private"
+        }
+      }
+    }
+  }
+}

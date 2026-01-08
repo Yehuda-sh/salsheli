@@ -1,0 +1,177 @@
+{
+  "user_templates": {
+    "user_yogev_001": {
+      "templates": {
+        "tmpl_yogev_001": {
+          "id": "tmpl_yogev_001",
+          "name": "קניות שבועיות רגילות",
+          "description": "המוצרים הקבועים לכל שבוע",
+          "type": "supermarket",
+          "created_by": "user_yogev_001",
+          "created_at": "2025-10-20T10:00:00.000Z",
+          "updated_at": "2025-12-15T14:00:00.000Z",
+          "use_count": 12,
+          "last_used": "2025-12-28T09:00:00.000Z",
+          "is_favorite": true,
+          "items": [
+            { "name": "חלב 3%", "category": "מוצרי חלב", "quantity": 2, "unit": "ליטר", "emoji": "🥛" },
+            { "name": "לחם פרוס", "category": "לחם ומאפים", "quantity": 1, "unit": "יח'", "emoji": "🍞" },
+            { "name": "ביצים L", "category": "ביצים", "quantity": 1, "unit": "תבנית 30", "emoji": "🥚" },
+            { "name": "גבינה צהובה", "category": "מוצרי חלב", "quantity": 1, "unit": "200 גרם", "emoji": "🧀" },
+            { "name": "גבינה לבנה", "category": "מוצרי חלב", "quantity": 2, "unit": "גביע", "emoji": "🥛" },
+            { "name": "יוגורט", "category": "מוצרי חלב", "quantity": 4, "unit": "יח'", "emoji": "🥣" },
+            { "name": "עגבניות", "category": "ירקות", "quantity": 1, "unit": "ק\"ג", "emoji": "🍅" },
+            { "name": "מלפפונים", "category": "ירקות", "quantity": 0.5, "unit": "ק\"ג", "emoji": "🥒" },
+            { "name": "בצל", "category": "ירקות", "quantity": 0.5, "unit": "ק\"ג", "emoji": "🧅" },
+            { "name": "תפוחים", "category": "פירות", "quantity": 1, "unit": "ק\"ג", "emoji": "🍎" },
+            { "name": "בננות", "category": "פירות", "quantity": 1, "unit": "אשכול", "emoji": "🍌" },
+            { "name": "עוף שלם", "category": "בשר ועוף", "quantity": 1, "unit": "ק\"ג", "emoji": "🍗" },
+            { "name": "נייר טואלט", "category": "ניקיון", "quantity": 1, "unit": "חבילה", "emoji": "🧻" },
+            { "name": "סבון כלים", "category": "ניקיון", "quantity": 1, "unit": "בקבוק", "emoji": "🧴" },
+            { "name": "חטיפים לילדים", "category": "חטיפים", "quantity": 1, "unit": "חבילה", "emoji": "🍫" }
+          ]
+        },
+        "tmpl_yogev_002": {
+          "id": "tmpl_yogev_002",
+          "name": "שבת / חג",
+          "description": "קניות לשבת או חג",
+          "type": "supermarket",
+          "created_by": "user_yogev_001",
+          "created_at": "2025-11-01T10:00:00.000Z",
+          "updated_at": "2025-12-20T10:00:00.000Z",
+          "use_count": 8,
+          "last_used": "2025-12-20T10:00:00.000Z",
+          "is_favorite": true,
+          "items": [
+            { "name": "חלות", "category": "לחם ומאפים", "quantity": 2, "unit": "יח'", "emoji": "🥖" },
+            { "name": "יין לקידוש", "category": "משקאות", "quantity": 1, "unit": "בקבוק", "emoji": "🍷" },
+            { "name": "עוף שלם", "category": "בשר ועוף", "quantity": 2, "unit": "ק\"ג", "emoji": "🍗" },
+            { "name": "בשר טחון", "category": "בשר ועוף", "quantity": 0.5, "unit": "ק\"ג", "emoji": "🥩" },
+            { "name": "אורז", "category": "קטניות ודגנים", "quantity": 0.5, "unit": "ק\"ג", "emoji": "🍚" },
+            { "name": "ירקות לסלט", "category": "ירקות", "quantity": 1, "unit": "ערכה", "emoji": "🥗" },
+            { "name": "תפוחי אדמה", "category": "ירקות", "quantity": 1, "unit": "ק\"ג", "emoji": "🥔" },
+            { "name": "בטטה", "category": "ירקות", "quantity": 0.5, "unit": "ק\"ג", "emoji": "🍠" },
+            { "name": "חומוס", "category": "סלטים", "quantity": 1, "unit": "גביע", "emoji": "🫘" },
+            { "name": "טחינה", "category": "סלטים", "quantity": 1, "unit": "גביע", "emoji": "🥜" },
+            { "name": "מטבוחה", "category": "סלטים", "quantity": 1, "unit": "גביע", "emoji": "🌶️" },
+            { "name": "חציל קלוי", "category": "סלטים", "quantity": 1, "unit": "גביע", "emoji": "🍆" },
+            { "name": "פירות לקינוח", "category": "פירות", "quantity": 1, "unit": "ק\"ג", "emoji": "🍇" },
+            { "name": "עוגת שוקולד", "category": "קינוחים", "quantity": 1, "unit": "יח'", "emoji": "🍫" },
+            { "name": "גלידה", "category": "קינוחים", "quantity": 1, "unit": "ליטר", "emoji": "🍨" },
+            { "name": "מיץ ענבים", "category": "משקאות", "quantity": 1, "unit": "ליטר", "emoji": "🍇" },
+            { "name": "נרות שבת", "category": "כללי", "quantity": 1, "unit": "חבילה", "emoji": "🕯️" },
+            { "name": "שקיות אשפה", "category": "ניקיון", "quantity": 1, "unit": "גליל", "emoji": "🗑️" },
+            { "name": "מפיות", "category": "כלי אוכל", "quantity": 1, "unit": "חבילה", "emoji": "🧻" },
+            { "name": "פרחים", "category": "קישוטים", "quantity": 1, "unit": "זר", "emoji": "💐" }
+          ]
+        },
+        "tmpl_yogev_003": {
+          "id": "tmpl_yogev_003",
+          "name": "אירוע קטן / מסיבה",
+          "description": "למסיבה ביתית קטנה",
+          "type": "event",
+          "created_by": "user_yogev_001",
+          "created_at": "2025-11-15T10:00:00.000Z",
+          "updated_at": "2025-12-05T10:00:00.000Z",
+          "use_count": 3,
+          "last_used": "2025-12-05T10:00:00.000Z",
+          "is_favorite": false,
+          "items": [
+            { "name": "פיצה", "category": "אוכל", "quantity": 2, "unit": "מגש", "emoji": "🍕" },
+            { "name": "משקאות קלים", "category": "שתייה", "quantity": 3, "unit": "בקבוק 1.5 ליטר", "emoji": "🥤" },
+            { "name": "מים מינרליים", "category": "שתייה", "quantity": 2, "unit": "שישייה", "emoji": "💧" },
+            { "name": "חטיפים", "category": "נשנושים", "quantity": 3, "unit": "שקית", "emoji": "🍿" },
+            { "name": "שוקולדים", "category": "נשנושים", "quantity": 1, "unit": "קופסה", "emoji": "🍫" },
+            { "name": "עוגיות", "category": "קינוחים", "quantity": 2, "unit": "חבילה", "emoji": "🍪" },
+            { "name": "כוסות חד פעמיות", "category": "כלי אוכל", "quantity": 1, "unit": "חבילה 50", "emoji": "🥤" },
+            { "name": "צלחות חד פעמיות", "category": "כלי אוכל", "quantity": 1, "unit": "חבילה 20", "emoji": "🍽️" },
+            { "name": "סכום חד פעמי", "category": "כלי אוכל", "quantity": 1, "unit": "סט", "emoji": "🍴" },
+            { "name": "מפיות", "category": "כלי אוכל", "quantity": 2, "unit": "חבילה", "emoji": "🧻" },
+            { "name": "בלונים", "category": "קישוטים", "quantity": 10, "unit": "יח'", "emoji": "🎈" },
+            { "name": "נרות", "category": "קישוטים", "quantity": 1, "unit": "חבילה", "emoji": "🕯️" }
+          ]
+        }
+      }
+    },
+    "user_sara_001": {
+      "templates": {
+        "tmpl_sara_001": {
+          "id": "tmpl_sara_001",
+          "name": "בית מרקחת",
+          "description": "תרופות וויטמינים קבועים",
+          "type": "pharmacy",
+          "created_by": "user_sara_001",
+          "created_at": "2025-10-25T10:00:00.000Z",
+          "updated_at": "2025-12-10T10:00:00.000Z",
+          "use_count": 4,
+          "last_used": "2025-12-10T10:00:00.000Z",
+          "is_favorite": true,
+          "items": [
+            { "name": "אקמול ילדים", "category": "תרופות", "quantity": 1, "unit": "בקבוק", "emoji": "💊" },
+            { "name": "אקמול מבוגרים", "category": "תרופות", "quantity": 1, "unit": "חבילה", "emoji": "💊" },
+            { "name": "ויטמין C", "category": "ויטמינים", "quantity": 1, "unit": "חבילה", "emoji": "🍊" },
+            { "name": "ויטמין D", "category": "ויטמינים", "quantity": 1, "unit": "חבילה", "emoji": "☀️" },
+            { "name": "אומגה 3", "category": "ויטמינים", "quantity": 1, "unit": "חבילה", "emoji": "🐟" },
+            { "name": "משחת שיניים", "category": "היגיינה", "quantity": 2, "unit": "יח'", "emoji": "🦷" },
+            { "name": "מברשות שיניים", "category": "היגיינה", "quantity": 4, "unit": "יח'", "emoji": "🪥" },
+            { "name": "פלסטרים", "category": "עזרה ראשונה", "quantity": 1, "unit": "חבילה", "emoji": "🩹" }
+          ]
+        }
+      }
+    }
+  },
+  "system_templates": {
+    "sys_tmpl_001": {
+      "id": "sys_tmpl_001",
+      "name": "סופר בסיסי",
+      "description": "מוצרי יסוד לכל בית",
+      "type": "supermarket",
+      "category": "basic",
+      "icon": "🛒",
+      "items": [
+        { "name": "חלב", "category": "מוצרי חלב", "quantity": 1, "unit": "ליטר", "emoji": "🥛" },
+        { "name": "לחם", "category": "לחם ומאפים", "quantity": 1, "unit": "יח'", "emoji": "🍞" },
+        { "name": "ביצים", "category": "ביצים", "quantity": 1, "unit": "תבנית", "emoji": "🥚" },
+        { "name": "גבינה", "category": "מוצרי חלב", "quantity": 1, "unit": "יח'", "emoji": "🧀" },
+        { "name": "עגבניות", "category": "ירקות", "quantity": 1, "unit": "ק\"ג", "emoji": "🍅" },
+        { "name": "מלפפונים", "category": "ירקות", "quantity": 0.5, "unit": "ק\"ג", "emoji": "🥒" }
+      ]
+    },
+    "sys_tmpl_002": {
+      "id": "sys_tmpl_002",
+      "name": "בית מרקחת בסיסי",
+      "description": "תרופות ומוצרי היגיינה בסיסיים",
+      "type": "pharmacy",
+      "category": "basic",
+      "icon": "💊",
+      "items": [
+        { "name": "אקמול", "category": "תרופות", "quantity": 1, "unit": "חבילה", "emoji": "💊" },
+        { "name": "משחת שיניים", "category": "היגיינה", "quantity": 1, "unit": "יח'", "emoji": "🦷" },
+        { "name": "סבון ידיים", "category": "היגיינה", "quantity": 1, "unit": "בקבוק", "emoji": "🧴" },
+        { "name": "פלסטרים", "category": "עזרה ראשונה", "quantity": 1, "unit": "חבילה", "emoji": "🩹" }
+      ]
+    },
+    "sys_tmpl_003": {
+      "id": "sys_tmpl_003",
+      "name": "מסיבת יום הולדת",
+      "description": "כל מה שצריך למסיבה מושלמת",
+      "type": "event",
+      "category": "event",
+      "icon": "🎉",
+      "items": [
+        { "name": "עוגת יום הולדת", "category": "קינוחים", "quantity": 1, "unit": "יח'", "emoji": "🎂" },
+        { "name": "נרות יום הולדת", "category": "קישוטים", "quantity": 1, "unit": "חבילה", "emoji": "🕯️" },
+        { "name": "בלונים", "category": "קישוטים", "quantity": 20, "unit": "יח'", "emoji": "🎈" },
+        { "name": "כובעים", "category": "קישוטים", "quantity": 10, "unit": "יח'", "emoji": "🎩" },
+        { "name": "משרוקיות", "category": "קישוטים", "quantity": 10, "unit": "יח'", "emoji": "📯" },
+        { "name": "שרשראות", "category": "קישוטים", "quantity": 1, "unit": "סט", "emoji": "🎊" },
+        { "name": "משקאות", "category": "שתייה", "quantity": 3, "unit": "בקבוק", "emoji": "🥤" },
+        { "name": "חטיפים", "category": "נשנושים", "quantity": 3, "unit": "שקית", "emoji": "🍿" },
+        { "name": "כוסות חד פעמיות", "category": "כלי אוכל", "quantity": 1, "unit": "חבילה", "emoji": "🥤" },
+        { "name": "צלחות חד פעמיות", "category": "כלי אוכל", "quantity": 1, "unit": "חבילה", "emoji": "🍽️" },
+        { "name": "מפיות", "category": "כלי אוכל", "quantity": 1, "unit": "חבילה", "emoji": "🧻" },
+        { "name": "מתנות לאורחים", "category": "מתנות", "quantity": 10, "unit": "יח'", "emoji": "🎁" }
+      ]
+    }
+  }
+}

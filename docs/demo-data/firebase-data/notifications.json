@@ -1,0 +1,201 @@
+{
+  "users": {
+    "user_yogev_001": {
+      "notifications": {
+        "notif_001": {
+          "id": "notif_001",
+          "type": "list_invite",
+          "title": "הזמנה לרשימה",
+          "body": "רונית הזמינה אותך לרשימת 'קניות לחג'",
+          "data": {
+            "list_id": "list_invite_001",
+            "list_name": "קניות לחג",
+            "inviter_name": "רונית",
+            "inviter_id": "user_ronit_001"
+          },
+          "is_read": false,
+          "created_at": "2025-12-29T10:00:00.000Z",
+          "action_url": "/lists/list_invite_001"
+        },
+        "notif_002": {
+          "id": "notif_002",
+          "type": "low_stock",
+          "title": "מלאי נמוך",
+          "body": "קפה נמס - נשאר פחות מהמינימום",
+          "data": {
+            "item_id": "inv_012",
+            "item_name": "קפה נמס",
+            "current_quantity": 0.5,
+            "min_quantity": 1
+          },
+          "is_read": false,
+          "created_at": "2025-12-30T08:00:00.000Z",
+          "action_url": "/pantry"
+        },
+        "notif_003": {
+          "id": "notif_003",
+          "type": "expiry_warning",
+          "title": "תוקף עומד לפוג",
+          "body": "גבינה צהובה עמק - פג תוקף היום!",
+          "data": {
+            "item_id": "inv_003",
+            "item_name": "גבינה צהובה עמק",
+            "expiry_date": "2026-01-08T00:00:00.000Z"
+          },
+          "is_read": false,
+          "created_at": "2026-01-08T07:00:00.000Z",
+          "action_url": "/pantry"
+        },
+        "notif_004": {
+          "id": "notif_004",
+          "type": "who_brings_volunteer",
+          "title": "מישהו התנדב!",
+          "body": "דני לוי יביא עוגה ליום הולדת תומר",
+          "data": {
+            "list_id": "list_birthday_001",
+            "list_name": "יום הולדת תומר",
+            "item_name": "עוגה",
+            "volunteer_name": "דני לוי",
+            "volunteer_id": "user_dani_001"
+          },
+          "is_read": true,
+          "created_at": "2025-12-15T14:30:00.000Z",
+          "read_at": "2025-12-15T15:00:00.000Z",
+          "action_url": "/groups/grp_birthday_001"
+        },
+        "notif_005": {
+          "id": "notif_005",
+          "type": "invite_accepted",
+          "title": "הזמנה אושרה",
+          "body": "שרה הצטרפה לבית משפחת כהן",
+          "data": {
+            "household_id": "house_cohen_001",
+            "user_name": "שרה כהן",
+            "user_id": "user_sara_001"
+          },
+          "is_read": true,
+          "created_at": "2025-10-15T14:00:00.000Z",
+          "read_at": "2025-10-15T14:05:00.000Z",
+          "action_url": "/settings/household"
+        },
+        "notif_006": {
+          "id": "notif_006",
+          "type": "new_vote",
+          "title": "הצבעה חדשה",
+          "body": "הצבעה חדשה נפתחה: 'להזמין DJ?'",
+          "data": {
+            "list_id": "list_birthday_001",
+            "vote_id": "vote_001",
+            "vote_title": "להזמין DJ?",
+            "group_name": "יום הולדת תומר"
+          },
+          "is_read": true,
+          "created_at": "2025-12-10T09:00:00.000Z",
+          "read_at": "2025-12-10T12:00:00.000Z",
+          "action_url": "/groups/grp_birthday_001/votes/vote_001"
+        },
+        "notif_007": {
+          "id": "notif_007",
+          "type": "shopping_started",
+          "title": "מישהו יצא לקניות",
+          "body": "שרה התחילה לקנות מהרשימה 'קניות השבוע'",
+          "data": {
+            "list_id": "list_active_001",
+            "list_name": "קניות השבוע",
+            "shopper_name": "שרה כהן",
+            "shopper_id": "user_sara_001"
+          },
+          "is_read": true,
+          "created_at": "2025-12-28T10:00:00.000Z",
+          "read_at": "2025-12-28T10:05:00.000Z",
+          "action_url": "/lists/list_active_001"
+        }
+      }
+    },
+    "user_sara_001": {
+      "notifications": {
+        "notif_s_001": {
+          "id": "notif_s_001",
+          "type": "group_invite",
+          "title": "הזמנה לקבוצה",
+          "body": "יוגב הזמין אותך לקבוצה 'יום הולדת תומר'",
+          "data": {
+            "group_id": "grp_birthday_001",
+            "group_name": "יום הולדת תומר",
+            "inviter_name": "יוגב כהן",
+            "inviter_id": "user_yogev_001"
+          },
+          "is_read": true,
+          "created_at": "2025-12-05T10:30:00.000Z",
+          "read_at": "2025-12-05T10:35:00.000Z",
+          "action_url": "/groups/grp_birthday_001"
+        },
+        "notif_s_002": {
+          "id": "notif_s_002",
+          "type": "item_checked",
+          "title": "פריט נרכש",
+          "body": "יוגב סימן 'חלב 3%' כנרכש",
+          "data": {
+            "list_id": "list_001",
+            "item_name": "חלב 3%",
+            "checked_by_name": "יוגב כהן"
+          },
+          "is_read": true,
+          "created_at": "2025-10-03T14:10:00.000Z",
+          "read_at": "2025-10-03T14:30:00.000Z",
+          "action_url": "/lists/list_001"
+        },
+        "notif_s_003": {
+          "id": "notif_s_003",
+          "type": "list_completed",
+          "title": "רשימה הושלמה",
+          "body": "הרשימה 'קניות שבועיות' הושלמה!",
+          "data": {
+            "list_id": "list_001",
+            "list_name": "קניות שבועיות",
+            "completed_by_name": "יוגב כהן"
+          },
+          "is_read": true,
+          "created_at": "2025-10-03T14:35:00.000Z",
+          "read_at": "2025-10-03T15:00:00.000Z",
+          "action_url": "/lists/list_001"
+        }
+      }
+    },
+    "user_dani_001": {
+      "notifications": {
+        "notif_d_001": {
+          "id": "notif_d_001",
+          "type": "group_invite",
+          "title": "הזמנה לקבוצה",
+          "body": "יוגב הזמין אותך לקבוצה 'יום הולדת תומר'",
+          "data": {
+            "group_id": "grp_birthday_001",
+            "group_name": "יום הולדת תומר",
+            "inviter_name": "יוגב כהן",
+            "inviter_id": "user_yogev_001",
+            "invite_id": "ginv_dani_001"
+          },
+          "is_read": true,
+          "created_at": "2025-12-05T11:00:00.000Z",
+          "read_at": "2025-12-05T11:30:00.000Z",
+          "action_url": "/groups/grp_birthday_001"
+        },
+        "notif_d_002": {
+          "id": "notif_d_002",
+          "type": "reminder",
+          "title": "תזכורת",
+          "body": "אל תשכח להביא את העוגה ליום הולדת תומר מחר!",
+          "data": {
+            "list_id": "list_birthday_001",
+            "item_name": "עוגה",
+            "event_date": "2025-12-20T14:00:00.000Z"
+          },
+          "is_read": false,
+          "created_at": "2025-12-19T09:00:00.000Z",
+          "action_url": "/groups/grp_birthday_001"
+        }
+      }
+    }
+  }
+}

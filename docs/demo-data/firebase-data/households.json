@@ -1,0 +1,48 @@
+{
+  "households": {
+    "house_cohen_001": {
+      "info": {
+        "id": "house_cohen_001",
+        "name": "משפחת כהן",
+        "type": "family",
+        "owner_id": "user_yogev_001",
+        "created_at": "2025-10-01T10:00:00.000Z"
+      },
+      "members": {
+        "user_yogev_001": {
+          "user_id": "user_yogev_001",
+          "name": "יוגב כהן",
+          "email": "yogev@demo.com",
+          "role": "owner",
+          "joined_at": "2025-10-01T10:00:00.000Z"
+        },
+        "user_sara_001": {
+          "user_id": "user_sara_001",
+          "name": "שרה כהן",
+          "email": "sara@demo.com",
+          "role": "admin",
+          "joined_at": "2025-10-15T14:00:00.000Z",
+          "invited_by": "user_yogev_001"
+        }
+      }
+    },
+    "house_dani_001": {
+      "info": {
+        "id": "house_dani_001",
+        "name": "דני לוי",
+        "type": "single",
+        "owner_id": "user_dani_001",
+        "created_at": "2025-12-05T11:00:00.000Z"
+      },
+      "members": {
+        "user_dani_001": {
+          "user_id": "user_dani_001",
+          "name": "דני לוי",
+          "email": "dani@demo.com",
+          "role": "owner",
+          "joined_at": "2025-12-05T11:00:00.000Z"
+        }
+      }
+    }
+  }
+}
