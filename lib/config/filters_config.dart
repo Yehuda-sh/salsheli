@@ -5,6 +5,10 @@
 //
 // 🔗 Related: my_pantry_screen, StorageLocationManager, CategoryInfo
 
+import 'package:flutter/foundation.dart';
+
+import '../l10n/app_strings.dart';
+
 /// מידע על קטגוריה: שם בעברית + אמוג'י
 class CategoryInfo {
   final String label;
@@ -164,9 +168,9 @@ const List<String> kCategoryOrder = [
   'baby_products',
 
   // === אחר (תמיד אחרון) ===
-  'other',
   'general',
   'accessories',
+  'other', // ✅ 'other' תמיד אחרון (catch-all)
 ];
 
 /// רשימת מפתחות הקטגוריות (לשימוש ב-Dropdown)
@@ -204,7 +208,7 @@ void ensureNoDuplicateLabels() {
 
 /// מחזיר שם בעברית לקטגוריה
 String getCategoryLabel(String categoryId) {
-  return kCategoryInfo[categoryId]?.label ?? 'לא ידוע';
+  return kCategoryInfo[categoryId]?.label ?? AppStrings.common.categoryUnknown;
 }
 
 /// מחזיר אמוג'י לקטגוריה
@@ -217,7 +221,9 @@ String getCategoryEmoji(String categoryId) {
 /// כולל נורמליזציה: trim + החלפת רווחים כפולים
 String? hebrewCategoryToEnglish(String hebrewCategory) {
   // 🔍 בדיקת כפילויות labels בפעם הראשונה (debug mode בלבד)
-  ensureNoDuplicateLabels();
+  if (kDebugMode) {
+    ensureNoDuplicateLabels();
+  }
 
   final normalized = hebrewCategory
       .trim()

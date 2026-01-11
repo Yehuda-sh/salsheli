@@ -551,7 +551,7 @@ class ShoppingList {
     List<ActiveShopper> activeShoppers = const [],
     Map<String, SharedUser> sharedUsers = const {},
     List<PendingRequest> pendingRequests = const [],
-    this.isPrivate = false,
+    this.isPrivate = true,
     this.eventMode,
     this.currentUserRole,
   })  : createdDate = createdDate ?? updatedDate,

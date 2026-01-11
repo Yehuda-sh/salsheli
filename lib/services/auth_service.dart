@@ -9,6 +9,7 @@
 //
 // 🔗 Related: FirebaseAuth, AppStrings.auth, UserContext
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
@@ -41,6 +42,7 @@ enum AuthErrorCode {
   unknown,
   noUserLoggedIn,
   networkError,
+  timeout,
 
   // === שגיאות התחברות/הרשמה ===
   userNotFound,
@@ -60,6 +62,19 @@ enum AuthErrorCode {
   socialLoginCancelled,
   socialLoginFailed,
 }
+
+// ========================================
+// 🆕 Timeout & Retry Constants
+// ========================================
+
+/// Timeout לפעולות אימות (30 שניות)
+const Duration kAuthTimeout = Duration(seconds: 30);
+
+/// מספר ניסיונות חוזרים
+const int kAuthMaxRetries = 3;
+
+/// זמן המתנה בסיסי בין ניסיונות (1 שנייה)
+const Duration kAuthRetryBaseDelay = Duration(seconds: 1);
 
 /// שגיאת אימות מותאמת - Type-Safe!
 ///
@@ -146,6 +161,126 @@ class AuthException implements Exception {
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  // ========================================
+  // 🆕 Timeout & Retry Helper
+  // ========================================
+
+  /// מבצע פעולה עם timeout ו-retry
+  ///
+  /// מנסה עד [maxRetries] פעמים עם exponential backoff.
+  /// זורק [AuthException] עם קוד timeout אם כל הניסיונות נכשלו.
+  ///
+  /// [operation] - הפעולה לביצוע
+  /// [operationName] - שם הפעולה לצורך logging
+  /// [timeout] - timeout לכל ניסיון (ברירת מחדל: 30 שניות)
+  /// [maxRetries] - מספר ניסיונות מקסימלי (ברירת מחדל: 3)
+  ///
+  /// Example:
+  /// ```dart
+  /// final result = await _withTimeoutAndRetry(
+  ///   operation: () => _auth.signInWithEmailAndPassword(...),
+  ///   operationName: 'signIn',
+  /// );
+  /// ```
+  Future<T> _withTimeoutAndRetry<T>({
+    required Future<T> Function() operation,
+    required String operationName,
+    Duration timeout = kAuthTimeout,
+    int maxRetries = kAuthMaxRetries,
+  }) async {
+    int attempt = 0;
+    Object? lastError;
+
+    while (attempt < maxRetries) {
+      attempt++;
+
+      try {
+        if (kDebugMode && attempt > 1) {
+          debugPrint('🔄 AuthService.$operationName: ניסיון $attempt מתוך $maxRetries');
+        }
+
+        // הרצת הפעולה עם timeout
+        return await operation().timeout(
+          timeout,
+          onTimeout: () {
+            throw AuthException(
+              code: AuthErrorCode.timeout,
+              message: AppStrings.auth.errorTimeout,
+            );
+          },
+        );
+      } on AuthException catch (e) {
+        // אם זה timeout או network error - ננסה שוב
+        if (e.code == AuthErrorCode.timeout || e.code == AuthErrorCode.networkError) {
+          lastError = e;
+
+          if (attempt < maxRetries) {
+            // Exponential backoff: 1s, 2s, 4s...
+            final delay = kAuthRetryBaseDelay * (1 << (attempt - 1));
+            if (kDebugMode) {
+              debugPrint('⏳ AuthService.$operationName: ממתין ${delay.inSeconds}s לפני ניסיון נוסף');
+            }
+            await Future.delayed(delay);
+            continue;
+          }
+        }
+        // שגיאות אחרות - לא מנסים שוב
+        rethrow;
+      } on FirebaseAuthException catch (e) {
+        // שגיאת רשת - ננסה שוב
+        if (e.code == 'network-request-failed') {
+          lastError = e;
+
+          if (attempt < maxRetries) {
+            final delay = kAuthRetryBaseDelay * (1 << (attempt - 1));
+            if (kDebugMode) {
+              debugPrint('⏳ AuthService.$operationName: שגיאת רשת, ממתין ${delay.inSeconds}s');
+            }
+            await Future.delayed(delay);
+            continue;
+          }
+        }
+        // שגיאות Firebase אחרות - לא מנסים שוב
+        rethrow;
+      } catch (e) {
+        lastError = e;
+
+        // בדיקה אם זו שגיאת רשת
+        final errorString = e.toString().toLowerCase();
+        final isNetworkError = errorString.contains('network') ||
+            errorString.contains('connection') ||
+            errorString.contains('socket') ||
+            errorString.contains('timeout');
+
+        if (isNetworkError && attempt < maxRetries) {
+          final delay = kAuthRetryBaseDelay * (1 << (attempt - 1));
+          if (kDebugMode) {
+            debugPrint('⏳ AuthService.$operationName: שגיאה כללית, ממתין ${delay.inSeconds}s');
+          }
+          await Future.delayed(delay);
+          continue;
+        }
+
+        rethrow;
+      }
+    }
+
+    // הגענו לכאן רק אם כל הניסיונות נכשלו
+    if (kDebugMode) {
+      debugPrint('❌ AuthService.$operationName: כל $maxRetries הניסיונות נכשלו');
+    }
+
+    if (lastError is AuthException) {
+      throw lastError;
+    }
+
+    throw AuthException(
+      code: AuthErrorCode.timeout,
+      message: AppStrings.auth.errorTimeout,
+      originalError: lastError,
+    );
+  }
+
   // === Getters ===
   
   /// Stream של מצב התחברות - מאזין לשינויים בזמן אמת
@@ -198,18 +333,21 @@ class AuthService {
     required String password,
     required String name,
   }) async {
-    try {
-      if (kDebugMode) {
-        debugPrint('🔐 AuthService.signUp: רושם משתמש חדש');
-      }
+    if (kDebugMode) {
+      debugPrint('🔐 AuthService.signUp: רושם משתמש חדש');
+    }
 
-      // יצירת משתמש ב-Firebase Auth
-      final credential = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
+    try {
+      // ✅ יצירת משתמש עם timeout ו-retry
+      final credential = await _withTimeoutAndRetry(
+        operationName: 'signUp',
+        operation: () => _auth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        ),
       );
 
-      // עדכון שם התצוגה
+      // עדכון שם התצוגה (ללא retry - לא קריטי)
       await credential.user?.updateDisplayName(name);
       await credential.user?.reload();
 
@@ -217,6 +355,8 @@ class AuthService {
         debugPrint('✅ AuthService.signUp: רישום הושלם - ${credential.user?.uid}');
       }
       return credential;
+    } on AuthException {
+      rethrow;
     } on FirebaseAuthException catch (e) {
       if (kDebugMode) {
         debugPrint('❌ AuthService.signUp: שגיאת Firebase - ${e.code}');
@@ -264,20 +404,26 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    try {
-      if (kDebugMode) {
-        debugPrint('🔐 AuthService.signIn: מתחבר');
-      }
+    if (kDebugMode) {
+      debugPrint('🔐 AuthService.signIn: מתחבר');
+    }
 
-      final credential = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
+    try {
+      // ✅ עם timeout ו-retry
+      final credential = await _withTimeoutAndRetry(
+        operationName: 'signIn',
+        operation: () => _auth.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        ),
       );
 
       if (kDebugMode) {
         debugPrint('✅ AuthService.signIn: התחברות הושלמה - ${credential.user?.uid}');
       }
       return credential;
+    } on AuthException {
+      rethrow;
     } on FirebaseAuthException catch (e) {
       if (kDebugMode) {
         debugPrint('❌ AuthService.signIn: שגיאת Firebase - ${e.code}');

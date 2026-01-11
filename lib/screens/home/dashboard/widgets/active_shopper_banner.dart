@@ -114,7 +114,7 @@ class _MyActiveShoppingBanner extends StatelessWidget {
             child: Row(
               children: [
                 // אייקון מונפש
-                _PulsingIcon(color: Colors.blue),
+                const _PulsingIcon(),
                 const SizedBox(width: kSpacingMedium),
 
                 // טקסט
@@ -217,7 +217,7 @@ class _OthersShoppingBanner extends StatelessWidget {
             child: Row(
               children: [
                 // אייקון מונפש
-                _PulsingIcon(),
+                const _PulsingIcon(),
                 const SizedBox(width: kSpacingMedium),
 
                 // טקסט
@@ -327,6 +327,8 @@ class _ActionButton extends StatelessWidget {
 
 /// אייקון פועם
 class _PulsingIcon extends StatefulWidget {
+  const _PulsingIcon();
+
   @override
   State<_PulsingIcon> createState() => _PulsingIconState();
 }

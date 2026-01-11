@@ -224,6 +224,7 @@ class _CommonStrings {
   String get error => 'שגיאה';
   String get success => 'הצלחה';
   String get noData => 'אין נתונים';
+  String get categoryUnknown => 'לא ידוע';
   String get syncError => 'בעיית סנכרון - השינויים נשמרו מקומית';
   String get saveFailed => 'השמירה נכשלה, נסה שוב';
 
@@ -496,6 +497,37 @@ class _ShoppingStrings {
   // Limits
   String maxItemsReached(int max) => 'הגעת למקסימום $max פריטים ברשימה';
   String maxListsReached(int max) => 'הגעת למקסימום $max רשימות פעילות';
+
+  // ========================================
+  // Active Shopping - Sync & Messages
+  // ========================================
+
+  String get syncSuccess => 'הסנכרון הצליח!';
+  String get syncErrorTooltip => 'לא מסונכרן - לחץ לנסות שוב';
+  String get shoppingSaved => 'הקנייה נשמרה';
+  String pendingItemsLeftWarning(int count) => '$count פריטים נשארו והרשימה פעילה';
+
+  // ========================================
+  // Active Shopping - Icon Legend
+  // ========================================
+
+  String get legendPurchased => 'קניתי';
+  String get legendOutOfStock => 'אין במלאי';
+  String get legendNotNeeded => 'לא צריך';
+
+  // ========================================
+  // Active Shopping - Semantics Labels
+  // ========================================
+
+  String get retryLoadSemantics => 'נסה לטעון שוב';
+  String get backToListSemantics => 'חזור לרשימה';
+  String get finishAndSaveSemantics => 'סיים קנייה ושמור';
+  String purchasedToggleSemantics(String itemName, bool isPurchased) =>
+      isPurchased ? 'בטל סימון קניתי עבור $itemName' : 'סמן $itemName כנקנה';
+  String outOfStockToggleSemantics(String itemName, bool isOutOfStock) =>
+      isOutOfStock ? 'בטל סימון אין במלאי עבור $itemName' : 'סמן $itemName כאין במלאי';
+  String notNeededToggleSemantics(String itemName, bool isNotNeeded) =>
+      isNotNeeded ? 'בטל סימון לא צריך עבור $itemName' : 'סמן $itemName כלא צריך';
 }
 
 // ========================================
@@ -719,6 +751,7 @@ class _AuthStrings {
   // Other Errors
   String get errorRequiresRecentLogin => 'נדרשת התחברות מחדש לביצוע פעולה זו';
   String get errorNetworkRequestFailed => 'בעיית רשת. בדוק את החיבור לאינטרנט';
+  String get errorTimeout => 'הפעולה נכשלה - נסה שוב';
   String get errorNoUserLoggedIn => 'אין משתמש מחובר';
 
   // Social Login Errors

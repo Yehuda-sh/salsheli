@@ -335,7 +335,8 @@ class _GroupCardWithPreview extends StatelessWidget {
             color: color,
             rotation: rotation,
             child: Padding(
-              padding: const EdgeInsets.only(top: 20, right: 16, bottom: 16, left: 16),
+              // ✅ RTL-aware: EdgeInsetsDirectional במקום EdgeInsets.only
+              padding: const EdgeInsetsDirectional.only(top: 20, end: 16, bottom: 16, start: 16),
               child: Row(
                 children: [
                   // צד ימין (ב-RTL): Emoji + Title + Question
@@ -389,9 +390,10 @@ class _GroupCardWithPreview extends StatelessWidget {
             ),
           ),
           // 📎 סיכת נייר / קליפס מתכתי למעלה
-          Positioned(
+          // ✅ RTL-aware: PositionedDirectional(end:) במקום Positioned(right:)
+          PositionedDirectional(
             top: -8,
-            right: MediaQuery.of(context).size.width * clipPosition,
+            end: MediaQuery.of(context).size.width * clipPosition,
             child: Transform.rotate(
               angle: clipAngle,
               child: _PaperClip(color: actualClipColor),
@@ -486,22 +488,24 @@ class _PaperClipPainter extends CustomPainter {
 }
 
 /// 🛒 Mini Shopping List Preview - רשימת קניות מיניאטורית עם כמויות
+/// ✅ תומך Dark Mode
 class _MiniShoppingList extends StatelessWidget {
   const _MiniShoppingList();
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.7),
+        color: cs.surface.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(8),
       ),
       child: const Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // כותרת הרשימה
+          // כותרת הרשימה (דמו)
           _MiniHeader(text: '🛒 סופר'),
           SizedBox(height: 6),
           _MiniListItemWithQty(text: 'חלב', qty: '2', checked: true),
@@ -514,22 +518,24 @@ class _MiniShoppingList extends StatelessWidget {
 }
 
 /// ✅ Mini Tasks & Voting Preview - הצבעה עם תוצאות
+/// ✅ תומך Dark Mode
 class _MiniTasksVoting extends StatelessWidget {
   const _MiniTasksVoting();
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.7),
+        color: cs.surface.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(8),
       ),
       child: const Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // כותרת ההצבעה
+          // כותרת ההצבעה (דמו)
           _MiniHeader(text: '🗳️ צבע לובי?'),
           SizedBox(height: 6),
           _MiniVoteOption(text: 'לבן', votes: 3, selected: true),
@@ -542,22 +548,24 @@ class _MiniTasksVoting extends StatelessWidget {
 }
 
 /// 🙋 Mini Assignment Preview - חלוקה למסיבת חנוכה
+/// ✅ תומך Dark Mode
 class _MiniAssignment extends StatelessWidget {
   const _MiniAssignment();
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.7),
+        color: cs.surface.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(8),
       ),
       child: const Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // כותרת הרשימה
+          // כותרת הרשימה (דמו)
           _MiniHeader(text: '🕎 מסיבת חנוכה'),
           SizedBox(height: 6),
           _MiniAssignItem(item: 'סופגניות', person: 'דנה'),
@@ -571,6 +579,7 @@ class _MiniAssignment extends StatelessWidget {
 }
 
 /// 📋 Mini Header - כותרת לרשימה מיניאטורית
+/// ✅ תומך Dark Mode
 class _MiniHeader extends StatelessWidget {
   final String text;
 
@@ -578,18 +587,20 @@ class _MiniHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Text(
       text,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.bold,
-        color: Colors.black87,
+        color: cs.onSurface.withValues(alpha: 0.87),
       ),
     );
   }
 }
 
 /// 📝 Mini List Item with Quantity - פריט עם כמות ליד השם
+/// ✅ תומך Dark Mode
 class _MiniListItemWithQty extends StatelessWidget {
   final String text;
   final String qty;
@@ -603,6 +614,10 @@ class _MiniListItemWithQty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
+    final successColor = brand?.success ?? cs.primary;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
@@ -610,22 +625,22 @@ class _MiniListItemWithQty extends StatelessWidget {
           Icon(
             checked ? Icons.check_box : Icons.check_box_outline_blank,
             size: 14,
-            color: checked ? Colors.green : Colors.grey,
+            color: checked ? successColor : cs.onSurfaceVariant,
           ),
           const SizedBox(width: 4),
           // כמות ליד השם
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
             decoration: BoxDecoration(
-              color: Colors.grey.withValues(alpha: 0.2),
+              color: cs.onSurfaceVariant.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(3),
             ),
             child: Text(
               qty,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 9,
                 fontWeight: FontWeight.bold,
-                color: Colors.black54,
+                color: cs.onSurfaceVariant,
               ),
             ),
           ),
@@ -636,9 +651,9 @@ class _MiniListItemWithQty extends StatelessWidget {
               text,
               style: TextStyle(
                 fontSize: 11,
-                color: Colors.black87,
+                color: cs.onSurface.withValues(alpha: 0.87),
                 decoration: checked ? TextDecoration.lineThrough : null,
-                decorationColor: Colors.black54,
+                decorationColor: cs.onSurfaceVariant,
               ),
             ),
           ),
@@ -649,6 +664,7 @@ class _MiniListItemWithQty extends StatelessWidget {
 }
 
 /// 🗳️ Mini Vote Option - אפשרות הצבעה עם מספר קולות
+/// ✅ תומך Dark Mode
 class _MiniVoteOption extends StatelessWidget {
   final String text;
   final int votes;
@@ -662,6 +678,10 @@ class _MiniVoteOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    // tertiary טוב להצבעות / בחירה
+    final selectedColor = cs.tertiary;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
@@ -669,7 +689,7 @@ class _MiniVoteOption extends StatelessWidget {
           Icon(
             selected ? Icons.radio_button_checked : Icons.radio_button_off,
             size: 14,
-            color: selected ? Colors.deepPurple : Colors.grey,
+            color: selected ? selectedColor : cs.onSurfaceVariant,
           ),
           const SizedBox(width: 4),
           Expanded(
@@ -677,7 +697,7 @@ class _MiniVoteOption extends StatelessWidget {
               text,
               style: TextStyle(
                 fontSize: 11,
-                color: Colors.black87,
+                color: cs.onSurface.withValues(alpha: 0.87),
                 fontWeight: selected ? FontWeight.bold : FontWeight.normal,
               ),
             ),
@@ -686,8 +706,8 @@ class _MiniVoteOption extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
             decoration: BoxDecoration(
               color: selected
-                  ? Colors.deepPurple.withValues(alpha: 0.2)
-                  : Colors.grey.withValues(alpha: 0.15),
+                  ? selectedColor.withValues(alpha: 0.2)
+                  : cs.onSurfaceVariant.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
@@ -695,7 +715,7 @@ class _MiniVoteOption extends StatelessWidget {
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
-                color: selected ? Colors.deepPurple : Colors.black54,
+                color: selected ? selectedColor : cs.onSurfaceVariant,
               ),
             ),
           ),
@@ -706,6 +726,7 @@ class _MiniVoteOption extends StatelessWidget {
 }
 
 /// 🙋 Mini Assign Item - חלוקה מיניאטורית
+/// ✅ תומך Dark Mode
 class _MiniAssignItem extends StatelessWidget {
   final String item;
   final String person;
@@ -714,6 +735,11 @@ class _MiniAssignItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
+    final warningColor = brand?.warning ?? cs.tertiary;
+    final successColor = brand?.success ?? cs.primary;
+
     final isUnassigned = person == '?';
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
@@ -722,13 +748,16 @@ class _MiniAssignItem extends StatelessWidget {
           Icon(
             isUnassigned ? Icons.help_outline : Icons.person,
             size: 12,
-            color: isUnassigned ? Colors.orange : Colors.green,
+            color: isUnassigned ? warningColor : successColor,
           ),
           const SizedBox(width: 4),
           Expanded(
             child: Text(
               item,
-              style: const TextStyle(fontSize: 11, color: Colors.black87),
+              style: TextStyle(
+                fontSize: 11,
+                color: cs.onSurface.withValues(alpha: 0.87),
+              ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -737,7 +766,7 @@ class _MiniAssignItem extends StatelessWidget {
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.bold,
-              color: isUnassigned ? Colors.orange : Colors.black54,
+              color: isUnassigned ? warningColor : cs.onSurfaceVariant,
             ),
           ),
         ],

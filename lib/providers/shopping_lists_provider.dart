@@ -58,6 +58,7 @@ import '../l10n/app_strings.dart';
 import '../services/analytics_service.dart';
 import '../models/active_shopper.dart';
 import '../models/enums/item_type.dart';
+import '../models/enums/shopping_item_status.dart';
 import '../models/enums/user_role.dart';
 import '../models/receipt.dart';
 import '../models/selected_contact.dart';
@@ -82,7 +83,8 @@ class ShoppingListsProvider with ChangeNotifier {
   // UserContext
   UserContext? _userContext;
   bool _listening = false;
-  String? _currentHouseholdId; // 🆕 מעקב אחרי household_id נוכחי
+  String? _currentHouseholdId; // מעקב אחרי household_id נוכחי
+  String? _currentUserId; // 🆕 מעקב אחרי user_id נוכחי (לזיהוי login/logout)
 
   // 🔄 Real-time updates
   StreamSubscription<List<ShoppingList>>? _listsSubscription;
@@ -167,19 +169,33 @@ class ShoppingListsProvider with ChangeNotifier {
 
   void _onUserChanged() {
     final newHouseholdId = _userContext?.user?.householdId;
-    final userId = _userContext?.user?.id;
+    final newUserId = _userContext?.user?.id;
 
-    // 🔍 בדוק אם המשתמש השתנה
-    if (newHouseholdId != _currentHouseholdId) {
+    // 🔍 בדוק אם המשתמש או משק הבית השתנו
+    // ✅ חשוב לבדוק גם userId כי משתמש יכול להתחלף באותו household
+    final userChanged = newUserId != _currentUserId;
+    final householdChanged = newHouseholdId != _currentHouseholdId;
+
+    if (userChanged || householdChanged) {
+      if (kDebugMode && (userChanged || householdChanged)) {
+        debugPrint('🔄 _onUserChanged: user=$userChanged, household=$householdChanged');
+      }
+
       // נקה רשימות ישנות
       _lists = [];
       _errorMessage = null;
       _currentHouseholdId = newHouseholdId;
+      _currentUserId = newUserId;
+
+      // 🛑 עצור האזנה קודמת אם משתמש השתנה
+      if (userChanged) {
+        _stopWatchingLists();
+      }
 
       // ✅ טען רשימות רק אם יש household_id חדש
-      if (_userContext?.isLoggedIn == true && newHouseholdId != null && userId != null) {
+      if (_userContext?.isLoggedIn == true && newHouseholdId != null && newUserId != null) {
         if (_useRealTimeUpdates) {
-          _startWatchingLists(userId, newHouseholdId);
+          _startWatchingLists(newUserId, newHouseholdId);
         } else {
           loadLists();
         }
@@ -317,11 +333,13 @@ class ShoppingListsProvider with ChangeNotifier {
     if (kDebugMode) {
       debugPrint('🧹 clearAll: מנקה state');
     }
+    _stopWatchingLists();
     _lists = [];
     _errorMessage = null;
     _isLoading = false;
     _lastUpdated = null;
-    _currentHouseholdId = null; // 🆕 נקה גם household_id
+    _currentHouseholdId = null;
+    _currentUserId = null; // 🆕 נקה גם user_id
     notifyListeners();
   }
 
@@ -896,7 +914,12 @@ class ShoppingListsProvider with ChangeNotifier {
   }
 
   /// מוסיף פריטים לרשימה הבאה (אוטומטי)
-  /// 
+  ///
+  /// ✅ לוגיקה משופרת:
+  /// 1. מחפש רשימה פעילה קיימת (כולל רשימת ברירת מחדל!)
+  /// 2. אם אין → יוצר רשימה חדשה עם שם ברירת מחדל
+  /// 3. מוסיף פריטים עם מניעת כפילויות
+  ///
   /// Example:
   /// ```dart
   /// final unpurchased = provider.getUnpurchasedItems(listId);
@@ -927,22 +950,20 @@ class ShoppingListsProvider with ChangeNotifier {
     _errorMessage = null;
 
     try {
-      // מצא רשימה פעילה קיימת (לא רשימת ברירת מחדל)
       final defaultListName = AppStrings.shopping.defaultShoppingListName;
-      final existingList = activeLists.firstWhere(
-        (list) => list.name != defaultListName,
-        orElse: () {
-          // אין רשימה פעילה → צור חדשה
-          return ShoppingList.newList(
-            id: '',
-            name: '',
-            createdBy: userId,
-          );
-        },
-      );
 
-      if (existingList.id.isEmpty) {
-        // צור רשימה חדשה עם שם ברירת מחדל
+      // ✅ לוגיקה משופרת: מחפש רשימה פעילה קיימת (כולל ברירת מחדל!)
+      // עדיפות: 1) רשימת ברירת מחדל פעילה 2) רשימה אחרת פעילה 3) יצירה חדשה
+      ShoppingList? targetList;
+
+      // 1. חפש רשימת ברירת מחדל פעילה
+      targetList = activeLists.where((list) => list.name == defaultListName).firstOrNull;
+
+      // 2. אם אין, חפש רשימה אחרת פעילה
+      targetList ??= activeLists.firstOrNull;
+
+      if (targetList == null) {
+        // 3. אין רשימות פעילות → צור רשימה חדשה
         if (kDebugMode) {
           debugPrint('   ➕ יוצר רשימה חדשה "$defaultListName"');
         }
@@ -956,12 +977,12 @@ class ShoppingListsProvider with ChangeNotifier {
       } else {
         // הוסף לרשימה קיימת - עם בדיקת כפילויות
         if (kDebugMode) {
-          debugPrint('   📝 מוסיף ל"${existingList.name}"');
+          debugPrint('   📝 מוסיף ל"${targetList.name}"');
         }
 
         // 🔧 מניעת כפילויות - בודק לפי id ושם
-        final existingIds = existingList.items.map((i) => i.id).toSet();
-        final existingNames = existingList.items
+        final existingIds = targetList.items.map((i) => i.id).toSet();
+        final existingNames = targetList.items
             .map((i) => i.name.toLowerCase())
             .toSet();
 
@@ -978,11 +999,11 @@ class ShoppingListsProvider with ChangeNotifier {
           return;
         }
 
-        final updatedItems = [...existingList.items, ...newItems];
-        final updatedList = existingList.copyWith(items: updatedItems);
+        final updatedItems = [...targetList.items, ...newItems];
+        final updatedList = targetList.copyWith(items: updatedItems);
         await updateList(updatedList);
         if (kDebugMode) {
-          debugPrint('✅ addToNextList: ${newItems.length} פריטים הוספו ל"${existingList.name}" (${items.length - newItems.length} כפילויות סוננו)');
+          debugPrint('✅ addToNextList: ${newItems.length} פריטים הוספו ל"${targetList.name}" (${items.length - newItems.length} כפילויות סוננו)');
         }
       }
     } catch (e) {
@@ -1222,7 +1243,9 @@ class ShoppingListsProvider with ChangeNotifier {
 
   /// מעדכן סטטוס פריט (לשימוש ב-ActiveShoppingScreen)
   /// מקבל ShoppingItemStatus ומתרגם ל-isChecked
-  /// 
+  ///
+  /// ✅ כולל early return אם אין שינוי אמיתי (חוסך writes ל-Firebase)
+  ///
   /// Example:
   /// ```dart
   /// await provider.updateItemStatus(listId, itemId, ShoppingItemStatus.purchased);
@@ -1230,10 +1253,10 @@ class ShoppingListsProvider with ChangeNotifier {
   Future<void> updateItemStatus(
     String listId,
     String itemId,
-    dynamic status, // ShoppingItemStatus or any status object
+    ShoppingItemStatus status,
   ) async {
     if (kDebugMode) {
-      debugPrint('📝 updateItemStatus: מעדכן פריט $itemId (list: $listId, status: $status)');
+      debugPrint('📝 updateItemStatus: מעדכן פריט $itemId (list: $listId, status: ${status.name})');
     }
     final list = getById(listId);
     if (list == null) {
@@ -1252,26 +1275,33 @@ class ShoppingListsProvider with ChangeNotifier {
       throw Exception('פריט $itemId לא נמצא');
     }
 
+    // ✅ תרגם status ל-isChecked (רק purchased = true)
+    final shouldBeChecked = status == ShoppingItemStatus.purchased;
+    final currentItem = list.items[itemIndex];
+
+    // ✅ Early return: אם אין שינוי אמיתי, אל תכתוב לשרת
+    if (currentItem.isChecked == shouldBeChecked) {
+      if (kDebugMode) {
+        debugPrint('⏭️ updateItemStatus: אין שינוי (isChecked כבר $shouldBeChecked)');
+      }
+      return;
+    }
+
     _errorMessage = null;
 
     try {
-      // תרגם status ל-isChecked
-      // אם הסטטוס הוא purchased → סמן כנבחר
-      // במקרים אחרים, השאר את isChecked כמו שהוא (הסטטוס נשמר במקומי בלבד)
-      final statusString = status.toString();
-      final isChecked = statusString.contains('purchased');
       final userId = _userContext?.user?.id;
 
       await updateItemAt(listId, itemIndex, (item) {
-        // 🆕 שמור מי סימן ומתי (רק אם purchased)
-        if (isChecked && userId != null) {
+        if (shouldBeChecked && userId != null) {
+          // purchased → סמן כנבחר עם מי/מתי
           return item.copyWith(
             isChecked: true,
             checkedBy: userId,
             checkedAt: DateTime.now().toIso8601String(),
           );
         }
-        // אם לא purchased - נקה את הסימון
+        // לא purchased → נקה את הסימון
         return item.copyWith(
           isChecked: false,
           checkedBy: null,
@@ -1280,7 +1310,7 @@ class ShoppingListsProvider with ChangeNotifier {
       });
 
       if (kDebugMode) {
-        debugPrint('✅ updateItemStatus: פריט $itemId עודכן (isChecked: $isChecked)');
+        debugPrint('✅ updateItemStatus: פריט $itemId עודכן (isChecked: $shouldBeChecked)');
       }
     } catch (e) {
       if (kDebugMode) {

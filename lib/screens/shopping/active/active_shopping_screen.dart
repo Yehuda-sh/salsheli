@@ -126,10 +126,11 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
           debugPrint('🚫 _initializeScreen: צופה לא יכול להשתתף בקנייה');
           if (mounted) {
             // הצג הודעה וחזור למסך הקודם
+            final brand = Theme.of(context).extension<AppBrand>();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(AppStrings.shopping.viewerCannotShop),
-                backgroundColor: Colors.orange,
+                backgroundColor: brand?.warning ?? StatusColors.pending,
               ),
             );
             Navigator.of(context).pop();
@@ -263,6 +264,45 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     }
   }
 
+  /// 🔧 בטל את כל טיימרי ה-debounce
+  void _cancelAllSaveTimers() {
+    for (final timer in _saveTimers.values) {
+      timer.cancel();
+    }
+    _saveTimers.clear();
+  }
+
+  /// 🔧 Flush: שמור מיידית את כל הסטטוסים הממתינים
+  /// נקרא לפני סיום קנייה כדי להבטיח שהכל מסונכרן
+  ///
+  /// [provider] - ה-provider לשימוש (נשמר לפני await כדי להימנע מ-context across async gap)
+  Future<void> _flushPendingSaves(ShoppingListsProvider provider) async {
+    if (!mounted) return;
+
+    int failedCount = 0;
+
+    // סנכרון כל הסטטוסים לשרת
+    for (final entry in _itemStatuses.entries) {
+      try {
+        await provider.updateItemStatus(widget.list.id, entry.key, entry.value);
+      } catch (e) {
+        failedCount++;
+        debugPrint('⚠️ _flushPendingSaves: Failed to sync ${entry.key}: $e');
+        // ממשיך למרות שגיאה - כדי לסנכרן כמה שיותר
+      }
+    }
+
+    // ✅ עדכן מצב שגיאה אם היו כישלונות
+    if (mounted && failedCount > 0) {
+      setState(() {
+        _hasSyncError = true;
+        _failedSyncCount = failedCount;
+      });
+    }
+
+    debugPrint('✅ _flushPendingSaves: סיים סנכרון ${_itemStatuses.length} פריטים ($failedCount נכשלו)');
+  }
+
   /// 🔄 ניסיון חוזר לסנכרון כל הפריטים שנכשלו
   Future<void> _retrySyncAll() async {
     debugPrint('🔄 _retrySyncAll: מנסה לסנכרן הכל...');
@@ -287,10 +327,16 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
 
       if (!anyFailed) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ הסנכרון הצליח!'),
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                const SizedBox(width: kSpacingSmall),
+                Text(AppStrings.shopping.syncSuccess),
+              ],
+            ),
             backgroundColor: StatusColors.success,
-            duration: Duration(seconds: 2),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -319,6 +365,8 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
 
     final result = await showDialog<ShoppingSummaryResult>(
       context: context,
+      // ✅ Issue #4: מניעת סגירה בלחיצה מחוץ לדיאלוג
+      barrierDismissible: false,
       builder: (context) => _ShoppingSummaryDialog(
         listName: widget.list.name,
         total: widget.list.items.length,
@@ -354,6 +402,11 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     // 🔧 מנקה SnackBar קודם אם קיים (מונע duplicates)
     messenger.clearSnackBars();
 
+    // 🔧 שמור providers לפני כל await
+    final inventoryProvider = context.read<InventoryProvider>();
+    final shoppingProvider = context.read<ShoppingListsProvider>();
+    final receiptProvider = context.read<ReceiptProvider>();
+
     setState(() {
       _isSaving = true;
     });
@@ -361,18 +414,67 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     try {
       debugPrint('💾 _saveAndFinish: מתחיל תהליך סיום קנייה (pendingAction: ${pendingAction.name})');
 
-      // 🔧 שמור providers לפני כל await
-      final inventoryProvider = context.read<InventoryProvider>();
-      final shoppingProvider = context.read<ShoppingListsProvider>();
-      final receiptProvider = context.read<ReceiptProvider>();
+      // 1️⃣ בטל טיימרים כדי למנוע writes נוספים
+      _cancelAllSaveTimers();
 
-      // 1️⃣ עדכן מלאי - רק פריטים שנקנו ✅
+      // 2️⃣ זהה פריטים לפי סטטוס נוכחי
       final purchasedItems = widget.list.items.where((item) {
         final status = _itemStatuses[item.id];
         return status == ShoppingItemStatus.purchased;
       }).toList();
 
-      // 📦 עדכן מזווה ודפוסים - רק לרשימות משותפות (לא אירועים ולא אישיות)
+      final outOfStockItems = widget.list.items.where((item) {
+        final status = _itemStatuses[item.id];
+        return status == ShoppingItemStatus.outOfStock;
+      }).toList();
+
+      final pendingItems = widget.list.items.where((item) {
+        final status = _itemStatuses[item.id];
+        return status == null || status == ShoppingItemStatus.pending;
+      }).toList();
+
+      // ✅ רשימת פריטים שיועברו לרשימה הבאה - ריקה בהתחלה
+      final List<UnifiedListItem> itemsToTransfer = [];
+
+      // 3️⃣ טפל ב-pending לפי בחירת המשתמש (לפני ה-flush!)
+      switch (pendingAction) {
+        case ShoppingSummaryResult.finishAndTransferPending:
+          // העבר pending + outOfStock לרשימה הבאה (מסיימים את הרשימה)
+          itemsToTransfer.addAll(outOfStockItems);
+          itemsToTransfer.addAll(pendingItems);
+          debugPrint('🔄 מעביר ${pendingItems.length} פריטי pending + ${outOfStockItems.length} outOfStock לרשימה הבאה');
+          break;
+
+        case ShoppingSummaryResult.finishAndDeletePending:
+          // ✅ סמן pending כ-notNeeded (לפני ה-flush כדי שיסונכרן!)
+          itemsToTransfer.addAll(outOfStockItems);
+          for (final item in pendingItems) {
+            _itemStatuses[item.id] = ShoppingItemStatus.notNeeded;
+          }
+          debugPrint('🗑️ מסמן ${pendingItems.length} פריטי pending כ-notNeeded, מעביר ${outOfStockItems.length} outOfStock');
+          break;
+
+        case ShoppingSummaryResult.finishAndLeavePending:
+          // ✅ השאר ברשימה - לא מעבירים כלום! (גם לא outOfStock)
+          // הרשימה נשארת פעילה עם כל הפריטים שלא נקנו
+          debugPrint('📌 משאיר ${pendingItems.length} פריטי pending + ${outOfStockItems.length} outOfStock ברשימה');
+          break;
+
+        case ShoppingSummaryResult.finishNoPending:
+          // אין pending - העבר רק outOfStock (מסיימים את הרשימה)
+          itemsToTransfer.addAll(outOfStockItems);
+          debugPrint('🔄 מעביר ${outOfStockItems.length} outOfStock לרשימה הבאה');
+          break;
+
+        case ShoppingSummaryResult.cancel:
+          // ביטול - לא עושים כלום
+          break;
+      }
+
+      // 4️⃣ Flush: סנכרן את כל הסטטוסים (כולל השינויים מלמעלה!)
+      await _flushPendingSaves(shoppingProvider);
+
+      // 5️⃣ עדכן מזווה ודפוסים - רק לרשימות משותפות (לא אירועים ולא אישיות)
       if (purchasedItems.isNotEmpty &&
           ShoppingList.shouldUpdatePantry(widget.list.type, isPrivate: widget.list.isPrivate)) {
         debugPrint('📦 מעדכן מלאי: ${purchasedItems.length} פריטים');
@@ -400,49 +502,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         debugPrint('🔒 רשימה אישית/אירוע - דילוג על עדכון מזווה ודפוסי קנייה');
       }
 
-      // 2️⃣ טיפול בפריטי outOfStock - תמיד מעבירים לרשימה הבאה
-      final outOfStockItems = widget.list.items.where((item) {
-        final status = _itemStatuses[item.id];
-        return status == ShoppingItemStatus.outOfStock;
-      }).toList();
-
-      // 3️⃣ טיפול בפריטי pending - לפי בחירת המשתמש
-      final pendingItems = widget.list.items.where((item) {
-        final status = _itemStatuses[item.id];
-        return status == null || status == ShoppingItemStatus.pending;
-      }).toList();
-
-      // רשימת פריטים שיועברו לרשימה הבאה
-      final List<UnifiedListItem> itemsToTransfer = [...outOfStockItems];
-
-      // ✅ טפל ב-pending לפי בחירת המשתמש
-      switch (pendingAction) {
-        case ShoppingSummaryResult.finishAndTransferPending:
-          // העבר pending לרשימה הבאה
-          itemsToTransfer.addAll(pendingItems);
-          debugPrint('🔄 מעביר ${pendingItems.length} פריטי pending לרשימה הבאה');
-          break;
-
-        case ShoppingSummaryResult.finishAndDeletePending:
-          // סמן pending כ-notNeeded (מוחק למעשה)
-          for (final item in pendingItems) {
-            _itemStatuses[item.id] = ShoppingItemStatus.notNeeded;
-          }
-          debugPrint('🗑️ מסמן ${pendingItems.length} פריטי pending כ-notNeeded');
-          break;
-
-        case ShoppingSummaryResult.finishAndLeavePending:
-          // השאר ברשימה - לא עושים כלום, הרשימה תישאר פעילה
-          debugPrint('📌 משאיר ${pendingItems.length} פריטי pending ברשימה');
-          break;
-
-        case ShoppingSummaryResult.finishNoPending:
-        case ShoppingSummaryResult.cancel:
-          // אין pending או ביטול - לא עושים כלום
-          break;
-      }
-
-      // 4️⃣ העבר פריטים לרשימה הבאה (outOfStock + pending אם נבחר)
+      // 6️⃣ העבר פריטים לרשימה הבאה (רק אם מסיימים את הרשימה)
       if (itemsToTransfer.isNotEmpty) {
         debugPrint('🔄 מעביר ${itemsToTransfer.length} פריטים לרשימה הבאה');
         await shoppingProvider.addToNextList(itemsToTransfer);
@@ -498,7 +558,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       // הצג הודעת הצלחה עם פרטים
       String message = shouldCompleteList
           ? AppStrings.shopping.shoppingCompletedSuccess
-          : 'הקנייה נשמרה';
+          : AppStrings.shopping.shoppingSaved;
 
       if (purchasedItems.isNotEmpty) {
         message += '\n${AppStrings.shopping.pantryUpdated(purchasedItems.length)}';
@@ -507,7 +567,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         message += '\n${AppStrings.shopping.itemsMovedToNext(itemsToTransfer.length)}';
       }
       if (!shouldCompleteList && pendingItems.isNotEmpty) {
-        message += '\n⚠️ ${pendingItems.length} פריטים נשארו והרשימה פעילה';
+        message += '\n${AppStrings.shopping.pendingItemsLeftWarning(pendingItems.length)}';
       }
 
         messenger.showSnackBar(
@@ -662,7 +722,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
               if (_hasSyncError)
                 IconButton(
                   onPressed: _retrySyncAll,
-                  tooltip: 'לא מסונכרן - לחץ לנסות שוב',
+                  tooltip: AppStrings.shopping.syncErrorTooltip,
                   icon: Badge(
                     label: Text('$_failedSyncCount'),
                     isLabelVisible: _failedSyncCount > 1,
@@ -692,9 +752,9 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
                 decoration: BoxDecoration(
-                  color: kStickyYellow.withValues(alpha: kHighlightOpacity),
-                  border: const Border(
-                    bottom: BorderSide(color: Colors.black12),
+                  color: (brand?.stickyYellow ?? kStickyYellow).withValues(alpha: kHighlightOpacity),
+                  border: Border(
+                    bottom: BorderSide(color: cs.outline.withValues(alpha: 0.2)),
                   ),
                 ),
                 child: Row(
@@ -707,7 +767,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                       total: total,
                       color: StatusColors.success,
                     ),
-                    _buildDivider(),
+                    _buildDivider(cs.onSurfaceVariant),
                     // ❌ לא במלאי
                     if (outOfStock > 0)
                       _CompactStat(
@@ -715,15 +775,15 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                         value: outOfStock,
                         color: StatusColors.error,
                       ),
-                    if (outOfStock > 0) _buildDivider(),
+                    if (outOfStock > 0) _buildDivider(cs.onSurfaceVariant),
                     // 🚫 לא צריך
                     if (notNeeded > 0)
                       _CompactStat(
                         icon: Icons.block,
                         value: notNeeded,
-                        color: Colors.grey,
+                        color: cs.onSurfaceVariant,
                       ),
-                    if (notNeeded > 0) _buildDivider(),
+                    if (notNeeded > 0) _buildDivider(cs.onSurfaceVariant),
                     // 🛒 נותרו
                     _CompactStat(
                       icon: Icons.shopping_cart,
@@ -748,7 +808,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                       children: [
                         const Icon(Icons.check_circle, color: StatusColors.success, size: 18),
                         const SizedBox(width: 4),
-                        Text('קניתי', style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant)),
+                        Text(AppStrings.shopping.legendPurchased, style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant)),
                       ],
                     ),
                     // 🛒❌ אין במלאי
@@ -757,16 +817,16 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                       children: [
                         const Icon(Icons.remove_shopping_cart, color: StatusColors.error, size: 18),
                         const SizedBox(width: 4),
-                        Text('אין במלאי', style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant)),
+                        Text(AppStrings.shopping.legendOutOfStock, style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant)),
                       ],
                     ),
                     // 🚫 לא צריך
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.block, color: Colors.grey, size: 18),
+                        Icon(Icons.block, color: cs.onSurfaceVariant, size: 18),
                         const SizedBox(width: 4),
-                        Text('לא צריך', style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant)),
+                        Text(AppStrings.shopping.legendNotNeeded, style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant)),
                       ],
                     ),
                   ],
@@ -790,17 +850,18 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // 📌 כותרת קטגוריה - Highlighter style
+                        // ✅ RTL-aware: EdgeInsetsDirectional + BorderDirectional
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.only(
-                            right: kSpacingMedium,
+                          padding: const EdgeInsetsDirectional.only(
+                            end: kSpacingMedium,
                             top: kSpacingXTiny,
                             bottom: kSpacingXTiny,
                           ),
                           decoration: BoxDecoration(
                             color: kStickyCyan.withValues(alpha: kHighlightOpacity),
-                            border: const Border(
-                              right: BorderSide(color: Colors.black12, width: 4),
+                            border: BorderDirectional(
+                              end: BorderSide(color: cs.outline.withValues(alpha: 0.3), width: 4),
                             ),
                           ),
                           child: Row(
@@ -813,10 +874,10 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                               Expanded(
                                 child: Text(
                                   category,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: kFontSizeMedium,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
+                                    color: cs.onSurface,
                                   ),
                                 ),
                               ),
@@ -827,15 +888,15 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                                   vertical: 2,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.1),
+                                  color: cs.onSurface.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
                                   '${items.length}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: kFontSizeSmall,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.black54,
+                                    color: cs.onSurfaceVariant,
                                   ),
                                 ),
                               ),
@@ -867,10 +928,10 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         // 💾 Saving Overlay
         if (_isSaving)
           Container(
-            color: Colors.black.withValues(alpha: 0.5),
+            color: cs.scrim.withValues(alpha: 0.5),
             child: Center(
               child: Card(
-                color: kStickyYellow,
+                color: brand?.stickyYellow ?? kStickyYellow,
                 elevation: kCardElevation,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(kBorderRadius),
@@ -1094,12 +1155,12 @@ class _CompactStat extends StatelessWidget {
   }
 }
 
-/// קו מפריד אנכי
-Widget _buildDivider() {
+/// קו מפריד אנכי - מקבל צבע מה-Theme
+Widget _buildDivider(Color color) {
   return Container(
     height: 24,
     width: 1,
-    color: Colors.black.withValues(alpha: 0.2),
+    color: color.withValues(alpha: 0.3),
   );
 }
 
@@ -1133,7 +1194,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
         backgroundColor = StatusColors.errorOverlay;
         break;
       case ShoppingItemStatus.notNeeded:
-        backgroundColor = Colors.grey.withValues(alpha: 0.2);
+        backgroundColor = cs.onSurfaceVariant.withValues(alpha: 0.2);
         break;
       default:
         backgroundColor = null;
@@ -1151,29 +1212,40 @@ class _ActiveShoppingItemTile extends StatelessWidget {
         children: [
           // ✅ Checkbox - סימון כנקנה
           // 🔧 FIX: אזור לחיץ גדול יותר (48x48 לפי Material guidelines)
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              unawaited(HapticFeedback.selectionClick());
-              if (status == ShoppingItemStatus.purchased) {
-                onStatusChanged(ShoppingItemStatus.pending);
-              } else {
-                onStatusChanged(ShoppingItemStatus.purchased);
-              }
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                child: Icon(
-                  status == ShoppingItemStatus.purchased
-                      ? Icons.check_circle
-                      : Icons.radio_button_unchecked,
-                  key: ValueKey(status == ShoppingItemStatus.purchased),
-                  color: status == ShoppingItemStatus.purchased
-                      ? StatusColors.success
-                      : cs.onSurfaceVariant,
-                  size: 28,
+          // ✅ נגישות: Semantics + Tooltip
+          Semantics(
+            button: true,
+            label: AppStrings.shopping.purchasedToggleSemantics(
+              item.name,
+              status == ShoppingItemStatus.purchased,
+            ),
+            child: Tooltip(
+              message: AppStrings.shopping.legendPurchased,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  unawaited(HapticFeedback.selectionClick());
+                  if (status == ShoppingItemStatus.purchased) {
+                    onStatusChanged(ShoppingItemStatus.pending);
+                  } else {
+                    onStatusChanged(ShoppingItemStatus.purchased);
+                  }
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 200),
+                    child: Icon(
+                      status == ShoppingItemStatus.purchased
+                          ? Icons.check_circle
+                          : Icons.radio_button_unchecked,
+                      key: ValueKey(status == ShoppingItemStatus.purchased),
+                      color: status == ShoppingItemStatus.purchased
+                          ? StatusColors.success
+                          : cs.onSurfaceVariant,
+                      size: 28,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -1232,25 +1304,36 @@ class _ActiveShoppingItemTile extends StatelessWidget {
 
           // ❌ כפתור "אין במלאי"
           // 🔧 FIX: אזור לחיץ גדול יותר עם padding
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              unawaited(HapticFeedback.lightImpact());
-              if (status == ShoppingItemStatus.outOfStock) {
-                onStatusChanged(ShoppingItemStatus.pending);
-              } else {
-                onStatusChanged(ShoppingItemStatus.outOfStock);
-              }
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-              child: Icon(
-                status == ShoppingItemStatus.outOfStock
-                    ? Icons.remove_shopping_cart
-                    : Icons.remove_shopping_cart_outlined,
-                size: kIconSizeMedium,
-                color: StatusColors.error.withValues(
-                  alpha: status == ShoppingItemStatus.outOfStock ? 1.0 : 0.6,
+          // ✅ נגישות: Semantics + Tooltip
+          Semantics(
+            button: true,
+            label: AppStrings.shopping.outOfStockToggleSemantics(
+              item.name,
+              status == ShoppingItemStatus.outOfStock,
+            ),
+            child: Tooltip(
+              message: AppStrings.shopping.legendOutOfStock,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  unawaited(HapticFeedback.lightImpact());
+                  if (status == ShoppingItemStatus.outOfStock) {
+                    onStatusChanged(ShoppingItemStatus.pending);
+                  } else {
+                    onStatusChanged(ShoppingItemStatus.outOfStock);
+                  }
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                  child: Icon(
+                    status == ShoppingItemStatus.outOfStock
+                        ? Icons.remove_shopping_cart
+                        : Icons.remove_shopping_cart_outlined,
+                    size: kIconSizeMedium,
+                    color: StatusColors.error.withValues(
+                      alpha: status == ShoppingItemStatus.outOfStock ? 1.0 : 0.6,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -1258,23 +1341,34 @@ class _ActiveShoppingItemTile extends StatelessWidget {
 
           // 🚫 כפתור "לא צריך"
           // 🔧 FIX: אזור לחיץ גדול יותר עם padding
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              unawaited(HapticFeedback.lightImpact());
-              if (status == ShoppingItemStatus.notNeeded) {
-                onStatusChanged(ShoppingItemStatus.pending);
-              } else {
-                onStatusChanged(ShoppingItemStatus.notNeeded);
-              }
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-              child: Icon(
-                Icons.block,
-                size: kIconSizeMedium,
-                color: Colors.grey.withValues(
-                  alpha: status == ShoppingItemStatus.notNeeded ? 1.0 : 0.5,
+          // ✅ נגישות: Semantics + Tooltip
+          Semantics(
+            button: true,
+            label: AppStrings.shopping.notNeededToggleSemantics(
+              item.name,
+              status == ShoppingItemStatus.notNeeded,
+            ),
+            child: Tooltip(
+              message: AppStrings.shopping.legendNotNeeded,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  unawaited(HapticFeedback.lightImpact());
+                  if (status == ShoppingItemStatus.notNeeded) {
+                    onStatusChanged(ShoppingItemStatus.pending);
+                  } else {
+                    onStatusChanged(ShoppingItemStatus.notNeeded);
+                  }
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                  child: Icon(
+                    Icons.block,
+                    size: kIconSizeMedium,
+                    color: cs.onSurfaceVariant.withValues(
+                      alpha: status == ShoppingItemStatus.notNeeded ? 1.0 : 0.5,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -1376,7 +1470,7 @@ class _ShoppingSummaryDialogState extends State<_ShoppingSummaryDialog> {
 
             // 🚫 לא צריך
             if (widget.notNeeded > 0)
-              _SummaryRow(icon: Icons.block, label: AppStrings.shopping.activeNotNeeded, value: '${widget.notNeeded}', color: Colors.grey.shade700),
+              _SummaryRow(icon: Icons.block, label: AppStrings.shopping.activeNotNeeded, value: '${widget.notNeeded}', color: cs.onSurfaceVariant),
 
             // ❌ אזלו
             if (widget.outOfStock > 0)
@@ -1514,6 +1608,7 @@ class _ShoppingSummaryDialogState extends State<_ShoppingSummaryDialog> {
 }
 
 /// כרטיס אפשרות עבור pending items
+/// ✅ RTL-aware chevron + Semantics
 class _PendingOptionTile extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
@@ -1533,43 +1628,51 @@ class _PendingOptionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-      child: Container(
-        padding: const EdgeInsets.all(kSpacingSmall),
-        decoration: BoxDecoration(
-          color: iconColor.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-          border: Border.all(color: iconColor.withValues(alpha: 0.3)),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: iconColor, size: kIconSizeMedium),
-            const SizedBox(width: kSpacingSmall),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: cs.onSurface,
+    // ✅ RTL-aware chevron: "קדימה" = שמאלה ב-RTL, ימינה ב-LTR
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+    final chevronIcon = isRtl ? Icons.chevron_left : Icons.chevron_right;
+
+    return Semantics(
+      button: true,
+      label: '$title: $subtitle',
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+        child: Container(
+          padding: const EdgeInsets.all(kSpacingSmall),
+          decoration: BoxDecoration(
+            color: iconColor.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+            border: Border.all(color: iconColor.withValues(alpha: 0.3)),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, color: iconColor, size: kIconSizeMedium),
+              const SizedBox(width: kSpacingSmall),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: cs.onSurface,
+                      ),
                     ),
-                  ),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: kFontSizeSmall,
-                      color: cs.onSurfaceVariant,
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: kFontSizeSmall,
+                        color: cs.onSurfaceVariant,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Icon(Icons.chevron_left, color: cs.onSurfaceVariant),
-          ],
+              Icon(chevronIcon, color: cs.onSurfaceVariant),
+            ],
+          ),
         ),
       ),
     );

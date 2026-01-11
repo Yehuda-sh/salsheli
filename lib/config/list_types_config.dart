@@ -118,8 +118,10 @@ class ListTypes {
 
   /// 🔍 מצא config לפי key
   static ListTypeConfig? getByKey(String key) {
-    // בדיקת ייחודיות מפתחות בזמן פיתוח
-    _ensureNoDuplicateKeys();
+    // ✅ בדיקת ייחודיות מפתחות בזמן פיתוח בלבד
+    if (kDebugMode) {
+      _ensureNoDuplicateKeys();
+    }
 
     try {
       return all.firstWhere((config) => config.key == key);

@@ -210,7 +210,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(kSpacingMedium),
                 children: [
-                  // === 1. באנרים (לפי עדיפות: Active Shopper > Pending Invite) ===
+                  // === 1. באנרים (לפי עדיפות: Error > Active Shopper > Pending Invite) ===
+                  if (listsProvider.hasError)
+                    _buildErrorBanner(context, listsProvider.errorMessage!, cs),
                   const ActiveShopperBanner(),
                   const PendingInviteBanner(),
 
@@ -245,6 +247,70 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   const SizedBox(height: 80),
                 ],
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================
+  // 0. ERROR BANNER - באנר שגיאה
+  // ============================================
+  Widget _buildErrorBanner(BuildContext context, String errorMessage, ColorScheme cs) {
+    final theme = Theme.of(context);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: kSpacingSmall),
+      padding: const EdgeInsets.all(kSpacingMedium),
+      decoration: BoxDecoration(
+        color: cs.errorContainer,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: cs.error.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.error_outline,
+            color: cs.onErrorContainer,
+            size: 24,
+          ),
+          const SizedBox(width: kSpacingSmall),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'שגיאה בטעינת נתונים',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: cs.onErrorContainer,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  errorMessage,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: cs.onErrorContainer.withValues(alpha: 0.8),
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          TextButton.icon(
+            onPressed: () => _refresh(context),
+            icon: Icon(Icons.refresh, color: cs.onErrorContainer, size: 18),
+            label: Text(
+              'נסה שוב',
+              style: TextStyle(
+                color: cs.onErrorContainer,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
             ),
           ),
         ],
