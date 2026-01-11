@@ -71,4 +71,16 @@ enum UserRole {
 
   /// יש גישה לקריאה
   bool get canRead => true; // כולם יכולים לקרוא
+
+  /// 🆕 יכול להשתתף בקנייה פעילה (לסמן פריטים)
+  /// צופה לא יכול - רק לראות!
+  bool get canShop => this != UserRole.viewer;
+
+  /// 🆕 יכול להתחיל קנייה חדשה
+  /// רק בעלים ומנהלים
+  bool get canStartShopping => this == UserRole.owner || this == UserRole.admin;
+
+  /// 🆕 יכול לסיים קנייה (רק מי שהתחיל)
+  /// רק בעלים ומנהלים - בפועל נבדק גם אם הוא ה-starter
+  bool get canFinishShopping => this == UserRole.owner || this == UserRole.admin;
 }

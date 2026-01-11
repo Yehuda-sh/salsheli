@@ -13,6 +13,10 @@
 //    - הוספת Semantics wrapper לדיאלוג
 //    - הוספת Tooltips לכפתורים
 //    - תמיכה ב-Dark Mode (kStickyPinkDark/kStickyYellowDark)
+//    - הסרת Directionality wrapper - נתן ל-Locale לקבוע
+//    - מחרוזות קשיחות הועברו ל-AppStrings
+//    - כפתור X משונה לסגירה רגילה (לא "אל תציג שוב היום")
+//    - צבע טקסט כפתור ראשי מחושב לפי בהירות הרקע
 //
 // 🔗 Related: InventoryItem, InventoryProvider, StickyNote, AppBrand
 
@@ -152,6 +156,13 @@ class _ExpiryAlertDialog extends StatefulWidget {
 class _ExpiryAlertDialogState extends State<_ExpiryAlertDialog> {
   bool _isProcessing = false;
 
+  /// ✅ סגירה רגילה - לא שומר "אל תציג שוב היום"
+  void _dismiss() {
+    if (_isProcessing) return;
+    Navigator.of(context).pop(ExpiryAlertResult.dismiss);
+  }
+
+  /// ✅ סגירה עם "אל תציג שוב היום"
   Future<void> _dismissToday() async {
     // ✅ מניעת לחיצות כפולות
     if (_isProcessing) return;
@@ -202,177 +213,176 @@ class _ExpiryAlertDialogState extends State<_ExpiryAlertDialog> {
         ? scheme.onErrorContainer
         : (brand?.onWarningContainer ?? scheme.onTertiaryContainer);
 
-    // ✅ Semantics wrapper לנגישות
-    final dialogLabel = isExpiredMode
-        ? 'התראת תפוגה: $expiredCount פריטים פגי תוקף, $expiringSoonCount עומדים לפוג'
-        : 'התראת תפוגה: $expiringSoonCount פריטים עומדים לפוג בקרוב';
+    // ✅ Semantics wrapper לנגישות - מחרוזות מ-AppStrings
+    final dialogLabel = AppStrings.inventory.expiryAlertSemanticLabel(
+      expiredCount,
+      expiringSoonCount,
+      isExpiredMode,
+    );
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Semantics(
-        label: dialogLabel,
-        container: true,
-        child: Dialog(
-          backgroundColor: Colors.transparent,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 400, maxHeight: 500),
-            child: StickyNote(
-              color: stickyColor,
-              child: Padding(
-                padding: const EdgeInsets.all(kSpacingMedium),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // === כותרת ===
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: containerColor,
-                            borderRadius: BorderRadius.circular(kBorderRadius),
-                          ),
-                          child: Text(
-                            isExpiredMode ? '⚠️' : '⏰',
-                            style: const TextStyle(fontSize: 24),
-                          ),
+    // ✅ חישוב צבע טקסט לכפתור הראשי לפי בהירות הרקע
+    final buttonTextColor =
+        ThemeData.estimateBrightnessForColor(accentColor) == Brightness.light
+            ? Colors.black
+            : Colors.white;
+
+    // ✅ הסרת Directionality - נתן ל-Locale של האפליקציה לקבוע
+    return Semantics(
+      label: dialogLabel,
+      container: true,
+      child: Dialog(
+        backgroundColor: Colors.transparent,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 400, maxHeight: 500),
+          child: StickyNote(
+            color: stickyColor,
+            child: Padding(
+              padding: const EdgeInsets.all(kSpacingMedium),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // === כותרת ===
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: containerColor,
+                          borderRadius: BorderRadius.circular(kBorderRadius),
                         ),
-                        const SizedBox(width: kSpacingSmall),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                isExpiredMode
-                                    ? AppStrings
-                                          .inventory
-                                          .expiryAlertTitleExpired
-                                    : AppStrings
-                                          .inventory
-                                          .expiryAlertTitleExpiringSoon,
-                                style: TextStyle(
-                                  fontSize: kFontSizeLarge,
-                                  fontWeight: FontWeight.bold,
-                                  color: onContainerColor,
-                                ),
+                        child: Text(
+                          isExpiredMode ? '⚠️' : '⏰',
+                          style: const TextStyle(fontSize: 24),
+                        ),
+                      ),
+                      const SizedBox(width: kSpacingSmall),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isExpiredMode
+                                  ? AppStrings.inventory.expiryAlertTitleExpired
+                                  : AppStrings.inventory.expiryAlertTitleExpiringSoon,
+                              style: TextStyle(
+                                fontSize: kFontSizeLarge,
+                                fontWeight: FontWeight.bold,
+                                color: onContainerColor,
                               ),
-                              Text(
-                                AppStrings.inventory.expiryAlertSubtitle(
-                                  expiredCount,
-                                  expiringSoonCount,
-                                ),
-                                style: TextStyle(
-                                  fontSize: kFontSizeSmall,
-                                  color: scheme.onSurfaceVariant,
-                                ),
+                            ),
+                            Text(
+                              AppStrings.inventory.expiryAlertSubtitle(
+                                expiredCount,
+                                expiringSoonCount,
                               ),
-                            ],
-                          ),
-                        ),
-                        // ✅ כפתור סגירה - מתנהג כמו "אל תציג שוב היום" לחוויה שקטה יותר
-                        Tooltip(
-                          message: 'סגור (אל תציג שוב היום)',
-                          child: IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: _isProcessing ? null : _dismissToday,
-                            visualDensity: VisualDensity.compact,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: kSpacingMedium),
-
-                    // === רשימת פריטים ===
-                    Container(
-                      constraints: const BoxConstraints(maxHeight: 250),
-                      decoration: BoxDecoration(
-                        color: scheme.surface.withValues(alpha: 0.7),
-                        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                      ),
-                      child: ListView.separated(
-                        shrinkWrap: true,
-                        padding: const EdgeInsets.all(kSpacingSmall),
-                        itemCount: widget.expiringItems.length > 6
-                            ? 6
-                            : widget.expiringItems.length,
-                        separatorBuilder: (context, index) =>
-                            const Divider(height: 1),
-                        itemBuilder: (context, index) {
-                          final item = widget.expiringItems[index];
-                          return _ExpiryItemTile(
-                            item: item,
-                            scheme: scheme,
-                            brand: brand,
-                          );
-                        },
-                      ),
-                    ),
-
-                    // ✅ "הצג עוד X מוצרים" כפתור לחיץ
-                    if (widget.expiringItems.length > 6)
-                      Padding(
-                        padding: const EdgeInsets.only(top: kSpacingSmall),
-                        child: TextButton(
-                          onPressed: () {
-                            unawaited(HapticFeedback.selectionClick());
-                            Navigator.of(
-                              context,
-                            ).pop(ExpiryAlertResult.goToPantry);
-                          },
-                          child: Text(
-                            AppStrings.inventory.expiryAlertMoreItems(
-                              widget.expiringItems.length - 6,
+                              style: TextStyle(
+                                fontSize: kFontSizeSmall,
+                                color: scheme.onSurfaceVariant,
+                              ),
                             ),
-                            style: TextStyle(
-                              fontSize: kFontSizeSmall,
-                              color: accentColor,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
+                          ],
                         ),
                       ),
+                      // ✅ כפתור סגירה - סגירה רגילה (לא "אל תציג שוב היום")
+                      Tooltip(
+                        message: AppStrings.inventory.expiryAlertCloseTooltip,
+                        child: IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: _isProcessing ? null : _dismiss,
+                          visualDensity: VisualDensity.compact,
+                        ),
+                      ),
+                    ],
+                  ),
 
-                    const SizedBox(height: kSpacingMedium),
+                  const SizedBox(height: kSpacingMedium),
 
-                    // === כפתורי פעולה ===
-                    Tooltip(
-                      message: 'עבור למזווה לצפייה בכל הפריטים',
-                      child: ElevatedButton.icon(
+                  // === רשימת פריטים ===
+                  Container(
+                    constraints: const BoxConstraints(maxHeight: 250),
+                    decoration: BoxDecoration(
+                      color: scheme.surface.withValues(alpha: 0.7),
+                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                    ),
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      padding: const EdgeInsets.all(kSpacingSmall),
+                      itemCount: widget.expiringItems.length > 6
+                          ? 6
+                          : widget.expiringItems.length,
+                      separatorBuilder: (context, index) =>
+                          const Divider(height: 1),
+                      itemBuilder: (context, index) {
+                        final item = widget.expiringItems[index];
+                        return _ExpiryItemTile(
+                          item: item,
+                          scheme: scheme,
+                          brand: brand,
+                        );
+                      },
+                    ),
+                  ),
+
+                  // ✅ "הצג עוד X מוצרים" כפתור לחיץ
+                  if (widget.expiringItems.length > 6)
+                    Padding(
+                      padding: const EdgeInsets.only(top: kSpacingSmall),
+                      child: TextButton(
                         onPressed: () {
-                          unawaited(HapticFeedback.mediumImpact());
+                          unawaited(HapticFeedback.selectionClick());
                           Navigator.of(context).pop(ExpiryAlertResult.goToPantry);
                         },
-                        icon: const Icon(Icons.inventory_2),
-                        label: Text(AppStrings.inventory.expiryAlertGoToPantry),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: accentColor,
-                          foregroundColor: isExpiredMode
-                              ? scheme.onError
-                              : (brand?.onWarningContainer ?? scheme.onTertiary),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: kSpacingSmall),
-
-                    // אל תציג שוב היום
-                    Tooltip(
-                      message: 'התראה זו לא תוצג שוב היום',
-                      child: TextButton(
-                        onPressed: _isProcessing ? null : _dismissToday,
                         child: Text(
-                          AppStrings.inventory.expiryAlertDismissToday,
+                          AppStrings.inventory.expiryAlertMoreItems(
+                            widget.expiringItems.length - 6,
+                          ),
                           style: TextStyle(
-                            color: scheme.onSurfaceVariant,
                             fontSize: kFontSizeSmall,
+                            color: accentColor,
+                            fontStyle: FontStyle.italic,
                           ),
                         ),
                       ),
                     ),
-                  ],
-                ),
+
+                  const SizedBox(height: kSpacingMedium),
+
+                  // === כפתורי פעולה ===
+                  Tooltip(
+                    message: AppStrings.inventory.expiryAlertGoToPantryTooltip,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        unawaited(HapticFeedback.mediumImpact());
+                        Navigator.of(context).pop(ExpiryAlertResult.goToPantry);
+                      },
+                      icon: const Icon(Icons.inventory_2),
+                      label: Text(AppStrings.inventory.expiryAlertGoToPantry),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: accentColor,
+                        // ✅ צבע טקסט מחושב לפי בהירות הרקע
+                        foregroundColor: buttonTextColor,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: kSpacingSmall),
+
+                  // אל תציג שוב היום
+                  Tooltip(
+                    message: AppStrings.inventory.expiryAlertDismissTodayTooltip,
+                    child: TextButton(
+                      onPressed: _isProcessing ? null : _dismissToday,
+                      child: Text(
+                        AppStrings.inventory.expiryAlertDismissToday,
+                        style: TextStyle(
+                          color: scheme.onSurfaceVariant,
+                          fontSize: kFontSizeSmall,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

@@ -229,14 +229,13 @@ class _AppLayoutState extends State<AppLayout> {
     final cs = theme.colorScheme;
     final safeIndex = widget.currentIndex.clamp(0, _navItems.length - 1);
 
-    // 🌍 RTL Support: Wrap with Directionality
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        appBar: _buildAppBar(context, cs),
-        body: widget.child,
-        bottomNavigationBar: _buildBottomNav(context, cs, safeIndex),
-      ),
+    // ✅ RTL Support: Let MaterialApp's localization handle direction automatically
+    // When app locale is Hebrew → RTL, English → LTR
+    // No forced Directionality wrapper needed!
+    return Scaffold(
+      appBar: _buildAppBar(context, cs),
+      body: widget.child,
+      bottomNavigationBar: _buildBottomNav(context, cs, safeIndex),
     );
   }
 
@@ -290,8 +289,9 @@ class _AppLayoutState extends State<AppLayout> {
     final currentTabLabel = _navItems[safeIndex].label;
 
     return Semantics(
-      label: 'ניווט ראשי. טאב נבחר: $currentTabLabel',
-      hint: 'החלק ימינה או שמאלה לבחירת טאב אחר',
+      // ✅ Use AppStrings for i18n-ready accessibility labels
+      label: AppStrings.layout.navSemanticLabel(currentTabLabel),
+      hint: AppStrings.layout.navSemanticHint,
       child: NavigationBar(
         selectedIndex: safeIndex,
         onDestinationSelected: widget.onTabSelected,

@@ -146,3 +146,5 @@ fastlane/Preview.html
 # Local configs with secrets
 # ----------------------------
 claude_desktop_config.json
+project_inventory.txt
+ui_inventory.txt

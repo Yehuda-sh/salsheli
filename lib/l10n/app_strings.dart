@@ -155,6 +155,11 @@ class _LayoutStrings {
   String get groupInvitesSubtitle => 'הצטרפות למשפחה / Household';
   String get listInvites => 'הזמנות לרשימות';
   String get listInvitesSubtitle => 'שיתוף רשימות קניות';
+
+  // Accessibility
+  String navSemanticLabel(String selectedTab) => 'ניווט ראשי. טאב נבחר: $selectedTab';
+  String get navSemanticHint => 'החלק ימינה או שמאלה לבחירת טאב אחר';
+  String get longPressHint => 'לחיצה ארוכה לפעולות נוספות';
 }
 
 // ========================================
@@ -1304,6 +1309,15 @@ class _InventoryStrings {
   String get expiryAlertGoToPantry => 'עבור למזווה';
   String get expiryAlertDismissToday => 'אל תציג שוב היום';
   String expiryAlertMoreItems(int count) => 'הצג עוד $count מוצרים...';
+
+  // Expiry Alert Tooltips & Accessibility
+  String expiryAlertSemanticLabel(int expiredCount, int expiringSoonCount, bool isExpiredMode) =>
+      isExpiredMode
+          ? 'התראת תפוגה: $expiredCount פריטים פגי תוקף, $expiringSoonCount עומדים לפוג'
+          : 'התראת תפוגה: $expiringSoonCount פריטים עומדים לפוג בקרוב';
+  String get expiryAlertCloseTooltip => 'סגור';
+  String get expiryAlertGoToPantryTooltip => 'עבור למזווה לצפייה בכל הפריטים';
+  String get expiryAlertDismissTodayTooltip => 'התראה זו לא תוצג שוב היום';
 
   // Expiry status text
   String get expiryExpiredToday => 'פג היום';

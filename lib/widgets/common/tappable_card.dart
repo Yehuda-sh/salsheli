@@ -23,6 +23,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
+
 /// 🎴 TappableCard - Interactive Card with Scale & Elevation Animation
 ///
 /// Wraps a Card or any widget to add:
@@ -86,6 +89,12 @@ class TappableCard extends StatefulWidget {
   /// Semantic label for screen readers (optional)
   final String? semanticLabel;
 
+  /// Show Material ripple effect on tap (default: true)
+  final bool showRipple;
+
+  /// Border radius for ripple clipping (default: kBorderRadiusLarge)
+  final double borderRadius;
+
   const TappableCard({
     super.key,
     required this.child,
@@ -101,6 +110,8 @@ class TappableCard extends StatefulWidget {
     this.animateScale = true,
     this.tooltip,
     this.semanticLabel,
+    this.showRipple = true, // ✅ Enable ripple by default
+    this.borderRadius = kBorderRadiusLarge, // ✅ Configurable border radius
   });
 
   @override
@@ -125,19 +136,54 @@ class _TappableCardState extends State<TappableCard> {
     final isClickable = widget.onTap != null;
     final hasLongPress = widget.onLongPress != null;
 
-    // ✅ Build the interactive widget
-    Widget result = MouseRegion(
-      cursor: isClickable ? SystemMouseCursors.click : SystemMouseCursors.basic,
-      child: GestureDetector(
-        // ✅ Use GestureDetector for press state (InkWell doesn't expose onTapDown easily)
-        onTapDown: isClickable ? (_) => _onTapDown() : null,
-        onTapUp: isClickable ? (_) => _onTapUp() : null,
-        onTapCancel: isClickable ? _onTapCancel : null,
-        // ✅ Long press support
-        onLongPress: hasLongPress ? _onLongPress : null,
-        child: _buildAnimatedChild(),
-      ),
-    );
+    // ✅ Build the animated content
+    final animatedContent = _buildAnimatedChild();
+
+    // ✅ Build the interactive widget with either InkWell (ripple) or GestureDetector
+    Widget result;
+    if (widget.showRipple && isClickable) {
+      // Use Stack to overlay ripple WITHOUT clipping the content's shadows
+      // ✅ Content (with BoxShadow) is NOT clipped
+      // ✅ Only the ripple overlay is clipped to rounded corners
+      // ✅ InkWell handles ALL events (ripple + action from same source)
+      result = MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: Stack(
+          children: [
+            // Content layer - NOT clipped (shadows preserved)
+            animatedContent,
+            // Ripple overlay - clipped to rounded corners, handles all events
+            Positioned.fill(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(widget.borderRadius),
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: InkWell(
+                    onTapDown: (_) => _onTapDown(),
+                    onTapUp: (_) => _onTapUp(),
+                    onTapCancel: _onTapCancel,
+                    onLongPress: hasLongPress ? _onLongPress : null,
+                    borderRadius: BorderRadius.circular(widget.borderRadius),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      // Fallback to GestureDetector (no ripple)
+      result = MouseRegion(
+        cursor: isClickable ? SystemMouseCursors.click : SystemMouseCursors.basic,
+        child: GestureDetector(
+          onTapDown: isClickable ? (_) => _onTapDown() : null,
+          onTapUp: isClickable ? (_) => _onTapUp() : null,
+          onTapCancel: isClickable ? _onTapCancel : null,
+          onLongPress: hasLongPress ? _onLongPress : null,
+          child: animatedContent,
+        ),
+      );
+    }
 
     // ✅ Wrap with Focus for keyboard navigation
     if (isClickable) {
@@ -152,7 +198,7 @@ class _TappableCardState extends State<TappableCard> {
       button: isClickable,
       enabled: isClickable,
       label: widget.semanticLabel,
-      hint: hasLongPress ? 'לחיצה ארוכה לפעולות נוספות' : null,
+      hint: hasLongPress ? AppStrings.layout.longPressHint : null,
       child: result,
     );
 
@@ -327,6 +373,12 @@ class SimpleTappableCard extends StatefulWidget {
   /// Semantic label for screen readers (optional)
   final String? semanticLabel;
 
+  /// Show Material ripple effect on tap (default: true)
+  final bool showRipple;
+
+  /// Border radius for ripple effect (default: 12)
+  final double borderRadius;
+
   const SimpleTappableCard({
     super.key,
     required this.child,
@@ -338,6 +390,8 @@ class SimpleTappableCard extends StatefulWidget {
     this.curve = Curves.easeInOut,
     this.tooltip,
     this.semanticLabel,
+    this.showRipple = true, // ✅ Enable ripple by default
+    this.borderRadius = kBorderRadius, // ✅ Use ui_constants
   });
 
   @override
@@ -360,23 +414,59 @@ class _SimpleTappableCardState extends State<SimpleTappableCard> {
     final isClickable = widget.onTap != null;
     final hasLongPress = widget.onLongPress != null;
 
-    // ✅ Build the interactive widget
-    Widget result = MouseRegion(
-      cursor: isClickable ? SystemMouseCursors.click : SystemMouseCursors.basic,
-      child: GestureDetector(
-        onTapDown: isClickable ? (_) => _onTapDown() : null,
-        onTapUp: isClickable ? (_) => _onTapUp() : null,
-        onTapCancel: isClickable ? _onTapCancel : null,
-        // ✅ Long press support
-        onLongPress: hasLongPress ? _onLongPress : null,
-        child: AnimatedScale(
-          scale: _isPressed ? widget.scaleTarget : 1.0,
-          duration: widget.duration,
-          curve: widget.curve,
-          child: widget.child,
-        ),
-      ),
+    // ✅ Build the animated content
+    final animatedContent = AnimatedScale(
+      scale: _isPressed ? widget.scaleTarget : 1.0,
+      duration: widget.duration,
+      curve: widget.curve,
+      child: widget.child,
     );
+
+    // ✅ Build the interactive widget with either InkWell (ripple) or GestureDetector
+    Widget result;
+    if (widget.showRipple && isClickable) {
+      // Use Stack to overlay ripple WITHOUT clipping the content's shadows
+      // ✅ Content (with BoxShadow) is NOT clipped
+      // ✅ Only the ripple overlay is clipped to rounded corners
+      // ✅ InkWell handles ALL events (ripple + action from same source)
+      result = MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: Stack(
+          children: [
+            // Content layer - NOT clipped (shadows preserved)
+            animatedContent,
+            // Ripple overlay - clipped to rounded corners, handles all events
+            Positioned.fill(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(widget.borderRadius),
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: InkWell(
+                    onTapDown: (_) => _onTapDown(),
+                    onTapUp: (_) => _onTapUp(),
+                    onTapCancel: _onTapCancel,
+                    onLongPress: hasLongPress ? _onLongPress : null,
+                    borderRadius: BorderRadius.circular(widget.borderRadius),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      // Fallback to GestureDetector (no ripple)
+      result = MouseRegion(
+        cursor: isClickable ? SystemMouseCursors.click : SystemMouseCursors.basic,
+        child: GestureDetector(
+          onTapDown: isClickable ? (_) => _onTapDown() : null,
+          onTapUp: isClickable ? (_) => _onTapUp() : null,
+          onTapCancel: isClickable ? _onTapCancel : null,
+          onLongPress: hasLongPress ? _onLongPress : null,
+          child: animatedContent,
+        ),
+      );
+    }
 
     // ✅ Wrap with Focus for keyboard navigation
     if (isClickable) {
@@ -391,7 +481,7 @@ class _SimpleTappableCardState extends State<SimpleTappableCard> {
       button: isClickable,
       enabled: isClickable,
       label: widget.semanticLabel,
-      hint: hasLongPress ? 'לחיצה ארוכה לפעולות נוספות' : null,
+      hint: hasLongPress ? AppStrings.layout.longPressHint : null,
       child: result,
     );
 

@@ -15,6 +15,7 @@
 
 import 'package:flutter/material.dart';
 import '../../core/ui_constants.dart';
+import '../../theme/app_theme.dart';
 import 'sticky_note.dart';
 import 'tappable_card.dart';
 
@@ -63,7 +64,7 @@ class DashboardCard extends StatelessWidget {
   /// אייקון להצגה ליד הכותרת
   final IconData icon;
 
-  /// צבע הפתק (ברירת מחדל: kStickyYellow)
+  /// צבע הפתק (ברירת מחדל: brand.stickyYellow - תומך dark mode)
   final Color? color;
 
   /// סיבוב ברדיאנים (ברירת מחדל: 0.01)
@@ -109,12 +110,19 @@ class DashboardCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final cardColor = color ?? kStickyYellow;
+    final brand = theme.extension<AppBrand>();
+
+    // ✅ Theme-aware default color (supports dark mode)
+    final cardColor = color ?? brand?.stickyYellow ?? kStickyYellow;
     final cardRotation = rotation ?? 0.01;
 
     // צבעים מבוססי Theme (תומך dark mode)
     final textColor = cs.onSurface;
     final secondaryColor = cs.onSurfaceVariant;
+
+    // ✅ RTL-aware arrow icon
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+    final arrowIcon = isRtl ? Icons.arrow_back_ios : Icons.arrow_forward_ios;
 
     final content = StickyNote(
       color: cardColor,
@@ -146,7 +154,7 @@ class DashboardCard extends StatelessWidget {
               ),
               if (onTap != null)
                 Icon(
-                  Icons.arrow_forward_ios,
+                  arrowIcon,
                   size: kIconSizeSmall,
                   color: secondaryColor,
                 ),
@@ -168,6 +176,8 @@ class DashboardCard extends StatelessWidget {
               onLongPress: onLongPress,
               tooltip: tooltip,
               semanticLabel: semanticLabel ?? title,
+              // ✅ Match ripple to sticky note's border radius
+              borderRadius: kStickyNoteRadius,
               child: content,
             )
           : content,

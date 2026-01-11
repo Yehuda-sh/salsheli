@@ -20,10 +20,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../core/status_colors.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../models/unified_list_item.dart';
+import '../../theme/app_theme.dart';
 import '../common/sticky_button.dart';
 import '../common/sticky_note.dart';
 
@@ -99,16 +99,17 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
 
   void _showErrorSnackBar(String message) {
     unawaited(HapticFeedback.heavyImpact());
+    final cs = Theme.of(context).colorScheme;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
           children: [
-            const Icon(Icons.error_outline, color: Colors.white),
+            Icon(Icons.error_outline, color: cs.onError),
             const SizedBox(width: kSpacingSmall),
             Expanded(child: Text(message)),
           ],
         ),
-        backgroundColor: StatusColors.error,
+        backgroundColor: cs.error,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -206,13 +207,20 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
     final isEditMode = widget.item != null;
+
+    // ✅ Use theme-aware sticky color (supports dark mode)
+    final stickyColor = brand?.stickyYellow ?? kStickyYellow;
+
+    // ✅ Theme-aware input fill color (works on sticky notes in both light/dark)
+    final inputFillColor = cs.surfaceContainerHighest.withValues(alpha: 0.7);
 
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.all(kSpacingMedium),
       child: StickyNote(
-        color: kStickyYellow,
+        color: stickyColor,
         rotation: 0.01,
         padding: 0,
         child: SingleChildScrollView(
@@ -258,7 +266,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                       borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                     ),
                     filled: true,
-                    fillColor: Colors.white.withValues(alpha: 0.7),
+                    fillColor: inputFillColor,
                   ),
                   textDirection: ui.TextDirection.rtl,
                   textInputAction: TextInputAction.next,
@@ -275,7 +283,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                       borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                     ),
                     filled: true,
-                    fillColor: Colors.white.withValues(alpha: 0.7),
+                    fillColor: inputFillColor,
                   ),
                   textDirection: ui.TextDirection.rtl,
                   textInputAction: TextInputAction.next,
@@ -293,7 +301,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                       ),
                       filled: true,
-                      fillColor: Colors.white.withValues(alpha: 0.7),
+                      fillColor: inputFillColor,
                     ),
                     hint: Text(AppStrings.listDetails.selectCategory),
                     isExpanded: true,
@@ -330,7 +338,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                             borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                           ),
                           filled: true,
-                          fillColor: Colors.white.withValues(alpha: 0.7),
+                          fillColor: inputFillColor,
                         ),
                         keyboardType: TextInputType.number,
                         // ✅ LTR for numbers - looks more natural
@@ -356,7 +364,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                             borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                           ),
                           filled: true,
-                          fillColor: Colors.white.withValues(alpha: 0.7),
+                          fillColor: inputFillColor,
                         ),
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
                         // ✅ LTR for numbers - looks more natural
@@ -387,8 +395,9 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                         child: StickyButton(
                           label: AppStrings.common.cancel,
                           icon: Icons.close,
-                          color: Colors.white,
-                          textColor: cs.onSurface,
+                          // ✅ Theme-aware button color
+                          color: cs.surfaceContainerHighest,
+                          // ✅ Let StickyButton auto-calculate textColor based on brightness
                           // ✅ Use _handleCancel for exit confirmation
                           onPressed: _handleCancel,
                         ),
@@ -405,8 +414,9 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                               ? AppStrings.common.loading
                               : AppStrings.common.save,
                           icon: _isSaving ? Icons.hourglass_empty : Icons.check,
-                          color: StatusColors.success,
-                          textColor: Colors.white,
+                          // ✅ Use theme brand colors instead of hardcoded
+                          color: brand?.success ?? const Color(0xFF388E3C),
+                          // ✅ Let StickyButton auto-calculate textColor based on brightness
                           // ✅ Disable button while saving
                           onPressed: _isSaving ? null : _handleSave,
                         ),
@@ -433,13 +443,16 @@ Future<void> showAddEditProductDialog(
   required void Function(UnifiedListItem item) onSave,
   List<String> categories = const [],
 }) {
+  // ✅ Theme-aware barrier color
+  final barrierColor = Theme.of(context).colorScheme.scrim.withValues(alpha: 0.5);
+
   return showGeneralDialog(
     context: context,
     // ✅ Disabled barrier dismiss to prevent accidental data loss
     // Exit confirmation is handled inside the dialog
     barrierDismissible: false,
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-    barrierColor: Colors.black.withValues(alpha: 0.5),
+    barrierColor: barrierColor,
     transitionDuration: const Duration(milliseconds: 200),
     pageBuilder: (context, animation, secondaryAnimation) {
       return ScaleTransition(
