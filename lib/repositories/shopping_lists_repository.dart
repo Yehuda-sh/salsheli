@@ -39,6 +39,21 @@ abstract class ShoppingListsRepository {
   /// ```
   Future<List<ShoppingList>> fetchLists(String userId, String? householdId);
 
+  /// 🔄 מחזיר stream של רשימות לעדכונים בזמן אמת
+  ///
+  /// [userId] - מזהה המשתמש (לרשימות פרטיות)
+  /// [householdId] - מזהה משק הבית (לרשימות משותפות, אופציונלי)
+  ///
+  /// Returns: Stream של רשימות שמתעדכן בכל שינוי
+  ///
+  /// Example:
+  /// ```dart
+  /// repository.watchLists('user_123', 'house_demo').listen((lists) {
+  ///   print('קיבלנו ${lists.length} רשימות');
+  /// });
+  /// ```
+  Stream<List<ShoppingList>> watchLists(String userId, String? householdId);
+
   /// שומר או מעדכן רשימת קניות
   ///
   /// [list] - הרשימה לשמירה (חדשה או קיימת)

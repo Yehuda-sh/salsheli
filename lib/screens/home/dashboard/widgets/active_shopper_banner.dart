@@ -1,9 +1,10 @@
 // 📄 lib/screens/home/dashboard/widgets/active_shopper_banner.dart
 //
-// באנר "קניות מתבצעות" - מוצג כשמישהו קונה מרשימה משותפת.
-// מאפשר להצטרף לקנייה או לצפות ברשימה.
+// באנר קניות פעילות - מוצג ב-2 מקרים:
+// 1. המשתמש הנוכחי יש לו קנייה פעילה → "להמשיך קנייה?"
+// 2. מישהו אחר קונה מרשימה משותפת → "קניות מתבצעות!"
 //
-// Version: 1.0 (08/01/2026)
+// Version: 2.0 (11/01/2026) - הוספת באנר לקנייה פעילה של המשתמש
 // 🔗 Related: ShoppingList, ActiveShopper
 
 import 'package:flutter/material.dart';
@@ -15,7 +16,9 @@ import '../../../../models/shopping_list.dart';
 import '../../../../providers/shopping_lists_provider.dart';
 import '../../../../providers/user_context.dart';
 
-/// באנר קניות מתבצעות - מציג כשיש קנייה פעילה ברשימה משותפת
+/// באנר קניות פעילות - מציג:
+/// 1. כשהמשתמש הנוכחי יש לו קנייה פעילה (עדיפות גבוהה)
+/// 2. כשמישהו אחר קונה מרשימה משותפת
 class ActiveShopperBanner extends StatelessWidget {
   const ActiveShopperBanner({super.key});
 
@@ -25,38 +28,157 @@ class ActiveShopperBanner extends StatelessWidget {
     final userContext = context.watch<UserContext>();
     final currentUserId = userContext.userId;
 
-    // מצא רשימה עם קנייה פעילה (שהמשתמש הנוכחי לא קונה בה)
-    ShoppingList? activeShoppingList;
+    // 1. עדיפות גבוהה: בדוק אם המשתמש הנוכחי יש לו קנייה פעילה
+    ShoppingList? myActiveShoppingList;
     for (final list in listsProvider.lists) {
       if (list.isBeingShopped) {
         final activeShoppers = list.activeShoppers.where((s) => s.isActive).toList();
-        final isCurrentUserShopping = activeShoppers.any((s) => s.userId == currentUserId);
-        if (!isCurrentUserShopping) {
-          activeShoppingList = list;
+        final myActiveShopper = activeShoppers.where((s) => s.userId == currentUserId).firstOrNull;
+        if (myActiveShopper != null) {
+          myActiveShoppingList = list;
           break;
         }
       }
     }
 
-    // אם אין רשימה עם קנייה פעילה - לא מציג
-    if (activeShoppingList == null) {
+    // אם למשתמש יש קנייה פעילה - מציג באנר "להמשיך"
+    if (myActiveShoppingList != null) {
+      return _MyActiveShoppingBanner(list: myActiveShoppingList);
+    }
+
+    // 2. בדוק אם מישהו אחר קונה מרשימה משותפת
+    ShoppingList? othersShoppingList;
+    for (final list in listsProvider.lists) {
+      if (list.isBeingShopped) {
+        final activeShoppers = list.activeShoppers.where((s) => s.isActive).toList();
+        final isCurrentUserShopping = activeShoppers.any((s) => s.userId == currentUserId);
+        if (!isCurrentUserShopping) {
+          othersShoppingList = list;
+          break;
+        }
+      }
+    }
+
+    // אם אין רשימה עם קנייה פעילה של אחרים - לא מציג
+    if (othersShoppingList == null) {
       return const SizedBox.shrink();
     }
 
-    final shopperCount = activeShoppingList.activeShoppers.where((s) => s.isActive).length;
+    final shopperCount = othersShoppingList.activeShoppers.where((s) => s.isActive).length;
 
-    return _BannerContent(
-      list: activeShoppingList,
+    return _OthersShoppingBanner(
+      list: othersShoppingList,
       shopperCount: shopperCount,
     );
   }
 }
 
-class _BannerContent extends StatelessWidget {
+/// באנר: יש לך קנייה פעילה - להמשיך?
+class _MyActiveShoppingBanner extends StatelessWidget {
+  final ShoppingList list;
+
+  const _MyActiveShoppingBanner({required this.list});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final uncheckedCount = list.items.where((i) => !i.isChecked).length;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: kSpacingSmall),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.blue.shade600,
+            Colors.blue.shade700,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.withValues(alpha: 0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _onContinue(context),
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(kSpacingMedium),
+            child: Row(
+              children: [
+                // אייקון מונפש
+                _PulsingIcon(color: Colors.blue),
+                const SizedBox(width: kSpacingMedium),
+
+                // טקסט
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'יש לך קנייה פעילה',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '"${list.name}" - נותרו $uncheckedCount פריטים',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: Colors.white.withValues(alpha: 0.9),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // כפתור המשך
+                ElevatedButton.icon(
+                  onPressed: () => _onContinue(context),
+                  icon: const Icon(Icons.play_arrow, size: 18),
+                  label: const Text('המשך'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.blue.shade700,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    textStyle: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _onContinue(BuildContext context) {
+    HapticFeedback.lightImpact();
+    Navigator.pushNamed(
+      context,
+      '/active-shopping',
+      arguments: list,
+    );
+  }
+}
+
+/// באנר: מישהו אחר קונה מרשימה משותפת
+class _OthersShoppingBanner extends StatelessWidget {
   final ShoppingList list;
   final int shopperCount;
 
-  const _BannerContent({
+  const _OthersShoppingBanner({
     required this.list,
     required this.shopperCount,
   });

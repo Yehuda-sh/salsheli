@@ -31,3 +31,22 @@ const Set<String> kValidChildrenAges = {
 
 /// Current schema version for data migrations
 const int kCurrentSchemaVersion = 1;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DATA LIMITS
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// מקסימום פריטים ברשימת קניות אחת
+const int kMaxItemsPerList = 200;
+
+/// מקסימום פריטים במזווה
+const int kMaxItemsPerPantry = 500;
+
+/// מקסימום חברים בקבוצה אחת
+const int kMaxMembersPerGroup = 100;
+
+/// מקסימום קבוצות למשתמש אחד
+const int kMaxGroupsPerUser = 50;
+
+/// מקסימום רשימות פעילות למשתמש
+const int kMaxActiveListsPerUser = 100;

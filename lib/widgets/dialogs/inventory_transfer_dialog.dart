@@ -5,12 +5,16 @@
 //
 // ✅ תיקונים:
 //    - המרה ל-StatefulWidget עם _isProcessing flag
-//    - תמיכה ב-Dark Mode (kStickyYellowDark)
+//    - תמיכה ב-Dark Mode (brand?.stickyYellow)
 //    - הוספת Semantics wrapper לדיאלוג ולכפתורי בחירה
 //    - הוספת Tooltips לכפתורים
 //    - הוספת unawaited() לקריאות HapticFeedback
 //    - הוספת HapticFeedback לכפתור ביטול
 //    - הוספת try-catch ל-_handleDeleteOption
+//    - הסרת Directionality wrapper - נתן ל-Locale לקבוע
+//    - מחרוזות Semantics הועברו ל-AppStrings
+//    - חץ RTL/LTR aware ב-_OptionButton
+//    - _isProcessing=true גם ב-_selectCancel()
 //
 // 🔗 Related: InventoryProvider, GroupsProvider, StickyNote
 
@@ -95,9 +99,10 @@ class _InventoryTransferDialogState extends State<_InventoryTransferDialog> {
     Navigator.of(context).pop(InventoryTransferChoice.transfer);
   }
 
-  /// ביטול הצטרפות
+  /// ✅ ביטול הצטרפות - עם _isProcessing לאחידות
   void _selectCancel() {
     if (_isProcessing) return;
+    setState(() => _isProcessing = true);
     unawaited(HapticFeedback.lightImpact());
     Navigator.of(context).pop(InventoryTransferChoice.cancel);
   }
@@ -113,37 +118,34 @@ class _InventoryTransferDialogState extends State<_InventoryTransferDialog> {
     final warningColor = brand?.warning ?? scheme.tertiary;
 
     try {
-      // ✅ RTL בדיאלוג הפנימי
+      // ✅ הסרת Directionality - נתן ל-Locale לקבוע
       final confirmed = await showDialog<bool>(
         context: context,
-        builder: (dialogContext) => Directionality(
-          textDirection: TextDirection.rtl,
-          child: AlertDialog(
-            title: Row(
-              children: [
-                Icon(Icons.warning_amber, color: warningColor),
-                const SizedBox(width: 8),
-                Text(AppStrings.inventory.deleteConfirmTitle),
-              ],
-            ),
-            content: Text(
-              AppStrings.inventory.deleteConfirmMessage(widget.itemCount),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(false),
-                child: Text(AppStrings.common.cancel),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.of(dialogContext).pop(true),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: scheme.error,
-                  foregroundColor: scheme.onError,
-                ),
-                child: Text(AppStrings.inventory.deleteConfirmButton),
-              ),
+        builder: (dialogContext) => AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.warning_amber, color: warningColor),
+              const SizedBox(width: 8),
+              Text(AppStrings.inventory.deleteConfirmTitle),
             ],
           ),
+          content: Text(
+            AppStrings.inventory.deleteConfirmMessage(widget.itemCount),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(AppStrings.common.cancel),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: scheme.error,
+                foregroundColor: scheme.onError,
+              ),
+              child: Text(AppStrings.inventory.deleteConfirmButton),
+            ),
+          ],
         ),
       );
 
@@ -161,143 +163,142 @@ class _InventoryTransferDialogState extends State<_InventoryTransferDialog> {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
-    final isDark = theme.brightness == Brightness.dark;
 
-    // ✅ צבעים מה-Theme + Dark Mode
+    // ✅ צבעים מה-Theme - Theme-aware sticky color
     final successColor = brand?.success ?? scheme.primary;
-    final stickyColor = isDark ? kStickyYellowDark : kStickyYellow;
+    final stickyColor = brand?.stickyYellow ?? kStickyYellow;
 
-    // ✅ Semantics label
-    final dialogLabel =
-        'העברת מזווה: ${widget.itemCount} פריטים לקבוצה ${widget.groupName}';
+    // ✅ Semantics label מ-AppStrings
+    final dialogLabel = AppStrings.inventory.transferSemanticLabel(
+      widget.itemCount,
+      widget.groupName,
+    );
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Semantics(
-        label: dialogLabel,
-        container: true,
-        child: Dialog(
-          backgroundColor: Colors.transparent,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 400),
-            child: StickyNote(
-              color: stickyColor,
-              // ✅ SingleChildScrollView למניעת overflow
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(kSpacingLarge),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // === כותרת ===
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: scheme.primaryContainer,
-                            borderRadius: BorderRadius.circular(kBorderRadius),
-                          ),
-                          child: const Text(
-                            '📦',
-                            style: TextStyle(fontSize: 24),
-                          ),
+    // ✅ הסרת Directionality - נתן ל-Locale של האפליקציה לקבוע
+    return Semantics(
+      label: dialogLabel,
+      container: true,
+      child: Dialog(
+        backgroundColor: Colors.transparent,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: StickyNote(
+            color: stickyColor,
+            // ✅ SingleChildScrollView למניעת overflow
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(kSpacingLarge),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // === כותרת ===
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: scheme.primaryContainer,
+                          borderRadius: BorderRadius.circular(kBorderRadius),
                         ),
-                        const SizedBox(width: kSpacingSmall),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                AppStrings.inventory.transferDialogTitle,
-                                style: TextStyle(
-                                  fontSize: kFontSizeLarge,
-                                  fontWeight: FontWeight.bold,
-                                  color: scheme.onSurface,
-                                ),
-                              ),
-                              Text(
-                                AppStrings.inventory.transferDialogItemCount(
-                                  widget.itemCount,
-                                ),
-                                style: TextStyle(
-                                  fontSize: kFontSizeSmall,
-                                  color: scheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
-                          ),
+                        child: const Text(
+                          '📦',
+                          style: TextStyle(fontSize: 24),
                         ),
-                      ],
-                    ),
-
-                    const SizedBox(height: kSpacingMedium),
-
-                    // === הסבר ===
-                    Container(
-                      padding: const EdgeInsets.all(kSpacingSmall),
-                      decoration: BoxDecoration(
-                        color: scheme.surface.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                       ),
+                      const SizedBox(width: kSpacingSmall),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              AppStrings.inventory.transferDialogTitle,
+                              style: TextStyle(
+                                fontSize: kFontSizeLarge,
+                                fontWeight: FontWeight.bold,
+                                color: scheme.onSurface,
+                              ),
+                            ),
+                            Text(
+                              AppStrings.inventory.transferDialogItemCount(
+                                widget.itemCount,
+                              ),
+                              style: TextStyle(
+                                fontSize: kFontSizeSmall,
+                                color: scheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: kSpacingMedium),
+
+                  // === הסבר ===
+                  Container(
+                    padding: const EdgeInsets.all(kSpacingSmall),
+                    decoration: BoxDecoration(
+                      color: scheme.surface.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                    ),
+                    child: Text(
+                      AppStrings.inventory.transferDialogDescription(
+                        widget.groupName,
+                        widget.itemCount,
+                      ),
+                      style: TextStyle(
+                        fontSize: kFontSizeMedium,
+                        height: 1.4,
+                        color: scheme.onSurface,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+
+                  const SizedBox(height: kSpacingLarge),
+
+                  // === אפשרות 1: העברה ===
+                  Tooltip(
+                    message: AppStrings.inventory.transferOptionSubtitle,
+                    child: _OptionButton(
+                      icon: Icons.move_to_inbox,
+                      iconColor: successColor,
+                      title: AppStrings.inventory.transferOptionTitle,
+                      subtitle: AppStrings.inventory.transferOptionSubtitle,
+                      onTap: _isProcessing ? null : _selectTransfer,
+                      isPrimary: true,
+                      primaryColor: successColor,
+                    ),
+                  ),
+
+                  const SizedBox(height: kSpacingSmall),
+
+                  // === אפשרות 2: מחיקה ===
+                  Tooltip(
+                    message: AppStrings.inventory.deleteOptionSubtitle,
+                    child: _OptionButton(
+                      icon: Icons.delete_outline,
+                      iconColor: brand?.warning ?? scheme.tertiary,
+                      title: AppStrings.inventory.deleteOptionTitle,
+                      subtitle: AppStrings.inventory.deleteOptionSubtitle,
+                      onTap: _isProcessing ? null : _handleDeleteOption,
+                    ),
+                  ),
+
+                  const SizedBox(height: kSpacingMedium),
+
+                  // === ביטול ===
+                  Tooltip(
+                    message: AppStrings.inventory.cancelJoinOption,
+                    child: TextButton(
+                      onPressed: _isProcessing ? null : _selectCancel,
                       child: Text(
-                        AppStrings.inventory.transferDialogDescription(
-                          widget.groupName,
-                          widget.itemCount,
-                        ),
-                        style: TextStyle(
-                          fontSize: kFontSizeMedium,
-                          height: 1.4,
-                          color: scheme.onSurface,
-                        ),
-                        textAlign: TextAlign.center,
+                        AppStrings.inventory.cancelJoinOption,
+                        style: TextStyle(color: scheme.onSurfaceVariant),
                       ),
                     ),
-
-                    const SizedBox(height: kSpacingLarge),
-
-                    // === אפשרות 1: העברה ===
-                    Tooltip(
-                      message: AppStrings.inventory.transferOptionSubtitle,
-                      child: _OptionButton(
-                        icon: Icons.move_to_inbox,
-                        iconColor: successColor,
-                        title: AppStrings.inventory.transferOptionTitle,
-                        subtitle: AppStrings.inventory.transferOptionSubtitle,
-                        onTap: _isProcessing ? null : _selectTransfer,
-                        isPrimary: true,
-                        primaryColor: successColor,
-                      ),
-                    ),
-
-                    const SizedBox(height: kSpacingSmall),
-
-                    // === אפשרות 2: מחיקה ===
-                    Tooltip(
-                      message: AppStrings.inventory.deleteOptionSubtitle,
-                      child: _OptionButton(
-                        icon: Icons.delete_outline,
-                        iconColor: brand?.warning ?? scheme.tertiary,
-                        title: AppStrings.inventory.deleteOptionTitle,
-                        subtitle: AppStrings.inventory.deleteOptionSubtitle,
-                        onTap: _isProcessing ? null : _handleDeleteOption,
-                      ),
-                    ),
-
-                    const SizedBox(height: kSpacingMedium),
-
-                    // === ביטול ===
-                    Tooltip(
-                      message: AppStrings.inventory.cancelJoinOption,
-                      child: TextButton(
-                        onPressed: _isProcessing ? null : _selectCancel,
-                        child: Text(
-                          AppStrings.inventory.cancelJoinOption,
-                          style: TextStyle(color: scheme.onSurfaceVariant),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -309,7 +310,7 @@ class _InventoryTransferDialogState extends State<_InventoryTransferDialog> {
 
 /// כפתור אפשרות בדיאלוג
 ///
-/// ✅ תמיכה ב-onTap nullable + Semantics
+/// ✅ תמיכה ב-onTap nullable + Semantics + RTL-aware chevron
 class _OptionButton extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
@@ -333,6 +334,10 @@ class _OptionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final isEnabled = onTap != null;
+
+    // ✅ RTL-aware chevron icon
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+    final chevronIcon = isRtl ? Icons.chevron_left : Icons.chevron_right;
 
     return Semantics(
       button: true,
@@ -394,8 +399,9 @@ class _OptionButton extends StatelessWidget {
                     ],
                   ),
                 ),
+                // ✅ RTL-aware chevron
                 Icon(
-                  Icons.chevron_left,
+                  chevronIcon,
                   color: isEnabled
                       ? scheme.onSurfaceVariant
                       : scheme.onSurfaceVariant.withValues(alpha: 0.5),

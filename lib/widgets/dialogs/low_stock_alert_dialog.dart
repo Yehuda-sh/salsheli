@@ -6,6 +6,13 @@
 // ✅ תיקונים:
 //    - הוספת unawaited() לקריאות HapticFeedback
 //    - תמיכה ב-Dark Mode (kStickyOrangeDark)
+//    - הסרת Directionality wrapper - נתן ל-Locale לקבוע
+//    - המרה ל-StatefulWidget עם _isProcessing flag
+//    - מחרוזות קשיחות הועברו ל-AppStrings
+//    - כפתור X משונה לסגירה רגילה (לא "אל תציג שוב היום")
+//    - "עוד X מוצרים" הפך לכפתור לחיץ
+//    - צבע כמות משתמש ב-warningContainer (לא errorContainer)
+//    - הוספת Semantics ו-Tooltips לנגישות
 //
 // 🔗 Related: InventoryItem, InventoryProvider, StickyNote
 
@@ -100,23 +107,60 @@ Future<LowStockAlertResult?> showLowStockAlertDialog({
   );
 }
 
-class _LowStockAlertDialog extends StatelessWidget {
+class _LowStockAlertDialog extends StatefulWidget {
   final List<InventoryItem> lowStockItems;
 
   const _LowStockAlertDialog({
     required this.lowStockItems,
   });
 
-  Future<void> _dismissToday(BuildContext context) async {
+  @override
+  State<_LowStockAlertDialog> createState() => _LowStockAlertDialogState();
+}
+
+class _LowStockAlertDialogState extends State<_LowStockAlertDialog> {
+  bool _isProcessing = false;
+
+  /// ✅ סגירה רגילה - לא שומר "אל תציג שוב היום"
+  void _dismiss() {
+    if (_isProcessing) return;
+    Navigator.of(context).pop(LowStockAlertResult.dismiss);
+  }
+
+  /// ✅ סגירה עם "אל תציג שוב היום"
+  Future<void> _dismissToday() async {
+    // ✅ מניעת לחיצות כפולות
+    if (_isProcessing) return;
+
+    setState(() => _isProcessing = true);
+
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_kLastDismissedKey, DateTime.now().toIso8601String());
+      await prefs.setString(
+        _kLastDismissedKey,
+        DateTime.now().toIso8601String(),
+      );
     } catch (e) {
       // ignore
     }
-    if (context.mounted) {
-      Navigator.of(context).pop(LowStockAlertResult.dismissToday);
-    }
+
+    if (!mounted) return;
+
+    Navigator.of(context).pop(LowStockAlertResult.dismissToday);
+  }
+
+  /// ✅ הוספה לרשימת קניות
+  void _addToList() {
+    if (_isProcessing) return;
+    unawaited(HapticFeedback.mediumImpact());
+    Navigator.of(context).pop(LowStockAlertResult.addToList);
+  }
+
+  /// ✅ מעבר למזווה
+  void _goToPantry() {
+    if (_isProcessing) return;
+    unawaited(HapticFeedback.selectionClick());
+    Navigator.of(context).pop(LowStockAlertResult.goToPantry);
   }
 
   @override
@@ -125,14 +169,20 @@ class _LowStockAlertDialog extends StatelessWidget {
     final scheme = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
     final isDark = theme.brightness == Brightness.dark;
-    final itemCount = lowStockItems.length;
+    final itemCount = widget.lowStockItems.length;
 
     // ✅ צבעים מה-Theme במקום Colors קשיחים + Dark Mode
     final warningContainerColor = brand?.warningContainer ?? scheme.tertiaryContainer;
+    final onWarningContainerColor = brand?.onWarningContainer ?? scheme.onTertiaryContainer;
     final stickyColor = isDark ? kStickyOrangeDark : kStickyOrange;
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
+    // ✅ Semantics wrapper לנגישות - מחרוזות מ-AppStrings
+    final dialogLabel = AppStrings.inventory.lowStockAlertSemanticLabel(itemCount);
+
+    // ✅ הסרת Directionality - נתן ל-Locale של האפליקציה לקבוע
+    return Semantics(
+      label: dialogLabel,
+      container: true,
       child: Dialog(
         backgroundColor: Colors.transparent,
         child: ConstrainedBox(
@@ -166,9 +216,10 @@ class _LowStockAlertDialog extends StatelessWidget {
                           children: [
                             Text(
                               AppStrings.inventory.lowStockAlertTitle,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: kFontSizeLarge,
                                 fontWeight: FontWeight.bold,
+                                color: onWarningContainerColor,
                               ),
                             ),
                             Text(
@@ -181,12 +232,14 @@ class _LowStockAlertDialog extends StatelessWidget {
                           ],
                         ),
                       ),
-                      // כפתור סגירה
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () =>
-                            Navigator.of(context).pop(LowStockAlertResult.dismiss),
-                        visualDensity: VisualDensity.compact,
+                      // ✅ כפתור סגירה - סגירה רגילה (לא "אל תציג שוב היום")
+                      Tooltip(
+                        message: AppStrings.inventory.lowStockAlertCloseTooltip,
+                        child: IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: _isProcessing ? null : _dismiss,
+                          visualDensity: VisualDensity.compact,
+                        ),
                       ),
                     ],
                   ),
@@ -197,16 +250,19 @@ class _LowStockAlertDialog extends StatelessWidget {
                   Container(
                     constraints: const BoxConstraints(maxHeight: 200),
                     decoration: BoxDecoration(
-                      color: scheme.surface.withValues(alpha: 0.5),
+                      color: scheme.surface.withValues(alpha: 0.7),
                       borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                     ),
                     child: ListView.separated(
                       shrinkWrap: true,
                       padding: const EdgeInsets.all(kSpacingSmall),
-                      itemCount: lowStockItems.length > 5 ? 5 : lowStockItems.length,
-                      separatorBuilder: (context, index) => const Divider(height: 1),
+                      itemCount: widget.lowStockItems.length > 5
+                          ? 5
+                          : widget.lowStockItems.length,
+                      separatorBuilder: (context, index) =>
+                          const Divider(height: 1),
                       itemBuilder: (context, index) {
-                        final item = lowStockItems[index];
+                        final item = widget.lowStockItems[index];
                         return _LowStockItemTile(
                           item: item,
                           scheme: scheme,
@@ -216,20 +272,22 @@ class _LowStockAlertDialog extends StatelessWidget {
                     ),
                   ),
 
-                  // הודעה אם יש יותר מ-5 פריטים
-                  if (lowStockItems.length > 5)
+                  // ✅ "הצג עוד X מוצרים" כפתור לחיץ
+                  if (widget.lowStockItems.length > 5)
                     Padding(
                       padding: const EdgeInsets.only(top: kSpacingSmall),
-                      child: Text(
-                        AppStrings.inventory.lowStockAlertMoreItems(
-                          lowStockItems.length - 5,
+                      child: TextButton(
+                        onPressed: _goToPantry,
+                        child: Text(
+                          AppStrings.inventory.lowStockAlertMoreItems(
+                            widget.lowStockItems.length - 5,
+                          ),
+                          style: TextStyle(
+                            fontSize: kFontSizeSmall,
+                            color: brand?.warning ?? scheme.tertiary,
+                            fontStyle: FontStyle.italic,
+                          ),
                         ),
-                        style: TextStyle(
-                          fontSize: kFontSizeSmall,
-                          color: scheme.onSurfaceVariant,
-                          fontStyle: FontStyle.italic,
-                        ),
-                        textAlign: TextAlign.center,
                       ),
                     ),
 
@@ -241,16 +299,16 @@ class _LowStockAlertDialog extends StatelessWidget {
                       // הוסף לרשימה
                       Expanded(
                         flex: 2,
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            unawaited(HapticFeedback.mediumImpact());
-                            Navigator.of(context).pop(LowStockAlertResult.addToList);
-                          },
-                          icon: const Icon(Icons.add_shopping_cart),
-                          label: Text(AppStrings.inventory.lowStockAlertAddToList),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: scheme.primary,
-                            foregroundColor: scheme.onPrimary,
+                        child: Tooltip(
+                          message: AppStrings.inventory.lowStockAlertAddToListTooltip,
+                          child: ElevatedButton.icon(
+                            onPressed: _isProcessing ? null : _addToList,
+                            icon: const Icon(Icons.add_shopping_cart),
+                            label: Text(AppStrings.inventory.lowStockAlertAddToList),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: scheme.primary,
+                              foregroundColor: scheme.onPrimary,
+                            ),
                           ),
                         ),
                       ),
@@ -259,12 +317,12 @@ class _LowStockAlertDialog extends StatelessWidget {
 
                       // עבור למזווה
                       Expanded(
-                        child: OutlinedButton(
-                          onPressed: () {
-                            unawaited(HapticFeedback.selectionClick());
-                            Navigator.of(context).pop(LowStockAlertResult.goToPantry);
-                          },
-                          child: Text(AppStrings.inventory.lowStockAlertGoToPantry),
+                        child: Tooltip(
+                          message: AppStrings.inventory.lowStockAlertGoToPantryTooltip,
+                          child: OutlinedButton(
+                            onPressed: _isProcessing ? null : _goToPantry,
+                            child: Text(AppStrings.inventory.lowStockAlertGoToPantry),
+                          ),
                         ),
                       ),
                     ],
@@ -273,13 +331,16 @@ class _LowStockAlertDialog extends StatelessWidget {
                   const SizedBox(height: kSpacingSmall),
 
                   // אל תציג שוב היום
-                  TextButton(
-                    onPressed: () => _dismissToday(context),
-                    child: Text(
-                      AppStrings.inventory.lowStockAlertDismissToday,
-                      style: TextStyle(
-                        color: scheme.onSurfaceVariant,
-                        fontSize: kFontSizeSmall,
+                  Tooltip(
+                    message: AppStrings.inventory.lowStockAlertDismissTodayTooltip,
+                    child: TextButton(
+                      onPressed: _isProcessing ? null : _dismissToday,
+                      child: Text(
+                        AppStrings.inventory.lowStockAlertDismissToday,
+                        style: TextStyle(
+                          color: scheme.onSurfaceVariant,
+                          fontSize: kFontSizeSmall,
+                        ),
                       ),
                     ),
                   ),
@@ -307,8 +368,10 @@ class _LowStockItemTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ צבעים מה-Theme
+    // ✅ צבעים מה-Theme - warningContainer במקום errorContainer
     final warningColor = brand?.warning ?? scheme.tertiary;
+    final warningContainerColor = brand?.warningContainer ?? scheme.tertiaryContainer;
+    final onWarningContainerColor = brand?.onWarningContainer ?? scheme.onTertiaryContainer;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: kSpacingTiny),
@@ -335,20 +398,20 @@ class _LowStockItemTile extends StatelessWidget {
             ),
           ),
 
-          // כמות
+          // ✅ כמות - משתמש ב-warningContainer (לא errorContainer)
           Container(
             padding: const EdgeInsets.symmetric(
               horizontal: kSpacingSmall,
               vertical: kSpacingXTiny,
             ),
             decoration: BoxDecoration(
-              color: scheme.errorContainer,
+              color: warningContainerColor,
               borderRadius: BorderRadius.circular(kBorderRadiusSmall),
             ),
             child: Text(
               '${item.quantity} ${item.unit}',
               style: TextStyle(
-                color: scheme.onErrorContainer,
+                color: onWarningContainerColor,
                 fontWeight: FontWeight.bold,
                 fontSize: kFontSizeSmall,
               ),

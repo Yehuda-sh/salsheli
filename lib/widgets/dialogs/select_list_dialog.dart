@@ -9,11 +9,17 @@
 //
 // ✅ תיקונים:
 //    - המרה ל-StatefulWidget עם _isProcessing flag
-//    - תמיכה ב-Dark Mode (kStickyYellowDark)
+//    - תמיכה ב-Dark Mode (brand?.stickyYellow)
 //    - הוספת Semantics wrapper לדיאלוג ולפריטים
 //    - הוספת Tooltips לכפתורים
 //    - הוספת unawaited() לקריאות HapticFeedback
 //    - החלפת Colors.* בצבעים מה-Theme
+//    - הוספת barrierDismissible: false
+//    - הסרת Directionality wrapper - נתן ל-Locale לקבוע
+//    - מחרוזות קשיחות הועברו ל-AppStrings
+//    - כפתור X לסגירה רגילה
+//    - חץ RTL/LTR aware
+//    - Card shape תואם ל-ripple borderRadius
 //
 // 🔗 Related:
 // - shopping_lists_provider.dart - ניהול רשימות
@@ -26,6 +32,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
 import '../../models/shopping_list.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../theme/app_theme.dart';
@@ -73,14 +80,16 @@ class SelectListResult {
 /// ```
 Future<SelectListResult?> showSelectListDialog({
   required BuildContext context,
-  String title = 'בחר רשימה',
+  String? title,
   String? itemName,
   String? subtitle,
 }) async {
   return showDialog<SelectListResult>(
     context: context,
+    // ✅ מניעת סגירה בלחיצה מחוץ לדיאלוג
+    barrierDismissible: false,
     builder: (context) => _SelectListDialog(
-      title: title,
+      title: title ?? AppStrings.selectList.defaultTitle,
       itemName: itemName,
       subtitle: subtitle,
     ),
@@ -121,7 +130,7 @@ class _SelectListDialogState extends State<_SelectListDialog> {
     Navigator.of(context).pop(SelectListResult.newList());
   }
 
-  /// ביטול
+  /// ✅ ביטול / סגירה רגילה
   void _cancel() {
     if (_isProcessing) return;
     unawaited(HapticFeedback.lightImpact());
@@ -133,177 +142,183 @@ class _SelectListDialogState extends State<_SelectListDialog> {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
-    final isDark = theme.brightness == Brightness.dark;
 
-    // ✅ צבעים מה-Theme + Dark Mode
-    final stickyColor = isDark ? kStickyYellowDark : kStickyYellow;
+    // ✅ צבעים מה-Theme - Theme-aware sticky color
+    final stickyColor = brand?.stickyYellow ?? kStickyYellow;
     final successColor = brand?.success ?? scheme.primary;
 
-    // ✅ Semantics label
+    // ✅ Semantics label מ-AppStrings
     final dialogLabel = widget.itemName != null
-        ? 'בחירת רשימה להוספת ${widget.itemName}'
-        : 'בחירת רשימה';
+        ? AppStrings.selectList.semanticLabelWithItem(widget.itemName!)
+        : AppStrings.selectList.semanticLabel;
 
     return Consumer<ShoppingListsProvider>(
       builder: (context, listsProvider, _) {
         final activeLists = listsProvider.activeLists;
 
-        return Directionality(
-          textDirection: TextDirection.rtl,
-          child: Semantics(
-            label: dialogLabel,
-            container: true,
-            child: Dialog(
-              backgroundColor: Colors.transparent,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 400, maxHeight: 500),
-                child: StickyNote(
-                  color: stickyColor,
-                  child: Padding(
-                    padding: const EdgeInsets.all(kSpacingMedium),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // === כותרת ===
-                        Row(
-                          children: [
-                            Icon(Icons.playlist_add, color: scheme.primary),
-                            const SizedBox(width: kSpacingSmall),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
+        // ✅ הסרת Directionality - נתן ל-Locale של האפליקציה לקבוע
+        return Semantics(
+          label: dialogLabel,
+          container: true,
+          child: Dialog(
+            backgroundColor: Colors.transparent,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 400, maxHeight: 500),
+              child: StickyNote(
+                color: stickyColor,
+                child: Padding(
+                  padding: const EdgeInsets.all(kSpacingMedium),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // === כותרת ===
+                      Row(
+                        children: [
+                          Icon(Icons.playlist_add, color: scheme.primary),
+                          const SizedBox(width: kSpacingSmall),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  widget.title,
+                                  style: TextStyle(
+                                    fontSize: kFontSizeLarge,
+                                    fontWeight: FontWeight.bold,
+                                    color: scheme.onSurface,
+                                  ),
+                                ),
+                                if (widget.itemName != null)
                                   Text(
-                                    widget.title,
+                                    AppStrings.selectList.addingItem(widget.itemName!),
                                     style: TextStyle(
-                                      fontSize: kFontSizeLarge,
-                                      fontWeight: FontWeight.bold,
-                                      color: scheme.onSurface,
+                                      fontSize: kFontSizeSmall,
+                                      color: scheme.onSurfaceVariant,
                                     ),
                                   ),
-                                  if (widget.itemName != null)
-                                    Text(
-                                      'מוסיף: ${widget.itemName}',
-                                      style: TextStyle(
-                                        fontSize: kFontSizeSmall,
-                                        color: scheme.onSurfaceVariant,
-                                      ),
-                                    ),
-                                ],
-                              ),
+                              ],
                             ),
-                          ],
-                        ),
-
-                        if (widget.subtitle != null) ...[
-                          const SizedBox(height: kSpacingSmall),
-                          Text(
-                            widget.subtitle!,
-                            style: TextStyle(
-                              fontSize: kFontSizeSmall,
-                              color: scheme.onSurfaceVariant,
+                          ),
+                          // ✅ כפתור X לסגירה רגילה
+                          Tooltip(
+                            message: AppStrings.selectList.closeTooltip,
+                            child: IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: _isProcessing ? null : _cancel,
+                              visualDensity: VisualDensity.compact,
                             ),
                           ),
                         ],
+                      ),
 
-                        const SizedBox(height: kSpacingMedium),
-                        const Divider(),
-
-                        // === רשימת רשימות פעילות ===
-                        if (listsProvider.isLoading)
-                          Padding(
-                            padding: const EdgeInsets.all(kSpacingLarge),
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                color: scheme.primary,
-                              ),
-                            ),
-                          )
-                        else if (activeLists.isEmpty)
-                          // אין רשימות - הצג הודעה
-                          Padding(
-                            padding: const EdgeInsets.all(kSpacingMedium),
-                            child: Column(
-                              children: [
-                                Icon(
-                                  Icons.list_alt,
-                                  size: 48,
-                                  color: scheme.onSurfaceVariant,
-                                ),
-                                const SizedBox(height: kSpacingSmall),
-                                Text(
-                                  'אין רשימות פעילות',
-                                  style: TextStyle(
-                                    color: scheme.onSurfaceVariant,
-                                  ),
-                                ),
-                                const SizedBox(height: kSpacingSmall),
-                                Text(
-                                  'צור רשימה חדשה כדי להוסיף פריטים',
-                                  style: TextStyle(
-                                    fontSize: kFontSizeSmall,
-                                    color: scheme.onSurfaceVariant,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
-                          )
-                        else
-                          // רשימת רשימות
-                          Flexible(
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: activeLists.length,
-                              itemBuilder: (context, index) {
-                                final list = activeLists[index];
-                                return _ListTile(
-                                  list: list,
-                                  onTap: _isProcessing
-                                      ? null
-                                      : () => _selectList(list),
-                                  successColor: successColor,
-                                );
-                              },
-                            ),
-                          ),
-
-                        const Divider(),
+                      if (widget.subtitle != null) ...[
                         const SizedBox(height: kSpacingSmall),
-
-                        // === כפתור יצירת רשימה חדשה ===
-                        Tooltip(
-                          message: 'צור רשימת קניות חדשה',
-                          child: OutlinedButton.icon(
-                            onPressed: _isProcessing ? null : _createNewList,
-                            icon: const Icon(Icons.add),
-                            label: const Text('צור רשימה חדשה'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: scheme.primary,
-                              side: BorderSide(color: scheme.primary),
-                              padding: const EdgeInsets.symmetric(
-                                vertical: kSpacingSmall,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: kSpacingSmall),
-
-                        // === כפתור ביטול ===
-                        Tooltip(
-                          message: 'ביטול בחירת רשימה',
-                          child: TextButton(
-                            onPressed: _isProcessing ? null : _cancel,
-                            child: Text(
-                              'ביטול',
-                              style: TextStyle(color: scheme.onSurfaceVariant),
-                            ),
+                        Text(
+                          widget.subtitle!,
+                          style: TextStyle(
+                            fontSize: kFontSizeSmall,
+                            color: scheme.onSurfaceVariant,
                           ),
                         ),
                       ],
-                    ),
+
+                      const SizedBox(height: kSpacingMedium),
+                      const Divider(),
+
+                      // === רשימת רשימות פעילות ===
+                      if (listsProvider.isLoading)
+                        Padding(
+                          padding: const EdgeInsets.all(kSpacingLarge),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: scheme.primary,
+                            ),
+                          ),
+                        )
+                      else if (activeLists.isEmpty)
+                        // אין רשימות - הצג הודעה
+                        Padding(
+                          padding: const EdgeInsets.all(kSpacingMedium),
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.list_alt,
+                                size: 48,
+                                color: scheme.onSurfaceVariant,
+                              ),
+                              const SizedBox(height: kSpacingSmall),
+                              Text(
+                                AppStrings.selectList.noActiveLists,
+                                style: TextStyle(
+                                  color: scheme.onSurfaceVariant,
+                                ),
+                              ),
+                              const SizedBox(height: kSpacingSmall),
+                              Text(
+                                AppStrings.selectList.createNewToAddItems,
+                                style: TextStyle(
+                                  fontSize: kFontSizeSmall,
+                                  color: scheme.onSurfaceVariant,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        // רשימת רשימות
+                        Flexible(
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: activeLists.length,
+                            itemBuilder: (context, index) {
+                              final list = activeLists[index];
+                              return _ListTile(
+                                list: list,
+                                onTap: _isProcessing
+                                    ? null
+                                    : () => _selectList(list),
+                                successColor: successColor,
+                              );
+                            },
+                          ),
+                        ),
+
+                      const Divider(),
+                      const SizedBox(height: kSpacingSmall),
+
+                      // === כפתור יצירת רשימה חדשה ===
+                      Tooltip(
+                        message: AppStrings.selectList.createNewTooltip,
+                        child: OutlinedButton.icon(
+                          onPressed: _isProcessing ? null : _createNewList,
+                          icon: const Icon(Icons.add),
+                          label: Text(AppStrings.selectList.createNewButton),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: scheme.primary,
+                            side: BorderSide(color: scheme.primary),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: kSpacingSmall,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: kSpacingSmall),
+
+                      // === כפתור ביטול ===
+                      Tooltip(
+                        message: AppStrings.selectList.cancelTooltip,
+                        child: TextButton(
+                          onPressed: _isProcessing ? null : _cancel,
+                          child: Text(
+                            AppStrings.selectList.cancelButton,
+                            style: TextStyle(color: scheme.onSurfaceVariant),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -318,6 +333,7 @@ class _SelectListDialogState extends State<_SelectListDialog> {
 /// כרטיס רשימה בחירה
 ///
 /// ✅ תמיכה ב-onTap nullable + Semantics + צבעים מה-Theme
+/// ✅ RTL-aware chevron + Card shape תואם ripple
 class _ListTile extends StatelessWidget {
   final ShoppingList list;
   final VoidCallback? onTap;
@@ -336,13 +352,25 @@ class _ListTile extends StatelessWidget {
     final checkedCount = list.items.where((i) => i.isChecked).length;
     final isEnabled = onTap != null;
 
+    // ✅ RTL-aware chevron icon
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+    final chevronIcon = isRtl ? Icons.chevron_left : Icons.chevron_right;
+
     return Semantics(
       button: true,
       enabled: isEnabled,
-      label: '${list.name}, $itemCount פריטים${checkedCount > 0 ? ', $checkedCount סומנו' : ''}',
+      label: AppStrings.selectList.listTileSemanticLabel(
+        list.name,
+        itemCount,
+        checkedCount,
+      ),
       child: Card(
         margin: const EdgeInsets.symmetric(vertical: kSpacingTiny),
         color: list.stickyColor.withValues(alpha: isEnabled ? 0.3 : 0.15),
+        // ✅ Match Card shape to ripple borderRadius
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(kBorderRadius),
+        ),
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(kBorderRadius),
@@ -383,7 +411,7 @@ class _ListTile extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            '$itemCount פריטים',
+                            AppStrings.selectList.itemsCount(itemCount),
                             style: TextStyle(
                               fontSize: kFontSizeSmall,
                               color: scheme.onSurfaceVariant,
@@ -410,9 +438,9 @@ class _ListTile extends StatelessWidget {
                   ),
                 ),
 
-                // חץ
+                // ✅ RTL-aware chevron
                 Icon(
-                  Icons.chevron_left,
+                  chevronIcon,
                   color: isEnabled
                       ? scheme.onSurfaceVariant
                       : scheme.onSurfaceVariant.withValues(alpha: 0.5),

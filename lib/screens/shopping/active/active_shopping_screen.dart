@@ -118,6 +118,26 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
 
       debugPrint('🔄 _initializeScreen: מתחיל טעינה');
 
+      // 🔐 בדיקת הרשאות - צופה לא יכול להשתתף בקנייה!
+      final userId = _userContext.userId;
+      if (userId != null) {
+        final userRole = widget.list.getUserRole(userId);
+        if (userRole != null && !userRole.canShop) {
+          debugPrint('🚫 _initializeScreen: צופה לא יכול להשתתף בקנייה');
+          if (mounted) {
+            // הצג הודעה וחזור למסך הקודם
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(AppStrings.shopping.viewerCannotShop),
+                backgroundColor: Colors.orange,
+              ),
+            );
+            Navigator.of(context).pop();
+          }
+          return;
+        }
+      }
+
       // 🔧 ניקוי מפה קודמת למניעת "זבל" מפריטים ישנים
       _itemStatuses.clear();
 

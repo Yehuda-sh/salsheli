@@ -56,7 +56,9 @@ import 'package:memozap/widgets/common/sticky_note.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../services/auth_service.dart';
 import '../../services/tutorial_service.dart';
+import '../../widgets/dialogs/legal_content_dialog.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -213,6 +215,142 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _loading = true;
     });
     _loadSettings();
+  }
+
+  /// 🗑️ דיאלוג מחיקת חשבון (GDPR)
+  Future<void> _showDeleteAccountDialog() async {
+    final confirmController = TextEditingController();
+    bool isDeleting = false;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final isConfirmValid = confirmController.text == AppStrings.settings.deleteAccountConfirmText;
+
+          return AlertDialog(
+            title: Row(
+              children: [
+                const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 28),
+                const SizedBox(width: kSpacingSmall),
+                Text(
+                  AppStrings.settings.deleteAccountTitle,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(kSpacingMedium),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(kBorderRadius),
+                      border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+                    ),
+                    child: Text(
+                      AppStrings.settings.deleteAccountWarning,
+                      style: TextStyle(color: Colors.red[900]),
+                    ),
+                  ),
+                  const SizedBox(height: kSpacingMedium),
+                  Text(
+                    AppStrings.settings.deleteAccountConfirmLabel,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: kSpacingSmall),
+                  TextField(
+                    controller: confirmController,
+                    decoration: InputDecoration(
+                      hintText: AppStrings.settings.deleteAccountConfirmText,
+                      border: const OutlineInputBorder(),
+                    ),
+                    textAlign: TextAlign.center,
+                    textDirection: TextDirection.rtl,
+                    onChanged: (_) => setDialogState(() {}),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: isDeleting ? null : () => Navigator.pop(context, false),
+                child: Text(AppStrings.settings.logoutCancel),
+              ),
+              FilledButton(
+                onPressed: isDeleting || !isConfirmValid
+                    ? null
+                    : () async {
+                        setDialogState(() => isDeleting = true);
+
+                        try {
+                          final authService = AuthService();
+                          await authService.deleteAccount();
+
+                          if (!mounted) return;
+                          Navigator.pop(context, true);
+                        } on AuthException catch (e) {
+                          setDialogState(() => isDeleting = false);
+
+                          if (e.code == AuthErrorCode.requiresRecentLogin) {
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(AppStrings.settings.deleteAccountRequiresReauth),
+                                backgroundColor: Colors.orange,
+                              ),
+                            );
+                          } else {
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(AppStrings.settings.deleteAccountError(e.message)),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          setDialogState(() => isDeleting = false);
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(AppStrings.settings.deleteAccountError(e.toString())),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      },
+                style: FilledButton.styleFrom(backgroundColor: Colors.red),
+                child: isDeleting
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
+                    : Text(AppStrings.settings.deleteAccountButton),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppStrings.settings.deleteAccountSuccess),
+          backgroundColor: Colors.green,
+        ),
+      );
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (mounted) {
+        unawaited(Navigator.pushNamedAndRemoveUntil(context, '/login', (r) => false));
+      }
+    }
   }
 
   /// רשימת אווטארים לבחירה
@@ -764,24 +902,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         leading: Icon(Icons.description_outlined, color: cs.primary),
                         title: const Text('תנאי שימוש'),
                         trailing: const Icon(Icons.chevron_left),
-                        onTap: () {
-                          // TODO: Navigate to terms
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('תנאי שימוש - בקרוב')),
-                          );
-                        },
+                        onTap: () => showTermsOfServiceDialog(context),
                       ),
                       const Divider(height: 1),
                       ListTile(
                         leading: Icon(Icons.privacy_tip_outlined, color: cs.primary),
                         title: const Text('מדיניות פרטיות'),
                         trailing: const Icon(Icons.chevron_left),
-                        onTap: () {
-                          // TODO: Navigate to privacy policy
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('מדיניות פרטיות - בקרוב')),
-                          );
-                        },
+                        onTap: () => showPrivacyPolicyDialog(context),
                       ),
                     ],
                   ),
@@ -798,6 +926,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     title: Text(AppStrings.settings.logoutTitle, style: const TextStyle(color: Colors.red)),
                     subtitle: Text(AppStrings.settings.logoutSubtitle),
                     onTap: _logout,
+                  ),
+                ),
+
+                const SizedBox(height: kSpacingMedium),
+
+                // 🔹 מחיקת חשבון (GDPR)
+                Card(
+                  elevation: 1,
+                  color: Colors.red.shade50,
+                  child: ListTile(
+                    leading: const Icon(Icons.delete_forever, color: Colors.red),
+                    title: Text(
+                      AppStrings.settings.deleteAccountTitle,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                    subtitle: Text(
+                      AppStrings.settings.deleteAccountSubtitle,
+                      style: TextStyle(color: Colors.red.shade300),
+                    ),
+                    trailing: const Icon(Icons.chevron_left, color: Colors.red),
+                    onTap: _showDeleteAccountDialog,
                   ),
                 ),
 

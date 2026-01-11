@@ -50,6 +50,14 @@ abstract class GroupRepository {
     UserRole newRole,
   );
 
+  /// 🆕 העברת בעלות לחבר אחר
+  /// הבעלים הנוכחי הופך למנהל, החבר החדש הופך לבעלים
+  Future<void> transferOwnership(
+    String groupId,
+    String currentOwnerId,
+    String newOwnerId,
+  );
+
   // ============================================================
   // STREAMS (Real-time)
   // ============================================================

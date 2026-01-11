@@ -8,6 +8,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
+import '../core/constants.dart';
+import '../l10n/app_strings.dart';
 import '../models/enums/item_type.dart';
 import '../models/group.dart';
 import '../models/inventory_item.dart';
@@ -417,6 +419,14 @@ class InventoryProvider with ChangeNotifier {
     }
     if (!_isValidQuantity(quantity)) {
       throw ArgumentError('כמות חייבת להיות חיובית');
+    }
+
+    // 🚫 בדיקת הגבלת פריטים במזווה
+    if (_items.length >= kMaxItemsPerPantry) {
+      if (kDebugMode) {
+        debugPrint('❌ createItem: הגעת למקסימום $kMaxItemsPerPantry פריטים במזווה');
+      }
+      throw Exception(AppStrings.inventory.maxItemsReached(kMaxItemsPerPantry));
     }
 
     try {

@@ -336,6 +336,68 @@ class FirebaseGroupRepository implements GroupRepository {
     }
   }
 
+  /// 🆕 העברת בעלות לחבר אחר
+  ///
+  /// הבעלים הנוכחי הופך למנהל, החבר החדש הופך לבעלים.
+  /// רק הבעלים הנוכחי יכול להעביר בעלות.
+  ///
+  /// [groupId] - מזהה הקבוצה
+  /// [currentOwnerId] - מזהה הבעלים הנוכחי
+  /// [newOwnerId] - מזהה הבעלים החדש
+  @override
+  Future<void> transferOwnership(
+    String groupId,
+    String currentOwnerId,
+    String newOwnerId,
+  ) async {
+    try {
+      if (kDebugMode) {
+        debugPrint('👑 FirebaseGroupRepository.transferOwnership:');
+        debugPrint('   Group: $groupId');
+        debugPrint('   From: $currentOwnerId');
+        debugPrint('   To: $newOwnerId');
+      }
+
+      // בדיקה שהבעלים הנוכחי אכן בעלים
+      final groupDoc = await _collection.doc(groupId).get();
+      if (!groupDoc.exists) {
+        throw GroupRepositoryException('Group not found');
+      }
+
+      final groupData = groupDoc.data()!;
+      final members = groupData['members'] as Map<String, dynamic>? ?? {};
+
+      // בדיקה שהבעלים הנוכחי הוא אכן owner
+      final currentOwnerData = members[currentOwnerId] as Map<String, dynamic>?;
+      if (currentOwnerData == null || currentOwnerData['role'] != 'owner') {
+        throw GroupRepositoryException('Only the owner can transfer ownership');
+      }
+
+      // בדיקה שהחבר החדש קיים בקבוצה
+      final newOwnerData = members[newOwnerId] as Map<String, dynamic>?;
+      if (newOwnerData == null) {
+        throw GroupRepositoryException('New owner must be a member of the group');
+      }
+
+      // עדכון אטומי - הבעלים הישן הופך למנהל, החדש הופך לבעלים
+      await _collection.doc(groupId).update({
+        'members.$currentOwnerId.role': UserRole.admin.name,
+        'members.$newOwnerId.role': UserRole.owner.name,
+        'updated_at': FieldValue.serverTimestamp(),
+      });
+
+      if (kDebugMode) {
+        debugPrint('✅ Ownership transferred successfully');
+      }
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        debugPrint('❌ FirebaseGroupRepository.transferOwnership failed: $e');
+        debugPrintStack(stackTrace: stackTrace);
+      }
+      throw GroupRepositoryException('Failed to transfer ownership', e);
+    }
+  }
+
   // ============================================================
   // STREAMS (Real-time)
   // ============================================================

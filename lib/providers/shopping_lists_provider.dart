@@ -53,6 +53,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
+import '../core/constants.dart';
 import '../l10n/app_strings.dart';
 import '../services/analytics_service.dart';
 import '../models/active_shopper.dart';
@@ -82,6 +83,11 @@ class ShoppingListsProvider with ChangeNotifier {
   UserContext? _userContext;
   bool _listening = false;
   String? _currentHouseholdId; // 🆕 מעקב אחרי household_id נוכחי
+
+  // 🔄 Real-time updates
+  StreamSubscription<List<ShoppingList>>? _listsSubscription;
+  String? _watchedUserId; // מניעת restart מיותר של ה-Stream
+  bool _useRealTimeUpdates = true; // ניתן לכבות אם יש בעיות
 
   ShoppingListsProvider({
     required ShoppingListsRepository repository,
@@ -161,6 +167,7 @@ class ShoppingListsProvider with ChangeNotifier {
 
   void _onUserChanged() {
     final newHouseholdId = _userContext?.user?.householdId;
+    final userId = _userContext?.user?.id;
 
     // 🔍 בדוק אם המשתמש השתנה
     if (newHouseholdId != _currentHouseholdId) {
@@ -170,10 +177,63 @@ class ShoppingListsProvider with ChangeNotifier {
       _currentHouseholdId = newHouseholdId;
 
       // ✅ טען רשימות רק אם יש household_id חדש
-      if (_userContext?.isLoggedIn == true && newHouseholdId != null) {
-        loadLists();
+      if (_userContext?.isLoggedIn == true && newHouseholdId != null && userId != null) {
+        if (_useRealTimeUpdates) {
+          _startWatchingLists(userId, newHouseholdId);
+        } else {
+          loadLists();
+        }
       }
     }
+  }
+
+  /// 🔄 התחלת האזנה לשינויים בזמן אמת
+  void _startWatchingLists(String userId, String householdId) {
+    // אל תתחיל מחדש אם כבר מאזינים לאותו משתמש
+    if (_watchedUserId == userId && _listsSubscription != null) {
+      return;
+    }
+
+    if (kDebugMode) {
+      debugPrint('🔄 _startWatchingLists: מתחיל להאזין לרשימות של $userId');
+    }
+
+    // ביטול subscription קודם
+    _listsSubscription?.cancel();
+    _watchedUserId = userId;
+    _isLoading = true;
+    notifyListeners();
+
+    // התחלת האזנה
+    _listsSubscription = _repository.watchLists(userId, householdId).listen(
+      (fetchedLists) {
+        // 🔑 חישוב currentUserRole לכל רשימה
+        _lists = _enrichListsWithUserRole(fetchedLists);
+        _lastUpdated = DateTime.now();
+        _isLoading = false;
+        _errorMessage = null;
+        notifyListeners();
+
+        if (kDebugMode) {
+          debugPrint('📥 ShoppingListsProvider: קיבלנו ${_lists.length} רשימות בזמן אמת');
+        }
+      },
+      onError: (error) {
+        if (kDebugMode) {
+          debugPrint('❌ _startWatchingLists: שגיאה - $error');
+        }
+        _errorMessage = error.toString();
+        _isLoading = false;
+        notifyListeners();
+      },
+    );
+  }
+
+  /// 🛑 עצירת האזנה לשינויים
+  void _stopWatchingLists() {
+    _listsSubscription?.cancel();
+    _listsSubscription = null;
+    _watchedUserId = null;
   }
 
   void _initialize() {
@@ -554,6 +614,14 @@ class ShoppingListsProvider with ChangeNotifier {
       throw Exception('רשימה $listId לא נמצאה');
     }
 
+    // 🚫 בדיקת הגבלת פריטים
+    if (list.items.length >= kMaxItemsPerList) {
+      if (kDebugMode) {
+        debugPrint('❌ addItemToList: הגעת למקסימום $kMaxItemsPerList פריטים');
+      }
+      throw Exception(AppStrings.shopping.maxItemsReached(kMaxItemsPerList));
+    }
+
     // יצירת UnifiedListItem חדש (מוצר)
     final item = UnifiedListItem.product(
       id: _uuid.v4(),
@@ -611,6 +679,14 @@ class ShoppingListsProvider with ChangeNotifier {
         debugPrint('❌ addUnifiedItem: רשימה $listId לא נמצאה');
       }
       throw Exception('רשימה $listId לא נמצאה');
+    }
+
+    // 🚫 בדיקת הגבלת פריטים
+    if (list.items.length >= kMaxItemsPerList) {
+      if (kDebugMode) {
+        debugPrint('❌ addUnifiedItem: הגעת למקסימום $kMaxItemsPerList פריטים');
+      }
+      throw Exception(AppStrings.shopping.maxItemsReached(kMaxItemsPerList));
     }
 
     final updatedList = list.withItemAdded(item);
@@ -1120,7 +1196,8 @@ class ShoppingListsProvider with ChangeNotifier {
       await updateItemAt(listId, itemIndex, (item) {
         return item.copyWith(
           isChecked: true,
-          // TODO: checkedBy + checkedAt יתווספו ב-UnifiedListItem
+          checkedBy: userId,
+          checkedAt: DateTime.now().toIso8601String(),
         );
       });
 
@@ -1183,9 +1260,23 @@ class ShoppingListsProvider with ChangeNotifier {
       // במקרים אחרים, השאר את isChecked כמו שהוא (הסטטוס נשמר במקומי בלבד)
       final statusString = status.toString();
       final isChecked = statusString.contains('purchased');
+      final userId = _userContext?.user?.id;
 
       await updateItemAt(listId, itemIndex, (item) {
-        return item.copyWith(isChecked: isChecked);
+        // 🆕 שמור מי סימן ומתי (רק אם purchased)
+        if (isChecked && userId != null) {
+          return item.copyWith(
+            isChecked: true,
+            checkedBy: userId,
+            checkedAt: DateTime.now().toIso8601String(),
+          );
+        }
+        // אם לא purchased - נקה את הסימון
+        return item.copyWith(
+          isChecked: false,
+          checkedBy: null,
+          checkedAt: null,
+        );
       });
 
       if (kDebugMode) {
@@ -1359,6 +1450,7 @@ class ShoppingListsProvider with ChangeNotifier {
     if (kDebugMode) {
       debugPrint('🗑️ ShoppingListsProvider.dispose()');
     }
+    _stopWatchingLists(); // 🔄 ביטול subscription לרשימות
     if (_listening && _userContext != null) {
       _userContext!.removeListener(_onUserChanged);
     }

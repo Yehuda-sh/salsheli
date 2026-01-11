@@ -10,6 +10,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
+import '../core/constants.dart';
+import '../l10n/app_strings.dart';
 import '../models/enums/user_role.dart';
 import '../models/group.dart';
 import '../models/group_invite.dart';
@@ -229,6 +231,16 @@ class GroupsProvider with ChangeNotifier {
       return null;
     }
 
+    // 🚫 בדיקת הגבלת קבוצות למשתמש
+    if (_groups.length >= kMaxGroupsPerUser) {
+      if (kDebugMode) {
+        debugPrint('❌ createGroup: הגעת למקסימום $kMaxGroupsPerUser קבוצות');
+      }
+      _errorMessage = AppStrings.sharing.maxGroupsReached(kMaxGroupsPerUser);
+      notifyListeners();
+      return null;
+    }
+
     try {
       _isLoading = true;
       notifyListeners();
@@ -411,6 +423,17 @@ class GroupsProvider with ChangeNotifier {
     try {
       if (kDebugMode) {
         debugPrint('➕ GroupsProvider.addMember: $name to $groupId');
+      }
+
+      // 🚫 בדיקת הגבלת חברים בקבוצה
+      final group = getGroup(groupId);
+      if (group != null && group.members.length >= kMaxMembersPerGroup) {
+        if (kDebugMode) {
+          debugPrint('❌ addMember: הגעת למקסימום $kMaxMembersPerGroup חברים');
+        }
+        _errorMessage = AppStrings.sharing.maxMembersReached(kMaxMembersPerGroup);
+        notifyListeners();
+        return false;
       }
 
       final member = GroupMember.invited(

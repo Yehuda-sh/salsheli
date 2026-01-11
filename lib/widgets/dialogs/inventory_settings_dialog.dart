@@ -10,6 +10,11 @@
 //    - שורת switch קליקבילית במלואה (InkWell)
 //    - barrierDismissible: false למניעת סגירה בטעות
 //    - EdgeInsetsDirectional במקום EdgeInsets.only(right:)
+//    - הסרת Directionality wrapper - נתן ל-Locale לקבוע
+//    - Semantics label מ-AppStrings
+//    - צבע sticky מ-brand?.stickyYellow (Theme-aware)
+//    - מניעת double-toggle ב-Switch עם AbsorbPointer
+//    - SnackBar משתמש ב-errorContainer מה-Theme
 //
 // 🔗 Related: InventorySettings, InventoryProvider, StickyNote, AppBrand
 
@@ -173,10 +178,18 @@ class _InventorySettingsDialogState extends State<_InventorySettingsDialog> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _isSaving = false);
+      final cs = Theme.of(context).colorScheme;
+      // ✅ SnackBar עם errorContainer מה-Theme
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppStrings.common.saveFailed),
-          backgroundColor: Theme.of(context).colorScheme.error,
+          content: Row(
+            children: [
+              Icon(Icons.error_outline, color: cs.onErrorContainer),
+              const SizedBox(width: kSpacingSmall),
+              Expanded(child: Text(AppStrings.common.saveFailed)),
+            ],
+          ),
+          backgroundColor: cs.errorContainer,
         ),
       );
     }
@@ -213,266 +226,265 @@ class _InventorySettingsDialogState extends State<_InventorySettingsDialog> {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
-    final isDark = theme.brightness == Brightness.dark;
     final provider = widget.inventoryProvider;
 
-    // ✅ צבעים מ-Theme במקום Colors קשיחים + Dark Mode
+    // ✅ צבעים מ-Theme במקום Colors קשיחים
     final successColor = brand?.success ?? scheme.primary;
     final successContainerColor =
         brand?.successContainer ?? scheme.primaryContainer;
     final onSuccessContainerColor =
         brand?.onSuccessContainer ?? scheme.onPrimaryContainer;
-    final stickyColor = isDark ? kStickyYellowDark : kStickyYellow;
+    // ✅ צבע sticky מ-brand (Theme-aware, תומך Dark Mode אוטומטית)
+    final stickyColor = brand?.stickyYellow ?? kStickyYellow;
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Semantics(
-        label: 'הגדרות מזווה',
-        container: true,
-        child: Dialog(
-          backgroundColor: Colors.transparent,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 400, maxHeight: 500),
-            child: StickyNote(
-              color: stickyColor,
-              // ✅ SingleChildScrollView למניעת overflow
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(kSpacingLarge),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // === כותרת ===
-                    Row(
-                      children: [
-                        Icon(Icons.settings, color: scheme.primary),
-                        const SizedBox(width: kSpacingSmall),
-                        Text(
-                          AppStrings.inventory.settingsTitle,
-                          style: TextStyle(
-                            fontSize: kFontSizeLarge,
-                            fontWeight: FontWeight.bold,
-                            color: scheme.onSurface,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: kSpacingMedium),
-
-                    // === מצב מזווה (אם יש provider) ===
-                    if (provider != null) ...[
-                      Container(
-                        padding: const EdgeInsets.all(kSpacingSmall),
-                        decoration: BoxDecoration(
-                          color: provider.isGroupMode
-                              ? successContainerColor
-                              : scheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(
-                            kBorderRadiusSmall,
-                          ),
-                          border: Border.all(
-                            color: provider.isGroupMode
-                                ? successColor.withValues(alpha: 0.5)
-                                : scheme.primary.withValues(alpha: 0.5),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              provider.isGroupMode
-                                  ? Icons.family_restroom
-                                  : Icons.person,
-                              color: provider.isGroupMode
-                                  ? successColor
-                                  : scheme.primary,
-                            ),
-                            const SizedBox(width: kSpacingSmall),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    provider.inventoryTitle,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: provider.isGroupMode
-                                          ? onSuccessContainerColor
-                                          : scheme.onPrimaryContainer,
-                                    ),
-                                  ),
-                                  Text(
-                                    provider.isGroupMode
-                                        ? AppStrings.inventory.pantryModeGroup
-                                        : AppStrings
-                                              .inventory
-                                              .pantryModePersonal,
-                                    style: TextStyle(
-                                      fontSize: kFontSizeSmall,
-                                      color: scheme.onSurfaceVariant,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+    // ✅ הסרת Directionality - נתן ל-Locale של האפליקציה לקבוע
+    return Semantics(
+      // ✅ Semantics label מ-AppStrings
+      label: AppStrings.inventory.settingsSemanticLabel,
+      container: true,
+      child: Dialog(
+        backgroundColor: Colors.transparent,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 400, maxHeight: 500),
+          child: StickyNote(
+            color: stickyColor,
+            // ✅ SingleChildScrollView למניעת overflow
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(kSpacingLarge),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // === כותרת ===
+                  Row(
+                    children: [
+                      Icon(Icons.settings, color: scheme.primary),
+                      const SizedBox(width: kSpacingSmall),
+                      Text(
+                        AppStrings.inventory.settingsTitle,
+                        style: TextStyle(
+                          fontSize: kFontSizeLarge,
+                          fontWeight: FontWeight.bold,
+                          color: scheme.onSurface,
                         ),
                       ),
-                      const SizedBox(height: kSpacingMedium),
-                      const Divider(),
-                      const SizedBox(height: kSpacingSmall),
                     ],
+                  ),
 
-                    // === סעיף התראות ===
-                    Text(
-                      AppStrings.inventory.alertsSectionTitle,
-                      style: TextStyle(
-                        fontSize: kFontSizeMedium,
-                        fontWeight: FontWeight.bold,
-                        color: scheme.onSurface,
-                      ),
-                    ),
-                    const SizedBox(height: kSpacingSmall),
+                  const SizedBox(height: kSpacingMedium),
 
-                    // התראת מלאי נמוך
-                    _SettingSwitch(
-                      icon: Icons.inventory_2,
-                      iconColor: brand?.warning ?? scheme.tertiary,
-                      title: AppStrings.inventory.settingsLowStockAlertTitle,
-                      subtitle:
-                          AppStrings.inventory.settingsLowStockAlertSubtitle,
-                      value: _settings.lowStockAlert,
-                      onChanged: (value) {
-                        _updateSetting(
-                          (s) => s.copyWith(lowStockAlert: value),
-                        );
-                      },
-                    ),
-
-                    // התראת תפוגה
-                    _SettingSwitch(
-                      icon: Icons.event_busy,
-                      iconColor: scheme.error,
-                      title: AppStrings.inventory.settingsExpiryAlertTitle,
-                      subtitle:
-                          AppStrings.inventory.settingsExpiryAlertSubtitle,
-                      value: _settings.expiryAlert,
-                      onChanged: (value) {
-                        _updateSetting(
-                          (s) => s.copyWith(expiryAlert: value),
-                        );
-                      },
-                    ),
-
-                    // ימים לפני תפוגה
-                    if (_settings.expiryAlert)
-                      Padding(
-                        // ✅ EdgeInsetsDirectional במקום EdgeInsets.only(right:)
-                        padding: const EdgeInsetsDirectional.only(
-                          start: 40,
-                          top: kSpacingSmall,
+                  // === מצב מזווה (אם יש provider) ===
+                  if (provider != null) ...[
+                    Container(
+                      padding: const EdgeInsets.all(kSpacingSmall),
+                      decoration: BoxDecoration(
+                        color: provider.isGroupMode
+                            ? successContainerColor
+                            : scheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(
+                          kBorderRadiusSmall,
                         ),
-                        child: Row(
-                          children: [
-                            Text(
-                              AppStrings
-                                  .inventory
-                                  .settingsExpiryAlertDaysPrefix,
-                              style: TextStyle(color: scheme.onSurface),
-                            ),
-                            DropdownButton<int>(
-                              value: _settings.expiryAlertDays,
-                              underline: Container(
-                                height: 1,
-                                color: scheme.primary,
-                              ),
-                              items: [3, 5, 7, 14, 30].map((days) {
-                                return DropdownMenuItem(
-                                  value: days,
-                                  child: Text('$days'),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                if (value != null) {
-                                  _updateSetting(
-                                    (s) => s.copyWith(expiryAlertDays: value),
-                                  );
-                                }
-                              },
-                            ),
-                            Text(
-                              AppStrings
-                                  .inventory
-                                  .settingsExpiryAlertDaysSuffix,
-                              style: TextStyle(color: scheme.onSurface),
-                            ),
-                          ],
+                        border: Border.all(
+                          color: provider.isGroupMode
+                              ? successColor.withValues(alpha: 0.5)
+                              : scheme.primary.withValues(alpha: 0.5),
                         ),
                       ),
-
+                      child: Row(
+                        children: [
+                          Icon(
+                            provider.isGroupMode
+                                ? Icons.family_restroom
+                                : Icons.person,
+                            color: provider.isGroupMode
+                                ? successColor
+                                : scheme.primary,
+                          ),
+                          const SizedBox(width: kSpacingSmall),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  provider.inventoryTitle,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: provider.isGroupMode
+                                        ? onSuccessContainerColor
+                                        : scheme.onPrimaryContainer,
+                                  ),
+                                ),
+                                Text(
+                                  provider.isGroupMode
+                                      ? AppStrings.inventory.pantryModeGroup
+                                      : AppStrings
+                                            .inventory
+                                            .pantryModePersonal,
+                                  style: TextStyle(
+                                    fontSize: kFontSizeSmall,
+                                    color: scheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                     const SizedBox(height: kSpacingMedium),
                     const Divider(),
                     const SizedBox(height: kSpacingSmall),
+                  ],
 
-                    // === סעיף תצוגה ===
-                    Text(
-                      AppStrings.inventory.displaySectionTitle,
-                      style: TextStyle(
-                        fontSize: kFontSizeMedium,
-                        fontWeight: FontWeight.bold,
-                        color: scheme.onSurface,
+                  // === סעיף התראות ===
+                  Text(
+                    AppStrings.inventory.alertsSectionTitle,
+                    style: TextStyle(
+                      fontSize: kFontSizeMedium,
+                      fontWeight: FontWeight.bold,
+                      color: scheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: kSpacingSmall),
+
+                  // התראת מלאי נמוך
+                  _SettingSwitch(
+                    icon: Icons.inventory_2,
+                    iconColor: brand?.warning ?? scheme.tertiary,
+                    title: AppStrings.inventory.settingsLowStockAlertTitle,
+                    subtitle:
+                        AppStrings.inventory.settingsLowStockAlertSubtitle,
+                    value: _settings.lowStockAlert,
+                    onChanged: (value) {
+                      _updateSetting(
+                        (s) => s.copyWith(lowStockAlert: value),
+                      );
+                    },
+                  ),
+
+                  // התראת תפוגה
+                  _SettingSwitch(
+                    icon: Icons.event_busy,
+                    iconColor: scheme.error,
+                    title: AppStrings.inventory.settingsExpiryAlertTitle,
+                    subtitle:
+                        AppStrings.inventory.settingsExpiryAlertSubtitle,
+                    value: _settings.expiryAlert,
+                    onChanged: (value) {
+                      _updateSetting(
+                        (s) => s.copyWith(expiryAlert: value),
+                      );
+                    },
+                  ),
+
+                  // ימים לפני תפוגה
+                  if (_settings.expiryAlert)
+                    Padding(
+                      // ✅ EdgeInsetsDirectional במקום EdgeInsets.only(right:)
+                      padding: const EdgeInsetsDirectional.only(
+                        start: 40,
+                        top: kSpacingSmall,
+                      ),
+                      child: Row(
+                        children: [
+                          Text(
+                            AppStrings
+                                .inventory
+                                .settingsExpiryAlertDaysPrefix,
+                            style: TextStyle(color: scheme.onSurface),
+                          ),
+                          DropdownButton<int>(
+                            value: _settings.expiryAlertDays,
+                            underline: Container(
+                              height: 1,
+                              color: scheme.primary,
+                            ),
+                            items: [3, 5, 7, 14, 30].map((days) {
+                              return DropdownMenuItem(
+                                value: days,
+                                child: Text('$days'),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              if (value != null) {
+                                _updateSetting(
+                                  (s) => s.copyWith(expiryAlertDays: value),
+                                );
+                              }
+                            },
+                          ),
+                          Text(
+                            AppStrings
+                                .inventory
+                                .settingsExpiryAlertDaysSuffix,
+                            style: TextStyle(color: scheme.onSurface),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: kSpacingSmall),
 
-                    // הצג פגי תוקף ראשונים
-                    _SettingSwitch(
-                      icon: Icons.sort,
-                      iconColor: scheme.secondary,
-                      title: AppStrings.inventory.showExpiredFirstTitle,
-                      subtitle: AppStrings.inventory.showExpiredFirstSubtitle,
-                      value: _settings.showExpiredFirst,
-                      onChanged: (value) {
-                        _updateSetting(
-                          (s) => s.copyWith(showExpiredFirst: value),
-                        );
-                      },
+                  const SizedBox(height: kSpacingMedium),
+                  const Divider(),
+                  const SizedBox(height: kSpacingSmall),
+
+                  // === סעיף תצוגה ===
+                  Text(
+                    AppStrings.inventory.displaySectionTitle,
+                    style: TextStyle(
+                      fontSize: kFontSizeMedium,
+                      fontWeight: FontWeight.bold,
+                      color: scheme.onSurface,
                     ),
+                  ),
+                  const SizedBox(height: kSpacingSmall),
 
-                    const SizedBox(height: kSpacingLarge),
+                  // הצג פגי תוקף ראשונים
+                  _SettingSwitch(
+                    icon: Icons.sort,
+                    iconColor: scheme.secondary,
+                    title: AppStrings.inventory.showExpiredFirstTitle,
+                    subtitle: AppStrings.inventory.showExpiredFirstSubtitle,
+                    value: _settings.showExpiredFirst,
+                    onChanged: (value) {
+                      _updateSetting(
+                        (s) => s.copyWith(showExpiredFirst: value),
+                      );
+                    },
+                  ),
 
-                    // === כפתורי פעולה ===
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Tooltip(
-                          message: AppStrings.common.cancel,
-                          child: TextButton(
-                            onPressed: _isSaving ? null : _cancel,
-                            child: Text(AppStrings.common.cancel),
-                          ),
+                  const SizedBox(height: kSpacingLarge),
+
+                  // === כפתורי פעולה ===
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Tooltip(
+                        message: AppStrings.common.cancel,
+                        child: TextButton(
+                          onPressed: _isSaving ? null : _cancel,
+                          child: Text(AppStrings.common.cancel),
                         ),
-                        const SizedBox(width: kSpacingSmall),
-                        Tooltip(
-                          message: AppStrings.common.save,
-                          child: ElevatedButton(
-                            onPressed: _isSaving ? null : _saveSettings,
-                            child: _isSaving
-                                ? SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: scheme.onPrimary,
-                                    ),
-                                  )
-                                : Text(AppStrings.common.save),
-                          ),
+                      ),
+                      const SizedBox(width: kSpacingSmall),
+                      Tooltip(
+                        message: AppStrings.common.save,
+                        child: ElevatedButton(
+                          onPressed: _isSaving ? null : _saveSettings,
+                          child: _isSaving
+                              ? SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: scheme.onPrimary,
+                                  ),
+                                )
+                              : Text(AppStrings.common.save),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
@@ -542,7 +554,10 @@ class _SettingSwitch extends StatelessWidget {
                 ],
               ),
             ),
-            Switch(value: value, onChanged: onChanged),
+            // ✅ AbsorbPointer מונע double-toggle (InkWell מטפל בכל האירועים)
+            AbsorbPointer(
+              child: Switch(value: value, onChanged: onChanged),
+            ),
           ],
         ),
       ),

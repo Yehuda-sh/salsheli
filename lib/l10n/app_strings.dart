@@ -117,6 +117,18 @@ class AppStrings {
   static const listDetails = _ShoppingListDetailsStrings();
 
   // ========================================
+  // Select List Dialog
+  // ========================================
+
+  static const selectList = _SelectListStrings();
+
+  // ========================================
+  // Recurring Product Dialog
+  // ========================================
+
+  static const recurring = _RecurringStrings();
+
+  // ========================================
   // User Sharing System (Phase 3B)
   // ========================================
 
@@ -334,6 +346,7 @@ class _ShoppingStrings {
   // Active Shopping - Messages
   String get loadingDataError => 'שגיאה בטעינת הנתונים';
   String get shoppingCompletedSuccess => 'הקנייה הושלמה בהצלחה! 🎉';
+  String get viewerCannotShop => 'צופים לא יכולים להשתתף בקנייה';
   String pantryUpdated(int count) => '📦 $count מוצרים עודכנו במזווה';
   String itemsMovedToNext(int count) => '🔄 $count פריטים הועברו לרשימה הבאה';
   String get saveError => 'שגיאה בשמירה';
@@ -479,6 +492,10 @@ class _ShoppingStrings {
 
   // Default List Names
   String get defaultShoppingListName => 'קניות כלליות';
+
+  // Limits
+  String maxItemsReached(int max) => 'הגעת למקסימום $max פריטים ברשימה';
+  String maxListsReached(int max) => 'הגעת למקסימום $max רשימות פעילות';
 }
 
 // ========================================
@@ -887,6 +904,17 @@ class _SettingsStrings {
   String get logoutCancel => 'ביטול';
   String get logoutConfirm => 'התנתק';
   String get logoutSubtitle => 'יציאה מהחשבון';
+
+  // Delete Account (GDPR)
+  String get deleteAccountTitle => 'מחיקת חשבון';
+  String get deleteAccountSubtitle => 'מחיקת כל הנתונים לצמיתות';
+  String get deleteAccountWarning => 'פעולה זו תמחק לצמיתות את:\n• כל הרשימות שיצרת\n• היסטוריית הקניות\n• המזווה שלך\n• כל הנתונים האישיים\n\nלא ניתן לשחזר את הנתונים!';
+  String get deleteAccountConfirmLabel => 'הקלד "מחק את החשבון" לאישור:';
+  String get deleteAccountConfirmText => 'מחק את החשבון';
+  String get deleteAccountButton => 'מחק חשבון לצמיתות';
+  String get deleteAccountSuccess => 'החשבון נמחק בהצלחה';
+  String deleteAccountError(String error) => 'שגיאה במחיקת החשבון: $error';
+  String get deleteAccountRequiresReauth => 'נדרשת התחברות מחדש לפני מחיקת החשבון';
 
   // Loading
   String get loading => 'טוען...';
@@ -1332,6 +1360,7 @@ class _InventoryStrings {
   // ========================================
 
   String get settingsTitle => 'הגדרות מזווה';
+  String get settingsSemanticLabel => 'דיאלוג הגדרות מזווה';
 
   // Pantry Mode
   String get pantryModePersonal => 'מזווה אישי - רק שלך';
@@ -1373,6 +1402,10 @@ class _InventoryStrings {
       'האם אתה בטוח שברצונך למחוק ${count == 1 ? "פריט אחד" : "$count פריטים"} מהמזווה האישי?\n\nפעולה זו לא ניתנת לביטול.';
   String get deleteConfirmButton => 'מחק הכל';
 
+  // Accessibility
+  String transferSemanticLabel(int count, String groupName) =>
+      'העברת מזווה: $count פריטים לקבוצה $groupName';
+
   // ========================================
   // Low Stock Alert Dialog
   // ========================================
@@ -1383,6 +1416,14 @@ class _InventoryStrings {
   String get lowStockAlertGoToPantry => 'למזווה';
   String get lowStockAlertDismissToday => 'אל תציג שוב היום';
   String lowStockAlertMoreItems(int count) => 'ועוד $count מוצרים...';
+
+  // Low Stock Alert Tooltips & Accessibility
+  String lowStockAlertSemanticLabel(int count) =>
+      'התראת מלאי נמוך: $count מוצרים עומדים להיגמר';
+  String get lowStockAlertCloseTooltip => 'סגור';
+  String get lowStockAlertAddToListTooltip => 'הוסף את כל המוצרים לרשימת הקניות';
+  String get lowStockAlertGoToPantryTooltip => 'עבור למזווה לצפייה בכל הפריטים';
+  String get lowStockAlertDismissTodayTooltip => 'התראה זו לא תוצג שוב היום';
 
   // ========================================
   // Storage Locations
@@ -1398,6 +1439,9 @@ class _InventoryStrings {
   String get locationOtherDesc => 'מיקום אחר';
   String get locationUnknown => 'לא ידוע';
   String get locationUnknownDesc => 'מיקום לא מוכר';
+
+  // Limits
+  String maxItemsReached(int max) => 'הגעת למקסימום $max פריטים במזווה';
 }
 
 // ========================================
@@ -1727,4 +1771,128 @@ class _SharingStrings {
   String get loadingRequests => 'טוען בקשות...';
   String get loadingError => 'שגיאה בטעינת נתונים';
   String get retryButton => 'נסה שוב';
+
+  // Limits
+  String maxMembersReached(int max) => 'הגעת למקסימום $max חברים בקבוצה';
+  String maxGroupsReached(int max) => 'הגעת למקסימום $max קבוצות';
+}
+
+// ========================================
+// Select List Dialog Strings
+// ========================================
+
+class _SelectListStrings {
+  const _SelectListStrings();
+
+  // ========================================
+  // Dialog Title & Defaults
+  // ========================================
+
+  String get defaultTitle => 'בחר רשימה';
+  String addingItem(String itemName) => 'מוסיף: $itemName';
+
+  // ========================================
+  // Empty State
+  // ========================================
+
+  String get noActiveLists => 'אין רשימות פעילות';
+  String get createNewToAddItems => 'צור רשימה חדשה כדי להוסיף פריטים';
+
+  // ========================================
+  // Buttons
+  // ========================================
+
+  String get createNewButton => 'צור רשימה חדשה';
+  String get cancelButton => 'ביטול';
+
+  // ========================================
+  // Tooltips
+  // ========================================
+
+  String get closeTooltip => 'סגור';
+  String get createNewTooltip => 'צור רשימת קניות חדשה';
+  String get cancelTooltip => 'ביטול בחירת רשימה';
+
+  // ========================================
+  // List Tile
+  // ========================================
+
+  String itemsCount(int count) => '$count פריטים';
+
+  // ========================================
+  // Accessibility
+  // ========================================
+
+  String get semanticLabel => 'בחירת רשימה';
+  String semanticLabelWithItem(String itemName) =>
+      'בחירת רשימה להוספת $itemName';
+  String listTileSemanticLabel(String listName, int itemCount, int checkedCount) =>
+      '$listName, $itemCount פריטים${checkedCount > 0 ? ', $checkedCount סומנו' : ''}';
+}
+
+// ========================================
+// Recurring Product Dialog Strings
+// ========================================
+
+class _RecurringStrings {
+  const _RecurringStrings();
+
+  // ========================================
+  // Dialog Title & Subtitle
+  // ========================================
+
+  String get title => 'מוצר פופולרי!';
+  String get subtitle => 'נראה שאתה קונה את זה לעתים קרובות';
+
+  // ========================================
+  // Stat Badges
+  // ========================================
+
+  String get statPurchases => 'קניות';
+  String get statLastPurchase => 'קנייה אחרונה';
+
+  // ========================================
+  // Last Purchase Formatting
+  // ========================================
+
+  String formatLastPurchase(DateTime date) {
+    final now = DateTime.now();
+    final diff = now.difference(date).inDays;
+
+    if (diff == 0) return 'היום';
+    if (diff == 1) return 'אתמול';
+    if (diff < 7) return 'לפני $diff ימים';
+    if (diff < 30) return 'לפני ${(diff / 7).floor()} שבועות';
+    return 'לפני ${(diff / 30).floor()} חודשים';
+  }
+
+  // ========================================
+  // Explanation
+  // ========================================
+
+  String get explanation => 'מוצר קבוע יתווסף אוטומטית לרשימות קניות חדשות';
+
+  // ========================================
+  // Buttons
+  // ========================================
+
+  String get confirmButton => 'הפוך לקבוע';
+  String get dismissButton => 'לא, תודה';
+  String get askLaterButton => 'שאל אותי אחר כך';
+
+  // ========================================
+  // Tooltips
+  // ========================================
+
+  String get closeTooltip => 'סגור';
+  String get confirmTooltip => 'הפוך למוצר קבוע';
+  String get dismissTooltip => 'לא להציע מוצר זה כמוצר קבוע';
+  String get askLaterTooltip => 'תזכיר לי בפעם הבאה';
+
+  // ========================================
+  // Accessibility
+  // ========================================
+
+  String semanticLabel(String productName) =>
+      'הצעה להפוך את $productName למוצר קבוע';
 }
