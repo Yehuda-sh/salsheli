@@ -14,12 +14,15 @@ Smart family shopping list manager with unique Sticky Notes design.
 
 ### Features
 
+- **Smart Home Dashboard** - Quick overview with banners, suggestions, and quick-add
 - **Multi-user collaboration** - Share lists with household members
 - **Groups system** - Family groups with role-based permissions
 - **Sticky Notes theme** - Beautiful post-it style UI
 - **Smart inventory (Pantry)** - Track stock with auto low-stock alerts
 - **Collaborative shopping** - Real-time multi-user shopping sessions
-- **Smart suggestions** - Pantry-based recommendations
+- **Smart suggestions** - Pantry-based recommendations (≤3 per day)
+- **Quick Add** - Add items instantly from home screen
+- **Notifications center** - Bell badge with unread count
 - **Household-based security** - Your data stays private
 - **8 smart list types** - Filtered product catalogs per store type
 - **Push notifications** - Low stock alerts, shopping invites
@@ -109,9 +112,32 @@ flutter build apk --release
 
 ---
 
+## Firebase Emulator (Local Development)
+
+```bash
+# Start all emulators (Firestore, Auth, etc.)
+firebase emulators:start
+
+# Load demo data (Cohen family + more)
+dart run scripts/demo_data_cohen_family.dart --clean
+```
+
+**Emulator UI:** http://localhost:4000
+
+### Demo Users
+
+| User | Email | Password |
+|------|-------|----------|
+| רונית כהן | ronit.cohen@demo.com | Demo123! |
+| אבי כהן | avi.cohen@demo.com | Demo123! |
+| יובל כהן | yuval.cohen@demo.com | Demo123! |
+| שירן גל | shiran.gal@demo.com | Demo123! |
+
+---
+
 ## License
 
-**© 2025 MemoZap Team | All Rights Reserved**
+**© 2026 MemoZap Team | All Rights Reserved**
 
 Proprietary software. Unauthorized copying, modification, or distribution is prohibited.
 
@@ -119,4 +145,4 @@ Proprietary software. Unauthorized copying, modification, or distribution is pro
 
 **Made in Israel**
 
-**Version:** 1.1.0 | **Updated:** 19/12/2025
+**Version:** 1.2.0 | **Updated:** 08/01/2026

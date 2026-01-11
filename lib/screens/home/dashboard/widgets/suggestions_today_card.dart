@@ -1,13 +1,14 @@
 // 📄 lib/screens/home/dashboard/widgets/suggestions_today_card.dart
 //
-// כרטיס "הצעות להיום" - מציג עד 3 הצעות חכמות עם כפתורי Add/Not now.
-// גרסה פשוטה יותר מהקרוסלה - מציג הכל ברשימה אחת.
+// כרטיס "הצעות מהמזווה" - קרוסלה אופקית בסגנון Sticky Notes.
+// כל כרטיס עם צללים, סיבוב קל, וכפתורי Add/Dismiss.
 //
-// Version: 1.0 (08/01/2026)
-// 🔗 Related: SmartSuggestion, SuggestionsProvider
+// Version: 3.0 (08/01/2026) - Sticky Notes design
+// 🔗 Related: SmartSuggestion, SuggestionsProvider, StickyNote
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/ui_constants.dart';
@@ -16,7 +17,7 @@ import '../../../../models/smart_suggestion.dart';
 import '../../../../providers/shopping_lists_provider.dart';
 import '../../../../providers/suggestions_provider.dart';
 
-/// כרטיס הצעות להיום - עד 3 הצעות עם Add/Not now
+/// כרטיס הצעות מהמזווה - קרוסלה אופקית בסגנון Sticky Notes
 class SuggestionsTodayCard extends StatelessWidget {
   const SuggestionsTodayCard({super.key});
 
@@ -40,7 +41,7 @@ class SuggestionsTodayCard extends StatelessWidget {
           return const SizedBox.shrink();
         }
 
-        return _SuggestionsCard(suggestions: suggestions);
+        return _SuggestionsCarousel(suggestions: suggestions);
       },
     );
   }
@@ -55,26 +56,25 @@ class _LoadingState extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    return Card(
-      elevation: 0,
-      color: kStickyGreen.withValues(alpha: 0.2),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: kStickyGreen.withValues(alpha: 0.3)),
+    return Container(
+      height: 80,
+      decoration: BoxDecoration(
+        color: kStickyYellow.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(12),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(kSpacingMedium),
+      child: Center(
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
-              width: 20,
-              height: 20,
+              width: 18,
+              height: 18,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
                 color: cs.primary,
               ),
             ),
-            const SizedBox(width: kSpacingMedium),
+            const SizedBox(width: kSpacingSmall),
             Text(
               'טוען הצעות...',
               style: theme.textTheme.bodyMedium?.copyWith(
@@ -88,75 +88,89 @@ class _LoadingState extends StatelessWidget {
   }
 }
 
-/// Main suggestions card
-class _SuggestionsCard extends StatelessWidget {
+/// קרוסלת הצעות אופקית בסגנון Sticky Notes
+class _SuggestionsCarousel extends StatelessWidget {
   final List<SmartSuggestion> suggestions;
 
-  const _SuggestionsCard({required this.suggestions});
+  const _SuggestionsCarousel({required this.suggestions});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final cs = theme.colorScheme;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // כותרת
-        Row(
-          children: [
-            const Icon(Icons.lightbulb_outline, size: 20, color: kStickyGreen),
-            const SizedBox(width: 8),
-            Text(
-              'הצעות להיום',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
+        // כותרת עם אייקון מזווה
+        Padding(
+          padding: const EdgeInsets.only(bottom: kSpacingSmall),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: kStickyOrange.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.inventory_2_outlined,
+                  size: 18,
+                  color: Color(0xFFE65100),
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: kStickyGreen.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                '${suggestions.length}',
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: kStickyGreen,
+              const SizedBox(width: 10),
+              Text(
+                'הצעות מהמזווה',
+                style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: kSpacingSmall),
-
-        // רשימת הצעות
-        Card(
-          elevation: 0,
-          color: kStickyGreen.withValues(alpha: 0.1),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: kStickyGreen.withValues(alpha: 0.3)),
-          ),
-          child: Column(
-            children: [
-              ...suggestions.asMap().entries.map((entry) {
-                final index = entry.key;
-                final suggestion = entry.value;
-                return Column(
-                  children: [
-                    _SuggestionItem(suggestion: suggestion),
-                    if (index < suggestions.length - 1)
-                      Divider(
-                        height: 1,
-                        color: cs.outlineVariant.withValues(alpha: 0.5),
-                      ),
-                  ],
-                );
-              }),
+              const Spacer(),
+              // Badge עם מספר
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: kStickyOrange.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: kStickyOrange.withValues(alpha: 0.4),
+                  ),
+                ),
+                child: Text(
+                  '${suggestions.length} פריטים',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: const Color(0xFFE65100),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
             ],
+          ),
+        ),
+
+        // קרוסלה אופקית
+        SizedBox(
+          height: 165,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            clipBehavior: Clip.none,
+            physics: const BouncingScrollPhysics(),
+            itemCount: suggestions.length,
+            itemBuilder: (context, index) {
+              // סיבוב אקראי קטן לכל כרטיס
+              final rotation = (index.isEven ? 1 : -1) * 0.02;
+              return Padding(
+                padding: EdgeInsets.only(
+                  left: index == 0 ? 0 : kSpacingSmall,
+                  right: index == suggestions.length - 1 ? 0 : 0,
+                ),
+                child: _StickyNoteCard(
+                  suggestion: suggestions[index],
+                  rotation: rotation,
+                  index: index,
+                ),
+              );
+            },
           ),
         ),
       ],
@@ -164,31 +178,61 @@ class _SuggestionsCard extends StatelessWidget {
   }
 }
 
-/// פריט הצעה בודד
-class _SuggestionItem extends StatefulWidget {
+/// כרטיס הצעה בודד בסגנון Sticky Note
+class _StickyNoteCard extends StatefulWidget {
   final SmartSuggestion suggestion;
+  final double rotation;
+  final int index;
 
-  const _SuggestionItem({required this.suggestion});
+  const _StickyNoteCard({
+    required this.suggestion,
+    required this.rotation,
+    required this.index,
+  });
 
   @override
-  State<_SuggestionItem> createState() => _SuggestionItemState();
+  State<_StickyNoteCard> createState() => _StickyNoteCardState();
 }
 
-class _SuggestionItemState extends State<_SuggestionItem> {
+class _StickyNoteCardState extends State<_StickyNoteCard> {
   bool _isProcessing = false;
 
-  String _getUrgencyEmoji(String urgency) {
+  Color _getCardColor(String urgency) {
     switch (urgency) {
       case 'critical':
-        return '🚨';
+        return kStickyPink;
       case 'high':
-        return '⚠️';
+        return kStickyOrange;
       case 'medium':
-        return '⚡';
-      case 'low':
-        return 'ℹ️';
+        return kStickyYellow;
       default:
-        return '💡';
+        return kStickyGreen;
+    }
+  }
+
+  String _getUrgencyText(String urgency) {
+    switch (urgency) {
+      case 'critical':
+        return 'נגמר!';
+      case 'high':
+        return 'כמעט נגמר';
+      case 'medium':
+        return 'מתמעט';
+      default:
+        return 'מומלץ';
+    }
+  }
+
+  IconData _getUrgencyIcon(String urgency) {
+    switch (urgency) {
+      case 'critical':
+        return Icons.error;
+      case 'high':
+        return Icons.warning_amber;
+      case 'medium':
+        return Icons.info_outline;
+      default:
+        return Icons.lightbulb_outline;
     }
   }
 
@@ -202,7 +246,6 @@ class _SuggestionItemState extends State<_SuggestionItem> {
     final suggestionsProvider = context.read<SuggestionsProvider>();
 
     try {
-      // מצא רשימה פעילה (הראשונה)
       final activeLists = listsProvider.lists
           .where((l) => l.status == ShoppingList.statusActive)
           .toList();
@@ -228,11 +271,20 @@ class _SuggestionItemState extends State<_SuggestionItem> {
 
       if (!mounted) return;
 
-      await HapticFeedback.lightImpact();
+      await HapticFeedback.mediumImpact();
       messenger.showSnackBar(
         SnackBar(
-          content: Text('נוסף "${widget.suggestion.productName}" לרשימה'),
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle, color: Colors.white, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text('נוסף "${widget.suggestion.productName}" לרשימה'),
+              ),
+            ],
+          ),
           backgroundColor: kStickyGreen,
+          behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 2),
         ),
       );
@@ -240,7 +292,7 @@ class _SuggestionItemState extends State<_SuggestionItem> {
       if (!mounted) return;
       messenger.showSnackBar(
         SnackBar(
-          content: Text('שגיאה בהוספה: $e'),
+          content: Text('שגיאה: $e'),
           backgroundColor: kStickyPink,
         ),
       );
@@ -269,6 +321,7 @@ class _SuggestionItemState extends State<_SuggestionItem> {
         SnackBar(
           content: Text('דחיתי "${widget.suggestion.productName}" לשבוע'),
           backgroundColor: kStickyCyan,
+          behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 2),
         ),
       );
@@ -290,75 +343,194 @@ class _SuggestionItemState extends State<_SuggestionItem> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final cs = theme.colorScheme;
     final suggestion = widget.suggestion;
+    final cardColor = _getCardColor(suggestion.urgency);
+    final shadowColor = theme.shadowColor;
 
-    return Padding(
-      padding: const EdgeInsets.all(kSpacingMedium),
-      child: Row(
-        children: [
-          // אמוג'י דחיפות
-          Text(
-            _getUrgencyEmoji(suggestion.urgency),
-            style: const TextStyle(fontSize: 24),
-          ),
-          const SizedBox(width: kSpacingSmall),
-
-          // פרטי המוצר
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  suggestion.productName,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'במלאי: ${suggestion.currentStock} ${suggestion.unit}',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: cs.onSurfaceVariant,
-                  ),
-                ),
-              ],
+    return Transform.rotate(
+      angle: widget.rotation,
+      child: Container(
+        width: 145,
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: BorderRadius.circular(4),
+          boxShadow: [
+            // צל ראשי - אפקט הדבקה
+            BoxShadow(
+              color: shadowColor.withValues(alpha: 0.2),
+              blurRadius: 8,
+              offset: const Offset(2, 4),
             ),
-          ),
-
-          // כפתורי פעולה
-          if (_isProcessing)
-            const SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          else
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // כפתור הוסף
-                IconButton(
-                  onPressed: () => _onAdd(context),
-                  icon: const Icon(Icons.add_circle_outline),
-                  color: kStickyGreen,
-                  tooltip: 'הוסף לרשימה',
-                  visualDensity: VisualDensity.compact,
-                ),
-                // כפתור לא עכשיו
-                IconButton(
-                  onPressed: () => _onDismiss(context),
-                  icon: const Icon(Icons.schedule),
-                  color: cs.onSurfaceVariant,
-                  tooltip: 'לא עכשיו',
-                  visualDensity: VisualDensity.compact,
-                ),
-              ],
+            // צל משני - עומק
+            BoxShadow(
+              color: shadowColor.withValues(alpha: 0.1),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
             ),
-        ],
+          ],
+        ),
+        child: Stack(
+          children: [
+            // "סרט הדבקה" למעלה
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                height: 14,
+                margin: const EdgeInsets.symmetric(horizontal: 30),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.5),
+                  borderRadius: const BorderRadius.vertical(
+                    bottom: Radius.circular(2),
+                  ),
+                ),
+              ),
+            ),
+
+            // תוכן הכרטיס
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 20, 12, 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Badge דחיפות
+                  Row(
+                    children: [
+                      Icon(
+                        _getUrgencyIcon(suggestion.urgency),
+                        size: 14,
+                        color: Colors.black54,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        _getUrgencyText(suggestion.urgency),
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: Colors.black54,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+
+                  // שם המוצר
+                  Expanded(
+                    child: Text(
+                      suggestion.productName,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                        height: 1.2,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+
+                  // כמות במלאי
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      'במלאי: ${suggestion.currentStock} ${suggestion.unit}',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: Colors.black54,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // כפתורי פעולה
+                  if (_isProcessing)
+                    const Center(
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    )
+                  else
+                    Row(
+                      children: [
+                        // כפתור הוסף
+                        Expanded(
+                          child: Material(
+                            color: Colors.black.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            child: InkWell(
+                              onTap: () => _onAdd(context),
+                              borderRadius: BorderRadius.circular(8),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.add,
+                                      size: 16,
+                                      color: Colors.black87,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'הוסף',
+                                      style: theme.textTheme.labelMedium?.copyWith(
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        // כפתור X
+                        Material(
+                          color: Colors.black.withValues(alpha: 0.06),
+                          borderRadius: BorderRadius.circular(8),
+                          child: InkWell(
+                            onTap: () => _onDismiss(context),
+                            borderRadius: BorderRadius.circular(8),
+                            child: const Padding(
+                              padding: EdgeInsets.all(8),
+                              child: Icon(
+                                Icons.close,
+                                size: 16,
+                                color: Colors.black45,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
-    );
+    )
+        .animate(delay: Duration(milliseconds: 100 * widget.index))
+        .fadeIn(duration: const Duration(milliseconds: 300))
+        .slideX(
+          begin: 0.2,
+          curve: Curves.easeOut,
+          duration: const Duration(milliseconds: 300),
+        );
   }
 }
