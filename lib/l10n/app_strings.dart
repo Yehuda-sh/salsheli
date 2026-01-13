@@ -335,6 +335,11 @@ class _ShoppingStrings {
   String get itemStatusDeferred => 'דחה לאחר כך'; // שונה מ-"דחוי" ל"דחה לאחר כך" - ברור יותר!
   String get itemStatusNotNeeded => 'לא צריך'; // חדש!
 
+  // Unknown Items (server fallback)
+  String get unknownItemsSection => 'פריטים לא נתמכים';
+  String get unknownItemsHint => 'סוג הפריט לא מוכר - ייתכן שנדרש עדכון אפליקציה';
+  String unknownItemsCount(int count) => count == 1 ? 'פריט לא נתמך' : '$count פריטים לא נתמכים';
+
   // Active Shopping Screen
   String get activeSaving => 'שומר...';
   String get activeFinish => 'סיום';

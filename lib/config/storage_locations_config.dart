@@ -130,14 +130,17 @@ class StorageLocationsConfig {
   /// מחזיר את שם המיקום בעברית (מ-AppStrings)
   /// 📌 קיצור ל-getLocationInfo(id).name
   static String getName(String locationId) {
-    _ensureNoDuplicateIds();
-    return _locationData[locationId]?.name ?? AppStrings.inventory.locationUnknown;
+    // ✅ בדיקת ייחודיות בזמן פיתוח בלבד
+    if (kDebugMode) {
+      _ensureNoDuplicateIds();
+    }
+    return getLocationInfo(locationId).name;
   }
 
   /// מחזיר את האייקון של המיקום
   /// 📌 קיצור ל-getLocationInfo(id).icon
   static IconData getIcon(String locationId) {
-    return _locationData[locationId]?.icon ?? Icons.help_outline;
+    return getLocationInfo(locationId).icon;
   }
 
   /// מחזיר את המידע המלא על המיקום (API מרכזי)

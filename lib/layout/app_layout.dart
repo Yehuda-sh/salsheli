@@ -130,6 +130,9 @@ class _AppLayoutState extends State<AppLayout> {
         debugPrint('   ❌ AppLayout.logout: שגיאה - $e');
       }
 
+      // ✅ Context safety check - אל תציג UI אם המסך נסגר
+      if (!mounted) return;
+
       // 🚨 Show error to user
       // ✅ שימוש ב-Theme colors במקום hardcoded
       scaffoldMessenger.showSnackBar(
@@ -168,58 +171,64 @@ class _AppLayoutState extends State<AppLayout> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Handle bar
-            Container(
-              margin: const EdgeInsets.only(top: 12),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: cs.outlineVariant,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: kSpacingMedium),
-            // כותרת
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
-              child: Text(
-                AppStrings.layout.pendingInvitesTitle,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
+      builder: (context) {
+        // ✅ RTL/LTR-aware chevron: forward direction
+        final isRtl = Directionality.of(context) == TextDirection.rtl;
+        final forwardChevron = isRtl ? Icons.chevron_left : Icons.chevron_right;
+
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle bar
+              Container(
+                margin: const EdgeInsets.only(top: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: cs.outlineVariant,
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-            ),
-            const SizedBox(height: kSpacingSmall),
-            // הזמנות לקבוצות
-            ListTile(
-              leading: Icon(Icons.family_restroom, color: cs.primary),
-              title: Text(AppStrings.layout.groupInvites),
-              subtitle: Text(AppStrings.layout.groupInvitesSubtitle),
-              trailing: const Icon(Icons.chevron_left),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.of(context).pushNamed('/pending-group-invites');
-              },
-            ),
-            // הזמנות לרשימות
-            ListTile(
-              leading: Icon(Icons.list_alt, color: cs.secondary),
-              title: Text(AppStrings.layout.listInvites),
-              subtitle: Text(AppStrings.layout.listInvitesSubtitle),
-              trailing: const Icon(Icons.chevron_left),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.of(context).pushNamed('/pending-invites');
-              },
-            ),
-            const SizedBox(height: kSpacingMedium),
-          ],
-        ),
-      ),
+              const SizedBox(height: kSpacingMedium),
+              // כותרת
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+                child: Text(
+                  AppStrings.layout.pendingInvitesTitle,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: kSpacingSmall),
+              // הזמנות לקבוצות
+              ListTile(
+                leading: Icon(Icons.family_restroom, color: cs.primary),
+                title: Text(AppStrings.layout.groupInvites),
+                subtitle: Text(AppStrings.layout.groupInvitesSubtitle),
+                trailing: Icon(forwardChevron),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.of(context).pushNamed('/pending-group-invites');
+                },
+              ),
+              // הזמנות לרשימות
+              ListTile(
+                leading: Icon(Icons.list_alt, color: cs.secondary),
+                title: Text(AppStrings.layout.listInvites),
+                subtitle: Text(AppStrings.layout.listInvitesSubtitle),
+                trailing: Icon(forwardChevron),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.of(context).pushNamed('/pending-invites');
+                },
+              ),
+              const SizedBox(height: kSpacingMedium),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -373,9 +382,9 @@ class _AnimatedIconButtonState extends State<_AnimatedIconButton> {
       ),
       color: widget.color,
       onPressed: () {
-        // ✅ FIX: פעולה מיידית + אנימציה במקביל (תגובה מהירה!)
-        widget.onPressed(); // פעולה מיידית
+        // ✅ FIX: אנימציה + פעולה - עם בדיקת mounted!
         setState(() => _isPressed = true);
+        widget.onPressed(); // פעולה (יכולה לעשות navigate/dispose)
         Future.delayed(const Duration(milliseconds: 150), () {
           if (mounted) {
             setState(() => _isPressed = false);

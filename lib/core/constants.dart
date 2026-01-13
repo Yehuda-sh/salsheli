@@ -16,14 +16,19 @@ const int kMaxFamilySize = 10;
 // CHILDREN AGES
 // ═══════════════════════════════════════════════════════════════════════════
 
-/// Valid children age groups for onboarding
-const Set<String> kValidChildrenAges = {
+/// Valid children age groups for onboarding (ORDERED list for UI)
+/// ✅ Single Source of Truth - סדר מובטח לתצוגה ב-Dropdown
+const List<String> kChildrenAgeGroups = [
   '0-1', // תינוקות
   '2-3', // גיל הרך
   '4-6', // גן
   '7-12', // בית ספר
   '13-18', // נוער
-};
+];
+
+/// Set for validation (derived from list)
+/// ✅ O(1) lookup בלי לאבד סדר ב-source
+final Set<String> kValidChildrenAges = Set.unmodifiable(kChildrenAgeGroups.toSet());
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SCHEMA VERSION

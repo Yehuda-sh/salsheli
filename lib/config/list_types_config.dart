@@ -10,7 +10,8 @@
 
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
-import 'package:memozap/models/shopping_list.dart';
+
+import 'list_type_keys.dart';
 
 /// 📦 הגדרת סוג רשימה אחד
 /// מכיל את כל המידע הויזואלי והטקסטואלי
@@ -48,63 +49,63 @@ class ListTypes {
   /// רשימת כל הסוגים (8 סוגים + "אחר")
   static const List<ListTypeConfig> all = [
     ListTypeConfig(
-      key: ShoppingList.typeSupermarket,
+      key: ListTypeKeys.supermarket,
       fullName: 'סופרמרקט',
       shortName: 'סופר',
       emoji: '🛒',
       icon: Icons.shopping_cart,
     ),
     ListTypeConfig(
-      key: ShoppingList.typePharmacy,
+      key: ListTypeKeys.pharmacy,
       fullName: 'בית מרקחת',
       shortName: 'מרקחת',
       emoji: '💊',
       icon: Icons.medication,
     ),
     ListTypeConfig(
-      key: ShoppingList.typeGreengrocer,
+      key: ListTypeKeys.greengrocer,
       fullName: 'ירקן',
       shortName: 'ירקן',
       emoji: '🥬',
       icon: Icons.local_florist,
     ),
     ListTypeConfig(
-      key: ShoppingList.typeButcher,
+      key: ListTypeKeys.butcher,
       fullName: 'אטליז',
       shortName: 'אטליז',
       emoji: '🥩',
       icon: Icons.set_meal,
     ),
     ListTypeConfig(
-      key: ShoppingList.typeBakery,
+      key: ListTypeKeys.bakery,
       fullName: 'מאפייה',
       shortName: 'מאפייה',
       emoji: '🥖',
       icon: Icons.bakery_dining,
     ),
     ListTypeConfig(
-      key: ShoppingList.typeMarket,
+      key: ListTypeKeys.market,
       fullName: 'שוק',
       shortName: 'שוק',
       emoji: '🏪',
       icon: Icons.store,
     ),
     ListTypeConfig(
-      key: ShoppingList.typeHousehold,
+      key: ListTypeKeys.household,
       fullName: 'צרכי בית',
       shortName: 'בית',
       emoji: '🏠',
       icon: Icons.home,
     ),
     ListTypeConfig(
-      key: ShoppingList.typeEvent,
+      key: ListTypeKeys.event,
       fullName: 'אירוע',
       shortName: 'אירוע',
       emoji: '🎉',
       icon: Icons.celebration,
     ),
     ListTypeConfig(
-      key: ShoppingList.typeOther,
+      key: ListTypeKeys.other,
       fullName: 'אחר',
       shortName: 'אחר',
       emoji: '📝',

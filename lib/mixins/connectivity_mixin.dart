@@ -2,9 +2,9 @@
 // 🎯 Purpose: Mixin לניטור מצב חיבור לאינטרנט
 //
 // 📋 Features:
-// - האזנה לשינויי חיבור
-// - בדיקת חיבור ידנית
-// - ניקוי אוטומטי ב-dispose
+// - האזנה לשינויי חיבור דרך ConnectivityProvider (מקור אמת יחיד!)
+// - callback לשינויים (onConnectivityChanged)
+// - אין subscription כפול - רק מאזין ל-Provider
 //
 // 📝 Usage:
 // ```dart
@@ -19,112 +19,102 @@
 //       ],
 //     );
 //   }
+//
+//   @override
+//   void onConnectivityChanged(bool isOnline) {
+//     if (isOnline) _syncData();
+//   }
 // }
 // ```
 //
-// 📝 Version: 1.0
-// 📅 Created: 01/2026
+// ⚠️ דרישות:
+// - ConnectivityProvider חייב להיות זמין ב-widget tree
+// - אין צורך לקרוא initConnectivity() - עובד אוטומטית!
+//
+// 📝 Version: 2.0 (refactored to use Provider)
+// 📅 Updated: 01/2026
 
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 /// 🌐 Mixin לניטור מצב חיבור לאינטרנט
 ///
+/// ✅ גרסה 2.0: מאזין ל-ConnectivityProvider (מקור אמת יחיד!)
+/// אין subscription כפול - רק delegate ל-Provider.
+///
 /// מספק:
-/// - [isOffline] - האם אין חיבור
-/// - [isOnline] - האם יש חיבור
-/// - [checkConnectivity] - בדיקה ידנית
+/// - [isOffline] - האם אין חיבור (מ-Provider)
+/// - [isOnline] - האם יש חיבור (מ-Provider)
 /// - [onConnectivityChanged] - callback לשינויים (לדריסה)
 ///
 /// הערות:
-/// - יש לקרוא ל-initConnectivity() ב-initState
-/// - ניקוי אוטומטי של subscription ב-dispose
+/// - עובד אוטומטית! אין צורך לקרוא initConnectivity()
+/// - דורש ConnectivityProvider ב-widget tree
 mixin ConnectivityMixin<T extends StatefulWidget> on State<T> {
-  /// Connectivity instance
-  final Connectivity _connectivity = Connectivity();
+  /// רפרנס ל-Provider (נשמר לניקוי listener)
+  ConnectivityProvider? _provider;
 
-  /// Subscription לשינויי חיבור
-  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
-
-  /// מצב חיבור נוכחי
-  bool _isOffline = false;
+  /// מצב חיבור קודם (לזיהוי שינויים)
+  bool? _previousIsOffline;
 
   /// האם אין חיבור לאינטרנט
-  bool get isOffline => _isOffline;
+  bool get isOffline => _provider?.isOffline ?? false;
 
   /// האם יש חיבור לאינטרנט
-  bool get isOnline => !_isOffline;
+  bool get isOnline => !isOffline;
 
-  /// אתחול ניטור החיבור
-  ///
-  /// יש לקרוא ל-method זו ב-initState:
-  /// ```dart
-  /// @override
-  /// void initState() {
-  ///   super.initState();
-  ///   initConnectivity();
-  /// }
-  /// ```
-  @protected
-  void initConnectivity() {
-    // בדיקה ראשונית
-    checkConnectivity();
-
-    // האזנה לשינויים
-    _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
-      _handleConnectivityChange,
-    );
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _setupProviderListener();
   }
 
-  /// בדיקת מצב החיבור
-  @protected
-  Future<void> checkConnectivity() async {
+  /// 🔗 התחברות ל-ConnectivityProvider
+  void _setupProviderListener() {
+    // הסר listener קודם אם קיים
+    _provider?.removeListener(_onProviderChanged);
+
+    // קבל את ה-Provider (listen: false כי אנחנו מאזינים ידנית)
     try {
-      final results = await _connectivity.checkConnectivity();
-      _handleConnectivityChange(results);
+      _provider = context.read<ConnectivityProvider>();
+      _provider!.addListener(_onProviderChanged);
+
+      // אתחול ראשוני
+      _previousIsOffline ??= _provider!.isOffline;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ ConnectivityMixin: שגיאה בבדיקת חיבור - $e');
+        debugPrint(
+          '⚠️ ConnectivityMixin: ConnectivityProvider לא נמצא! '
+          'ודא שהוא זמין ב-widget tree.',
+        );
       }
-      // במקרה של שגיאה, נניח שיש חיבור
-      _updateConnectivityState(false);
     }
   }
 
-  /// טיפול בשינוי מצב חיבור
-  void _handleConnectivityChange(List<ConnectivityResult> results) {
-    final wasOffline = _isOffline;
+  /// 📡 טיפול בשינוי מצב ב-Provider
+  void _onProviderChanged() {
+    if (!mounted) return;
 
-    // אם אין תוצאות או יש רק none - אין חיבור
-    final hasNoConnection = results.isEmpty ||
-        (results.length == 1 && results.first == ConnectivityResult.none);
+    final currentIsOffline = _provider?.isOffline ?? false;
 
-    _updateConnectivityState(hasNoConnection);
+    // בדוק אם השתנה המצב
+    if (_previousIsOffline != currentIsOffline) {
+      _previousIsOffline = currentIsOffline;
 
-    // קריאה ל-callback אם השתנה המצב
-    if (wasOffline != _isOffline) {
-      onConnectivityChanged(isOnline);
-    }
-  }
+      // עדכן UI
+      setState(() {});
 
-  /// עדכון מצב החיבור
-  void _updateConnectivityState(bool offline) {
-    if (_isOffline != offline) {
-      if (mounted) {
-        setState(() {
-          _isOffline = offline;
-        });
-      } else {
-        _isOffline = offline;
-      }
+      // קרא ל-callback
+      onConnectivityChanged(!currentIsOffline);
 
       if (kDebugMode) {
         debugPrint(
-          offline
-            ? '📡 ConnectivityMixin: אין חיבור לאינטרנט'
-            : '✅ ConnectivityMixin: יש חיבור לאינטרנט'
+          currentIsOffline
+              ? '📡 ConnectivityMixin: אין חיבור לאינטרנט'
+              : '✅ ConnectivityMixin: יש חיבור לאינטרנט',
         );
       }
     }
@@ -150,7 +140,7 @@ mixin ConnectivityMixin<T extends StatefulWidget> on State<T> {
 
   @override
   void dispose() {
-    _connectivitySubscription?.cancel();
+    _provider?.removeListener(_onProviderChanged);
     super.dispose();
   }
 }
@@ -186,7 +176,12 @@ class ConnectivityProvider extends ChangeNotifier {
   bool get isOnline => !_isOffline;
 
   /// אתחול ניטור
+  ///
+  /// ✅ כולל guard למניעת אתחול כפול
   Future<void> init() async {
+    // 🛡️ Guard: אל תאתחל פעמיים
+    if (_subscription != null) return;
+
     // בדיקה ראשונית
     await _checkConnectivity();
 
@@ -208,8 +203,9 @@ class ConnectivityProvider extends ChangeNotifier {
   }
 
   void _handleChange(List<ConnectivityResult> results) {
+    // ✅ אין חיבור אם הרשימה ריקה או כל הערכים הם none
     final hasNoConnection = results.isEmpty ||
-        (results.length == 1 && results.first == ConnectivityResult.none);
+        results.every((r) => r == ConnectivityResult.none);
 
     if (_isOffline != hasNoConnection) {
       _isOffline = hasNoConnection;

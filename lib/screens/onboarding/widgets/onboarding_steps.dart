@@ -423,7 +423,7 @@ class _ChildForm extends StatelessWidget {
               border: OutlineInputBorder(),
               isDense: true,
             ),
-            items: kValidChildrenAges.map((age) {
+            items: kChildrenAgeGroups.map((age) {
               return DropdownMenuItem(
                 value: age,
                 child: Text(_getAgeLabel(age)),

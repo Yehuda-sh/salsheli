@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 
+import '../config/list_type_keys.dart';
+import '../config/list_types_config.dart';
 import 'active_shopper.dart';
 import 'enums/item_type.dart';
 import 'enums/user_role.dart';
@@ -237,15 +239,16 @@ class ShoppingList {
   static const String statusCompleted = 'completed';
 
   // ---- Type constants (Extended List Types) ----
-  static const String typeSupermarket = 'supermarket';  // 🛒 סופרמרקט - כל המוצרים
-  static const String typePharmacy = 'pharmacy';        // 💊 בית מרקחת - היגיינה וניקיון
-  static const String typeGreengrocer = 'greengrocer'; // 🥬 ירקן - פירות וירקות
-  static const String typeButcher = 'butcher';         // 🥩 אטליז - בשר ועוף
-  static const String typeBakery = 'bakery';           // 🍞 מאפייה - לחם ומאפים
-  static const String typeMarket = 'market';           // 🏪 שוק - מעורב
-  static const String typeHousehold = 'household';     // 🏠 כלי בית - מוצרים מותאמים
-  static const String typeEvent = 'event';             // 🎉 אירוע - מסיבות ומנגלים
-  static const String typeOther = 'other';             // ➕ אחר
+  // ✅ מפתחות סוגים - delegate ל-ListTypeKeys (מקור אמת יחיד)
+  static const String typeSupermarket = ListTypeKeys.supermarket;
+  static const String typePharmacy = ListTypeKeys.pharmacy;
+  static const String typeGreengrocer = ListTypeKeys.greengrocer;
+  static const String typeButcher = ListTypeKeys.butcher;
+  static const String typeBakery = ListTypeKeys.bakery;
+  static const String typeMarket = ListTypeKeys.market;
+  static const String typeHousehold = ListTypeKeys.household;
+  static const String typeEvent = ListTypeKeys.event;
+  static const String typeOther = ListTypeKeys.other;
 
   // ---- Event Mode constants (לאירועים) ----
   /// מי מביא מה - חלוקה בין משתתפים
@@ -336,6 +339,17 @@ class ShoppingList {
   List<UnifiedListItem> get tasks =>
       items.where((item) => item.type == ItemType.task).toList();
 
+  /// 🇮🇱 פריטים עם סוג לא מוכר (fallback מהשרת)
+  /// 🇬🇧 Items with unknown type (server fallback)
+  ///
+  /// פריטים אלה מגיעים כשהשרת מחזיר סוג שהאפליקציה לא מכירה.
+  /// הם מוצגים ב-UI בסקשן נפרד "פריטים לא נתמכים" כדי:
+  /// - לא לאבד אותם מהתצוגה
+  /// - להבהיר למשתמש שמשהו לא תקין
+  /// - לאפשר עדכון אפליקציה בעתיד
+  List<UnifiedListItem> get unknownItems =>
+      items.where((item) => item.type == ItemType.unknown).toList();
+
   /// 🇮🇱 כמות מוצרים
   /// 🇬🇧 Product count
   int get productCount => products.length;
@@ -343,6 +357,14 @@ class ShoppingList {
   /// 🇮🇱 כמות משימות
   /// 🇬🇧 Task count
   int get taskCount => tasks.length;
+
+  /// 🇮🇱 כמות פריטים לא מוכרים
+  /// 🇬🇧 Unknown item count
+  int get unknownCount => unknownItems.length;
+
+  /// 🇮🇱 האם יש פריטים לא מוכרים?
+  /// 🇬🇧 Are there unknown items?
+  bool get hasUnknownItems => unknownItems.isNotEmpty;
 
   /// 🇮🇱 סכום מחיר כולל של מוצרים
   /// 🇬🇧 Total price of all products
@@ -457,78 +479,18 @@ class ShoppingList {
 
   /// 🇮🇱 אימוג'י לפי סוג הרשימה
   /// 🇬🇧 Emoji by list type
-  String get typeEmoji {
-    switch (type) {
-      case typeSupermarket:
-        return '🛒';
-      case typePharmacy:
-        return '💊';
-      case typeGreengrocer:
-        return '🥦';
-      case typeButcher:
-        return '🥩';
-      case typeBakery:
-        return '🥖';
-      case typeMarket:
-        return '🏪';
-      case typeHousehold:
-        return '🏠';
-      case typeEvent:
-        return '🎉';
-      default:
-        return '📝';
-    }
-  }
+  /// ✅ Delegate ל-ListTypes (מקור אמת יחיד)
+  String get typeEmoji => ListTypes.getByKey(type)?.emoji ?? '📝';
 
   /// 🇮🇱 שם סוג הרשימה בעברית
   /// 🇬🇧 List type name in Hebrew
-  String get typeName {
-    switch (type) {
-      case typeSupermarket:
-        return 'סופרמרקט';
-      case typePharmacy:
-        return 'בית מרקחת';
-      case typeGreengrocer:
-        return 'ירקן';
-      case typeButcher:
-        return 'אטליז';
-      case typeBakery:
-        return 'מאפייה';
-      case typeMarket:
-        return 'שוק';
-      case typeHousehold:
-        return 'כלי בית';
-      case typeEvent:
-        return 'אירוע';
-      default:
-        return 'כללי';
-    }
-  }
+  /// ✅ Delegate ל-ListTypes (מקור אמת יחיד)
+  String get typeName => ListTypes.getByKey(type)?.fullName ?? 'אחר';
 
   /// 🇮🇱 אייקון Material לפי סוג הרשימה
   /// 🇬🇧 Material icon by list type
-  IconData get typeIcon {
-    switch (type) {
-      case typeSupermarket:
-        return Icons.shopping_cart;
-      case typePharmacy:
-        return Icons.medication;
-      case typeGreengrocer:
-        return Icons.local_florist;
-      case typeButcher:
-        return Icons.set_meal;
-      case typeBakery:
-        return Icons.bakery_dining;
-      case typeMarket:
-        return Icons.store;
-      case typeHousehold:
-        return Icons.home;
-      case typeEvent:
-        return Icons.celebration;
-      default:
-        return Icons.shopping_bag;
-    }
-  }
+  /// ✅ Delegate ל-ListTypes (מקור אמת יחיד)
+  IconData get typeIcon => ListTypes.getByKey(type)?.icon ?? Icons.shopping_bag;
 
   /// Constructor
   ShoppingList({

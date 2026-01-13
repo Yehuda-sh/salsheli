@@ -1,18 +1,19 @@
 // 📄 lib/l10n/onboarding_extensions.dart
 //
 // Extensions למחרוזות Onboarding - תרגום גילאי ילדים וימי שבוע לעברית.
-// כולל getAgeLabel, getDayLabel, ורשימות allAges/allDays.
+// כולל getAgeLabel, getDayLabel.
 //
-// ⚠️ שימו לב: allAges חייב להיות מסונכרן עם kValidChildrenAges ב-constants.dart!
+// ✅ Single Source of Truth: kChildrenAgeGroups ב-constants.dart
 //
 // 🔗 Related: onboarding_screen, onboarding_data, AppStrings, constants.dart
+
+import '../core/constants.dart';
 
 class OnboardingExtensions {
   const OnboardingExtensions._();
 
   /// תרגום גיל ילדים לעברית
-  ///
-  /// ⚠️ הערכים חייבים להתאים ל-kValidChildrenAges ב-constants.dart!
+  /// מחזיר label מתורגם לפי key מ-kChildrenAgeGroups
   static String getAgeLabel(String age) {
     switch (age) {
       case '0-1':
@@ -53,10 +54,8 @@ class OnboardingExtensions {
   }
 
   /// רשימת כל גילאי הילדים
-  ///
-  /// ⚠️ חייב להתאים ל-kValidChildrenAges ב-constants.dart!
-  /// סדר: תינוקות → גיל הרך → גן → בי"ס → נוער
-  static const List<String> allAges = ['0-1', '2-3', '4-6', '7-12', '13-18'];
+  /// ✅ Single Source of Truth: kChildrenAgeGroups ב-constants.dart
+  static List<String> get allAges => kChildrenAgeGroups;
 
   /// רשימת כל ימי השבוע
   static const List<int> allDays = [0, 1, 2, 3, 4, 5, 6];

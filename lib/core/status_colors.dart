@@ -33,13 +33,31 @@ enum StatusType {
   info;
 
   /// המרה מ-String ל-StatusType (עם fallback)
+  ///
+  /// ✅ סלחני לפורמטים שונים:
+  /// - "success" / "SUCCESS" / " success "
+  /// - "StatusType.success" / "ShoppingItemStatus.purchased"
   static StatusType fromString(String value) {
+    // 🔧 נרמול: trim + lowercase + קח רק את החלק האחרון אחרי נקודה
+    var normalized = value.trim().toLowerCase();
+    if (normalized.contains('.')) {
+      normalized = normalized.split('.').last;
+    }
+
+    // 🔄 מיפוי aliases נפוצים (למשל מ-ShoppingItemStatus)
+    const aliases = {
+      'purchased': 'success',
+      'outofstock': 'error',
+      'notneeded': 'pending',
+    };
+    normalized = aliases[normalized] ?? normalized;
+
     return StatusType.values.firstWhere(
-      (e) => e.name == value.toLowerCase(),
+      (e) => e.name == normalized,
       orElse: () {
         if (kDebugMode) {
           debugPrint(
-            '⚠️ StatusType.fromString: Unknown status "$value" - '
+            '⚠️ StatusType.fromString: Unknown status "$value" (normalized: "$normalized") - '
             'falling back to pending. '
             'Valid: ${StatusType.values.map((e) => e.name).join(", ")}',
           );
@@ -81,7 +99,6 @@ class StatusColors {
   /// OnContainer fallbacks (גרסאות כהות לטקסט)
   static const _onSuccessContainerFallback = Color(0xFF1B5E20); // Green 900
   static const _onWarningContainerFallback = Color(0xFFE65100); // Orange 900
-  static const _onErrorContainerFallback = Color(0xFF5C0011); // Dark red - high contrast
 
   // ========================================
   // 🆕 Type-Safe API (מומלץ לשימוש!)
@@ -145,9 +162,9 @@ class StatusColors {
       case StatusType.success:
         return brand?.onSuccessContainer ?? _onSuccessContainerFallback;
       case StatusType.error:
-        // ✅ FIX: שימוש ב-fallback כהה לניגודיות טובה יותר
-        // cs.onErrorContainer של Material 3 יכול להיות בהיר מדי
-        return _onErrorContainerFallback;
+        // ✅ FIX: שימוש ב-Theme (cs.onErrorContainer)
+        // Material 3 מספק ניגודיות טובה גם ב-Light וגם ב-Dark Mode
+        return cs.onErrorContainer;
       case StatusType.warning:
         return brand?.onWarningContainer ?? _onWarningContainerFallback;
       case StatusType.pending:

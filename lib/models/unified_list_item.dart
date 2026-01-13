@@ -42,6 +42,8 @@ class UnifiedListItem {
   final String name;
 
   /// סוג הפריט (product/task)
+  /// ✅ unknownEnumValue: מונע קריסה אם מגיע ערך לא מוכר מהשרת
+  @JsonKey(unknownEnumValue: ItemType.unknown)
   final ItemType type;
 
   /// האם סומן (✅)

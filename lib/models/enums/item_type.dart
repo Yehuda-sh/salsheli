@@ -3,10 +3,12 @@
 // 🇮🇱 סוגי פריטים ברשימת קניות:
 //     - product: מוצר לקנייה (חלב, לחם, וכו')
 //     - task: משימה (להזמין DJ, לשכור צלם, וכו')
+//     - unknown: fallback לערכים לא מוכרים מהשרת
 //
 // 🇬🇧 Shopping list item types:
 //     - product: Product to buy (milk, bread, etc.)
 //     - task: Task to do (book DJ, rent photographer, etc.)
+//     - unknown: fallback for unknown server values
 //
 
 import 'package:json_annotation/json_annotation.dart';
@@ -19,11 +21,15 @@ enum ItemType {
   product('product'),
 
   /// ✅ משימה לביצוע
-  task('task');
+  task('task'),
+
+  /// ❓ סוג לא מוכר (fallback למניעת קריסה)
+  /// Used when server returns an unknown type value
+  unknown('unknown');
 
   const ItemType(this.value);
   final String value;
 
-  // Note: hebrewName and emoji were removed - use AppStrings in UI layer
-  // if localized type names are needed.
+  /// האם זה סוג תקין (לא unknown)
+  bool get isKnown => this != ItemType.unknown;
 }
