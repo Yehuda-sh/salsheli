@@ -27,6 +27,13 @@ class PendingInvitesProvider with ChangeNotifier {
   // 🔒 דגל לבדיקה אם ה-provider כבר disposed
   bool _isDisposed = false;
 
+  // 🔒 מונה דור - מבטל תוצאות ישנות אחרי logout/clear
+  int _checkGeneration = 0;
+
+  // 🔒 שמירת inputs אחרונים - למניעת בדיקות כפולות עם אותם פרטים
+  String? _lastCheckedPhone;
+  String? _lastCheckedEmail;
+
   PendingInvitesProvider({GroupInviteRepository? repository})
       : _repository = repository ?? GroupInviteRepository();
 
@@ -70,38 +77,73 @@ class PendingInvitesProvider with ChangeNotifier {
     String? phone,
     String? email,
   }) async {
-    if (phone == null && email == null) {
+    // 🔧 נרמול: "" או " " → null
+    final normalizedPhone = phone?.trim();
+    final normalizedEmail = email?.trim().toLowerCase();
+    final effectivePhone = (normalizedPhone?.isEmpty ?? true) ? null : normalizedPhone;
+    final effectiveEmail = (normalizedEmail?.isEmpty ?? true) ? null : normalizedEmail;
+
+    // אם אין phone וגם אין email - אין מה לחפש
+    if (effectivePhone == null && effectiveEmail == null) {
       return;
     }
 
-    // 🔒 מניעת קריאות כפולות
+    // 🔒 מניעת טעינה כפולה
     if (_isLoading) return;
+
+    // 🔒 מניעת בדיקות כפולות - רק אם אותם פרטים בדיוק
+    if (_hasChecked &&
+        effectivePhone == _lastCheckedPhone &&
+        effectiveEmail == _lastCheckedEmail) {
+      return;
+    }
+
+    final currentGeneration = ++_checkGeneration;
 
     _isLoading = true;
     _errorMessage = null;
     _notifySafe();
 
     try {
-      _pendingInvites = await _repository.findPendingInvites(
-        phone: phone,
-        email: email,
+      final invites = await _repository.findPendingInvites(
+        phone: effectivePhone,
+        email: effectiveEmail,
       );
 
+      // 🔒 בדיקה: אם logout/clear קרה בזמן ה-await - מתעלמים מהתוצאות
+      if (currentGeneration != _checkGeneration || _isDisposed) {
+        return;
+      }
+
+      _pendingInvites = invites;
       _hasChecked = true;
+      // 🔒 שמור את ה-inputs לבדיקה הבאה
+      _lastCheckedPhone = effectivePhone;
+      _lastCheckedEmail = effectiveEmail;
 
       if (kDebugMode) {
         debugPrint('✅ PendingInvitesProvider: Found ${_pendingInvites.length} pending invites');
       }
     } catch (e) {
+      // 🔒 בדיקה גם ב-catch
+      if (currentGeneration != _checkGeneration || _isDisposed) {
+        return;
+      }
+
       if (kDebugMode) {
         debugPrint('❌ PendingInvitesProvider.checkPendingInvites: $e');
       }
       _errorMessage = 'שגיאה בבדיקת הזמנות';
       _pendingInvites = [];
-    } finally {
-      _isLoading = false;
-      _notifySafe();
     }
+
+    // 🔒 בדיקה לפני notify סופי
+    if (currentGeneration != _checkGeneration || _isDisposed) {
+      return;
+    }
+
+    _isLoading = false;
+    _notifySafe();
   }
 
   /// אישור הזמנה והצטרפות לקבוצה
@@ -112,6 +154,8 @@ class PendingInvitesProvider with ChangeNotifier {
     required String userEmail,
     String? userAvatar,
   }) async {
+    final gen = _checkGeneration;
+
     try {
       await _repository.acceptInviteAndJoinGroup(
         invite: invite,
@@ -121,12 +165,22 @@ class PendingInvitesProvider with ChangeNotifier {
         userAvatar: userAvatar,
       );
 
+      // 🔒 בדיקה: אם logout/clear קרה בזמן ה-await - מתעלמים
+      if (gen != _checkGeneration || _isDisposed) {
+        return false;
+      }
+
       // הסר מהרשימה המקומית
       _pendingInvites = _pendingInvites.where((i) => i.id != invite.id).toList();
       _notifySafe();
 
       return true;
     } catch (e) {
+      // 🔒 בדיקה גם ב-catch
+      if (gen != _checkGeneration || _isDisposed) {
+        return false;
+      }
+
       if (kDebugMode) {
         debugPrint('❌ PendingInvitesProvider.acceptInvite: $e');
       }
@@ -149,8 +203,15 @@ class PendingInvitesProvider with ChangeNotifier {
     NotificationsService? notificationsService,
     String? householdId,
   }) async {
+    final gen = _checkGeneration;
+
     try {
       await _repository.rejectInvite(invite.id);
+
+      // 🔒 בדיקה: אם logout/clear קרה בזמן ה-await - מתעלמים
+      if (gen != _checkGeneration || _isDisposed) {
+        return false;
+      }
 
       // הסר מהרשימה המקומית
       _pendingInvites = _pendingInvites.where((i) => i.id != invite.id).toList();
@@ -183,6 +244,11 @@ class PendingInvitesProvider with ChangeNotifier {
 
       return true;
     } catch (e) {
+      // 🔒 בדיקה גם ב-catch
+      if (gen != _checkGeneration || _isDisposed) {
+        return false;
+      }
+
       if (kDebugMode) {
         debugPrint('❌ PendingInvitesProvider.rejectInvite: $e');
       }
@@ -197,6 +263,12 @@ class PendingInvitesProvider with ChangeNotifier {
     _pendingInvites = [];
     _hasChecked = false;
     _errorMessage = null;
+    _isLoading = false;
+    // 🔒 איפוס inputs אחרונים
+    _lastCheckedPhone = null;
+    _lastCheckedEmail = null;
+    // 🔒 ביטול קריאות תלויות
+    _checkGeneration++;
     _notifySafe();
   }
 

@@ -60,6 +60,11 @@ class SavedContactsService {
           .map((doc) => SavedContact.fromJson(doc.data()))
           .toList();
 
+      // 🔧 Fallback sort: רשומות ישנות ללא last_invited_at מגיעות בסוף מ-Firestore
+      // effectiveLastInvitedAt משתמש ב-addedAt כ-fallback לרשומות כאלה
+      contacts.sort((a, b) =>
+          b.effectiveLastInvitedAt.compareTo(a.effectiveLastInvitedAt));
+
       if (kDebugMode) {
         debugPrint('   ✅ Found ${contacts.length} contacts');
       }

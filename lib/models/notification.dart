@@ -1,19 +1,59 @@
+// 📄 File: lib/models/notification.dart
+//
+// 🇮🇱 מודל התראה באפליקציה:
+//     - הזמנות לרשימות וקבוצות
+//     - אישור/דחייה של בקשות
+//     - שינויי תפקיד והסרות
+//     - התראות מזווה (מלאי נמוך)
+//
+// 🇬🇧 App notification model:
+//     - List and group invitations
+//     - Request approvals/rejections
+//     - Role changes and removals
+//     - Pantry alerts (low stock)
+//
+// 🔗 Related:
+//     - NotificationsProvider (providers/notifications_provider.dart)
+//     - NotificationsRepository (repositories/notifications_repository.dart)
+//     - NotificationsList (screens/notifications/)
+//
+import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';
+
+import 'timestamp_converter.dart';
 
 part 'notification.g.dart';
 
-/// 📬 Notification Model
-/// 
-/// Types:
-/// - invite: User invited to list
-/// - request_approved: Editor's request approved
-/// - request_rejected: Editor's request rejected
-/// - role_changed: User role updated
-/// - user_removed: User removed from list
-/// 
-/// Version: 1.0
-/// Created: 04/11/2025
+// ---- JSON Converters ----
 
+/// 🔧 ממיר ל-actionData עם:
+/// - null → {} ריק
+/// - המרת keys ל-String (Firestore לפעמים מחזיר Map<dynamic, dynamic>)
+/// - עטיפה ב-Map.unmodifiable
+class _ActionDataConverter
+    implements JsonConverter<Map<String, dynamic>, Object?> {
+  const _ActionDataConverter();
+
+  @override
+  Map<String, dynamic> fromJson(Object? json) {
+    if (json == null) return const {};
+    if (json is! Map) return const {};
+
+    // המרה בטוחה + unmodifiable
+    return Map.unmodifiable(
+      Map<String, dynamic>.from(
+        json.map((k, v) => MapEntry(k.toString(), v)),
+      ),
+    );
+  }
+
+  @override
+  Object toJson(Map<String, dynamic> data) => data;
+}
+
+/// 🇮🇱 מודל התראה באפליקציה
+/// 🇬🇧 App notification model
+@immutable
 @JsonSerializable(explicitToJson: true)
 class AppNotification {
   final String id;
@@ -23,33 +63,47 @@ class AppNotification {
   
   @JsonKey(name: 'household_id')
   final String householdId;
-  
+
+  /// סוג ההתראה
+  /// ✅ unknownEnumValue: מונע קריסה אם מגיע סוג חדש מהשרת
+  @JsonKey(unknownEnumValue: NotificationType.unknown)
   final NotificationType type;
   
   final String title; // כותרת (עברית)
   final String message; // הודעה מפורטת
   
+  /// נתונים נוספים (listId, requestId, etc)
+  /// 🔒 Unmodifiable via _ActionDataConverter
+  /// 🔧 Handles: null → {}, Map<dynamic,dynamic> → Map<String,dynamic>
   @JsonKey(name: 'action_data')
-  final Map<String, dynamic> actionData; // נתונים נוספים (listId, requestId, etc)
-  
+  @_ActionDataConverter()
+  final Map<String, dynamic> actionData;
+
   @JsonKey(name: 'is_read')
   final bool isRead;
-  
+
+  /// תאריך יצירה
+  /// 🔧 תומך גם ב-Timestamp (Firestore) וגם ב-ISO string (FCM)
   @JsonKey(name: 'created_at')
+  @TimestampConverter()
   final DateTime createdAt;
-  
+
+  /// תאריך קריאה
+  /// 🔧 תומך גם ב-Timestamp (Firestore) וגם ב-ISO string (FCM)
   @JsonKey(name: 'read_at')
+  @NullableTimestampConverter()
   final DateTime? readAt;
 
-  /// 🆕 מזהה השולח - לצורך "השתק שולח"
+  /// מזהה השולח - לצורך "השתק שולח"
   @JsonKey(name: 'sender_id')
   final String? senderId;
 
-  /// 🆕 שם השולח - להצגה
+  /// שם השולח - להצגה
   @JsonKey(name: 'sender_name')
   final String? senderName;
 
-  const AppNotification({
+  /// 🔒 Private constructor - משתמש ב-factory AppNotification() לאכיפת immutability
+  const AppNotification._({
     required this.id,
     required this.userId,
     required this.householdId,
@@ -63,6 +117,37 @@ class AppNotification {
     this.senderId,
     this.senderName,
   });
+
+  /// 🔧 Factory constructor - עוטף actionData ב-Map.unmodifiable
+  factory AppNotification({
+    required String id,
+    required String userId,
+    required String householdId,
+    required NotificationType type,
+    required String title,
+    required String message,
+    required Map<String, dynamic> actionData,
+    bool isRead = false,
+    required DateTime createdAt,
+    DateTime? readAt,
+    String? senderId,
+    String? senderName,
+  }) {
+    return AppNotification._(
+      id: id,
+      userId: userId,
+      householdId: householdId,
+      type: type,
+      title: title,
+      message: message,
+      actionData: Map.unmodifiable(actionData),
+      isRead: isRead,
+      createdAt: createdAt,
+      readAt: readAt,
+      senderId: senderId,
+      senderName: senderName,
+    );
+  }
 
   // JSON serialization
   factory AppNotification.fromJson(Map<String, dynamic> json) =>
@@ -100,14 +185,34 @@ class AppNotification {
     );
   }
 
-  // Helpers
+  // ---- Helpers ----
+
   bool get isUnread => !isRead;
-  
-  String? get listId => actionData['listId'] as String?;
-  String? get requestId => actionData['requestId'] as String?;
-  String? get listName => actionData['listName'] as String?;
-  String? get inviterName => actionData['inviterName'] as String?;
-  String? get newRole => actionData['newRole'] as String?;
+
+  /// 🔧 קורא מ-actionData עם תמיכה ב-camelCase וגם snake_case
+  String? _getData(String camelCase, String snakeCase) =>
+      (actionData[camelCase] ?? actionData[snakeCase]) as String?;
+
+  /// מזהה הרשימה
+  String? get listId => _getData('listId', 'list_id');
+
+  /// מזהה הבקשה
+  String? get requestId => _getData('requestId', 'request_id');
+
+  /// שם הרשימה
+  String? get listName => _getData('listName', 'list_name');
+
+  /// שם המזמין
+  String? get inviterName => _getData('inviterName', 'inviter_name');
+
+  /// תפקיד חדש
+  String? get newRole => _getData('newRole', 'new_role');
+
+  /// מזהה הקבוצה (לקבוצות)
+  String? get groupId => _getData('groupId', 'group_id');
+
+  /// שם הקבוצה (לקבוצות)
+  String? get groupName => _getData('groupName', 'group_name');
 }
 
 /// 📋 Notification Types
@@ -150,6 +255,11 @@ enum NotificationType {
 
   @JsonValue('low_stock')
   lowStock, // מלאי נמוך במזווה
+
+  /// ❓ סוג לא מוכר (fallback למניעת קריסה)
+  /// Used when server returns an unknown notification type
+  @JsonValue('unknown')
+  unknown,
 }
 
 /// Extension for display
@@ -180,6 +290,8 @@ extension NotificationTypeExtension on NotificationType {
         return '👋';
       case NotificationType.lowStock:
         return '📦';
+      case NotificationType.unknown:
+        return '❓';
     }
   }
 
@@ -209,6 +321,11 @@ extension NotificationTypeExtension on NotificationType {
         return 'עזיבה';
       case NotificationType.lowStock:
         return 'מלאי נמוך';
+      case NotificationType.unknown:
+        return 'לא ידוע';
     }
   }
+
+  /// האם זה סוג תקין (לא unknown)
+  bool get isKnown => this != NotificationType.unknown;
 }

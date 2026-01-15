@@ -241,6 +241,27 @@ class _GroupsListScreenState extends State<GroupsListScreen> {
   }
 }
 
+/// Helper method to get icon for group type
+IconData _getGroupTypeIcon(GroupType type) {
+  switch (type) {
+    case GroupType.family:
+      return Icons.family_restroom;
+    case GroupType.building:
+      return Icons.apartment;
+    case GroupType.kindergarten:
+      return Icons.child_care;
+    case GroupType.friends:
+      return Icons.people;
+    case GroupType.event:
+      return Icons.celebration;
+    case GroupType.roommates:
+      return Icons.home;
+    case GroupType.other:
+    case GroupType.unknown:
+      return Icons.group;
+  }
+}
+
 /// 📋 Group Card Widget
 class _GroupCard extends StatelessWidget {
   final Group group;
@@ -271,6 +292,7 @@ class _GroupCard extends StatelessWidget {
       case GroupType.event:
         cardColor = kStickyPurple;
       case GroupType.other:
+      case GroupType.unknown:
         cardColor = kStickyCyan;
     }
 
@@ -292,7 +314,7 @@ class _GroupCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
-                  group.type.icon,
+                  _getGroupTypeIcon(group.type),
                   size: 28,
                   color: cs.onSurface,
                 ),

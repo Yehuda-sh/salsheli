@@ -6,8 +6,11 @@
 // - שינויי תפקיד
 // - התראות מלאי
 //
-// Version: 1.0 (08/01/2026)
+// Version: 1.1 - No AppBar (Immersive)
+// Last Updated: 13/01/2026
 // 🔗 Related: NotificationsService, AppNotification
+
+import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -16,9 +19,11 @@ import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
 import '../../models/notification.dart';
 import '../../providers/user_context.dart';
 import '../../services/notifications_service.dart';
+import '../../theme/app_theme.dart';
 
 class NotificationsCenterScreen extends StatefulWidget {
   const NotificationsCenterScreen({super.key});
@@ -41,6 +46,8 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
   }
 
   Future<void> _loadNotifications() async {
+    final strings = AppStrings.notificationsCenter;
+
     setState(() {
       _isLoading = true;
       _error = null;
@@ -51,8 +58,9 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
       final userId = userContext.user?.id;
 
       if (userId == null) {
+        if (!mounted) return;
         setState(() {
-          _error = 'משתמש לא מחובר';
+          _error = strings.userNotLoggedIn;
           _isLoading = false;
         });
         return;
@@ -61,6 +69,9 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
       final service = context.read<NotificationsService>();
       final result = await service.getUserNotificationsResult(userId: userId);
 
+      // ✅ FIX: mounted guard after async
+      if (!mounted) return;
+
       if (result.isSuccess) {
         setState(() {
           _notifications = result.notifications ?? [];
@@ -68,7 +79,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
         });
       } else {
         setState(() {
-          _error = result.errorMessage ?? 'שגיאה בטעינת ההתראות';
+          _error = result.errorMessage ?? strings.loadingError;
           _isLoading = false;
         });
       }
@@ -76,8 +87,10 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
       if (kDebugMode) {
         debugPrint('NotificationsCenter: Error loading notifications: $e');
       }
+      // ✅ FIX: mounted guard after async
+      if (!mounted) return;
       setState(() {
-        _error = 'שגיאה בטעינת ההתראות';
+        _error = strings.loadingError;
         _isLoading = false;
       });
     }
@@ -91,6 +104,9 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
 
       final service = context.read<NotificationsService>();
       await service.markAsRead(userId: userId, notificationId: notification.id);
+
+      // ✅ FIX: mounted guard after async
+      if (!mounted) return;
 
       // Update local state
       setState(() {
@@ -110,6 +126,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
   }
 
   Future<void> _markAllAsRead() async {
+    final strings = AppStrings.notificationsCenter;
     final userContext = context.read<UserContext>();
     final userId = userContext.user?.id;
     if (userId == null) return;
@@ -120,6 +137,9 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
     try {
       await service.markAllAsRead(userId: userId);
 
+      // ✅ FIX: mounted guard after async
+      if (!mounted) return;
+
       // Update local state
       setState(() {
         _notifications = _notifications.map((n) => n.copyWith(
@@ -128,15 +148,14 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
         )).toList();
       });
 
-      if (mounted) {
-        await HapticFeedback.lightImpact();
-        messenger.showSnackBar(
-          const SnackBar(
-            content: Text('כל ההתראות סומנו כנקראו'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
+      // ✅ FIX: unawaited for fire-and-forget
+      unawaited(HapticFeedback.lightImpact());
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(strings.allMarkedAsRead),
+          duration: const Duration(seconds: 2),
+        ),
+      );
     } catch (e) {
       if (kDebugMode) {
         debugPrint('NotificationsCenter: Error marking all as read: $e');
@@ -148,29 +167,52 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final strings = AppStrings.notificationsCenter;
 
     final unreadCount = _notifications.where((n) => n.isUnread).length;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('התראות'),
-        centerTitle: true,
-        actions: [
-          if (unreadCount > 0)
-            TextButton(
-              onPressed: _markAllAsRead,
-              child: Text(
-                'סמן הכל כנקרא',
-                style: TextStyle(color: cs.primary),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // 🏷️ כותרת inline
+            Padding(
+              padding: const EdgeInsets.all(kSpacingMedium),
+              child: Row(
+                children: [
+                  Icon(Icons.notifications_outlined, size: 24, color: cs.primary),
+                  const SizedBox(width: kSpacingSmall),
+                  Expanded(
+                    child: Text(
+                      strings.title,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: cs.onSurface,
+                      ),
+                    ),
+                  ),
+                  if (unreadCount > 0)
+                    TextButton(
+                      onPressed: _markAllAsRead,
+                      child: Text(
+                        strings.markAllAsRead,
+                        style: TextStyle(color: cs.primary),
+                      ),
+                    ),
+                ],
               ),
             ),
-        ],
+            Expanded(child: _buildBody(cs, theme)),
+          ],
+        ),
       ),
-      body: _buildBody(cs, theme),
     );
   }
 
   Widget _buildBody(ColorScheme cs, ThemeData theme) {
+    final strings = AppStrings.notificationsCenter;
+
     if (_isLoading) {
       return const Center(
         child: CircularProgressIndicator(),
@@ -189,7 +231,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
             FilledButton.icon(
               onPressed: _loadNotifications,
               icon: const Icon(Icons.refresh),
-              label: const Text('נסה שוב'),
+              label: Text(strings.retryButton),
             ),
           ],
         ),
@@ -208,14 +250,14 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'אין התראות',
+              strings.emptyTitle,
               style: theme.textTheme.titleMedium?.copyWith(
                 color: cs.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'כשתקבל התראות חדשות, הן יופיעו כאן',
+              strings.emptySubtitle,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: cs.onSurfaceVariant.withValues(alpha: 0.7),
               ),
@@ -230,7 +272,9 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(vertical: kSpacingSmall),
         itemCount: _notifications.length,
-        separatorBuilder: (_, _) => const Divider(height: 1),
+        // ✅ FIX: Always scrollable for pull-to-refresh with few items
+        physics: const AlwaysScrollableScrollPhysics(),
+        separatorBuilder: (_, __) => const Divider(height: 1),
         itemBuilder: (context, index) {
           final notification = _notifications[index];
           return _NotificationTile(
@@ -250,7 +294,8 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
     }
 
     // Navigate based on notification type
-    HapticFeedback.selectionClick();
+    // ✅ FIX: unawaited for fire-and-forget
+    unawaited(HapticFeedback.selectionClick());
 
     switch (notification.type) {
       case NotificationType.invite:
@@ -263,7 +308,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
       case NotificationType.requestRejected:
         // Navigate to list if listId exists
         if (notification.listId != null) {
-          // Could navigate to list details
+          // TODO: Navigate to list details when implemented
         }
         break;
       default:
@@ -289,6 +334,7 @@ class _NotificationTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
 
     final isUnread = notification.isUnread;
     final timeAgo = timeago.format(notification.createdAt, locale: 'he');
@@ -302,7 +348,7 @@ class _NotificationTile extends StatelessWidget {
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: _getTypeColor(notification.type, cs).withValues(alpha: 0.15),
+          color: _getTypeColor(notification.type, cs, brand).withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Center(
@@ -351,21 +397,22 @@ class _NotificationTile extends StatelessWidget {
     );
   }
 
-  Color _getTypeColor(NotificationType type, ColorScheme cs) {
+  /// ✅ FIX: Theme-aware colors from AppBrand
+  Color _getTypeColor(NotificationType type, ColorScheme cs, AppBrand? brand) {
     switch (type) {
       case NotificationType.invite:
       case NotificationType.groupInvite:
         return cs.primary;
       case NotificationType.requestApproved:
-        return Colors.green;
+        return brand?.success ?? kStickyGreen;
       case NotificationType.requestRejected:
       case NotificationType.groupInviteRejected:
       case NotificationType.userRemoved:
         return cs.error;
       case NotificationType.roleChanged:
-        return Colors.orange;
+        return brand?.warning ?? kStickyOrange;
       case NotificationType.lowStock:
-        return Colors.amber;
+        return brand?.accent ?? kStickyYellow;
       default:
         return cs.secondary;
     }

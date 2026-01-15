@@ -120,6 +120,7 @@ class InventoryProvider with ChangeNotifier {
 
   /// מעדכן את ה-UserContext ומאזין לשינויים
   /// נקרא אוטומטית מ-ProxyProvider
+  /// 🔧 משתמש ב-microtask כדי למנוע notifyListeners בזמן build
   void updateUserContext(UserContext newContext) {
     // מניעת update כפול של אותו context
     if (_userContext == newContext) {
@@ -135,14 +136,16 @@ class InventoryProvider with ChangeNotifier {
     _listeningToUser = true;
 
     // אתחול רק בפעם הראשונה
+    // ⚠️ חובה microtask! אחרת notifyListeners נקרא בזמן build (ProxyProvider)
     if (!_hasInitialized) {
       _hasInitialized = true;
-      _initialize();
+      Future.microtask(_initialize);
     }
   }
 
   /// מעדכן את ה-GroupsProvider ומאזין לשינויים
   /// נקרא אוטומטית מ-ProxyProvider
+  /// 🔧 משתמש ב-microtask כדי למנוע notifyListeners בזמן build
   void updateGroupsProvider(GroupsProvider? newProvider) {
     if (kDebugMode) {
       debugPrint('🔗 InventoryProvider.updateGroupsProvider: newProvider=${newProvider != null}, same=${_groupsProvider == newProvider}, groups=${newProvider?.groups.length ?? 0}');
@@ -152,6 +155,7 @@ class InventoryProvider with ChangeNotifier {
     if (_groupsProvider == newProvider) {
       // 🔧 בדיקה: אם יש קבוצות אבל המזווה ריק - נטען מחדש
       // זה פותר race condition כאשר GroupsProvider נטען אחרי InventoryProvider
+      // ⚠️ חובה microtask! אחרת notifyListeners נקרא בזמן build
       if (newProvider != null &&
           newProvider.groups.isNotEmpty &&
           _items.isEmpty &&
@@ -159,7 +163,7 @@ class InventoryProvider with ChangeNotifier {
         if (kDebugMode) {
           debugPrint('🔄 InventoryProvider: קבוצות זמינות אך מזווה ריק - טוען מחדש');
         }
-        _updateInventoryLocation();
+        Future.microtask(_updateInventoryLocation);
       }
       return;
     }
@@ -180,7 +184,8 @@ class InventoryProvider with ChangeNotifier {
         debugPrint('🔗 InventoryProvider: נרשם listener ל-GroupsProvider, קבוצות כרגע: ${newProvider.groups.length}');
       }
       // עדכון מיקום מזווה בהתבסס על קבוצות
-      _updateInventoryLocation();
+      // ⚠️ חובה microtask! אחרת notifyListeners נקרא בזמן build (ProxyProvider)
+      Future.microtask(_updateInventoryLocation);
 
       // 🔧 אם יש כבר קבוצות - ייתכן שפספסנו את ה-notifyListeners
       // קורא שוב אחרי frame אחד כדי לתפוס מקרי קצה
@@ -223,10 +228,16 @@ class InventoryProvider with ChangeNotifier {
       debugPrint('📍 InventoryProvider._updateInventoryLocation: userId=$userId, isLoggedIn=${_userContext?.isLoggedIn}, groupsCount=${_groupsProvider?.groups.length ?? 0}');
     }
     if (userId == null || _userContext?.isLoggedIn != true) {
+      // 🔧 Logout/no user: איפוס מלא של state
       _currentMode = InventoryMode.personal;
       _currentGroupId = null;
       _items = [];
-      notifyListeners();
+      _isLoading = false;
+      _errorMessage = null;
+      _loadingFuture = null;
+      // ⚠️ העלאת דור כדי לבטל טעינות באמצע
+      _loadGeneration++;
+      _notifySafe();
       return;
     }
 
@@ -287,18 +298,22 @@ class InventoryProvider with ChangeNotifier {
     _loadGeneration++;
     final currentGeneration = _loadGeneration;
 
-    // אם יש טעינה קיימת מאותו מצב - המתן לה
-    // אחרת התחל טעינה חדשה (המצב השתנה)
+    // 🔧 FIX: אם יש טעינה קיימת - חכה לה ואז התחל חדשה
+    // החזר Future שמסתיים כשהטעינה החדשה מסתיימת (לא הישנה!)
     if (_loadingFuture != null) {
-      // בדוק אם צריך להתחיל טעינה חדשה אחרי שהקודמת תסתיים
-      _loadingFuture!.whenComplete(() {
-        if (_loadGeneration == currentGeneration && !_isDisposed) {
-          // הטעינה הקודמת הסתיימה, התחל חדשה אם עדיין רלוונטי
-          _loadingFuture = null;
-          _loadItems();
+      // שרשור נכון: חכה לישנה → התחל חדשה → החזר את החדשה
+      final chainedFuture = _loadingFuture!.then((_) {
+        // בדוק אם עדיין רלוונטי
+        if (_loadGeneration != currentGeneration || _isDisposed) {
+          return Future<void>.value();
         }
+        // התחל טעינה חדשה והחזר אותה
+        _loadingFuture = null;
+        return _loadItems();
       });
-      return _loadingFuture!;
+      // 🔧 שמור את ה-chain כדי למנוע שרשראות כפולות
+      _loadingFuture = chainedFuture;
+      return chainedFuture;
     }
 
     _loadingFuture = _doLoad(currentGeneration).whenComplete(() => _loadingFuture = null);
@@ -309,7 +324,9 @@ class InventoryProvider with ChangeNotifier {
     final userId = _userContext?.userId;
     if (_userContext?.isLoggedIn != true || userId == null) {
       _items = [];
-      notifyListeners();
+      _isLoading = false;
+      _errorMessage = null;
+      _notifySafe();
       return;
     }
 
@@ -319,7 +336,7 @@ class InventoryProvider with ChangeNotifier {
 
     _isLoading = true;
     _errorMessage = null;
-    notifyListeners();
+    _notifySafe();
 
     try {
       List<InventoryItem> loadedItems;
@@ -352,7 +369,7 @@ class InventoryProvider with ChangeNotifier {
           debugPrint('   טעינה: $loadingMode/$loadingGroupId → נוכחי: $_currentMode/$_currentGroupId');
         }
         _isLoading = false;
-        notifyListeners();
+        _notifySafe();
         return;
       }
 
@@ -369,7 +386,7 @@ class InventoryProvider with ChangeNotifier {
     }
 
     _isLoading = false;
-    notifyListeners();
+    _notifySafe();
   }
 
   /// טוען את כל הפריטים מחדש מה-Repository

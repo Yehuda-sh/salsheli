@@ -5,15 +5,18 @@
 // 📋 Features:
 // - תפקיד לכל איש קשר (Admin/Editor/Viewer)
 // - תמיכה במשתמשים רשומים ולא רשומים (pending)
-// - שימושי למסך יצירת רשימה עם שיתוף ספציפי
+// - נרמול email/phone למניעת כפילויות
+// - identityKey אחיד לזיהוי ייחודי
 //
 // 🔗 Related:
 // - saved_contact.dart - איש קשר שמור
 // - shared_user.dart - משתמש משותף ברשימה
 // - create_list_screen.dart - מסך יצירת רשימה
 //
-// Version: 1.0
-// Created: 06/01/2026
+// Version: 1.1 - Added normalization, identityKey, emoji-safe initials
+// Last Updated: 13/01/2026
+
+import 'package:flutter/foundation.dart' show immutable;
 
 import 'enums/user_role.dart';
 import 'saved_contact.dart';
@@ -22,6 +25,7 @@ import 'saved_contact.dart';
 ///
 /// משמש במסך יצירת רשימה כאשר בוחרים "שיתוף ספציפי".
 /// כולל תפקיד (role) ומידע אם המשתמש רשום או לא.
+@immutable
 class SelectedContact {
   /// מזהה המשתמש (null אם לא רשום באפליקציה)
   final String? userId;
@@ -52,7 +56,46 @@ class SelectedContact {
     this.avatar,
     required this.role,
     this.isPending = false,
-  });
+  }) : assert(
+          userId != null || email.length > 0 || (phone != null && phone.length > 0),
+          'SelectedContact must have userId, email, or phone',
+        );
+
+  // ---- Normalization Helpers ----
+
+  /// 🔧 נרמול אימייל: trim + lowercase
+  /// 🇬🇧 Normalize email: trim + lowercase
+  static String normalizeEmail(String email) => email.trim().toLowerCase();
+
+  /// 🔧 נרמול טלפון: רק ספרות (ו-+ בהתחלה אם יש)
+  /// 🇬🇧 Normalize phone: digits only (keeps leading +)
+  static String normalizePhone(String phone) {
+    final trimmed = phone.trim();
+    if (trimmed.isEmpty) return '';
+
+    final hasPlus = trimmed.startsWith('+');
+    final digitsOnly = trimmed.replaceAll(RegExp(r'[^\d]'), '');
+    return hasPlus ? '+$digitsOnly' : digitsOnly;
+  }
+
+  /// 🔧 מפתח זהות אחיד: userId > email מנורמל > phone מנורמל
+  /// 🇬🇧 Unified identity key: userId > normalized email > normalized phone
+  ///
+  /// משמש ל-== ו-hashCode למניעת כפילויות
+  String get identityKey {
+    if (userId != null && userId!.isNotEmpty) return 'uid:$userId';
+    if (email.isNotEmpty) return 'email:${normalizeEmail(email)}';
+    if (phone != null && phone!.isNotEmpty) return 'phone:${normalizePhone(phone!)}';
+    // 🔧 לא אמור להגיע לפה בגלל ה-assert בקונסטרקטור
+    assert(false, 'SelectedContact must have userId, email, or phone');
+    return 'unknown';
+  }
+
+  /// 🔧 מחלץ תו ראשון בצורה בטוחה (תומך באמוג׳י)
+  static String _firstChar(String s) {
+    if (s.isEmpty) return '';
+    return String.fromCharCode(s.runes.first);
+  }
 
   /// יצירה מ-SavedContact קיים
   factory SelectedContact.fromSavedContact(
@@ -117,23 +160,33 @@ class SelectedContact {
   String get displayName => name ?? (email.isNotEmpty ? email : phone ?? '?');
 
   /// ראשי תיבות לאווטאר
+  ///
+  /// 🔧 תומך בשמות עבריים, מקפים, רווחים כפולים ואמוג׳י
   String get initials {
     if (name != null && name!.isNotEmpty) {
       final cleaned = name!.trim().replaceAll(RegExp(r'\s+'), ' ');
       final parts =
           cleaned.split(RegExp(r'[\s\-]+')).where((p) => p.isNotEmpty).toList();
       if (parts.length >= 2) {
-        return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+        return '${_firstChar(parts[0])}${_firstChar(parts[1])}'.toUpperCase();
       }
       if (parts.isNotEmpty && parts[0].isNotEmpty) {
-        return parts[0][0].toUpperCase();
+        return _firstChar(parts[0]).toUpperCase();
       }
     }
     if (email.isNotEmpty) {
-      return email[0].toUpperCase();
+      return _firstChar(email).toUpperCase();
     }
     if (phone != null && phone!.isNotEmpty) {
-      return phone![phone!.length - 1]; // ספרה אחרונה
+      // 🔧 2 ספרות אחרונות - יותר "טביעת אצבע" מספרה אחת
+      final normalized = normalizePhone(phone!);
+      if (normalized.length >= 2) {
+        return normalized.substring(normalized.length - 2);
+      }
+      if (normalized.isNotEmpty) {
+        return normalized; // ספרה בודדת
+      }
+      // normalized ריק (למשל phone היה רק "+") - ניפול ל-'?'
     }
     return '?';
   }
@@ -163,18 +216,12 @@ class SelectedContact {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! SelectedContact) return false;
-    // השווה לפי אימייל או טלפון
-    if (email.isNotEmpty && other.email.isNotEmpty) {
-      return other.email == email;
-    }
-    if (phone != null && other.phone != null) {
-      return other.phone == phone;
-    }
-    return other.email == email && other.phone == phone;
+    // 🔧 השוואה לפי identityKey (userId > email מנורמל > phone מנורמל)
+    return identityKey == other.identityKey;
   }
 
   @override
-  int get hashCode => email.isNotEmpty ? email.hashCode : (phone?.hashCode ?? 0);
+  int get hashCode => identityKey.hashCode;
 
   @override
   String toString() {

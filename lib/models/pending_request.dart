@@ -27,15 +27,44 @@
 // Version: 1.1 - DateTime converter, validation helpers, equality fix
 // Last Updated: 30/12/2025
 
+import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 import 'enums/request_type.dart';
 import 'enums/request_status.dart';
-import 'shared_user.dart' show FlexibleDateTimeConverter, NullableFlexibleDateTimeConverter;
+import 'timestamp_converter.dart' show FlexibleDateTimeConverter, NullableFlexibleDateTimeConverter;
 
 part 'pending_request.g.dart';
 
+// ---- JSON Converters ----
+
+/// 🔧 ממיר ל-requestData עם:
+/// - null → {} ריק
+/// - המרת keys ל-String (Firestore לפעמים מחזיר Map<dynamic, dynamic>)
+/// - עטיפה ב-Map.unmodifiable
+class _RequestDataConverter
+    implements JsonConverter<Map<String, dynamic>, Object?> {
+  const _RequestDataConverter();
+
+  @override
+  Map<String, dynamic> fromJson(Object? json) {
+    if (json == null) return const {};
+    if (json is! Map) return const {};
+
+    // המרה בטוחה + unmodifiable
+    return Map.unmodifiable(
+      Map<String, dynamic>.from(
+        json.map((k, v) => MapEntry(k.toString(), v)),
+      ),
+    );
+  }
+
+  @override
+  Object toJson(Map<String, dynamic> data) => data;
+}
+
 /// בקשה ממתינה לאישור
+@immutable
 @JsonSerializable(explicitToJson: true)
 class PendingRequest {
   /// מזהה הבקשה
@@ -50,9 +79,13 @@ class PendingRequest {
   final String requesterId;
 
   /// סוג הבקשה
+  /// ✅ unknownEnumValue: מונע קריסה אם מגיע ערך לא מוכר מהשרת
+  @JsonKey(unknownEnumValue: RequestType.unknown)
   final RequestType type;
 
   /// סטטוס הבקשה
+  /// ✅ unknownEnumValue: מונע קריסה אם מגיע ערך לא מוכר מהשרת
+  @JsonKey(unknownEnumValue: RequestStatus.unknown)
   final RequestStatus status;
 
   /// מתי נוצרה הבקשה
@@ -61,12 +94,16 @@ class PendingRequest {
   final DateTime createdAt;
 
   /// תוכן הבקשה (משתנה לפי type)
-  /// 
+  ///
   /// דוגמאות:
   /// - addItem: { name, quantity, unitPrice, ... }
   /// - editItem: { itemId, changes: { name: 'new', quantity: 5 } }
   /// - deleteItem: { itemId }
+  ///
+  /// 🔒 Unmodifiable via _RequestDataConverter
+  /// 🔧 Handles: null → {}, Map<dynamic,dynamic> → Map<String,dynamic>
   @JsonKey(name: 'request_data')
+  @_RequestDataConverter()
   final Map<String, dynamic> requestData;
 
   // === אישור/דחייה ===
@@ -98,7 +135,8 @@ class PendingRequest {
   @JsonKey(name: 'list_name')
   final String? listName;
 
-  const PendingRequest({
+  /// 🔒 Private constructor - משתמש ב-factory PendingRequest() לאכיפת immutability
+  const PendingRequest._({
     required this.id,
     required this.listId,
     required this.requesterId,
@@ -114,6 +152,39 @@ class PendingRequest {
     this.listName,
   });
 
+  /// 🔧 Factory constructor - עוטף requestData ב-Map.unmodifiable
+  factory PendingRequest({
+    required String id,
+    required String listId,
+    required String requesterId,
+    required RequestType type,
+    required RequestStatus status,
+    required DateTime createdAt,
+    required Map<String, dynamic> requestData,
+    String? reviewerId,
+    DateTime? reviewedAt,
+    String? rejectionReason,
+    String? requesterName,
+    String? reviewerName,
+    String? listName,
+  }) {
+    return PendingRequest._(
+      id: id,
+      listId: listId,
+      requesterId: requesterId,
+      type: type,
+      status: status,
+      createdAt: createdAt,
+      requestData: Map.unmodifiable(requestData),
+      reviewerId: reviewerId,
+      reviewedAt: reviewedAt,
+      rejectionReason: rejectionReason,
+      requesterName: requesterName,
+      reviewerName: reviewerName,
+      listName: listName,
+    );
+  }
+
   /// JSON serialization
   factory PendingRequest.fromJson(Map<String, dynamic> json) =>
       _$PendingRequestFromJson(json);
@@ -122,14 +193,14 @@ class PendingRequest {
 
   // === Helpers ===
 
-  /// האם הבקשה ממתינה
-  bool get isPending => status == RequestStatus.pending;
+  /// האם הבקשה ממתינה (כולל unknown - שלא ייעלמו מה-UI)
+  bool get isPending => status.isPending;
 
   /// האם הבקשה אושרה
-  bool get isApproved => status == RequestStatus.approved;
+  bool get isApproved => status.isApproved;
 
   /// האם הבקשה נדחתה
-  bool get isRejected => status == RequestStatus.rejected;
+  bool get isRejected => status.isRejected;
 
   /// כמה זמן עבר מאז הבקשה (בדקות)
   int get minutesAgo {
@@ -153,8 +224,12 @@ class PendingRequest {
   // === Request Data Helpers ===
   // 🔧 גישה בטוחה לנתוני הבקשה לפי type
 
+  /// 🔧 קורא מ-requestData עם תמיכה ב-camelCase וגם snake_case
+  String? _getData(String camelCase, String snakeCase) =>
+      (requestData[camelCase] ?? requestData[snakeCase]) as String?;
+
   /// 🔧 מזהה הפריט (ל-editItem/deleteItem)
-  String? get targetItemId => requestData['itemId'] as String?;
+  String? get targetItemId => _getData('itemId', 'item_id');
 
   /// 🔧 שם המוצר המבוקש (ל-addItem)
   String? get requestedName => requestData['name'] as String?;
@@ -173,6 +248,7 @@ class PendingRequest {
   /// - editItem: חייב להיות itemId + changes
   /// - deleteItem: חייב להיות itemId
   /// - inviteToList: חייב להיות userId או email
+  /// - unknown: תמיד לא תקין (לא ניתן לאמת סוג לא מוכר)
   bool get isValidForType {
     switch (type) {
       case RequestType.addItem:
@@ -182,9 +258,12 @@ class PendingRequest {
       case RequestType.deleteItem:
         return targetItemId != null && targetItemId!.isNotEmpty;
       case RequestType.inviteToList:
-        final userId = requestData['userId'] as String?;
+        // 🔧 תמיכה גם ב-camelCase וגם snake_case
+        final userId = _getData('userId', 'user_id');
         final email = requestData['email'] as String?;
         return (userId?.isNotEmpty ?? false) || (email?.isNotEmpty ?? false);
+      case RequestType.unknown:
+        return false; // לא ניתן לאמת סוג לא מוכר
     }
   }
 
@@ -225,7 +304,7 @@ class PendingRequest {
       type: type,
       status: RequestStatus.pending,
       createdAt: DateTime.now(),
-      requestData: requestData,
+      requestData: requestData, // Factory עוטף ב-Map.unmodifiable
       requesterName: requesterName,
       listName: listName,
     );
@@ -254,7 +333,7 @@ class PendingRequest {
       type: type ?? this.type,
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
-      requestData: requestData ?? this.requestData,
+      requestData: requestData ?? this.requestData, // Factory עוטף ב-Map.unmodifiable
       reviewerId: reviewerId ?? this.reviewerId,
       reviewedAt: reviewedAt ?? this.reviewedAt,
       rejectionReason: rejectionReason ?? this.rejectionReason,

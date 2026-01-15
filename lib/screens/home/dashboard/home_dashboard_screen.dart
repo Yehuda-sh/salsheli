@@ -11,12 +11,15 @@
 // Version: 6.0 (08/01/2026) - Enhanced home screen
 // 🔗 Related: ShoppingListsProvider, ReceiptProvider, NotificationsService
 
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/ui_constants.dart';
+import '../../../l10n/app_strings.dart';
 import '../../../models/receipt.dart';
 import '../../../models/shopping_list.dart';
 import '../../../providers/pending_invites_provider.dart';
@@ -100,7 +103,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     final sugg = context.read<SuggestionsProvider>();
     final receipts = context.read<ReceiptProvider>();
 
-    await HapticFeedback.mediumImpact();
+    unawaited(HapticFeedback.mediumImpact());
 
     try {
       await Future.wait([
@@ -129,7 +132,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     await Future.delayed(const Duration(milliseconds: 300));
 
     if (context.mounted) {
-      await HapticFeedback.lightImpact();
+      unawaited(HapticFeedback.lightImpact());
     }
 
     if (kDebugMode) {
@@ -145,22 +148,23 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   /// אם householdId מתחיל ב-"house_" + userId → "משפחה אישית"
   /// אחרת → "בית [שם]" (כרגע placeholder עד שנטמיע Family model)
   String _getFamilyDisplayName(UserContext userContext) {
+    final strings = AppStrings.homeDashboard;
     final householdId = userContext.householdId;
     final userId = userContext.userId;
 
     if (householdId == null || userId == null) {
-      return 'משפחה אישית';
+      return strings.personalFamily;
     }
 
     // בדיקה אם זו משפחה אישית (auto-generated)
     if (householdId == 'house_$userId' ||
         householdId == 'house_${userId.hashCode.abs()}') {
-      return 'משפחה אישית';
+      return strings.personalFamily;
     }
 
     // משפחה משותפת - כרגע מציג placeholder
     // TODO: Sprint 2 - טען שם משפחה מ-Family model
-    return 'משפחה משותפת';
+    return strings.sharedFamily;
   }
 
   @override
@@ -191,11 +195,11 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'home_fab',
         onPressed: () {
-          HapticFeedback.lightImpact();
+          unawaited(HapticFeedback.lightImpact());
           Navigator.pushNamed(context, '/create-list');
         },
         icon: const Icon(Icons.add),
-        label: const Text('רשימה חדשה'),
+        label: Text(AppStrings.homeDashboard.newListButton),
       ),
       body: Stack(
         children: [
@@ -259,6 +263,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   // ============================================
   Widget _buildErrorBanner(BuildContext context, String errorMessage, ColorScheme cs) {
     final theme = Theme.of(context);
+    final strings = AppStrings.homeDashboard;
 
     return Container(
       margin: const EdgeInsets.only(bottom: kSpacingSmall),
@@ -281,7 +286,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'שגיאה בטעינת נתונים',
+                  strings.errorTitle,
                   style: theme.textTheme.titleSmall?.copyWith(
                     color: cs.onErrorContainer,
                     fontWeight: FontWeight.bold,
@@ -303,7 +308,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             onPressed: () => _refresh(context),
             icon: Icon(Icons.refresh, color: cs.onErrorContainer, size: 18),
             label: Text(
-              'נסה שוב',
+              strings.retryButton,
               style: TextStyle(
                 color: cs.onErrorContainer,
                 fontWeight: FontWeight.bold,
@@ -329,10 +334,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final userContext = context.watch<UserContext>();
-    final notificationsService = context.read<NotificationsService>();
+    final notificationsService = context.read<NotificationsService?>();
+    final strings = AppStrings.homeDashboard;
 
-    final hasName = userName?.trim().isNotEmpty ?? false;
-    final greeting = hasName ? 'שלום, $userName!' : 'שלום!';
+    final greeting = strings.greeting(userName);
 
     return Card(
       elevation: 0,
@@ -399,7 +404,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             ),
             // התראות - bell icon עם StreamBuilder לספירת התראות
             StreamBuilder<int>(
-              stream: userContext.userId != null
+              stream: (userContext.userId != null && notificationsService != null)
                   ? notificationsService.watchUnreadCount(userId: userContext.userId!)
                   : const Stream.empty(),
               initialData: 0,
@@ -407,7 +412,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 final unreadCount = snapshot.data ?? 0;
                 return InkWell(
                   onTap: () {
-                    HapticFeedback.lightImpact();
+                    unawaited(HapticFeedback.lightImpact());
                     Navigator.pushNamed(context, '/notifications');
                   },
                   borderRadius: BorderRadius.circular(12),
@@ -441,6 +446,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     ColorScheme cs,
   ) {
     final theme = Theme.of(context);
+    final strings = AppStrings.homeDashboard;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -451,7 +457,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             Icon(Icons.shopping_cart_outlined, size: 20, color: cs.primary),
             const SizedBox(width: 8),
             Text(
-              'רשימות פעילות',
+              strings.activeListsTitle,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -480,7 +486,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             ),
             child: InkWell(
               onTap: () {
-                HapticFeedback.lightImpact();
+                unawaited(HapticFeedback.lightImpact());
                 Navigator.pushNamed(context, '/create-list');
               },
               borderRadius: BorderRadius.circular(16),
@@ -503,7 +509,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     ),
                     const SizedBox(height: kSpacingMedium),
                     Text(
-                      'אין רשימות פעילות',
+                      strings.noActiveLists,
                       style: theme.textTheme.titleSmall?.copyWith(
                         color: cs.onSurface,
                         fontWeight: FontWeight.w600,
@@ -511,7 +517,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'לחץ כאן ליצירת רשימה חדשה',
+                      strings.createListHint,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: cs.secondary,
                       ),
@@ -530,6 +536,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   Widget _buildListCard(BuildContext context, ShoppingList list, ColorScheme cs) {
     final theme = Theme.of(context);
     final brand = theme.extension<AppBrand>();
+    final strings = AppStrings.homeDashboard;
     final uncheckedCount = list.items.where((i) => !i.isChecked).length;
     final checkedCount = list.items.where((i) => i.isChecked).length;
     final totalCount = list.items.length;
@@ -537,13 +544,17 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
     // צבע לפי סוג הרשימה
     final typeColor = _getListTypeColor(list.type, cs, brand);
+    // ✅ FIX: Theme-aware success color
+    final successColor = brand?.success ?? kStickyGreen;
+    // ✅ FIX: RTL-aware chevron icon
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     return Card(
       margin: const EdgeInsets.only(bottom: kSpacingSmall),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
-          HapticFeedback.lightImpact();
+          unawaited(HapticFeedback.lightImpact());
           Navigator.pushNamed(
             context,
             '/list-details',
@@ -590,7 +601,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                         const SizedBox(height: 4),
                         if (totalCount == 0)
                           Text(
-                            'רשימה ריקה',
+                            strings.emptyList,
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: cs.onSurfaceVariant,
                             ),
@@ -604,17 +615,17 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                                     : Icons.shopping_bag_outlined,
                                 size: 14,
                                 color: uncheckedCount == 0
-                                    ? Colors.green
+                                    ? successColor
                                     : cs.onSurfaceVariant,
                               ),
                               const SizedBox(width: 4),
                               Text(
                                 uncheckedCount == 0
-                                    ? 'הושלם! ✓'
-                                    : 'נותרו $uncheckedCount פריטים',
+                                    ? strings.completed
+                                    : strings.remainingItems(uncheckedCount),
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: uncheckedCount == 0
-                                      ? Colors.green
+                                      ? successColor
                                       : cs.onSurfaceVariant,
                                   fontWeight: uncheckedCount == 0
                                       ? FontWeight.w600
@@ -626,8 +637,11 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                       ],
                     ),
                   ),
-                  // חץ
-                  Icon(Icons.chevron_left, color: cs.onSurfaceVariant),
+                  // חץ - RTL aware
+                  Icon(
+                    isRtl ? Icons.chevron_left : Icons.chevron_right,
+                    color: cs.onSurfaceVariant,
+                  ),
                 ],
               ),
             ),
@@ -637,7 +651,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 value: progress,
                 backgroundColor: cs.surfaceContainerHighest,
                 valueColor: AlwaysStoppedAnimation(
-                  progress == 1.0 ? Colors.green : typeColor,
+                  progress == 1.0 ? successColor : typeColor,
                 ),
                 minHeight: 3,
               ),
@@ -678,6 +692,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     ColorScheme cs,
   ) {
     final theme = Theme.of(context);
+    final strings = AppStrings.homeDashboard;
+    // ✅ FIX: RTL-aware chevron icon
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     if (receipts.isEmpty) {
       return const SizedBox.shrink();
@@ -696,7 +713,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             Icon(Icons.history, size: 20, color: cs.primary),
             const SizedBox(width: 8),
             Text(
-              'היסטוריה',
+              strings.historyTitle,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -705,7 +722,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             if (hasMore)
               TextButton(
                 onPressed: () {
-                  HapticFeedback.lightImpact();
+                  unawaited(HapticFeedback.lightImpact());
                   Navigator.pushNamed(context, '/history');
                 },
                 style: TextButton.styleFrom(
@@ -717,14 +734,18 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'ראה הכל',
+                      strings.seeAll,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: cs.primary,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     const SizedBox(width: 2),
-                    Icon(Icons.chevron_left, size: 16, color: cs.primary),
+                    Icon(
+                      isRtl ? Icons.chevron_left : Icons.chevron_right,
+                      size: 16,
+                      color: cs.primary,
+                    ),
                   ],
                 ),
               ),
@@ -756,10 +777,11 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
   Widget _buildReceiptTile(BuildContext context, Receipt receipt, ColorScheme cs) {
     final theme = Theme.of(context);
+    final strings = AppStrings.homeDashboard;
 
     return ListTile(
       onTap: () {
-        HapticFeedback.lightImpact();
+        unawaited(HapticFeedback.lightImpact());
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -803,7 +825,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               ),
             )
           : Text(
-              '${receipt.items.length} פריטים',
+              strings.itemsCount(receipt.items.length),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: cs.onSurfaceVariant,
               ),
@@ -812,15 +834,16 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   }
 
   String _formatDate(DateTime date) {
+    final strings = AppStrings.homeDashboard;
     final now = DateTime.now();
     final difference = now.difference(date);
 
     if (difference.inDays == 0) {
-      return 'היום';
+      return strings.today;
     } else if (difference.inDays == 1) {
-      return 'אתמול';
+      return strings.yesterday;
     } else if (difference.inDays < 7) {
-      return 'לפני ${difference.inDays} ימים';
+      return strings.daysAgo(difference.inDays);
     } else {
       return '${date.day}/${date.month}/${date.year}';
     }

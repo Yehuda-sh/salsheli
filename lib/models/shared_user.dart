@@ -18,61 +18,59 @@
 //       "user456": { role: "viewer", shared_at: Timestamp, user_name: "דנה" }
 //     }
 //
-// Version: 1.1 - Safe casting, userId validation, equality fix, permission helpers
-// Last Updated: 30/12/2025
+// 🔗 Related:
+//     - timestamp_converter.dart - Converters מרכזיים
+//     - user_role.dart - הגדרת תפקידים
+//
+// Version: 1.2 - Use central converters, runtime validation, backward compat
+// Last Updated: 13/01/2026
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';
+
 import 'enums/user_role.dart';
+import 'timestamp_converter.dart' show FlexibleDateTimeConverter;
 
 part 'shared_user.g.dart';
 
-/// Converter that handles both Timestamp and String for DateTime
-///
-/// 🔧 **חשוב:** toJson מחזיר Timestamp לשמירה ב-Firestore (לא String).
-/// זה מאפשר מיון ופילטרים נכונים לפי תאריך.
-class FlexibleDateTimeConverter implements JsonConverter<DateTime, dynamic> {
-  const FlexibleDateTimeConverter();
+// ---- JSON Read Helpers (backward compatibility) ----
 
-  @override
-  DateTime fromJson(dynamic json) {
-    if (json is Timestamp) {
-      return json.toDate();
-    } else if (json is String) {
-      return DateTime.parse(json);
-    } else if (json is DateTime) {
-      return json;
-    }
-    throw ArgumentError('Cannot convert $json to DateTime');
+/// 🔧 קורא sharedAt עם תמיכה ב-camelCase וגם snake_case
+Object? _readSharedAt(Map<dynamic, dynamic> json, String key) =>
+    json['shared_at'] ?? json['sharedAt'];
+
+/// 🔧 קורא userName עם תמיכה ב-camelCase וגם snake_case
+Object? _readUserName(Map<dynamic, dynamic> json, String key) =>
+    json['user_name'] ?? json['userName'];
+
+/// 🔧 קורא userEmail עם תמיכה ב-camelCase וגם snake_case
+Object? _readUserEmail(Map<dynamic, dynamic> json, String key) =>
+    json['user_email'] ?? json['userEmail'];
+
+/// 🔧 קורא userAvatar עם תמיכה ב-user_avatar, avatar_url וגם userAvatar
+/// 📌 מתייחס ל-"" ו-"  " כ-null כדי לא לחסום fallback
+Object? _readUserAvatar(Map<dynamic, dynamic> json, String key) {
+  final userAvatar = json['user_avatar'];
+  if (userAvatar != null && userAvatar is String && userAvatar.trim().isNotEmpty) {
+    return userAvatar;
   }
 
-  /// 🔧 מחזיר Timestamp עבור Firestore (לא ISO String)
-  @override
-  dynamic toJson(DateTime object) => Timestamp.fromDate(object);
-}
-
-/// 🔧 Nullable version of FlexibleDateTimeConverter
-///
-/// לשימוש עם שדות DateTime אופציונליים כמו reviewedAt
-class NullableFlexibleDateTimeConverter implements JsonConverter<DateTime?, dynamic> {
-  const NullableFlexibleDateTimeConverter();
-
-  @override
-  DateTime? fromJson(dynamic json) {
-    if (json == null) return null;
-    if (json is Timestamp) {
-      return json.toDate();
-    } else if (json is String) {
-      return DateTime.parse(json);
-    } else if (json is DateTime) {
-      return json;
-    }
-    return null; // לא זורק - פשוט מחזיר null
+  final avatarUrl = json['avatar_url'];
+  if (avatarUrl != null && avatarUrl is String && avatarUrl.trim().isNotEmpty) {
+    return avatarUrl;
   }
 
-  @override
-  dynamic toJson(DateTime? object) => object != null ? Timestamp.fromDate(object) : null;
+  final camelCase = json['userAvatar'];
+  if (camelCase != null && camelCase is String && camelCase.trim().isNotEmpty) {
+    return camelCase;
+  }
+
+  return null;
 }
+
+/// 🔧 קורא canStartShopping עם תמיכה ב-camelCase וגם snake_case
+Object? _readCanStartShopping(Map<dynamic, dynamic> json, String key) =>
+    json['can_start_shopping'] ?? json['canStartShopping'];
 
 /// משתמש משותף ברשימה
 ///
@@ -86,6 +84,7 @@ class NullableFlexibleDateTimeConverter implements JsonConverter<DateTime?, dyna
 ///   "user456": { "role": "viewer", "shared_at": ..., "user_name": "דנה" }
 /// }
 /// ```
+@immutable
 @JsonSerializable()
 class SharedUser {
   /// מזהה המשתמש (המפתח במפה - לא נשמר ב-JSON של הערך)
@@ -93,25 +92,31 @@ class SharedUser {
   final String userId;
 
   /// תפקיד המשתמש ברשימה
+  /// ✅ unknownEnumValue: מונע קריסה אם מגיע ערך לא מוכר מהשרת
+  @JsonKey(unknownEnumValue: UserRole.unknown)
   final UserRole role;
 
   /// מתי שותף
+  /// 🔄 readValue: תמיכה ב-shared_at וגם sharedAt (תאימות לאחור)
   @FlexibleDateTimeConverter()
-  @JsonKey(name: 'shared_at')
+  @JsonKey(name: 'shared_at', readValue: _readSharedAt)
   final DateTime sharedAt;
 
   // === מטאדאטה (cache) ===
 
   /// שם המשתמש (cache)
-  @JsonKey(name: 'user_name')
+  /// 🔄 readValue: תמיכה ב-user_name וגם userName (תאימות לאחור)
+  @JsonKey(name: 'user_name', readValue: _readUserName)
   final String? userName;
 
   /// אימייל המשתמש (cache)
-  @JsonKey(name: 'user_email')
+  /// 🔄 readValue: תמיכה ב-user_email וגם userEmail (תאימות לאחור)
+  @JsonKey(name: 'user_email', readValue: _readUserEmail)
   final String? userEmail;
 
   /// אווטאר המשתמש (cache)
-  @JsonKey(name: 'user_avatar')
+  /// 🔄 readValue: תמיכה ב-user_avatar, avatar_url וגם userAvatar (אחידות פרויקט)
+  @JsonKey(name: 'user_avatar', readValue: _readUserAvatar)
   final String? userAvatar;
 
   /// 🆕 האם יכול להתחיל קנייה (ניתן ע"י owner/admin)
@@ -119,7 +124,8 @@ class SharedUser {
   ///
   /// ברירת מחדל: false - רק owner/admin יכולים להתחיל קנייה.
   /// כשמופעל: גם editor יכול להתחיל קנייה ברשימה זו.
-  @JsonKey(name: 'can_start_shopping', defaultValue: false)
+  /// 🔄 readValue: תמיכה ב-can_start_shopping וגם canStartShopping
+  @JsonKey(name: 'can_start_shopping', defaultValue: false, readValue: _readCanStartShopping)
   final bool canStartShopping;
 
   const SharedUser({
@@ -166,7 +172,8 @@ class SharedUser {
 
   /// המרה ל-Map entry (userId הופך למפתח)
   ///
-  /// ⚠️ זורק AssertionError אם userId ריק - חייב להיות מוגדר לפני שמירה.
+  /// ⚠️ זורק ArgumentError אם userId ריק - חייב להיות מוגדר לפני שמירה.
+  /// 🔧 Runtime validation (לא רק debug) - מגן גם בפרודקשן.
   ///
   /// Example:
   /// ```dart
@@ -175,7 +182,9 @@ class SharedUser {
   /// // entry.value = {'role': 'admin', 'shared_at': ...}
   /// ```
   MapEntry<String, Map<String, dynamic>> toMapEntry() {
-    assert(userId.isNotEmpty, 'userId cannot be empty when converting to MapEntry');
+    if (userId.isEmpty) {
+      throw ArgumentError('userId cannot be empty when converting to MapEntry');
+    }
     return MapEntry(userId, toJson());
   }
 
@@ -215,8 +224,9 @@ class SharedUser {
   /// האם יכול לבצע פעולות ישירות ללא אישור (owner/admin)
   bool get canActDirectly => role.canAddDirectly;
 
-  /// האם רק צופה (viewer)
-  bool get isViewerOnly => role == UserRole.viewer;
+  /// האם רק צופה (viewer או unknown)
+  /// 🔒 Uses isReadOnly to safely handle unknown roles
+  bool get isViewerOnly => role.isReadOnly;
 
   /// 🆕 האם יכול להתחיל קנייה
   /// 🇬🇧 Can this user start shopping

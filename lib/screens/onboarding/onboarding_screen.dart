@@ -22,7 +22,8 @@
 // - Progress indicators מודרניים
 // - אנימציות חלקות במעברים
 //
-// Version: 2.0 - Sticky Notes Design (15/10/2025) 🎨📝
+// Version 3.0 - No AppBar (Immersive)
+// Last Updated: 13/01/2026
 
 import 'dart:async';
 
@@ -249,35 +250,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         },
         child: Scaffold(
           backgroundColor: kPaperBackground,
-          extendBodyBehindAppBar: true,
-          appBar: AppBar(
-            backgroundColor: kPaperBackground.withValues(alpha: 0.95), // ✅ רקע semi-transparent
-            elevation: 0,
-            centerTitle: true,
-            title: Text(
-              AppStrings.onboarding.title,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith( // ✅ גדול יותר
-                color: cs.onSurface,
-                fontWeight: FontWeight.bold, // ✅ bold
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: _isLoading ? null : _skip,
-                child: Text(
-                  AppStrings.onboarding.skip,
-                  style: TextStyle(
-                    color: _isLoading ? cs.onSurfaceVariant : cs.onSurface.withValues(alpha: 0.7), // ✅ בולט יותר
-                    fontSize: 16, // ✅ מוגדל מ-14
-                    fontWeight: FontWeight.w600, // ✅ bold
-                  ),
-                ),
-              ),
-            ],
-          ),
           body: Stack(
             children: [
-              // 📄 רקע נייר מחברת - Sticky Notes Design ⭐
+              // 📄 רקע נייר מחברת - Sticky Notes Design
               const NotebookBackground(),
               SafeArea(
                 child: Padding(
@@ -289,6 +264,38 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                   child: Column(
                     children: [
+                      // 🏷️ כותרת inline עם כפתור דילוג
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: kSpacingSmall),
+                        child: Row(
+                          children: [
+                            Icon(Icons.waving_hand, size: 24, color: cs.primary),
+                            const SizedBox(width: kSpacingSmall),
+                            Expanded(
+                              child: Text(
+                                AppStrings.onboarding.title,
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: cs.onSurface,
+                                ),
+                              ),
+                            ),
+                            // כפתור דילוג (שמור מה-AppBar)
+                            TextButton(
+                              onPressed: _isLoading ? null : _skip,
+                              child: Text(
+                                AppStrings.onboarding.skip,
+                                style: TextStyle(
+                                  color: _isLoading ? cs.onSurfaceVariant : cs.onSurface.withValues(alpha: 0.7),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                       // מחוון התקדמות
                       _buildProgressIndicator(cs, accent, steps.length),
                       const SizedBox(height: kSpacingSmall),
@@ -305,7 +312,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
                       const SizedBox(height: kSpacingMedium),
 
-                      // Progress Dots - נקודות התקדמות ⭐
+                      // Progress Dots - נקודות התקדמות
                       _ProgressDots(
                         currentStep: _currentStep,
                         totalSteps: steps.length,

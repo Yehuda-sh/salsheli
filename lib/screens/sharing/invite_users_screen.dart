@@ -10,8 +10,8 @@
 // 3. משתמש מקבל התראה
 // 4. משתמש מתווסף לשותפים ברשימה
 //
-// Version: 1.0
-// Last Updated: 03/11/2025
+// Version 2.0 - No AppBar (Immersive)
+// Last Updated: 13/01/2026
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -323,14 +323,12 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
         backgroundColor: kPaperBackground,
-        appBar: AppBar(
-          title: Text(AppStrings.sharing.inviteTitle),
-          centerTitle: true,
-        ),
         body: Stack(
           children: [
             const NotebookBackground(),
@@ -342,6 +340,26 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      // 🏷️ כותרת inline
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: kSpacingMedium),
+                        child: Row(
+                          children: [
+                            Icon(Icons.person_add, size: 24, color: cs.primary),
+                            const SizedBox(width: kSpacingSmall),
+                            Expanded(
+                              child: Text(
+                                AppStrings.sharing.inviteTitle,
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: cs.onSurface,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                       // Subtitle
                       Text(
                         AppStrings.sharing.inviteSubtitle,

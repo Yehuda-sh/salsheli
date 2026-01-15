@@ -24,12 +24,8 @@
 //     - shared_user.dart - דפוס דומה ל-members כ-Map
 //     - user_role.dart - תפקידים (owner/admin/editor/viewer)
 //
-// Version: 1.1 - Safe casting, firstOrNull fix, immutability, auto-id
-// Last Updated: 30/12/2025
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart' show immutable;
-import 'package:flutter/material.dart' show IconData, Icons;
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 
@@ -42,28 +38,42 @@ part 'group.g.dart';
 // GROUP TYPE ENUM
 // ============================================================
 
-/// סוגי קבוצות
+/// 🇮🇱 סוגי קבוצות
+/// 🇬🇧 Group types
+/// ✅ unknown: fallback למניעת קריסה אם מגיע ערך לא מוכר מהשרת
+/// 📌 בשדות שמשתמשים ב-GroupType יש להוסיף: @JsonKey(unknownEnumValue: GroupType.unknown)
+@JsonEnum(valueField: 'value')
 enum GroupType {
   /// 👨‍👩‍👧 משפחה - רשימות קניות ומזווה משותף
-  family,
+  family('family'),
 
   /// 🏢 ועד בית - הצבעות ומשימות לבניין
-  building,
+  building('building'),
 
   /// 🧒 ועד גן/כיתה - אירועים וגיוסים להורים
-  kindergarten,
+  kindergarten('kindergarten'),
 
   /// 👫 חברים - טיולים ואירועים משותפים
-  friends,
+  friends('friends'),
 
   /// 🎉 אירוע - חתונה, בר מצווה, יום הולדת
-  event,
+  event('event'),
 
   /// 🏠 שותפים לדירה - ניהול דירה משותפת
-  roommates,
+  roommates('roommates'),
 
   /// 📋 אחר - לכל מטרה אחרת
-  other;
+  other('other'),
+
+  /// ❓ סוג לא מוכר (fallback למניעת קריסה)
+  /// Used when server returns an unknown type value
+  unknown('unknown');
+
+  const GroupType(this.value);
+  final String value;
+
+  /// האם זה סוג תקין (לא unknown)
+  bool get isKnown => this != GroupType.unknown;
 
   /// שם בעברית
   String get hebrewName {
@@ -82,6 +92,8 @@ enum GroupType {
         return 'שותפים לדירה';
       case GroupType.other:
         return 'אחר';
+      case GroupType.unknown:
+        return 'לא ידוע';
     }
   }
 
@@ -102,6 +114,8 @@ enum GroupType {
         return '🏠';
       case GroupType.other:
         return '📋';
+      case GroupType.unknown:
+        return '❓';
     }
   }
 
@@ -133,26 +147,8 @@ enum GroupType {
         return 'home';
       case GroupType.other:
         return 'list_alt';
-    }
-  }
-
-  /// אייקון Material לסוג הקבוצה
-  IconData get icon {
-    switch (this) {
-      case GroupType.family:
-        return Icons.family_restroom;
-      case GroupType.building:
-        return Icons.apartment;
-      case GroupType.kindergarten:
-        return Icons.child_care;
-      case GroupType.friends:
-        return Icons.group;
-      case GroupType.event:
-        return Icons.celebration;
-      case GroupType.roommates:
-        return Icons.home;
-      case GroupType.other:
-        return Icons.list_alt;
+      case GroupType.unknown:
+        return 'help_outline';
     }
   }
 
@@ -199,6 +195,7 @@ enum GroupType {
   }
 
   /// סוגי רשימות זמינים לקבוצה זו
+  /// ⚠️ unknown מקבל רשימה בסיסית (checklist בלבד) מטעמי אבטחה
   List<String> get availableListTypes {
     switch (this) {
       case GroupType.family:
@@ -211,6 +208,8 @@ enum GroupType {
       case GroupType.event:
       case GroupType.other:
         return ['vote', 'whos_bringing', 'checklist', 'survey'];
+      case GroupType.unknown:
+        return ['checklist']; // מינימלי - בטוח
     }
   }
 }
@@ -238,6 +237,8 @@ class GroupMember {
   final String? avatarUrl;
 
   /// תפקיד בקבוצה
+  /// ✅ unknownEnumValue: מונע קריסה אם מגיע ערך לא מוכר מהשרת
+  @JsonKey(unknownEnumValue: UserRole.unknown)
   final UserRole role;
 
   /// תאריך הצטרפות
@@ -306,18 +307,27 @@ class GroupMember {
   }
 
   // === Getters ===
+  // ⚠️ כל הבדיקות משתמשות ב-allowlist pattern - בטוח יותר מ-denylist אם יתווסף role חדש
 
   bool get isOwner => role == UserRole.owner;
   bool get isAdmin => role == UserRole.admin;
   bool get canManageUsers => role == UserRole.owner || role == UserRole.admin;
   bool get canInvite => role == UserRole.owner || role == UserRole.admin;
-  bool get canEdit => role != UserRole.viewer;
+
+  /// ✅ Allowlist pattern - unknown לא יקבל הרשאות עריכה
+  bool get canEdit =>
+      role == UserRole.owner ||
+      role == UserRole.admin ||
+      role == UserRole.editor;
 
   /// 🆕 האם יכול להתחיל קנייה
   /// owner/admin - תמיד יכולים
   /// editor - רק אם canStartShopping מופעל
-  /// viewer - לעולם לא
-  bool get canShop => role == UserRole.owner || role == UserRole.admin || (role == UserRole.editor && canStartShopping);
+  /// viewer/unknown - לעולם לא
+  bool get canShop =>
+      role == UserRole.owner ||
+      role == UserRole.admin ||
+      (role == UserRole.editor && canStartShopping);
 
   // === JSON ===
 
@@ -431,6 +441,8 @@ class Group {
   final String name;
 
   /// סוג הקבוצה
+  /// ✅ unknownEnumValue: מונע קריסה אם מגיע ערך לא מוכר מהשרת
+  @JsonKey(unknownEnumValue: GroupType.unknown)
   final GroupType type;
 
   /// תיאור (אופציונלי)
@@ -455,16 +467,19 @@ class Group {
   final DateTime updatedAt;
 
   /// חברי הקבוצה (Map: userId -> GroupMember)
+  /// 🔒 Unmodifiable - נוצר דרך Map.unmodifiable ב-factory
   final Map<String, GroupMember> members;
 
   /// הגדרות הקבוצה
   final GroupSettings settings;
 
   /// שדות נוספים לפי סוג (כתובת בניין, שם גן, תאריך אירוע)
+  /// 🔒 Unmodifiable - נוצר דרך Map.unmodifiable ב-factory
   @JsonKey(name: 'extra_fields')
   final Map<String, dynamic>? extraFields;
 
-  const Group({
+  /// 🔒 Private constructor - משתמש ב-factory Group() לאכיפת immutability
+  const Group._({
     required this.id,
     required this.name,
     required this.type,
@@ -477,6 +492,35 @@ class Group {
     required this.settings,
     this.extraFields,
   });
+
+  /// 🔧 Factory constructor - עוטף Maps ב-Map.unmodifiable
+  factory Group({
+    required String id,
+    required String name,
+    required GroupType type,
+    String? description,
+    String? imageUrl,
+    required String createdBy,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    required Map<String, GroupMember> members,
+    required GroupSettings settings,
+    Map<String, dynamic>? extraFields,
+  }) {
+    return Group._(
+      id: id,
+      name: name,
+      type: type,
+      description: description,
+      imageUrl: imageUrl,
+      createdBy: createdBy,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      members: Map.unmodifiable(members),
+      settings: settings,
+      extraFields: extraFields != null ? Map.unmodifiable(extraFields) : null,
+    );
+  }
 
   /// יצירת קבוצה חדשה
   ///
@@ -598,21 +642,25 @@ class Group {
     }
 
     // 🔧 המרה בטוחה של members (nested Map)
+    // ✅ תמיד ממיר - גם אם הסוג נראה תקין, הערכים הפנימיים עלולים להיות Map<dynamic, dynamic>
     final rawMembers = data['members'];
-    if (rawMembers != null && rawMembers is Map && rawMembers is! Map<String, dynamic>) {
+    if (rawMembers != null && rawMembers is Map) {
       data['members'] = Map<String, dynamic>.from(
         rawMembers.map((k, v) {
-          final memberData = v is Map<String, dynamic>
-              ? v
-              : Map<String, dynamic>.from((v as Map).map((mk, mv) => MapEntry(mk.toString(), mv)));
+          final memberData = v is Map
+              ? Map<String, dynamic>.from(
+                  v.map((mk, mv) => MapEntry(mk.toString(), mv)),
+                )
+              : v;
           return MapEntry(k.toString(), memberData);
         }),
       );
     }
 
     // 🔧 המרה בטוחה של extra_fields (nested Map)
+    // ✅ תמיד ממיר - Firestore עלול להחזיר Map<dynamic, dynamic>
     final rawExtraFields = data['extra_fields'];
-    if (rawExtraFields != null && rawExtraFields is Map && rawExtraFields is! Map<String, dynamic>) {
+    if (rawExtraFields != null && rawExtraFields is Map) {
       data['extra_fields'] = Map<String, dynamic>.from(
         rawExtraFields.map((k, v) => MapEntry(k.toString(), v)),
       );

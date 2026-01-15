@@ -84,6 +84,8 @@ class GroupInvite {
   final String? invitedName;
 
   /// תפקיד מוצע בקבוצה
+  /// ✅ unknownEnumValue: מונע קריסה אם מגיע ערך לא מוכר מהשרת
+  @JsonKey(unknownEnumValue: UserRole.unknown)
   final UserRole role;
 
   /// מזהה המזמין

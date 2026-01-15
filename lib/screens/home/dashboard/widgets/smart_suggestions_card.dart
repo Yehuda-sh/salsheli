@@ -28,6 +28,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/ui_constants.dart';
+import '../../../../l10n/app_strings.dart';
+import '../../../../models/enums/suggestion_status.dart';
 import '../../../../models/shopping_list.dart';
 import '../../../../models/smart_suggestion.dart';
 import '../../../../models/unified_list_item.dart';
@@ -302,6 +304,8 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
     SuggestionsProvider provider,
   ) {
     final theme = Theme.of(context);
+    final strings = AppStrings.inventory;
+    final isUnknownStatus = suggestion.status == SuggestionStatus.unknown;
 
     // ✅ Semantics עם תיאור טבעי בעברית
     return Semantics(
@@ -312,7 +316,8 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
           margin: const EdgeInsets.all(kSpacingMedium),
           padding: const EdgeInsets.all(kSpacingLarge),
           decoration: BoxDecoration(
-            color: kStickyGreen,
+            // ⚠️ Grey color for unknown status
+            color: isUnknownStatus ? Colors.grey.shade400 : kStickyGreen,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
@@ -427,11 +432,40 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
 
               const SizedBox(height: kSpacingLarge),
 
+              // ⚠️ Warning banner for unknown status
+              if (isUnknownStatus) ...[
+                Container(
+                  padding: const EdgeInsets.all(kSpacingSmall),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.orange.withValues(alpha: 0.5)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.warning_amber, color: Colors.white, size: 16),
+                      const SizedBox(width: kSpacingSmall),
+                      Expanded(
+                        child: Text(
+                          strings.unknownSuggestionWarning,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: kSpacingSmall),
+              ],
+
               // Actions
               if (!_isProcessing)
                 Row(
                   children: [
-                    // ✅ Add button עם Tooltip
+                    // ✅ Add button עם Tooltip (always enabled - safe operation)
                     Expanded(
                       child: Tooltip(
                         message: 'הוסף "${suggestion.productName}" לרשימת הקניות',
@@ -441,7 +475,7 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
                           label: const Text('הוסף לרשימה'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
-                            foregroundColor: kStickyGreen,
+                            foregroundColor: isUnknownStatus ? Colors.grey : kStickyGreen,
                             padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
                         ),
@@ -449,20 +483,30 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
                     ),
                     const SizedBox(width: kSpacingSmall),
 
-                    // Dismiss button
+                    // Dismiss button - disabled for unknown
                     IconButton(
-                      onPressed: () => _onDismissPressed(context, suggestion, provider),
+                      onPressed: isUnknownStatus
+                          ? null
+                          : () => _onDismissPressed(context, suggestion, provider),
                       icon: const Icon(Icons.schedule),
                       color: Colors.white70,
-                      tooltip: 'דחה לשבוע',
+                      disabledColor: Colors.white30,
+                      tooltip: isUnknownStatus
+                          ? strings.unknownSuggestionCannotDelete
+                          : 'דחה לשבוע',
                     ),
 
-                    // Delete button
+                    // Delete button - disabled for unknown
                     IconButton(
-                      onPressed: () => _onDeletePressed(context, suggestion, provider),
+                      onPressed: isUnknownStatus
+                          ? null
+                          : () => _onDeletePressed(context, suggestion, provider),
                       icon: const Icon(Icons.delete_outline),
                       color: Colors.white70,
-                      tooltip: 'מחק',
+                      disabledColor: Colors.white30,
+                      tooltip: isUnknownStatus
+                          ? strings.unknownSuggestionCannotDelete
+                          : 'מחק',
                     ),
                   ],
                 ),

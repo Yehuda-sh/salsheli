@@ -27,9 +27,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/ui_constants.dart';
+import '../../../../l10n/app_strings.dart';
 import '../../../../models/smart_suggestion.dart';
 import '../../../../providers/shopping_lists_provider.dart';
 import '../../../../providers/suggestions_provider.dart';
+import '../../../../theme/app_theme.dart';
 
 /// בנר אזהרה אחרונה - מוצג בזמן קנייה פעילה
 /// מראה המלצה נוכחית עם stock info ואפשרות להוסיף/לדחות
@@ -62,7 +64,8 @@ class LastChanceBanner extends StatelessWidget {
           child: suggestion == null
               ? const SizedBox.shrink()
               : RepaintBoundary(
-                  key: ValueKey(suggestion.productName),
+                  // ✅ FIX: Use unique ID instead of productName (could have duplicates)
+                  key: ValueKey(suggestion.id),
                   child: _LastChanceBannerContent(
                     suggestion: suggestion,
                     activeListId: activeListId,
@@ -109,6 +112,7 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
     final suggestion = widget.suggestion;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final strings = AppStrings.lastChanceBanner;
 
     // ✅ Theme-aware colors - רכים יותר ב-Dark Mode
     // משתמש ב-errorContainer לאור רך יותר
@@ -118,10 +122,12 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
     );
     final onBannerColor = cs.onErrorContainer;
     final highlightBg = cs.error.withValues(alpha: 0.1);
+    // ✅ FIX: Theme-aware success color for buttons
+    final successColor = theme.extension<AppBrand>()?.success ?? kStickyGreen;
 
     // ✅ Semantics - שפה טבעית וידידותית
     return Semantics(
-      label: 'המוצר ${suggestion.productName} עומד להיגמר. נותרו ${suggestion.currentStock} יחידות במלאי.',
+      label: strings.semanticsLabel(suggestion.productName, suggestion.currentStock),
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
         padding: const EdgeInsets.all(kSpacingMedium),
@@ -147,13 +153,15 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
                 const SizedBox(width: kSpacingSmall),
                 Expanded(
                   child: Text(
-                    'רגע! שכחת משהו?',
+                    strings.title,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: onBannerColor,
                     ),
-                    textDirection: TextDirection.rtl,
+                    // ✅ FIX: Removed forced RTL - rely on MaterialApp
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
@@ -186,16 +194,20 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
                             fontWeight: FontWeight.bold,
                             color: onBannerColor,
                           ),
-                          textDirection: TextDirection.rtl,
+                          // ✅ FIX: Removed forced RTL + overflow protection
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'נותרו: ${suggestion.currentStock} יחידות במלאי',
+                          strings.stockText(suggestion.currentStock),
                           style: TextStyle(
                             fontSize: 14,
                             color: onBannerColor.withValues(alpha: 0.9),
                           ),
-                          textDirection: TextDirection.rtl,
+                          // ✅ FIX: Removed forced RTL + overflow protection
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
@@ -212,16 +224,17 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
                 children: [
                   // שורה עליונה: הוסף לרשימה
                   Tooltip(
-                    message: 'הוסף "${suggestion.productName}" לרשימת הקניות',
+                    message: strings.addTooltip(suggestion.productName),
                     child: SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
                         onPressed: () => _onAddPressed(context),
                         icon: const Icon(Icons.add_shopping_cart, size: 20),
-                        label: const Text('הוסף לרשימה'),
+                        label: Text(strings.addButton),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: kStickyGreen,
-                          foregroundColor: Colors.white,
+                          // ✅ FIX: Theme-aware colors
+                          backgroundColor: successColor,
+                          foregroundColor: cs.onPrimary,
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         ),
@@ -237,11 +250,11 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
                       // ✅ כפתור הבא (קרוסלה - יחזור)
                       Expanded(
                         child: Tooltip(
-                          message: 'עבור להמלצה הבאה (יחזור בסוף הסבב)',
+                          message: strings.nextTooltip,
                           child: OutlinedButton.icon(
                             onPressed: () => _onNextPressed(context),
                             icon: Icon(Icons.skip_next, size: 20, color: onBannerColor),
-                            label: Text('הבא', style: TextStyle(color: onBannerColor)),
+                            label: Text(strings.nextButton, style: TextStyle(color: onBannerColor)),
                             style: OutlinedButton.styleFrom(
                               side: BorderSide(color: onBannerColor, width: 2),
                               padding: const EdgeInsets.symmetric(vertical: 10),
@@ -256,12 +269,12 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
                       // ✅ כפתור לא עכשיו (דילוג לסשן בלבד)
                       Expanded(
                         child: Tooltip(
-                          message: 'לא יופיע בקנייה הזו, כן בקנייה הבאה',
+                          message: strings.skipSessionTooltip,
                           child: TextButton.icon(
                             onPressed: () => _onSkipSessionPressed(context),
                             icon: Icon(Icons.snooze, size: 18, color: onBannerColor.withValues(alpha: 0.7)),
                             label: Text(
-                              'לא עכשיו',
+                              strings.skipSessionButton,
                               style: TextStyle(color: onBannerColor.withValues(alpha: 0.7)),
                             ),
                             style: TextButton.styleFrom(
@@ -294,6 +307,12 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
 
     setState(() => _isProcessing = true);
 
+    // ✅ FIX: Cache strings and theme-aware colors before async gap
+    final strings = AppStrings.lastChanceBanner;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final successColor = theme.extension<AppBrand>()?.success ?? kStickyGreen;
+
     try {
       final suggestion = widget.suggestion;
       final listsProvider = Provider.of<ShoppingListsProvider>(context, listen: false);
@@ -313,15 +332,20 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
       final messenger = ScaffoldMessenger.of(context);
       messenger.showSnackBar(
         SnackBar(
-          content: Text('נוסף "${suggestion.productName}" לרשימה ✅'),
-          backgroundColor: kStickyGreen,
+          content: Text(strings.addedSuccess(suggestion.productName)),
+          // ✅ FIX: Theme-aware colors
+          backgroundColor: successColor,
           duration: const Duration(seconds: 2),
         ),
       );
     } catch (e) {
       if (!mounted) return;
       final messenger = ScaffoldMessenger.of(context);
-      messenger.showSnackBar(SnackBar(content: Text('שגיאה בהוספה: $e'), backgroundColor: kStickyPink));
+      // ✅ FIX: User-friendly error message (not raw exception)
+      messenger.showSnackBar(SnackBar(
+        content: Text(strings.addError),
+        backgroundColor: cs.error,
+      ));
     } finally {
       if (mounted) {
         setState(() => _isProcessing = false);
@@ -333,6 +357,10 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
   Future<void> _onNextPressed(BuildContext context) async {
     if (_isProcessing) return;
 
+    // ✅ FIX: Cache theme-aware colors before async gap
+    final strings = AppStrings.lastChanceBanner;
+    final cs = Theme.of(context).colorScheme;
+
     try {
       final suggestionsProvider = Provider.of<SuggestionsProvider>(context, listen: false);
 
@@ -341,13 +369,24 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
     } catch (e) {
       if (!mounted) return;
       final messenger = ScaffoldMessenger.of(context);
-      messenger.showSnackBar(SnackBar(content: Text('שגיאה: $e'), backgroundColor: kStickyPink));
+      // ✅ FIX: User-friendly error message (not raw exception)
+      messenger.showSnackBar(SnackBar(
+        content: Text(strings.genericError),
+        backgroundColor: cs.error,
+      ));
     }
   }
 
   /// 🚫 כפתור "לא עכשיו" - דילוג לסשן הזה בלבד
   Future<void> _onSkipSessionPressed(BuildContext context) async {
     if (_isProcessing) return;
+
+    // ✅ FIX: Cache strings and theme-aware colors before async gap
+    final strings = AppStrings.lastChanceBanner;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    // ✅ FIX: Theme-aware accent color for info snackbar
+    final accentColor = theme.extension<AppBrand>()?.accent ?? cs.tertiary;
 
     try {
       final suggestionsProvider = Provider.of<SuggestionsProvider>(context, listen: false);
@@ -358,16 +397,21 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
       if (!mounted) return;
       final messenger = ScaffoldMessenger.of(context);
       messenger.showSnackBar(
-        const SnackBar(
-          content: Text('לא יופיע בקנייה הזו'),
-          backgroundColor: kStickyCyan,
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(strings.skippedForSession),
+          // ✅ FIX: Theme-aware color
+          backgroundColor: accentColor,
+          duration: const Duration(seconds: 2),
         ),
       );
     } catch (e) {
       if (!mounted) return;
       final messenger = ScaffoldMessenger.of(context);
-      messenger.showSnackBar(SnackBar(content: Text('שגיאה: $e'), backgroundColor: kStickyPink));
+      // ✅ FIX: User-friendly error message (not raw exception)
+      messenger.showSnackBar(SnackBar(
+        content: Text(strings.genericError),
+        backgroundColor: cs.error,
+      ));
     }
   }
 }

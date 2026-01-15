@@ -20,10 +20,12 @@
 //     - Tracks status (pending/added/dismissed/deleted)
 //     - Shows current stock vs minimum threshold
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';
+
 import 'enums/suggestion_status.dart';
-import 'timestamp_converter.dart';
+import 'timestamp_converter.dart'
+    show FlexibleDateTimeConverter, NullableFlexibleDateTimeConverter;
 import 'unified_list_item.dart';
 
 part 'smart_suggestion.g.dart';
@@ -74,24 +76,31 @@ class SmartSuggestion {
 
   /// 🇮🇱 סטטוס ההמלצה
   /// 🇬🇧 Suggestion status
-  @JsonKey(defaultValue: SuggestionStatus.pending)
+  /// ✅ unknownEnumValue: מונע קריסה אם מגיע ערך לא מוכר מהשרת
+  @JsonKey(
+    defaultValue: SuggestionStatus.pending,
+    unknownEnumValue: SuggestionStatus.unknown,
+  )
   final SuggestionStatus status;
 
   /// 🇮🇱 תאריך יצירת ההמלצה
   /// 🇬🇧 Suggestion creation date
-  @TimestampConverter()
+  /// 🔧 תומך ב-Timestamp (Firestore) + String (ISO) + DateTime
+  @FlexibleDateTimeConverter()
   @JsonKey(name: 'suggested_at')
   final DateTime suggestedAt;
 
   /// 🇮🇱 עד מתי נדחתה ההמלצה (null אם לא נדחתה)
   /// 🇬🇧 Until when the suggestion is dismissed (null if not dismissed)
-  @TimestampConverter()
+  /// 🔧 תומך ב-Timestamp (Firestore) + String (ISO) + DateTime + null
+  @NullableFlexibleDateTimeConverter()
   @JsonKey(name: 'dismissed_until')
   final DateTime? dismissedUntil;
 
   /// 🇮🇱 מתי נוספה לרשימה (null אם לא נוספה)
   /// 🇬🇧 When it was added to a list (null if not added)
-  @TimestampConverter()
+  /// 🔧 תומך ב-Timestamp (Firestore) + String (ISO) + DateTime + null
+  @NullableFlexibleDateTimeConverter()
   @JsonKey(name: 'added_at')
   final DateTime? addedAt;
 
@@ -152,13 +161,14 @@ class SmartSuggestion {
 
   // ---- Computed Properties ----
 
-  /// 🇮🇱 האם ההמלצה פעילה (pending ולא נדחתה)
-  /// 🇬🇧 Is the suggestion active (pending and not dismissed)
+  /// 🇮🇱 האם ההמלצה פעילה (pending/unknown ולא נדחתה)
+  /// 🇬🇧 Is the suggestion active (pending/unknown and not dismissed)
   ///
   /// Note: Uses local time for comparison. `dismissedUntil` is stored in UTC
   /// and converted back to local time via `TimestampConverter`.
+  /// ⚠️ unknown נחשב כ-pending כדי שהמלצות לא ייעלמו מה-UI
   bool get isActive {
-    if (status != SuggestionStatus.pending) return false;
+    if (!status.isPending) return false;
     if (dismissedUntil == null) return true;
     return DateTime.now().isAfter(dismissedUntil!);
   }
@@ -212,27 +222,12 @@ class SmartSuggestion {
 
   /// 🇮🇱 יצירה מ-JSON
   /// 🇬🇧 Create from JSON
-  factory SmartSuggestion.fromJson(Map<String, dynamic> json) {
-    if (kDebugMode) {
-      debugPrint('📥 SmartSuggestion.fromJson:');
-      debugPrint('   id: ${json['id']}');
-      debugPrint('   product: ${json['product_name']}');
-      debugPrint('   status: ${json['status']}');
-    }
-    return _$SmartSuggestionFromJson(json);
-  }
+  factory SmartSuggestion.fromJson(Map<String, dynamic> json) =>
+      _$SmartSuggestionFromJson(json);
 
   /// 🇮🇱 המרה ל-JSON
   /// 🇬🇧 Convert to JSON
-  Map<String, dynamic> toJson() {
-    if (kDebugMode) {
-      debugPrint('📤 SmartSuggestion.toJson:');
-      debugPrint('   id: $id');
-      debugPrint('   product: $productName');
-      debugPrint('   status: ${status.value}');
-    }
-    return _$SmartSuggestionToJson(this);
-  }
+  Map<String, dynamic> toJson() => _$SmartSuggestionToJson(this);
 
   // ---- Copy & Update ----
 

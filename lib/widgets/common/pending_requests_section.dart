@@ -250,6 +250,8 @@ class _RequestCardState extends State<_RequestCard> {
         return '🗑️';
       case RequestType.inviteToList:
         return '👥';
+      case RequestType.unknown:
+        return '❓';
     }
   }
 
@@ -263,6 +265,8 @@ class _RequestCardState extends State<_RequestCard> {
         return 'בקשה למחיקת פריט';
       case RequestType.inviteToList:
         return 'הזמנה לרשימה';
+      case RequestType.unknown:
+        return 'בקשה לא מוכרת';
     }
   }
 
@@ -295,6 +299,9 @@ class _RequestCardState extends State<_RequestCard> {
         final listName = data['list_name'] ?? 'רשימה';
         final role = data['role'] ?? 'משתמש';
         return 'הזמנה לרשימה "$listName" כ-$role';
+
+      case RequestType.unknown:
+        return 'תוכן לא מוכר';
     }
   }
 

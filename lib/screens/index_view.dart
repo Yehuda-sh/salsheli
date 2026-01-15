@@ -27,7 +27,6 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
   late AnimationController _logoController;
   late AnimationController _pulseController;
   late AnimationController _shimmerController;
-  late AnimationController _textController;
   late AnimationController _waveController;
 
   // ⏱️ Timer להחלפת הודעות
@@ -37,17 +36,11 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
   static const _logoAnimationDuration = Duration(milliseconds: 1200);
   static const _pulseAnimationDuration = Duration(milliseconds: 2000);
   static const _shimmerAnimationDuration = Duration(milliseconds: 2000);
-  static const _textAnimationDuration = Duration(milliseconds: 1000);
   static const _waveAnimationDuration = Duration(milliseconds: 3000);
   static const _messageRotationDelay = Duration(seconds: 2);
   static const _gradientAnimationDuration = Duration(milliseconds: 1500);
 
-  // 📝 הודעות טעינה
-  final List<String> _loadingMessages = [
-    'בודק מצב...',
-    'מתחבר...',
-    'כמעט מוכן...',
-  ];
+  // 📝 אינדקס הודעת טעינה נוכחית
   int _currentMessageIndex = 0;
 
   @override
@@ -70,11 +63,6 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
       duration: _shimmerAnimationDuration,
     )..repeat();
 
-    _textController = AnimationController(
-      vsync: this,
-      duration: _textAnimationDuration,
-    );
-
     _waveController = AnimationController(
       vsync: this,
       duration: _waveAnimationDuration,
@@ -82,14 +70,14 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
 
     // 🚀 Start animations
     _logoController.forward();
-    _textController.forward();
 
     // 📝 התחל להחליף הודעות
     _startMessageRotation();
   }
 
-  /// מחליף הודעות טעינה
+  /// מחליף הודעות טעינה (AnimatedSwitcher מטפל באנימציה)
   void _startMessageRotation() {
+    final messages = AppStrings.index.loadingMessages;
     _messageTimer = Timer.periodic(_messageRotationDelay, (timer) {
       if (!mounted) {
         timer.cancel();
@@ -97,12 +85,8 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
       }
 
       setState(() {
-        _currentMessageIndex =
-            (_currentMessageIndex + 1) % _loadingMessages.length;
+        _currentMessageIndex = (_currentMessageIndex + 1) % messages.length;
       });
-
-      _textController.reset();
-      _textController.forward();
     });
   }
 
@@ -112,7 +96,6 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
     _logoController.dispose();
     _pulseController.dispose();
     _shimmerController.dispose();
-    _textController.dispose();
     _waveController.dispose();
     super.dispose();
   }
@@ -395,7 +378,7 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
                 );
               },
               child: Text(
-                _loadingMessages[_currentMessageIndex],
+                AppStrings.index.loadingMessages[_currentMessageIndex],
                 key: ValueKey<int>(_currentMessageIndex),
                 style: TextStyle(
                   fontSize: kFontSizeBody,
@@ -485,7 +468,7 @@ class IndexErrorView extends StatelessWidget {
 
                   // טקסט
                   Text(
-                    'אופס! משהו השתבש',
+                    AppStrings.index.errorTitle,
                     style: TextStyle(
                       fontSize: kFontSizeLarge,
                       fontWeight: FontWeight.bold,
@@ -494,7 +477,7 @@ class IndexErrorView extends StatelessWidget {
                   ),
                   const SizedBox(height: kSpacingSmall),
                   Text(
-                    'לא הצלחנו לטעון את האפליקציה',
+                    AppStrings.index.errorMessage,
                     style: TextStyle(
                       fontSize: kFontSizeBody,
                       color: cs.onSurfaceVariant,
@@ -507,12 +490,12 @@ class IndexErrorView extends StatelessWidget {
                   // כפתור retry
                   Semantics(
                     button: true,
-                    label: 'נסה שוב לטעון את האפליקציה',
-                    hint: 'לחץ כדי לנסות שוב',
+                    label: AppStrings.index.retryLabel,
+                    hint: AppStrings.index.retryHint,
                     child: ElevatedButton.icon(
                       onPressed: onRetry,
                       icon: const Icon(Icons.refresh),
-                      label: const Text('נסה שוב'),
+                      label: Text(AppStrings.index.retryButton),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: cs.primary,
                         foregroundColor: cs.onPrimary,
@@ -599,6 +582,8 @@ class WavePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(WavePainter oldDelegate) {
-    return oldDelegate.animationValue != animationValue;
+    // 🔧 FIX: בדיקה גם על colorScheme - להגיב לשינויי Theme
+    return oldDelegate.animationValue != animationValue ||
+        oldDelegate.colorScheme != colorScheme;
   }
 }

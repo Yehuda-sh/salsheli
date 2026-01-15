@@ -1,34 +1,40 @@
 // 📄 File: lib/services/suggestions_service.dart
 //
-// 🇮🇱 שירות המלצות חכמות:
-//     - מנתח מלאי במזווה ומייצר המלצות
-//     - תומך בדחייה זמנית (יום/שבוע/חודש/לעולם)
-//     - מנהל תור המלצות (queue)
-//     - מעקב אחרי סטטוס (pending/added/dismissed/deleted)
+// 🎯 מטרה: שירות המלצות חכמות לקניות על בסיס מלאי המזווה
 //
-// 🔁 תהליך עבודה:
-//     1. generateSuggestions() - סורק מזווה, מוצא מוצרים שאוזלים
-//     2. getNextSuggestion() - מביא המלצה הבאה מהתור
-//     3. dismissSuggestion() - דוחה זמנית (שבוע)
-//     4. deleteSuggestion() - מוחק (יום/שבוע/חודש/לעולם)
-//     5. markAsAdded() - מסמן שנוסף לרשימה
+// 📋 Features:
+// - ניתוח מלאי ויצירת המלצות אוטומטיות
+// - תמיכה בדחייה זמנית (יום/שבוע/חודש/לעולם)
+// - ניהול תור המלצות (queue) לפי דחיפות
+// - מעקב סטטוס (pending/added/dismissed/deleted)
+// - סטטיסטיקות ודוחות על המלצות
 //
-// 💡 אלגוריתם דחיפות:
-//     - אזל לגמרי (0) → critical (אדום)
-//     - < 20% מהסף → high (כתום)
-//     - < 50% מהסף → medium (צהוב)
-//     - אחרת → low (ירוק)
+// 🔁 Flow:
+// 1. generateSuggestions() - סורק מזווה, מוצא מוצרים שאוזלים
+// 2. getNextSuggestion() - מביא המלצה הבאה (הדחופה ביותר)
+// 3. dismissSuggestion() - דוחה זמנית (ברירת מחדל: שבוע)
+// 4. deleteSuggestion() - מוחק (יום/שבוע/חודש/לעולם)
+// 5. markAsAdded() - מסמן שנוסף לרשימה
 //
-// 🇬🇧 Smart suggestions service:
-//     - Analyzes pantry inventory and generates suggestions
-//     - Supports temporary dismissal (day/week/month/forever)
-//     - Manages suggestions queue
-//     - Tracks status (pending/added/dismissed/deleted)
+// 📊 Urgency Algorithm:
+// - אזל לגמרי (0) → critical (אדום)
+// - < 20% מהסף → high (כתום)
+// - < 50% מהסף → medium (צהוב)
+// - אחרת → low (ירוק)
+//
+// 🔗 Related:
+// - SmartSuggestion (models/smart_suggestion.dart)
+// - InventoryItem (models/inventory_item.dart)
+// - SuggestionStatus (models/enums/suggestion_status.dart)
+//
+// Version: 1.0
+// Last Updated: 13/01/2026
 
-import '../models/smart_suggestion.dart';
-import '../models/inventory_item.dart';
-import '../models/enums/suggestion_status.dart';
 import 'package:uuid/uuid.dart';
+
+import '../models/enums/suggestion_status.dart';
+import '../models/inventory_item.dart';
+import '../models/smart_suggestion.dart';
 
 /// 🇮🇱 שירות המלצות חכמות
 /// 🇬🇧 Smart suggestions service
@@ -183,7 +189,6 @@ class SuggestionsService {
       // מחיקה קבועה
       return suggestion.copyWith(
         status: SuggestionStatus.deleted,
-        dismissedUntil: null,
       );
     } else {
       // מחיקה זמנית (כמו dismiss)
@@ -273,6 +278,9 @@ class SuggestionsService {
           break;
         case SuggestionStatus.deleted:
           stats['deleted'] = (stats['deleted'] ?? 0) + 1;
+          break;
+        case SuggestionStatus.unknown:
+          // סטטוס לא מוכר - מתעלמים
           break;
       }
 

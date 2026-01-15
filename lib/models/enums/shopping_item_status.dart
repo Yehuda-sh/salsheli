@@ -1,51 +1,58 @@
 // 📄 File: lib/models/enums/shopping_item_status.dart
 //
-// 🎯 Purpose: מצבי פריט בקנייה פעילה
+// 🇮🇱 מצבי פריט בקנייה פעילה (ActiveShoppingScreen):
+//     - pending: ממתין לקנייה (ברירת מחדל)
+//     - purchased: נקנה והוכנס לעגלה
+//     - outOfStock: לא היה במלאי בחנות
+//     - notNeeded: המשתמש החליט שלא צריך
 //
-// 🇮🇱 תיאור:
-// Enum המגדיר את כל המצבים האפשריים של פריט במהלך קנייה פעילה.
-// משמש במסך ActiveShoppingScreen לסימון מצב כל מוצר.
+// 🇬🇧 Shopping item statuses during active shopping:
+//     - pending: Waiting to be purchased (default)
+//     - purchased: Bought and added to cart
+//     - outOfStock: Not available in store
+//     - notNeeded: User decided not needed
 //
-// 📊 מצבים:
-// - pending (⬜) - ממתין לקנייה
-// - purchased (✅) - נקנה והוכנס לעגלה
-// - outOfStock (❌) - לא היה במלאי בחנות
-// - deferred (⏭️) - החלטתי לדחות לפעם הבאה
-// - notNeeded (🚫) - החלטתי שלא צריך בכלל
+// 📝 Note: This enum is used INTERNALLY only (in-memory state).
+//          NOT serialized to server → no @JsonEnum or unknownEnumValue needed.
 //
-// Version: 1.4 - Added JsonEnum for safe serialization
-// Last Updated: 04/01/2026
+// 🔗 Related:
+//     - ActiveShoppingScreen (screens/shopping/active/active_shopping_screen.dart)
+//     - StatusColors (core/status_colors.dart)
+//     - AppStrings.shopping (l10n/app_strings.dart)
+//
 
-import 'package:json_annotation/json_annotation.dart';
-
-/// מצבי פריט בקנייה פעילה
-@JsonEnum(valueField: 'value')
+/// 🇮🇱 מצבי פריט בקנייה פעילה
+/// 🇬🇧 Shopping item statuses during active shopping
+///
+/// ⚠️ Internal only - לא נשמר לשרת, רק state מקומי במסך קנייה
 enum ShoppingItemStatus {
   /// ⬜ ממתין - עדיין לא נקנה
-  pending('pending'),
+  pending,
 
   /// ✅ נקנה - הוכנס לעגלה הפיזית
-  purchased('purchased'),
+  purchased,
 
   /// ❌ לא במלאי - לא היה בחנות
-  outOfStock('outOfStock'),
-
-  /// ⏭️ דחוי - החלטתי לא לקנות עכשיו
-  deferred('deferred'),
+  outOfStock,
 
   /// 🚫 לא צריך - החלטתי שלא צריך בכלל
-  notNeeded('notNeeded');
-
-  const ShoppingItemStatus(this.value);
-  final String value;
+  notNeeded;
 
   // Note: label, icon and color were removed - use AppStrings/StatusColors
   // in UI layer if localized status names or visual properties are needed.
 
-  /// האם הפריט הושלם (נקנה/דחוי/לא במלאי/לא צריך)
+  /// האם הפריט הושלם (טופל ע"י המשתמש)
   bool get isCompleted =>
       this == ShoppingItemStatus.purchased ||
       this == ShoppingItemStatus.outOfStock ||
-      this == ShoppingItemStatus.deferred ||
       this == ShoppingItemStatus.notNeeded;
+
+  /// האם הפריט עדיין ממתין לטיפול
+  bool get isPending => this == ShoppingItemStatus.pending;
+
+  /// האם הפריט נקנה בהצלחה
+  bool get isPurchased => this == ShoppingItemStatus.purchased;
+
+  /// האם הפריט לא היה זמין
+  bool get isUnavailable => this == ShoppingItemStatus.outOfStock;
 }

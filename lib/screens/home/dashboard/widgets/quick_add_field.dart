@@ -6,14 +6,18 @@
 // Version: 1.0 (08/01/2026)
 // 🔗 Related: ShoppingListsProvider, UnifiedListItem
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/ui_constants.dart';
+import '../../../../l10n/app_strings.dart';
 import '../../../../models/shopping_list.dart';
 import '../../../../models/unified_list_item.dart';
 import '../../../../providers/shopping_lists_provider.dart';
+import '../../../../theme/app_theme.dart';
 
 /// שדה הוספה מהירה - מוסיף פריט לרשימה הפעילה האחרונה
 class QuickAddField extends StatefulWidget {
@@ -33,11 +37,14 @@ class _QuickAddFieldState extends State<QuickAddField> {
   void initState() {
     super.initState();
     _focusNode.addListener(_onFocusChange);
+    // ✅ FIX: Listen to controller for rebuild when text changes
+    _controller.addListener(_onTextChange);
   }
 
   @override
   void dispose() {
     _focusNode.removeListener(_onFocusChange);
+    _controller.removeListener(_onTextChange);
     _focusNode.dispose();
     _controller.dispose();
     super.dispose();
@@ -49,14 +56,26 @@ class _QuickAddFieldState extends State<QuickAddField> {
     });
   }
 
+  // ✅ FIX: Trigger rebuild when text changes (for send button visibility)
+  void _onTextChange() {
+    setState(() {});
+  }
+
   Future<void> _onSubmit() async {
     final text = _controller.text.trim();
     if (text.isEmpty || _isSubmitting) return;
 
     setState(() => _isSubmitting = true);
 
+    // ✅ FIX: Cache values before async gap
+    final strings = AppStrings.quickAddField;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final successColor = theme.extension<AppBrand>()?.success ?? kStickyGreen;
+    final warningColor = theme.extension<AppBrand>()?.warning ?? kStickyOrange;
     final messenger = ScaffoldMessenger.of(context);
     final listsProvider = context.read<ShoppingListsProvider>();
+    final navigator = Navigator.of(context);
 
     try {
       // מצא רשימה פעילה
@@ -67,13 +86,17 @@ class _QuickAddFieldState extends State<QuickAddField> {
       if (activeLists.isEmpty) {
         messenger.showSnackBar(
           SnackBar(
-            content: const Text('אין רשימות פעילות - צור רשימה חדשה'),
-            backgroundColor: kStickyOrange,
+            // ✅ FIX: Use AppStrings
+            content: Text(strings.noActiveListMessage),
+            // ✅ FIX: Theme-aware color
+            backgroundColor: warningColor,
             action: SnackBarAction(
-              label: 'צור',
-              textColor: Colors.white,
+              // ✅ FIX: Use AppStrings
+              label: strings.createButton,
+              // ✅ FIX: Theme-aware color
+              textColor: cs.onPrimary,
               onPressed: () {
-                Navigator.pushNamed(context, '/create-list');
+                navigator.pushNamed('/create-list');
               },
             ),
           ),
@@ -89,8 +112,9 @@ class _QuickAddFieldState extends State<QuickAddField> {
         name: text,
         quantity: 1,
         unitPrice: 0,
-        unit: 'יח\'',
-        category: 'כללי',
+        // ✅ FIX: Use AppStrings for default values
+        unit: strings.defaultUnit,
+        category: strings.defaultCategory,
       );
 
       await listsProvider.addUnifiedItem(targetList.id, item);
@@ -101,20 +125,25 @@ class _QuickAddFieldState extends State<QuickAddField> {
       _controller.clear();
       _focusNode.unfocus();
 
-      await HapticFeedback.lightImpact();
+      // ✅ FIX: unawaited for fire-and-forget
+      unawaited(HapticFeedback.lightImpact());
       messenger.showSnackBar(
         SnackBar(
-          content: Text('נוסף "$text" ל"${targetList.name}"'),
-          backgroundColor: kStickyGreen,
+          // ✅ FIX: Use AppStrings
+          content: Text(strings.addedSuccess(text, targetList.name)),
+          // ✅ FIX: Theme-aware color
+          backgroundColor: successColor,
           duration: const Duration(seconds: 2),
         ),
       );
     } catch (e) {
       if (!mounted) return;
+      // ✅ FIX: User-friendly error message (not raw exception)
       messenger.showSnackBar(
         SnackBar(
-          content: Text('שגיאה בהוספה: $e'),
-          backgroundColor: kStickyPink,
+          content: Text(strings.addError),
+          // ✅ FIX: Theme-aware color
+          backgroundColor: cs.error,
         ),
       );
     } finally {
@@ -128,6 +157,7 @@ class _QuickAddFieldState extends State<QuickAddField> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final strings = AppStrings.quickAddField;
     final listsProvider = context.watch<ShoppingListsProvider>();
 
     // מצא רשימה פעילה להצגת שם
@@ -176,11 +206,12 @@ class _QuickAddFieldState extends State<QuickAddField> {
                       controller: _controller,
                       focusNode: _focusNode,
                       enabled: hasActiveList,
-                      textDirection: TextDirection.rtl,
+                      // ✅ FIX: Removed forced RTL - rely on MaterialApp
                       decoration: InputDecoration(
+                        // ✅ FIX: Use AppStrings
                         hintText: hasActiveList
-                            ? 'הוסף פריט מהיר...'
-                            : 'צור רשימה להוספת פריטים',
+                            ? strings.hintWithList
+                            : strings.hintNoList,
                         hintStyle: TextStyle(
                           color: cs.onSurfaceVariant.withValues(alpha: 0.7),
                         ),
@@ -204,7 +235,8 @@ class _QuickAddFieldState extends State<QuickAddField> {
                       onPressed: _onSubmit,
                       icon: const Icon(Icons.send),
                       color: cs.primary,
-                      tooltip: 'הוסף',
+                      // ✅ FIX: Use AppStrings
+                      tooltip: strings.addTooltip,
                       visualDensity: VisualDensity.compact,
                     ),
                 ],
@@ -223,7 +255,8 @@ class _QuickAddFieldState extends State<QuickAddField> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'יתווסף ל"$targetListName"',
+                      // ✅ FIX: Use AppStrings
+                      strings.willAddTo(targetListName),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: cs.onSurfaceVariant,
                       ),

@@ -3,6 +3,9 @@
 // מסך בחירת אנשי קשר להזמנה לקבוצה - מהטלפון או ידנית.
 // תומך בחיפוש, בחירה מרובה, ובחירת תפקיד לכל מוזמן.
 //
+// Version 1.1 - No AppBar (Immersive)
+// Last Updated: 13/01/2026
+//
 // 🔗 Related: ContactPickerService, SelectedContact, UserRole
 
 import 'package:flutter/material.dart';
@@ -45,6 +48,10 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
   @override
   void initState() {
     super.initState();
+    // ✅ שמור את initialSelection כ-contacts (לא רק IDs!)
+    // זה מונע אובדן של מוזמנים ידניים/קודמים שלא קיימים ברשימת אנשי הקשר של המכשיר
+    _contacts = List.from(widget.initialSelection);
+    _filteredContacts = List.from(widget.initialSelection);
     _selectedIds = widget.initialSelection.map((c) => c.id).toSet();
     _loadContacts();
   }
@@ -64,6 +71,9 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
     try {
       final hasPermission = await _contactService.requestPermission();
 
+      // ✅ mounted check אחרי await
+      if (!mounted) return;
+
       if (!hasPermission) {
         setState(() {
           _hasPermission = false;
@@ -72,14 +82,26 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
         return;
       }
 
-      final contacts = await _contactService.getContacts();
+      final phoneContacts = await _contactService.getContacts();
+
+      // ✅ mounted check אחרי await
+      if (!mounted) return;
+
+      // ✅ מיזוג: שמור את הקיימים (initialSelection) והוסף חדשים מהטלפון
+      // מונע אובדן של מוזמנים ידניים/קודמים שלא קיימים ברשימת אנשי הקשר
+      final existingIds = _contacts.map((c) => c.id).toSet();
+      final newContacts = phoneContacts.where((c) => !existingIds.contains(c.id)).toList();
 
       setState(() {
-        _contacts = contacts;
-        _filteredContacts = contacts;
+        _hasPermission = true; // ✅ FIX: חזרה ל-true אחרי הצלחה
+        _contacts = [..._contacts, ...newContacts];
+        _filteredContacts = List.from(_contacts);
         _isLoading = false;
       });
     } catch (e) {
+      // ✅ mounted check אחרי await
+      if (!mounted) return;
+
       setState(() {
         _errorMessage = 'שגיאה בטעינת אנשי קשר';
         _isLoading = false;
@@ -151,37 +173,57 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
     final cs = Theme.of(context).colorScheme;
     final selectedCount = _selectedIds.length;
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: kPaperBackground,
-        appBar: AppBar(
-          title: Text(selectedCount > 0
-              ? 'נבחרו $selectedCount אנשי קשר'
-              : 'בחירת אנשי קשר'),
-          centerTitle: true,
-          backgroundColor: cs.primary,
-          foregroundColor: cs.onPrimary,
-          actions: [
-            if (selectedCount > 0)
-              TextButton(
-                onPressed: _confirmSelection,
-                child: const Text(
-                  'אישור',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+    return Scaffold(
+      backgroundColor: kPaperBackground,
+      body: Stack(
+        children: [
+          const NotebookBackground(),
+          SafeArea(
+            child: Column(
+              children: [
+                // 🏷️ כותרת inline
+                Padding(
+                  padding: const EdgeInsets.all(kSpacingMedium),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        onPressed: () => Navigator.of(context).pop(),
+                        color: cs.primary,
+                      ),
+                      Icon(Icons.contacts, size: 24, color: cs.primary),
+                      const SizedBox(width: kSpacingSmall),
+                      Expanded(
+                        child: Text(
+                          selectedCount > 0
+                              ? 'נבחרו $selectedCount אנשי קשר'
+                              : 'בחירת אנשי קשר',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: cs.onSurface,
+                          ),
+                        ),
+                      ),
+                      if (selectedCount > 0)
+                        TextButton(
+                          onPressed: _confirmSelection,
+                          child: Text(
+                            'אישור',
+                            style: TextStyle(
+                              color: cs.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
-              ),
-          ],
-        ),
-        body: Stack(
-          children: [
-            const NotebookBackground(),
-            _buildBody(cs),
-          ],
-        ),
+                Expanded(child: _buildBody(cs)),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -329,7 +371,7 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
                 : CircleAvatar(
                     backgroundColor: cs.primaryContainer,
                     child: Text(
-                      contact.displayName[0].toUpperCase(),
+                      (contact.displayName.characters.firstOrNull ?? '?').toUpperCase(),
                       style: TextStyle(color: cs.onPrimaryContainer),
                     ),
                   ),
@@ -592,6 +634,19 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
                 ),
                 FilledButton(
                   onPressed: () {
+                    // ✅ בדיקת maxSelection - חסם לפני הוספה ידנית
+                    if (widget.maxSelection != null &&
+                        _selectedIds.length >= widget.maxSelection!) {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(this.context).showSnackBar(
+                        SnackBar(
+                          content: Text('ניתן לבחור עד ${widget.maxSelection} אנשי קשר'),
+                          backgroundColor: Colors.orange,
+                        ),
+                      );
+                      return;
+                    }
+
                     final name = nameController.text.trim();
                     final email = emailController.text.trim();
                     final phone = phoneController.text.trim();
@@ -775,7 +830,7 @@ class _ContactTile extends StatelessWidget {
                     backgroundColor: cs.primaryContainer,
                     radius: 24,
                     child: Text(
-                      contact.displayName[0].toUpperCase(),
+                      (contact.displayName.characters.firstOrNull ?? '?').toUpperCase(),
                       style: TextStyle(
                         color: cs.onPrimaryContainer,
                         fontWeight: FontWeight.bold,

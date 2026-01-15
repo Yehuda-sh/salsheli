@@ -21,6 +21,7 @@ import 'package:timeago/timeago.dart' as timeago;
 
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
+import '../../models/enums/request_type.dart';
 import '../../models/pending_request.dart';
 import '../../models/shopping_list.dart';
 import '../../providers/user_context.dart';
@@ -363,37 +364,70 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
     final rotations = [0.01, -0.01, 0.015, -0.015, 0.02];
     final rotation = rotations[index % rotations.length];
 
-    final itemName = request.requestData['name'] as String? ?? 'מוצר לא ידוע';
-    final quantity = request.requestData['quantity'] as int? ?? 1;
     final requesterName = request.requesterName ?? 'משתמש לא ידוע';
-
-    // Format time using timeago package
     final timeAgo = timeago.format(request.createdAt, locale: 'he', allowFromNow: true);
 
+    // 🆕 בדיקה אם סוג הבקשה ידוע
+    final isUnknownType = request.type == RequestType.unknown;
+
+    // 🆕 אייקון וטקסט לפי סוג הבקשה
+    final (IconData icon, String typeLabel, String itemName) = _getRequestTypeInfo(request);
+
     return StickyNote(
-      color: color,
+      color: isUnknownType ? Colors.grey.shade300 : color, // 🆕 צבע אפור ל-unknown
       rotation: rotation,
       child: Padding(
         padding: const EdgeInsets.all(kSpacingMedium),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header: Item name + quantity
+            // Header: Type badge + Item name
             Row(
               children: [
-                const Icon(Icons.add_shopping_cart, size: 20),
+                // 🆕 Badge סוג בקשה
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: isUnknownType
+                        ? Colors.orange.withValues(alpha: 0.3)
+                        : Colors.black.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(icon, size: 14, color: isUnknownType ? Colors.orange.shade800 : null),
+                      const SizedBox(width: 4),
+                      Text(typeLabel, style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: isUnknownType ? Colors.orange.shade800 : null,
+                      )),
+                    ],
+                  ),
+                ),
                 const SizedBox(width: kSpacingSmall),
                 Expanded(
-                  child: Text(itemName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                  child: Text(
+                    itemName,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  child: Text('x$quantity', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
                 ),
+                // Quantity badge (only for addItem)
+                if (request.type == RequestType.addItem) ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'x${request.requestData['quantity'] ?? 1}',
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
               ],
             ),
             const SizedBox(height: kSpacingSmall),
@@ -410,9 +444,35 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                 Text(timeAgo, style: const TextStyle(fontSize: 12, color: Colors.grey)),
               ],
             ),
+
+            // 🆕 אזהרה עבור unknown
+            if (isUnknownType) ...[
+              const SizedBox(height: kSpacingSmall),
+              Container(
+                padding: const EdgeInsets.all(kSpacingSmall),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange.shade300),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.warning_amber, size: 16, color: Colors.orange.shade800),
+                    const SizedBox(width: kSpacingSmall),
+                    Expanded(
+                      child: Text(
+                        AppStrings.sharing.unknownRequestWarning,
+                        style: TextStyle(fontSize: 12, color: Colors.orange.shade800),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
             const SizedBox(height: kSpacingMedium),
 
-            // Action buttons
+            // Action buttons - 🆕 מושבתים עבור unknown
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -421,7 +481,10 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                   child: StickyButton(
                     label: AppStrings.sharing.approveButton,
                     color: kStickyGreen,
-                    onPressed: _processingRequestId != null ? null : () => _approveRequest(request),
+                    // 🆕 מושבת אם processing או unknown
+                    onPressed: (_processingRequestId != null || isUnknownType)
+                        ? null
+                        : () => _approveRequest(request),
                     icon: Icons.check_circle,
                   ),
                 ),
@@ -432,14 +495,17 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                   child: StickyButton(
                     label: AppStrings.sharing.rejectButton,
                     color: kStickyPink,
-                    onPressed: _processingRequestId != null ? null : () => _rejectRequest(request),
+                    // 🆕 מושבת אם processing או unknown
+                    onPressed: (_processingRequestId != null || isUnknownType)
+                        ? null
+                        : () => _rejectRequest(request),
                     icon: Icons.cancel,
                   ),
                 ),
               ],
             ),
 
-            // Processing indicator - רק עבור הכרטיס הספציפי שבעיבוד
+            // Processing indicator
             if (_processingRequestId == request.id) ...[
               const SizedBox(height: kSpacingSmall),
               const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))),
@@ -448,5 +514,45 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
         ),
       ),
     );
+  }
+
+  /// 🆕 מחזיר אייקון, תווית וטקסט לפי סוג הבקשה
+  (IconData, String, String) _getRequestTypeInfo(PendingRequest request) {
+    final strings = AppStrings.sharing;
+
+    switch (request.type) {
+      case RequestType.addItem:
+        return (
+          Icons.add_shopping_cart,
+          strings.requestTypeAdd,
+          request.requestData['name'] as String? ?? 'פריט לא ידוע',
+        );
+      case RequestType.editItem:
+        return (
+          Icons.edit,
+          strings.requestTypeEdit,
+          request.changes?['name'] as String? ??
+              request.requestData['itemName'] as String? ??
+              'עריכת פריט',
+        );
+      case RequestType.deleteItem:
+        return (
+          Icons.delete_outline,
+          strings.requestTypeDelete,
+          request.requestData['itemName'] as String? ?? 'מחיקת פריט',
+        );
+      case RequestType.inviteToList:
+        return (
+          Icons.person_add,
+          strings.requestTypeInvite,
+          request.requestData['email'] as String? ?? 'הזמנה',
+        );
+      case RequestType.unknown:
+        return (
+          Icons.help_outline,
+          strings.requestTypeUnknown,
+          'בקשה לא מוכרת',
+        );
+    }
   }
 }

@@ -16,12 +16,14 @@ class LocationsProvider with ChangeNotifier {
   final LocationsRepository _repository;
   UserContext? _userContext;
   bool _listening = false;
+  bool _isDisposed = false;
 
   bool _isLoading = false;
   String? _errorMessage;
   List<CustomLocation> _customLocations = [];
 
   Future<void>? _loadingFuture; // מניעת טעינות כפולות
+  int _loadGeneration = 0; // מונע תוצאות ישנות אחרי logout/שינוי household
 
   LocationsProvider({
     required LocationsRepository repository,
@@ -38,11 +40,25 @@ class LocationsProvider with ChangeNotifier {
   bool get isEmpty => _customLocations.isEmpty;
   List<CustomLocation> get customLocations => List.unmodifiable(_customLocations);
 
+  // === Safe Notify ===
+
+  /// קורא ל-notifyListeners רק אם לא disposed
+  void _notifySafe() {
+    if (!_isDisposed) {
+      notifyListeners();
+    }
+  }
+
   // === חיבור UserContext ===
-  
+
   /// מעדכן את ה-UserContext ומאזין לשינויים
   /// נקרא אוטומטית מ-ProxyProvider
   void updateUserContext(UserContext newContext) {
+    // Guard: אם אותו context - לא עושים כלום
+    if (_userContext == newContext) {
+      return;
+    }
+
     if (_listening && _userContext != null) {
       _userContext!.removeListener(_onUserChanged);
       _listening = false;
@@ -76,22 +92,42 @@ class LocationsProvider with ChangeNotifier {
 
   Future<void> _doLoad() async {
     final householdId = _userContext?.user?.householdId;
+
+    // Logout או לא מחובר - איפוס מלא
     if (_userContext?.isLoggedIn != true || householdId == null) {
       _customLocations = [];
-      notifyListeners();
+      _isLoading = false;
+      _errorMessage = null;
+      _loadingFuture = null;
+      _loadGeneration++;
+      _notifySafe();
       return;
     }
 
+    final currentGeneration = ++_loadGeneration;
+
     _isLoading = true;
     _errorMessage = null;
-    notifyListeners();
+    _notifySafe();
 
     try {
-      _customLocations = await _repository.fetchLocations(householdId);
+      final locations = await _repository.fetchLocations(householdId);
+
+      // בדיקה: אם logout/שינוי household קרה בזמן הטעינה - מתעלמים מהתוצאות
+      if (currentGeneration != _loadGeneration || _isDisposed) {
+        return;
+      }
+
+      _customLocations = locations;
       if (kDebugMode) {
         debugPrint('✅ LocationsProvider: נטענו ${_customLocations.length} מיקומים');
       }
     } catch (e, st) {
+      // בדיקה גם ב-catch
+      if (currentGeneration != _loadGeneration || _isDisposed) {
+        return;
+      }
+
       _errorMessage = 'שגיאה בטעינת מיקומים: $e';
       if (kDebugMode) {
         debugPrint('❌ LocationsProvider._doLoad: שגיאה - $e');
@@ -99,8 +135,13 @@ class LocationsProvider with ChangeNotifier {
       }
     }
 
+    // בדיקה לפני notify סופי
+    if (currentGeneration != _loadGeneration || _isDisposed) {
+      return;
+    }
+
     _isLoading = false;
-    notifyListeners();
+    _notifySafe();
   }
 
   /// טוען את כל המיקומים מחדש מה-Repository
@@ -140,12 +181,6 @@ class LocationsProvider with ChangeNotifier {
     return _customLocations.where((loc) => loc.key == key).firstOrNull;
   }
 
-  /// נרמול key - ממיר שם למפתח תקני
-  /// 'מקפיא נוסף' → 'מקפיא_נוסף'
-  String _normalizeKey(String input) {
-    return input.trim().toLowerCase().replaceAll(' ', '_');
-  }
-
   // === יצירה/מחיקה ===
   
   /// הוספת מיקום מותאם חדש
@@ -176,8 +211,8 @@ class LocationsProvider with ChangeNotifier {
     }
 
     // יצירת key ייחודי: "מקפיא נוסף" → "מקפיא_נוסף"
-    // הערה: לא מגבילים תווים - _normalizeKey יוצר key בטוח לשימוש ב-Firestore
-    final key = _normalizeKey(name);
+    // משתמש ב-CustomLocation.normalizeKey לעקביות עם המודל
+    final key = CustomLocation.normalizeKey(name);
 
     // בדיקה אם קיים
     if (locationExists(key)) {
@@ -196,7 +231,7 @@ class LocationsProvider with ChangeNotifier {
 
       // אופטימיזציה: הוספה local במקום ריענון מלא
       _customLocations = [..._customLocations, newLocation];
-      notifyListeners();
+      _notifySafe();
 
       return true;
     } catch (e) {
@@ -204,7 +239,7 @@ class LocationsProvider with ChangeNotifier {
         debugPrint('❌ LocationsProvider.addLocation: שגיאה - $e');
       }
       _errorMessage = 'שגיאה בהוספת מיקום';
-      notifyListeners();
+      _notifySafe();
       return false;
     }
   }
@@ -233,7 +268,7 @@ class LocationsProvider with ChangeNotifier {
     }
 
     // תמיכה בשם או key
-    final key = _normalizeKey(nameOrKey);
+    final key = CustomLocation.normalizeKey(nameOrKey);
 
     if (!locationExists(key)) {
       return false;
@@ -244,7 +279,7 @@ class LocationsProvider with ChangeNotifier {
 
       // אופטימיזציה: מחיקה local במקום ריענון מלא
       _customLocations = _customLocations.where((loc) => loc.key != key).toList();
-      notifyListeners();
+      _notifySafe();
 
       return true;
     } catch (e) {
@@ -252,7 +287,7 @@ class LocationsProvider with ChangeNotifier {
         debugPrint('❌ LocationsProvider.deleteLocation: שגיאה - $e');
       }
       _errorMessage = 'שגיאה במחיקת מיקום';
-      notifyListeners();
+      _notifySafe();
       return false;
     }
   }
@@ -269,7 +304,7 @@ class LocationsProvider with ChangeNotifier {
   /// ```
   Future<void> retry() async {
     _errorMessage = null;
-    notifyListeners();
+    _notifySafe();
     await _loadLocations();
   }
 
@@ -283,13 +318,15 @@ class LocationsProvider with ChangeNotifier {
     _customLocations = [];
     _errorMessage = null;
     _isLoading = false;
-    notifyListeners();
+    _notifySafe();
   }
 
   // === Cleanup ===
 
   @override
   void dispose() {
+    _isDisposed = true;
+
     if (_listening && _userContext != null) {
       _userContext!.removeListener(_onUserChanged);
     }

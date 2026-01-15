@@ -23,6 +23,7 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
@@ -80,9 +81,14 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    _shakeAnimation = Tween<double>(begin: 0, end: 10).animate(
-      CurvedAnimation(parent: _shakeController, curve: Curves.elasticIn),
-    );
+    // ✅ TweenSequence שמחזיר ל-0 בסוף (מונע תקיעה)
+    _shakeAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0, end: 10), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: 10, end: -8), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: -8, end: 6), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: 6, end: -4), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: -4, end: 0), weight: 1),
+    ]).animate(CurvedAnimation(parent: _shakeController, curve: Curves.easeOut));
     
     // 🎯 Auto-focus על שדה שם בכניסה למסך
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -129,11 +135,14 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
 
   /// ✅ פונקציית Register עם Firebase Authentication
   Future<void> _handleRegister() async {
-    debugPrint('📝 _handleRegister() | Starting registration process...');
+    // 🛡️ מניעת לחיצות כפולות
+    if (_isLoading) return;
+
+    if (kDebugMode) debugPrint('📝 _handleRegister() | Starting registration process...');
     
     // Validation
     if (!_formKey.currentState!.validate()) {
-      debugPrint('❌ _handleRegister() | Form validation failed');
+      if (kDebugMode) debugPrint('❌ _handleRegister() | Form validation failed');
       unawaited(_shakeController.forward(from: 0)); // 🎬 Shake animation
       return;
     }
@@ -151,7 +160,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       final password = _passwordController.text;
 
       // רישום דרך UserContext
-      debugPrint('📝 _handleRegister() | Signing up...');
+      if (kDebugMode) debugPrint('📝 _handleRegister() | Signing up...');
       final userContext = context.read<UserContext>();
       await userContext.signUp(
         email: email,
@@ -161,7 +170,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       );
 
       // ✅ הרישום הצליח!
-      debugPrint('✅ _handleRegister() | Success! userId: ${userContext.userId}');
+      if (kDebugMode) debugPrint('✅ _handleRegister() | Success! userId: ${userContext.userId}');
 
       // 📨 בדיקת הזמנות ממתינות לקבוצות
       if (mounted) {
@@ -170,7 +179,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
           phone: phone,
           email: email,
         );
-        debugPrint('📨 Checked pending invites: ${pendingInvitesProvider.pendingCount} found');
+        if (kDebugMode) debugPrint('📨 Checked pending invites: ${pendingInvitesProvider.pendingCount} found');
       }
 
       // 🎉 הצגת feedback ויזואלי + ניווט
@@ -196,21 +205,21 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                   children: [
                     Icon(Icons.group_add, color: warningColor, size: 28),
                     const SizedBox(width: kSpacingSmall),
-                    const Text('הזמנות ממתינות!'),
+                    Text(AppStrings.auth.pendingInvitesDialogTitle),
                   ],
                 ),
                 content: Text(
-                  'יש לך ${pendingInvitesProvider.pendingCount} הזמנות לקבוצות ממתינות לאישור.\n\nהאם לעבור למסך ההזמנות?',
+                  AppStrings.auth.pendingInvitesDialogContent(pendingInvitesProvider.pendingCount),
                 ),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(dialogContext, false),
-                    child: const Text('אחר כך'),
+                    child: Text(AppStrings.auth.pendingInvitesLater),
                   ),
                   // ✅ כפתור ללא style מותאם - נותן ל-Theme להחליט
                   ElevatedButton(
                     onPressed: () => Navigator.pop(dialogContext, true),
-                    child: const Text('צפה בהזמנות'),
+                    child: Text(AppStrings.auth.pendingInvitesView),
                   ),
                 ],
               );
@@ -220,13 +229,13 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
           if (mounted) {
             if (goToInvites == true) {
               // נווט למסך ההזמנות
-              await navigator.pushNamedAndRemoveUntil('/home', (route) => false);
+              await navigator.pushNamedAndRemoveUntil('/', (route) => false);
               if (mounted) {
                 await navigator.pushNamed('/pending-group-invites');
               }
             } else {
               // נווט לדף הבית
-              await navigator.pushNamedAndRemoveUntil('/home', (route) => false);
+              await navigator.pushNamedAndRemoveUntil('/', (route) => false);
             }
           }
         } else {
@@ -239,7 +248,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                   Icon(Icons.check_circle, color: StatusColors.getOnStatusContainer('success', context), size: 24),
                   const SizedBox(width: kSpacingSmall),
                   Text(
-                    'הרשמת בהצלחה! מעביר לדף הבית...',
+                    AppStrings.auth.registerSuccessRedirect,
                     style: TextStyle(color: StatusColors.getOnStatusContainer('success', context)),
                   ),
                 ],
@@ -258,13 +267,13 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
           await Future.delayed(const Duration(milliseconds: 1500));
 
           if (mounted) {
-            debugPrint('🔄 _handleRegister() | Navigating to home screen');
-            await navigator.pushNamedAndRemoveUntil('/home', (route) => false);
+            if (kDebugMode) debugPrint('🔄 _handleRegister() | Navigating to index screen');
+            await navigator.pushNamedAndRemoveUntil('/', (route) => false);
           }
         }
       }
     } catch (e) {
-      debugPrint('❌ _handleRegister() | Registration failed: $e');
+      if (kDebugMode) debugPrint('❌ _handleRegister() | Registration failed: $e');
       
       final errorMessage = e.toString().replaceAll('Exception: ', '');
 
@@ -300,12 +309,12 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       }
     }
     
-    debugPrint('🏁 _handleRegister() | Completed');
+    if (kDebugMode) debugPrint('🏁 _handleRegister() | Completed');
   }
 
   /// ניווט למסך התחברות
   void _navigateToLogin() {
-    debugPrint('🔄 _navigateToLogin() | Navigating to login screen');
+    if (kDebugMode) debugPrint('🔄 _navigateToLogin() | Navigating to login screen');
     unawaited(Navigator.pushReplacementNamed(context, '/login'));
   }
 
@@ -328,10 +337,10 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
 
       if (mounted) {
         setState(() => _isLoading = false);
-        await navigator.pushNamedAndRemoveUntil('/home', (route) => false);
+        await navigator.pushNamedAndRemoveUntil('/', (route) => false);
       }
     } catch (e) {
-      debugPrint('❌ _handleGoogleSignIn: $e');
+      if (kDebugMode) debugPrint('❌ _handleGoogleSignIn: $e');
       if (mounted) {
         setState(() => _isLoading = false);
         // שגיאות ביטול לא מציגות הודעה
@@ -365,10 +374,10 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
 
       if (mounted) {
         setState(() => _isLoading = false);
-        await navigator.pushNamedAndRemoveUntil('/home', (route) => false);
+        await navigator.pushNamedAndRemoveUntil('/', (route) => false);
       }
     } catch (e) {
-      debugPrint('❌ _handleAppleSignIn: $e');
+      if (kDebugMode) debugPrint('❌ _handleAppleSignIn: $e');
       if (mounted) {
         setState(() => _isLoading = false);
         // שגיאות ביטול לא מציגות הודעה
@@ -463,21 +472,17 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     // ✅ צבע Sticky Note מ-Theme (תומך Dark Mode)
     final yellow = brand?.stickyYellow ?? kStickyYellow;
 
-    // 🔒 חזרה ל-login במקום welcome
-    return Directionality(
-      textDirection: TextDirection.rtl, // 🔄 תמיכה מלאה ב-RTL
-      child: PopScope(
-        onPopInvokedWithResult: (didPop, result) {
-          if (didPop) {
-            // נווט ל-login במקום ל-welcome
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (context.mounted) {
-                Navigator.pushReplacementNamed(context, '/login');
-              }
-            });
-          }
-        },
-        child: Scaffold(
+    // 🔒 חסימת Back - המשתמש יכול לחזור ל-login
+    // ✅ RTL נקבע אוטומטית מהתמה (Directionality מ-MaterialApp)
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          // נווט ל-login ישירות (בלי לתת ל-pop לקרות)
+          Navigator.pushReplacementNamed(context, '/login');
+        }
+      },
+      child: Scaffold(
         // ✅ צבע רקע מ-Theme (תומך Dark Mode)
         backgroundColor: brand?.paperBackground ?? theme.scaffoldBackgroundColor,
         body: Stack(
@@ -548,7 +553,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                             color: yellow,
                             rotation: 0.008,
                             textInputAction: TextInputAction.next,
-                            semanticLabel: 'שדה שם מלא, חובה', // ✅ Accessibility
+                            semanticLabel: AppStrings.auth.nameFieldSemanticLabel,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return AppStrings.auth.nameRequired;
@@ -572,7 +577,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                             rotation: -0.01,
                             keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.next,
-                            semanticLabel: 'שדה כתובת אימייל, חובה', // ✅ Accessibility
+                            semanticLabel: AppStrings.auth.emailFieldSemanticLabel,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return AppStrings.auth.emailRequired;
@@ -602,10 +607,10 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                     : Icons.visibility_off_outlined,
                               ),
                               onPressed: _togglePasswordVisibility,
-                              tooltip: _obscurePassword ? 'הצג סיסמה' : 'הסתר סיסמה', // ✅ Accessibility
+                              tooltip: _obscurePassword ? AppStrings.auth.showPassword : AppStrings.auth.hidePassword,
                             ),
                             textInputAction: TextInputAction.next,
-                            semanticLabel: 'שדה סיסמה, לפחות 6 תווים', // ✅ Accessibility
+                            semanticLabel: AppStrings.auth.passwordFieldSemanticLabel,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return AppStrings.auth.passwordRequired;
@@ -635,10 +640,10 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                     : Icons.visibility_off_outlined,
                               ),
                               onPressed: _toggleConfirmPasswordVisibility,
-                              tooltip: _obscureConfirmPassword ? 'הצג סיסמה' : 'הסתר סיסמה', // ✅ Accessibility
+                              tooltip: _obscureConfirmPassword ? AppStrings.auth.showPassword : AppStrings.auth.hidePassword,
                             ),
                             textInputAction: TextInputAction.next,
-                            semanticLabel: 'שדה אימות סיסמה, חייב להתאים לסיסמה', // ✅ Accessibility
+                            semanticLabel: AppStrings.auth.confirmPasswordFieldSemanticLabel,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return AppStrings.auth.confirmPasswordRequired;
@@ -663,8 +668,8 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                             keyboardType: TextInputType.phone,
                             textInputAction: TextInputAction.done,
                             onFieldSubmitted: (_) { _onRegisterPressed(); },
-                            semanticLabel: 'שדה טלפון נייד ישראלי, חובה', // ✅ Accessibility
-                            helperText: 'מספר נייד ישראלי - לקבלת עדכונים מהקבוצות', // ✅ Helper text
+                            semanticLabel: AppStrings.auth.phoneFieldSemanticLabel,
+                            helperText: AppStrings.auth.phoneHelperText,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return AppStrings.auth.phoneRequired;
@@ -752,7 +757,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                           // 🔗 קישור להתחברות - בולט יותר
                           // ✅ Semantics לנגישות
                           Semantics(
-                            label: 'יש לך חשבון? לחץ לעבור למסך התחברות',
+                            label: AppStrings.auth.loginLinkSemanticLabel,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -809,7 +814,6 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
           ],
         ),
       ),
-    ),
     );
   }
 }
@@ -853,7 +857,7 @@ class _SocialLoginButtonState extends State<_SocialLoginButton> {
 
     return Semantics(
       button: true,
-      label: 'הירשם או התחבר באמצעות ${widget.label}',
+      label: AppStrings.auth.socialRegisterSemanticLabel(widget.label),
       enabled: !isDisabled,
       child: GestureDetector(
         onTapDown: isDisabled ? null : (_) => setState(() => _isPressed = true),

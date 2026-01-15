@@ -4,6 +4,9 @@
 // כולל הזמנת חברים, שינוי תפקידים, עזיבה ומחיקת קבוצה.
 //
 // 🔗 Related: Group, GroupsProvider, GroupInvite, ContactPickerScreen
+//
+// Version 2.0 - No AppBar (Immersive)
+// Last Updated: 13/01/2026
 
 import 'dart:async';
 
@@ -13,6 +16,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
 import '../../models/enums/user_role.dart';
 import '../../models/group.dart';
 import '../../providers/groups_provider.dart';
@@ -45,6 +49,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
 
   bool _isEditing = false;
   bool _isLoading = false;
+  bool _isInviting = false;
+  bool _controllersInitialized = false;
 
   @override
   void initState() {
@@ -61,9 +67,40 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
 
   void _loadGroupData() {
     final group = context.read<GroupsProvider>().getGroup(widget.groupId);
-    if (group != null) {
+    if (group != null && !_controllersInitialized) {
       _nameController.text = group.name;
       _descriptionController.text = group.description ?? '';
+      _controllersInitialized = true;
+    }
+  }
+
+  /// סנכרון controllers כשהקבוצה נטענת מאוחר יותר
+  void _syncControllersIfNeeded(Group group) {
+    if (!_controllersInitialized && !_isEditing) {
+      _nameController.text = group.name;
+      _descriptionController.text = group.description ?? '';
+      _controllersInitialized = true;
+    }
+  }
+
+  /// קבלת אייקון לפי סוג הקבוצה
+  IconData _getGroupTypeIcon(GroupType type) {
+    switch (type) {
+      case GroupType.family:
+        return Icons.family_restroom;
+      case GroupType.building:
+        return Icons.apartment;
+      case GroupType.kindergarten:
+        return Icons.child_care;
+      case GroupType.friends:
+        return Icons.people;
+      case GroupType.event:
+        return Icons.celebration;
+      case GroupType.roommates:
+        return Icons.home;
+      case GroupType.other:
+      case GroupType.unknown:
+        return Icons.group;
     }
   }
 
@@ -102,16 +139,17 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
 
       if (!mounted) return;
 
+      final strings = AppStrings.groupDetails;
       if (success) {
         await HapticFeedback.mediumImpact();
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Row(
               children: [
-                Icon(Icons.check_circle, color: Colors.white),
-                SizedBox(width: 8),
-                Text('הקבוצה עודכנה בהצלחה'),
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 8),
+                Text(strings.groupUpdatedSuccess),
               ],
             ),
             backgroundColor: Colors.green,
@@ -121,8 +159,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       } else {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('שגיאה בעדכון הקבוצה'),
+          SnackBar(
+            content: Text(strings.groupUpdateError),
             backgroundColor: Colors.red,
           ),
         );
@@ -136,6 +174,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
 
   /// פתיחת מסך בחירת אנשי קשר להזמנה
   Future<void> _inviteMembers(Group group) async {
+    // מניעת לחיצה כפולה
+    if (_isInviting) return;
+
     final result = await Navigator.of(context).push<List<SelectedContact>>(
       MaterialPageRoute(
         builder: (context) => const ContactPickerScreen(),
@@ -144,80 +185,95 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
 
     if (result == null || result.isEmpty || !mounted) return;
 
-    final userContext = context.read<UserContext>();
-    final provider = context.read<GroupsProvider>();
-    final currentUserId = userContext.userId ?? '';
-    final currentUserName = userContext.displayName ?? 'משתמש';
-    final inviteRepository = GroupInviteRepository();
+    setState(() => _isInviting = true);
 
-    // הצגת מצב טעינה
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('מוסיף ${result.length} חברים לקבוצה...'),
-        backgroundColor: Colors.blue,
-        duration: const Duration(seconds: 1),
-      ),
-    );
+    try {
+      final strings = AppStrings.groupDetails;
+      final userContext = context.read<UserContext>();
+      final provider = context.read<GroupsProvider>();
+      final currentUserId = userContext.userId ?? '';
+      final currentUserName = userContext.displayName ?? 'משתמש';
+      final inviteRepository = GroupInviteRepository();
 
-    int successCount = 0;
-    int failCount = 0;
-
-    for (final contact in result) {
-      // יצירת מזהה משתמש זמני (מבוסס על אימייל או טלפון)
-      final tempUserId = 'invited_${contact.email ?? contact.phone ?? contact.id}';
-
-      final success = await provider.addMember(
-        groupId: group.id,
-        userId: tempUserId,
-        name: contact.displayName,
-        email: contact.email ?? '',
-        role: contact.role,
-        invitedBy: currentUserId,
+      // הצגת מצב טעינה
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(strings.addingMembers(result.length)),
+          backgroundColor: Colors.blue,
+          duration: const Duration(seconds: 1),
+        ),
       );
 
-      if (success) {
-        successCount++;
+      int successCount = 0;
+      int failCount = 0;
 
-        // יצירת הזמנה ב-collection להזמנות ממתינות
-        try {
-          final invite = GroupInvite.create(
-            groupId: group.id,
-            groupName: group.name,
-            invitedPhone: contact.phone,
-            invitedEmail: contact.email?.toLowerCase(),
-            invitedName: contact.displayName,
-            role: contact.role,
-            invitedBy: currentUserId,
-            invitedByName: currentUserName,
-          );
-          await inviteRepository.createInvite(invite);
-          debugPrint('📨 הזמנה נוצרה: ${contact.displayName}');
-        } catch (e) {
-          debugPrint('⚠️ שגיאה ביצירת הזמנה (לא קריטי): $e');
+      for (final contact in result) {
+        if (!mounted) break;
+
+        // יצירת מזהה משתמש זמני - שימוש ב-contact.id הבטוח או timestamp
+        // הימנעות משימוש באימייל/טלפון שמכילים תווים לא בטוחים ל-Firestore (. @ +)
+        final tempUserId = 'invited_${contact.id.isNotEmpty ? contact.id : DateTime.now().microsecondsSinceEpoch}';
+
+        final success = await provider.addMember(
+          groupId: group.id,
+          userId: tempUserId,
+          name: contact.displayName,
+          email: contact.email ?? '',
+          role: contact.role,
+          invitedBy: currentUserId,
+        );
+
+        if (!mounted) break;
+
+        if (success) {
+          successCount++;
+
+          // יצירת הזמנה ב-collection להזמנות ממתינות
+          try {
+            final invite = GroupInvite.create(
+              groupId: group.id,
+              groupName: group.name,
+              invitedPhone: contact.phone,
+              invitedEmail: contact.email?.toLowerCase(),
+              invitedName: contact.displayName,
+              role: contact.role,
+              invitedBy: currentUserId,
+              invitedByName: currentUserName,
+            );
+            await inviteRepository.createInvite(invite);
+            if (!mounted) break;
+            debugPrint('📨 הזמנה נוצרה: ${contact.displayName}');
+          } catch (e) {
+            debugPrint('⚠️ שגיאה ביצירת הזמנה (לא קריטי): $e');
+          }
+        } else {
+          failCount++;
         }
-      } else {
-        failCount++;
       }
-    }
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    // הודעת סיכום
-    if (failCount == 0) {
-      unawaited(HapticFeedback.mediumImpact());
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('נוספו $successCount חברים לקבוצה בהצלחה!'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('נוספו $successCount, נכשלו $failCount'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      // הודעת סיכום
+      if (failCount == 0) {
+        unawaited(HapticFeedback.mediumImpact());
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(strings.membersAddedSuccess(successCount)),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(strings.membersAddedPartial(successCount, failCount)),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isInviting = false);
+      }
     }
   }
 
@@ -227,21 +283,22 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     GroupMember member,
     UserRole newRole,
   ) async {
+    final strings = AppStrings.groupDetails;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('שינוי תפקיד'),
+        title: Text(strings.changeRoleTitle),
         content: Text(
-          'האם לשנות את התפקיד של ${member.name} ל${newRole.hebrewName}?',
+          strings.changeRoleConfirm(member.name, newRole.hebrewName),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('ביטול'),
+            child: Text(strings.cancelButton),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('אישור'),
+            child: Text(strings.confirmButton),
           ),
         ],
       ),
@@ -263,7 +320,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('התפקיד של ${member.name} שונה ל${newRole.hebrewName}'),
+          content: Text(strings.roleChanged(member.name, newRole.hebrewName)),
           backgroundColor: Colors.green,
         ),
       );
@@ -272,20 +329,21 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
 
   /// הסרת חבר מהקבוצה
   Future<void> _removeMember(Group group, GroupMember member) async {
+    final strings = AppStrings.groupDetails;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('הסרת חבר'),
-        content: Text('האם להסיר את ${member.name} מהקבוצה?'),
+        title: Text(strings.removeMemberTitle),
+        content: Text(strings.removeMemberConfirm(member.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('ביטול'),
+            child: Text(strings.cancelButton),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('הסר'),
+            child: Text(strings.removeButton),
           ),
         ],
       ),
@@ -306,7 +364,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${member.name} הוסר מהקבוצה'),
+          content: Text(strings.memberRemoved(member.name)),
           backgroundColor: Colors.orange,
         ),
       );
@@ -318,31 +376,32 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     final userId = context.read<UserContext>().userId;
     if (userId == null) return;
 
+    final strings = AppStrings.groupDetails;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('עזיבת קבוצה'),
+        title: Text(strings.leaveGroupTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('האם לעזוב את "${group.name}"?'),
+            Text(strings.leaveGroupConfirm(group.name)),
             const SizedBox(height: 12),
-            const Text(
-              'שים לב:\n• הסימונים שלך יבוטלו\n• לא תוכל לראות את הרשימות',
-              style: TextStyle(fontSize: 12, color: Colors.grey),
+            Text(
+              strings.leaveGroupWarning,
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('ביטול'),
+            child: Text(strings.cancelButton),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-            child: const Text('עזוב'),
+            child: Text(strings.leaveButton),
           ),
         ],
       ),
@@ -373,7 +432,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       Navigator.of(context).pop(); // חזרה למסך הקודם
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('עזבת את "${group.name}"'),
+          content: Text(strings.leftGroup(group.name)),
           backgroundColor: Colors.orange,
         ),
       );
@@ -425,28 +484,25 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
 
   /// מחיקת קבוצה
   Future<void> _deleteGroup(Group group) async {
+    final strings = AppStrings.groupDetails;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.warning, color: Colors.red),
-            SizedBox(width: 8),
-            Text('מחיקת קבוצה'),
+            const Icon(Icons.warning, color: Colors.red),
+            const SizedBox(width: 8),
+            Text(strings.deleteGroupTitle),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('האם למחוק את "${group.name}"?'),
+            Text(strings.deleteGroupConfirm(group.name)),
             const SizedBox(height: 12),
             Text(
-              'פעולה זו תמחק:\n'
-              '• את הקבוצה\n'
-              '• את כל הרשימות המשותפות\n'
-              '• ${group.memberCount} חברים יוסרו\n\n'
-              'פעולה זו בלתי הפיכה!',
+              strings.deleteGroupWarning(group.memberCount),
               style: const TextStyle(fontSize: 12, color: Colors.red),
             ),
           ],
@@ -454,12 +510,12 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('ביטול'),
+            child: Text(strings.cancelButton),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('מחק קבוצה'),
+            child: Text(strings.deleteGroupButton),
           ),
         ],
       ),
@@ -480,15 +536,15 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       Navigator.of(context).pop(); // חזרה למסך הקודם
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('הקבוצה "${group.name}" נמחקה'),
+          content: Text(strings.groupDeleted(group.name)),
           backgroundColor: Colors.red,
         ),
       );
     } else {
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('שגיאה במחיקת הקבוצה'),
+        SnackBar(
+          content: Text(strings.deleteGroupError),
           backgroundColor: Colors.red,
         ),
       );
@@ -505,53 +561,80 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
         final group = provider.getGroup(widget.groupId);
 
         if (group == null) {
+          final strings = AppStrings.groupDetails;
           return Scaffold(
-            appBar: AppBar(title: const Text('קבוצה לא נמצאה')),
-            body: const Center(
-              child: Text('הקבוצה לא קיימת או שאין לך גישה'),
+            body: SafeArea(
+              child: Center(
+                child: Text(strings.groupNotFoundMessage),
+              ),
             ),
           );
         }
 
-        final permissions = _getUserPermissions(group, userId);
+        // סנכרון controllers כשהקבוצה נטענת מאוחר יותר מ-Firestore
+        _syncControllersIfNeeded(group);
 
-        return Directionality(
-          textDirection: TextDirection.rtl,
-          child: Scaffold(
-            backgroundColor: kPaperBackground,
-            appBar: AppBar(
-              title: Text(group.displayName),
-              centerTitle: true,
-              backgroundColor: cs.primary,
-              foregroundColor: cs.onPrimary,
-              actions: [
-                if (permissions.canEdit && !_isEditing)
-                  IconButton(
-                    icon: const Icon(Icons.edit),
-                    onPressed: () => setState(() => _isEditing = true),
-                    tooltip: 'עריכה',
-                  ),
-                if (_isEditing)
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      _loadGroupData();
-                      setState(() => _isEditing = false);
-                    },
-                    tooltip: 'ביטול',
-                  ),
-              ],
+        final permissions = _getUserPermissions(group, userId);
+        final strings = AppStrings.groupDetails;
+
+        final theme = Theme.of(context);
+        return Scaffold(
+            backgroundColor: theme.scaffoldBackgroundColor,
+            body: SafeArea(
+              child: Stack(
+                children: [
+                  const NotebookBackground(),
+                  if (_isLoading)
+                    const Center(child: CircularProgressIndicator())
+                  else
+                    Column(
+                      children: [
+                        // 🏷️ כותרת inline
+                        Padding(
+                          padding: const EdgeInsets.all(kSpacingMedium),
+                          child: Row(
+                            children: [
+                              Icon(Icons.group, size: 24, color: cs.primary),
+                              const SizedBox(width: kSpacingSmall),
+                              Expanded(
+                                child: Text(
+                                  group.displayName,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: cs.onSurface,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              // כפתורי פעולה
+                              if (permissions.canEdit && !_isEditing)
+                                IconButton(
+                                  icon: Icon(Icons.edit, color: cs.primary),
+                                  onPressed: () => setState(() => _isEditing = true),
+                                  tooltip: strings.editTooltip,
+                                ),
+                              if (_isEditing)
+                                IconButton(
+                                  icon: Icon(Icons.close, color: cs.error),
+                                  onPressed: () {
+                                    _loadGroupData();
+                                    setState(() => _isEditing = false);
+                                  },
+                                  tooltip: strings.cancelTooltip,
+                                ),
+                            ],
+                          ),
+                        ),
+                        // תוכן המסך
+                        Expanded(
+                          child: _buildContent(context, group, permissions, cs),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
             ),
-            body: Stack(
-              children: [
-                const NotebookBackground(),
-                if (_isLoading)
-                  const Center(child: CircularProgressIndicator())
-                else
-                  _buildContent(context, group, permissions, cs),
-              ],
-            ),
-          ),
         );
       },
     );
@@ -598,6 +681,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     _UserPermissions permissions,
     ColorScheme cs,
   ) {
+    final strings = AppStrings.groupDetails;
     return StickyNote(
       color: kStickyYellow,
       rotation: -0.01,
@@ -634,11 +718,11 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                       // כותרת + סוג
                       Row(
                         children: [
-                          Icon(group.type.icon, size: 18, color: cs.primary),
+                          Icon(_getGroupTypeIcon(group.type), size: 18, color: cs.primary),
                           const SizedBox(width: 4),
-                          const Text(
-                            'פרטי הקבוצה',
-                            style: TextStyle(
+                          Text(
+                            strings.groupDetailsTitle,
+                            style: const TextStyle(
                               fontSize: kFontSizeMedium,
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,
@@ -668,7 +752,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
-                  labelText: 'שם הקבוצה *',
+                  labelText: strings.groupNameLabel,
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(
@@ -678,7 +762,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 maxLength: 30,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'נא להזין שם לקבוצה';
+                    return strings.groupNameValidation;
                   }
                   return null;
                 },
@@ -688,7 +772,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               TextFormField(
                 controller: _descriptionController,
                 decoration: InputDecoration(
-                  labelText: 'תיאור (אופציונלי)',
+                  labelText: strings.descriptionLabel,
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(
@@ -702,18 +786,18 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               // מצב צפייה - עיצוב נקי יותר
               _buildInfoField(
                 icon: Icons.badge_outlined,
-                label: 'שם',
+                label: strings.nameLabel,
                 value: group.name,
               ),
               if (group.description != null && group.description!.isNotEmpty)
                 _buildInfoField(
                   icon: Icons.notes,
-                  label: 'תיאור',
+                  label: strings.descriptionFieldLabel,
                   value: group.description!,
                 ),
               _buildInfoField(
                 icon: Icons.calendar_today_outlined,
-                label: 'נוצרה',
+                label: strings.createdLabel,
                 value: _formatDate(group.createdAt),
               ),
               // שדות נוספים
@@ -729,7 +813,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             if (_isEditing) ...[
               const SizedBox(height: kSpacingMedium),
               StickyButton(
-                label: 'שמור שינויים',
+                label: strings.saveChanges,
                 color: cs.primary,
                 textColor: Colors.white,
                 onPressed: () => _saveChanges(group),
@@ -786,6 +870,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
 
   /// כרטיס תכונות
   Widget _buildFeaturesCard(Group group, ColorScheme cs) {
+    final strings = AppStrings.groupDetails;
     return StickyNote(
       color: kStickyCyan,
       rotation: 0.008,
@@ -794,9 +879,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'תכונות זמינות',
-              style: TextStyle(
+            Text(
+              strings.featuresTitle,
+              style: const TextStyle(
                 fontSize: kFontSizeMedium,
                 fontWeight: FontWeight.bold,
               ),
@@ -807,14 +892,14 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               runSpacing: 4,
               children: [
                 if (group.type.hasPantry)
-                  const _FeatureChip(icon: Icons.inventory_2, label: 'מזווה'),
+                  _FeatureChip(icon: Icons.inventory_2, label: strings.featurePantry),
                 if (group.type.hasShoppingMode)
-                  const _FeatureChip(icon: Icons.shopping_cart, label: 'קניות'),
+                  _FeatureChip(icon: Icons.shopping_cart, label: strings.featureShopping),
                 if (group.type.hasVoting)
-                  const _FeatureChip(icon: Icons.how_to_vote, label: 'הצבעות'),
+                  _FeatureChip(icon: Icons.how_to_vote, label: strings.featureVoting),
                 if (group.type.hasWhosBringing)
-                  const _FeatureChip(icon: Icons.person_add, label: 'מי מביא'),
-                const _FeatureChip(icon: Icons.checklist, label: 'צ\'קליסט'),
+                  _FeatureChip(icon: Icons.person_add, label: strings.featureWhosBringing),
+                _FeatureChip(icon: Icons.checklist, label: strings.featureChecklist),
               ],
             ),
           ],
@@ -829,6 +914,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     _UserPermissions permissions,
     ColorScheme cs,
   ) {
+    final strings = AppStrings.groupDetails;
     final members = group.membersList;
     final currentUserId = context.read<UserContext>().userId;
 
@@ -846,7 +932,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 const Icon(Icons.people, size: 20),
                 const SizedBox(width: kSpacingSmall),
                 Text(
-                  'חברים (${members.length})',
+                  strings.membersTitle(members.length),
                   style: const TextStyle(
                     fontSize: kFontSizeMedium,
                     fontWeight: FontWeight.bold,
@@ -855,9 +941,15 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 const Spacer(),
                 if (permissions.canManageMembers)
                   TextButton.icon(
-                    onPressed: () => _inviteMembers(group),
-                    icon: const Icon(Icons.person_add, size: 18),
-                    label: const Text('הזמן'),
+                    onPressed: _isInviting ? null : () => _inviteMembers(group),
+                    icon: _isInviting
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.person_add, size: 18),
+                    label: Text(_isInviting ? strings.invitingButton : strings.inviteButton),
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                     ),
@@ -900,6 +992,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     _UserPermissions permissions,
     ColorScheme cs,
   ) {
+    final strings = AppStrings.groupDetails;
     return StickyNote(
       color: kStickyGray, // צבע ניטרלי - פעולות הרסניות
       rotation: 0.01,
@@ -908,9 +1001,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'פעולות',
-              style: TextStyle(
+            Text(
+              strings.actionsTitle,
+              style: const TextStyle(
                 fontSize: kFontSizeMedium,
                 fontWeight: FontWeight.bold,
               ),
@@ -921,8 +1014,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             if (permissions.canLeave)
               ListTile(
                 leading: const Icon(Icons.exit_to_app, color: Colors.orange),
-                title: const Text('עזוב קבוצה'),
-                subtitle: const Text('תוסר מהקבוצה והסימונים שלך יבוטלו'),
+                title: Text(strings.leaveGroupAction),
+                subtitle: Text(strings.leaveGroupSubtitle),
                 onTap: () => _leaveGroup(group),
                 dense: true,
                 contentPadding: EdgeInsets.zero,
@@ -933,11 +1026,11 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               const Divider(),
               ListTile(
                 leading: const Icon(Icons.delete_forever, color: Colors.red),
-                title: const Text(
-                  'מחק קבוצה',
-                  style: TextStyle(color: Colors.red),
+                title: Text(
+                  strings.deleteGroupAction,
+                  style: const TextStyle(color: Colors.red),
                 ),
-                subtitle: const Text('פעולה זו בלתי הפיכה'),
+                subtitle: Text(strings.irreversibleAction),
                 onTap: () => _deleteGroup(group),
                 dense: true,
                 contentPadding: EdgeInsets.zero,
@@ -946,11 +1039,11 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
 
             // הודעה לבעלים
             if (!permissions.canLeave && !permissions.canDelete)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Text(
-                  'כבעלים של הקבוצה, יש להעביר את הבעלות לפני עזיבה או למחוק את הקבוצה.',
-                  style: TextStyle(
+                  strings.ownerCannotLeaveMessage,
+                  style: const TextStyle(
                     fontSize: kFontSizeSmall,
                     color: Colors.grey,
                     fontStyle: FontStyle.italic,
@@ -964,13 +1057,14 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
   }
 
   String _getExtraFieldLabel(String key) {
+    final strings = AppStrings.groupDetails;
     switch (key) {
       case 'address':
-        return 'כתובת';
+        return strings.addressLabel;
       case 'school_name':
-        return 'שם הגן/בית ספר';
+        return strings.schoolNameLabel;
       case 'event_name':
-        return 'שם האירוע';
+        return strings.eventNameLabel;
       default:
         return key;
     }
@@ -1090,6 +1184,7 @@ class _MemberTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.groupDetails;
     final cs = Theme.of(context).colorScheme;
     final status = _status;
     final isInvited = status == _MemberStatus.invited;
@@ -1109,7 +1204,7 @@ class _MemberTile extends StatelessWidget {
               child: isInvited
                   ? const Icon(Icons.hourglass_empty, size: 20, color: Colors.orange)
                   : Text(
-                      member.name.isNotEmpty ? member.name[0].toUpperCase() : '?',
+                      (member.name.characters.firstOrNull ?? '?').toUpperCase(),
                       style: TextStyle(
                         color: cs.onPrimaryContainer,
                         fontWeight: FontWeight.bold,
@@ -1140,7 +1235,7 @@ class _MemberTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    member.name + (isCurrentUser ? ' (את/ה)' : ''),
+                    member.name + (isCurrentUser ? strings.currentUserSuffix : ''),
                     style: TextStyle(
                       fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.normal,
                     ),
@@ -1154,9 +1249,9 @@ class _MemberTile extends StatelessWidget {
                         color: Colors.orange.shade100,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Text(
-                        'ממתין לאישור',
-                        style: TextStyle(
+                      child: Text(
+                        strings.pendingApproval,
+                        style: const TextStyle(
                           fontSize: 10,
                           color: Colors.orange,
                           fontWeight: FontWeight.w500,
@@ -1184,7 +1279,7 @@ class _MemberTile extends StatelessWidget {
           ],
         ),
         subtitle: Text(
-          member.email.isNotEmpty ? member.email : 'ללא אימייל',
+          member.email.isNotEmpty ? member.email : strings.noEmail,
           style: TextStyle(
             fontSize: 12,
             fontStyle: member.email.isEmpty ? FontStyle.italic : FontStyle.normal,
@@ -1208,11 +1303,11 @@ class _MemberTile extends StatelessWidget {
                 },
                 itemBuilder: (context) => [
                   if (canChangeRole) ...[
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       enabled: false,
                       child: Text(
-                        'שנה תפקיד:',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        strings.changeRoleHeader,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
                     ...UserRole.values
@@ -1223,11 +1318,11 @@ class _MemberTile extends StatelessWidget {
                             )),
                     const PopupMenuDivider(),
                   ],
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'remove',
                     child: Text(
-                      'הסר מהקבוצה',
-                      style: TextStyle(color: Colors.red),
+                      strings.removeFromGroup,
+                      style: const TextStyle(color: Colors.red),
                     ),
                   ),
                 ],
@@ -1247,6 +1342,7 @@ class _MemberTile extends StatelessWidget {
       case UserRole.editor:
         return Colors.green;
       case UserRole.viewer:
+      case UserRole.unknown:
         return Colors.grey;
     }
   }

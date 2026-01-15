@@ -3,15 +3,20 @@
 // מסך הזמנות ממתינות לקבוצות - אישור או דחיית הזמנות.
 // כולל pull-to-refresh ועיצוב כרטיסים מודרני.
 //
+// Version 1.1 - No AppBar (Immersive)
+// Last Updated: 13/01/2026
+//
 // 🔗 Related: GroupInvite, PendingInvitesProvider, GroupsProvider
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
 import '../../models/group_invite.dart';
 import '../../providers/groups_provider.dart';
 import '../../providers/pending_invites_provider.dart';
@@ -32,10 +37,13 @@ class _PendingGroupInvitesScreenState extends State<PendingGroupInvitesScreen> {
 
   /// אישור הזמנה
   Future<void> _acceptInvite(GroupInvite invite) async {
+    final strings = AppStrings.pendingGroupInvites;
     final userContext = context.read<UserContext>();
     final userId = userContext.userId;
     final userName = userContext.displayName ?? 'משתמש';
-    final userEmail = userContext.userEmail ?? '';
+    // ✅ FIX: Normalize empty email to null for Firestore
+    final rawEmail = userContext.userEmail;
+    final userEmail = (rawEmail != null && rawEmail.trim().isNotEmpty) ? rawEmail : null;
 
     if (userId == null) return;
 
@@ -47,7 +55,7 @@ class _PendingGroupInvitesScreenState extends State<PendingGroupInvitesScreen> {
         invite: invite,
         userId: userId,
         userName: userName,
-        userEmail: userEmail,
+        userEmail: userEmail ?? '', // Provider expects String, but won't store empty
       );
 
       if (!mounted) return;
@@ -62,7 +70,7 @@ class _PendingGroupInvitesScreenState extends State<PendingGroupInvitesScreen> {
                 const Icon(Icons.check_circle, color: Colors.white),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text('הצטרפת לקבוצה "${invite.groupName}" בהצלחה!'),
+                  child: Text(strings.acceptSuccess(invite.groupName)),
                 ),
               ],
             ),
@@ -80,11 +88,11 @@ class _PendingGroupInvitesScreenState extends State<PendingGroupInvitesScreen> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Row(
+            content: Row(
               children: [
-                Icon(Icons.error_outline, color: Colors.white),
-                SizedBox(width: 12),
-                Text('שגיאה באישור ההזמנה'),
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                Text(strings.acceptError),
               ],
             ),
             backgroundColor: Colors.red.shade600,
@@ -105,6 +113,7 @@ class _PendingGroupInvitesScreenState extends State<PendingGroupInvitesScreen> {
   /// דחיית הזמנה
   Future<void> _rejectInvite(GroupInvite invite) async {
     final cs = Theme.of(context).colorScheme;
+    final strings = AppStrings.pendingGroupInvites;
 
     // שאלת אישור
     final confirmed = await showDialog<bool>(
@@ -124,16 +133,14 @@ class _PendingGroupInvitesScreenState extends State<PendingGroupInvitesScreen> {
               child: Icon(Icons.group_remove, color: cs.onErrorContainer),
             ),
             const SizedBox(width: 12),
-            const Text('דחיית הזמנה'),
+            Text(strings.rejectDialogTitle),
           ],
         ),
-        content: Text(
-          'האם לדחות את ההזמנה לקבוצה "${invite.groupName}"?\n\nלא תוכל להצטרף אלא אם יזמינו אותך שוב.',
-        ),
+        content: Text(strings.rejectDialogContent(invite.groupName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('ביטול'),
+            child: Text(strings.cancelButton),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -141,7 +148,7 @@ class _PendingGroupInvitesScreenState extends State<PendingGroupInvitesScreen> {
               backgroundColor: cs.error,
               foregroundColor: cs.onError,
             ),
-            child: const Text('דחה הזמנה'),
+            child: Text(strings.confirmRejectButton),
           ),
         ],
       ),
@@ -161,7 +168,9 @@ class _PendingGroupInvitesScreenState extends State<PendingGroupInvitesScreen> {
         notificationsService = context.read<NotificationsService>();
       } catch (e) {
         // Non-critical - rejection will still work, just without notification
-        debugPrint('⚠️ NotificationsService not available for rejection notification');
+        if (kDebugMode) {
+          debugPrint('⚠️ NotificationsService not available: $e');
+        }
       }
 
       // 🆕 שולח התראה למזמין שההזמנה נדחתה
@@ -178,11 +187,11 @@ class _PendingGroupInvitesScreenState extends State<PendingGroupInvitesScreen> {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Row(
+            content: Row(
               children: [
-                Icon(Icons.info_outline, color: Colors.white),
-                SizedBox(width: 12),
-                Text('ההזמנה נדחתה'),
+                const Icon(Icons.info_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                Text(strings.rejectSuccess),
               ],
             ),
             backgroundColor: Colors.orange.shade600,
@@ -203,76 +212,101 @@ class _PendingGroupInvitesScreenState extends State<PendingGroupInvitesScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final strings = AppStrings.pendingGroupInvites;
+    // ✅ FIX: Theme-aware background instead of hardcoded kPaperBackground
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? kDarkPaperBackground : kPaperBackground;
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: kPaperBackground,
-        appBar: AppBar(
-          title: const Text('הזמנות לקבוצות'),
-          centerTitle: true,
-          // ✅ Theme-aware - רך יותר, מתאים ל-Dark Mode
-          backgroundColor: cs.surfaceContainerHighest,
-          foregroundColor: cs.onSurface,
-          elevation: 0,
-        ),
-        body: Stack(
-          children: [
-            const NotebookBackground(),
-            SafeArea(
-              child: Consumer<PendingInvitesProvider>(
-                builder: (context, provider, _) {
-                  if (provider.isLoading || _isProcessing) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: cs.surface,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: cs.shadow.withValues(alpha: 0.1),
-                                  blurRadius: 20,
-                                ),
-                              ],
-                            ),
-                            child: CircularProgressIndicator(
-                              color: cs.primary,
-                              strokeWidth: 3,
-                            ),
-                          ),
-                          const SizedBox(height: kSpacingLarge),
-                          Text(
-                            _isProcessing ? 'מעבד...' : 'טוען הזמנות...',
-                            style: TextStyle(
-                              color: cs.onSurfaceVariant,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
+    return Scaffold(
+      backgroundColor: bgColor,
+      body: Stack(
+        children: [
+          const NotebookBackground(),
+          SafeArea(
+            child: Column(
+              children: [
+                // 🏷️ כותרת inline
+                Padding(
+                  padding: const EdgeInsets.all(kSpacingMedium),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        onPressed: () => Navigator.of(context).pop(),
+                        color: cs.primary,
                       ),
-                    );
-                  }
+                      Icon(Icons.mail_outline_rounded, size: 24, color: cs.primary),
+                      const SizedBox(width: kSpacingSmall),
+                      Expanded(
+                        child: Text(
+                          strings.title,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: cs.onSurface,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Consumer<PendingInvitesProvider>(
+                    builder: (context, provider, _) {
+                      if (provider.isLoading || _isProcessing) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: cs.surface,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: cs.shadow.withValues(alpha: 0.1),
+                                      blurRadius: 20,
+                                    ),
+                                  ],
+                                ),
+                                child: CircularProgressIndicator(
+                                  color: cs.primary,
+                                  strokeWidth: 3,
+                                ),
+                              ),
+                              const SizedBox(height: kSpacingLarge),
+                              Text(
+                                _isProcessing ? strings.processing : strings.loadingInvites,
+                                style: TextStyle(
+                                  color: cs.onSurfaceVariant,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
 
-                  if (provider.pendingInvites.isEmpty) {
-                    return _buildEmptyState();
-                  }
+                      if (provider.pendingInvites.isEmpty) {
+                        return _buildEmptyState();
+                      }
 
-                  return _buildInvitesList(provider.pendingInvites);
-                },
-              ),
+                      return _buildInvitesList(provider.pendingInvites);
+                    },
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildEmptyState() {
     final cs = Theme.of(context).colorScheme;
+    final strings = AppStrings.pendingGroupInvites;
 
     return Center(
       child: Padding(
@@ -295,7 +329,7 @@ class _PendingGroupInvitesScreenState extends State<PendingGroupInvitesScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              'אין הזמנות ממתינות',
+              strings.emptyTitle,
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -304,7 +338,7 @@ class _PendingGroupInvitesScreenState extends State<PendingGroupInvitesScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              'כאשר מישהו יזמין אותך לקבוצה,\nההזמנה תופיע כאן',
+              strings.emptySubtitle,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -315,8 +349,9 @@ class _PendingGroupInvitesScreenState extends State<PendingGroupInvitesScreen> {
             const SizedBox(height: 32),
             OutlinedButton.icon(
               onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_forward),
-              label: const Text('חזור לדף הבית'),
+              // ✅ FIX: Use arrow_back_rounded which respects RTL directionality
+              icon: const Icon(Icons.arrow_back_rounded),
+              label: Text(strings.backToHome),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
@@ -345,6 +380,8 @@ class _PendingGroupInvitesScreenState extends State<PendingGroupInvitesScreen> {
       child: ListView.builder(
         padding: const EdgeInsets.all(kSpacingMedium),
         itemCount: invites.length,
+        // ✅ FIX: Always scrollable to enable pull-to-refresh even with few items
+        physics: const AlwaysScrollableScrollPhysics(),
         itemBuilder: (context, index) {
           final invite = invites[index];
           return _InviteCard(
@@ -459,13 +496,13 @@ class _InviteCard extends StatelessWidget {
             // פרטי ההזמנה
             _DetailRow(
               icon: Icons.person_outline,
-              label: 'הוזמנת על ידי',
+              label: AppStrings.pendingGroupInvites.invitedBy,
               value: invite.invitedByName,
             ),
             const SizedBox(height: 8),
             _DetailRow(
               icon: Icons.schedule,
-              label: 'נשלח',
+              label: AppStrings.pendingGroupInvites.sentAt,
               value: invite.timeAgoText,
             ),
 
@@ -486,9 +523,9 @@ class _InviteCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text(
-                      'לא תודה',
-                      style: TextStyle(
+                    child: Text(
+                      AppStrings.pendingGroupInvites.rejectButton,
+                      style: const TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                       ),
@@ -504,9 +541,9 @@ class _InviteCard extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: isProcessing ? null : onAccept,
                     icon: const Icon(Icons.check_rounded, size: 18),
-                    label: const Text(
-                      'הצטרף לקבוצה',
-                      style: TextStyle(
+                    label: Text(
+                      AppStrings.pendingGroupInvites.acceptButton,
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
                       ),
@@ -558,25 +595,30 @@ class _DetailRow extends StatelessWidget {
           child: Icon(icon, size: 16, color: cs.onSurfaceVariant),
         ),
         const SizedBox(width: 10),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                color: cs.onSurfaceVariant,
+        // ✅ FIX: Flexible to prevent overflow with long names/times
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: cs.onSurfaceVariant,
+                ),
               ),
-            ),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: cs.onSurface,
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: cs.onSurface,
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );

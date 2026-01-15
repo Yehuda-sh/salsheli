@@ -1,5 +1,8 @@
 // 📄 File: lib/screens/shopping/active_shopping_screen.dart
 //
+// Version 2.0 - No AppBar (Immersive)
+// Last Updated: 13/01/2026
+//
 // 🎯 Purpose: מסך קנייה פעילה - המשתמש בחנות וקונה מוצרים
 //
 // ✨ Features:
@@ -653,8 +656,38 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     if (_isLoading) {
       return Scaffold(
         backgroundColor: kPaperBackground,
-        appBar: AppBar(backgroundColor: accent, foregroundColor: Colors.white, title: Text(widget.list.name)),
-        body: _LoadingSkeletonScreen(accentColor: accent),
+        body: SafeArea(
+          child: Column(
+            children: [
+              // 🏷️ כותרת inline
+              Padding(
+                padding: const EdgeInsets.all(kSpacingMedium),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.arrow_back, color: cs.onSurface),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    Icon(Icons.shopping_cart, size: 24, color: cs.primary),
+                    const SizedBox(width: kSpacingSmall),
+                    Expanded(
+                      child: Text(
+                        widget.list.name,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: cs.onSurface,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(child: _LoadingSkeletonScreen(accentColor: accent)),
+            ],
+          ),
+        ),
       );
     }
 
@@ -662,8 +695,38 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     if (_errorMessage != null) {
       return Scaffold(
         backgroundColor: kPaperBackground,
-        appBar: AppBar(backgroundColor: accent, foregroundColor: Colors.white, title: Text(widget.list.name)),
-        body: _ErrorStateScreen(errorMessage: _errorMessage!, onRetry: _initializeScreen),
+        body: SafeArea(
+          child: Column(
+            children: [
+              // 🏷️ כותרת inline
+              Padding(
+                padding: const EdgeInsets.all(kSpacingMedium),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.arrow_back, color: cs.onSurface),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    Icon(Icons.shopping_cart, size: 24, color: cs.primary),
+                    const SizedBox(width: kSpacingSmall),
+                    Expanded(
+                      child: Text(
+                        widget.list.name,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: cs.onSurface,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(child: _ErrorStateScreen(errorMessage: _errorMessage!, onRetry: _initializeScreen)),
+            ],
+          ),
+        ),
       );
     }
 
@@ -671,12 +734,38 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     if (widget.list.items.isEmpty) {
       return Scaffold(
         backgroundColor: kPaperBackground,
-        appBar: AppBar(
-          backgroundColor: accent,
-          foregroundColor: Colors.white,
-          title: Text(widget.list.name, overflow: TextOverflow.ellipsis, maxLines: 1),
+        body: SafeArea(
+          child: Column(
+            children: [
+              // 🏷️ כותרת inline
+              Padding(
+                padding: const EdgeInsets.all(kSpacingMedium),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.arrow_back, color: cs.onSurface),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    Icon(Icons.shopping_cart, size: 24, color: cs.primary),
+                    const SizedBox(width: kSpacingSmall),
+                    Expanded(
+                      child: Text(
+                        widget.list.name,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: cs.onSurface,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(child: _EmptyStateScreen(accentColor: accent)),
+            ],
+          ),
         ),
-        body: _EmptyStateScreen(accentColor: accent),
       );
     }
 
@@ -708,34 +797,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         const NotebookBackground(),
         Scaffold(
           backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            backgroundColor: accent,
-            foregroundColor: Colors.white,
-            title: Text(
-              widget.list.name,
-              style: const TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-            ),
-            actions: [
-              // ⚠️ אינדיקציה לבעיית סנכרון - לחיץ לניסיון חוזר
-              if (_hasSyncError)
-                IconButton(
-                  onPressed: _retrySyncAll,
-                  tooltip: AppStrings.shopping.syncErrorTooltip,
-                  icon: Badge(
-                    label: Text('$_failedSyncCount'),
-                    isLabelVisible: _failedSyncCount > 1,
-                    backgroundColor: StatusColors.error,
-                    child: const Icon(
-                      Icons.cloud_off,
-                      color: Colors.white,
-                      size: 22,
-                    ),
-                  ),
-                ),
-            ],
-          ),
           // 🏁 FAB - כפתור סיום קנייה
           floatingActionButton: _isSaving
               ? null
@@ -746,10 +807,51 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                   child: const Icon(Icons.check, color: Colors.white, size: 36),
                 ),
           floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-          body: Column(
-            children: [
-              // 📊 Header קומפקטי - סטטיסטיקות (flat design)
-              Container(
+          body: SafeArea(
+            child: Column(
+              children: [
+                // 🏷️ כותרת inline
+                Padding(
+                  padding: const EdgeInsets.all(kSpacingMedium),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.arrow_back, color: cs.onSurface),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                      Icon(Icons.shopping_cart, size: 24, color: cs.primary),
+                      const SizedBox(width: kSpacingSmall),
+                      Expanded(
+                        child: Text(
+                          widget.list.name,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: cs.onSurface,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      // ⚠️ אינדיקציה לבעיית סנכרון - לחיץ לניסיון חוזר
+                      if (_hasSyncError)
+                        IconButton(
+                          onPressed: _retrySyncAll,
+                          tooltip: AppStrings.shopping.syncErrorTooltip,
+                          icon: Badge(
+                            label: Text('$_failedSyncCount'),
+                            isLabelVisible: _failedSyncCount > 1,
+                            backgroundColor: StatusColors.error,
+                            child: const Icon(
+                              Icons.cloud_off,
+                              size: 22,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                // 📊 Header קומפקטי - סטטיסטיקות (flat design)
+                Container(
                 padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
                 decoration: BoxDecoration(
                   color: (brand?.stickyYellow ?? kStickyYellow).withValues(alpha: kHighlightOpacity),
@@ -921,7 +1023,8 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                   },
                 ),
               ),
-            ],
+              ],
+            ),
           ),
         ),
 
@@ -956,8 +1059,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       ],
     );
   }
-
-
 }
 
 // ========================================

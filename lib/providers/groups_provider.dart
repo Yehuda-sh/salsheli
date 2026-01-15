@@ -80,6 +80,7 @@ class GroupsProvider with ChangeNotifier {
   // === User Context Integration ===
 
   /// עדכון UserContext - נקרא מ-main.dart
+  /// 🔧 משתמש ב-microtask כדי למנוע notifyListeners בזמן build
   void updateUserContext(UserContext userContext) {
     if (_userContext == userContext) return;
 
@@ -90,8 +91,9 @@ class GroupsProvider with ChangeNotifier {
     _userContext!.addListener(_onUserChanged);
 
     // טען מיד אם יש משתמש מחובר
+    // ⚠️ חובה microtask! אחרת notifyListeners נקרא בזמן build (ProxyProvider)
     if (_userContext!.isLoggedIn) {
-      _startWatchingGroups();
+      Future.microtask(_startWatchingGroups);
     }
   }
 
@@ -134,11 +136,26 @@ class GroupsProvider with ChangeNotifier {
 
     _groupsSubscription?.cancel();
     _watchedUserId = userId;
+
+    // ⚠️ חשוב: סמן loading לפני listen כדי למנוע race condition
+    // אם ה-Stream יורה מיידית, _isLoading כבר יהיה true
+    _isLoading = true;
+    notifyListeners();
+
     _groupsSubscription = _repository.watchUserGroups(userId).listen(
       (groups) {
         _groups = groups;
         _isLoading = false;
         _errorMessage = null;
+
+        // 🔄 רענן את _selectedGroup מתוך הרשימה החדשה
+        // (אם הקבוצה עודכנה/נמחקה בשרת)
+        if (_selectedGroup != null) {
+          _selectedGroup = _groups
+              .where((g) => g.id == _selectedGroup!.id)
+              .firstOrNull;
+        }
+
         notifyListeners();
 
         if (kDebugMode) {
@@ -155,9 +172,6 @@ class GroupsProvider with ChangeNotifier {
         }
       },
     );
-
-    _isLoading = true;
-    notifyListeners();
   }
 
   /// הפסקת האזנה לקבוצות
@@ -297,6 +311,7 @@ class GroupsProvider with ChangeNotifier {
   }
 
   /// שליחת הזמנות לאנשי קשר
+  /// 🔧 ממיר מחרוזות ריקות ל-null למניעת שמירת "" ב-Firestore
   Future<void> _sendInvites({
     required Group group,
     required List<SelectedContact> contacts,
@@ -305,12 +320,17 @@ class GroupsProvider with ChangeNotifier {
   }) async {
     for (final contact in contacts) {
       try {
+        // 🔧 המר "" ל-null כדי לא לשמור מחרוזות ריקות ב-Firestore
+        final phone = contact.phone?.trim();
+        final email = contact.email?.trim();
+        final name = contact.displayName.trim();
+
         final invite = GroupInvite.create(
           groupId: group.id,
           groupName: group.name,
-          invitedPhone: contact.phone,
-          invitedEmail: contact.email,
-          invitedName: contact.displayName,
+          invitedPhone: (phone?.isEmpty ?? true) ? null : phone,
+          invitedEmail: (email?.isEmpty ?? true) ? null : email,
+          invitedName: name.isEmpty ? null : name,
           role: contact.role,
           invitedBy: inviterId,
           invitedByName: inviterName,

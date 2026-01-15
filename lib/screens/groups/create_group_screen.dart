@@ -3,6 +3,9 @@
 // מסך יצירת קבוצה חדשה - בחירת סוג, שם, תיאור והזמנת חברים.
 // שדות דינמיים לפי סוג הקבוצה (בניין/גן/אירוע).
 //
+// Version 1.1 - No AppBar (Immersive)
+// Last Updated: 13/01/2026
+//
 // 🔗 Related: Group, GroupType, GroupsProvider, ContactPickerScreen
 
 import 'package:flutter/material.dart';
@@ -10,6 +13,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
 import '../../models/enums/user_role.dart';
 import '../../models/group.dart';
 import '../../providers/groups_provider.dart';
@@ -96,6 +100,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
         if (!mounted) return;
 
+        final strings = AppStrings.createGroup;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
@@ -103,7 +108,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                 const Icon(Icons.check_circle, color: Colors.white),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text('הקבוצה "${group.name}" נוצרה בהצלחה!'),
+                  child: Text(strings.groupCreated(group.name)),
                 ),
               ],
             ),
@@ -116,9 +121,10 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
         // שגיאה
         if (!mounted) return;
 
+        final strings = AppStrings.createGroup;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(provider.errorMessage ?? 'שגיאה ביצירת הקבוצה'),
+            content: Text(provider.errorMessage ?? strings.createError),
             backgroundColor: Colors.red,
           ),
         );
@@ -140,10 +146,11 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
       ),
     );
 
+    // ✅ mounted check אחרי await
+    if (!mounted) return;
+
     if (result != null) {
-      setState(() {
-        _selectedContacts = result;
-      });
+      setState(() => _selectedContacts = result);
     }
   }
 
@@ -167,15 +174,37 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     });
   }
 
+  /// אייקון לפי סוג קבוצה
+  IconData _getGroupTypeIcon() {
+    switch (_selectedType) {
+      case GroupType.family:
+        return Icons.family_restroom;
+      case GroupType.building:
+        return Icons.apartment;
+      case GroupType.kindergarten:
+        return Icons.child_care;
+      case GroupType.friends:
+        return Icons.people;
+      case GroupType.event:
+        return Icons.celebration;
+      case GroupType.roommates:
+        return Icons.home;
+      case GroupType.other:
+      case GroupType.unknown:
+        return Icons.group;
+    }
+  }
+
   /// שם השדה הנוסף לפי סוג הקבוצה
   String? _getExtraFieldLabel() {
+    final strings = AppStrings.createGroup;
     switch (_selectedType) {
       case GroupType.building:
-        return 'כתובת הבניין (אופציונלי)';
+        return strings.extraFieldBuilding;
       case GroupType.kindergarten:
-        return 'שם הגן/בית ספר (אופציונלי)';
+        return strings.extraFieldKindergarten;
       case GroupType.event:
-        return 'שם האירוע (אופציונלי)';
+        return strings.extraFieldEvent;
       default:
         return null;
     }
@@ -183,13 +212,14 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
   /// Hint לשדה הנוסף
   String? _getExtraFieldHint() {
+    final strings = AppStrings.createGroup;
     switch (_selectedType) {
       case GroupType.building:
-        return 'לדוגמה: הרצל 5, תל אביב';
+        return strings.extraHintBuilding;
       case GroupType.kindergarten:
-        return 'לדוגמה: גן הילדים שמש';
+        return strings.extraHintKindergarten;
       case GroupType.event:
-        return 'לדוגמה: חתונת יוסי ורונית';
+        return strings.extraHintEvent;
       default:
         return null;
     }
@@ -197,28 +227,48 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     final extraFieldLabel = _getExtraFieldLabel();
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: kPaperBackground,
-        appBar: AppBar(
-          title: const Text('יצירת קבוצה חדשה'),
-          centerTitle: true,
-          backgroundColor: cs.primary,
-          foregroundColor: cs.onPrimary,
-        ),
-        body: Stack(
-          children: [
-            const NotebookBackground(),
-            SafeArea(
-              child: Form(
-                key: _formKey,
-                child: ListView(
-                  padding: const EdgeInsets.all(kSpacingMedium),
-                  children: [
+    final strings = AppStrings.createGroup;
+
+    return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: Stack(
+        children: [
+          const NotebookBackground(),
+          SafeArea(
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                padding: const EdgeInsets.all(kSpacingMedium),
+                children: [
+                  // 🏷️ כותרת inline
+                  Padding(
+                    padding: const EdgeInsets.all(kSpacingMedium),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back),
+                          onPressed: () => Navigator.of(context).pop(),
+                          color: cs.primary,
+                        ),
+                        Icon(Icons.group_add, size: 24, color: cs.primary),
+                        const SizedBox(width: kSpacingSmall),
+                        Expanded(
+                          child: Text(
+                            strings.title,
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: cs.onSurface,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                     // === בחירת סוג קבוצה ===
                     StickyNote(
                       color: kStickyYellow,
@@ -228,17 +278,17 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'סוג הקבוצה',
-                              style: TextStyle(
+                            Text(
+                              strings.groupTypeTitle,
+                              style: const TextStyle(
                                 fontSize: kFontSizeMedium,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             const SizedBox(height: kSpacingSmall),
-                            const Text(
-                              'בחר את סוג הקבוצה שברצונך ליצור',
-                              style: TextStyle(
+                            Text(
+                              strings.groupTypeHint,
+                              style: const TextStyle(
                                 fontSize: kFontSizeSmall,
                                 color: Colors.black54,
                               ),
@@ -295,7 +345,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                             Row(
                               children: [
                                 Icon(
-                                  _selectedType.icon,
+                                  _getGroupTypeIcon(),
                                   size: 24,
                                   color: cs.primary,
                                 ),
@@ -315,28 +365,28 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                               runSpacing: 4,
                               children: [
                                 if (_selectedType.hasPantry)
-                                  const _FeatureChip(
+                                  _FeatureChip(
                                     icon: Icons.inventory_2,
-                                    label: 'מזווה',
+                                    label: strings.featurePantry,
                                   ),
                                 if (_selectedType.hasShoppingMode)
-                                  const _FeatureChip(
+                                  _FeatureChip(
                                     icon: Icons.shopping_cart,
-                                    label: 'קניות',
+                                    label: strings.featureShopping,
                                   ),
                                 if (_selectedType.hasVoting)
-                                  const _FeatureChip(
+                                  _FeatureChip(
                                     icon: Icons.how_to_vote,
-                                    label: 'הצבעות',
+                                    label: strings.featureVoting,
                                   ),
                                 if (_selectedType.hasWhosBringing)
-                                  const _FeatureChip(
+                                  _FeatureChip(
                                     icon: Icons.person_add,
-                                    label: 'מי מביא',
+                                    label: strings.featureWhoBrings,
                                   ),
-                                const _FeatureChip(
+                                _FeatureChip(
                                   icon: Icons.checklist,
-                                  label: 'צ\'קליסט',
+                                  label: strings.featureChecklist,
                                 ),
                               ],
                             ),
@@ -356,9 +406,9 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'שם הקבוצה *',
-                              style: TextStyle(
+                            Text(
+                              strings.nameLabel,
+                              style: const TextStyle(
                                 fontSize: kFontSizeMedium,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -375,17 +425,17 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                                       BorderRadius.circular(kBorderRadius),
                                 ),
                                 prefixIcon: Icon(
-                                  _selectedType.icon,
+                                  _getGroupTypeIcon(),
                                   color: cs.primary,
                                 ),
                               ),
                               maxLength: 30,
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
-                                  return 'נא להזין שם לקבוצה';
+                                  return strings.nameRequired;
                                 }
                                 if (value.trim().length < 2) {
-                                  return 'שם הקבוצה קצר מדי';
+                                  return strings.nameTooShort;
                                 }
                                 return null;
                               },
@@ -406,9 +456,9 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'תיאור (אופציונלי)',
-                              style: TextStyle(
+                            Text(
+                              strings.descriptionLabel,
+                              style: const TextStyle(
                                 fontSize: kFontSizeMedium,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -417,7 +467,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                             TextFormField(
                               controller: _descriptionController,
                               decoration: InputDecoration(
-                                hintText: 'הוסף תיאור קצר...',
+                                hintText: strings.descriptionHint,
                                 filled: true,
                                 fillColor: Colors.white,
                                 border: OutlineInputBorder(
@@ -452,22 +502,23 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                                   color: cs.primary,
                                 ),
                                 const SizedBox(width: kSpacingSmall),
-                                const Expanded(
+                                Expanded(
                                   child: Text(
-                                    'הזמן חברים (אופציונלי)',
-                                    style: TextStyle(
+                                    strings.inviteTitle,
+                                    style: const TextStyle(
                                       fontSize: kFontSizeMedium,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ),
                                 TextButton.icon(
-                                  onPressed: _openContactPicker,
+                                  // ✅ חסימה בזמן טעינה
+                                  onPressed: _isLoading ? null : _openContactPicker,
                                   icon: const Icon(Icons.add, size: 18),
                                   label: Text(
                                     _selectedContacts.isEmpty
-                                        ? 'בחר מאנשי קשר'
-                                        : 'הוסף עוד',
+                                        ? strings.selectContacts
+                                        : strings.addMore,
                                   ),
                                   style: TextButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(
@@ -478,11 +529,11 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                               ],
                             ),
                             if (_selectedContacts.isEmpty)
-                              const Padding(
-                                padding: EdgeInsets.only(top: kSpacingSmall),
+                              Padding(
+                                padding: const EdgeInsets.only(top: kSpacingSmall),
                                 child: Text(
-                                  'תוכל להזמין חברים עכשיו או אחרי יצירת הקבוצה',
-                                  style: TextStyle(
+                                  strings.inviteHint,
+                                  style: const TextStyle(
                                     fontSize: kFontSizeSmall,
                                     color: Colors.black54,
                                   ),
@@ -504,7 +555,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                               ),
                               const SizedBox(height: kSpacingSmall),
                               Text(
-                                'נבחרו ${_selectedContacts.length} אנשי קשר',
+                                strings.selectedCount(_selectedContacts.length),
                                 style: TextStyle(
                                   fontSize: kFontSizeSmall,
                                   color: Colors.grey[600],
@@ -558,7 +609,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
                     // === כפתור יצירה ===
                     StickyButton(
-                      label: _isLoading ? 'יוצר קבוצה...' : 'צור קבוצה',
+                      label: _isLoading ? strings.creating : strings.createButton,
                       color: cs.primary,
                       textColor: Colors.white,
                       onPressed: _isLoading ? null : _createGroup,
@@ -569,8 +620,8 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                     // === הערה ===
                     Text(
                       _selectedContacts.isEmpty
-                          ? '💡 לאחר יצירת הקבוצה, תוכל להזמין חברים באמצעות קוד הזמנה'
-                          : '💡 הזמנות ישלחו לחברים שנבחרו לאחר יצירת הקבוצה',
+                          ? strings.tipNoInvites
+                          : strings.tipWithInvites,
                       style: const TextStyle(
                         fontSize: kFontSizeSmall,
                         color: Colors.black54,
@@ -586,27 +637,28 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
             ),
           ],
         ),
-      ),
     );
   }
 
   /// Hint לשם הקבוצה לפי סוג
   String _getNameHint() {
+    final strings = AppStrings.createGroup;
     switch (_selectedType) {
       case GroupType.family:
-        return 'לדוגמה: משפחת כהן';
+        return strings.hintFamily;
       case GroupType.building:
-        return 'לדוגמה: ועד בית הרצל 5';
+        return strings.hintBuilding;
       case GroupType.kindergarten:
-        return 'לדוגמה: ועד גן שמש';
+        return strings.hintKindergarten;
       case GroupType.friends:
-        return 'לדוגמה: החבר\'ה לטיול';
+        return strings.hintFriends;
       case GroupType.event:
-        return 'לדוגמה: חתונת יוסי ורונית';
+        return strings.hintEvent;
       case GroupType.roommates:
-        return 'לדוגמה: שותפים לדירה';
+        return strings.hintRoommates;
       case GroupType.other:
-        return 'הזן שם לקבוצה';
+      case GroupType.unknown:
+        return strings.hintDefault;
     }
   }
 }
@@ -688,7 +740,7 @@ class _ContactChipWithRole extends StatelessWidget {
                     backgroundColor: cs.primaryContainer,
                     radius: 14,
                     child: Text(
-                      contact.displayName[0].toUpperCase(),
+                      (contact.displayName.characters.firstOrNull ?? '?').toUpperCase(),
                       style: TextStyle(
                         color: cs.onPrimaryContainer,
                         fontSize: 10,
@@ -708,7 +760,7 @@ class _ContactChipWithRole extends StatelessWidget {
           PopupMenuButton<UserRole>(
             initialValue: contact.role,
             onSelected: onRoleChanged,
-            tooltip: 'שנה תפקיד',
+            tooltip: AppStrings.createGroup.changeRoleTooltip,
             padding: EdgeInsets.zero,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),

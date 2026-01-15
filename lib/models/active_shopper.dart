@@ -1,39 +1,44 @@
 // 📄 File: lib/models/active_shopper.dart
 //
-// 🎯 Purpose: מודל של קונה פעיל בקנייה משותפת
+// 🇮🇱 קונה פעיל בקנייה משותפת:
+//     - userId: מזהה המשתמש
+//     - joinedAt: מתי הצטרף לקנייה
+//     - isStarter: האם הוא זה שהתחיל (הראשון)
+//     - isActive: האם עדיין פעיל (או עזב)
 //
-// ✨ Features:
-// - תמיכה בקנייה משותפת (מספר אנשים קונים ביחד)
-// - מעקב אחרי מי התחיל את הקנייה (isStarter)
-// - מעקב אחרי מי פעיל ומי עזב (isActive, hasLeft)
-// - JSON serialization לסנכרון עם Firebase
+// 🇬🇧 Active shopper in collaborative shopping:
+//     - userId: User identifier
+//     - joinedAt: When joined the shopping session
+//     - isStarter: Is the one who started (first)
+//     - isActive: Is still active (or left)
 //
-// 🔄 Usage:
-// ```dart
-// // התחלת קנייה - אבא מתחיל
-// final starter = ActiveShopper(
-//   userId: 'אבא',
-//   joinedAt: DateTime.now(),
-//   isStarter: true,
-// );
+// 💡 תרחיש שימוש:
+//     1. אבא מתחיל קנייה → ActiveShopper.starter(userId: 'dad')
+//     2. אמא מצטרפת → ActiveShopper.helper(userId: 'mom')
+//     3. אבא עוזב → shopper.copyWith(isActive: false)
+//     4. hasLeft == true
 //
-// // הצטרפות - אמא מצטרפת
-// final helper = ActiveShopper(
-//   userId: 'אמא',
-//   joinedAt: DateTime.now(),
-//   isStarter: false,
-// );
-//
-// // עזיבה - אבא עוזב
-// final left = starter.copyWith(isActive: false);
-// print(left.hasLeft); // true
-// ```
+// 🔗 Related:
+//     - ShoppingSession (models/shopping_session.dart)
+//     - ActiveShoppingScreen (screens/shopping/active/)
+//     - ShoppingProvider (providers/shopping_provider.dart)
 
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'timestamp_converter.dart';
 
 part 'active_shopper.g.dart';
+
+// ---- Backward Compatibility Helpers ----
+// 🔄 תמיכה גם ב-snake_case וגם ב-camelCase מהשרת
+
+/// קורא user_id או userId (תאימות לאחור)
+Object? _readUserId(Map<dynamic, dynamic> json, String key) =>
+    json['user_id'] ?? json['userId'];
+
+/// קורא joined_at או joinedAt (תאימות לאחור)
+Object? _readJoinedAt(Map<dynamic, dynamic> json, String key) =>
+    json['joined_at'] ?? json['joinedAt'];
 
 /// 🇮🇱 קונה פעיל בקנייה משותפת
 /// 🇬🇧 Active shopper in collaborative shopping
@@ -42,13 +47,15 @@ part 'active_shopper.g.dart';
 class ActiveShopper {
   /// 🇮🇱 מזהה המשתמש
   /// 🇬🇧 User ID
-  @JsonKey(name: 'user_id')
+  /// 🔄 תאימות לאחור: קורא גם user_id וגם userId
+  @JsonKey(name: 'user_id', readValue: _readUserId)
   final String userId;
 
   /// 🇮🇱 מתי הצטרף לקנייה
   /// 🇬🇧 When joined the shopping session
+  /// 🔄 תאימות לאחור: קורא גם joined_at וגם joinedAt
   @TimestampConverter()
-  @JsonKey(name: 'joined_at')
+  @JsonKey(name: 'joined_at', readValue: _readJoinedAt)
   final DateTime joinedAt;
 
   /// 🇮🇱 האם זה האדם שהתחיל את הקנייה (הראשון)
@@ -66,6 +73,10 @@ class ActiveShopper {
   /// 🇮🇱 האם הקונה עזב את הקנייה
   /// 🇬🇧 Has the shopper left the shopping session
   bool get hasLeft => !isActive;
+
+  /// 🇮🇱 האם זה עוזר (לא ה-starter)
+  /// 🇬🇧 Is this a helper (not the starter)
+  bool get isHelper => !isStarter;
 
   const ActiveShopper({
     required this.userId,

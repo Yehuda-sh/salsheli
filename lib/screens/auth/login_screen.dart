@@ -10,6 +10,7 @@
 import 'dart:async';
 import 'dart:ui'; // ✅ עבור ImageFilter.blur
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
@@ -54,13 +55,18 @@ class _LoginScreenState extends State<LoginScreen>
     super.initState();
 
     // 🎬 הגדרת shake animation לשגיאות
+    // 🔧 FIX: TweenSequence מבטיח שהאנימציה מתחילה ומסתיימת ב-0
     _shakeController = AnimationController(
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 400),
       vsync: this,
     );
-    _shakeAnimation = Tween<double>(begin: 0, end: 10).animate(
-      CurvedAnimation(parent: _shakeController, curve: Curves.elasticIn),
-    );
+    _shakeAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0, end: 10), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: 10, end: -8), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: -8, end: 6), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: 6, end: -4), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: -4, end: 0), weight: 1),
+    ]).animate(CurvedAnimation(parent: _shakeController, curve: Curves.easeOut));
 
     // 🎯 Auto-focus על שדה אימייל בכניסה למסך
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -86,9 +92,12 @@ class _LoginScreenState extends State<LoginScreen>
 
   /// ✅ פונקציית Login עם Firebase Authentication
   Future<void> _handleLogin() async {
-    debugPrint('🔐 _handleLogin() | Starting login process...');
+    // 🛡️ מניעת לחיצות כפולות
+    if (_isLoading) return;
+
+    if (kDebugMode) debugPrint('🔐 _handleLogin() | Starting login process...');
     if (!_formKey.currentState!.validate()) {
-      debugPrint('❌ _handleLogin() | Form validation failed');
+      if (kDebugMode) debugPrint('❌ _handleLogin() | Form validation failed');
       unawaited(_shakeController.forward(from: 0)); // 🎬 Shake animation
       return;
     }
@@ -104,19 +113,19 @@ class _LoginScreenState extends State<LoginScreen>
       final navigator = Navigator.of(context);
 
       // 🔹 1. התחברות דרך Firebase Auth
-      debugPrint('🔐 _handleLogin() | Signing in...');
+      if (kDebugMode) debugPrint('🔐 _handleLogin() | Signing in...');
       await userContext.signIn(email: email, password: password);
 
       // ✅ signIn() זורק Exception אם נכשל, אחרת מצליח
-      debugPrint(
-        '✅ _handleLogin() | Sign in successful, userId: ${userContext.userId}',
-      );
+      if (kDebugMode) {
+        debugPrint('✅ _handleLogin() | Sign in successful, userId: ${userContext.userId}');
+      }
 
       // 🔹 2. שמירה ב-SharedPreferences (רק seenOnboarding!)
       // ✅ FIX: שם עקבי עם IndexScreen ו-UserContext
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('seenOnboarding', true);
-      debugPrint('✅ _handleLogin() | Onboarding flag saved');
+      if (kDebugMode) debugPrint('✅ _handleLogin() | Onboarding flag saved');
 
       // 🔹 3. הצגת feedback ויזואלי + ניווט
       if (mounted) {
@@ -132,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen>
                 Icon(Icons.check_circle, color: StatusColors.getOnStatusContainer('success', context), size: 24),
                 const SizedBox(width: kSpacingSmall),
                 Text(
-                  'התחברת בהצלחה! מעביר לדף הבית...',
+                  AppStrings.auth.loginSuccessRedirect,
                   style: TextStyle(color: StatusColors.getOnStatusContainer('success', context)),
                 ),
               ],
@@ -153,12 +162,12 @@ class _LoginScreenState extends State<LoginScreen>
         if (mounted) {
           // ✅ FIX: ניווט ל-Index במקום Home
           // Index מטפל ב-sync profile ומחליט לאן לנווט
-          debugPrint('🔄 _handleLogin() | Navigating to index screen');
+          if (kDebugMode) debugPrint('🔄 _handleLogin() | Navigating to index screen');
           await navigator.pushNamedAndRemoveUntil('/', (route) => false);
         }
       }
     } catch (e) {
-      debugPrint('❌ _handleLogin() | Login failed: $e');
+      if (kDebugMode) debugPrint('❌ _handleLogin() | Login failed: $e');
       final errorMsg = e.toString().replaceAll('Exception: ', '');
 
       if (mounted) {
@@ -193,18 +202,21 @@ class _LoginScreenState extends State<LoginScreen>
         );
       }
     }
-    debugPrint('🏁 _handleLogin() | Completed');
+    if (kDebugMode) debugPrint('🏁 _handleLogin() | Completed');
   }
 
   /// ניווט למסך הרשמה
   void _navigateToRegister() {
-    debugPrint('🔄 _navigateToRegister() | Navigating to register screen');
+    if (kDebugMode) debugPrint('🔄 _navigateToRegister() | Navigating to register screen');
     Navigator.pushReplacementNamed(context, '/register');
   }
 
   /// 🔵 התחברות עם Google
   Future<void> _handleGoogleSignIn() async {
-    debugPrint('🔵 _handleGoogleSignIn() | Starting Google sign in...');
+    // 🛡️ מניעת לחיצות כפולות
+    if (_isLoading) return;
+
+    if (kDebugMode) debugPrint('🔵 _handleGoogleSignIn() | Starting Google sign in...');
     setState(() => _isLoading = true);
 
     try {
@@ -213,7 +225,7 @@ class _LoginScreenState extends State<LoginScreen>
 
       await userContext.signInWithGoogle();
 
-      debugPrint('✅ _handleGoogleSignIn() | Success');
+      if (kDebugMode) debugPrint('✅ _handleGoogleSignIn() | Success');
 
       // שמור onboarding flag
       final prefs = await SharedPreferences.getInstance();
@@ -227,7 +239,7 @@ class _LoginScreenState extends State<LoginScreen>
               children: [
                 Icon(Icons.check_circle, color: StatusColors.getOnStatusContainer('success', context)),
                 const SizedBox(width: kSpacingSmall),
-                const Text('התחברת בהצלחה עם Google!'),
+                Text(AppStrings.auth.googleLoginSuccess),
               ],
             ),
             backgroundColor: StatusColors.getStatusContainer('success', context),
@@ -241,7 +253,7 @@ class _LoginScreenState extends State<LoginScreen>
         }
       }
     } catch (e) {
-      debugPrint('❌ _handleGoogleSignIn() | Error: $e');
+      if (kDebugMode) debugPrint('❌ _handleGoogleSignIn() | Error: $e');
       if (mounted) {
         setState(() => _isLoading = false);
         final errorMsg = e.toString().replaceAll('Exception: ', '');
@@ -261,7 +273,10 @@ class _LoginScreenState extends State<LoginScreen>
 
   /// 🍎 התחברות עם Apple
   Future<void> _handleAppleSignIn() async {
-    debugPrint('🍎 _handleAppleSignIn() | Starting Apple sign in...');
+    // 🛡️ מניעת לחיצות כפולות
+    if (_isLoading) return;
+
+    if (kDebugMode) debugPrint('🍎 _handleAppleSignIn() | Starting Apple sign in...');
     setState(() => _isLoading = true);
 
     try {
@@ -270,7 +285,7 @@ class _LoginScreenState extends State<LoginScreen>
 
       await userContext.signInWithApple();
 
-      debugPrint('✅ _handleAppleSignIn() | Success');
+      if (kDebugMode) debugPrint('✅ _handleAppleSignIn() | Success');
 
       // שמור onboarding flag
       final prefs = await SharedPreferences.getInstance();
@@ -284,7 +299,7 @@ class _LoginScreenState extends State<LoginScreen>
               children: [
                 Icon(Icons.check_circle, color: StatusColors.getOnStatusContainer('success', context)),
                 const SizedBox(width: kSpacingSmall),
-                const Text('התחברת בהצלחה עם Apple!'),
+                Text(AppStrings.auth.appleLoginSuccess),
               ],
             ),
             backgroundColor: StatusColors.getStatusContainer('success', context),
@@ -298,7 +313,7 @@ class _LoginScreenState extends State<LoginScreen>
         }
       }
     } catch (e) {
-      debugPrint('❌ _handleAppleSignIn() | Error: $e');
+      if (kDebugMode) debugPrint('❌ _handleAppleSignIn() | Error: $e');
       if (mounted) {
         setState(() => _isLoading = false);
         final errorMsg = e.toString().replaceAll('Exception: ', '');
@@ -318,7 +333,10 @@ class _LoginScreenState extends State<LoginScreen>
 
   /// 🔑 איפוס סיסמה - שליחת מייל דרך Firebase Auth
   Future<void> _handleForgotPassword() async {
-    debugPrint('🔑 _handleForgotPassword() | Starting password reset process');
+    // 🛡️ מניעת לחיצות כפולות
+    if (_isLoading) return;
+
+    if (kDebugMode) debugPrint('🔑 _handleForgotPassword() | Starting password reset process');
 
     // בדוק אם יש אימייל בשדה
     final email = _emailController.text.trim();
@@ -333,7 +351,7 @@ class _LoginScreenState extends State<LoginScreen>
               const SizedBox(width: kSpacingSmall),
               Expanded(
                 child: Text(
-                  'אנא הזן את כתובת האימייל שלך בשדה למעלה',
+                  AppStrings.auth.enterEmailFirst,
                   style: TextStyle(
                     fontSize: kFontSizeSmall,
                     color: StatusColors.getOnStatusContainer('warning', context),
@@ -358,7 +376,7 @@ class _LoginScreenState extends State<LoginScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'כתובת אימייל לא תקינה',
+            AppStrings.auth.emailInvalid,
             style: TextStyle(color: StatusColors.getOnStatusContainer('error', context)),
           ),
           backgroundColor: StatusColors.getStatusContainer('error', context),
@@ -373,7 +391,7 @@ class _LoginScreenState extends State<LoginScreen>
       final userContext = context.read<UserContext>();
       await userContext.sendPasswordResetEmail(email);
 
-      debugPrint('✅ _handleForgotPassword() | Reset email sent');
+      if (kDebugMode) debugPrint('✅ _handleForgotPassword() | Reset email sent');
 
       if (mounted) {
         setState(() => _isLoading = false);
@@ -388,7 +406,7 @@ class _LoginScreenState extends State<LoginScreen>
                 const SizedBox(width: kSpacingSmall),
                 Expanded(
                   child: Text(
-                    'נשלח מייל לאיפוס סיסמה ל-$email',
+                    AppStrings.auth.resetEmailSentTo(email),
                     style: TextStyle(
                       fontSize: kFontSizeSmall,
                       color: StatusColors.getOnStatusContainer('success', context),
@@ -407,7 +425,7 @@ class _LoginScreenState extends State<LoginScreen>
         );
       }
     } catch (e) {
-      debugPrint('❌ _handleForgotPassword() | Failed: $e');
+      if (kDebugMode) debugPrint('❌ _handleForgotPassword() | Failed: $e');
 
       if (mounted) {
         setState(() => _isLoading = false);
@@ -421,7 +439,7 @@ class _LoginScreenState extends State<LoginScreen>
                 const SizedBox(width: kSpacingSmall),
                 Expanded(
                   child: Text(
-                    'שגיאה בשליחת מייל איפוס',
+                    AppStrings.auth.resetEmailSendError,
                     style: TextStyle(fontSize: kFontSizeSmall, color: StatusColors.getOnStatusContainer('error', context)),
                   ),
                 ),
@@ -438,7 +456,7 @@ class _LoginScreenState extends State<LoginScreen>
       }
     }
 
-    debugPrint('🏁 _handleForgotPassword() | Completed');
+    if (kDebugMode) debugPrint('🏁 _handleForgotPassword() | Completed');
   }
 
   // ═══════════════════════════════════════════════════════════════════
@@ -494,7 +512,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   /// התחברות מהירה עם משתמש דמו
   Future<void> _quickLogin(String email) async {
-    debugPrint('🧪 Quick login with: $email');
+    if (kDebugMode) debugPrint('🧪 Quick login with: $email');
 
     // מילוי השדות
     _emailController.text = email;
@@ -515,9 +533,8 @@ class _LoginScreenState extends State<LoginScreen>
     final messenger = ScaffoldMessenger.of(context);
 
     // 🔒 חסימת Back - המשתמש חייב להשלים התחברות
-    return Directionality(
-      textDirection: TextDirection.rtl, // 🔄 תמיכה מלאה ב-RTL
-      child: PopScope(
+    // ✅ RTL נקבע אוטומטית מהתמה (Directionality מ-MaterialApp)
+    return PopScope(
         canPop: false,
         onPopInvokedWithResult: (didPop, result) {
           if (!didPop) {
@@ -689,8 +706,8 @@ class _LoginScreenState extends State<LoginScreen>
                                       });
                                     },
                                     tooltip: _obscurePassword
-                                        ? 'הצג סיסמה'
-                                        : 'הסתר סיסמה',
+                                        ? AppStrings.auth.showPassword
+                                        : AppStrings.auth.hidePassword,
                                   ),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(
@@ -732,8 +749,8 @@ class _LoginScreenState extends State<LoginScreen>
                               alignment: AlignmentDirectional.centerEnd,
                               child: Semantics(
                                 button: true,
-                                label: 'שכחת סיסמה? לחץ לקבלת מייל איפוס',
-                                hint: 'שולח קישור לאיפוס סיסמה לאימייל שהוזן',
+                                label: AppStrings.auth.forgotPasswordSemanticLabel,
+                                hint: AppStrings.auth.forgotPasswordSemanticHint,
                                 enabled: !_isLoading,
                                 child: TextButton(
                                   onPressed: _isLoading
@@ -748,7 +765,7 @@ class _LoginScreenState extends State<LoginScreen>
                                         MaterialTapTargetSize.shrinkWrap,
                                   ),
                                   child: Text(
-                                    'שכחת סיסמה?',
+                                    AppStrings.auth.forgotPassword,
                                     style: TextStyle(
                                       color: accent,
                                       fontSize: kFontSizeTiny,
@@ -787,7 +804,7 @@ class _LoginScreenState extends State<LoginScreen>
                                     Padding(
                                       padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
                                       child: Text(
-                                        'או התחבר עם',
+                                        AppStrings.auth.orLoginWith,
                                         style: TextStyle(
                                           color: cs.onSurfaceVariant,
                                           fontSize: kFontSizeSmall,
@@ -891,7 +908,6 @@ class _LoginScreenState extends State<LoginScreen>
             ],
           ),
         ),
-      ),
     );
   }
 }
@@ -1031,12 +1047,15 @@ class _QuickLoginBottomSheet extends StatelessWidget {
       _ => Colors.grey,
     };
 
+    // 🔧 FIX: שימוש ב-characters.first במקום substring לתמיכה באמוג'י ותווים מיוחדים
+    final firstChar = user['name']!.characters.firstOrNull ?? '?';
+
     return ListTile(
       onTap: () => onUserSelected(user['email']!),
       leading: CircleAvatar(
         backgroundColor: roleColor.withValues(alpha: 0.2),
         child: Text(
-          user['name']!.substring(0, 1),
+          firstChar,
           style: TextStyle(
             color: roleColor.shade700,
             fontWeight: FontWeight.bold,
@@ -1113,7 +1132,7 @@ class _SocialLoginButtonState extends State<_SocialLoginButton> {
 
     return Semantics(
       button: true,
-      label: 'התחבר באמצעות ${widget.label}',
+      label: AppStrings.auth.socialLoginSemanticLabel(widget.label),
       enabled: !isDisabled,
       child: GestureDetector(
         onTapDown: isDisabled ? null : (_) => setState(() => _isPressed = true),

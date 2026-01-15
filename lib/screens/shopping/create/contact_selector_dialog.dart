@@ -15,6 +15,7 @@
 //
 // Version: 1.0
 // Created: 06/01/2026
+// Last Updated: 13/01/2026
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -717,6 +718,8 @@ class _RoleOption extends StatelessWidget {
         return Icons.edit;
       case UserRole.viewer:
         return Icons.visibility;
+      case UserRole.unknown:
+        return Icons.help_outline;
     }
   }
 
@@ -727,14 +730,16 @@ class _RoleOption extends StatelessWidget {
 
     String description;
     switch (role) {
+      case UserRole.owner:
+        description = 'בעלים - מלוא ההרשאות';
       case UserRole.admin:
         description = 'יכול לערוך ישירות ולהזמין אחרים';
       case UserRole.editor:
         description = 'יכול לערוך דרך אישור';
       case UserRole.viewer:
         description = 'יכול לצפות בלבד';
-      default:
-        description = '';
+      case UserRole.unknown:
+        description = 'תפקיד לא מוכר';
     }
 
     return ListTile(

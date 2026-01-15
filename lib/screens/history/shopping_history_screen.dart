@@ -2,16 +2,21 @@
 //
 // מסך היסטוריית קניות - צפייה בקבלות קודמות.
 // כולל חיפוש, מיון, וסטטיסטיקות הוצאות.
+// ללא AppBar - כותרת inline עם SafeArea
 //
+// Version: 1.1 - No AppBar (Immersive)
+// Last Updated: 13/01/2026
 // 🔗 Related: ReceiptProvider, Receipt, ReceiptDetailsScreen
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart' hide TextDirection;
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
 import '../../models/receipt.dart';
 import '../../providers/receipt_provider.dart';
+import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_note.dart';
 import 'receipt_details_screen.dart';
@@ -31,60 +36,15 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final strings = AppStrings.shoppingHistory;
 
     return Stack(
       children: [
         const NotebookBackground(),
         Scaffold(
           backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            backgroundColor: cs.primary,
-            foregroundColor: Colors.white,
-            title: const Text('היסטוריית קניות'),
-            actions: [
-              // מיון
-              PopupMenuButton<String>(
-                icon: const Icon(Icons.sort),
-                tooltip: 'מיון',
-                onSelected: (value) {
-                  setState(() => _sortBy = value);
-                },
-                itemBuilder: (context) => [
-                  const PopupMenuItem(
-                    value: 'date',
-                    child: Row(
-                      children: [
-                        Icon(Icons.calendar_today, size: 18),
-                        SizedBox(width: kSpacingSmall),
-                        Text('לפי תאריך'),
-                      ],
-                    ),
-                  ),
-                  const PopupMenuItem(
-                    value: 'store',
-                    child: Row(
-                      children: [
-                        Icon(Icons.store, size: 18),
-                        SizedBox(width: kSpacingSmall),
-                        Text('לפי חנות'),
-                      ],
-                    ),
-                  ),
-                  const PopupMenuItem(
-                    value: 'amount',
-                    child: Row(
-                      children: [
-                        Icon(Icons.attach_money, size: 18),
-                        SizedBox(width: kSpacingSmall),
-                        Text('לפי סכום'),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          body: Consumer<ReceiptProvider>(
+          body: SafeArea(
+            child: Consumer<ReceiptProvider>(
             builder: (context, provider, _) {
               if (provider.isLoading) {
                 return const Center(child: CircularProgressIndicator());
@@ -92,7 +52,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
 
               if (provider.hasError) {
                 return _ErrorState(
-                  message: provider.errorMessage ?? 'שגיאה בטעינה',
+                  message: provider.errorMessage ?? strings.defaultError,
                   onRetry: () => provider.retry(),
                 );
               }
@@ -113,18 +73,79 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
 
               return Column(
                 children: [
+                  // 🏷️ כותרת inline עם מיון
+                  Padding(
+                    padding: const EdgeInsets.all(kSpacingMedium),
+                    child: Row(
+                      children: [
+                        Icon(Icons.receipt_long, size: 24, color: cs.primary),
+                        const SizedBox(width: kSpacingSmall),
+                        Expanded(
+                          child: Text(
+                            strings.title,
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: cs.onSurface,
+                            ),
+                          ),
+                        ),
+                        // מיון
+                        PopupMenuButton<String>(
+                          icon: Icon(Icons.sort, color: cs.primary),
+                          tooltip: strings.sortTooltip,
+                          onSelected: (value) {
+                            setState(() => _sortBy = value);
+                          },
+                          itemBuilder: (context) => [
+                            PopupMenuItem(
+                              value: 'date',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.calendar_today, size: 18),
+                                  const SizedBox(width: kSpacingSmall),
+                                  Text(strings.sortByDate),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem(
+                              value: 'store',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.store, size: 18),
+                                  const SizedBox(width: kSpacingSmall),
+                                  Text(strings.sortByStore),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem(
+                              value: 'amount',
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.attach_money, size: 18),
+                                  const SizedBox(width: kSpacingSmall),
+                                  Text(strings.sortByAmount),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
                   // 🔍 חיפוש
                   Padding(
                     padding: const EdgeInsets.all(kSpacingMedium),
                     child: TextField(
                       decoration: InputDecoration(
-                        hintText: 'חפש לפי שם חנות...',
+                        hintText: strings.searchHint,
                         prefixIcon: const Icon(Icons.search),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(kBorderRadius),
                         ),
                         filled: true,
-                        fillColor: Colors.white,
+                        fillColor: cs.surface,
                       ),
                       onChanged: (value) {
                         setState(() => _searchQuery = value);
@@ -133,37 +154,45 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
                   ),
 
                   // 📊 סטטיסטיקות
-                  Container(
-                    margin:
-                        const EdgeInsets.symmetric(horizontal: kSpacingMedium),
-                    padding: const EdgeInsets.all(kSpacingMedium),
-                    decoration: BoxDecoration(
-                      color: kStickyYellow.withValues(alpha: 0.9),
-                      borderRadius: BorderRadius.circular(kBorderRadius),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _StatItem(
-                          icon: Icons.receipt_long,
-                          label: 'קניות',
-                          value: '${receipts.length}',
-                          color: cs.primary,
+                  Builder(
+                    builder: (context) {
+                      final successColor =
+                          theme.extension<AppBrand>()?.success ?? kStickyGreen;
+                      final accentColor =
+                          theme.extension<AppBrand>()?.accent ?? cs.tertiary;
+                      return Container(
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: kSpacingMedium),
+                        padding: const EdgeInsets.all(kSpacingMedium),
+                        decoration: BoxDecoration(
+                          color: cs.primaryContainer,
+                          borderRadius: BorderRadius.circular(kBorderRadius),
                         ),
-                        _StatItem(
-                          icon: Icons.payments,
-                          label: 'סה"כ',
-                          value: '₪${totalSpent.toStringAsFixed(0)}',
-                          color: Colors.green,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _StatItem(
+                              icon: Icons.receipt_long,
+                              label: strings.shoppingsLabel,
+                              value: '${receipts.length}',
+                              color: cs.primary,
+                            ),
+                            _StatItem(
+                              icon: Icons.payments,
+                              label: strings.totalLabel,
+                              value: '₪${totalSpent.toStringAsFixed(0)}',
+                              color: successColor,
+                            ),
+                            _StatItem(
+                              icon: Icons.trending_up,
+                              label: strings.averageLabel,
+                              value: '₪${avgPerTrip.toStringAsFixed(0)}',
+                              color: accentColor,
+                            ),
+                          ],
                         ),
-                        _StatItem(
-                          icon: Icons.trending_up,
-                          label: 'ממוצע',
-                          value: '₪${avgPerTrip.toStringAsFixed(0)}',
-                          color: Colors.blue,
-                        ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
 
                   const SizedBox(height: kSpacingSmall),
@@ -173,7 +202,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
                     child: receipts.isEmpty
                         ? Center(
                             child: Text(
-                              'לא נמצאו תוצאות',
+                              strings.noResults,
                               style: TextStyle(color: cs.onSurfaceVariant),
                             ),
                           )
@@ -192,6 +221,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
                 ],
               );
             },
+          ),
           ),
         ),
       ],
@@ -252,6 +282,11 @@ class _ReceiptTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final strings = AppStrings.shoppingHistory;
+    // ✅ FIX: Use locale from context
+    final locale = Localizations.localeOf(context).languageCode;
+    // ✅ FIX: Theme-aware success color
+    final successColor = theme.extension<AppBrand>()?.success ?? kStickyGreen;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: kSpacingSmall),
@@ -268,14 +303,16 @@ class _ReceiptTile extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
+                    // ✅ FIX: Theme-aware color
                     color: receipt.isVirtual
-                        ? Colors.green.withValues(alpha: 0.2)
+                        ? successColor.withValues(alpha: 0.2)
                         : cs.primaryContainer,
                     borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                   ),
                   child: Icon(
                     receipt.isVirtual ? Icons.shopping_cart : Icons.receipt,
-                    color: receipt.isVirtual ? Colors.green : cs.primary,
+                    // ✅ FIX: Theme-aware color
+                    color: receipt.isVirtual ? successColor : cs.primary,
                   ),
                 ),
 
@@ -299,24 +336,31 @@ class _ReceiptTile extends StatelessWidget {
                       Row(
                         children: [
                           Icon(Icons.calendar_today,
-                              size: 12, color: Colors.grey.shade600),
+                              // ✅ FIX: Theme-aware color
+                              size: 12, color: cs.onSurfaceVariant),
                           const SizedBox(width: 4),
                           Text(
-                            DateFormat('dd/MM/yyyy').format(receipt.date),
+                            // ✅ FIX: Use locale from context
+                            DateFormat('dd/MM/yyyy', locale)
+                                .format(receipt.date),
                             style: TextStyle(
                               fontSize: kFontSizeSmall,
-                              color: Colors.grey.shade600,
+                              // ✅ FIX: Theme-aware color
+                              color: cs.onSurfaceVariant,
                             ),
                           ),
                           const SizedBox(width: kSpacingSmall),
                           Icon(Icons.shopping_bag,
-                              size: 12, color: Colors.grey.shade600),
+                              // ✅ FIX: Theme-aware color
+                              size: 12, color: cs.onSurfaceVariant),
                           const SizedBox(width: 4),
                           Text(
-                            '${receipt.items.length} פריטים',
+                            // ✅ FIX: Use AppStrings
+                            strings.itemsCount(receipt.items.length),
                             style: TextStyle(
                               fontSize: kFontSizeSmall,
-                              color: Colors.grey.shade600,
+                              // ✅ FIX: Theme-aware color
+                              color: cs.onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -344,14 +388,17 @@ class _ReceiptTile extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.green.withValues(alpha: 0.2),
+                          // ✅ FIX: Theme-aware color
+                          color: successColor.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: const Text(
-                          'וירטואלי',
+                        child: Text(
+                          // ✅ FIX: Use AppStrings
+                          strings.virtualTag,
                           style: TextStyle(
                             fontSize: kFontSizeTiny,
-                            color: Colors.green,
+                            // ✅ FIX: Theme-aware color
+                            color: successColor,
                           ),
                         ),
                       ),
@@ -360,9 +407,10 @@ class _ReceiptTile extends StatelessWidget {
 
                 const SizedBox(width: kSpacingSmall),
 
-                // חץ
+                // ✅ FIX: RTL-aware arrow icon
                 Icon(
-                  Icons.chevron_left,
+                  Icons.arrow_back_ios_new,
+                  size: 16,
                   color: cs.onSurfaceVariant,
                 ),
               ],
@@ -393,6 +441,8 @@ class _StatItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Column(
       children: [
         Row(
@@ -414,7 +464,8 @@ class _StatItem extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: kFontSizeTiny,
-            color: Colors.grey.shade600,
+            // ✅ FIX: Theme-aware color
+            color: cs.onSurfaceVariant,
           ),
         ),
       ],
@@ -430,6 +481,7 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final strings = AppStrings.shoppingHistory;
 
     return Center(
       child: Padding(
@@ -444,7 +496,7 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: kSpacingMedium),
             Text(
-              'אין היסטוריית קניות',
+              strings.emptyTitle,
               style: TextStyle(
                 fontSize: kFontSizeLarge,
                 fontWeight: FontWeight.bold,
@@ -453,7 +505,7 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: kSpacingSmall),
             Text(
-              'כאן יופיעו הקניות שביצעת.\nסיים קנייה כדי לראות אותה כאן.',
+              strings.emptySubtitle,
               style: TextStyle(
                 fontSize: kFontSizeSmall,
                 color: cs.onSurfaceVariant.withValues(alpha: 0.7),
@@ -483,6 +535,7 @@ class _ErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final strings = AppStrings.shoppingHistory;
 
     return Center(
       child: Padding(
@@ -493,7 +546,8 @@ class _ErrorState extends StatelessWidget {
             Icon(
               Icons.error_outline,
               size: 64,
-              color: Colors.red.withValues(alpha: 0.7),
+              // ✅ FIX: Theme-aware error color
+              color: cs.error.withValues(alpha: 0.7),
             ),
             const SizedBox(height: kSpacingMedium),
             Text(
@@ -505,7 +559,7 @@ class _ErrorState extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),
-              label: const Text('נסה שוב'),
+              label: Text(strings.retryButton),
             ),
           ],
         ),

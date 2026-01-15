@@ -1,3 +1,27 @@
+// 📄 File: lib/services/pending_requests_service.dart
+//
+// 🎯 מטרה: ניהול בקשות ממתינות לשינויים ברשימות קניות משותפות
+//
+// 📋 Features:
+// - יצירת בקשות (Editor מבקש הוספת מוצר)
+// - אישור/דחיית בקשות (Owner/Admin בלבד)
+// - שליפת בקשות ממתינות (לבאדג' ולממשק)
+// - ניקוי אוטומטי של בקשות ישנות (מעל 7 ימים)
+// - שליחת התראות למבקש על אישור/דחייה
+//
+// 🔐 Permission Model:
+// - Editor: יכול רק לבקש (createRequest)
+// - Admin/Owner: יכול לאשר/לדחות (approve/reject)
+//
+// 🔗 Related:
+// - PendingRequest (models/pending_request.dart)
+// - ShoppingList (models/shopping_list.dart)
+// - ShareListService (services/share_list_service.dart)
+// - NotificationsService (services/notifications_service.dart)
+//
+// Version: 1.0
+// Last Updated: 13/01/2026
+
 import 'dart:developer';
 
 import 'package:memozap/models/enums/request_status.dart';
@@ -196,6 +220,11 @@ class PendingRequestsService {
         // הזמנות מטופלות ב-PendingInvitesService
         log('⚠️ RequestType.inviteToList should be handled by PendingInvitesService');
         break;
+
+      case RequestType.unknown:
+        // סוג בקשה לא מוכר - לוג אזהרה ודלג
+        log('⚠️ RequestType.unknown - skipping');
+        break;
     }
 
     // עדכון הבקשות (להחליף את הבקשה המאושרת)
@@ -384,10 +413,34 @@ class PendingRequestsService {
 
   /// 🇮🇱 קבלת כל הבקשות הממתינות
   /// 🇬🇧 Get all pending requests
-  /// 
-  /// מסנן רק בקשות עם status=pending
+  ///
+  /// מסנן רק בקשות עם status=pending (כולל unknown)
   List<PendingRequest> getPendingRequests(ShoppingList list) {
-    return list.pendingRequests.where((r) => r.isPending).toList();
+    final requests = list.pendingRequests.where((r) => r.isPending).toList();
+
+    // 🆕 לוג אזהרה אם יש בקשות עם type/status לא מוכרים
+    _logUnknownRequests(requests);
+
+    return requests;
+  }
+
+  /// 🆕 לוג אזהרה כשמגיעות בקשות עם ערכים לא מוכרים
+  /// זה עוזר לזהות שהשרת התחיל לשלוח ערכים חדשים
+  void _logUnknownRequests(List<PendingRequest> requests) {
+    for (final request in requests) {
+      if (!request.type.isKnown) {
+        log(
+          '⚠️ בקשה עם type לא מוכר! id=${request.id}, '
+          'requestData=${request.requestData} [PendingRequestsService]',
+        );
+      }
+      if (!request.status.isKnown) {
+        log(
+          '⚠️ בקשה עם status לא מוכר! id=${request.id}, '
+          'type=${request.type} [PendingRequestsService]',
+        );
+      }
+    }
   }
 
   /// 🇮🇱 ספירת בקשות ממתינות (לבאדג')

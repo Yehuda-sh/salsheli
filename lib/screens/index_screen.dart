@@ -122,6 +122,7 @@ class _IndexScreenState extends State<IndexScreen> {
         if (waitingSeconds >= _syncTimeoutSeconds) {
           // 🚨 Timeout! נסה לרענן את UserContext או הצג שגיאה
           _syncTimeoutTimer?.cancel();
+          _syncTimeoutTimer = null; // 🔧 FIX: null לאחר cancel (עבור ??=)
           _isChecking = false;
 
           // ניסיון אחד לרענן
@@ -156,6 +157,7 @@ class _IndexScreenState extends State<IndexScreen> {
       // ✅ איפוס מעקב המתנה - כבר לא מחכים לסנכרון
       _waitingForSyncSince = null;
       _syncTimeoutTimer?.cancel();
+      _syncTimeoutTimer = null; // 🔧 FIX: null לאחר cancel (עבור ??=)
 
       // ✅ מצב 1: משתמש מחובר → ישר לדף הבית
       if (userContext.isLoggedIn) {
@@ -215,6 +217,13 @@ class _IndexScreenState extends State<IndexScreen> {
 
   /// retry לאחר שגיאה
   void _retry() {
+    // 🔧 FIX: איפוס מלא של מצב הטיימרים והמתנה
+    _waitingForSyncSince = null;
+    _delayTimer?.cancel();
+    _delayTimer = null;
+    _syncTimeoutTimer?.cancel();
+    _syncTimeoutTimer = null;
+
     setState(() {
       _hasError = false;
       _hasNavigated = false;

@@ -26,11 +26,60 @@
 //     - Personal shopping trend tracking (insights).
 //     - Household permission management (viewer, editor, admin).
 //
+// Version: 1.1 - DateTime converters, FlexDoubleConverter, empty string handling
+// Last Updated: 13/01/2026
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';
 
+import 'timestamp_converter.dart'
+    show FlexibleDateTimeConverter, NullableFlexibleDateTimeConverter, FlexDoubleConverter;
+
 part 'user_entity.g.dart';
+
+// ════════════════════════════════════════════
+// JSON Read Helpers (backward compat + empty string handling)
+// ════════════════════════════════════════════
+
+/// 🔧 קורא phone + מתייחס ל-"" כ-null
+Object? _readPhone(Map<dynamic, dynamic> json, String key) {
+  final value = json['phone'];
+  if (value == null) return null;
+  if (value is String && value.trim().isEmpty) return null;
+  return value;
+}
+
+/// 🔧 קורא profileImageUrl עם תמיכה ב-snake_case + מתייחס ל-"" כ-null
+Object? _readProfileImageUrl(Map<dynamic, dynamic> json, String key) {
+  final value = json['profile_image_url'] ?? json['profileImageUrl'];
+  if (value == null) return null;
+  if (value is String && value.trim().isEmpty) return null;
+  return value;
+}
+
+/// 🔧 קורא reminderTime עם תמיכה ב-snake_case + מתייחס ל-"" כ-null
+Object? _readReminderTime(Map<dynamic, dynamic> json, String key) {
+  final value = json['reminder_time'] ?? json['reminderTime'];
+  if (value == null) return null;
+  if (value is String && value.trim().isEmpty) return null;
+  return value;
+}
+
+/// 🔧 קורא joinedAt עם תמיכה ב-snake_case
+Object? _readJoinedAt(Map<dynamic, dynamic> json, String key) =>
+    json['joined_at'] ?? json['joinedAt'];
+
+/// 🔧 קורא lastLoginAt עם תמיכה ב-snake_case
+Object? _readLastLoginAt(Map<dynamic, dynamic> json, String key) =>
+    json['last_login_at'] ?? json['lastLoginAt'];
+
+/// 🔧 קורא householdId עם תמיכה ב-snake_case
+Object? _readHouseholdId(Map<dynamic, dynamic> json, String key) =>
+    json['household_id'] ?? json['householdId'];
+
+/// 🔧 קורא weeklyBudget עם תמיכה ב-snake_case
+Object? _readWeeklyBudget(Map<dynamic, dynamic> json, String key) =>
+    json['weekly_budget'] ?? json['weeklyBudget'];
 
 /// 🇮🇱 מודל ישות משתמש
 /// 🇬🇧 User entity model
@@ -51,26 +100,34 @@ class UserEntity {
 
   /// 🇮🇱 מספר טלפון (פורמט ישראלי 05XXXXXXXX)
   /// 🇬🇧 Phone number (Israeli format 05XXXXXXXX)
+  /// 🔄 readValue: מתייחס ל-"" כ-null
+  @JsonKey(readValue: _readPhone)
   final String? phone;
 
   /// 🇮🇱 מזהה משק בית (מאפשר שיתוף נתונים)
   /// 🇬🇧 Household ID (enables data sharing)
-  @JsonKey(name: 'household_id')
+  /// 🔄 readValue: תמיכה ב-snake_case וגם camelCase
+  @JsonKey(name: 'household_id', readValue: _readHouseholdId)
   final String householdId;
 
   /// 🇮🇱 כתובת תמונת פרופיל (אופציונלי)
   /// 🇬🇧 Profile image URL (optional)
-  @JsonKey(name: 'profile_image_url')
+  /// 🔄 readValue: מתייחס ל-"" כ-null + snake_case
+  @JsonKey(name: 'profile_image_url', readValue: _readProfileImageUrl)
   final String? profileImageUrl;
 
   /// 🇮🇱 תאריך הצטרפות
   /// 🇬🇧 Join date
-  @JsonKey(name: 'joined_at')
+  /// 🔧 תומך ב-Timestamp (Firestore) + String (ISO) + DateTime
+  @FlexibleDateTimeConverter()
+  @JsonKey(name: 'joined_at', readValue: _readJoinedAt)
   final DateTime joinedAt;
 
   /// 🇮🇱 תאריך התחברות אחרונה (אופציונלי)
   /// 🇬🇧 Last login date (optional)
-  @JsonKey(name: 'last_login_at')
+  /// 🔧 תומך ב-Timestamp (Firestore) + String (ISO) + DateTime + null
+  @NullableFlexibleDateTimeConverter()
+  @JsonKey(name: 'last_login_at', readValue: _readLastLoginAt)
   final DateTime? lastLoginAt;
 
   /// 🇮🇱 רשימת חנויות מועדפות (IDs)
@@ -85,7 +142,9 @@ class UserEntity {
 
   /// 🇮🇱 תקציב שבועי מתוכנן (₪)
   /// 🇬🇧 Planned weekly budget (₪)
-  @JsonKey(name: 'weekly_budget')
+  /// 🔧 תומך ב-int, double, String עם פסיק (500, 500.5, "500,5")
+  @FlexDoubleConverter()
+  @JsonKey(name: 'weekly_budget', readValue: _readWeeklyBudget)
   final double weeklyBudget;
 
   /// 🇮🇱 האם מנהל משק הבית
@@ -122,7 +181,8 @@ class UserEntity {
 
   /// 🇮🇱 זמן תזכורת (פורמט HH:MM)
   /// 🇬🇧 Reminder time (HH:MM format)
-  @JsonKey(name: 'reminder_time')
+  /// 🔄 readValue: מתייחס ל-"" כ-null + snake_case
+  @JsonKey(name: 'reminder_time', readValue: _readReminderTime)
   final String? reminderTime;
 
   /// 🇮🇱 האם עבר את תהליך ה-Onboarding
@@ -259,9 +319,10 @@ class UserEntity {
 
   /// 🇮🇱 המרת רשימה מ-JSON
   /// 🇬🇧 Convert list from JSON
+  /// 🔧 תומך ב-Map<dynamic,dynamic> (Firestore) וגם Map<String,dynamic>
   static List<UserEntity> listFromJson(List<dynamic>? arr) => (arr ?? [])
-      .whereType<Map<String, dynamic>>()
-      .map(UserEntity.fromJson)
+      .whereType<Map>()
+      .map((m) => UserEntity.fromJson(Map<String, dynamic>.from(m)))
       .toList();
 
   /// 🇮🇱 המרת רשימה ל-JSON
@@ -328,4 +389,13 @@ class UserEntity {
   @override
   String toString() =>
       'UserEntity(id: $id, name: $name, email: $email, householdId: $householdId, budget: $weeklyBudget, isAdmin: $isAdmin)';
+
+  /// 🔧 שוויון לפי id בלבד
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UserEntity && runtimeType == other.runtimeType && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 }

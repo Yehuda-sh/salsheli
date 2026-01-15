@@ -25,7 +25,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/ui_constants.dart';
+import '../../../../l10n/app_strings.dart';
 import '../../../../models/shopping_list.dart';
+import '../../../../theme/app_theme.dart';
 import '../../../../widgets/common/dashboard_card.dart';
 
 class UpcomingShopCard extends StatelessWidget {
@@ -35,6 +37,11 @@ class UpcomingShopCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.upcomingShopCard;
+    // ✅ FIX: Theme-aware color
+    final theme = Theme.of(context);
+    final accentColor = theme.extension<AppBrand>()?.accent ?? kStickyPink;
+
     if (list == null) {
       return _EmptyUpcomingCard(
         onCreateList: () => Navigator.pushNamed(context, '/create-list'),
@@ -43,15 +50,17 @@ class UpcomingShopCard extends StatelessWidget {
 
     // ✅ Semantics - תיאור מפורט לנגישות
     final itemCount = list!.items.length;
-    final semanticLabel = 'הקנייה הקרובה: ${list!.name}, $itemCount פריטים. לחץ לעריכת הרשימה';
 
     return DashboardCard(
-      title: 'הקנייה הקרובה',
+      // ✅ FIX: Use AppStrings
+      title: strings.cardTitle,
       icon: Icons.shopping_cart,
-      color: kStickyPink,
+      // ✅ FIX: Theme-aware color
+      color: accentColor,
       rotation: 0.015,
-      semanticLabel: semanticLabel,
-      tooltip: 'לחץ לעריכת רשימת "${list!.name}"',
+      // ✅ FIX: Use AppStrings
+      semanticLabel: strings.semanticLabel(list!.name, itemCount),
+      tooltip: strings.editListTooltip(list!.name),
       onTap: () {
         Navigator.pushNamed(
           context,
@@ -74,14 +83,19 @@ class _EmptyUpcomingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final strings = AppStrings.upcomingShopCard;
+    // ✅ FIX: Theme-aware color
+    final successColor = theme.extension<AppBrand>()?.success ?? kStickyCyan;
 
     return DashboardCard(
-      title: 'הקנייה הקרובה',
+      // ✅ FIX: Use AppStrings
+      title: strings.cardTitle,
       icon: Icons.shopping_cart_outlined,
-      color: kStickyCyan,
+      // ✅ FIX: Theme-aware color
+      color: successColor,
       rotation: -0.01,
-      // ✅ Semantics לנגישות
-      semanticLabel: 'אין רשימת קניות פעילה כרגע. לחץ ליצירת רשימה חדשה',
+      // ✅ FIX: Use AppStrings
+      semanticLabel: strings.emptySemanticLabel,
       child: Column(
         children: [
           Icon(
@@ -89,9 +103,11 @@ class _EmptyUpcomingCard extends StatelessWidget {
             size: 48,
             color: cs.onSurfaceVariant,
           ),
-          const SizedBox(height: kBorderRadius),
+          // ✅ FIX: Use kSpacingSmall instead of kBorderRadius
+          const SizedBox(height: kSpacingSmall),
           Text(
-            'אין רשימה פעילה כרגע',
+            // ✅ FIX: Use AppStrings
+            strings.emptyTitle,
             style: theme.textTheme.bodyLarge?.copyWith(
               color: cs.onSurfaceVariant,
             ),
@@ -100,11 +116,13 @@ class _EmptyUpcomingCard extends StatelessWidget {
 
           // ✅ Tooltip לכפתור
           Tooltip(
-            message: 'צור רשימת קניות חדשה',
+            // ✅ FIX: Use AppStrings
+            message: strings.createListTooltip,
             child: FilledButton.icon(
               onPressed: onCreateList,
               icon: const Icon(Icons.add),
-              label: const Text('צור רשימה חדשה'),
+              // ✅ FIX: Use AppStrings
+              label: Text(strings.createListButton),
             ),
           ),
         ],
@@ -123,11 +141,17 @@ class _ListSummary extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final strings = AppStrings.upcomingShopCard;
     final itemsCount = list.items.length;
 
     // שימוש ב-helpers מהמודל (תומך בכל הסוגים)
     final typeLabel = '${list.typeEmoji} ${list.typeName}';
     final typeColor = list.stickyColor;
+    // ✅ FIX: Softer tag background for dark mode compatibility
+    final tagBgColor = Color.alphaBlend(
+      typeColor.withValues(alpha: 0.85),
+      cs.surface,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,6 +167,9 @@ class _ListSummary extends StatelessWidget {
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
+                // ✅ FIX: Overflow protection
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             const SizedBox(width: kSpacingSmall),
@@ -153,7 +180,8 @@ class _ListSummary extends StatelessWidget {
                 vertical: 4,
               ),
               decoration: BoxDecoration(
-                color: typeColor,
+                // ✅ FIX: Softer background color
+                color: tagBgColor,
                 borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                 boxShadow: [
                   BoxShadow(
@@ -168,8 +196,12 @@ class _ListSummary extends StatelessWidget {
                 typeLabel,
                 style: theme.textTheme.labelSmall?.copyWith(
                   fontWeight: FontWeight.bold,
+                  // ✅ FIX: Theme-aware text color for contrast
                   color: cs.onSurface,
                 ),
+                // ✅ FIX: Overflow protection
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -178,7 +210,8 @@ class _ListSummary extends StatelessWidget {
 
         // ספירת פריטים
         Text(
-          '$itemsCount פריטים',
+          // ✅ FIX: Use AppStrings
+          strings.itemsCount(itemsCount),
           style: theme.textTheme.bodyLarge?.copyWith(
             color: cs.onSurfaceVariant,
             fontWeight: FontWeight.w500,
@@ -188,7 +221,8 @@ class _ListSummary extends StatelessWidget {
 
         // ✅ כפתור התחל קנייה עם Tooltip
         Tooltip(
-          message: 'התחל קנייה מרשימת "${list.name}"',
+          // ✅ FIX: Use AppStrings
+          message: strings.startShoppingTooltip(list.name),
           child: FilledButton.icon(
             onPressed: () {
               Navigator.pushNamed(
@@ -198,7 +232,8 @@ class _ListSummary extends StatelessWidget {
               );
             },
             icon: const Icon(Icons.shopping_cart),
-            label: const Text('התחל קנייה'),
+            // ✅ FIX: Use AppStrings
+            label: Text(strings.startShoppingButton),
             style: FilledButton.styleFrom(
               minimumSize: const Size(double.infinity, 48),
             ),

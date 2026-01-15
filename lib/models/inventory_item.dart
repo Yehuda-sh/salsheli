@@ -1,53 +1,44 @@
 // 📄 File: lib/models/inventory_item.dart
-// Version: 3.0
-// Last Updated: 16/12/2025
 //
-// ✅ Improvements in v3.0:
-// - Added expiryDate field for expiration tracking
-// - Added notes field for item notes
-// - Added isRecurring field for recurring items (auto-add to new lists)
-// - Added lastPurchased field for purchase history
-// - Added purchaseCount field for purchase statistics
-// - Added emoji field for custom item emoji
+// 🇮🇱 מודל פריט במלאי/מזווה:
+//     - מייצג פריט במלאי של משק הבית
+//     - תומך בתאריך תפוגה, הערות, ומוצרים קבועים
+//     - כולל סטטיסטיקות קנייה (purchaseCount, lastPurchased)
+//     - household_id לא חלק מהמודל (Repository מוסיף אותו)
 //
-// ✅ Improvements in v2.3:
-// - Added minQuantity field for low stock threshold per item
-// - Fixed product_name snake_case for Firestore index compatibility
+// 🇬🇧 Inventory/pantry item model:
+//     - Represents an item in household inventory
+//     - Supports expiry date, notes, and recurring items
+//     - Includes purchase statistics (purchaseCount, lastPurchased)
+//     - household_id not part of model (Repository handles it)
 //
-// ✅ Improvements in v2.2:
-// - Added @JsonKey(defaultValue) for safe defaults
-// - Removed manual null cleaning
-// - Protected `id` from modification in copyWith()
-// - Cleaned up debug logging
+// 🔗 Related:
+//     - InventoryRepository (repositories/inventory_repository.dart)
+//     - InventoryProvider (providers/inventory_provider.dart)
+//     - SmartSuggestion (models/smart_suggestion.dart)
 //
-// 🧱 Purpose:
-//   מודל InventoryItem מייצג פריט במלאי/מזווה של משק הבית.
-//   תומך בסנכרון עם Firebase Firestore בפורמט JSON.
-//
-// 🚀 Features:
-//   ✅ JSON serialization (json_annotation)
-//   ✅ Immutable model (@immutable)
-//   ✅ copyWith for updates (id immutable)
-//   ✅ Equality & hashCode
-//   ✅ Firebase-ready (household_id handled by Repository)
-//   ✅ Default fallbacks for missing data
-//   ✅ Clean debug logging
-//   ✅ Expiry date tracking
-//   ✅ Purchase history & statistics
-//   ✅ Recurring items support
-//
-// 🧠 Notes:
-//   - household_id לא חלק מהמודל (Repository מוסיף אותו)
-//   - Repository מסנן לפי household_id בטעינה
-//   - כל שדות ה-JSON עם @JsonKey(defaultValue) כדי למנוע null values
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';
 
 import 'timestamp_converter.dart';
 
 part 'inventory_item.g.dart';
 
+// ---- JSON Read Helpers ----
+
+/// קורא emoji עם fallback ל-null אם ריק
+/// 🔄 מטפל ב-"" מהשרת → מחזיר null → UI יציג fallback
+Object? _readEmoji(Map<dynamic, dynamic> json, String key) {
+  final value = json['emoji'];
+  if (value == null || (value is String && value.isEmpty)) {
+    return null;
+  }
+  return value;
+}
+
+/// 🇮🇱 מודל פריט במלאי/מזווה
+/// 🇬🇧 Inventory/pantry item model
 @immutable
 @JsonSerializable()
 class InventoryItem {
@@ -55,7 +46,8 @@ class InventoryItem {
   final String id;
 
   /// שם המוצר (e.g., "חלב 3%")
-  @JsonKey(name: 'product_name', defaultValue: 'מוצר לא ידוע')
+  /// 📌 defaultValue ריק - UI יציג תווית מתאימה (AppStrings)
+  @JsonKey(name: 'product_name', defaultValue: '')
   final String productName;
 
   /// קטגוריה (e.g., "מוצרי חלב", "ירקות")
@@ -101,6 +93,8 @@ class InventoryItem {
   final int purchaseCount;
 
   /// אמוג'י מותאם (אופציונלי)
+  /// 🔄 readValue: מחזיר null אם ריק → UI יציג fallback
+  @JsonKey(readValue: _readEmoji)
   final String? emoji;
 
   const InventoryItem({
@@ -119,37 +113,21 @@ class InventoryItem {
     this.emoji,
   });
 
-  // =========================================================
-  // ✅ JSON Serialization / Deserialization
-  // =========================================================
+  // ---- JSON Serialization ----
 
-  /// יצירה מ-JSON (deserialize)
-  factory InventoryItem.fromJson(Map<String, dynamic> json) {
-    if (kDebugMode) {
-      debugPrint(
-        '📥 InventoryItem.fromJson: id=${json['id']}, '
-        'product=${json['productName']}, qty=${json['quantity']}',
-      );
-    }
-    return _$InventoryItemFromJson(json);
-  }
+  /// 🇮🇱 יצירה מ-JSON
+  /// 🇬🇧 Create from JSON
+  factory InventoryItem.fromJson(Map<String, dynamic> json) =>
+      _$InventoryItemFromJson(json);
 
-  /// המרה ל-JSON (serialize)
-  Map<String, dynamic> toJson() {
-    if (kDebugMode) {
-      debugPrint(
-        '📤 InventoryItem.toJson: id=$id, '
-        'product=$productName, qty=$quantity',
-      );
-    }
-    return _$InventoryItemToJson(this);
-  }
+  /// 🇮🇱 המרה ל-JSON
+  /// 🇬🇧 Convert to JSON
+  Map<String, dynamic> toJson() => _$InventoryItemToJson(this);
 
-  // =========================================================
-  // 🧩 copyWith (id protected)
-  // =========================================================
+  // ---- Copy With ----
 
-  /// יצירת עותק חדש עם עדכונים (id נשאר קבוע)
+  /// 🇮🇱 יצירת עותק עם שינויים (id נשאר קבוע)
+  /// 🇬🇧 Create a copy with updates (id stays immutable)
   InventoryItem copyWith({
     String? productName,
     String? category,
@@ -185,8 +163,11 @@ class InventoryItem {
     );
   }
 
-  /// האם הפריט במלאי נמוך (מתחת למינימום שהוגדר)
-  bool get isLowStock => quantity <= minQuantity;
+  // ---- Helper Getters ----
+
+  /// 🇮🇱 האם הפריט במלאי נמוך (מתחת למינימום שהוגדר)
+  /// 🇬🇧 Is the item low stock (below minimum threshold)
+  bool get isLowStock => quantity < minQuantity;
 
   /// האם יש תאריך תפוגה
   bool get hasExpiryDate => expiryDate != null;
@@ -216,9 +197,7 @@ class InventoryItem {
   /// האם מוצר פופולרי (נקנה 4+ פעמים)
   bool get isPopular => purchaseCount >= 4;
 
-  // =========================================================
-  // 🧾 Debug / Equality
-  // =========================================================
+  // ---- Equality & Debug ----
 
   @override
   String toString() => 'InventoryItem(id: $id, name: $productName, qty: $quantity $unit, min: $minQuantity, location: $location, expiry: $expiryDate, recurring: $isRecurring)';

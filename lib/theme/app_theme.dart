@@ -277,8 +277,8 @@ class AppTheme {
 
     final brand = AppBrand(
       accent: harmonizedAccent,
-      // ✅ בדארק - amber רגיל (ניגודיות טובה), בלייט - amberText כהה יותר
-      accentText: dark ? harmonizedAccent : harmonizedAccentText,
+      // ✅ FIX: תמיד amberText כהה יותר לטקסט - נגישות טובה יותר גם בדארק
+      accentText: harmonizedAccentText,
       surfaceSlate: dynamicScheme.surface,
       welcomeBackground: dynamicScheme.surface,
       success: harmonizedSuccess,
@@ -357,8 +357,8 @@ class AppTheme {
     // צור AppBrand - או customBrand (מ-dynamic colors) או ברירת מחדל
     final brand = customBrand ?? AppBrand(
       accent: _Brand.amber,
-      // ✅ בדארק amber רגיל (ניגודיות טובה), בלייט - amberText כהה יותר
-      accentText: dark ? _Brand.amber : _Brand.amberText,
+      // ✅ FIX: תמיד amberText כהה יותר לטקסט - נגישות טובה יותר גם בדארק
+      accentText: _Brand.amberText,
       surfaceSlate: scheme.surface,
       welcomeBackground: scheme.surface,
       // Success colors
@@ -379,6 +379,11 @@ class AppTheme {
       notebookBlue: kNotebookBlue,
       notebookRed: kNotebookRed,
     );
+
+    // ✅ FIX: צבע טקסט על accent (Amber) - לפי בהירות הסכמה
+    // Light mode: scheme.onSurface (טקסט כהה על amber בהיר)
+    // Dark mode: scheme.surface (טקסט כהה על amber - כי amber בהיר גם בדארק)
+    final onAccent = dark ? scheme.surface : scheme.onSurface;
 
     // צבעי מילוי דקים לשדות טופס
     // Light: שקוף יותר (6% opacity)
@@ -415,8 +420,8 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: brand.accent, // Amber (או harmonized)
-          // ✅ Use scheme color instead of hardcoded Colors.black
-          foregroundColor: scheme.onSecondary, // טקסט על Amber
+          // ✅ FIX: Use onAccent (contrast-aware) instead of scheme.onSecondary
+          foregroundColor: onAccent, // טקסט על Amber
           textStyle: const TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: kFontSizeBody,
@@ -478,16 +483,14 @@ class AppTheme {
       ),
 
       // כרטיסים - Cards (M3 Surface Containers)
+      // ✅ FIX: הסרנו horizontal margin כדי למנוע double-padding עם ListView
       cardTheme: CardThemeData(
         elevation: 2,
         // Surface Containers: רמות שונות של רקע
         // surfaceContainerLow = קרוב לרקע
         // surfaceContainerHigh = בולט יותר
         color: dark ? scheme.surfaceContainerHigh : scheme.surfaceContainerLow,
-        margin: const EdgeInsets.symmetric(
-          horizontal: kSpacingMedium,
-          vertical: kCardMarginVertical,
-        ),
+        margin: const EdgeInsets.symmetric(vertical: kCardMarginVertical),
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(kBorderRadiusLarge),
@@ -549,8 +552,8 @@ class AppTheme {
           if (states.contains(WidgetState.selected)) return brand.accent;
           return null;
         }),
-        // ✅ Use scheme color instead of hardcoded Colors.black
-        checkColor: WidgetStateProperty.all(scheme.onSecondary),
+        // ✅ FIX: Use onAccent (contrast-aware) instead of scheme.onSecondary
+        checkColor: WidgetStateProperty.all(onAccent),
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
@@ -579,8 +582,8 @@ class AppTheme {
         thumbColor: brand.accent,
         overlayColor: brand.accent.withValues(alpha: kOpacityLight),
         valueIndicatorColor: brand.accent,
-        // ✅ Use scheme color instead of hardcoded Colors.black
-        valueIndicatorTextStyle: TextStyle(color: scheme.onSecondary),
+        // ✅ FIX: Use onAccent (contrast-aware) instead of scheme.onSecondary
+        valueIndicatorTextStyle: TextStyle(color: onAccent),
       ),
 
       // מחווני התקדמות - Progress Indicators

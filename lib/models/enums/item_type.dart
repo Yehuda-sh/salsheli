@@ -10,6 +10,10 @@
 //     - task: Task to do (book DJ, rent photographer, etc.)
 //     - unknown: fallback for unknown server values
 //
+// 🔗 Related:
+//     - UnifiedListItem (models/unified_list_item.dart)
+//     - ShoppingList (models/shopping_list.dart)
+//
 
 import 'package:json_annotation/json_annotation.dart';
 

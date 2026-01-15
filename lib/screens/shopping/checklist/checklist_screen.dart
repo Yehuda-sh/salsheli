@@ -12,8 +12,8 @@
 // - unified_list_item.dart - מודל פריט
 // - shopping_lists_provider.dart - עדכון סימון
 //
-// Version: 1.0
-// Created: 16/12/2025
+// Version 2.0 - No AppBar (Immersive)
+// Last Updated: 13/01/2026
 
 import 'dart:async';
 
@@ -206,160 +206,172 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
         const NotebookBackground(),
         Scaffold(
           backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            backgroundColor: cs.primary,
-            foregroundColor: Colors.white,
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          body: SafeArea(
+            child: Column(
               children: [
-                Text(
-                  _list.name,
-                  style: const TextStyle(
-                      fontSize: kFontSizeMedium, fontWeight: FontWeight.bold),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  'צ\'קליסט ✓',
-                  style: TextStyle(
-                    fontSize: kFontSizeSmall,
-                    color: Colors.white.withValues(alpha: 0.8),
+                // 🏷️ כותרת inline
+                Padding(
+                  padding: const EdgeInsets.all(kSpacingMedium),
+                  child: Row(
+                    children: [
+                      Icon(Icons.checklist, size: 24, color: cs.primary),
+                      const SizedBox(width: kSpacingSmall),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _list.name,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: cs.onSurface,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              'צ\'קליסט ✓',
+                              style: TextStyle(
+                                fontSize: kFontSizeSmall,
+                                color: cs.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // ⚠️ אינדיקציית שגיאת סנכרון - לחיץ להצגת הודעה
+                      if (_hasSyncError)
+                        IconButton(
+                          icon: const Icon(Icons.cloud_off, color: Colors.amber, size: 20),
+                          tooltip: AppStrings.common.syncError,
+                          onPressed: _showSyncErrorSnackbar,
+                        ),
+                      // כפתור סמן/בטל הכל
+                      PopupMenuButton<bool>(
+                        icon: Icon(Icons.more_vert, color: cs.onSurfaceVariant),
+                        onSelected: _toggleAll,
+                        itemBuilder: (context) => [
+                          const PopupMenuItem(
+                            value: true,
+                            child: Row(
+                              children: [
+                                Icon(Icons.check_box, color: StatusColors.success),
+                                SizedBox(width: kSpacingSmall),
+                                Text('סמן הכל'),
+                              ],
+                            ),
+                          ),
+                          const PopupMenuItem(
+                            value: false,
+                            child: Row(
+                              children: [
+                                Icon(Icons.check_box_outline_blank, color: Colors.grey),
+                                SizedBox(width: kSpacingSmall),
+                                Text('בטל הכל'),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
+                ),
+
+                // 📊 Header עם התקדמות
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+                  padding: const EdgeInsets.all(kSpacingMedium),
+                  decoration: BoxDecoration(
+                    color: kStickyYellow.withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(kBorderRadius),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      // מספרים
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            '$checkedItems',
+                            style: TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                              color: allChecked ? StatusColors.success : cs.primary,
+                            ),
+                          ),
+                          Text(
+                            ' / $totalItems',
+                            style: TextStyle(
+                              fontSize: 24,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                          if (allChecked) ...[
+                            const SizedBox(width: kSpacingSmall),
+                            const Icon(Icons.celebration,
+                                color: Colors.amber, size: 28),
+                          ],
+                        ],
+                      ),
+
+                      const SizedBox(height: kSpacingSmall),
+
+                      // בר התקדמות
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          backgroundColor: Colors.grey.withValues(alpha: 0.2),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            allChecked ? StatusColors.success : cs.primary,
+                          ),
+                          minHeight: 8,
+                        ),
+                      ),
+
+                      const SizedBox(height: kSpacingTiny),
+
+                      // אחוזים
+                      Text(
+                        '${(progress * 100).toInt()}% הושלם',
+                        style: TextStyle(
+                          fontSize: kFontSizeSmall,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // 📋 רשימת פריטים
+                Expanded(
+                  child: _list.items.isEmpty
+                      ? _EmptyState()
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: kSpacingMedium),
+                          itemCount: _list.items.length,
+                          itemBuilder: (context, index) {
+                            final item = _list.items[index];
+                            return KeyedSubtree(
+                              key: ValueKey(item.id),
+                              child: _ChecklistItemTile(
+                                item: item,
+                                onToggle: () => _toggleItem(item),
+                              ),
+                            );
+                          },
+                        ),
                 ),
               ],
             ),
-            actions: [
-              // ⚠️ אינדיקציית שגיאת סנכרון - לחיץ להצגת הודעה
-              if (_hasSyncError)
-                IconButton(
-                  icon: const Icon(Icons.cloud_off, color: Colors.amber, size: 20),
-                  tooltip: AppStrings.common.syncError,
-                  onPressed: _showSyncErrorSnackbar,
-                ),
-              // כפתור סמן/בטל הכל
-              PopupMenuButton<bool>(
-                icon: const Icon(Icons.more_vert),
-                onSelected: _toggleAll,
-                itemBuilder: (context) => [
-                  const PopupMenuItem(
-                    value: true,
-                    child: Row(
-                      children: [
-                        Icon(Icons.check_box, color: StatusColors.success),
-                        SizedBox(width: kSpacingSmall),
-                        Text('סמן הכל'),
-                      ],
-                    ),
-                  ),
-                  const PopupMenuItem(
-                    value: false,
-                    child: Row(
-                      children: [
-                        Icon(Icons.check_box_outline_blank, color: Colors.grey),
-                        SizedBox(width: kSpacingSmall),
-                        Text('בטל הכל'),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          body: Column(
-            children: [
-              // 📊 Header עם התקדמות
-              Container(
-                margin: const EdgeInsets.all(kSpacingMedium),
-                padding: const EdgeInsets.all(kSpacingMedium),
-                decoration: BoxDecoration(
-                  color: kStickyYellow.withValues(alpha: 0.9),
-                  borderRadius: BorderRadius.circular(kBorderRadius),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    // מספרים
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          '$checkedItems',
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: allChecked ? StatusColors.success : cs.primary,
-                          ),
-                        ),
-                        Text(
-                          ' / $totalItems',
-                          style: TextStyle(
-                            fontSize: 24,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                        if (allChecked) ...[
-                          const SizedBox(width: kSpacingSmall),
-                          const Icon(Icons.celebration,
-                              color: Colors.amber, size: 28),
-                        ],
-                      ],
-                    ),
-
-                    const SizedBox(height: kSpacingSmall),
-
-                    // בר התקדמות
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: progress,
-                        backgroundColor: Colors.grey.withValues(alpha: 0.2),
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          allChecked ? StatusColors.success : cs.primary,
-                        ),
-                        minHeight: 8,
-                      ),
-                    ),
-
-                    const SizedBox(height: kSpacingTiny),
-
-                    // אחוזים
-                    Text(
-                      '${(progress * 100).toInt()}% הושלם',
-                      style: TextStyle(
-                        fontSize: kFontSizeSmall,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // 📋 רשימת פריטים
-              Expanded(
-                child: _list.items.isEmpty
-                    ? _EmptyState()
-                    : ListView.builder(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: kSpacingMedium),
-                        itemCount: _list.items.length,
-                        itemBuilder: (context, index) {
-                          final item = _list.items[index];
-                          return KeyedSubtree(
-                            key: ValueKey(item.id),
-                            child: _ChecklistItemTile(
-                              item: item,
-                              onToggle: () => _toggleItem(item),
-                            ),
-                          );
-                        },
-                      ),
-              ),
-            ],
           ),
         ),
       ],

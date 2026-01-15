@@ -6,13 +6,18 @@
 // Version: 1.0 (08/01/2026)
 // 🔗 Related: PendingInvitesProvider, GroupInvite
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/ui_constants.dart';
+import '../../../../l10n/app_strings.dart';
+import '../../../../providers/groups_provider.dart';
 import '../../../../providers/pending_invites_provider.dart';
 import '../../../../providers/user_context.dart';
+import '../../../../theme/app_theme.dart';
 
 /// באנר הזמנה ממתינה - מציג הזמנה ראשונה עם אפשרות קבלה/דחייה
 class PendingInviteBanner extends StatefulWidget {
@@ -30,8 +35,14 @@ class _PendingInviteBannerState extends State<PendingInviteBanner> {
 
     setState(() => _isProcessing = true);
 
+    // ✅ FIX: Cache values before async gap
+    final strings = AppStrings.pendingInviteBanner;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final successColor = theme.extension<AppBrand>()?.success ?? kStickyGreen;
     final messenger = ScaffoldMessenger.of(context);
     final invitesProvider = context.read<PendingInvitesProvider>();
+    final groupsProvider = context.read<GroupsProvider>();
     final userContext = context.read<UserContext>();
 
     try {
@@ -39,31 +50,49 @@ class _PendingInviteBannerState extends State<PendingInviteBanner> {
       final user = userContext.user;
 
       if (user == null) {
-        throw Exception('לא מחובר');
+        throw Exception(strings.notLoggedIn);
       }
 
-      await invitesProvider.acceptInvite(
+      // ✅ FIX: Normalize email - empty string stays empty (provider handles it)
+      final userEmail = user.email.trim().isNotEmpty ? user.email : '';
+
+      // ✅ FIX: Check return value
+      final success = await invitesProvider.acceptInvite(
         invite: invite,
         userId: user.id,
         userName: user.name,
-        userEmail: user.email,
+        userEmail: userEmail,
       );
 
       if (!mounted) return;
 
-      await HapticFeedback.mediumImpact();
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text('הצטרפת לקבוצה "${invite.groupName}"'),
-          backgroundColor: kStickyGreen,
-        ),
-      );
+      if (success) {
+        // ✅ FIX: unawaited for fire-and-forget
+        unawaited(HapticFeedback.mediumImpact());
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(strings.acceptSuccess(invite.groupName)),
+            // ✅ FIX: Theme-aware color
+            backgroundColor: successColor,
+          ),
+        );
+        // ✅ FIX: Refresh groups after accept
+        unawaited(groupsProvider.loadGroups());
+      } else {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(strings.acceptError),
+            backgroundColor: cs.error,
+          ),
+        );
+      }
     } catch (e) {
       if (!mounted) return;
+      // ✅ FIX: User-friendly error message
       messenger.showSnackBar(
         SnackBar(
-          content: Text('שגיאה: $e'),
-          backgroundColor: kStickyPink,
+          content: Text(strings.acceptError),
+          backgroundColor: cs.error,
         ),
       );
     } finally {
@@ -76,6 +105,11 @@ class _PendingInviteBannerState extends State<PendingInviteBanner> {
   Future<void> _onReject(BuildContext context) async {
     if (_isProcessing) return;
 
+    // ✅ FIX: Cache values before async gap
+    final strings = AppStrings.pendingInviteBanner;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final accentColor = theme.extension<AppBrand>()?.accent ?? cs.tertiary;
     final invitesProvider = context.read<PendingInvitesProvider>();
     final invite = invitesProvider.pendingInvites.first;
 
@@ -83,17 +117,21 @@ class _PendingInviteBannerState extends State<PendingInviteBanner> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('דחיית הזמנה'),
-        content: const Text('האם אתה בטוח שברצונך לדחות את ההזמנה?'),
+        title: Text(strings.rejectDialogTitle),
+        content: Text(strings.rejectDialogContent),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('ביטול'),
+            child: Text(strings.cancelButton),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            style: ElevatedButton.styleFrom(backgroundColor: kStickyPink),
-            child: const Text('דחה'),
+            // ✅ FIX: Theme-aware error color
+            style: ElevatedButton.styleFrom(
+              backgroundColor: cs.error,
+              foregroundColor: cs.onError,
+            ),
+            child: Text(strings.rejectButton),
           ),
         ],
       ),
@@ -110,19 +148,22 @@ class _PendingInviteBannerState extends State<PendingInviteBanner> {
 
       if (!mounted) return;
 
-      await HapticFeedback.lightImpact();
+      // ✅ FIX: unawaited for fire-and-forget
+      unawaited(HapticFeedback.lightImpact());
       messenger.showSnackBar(
-        const SnackBar(
-          content: Text('ההזמנה נדחתה'),
-          backgroundColor: kStickyCyan,
+        SnackBar(
+          content: Text(strings.rejectSuccess),
+          // ✅ FIX: Theme-aware color
+          backgroundColor: accentColor,
         ),
       );
     } catch (e) {
       if (!mounted) return;
+      // ✅ FIX: User-friendly error message
       messenger.showSnackBar(
         SnackBar(
-          content: Text('שגיאה: $e'),
-          backgroundColor: kStickyPink,
+          content: Text(strings.rejectError),
+          backgroundColor: cs.error,
         ),
       );
     } finally {
@@ -135,7 +176,13 @@ class _PendingInviteBannerState extends State<PendingInviteBanner> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final strings = AppStrings.pendingInviteBanner;
     final invitesProvider = context.watch<PendingInvitesProvider>();
+
+    // ✅ FIX: Theme-aware colors
+    final accentColor = theme.extension<AppBrand>()?.accent ?? cs.primary;
+    final successColor = theme.extension<AppBrand>()?.success ?? kStickyGreen;
 
     // אם אין הזמנות - לא מציג
     if (!invitesProvider.hasPendingInvites) {
@@ -148,10 +195,11 @@ class _PendingInviteBannerState extends State<PendingInviteBanner> {
     return Container(
       margin: const EdgeInsets.only(bottom: kSpacingSmall),
       decoration: BoxDecoration(
-        color: Colors.blue.shade50,
+        // ✅ FIX: Theme-aware colors
+        color: accentColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.blue.shade200,
+          color: accentColor.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -164,12 +212,14 @@ class _PendingInviteBannerState extends State<PendingInviteBanner> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: Colors.blue.shade100,
+                // ✅ FIX: Theme-aware color
+                color: accentColor.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 Icons.mail_outline,
-                color: Colors.blue.shade700,
+                // ✅ FIX: Theme-aware color
+                color: accentColor,
                 size: 24,
               ),
             ),
@@ -183,9 +233,10 @@ class _PendingInviteBannerState extends State<PendingInviteBanner> {
                   Row(
                     children: [
                       Text(
-                        'הזמנה לקבוצה',
+                        strings.title,
                         style: theme.textTheme.titleSmall?.copyWith(
-                          color: Colors.blue.shade900,
+                          // ✅ FIX: Theme-aware color
+                          color: cs.onSurface,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -197,13 +248,15 @@ class _PendingInviteBannerState extends State<PendingInviteBanner> {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.blue.shade200,
+                            // ✅ FIX: Theme-aware color
+                            color: accentColor.withValues(alpha: 0.3),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
-                            '+$moreCount',
+                            strings.moreCount(moreCount),
                             style: theme.textTheme.labelSmall?.copyWith(
-                              color: Colors.blue.shade900,
+                              // ✅ FIX: Theme-aware color
+                              color: cs.onSurface,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -213,9 +266,10 @@ class _PendingInviteBannerState extends State<PendingInviteBanner> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '${invite.invitedByName} הזמין אותך ל"${invite.groupName}"',
+                    strings.inviteMessage(invite.invitedByName, invite.groupName),
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: Colors.blue.shade700,
+                      // ✅ FIX: Theme-aware color
+                      color: cs.onSurfaceVariant,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -226,10 +280,14 @@ class _PendingInviteBannerState extends State<PendingInviteBanner> {
 
             // כפתורי פעולה
             if (_isProcessing)
-              const SizedBox(
+              SizedBox(
                 width: 24,
                 height: 24,
-                child: CircularProgressIndicator(strokeWidth: 2),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  // ✅ FIX: Theme-aware color
+                  color: accentColor,
+                ),
               )
             else
               Row(
@@ -239,8 +297,9 @@ class _PendingInviteBannerState extends State<PendingInviteBanner> {
                   ElevatedButton(
                     onPressed: () => _onAccept(context),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: kStickyGreen,
-                      foregroundColor: Colors.white,
+                      // ✅ FIX: Theme-aware colors
+                      backgroundColor: successColor,
+                      foregroundColor: cs.onPrimary,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 8,
@@ -251,15 +310,16 @@ class _PendingInviteBannerState extends State<PendingInviteBanner> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    child: const Text('קבל'),
+                    child: Text(strings.acceptButton),
                   ),
                   const SizedBox(width: 8),
                   // כפתור דחה
                   IconButton(
                     onPressed: () => _onReject(context),
                     icon: const Icon(Icons.close),
-                    color: Colors.blue.shade400,
-                    tooltip: 'דחה',
+                    // ✅ FIX: Theme-aware color
+                    color: cs.onSurfaceVariant,
+                    tooltip: strings.rejectTooltip,
                     visualDensity: VisualDensity.compact,
                   ),
                 ],

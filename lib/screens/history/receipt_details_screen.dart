@@ -3,13 +3,18 @@
 // מסך פרטי קבלה - צפייה בקנייה בודדת.
 // מציג רשימת פריטים, סיכום מחירים, תאריך וחנות.
 //
+// Version 1.0 - No AppBar (Immersive)
+// Last Updated: 13/01/2026
+//
 // 🔗 Related: Receipt, ShoppingHistoryScreen
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart' hide TextDirection;
+import 'package:intl/intl.dart';
 
 import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
 import '../../models/receipt.dart';
+import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_note.dart';
 
@@ -22,168 +27,194 @@ class ReceiptDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final strings = AppStrings.receiptDetails;
+    // ✅ FIX: Use locale from context instead of hardcoded 'he'
+    final locale = Localizations.localeOf(context).languageCode;
+    // ✅ FIX: Theme-aware success color for virtual receipts
+    final successColor = theme.extension<AppBrand>()?.success ?? kStickyGreen;
 
     return Stack(
       children: [
         const NotebookBackground(),
         Scaffold(
           backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            backgroundColor: cs.primary,
-            foregroundColor: Colors.white,
-            title: Text(
-              receipt.storeName,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(kSpacingMedium),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // === כותרת קבלה ===
-                StickyNote(
-                  color: receipt.isVirtual ? kStickyGreen : kStickyYellow,
-                  child: Padding(
-                    padding: const EdgeInsets.all(kSpacingMedium),
-                    child: Column(
-                      children: [
-                        // אייקון
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: receipt.isVirtual
-                                ? Colors.green.withValues(alpha: 0.2)
-                                : cs.primaryContainer,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            receipt.isVirtual
-                                ? Icons.shopping_cart
-                                : Icons.receipt_long,
-                            size: 40,
-                            color:
-                                receipt.isVirtual ? Colors.green : cs.primary,
-                          ),
-                        ),
-
-                        const SizedBox(height: kSpacingMedium),
-
-                        // שם חנות
-                        Text(
-                          receipt.storeName,
-                          style: const TextStyle(
-                            fontSize: kFontSizeLarge,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-
-                        const SizedBox(height: kSpacingSmall),
-
-                        // תאריך
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.calendar_today,
-                                size: 16, color: Colors.grey),
-                            const SizedBox(width: 4),
-                            Text(
-                              DateFormat('EEEE, dd/MM/yyyy', 'he')
-                                  .format(receipt.date),
-                              style: TextStyle(
-                                fontSize: kFontSizeSmall,
-                                color: Colors.grey.shade700,
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: kSpacingSmall),
-
-                        // תגיות
-                        Wrap(
-                          spacing: kSpacingSmall,
-                          children: [
-                            if (receipt.isVirtual)
-                              const _Tag(
-                                label: 'וירטואלי',
-                                color: Colors.green,
-                                icon: Icons.auto_awesome,
-                              ),
-                            if (receipt.linkedShoppingListId != null)
-                              const _Tag(
-                                label: 'מקושר לרשימה',
-                                color: Colors.blue,
-                                icon: Icons.link,
-                              ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: kSpacingMedium),
-
-                // === סיכום ===
-                StickyNote(
-                  color: kStickyCyan,
-                  child: Padding(
-                    padding: const EdgeInsets.all(kSpacingMedium),
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(kSpacingMedium),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // 🏷️ כותרת inline
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: kSpacingMedium),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        _SummaryItem(
-                          label: 'פריטים',
-                          value: '${receipt.items.length}',
-                          icon: Icons.shopping_bag,
+                        // כפתור חזרה
+                        IconButton(
+                          icon: Icon(Icons.arrow_back, color: cs.onSurface),
+                          onPressed: () => Navigator.of(context).pop(),
                         ),
-                        Container(
-                          height: 40,
-                          width: 1,
-                          color: Colors.grey.withValues(alpha: 0.3),
-                        ),
-                        _SummaryItem(
-                          label: 'סה"כ',
-                          value: '₪${receipt.totalAmount.toStringAsFixed(2)}',
-                          icon: Icons.payments,
-                          highlight: true,
+                        Icon(Icons.receipt_long, size: 24, color: cs.primary),
+                        const SizedBox(width: kSpacingSmall),
+                        Expanded(
+                          child: Text(
+                            receipt.storeName,
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: cs.onSurface,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ],
                     ),
                   ),
-                ),
-
-                const SizedBox(height: kSpacingMedium),
-
-                // === רשימת פריטים ===
-                Text(
-                  'פריטים',
-                  style: TextStyle(
-                    fontSize: kFontSizeMedium,
-                    fontWeight: FontWeight.bold,
-                    color: cs.onSurface,
-                  ),
-                ),
-
-                const SizedBox(height: kSpacingSmall),
-
-                if (receipt.items.isEmpty)
-                  Center(
+                  // === כותרת קבלה ===
+                  StickyNote(
+                    color: receipt.isVirtual ? kStickyGreen : kStickyYellow,
                     child: Padding(
-                      padding: const EdgeInsets.all(kSpacingLarge),
-                      child: Text(
-                        'אין פריטים בקבלה',
-                        style: TextStyle(color: cs.onSurfaceVariant),
+                      padding: const EdgeInsets.all(kSpacingMedium),
+                      child: Column(
+                        children: [
+                          // אייקון
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              // ✅ FIX: Theme-aware colors
+                              color: receipt.isVirtual
+                                  ? successColor.withValues(alpha: 0.2)
+                                  : cs.primaryContainer,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              receipt.isVirtual
+                                  ? Icons.shopping_cart
+                                  : Icons.receipt_long,
+                              size: 40,
+                              color: receipt.isVirtual ? successColor : cs.primary,
+                            ),
+                          ),
+
+                          const SizedBox(height: kSpacingMedium),
+
+                          // שם חנות
+                          Text(
+                            receipt.storeName,
+                            style: const TextStyle(
+                              fontSize: kFontSizeLarge,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+
+                          const SizedBox(height: kSpacingSmall),
+
+                          // תאריך
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.calendar_today,
+                                  size: 16, color: cs.onSurfaceVariant),
+                              const SizedBox(width: 4),
+                              Text(
+                                // ✅ FIX: Use locale from context
+                                DateFormat('EEEE, dd/MM/yyyy', locale)
+                                    .format(receipt.date),
+                                style: TextStyle(
+                                  fontSize: kFontSizeSmall,
+                                  color: cs.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: kSpacingSmall),
+
+                          // תגיות
+                          Wrap(
+                            spacing: kSpacingSmall,
+                            children: [
+                              if (receipt.isVirtual)
+                                _Tag(
+                                  label: strings.virtualTag,
+                                  color: successColor,
+                                  icon: Icons.auto_awesome,
+                                ),
+                              if (receipt.linkedShoppingListId != null)
+                                _Tag(
+                                  label: strings.linkedToListTag,
+                                  color: cs.tertiary,
+                                  icon: Icons.link,
+                                ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                  )
-                else
-                  ...receipt.items.map((item) => _ItemTile(item: item)),
+                  ),
 
-                const SizedBox(height: kSpacingLarge),
-              ],
+                  const SizedBox(height: kSpacingMedium),
+
+                  // === סיכום ===
+                  StickyNote(
+                    color: kStickyCyan,
+                    child: Padding(
+                      padding: const EdgeInsets.all(kSpacingMedium),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _SummaryItem(
+                            label: strings.itemsLabel,
+                            value: '${receipt.items.length}',
+                            icon: Icons.shopping_bag,
+                          ),
+                          Container(
+                            height: 40,
+                            width: 1,
+                            color: cs.outlineVariant,
+                          ),
+                          _SummaryItem(
+                            label: strings.totalLabel,
+                            value: '₪${receipt.totalAmount.toStringAsFixed(2)}',
+                            icon: Icons.payments,
+                            highlight: true,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: kSpacingMedium),
+
+                  // === רשימת פריטים ===
+                  Text(
+                    strings.itemsSectionTitle,
+                    style: TextStyle(
+                      fontSize: kFontSizeMedium,
+                      fontWeight: FontWeight.bold,
+                      color: cs.onSurface,
+                    ),
+                  ),
+
+                  const SizedBox(height: kSpacingSmall),
+
+                  if (receipt.items.isEmpty)
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(kSpacingLarge),
+                        child: Text(
+                          strings.noItemsMessage,
+                          style: TextStyle(color: cs.onSurfaceVariant),
+                        ),
+                      ),
+                    )
+                  else
+                    ...receipt.items.map((item) => _ItemTile(item: item)),
+
+                  const SizedBox(height: kSpacingLarge),
+                ],
+              ),
             ),
           ),
         ),
@@ -260,7 +291,8 @@ class _SummaryItem extends StatelessWidget {
       children: [
         Icon(
           icon,
-          color: highlight ? cs.primary : Colors.grey,
+          // ✅ FIX: Theme-aware color instead of Colors.grey
+          color: highlight ? cs.primary : cs.onSurfaceVariant,
           size: 24,
         ),
         const SizedBox(height: 4),
@@ -276,7 +308,8 @@ class _SummaryItem extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: kFontSizeTiny,
-            color: Colors.grey.shade600,
+            // ✅ FIX: Theme-aware color
+            color: cs.onSurfaceVariant,
           ),
         ),
       ],
@@ -293,18 +326,34 @@ class _ItemTile extends StatelessWidget {
 
   const _ItemTile({required this.item});
 
+  /// ✅ FIX: Format quantity to avoid "1.0" display
+  String _formatQuantity(num quantity) {
+    if (quantity == quantity.toInt()) {
+      return quantity.toInt().toString();
+    }
+    return quantity.toString();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final strings = AppStrings.receiptDetails;
+    // ✅ FIX: Theme-aware success color
+    final successColor = theme.extension<AppBrand>()?.success ?? kStickyGreen;
+    // ✅ FIX: Detect dark mode for background
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
       margin: const EdgeInsets.only(bottom: kSpacingSmall),
       padding: const EdgeInsets.all(kSpacingMedium),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.8),
+        // ✅ FIX: Theme-aware background color
+        color: isDark
+            ? cs.surfaceContainerHigh
+            : cs.surface,
         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -313,13 +362,14 @@ class _ItemTile extends StatelessWidget {
             width: 24,
             height: 24,
             decoration: BoxDecoration(
+              // ✅ FIX: Theme-aware colors
               color: item.isChecked
-                  ? Colors.green
-                  : Colors.grey.withValues(alpha: 0.2),
+                  ? successColor
+                  : cs.outlineVariant.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(4),
             ),
             child: item.isChecked
-                ? const Icon(Icons.check, color: Colors.white, size: 16)
+                ? Icon(Icons.check, color: cs.onPrimary, size: 16)
                 : null,
           ),
 
@@ -331,7 +381,7 @@ class _ItemTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item.name ?? 'פריט ללא שם',
+                  item.name ?? strings.unknownItemName,
                   style: TextStyle(
                     fontWeight: FontWeight.w500,
                     decoration: item.isChecked ? TextDecoration.lineThrough : null,
@@ -339,13 +389,17 @@ class _ItemTile extends StatelessWidget {
                         ? cs.onSurface.withValues(alpha: 0.5)
                         : cs.onSurface,
                   ),
+                  // ✅ FIX: Overflow protection
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
                 if (item.category != null)
                   Text(
                     item.category!,
                     style: TextStyle(
                       fontSize: kFontSizeTiny,
-                      color: Colors.grey.shade600,
+                      // ✅ FIX: Theme-aware color
+                      color: cs.onSurfaceVariant,
                     ),
                   ),
               ],
@@ -360,7 +414,8 @@ class _ItemTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              '×${item.quantity}',
+              // ✅ FIX: Format quantity to avoid "×1.0"
+              '×${_formatQuantity(item.quantity)}',
               style: TextStyle(
                 color: cs.onPrimaryContainer,
                 fontWeight: FontWeight.bold,

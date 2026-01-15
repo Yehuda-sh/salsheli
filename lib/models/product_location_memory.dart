@@ -10,18 +10,32 @@
 // - isConfident = true רק אחרי 3 פעמים ברצף באותו מיקום
 // - נרמול מיקומים (trim, רווחים כפולים)
 //
-// Version: 1.2 - Fixed documentation to match actual behavior
-// Last Updated: 04/01/2026
+// Version: 1.3 - Added barcode empty→null, defaultLocation normalization
+// Last Updated: 13/01/2026
 
+import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';
 
-import 'shared_user.dart' show FlexibleDateTimeConverter;
+import 'timestamp_converter.dart' show FlexibleDateTimeConverter;
 
 part 'product_location_memory.g.dart';
+
+// ---- JSON Read Helpers ----
+
+/// 🔧 קורא barcode עם fallback ל-null אם ריק
+/// מונע התנגשויות: barcode="" → null → יזוהה לפי שם מנורמל
+Object? _readBarcode(Map<dynamic, dynamic> json, String key) {
+  final value = json['barcode'];
+  if (value == null || (value is String && value.isEmpty)) {
+    return null;
+  }
+  return value;
+}
 
 /// 🔧 מספר הפעמים שצריך לשים מוצר באותו מקום כדי שיהפוך ל-default
 const int kConfidenceThreshold = 3;
 
+@immutable
 @JsonSerializable(fieldRename: FieldRename.snake)
 class ProductLocationMemory {
   /// שם המוצר (לתצוגה)
@@ -29,6 +43,8 @@ class ProductLocationMemory {
 
   /// 🔧 ברקוד - מזהה יציב (עדיף על שם)
   /// אם יש barcode, הוא משמש לזיהוי. אחרת, משתמשים ב-normalizedKey.
+  /// 🔄 readValue: ממיר "" ל-null למניעת התנגשויות
+  @JsonKey(readValue: _readBarcode)
   final String? barcode;
 
   /// מיקום ברירת מחדל (מנורמל)
@@ -48,7 +64,8 @@ class ProductLocationMemory {
 
   final String? householdId;
 
-  const ProductLocationMemory({
+  /// 🔒 Private constructor - משתמש ב-factory ProductLocationMemory() לאכיפת נרמול
+  const ProductLocationMemory._({
     required this.productName,
     this.barcode,
     required this.defaultLocation,
@@ -58,6 +75,29 @@ class ProductLocationMemory {
     required this.lastUpdated,
     this.householdId,
   });
+
+  /// 🔧 Factory constructor - מנרמל defaultLocation אוטומטית
+  factory ProductLocationMemory({
+    required String productName,
+    String? barcode,
+    required String defaultLocation,
+    String? category,
+    int usageCount = 1,
+    int consecutiveCount = 1,
+    required DateTime lastUpdated,
+    String? householdId,
+  }) {
+    return ProductLocationMemory._(
+      productName: productName,
+      barcode: barcode,
+      defaultLocation: normalizeLocation(defaultLocation),
+      category: category,
+      usageCount: usageCount,
+      consecutiveCount: consecutiveCount,
+      lastUpdated: lastUpdated,
+      householdId: householdId,
+    );
+  }
 
   /// 🔧 מפתח ייחודי לזיהוי: barcode (אם קיים) או שם מנורמל
   String get uniqueKey => barcode ?? normalizedProductName;

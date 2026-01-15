@@ -14,8 +14,8 @@
 // - unified_list_item.dart - מודל פריט עם votes
 // - shopping_lists_provider.dart - עדכון הצבעות
 //
-// Version: 1.0
-// Created: 16/12/2025
+// Version 2.0 - No AppBar (Immersive)
+// Last Updated: 13/01/2026
 
 import 'dart:async';
 
@@ -254,126 +254,140 @@ class _VotingScreenState extends State<VotingScreen> {
         const NotebookBackground(),
         Scaffold(
           backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            backgroundColor: Colors.purple,
-            foregroundColor: Colors.white,
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          body: SafeArea(
+            child: Column(
               children: [
-                Text(
-                  _list.name,
-                  style: const TextStyle(
-                      fontSize: kFontSizeMedium, fontWeight: FontWeight.bold),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  'הצבעה 🗳️',
-                  style: TextStyle(
-                    fontSize: kFontSizeSmall,
-                    color: Colors.white.withValues(alpha: 0.8),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          body: Column(
-            children: [
-              // 📊 Header עם סטטיסטיקות
-              Container(
-                margin: const EdgeInsets.all(kSpacingMedium),
-                padding: const EdgeInsets.all(kSpacingMedium),
-                decoration: BoxDecoration(
-                  color: kStickyPurple.withValues(alpha: 0.9),
-                  borderRadius: BorderRadius.circular(kBorderRadius),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _StatItem(
-                      icon: Icons.how_to_vote,
-                      label: 'סה"כ',
-                      value: '$totalItems',
-                      color: Colors.purple,
-                    ),
-                    _StatItem(
-                      icon: Icons.check_circle,
-                      label: 'הצבעתי',
-                      value: '$votedItems',
-                      color: Colors.green,
-                    ),
-                    _StatItem(
-                      icon: Icons.timer_off,
-                      label: 'הסתיים',
-                      value: '$endedItems',
-                      color: Colors.grey,
-                    ),
-                  ],
-                ),
-              ),
-
-              // 📝 הוראות
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
-                child: Container(
-                  padding: const EdgeInsets.all(kSpacingSmall),
-                  decoration: BoxDecoration(
-                    color: Colors.purple.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                  ),
+                // 🏷️ כותרת inline
+                Padding(
+                  padding: const EdgeInsets.all(kSpacingMedium),
                   child: Row(
                     children: [
-                      const Icon(Icons.info_outline,
-                          size: 18, color: Colors.purple),
+                      Icon(Icons.how_to_vote, size: 24, color: cs.primary),
                       const SizedBox(width: kSpacingSmall),
                       Expanded(
-                        child: Text(
-                          'לחץ על 👍 בעד, 👎 נגד, או 🤷 נמנע',
-                          style: TextStyle(
-                            fontSize: kFontSizeSmall,
-                            color: cs.onSurfaceVariant,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _list.name,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: cs.onSurface,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              'הצבעה',
+                              style: TextStyle(
+                                fontSize: kFontSizeSmall,
+                                color: cs.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
 
-              const SizedBox(height: kSpacingSmall),
-
-              // 📋 רשימת פריטים
-              Expanded(
-                child: _list.items.isEmpty
-                    ? _EmptyState()
-                    : ListView.builder(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: kSpacingMedium),
-                        itemCount: _list.items.length,
-                        itemBuilder: (context, index) {
-                          final item = _list.items[index];
-                          final hasVoted =
-                              userId != null && item.hasUserVoted(userId);
-                          final userVote =
-                              userId != null ? item.getUserVote(userId) : null;
-
-                          return _VotingItemTile(
-                            item: item,
-                            hasVoted: hasVoted,
-                            userVote: userVote,
-                            onVote: (voteType) => _vote(item, voteType),
-                            isLoading: _isLoading,
-                          );
-                        },
+                // 📊 Header עם סטטיסטיקות
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+                  padding: const EdgeInsets.all(kSpacingMedium),
+                  decoration: BoxDecoration(
+                    color: kStickyPurple.withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(kBorderRadius),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
                       ),
-              ),
-            ],
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _StatItem(
+                        icon: Icons.how_to_vote,
+                        label: 'סה"כ',
+                        value: '$totalItems',
+                        color: Colors.purple,
+                      ),
+                      _StatItem(
+                        icon: Icons.check_circle,
+                        label: 'הצבעתי',
+                        value: '$votedItems',
+                        color: Colors.green,
+                      ),
+                      _StatItem(
+                        icon: Icons.timer_off,
+                        label: 'הסתיים',
+                        value: '$endedItems',
+                        color: Colors.grey,
+                      ),
+                    ],
+                  ),
+                ),
+
+                // 📝 הוראות
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+                  child: Container(
+                    padding: const EdgeInsets.all(kSpacingSmall),
+                    decoration: BoxDecoration(
+                      color: Colors.purple.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.info_outline,
+                            size: 18, color: Colors.purple),
+                        const SizedBox(width: kSpacingSmall),
+                        Expanded(
+                          child: Text(
+                            'לחץ על 👍 בעד, 👎 נגד, או 🤷 נמנע',
+                            style: TextStyle(
+                              fontSize: kFontSizeSmall,
+                              color: cs.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: kSpacingSmall),
+
+                // 📋 רשימת פריטים
+                Expanded(
+                  child: _list.items.isEmpty
+                      ? _EmptyState()
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: kSpacingMedium),
+                          itemCount: _list.items.length,
+                          itemBuilder: (context, index) {
+                            final item = _list.items[index];
+                            final hasVoted =
+                                userId != null && item.hasUserVoted(userId);
+                            final userVote =
+                                userId != null ? item.getUserVote(userId) : null;
+
+                            return _VotingItemTile(
+                              item: item,
+                              hasVoted: hasVoted,
+                              userVote: userVote,
+                              onVote: (voteType) => _vote(item, voteType),
+                              isLoading: _isLoading,
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),
           ),
         ),
 

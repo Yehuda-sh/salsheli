@@ -12,8 +12,8 @@
 // - pending_invites_service.dart - שירות ניהול הזמנות
 // - invite_users_screen.dart - מסך שליחת הזמנות
 //
-// Version: 1.0
-// Created: 30/11/2025
+// Version 2.0 - No AppBar (Immersive)
+// Last Updated: 13/01/2026
 
 import 'dart:async';
 
@@ -230,18 +230,35 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
       child: Scaffold(
         // ✅ Theme-aware: רקע מ-AppBrand
         backgroundColor: brand?.paperBackground ?? theme.scaffoldBackgroundColor,
-        appBar: AppBar(
-          // ✅ Theme-aware: צבע מ-AppBrand
-          backgroundColor: brand?.stickyCyan ?? cs.primaryContainer,
-          foregroundColor: cs.onPrimaryContainer,
-          title: const Text('הזמנות ממתינות'),
-          centerTitle: true,
-        ),
         body: Stack(
           children: [
             const NotebookBackground(),
             SafeArea(
-              child: _buildContent(),
+              child: Column(
+                children: [
+                  // 🏷️ כותרת inline
+                  Padding(
+                    padding: const EdgeInsets.all(kSpacingMedium),
+                    child: Row(
+                      children: [
+                        Icon(Icons.mail_outline, size: 24, color: cs.primary),
+                        const SizedBox(width: kSpacingSmall),
+                        Expanded(
+                          child: Text(
+                            'הזמנות ממתינות',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: cs.onSurface,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(child: _buildContent()),
+                ],
+              ),
             ),
           ],
         ),

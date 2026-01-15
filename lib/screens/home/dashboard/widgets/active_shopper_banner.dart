@@ -7,14 +7,18 @@
 // Version: 2.0 (11/01/2026) - הוספת באנר לקנייה פעילה של המשתמש
 // 🔗 Related: ShoppingList, ActiveShopper
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/ui_constants.dart';
+import '../../../../l10n/app_strings.dart';
 import '../../../../models/shopping_list.dart';
 import '../../../../providers/shopping_lists_provider.dart';
 import '../../../../providers/user_context.dart';
+import '../../../../theme/app_theme.dart';
 
 /// באנר קניות פעילות - מציג:
 /// 1. כשהמשתמש הנוכחי יש לו קנייה פעילה (עדיפות גבוהה)
@@ -82,6 +86,10 @@ class _MyActiveShoppingBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final strings = AppStrings.activeShopperBanner;
+    // ✅ FIX: Theme-aware accent color (replaces hardcoded blue)
+    final accentColor = theme.extension<AppBrand>()?.accent ?? cs.primary;
     final uncheckedCount = list.items.where((i) => !i.isChecked).length;
 
     return Container(
@@ -89,8 +97,9 @@ class _MyActiveShoppingBanner extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Colors.blue.shade600,
-            Colors.blue.shade700,
+            // ✅ FIX: Theme-aware colors
+            accentColor,
+            accentColor.withValues(alpha: 0.85),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -98,7 +107,8 @@ class _MyActiveShoppingBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.blue.withValues(alpha: 0.3),
+            // ✅ FIX: Theme-aware shadow
+            color: accentColor.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -114,7 +124,7 @@ class _MyActiveShoppingBanner extends StatelessWidget {
             child: Row(
               children: [
                 // אייקון מונפש
-                const _PulsingIcon(),
+                _PulsingIcon(backgroundColor: cs.onPrimary),
                 const SizedBox(width: kSpacingMedium),
 
                 // טקסט
@@ -123,18 +133,26 @@ class _MyActiveShoppingBanner extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'יש לך קנייה פעילה',
+                        strings.myActiveTitle,
                         style: theme.textTheme.titleSmall?.copyWith(
-                          color: Colors.white,
+                          // ✅ FIX: Theme-aware color
+                          color: cs.onPrimary,
                           fontWeight: FontWeight.bold,
                         ),
+                        // ✅ FIX: Overflow protection
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '"${list.name}" - נותרו $uncheckedCount פריטים',
+                        strings.myActiveSubtitle(list.name, uncheckedCount),
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: Colors.white.withValues(alpha: 0.9),
+                          // ✅ FIX: Theme-aware color
+                          color: cs.onPrimary.withValues(alpha: 0.9),
                         ),
+                        // ✅ FIX: Overflow protection
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
@@ -144,10 +162,11 @@ class _MyActiveShoppingBanner extends StatelessWidget {
                 ElevatedButton.icon(
                   onPressed: () => _onContinue(context),
                   icon: const Icon(Icons.play_arrow, size: 18),
-                  label: const Text('המשך'),
+                  label: Text(strings.continueButton),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.blue.shade700,
+                    // ✅ FIX: Theme-aware colors
+                    backgroundColor: cs.onPrimary,
+                    foregroundColor: accentColor,
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     textStyle: const TextStyle(
                       fontSize: 13,
@@ -164,7 +183,8 @@ class _MyActiveShoppingBanner extends StatelessWidget {
   }
 
   void _onContinue(BuildContext context) {
-    HapticFeedback.lightImpact();
+    // ✅ FIX: unawaited for fire-and-forget
+    unawaited(HapticFeedback.lightImpact());
     Navigator.pushNamed(
       context,
       '/active-shopping',
@@ -186,14 +206,19 @@ class _OthersShoppingBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final strings = AppStrings.activeShopperBanner;
+    // ✅ FIX: Theme-aware success color
+    final successColor = theme.extension<AppBrand>()?.success ?? kStickyGreen;
 
     return Container(
       margin: const EdgeInsets.only(bottom: kSpacingSmall),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            kStickyGreen.withValues(alpha: 0.9),
-            kStickyGreen,
+            // ✅ FIX: Theme-aware colors
+            successColor.withValues(alpha: 0.9),
+            successColor,
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -201,7 +226,8 @@ class _OthersShoppingBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: kStickyGreen.withValues(alpha: 0.3),
+            // ✅ FIX: Theme-aware shadow
+            color: successColor.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -217,7 +243,7 @@ class _OthersShoppingBanner extends StatelessWidget {
             child: Row(
               children: [
                 // אייקון מונפש
-                const _PulsingIcon(),
+                _PulsingIcon(backgroundColor: cs.onPrimary),
                 const SizedBox(width: kSpacingMedium),
 
                 // טקסט
@@ -226,20 +252,28 @@ class _OthersShoppingBanner extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'קניות מתבצעות!',
+                        strings.othersActiveTitle,
                         style: theme.textTheme.titleSmall?.copyWith(
-                          color: Colors.white,
+                          // ✅ FIX: Theme-aware color
+                          color: cs.onPrimary,
                           fontWeight: FontWeight.bold,
                         ),
+                        // ✅ FIX: Overflow protection
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 2),
                       Text(
                         shopperCount == 1
-                            ? 'מישהו קונה מ"${list.name}"'
-                            : '$shopperCount אנשים קונים מ"${list.name}"',
+                            ? strings.othersActiveSingle(list.name)
+                            : strings.othersActiveMultiple(shopperCount, list.name),
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: Colors.white.withValues(alpha: 0.9),
+                          // ✅ FIX: Theme-aware color
+                          color: cs.onPrimary.withValues(alpha: 0.9),
                         ),
+                        // ✅ FIX: Overflow protection
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
@@ -251,17 +285,21 @@ class _OthersShoppingBanner extends StatelessWidget {
                   children: [
                     // כפתור הצטרף
                     _ActionButton(
-                      label: 'הצטרף',
+                      label: strings.joinButton,
                       icon: Icons.group_add,
                       onPressed: () => _onJoin(context),
+                      // ✅ FIX: Theme-aware colors
+                      backgroundColor: cs.onPrimary,
+                      foregroundColor: successColor,
                     ),
                     const SizedBox(width: 8),
                     // כפתור צפה
                     IconButton(
                       onPressed: () => _onViewList(context),
                       icon: const Icon(Icons.visibility_outlined),
-                      color: Colors.white.withValues(alpha: 0.8),
-                      tooltip: 'צפה ברשימה',
+                      // ✅ FIX: Theme-aware color
+                      color: cs.onPrimary.withValues(alpha: 0.8),
+                      tooltip: strings.viewListTooltip,
                       visualDensity: VisualDensity.compact,
                     ),
                   ],
@@ -275,7 +313,8 @@ class _OthersShoppingBanner extends StatelessWidget {
   }
 
   void _onJoin(BuildContext context) {
-    HapticFeedback.lightImpact();
+    // ✅ FIX: unawaited for fire-and-forget
+    unawaited(HapticFeedback.lightImpact());
     Navigator.pushNamed(
       context,
       '/active-shopping',
@@ -284,7 +323,8 @@ class _OthersShoppingBanner extends StatelessWidget {
   }
 
   void _onViewList(BuildContext context) {
-    HapticFeedback.lightImpact();
+    // ✅ FIX: unawaited for fire-and-forget
+    unawaited(HapticFeedback.lightImpact());
     Navigator.pushNamed(
       context,
       '/list-details',
@@ -298,11 +338,16 @@ class _ActionButton extends StatelessWidget {
   final String label;
   final IconData icon;
   final VoidCallback onPressed;
+  /// ✅ FIX: Theme-aware color parameters
+  final Color backgroundColor;
+  final Color foregroundColor;
 
   const _ActionButton({
     required this.label,
     required this.icon,
     required this.onPressed,
+    required this.backgroundColor,
+    required this.foregroundColor,
   });
 
   @override
@@ -312,8 +357,9 @@ class _ActionButton extends StatelessWidget {
       icon: Icon(icon, size: 16),
       label: Text(label),
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white,
-        foregroundColor: kStickyGreen,
+        // ✅ FIX: Theme-aware colors
+        backgroundColor: backgroundColor,
+        foregroundColor: foregroundColor,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         minimumSize: Size.zero,
         textStyle: const TextStyle(
@@ -327,7 +373,10 @@ class _ActionButton extends StatelessWidget {
 
 /// אייקון פועם
 class _PulsingIcon extends StatefulWidget {
-  const _PulsingIcon();
+  /// ✅ FIX: Theme-aware color parameter
+  final Color backgroundColor;
+
+  const _PulsingIcon({required this.backgroundColor});
 
   @override
   State<_PulsingIcon> createState() => _PulsingIconState();
@@ -368,12 +417,14 @@ class _PulsingIconState extends State<_PulsingIcon>
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              // ✅ FIX: Theme-aware color
+              color: widget.backgroundColor.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.shopping_cart,
-              color: Colors.white,
+              // ✅ FIX: Theme-aware color
+              color: widget.backgroundColor,
               size: 24,
             ),
           ),

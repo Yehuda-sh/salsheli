@@ -14,8 +14,8 @@
 // - unified_list_item.dart - מודל פריט עם volunteers
 // - shopping_lists_provider.dart - עדכון מתנדבים
 //
-// Version: 1.0
-// Created: 16/12/2025
+// Version 2.0 - No AppBar (Immersive)
+// Last Updated: 13/01/2026
 
 import 'dart:async';
 
@@ -250,121 +250,138 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
         const NotebookBackground(),
         Scaffold(
           backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            backgroundColor: cs.primary,
-            foregroundColor: Colors.white,
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          body: SafeArea(
+            child: Column(
               children: [
-                Text(
-                  _list.name,
-                  style: const TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  'מי מביא?',
-                  style: TextStyle(
-                    fontSize: kFontSizeSmall,
-                    color: Colors.white.withValues(alpha: 0.8),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          body: Column(
-            children: [
-              // 📊 Header עם סטטיסטיקות
-              Container(
-                margin: const EdgeInsets.all(kSpacingMedium),
-                padding: const EdgeInsets.all(kSpacingMedium),
-                decoration: BoxDecoration(
-                  color: kStickyYellow.withValues(alpha: 0.9),
-                  borderRadius: BorderRadius.circular(kBorderRadius),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _StatItem(
-                      icon: Icons.list_alt,
-                      label: 'סה"כ',
-                      value: '$totalItems',
-                      color: cs.primary,
-                    ),
-                    _StatItem(
-                      icon: Icons.check_circle,
-                      label: 'הושלם',
-                      value: '$fullItems',
-                      color: Colors.green,
-                    ),
-                    _StatItem(
-                      icon: Icons.person,
-                      label: 'אני מביא',
-                      value: '$myItems',
-                      color: Colors.blue,
-                    ),
-                  ],
-                ),
-              ),
-
-              // 📝 הוראות
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
-                child: Container(
-                  padding: const EdgeInsets.all(kSpacingSmall),
-                  decoration: BoxDecoration(
-                    color: cs.primaryContainer.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                  ),
+                // 🏷️ כותרת inline
+                Padding(
+                  padding: const EdgeInsets.all(kSpacingMedium),
                   child: Row(
                     children: [
-                      Icon(Icons.info_outline, size: 18, color: cs.primary),
+                      Icon(Icons.volunteer_activism, size: 24, color: cs.primary),
                       const SizedBox(width: kSpacingSmall),
                       Expanded(
-                        child: Text(
-                          'לחץ על "אני מביא" כדי להתנדב להביא פריט',
-                          style: TextStyle(
-                            fontSize: kFontSizeSmall,
-                            color: cs.onSurfaceVariant,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _list.name,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: cs.onSurface,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              'מי מביא?',
+                              style: TextStyle(
+                                fontSize: kFontSizeSmall,
+                                color: cs.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
 
-              const SizedBox(height: kSpacingSmall),
-
-              // 📋 רשימת פריטים
-              Expanded(
-                child: _list.items.isEmpty
-                    ? _EmptyState()
-                    : ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
-                        itemCount: _list.items.length,
-                        itemBuilder: (context, index) {
-                          final item = _list.items[index];
-                          final hasVolunteered = userId != null &&
-                              item.hasUserVolunteered(userId);
-
-                          return _WhoBringsItemTile(
-                            item: item,
-                            hasVolunteered: hasVolunteered,
-                            onVolunteer: () => _volunteer(item),
-                            onCancelVolunteer: () => _cancelVolunteer(item),
-                            isLoading: _isLoading,
-                          );
-                        },
+                // 📊 Header עם סטטיסטיקות
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+                  padding: const EdgeInsets.all(kSpacingMedium),
+                  decoration: BoxDecoration(
+                    color: kStickyYellow.withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(kBorderRadius),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
                       ),
-              ),
-            ],
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _StatItem(
+                        icon: Icons.list_alt,
+                        label: 'סה"כ',
+                        value: '$totalItems',
+                        color: cs.primary,
+                      ),
+                      _StatItem(
+                        icon: Icons.check_circle,
+                        label: 'הושלם',
+                        value: '$fullItems',
+                        color: Colors.green,
+                      ),
+                      _StatItem(
+                        icon: Icons.person,
+                        label: 'אני מביא',
+                        value: '$myItems',
+                        color: Colors.blue,
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: kSpacingSmall),
+
+                // 📝 הוראות
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+                  child: Container(
+                    padding: const EdgeInsets.all(kSpacingSmall),
+                    decoration: BoxDecoration(
+                      color: cs.primaryContainer.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.info_outline, size: 18, color: cs.primary),
+                        const SizedBox(width: kSpacingSmall),
+                        Expanded(
+                          child: Text(
+                            'לחץ על "אני מביא" כדי להתנדב להביא פריט',
+                            style: TextStyle(
+                              fontSize: kFontSizeSmall,
+                              color: cs.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: kSpacingSmall),
+
+                // 📋 רשימת פריטים
+                Expanded(
+                  child: _list.items.isEmpty
+                      ? _EmptyState()
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+                          itemCount: _list.items.length,
+                          itemBuilder: (context, index) {
+                            final item = _list.items[index];
+                            final hasVolunteered = userId != null &&
+                                item.hasUserVolunteered(userId);
+
+                            return _WhoBringsItemTile(
+                              item: item,
+                              hasVolunteered: hasVolunteered,
+                              onVolunteer: () => _volunteer(item),
+                              onCancelVolunteer: () => _cancelVolunteer(item),
+                              isLoading: _isLoading,
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),
           ),
         ),
 

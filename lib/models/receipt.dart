@@ -5,77 +5,25 @@
 //     - כולל חישובי סה"כ, בדיקות התאמה, ולוגיקת עזר.
 //     - מתאים לניהול רשימות קניות, ניתוח הוצאות, סנכרון עם API.
 //
-// 💡 רעיונות עתידיים:
-//     - הוספת שדה "אמצעי תשלום" (מזומן / אשראי).
-//     - שמירת "מספר חשבונית" לשחזור מהחנות.
-//     - חיבור ל־OCR לסריקה אוטומטית של קבלות.
-//
 // 🇬🇧 Models for Receipt and ReceiptItem:
 //     - Full JSON serialization with converters (dates, doubles).
 //     - Includes totals, validations, and helper logic.
 //     - Useful for shopping lists, expense analysis, and API sync.
 //
-// 💡 Future ideas:
-//     - Add "payment method" field (cash/credit).
-//     - Store "invoice number" for store lookups.
-//     - Integrate OCR for automatic receipt scanning.
+// 🔗 Related:
+//     - timestamp_converter.dart - Converters מרכזיים
+//     - receipts_repository.dart - אחסון Firestore
 //
+// Version: 1.1 - Use centralized converters, add immutability
+// Last Updated: 13/01/2026
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 
+import 'timestamp_converter.dart';
+
 part 'receipt.g.dart';
-
-/// ─────────────────────────────────────────────
-/// Converters (DateTime, Double)
-/// ─────────────────────────────────────────────
-
-/// 🇮🇱 ממיר תאריכים ISO8601 ↔ DateTime.
-/// 🇬🇧 Converts ISO8601 strings ↔ DateTime.
-class IsoDateTimeConverter implements JsonConverter<DateTime, String> {
-  const IsoDateTimeConverter();
-
-  @override
-  DateTime fromJson(String json) => DateTime.parse(json);
-
-  @override
-  String toJson(DateTime object) => object.toIso8601String();
-}
-
-/// 🇮🇱 ממיר תאריכים אופציונליים.
-/// 🇬🇧 Nullable ISO8601 date converter.
-class IsoDateTimeNullableConverter
-    implements JsonConverter<DateTime?, String?> {
-  const IsoDateTimeNullableConverter();
-
-  @override
-  DateTime? fromJson(String? json) =>
-      json == null ? null : DateTime.parse(json);
-
-  @override
-  String? toJson(DateTime? object) => object?.toIso8601String();
-}
-
-/// 🇮🇱 ממיר double גמיש (מספרים/מחרוזות עם פסיק).
-/// 🇬🇧 Flexible double converter (num/string with comma support).
-class FlexDoubleConverter implements JsonConverter<double, Object?> {
-  const FlexDoubleConverter();
-
-  @override
-  double fromJson(Object? json) {
-    if (json == null) return 0.0;
-    if (json is num) return json.toDouble();
-    if (json is String) {
-      final cleaned = json.replaceAll(',', '.');
-      return double.tryParse(cleaned) ?? 0.0;
-    }
-    return 0.0;
-  }
-
-  @override
-  Object toJson(double object) => object;
-}
 
 /// ─────────────────────────────────────────────
 /// Receipt (קבלה שלמה)
@@ -93,11 +41,13 @@ class Receipt {
   final String storeName;
 
   /// תאריך הקנייה
-  @IsoDateTimeConverter()
+  /// 🔧 תומך ב-Timestamp (Firestore) + String (ISO) + DateTime
+  @FlexibleDateTimeConverter()
   final DateTime date;
 
   /// תאריך יצירת הרשומה (לא תמיד קיים)
-  @IsoDateTimeNullableConverter()
+  /// 🔧 תומך ב-Timestamp (Firestore) + String (ISO) + DateTime
+  @NullableFlexibleDateTimeConverter()
   final DateTime? createdDate;
 
   /// סכום כולל לפי הקבלה
@@ -105,14 +55,15 @@ class Receipt {
   final double totalAmount;
 
   /// פריטים בקבלה
+  /// 🔒 Unmodifiable - נוצר דרך List.unmodifiable ב-factory
   final List<ReceiptItem> items;
 
   /// קישור מקורי לקבלה (לזיהוי כפילויות)
-  @JsonKey(defaultValue: '')
+  /// 📌 nullable - אם אין URL, יהיה null (לא '')
   final String? originalUrl;
 
   /// קישור לקובץ ב-Firebase Storage
-  @JsonKey(defaultValue: '')
+  /// 📌 nullable - אם אין קובץ, יהיה null (לא '')
   final String? fileUrl;
 
   /// 🆕 קישור לרשימת קניות (קבלה וירטואלית)
@@ -135,7 +86,8 @@ class Receipt {
   @JsonKey(name: 'household_id')
   final String householdId;
 
-  const Receipt({
+  /// 🔒 Private constructor - משתמש ב-factory Receipt() לאכיפת immutability
+  const Receipt._({
     required this.id,
     required this.storeName,
     required this.date,
@@ -149,6 +101,37 @@ class Receipt {
     this.createdBy,
     required this.householdId,
   });
+
+  /// 🔧 Factory constructor - עוטף items ב-List.unmodifiable
+  factory Receipt({
+    required String id,
+    required String storeName,
+    required DateTime date,
+    DateTime? createdDate,
+    required double totalAmount,
+    required List<ReceiptItem> items,
+    String? originalUrl,
+    String? fileUrl,
+    String? linkedShoppingListId,
+    bool isVirtual = false,
+    String? createdBy,
+    required String householdId,
+  }) {
+    return Receipt._(
+      id: id,
+      storeName: storeName,
+      date: date,
+      createdDate: createdDate,
+      totalAmount: totalAmount,
+      items: List.unmodifiable(items),
+      originalUrl: originalUrl,
+      fileUrl: fileUrl,
+      linkedShoppingListId: linkedShoppingListId,
+      isVirtual: isVirtual,
+      createdBy: createdBy,
+      householdId: householdId,
+    );
+  }
 
   /// 🇮🇱 האם קבלה וירטואלית (ללא סריקה)
   /// 🇬🇧 Is this a virtual receipt (no scan)
@@ -238,7 +221,7 @@ class ReceiptItem {
   final String id;
 
   /// שם המוצר (אופציונלי - יכול להיות null אם OCR נכשל)
-  @JsonKey(defaultValue: '')
+  /// 📌 nullable - אם אין שם, יהיה null (לא '')
   final String? name;
 
   /// כמות (>= 0)
@@ -272,7 +255,8 @@ class ReceiptItem {
 
   /// 🆕 מתי סומן הפריט
   /// 🇬🇧 When the item was checked
-  @IsoDateTimeNullableConverter()
+  /// 🔧 תומך ב-Timestamp (Firestore) + String (ISO) + DateTime
+  @NullableFlexibleDateTimeConverter()
   @JsonKey(name: 'checked_at')
   final DateTime? checkedAt;
 

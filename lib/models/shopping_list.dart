@@ -5,6 +5,7 @@
 //
 // 🔗 Related: UnifiedListItem, SharedUser, ActiveShopper
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
@@ -46,7 +47,9 @@ class SharedUsersMapConverter
 
     // Handle old List format (backward compatibility)
     if (json is List) {
-      debugPrint('⚠️ SharedUsersMapConverter: Converting old List format to Map');
+      if (kDebugMode) {
+        debugPrint('⚠️ SharedUsersMapConverter: Converting old List format to Map');
+      }
       final result = <String, SharedUser>{};
       for (final item in json) {
         try {
@@ -60,7 +63,9 @@ class SharedUsersMapConverter
             }
           }
         } catch (e) {
-          debugPrint('⚠️ SharedUsersMapConverter: Failed to parse user from list: $e');
+          if (kDebugMode) {
+            debugPrint('⚠️ SharedUsersMapConverter: Failed to parse user from list: $e');
+          }
         }
       }
       return result;
@@ -71,19 +76,23 @@ class SharedUsersMapConverter
       final result = <String, SharedUser>{};
       for (final entry in json.entries) {
         try {
-          final key = entry.key as String;
+          final key = entry.key.toString();
           final userData = Map<String, dynamic>.from(entry.value as Map);
           final user = SharedUser.fromJson(userData);
           // Set the userId from the map key
           result[key] = user.copyWith(userId: key);
         } catch (e) {
-          debugPrint('⚠️ SharedUsersMapConverter: Failed to parse user ${entry.key}: $e');
+          if (kDebugMode) {
+            debugPrint('⚠️ SharedUsersMapConverter: Failed to parse user ${entry.key}: $e');
+          }
         }
       }
       return result;
     }
 
-    debugPrint('⚠️ SharedUsersMapConverter: Unexpected type ${json.runtimeType}');
+    if (kDebugMode) {
+      debugPrint('⚠️ SharedUsersMapConverter: Unexpected type ${json.runtimeType}');
+    }
     return {};
   }
 

@@ -20,11 +20,27 @@
 //     - Location categories (kitchen, room, storage).
 //     - Sync with other household members.
 //
+// 🔗 Related:
+//     - LocationsProvider (providers/locations_provider.dart)
+//     - LocationsRepository (repositories/locations_repository.dart)
+//     - StorageLocationManager (widgets/inventory/storage_location_manager.dart)
+//
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';
 
 part 'custom_location.g.dart';
+
+// ---- JSON Read Helpers ----
+
+/// קורא emoji עם fallback לברירת מחדל אם null או ריק
+Object? _readEmoji(Map<dynamic, dynamic> json, String key) {
+  final value = json['emoji'];
+  if (value == null || (value is String && value.isEmpty)) {
+    return null; // יחזיר את ברירת המחדל מה-constructor
+  }
+  return value;
+}
 
 /// 🇮🇱 מודל למיקום אחסון מותאם אישית
 /// 🇬🇧 Custom storage location model
@@ -41,6 +57,8 @@ class CustomLocation {
 
   /// 🇮🇱 אמוג'י לתצוגה
   /// 🇬🇧 Display emoji
+  /// 🔄 readValue: מחזיר null אם ריק → משתמש בברירת מחדל מה-constructor
+  @JsonKey(readValue: _readEmoji)
   final String emoji;
 
   const CustomLocation({
@@ -51,27 +69,45 @@ class CustomLocation {
 
   /// 🇮🇱 יצירה מ-JSON
   /// 🇬🇧 Create from JSON
-  factory CustomLocation.fromJson(Map<String, dynamic> json) {
-    if (kDebugMode) {
-      debugPrint('📥 CustomLocation.fromJson:');
-      debugPrint('   key: ${json['key']}');
-      debugPrint('   name: ${json['name']}');
-      debugPrint('   emoji: ${json['emoji']}');
-    }
-    return _$CustomLocationFromJson(json);
-  }
+  factory CustomLocation.fromJson(Map<String, dynamic> json) =>
+      _$CustomLocationFromJson(json);
 
   /// 🇮🇱 המרה ל-JSON
   /// 🇬🇧 Convert to JSON
-  Map<String, dynamic> toJson() {
-    if (kDebugMode) {
-      debugPrint('📤 CustomLocation.toJson:');
-      debugPrint('   key: $key');
-      debugPrint('   name: $name');
-      debugPrint('   emoji: $emoji');
-    }
-    return _$CustomLocationToJson(this);
+  Map<String, dynamic> toJson() => _$CustomLocationToJson(this);
+
+  // ---- Validation Helpers ----
+
+  /// 🇮🇱 מנרמל key לפורמט תקין (lowercase, underscores)
+  /// 🇬🇧 Normalizes key to valid format (lowercase, underscores)
+  ///
+  /// Rules:
+  /// - Lowercase letters, numbers, underscores only
+  /// - No leading/trailing underscores
+  /// - No consecutive underscores
+  ///
+  /// Examples:
+  /// - "My Location" → "my_location"
+  /// - "  _test_  " → "test"
+  /// - "a__b" → "a_b"
+  /// - "שלום" → "" (empty - invalid)
+  static String normalizeKey(String input) {
+    return input
+        .trim()
+        .toLowerCase()
+        .replaceAll(RegExp(r'\s+'), '_') // spaces → underscores
+        .replaceAll(RegExp(r'[^a-z0-9_]'), '') // remove invalid chars
+        .replaceAll(RegExp(r'_+'), '_') // collapse multiple underscores
+        .replaceAll(RegExp(r'^_|_$'), ''); // trim leading/trailing underscores
   }
+
+  /// 🇮🇱 האם ה-key תקין (לא ריק ובפורמט נורמלי)
+  /// 🇬🇧 Is the key valid (not empty and normalized)
+  bool get isValidKey => key.isNotEmpty && key == normalizeKey(key);
+
+  /// 🇮🇱 האם emoji תקין (לא ריק)
+  /// 🇬🇧 Is emoji valid (not empty)
+  bool get hasValidEmoji => emoji.isNotEmpty;
 
   /// 🇮🇱 יצירת עותק עם שינויים
   /// 🇬🇧 Create a copy with updates

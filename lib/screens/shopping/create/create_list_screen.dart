@@ -11,8 +11,8 @@
 // - ✅ תמיכה בתבניות מוכנות
 // - ✅ 3 אופציות נראות: אישית / משפחתית / שיתוף ספציפי
 //
-// Version: 4.0 - Added specific sharing option
-// Last Updated: 06/01/2026
+// Version 4.2 - No AppBar (Immersive)
+// Last Updated: 13/01/2026
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -315,35 +315,21 @@ class _CreateListScreenState extends State<CreateListScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final brand = theme.extension<AppBrand>();
+    final cs = theme.colorScheme;
     final strings = AppStrings.createListDialog;
     // 🔧 שימוש ב-watch כדי שהולידציה תתעדכן אם נוספה רשימה ברקע
     final provider = context.watch<ShoppingListsProvider>();
 
     return Scaffold(
         backgroundColor: brand?.paperBackground ?? theme.scaffoldBackgroundColor,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          title: Text(
-            strings.title,
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          leading: IconButton(
-            icon: const Icon(Icons.close),
-            tooltip: strings.cancelTooltip,
-            onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
-          ),
-        ),
-        body: Stack(
-          children: [
-            // 📓 רקע מחברת
-            const NotebookBackground(),
+        body: SafeArea(
+          child: Stack(
+            children: [
+              // 📓 רקע מחברת
+              const NotebookBackground(),
 
-            // 📝 תוכן
-            SafeArea(
-              child: Form(
+              // 📝 תוכן
+              Form(
                 key: _formKey,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: ListView(
@@ -354,6 +340,33 @@ class _CreateListScreenState extends State<CreateListScreen> {
                     bottom: MediaQuery.of(context).viewInsets.bottom + kSpacingLarge,
                   ),
                   children: [
+                    // 🏷️ כותרת inline
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: kSpacingMedium),
+                      child: Row(
+                        children: [
+                          // כפתור סגירה
+                          IconButton(
+                            icon: Icon(Icons.close, color: cs.onSurface),
+                            tooltip: strings.cancelTooltip,
+                            onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
+                          ),
+                          Icon(Icons.add_shopping_cart, size: 24, color: cs.primary),
+                          const SizedBox(width: kSpacingSmall),
+                          Expanded(
+                            child: Text(
+                              strings.title,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: cs.onSurface,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
                     // 📋 כפתור בחירת תבנית
                     _buildTemplateButton(),
                     const SizedBox(height: kSpacingMedium),
@@ -400,8 +413,8 @@ class _CreateListScreenState extends State<CreateListScreen> {
                   ],
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
     );
   }
@@ -460,7 +473,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
               ),
               child: IconButton(
                 icon: Icon(Icons.close, color: theme.colorScheme.error),
-                tooltip: 'הסר תבנית',
+                tooltip: strings.removeTemplateTooltip,
                 onPressed: _isSubmitting ? null : _removeTemplate,
               ),
             ),
@@ -599,12 +612,14 @@ class _CreateListScreenState extends State<CreateListScreen> {
   }
 
   Widget _buildPrivacyToggle(ThemeData theme) {
+    final strings = AppStrings.createListDialog;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // כותרת
         Text(
-          'מי יראה את הרשימה?',
+          strings.visibilityLabel,
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.primary,
           ),
@@ -612,18 +627,18 @@ class _CreateListScreenState extends State<CreateListScreen> {
         const SizedBox(height: kSpacingSmall),
         // SegmentedButton עם 3 אופציות
         SegmentedButton<ListVisibility>(
-          segments: const [
+          segments: [
             ButtonSegment(
               value: ListVisibility.private,
-              label: Text('🔒 אישית'),
+              label: Text(strings.visibilityPrivate),
             ),
             ButtonSegment(
               value: ListVisibility.household,
-              label: Text('👨‍👩‍👧 משפחתית'),
+              label: Text(strings.visibilityHousehold),
             ),
             ButtonSegment(
               value: ListVisibility.shared,
-              label: Text('👥 שיתוף'),
+              label: Text(strings.visibilityShared),
             ),
           ],
           selected: {_visibility},
@@ -667,26 +682,28 @@ class _CreateListScreenState extends State<CreateListScreen> {
   }
 
   String _getVisibilityDescription() {
+    final strings = AppStrings.createListDialog;
     switch (_visibility) {
       case ListVisibility.private:
-        return 'רק אתה תראה את הרשימה הזו';
+        return strings.visibilityPrivateDesc;
       case ListVisibility.household:
-        return 'כל המשפחה תוכל לראות ולערוך';
+        return strings.visibilityHouseholdDesc;
       case ListVisibility.shared:
-        return 'שתף עם אנשים ספציפיים (ללא גישה למזווה שלך)';
+        return strings.visibilitySharedDesc;
     }
   }
 
   /// 🎉 בורר מצב אירוע - מוצג רק כשהסוג הוא אירוע
   Widget _buildEventModeSelector(ThemeData theme) {
     final cs = theme.colorScheme;
+    final strings = AppStrings.createListDialog;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // כותרת
         Text(
-          'איך תנהלו את הרשימה?',
+          strings.eventModeLabel,
           style: theme.textTheme.bodySmall?.copyWith(
             color: cs.primary,
           ),
@@ -698,8 +715,8 @@ class _CreateListScreenState extends State<CreateListScreen> {
           theme: theme,
           mode: ShoppingList.eventModeWhoBrings,
           icon: Icons.people,
-          title: 'מי מביא מה',
-          description: 'כל משתתף מתנדב להביא פריטים',
+          title: strings.eventModeWhoBrings,
+          description: strings.eventModeWhoBringsDesc,
           isRecommended: _visibility != ListVisibility.private,
         ),
         const SizedBox(height: kSpacingSmall),
@@ -708,8 +725,8 @@ class _CreateListScreenState extends State<CreateListScreen> {
           theme: theme,
           mode: ShoppingList.eventModeShopping,
           icon: Icons.shopping_cart,
-          title: 'קנייה רגילה',
-          description: 'אדם אחד קונה את כל הרשימה',
+          title: strings.eventModeShopping,
+          description: strings.eventModeShoppingDesc,
         ),
         const SizedBox(height: kSpacingSmall),
 
@@ -717,8 +734,8 @@ class _CreateListScreenState extends State<CreateListScreen> {
           theme: theme,
           mode: ShoppingList.eventModeTasks,
           icon: Icons.checklist,
-          title: 'משימות אישיות',
-          description: 'צ\'קליסט פשוט רק לי',
+          title: strings.eventModeTasks,
+          description: strings.eventModeTasksDesc,
           isRecommended: _visibility == ListVisibility.private,
         ),
       ],
@@ -809,7 +826,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
-                            'מומלץ',
+                            AppStrings.createListDialog.recommended,
                             style: TextStyle(
                               fontSize: 10,
                               color: cs.onTertiaryContainer,
@@ -887,8 +904,8 @@ class _CreateListScreenState extends State<CreateListScreen> {
           OutlinedButton.icon(
             icon: const Icon(Icons.person_add),
             label: Text(_selectedContacts.isEmpty
-                ? 'בחר אנשים לשיתוף'
-                : 'הוסף עוד אנשים'),
+                ? AppStrings.createListDialog.selectContactsButton
+                : AppStrings.createListDialog.addMoreContactsButton),
             onPressed: _isSubmitting ? null : _openContactSelector,
           ),
           // הודעה אם יש pending
@@ -900,7 +917,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
-                    'משתמשים שאינם רשומים יקבלו הזמנה ממתינה',
+                    AppStrings.createListDialog.pendingInviteNote,
                     style: TextStyle(
                       fontSize: 11,
                       color: cs.tertiary,

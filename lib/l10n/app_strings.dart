@@ -105,6 +105,12 @@ class AppStrings {
   static const createListDialog = _CreateListDialogStrings();
 
   // ========================================
+  // Manage Users
+  // ========================================
+
+  static const manageUsers = _ManageUsersStrings();
+
+  // ========================================
   // Inventory (Pantry)
   // ========================================
 
@@ -133,6 +139,84 @@ class AppStrings {
   // ========================================
 
   static const sharing = _SharingStrings();
+
+  // ========================================
+  // Create Group Screen
+  // ========================================
+
+  static const createGroup = _CreateGroupStrings();
+
+  // ========================================
+  // Group Details Screen
+  // ========================================
+
+  static const groupDetails = _GroupDetailsStrings();
+
+  // ========================================
+  // Pending Group Invites Screen
+  // ========================================
+
+  static const pendingGroupInvites = _PendingGroupInvitesStrings();
+
+  // ========================================
+  // Receipt Details Screen
+  // ========================================
+
+  static const receiptDetails = _ReceiptDetailsStrings();
+
+  // ========================================
+  // Shopping History
+  // ========================================
+
+  static const shoppingHistory = _ShoppingHistoryStrings();
+
+  // ========================================
+  // Active Shopper Banner
+  // ========================================
+
+  static const activeShopperBanner = _ActiveShopperBannerStrings();
+
+  // ========================================
+  // Last Chance Banner
+  // ========================================
+
+  static const lastChanceBanner = _LastChanceBannerStrings();
+
+  // ========================================
+  // Pending Invite Banner
+  // ========================================
+
+  static const pendingInviteBanner = _PendingInviteBannerStrings();
+
+  // ========================================
+  // Quick Add Field
+  // ========================================
+
+  static const quickAddField = _QuickAddFieldStrings();
+
+  // ========================================
+  // Upcoming Shop Card
+  // ========================================
+
+  static const upcomingShopCard = _UpcomingShopCardStrings();
+
+  // ========================================
+  // Home Dashboard Screen
+  // ========================================
+
+  static const homeDashboard = _HomeDashboardStrings();
+
+  // ========================================
+  // Notifications Center Screen
+  // ========================================
+
+  static const notificationsCenter = _NotificationsCenterStrings();
+
+  // ========================================
+  // Pantry Screen
+  // ========================================
+
+  static const pantry = _PantryStrings();
 }
 
 // ========================================
@@ -330,10 +414,9 @@ class _ShoppingStrings {
 
   // Item Status
   String get itemStatusPending => 'ממתין';
-  String get itemStatusPurchased => 'קנוי'; // שונה מ-"נקנה" ל"קנוי" - קצר וברור!
-  String get itemStatusOutOfStock => 'אזל'; // שונה מ-"לא במלאי" ל"אזל" - קצר וברור!
-  String get itemStatusDeferred => 'דחה לאחר כך'; // שונה מ-"דחוי" ל"דחה לאחר כך" - ברור יותר!
-  String get itemStatusNotNeeded => 'לא צריך'; // חדש!
+  String get itemStatusPurchased => 'קנוי';
+  String get itemStatusOutOfStock => 'אזל';
+  String get itemStatusNotNeeded => 'לא צריך';
 
   // Unknown Items (server fallback)
   String get unknownItemsSection => 'פריטים לא נתמכים';
@@ -400,7 +483,6 @@ class _ShoppingStrings {
   String get summaryTitle => 'סיכום קנייה';
   String get summaryShoppingTime => 'זמן קנייה';
   String get summaryOutOfStock => 'אזלו בחנות';
-  String get summaryDeferred => 'נדחו לפעם הבאה';
   String get summaryNotMarked => 'לא סומנו';
   String get summaryBack => 'חזור';
   String get summaryFinishShopping => 'סיים קנייה';
@@ -549,8 +631,22 @@ class _IndexStrings {
   String get logoLabel => 'לוגו אפליקציית MemoZap';
   String get loadingLabel => 'טוען את האפליקציה';
 
-  // UI
+  // UI - Loading
   String get loading => 'טוען...';
+
+  // 🔧 Loading Messages (rotating)
+  List<String> get loadingMessages => const [
+        'בודק מצב...',
+        'מתחבר...',
+        'כמעט מוכן...',
+      ];
+
+  // 🔧 Error Screen
+  String get errorTitle => 'אופס! משהו השתבש';
+  String get errorMessage => 'לא הצלחנו לטעון את האפליקציה';
+  String get retryButton => 'נסה שוב';
+  String get retryLabel => 'נסה שוב לטעון את האפליקציה';
+  String get retryHint => 'לחץ כדי לנסות שוב';
 }
 
 // ========================================
@@ -784,6 +880,52 @@ class _AuthStrings {
   String get loginSuccess => 'התחברת בהצלחה!';
   String get registerSuccess => 'נרשמת בהצלחה!';
   String get signOutSuccess => 'התנתקת בהצלחה';
+
+  // ========================================
+  // Login Screen - Additional
+  // ========================================
+
+  String get loginSuccessRedirect => 'התחברת בהצלחה! מעביר לדף הבית...';
+  String get googleLoginSuccess => 'התחברת בהצלחה עם Google!';
+  String get appleLoginSuccess => 'התחברת בהצלחה עם Apple!';
+  String get orLoginWith => 'או התחבר עם';
+  String get showPassword => 'הצג סיסמה';
+  String get hidePassword => 'הסתר סיסמה';
+  String get enterEmailFirst => 'אנא הזן את כתובת האימייל שלך בשדה למעלה';
+  String resetEmailSentTo(String email) => 'נשלח מייל לאיפוס סיסמה ל-$email';
+  String get resetEmailSendError => 'שגיאה בשליחת מייל איפוס';
+
+  // ========================================
+  // Accessibility Labels
+  // ========================================
+
+  String get forgotPasswordSemanticLabel => 'שכחת סיסמה? לחץ לקבלת מייל איפוס';
+  String get forgotPasswordSemanticHint => 'שולח קישור לאיפוס סיסמה לאימייל שהוזן';
+  String socialLoginSemanticLabel(String provider) => 'התחבר באמצעות $provider';
+
+  // ========================================
+  // Register Screen - Additional
+  // ========================================
+
+  String get registerSuccessRedirect => 'הרשמת בהצלחה! מעביר לדף הבית...';
+  String get pendingInvitesDialogTitle => 'הזמנות ממתינות!';
+  String pendingInvitesDialogContent(int count) =>
+      'יש לך $count הזמנות לקבוצות ממתינות לאישור.\n\nהאם לעבור למסך ההזמנות?';
+  String get pendingInvitesLater => 'אחר כך';
+  String get pendingInvitesView => 'צפה בהזמנות';
+  String get phoneHelperText => 'מספר נייד ישראלי - לקבלת עדכונים מהקבוצות';
+
+  // ========================================
+  // Register Screen - Accessibility Labels
+  // ========================================
+
+  String get nameFieldSemanticLabel => 'שדה שם מלא, חובה';
+  String get emailFieldSemanticLabel => 'שדה כתובת אימייל, חובה';
+  String get passwordFieldSemanticLabel => 'שדה סיסמה, לפחות 6 תווים';
+  String get confirmPasswordFieldSemanticLabel => 'שדה אימות סיסמה, חייב להתאים לסיסמה';
+  String get phoneFieldSemanticLabel => 'שדה טלפון נייד ישראלי, חובה';
+  String get loginLinkSemanticLabel => 'יש לך חשבון? לחץ לעבור למסך התחברות';
+  String socialRegisterSemanticLabel(String provider) => 'הירשם או התחבר באמצעות $provider';
 }
 
 // ========================================
@@ -1259,6 +1401,115 @@ class _CreateListDialogStrings {
   String createListError(String error) => 'שגיאה ביצירת הרשימה';
   String get createListErrorGeneric => 'אירעה שגיאה ביצירת הרשימה. נסה שוב.';
   String get networkError => 'בעיית רשת. בדוק את החיבור לאינטרנט';
+
+  // ========================================
+  // Template Section
+  // ========================================
+
+  String get removeTemplateTooltip => 'הסר תבנית';
+
+  // ========================================
+  // Visibility Section
+  // ========================================
+
+  String get visibilityLabel => 'מי יראה את הרשימה?';
+  String get visibilityPrivate => '🔒 אישית';
+  String get visibilityHousehold => '👨‍👩‍👧 משפחתית';
+  String get visibilityShared => '👥 שיתוף';
+  String get visibilityPrivateDesc => 'רק אתה תראה את הרשימה הזו';
+  String get visibilityHouseholdDesc => 'כל המשפחה תוכל לראות ולערוך';
+  String get visibilitySharedDesc => 'שתף עם אנשים ספציפיים (ללא גישה למזווה שלך)';
+
+  // ========================================
+  // Event Mode Section
+  // ========================================
+
+  String get eventModeLabel => 'איך תנהלו את הרשימה?';
+  String get eventModeWhoBrings => 'מי מביא מה';
+  String get eventModeWhoBringsDesc => 'כל משתתף מתנדב להביא פריטים';
+  String get eventModeShopping => 'קנייה רגילה';
+  String get eventModeShoppingDesc => 'אדם אחד קונה את כל הרשימה';
+  String get eventModeTasks => 'משימות אישיות';
+  String get eventModeTasksDesc => 'צ\'קליסט פשוט רק לי';
+  String get recommended => 'מומלץ';
+
+  // ========================================
+  // Contact Picker Section
+  // ========================================
+
+  String get selectContactsButton => 'בחר אנשים לשיתוף';
+  String get addMoreContactsButton => 'הוסף עוד אנשים';
+  String get pendingInviteNote => 'משתמשים שאינם רשומים יקבלו הזמנה ממתינה';
+}
+
+// ========================================
+// Manage Users Strings
+// ========================================
+
+class _ManageUsersStrings {
+  const _ManageUsersStrings();
+
+  // ========================================
+  // Screen Title
+  // ========================================
+
+  String get title => 'ניהול משתמשים';
+
+  // ========================================
+  // User Display
+  // ========================================
+
+  String get me => 'אני';
+  String get you => 'אתה';
+  String userShortId(String shortId) => 'משתמש #$shortId';
+  String get defaultUserName => 'משתמש';
+
+  // ========================================
+  // Error Messages
+  // ========================================
+
+  String get errorUserNotLoggedIn => 'שגיאה: משתמש לא מחובר';
+  String get errorNoPermissionRemove => 'אין לך הרשאה להסיר משתמשים';
+  String get errorNoPermissionEditRole => 'אין לך הרשאה לשנות תפקידים';
+  String get errorNoHousehold => 'שגיאה: משתמש לא משויך למשק בית';
+  String errorRemovingUser(String error) => 'שגיאה בהסרת משתמש: $error';
+  String errorUpdatingRole(String error) => 'שגיאה בעדכון תפקיד: $error';
+
+  // ========================================
+  // Remove User Dialog
+  // ========================================
+
+  String get removeUserTitle => 'הסרת משתמש';
+  String removeUserConfirmation(String name) => 'האם אתה בטוח שברצונך להסיר את $name?';
+  String get removeButton => 'הסר';
+  String get userRemovedSuccess => 'משתמש הוסר בהצלחה';
+
+  // ========================================
+  // Edit Role Dialog
+  // ========================================
+
+  String get editRoleTitle => 'עריכת תפקיד';
+  String selectNewRole(String name) => 'בחר תפקיד חדש עבור $name:';
+  String roleUpdatedSuccess(String roleName) => 'התפקיד עודכן ל-$roleName';
+
+  // ========================================
+  // Common Actions
+  // ========================================
+
+  String get cancel => 'ביטול';
+  String get inviteUser => 'הזמן משתמש';
+  String get editRole => 'ערוך תפקיד';
+  String get removeUser => 'הסר משתמש';
+
+  // ========================================
+  // Loading & Empty States
+  // ========================================
+
+  String get loadingUsers => 'טוען משתמשים...';
+  String get retryButton => 'נסה שוב 🔄';
+  String get noSharedUsers => 'אין משתמשים משותפים';
+  String get inviteUsersHint => 'לחץ על + להזמנת משתמשים';
+  String get onlyOwnerCanInvite => 'רק בעל הרשימה יכול להזמין משתמשים';
 }
 
 // ========================================
@@ -1359,6 +1610,11 @@ class _InventoryStrings {
   String get stockOutOfStock => 'נגמר! צריך לקנות';
   String stockOnlyOneLeft(String unit) => 'נשאר 1 $unit בלבד';
   String stockOnlyFewLeft(int count, String unit) => 'נשארו רק $count $unit';
+
+  // Unknown Suggestion Status
+  String get unknownSuggestionWarning => 'סוג המלצה לא מוכר - נדרש עדכון אפליקציה';
+  String get unknownSuggestionCannotDelete => 'לא ניתן למחוק המלצה לא מוכרת';
+  String get unknownSuggestionUpdateApp => 'עדכן אפליקציה';
 
   // ========================================
   // Expiry Alert Dialog
@@ -1706,6 +1962,12 @@ class _SharingStrings {
   String get requestTypeAdd => 'הוספה';
   String get requestTypeEdit => 'עריכה';
   String get requestTypeDelete => 'מחיקה';
+  String get requestTypeInvite => 'הזמנה';
+  String get requestTypeUnknown => 'לא מוכר';
+
+  // Unknown Request Warning
+  String get unknownRequestWarning => 'סוג בקשה לא מוכר - נדרש עדכון אפליקציה';
+  String get unknownRequestCannotProcess => 'לא ניתן לעבד בקשה זו';
 
   // Request Card
   String requestedBy(String userName) => 'נתבקש על ידי $userName';
@@ -1933,4 +2195,766 @@ class _RecurringStrings {
 
   String semanticLabel(String productName) =>
       'הצעה להפוך את $productName למוצר קבוע';
+}
+
+// ========================================
+// Create Group Screen Strings
+// ========================================
+
+class _CreateGroupStrings {
+  const _CreateGroupStrings();
+
+  // ========================================
+  // Screen Title
+  // ========================================
+
+  String get title => 'יצירת קבוצה חדשה';
+
+  // ========================================
+  // Group Type Section
+  // ========================================
+
+  String get groupTypeTitle => 'סוג הקבוצה';
+  String get groupTypeHint => 'בחר את סוג הקבוצה שברצונך ליצור';
+
+  // ========================================
+  // Features
+  // ========================================
+
+  String get featurePantry => 'מזווה';
+  String get featureShopping => 'קניות';
+  String get featureVoting => 'הצבעות';
+  String get featureWhoBrings => 'מי מביא';
+  String get featureChecklist => 'צ\'קליסט';
+
+  // ========================================
+  // Group Name Field
+  // ========================================
+
+  String get nameLabel => 'שם הקבוצה *';
+  String get nameRequired => 'נא להזין שם לקבוצה';
+  String get nameTooShort => 'שם הקבוצה קצר מדי';
+
+  // Name Hints by Type
+  String get hintFamily => 'לדוגמה: משפחת כהן';
+  String get hintBuilding => 'לדוגמה: ועד בית הרצל 5';
+  String get hintKindergarten => 'לדוגמה: ועד גן שמש';
+  String get hintFriends => 'לדוגמה: החבר\'ה לטיול';
+  String get hintEvent => 'לדוגמה: חתונת יוסי ורונית';
+  String get hintRoommates => 'לדוגמה: שותפים לדירה';
+  String get hintDefault => 'הזן שם לקבוצה';
+
+  // ========================================
+  // Description Field
+  // ========================================
+
+  String get descriptionLabel => 'תיאור (אופציונלי)';
+  String get descriptionHint => 'הוסף תיאור קצר...';
+
+  // ========================================
+  // Extra Fields by Type
+  // ========================================
+
+  String get extraFieldBuilding => 'כתובת הבניין (אופציונלי)';
+  String get extraFieldKindergarten => 'שם הגן/בית ספר (אופציונלי)';
+  String get extraFieldEvent => 'שם האירוע (אופציונלי)';
+
+  String get extraHintBuilding => 'לדוגמה: הרצל 5, תל אביב';
+  String get extraHintKindergarten => 'לדוגמה: גן הילדים שמש';
+  String get extraHintEvent => 'לדוגמה: חתונת יוסי ורונית';
+
+  // ========================================
+  // Invite Section
+  // ========================================
+
+  String get inviteTitle => 'הזמן חברים (אופציונלי)';
+  String get inviteHint => 'תוכל להזמין חברים עכשיו או אחרי יצירת הקבוצה';
+  String get selectContacts => 'בחר מאנשי קשר';
+  String get addMore => 'הוסף עוד';
+  String selectedCount(int count) => 'נבחרו $count אנשי קשר';
+  String get changeRoleTooltip => 'שנה תפקיד';
+
+  // ========================================
+  // Action Buttons
+  // ========================================
+
+  String get createButton => 'צור קבוצה';
+  String get creating => 'יוצר קבוצה...';
+
+  // ========================================
+  // Success & Error Messages
+  // ========================================
+
+  String groupCreated(String name) => 'הקבוצה "$name" נוצרה בהצלחה!';
+  String get createError => 'שגיאה ביצירת הקבוצה';
+
+  // ========================================
+  // Tips
+  // ========================================
+
+  String get tipNoInvites => '💡 לאחר יצירת הקבוצה, תוכל להזמין חברים באמצעות קוד הזמנה';
+  String get tipWithInvites => '💡 הזמנות ישלחו לחברים שנבחרו לאחר יצירת הקבוצה';
+}
+
+// ========================================
+// Group Details Screen
+// ========================================
+
+class _GroupDetailsStrings {
+  const _GroupDetailsStrings();
+
+  // ========================================
+  // AppBar & Navigation
+  // ========================================
+
+  String get groupNotFound => 'קבוצה לא נמצאה';
+  String get groupNotFoundMessage => 'הקבוצה לא קיימת או שאין לך גישה';
+  String get editTooltip => 'עריכה';
+  String get cancelTooltip => 'ביטול';
+
+  // ========================================
+  // Group Info Card
+  // ========================================
+
+  String get groupDetailsTitle => 'פרטי הקבוצה';
+  String get groupNameLabel => 'שם הקבוצה *';
+  String get groupNameValidation => 'נא להזין שם לקבוצה';
+  String get descriptionLabel => 'תיאור (אופציונלי)';
+  String get nameLabel => 'שם';
+  String get descriptionFieldLabel => 'תיאור';
+  String get createdLabel => 'נוצרה';
+  String get addressLabel => 'כתובת';
+  String get schoolNameLabel => 'שם הגן/בית ספר';
+  String get eventNameLabel => 'שם האירוע';
+  String get saveChanges => 'שמור שינויים';
+
+  // ========================================
+  // Update Messages
+  // ========================================
+
+  String get groupUpdatedSuccess => 'הקבוצה עודכנה בהצלחה';
+  String get groupUpdateError => 'שגיאה בעדכון הקבוצה';
+
+  // ========================================
+  // Features Card
+  // ========================================
+
+  String get featuresTitle => 'תכונות זמינות';
+  String get featurePantry => 'מזווה';
+  String get featureShopping => 'קניות';
+  String get featureVoting => 'הצבעות';
+  String get featureWhosBringing => 'מי מביא';
+  String get featureChecklist => 'צ\'קליסט';
+
+  // ========================================
+  // Members Card
+  // ========================================
+
+  String membersTitle(int count) => 'חברים ($count)';
+  String get inviteButton => 'הזמן';
+  String get invitingButton => 'מזמין...';
+  String get currentUserSuffix => ' (את/ה)';
+  String get pendingApproval => 'ממתין לאישור';
+  String get noEmail => 'ללא אימייל';
+  String get changeRoleHeader => 'שנה תפקיד:';
+  String get removeFromGroup => 'הסר מהקבוצה';
+
+  // ========================================
+  // Invite Members
+  // ========================================
+
+  String addingMembers(int count) => 'מוסיף $count חברים לקבוצה...';
+  String membersAddedSuccess(int count) => 'נוספו $count חברים לקבוצה בהצלחה!';
+  String membersAddedPartial(int success, int fail) => 'נוספו $success, נכשלו $fail';
+
+  // ========================================
+  // Change Role Dialog
+  // ========================================
+
+  String get changeRoleTitle => 'שינוי תפקיד';
+  String changeRoleConfirm(String name, String role) => 'האם לשנות את התפקיד של $name ל$role?';
+  String get confirmButton => 'אישור';
+  String get cancelButton => 'ביטול';
+  String roleChanged(String name, String role) => 'התפקיד של $name שונה ל$role';
+
+  // ========================================
+  // Remove Member Dialog
+  // ========================================
+
+  String get removeMemberTitle => 'הסרת חבר';
+  String removeMemberConfirm(String name) => 'האם להסיר את $name מהקבוצה?';
+  String get removeButton => 'הסר';
+  String memberRemoved(String name) => '$name הוסר מהקבוצה';
+
+  // ========================================
+  // Leave Group Dialog
+  // ========================================
+
+  String get leaveGroupTitle => 'עזיבת קבוצה';
+  String leaveGroupConfirm(String name) => 'האם לעזוב את "$name"?';
+  String get leaveGroupWarning => 'שים לב:\n• הסימונים שלך יבוטלו\n• לא תוכל לראות את הרשימות';
+  String get leaveButton => 'עזוב';
+  String leftGroup(String name) => 'עזבת את "$name"';
+
+  // ========================================
+  // Delete Group Dialog
+  // ========================================
+
+  String get deleteGroupTitle => 'מחיקת קבוצה';
+  String deleteGroupConfirm(String name) => 'האם למחוק את "$name"?';
+  String deleteGroupWarning(int memberCount) =>
+      'פעולה זו תמחק:\n'
+      '• את הקבוצה\n'
+      '• את כל הרשימות המשותפות\n'
+      '• $memberCount חברים יוסרו\n\n'
+      'פעולה זו בלתי הפיכה!';
+  String get deleteGroupButton => 'מחק קבוצה';
+  String groupDeleted(String name) => 'הקבוצה "$name" נמחקה';
+  String get deleteGroupError => 'שגיאה במחיקת הקבוצה';
+
+  // ========================================
+  // Actions Card
+  // ========================================
+
+  String get actionsTitle => 'פעולות';
+  String get leaveGroupAction => 'עזוב קבוצה';
+  String get leaveGroupSubtitle => 'תוסר מהקבוצה והסימונים שלך יבוטלו';
+  String get deleteGroupAction => 'מחק קבוצה';
+  String get irreversibleAction => 'פעולה זו בלתי הפיכה';
+  String get ownerCannotLeaveMessage => 'כבעלים של הקבוצה, יש להעביר את הבעלות לפני עזיבה או למחוק את הקבוצה.';
+}
+
+// ========================================
+// Pending Group Invites Screen
+// ========================================
+
+class _PendingGroupInvitesStrings {
+  const _PendingGroupInvitesStrings();
+
+  // ========================================
+  // AppBar & Navigation
+  // ========================================
+
+  String get title => 'הזמנות לקבוצות';
+  String get backToHome => 'חזור לדף הבית';
+
+  // ========================================
+  // Loading States
+  // ========================================
+
+  String get loadingInvites => 'טוען הזמנות...';
+  String get processing => 'מעבד...';
+
+  // ========================================
+  // Empty State
+  // ========================================
+
+  String get emptyTitle => 'אין הזמנות ממתינות';
+  String get emptySubtitle => 'כאשר מישהו יזמין אותך לקבוצה,\nההזמנה תופיע כאן';
+
+  // ========================================
+  // Invite Card
+  // ========================================
+
+  String get invitedBy => 'הוזמנת על ידי';
+  String get sentAt => 'נשלח';
+
+  // ========================================
+  // Action Buttons
+  // ========================================
+
+  String get rejectButton => 'לא תודה';
+  String get acceptButton => 'הצטרף לקבוצה';
+
+  // ========================================
+  // Accept Messages
+  // ========================================
+
+  String acceptSuccess(String groupName) => 'הצטרפת לקבוצה "$groupName" בהצלחה!';
+  String get acceptError => 'שגיאה באישור ההזמנה';
+
+  // ========================================
+  // Reject Dialog
+  // ========================================
+
+  String get rejectDialogTitle => 'דחיית הזמנה';
+  String rejectDialogContent(String groupName) =>
+      'האם לדחות את ההזמנה לקבוצה "$groupName"?\n\nלא תוכל להצטרף אלא אם יזמינו אותך שוב.';
+  String get cancelButton => 'ביטול';
+  String get confirmRejectButton => 'דחה הזמנה';
+  String get rejectSuccess => 'ההזמנה נדחתה';
+}
+
+// ========================================
+// Receipt Details Screen
+// ========================================
+
+class _ReceiptDetailsStrings {
+  const _ReceiptDetailsStrings();
+
+  // ========================================
+  // Summary Section
+  // ========================================
+
+  String get itemsLabel => 'פריטים';
+  String get totalLabel => 'סה"כ';
+
+  // ========================================
+  // Tags
+  // ========================================
+
+  String get virtualTag => 'וירטואלי';
+  String get linkedToListTag => 'מקושר לרשימה';
+
+  // ========================================
+  // Items Section
+  // ========================================
+
+  String get itemsSectionTitle => 'פריטים';
+  String get noItemsMessage => 'אין פריטים בקבלה';
+  String get unknownItemName => 'פריט ללא שם';
+}
+
+// ========================================
+// Shopping History Screen
+// ========================================
+
+class _ShoppingHistoryStrings {
+  const _ShoppingHistoryStrings();
+
+  // ========================================
+  // AppBar & Navigation
+  // ========================================
+
+  String get title => 'היסטוריית קניות';
+  String get sortTooltip => 'מיון';
+
+  // ========================================
+  // Sort Options
+  // ========================================
+
+  String get sortByDate => 'לפי תאריך';
+  String get sortByStore => 'לפי חנות';
+  String get sortByAmount => 'לפי סכום';
+
+  // ========================================
+  // Search
+  // ========================================
+
+  String get searchHint => 'חפש לפי שם חנות...';
+
+  // ========================================
+  // Statistics
+  // ========================================
+
+  String get shoppingsLabel => 'קניות';
+  String get totalLabel => 'סה"כ';
+  String get averageLabel => 'ממוצע';
+
+  // ========================================
+  // List Items
+  // ========================================
+
+  String itemsCount(int count) => '$count פריטים';
+  String get virtualTag => 'וירטואלי';
+  String get noResults => 'לא נמצאו תוצאות';
+
+  // ========================================
+  // Empty State
+  // ========================================
+
+  String get emptyTitle => 'אין היסטוריית קניות';
+  String get emptySubtitle => 'כאן יופיעו הקניות שביצעת.\nסיים קנייה כדי לראות אותה כאן.';
+
+  // ========================================
+  // Error State
+  // ========================================
+
+  String get defaultError => 'שגיאה בטעינה';
+  String get retryButton => 'נסה שוב';
+}
+
+// ========================================
+// Active Shopper Banner (Dashboard Widget)
+// ========================================
+
+class _ActiveShopperBannerStrings {
+  const _ActiveShopperBannerStrings();
+
+  // ========================================
+  // My Active Shopping Banner
+  // ========================================
+
+  String get myActiveTitle => 'יש לך קנייה פעילה';
+  String myActiveSubtitle(String listName, int remaining) =>
+      '"$listName" - נותרו $remaining פריטים';
+  String get continueButton => 'המשך';
+
+  // ========================================
+  // Others Shopping Banner
+  // ========================================
+
+  String get othersActiveTitle => 'קניות מתבצעות!';
+  String othersActiveSingle(String listName) => 'מישהו קונה מ"$listName"';
+  String othersActiveMultiple(int count, String listName) =>
+      '$count אנשים קונים מ"$listName"';
+  String get joinButton => 'הצטרף';
+  String get viewListTooltip => 'צפה ברשימה';
+}
+
+// ========================================
+// Last Chance Banner (Dashboard Widget)
+// ========================================
+
+class _LastChanceBannerStrings {
+  const _LastChanceBannerStrings();
+
+  // ========================================
+  // Banner Content
+  // ========================================
+
+  String get title => 'רגע! שכחת משהו?';
+
+  String semanticsLabel(String productName, int stock) =>
+      'המוצר $productName עומד להיגמר. נותרו $stock יחידות במלאי.';
+
+  String stockText(int stock) => 'נותרו: $stock יחידות במלאי';
+
+  // ========================================
+  // Buttons & Tooltips
+  // ========================================
+
+  String addTooltip(String productName) =>
+      'הוסף "$productName" לרשימת הקניות';
+  String get addButton => 'הוסף לרשימה';
+
+  String get nextTooltip => 'עבור להמלצה הבאה (יחזור בסוף הסבב)';
+  String get nextButton => 'הבא';
+
+  String get skipSessionTooltip => 'לא יופיע בקנייה הזו, כן בקנייה הבאה';
+  String get skipSessionButton => 'לא עכשיו';
+
+  // ========================================
+  // Feedback Messages
+  // ========================================
+
+  String addedSuccess(String productName) => 'נוסף "$productName" לרשימה';
+  String get addError => 'שגיאה בהוספת פריט';
+  String get genericError => 'אירעה שגיאה, נסה שוב';
+  String get skippedForSession => 'לא יופיע בקנייה הזו';
+}
+
+// ========================================
+// Pending Invite Banner (Dashboard Widget)
+// ========================================
+
+class _PendingInviteBannerStrings {
+  const _PendingInviteBannerStrings();
+
+  // ========================================
+  // Banner Content
+  // ========================================
+
+  String get title => 'הזמנה לקבוצה';
+  String moreCount(int count) => '+$count';
+  String inviteMessage(String inviterName, String groupName) =>
+      '$inviterName הזמין אותך ל"$groupName"';
+
+  // ========================================
+  // Buttons & Tooltips
+  // ========================================
+
+  String get acceptButton => 'קבל';
+  String get rejectButton => 'דחה';
+  String get rejectTooltip => 'דחה הזמנה';
+
+  // ========================================
+  // Dialog
+  // ========================================
+
+  String get rejectDialogTitle => 'דחיית הזמנה';
+  String get rejectDialogContent => 'האם אתה בטוח שברצונך לדחות את ההזמנה?';
+  String get cancelButton => 'ביטול';
+
+  // ========================================
+  // Feedback Messages
+  // ========================================
+
+  String acceptSuccess(String groupName) => 'הצטרפת לקבוצה "$groupName"';
+  String get acceptError => 'שגיאה בקבלת ההזמנה';
+  String get rejectSuccess => 'ההזמנה נדחתה';
+  String get rejectError => 'שגיאה בדחיית ההזמנה';
+  String get notLoggedIn => 'לא מחובר';
+}
+
+// ========================================
+// Quick Add Field (Dashboard Widget)
+// ========================================
+
+class _QuickAddFieldStrings {
+  const _QuickAddFieldStrings();
+
+  // ========================================
+  // Hints & Placeholders
+  // ========================================
+
+  String get hintWithList => 'הוסף פריט מהיר...';
+  String get hintNoList => 'צור רשימה להוספת פריטים';
+  String get addTooltip => 'הוסף';
+
+  // ========================================
+  // Target List Info
+  // ========================================
+
+  String willAddTo(String listName) => 'יתווסף ל"$listName"';
+
+  // ========================================
+  // No Active List
+  // ========================================
+
+  String get noActiveListMessage => 'אין רשימות פעילות - צור רשימה חדשה';
+  String get createButton => 'צור';
+
+  // ========================================
+  // Default Values
+  // ========================================
+
+  String get defaultUnit => 'יח\'';
+  String get defaultCategory => 'כללי';
+
+  // ========================================
+  // Feedback Messages
+  // ========================================
+
+  String addedSuccess(String itemName, String listName) =>
+      'נוסף "$itemName" ל"$listName"';
+  String get addError => 'שגיאה בהוספת הפריט';
+}
+
+// ========================================
+// Upcoming Shop Card (Dashboard Widget)
+// ========================================
+
+class _UpcomingShopCardStrings {
+  const _UpcomingShopCardStrings();
+
+  // ========================================
+  // Card Title & Labels
+  // ========================================
+
+  String get cardTitle => 'הקנייה הקרובה';
+  String itemsCount(int count) => '$count פריטים';
+
+  // ========================================
+  // Semantics & Tooltips (Accessibility)
+  // ========================================
+
+  String semanticLabel(String listName, int itemCount) =>
+      'הקנייה הקרובה: $listName, $itemCount פריטים. לחץ לעריכת הרשימה';
+  String editListTooltip(String listName) => 'לחץ לעריכת רשימת "$listName"';
+  String startShoppingTooltip(String listName) => 'התחל קנייה מרשימת "$listName"';
+
+  // ========================================
+  // Buttons
+  // ========================================
+
+  String get startShoppingButton => 'התחל קנייה';
+
+  // ========================================
+  // Empty State
+  // ========================================
+
+  String get emptySemanticLabel => 'אין רשימת קניות פעילה כרגע. לחץ ליצירת רשימה חדשה';
+  String get emptyTitle => 'אין רשימה פעילה כרגע';
+  String get createListButton => 'צור רשימה חדשה';
+  String get createListTooltip => 'צור רשימת קניות חדשה';
+}
+
+// ========================================
+// Home Dashboard Screen Strings
+// ========================================
+
+class _HomeDashboardStrings {
+  const _HomeDashboardStrings();
+
+  // ========================================
+  // FAB
+  // ========================================
+
+  String get newListButton => 'רשימה חדשה';
+
+  // ========================================
+  // Error Banner
+  // ========================================
+
+  String get errorTitle => 'שגיאה בטעינת נתונים';
+  String get retryButton => 'נסה שוב';
+
+  // ========================================
+  // Header
+  // ========================================
+
+  String greeting(String? userName) {
+    final hasName = userName?.trim().isNotEmpty ?? false;
+    return hasName ? 'שלום, $userName!' : 'שלום!';
+  }
+
+  String get personalFamily => 'משפחה אישית';
+  String get sharedFamily => 'משפחה משותפת';
+
+  // ========================================
+  // Active Lists Section
+  // ========================================
+
+  String get activeListsTitle => 'רשימות פעילות';
+  String get noActiveLists => 'אין רשימות פעילות';
+  String get createListHint => 'לחץ כאן ליצירת רשימה חדשה';
+  String get emptyList => 'רשימה ריקה';
+  String get completed => 'הושלם! ✓';
+  String remainingItems(int count) => 'נותרו $count פריטים';
+  String itemsCount(int count) => '$count פריטים';
+
+  // ========================================
+  // History Section
+  // ========================================
+
+  String get historyTitle => 'היסטוריה';
+  String get seeAll => 'ראה הכל';
+
+  // ========================================
+  // Date Formatting
+  // ========================================
+
+  String get today => 'היום';
+  String get yesterday => 'אתמול';
+  String daysAgo(int days) => 'לפני $days ימים';
+}
+
+// ========================================
+// Notifications Center Screen Strings
+// ========================================
+
+class _NotificationsCenterStrings {
+  const _NotificationsCenterStrings();
+
+  // ========================================
+  // AppBar
+  // ========================================
+
+  String get title => 'התראות';
+  String get markAllAsRead => 'סמן הכל כנקרא';
+
+  // ========================================
+  // Loading / Error States
+  // ========================================
+
+  String get userNotLoggedIn => 'משתמש לא מחובר';
+  String get loadingError => 'שגיאה בטעינת ההתראות';
+  String get retryButton => 'נסה שוב';
+
+  // ========================================
+  // Empty State
+  // ========================================
+
+  String get emptyTitle => 'אין התראות';
+  String get emptySubtitle => 'כשתקבל התראות חדשות, הן יופיעו כאן';
+
+  // ========================================
+  // Success Messages
+  // ========================================
+
+  String get allMarkedAsRead => 'כל ההתראות סומנו כנקראו';
+}
+
+// ========================================
+// Pantry Screen Strings
+// ========================================
+
+class _PantryStrings {
+  const _PantryStrings();
+
+  // ========================================
+  // Semantics / Accessibility
+  // ========================================
+
+  String get screenLabel => 'מסך המזווה שלי';
+  String get addItemLabel => 'הוסף מוצר למזווה';
+  String itemEditLabel(String name) => '$name, לחץ לעריכה';
+  String quantityLabel(int quantity, bool isLowStock) =>
+      '$quantity יחידות${isLowStock ? ', מלאי נמוך' : ''}, לחץ לעדכון';
+
+  // ========================================
+  // AppBar / Title
+  // ========================================
+
+  String get pantryPrefix => 'מזווה ';
+  String get addItemTooltip => 'הוסף מוצר';
+
+  // ========================================
+  // Loading / Error States
+  // ========================================
+
+  String get loadingText => 'טוען...';
+  String get loadingErrorTitle => 'שגיאה בטעינת המזווה';
+  String get loadingErrorDefault => 'נסה שוב מאוחר יותר';
+  String get retryButton => 'נסה שוב';
+
+  // ========================================
+  // Empty / Filtered States
+  // ========================================
+
+  String get noItemsFound => 'לא נמצאו פריטים';
+  String get clearFilters => 'נקה סינון';
+
+  // ========================================
+  // Starter Items
+  // ========================================
+
+  String get noStarterItemsFound => 'לא נמצאו מוצרי יסוד';
+  String starterItemsAdded(int count) => 'נוספו $count מוצרי יסוד למזווה';
+  String get starterItemsError => 'שגיאה בהוספת מוצרי יסוד';
+
+  // ========================================
+  // Item Actions
+  // ========================================
+
+  String itemDeleted(String name) => '$name נמחק';
+  String get deleteItemError => 'שגיאה במחיקת פריט';
+  String get updateQuantityError => 'שגיאה בעדכון כמות';
+
+  // ========================================
+  // Search / Filter
+  // ========================================
+
+  String get searchHint => 'חיפוש במזווה...';
+  String get clearSearchTooltip => 'נקה חיפוש';
+  String get allLocations => 'הכל';
+
+  // ========================================
+  // Swipe Actions
+  // ========================================
+
+  String get swipeDelete => 'מחיקה';
+
+  // ========================================
+  // Delete Dialog
+  // ========================================
+
+  String get deleteDialogTitle => 'מחיקת פריט';
+  String deleteDialogContent(String name) => 'האם למחוק את "$name"?';
+
+  // ========================================
+  // Quantity Dialog
+  // ========================================
+
+  String get updateQuantityTitle => 'עדכון כמות:';
+  String lowStockWarning(int minQuantity) => 'מלאי נמוך (מינימום: $minQuantity)';
+  String get cancelButton => 'ביטול';
+  String get saveButton => 'שמור';
+
+  // ========================================
+  // Units
+  // ========================================
+
+  String get unitAbbreviation => 'יח׳';
 }

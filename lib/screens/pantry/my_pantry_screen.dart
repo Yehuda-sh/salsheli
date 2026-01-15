@@ -7,6 +7,7 @@
 // - חיפוש וסינון (Frosted Glass design)
 // - CRUD מלא: הוספה, עריכה, מחיקה, עדכון כמות
 // - עיצוב "Clean Notebook" - תואם ל-ShoppingListDetailsScreen
+// - ללא AppBar - כותרת inline עם SafeArea
 //
 // ✅ תיקונים:
 //    - _isProcessing flag למניעת double-tap
@@ -20,13 +21,12 @@
 // - StorageLocationsConfig: תצורת מיקומים
 // - LocationsProvider: מיקומים מותאמים
 //
-// Version: 5.1 - Dark Mode + Accessibility
-// Last Updated: 05/01/2026
+// Version: 5.2 - No AppBar (Immersive)
+// Last Updated: 13/01/2026
 
 import 'dart:async';
 import 'dart:ui' as ui;
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' hide TextDirection;
@@ -213,21 +213,23 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     if (_isProcessing) return;
     setState(() => _isProcessing = true);
 
+    // ✅ Cache values before async gap
+    final strings = AppStrings.pantry;
+    final messenger = ScaffoldMessenger.of(context);
+    final provider = context.read<InventoryProvider>();
+
     try {
       if (kDebugMode) {
         debugPrint('🏺 MyPantryScreen: מוסיף פריטי starter...');
       }
-
-      // שומרים הפניות לפני async
-      final provider = context.read<InventoryProvider>();
 
       // טוען את הפריטים מהתבנית
       final items = await TemplateService.loadPantryStarterItems();
 
       if (items.isEmpty) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('לא נמצאו מוצרי יסוד')),
+          messenger.showSnackBar(
+            SnackBar(content: Text(strings.noStarterItemsFound)),
           );
         }
         return;
@@ -237,8 +239,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       final count = await provider.addStarterItems(items);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('נוספו $count מוצרי יסוד למזווה')),
+        messenger.showSnackBar(
+          SnackBar(content: Text(strings.starterItemsAdded(count))),
         );
       }
     } catch (e) {
@@ -246,8 +248,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         debugPrint('❌ MyPantryScreen: שגיאה בהוספת starter - $e');
       }
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('שגיאה בהוספת מוצרי יסוד')),
+        messenger.showSnackBar(
+          SnackBar(content: Text(strings.starterItemsError)),
         );
       }
     } finally {
@@ -270,15 +272,20 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     if (_isProcessing) return;
     setState(() => _isProcessing = true);
 
+    // ✅ Cache values before async gap
+    final strings = AppStrings.pantry;
+    final messenger = ScaffoldMessenger.of(context);
+    final inventoryProvider = context.read<InventoryProvider>();
+
     if (kDebugMode) {
       debugPrint('🗑️ MyPantryScreen: מחיקת פריט - ${item.id}');
     }
     try {
-      await context.read<InventoryProvider>().deleteItem(item.id);
+      await inventoryProvider.deleteItem(item.id);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(
-            content: Text('${item.productName} נמחק'),
+            content: Text(strings.itemDeleted(item.productName)),
             action: SnackBarAction(
               label: AppStrings.common.cancel,
               onPressed: () {
@@ -293,8 +300,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         debugPrint('❌ MyPantryScreen: שגיאה במחיקת פריט - $e');
       }
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('שגיאה במחיקת פריט')),
+        messenger.showSnackBar(
+          SnackBar(content: Text(strings.deleteItemError)),
         );
       }
     } finally {
@@ -309,6 +316,11 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     if (_isProcessing) return;
     setState(() => _isProcessing = true);
 
+    // ✅ Cache values before async gap
+    final strings = AppStrings.pantry;
+    final messenger = ScaffoldMessenger.of(context);
+    final inventoryProvider = context.read<InventoryProvider>();
+
     if (kDebugMode) {
       debugPrint('📦 MyPantryScreen: עדכון כמות - ${item.id} -> $newQuantity');
     }
@@ -317,7 +329,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       final willBeLow = newQuantity <= item.minQuantity;
 
       final updatedItem = item.copyWith(quantity: newQuantity);
-      await context.read<InventoryProvider>().updateItem(updatedItem);
+      await inventoryProvider.updateItem(updatedItem);
 
       if (wasAboveMin && willBeLow) {
         await _sendLowStockNotification(updatedItem);
@@ -327,8 +339,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         debugPrint('❌ MyPantryScreen: שגיאה בעדכון כמות - $e');
       }
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('שגיאה בעדכון כמות')),
+        messenger.showSnackBar(
+          SnackBar(content: Text(strings.updateQuantityError)),
         );
       }
     } finally {
@@ -350,7 +362,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         final group = groupsProvider.groups.where((g) => g.id == groupId).firstOrNull;
 
         if (group != null) {
-          final notificationsService = NotificationsService(FirebaseFirestore.instance);
+          final notificationsService = context.read<NotificationsService>();
           final currentUserId = userContext.userId;
 
           for (final member in group.membersList) {
@@ -387,12 +399,12 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     final primaryColor = scheme.primaryContainer;
     final backgroundColor = isDark ? scheme.surface : kPaperBackground;
 
-    return Directionality(
-      textDirection: ui.TextDirection.rtl,
-      child: Semantics(
-        label: 'מסך המזווה שלי',
-        container: true,
-        child: Consumer<InventoryProvider>(
+    final strings = AppStrings.pantry;
+
+    return Semantics(
+      label: strings.screenLabel,
+      container: true,
+      child: Consumer<InventoryProvider>(
           builder: (context, provider, child) {
             final allItems = provider.items;
             final filteredItems = _getFilteredItems(allItems);
@@ -401,35 +413,32 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             if (provider.hasError) {
               return Scaffold(
                 backgroundColor: backgroundColor,
-                appBar: AppBar(
-                  backgroundColor: primaryColor,
-                  foregroundColor: scheme.onPrimaryContainer,
-                  title: Text(provider.inventoryTitle),
-                ),
-                body: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.error_outline, size: 64, color: scheme.error),
-                      const SizedBox(height: kSpacingMedium),
-                      Text(
-                        'שגיאה בטעינת המזווה',
-                        style: theme.textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: kSpacingSmall),
-                      Text(
-                        provider.errorMessage ?? 'נסה שוב מאוחר יותר',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: scheme.onSurfaceVariant,
+                body: SafeArea(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.error_outline, size: 64, color: scheme.error),
+                        const SizedBox(height: kSpacingMedium),
+                        Text(
+                          strings.loadingErrorTitle,
+                          style: theme.textTheme.titleMedium,
                         ),
-                      ),
-                      const SizedBox(height: kSpacingLarge),
-                      FilledButton.icon(
-                        onPressed: () => provider.loadItems(),
-                        icon: const Icon(Icons.refresh),
-                        label: const Text('נסה שוב'),
-                      ),
-                    ],
+                        const SizedBox(height: kSpacingSmall),
+                        Text(
+                          provider.errorMessage ?? strings.loadingErrorDefault,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: kSpacingLarge),
+                        FilledButton.icon(
+                          onPressed: () => provider.loadItems(),
+                          icon: const Icon(Icons.refresh),
+                          label: Text(strings.retryButton),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -437,137 +446,146 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
             return Scaffold(
               backgroundColor: backgroundColor,
-              appBar: AppBar(
-                backgroundColor: primaryColor,
-                foregroundColor: isDark ? scheme.onSurface : scheme.onPrimaryContainer,
-                title: _buildPantryTitle(provider, isDark ? scheme.onSurface : scheme.onPrimaryContainer),
-              ),
               floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
               floatingActionButton: Padding(
                 padding: const EdgeInsets.only(left: 16.0, bottom: 16.0),
                 child: Semantics(
                   button: true,
-                  label: 'הוסף מוצר למזווה',
+                  label: strings.addItemLabel,
                   child: FloatingActionButton(
                     heroTag: 'pantry_add_btn',
                     onPressed: _isProcessing ? null : _addItemDialog,
                     backgroundColor: primaryColor,
-                    tooltip: 'הוסף מוצר',
+                    tooltip: strings.addItemTooltip,
                     child: Icon(Icons.add, color: scheme.onPrimaryContainer),
                   ),
                 ),
               ),
               body: provider.isLoading
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CircularProgressIndicator(color: scheme.primary),
-                          const SizedBox(height: kSpacingMedium),
-                          Text('טוען...', style: TextStyle(color: scheme.onSurface)),
-                        ],
+                  ? SafeArea(
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CircularProgressIndicator(color: scheme.primary),
+                            const SizedBox(height: kSpacingMedium),
+                            Text(strings.loadingText, style: TextStyle(color: scheme.onSurface)),
+                          ],
+                        ),
                       ),
                     )
                   : allItems.isEmpty
                       ? Stack(
                           children: [
                             const NotebookBackground(),
-                            PantryEmptyState(
-                              isGroupMode: provider.isGroupMode,
-                              groupName: provider.isGroupMode ? provider.inventoryTitle : null,
-                              onAddItem: _addItemDialog,
-                              onAddStarterItems: _addStarterItems,
+                            SafeArea(
+                              child: PantryEmptyState(
+                                isGroupMode: provider.isGroupMode,
+                                groupName: provider.isGroupMode ? provider.inventoryTitle : null,
+                                onAddItem: _addItemDialog,
+                                onAddStarterItems: _addStarterItems,
+                              ),
                             ),
                           ],
                         )
                       : Stack(
                           children: [
                             const NotebookBackground(),
-                            Column(
-                              children: [
-                                // 🔍 חיפוש וסינון
-                                _buildFiltersSection(allItems),
+                            SafeArea(
+                              child: Column(
+                                children: [
+                                  // 🏷️ כותרת המזווה
+                                  _buildInlineTitle(provider, scheme),
 
-                                // 📋 תוכן
-                                Expanded(
-                                  child: filteredItems.isEmpty && allItems.isNotEmpty
-                                      ? Center(
-                                          child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              Text('לא נמצאו פריטים', style: TextStyle(color: scheme.onSurface)),
-                                              TextButton(
-                                                onPressed: () {
-                                                  setState(() {
-                                                    _searchQuery = '';
-                                                    _selectedLocation = null;
-                                                  });
-                                                },
-                                                child: const Text('נקה סינון'),
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      : filteredItems.length >= 5
-                                          ? _buildGroupedList(filteredItems)
-                                          : _buildFlatList(filteredItems),
-                                ),
-                              ],
+                                  // 🔍 חיפוש וסינון
+                                  _buildFiltersSection(allItems),
+
+                                  // 📋 תוכן
+                                  Expanded(
+                                    child: filteredItems.isEmpty && allItems.isNotEmpty
+                                        ? Center(
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                Text(strings.noItemsFound, style: TextStyle(color: scheme.onSurface)),
+                                                TextButton(
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      _searchQuery = '';
+                                                      _selectedLocation = null;
+                                                    });
+                                                  },
+                                                  child: Text(strings.clearFilters),
+                                                ),
+                                              ],
+                                            ),
+                                          )
+                                        : filteredItems.length >= 5
+                                            ? _buildGroupedList(filteredItems)
+                                            : _buildFlatList(filteredItems),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
             );
           },
         ),
-      ),
     );
   }
 
-  /// 🏷️ כותרת המזווה - עם אייקון ושם הקבוצה
-  Widget _buildPantryTitle(InventoryProvider provider, Color foregroundColor) {
+  /// 🏷️ כותרת המזווה - inline (ללא AppBar)
+  Widget _buildInlineTitle(InventoryProvider provider, ColorScheme scheme) {
     final groupName = provider.currentGroupName;
+    final textColor = scheme.onSurface;
 
-    // מזווה אישי - כותרת עם אייקון
-    if (!provider.isGroupMode || groupName == null) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
+    return Padding(
+      padding: const EdgeInsets.only(
+        right: kSpacingMedium,
+        left: kSpacingMedium,
+        top: kSpacingSmall,
+        bottom: kSpacingTiny,
+      ),
+      child: Row(
         children: [
-          Icon(Icons.kitchen_outlined, size: 22, color: foregroundColor),
-          const SizedBox(width: 6),
-          Text(provider.inventoryTitle),
-        ],
-      );
-    }
-
-    // מזווה קבוצתי - אייקון + "מזווה" + שם הקבוצה בולט
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(Icons.kitchen_outlined, size: 22, color: foregroundColor),
-        const SizedBox(width: 6),
-        RichText(
-          text: TextSpan(
-            children: [
-              TextSpan(
-                text: 'מזווה ',
-                style: TextStyle(
-                  color: foregroundColor.withValues(alpha: 0.7),
-                  fontSize: 18,
-                  fontWeight: FontWeight.normal,
-                ),
-              ),
-              TextSpan(
-                text: groupName,
-                style: TextStyle(
-                  color: foregroundColor,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
+          Icon(Icons.kitchen_outlined, size: 24, color: scheme.primary),
+          const SizedBox(width: kSpacingSmall),
+          Expanded(
+            child: provider.isGroupMode && groupName != null
+                ? RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: AppStrings.pantry.pantryPrefix,
+                          style: TextStyle(
+                            color: textColor.withValues(alpha: 0.7),
+                            fontSize: 18,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                        TextSpan(
+                          text: groupName,
+                          style: TextStyle(
+                            color: textColor,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : Text(
+                    provider.inventoryTitle,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -580,13 +598,13 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     final scheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
 
-    // ✅ Dark Mode colors
+    // ✅ Dark Mode colors - theme-aware
     final glassBgColor = isDark
         ? scheme.surfaceContainerHighest.withValues(alpha: 0.8)
-        : Colors.white.withValues(alpha: 0.6);
+        : scheme.surface.withValues(alpha: 0.6);
     final shadowColor = isDark
-        ? Colors.black.withValues(alpha: 0.2)
-        : Colors.black.withValues(alpha: 0.05);
+        ? theme.shadowColor.withValues(alpha: 0.2)
+        : theme.shadowColor.withValues(alpha: 0.05);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -614,13 +632,13 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                 child: TextField(
                   textAlignVertical: TextAlignVertical.center,
                   decoration: InputDecoration(
-                    hintText: 'חיפוש במזווה...',
+                    hintText: AppStrings.pantry.searchHint,
                     hintStyle: const TextStyle(fontSize: 14),
                     prefixIcon: const Icon(Icons.search, size: 20),
                     suffixIcon: _searchQuery.isNotEmpty
                         ? IconButton(
                             icon: const Icon(Icons.clear, size: 18),
-                            tooltip: 'נקה חיפוש',
+                            tooltip: AppStrings.pantry.clearSearchTooltip,
                             onPressed: () {
                               setState(() => _searchQuery = '');
                             },
@@ -660,10 +678,10 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     final scheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
 
-    // ✅ Dark Mode colors
+    // ✅ Dark Mode colors - theme-aware
     final chipBgColor = isDark
         ? scheme.surfaceContainerHighest.withValues(alpha: 0.8)
-        : Colors.white.withValues(alpha: 0.8);
+        : scheme.surface.withValues(alpha: 0.8);
     final chipSelectedColor = scheme.primaryContainer;
     final textColor = scheme.onSurface;
     final textColorMuted = scheme.onSurfaceVariant;
@@ -672,7 +690,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       final isAll = location == null;
       final isSelected = _selectedLocation == location;
       final emoji = isAll ? '🏪' : _getLocationEmoji(location);
-      final name = isAll ? 'הכל' : _getLocationName(location);
+      final name = isAll ? AppStrings.pantry.allLocations : _getLocationName(location);
 
       return Padding(
         padding: const EdgeInsets.only(left: 8.0),
@@ -752,89 +770,85 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       builder: (dialogContext) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
-            return Directionality(
-              textDirection: TextDirection.rtl,
-              child: AlertDialog(
-                title: Text(AppStrings.inventory.addLocationTitle),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // בחירת אמוג'י
-                    Text(AppStrings.inventory.selectEmojiLabel, style: const TextStyle(fontSize: kFontSizeTiny)),
-                    const SizedBox(height: kSpacingSmall),
-                    Wrap(
-                      spacing: kSpacingSmall,
-                      runSpacing: kSpacingSmall,
-                      children: _availableEmojis.map((emoji) {
-                        final isSelected = emoji == selectedEmoji;
-                        return GestureDetector(
-                          onTap: () {
-                            setDialogState(() {
-                              selectedEmoji = emoji;
-                            });
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(kSpacingSmall),
-                            decoration: BoxDecoration(
-                              color: isSelected ? cs.primaryContainer : cs.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                              border: Border.all(
-                                color: isSelected ? cs.primary : Colors.transparent,
-                                width: kBorderWidthThick,
-                              ),
+            return AlertDialog(
+              title: Text(AppStrings.inventory.addLocationTitle),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // בחירת אמוג'י
+                  Text(AppStrings.inventory.selectEmojiLabel, style: const TextStyle(fontSize: kFontSizeTiny)),
+                  const SizedBox(height: kSpacingSmall),
+                  Wrap(
+                    spacing: kSpacingSmall,
+                    runSpacing: kSpacingSmall,
+                    children: _availableEmojis.map((emoji) {
+                      final isSelected = emoji == selectedEmoji;
+                      return GestureDetector(
+                        onTap: () {
+                          setDialogState(() {
+                            selectedEmoji = emoji;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(kSpacingSmall),
+                          decoration: BoxDecoration(
+                            color: isSelected ? cs.primaryContainer : cs.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                            border: Border.all(
+                              color: isSelected ? cs.primary : Colors.transparent,
+                              width: kBorderWidthThick,
                             ),
-                            child: Text(emoji, style: const TextStyle(fontSize: kIconSize)),
                           ),
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(height: kSpacingMedium),
-                    // שם המיקום
-                    TextField(
-                      controller: controller,
-                      decoration: InputDecoration(
-                        labelText: AppStrings.inventory.locationNameLabel,
-                        hintText: AppStrings.inventory.locationNameHint,
-                        border: const OutlineInputBorder(),
-                      ),
-                      autofocus: true,
-                      textDirection: TextDirection.rtl,
-                    ),
-                  ],
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(dialogContext, false),
-                    child: Text(AppStrings.common.cancel),
+                          child: Text(emoji, style: const TextStyle(fontSize: kIconSize)),
+                        ),
+                      );
+                    }).toList(),
                   ),
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.add_location_alt, size: kIconSizeSmall),
-                    label: Text(AppStrings.inventory.addLocationButton),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: cs.primaryContainer,
-                      foregroundColor: cs.onPrimaryContainer,
+                  const SizedBox(height: kSpacingMedium),
+                  // שם המיקום
+                  TextField(
+                    controller: controller,
+                    decoration: InputDecoration(
+                      labelText: AppStrings.inventory.locationNameLabel,
+                      hintText: AppStrings.inventory.locationNameHint,
+                      border: const OutlineInputBorder(),
                     ),
-                    onPressed: () async {
-                      final name = controller.text.trim();
-                      if (name.isEmpty) return;
-
-                      final provider = this.context.read<LocationsProvider>();
-                      final navigator = Navigator.of(dialogContext);
-                      final messenger = ScaffoldMessenger.of(this.context);
-
-                      final success = await provider.addLocation(name, emoji: selectedEmoji);
-
-                      if (success) {
-                        navigator.pop(true);
-                      } else {
-                        messenger.showSnackBar(
-                          SnackBar(content: Text(AppStrings.inventory.locationExists)),
-                        );
-                      }
-                    },
+                    autofocus: true,
                   ),
                 ],
               ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext, false),
+                  child: Text(AppStrings.common.cancel),
+                ),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.add_location_alt, size: kIconSizeSmall),
+                  label: Text(AppStrings.inventory.addLocationButton),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: cs.primaryContainer,
+                    foregroundColor: cs.onPrimaryContainer,
+                  ),
+                  onPressed: () async {
+                    final name = controller.text.trim();
+                    if (name.isEmpty) return;
+
+                    final provider = this.context.read<LocationsProvider>();
+                    final navigator = Navigator.of(dialogContext);
+                    final messenger = ScaffoldMessenger.of(this.context);
+
+                    final success = await provider.addLocation(name, emoji: selectedEmoji);
+
+                    if (success) {
+                      navigator.pop(true);
+                    } else {
+                      messenger.showSnackBar(
+                        SnackBar(content: Text(AppStrings.inventory.locationExists)),
+                      );
+                    }
+                  },
+                ),
+              ],
             );
           },
         );
@@ -956,7 +970,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                       decoration: BoxDecoration(
                         color: isDark
                             ? scheme.surfaceContainerHighest.withValues(alpha: 0.6)
-                            : Colors.white.withValues(alpha: 0.6),
+                            : scheme.surface.withValues(alpha: 0.6),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -985,6 +999,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   Widget _buildItemRow(InventoryItem item) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final strings = AppStrings.pantry;
 
     return Dismissible(
       key: Key(item.id),
@@ -997,7 +1012,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           children: [
             Icon(Icons.delete_outline, color: cs.onErrorContainer),
             const SizedBox(width: 8),
-            Text('מחיקה', style: TextStyle(color: cs.onErrorContainer, fontWeight: FontWeight.bold)),
+            Text(strings.swipeDelete, style: TextStyle(color: cs.onErrorContainer, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
@@ -1005,8 +1020,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         return await showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('מחיקת פריט'),
-            content: Text('האם למחוק את "${item.productName}"?'),
+            title: Text(strings.deleteDialogTitle),
+            content: Text(strings.deleteDialogContent(item.productName)),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
@@ -1108,7 +1123,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                     ),
                     const SizedBox(width: kSpacingXTiny),
                     Text(
-                      'יח׳', // יחידות - מספר אריזות/יחידות במלאי
+                      strings.unitAbbreviation,
                       style: TextStyle(
                         color: item.isLowStock ? cs.error : cs.onSurfaceVariant,
                         fontSize: 11,
@@ -1188,80 +1203,79 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     final cs = Theme.of(context).colorScheme;
     int quantity = item.quantity;
 
+    final strings = AppStrings.pantry;
+
     showDialog(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
-        builder: (context, setDialogState) => Directionality(
-          textDirection: ui.TextDirection.rtl,
-          child: AlertDialog(
-            title: Text(
-              item.productName,
-              style: TextStyle(fontSize: kFontSizeMedium, color: cs.primary),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text('עדכון כמות:'),
-                const SizedBox(height: kSpacingMedium),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton.filled(
-                      icon: const Icon(Icons.remove),
-                      onPressed: quantity > 0 ? () => setDialogState(() => quantity--) : null,
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge),
-                      child: Text(
-                        '$quantity',
-                        style: TextStyle(
-                          fontSize: kFontSizeLarge,
-                          fontWeight: FontWeight.bold,
-                          color: quantity <= item.minQuantity ? cs.error : cs.onSurface,
-                        ),
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(
+            item.productName,
+            style: TextStyle(fontSize: kFontSizeMedium, color: cs.primary),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(strings.updateQuantityTitle),
+              const SizedBox(height: kSpacingMedium),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton.filled(
+                    icon: const Icon(Icons.remove),
+                    onPressed: quantity > 0 ? () => setDialogState(() => quantity--) : null,
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge),
+                    child: Text(
+                      '$quantity',
+                      style: TextStyle(
+                        fontSize: kFontSizeLarge,
+                        fontWeight: FontWeight.bold,
+                        color: quantity <= item.minQuantity ? cs.error : cs.onSurface,
                       ),
                     ),
-                    IconButton.filled(
-                      icon: const Icon(Icons.add),
-                      onPressed: quantity < 99 ? () => setDialogState(() => quantity++) : null,
-                    ),
-                  ],
-                ),
-                if (quantity <= item.minQuantity)
-                  Padding(
-                    padding: const EdgeInsets.only(top: kSpacingSmall),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.warning, color: cs.error, size: kIconSizeSmall),
-                        const SizedBox(width: kSpacingTiny),
-                        Text(
-                          'מלאי נמוך (מינימום: ${item.minQuantity})',
-                          style: TextStyle(color: cs.error, fontSize: kFontSizeTiny),
-                        ),
-                      ],
-                    ),
                   ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext),
-                child: const Text('ביטול'),
+                  IconButton.filled(
+                    icon: const Icon(Icons.add),
+                    onPressed: quantity < 99 ? () => setDialogState(() => quantity++) : null,
+                  ),
+                ],
               ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(dialogContext);
-                  if (quantity != item.quantity) {
-                    _updateQuantity(item, quantity);
-                  }
-                },
-                child: const Text('שמור'),
-              ),
+              if (quantity <= item.minQuantity)
+                Padding(
+                  padding: const EdgeInsets.only(top: kSpacingSmall),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.warning, color: cs.error, size: kIconSizeSmall),
+                      const SizedBox(width: kSpacingTiny),
+                      Text(
+                        strings.lowStockWarning(item.minQuantity),
+                        style: TextStyle(color: cs.error, fontSize: kFontSizeTiny),
+                      ),
+                    ],
+                  ),
+                ),
             ],
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(strings.cancelButton),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                if (quantity != item.quantity) {
+                  _updateQuantity(item, quantity);
+                }
+              },
+              child: Text(strings.saveButton),
+            ),
+          ],
         ),
       ),
     );

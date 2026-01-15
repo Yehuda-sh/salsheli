@@ -16,7 +16,8 @@
 //     - Empty State
 //     - Loading State
 //
-// גרסה: v1.0 | תאריך: 02/11/2025
+// Version 2.1 - No AppBar (Immersive)
+// Last Updated: 13/01/2026
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
@@ -24,6 +25,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
 import '../../models/enums/user_role.dart';
 import '../../models/shared_user.dart';
 import '../../models/shopping_list.dart';
@@ -87,6 +89,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
   // Helper: מחזיר שם תצוגה (תמיד String, לא nullable)
   String _getDisplayName(SharedUser user) {
+    final strings = AppStrings.manageUsers;
+
     // אם יש userName - השתמש בו
     if (user.userName != null && user.userName!.isNotEmpty) {
       return user.userName!;
@@ -95,29 +99,30 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     // אם זה המשתמש הנוכחי - קח את השם מ-UserContext
     final userContext = context.read<UserContext>();
     if (user.userId == userContext.userId) {
-      return userContext.displayName ?? 'אני';
+      return userContext.displayName ?? strings.me;
     }
 
     // ברירת מחדל - הצג "משתמש" עם 4 תווים אחרונים של ה-ID
     final shortId = user.userId.length > 4
         ? user.userId.substring(user.userId.length - 4)
         : user.userId;
-    return 'משתמש #$shortId';
+    return strings.userShortId(shortId);
   }
 
   Future<void> _removeUser(SharedUser user) async {
+    final strings = AppStrings.manageUsers;
     final userContext = context.read<UserContext>();
     final currentUserId = userContext.userId;
 
     // בדיקה שהמשתמש מחובר
     if (currentUserId == null) {
-      _showError('שגיאה: משתמש לא מחובר');
+      _showError(strings.errorUserNotLoggedIn);
       return;
     }
 
     // בדיקת הרשאות - שימוש ב-_currentList
     if (!ShareListService.canUserManage(_currentList, currentUserId)) {
-      _showError('אין לך הרשאה להסיר משתמשים');
+      _showError(strings.errorNoPermissionRemove);
       return;
     }
 
@@ -127,21 +132,19 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       builder: (context) {
         final displayName = _getDisplayName(user);
         return AlertDialog(
-          title: const Text('הסרת משתמש'),
-          content: Text(
-            'האם אתה בטוח שברצונך להסיר את $displayName?',
-          ),
+          title: Text(strings.removeUserTitle),
+          content: Text(strings.removeUserConfirmation(displayName)),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('ביטול'),
+              child: Text(strings.cancel),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
               style: TextButton.styleFrom(
                 foregroundColor: kStickyPink,
               ),
-              child: const Text('הסר'),
+              child: Text(strings.removeButton),
             ),
           ],
         );
@@ -153,13 +156,13 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final currentUserName = userContext.displayName ?? 'משתמש';
+      final currentUserName = userContext.displayName ?? strings.defaultUserName;
       final householdId = userContext.householdId;
       final provider = context.read<ShoppingListsProvider>();
 
       // בדיקה שיש householdId
       if (householdId == null) {
-        _showError('שגיאה: משתמש לא משויך למשק בית');
+        _showError(strings.errorNoHousehold);
         return;
       }
 
@@ -180,12 +183,12 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
         _currentList = updatedList;
         _loadUsers();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('משתמש הוסר בהצלחה')),
+          SnackBar(content: Text(strings.userRemovedSuccess)),
         );
       }
     } catch (e) {
       if (mounted) {
-        _showError('שגיאה בהסרת משתמש: $e');
+        _showError(strings.errorRemovingUser(e.toString()));
       }
     } finally {
       if (mounted) {
@@ -195,18 +198,19 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   }
 
   Future<void> _editUserRole(SharedUser user) async {
+    final strings = AppStrings.manageUsers;
     final userContext = context.read<UserContext>();
     final currentUserId = userContext.userId;
 
     // בדיקה שהמשתמש מחובר
     if (currentUserId == null) {
-      _showError('שגיאה: משתמש לא מחובר');
+      _showError(strings.errorUserNotLoggedIn);
       return;
     }
 
     // בדיקת הרשאות - שימוש ב-_currentList
     if (!ShareListService.canUserManage(_currentList, currentUserId)) {
-      _showError('אין לך הרשאה לשנות תפקידים');
+      _showError(strings.errorNoPermissionEditRole);
       return;
     }
 
@@ -216,11 +220,11 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       builder: (context) {
         final displayName = _getDisplayName(user);
         return AlertDialog(
-          title: const Text('עריכת תפקיד'),
+          title: Text(strings.editRoleTitle),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('בחר תפקיד חדש עבור $displayName:'),
+              Text(strings.selectNewRole(displayName)),
               const SizedBox(height: kSpacingMedium),
               ...UserRole.values
                   .where((role) => role != UserRole.owner)
@@ -243,13 +247,13 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final currentUserName = userContext.displayName ?? 'משתמש';
+      final currentUserName = userContext.displayName ?? strings.defaultUserName;
       final householdId = userContext.householdId;
       final provider = context.read<ShoppingListsProvider>();
 
       // בדיקה שיש householdId
       if (householdId == null) {
-        _showError('שגיאה: משתמש לא משויך למשק בית');
+        _showError(strings.errorNoHousehold);
         return;
       }
 
@@ -271,12 +275,12 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
         _currentList = updatedList;
         _loadUsers();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('התפקיד עודכן ל-${newRole.hebrewName}')),
+          SnackBar(content: Text(strings.roleUpdatedSuccess(newRole.hebrewName))),
         );
       }
     } catch (e) {
       if (mounted) {
-        _showError('שגיאה בעדכון תפקיד: $e');
+        _showError(strings.errorUpdatingRole(e.toString()));
       }
     } finally {
       if (mounted) {
@@ -317,72 +321,134 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppStrings.manageUsers;
     final userContext = context.watch<UserContext>();
     final currentUserId = userContext.userId;
-    
+
+    final cs = Theme.of(context).colorScheme;
+
     // אם המשתמש לא מחובר - הצג שגיאה
     if (currentUserId == null) {
-      return Scaffold(
-        backgroundColor: kPaperBackground,
-        appBar: AppBar(
-          title: const Text('ניהול משתמשים'),
-          backgroundColor: kStickyYellow,
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+      return Directionality(
+        textDirection: TextDirection.rtl,
+        child: Scaffold(
+          backgroundColor: kPaperBackground,
+          body: Stack(
             children: [
-              Icon(
-                Icons.error_outline,
-                size: 64,
-                color: kStickyPink.withValues(alpha: 0.7),
-              ),
-              const SizedBox(height: kSpacingMedium),
-              const Text(
-                'שגיאה: משתמש לא מחובר',
-                style: TextStyle(fontSize: 18),
+              const NotebookBackground(),
+              SafeArea(
+                child: Column(
+                  children: [
+                    // 🏷️ כותרת inline
+                    Padding(
+                      padding: const EdgeInsets.all(kSpacingMedium),
+                      child: Row(
+                        children: [
+                          Icon(Icons.group, size: 24, color: cs.primary),
+                          const SizedBox(width: kSpacingSmall),
+                          Expanded(
+                            child: Text(
+                              strings.title,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: cs.onSurface,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              size: 64,
+                              color: kStickyPink.withValues(alpha: 0.7),
+                            ),
+                            const SizedBox(height: kSpacingMedium),
+                            Text(
+                              strings.errorUserNotLoggedIn,
+                              style: const TextStyle(fontSize: 18),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
         ),
       );
     }
-    
+
     final isOwner = ShareListService.canUserManage(_currentList, currentUserId);
 
-    return Scaffold(
-      backgroundColor: kPaperBackground,
-      appBar: AppBar(
-        title: const Text('ניהול משתמשים'),
-        backgroundColor: kStickyYellow,
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: kPaperBackground,
+        body: Stack(
+          children: [
+            const NotebookBackground(),
+            SafeArea(
+              child: Column(
+                children: [
+                  // 🏷️ כותרת inline
+                  Padding(
+                    padding: const EdgeInsets.all(kSpacingMedium),
+                    child: Row(
+                      children: [
+                        Icon(Icons.group, size: 24, color: cs.primary),
+                        const SizedBox(width: kSpacingSmall),
+                        Expanded(
+                          child: Text(
+                            strings.title,
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: cs.onSurface,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(child: _buildBody(isOwner)),
+                ],
+              ),
+            ),
+          ],
+        ),
+        floatingActionButton: isOwner
+            ? FloatingActionButton.extended(
+                heroTag: 'manage_users_fab',
+                onPressed: _inviteUser,
+                backgroundColor: kStickyGreen,
+                icon: const Icon(Icons.person_add),
+                label: Text(strings.inviteUser),
+              )
+            : null,
       ),
-      body: Stack(
-        children: [
-          const NotebookBackground(),
-          _buildBody(isOwner),
-        ],
-      ),
-      floatingActionButton: isOwner
-          ? FloatingActionButton.extended(
-              heroTag: 'manage_users_fab',
-              onPressed: _inviteUser,
-              backgroundColor: kStickyGreen,
-              icon: const Icon(Icons.person_add),
-              label: const Text('הזמן משתמש'),
-            )
-          : null,
     );
   }
 
   Widget _buildBody(bool isOwner) {
+    final strings = AppStrings.manageUsers;
+
     if (_isLoading) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: kSpacingMedium),
-            Text('טוען משתמשים...'),
+            const CircularProgressIndicator(),
+            const SizedBox(height: kSpacingMedium),
+            Text(strings.loadingUsers),
           ],
         ),
       );
@@ -406,7 +472,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             ),
             const SizedBox(height: kSpacingMedium),
             StickyButton(
-              label: 'נסה שוב 🔄',
+              label: strings.retryButton,
               color: kStickyCyan,
               onPressed: _loadUsers,
             ),
@@ -426,16 +492,14 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
               color: Colors.grey.withValues(alpha: 0.5),
             ),
             const SizedBox(height: kSpacingMedium),
-            const Text(
-              'אין משתמשים משותפים',
-              style: TextStyle(fontSize: 18),
+            Text(
+              strings.noSharedUsers,
+              style: const TextStyle(fontSize: 18),
             ),
             const SizedBox(height: kSpacingSmall),
             // 🔧 טקסט שונה לפי הרשאות
             Text(
-              isOwner
-                  ? 'לחץ על + להזמנת משתמשים'
-                  : 'רק בעל הרשימה יכול להזמין משתמשים',
+              isOwner ? strings.inviteUsersHint : strings.onlyOwnerCanInvite,
               style: const TextStyle(color: Colors.grey),
             ),
           ],
@@ -455,6 +519,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   }
 
   Widget _buildUserCard(SharedUser user, bool isOwner) {
+    final strings = AppStrings.manageUsers;
     final userContext = context.read<UserContext>();
     final isUserOwner = user.role == UserRole.owner;
     final isCurrentUser = user.userId == userContext.userId;
@@ -491,9 +556,9 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                   color: kStickyGreen.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text(
-                  'אתה',
-                  style: TextStyle(
+                child: Text(
+                  strings.you,
+                  style: const TextStyle(
                     fontSize: 12,
                     color: Colors.green,
                     fontWeight: FontWeight.w600,
@@ -523,23 +588,23 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             ? PopupMenuButton<String>(
                 icon: const Icon(Icons.more_vert),
                 itemBuilder: (context) => [
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'edit',
                     child: Row(
                       children: [
-                        Icon(Icons.edit, size: 20),
-                        SizedBox(width: kSpacingSmall),
-                        Text('ערוך תפקיד'),
+                        const Icon(Icons.edit, size: 20),
+                        const SizedBox(width: kSpacingSmall),
+                        Text(strings.editRole),
                       ],
                     ),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'remove',
                     child: Row(
                       children: [
-                        Icon(Icons.delete, size: 20, color: kStickyPink),
-                        SizedBox(width: kSpacingSmall),
-                        Text('הסר משתמש', style: TextStyle(color: kStickyPink)),
+                        const Icon(Icons.delete, size: 20, color: kStickyPink),
+                        const SizedBox(width: kSpacingSmall),
+                        Text(strings.removeUser, style: const TextStyle(color: kStickyPink)),
                       ],
                     ),
                   ),
@@ -567,6 +632,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       case UserRole.editor:
         return kStickyCyan;
       case UserRole.viewer:
+      case UserRole.unknown:
         return Colors.grey;
     }
   }

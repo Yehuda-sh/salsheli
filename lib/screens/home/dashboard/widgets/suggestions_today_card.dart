@@ -12,6 +12,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/ui_constants.dart';
+import '../../../../l10n/app_strings.dart';
+import '../../../../models/enums/suggestion_status.dart';
 import '../../../../models/shopping_list.dart';
 import '../../../../models/smart_suggestion.dart';
 import '../../../../providers/shopping_lists_provider.dart';
@@ -197,7 +199,14 @@ class _StickyNoteCard extends StatefulWidget {
 class _StickyNoteCardState extends State<_StickyNoteCard> {
   bool _isProcessing = false;
 
+  /// Check if suggestion has unknown status
+  bool get _isUnknownStatus =>
+      widget.suggestion.status == SuggestionStatus.unknown;
+
   Color _getCardColor(String urgency) {
+    // ⚠️ Grey for unknown status
+    if (_isUnknownStatus) return Colors.grey.shade400;
+
     switch (urgency) {
       case 'critical':
         return kStickyPink;
@@ -449,6 +458,33 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                   ),
                   const SizedBox(height: 10),
 
+                  // ⚠️ Warning for unknown status
+                  if (_isUnknownStatus) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.warning_amber, size: 10, color: Colors.black54),
+                          const SizedBox(width: 3),
+                          Expanded(
+                            child: Text(
+                              AppStrings.inventory.unknownSuggestionUpdateApp,
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                fontSize: 9,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                  ],
+
                   // כפתורי פעולה
                   if (_isProcessing)
                     const Center(
@@ -464,7 +500,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                   else
                     Row(
                       children: [
-                        // כפתור הוסף
+                        // כפתור הוסף (always enabled - safe operation)
                         Expanded(
                           child: Material(
                             color: Colors.black.withValues(alpha: 0.1),
@@ -499,19 +535,19 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                           ),
                         ),
                         const SizedBox(width: 6),
-                        // כפתור X
+                        // כפתור X - disabled for unknown
                         Material(
-                          color: Colors.black.withValues(alpha: 0.06),
+                          color: Colors.black.withValues(alpha: _isUnknownStatus ? 0.03 : 0.06),
                           borderRadius: BorderRadius.circular(8),
                           child: InkWell(
-                            onTap: () => _onDismiss(context),
+                            onTap: _isUnknownStatus ? null : () => _onDismiss(context),
                             borderRadius: BorderRadius.circular(8),
-                            child: const Padding(
-                              padding: EdgeInsets.all(8),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8),
                               child: Icon(
                                 Icons.close,
                                 size: 16,
-                                color: Colors.black45,
+                                color: _isUnknownStatus ? Colors.black26 : Colors.black45,
                               ),
                             ),
                           ),

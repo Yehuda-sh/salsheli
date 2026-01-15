@@ -40,8 +40,8 @@
 // 4. עדכון מחירים ידני (ProductsProvider.refreshProducts)
 // 5. התנתקות → ניקוי + חזרה ל-login
 //
-// Version: 3.3 - SimpleTappableCard refactor
-// Last Updated: 2/11/2025
+// Version: 3.4 - No AppBar (Immersive)
+// Last Updated: 13/01/2026
 
 import 'dart:async';
 
@@ -610,12 +610,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (_loading) {
       return Scaffold(
         backgroundColor: cs.surface,
-        appBar: AppBar(
-          title: Text(AppStrings.settings.title),
-          backgroundColor: cs.primary,
-          foregroundColor: cs.onPrimary,
-          elevation: 0,
-        ),
         body: Stack(
           children: [
             const NotebookBackground(),
@@ -657,12 +651,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: AppBar(
-        title: Text(AppStrings.settings.title),
-        backgroundColor: cs.primary,
-        foregroundColor: cs.onPrimary,
-        elevation: 0,
-      ),
       body: Stack(
         children: [
           const NotebookBackground(),
@@ -670,6 +658,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: ListView(
               padding: const EdgeInsets.all(kSpacingMedium),
               children: [
+                // 🏷️ כותרת inline
+                Padding(
+                  padding: const EdgeInsets.only(bottom: kSpacingMedium),
+                  child: Row(
+                    children: [
+                      Icon(Icons.settings_outlined, size: 24, color: cs.primary),
+                      const SizedBox(width: kSpacingSmall),
+                      Text(
+                        AppStrings.settings.title,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: cs.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
                 // 🔹 פרופיל אישי
                 StickyNote(
                   color: kStickyYellow,

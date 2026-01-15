@@ -12,11 +12,17 @@
 // - מוצרים עם מחירים אמיתיים (לא גנריים)
 // - אין כפילויות - כל מוצר מהמקור שלו
 // - אפשר למקס מוצרים מחנויות שונות
+//
+// Version: 2.0 - Fixed busy-wait, safe casting, kDebugMode
+// Last Updated: 13/01/2026
 
+import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
+
+import 'package:flutter/foundation.dart' show kDebugMode, debugPrint;
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
+
 import '../models/inventory_item.dart';
 import '../models/unified_list_item.dart';
 
@@ -44,58 +50,102 @@ class TemplateInfo {
 class TemplateService {
   // מטמון של מוצרים - נטען פעם אחת בלבד
   static Map<String, List<Map<String, dynamic>>>? _productsCache;
-  static bool _isLoading = false;
+
+  // ✅ FIX #1: Completer pattern במקום busy-wait loop
+  static Completer<void>? _loadingCompleter;
 
   /// טוען את כל קבצי המוצרים לזיכרון (lazy loading)
   static Future<void> _loadProductsIfNeeded() async {
+    // כבר נטען
     if (_productsCache != null) {
-      debugPrint('✅ [TemplateService] מוצרים כבר נטענו מהמטמון');
+      if (kDebugMode) debugPrint('✅ [TemplateService] מוצרים כבר נטענו מהמטמון');
       return;
     }
 
-    if (_isLoading) {
-      debugPrint('⏳ [TemplateService] טעינה כבר בתהליך, ממתין...');
-      // ממתין שהטעינה תסתיים
-      while (_isLoading) {
-        await Future.delayed(const Duration(milliseconds: 100));
-      }
+    // טעינה בתהליך - await על אותו Future (לא busy-wait!)
+    if (_loadingCompleter != null) {
+      if (kDebugMode) debugPrint('⏳ [TemplateService] טעינה כבר בתהליך, ממתין...');
+      await _loadingCompleter!.future;
       return;
     }
 
-    _isLoading = true;
-    debugPrint('🔄 [TemplateService] מתחיל לטעון מוצרים...');
+    // מתחילים טעינה חדשה
+    _loadingCompleter = Completer<void>();
+    if (kDebugMode) debugPrint('🔄 [TemplateService] מתחיל לטעון מוצרים...');
 
-    _productsCache = {};
+    try {
+      _productsCache = {};
 
-    // רשימת כל החנויות
-    final sources = [
-      'supermarket',
-      'bakery',
-      'butcher',
-      'greengrocer',
-      'pharmacy',
-      'market'
-    ];
+      // רשימת כל החנויות
+      const sources = [
+        'supermarket',
+        'bakery',
+        'butcher',
+        'greengrocer',
+        'pharmacy',
+        'market'
+      ];
 
-    for (var source in sources) {
-      try {
-        final String json = await rootBundle.loadString(
-          'assets/data/list_types/$source.json',
-        );
-        _productsCache![source] = List<Map<String, dynamic>>.from(
-          jsonDecode(json) as List,
-        );
-        debugPrint(
-            '   ✅ נטען $source: ${_productsCache![source]!.length} מוצרים');
-      } catch (e) {
-        debugPrint('   ❌ שגיאה בטעינת $source: $e');
-        _productsCache![source] = [];
+      for (final source in sources) {
+        try {
+          final String json = await rootBundle.loadString(
+            'assets/data/list_types/$source.json',
+          );
+          // ✅ FIX #3: Safe casting עם whereType
+          final decoded = jsonDecode(json);
+          if (decoded is List) {
+            _productsCache![source] = decoded
+                .whereType<Map>()
+                .map((m) => Map<String, dynamic>.from(m))
+                .toList();
+          } else {
+            _productsCache![source] = [];
+          }
+          if (kDebugMode) {
+            debugPrint('   ✅ נטען $source: ${_productsCache![source]!.length} מוצרים');
+          }
+        } catch (e) {
+          if (kDebugMode) debugPrint('   ❌ שגיאה בטעינת $source: $e');
+          _productsCache![source] = [];
+        }
       }
-    }
 
-    _isLoading = false;
-    debugPrint(
-        '✅ [TemplateService] סיים לטעון כל המוצרים (${_productsCache!.values.fold(0, (sum, list) => sum + list.length)} סה"כ)');
+      if (kDebugMode) {
+        final total = _productsCache!.values.fold(0, (sum, list) => sum + list.length);
+        debugPrint('✅ [TemplateService] סיים לטעון כל המוצרים ($total סה"כ)');
+      }
+
+      _loadingCompleter!.complete();
+    } catch (e) {
+      // שגיאה - נאפס את ה-completer כדי לאפשר ניסיון חוזר
+      _productsCache = null;
+      _loadingCompleter!.completeError(e);
+      _loadingCompleter = null;
+      rethrow;
+    }
+  }
+
+  // ════════════════════════════════════════════
+  // 🔧 Helper Methods
+  // ════════════════════════════════════════════
+
+  /// ✅ FIX #5: המרת מחיר בטוחה (כמו FlexDoubleConverter)
+  /// תומך ב: num, String (עם פסיק או נקודה), null
+  static double _parsePrice(Object? value) {
+    if (value == null) return 0.0;
+    if (value is num) return value.toDouble();
+    if (value is String) {
+      final cleaned = value.replaceAll(',', '.');
+      return double.tryParse(cleaned) ?? 0.0;
+    }
+    return 0.0;
+  }
+
+  /// ✅ FIX #4: קריאת שם מוצר בטוחה
+  static String? _getProductName(Map<String, dynamic> product) {
+    final name = product['name'];
+    if (name is String && name.isNotEmpty) return name;
+    return null;
   }
 
   /// מחפש מוצר לפי טקסט חיפוש
@@ -105,27 +155,24 @@ class TemplateService {
     final products = _productsCache?[source] ?? [];
 
     if (products.isEmpty) {
-      debugPrint('   ⚠️ אין מוצרים ב-$source');
+      if (kDebugMode) debugPrint('   ⚠️ אין מוצרים ב-$source');
       return null;
     }
 
     // חיפוש - מוצר שמכיל את המילה (case insensitive)
     final normalizedSearch = searchTerm.toLowerCase();
 
-    try {
-      final found = products.firstWhere(
-        (product) {
-          final name = (product['name'] as String).toLowerCase();
-          return name.contains(normalizedSearch);
-        },
-      );
-
-      debugPrint('      ✅ נמצא: ${found['name']} (ב-$source)');
-      return found;
-    } catch (e) {
-      debugPrint('      ⚠️ לא נמצא "$searchTerm" ב-$source');
-      return null;
+    // ✅ FIX #4: קריאה בטוחה של שם המוצר
+    for (final product in products) {
+      final name = _getProductName(product);
+      if (name != null && name.toLowerCase().contains(normalizedSearch)) {
+        if (kDebugMode) debugPrint('      ✅ נמצא: $name (ב-$source)');
+        return product;
+      }
     }
+
+    if (kDebugMode) debugPrint('      ⚠️ לא נמצא "$searchTerm" ב-$source');
+    return null;
   }
 
   /// טוען תבנית ממקור ויוצר רשימת פריטים
@@ -136,7 +183,7 @@ class TemplateService {
   /// 3. מחזיר רשימת UnifiedListItem מוכנה
   static Future<List<UnifiedListItem>> loadTemplateItems(
       String templateFile) async {
-    debugPrint('📋 [TemplateService] טוען תבנית: $templateFile');
+    if (kDebugMode) debugPrint('📋 [TemplateService] טוען תבנית: $templateFile');
 
     // 1. ודא שהמוצרים נטענו
     await _loadProductsIfNeeded();
@@ -147,20 +194,27 @@ class TemplateService {
     );
     final data = jsonDecode(json) as Map<String, dynamic>;
 
-    final templateName = data['templateName'] as String;
-    debugPrint('   📝 שם תבנית: $templateName');
+    final templateName = data['templateName'] as String?;
+    if (kDebugMode) debugPrint('   📝 שם תבנית: $templateName');
 
     final items = <UnifiedListItem>[];
 
     // 3. לכל item בתבנית
-    for (var templateItem in data['items'] as List) {
-      final source = templateItem['source'] as String;
-      final searchTerm = templateItem['searchTerm'] as String;
-      final quantity = (templateItem['quantity'] as num).toDouble();
-      final unit = templateItem['unit'] as String;
-      final fallbackName = templateItem['fallbackName'] as String;
+    final templateItems = data['items'];
+    if (templateItems is! List) return items;
 
-      debugPrint('   🔍 מחפש: "$searchTerm" ב-$source');
+    for (final templateItem in templateItems) {
+      if (templateItem is! Map) continue;
+
+      final source = templateItem['source'] as String?;
+      final searchTerm = templateItem['searchTerm'] as String?;
+      final quantity = (templateItem['quantity'] as num?)?.toDouble() ?? 1.0;
+      final unit = templateItem['unit'] as String? ?? 'יח׳';
+      final fallbackName = templateItem['fallbackName'] as String? ?? searchTerm ?? 'פריט';
+
+      if (source == null || searchTerm == null) continue;
+
+      if (kDebugMode) debugPrint('   🔍 מחפש: "$searchTerm" ב-$source');
 
       // 4. חפש את המוצר האמיתי
       final product = findProduct(source, searchTerm);
@@ -168,14 +222,22 @@ class TemplateService {
       // 5. צור UnifiedListItem
       if (product != null) {
         // מצאנו מוצר אמיתי! 🎉
+        final productName = _getProductName(product) ?? fallbackName;
+        final brand = product['brand'] as String?;
+
         items.add(UnifiedListItem.product(
-          name: product['name'] as String,
+          name: productName,
           quantity: quantity.toInt(),
-          unitPrice: ((product['price'] as num?) ?? 0.0).toDouble(),
+          // ✅ FIX #5: שימוש ב-_parsePrice לתמיכה ב-String/num/null
+          unitPrice: _parsePrice(product['price']),
           barcode: product['barcode'] as String?,
           unit: (product['unit'] as String?) ?? unit,
-          category: (product['category'] as String?) ?? '',
-          notes: 'מ-${product['brand'] ?? 'לא ידוע'}',
+          // ✅ FIX #6: null במקום '' כשאין קטגוריה
+          category: (product['category'] as String?)?.isNotEmpty == true
+              ? product['category'] as String
+              : null,
+          // ✅ FIX #6: brand בלבד (בלי "מ-") - פחות hardcoded Hebrew
+          notes: brand,
         ));
       } else {
         // לא מצאנו - צור פריט גנרי עם fallback
@@ -183,23 +245,22 @@ class TemplateService {
           name: fallbackName,
           quantity: quantity.toInt(),
           unitPrice: 0.0,
-          barcode: null,
           unit: unit,
-          category: '',
         ));
 
-        debugPrint('      ⚠️ משתמש ב-fallback: $fallbackName');
+        if (kDebugMode) debugPrint('      ⚠️ משתמש ב-fallback: $fallbackName');
       }
     }
 
-    debugPrint(
-        '✅ [TemplateService] סיים לטעון תבנית: ${items.length} פריטים');
+    if (kDebugMode) {
+      debugPrint('✅ [TemplateService] סיים לטעון תבנית: ${items.length} פריטים');
+    }
     return items;
   }
 
   /// טוען את רשימת כל התבניות הזמינות
   static Future<List<TemplateInfo>> loadTemplatesList() async {
-    debugPrint('📚 [TemplateService] טוען רשימת תבניות...');
+    if (kDebugMode) debugPrint('📚 [TemplateService] טוען רשימת תבניות...');
 
     final String json = await rootBundle.loadString(
       'assets/templates/list_templates.json',
@@ -209,32 +270,41 @@ class TemplateService {
     final templates = <TemplateInfo>[];
 
     // תבניות ראשיות
-    for (var category in data['categories'] as List) {
-      if (category['templateFile'] != null) {
-        templates.add(TemplateInfo(
-          id: category['id'] as String,
-          name: category['name'] as String,
-          templateFile: category['templateFile'] as String,
-          icon: _getIconForCategory(category['id'] as String),
-        ));
-      }
-    }
-
-    // תת-תבניות (אירועים)
-    for (var subTemplate in (data['subTemplates'] as List?) ?? []) {
-      for (var sub in subTemplate['sub'] as List) {
-        if (sub['templateFile'] != null) {
+    final categories = data['categories'];
+    if (categories is List) {
+      for (final category in categories) {
+        if (category is Map && category['templateFile'] != null) {
           templates.add(TemplateInfo(
-            id: sub['id'] as String,
-            name: sub['name'] as String,
-            templateFile: sub['templateFile'] as String,
-            icon: _getIconForCategory(sub['id'] as String),
+            id: category['id'] as String? ?? '',
+            name: category['name'] as String? ?? '',
+            templateFile: category['templateFile'] as String,
+            icon: _getIconForCategory(category['id'] as String? ?? ''),
           ));
         }
       }
     }
 
-    debugPrint('✅ [TemplateService] נמצאו ${templates.length} תבניות');
+    // תת-תבניות (אירועים)
+    final subTemplates = data['subTemplates'];
+    if (subTemplates is List) {
+      for (final subTemplate in subTemplates) {
+        if (subTemplate is! Map) continue;
+        final subs = subTemplate['sub'];
+        if (subs is! List) continue;
+        for (final sub in subs) {
+          if (sub is Map && sub['templateFile'] != null) {
+            templates.add(TemplateInfo(
+              id: sub['id'] as String? ?? '',
+              name: sub['name'] as String? ?? '',
+              templateFile: sub['templateFile'] as String,
+              icon: _getIconForCategory(sub['id'] as String? ?? ''),
+            ));
+          }
+        }
+      }
+    }
+
+    if (kDebugMode) debugPrint('✅ [TemplateService] נמצאו ${templates.length} תבניות');
     return templates;
   }
 
@@ -295,7 +365,10 @@ class TemplateService {
     return isPrivate ? 'tasks' : 'who_brings';
   }
 
+  // 📌 Note: _getIconForSource is kept for potential future use
+  // (e.g., showing source icons in UI)
   /// מחזיר אייקון לפי מקור המוצר
+  // ignore: unused_element
   static String _getIconForSource(String source) {
     switch (source) {
       case 'butcher':
@@ -317,8 +390,14 @@ class TemplateService {
   ///
   /// מחזיר רשימת InventoryItem מוכנה להוספה למזווה
   /// משמש כאשר משתמש נכנס למזווה ריק ורוצה להתחיל עם מוצרי יסוד
-  static Future<List<InventoryItem>> loadPantryStarterItems() async {
-    debugPrint('🏺 [TemplateService] טוען פריטי starter למזווה...');
+  ///
+  /// [defaultCategory] - קטגוריית ברירת מחדל (ניתן להעביר מבחוץ לתמיכה ב-i18n)
+  /// [defaultLocation] - מיקום ברירת מחדל
+  static Future<List<InventoryItem>> loadPantryStarterItems({
+    String defaultCategory = 'מזווה',
+    String defaultLocation = 'מזווה',
+  }) async {
+    if (kDebugMode) debugPrint('🏺 [TemplateService] טוען פריטי starter למזווה...');
 
     // 1. ודא שהמוצרים נטענו
     await _loadProductsIfNeeded();
@@ -333,35 +412,52 @@ class TemplateService {
     const uuid = Uuid();
 
     // 3. לכל item בתבנית
-    for (var templateItem in data['items'] as List) {
-      final source = templateItem['source'] as String;
-      final searchTerm = templateItem['searchTerm'] as String;
-      final quantity = (templateItem['quantity'] as num).toInt();
-      final unit = templateItem['unit'] as String;
-      final fallbackName = templateItem['fallbackName'] as String;
+    final templateItems = data['items'];
+    if (templateItems is! List) return items;
+
+    for (final templateItem in templateItems) {
+      if (templateItem is! Map) continue;
+
+      final source = templateItem['source'] as String?;
+      final searchTerm = templateItem['searchTerm'] as String?;
+      final quantity = (templateItem['quantity'] as num?)?.toInt() ?? 1;
+      final unit = templateItem['unit'] as String? ?? 'יח׳';
+      final fallbackName = templateItem['fallbackName'] as String? ?? searchTerm ?? 'פריט';
+
+      if (source == null || searchTerm == null) continue;
 
       // 4. חפש את המוצר האמיתי
       final product = findProduct(source, searchTerm);
 
       // 5. צור InventoryItem
+      final productName = product != null
+          ? (_getProductName(product) ?? fallbackName)
+          : fallbackName;
+      final category = (product?['category'] as String?)?.isNotEmpty == true
+          ? product!['category'] as String
+          : defaultCategory;
+
       items.add(InventoryItem(
         id: uuid.v4(),
-        productName: product?['name'] as String? ?? fallbackName,
-        category: product?['category'] as String? ?? 'מזווה',
-        location: 'מזווה', // ברירת מחדל
+        productName: productName,
+        category: category,
+        location: defaultLocation,
         quantity: quantity,
         unit: (product?['unit'] as String?) ?? unit,
-        minQuantity: 1, // סף מינימלי
+        minQuantity: 1,
       ));
     }
 
-    debugPrint('✅ [TemplateService] נטענו ${items.length} פריטי starter למזווה');
+    if (kDebugMode) {
+      debugPrint('✅ [TemplateService] נטענו ${items.length} פריטי starter למזווה');
+    }
     return items;
   }
 
   /// מנקה את המטמון (לדוגמה: אחרי עדכון מוצרים)
   static void clearCache() {
     _productsCache = null;
-    debugPrint('🗑️ [TemplateService] המטמון נוקה');
+    _loadingCompleter = null; // ✅ Reset completer too
+    if (kDebugMode) debugPrint('🗑️ [TemplateService] המטמון נוקה');
   }
 }
