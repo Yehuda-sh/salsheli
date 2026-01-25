@@ -25,7 +25,6 @@ import 'package:memozap/providers/groups_provider.dart';
 import 'package:memozap/providers/inventory_provider.dart';
 import 'package:memozap/providers/locations_provider.dart';
 import 'package:memozap/providers/pending_invites_provider.dart';
-import 'package:memozap/providers/product_location_provider.dart';
 import 'package:memozap/providers/products_provider.dart';
 import 'package:memozap/providers/receipt_provider.dart';
 import 'package:memozap/providers/shopping_lists_provider.dart';
@@ -43,18 +42,14 @@ import 'package:memozap/repositories/user_repository.dart';
 // Screens
 import 'package:memozap/screens/auth/login_screen.dart' as auth_login;
 import 'package:memozap/screens/auth/register_screen.dart' as auth_register;
-import 'package:memozap/screens/groups/create_group_screen.dart';
-import 'package:memozap/screens/groups/group_details_screen.dart';
 import 'package:memozap/screens/groups/pending_group_invites_screen.dart';
 import 'package:memozap/screens/index_screen.dart';
 import 'package:memozap/screens/notifications/notifications_center_screen.dart';
 import 'package:memozap/screens/main_navigation_screen.dart';
-import 'package:memozap/screens/pantry/my_pantry_screen.dart';
 import 'package:memozap/screens/sharing/pending_invites_screen.dart';
 import 'package:memozap/screens/shopping/active/active_shopping_screen.dart';
 import 'package:memozap/screens/shopping/create/create_list_screen.dart';
 import 'package:memozap/screens/shopping/details/shopping_list_details_screen.dart';
-import 'package:memozap/screens/shopping/lists/shopping_lists_screen.dart';
 import 'package:memozap/screens/shopping/shopping_summary_screen.dart';
 // Services
 import 'package:memozap/services/auth_service.dart'; // 🔐 Firebase Auth!
@@ -247,15 +242,6 @@ void main() async {
           },
         ),
 
-        // === Product Location Memory === 📍
-        ChangeNotifierProxyProvider<UserContext, ProductLocationProvider>(
-          create: (context) => ProductLocationProvider(),
-          update: (context, userContext, previous) {
-            previous?.updateUserContext(userContext);
-            return previous ?? ProductLocationProvider();
-          },
-        ),
-
         // === Receipts === 🔥 Firebase!
         ChangeNotifierProxyProvider<UserContext, ReceiptProvider>(
           create: (context) => ReceiptProvider(
@@ -387,14 +373,9 @@ class _RouteErrorScreen extends StatelessWidget {
   }
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     // 🎨 Material You / Dynamic Color Support!
@@ -410,9 +391,10 @@ class _MyAppState extends State<MyApp> {
 
           // 🏷️ DEV Banner - מוצג בכל המסכים במצב פיתוח
           builder: (context, child) {
+            if (child == null) return const DevBanner();
             return Stack(
               children: [
-                child!,
+                child,
                 const DevBanner(),
               ],
             );
@@ -439,15 +421,10 @@ class _MyAppState extends State<MyApp> {
             '/login': (context) => const auth_login.LoginScreen(),
             '/register': (context) => const auth_register.RegisterScreen(),
 
-            '/pantry': (context) => const MyPantryScreen(),
-            '/inventory': (context) => const MyPantryScreen(), // alias for pantry
-
-            '/shopping-lists': (context) => const ShoppingListsScreen(),
             '/create-list': (context) => const CreateListScreen(),
 
             '/pending-invites': (context) => const PendingInvitesScreen(),
             '/pending-group-invites': (context) => const PendingGroupInvitesScreen(),
-            '/create-group': (context) => const CreateGroupScreen(),
             '/notifications': (context) => const NotificationsCenterScreen(),
           },
           onGenerateRoute: (settings) {
@@ -479,8 +456,8 @@ class _MyAppState extends State<MyApp> {
               return MaterialPageRoute(builder: (_) => ActiveShoppingScreen(list: list));
             }
 
-            // list-details - receives ShoppingList object
-            if (settings.name == '/list-details') {
+            // list-details / populate-list - receives ShoppingList object
+            if (settings.name == '/list-details' || settings.name == '/populate-list') {
               final list = settings.arguments as ShoppingList?;
               if (list == null) {
                 return MaterialPageRoute(
@@ -491,34 +468,6 @@ class _MyAppState extends State<MyApp> {
                 );
               }
               return MaterialPageRoute(builder: (_) => ShoppingListDetailsScreen(list: list));
-            }
-
-            // populate-list - receives ShoppingList object (alias for list-details)
-            if (settings.name == '/populate-list') {
-              final list = settings.arguments as ShoppingList?;
-              if (list == null) {
-                return MaterialPageRoute(
-                  builder: (_) => _RouteErrorScreen(
-                    message: 'רשימת קניות לא נמצאה',
-                    routeName: settings.name,
-                  ),
-                );
-              }
-              return MaterialPageRoute(builder: (_) => ShoppingListDetailsScreen(list: list));
-            }
-
-            // group-details - receives groupId
-            if (settings.name == '/group-details') {
-              final groupId = settings.arguments as String?;
-              if (groupId == null) {
-                return MaterialPageRoute(
-                  builder: (_) => _RouteErrorScreen(
-                    message: 'מזהה קבוצה חסר',
-                    routeName: settings.name,
-                  ),
-                );
-              }
-              return MaterialPageRoute(builder: (_) => GroupDetailsScreen(groupId: groupId));
             }
 
             return null;
