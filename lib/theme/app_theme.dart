@@ -168,11 +168,7 @@ class AppBrand extends ThemeExtension<AppBrand> {
       accent: Color.lerp(accent, other.accent, t)!,
       accentText: Color.lerp(accentText, other.accentText, t)!,
       surfaceSlate: Color.lerp(surfaceSlate, other.surfaceSlate, t)!,
-      welcomeBackground: Color.lerp(
-        welcomeBackground,
-        other.welcomeBackground,
-        t,
-      )!,
+      welcomeBackground: Color.lerp(welcomeBackground, other.welcomeBackground, t)!,
       success: Color.lerp(success, other.success, t)!,
       successContainer: Color.lerp(successContainer, other.successContainer, t)!,
       onSuccessContainer: Color.lerp(onSuccessContainer, other.onSuccessContainer, t)!,
@@ -220,11 +216,11 @@ class AppTheme {
   );
 
   /// יוצר Theme מ-Dynamic Colors (Android 12+ Material You)
-  /// 
+  ///
   /// מקבל ColorScheme דינמי מהמערכת ויוצר Theme מותאם אישית.
   /// הצבעים (Amber, Success, Warning) עוברים harmonization כדי להשתלב
   /// בצבעי המערכת אך לשמור על הזהות של המותג.
-  /// 
+  ///
   /// שימושי רק עם DynamicColorBuilder:
   /// ```dart
   /// DynamicColorBuilder(
@@ -238,20 +234,14 @@ class AppTheme {
   ///   },
   /// )
   /// ```
-  /// 
+  ///
   /// See also:
   /// - [lightTheme] - ברירת מחדל ללא Dynamic Color
   /// - [darkTheme] - ברירת מחדל ללא Dynamic Color
-  static ThemeData fromDynamicColors(
-    ColorScheme dynamicScheme, {
-    required bool dark,
-  }) {
+  static ThemeData fromDynamicColors(ColorScheme dynamicScheme, {required bool dark}) {
     // Harmonization: התאם את Amber/Success/Warning לצבעי המערכת
     // זה שומר על הזהות של המותג אבל משלב אותם בצבעי המשתמש
-    final harmonizedAccent = _harmonizeColor(
-      _Brand.amber,
-      dynamicScheme.primary,
-    );
+    final harmonizedAccent = _harmonizeColor(_Brand.amber, dynamicScheme.primary);
     final harmonizedSuccess = _harmonizeColor(
       const Color(0xFF388E3C), // Green 700
       dynamicScheme.primary,
@@ -270,10 +260,7 @@ class AppTheme {
         : HSLColor.fromColor(harmonizedWarning).withLightness(0.85).toColor();
 
     // ✅ accentText - גרסה כהה יותר לטקסט (נגישות)
-    final harmonizedAccentText = _harmonizeColor(
-      _Brand.amberText,
-      dynamicScheme.primary,
-    );
+    final harmonizedAccentText = _harmonizeColor(_Brand.amberText, dynamicScheme.primary);
 
     final brand = AppBrand(
       accent: harmonizedAccent,
@@ -296,7 +283,7 @@ class AppTheme {
       notebookBlue: kNotebookBlue,
       notebookRed: kNotebookRed,
     );
-    
+
     return _base(dynamicScheme, dark: dark, customBrand: brand);
   }
 
@@ -338,47 +325,45 @@ class AppTheme {
   }
 
   /// בסיס משותף ל־Light/Dark
-  /// 
+  ///
   /// יוצר ThemeData מלא עם כל ההגדרות:
   /// - ColorScheme (light/dark או dynamic)
   /// - AppBrand extension (עם או בלי harmonization)
   /// - רכיבים (buttons, cards, inputs, etc.)
   /// - טיפוגרפיה (Assistant font עם line-height מדויק)
-  /// 
+  ///
   /// Parameters:
   /// - [scheme]: ColorScheme לשימוש (מ-fromSeed או dynamic)
   /// - [dark]: האם זה dark mode
   /// - [customBrand]: AppBrand מותאם אישית (לשימוש ב-fromDynamicColors)
-  static ThemeData _base(
-    ColorScheme scheme, {
-    required bool dark,
-    AppBrand? customBrand,
-  }) {
+  static ThemeData _base(ColorScheme scheme, {required bool dark, AppBrand? customBrand}) {
     // צור AppBrand - או customBrand (מ-dynamic colors) או ברירת מחדל
-    final brand = customBrand ?? AppBrand(
-      accent: _Brand.amber,
-      // ✅ FIX: תמיד amberText כהה יותר לטקסט - נגישות טובה יותר גם בדארק
-      accentText: _Brand.amberText,
-      surfaceSlate: scheme.surface,
-      welcomeBackground: scheme.surface,
-      // Success colors
-      success: const Color(0xFF388E3C), // Green 700
-      successContainer: dark ? const Color(0xFF1B5E20) : const Color(0xFFC8E6C9),
-      onSuccessContainer: dark ? const Color(0xFFC8E6C9) : const Color(0xFF1B5E20),
-      // Warning colors
-      warning: const Color(0xFFF57C00), // Orange 700
-      warningContainer: dark ? const Color(0xFFE65100) : const Color(0xFFFFE0B2),
-      onWarningContainer: dark ? const Color(0xFFFFE0B2) : const Color(0xFFE65100),
-      // Sticky notes
-      paperBackground: dark ? kDarkPaperBackground : kPaperBackground,
-      stickyYellow: dark ? kStickyYellowDark : kStickyYellow,
-      stickyPink: dark ? kStickyPinkDark : kStickyPink,
-      stickyGreen: dark ? kStickyGreenDark : kStickyGreen,
-      stickyCyan: dark ? kStickyCyanDark : kStickyCyan,
-      stickyPurple: dark ? kStickyPurpleDark : kStickyPurple,
-      notebookBlue: kNotebookBlue,
-      notebookRed: kNotebookRed,
-    );
+    final brand =
+        customBrand ??
+        AppBrand(
+          accent: _Brand.amber,
+          // ✅ FIX: תמיד amberText כהה יותר לטקסט - נגישות טובה יותר גם בדארק
+          accentText: _Brand.amberText,
+          surfaceSlate: scheme.surface,
+          welcomeBackground: scheme.surface,
+          // Success colors
+          success: const Color(0xFF388E3C), // Green 700
+          successContainer: dark ? const Color(0xFF1B5E20) : const Color(0xFFC8E6C9),
+          onSuccessContainer: dark ? const Color(0xFFC8E6C9) : const Color(0xFF1B5E20),
+          // Warning colors
+          warning: const Color(0xFFF57C00), // Orange 700
+          warningContainer: dark ? const Color(0xFFE65100) : const Color(0xFFFFE0B2),
+          onWarningContainer: dark ? const Color(0xFFFFE0B2) : const Color(0xFFE65100),
+          // Sticky notes
+          paperBackground: dark ? kDarkPaperBackground : kPaperBackground,
+          stickyYellow: dark ? kStickyYellowDark : kStickyYellow,
+          stickyPink: dark ? kStickyPinkDark : kStickyPink,
+          stickyGreen: dark ? kStickyGreenDark : kStickyGreen,
+          stickyCyan: dark ? kStickyCyanDark : kStickyCyan,
+          stickyPurple: dark ? kStickyPurpleDark : kStickyPurple,
+          notebookBlue: kNotebookBlue,
+          notebookRed: kNotebookRed,
+        );
 
     // ✅ FIX: צבע טקסט על accent (Amber) - לפי בהירות הסכמה
     // Light mode: scheme.onSurface (טקסט כהה על amber בהיר)
@@ -412,7 +397,7 @@ class AppTheme {
       ),
 
       // כפתורים - 4 סוגים
-      
+
       // ✅ Accessible touch targets (48px minimum)
       materialTapTargetSize: MaterialTapTargetSize.padded,
 
@@ -422,58 +407,34 @@ class AppTheme {
           backgroundColor: brand.accent, // Amber (או harmonized)
           // ✅ FIX: Use onAccent (contrast-aware) instead of scheme.onSecondary
           foregroundColor: onAccent, // טקסט על Amber
-          textStyle: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: kFontSizeBody,
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: kButtonPaddingHorizontal,
-            vertical: kButtonPaddingVertical,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(kBorderRadius),
-          ),
+          textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: kFontSizeBody),
+          padding: const EdgeInsets.symmetric(horizontal: kButtonPaddingHorizontal, vertical: kButtonPaddingVertical),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadius)),
         ),
       ),
-      
+
       // OutlinedButton: כפתור משני עם מסגרת Amber
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           side: BorderSide(color: brand.accent),
           foregroundColor: brand.accentText, // ✅ נגישות: צבע כהה יותר לטקסט
-          textStyle: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: kFontSizeBody,
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: kButtonPaddingHorizontal,
-            vertical: kButtonPaddingVertical,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(kBorderRadius),
-          ),
+          textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: kFontSizeBody),
+          padding: const EdgeInsets.symmetric(horizontal: kButtonPaddingHorizontal, vertical: kButtonPaddingVertical),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadius)),
         ),
       ),
-      
+
       // FilledButton: כפתור מלא עם primary color
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: scheme.primary,
           foregroundColor: scheme.onPrimary,
-          textStyle: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: kFontSizeBody,
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: kButtonPaddingHorizontal,
-            vertical: kButtonPaddingVertical,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(kBorderRadius),
-          ),
+          textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: kFontSizeBody),
+          padding: const EdgeInsets.symmetric(horizontal: kButtonPaddingHorizontal, vertical: kButtonPaddingVertical),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadius)),
         ),
       ),
-      
+
       // TextButton: כפתור טקסט פשוט
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
@@ -492,9 +453,7 @@ class AppTheme {
         color: dark ? scheme.surfaceContainerHigh : scheme.surfaceContainerLow,
         margin: const EdgeInsets.symmetric(vertical: kCardMarginVertical),
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
       ),
 
       // ListTile — טוב ל־RTL
@@ -502,10 +461,7 @@ class AppTheme {
         // ✅ Use scheme colors instead of hardcoded Colors.white70
         iconColor: scheme.onSurfaceVariant,
         textColor: scheme.onSurface,
-        contentPadding: const EdgeInsetsDirectional.only(
-          start: kListTilePaddingStart,
-          end: kListTilePaddingEnd,
-        ),
+        contentPadding: const EdgeInsetsDirectional.only(start: kListTilePaddingStart, end: kListTilePaddingEnd),
       ),
 
       // שדות קלט - TextField, TextFormField
@@ -513,10 +469,7 @@ class AppTheme {
         isDense: true,
         filled: true,
         fillColor: dark ? fillOnDark : fillOnLight,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: kInputPadding,
-          vertical: kInputPadding,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: kInputPadding, vertical: kInputPadding),
         // ✅ Use scheme.outline instead of hardcoded Colors.white24/black12
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(kBorderRadius),
@@ -528,10 +481,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(kBorderRadius),
-          borderSide: BorderSide(
-            color: brand.accent,
-            width: kBorderWidthFocused,
-          ), // Amber כש-focused
+          borderSide: BorderSide(color: brand.accent, width: kBorderWidthFocused), // Amber כש-focused
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(kBorderRadius),
@@ -539,10 +489,7 @@ class AppTheme {
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(kBorderRadius),
-          borderSide: BorderSide(
-            color: scheme.error,
-            width: kBorderWidthFocused,
-          ),
+          borderSide: BorderSide(color: scheme.error, width: kBorderWidthFocused),
         ),
       ),
 
@@ -599,37 +546,27 @@ class AppTheme {
         // surfaceContainerHighest = הכי בולט (דיאלוגים)
         backgroundColor: scheme.surfaceContainerHighest,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
         titleTextStyle: TextStyle(
           color: scheme.onSurface,
           fontSize: kFontSizeLarge,
           fontWeight: FontWeight.bold,
           fontFamily: 'Assistant',
         ),
-        contentTextStyle: TextStyle(
-          color: scheme.onSurfaceVariant,
-          fontFamily: 'Assistant',
-        ),
+        contentTextStyle: TextStyle(color: scheme.onSurfaceVariant, fontFamily: 'Assistant'),
       ),
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: scheme.surfaceContainerHigh,
         surfaceTintColor: Colors.transparent,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(kBorderRadiusLarge),
-          ),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
         ),
       ),
 
       // סנאק־בר - הודעות זמניות
       snackBarTheme: SnackBarThemeData(
         backgroundColor: scheme.inverseSurface,
-        contentTextStyle: TextStyle(
-          color: scheme.onInverseSurface,
-          fontFamily: 'Assistant',
-        ),
+        contentTextStyle: TextStyle(color: scheme.onInverseSurface, fontFamily: 'Assistant'),
         actionTextColor: brand.accentText, // ✅ כפתור action עם ניגודיות טובה
         behavior: SnackBarBehavior.floating,
       ),
@@ -645,38 +582,13 @@ class AppTheme {
           letterSpacing: -0.25,
           color: scheme.onSurface,
         ),
-        displayMedium: TextStyle(
-          fontSize: 45,
-          fontWeight: FontWeight.w400,
-          height: 52 / 45,
-          color: scheme.onSurface,
-        ),
-        displaySmall: TextStyle(
-          fontSize: 36,
-          fontWeight: FontWeight.w400,
-          height: 44 / 36,
-          color: scheme.onSurface,
-        ),
+        displayMedium: TextStyle(fontSize: 45, fontWeight: FontWeight.w400, height: 52 / 45, color: scheme.onSurface),
+        displaySmall: TextStyle(fontSize: 36, fontWeight: FontWeight.w400, height: 44 / 36, color: scheme.onSurface),
 
         // Headline styles - כותרות בינוניות
-        headlineLarge: TextStyle(
-          fontSize: 32,
-          fontWeight: FontWeight.w400,
-          height: 40 / 32,
-          color: scheme.onSurface,
-        ),
-        headlineMedium: TextStyle(
-          fontSize: 28,
-          fontWeight: FontWeight.w400,
-          height: 36 / 28,
-          color: scheme.onSurface,
-        ),
-        headlineSmall: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.w400,
-          height: 32 / 24,
-          color: scheme.onSurface,
-        ),
+        headlineLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.w400, height: 40 / 32, color: scheme.onSurface),
+        headlineMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.w400, height: 36 / 28, color: scheme.onSurface),
+        headlineSmall: TextStyle(fontSize: 24, fontWeight: FontWeight.w400, height: 32 / 24, color: scheme.onSurface),
 
         // Title styles - כותרות קטנות
         titleLarge: TextStyle(
@@ -750,9 +662,9 @@ class AppTheme {
   }
 
   // ערכות סופיות ליישום
-  
+
   /// Light Theme - מצב יום
-  /// 
+  ///
   /// Theme בסיסי ללא Dynamic Color.
   /// לשימוש כ-fallback כאשר Dynamic Color לא זמין.
   static ThemeData get lightTheme {
