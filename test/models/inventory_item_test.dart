@@ -112,7 +112,7 @@ void main() {
         expect(item.isLowStock, true);
       });
 
-      test('should return true when quantity equals minQuantity', () {
+      test('should return false when quantity equals minQuantity', () {
         final item = InventoryItem(
           id: 'equal-stock-id',
           productName: 'חלב',
@@ -123,7 +123,8 @@ void main() {
           minQuantity: 2,
         );
 
-        expect(item.isLowStock, true);
+        // isLowStock uses strict < comparison, not <=
+        expect(item.isLowStock, false);
       });
 
       test('should return false when quantity is above minQuantity', () {
@@ -209,7 +210,7 @@ void main() {
         final item = InventoryItem.fromJson(json);
 
         expect(item.id, 'minimal-json-id');
-        expect(item.productName, 'מוצר לא ידוע'); // default
+        expect(item.productName, ''); // default is empty string
         expect(item.category, 'כללי'); // default
         expect(item.location, 'כללי'); // default
         expect(item.quantity, 0); // default

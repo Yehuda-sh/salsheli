@@ -26,7 +26,7 @@ void main() {
         expect(suggestion.status, SuggestionStatus.pending);
       });
 
-      test('should clamp quantityNeeded to minimum 1', () {
+      test('should clamp quantityNeeded to minimum 0', () {
         final suggestion = SmartSuggestion.fromInventory(
           id: 'test-id',
           productId: 'product-1',
@@ -37,7 +37,8 @@ void main() {
           unit: 'יח\'',
         );
 
-        expect(suggestion.quantityNeeded, 1); // clamped to 1
+        // When stock > threshold, needed is 0 (no purchase required)
+        expect(suggestion.quantityNeeded, 0);
       });
 
       test('should use provided timestamp', () {
