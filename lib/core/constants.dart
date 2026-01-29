@@ -8,6 +8,10 @@
 // ═══════════════════════════════════════════════════════════════════════════
 // FAMILY SIZE
 // ═══════════════════════════════════════════════════════════════════════════
+//
+// TODO(next-wave): להפוך מ-"clamp שקט" ל-"אזהרה ואז חסימה"
+// כרגע: OnboardingData עושה clamp שקט (137-151)
+// רצוי: להציג למשתמש הודעה ברורה כשמנסה לחרוג מהטווח
 
 const int kMinFamilySize = 1;
 const int kMaxFamilySize = 10;
@@ -47,11 +51,33 @@ const int kMaxItemsPerList = 200;
 /// מקסימום פריטים במזווה
 const int kMaxItemsPerPantry = 500;
 
-/// מקסימום חברים בקבוצה אחת
-const int kMaxMembersPerGroup = 100;
-
-/// מקסימום קבוצות למשתמש אחד
-const int kMaxGroupsPerUser = 50;
-
 /// מקסימום רשימות פעילות למשתמש
 const int kMaxActiveListsPerUser = 100;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// WARNING THRESHOLDS
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// סף להצגת אזהרה על קרבה למגבלה (80%)
+/// נועד לשימוש ב-UI בלבד - לא באכיפה
+const double kLimitWarningThreshold = 0.8;
+
+/// בודק אם הגענו לסף אזהרה (80%) אבל עדיין לא למקסימום
+///
+/// **Usage (UI layer):**
+/// ```dart
+/// if (isNearLimit(list.items.length, kMaxItemsPerList)) {
+///   // Show warning once per screen/session
+/// }
+/// ```
+bool isNearLimit(int current, int max) {
+  if (max <= 0) return false;
+  final percentage = current / max;
+  return percentage >= kLimitWarningThreshold && current < max;
+}
+
+/// מחזיר אחוז ניצול של מגבלה (0.0 - 1.0)
+double getLimitUsage(int current, int max) {
+  if (max <= 0) return 0.0;
+  return (current / max).clamp(0.0, 1.0);
+}

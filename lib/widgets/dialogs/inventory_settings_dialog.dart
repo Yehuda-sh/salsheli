@@ -228,12 +228,6 @@ class _InventorySettingsDialogState extends State<_InventorySettingsDialog> {
     final brand = theme.extension<AppBrand>();
     final provider = widget.inventoryProvider;
 
-    // ✅ צבעים מ-Theme במקום Colors קשיחים
-    final successColor = brand?.success ?? scheme.primary;
-    final successContainerColor =
-        brand?.successContainer ?? scheme.primaryContainer;
-    final onSuccessContainerColor =
-        brand?.onSuccessContainer ?? scheme.onPrimaryContainer;
     // ✅ צבע sticky מ-brand (Theme-aware, תומך Dark Mode אוטומטית)
     final stickyColor = brand?.stickyYellow ?? kStickyYellow;
 
@@ -278,27 +272,19 @@ class _InventorySettingsDialogState extends State<_InventorySettingsDialog> {
                     Container(
                       padding: const EdgeInsets.all(kSpacingSmall),
                       decoration: BoxDecoration(
-                        color: provider.isGroupMode
-                            ? successContainerColor
-                            : scheme.primaryContainer,
+                        color: scheme.primaryContainer,
                         borderRadius: BorderRadius.circular(
                           kBorderRadiusSmall,
                         ),
                         border: Border.all(
-                          color: provider.isGroupMode
-                              ? successColor.withValues(alpha: 0.5)
-                              : scheme.primary.withValues(alpha: 0.5),
+                          color: scheme.primary.withValues(alpha: 0.5),
                         ),
                       ),
                       child: Row(
                         children: [
                           Icon(
-                            provider.isGroupMode
-                                ? Icons.family_restroom
-                                : Icons.person,
-                            color: provider.isGroupMode
-                                ? successColor
-                                : scheme.primary,
+                            Icons.person,
+                            color: scheme.primary,
                           ),
                           const SizedBox(width: kSpacingSmall),
                           Expanded(
@@ -309,17 +295,11 @@ class _InventorySettingsDialogState extends State<_InventorySettingsDialog> {
                                   provider.inventoryTitle,
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    color: provider.isGroupMode
-                                        ? onSuccessContainerColor
-                                        : scheme.onPrimaryContainer,
+                                    color: scheme.onPrimaryContainer,
                                   ),
                                 ),
                                 Text(
-                                  provider.isGroupMode
-                                      ? AppStrings.inventory.pantryModeGroup
-                                      : AppStrings
-                                            .inventory
-                                            .pantryModePersonal,
+                                  AppStrings.inventory.pantryModePersonal,
                                   style: TextStyle(
                                     fontSize: kFontSizeSmall,
                                     color: scheme.onSurfaceVariant,

@@ -1,59 +1,66 @@
 // 📄 lib/widgets/common/animated_button.dart
 //
-// Wrapper שמוסיף אנימציית לחיצה (scale 0.95) + haptic feedback.
-// משמש את StickyButton ושאר כפתורים באפליקציה.
+// Wrapper שמוסיף אנימציית לחיצה (scale) + haptic feedback אופציונלי.
+// **אפקט בלבד** - לא מפעיל את הפעולה, הכפתור הפנימי מטפל בלחיצה.
 //
-// 🔗 Related: StickyButton
+// ✅ שימוש:
+//    - CTA / כפתורים חשובים: עם hapticFeedback: true
+//    - כפתורים רגילים / אייקונים: בלי haptic, עם scale עדין יותר
+//
+// 🔗 Related: FilledButton, ElevatedButton, IconButton
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class AnimatedButton extends StatefulWidget {
-  /// Callback when button is tapped (null = disabled)
-  final VoidCallback? onPressed;
-
-  /// Button widget to wrap (ElevatedButton, OutlinedButton, TextButton, etc.)
+  /// Button widget to wrap (FilledButton, ElevatedButton, IconButton, etc.)
+  /// The child handles the actual tap - this wrapper only adds visual feedback.
   final Widget child;
 
-  /// Scale animation target (default: 0.95)
+  /// Is the button enabled? (affects animation and haptic)
+  /// Should match the child button's enabled state.
+  final bool enabled;
+
+  /// Scale animation target (default: 0.98 - subtle, WhatsApp-like)
+  /// For icon buttons, use 0.99 or 1.0 (disabled).
   final double scaleTarget;
 
-  /// Animation duration (default: 150ms)
+  /// Animation duration (default: 100ms - snappy)
   final Duration duration;
 
-  /// Enable haptic feedback (default: true)
+  /// Enable haptic feedback (default: false - conservative)
+  /// Enable only for CTA / important actions.
   final bool hapticFeedback;
 
-  /// Curve for animation (default: easeInOut)
+  /// Curve for animation (default: easeOut - natural feel)
   final Curve curve;
 
   const AnimatedButton({
     super.key,
-    this.onPressed,
     required this.child,
-    this.scaleTarget = 0.95,
-    this.duration = const Duration(milliseconds: 150),
-    this.hapticFeedback = true,
-    this.curve = Curves.easeInOut,
+    this.enabled = true,
+    this.scaleTarget = 0.98,
+    this.duration = const Duration(milliseconds: 100),
+    this.hapticFeedback = false,
+    this.curve = Curves.easeOut,
   });
-
-  /// האם הכפתור פעיל (לא disabled)
-  bool get isEnabled => onPressed != null;
 
   @override
   State<AnimatedButton> createState() => _AnimatedButtonState();
 }
 
 class _AnimatedButtonState extends State<AnimatedButton> {
-  /// Track if button is pressed
   bool _isPressed = false;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => _onTapDown(),
-      onTapUp: (_) => _onTapUp(),
-      onTapCancel: _onTapCancel,
+    // 🔧 Listener with deferToChild - only responds on actual child area
+    // The child button still receives the tap and handles the action
+    return Listener(
+      behavior: HitTestBehavior.deferToChild,
+      onPointerDown: _onPointerDown,
+      onPointerUp: _onPointerUp,
+      onPointerCancel: _onPointerCancel,
       child: AnimatedScale(
         scale: _isPressed ? widget.scaleTarget : 1.0,
         duration: widget.duration,
@@ -63,26 +70,25 @@ class _AnimatedButtonState extends State<AnimatedButton> {
     );
   }
 
-  /// Handle tap down - trigger animation and haptic feedback
-  void _onTapDown() {
-    if (!mounted || !widget.isEnabled) return;
+  void _onPointerDown(PointerDownEvent event) {
+    // 🛡️ Disabled = no response at all
+    if (!mounted || !widget.enabled) return;
+
     setState(() => _isPressed = true);
 
-    // ✅ Haptic feedback on tap
+    // ✨ Haptic only when explicitly enabled (CTA buttons)
     if (widget.hapticFeedback) {
       HapticFeedback.lightImpact();
     }
   }
 
-  /// Handle tap up - trigger callback
-  void _onTapUp() {
-    if (!mounted || !widget.isEnabled) return;
+  void _onPointerUp(PointerUpEvent event) {
+    if (!mounted) return;
     setState(() => _isPressed = false);
-    widget.onPressed?.call();
+    // ⚠️ No onPressed call - the child button handles the action
   }
 
-  /// Handle tap cancel
-  void _onTapCancel() {
+  void _onPointerCancel(PointerCancelEvent event) {
     if (!mounted) return;
     setState(() => _isPressed = false);
   }

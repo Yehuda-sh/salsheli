@@ -307,11 +307,12 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
 
     setState(() => _isProcessing = true);
 
-    // ✅ FIX: Cache strings and theme-aware colors before async gap
+    // ✅ FIX: Cache strings, theme-aware colors, and messenger before async gap
     final strings = AppStrings.lastChanceBanner;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final successColor = theme.extension<AppBrand>()?.success ?? kStickyGreen;
+    final messenger = ScaffoldMessenger.of(context);
 
     try {
       final suggestion = widget.suggestion;
@@ -329,7 +330,6 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
 
       // הודעת הצלחה
       if (!mounted) return;
-      final messenger = ScaffoldMessenger.of(context);
       messenger.showSnackBar(
         SnackBar(
           content: Text(strings.addedSuccess(suggestion.productName)),
@@ -340,7 +340,6 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
       );
     } catch (e) {
       if (!mounted) return;
-      final messenger = ScaffoldMessenger.of(context);
       // ✅ FIX: User-friendly error message (not raw exception)
       messenger.showSnackBar(SnackBar(
         content: Text(strings.addError),
@@ -357,9 +356,10 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
   Future<void> _onNextPressed(BuildContext context) async {
     if (_isProcessing) return;
 
-    // ✅ FIX: Cache theme-aware colors before async gap
+    // ✅ FIX: Cache theme-aware colors and messenger before async gap
     final strings = AppStrings.lastChanceBanner;
     final cs = Theme.of(context).colorScheme;
+    final messenger = ScaffoldMessenger.of(context);
 
     try {
       final suggestionsProvider = Provider.of<SuggestionsProvider>(context, listen: false);
@@ -368,7 +368,6 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
       await suggestionsProvider.moveToNext();
     } catch (e) {
       if (!mounted) return;
-      final messenger = ScaffoldMessenger.of(context);
       // ✅ FIX: User-friendly error message (not raw exception)
       messenger.showSnackBar(SnackBar(
         content: Text(strings.genericError),
@@ -381,12 +380,13 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
   Future<void> _onSkipSessionPressed(BuildContext context) async {
     if (_isProcessing) return;
 
-    // ✅ FIX: Cache strings and theme-aware colors before async gap
+    // ✅ FIX: Cache strings, theme-aware colors, and messenger before async gap
     final strings = AppStrings.lastChanceBanner;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     // ✅ FIX: Theme-aware accent color for info snackbar
     final accentColor = theme.extension<AppBrand>()?.accent ?? cs.tertiary;
+    final messenger = ScaffoldMessenger.of(context);
 
     try {
       final suggestionsProvider = Provider.of<SuggestionsProvider>(context, listen: false);
@@ -395,7 +395,6 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
       await suggestionsProvider.skipForSession();
 
       if (!mounted) return;
-      final messenger = ScaffoldMessenger.of(context);
       messenger.showSnackBar(
         SnackBar(
           content: Text(strings.skippedForSession),
@@ -406,7 +405,6 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
       );
     } catch (e) {
       if (!mounted) return;
-      final messenger = ScaffoldMessenger.of(context);
       // ✅ FIX: User-friendly error message (not raw exception)
       messenger.showSnackBar(SnackBar(
         content: Text(strings.genericError),

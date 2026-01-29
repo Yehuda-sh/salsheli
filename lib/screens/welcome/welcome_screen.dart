@@ -1,9 +1,9 @@
 // 📄 File: lib/screens/welcome/welcome_screen.dart
-// 🎯 Purpose: מסך קבלת פנים - מציג לוגו, קבוצות לדוגמה, וכפתורי התחברות/הרשמה
+// 🎯 Purpose: מסך קבלת פנים - מציג לוגו, פיצ'רים לדוגמה, וכפתורי התחברות/הרשמה
 //
 // 📋 Features:
 // - עיצוב Sticky Notes מלא 🎨📝
-// - הצגת סוגי קבוצות עם שאלות ופיצ'רים
+// - הצגת פיצ'רים: רשימות קניות, מזווה, שיתוף משפחתי
 // - רקע מחברת עם קווים כחולים
 // - פתקים צבעוניים עם צללים מציאותיים
 // - נגישות מלאה
@@ -17,19 +17,13 @@
 // - app_theme.dart - AppBrand
 //
 // 🎨 Design:
-// - עיצוב Sticky Notes System 2025
+// - עיצוב Sticky Notes System
 // - רקע נייר קרם עם קווים כחולים
 // - פתקים צבעוניים: צהוב, ורוד, כתום
 // - צללים מציאותיים לאפקט הדבקה
 // - סיבובים קלים לכל פתק
 //
-// Version: 10.0 - Mini UI Previews (16/12/2025) 🎨✨
-// - 📝 סלוגן: "רשימות משותפות. מקום אחד."
-// - 👨‍👩‍👧‍👦 3 כרטיסי קבוצות עם Mini UI previews
-// - 🎯 תצוגה מוחשית של הממשק במקום Emojis
-// - 📋 Mini list preview, Mini pantry, Mini voting
-// - 🚀 כפתור CTA: "הרשמה"
-// - 🔗 לינק התחברות: "כבר יש לי חשבון — התחברות"
+// 📝 Version: 2.0 - No Groups (27/01/2026)
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -90,8 +84,8 @@ class WelcomeScreen extends StatelessWidget {
                           ),
                           SizedBox(height: isSmallScreen ? kSpacingSmall : kSpacingMedium),
 
-                          // 👨‍👩‍👧‍👦 כרטיס משפחה - עם Mini UI
-                          _GroupCardWithPreview(
+                          // 🛒 כרטיס רשימות קניות
+                          _FeatureCardWithPreview(
                             emoji: AppStrings.welcome.group1Emoji,
                             title: AppStrings.welcome.group1Title,
                             question: AppStrings.welcome.group1Question,
@@ -104,35 +98,35 @@ class WelcomeScreen extends StatelessWidget {
                           ).animate().fadeIn(duration: 300.ms, delay: 100.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
                           const SizedBox(height: kSpacingSmall),
 
-                          // 🏠 כרטיס ועד בית - עם Mini UI
-                          _GroupCardWithPreview(
+                          // 📦 כרטיס מזווה דיגיטלי
+                          _FeatureCardWithPreview(
                             emoji: AppStrings.welcome.group2Emoji,
                             title: AppStrings.welcome.group2Title,
                             question: AppStrings.welcome.group2Question,
                             color: brand?.stickyYellow ?? kStickyYellow,
                             rotation: -0.01,
-                            previewWidget: const _MiniTasksVoting(),
+                            previewWidget: const _MiniPantry(),
                             clipColor: Colors.blue.shade400,
                             clipPosition: 0.18,
                             clipAngle: -0.1,
                           ).animate().fadeIn(duration: 300.ms, delay: 200.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
                           const SizedBox(height: kSpacingSmall),
 
-                          // 🎒 כרטיס ועד גן - עם Mini UI
-                          _GroupCardWithPreview(
+                          // 👨‍👩‍👧‍👦 כרטיס שיתוף משפחתי
+                          _FeatureCardWithPreview(
                             emoji: AppStrings.welcome.group3Emoji,
                             title: AppStrings.welcome.group3Title,
                             question: AppStrings.welcome.group3Question,
                             color: kStickyOrange,
                             rotation: 0.008,
-                            previewWidget: const _MiniAssignment(),
+                            previewWidget: const _MiniSharing(),
                             clipColor: Colors.green.shade500,
                             clipPosition: 0.08,
                             clipAngle: 0.05,
                           ).animate().fadeIn(duration: 300.ms, delay: 300.ms).slideY(begin: 0.2, end: 0.0, curve: Curves.easeOut),
                           const SizedBox(height: kSpacingSmall),
 
-                          // + עוד קבוצות - בולט יותר
+                          // סלוגן סיום
                           Text(
                             AppStrings.welcome.moreGroupsHint,
                             style: theme.textTheme.bodyMedium?.copyWith(
@@ -292,9 +286,9 @@ class _LogoAndSlogan extends StatelessWidget {
   }
 }
 
-/// 📌 כרטיס קבוצה עם Mini UI Preview
-/// מציג סוג קבוצה עם תצוגה מוחשית של הממשק - כמו פתק מודבק על מחברת
-class _GroupCardWithPreview extends StatelessWidget {
+/// 📌 כרטיס פיצ'ר עם Mini UI Preview
+/// מציג פיצ'ר עם תצוגה מוחשית של הממשק - כמו פתק מודבק על מחברת
+class _FeatureCardWithPreview extends StatelessWidget {
   final String emoji;
   final String title;
   final String question;
@@ -305,7 +299,7 @@ class _GroupCardWithPreview extends StatelessWidget {
   final double clipPosition; // 0.0-1.0 מיקום יחסי מימין
   final double clipAngle;
 
-  const _GroupCardWithPreview({
+  const _FeatureCardWithPreview({
     required this.emoji,
     required this.title,
     required this.question,
@@ -517,10 +511,10 @@ class _MiniShoppingList extends StatelessWidget {
   }
 }
 
-/// ✅ Mini Tasks & Voting Preview - הצבעה עם תוצאות
+/// 📦 Mini Pantry Preview - מזווה מיניאטורי
 /// ✅ תומך Dark Mode
-class _MiniTasksVoting extends StatelessWidget {
-  const _MiniTasksVoting();
+class _MiniPantry extends StatelessWidget {
+  const _MiniPantry();
 
   @override
   Widget build(BuildContext context) {
@@ -535,22 +529,21 @@ class _MiniTasksVoting extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // כותרת ההצבעה (דמו)
-          _MiniHeader(text: '🗳️ צבע לובי?'),
+          _MiniHeader(text: '📦 מזווה'),
           SizedBox(height: 6),
-          _MiniVoteOption(text: 'לבן', votes: 3, selected: true),
-          _MiniVoteOption(text: 'בז\'', votes: 2, selected: false),
-          _MiniVoteOption(text: 'אפור', votes: 1, selected: false),
+          _MiniPantryItem(text: 'חלב', qty: '2', isLow: false),
+          _MiniPantryItem(text: 'ביצים', qty: '6', isLow: false),
+          _MiniPantryItem(text: 'לחם', qty: '0', isLow: true),
         ],
       ),
     );
   }
 }
 
-/// 🙋 Mini Assignment Preview - חלוקה למסיבת חנוכה
+/// 👨‍👩‍👧‍👦 Mini Sharing Preview - שיתוף משפחתי
 /// ✅ תומך Dark Mode
-class _MiniAssignment extends StatelessWidget {
-  const _MiniAssignment();
+class _MiniSharing extends StatelessWidget {
+  const _MiniSharing();
 
   @override
   Widget build(BuildContext context) {
@@ -565,13 +558,11 @@ class _MiniAssignment extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // כותרת הרשימה (דמו)
-          _MiniHeader(text: '🕎 מסיבת חנוכה'),
+          _MiniHeader(text: '👨‍👩‍👧‍👦 משפחה'),
           SizedBox(height: 6),
-          _MiniAssignItem(item: 'סופגניות', person: 'דנה'),
-          _MiniAssignItem(item: 'נרות', person: 'יוסי'),
-          _MiniAssignItem(item: 'צלחות', person: 'מיכל'),
-          _MiniAssignItem(item: 'שתייה', person: '?'),
+          _MiniShareUser(name: 'אבא', isOnline: true),
+          _MiniShareUser(name: 'אמא', isOnline: true),
+          _MiniShareUser(name: 'דני', isOnline: false),
         ],
       ),
     );
@@ -663,33 +654,34 @@ class _MiniListItemWithQty extends StatelessWidget {
   }
 }
 
-/// 🗳️ Mini Vote Option - אפשרות הצבעה עם מספר קולות
+/// 📦 Mini Pantry Item - פריט מזווה מיניאטורי
 /// ✅ תומך Dark Mode
-class _MiniVoteOption extends StatelessWidget {
+class _MiniPantryItem extends StatelessWidget {
   final String text;
-  final int votes;
-  final bool selected;
+  final String qty;
+  final bool isLow;
 
-  const _MiniVoteOption({
+  const _MiniPantryItem({
     required this.text,
-    required this.votes,
-    required this.selected,
+    required this.qty,
+    required this.isLow,
   });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    // tertiary טוב להצבעות / בחירה
-    final selectedColor = cs.tertiary;
+    final brand = Theme.of(context).extension<AppBrand>();
+    final warningColor = brand?.warning ?? cs.error;
+    final successColor = brand?.success ?? cs.primary;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         children: [
           Icon(
-            selected ? Icons.radio_button_checked : Icons.radio_button_off,
+            isLow ? Icons.warning_amber_rounded : Icons.inventory_2_outlined,
             size: 14,
-            color: selected ? selectedColor : cs.onSurfaceVariant,
+            color: isLow ? warningColor : successColor,
           ),
           const SizedBox(width: 4),
           Expanded(
@@ -698,24 +690,23 @@ class _MiniVoteOption extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11,
                 color: cs.onSurface.withValues(alpha: 0.87),
-                fontWeight: selected ? FontWeight.bold : FontWeight.normal,
               ),
             ),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
             decoration: BoxDecoration(
-              color: selected
-                  ? selectedColor.withValues(alpha: 0.2)
+              color: isLow
+                  ? warningColor.withValues(alpha: 0.2)
                   : cs.onSurfaceVariant.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
-              '$votes',
+              qty,
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
-                color: selected ? selectedColor : cs.onSurfaceVariant,
+                color: isLow ? warningColor : cs.onSurfaceVariant,
               ),
             ),
           ),
@@ -725,48 +716,54 @@ class _MiniVoteOption extends StatelessWidget {
   }
 }
 
-/// 🙋 Mini Assign Item - חלוקה מיניאטורית
+/// 👤 Mini Share User - משתמש משותף מיניאטורי
 /// ✅ תומך Dark Mode
-class _MiniAssignItem extends StatelessWidget {
-  final String item;
-  final String person;
+class _MiniShareUser extends StatelessWidget {
+  final String name;
+  final bool isOnline;
 
-  const _MiniAssignItem({required this.item, required this.person});
+  const _MiniShareUser({required this.name, required this.isOnline});
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final brand = Theme.of(context).extension<AppBrand>();
-    final warningColor = brand?.warning ?? cs.tertiary;
     final successColor = brand?.success ?? cs.primary;
 
-    final isUnassigned = person == '?';
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         children: [
           Icon(
-            isUnassigned ? Icons.help_outline : Icons.person,
-            size: 12,
-            color: isUnassigned ? warningColor : successColor,
+            Icons.person,
+            size: 14,
+            color: cs.onSurfaceVariant,
           ),
           const SizedBox(width: 4),
           Expanded(
             child: Text(
-              item,
+              name,
               style: TextStyle(
                 fontSize: 11,
                 color: cs.onSurface.withValues(alpha: 0.87),
               ),
-              overflow: TextOverflow.ellipsis,
             ),
           ),
+          // נקודת סטטוס
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isOnline ? successColor : cs.onSurfaceVariant.withValues(alpha: 0.3),
+            ),
+          ),
+          const SizedBox(width: 4),
           Text(
-            person,
+            isOnline ? 'מחובר' : 'לא מחובר',
             style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              color: isUnassigned ? warningColor : cs.onSurfaceVariant,
+              fontSize: 9,
+              color: cs.onSurfaceVariant,
             ),
           ),
         ],

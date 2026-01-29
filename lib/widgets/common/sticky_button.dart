@@ -114,60 +114,75 @@ class StickyButton extends StatelessWidget {
                 ? Colors.black
                 : Colors.white));
 
-    // ✅ AnimatedButton already handles HapticFeedback - no need to add here
-    final wrappedOnPressed = (onPressed != null && !isLoading) ? onPressed : null;
+    // ✅ AnimatedButton is effect-only - Material+InkWell handles tap with ripple
+    final isEnabled = onPressed != null && !isLoading;
+    final borderRadius = BorderRadius.circular(kStickyButtonRadius);
 
     final Widget buttonWidget = Semantics(
       button: true,
       label: label,
-      enabled: onPressed != null && !isLoading,
+      enabled: isEnabled,
       child: AnimatedButton(
-        onPressed: wrappedOnPressed,
-        child: Container(
-          width: double.infinity,
-          height: height,
-          decoration: BoxDecoration(
-            color: isDisabled ? buttonColor.withValues(alpha: 0.5) : buttonColor, // ✅ שקוף כש-disabled
-            borderRadius: BorderRadius.circular(kStickyButtonRadius),
-            boxShadow: isDisabled || elevation <= 0
-                ? null // ✅ הסר shadow כש-disabled או elevation == 0
-                : [
-                    BoxShadow(
-                      color: shadowColor.withValues(
-                          alpha: kStickyShadowPrimaryOpacity * elevation),
-                      blurRadius: kStickyShadowPrimaryBlur * elevation,
-                      offset: Offset(
-                        kStickyShadowPrimaryOffsetX,
-                        kStickyShadowPrimaryOffsetY * elevation,
+        enabled: isEnabled,
+        hapticFeedback: true, // CTA button - enable haptic
+        child: Material(
+          color: isDisabled ? buttonColor.withValues(alpha: 0.5) : buttonColor,
+          borderRadius: borderRadius,
+          elevation: 0, // We handle shadow manually for more control
+          child: Container(
+            width: double.infinity,
+            height: height,
+            decoration: BoxDecoration(
+              borderRadius: borderRadius,
+              boxShadow: isDisabled || elevation <= 0
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: shadowColor.withValues(
+                            alpha: kStickyShadowPrimaryOpacity * elevation),
+                        blurRadius: kStickyShadowPrimaryBlur * elevation,
+                        offset: Offset(
+                          kStickyShadowPrimaryOffsetX,
+                          kStickyShadowPrimaryOffsetY * elevation,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+            ),
+            child: InkWell(
+              onTap: isEnabled ? onPressed : null,
+              borderRadius: borderRadius,
+              splashColor: btnTextColor.withValues(alpha: 0.15),
+              highlightColor: btnTextColor.withValues(alpha: 0.08),
+              child: Center(
+                child: isLoading
+                    ? SizedBox(
+                        height: kIconSizeSmall,
+                        width: kIconSizeSmall,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(btnTextColor),
+                        ),
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (icon != null) ...[
+                            Icon(icon, color: btnTextColor, size: kIconSize),
+                            const SizedBox(width: kSpacingSmall),
+                          ],
+                          Text(
+                            label,
+                            style: TextStyle(
+                              color: btnTextColor,
+                              fontSize: kFontSizeLarge,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+            ),
           ),
-          child: isLoading
-              ? Center(
-                  child: SizedBox(
-                    height: kIconSizeSmall,
-                    width: kIconSizeSmall,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(btnTextColor),
-                    ),
-                  ),
-                )
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (icon != null) ...[Icon(icon, color: btnTextColor, size: kIconSize), const SizedBox(width: kSpacingSmall)],
-                    Text(
-                      label,
-                      style: TextStyle(
-                        color: btnTextColor,
-                        fontSize: kFontSizeLarge,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
         ),
       ),
     );

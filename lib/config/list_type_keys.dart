@@ -7,7 +7,16 @@
 // - ShoppingList (model) יכול לייבא גם ListTypes וגם הקובץ הזה
 // - אין מעגל תלות!
 //
+// 📜 חוקי עבודה:
+// - המפתחות הם חוזה נתונים: לא משנים keys קיימים לעולם, רק מוסיפים
+// - key לא מוכר → fallback ל-ListTypeKeys.other
+// - ListTypeKeys.all = סוגים שמוצגים למשתמש (UI בלבד)
+// - סדר all = סדר תצוגה, other חייב להיות אחרון
+// - naming: lowercase באנגלית, underscore לפי צורך
+//
 // 🔗 Related: list_types_config.dart, shopping_list.dart
+
+import 'package:flutter/foundation.dart';
 
 /// 🗂️ מפתחות סוגי רשימות
 ///
@@ -44,6 +53,7 @@ class ListTypeKeys {
   static const String other = 'other';
 
   /// רשימת כל המפתחות (לשימוש בלולאות/בדיקות)
+  /// ✅ סדר תצוגה - other חייב להיות אחרון
   static const List<String> all = [
     supermarket,
     pharmacy,
@@ -53,6 +63,42 @@ class ListTypeKeys {
     market,
     household,
     event,
-    other,
+    other, // ✅ תמיד אחרון (fallback)
   ];
+
+  /// 🔍 Sanity check - בדיקת פיתוח בלבד
+  ///
+  /// מוודא:
+  /// 1. אין כפילויות ב-all
+  /// 2. other הוא האחרון ברשימה
+  ///
+  /// קרא לפונקציה זו ב-main.dart או בטסטים לוודא תקינות.
+  static void ensureSanity() {
+    if (!kDebugMode) return;
+
+    // 1️⃣ בדיקת כפילויות
+    final seen = <String>{};
+    for (final key in all) {
+      if (seen.contains(key)) {
+        assert(false, '❌ ListTypeKeys: כפילות! "$key" מופיע יותר מפעם אחת ב-all');
+      }
+      seen.add(key);
+    }
+
+    // 2️⃣ בדיקה ש-other הוא אחרון
+    if (all.isNotEmpty && all.last != other) {
+      assert(false,
+        '❌ ListTypeKeys: "$other" חייב להיות אחרון ב-all! '
+        'נמצא: "${all.last}"',
+      );
+    }
+
+    debugPrint('✅ ListTypeKeys.ensureSanity(): ${all.length} keys, no issues');
+  }
+
+  /// Fallback לערך לא מוכר
+  static String resolve(String? key) {
+    if (key == null || !all.contains(key)) return other;
+    return key;
+  }
 }

@@ -11,13 +11,14 @@
 // - lib/models/inventory_item.dart - מבנה הנתונים
 // - lib/main.dart - רישום ב-main()
 //
-// 📝 Version: 3.0 - Added user/group inventory support
-// 📅 Last Updated: 16/12/2025
+// 📝 Version: 3.1 - User inventory only (removed group support)
+// 📅 Last Updated: 27/01/2026
 //
 // 📜 History:
 // - v1.0 (06/10/2025): Interface + MockInventoryRepository
 // - v2.0 (09/10/2025): הוסר Mock אחרי מעבר מלא ל-Firebase
 // - v3.0 (16/12/2025): תמיכה במזווה אישי (/users) ומשותף (/groups)
+// - v3.1 (27/01/2026): הוסר תמיכה בקבוצות (Groups feature removed)
 //
 
 import '../models/inventory_item.dart';
@@ -26,8 +27,6 @@ import '../models/inventory_item.dart';
 enum InventoryLocation {
   /// מזווה אישי - /users/{userId}/inventory
   user,
-  /// מזווה משותף (קבוצה/משפחה) - /groups/{groupId}/inventory
-  group,
   /// מזווה תחת household (legacy) - /households/{householdId}/inventory
   household,
 }
@@ -61,18 +60,6 @@ abstract class InventoryRepository {
   /// ```
   Future<List<InventoryItem>> fetchUserItems(String userId);
 
-  /// טוען את כל פריטי המזווה המשותף של קבוצה
-  ///
-  /// [groupId] - מזהה הקבוצה
-  ///
-  /// Returns: רשימת כל פריטי המזווה המשותף
-  ///
-  /// Example:
-  /// ```dart
-  /// final items = await repository.fetchGroupItems('group_family_123');
-  /// ```
-  Future<List<InventoryItem>> fetchGroupItems(String groupId);
-
   /// שומר או מעדכן פריט מלאי (legacy)
   ///
   /// [item] - הפריט לשמירה (חדש או קיים)
@@ -98,12 +85,6 @@ abstract class InventoryRepository {
   /// [userId] - מזהה המשתמש
   Future<InventoryItem> saveUserItem(InventoryItem item, String userId);
 
-  /// שומר פריט למזווה קבוצתי
-  ///
-  /// [item] - הפריט לשמירה
-  /// [groupId] - מזהה הקבוצה
-  Future<InventoryItem> saveGroupItem(InventoryItem item, String groupId);
-
   /// מוחק פריט מלאי (legacy)
   ///
   /// [id] - מזהה הפריט למחיקה
@@ -120,25 +101,6 @@ abstract class InventoryRepository {
   /// [itemId] - מזהה הפריט
   /// [userId] - מזהה המשתמש
   Future<void> deleteUserItem(String itemId, String userId);
-
-  /// מוחק פריט ממזווה קבוצתי
-  ///
-  /// [itemId] - מזהה הפריט
-  /// [groupId] - מזהה הקבוצה
-  Future<void> deleteGroupItem(String itemId, String groupId);
-
-  /// מעביר פריטים ממזווה אישי למזווה קבוצתי
-  ///
-  /// [userId] - מזהה המשתמש (מקור)
-  /// [groupId] - מזהה הקבוצה (יעד)
-  /// [itemIds] - רשימת מזהי הפריטים להעברה (null = הכל)
-  ///
-  /// Returns: מספר הפריטים שהועברו
-  Future<int> transferUserItemsToGroup(
-    String userId,
-    String groupId, [
-    List<String>? itemIds,
-  ]);
 
   /// מוחק את כל פריטי המזווה האישי
   ///

@@ -129,9 +129,10 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
   /// Dots indicator
   Widget _buildDotsIndicator(BuildContext context, int count) {
     final cs = Theme.of(context).colorScheme;
+    final strings = AppStrings.smartSuggestions;
 
     return Semantics(
-      label: 'עמוד ${_currentPage + 1} מתוך $count המלצות',
+      label: strings.pageIndicator(_currentPage + 1, count),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: List.generate(count, (index) {
@@ -156,9 +157,10 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
   Widget _buildLoadingCard(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final strings = AppStrings.smartSuggestions;
 
     return Semantics(
-      label: 'טוען המלצות חכמות',
+      label: strings.loadingLabel,
       child: Container(
         margin: const EdgeInsets.all(kSpacingMedium),
         padding: const EdgeInsets.all(kSpacingLarge),
@@ -179,7 +181,7 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
             const CircularProgressIndicator(color: kStickyGreen),
             const SizedBox(height: kSpacingMedium),
             Text(
-              'טוען המלצות...',
+              strings.loadingMessage,
               style: TextStyle(fontSize: 16, color: cs.onSurface),
             ),
           ],
@@ -192,9 +194,10 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
   Widget _buildErrorCard(BuildContext context, String error) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final strings = AppStrings.smartSuggestions;
 
     return Semantics(
-      label: 'שגיאה בטעינת המלצות: $error',
+      label: strings.errorLabel(error),
       child: Container(
         margin: const EdgeInsets.all(kSpacingMedium),
         padding: const EdgeInsets.all(kSpacingLarge),
@@ -215,7 +218,7 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
             const Icon(Icons.error_outline, size: 48, color: kStickyPink),
             const SizedBox(height: kSpacingMedium),
             Text(
-              'שגיאה בטעינת המלצות',
+              strings.errorTitle,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -231,13 +234,13 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
             ),
             const SizedBox(height: kSpacingMedium),
             Tooltip(
-              message: 'נסה לטעון שוב את ההמלצות',
+              message: strings.retryTooltip,
               child: ElevatedButton.icon(
                 onPressed: () {
                   context.read<SuggestionsProvider>().refreshSuggestions();
                 },
                 icon: const Icon(Icons.refresh),
-                label: const Text('נסה שוב'),
+                label: Text(strings.retryButton),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: kStickyGreen,
                   foregroundColor: Colors.white,
@@ -254,9 +257,10 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
   Widget _buildEmptyCard(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final strings = AppStrings.smartSuggestions;
 
     return Semantics(
-      label: 'אין המלצות כרגע - כל המוצרים במלאי',
+      label: strings.emptyLabel,
       child: Container(
         margin: const EdgeInsets.all(kSpacingMedium),
         padding: const EdgeInsets.all(kSpacingLarge),
@@ -277,7 +281,7 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
             const Icon(Icons.check_circle_outline, size: 48, color: kStickyCyan),
             const SizedBox(height: kSpacingMedium),
             Text(
-              'המזווה מלא! 🎉',
+              strings.emptyTitle,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -286,7 +290,7 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
             ),
             const SizedBox(height: kSpacingSmall),
             Text(
-              'אין המלצות כרגע - כל המוצרים במלאי',
+              strings.emptySubtitle,
               // ✅ Theme-aware secondary text
               style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
               textAlign: TextAlign.center,
@@ -304,13 +308,17 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
     SuggestionsProvider provider,
   ) {
     final theme = Theme.of(context);
-    final strings = AppStrings.inventory;
+    final strings = AppStrings.smartSuggestions;
+    final inventoryStrings = AppStrings.inventory;
     final isUnknownStatus = suggestion.status == SuggestionStatus.unknown;
 
     // ✅ Semantics עם תיאור טבעי בעברית
     return Semantics(
-      label: 'המלצה חכמה: כדאי להוסיף ${suggestion.productName} לרשימת הקניות. '
-          'במלאי ${suggestion.currentStock} ${suggestion.unit}.',
+      label: strings.suggestionLabel(
+        suggestion.productName,
+        suggestion.currentStock,
+        suggestion.unit,
+      ),
       child: RepaintBoundary(
         child: Container(
           margin: const EdgeInsets.all(kSpacingMedium),
@@ -340,10 +348,10 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
                     size: 28,
                   ),
                   const SizedBox(width: kSpacingSmall),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'המלצה חכמה',
-                      style: TextStyle(
+                      strings.cardTitle,
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -362,7 +370,7 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        '+${provider.pendingSuggestionsCount - 1} נוספות',
+                        strings.moreSuggestions(provider.pendingSuggestionsCount - 1),
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -391,7 +399,7 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
                   const Icon(Icons.inventory_2_outlined, color: Colors.white70, size: 18),
                   const SizedBox(width: kSpacingSmall),
                   Text(
-                    'במלאי: ${suggestion.currentStock} ${suggestion.unit}',
+                    strings.stockInfo(suggestion.currentStock, suggestion.unit),
                     style: const TextStyle(fontSize: 14, color: Colors.white70),
                   ),
                   const SizedBox(width: kSpacingMedium),
@@ -411,14 +419,14 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
                     color: kStickyOrange.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(Icons.priority_high, color: Colors.white, size: 16),
-                      SizedBox(width: kSpacingSmall),
+                      const Icon(Icons.priority_high, color: Colors.white, size: 16),
+                      const SizedBox(width: kSpacingSmall),
                       Expanded(
                         child: Text(
-                          'דחוף - מלאי נמוך!',
-                          style: TextStyle(
+                          strings.urgentWarning,
+                          style: const TextStyle(
                             fontSize: 12,
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -447,7 +455,7 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
                       const SizedBox(width: kSpacingSmall),
                       Expanded(
                         child: Text(
-                          strings.unknownSuggestionWarning,
+                          inventoryStrings.unknownSuggestionWarning,
                           style: const TextStyle(
                             fontSize: 11,
                             color: Colors.white,
@@ -468,11 +476,11 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
                     // ✅ Add button עם Tooltip (always enabled - safe operation)
                     Expanded(
                       child: Tooltip(
-                        message: 'הוסף "${suggestion.productName}" לרשימת הקניות',
+                        message: strings.addTooltip(suggestion.productName),
                         child: ElevatedButton.icon(
                           onPressed: () => _onAddPressed(context, suggestion, provider),
                           icon: const Icon(Icons.add_shopping_cart),
-                          label: const Text('הוסף לרשימה'),
+                          label: Text(strings.addButton),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
                             foregroundColor: isUnknownStatus ? Colors.grey : kStickyGreen,
@@ -492,8 +500,8 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
                       color: Colors.white70,
                       disabledColor: Colors.white30,
                       tooltip: isUnknownStatus
-                          ? strings.unknownSuggestionCannotDelete
-                          : 'דחה לשבוע',
+                          ? inventoryStrings.unknownSuggestionCannotDelete
+                          : strings.dismissTooltip,
                     ),
 
                     // Delete button - disabled for unknown
@@ -505,8 +513,8 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
                       color: Colors.white70,
                       disabledColor: Colors.white30,
                       tooltip: isUnknownStatus
-                          ? strings.unknownSuggestionCannotDelete
-                          : 'מחק',
+                          ? inventoryStrings.unknownSuggestionCannotDelete
+                          : strings.deleteTooltip,
                     ),
                   ],
                 ),
@@ -537,8 +545,9 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
     if (_isProcessing) return;
     setState(() => _isProcessing = true);
 
-    // ✅ Capture messenger before await
+    // ✅ Capture messenger and strings before await
     final messenger = ScaffoldMessenger.of(context);
+    final strings = AppStrings.smartSuggestions;
 
     try {
       // Get shopping lists provider
@@ -551,8 +560,8 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
       if (lists.isEmpty) {
         // TODO: Create default list
         messenger.showSnackBar(
-          const SnackBar(
-            content: Text('אין רשימות פעילות - צור רשימה חדשה'),
+          SnackBar(
+            content: Text(strings.noActiveListMessage),
             backgroundColor: kStickyOrange,
           ),
         );
@@ -581,7 +590,7 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
       // Show success
       messenger.showSnackBar(
         SnackBar(
-          content: Text('נוסף "${suggestion.productName}" לרשימה ✅'),
+          content: Text(strings.addedSuccess(suggestion.productName)),
           backgroundColor: kStickyGreen,
         ),
       );
@@ -589,7 +598,7 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
       if (!mounted) return;
       messenger.showSnackBar(
         SnackBar(
-          content: Text('שגיאה בהוספה: $e'),
+          content: Text(strings.addError),
           backgroundColor: kStickyPink,
         ),
       );
@@ -609,8 +618,9 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
     if (_isProcessing) return;
     setState(() => _isProcessing = true);
 
-    // ✅ Capture messenger before await
+    // ✅ Capture messenger and strings before await
     final messenger = ScaffoldMessenger.of(context);
+    final strings = AppStrings.smartSuggestions;
 
     try {
       await provider.dismissCurrentSuggestion();
@@ -619,7 +629,7 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
 
       messenger.showSnackBar(
         SnackBar(
-          content: Text('דחיתי "${suggestion.productName}" לשבוע ⏰'),
+          content: Text(strings.dismissedSuccess(suggestion.productName)),
           backgroundColor: kStickyCyan,
         ),
       );
@@ -627,7 +637,7 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
       if (!mounted) return;
       messenger.showSnackBar(
         SnackBar(
-          content: Text('שגיאה: $e'),
+          content: Text(strings.genericError),
           backgroundColor: kStickyPink,
         ),
       );
@@ -643,24 +653,25 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
     SmartSuggestion suggestion,
     SuggestionsProvider provider,
   ) async {
-    // ✅ Capture messenger before any async operations
+    // ✅ Capture messenger and strings before any async operations
     final messenger = ScaffoldMessenger.of(context);
+    final strings = AppStrings.smartSuggestions;
 
     // Show confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('מחיקת המלצה'),
-        content: Text('למחוק לצמיתות את "${suggestion.productName}"?'),
+        title: Text(strings.deleteDialogTitle),
+        content: Text(strings.deleteDialogContent(suggestion.productName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('ביטול'),
+            child: Text(strings.cancelButton),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(dialogContext, true),
             style: ElevatedButton.styleFrom(backgroundColor: kStickyPink),
-            child: const Text('מחק'),
+            child: Text(strings.deleteButton),
           ),
         ],
       ),
@@ -679,7 +690,7 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
 
       messenger.showSnackBar(
         SnackBar(
-          content: Text('נמחק "${suggestion.productName}" 🗑️'),
+          content: Text(strings.deletedSuccess(suggestion.productName)),
           backgroundColor: kStickyPink,
         ),
       );
@@ -687,7 +698,7 @@ class _SmartSuggestionsCardState extends State<SmartSuggestionsCard> {
       if (!mounted) return;
       messenger.showSnackBar(
         SnackBar(
-          content: Text('שגיאה: $e'),
+          content: Text(strings.genericError),
           backgroundColor: kStickyPink,
         ),
       );

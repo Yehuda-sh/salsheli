@@ -54,27 +54,17 @@ MemoZap uses Provider pattern for state management with a hierarchical dependenc
 │  │ (Local JSON)  │  │ (Firebase)    │  │ (Firebase)    │      │
 │  └───────────────┘  └───────────────┘  └───────────────┘      │
 │                                                                 │
-│  ┌───────────────┐  ┌───────────────┐  ┌───────────────┐      │
-│  │   Receipt     │  │ProductLocation│  │ Pending       │      │
-│  │   Provider    │  │  Provider     │  │ Invites       │      │
-│  │ (Firebase)    │  │ (Location     │  │ Provider      │      │
-│  │               │  │  memory)      │  │               │      │
-│  └───────────────┘  └───────────────┘  └───────────────┘      │
-└────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌────────────────────────────────────────────────────────────────┐
-│               5. DATA PROVIDERS (Level 2)                       │
+│  ┌───────────────┐  ┌───────────────┐                         │
+│  │   Receipt     │  │ProductLocation│                         │
+│  │   Provider    │  │  Provider     │                         │
+│  │ (Firebase)    │  │ (Location     │                         │
+│  │               │  │  memory)      │                         │
+│  └───────────────┘  └───────────────┘                         │
+│                                                                 │
 │  ┌───────────────────────────────────────────────────────────┐ │
-│  │                    GroupsProvider                          │ │
-│  │  Dependencies: UserContext, PendingInvitesProvider         │ │
-│  │  Manages: Groups, group members, group invites             │ │
-│  └──────────────────────────┬────────────────────────────────┘ │
-│                             │                                   │
-│  ┌──────────────────────────┴────────────────────────────────┐ │
 │  │                  InventoryProvider                         │ │
-│  │  Dependencies: UserContext, GroupsProvider                 │ │
-│  │  Manages: Household inventory, Group inventories           │ │
+│  │  Dependencies: UserContext                                 │ │
+│  │  Manages: Household inventory                              │ │
 │  └──────────────────────────┬────────────────────────────────┘ │
 └─────────────────────────────┼──────────────────────────────────┘
                               │
@@ -236,77 +226,27 @@ ChangeNotifierProxyProvider<UserContext, ReceiptProvider>(
 
 ---
 
-### 6. PendingInvitesProvider
-
-**Purpose:** Group invitation management
-
-**Dependencies:** None (standalone)
-
-**Manages:**
-- Pending group invites
-- Invite accept/reject
-
-```dart
-ChangeNotifierProvider<PendingInvitesProvider>(
-  create: (_) => PendingInvitesProvider(),
-)
-```
-
----
-
-### 7. GroupsProvider
-
-**Purpose:** Group management
-
-**Dependencies:**
-- `UserContext`
-- `PendingInvitesProvider` (shares repository)
-- `FirebaseGroupRepository`
-
-**Manages:**
-- Groups
-- Group members
-- Group settings
-- Member roles
-
-```dart
-ChangeNotifierProxyProvider2<UserContext, PendingInvitesProvider, GroupsProvider>(
-  create: (context) => GroupsProvider(
-    repository: FirebaseGroupRepository(),
-    inviteRepository: context.read<PendingInvitesProvider>().repository,
-  ),
-  ...
-)
-```
-
----
-
-### 8. InventoryProvider
+### 6. InventoryProvider
 
 **Purpose:** Pantry/inventory management
 
 **Dependencies:**
 - `UserContext`
-- `GroupsProvider` - For group inventories
 - `FirebaseInventoryRepository`
 
 **Manages:**
 - Household inventory items
-- Group inventory items
 - Low stock alerts
 - Expiry tracking
 
-**Note:** Must come after GroupsProvider
-
 ```dart
-ChangeNotifierProxyProvider2<UserContext, GroupsProvider, InventoryProvider>(
+ChangeNotifierProxyProvider<UserContext, InventoryProvider>(
   create: (context) => InventoryProvider(
     userContext: context.read<UserContext>(),
     repository: inventoryRepo,
   ),
-  update: (context, userContext, groupsProvider, previous) {
-    ...
-    provider.updateGroupsProvider(groupsProvider);
+  update: (context, userContext, previous) {
+    provider.updateUserContext(userContext);
     return provider;
   },
 )
@@ -314,7 +254,7 @@ ChangeNotifierProxyProvider2<UserContext, GroupsProvider, InventoryProvider>(
 
 ---
 
-### 9. SuggestionsProvider
+### 7. SuggestionsProvider
 
 **Purpose:** Smart shopping suggestions
 
@@ -337,7 +277,7 @@ ChangeNotifierProxyProvider<InventoryProvider, SuggestionsProvider>(
 
 ---
 
-### 10. ProductLocationProvider
+### 8. ProductLocationProvider
 
 **Purpose:** Remember product locations in stores
 
@@ -430,15 +370,7 @@ Provider    Provider      Provider                │
                          Receipt                   │
                          Provider                  │
                                                    │
-              PendingInvites                       │
-                Provider                           │
-                    │                              │
-                    ▼                              │
-               Groups ←────────────────────────────┘
-               Provider
-                    │
-                    ▼
-               Inventory
+               Inventory ←─────────────────────────┘
                Provider
                     │
                     ▼
@@ -492,6 +424,5 @@ _subscription = _repository.watchItems(householdId).listen((items) {
 | ActiveShoppingScreen | ShoppingListsProvider, ProductLocationProvider |
 | ShoppingSummaryScreen | ShoppingListsProvider, ReceiptProvider, InventoryProvider |
 | MyPantryScreen | InventoryProvider |
-| GroupsListScreen | GroupsProvider, PendingInvitesProvider |
-| GroupDetailsScreen | GroupsProvider |
 | SettingsScreen | UserContext, ReceiptProvider, InventoryProvider |
+| ShoppingHistoryScreen | ReceiptProvider |

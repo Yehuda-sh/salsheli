@@ -62,21 +62,6 @@ This document tracks what features are working, partially implemented, or not ye
 | Low Stock Alert | **Working** | |
 | Expiry Date Tracking | **Working** | |
 | Auto-update from Shopping | **Working** | For non-event lists |
-| Group Inventory | **Working** | For family/roommates |
-
-### Groups
-
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Create Group | **Working** | Multiple types |
-| Edit Group | **Working** | |
-| Delete Group | **Unknown** | Needs verification |
-| Invite Members | **Working** | By email/phone |
-| Accept/Reject Invites | **Working** | |
-| Member Roles | **Working** | Owner/Admin/Editor/Viewer |
-| Remove Members | **Working** | Admin+ only |
-| Transfer Ownership | **Unknown** | Needs verification |
-| Event Date for Group | **Not Working** | TODO in code (line 73) |
 
 ### Receipts/History
 
@@ -116,7 +101,6 @@ This document tracks what features are working, partially implemented, or not ye
 | Location | Issue | Impact |
 |----------|-------|--------|
 | [shopping_lists_provider.dart:1099](../lib/providers/shopping_lists_provider.dart) | `checkedBy` and `checkedAt` not saved | Collaborative shopping |
-| [create_group_screen.dart:73](../lib/screens/groups/create_group_screen.dart) | Event date selection not implemented | Group events |
 
 ### Low Priority
 
@@ -170,10 +154,6 @@ These methods work but should be migrated to newer Result-based versions:
 ### Pantry Screen
 - **Working:** All core features
 - **Not Working:** Undo delete
-
-### Groups Screen
-- **Working:** All core features
-- **Not Working:** Event date selection
 
 ### Settings Screen
 - **Working:** Theme switching, Logout
@@ -242,10 +222,9 @@ These methods work but should be migrated to newer Result-based versions:
 6. Undo delete in pantry
 
 ### Nice to Have
-7. Event date for groups
-8. Smart suggestions create list
-9. Account deletion option
-10. Password change in settings
+7. Smart suggestions create list
+8. Account deletion option
+9. Password change in settings
 
 ---
 

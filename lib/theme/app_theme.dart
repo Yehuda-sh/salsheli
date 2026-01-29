@@ -3,10 +3,6 @@
 // מערכת Theme מרכזית - Material 3, Light/Dark, Dynamic Color, AppBrand.
 // כולל צבעי מותג (Amber), success/warning, Sticky Notes, ו-Typography מדויק.
 //
-// ✅ תיקונים:
-//    - תמיכה ב-High Contrast Mode (lightHighContrastTheme/darkHighContrastTheme)
-//    - Typography מותאם אישית לפי M3 spec עם פונט Assistant
-//
 // 🔗 Related: AppBrand, ui_constants, ColorScheme
 
 import 'package:flutter/material.dart';
@@ -201,20 +197,6 @@ class AppTheme {
     dynamicSchemeVariant: DynamicSchemeVariant.fidelity, // צבעים נאמנים ל-seed
   );
 
-  // ✅ High Contrast Schemes - ניגודיות גבוהה לנגישות (WCAG AAA)
-  static final _lightHighContrastScheme = ColorScheme.fromSeed(
-    seedColor: _Brand.primarySeed,
-    dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
-    contrastLevel: 1.0, // ניגודיות מקסימלית
-  );
-
-  static final _darkHighContrastScheme = ColorScheme.fromSeed(
-    seedColor: _Brand.primarySeed,
-    brightness: Brightness.dark,
-    dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
-    contrastLevel: 1.0, // ניגודיות מקסימלית
-  );
-
   /// יוצר Theme מ-Dynamic Colors (Android 12+ Material You)
   ///
   /// מקבל ColorScheme דינמי מהמערכת ויוצר Theme מותאם אישית.
@@ -259,12 +241,10 @@ class AppTheme {
         ? HSLColor.fromColor(harmonizedWarning).withLightness(0.25).toColor()
         : HSLColor.fromColor(harmonizedWarning).withLightness(0.85).toColor();
 
-    // ✅ accentText - גרסה כהה יותר לטקסט (נגישות)
     final harmonizedAccentText = _harmonizeColor(_Brand.amberText, dynamicScheme.primary);
 
     final brand = AppBrand(
       accent: harmonizedAccent,
-      // ✅ FIX: תמיד amberText כהה יותר לטקסט - נגישות טובה יותר גם בדארק
       accentText: harmonizedAccentText,
       surfaceSlate: dynamicScheme.surface,
       welcomeBackground: dynamicScheme.surface,
@@ -342,7 +322,6 @@ class AppTheme {
         customBrand ??
         AppBrand(
           accent: _Brand.amber,
-          // ✅ FIX: תמיד amberText כהה יותר לטקסט - נגישות טובה יותר גם בדארק
           accentText: _Brand.amberText,
           surfaceSlate: scheme.surface,
           welcomeBackground: scheme.surface,
@@ -365,9 +344,7 @@ class AppTheme {
           notebookRed: kNotebookRed,
         );
 
-    // ✅ FIX: צבע טקסט על accent (Amber) - לפי בהירות הסכמה
-    // Light mode: scheme.onSurface (טקסט כהה על amber בהיר)
-    // Dark mode: scheme.surface (טקסט כהה על amber - כי amber בהיר גם בדארק)
+    // צבע טקסט על accent (Amber) - לפי בהירות הסכמה
     final onAccent = dark ? scheme.surface : scheme.onSurface;
 
     // צבעי מילוי דקים לשדות טופס
@@ -398,15 +375,13 @@ class AppTheme {
 
       // כפתורים - 4 סוגים
 
-      // ✅ Accessible touch targets (48px minimum)
       materialTapTargetSize: MaterialTapTargetSize.padded,
 
       // ElevatedButton: כפתור ראשי עם רקע Amber
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: brand.accent, // Amber (או harmonized)
-          // ✅ FIX: Use onAccent (contrast-aware) instead of scheme.onSecondary
-          foregroundColor: onAccent, // טקסט על Amber
+          backgroundColor: brand.accent,
+          foregroundColor: onAccent,
           textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: kFontSizeBody),
           padding: const EdgeInsets.symmetric(horizontal: kButtonPaddingHorizontal, vertical: kButtonPaddingVertical),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadius)),
@@ -417,7 +392,7 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           side: BorderSide(color: brand.accent),
-          foregroundColor: brand.accentText, // ✅ נגישות: צבע כהה יותר לטקסט
+          foregroundColor: brand.accentText,
           textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: kFontSizeBody),
           padding: const EdgeInsets.symmetric(horizontal: kButtonPaddingHorizontal, vertical: kButtonPaddingVertical),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadius)),
@@ -438,13 +413,12 @@ class AppTheme {
       // TextButton: כפתור טקסט פשוט
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: brand.accentText, // ✅ נגישות: צבע כהה יותר לטקסט
+          foregroundColor: brand.accentText,
           textStyle: const TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
 
       // כרטיסים - Cards (M3 Surface Containers)
-      // ✅ FIX: הסרנו horizontal margin כדי למנוע double-padding עם ListView
       cardTheme: CardThemeData(
         elevation: 2,
         // Surface Containers: רמות שונות של רקע
@@ -458,7 +432,6 @@ class AppTheme {
 
       // ListTile — טוב ל־RTL
       listTileTheme: ListTileThemeData(
-        // ✅ Use scheme colors instead of hardcoded Colors.white70
         iconColor: scheme.onSurfaceVariant,
         textColor: scheme.onSurface,
         contentPadding: const EdgeInsetsDirectional.only(start: kListTilePaddingStart, end: kListTilePaddingEnd),
@@ -470,7 +443,6 @@ class AppTheme {
         filled: true,
         fillColor: dark ? fillOnDark : fillOnLight,
         contentPadding: const EdgeInsets.symmetric(horizontal: kInputPadding, vertical: kInputPadding),
-        // ✅ Use scheme.outline instead of hardcoded Colors.white24/black12
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(kBorderRadius),
           borderSide: BorderSide(color: scheme.outline),
@@ -481,7 +453,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(kBorderRadius),
-          borderSide: BorderSide(color: brand.accent, width: kBorderWidthFocused), // Amber כש-focused
+          borderSide: BorderSide(color: brand.accent, width: kBorderWidthFocused),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(kBorderRadius),
@@ -499,7 +471,6 @@ class AppTheme {
           if (states.contains(WidgetState.selected)) return brand.accent;
           return null;
         }),
-        // ✅ FIX: Use onAccent (contrast-aware) instead of scheme.onSecondary
         checkColor: WidgetStateProperty.all(onAccent),
       ),
       switchTheme: SwitchThemeData(
@@ -521,22 +492,19 @@ class AppTheme {
         }),
       ),
 
-      // Slider - ווליום, בהירות, וכו'
+      // Slider
       sliderTheme: SliderThemeData(
         activeTrackColor: brand.accent,
-        // ✅ Use scheme.outlineVariant instead of hardcoded colors
         inactiveTrackColor: scheme.outlineVariant,
         thumbColor: brand.accent,
         overlayColor: brand.accent.withValues(alpha: kOpacityLight),
         valueIndicatorColor: brand.accent,
-        // ✅ FIX: Use onAccent (contrast-aware) instead of scheme.onSecondary
         valueIndicatorTextStyle: TextStyle(color: onAccent),
       ),
 
       // מחווני התקדמות - Progress Indicators
       progressIndicatorTheme: ProgressIndicatorThemeData(
-        color: brand.accent, // Amber spinner
-        // ✅ Use scheme.outlineVariant instead of hardcoded colors
+        color: brand.accent,
         linearTrackColor: scheme.outlineVariant.withValues(alpha: 0.3),
         linearMinHeight: kProgressIndicatorHeight,
       ),
@@ -567,33 +535,32 @@ class AppTheme {
       snackBarTheme: SnackBarThemeData(
         backgroundColor: scheme.inverseSurface,
         contentTextStyle: TextStyle(color: scheme.onInverseSurface, fontFamily: 'Assistant'),
-        actionTextColor: brand.accentText, // ✅ כפתור action עם ניגודיות טובה
+        actionTextColor: brand.accentText,
         behavior: SnackBarBehavior.floating,
       ),
 
-      // טיפוגרפיה כללית - גדלים, משקלים, ו-line-height מדויק לפי M3
-      // ✅ All colors now use scheme.onSurface/onSurfaceVariant instead of hardcoded Colors.white
+      // טיפוגרפיה כללית - לפי M3 spec
       textTheme: TextTheme(
-        // Display styles - כותרות גדולות
+        // Display styles
         displayLarge: TextStyle(
           fontSize: 57,
           fontWeight: FontWeight.w400,
-          height: 64 / 57, // line-height מדויק לפי M3
+          height: 64 / 57,
           letterSpacing: -0.25,
           color: scheme.onSurface,
         ),
         displayMedium: TextStyle(fontSize: 45, fontWeight: FontWeight.w400, height: 52 / 45, color: scheme.onSurface),
         displaySmall: TextStyle(fontSize: 36, fontWeight: FontWeight.w400, height: 44 / 36, color: scheme.onSurface),
 
-        // Headline styles - כותרות בינוניות
+        // Headline styles
         headlineLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.w400, height: 40 / 32, color: scheme.onSurface),
         headlineMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.w400, height: 36 / 28, color: scheme.onSurface),
         headlineSmall: TextStyle(fontSize: 24, fontWeight: FontWeight.w400, height: 32 / 24, color: scheme.onSurface),
 
-        // Title styles - כותרות קטנות
+        // Title styles
         titleLarge: TextStyle(
           fontSize: 22,
-          fontWeight: FontWeight.w700, // M3 spec: 700!
+          fontWeight: FontWeight.w700,
           height: 28 / 22,
           color: scheme.onSurface,
         ),
@@ -612,7 +579,7 @@ class AppTheme {
           color: scheme.onSurface,
         ),
 
-        // Body styles - טקסט גוף
+        // Body styles
         bodyLarge: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w400,
@@ -635,7 +602,7 @@ class AppTheme {
           color: scheme.onSurfaceVariant,
         ),
 
-        // Label styles - תוויות כפתורים וכו'
+        // Label styles
         labelLarge: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,
@@ -677,31 +644,5 @@ class AppTheme {
   /// לשימוש כ-fallback כאשר Dynamic Color לא זמין.
   static ThemeData get darkTheme {
     return _base(_darkScheme, dark: true);
-  }
-
-  /// Light High Contrast Theme - מצב יום עם ניגודיות גבוהה
-  ///
-  /// Theme עם ניגודיות מקסימלית (WCAG AAA) לנגישות.
-  /// משתמש ב-contrastLevel: 1.0 של Material 3.
-  ///
-  /// לשימוש עם MediaQuery.highContrastOf(context):
-  /// ```dart
-  /// MaterialApp(
-  ///   theme: AppTheme.lightTheme,
-  ///   highContrastTheme: AppTheme.lightHighContrastTheme,
-  ///   darkTheme: AppTheme.darkTheme,
-  ///   highContrastDarkTheme: AppTheme.darkHighContrastTheme,
-  /// )
-  /// ```
-  static ThemeData get lightHighContrastTheme {
-    return _base(_lightHighContrastScheme, dark: false);
-  }
-
-  /// Dark High Contrast Theme - מצב לילה עם ניגודיות גבוהה
-  ///
-  /// Theme עם ניגודיות מקסימלית (WCAG AAA) לנגישות.
-  /// משתמש ב-contrastLevel: 1.0 של Material 3.
-  static ThemeData get darkHighContrastTheme {
-    return _base(_darkHighContrastScheme, dark: true);
   }
 }

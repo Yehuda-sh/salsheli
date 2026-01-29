@@ -21,17 +21,14 @@ import 'package:memozap/firebase_options.dart';
 // Models
 import 'package:memozap/models/shopping_list.dart';
 // Providers
-import 'package:memozap/providers/groups_provider.dart';
 import 'package:memozap/providers/inventory_provider.dart';
 import 'package:memozap/providers/locations_provider.dart';
-import 'package:memozap/providers/pending_invites_provider.dart';
 import 'package:memozap/providers/products_provider.dart';
 import 'package:memozap/providers/receipt_provider.dart';
 import 'package:memozap/providers/shopping_lists_provider.dart';
 import 'package:memozap/providers/suggestions_provider.dart';
 import 'package:memozap/providers/user_context.dart';
 // Repositories
-import 'package:memozap/repositories/firebase_group_repository.dart'; // 🔥 Firebase Groups!
 import 'package:memozap/repositories/firebase_inventory_repository.dart'; // 🔥 Firebase Inventory!
 import 'package:memozap/repositories/firebase_locations_repository.dart'; // 🔥 Firebase Locations!
 import 'package:memozap/repositories/firebase_receipt_repository.dart'; // 🔥 Firebase Receipts!
@@ -42,15 +39,14 @@ import 'package:memozap/repositories/user_repository.dart';
 // Screens
 import 'package:memozap/screens/auth/login_screen.dart' as auth_login;
 import 'package:memozap/screens/auth/register_screen.dart' as auth_register;
-import 'package:memozap/screens/groups/pending_group_invites_screen.dart';
 import 'package:memozap/screens/index_screen.dart';
 import 'package:memozap/screens/notifications/notifications_center_screen.dart';
 import 'package:memozap/screens/main_navigation_screen.dart';
-import 'package:memozap/screens/sharing/pending_invites_screen.dart';
 import 'package:memozap/screens/shopping/active/active_shopping_screen.dart';
 import 'package:memozap/screens/shopping/create/create_list_screen.dart';
 import 'package:memozap/screens/shopping/details/shopping_list_details_screen.dart';
 import 'package:memozap/screens/shopping/shopping_summary_screen.dart';
+import 'package:memozap/screens/history/shopping_history_screen.dart';
 // Services
 import 'package:memozap/services/auth_service.dart'; // 🔐 Firebase Auth!
 import 'package:memozap/services/notifications_service.dart'; // 🔔 Notifications!
@@ -257,44 +253,19 @@ void main() async {
                 ..updateUserContext(userContext),
         ),
 
-        // === Pending Invites Provider === 📨 Group Invitations!
-        // ⚠️ חייב להיות לפני GroupsProvider כי הוא משתף את ה-repository
-        ChangeNotifierProvider<PendingInvitesProvider>(
-          create: (_) => PendingInvitesProvider(),
-        ),
-
-        // === Groups Provider === 👥 Firebase Groups!
-        ChangeNotifierProxyProvider2<UserContext, PendingInvitesProvider, GroupsProvider>(
-          create: (context) => GroupsProvider(
-            repository: FirebaseGroupRepository(),
-            inviteRepository: context.read<PendingInvitesProvider>().repository,
-          ),
-          update: (context, userContext, pendingInvites, previous) {
-            if (previous != null) {
-              previous.updateUserContext(userContext);
-            }
-            return previous ?? GroupsProvider(
-              repository: FirebaseGroupRepository(),
-              inviteRepository: pendingInvites.repository,
-            );
-          },
-        ),
-
         // === Inventory === 🔥 Firebase!
-        // ⚠️ חייב להיות אחרי GroupsProvider כדי להאזין לשינויים בקבוצות
-        ChangeNotifierProxyProvider2<UserContext, GroupsProvider, InventoryProvider>(
+        ChangeNotifierProxyProvider<UserContext, InventoryProvider>(
           create: (context) => InventoryProvider(
             userContext: context.read<UserContext>(),
             repository: inventoryRepo,
           ),
-          update: (context, userContext, groupsProvider, previous) {
+          update: (context, userContext, previous) {
             final provider = previous ??
                 InventoryProvider(
                   userContext: userContext,
                   repository: inventoryRepo,
                 );
             provider.updateUserContext(userContext);
-            provider.updateGroupsProvider(groupsProvider);
             return provider;
           },
         ),
@@ -423,9 +394,8 @@ class MyApp extends StatelessWidget {
 
             '/create-list': (context) => const CreateListScreen(),
 
-            '/pending-invites': (context) => const PendingInvitesScreen(),
-            '/pending-group-invites': (context) => const PendingGroupInvitesScreen(),
             '/notifications': (context) => const NotificationsCenterScreen(),
+            '/receipts': (context) => const ShoppingHistoryScreen(),
           },
           onGenerateRoute: (settings) {
             // shopping-summary - receives listId

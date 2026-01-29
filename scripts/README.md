@@ -15,10 +15,14 @@ dart run scripts/demo_data_cohen_family.dart --clean   # מוחק ויוצר מ�
 dart run scripts/update_products.dart
 ```
 
-## סקריפטי ניקוי
+## סקריפטי הרצה עם לוגים נקיים
+הרצת `flutter run` עם סינון רעשי Android (GoogleApiManager, Choreographer וכו').
 
-- `run_clean.ps1` / `run_clean.sh` - ניקוי הפרויקט
-- `run_filtered.bat` - הרצה מסוננת
+| מערכת הפעלה | סקריפט | הרצה |
+|-------------|--------|------|
+| Windows (PowerShell) | `run_clean.ps1` | `.\run_clean.ps1` |
+| Windows (CMD) | `run_filtered.bat` | `run_filtered.bat` |
+| Linux/Mac | `run_clean.sh` | `./run_clean.sh` |
 
 ## קבצי תצורה
 

@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/status_colors.dart';
 import '../../../../core/ui_constants.dart';
 import '../../../../l10n/app_strings.dart';
 import '../../../../models/shopping_list.dart';
@@ -313,6 +314,22 @@ class _OthersShoppingBanner extends StatelessWidget {
   }
 
   void _onJoin(BuildContext context) {
+    // 🔐 בדיקת הרשאות - צופה לא יכול להצטרף לקנייה
+    final userId = context.read<UserContext>().userId;
+    if (userId != null) {
+      final userRole = list.getUserRole(userId);
+      if (userRole != null && !userRole.canShop) {
+        debugPrint('🚫 צופה לא יכול להצטרף לקנייה');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppStrings.shopping.viewerCannotShop),
+            backgroundColor: StatusColors.pending,
+          ),
+        );
+        return;
+      }
+    }
+
     // ✅ FIX: unawaited for fire-and-forget
     unawaited(HapticFeedback.lightImpact());
     Navigator.pushNamed(

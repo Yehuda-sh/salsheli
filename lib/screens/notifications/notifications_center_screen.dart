@@ -6,8 +6,8 @@
 // - שינויי תפקיד
 // - התראות מלאי
 //
-// Version: 1.1 - No AppBar (Immersive)
-// Last Updated: 13/01/2026
+// Version: 3.0 - Hybrid: NotebookBackground + AppBar
+// Last Updated: 27/01/2026
 // 🔗 Related: NotificationsService, AppNotification
 
 import 'dart:async';
@@ -24,6 +24,7 @@ import '../../models/notification.dart';
 import '../../providers/user_context.dart';
 import '../../services/notifications_service.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/common/notebook_background.dart';
 
 class NotificationsCenterScreen extends StatefulWidget {
   const NotificationsCenterScreen({super.key});
@@ -171,42 +172,31 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
 
     final unreadCount = _notifications.where((n) => n.isUnread).length;
 
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            // 🏷️ כותרת inline
-            Padding(
-              padding: const EdgeInsets.all(kSpacingMedium),
-              child: Row(
-                children: [
-                  Icon(Icons.notifications_outlined, size: 24, color: cs.primary),
-                  const SizedBox(width: kSpacingSmall),
-                  Expanded(
-                    child: Text(
-                      strings.title,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: cs.onSurface,
-                      ),
-                    ),
+    // ✅ FIX: NotebookBackground + transparent Scaffold
+    return Stack(
+      children: [
+        const NotebookBackground(),
+        Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            title: Text(strings.title),
+            centerTitle: true,
+            actions: [
+              if (unreadCount > 0)
+                TextButton(
+                  onPressed: _markAllAsRead,
+                  child: Text(
+                    strings.markAllAsRead,
+                    style: TextStyle(color: cs.primary),
                   ),
-                  if (unreadCount > 0)
-                    TextButton(
-                      onPressed: _markAllAsRead,
-                      child: Text(
-                        strings.markAllAsRead,
-                        style: TextStyle(color: cs.primary),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            Expanded(child: _buildBody(cs, theme)),
-          ],
+                ),
+            ],
+          ),
+          body: _buildBody(cs, theme),
         ),
-      ),
+      ],
     );
   }
 
@@ -300,9 +290,6 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
     switch (notification.type) {
       case NotificationType.invite:
         Navigator.pushNamed(context, '/pending-invites');
-        break;
-      case NotificationType.groupInvite:
-        Navigator.pushNamed(context, '/pending-group-invites');
         break;
       case NotificationType.requestApproved:
       case NotificationType.requestRejected:
@@ -401,12 +388,10 @@ class _NotificationTile extends StatelessWidget {
   Color _getTypeColor(NotificationType type, ColorScheme cs, AppBrand? brand) {
     switch (type) {
       case NotificationType.invite:
-      case NotificationType.groupInvite:
         return cs.primary;
       case NotificationType.requestApproved:
         return brand?.success ?? kStickyGreen;
       case NotificationType.requestRejected:
-      case NotificationType.groupInviteRejected:
       case NotificationType.userRemoved:
         return cs.error;
       case NotificationType.roleChanged:

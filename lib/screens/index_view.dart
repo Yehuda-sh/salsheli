@@ -582,7 +582,7 @@ class WavePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(WavePainter oldDelegate) {
-    // 🔧 FIX: בדיקה גם על colorScheme - להגיב לשינויי Theme
+    // בדיקה על colorScheme כדי להגיב לשינויי Theme
     return oldDelegate.animationValue != animationValue ||
         oldDelegate.colorScheme != colorScheme;
   }

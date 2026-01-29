@@ -1,13 +1,13 @@
 // 📄 File: lib/models/notification.dart
 //
 // 🇮🇱 מודל התראה באפליקציה:
-//     - הזמנות לרשימות וקבוצות
+//     - הזמנות לרשימות
 //     - אישור/דחייה של בקשות
 //     - שינויי תפקיד והסרות
 //     - התראות מזווה (מלאי נמוך)
 //
 // 🇬🇧 App notification model:
-//     - List and group invitations
+//     - List invitations
 //     - Request approvals/rejections
 //     - Role changes and removals
 //     - Pantry alerts (low stock)
@@ -207,12 +207,6 @@ class AppNotification {
 
   /// תפקיד חדש
   String? get newRole => _getData('newRole', 'new_role');
-
-  /// מזהה הקבוצה (לקבוצות)
-  String? get groupId => _getData('groupId', 'group_id');
-
-  /// שם הקבוצה (לקבוצות)
-  String? get groupName => _getData('groupName', 'group_name');
 }
 
 /// 📋 Notification Types
@@ -235,12 +229,6 @@ enum NotificationType {
 
   // === Stage 6: New notification types ===
 
-  @JsonValue('group_invite')
-  groupInvite, // הזמנה לקבוצה
-
-  @JsonValue('group_invite_rejected')
-  groupInviteRejected, // 🆕 הזמנה לקבוצה נדחתה
-
   @JsonValue('who_brings_volunteer')
   whoBringsVolunteer, // מישהו התנדב להביא פריט
 
@@ -251,7 +239,7 @@ enum NotificationType {
   voteTie, // תיקו בהצבעה (לבעלים)
 
   @JsonValue('member_left')
-  memberLeft, // חבר עזב את הקבוצה (לאדמינים)
+  memberLeft, // חבר עזב (לאדמינים)
 
   @JsonValue('low_stock')
   lowStock, // מלאי נמוך במזווה
@@ -275,10 +263,6 @@ extension NotificationTypeExtension on NotificationType {
       case NotificationType.roleChanged:
         return '🔄';
       case NotificationType.userRemoved:
-        return '🚫';
-      case NotificationType.groupInvite:
-        return '👥';
-      case NotificationType.groupInviteRejected:
         return '🚫';
       case NotificationType.whoBringsVolunteer:
         return '🙋';
@@ -307,10 +291,6 @@ extension NotificationTypeExtension on NotificationType {
         return 'שינוי תפקיד';
       case NotificationType.userRemoved:
         return 'הסרה';
-      case NotificationType.groupInvite:
-        return 'הזמנה לקבוצה';
-      case NotificationType.groupInviteRejected:
-        return 'הזמנה נדחתה';
       case NotificationType.whoBringsVolunteer:
         return 'התנדבות';
       case NotificationType.newVote:

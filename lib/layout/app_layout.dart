@@ -22,7 +22,6 @@ import 'package:provider/provider.dart';
 
 import '../core/ui_constants.dart';
 import '../l10n/app_strings.dart';
-import '../providers/pending_invites_provider.dart';
 import '../providers/user_context.dart';
 
 class AppLayout extends StatefulWidget {
@@ -44,23 +43,12 @@ class AppLayout extends StatefulWidget {
 }
 
 class _AppLayoutState extends State<AppLayout> {
-  // 🎯 Cache totalBadgeCount for Performance
-  int _cachedTotalBadgeCount = 0;
-
   @override
   void initState() {
     super.initState();
-    _updateBadgeCache();
     if (kDebugMode) {
       debugPrint('📱 AppLayout.initState: currentIndex=${widget.currentIndex}, badges=${widget.badges}');
     }
-  }
-
-  @override
-  void didUpdateWidget(AppLayout oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // ✅ FIX: תמיד מחשב מחדש - גם אם אותו אובייקט Map עם ערכים שונים
-    _updateBadgeCache();
   }
 
   @override
@@ -71,21 +59,13 @@ class _AppLayoutState extends State<AppLayout> {
     super.dispose();
   }
 
-  /// 🎯 Updates cached badge count (Performance Optimization)
-  void _updateBadgeCache() {
-    _cachedTotalBadgeCount = _calculateTotalBadgeCount();
-  }
-
-  /// 🎯 Calculate total badge count (O(n))
-  int _calculateTotalBadgeCount() {
+  /// 🎯 Total badge count (computed on build - Map is small, no cache needed)
+  int get totalBadgeCount {
     if (widget.badges == null) return 0;
     return widget.badges!.values
         .whereType<int>()
         .fold(0, (sum, count) => sum + count);
   }
-
-  /// 🎯 Get cached total badge count (O(1))
-  int get totalBadgeCount => _cachedTotalBadgeCount;
 
   /// 🚪 Logout function with UserContext Provider
   /// 
@@ -106,9 +86,6 @@ class _AppLayoutState extends State<AppLayout> {
     final cs = Theme.of(context).colorScheme;
 
     try {
-      // 📨 ניקוי הזמנות ממתינות (לפני logout)
-      context.read<PendingInvitesProvider>().clear();
-
       // 🔐 Logout via UserContext Provider
       // ✅ זה מנקה גם Firebase Auth וגם SharedPreferences!
       await context.read<UserContext>().logout();
@@ -342,14 +319,14 @@ class _AppLayoutState extends State<AppLayout> {
 
 // === Animated Widgets ===
 
-/// 🎨 Animated Icon Button (Scale Effect on Press)
-/// 
-/// מה זה עושה:
-/// - כשלוחצים → Scale ל-0.95 (150ms)
-/// - כששוחררים → חוזר ל-1.0 (150ms)
-/// - נותן תחושה של "לחיצה" אמיתית!
-/// 
-/// New in v3.0 - Modern UI Pattern
+/// 🎨 Animated Icon Button (Subtle Scale Effect on Press)
+///
+/// ✅ WhatsApp-like behavior:
+/// - אנימציה מתחילה ברגע המגע (tap-down) - לא אחרי שחרור
+/// - Scale עדין (0.92) - מספיק להרגיש, לא "קופץ"
+/// - Tooltip + Semantics לנגישות
+///
+/// New in v3.1 - Tap-down animation
 class _AnimatedIconButton extends StatefulWidget {
   final String tooltip;
   final Widget icon;
@@ -370,27 +347,42 @@ class _AnimatedIconButton extends StatefulWidget {
 class _AnimatedIconButtonState extends State<_AnimatedIconButton> {
   bool _isPressed = false;
 
+  void _handleTapDown(TapDownDetails details) {
+    setState(() => _isPressed = true);
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    setState(() => _isPressed = false);
+    widget.onPressed();
+  }
+
+  void _handleTapCancel() {
+    setState(() => _isPressed = false);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      tooltip: widget.tooltip,
-      icon: AnimatedScale(
-        scale: _isPressed ? 0.95 : 1.0,
-        duration: const Duration(milliseconds: 150),
-        curve: Curves.easeInOut,
-        child: widget.icon,
+    return Tooltip(
+      message: widget.tooltip,
+      child: Semantics(
+        button: true,
+        label: widget.tooltip,
+        child: GestureDetector(
+          onTapDown: _handleTapDown,
+          onTapUp: _handleTapUp,
+          onTapCancel: _handleTapCancel,
+          child: AnimatedScale(
+            scale: _isPressed ? 0.92 : 1.0,
+            duration: const Duration(milliseconds: 100),
+            curve: Curves.easeOut,
+            child: IconButton(
+              icon: widget.icon,
+              color: widget.color,
+              onPressed: null, // Handled by GestureDetector
+            ),
+          ),
+        ),
       ),
-      color: widget.color,
-      onPressed: () {
-        // ✅ FIX: אנימציה + פעולה - עם בדיקת mounted!
-        setState(() => _isPressed = true);
-        widget.onPressed(); // פעולה (יכולה לעשות navigate/dispose)
-        Future.delayed(const Duration(milliseconds: 150), () {
-          if (mounted) {
-            setState(() => _isPressed = false);
-          }
-        });
-      },
     );
   }
 }
@@ -470,11 +462,11 @@ class _NavItem {
 ///
 /// Note: Uses AppStrings for consistent i18n support.
 /// These items define the bottom navigation structure.
-/// Version 5.0: New navigation - Home | Pantry | Groups | Settings
+/// Version 6.0: New navigation - Home | Pantry | History | Settings
 final List<_NavItem> _navItems = [
   _NavItem(icon: Icons.home, label: AppStrings.navigation.home),
   _NavItem(icon: Icons.inventory_2_outlined, label: AppStrings.navigation.pantry),
-  _NavItem(icon: Icons.groups, label: AppStrings.navigation.groups),
+  _NavItem(icon: Icons.receipt_long, label: AppStrings.navigation.history),
   _NavItem(icon: Icons.settings, label: AppStrings.navigation.settings),
 ];
 

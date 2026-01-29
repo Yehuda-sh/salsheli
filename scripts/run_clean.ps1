@@ -10,6 +10,7 @@ $exclude = @(
     "Choreographer",
     "ProfileInstaller",
     "hiddenapi",
+    "hiddenapi:",
     "fuov",
     "NativeCrypto",
     "conscrypt",
@@ -27,12 +28,24 @@ $exclude = @(
     "Waiting for a blocking",
     "WaitForGcToComplete",
     "Verification of void",
-    "hiddenapi:",
     "W/System",
     "E/GoogleApiManager",
-    "W/FlagRegistrar"
+    "W/FlagRegistrar",
+    "D/ApplicationLoaders",
+    "D/nativeloader",
+    "I/example.memozap",
+    "W/example.memozap",
+    "D/ProfileInstaller",
+    "D/FirebaseAuth",
+    "D/WindowLayoutComponentImpl",
+    "V/NativeCrypto",
+    "I/ProviderInstaller",
+    "W/ProviderInstaller",
+    "D/CompatChangeReporter",
+    "I/DynamiteModule",
+    "W/DynamiteModule"
 )
 
 $pattern = ($exclude | ForEach-Object { [regex]::Escape($_) }) -join '|'
 
-flutter run 2>&1 | Where-Object { $_ -notmatch $pattern }
+flutter run --endless-trace-buffer 2>&1 | Where-Object { $_ -notmatch $pattern }

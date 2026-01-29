@@ -11,6 +11,7 @@ flutter run --endless-trace-buffer 2>&1 | grep -v \
     -e "Choreographer" \
     -e "ProfileInstaller" \
     -e "hiddenapi" \
+    -e "hiddenapi:" \
     -e "fuov" \
     -e "NativeCrypto" \
     -e "conscrypt" \

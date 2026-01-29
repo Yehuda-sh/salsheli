@@ -1,15 +1,11 @@
-// ignore_for_file: use_build_context_synchronously
-
 // 📄 File: lib/screens/settings/settings_screen.dart
 //
 // 🎯 תיאור: מסך הגדרות ופרופיל משולב - ניהול פרופיל אישי, הגדרות קבוצה, והעדפות
 //
 // 🔧 תכונות:
 // ✅ פרופיל אישי מחובר ל-UserContext (שם, אימייל, תמונה)
-// ✅ סטטיסטיקות בזמן אמת (רשימות, קבלות, פריטים במזווה)
-// ✅ ניהול קבוצה/משק בית (תמיכה במשפחה, ועד בית, ועד גן)
-// ✅ הכנה לניהול חברים עתידי
-// ✅ הגדרות אישיות עם שמירה ב-SharedPreferences
+// ✅ הגדרות התראות עם שמירה ב-SharedPreferences
+// ✅ ערכת נושא (בהיר/כהה/מערכת)
 // ✅ קישורים מהירים למסכים נוספים
 // ✅ התנתקות בטוחה
 // ✅ Logging מפורט
@@ -21,38 +17,31 @@
 // 🎬 Animations (v3.0):
 // - AnimatedCounter על סטטיסטיקות (0 → value)
 // - SimpleTappableCard על כרטיסי סטטיסטיקות (scale + haptic)
-// - StickyButton animations
 // - Skeleton Screen ל-Loading State
 //
 // 🔗 תלויות:
 // - UserContext (Provider)
-// - ShoppingListsProvider (סטטיסטיקות)
-// - ReceiptProvider (סטטיסטיקות)
-// - InventoryProvider (סטטיסטיקות)
-// - ProductsProvider (עדכון מחירים)
+// - AuthService (Provider)
 // - SharedPreferences (שמירת הגדרות מקומית)
-// - Household types: 'family' (inline constant)
+// - TutorialService
 //
 // 📊 Flow:
-// 1. טעינת הגדרות מ-SharedPreferences
-// 2. הצגת פרופיל + סטטיסטיקות (עם animations!)
+// 1. טעינת הגדרות התראות מ-SharedPreferences
+// 2. הצגת פרופיל + הגדרות
 // 3. עריכת הגדרות → שמירה אוטומטית
-// 4. עדכון מחירים ידני (ProductsProvider.refreshProducts)
-// 5. התנתקות → ניקוי + חזרה ל-login
+// 4. התנתקות → ניקוי + חזרה ל-login
 //
-// Version: 3.4 - No AppBar (Immersive)
-// Last Updated: 13/01/2026
+// Version: 3.5 - Clean Material Design (no Sticky Notes)
+// Last Updated: 27/01/2026
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:memozap/core/ui_constants.dart';
 import 'package:memozap/l10n/app_strings.dart';
 import 'package:memozap/providers/user_context.dart';
-import 'package:memozap/widgets/common/notebook_background.dart';
 import 'package:memozap/widgets/common/skeleton_loader.dart';
-import 'package:memozap/widgets/common/sticky_button.dart';
-import 'package:memozap/widgets/common/sticky_note.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -68,13 +57,15 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  // Keys לשמירה מקומית
-  static const _kHouseholdName = 'settings.householdName';
-  static const _kHouseholdType = 'settings.householdType';
+  // Keys לשמירה מקומית - התראות
+  static const _kNotifyShopping = 'settings.notify.shopping';
+  static const _kNotifyInventory = 'settings.notify.inventory';
+  static const _kNotifyGroup = 'settings.notify.group';
 
-  // מצב UI
-  String _householdName = 'הקבוצה שלי';
-  String _householdType = 'family'; // default household type
+  // מצב UI - התראות
+  bool _notifyShopping = true;
+  bool _notifyInventory = true;
+  bool _notifyGroup = true;
 
   bool _loading = true;
   String? _errorMessage;
@@ -96,14 +87,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _loadSettings() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      // ✅ Guard: וידוא שהמסך עדיין קיים לפני setState
+      if (!mounted) return;
       setState(() {
-        _householdName = prefs.getString(_kHouseholdName) ?? _householdName;
-        _householdType = prefs.getString(_kHouseholdType) ?? _householdType;
+        _notifyShopping = prefs.getBool(_kNotifyShopping) ?? true;
+        _notifyInventory = prefs.getBool(_kNotifyInventory) ?? true;
+        _notifyGroup = prefs.getBool(_kNotifyGroup) ?? true;
         _loading = false;
         _errorMessage = null;
       });
     } catch (e) {
       debugPrint('❌ _loadSettings: שגיאה - $e');
+      if (!mounted) return;
       setState(() {
         _errorMessage = AppStrings.settings.loadError(e.toString());
         _loading = false;
@@ -111,42 +106,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  /// התנתקות
+  /// שמירת הגדרת התראה
+  Future<void> _saveNotificationSetting(String key, bool value) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(key, value);
+      debugPrint('✅ Notification setting saved: $key = $value');
+    } catch (e) {
+      debugPrint('❌ Error saving notification: $e');
+    }
+  }
+
+  /// התנתקות רגילה (שומר seenOnboarding)
   Future<void> _logout() async {
-    debugPrint('🔥 _logout: מתחיל התנתקות מלאה');
+    debugPrint('🚪 _logout: מתחיל התנתקות רגילה');
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(AppStrings.settings.logoutTitle),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(AppStrings.settings.logoutMessage),
-            const SizedBox(height: kSpacingMedium),
-            Container(
-              padding: const EdgeInsets.all(kSpacingSmall),
-              decoration: BoxDecoration(
-                color: Colors.orange.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(kBorderRadius),
-                border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: kIconSizeMedium),
-                  const SizedBox(width: kSpacingSmall),
-                  Expanded(
-                    child: Text(
-                      'כל הנתונים המקומיים יימחקו!\n(מוצרים, העדפות, cache)',
-                      style: TextStyle(fontSize: kFontSizeSmall, color: Colors.orange[900]),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+        content: Text(AppStrings.settings.logoutMessage),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: Text(AppStrings.settings.logoutCancel)),
           TextButton(
@@ -161,7 +140,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
 
     if (confirmed == true && mounted) {
-      debugPrint('🔥 _logout: אושר - מתחיל מחיקת נתונים מלאה');
+      debugPrint('🚪 _logout: אושר - מתנתק (שומר seenOnboarding)');
 
       try {
         if (!mounted) return;
@@ -179,7 +158,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     children: [
                       CircularProgressIndicator(),
                       SizedBox(height: kSpacingMedium),
-                      Text('ממחק נתונים...'),
+                      Text('מתנתק...'),
                     ],
                   ),
                 ),
@@ -188,9 +167,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ));
 
-        await context.read<UserContext>().signOutAndClearAllData();
+        // ✅ signOut() שומר seenOnboarding (לפי Guardrails)
+        await context.read<UserContext>().signOut();
 
-        debugPrint('🎉 _logout: הושלם בהצלחה');
+        debugPrint('✅ _logout: הושלם בהצלחה');
 
         if (!mounted) return;
         Navigator.of(context).pop();
@@ -208,6 +188,99 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  /// 🔧 DEBUG ONLY: מחיקת כל הנתונים (כולל seenOnboarding)
+  Future<void> _debugClearAllData() async {
+    debugPrint('🔥 _debugClearAllData: DEBUG - מחיקת נתונים מלאה');
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('🔧 DEBUG: מחיקת כל הנתונים'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('פעולה זו תמחק הכל כולל seenOnboarding.\nתחזור למסך Welcome.'),
+            const SizedBox(height: kSpacingMedium),
+            Container(
+              padding: const EdgeInsets.all(kSpacingSmall),
+              decoration: BoxDecoration(
+                color: Colors.red.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(kBorderRadius),
+                border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.bug_report, color: Colors.red, size: kIconSizeMedium),
+                  SizedBox(width: kSpacingSmall),
+                  Expanded(
+                    child: Text(
+                      'זמין רק ב-Debug Mode',
+                      style: TextStyle(fontSize: kFontSizeSmall, color: Colors.red),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('ביטול')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('מחק הכל', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      debugPrint('🔥 _debugClearAllData: אושר - מוחק הכל');
+
+      try {
+        if (!mounted) return;
+        unawaited(showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const PopScope(
+            canPop: false,
+            child: Center(
+              child: Card(
+                child: Padding(
+                  padding: EdgeInsets.all(kSpacingLarge),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: kSpacingMedium),
+                      Text('מוחק נתונים...'),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ));
+
+        await context.read<UserContext>().signOutAndClearAllData();
+
+        debugPrint('🎉 _debugClearAllData: הושלם בהצלחה');
+
+        if (!mounted) return;
+        Navigator.of(context).pop();
+        // ✅ ניווט ל-/ (IndexScreen) - יזרום אוטומטית ל-Welcome כי seenOnboarding=false
+        unawaited(Navigator.pushNamedAndRemoveUntil(context, '/', (r) => false));
+      } catch (e) {
+        debugPrint('❌ _debugClearAllData: שגיאה - $e');
+        if (!mounted) return;
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('שגיאה במחיקה: $e'), backgroundColor: Colors.red, duration: kSnackBarDurationLong),
+        );
+      }
+    }
+  }
+
   /// retry אחרי שגיאה
   void _retry() {
     setState(() {
@@ -222,11 +295,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final confirmController = TextEditingController();
     bool isDeleting = false;
 
+    // שומרים הפניות לפני פתיחת הדיאלוג (נמנע מבעיות async context)
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final authService = context.read<AuthService>();
+
     final confirmed = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) => StatefulBuilder(
-        builder: (context, setDialogState) {
+        builder: (dialogCtx, setDialogState) {
           final isConfirmValid = confirmController.text == AppStrings.settings.deleteAccountConfirmText;
 
           return AlertDialog(
@@ -278,7 +355,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             actions: [
               TextButton(
-                onPressed: isDeleting ? null : () => Navigator.pop(context, false),
+                onPressed: isDeleting ? null : () => Navigator.pop(dialogCtx, false),
                 child: Text(AppStrings.settings.logoutCancel),
               ),
               FilledButton(
@@ -286,19 +363,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ? null
                     : () async {
                         setDialogState(() => isDeleting = true);
+                        final navigator = Navigator.of(dialogCtx);
 
                         try {
-                          final authService = AuthService();
                           await authService.deleteAccount();
 
                           if (!mounted) return;
-                          Navigator.pop(context, true);
+                          navigator.pop(true);
                         } on AuthException catch (e) {
                           setDialogState(() => isDeleting = false);
 
                           if (e.code == AuthErrorCode.requiresRecentLogin) {
                             if (!mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
+                            scaffoldMessenger.showSnackBar(
                               SnackBar(
                                 content: Text(AppStrings.settings.deleteAccountRequiresReauth),
                                 backgroundColor: Colors.orange,
@@ -306,7 +383,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             );
                           } else {
                             if (!mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
+                            scaffoldMessenger.showSnackBar(
                               SnackBar(
                                 content: Text(AppStrings.settings.deleteAccountError(e.message)),
                                 backgroundColor: Colors.red,
@@ -316,7 +393,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         } catch (e) {
                           setDialogState(() => isDeleting = false);
                           if (!mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          scaffoldMessenger.showSnackBar(
                             SnackBar(
                               content: Text(AppStrings.settings.deleteAccountError(e.toString())),
                               backgroundColor: Colors.red,
@@ -348,7 +425,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
       await Future.delayed(const Duration(milliseconds: 500));
       if (mounted) {
-        unawaited(Navigator.pushNamedAndRemoveUntil(context, '/login', (r) => false));
+        // ✅ ניווט ל-/ (IndexScreen) - יזרום אוטומטית ל-Welcome (חשבון נמחק = משתמש חדש)
+        unawaited(Navigator.pushNamedAndRemoveUntil(context, '/', (r) => false));
       }
     }
   }
@@ -370,17 +448,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
     String selectedAvatar = _avatarOptions.contains(currentAvatar) ? currentAvatar : '👤';
     bool isSaving = false;
 
+    // שומרים הפניות לפני פתיחת ה-bottom sheet (נמנע מבעיות async context)
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (bottomSheetContext) => StatefulBuilder(
-        builder: (context, setBottomSheetState) {
-          final cs = Theme.of(context).colorScheme;
+        builder: (sheetCtx, setBottomSheetState) {
+          final cs = Theme.of(sheetCtx).colorScheme;
 
           return Container(
             padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
+              bottom: MediaQuery.of(sheetCtx).viewInsets.bottom,
             ),
             decoration: BoxDecoration(
               color: cs.surface,
@@ -493,7 +574,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     children: [
                       Expanded(
                         child: OutlinedButton(
-                          onPressed: isSaving ? null : () => Navigator.pop(context),
+                          onPressed: isSaving ? null : () => Navigator.pop(sheetCtx),
                           child: const Text('ביטול'),
                         ),
                       ),
@@ -504,13 +585,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           onPressed: isSaving ? null : () async {
                             final newName = nameController.text.trim();
                             if (newName.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              scaffoldMessenger.showSnackBar(
                                 const SnackBar(content: Text('נא להזין שם')),
                               );
                               return;
                             }
 
                             setBottomSheetState(() => isSaving = true);
+                            final navigator = Navigator.of(sheetCtx);
 
                             try {
                               await userContext.updateUserProfile(
@@ -519,8 +601,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               );
 
                               if (mounted) {
-                                Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                navigator.pop();
+                                scaffoldMessenger.showSnackBar(
                                   const SnackBar(
                                     content: Text('הפרופיל עודכן בהצלחה'),
                                     backgroundColor: Colors.green,
@@ -530,7 +612,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             } catch (e) {
                               setBottomSheetState(() => isSaving = false);
                               if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                scaffoldMessenger.showSnackBar(
                                   SnackBar(
                                     content: Text('שגיאה בעדכון: $e'),
                                     backgroundColor: Colors.red,
@@ -610,52 +692,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (_loading) {
       return Scaffold(
         backgroundColor: cs.surface,
-        body: Stack(
-          children: [
-            const NotebookBackground(),
-            SafeArea(child: _buildLoadingSkeleton(cs)),
-          ],
-        ),
+        body: SafeArea(child: _buildLoadingSkeleton(cs)),
       );
     }
 
     // Error State
     if (_errorMessage != null) {
       return Scaffold(
-        body: Stack(
-          children: [
-            const NotebookBackground(),
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, size: 64, color: cs.error),
-                  const SizedBox(height: kSpacingMedium),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge),
-                    child: Text(
-                      _errorMessage!,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: cs.error),
-                    ),
-                  ),
-                  const SizedBox(height: kSpacingMedium),
-                  StickyButton(label: AppStrings.priceComparison.retry, onPressed: _retry, color: kStickyCyan),
-                ],
+        backgroundColor: cs.surface,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, size: 64, color: cs.error),
+              const SizedBox(height: kSpacingMedium),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge),
+                child: Text(
+                  _errorMessage!,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: cs.error),
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: kSpacingMedium),
+              FilledButton.icon(
+                onPressed: _retry,
+                icon: const Icon(Icons.refresh),
+                label: Text(AppStrings.priceComparison.retry),
+              ),
+            ],
+          ),
         ),
       );
     }
 
     return Scaffold(
       backgroundColor: cs.surface,
-      body: Stack(
-        children: [
-          const NotebookBackground(),
-          SafeArea(
-            child: ListView(
+      body: SafeArea(
+        child: ListView(
               padding: const EdgeInsets.all(kSpacingMedium),
               children: [
                 // 🏷️ כותרת inline
@@ -678,9 +752,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
 
                 // 🔹 פרופיל אישי
-                StickyNote(
-                  color: kStickyYellow,
-                  rotation: -0.02,
+                Card(
+                  elevation: 1,
                   child: Padding(
                     padding: const EdgeInsets.all(kSpacingMedium),
                     child: Row(
@@ -719,15 +792,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                         const SizedBox(width: kSpacingSmall),
-                        Flexible(
-                          child: StickyButton(
-                            label: AppStrings.settings.editProfile,
-                            icon: Icons.edit,
-                            height: 44,
-                            color: cs.primary,
-                            textColor: Colors.white,
-                            onPressed: _showEditProfileBottomSheet,
-                          ),
+                        FilledButton.icon(
+                          onPressed: _showEditProfileBottomSheet,
+                          icon: const Icon(Icons.edit, size: 18),
+                          label: Text(AppStrings.settings.editProfile),
                         ),
                       ],
                     ),
@@ -758,25 +826,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         _NotificationToggle(
                           title: 'התראות קנייה',
                           subtitle: 'כשמישהו מסיים קנייה',
-                          value: true,
+                          value: _notifyShopping,
                           onChanged: (val) {
-                            // TODO: שמירה ב-SharedPreferences
+                            setState(() => _notifyShopping = val);
+                            _saveNotificationSetting(_kNotifyShopping, val);
                           },
                         ),
                         _NotificationToggle(
                           title: 'התראות מלאי',
                           subtitle: 'כשמוצר במזווה אוזל',
-                          value: true,
+                          value: _notifyInventory,
                           onChanged: (val) {
-                            // TODO: שמירה ב-SharedPreferences
+                            setState(() => _notifyInventory = val);
+                            _saveNotificationSetting(_kNotifyInventory, val);
                           },
                         ),
                         _NotificationToggle(
                           title: 'התראות קבוצה',
                           subtitle: 'הזמנות וחברים חדשים',
-                          value: true,
+                          value: _notifyGroup,
                           onChanged: (val) {
-                            // TODO: שמירה ב-SharedPreferences
+                            setState(() => _notifyGroup = val);
+                            _saveNotificationSetting(_kNotifyGroup, val);
                           },
                         ),
                       ],
@@ -866,9 +937,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         subtitle: const Text('צפה שוב בהדרכת האפליקציה'),
                         trailing: const Icon(Icons.chevron_left),
                         onTap: () async {
+                          final messenger = ScaffoldMessenger.of(context);
                           await TutorialService.resetTutorial(context);
                           if (!mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          messenger.showSnackBar(
                             const SnackBar(
                               content: Text('ההדרכה תוצג בכניסה הבאה לדף הבית'),
                               backgroundColor: Colors.green,
@@ -925,16 +997,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: kSpacingMedium),
 
                 // 🔹 התנתקות
-                StickyNote(
-                  color: Colors.red.shade100,
-                  rotation: 0.02,
+                Card(
+                  elevation: 1,
                   child: ListTile(
                     leading: const Icon(Icons.logout, color: Colors.red),
                     title: Text(AppStrings.settings.logoutTitle, style: const TextStyle(color: Colors.red)),
                     subtitle: Text(AppStrings.settings.logoutSubtitle),
+                    trailing: const Icon(Icons.chevron_left, color: Colors.red),
                     onTap: _logout,
                   ),
                 ),
+
+                // 🔧 DEBUG ONLY: מחיקת כל הנתונים
+                if (kDebugMode) ...[
+                  const SizedBox(height: kSpacingSmall),
+                  Card(
+                    elevation: 1,
+                    color: Colors.orange.shade50,
+                    child: ListTile(
+                      leading: const Icon(Icons.bug_report, color: Colors.orange),
+                      title: const Text('🔧 DEBUG: מחק הכל', style: TextStyle(color: Colors.orange)),
+                      subtitle: const Text('מוחק seenOnboarding - חוזר ל-Welcome'),
+                      onTap: _debugClearAllData,
+                    ),
+                  ),
+                ],
 
                 const SizedBox(height: kSpacingMedium),
 
@@ -961,9 +1048,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
           ),
-        ],
-      ),
-    );
+        );
   }
 }
 

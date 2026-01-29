@@ -37,11 +37,8 @@ import '../../config/storage_locations_config.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../models/inventory_item.dart';
-import '../../providers/groups_provider.dart';
 import '../../providers/inventory_provider.dart';
 import '../../providers/locations_provider.dart';
-import '../../providers/user_context.dart';
-import '../../services/notifications_service.dart';
 import '../../services/template_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
@@ -350,42 +347,11 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     }
   }
 
-  /// שולח התראה על מלאי נמוך
+  /// שולח התראה על מלאי נמוך (placeholder - לשימוש עתידי עם household)
   Future<void> _sendLowStockNotification(InventoryItem item) async {
-    try {
-      final inventoryProvider = context.read<InventoryProvider>();
-      final userContext = context.read<UserContext>();
-      final groupsProvider = context.read<GroupsProvider>();
-
-      if (inventoryProvider.isGroupMode && inventoryProvider.currentGroupId != null) {
-        final groupId = inventoryProvider.currentGroupId!;
-        final group = groupsProvider.groups.where((g) => g.id == groupId).firstOrNull;
-
-        if (group != null) {
-          final notificationsService = context.read<NotificationsService>();
-          final currentUserId = userContext.userId;
-
-          for (final member in group.membersList) {
-            if (member.userId != currentUserId) {
-              await notificationsService.createLowStockNotification(
-                userId: member.userId,
-                householdId: group.id,
-                productName: item.productName,
-                currentStock: item.quantity,
-                minStock: item.minQuantity,
-              );
-            }
-          }
-
-          if (kDebugMode) {
-            debugPrint('📬 נשלחו התראות מלאי נמוך: ${item.productName}');
-          }
-        }
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('⚠️ שגיאה בשליחת התראת מלאי נמוך: $e');
-      }
+    // TODO: Implement household-based low stock notifications
+    if (kDebugMode) {
+      debugPrint('📬 Low stock detected: ${item.productName} (${item.quantity}/${item.minQuantity})');
     }
   }
 
@@ -480,8 +446,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                             const NotebookBackground(),
                             SafeArea(
                               child: PantryEmptyState(
-                                isGroupMode: provider.isGroupMode,
-                                groupName: provider.isGroupMode ? provider.inventoryTitle : null,
                                 onAddItem: _addItemDialog,
                                 onAddStarterItems: _addStarterItems,
                               ),
@@ -537,7 +501,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
   /// 🏷️ כותרת המזווה - inline (ללא AppBar)
   Widget _buildInlineTitle(InventoryProvider provider, ColorScheme scheme) {
-    final groupName = provider.currentGroupName;
     final textColor = scheme.onSurface;
 
     return Padding(
@@ -552,37 +515,14 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           Icon(Icons.kitchen_outlined, size: 24, color: scheme.primary),
           const SizedBox(width: kSpacingSmall),
           Expanded(
-            child: provider.isGroupMode && groupName != null
-                ? RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: AppStrings.pantry.pantryPrefix,
-                          style: TextStyle(
-                            color: textColor.withValues(alpha: 0.7),
-                            fontSize: 18,
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                        TextSpan(
-                          text: groupName,
-                          style: TextStyle(
-                            color: textColor,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : Text(
-                    provider.inventoryTitle,
-                    style: TextStyle(
-                      color: textColor,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+            child: Text(
+              provider.inventoryTitle,
+              style: TextStyle(
+                color: textColor,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),

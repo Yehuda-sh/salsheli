@@ -12,7 +12,7 @@
 // - pending_invites_service.dart - שירות ניהול הזמנות
 // - invite_users_screen.dart - מסך שליחת הזמנות
 //
-// Version 2.0 - No AppBar (Immersive)
+// Version 3.0 - Hybrid: NotebookBackground + AppBar
 // Last Updated: 13/01/2026
 
 import 'dart:async';
@@ -221,47 +221,22 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-    final brand = theme.extension<AppBrand>();
-
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: Scaffold(
-        // ✅ Theme-aware: רקע מ-AppBrand
-        backgroundColor: brand?.paperBackground ?? theme.scaffoldBackgroundColor,
-        body: Stack(
-          children: [
-            const NotebookBackground(),
-            SafeArea(
-              child: Column(
-                children: [
-                  // 🏷️ כותרת inline
-                  Padding(
-                    padding: const EdgeInsets.all(kSpacingMedium),
-                    child: Row(
-                      children: [
-                        Icon(Icons.mail_outline, size: 24, color: cs.primary),
-                        const SizedBox(width: kSpacingSmall),
-                        Expanded(
-                          child: Text(
-                            'הזמנות ממתינות',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: cs.onSurface,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(child: _buildContent()),
-                ],
-              ),
+      child: Stack(
+        children: [
+          const NotebookBackground(),
+          Scaffold(
+            backgroundColor: Colors.transparent,
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              title: const Text('הזמנות ממתינות'),
+              centerTitle: true,
             ),
-          ],
-        ),
+            body: _buildContent(),
+          ),
+        ],
       ),
     );
   }

@@ -2,11 +2,11 @@
 //
 // מסך היסטוריית קניות - צפייה בקבלות קודמות.
 // כולל חיפוש, מיון, וסטטיסטיקות הוצאות.
-// ללא AppBar - כותרת inline עם SafeArea
+// שילוב: רקע מחברת + עיצוב Material נקי (AppBar + Cards)
 //
-// Version: 1.1 - No AppBar (Immersive)
-// Last Updated: 13/01/2026
-// 🔗 Related: ReceiptProvider, Receipt, ReceiptDetailsScreen
+// Version: 3.0 - ExpansionTile instead of separate screen
+// Last Updated: 27/01/2026
+// 🔗 Related: ReceiptProvider, Receipt
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -18,8 +18,6 @@ import '../../models/receipt.dart';
 import '../../providers/receipt_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
-import '../../widgets/common/sticky_note.dart';
-import 'receipt_details_screen.dart';
 
 class ShoppingHistoryScreen extends StatefulWidget {
   const ShoppingHistoryScreen({super.key});
@@ -29,7 +27,7 @@ class ShoppingHistoryScreen extends StatefulWidget {
 }
 
 class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
-  String _searchQuery = '';
+  String _filterPeriod = 'month'; // month, 3months, all
   String _sortBy = 'date'; // date, store, amount
 
   @override
@@ -43,9 +41,56 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
         const NotebookBackground(),
         Scaffold(
           backgroundColor: Colors.transparent,
-          body: SafeArea(
-            child: Consumer<ReceiptProvider>(
-            builder: (context, provider, _) {
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+        title: Text(strings.title),
+        centerTitle: true,
+        actions: [
+          // מיון
+          PopupMenuButton<String>(
+            icon: Icon(Icons.sort, color: cs.primary),
+            tooltip: strings.sortTooltip,
+            onSelected: (value) {
+              setState(() => _sortBy = value);
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'date',
+                child: Row(
+                  children: [
+                    const Icon(Icons.calendar_today, size: 18),
+                    const SizedBox(width: kSpacingSmall),
+                    Text(strings.sortByDate),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'store',
+                child: Row(
+                  children: [
+                    const Icon(Icons.list_alt, size: 18),
+                    const SizedBox(width: kSpacingSmall),
+                    Text(strings.sortByList),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'amount',
+                child: Row(
+                  children: [
+                    const Icon(Icons.attach_money, size: 18),
+                    const SizedBox(width: kSpacingSmall),
+                    Text(strings.sortByAmount),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      body: Consumer<ReceiptProvider>(
+        builder: (context, provider, _) {
               if (provider.isLoading) {
                 return const Center(child: CircularProgressIndicator());
               }
@@ -59,7 +104,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
 
               final receipts = _filterAndSortReceipts(provider.receipts);
 
-              if (receipts.isEmpty && _searchQuery.isEmpty) {
+              if (provider.receipts.isEmpty) {
                 return _EmptyState();
               }
 
@@ -73,93 +118,39 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
 
               return Column(
                 children: [
-                  // 🏷️ כותרת inline עם מיון
+                  // 🔍 סינון לפי תקופה
                   Padding(
-                    padding: const EdgeInsets.all(kSpacingMedium),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: kSpacingMedium,
+                      vertical: kSpacingSmall,
+                    ),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.receipt_long, size: 24, color: cs.primary),
-                        const SizedBox(width: kSpacingSmall),
-                        Expanded(
-                          child: Text(
-                            strings.title,
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: cs.onSurface,
-                            ),
-                          ),
+                        FilterChip(
+                          label: Text(strings.filterThisMonth),
+                          selected: _filterPeriod == 'month',
+                          onSelected: (_) => setState(() => _filterPeriod = 'month'),
                         ),
-                        // מיון
-                        PopupMenuButton<String>(
-                          icon: Icon(Icons.sort, color: cs.primary),
-                          tooltip: strings.sortTooltip,
-                          onSelected: (value) {
-                            setState(() => _sortBy = value);
-                          },
-                          itemBuilder: (context) => [
-                            PopupMenuItem(
-                              value: 'date',
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.calendar_today, size: 18),
-                                  const SizedBox(width: kSpacingSmall),
-                                  Text(strings.sortByDate),
-                                ],
-                              ),
-                            ),
-                            PopupMenuItem(
-                              value: 'store',
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.store, size: 18),
-                                  const SizedBox(width: kSpacingSmall),
-                                  Text(strings.sortByStore),
-                                ],
-                              ),
-                            ),
-                            PopupMenuItem(
-                              value: 'amount',
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.attach_money, size: 18),
-                                  const SizedBox(width: kSpacingSmall),
-                                  Text(strings.sortByAmount),
-                                ],
-                              ),
-                            ),
-                          ],
+                        const SizedBox(width: kSpacingSmall),
+                        FilterChip(
+                          label: Text(strings.filterThreeMonths),
+                          selected: _filterPeriod == '3months',
+                          onSelected: (_) => setState(() => _filterPeriod = '3months'),
+                        ),
+                        const SizedBox(width: kSpacingSmall),
+                        FilterChip(
+                          label: Text(strings.filterAll),
+                          selected: _filterPeriod == 'all',
+                          onSelected: (_) => setState(() => _filterPeriod = 'all'),
                         ),
                       ],
-                    ),
-                  ),
-
-                  // 🔍 חיפוש
-                  Padding(
-                    padding: const EdgeInsets.all(kSpacingMedium),
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: strings.searchHint,
-                        prefixIcon: const Icon(Icons.search),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(kBorderRadius),
-                        ),
-                        filled: true,
-                        fillColor: cs.surface,
-                      ),
-                      onChanged: (value) {
-                        setState(() => _searchQuery = value);
-                      },
                     ),
                   ),
 
                   // 📊 סטטיסטיקות
                   Builder(
                     builder: (context) {
-                      final successColor =
-                          theme.extension<AppBrand>()?.success ?? kStickyGreen;
-                      final accentColor =
-                          theme.extension<AppBrand>()?.accent ?? cs.tertiary;
                       return Container(
                         margin: const EdgeInsets.symmetric(
                             horizontal: kSpacingMedium),
@@ -181,13 +172,14 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
                               icon: Icons.payments,
                               label: strings.totalLabel,
                               value: '₪${totalSpent.toStringAsFixed(0)}',
-                              color: successColor,
+                              color: cs.primary,
                             ),
                             _StatItem(
                               icon: Icons.trending_up,
                               label: strings.averageLabel,
                               value: '₪${avgPerTrip.toStringAsFixed(0)}',
-                              color: accentColor,
+                              // ✅ FIX: צבע כהה יותר לקריאות טובה
+                              color: cs.onPrimaryContainer,
                             ),
                           ],
                         ),
@@ -211,17 +203,13 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
                             itemCount: receipts.length,
                             itemBuilder: (context, index) {
                               final receipt = receipts[index];
-                              return _ReceiptTile(
-                                receipt: receipt,
-                                onTap: () => _openReceiptDetails(receipt),
-                              );
+                              return _ReceiptTile(receipt: receipt);
                             },
                           ),
                   ),
                 ],
               );
             },
-          ),
           ),
         ),
       ],
@@ -232,11 +220,22 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
   List<Receipt> _filterAndSortReceipts(List<Receipt> receipts) {
     var filtered = receipts.toList();
 
-    // סינון לפי חיפוש
-    if (_searchQuery.isNotEmpty) {
-      filtered = filtered.where((r) {
-        return r.storeName.toLowerCase().contains(_searchQuery.toLowerCase());
-      }).toList();
+    // סינון לפי תקופה (לפי חודש קלנדרי, לא חלון נע)
+    final now = DateTime.now();
+    switch (_filterPeriod) {
+      case 'month':
+        // תחילת החודש הנוכחי
+        final firstOfMonth = DateTime(now.year, now.month, 1);
+        filtered = filtered.where((r) => !r.date.isBefore(firstOfMonth)).toList();
+        break;
+      case '3months':
+        // תחילת 3 חודשים אחורה (כולל החודש הנוכחי)
+        final firstOf3MonthsAgo = DateTime(now.year, now.month - 2, 1);
+        filtered = filtered.where((r) => !r.date.isBefore(firstOf3MonthsAgo)).toList();
+        break;
+      case 'all':
+        // לא לסנן
+        break;
     }
 
     // מיון
@@ -254,169 +253,196 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
 
     return filtered;
   }
-
-  void _openReceiptDetails(Receipt receipt) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ReceiptDetailsScreen(receipt: receipt),
-      ),
-    );
-  }
 }
 
 // ========================================
-// Widget: כרטיס קבלה
+// Widget: כרטיס קבלה מתרחב
 // ========================================
 
 class _ReceiptTile extends StatelessWidget {
   final Receipt receipt;
-  final VoidCallback onTap;
 
-  const _ReceiptTile({
-    required this.receipt,
-    required this.onTap,
-  });
+  const _ReceiptTile({required this.receipt});
+
+  /// Format quantity to avoid "1.0" display
+  String _formatQuantity(num quantity) {
+    if (quantity == quantity.toInt()) {
+      return quantity.toInt().toString();
+    }
+    return quantity.toString();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final strings = AppStrings.shoppingHistory;
-    // ✅ FIX: Use locale from context
     final locale = Localizations.localeOf(context).languageCode;
-    // ✅ FIX: Theme-aware success color
-    final successColor = theme.extension<AppBrand>()?.success ?? kStickyGreen;
+    final successColor = theme.extension<AppBrand>()?.success ?? Colors.green;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: kSpacingSmall),
-      child: StickyNote(
-        color: receipt.isVirtual ? kStickyGreen : kStickyYellow,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(kBorderRadius),
-          child: Padding(
-            padding: const EdgeInsets.all(kSpacingMedium),
-            child: Row(
-              children: [
-                // אייקון
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    // ✅ FIX: Theme-aware color
-                    color: receipt.isVirtual
-                        ? successColor.withValues(alpha: 0.2)
-                        : cs.primaryContainer,
-                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                  ),
-                  child: Icon(
-                    receipt.isVirtual ? Icons.shopping_cart : Icons.receipt,
-                    // ✅ FIX: Theme-aware color
-                    color: receipt.isVirtual ? successColor : cs.primary,
-                  ),
-                ),
-
-                const SizedBox(width: kSpacingMedium),
-
-                // פרטים
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        receipt.storeName,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: kFontSizeMedium,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Icon(Icons.calendar_today,
-                              // ✅ FIX: Theme-aware color
-                              size: 12, color: cs.onSurfaceVariant),
-                          const SizedBox(width: 4),
-                          Text(
-                            // ✅ FIX: Use locale from context
-                            DateFormat('dd/MM/yyyy', locale)
-                                .format(receipt.date),
-                            style: TextStyle(
-                              fontSize: kFontSizeSmall,
-                              // ✅ FIX: Theme-aware color
-                              color: cs.onSurfaceVariant,
-                            ),
-                          ),
-                          const SizedBox(width: kSpacingSmall),
-                          Icon(Icons.shopping_bag,
-                              // ✅ FIX: Theme-aware color
-                              size: 12, color: cs.onSurfaceVariant),
-                          const SizedBox(width: 4),
-                          Text(
-                            // ✅ FIX: Use AppStrings
-                            strings.itemsCount(receipt.items.length),
-                            style: TextStyle(
-                              fontSize: kFontSizeSmall,
-                              // ✅ FIX: Theme-aware color
-                              color: cs.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-
-                // סכום
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      '₪${receipt.totalAmount.toStringAsFixed(2)}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: kFontSizeMedium,
-                        color: cs.primary,
-                      ),
-                    ),
-                    if (receipt.isVirtual)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          // ✅ FIX: Theme-aware color
-                          color: successColor.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          // ✅ FIX: Use AppStrings
-                          strings.virtualTag,
-                          style: TextStyle(
-                            fontSize: kFontSizeTiny,
-                            // ✅ FIX: Theme-aware color
-                            color: successColor,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-
-                const SizedBox(width: kSpacingSmall),
-
-                // ✅ FIX: RTL-aware arrow icon
-                Icon(
-                  Icons.arrow_back_ios_new,
-                  size: 16,
-                  color: cs.onSurfaceVariant,
-                ),
-              ],
+      child: Card(
+        elevation: 1,
+        clipBehavior: Clip.antiAlias,
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(
+            horizontal: kSpacingMedium,
+            vertical: kSpacingSmall,
+          ),
+          childrenPadding: const EdgeInsets.only(
+            left: kSpacingMedium,
+            right: kSpacingMedium,
+            bottom: kSpacingMedium,
+          ),
+          leading: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: receipt.isVirtual
+                  ? successColor.withValues(alpha: 0.2)
+                  : cs.primaryContainer,
+              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+            ),
+            child: Icon(
+              receipt.isVirtual ? Icons.shopping_cart : Icons.receipt,
+              color: receipt.isVirtual ? successColor : cs.primary,
             ),
           ),
+          title: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  receipt.storeName,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: kFontSizeMedium,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Text(
+                '₪${receipt.totalAmount.toStringAsFixed(2)}',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: kFontSizeMedium,
+                  color: cs.primary,
+                ),
+              ),
+            ],
+          ),
+          subtitle: Row(
+            children: [
+              Icon(Icons.calendar_today, size: 12, color: cs.onSurfaceVariant),
+              const SizedBox(width: 4),
+              Text(
+                DateFormat('dd/MM/yyyy', locale).format(receipt.date),
+                style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
+              ),
+              const SizedBox(width: kSpacingSmall),
+              Icon(Icons.shopping_bag, size: 12, color: cs.onSurfaceVariant),
+              const SizedBox(width: 4),
+              Text(
+                strings.itemsCount(receipt.items.length),
+                style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
+              ),
+              if (receipt.isVirtual) ...[
+                const SizedBox(width: kSpacingSmall),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: successColor.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    strings.virtualTag,
+                    style: TextStyle(fontSize: kFontSizeTiny, color: successColor),
+                  ),
+                ),
+              ],
+            ],
+          ),
+          // רשימת פריטים בהרחבה
+          children: [
+            const Divider(height: 1),
+            const SizedBox(height: kSpacingSmall),
+            if (receipt.items.isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(kSpacingMedium),
+                child: Text(
+                  AppStrings.receiptDetails.noItemsMessage,
+                  style: TextStyle(color: cs.onSurfaceVariant),
+                  textAlign: TextAlign.center,
+                ),
+              )
+            else
+              ...receipt.items.map((item) => _buildItemRow(context, item, cs, successColor)),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildItemRow(BuildContext context, ReceiptItem item, ColorScheme cs, Color successColor) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: kSpacingSmall),
+      child: Row(
+        children: [
+          // Checkbox indicator
+          Container(
+            width: 20,
+            height: 20,
+            decoration: BoxDecoration(
+              color: item.isChecked
+                  ? successColor
+                  : cs.outlineVariant.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: item.isChecked
+                ? Icon(Icons.check, color: cs.onPrimary, size: 14)
+                : null,
+          ),
+          const SizedBox(width: kSpacingSmall),
+          // כמות - מיד אחרי ה-checkbox
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: cs.primaryContainer,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              '×${_formatQuantity(item.quantity)}',
+              style: TextStyle(
+                color: cs.onPrimaryContainer,
+                fontWeight: FontWeight.bold,
+                fontSize: kFontSizeSmall,
+              ),
+            ),
+          ),
+          const SizedBox(width: kSpacingSmall),
+          // שם פריט
+          Expanded(
+            child: Text(
+              item.name ?? '?',
+              style: TextStyle(
+                decoration: item.isChecked ? TextDecoration.lineThrough : null,
+                color: item.isChecked
+                    ? cs.onSurface.withValues(alpha: 0.5)
+                    : cs.onSurface,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          // מחיר
+          Text(
+            '₪${item.totalPrice.toStringAsFixed(2)}',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: cs.primary,
+              fontSize: kFontSizeSmall,
+            ),
+          ),
+        ],
       ),
     );
   }

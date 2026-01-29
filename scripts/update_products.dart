@@ -34,6 +34,12 @@ const Map<String, String> categoryToListType = {
   'תרופות': 'pharmacy',
   'ויטמינים': 'pharmacy',
   'תוספי תזונה': 'pharmacy',
+  'מעדנייה': 'market',
+  'דגים': 'market',
+  'גבינות': 'market',
+  'זיתים וכבושים': 'market',
+  'תבלינים': 'market',
+  'אוכל מוכן': 'market',
   // default: supermarket
 };
 

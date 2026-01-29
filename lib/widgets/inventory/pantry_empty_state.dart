@@ -220,7 +220,7 @@ class PantryEmptyState extends StatelessWidget {
                     vertical: kSpacingSmall,
                   ),
                   decoration: BoxDecoration(
-                    color: StatusColors.getStatusOverlay('success', context),
+                    color: StatusColors.getStatusContainer('success', context),
                     borderRadius: BorderRadius.circular(kBorderRadius),
                     border: Border.all(
                       color: StatusColors.getStatusColor('success', context).withValues(alpha: 0.5),

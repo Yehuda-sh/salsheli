@@ -24,11 +24,6 @@ Firebase
     │   ├── invites/{inviteId}
     │   └── join_requests/{requestId}
     │
-    ├── groups/{groupId}
-    │   └── inventory/{itemId}
-    │
-    ├── group_invites/{inviteId}
-    │
     └── products/{productId}
 ```
 
@@ -122,12 +117,6 @@ Same structure as `shared_lists` below, but stored under user.
 - `request_rejected` - Editor request rejected
 - `role_changed` - Role updated
 - `user_removed` - Removed from list
-- `group_invite` - Group invitation
-- `group_invite_rejected` - Group invitation rejected
-- `who_brings_volunteer` - Someone volunteered
-- `new_vote` - New vote cast
-- `vote_tie` - Voting tie
-- `member_left` - Member left group
 - `low_stock` - Low inventory alert
 
 ---
@@ -394,120 +383,6 @@ Same structure as `shared_lists` below, but stored under user.
 
 ---
 
-### groups/{groupId}
-
-**Group - Document**
-
-| Field | Type | Description | Example |
-|-------|------|-------------|---------|
-| `id` | string | Group ID | "grp_001" |
-| `name` | string | Group name | "משפחת כהן" |
-| `type` | string | Group type | "family" |
-| `description` | string? | Description | "הקבוצה המשפחתית" |
-| `image_url` | string? | Group image | null |
-| `created_by` | string | Creator user ID | "user_yogev" |
-| `created_at` | timestamp | Creation date | 2024-01-15T... |
-| `updated_at` | timestamp | Last update | 2024-06-01T... |
-| `members` | object | Members map | { "userId": {...} } |
-| `settings` | object | Group settings | {...} |
-| `extra_fields` | object? | Type-specific | {...} |
-
-**Group Types:**
-| Type | Hebrew | Features |
-|------|--------|----------|
-| `family` | משפחה | Pantry, Shopping |
-| `building` | ועד בית | Voting, Who Brings |
-| `kindergarten` | ועד גן/כיתה | Voting, Who Brings |
-| `friends` | חברים | Voting, Who Brings |
-| `event` | אירוע | Voting, Who Brings |
-| `roommates` | שותפים לדירה | Pantry, Shopping, Voting |
-| `other` | אחר | Voting, Who Brings |
-
-**GroupMember:**
-```json
-{
-  "user_id": "user_yogev_123",
-  "name": "יוגב כהן",
-  "email": "yogev@gmail.com",
-  "avatar_url": null,
-  "role": "owner",
-  "joined_at": "2024-01-15T10:00:00.000Z",
-  "invited_by": null,
-  "can_start_shopping": true
-}
-```
-
-**GroupSettings:**
-```json
-{
-  "notifications": true,
-  "low_stock_alerts": true,
-  "voting_alerts": true,
-  "whos_bringing_alerts": true
-}
-```
-
-**Example JSON:**
-```json
-{
-  "id": "grp_cohen_family",
-  "name": "משפחת כהן",
-  "type": "family",
-  "description": "הקבוצה המשפחתית שלנו",
-  "image_url": null,
-  "created_by": "user_yogev_123",
-  "created_at": "2024-01-15T10:00:00.000Z",
-  "updated_at": "2024-06-01T14:30:00.000Z",
-  "members": {
-    "user_yogev_123": {
-      "user_id": "user_yogev_123",
-      "name": "יוגב כהן",
-      "email": "yogev@gmail.com",
-      "role": "owner",
-      "joined_at": "2024-01-15T10:00:00.000Z"
-    },
-    "user_sara_456": {
-      "user_id": "user_sara_456",
-      "name": "שרה כהן",
-      "email": "sara@gmail.com",
-      "role": "admin",
-      "joined_at": "2024-01-20T09:00:00.000Z",
-      "invited_by": "user_yogev_123"
-    }
-  },
-  "settings": {
-    "notifications": true,
-    "low_stock_alerts": true,
-    "voting_alerts": true,
-    "whos_bringing_alerts": true
-  }
-}
-```
-
----
-
-### group_invites/{inviteId}
-
-**Group Invite - Top-level Collection**
-
-| Field | Type | Description | Example |
-|-------|------|-------------|---------|
-| `id` | string | Invite ID | "ginv_001" |
-| `group_id` | string | Group ref | "grp_cohen" |
-| `group_name` | string | Group name (cache) | "משפחת כהן" |
-| `invited_phone` | string? | Invitee phone | "0541234567" |
-| `invited_email` | string? | Invitee email | "sara@gmail.com" |
-| `invited_name` | string? | Invitee name | "שרה" |
-| `role` | string | Proposed role | "editor" |
-| `invited_by` | string | Inviter user ID | "user_yogev" |
-| `invited_by_name` | string | Inviter name | "יוגב" |
-| `created_at` | timestamp | Created | 2024-06-01T... |
-| `status` | string | Status | "pending" / "accepted" / "rejected" / "expired" |
-| `responded_at` | timestamp? | Response time | null |
-| `accepted_by_user_id` | string? | Who accepted | null |
-
----
-
 ## User Roles
 
 | Role | Hebrew | Permissions |
@@ -529,7 +404,6 @@ class FirestoreCollections {
   static const String users = 'users';
   static const String households = 'households';
   static const String products = 'products';
-  static const String groups = 'groups';
 
   // User subcollections
   static const String privateLists = 'private_lists';
@@ -537,9 +411,6 @@ class FirestoreCollections {
   static const String pendingInvites = 'pending_invites';
   static const String savedContacts = 'saved_contacts';
   static const String userInventory = 'inventory';
-
-  // Group subcollections
-  static const String groupInventory = 'inventory';
 
   // Household subcollections
   static const String sharedLists = 'shared_lists';
@@ -582,24 +453,9 @@ class FirestoreCollections {
 │  ┌────────────────┐  ┌────────────────┐               │
 │  │    receipts    │  │    members     │               │
 │  └────────────────┘  └────────────────┘               │
-└────────────────────────────────────────────────────────┘
-                             │
-                             │ created_by
-                             ▼
-┌────────────────────────────────────────────────────────┐
-│                  groups/{groupId}                       │
-│  members: { userId: GroupMember }                      │
-│  settings: GroupSettings                               │
 │  ┌────────────────┐                                    │
-│  │   inventory    │ (for family/roommates)            │
+│  │    invites     │  (list sharing invitations)       │
 │  └────────────────┘                                    │
-└────────────────────────────────────────────────────────┘
-                             │
-                             │ group_id
-                             ▼
-┌────────────────────────────────────────────────────────┐
-│             group_invites/{inviteId}                    │
-│  Pending invitations to groups                         │
 └────────────────────────────────────────────────────────┘
 ```
 
@@ -608,7 +464,7 @@ class FirestoreCollections {
 ## Security Model
 
 **Data Scoping:**
-- All data is scoped by `household_id` or `group_id`
+- All data is scoped by `household_id`
 - Users can only access their household's data
 - Private lists are under user's own document
 - Shared lists are under household

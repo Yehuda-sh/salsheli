@@ -5,28 +5,21 @@
 // **4 Tabs:**
 // 0. 🏠 בית - HomeDashboardScreen
 // 1. 📦 מזווה - MyPantryScreen
-// 2. 👥 קבוצות - GroupsListScreen
+// 2. 📜 היסטוריה - ShoppingHistoryScreen
 // 3. ⚙️ הגדרות - SettingsScreen
 //
 // **Back Button:**
 // - מטאב 1-3 → חזרה לדשבורד (tab 0)
 // - מדשבורד → double-tap ליציאה (2 שניות)
-//
-// **Version:** 4.1 (13/01/2026) - Added badges for pending group invites
-//
-// **Badges:**
-// - Tab 2 (קבוצות) מציג badge עם מספר הזמנות ממתינות
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 
 import '../core/ui_constants.dart';
 import '../l10n/app_strings.dart';
 import '../layout/app_layout.dart';
-import '../providers/pending_invites_provider.dart';
-import 'groups/groups_list_screen.dart';
+import 'history/shopping_history_screen.dart';
 import 'home/dashboard/home_dashboard_screen.dart';
 import 'pantry/my_pantry_screen.dart';
 import 'settings/settings_screen.dart';
@@ -46,7 +39,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   late final List<Widget> _pages = const <Widget>[
     HomeDashboardScreen(),
     MyPantryScreen(),
-    GroupsListScreen(),
+    ShoppingHistoryScreen(),
     SettingsScreen(),
   ];
 
@@ -101,8 +94,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     // 🔧 איפוס טיימר double-tap כשעוברים בין טאבים
     _lastBackPress = null;
 
-    // ✨ Haptic feedback קל למשוב מישוש
-    HapticFeedback.selectionClick();
+    // ❌ הוסר: Haptic feedback בניווט רגיל (לפי החלטות - haptic רק ל-CTA)
 
     if (kDebugMode) {
       debugPrint('🏠 MainNavigationScreen: מעבר לטאב $_selectedIndex → $index');
@@ -168,9 +160,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // 🔔 מספר הזמנות ממתינות לקבוצות (ל-badge)
-    final pendingCount = context.watch<PendingInvitesProvider>().pendingCount;
-
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (bool didPop, dynamic result) async {
@@ -185,8 +174,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       child: AppLayout(
         currentIndex: _selectedIndex,
         onTabSelected: _onItemTapped,
-        // 🔔 Badge על טאב קבוצות (index 2) אם יש הזמנות ממתינות
-        badges: pendingCount > 0 ? {2: pendingCount} : null,
         // ✅ IndexedStack: שומר מצב של כל הטאבים (גלילה, פילטרים, חיפוש)
         // כל ה-pages נשארים בזיכרון, רק הנראות משתנה
         child: IndexedStack(

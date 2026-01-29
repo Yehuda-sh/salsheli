@@ -101,10 +101,8 @@ const double kListTilePaddingEnd = 8.0;     // ListTile end padding (RTL)
 // DURATIONS
 // ═══════════════════════════════════════════════════════════════════════════
 
-const Duration kAnimationDuration = Duration(milliseconds: 250);       // Default animation
 const Duration kAnimationDurationShort = Duration(milliseconds: 150);  // Short animation
 const Duration kAnimationDurationMedium = Duration(milliseconds: 350); // Medium animation
-const Duration kAnimationDurationLong = Duration(milliseconds: 500);   // Long animation
 const Duration kAnimationDurationSlow = Duration(milliseconds: 2000);  // Slow animation (shimmer)
 
 const Duration kSnackBarDuration = Duration(seconds: 3);      // Default SnackBar
@@ -138,14 +136,12 @@ const double kInputPadding = 16.0;  // Standard input padding
 
 const double kBorderRadius = 12.0;       // Default border radius
 const double kBorderRadiusSmall = 8.0;   // Small border radius
-const double kBorderRadiusMedium = 12.0; // Medium border radius
 const double kBorderRadiusLarge = 16.0;  // Large border radius
 
 // ═══════════════════════════════════════════════════════════════════════════
 // BORDER WIDTH
 // ═══════════════════════════════════════════════════════════════════════════
 
-const double kBorderWidth = 1.0;            // Default border width
 const double kBorderWidthFocused = 2.0;      // Border width when focused
 const double kBorderWidthThick = 3.0;        // Thick border
 const double kBorderWidthExtraThick = 4.0;   // Extra thick border

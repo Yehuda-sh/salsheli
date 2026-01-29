@@ -1477,19 +1477,19 @@ Map<String, List<Map<String, dynamic>>> generateNotifications(Map<String, String
   if (ronitUid != null && yuvalUid != null) {
     final shiranUid = uids[shiranId];
     result[ronitUid] = [
-      // התראה על הצבעה חדשה (לא נקראה)
+      // התראה על מלאי נמוך (לא נקראה) - התראת מערכת
       {
         'id': 'notif_ronit_001',
         'user_id': ronitUid,
         'household_id': householdId,
-        'type': 'new_vote',
-        'title': 'הצבעה חדשה',
-        'message': 'יובל הצביע בעד ברשימת "קניות לשבת"',
-        'action_data': {'listId': 'list_weekly_current'},
+        'type': 'low_stock',
+        'title': 'מלאי נמוך',
+        'message': 'נגמר הלחם במזווה',
+        'action_data': {'itemId': 'inv_bread'},
         'is_read': false,
         'created_at': now.subtract(const Duration(hours: 2)).toIso8601String(),
-        'sender_id': yuvalUid,
-        'sender_name': 'יובל כהן',
+        'sender_id': null, // System notification
+        'sender_name': 'המערכת',
       },
       // התראה על מתנדב חדש (נקראה)
       {
@@ -1503,21 +1503,6 @@ Map<String, List<Map<String, dynamic>>> generateNotifications(Map<String, String
         'is_read': true,
         'created_at': now.subtract(const Duration(days: 1)).toIso8601String(),
         'read_at': now.subtract(const Duration(hours: 20)).toIso8601String(),
-        'sender_id': shiranUid,
-        'sender_name': 'שירן גל',
-      },
-      // הזמנה לקבוצה (נקראה)
-      {
-        'id': 'notif_ronit_003',
-        'user_id': ronitUid,
-        'household_id': householdId,
-        'type': 'group_invite',
-        'title': 'הזמנה לקבוצה',
-        'message': 'שירן הזמינה אותך לקבוצת "החברות של שירן"',
-        'action_data': {'groupId': shiranFriendsGroupId},
-        'is_read': true,
-        'created_at': now.subtract(const Duration(days: 14)).toIso8601String(),
-        'read_at': now.subtract(const Duration(days: 14)).toIso8601String(),
         'sender_id': shiranUid,
         'sender_name': 'שירן גל',
       },
@@ -1548,7 +1533,7 @@ Map<String, List<Map<String, dynamic>>> generateNotifications(Map<String, String
         'household_id': householdId,
         'type': 'role_changed',
         'title': 'שינוי תפקיד',
-        'message': 'התפקיד שלך ברשימה "על האש" שונה ל-admin',
+        'message': 'התפקיד שלך ברשימה "ציוד למנגל" שונה ל-admin',
         'action_data': {'listId': 'avi_bbq_list'},
         'is_read': true,
         'created_at': now.subtract(const Duration(days: 3)).toIso8601String(),
@@ -1596,7 +1581,7 @@ Map<String, List<Map<String, dynamic>>> generateNotifications(Map<String, String
         'created_at': now.subtract(const Duration(days: 2)).toIso8601String(),
         'read_at': now.subtract(const Duration(days: 1)).toIso8601String(),
         'sender_id': davidUid,
-        'sender_name': 'דוד לוי',
+        'sender_name': 'דוד כהן',
       },
     ];
   }
@@ -1827,6 +1812,23 @@ List<Map<String, dynamic>> generateFriendsGroupLists(Map<String, String> uids) {
           'unit': 'יח\'',
           'is_checked': false,
           'added_by': shiranUid,
+        },
+        // 🎂 פריט "מי מביא" - קינוחים למסיבה
+        {
+          'id': 'party_item_6',
+          'name': 'קינוחים',
+          'quantity': 1,
+          'unit': 'מגש',
+          'is_checked': false,
+          'added_by': ronitUid,
+          'item_data': {
+            'itemType': 'whoBrings',
+            'neededCount': 1,
+            'volunteers': [
+              {'userId': shiranUid, 'displayName': 'שירן גל'},
+            ],
+          },
+          'added_at': now.subtract(const Duration(days: 2)).toIso8601String(),
         },
       ],
       'pending_requests': [],
@@ -4159,7 +4161,6 @@ void main(List<String> args) async {
     print('');
 
     // 2. Create User Documents - Cohen Family (using real UIDs)
-    // 🔧 הוספת group_ids כדי שהאפליקציה תמצא את הקבוצות
     print('━' * 60);
     print('📄 יוצר מסמכי משתמשים - משפחת כהן...');
     print('━' * 60);
@@ -4171,11 +4172,8 @@ void main(List<String> args) async {
         continue;
       }
       print('   👤 ${entry.value['name']}');
-      // Update user data with real UID and group_ids
       final userData = Map<String, dynamic>.from(entry.value);
       userData['id'] = uid;
-      // 🔧 הוספת group_ids - משפחת כהן שייכים לקבוצת כהן
-      userData['group_ids'] = [groupId];
       await writeDocument('users', uid, userData);
     }
     print('   ✅ מסמכי משתמשים כהן נוצרו');
@@ -4193,96 +4191,14 @@ void main(List<String> args) async {
         continue;
       }
       print('   👤 ${entry.value['name']}');
-      // Update user data with real UID
       final userData = Map<String, dynamic>.from(entry.value);
       userData['id'] = uid;
-      // 🔧 הוספת group_ids לפי שיוך המשתמש
-      if (entry.key == danUserId || entry.key == mayaUserId) {
-        userData['group_ids'] = [leviGroupId];
-      } else if (entry.key == mosheUserId || entry.key == saraUserId ||
-                 entry.key == davidUserId || entry.key == michalUserId) {
-        userData['group_ids'] = [buildingGroupId];  // ועד בית
-      } else if (entry.key == yaelUserId || entry.key == ornaUserId ||
-                 entry.key == ramiUserId) {
-        userData['group_ids'] = [kindergartenGroupId];  // ועד גן
-      } else if (entry.key == liorUserId || entry.key == noamUserId ||
-                 entry.key == eyalUserId) {
-        userData['group_ids'] = [weddingGroupId];  // אירוע חתונה
-      } else {
-        userData['group_ids'] = <String>[]; // תומר ושירן - בלי קבוצות
-      }
       await writeDocument('users', uid, userData);
     }
     print('   ✅ מסמכי משתמשים נוספים נוצרו');
     print('');
 
-    // 3. Create Cohen Group (with real UIDs)
-    print('━' * 60);
-    print('👪 יוצר קבוצת משפחת כהן...');
-    print('━' * 60);
-
-    final cohenGroupData = generateCohenGroupData(cohenUids);
-    print('   📝 ${cohenGroupData['name']}');
-    await writeDocument('groups', groupId, cohenGroupData);
-    print('   ✅ קבוצת כהן נוצרה');
-    print('');
-
-    // 3b. Create Levi Group (with real UIDs)
-    print('━' * 60);
-    print('💑 יוצר קבוצת לוי...');
-    print('━' * 60);
-
-    final leviGroupData = generateLeviGroupData(additionalUids);
-    print('   📝 ${leviGroupData['name']}');
-    await writeDocument('groups', leviGroupId, leviGroupData);
-    print('   ✅ קבוצת לוי נוצרה');
-    print('');
-
-    // 3c. Create Building Committee Group (ועד בית)
-    print('━' * 60);
-    print('🏢 יוצר קבוצת ועד בית...');
-    print('━' * 60);
-
-    final buildingGroupData = generateBuildingGroup(additionalUids);
-    print('   📝 ${buildingGroupData['name']}');
-    await writeDocument('groups', buildingGroupId, buildingGroupData);
-    print('   ✅ קבוצת ועד בית נוצרה');
-    print('');
-
-    // 3d. Create Kindergarten Committee Group (ועד גן)
-    print('━' * 60);
-    print('🎒 יוצר קבוצת ועד הורים גן...');
-    print('━' * 60);
-
-    final kindergartenGroupData = generateKindergartenGroup(additionalUids);
-    print('   📝 ${kindergartenGroupData['name']}');
-    await writeDocument('groups', kindergartenGroupId, kindergartenGroupData);
-    print('   ✅ קבוצת ועד גן נוצרה');
-    print('');
-
-    // 3e. Create Wedding Event Group (אירוע חתונה)
-    print('━' * 60);
-    print('💒 יוצר קבוצת אירוע חתונה...');
-    print('━' * 60);
-
-    final weddingGroupData = generateWeddingGroup(additionalUids);
-    print('   📝 ${weddingGroupData['name']}');
-    await writeDocument('groups', weddingGroupId, weddingGroupData);
-    print('   ✅ קבוצת אירוע חתונה נוצרה');
-    print('');
-
-    // 4. Create Group Invite (Elad) - with real UIDs
-    print('━' * 60);
-    print('📨 יוצר הזמנה לאלעד...');
-    print('━' * 60);
-
-    final eladInvite = generateEladInvite(cohenUids);
-    print('   📧 ${eladInvite['invited_email']}');
-    await writeDocument('group_invites', eladInvite['id'] as String, eladInvite);
-    print('   ✅ הזמנה נוצרה');
-    print('');
-
-    // 5. Create Custom Locations
+    // 3. Create Custom Locations
     print('━' * 60);
     print('📍 יוצר מיקומי אחסון מותאמים...');
     print('━' * 60);
@@ -4334,16 +4250,17 @@ void main(List<String> args) async {
     print('   ✅ רשימות פרטיות נוצרו');
     print('');
 
-    // 8. Create Inventory
+    // 8. Create Inventory - מזווה אישי של אבי
     print('━' * 60);
     print('🏪 יוצר פריטי מזווה...');
     print('━' * 60);
 
+    final aviUid = cohenUids[aviUserId]!;
     final inventory = generateInventoryItems();
     for (final item in inventory) {
       print('   ${item['emoji'] ?? '📦'} ${item['product_name']} (${item['location']})');
       await writeSubDocument(
-        'groups/$groupId/inventory',  // 🔧 תיקון: מזווה קבוצתי תחת groups
+        'users/$aviUid/inventory',  // 🔧 מזווה אישי תחת users
         item['id'] as String,
         item,
       );
@@ -4405,11 +4322,12 @@ void main(List<String> args) async {
     }
     print('   ✅ ${leviLists.length} רשימות משותפות לוי נוצרו');
 
-    // Levi Inventory
+    // Levi Inventory - מזווה אישי של דן
+    final danUid = additionalUids[danUserId]!;
     final leviInventory = generateLeviInventory();
     for (final item in leviInventory) {
       await writeSubDocument(
-        'groups/$leviGroupId/inventory',  // 🔧 תיקון: מזווה קבוצתי תחת groups
+        'users/$danUid/inventory',  // 🔧 מזווה אישי תחת users
         item['id'] as String,
         item,
       );
@@ -4525,54 +4443,8 @@ void main(List<String> args) async {
     };
 
     // ═══════════════════════════════════════════════════════════════
-    // SHIRAN'S PENDING INVITES & FRIENDS GROUP
+    // EXTERNAL SHARED LISTS (שיתוף עם אנשים מחוץ למשפחה)
     // ═══════════════════════════════════════════════════════════════
-
-    print('━' * 60);
-    print('📨 יוצר הזמנות ממתינות לשירן...');
-    print('━' * 60);
-
-    final shiranInvites = generateShiranPendingInvites(allUids);
-    for (final invite in shiranInvites) {
-      print('   📧 ${invite['group_name']} (${invite['role']})');
-      await writeDocument('group_invites', invite['id'] as String, invite);
-    }
-    print('   ✅ ${shiranInvites.length} הזמנות ממתינות נוצרו לשירן');
-    print('');
-
-    print('━' * 60);
-    print('👯‍♀️ יוצר קבוצת החברות של שירן...');
-    print('━' * 60);
-
-    final shiranFriendsGroup = generateShiranFriendsGroup(allUids);
-    await writeDocument('groups', shiranFriendsGroupId, shiranFriendsGroup);
-    print('   ✅ קבוצת "החברות של שירן" נוצרה');
-    print('');
-
-    print('━' * 60);
-    print('🏋️ יוצר קבוצת חברים לספורט...');
-    print('━' * 60);
-
-    final workoutBuddiesGroup = generateWorkoutBuddiesGroup(allUids);
-    await writeDocument('groups', workoutBuddiesGroupId, workoutBuddiesGroup);
-    print('   ✅ קבוצת "חברות לספורט" נוצרה (יובל + תומר, הזמנה לשירן)');
-    print('');
-
-    print('━' * 60);
-    print('📋 יוצר רשימות משותפות לקבוצת החברות...');
-    print('━' * 60);
-
-    final friendsLists = generateFriendsGroupLists(allUids);
-    for (final list in friendsLists) {
-      print('   📝 ${list['name']} (${list['status']})');
-      await writeSubDocument(
-        'groups/$shiranFriendsGroupId/shared_lists',
-        list['id'] as String,
-        list,
-      );
-    }
-    print('   ✅ ${friendsLists.length} רשימות משותפות נוצרו לקבוצת החברות');
-    print('');
 
     final externalLists = generateExternalSharedLists(allUids);
     var externalCount = 0;
@@ -4615,46 +4487,6 @@ void main(List<String> args) async {
       }
     }
     print('   ✅ $contactsCount אנשי קשר שמורים נוצרו');
-    print('');
-
-    // ═══════════════════════════════════════════════════════════════
-    // VOTING LISTS (Building Committee)
-    // ═══════════════════════════════════════════════════════════════
-
-    print('━' * 60);
-    print('🗳️ יוצר רשימות הצבעה - ועד בית...');
-    print('━' * 60);
-
-    final votingLists = generateBuildingVotingList(additionalUids);
-    for (final list in votingLists) {
-      print('   📝 ${list['name']}');
-      await writeSubDocument(
-        'groups/$buildingGroupId/shared_lists',
-        list['id'] as String,
-        list,
-      );
-    }
-    print('   ✅ ${votingLists.length} רשימות הצבעה נוצרו');
-    print('');
-
-    // ═══════════════════════════════════════════════════════════════
-    // WHO'S BRINGING LISTS (Kindergarten Committee)
-    // ═══════════════════════════════════════════════════════════════
-
-    print('━' * 60);
-    print('🙋 יוצר רשימות "מי מביא" - ועד גן...');
-    print('━' * 60);
-
-    final whoBringsLists = generateKindergartenPartyList(additionalUids);
-    for (final list in whoBringsLists) {
-      print('   📝 ${list['name']}');
-      await writeSubDocument(
-        'groups/$kindergartenGroupId/shared_lists',
-        list['id'] as String,
-        list,
-      );
-    }
-    print('   ✅ ${whoBringsLists.length} רשימות "מי מביא" נוצרו');
     print('');
 
     // ═══════════════════════════════════════════════════════════════

@@ -17,25 +17,26 @@ class CategoryInfo {
 }
 
 /// כל הקטגוריות הזמינות (מפתח EN → מידע)
+/// ✅ v2: צומצם מ-53 ל-41 קטגוריות (איחוד כפילויות)
 const Map<String, CategoryInfo> kCategoryInfo = {
   // === כללי ===
   'all': CategoryInfo('הכל', '📋'),
   'other': CategoryInfo('אחר', '📦'),
-  'general': CategoryInfo('כללי', '📦'),
+  // ❌ general - אוחד ל-other
 
   // === מזון בסיסי ===
   'dairy': CategoryInfo('מוצרי חלב', '🥛'),
-  'dairy_eggs': CategoryInfo('חלב וביצים', '🥛'),
+  // ❌ dairy_eggs - אוחד ל-dairy
   'vegetables': CategoryInfo('ירקות', '🥬'),
   'fruits': CategoryInfo('פירות', '🍎'),
-  'vegetables_fruits': CategoryInfo('ירקות ופירות', '🥬'),
+  // ❌ vegetables_fruits - מיותר, יש vegetables + fruits
   'meat_fish': CategoryInfo('בשר ודגים', '🥩'),
   'rice_pasta': CategoryInfo('אורז ופסטה', '🍝'),
-  'spices_baking': CategoryInfo('תבלינים ואפייה', '🧂'),
   'spices': CategoryInfo('תבלינים', '🧂'),
+  // ❌ spices_baking - אוחד ל-spices
   'coffee_tea': CategoryInfo('קפה ותה', '☕'),
   'sweets_snacks': CategoryInfo('ממתקים וחטיפים', '🍬'),
-  'snacks': CategoryInfo('חטיפים', '🍿'),
+  // ❌ snacks - אוחד ל-sweets_snacks
 
   // === בשר מפורט ===
   'beef': CategoryInfo('בקר', '🥩'),
@@ -46,9 +47,8 @@ const Map<String, CategoryInfo> kCategoryInfo = {
   'meat_substitutes': CategoryInfo('תחליפי בשר', '🌱'),
 
   // === מאפים ולחם ===
-  'bakery': CategoryInfo('מאפים', '🥖'),
-  'bread': CategoryInfo('לחמים', '🍞'),
   'bread_bakery': CategoryInfo('לחם ומאפים', '🍞'),
+  // ❌ bakery, bread - אוחדו ל-bread_bakery
   'cookies_sweets': CategoryInfo('עוגיות ומתוקים', '🍪'),
   'cakes': CategoryInfo('עוגות', '🎂'),
 
@@ -70,15 +70,15 @@ const Map<String, CategoryInfo> kCategoryInfo = {
   'dairy_substitutes': CategoryInfo('תחליפי חלב', '🥛'),
 
   // === היגיינה וטיפוח ===
-  'personal_hygiene': CategoryInfo('היגיינה אישית', '🧴'),
   'hygiene': CategoryInfo('היגיינה', '🚿'),
+  // ❌ personal_hygiene - אוחד ל-hygiene
   'oral_care': CategoryInfo('טיפוח הפה', '🦷'),
   'cosmetics': CategoryInfo('קוסמטיקה וטיפוח', '💄'),
   'feminine_hygiene': CategoryInfo('היגיינה נשית', '🌸'),
 
   // === בית וניקיון ===
   'cleaning': CategoryInfo('מוצרי ניקיון', '🧹'),
-  'cleaning_supplies': CategoryInfo('חומרי ניקיון', '🧽'),
+  // ❌ cleaning_supplies - אוחד ל-cleaning
   'home_products': CategoryInfo('מוצרי בית', '🏠'),
   'disposable': CategoryInfo('חד פעמי', '🥤'),
   'garden': CategoryInfo('מוצרי גינה', '🌱'),
@@ -94,25 +94,131 @@ const Map<String, CategoryInfo> kCategoryInfo = {
   'accessories': CategoryInfo('מוצרים נלווים', '🛒'),
 };
 
+// ═══════════════════════════════════════════════════════════════════════════
+// BACKWARD COMPATIBILITY - מיפוי IDs ישנים לחדשים
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// מיפוי קטגוריות שאוחדו - תאימות אחורה
+/// IDs ישנים ימופו אוטומטית ל-ID החדש
+const Map<String, String> kCategoryAliases = {
+  'general': 'other',
+  'dairy_eggs': 'dairy',
+  'vegetables_fruits': 'vegetables', // או fruits - בחרנו vegetables
+  'spices_baking': 'spices',
+  'snacks': 'sweets_snacks',
+  'bakery': 'bread_bakery',
+  'bread': 'bread_bakery',
+  'personal_hygiene': 'hygiene',
+  'cleaning_supplies': 'cleaning',
+};
+
+/// מחזיר את ה-ID הקנוני (אחרי פתרון aliases)
+String resolveCategory(String categoryId) {
+  return kCategoryAliases[categoryId] ?? categoryId;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HEBREW SYNONYMS - מיפוי וריאציות עברית מ-JSON
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// מיפוי שמות עברית נוספים (שלא ב-kCategoryInfo) לקטגוריות קיימות
+/// מכסה וריאציות מקבצי JSON ב-assets/data/list_types/
+const Map<String, String> kHebrewSynonyms = {
+  // === משקאות ואלכוהול ===
+  'משקאות אלכוהוליים': 'beverages',
+  'יינות': 'beverages',
+  'בירות': 'beverages',
+  'אלכוהול': 'beverages',
+  'מיצים': 'beverages',
+  'שתייה': 'beverages',
+
+  // === קפואים ===
+  'גלידות': 'frozen',
+  'גלידות וקינוחים קפואים': 'frozen',
+  'קינוחים קפואים': 'frozen',
+  'ירקות קפואים': 'frozen',
+  'מוצרים קפואים': 'frozen',
+
+  // === מוצרי בית ===
+  'מוצרי נייר': 'home_products',
+  'כלי מטבח': 'home_products',
+  'כלים חד פעמיים': 'disposable',
+  'נייר טואלט': 'home_products',
+  'מגבות נייר': 'home_products',
+
+  // === חלב וביצים (וריאציות) ===
+  'חלב': 'dairy',
+  'ביצים': 'dairy',
+  'חלב וביצים': 'dairy',
+  'גבינות': 'dairy',
+  'יוגורטים': 'dairy',
+  'מוצרי חלב וביצים': 'dairy',
+
+  // === לחם ומאפים (וריאציות) ===
+  'לחם': 'bread_bakery',
+  'מאפים': 'bread_bakery',
+  'לחמים': 'bread_bakery',
+  'פיתות': 'bread_bakery',
+  'חלות': 'bread_bakery',
+
+  // === ירקות ופירות (וריאציות) ===
+  'ירקות ופירות': 'vegetables',
+  'פירות וירקות': 'vegetables',
+  'ירקות טריים': 'vegetables',
+  'פירות טריים': 'fruits',
+
+  // === חטיפים וממתקים (וריאציות) ===
+  'חטיפים': 'sweets_snacks',
+  'ממתקים': 'sweets_snacks',
+  'שוקולד': 'sweets_snacks',
+  'שוקולדים': 'sweets_snacks',
+  'ביסקוויטים': 'sweets_snacks',
+  'חטיפים מלוחים': 'sweets_snacks',
+
+  // === תבלינים (וריאציות) ===
+  'תבלינים ואפייה': 'spices',
+  'אבקות אפייה': 'spices',
+  'מוצרי אפייה': 'spices',
+
+  // === היגיינה (וריאציות) ===
+  'היגיינה אישית': 'hygiene',
+  'טיפוח': 'hygiene',
+  'סבונים': 'hygiene',
+  'שמפו': 'hygiene',
+
+  // === ניקיון (וריאציות) ===
+  'חומרי ניקיון': 'cleaning',
+  'ניקיון': 'cleaning',
+  'כביסה': 'cleaning',
+  'אבקת כביסה': 'cleaning',
+
+  // === בריאות ===
+  'מזון בריאות': 'other', // אין קטגוריה ייעודית
+  'מוצרים אורגניים': 'other', // אין קטגוריה ייעודית
+  'טבק': 'other', // אין קטגוריה ייעודית
+
+  // === כללי (וריאציות) ===
+  'כללי': 'other',
+  'שונות': 'other',
+  'מוצרים שונים': 'other',
+};
+
 /// סדר קטגוריות קבוע ל-Dropdown (UX עקבי)
 /// 'all' תמיד ראשון, אחר כך לפי קבוצות לוגיות
+/// ✅ v2: 41 קטגוריות (אחרי איחוד כפילויות)
 const List<String> kCategoryOrder = [
   // === כללי (תמיד ראשון) ===
   'all',
 
   // === מזון בסיסי ===
   'dairy',
-  'dairy_eggs',
   'vegetables',
   'fruits',
-  'vegetables_fruits',
   'meat_fish',
   'rice_pasta',
-  'spices_baking',
   'spices',
   'coffee_tea',
   'sweets_snacks',
-  'snacks',
 
   // === בשר מפורט ===
   'beef',
@@ -123,8 +229,6 @@ const List<String> kCategoryOrder = [
   'meat_substitutes',
 
   // === מאפים ולחם ===
-  'bakery',
-  'bread',
   'bread_bakery',
   'cookies_sweets',
   'cakes',
@@ -147,7 +251,6 @@ const List<String> kCategoryOrder = [
   'dairy_substitutes',
 
   // === היגיינה וטיפוח ===
-  'personal_hygiene',
   'hygiene',
   'oral_care',
   'cosmetics',
@@ -155,7 +258,6 @@ const List<String> kCategoryOrder = [
 
   // === בית וניקיון ===
   'cleaning',
-  'cleaning_supplies',
   'home_products',
   'disposable',
   'garden',
@@ -168,7 +270,6 @@ const List<String> kCategoryOrder = [
   'baby_products',
 
   // === אחר (תמיד אחרון) ===
-  'general',
   'accessories',
   'other', // ✅ 'other' תמיד אחרון (catch-all)
 ];
@@ -207,18 +308,27 @@ void ensureNoDuplicateLabels() {
 }
 
 /// מחזיר שם בעברית לקטגוריה
+/// ✅ תומך ב-aliases (IDs ישנים שאוחדו)
 String getCategoryLabel(String categoryId) {
-  return kCategoryInfo[categoryId]?.label ?? AppStrings.common.categoryUnknown;
+  final resolved = resolveCategory(categoryId);
+  return kCategoryInfo[resolved]?.label ?? AppStrings.common.categoryUnknown;
 }
 
 /// מחזיר אמוג'י לקטגוריה
+/// ✅ תומך ב-aliases (IDs ישנים שאוחדו)
 String getCategoryEmoji(String categoryId) {
-  return kCategoryInfo[categoryId]?.emoji ?? '📦';
+  final resolved = resolveCategory(categoryId);
+  return kCategoryInfo[resolved]?.emoji ?? '📦';
 }
 
 /// ממיר שם קטגוריה בעברית למפתח באנגלית
 /// משמש לסינון כשה-JSON מכיל קטגוריות בעברית
 /// כולל נורמליזציה: trim + החלפת רווחים כפולים
+///
+/// סדר חיפוש:
+/// 1. labels מ-kCategoryInfo (מיפוי ישיר)
+/// 2. kHebrewSynonyms (וריאציות ושמות מקבצי JSON)
+/// 3. null (יופנה ל-'other' על ידי הקורא)
 String? hebrewCategoryToEnglish(String hebrewCategory) {
   // 🔍 בדיקת כפילויות labels בפעם הראשונה (debug mode בלבד)
   if (kDebugMode) {
@@ -228,5 +338,18 @@ String? hebrewCategoryToEnglish(String hebrewCategory) {
   final normalized = hebrewCategory
       .trim()
       .replaceAll(RegExp(r'\s+'), ' '); // רווחים כפולים → רווח בודד
-  return _hebrewToEnglish[normalized];
+
+  // 1️⃣ חיפוש ב-labels של kCategoryInfo
+  final fromLabels = _hebrewToEnglish[normalized];
+  if (fromLabels != null) return fromLabels;
+
+  // 2️⃣ חיפוש ב-kHebrewSynonyms (וריאציות נוספות)
+  final fromSynonyms = kHebrewSynonyms[normalized];
+  if (fromSynonyms != null) return fromSynonyms;
+
+  // 3️⃣ לא נמצא - יחזיר null (הקורא יחליט אם להשתמש ב-'other')
+  if (kDebugMode) {
+    debugPrint('⚠️ hebrewCategoryToEnglish: לא נמצא מיפוי ל-"$normalized"');
+  }
+  return null;
 }

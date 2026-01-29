@@ -1,0 +1,16 @@
+# MemoZap PRD Progress
+
+## Current Epic: [שם האפיק]
+## Status: [ ] Planning / [ ] In Progress / [ ] Review / [ ] Done
+
+### Stories
+| # | Story | Status | Notes |
+|---|-------|--------|-------|
+| 1 | | [ ] | |
+| 2 | | [ ] | |
+| 3 | | [ ] | |
+
+### Blockers
+-
+
+### Last Updated: [תאריך]

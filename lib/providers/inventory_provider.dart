@@ -1,9 +1,9 @@
 // 📄 lib/providers/inventory_provider.dart
 //
-// Provider לניהול מזווה - אישי או קבוצתי (לפי חברות בקבוצת משפחה).
-// CRUD מלא, פילטרים, והעברת מזווה בין אישי לקבוצתי.
+// Provider לניהול מזווה - אישי (לפי household).
+// CRUD מלא, פילטרים, וניהול מלאי.
 //
-// 🔗 Related: InventoryItem, InventoryRepository, UserContext, GroupsProvider
+// 🔗 Related: InventoryItem, InventoryRepository, UserContext
 
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
@@ -11,28 +11,21 @@ import 'package:uuid/uuid.dart';
 import '../core/constants.dart';
 import '../l10n/app_strings.dart';
 import '../models/enums/item_type.dart';
-import '../models/group.dart';
 import '../models/inventory_item.dart';
 import '../models/unified_list_item.dart';
 import '../repositories/inventory_repository.dart';
-import 'groups_provider.dart';
 import 'user_context.dart';
 
 /// מיקום המזווה הנוכחי
 enum InventoryMode {
   /// מזווה אישי - /users/{userId}/inventory
   personal,
-
-  /// מזווה קבוצתי - /groups/{groupId}/inventory
-  group,
 }
 
 class InventoryProvider with ChangeNotifier {
   final InventoryRepository _repository;
   UserContext? _userContext;
-  GroupsProvider? _groupsProvider;
   bool _listeningToUser = false;
-  bool _listeningToGroups = false;
   bool _hasInitialized = false; // מניעת אתחול כפול
 
   // 🔒 דגל לבדיקה אם ה-provider כבר disposed
@@ -44,7 +37,6 @@ class InventoryProvider with ChangeNotifier {
 
   // מצב מזווה נוכחי
   InventoryMode _currentMode = InventoryMode.personal;
-  String? _currentGroupId; // ID של הקבוצה אם במצב group
 
   static const Uuid _uuid = Uuid();
   Future<void>? _loadingFuture; // מניעת טעינות כפולות
@@ -87,34 +79,11 @@ class InventoryProvider with ChangeNotifier {
   bool get isEmpty => _items.isEmpty;
   List<InventoryItem> get items => List.unmodifiable(_items);
 
-  /// מצב המזווה הנוכחי (אישי או קבוצתי)
+  /// מצב המזווה הנוכחי (אישי)
   InventoryMode get currentMode => _currentMode;
 
-  /// האם המזווה הוא קבוצתי
-  bool get isGroupMode => _currentMode == InventoryMode.group;
-
-  /// ID של הקבוצה הנוכחית (null אם מזווה אישי)
-  String? get currentGroupId => _currentGroupId;
-
-  /// שם הקבוצה הנוכחית (null אם מזווה אישי)
-  String? get currentGroupName {
-    if (!isGroupMode || _currentGroupId == null || _groupsProvider == null) {
-      return null;
-    }
-    return _groupsProvider!.groups
-        .where((g) => g.id == _currentGroupId)
-        .firstOrNull
-        ?.name;
-  }
-
   /// שם המזווה להצגה
-  String get inventoryTitle {
-    if (isGroupMode) {
-      final groupName = currentGroupName;
-      return groupName != null ? 'מזווה $groupName' : 'מזווה משותף';
-    }
-    return 'המזווה שלי';
-  }
+  String get inventoryTitle => 'המזווה שלי';
 
   // === חיבור UserContext ===
 
@@ -143,77 +112,7 @@ class InventoryProvider with ChangeNotifier {
     }
   }
 
-  /// מעדכן את ה-GroupsProvider ומאזין לשינויים
-  /// נקרא אוטומטית מ-ProxyProvider
-  /// 🔧 משתמש ב-microtask כדי למנוע notifyListeners בזמן build
-  void updateGroupsProvider(GroupsProvider? newProvider) {
-    if (kDebugMode) {
-      debugPrint('🔗 InventoryProvider.updateGroupsProvider: newProvider=${newProvider != null}, same=${_groupsProvider == newProvider}, groups=${newProvider?.groups.length ?? 0}');
-    }
-
-    // אם זה אותו provider
-    if (_groupsProvider == newProvider) {
-      // 🔧 בדיקה: אם יש קבוצות אבל המזווה ריק - נטען מחדש
-      // זה פותר race condition כאשר GroupsProvider נטען אחרי InventoryProvider
-      // ⚠️ חובה microtask! אחרת notifyListeners נקרא בזמן build
-      if (newProvider != null &&
-          newProvider.groups.isNotEmpty &&
-          _items.isEmpty &&
-          !_isLoading) {
-        if (kDebugMode) {
-          debugPrint('🔄 InventoryProvider: קבוצות זמינות אך מזווה ריק - טוען מחדש');
-        }
-        Future.microtask(_updateInventoryLocation);
-      }
-      return;
-    }
-
-    if (_listeningToGroups && _groupsProvider != null) {
-      _groupsProvider!.removeListener(_onGroupsChanged);
-      _listeningToGroups = false;
-      if (kDebugMode) {
-        debugPrint('🔗 InventoryProvider: הסרת listener מ-GroupsProvider ישן');
-      }
-    }
-
-    _groupsProvider = newProvider;
-    if (newProvider != null) {
-      newProvider.addListener(_onGroupsChanged);
-      _listeningToGroups = true;
-      if (kDebugMode) {
-        debugPrint('🔗 InventoryProvider: נרשם listener ל-GroupsProvider, קבוצות כרגע: ${newProvider.groups.length}');
-      }
-      // עדכון מיקום מזווה בהתבסס על קבוצות
-      // ⚠️ חובה microtask! אחרת notifyListeners נקרא בזמן build (ProxyProvider)
-      Future.microtask(_updateInventoryLocation);
-
-      // 🔧 אם יש כבר קבוצות - ייתכן שפספסנו את ה-notifyListeners
-      // קורא שוב אחרי frame אחד כדי לתפוס מקרי קצה
-      if (newProvider.groups.isNotEmpty) {
-        Future.microtask(() {
-          if (!_isDisposed && _items.isEmpty && !_isLoading) {
-            if (kDebugMode) {
-              debugPrint('🔄 InventoryProvider: microtask - קבוצות קיימות, מזווה עדיין ריק - מנסה שוב');
-            }
-            _updateInventoryLocation();
-          }
-        });
-      }
-    }
-  }
-
   void _onUserChanged() {
-    _updateInventoryLocation();
-  }
-
-  void _onGroupsChanged() {
-    if (kDebugMode) {
-      final groups = _groupsProvider?.groups ?? [];
-      debugPrint('🔄 InventoryProvider._onGroupsChanged: קבוצות השתנו, מספר: ${groups.length}');
-      for (final g in groups) {
-        debugPrint('   - ${g.name} (${g.type.name}, hasPantry=${g.type.hasPantry})');
-      }
-    }
     _updateInventoryLocation();
   }
 
@@ -225,12 +124,11 @@ class InventoryProvider with ChangeNotifier {
   void _updateInventoryLocation() {
     final userId = _userContext?.userId;
     if (kDebugMode) {
-      debugPrint('📍 InventoryProvider._updateInventoryLocation: userId=$userId, isLoggedIn=${_userContext?.isLoggedIn}, groupsCount=${_groupsProvider?.groups.length ?? 0}');
+      debugPrint('📍 InventoryProvider._updateInventoryLocation: userId=$userId, isLoggedIn=${_userContext?.isLoggedIn}');
     }
     if (userId == null || _userContext?.isLoggedIn != true) {
       // 🔧 Logout/no user: איפוס מלא של state
       _currentMode = InventoryMode.personal;
-      _currentGroupId = null;
       _items = [];
       _isLoading = false;
       _errorMessage = null;
@@ -241,54 +139,14 @@ class InventoryProvider with ChangeNotifier {
       return;
     }
 
-    // חפש קבוצה עם מזווה משותף (family/roommates)
-    final pantryGroup = _findPantryGroup(userId);
-    if (kDebugMode) {
-      debugPrint('📍 InventoryProvider: pantryGroup=${pantryGroup?.name ?? 'null'}');
-    }
-
-    if (pantryGroup != null) {
-      // יש קבוצה עם מזווה - עבור למצב קבוצתי
-      final newGroupId = pantryGroup.id;
-      if (_currentMode != InventoryMode.group || _currentGroupId != newGroupId) {
-        _currentMode = InventoryMode.group;
-        _currentGroupId = newGroupId;
-        if (kDebugMode) {
-          debugPrint('🏠 InventoryProvider: מעבר למזווה קבוצתי - ${pantryGroup.name}');
-        }
-        _loadItems();
+    // מזווה אישי/משפחתי (לפי householdId)
+    if (_currentMode != InventoryMode.personal || _items.isEmpty && !_isLoading) {
+      _currentMode = InventoryMode.personal;
+      if (kDebugMode) {
+        debugPrint('👤 InventoryProvider: מזווה אישי/משפחתי');
       }
-    } else {
-      // אין קבוצה עם מזווה - מצב אישי
-      if (_currentMode != InventoryMode.personal) {
-        _currentMode = InventoryMode.personal;
-        _currentGroupId = null;
-        if (kDebugMode) {
-          debugPrint('👤 InventoryProvider: מעבר למזווה אישי');
-        }
-        // 🔒 ניקוי פריטי הקבוצה לפני טעינת המזווה האישי
-        // מונע הצגת פריטי קבוצה תחת "המזווה שלי"
-        _items = [];
-        notifyListeners();
-        _loadItems();
-      } else if (_items.isEmpty && !_isLoading) {
-        // טעינה ראשונית
-        _loadItems();
-      }
+      _loadItems();
     }
-  }
-
-  /// מוצא קבוצה עם מזווה משותף שהמשתמש חבר בה
-  Group? _findPantryGroup(String userId) {
-    if (_groupsProvider == null) return null;
-
-    // חפש קבוצה מסוג family או roommates (hasPantry=true)
-    for (final group in _groupsProvider!.groups) {
-      if (group.type.hasPantry && group.isMember(userId)) {
-        return group;
-      }
-    }
-    return null;
   }
 
   // === טעינת פריטים ===
@@ -332,28 +190,17 @@ class InventoryProvider with ChangeNotifier {
 
     // 🔒 שמירת המצב בתחילת הטעינה - לזיהוי race condition
     final loadingMode = _currentMode;
-    final loadingGroupId = _currentGroupId;
 
     _isLoading = true;
     _errorMessage = null;
     _notifySafe();
 
     try {
-      List<InventoryItem> loadedItems;
-
-      if (loadingMode == InventoryMode.group && loadingGroupId != null) {
-        // טעינה ממזווה קבוצתי
-        if (kDebugMode) {
-          debugPrint('📦 InventoryProvider: טוען ממזווה קבוצתי $loadingGroupId');
-        }
-        loadedItems = await _repository.fetchGroupItems(loadingGroupId);
-      } else {
-        // טעינה ממזווה אישי
-        if (kDebugMode) {
-          debugPrint('📦 InventoryProvider: טוען ממזווה אישי $userId');
-        }
-        loadedItems = await _repository.fetchUserItems(userId);
+      // טעינה ממזווה אישי
+      if (kDebugMode) {
+        debugPrint('📦 InventoryProvider: טוען ממזווה אישי $userId');
       }
+      final loadedItems = await _repository.fetchUserItems(userId);
 
       // 🔒 בדיקה: אם הדור השתנה או המצב השתנה - לא לעדכן!
       if (_loadGeneration != generation) {
@@ -363,10 +210,9 @@ class InventoryProvider with ChangeNotifier {
         return; // אל תשנה isLoading - הטעינה החדשה תטפל בזה
       }
 
-      if (_currentMode != loadingMode || _currentGroupId != loadingGroupId) {
+      if (_currentMode != loadingMode) {
         if (kDebugMode) {
           debugPrint('⚠️ InventoryProvider: מצב השתנה תוך כדי טעינה - מתעלם מתוצאות');
-          debugPrint('   טעינה: $loadingMode/$loadingGroupId → נוכחי: $_currentMode/$_currentGroupId');
         }
         _isLoading = false;
         _notifySafe();
@@ -461,12 +307,8 @@ class InventoryProvider with ChangeNotifier {
         emoji: emoji,
       );
 
-      // שמירה למיקום הנכון
-      if (_currentMode == InventoryMode.group && _currentGroupId != null) {
-        await _repository.saveGroupItem(newItem, _currentGroupId!);
-      } else {
-        await _repository.saveUserItem(newItem, userId);
-      }
+      // שמירה למזווה אישי
+      await _repository.saveUserItem(newItem, userId);
 
       // אופטימיזציה: הוספה local במקום ריענון מלא
       _items = [..._items, newItem];
@@ -495,12 +337,8 @@ class InventoryProvider with ChangeNotifier {
     if (userId == null) return;
 
     try {
-      // שמירה למיקום הנכון
-      if (_currentMode == InventoryMode.group && _currentGroupId != null) {
-        await _repository.saveGroupItem(item, _currentGroupId!);
-      } else {
-        await _repository.saveUserItem(item, userId);
-      }
+      // שמירה למזווה אישי
+      await _repository.saveUserItem(item, userId);
 
       // עדכון local - יוצר רשימה חדשה כדי ש-Flutter יזהה את השינוי
       final index = _items.indexWhere((i) => i.id == item.id);
@@ -536,12 +374,8 @@ class InventoryProvider with ChangeNotifier {
     }
 
     try {
-      // מחיקה מהמיקום הנכון
-      if (_currentMode == InventoryMode.group && _currentGroupId != null) {
-        await _repository.deleteGroupItem(id, _currentGroupId!);
-      } else {
-        await _repository.deleteUserItem(id, userId);
-      }
+      // מחיקה ממזווה אישי
+      await _repository.deleteUserItem(id, userId);
 
       // מחיקה local - יוצר רשימה חדשה כדי ש-Flutter יזהה את השינוי
       _items = _items.where((i) => i.id != id).toList();
@@ -637,12 +471,8 @@ class InventoryProvider with ChangeNotifier {
           quantity: existingItem.quantity + quantity,
         );
 
-        // שמירה למיקום הנכון
-        if (_currentMode == InventoryMode.group && _currentGroupId != null) {
-          await _repository.saveGroupItem(updatedItem, _currentGroupId!);
-        } else {
-          await _repository.saveUserItem(updatedItem, userId);
-        }
+        // שמירה למזווה אישי
+        await _repository.saveUserItem(updatedItem, userId);
 
         // עדכון local
         final index = _items.indexWhere((i) => i.id == existingItem.id);
@@ -743,51 +573,6 @@ class InventoryProvider with ChangeNotifier {
     }
   }
 
-  /// מעביר את כל המזווה האישי לקבוצה
-  ///
-  /// משמש בעת הצטרפות לקבוצה עם מזווה (משפחה/שותפים)
-  ///
-  /// Example:
-  /// ```dart
-  /// final count = await provider.transferToGroup('grp_xxx');
-  /// print('הועברו $count פריטים לקבוצה');
-  /// ```
-  Future<int> transferToGroup(String groupId) async {
-    final userId = _userContext?.userId;
-    if (userId == null) {
-      throw Exception('❌ משתמש לא מחובר');
-    }
-
-    try {
-      if (kDebugMode) {
-        debugPrint('📦 InventoryProvider: מעביר מזווה אישי לקבוצה $groupId');
-      }
-
-      final transferredCount = await _repository.transferUserItemsToGroup(
-        userId,
-        groupId,
-      );
-
-      if (kDebugMode) {
-        debugPrint('✅ InventoryProvider: הועברו $transferredCount פריטים');
-      }
-
-      // עדכון המצב לקבוצתי וטעינה מחדש
-      _currentMode = InventoryMode.group;
-      _currentGroupId = groupId;
-      await _loadItems();
-
-      return transferredCount;
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('❌ InventoryProvider.transferToGroup: שגיאה - $e');
-      }
-      _errorMessage = 'שגיאה בהעברת מזווה לקבוצה';
-      notifyListeners();
-      rethrow;
-    }
-  }
-
   /// 🏺 מוסיף פריטי starter למזווה (Onboarding)
   ///
   /// מקבל רשימת InventoryItem ומוסיף אותם למזווה הנוכחי.
@@ -810,12 +595,8 @@ class InventoryProvider with ChangeNotifier {
 
     try {
       for (final item in items) {
-        // שמירה למיקום הנכון
-        if (_currentMode == InventoryMode.group && _currentGroupId != null) {
-          await _repository.saveGroupItem(item, _currentGroupId!);
-        } else {
-          await _repository.saveUserItem(item, userId);
-        }
+        // שמירה למזווה אישי
+        await _repository.saveUserItem(item, userId);
         successCount++;
       }
 
@@ -839,8 +620,6 @@ class InventoryProvider with ChangeNotifier {
   }
 
   /// מוחק את כל המזווה האישי
-  ///
-  /// משמש בעת הצטרפות לקבוצה - אם המשתמש בוחר לא להעביר
   ///
   /// Example:
   /// ```dart
@@ -883,9 +662,6 @@ class InventoryProvider with ChangeNotifier {
 
     if (_listeningToUser && _userContext != null) {
       _userContext!.removeListener(_onUserChanged);
-    }
-    if (_listeningToGroups && _groupsProvider != null) {
-      _groupsProvider!.removeListener(_onGroupsChanged);
     }
 
     super.dispose();

@@ -36,21 +36,13 @@ enum StatusType {
   ///
   /// ✅ סלחני לפורמטים שונים:
   /// - "success" / "SUCCESS" / " success "
-  /// - "StatusType.success" / "ShoppingItemStatus.purchased"
+  /// - "StatusType.success"
   static StatusType fromString(String value) {
     // 🔧 נרמול: trim + lowercase + קח רק את החלק האחרון אחרי נקודה
     var normalized = value.trim().toLowerCase();
     if (normalized.contains('.')) {
       normalized = normalized.split('.').last;
     }
-
-    // 🔄 מיפוי aliases נפוצים (למשל מ-ShoppingItemStatus)
-    const aliases = {
-      'purchased': 'success',
-      'outofstock': 'error',
-      'notneeded': 'pending',
-    };
-    normalized = aliases[normalized] ?? normalized;
 
     return StatusType.values.firstWhere(
       (e) => e.name == normalized,
@@ -196,15 +188,6 @@ class StatusColors {
   }
 
   // ========================================
-  // Legacy API (לתאימות אחורה)
-  // ========================================
-
-  /// @deprecated השתמש ב-getStatusContainer במקום
-  static Color getStatusOverlay(String status, BuildContext context) {
-    return getStatusContainer(status, context);
-  }
-
-  // ========================================
   // Static Getters (Fallback colors - לשימוש ללא context)
   // ========================================
   //
@@ -247,20 +230,4 @@ class StatusColors {
   /// רקע מידע (fallback)
   static const Color infoContainer = Color(0xFFBBDEFB); // Blue 100
 
-  // Overlay variants (שכבות עם שקיפות)
-
-  /// שכבת הצלחה (fallback)
-  static Color get successOverlay => success.withValues(alpha: 0.15);
-
-  /// שכבת שגיאה (fallback)
-  static Color get errorOverlay => error.withValues(alpha: 0.15);
-
-  /// שכבת אזהרה (fallback)
-  static Color get warningOverlay => warning.withValues(alpha: 0.15);
-
-  /// שכבת ממתין (fallback)
-  static Color get pendingOverlay => pending.withValues(alpha: 0.15);
-
-  /// שכבת מידע (fallback)
-  static Color get infoOverlay => info.withValues(alpha: 0.15);
 }

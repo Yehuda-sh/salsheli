@@ -2,7 +2,7 @@
 //
 // **מסך הרשמה** - יצירת חשבון חדש עם Firebase Auth.
 // כולל Form validation, shake animation לשגיאות,
-// ועיצוב Sticky Notes עם תמיכה מלאה ב-RTL ו-Dark Mode.
+// תמיכה מלאה ב-RTL ו-Dark Mode.
 //
 // ✅ Features:
 //    - Form validation עם הודעות שגיאה בעברית
@@ -13,12 +13,6 @@
 //    - בדיקת הזמנות ממתינות לקבוצות אחרי הרשמה
 //
 // 🔗 Related: UserContext, LoginScreen, PendingInvitesProvider
-//
-// ----------------------------------------------------------------------------
-// The RegisterScreen widget handles new user registration with Firebase Auth.
-// Features form validation with Hebrew error messages, shake animation for
-// error feedback, and checks for pending group invitations after signup.
-// ----------------------------------------------------------------------------
 
 import 'dart:async';
 import 'dart:ui';
@@ -27,16 +21,13 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/status_colors.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
-import '../../providers/pending_invites_provider.dart';
 import '../../providers/user_context.dart';
 import '../../theme/app_theme.dart';
-import '../../widgets/common/notebook_background.dart';
-import '../../widgets/common/sticky_button.dart';
-import '../../widgets/common/sticky_note.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -75,12 +66,9 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
-    
+
     // 🎬 הגדרת shake animation לשגיאות
-    _shakeController = AnimationController(
-      duration: const Duration(milliseconds: 500),
-      vsync: this,
-    );
+    _shakeController = AnimationController(duration: const Duration(milliseconds: 500), vsync: this);
     // ✅ TweenSequence שמחזיר ל-0 בסוף (מונע תקיעה)
     _shakeAnimation = TweenSequence<double>([
       TweenSequenceItem(tween: Tween(begin: 0, end: 10), weight: 1),
@@ -89,7 +77,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       TweenSequenceItem(tween: Tween(begin: 6, end: -4), weight: 1),
       TweenSequenceItem(tween: Tween(begin: -4, end: 0), weight: 1),
     ]).animate(CurvedAnimation(parent: _shakeController, curve: Curves.easeOut));
-    
+
     // 🎯 Auto-focus על שדה שם בכניסה למסך
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -139,7 +127,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     if (_isLoading) return;
 
     if (kDebugMode) debugPrint('📝 _handleRegister() | Starting registration process...');
-    
+
     // Validation
     if (!_formKey.currentState!.validate()) {
       if (kDebugMode) debugPrint('❌ _handleRegister() | Form validation failed');
@@ -162,119 +150,53 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       // רישום דרך UserContext
       if (kDebugMode) debugPrint('📝 _handleRegister() | Signing up...');
       final userContext = context.read<UserContext>();
-      await userContext.signUp(
-        email: email,
-        password: password,
-        name: name,
-        phone: phone,
-      );
+      await userContext.signUp(email: email, password: password, name: name, phone: phone);
 
       // ✅ הרישום הצליח!
       if (kDebugMode) debugPrint('✅ _handleRegister() | Success! userId: ${userContext.userId}');
 
-      // 📨 בדיקת הזמנות ממתינות לקבוצות
-      if (mounted) {
-        final pendingInvitesProvider = context.read<PendingInvitesProvider>();
-        await pendingInvitesProvider.checkPendingInvites(
-          phone: phone,
-          email: email,
-        );
-        if (kDebugMode) debugPrint('📨 Checked pending invites: ${pendingInvitesProvider.pendingCount} found');
-      }
+      // 🔹 שמירת seenOnboarding - כמו ב-LoginScreen
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('seenOnboarding', true);
+      if (kDebugMode) debugPrint('✅ _handleRegister() | Onboarding flag saved');
 
       // 🎉 הצגת feedback ויזואלי + ניווט
       if (mounted) {
         setState(() => _isLoading = false);
 
-        final pendingInvitesProvider = context.read<PendingInvitesProvider>();
-        final hasPendingInvites = pendingInvitesProvider.pendingCount > 0;
-
-        if (hasPendingInvites) {
-          // 📨 יש הזמנות ממתינות - הצג דיאלוג
-          final goToInvites = await showDialog<bool>(
-            context: context,
-            barrierDismissible: false,
-            builder: (dialogContext) {
-              final dialogBrand = Theme.of(dialogContext).extension<AppBrand>();
-              final dialogCs = Theme.of(dialogContext).colorScheme;
-              // ✅ צבע אזהרה מ-Theme (תומך Dynamic Color)
-              final warningColor = dialogBrand?.warning ?? dialogCs.tertiary;
-
-              return AlertDialog(
-                title: Row(
-                  children: [
-                    Icon(Icons.group_add, color: warningColor, size: 28),
-                    const SizedBox(width: kSpacingSmall),
-                    Text(AppStrings.auth.pendingInvitesDialogTitle),
-                  ],
+        // 🎉 הודעת הצלחה
+        // ✅ שימוש ב-StatusColors API
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.check_circle, color: StatusColors.getOnStatusContainer('success', context), size: 24),
+                const SizedBox(width: kSpacingSmall),
+                Text(
+                  AppStrings.auth.registerSuccessRedirect,
+                  style: TextStyle(color: StatusColors.getOnStatusContainer('success', context)),
                 ),
-                content: Text(
-                  AppStrings.auth.pendingInvitesDialogContent(pendingInvitesProvider.pendingCount),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(dialogContext, false),
-                    child: Text(AppStrings.auth.pendingInvitesLater),
-                  ),
-                  // ✅ כפתור ללא style מותאם - נותן ל-Theme להחליט
-                  ElevatedButton(
-                    onPressed: () => Navigator.pop(dialogContext, true),
-                    child: Text(AppStrings.auth.pendingInvitesView),
-                  ),
-                ],
-              );
-            },
-          );
-
-          if (mounted) {
-            if (goToInvites == true) {
-              // נווט למסך ההזמנות
-              await navigator.pushNamedAndRemoveUntil('/', (route) => false);
-              if (mounted) {
-                await navigator.pushNamed('/pending-group-invites');
-              }
-            } else {
-              // נווט לדף הבית
-              await navigator.pushNamedAndRemoveUntil('/', (route) => false);
-            }
-          }
-        } else {
-          // 🎉 הודעת הצלחה רגילה
-          // ✅ שימוש ב-StatusColors API
-          scaffoldMessenger.showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  Icon(Icons.check_circle, color: StatusColors.getOnStatusContainer('success', context), size: 24),
-                  const SizedBox(width: kSpacingSmall),
-                  Text(
-                    AppStrings.auth.registerSuccessRedirect,
-                    style: TextStyle(color: StatusColors.getOnStatusContainer('success', context)),
-                  ),
-                ],
-              ),
-              backgroundColor: StatusColors.getStatusContainer('success', context),
-              duration: const Duration(seconds: 2),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(kBorderRadius),
-              ),
-              margin: const EdgeInsets.all(kSpacingMedium),
+              ],
             ),
-          );
+            backgroundColor: StatusColors.getStatusContainer('success', context),
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadius)),
+            margin: const EdgeInsets.all(kSpacingMedium),
+          ),
+        );
 
-          // ⏱️ המתנה קצרה לפני ניווט
-          await Future.delayed(const Duration(milliseconds: 1500));
+        // ⏱️ המתנה קצרה לפני ניווט
+        await Future.delayed(const Duration(milliseconds: 1500));
 
-          if (mounted) {
-            if (kDebugMode) debugPrint('🔄 _handleRegister() | Navigating to index screen');
-            await navigator.pushNamedAndRemoveUntil('/', (route) => false);
-          }
+        if (mounted) {
+          if (kDebugMode) debugPrint('🔄 _handleRegister() | Navigating to index screen');
+          await navigator.pushNamedAndRemoveUntil('/', (route) => false);
         }
       }
     } catch (e) {
       if (kDebugMode) debugPrint('❌ _handleRegister() | Registration failed: $e');
-      
+
       final errorMessage = e.toString().replaceAll('Exception: ', '');
 
       if (mounted) {
@@ -292,7 +214,10 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                 Expanded(
                   child: Text(
                     errorMessage,
-                    style: TextStyle(fontSize: kFontSizeSmall, color: StatusColors.getOnStatusContainer('error', context)),
+                    style: TextStyle(
+                      fontSize: kFontSizeSmall,
+                      color: StatusColors.getOnStatusContainer('error', context),
+                    ),
                   ),
                 ),
               ],
@@ -300,15 +225,13 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
             backgroundColor: StatusColors.getStatusContainer('error', context),
             duration: kSnackBarDurationLong,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(kBorderRadius),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadius)),
             margin: const EdgeInsets.all(kSpacingMedium),
           ),
         );
       }
     }
-    
+
     if (kDebugMode) debugPrint('🏁 _handleRegister() | Completed');
   }
 
@@ -331,13 +254,18 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
 
     try {
       final userContext = context.read<UserContext>();
-      final navigator = Navigator.of(context);
 
       await userContext.signInWithGoogle();
 
+      // 🔹 שמירת seenOnboarding
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('seenOnboarding', true);
+
       if (mounted) {
         setState(() => _isLoading = false);
-        await navigator.pushNamedAndRemoveUntil('/', (route) => false);
+
+        // ניווט לאפליקציה
+        await Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
       }
     } catch (e) {
       if (kDebugMode) debugPrint('❌ _handleGoogleSignIn: $e');
@@ -368,13 +296,18 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
 
     try {
       final userContext = context.read<UserContext>();
-      final navigator = Navigator.of(context);
 
       await userContext.signInWithApple();
 
+      // 🔹 שמירת seenOnboarding
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('seenOnboarding', true);
+
       if (mounted) {
         setState(() => _isLoading = false);
-        await navigator.pushNamedAndRemoveUntil('/', (route) => false);
+
+        // ניווט לאפליקציה
+        await Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
       }
     } catch (e) {
       if (kDebugMode) debugPrint('❌ _handleAppleSignIn: $e');
@@ -397,7 +330,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     }
   }
 
-  /// 🎨 Helper method לבניית שדה טופס עטוף ב-StickyNote
+  /// 🎨 Helper method לבניית שדה טופס
   /// ✅ כולל Semantics לנגישות
   Widget _buildFormField({
     required TextEditingController controller,
@@ -405,60 +338,43 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     required String label,
     required String hint,
     required IconData icon,
-    required Color color,
-    double rotation = 0.0,
     TextInputType? keyboardType,
     TextInputAction? textInputAction,
     bool obscureText = false,
     Widget? suffixIcon,
     void Function(String)? onFieldSubmitted,
     String? Function(String?)? validator,
-    String? semanticLabel, // ✅ תיאור לנגישות
-    String? helperText, // ✅ טקסט עזרה מתחת לשדה
+    String? semanticLabel,
+    String? helperText,
   }) {
+    final cs = Theme.of(context).colorScheme;
     return Semantics(
       label: semanticLabel ?? label,
       textField: true,
-      child: StickyNote(
-        color: color,
-        rotation: rotation,
-        child: TextFormField(
-          controller: controller,
-          focusNode: focusNode,
-          decoration: InputDecoration(
-            labelText: label,
-            hintText: hint,
-            prefixIcon: Icon(icon),
-            suffixIcon: suffixIcon,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(kBorderRadius),
-            ),
-            // ✅ Focus border צבע מ-Theme
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(kBorderRadius),
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.primary,
-                width: 2,
-              ),
-            ),
-            filled: true,
-            fillColor: Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: kSpacingMedium,
-              vertical: kSpacingSmall,
-            ),
-            helperText: helperText,
-            helperStyle: TextStyle(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              fontSize: kFontSizeTiny,
-            ),
+      child: TextFormField(
+        controller: controller,
+        focusNode: focusNode,
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          prefixIcon: Icon(icon),
+          suffixIcon: suffixIcon,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(kBorderRadius)),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(kBorderRadius),
+            borderSide: BorderSide(color: cs.primary, width: 2),
           ),
-          keyboardType: keyboardType,
-          textInputAction: textInputAction,
-          obscureText: obscureText,
-          onFieldSubmitted: onFieldSubmitted,
-          validator: validator,
+          filled: true,
+          fillColor: cs.surfaceContainerHighest,
+          contentPadding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
+          helperText: helperText,
+          helperStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: kFontSizeTiny),
         ),
+        keyboardType: keyboardType,
+        textInputAction: textInputAction,
+        obscureText: obscureText,
+        onFieldSubmitted: onFieldSubmitted,
+        validator: validator,
       ),
     );
   }
@@ -469,27 +385,19 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
     final accent = brand?.accent ?? cs.primary;
-    // ✅ צבע Sticky Note מ-Theme (תומך Dark Mode)
-    final yellow = brand?.stickyYellow ?? kStickyYellow;
 
     // 🔒 חסימת Back - המשתמש יכול לחזור ל-login
-    // ✅ RTL נקבע אוטומטית מהתמה (Directionality מ-MaterialApp)
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop) {
-          // נווט ל-login ישירות (בלי לתת ל-pop לקרות)
           Navigator.pushReplacementNamed(context, '/login');
         }
       },
       child: Scaffold(
-        // ✅ צבע רקע מ-Theme (תומך Dark Mode)
-        backgroundColor: brand?.paperBackground ?? theme.scaffoldBackgroundColor,
+        backgroundColor: cs.surface,
         body: Stack(
           children: [
-            // 📓 רקע מחברת עם קווים
-            const NotebookBackground(),
-            
             // תוכן המסך
             SafeArea(
               child: Center(
@@ -504,291 +412,275 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                   child: AnimatedBuilder(
                     animation: _shakeAnimation,
                     builder: (context, child) {
-                      return Transform.translate(
-                        offset: Offset(_shakeAnimation.value, 0),
-                        child: child,
-                      );
+                      return Transform.translate(offset: Offset(_shakeAnimation.value, 0), child: child);
                     },
                     // ✅ RepaintBoundary לאופטימיזציה
                     child: RepaintBoundary(
                       child: Form(
                         key: _formKey,
                         child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const SizedBox(height: kSpacingMedium),
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const SizedBox(height: kSpacingMedium),
 
-                          // 📝 כותרת פשוטה - בלי לוגו
-                          Text(
-                            AppStrings.auth.registerTitle,
-                            style: theme.textTheme.headlineLarge?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 36,
-                              // ✅ צבע מ-Theme (תומך Dark Mode)
-                              color: cs.onSurface,
-                              letterSpacing: 1,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            AppStrings.auth.registerSubtitle,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              // ✅ צבע מ-Theme (תומך Dark Mode)
-                              color: cs.onSurfaceVariant,
-                              fontSize: 15,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: kSpacingLarge),
-
-                          // 👤 שדה שם - פתק צהוב בהיר
-                          _buildFormField(
-                            controller: _nameController,
-                            focusNode: _nameFocusNode,
-                            label: AppStrings.auth.nameLabel,
-                            hint: AppStrings.auth.nameHint,
-                            icon: Icons.person_outlined,
-                            color: yellow,
-                            rotation: 0.008,
-                            textInputAction: TextInputAction.next,
-                            semanticLabel: AppStrings.auth.nameFieldSemanticLabel,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return AppStrings.auth.nameRequired;
-                              }
-                              if (value.length < 2) {
-                                return AppStrings.auth.nameTooShort;
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: kSpacingMedium),
-
-                          // 📧 שדה אימייל - פתק צהוב בהיר
-                          _buildFormField(
-                            controller: _emailController,
-                            focusNode: _emailFocusNode,
-                            label: AppStrings.auth.emailLabel,
-                            hint: AppStrings.auth.emailHint,
-                            icon: Icons.email_outlined,
-                            color: yellow,
-                            rotation: -0.01,
-                            keyboardType: TextInputType.emailAddress,
-                            textInputAction: TextInputAction.next,
-                            semanticLabel: AppStrings.auth.emailFieldSemanticLabel,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return AppStrings.auth.emailRequired;
-                              }
-                              if (!value.contains('@')) {
-                                return AppStrings.auth.emailInvalid;
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: kSpacingMedium),
-
-                          // 🔒 שדה סיסמה - פתק צהוב בהיר
-                          _buildFormField(
-                            controller: _passwordController,
-                            focusNode: _passwordFocusNode,
-                            label: AppStrings.auth.passwordLabel,
-                            hint: AppStrings.auth.passwordHint,
-                            icon: Icons.lock_outlined,
-                            color: yellow,
-                            rotation: 0.012,
-                            obscureText: _obscurePassword,
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility_outlined
-                                    : Icons.visibility_off_outlined,
+                            // 📝 כותרת פשוטה - בלי לוגו
+                            Text(
+                              AppStrings.auth.registerTitle,
+                              style: theme.textTheme.headlineLarge?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 36,
+                                // ✅ צבע מ-Theme (תומך Dark Mode)
+                                color: cs.onSurface,
+                                letterSpacing: 1,
                               ),
-                              onPressed: _togglePasswordVisibility,
-                              tooltip: _obscurePassword ? AppStrings.auth.showPassword : AppStrings.auth.hidePassword,
+                              textAlign: TextAlign.center,
                             ),
-                            textInputAction: TextInputAction.next,
-                            semanticLabel: AppStrings.auth.passwordFieldSemanticLabel,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return AppStrings.auth.passwordRequired;
-                              }
-                              if (value.length < 6) {
-                                return AppStrings.auth.passwordTooShort;
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: kSpacingMedium),
-
-                          // 🔒 שדה אימות סיסמה - פתק צהוב בהיר
-                          _buildFormField(
-                            controller: _confirmPasswordController,
-                            focusNode: _confirmPasswordFocusNode,
-                            label: AppStrings.auth.confirmPasswordLabel,
-                            hint: AppStrings.auth.confirmPasswordHint,
-                            icon: Icons.lock_outlined,
-                            color: yellow,
-                            rotation: -0.008,
-                            obscureText: _obscureConfirmPassword,
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscureConfirmPassword
-                                    ? Icons.visibility_outlined
-                                    : Icons.visibility_off_outlined,
+                            const SizedBox(height: 4),
+                            Text(
+                              AppStrings.auth.registerSubtitle,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                // ✅ צבע מ-Theme (תומך Dark Mode)
+                                color: cs.onSurfaceVariant,
+                                fontSize: 15,
                               ),
-                              onPressed: _toggleConfirmPasswordVisibility,
-                              tooltip: _obscureConfirmPassword ? AppStrings.auth.showPassword : AppStrings.auth.hidePassword,
+                              textAlign: TextAlign.center,
                             ),
-                            textInputAction: TextInputAction.next,
-                            semanticLabel: AppStrings.auth.confirmPasswordFieldSemanticLabel,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return AppStrings.auth.confirmPasswordRequired;
-                              }
-                              if (value != _passwordController.text) {
-                                return AppStrings.auth.passwordsDoNotMatch;
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: kSpacingMedium),
+                            const SizedBox(height: kSpacingLarge),
 
-                          // 📱 שדה טלפון - פתק צהוב בהיר
-                          _buildFormField(
-                            controller: _phoneController,
-                            focusNode: _phoneFocusNode,
-                            label: AppStrings.auth.phoneLabel,
-                            hint: AppStrings.auth.phoneHint,
-                            icon: Icons.phone_outlined,
-                            color: yellow,
-                            rotation: 0.006,
-                            keyboardType: TextInputType.phone,
-                            textInputAction: TextInputAction.done,
-                            onFieldSubmitted: (_) { _onRegisterPressed(); },
-                            semanticLabel: AppStrings.auth.phoneFieldSemanticLabel,
-                            helperText: AppStrings.auth.phoneHelperText,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return AppStrings.auth.phoneRequired;
-                              }
-                              final normalized = value.replaceAll('-', '').replaceAll(' ', '');
-                              if (!_phoneRegex.hasMatch(normalized)) {
-                                return AppStrings.auth.phoneInvalid;
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: kSpacingLarge),
+                            // 👤 שדה שם
+                            _buildFormField(
+                              controller: _nameController,
+                              focusNode: _nameFocusNode,
+                              label: AppStrings.auth.nameLabel,
+                              hint: AppStrings.auth.nameHint,
+                              icon: Icons.person_outlined,
+                              textInputAction: TextInputAction.next,
+                              semanticLabel: AppStrings.auth.nameFieldSemanticLabel,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return AppStrings.auth.nameRequired;
+                                }
+                                if (value.length < 2) {
+                                  return AppStrings.auth.nameTooShort;
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: kSpacingMedium),
 
-                          // 🔘 כפתור הרשמה - צבע success עדין יותר
-                          StickyButton(
-                            color: brand?.success ?? cs.primaryContainer,
-                            label: AppStrings.auth.registerButton,
-                            icon: Icons.app_registration,
-                            onPressed: _isLoading ? null : _onRegisterPressed,
-                            height: 52,
-                          ),
-                          const SizedBox(height: kSpacingLarge),
+                            // 📧 שדה אימייל
+                            _buildFormField(
+                              controller: _emailController,
+                              focusNode: _emailFocusNode,
+                              label: AppStrings.auth.emailLabel,
+                              hint: AppStrings.auth.emailHint,
+                              icon: Icons.email_outlined,
+                              keyboardType: TextInputType.emailAddress,
+                              textInputAction: TextInputAction.next,
+                              semanticLabel: AppStrings.auth.emailFieldSemanticLabel,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return AppStrings.auth.emailRequired;
+                                }
+                                if (!value.contains('@')) {
+                                  return AppStrings.auth.emailInvalid;
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: kSpacingMedium),
 
-                          // ➖ Divider עם "או הירשם במהירות עם" - אנימציה יחד עם Social buttons
-                          AnimatedOpacity(
-                            opacity: _showSocialButtons ? 1.0 : 0.0,
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeOutCubic,
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: kSpacingMedium),
+                            // 🔒 שדה סיסמה
+                            _buildFormField(
+                              controller: _passwordController,
+                              focusNode: _passwordFocusNode,
+                              label: AppStrings.auth.passwordLabel,
+                              hint: AppStrings.auth.passwordHint,
+                              icon: Icons.lock_outlined,
+                              obscureText: _obscurePassword,
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                                ),
+                                onPressed: _togglePasswordVisibility,
+                                tooltip: _obscurePassword ? AppStrings.auth.showPassword : AppStrings.auth.hidePassword,
+                              ),
+                              textInputAction: TextInputAction.next,
+                              semanticLabel: AppStrings.auth.passwordFieldSemanticLabel,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return AppStrings.auth.passwordRequired;
+                                }
+                                if (value.length < 6) {
+                                  return AppStrings.auth.passwordTooShort;
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: kSpacingMedium),
+
+                            // 🔒 שדה אימות סיסמה
+                            _buildFormField(
+                              controller: _confirmPasswordController,
+                              focusNode: _confirmPasswordFocusNode,
+                              label: AppStrings.auth.confirmPasswordLabel,
+                              hint: AppStrings.auth.confirmPasswordHint,
+                              icon: Icons.lock_outlined,
+                              obscureText: _obscureConfirmPassword,
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscureConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                                ),
+                                onPressed: _toggleConfirmPasswordVisibility,
+                                tooltip: _obscureConfirmPassword
+                                    ? AppStrings.auth.showPassword
+                                    : AppStrings.auth.hidePassword,
+                              ),
+                              textInputAction: TextInputAction.next,
+                              semanticLabel: AppStrings.auth.confirmPasswordFieldSemanticLabel,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return AppStrings.auth.confirmPasswordRequired;
+                                }
+                                if (value != _passwordController.text) {
+                                  return AppStrings.auth.passwordsDoNotMatch;
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: kSpacingMedium),
+
+                            // 📱 שדה טלפון
+                            _buildFormField(
+                              controller: _phoneController,
+                              focusNode: _phoneFocusNode,
+                              label: AppStrings.auth.phoneLabel,
+                              hint: AppStrings.auth.phoneHint,
+                              icon: Icons.phone_outlined,
+                              keyboardType: TextInputType.phone,
+                              textInputAction: TextInputAction.done,
+                              onFieldSubmitted: (_) {
+                                _onRegisterPressed();
+                              },
+                              semanticLabel: AppStrings.auth.phoneFieldSemanticLabel,
+                              helperText: AppStrings.auth.phoneHelperText,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return AppStrings.auth.phoneRequired;
+                                }
+                                final normalized = value.replaceAll('-', '').replaceAll(' ', '');
+                                if (!_phoneRegex.hasMatch(normalized)) {
+                                  return AppStrings.auth.phoneInvalid;
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: kSpacingLarge),
+
+                            // 🔘 כפתור הרשמה
+                            FilledButton.icon(
+                              onPressed: _isLoading ? null : _onRegisterPressed,
+                              icon: const Icon(Icons.app_registration),
+                              label: Text(AppStrings.auth.registerButton),
+                              style: FilledButton.styleFrom(
+                                minimumSize: const Size.fromHeight(52),
+                                backgroundColor: brand?.success ?? cs.primary,
+                                foregroundColor: cs.onPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: kSpacingLarge),
+
+                            // ➖ Divider עם "או הירשם במהירות עם" - אנימציה יחד עם Social buttons
+                            AnimatedOpacity(
+                              opacity: _showSocialButtons ? 1.0 : 0.0,
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeOutCubic,
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: kSpacingMedium),
+                                child: Row(
+                                  children: [
+                                    Expanded(child: Divider(color: cs.outlineVariant)),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
+                                      child: Text(
+                                        AppStrings.auth.orContinueWith,
+                                        style: TextStyle(color: cs.onSurfaceVariant, fontSize: kFontSizeSmall),
+                                      ),
+                                    ),
+                                    Expanded(child: Divider(color: cs.outlineVariant)),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            // 🔵 כפתורי Social Login עם אנימציית כניסה
+                            AnimatedSlide(
+                              offset: _showSocialButtons ? Offset.zero : const Offset(0, 0.3),
+                              duration: const Duration(milliseconds: 400),
+                              curve: Curves.easeOutCubic,
+                              child: AnimatedOpacity(
+                                opacity: _showSocialButtons ? 1.0 : 0.0,
+                                duration: const Duration(milliseconds: 400),
+                                child: Row(
+                                  children: [
+                                    // Google
+                                    Expanded(
+                                      child: _SocialLoginButton(
+                                        icon: FontAwesomeIcons.google,
+                                        label: 'Google',
+                                        color: const Color(0xFFDB4437),
+                                        onPressed: _isLoading ? null : _handleGoogleSignIn,
+                                      ),
+                                    ),
+                                    const SizedBox(width: kSpacingSmall),
+                                    // Apple
+                                    Expanded(
+                                      child: _SocialLoginButton(
+                                        icon: FontAwesomeIcons.apple,
+                                        label: 'Apple',
+                                        color: cs.onSurface, // שחור/לבן לפי Theme
+                                        onPressed: _isLoading ? null : _handleAppleSignIn,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: kSpacingMedium),
+
+                            // 🔗 קישור להתחברות - בולט יותר
+                            // ✅ Semantics לנגישות
+                            Semantics(
+                              label: AppStrings.auth.loginLinkSemanticLabel,
                               child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Expanded(child: Divider(color: cs.outlineVariant)),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
+                                  Text(
+                                    AppStrings.auth.haveAccount,
+                                    // ✅ צבע מ-Theme (תומך Dark Mode)
+                                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 15),
+                                  ),
+                                  TextButton(
+                                    onPressed: _isLoading ? null : _navigateToLogin,
                                     child: Text(
-                                      AppStrings.auth.orContinueWith,
+                                      AppStrings.auth.loginButton,
+                                      // ✅ סגנון בולט יותר עם קו תחתון
                                       style: TextStyle(
-                                        color: cs.onSurfaceVariant,
-                                        fontSize: kFontSizeSmall,
+                                        color: accent,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        decoration: TextDecoration.underline,
+                                        decorationColor: accent,
+                                        decorationThickness: 2,
                                       ),
                                     ),
                                   ),
-                                  Expanded(child: Divider(color: cs.outlineVariant)),
                                 ],
                               ),
                             ),
-                          ),
-
-                          // 🔵 כפתורי Social Login עם אנימציית כניסה
-                          AnimatedSlide(
-                            offset: _showSocialButtons ? Offset.zero : const Offset(0, 0.3),
-                            duration: const Duration(milliseconds: 400),
-                            curve: Curves.easeOutCubic,
-                            child: AnimatedOpacity(
-                              opacity: _showSocialButtons ? 1.0 : 0.0,
-                              duration: const Duration(milliseconds: 400),
-                              child: Row(
-                                children: [
-                                  // Google
-                                  Expanded(
-                                    child: _SocialLoginButton(
-                                      icon: FontAwesomeIcons.google,
-                                      label: 'Google',
-                                      color: const Color(0xFFDB4437),
-                                      onPressed: _isLoading ? null : _handleGoogleSignIn,
-                                    ),
-                                  ),
-                                  const SizedBox(width: kSpacingSmall),
-                                  // Apple
-                                  Expanded(
-                                    child: _SocialLoginButton(
-                                      icon: FontAwesomeIcons.apple,
-                                      label: 'Apple',
-                                      color: cs.onSurface, // שחור/לבן לפי Theme
-                                      onPressed: _isLoading ? null : _handleAppleSignIn,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: kSpacingMedium),
-
-                          // 🔗 קישור להתחברות - בולט יותר
-                          // ✅ Semantics לנגישות
-                          Semantics(
-                            label: AppStrings.auth.loginLinkSemanticLabel,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  AppStrings.auth.haveAccount,
-                                  // ✅ צבע מ-Theme (תומך Dark Mode)
-                                  style: TextStyle(
-                                    color: cs.onSurfaceVariant,
-                                    fontSize: 15,
-                                  ),
-                                ),
-                                TextButton(
-                                  onPressed: _isLoading ? null : _navigateToLogin,
-                                  child: Text(
-                                    AppStrings.auth.loginButton,
-                                    // ✅ סגנון בולט יותר עם קו תחתון
-                                    style: TextStyle(
-                                      color: accent,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                      decoration: TextDecoration.underline,
-                                      decorationColor: accent,
-                                      decorationThickness: 2,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: kSpacingMedium),
-                        ],
+                            const SizedBox(height: kSpacingMedium),
+                          ],
                         ),
                       ),
                     ),
@@ -803,11 +695,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                   filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
                   child: Container(
                     color: Colors.black.withValues(alpha: 0.25),
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: cs.primary,
-                      ),
-                    ),
+                    child: Center(child: CircularProgressIndicator(color: cs.primary)),
                   ),
                 ),
               ),
@@ -830,12 +718,7 @@ class _SocialLoginButton extends StatefulWidget {
   final Color color;
   final VoidCallback? onPressed;
 
-  const _SocialLoginButton({
-    required this.icon,
-    required this.label,
-    required this.color,
-    this.onPressed,
-  });
+  const _SocialLoginButton({required this.icon, required this.label, required this.color, this.onPressed});
 
   @override
   State<_SocialLoginButton> createState() => _SocialLoginButtonState();
@@ -851,9 +734,7 @@ class _SocialLoginButtonState extends State<_SocialLoginButton> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // ✅ צל מותאם ל-Dark Mode
-    final shadowColor = isDark
-        ? cs.surfaceContainerLowest.withValues(alpha: 0.1)
-        : cs.shadow.withValues(alpha: 0.15);
+    final shadowColor = isDark ? cs.surfaceContainerLowest.withValues(alpha: 0.1) : cs.shadow.withValues(alpha: 0.15);
 
     return Semantics(
       button: true,
@@ -869,19 +750,9 @@ class _SocialLoginButtonState extends State<_SocialLoginButton> {
           curve: Curves.easeOut,
           child: Container(
             decoration: BoxDecoration(
-              color: isDisabled
-                  ? cs.surfaceContainerHighest.withValues(alpha: 0.5)
-                  : cs.surfaceContainerHighest,
+              color: isDisabled ? cs.surfaceContainerHighest.withValues(alpha: 0.5) : cs.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(kBorderRadius),
-              boxShadow: isDisabled
-                  ? null
-                  : [
-                      BoxShadow(
-                        color: shadowColor,
-                        blurRadius: 6,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
+              boxShadow: isDisabled ? null : [BoxShadow(color: shadowColor, blurRadius: 6, offset: const Offset(0, 3))],
             ),
             child: Material(
               color: Colors.transparent,
@@ -889,27 +760,20 @@ class _SocialLoginButtonState extends State<_SocialLoginButton> {
                 onTap: widget.onPressed,
                 borderRadius: BorderRadius.circular(kBorderRadius),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: kSpacingSmall + 4,
-                    horizontal: kSpacingMedium,
-                  ),
+                  padding: const EdgeInsets.symmetric(vertical: kSpacingSmall + 4, horizontal: kSpacingMedium),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       FaIcon(
                         widget.icon,
                         size: 18,
-                        color: isDisabled
-                            ? widget.color.withValues(alpha: 0.5)
-                            : widget.color,
+                        color: isDisabled ? widget.color.withValues(alpha: 0.5) : widget.color,
                       ),
                       const SizedBox(width: kSpacingSmall),
                       Text(
                         widget.label,
                         style: TextStyle(
-                          color: isDisabled
-                              ? cs.onSurface.withValues(alpha: 0.5)
-                              : cs.onSurface,
+                          color: isDisabled ? cs.onSurface.withValues(alpha: 0.5) : cs.onSurface,
                           fontWeight: FontWeight.w600,
                           fontSize: kFontSizeMedium,
                         ),

@@ -21,11 +21,6 @@
 //     ├── invites/{inviteId}
 //     └── join_requests/{requestId}
 //
-//   /groups/{groupId}/                 ← קבוצות (נוצר ידנית)
-//     ├── members: Map<userId, GroupMember>
-//     ├── settings: GroupSettings
-//     └── inventory/{itemId}          ← מזווה קבוצתי
-
 class FirestoreCollections {
   // === Top-level collections ===
   static const String users = 'users';
@@ -38,10 +33,6 @@ class FirestoreCollections {
   static const String pendingInvites = 'pending_invites';
   static const String savedContacts = 'saved_contacts';
   static const String userInventory = 'inventory'; // מזווה אישי
-
-  // === Groups collection ===
-  static const String groups = 'groups';
-  static const String groupInventory = 'inventory'; // מזווה קבוצתי
 
   // === Household subcollections ===
   static const String sharedLists = 'shared_lists';

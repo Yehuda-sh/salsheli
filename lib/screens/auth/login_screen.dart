@@ -1,6 +1,6 @@
 // 📄 lib/screens/auth/login_screen.dart
 //
-// מסך התחברות עם Firebase Auth ועיצוב Sticky Notes.
+// מסך התחברות עם Firebase Auth.
 // - Form validation + shake animation לשגיאות
 // - Password reset בלחיצה על "שכחת סיסמה"
 // - PopScope חוסם Back (חובה להתחבר)
@@ -8,7 +8,7 @@
 // 🔗 Related: UserContext, RegisterScreen, AppStrings.auth
 
 import 'dart:async';
-import 'dart:ui'; // ✅ עבור ImageFilter.blur
+import 'dart:ui';
 
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
@@ -22,9 +22,6 @@ import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../providers/user_context.dart';
 import '../../theme/app_theme.dart';
-import '../../widgets/common/notebook_background.dart';
-import '../../widgets/common/sticky_button.dart';
-import '../../widgets/common/sticky_note.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -213,7 +210,6 @@ class _LoginScreenState extends State<LoginScreen>
 
   /// 🔵 התחברות עם Google
   Future<void> _handleGoogleSignIn() async {
-    // 🛡️ מניעת לחיצות כפולות
     if (_isLoading) return;
 
     if (kDebugMode) debugPrint('🔵 _handleGoogleSignIn() | Starting Google sign in...');
@@ -221,36 +217,19 @@ class _LoginScreenState extends State<LoginScreen>
 
     try {
       final userContext = context.read<UserContext>();
-      final navigator = Navigator.of(context);
 
       await userContext.signInWithGoogle();
 
       if (kDebugMode) debugPrint('✅ _handleGoogleSignIn() | Success');
 
-      // שמור onboarding flag
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('seenOnboarding', true);
 
       if (mounted) {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.check_circle, color: StatusColors.getOnStatusContainer('success', context)),
-                const SizedBox(width: kSpacingSmall),
-                Text(AppStrings.auth.googleLoginSuccess),
-              ],
-            ),
-            backgroundColor: StatusColors.getStatusContainer('success', context),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
 
-        await Future.delayed(const Duration(milliseconds: 1000));
-        if (mounted) {
-          await navigator.pushNamedAndRemoveUntil('/', (route) => false);
-        }
+        // ניווט לאפליקציה
+        await Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
       }
     } catch (e) {
       if (kDebugMode) debugPrint('❌ _handleGoogleSignIn() | Error: $e');
@@ -273,7 +252,6 @@ class _LoginScreenState extends State<LoginScreen>
 
   /// 🍎 התחברות עם Apple
   Future<void> _handleAppleSignIn() async {
-    // 🛡️ מניעת לחיצות כפולות
     if (_isLoading) return;
 
     if (kDebugMode) debugPrint('🍎 _handleAppleSignIn() | Starting Apple sign in...');
@@ -281,36 +259,19 @@ class _LoginScreenState extends State<LoginScreen>
 
     try {
       final userContext = context.read<UserContext>();
-      final navigator = Navigator.of(context);
 
       await userContext.signInWithApple();
 
       if (kDebugMode) debugPrint('✅ _handleAppleSignIn() | Success');
 
-      // שמור onboarding flag
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('seenOnboarding', true);
 
       if (mounted) {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.check_circle, color: StatusColors.getOnStatusContainer('success', context)),
-                const SizedBox(width: kSpacingSmall),
-                Text(AppStrings.auth.appleLoginSuccess),
-              ],
-            ),
-            backgroundColor: StatusColors.getStatusContainer('success', context),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
 
-        await Future.delayed(const Duration(milliseconds: 1000));
-        if (mounted) {
-          await navigator.pushNamedAndRemoveUntil('/', (route) => false);
-        }
+        // ניווט לאפליקציה
+        await Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
       }
     } catch (e) {
       if (kDebugMode) debugPrint('❌ _handleAppleSignIn() | Error: $e');
@@ -533,7 +494,6 @@ class _LoginScreenState extends State<LoginScreen>
     final messenger = ScaffoldMessenger.of(context);
 
     // 🔒 חסימת Back - המשתמש חייב להשלים התחברות
-    // ✅ RTL נקבע אוטומטית מהתמה (Directionality מ-MaterialApp)
     return PopScope(
         canPop: false,
         onPopInvokedWithResult: (didPop, result) {
@@ -547,13 +507,9 @@ class _LoginScreenState extends State<LoginScreen>
           }
         },
         child: Scaffold(
-          // ✅ רקע מ-Theme (AppBrand.paperBackground או scaffoldBackgroundColor)
-          backgroundColor: brand?.paperBackground ?? theme.scaffoldBackgroundColor,
+          backgroundColor: cs.surface,
           body: Stack(
             children: [
-              // 📓 רקע מחברת עם קווים
-              const NotebookBackground(),
-
               // 🧪 DEV MODE - Quick Login Button (only in development)
               if (AppConfig.useEmulators)
                 Positioned(
@@ -638,107 +594,87 @@ class _LoginScreenState extends State<LoginScreen>
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: kSpacingLarge),
-                            // 🔵 שדה אימייל בפתק תכלת
-                            // ✅ Dark-aware: שימוש ב-AppBrand
-                            StickyNote(
-                              color: brand?.stickyCyan ?? kStickyCyan,
-                              rotation: 0.01,
-                              child: TextFormField(
-                                controller: _emailController,
-                                focusNode: _emailFocusNode,
-                                decoration: InputDecoration(
-                                  labelText: AppStrings.auth.emailLabel,
-                                  hintText: AppStrings.auth.emailHint,
-                                  prefixIcon: const Icon(Icons.email_outlined),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(
-                                      kBorderRadius,
-                                    ),
-                                  ),
-                                  // ✅ Focus border בצבע ראשי מהתמה
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(kBorderRadius),
-                                    borderSide: BorderSide(color: cs.primary, width: 2),
-                                  ),
-                                  filled: true,
-                                  fillColor: cs.surface.withValues(alpha: 0.9),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    // 📐 צמצום padding פנימי
-                                    horizontal: kSpacingMedium,
-                                    vertical: kSpacingSmall,
-                                  ),
+                            // 📧 שדה אימייל
+                            TextFormField(
+                              controller: _emailController,
+                              focusNode: _emailFocusNode,
+                              decoration: InputDecoration(
+                                labelText: AppStrings.auth.emailLabel,
+                                hintText: AppStrings.auth.emailHint,
+                                prefixIcon: const Icon(Icons.email_outlined),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(kBorderRadius),
                                 ),
-                                keyboardType: TextInputType.emailAddress,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return AppStrings.auth.emailRequired;
-                                  }
-                                  if (!value.contains('@')) {
-                                    return AppStrings.auth.emailInvalid;
-                                  }
-                                  return null;
-                                },
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(kBorderRadius),
+                                  borderSide: BorderSide(color: cs.primary, width: 2),
+                                ),
+                                filled: true,
+                                fillColor: cs.surfaceContainerHighest,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: kSpacingMedium,
+                                  vertical: kSpacingSmall,
+                                ),
                               ),
+                              keyboardType: TextInputType.emailAddress,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return AppStrings.auth.emailRequired;
+                                }
+                                if (!value.contains('@')) {
+                                  return AppStrings.auth.emailInvalid;
+                                }
+                                return null;
+                              },
                             ),
-                            const SizedBox(
-                              height: kSpacingSmall,
-                            ), // 📐 צמצום מ-Medium ל-Small
-                            // 🟩 שדה סיסמה בפתק ירוק
-                            // ✅ Dark-aware: שימוש ב-AppBrand
-                            StickyNote(
-                              color: brand?.stickyGreen ?? kStickyGreen,
-                              rotation: -0.015,
-                              child: TextFormField(
-                                controller: _passwordController,
-                                decoration: InputDecoration(
-                                  labelText: AppStrings.auth.passwordLabel,
-                                  hintText: AppStrings.auth.passwordHint,
-                                  prefixIcon: const Icon(Icons.lock_outlined),
-                                  suffixIcon: IconButton(
-                                    icon: Icon(
-                                      _obscurePassword
-                                          ? Icons.visibility_outlined
-                                          : Icons.visibility_off_outlined,
-                                    ),
-                                    onPressed: () {
-                                      setState(() {
-                                        _obscurePassword = !_obscurePassword;
-                                      });
-                                    },
-                                    tooltip: _obscurePassword
-                                        ? AppStrings.auth.showPassword
-                                        : AppStrings.auth.hidePassword,
+                            const SizedBox(height: kSpacingSmall),
+                            // 🔒 שדה סיסמה
+                            TextFormField(
+                              controller: _passwordController,
+                              decoration: InputDecoration(
+                                labelText: AppStrings.auth.passwordLabel,
+                                hintText: AppStrings.auth.passwordHint,
+                                prefixIcon: const Icon(Icons.lock_outlined),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscurePassword
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
                                   ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(
-                                      kBorderRadius,
-                                    ),
-                                  ),
-                                  // ✅ Focus border בצבע ראשי מהתמה
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(kBorderRadius),
-                                    borderSide: BorderSide(color: cs.primary, width: 2),
-                                  ),
-                                  filled: true,
-                                  fillColor: cs.surface.withValues(alpha: 0.9),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    // 📐 צמצום padding פנימי
-                                    horizontal: kSpacingMedium,
-                                    vertical: kSpacingSmall,
-                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _obscurePassword = !_obscurePassword;
+                                    });
+                                  },
+                                  tooltip: _obscurePassword
+                                      ? AppStrings.auth.showPassword
+                                      : AppStrings.auth.hidePassword,
                                 ),
-                                obscureText: _obscurePassword,
-                                onFieldSubmitted: (_) => _handleLogin(),
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return AppStrings.auth.passwordRequired;
-                                  }
-                                  if (value.length < 6) {
-                                    return AppStrings.auth.passwordTooShort;
-                                  }
-                                  return null;
-                                },
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(kBorderRadius),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(kBorderRadius),
+                                  borderSide: BorderSide(color: cs.primary, width: 2),
+                                ),
+                                filled: true,
+                                fillColor: cs.surfaceContainerHighest,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: kSpacingMedium,
+                                  vertical: kSpacingSmall,
+                                ),
                               ),
+                              obscureText: _obscurePassword,
+                              onFieldSubmitted: (_) => _handleLogin(),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return AppStrings.auth.passwordRequired;
+                                }
+                                if (value.length < 6) {
+                                  return AppStrings.auth.passwordTooShort;
+                                }
+                                return null;
+                              },
                             ),
                             const SizedBox(
                               height: kSpacingSmall,
@@ -776,18 +712,17 @@ class _LoginScreenState extends State<LoginScreen>
                                 ),
                               ),
                             ),
-                            const SizedBox(
-                              height: kSpacingSmall,
-                            ), // 📐 רווח קטן
-                            // 🔘 כפתור התחברות - StickyButton בצבע עדין
-                            // ✅ צבע success/primaryContainer להיררכיה ויזואלית נכונה
-                            StickyButton(
-                              color: brand?.success ?? cs.primaryContainer,
-                              label: AppStrings.auth.loginButton,
-                              icon: Icons.login,
-                              isLoading: _isLoading,
-                              onPressed: _handleLogin,
-                              height: 44, // 📐 הקטנת גובה הכפתור מעט
+                            const SizedBox(height: kSpacingSmall),
+                            // 🔘 כפתור התחברות
+                            FilledButton.icon(
+                              onPressed: _isLoading ? null : _handleLogin,
+                              icon: const Icon(Icons.login),
+                              label: Text(AppStrings.auth.loginButton),
+                              style: FilledButton.styleFrom(
+                                minimumSize: const Size.fromHeight(48),
+                                backgroundColor: brand?.success ?? cs.primary,
+                                foregroundColor: cs.onPrimary,
+                              ),
                             ),
                             const SizedBox(height: kSpacingLarge),
 

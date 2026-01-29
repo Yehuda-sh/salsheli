@@ -11,10 +11,12 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../config/list_types_config.dart';
+import '../../../core/status_colors.dart';
 import '../../../core/ui_constants.dart';
 import '../../../l10n/app_strings.dart';
 import '../../../models/shopping_list.dart';
 import '../../../providers/shopping_lists_provider.dart';
+import '../../../providers/user_context.dart';
 import '../../../widgets/common/notebook_background.dart';
 import '../../../widgets/common/skeleton_loader.dart';
 import '../../../widgets/common/sticky_button.dart';
@@ -139,7 +141,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
           PopupMenuButton<String>(
             tooltip: AppStrings.shopping.searchAndFilter,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(kBorderRadiusMedium),
+              borderRadius: BorderRadius.circular(kBorderRadius),
             ),
             offset: const Offset(0, 40),
             itemBuilder: (context) => [
@@ -344,7 +346,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                   filled: true,
                   fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(kBorderRadiusMedium),
+                    borderRadius: BorderRadius.circular(kBorderRadius),
                     borderSide: BorderSide.none,
                   ),
                 ),
@@ -562,7 +564,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
       padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
       decoration: BoxDecoration(
         color: cs.primaryContainer.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(kBorderRadiusMedium),
+        borderRadius: BorderRadius.circular(kBorderRadius),
       ),
       child: Row(
         children: [
@@ -905,6 +907,23 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
           onStartShopping: isActive
               ? () {
                   debugPrint('🛒 התחלת קנייה: ${list.name}');
+
+                  // 🔐 בדיקת הרשאות - צופה לא יכול להשתתף בקנייה
+                  final userId = context.read<UserContext>().userId;
+                  if (userId != null) {
+                    final userRole = list.getUserRole(userId);
+                    if (userRole != null && !userRole.canShop) {
+                      debugPrint('🚫 צופה לא יכול להשתתף בקנייה');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(AppStrings.shopping.viewerCannotShop),
+                          backgroundColor: StatusColors.pending,
+                        ),
+                      );
+                      return;
+                    }
+                  }
+
                   Navigator.push(
                       context, MaterialPageRoute(builder: (context) => _getScreenForList(list)));
                 }

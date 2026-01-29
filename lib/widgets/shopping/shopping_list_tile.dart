@@ -251,7 +251,7 @@ class ShoppingListTile extends StatelessWidget {
 
     final theme = Theme.of(context);
     final statusColor = StatusColors.getStatusColor(urgencyData.status, context);
-    final overlayColor = StatusColors.getStatusOverlay(urgencyData.status, context);
+    final overlayColor = StatusColors.getStatusContainer(urgencyData.status, context);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingTiny),

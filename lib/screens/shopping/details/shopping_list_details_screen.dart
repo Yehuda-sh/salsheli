@@ -1,7 +1,7 @@
 // 📄 File: lib/screens/shopping/shopping_list_details_screen.dart
 // 📦 Helper File: shopping_list_details_screen_ux.dart (skeleton & states)
 //
-// Version 3.2 - No AppBar (Immersive)
+// Version 4.0 - Hybrid: NotebookBackground + AppBar
 // Last Updated: 13/01/2026
 //
 // ✨ שיפורים חדשים (v3.2):
@@ -583,139 +583,132 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
     return Directionality(
       textDirection: ui.TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: kPaperBackground,
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-        floatingActionButton: currentList.canCurrentUserEdit
-            ? Padding(
-                padding: const EdgeInsets.only(left: 16.0, bottom: 16.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    // כפתור משני: הוסף משימה
-                    FloatingActionButton.small(
-                      heroTag: 'add_task_btn',
-                      backgroundColor: kStickyCyan,
-                      tooltip: AppStrings.listDetails.addTaskButton,
-                      onPressed: _handleAddTask,
-                      child: const Icon(Icons.assignment_add, color: Colors.black87),
-                    ),
-                    const SizedBox(height: 16),
-                    // כפתור ראשי: הוסף מוצר (גדול יותר)
-                    SizedBox(
-                      height: 64,
-                      width: 64,
-                      child: FloatingActionButton(
-                        heroTag: 'add_product_btn',
-                        backgroundColor: kStickyYellow,
-                        tooltip: AppStrings.listDetails.addProductButton,
-                        elevation: 4,
-                        onPressed: _handleAddProduct,
-                        child: const Icon(Icons.add_shopping_cart, size: 30, color: Colors.black),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            : null, // 🔒 Viewer בלבד אינו רשאי להוסיף (Editor יכול דרך בקשות)
-        body: SafeArea(
-          child: Stack(
-            children: [
-              const NotebookBackground(),
-              Column(
-                children: [
-                  // 🏷️ כותרת inline
-                  Padding(
-                    padding: const EdgeInsets.all(kSpacingMedium),
-                    child: Row(
+      child: Stack(
+        children: [
+          const NotebookBackground(),
+          Scaffold(
+            backgroundColor: Colors.transparent,
+            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+            floatingActionButton: currentList.canCurrentUserEdit
+                ? Padding(
+                    padding: const EdgeInsets.only(left: 16.0, bottom: 16.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        // כפתור חזרה
+                        // כפתור משני: הוסף משימה
+                        FloatingActionButton.small(
+                          heroTag: 'add_task_btn',
+                          backgroundColor: kStickyCyan,
+                          tooltip: AppStrings.listDetails.addTaskButton,
+                          onPressed: _handleAddTask,
+                          child: const Icon(Icons.assignment_add, color: Colors.black87),
+                        ),
+                        const SizedBox(height: 16),
+                        // כפתור ראשי: הוסף מוצר (גדול יותר)
+                        SizedBox(
+                          height: 64,
+                          width: 64,
+                          child: FloatingActionButton(
+                            heroTag: 'add_product_btn',
+                            backgroundColor: kStickyYellow,
+                            tooltip: AppStrings.listDetails.addProductButton,
+                            elevation: 4,
+                            onPressed: _handleAddProduct,
+                            child: const Icon(Icons.add_shopping_cart, size: 30, color: Colors.black),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : null, // 🔒 Viewer בלבד אינו רשאי להוסיף (Editor יכול דרך בקשות)
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              title: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.list_alt, size: 24, color: cs.primary),
+                  const SizedBox(width: kSpacingSmall),
+                  Flexible(
+                    child: Text(
+                      currentList.name,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              centerTitle: true,
+              actions: [
+                // 🔔 Badge בקשות ממתינות
+                if (currentList.pendingRequestsForReview.isNotEmpty && currentList.canCurrentUserApprove)
+                  ScaleTransition(
+                    scale: Tween<double>(begin: 0.0, end: 1.0)
+                        .animate(CurvedAnimation(parent: _fabController, curve: Curves.elasticOut)),
+                    child: Stack(
+                      children: [
                         IconButton(
-                          icon: Icon(Icons.arrow_back, color: cs.onSurface),
-                          onPressed: () => Navigator.of(context).pop(),
+                          icon: const Icon(Icons.notifications),
+                          tooltip: 'בקשות ממתינות',
+                          onPressed: () {
+                            unawaited(HapticFeedback.lightImpact());
+                            Navigator.of(context).push(
+                              MaterialPageRoute(builder: (context) => PendingRequestsScreen(list: currentList)),
+                            );
+                          },
                         ),
-                        Icon(Icons.list_alt, size: 24, color: cs.primary),
-                        const SizedBox(width: kSpacingSmall),
-                        Expanded(
-                          child: Text(
-                            currentList.name,
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: cs.onSurface,
+                        Positioned(
+                          right: 8,
+                          top: 8,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(color: kStickyPink, shape: BoxShape.circle),
+                            constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                            child: Text(
+                              '${currentList.pendingRequestsForReview.length}',
+                              style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
                             ),
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        // 🔔 Badge בקשות ממתינות
-                        if (currentList.pendingRequestsForReview.isNotEmpty && currentList.canCurrentUserApprove)
-                          ScaleTransition(
-                            scale: Tween<double>(begin: 0.0, end: 1.0)
-                                .animate(CurvedAnimation(parent: _fabController, curve: Curves.elasticOut)),
-                            child: Stack(
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.notifications),
-                                  tooltip: 'בקשות ממתינות',
-                                  onPressed: () {
-                                    unawaited(HapticFeedback.lightImpact());
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(builder: (context) => PendingRequestsScreen(list: currentList)),
-                                    );
-                                  },
-                                ),
-                                Positioned(
-                                  right: 8,
-                                  top: 8,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: const BoxDecoration(color: kStickyPink, shape: BoxShape.circle),
-                                    constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                                    child: Text(
-                                      '${currentList.pendingRequestsForReview.length}',
-                                      style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        // כפתור שיתוף - 🔒 רק Owner/Admin
-                        if (currentList.canCurrentUserManage)
-                          ScaleTransition(
-                            scale: Tween<double>(begin: 0.0, end: 1.0)
-                                .animate(CurvedAnimation(parent: _fabController, curve: Curves.elasticOut)),
-                            child: IconButton(
-                              icon: const Icon(Icons.share),
-                              tooltip: AppStrings.listDetails.shareListTooltip,
-                              onPressed: () {
-                                unawaited(HapticFeedback.lightImpact());
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(builder: (context) => ManageUsersScreen(list: currentList)),
-                                );
-                              },
-                            ),
-                          ),
-                        // כפתור הוספה מהקטלוג - 🔒 רק Owner/Admin/Editor
-                        if (currentList.canCurrentUserEdit)
-                          ScaleTransition(
-                            scale: Tween<double>(begin: 0.0, end: 1.0)
-                                .animate(CurvedAnimation(parent: _fabController, curve: Curves.elasticOut)),
-                            child: IconButton(
-                              icon: const Icon(Icons.library_add),
-                              tooltip: AppStrings.listDetails.addFromCatalogTooltip,
-                              onPressed: () {
-                                unawaited(HapticFeedback.lightImpact());
-                                _navigateToPopulateScreen();
-                              },
-                            ),
-                          ),
                       ],
                     ),
                   ),
-
+                // כפתור שיתוף - 🔒 רק Owner/Admin
+                if (currentList.canCurrentUserManage)
+                  ScaleTransition(
+                    scale: Tween<double>(begin: 0.0, end: 1.0)
+                        .animate(CurvedAnimation(parent: _fabController, curve: Curves.elasticOut)),
+                    child: IconButton(
+                      icon: const Icon(Icons.share),
+                      tooltip: AppStrings.listDetails.shareListTooltip,
+                      onPressed: () {
+                        unawaited(HapticFeedback.lightImpact());
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (context) => ManageUsersScreen(list: currentList)),
+                        );
+                      },
+                    ),
+                  ),
+                // כפתור הוספה מהקטלוג - 🔒 רק Owner/Admin/Editor
+                if (currentList.canCurrentUserEdit)
+                  ScaleTransition(
+                    scale: Tween<double>(begin: 0.0, end: 1.0)
+                        .animate(CurvedAnimation(parent: _fabController, curve: Curves.elasticOut)),
+                    child: IconButton(
+                      icon: const Icon(Icons.library_add),
+                      tooltip: AppStrings.listDetails.addFromCatalogTooltip,
+                      onPressed: () {
+                        unawaited(HapticFeedback.lightImpact());
+                        _navigateToPopulateScreen();
+                      },
+                    ),
+                  ),
+              ],
+            ),
+            body: SafeArea(
+              child: Column(
+                children: [
                   // 🔍 חיפוש וסינון
                   _buildFiltersSection(allItems, currentList),
 
@@ -769,9 +762,9 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                   ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

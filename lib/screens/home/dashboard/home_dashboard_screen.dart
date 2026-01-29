@@ -22,7 +22,6 @@ import '../../../core/ui_constants.dart';
 import '../../../l10n/app_strings.dart';
 import '../../../models/receipt.dart';
 import '../../../models/shopping_list.dart';
-import '../../../providers/pending_invites_provider.dart';
 import '../../../providers/receipt_provider.dart';
 import '../../../providers/shopping_lists_provider.dart';
 import '../../../providers/suggestions_provider.dart';
@@ -31,9 +30,8 @@ import '../../../services/notifications_service.dart';
 import '../../../services/tutorial_service.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/common/notebook_background.dart';
-import '../../history/receipt_details_screen.dart';
+import '../../history/shopping_history_screen.dart';
 import 'widgets/active_shopper_banner.dart';
-import 'widgets/pending_invite_banner.dart';
 import 'widgets/quick_add_field.dart';
 import 'widgets/suggestions_today_card.dart';
 
@@ -57,29 +55,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         TutorialService.showHomeTutorialIfNeeded(context);
-        _initInviteCheck();
       }
     });
-  }
-
-  Future<void> _initInviteCheck() async {
-    if (!mounted) return;
-
-    final userContext = context.read<UserContext>();
-    final pendingInvitesProvider = context.read<PendingInvitesProvider>();
-
-    if (pendingInvitesProvider.hasChecked) return;
-
-    final user = userContext.user;
-    if (user != null) {
-      if (kDebugMode) {
-        debugPrint('📨 HomeDashboard: Checking invites for ${user.email}');
-      }
-      await pendingInvitesProvider.checkPendingInvites(
-        phone: user.phone,
-        email: user.email,
-      );
-    }
   }
 
   @override
@@ -214,11 +191,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(kSpacingMedium),
                 children: [
-                  // === 1. באנרים (לפי עדיפות: Error > Active Shopper > Pending Invite) ===
+                  // === 1. באנרים (Error / Active Shopper) ===
                   if (listsProvider.hasError)
                     _buildErrorBanner(context, listsProvider.errorMessage!, cs),
                   const ActiveShopperBanner(),
-                  const PendingInviteBanner(),
 
                   // === 2. Header עם שם משפחה ===
                   _buildHeader(
@@ -785,7 +761,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => ReceiptDetailsScreen(receipt: receipt),
+            builder: (_) => const ShoppingHistoryScreen(),
           ),
         );
       },

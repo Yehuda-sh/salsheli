@@ -11,8 +11,8 @@
 // - ✅ תמיכה בתבניות מוכנות
 // - ✅ 3 אופציות נראות: אישית / משפחתית / שיתוף ספציפי
 //
-// Version 4.2 - No AppBar (Immersive)
-// Last Updated: 13/01/2026
+// Version 5.0 - Hybrid: NotebookBackground + AppBar
+// Last Updated: 27/01/2026
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -320,53 +320,48 @@ class _CreateListScreenState extends State<CreateListScreen> {
     // 🔧 שימוש ב-watch כדי שהולידציה תתעדכן אם נוספה רשימה ברקע
     final provider = context.watch<ShoppingListsProvider>();
 
-    return Scaffold(
-        backgroundColor: brand?.paperBackground ?? theme.scaffoldBackgroundColor,
-        body: SafeArea(
-          child: Stack(
-            children: [
-              // 📓 רקע מחברת
-              const NotebookBackground(),
-
-              // 📝 תוכן
-              Form(
-                key: _formKey,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                child: ListView(
-                  padding: EdgeInsets.only(
-                    left: kSpacingMedium,
-                    right: kSpacingMedium,
-                    top: kSpacingSmall,
-                    bottom: MediaQuery.of(context).viewInsets.bottom + kSpacingLarge,
+    return Stack(
+      children: [
+        // 📓 רקע מחברת
+        const NotebookBackground(),
+        Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: IconButton(
+              icon: Icon(Icons.close, color: cs.onSurface),
+              tooltip: strings.cancelTooltip,
+              onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
+            ),
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.add_shopping_cart, size: 24, color: cs.primary),
+                const SizedBox(width: kSpacingSmall),
+                Flexible(
+                  child: Text(
+                    strings.title,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  children: [
-                    // 🏷️ כותרת inline
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: kSpacingMedium),
-                      child: Row(
-                        children: [
-                          // כפתור סגירה
-                          IconButton(
-                            icon: Icon(Icons.close, color: cs.onSurface),
-                            tooltip: strings.cancelTooltip,
-                            onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
-                          ),
-                          Icon(Icons.add_shopping_cart, size: 24, color: cs.primary),
-                          const SizedBox(width: kSpacingSmall),
-                          Expanded(
-                            child: Text(
-                              strings.title,
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: cs.onSurface,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
+                ),
+              ],
+            ),
+            centerTitle: true,
+          ),
+          body: SafeArea(
+            top: false, // AppBar handles top safe area
+            child: Form(
+              key: _formKey,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              child: ListView(
+                padding: EdgeInsets.only(
+                  left: kSpacingMedium,
+                  right: kSpacingMedium,
+                  top: kSpacingSmall,
+                  bottom: MediaQuery.of(context).viewInsets.bottom + kSpacingLarge,
+                ),
+                children: [
                     // 📋 כפתור בחירת תבנית
                     _buildTemplateButton(),
                     const SizedBox(height: kSpacingMedium),
@@ -401,21 +396,21 @@ class _CreateListScreenState extends State<CreateListScreen> {
                     _buildBudgetField(),
                     const SizedBox(height: kSpacingLarge),
 
-                    // ✅ כפתור יצירה
-                    StickyButton(
-                      color: brand?.stickyGreen ?? kStickyGreen,
-                      label: strings.createButton,
-                      icon: Icons.add_task,
-                      isLoading: _isSubmitting,
-                      onPressed: _isSubmitting ? null : _handleSubmit,
-                    ),
-                    const SizedBox(height: kSpacingMedium),
-                  ],
-                ),
+                  // ✅ כפתור יצירה
+                  StickyButton(
+                    color: brand?.stickyGreen ?? kStickyGreen,
+                    label: strings.createButton,
+                    icon: Icons.add_task,
+                    isLoading: _isSubmitting,
+                    onPressed: _isSubmitting ? null : _handleSubmit,
+                  ),
+                  const SizedBox(height: kSpacingMedium),
+                ],
               ),
-            ],
+            ),
           ),
         ),
+      ],
     );
   }
 
@@ -759,7 +754,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
           : () {
               setState(() => _eventMode = mode);
             },
-      borderRadius: BorderRadius.circular(kBorderRadiusMedium),
+      borderRadius: BorderRadius.circular(kBorderRadius),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(kSpacingMedium),
@@ -767,7 +762,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
           color: isSelected
               ? cs.primaryContainer.withValues(alpha: 0.5)
               : cs.surfaceContainerHighest.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(kBorderRadiusMedium),
+          borderRadius: BorderRadius.circular(kBorderRadius),
           border: Border.all(
             color: isSelected ? cs.primary : cs.outline.withValues(alpha: 0.3),
             width: isSelected ? 2 : 1,
@@ -858,7 +853,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
       padding: const EdgeInsets.all(kSpacingSmall),
       decoration: BoxDecoration(
         color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(kBorderRadiusMedium),
+        borderRadius: BorderRadius.circular(kBorderRadius),
         border: Border.all(color: cs.outline.withValues(alpha: 0.3)),
       ),
       child: Column(

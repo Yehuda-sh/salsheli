@@ -378,6 +378,14 @@ class ShoppingListsProvider with ChangeNotifier {
       throw Exception('❌ משתמש לא מחובר');
     }
 
+    // 🛡️ בדיקת מגבלת רשימות פעילות
+    if (activeLists.length >= kMaxActiveListsPerUser) {
+      if (kDebugMode) {
+        debugPrint('❌ createList: הגעת למקסימום $kMaxActiveListsPerUser רשימות פעילות');
+      }
+      throw Exception(AppStrings.shopping.maxListsReached(kMaxActiveListsPerUser));
+    }
+
     if (kDebugMode) {
       debugPrint('➕ createList: "$name" (סוג: $type, תקציב: $budget, תאריך: $eventDate)');
       debugPrint('   🆕 פריטים: ${items?.length ?? 0}, תבנית: ${templateId ?? "ללא"}');
@@ -871,6 +879,16 @@ class ShoppingListsProvider with ChangeNotifier {
         debugPrint('❌ updateListStatus: רשימה $listId לא נמצאה');
       }
       throw Exception('רשימה $listId לא נמצאה');
+    }
+
+    // 🛡️ בדיקת מגבלה כשמפעילים רשימה (מ-completed/archived ל-active)
+    if (newStatus == ShoppingList.statusActive &&
+        list.status != ShoppingList.statusActive &&
+        activeLists.length >= kMaxActiveListsPerUser) {
+      if (kDebugMode) {
+        debugPrint('❌ updateListStatus: הגעת למקסימום $kMaxActiveListsPerUser רשימות פעילות');
+      }
+      throw Exception(AppStrings.shopping.maxListsReached(kMaxActiveListsPerUser));
     }
 
     final updatedList = list.copyWith(status: newStatus);

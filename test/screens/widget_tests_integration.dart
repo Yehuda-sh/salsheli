@@ -84,51 +84,7 @@ class MockUserContext extends ChangeNotifier {
   }
 }
 
-/// Mock PendingInvitesProvider
-class MockPendingInvitesProvider extends ChangeNotifier {
-  List<dynamic> _pendingInvites = [];
-  bool _hasChecked = false;
-  bool _isLoading = false;
-  String? _errorMessage;
-
-  // === Getters ===
-  int get pendingCount => _pendingInvites.length;
-  List<dynamic> get pendingInvites => _pendingInvites;
-  bool get hasChecked => _hasChecked;
-  bool get hasPendingInvites => _pendingInvites.isNotEmpty;
-  bool get isLoading => _isLoading;
-  String? get errorMessage => _errorMessage;
-
-  // === Setters for Testing ===
-  void setHasChecked(bool checked) {
-    _hasChecked = checked;
-    notifyListeners();
-  }
-
-  void setPendingInvites(List<dynamic> invites) {
-    _pendingInvites = invites;
-    notifyListeners();
-  }
-
-  // === Mock Methods ===
-  Future<void> checkPendingInvites({String? phone, String? email}) async {
-    _hasChecked = true;
-    notifyListeners();
-  }
-
-  void clear() {
-    _pendingInvites = [];
-    _hasChecked = false;
-    notifyListeners();
-  }
-}
-
-/// Mock GroupsProvider
-class MockGroupsProvider extends ChangeNotifier {
-  List<dynamic> get groups => [];
-  bool get isLoading => false;
-  String? get errorMessage => null;
-}
+// Note: PendingInvitesProvider and GroupsProvider were removed from the app
 
 /// Mock ShoppingListsProvider
 class MockShoppingListsProvider extends ChangeNotifier {
@@ -189,15 +145,12 @@ void main() {
   // ===========================================================================
   group('MainNavigationScreen - Widget Tests with Route Arguments', () {
     late MockUserContext mockUserContext;
-    late MockPendingInvitesProvider mockPendingInvitesProvider;
 
     setUp(() {
       mockUserContext = MockUserContext();
-      mockPendingInvitesProvider = MockPendingInvitesProvider();
 
       // Setup default state - logged in user
       mockUserContext.setUser(createTestUser());
-      mockPendingInvitesProvider.setHasChecked(true);
     });
 
     /// Test 1: Verify that route arguments switch to correct tab
@@ -326,11 +279,9 @@ void main() {
   // ===========================================================================
   group('HomeDashboardScreen - Reactive Listener Pattern Tests', () {
     late MockUserContext mockUserContext;
-    late MockPendingInvitesProvider mockPendingInvitesProvider;
 
     setUp(() {
       mockUserContext = MockUserContext();
-      mockPendingInvitesProvider = MockPendingInvitesProvider();
     });
 
     /// Test 1: Verify UI updates reactively when UserContext changes
@@ -344,20 +295,15 @@ void main() {
       bool listenerFired = false;
 
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [
-            ChangeNotifierProvider<MockUserContext>.value(
-                value: mockUserContext),
-            ChangeNotifierProvider<MockPendingInvitesProvider>.value(
-                value: mockPendingInvitesProvider),
-          ],
+        ChangeNotifierProvider<MockUserContext>.value(
+          value: mockUserContext,
           child: MaterialApp(
             home: Builder(
               builder: (context) {
                 // Watch the provider (this is what HomeDashboardScreen does)
                 final userContext = context.watch<MockUserContext>();
 
-                // Simulate the _initInviteCheck listener pattern
+                // Simulate the reactive listener pattern
                 if (userContext.user != null && !listenerFired) {
                   listenerFired = true;
                   displayedUserName = userContext.displayName;
@@ -444,49 +390,7 @@ void main() {
       // The real test is that _performInviteCheck is called once.
     });
 
-    /// Test 3: Verify invite check happens when user exists on init
-    testWidgets('should check invites immediately if user already exists',
-        (WidgetTester tester) async {
-      // User already logged in
-      mockUserContext.setUser(createTestUser());
-      mockPendingInvitesProvider.setHasChecked(false);
-
-      bool inviteCheckCalled = false;
-
-      await tester.pumpWidget(
-        MultiProvider(
-          providers: [
-            ChangeNotifierProvider<MockUserContext>.value(
-                value: mockUserContext),
-            ChangeNotifierProvider<MockPendingInvitesProvider>.value(
-                value: mockPendingInvitesProvider),
-          ],
-          child: MaterialApp(
-            home: Builder(
-              builder: (context) {
-                final userContext = context.watch<MockUserContext>();
-                final pendingProvider =
-                    context.read<MockPendingInvitesProvider>();
-
-                // Simulate _initInviteCheck logic
-                if (userContext.user != null && !pendingProvider.hasChecked) {
-                  inviteCheckCalled = true;
-                  // In real code: _performInviteCheck()
-                }
-
-                return const Scaffold(body: Text('Dashboard'));
-              },
-            ),
-          ),
-        ),
-      );
-
-      await tester.pumpAndSettle();
-
-      expect(inviteCheckCalled, true,
-          reason:
-              'Invite check should be triggered immediately when user exists');
-    });
+    // Note: Test for invite checking removed - feature was removed from app
   });
 
   // ===========================================================================
@@ -627,51 +531,9 @@ void main() {
   // ===========================================================================
   group('Integration - Provider Interactions', () {
     late MockUserContext mockUserContext;
-    late MockPendingInvitesProvider mockPendingInvitesProvider;
 
     setUp(() {
       mockUserContext = MockUserContext();
-      mockPendingInvitesProvider = MockPendingInvitesProvider();
-    });
-
-    testWidgets('should not check invites if already checked',
-        (WidgetTester tester) async {
-      mockUserContext.setUser(createTestUser());
-      mockPendingInvitesProvider.setHasChecked(true); // Already checked
-
-      int checkCallCount = 0;
-
-      await tester.pumpWidget(
-        MultiProvider(
-          providers: [
-            ChangeNotifierProvider<MockUserContext>.value(
-                value: mockUserContext),
-            ChangeNotifierProvider<MockPendingInvitesProvider>.value(
-                value: mockPendingInvitesProvider),
-          ],
-          child: MaterialApp(
-            home: Builder(
-              builder: (context) {
-                final userContext = context.watch<MockUserContext>();
-                final pendingProvider =
-                    context.watch<MockPendingInvitesProvider>();
-
-                // Simulate _performInviteCheck guard
-                if (userContext.user != null && !pendingProvider.hasChecked) {
-                  checkCallCount++;
-                }
-
-                return const Scaffold(body: Text('Test'));
-              },
-            ),
-          ),
-        ),
-      );
-
-      await tester.pumpAndSettle();
-
-      expect(checkCallCount, 0,
-          reason: 'Should skip invite check when hasChecked is true');
     });
 
     testWidgets('should handle user logout gracefully',

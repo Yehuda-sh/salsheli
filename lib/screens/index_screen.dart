@@ -3,11 +3,6 @@
 // מסך פתיחה (Splash) - בודק מצב משתמש ומנווט למסך המתאים.
 // Flow: מחובר→/home, לא ראה welcome→WelcomeScreen, אחרת→/login.
 //
-// ✅ תיקונים:
-//    - _isChecking flag למניעת race condition בבדיקות מקבילות
-//    - ביטול Timer כש-isLoading נהיה false (ניווט מהיר יותר)
-//    - timeout לזיהוי מצב "תקוע" (Firebase מחובר אבל UserContext לא מסתנכרן)
-//
 // 🔗 Related: index_view, UserContext, WelcomeScreen, SharedPreferences
 
 import 'dart:async';
@@ -32,7 +27,7 @@ class _IndexScreenState extends State<IndexScreen> {
   bool _hasNavigated = false; // מונע navigation כפול
   bool _hasError = false; // מצב שגיאה
   bool _listenerAdded = false; // עוקב אחרי הוספת listener
-  bool _isChecking = false; // ✅ מונע בדיקות מקבילות (race condition fix)
+  bool _isChecking = false; // מונע בדיקות מקבילות
   Timer? _delayTimer; // Timer לביטול במקרה של dispose
   Timer? _syncTimeoutTimer; // ✅ Timeout למצב "תקוע" (Firebase מחובר, UserContext לא)
   DateTime? _waitingForSyncSince; // ✅ מתי התחלנו לחכות לסנכרון
@@ -71,7 +66,7 @@ class _IndexScreenState extends State<IndexScreen> {
 
   /// מגדיר listener ל-UserContext שיגיב לשינויים
   void _setupListener() {
-    // ✅ FIX: Guard למניעת listener כפול
+    // Guard למניעת listener כפול
     if (_listenerAdded) return;
 
     final userContext = Provider.of<UserContext>(context, listen: false);
@@ -111,7 +106,7 @@ class _IndexScreenState extends State<IndexScreen> {
         return; // ה-listener יקרא לנו שוב כש-isLoading ישתנה
       }
 
-      // 🔧 FIX: אם Firebase Auth מצביע על משתמש אבל UserContext עדיין לא עדכן - נחכה!
+      // אם Firebase Auth מצביע על משתמש אבל UserContext עדיין לא עדכן - נחכה
       if (firebaseUser != null && !userContext.isLoggedIn) {
         // ✅ התחל לעקוב אחרי זמן ההמתנה
         _waitingForSyncSince ??= DateTime.now();
@@ -122,7 +117,7 @@ class _IndexScreenState extends State<IndexScreen> {
         if (waitingSeconds >= _syncTimeoutSeconds) {
           // 🚨 Timeout! נסה לרענן את UserContext או הצג שגיאה
           _syncTimeoutTimer?.cancel();
-          _syncTimeoutTimer = null; // 🔧 FIX: null לאחר cancel (עבור ??=)
+          _syncTimeoutTimer = null;
           _isChecking = false;
 
           // ניסיון אחד לרענן
@@ -157,7 +152,7 @@ class _IndexScreenState extends State<IndexScreen> {
       // ✅ איפוס מעקב המתנה - כבר לא מחכים לסנכרון
       _waitingForSyncSince = null;
       _syncTimeoutTimer?.cancel();
-      _syncTimeoutTimer = null; // 🔧 FIX: null לאחר cancel (עבור ??=)
+      _syncTimeoutTimer = null;
 
       // ✅ מצב 1: משתמש מחובר → ישר לדף הבית
       if (userContext.isLoggedIn) {
@@ -217,7 +212,7 @@ class _IndexScreenState extends State<IndexScreen> {
 
   /// retry לאחר שגיאה
   void _retry() {
-    // 🔧 FIX: איפוס מלא של מצב הטיימרים והמתנה
+    // איפוס מצב הטיימרים והמתנה
     _waitingForSyncSince = null;
     _delayTimer?.cancel();
     _delayTimer = null;

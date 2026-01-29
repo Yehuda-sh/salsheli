@@ -209,20 +209,24 @@ class OnboardingData {
     return filtered;
   }
 
-  /// סינון חנויות תקינות בלבד
-  /// 
-  /// מסיר חנויות שלא קיימות ב-StoresConfig.allStores
+  /// נורמליזציה של חנויות
+  ///
+  /// ✅ רשימה פתוחה - לא מסננים חנויות לא מוכרות!
+  /// - חנות מוכרת (שם עברי או קוד) → ממירים לקוד קנוני
+  /// - חנות לא מוכרת → שומרים את הטקסט כמו שהוא
   static Set<String> _filterValidStores(Set<String> stores) {
-    final validStores = stores.where(StoresConfig.isValid).toSet();
-    
-    if (kDebugMode && stores.length != validStores.length) {
-      final invalid = stores.difference(validStores);
-      debugPrint(
-        '⚠️ OnboardingData: הוסרו חנויות לא תקינות: ${invalid.join(', ')}',
-      );
+    final normalized = stores.map(StoresConfig.resolve).toSet();
+
+    if (kDebugMode) {
+      final unknown = normalized.where((s) => !StoresConfig.isKnown(s)).toList();
+      if (unknown.isNotEmpty) {
+        debugPrint(
+          '📝 OnboardingData: חנויות לא מוכרות (נשמרות כטקסט): ${unknown.join(', ')}',
+        );
+      }
     }
-    
-    return validStores;
+
+    return normalized;
   }
 
 

@@ -5,13 +5,15 @@
 //
 // 📌 API מרכזי:
 //    - StorageLocationsConfig.getLocationInfo(id) - מחזיר LocationInfo מלא
+//    - StorageLocationsConfig.resolve(id) - מחזיר id תקין (fallback ל-other)
 //    - StorageLocationsConfig.getName(id) - קיצור ל-getLocationInfo(id).name
 //    - StorageLocationsConfig.getIcon(id) - קיצור ל-getLocationInfo(id).icon
 //
-// ✅ תיקונים:
-//    - טקסטים מ-AppStrings (i18n ready)
-//    - אייקונים ייחודיים לכל מיקום (תוקן: מזווה ≠ מקרר)
-//    - הוסר "משטח מטבח" - לא מיקום אחסון אמיתי
+// 📜 חוקי עבודה:
+// - IDs הם חוזה נתונים: לא משנים IDs לעולם, רק מוסיפים
+// - id לא מוכר → fallback ל-other
+// - allLocations = סדר UX (מזווה → מקרר → מקפיא → אחר)
+// - other חייב להיות אחרון
 //
 // 🔗 Related: InventoryItem, LocationsProvider, AppStrings.inventory
 
@@ -88,12 +90,29 @@ class StorageLocationsConfig {
   // רשימת כל המיקומים
   // ========================================
 
+  /// סדר UX: מזווה → מקרר → מקפיא → אחר
+  /// ✅ other חייב להיות אחרון (fallback)
   static const List<String> allLocations = [
     mainPantry,
     refrigerator,
     freezer,
-    other,
+    other, // ✅ תמיד אחרון (fallback)
   ];
+
+  /// ✅ מחזיר id תקין - fallback ל-other
+  ///
+  /// API בטוח שלא יפיל UI:
+  /// - id לא מוכר → מחזיר other
+  /// - id == null → מחזיר other
+  static String resolve(String? locationId) {
+    if (locationId == null) return other;
+    if (_locationData.containsKey(locationId)) return locationId;
+
+    if (kDebugMode) {
+      debugPrint('⚠️ StorageLocationsConfig.resolve: id לא מוכר "$locationId" → fallback ל-other');
+    }
+    return other;
+  }
 
   // ========================================
   // מיפוי למידע מלא
@@ -130,9 +149,9 @@ class StorageLocationsConfig {
   /// מחזיר את שם המיקום בעברית (מ-AppStrings)
   /// 📌 קיצור ל-getLocationInfo(id).name
   static String getName(String locationId) {
-    // ✅ בדיקת ייחודיות בזמן פיתוח בלבד
+    // ✅ בדיקת תקינות בזמן פיתוח בלבד
     if (kDebugMode) {
-      _ensureNoDuplicateIds();
+      ensureSanity();
     }
     return getLocationInfo(locationId).name;
   }
@@ -145,6 +164,8 @@ class StorageLocationsConfig {
 
   /// מחזיר את המידע המלא על המיקום (API מרכזי)
   ///
+  /// ✅ id לא מוכר → fallback ל-other (לא "unknown")
+  ///
   /// Example:
   /// ```dart
   /// final info = StorageLocationsConfig.getLocationInfo('main_pantry');
@@ -152,12 +173,7 @@ class StorageLocationsConfig {
   /// print(info.name);  // מזווה
   /// ```
   static LocationInfo getLocationInfo(String locationId) {
-    return _locationData[locationId] ??
-        const LocationInfo(
-          id: 'unknown',
-          emoji: '❓',
-          icon: Icons.help_outline,
-        );
+    return _locationData[locationId] ?? _locationData[other]!;
   }
 
   /// בודק אם מיקום תקין
@@ -191,30 +207,58 @@ class StorageLocationsConfig {
   // 🔧 Debug Validation
   // ========================================
 
-  static bool _idsValidated = false;
+  static bool _sanityChecked = false;
 
-  /// 🔍 בדיקת ייחודיות IDs (רצה פעם אחת בדיבאג)
-  static void _ensureNoDuplicateIds() {
-    if (_idsValidated) return;
-    _idsValidated = true;
+  /// 🔍 Sanity check - בדיקת פיתוח בלבד
+  ///
+  /// מוודא:
+  /// 1. אין כפילויות IDs ב-allLocations
+  /// 2. התאמה 1:1 בין allLocations ל-_locationData
+  /// 3. other הוא אחרון (סדר UX)
+  static void ensureSanity() {
+    if (!kDebugMode) return;
+    if (_sanityChecked) return;
+    _sanityChecked = true;
 
+    // 1️⃣ בדיקת כפילויות
     final ids = <String>{};
     for (final id in allLocations) {
       if (ids.contains(id)) {
-        assert(false, 'כפילות ID במיקומי אחסון! ID: "$id"');
+        assert(false, '❌ StorageLocationsConfig: כפילות ID! "$id"');
       }
       ids.add(id);
     }
 
-    // ודא שכל מיקום ב-allLocations קיים ב-_locationData
-    for (final id in allLocations) {
-      if (!_locationData.containsKey(id)) {
-        assert(false, 'מיקום "$id" נמצא ב-allLocations אך חסר ב-_locationData!');
-      }
+    // 2️⃣ בדיקת התאמה 1:1 בין allLocations ל-_locationData
+    final listKeys = allLocations.toSet();
+    final dataKeys = _locationData.keys.toSet();
+
+    // בדיקת IDs חסרים ב-_locationData
+    final missingInData = listKeys.difference(dataKeys);
+    if (missingInData.isNotEmpty) {
+      assert(false,
+        '❌ StorageLocationsConfig: חסר LocationInfo עבור: $missingInData\n'
+        'הוסף LocationInfo ל-_locationData',
+      );
     }
 
-    if (kDebugMode) {
-      debugPrint('✅ StorageLocationsConfig: ${allLocations.length} מיקומים, כל ה-IDs ייחודיים');
+    // בדיקת IDs מיותרים ב-_locationData
+    final extraInData = dataKeys.difference(listKeys);
+    if (extraInData.isNotEmpty) {
+      assert(false,
+        '❌ StorageLocationsConfig: יש LocationInfo ללא הגדרה ב-allLocations: $extraInData\n'
+        'הוסף את ה-IDs ל-allLocations או הסר מ-_locationData',
+      );
     }
+
+    // 3️⃣ בדיקה ש-other הוא אחרון
+    if (allLocations.isNotEmpty && allLocations.last != other) {
+      assert(false,
+        '❌ StorageLocationsConfig: "$other" חייב להיות אחרון ב-allLocations! '
+        'נמצא: "${allLocations.last}"',
+      );
+    }
+
+    debugPrint('✅ StorageLocationsConfig.ensureSanity(): ${allLocations.length} מיקומים, התאמה מלאה');
   }
 }
