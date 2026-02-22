@@ -127,7 +127,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
         backgroundColor: StatusColors.warning,
         behavior: SnackBarBehavior.floating,
         action: SnackBarAction(
-          label: 'הבנתי',
+          label: AppStrings.checklist.gotItButton,
           textColor: Colors.white,
           onPressed: () {
             ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -230,7 +230,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                               overflow: TextOverflow.ellipsis,
                             ),
                             Text(
-                              'צ\'קליסט ✓',
+                              AppStrings.checklist.subtitle,
                               style: TextStyle(
                                 fontSize: kFontSizeSmall,
                                 color: cs.onSurfaceVariant,
@@ -242,7 +242,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                       // ⚠️ אינדיקציית שגיאת סנכרון - לחיץ להצגת הודעה
                       if (_hasSyncError)
                         IconButton(
-                          icon: const Icon(Icons.cloud_off, color: Colors.amber, size: 20),
+                          icon: const Icon(Icons.cloud_off, color: StatusColors.warning, size: 20),
                           tooltip: AppStrings.common.syncError,
                           onPressed: _showSyncErrorSnackbar,
                         ),
@@ -251,23 +251,23 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                         icon: Icon(Icons.more_vert, color: cs.onSurfaceVariant),
                         onSelected: _toggleAll,
                         itemBuilder: (context) => [
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: true,
                             child: Row(
                               children: [
-                                Icon(Icons.check_box, color: StatusColors.success),
-                                SizedBox(width: kSpacingSmall),
-                                Text('סמן הכל'),
+                                const Icon(Icons.check_box, color: StatusColors.success),
+                                const SizedBox(width: kSpacingSmall),
+                                Text(AppStrings.checklist.checkAll),
                               ],
                             ),
                           ),
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: false,
                             child: Row(
                               children: [
-                                Icon(Icons.check_box_outline_blank, color: Colors.grey),
-                                SizedBox(width: kSpacingSmall),
-                                Text('בטל הכל'),
+                                Icon(Icons.check_box_outline_blank, color: cs.onSurfaceVariant),
+                                const SizedBox(width: kSpacingSmall),
+                                Text(AppStrings.checklist.uncheckAll),
                               ],
                             ),
                           ),
@@ -310,7 +310,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                             ' / $totalItems',
                             style: TextStyle(
                               fontSize: 24,
-                              color: Colors.grey.shade600,
+                              color: cs.onSurfaceVariant,
                             ),
                           ),
                           if (allChecked) ...[
@@ -340,10 +340,10 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
 
                       // אחוזים
                       Text(
-                        '${(progress * 100).toInt()}% הושלם',
+                        AppStrings.checklist.percentComplete((progress * 100).toInt()),
                         style: TextStyle(
                           fontSize: kFontSizeSmall,
-                          color: Colors.grey.shade600,
+                          color: cs.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -472,7 +472,7 @@ class _ChecklistItemTile extends StatelessWidget {
                     child: Icon(
                       Icons.notes,
                       size: 18,
-                      color: Colors.grey.withValues(alpha: 0.5),
+                      color: cs.onSurfaceVariant.withValues(alpha: 0.5),
                     ),
                   ),
               ],
@@ -504,7 +504,7 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: kSpacingMedium),
           Text(
-            'הרשימה ריקה',
+            AppStrings.checklist.emptyTitle,
             style: TextStyle(
               fontSize: kFontSizeMedium,
               color: cs.onSurfaceVariant,
@@ -512,7 +512,7 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: kSpacingSmall),
           Text(
-            'הוסף פריטים לצ\'קליסט',
+            AppStrings.checklist.emptySubtitle,
             style: TextStyle(
               fontSize: kFontSizeSmall,
               color: cs.onSurfaceVariant.withValues(alpha: 0.7),

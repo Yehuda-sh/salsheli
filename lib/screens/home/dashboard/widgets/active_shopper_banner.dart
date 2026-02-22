@@ -4,7 +4,7 @@
 // 1. המשתמש הנוכחי יש לו קנייה פעילה → "להמשיך קנייה?"
 // 2. מישהו אחר קונה מרשימה משותפת → "קניות מתבצעות!"
 //
-// Version: 2.0 (11/01/2026) - הוספת באנר לקנייה פעילה של המשתמש
+// Version: 3.0 (04/02/2026) - הצגת שם קונה, כפתור צפייה חיה read-only
 // 🔗 Related: ShoppingList, ActiveShopper
 
 import 'dart:async';
@@ -69,11 +69,20 @@ class ActiveShopperBanner extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final shopperCount = othersShoppingList.activeShoppers.where((s) => s.isActive).length;
+    final activeShoppers = othersShoppingList.activeShoppers.where((s) => s.isActive).toList();
+    final shopperCount = activeShoppers.length;
+
+    // Resolve first shopper name from sharedUsers
+    String? firstShopperName;
+    if (activeShoppers.isNotEmpty) {
+      final firstShopper = activeShoppers.first;
+      firstShopperName = othersShoppingList.sharedUsers[firstShopper.userId]?.userName;
+    }
 
     return _OthersShoppingBanner(
       list: othersShoppingList,
       shopperCount: shopperCount,
+      firstShopperName: firstShopperName,
     );
   }
 }
@@ -198,10 +207,12 @@ class _MyActiveShoppingBanner extends StatelessWidget {
 class _OthersShoppingBanner extends StatelessWidget {
   final ShoppingList list;
   final int shopperCount;
+  final String? firstShopperName;
 
   const _OthersShoppingBanner({
     required this.list,
     required this.shopperCount,
+    this.firstShopperName,
   });
 
   @override
@@ -253,7 +264,9 @@ class _OthersShoppingBanner extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        strings.othersActiveTitle,
+                        shopperCount == 1
+                            ? strings.othersActiveTitle(firstShopperName ?? list.name)
+                            : strings.othersActiveTitleMultiple(shopperCount),
                         style: theme.textTheme.titleSmall?.copyWith(
                           // ✅ FIX: Theme-aware color
                           color: cs.onPrimary,
@@ -344,8 +357,8 @@ class _OthersShoppingBanner extends StatelessWidget {
     unawaited(HapticFeedback.lightImpact());
     Navigator.pushNamed(
       context,
-      '/list-details',
-      arguments: list,
+      '/active-shopping',
+      arguments: {'list': list, 'readOnly': true},
     );
   }
 }

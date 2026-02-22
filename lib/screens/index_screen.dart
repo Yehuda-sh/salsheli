@@ -31,6 +31,7 @@ class _IndexScreenState extends State<IndexScreen> {
   Timer? _delayTimer; // Timer לביטול במקרה של dispose
   Timer? _syncTimeoutTimer; // ✅ Timeout למצב "תקוע" (Firebase מחובר, UserContext לא)
   DateTime? _waitingForSyncSince; // ✅ מתי התחלנו לחכות לסנכרון
+  UserContext? _userContext; // ✅ שמור reference — בטוח לשימוש ב-dispose
 
   // ⏱️ קבועים
   static const _initialDelayMs = 600;
@@ -44,7 +45,8 @@ class _IndexScreenState extends State<IndexScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 
-      final userContext = Provider.of<UserContext>(context, listen: false);
+      _userContext = Provider.of<UserContext>(context, listen: false);
+      final userContext = _userContext!;
 
       // 🔧 אם Firebase כבר טעון - אין צורך ב-delay
       if (!userContext.isLoading) {
@@ -213,6 +215,7 @@ class _IndexScreenState extends State<IndexScreen> {
   /// retry לאחר שגיאה
   void _retry() {
     // איפוס מצב הטיימרים והמתנה
+    _isChecking = false;
     _waitingForSyncSince = null;
     _delayTimer?.cancel();
     _delayTimer = null;
@@ -232,14 +235,9 @@ class _IndexScreenState extends State<IndexScreen> {
     _delayTimer?.cancel();
     _syncTimeoutTimer?.cancel();
 
-    // ✅ ניקוי listener - רק אם הוסף
-    if (_listenerAdded) {
-      try {
-        final userContext = Provider.of<UserContext>(context, listen: false);
-        userContext.removeListener(_onUserContextChanged);
-      } catch (e) {
-        // Silent failure - widget already disposed
-      }
+    // ✅ ניקוי listener — משתמש ב-reference שנשמר (בטוח ב-dispose)
+    if (_listenerAdded && _userContext != null) {
+      _userContext!.removeListener(_onUserContextChanged);
     }
     super.dispose();
   }

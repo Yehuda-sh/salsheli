@@ -76,6 +76,8 @@ class _AppLayoutState extends State<AppLayout> {
   /// - Context safety after async
   /// - User feedback with SnackBar
   Future<void> _logout(BuildContext context) async {
+    if (!mounted) return;
+
     if (kDebugMode) {
       debugPrint('🚪 AppLayout.logout: התחלת התנתקות');
     }
@@ -284,24 +286,24 @@ class _AppLayoutState extends State<AppLayout> {
         backgroundColor: cs.surfaceContainer,
         indicatorColor: cs.primary.withValues(alpha: 0.12),
         destinations: _navItems.asMap().entries.map((entry) {
-        final index = entry.key;
-        final item = entry.value;
-        final badgeCount = widget.badges?[index];
+          final index = entry.key;
+          final item = entry.value;
+          final badgeCount = widget.badges?[index];
 
-        Widget icon = Icon(item.icon);
-        Widget selectedIcon = Icon(item.icon, color: cs.primary);
+          Widget icon = Icon(item.icon);
+          Widget selectedIcon = Icon(item.icon, color: cs.primary);
 
-        if (badgeCount != null && badgeCount > 0) {
-          icon = _buildAnimatedBadge(icon, badgeCount, cs);
-          selectedIcon = _buildAnimatedBadge(selectedIcon, badgeCount, cs);
-        }
+          if (badgeCount != null && badgeCount > 0) {
+            icon = _buildAnimatedBadge(icon, badgeCount, cs);
+            selectedIcon = _buildAnimatedBadge(selectedIcon, badgeCount, cs);
+          }
 
-        return NavigationDestination(
-          icon: icon,
-          selectedIcon: selectedIcon,
-          label: item.label,
-        );
-      }).toList(),
+          return NavigationDestination(
+            icon: icon,
+            selectedIcon: selectedIcon,
+            label: item.label,
+          );
+        }).toList(),
       ),
     );
   }
@@ -347,40 +349,23 @@ class _AnimatedIconButton extends StatefulWidget {
 class _AnimatedIconButtonState extends State<_AnimatedIconButton> {
   bool _isPressed = false;
 
-  void _handleTapDown(TapDownDetails details) {
-    setState(() => _isPressed = true);
-  }
-
-  void _handleTapUp(TapUpDetails details) {
-    setState(() => _isPressed = false);
-    widget.onPressed();
-  }
-
-  void _handleTapCancel() {
-    setState(() => _isPressed = false);
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
-      message: widget.tooltip,
-      child: Semantics(
-        button: true,
-        label: widget.tooltip,
-        child: GestureDetector(
-          onTapDown: _handleTapDown,
-          onTapUp: _handleTapUp,
-          onTapCancel: _handleTapCancel,
-          child: AnimatedScale(
-            scale: _isPressed ? 0.92 : 1.0,
-            duration: const Duration(milliseconds: 100),
-            curve: Curves.easeOut,
-            child: IconButton(
-              icon: widget.icon,
-              color: widget.color,
-              onPressed: null, // Handled by GestureDetector
-            ),
-          ),
+    // ✅ Listener for animation only (doesn't compete in gesture arena)
+    // ✅ IconButton handles action, ripple, keyboard focus, a11y, tooltip
+    return AnimatedScale(
+      scale: _isPressed ? 0.92 : 1.0,
+      duration: const Duration(milliseconds: 100),
+      curve: Curves.easeOut,
+      child: Listener(
+        onPointerDown: (_) => setState(() => _isPressed = true),
+        onPointerUp: (_) => setState(() => _isPressed = false),
+        onPointerCancel: (_) => setState(() => _isPressed = false),
+        child: IconButton(
+          icon: widget.icon,
+          color: widget.color,
+          tooltip: widget.tooltip,
+          onPressed: widget.onPressed,
         ),
       ),
     );
@@ -463,7 +448,8 @@ class _NavItem {
 /// Note: Uses AppStrings for consistent i18n support.
 /// These items define the bottom navigation structure.
 /// Version 6.0: New navigation - Home | Pantry | History | Settings
-final List<_NavItem> _navItems = [
+/// ✅ Getter (not final) so labels update on locale change
+List<_NavItem> get _navItems => [
   _NavItem(icon: Icons.home, label: AppStrings.navigation.home),
   _NavItem(icon: Icons.inventory_2_outlined, label: AppStrings.navigation.pantry),
   _NavItem(icon: Icons.receipt_long, label: AppStrings.navigation.history),

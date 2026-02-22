@@ -62,8 +62,9 @@ import '../../home/dashboard/widgets/last_chance_banner.dart';
 
 class ActiveShoppingScreen extends StatefulWidget {
   final ShoppingList list;
+  final bool readOnly;
 
-  const ActiveShoppingScreen({super.key, required this.list});
+  const ActiveShoppingScreen({super.key, required this.list, this.readOnly = false});
 
   @override
   State<ActiveShoppingScreen> createState() => _ActiveShoppingScreenState();
@@ -310,6 +311,8 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
   Future<void> _retrySyncAll() async {
     debugPrint('🔄 _retrySyncAll: מנסה לסנכרן הכל...');
 
+    // ✅ Cache before async
+    final messenger = ScaffoldMessenger.of(context);
     final provider = context.read<ShoppingListsProvider>();
     bool anyFailed = false;
 
@@ -329,7 +332,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       });
 
       if (!anyFailed) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(
             content: Row(
               children: [
@@ -616,7 +619,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
             actions: [
               TextButton(
                 onPressed: () {
-                  unawaited(HapticFeedback.lightImpact());
                   Navigator.pop(context, false);
                 },
                 child: Text(AppStrings.common.cancel),
@@ -762,8 +764,9 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     final productsProvider = context.watch<ProductsProvider>();
     final itemsByCategory = <String, List<UnifiedListItem>>{};
     for (final item in widget.list.items) {
-      final product = productsProvider.getByName(item.name);
-      final category = product?['category'] as String? ?? AppStrings.shopping.categoryGeneral;
+      final category = item.category
+          ?? (productsProvider.getByName(item.name)?['category'] as String?)
+          ?? AppStrings.shopping.categoryGeneral;
       itemsByCategory.putIfAbsent(category, () => []).add(item);
     }
 
@@ -1143,7 +1146,7 @@ class _ErrorStateScreen extends StatelessWidget {
             ),
             const SizedBox(height: kSpacingLarge),
             Semantics(
-              label: 'נסה לטעון שוב',
+              label: AppStrings.shopping.retryLoadSemantics,
               button: true,
               child: StickyButton(label: AppStrings.common.retry, icon: Icons.refresh, onPressed: onRetry, color: StatusColors.info),
             ),
@@ -1566,18 +1569,17 @@ class _ShoppingSummaryDialogState extends State<_ShoppingSummaryDialog> {
       ),
       actions: [
         Semantics(
-          label: 'חזור לרשימה',
+          label: AppStrings.shopping.backToListSemantics,
           button: true,
           child: TextButton(
             onPressed: () {
-              unawaited(HapticFeedback.lightImpact());
               Navigator.pop(context, ShoppingSummaryResult.cancel);
             },
             child: Text(AppStrings.shopping.summaryBack),
           ),
         ),
         Semantics(
-          label: 'סיים קנייה ושמור',
+          label: AppStrings.shopping.finishAndSaveSemantics,
           button: true,
           child: StickyButton(
             label: AppStrings.shopping.summaryFinishShopping,
@@ -1669,7 +1671,6 @@ class _ShoppingSummaryDialogState extends State<_ShoppingSummaryDialog> {
       actions: [
         TextButton(
           onPressed: () {
-            unawaited(HapticFeedback.lightImpact());
             setState(() => _showPendingOptions = false);
           },
           child: Text(AppStrings.shopping.summaryBack),

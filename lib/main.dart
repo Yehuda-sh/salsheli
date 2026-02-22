@@ -412,9 +412,19 @@ class MyApp extends StatelessWidget {
               return MaterialPageRoute(builder: (_) => ShoppingSummaryScreen(listId: listId));
             }
 
-            // active-shopping - receives ShoppingList object
+            // active-shopping - receives ShoppingList or Map with readOnly flag
             if (settings.name == '/active-shopping') {
-              final list = settings.arguments as ShoppingList?;
+              ShoppingList? list;
+              bool readOnly = false;
+
+              if (settings.arguments is ShoppingList) {
+                list = settings.arguments as ShoppingList;
+              } else if (settings.arguments is Map) {
+                final args = settings.arguments as Map;
+                list = args['list'] as ShoppingList?;
+                readOnly = args['readOnly'] as bool? ?? false;
+              }
+
               if (list == null) {
                 return MaterialPageRoute(
                   builder: (_) => _RouteErrorScreen(
@@ -423,7 +433,9 @@ class MyApp extends StatelessWidget {
                   ),
                 );
               }
-              return MaterialPageRoute(builder: (_) => ActiveShoppingScreen(list: list));
+              return MaterialPageRoute(
+                builder: (_) => ActiveShoppingScreen(list: list!, readOnly: readOnly),
+              );
             }
 
             // list-details / populate-list - receives ShoppingList object

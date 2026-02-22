@@ -1,13 +1,13 @@
 // 📄 lib/widgets/common/notebook_background.dart
 //
-// רקע מחברת עם קווים כחולים וקו אדום - CustomPaint יעיל.
-// קווים אופקיים כחולים + קו אדום אנכי RTL-aware.
+// רקע מחברת עם קווים - CustomPaint יעיל.
+// תומך Hybrid Premium: opacity/color/fade מותאמים לכל מסך.
 //
-// ✅ תיקונים:
-//    - הוספת RepaintBoundary לביצועים (מונע רינדור חוזר)
-//    - הוספת ExcludeSemantics (רקע דקורטיבי, לא לקוראי מסך)
-//    - צבע רקע מ-AppBrand.paperBackground (תומך Dark Mode)
-//    - קו אדום RTL-aware (ימין באפליקציה עברית)
+// ✅ פרמטרים חדשים:
+//    - lineOpacity: עוצמת הקווים (ברירת מחדל: kNotebookLineOpacity)
+//    - lineColor: צבע קווים מותאם (ברירת מחדל: מ-AppBrand)
+//    - showRedLine: הצגת קו אדום (ברירת מחדל: true)
+//    - fadeEdges: fade עדין למעלה ולמטה (ברירת מחדל: false)
 //
 // 🔗 Related: ui_constants.dart, app_theme.dart (AppBrand)
 
@@ -17,32 +17,57 @@ import '../../theme/app_theme.dart';
 
 /// רקע בסגנון מחברת עם קווים אופקיים וקו אדום אנכי
 ///
-/// מציג רקע נייר עם קווים כחולים כמו במחברת בית ספר אמיתית,
-/// כולל קו אדום מצד שמאל (או ימין ב-RTL) למראה אותנטי.
+/// מציג רקע נייר עם קווים כמו במחברת בית ספר אמיתית.
+/// תומך ב-Hybrid Premium: כל מסך שולט על עוצמת הקווים.
 ///
-/// הרכיב משתמש ב-CustomPaint לציור יעיל של הקווים.
-///
-/// Features:
-/// - RepaintBoundary למניעת רינדור חוזר מיותר
-/// - ExcludeSemantics - רקע דקורטיבי, לא לקוראי מסך
-/// - צבע רקע מ-AppBrand.paperBackground (תומך Dark Mode)
-/// - קו אדום RTL-aware (ימין באפליקציה עברית)
-///
-/// דוגמה:
+/// דוגמה (Hybrid Premium - עדין מאוד):
 /// ```dart
-/// Scaffold(
-///   body: Stack(
-///     children: [
-///       NotebookBackground(), // רקע מחברת
-///       SafeArea(
-///         child: YourContent(), // התוכן שלך
-///       ),
-///     ],
-///   ),
+/// NotebookBackground(
+///   lineOpacity: kNotebookLineOpacitySubtle,
+///   lineColor: kNotebookBlueSoft,
+///   showRedLine: false,
+///   fadeEdges: true,
 /// )
 /// ```
+///
+/// דוגמה (קלאסי - כמו קודם):
+/// ```dart
+/// const NotebookBackground() // ברירת מחדל = קווים בולטים
+/// ```
 class NotebookBackground extends StatelessWidget {
-  const NotebookBackground({super.key});
+  /// עוצמת הקווים האופקיים (0.0 = שקוף, 1.0 = מלא)
+  /// ברירת מחדל: kNotebookLineOpacity (0.5)
+  final double? lineOpacity;
+
+  /// צבע הקווים האופקיים (אופציונלי)
+  /// ברירת מחדל: מ-AppBrand.notebookBlue
+  final Color? lineColor;
+
+  /// האם להציג קו אדום אנכי
+  /// ברירת מחדל: true
+  final bool showRedLine;
+
+  /// עוצמת הקו האדום (0.0 = שקוף, 1.0 = מלא)
+  /// ברירת מחדל: kNotebookRedLineOpacity (0.4)
+  final double? redLineOpacity;
+
+  /// רוחב הקו האדום
+  /// ברירת מחדל: kNotebookRedLineWidth (2.0)
+  final double? redLineWidth;
+
+  /// האם להוסיף fade עדין למעלה ולמטה
+  /// ברירת מחדל: false
+  final bool fadeEdges;
+
+  const NotebookBackground({
+    super.key,
+    this.lineOpacity,
+    this.lineColor,
+    this.showRedLine = true,
+    this.redLineOpacity,
+    this.redLineWidth,
+    this.fadeEdges = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -50,62 +75,124 @@ class NotebookBackground extends StatelessWidget {
     final brand = theme.extension<AppBrand>();
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
+    final effectiveLineColor = lineColor ?? brand?.notebookBlue ?? kNotebookBlue;
+    final effectiveLineOpacity = lineOpacity ?? kNotebookLineOpacity;
+
     // ✅ ExcludeSemantics - רקע דקורטיבי, לא רלוונטי לקוראי מסך
     // ✅ RepaintBoundary - מונע רינדור חוזר כשהתוכן מעל משתנה
-    return ExcludeSemantics(
+    Widget background = ExcludeSemantics(
       child: RepaintBoundary(
         child: SizedBox.expand(
           child: CustomPaint(
             painter: _NotebookPainter(
-              // ✅ צבע רקע מ-AppBrand (תומך Dark Mode)
               paperBackground: brand?.paperBackground ??
                   (theme.brightness == Brightness.dark ? kDarkPaperBackground : kPaperBackground),
-              notebookBlue: brand?.notebookBlue ?? kNotebookBlue,
+              notebookBlue: effectiveLineColor,
+              lineOpacity: effectiveLineOpacity,
               notebookRed: brand?.notebookRed ?? kNotebookRed,
+              redLineOpacity: redLineOpacity ?? kNotebookRedLineOpacity,
+              redLineWidth: redLineWidth ?? kNotebookRedLineWidth,
               isRtl: isRtl,
+              showRedLine: showRedLine,
             ),
           ),
         ),
       ),
     );
+
+    // Fade edges - gradient עדין למעלה ולמטה
+    if (fadeEdges) {
+      final bgColor = brand?.paperBackground ??
+          (theme.brightness == Brightness.dark ? kDarkPaperBackground : kPaperBackground);
+
+      background = Stack(
+        children: [
+          background,
+          // Fade למעלה
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 80,
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      bgColor,
+                      bgColor.withValues(alpha: 0),
+                    ],
+                  ),
+                ),
+                child: const SizedBox.expand(),
+              ),
+            ),
+          ),
+          // Fade למטה
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 80,
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [
+                      bgColor,
+                      bgColor.withValues(alpha: 0),
+                    ],
+                  ),
+                ),
+                child: const SizedBox.expand(),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return background;
   }
 }
 
 /// Painter עבור רקע המחברת
-///
-/// מצייר:
-/// 1. רקע נייר (מ-AppBrand.paperBackground)
-/// 2. קווים אופקיים כחולים (כמו שורות במחברת)
-/// 3. קו אדום אנכי (מימין ב-RTL, משמאל ב-LTR)
 class _NotebookPainter extends CustomPainter {
   final Color paperBackground;
   final Color notebookBlue;
+  final double lineOpacity;
   final Color notebookRed;
+  final double redLineOpacity;
+  final double redLineWidth;
   final bool isRtl;
+  final bool showRedLine;
 
   _NotebookPainter({
     required this.paperBackground,
     required this.notebookBlue,
+    required this.lineOpacity,
     required this.notebookRed,
+    required this.redLineOpacity,
+    required this.redLineWidth,
     required this.isRtl,
+    required this.showRedLine,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    // ✅ רקע נייר מ-Theme (כבר מחושב לפי Dark/Light)
+    // רקע נייר
     final bgPaint = Paint()..color = paperBackground;
+    canvas.drawRect(Offset.zero & size, bgPaint);
 
-    canvas.drawRect(
-      Offset.zero & size,
-      bgPaint,
-    );
-
-    // קווים כחולים כמו במחברת אמיתית 📘
+    // קווים אופקיים
     final bluePaint = Paint()
-      ..color = notebookBlue.withValues(alpha: kNotebookLineOpacity)
+      ..color = notebookBlue.withValues(alpha: lineOpacity)
       ..strokeWidth = 1.0;
 
-    // קווים אופקיים כמו במחברת
     for (double y = kNotebookLineSpacing;
         y < size.height;
         y += kNotebookLineSpacing) {
@@ -116,28 +203,33 @@ class _NotebookPainter extends CustomPainter {
       );
     }
 
-    // ✅ קו אדום - RTL-aware (ימין באפליקציה עברית) 📕
-    final redLinePaint = Paint()
-      ..color = notebookRed.withValues(alpha: kNotebookRedLineOpacity)
-      ..strokeWidth = kNotebookRedLineWidth;
+    // קו אדום אנכי (RTL-aware)
+    if (showRedLine) {
+      final redLinePaint = Paint()
+        ..color = notebookRed.withValues(alpha: redLineOpacity)
+        ..strokeWidth = redLineWidth;
 
-    // מיקום הקו: מימין ב-RTL, משמאל ב-LTR
-    final redLineX = isRtl
-        ? size.width - kNotebookRedLineOffset
-        : kNotebookRedLineOffset;
+      final redLineX = isRtl
+          ? size.width - kNotebookRedLineOffset
+          : kNotebookRedLineOffset;
 
-    canvas.drawLine(
-      Offset(redLineX, 0),
-      Offset(redLineX, size.height),
-      redLinePaint,
-    );
+      canvas.drawLine(
+        Offset(redLineX, 0),
+        Offset(redLineX, size.height),
+        redLinePaint,
+      );
+    }
   }
 
   @override
   bool shouldRepaint(covariant _NotebookPainter oldDelegate) {
     return paperBackground != oldDelegate.paperBackground ||
         notebookBlue != oldDelegate.notebookBlue ||
+        lineOpacity != oldDelegate.lineOpacity ||
         notebookRed != oldDelegate.notebookRed ||
-        isRtl != oldDelegate.isRtl;
+        redLineOpacity != oldDelegate.redLineOpacity ||
+        redLineWidth != oldDelegate.redLineWidth ||
+        isRtl != oldDelegate.isRtl ||
+        showRedLine != oldDelegate.showRedLine;
   }
 }

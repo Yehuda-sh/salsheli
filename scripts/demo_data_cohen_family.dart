@@ -2067,7 +2067,7 @@ List<Map<String, dynamic>> generateSharedLists(Map<String, String> uids) {
     'updated_date': now.toIso8601String(),
     'created_date': now.toIso8601String(),
     'status': 'active',
-    'type': 'supermarket',
+    'type': 'event',
     'budget': 3000.0,
     'is_shared': true,
     'created_by': ronitUid,
@@ -4255,17 +4255,23 @@ void main(List<String> args) async {
     print('🏪 יוצר פריטי מזווה...');
     print('━' * 60);
 
-    final aviUid = cohenUids[aviUserId]!;
     final inventory = generateInventoryItems();
+    final aviUid = cohenUids[aviUserId]!;
     for (final item in inventory) {
       print('   ${item['emoji'] ?? '📦'} ${item['product_name']} (${item['location']})');
       await writeSubDocument(
-        'users/$aviUid/inventory',  // 🔧 מזווה אישי תחת users
+        'households/$householdId/inventory',  // 🔧 מזווה משפחתי משותף
+        item['id'] as String,
+        item,
+      );
+      // 🔧 גם תחת users - כדי ש-InventoryProvider.fetchUserItems() ימצא
+      await writeSubDocument(
+        'users/$aviUid/inventory',
         item['id'] as String,
         item,
       );
     }
-    print('   ✅ ${inventory.length} פריטי מזווה נוצרו');
+    print('   ✅ ${inventory.length} פריטי מזווה נוצרו (households + users/$aviUid)');
     print('');
 
     // 9. Create Receipts
@@ -4322,17 +4328,16 @@ void main(List<String> args) async {
     }
     print('   ✅ ${leviLists.length} רשימות משותפות לוי נוצרו');
 
-    // Levi Inventory - מזווה אישי של דן
-    final danUid = additionalUids[danUserId]!;
+    // Levi Inventory - מזווה משפחתי משותף
     final leviInventory = generateLeviInventory();
     for (final item in leviInventory) {
       await writeSubDocument(
-        'users/$danUid/inventory',  // 🔧 מזווה אישי תחת users
+        'households/$leviHouseholdId/inventory',  // 🔧 מזווה משפחתי משותף
         item['id'] as String,
         item,
       );
     }
-    print('   ✅ ${leviInventory.length} פריטי מזווה לוי נוצרו');
+    print('   ✅ ${leviInventory.length} פריטי מזווה משפחתי לוי נוצרו');
 
     // Levi Receipts
     final leviReceipts = generateLeviReceipts();

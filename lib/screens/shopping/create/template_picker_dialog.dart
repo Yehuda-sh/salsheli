@@ -27,75 +27,50 @@ class TemplatePickerDialog extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: AlertDialog(
-      title: Text(strings.selectTemplateTitle),
-      content: SizedBox(
-        width: double.maxFinite,
-        child: templates.isEmpty
-            ? Padding(
-                padding: const EdgeInsets.all(32.0),
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        strings.noTemplatesAvailable,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
+        title: Text(strings.selectTemplateTitle),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: templates.isEmpty
+              ? Padding(
+                  padding: const EdgeInsets.all(32.0),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(strings.noTemplatesAvailable, style: const TextStyle(fontSize: 16, color: Colors.grey)),
+                        const SizedBox(height: 8),
+                        Text(
+                          strings.noTemplatesMessage,
+                          style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                          textAlign: TextAlign.center,
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        strings.noTemplatesMessage,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey.shade600,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            : ListView.builder(
-                shrinkWrap: true,
-                itemCount: templates.length,
-                itemBuilder: (context, index) {
-                  final template = templates[index];
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    child: ListTile(
-                      leading: Text(
-                        template.icon,
-                        style: const TextStyle(fontSize: 32),
-                      ),
-                      title: Text(
-                        template.name,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      subtitle: template.description != null
-                          ? Text(template.description!)
-                          : null,
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () {
-                        unawaited(HapticFeedback.selectionClick());
-                        Navigator.pop(context, template);
-                      },
+                      ],
                     ),
-                  );
-                },
-              ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(strings.cancelButton),
+                  ),
+                )
+              : ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: templates.length,
+                  itemBuilder: (context, index) {
+                    final template = templates[index];
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      child: ListTile(
+                        leading: Text(template.icon, style: const TextStyle(fontSize: 32)),
+                        title: Text(template.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        subtitle: template.description != null ? Text(template.description!) : null,
+                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                        onTap: () {
+                          unawaited(HapticFeedback.selectionClick());
+                          Navigator.pop(context, template);
+                        },
+                      ),
+                    );
+                  },
+                ),
         ),
-      ],
-    ),
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(strings.cancelButton))],
+      ),
     );
   }
 }

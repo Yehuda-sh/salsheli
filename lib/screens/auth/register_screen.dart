@@ -27,7 +27,9 @@ import '../../core/status_colors.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../providers/user_context.dart';
+import '../../services/auth_service.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/common/notebook_background.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -181,7 +183,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
             backgroundColor: StatusColors.getStatusContainer('success', context),
             duration: const Duration(seconds: 2),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadius)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusUnified)),
             margin: const EdgeInsets.all(kSpacingMedium),
           ),
         );
@@ -225,7 +227,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
             backgroundColor: StatusColors.getStatusContainer('error', context),
             duration: kSnackBarDurationLong,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadius)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusUnified)),
             margin: const EdgeInsets.all(kSpacingMedium),
           ),
         );
@@ -271,8 +273,9 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       if (kDebugMode) debugPrint('❌ _handleGoogleSignIn: $e');
       if (mounted) {
         setState(() => _isLoading = false);
-        // שגיאות ביטול לא מציגות הודעה
-        if (!e.toString().contains('בוטל')) {
+        // ✅ בדיקת ביטול לפי error code (לא string matching)
+        final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
+        if (!isCancelled) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -313,8 +316,9 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       if (kDebugMode) debugPrint('❌ _handleAppleSignIn: $e');
       if (mounted) {
         setState(() => _isLoading = false);
-        // שגיאות ביטול לא מציגות הודעה
-        if (!e.toString().contains('בוטל')) {
+        // ✅ בדיקת ביטול לפי error code (לא string matching)
+        final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
+        if (!isCancelled) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -359,13 +363,13 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
           hintText: hint,
           prefixIcon: Icon(icon),
           suffixIcon: suffixIcon,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(kBorderRadius)),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(kBorderRadiusUnified)),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(kBorderRadius),
+            borderRadius: BorderRadius.circular(kBorderRadiusUnified),
             borderSide: BorderSide(color: cs.primary, width: 2),
           ),
           filled: true,
-          fillColor: cs.surfaceContainerHighest,
+          fillColor: cs.surfaceContainerLow.withValues(alpha: 0.7),
           contentPadding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
           helperText: helperText,
           helperStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: kFontSizeTiny),
@@ -395,9 +399,16 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         }
       },
       child: Scaffold(
-        backgroundColor: cs.surface,
+        backgroundColor: brand?.paperBackground ?? kPaperBackground,
         body: Stack(
           children: [
+            // רקע מחברת עדין מאוד - brand texture (Auth = נקי, מינימלי)
+            const NotebookBackground(
+              lineOpacity: 0.10,
+              lineColor: kNotebookBlueSoft,
+              showRedLine: false,
+              fadeEdges: true,
+            ),
             // תוכן המסך
             SafeArea(
               child: Center(
@@ -424,15 +435,14 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                           children: [
                             const SizedBox(height: kSpacingMedium),
 
-                            // 📝 כותרת פשוטה - בלי לוגו
+                            // 📝 כותרת - Hybrid Premium style
                             Text(
                               AppStrings.auth.registerTitle,
                               style: theme.textTheme.headlineLarge?.copyWith(
                                 fontWeight: FontWeight.w800,
                                 fontSize: 36,
-                                // ✅ צבע מ-Theme (תומך Dark Mode)
-                                color: cs.onSurface,
-                                letterSpacing: 1,
+                                color: cs.onSurface.withValues(alpha: 0.87),
+                                letterSpacing: 0.8,
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -440,8 +450,8 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                             Text(
                               AppStrings.auth.registerSubtitle,
                               style: theme.textTheme.bodyMedium?.copyWith(
-                                // ✅ צבע מ-Theme (תומך Dark Mode)
-                                color: cs.onSurfaceVariant,
+                                color: cs.onSurface.withValues(alpha: 0.70),
+                                fontWeight: FontWeight.w600,
                                 fontSize: 15,
                               ),
                               textAlign: TextAlign.center,
@@ -483,8 +493,33 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                 if (value == null || value.isEmpty) {
                                   return AppStrings.auth.emailRequired;
                                 }
-                                if (!value.contains('@')) {
+                                if (!value.contains('@') || !value.contains('.') ||
+                                    value.indexOf('.') <= value.indexOf('@') + 1) {
                                   return AppStrings.auth.emailInvalid;
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: kSpacingMedium),
+
+                            // 📱 שדה טלפון (לפני סיסמה - שדות זיהוי קודם)
+                            _buildFormField(
+                              controller: _phoneController,
+                              focusNode: _phoneFocusNode,
+                              label: AppStrings.auth.phoneLabel,
+                              hint: AppStrings.auth.phoneHint,
+                              icon: Icons.phone_outlined,
+                              keyboardType: TextInputType.phone,
+                              textInputAction: TextInputAction.next,
+                              semanticLabel: AppStrings.auth.phoneFieldSemanticLabel,
+                              helperText: AppStrings.auth.phoneHelperText,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return AppStrings.auth.phoneRequired;
+                                }
+                                final normalized = value.replaceAll('-', '').replaceAll(' ', '');
+                                if (!_phoneRegex.hasMatch(normalized)) {
+                                  return AppStrings.auth.phoneInvalid;
                                 }
                                 return null;
                               },
@@ -537,7 +572,10 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                     ? AppStrings.auth.showPassword
                                     : AppStrings.auth.hidePassword,
                               ),
-                              textInputAction: TextInputAction.next,
+                              textInputAction: TextInputAction.done,
+                              onFieldSubmitted: (_) {
+                                _onRegisterPressed();
+                              },
                               semanticLabel: AppStrings.auth.confirmPasswordFieldSemanticLabel,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -549,46 +587,28 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                 return null;
                               },
                             ),
-                            const SizedBox(height: kSpacingMedium),
-
-                            // 📱 שדה טלפון
-                            _buildFormField(
-                              controller: _phoneController,
-                              focusNode: _phoneFocusNode,
-                              label: AppStrings.auth.phoneLabel,
-                              hint: AppStrings.auth.phoneHint,
-                              icon: Icons.phone_outlined,
-                              keyboardType: TextInputType.phone,
-                              textInputAction: TextInputAction.done,
-                              onFieldSubmitted: (_) {
-                                _onRegisterPressed();
-                              },
-                              semanticLabel: AppStrings.auth.phoneFieldSemanticLabel,
-                              helperText: AppStrings.auth.phoneHelperText,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return AppStrings.auth.phoneRequired;
-                                }
-                                final normalized = value.replaceAll('-', '').replaceAll(' ', '');
-                                if (!_phoneRegex.hasMatch(normalized)) {
-                                  return AppStrings.auth.phoneInvalid;
-                                }
-                                return null;
-                              },
-                            ),
                             const SizedBox(height: kSpacingLarge),
 
-                            // 🔘 כפתור הרשמה
-                            FilledButton.icon(
-                              onPressed: _isLoading ? null : _onRegisterPressed,
-                              icon: const Icon(Icons.app_registration),
-                              label: Text(AppStrings.auth.registerButton),
-                              style: FilledButton.styleFrom(
-                                minimumSize: const Size.fromHeight(52),
-                                backgroundColor: brand?.success ?? cs.primary,
-                                foregroundColor: cs.onPrimary,
-                              ),
-                            ),
+                            // 🔘 כפתור הרשמה - auto-contrast foreground
+                            Builder(builder: (context) {
+                              final ctaBg = brand?.success ?? cs.primary;
+                              final ctaFg = ThemeData.estimateBrightnessForColor(ctaBg) == Brightness.light
+                                  ? Colors.black87
+                                  : Colors.white;
+                              return FilledButton.icon(
+                                onPressed: _isLoading ? null : _onRegisterPressed,
+                                icon: const Icon(Icons.app_registration),
+                                label: Text(AppStrings.auth.registerButton),
+                                style: FilledButton.styleFrom(
+                                  minimumSize: const Size.fromHeight(kButtonHeight),
+                                  backgroundColor: ctaBg,
+                                  foregroundColor: ctaFg,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(kBorderRadiusUnified),
+                                  ),
+                                ),
+                              );
+                            }),
                             const SizedBox(height: kSpacingLarge),
 
                             // ➖ Divider עם "או הירשם במהירות עם" - אנימציה יחד עם Social buttons
@@ -649,8 +669,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                             ),
                             const SizedBox(height: kSpacingMedium),
 
-                            // 🔗 קישור להתחברות - בולט יותר
-                            // ✅ Semantics לנגישות
+                            // 🔗 קישור להתחברות - Hybrid Premium style
                             Semantics(
                               label: AppStrings.auth.loginLinkSemanticLabel,
                               child: Row(
@@ -658,21 +677,22 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                 children: [
                                   Text(
                                     AppStrings.auth.haveAccount,
-                                    // ✅ צבע מ-Theme (תומך Dark Mode)
-                                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 15),
+                                    style: TextStyle(
+                                      color: cs.onSurface.withValues(alpha: 0.55),
+                                      fontSize: 15,
+                                    ),
                                   ),
                                   TextButton(
                                     onPressed: _isLoading ? null : _navigateToLogin,
                                     child: Text(
                                       AppStrings.auth.loginButton,
-                                      // ✅ סגנון בולט יותר עם קו תחתון
                                       style: TextStyle(
-                                        color: accent,
-                                        fontWeight: FontWeight.bold,
+                                        color: accent.withValues(alpha: 0.75),
+                                        fontWeight: FontWeight.w600,
                                         fontSize: 16,
                                         decoration: TextDecoration.underline,
-                                        decorationColor: accent,
-                                        decorationThickness: 2,
+                                        decorationColor: accent.withValues(alpha: 0.45),
+                                        decorationThickness: 1.2,
                                       ),
                                     ),
                                   ),
@@ -694,8 +714,8 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
                   child: Container(
-                    color: Colors.black.withValues(alpha: 0.25),
-                    child: Center(child: CircularProgressIndicator(color: cs.primary)),
+                    color: cs.scrim.withValues(alpha: 0.25),
+                    child: Center(child: CircularProgressIndicator(color: accent)),
                   ),
                 ),
               ),
@@ -751,14 +771,14 @@ class _SocialLoginButtonState extends State<_SocialLoginButton> {
           child: Container(
             decoration: BoxDecoration(
               color: isDisabled ? cs.surfaceContainerHighest.withValues(alpha: 0.5) : cs.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(kBorderRadius),
+              borderRadius: BorderRadius.circular(kBorderRadiusUnified),
               boxShadow: isDisabled ? null : [BoxShadow(color: shadowColor, blurRadius: 6, offset: const Offset(0, 3))],
             ),
             child: Material(
               color: Colors.transparent,
               child: InkWell(
                 onTap: widget.onPressed,
-                borderRadius: BorderRadius.circular(kBorderRadius),
+                borderRadius: BorderRadius.circular(kBorderRadiusUnified),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: kSpacingSmall + 4, horizontal: kSpacingMedium),
                   child: Row(

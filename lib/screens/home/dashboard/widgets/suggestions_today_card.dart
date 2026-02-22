@@ -3,7 +3,7 @@
 // כרטיס "הצעות מהמזווה" - קרוסלה אופקית בסגנון Sticky Notes.
 // כל כרטיס עם צללים, סיבוב קל, וכפתורי Add/Dismiss.
 //
-// Version: 3.0 (08/01/2026) - Sticky Notes design
+// Version: 3.1 (04/02/2026) - Strings → AppStrings, theme-aware colors, haptic fix
 // 🔗 Related: SmartSuggestion, SuggestionsProvider, StickyNote
 
 import 'package:flutter/material.dart';
@@ -78,7 +78,7 @@ class _LoadingState extends StatelessWidget {
             ),
             const SizedBox(width: kSpacingSmall),
             Text(
-              'טוען הצעות...',
+              AppStrings.suggestionsToday.loading,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: cs.onSurfaceVariant,
               ),
@@ -117,12 +117,12 @@ class _SuggestionsCarousel extends StatelessWidget {
                 child: const Icon(
                   Icons.inventory_2_outlined,
                   size: 18,
-                  color: Color(0xFFE65100),
+                  color: kStickyOrangeDark,
                 ),
               ),
               const SizedBox(width: 10),
               Text(
-                'הצעות מהמזווה',
+                AppStrings.suggestionsToday.title,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -139,9 +139,9 @@ class _SuggestionsCarousel extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  '${suggestions.length} פריטים',
+                  AppStrings.suggestionsToday.itemCount(suggestions.length),
                   style: theme.textTheme.labelSmall?.copyWith(
-                    color: const Color(0xFFE65100),
+                    color: kStickyOrangeDark,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -220,15 +220,16 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
   }
 
   String _getUrgencyText(String urgency) {
+    final strings = AppStrings.suggestionsToday;
     switch (urgency) {
       case 'critical':
-        return 'נגמר!';
+        return strings.urgencyCritical;
       case 'high':
-        return 'כמעט נגמר';
+        return strings.urgencyHigh;
       case 'medium':
-        return 'מתמעט';
+        return strings.urgencyMedium;
       default:
-        return 'מומלץ';
+        return strings.urgencyLow;
     }
   }
 
@@ -261,8 +262,8 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
 
       if (activeLists.isEmpty) {
         messenger.showSnackBar(
-          const SnackBar(
-            content: Text('אין רשימות פעילות - צור רשימה חדשה'),
+          SnackBar(
+            content: Text(AppStrings.suggestionsToday.noActiveLists),
             backgroundColor: kStickyOrange,
           ),
         );
@@ -288,7 +289,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
               const Icon(Icons.check_circle, color: Colors.white, size: 20),
               const SizedBox(width: 8),
               Expanded(
-                child: Text('נוסף "${widget.suggestion.productName}" לרשימה'),
+                child: Text(AppStrings.suggestionsToday.addedToList(widget.suggestion.productName)),
               ),
             ],
           ),
@@ -325,10 +326,9 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
 
       if (!mounted) return;
 
-      await HapticFeedback.lightImpact();
       messenger.showSnackBar(
         SnackBar(
-          content: Text('דחיתי "${widget.suggestion.productName}" לשבוע'),
+          content: Text(AppStrings.suggestionsToday.dismissedForWeek(widget.suggestion.productName)),
           backgroundColor: kStickyCyan,
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 2),
@@ -449,7 +449,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      'במלאי: ${suggestion.currentStock} ${suggestion.unit}',
+                      AppStrings.suggestionsToday.inStock(suggestion.currentStock, suggestion.unit),
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: Colors.black54,
                         fontWeight: FontWeight.w500,
@@ -522,7 +522,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      'הוסף',
+                                      AppStrings.suggestionsToday.addButton,
                                       style: theme.textTheme.labelMedium?.copyWith(
                                         color: Colors.black87,
                                         fontWeight: FontWeight.bold,

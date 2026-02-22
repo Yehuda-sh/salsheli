@@ -36,7 +36,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   DateTime? _lastBackPress;
   bool _initialArgsHandled = false; // ✅ דגל: כבר טיפלתי ב-args הראשוניים
 
-  late final List<Widget> _pages = const <Widget>[
+  static const List<Widget> _pages = <Widget>[
     HomeDashboardScreen(),
     MyPantryScreen(),
     ShoppingHistoryScreen(),
@@ -102,7 +102,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     setState(() => _selectedIndex = index);
   }
 
-  Future<bool> _onWillPop() {
+  Future<bool> _handleBackPress() {
     // אם לא בטאב הראשון - חזור אליו במקום לצאת
     if (_selectedIndex != 0) {
       if (kDebugMode) {
@@ -127,8 +127,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       // 🔧 מנקה SnackBar קודם אם קיים (מונע duplicates)
       messenger.clearSnackBars();
 
-      // ✨ Haptic feedback למשוב מישוש
-      HapticFeedback.lightImpact();
+      // ❌ הוסר: Haptic feedback (לפי החלטות - haptic רק ל-CTA, לא לניווט)
 
       messenger.showSnackBar(
         SnackBar(
@@ -165,7 +164,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       onPopInvokedWithResult: (bool didPop, dynamic result) async {
         if (didPop) return;
 
-        final shouldPop = await _onWillPop();
+        final shouldPop = await _handleBackPress();
         if (shouldPop && mounted) {
           // ✅ SystemNavigator.pop() - יוצא מהאפליקציה לגמרי (לא חוזר ל-route קודם)
           await SystemNavigator.pop();

@@ -22,6 +22,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/status_colors.dart';
 import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
 import '../../models/enums/user_role.dart';
 import '../../models/pending_request.dart';
 import '../../providers/user_context.dart';
@@ -100,7 +101,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
       if (mounted && !silent) {
         setState(() {
           _isInitialLoading = false;
-          _error = 'שגיאה בטעינת הזמנות';
+          _error = AppStrings.pendingInvitesScreen.loadError;
         });
       }
     }
@@ -112,6 +113,11 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
     final userContext = context.read<UserContext>();
     final userId = userContext.userId;
     final userName = userContext.user?.name;
+    // ✅ Cache before async
+    final messenger = ScaffoldMessenger.of(context);
+    final successBg = StatusColors.getStatusContainer('success', context);
+    final errorBg = StatusColors.getStatusContainer('error', context);
+    final strings = AppStrings.pendingInvitesScreen;
 
     if (userId == null) return;
 
@@ -125,12 +131,11 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
       );
 
       if (mounted) {
-        final listName = _safeString(invite.requestData['list_name']) ?? 'רשימה';
-        ScaffoldMessenger.of(context).showSnackBar(
+        final listName = _safeString(invite.requestData['list_name']) ?? strings.listFallback;
+        messenger.showSnackBar(
           SnackBar(
-            content: Text('הצטרפת לרשימה "$listName"'),
-            // ✅ Theme-aware: StatusColors API
-            backgroundColor: StatusColors.getStatusContainer('success', context),
+            content: Text(strings.acceptSuccess(listName)),
+            backgroundColor: successBg,
           ),
         );
         setState(() => _processingInviteId = null);
@@ -139,11 +144,10 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _processingInviteId = null);
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(
-            content: Text('שגיאה באישור ההזמנה: $e'),
-            // ✅ Theme-aware: StatusColors API
-            backgroundColor: StatusColors.getStatusContainer('error', context),
+            content: Text(strings.acceptError(e.toString())),
+            backgroundColor: errorBg,
           ),
         );
       }
@@ -159,25 +163,30 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
 
     if (userId == null) return;
 
+    // ✅ Cache before async
     final cs = Theme.of(context).colorScheme;
-    final listName = _safeString(invite.requestData['list_name']) ?? 'רשימה';
+    final messenger = ScaffoldMessenger.of(context);
+    final warningBg = StatusColors.getStatusContainer('warning', context);
+    final errorBg = StatusColors.getStatusContainer('error', context);
+    final strings = AppStrings.pendingInvitesScreen;
+    final listName = _safeString(invite.requestData['list_name']) ?? strings.listFallback;
 
     // שאלת אישור
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('דחיית הזמנה'),
-        content: Text('לדחות את ההזמנה לרשימה "$listName"?'),
+      builder: (ctx) => AlertDialog(
+        title: Text(strings.declineDialogTitle),
+        content: Text(strings.declineDialogMessage(listName)),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('ביטול'),
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(strings.cancelButton),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => Navigator.pop(ctx, true),
             // ✅ Theme-aware: צבע שגיאה
             style: TextButton.styleFrom(foregroundColor: cs.error),
-            child: const Text('דחה'),
+            child: Text(strings.declineConfirmButton),
           ),
         ],
       ),
@@ -195,11 +204,10 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(
-            content: const Text('ההזמנה נדחתה'),
-            // ✅ Theme-aware: StatusColors API
-            backgroundColor: StatusColors.getStatusContainer('warning', context),
+            content: Text(strings.declineSuccess),
+            backgroundColor: warningBg,
           ),
         );
         setState(() => _processingInviteId = null);
@@ -208,11 +216,10 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _processingInviteId = null);
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(
-            content: Text('שגיאה בדחיית ההזמנה: $e'),
-            // ✅ Theme-aware: StatusColors API
-            backgroundColor: StatusColors.getStatusContainer('error', context),
+            content: Text(strings.declineError(e.toString())),
+            backgroundColor: errorBg,
           ),
         );
       }
@@ -231,7 +238,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
             appBar: AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
-              title: const Text('הזמנות ממתינות'),
+              title: Text(AppStrings.pendingInvitesScreen.title),
               centerTitle: true,
             ),
             body: _buildContent(),
@@ -253,7 +260,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
           children: [
             CircularProgressIndicator(color: brand?.stickyCyan ?? cs.primary),
             const SizedBox(height: kSpacingMedium),
-            const Text('טוען הזמנות...'),
+            Text(AppStrings.pendingInvitesScreen.loading),
           ],
         ),
       );
@@ -299,7 +306,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                     ElevatedButton.icon(
                       onPressed: _loadInvites,
                       icon: const Icon(Icons.refresh),
-                      label: const Text('נסה שוב'),
+                      label: Text(AppStrings.pendingInvitesScreen.retryButton),
                     ),
                   ],
                 ),
@@ -347,7 +354,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                     ),
                     const SizedBox(height: kSpacingLarge),
                     Text(
-                      'אין הזמנות ממתינות',
+                      AppStrings.pendingInvitesScreen.emptyTitle,
                       style: TextStyle(
                         fontSize: kFontSizeLarge,
                         fontWeight: FontWeight.bold,
@@ -356,13 +363,13 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                     ),
                     const SizedBox(height: kSpacingSmall),
                     Text(
-                      'כאשר מישהו יזמין אותך לרשימה,\nההזמנה תופיע כאן',
+                      AppStrings.pendingInvitesScreen.emptySubtitle,
                       textAlign: TextAlign.center,
                       style: TextStyle(color: cs.onSurfaceVariant),
                     ),
                     const SizedBox(height: kSpacingLarge),
                     Text(
-                      '↓ משוך לרענון',
+                      AppStrings.pendingInvitesScreen.pullToRefresh,
                       style: TextStyle(fontSize: kFontSizeTiny, color: cs.outline),
                     ),
                   ],
@@ -393,8 +400,9 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
     final brand = Theme.of(context).extension<AppBrand>();
 
     // ✅ null safety - גישה בטוחה ל-requestData
-    final listName = _safeString(invite.requestData['list_name']) ?? 'רשימה';
-    final inviterName = invite.requesterName ?? 'משתמש';
+    final strings = AppStrings.pendingInvitesScreen;
+    final listName = _safeString(invite.requestData['list_name']) ?? strings.listFallback;
+    final inviterName = invite.requesterName ?? strings.userFallback;
     final roleName = _safeString(invite.requestData['role']) ?? 'editor';
     final role = UserRole.values.firstWhere(
       (r) => r.name == roleName,
@@ -419,7 +427,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                   const SizedBox(width: kSpacingSmall),
                   Expanded(
                     child: Text(
-                      'הזמנה לרשימה "$listName"',
+                      strings.inviteToList(listName),
                       style: const TextStyle(
                         fontSize: kFontSizeMedium,
                         fontWeight: FontWeight.bold,
@@ -433,7 +441,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
 
               // פרטי ההזמנה
               Text(
-                '$inviterName מזמין אותך להצטרף',
+                strings.inviterMessage(inviterName),
                 style: const TextStyle(fontSize: kFontSizeSmall),
               ),
 
@@ -443,7 +451,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
               Row(
                 children: [
                   Text(
-                    'תפקיד: ',
+                    strings.roleLabel,
                     style: TextStyle(
                       fontSize: kFontSizeSmall,
                       color: cs.onSurfaceVariant,
@@ -506,7 +514,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                         // נעול אם מעבדים הזמנה אחרת
                         onPressed: _processingInviteId != null ? null : () => _declineInvite(invite),
                         icon: const Icon(Icons.close, size: 18),
-                        label: const Text('דחה'),
+                        label: Text(strings.declineButton),
                         style: OutlinedButton.styleFrom(
                           // ✅ Theme-aware: צבע שגיאה
                           foregroundColor: cs.error,
@@ -524,7 +532,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                         // נעול אם מעבדים הזמנה אחרת
                         onPressed: _processingInviteId != null ? null : () => _acceptInvite(invite),
                         icon: const Icon(Icons.check, size: 18),
-                        label: const Text('הצטרף'),
+                        label: Text(strings.acceptButton),
                         style: ElevatedButton.styleFrom(
                           // ✅ Theme-aware: צבע הצלחה מ-AppBrand
                           backgroundColor: brand?.stickyGreen ?? StatusColors.success,

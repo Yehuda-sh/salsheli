@@ -19,6 +19,8 @@
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 
+import '../core/ui_constants.dart';
+import '../theme/app_theme.dart';
 import 'list_type_keys.dart';
 
 /// 📦 הגדרת סוג רשימה אחד
@@ -62,6 +64,7 @@ class ListTypes {
       shortName: 'סופר',
       emoji: '🛒',
       icon: Icons.shopping_cart,
+      color: kStickyGreen,
     ),
     ListTypeConfig(
       key: ListTypeKeys.pharmacy,
@@ -69,6 +72,7 @@ class ListTypes {
       shortName: 'מרקחת',
       emoji: '💊',
       icon: Icons.medication,
+      color: kStickyPink,
     ),
     ListTypeConfig(
       key: ListTypeKeys.greengrocer,
@@ -76,6 +80,7 @@ class ListTypes {
       shortName: 'ירקן',
       emoji: '🥬',
       icon: Icons.local_florist,
+      color: kStickyCyan,
     ),
     ListTypeConfig(
       key: ListTypeKeys.butcher,
@@ -83,6 +88,7 @@ class ListTypes {
       shortName: 'אטליז',
       emoji: '🥩',
       icon: Icons.set_meal,
+      color: kStickyOrange,
     ),
     ListTypeConfig(
       key: ListTypeKeys.bakery,
@@ -90,6 +96,7 @@ class ListTypes {
       shortName: 'מאפייה',
       emoji: '🥖',
       icon: Icons.bakery_dining,
+      color: kStickyYellow,
     ),
     ListTypeConfig(
       key: ListTypeKeys.market,
@@ -97,6 +104,7 @@ class ListTypes {
       shortName: 'שוק',
       emoji: '🏪',
       icon: Icons.store,
+      color: kStickyGreen,
     ),
     ListTypeConfig(
       key: ListTypeKeys.household,
@@ -104,6 +112,7 @@ class ListTypes {
       shortName: 'בית',
       emoji: '🏠',
       icon: Icons.home,
+      color: kStickyCyan,
     ),
     ListTypeConfig(
       key: ListTypeKeys.event,
@@ -111,6 +120,7 @@ class ListTypes {
       shortName: 'אירוע',
       emoji: '🎉',
       icon: Icons.celebration,
+      color: kStickyPurple,
     ),
     ListTypeConfig(
       key: ListTypeKeys.other,
@@ -120,6 +130,34 @@ class ListTypes {
       icon: Icons.more_horiz,
     ),
   ];
+
+  // ========================================
+  // 🎨 Color API
+  // ========================================
+
+  /// צבע לפי סוג רשימה - theme-aware
+  ///
+  /// בודק brand (dark mode) קודם, אם אין → config.color, אם אין → cs.primary
+  static Color getColor(String typeKey, ColorScheme cs, AppBrand? brand) {
+    if (brand != null) {
+      switch (typeKey) {
+        case 'supermarket':
+        case 'market':
+          return brand.stickyGreen;
+        case 'pharmacy':
+          return brand.stickyPink;
+        case 'greengrocer':
+        case 'household':
+          return brand.stickyCyan;
+        case 'bakery':
+          return brand.stickyYellow;
+        case 'event':
+          return brand.stickyPurple;
+      }
+    }
+    // Fallback: config color → cs.primary
+    return getByKeySafe(typeKey).color ?? cs.primary;
+  }
 
   // ========================================
   // 🔍 Lookup API

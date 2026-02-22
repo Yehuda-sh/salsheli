@@ -273,7 +273,7 @@ class _FamilySizeStepState extends State<_FamilySizeStep> {
 
     return _StepWrapper(
       icon: Icons.family_restroom,
-      title: 'כמה אנשים במשפחה?', // ✅ טקסט מעודכן
+      title: AppStrings.onboarding.familySizeTitle,
       stickyColor: widget.stickyColor,
       rotation: widget.rotation,
       child: Column(
@@ -312,7 +312,7 @@ class _FamilySizeStepState extends State<_FamilySizeStep> {
                   },
                 ),
                 Text(
-                  'יש לכם ילדים?',
+                  AppStrings.onboarding.hasChildrenQuestion,
                   style: t.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -351,7 +351,7 @@ class _FamilySizeStepState extends State<_FamilySizeStep> {
                 widget.onChildrenChanged(newList);
               },
               icon: const Icon(Icons.add),
-              label: const Text('הוסף ילד נוסף'),
+              label: Text(AppStrings.onboarding.addChild),
             ),
           ],
         ],
@@ -393,7 +393,7 @@ class _ChildForm extends StatelessWidget {
           Row(
             children: [
               Text(
-                '${_getChildIcon(child.ageCategory)} ילד ${index + 1}',
+                '${_getChildIcon(child.ageCategory)} ${AppStrings.onboarding.childLabel(index + 1)}',
                 style: t.titleSmall?.copyWith(fontWeight: FontWeight.bold),
               ),
               const Spacer(),
@@ -406,21 +406,21 @@ class _ChildForm extends StatelessWidget {
             ],
           ),
           const SizedBox(height: kSpacingSmall),
-          TextField(
-            decoration: const InputDecoration(
-              labelText: 'שם',
-              border: OutlineInputBorder(),
+          TextFormField(
+            decoration: InputDecoration(
+              labelText: AppStrings.onboarding.childNameLabel,
+              border: const OutlineInputBorder(),
               isDense: true,
             ),
-            controller: TextEditingController(text: child.name),
+            initialValue: child.name,
             onChanged: (val) => onChanged(child.copyWith(name: val)),
           ),
           const SizedBox(height: kSpacingSmall),
           DropdownButtonFormField<String>(
             value: child.ageCategory,
-            decoration: const InputDecoration(
-              labelText: 'גיל',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: AppStrings.onboarding.childAgeLabel,
+              border: const OutlineInputBorder(),
               isDense: true,
             ),
             items: kChildrenAgeGroups.map((age) {
@@ -458,17 +458,18 @@ class _ChildForm extends StatelessWidget {
   }
 
   String _getAgeLabel(String age) {
+    final strings = AppStrings.onboarding;
     switch (age) {
       case '0-1':
-        return 'תינוק/ת (0-1)';
+        return strings.ageBaby;
       case '2-3':
-        return 'גיל הרך (2-3)';
+        return strings.ageToddler;
       case '4-6':
-        return 'גן (4-6)';
+        return strings.agePreschool;
       case '7-12':
-        return 'בית ספר (7-12)';
+        return strings.ageSchool;
       case '13-18':
-        return 'נוער (13-18)';
+        return strings.ageTeen;
       default:
         return age;
     }
@@ -575,20 +576,20 @@ class _ShoppingFrequencyStep extends StatelessWidget {
 
     return _StepWrapper(
       icon: Icons.calendar_today,
-      title: 'תדירות קניות',
+      title: AppStrings.onboarding.frequencyTitle,
       stickyColor: stickyColor,
       rotation: rotation,
       child: Column(
         children: [
           // שאלה 1: תדירות
           Text(
-            'כמה פעמים בשבוע אתם קונים קניות?',
+            AppStrings.onboarding.frequencyQuestion,
             style: t.titleSmall?.copyWith(color: cs.onSurface),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: kSpacingSmall),
           Text(
-            '$frequency פעמים בשבוע',
+            AppStrings.onboarding.frequencyPerWeek(frequency),
             style: t.displaySmall?.copyWith(
               color: cs.primary,
               fontWeight: FontWeight.bold,
@@ -610,13 +611,13 @@ class _ShoppingFrequencyStep extends StatelessWidget {
           
           // שאלה 2: ימים קבועים
           Text(
-            'יש לכם ימים קבועים לקניות?',
+            AppStrings.onboarding.fixedDaysQuestion,
             style: t.titleSmall?.copyWith(color: cs.onSurface),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: kSpacingSmall),
           Text(
-            '(בחירה מרובה)',
+            AppStrings.onboarding.multiSelectHint,
             style: t.bodySmall?.copyWith(color: cs.onSurfaceVariant),
           ),
           const SizedBox(height: kSpacingMedium),
@@ -854,20 +855,20 @@ class _SummaryStep extends StatelessWidget {
                 const SizedBox(height: kSpacingXTiny),
                 _RtlSummaryRow(
                   leadingEmojiOrIconText: "📅",
-                  text: 'תדירות: ${data.shoppingFrequency} פעמים בשבוע',
+                  text: AppStrings.onboarding.frequencySummary(data.shoppingFrequency),
                 ),
                 if (data.shoppingDays.isNotEmpty) ...[
                   const SizedBox(height: kSpacingXTiny),
                   _RtlSummaryRow(
                     leadingEmojiOrIconText: "🗓️",
-                    text: 'ימים קבועים: ${data.shoppingDays.map((d) => OnboardingExtensions.getDayLabel(d)).join(', ')}',
+                    text: AppStrings.onboarding.fixedDaysSummary(data.shoppingDays.map(OnboardingExtensions.getDayLabel).join(', ')),
                   ),
                 ],
                 if (data.hasChildren) ...[
                   const SizedBox(height: kSpacingXTiny),
                   _RtlSummaryRow(
                     leadingEmojiOrIconText: "👶",
-                    text: 'ילדים: ${data.children.isEmpty ? 'כן' : data.children.map((c) => '${c.name} (${c.ageDescription})').join(', ')}',
+                    text: AppStrings.onboarding.childrenSummary(data.children.isEmpty ? AppStrings.onboarding.childrenYes : data.children.map((c) => '${c.name} (${c.ageDescription})').join(', ')),
                   ),
                 ],
                 const SizedBox(height: kSpacingXTiny),

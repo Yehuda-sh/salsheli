@@ -817,15 +817,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             Icon(Icons.notifications_outlined, color: cs.primary),
                             const SizedBox(width: kSpacingSmall),
                             Text(
-                              'התראות',
+                              AppStrings.settings.notificationsSectionTitle,
                               style: TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold, color: cs.primary),
                             ),
                           ],
                         ),
                         const SizedBox(height: kSpacingSmall),
                         _NotificationToggle(
-                          title: 'התראות קנייה',
-                          subtitle: 'כשמישהו מסיים קנייה',
+                          title: AppStrings.settings.notifyShoppingTitle,
+                          subtitle: AppStrings.settings.notifyShoppingSubtitle,
                           value: _notifyShopping,
                           onChanged: (val) {
                             setState(() => _notifyShopping = val);
@@ -833,8 +833,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           },
                         ),
                         _NotificationToggle(
-                          title: 'התראות מלאי',
-                          subtitle: 'כשמוצר במזווה אוזל',
+                          title: AppStrings.settings.notifyInventoryTitle,
+                          subtitle: AppStrings.settings.notifyInventorySubtitle,
                           value: _notifyInventory,
                           onChanged: (val) {
                             setState(() => _notifyInventory = val);
@@ -842,8 +842,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           },
                         ),
                         _NotificationToggle(
-                          title: 'התראות קבוצה',
-                          subtitle: 'הזמנות וחברים חדשים',
+                          title: AppStrings.settings.notifyGroupTitle,
+                          subtitle: AppStrings.settings.notifyGroupSubtitle,
                           value: _notifyGroup,
                           onChanged: (val) {
                             setState(() => _notifyGroup = val);
@@ -870,7 +870,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             Icon(Icons.settings_outlined, color: cs.primary),
                             const SizedBox(width: kSpacingSmall),
                             Text(
-                              'הגדרות כלליות',
+                              AppStrings.settings.generalSettingsSectionTitle,
                               style: TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold, color: cs.primary),
                             ),
                           ],
@@ -879,14 +879,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('ערכת נושא'),
+                            Text(AppStrings.settings.themeLabel),
                             const SizedBox(width: kSpacingSmall),
                             Flexible(
                               child: SegmentedButton<ThemeMode>(
-                                segments: const [
-                                  ButtonSegment(value: ThemeMode.light, label: Text('בהיר')),
-                                  ButtonSegment(value: ThemeMode.dark, label: Text('כהה')),
-                                  ButtonSegment(value: ThemeMode.system, label: Text('מערכת')),
+                                segments: [
+                                  ButtonSegment(value: ThemeMode.light, label: Text(AppStrings.settings.themeLight)),
+                                  ButtonSegment(value: ThemeMode.dark, label: Text(AppStrings.settings.themeDark)),
+                                  ButtonSegment(value: ThemeMode.system, label: Text(AppStrings.settings.themeSystem)),
                                 ],
                                 selected: {userContext.themeMode},
                                 onSelectionChanged: (selection) {
@@ -898,6 +898,62 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                             ),
                           ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: kSpacingMedium),
+
+                // 🔹 ניהול משפחה
+                Card(
+                  elevation: 1,
+                  child: Padding(
+                    padding: const EdgeInsets.all(kSpacingMedium),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.family_restroom, color: cs.primary),
+                            const SizedBox(width: kSpacingSmall),
+                            Text(
+                              AppStrings.settings.householdManagementTitle,
+                              style: TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold, color: cs.primary),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: kSpacingSmall),
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const Icon(Icons.people_outline),
+                          title: Text(AppStrings.settings.householdMembersTitle),
+                          subtitle: Text(AppStrings.settings.householdMembersSubtitle),
+                          trailing: const Icon(Icons.chevron_left),
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(AppStrings.settings.householdComingSoon),
+                                backgroundColor: Colors.orange,
+                              ),
+                            );
+                          },
+                        ),
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const Icon(Icons.person_add_outlined),
+                          title: Text(AppStrings.settings.householdInviteTitle),
+                          subtitle: Text(AppStrings.settings.householdInviteSubtitle),
+                          trailing: const Icon(Icons.chevron_left),
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(AppStrings.settings.householdComingSoon),
+                                backgroundColor: Colors.orange,
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),

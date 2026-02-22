@@ -38,6 +38,7 @@ dependencies:
   xml: ^6.6.1
   archive: ^4.0.7
   uuid: ^4.5.0
+  rxdart: ^0.28.0  # Stream utilities for combining multiple streams
   # Media
   camera: ^0.11.0+2
   image_picker: ^1.1.2

@@ -48,10 +48,12 @@ const Color kStickyOrangeDark = Color(0xFFFF5722);  // Warnings (darker orange)
 // ═══════════════════════════════════════════════════════════════════════════
 
 const Color kNotebookBlue = Color(0xFF4285F4);   // Blue notebook lines
+const Color kNotebookBlueSoft = Color(0xFF9CA8B8); // Soft grayish-blue lines (Hybrid Premium)
 const Color kNotebookRed = Color(0xFFE53935);    // Red notebook line
 
 // Notebook Background Properties
 const double kNotebookLineOpacity = 0.5;         // Opacity for blue lines
+const double kNotebookLineOpacitySubtle = 0.06;  // Subtle opacity (Hybrid Premium: 3-8%)
 const double kNotebookLineSpacing = 48.0;        // Spacing between blue lines (fits item row)
 const double kNotebookRedLineOpacity = 0.4;      // Opacity for red line
 const double kNotebookRedLineWidth = 2.0;        // Width of red line
@@ -136,6 +138,7 @@ const double kInputPadding = 16.0;  // Standard input padding
 
 const double kBorderRadius = 12.0;       // Default border radius
 const double kBorderRadiusSmall = 8.0;   // Small border radius
+const double kBorderRadiusUnified = 14.0; // Unified border radius (Hybrid Premium)
 const double kBorderRadiusLarge = 16.0;  // Large border radius
 
 // ═══════════════════════════════════════════════════════════════════════════

@@ -33,8 +33,6 @@ import '../../providers/shopping_lists_provider.dart';
 import '../../providers/user_context.dart';
 import '../../services/notifications_service.dart';
 import '../../services/share_list_service.dart';
-import '../../widgets/common/notebook_background.dart';
-import '../../widgets/common/sticky_button.dart';
 import '../sharing/invite_users_screen.dart';
 
 /// 🇮🇱 מסך ניהול משתמשים משותפים
@@ -142,7 +140,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
               style: TextButton.styleFrom(
-                foregroundColor: kStickyPink,
+                foregroundColor: Colors.red,
               ),
               child: Text(strings.removeButton),
             ),
@@ -290,11 +288,12 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   }
 
   void _showError(String message) {
-    setState(() => _errorMessage = message);
+    // SnackBar בלבד - לשגיאות פעולה (remove/editRole).
+    // _errorMessage משמש רק לשגיאות טעינה ראשוניות.
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: kStickyPink,
+        backgroundColor: Colors.red,
       ),
     );
   }
@@ -332,56 +331,50 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       return Directionality(
         textDirection: TextDirection.rtl,
         child: Scaffold(
-          backgroundColor: kPaperBackground,
-          body: Stack(
-            children: [
-              const NotebookBackground(),
-              SafeArea(
-                child: Column(
-                  children: [
-                    // 🏷️ כותרת inline
-                    Padding(
-                      padding: const EdgeInsets.all(kSpacingMedium),
-                      child: Row(
-                        children: [
-                          Icon(Icons.group, size: 24, color: cs.primary),
-                          const SizedBox(width: kSpacingSmall),
-                          Expanded(
-                            child: Text(
-                              strings.title,
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: cs.onSurface,
-                              ),
-                            ),
+          body: SafeArea(
+            child: Column(
+              children: [
+                // 🏷️ כותרת inline
+                Padding(
+                  padding: const EdgeInsets.all(kSpacingMedium),
+                  child: Row(
+                    children: [
+                      Icon(Icons.group, size: 24, color: cs.primary),
+                      const SizedBox(width: kSpacingSmall),
+                      Expanded(
+                        child: Text(
+                          strings.title,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: cs.onSurface,
                           ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.error_outline,
-                              size: 64,
-                              color: kStickyPink.withValues(alpha: 0.7),
-                            ),
-                            const SizedBox(height: kSpacingMedium),
-                            Text(
-                              strings.errorUserNotLoggedIn,
-                              style: const TextStyle(fontSize: 18),
-                            ),
-                          ],
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+                Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: cs.error.withValues(alpha: 0.7),
+                        ),
+                        const SizedBox(height: kSpacingMedium),
+                        Text(
+                          strings.errorUserNotLoggedIn,
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -392,44 +385,37 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: kPaperBackground,
-        body: Stack(
-          children: [
-            const NotebookBackground(),
-            SafeArea(
-              child: Column(
-                children: [
-                  // 🏷️ כותרת inline
-                  Padding(
-                    padding: const EdgeInsets.all(kSpacingMedium),
-                    child: Row(
-                      children: [
-                        Icon(Icons.group, size: 24, color: cs.primary),
-                        const SizedBox(width: kSpacingSmall),
-                        Expanded(
-                          child: Text(
-                            strings.title,
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: cs.onSurface,
-                            ),
-                          ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              // 🏷️ כותרת inline
+              Padding(
+                padding: const EdgeInsets.all(kSpacingMedium),
+                child: Row(
+                  children: [
+                    Icon(Icons.group, size: 24, color: cs.primary),
+                    const SizedBox(width: kSpacingSmall),
+                    Expanded(
+                      child: Text(
+                        strings.title,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: cs.onSurface,
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                  Expanded(child: _buildBody(isOwner)),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+              Expanded(child: _buildBody(isOwner)),
+            ],
+          ),
         ),
         floatingActionButton: isOwner
             ? FloatingActionButton.extended(
                 heroTag: 'manage_users_fab',
                 onPressed: _inviteUser,
-                backgroundColor: kStickyGreen,
                 icon: const Icon(Icons.person_add),
                 label: Text(strings.inviteUser),
               )
@@ -462,7 +448,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             Icon(
               Icons.error_outline,
               size: 64,
-              color: kStickyPink.withValues(alpha: 0.7),
+              color: Theme.of(context).colorScheme.error.withValues(alpha: 0.7),
             ),
             const SizedBox(height: kSpacingMedium),
             Text(
@@ -471,10 +457,10 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
               style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: kSpacingMedium),
-            StickyButton(
-              label: strings.retryButton,
-              color: kStickyCyan,
+            FilledButton.icon(
               onPressed: _loadUsers,
+              icon: const Icon(Icons.refresh),
+              label: Text(strings.retryButton),
             ),
           ],
         ),
@@ -553,14 +539,14 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: kStickyGreen.withValues(alpha: 0.2),
+                  color: Theme.of(context).colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   strings.you,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: Colors.green,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -602,9 +588,9 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                     value: 'remove',
                     child: Row(
                       children: [
-                        const Icon(Icons.delete, size: 20, color: kStickyPink),
+                        const Icon(Icons.delete, size: 20, color: Colors.red),
                         const SizedBox(width: kSpacingSmall),
-                        Text(strings.removeUser, style: const TextStyle(color: kStickyPink)),
+                        Text(strings.removeUser, style: const TextStyle(color: Colors.red)),
                       ],
                     ),
                   ),
@@ -624,13 +610,14 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   }
 
   Color _getRoleColor(UserRole role) {
+    final cs = Theme.of(context).colorScheme;
     switch (role) {
       case UserRole.owner:
-        return kStickyYellow;
+        return Colors.amber;
       case UserRole.admin:
-        return kStickyPurple;
+        return cs.tertiary;
       case UserRole.editor:
-        return kStickyCyan;
+        return cs.primary;
       case UserRole.viewer:
       case UserRole.unknown:
         return Colors.grey;

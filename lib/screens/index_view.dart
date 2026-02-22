@@ -488,27 +488,23 @@ class IndexErrorView extends StatelessWidget {
                   const SizedBox(height: kSpacingXLarge),
 
                   // כפתור retry
-                  Semantics(
-                    button: true,
-                    label: AppStrings.index.retryLabel,
-                    hint: AppStrings.index.retryHint,
-                    child: ElevatedButton.icon(
-                      onPressed: onRetry,
-                      icon: const Icon(Icons.refresh),
-                      label: Text(AppStrings.index.retryButton),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: cs.primary,
-                        foregroundColor: cs.onPrimary,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: kSpacingXLarge,
-                          vertical: kSpacingMedium,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(kBorderRadiusLarge),
-                        ),
-                        elevation: 5,
+                  // ✅ ElevatedButton כבר מספק button semantics
+                  ElevatedButton.icon(
+                    onPressed: onRetry,
+                    icon: const Icon(Icons.refresh),
+                    label: Text(AppStrings.index.retryButton),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: cs.primary,
+                      foregroundColor: cs.onPrimary,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: kSpacingXLarge,
+                        vertical: kSpacingMedium,
                       ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(kBorderRadiusLarge),
+                      ),
+                      elevation: 5,
                     ),
                   ),
                 ],

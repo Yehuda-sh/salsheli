@@ -284,9 +284,6 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
     }
 
     // Navigate based on notification type
-    // ✅ FIX: unawaited for fire-and-forget
-    unawaited(HapticFeedback.selectionClick());
-
     switch (notification.type) {
       case NotificationType.invite:
         Navigator.pushNamed(context, '/pending-invites');

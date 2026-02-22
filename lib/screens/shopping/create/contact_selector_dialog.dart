@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/ui_constants.dart';
+import '../../../l10n/app_strings.dart';
 import '../../../models/enums/user_role.dart';
 import '../../../models/saved_contact.dart';
 import '../../../models/selected_contact.dart';
@@ -172,7 +173,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
     final email = _emailController.text.trim();
     if (email.isEmpty || !_isValidEmail(email)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('נא להזין אימייל תקין')),
+        SnackBar(content: Text(AppStrings.contactSelector.invalidEmail)),
       );
       return;
     }
@@ -180,10 +181,12 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
     // בדוק אם כבר נבחר
     if (_selectedContacts.any((c) => c.email == email)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('איש קשר זה כבר נבחר')),
+        SnackBar(content: Text(AppStrings.contactSelector.contactAlreadySelected)),
       );
       return;
     }
+
+    final messenger = ScaffoldMessenger.of(context);
 
     setState(() => _isCheckingContact = true);
 
@@ -218,8 +221,8 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
     } catch (e) {
       if (mounted) {
         setState(() => _isCheckingContact = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('שגיאה: $e')),
+        messenger.showSnackBar(
+          SnackBar(content: Text(AppStrings.contactSelector.genericError(e.toString()))),
         );
       }
     }
@@ -230,7 +233,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
     final phone = _phoneController.text.trim();
     if (phone.isEmpty || !_isValidPhone(phone)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('נא להזין מספר טלפון תקין (05X-XXXXXXX)')),
+        SnackBar(content: Text(AppStrings.contactSelector.invalidPhone)),
       );
       return;
     }
@@ -240,10 +243,12 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
     // בדוק אם כבר נבחר
     if (_selectedContacts.any((c) => c.phone == normalizedPhone)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('איש קשר זה כבר נבחר')),
+        SnackBar(content: Text(AppStrings.contactSelector.contactAlreadySelected)),
       );
       return;
     }
+
+    final messenger = ScaffoldMessenger.of(context);
 
     setState(() => _isCheckingContact = true);
 
@@ -278,8 +283,8 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
     } catch (e) {
       if (mounted) {
         setState(() => _isCheckingContact = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('שגיאה: $e')),
+        messenger.showSnackBar(
+          SnackBar(content: Text(AppStrings.contactSelector.genericError(e.toString()))),
         );
       }
     }
@@ -324,7 +329,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                     Icon(Icons.people, color: cs.primary),
                     const SizedBox(width: kSpacingSmall),
                     Text(
-                      'בחירת אנשים לשיתוף',
+                      AppStrings.contactSelector.title,
                       style: theme.textTheme.titleLarge,
                     ),
                     const Spacer(),
@@ -365,7 +370,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                 TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: 'חיפוש לפי שם או אימייל...',
+                    hintText: AppStrings.contactSelector.searchHint,
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon: _searchQuery.isNotEmpty
                         ? IconButton(
@@ -396,7 +401,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                         children: [
                           Expanded(
                             child: RadioListTile<_ContactInputType>(
-                              title: const Text('אימייל'),
+                              title: Text(AppStrings.contactSelector.emailLabel),
                               value: _ContactInputType.email,
                               groupValue: _inputType,
                               onChanged: (value) {
@@ -408,7 +413,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                           ),
                           Expanded(
                             child: RadioListTile<_ContactInputType>(
-                              title: const Text('טלפון'),
+                              title: Text(AppStrings.contactSelector.phoneLabel),
                               value: _ContactInputType.phone,
                               groupValue: _inputType,
                               onChanged: (value) {
@@ -431,7 +436,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                                   : _phoneController,
                               decoration: InputDecoration(
                                 hintText: _inputType == _ContactInputType.email
-                                    ? 'הזן אימייל...'
+                                    ? AppStrings.contactSelector.emailHint
                                     : '05X-XXXXXXX',
                                 prefixIcon: Icon(
                                   _inputType == _ContactInputType.email
@@ -485,7 +490,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                 else
                   TextButton.icon(
                     icon: const Icon(Icons.person_add),
-                    label: const Text('הוסף איש קשר חדש'),
+                    label: Text(AppStrings.contactSelector.addNewContact),
                     onPressed: () => setState(() => _isAddingContact = true),
                   ),
 
@@ -505,8 +510,8 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                                   const SizedBox(height: kSpacingSmall),
                                   Text(
                                     _searchQuery.isEmpty
-                                        ? 'אין אנשי קשר שמורים'
-                                        : 'לא נמצאו תוצאות',
+                                        ? AppStrings.contactSelector.noSavedContacts
+                                        : AppStrings.contactSelector.noSearchResults,
                                     style: TextStyle(color: cs.onSurfaceVariant),
                                   ),
                                 ],
@@ -544,14 +549,14 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                   children: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('ביטול'),
+                      child: Text(AppStrings.contactSelector.cancelButton),
                     ),
                     const SizedBox(width: kSpacingSmall),
                     FilledButton(
                       onPressed: _selectedContacts.isEmpty
                           ? null
                           : () => Navigator.pop(context, _selectedContacts),
-                      child: Text('אישור (${_selectedContacts.length})'),
+                      child: Text(AppStrings.contactSelector.confirmButton(_selectedContacts.length)),
                     ),
                   ],
                 ),
@@ -635,7 +640,7 @@ class _ContactTile extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(kSpacingMedium),
                 child: Text(
-                  'בחר תפקיד עבור ${contact.displayName}',
+                  AppStrings.contactSelector.selectRoleFor(contact.displayName),
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
@@ -728,18 +733,19 @@ class _RoleOption extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
+    final strings = AppStrings.contactSelector;
     String description;
     switch (role) {
       case UserRole.owner:
-        description = 'בעלים - מלוא ההרשאות';
+        description = strings.roleOwnerShortDesc;
       case UserRole.admin:
-        description = 'יכול לערוך ישירות ולהזמין אחרים';
+        description = strings.roleAdminShortDesc;
       case UserRole.editor:
-        description = 'יכול לערוך דרך אישור';
+        description = strings.roleEditorShortDesc;
       case UserRole.viewer:
-        description = 'יכול לצפות בלבד';
+        description = strings.roleViewerShortDesc;
       case UserRole.unknown:
-        description = 'תפקיד לא מוכר';
+        description = strings.roleUnknownShortDesc;
     }
 
     return ListTile(

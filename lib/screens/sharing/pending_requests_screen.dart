@@ -108,7 +108,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
     try {
       final userContext = Provider.of<UserContext>(context, listen: false);
       final notificationsService = NotificationsService(FirebaseFirestore.instance);
-      final approverName = userContext.displayName ?? 'מנהל';
+      final approverName = userContext.displayName ?? strings.roleAdmin;
 
       await _service.approveRequest(
         list: widget.list,
@@ -161,7 +161,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
     final strings = AppStrings.sharing;
     final userContext = Provider.of<UserContext>(context, listen: false);
     final notificationsService = NotificationsService(FirebaseFirestore.instance);
-    final rejecterName = userContext.displayName ?? 'מנהל';
+    final rejecterName = userContext.displayName ?? strings.roleAdmin;
 
     // Show rejection reason dialog
     final reason = await _showRejectDialog();
@@ -345,7 +345,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
             const SizedBox(height: kSpacingLarge),
             StickyButtonSmall(
               color: kStickyGreen,
-              label: 'חזור',
+              label: strings.backButton,
               icon: Icons.arrow_back,
               onPressed: () => Navigator.pop(context),
             ),
@@ -364,7 +364,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
     final rotations = [0.01, -0.01, 0.015, -0.015, 0.02];
     final rotation = rotations[index % rotations.length];
 
-    final requesterName = request.requesterName ?? 'משתמש לא ידוע';
+    final requesterName = request.requesterName ?? AppStrings.sharing.unknownUserFallback;
     final timeAgo = timeago.format(request.createdAt, locale: 'he', allowFromNow: true);
 
     // 🆕 בדיקה אם סוג הבקשה ידוע
@@ -525,7 +525,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
         return (
           Icons.add_shopping_cart,
           strings.requestTypeAdd,
-          request.requestData['name'] as String? ?? 'פריט לא ידוע',
+          request.requestData['name'] as String? ?? strings.unknownItemFallback,
         );
       case RequestType.editItem:
         return (
@@ -533,13 +533,13 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
           strings.requestTypeEdit,
           request.changes?['name'] as String? ??
               request.requestData['itemName'] as String? ??
-              'עריכת פריט',
+              strings.editItemFallback,
         );
       case RequestType.deleteItem:
         return (
           Icons.delete_outline,
           strings.requestTypeDelete,
-          request.requestData['itemName'] as String? ?? 'מחיקת פריט',
+          request.requestData['itemName'] as String? ?? strings.deleteItemFallback,
         );
       case RequestType.inviteToList:
         return (
@@ -551,7 +551,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
         return (
           Icons.help_outline,
           strings.requestTypeUnknown,
-          'בקשה לא מוכרת',
+          strings.unknownRequestFallback,
         );
     }
   }

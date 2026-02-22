@@ -152,7 +152,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
     }
 
     final roleName = _selectedRole.hebrewName;
-    return 'הזמנה תישלח ל-$recipient כ$roleName ברשימה "${widget.list.name}"';
+    return AppStrings.sharing.inviteConfirmation(recipient, roleName, widget.list.name);
   }
 
   // ============================================================
@@ -272,8 +272,8 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
 
       // Success - show message and go back
       final successMessage = userExists
-          ? 'הזמנה נשלחה ל$displayName - ממתינה לאישור'
-          : 'הזמנה נשלחה ל$displayName - יראה אותה כשיירשם לאפליקציה';
+          ? AppStrings.sharing.inviteSentPending(displayName)
+          : AppStrings.sharing.inviteSentUnregistered(displayName);
 
       messenger.showSnackBar(
         SnackBar(
@@ -382,13 +382,13 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Row(
+                                Row(
                                   children: [
-                                    Text('📇', style: TextStyle(fontSize: 20)),
-                                    SizedBox(width: 8),
+                                    const Text('📇', style: TextStyle(fontSize: 20)),
+                                    const SizedBox(width: 8),
                                     Text(
-                                      'אנשי קשר שמורים',
-                                      style: TextStyle(
+                                      AppStrings.sharing.savedContactsTitle,
+                                      style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -396,9 +396,9 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                   ],
                                 ),
                                 const SizedBox(height: 4),
-                                const Text(
-                                  'בחר מאנשי קשר שהזמנת בעבר',
-                                  style: TextStyle(
+                                Text(
+                                  AppStrings.sharing.savedContactsSubtitle,
+                                  style: const TextStyle(
                                     fontSize: 12,
                                     color: Colors.black54,
                                   ),
@@ -414,7 +414,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                         onPressed: () => setState(() => _showAllContacts = true),
                                         icon: const Icon(Icons.expand_more, size: 18),
                                         label: Text(
-                                          'הצג עוד ${_savedContacts.length - _initialContactsToShow} אנשי קשר',
+                                          AppStrings.sharing.showMoreContacts(_savedContacts.length - _initialContactsToShow),
                                           style: const TextStyle(fontSize: 12),
                                         ),
                                       ),
@@ -425,10 +425,10 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        const Center(
+                        Center(
                           child: Text(
-                            '── או הזן אימייל חדש ──',
-                            style: TextStyle(
+                            AppStrings.sharing.orEnterNewEmail,
+                            style: const TextStyle(
                               color: Colors.black54,
                               fontSize: 14,
                             ),
@@ -488,10 +488,10 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                 Padding(
                                   padding: const EdgeInsets.only(top: 8),
                                   child: Text(
-                                    'איש קשר נבחר - האימייל לא ישמש',
+                                    AppStrings.sharing.contactSelectedEmailDisabled,
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Colors.blue.shade700,
+                                      color: cs.primary,
                                       fontStyle: FontStyle.italic,
                                     ),
                                   ),
@@ -634,6 +634,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
   // ============================================================
 
   Widget _buildSavedContactOption(SavedContact contact) {
+    final cs = Theme.of(context).colorScheme;
     final isSelected = _selectedSavedContact?.userId == contact.userId;
     final isAlreadyShared = widget.list.sharedUsers.values.any((u) => u.userId == contact.userId);
     final isOwner = widget.list.createdBy == contact.userId;
@@ -661,7 +662,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                     : Colors.white.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: isSelected ? Colors.blue : Colors.transparent,
+              color: isSelected ? cs.primary : Colors.transparent,
               width: 2,
             ),
           ),
@@ -671,7 +672,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
               Icon(
                 isSelected ? Icons.check_circle : Icons.circle_outlined,
                 color: isSelected
-                    ? Colors.blue
+                    ? cs.primary
                     : (isAlreadyShared || isOwner)
                         ? Colors.grey
                         : Colors.black54,
@@ -680,7 +681,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
               // Avatar
               CircleAvatar(
                 radius: 18,
-                backgroundColor: Colors.blue.shade100,
+                backgroundColor: cs.primaryContainer,
                 child: contact.userAvatar != null
                     ? ClipOval(
                         child: Image.network(
@@ -690,18 +691,18 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                           fit: BoxFit.cover,
                           errorBuilder: (_, _, _) => Text(
                             contact.initials,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: Colors.blue,
+                              color: cs.primary,
                             ),
                           ),
                         ),
                       )
                     : Text(
                         contact.initials,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Colors.blue,
+                          color: cs.primary,
                         ),
                       ),
               ),
@@ -719,7 +720,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                              color: (isAlreadyShared || isOwner) ? Colors.grey : Colors.black,
+                              color: (isAlreadyShared || isOwner) ? Colors.grey : cs.onSurface,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -733,7 +734,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
-                              'בעלים',
+                              AppStrings.sharing.roleOwner,
                               style: TextStyle(fontSize: 10, color: kStickyPurple.withValues(alpha: 0.8)),
                             ),
                           ),
@@ -747,7 +748,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
-                              'כבר שותף',
+                              AppStrings.sharing.alreadySharedBadge,
                               style: TextStyle(fontSize: 10, color: kStickyOrange.withValues(alpha: 0.8)),
                             ),
                           ),
@@ -759,7 +760,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                         contact.userEmail,
                         style: TextStyle(
                           fontSize: 11,
-                          color: (isAlreadyShared || isOwner) ? Colors.grey : Colors.black54,
+                          color: (isAlreadyShared || isOwner) ? Colors.grey : cs.onSurfaceVariant,
                         ),
                       ),
                   ],
@@ -782,6 +783,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
     required String label,
     required String description,
   }) {
+    final cs = Theme.of(context).colorScheme;
     final isSelected = _selectedRole == role;
 
     return GestureDetector(
@@ -792,7 +794,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
           color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected ? Colors.black : Colors.transparent,
+            color: isSelected ? cs.outline : Colors.transparent,
             width: 2,
           ),
         ),
@@ -801,7 +803,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
             // Radio Icon
             Icon(
               isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
-              color: isSelected ? Colors.black : Colors.grey,
+              color: isSelected ? cs.onSurface : Colors.grey,
             ),
 
             const SizedBox(width: 12),

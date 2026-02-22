@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../../config/list_types_config.dart';
 import '../../../core/ui_constants.dart';
 import '../../../l10n/app_strings.dart';
 import '../../../models/receipt.dart';
@@ -32,7 +33,7 @@ import '../../../theme/app_theme.dart';
 import '../../../widgets/common/notebook_background.dart';
 import '../../history/shopping_history_screen.dart';
 import 'widgets/active_shopper_banner.dart';
-import 'widgets/quick_add_field.dart';
+import 'widgets/pending_invites_banner.dart';
 import 'widgets/suggestions_today_card.dart';
 
 class HomeDashboardScreen extends StatefulWidget {
@@ -191,10 +192,11 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(kSpacingMedium),
                 children: [
-                  // === 1. באנרים (Error / Active Shopper) ===
+                  // === 1. באנרים (Error / Active Shopper / Pending Invites) ===
                   if (listsProvider.hasError)
                     _buildErrorBanner(context, listsProvider.errorMessage!, cs),
                   const ActiveShopperBanner(),
+                  const PendingInvitesBanner(),
 
                   // === 2. Header עם שם משפחה ===
                   _buildHeader(
@@ -202,11 +204,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     userName: userContext.displayName,
                     familyName: familyName,
                   ),
-
-                  const SizedBox(height: kSpacingMedium),
-
-                  // === 3. Quick Add ===
-                  const QuickAddField(),
 
                   const SizedBox(height: kSpacingMedium),
 
@@ -388,7 +385,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 final unreadCount = snapshot.data ?? 0;
                 return InkWell(
                   onTap: () {
-                    unawaited(HapticFeedback.lightImpact());
                     Navigator.pushNamed(context, '/notifications');
                   },
                   borderRadius: BorderRadius.circular(12),
@@ -462,7 +458,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             ),
             child: InkWell(
               onTap: () {
-                unawaited(HapticFeedback.lightImpact());
                 Navigator.pushNamed(context, '/create-list');
               },
               borderRadius: BorderRadius.circular(16),
@@ -518,145 +513,168 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     final totalCount = list.items.length;
     final progress = totalCount > 0 ? checkedCount / totalCount : 0.0;
 
-    // צבע לפי סוג הרשימה
-    final typeColor = _getListTypeColor(list.type, cs, brand);
-    // ✅ FIX: Theme-aware success color
+    // צבע לפי סוג הרשימה (מרכזי ב-ListTypes)
+    final typeColor = ListTypes.getColor(list.type, cs, brand);
     final successColor = brand?.success ?? kStickyGreen;
-    // ✅ FIX: RTL-aware chevron icon
     final isRtl = Directionality.of(context) == TextDirection.rtl;
+    final isDone = totalCount > 0 && uncheckedCount == 0;
+    final accentColor = isDone ? successColor : typeColor;
 
     return Card(
       margin: const EdgeInsets.only(bottom: kSpacingSmall),
       clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(
+          color: accentColor.withValues(alpha: 0.25),
+        ),
+      ),
       child: InkWell(
         onTap: () {
-          unawaited(HapticFeedback.lightImpact());
           Navigator.pushNamed(
             context,
             '/list-details',
             arguments: list,
           );
         },
-        child: Column(
-          children: [
-            // פס צבע עליון
-            Container(
-              height: 4,
-              color: typeColor,
-            ),
-            Padding(
-              padding: const EdgeInsets.all(kSpacingMedium),
-              child: Row(
-                children: [
-                  // אימוג'י בעיגול צבעוני
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: typeColor.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Center(
-                      child: Text(list.typeEmoji, style: const TextStyle(fontSize: 24)),
-                    ),
-                  ),
-                  const SizedBox(width: kSpacingMedium),
-                  // שם + מספר פריטים
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          list.name,
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+        borderRadius: BorderRadius.circular(14),
+        child: IntrinsicHeight(
+          child: Row(
+            children: [
+              // פס צבע צד ימין (RTL) / שמאל (LTR)
+              Container(
+                width: 5,
+                decoration: BoxDecoration(
+                  color: accentColor,
+                  borderRadius: isRtl
+                      ? const BorderRadius.only(
+                          topRight: Radius.circular(14),
+                          bottomRight: Radius.circular(14),
+                        )
+                      : const BorderRadius.only(
+                          topLeft: Radius.circular(14),
+                          bottomLeft: Radius.circular(14),
                         ),
-                        const SizedBox(height: 4),
-                        if (totalCount == 0)
-                          Text(
-                            strings.emptyList,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: cs.onSurfaceVariant,
-                            ),
-                          )
-                        else
-                          Row(
-                            children: [
-                              Icon(
-                                uncheckedCount == 0
-                                    ? Icons.check_circle
-                                    : Icons.shopping_bag_outlined,
-                                size: 14,
-                                color: uncheckedCount == 0
-                                    ? successColor
-                                    : cs.onSurfaceVariant,
+                ),
+              ),
+              // תוכן הכרטיסייה
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: kSpacingMedium,
+                    vertical: 14,
+                  ),
+                  child: Row(
+                    children: [
+                      // אימוג'י בעיגול צבעוני
+                      Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: accentColor.withValues(alpha: 0.12),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(list.typeEmoji,
+                              style: const TextStyle(fontSize: 24)),
+                        ),
+                      ),
+                      const SizedBox(width: kSpacingMedium),
+                      // שם + סטטוס + progress
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              list.name,
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
                               ),
-                              const SizedBox(width: 4),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 6),
+                            if (totalCount == 0)
                               Text(
-                                uncheckedCount == 0
-                                    ? strings.completed
-                                    : strings.remainingItems(uncheckedCount),
+                                strings.emptyList,
                                 style: theme.textTheme.bodySmall?.copyWith(
-                                  color: uncheckedCount == 0
-                                      ? successColor
-                                      : cs.onSurfaceVariant,
-                                  fontWeight: uncheckedCount == 0
-                                      ? FontWeight.w600
-                                      : FontWeight.normal,
+                                  color: cs.onSurfaceVariant,
+                                ),
+                              )
+                            else ...[
+                              // Progress bar
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: LinearProgressIndicator(
+                                  value: progress,
+                                  backgroundColor:
+                                      cs.surfaceContainerHighest,
+                                  valueColor:
+                                      AlwaysStoppedAnimation(accentColor),
+                                  minHeight: 5,
                                 ),
                               ),
+                              const SizedBox(height: 4),
+                              // סטטוס טקסט
+                              Row(
+                                children: [
+                                  Icon(
+                                    isDone
+                                        ? Icons.check_circle
+                                        : Icons.shopping_bag_outlined,
+                                    size: 13,
+                                    color: isDone
+                                        ? successColor
+                                        : cs.onSurfaceVariant,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    isDone
+                                        ? strings.completed
+                                        : strings.remainingItems(
+                                            uncheckedCount),
+                                    style:
+                                        theme.textTheme.bodySmall?.copyWith(
+                                      color: isDone
+                                          ? successColor
+                                          : cs.onSurfaceVariant,
+                                      fontWeight: isDone
+                                          ? FontWeight.w600
+                                          : FontWeight.normal,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  // ספירה קומפקטית
+                                  Text(
+                                    '$checkedCount/$totalCount',
+                                    style:
+                                        theme.textTheme.labelSmall?.copyWith(
+                                      color: cs.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ],
-                          ),
-                      ],
-                    ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: kSpacingSmall),
+                      // חץ - RTL aware
+                      Icon(
+                        isRtl ? Icons.chevron_left : Icons.chevron_right,
+                        color: cs.onSurfaceVariant.withValues(alpha: 0.5),
+                        size: 20,
+                      ),
+                    ],
                   ),
-                  // חץ - RTL aware
-                  Icon(
-                    isRtl ? Icons.chevron_left : Icons.chevron_right,
-                    color: cs.onSurfaceVariant,
-                  ),
-                ],
-              ),
-            ),
-            // Progress bar בתחתית
-            if (totalCount > 0)
-              LinearProgressIndicator(
-                value: progress,
-                backgroundColor: cs.surfaceContainerHighest,
-                valueColor: AlwaysStoppedAnimation(
-                  progress == 1.0 ? successColor : typeColor,
                 ),
-                minHeight: 3,
               ),
-          ],
+            ],
+          ),
         ),
       ),
     );
-  }
-
-  Color _getListTypeColor(String type, ColorScheme cs, AppBrand? brand) {
-    switch (type) {
-      case 'supermarket':
-      case 'market':
-        return brand?.stickyGreen ?? kStickyGreen;
-      case 'pharmacy':
-        return brand?.stickyPink ?? kStickyPink;
-      case 'greengrocer':
-        return brand?.stickyCyan ?? kStickyCyan;
-      case 'butcher':
-        return kStickyOrange;
-      case 'bakery':
-        return brand?.stickyYellow ?? kStickyYellow;
-      case 'household':
-        return brand?.stickyCyan ?? kStickyCyan;
-      case 'event':
-        return brand?.stickyPurple ?? kStickyPurple;
-      default:
-        return cs.primary;
-    }
   }
 
   // ============================================
@@ -698,7 +716,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             if (hasMore)
               TextButton(
                 onPressed: () {
-                  unawaited(HapticFeedback.lightImpact());
                   Navigator.pushNamed(context, '/history');
                 },
                 style: TextButton.styleFrom(
@@ -757,7 +774,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
     return ListTile(
       onTap: () {
-        unawaited(HapticFeedback.lightImpact());
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -821,7 +837,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     } else if (difference.inDays < 7) {
       return strings.daysAgo(difference.inDays);
     } else {
-      return '${date.day}/${date.month}/${date.year}';
+      return strings.dateFormat(date.day, date.month, date.year);
     }
   }
 }

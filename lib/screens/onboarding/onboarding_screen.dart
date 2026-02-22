@@ -25,10 +25,7 @@
 // Version 3.0 - No AppBar (Immersive)
 // Last Updated: 13/01/2026
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../core/ui_constants.dart';
 import '../../data/onboarding_data.dart';
@@ -85,8 +82,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         duration: kAnimationDurationMedium,
         curve: Curves.easeOut,
       );
-      // ignore: unawaited_futures
-      _haptic();
     } else {
       _finishOnboarding();
     }
@@ -104,8 +99,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         duration: kAnimationDurationShort,
         curve: Curves.easeOut,
       );
-      // ignore: unawaited_futures
-      _haptic();
     }
   }
 
@@ -185,18 +178,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
       }
-    }
-  }
-
-  // ========================================
-  // Helpers
-  // ========================================
-
-  Future<void> _haptic() async {
-    try {
-      await HapticFeedback.selectionClick();
-    } catch (_) {
-      // Haptic לא זמין - לא נורא
     }
   }
 
@@ -353,7 +334,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         ),
         const SizedBox(width: kSpacingSmall),
         Text(
-          'שלב ${_currentStep + 1}/$totalSteps', // ✅ דינמי במקום סטטי
+          AppStrings.onboarding.stepProgress(_currentStep + 1, totalSteps),
           style: TextStyle(
             color: cs.onSurface,
             fontSize: 16, // מוגדל מ-14
@@ -434,7 +415,7 @@ class _ProgressDots extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'שלב ${currentStep + 1} מתוך $totalSteps',
+      label: AppStrings.onboarding.stepAccessibilityLabel(currentStep + 1, totalSteps),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: List.generate(

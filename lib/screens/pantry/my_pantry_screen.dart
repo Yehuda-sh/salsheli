@@ -41,7 +41,6 @@ import '../../providers/inventory_provider.dart';
 import '../../providers/locations_provider.dart';
 import '../../services/template_service.dart';
 import '../../theme/app_theme.dart';
-import '../../widgets/common/notebook_background.dart';
 import '../../widgets/inventory/pantry_empty_state.dart';
 import '../../widgets/inventory/pantry_item_dialog.dart';
 import '../../widgets/inventory/pantry_product_selection_sheet.dart';
@@ -58,11 +57,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   String _searchQuery = '';
   String? _selectedLocation; // מיקום נבחר לסינון (null = הכל)
 
-  // 🔄 State flags
-  bool _isProcessing = false;
-
   // ⏱️ Debounce לחיפוש
   Timer? _searchDebounce;
+  final _searchController = TextEditingController();
   static const _debounceDuration = Duration(milliseconds: 300);
 
   @override
@@ -85,6 +82,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   @override
   void dispose() {
     _searchDebounce?.cancel();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -207,8 +205,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
   /// 🏺 מוסיף פריטי starter למזווה (Onboarding)
   Future<void> _addStarterItems() async {
-    if (_isProcessing) return;
-    setState(() => _isProcessing = true);
 
     // ✅ Cache values before async gap
     final strings = AppStrings.pantry;
@@ -249,10 +245,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           SnackBar(content: Text(strings.starterItemsError)),
         );
       }
-    } finally {
-      if (mounted) {
-        setState(() => _isProcessing = false);
-      }
     }
   }
 
@@ -266,8 +258,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
   /// מוחק פריט מהמזווה
   Future<void> _deleteItem(InventoryItem item) async {
-    if (_isProcessing) return;
-    setState(() => _isProcessing = true);
 
     // ✅ Cache values before async gap
     final strings = AppStrings.pantry;
@@ -285,8 +275,14 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             content: Text(strings.itemDeleted(item.productName)),
             action: SnackBarAction(
               label: AppStrings.common.cancel,
-              onPressed: () {
-                // TODO: Undo deletion
+              onPressed: () async {
+                try {
+                  await inventoryProvider.updateItem(item);
+                } catch (e) {
+                  if (kDebugMode) {
+                    debugPrint('❌ MyPantryScreen: שגיאה בשחזור פריט - $e');
+                  }
+                }
               },
             ),
           ),
@@ -301,18 +297,11 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           SnackBar(content: Text(strings.deleteItemError)),
         );
       }
-    } finally {
-      if (mounted) {
-        setState(() => _isProcessing = false);
-      }
     }
   }
 
   /// מעדכן כמות פריט במזווה
   Future<void> _updateQuantity(InventoryItem item, int newQuantity) async {
-    if (_isProcessing) return;
-    setState(() => _isProcessing = true);
-
     // ✅ Cache values before async gap
     final strings = AppStrings.pantry;
     final messenger = ScaffoldMessenger.of(context);
@@ -340,10 +329,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           SnackBar(content: Text(strings.updateQuantityError)),
         );
       }
-    } finally {
-      if (mounted) {
-        setState(() => _isProcessing = false);
-      }
     }
   }
 
@@ -359,11 +344,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
 
-    // ✅ צבעים מה-Theme + Dark Mode
     final primaryColor = scheme.primaryContainer;
-    final backgroundColor = isDark ? scheme.surface : kPaperBackground;
+    final backgroundColor = scheme.surface;
 
     final strings = AppStrings.pantry;
 
@@ -420,7 +403,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                   label: strings.addItemLabel,
                   child: FloatingActionButton(
                     heroTag: 'pantry_add_btn',
-                    onPressed: _isProcessing ? null : _addItemDialog,
+                    onPressed: _addItemDialog,
                     backgroundColor: primaryColor,
                     tooltip: strings.addItemTooltip,
                     child: Icon(Icons.add, color: scheme.onPrimaryContainer),
@@ -441,22 +424,14 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                       ),
                     )
                   : allItems.isEmpty
-                      ? Stack(
-                          children: [
-                            const NotebookBackground(),
-                            SafeArea(
-                              child: PantryEmptyState(
-                                onAddItem: _addItemDialog,
-                                onAddStarterItems: _addStarterItems,
-                              ),
-                            ),
-                          ],
+                      ? SafeArea(
+                          child: PantryEmptyState(
+                            onAddItem: _addItemDialog,
+                            onAddStarterItems: _addStarterItems,
+                          ),
                         )
-                      : Stack(
-                          children: [
-                            const NotebookBackground(),
-                            SafeArea(
-                              child: Column(
+                      : SafeArea(
+                          child: Column(
                                 children: [
                                   // 🏷️ כותרת המזווה
                                   _buildInlineTitle(provider, scheme),
@@ -474,6 +449,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                                 Text(strings.noItemsFound, style: TextStyle(color: scheme.onSurface)),
                                                 TextButton(
                                                   onPressed: () {
+                                                    _searchController.clear();
                                                     setState(() {
                                                       _searchQuery = '';
                                                       _selectedLocation = null;
@@ -491,8 +467,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                 ],
                               ),
                             ),
-                          ],
-                        ),
             );
           },
         ),
@@ -570,6 +544,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                   ],
                 ),
                 child: TextField(
+                  controller: _searchController,
                   textAlignVertical: TextAlignVertical.center,
                   decoration: InputDecoration(
                     hintText: AppStrings.pantry.searchHint,
@@ -580,6 +555,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                             icon: const Icon(Icons.clear, size: 18),
                             tooltip: AppStrings.pantry.clearSearchTooltip,
                             onPressed: () {
+                              _searchController.clear();
                               setState(() => _searchQuery = '');
                             },
                           )
@@ -811,9 +787,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     return ListView.builder(
       physics: const BouncingScrollPhysics(), // 🎯 גלילה רכה כמו iOS
       padding: const EdgeInsets.only(
-        top: kNotebookLineSpacing - 8,
+        top: kSpacingSmall,
         left: kSpacingMedium,
-        right: kNotebookRedLineOffset + kSpacingSmall, // 🧭 רווח מהקו האדום (RTL: בצד ימין)
+        right: kSpacingMedium,
         bottom: 100,
       ),
       itemCount: items.length,
@@ -860,9 +836,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     return ListView.builder(
       physics: const BouncingScrollPhysics(), // 🎯 גלילה רכה כמו iOS
       padding: const EdgeInsets.only(
-        top: kNotebookLineSpacing,
+        top: kSpacingSmall,
         left: kSpacingMedium,
-        right: kNotebookRedLineOffset + kSpacingSmall, // 🧭 רווח מהקו האדום (RTL: בצד ימין)
+        right: kSpacingMedium,
         bottom: 100,
       ),
       itemCount: locations.length,
@@ -981,7 +957,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       },
       onDismissed: (_) => _deleteItem(item),
       child: SizedBox(
-        height: kNotebookLineSpacing,
+        height: 56,
         child: Row(
           children: [
             const SizedBox(width: kSpacingMedium),

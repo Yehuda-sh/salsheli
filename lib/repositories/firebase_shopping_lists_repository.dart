@@ -24,6 +24,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:memozap/models/shopping_list.dart';
 import 'package:memozap/repositories/constants/repository_constants.dart';
 import 'package:memozap/repositories/shopping_lists_repository.dart';
@@ -703,21 +704,62 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
   // ========================================
 
   /// מחזיר stream של רשימות (real-time updates) - ממוזג
+  @override
   Stream<List<ShoppingList>> watchLists(String userId, String? householdId) {
-    // TODO: לממש stream ממוזג עם rxdart או CombineLatestStream
-    // לעת עתה, מחזיר רק את הרשימות הפרטיות
-    return _privateListsCollection(userId)
+    debugPrint(
+      '🔄 FirebaseShoppingListsRepository.watchLists: מאזין לרשימות (user: $userId, household: $householdId)',
+    );
+
+    // Stream של רשימות פרטיות
+    final privateStream = _privateListsCollection(userId)
         .orderBy(FirestoreFields.updatedDate, descending: true)
         .snapshots()
         .map((snapshot) {
           return snapshot.docs.map((doc) {
             final data = Map<String, dynamic>.from(doc.data());
-            // 🔧 הוסף את ה-id מהמסמך אם לא קיים
             data['id'] ??= doc.id;
             data[FirestoreFields.isPrivate] = true;
             return ShoppingList.fromJson(data);
           }).toList();
         });
+
+    // אם אין household, מחזיר רק רשימות פרטיות
+    if (householdId == null) {
+      return privateStream;
+    }
+
+    // Stream של רשימות משותפות
+    final sharedStream = _sharedListsCollection(householdId)
+        .orderBy(FirestoreFields.updatedDate, descending: true)
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs.map((doc) {
+            final data = Map<String, dynamic>.from(doc.data());
+            data['id'] ??= doc.id;
+            data[FirestoreFields.isPrivate] = false;
+            return ShoppingList.fromJson(data);
+          }).toList();
+        });
+
+    // מיזוג שני ה-streams - בכל פעם שאחד משתנה, ממזגים את שניהם
+    return Rx.combineLatest2<List<ShoppingList>, List<ShoppingList>, List<ShoppingList>>(
+      privateStream,
+      sharedStream,
+      (privateLists, sharedLists) {
+        // מיזוג הרשימות
+        final allLists = [...privateLists, ...sharedLists];
+
+        // מיון לפי תאריך עדכון (חדש ביותר ראשון)
+        allLists.sort((a, b) => b.updatedDate.compareTo(a.updatedDate));
+
+        debugPrint(
+          '📥 FirebaseShoppingListsRepository.watchLists: ${allLists.length} רשימות '
+          '(${privateLists.length} פרטיות, ${sharedLists.length} משותפות)',
+        );
+
+        return allLists;
+      },
+    );
   }
 
   /// מחזיר רשימה לפי ID (חיפוש בשתי הקולקציות)

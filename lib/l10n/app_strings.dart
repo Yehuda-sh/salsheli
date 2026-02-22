@@ -159,6 +159,12 @@ class AppStrings {
   static const activeShopperBanner = _ActiveShopperBannerStrings();
 
   // ========================================
+  // Suggestions Today Card (Dashboard)
+  // ========================================
+
+  static const suggestionsToday = _SuggestionsTodayCardStrings();
+
+  // ========================================
   // Last Chance Banner
   // ========================================
 
@@ -171,16 +177,10 @@ class AppStrings {
   static const pendingInviteBanner = _PendingInviteBannerStrings();
 
   // ========================================
-  // Quick Add Field
+  // Pending Invites Screen
   // ========================================
 
-  static const quickAddField = _QuickAddFieldStrings();
-
-  // ========================================
-  // Upcoming Shop Card
-  // ========================================
-
-  static const upcomingShopCard = _UpcomingShopCardStrings();
+  static const pendingInvitesScreen = _PendingInvitesScreenStrings();
 
   // ========================================
   // Home Dashboard Screen
@@ -201,10 +201,17 @@ class AppStrings {
   static const pantry = _PantryStrings();
 
   // ========================================
-  // Smart Suggestions Card
+  // Checklist Screen
   // ========================================
 
-  static const smartSuggestions = _SmartSuggestionsStrings();
+  static const checklist = _ChecklistStrings();
+
+  // ========================================
+  // Contact Selector Dialog
+  // ========================================
+
+  static const contactSelector = _ContactSelectorStrings();
+
 }
 
 // ========================================
@@ -322,6 +329,8 @@ class _OnboardingStrings {
   String get next => 'הבא';
   String get finish => 'סיום';
   String get progress => 'התקדמות';
+  String stepProgress(int current, int total) => 'שלב $current/$total';
+  String stepAccessibilityLabel(int current, int total) => 'שלב $current מתוך $total';
 
   // Errors
   String savingError(String error) => 'שמירת ההגדרות נכשלה: $error';
@@ -334,6 +343,16 @@ class _OnboardingStrings {
 
   // Family Size Step
   String get familySizeTitle => 'כמה אנשים במשפחה?';
+  String get hasChildrenQuestion => 'יש לכם ילדים?';
+  String get addChild => 'הוסף ילד נוסף';
+  String childLabel(int index) => 'ילד $index';
+  String get childNameLabel => 'שם';
+  String get childAgeLabel => 'גיל';
+  String get ageBaby => 'תינוק/ת (0-1)';
+  String get ageToddler => 'גיל הרך (2-3)';
+  String get agePreschool => 'גן (4-6)';
+  String get ageSchool => 'בית ספר (7-12)';
+  String get ageTeen => 'נוער (13-18)';
 
   // Stores Step
   String get storesTitle => 'בחר חנויות מועדפות:';
@@ -344,6 +363,13 @@ class _OnboardingStrings {
 
   // Categories Step
   String get categoriesTitle => 'אילו קטגוריות חשובות לכם במיוחד?';
+
+  // Shopping Frequency Step
+  String get frequencyTitle => 'תדירות קניות';
+  String get frequencyQuestion => 'כמה פעמים בשבוע אתם קונים קניות?';
+  String frequencyPerWeek(int count) => '$count פעמים בשבוע';
+  String get fixedDaysQuestion => 'יש לכם ימים קבועים לקניות?';
+  String get multiSelectHint => '(בחירה מרובה)';
 
   // Sharing Step
   String get sharingTitle => 'האם תרצה לשתף רשימות עם המשפחה?';
@@ -362,6 +388,10 @@ class _OnboardingStrings {
   String budgetSummary(double amount) => 'תקציב חודשי: ${amount.toStringAsFixed(0)} ₪';
   String categoriesSummary(String categories) => 'קטגוריות: $categories';
   String get noCategoriesSelected => 'לא נבחר';
+  String frequencySummary(int count) => 'תדירות: $count פעמים בשבוע';
+  String fixedDaysSummary(String days) => 'ימים קבועים: $days';
+  String childrenSummary(String children) => 'ילדים: $children';
+  String get childrenYes => 'כן';
   String sharingSummary(bool enabled) => 'שיתוף רשימות: ${enabled ? "כן" : "לא"}';
   String reminderTimeSummary(String time) => 'שעה מועדפת: $time';
 }
@@ -669,19 +699,38 @@ class _WelcomeStrings {
   // Pantry Card
   String get group2Emoji => '📦';
   String get group2Title => 'מזווה דיגיטלי';
-  String get group2Question => '"מה יש בבית?"';
+  String get group2Question => '"מה חסר בבית?"';
   String get group2Feature1 => 'מלאי 📊';
   String get group2Feature2 => 'תזכורות ⏰';
 
   // Family Sharing Card
   String get group3Emoji => '👨‍👩‍👧‍👦';
   String get group3Title => 'שיתוף משפחתי';
-  String get group3Question => '"קונים ביחד!"';
+  String get group3Question => '"מי בקבוצה?"';
   String get group3Feature1 => 'זמן אמת 🔄';
   String get group3Feature2 => 'סנכרון ☁️';
 
   // More features hint
   String get moreGroupsHint => 'פשוט ונוח - בלי סיבוכים';
+
+  // Demo data for mini previews (Welcome screen)
+  String get demoListHeader => '🛒 סופר';
+  String get demoItem1 => 'חלב';
+  String get demoItem2 => 'לחם';
+  String get demoItem3 => 'ביצים';
+
+  String get demoPantryHeader => '📦 מזווה';
+  String get demoPantryItem1 => 'חלב';
+  String get demoPantryItem2 => 'ביצים';
+  String get demoPantryItem3 => 'לחם';
+
+  String get demoFamilyHeader => '👨‍👩‍👧‍👦 משפחה';
+  String get demoUser1 => 'אבא';
+  String get demoUser2 => 'אמא';
+  String get demoUser3 => 'דני';
+
+  String get statusOnline => 'מחובר';
+  String get statusOffline => 'לא מחובר';
 
   // Legacy benefits (kept for backward compatibility)
   String get benefit1Title => 'שיתוף בזמן אמת';
@@ -1059,6 +1108,30 @@ class _SettingsStrings {
   String get weeklyRemindersSubtitle => 'קבל תזכורת לתכנן קניות';
   String get habitsAnalysisLabel => 'ניתוח הרגלי קנייה';
   String get habitsAnalysisSubtitle => 'קבל המלצות מבוססות נתונים';
+
+  // Notifications Section
+  String get notificationsSectionTitle => 'התראות';
+  String get notifyShoppingTitle => 'התראות קנייה';
+  String get notifyShoppingSubtitle => 'כשמישהו מסיים קנייה';
+  String get notifyInventoryTitle => 'התראות מלאי';
+  String get notifyInventorySubtitle => 'כשמוצר במזווה אוזל';
+  String get notifyGroupTitle => 'התראות קבוצה';
+  String get notifyGroupSubtitle => 'הזמנות וחברים חדשים';
+
+  // General Settings Section
+  String get generalSettingsSectionTitle => 'הגדרות כלליות';
+  String get themeLabel => 'ערכת נושא';
+  String get themeLight => 'בהיר';
+  String get themeDark => 'כהה';
+  String get themeSystem => 'מערכת';
+
+  // Household Management Section (ניהול משפחה)
+  String get householdManagementTitle => 'ניהול משפחה';
+  String get householdMembersTitle => 'חברי המשפחה';
+  String get householdMembersSubtitle => 'הוסף והסר חברים';
+  String get householdInviteTitle => 'הזמן חברים';
+  String get householdInviteSubtitle => 'שלח הזמנה להצטרף';
+  String get householdComingSoon => 'ניהול מלא - בקרוב!';
 
   // Quick Links
   String get quickLinksTitle => 'קישורים מהירים';
@@ -1939,6 +2012,20 @@ class _SharingStrings {
   String userRemoved(String userName) => '$userName הוסר מהרשימה';
   String removeUserError(String error) => 'שגיאה בהסרת משתמש: $error';
 
+  // Saved Contacts
+  String get savedContactsTitle => 'אנשי קשר שמורים';
+  String get savedContactsSubtitle => 'בחר מאנשי קשר שהזמנת בעבר';
+  String showMoreContacts(int count) => 'הצג עוד $count אנשי קשר';
+  String get orEnterNewEmail => '── או הזן אימייל חדש ──';
+  String get contactSelectedEmailDisabled => 'איש קשר נבחר - האימייל לא ישמש';
+  String get alreadySharedBadge => 'כבר שותף';
+
+  // Confirmation
+  String inviteConfirmation(String recipient, String role, String listName) =>
+      'הזמנה תישלח ל-$recipient כ$role ברשימה "$listName"';
+  String inviteSentPending(String name) => 'הזמנה נשלחה ל$name - ממתינה לאישור';
+  String inviteSentUnregistered(String name) => 'הזמנה נשלחה ל$name - יראה אותה כשיירשם לאפליקציה';
+
   // Restrictions
   String get cannotChangeOwnRole => 'לא ניתן לשנות את התפקיד שלך';
   String get cannotRemoveSelf => 'לא ניתן להסיר את עצמך';
@@ -1974,6 +2061,14 @@ class _SharingStrings {
   String get viewDetailsButton => 'פרטים';
   String get approveButton => 'אשר ✅';
   String get rejectButton => 'דחה ❌';
+
+  // Fallbacks (pending requests)
+  String get backButton => 'חזור';
+  String get unknownUserFallback => 'משתמש לא ידוע';
+  String get unknownItemFallback => 'פריט לא ידוע';
+  String get editItemFallback => 'עריכת פריט';
+  String get deleteItemFallback => 'מחיקת פריט';
+  String get unknownRequestFallback => 'בקשה לא מוכרת';
 
   // Request Details Dialog
   String get requestDetailsTitle => 'פרטי בקשה';
@@ -2313,12 +2408,43 @@ class _ActiveShopperBannerStrings {
   // Others Shopping Banner
   // ========================================
 
-  String get othersActiveTitle => 'קניות מתבצעות!';
-  String othersActiveSingle(String listName) => 'מישהו קונה מ"$listName"';
+  String othersActiveTitle(String shopperName) => '$shopperName קונה עכשיו';
+  String othersActiveTitleMultiple(int count) => '$count קונים עכשיו';
+  String othersActiveSingle(String listName) => 'קונה מ"$listName"';
   String othersActiveMultiple(int count, String listName) =>
       '$count אנשים קונים מ"$listName"';
-  String get joinButton => 'הצטרף';
-  String get viewListTooltip => 'צפה ברשימה';
+  String get joinButton => 'להצטרף';
+  String get viewListTooltip => 'צפייה חיה';
+}
+
+// ========================================
+// Suggestions Today Card (Dashboard Widget)
+// ========================================
+
+class _SuggestionsTodayCardStrings {
+  const _SuggestionsTodayCardStrings();
+
+  // Header
+  String get title => 'הצעות מהמזווה';
+  String get loading => 'טוען הצעות...';
+  String itemCount(int count) => '$count פריטים';
+
+  // Urgency levels
+  String get urgencyCritical => 'נגמר!';
+  String get urgencyHigh => 'כמעט נגמר';
+  String get urgencyMedium => 'מתמעט';
+  String get urgencyLow => 'מומלץ';
+
+  // Stock display
+  String inStock(int stock, String unit) => 'במלאי: $stock $unit';
+
+  // Action buttons
+  String get addButton => 'הוסף';
+
+  // Snackbar messages
+  String get noActiveLists => 'אין רשימות פעילות - צור רשימה חדשה';
+  String addedToList(String productName) => 'נוסף "$productName" לרשימה';
+  String dismissedForWeek(String productName) => 'דחיתי "$productName" לשבוע';
 }
 
 // ========================================
@@ -2367,6 +2493,50 @@ class _LastChanceBannerStrings {
 // Pending Invite Banner (Dashboard Widget)
 // ========================================
 
+// ========================================
+// Pending Invites Screen Strings
+// ========================================
+
+class _PendingInvitesScreenStrings {
+  const _PendingInvitesScreenStrings();
+
+  // Title
+  String get title => 'הזמנות ממתינות';
+
+  // Loading
+  String get loading => 'טוען הזמנות...';
+  String get loadError => 'שגיאה בטעינת הזמנות';
+  String get retryButton => 'נסה שוב';
+
+  // Empty State
+  String get emptyTitle => 'אין הזמנות ממתינות';
+  String get emptySubtitle => 'כאשר מישהו יזמין אותך לרשימה,\nההזמנה תופיע כאן';
+  String get pullToRefresh => '↓ משוך לרענון';
+
+  // Invite Card
+  String get listFallback => 'רשימה';
+  String get userFallback => 'משתמש';
+  String inviteToList(String listName) => 'הזמנה לרשימה "$listName"';
+  String inviterMessage(String inviterName) => '$inviterName מזמין אותך להצטרף';
+  String get roleLabel => 'תפקיד: ';
+
+  // Action Buttons
+  String get acceptButton => 'הצטרף';
+  String get declineButton => 'דחה';
+
+  // Accept
+  String acceptSuccess(String listName) => 'הצטרפת לרשימה "$listName"';
+  String acceptError(String error) => 'שגיאה באישור ההזמנה: $error';
+
+  // Decline Dialog
+  String get declineDialogTitle => 'דחיית הזמנה';
+  String declineDialogMessage(String listName) => 'לדחות את ההזמנה לרשימה "$listName"?';
+  String get cancelButton => 'ביטול';
+  String get declineConfirmButton => 'דחה';
+  String get declineSuccess => 'ההזמנה נדחתה';
+  String declineError(String error) => 'שגיאה בדחיית ההזמנה: $error';
+}
+
 class _PendingInviteBannerStrings {
   const _PendingInviteBannerStrings();
 
@@ -2404,89 +2574,6 @@ class _PendingInviteBannerStrings {
   String get rejectSuccess => 'ההזמנה נדחתה';
   String get rejectError => 'שגיאה בדחיית ההזמנה';
   String get notLoggedIn => 'לא מחובר';
-}
-
-// ========================================
-// Quick Add Field (Dashboard Widget)
-// ========================================
-
-class _QuickAddFieldStrings {
-  const _QuickAddFieldStrings();
-
-  // ========================================
-  // Hints & Placeholders
-  // ========================================
-
-  String get hintWithList => 'הוסף פריט מהיר...';
-  String get hintNoList => 'צור רשימה להוספת פריטים';
-  String get addTooltip => 'הוסף';
-
-  // ========================================
-  // Target List Info
-  // ========================================
-
-  String willAddTo(String listName) => 'יתווסף ל"$listName"';
-
-  // ========================================
-  // No Active List
-  // ========================================
-
-  String get noActiveListMessage => 'אין רשימות פעילות - צור רשימה חדשה';
-  String get createButton => 'צור';
-
-  // ========================================
-  // Default Values
-  // ========================================
-
-  String get defaultUnit => 'יח\'';
-  String get defaultCategory => 'כללי';
-
-  // ========================================
-  // Feedback Messages
-  // ========================================
-
-  String addedSuccess(String itemName, String listName) =>
-      'נוסף "$itemName" ל"$listName"';
-  String get addError => 'שגיאה בהוספת הפריט';
-}
-
-// ========================================
-// Upcoming Shop Card (Dashboard Widget)
-// ========================================
-
-class _UpcomingShopCardStrings {
-  const _UpcomingShopCardStrings();
-
-  // ========================================
-  // Card Title & Labels
-  // ========================================
-
-  String get cardTitle => 'הקנייה הקרובה';
-  String itemsCount(int count) => '$count פריטים';
-
-  // ========================================
-  // Semantics & Tooltips (Accessibility)
-  // ========================================
-
-  String semanticLabel(String listName, int itemCount) =>
-      'הקנייה הקרובה: $listName, $itemCount פריטים. לחץ לעריכת הרשימה';
-  String editListTooltip(String listName) => 'לחץ לעריכת רשימת "$listName"';
-  String startShoppingTooltip(String listName) => 'התחל קנייה מרשימת "$listName"';
-
-  // ========================================
-  // Buttons
-  // ========================================
-
-  String get startShoppingButton => 'התחל קנייה';
-
-  // ========================================
-  // Empty State
-  // ========================================
-
-  String get emptySemanticLabel => 'אין רשימת קניות פעילה כרגע. לחץ ליצירת רשימה חדשה';
-  String get emptyTitle => 'אין רשימה פעילה כרגע';
-  String get createListButton => 'צור רשימה חדשה';
-  String get createListTooltip => 'צור רשימת קניות חדשה';
 }
 
 // ========================================
@@ -2547,6 +2634,7 @@ class _HomeDashboardStrings {
   String get today => 'היום';
   String get yesterday => 'אתמול';
   String daysAgo(int days) => 'לפני $days ימים';
+  String dateFormat(int day, int month, int year) => '$day/$month/$year';
 }
 
 // ========================================
@@ -2679,89 +2767,60 @@ class _PantryStrings {
 }
 
 // ========================================
-// Smart Suggestions Card
+// Checklist Screen Strings
 // ========================================
 
-class _SmartSuggestionsStrings {
-  const _SmartSuggestionsStrings();
+class _ChecklistStrings {
+  const _ChecklistStrings();
 
-  // ========================================
-  // Pagination
-  // ========================================
-
-  String pageIndicator(int current, int total) => 'עמוד $current מתוך $total המלצות';
-
-  // ========================================
-  // Loading State
-  // ========================================
-
-  String get loadingLabel => 'טוען המלצות חכמות';
-  String get loadingMessage => 'טוען המלצות...';
-
-  // ========================================
-  // Error State
-  // ========================================
-
-  String errorLabel(String error) => 'שגיאה בטעינת המלצות: $error';
-  String get errorTitle => 'שגיאה בטעינת המלצות';
-  String get retryButton => 'נסה שוב';
-  String get retryTooltip => 'נסה לטעון שוב את ההמלצות';
-
-  // ========================================
-  // Empty State
-  // ========================================
-
-  String get emptyLabel => 'אין המלצות כרגע - כל המוצרים במלאי';
-  String get emptyTitle => 'המזווה מלא! 🎉';
-  String get emptySubtitle => 'אין המלצות כרגע - כל המוצרים במלאי';
-
-  // ========================================
-  // Suggestion Card
-  // ========================================
-
-  String suggestionLabel(String name, num stock, String unit) =>
-      'המלצה חכמה: כדאי להוסיף $name לרשימת הקניות. במלאי $stock $unit.';
-  String get cardTitle => 'המלצה חכמה';
-  String moreSuggestions(int count) => '+$count נוספות';
-  String stockInfo(num stock, String unit) => 'במלאי: $stock $unit';
-  String get urgentWarning => 'דחוף - מלאי נמוך!';
-
-  // ========================================
-  // Action Buttons
-  // ========================================
-
-  String get addButton => 'הוסף לרשימה';
-  String addTooltip(String name) => 'הוסף "$name" לרשימת הקניות';
-  String get dismissTooltip => 'דחה לשבוע';
-  String get deleteTooltip => 'מחק';
-
-  // ========================================
-  // No Active Lists
-  // ========================================
-
-  String get noActiveListMessage => 'אין רשימות פעילות - צור רשימה חדשה';
-
-  // ========================================
-  // Success Messages
-  // ========================================
-
-  String addedSuccess(String name) => 'נוסף "$name" לרשימה ✅';
-  String dismissedSuccess(String name) => 'דחיתי "$name" לשבוע ⏰';
-  String deletedSuccess(String name) => 'נמחק "$name" 🗑️';
-
-  // ========================================
-  // Error Messages
-  // ========================================
-
-  String get addError => 'שגיאה בהוספה';
-  String get genericError => 'אירעה שגיאה';
-
-  // ========================================
-  // Delete Dialog
-  // ========================================
-
-  String get deleteDialogTitle => 'מחיקת המלצה';
-  String deleteDialogContent(String name) => 'למחוק לצמיתות את "$name"?';
-  String get cancelButton => 'ביטול';
-  String get deleteButton => 'מחק';
+  String get subtitle => 'צ\'קליסט ✓';
+  String get gotItButton => 'הבנתי';
+  String get checkAll => 'סמן הכל';
+  String get uncheckAll => 'בטל הכל';
+  String percentComplete(int percent) => '$percent% הושלם';
+  String get emptyTitle => 'הרשימה ריקה';
+  String get emptySubtitle => 'הוסף פריטים לצ\'קליסט';
 }
+
+// ========================================
+// Contact Selector Dialog Strings
+// ========================================
+
+class _ContactSelectorStrings {
+  const _ContactSelectorStrings();
+
+  // Header
+  String get title => 'בחירת אנשים לשיתוף';
+  String get searchHint => 'חיפוש לפי שם או אימייל...';
+
+  // Add new contact
+  String get addNewContact => 'הוסף איש קשר חדש';
+  String get emailLabel => 'אימייל';
+  String get phoneLabel => 'טלפון';
+  String get emailHint => 'הזן אימייל...';
+
+  // Validation
+  String get invalidEmail => 'נא להזין אימייל תקין';
+  String get invalidPhone => 'נא להזין מספר טלפון תקין (05X-XXXXXXX)';
+  String get contactAlreadySelected => 'איש קשר זה כבר נבחר';
+  String genericError(String error) => 'שגיאה: $error';
+
+  // Empty states
+  String get noSavedContacts => 'אין אנשי קשר שמורים';
+  String get noSearchResults => 'לא נמצאו תוצאות';
+
+  // Actions
+  String get cancelButton => 'ביטול';
+  String confirmButton(int count) => 'אישור ($count)';
+
+  // Role picker
+  String selectRoleFor(String name) => 'בחר תפקיד עבור $name';
+
+  // Role short descriptions (for bottom sheet)
+  String get roleOwnerShortDesc => 'בעלים - מלוא ההרשאות';
+  String get roleAdminShortDesc => 'יכול לערוך ישירות ולהזמין אחרים';
+  String get roleEditorShortDesc => 'יכול לערוך דרך אישור';
+  String get roleViewerShortDesc => 'יכול לצפות בלבד';
+  String get roleUnknownShortDesc => 'תפקיד לא מוכר';
+}
+

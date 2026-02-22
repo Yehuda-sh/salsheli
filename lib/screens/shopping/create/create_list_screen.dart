@@ -228,6 +228,11 @@ class _CreateListScreenState extends State<CreateListScreen> {
 
   /// בחירת תבנית
   Future<void> _selectTemplate() async {
+    // ✅ Cache before async
+    final messenger = ScaffoldMessenger.of(context);
+    final successBg = StatusColors.getStatusColor('success', context);
+    final errorBg = StatusColors.getStatusColor('error', context);
+
     try {
       final templates = await TemplateService.loadTemplatesList();
 
@@ -264,12 +269,12 @@ class _CreateListScreenState extends State<CreateListScreen> {
           );
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(
             content: Text(
               AppStrings.createListDialog.templateApplied(selected.name, items.length),
             ),
-            backgroundColor: StatusColors.getStatusColor('success', context),
+            backgroundColor: successBg,
           ),
         );
       }
@@ -277,10 +282,10 @@ class _CreateListScreenState extends State<CreateListScreen> {
       debugPrint('❌ שגיאה בטעינת תבניות: $e');
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(
           content: Text(AppStrings.createListDialog.loadingTemplatesError),
-          backgroundColor: StatusColors.getStatusColor('error', context),
+          backgroundColor: errorBg,
         ),
       );
     }
