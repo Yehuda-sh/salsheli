@@ -8,7 +8,9 @@
       "Bash(git rm:*)",
       "Bash(curl:*)",
       "Bash(rm:*)",
-      "Bash(rmdir:*)"
+      "Bash(rmdir:*)",
+      "Bash(ls:*)",
+      "Bash(powershell -Command:*)"
     ],
     "deny": [],
     "ask": []

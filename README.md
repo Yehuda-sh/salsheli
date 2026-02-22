@@ -2,7 +2,7 @@
 
 > Family shopping list management app | Built with Flutter + Firebase
 
-[![Flutter](https://img.shields.io/badge/Flutter-3.27+-02569B?logo=flutter)](https://flutter.dev)
+[![Flutter](https://img.shields.io/badge/Flutter-3.8+-02569B?logo=flutter)](https://flutter.dev)
 [![Firebase](https://img.shields.io/badge/Firebase-Enabled-FFCA28?logo=firebase)](https://firebase.google.com)
 [![License](https://img.shields.io/badge/License-Proprietary-red)](LICENSE)
 
@@ -10,21 +10,19 @@
 
 ## About
 
-Smart family shopping list manager with unique Sticky Notes design.
+Smart family shopping list manager with a clean, WhatsApp-like design.
 
 ### Features
 
-- **Smart Home Dashboard** - Quick overview with banners, suggestions, and quick-add
+- **Smart Home Dashboard** - Quick overview with banners and daily suggestions
 - **Multi-user collaboration** - Share lists with household members
 - **Groups system** - Family groups with role-based permissions
-- **Sticky Notes theme** - Beautiful post-it style UI
+- **Clean WhatsApp-like design** - Simple, professional Material You UI
 - **Smart inventory (Pantry)** - Track stock with auto low-stock alerts
 - **Collaborative shopping** - Real-time multi-user shopping sessions
-- **Smart suggestions** - Pantry-based recommendations (≤3 per day)
-- **Quick Add** - Add items instantly from home screen
 - **Notifications center** - Bell badge with unread count
 - **Household-based security** - Your data stays private
-- **8 smart list types** - Filtered product catalogs per store type
+- **9 smart list types** - Filtered product catalogs per store type
 - **Push notifications** - Low stock alerts, shopping invites
 - **Hebrew RTL support** - Fully localized interface
 
@@ -34,11 +32,11 @@ Smart family shopping list manager with unique Sticky Notes design.
 
 | Category | Technology |
 |----------|-----------|
-| Framework | Flutter 3.27+ |
+| Framework | Flutter 3.8+ |
 | Language | Dart 3.8.1+ |
 | Backend | Firebase (Auth, Firestore, Storage, Messaging) |
 | State Management | Provider |
-| Design System | Sticky Notes (Custom) |
+| Design System | WhatsApp-like (Clean, Material You) |
 | Localization | Hebrew RTL + English |
 
 ---
@@ -47,13 +45,13 @@ Smart family shopping list manager with unique Sticky Notes design.
 
 | Type | Count |
 |------|-------|
-| Dart files | ~160 |
-| Models | 37 |
-| Providers | 10 |
-| Repositories | 16 |
-| Services | 16 |
-| Screens | 35 |
-| Widgets | 26 |
+| Dart files | ~148 |
+| Models | 26 |
+| Providers | 7 |
+| Repositories | 13 |
+| Services | 17 |
+| Screens | 31 |
+| Widgets | 28 |
 
 ---
 
@@ -85,7 +83,7 @@ cd memozap
 # Install dependencies
 flutter pub get
 
-# Generate code
+# Generate code (if needed)
 dart run build_runner build --delete-conflicting-outputs
 
 # Run app
@@ -145,4 +143,4 @@ Proprietary software. Unauthorized copying, modification, or distribution is pro
 
 **Made in Israel**
 
-**Version:** 1.2.0 | **Updated:** 08/01/2026
+**Version:** 1.0.0 | **Updated:** 18/02/2026
