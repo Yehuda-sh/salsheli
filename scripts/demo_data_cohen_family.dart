@@ -208,6 +208,7 @@ final Map<String, Map<String, dynamic>> users = {
     'email': 'avi.cohen@demo.com',
     'phone': '0501234567',
     'household_id': householdId,
+    'household_name': 'משפחת כהן',
     'joined_at': DateTime(2024, 6, 1).toIso8601String(),
     'last_login_at': DateTime.now().toIso8601String(),
     'preferred_stores': ['שופרסל', 'רמי לוי'],
@@ -229,6 +230,7 @@ final Map<String, Map<String, dynamic>> users = {
     'email': 'ronit.cohen@demo.com',
     'phone': '0521234567',
     'household_id': householdId,
+    'household_name': 'משפחת כהן',
     'joined_at': DateTime(2024, 6, 1).toIso8601String(),
     'last_login_at': DateTime.now().toIso8601String(),
     'preferred_stores': ['שופרסל', 'יוחננוף'],
@@ -250,6 +252,7 @@ final Map<String, Map<String, dynamic>> users = {
     'email': 'yuval.cohen@demo.com',
     'phone': '0531234567',
     'household_id': householdId,
+    'household_name': 'משפחת כהן',
     'joined_at': DateTime(2024, 7, 15).toIso8601String(),
     'last_login_at': DateTime.now().toIso8601String(),
     'preferred_stores': ['AM:PM', 'שופרסל'],
@@ -271,6 +274,7 @@ final Map<String, Map<String, dynamic>> users = {
     'email': 'noa.cohen@demo.com',
     'phone': '0541234567',
     'household_id': householdId,
+    'household_name': 'משפחת כהן',
     'joined_at': DateTime(2024, 8, 1).toIso8601String(),
     'last_login_at': DateTime.now().toIso8601String(),
     'preferred_stores': ['שופרסל'],
@@ -300,6 +304,7 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
     'email': 'dan.levi@demo.com',
     'phone': '0501112222',
     'household_id': leviHouseholdId,
+    'household_name': 'דן ומאיה',
     'joined_at': DateTime(2024, 9, 1).toIso8601String(),
     'last_login_at': DateTime.now().toIso8601String(),
     'preferred_stores': ['ויקטורי', 'שופרסל'],
@@ -321,6 +326,7 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
     'email': 'maya.levi@demo.com',
     'phone': '0502223333',
     'household_id': leviHouseholdId,
+    'household_name': 'דן ומאיה',
     'joined_at': DateTime(2024, 9, 1).toIso8601String(),
     'last_login_at': DateTime.now().toIso8601String(),
     'preferred_stores': ['ויקטורי', 'יוחננוף'],
@@ -344,6 +350,7 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
     'email': 'tomer.bar@demo.com',
     'phone': '0503334444',
     'household_id': tomerHouseholdId,
+    'household_name': null,
     'joined_at': DateTime(2024, 10, 15).toIso8601String(),
     'last_login_at': DateTime.now().toIso8601String(),
     'preferred_stores': ['AM:PM', 'שופרסל אקספרס'],
@@ -367,6 +374,7 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
     'email': 'shiran.gal@demo.com',
     'phone': '0504445555',
     'household_id': shiranHouseholdId,
+    'household_name': null,
     'joined_at': DateTime.now().subtract(const Duration(days: 3)).toIso8601String(),
     'last_login_at': DateTime.now().toIso8601String(),
     'preferred_stores': ['רמי לוי'],
@@ -394,6 +402,7 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
     'email': 'moshe.golan@demo.com',
     'phone': '0506667777',
     'household_id': mosheHouseholdId,
+    'household_name': 'משפחת גולן',
     'joined_at': DateTime(2024, 3, 1).toIso8601String(),
     'last_login_at': DateTime.now().toIso8601String(),
     'preferred_stores': ['שופרסל'],
@@ -417,6 +426,7 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
     'email': 'sara.levi@demo.com',
     'phone': '0507778888',
     'household_id': saraHouseholdId,
+    'household_name': 'משפחת לוי',
     'joined_at': DateTime(2024, 3, 15).toIso8601String(),
     'last_login_at': DateTime.now().subtract(const Duration(hours: 5)).toIso8601String(),
     'preferred_stores': ['רמי לוי', 'יוחננוף'],
@@ -440,6 +450,7 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
     'email': 'david.cohen.vaad@demo.com',
     'phone': '0508889999',
     'household_id': davidHouseholdId,
+    'household_name': 'משפחת כהן',
     'joined_at': DateTime(2024, 4, 1).toIso8601String(),
     'last_login_at': DateTime.now().subtract(const Duration(days: 1)).toIso8601String(),
     'preferred_stores': ['שופרסל'],
@@ -463,6 +474,7 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
     'email': 'michal.avraham@demo.com',
     'phone': '0509990000',
     'household_id': michalHouseholdId,
+    'household_name': 'משפחת פרידמן',
     'joined_at': DateTime(2024, 10, 1).toIso8601String(),
     'last_login_at': DateTime.now().subtract(const Duration(days: 3)).toIso8601String(),
     'preferred_stores': ['AM:PM'],
@@ -490,6 +502,7 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
     'email': 'yael.barak@demo.com',
     'phone': '0521112222',
     'household_id': yaelHouseholdId,
+    'household_name': 'משפחת שמעון',
     'joined_at': DateTime(2024, 9, 1).toIso8601String(),
     'last_login_at': DateTime.now().toIso8601String(),
     'preferred_stores': ['שופרסל', 'רמי לוי'],
@@ -513,6 +526,7 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
     'email': 'orna.shalom@demo.com',
     'phone': '0522223333',
     'household_id': ornaHouseholdId,
+    'household_name': 'משפחת רוס',
     'joined_at': DateTime(2024, 9, 5).toIso8601String(),
     'last_login_at': DateTime.now().subtract(const Duration(hours: 2)).toIso8601String(),
     'preferred_stores': ['יוחננוף'],
@@ -536,6 +550,7 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
     'email': 'rami.dor@demo.com',
     'phone': '0523334444',
     'household_id': ramiHouseholdId,
+    'household_name': 'משפחת אברמוביץ',
     'joined_at': DateTime(2024, 9, 10).toIso8601String(),
     'last_login_at': DateTime.now().subtract(const Duration(days: 2)).toIso8601String(),
     'preferred_stores': ['שופרסל'],
@@ -563,6 +578,7 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
     'email': 'lior.katz@demo.com',
     'phone': '0534445555',
     'household_id': liorHouseholdId,
+    'household_name': 'ליאור ונועם',
     'joined_at': DateTime(2024, 6, 1).toIso8601String(),
     'last_login_at': DateTime.now().toIso8601String(),
     'preferred_stores': ['שופרסל', 'רמי לוי'],
@@ -586,6 +602,7 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
     'email': 'noam.shapira@demo.com',
     'phone': '0535556666',
     'household_id': noamHouseholdId,
+    'household_name': null,
     'joined_at': DateTime(2024, 6, 1).toIso8601String(),
     'last_login_at': DateTime.now().subtract(const Duration(hours: 1)).toIso8601String(),
     'preferred_stores': ['יוחננוף', 'שופרסל'],
@@ -609,6 +626,7 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
     'email': 'eyal.katz@demo.com',
     'phone': '0536667777',
     'household_id': eyalHouseholdId,
+    'household_name': 'משפחת גרין',
     'joined_at': DateTime(2024, 7, 1).toIso8601String(),
     'last_login_at': DateTime.now().subtract(const Duration(days: 1)).toIso8601String(),
     'preferred_stores': ['רמי לוי'],
@@ -691,7 +709,7 @@ Map<String, dynamic> generateCohenGroupData(Map<String, String> uids) {
     'settings': {
       'notifications': true,
       'low_stock_alerts': true,
-      'voting_alerts': true,
+      'voting_alerts': false,
       'whos_bringing_alerts': true,
     },
     'extra_fields': null,
@@ -907,7 +925,7 @@ Map<String, dynamic> generateBuildingGroup(Map<String, String> uids) {
         'role': 'owner',
         'joined_at': now.subtract(const Duration(days: 90)).toIso8601String(),
         'invited_by': null,
-        'can_start_shopping': false, // לא רלוונטי לועד בית
+        'can_start_shopping': true, // לא רלוונטי לועד בית
       },
       saraUid: {
         'user_id': saraUid,
@@ -916,7 +934,7 @@ Map<String, dynamic> generateBuildingGroup(Map<String, String> uids) {
         'role': 'admin',
         'joined_at': now.subtract(const Duration(days: 88)).toIso8601String(),
         'invited_by': mosheUid,
-        'can_start_shopping': false,
+        'can_start_shopping': true,
       },
       davidUid: {
         'user_id': davidUid,
@@ -977,7 +995,7 @@ Map<String, dynamic> generateKindergartenGroup(Map<String, String> uids) {
         'role': 'owner',
         'joined_at': now.subtract(const Duration(days: 60)).toIso8601String(),
         'invited_by': null,
-        'can_start_shopping': false,
+        'can_start_shopping': true,
       },
       ornaUid: {
         'user_id': ornaUid,
@@ -986,7 +1004,7 @@ Map<String, dynamic> generateKindergartenGroup(Map<String, String> uids) {
         'role': 'admin',
         'joined_at': now.subtract(const Duration(days: 55)).toIso8601String(),
         'invited_by': yaelUid,
-        'can_start_shopping': false,
+        'can_start_shopping': true,
       },
       ramiUid: {
         'user_id': ramiUid,
@@ -1039,7 +1057,7 @@ Map<String, dynamic> generateWeddingGroup(Map<String, String> uids) {
         'role': 'owner',
         'joined_at': now.subtract(const Duration(days: 120)).toIso8601String(),
         'invited_by': null,
-        'can_start_shopping': false,
+        'can_start_shopping': true,
       },
       noamUid: {
         'user_id': noamUid,
@@ -1048,7 +1066,7 @@ Map<String, dynamic> generateWeddingGroup(Map<String, String> uids) {
         'role': 'admin',
         'joined_at': now.subtract(const Duration(days: 120)).toIso8601String(),
         'invited_by': liorUid,
-        'can_start_shopping': false,
+        'can_start_shopping': true,
       },
       eyalUid: {
         'user_id': eyalUid,
@@ -1253,25 +1271,7 @@ List<Map<String, dynamic>> generateKindergartenPartyList(Map<String, String> uid
         },
       },
       'items': [
-        // פריט "מי מביא" 1 - צריך 2 הורים, יש 1
-        {
-          'id': 'bring_hamantashen',
-          'name': 'אוזני המן (30 יח\')',
-          'type': 'task',
-          'is_checked': false,
-          'category': 'מאכלים',
-          'notes': 'צריך 2 הורים שיביאו אוזני המן',
-          'task_data': {
-            'itemType': 'whoBrings',
-            'neededCount': 2,
-            'volunteers': [
-              {'userId': yaelUid, 'displayName': 'יעל ברק'},
-            ],
-          },
-          'added_by': yaelUid,
-          'added_at': now.subtract(const Duration(days: 14)).toIso8601String(),
-        },
-        // פריט "מי מביא" 2 - מלא!
+        // פריט "מי מביא" 1 - מלא!
         {
           'id': 'bring_drinks',
           'name': 'שתייה (מיצים, מים)',
@@ -1291,23 +1291,7 @@ List<Map<String, dynamic>> generateKindergartenPartyList(Map<String, String> uid
           'checked_by': ornaUid,
           'checked_at': now.subtract(const Duration(days: 10)).toIso8601String(),
         },
-        // פריט "מי מביא" 3 - ריק!
-        {
-          'id': 'bring_decorations',
-          'name': 'קישוטים ובלונים',
-          'type': 'task',
-          'is_checked': false,
-          'category': 'קישוטים',
-          'notes': 'מחפשים מתנדב!',
-          'task_data': {
-            'itemType': 'whoBrings',
-            'neededCount': 1,
-            'volunteers': [], // אף אחד עדיין!
-          },
-          'added_by': ornaUid,
-          'added_at': now.subtract(const Duration(days: 12)).toIso8601String(),
-        },
-        // פריט "מי מביא" 4 - צריך 3 הורים
+        // פריט "מי מביא" 3 - צריך 3 הורים
         {
           'id': 'bring_snacks',
           'name': 'חטיפים מלוחים (שקיות גדולות)',
@@ -1720,7 +1704,7 @@ List<Map<String, dynamic>> generateFriendsGroupLists(Map<String, String> uids) {
         },
         {
           'id': 'spa_item_3',
-          'name': 'מים מינרליים',
+          'name': 'מים בתוספת מינרלים 600 מל',
           'quantity': 6,
           'unit': 'בקבוקים',
           'is_checked': false,
@@ -1728,7 +1712,7 @@ List<Map<String, dynamic>> generateFriendsGroupLists(Map<String, String> uids) {
         },
         {
           'id': 'spa_item_4',
-          'name': 'מגבות',
+          'name': 'מגב פטנט 40 ס"מ יחידה',
           'quantity': 3,
           'unit': 'יח\'',
           'is_checked': false,
@@ -1773,22 +1757,6 @@ List<Map<String, dynamic>> generateFriendsGroupLists(Map<String, String> uids) {
         },
       },
       'items': [
-        {
-          'id': 'party_item_1',
-          'name': 'בלונים',
-          'quantity': 20,
-          'unit': 'יח\'',
-          'is_checked': true,
-          'added_by': ronitUid,
-        },
-        {
-          'id': 'party_item_2',
-          'name': 'שרשראות קישוט',
-          'quantity': 5,
-          'unit': 'יח\'',
-          'is_checked': false,
-          'added_by': shiranUid,
-        },
         {
           'id': 'party_item_3',
           'name': 'כוסות חד פעמיות',
@@ -1870,82 +1838,81 @@ final List<Map<String, dynamic>> customLocations = [
 // Note: Prices are for illustration only
 final List<Map<String, dynamic>> sampleProducts = [
   // Dairy
-  {'name': 'חלב תנובה 3% 1 ליטר', 'category': 'מוצרי חלב', 'price': 6.90, 'barcode': '7290000000001'},
-  {'name': 'גבינה צהובה 28% עמק 200 גרם', 'category': 'מוצרי חלב', 'price': 12.90, 'barcode': '7290000000002'},
+  {'name': 'חלב מועשר1% בקבוק 1 ליטר', 'category': 'מוצרי חלב', 'price': 10.0, 'barcode': '7290000000001'},
+  {'name': 'גבינה צהובה נעם 22% 200 ג', 'category': 'מוצרי חלב', 'price': 22.9, 'barcode': '7290000000002'},
   {'name': 'יוגורט דנונה בננה', 'category': 'מוצרי חלב', 'price': 4.50, 'barcode': '7290000000003'},
   {'name': 'קוטג\' תנובה 5% 250 גרם', 'category': 'מוצרי חלב', 'price': 8.90, 'barcode': '7290000000004'},
-  {'name': 'שמנת מתוקה 38%', 'category': 'מוצרי חלב', 'price': 9.90, 'barcode': '7290000000005'},
+  {'name': 'שמנת מתוקה להקצפה32% 250', 'category': 'מוצרי חלב', 'price': 9.7, 'barcode': '7290000000005'},
 
   // Bread & Bakery
-  {'name': 'לחם אחיד פרוס', 'category': 'לחם ומאפים', 'price': 7.90, 'barcode': '7290000000010'},
+  {'name': 'חלה פרוסה 500 גר ארוז231', 'category': 'לחם ומאפים', 'price': 12.9, 'barcode': '7290000000010'},
   {'name': 'חלה מתוקה', 'category': 'לחם ומאפים', 'price': 12.90, 'barcode': '7290000000011'},
-  {'name': 'פיתות רגילות', 'category': 'לחם ומאפים', 'price': 8.90, 'barcode': '7290000000012'},
-  {'name': 'לחמניות המבורגר 4 יח\'', 'category': 'לחם ומאפים', 'price': 11.90, 'barcode': '7290000000013'},
+  {'name': 'פיתה דרוזית גדולה', 'category': 'לחם ומאפים', 'price': 6.0, 'barcode': '7290000000012'},
+  {'name': 'לחמניות המבורגר ל.ג904 ג', 'category': 'לחם ומאפים', 'price': 17.9, 'barcode': '7290000000013'},
 
   // Meat & Poultry
-  {'name': 'חזה עוף טרי', 'category': 'בשר ועוף', 'price': 34.90, 'barcode': '7290000000020'},
-  {'name': 'שניצל עוף טבעי', 'category': 'בשר ועוף', 'price': 39.90, 'barcode': '7290000000021'},
+  {'name': 'חזה דקדק טרי ארוז שלי', 'category': 'בשר ועוף', 'price': 44.9, 'barcode': '7290000000020'},
+  {'name': 'שניצל גונגל 700 גרם', 'category': 'בשר ועוף', 'price': 46.9, 'barcode': '7290000000021'},
   {'name': 'כרעיים עוף', 'category': 'בשר ועוף', 'price': 24.90, 'barcode': '7290000000022'},
-  {'name': 'בשר טחון', 'category': 'בשר ועוף', 'price': 49.90, 'barcode': '7290000000023'},
+  {'name': 'בשר בקר טחון חלק', 'category': 'בשר ועוף', 'price': 39.9, 'barcode': '7290000000023'},
 
   // Fruits & Vegetables
-  {'name': 'תפוחי עץ גולדן', 'category': 'פירות וירקות', 'price': 8.90, 'barcode': '7290000000030'},
-  {'name': 'בננות', 'category': 'פירות וירקות', 'price': 7.90, 'barcode': '7290000000031'},
-  {'name': 'עגבניות שרי', 'category': 'פירות וירקות', 'price': 12.90, 'barcode': '7290000000032'},
-  {'name': 'מלפפונים', 'category': 'פירות וירקות', 'price': 4.90, 'barcode': '7290000000033'},
+  {'name': 'תפוח עץ', 'category': 'פירות וירקות', 'price': 9.9, 'barcode': '7290000000030'},
+  {'name': 'בננה', 'category': 'פירות וירקות', 'price': 7.9, 'barcode': '7290000000031'},
+  {'name': 'עגבניה שרי', 'category': 'פירות וירקות', 'price': 9.9, 'barcode': '7290000000032'},
+  {'name': 'מלפפון', 'category': 'פירות וירקות', 'price': 4.9, 'barcode': '7290000000033'},
   {'name': 'בצל יבש', 'category': 'פירות וירקות', 'price': 3.90, 'barcode': '7290000000034'},
   {'name': 'גזר', 'category': 'פירות וירקות', 'price': 4.90, 'barcode': '7290000000035'},
-  {'name': 'תפוחי אדמה', 'category': 'פירות וירקות', 'price': 5.90, 'barcode': '7290000000036'},
   {'name': 'אבוקדו', 'category': 'פירות וירקות', 'price': 6.90, 'barcode': '7290000000037'},
 
   // Snacks & Sweets
-  {'name': 'ביסלי גריל', 'category': 'חטיפים וממתקים', 'price': 8.90, 'barcode': '7290000000040'},
-  {'name': 'במבה אסם', 'category': 'חטיפים וממתקים', 'price': 6.90, 'barcode': '7290000000041'},
+  {'name': 'ביסלי פלאפל 200 גרם', 'category': 'חטיפים וממתקים', 'price': 7.9, 'barcode': '7290000000040'},
+  {'name': 'במבה 2510 גרם', 'category': 'חטיפים וממתקים', 'price': 21.5, 'barcode': '7290000000041'},
   {'name': 'שוקולד פרה מילקה', 'category': 'חטיפים וממתקים', 'price': 12.90, 'barcode': '7290000000042'},
   {'name': 'עוגיות אוראו', 'category': 'חטיפים וממתקים', 'price': 14.90, 'barcode': '7290000000043'},
 
   // Drinks
-  {'name': 'מיץ תפוזים פריגת 1 ליטר', 'category': 'משקאות', 'price': 9.90, 'barcode': '7290000000050'},
-  {'name': 'קולה 1.5 ליטר', 'category': 'משקאות', 'price': 8.90, 'barcode': '7290000000051'},
-  {'name': 'מים מינרלים 1.5 ליטר', 'category': 'משקאות', 'price': 3.90, 'barcode': '7290000000052'},
+  {'name': 'מיץ אשכוליות אדומות 1 ל\'', 'category': 'משקאות', 'price': 17.9, 'barcode': '7290000000050'},
+  {'name': 'קוקה קולה בקבוק 1.5 ליטר', 'category': 'משקאות', 'price': 9.5, 'barcode': '7290000000051'},
+  {'name': 'מים בתוספת מינרלים 600 מל', 'category': 'משקאות', 'price': 12.9, 'barcode': '7290000000052'},
 
   // Cleaning
-  {'name': 'נוזל כלים פיירי', 'category': 'מוצרי ניקיון', 'price': 12.90, 'barcode': '7290000000060'},
-  {'name': 'אקונומיקה 4 ליטר', 'category': 'מוצרי ניקיון', 'price': 19.90, 'barcode': '7290000000061'},
-  {'name': 'נייר טואלט 32 גלילים', 'category': 'מוצרי ניקיון', 'price': 39.90, 'barcode': '7290000000062'},
+  {'name': 'נוזל כלים פיירי לימון 500 מ"ל', 'category': 'מוצרי ניקיון', 'price': 16.9, 'barcode': '7290000000060'},
+  {'name': 'סיליט ספרי אקונומיקה750 מ', 'category': 'מוצרי ניקיון', 'price': 16.9, 'barcode': '7290000000061'},
+  {'name': 'נייר טואלט דו שכבתי48XPO', 'category': 'מוצרי ניקיון', 'price': 45.9, 'barcode': '7290000000062'},
 
   // Hygiene
-  {'name': 'שמפו הד אנד שולדרס', 'category': 'היגיינה וטיפוח', 'price': 24.90, 'barcode': '7290000000070'},
-  {'name': 'משחת שיניים קולגייט', 'category': 'היגיינה וטיפוח', 'price': 12.90, 'barcode': '7290000000071'},
-  {'name': 'סבון נוזלי', 'category': 'היגיינה וטיפוח', 'price': 9.90, 'barcode': '7290000000072'},
+  {'name': 'הד&שולדרס שמפו קלאסי625 מ', 'category': 'היגיינה וטיפוח', 'price': 26.9, 'barcode': '7290000000070'},
+  {'name': 'משחת שיניים דואלקר 275', 'category': 'היגיינה וטיפוח', 'price': 29.9, 'barcode': '7290000000071'},
+  {'name': 'אל סבון לפני השינה1 ליטר', 'category': 'היגיינה וטיפוח', 'price': 35.9, 'barcode': '7290000000072'},
 
   // Rice & Pasta
-  {'name': 'אורז בסמטי 1 ק"ג', 'category': 'אורז ופסטה', 'price': 15.90, 'barcode': '7290000000080'},
-  {'name': 'ספגטי ברילה 500 גרם', 'category': 'אורז ופסטה', 'price': 8.90, 'barcode': '7290000000081'},
-  {'name': 'פתיתים אסם 500 גרם', 'category': 'אורז ופסטה', 'price': 9.90, 'barcode': '7290000000082'},
+  {'name': 'אורז בסמטי טילדה 1 ק"ג', 'category': 'אורז ופסטה', 'price': 24.0, 'barcode': '7290000000080'},
+  {'name': 'ספגטי מס 5 מוריני 500 ג', 'category': 'אורז ופסטה', 'price': 8.9, 'barcode': '7290000000081'},
+  {'name': 'פתיתים טבעות 500 גרם', 'category': 'אורז ופסטה', 'price': 8.9, 'barcode': '7290000000082'},
 
   // Canned goods
   {'name': 'טונה בשמן 4 יח\'', 'category': 'שימורים', 'price': 29.90, 'barcode': '7290000000090'},
-  {'name': 'תירס מתוק שימורים', 'category': 'שימורים', 'price': 7.90, 'barcode': '7290000000091'},
+  {'name': 'גרעיני תירס מתוק 320 גרם', 'category': 'שימורים', 'price': 6.9, 'barcode': '7290000000091'},
   {'name': 'רסק עגבניות', 'category': 'שימורים', 'price': 6.90, 'barcode': '7290000000092'},
 
   // Frozen
-  {'name': 'שניצלי סויה', 'category': 'מוקפאים', 'price': 29.90, 'barcode': '7290000000100'},
-  {'name': 'פיצה משפחתית', 'category': 'מוקפאים', 'price': 34.90, 'barcode': '7290000000101'},
-  {'name': 'גלידה שטראוס 1.4 ליטר', 'category': 'מוקפאים', 'price': 39.90, 'barcode': '7290000000102'},
+  {'name': 'שניצל ברוקולי טבעול 564', 'category': 'מוקפאים', 'price': 41.9, 'barcode': '7290000000100'},
+  {'name': 'שניצל תירס 1.25 קג', 'category': 'מוקפאים', 'price': 51.9, 'barcode': '7290000000101'},
+  {'name': 'גלידה קרמיסימו ריבת חלב 1.33 ליטר', 'category': 'מוקפאים', 'price': 22.9, 'barcode': '7290000000102'},
 
   // Eggs
-  {'name': 'ביצים חופש L 12 יח\'', 'category': 'ביצים', 'price': 19.90, 'barcode': '7290000000110'},
+  {'name': 'ביציםL שופרסל 12', 'category': 'ביצים', 'price': 14.09, 'barcode': '7290000000110'},
 
   // Coffee & Tea
-  {'name': 'קפה עלית נמס 200 גרם', 'category': 'קפה ותה', 'price': 34.90, 'barcode': '7290000000120'},
-  {'name': 'תה ויסוצקי 100 שקיקים', 'category': 'קפה ותה', 'price': 19.90, 'barcode': '7290000000121'},
+  {'name': 'קפה נמס עלית 50 גרם', 'category': 'קפה ותה', 'price': 13.9, 'barcode': '7290000000120'},
+  {'name': 'חליטת תה סאמר בוקט 25 שק', 'category': 'קפה ותה', 'price': 14.9, 'barcode': '7290000000121'},
 
   // Pharmacy/Medicine
   {'name': 'אקמול 500 מ"ג 20 טבליות', 'category': 'תרופות', 'price': 14.90, 'barcode': '7290000000130'},
-  {'name': 'נורופן 200 מ"ג', 'category': 'תרופות', 'price': 24.90, 'barcode': '7290000000131'},
-  {'name': 'ויטמין C 1000 מ"ג', 'category': 'תרופות', 'price': 39.90, 'barcode': '7290000000132'},
-  {'name': 'פלסטרים מגוון', 'category': 'תרופות', 'price': 12.90, 'barcode': '7290000000133'},
+  {'name': 'נורופן 400 מ"ג 20 טבליות', 'category': 'תרופות', 'price': 32.9, 'barcode': '7290000000131'},
+  {'name': 'ויטמין C 1000 מ"ג 100 טבליות', 'category': 'תרופות', 'price': 42.9, 'barcode': '7290000000132'},
+  {'name': 'תחבושות פלסטר 20 יח\'', 'category': 'תרופות', 'price': 12.9, 'barcode': '7290000000133'},
 ];
 
 // Helper to get product by name
@@ -2020,7 +1987,7 @@ List<Map<String, dynamic>> generateSharedLists(Map<String, String> uids) {
       createListItem(id: 'item_001', name: 'חלב מועשר1% בקבוק 1 ליטר', quantity: 3, unitPrice: 6.90, category: 'מוצרי חלב'),
       createListItem(id: 'item_002', name: 'גבינה צהובה נעם 22% 200 ג', quantity: 2, unitPrice: 12.90, category: 'מוצרי חלב'),
       createListItem(id: 'item_003', name: 'לחם כפרי ללת"ס700 גרם', quantity: 2, unitPrice: 7.90, category: 'לחם ומאפים'),
-      createListItem(id: 'item_004', name: 'ביצים 12 יח', quantity: 1, unitPrice: 19.90, category: 'ביצים'),
+      createListItem(id: 'item_004', name: 'ביציםL שופרסל 12', quantity: 1, unitPrice: 14.09, category: 'ביצים'),
       createListItem(id: 'item_005', name: 'חזה דקדק טרי ארוז שלי', quantity: 2, unitPrice: 34.90, category: 'בשר ועוף'),
       createListItem(id: 'item_006', name: 'תפוח עץ', quantity: 1, unitPrice: 8.90, category: 'פירות וירקות'),
       createListItem(id: 'item_007', name: 'בננה', quantity: 1, unitPrice: 7.90, category: 'פירות וירקות'),
@@ -2075,10 +2042,8 @@ List<Map<String, dynamic>> generateSharedLists(Map<String, String> uids) {
     'event_date': pesach2026.toIso8601String(),
     'target_date': pesach2026.subtract(const Duration(days: 7)).toIso8601String(),
     'items': [
-      createListItem(id: 'pesach_001', name: 'מצות יד שמורה', quantity: 5, unitPrice: 45.0, category: 'כשרות לפסח'),
-      createListItem(id: 'pesach_002', name: 'יין לקידוש 4 בקבוקים', quantity: 4, unitPrice: 35.0, category: 'כשרות לפסח'),
-      createListItem(id: 'pesach_003', name: 'מרור טחון', quantity: 2, unitPrice: 15.0, category: 'כשרות לפסח'),
-      createListItem(id: 'pesach_004', name: 'חרוסת מוכנה', quantity: 2, unitPrice: 18.0, category: 'כשרות לפסח'),
+      createListItem(id: 'pesach_001', name: 'קמח מצה', quantity: 5, unitPrice: 12.9, category: 'כשרות לפסח'),
+      createListItem(id: 'pesach_002', name: 'דרום יין לבן יבש 750 מל', quantity: 4, unitPrice: 89.9, category: 'כשרות לפסח'),
     ],
     'template_id': null,
     'format': 'shared',
@@ -2146,21 +2111,21 @@ List<Map<String, dynamic>> _generateCompletedWeeklyItems(int weekNumber, DateTim
     // מוצרים אמיתיים מהקטלוג:
     createListItem(id: 'w${weekNumber}_001', name: 'חלב מועשר1% בקבוק 1 ליטר', quantity: 2 + (weekNumber % 2), unitPrice: 6.90, category: 'מוצרי חלב', isChecked: true, checkedBy: aviUid, checkedAt: completedAt),
     createListItem(id: 'w${weekNumber}_002', name: 'לחם כפרי ללת"ס700 גרם', quantity: 2, unitPrice: 7.90, category: 'לחם ומאפים', isChecked: true, checkedBy: aviUid, checkedAt: completedAt),
-    createListItem(id: 'w${weekNumber}_003', name: 'ביצים 12 יח', quantity: 1, unitPrice: 19.90, category: 'ביצים', isChecked: true, checkedBy: aviUid, checkedAt: completedAt),
+    createListItem(id: 'w${weekNumber}_003', name: 'ביציםL שופרסל 12', quantity: 1, unitPrice: 14.09, category: 'ביצים', isChecked: true, checkedBy: aviUid, checkedAt: completedAt),
     createListItem(id: 'w${weekNumber}_004', name: 'בננה', quantity: 1, unitPrice: 7.90, category: 'פירות וירקות', isChecked: true, checkedBy: ronitUid, checkedAt: completedAt),
     createListItem(id: 'w${weekNumber}_005', name: 'עגבניה שרי', quantity: 1 + weekNumber, unitPrice: 12.90, category: 'פירות וירקות', isChecked: true, checkedBy: ronitUid, checkedAt: completedAt),
   ];
 
   // Add week-specific items (מוצרים מהקטלוג)
   if (weekNumber == 1) {
-    baseItems.add(createListItem(id: 'w1_006', name: 'שניצל תירס קלאסי 750 גרם', quantity: 2, unitPrice: 39.90, category: 'בשר ועוף', isChecked: true, checkedBy: aviUid, checkedAt: completedAt));
+    baseItems.add(createListItem(id: 'w1_006', name: 'שניצל תירס 1.25 קג', quantity: 2, unitPrice: 51.9, category: 'בשר ועוף', isChecked: true, checkedBy: aviUid, checkedAt: completedAt));
   } else if (weekNumber == 2) {
     baseItems.add(createListItem(id: 'w2_006', name: 'חזה דקדק טרי ארוז שלי', quantity: 3, unitPrice: 34.90, category: 'בשר ועוף', isChecked: true, checkedBy: aviUid, checkedAt: completedAt));
     baseItems.add(createListItem(id: 'w2_007', name: 'נייר טואלט דו שכבתי48XPO', quantity: 1, unitPrice: 39.90, category: 'מוצרי ניקיון', isChecked: true, checkedBy: ronitUid, checkedAt: completedAt));
   } else if (weekNumber == 3) {
     baseItems.add(createListItem(id: 'w3_006', name: 'טונה בשמן ויליגר1404 גרם', quantity: 2, unitPrice: 29.90, category: 'שימורים', isChecked: true, checkedBy: yuvalUid, checkedAt: completedAt));
   } else {
-    baseItems.add(createListItem(id: 'w4_006', name: 'בשר טחון בקר טרי', quantity: 1, unitPrice: 49.90, category: 'בשר ועוף', isChecked: true, checkedBy: aviUid, checkedAt: completedAt));
+    baseItems.add(createListItem(id: 'w4_006', name: 'בשר בקר טחון חלק', quantity: 1, unitPrice: 39.9, category: 'בשר ועוף', isChecked: true, checkedBy: aviUid, checkedAt: completedAt));
   }
 
   return baseItems;
@@ -2194,7 +2159,7 @@ Map<String, List<Map<String, dynamic>>> generatePrivateLists() {
           createListItem(id: 'avi_bbq_001', name: 'סטייק אנטריקוט', quantity: 2, unitPrice: 120.0, category: 'בשר ועוף'),
           createListItem(id: 'avi_bbq_002', name: 'כנפיים עוף', quantity: 2, unitPrice: 29.90, category: 'בשר ועוף'),
           createListItem(id: 'avi_bbq_003', name: 'קבב', quantity: 1, unitPrice: 45.0, category: 'בשר ועוף'),
-          createListItem(id: 'avi_bbq_004', name: 'פחמים 5 ק"ג', quantity: 2, unitPrice: 35.0, category: 'ציוד מנגל'),
+          createListItem(id: 'avi_bbq_004', name: 'פחמים לגריל', quantity: 2, unitPrice: 12.9, category: 'ציוד מנגל'),
         ],
         'template_id': null,
         'format': 'personal',
@@ -2217,8 +2182,7 @@ Map<String, List<Map<String, dynamic>>> generatePrivateLists() {
         'created_by': aviUserId,
         'shared_with': [],
         'items': [
-          createListItem(id: 'avi_car_001', name: 'שמן מנוע', quantity: 1, unitPrice: 89.0, category: 'רכב', isChecked: true, checkedBy: aviUserId),
-          createListItem(id: 'avi_car_002', name: 'מגבים חדשים', quantity: 1, unitPrice: 65.0, category: 'רכב', isChecked: true, checkedBy: aviUserId),
+          createListItem(id: 'avi_car_002', name: 'מגב פטנט 40 ס"מ יחידה', quantity: 1, unitPrice: 24.9, category: 'רכב', isChecked: true, checkedBy: aviUserId),
         ],
         'template_id': null,
         'format': 'personal',
@@ -2246,8 +2210,8 @@ Map<String, List<Map<String, dynamic>>> generatePrivateLists() {
         'shared_with': [],
         'items': [
           createListItem(id: 'ronit_pharm_001', name: 'אקמול 500 מ"ג 20 טבליות', quantity: 2, unitPrice: 14.90, category: 'תרופות'),
-          createListItem(id: 'ronit_pharm_002', name: 'ויטמין C 1000 מ"ג', quantity: 1, unitPrice: 39.90, category: 'תרופות'),
-          createListItem(id: 'ronit_pharm_003', name: 'פלסטרים מגוון', quantity: 1, unitPrice: 12.90, category: 'תרופות'),
+          createListItem(id: 'ronit_pharm_002', name: 'ויטמין C 1000 מ"ג 100 טבליות', quantity: 1, unitPrice: 42.9, category: 'תרופות'),
+          createListItem(id: 'ronit_pharm_003', name: 'תחבושות פלסטר 20 יח\'', quantity: 1, unitPrice: 12.9, category: 'תרופות'),
           createListItem(id: 'ronit_pharm_004', name: 'קרם ידיים', quantity: 1, unitPrice: 24.90, category: 'היגיינה וטיפוח'),
         ],
         'template_id': null,
@@ -2273,7 +2237,6 @@ Map<String, List<Map<String, dynamic>>> generatePrivateLists() {
         'event_date': now.add(const Duration(days: 30)).toIso8601String(),
         'items': [
           createListItem(id: 'ronit_bday_001', name: 'עוגה מיוחדת', quantity: 1, unitPrice: 150.0, category: 'מאפים'),
-          createListItem(id: 'ronit_bday_002', name: 'בלונים', quantity: 20, unitPrice: 2.0, category: 'קישוטים'),
           createListItem(id: 'ronit_bday_003', name: 'כוסות וצלחות חד פעמי', quantity: 2, unitPrice: 25.0, category: 'חד פעמי'),
           createListItem(id: 'ronit_bday_004', name: 'מפיות מעוצבות', quantity: 3, unitPrice: 12.0, category: 'חד פעמי'),
           createListItem(id: 'ronit_bday_005', name: 'משקאות קלים', quantity: 6, unitPrice: 8.90, category: 'משקאות'),
@@ -2331,7 +2294,7 @@ Map<String, List<Map<String, dynamic>>> generatePrivateLists() {
           createListItem(id: 'yuval_snack_001', name: 'ביסלי פלאפל 200 גרם', quantity: 3, unitPrice: 8.90, category: 'חטיפים וממתקים'),
           createListItem(id: 'yuval_snack_002', name: 'במבה 2510 גרם', quantity: 3, unitPrice: 6.90, category: 'חטיפים וממתקים'),
           createListItem(id: 'yuval_snack_003', name: 'קוקה קולה בקבוק 1.5 ליטר', quantity: 4, unitPrice: 8.90, category: 'משקאות'),
-          createListItem(id: 'yuval_snack_004', name: 'מאמאמיה פיצה מקסיקנית', quantity: 2, unitPrice: 34.90, category: 'מוקפאים'),
+          createListItem(id: 'yuval_snack_004', name: 'שניצל תירס 1.25 קג', quantity: 2, unitPrice: 51.9, category: 'מוקפאים'),
         ],
         'template_id': null,
         'format': 'personal',
@@ -2509,14 +2472,14 @@ List<Map<String, dynamic>> generateReceipts() {
   final receipts = <Map<String, dynamic>>[];
 
   // Create receipts for each completed weekly list
-  for (var weekAgo = 1; weekAgo <= 4; weekAgo++) {
+  for (var weekAgo = 1; weekAgo <= 13; weekAgo++) {
     final date = now.subtract(Duration(days: weekAgo * 7 - 1));
     final items = _generateReceiptItems(weekAgo, date);
     final total = items.fold<double>(0, (sum, item) => sum + (item['quantity'] as int) * (item['unit_price'] as double));
 
     receipts.add({
       'id': 'receipt_week_$weekAgo',
-      'store_name': 'קניות שבועיות',
+      'store_name': weekAgo <= 3 ? 'שופרסל דיל' : weekAgo <= 7 ? 'רמי לוי' : weekAgo <= 10 ? 'יוחננוף' : 'שופרסל דיל',
       'date': date.toIso8601String(),
       'created_date': date.toIso8601String(),
       'total_amount': total,
@@ -2533,24 +2496,30 @@ List<Map<String, dynamic>> generateReceipts() {
   return receipts;
 }
 
-List<Map<String, dynamic>> _generateReceiptItems(int weekNumber, DateTime date) {
+List<Map<String, dynamic>> _generateReceiptItems(int weekAgo, DateTime date) {
   final items = <Map<String, dynamic>>[
-    {'id': 'ri_${weekNumber}_001', 'name': 'חלב תנובה 3% 1 ליטר', 'quantity': 2 + (weekNumber % 2), 'unit_price': 6.90, 'is_checked': true, 'category': 'מוצרי חלב', 'checked_by': aviUserId, 'checked_at': date.toIso8601String()},
-    {'id': 'ri_${weekNumber}_002', 'name': 'לחם אחיד פרוס', 'quantity': 2, 'unit_price': 7.90, 'is_checked': true, 'category': 'לחם ומאפים', 'checked_by': aviUserId, 'checked_at': date.toIso8601String()},
-    {'id': 'ri_${weekNumber}_003', 'name': 'ביצים חופש L 12 יח\'', 'quantity': 1, 'unit_price': 19.90, 'is_checked': true, 'category': 'ביצים', 'checked_by': aviUserId, 'checked_at': date.toIso8601String()},
-    {'id': 'ri_${weekNumber}_004', 'name': 'בננות', 'quantity': 1, 'unit_price': 7.90, 'is_checked': true, 'category': 'פירות וירקות', 'checked_by': ronitUserId, 'checked_at': date.toIso8601String()},
-    {'id': 'ri_${weekNumber}_005', 'name': 'עגבניות שרי', 'quantity': 1 + weekNumber, 'unit_price': 12.90, 'is_checked': true, 'category': 'פירות וירקות', 'checked_by': ronitUserId, 'checked_at': date.toIso8601String()},
+    {'id': 'ri_${weekAgo}_001', 'name': 'חלב מועשר1% בקבוק 1 ליטר', 'quantity': 2 + (weekAgo % 2), 'unit_price': 10.0, 'is_checked': true, 'category': 'מוצרי חלב', 'checked_by': aviUserId, 'checked_at': date.toIso8601String()},
+    {'id': 'ri_${weekAgo}_002', 'name': 'חלה פרוסה 500 גר ארוז231', 'quantity': 2, 'unit_price': 12.9, 'is_checked': true, 'category': 'לחם ומאפים', 'checked_by': aviUserId, 'checked_at': date.toIso8601String()},
+    {'id': 'ri_${weekAgo}_003', 'name': 'ביציםL שופרסל 12', 'quantity': 1, 'unit_price': 14.09, 'is_checked': true, 'category': 'ביצים', 'checked_by': aviUserId, 'checked_at': date.toIso8601String()},
+    {'id': 'ri_${weekAgo}_004', 'name': 'בננה', 'quantity': 1, 'unit_price': 7.9, 'is_checked': true, 'category': 'פירות וירקות', 'checked_by': ronitUserId, 'checked_at': date.toIso8601String()},
+    {'id': 'ri_${weekAgo}_005', 'name': 'עגבניה שרי', 'quantity': 1 + weekAgo, 'unit_price': 9.9, 'is_checked': true, 'category': 'פירות וירקות', 'checked_by': ronitUserId, 'checked_at': date.toIso8601String()},
   ];
 
-  if (weekNumber == 1) {
-    items.add({'id': 'ri_1_006', 'name': 'שניצל עוף טבעי', 'quantity': 2, 'unit_price': 39.90, 'is_checked': true, 'category': 'בשר ועוף', 'checked_by': aviUserId, 'checked_at': date.toIso8601String()});
-  } else if (weekNumber == 2) {
-    items.add({'id': 'ri_2_006', 'name': 'חזה עוף טרי', 'quantity': 3, 'unit_price': 34.90, 'is_checked': true, 'category': 'בשר ועוף', 'checked_by': aviUserId, 'checked_at': date.toIso8601String()});
-    items.add({'id': 'ri_2_007', 'name': 'נייר טואלט 32 גלילים', 'quantity': 1, 'unit_price': 39.90, 'is_checked': true, 'category': 'מוצרי ניקיון', 'checked_by': ronitUserId, 'checked_at': date.toIso8601String()});
-  } else if (weekNumber == 3) {
-    items.add({'id': 'ri_3_006', 'name': 'טונה בשמן 4 יח\'', 'quantity': 2, 'unit_price': 29.90, 'is_checked': true, 'category': 'שימורים', 'checked_by': yuvalUserId, 'checked_at': date.toIso8601String()});
-  } else {
-    items.add({'id': 'ri_4_006', 'name': 'בשר טחון', 'quantity': 1, 'unit_price': 49.90, 'is_checked': true, 'category': 'בשר ועוף', 'checked_by': aviUserId, 'checked_at': date.toIso8601String()});
+  if (weekAgo == 1 || weekAgo == 5 || weekAgo == 9) {
+    items.add({'id': 'ri_${weekAgo}_006', 'name': 'חזה דקדק טרי ארוז שלי', 'quantity': 2, 'unit_price': 44.9, 'is_checked': true, 'category': 'בשר ודגים', 'checked_by': aviUserId, 'checked_at': date.toIso8601String()});
+    items.add({'id': 'ri_${weekAgo}_007', 'name': 'ספגטי מס 5 מוריני 500 ג', 'quantity': 2, 'unit_price': 8.9, 'is_checked': true, 'category': 'אורז ופסטה', 'checked_by': ronitUserId, 'checked_at': date.toIso8601String()});
+  } else if (weekAgo == 2 || weekAgo == 6 || weekAgo == 10) {
+    items.add({'id': 'ri_${weekAgo}_006', 'name': 'בשר בקר טחון חלק', 'quantity': 1, 'unit_price': 39.9, 'is_checked': true, 'category': 'בשר ודגים', 'checked_by': aviUserId, 'checked_at': date.toIso8601String()});
+    items.add({'id': 'ri_${weekAgo}_007', 'name': 'נייר טואלט דו שכבתי48XPO', 'quantity': 1, 'unit_price': 45.9, 'is_checked': true, 'category': 'מוצרי ניקיון', 'checked_by': ronitUserId, 'checked_at': date.toIso8601String()});
+  } else if (weekAgo == 3 || weekAgo == 7 || weekAgo == 11) {
+    items.add({'id': 'ri_${weekAgo}_006', 'name': 'טונה בשמן ויליגר1404 גרם', 'quantity': 2, 'unit_price': 25.9, 'is_checked': true, 'category': 'בשר ודגים', 'checked_by': yuvalUserId, 'checked_at': date.toIso8601String()});
+    items.add({'id': 'ri_${weekAgo}_007', 'name': 'אורז בסמטי טילדה 1 ק"ג', 'quantity': 2, 'unit_price': 24.0, 'is_checked': true, 'category': 'אורז ופסטה', 'checked_by': ronitUserId, 'checked_at': date.toIso8601String()});
+  } else if (weekAgo == 4 || weekAgo == 8 || weekAgo == 12) {
+    items.add({'id': 'ri_${weekAgo}_006', 'name': 'שניצל גונגל 700 גרם', 'quantity': 2, 'unit_price': 46.9, 'is_checked': true, 'category': 'בשר ודגים', 'checked_by': aviUserId, 'checked_at': date.toIso8601String()});
+    items.add({'id': 'ri_${weekAgo}_007', 'name': 'גרעיני תירס מתוק 320 גרם', 'quantity': 2, 'unit_price': 6.9, 'is_checked': true, 'category': 'שימורים', 'checked_by': noaUserId, 'checked_at': date.toIso8601String()});
+  } else { // weekAgo == 13
+    items.add({'id': 'ri_13_006', 'name': 'כרעיים עוף', 'quantity': 2, 'unit_price': 19.9, 'is_checked': true, 'category': 'עוף', 'checked_by': aviUserId, 'checked_at': date.toIso8601String()});
+    items.add({'id': 'ri_13_007', 'name': 'פתיתים טבעות 500 גרם', 'quantity': 3, 'unit_price': 8.9, 'is_checked': true, 'category': 'אורז ופסטה', 'checked_by': ronitUserId, 'checked_at': date.toIso8601String()});
   }
 
   return items;
@@ -2671,7 +2640,7 @@ List<Map<String, dynamic>> generateLeviSharedLists() {
       // מוצרים אמיתיים מהקטלוג:
       createListItem(id: 'levi_party_001', name: 'נגיסי עוף ישרלה מחבת600', quantity: 2, unitPrice: 39.90, category: 'בשר ועוף'),
       createListItem(id: 'levi_party_002', name: 'אורז בסמטי טילדה 1 ק"ג', quantity: 1, unitPrice: 15.90, category: 'אורז ופסטה'),
-      createListItem(id: 'levi_party_003', name: 'יין אדום חצי יבש 750 מ"ל', quantity: 2, unitPrice: 45.0, category: 'משקאות'),
+      createListItem(id: 'levi_party_003', name: 'דרום יין לבן יבש 750 מל', quantity: 2, unitPrice: 89.9, category: 'משקאות'),
       createListItem(id: 'levi_party_004', name: 'שמנת מתוקה להקצפה32% 250', quantity: 2, unitPrice: 9.90, category: 'מוצרי חלב'),
       createListItem(id: 'levi_party_005', name: 'מאגדת מיני מילקה קרמל 6 י', quantity: 3, unitPrice: 12.90, category: 'חטיפים וממתקים'),
     ],
@@ -2710,7 +2679,7 @@ List<Map<String, dynamic>> generateLeviSharedLists() {
     'items': [
       createListItem(id: 'levi_c1_001', name: 'חלב מועשר1% בקבוק 1 ליטר', quantity: 2, unitPrice: 6.90, category: 'מוצרי חלב', isChecked: true, checkedBy: danUserId, checkedAt: lastWeek),
       createListItem(id: 'levi_c1_002', name: 'לחם כפרי ללת"ס700 גרם', quantity: 1, unitPrice: 7.90, category: 'לחם ומאפים', isChecked: true, checkedBy: danUserId, checkedAt: lastWeek),
-      createListItem(id: 'levi_c1_003', name: 'ביצים 12 יח', quantity: 1, unitPrice: 19.90, category: 'ביצים', isChecked: true, checkedBy: mayaUserId, checkedAt: lastWeek),
+      createListItem(id: 'levi_c1_003', name: 'ביציםL שופרסל 12', quantity: 1, unitPrice: 14.09, category: 'ביצים', isChecked: true, checkedBy: mayaUserId, checkedAt: lastWeek),
       createListItem(id: 'levi_c1_004', name: 'חזה דקדק טרי ארוז שלי', quantity: 1, unitPrice: 34.90, category: 'בשר ועוף', isChecked: true, checkedBy: mayaUserId, checkedAt: lastWeek),
     ],
     'template_id': null,
@@ -2828,10 +2797,10 @@ List<Map<String, dynamic>> generateLeviReceipts() {
       'created_date': lastWeek.toIso8601String(),
       'total_amount': 89.60,
       'items': [
-        {'id': 'lr1_001', 'name': 'חלב תנובה 3% 1 ליטר', 'quantity': 2, 'unit_price': 6.90, 'is_checked': true, 'category': 'מוצרי חלב'},
-        {'id': 'lr1_002', 'name': 'לחם אחיד פרוס', 'quantity': 1, 'unit_price': 7.90, 'is_checked': true, 'category': 'לחם ומאפים'},
-        {'id': 'lr1_003', 'name': 'ביצים חופש L 12 יח\'', 'quantity': 1, 'unit_price': 19.90, 'is_checked': true, 'category': 'ביצים'},
-        {'id': 'lr1_004', 'name': 'חזה עוף טרי', 'quantity': 1, 'unit_price': 34.90, 'is_checked': true, 'category': 'בשר ועוף'},
+        {'id': 'lr1_001', 'name': 'חלב מועשר1% בקבוק 1 ליטר', 'quantity': 2, 'unit_price': 10.0, 'is_checked': true, 'category': 'מוצרי חלב'},
+        {'id': 'lr1_002', 'name': 'חלה פרוסה 500 גר ארוז231', 'quantity': 1, 'unit_price': 12.9, 'is_checked': true, 'category': 'לחם ומאפים'},
+        {'id': 'lr1_003', 'name': 'ביציםL שופרסל 12', 'quantity': 1, 'unit_price': 14.09, 'is_checked': true, 'category': 'ביצים'},
+        {'id': 'lr1_004', 'name': 'חזה דקדק טרי ארוז שלי', 'quantity': 1, 'unit_price': 44.9, 'is_checked': true, 'category': 'בשר ועוף'},
       ],
       'original_url': null,
       'file_url': null,
@@ -2839,6 +2808,111 @@ List<Map<String, dynamic>> generateLeviReceipts() {
       'is_virtual': true,
       'created_by': danUserId,
       'household_id': leviHouseholdId,
+    },
+    {
+      'id': 'levi_receipt_2',
+      'store_name': 'ויקטורי',
+      'date': now.subtract(const Duration(days: 13)).toIso8601String(),
+      'created_date': now.subtract(const Duration(days: 13)).toIso8601String(),
+      'total_amount': 213.2,
+      'items': [
+        {'id': 'lr2_001', 'name': 'חלב מועשר1% בקבוק 1 ליטר', 'quantity': 2, 'unit_price': 10.0, 'is_checked': true, 'category': 'מוצרי חלב'},
+        {'id': 'lr2_002', 'name': 'ביציםL שופרסל 12', 'quantity': 1, 'unit_price': 14.09, 'is_checked': true, 'category': 'מוצרי חלב'},
+        {'id': 'lr2_003', 'name': 'חזה דקדק טרי ארוז שלי', 'quantity': 2, 'unit_price': 44.9, 'is_checked': true, 'category': 'בשר ודגים'},
+        {'id': 'lr2_004', 'name': 'אורז בסמטי טילדה 1 ק"ג', 'quantity': 1, 'unit_price': 24.0, 'is_checked': true, 'category': 'אורז ופסטה'},
+        {'id': 'lr2_005', 'name': 'קפה נמס עלית 50 גרם', 'quantity': 1, 'unit_price': 13.9, 'is_checked': true, 'category': 'קפה ותה'},
+        {'id': 'lr2_006', 'name': 'עגבניה שרי', 'quantity': 2, 'unit_price': 9.9, 'is_checked': true, 'category': 'ירקות'},
+      ],
+      'original_url': null, 'file_url': null,
+      'linked_shopping_list_id': null, 'is_virtual': true,
+      'created_by': danUserId, 'household_id': leviHouseholdId,
+    },
+    {
+      'id': 'levi_receipt_3',
+      'store_name': 'יוחננוף',
+      'date': now.subtract(const Duration(days: 20)).toIso8601String(),
+      'created_date': now.subtract(const Duration(days: 20)).toIso8601String(),
+      'total_amount': 176.4,
+      'items': [
+        {'id': 'lr3_001', 'name': 'חלב מועשר1% בקבוק 1 ליטר', 'quantity': 2, 'unit_price': 10.0, 'is_checked': true, 'category': 'מוצרי חלב'},
+        {'id': 'lr3_002', 'name': 'חלה פרוסה 500 גר ארוז231', 'quantity': 1, 'unit_price': 12.9, 'is_checked': true, 'category': 'מאפים'},
+        {'id': 'lr3_003', 'name': 'גבינה צהובה נעם 22% 200 ג', 'quantity': 2, 'unit_price': 22.9, 'is_checked': true, 'category': 'מוצרי חלב'},
+        {'id': 'lr3_004', 'name': 'עגבניה שרי', 'quantity': 2, 'unit_price': 9.9, 'is_checked': true, 'category': 'ירקות'},
+        {'id': 'lr3_005', 'name': 'שמן קנולה מזוכך 1 ליטר', 'quantity': 1, 'unit_price': 10.9, 'is_checked': true, 'category': 'שמנים ורטבים'},
+        {'id': 'lr3_006', 'name': 'ספגטי מס 5 מוריני 500 ג', 'quantity': 2, 'unit_price': 8.9, 'is_checked': true, 'category': 'אורז ופסטה'},
+      ],
+      'original_url': null, 'file_url': null,
+      'linked_shopping_list_id': null, 'is_virtual': true,
+      'created_by': mayaUserId, 'household_id': leviHouseholdId,
+    },
+    {
+      'id': 'levi_receipt_4',
+      'store_name': 'ויקטורי',
+      'date': now.subtract(const Duration(days: 27)).toIso8601String(),
+      'created_date': now.subtract(const Duration(days: 27)).toIso8601String(),
+      'total_amount': 289.5,
+      'items': [
+        {'id': 'lr4_001', 'name': 'חלב מועשר1% בקבוק 1 ליטר', 'quantity': 3, 'unit_price': 10.0, 'is_checked': true, 'category': 'מוצרי חלב'},
+        {'id': 'lr4_002', 'name': 'ביציםL שופרסל 12', 'quantity': 1, 'unit_price': 14.09, 'is_checked': true, 'category': 'מוצרי חלב'},
+        {'id': 'lr4_003', 'name': 'פתיתים טבעות 500 גרם', 'quantity': 2, 'unit_price': 8.9, 'is_checked': true, 'category': 'אורז ופסטה'},
+        {'id': 'lr4_004', 'name': 'פריניר רוטב עגב קלאסי240', 'quantity': 3, 'unit_price': 6.6, 'is_checked': true, 'category': 'שמנים ורטבים'},
+        {'id': 'lr4_005', 'name': 'דרום יין לבן יבש 750 מל', 'quantity': 2, 'unit_price': 89.9, 'is_checked': true, 'category': 'משקאות'},
+      ],
+      'original_url': null, 'file_url': null,
+      'linked_shopping_list_id': null, 'is_virtual': true,
+      'created_by': danUserId, 'household_id': leviHouseholdId,
+    },
+    {
+      'id': 'levi_receipt_5',
+      'store_name': 'שופרסל',
+      'date': now.subtract(const Duration(days: 34)).toIso8601String(),
+      'created_date': now.subtract(const Duration(days: 34)).toIso8601String(),
+      'total_amount': 194.7,
+      'items': [
+        {'id': 'lr5_001', 'name': 'חלב מועשר1% בקבוק 1 ליטר', 'quantity': 2, 'unit_price': 10.0, 'is_checked': true, 'category': 'מוצרי חלב'},
+        {'id': 'lr5_002', 'name': 'חלה פרוסה 500 גר ארוז231', 'quantity': 2, 'unit_price': 12.9, 'is_checked': true, 'category': 'מאפים'},
+        {'id': 'lr5_003', 'name': 'שניצל גונגל 700 גרם', 'quantity': 2, 'unit_price': 46.9, 'is_checked': true, 'category': 'בשר ודגים'},
+        {'id': 'lr5_004', 'name': 'קפה נמס עלית 50 גרם', 'quantity': 1, 'unit_price': 13.9, 'is_checked': true, 'category': 'קפה ותה'},
+        {'id': 'lr5_005', 'name': 'בננה', 'quantity': 1, 'unit_price': 7.9, 'is_checked': true, 'category': 'פירות'},
+      ],
+      'original_url': null, 'file_url': null,
+      'linked_shopping_list_id': null, 'is_virtual': true,
+      'created_by': mayaUserId, 'household_id': leviHouseholdId,
+    },
+    {
+      'id': 'levi_receipt_6',
+      'store_name': 'ויקטורי',
+      'date': now.subtract(const Duration(days: 48)).toIso8601String(),
+      'created_date': now.subtract(const Duration(days: 48)).toIso8601String(),
+      'total_amount': 258.4,
+      'items': [
+        {'id': 'lr6_001', 'name': 'חלב מועשר1% בקבוק 1 ליטר', 'quantity': 2, 'unit_price': 10.0, 'is_checked': true, 'category': 'מוצרי חלב'},
+        {'id': 'lr6_002', 'name': 'ביציםL שופרסל 12', 'quantity': 2, 'unit_price': 14.09, 'is_checked': true, 'category': 'מוצרי חלב'},
+        {'id': 'lr6_003', 'name': 'אבוקדו', 'quantity': 4, 'unit_price': 29.9, 'is_checked': true, 'category': 'פירות'},
+        {'id': 'lr6_004', 'name': 'חזה דקדק טרי ארוז שלי', 'quantity': 2, 'unit_price': 44.9, 'is_checked': true, 'category': 'בשר ודגים'},
+        {'id': 'lr6_005', 'name': 'נייר טואלט דו שכבתי48XPO', 'quantity': 1, 'unit_price': 45.9, 'is_checked': true, 'category': 'מוצרי ניקיון'},
+      ],
+      'original_url': null, 'file_url': null,
+      'linked_shopping_list_id': null, 'is_virtual': true,
+      'created_by': danUserId, 'household_id': leviHouseholdId,
+    },
+    {
+      'id': 'levi_receipt_7',
+      'store_name': 'יוחננוף',
+      'date': now.subtract(const Duration(days: 62)).toIso8601String(),
+      'created_date': now.subtract(const Duration(days: 62)).toIso8601String(),
+      'total_amount': 276.8,
+      'items': [
+        {'id': 'lr7_001', 'name': 'חלב מועשר1% בקבוק 1 ליטר', 'quantity': 3, 'unit_price': 10.0, 'is_checked': true, 'category': 'מוצרי חלב'},
+        {'id': 'lr7_002', 'name': 'בולגרית מסורתית 16% 250', 'quantity': 1, 'unit_price': 26.9, 'is_checked': true, 'category': 'מוצרי חלב'},
+        {'id': 'lr7_003', 'name': 'עגבניה שרי', 'quantity': 2, 'unit_price': 9.9, 'is_checked': true, 'category': 'ירקות'},
+        {'id': 'lr7_004', 'name': 'בשר בקר טחון חלק', 'quantity': 1, 'unit_price': 39.9, 'is_checked': true, 'category': 'בשר ודגים'},
+        {'id': 'lr7_005', 'name': 'שמן קנולה מזוכך 1 ליטר', 'quantity': 1, 'unit_price': 10.9, 'is_checked': true, 'category': 'שמנים ורטבים'},
+        {'id': 'lr7_006', 'name': 'אורז בסמטי טילדה 1 ק"ג', 'quantity': 1, 'unit_price': 24.0, 'is_checked': true, 'category': 'אורז ופסטה'},
+      ],
+      'original_url': null, 'file_url': null,
+      'linked_shopping_list_id': null, 'is_virtual': true,
+      'created_by': mayaUserId, 'household_id': leviHouseholdId,
     },
   ];
 }
@@ -2895,8 +2969,8 @@ Map<String, List<Map<String, dynamic>>> generateTomerPrivateLists() {
         'shared_with': [],
         'items': [
           createListItem(id: 'tomer_c1_001', name: 'חלב מועשר1% בקבוק 1 ליטר', quantity: 1, unitPrice: 6.90, category: 'מוצרי חלב', isChecked: true, checkedBy: tomerId),
-          createListItem(id: 'tomer_c1_002', name: 'ביצים 12 יח', quantity: 1, unitPrice: 19.90, category: 'ביצים', isChecked: true, checkedBy: tomerId),
-          createListItem(id: 'tomer_c1_003', name: 'מאמאמיה פיצה מקסיקנית', quantity: 2, unitPrice: 34.90, category: 'מוקפאים', isChecked: true, checkedBy: tomerId),
+          createListItem(id: 'tomer_c1_002', name: 'ביציםL שופרסל 12', quantity: 1, unitPrice: 14.09, category: 'ביצים', isChecked: true, checkedBy: tomerId),
+          createListItem(id: 'tomer_c1_003', name: 'שניצל תירס 1.25 קג', quantity: 2, unitPrice: 51.9, category: 'מוקפאים', isChecked: true, checkedBy: tomerId),
           createListItem(id: 'tomer_c1_004', name: 'קוקה קולה בקבוק 1.5 ליטר', quantity: 2, unitPrice: 8.90, category: 'משקאות', isChecked: true, checkedBy: tomerId),
         ],
         'template_id': null,
@@ -3045,10 +3119,10 @@ List<Map<String, dynamic>> generateTomerReceipts() {
       'created_date': now.subtract(const Duration(days: 6)).toIso8601String(),
       'total_amount': 114.50,
       'items': [
-        {'id': 'tr1_001', 'name': 'חלב תנובה 3% 1 ליטר', 'quantity': 1, 'unit_price': 6.90, 'is_checked': true, 'category': 'מוצרי חלב'},
-        {'id': 'tr1_002', 'name': 'ביצים חופש L 12 יח\'', 'quantity': 1, 'unit_price': 19.90, 'is_checked': true, 'category': 'ביצים'},
-        {'id': 'tr1_003', 'name': 'פיצה משפחתית', 'quantity': 2, 'unit_price': 34.90, 'is_checked': true, 'category': 'מוקפאים'},
-        {'id': 'tr1_004', 'name': 'קולה 1.5 ליטר', 'quantity': 2, 'unit_price': 8.90, 'is_checked': true, 'category': 'משקאות'},
+        {'id': 'tr1_001', 'name': 'חלב מועשר1% בקבוק 1 ליטר', 'quantity': 1, 'unit_price': 10.0, 'is_checked': true, 'category': 'מוצרי חלב'},
+        {'id': 'tr1_002', 'name': 'ביציםL שופרסל 12', 'quantity': 1, 'unit_price': 14.09, 'is_checked': true, 'category': 'ביצים'},
+        {'id': 'tr1_003', 'name': 'שניצל תירס 1.25 קג', 'quantity': 2, 'unit_price': 51.9, 'is_checked': true, 'category': 'מוקפאים'},
+        {'id': 'tr1_004', 'name': 'קוקה קולה בקבוק 1.5 ליטר', 'quantity': 2, 'unit_price': 9.5, 'is_checked': true, 'category': 'משקאות'},
       ],
       'original_url': null,
       'file_url': null,
@@ -3064,9 +3138,9 @@ List<Map<String, dynamic>> generateTomerReceipts() {
       'created_date': now.subtract(const Duration(days: 13)).toIso8601String(),
       'total_amount': 42.50,
       'items': [
-        {'id': 'tr2_001', 'name': 'חלב תנובה 3% 1 ליטר', 'quantity': 2, 'unit_price': 6.90, 'is_checked': true, 'category': 'מוצרי חלב'},
-        {'id': 'tr2_002', 'name': 'לחם אחיד פרוס', 'quantity': 1, 'unit_price': 7.90, 'is_checked': true, 'category': 'לחם ומאפים'},
-        {'id': 'tr2_003', 'name': 'במבה אסם', 'quantity': 3, 'unit_price': 6.90, 'is_checked': true, 'category': 'חטיפים וממתקים'},
+        {'id': 'tr2_001', 'name': 'חלב מועשר1% בקבוק 1 ליטר', 'quantity': 2, 'unit_price': 10.0, 'is_checked': true, 'category': 'מוצרי חלב'},
+        {'id': 'tr2_002', 'name': 'חלה פרוסה 500 גר ארוז231', 'quantity': 1, 'unit_price': 12.9, 'is_checked': true, 'category': 'לחם ומאפים'},
+        {'id': 'tr2_003', 'name': 'במבה 2510 גרם', 'quantity': 3, 'unit_price': 21.5, 'is_checked': true, 'category': 'חטיפים וממתקים'},
       ],
       'original_url': null,
       'file_url': null,
@@ -3150,7 +3224,7 @@ List<Map<String, dynamic>> generateShiranInventory() {
     },
     {
       'id': 'shiran_inv_cottage',
-      'product_name': 'קוטג\'',
+      'product_name': 'קוטג\' 5% שומן 250 ג טרה',
       'category': 'מוצרי חלב',
       'location': 'מקרר',
       'quantity': 2,
@@ -3197,7 +3271,7 @@ List<Map<String, dynamic>> generateShiranInventory() {
     },
     {
       'id': 'shiran_inv_ground_beef',
-      'product_name': 'בשר טחון',
+      'product_name': 'בשר בקר טחון חלק',
       'category': 'בשר ועוף',
       'location': 'מקפיא',
       'quantity': 2,
@@ -3334,7 +3408,7 @@ List<Map<String, dynamic>> generateShiranInventory() {
     },
     {
       'id': 'shiran_inv_tea',
-      'product_name': 'תה ויסוצקי',
+      'product_name': 'חליטת תה סאמר בוקט 25 שק',
       'category': 'קפה ותה',
       'location': 'ארון יבש',
       'quantity': 2,
@@ -3503,9 +3577,9 @@ List<Map<String, dynamic>> generatePendingRequests() {
       'status': 'approved',
       'created_at': now.subtract(const Duration(days: 1)).toIso8601String(),
       'request_data': {
-        'name': 'מיץ תפוזים',
+        'name': 'מיץ אשכוליות אדומות 1 ל\'',
         'quantity': 2,
-        'unitPrice': 9.90,
+        'unitPrice': 17.9,
         'category': 'משקאות',
       },
       'reviewer_id': ronitUserId,
