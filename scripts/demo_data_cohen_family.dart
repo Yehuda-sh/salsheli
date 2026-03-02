@@ -1196,7 +1196,7 @@ List<Map<String, dynamic>> generateKindergartenPartyList(Map<String, String> uid
         // פריט "מי מביא" 3 - ריק!
         {
           'id': 'bring_decorations',
-          'name': 'קישוטים ובלונים',
+          'name': 'קישוטים למסיבה',
           'type': 'task',
           'is_checked': false,
           'category': 'קישוטים',
@@ -1658,16 +1658,16 @@ List<Map<String, dynamic>> generateFriendsGroupLists(Map<String, String> uids) {
       'items': [
         {
           'id': 'party_item_1',
-          'name': 'בלונים',
-          'quantity': 20,
+          'name': 'כוסות חד פעמיות 50 יח',
+          'quantity': 2,
           'unit': 'יח\'',
           'is_checked': true,
           'added_by': ronitUid,
         },
         {
           'id': 'party_item_2',
-          'name': 'שרשראות קישוט',
-          'quantity': 5,
+          'name': 'מפיות 100 יח',
+          'quantity': 3,
           'unit': 'יח\'',
           'is_checked': false,
           'added_by': shiranUid,
@@ -1968,8 +1968,8 @@ List<Map<String, dynamic>> generateSharedLists(Map<String, String> uids) {
         unitPrice: 35.0,
         category: 'כשרות לפסח',
       ),
-      createListItem(id: 'pesach_003', name: 'מרור טחון', quantity: 2, unitPrice: 15.0, category: 'כשרות לפסח'),
-      createListItem(id: 'pesach_004', name: 'חרוסת מוכנה', quantity: 2, unitPrice: 18.0, category: 'כשרות לפסח'),
+      createListItem(id: 'pesach_003', name: 'מיץ ענבים כרמל 1 ליטר', quantity: 4, unitPrice: 15.0, category: 'כשרות לפסח'),
+      createListItem(id: 'pesach_004', name: 'קמח מצה 500 גרם', quantity: 2, unitPrice: 12.0, category: 'כשרות לפסח'),
     ],
     'template_id': null,
     'format': 'shared',
@@ -2220,10 +2220,10 @@ Map<String, List<Map<String, dynamic>>> generatePrivateLists() {
         'items': [
           createListItem(
             id: 'avi_car_001',
-            name: 'שמן מנוע',
+            name: 'מגבוני ניקוי רב שימושיים',
             quantity: 1,
-            unitPrice: 89.0,
-            category: 'רכב',
+            unitPrice: 25.0,
+            category: 'מוצרי ניקיון',
             isChecked: true,
             checkedBy: aviUserId,
           ),
@@ -2660,7 +2660,7 @@ List<Map<String, dynamic>> generateReceipts() {
   return receipts;
 }
 
-List<Map<String, dynamic>> _generateReceiptItems(int weekAgo, DateTime date) {
+List<Map<String, dynamic>> _generateReceiptItems(int weekNumber, DateTime date) {
   final items = <Map<String, dynamic>>[
     {
       'id': 'ri_${weekNumber}_001',
