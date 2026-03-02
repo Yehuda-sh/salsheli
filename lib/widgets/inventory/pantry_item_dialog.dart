@@ -333,13 +333,13 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.trending_up, size: 12, color: StatusColors.getStatusColor('success', context).withValues(alpha: 0.7)),
+                    Icon(Icons.trending_up, size: 12, color: StatusColors.getColor(StatusType.success, context).withValues(alpha: 0.7)),
                     const SizedBox(width: 3),
                     Text(
                       'פופולרי',
                       style: TextStyle(
                         fontSize: smallFont,
-                        color: StatusColors.getStatusColor('success', context).withValues(alpha: 0.7),
+                        color: StatusColors.getColor(StatusType.success, context).withValues(alpha: 0.7),
                       ),
                     ),
                   ],
@@ -385,7 +385,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(AppStrings.inventory.productNameRequired),
-          backgroundColor: StatusColors.getStatusColor('error', context),
+          backgroundColor: StatusColors.getColor(StatusType.error, context),
           duration: kSnackBarDuration,
         ),
       );
@@ -399,7 +399,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('כמות חייבת להיות גדולה מאפס'),
-          backgroundColor: StatusColors.getStatusColor('error', context),
+          backgroundColor: StatusColors.getColor(StatusType.error, context),
           duration: kSnackBarDuration,
         ),
       );
@@ -478,7 +478,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
           content: Text(widget.mode == PantryItemDialogMode.add
               ? AppStrings.inventory.addError
               : AppStrings.inventory.updateError),
-          backgroundColor: StatusColors.getStatusColor('error', context),
+          backgroundColor: StatusColors.getColor(StatusType.error, context),
           duration: kSnackBarDuration,
         ),
       );

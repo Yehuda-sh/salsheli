@@ -163,7 +163,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
               Expanded(child: Text(message)),
             ],
           ),
-          backgroundColor: StatusColors.getStatusColor('success', context),
+          backgroundColor: StatusColors.getColor(StatusType.success, context),
           behavior: SnackBarBehavior.floating,
           duration: kSnackBarDuration,
         ),
@@ -219,7 +219,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
             Expanded(child: Text(message)),
           ],
         ),
-        backgroundColor: StatusColors.getStatusColor('error', context),
+        backgroundColor: StatusColors.getColor(StatusType.error, context),
         behavior: SnackBarBehavior.floating,
         duration: kSnackBarDurationLong,
       ),
@@ -230,8 +230,8 @@ class _CreateListScreenState extends State<CreateListScreen> {
   Future<void> _selectTemplate() async {
     // ✅ Cache before async
     final messenger = ScaffoldMessenger.of(context);
-    final successBg = StatusColors.getStatusColor('success', context);
-    final errorBg = StatusColors.getStatusColor('error', context);
+    final successBg = StatusColors.getColor(StatusType.success, context);
+    final errorBg = StatusColors.getColor(StatusType.error, context);
 
     try {
       final templates = await TemplateService.loadTemplatesList();

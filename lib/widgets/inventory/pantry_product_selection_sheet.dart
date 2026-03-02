@@ -700,7 +700,7 @@ class _PantryProductSelectionSheetState
                 margin: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
                 padding: const EdgeInsets.all(kSpacingSmall),
                 decoration: BoxDecoration(
-                  color: StatusColors.getStatusColor('success', context),
+                  color: StatusColors.getColor(StatusType.success, context),
                   borderRadius: BorderRadius.circular(kBorderRadius),
                 ),
                 child: Row(
@@ -848,7 +848,7 @@ class _PantryProductSelectionSheetState
           boxShadow: justAdded
               ? [
                   BoxShadow(
-                    color: StatusColors.getStatusColor('success', context)
+                    color: StatusColors.getColor(StatusType.success, context)
                         .withValues(alpha: 0.4),
                     blurRadius: 8,
                     spreadRadius: 2,
@@ -859,7 +859,7 @@ class _PantryProductSelectionSheetState
         child: Card(
           margin: EdgeInsets.zero,
           color: justAdded
-              ? StatusColors.getStatusColor('success', context)
+              ? StatusColors.getColor(StatusType.success, context)
                   .withValues(alpha: 0.1)
               : null,
           child: InkWell(
@@ -910,8 +910,7 @@ class _PantryProductSelectionSheetState
                                   vertical: 2,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: StatusColors.getStatusColor(
-                                      'success', context),
+                                  color: StatusColors.getColor(StatusType.success, context),
                                   borderRadius:
                                       BorderRadius.circular(kBorderRadiusSmall),
                                 ),
@@ -980,7 +979,7 @@ class _PantryProductSelectionSheetState
                     height: 48,
                     decoration: BoxDecoration(
                       color: isInPantry
-                          ? StatusColors.getStatusColor('success', context)
+                          ? StatusColors.getColor(StatusType.success, context)
                               .withValues(alpha: 0.1)
                           : cs.primary.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
@@ -998,8 +997,7 @@ class _PantryProductSelectionSheetState
                                 ? Icons.add_circle_outline
                                 : Icons.add_circle,
                             color: isInPantry
-                                ? StatusColors.getStatusColor(
-                                    'success', context)
+                                ? StatusColors.getColor(StatusType.success, context)
                                 : cs.primary,
                             size: 32,
                           ),

@@ -1233,16 +1233,16 @@ class _StorageLocationManagerState extends State<StorageLocationManager> {
     final String icon;
 
     if (isExpired) {
-      bgColor = StatusColors.getStatusContainer('error', context);
-      textColor = StatusColors.getStatusColor('error', context);
+      bgColor = StatusColors.getContainer(StatusType.error, context);
+      textColor = StatusColors.getColor(StatusType.error, context);
       icon = '⚠️';
     } else if (isExpiringSoon) {
-      bgColor = StatusColors.getStatusContainer('warning', context);
-      textColor = StatusColors.getStatusColor('warning', context);
+      bgColor = StatusColors.getContainer(StatusType.warning, context);
+      textColor = StatusColors.getColor(StatusType.warning, context);
       icon = '⏰';
     } else {
-      bgColor = StatusColors.getStatusContainer('success', context);
-      textColor = StatusColors.getStatusColor('success', context);
+      bgColor = StatusColors.getContainer(StatusType.success, context);
+      textColor = StatusColors.getColor(StatusType.success, context);
       icon = '✓';
     }
 

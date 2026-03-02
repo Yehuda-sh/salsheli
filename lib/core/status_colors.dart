@@ -26,11 +26,6 @@ import '../theme/app_theme.dart';
 /// ```dart
 /// StatusColors.getColor(StatusType.success, context)
 /// ```
-///
-/// **Legacy (string-based):**
-/// ```dart
-/// StatusColors.getStatusColor('success', context) // עדיין עובד
-/// ```
 enum StatusType {
   success,
   error,

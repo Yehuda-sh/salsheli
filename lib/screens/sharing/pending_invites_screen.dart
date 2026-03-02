@@ -115,8 +115,8 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
     final userName = userContext.user?.name;
     // ✅ Cache before async
     final messenger = ScaffoldMessenger.of(context);
-    final successBg = StatusColors.getStatusContainer('success', context);
-    final errorBg = StatusColors.getStatusContainer('error', context);
+    final successBg = StatusColors.getContainer(StatusType.success, context);
+    final errorBg = StatusColors.getContainer(StatusType.error, context);
     final strings = AppStrings.pendingInvitesScreen;
 
     if (userId == null) return;
@@ -166,8 +166,8 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
     // ✅ Cache before async
     final cs = Theme.of(context).colorScheme;
     final messenger = ScaffoldMessenger.of(context);
-    final warningBg = StatusColors.getStatusContainer('warning', context);
-    final errorBg = StatusColors.getStatusContainer('error', context);
+    final warningBg = StatusColors.getContainer(StatusType.warning, context);
+    final errorBg = StatusColors.getContainer(StatusType.error, context);
     final strings = AppStrings.pendingInvitesScreen;
     final listName = _safeString(invite.requestData['list_name']) ?? strings.listFallback;
 

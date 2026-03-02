@@ -158,20 +158,20 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       SnackBar(
         content: Row(
           children: [
-            Icon(icon, color: StatusColors.getOnStatusContainer(type, context), size: 24),
+            Icon(icon, color: StatusColors.getOnContainer(StatusType.fromString(type), context), size: 24),
             const SizedBox(width: kSpacingSmall),
             Expanded(
               child: Text(
                 message,
                 style: TextStyle(
                   fontSize: kFontSizeSmall,
-                  color: StatusColors.getOnStatusContainer(type, context),
+                  color: StatusColors.getOnContainer(StatusType.fromString(type), context),
                 ),
               ),
             ),
           ],
         ),
-        backgroundColor: StatusColors.getStatusContainer(type, context),
+        backgroundColor: StatusColors.getContainer(StatusType.fromString(type), context),
         duration: type == 'success' ? const Duration(seconds: 2) : kSnackBarDurationLong,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
