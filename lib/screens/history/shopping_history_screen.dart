@@ -29,7 +29,10 @@ import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 
 class ShoppingHistoryScreen extends StatefulWidget {
-  const ShoppingHistoryScreen({super.key});
+  /// אם מועבר, הקבלה הזו תוצג מורחבת אוטומטית
+  final String? initialReceiptId;
+
+  const ShoppingHistoryScreen({super.key, this.initialReceiptId});
 
   @override
   State<ShoppingHistoryScreen> createState() => _ShoppingHistoryScreenState();
@@ -38,6 +41,15 @@ class ShoppingHistoryScreen extends StatefulWidget {
 class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
   String _filterPeriod = 'month'; // month, 3months, all
   String _sortBy = 'date'; // date, store, amount
+
+  @override
+  void initState() {
+    super.initState();
+    // אם פתחו עם קבלה ספציפית - הצג הכל כדי שהיא תהיה גלויה
+    if (widget.initialReceiptId != null) {
+      _filterPeriod = 'all';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -225,7 +237,10 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
                             itemCount: receipts.length,
                             itemBuilder: (context, index) {
                               final receipt = receipts[index];
-                              return _ReceiptTile(receipt: receipt)
+                              return _ReceiptTile(
+                                receipt: receipt,
+                                initiallyExpanded: receipt.id == widget.initialReceiptId,
+                              )
                                   .animate()
                                   .fadeIn(
                                     duration: 250.ms,
@@ -295,8 +310,9 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
 
 class _ReceiptTile extends StatelessWidget {
   final Receipt receipt;
+  final bool initiallyExpanded;
 
-  const _ReceiptTile({required this.receipt});
+  const _ReceiptTile({required this.receipt, this.initiallyExpanded = false});
 
   /// Format quantity to avoid "1.0" display
   String _formatQuantity(num quantity) {
@@ -329,6 +345,7 @@ class _ReceiptTile extends StatelessWidget {
           ),
         ),
         child: ExpansionTile(
+          initiallyExpanded: initiallyExpanded,
           iconColor: leadingColor,
           collapsedIconColor: leadingColor,
           tilePadding: const EdgeInsets.symmetric(

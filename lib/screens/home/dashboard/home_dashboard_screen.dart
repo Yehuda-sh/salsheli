@@ -186,10 +186,11 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
     final paperBg = brand?.paperBackground ?? theme.scaffoldBackgroundColor;
 
-    // רשימות פעילות בלבד
+    // רשימות פעילות בלבד, ממוינות לפי עדכון אחרון (חדש קודם)
     final activeLists = listsProvider.lists
         .where((l) => l.status == ShoppingList.statusActive)
-        .toList();
+        .toList()
+      ..sort((a, b) => b.updatedDate.compareTo(a.updatedDate));
 
     // קבלות ממוינות לפי תאריך (חדש לישן)
     final sortedReceipts = List<Receipt>.from(receiptProvider.receipts)
@@ -861,7 +862,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => const ShoppingHistoryScreen(),
+            builder: (_) => ShoppingHistoryScreen(initialReceiptId: receipt.id),
           ),
         );
       },
