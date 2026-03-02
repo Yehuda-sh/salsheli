@@ -1,29 +1,34 @@
 // 📄 lib/widgets/common/dashboard_card.dart
+// Version 4.0 - Hybrid Premium | 22/02/2026
 //
 // כרטיס צבעוני לדשבורד עם כותרת, אייקון ותוכן מותאם.
 // לחיץ (אופציונלי) - מציג חץ כשיש onTap.
 //
-// ✅ תיקונים:
-//    - הוספת onLongPress parameter ללחיצה ארוכה
-//    - הוספת tooltip parameter לנגישות
-//    - הוספת semanticLabel parameter לקוראי מסך (ברירת מחדל: title)
-//    - הוספת elevation parameter לשליטה בצללים (0.0-1.0)
-//    - הוספת animate parameter לשליטה באנימציות
-//    - העברת פרמטרים ל-SimpleTappableCard ו-StickyNote
+// Features:
+//   - אנימציית 'נחיתה' (Elastic Drop) עם flutter_animate
+//   - משוב Haptic מובנה (Selection vs Medium)
+//   - ריווח סמנטי באמצעות Gap
+//   - אופטימיזציית RepaintBoundary
 //
 // 🔗 Related: StickyNote, SimpleTappableCard, upcoming_shop_card.dart
 
+import 'dart:async' show unawaited;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:gap/gap.dart';
+
 import '../../core/ui_constants.dart';
 import '../../theme/app_theme.dart';
 import 'sticky_note.dart';
 import 'tappable_card.dart';
 
 /// כרטיס דשבורד בסגנון פתק מודבק (Sticky Notes)
-/// 
+///
 /// רכיב wrapper לכרטיסים בממשק הדשבורד.
 /// מציג כותרת עם אייקון, תוכן ואופציונלי - חץ ל-action.
-/// 
+///
 /// Parameters:
 /// - [title]: כותרת הכרטיס
 /// - [icon]: אייקון להצגה ליד הכותרת
@@ -35,17 +40,19 @@ import 'tappable_card.dart';
 /// - [semanticLabel]: תווית לנגישות (ברירת מחדל: title)
 /// - [tooltip]: טקסט tooltip לנגישות (אופציונלי)
 /// - [elevation]: רמת צל (0.0-1.0, ברירת מחדל: 1.0)
-/// - [animate]: האם להפעיל אנימציית כניסה (ברירת מחדל: true)
+/// - [animate]: האם להפעיל אנימציית כניסה - Elastic Drop (ברירת מחדל: true)
 ///
 /// Features:
+/// - אנימציית "נחיתה" (Elastic Drop) - fadeIn + slideY + scale
 /// - עיצוב פתק צבעוני עם צללים (נשלט ע"י elevation)
 /// - סיבוב קל לאפקט אותנטי
 /// - כותרת עם אייקון בולט
 /// - חץ ימנה כשיש onTap
-/// - אנימציות כניסה (נשלט ע"י animate)
+/// - משוב Haptic מובחן: selectionClick ל-tap, mediumImpact ל-longPress
 /// - תמיכה בלחיצה ארוכה
 /// - נגישות מלאה (Semantics, Tooltip)
-/// 
+/// - RepaintBoundary לביצועי גלילה אופטימליים
+///
 /// דוגמה:
 /// ```dart
 /// DashboardCard(
@@ -88,7 +95,7 @@ class DashboardCard extends StatelessWidget {
   /// רמת צל (0.0-1.0, ברירת מחדל: 1.0)
   final double elevation;
 
-  /// האם להפעיל אנימציית כניסה (ברירת מחדל: true)
+  /// האם להפעיל אנימציית כניסה - Elastic Drop (ברירת מחדל: true)
   final bool animate;
 
   const DashboardCard({
@@ -118,17 +125,17 @@ class DashboardCard extends StatelessWidget {
 
     // צבעים מבוססי Theme (תומך dark mode)
     final textColor = cs.onSurface;
-    final secondaryColor = cs.onSurfaceVariant;
 
     // ✅ RTL-aware arrow icon
     final isRtl = Directionality.of(context) == TextDirection.rtl;
     final arrowIcon = isRtl ? Icons.arrow_back_ios : Icons.arrow_forward_ios;
 
-    final content = StickyNote(
+    // 📌 StickyNote with animation disabled - DashboardCard handles its own
+    Widget content = StickyNote(
       color: cardColor,
       rotation: cardRotation,
       elevation: elevation,
-      animate: animate,
+      animate: false, // Animation handled below (Elastic Drop)
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -141,7 +148,7 @@ class DashboardCard extends StatelessWidget {
                 size: kIconSize,
                 color: cs.primary,
               ),
-              const SizedBox(width: kSpacingSmall),
+              const Gap(kSpacingSmall),
               Expanded(
                 child: Text(
                   title,
@@ -156,11 +163,12 @@ class DashboardCard extends StatelessWidget {
                 Icon(
                   arrowIcon,
                   size: kIconSizeSmall,
-                  color: secondaryColor,
+                  // ✅ Subtle arrow - doesn't steal focus from title
+                  color: cs.onSurface.withValues(alpha: 0.3),
                 ),
             ],
           ),
-          const SizedBox(height: kSpacingMedium),
+          const Gap(kSpacingMedium),
 
           // 📦 Content
           child,
@@ -168,19 +176,47 @@ class DashboardCard extends StatelessWidget {
       ),
     );
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: kCardMarginVertical),
-      child: onTap != null || onLongPress != null
-          ? SimpleTappableCard(
-              onTap: onTap,
-              onLongPress: onLongPress,
-              tooltip: tooltip,
-              semanticLabel: semanticLabel ?? title,
-              // ✅ Match ripple to sticky note's border radius
-              borderRadius: kStickyNoteRadius,
-              child: content,
-            )
-          : content,
+    // 🎬 Elastic Drop animation - card "lands" on the page
+    if (animate) {
+      content = content
+          .animate()
+          .fadeIn(duration: 400.ms)
+          .slideY(begin: 0.1, end: 0, curve: Curves.easeOutBack)
+          .scale(
+            begin: const Offset(0.96, 0.96),
+            end: const Offset(1.0, 1.0),
+          );
+    }
+
+    final isInteractive = onTap != null || onLongPress != null;
+
+    // 🎨 RepaintBoundary isolates card animations/shadows from scroll repaints
+    return RepaintBoundary(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: kCardMarginVertical),
+        child: isInteractive
+            ? SimpleTappableCard(
+                onTap: onTap != null
+                    ? () {
+                        unawaited(HapticFeedback.selectionClick());
+                        onTap!();
+                      }
+                    : null,
+                onLongPress: onLongPress != null
+                    ? () {
+                        unawaited(HapticFeedback.mediumImpact());
+                        onLongPress!();
+                      }
+                    : null,
+                haptic: ButtonHaptic.none, // Handled above with specific patterns
+                tooltip: tooltip,
+                semanticLabel: semanticLabel ?? title,
+                // ✅ Match ripple to sticky note's border radius
+                borderRadius: kStickyNoteRadius,
+                child: content,
+              )
+            : content,
+      ),
     );
   }
 }

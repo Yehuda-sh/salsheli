@@ -4,11 +4,20 @@
 // כולל חיפוש, מיון, וסטטיסטיקות הוצאות.
 // שילוב: רקע מחברת + עיצוב Material נקי (AppBar + Cards)
 //
-// Version: 3.0 - ExpansionTile instead of separate screen
-// Last Updated: 27/01/2026
+// ✅ Features:
+//    - אנימציות כניסה עם flutter_animate
+//    - משוב Haptic בסינון ומיון
+//    - נגישות משופרת לסטטיסטיקות
+//
+// Version: 4.0
+// Last Updated: 22/02/2026
 // 🔗 Related: ReceiptProvider, Receipt
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -52,6 +61,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
             icon: Icon(Icons.sort, color: cs.primary),
             tooltip: strings.sortTooltip,
             onSelected: (value) {
+              unawaited(HapticFeedback.lightImpact());
               setState(() => _sortBy = value);
             },
             itemBuilder: (context) => [
@@ -130,62 +140,74 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
                         FilterChip(
                           label: Text(strings.filterThisMonth),
                           selected: _filterPeriod == 'month',
-                          onSelected: (_) => setState(() => _filterPeriod = 'month'),
+                          onSelected: (_) {
+                            unawaited(HapticFeedback.lightImpact());
+                            setState(() => _filterPeriod = 'month');
+                          },
                         ),
                         const SizedBox(width: kSpacingSmall),
                         FilterChip(
                           label: Text(strings.filterThreeMonths),
                           selected: _filterPeriod == '3months',
-                          onSelected: (_) => setState(() => _filterPeriod = '3months'),
+                          onSelected: (_) {
+                            unawaited(HapticFeedback.lightImpact());
+                            setState(() => _filterPeriod = '3months');
+                          },
                         ),
                         const SizedBox(width: kSpacingSmall),
                         FilterChip(
                           label: Text(strings.filterAll),
                           selected: _filterPeriod == 'all',
-                          onSelected: (_) => setState(() => _filterPeriod = 'all'),
+                          onSelected: (_) {
+                            unawaited(HapticFeedback.lightImpact());
+                            setState(() => _filterPeriod = 'all');
+                          },
                         ),
                       ],
                     ),
                   ),
 
                   // 📊 סטטיסטיקות
-                  Builder(
-                    builder: (context) {
-                      return Container(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: kSpacingMedium),
-                        padding: const EdgeInsets.all(kSpacingMedium),
-                        decoration: BoxDecoration(
-                          color: cs.primaryContainer,
-                          borderRadius: BorderRadius.circular(kBorderRadius),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            _StatItem(
-                              icon: Icons.receipt_long,
-                              label: strings.shoppingsLabel,
-                              value: '${receipts.length}',
-                              color: cs.primary,
-                            ),
-                            _StatItem(
-                              icon: Icons.payments,
-                              label: strings.totalLabel,
-                              value: '₪${totalSpent.toStringAsFixed(0)}',
-                              color: cs.primary,
-                            ),
-                            _StatItem(
-                              icon: Icons.trending_up,
-                              label: strings.averageLabel,
-                              value: '₪${avgPerTrip.toStringAsFixed(0)}',
-                              // ✅ FIX: צבע כהה יותר לקריאות טובה
-                              color: cs.onPrimaryContainer,
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
+                  Semantics(
+                    label: '${strings.shoppingsLabel}: ${receipts.length}, '
+                        '${strings.totalLabel}: ₪${totalSpent.toStringAsFixed(0)}, '
+                        '${strings.averageLabel}: ₪${avgPerTrip.toStringAsFixed(0)}',
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: kSpacingMedium),
+                      padding: const EdgeInsets.all(kSpacingMedium),
+                      decoration: BoxDecoration(
+                        color: cs.primaryContainer,
+                        borderRadius: BorderRadius.circular(kBorderRadius),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _StatItem(
+                            icon: Icons.receipt_long,
+                            label: strings.shoppingsLabel,
+                            value: '${receipts.length}',
+                            color: cs.onPrimaryContainer,
+                          ),
+                          _StatItem(
+                            icon: Icons.payments,
+                            label: strings.totalLabel,
+                            value: '₪${totalSpent.toStringAsFixed(0)}',
+                            color: cs.onPrimaryContainer,
+                          ),
+                          _StatItem(
+                            icon: Icons.trending_up,
+                            label: strings.averageLabel,
+                            value: '₪${avgPerTrip.toStringAsFixed(0)}',
+                            color: cs.onPrimaryContainer,
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                      .animate()
+                      .fadeIn(duration: 300.ms)
+                      .slideY(begin: 0.1, end: 0.0, curve: Curves.easeOut),
 
                   const SizedBox(height: kSpacingSmall),
 
@@ -203,7 +225,19 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
                             itemCount: receipts.length,
                             itemBuilder: (context, index) {
                               final receipt = receipts[index];
-                              return _ReceiptTile(receipt: receipt);
+                              return _ReceiptTile(receipt: receipt)
+                                  .animate()
+                                  .fadeIn(
+                                    duration: 250.ms,
+                                    delay: (50 * index).ms,
+                                  )
+                                  .slideY(
+                                    begin: 0.15,
+                                    end: 0.0,
+                                    duration: 250.ms,
+                                    delay: (50 * index).ms,
+                                    curve: Curves.easeOut,
+                                  );
                             },
                           ),
                   ),
@@ -280,12 +314,23 @@ class _ReceiptTile extends StatelessWidget {
     final locale = Localizations.localeOf(context).languageCode;
     final successColor = theme.extension<AppBrand>()?.success ?? Colors.green;
 
+    final leadingColor = receipt.isVirtual ? successColor : cs.primary;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: kSpacingSmall),
       child: Card(
         elevation: 1,
         clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(kBorderRadius),
+          side: BorderSide(
+            color: cs.outlineVariant.withValues(alpha: 0.2),
+            width: 0.5,
+          ),
+        ),
         child: ExpansionTile(
+          iconColor: leadingColor,
+          collapsedIconColor: leadingColor,
           tilePadding: const EdgeInsets.symmetric(
             horizontal: kSpacingMedium,
             vertical: kSpacingSmall,

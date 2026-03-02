@@ -1,16 +1,29 @@
 // 📄 lib/widgets/shopping/add_edit_task_dialog.dart
+// Version 4.0 - Hybrid Premium | 22/02/2026
 //
 // דיאלוג הוספה/עריכה של משימה - שם, הערות, תאריך יעד ועדיפות.
-// כולל validation, אנימציות fade+scale, haptic feedback ותמיכה בנגישות.
+// כולל validation, אנימציות, haptic feedback ותמיכה בנגישות.
 //
-// 🔗 Related: UnifiedListItem, AppStrings, showGeneralDialog
+// Features:
+//   - עיצוב Sticky Note פיזי (ורוד - מובחן ממוצרים)
+//   - אנימציית שדות מדורגת (Staggered)
+//   - ניהול Focus Shadows
+//   - חתימות Haptic מותאמות
+//
+// ✅ אבטחות:
+//    - מניעת שמירה כפולה (_isSaving flag)
+//    - אישור יציאה כשיש שינויים לא שמורים
+//    - firstDate מותאם לתאריכי עבר (מניעת קריסה)
+//
+// 🔗 Related: UnifiedListItem, StickyNote, StickyButton, AppBrand
 
 import 'dart:async';
 import 'dart:ui' as ui;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
@@ -18,6 +31,9 @@ import '../../core/status_colors.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../models/unified_list_item.dart';
+import '../../theme/app_theme.dart';
+import '../common/sticky_button.dart';
+import '../common/sticky_note.dart';
 
 class AddEditTaskDialog extends StatefulWidget {
   final UnifiedListItem? item;
@@ -36,10 +52,15 @@ class AddEditTaskDialog extends StatefulWidget {
 class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
   late final TextEditingController _nameController;
   late final TextEditingController _notesController;
+
+  // FocusNodes — Focus Shadow + haptic מעבר שדות
+  late final FocusNode _nameFocus;
+  late final FocusNode _notesFocus;
+
   DateTime? _selectedDueDate;
   String _selectedPriority = 'medium';
-  bool _isSaving = false; // 🛡️ מניעת שמירה כפולה
-  bool _hasChanges = false; // 🛡️ מעקב אחר שינויים לאישור יציאה
+  bool _isSaving = false;
+  bool _hasChanges = false;
 
   @override
   void initState() {
@@ -49,16 +70,17 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
     _selectedDueDate = widget.item?.dueDate;
     _selectedPriority = widget.item?.priority ?? 'medium';
 
-    // 🛡️ Track changes for exit confirmation
+    _nameFocus = FocusNode()..addListener(_onFocusChange);
+    _notesFocus = FocusNode()..addListener(_onFocusChange);
+
     _nameController.addListener(_markChanged);
     _notesController.addListener(_markChanged);
+  }
 
-    if (kDebugMode) {
-      debugPrint(
-        widget.item == null
-            ? '➕ AddEditTaskDialog: פתיחת דיאלוג הוספת משימה'
-            : '✏️ AddEditTaskDialog: פתיחת דיאלוג עריכת "${widget.item!.name}"',
-      );
+  /// 📳 Haptic: selectionClick במעבר בין שדות
+  void _onFocusChange() {
+    if (_nameFocus.hasFocus || _notesFocus.hasFocus) {
+      unawaited(HapticFeedback.selectionClick());
     }
   }
 
@@ -72,11 +94,44 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
   void dispose() {
     _nameController.dispose();
     _notesController.dispose();
-    if (kDebugMode) {
-      debugPrint('🗑️ AddEditTaskDialog: Controllers disposed');
-    }
+    _nameFocus.dispose();
+    _notesFocus.dispose();
     super.dispose();
   }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🎨 Focus Shadow Wrapper
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  Widget _withFocusShadow({required Widget child, required FocusNode focusNode}) {
+    return ListenableBuilder(
+      listenable: focusNode,
+      builder: (context, _) {
+        final cs = Theme.of(context).colorScheme;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOut,
+          decoration: focusNode.hasFocus
+              ? BoxDecoration(
+                  borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                  boxShadow: [
+                    BoxShadow(
+                      color: cs.primary.withValues(alpha: 0.12),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                )
+              : const BoxDecoration(),
+          child: child,
+        );
+      },
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 📅 Date Picker
+  // ═══════════════════════════════════════════════════════════════════════════
 
   Future<void> _selectDate() async {
     unawaited(HapticFeedback.selectionClick());
@@ -84,8 +139,7 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
-    // 🛡️ תיקון: אם יש תאריך ישן בעבר, מאפשרים firstDate מוקדם יותר
-    // אחרת initialDate חייב להיות בטווח ו-Flutter יקרוס
+    // 🛡️ אם יש תאריך ישן בעבר - firstDate מוקדם יותר למניעת קריסה
     final hasOldDate = _selectedDueDate != null && _selectedDueDate!.isBefore(today);
     final firstDate = hasOldDate ? _selectedDueDate! : today;
     final initialDate = _selectedDueDate ?? today;
@@ -98,32 +152,42 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
     );
 
     if (picked != null && mounted) {
+      // 📳 Haptic: lightImpact לבחירת תאריך
       unawaited(HapticFeedback.lightImpact());
       setState(() {
         _selectedDueDate = picked;
-        _hasChanges = true; // 🛡️ Track change
+        _hasChanges = true;
       });
     }
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ❌ Error / Validation
+  // ═══════════════════════════════════════════════════════════════════════════
+
   void _showErrorSnackBar(String message) {
+    // 📳 Haptic: heavyImpact לשגיאה
     unawaited(HapticFeedback.heavyImpact());
+    final cs = Theme.of(context).colorScheme;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
           children: [
-            const Icon(Icons.error_outline, color: Colors.white),
-            const SizedBox(width: kSpacingSmall),
+            Icon(Icons.error_outline, color: cs.onError),
+            const Gap(kSpacingSmall),
             Expanded(child: Text(message)),
           ],
         ),
-        backgroundColor: StatusColors.error,
+        backgroundColor: cs.error,
         behavior: SnackBarBehavior.floating,
       ),
     );
   }
 
-  /// ✅ Exit confirmation when form has unsaved changes
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🚪 Exit Confirmation
+  // ═══════════════════════════════════════════════════════════════════════════
+
   Future<bool> _confirmExit() async {
     if (!_hasChanges) return true;
 
@@ -150,21 +214,20 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
   void _handleCancel() async {
     if (await _confirmExit()) {
       unawaited(HapticFeedback.lightImpact());
-      if (kDebugMode) {
-        debugPrint('❌ AddEditTaskDialog: ביטול דיאלוג');
-      }
       if (mounted) Navigator.pop(context);
     }
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 💾 Save
+  // ═══════════════════════════════════════════════════════════════════════════
+
   void _handleSave() {
-    // 🛡️ מניעת לחיצה כפולה
     if (_isSaving) return;
 
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
 
-    // ✅ Validation מלא
     if (name.isEmpty) {
       _showErrorSnackBar(AppStrings.listDetails.taskNameEmpty);
       return;
@@ -172,7 +235,7 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
 
     setState(() => _isSaving = true);
 
-    // ✨ Haptic feedback להצלחה
+    // 📳 Haptic: mediumImpact לשמירה מוצלחת
     unawaited(HapticFeedback.mediumImpact());
 
     final newItem = UnifiedListItem.task(
@@ -183,145 +246,306 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
       notes: notes.isNotEmpty ? notes : null,
     );
 
-    // ✅ Safe save with error handling
     try {
       widget.onSave(newItem);
-      if (mounted) {
-        Navigator.pop(context);
-        if (kDebugMode) {
-          debugPrint(
-            widget.item == null
-                ? '✅ AddEditTaskDialog: הוסף משימה "$name"'
-                : '✅ AddEditTaskDialog: עדכן משימה "$name"',
-          );
-        }
-      }
+      if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {
         setState(() => _isSaving = false);
         _showErrorSnackBar(AppStrings.common.saveFailed);
-        if (kDebugMode) {
-          debugPrint('❌ AddEditTaskDialog: שגיאה בשמירה: $e');
-        }
       }
     }
   }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🏗️ Build
+  // ═══════════════════════════════════════════════════════════════════════════
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
+    final isEditMode = widget.item != null;
 
-    return AlertDialog(
-      title: Text(
-        widget.item == null
-            ? AppStrings.listDetails.addTaskTitle
-            : AppStrings.listDetails.editTaskTitle,
+    // 🩷 ורוד — מבחין משימות ממוצרים (צהוב)
+    final stickyColor = brand?.stickyPink ?? kStickyPink;
+
+    // Glassmorphic fill
+    final inputFillColor = cs.surfaceContainerHighest.withValues(alpha: 0.55);
+    final focusedBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+      borderSide: BorderSide(color: cs.primary, width: 1.5),
+    );
+    final defaultBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+      borderSide: BorderSide(color: cs.outline.withValues(alpha: 0.5)),
+    );
+
+    InputDecoration fieldDecoration({required String label, required IconData icon}) {
+      return InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon),
+        border: defaultBorder,
+        enabledBorder: defaultBorder,
+        focusedBorder: focusedBorder,
+        filled: true,
+        fillColor: inputFillColor,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: kSpacingSmall,
+          vertical: kSpacingSmallPlus,
+        ),
+      );
+    }
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.all(kSpacingMedium),
+      child: StickyNote(
+        color: stickyColor,
+        rotation: -0.01,
+        padding: 0,
+        // 🎨 RepaintBoundary — מבודד אנימציות שדות ממסך שמתחת
+        child: RepaintBoundary(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(kSpacingMedium),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // 🏷️ כותרת
+                  Row(
+                    children: [
+                      Icon(
+                        isEditMode ? Icons.edit_note : Icons.add_task,
+                        color: cs.primary,
+                        size: kIconSizeLarge,
+                      ),
+                      const Gap(kSpacingSmall),
+                      Text(
+                        isEditMode
+                            ? AppStrings.listDetails.editTaskTitle
+                            : AppStrings.listDetails.addTaskTitle,
+                        style: TextStyle(
+                          fontSize: kFontSizeLarge,
+                          fontWeight: FontWeight.bold,
+                          color: cs.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Gap(kSpacingMedium),
+                  const Divider(),
+                  const Gap(kSpacingSmall),
+
+                  // 📝 שם המשימה
+                  _withFocusShadow(
+                    focusNode: _nameFocus,
+                    child: TextField(
+                      controller: _nameController,
+                      focusNode: _nameFocus,
+                      autofocus: true,
+                      decoration: fieldDecoration(
+                        label: AppStrings.listDetails.taskNameLabel,
+                        icon: Icons.task_alt,
+                      ),
+                      textDirection: ui.TextDirection.rtl,
+                      textInputAction: TextInputAction.next,
+                    ),
+                  ).animate().fadeIn(duration: 400.ms).slideX(begin: 0.05, end: 0),
+
+                  const Gap(kSpacingSmall),
+
+                  // 📄 הערות
+                  _withFocusShadow(
+                    focusNode: _notesFocus,
+                    child: TextField(
+                      controller: _notesController,
+                      focusNode: _notesFocus,
+                      decoration: fieldDecoration(
+                        label: AppStrings.listDetails.notesLabel,
+                        icon: Icons.notes,
+                      ),
+                      textDirection: ui.TextDirection.rtl,
+                      textInputAction: TextInputAction.done,
+                      maxLines: 3,
+                    ),
+                  ).animate().fadeIn(duration: 400.ms, delay: 50.ms).slideX(begin: 0.05, end: 0, delay: 50.ms),
+
+                  const Gap(kSpacingMedium),
+
+                  // 📅 בחירת תאריך — Glassmorphic tile
+                  _buildDateTile(context, cs, inputFillColor)
+                      .animate()
+                      .fadeIn(duration: 400.ms, delay: 100.ms)
+                      .slideX(begin: 0.05, end: 0, delay: 100.ms),
+
+                  const Gap(kSpacingSmall),
+
+                  // ⚡ עדיפות — Dropdown עם אימוג'י
+                  DropdownButtonFormField<String>(
+                    initialValue: _selectedPriority,
+                    decoration: InputDecoration(
+                      labelText: AppStrings.listDetails.priorityLabel,
+                      prefixIcon: const Icon(Icons.flag_outlined),
+                      border: defaultBorder,
+                      enabledBorder: defaultBorder,
+                      focusedBorder: focusedBorder,
+                      filled: true,
+                      fillColor: inputFillColor,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: kSpacingSmall,
+                        vertical: kSpacingSmallPlus,
+                      ),
+                    ),
+                    icon: Icon(
+                      Icons.expand_more,
+                      size: kIconSizeMedium,
+                      color: cs.onSurface.withValues(alpha: 0.6),
+                    ),
+                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                    dropdownColor: cs.surfaceContainer,
+                    items: [
+                      DropdownMenuItem(
+                        value: 'low',
+                        child: Text('🔵 ${AppStrings.listDetails.priorityLow}'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'medium',
+                        child: Text('🟡 ${AppStrings.listDetails.priorityMedium}'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'high',
+                        child: Text('🔴 ${AppStrings.listDetails.priorityHigh}'),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) {
+                        unawaited(HapticFeedback.selectionClick());
+                        setState(() {
+                          _selectedPriority = value;
+                          _hasChanges = true;
+                        });
+                      }
+                    },
+                  ).animate().fadeIn(duration: 400.ms, delay: 150.ms).slideX(begin: 0.05, end: 0, delay: 150.ms),
+
+                  const Gap(kSpacingMedium),
+
+                  // 🔘 כפתורי פעולה
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Semantics(
+                          label: AppStrings.common.cancel,
+                          button: true,
+                          child: StickyButton(
+                            label: AppStrings.common.cancel,
+                            icon: Icons.close,
+                            color: cs.surfaceContainerHighest,
+                            onPressed: _handleCancel,
+                          ),
+                        ),
+                      ),
+                      const Gap(kSpacingSmall),
+                      Expanded(
+                        child: Semantics(
+                          label: AppStrings.common.save,
+                          button: true,
+                          child: StickyButton(
+                            label: _isSaving
+                                ? AppStrings.common.loading
+                                : AppStrings.common.save,
+                            icon: _isSaving ? Icons.hourglass_empty : Icons.check,
+                            color: brand?.success ?? const Color(0xFF388E3C),
+                            onPressed: _isSaving ? null : _handleSave,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ).animate().fadeIn(duration: 400.ms, delay: 200.ms).slideX(begin: 0.05, end: 0, delay: 200.ms),
+
+                  SizedBox(
+                    height: MediaQuery.of(context).viewInsets.bottom > 0
+                        ? kSpacingMedium
+                        : 0,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                labelText: AppStrings.listDetails.taskNameLabel,
-              ),
-              textDirection: ui.TextDirection.rtl,
-              textInputAction: TextInputAction.next,
-              autofocus: true,
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 📅 Glassmorphic Date Tile
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  Widget _buildDateTile(BuildContext context, ColorScheme cs, Color fillColor) {
+    final hasDate = _selectedDueDate != null;
+    final dateColor = hasDate
+        ? StatusColors.getColor(StatusType.success, context)
+        : cs.onSurfaceVariant;
+    final dateText = hasDate
+        ? AppStrings.listDetails.dueDateSelected(
+            DateFormat('dd/MM/yyyy').format(_selectedDueDate!),
+          )
+        : AppStrings.listDetails.dueDateLabel;
+
+    return Semantics(
+      label: AppStrings.listDetails.dueDateLabel,
+      button: true,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+        child: InkWell(
+          onTap: _selectDate,
+          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: kSpacingSmall,
+              vertical: kSpacingSmallPlus,
             ),
-            const SizedBox(height: kSpacingSmall),
-            TextField(
-              controller: _notesController,
-              decoration: InputDecoration(
-                labelText: AppStrings.listDetails.notesLabel,
+            decoration: BoxDecoration(
+              color: fillColor,
+              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+              border: Border.all(
+                color: cs.outline.withValues(alpha: 0.5),
               ),
-              textDirection: ui.TextDirection.rtl,
-              textInputAction: TextInputAction.done,
-              maxLines: 3,
             ),
-            const SizedBox(height: kSpacingMedium),
-            // תאריך יעד
-            Semantics(
-              label: AppStrings.listDetails.dueDateLabel,
-              button: true,
-              child: ListTile(
-                title: Text(
-                  _selectedDueDate != null
-                      ? AppStrings.listDetails.dueDateSelected(
-                          DateFormat('dd/MM/yyyy').format(_selectedDueDate!),
-                        )
-                      : AppStrings.listDetails.dueDateLabel,
-                  style: TextStyle(
-                    color: _selectedDueDate != null
-                        ? StatusColors.getStatusColor('success', context)
-                        : cs.onSurfaceVariant,
+            child: Row(
+              children: [
+                Icon(Icons.calendar_today, color: cs.primary, size: kIconSizeMedium),
+                const Gap(kSpacingSmall),
+                Expanded(
+                  child: Text(
+                    dateText,
+                    style: TextStyle(color: dateColor, fontSize: kFontSizeMedium),
                   ),
                 ),
-                leading: Icon(Icons.calendar_today, color: cs.primary),
-                onTap: _selectDate,
-              ),
-            ),
-            const SizedBox(height: kSpacingSmall),
-            // עדיפות
-            DropdownButtonFormField<String>(
-              initialValue: _selectedPriority,
-              decoration: InputDecoration(
-                labelText: AppStrings.listDetails.priorityLabel,
-              ),
-              items: [
-                DropdownMenuItem(
-                  value: 'low',
-                  child: Text(AppStrings.listDetails.priorityLow),
-                ),
-                DropdownMenuItem(
-                  value: 'medium',
-                  child: Text(AppStrings.listDetails.priorityMedium),
-                ),
-                DropdownMenuItem(
-                  value: 'high',
-                  child: Text(AppStrings.listDetails.priorityHigh),
-                ),
+                if (hasDate)
+                  GestureDetector(
+                    onTap: () {
+                      unawaited(HapticFeedback.selectionClick());
+                      setState(() {
+                        _selectedDueDate = null;
+                        _hasChanges = true;
+                      });
+                    },
+                    child: Icon(
+                      Icons.close,
+                      size: kIconSizeSmall,
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
               ],
-              onChanged: (value) {
-                if (value != null) {
-                  unawaited(HapticFeedback.selectionClick());
-                  setState(() {
-                    _selectedPriority = value;
-                    _hasChanges = true; // 🛡️ Track change
-                  });
-                }
-              },
             ),
-          ],
+          ),
         ),
       ),
-      actions: [
-        Semantics(
-          label: AppStrings.common.cancel,
-          button: true,
-          child: TextButton(
-            // ✅ Use _handleCancel for exit confirmation
-            onPressed: _handleCancel,
-            child: Text(AppStrings.common.cancel),
-          ),
-        ),
-        Semantics(
-          label: AppStrings.common.save,
-          button: true,
-          child: ElevatedButton(
-            onPressed: _isSaving ? null : _handleSave,
-            child: _isSaving
-                ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Text(AppStrings.common.save),
-          ),
-        ),
-      ],
     );
   }
 }
@@ -332,12 +556,12 @@ Future<void> showAddEditTaskDialog(
   UnifiedListItem? item,
   required void Function(UnifiedListItem item) onSave,
 }) {
+  final barrierColor = Theme.of(context).colorScheme.scrim.withValues(alpha: 0.5);
+
   return showGeneralDialog(
     context: context,
-    barrierDismissible: false, // 🛡️ מונע סגירה בטעות ואיבוד נתונים
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-    barrierColor: Colors.black.withValues(alpha: 0.5),
-    transitionDuration: const Duration(milliseconds: 200), // ignore: avoid_redundant_argument_values
+    barrierColor: barrierColor,
     pageBuilder: (context, animation, secondaryAnimation) {
       return ScaleTransition(
         scale: CurvedAnimation(

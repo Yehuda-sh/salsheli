@@ -4,21 +4,27 @@
 //
 // ✨ Features:
 // - ✅ סימון פריטים פשוט (optimistic update)
-// - 📊 מונה התקדמות
-// - 🎨 עיצוב Sticky Note
+// - 📊 מונה התקדמות עם אנימציה חלקה
+// - 🎨 עיצוב Glassmorphic Header (BackdropFilter)
+// - 💫 Staggered animations לפריטים (fadeIn/slideX)
+// - 📳 Haptic Feedback משופר (check/uncheck/completion)
 // - ⚠️ אינדיקציית שגיאת סנכרון
+// - ⚡ RepaintBoundary per item row
+// - 🔙 כפתור סגור צף (Immersive UI)
 //
 // 🔗 Related:
 // - unified_list_item.dart - מודל פריט
 // - shopping_lists_provider.dart - עדכון סימון
 //
-// Version 2.0 - No AppBar (Immersive)
-// Last Updated: 13/01/2026
+// Version 3.0 - Hybrid Premium
+// Last Updated: 22/02/2026
 
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/status_colors.dart';
@@ -73,16 +79,29 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
       return;
     }
 
-    unawaited(HapticFeedback.selectionClick());
-
     // סמן כעסוק
     _busyItems.add(item.id);
 
     final newChecked = !item.isChecked;
 
+    // 📳 Haptic Feedback מותאם לפעולה
+    if (newChecked) {
+      unawaited(HapticFeedback.lightImpact());
+    } else {
+      unawaited(HapticFeedback.selectionClick());
+    }
+
     // עדכון מקומי מיידי (optimistic update)
     final updatedItem = item.copyWith(isChecked: newChecked);
     _updateLocalList(updatedItem);
+
+    // 🎉 חגיגת סיום - כשכל הפריטים מסומנים
+    if (newChecked && _list.items.every((i) => i.isChecked)) {
+      unawaited(HapticFeedback.mediumImpact());
+      Future.delayed(const Duration(milliseconds: 150), () {
+        unawaited(HapticFeedback.mediumImpact());
+      });
+    }
 
     try {
       final provider = context.read<ShoppingListsProvider>();
@@ -214,6 +233,20 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                   padding: const EdgeInsets.all(kSpacingMedium),
                   child: Row(
                     children: [
+                      // 🔙 כפתור סגור צף
+                      IconButton(
+                        icon: Icon(Icons.close, color: cs.onSurfaceVariant),
+                        onPressed: () {
+                          unawaited(HapticFeedback.lightImpact());
+                          Navigator.of(context).pop();
+                        },
+                        tooltip: 'סגור',
+                        style: IconButton.styleFrom(
+                          backgroundColor: cs.surface.withValues(alpha: 0.8),
+                        ),
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      const SizedBox(width: kSpacingSmall),
                       Icon(Icons.checklist, size: 24, color: cs.primary),
                       const SizedBox(width: kSpacingSmall),
                       Expanded(
@@ -277,76 +310,95 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                   ),
                 ),
 
-                // 📊 Header עם התקדמות
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
-                  padding: const EdgeInsets.all(kSpacingMedium),
-                  decoration: BoxDecoration(
-                    color: kStickyYellow.withValues(alpha: 0.9),
-                    borderRadius: BorderRadius.circular(kBorderRadius),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      // מספרים
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            '$checkedItems',
-                            style: TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                              color: allChecked ? StatusColors.success : cs.primary,
+                // 📊 Header עם התקדמות (Glassmorphic)
+                Semantics(
+                  label: AppStrings.checklist.percentComplete((progress * 100).toInt()),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(kBorderRadius),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: kGlassBlurSigma, sigmaY: kGlassBlurSigma),
+                        child: Container(
+                          padding: const EdgeInsets.all(kSpacingMedium),
+                          decoration: BoxDecoration(
+                            color: cs.surfaceContainerLow.withValues(alpha: 0.7),
+                            borderRadius: BorderRadius.circular(kBorderRadius),
+                            border: Border.all(
+                              color: cs.outline.withValues(alpha: 0.15),
                             ),
                           ),
-                          Text(
-                            ' / $totalItems',
-                            style: TextStyle(
-                              fontSize: 24,
-                              color: cs.onSurfaceVariant,
-                            ),
-                          ),
-                          if (allChecked) ...[
-                            const SizedBox(width: kSpacingSmall),
-                            const Icon(Icons.celebration,
-                                color: Colors.amber, size: 28),
-                          ],
-                        ],
-                      ),
+                          child: Column(
+                            children: [
+                              // מספרים + חגיגת סיום
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    '$checkedItems',
+                                    style: TextStyle(
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.bold,
+                                      color: allChecked ? StatusColors.success : cs.primary,
+                                    ),
+                                  ),
+                                  Text(
+                                    ' / $totalItems',
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      color: cs.onSurfaceVariant,
+                                    ),
+                                  ),
+                                  if (allChecked) ...[
+                                    const SizedBox(width: kSpacingSmall),
+                                    const Icon(Icons.celebration,
+                                        color: Colors.amber, size: 28)
+                                      .animate(onPlay: (c) => c.repeat(reverse: true, count: 3))
+                                      .scaleXY(begin: 1.0, end: 1.2, duration: 400.ms, curve: Curves.easeInOut),
+                                  ],
+                                ],
+                              )
+                                // 🎉 Pulse עדין על המונה כשהרשימה מושלמת
+                                .animate(target: allChecked ? 1 : 0)
+                                .scaleXY(begin: 1.0, end: 1.05, duration: 500.ms, curve: Curves.easeInOut),
 
-                      const SizedBox(height: kSpacingSmall),
+                              const SizedBox(height: kSpacingSmall),
 
-                      // בר התקדמות
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: LinearProgressIndicator(
-                          value: progress,
-                          backgroundColor: Colors.grey.withValues(alpha: 0.2),
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            allChecked ? StatusColors.success : cs.primary,
+                              // בר התקדמות מונפש
+                              TweenAnimationBuilder<double>(
+                                tween: Tween<double>(begin: 0, end: progress),
+                                duration: const Duration(milliseconds: 400),
+                                curve: Curves.easeOut,
+                                builder: (context, value, child) {
+                                  return ClipRRect(
+                                    borderRadius: BorderRadius.circular(4),
+                                    child: LinearProgressIndicator(
+                                      value: value,
+                                      backgroundColor: cs.outline.withValues(alpha: 0.15),
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        allChecked ? StatusColors.success : cs.primary,
+                                      ),
+                                      minHeight: 8,
+                                    ),
+                                  );
+                                },
+                              ),
+
+                              const SizedBox(height: kSpacingTiny),
+
+                              // אחוזים
+                              Text(
+                                AppStrings.checklist.percentComplete((progress * 100).toInt()),
+                                style: TextStyle(
+                                  fontSize: kFontSizeSmall,
+                                  color: cs.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
                           ),
-                          minHeight: 8,
                         ),
                       ),
-
-                      const SizedBox(height: kSpacingTiny),
-
-                      // אחוזים
-                      Text(
-                        AppStrings.checklist.percentComplete((progress * 100).toInt()),
-                        style: TextStyle(
-                          fontSize: kFontSizeSmall,
-                          color: cs.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
 
@@ -360,11 +412,22 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                           itemCount: _list.items.length,
                           itemBuilder: (context, index) {
                             final item = _list.items[index];
-                            return KeyedSubtree(
-                              key: ValueKey(item.id),
-                              child: _ChecklistItemTile(
-                                item: item,
-                                onToggle: () => _toggleItem(item),
+                            return RepaintBoundary(
+                              child: KeyedSubtree(
+                                key: ValueKey(item.id),
+                                child: _ChecklistItemTile(
+                                  item: item,
+                                  onToggle: () => _toggleItem(item),
+                                )
+                                    .animate()
+                                    .fadeIn(duration: 200.ms, delay: (30 * index).ms)
+                                    .slideX(
+                                      begin: 0.1,
+                                      end: 0.0,
+                                      duration: 200.ms,
+                                      delay: (30 * index).ms,
+                                      curve: Curves.easeOut,
+                                    ),
                               ),
                             );
                           },
@@ -398,34 +461,30 @@ class _ChecklistItemTile extends StatelessWidget {
     final cs = theme.colorScheme;
     final isChecked = item.isChecked;
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: kSpacingSmall),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onToggle,
-          borderRadius: BorderRadius.circular(kBorderRadius),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.all(kSpacingMedium),
-            decoration: BoxDecoration(
-              color: isChecked
-                  ? StatusColors.success.withValues(alpha: 0.1)
-                  : Colors.white.withValues(alpha: 0.8),
-              borderRadius: BorderRadius.circular(kBorderRadius),
-              border: Border.all(
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 200),
+      opacity: isChecked ? 0.5 : 1.0,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: kSpacingSmall),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onToggle,
+            borderRadius: BorderRadius.circular(kBorderRadius),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.all(kSpacingMedium),
+              decoration: BoxDecoration(
                 color: isChecked
-                    ? StatusColors.success.withValues(alpha: 0.3)
-                    : Colors.grey.withValues(alpha: 0.2),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 2,
-                  offset: const Offset(0, 1),
+                    ? StatusColors.success.withValues(alpha: 0.1)
+                    : cs.surface.withValues(alpha: 0.6),
+                borderRadius: BorderRadius.circular(kBorderRadius),
+                border: Border.all(
+                  color: isChecked
+                      ? StatusColors.success.withValues(alpha: 0.3)
+                      : cs.outline.withValues(alpha: 0.15),
                 ),
-              ],
-            ),
+              ),
             child: Row(
               children: [
                 // Checkbox מונפש
@@ -479,6 +538,7 @@ class _ChecklistItemTile extends StatelessWidget {
             ),
           ),
         ),
+      ),
       ),
     );
   }

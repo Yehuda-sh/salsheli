@@ -12,15 +12,25 @@
 //     - Includes purchase statistics (purchaseCount, lastPurchased)
 //     - household_id not part of model (Repository handles it)
 //
+// ✨ v4.0: אינטגרציה עם LimitStatus, רמזי UI ו-Haptics סמנטיים,
+//          תמיכה בשדות שיתופיים (Last Updated By)
+//
 // 🔗 Related:
 //     - InventoryRepository (repositories/inventory_repository.dart)
 //     - InventoryProvider (providers/inventory_provider.dart)
 //     - SmartSuggestion (models/smart_suggestion.dart)
+//     - LimitStatus (core/constants.dart)
+//     - StatusType (core/status_colors.dart)
 //
+// Version: 4.0 (22/02/2026)
+
+import 'dart:math' show max;
 
 import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';
 
+import '../core/constants.dart';
+import '../core/status_colors.dart';
 import 'timestamp_converter.dart';
 
 part 'inventory_item.g.dart';
@@ -97,6 +107,17 @@ class InventoryItem {
   @JsonKey(readValue: _readEmoji)
   final String? emoji;
 
+  // ---- 🆕 v4.0: Collaborative Fields ----
+
+  /// תאריך עדכון אחרון (אופציונלי)
+  @JsonKey(name: 'updated_at')
+  @NullableTimestampConverter()
+  final DateTime? updatedAt;
+
+  /// מזהה המשתמש שביצע את העדכון האחרון (אופציונלי)
+  @JsonKey(name: 'last_updated_by')
+  final String? lastUpdatedBy;
+
   const InventoryItem({
     required this.id,
     required this.productName,
@@ -111,6 +132,8 @@ class InventoryItem {
     this.lastPurchased,
     this.purchaseCount = 0,
     this.emoji,
+    this.updatedAt,
+    this.lastUpdatedBy,
   });
 
   // ---- JSON Serialization ----
@@ -145,6 +168,10 @@ class InventoryItem {
     int? purchaseCount,
     String? emoji,
     bool clearEmoji = false,
+    DateTime? updatedAt,
+    bool clearUpdatedAt = false,
+    String? lastUpdatedBy,
+    bool clearLastUpdatedBy = false,
   }) {
     return InventoryItem(
       id: id,
@@ -160,6 +187,8 @@ class InventoryItem {
       lastPurchased: clearLastPurchased ? null : (lastPurchased ?? this.lastPurchased),
       purchaseCount: purchaseCount ?? this.purchaseCount,
       emoji: clearEmoji ? null : (emoji ?? this.emoji),
+      updatedAt: clearUpdatedAt ? null : (updatedAt ?? this.updatedAt),
+      lastUpdatedBy: clearLastUpdatedBy ? null : (lastUpdatedBy ?? this.lastUpdatedBy),
     );
   }
 
@@ -176,10 +205,18 @@ class InventoryItem {
   bool get isExpired => expiryDate != null && expiryDate!.isBefore(DateTime.now());
 
   /// האם תפוגה קרובה (תוך 7 ימים)
-  bool get isExpiringSoon {
+  bool get isExpiringSoon => expiresWithinDays(7);
+
+  /// האם תפוגה קרובה — עם סף ימים מותאם אישית
+  ///
+  /// ```dart
+  /// item.expiresWithinDays(7)   // תוך שבוע
+  /// item.expiresWithinDays(14)  // תוך שבועיים
+  /// ```
+  bool expiresWithinDays(int daysThreshold) {
     if (expiryDate == null) return false;
-    final daysUntilExpiry = expiryDate!.difference(DateTime.now()).inDays;
-    return daysUntilExpiry >= 0 && daysUntilExpiry <= 7;
+    final days = expiryDate!.difference(DateTime.now()).inDays;
+    return days >= 0 && days <= daysThreshold;
   }
 
   /// ימים עד תפוגה (או מאז תפוגה אם שלילי)
@@ -197,10 +234,70 @@ class InventoryItem {
   /// האם מוצר פופולרי (נקנה 4+ פעמים)
   bool get isPopular => purchaseCount >= 4;
 
+  // ---- 🆕 v4.0: Smart Status Getters ----
+
+  /// סטטוס ניצול מלאי לפי LimitStatus
+  ///
+  /// משתמש ב-[getLimitStatus] מ-constants.dart:
+  /// - safe → מלאי מעל המינימום
+  /// - warning → מתקרב למינימום
+  /// - critical → קרוב מאוד למינימום
+  /// - full → מלאי מלא (quantity >= minQuantity)
+  LimitStatus get status => getLimitStatus(quantity, minQuantity);
+
+  /// אחוז ניצול מלאי (0.0 = ריק, 1.0 = מלא/מעל המינימום)
+  ///
+  /// ```dart
+  /// LinearProgressIndicator(value: item.stockPercentage)
+  /// ```
+  double get stockPercentage {
+    if (minQuantity <= 0) return 1.0;
+    return (quantity / max(minQuantity, 1)).clamp(0.0, 1.0);
+  }
+
+  /// סוג סטטוס סמנטי לשימוש עם StatusColors
+  ///
+  /// מיפוי מצב הפריט ל-StatusType:
+  /// - **error**: פג תוקף
+  /// - **warning**: מלאי נמוך או תפוגה קרובה
+  /// - **success**: הכל תקין
+  StatusType get statusType {
+    if (isExpired) return StatusType.error;
+    if (isLowStock || isExpiringSoon) return StatusType.warning;
+    return StatusType.success;
+  }
+
+  /// רמז לסוג רטט המתאים למצב הפריט
+  ///
+  /// מחזיר מחרוזת סמנטית שה-UI ממפה ל-HapticFeedback:
+  /// - `'heavy'` → heavyImpact (פג תוקף / קריטי)
+  /// - `'medium'` → mediumImpact (מלאי נמוך / תפוגה קרובה)
+  /// - `'light'` → lightImpact (תקין)
+  /// - `'selection'` → selectionClick (ברירת מחדל)
+  ///
+  /// ```dart
+  /// // ב-UI layer:
+  /// StatusColors.triggerHaptic(item.statusType);
+  /// ```
+  String get recommendedHaptic {
+    if (isExpired || status == LimitStatus.critical) return 'heavy';
+    if (isLowStock || isExpiringSoon) return 'medium';
+    if (statusType == StatusType.success) return 'light';
+    return 'selection';
+  }
+
+  /// 🆕 האם הפריט דורש טיפול דחוף
+  ///
+  /// מחזיר `true` אם:
+  /// - פג תוקף
+  /// - מלאי קריטי (critical) או אזל לגמרי (full — כלומר הגיע ל-0)
+  bool get needsUrgentAttention =>
+      isExpired || status == LimitStatus.critical || status == LimitStatus.full;
+
   // ---- Equality & Debug ----
 
   @override
-  String toString() => 'InventoryItem(id: $id, name: $productName, qty: $quantity $unit, min: $minQuantity, location: $location, expiry: $expiryDate, recurring: $isRecurring)';
+  String toString() => 'InventoryItem(id: $id, name: $productName, qty: $quantity $unit, min: $minQuantity, location: $location, expiry: $expiryDate, recurring: $isRecurring, updatedBy: $lastUpdatedBy)';
 
   @override
   bool operator ==(Object other) =>
@@ -218,7 +315,9 @@ class InventoryItem {
           other.isRecurring == isRecurring &&
           other.lastPurchased == lastPurchased &&
           other.purchaseCount == purchaseCount &&
-          other.emoji == emoji;
+          other.emoji == emoji &&
+          other.updatedAt == updatedAt &&
+          other.lastUpdatedBy == lastUpdatedBy;
 
   @override
   int get hashCode => Object.hash(
@@ -235,5 +334,7 @@ class InventoryItem {
         lastPurchased,
         purchaseCount,
         emoji,
+        updatedAt,
+        lastUpdatedBy,
       );
 }

@@ -51,6 +51,53 @@ class InventoryProvider with ChangeNotifier {
     }
   }
 
+  /// 🔒 מריץ פעולה async עם טיפול בשגיאות ובדיקת dispose
+  ///
+  /// **Parameters:**
+  /// - [operation]: שם הפעולה (לצורכי logging)
+  /// - [action]: הפעולה ה-async לביצוע
+  /// - [setLoading]: האם לעדכן את _isLoading (ברירת מחדל: true)
+  /// - [rethrowError]: האם לזרוק מחדש שגיאות (ברירת מחדל: true)
+  /// - [errorMessagePrefix]: prefix להודעת שגיאה
+  ///
+  /// **Returns:** הערך שהוחזר מה-action, או null אם נכשל
+  Future<T?> _runAsync<T>({
+    required String operation,
+    required Future<T> Function() action,
+    bool setLoading = true,
+    bool rethrowError = true,
+    String? errorMessagePrefix,
+  }) async {
+    if (_isDisposed) {
+      debugPrint('⚠️ InventoryProvider.$operation: Aborted (disposed)');
+      return null;
+    }
+
+    if (setLoading) {
+      _isLoading = true;
+      _errorMessage = null;
+      _notifySafe();
+    }
+
+    try {
+      final result = await action();
+      _errorMessage = null;
+      return result;
+    } catch (e) {
+      debugPrint('❌ InventoryProvider.$operation: שגיאה - $e');
+      _errorMessage = errorMessagePrefix != null
+          ? '$errorMessagePrefix: ${e.toString()}'
+          : e.toString();
+      if (rethrowError) rethrow;
+      return null;
+    } finally {
+      if (setLoading) {
+        _isLoading = false;
+      }
+      _notifySafe();
+    }
+  }
+
   // === Validation Helpers ===
 
   /// בודק אם שם מוצר תקין (לא ריק)
@@ -292,37 +339,43 @@ class InventoryProvider with ChangeNotifier {
       throw Exception(AppStrings.inventory.maxItemsReached(kMaxItemsPerPantry));
     }
 
-    try {
-      final newItem = InventoryItem(
-        id: _uuid.v4(),
-        productName: productName,
-        category: category,
-        location: location,
-        quantity: quantity,
-        unit: unit,
-        minQuantity: minQuantity,
-        expiryDate: expiryDate,
-        notes: notes,
-        isRecurring: isRecurring,
-        emoji: emoji,
-      );
+    final newItem = InventoryItem(
+      id: _uuid.v4(),
+      productName: productName,
+      category: category,
+      location: location,
+      quantity: quantity,
+      unit: unit,
+      minQuantity: minQuantity,
+      expiryDate: expiryDate,
+      notes: notes,
+      isRecurring: isRecurring,
+      emoji: emoji,
+    );
 
-      // שמירה למזווה אישי
-      await _repository.saveUserItem(newItem, userId);
+    final previousItems = _items;
 
-      // אופטימיזציה: הוספה local במקום ריענון מלא
-      _items = [..._items, newItem];
-      notifyListeners();
+    await _runAsync(
+      operation: 'createItem',
+      setLoading: false,
+      errorMessagePrefix: 'שגיאה ביצירת פריט',
+      action: () async {
+        // 🚀 Optimistic: עדכון מיידי של ה-UI
+        _errorMessage = null;
+        _items = [..._items, newItem];
+        _notifySafe();
 
-      return newItem;
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('❌ InventoryProvider.createItem: שגיאה - $e');
-      }
-      _errorMessage = 'שגיאה ביצירת פריט';
-      notifyListeners();
-      rethrow;
-    }
+        try {
+          await _repository.saveUserItem(newItem, userId);
+        } catch (e) {
+          // 🔄 Rollback: שחזור המצב הקודם
+          _items = previousItems;
+          rethrow;
+        }
+      },
+    );
+
+    return newItem;
   }
 
   /// מעדכן פריט קיים במלאי
@@ -336,26 +389,32 @@ class InventoryProvider with ChangeNotifier {
     final userId = _userContext?.userId;
     if (userId == null) return;
 
-    try {
-      // שמירה למזווה אישי
-      await _repository.saveUserItem(item, userId);
+    final previousItems = _items;
 
-      // עדכון local - יוצר רשימה חדשה כדי ש-Flutter יזהה את השינוי
-      final index = _items.indexWhere((i) => i.id == item.id);
-      if (index != -1) {
-        _items = List.from(_items)..[index] = item;
-      } else {
-        _items = [..._items, item];
-      }
-      notifyListeners();
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('❌ InventoryProvider.updateItem: שגיאה - $e');
-      }
-      _errorMessage = 'שגיאה בעדכון פריט';
-      notifyListeners();
-      rethrow;
-    }
+    await _runAsync(
+      operation: 'updateItem',
+      setLoading: false,
+      errorMessagePrefix: 'שגיאה בעדכון פריט',
+      action: () async {
+        // 🚀 Optimistic: עדכון מיידי של ה-UI
+        _errorMessage = null;
+        final index = _items.indexWhere((i) => i.id == item.id);
+        if (index != -1) {
+          _items = List.from(_items)..[index] = item;
+        } else {
+          _items = [..._items, item];
+        }
+        _notifySafe();
+
+        try {
+          await _repository.saveUserItem(item, userId);
+        } catch (e) {
+          // 🔄 Rollback: שחזור המצב הקודם
+          _items = previousItems;
+          rethrow;
+        }
+      },
+    );
   }
 
   /// מחיק פריט מהמלאי
@@ -373,21 +432,27 @@ class InventoryProvider with ChangeNotifier {
       throw ArgumentError('ID פריט לא תקין');
     }
 
-    try {
-      // מחיקה ממזווה אישי
-      await _repository.deleteUserItem(id, userId);
+    final previousItems = _items;
 
-      // מחיקה local - יוצר רשימה חדשה כדי ש-Flutter יזהה את השינוי
-      _items = _items.where((i) => i.id != id).toList();
-      notifyListeners();
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('❌ InventoryProvider.deleteItem: שגיאה - $e');
-      }
-      _errorMessage = 'שגיאה במחיקת פריט';
-      notifyListeners();
-      rethrow;
-    }
+    await _runAsync(
+      operation: 'deleteItem',
+      setLoading: false,
+      errorMessagePrefix: 'שגיאה במחיקת פריט',
+      action: () async {
+        // 🚀 Optimistic: הסרה מיידית מה-UI
+        _errorMessage = null;
+        _items = _items.where((i) => i.id != id).toList();
+        _notifySafe();
+
+        try {
+          await _repository.deleteUserItem(id, userId);
+        } catch (e) {
+          // 🔄 Rollback: שחזור המצב הקודם
+          _items = previousItems;
+          rethrow;
+        }
+      },
+    );
   }
 
   // === Error Recovery ===
@@ -402,7 +467,7 @@ class InventoryProvider with ChangeNotifier {
   /// ```
   Future<void> retry() async {
     _errorMessage = null;
-    notifyListeners();
+    _notifySafe();
     await _loadItems();
   }
 
@@ -416,7 +481,7 @@ class InventoryProvider with ChangeNotifier {
     _items = [];
     _errorMessage = null;
     _isLoading = false;
-    notifyListeners();
+    _notifySafe();
   }
 
   // === פילטרים נוחים ===
@@ -461,34 +526,37 @@ class InventoryProvider with ChangeNotifier {
       throw ArgumentError('כמות חייבת להיות חיובית');
     }
 
-    try {
-      // מצא פריט לפי שם
-      final existingItem = _items.where((i) => i.productName.trim().toLowerCase() == productName.trim().toLowerCase()).firstOrNull;
+    // מצא פריט לפי שם
+    final existingItem = _items.where((i) => i.productName.trim().toLowerCase() == productName.trim().toLowerCase()).firstOrNull;
+    if (existingItem == null) return;
 
-      if (existingItem != null) {
-        // עדכן מלאי - חיבור!
-        final updatedItem = existingItem.copyWith(
-          quantity: existingItem.quantity + quantity,
-        );
+    final updatedItem = existingItem.copyWith(
+      quantity: existingItem.quantity + quantity,
+    );
+    final previousItems = _items;
 
-        // שמירה למזווה אישי
-        await _repository.saveUserItem(updatedItem, userId);
-
-        // עדכון local
+    await _runAsync(
+      operation: 'addStock',
+      setLoading: false,
+      errorMessagePrefix: 'שגיאה בעדכון מלאי',
+      action: () async {
+        // 🚀 Optimistic: עדכון כמות מיידי ב-UI
+        _errorMessage = null;
         final index = _items.indexWhere((i) => i.id == existingItem.id);
         if (index != -1) {
           _items = List.from(_items)..[index] = updatedItem;
-          notifyListeners();
+          _notifySafe();
         }
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('❌ addStock: שגיאה - $e');
-      }
-      _errorMessage = 'שגיאה בעדכון מלאי';
-      notifyListeners();
-      rethrow;
-    }
+
+        try {
+          await _repository.saveUserItem(updatedItem, userId);
+        } catch (e) {
+          // 🔄 Rollback: שחזור המצב הקודם
+          _items = previousItems;
+          rethrow;
+        }
+      },
+    );
   }
 
   /// עדכון מלאי אוטומטי אחרי קנייה
@@ -602,7 +670,7 @@ class InventoryProvider with ChangeNotifier {
 
       // עדכון local
       _items = [..._items, ...items];
-      notifyListeners();
+      _notifySafe();
 
       if (kDebugMode) {
         debugPrint('✅ InventoryProvider: נוספו $successCount פריטי starter למזווה');
@@ -614,7 +682,7 @@ class InventoryProvider with ChangeNotifier {
         debugPrint('❌ InventoryProvider.addStarterItems: שגיאה - $e');
       }
       _errorMessage = 'שגיאה בהוספת פריטים';
-      notifyListeners();
+      _notifySafe();
       rethrow;
     }
   }
@@ -649,7 +717,7 @@ class InventoryProvider with ChangeNotifier {
         debugPrint('❌ InventoryProvider.deletePersonalInventory: שגיאה - $e');
       }
       _errorMessage = 'שגיאה במחיקת מזווה אישי';
-      notifyListeners();
+      _notifySafe();
       rethrow;
     }
   }

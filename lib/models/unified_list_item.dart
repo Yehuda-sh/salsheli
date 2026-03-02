@@ -5,29 +5,26 @@
 //     - שדות משותפים: id, name, type, isChecked, category, notes
 //     - שדות ייחודיים למוצרים: productData (quantity, unitPrice, barcode, unit)
 //     - שדות ייחודיים למשימות: taskData (dueDate, assignedTo, priority)
-//     - סוגי משנה: task/whoBrings/voting (דרך itemSubType)
-//     - Helpers: quantity, totalPrice, dueDate, isUrgent, isWhoBrings, isVoting
-//     - Migration: fromReceiptItem() להמרה מהמבנה הישן
+//     - סוגי משנה: task/whoBrings (דרך itemSubType)
+//     - Helpers: quantity, totalPrice, dueDate, isUrgent, isWhoBrings
 //
 // 🇬🇧 Unified list item (Hybrid Approach):
 //     - Supports both products and tasks
 //     - Shared fields: id, name, type, isChecked, category, notes
 //     - Product-specific: productData (quantity, unitPrice, barcode, unit)
 //     - Task-specific: taskData (dueDate, assignedTo, priority)
-//     - Sub-types: task/whoBrings/voting (via itemSubType)
+//     - Sub-types: task/whoBrings (via itemSubType)
 //     - Helpers for easy access
-//     - Migration support from ReceiptItem
 //
-// Version: 2.1 - Round-trip safety, safe parsing, immutable Maps, snake_case support
-// Last Updated: 13/01/2026
+// Version: 2.2 - Removed unused voting helpers + fromReceiptItem migration
+// Last Updated: 22/02/2026
 //
 
 import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
-import 'package:flutter/foundation.dart' show immutable, kDebugMode;
+import 'package:flutter/foundation.dart' show debugPrint, immutable, kDebugMode;
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 import 'enums/item_type.dart';
-import 'receipt.dart';
 
 part 'unified_list_item.g.dart';
 
@@ -82,8 +79,7 @@ DateTime? _safeParseDateTimeNullable(dynamic value) {
   if (value is String) return DateTime.tryParse(value);
   // Unknown type - return null instead of throwing
   if (kDebugMode) {
-    // ignore: avoid_print
-    print('⚠️ _safeParseDateTimeNullable: unknown type ${value.runtimeType}');
+    debugPrint('⚠️ _safeParseDateTimeNullable: unknown type ${value.runtimeType}');
   }
   return null;
 }
@@ -199,7 +195,7 @@ class UnifiedListItem {
 
   /// 🇮🇱 יחידת מידה (רק למוצרים)
   /// 🇬🇧 Unit (products only)
-  String? get unit => productData?['unit'] as String? ?? 'יח\'';
+  String get unit => productData?['unit'] as String? ?? 'יח\'';
 
   /// 🇮🇱 מותג/חברה (רק למוצרים)
   /// 🇬🇧 Brand (products only)
@@ -216,13 +212,12 @@ class UnifiedListItem {
   // Task Helpers (גישה קלה לשדות משימה)
   // ════════════════════════════════════════════
 
-  /// 🇮🇱 סוג פריט משנה (task/whoBrings/voting)
-  /// 🇬🇧 Sub item type (task/whoBrings/voting)
+  /// 🇮🇱 סוג פריט משנה (task/whoBrings)
+  /// 🇬🇧 Sub item type (task/whoBrings)
   ///
   /// מזהה את הסוג המדויק של פריט מסוג task:
   /// - 'task' - משימה רגילה
   /// - 'whoBrings' - פריט "מי מביא"
-  /// - 'voting' - פריט הצבעה
   /// 🔧 תמיכה ב-itemType וגם item_type
   String get itemSubType =>
       taskData?['itemType'] as String? ?? taskData?['item_type'] as String? ?? 'task';
@@ -231,12 +226,8 @@ class UnifiedListItem {
   /// 🇬🇧 Is this a "Who Brings" item
   bool get isWhoBrings => itemSubType == 'whoBrings';
 
-  /// 🇮🇱 האם פריט הצבעה
-  /// 🇬🇧 Is this a voting item
-  bool get isVoting => itemSubType == 'voting';
-
-  /// 🇮🇱 האם משימה רגילה (לא whoBrings ולא voting)
-  /// 🇬🇧 Is this a regular task (not whoBrings or voting)
+  /// 🇮🇱 האם משימה רגילה (לא whoBrings)
+  /// 🇬🇧 Is this a regular task (not whoBrings)
   bool get isRegularTask => type == ItemType.task && itemSubType == 'task';
 
   /// 🇮🇱 תאריך יעד (רק למשימות)
@@ -260,7 +251,7 @@ class UnifiedListItem {
   /// 🇮🇱 האם משימה דחופה (פחות מ-3 ימים)
   /// 🇬🇧 Is task urgent (less than 3 days)
   ///
-  /// ⚠️ עובד רק למשימות רגילות (לא whoBrings/voting)
+  /// ⚠️ עובד רק למשימות רגילות (לא whoBrings)
   bool get isUrgent {
     // רק משימות רגילות יכולות להיות דחופות
     if (!isRegularTask) return false;
@@ -314,94 +305,6 @@ class UnifiedListItem {
     if (names.isEmpty) return '';
     if (names.length <= maxNames) return names.join(', ');
     return '${names.take(maxNames).join(', ')}...';
-  }
-
-  // ════════════════════════════════════════════
-  // Voting Helpers (גישה קלה לשדות הצבעה)
-  // ════════════════════════════════════════════
-
-  /// 🇮🇱 רשימת מצביעים בעד
-  /// 🇬🇧 List of voters in favor
-  /// 🔧 בטוח - מסנן ערכים שאינם Map + snake_case
-  List<Map<String, dynamic>> get votesFor =>
-      _safeParseListOfMaps(taskData?['votesFor'] ?? taskData?['votes_for']);
-
-  /// 🇮🇱 רשימת מצביעים נגד
-  /// 🇬🇧 List of voters against
-  /// 🔧 בטוח - מסנן ערכים שאינם Map + snake_case
-  List<Map<String, dynamic>> get votesAgainst =>
-      _safeParseListOfMaps(taskData?['votesAgainst'] ?? taskData?['votes_against']);
-
-  /// 🇮🇱 רשימת נמנעים
-  /// 🇬🇧 List of abstained voters
-  /// 🔧 בטוח - מסנן ערכים שאינם Map + snake_case
-  List<Map<String, dynamic>> get votesAbstain =>
-      _safeParseListOfMaps(taskData?['votesAbstain'] ?? taskData?['votes_abstain']);
-
-  /// 🇮🇱 סה"כ מצביעים
-  /// 🇬🇧 Total vote count
-  int get totalVotes => votesFor.length + votesAgainst.length + votesAbstain.length;
-
-  /// 🇮🇱 אחוז בעד
-  /// 🇬🇧 Percentage in favor
-  double get forPercentage {
-    if (totalVotes == 0) return 0;
-    return (votesFor.length / totalVotes) * 100;
-  }
-
-  /// 🇮🇱 אחוז נגד
-  /// 🇬🇧 Percentage against
-  double get againstPercentage {
-    if (totalVotes == 0) return 0;
-    return (votesAgainst.length / totalVotes) * 100;
-  }
-
-  /// 🇮🇱 האם הצבעה חשאית
-  /// 🇬🇧 Is voting anonymous
-  /// 🔧 תמיכה ב-isAnonymous וגם is_anonymous
-  bool get isAnonymousVoting =>
-      taskData?['isAnonymous'] as bool? ?? taskData?['is_anonymous'] as bool? ?? false;
-
-  /// 🇮🇱 תאריך סיום הצבעה
-  /// 🇬🇧 Voting end date
-  /// 🔧 תומך ב-String (ISO), Timestamp (Firestore), int (epoch), DateTime
-  DateTime? get votingEndDate {
-    final value = taskData?['votingEndDate'] ?? taskData?['voting_end_date'];
-    return _safeParseDateTimeNullable(value);
-  }
-
-  /// 🇮🇱 האם ההצבעה הסתיימה
-  /// 🇬🇧 Has voting ended
-  bool get hasVotingEnded {
-    final endDate = votingEndDate;
-    if (endDate == null) return false;
-    return DateTime.now().isAfter(endDate);
-  }
-
-  /// 🇮🇱 האם משתמש כבר הצביע
-  /// 🇬🇧 Has a user already voted
-  bool hasUserVoted(String userId) {
-    return votesFor.any((v) => v['userId'] == userId) ||
-        votesAgainst.any((v) => v['userId'] == userId) ||
-        votesAbstain.any((v) => v['userId'] == userId);
-  }
-
-  /// 🇮🇱 קבל את ההצבעה של משתמש
-  /// 🇬🇧 Get user's vote (for/against/abstain/null)
-  String? getUserVote(String userId) {
-    if (votesFor.any((v) => v['userId'] == userId)) return 'for';
-    if (votesAgainst.any((v) => v['userId'] == userId)) return 'against';
-    if (votesAbstain.any((v) => v['userId'] == userId)) return 'abstain';
-    return null;
-  }
-
-  /// 🇮🇱 תוצאת ההצבעה (for/against/tie/pending)
-  /// 🇬🇧 Voting result
-  String get votingResult {
-    if (!hasVotingEnded) return 'pending';
-    if (votesFor.length > votesAgainst.length) return 'for';
-    if (votesAgainst.length > votesFor.length) return 'against';
-    return 'tie';
   }
 
   // ════════════════════════════════════════════
@@ -508,54 +411,6 @@ class UnifiedListItem {
     );
   }
 
-  /// 🇮🇱 יצירת פריט הצבעה
-  /// 🇬🇧 Create voting item
-  factory UnifiedListItem.voting({
-    String? id,
-    required String name,
-    DateTime? votingEndDate,
-    bool isAnonymous = false,
-    bool isChecked = false,
-    String? category,
-    String? notes,
-    String? imageUrl,
-  }) {
-    return UnifiedListItem(
-      id: id ?? const Uuid().v4(),
-      name: name,
-      type: ItemType.task,
-      isChecked: isChecked,
-      category: category,
-      notes: notes,
-      imageUrl: imageUrl,
-      taskData: {
-        'votesFor': const <Map<String, dynamic>>[],
-        'votesAgainst': const <Map<String, dynamic>>[],
-        'votesAbstain': const <Map<String, dynamic>>[],
-        'isAnonymous': isAnonymous,
-        if (votingEndDate != null) 'votingEndDate': votingEndDate.toIso8601String(),
-        'itemType': 'voting', // סימון מיוחד לזיהוי הסוג
-      },
-    );
-  }
-
-  /// 🇮🇱 המרה מ-ReceiptItem (migration)
-  /// 🇬🇧 Convert from ReceiptItem (migration)
-  factory UnifiedListItem.fromReceiptItem(ReceiptItem item) {
-    return UnifiedListItem.product(
-      id: item.id.isEmpty ? const Uuid().v4() : item.id,
-      name: item.name ?? 'מוצר ללא שם',
-      quantity: item.quantity,
-      unitPrice: item.unitPrice,
-      barcode: item.barcode,
-      unit: item.unit ?? 'יח\'',
-      isChecked: item.isChecked,
-      category: item.category,
-      checkedBy: item.checkedBy,
-      checkedAt: item.checkedAt?.toIso8601String(),
-    );
-  }
-
   /// 🇮🇱 יצירה מתוכן בקשה (למערכת Sharing)
   /// 🇬🇧 Create from request data (for Sharing system)
   ///
@@ -632,7 +487,7 @@ class UnifiedListItem {
 
   /// 🔧 יוצר עותק חדש עם שינויים
   ///
-  /// **הערה:** productData ו-taskData מועתקים (deep copy) לשמירה על immutability.
+  /// **הערה:** productData ו-taskData מועתקים (shallow copy via Map.from) לשמירה על immutability.
   /// אם אתה רוצה לשנות ערך ב-productData, העבר Map חדש עם הערכים הרצויים.
   UnifiedListItem copyWith({
     String? id,
@@ -657,7 +512,7 @@ class UnifiedListItem {
       category: category ?? this.category,
       notes: notes ?? this.notes,
       imageUrl: imageUrl ?? this.imageUrl,
-      // 🔧 Deep copy כדי לשמור על immutability
+      // 🔧 Shallow copy כדי לשמור על immutability
       productData: productData != null
           ? Map<String, dynamic>.from(productData)
           : (this.productData != null ? Map<String, dynamic>.from(this.productData!) : null),

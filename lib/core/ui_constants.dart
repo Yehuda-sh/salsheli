@@ -5,6 +5,15 @@
 // - Colors (פלטת Sticky Notes + רקעים)
 // - Sizes (כפתורים, אייקונים, אווטארים)
 // - Durations (אנימציות, snackbars)
+//
+// 📋 Features:
+// - הגדרת רמות Glassmorphism (Low/Medium/High)
+// - קבועי Haptic Feedback
+// - צבעי Dark Mode מופחתי רוויה (Desaturated)
+// - Border Radius מורחב (כולל Super)
+//
+// 📝 Version: 4.0
+// 📅 Updated: 22/02/2026
 
 import 'dart:ui';
 
@@ -33,15 +42,17 @@ const Color kStickyOrange = Color(0xFFFFAB91);  // Warnings
 const Color kStickyGray = Color(0xFFE0E0E0);    // Neutral, Actions
 
 // ═══════════════════════════════════════════════════════════════════════════
-// COLORS - Sticky Notes Palette (Dark Mode)
+// COLORS - Sticky Notes Palette (Dark Mode - Desaturated ~17%)
 // ═══════════════════════════════════════════════════════════════════════════
+// הפחתת רוויה (Saturation) ב-15-20% למניעת "ריצוד" בעיניים
+// ומראה יוקרתי יותר ב-Dark Mode.
 
-const Color kStickyYellowDark = Color(0xFFD4B830);  // Primary, Logo (darker yellow)
-const Color kStickyPinkDark = Color(0xFFC2185B);    // Alerts, Delete (darker pink)
-const Color kStickyGreenDark = Color(0xFF66BB6A);   // Success, Add (darker green)
-const Color kStickyCyanDark = Color(0xFF00ACC1);    // Info, Secondary (darker cyan)
-const Color kStickyPurpleDark = Color(0xFF9C27B0);  // Creative features (darker purple)
-const Color kStickyOrangeDark = Color(0xFFFF5722);  // Warnings (darker orange)
+const Color kStickyYellowDark = Color(0xFFC6AF3E);  // Primary, Logo (muted gold)
+const Color kStickyPinkDark = Color(0xFFB3265E);    // Alerts, Delete (muted rose)
+const Color kStickyGreenDark = Color(0xFF6DB471);   // Success, Add (muted sage)
+const Color kStickyCyanDark = Color(0xFF109FB0);    // Info, Secondary (muted teal)
+const Color kStickyPurpleDark = Color(0xFF9433A4);  // Creative features (muted plum)
+const Color kStickyOrangeDark = Color(0xFFEC6135);  // Warnings (muted coral)
 
 // ═══════════════════════════════════════════════════════════════════════════
 // COLORS - Notebook Lines
@@ -51,17 +62,47 @@ const Color kNotebookBlue = Color(0xFF4285F4);   // Blue notebook lines
 const Color kNotebookBlueSoft = Color(0xFF9CA8B8); // Soft grayish-blue lines (Hybrid Premium)
 const Color kNotebookRed = Color(0xFFE53935);    // Red notebook line
 
+// ═══════════════════════════════════════════════════════════════════════════
 // Notebook Background Properties
-const double kNotebookLineOpacity = 0.5;         // Opacity for blue lines
-const double kNotebookLineOpacitySubtle = 0.06;  // Subtle opacity (Hybrid Premium: 3-8%)
-const double kNotebookLineSpacing = 48.0;        // Spacing between blue lines (fits item row)
-const double kNotebookRedLineOpacity = 0.4;      // Opacity for red line
-const double kNotebookRedLineWidth = 2.0;        // Width of red line
-const double kNotebookRedLineOffset = 48.0;      // Offset of red line from edge (closer for more content space)
+// ═══════════════════════════════════════════════════════════════════════════
+// שימוש: color.withValues(alpha: kNotebookLineOpacity)
 
-// Glass/Blur Effect Properties
-const double kGlassBlurSigma = 10.0;             // Blur sigma for frosted glass effect
-const double kHighlightOpacity = 0.3;            // Opacity for highlighter effect on headers
+/// שקיפות קווים כחולים — `color.withValues(alpha: kNotebookLineOpacity)`
+const double kNotebookLineOpacity = 0.5;
+
+/// שקיפות עדינה (Hybrid Premium: 3-8%) — `color.withValues(alpha: kNotebookLineOpacitySubtle)`
+const double kNotebookLineOpacitySubtle = 0.06;
+
+/// רווח בין קווים כחולים (מותאם לגובה שורת פריט)
+const double kNotebookLineSpacing = 48.0;
+
+/// שקיפות קו אדום — `color.withValues(alpha: kNotebookRedLineOpacity)`
+const double kNotebookRedLineOpacity = 0.4;
+
+/// רוחב קו אדום
+const double kNotebookRedLineWidth = 2.0;
+
+/// מרחק קו אדום מהקצה (קרוב יותר למקסום שטח תוכן)
+const double kNotebookRedLineOffset = 48.0;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// GLASS / BLUR EFFECT PROPERTIES (Glassmorphism Levels)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// טשטוש עדין — רקע קל, tooltips
+const double kGlassBlurLow = 5.0;
+
+/// טשטוש רגיל — bottom sheets, headers צפים
+const double kGlassBlurMedium = 10.0;
+
+/// טשטוש חזק — modals, overlays מרכזיים
+const double kGlassBlurHigh = 20.0;
+
+/// Alias לתאימות לאחור — שווה ל-[kGlassBlurMedium]
+const double kGlassBlurSigma = kGlassBlurMedium;
+
+/// שקיפות אפקט Highlighter על כותרות — `color.withValues(alpha: kHighlightOpacity)`
+const double kHighlightOpacity = 0.3;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // COLORS - Backgrounds
@@ -114,6 +155,16 @@ const Duration kSnackBarDurationLong = Duration(seconds: 5);  // Long SnackBar
 const Duration kDoubleTapTimeout = Duration(seconds: 2);      // Double-tap detection timeout
 
 // ═══════════════════════════════════════════════════════════════════════════
+// HAPTIC DELAYS
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// השהיה מינימלית לפני משוב רטט (מונע קריאות כפולות)
+const Duration kHapticFeedbackDelay = Duration(milliseconds: 10);
+
+/// השהיה לפני רטט בלחיצה ארוכה (long press)
+const Duration kHapticLongPressDelay = Duration(milliseconds: 50);
+
+// ═══════════════════════════════════════════════════════════════════════════
 // SNACKBAR MARGINS
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -141,6 +192,9 @@ const double kBorderRadiusSmall = 8.0;   // Small border radius
 const double kBorderRadiusUnified = 14.0; // Unified border radius (Hybrid Premium)
 const double kBorderRadiusLarge = 16.0;  // Large border radius
 
+/// עיגול גדול לאלמנטים צפים ובאנרים מרכזיים
+const double kBorderRadiusSuper = 24.0;
+
 // ═══════════════════════════════════════════════════════════════════════════
 // BORDER WIDTH
 // ═══════════════════════════════════════════════════════════════════════════
@@ -160,6 +214,7 @@ const double kCardElevationHigh = 4.0;      // High card elevation
 // ═══════════════════════════════════════════════════════════════════════════
 // OPACITY
 // ═══════════════════════════════════════════════════════════════════════════
+// שימוש: color.withValues(alpha: kOpacityMedium)
 
 const double kOpacityMinimal = 0.05; // Minimal opacity (shimmer effect)
 const double kOpacityVeryLow = 0.1;  // Very low opacity
@@ -172,7 +227,9 @@ const double kOpacityMedium = 0.5;  // Medium opacity
 // ═══════════════════════════════════════════════════════════════════════════
 
 const double kProgressIndicatorHeight = 4.0;  // Linear progress indicator height
-const double kProgressIndicatorBackgroundAlpha = 0.2;  // Background opacity
+
+/// שקיפות רקע — `color.withValues(alpha: kProgressIndicatorBackgroundAlpha)`
+const double kProgressIndicatorBackgroundAlpha = 0.2;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SPLASH GRADIENT COLORS

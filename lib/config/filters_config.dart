@@ -276,8 +276,10 @@ const List<String> kCategoryOrder = [
 
 /// רשימת מפתחות הקטגוריות (לשימוש ב-Dropdown)
 /// משתמש בסדר קבוע, מסנן רק קטגוריות שקיימות ב-kCategoryInfo
-List<String> get kCategories =>
-    kCategoryOrder.where((k) => kCategoryInfo.containsKey(k)).toList();
+/// ✅ List.unmodifiable - נוצר פעם אחת (ביצועים)
+final List<String> kCategories = List.unmodifiable(
+  kCategoryOrder.where((k) => kCategoryInfo.containsKey(k)),
+);
 
 /// מיפוי עברית → אנגלית (לסינון מול JSON)
 /// ⚠️ בדיקת כפילויות בזמן פיתוח - ראה assert למטה
@@ -321,33 +323,39 @@ String getCategoryEmoji(String categoryId) {
   return kCategoryInfo[resolved]?.emoji ?? '📦';
 }
 
-/// ממיר שם קטגוריה בעברית למפתח באנגלית
-/// משמש לסינון כשה-JSON מכיל קטגוריות בעברית
+/// ממיר שם קטגוריה (עברית או אנגלית) למפתח באנגלית
+/// משמש לסינון כשה-JSON מכיל קטגוריות בעברית או באנגלית
 /// כולל נורמליזציה: trim + החלפת רווחים כפולים
 ///
 /// סדר חיפוש:
-/// 1. labels מ-kCategoryInfo (מיפוי ישיר)
-/// 2. kHebrewSynonyms (וריאציות ושמות מקבצי JSON)
-/// 3. null (יופנה ל-'other' על ידי הקורא)
-String? hebrewCategoryToEnglish(String hebrewCategory) {
+/// 1. מפתח אנגלי ישיר ב-kCategoryInfo (כבר EN)
+/// 2. labels מ-kCategoryInfo (מיפוי עברית → EN)
+/// 3. kHebrewSynonyms (וריאציות ושמות מקבצי JSON)
+/// 4. null (יופנה ל-'other' על ידי הקורא)
+String? hebrewCategoryToEnglish(String category) {
   // 🔍 בדיקת כפילויות labels בפעם הראשונה (debug mode בלבד)
   if (kDebugMode) {
     ensureNoDuplicateLabels();
   }
 
-  final normalized = hebrewCategory
+  final normalized = category
       .trim()
       .replaceAll(RegExp(r'\s+'), ' '); // רווחים כפולים → רווח בודד
 
-  // 1️⃣ חיפוש ב-labels של kCategoryInfo
+  // 1️⃣ אם זה כבר מפתח אנגלי תקין - מחזיר ישר
+  if (kCategoryInfo.containsKey(normalized)) {
+    return normalized;
+  }
+
+  // 2️⃣ חיפוש ב-labels של kCategoryInfo
   final fromLabels = _hebrewToEnglish[normalized];
   if (fromLabels != null) return fromLabels;
 
-  // 2️⃣ חיפוש ב-kHebrewSynonyms (וריאציות נוספות)
+  // 3️⃣ חיפוש ב-kHebrewSynonyms (וריאציות נוספות)
   final fromSynonyms = kHebrewSynonyms[normalized];
   if (fromSynonyms != null) return fromSynonyms;
 
-  // 3️⃣ לא נמצא - יחזיר null (הקורא יחליט אם להשתמש ב-'other')
+  // 4️⃣ לא נמצא - יחזיר null (הקורא יחליט אם להשתמש ב-'other')
   if (kDebugMode) {
     debugPrint('⚠️ hebrewCategoryToEnglish: לא נמצא מיפוי ל-"$normalized"');
   }

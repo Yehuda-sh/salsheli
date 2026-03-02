@@ -3,15 +3,25 @@
 // רכיבי שלבי Onboarding - 7 שלבים אינטראקטיביים.
 // כולל Welcome, גודל משפחה, חנויות, תדירות, שיתוף, תזכורת וסיכום.
 //
+// 📋 Features:
+// - משוב Haptic מבוסס הקשר (Slider/Chips/Buttons)
+// - אנימציות כניסה מדורגות (Staggered)
+// - שיפור 'חומריות' הפתקיות (Paper Materiality)
+//
+// 📝 Version: 4.0 (Hybrid Premium)
+// 📅 Updated: 22/02/2026
 // 🔗 Related: OnboardingData, OnboardingScreen, StickyNote
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../config/stores_config.dart';
 import '../../../core/constants.dart';
 import '../../../core/ui_constants.dart';
-import '../../../data/child.dart'; // ✅ NEW
+import '../../../data/child.dart';
 import '../../../data/onboarding_data.dart';
 import '../../../l10n/app_strings.dart';
 import '../../../l10n/onboarding_extensions.dart';
@@ -115,36 +125,45 @@ class _StepWrapper extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 72, color: accent), // ✅ מוגדל מ-kIconSizeXLarge (64)
-            const SizedBox(height: kSpacingLarge), // ✅ מוגדל מ-Medium
+            Icon(icon, size: 72, color: accent),
+            const SizedBox(height: kSpacingLarge),
             Text(
               title,
               textAlign: TextAlign.center,
-              style: t.headlineSmall?.copyWith( // ✅ מוגדל מ-titleLarge
+              style: t.headlineSmall?.copyWith(
                 color: cs.onSurface,
-                fontWeight: FontWeight.bold, // ✅ bold במקום w600
+                fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: kSpacingLarge),
-            // ⭐ עטיפה ב-StickyNote לעיצוב אחיד - מוגדל!
-            StickyNote(
-              color: noteColor,
-              rotation: rotation,
-              padding: kSpacingLarge, // ✅ padding מוגדל (24px במקום 16px)
-              child: child,
-            ),
+            // StickyNote עם shimmer חד-פעמי ברגע ההופעה
+            // Note: StickyNote has an `animate` property that shadows
+            // flutter_animate's extension, so we wrap in SizedBox.
+            SizedBox(
+              width: double.infinity,
+              child: StickyNote(
+                color: noteColor,
+                rotation: rotation,
+                padding: kSpacingLarge,
+                child: child,
+              ),
+            ).animate().shimmer(
+                  duration: 800.ms,
+                  delay: 400.ms,
+                  color: noteColor.withValues(alpha: 0.3),
+                ),
           ],
         ),
       )
           .animate()
           .fadeIn(duration: kAnimationDurationMedium)
-          .slideY(begin: 0.1, curve: Curves.easeOut),
+          .slideY(begin: 0.1, curve: Curves.easeOutCubic),
     );
   }
 }
 
 // ========================================
-// שלב 1: Welcome - משופר עם אנימציות! ⭐
+// שלב 1: Welcome - משופר עם אנימציות!
 // ========================================
 
 class _WelcomeStep extends StatelessWidget {
@@ -163,7 +182,7 @@ class _WelcomeStep extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // אייקון מונפש עם זוהר! ⭐
+          // אייקון מונפש עם זוהר
           _AnimatedWelcomeIcon(accent: accent),
           const SizedBox(height: kSpacingXLarge),
           Text(
@@ -187,12 +206,12 @@ class _WelcomeStep extends StatelessWidget {
       )
           .animate()
           .fadeIn(duration: kAnimationDurationMedium)
-          .slideY(begin: 0.1, curve: Curves.easeOut),
+          .slideY(begin: 0.1, curve: Curves.easeOutCubic),
     );
   }
 }
 
-/// אייקון מונפש עם זוהר ואנימציית shimmer ⭐
+/// אייקון מונפש עם זוהר ואנימציית shimmer
 class _AnimatedWelcomeIcon extends StatelessWidget {
   final Color accent;
 
@@ -280,7 +299,7 @@ class _FamilySizeStepState extends State<_FamilySizeStep> {
         children: [
           // מספר אנשים
           Text(
-            "${widget.value}",
+            '${widget.value}',
             style: t.displayLarge?.copyWith(
               color: cs.primary,
               fontWeight: FontWeight.bold,
@@ -293,6 +312,7 @@ class _FamilySizeStepState extends State<_FamilySizeStep> {
             max: kMaxFamilySize.toDouble(),
             divisions: kMaxFamilySize - kMinFamilySize,
             onChanged: (v) {
+              unawaited(HapticFeedback.selectionClick());
               final newSize = v.toInt();
               debugPrint('👨‍👩‍👧‍👦 onboarding: Family size = $newSize');
               widget.onChanged(newSize);
@@ -328,7 +348,7 @@ class _FamilySizeStepState extends State<_FamilySizeStep> {
               final index = entry.key;
               final child = entry.value;
               return _ChildForm(
-                key: ValueKey('child_$index'), // ✅ key ייחודי לכל ילד
+                key: ValueKey('child_$index'),
                 child: child,
                 index: index,
                 onChanged: (updated) {
@@ -337,6 +357,7 @@ class _FamilySizeStepState extends State<_FamilySizeStep> {
                   widget.onChildrenChanged(newList);
                 },
                 onRemove: () {
+                  unawaited(HapticFeedback.lightImpact());
                   final newList = List<Child>.from(widget.children);
                   newList.removeAt(index);
                   widget.onChildrenChanged(newList);
@@ -346,6 +367,7 @@ class _FamilySizeStepState extends State<_FamilySizeStep> {
             const SizedBox(height: kSpacingSmall),
             TextButton.icon(
               onPressed: () {
+                unawaited(HapticFeedback.mediumImpact());
                 final newList = List<Child>.from(widget.children)
                   ..add(const Child(name: '', ageCategory: '0-1'));
                 widget.onChildrenChanged(newList);
@@ -360,8 +382,8 @@ class _FamilySizeStepState extends State<_FamilySizeStep> {
   }
 }
 
-// ✅ טופס ילד בודד
-class _ChildForm extends StatelessWidget {
+// טופס ילד בודד — Premium
+class _ChildForm extends StatefulWidget {
   final Child child;
   final int index;
   final ValueChanged<Child> onChanged;
@@ -376,15 +398,31 @@ class _ChildForm extends StatelessWidget {
   });
 
   @override
+  State<_ChildForm> createState() => _ChildFormState();
+}
+
+class _ChildFormState extends State<_ChildForm> {
+  bool _shaking = false;
+
+  void _onDeleteTap() {
+    setState(() => _shaking = true);
+    Future.delayed(400.ms, () {
+      if (mounted) {
+        widget.onRemove();
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
     final cs = Theme.of(context).colorScheme;
 
-    return Container(
+    final form = Container(
       margin: const EdgeInsets.only(bottom: kSpacingSmall),
       padding: const EdgeInsets.all(kSpacingSmall),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
+        color: cs.surface.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -393,13 +431,13 @@ class _ChildForm extends StatelessWidget {
           Row(
             children: [
               Text(
-                '${_getChildIcon(child.ageCategory)} ${AppStrings.onboarding.childLabel(index + 1)}',
+                '${widget.child.emoji} ${AppStrings.onboarding.childLabel(widget.index + 1)}',
                 style: t.titleSmall?.copyWith(fontWeight: FontWeight.bold),
               ),
               const Spacer(),
               IconButton(
                 icon: const Icon(Icons.delete_outline, size: 20),
-                onPressed: onRemove,
+                onPressed: _onDeleteTap,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
@@ -412,12 +450,12 @@ class _ChildForm extends StatelessWidget {
               border: const OutlineInputBorder(),
               isDense: true,
             ),
-            initialValue: child.name,
-            onChanged: (val) => onChanged(child.copyWith(name: val)),
+            initialValue: widget.child.name,
+            onChanged: (val) => widget.onChanged(widget.child.copyWith(name: val)),
           ),
           const SizedBox(height: kSpacingSmall),
           DropdownButtonFormField<String>(
-            value: child.ageCategory,
+            value: widget.child.ageCategory,
             decoration: InputDecoration(
               labelText: AppStrings.onboarding.childAgeLabel,
               border: const OutlineInputBorder(),
@@ -426,53 +464,25 @@ class _ChildForm extends StatelessWidget {
             items: kChildrenAgeGroups.map((age) {
               return DropdownMenuItem(
                 value: age,
-                child: Text(_getAgeLabel(age)),
+                child: Text(age.ageLabel),
               );
             }).toList(),
             onChanged: (val) {
               if (val != null) {
-                onChanged(child.copyWith(ageCategory: val));
+                widget.onChanged(widget.child.copyWith(ageCategory: val));
               }
             },
           ),
         ],
       ),
     );
-  }
 
-  String _getChildIcon(String age) {
-    switch (age) {
-      case '0-1':
-        return '👶';
-      case '2-3':
-        return '🧒';
-      case '4-6':
-        return '🧒';
-      case '7-12':
-        return '👦';
-      case '13-18':
-        return '🧑';
-      default:
-        return '👶';
+    if (_shaking) {
+      return form
+          .animate(onComplete: (_) {})
+          .shake(hz: 4, duration: 350.ms);
     }
-  }
-
-  String _getAgeLabel(String age) {
-    final strings = AppStrings.onboarding;
-    switch (age) {
-      case '0-1':
-        return strings.ageBaby;
-      case '2-3':
-        return strings.ageToddler;
-      case '4-6':
-        return strings.agePreschool;
-      case '7-12':
-        return strings.ageSchool;
-      case '13-18':
-        return strings.ageTeen;
-      default:
-        return age;
-    }
+    return form;
   }
 }
 
@@ -518,16 +528,17 @@ class _MultiSelectStep extends StatelessWidget {
             label: Text(
               opt,
               style: const TextStyle(
-                fontSize: 16, // ✅ מוגדל מ-14 (ברירת מחדל)
+                fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
             ),
             selected: isSelected,
             padding: const EdgeInsets.symmetric(
-              horizontal: kSpacingMedium, // ✅ padding מוגדל
+              horizontal: kSpacingMedium,
               vertical: kSpacingSmall,
             ),
             onSelected: (val) {
+              unawaited(HapticFeedback.lightImpact());
               final newSet = Set<String>.from(selected);
               if (val) {
                 newSet.add(opt);
@@ -549,7 +560,7 @@ class _MultiSelectStep extends StatelessWidget {
 }
 
 // ========================================
-// שלב 4: Shopping Frequency + Days 🆕 (מסך אחד!)
+// שלב 4: Shopping Frequency + Days (מסך אחד!)
 // ========================================
 
 class _ShoppingFrequencyStep extends StatelessWidget {
@@ -602,13 +613,14 @@ class _ShoppingFrequencyStep extends StatelessWidget {
             max: 7,
             divisions: 6,
             onChanged: (v) {
+              unawaited(HapticFeedback.selectionClick());
               final newFreq = v.toInt();
               debugPrint('📅 onboarding: Shopping frequency = $newFreq');
               onFrequencyChanged(newFreq);
             },
           ),
           const SizedBox(height: kSpacingLarge),
-          
+
           // שאלה 2: ימים קבועים
           Text(
             AppStrings.onboarding.fixedDaysQuestion,
@@ -625,13 +637,14 @@ class _ShoppingFrequencyStep extends StatelessWidget {
             alignment: WrapAlignment.center,
             spacing: kSpacingSmall,
             runSpacing: kSpacingSmall,
-            children: OnboardingExtensions.allDays.map((day) {
+            children: OnboardingDayX.allDays.map((day) {
               final isSelected = selectedDays.contains(day);
-              final dayLabel = OnboardingExtensions.getDayLabel(day);
+              final dayLabel = day.dayLabel;
               return FilterChip(
                 label: Text(dayLabel),
                 selected: isSelected,
                 onSelected: (val) {
+                  unawaited(HapticFeedback.lightImpact());
                   final newSet = Set<int>.from(selectedDays);
                   if (val) {
                     newSet.add(day);
@@ -640,10 +653,10 @@ class _ShoppingFrequencyStep extends StatelessWidget {
                     newSet.remove(day);
                     debugPrint('➖ onboarding: הוסר יום - $dayLabel');
                   }
-                  debugPrint('✅ onboarding: סה"צ נבחרו ${newSet.length} ימים');
+                  debugPrint('✅ onboarding: סה"כ נבחרו ${newSet.length} ימים');
                   onDaysChanged(newSet);
 
-                  // ✅ עדכון אוטומטי של התדירות לפי מספר הימים שנבחרו
+                  // עדכון אוטומטי של התדירות לפי מספר הימים שנבחרו
                   if (newSet.isNotEmpty && newSet.length != frequency) {
                     debugPrint('🔄 onboarding: מעדכן תדירות ל-${newSet.length} (לפי ימים נבחרים)');
                     onFrequencyChanged(newSet.length);
@@ -702,7 +715,7 @@ class _SharingStep extends StatelessWidget {
         value: value,
         activeThumbColor: accent,
         onChanged: (val) {
-          debugPrint('🤝 onboarding: שיתוף רשימות = ${val ? "מופעל" : "כבוי"}');
+          debugPrint('🤝 onboarding: שיתוף רשימות = ${val ? 'מופעל' : 'כבוי'}');
           onChanged(val);
         },
       ),
@@ -794,7 +807,7 @@ class _ReminderStep extends StatelessWidget {
 }
 
 // ========================================
-// שלב 6: Summary
+// שלב 6: Summary — Premium
 // ========================================
 
 class _SummaryStep extends StatelessWidget {
@@ -819,7 +832,49 @@ class _SummaryStep extends StatelessWidget {
 
     final storesText = data.preferredStores.isEmpty
         ? AppStrings.onboarding.noStoresSelected
-        : data.preferredStores.join(", ");
+        : data.preferredStores.join(', ');
+
+    // שורות הסיכום
+    final summaryRows = <Widget>[
+      _RtlSummaryRow(
+        leadingEmojiOrIconText: '👨‍👩‍👧‍👦',
+        text: AppStrings.onboarding.familySizeSummary(data.familySize),
+      ),
+      _RtlSummaryRow(
+        leadingEmojiOrIconText: '🏪',
+        text: AppStrings.onboarding.storesSummary(storesText),
+      ),
+      _RtlSummaryRow(
+        leadingEmojiOrIconText: '📅',
+        text: AppStrings.onboarding.frequencySummary(data.shoppingFrequency),
+      ),
+      if (data.shoppingDays.isNotEmpty)
+        _RtlSummaryRow(
+          leadingEmojiOrIconText: '🗓️',
+          text: AppStrings.onboarding.fixedDaysSummary(
+            data.shoppingDays.map((d) => d.dayLabel).join(', '),
+          ),
+        ),
+      if (data.hasChildren)
+        _RtlSummaryRow(
+          leadingEmojiOrIconText: '👶',
+          text: AppStrings.onboarding.childrenSummary(
+            data.children.isEmpty
+                ? AppStrings.onboarding.childrenYes
+                : data.children
+                    .map((c) => '${c.name} (${c.ageDescription})')
+                    .join(', '),
+          ),
+        ),
+      _RtlSummaryRow(
+        leadingEmojiOrIconText: '🤝',
+        text: AppStrings.onboarding.sharingSummary(data.shareLists),
+      ),
+      _RtlSummaryRow(
+        leadingEmojiOrIconText: '⏰',
+        text: AppStrings.onboarding.reminderTimeSummary(data.reminderTime),
+      ),
+    ];
 
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -837,64 +892,59 @@ class _SummaryStep extends StatelessWidget {
             ),
           ),
           const SizedBox(height: kSpacingLarge),
-          // ⭐ עטיפה ב-StickyNote לעיצוב אחיד!
+          // StickyNote עם Gradient עדין של "נייר פוטו"
           StickyNote(
             color: noteColor,
             rotation: rotation,
-            child: Column(
-              children: [
-                _RtlSummaryRow(
-                  leadingEmojiOrIconText: "👨‍👩‍👧‍👦",
-                  text: AppStrings.onboarding.familySizeSummary(data.familySize),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.white.withValues(alpha: 0.08),
+                    Colors.transparent,
+                    Colors.black.withValues(alpha: 0.03),
+                  ],
+                  stops: const [0.0, 0.5, 1.0],
                 ),
-                const SizedBox(height: kSpacingXTiny),
-                _RtlSummaryRow(
-                  leadingEmojiOrIconText: "🏪",
-                  text: AppStrings.onboarding.storesSummary(storesText),
-                ),
-                const SizedBox(height: kSpacingXTiny),
-                _RtlSummaryRow(
-                  leadingEmojiOrIconText: "📅",
-                  text: AppStrings.onboarding.frequencySummary(data.shoppingFrequency),
-                ),
-                if (data.shoppingDays.isNotEmpty) ...[
-                  const SizedBox(height: kSpacingXTiny),
-                  _RtlSummaryRow(
-                    leadingEmojiOrIconText: "🗓️",
-                    text: AppStrings.onboarding.fixedDaysSummary(data.shoppingDays.map(OnboardingExtensions.getDayLabel).join(', ')),
+              ),
+              child: Column(
+                children: [
+                  // שורות סיכום עם אנימציה מדורגת (40ms delay)
+                  ...summaryRows.asMap().entries.map((entry) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: kSpacingXTiny),
+                      child: entry.value
+                          .animate()
+                          .fadeIn(
+                            duration: 300.ms,
+                            delay: (entry.key * 40).ms,
+                          )
+                          .slideX(
+                            begin: 0.05,
+                            end: 0,
+                            duration: 300.ms,
+                            delay: (entry.key * 40).ms,
+                            curve: Curves.easeOut,
+                          ),
+                    );
+                  }),
+                  const SizedBox(height: kSpacingMedium),
+                  Text(
+                    AppStrings.onboarding.summaryFinishHint,
+                    textAlign: TextAlign.right,
+                    style: t.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                   ),
                 ],
-                if (data.hasChildren) ...[
-                  const SizedBox(height: kSpacingXTiny),
-                  _RtlSummaryRow(
-                    leadingEmojiOrIconText: "👶",
-                    text: AppStrings.onboarding.childrenSummary(data.children.isEmpty ? AppStrings.onboarding.childrenYes : data.children.map((c) => '${c.name} (${c.ageDescription})').join(', ')),
-                  ),
-                ],
-                const SizedBox(height: kSpacingXTiny),
-                _RtlSummaryRow(
-                  leadingEmojiOrIconText: "🤝",
-                  text: AppStrings.onboarding.sharingSummary(data.shareLists),
-                ),
-                const SizedBox(height: kSpacingXTiny),
-                _RtlSummaryRow(
-                  leadingEmojiOrIconText: "⏰",
-                  text: AppStrings.onboarding.reminderTimeSummary(data.reminderTime),
-                ),
-                const SizedBox(height: kSpacingMedium),
-                Text(
-                  AppStrings.onboarding.summaryFinishHint,
-                  textAlign: TextAlign.right,
-                  style: t.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-                ),
-              ],
+              ),
             ),
           ),
         ],
       )
           .animate()
           .fadeIn(duration: kAnimationDurationMedium)
-          .slideY(begin: 0.1, curve: Curves.easeOut),
+          .slideY(begin: 0.1, curve: Curves.easeOutCubic),
     );
   }
 }

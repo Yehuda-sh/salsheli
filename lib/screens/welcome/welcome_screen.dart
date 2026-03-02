@@ -8,11 +8,19 @@
 // - 8pt grid, radius 14px, טיפוגרפיה נקייה
 // - WhatsApp-like: פשוט, נקי, מקצועי
 //
-// 📝 Version: 3.0 - Hybrid Premium (08/02/2026)
+// ✨ Features:
+// - עומק Glassmorphic מוגבר
+// - אנימציות כניסה מדורגות (Staggered Entrance)
+// - משוב Haptic מבוסס הקשר
+// - אופטימיזציה לביצועי Render
+//
+// 📝 Version: 4.0 - Hybrid Premium (Immersive Depth + Sensory) (22/02/2026)
 
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../core/ui_constants.dart';
@@ -25,11 +33,26 @@ class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
   void _handleLogin(BuildContext context) {
+    unawaited(HapticFeedback.lightImpact());
     Navigator.pushNamed(context, '/login');
   }
 
   void _handleRegister(BuildContext context) {
+    unawaited(HapticFeedback.mediumImpact());
     Navigator.pushNamed(context, '/register');
+  }
+
+  void _handleLegalLink(BuildContext context, VoidCallback showDialog) {
+    unawaited(HapticFeedback.selectionClick());
+    showDialog();
+  }
+
+  bool _isSmallScreen(BuildContext context) =>
+      MediaQuery.of(context).size.width < 360;
+
+  double _horizontalPadding(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    return screenWidth < 360 ? 12.0 : screenWidth > 400 ? 20.0 : kSpacingMedium;
   }
 
   @override
@@ -37,9 +60,11 @@ class WelcomeScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenWidth < 360;
-    final horizontalPadding = screenWidth < 360 ? 12.0 : screenWidth > 400 ? 20.0 : kSpacingMedium;
+    final isSmallScreen = _isSmallScreen(context);
+    final horizontalPadding = _horizontalPadding(context);
+
+    // ⏱️ Staggered entrance delays (80ms apart)
+    const staggerDelay = 80;
 
     return Scaffold(
       backgroundColor: brand?.paperBackground ?? kPaperBackground,
@@ -59,65 +84,76 @@ class WelcomeScreen extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
               child: Column(
                 children: [
-                  // תוכן עליון - scrollable
+                  // תוכן עליון - scrollable (RepaintBoundary לביצועים)
                   Expanded(
-                    child: SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      child: Column(
-                        children: [
-                          SizedBox(height: isSmallScreen ? kSpacingSmall : kSpacingLarge),
+                    child: RepaintBoundary(
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: Column(
+                          children: [
+                            SizedBox(height: isSmallScreen ? kSpacingSmall : kSpacingLarge),
 
-                          // לוגו וסלוגן
-                          _LogoAndSlogan(isSmallScreen: isSmallScreen),
-                          const SizedBox(height: kSpacingLarge),
+                            // לוגו וסלוגן
+                            _LogoAndSlogan(isSmallScreen: isSmallScreen)
+                                .animate()
+                                .fadeIn(duration: 400.ms, curve: Curves.easeOutBack)
+                                .slideY(begin: 0.2, duration: 400.ms, curve: Curves.easeOutBack)
+                                .scale(begin: const Offset(0.95, 0.95), duration: 400.ms, curve: Curves.easeOutBack),
+                            const SizedBox(height: kSpacingLarge),
 
-                          // כרטיסי פיצ'רים נקיים
-                          _FeatureCard(
-                                emoji: AppStrings.welcome.group1Emoji,
-                                title: AppStrings.welcome.group1Title,
-                                description: AppStrings.welcome.group1Question,
-                                accentColor: kStickyGreen,
-                                previewWidget: const _MiniShoppingList(),
-                              )
-                              .animate()
-                              .fadeIn(duration: 300.ms, delay: 100.ms)
-                              .slideY(begin: 0.15, end: 0.0, curve: Curves.easeOut),
-                          const SizedBox(height: kSpacingSmallPlus),
+                            // כרטיסי פיצ'רים נקיים - Staggered Entrance
+                            _FeatureCard(
+                                  emoji: AppStrings.welcome.group1Emoji,
+                                  title: AppStrings.welcome.group1Title,
+                                  description: AppStrings.welcome.group1Question,
+                                  accentColor: kStickyGreen,
+                                  previewWidget: const _MiniShoppingList(),
+                                )
+                                .animate()
+                                .fadeIn(duration: 400.ms, delay: (staggerDelay * 1).ms, curve: Curves.easeOutBack)
+                                .slideY(begin: 0.2, duration: 400.ms, delay: (staggerDelay * 1).ms, curve: Curves.easeOutBack)
+                                .scale(begin: const Offset(0.95, 0.95), duration: 400.ms, delay: (staggerDelay * 1).ms, curve: Curves.easeOutBack),
+                            const SizedBox(height: kSpacingSmallPlus),
 
-                          _FeatureCard(
-                                emoji: AppStrings.welcome.group2Emoji,
-                                title: AppStrings.welcome.group2Title,
-                                description: AppStrings.welcome.group2Question,
-                                accentColor: kStickyOrange,
-                                previewWidget: const _MiniPantry(),
-                              )
-                              .animate()
-                              .fadeIn(duration: 300.ms, delay: 200.ms)
-                              .slideY(begin: 0.15, end: 0.0, curve: Curves.easeOut),
-                          const SizedBox(height: kSpacingSmallPlus),
+                            _FeatureCard(
+                                  emoji: AppStrings.welcome.group2Emoji,
+                                  title: AppStrings.welcome.group2Title,
+                                  description: AppStrings.welcome.group2Question,
+                                  accentColor: kStickyOrange,
+                                  previewWidget: const _MiniPantry(),
+                                )
+                                .animate()
+                                .fadeIn(duration: 400.ms, delay: (staggerDelay * 2).ms, curve: Curves.easeOutBack)
+                                .slideY(begin: 0.2, duration: 400.ms, delay: (staggerDelay * 2).ms, curve: Curves.easeOutBack)
+                                .scale(begin: const Offset(0.95, 0.95), duration: 400.ms, delay: (staggerDelay * 2).ms, curve: Curves.easeOutBack),
+                            const SizedBox(height: kSpacingSmallPlus),
 
-                          _FeatureCard(
-                                emoji: AppStrings.welcome.group3Emoji,
-                                title: AppStrings.welcome.group3Title,
-                                description: AppStrings.welcome.group3Question,
-                                accentColor: kStickyCyan,
-                                previewWidget: const _MiniSharing(),
-                              )
-                              .animate()
-                              .fadeIn(duration: 300.ms, delay: 300.ms)
-                              .slideY(begin: 0.15, end: 0.0, curve: Curves.easeOut),
-                          const SizedBox(height: kSpacingMedium),
+                            _FeatureCard(
+                                  emoji: AppStrings.welcome.group3Emoji,
+                                  title: AppStrings.welcome.group3Title,
+                                  description: AppStrings.welcome.group3Question,
+                                  accentColor: kStickyCyan,
+                                  previewWidget: const _MiniSharing(),
+                                )
+                                .animate()
+                                .fadeIn(duration: 400.ms, delay: (staggerDelay * 3).ms, curve: Curves.easeOutBack)
+                                .slideY(begin: 0.2, duration: 400.ms, delay: (staggerDelay * 3).ms, curve: Curves.easeOutBack)
+                                .scale(begin: const Offset(0.95, 0.95), duration: 400.ms, delay: (staggerDelay * 3).ms, curve: Curves.easeOutBack),
+                            const SizedBox(height: kSpacingMedium),
 
-                          // סלוגן סיום
-                          Text(
-                            AppStrings.welcome.moreGroupsHint,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: cs.onSurface.withValues(alpha: 0.55),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ).animate().fadeIn(duration: 300.ms, delay: 400.ms),
-                          const SizedBox(height: kSpacingMedium),
-                        ],
+                            // סלוגן סיום
+                            Text(
+                              AppStrings.welcome.moreGroupsHint,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: cs.onSurface.withValues(alpha: 0.55),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            )
+                                .animate()
+                                .fadeIn(duration: 400.ms, delay: (staggerDelay * 4).ms, curve: Curves.easeOutBack),
+                            const SizedBox(height: kSpacingMedium),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -132,7 +168,7 @@ class WelcomeScreen extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(kBorderRadiusUnified),
                     child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
+                      filter: ImageFilter.blur(sigmaX: 2.0, sigmaY: 2.0),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: kSpacingSmall,
@@ -177,7 +213,14 @@ class WelcomeScreen extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                            ),
+                            )
+                                // ✨ Shimmer עדין - אחת ל-5 שניות למשיכת העין
+                                .animate(onPlay: (controller) => controller.repeat())
+                                .shimmer(
+                                  delay: 3500.ms,
+                                  duration: 1500.ms,
+                                  color: (brand?.accent ?? cs.primary).withValues(alpha: 0.08),
+                                ),
                             const SizedBox(height: kSpacingTiny),
                             // הסבר קצר
                             Text(
@@ -194,7 +237,11 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                  ),
+                  )
+                      .animate()
+                      .fadeIn(duration: 400.ms, delay: (staggerDelay * 5).ms, curve: Curves.easeOutBack)
+                      .slideY(begin: 0.2, duration: 400.ms, delay: (staggerDelay * 5).ms, curve: Curves.easeOutBack)
+                      .scale(begin: const Offset(0.95, 0.95), duration: 400.ms, delay: (staggerDelay * 5).ms, curve: Curves.easeOutBack),
                   const SizedBox(height: kSpacingSmall),
 
                   // Scrim תחתון - מאחורי לינק התחברות
@@ -240,7 +287,10 @@ class WelcomeScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       TextButton(
-                        onPressed: () => showTermsOfServiceDialog(context),
+                        onPressed: () => _handleLegalLink(
+                          context,
+                          () => showTermsOfServiceDialog(context),
+                        ),
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           minimumSize: const Size(44, 32),
@@ -258,7 +308,10 @@ class WelcomeScreen extends StatelessWidget {
                         style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: kFontSizeSmall),
                       ),
                       TextButton(
-                        onPressed: () => showPrivacyPolicyDialog(context),
+                        onPressed: () => _handleLegalLink(
+                          context,
+                          () => showPrivacyPolicyDialog(context),
+                        ),
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           minimumSize: const Size(44, 32),
@@ -366,7 +419,7 @@ class _LogoAndSlogan extends StatelessWidget {
   }
 }
 
-/// כרטיס פיצ'ר - שקוף עם פס צבעוני, קווי מחברת נראים מבעד
+/// כרטיס פיצ'ר - Glassmorphic עם פס צבעוני, קווי מחברת נראים מבעד
 class _FeatureCard extends StatelessWidget {
   final String emoji;
   final String title;
@@ -397,12 +450,12 @@ class _FeatureCard extends StatelessWidget {
           child: ClipRRect(
             borderRadius: borderRadius,
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+              filter: ImageFilter.blur(sigmaX: kGlassBlurMedium, sigmaY: kGlassBlurMedium),
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(kSpacingSmallPlus),
                 decoration: BoxDecoration(
-                  color: cs.surfaceContainerLow.withValues(alpha: 0.60),
+                  color: cs.surface.withValues(alpha: 0.65),
                   // borderRadius handled by ClipRRect parent
                   border: Border(
                     top: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.18), width: 0.9),
@@ -416,6 +469,13 @@ class _FeatureCard extends StatelessWidget {
                       width: isRtl ? 4 : 0.9,
                     ),
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: cs.shadow.withValues(alpha: 0.06),
+                      blurRadius: 20,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -424,7 +484,9 @@ class _FeatureCard extends StatelessWidget {
                     // כותרת: emoji + title + description
                     Row(
                       children: [
-                        Text(emoji, style: const TextStyle(fontSize: 24, height: 1.0)),
+                        ExcludeSemantics(
+                          child: Text(emoji, style: const TextStyle(fontSize: 24, height: 1.0)),
+                        ),
                         const SizedBox(width: kSpacingSmall),
                         Expanded(
                           child: Column(

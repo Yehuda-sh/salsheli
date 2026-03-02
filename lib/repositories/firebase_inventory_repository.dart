@@ -23,15 +23,16 @@
 //     - כל הפונקציות זורקות InventoryRepositoryException בשגיאה
 //     - Error handling מלא + logging
 //
-// Version: 4.1
-// Last Updated: 27/01/2026
-// Changes: הוסר תמיכה בקבוצות (Groups feature removed)
+// Version: 4.3
+// Last Updated: 22/02/2026
+// Changes: שימוש ב-doc.toDartMap() extension, DRY עם _mapSnapshotToItems
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:memozap/models/inventory_item.dart';
 import 'package:memozap/repositories/constants/repository_constants.dart';
 import 'package:memozap/repositories/inventory_repository.dart';
+import 'package:memozap/repositories/utils/firestore_utils.dart';
 
 /// Firebase implementation של InventoryRepository
 /// 
@@ -129,25 +130,8 @@ class FirebaseInventoryRepository implements InventoryRepository {
           .orderBy(FirestoreFields.productName)
           .get();
 
-      // מעבד כל מסמך בנפרד כדי לדלג על פריטים פגומים
-      final items = <InventoryItem>[];
-      int skippedCount = 0;
-      
-      for (final doc in snapshot.docs) {
-        try {
-          final data = Map<String, dynamic>.from(doc.data());
-          final item = InventoryItem.fromJson(data);
-          items.add(item);
-        } catch (e) {
-          skippedCount++;
-          debugPrint('⚠️ דולג על פריט פגום: ${doc.id} - $e');
-        }
-      }
+      final items = _mapSnapshotToItems(snapshot);
 
-      if (skippedCount > 0) {
-        debugPrint('⚠️ FirebaseInventoryRepository.fetchItems: דולג על $skippedCount פריטים פגומים');
-      }
-      
       debugPrint('✅ FirebaseInventoryRepository.fetchItems: נטענו ${items.length} פריטים');
       return items;
     } catch (e, stackTrace) {
@@ -281,16 +265,10 @@ class FirebaseInventoryRepository implements InventoryRepository {
   /// )
   /// ```
   Stream<List<InventoryItem>> watchInventory(String householdId) {
-    // 🆕 שימוש ב-subcollection - לא צריך where
     return _inventoryCollection(householdId)
         .orderBy(FirestoreFields.productName)
         .snapshots()
-        .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final data = Map<String, dynamic>.from(doc.data());
-        return InventoryItem.fromJson(data);
-      }).toList();
-    });
+        .map(_mapSnapshotToItems);
   }
 
   // ========================================
@@ -329,8 +307,7 @@ class FirebaseInventoryRepository implements InventoryRepository {
         return null;
       }
 
-      final data = Map<String, dynamic>.from(doc.data()!);
-      final item = InventoryItem.fromJson(data);
+      final item = InventoryItem.fromJson(doc.toDartMap()!);
       debugPrint('✅ פריט נמצא');
 
       return item;
@@ -372,10 +349,7 @@ class FirebaseInventoryRepository implements InventoryRepository {
           .orderBy(FirestoreFields.productName)
           .get();
 
-      final items = snapshot.docs.map((doc) {
-        final data = Map<String, dynamic>.from(doc.data());
-        return InventoryItem.fromJson(data);
-      }).toList();
+      final items = _mapSnapshotToItems(snapshot);
 
       debugPrint('✅ נמצאו ${items.length} פריטים');
       return items;
@@ -417,10 +391,7 @@ class FirebaseInventoryRepository implements InventoryRepository {
           .orderBy(FirestoreFields.productName)
           .get();
 
-      final items = snapshot.docs.map((doc) {
-        final data = Map<String, dynamic>.from(doc.data());
-        return InventoryItem.fromJson(data);
-      }).toList();
+      final items = _mapSnapshotToItems(snapshot);
 
       debugPrint('✅ נמצאו ${items.length} פריטים');
       return items;
@@ -472,10 +443,7 @@ class FirebaseInventoryRepository implements InventoryRepository {
           .orderBy(FirestoreFields.quantity)
           .get();
 
-      final items = snapshot.docs.map((doc) {
-        final data = Map<String, dynamic>.from(doc.data());
-        return InventoryItem.fromJson(data);
-      }).toList();
+      final items = _mapSnapshotToItems(snapshot);
 
       debugPrint('✅ נמצאו ${items.length} פריטים');
       return items;
@@ -550,23 +518,7 @@ class FirebaseInventoryRepository implements InventoryRepository {
           .orderBy(FirestoreFields.productName)
           .get();
 
-      final items = <InventoryItem>[];
-      int skippedCount = 0;
-
-      for (final doc in snapshot.docs) {
-        try {
-          final data = Map<String, dynamic>.from(doc.data());
-          final item = InventoryItem.fromJson(data);
-          items.add(item);
-        } catch (e) {
-          skippedCount++;
-          debugPrint('⚠️ דולג על פריט פגום: ${doc.id} - $e');
-        }
-      }
-
-      if (skippedCount > 0) {
-        debugPrint('⚠️ fetchUserItems: דולג על $skippedCount פריטים פגומים');
-      }
+      final items = _mapSnapshotToItems(snapshot);
 
       debugPrint('✅ fetchUserItems: נטענו ${items.length} פריטים');
       return items;
@@ -646,12 +598,28 @@ class FirebaseInventoryRepository implements InventoryRepository {
     return _userInventoryCollection(userId)
         .orderBy(FirestoreFields.productName)
         .snapshots()
-        .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final data = Map<String, dynamic>.from(doc.data());
-        return InventoryItem.fromJson(data);
-      }).toList();
-    });
+        .map(_mapSnapshotToItems);
+  }
+
+  // ========================================
+  // Private Helpers
+  // ========================================
+
+  /// ממיר snapshot של Firestore לרשימת InventoryItem
+  ///
+  /// דולג על מסמכים פגומים (log + null filter) כדי לא לקרוס
+  /// משתמש ב-toDartTypes() להמרת Timestamps רקורסיבית
+  List<InventoryItem> _mapSnapshotToItems(
+    QuerySnapshot<Map<String, dynamic>> snapshot,
+  ) {
+    return snapshot.docs.map((doc) {
+      try {
+        return InventoryItem.fromJson(doc.toDartMap()!);
+      } catch (e) {
+        debugPrint('⚠️ InventoryRepository: דולג על פריט פגום ${doc.id} - $e');
+        return null;
+      }
+    }).whereType<InventoryItem>().toList();
   }
 }
 

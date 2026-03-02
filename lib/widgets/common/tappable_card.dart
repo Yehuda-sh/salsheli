@@ -1,20 +1,15 @@
 // 📄 lib/widgets/common/tappable_card.dart
+// Version 4.0 - Hybrid Premium | 22/02/2026
 //
 // כרטיס אינטראקטיבי עם אנימציות scale + elevation בלחיצה.
 // - TappableCard - גרסה מלאה עם כל האפשרויות
 // - SimpleTappableCard - גרסה פשוטה (רק scale)
 //
-// ✅ תיקונים:
-//    - הסרת כפילות צללים (רק elevation, ללא BoxShadow)
-//    - תחושת לחיצה עקבית: scale ↓ + elevation ↓ (נלחץ פנימה)
-//    - InkWell במקום GestureDetector לנגישות טובה יותר
-//    - צבע צל מ-Theme (scheme.shadow) במקום Colors.black
-//    - MouseRegion עם cursor לדסקטופ
-//    - curve כפרמטר ב-SimpleTappableCard
-//    - הוספת onLongPress parameter
-//    - הוספת tooltip parameter לנגישות
-//    - הוספת semanticLabel parameter לקוראי מסך
-//    - הוספת Focus widget לניווט מקלדת
+// Features:
+//   - בידוד RepaintBoundary לאנימציות scale/elevation
+//   - חתימות Haptic מרובות (Selection vs Medium) באמצעות ButtonHaptic
+//   - אנימציית גובה מותאמת (Smooth Elevation)
+//   - אופטימיזציית Hit-Test עם splashColor עדין
 //
 // 🔗 Related: AnimatedButton, dashboard_card.dart
 
@@ -25,6 +20,10 @@ import 'package:flutter/services.dart';
 
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
+import 'animated_button.dart' show ButtonHaptic;
+
+// Re-export ButtonHaptic for callers that import tappable_card.dart
+export 'animated_button.dart' show ButtonHaptic;
 
 /// 🎴 TappableCard - Interactive Card with Scale & Elevation Animation
 ///
@@ -32,9 +31,10 @@ import '../../l10n/app_strings.dart';
 /// - Scale animation (0.98) on tap - "pressed inward" feel
 /// - Elevation animation (2 → 0) on tap - consistent with scale
 /// - InkWell for ripple effect and accessibility
-/// - Haptic feedback
+/// - Haptic feedback (configurable via ButtonHaptic)
 /// - Mouse cursor for desktop
 /// - Smooth 150ms animation
+/// - RepaintBoundary for isolated repaints
 /// - Perfect for dashboard cards
 ///
 /// Usage:
@@ -48,7 +48,6 @@ import '../../l10n/app_strings.dart';
 ///   ),
 /// )
 /// ```
-
 class TappableCard extends StatefulWidget {
   /// Callback when card is tapped
   final VoidCallback? onTap;
@@ -65,8 +64,9 @@ class TappableCard extends StatefulWidget {
   /// Animation duration (default: 150ms)
   final Duration duration;
 
-  /// Enable haptic feedback (default: true)
-  final bool hapticFeedback;
+  /// Haptic feedback pattern (default: selection - crisp tick on tap)
+  /// Use ButtonHaptic.none to disable.
+  final ButtonHaptic haptic;
 
   /// Curve for animation (default: easeInOut)
   final Curve curve;
@@ -102,7 +102,7 @@ class TappableCard extends StatefulWidget {
     this.onLongPress,
     this.scaleTarget = 0.98,
     this.duration = const Duration(milliseconds: 150),
-    this.hapticFeedback = true,
+    this.haptic = ButtonHaptic.selection,
     this.curve = Curves.easeInOut,
     this.animateElevation = true,
     this.initialElevation = 2,
@@ -124,7 +124,7 @@ class TappableCard extends StatefulWidget {
 /// - Pressed state tracking (_isPressed)
 /// - InkWell for ripple effect and accessibility
 /// - Animation state changes
-/// - Haptic feedback triggers
+/// - Haptic feedback triggers (ButtonHaptic)
 /// - Mouse cursor for desktop
 /// - mounted checks for safety
 class _TappableCardState extends State<TappableCard> {
@@ -133,12 +133,15 @@ class _TappableCardState extends State<TappableCard> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final isClickable = widget.onTap != null;
     final hasLongPress = widget.onLongPress != null;
     final isInteractive = isClickable || hasLongPress;
 
-    // ✅ Build the animated content
-    final animatedContent = _buildAnimatedChild();
+    // ✅ Build the animated content with RepaintBoundary
+    final animatedContent = RepaintBoundary(
+      child: _buildAnimatedChild(),
+    );
 
     // ✅ Build the interactive widget with either InkWell (ripple) or GestureDetector
     Widget result;
@@ -165,6 +168,8 @@ class _TappableCardState extends State<TappableCard> {
                     onTapCancel: _onTapCancel,
                     onLongPress: hasLongPress ? _onLongPress : null,
                     borderRadius: BorderRadius.circular(widget.borderRadius),
+                    // ✅ Subtle primary splash for premium feel
+                    splashColor: cs.primary.withValues(alpha: 0.1),
                   ),
                 ),
               ),
@@ -175,7 +180,9 @@ class _TappableCardState extends State<TappableCard> {
     } else {
       // Fallback to GestureDetector (no ripple)
       result = MouseRegion(
-        cursor: isInteractive ? SystemMouseCursors.click : SystemMouseCursors.basic,
+        cursor: isInteractive
+            ? SystemMouseCursors.click
+            : SystemMouseCursors.basic,
         child: GestureDetector(
           onTap: isInteractive ? _onTap : null,
           onTapDown: isInteractive ? (_) => _onTapDown() : null,
@@ -238,14 +245,21 @@ class _TappableCardState extends State<TappableCard> {
     return content;
   }
 
-  /// Handle tap down
+  /// Handle tap down - haptic based on ButtonHaptic pattern
   void _onTapDown() {
     if (!mounted) return;
     setState(() => _isPressed = true);
 
-    // Haptic feedback
-    if (widget.hapticFeedback) {
-      unawaited(HapticFeedback.lightImpact());
+    // ✅ Haptic pattern via ButtonHaptic enum
+    switch (widget.haptic) {
+      case ButtonHaptic.none:
+        break;
+      case ButtonHaptic.light:
+        unawaited(HapticFeedback.lightImpact());
+      case ButtonHaptic.medium:
+        unawaited(HapticFeedback.mediumImpact());
+      case ButtonHaptic.selection:
+        unawaited(HapticFeedback.selectionClick());
     }
   }
 
@@ -262,10 +276,10 @@ class _TappableCardState extends State<TappableCard> {
     setState(() => _isPressed = false);
   }
 
-  /// Handle long press
+  /// Handle long press - mediumImpact for secondary action emphasis
   void _onLongPress() {
     if (!mounted) return;
-    if (widget.hapticFeedback) {
+    if (widget.haptic != ButtonHaptic.none) {
       unawaited(HapticFeedback.mediumImpact());
     }
     widget.onLongPress?.call();
@@ -280,8 +294,7 @@ class _TappableCardState extends State<TappableCard> {
 /// ✅ Fixes:
 /// - Removed BoxShadow (was duplicating Card's built-in shadow)
 /// - Elevation goes DOWN when pressed for "pressed inward" feel
-/// - Uses scheme.shadow instead of hardcoded Colors.black
-
+/// - Uses scheme.shadow with withValues(alpha:) for refined shadow
 class _AnimatedCard extends StatelessWidget {
   final Widget child;
   final bool isPressed;
@@ -319,7 +332,8 @@ class _AnimatedCard extends StatelessWidget {
         builder: (context, elevation, _) {
           return Card(
             elevation: elevation,
-            shadowColor: scheme.shadow, // ✅ Theme-aware shadow color
+            // ✅ Theme-aware shadow with refined alpha
+            shadowColor: scheme.shadow.withValues(alpha: 0.3),
             shape: card.shape,
             color: card.color,
             margin: card.margin,
@@ -339,7 +353,7 @@ class _AnimatedCard extends StatelessWidget {
 /// 🎴 SimpleTappableCard - Simpler version without elevation animation
 ///
 /// Use this if you want only scale animation without elevation.
-/// Includes mouse cursor for desktop and accessibility support.
+/// Includes mouse cursor for desktop, RepaintBoundary, and accessibility support.
 ///
 /// Usage:
 /// ```dart
@@ -348,14 +362,16 @@ class _AnimatedCard extends StatelessWidget {
 ///   child: Container(...),
 /// )
 /// ```
-
 class SimpleTappableCard extends StatefulWidget {
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final Widget child;
   final double scaleTarget;
   final Duration duration;
-  final bool hapticFeedback;
+
+  /// Haptic feedback pattern (default: selection - crisp tick on tap)
+  /// Use ButtonHaptic.none to disable.
+  final ButtonHaptic haptic;
 
   /// ✅ Added curve parameter for consistency with TappableCard
   final Curve curve;
@@ -369,7 +385,7 @@ class SimpleTappableCard extends StatefulWidget {
   /// Show Material ripple effect on tap (default: true)
   final bool showRipple;
 
-  /// Border radius for ripple effect (default: 12)
+  /// Border radius for ripple effect (default: kBorderRadiusLarge)
   final double borderRadius;
 
   const SimpleTappableCard({
@@ -379,12 +395,12 @@ class SimpleTappableCard extends StatefulWidget {
     this.onLongPress,
     this.scaleTarget = 0.98,
     this.duration = const Duration(milliseconds: 150),
-    this.hapticFeedback = true,
+    this.haptic = ButtonHaptic.selection,
     this.curve = Curves.easeInOut,
     this.tooltip,
     this.semanticLabel,
     this.showRipple = true, // ✅ Enable ripple by default
-    this.borderRadius = kBorderRadius, // ✅ Use ui_constants
+    this.borderRadius = kBorderRadiusLarge, // ✅ Consistent with Notebook style
   });
 
   @override
@@ -396,24 +412,28 @@ class SimpleTappableCard extends StatefulWidget {
 /// Manages:
 /// - Pressed state tracking (_isPressed)
 /// - Scale animation only (no elevation)
+/// - RepaintBoundary for isolated repaints
 /// - Mouse cursor for desktop
-/// - Haptic feedback triggers
+/// - Haptic feedback triggers (ButtonHaptic)
 /// - mounted checks for safety
 class _SimpleTappableCardState extends State<SimpleTappableCard> {
   bool _isPressed = false;
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final isClickable = widget.onTap != null;
     final hasLongPress = widget.onLongPress != null;
     final isInteractive = isClickable || hasLongPress;
 
-    // ✅ Build the animated content
-    final animatedContent = AnimatedScale(
-      scale: _isPressed ? widget.scaleTarget : 1.0,
-      duration: widget.duration,
-      curve: widget.curve,
-      child: widget.child,
+    // ✅ Build the animated content with RepaintBoundary
+    final animatedContent = RepaintBoundary(
+      child: AnimatedScale(
+        scale: _isPressed ? widget.scaleTarget : 1.0,
+        duration: widget.duration,
+        curve: widget.curve,
+        child: widget.child,
+      ),
     );
 
     // ✅ Build the interactive widget with either InkWell (ripple) or GestureDetector
@@ -441,6 +461,8 @@ class _SimpleTappableCardState extends State<SimpleTappableCard> {
                     onTapCancel: _onTapCancel,
                     onLongPress: hasLongPress ? _onLongPress : null,
                     borderRadius: BorderRadius.circular(widget.borderRadius),
+                    // ✅ Subtle primary splash for premium feel
+                    splashColor: cs.primary.withValues(alpha: 0.1),
                   ),
                 ),
               ),
@@ -451,7 +473,9 @@ class _SimpleTappableCardState extends State<SimpleTappableCard> {
     } else {
       // Fallback to GestureDetector (no ripple)
       result = MouseRegion(
-        cursor: isInteractive ? SystemMouseCursors.click : SystemMouseCursors.basic,
+        cursor: isInteractive
+            ? SystemMouseCursors.click
+            : SystemMouseCursors.basic,
         child: GestureDetector(
           onTap: isInteractive ? _onTap : null,
           onTapDown: isInteractive ? (_) => _onTapDown() : null,
@@ -482,12 +506,21 @@ class _SimpleTappableCardState extends State<SimpleTappableCard> {
     return result;
   }
 
+  /// Handle tap down - haptic based on ButtonHaptic pattern
   void _onTapDown() {
     if (!mounted) return;
     setState(() => _isPressed = true);
 
-    if (widget.hapticFeedback) {
-      unawaited(HapticFeedback.lightImpact());
+    // ✅ Haptic pattern via ButtonHaptic enum
+    switch (widget.haptic) {
+      case ButtonHaptic.none:
+        break;
+      case ButtonHaptic.light:
+        unawaited(HapticFeedback.lightImpact());
+      case ButtonHaptic.medium:
+        unawaited(HapticFeedback.mediumImpact());
+      case ButtonHaptic.selection:
+        unawaited(HapticFeedback.selectionClick());
     }
   }
 
@@ -502,9 +535,10 @@ class _SimpleTappableCardState extends State<SimpleTappableCard> {
     setState(() => _isPressed = false);
   }
 
+  /// Handle long press - mediumImpact for secondary action emphasis
   void _onLongPress() {
     if (!mounted) return;
-    if (widget.hapticFeedback) {
+    if (widget.haptic != ButtonHaptic.none) {
       unawaited(HapticFeedback.mediumImpact());
     }
     widget.onLongPress?.call();

@@ -4,6 +4,12 @@
 // - StickyButton (48px) + StickyButtonSmall (36px)
 // - תמיכה ב-isLoading, disabled state, נגישות (Semantics)
 //
+// ✨ Features:
+// - עומק ויזואלי באמצעות גרדיאנט עדין
+// - ניהול ריווחים באמצעות Gap
+// - אופטימיזציית RepaintBoundary
+// - משוב Haptic מבוסס מצב
+//
 // ✅ תיקונים:
 //    - ברירת מחדל לצבע: brand.accent (צבע מותג) במקום primary
 //    - עקביות עם ElevatedButton שמשתמש ב-accent
@@ -13,8 +19,14 @@
 //    - שימוש בצבע צל מ-Theme (לא Colors.black)
 //
 // 🔗 Related: AnimatedButton, ui_constants.dart, AppBrand, sticky_note.dart
+//
+// Version: 4.0 - Hybrid Premium (Physical Depth + Sensory)
+// Last Updated: 22/02/2026
 
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:gap/gap.dart';
+
 import '../../core/ui_constants.dart';
 import '../../theme/app_theme.dart';
 import 'animated_button.dart';
@@ -33,6 +45,7 @@ import 'animated_button.dart';
 /// - [height]: גובה הכפתור (ברירת מחדל: 48px לנגישות)
 /// - [elevation]: רמת צל (0.0-1.0, ברירת מחדל: 1.0)
 /// - [tooltip]: טקסט tooltip לנגישות (אופציונלי, ברירת מחדל: label)
+/// - [haptic]: סוג משוב רטט (ברירת מחדל: light)
 ///
 /// דוגמה בסיסית:
 /// ```dart
@@ -51,6 +64,7 @@ import 'animated_button.dart';
 ///   label: 'מחק',
 ///   icon: Icons.delete_outline,
 ///   elevation: 0.5,
+///   haptic: ButtonHaptic.medium,
 ///   onPressed: () => showDeleteDialog(),
 /// )
 /// ```
@@ -83,6 +97,9 @@ class StickyButton extends StatelessWidget {
   /// טקסט tooltip לנגישות (אופציונלי)
   final String? tooltip;
 
+  /// סוג משוב רטט (ברירת מחדל: light לכפתורי CTA)
+  final ButtonHaptic haptic;
+
   const StickyButton({
     super.key,
     this.color,
@@ -94,6 +111,7 @@ class StickyButton extends StatelessWidget {
     this.isLoading = false,
     this.elevation = 1.0,
     this.tooltip,
+    this.haptic = ButtonHaptic.light,
   });
 
   @override
@@ -108,7 +126,7 @@ class StickyButton extends StatelessWidget {
 
     // בחר צבע טקסט אוטומטית לפי בהירות הרקע
     final btnTextColor = isDisabled
-        ? theme.colorScheme.onSurfaceVariant // ✅ צבע disabled
+        ? theme.colorScheme.onSurfaceVariant
         : (textColor ??
             (ThemeData.estimateBrightnessForColor(buttonColor) == Brightness.light
                 ? Colors.black
@@ -118,68 +136,81 @@ class StickyButton extends StatelessWidget {
     final isEnabled = onPressed != null && !isLoading;
     final borderRadius = BorderRadius.circular(kStickyButtonRadius);
 
-    final Widget buttonWidget = Semantics(
-      button: true,
-      label: label,
-      enabled: isEnabled,
-      child: AnimatedButton(
+    // 🎨 גרדיאנט לעומק פיזי - נייר שתופס אור
+    final effectiveColor = isDisabled ? buttonColor.withValues(alpha: 0.5) : buttonColor;
+    final gradientBottom = Color.lerp(effectiveColor, Colors.black, 0.05)!;
+
+    final Widget buttonWidget = RepaintBoundary(
+      child: Semantics(
+        button: true,
+        label: label,
         enabled: isEnabled,
-        hapticFeedback: true, // CTA button - enable haptic
-        child: Material(
-          color: isDisabled ? buttonColor.withValues(alpha: 0.5) : buttonColor,
-          borderRadius: borderRadius,
-          elevation: 0, // We handle shadow manually for more control
-          child: Container(
-            width: double.infinity,
-            height: height,
-            decoration: BoxDecoration(
-              borderRadius: borderRadius,
-              boxShadow: isDisabled || elevation <= 0
-                  ? null
-                  : [
-                      BoxShadow(
-                        color: shadowColor.withValues(
-                            alpha: kStickyShadowPrimaryOpacity * elevation),
-                        blurRadius: kStickyShadowPrimaryBlur * elevation,
-                        offset: Offset(
-                          kStickyShadowPrimaryOffsetX,
-                          kStickyShadowPrimaryOffsetY * elevation,
-                        ),
-                      ),
-                    ],
-            ),
-            child: InkWell(
-              onTap: isEnabled ? onPressed : null,
-              borderRadius: borderRadius,
-              splashColor: btnTextColor.withValues(alpha: 0.15),
-              highlightColor: btnTextColor.withValues(alpha: 0.08),
-              child: Center(
-                child: isLoading
-                    ? SizedBox(
-                        height: kIconSizeSmall,
-                        width: kIconSizeSmall,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(btnTextColor),
-                        ),
-                      )
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (icon != null) ...[
-                            Icon(icon, color: btnTextColor, size: kIconSize),
-                            const SizedBox(width: kSpacingSmall),
-                          ],
-                          Text(
-                            label,
-                            style: TextStyle(
-                              color: btnTextColor,
-                              fontSize: kFontSizeLarge,
-                              fontWeight: FontWeight.w600,
-                            ),
+        child: AnimatedButton(
+          enabled: isEnabled,
+          haptic: haptic,
+          child: Material(
+            color: Colors.transparent,
+            borderRadius: borderRadius,
+            child: Container(
+              width: double.infinity,
+              height: height,
+              decoration: BoxDecoration(
+                borderRadius: borderRadius,
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [effectiveColor, gradientBottom],
+                ),
+                boxShadow: isDisabled || elevation <= 0
+                    ? null
+                    : [
+                        BoxShadow(
+                          color: shadowColor.withValues(
+                              alpha: kStickyShadowPrimaryOpacity * elevation),
+                          blurRadius: kStickyShadowPrimaryBlur * elevation,
+                          offset: Offset(
+                            kStickyShadowPrimaryOffsetX,
+                            kStickyShadowPrimaryOffsetY * elevation,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
+              ),
+              child: InkWell(
+                onTap: isEnabled ? onPressed : null,
+                borderRadius: borderRadius,
+                splashColor: btnTextColor.withValues(alpha: 0.15),
+                highlightColor: btnTextColor.withValues(alpha: 0.08),
+                child: Center(
+                  child: isLoading
+                      ? SizedBox(
+                          height: kIconSizeSmall,
+                          width: kIconSizeSmall,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(btnTextColor),
+                          ),
+                        )
+                          .animate()
+                          .fadeIn(duration: 300.ms)
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (icon != null) ...[
+                              Icon(icon, color: btnTextColor, size: kIconSize),
+                              const Gap(kSpacingSmall),
+                            ],
+                            AnimatedDefaultTextStyle(
+                              duration: const Duration(milliseconds: 200),
+                              style: TextStyle(
+                                color: btnTextColor,
+                                fontSize: kFontSizeLarge,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              child: Text(label),
+                            ),
+                          ],
+                        ),
+                ),
               ),
             ),
           ),
@@ -230,6 +261,9 @@ class StickyButtonSmall extends StatelessWidget {
   /// טקסט tooltip לנגישות (אופציונלי)
   final String? tooltip;
 
+  /// סוג משוב רטט (ברירת מחדל: light)
+  final ButtonHaptic haptic;
+
   const StickyButtonSmall({
     super.key,
     this.color,
@@ -239,6 +273,7 @@ class StickyButtonSmall extends StatelessWidget {
     this.onPressed,
     this.elevation = 1.0,
     this.tooltip,
+    this.haptic = ButtonHaptic.light,
   });
 
   @override
@@ -252,6 +287,7 @@ class StickyButtonSmall extends StatelessWidget {
       height: kButtonHeightSmall,
       elevation: elevation,
       tooltip: tooltip,
+      haptic: haptic,
     );
   }
 }

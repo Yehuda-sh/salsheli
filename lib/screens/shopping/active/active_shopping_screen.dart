@@ -1,23 +1,26 @@
 // 📄 File: lib/screens/shopping/active_shopping_screen.dart
 //
-// Version 3.0 - Hybrid: NotebookBackground + AppBar
-// Last Updated: 27/01/2026
+// Version 4.0 - Hybrid Premium: Responsive + Collaborative
+// Last Updated: 22/02/2026
 //
 // 🎯 Purpose: מסך קנייה פעילה - המשתמש בחנות וקונה מוצרים
 //
 // ✨ Features:
 // - ⏱️ טיימר - מודד כמה זמן עובר מתחילת הקנייה
 // - 📊 מונים - כמה נקנה / כמה נשאר / כמה לא היה
-// - 🗂️ סידור לפי קטגוריות
+// - 🗂️ סידור לפי קטגוריות + מיון דינמי (checked → bottom)
 // - ✅ סימון מוצרים: נקנה / לא במלאי / לא צריך
 // - 📱 כפתורי פעולה מהירה
 // - 🏁 סיכום מפורט בסיום
 // - 🎨 Skeleton Screen & Error Handling
-// - 💫 Micro Animations
+// - 💫 Micro Animations (flutter_animate fadeIn/slideX)
 // - 📝 Sticky Notes Design System
+// - 🧊 Glassmorphic stats header (BackdropFilter)
+// - 👥 Collaborative AppBar with active shopper avatars
+// - ⚡ RepaintBoundary per item row
 //
 // 🎨 UI:
-// - Header עם טיימר וסטטיסטיקות
+// - Header עם טיימר וסטטיסטיקות (glassmorphic)
 // - רשימת מוצרים לפי קטגוריות עם StickyNote
 // - כפתורים בסגנון StickyButton
 // - מסך סיכום בסוף
@@ -34,10 +37,12 @@
 // ```
 
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../../config/filters_config.dart';
@@ -770,6 +775,16 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       itemsByCategory.putIfAbsent(category, () => []).add(item);
     }
 
+    // 🔄 מיון דינמי: פריטים שסומנו (purchased/outOfStock/notNeeded) → לתחתית
+    for (final items in itemsByCategory.values) {
+      items.sort((a, b) {
+        final aChecked = (_itemStatuses[a.id] ?? ShoppingItemStatus.pending) != ShoppingItemStatus.pending;
+        final bChecked = (_itemStatuses[b.id] ?? ShoppingItemStatus.pending) != ShoppingItemStatus.pending;
+        if (aChecked == bChecked) return 0;
+        return aChecked ? 1 : -1;
+      });
+    }
+
     return Stack(
       children: [
         // 📓 Sticky Notes Background
@@ -789,17 +804,57 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-            title: Row(
+            title: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.shopping_cart, size: 24, color: cs.primary),
-                const SizedBox(width: kSpacingSmall),
-                Flexible(
-                  child: Text(
-                    widget.list.name,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.shopping_cart, size: 24, color: cs.primary),
+                    const SizedBox(width: kSpacingSmall),
+                    Flexible(
+                      child: Text(
+                        widget.list.name,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
+                // 👥 קונים פעילים - אווטרים עם הילה פועמת
+                if (widget.list.currentShoppers.length > 1)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ...widget.list.currentShoppers.take(4).map((shopper) {
+                          final name = widget.list.sharedUsers[shopper.userId]?.userName;
+                          final initial = (name != null && name.isNotEmpty)
+                              ? name.characters.first
+                              : '?';
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 2),
+                            child: _ShopperAvatar(
+                              initial: initial,
+                              isStarter: shopper.isStarter,
+                              accentColor: accent,
+                            ),
+                          );
+                        }),
+                        if (widget.list.currentShoppers.length > 4)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 4),
+                            child: Text(
+                              '+${widget.list.currentShoppers.length - 4}',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: cs.onSurfaceVariant,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
               ],
             ),
             centerTitle: true,
@@ -824,52 +879,57 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
           body: SafeArea(
             child: Column(
               children: [
-                // 📊 Header קומפקטי - סטטיסטיקות (flat design)
-                Container(
-                padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
-                decoration: BoxDecoration(
-                  color: (brand?.stickyYellow ?? kStickyYellow).withValues(alpha: kHighlightOpacity),
-                  border: Border(
-                    bottom: BorderSide(color: cs.outline.withValues(alpha: 0.2)),
+                // 📊 Header קומפקטי - סטטיסטיקות (glassmorphic)
+                ClipRect(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: kGlassBlurSigma, sigmaY: kGlassBlurSigma),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
+                      decoration: BoxDecoration(
+                        color: (brand?.stickyYellow ?? kStickyYellow).withValues(alpha: kHighlightOpacity),
+                        border: Border(
+                          bottom: BorderSide(color: cs.outline.withValues(alpha: 0.2)),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          // ✅ קניתי
+                          _CompactStat(
+                            icon: Icons.check_circle,
+                            value: purchased,
+                            total: total,
+                            color: StatusColors.success,
+                          ),
+                          _buildDivider(cs.onSurfaceVariant),
+                          // ❌ לא במלאי
+                          if (outOfStock > 0)
+                            _CompactStat(
+                              icon: Icons.remove_shopping_cart,
+                              value: outOfStock,
+                              color: StatusColors.error,
+                            ),
+                          if (outOfStock > 0) _buildDivider(cs.onSurfaceVariant),
+                          // 🚫 לא צריך
+                          if (notNeeded > 0)
+                            _CompactStat(
+                              icon: Icons.block,
+                              value: notNeeded,
+                              color: cs.onSurfaceVariant,
+                            ),
+                          if (notNeeded > 0) _buildDivider(cs.onSurfaceVariant),
+                          // 🛒 נותרו
+                          _CompactStat(
+                            icon: Icons.shopping_cart,
+                            value: total - completed,
+                            color: StatusColors.info,
+                            highlight: true,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    // ✅ קניתי
-                    _CompactStat(
-                      icon: Icons.check_circle,
-                      value: purchased,
-                      total: total,
-                      color: StatusColors.success,
-                    ),
-                    _buildDivider(cs.onSurfaceVariant),
-                    // ❌ לא במלאי
-                    if (outOfStock > 0)
-                      _CompactStat(
-                        icon: Icons.remove_shopping_cart,
-                        value: outOfStock,
-                        color: StatusColors.error,
-                      ),
-                    if (outOfStock > 0) _buildDivider(cs.onSurfaceVariant),
-                    // 🚫 לא צריך
-                    if (notNeeded > 0)
-                      _CompactStat(
-                        icon: Icons.block,
-                        value: notNeeded,
-                        color: cs.onSurfaceVariant,
-                      ),
-                    if (notNeeded > 0) _buildDivider(cs.onSurfaceVariant),
-                    // 🛒 נותרו
-                    _CompactStat(
-                      icon: Icons.shopping_cart,
-                      value: total - completed,
-                      color: StatusColors.info,
-                      highlight: true,
-                    ),
-                  ],
-                ),
-              ),
 
               // 📖 מדריך אייקונים (flat design)
               Container(
@@ -1749,6 +1809,58 @@ class _PendingOptionTile extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+// ========================================
+// Widget: אווטר קונה פעיל עם הילה פועמת
+// ========================================
+
+class _ShopperAvatar extends StatelessWidget {
+  final String initial;
+  final bool isStarter;
+  final Color accentColor;
+
+  const _ShopperAvatar({
+    required this.initial,
+    required this.isStarter,
+    required this.accentColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final bgColor = isStarter ? accentColor : cs.primaryContainer;
+    final fgColor = isStarter ? cs.onPrimary : cs.onPrimaryContainer;
+
+    return Container(
+      width: 24,
+      height: 24,
+      decoration: BoxDecoration(
+        color: bgColor,
+        shape: BoxShape.circle,
+        border: Border.all(color: cs.surface, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: accentColor.withValues(alpha: 0.4),
+            blurRadius: 4,
+            spreadRadius: 0.5,
+          ),
+        ],
+      ),
+      child: Center(
+        child: Text(
+          initial,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            color: fgColor,
+          ),
+        ),
+      ),
+    )
+        .animate(onPlay: (c) => c.repeat(reverse: true))
+        .scaleXY(begin: 1.0, end: 1.1, duration: 1500.ms, curve: Curves.easeInOut);
   }
 }
 

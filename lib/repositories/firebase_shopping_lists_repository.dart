@@ -1,33 +1,39 @@
 // 📄 File: lib/repositories/firebase_shopping_lists_repository.dart
 //
-// 🇮🇱 Repository לרשימות קניות עם Firestore:
+// 🎯 Purpose: Repository לרשימות קניות עם Firestore
+//
+// 📋 Features:
 //     - תמיכה ב-2 קולקציות: private_lists + shared_lists
 //     - טעינה ממוזגת של רשימות פרטיות ומשותפות
 //     - שמירה לפי isPrivate (פרטי/משותף)
-//     - העברת רשימה מפרטית למשותפת
-//     - Real-time updates
-//
-// 🇬🇧 Shopping Lists repository with Firestore:
-//     - Support for 2 collections: private_lists + shared_lists
-//     - Merged loading of private and shared lists
-//     - Save based on isPrivate flag
-//     - Transfer list from private to shared
-//     - Real-time updates
+//     - העברת רשימה מפרטית למשותפת (atomic batch)
+//     - Sharing & Permissions (roles, ownership transfer)
+//     - Pending Requests (approve/reject with transactions)
+//     - Real-time updates (merged streams via RxDart)
+//     - שימוש ב-FirestoreUtils להמרה בטוחה ורקורסיבית
+//     - ריכוז לוגיקת מיפוי (DRY) עם _mapSnapshotToShoppingLists
+//     - שיפור בטיחות ב-Atomic Operations
 //
 // 🏗️ Database Structure:
 //     - /users/{userId}/private_lists/{listId} - רשימות פרטיות
 //     - /households/{householdId}/shared_lists/{listId} - רשימות משותפות
 //
-// 📝 Version: 3.0 - Dual collection support
-// 📅 Last Updated: 14/12/2025
+// 📦 Dependencies:
+//     - cloud_firestore
+//     - rxdart (for merged streams)
+//     - ShoppingList model
+//     - FirestoreUtils להמרת Timestamps רקורסיבית
 //
+// Version: 4.0
+// Last Updated: 22/02/2026
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:memozap/models/shopping_list.dart';
 import 'package:memozap/repositories/constants/repository_constants.dart';
 import 'package:memozap/repositories/shopping_lists_repository.dart';
+import 'package:memozap/repositories/utils/firestore_utils.dart';
+import 'package:rxdart/rxdart.dart';
 
 class FirebaseShoppingListsRepository implements ShoppingListsRepository {
   final FirebaseFirestore _firestore;
@@ -101,14 +107,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         .orderBy(FirestoreFields.updatedDate, descending: true)
         .get();
 
-    return snapshot.docs.map((doc) {
-      final data = Map<String, dynamic>.from(doc.data());
-      // 🔧 הוסף את ה-id מהמסמך אם לא קיים
-      data['id'] ??= doc.id;
-      // וודא שהרשימה מסומנת כפרטית
-      data[FirestoreFields.isPrivate] = true;
-      return ShoppingList.fromJson(data);
-    }).toList();
+    return _mapSnapshotToShoppingLists(snapshot, isPrivate: true);
   }
 
   /// טוען רשימות משותפות בלבד
@@ -117,14 +116,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         .orderBy(FirestoreFields.updatedDate, descending: true)
         .get();
 
-    return snapshot.docs.map((doc) {
-      final data = Map<String, dynamic>.from(doc.data());
-      // 🔧 הוסף את ה-id מהמסמך אם לא קיים
-      data['id'] ??= doc.id;
-      // וודא שהרשימה מסומנת כמשותפת
-      data[FirestoreFields.isPrivate] = false;
-      return ShoppingList.fromJson(data);
-    }).toList();
+    return _mapSnapshotToShoppingLists(snapshot, isPrivate: false);
   }
 
   // ========================================
@@ -234,7 +226,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         );
       }
 
-      final data = Map<String, dynamic>.from(privateDoc.data()!);
+      final data = privateDoc.toDartMap()!;
 
       // 2. עדכן את הדגלים
       data[FirestoreFields.isPrivate] = false;
@@ -260,7 +252,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
       if (!savedDoc.exists) {
         throw ShoppingListRepositoryException('List not found after transfer', null);
       }
-      final savedData = Map<String, dynamic>.from(savedDoc.data()!);
+      final savedData = savedDoc.toDartMap()!;
       savedData['id'] ??= savedDoc.id;
       savedData[FirestoreFields.isPrivate] = false;
       return ShoppingList.fromJson(savedData);
@@ -714,14 +706,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
     final privateStream = _privateListsCollection(userId)
         .orderBy(FirestoreFields.updatedDate, descending: true)
         .snapshots()
-        .map((snapshot) {
-          return snapshot.docs.map((doc) {
-            final data = Map<String, dynamic>.from(doc.data());
-            data['id'] ??= doc.id;
-            data[FirestoreFields.isPrivate] = true;
-            return ShoppingList.fromJson(data);
-          }).toList();
-        });
+        .map((snapshot) => _mapSnapshotToShoppingLists(snapshot, isPrivate: true));
 
     // אם אין household, מחזיר רק רשימות פרטיות
     if (householdId == null) {
@@ -732,14 +717,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
     final sharedStream = _sharedListsCollection(householdId)
         .orderBy(FirestoreFields.updatedDate, descending: true)
         .snapshots()
-        .map((snapshot) {
-          return snapshot.docs.map((doc) {
-            final data = Map<String, dynamic>.from(doc.data());
-            data['id'] ??= doc.id;
-            data[FirestoreFields.isPrivate] = false;
-            return ShoppingList.fromJson(data);
-          }).toList();
-        });
+        .map((snapshot) => _mapSnapshotToShoppingLists(snapshot, isPrivate: false));
 
     // מיזוג שני ה-streams - בכל פעם שאחד משתנה, ממזגים את שניהם
     return Rx.combineLatest2<List<ShoppingList>, List<ShoppingList>, List<ShoppingList>>(
@@ -763,6 +741,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
   }
 
   /// מחזיר רשימה לפי ID (חיפוש בשתי הקולקציות)
+  @override
   Future<ShoppingList?> getListById(
     String listId,
     String userId,
@@ -776,8 +755,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
       // חפש קודם ברשימות פרטיות
       final privateDoc = await _privateListsCollection(userId).doc(listId).get();
       if (privateDoc.exists) {
-        final data = Map<String, dynamic>.from(privateDoc.data()!);
-        // 🔧 הוסף את ה-id מהמסמך אם לא קיים
+        final data = privateDoc.toDartMap()!;
         data['id'] ??= privateDoc.id;
         data[FirestoreFields.isPrivate] = true;
         debugPrint('✅ רשימה נמצאה ב-private_lists');
@@ -788,8 +766,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
       if (householdId != null) {
         final sharedDoc = await _sharedListsCollection(householdId).doc(listId).get();
         if (sharedDoc.exists) {
-          final data = Map<String, dynamic>.from(sharedDoc.data()!);
-          // 🔧 הוסף את ה-id מהמסמך אם לא קיים
+          final data = sharedDoc.toDartMap()!;
           data['id'] ??= sharedDoc.id;
           data[FirestoreFields.isPrivate] = false;
           debugPrint('✅ רשימה נמצאה ב-shared_lists');
@@ -807,6 +784,32 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         e,
       );
     }
+  }
+
+  // ========================================
+  // Private Helpers
+  // ========================================
+
+  /// ממיר snapshot של Firestore לרשימת ShoppingList
+  ///
+  /// דולג על מסמכים פגומים (log + null filter) כדי לא לקרוס
+  /// משתמש ב-toDartMap() להמרת Timestamps רקורסיבית
+  /// מזריק id ו-isPrivate לכל מסמך
+  List<ShoppingList> _mapSnapshotToShoppingLists(
+    QuerySnapshot<Map<String, dynamic>> snapshot, {
+    required bool isPrivate,
+  }) {
+    return snapshot.docs.map((doc) {
+      try {
+        final data = doc.toDartMap()!;
+        data['id'] ??= doc.id;
+        data[FirestoreFields.isPrivate] = isPrivate;
+        return ShoppingList.fromJson(data);
+      } catch (e) {
+        debugPrint('⚠️ ShoppingListsRepository: דולג על רשימה פגומה ${doc.id} - $e');
+        return null;
+      }
+    }).whereType<ShoppingList>().toList();
   }
 }
 

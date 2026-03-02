@@ -5,7 +5,6 @@
 //
 // 🔗 Related: Firebase, main.dart
 
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 /// 🌍 סביבות האפליקציה
@@ -50,9 +49,10 @@ class AppConfig {
   /// 🖥️ Host לחיבור ל-Emulators
   /// Android Emulator רואה את localhost כ-10.0.2.2
   /// iOS Simulator ו-Web משתמשים ב-localhost
+  /// 💡 למכשיר פיזי: החלף localhost ב-IP המקומי שלך
   static String get emulatorHost {
     if (kIsWeb) return 'localhost';
-    if (Platform.isAndroid) return '10.0.2.2';
+    if (defaultTargetPlatform == TargetPlatform.android) return '10.0.2.2';
     return 'localhost'; // iOS, macOS, Windows, Linux
   }
 
@@ -63,6 +63,7 @@ class AppConfig {
 
   /// 📊 הדפסת הגדרות נוכחיות (לדיבאג)
   static void printConfig() {
+    if (!kDebugMode) return;
     debugPrint('╔════════════════════════════════════════╗');
     debugPrint('║         🔧 App Configuration           ║');
     debugPrint('╠════════════════════════════════════════╣');

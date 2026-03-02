@@ -285,6 +285,7 @@ class UserContext with ChangeNotifier {
 
           // משתמש התחבר - טען את הפרטים מ-Firestore
           _loadUserFromFirestore(firebaseUser.uid).catchError((error) {
+            if (_isDisposed) return;
             debugPrint('❌ שגיאה בטעינת משתמש: $error');
           });
         } else {
@@ -296,6 +297,7 @@ class UserContext with ChangeNotifier {
         }
       },
       onError: (error) {
+        if (_isDisposed) return;
         debugPrint('❌ UserContext: שגיאה בהאזנה ל-Auth - $error');
       },
     );
@@ -308,8 +310,12 @@ class UserContext with ChangeNotifier {
   /// טוען משתמש מ-Firestore לפי ID
   ///
   /// 🆕 v2.2: מזהה מצב של "Auth OK but Profile Failed" לשחזור
+  /// 🆕 v2.3: מנהל _isLoading בעצמו - UI מציג Loader בזמן טעינה ראשונית
   Future<void> _loadUserFromFirestore(String userId) async {
     if (_isDisposed) return;
+
+    _isLoading = true;
+    _notifySafe();
 
     try {
       _user = await _repository.fetchUser(userId);
@@ -337,9 +343,10 @@ class UserContext with ChangeNotifier {
 
       // 🆕 v2.2: סמן שיש Auth אבל אין Profile
       _hasAuthButNoProfile = _authService.isSignedIn && _user == null;
+    } finally {
+      _isLoading = false;
+      _notifySafe();
     }
-
-    _notifySafe();
   }
 
   /// סנכרון נתוני Onboarding מהשרת ל-SharedPreferences
@@ -383,63 +390,57 @@ class UserContext with ChangeNotifier {
     required String name,
     String? phone,
   }) async {
-    if (_isDisposed) return;
-
-    _isLoading = true;
     _isSigningUp = true;
-    _errorMessage = null;
-    _notifySafe();
-
     try {
-      final credential = await _authService.signUp(
-        email: email,
-        password: password,
-        name: name,
-      );
-
-      if (credential.user != null && !_isDisposed) {
-        try {
-          final onboardingData = await OnboardingData.load();
-          final hasSeenOnboarding = await OnboardingData.hasSeenOnboarding();
-
-          debugPrint('📋 UserContext.signUp: טוען נתוני Onboarding לסנכרון');
-
-          _user = await _repository.createUser(
-            userId: credential.user!.uid,
+      await _runAsync(
+        operation: 'signUp',
+        errorMessagePrefix: 'שגיאה ברישום',
+        action: () async {
+          final credential = await _authService.signUp(
             email: email,
+            password: password,
             name: name,
-            phone: phone,
-            preferredStores: onboardingData.preferredStores.toList(),
-            familySize: onboardingData.familySize,
-            shoppingFrequency: onboardingData.shoppingFrequency,
-            shoppingDays: onboardingData.shoppingDays.toList(),
-            hasChildren: onboardingData.hasChildren,
-            shareLists: onboardingData.shareLists,
-            reminderTime: onboardingData.reminderTime,
-            seenOnboarding: hasSeenOnboarding,
           );
 
-          debugPrint('✅ UserContext.signUp: נתוני Onboarding נשמרו בשרת!');
-        } catch (profileError) {
-          // 🔄 Rollback: אם יצירת הפרופיל נכשלה - מחק את המשתמש מ-Auth
-          debugPrint('❌ UserContext.signUp: יצירת פרופיל נכשלה, מבצע rollback');
-          try {
-            await credential.user?.delete();
-            debugPrint('🗑️ UserContext.signUp: משתמש Auth נמחק (rollback)');
-          } catch (deleteError) {
-            debugPrint('⚠️ UserContext.signUp: לא הצלחתי למחוק Auth user - $deleteError');
+          if (credential.user != null && !_isDisposed) {
+            try {
+              final onboardingData = await OnboardingData.load();
+              final hasSeenOnboarding = await OnboardingData.hasSeenOnboarding();
+
+              debugPrint('📋 UserContext.signUp: טוען נתוני Onboarding לסנכרון');
+
+              _user = await _repository.createUser(
+                userId: credential.user!.uid,
+                email: email,
+                name: name,
+                phone: phone,
+                preferredStores: onboardingData.preferredStores.toList(),
+                familySize: onboardingData.familySize,
+                shoppingFrequency: onboardingData.shoppingFrequency,
+                shoppingDays: onboardingData.shoppingDays.toList(),
+                hasChildren: onboardingData.hasChildren,
+                shareLists: onboardingData.shareLists,
+                reminderTime: onboardingData.reminderTime,
+                seenOnboarding: hasSeenOnboarding,
+              );
+
+              debugPrint('✅ UserContext.signUp: נתוני Onboarding נשמרו בשרת!');
+            } catch (profileError) {
+              // 🔄 Rollback: אם יצירת הפרופיל נכשלה - מחק את המשתמש מ-Auth
+              debugPrint('❌ UserContext.signUp: יצירת פרופיל נכשלה, מבצע rollback');
+              try {
+                await credential.user?.delete();
+                debugPrint('🗑️ UserContext.signUp: משתמש Auth נמחק (rollback)');
+              } catch (deleteError) {
+                debugPrint('⚠️ UserContext.signUp: לא הצלחתי למחוק Auth user - $deleteError');
+              }
+              rethrow;
+            }
           }
-          rethrow;
-        }
-      }
-    } catch (e) {
-      debugPrint('❌ UserContext.signUp: שגיאה - $e');
-      _errorMessage = 'שגיאה ברישום: ${e.toString()}';
-      rethrow;
+        },
+      );
     } finally {
-      _isLoading = false;
       _isSigningUp = false;
-      _notifySafe();
     }
   }
 
@@ -517,68 +518,60 @@ class UserContext with ChangeNotifier {
 
   /// התנתקות רגילה מהמערכת (שומר seenOnboarding)
   Future<void> signOut() async {
-    if (_isDisposed) return;
+    await _runAsync(
+      operation: 'signOut',
+      setLoading: false,
+      errorMessagePrefix: 'שגיאה בהתנתקות',
+      action: () async {
+        debugPrint('🚪 UserContext.signOut: התנתקות רגילה (שומר seenOnboarding)');
 
-    debugPrint('🚪 UserContext.signOut: התנתקות רגילה (שומר seenOnboarding)');
-    _errorMessage = null;
+        // 🔒 קודם כל מתנתקים מ-Firebase - אם זה נכשל, לא מנקים state מקומי
+        await _authService.signOut();
 
-    try {
-      // 🔒 קודם כל מתנתקים מ-Firebase - אם זה נכשל, לא מנקים state מקומי
-      await _authService.signOut();
+        // רק אחרי הצלחת ההתנתקות - מנקים נתונים מקומיים
+        final prefs = await SharedPreferences.getInstance();
+        final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
 
-      // רק אחרי הצלחת ההתנתקות - מנקים נתונים מקומיים
-      final prefs = await SharedPreferences.getInstance();
-      final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
+        await prefs.clear();
 
-      await prefs.clear();
+        if (seenOnboarding) {
+          await prefs.setBool('seenOnboarding', true);
+        }
 
-      if (seenOnboarding) {
-        await prefs.setBool('seenOnboarding', true);
-      }
+        _user = null;
+        _isLoading = false;
+        _hasAuthButNoProfile = false;
+        _resetPreferences();
 
-      _user = null;
-      _errorMessage = null;
-      _isLoading = false;
-      _hasAuthButNoProfile = false;
-      _resetPreferences();
-
-      debugPrint('✅ UserContext.signOut: הושלם בהצלחה');
-    } catch (e) {
-      debugPrint('❌ UserContext.signOut: שגיאה - $e');
-      _errorMessage = 'שגיאה בהתנתקות';
-      _notifySafe();
-      rethrow;
-    }
+        debugPrint('✅ UserContext.signOut: הושלם בהצלחה');
+      },
+    );
   }
 
   /// התנתקות מלאה + מחיקת כל הנתונים המקומיים
   Future<void> signOutAndClearAllData() async {
-    if (_isDisposed) return;
+    await _runAsync(
+      operation: 'signOutAndClearAllData',
+      setLoading: false,
+      errorMessagePrefix: 'שגיאה בהתנתקות ומחיקת נתונים',
+      action: () async {
+        debugPrint('🔥 UserContext.signOutAndClearAllData: התנתקות מלאה!');
 
-    debugPrint('🔥 UserContext.signOutAndClearAllData: התנתקות מלאה!');
-    _errorMessage = null;
+        // 🔒 קודם כל מתנתקים מ-Firebase - אם זה נכשל, לא מנקים state מקומי
+        await _authService.signOut();
 
-    try {
-      // 🔒 קודם כל מתנתקים מ-Firebase - אם זה נכשל, לא מנקים state מקומי
-      await _authService.signOut();
+        // רק אחרי הצלחת ההתנתקות - מנקים נתונים מקומיים
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.clear();
 
-      // רק אחרי הצלחת ההתנתקות - מנקים נתונים מקומיים
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.clear();
+        _user = null;
+        _isLoading = false;
+        _hasAuthButNoProfile = false;
+        _resetPreferences();
 
-      _user = null;
-      _errorMessage = null;
-      _isLoading = false;
-      _hasAuthButNoProfile = false;
-      _resetPreferences();
-
-      debugPrint('🎉 UserContext.signOutAndClearAllData: הושלם בהצלחה!');
-    } catch (e) {
-      debugPrint('❌ UserContext.signOutAndClearAllData: שגיאה - $e');
-      _errorMessage = 'שגיאה בהתנתקות ומחיקת נתונים';
-      _notifySafe();
-      rethrow;
-    }
+        debugPrint('🎉 UserContext.signOutAndClearAllData: הושלם בהצלחה!');
+      },
+    );
   }
 
   /// Alias ל-signOut() לתאימות אחורה
@@ -639,22 +632,17 @@ class UserContext with ChangeNotifier {
   // ==========================================================================
 
   /// ניסיון חוזר לטעינת משתמש אחרי שגיאה
+  ///
+  /// 🔄 _loadUserFromFirestore מנהל את _isLoading בעצמו,
+  /// אז retry רק מנקה שגיאה קודמת ומעביר את הקריאה.
   Future<void> retry() async {
     if (_isDisposed) return;
 
-    // 🔄 חיווי טעינה למשתמש
-    _isLoading = true;
     _errorMessage = null;
-    _notifySafe();
 
-    try {
-      final currentUser = _authService.currentUser;
-      if (currentUser != null) {
-        await _loadUserFromFirestore(currentUser.uid);
-      }
-    } finally {
-      _isLoading = false;
-      _notifySafe();
+    final currentUser = _authService.currentUser;
+    if (currentUser != null) {
+      await _loadUserFromFirestore(currentUser.uid);
     }
   }
 

@@ -5,16 +5,19 @@
 // - אישורים ודחיות
 // - שינויי תפקיד
 // - התראות מלאי
+// ✨ v4.0: אנימציות כניסה מדורגות (Staggered Entrance), מחוות Swipe-to-Action,
+//          AppBar בעיצוב Glassmorphic, משוב Haptic מורחב
 //
-// Version: 3.0 - Hybrid: NotebookBackground + AppBar
-// Last Updated: 27/01/2026
+// Version: 4.0 (22/02/2026)
 // 🔗 Related: NotificationsService, AppNotification
 
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -181,6 +184,14 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
+            flexibleSpace: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: kGlassBlurSigma, sigmaY: kGlassBlurSigma),
+                child: Container(
+                  color: cs.surface.withValues(alpha: 0.7),
+                ),
+              ),
+            ),
             title: Text(strings.title),
             centerTitle: true,
             actions: [
@@ -202,6 +213,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
 
   Widget _buildBody(ColorScheme cs, ThemeData theme) {
     final strings = AppStrings.notificationsCenter;
+    final brand = theme.extension<AppBrand>();
 
     if (_isLoading) {
       return const Center(
@@ -237,7 +249,14 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
               Icons.notifications_none,
               size: 64,
               color: cs.onSurfaceVariant.withValues(alpha: 0.5),
-            ),
+            )
+                .animate(onPlay: (c) => c.repeat(reverse: true))
+                .scaleXY(
+                  begin: 1.0,
+                  end: 1.08,
+                  duration: 2000.ms,
+                  curve: Curves.easeInOut,
+                ),
             const SizedBox(height: 16),
             Text(
               strings.emptyTitle,
@@ -254,7 +273,10 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
             ),
           ],
         ),
-      );
+      )
+          .animate()
+          .fadeIn(duration: 400.ms)
+          .slideY(begin: 0.1, end: 0, duration: 400.ms, curve: Curves.easeOut);
     }
 
     return RefreshIndicator(
@@ -264,13 +286,56 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
         itemCount: _notifications.length,
         // ✅ FIX: Always scrollable for pull-to-refresh with few items
         physics: const AlwaysScrollableScrollPhysics(),
-        separatorBuilder: (_, __) => const Divider(height: 1),
+        separatorBuilder: (_, _) => const Divider(height: 1),
         itemBuilder: (context, index) {
           final notification = _notifications[index];
-          return _NotificationTile(
-            notification: notification,
-            onTap: () => _handleNotificationTap(notification),
-            onMarkAsRead: () => _markAsRead(notification),
+          return RepaintBoundary(
+            child: Dismissible(
+              key: ValueKey(notification.id),
+              // סווייפ ימינה (RTL) → סמן כנקרא
+              background: Container(
+                alignment: AlignmentDirectional.centerStart,
+                padding: const EdgeInsetsDirectional.only(start: 20),
+                color: (brand?.success ?? kStickyGreen).withValues(alpha: 0.2),
+                child: Icon(Icons.check, color: brand?.success ?? kStickyGreen),
+              ),
+              // סווייפ שמאלה → מחיקה
+              secondaryBackground: Container(
+                alignment: AlignmentDirectional.centerEnd,
+                padding: const EdgeInsetsDirectional.only(end: 20),
+                color: cs.error.withValues(alpha: 0.2),
+                child: Icon(Icons.delete_outline, color: cs.error),
+              ),
+              confirmDismiss: (direction) async {
+                unawaited(HapticFeedback.lightImpact());
+                if (direction == DismissDirection.startToEnd) {
+                  // סמן כנקרא
+                  unawaited(_markAsRead(notification));
+                  unawaited(HapticFeedback.mediumImpact());
+                  return false; // לא להסיר מהרשימה
+                }
+                // מחיקה — אישור
+                unawaited(HapticFeedback.mediumImpact());
+                return true;
+              },
+              onDismissed: (_) {
+                setState(() => _notifications.removeAt(index));
+              },
+              child: _NotificationTile(
+                notification: notification,
+                onTap: () => _handleNotificationTap(notification),
+                onMarkAsRead: () => _markAsRead(notification),
+              ),
+            )
+                .animate()
+                .fadeIn(duration: 300.ms, delay: (40 * index).ms)
+                .slideX(
+                  begin: -0.1,
+                  end: 0,
+                  duration: 300.ms,
+                  delay: (40 * index).ms,
+                  curve: Curves.easeOut,
+                ),
           );
         },
       ),
@@ -323,11 +388,22 @@ class _NotificationTile extends StatelessWidget {
     final isUnread = notification.isUnread;
     final timeAgo = timeago.format(notification.createdAt, locale: 'he');
 
-    return ListTile(
+    Widget tile = Container(
+      decoration: BoxDecoration(
+        color: isUnread
+            ? cs.primaryContainer.withValues(alpha: 0.25)
+            : null,
+        border: isUnread
+            ? BorderDirectional(
+                start: BorderSide(
+                  color: cs.primary,
+                  width: 3,
+                ),
+              )
+            : null,
+      ),
+      child: ListTile(
       onTap: onTap,
-      tileColor: isUnread
-          ? cs.primaryContainer.withValues(alpha: 0.3)
-          : null,
       leading: Container(
         width: 44,
         height: 44,
@@ -378,7 +454,21 @@ class _NotificationTile extends StatelessWidget {
               ),
             )
           : null,
+      ),
     );
+
+    // ✨ v4.0: shimmer עדין להתראות שלא נקראו
+    if (isUnread) {
+      tile = tile
+          .animate(onPlay: (c) => c.repeat(reverse: true))
+          .shimmer(
+            delay: 3000.ms,
+            duration: 1200.ms,
+            color: cs.primary.withValues(alpha: 0.08),
+          );
+    }
+
+    return tile;
   }
 
   /// ✅ FIX: Theme-aware colors from AppBrand

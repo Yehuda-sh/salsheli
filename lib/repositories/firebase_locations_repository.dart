@@ -20,21 +20,23 @@
 // 📦 Dependencies:
 //     - cloud_firestore
 //     - CustomLocation model
+//     - FirestoreUtils להמרה בטוחה ורקורסיבית של נתונים
 //
-// Version: 1.0
+// Version: 2.0
+// Last Updated: 22/02/2026
 // Created: 13/10/2025
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+
 import '../models/custom_location.dart';
 import 'constants/repository_constants.dart';
 import 'locations_repository.dart';
+import 'utils/firestore_utils.dart';
 
 /// מימוש Firebase של LocationsRepository
 class FirebaseLocationsRepository implements LocationsRepository {
   final FirebaseFirestore _firestore;
-
-
 
   /// Constructor
   /// 
@@ -54,24 +56,25 @@ class FirebaseLocationsRepository implements LocationsRepository {
           .orderBy(FirestoreFields.createdAt, descending: false)
           .get();
 
-      final locations = snapshot.docs.map((doc) {
-        final data = doc.data();
-        return CustomLocation.fromJson(data);
-      }).toList();
+      final locations = _mapSnapshotToLocations(snapshot);
 
       debugPrint('✅ FirebaseLocationsRepository: נטענו ${locations.length} מיקומים');
-      
-      // Log כל מיקום
-      for (var loc in locations) {
-        debugPrint('   ${loc.emoji} ${loc.name} (${loc.key})');
-      }
-
       return locations;
     } catch (e, st) {
       debugPrint('❌ FirebaseLocationsRepository.fetchLocations: שגיאה - $e');
       debugPrintStack(stackTrace: st);
       rethrow;
     }
+  }
+
+  @override
+  Stream<List<CustomLocation>> watchLocations(String householdId) {
+    return _firestore
+        .collection(FirestoreCollections.customLocations)
+        .where(FirestoreFields.householdId, isEqualTo: householdId)
+        .orderBy(FirestoreFields.createdAt, descending: false)
+        .snapshots()
+        .map(_mapSnapshotToLocations);
   }
 
   @override
@@ -108,7 +111,7 @@ class FirebaseLocationsRepository implements LocationsRepository {
 
     try {
       final docId = '${householdId}_$key';
-      
+
       await _firestore.collection(FirestoreCollections.customLocations).doc(docId).delete();
 
       debugPrint('✅ FirebaseLocationsRepository: מיקום נמחק - $key');
@@ -117,5 +120,26 @@ class FirebaseLocationsRepository implements LocationsRepository {
       debugPrintStack(stackTrace: st);
       rethrow;
     }
+  }
+
+  // ========================================
+  // Private Helpers
+  // ========================================
+
+  /// ממיר snapshot של Firestore לרשימת CustomLocation
+  ///
+  /// דולג על מסמכים פגומים (log + null filter) כדי לא לקרוס
+  /// משתמש ב-toDartList() להמרת Timestamps רקורסיבית
+  List<CustomLocation> _mapSnapshotToLocations(
+    QuerySnapshot<Map<String, dynamic>> snapshot,
+  ) {
+    return snapshot.toDartList().map((json) {
+      try {
+        return CustomLocation.fromJson(json);
+      } catch (e) {
+        debugPrint('⚠️ LocationsRepository: דולג על מיקום פגום - $e');
+        return null;
+      }
+    }).whereType<CustomLocation>().toList();
   }
 }

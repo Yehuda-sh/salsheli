@@ -4,6 +4,9 @@
 // מציג המלצה נוכחית עם מלאי, כפתור הוספה וכפתור "הבא".
 //
 // ✅ Features:
+//    - עיצוב מבוסס דחיפות (Urgency-based styling)
+//    - Haptic feedback באינטראקציות
+//    - אנימציית כניסה מודגשת (shake for critical)
 //    - Theme-aware warning colors (Dark Mode support)
 //    - Accessibility labels and tooltips
 //    - Optimized with RepaintBoundary
@@ -12,18 +15,13 @@
 //
 // 🔗 Related: SmartSuggestion, SuggestionsProvider
 //
-// ----------------------------------------------------------------------------
-// The LastChanceBanner widget displays time-sensitive product alerts.
-// Appears on the Home Dashboard when products are near expiry or low stock.
-//
-// Features:
-// • Theme-aware warning colors
-// • Accessibility labels and tooltips
-// • Optimized with RepaintBoundary
-// • Supports Dark Mode and Hebrew RTL
-// ----------------------------------------------------------------------------
+// Version: 4.0 (22/02/2026)
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/ui_constants.dart';
@@ -113,20 +111,51 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final strings = AppStrings.lastChanceBanner;
+    final urgency = suggestion.urgency;
+    final isCritical = urgency == 'critical' || urgency == 'high';
 
-    // ✅ Theme-aware colors - רכים יותר ב-Dark Mode
-    // משתמש ב-errorContainer לאור רך יותר
-    final bannerBg = Color.alphaBlend(
-      cs.errorContainer.withValues(alpha: 0.65),
-      cs.surface,
-    );
-    final onBannerColor = cs.onErrorContainer;
-    final highlightBg = cs.error.withValues(alpha: 0.1);
+    // 🎨 Urgency-based dynamic styling
+    final Color bannerBg;
+    final Color onBannerColor;
+    final Color highlightBg;
+    final Color borderColor;
+
+    switch (urgency) {
+      case 'critical':
+      case 'high':
+        // 🔴 דחיפות גבוהה - גווני שגיאה/אזהרה
+        bannerBg = Color.alphaBlend(
+          cs.errorContainer.withValues(alpha: 0.65),
+          cs.surface,
+        );
+        onBannerColor = cs.onErrorContainer;
+        highlightBg = cs.error.withValues(alpha: 0.1);
+        borderColor = cs.onErrorContainer.withValues(alpha: 0.2);
+      case 'medium':
+        // 🟡 דחיפות בינונית - גווני אזהרה (כתום/צהוב)
+        bannerBg = Color.alphaBlend(
+          cs.tertiaryContainer.withValues(alpha: 0.65),
+          cs.surface,
+        );
+        onBannerColor = cs.onTertiaryContainer;
+        highlightBg = cs.tertiary.withValues(alpha: 0.1);
+        borderColor = cs.onTertiaryContainer.withValues(alpha: 0.2);
+      default:
+        // 🔵 דחיפות נמוכה - גווני מידע (כחול/תכלת)
+        bannerBg = Color.alphaBlend(
+          cs.secondaryContainer.withValues(alpha: 0.65),
+          cs.surface,
+        );
+        onBannerColor = cs.onSecondaryContainer;
+        highlightBg = cs.secondary.withValues(alpha: 0.1);
+        borderColor = cs.onSecondaryContainer.withValues(alpha: 0.2);
+    }
+
     // ✅ FIX: Theme-aware success color for buttons
     final successColor = theme.extension<AppBrand>()?.success ?? kStickyGreen;
 
     // ✅ Semantics - שפה טבעית וידידותית
-    return Semantics(
+    Widget banner = Semantics(
       label: strings.semanticsLabel(suggestion.productName, suggestion.currentStock),
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
@@ -134,6 +163,7 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
         decoration: BoxDecoration(
           color: bannerBg,
           borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: borderColor),
           boxShadow: [
             BoxShadow(
               color: theme.shadowColor.withValues(alpha: 0.15),
@@ -227,17 +257,28 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
                     message: strings.addTooltip(suggestion.productName),
                     child: SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: () => _onAddPressed(context),
-                        icon: const Icon(Icons.add_shopping_cart, size: 20),
-                        label: Text(strings.addButton),
-                        style: ElevatedButton.styleFrom(
-                          // ✅ FIX: Theme-aware colors
-                          backgroundColor: successColor,
-                          foregroundColor: cs.onPrimary,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        ),
+                      child: Builder(
+                        builder: (context) {
+                          final button = ElevatedButton.icon(
+                            onPressed: () => _onAddPressed(context),
+                            icon: const Icon(Icons.add_shopping_cart, size: 20),
+                            label: Text(strings.addButton),
+                            style: ElevatedButton.styleFrom(
+                              // ✅ FIX: Theme-aware colors
+                              backgroundColor: successColor,
+                              foregroundColor: cs.onPrimary,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                          );
+                          // 💫 Pulse עדין לכפתור כשהדחיפות קריטית
+                          if (isCritical) {
+                            return button
+                                .animate(onPlay: (c) => c.repeat(reverse: true))
+                                .scaleXY(begin: 1.0, end: 1.03, duration: 800.ms, curve: Curves.easeInOut);
+                          }
+                          return button;
+                        },
                       ),
                     ),
                   ),
@@ -300,11 +341,21 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
         ),
       ),
     );
+
+    // 🔔 Shake עדין להמלצות קריטיות - למשיכת תשומת לב
+    if (isCritical) {
+      banner = banner
+          .animate()
+          .shake(hz: 3, rotation: 0.01, duration: 600.ms);
+    }
+
+    return banner;
   }
 
   Future<void> _onAddPressed(BuildContext context) async {
     if (_isProcessing) return;
 
+    unawaited(HapticFeedback.mediumImpact());
     setState(() => _isProcessing = true);
 
     // ✅ FIX: Cache strings, theme-aware colors, and messenger before async gap
@@ -356,6 +407,8 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
   Future<void> _onNextPressed(BuildContext context) async {
     if (_isProcessing) return;
 
+    unawaited(HapticFeedback.lightImpact());
+
     // ✅ FIX: Cache theme-aware colors and messenger before async gap
     final strings = AppStrings.lastChanceBanner;
     final cs = Theme.of(context).colorScheme;
@@ -379,6 +432,8 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
   /// 🚫 כפתור "לא עכשיו" - דילוג לסשן הזה בלבד
   Future<void> _onSkipSessionPressed(BuildContext context) async {
     if (_isProcessing) return;
+
+    unawaited(HapticFeedback.lightImpact());
 
     // ✅ FIX: Cache strings, theme-aware colors, and messenger before async gap
     final strings = AppStrings.lastChanceBanner;

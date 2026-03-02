@@ -98,7 +98,6 @@ class LocationsProvider with ChangeNotifier {
       _customLocations = [];
       _isLoading = false;
       _errorMessage = null;
-      _loadingFuture = null;
       _loadGeneration++;
       _notifySafe();
       return;
@@ -219,25 +218,28 @@ class LocationsProvider with ChangeNotifier {
       return false;
     }
 
+    // יצירת מיקום חדש
+    final newLocation = CustomLocation(
+      key: key,
+      name: name.trim(),
+      emoji: emoji,
+    );
+
+    // Optimistic UI: שמירת מצב קודם + עדכון מיידי
+    final previousLocations = List<CustomLocation>.from(_customLocations);
+    _customLocations = [..._customLocations, newLocation];
+    _errorMessage = null;
+    _notifySafe();
+
     try {
-      // יצירת מיקום חדש
-      final newLocation = CustomLocation(
-        key: key,
-        name: name.trim(),
-        emoji: emoji,
-      );
-
       await _repository.saveLocation(newLocation, householdId);
-
-      // אופטימיזציה: הוספה local במקום ריענון מלא
-      _customLocations = [..._customLocations, newLocation];
-      _notifySafe();
-
       return true;
     } catch (e) {
       if (kDebugMode) {
         debugPrint('❌ LocationsProvider.addLocation: שגיאה - $e');
       }
+      // Rollback: שחזור למצב הקודם
+      _customLocations = previousLocations;
       _errorMessage = 'שגיאה בהוספת מיקום';
       _notifySafe();
       return false;
@@ -274,18 +276,21 @@ class LocationsProvider with ChangeNotifier {
       return false;
     }
 
+    // Optimistic UI: שמירת מצב קודם + מחיקה מיידית
+    final previousLocations = List<CustomLocation>.from(_customLocations);
+    _customLocations = _customLocations.where((loc) => loc.key != key).toList();
+    _errorMessage = null;
+    _notifySafe();
+
     try {
       await _repository.deleteLocation(key, householdId);
-
-      // אופטימיזציה: מחיקה local במקום ריענון מלא
-      _customLocations = _customLocations.where((loc) => loc.key != key).toList();
-      _notifySafe();
-
       return true;
     } catch (e) {
       if (kDebugMode) {
         debugPrint('❌ LocationsProvider.deleteLocation: שגיאה - $e');
       }
+      // Rollback: שחזור המיקום שנמחק
+      _customLocations = previousLocations;
       _errorMessage = 'שגיאה במחיקת מיקום';
       _notifySafe();
       return false;

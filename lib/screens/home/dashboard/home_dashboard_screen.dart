@@ -1,21 +1,29 @@
 // 📄 lib/screens/home/dashboard/home_dashboard_screen.dart
 //
-// מסך הבית החדש - פשוט ונקי:
-// 1. Header: "שלום, [שם]" + שם משפחה + התראות
+// מסך הבית - פשוט ונקי:
+// 1. Header: ברכה דינמית (בוקר/צהריים/ערב) + שם משפחה + התראות
 // 2. באנרים (Active Shopper, Pending Invite)
 // 3. Quick Add
 // 4. הצעות להיום (≤3 פריטים)
 // 5. רשימות פעילות (Cards)
 // 6. היסטוריה (2 קבלות + "ראה הכל")
 //
-// Version: 6.0 (08/01/2026) - Enhanced home screen
+// 📋 Features:
+// - ברכת בוקר/ערב דינמית
+// - אנימציות כניסה מדורגות (Staggered)
+// - Glassmorphic Header משופר
+// - Haptic Feedback מלא ב-Refresh ובניווט
+//
+// Version: 7.0 (22/02/2026) - Hybrid Premium dashboard
 // 🔗 Related: ShoppingListsProvider, ReceiptProvider, NotificationsService
 
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../../config/list_types_config.dart';
@@ -46,6 +54,9 @@ class HomeDashboardScreen extends StatefulWidget {
 class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   bool _isRefreshing = false;
 
+  /// דגל לאנימציית כניסה חד-פעמית (רק בטעינה ראשונה)
+  bool _hasAnimated = false;
+
   @override
   void initState() {
     super.initState();
@@ -56,6 +67,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         TutorialService.showHomeTutorialIfNeeded(context);
+        setState(() => _hasAnimated = true);
       }
     });
   }
@@ -145,6 +157,24 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     return strings.sharedFamily;
   }
 
+  /// עוטף widget באנימציית כניסה מדורגת (רק בפעם הראשונה)
+  Widget _staggered(Widget child, int index) {
+    if (_hasAnimated) return child;
+    return child
+        .animate()
+        .fadeIn(
+          duration: 400.ms,
+          delay: (index * 50).ms,
+        )
+        .slideY(
+          begin: 0.05,
+          end: 0,
+          duration: 400.ms,
+          delay: (index * 50).ms,
+          curve: Curves.easeOut,
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
     final listsProvider = context.watch<ShoppingListsProvider>();
@@ -168,6 +198,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     // שם משפחה להצגה
     final familyName = _getFamilyDisplayName(userContext);
 
+    var sectionIndex = 0;
+
     return Scaffold(
       backgroundColor: paperBg,
       floatingActionButton: FloatingActionButton.extended(
@@ -178,7 +210,13 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         },
         icon: const Icon(Icons.add),
         label: Text(AppStrings.homeDashboard.newListButton),
-      ),
+      ).animate().scale(
+            begin: const Offset(0.8, 0.8),
+            end: const Offset(1.0, 1.0),
+            duration: 500.ms,
+            delay: 300.ms,
+            curve: Curves.elasticOut,
+          ),
       body: Stack(
         children: [
           const NotebookBackground(),
@@ -193,32 +231,57 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 padding: const EdgeInsets.all(kSpacingMedium),
                 children: [
                   // === 1. באנרים (Error / Active Shopper / Pending Invites) ===
-                  if (listsProvider.hasError)
-                    _buildErrorBanner(context, listsProvider.errorMessage!, cs),
-                  const ActiveShopperBanner(),
-                  const PendingInvitesBanner(),
+                  _staggered(
+                    Column(
+                      children: [
+                        if (listsProvider.hasError)
+                          _buildErrorBanner(context, listsProvider.errorMessage!, cs),
+                        const ActiveShopperBanner(),
+                        const PendingInvitesBanner(),
+                      ],
+                    ),
+                    sectionIndex++,
+                  ),
 
-                  // === 2. Header עם שם משפחה ===
-                  _buildHeader(
-                    context,
-                    userName: userContext.displayName,
-                    familyName: familyName,
+                  // === 2. Header עם ברכה דינמית ===
+                  _staggered(
+                    _buildHeader(
+                      context,
+                      userName: userContext.displayName,
+                      familyName: familyName,
+                    ),
+                    sectionIndex++,
                   ),
 
                   const SizedBox(height: kSpacingMedium),
 
                   // === 4. הצעות להיום ===
-                  const SuggestionsTodayCard(),
+                  _staggered(
+                    const RepaintBoundary(
+                      child: SuggestionsTodayCard(),
+                    ),
+                    sectionIndex++,
+                  ),
 
                   const SizedBox(height: kSpacingMedium),
 
                   // === 5. רשימות פעילות ===
-                  _buildActiveListsSection(context, activeLists, cs),
+                  _staggered(
+                    RepaintBoundary(
+                      child: _buildActiveListsSection(context, activeLists, cs),
+                    ),
+                    sectionIndex++,
+                  ),
 
                   const SizedBox(height: kSpacingMedium),
 
                   // === 6. היסטוריה ===
-                  _buildHistorySection(context, sortedReceipts, cs),
+                  _staggered(
+                    RepaintBoundary(
+                      child: _buildHistorySection(context, sortedReceipts, cs),
+                    ),
+                    sectionIndex++,
+                  ),
 
                   // מרווח לפני FAB
                   const SizedBox(height: 80),
@@ -297,7 +360,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   }
 
   // ============================================
-  // 1. HEADER - כרטיס ברכה צבעוני + שם משפחה
+  // 1. HEADER - Glassmorphic + ברכה דינמית לפי שעה
   // ============================================
   Widget _buildHeader(
     BuildContext context, {
@@ -310,100 +373,119 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     final notificationsService = context.read<NotificationsService?>();
     final strings = AppStrings.homeDashboard;
 
-    final greeting = strings.greeting(userName);
+    // ברכה דינמית לפי שעה
+    final greeting = strings.timeBasedGreeting(
+      userName,
+      DateTime.now().hour,
+    );
 
-    return Card(
-      elevation: 0,
-      color: cs.primaryContainer.withValues(alpha: 0.5),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: cs.primary.withValues(alpha: 0.3),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(
+          sigmaX: kGlassBlurMedium,
+          sigmaY: kGlassBlurMedium,
         ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(kSpacingMedium),
-        child: Row(
-          children: [
-            // אייקון/אימוג'י
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: cs.primary.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Center(
-                child: Text(
-                  '👋',
-                  style: TextStyle(fontSize: 28),
+        child: Container(
+          decoration: BoxDecoration(
+            color: cs.primaryContainer.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+            border: Border.all(
+              color: cs.primary.withValues(alpha: 0.3),
+            ),
+          ),
+          padding: const EdgeInsets.all(kSpacingMedium),
+          child: Row(
+            children: [
+              // אייקון/אימוג'י עם Pulse
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: cs.primary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Center(
+                  child: const Text(
+                    '👋',
+                    style: TextStyle(fontSize: 28),
+                  )
+                      .animate(
+                        onPlay: (c) => c.repeat(reverse: true),
+                      )
+                      .scale(
+                        begin: const Offset(1.0, 1.0),
+                        end: const Offset(1.08, 1.08),
+                        duration: 1500.ms,
+                        curve: Curves.easeInOut,
+                      ),
                 ),
               ),
-            ),
-            const SizedBox(width: kSpacingMedium),
-            // ברכה + שם משפחה
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    greeting,
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: cs.onSurface,
+              const SizedBox(width: kSpacingMedium),
+              // ברכה + שם משפחה
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      greeting,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: cs.onSurface,
+                      ),
                     ),
-                  ),
-                  if (familyName != null) ...[
-                    const SizedBox(height: 2),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.home_outlined,
-                          size: 14,
-                          color: cs.onSurfaceVariant,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          familyName,
-                          style: theme.textTheme.bodySmall?.copyWith(
+                    if (familyName != null) ...[
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.home_outlined,
+                            size: 14,
                             color: cs.onSurfaceVariant,
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            // התראות - bell icon עם StreamBuilder לספירת התראות
-            StreamBuilder<int>(
-              stream: (userContext.userId != null && notificationsService != null)
-                  ? notificationsService.watchUnreadCount(userId: userContext.userId!)
-                  : const Stream.empty(),
-              initialData: 0,
-              builder: (context, snapshot) {
-                final unreadCount = snapshot.data ?? 0;
-                return InkWell(
-                  onTap: () {
-                    Navigator.pushNamed(context, '/notifications');
-                  },
-                  borderRadius: BorderRadius.circular(12),
-                  child: Badge.count(
-                    count: unreadCount,
-                    isLabelVisible: unreadCount > 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: cs.surface,
-                        borderRadius: BorderRadius.circular(12),
+                          const SizedBox(width: 4),
+                          Text(
+                            familyName,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: cs.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
                       ),
-                      child: Icon(Icons.notifications_outlined, color: cs.primary),
+                    ],
+                  ],
+                ),
+              ),
+              // התראות - bell icon עם StreamBuilder לספירת התראות
+              StreamBuilder<int>(
+                stream: (userContext.userId != null && notificationsService != null)
+                    ? notificationsService.watchUnreadCount(userId: userContext.userId!)
+                    : const Stream.empty(),
+                initialData: 0,
+                builder: (context, snapshot) {
+                  final unreadCount = snapshot.data ?? 0;
+                  return InkWell(
+                    onTap: () {
+                      Navigator.pushNamed(context, '/notifications');
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Badge.count(
+                      count: unreadCount,
+                      isLabelVisible: unreadCount > 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: cs.surface.withValues(alpha: 0.7),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(Icons.notifications_outlined, color: cs.primary),
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
-          ],
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -523,6 +605,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     return Card(
       margin: const EdgeInsets.only(bottom: kSpacingSmall),
       clipBehavior: Clip.antiAlias,
+      color: cs.surface.withValues(alpha: 0.7),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
         side: BorderSide(
@@ -531,6 +614,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       ),
       child: InkWell(
         onTap: () {
+          unawaited(HapticFeedback.lightImpact());
           Navigator.pushNamed(
             context,
             '/list-details',
@@ -603,16 +687,16 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                                 ),
                               )
                             else ...[
-                              // Progress bar
+                              // Progress bar - עבה יותר עם קצוות מעוגלים
                               ClipRRect(
-                                borderRadius: BorderRadius.circular(4),
+                                borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                                 child: LinearProgressIndicator(
                                   value: progress,
                                   backgroundColor:
                                       cs.surfaceContainerHighest,
                                   valueColor:
                                       AlwaysStoppedAnimation(accentColor),
-                                  minHeight: 5,
+                                  minHeight: 6,
                                 ),
                               ),
                               const SizedBox(height: 4),

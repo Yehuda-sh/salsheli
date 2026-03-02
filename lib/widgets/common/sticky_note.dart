@@ -1,27 +1,30 @@
 // 📄 lib/widgets/common/sticky_note.dart
+// Version 4.0 - Hybrid Premium | 22/02/2026
 //
 // פתק צבעוני בסגנון Post-it עם צללים וסיבוב.
 // - StickyNote - פתק כללי עם child
 // - StickyNoteLogo - פתק מרובע עם אייקון (ללוגו)
 //
-// ✅ תיקונים:
-//    - הוספת Semantics לנגישות
-//    - הוספת animate parameter לשליטה באנימציה
-//    - הוספת elevation parameter לשליטה בצללים
-//    - הוספת onTap callback לאינטראקטיביות
-//    - שימוש בצבעי צללים מ-Theme (לא Colors.black)
+// Features:
+//   - עומק פיזי באמצעות גרדיאנט נייר (Paper Gradient)
+//   - אופטימיזציית RepaintBoundary לבידוד צללים
+//   - משוב Haptic מבוסס הקשר (selectionClick)
+//   - אנימציות Elastic מלוטשות
 //
 // 🔗 Related: ui_constants.dart, flutter_animate, sticky_button.dart
+
+import 'dart:async' show unawaited;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+
 import '../../core/ui_constants.dart';
 
 /// פתק צבעוני בסגנון Post-it עם צללים וסיבוב
 ///
 /// מציג תוכן בתוך פתק צבעוני שנראה כאילו הודבק על המסך.
-/// כולל צללים מציאותיים וסיבוב קל לאפקט אותנטי.
+/// כולל צללים מציאותיים, גרדיאנט נייר וסיבוב קל לאפקט אותנטי.
 ///
 /// Parameters:
 /// - [color]: צבע הפתק (השתמש בקבועים כמו kStickyYellow)
@@ -94,37 +97,49 @@ class StickyNote extends StatelessWidget {
     // ✅ צבע צל מ-Theme במקום Colors.black
     final shadowColor = theme.shadowColor;
 
-    Widget noteWidget = Transform.rotate(
-      angle: rotation,
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.all(padding),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(kStickyNoteRadius),
-          boxShadow: elevation > 0
-              ? [
-                  // צל ראשי - אפקט הדבקה חזק
-                  BoxShadow(
-                    color: shadowColor.withValues(
-                        alpha: kStickyShadowPrimaryOpacity * elevation),
-                    blurRadius: kStickyShadowPrimaryBlur * elevation,
-                    offset: Offset(
-                      kStickyShadowPrimaryOffsetX,
-                      kStickyShadowPrimaryOffsetY * elevation,
+    // 🎨 RepaintBoundary isolates shadow calculations from parent repaints
+    Widget noteWidget = RepaintBoundary(
+      child: Transform.rotate(
+        angle: rotation,
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.all(padding),
+          decoration: BoxDecoration(
+            // 📜 Paper gradient - subtle lighting for physical depth
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                color,
+                Color.lerp(color, Colors.black, 0.04)!,
+              ],
+            ),
+            borderRadius: BorderRadius.circular(kStickyNoteRadius),
+            boxShadow: elevation > 0
+                ? [
+                    // צל ראשי - אפקט הדבקה חזק
+                    BoxShadow(
+                      color: shadowColor.withValues(
+                          alpha: kStickyShadowPrimaryOpacity * elevation),
+                      blurRadius: kStickyShadowPrimaryBlur * elevation,
+                      offset: Offset(
+                        kStickyShadowPrimaryOffsetX,
+                        kStickyShadowPrimaryOffsetY * elevation,
+                      ),
                     ),
-                  ),
-                  // צל משני - עומק
-                  BoxShadow(
-                    color: shadowColor.withValues(
-                        alpha: kStickyShadowSecondaryOpacity * elevation),
-                    blurRadius: kStickyShadowSecondaryBlur * elevation,
-                    offset: Offset(0, kStickyShadowSecondaryOffsetY * elevation),
-                  ),
-                ]
-              : null,
+                    // צל משני - עומק
+                    BoxShadow(
+                      color: shadowColor.withValues(
+                          alpha: kStickyShadowSecondaryOpacity * elevation),
+                      blurRadius: kStickyShadowSecondaryBlur * elevation,
+                      offset:
+                          Offset(0, kStickyShadowSecondaryOffsetY * elevation),
+                    ),
+                  ]
+                : null,
+          ),
+          child: child,
         ),
-        child: child,
       ),
     );
 
@@ -132,7 +147,7 @@ class StickyNote extends StatelessWidget {
     if (animate) {
       noteWidget = noteWidget
           .animate()
-          .fadeIn(duration: const Duration(milliseconds: 400))
+          .fadeIn(duration: 400.ms)
           .slideY(begin: 0.1, curve: Curves.easeOut);
     }
 
@@ -140,7 +155,8 @@ class StickyNote extends StatelessWidget {
     if (onTap != null) {
       noteWidget = GestureDetector(
         onTap: () {
-          HapticFeedback.lightImpact();
+          // ✨ selectionClick - "תקתוק" עדין שמתאים לפתקיות
+          unawaited(HapticFeedback.selectionClick());
           onTap!();
         },
         child: noteWidget,
@@ -163,7 +179,7 @@ class StickyNote extends StatelessWidget {
 /// פתק לוגו מיוחד - מרובע עם אייקון במרכז
 ///
 /// גרסה מיוחדת של פתק לשימוש בלוגו או אייקונים מרכזיים.
-/// כולל צללים חזקים יותר ואנימציות כניסה דרמטיות.
+/// כולל צללים חזקים יותר, גרדיאנט מודגש ואנימציות כניסה דרמטיות.
 ///
 /// Parameters:
 /// - [color]: צבע הפתק
@@ -227,54 +243,71 @@ class StickyNoteLogo extends StatelessWidget {
     // ✅ צבע צל מ-Theme במקום Colors.black
     final shadowColor = theme.shadowColor;
 
-    Widget logoWidget = Transform.rotate(
-      angle: rotation,
-      child: Container(
-        width: kStickyLogoSize,
-        height: kStickyLogoSize,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(kStickyNoteRadius),
-          boxShadow: elevation > 0
-              ? [
-                  // צל ראשי חזק - אפקט הדבקה
-                  BoxShadow(
-                    color: shadowColor.withValues(
-                        alpha: kStickyLogoShadowPrimaryOpacity * elevation),
-                    blurRadius: kStickyLogoShadowPrimaryBlur * elevation,
-                    offset: Offset(
-                      kStickyShadowPrimaryOffsetX,
-                      kStickyLogoShadowPrimaryOffsetY * elevation,
+    // 🎨 RepaintBoundary isolates logo shadow calculations
+    Widget logoWidget = RepaintBoundary(
+      child: Transform.rotate(
+        angle: rotation,
+        child: Container(
+          width: kStickyLogoSize,
+          height: kStickyLogoSize,
+          decoration: BoxDecoration(
+            // 📜 Stronger paper gradient for logo emphasis (0.08)
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                color,
+                Color.lerp(color, Colors.black, 0.08)!,
+              ],
+            ),
+            borderRadius: BorderRadius.circular(kStickyNoteRadius),
+            boxShadow: elevation > 0
+                ? [
+                    // צל ראשי חזק - אפקט הדבקה
+                    BoxShadow(
+                      color: shadowColor.withValues(
+                          alpha:
+                              kStickyLogoShadowPrimaryOpacity * elevation),
+                      blurRadius: kStickyLogoShadowPrimaryBlur * elevation,
+                      offset: Offset(
+                        kStickyShadowPrimaryOffsetX,
+                        kStickyLogoShadowPrimaryOffsetY * elevation,
+                      ),
                     ),
-                  ),
-                  // צל רך - עומק
-                  BoxShadow(
-                    color: shadowColor.withValues(
-                        alpha: kStickyLogoShadowSecondaryOpacity * elevation),
-                    blurRadius: kStickyLogoShadowSecondaryBlur * elevation,
-                    offset: Offset(0, kStickyLogoShadowSecondaryOffsetY * elevation),
-                  ),
-                ]
-              : null,
-        ),
-        child: Center(
-          child: Icon(
-            icon,
-            size: kStickyLogoIconSize,
-            color: iconColor,
+                    // צל רך - עומק
+                    BoxShadow(
+                      color: shadowColor.withValues(
+                          alpha:
+                              kStickyLogoShadowSecondaryOpacity * elevation),
+                      blurRadius:
+                          kStickyLogoShadowSecondaryBlur * elevation,
+                      offset: Offset(
+                          0, kStickyLogoShadowSecondaryOffsetY * elevation),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Center(
+            child: Icon(
+              icon,
+              size: kStickyLogoIconSize,
+              color: iconColor,
+            ),
           ),
         ),
       ),
     );
 
-    // ✅ הוסף אנימציה רק אם animate == true
+    // ✅ אנימציית כניסה "קפיצית" - Elastic bounce
     if (animate) {
       logoWidget = logoWidget
           .animate()
-          .fadeIn(duration: const Duration(milliseconds: 600))
+          .fadeIn(duration: 600.ms)
           .scale(
             begin: const Offset(0.8, 0.8),
+            end: const Offset(1.0, 1.0),
             curve: Curves.elasticOut,
+            duration: 800.ms,
           );
     }
 
@@ -282,7 +315,8 @@ class StickyNoteLogo extends StatelessWidget {
     if (onTap != null) {
       logoWidget = GestureDetector(
         onTap: () {
-          HapticFeedback.lightImpact();
+          // ✨ selectionClick - "תקתוק" עדין שמתאים לפתקיות
+          unawaited(HapticFeedback.selectionClick());
           onTap!();
         },
         child: logoWidget,

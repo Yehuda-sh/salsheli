@@ -1,25 +1,24 @@
 // 📄 lib/widgets/common/pending_requests_section.dart
+// Version 4.0 - Hybrid Premium | 22/02/2026
 //
 // מציג בקשות ממתינות לאישור (הוספה/עריכה/מחיקה של פריטים).
 // מופיע בפתק כתום עם כפתורי אישור/דחייה למי שיש הרשאה.
 //
-// ✅ תיקונים:
-//    - המרת _RequestCard ל-StatefulWidget עם _isProcessing flag
-//    - הוספת try-catch + mounted checks לפעולות async
-//    - הוספת HapticFeedback (lightImpact לאישור, mediumImpact לדחייה)
-//    - הוספת unawaited() לקריאות HapticFeedback
-//    - הוספת Semantics wrapper לסקשן ולכרטיסים
-//    - הוספת tooltips לכפתורי אישור/דחייה
-//    - תמיכה ב-Dark Mode (kStickyOrangeDark)
-//    - הוספת loading indicator בזמן עיבוד
-//    - הוספת maxLines + TextOverflow.ellipsis לטקסטים
+// Features:
+//   - כניסה מדורגת (Staggered Entrance) עם flutter_animate
+//   - כרטיסים בעיצוב Glassmorphic עדין (BackdropFilter)
+//   - חתימת Haptic דינמית (Success vs Error)
+//   - אופטימיזציית RepaintBoundary
 //
 // 🔗 Related: PendingRequest, StickyNote
 
 import 'dart:async';
+import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
@@ -30,7 +29,8 @@ import 'sticky_note.dart';
 
 /// Widget להצגת בקשות ממתינות
 ///
-/// Version 2.0: שונה לעבוד עם רשימה ישירה במקום Provider
+/// Version 4.0: Hybrid Premium - staggered entrance, glassmorphic cards,
+/// dynamic haptic signatures, RepaintBoundary optimization.
 class PendingRequestsSection extends StatelessWidget {
   final String listId;
   final List<PendingRequest> pendingRequests;
@@ -56,43 +56,61 @@ class PendingRequestsSection extends StatelessWidget {
     // ✅ תמיכה ב-Dark Mode
     final stickyColor = isDark ? kStickyOrangeDark : kStickyOrange;
 
-    return Semantics(
-      label: 'בקשות ממתינות לאישור, ${pendingRequests.length} בקשות',
-      container: true,
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: kSpacingMedium),
-        child: StickyNote(
-          color: stickyColor,
-          rotation: 0.01,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // כותרת
-              Row(
-                children: [
-                  const Icon(Icons.pending_actions, size: 20),
-                  const SizedBox(width: kSpacingSmall),
-                  Expanded(
-                    child: Text(
-                      'בקשות ממתינות (${pendingRequests.length})',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
+    // 🎨 RepaintBoundary isolates card animations from notebook background
+    return RepaintBoundary(
+      child: Semantics(
+        label: 'בקשות ממתינות לאישור, ${pendingRequests.length} בקשות',
+        container: true,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: kSpacingMedium),
+          child: StickyNote(
+            color: stickyColor,
+            rotation: 0.01,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // כותרת
+                Row(
+                  children: [
+                    const Icon(Icons.pending_actions, size: 20),
+                    const Gap(kSpacingSmall),
+                    Expanded(
+                      child: Text(
+                        'בקשות ממתינות (${pendingRequests.length})',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: kSpacingMedium),
+                  ],
+                ),
+                const Gap(kSpacingMedium),
 
-              // רשימת בקשות
-              ...pendingRequests.map((request) => _RequestCard(
+                // 🎬 רשימת בקשות עם כניסה מדורגת (Staggered Entrance)
+                ...pendingRequests.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final request = entry.value;
+                  return _RequestCard(
                     request: request,
                     listId: listId,
                     canApprove: canApprove,
-                  )),
-            ],
+                  )
+                      .animate()
+                      .fadeIn(
+                        duration: 300.ms,
+                        delay: (50 * index).ms,
+                      )
+                      .slideX(
+                        begin: 0.1,
+                        end: 0,
+                        curve: Curves.easeOutCubic,
+                        delay: (50 * index).ms,
+                      );
+                }),
+              ],
+            ),
           ),
         ),
       ),
@@ -100,9 +118,9 @@ class PendingRequestsSection extends StatelessWidget {
   }
 }
 
-/// כרטיס בקשה בודדת
+/// כרטיס בקשה בודדת - Glassmorphic Premium
 ///
-/// ✅ Version 2.0: StatefulWidget עם _isProcessing flag, HapticFeedback, Semantics
+/// ✅ Version 4.0: Glassmorphic surface, shimmer processing, dynamic haptic
 class _RequestCard extends StatefulWidget {
   final PendingRequest request;
   final String listId;
@@ -130,13 +148,17 @@ class _RequestCardState extends State<_RequestCard> {
     final requestTitle = _getRequestTitle(widget.request.type);
     final requestContent = _getRequestContent(widget.request);
 
-    return Semantics(
-      label: '$requestTitle: $requestContent',
-      container: true,
-      child: Card(
-        margin: const EdgeInsets.only(bottom: kSpacingSmall),
-        child: Padding(
+    // 🎨 Glassmorphic card surface
+    Widget cardWidget = ClipRRect(
+      borderRadius: BorderRadius.circular(kBorderRadiusUnified),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+        child: Container(
           padding: const EdgeInsets.all(kSpacingMedium),
+          decoration: BoxDecoration(
+            color: cs.surface.withValues(alpha: 0.7),
+            borderRadius: BorderRadius.circular(kBorderRadiusUnified),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -147,7 +169,7 @@ class _RequestCardState extends State<_RequestCard> {
                     _getRequestIcon(widget.request.type),
                     style: const TextStyle(fontSize: 20),
                   ),
-                  const SizedBox(width: kSpacingSmall),
+                  const Gap(kSpacingSmall),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,7 +196,7 @@ class _RequestCardState extends State<_RequestCard> {
                 ],
               ),
 
-              const SizedBox(height: kSpacingSmall),
+              const Gap(kSpacingSmall),
 
               // תוכן הבקשה
               Text(
@@ -186,7 +208,7 @@ class _RequestCardState extends State<_RequestCard> {
 
               // כפתורי אישור/דחייה (רק אם יש הרשאה)
               if (widget.canApprove) ...[
-                const SizedBox(height: kSpacingMedium),
+                const Gap(kSpacingMedium),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -199,7 +221,8 @@ class _RequestCardState extends State<_RequestCard> {
                           height: 16,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(cs.primary),
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(cs.primary),
                           ),
                         ),
                       ),
@@ -218,7 +241,7 @@ class _RequestCardState extends State<_RequestCard> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: kSpacingSmall),
+                    const Gap(kSpacingSmall),
                     // אשר
                     Tooltip(
                       message: 'אשר את הבקשה',
@@ -236,6 +259,25 @@ class _RequestCardState extends State<_RequestCard> {
             ],
           ),
         ),
+      ),
+    );
+
+    // ✨ Shimmer effect during processing - subtle "action in progress" feel
+    if (_isProcessing) {
+      cardWidget = cardWidget
+          .animate(onPlay: (controller) => controller.repeat())
+          .shimmer(
+            duration: 1200.ms,
+            color: cs.onSurface.withValues(alpha: 0.04),
+          );
+    }
+
+    return Semantics(
+      label: '$requestTitle: $requestContent',
+      container: true,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: kSpacingSmall),
+        child: cardWidget,
       ),
     );
   }
@@ -311,8 +353,8 @@ class _RequestCardState extends State<_RequestCard> {
 
     setState(() => _isProcessing = true);
 
-    // ✅ HapticFeedback - lightImpact לאישור
-    unawaited(HapticFeedback.lightImpact());
+    // ✅ Haptic - mediumImpact מיידי לתחילת פעולה
+    unawaited(HapticFeedback.mediumImpact());
 
     try {
       // TODO: Call PendingRequestsService.approveRequest()
@@ -320,6 +362,12 @@ class _RequestCardState extends State<_RequestCard> {
       await Future.delayed(const Duration(milliseconds: 500));
 
       if (!mounted) return;
+
+      // ✅ Success Tick - double lightImpact
+      unawaited(HapticFeedback.lightImpact());
+      await Future.delayed(const Duration(milliseconds: 100));
+      if (!mounted) return;
+      unawaited(HapticFeedback.lightImpact());
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('✅ הבקשה אושרה')),
@@ -343,8 +391,8 @@ class _RequestCardState extends State<_RequestCard> {
 
     setState(() => _isProcessing = true);
 
-    // ✅ HapticFeedback - mediumImpact לדחייה (פעולה יותר "כבדה")
-    unawaited(HapticFeedback.mediumImpact());
+    // ✅ Haptic - heavyImpact לפעולת שלילה
+    unawaited(HapticFeedback.heavyImpact());
 
     try {
       // TODO: Call PendingRequestsService.rejectRequest()

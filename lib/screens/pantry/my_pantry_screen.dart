@@ -9,6 +9,12 @@
 // - עיצוב "Clean Notebook" - תואם ל-ShoppingListDetailsScreen
 // - ללא AppBar - כותרת inline עם SafeArea
 //
+// ✨ Features:
+// - שילוב Collaborative Avatars ב-Header
+// - מערכת חיווי חזותי מבוססת LimitStatus
+// - משוב Haptic דינמי לניהול כמויות
+// - אנימציות Pulse לפריטים קריטיים
+//
 // ✅ תיקונים:
 //    - _isProcessing flag למניעת double-tap
 //    - Debounce לחיפוש (300ms)
@@ -20,25 +26,30 @@
 // - InventoryProvider: ניהול state
 // - StorageLocationsConfig: תצורת מיקומים
 // - LocationsProvider: מיקומים מותאמים
+// - UserContext: אווטארים שיתופיים
 //
-// Version: 5.2 - No AppBar (Immersive)
-// Last Updated: 13/01/2026
+// Version: 6.0 - Hybrid Premium (Collaborative + Sensory)
+// Last Updated: 22/02/2026
 
 import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:provider/provider.dart';
 
 import '../../config/filters_config.dart';
 import '../../config/storage_locations_config.dart';
+import '../../core/constants.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../models/inventory_item.dart';
 import '../../providers/inventory_provider.dart';
 import '../../providers/locations_provider.dart';
+import '../../providers/user_context.dart';
 import '../../services/template_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/inventory/pantry_empty_state.dart';
@@ -310,6 +321,14 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     if (kDebugMode) {
       debugPrint('📦 MyPantryScreen: עדכון כמות - ${item.id} -> $newQuantity');
     }
+
+    // 📳 Haptic דינמי לפי כיוון
+    if (newQuantity > item.quantity) {
+      unawaited(HapticFeedback.lightImpact());
+    } else if (newQuantity < item.quantity) {
+      unawaited(HapticFeedback.mediumImpact());
+    }
+
     try {
       final wasAboveMin = item.quantity > item.minQuantity;
       final willBeLow = newQuantity <= item.minQuantity;
@@ -433,7 +452,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                       : SafeArea(
                           child: Column(
                                 children: [
-                                  // 🏷️ כותרת המזווה
+                                  // 🏷️ כותרת המזווה (Collaborative Immersive)
                                   _buildInlineTitle(provider, scheme),
 
                                   // 🔍 חיפוש וסינון
@@ -473,32 +492,58 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     );
   }
 
-  /// 🏷️ כותרת המזווה - inline (ללא AppBar)
+  /// 🏷️ כותרת המזווה - Collaborative Immersive (Glassmorphic + Avatars)
   Widget _buildInlineTitle(InventoryProvider provider, ColorScheme scheme) {
     final textColor = scheme.onSurface;
+    final userContext = context.watch<UserContext>();
+    final displayName = userContext.displayName ?? '';
 
-    return Padding(
-      padding: const EdgeInsets.only(
-        right: kSpacingMedium,
-        left: kSpacingMedium,
-        top: kSpacingSmall,
-        bottom: kSpacingTiny,
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.kitchen_outlined, size: 24, color: scheme.primary),
-          const SizedBox(width: kSpacingSmall),
-          Expanded(
-            child: Text(
-              provider.inventoryTitle,
-              style: TextStyle(
-                color: textColor,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+    return ClipRRect(
+      child: BackdropFilter(
+        filter: ui.ImageFilter.blur(sigmaX: kGlassBlurMedium, sigmaY: kGlassBlurMedium),
+        child: Container(
+          color: scheme.surface.withValues(alpha: 0.7),
+          padding: const EdgeInsets.only(
+            right: kSpacingMedium,
+            left: kSpacingMedium,
+            top: kSpacingSmall,
+            bottom: kSpacingTiny,
           ),
-        ],
+          child: Row(
+            children: [
+              Icon(Icons.kitchen_outlined, size: 24, color: scheme.primary),
+              const SizedBox(width: kSpacingSmall),
+              Expanded(
+                child: Text(
+                  provider.inventoryTitle,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+
+              // 👥 Collaborative Avatars - בני הבית המחוברים
+              if (displayName.isNotEmpty)
+                Tooltip(
+                  message: displayName,
+                  child: CircleAvatar(
+                    radius: kAvatarRadiusTiny,
+                    backgroundColor: scheme.primaryContainer,
+                    child: Text(
+                      displayName.characters.first,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: scheme.onPrimaryContainer,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -602,7 +647,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     final textColor = scheme.onSurface;
     final textColorMuted = scheme.onSurfaceVariant;
 
-    final chips = allLocations.map((location) {
+    final chips = allLocations.map<Widget>((location) {
       final isAll = location == null;
       final isSelected = _selectedLocation == location;
       final emoji = isAll ? '🏪' : _getLocationEmoji(location);
@@ -625,6 +670,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             ),
             selected: isSelected,
             onSelected: (selected) {
+              // 📳 Haptic בכל החלפת מיקום
+              unawaited(HapticFeedback.selectionClick());
               setState(() {
                 _selectedLocation = isAll ? null : location;
               });
@@ -644,27 +691,37 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       );
     }).toList();
 
-    // ➕ כפתור הוספת מיקום חדש
-    chips.add(
-      Padding(
-        padding: const EdgeInsets.only(left: 8.0),
-        child: ActionChip(
-          avatar: Icon(Icons.add_location_alt, size: 18, color: scheme.primary),
-          label: Text(
-            AppStrings.inventory.addLocationButton,
-            style: TextStyle(fontSize: 13, color: textColorMuted),
-          ),
-          onPressed: _showAddLocationDialog,
-          backgroundColor: chipBgColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: BorderSide(color: scheme.primary, width: 1.5),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          visualDensity: VisualDensity.compact,
+    // ➕ כפתור הוספת מיקום חדש (Shimmer כשיש מעט מיקומים)
+    final showShimmer = locations.length <= 1;
+    Widget addChip = Padding(
+      padding: const EdgeInsets.only(left: 8.0),
+      child: ActionChip(
+        avatar: Icon(Icons.add_location_alt, size: 18, color: scheme.primary),
+        label: Text(
+          AppStrings.inventory.addLocationButton,
+          style: TextStyle(fontSize: 13, color: textColorMuted),
         ),
+        onPressed: _showAddLocationDialog,
+        backgroundColor: chipBgColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: scheme.primary, width: 1.5),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        visualDensity: VisualDensity.compact,
       ),
     );
+
+    if (showShimmer) {
+      addChip = addChip
+          .animate(onPlay: (controller) => controller.repeat())
+          .shimmer(
+            duration: 1800.ms,
+            color: scheme.primary.withValues(alpha: 0.15),
+          );
+    }
+
+    chips.add(addChip);
 
     return chips;
   }
@@ -675,7 +732,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     '🍹', '🍕', '🎁', '🎒', '🧰', '🎨', '📚', '🔧', '🏺', '🗄️',
   ];
 
-  /// מציג דיאלוג להוספת מיקום חדש
+  /// מציג דיאלוג להוספת מיקום חדש (Glassmorphic backdrop)
   Future<void> _showAddLocationDialog() async {
     final cs = Theme.of(context).colorScheme;
     final controller = TextEditingController();
@@ -683,90 +740,94 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
     final result = await showDialog<bool>(
       context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.3),
       builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              title: Text(AppStrings.inventory.addLocationTitle),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // בחירת אמוג'י
-                  Text(AppStrings.inventory.selectEmojiLabel, style: const TextStyle(fontSize: kFontSizeTiny)),
-                  const SizedBox(height: kSpacingSmall),
-                  Wrap(
-                    spacing: kSpacingSmall,
-                    runSpacing: kSpacingSmall,
-                    children: _availableEmojis.map((emoji) {
-                      final isSelected = emoji == selectedEmoji;
-                      return GestureDetector(
-                        onTap: () {
-                          setDialogState(() {
-                            selectedEmoji = emoji;
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(kSpacingSmall),
-                          decoration: BoxDecoration(
-                            color: isSelected ? cs.primaryContainer : cs.surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                            border: Border.all(
-                              color: isSelected ? cs.primary : Colors.transparent,
-                              width: kBorderWidthThick,
+        return BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: kGlassBlurLow, sigmaY: kGlassBlurLow),
+          child: StatefulBuilder(
+            builder: (context, setDialogState) {
+              return AlertDialog(
+                title: Text(AppStrings.inventory.addLocationTitle),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // בחירת אמוג'י
+                    Text(AppStrings.inventory.selectEmojiLabel, style: const TextStyle(fontSize: kFontSizeTiny)),
+                    const SizedBox(height: kSpacingSmall),
+                    Wrap(
+                      spacing: kSpacingSmall,
+                      runSpacing: kSpacingSmall,
+                      children: _availableEmojis.map((emoji) {
+                        final isSelected = emoji == selectedEmoji;
+                        return GestureDetector(
+                          onTap: () {
+                            setDialogState(() {
+                              selectedEmoji = emoji;
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(kSpacingSmall),
+                            decoration: BoxDecoration(
+                              color: isSelected ? cs.primaryContainer : cs.surfaceContainerHighest,
+                              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                              border: Border.all(
+                                color: isSelected ? cs.primary : Colors.transparent,
+                                width: kBorderWidthThick,
+                              ),
                             ),
+                            child: Text(emoji, style: const TextStyle(fontSize: kIconSize)),
                           ),
-                          child: Text(emoji, style: const TextStyle(fontSize: kIconSize)),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: kSpacingMedium),
-                  // שם המיקום
-                  TextField(
-                    controller: controller,
-                    decoration: InputDecoration(
-                      labelText: AppStrings.inventory.locationNameLabel,
-                      hintText: AppStrings.inventory.locationNameHint,
-                      border: const OutlineInputBorder(),
+                        );
+                      }).toList(),
                     ),
-                    autofocus: true,
+                    const SizedBox(height: kSpacingMedium),
+                    // שם המיקום
+                    TextField(
+                      controller: controller,
+                      decoration: InputDecoration(
+                        labelText: AppStrings.inventory.locationNameLabel,
+                        hintText: AppStrings.inventory.locationNameHint,
+                        border: const OutlineInputBorder(),
+                      ),
+                      autofocus: true,
+                    ),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(dialogContext, false),
+                    child: Text(AppStrings.common.cancel),
+                  ),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.add_location_alt, size: kIconSizeSmall),
+                    label: Text(AppStrings.inventory.addLocationButton),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: cs.primaryContainer,
+                      foregroundColor: cs.onPrimaryContainer,
+                    ),
+                    onPressed: () async {
+                      final name = controller.text.trim();
+                      if (name.isEmpty) return;
+
+                      final provider = this.context.read<LocationsProvider>();
+                      final navigator = Navigator.of(dialogContext);
+                      final messenger = ScaffoldMessenger.of(this.context);
+
+                      final success = await provider.addLocation(name, emoji: selectedEmoji);
+
+                      if (success) {
+                        navigator.pop(true);
+                      } else {
+                        messenger.showSnackBar(
+                          SnackBar(content: Text(AppStrings.inventory.locationExists)),
+                        );
+                      }
+                    },
                   ),
                 ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(dialogContext, false),
-                  child: Text(AppStrings.common.cancel),
-                ),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.add_location_alt, size: kIconSizeSmall),
-                  label: Text(AppStrings.inventory.addLocationButton),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: cs.primaryContainer,
-                    foregroundColor: cs.onPrimaryContainer,
-                  ),
-                  onPressed: () async {
-                    final name = controller.text.trim();
-                    if (name.isEmpty) return;
-
-                    final provider = this.context.read<LocationsProvider>();
-                    final navigator = Navigator.of(dialogContext);
-                    final messenger = ScaffoldMessenger.of(this.context);
-
-                    final success = await provider.addLocation(name, emoji: selectedEmoji);
-
-                    if (success) {
-                      navigator.pop(true);
-                    } else {
-                      messenger.showSnackBar(
-                        SnackBar(content: Text(AppStrings.inventory.locationExists)),
-                      );
-                    }
-                  },
-                ),
-              ],
-            );
-          },
+              );
+            },
+          ),
         );
       },
     );
@@ -782,32 +843,37 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     }
   }
 
-  /// 📋 רשימה שטוחה
+  /// 📋 רשימה שטוחה (flutter_animate staggered)
   Widget _buildFlatList(List<InventoryItem> items) {
-    return ListView.builder(
-      physics: const BouncingScrollPhysics(), // 🎯 גלילה רכה כמו iOS
-      padding: const EdgeInsets.only(
-        top: kSpacingSmall,
-        left: kSpacingMedium,
-        right: kSpacingMedium,
-        bottom: 100,
+    return RepaintBoundary(
+      child: ListView.builder(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.only(
+          top: kSpacingSmall,
+          left: kSpacingMedium,
+          right: kSpacingMedium,
+          bottom: 100,
+        ),
+        itemCount: items.length,
+        itemBuilder: (context, index) {
+          final item = items[index];
+          return RepaintBoundary(
+            child: _buildItemRow(item)
+                .animate()
+                .fadeIn(
+                  duration: 350.ms,
+                  delay: (index * 30).ms,
+                  curve: Curves.easeOutQuart,
+                )
+                .slideX(
+                  begin: 0.15,
+                  duration: 350.ms,
+                  delay: (index * 30).ms,
+                  curve: Curves.easeOutQuart,
+                ),
+          );
+        },
       ),
-      itemCount: items.length,
-      itemBuilder: (context, index) {
-        final item = items[index];
-        return TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0.0, end: 1.0),
-          duration: Duration(milliseconds: 300 + (index * 50)),
-          curve: Curves.easeOut,
-          builder: (context, value, child) {
-            return Transform.translate(
-              offset: Offset((1 - value) * 50, 0),
-              child: Opacity(opacity: value, child: child),
-            );
-          },
-          child: _buildItemRow(item),
-        );
-      },
     );
   }
 
@@ -833,91 +899,120 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             Colors.green.withValues(alpha: 0.1),
           ];
 
-    return ListView.builder(
-      physics: const BouncingScrollPhysics(), // 🎯 גלילה רכה כמו iOS
-      padding: const EdgeInsets.only(
-        top: kSpacingSmall,
-        left: kSpacingMedium,
-        right: kSpacingMedium,
-        bottom: 100,
-      ),
-      itemCount: locations.length,
-      itemBuilder: (context, locIndex) {
-        final location = locations[locIndex];
-        final locationItems = grouped[location]!;
-        final highlightColor = highlightColors[locIndex % highlightColors.length];
+    // מונה גלובלי לאנימציות staggered
+    int globalItemIndex = 0;
 
-        // ✅ רווח מותאם: סקשן ראשון ללא top, שאר הסקשנים עם top: 12
-        final isFirstSection = locIndex == 0;
+    return RepaintBoundary(
+      child: ListView.builder(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.only(
+          top: kSpacingSmall,
+          left: kSpacingMedium,
+          right: kSpacingMedium,
+          bottom: 100,
+        ),
+        itemCount: locations.length,
+        itemBuilder: (context, locIndex) {
+          final location = locations[locIndex];
+          final locationItems = grouped[location]!;
+          final highlightColor = highlightColors[locIndex % highlightColors.length];
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // === כותרת סקשן (עיצוב מרקר רחב) ===
-            Padding(
-              padding: EdgeInsets.only(top: isFirstSection ? 0 : 12, bottom: 2),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.only(
-                  right: kSpacingMedium,
-                  top: 4,
-                  bottom: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: highlightColor,
-                  border: Border(
-                    right: BorderSide(color: scheme.outline.withValues(alpha: 0.3), width: 4),
+          // ✅ רווח מותאם: סקשן ראשון ללא top, שאר הסקשנים עם top: 12
+          final isFirstSection = locIndex == 0;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // === כותרת סקשן (עיצוב מרקר רחב) ===
+              Padding(
+                padding: EdgeInsets.only(top: isFirstSection ? 0 : 12, bottom: 2),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.only(
+                    right: kSpacingMedium,
+                    top: 4,
+                    bottom: 4,
                   ),
-                ),
-                child: Row(
-                  children: [
-                    // Note: padding נוסף ב-ListView
-                    Text(
-                      '${_getLocationEmoji(location)} ${_getLocationName(location)}',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  decoration: BoxDecoration(
+                    color: highlightColor,
+                    border: Border(
+                      right: BorderSide(color: scheme.outline.withValues(alpha: 0.3), width: 4),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        '${_getLocationEmoji(location)} ${_getLocationName(location)}',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: scheme.onSurface,
+                              fontSize: 16,
+                            ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? scheme.surfaceContainerHighest.withValues(alpha: 0.6)
+                              : scheme.surface.withValues(alpha: 0.6),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          '${locationItems.length}',
+                          style: TextStyle(
+                            fontSize: 12,
                             fontWeight: FontWeight.bold,
                             color: scheme.onSurface,
-                            fontSize: 16,
                           ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? scheme.surfaceContainerHighest.withValues(alpha: 0.6)
-                            : scheme.surface.withValues(alpha: 0.6),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '${locationItems.length}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: scheme.onSurface,
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
 
-            // === פריטים במיקום ===
-            ...locationItems.map(_buildItemRow),
-          ],
-        );
-      },
+              // === פריטים במיקום (staggered animate) ===
+              ...locationItems.map((item) {
+                final itemIndex = globalItemIndex++;
+                return RepaintBoundary(
+                  child: _buildItemRow(item)
+                      .animate()
+                      .fadeIn(
+                        duration: 350.ms,
+                        delay: (itemIndex * 30).ms,
+                        curve: Curves.easeOutQuart,
+                      )
+                      .slideX(
+                        begin: 0.15,
+                        duration: 350.ms,
+                        delay: (itemIndex * 30).ms,
+                        curve: Curves.easeOutQuart,
+                      ),
+                );
+              }),
+            ],
+          );
+        },
+      ),
     );
   }
 
-  /// 🎴 שורת פריט - Swipe למחיקה, Tap לעריכה
+  /// 🎴 שורת פריט - Swipe למחיקה, Tap לעריכה, חיווי סטטוס
   Widget _buildItemRow(InventoryItem item) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final strings = AppStrings.pantry;
+    final isCritical = item.status == LimitStatus.critical || item.needsUrgentAttention;
+    final isWarning = item.status == LimitStatus.warning || item.isLowStock;
 
-    return Dismissible(
+    // 🎨 רקע מבוסס סטטוס
+    Color? rowBgColor;
+    if (isWarning && !isCritical) {
+      rowBgColor = kStickyOrange.withValues(alpha: 0.1);
+    }
+
+    final Widget row = Dismissible(
       key: Key(item.id),
       direction: DismissDirection.endToStart,
       background: Container(
@@ -956,17 +1051,20 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         );
       },
       onDismissed: (_) => _deleteItem(item),
-      child: SizedBox(
+      child: Container(
         height: 56,
+        decoration: rowBgColor != null
+            ? BoxDecoration(
+                color: rowBgColor,
+                borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+              )
+            : null,
         child: Row(
           children: [
             const SizedBox(width: kSpacingMedium),
 
-            // 🏷️ אמוג'י קטגוריה
-            Text(
-              _getCategoryEmoji(item.category),
-              style: const TextStyle(fontSize: 18),
-            ),
+            // 🏷️ אמוג'י קטגוריה (Pulse אם critical)
+            _buildCategoryEmoji(item, isCritical),
 
             const SizedBox(width: kSpacingSmall),
 
@@ -1011,52 +1109,79 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
               ),
 
             // 🔢 כמות ביחידות (Badge)
-            // ✅ מציג מספר יחידות (אריזות) ולא חוזר על יחידת המידה שכבר מופיעה בשם המוצר
-            Semantics(
-              button: true,
-              label: '${item.quantity} יחידות${item.isLowStock ? ', מלאי נמוך' : ''}, לחץ לעדכון',
-              child: GestureDetector(
-                onTap: () => _showQuickQuantityDialog(item),
-                child: Container(
-                margin: const EdgeInsets.only(left: kSpacingSmall),
-                padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingXTiny),
-                decoration: BoxDecoration(
-                  color: item.isLowStock
-                      ? cs.errorContainer.withValues(alpha: 0.3)
-                      : cs.primaryContainer.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '${item.quantity}',
-                      style: TextStyle(
-                        color: item.isLowStock ? cs.error : cs.primary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(width: kSpacingXTiny),
-                    Text(
-                      strings.unitAbbreviation,
-                      style: TextStyle(
-                        color: item.isLowStock ? cs.error : cs.onSurfaceVariant,
-                        fontSize: 11,
-                      ),
-                    ),
-                    if (item.isLowStock) ...[
-                      const SizedBox(width: kSpacingTiny),
-                      Icon(Icons.warning, color: cs.error, size: 14),
-                    ],
-                  ],
-                ),
-              ),
-              ),
-            ),
+            _buildQuantityBadge(item, cs),
 
             const SizedBox(width: kSpacingSmall),
           ],
+        ),
+      ),
+    );
+
+    return row;
+  }
+
+  /// 🏷️ אמוג'י קטגוריה עם Pulse לפריטים קריטיים
+  Widget _buildCategoryEmoji(InventoryItem item, bool isCritical) {
+    final emoji = Text(
+      _getCategoryEmoji(item.category),
+      style: const TextStyle(fontSize: 18),
+    );
+
+    if (!isCritical) return emoji;
+
+    // 🔴 Pulse animation לפריטים קריטיים
+    return emoji
+        .animate(onPlay: (controller) => controller.repeat(reverse: true))
+        .scaleXY(
+          begin: 1.0,
+          end: 1.15,
+          duration: 800.ms,
+          curve: Curves.easeInOut,
+        );
+  }
+
+  /// 🔢 Badge כמות עם חיווי סטטוס
+  Widget _buildQuantityBadge(InventoryItem item, ColorScheme cs) {
+    final strings = AppStrings.pantry;
+    return Semantics(
+      button: true,
+      label: '${item.quantity} יחידות${item.isLowStock ? ', מלאי נמוך' : ''}, לחץ לעדכון',
+      child: GestureDetector(
+        onTap: () => _showQuickQuantityDialog(item),
+        child: Container(
+          margin: const EdgeInsets.only(left: kSpacingSmall),
+          padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingXTiny),
+          decoration: BoxDecoration(
+            color: item.isLowStock
+                ? cs.errorContainer.withValues(alpha: 0.3)
+                : cs.primaryContainer.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '${item.quantity}',
+                style: TextStyle(
+                  color: item.isLowStock ? cs.error : cs.primary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(width: kSpacingXTiny),
+              Text(
+                strings.unitAbbreviation,
+                style: TextStyle(
+                  color: item.isLowStock ? cs.error : cs.onSurfaceVariant,
+                  fontSize: 11,
+                ),
+              ),
+              if (item.isLowStock) ...[
+                const SizedBox(width: kSpacingTiny),
+                Icon(Icons.warning, color: cs.error, size: 14),
+              ],
+            ],
+          ),
         ),
       ),
     );
@@ -1114,7 +1239,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     );
   }
 
-  /// 🔢 דיאלוג מהיר לשינוי כמות
+  /// 🔢 דיאלוג מהיר לשינוי כמות (Glassmorphic backdrop)
   void _showQuickQuantityDialog(InventoryItem item) {
     final cs = Theme.of(context).colorScheme;
     int quantity = item.quantity;
@@ -1123,75 +1248,79 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
     showDialog(
       context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: Text(
-            item.productName,
-            style: TextStyle(fontSize: kFontSizeMedium, color: cs.primary),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(strings.updateQuantityTitle),
-              const SizedBox(height: kSpacingMedium),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton.filled(
-                    icon: const Icon(Icons.remove),
-                    onPressed: quantity > 0 ? () => setDialogState(() => quantity--) : null,
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge),
-                    child: Text(
-                      '$quantity',
-                      style: TextStyle(
-                        fontSize: kFontSizeLarge,
-                        fontWeight: FontWeight.bold,
-                        color: quantity <= item.minQuantity ? cs.error : cs.onSurface,
+      barrierColor: Colors.black.withValues(alpha: 0.3),
+      builder: (dialogContext) => BackdropFilter(
+        filter: ui.ImageFilter.blur(sigmaX: kGlassBlurLow, sigmaY: kGlassBlurLow),
+        child: StatefulBuilder(
+          builder: (context, setDialogState) => AlertDialog(
+            title: Text(
+              item.productName,
+              style: TextStyle(fontSize: kFontSizeMedium, color: cs.primary),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(strings.updateQuantityTitle),
+                const SizedBox(height: kSpacingMedium),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton.filled(
+                      icon: const Icon(Icons.remove),
+                      onPressed: quantity > 0 ? () => setDialogState(() => quantity--) : null,
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge),
+                      child: Text(
+                        '$quantity',
+                        style: TextStyle(
+                          fontSize: kFontSizeLarge,
+                          fontWeight: FontWeight.bold,
+                          color: quantity <= item.minQuantity ? cs.error : cs.onSurface,
+                        ),
                       ),
                     ),
-                  ),
-                  IconButton.filled(
-                    icon: const Icon(Icons.add),
-                    onPressed: quantity < 99 ? () => setDialogState(() => quantity++) : null,
-                  ),
-                ],
-              ),
-              if (quantity <= item.minQuantity)
-                Padding(
-                  padding: const EdgeInsets.only(top: kSpacingSmall),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.warning, color: cs.error, size: kIconSizeSmall),
-                      const SizedBox(width: kSpacingTiny),
-                      Text(
-                        strings.lowStockWarning(item.minQuantity),
-                        style: TextStyle(color: cs.error, fontSize: kFontSizeTiny),
-                      ),
-                    ],
-                  ),
+                    IconButton.filled(
+                      icon: const Icon(Icons.add),
+                      onPressed: quantity < 99 ? () => setDialogState(() => quantity++) : null,
+                    ),
+                  ],
                 ),
+                if (quantity <= item.minQuantity)
+                  Padding(
+                    padding: const EdgeInsets.only(top: kSpacingSmall),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.warning, color: cs.error, size: kIconSizeSmall),
+                        const SizedBox(width: kSpacingTiny),
+                        Text(
+                          strings.lowStockWarning(item.minQuantity),
+                          style: TextStyle(color: cs.error, fontSize: kFontSizeTiny),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: Text(strings.cancelButton),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(dialogContext);
+                  if (quantity != item.quantity) {
+                    _updateQuantity(item, quantity);
+                  }
+                },
+                child: Text(strings.saveButton),
+              ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: Text(strings.cancelButton),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-                if (quantity != item.quantity) {
-                  _updateQuantity(item, quantity);
-                }
-              },
-              child: Text(strings.saveButton),
-            ),
-          ],
         ),
       ),
     );

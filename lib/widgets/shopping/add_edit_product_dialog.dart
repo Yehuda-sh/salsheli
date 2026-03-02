@@ -1,7 +1,14 @@
 // 📄 lib/widgets/shopping/add_edit_product_dialog.dart
+// Version 4.0 - Hybrid Premium | 22/02/2026
 //
 // דיאלוג הוספה/עריכה של מוצר - שם, מותג, קטגוריה, כמות ומחיר.
 // כולל validation, Sticky Notes design, אנימציות ותמיכה בנגישות.
+//
+// Features:
+//   - אנימציות שדות מדורגות (Staggered Fields)
+//   - חתימות Haptic מותאמות לסטטוס
+//   - ריווח סמנטי מבוסס Gap
+//   - אופטימיזציית RepaintBoundary
 //
 // ✅ אבטחות:
 //    - מניעת קריסה כשקטגוריה לא קיימת ברשימה
@@ -18,6 +25,8 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:gap/gap.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/ui_constants.dart';
@@ -48,6 +57,13 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
   late final TextEditingController _brandController;
   late final TextEditingController _quantityController;
   late final TextEditingController _priceController;
+
+  // FocusNodes לניהול צל ממוקד + haptic מעבר שדות
+  late final FocusNode _nameFocus;
+  late final FocusNode _brandFocus;
+  late final FocusNode _quantityFocus;
+  late final FocusNode _priceFocus;
+
   String? _selectedCategory;
   bool _isSaving = false;
   bool _hasChanges = false;
@@ -55,6 +71,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
   @override
   void initState() {
     super.initState();
+
     _nameController = TextEditingController(text: widget.item?.name ?? '');
     _brandController = TextEditingController(text: widget.item?.brand ?? '');
 
@@ -75,11 +92,29 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
         ? itemCategory
         : null;
 
+    // FocusNodes — selectionClick כשמשתמש מעביר מיקוד
+    _nameFocus = FocusNode()..addListener(_onFocusChange);
+    _brandFocus = FocusNode()..addListener(_onFocusChange);
+    _quantityFocus = FocusNode()..addListener(_onFocusChange);
+    _priceFocus = FocusNode()..addListener(_onFocusChange);
+
     // Track changes for exit confirmation
     _nameController.addListener(_markChanged);
     _brandController.addListener(_markChanged);
     _quantityController.addListener(_markChanged);
     _priceController.addListener(_markChanged);
+  }
+
+  /// 📳 Haptic: selectionClick במעבר בין שדות
+  void _onFocusChange() {
+    // מפעיל רק כשהשדה מקבל focus (לא כשמאבד)
+    final anyHasFocus = _nameFocus.hasFocus ||
+        _brandFocus.hasFocus ||
+        _quantityFocus.hasFocus ||
+        _priceFocus.hasFocus;
+    if (anyHasFocus) {
+      unawaited(HapticFeedback.selectionClick());
+    }
   }
 
   void _markChanged() {
@@ -94,10 +129,50 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
     _brandController.dispose();
     _quantityController.dispose();
     _priceController.dispose();
+    _nameFocus.dispose();
+    _brandFocus.dispose();
+    _quantityFocus.dispose();
+    _priceFocus.dispose();
     super.dispose();
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🎨 Focus Shadow Wrapper
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// עוטף שדה ב-AnimatedContainer עם BoxShadow עדין כשממוקד
+  Widget _withFocusShadow({required Widget child, required FocusNode focusNode}) {
+    return ListenableBuilder(
+      listenable: focusNode,
+      builder: (context, _) {
+        final cs = Theme.of(context).colorScheme;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOut,
+          decoration: focusNode.hasFocus
+              ? BoxDecoration(
+                  borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                  boxShadow: [
+                    BoxShadow(
+                      color: cs.primary.withValues(alpha: 0.12),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                )
+              : const BoxDecoration(),
+          child: child,
+        );
+      },
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ❌ Error / Validation
+  // ═══════════════════════════════════════════════════════════════════════════
+
   void _showErrorSnackBar(String message) {
+    // 📳 Haptic: heavyImpact לשגיאה
     unawaited(HapticFeedback.heavyImpact());
     final cs = Theme.of(context).colorScheme;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -105,7 +180,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
         content: Row(
           children: [
             Icon(Icons.error_outline, color: cs.onError),
-            const SizedBox(width: kSpacingSmall),
+            const Gap(kSpacingSmall),
             Expanded(child: Text(message)),
           ],
         ),
@@ -115,7 +190,10 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
     );
   }
 
-  /// ✅ Exit confirmation when form has unsaved changes
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🚪 Exit Confirmation
+  // ═══════════════════════════════════════════════════════════════════════════
+
   Future<bool> _confirmExit() async {
     if (!_hasChanges) return true;
 
@@ -146,8 +224,11 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
     }
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 💾 Save
+  // ═══════════════════════════════════════════════════════════════════════════
+
   void _handleSave() {
-    // ✅ Prevent double-save
     if (_isSaving) return;
     setState(() => _isSaving = true);
 
@@ -157,7 +238,6 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
     // ✅ Support comma as decimal separator (Israeli convention)
     final priceText = _priceController.text.trim().replaceAll(',', '.');
 
-    // ✅ Validation מלא
     if (name.isEmpty) {
       setState(() => _isSaving = false);
       _showErrorSnackBar(AppStrings.listDetails.productNameEmpty);
@@ -178,7 +258,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
       return;
     }
 
-    // ✨ Haptic feedback להצלחה
+    // 📳 Haptic: mediumImpact לשמירה מוצלחת
     unawaited(HapticFeedback.mediumImpact());
 
     final newItem = UnifiedListItem.product(
@@ -186,12 +266,10 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
       name: name,
       quantity: qty,
       unitPrice: unitPrice,
-      unit: "יח'",
       brand: brand.isEmpty ? null : brand,
       category: _selectedCategory,
     );
 
-    // ✅ Safe save with error handling
     try {
       widget.onSave(newItem);
       if (mounted) Navigator.pop(context);
@@ -203,6 +281,10 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
     }
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🏗️ Build
+  // ═══════════════════════════════════════════════════════════════════════════
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -210,11 +292,37 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
     final brand = theme.extension<AppBrand>();
     final isEditMode = widget.item != null;
 
-    // ✅ Use theme-aware sticky color (supports dark mode)
     final stickyColor = brand?.stickyYellow ?? kStickyYellow;
 
-    // ✅ Theme-aware input fill color (works on sticky notes in both light/dark)
-    final inputFillColor = cs.surfaceContainerHighest.withValues(alpha: 0.7);
+    // Glassmorphic fill — שקיפות עדינה להשתקפות רקע הפתק
+    final inputFillColor = cs.surfaceContainerHighest.withValues(alpha: 0.55);
+    final focusedBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+      borderSide: BorderSide(color: cs.primary, width: 1.5),
+    );
+    final defaultBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+      borderSide: BorderSide(color: cs.outline.withValues(alpha: 0.5)),
+    );
+
+    InputDecoration fieldDecoration({
+      required String label,
+      required IconData icon,
+    }) {
+      return InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon),
+        border: defaultBorder,
+        enabledBorder: defaultBorder,
+        focusedBorder: focusedBorder,
+        filled: true,
+        fillColor: inputFillColor,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: kSpacingSmall,
+          vertical: kSpacingSmallPlus,
+        ),
+      );
+    }
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -223,211 +331,209 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
         color: stickyColor,
         rotation: 0.01,
         padding: 0,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(kSpacingMedium),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // 🏷️ כותרת
-                Row(
-                  children: [
-                    Icon(
-                      isEditMode ? Icons.edit : Icons.add_shopping_cart,
-                      color: cs.primary,
-                      size: kIconSizeLarge,
-                    ),
-                    const SizedBox(width: kSpacingSmall),
-                    Text(
-                      isEditMode
-                          ? AppStrings.listDetails.editProductTitle
-                          : AppStrings.listDetails.addProductTitle,
-                      style: TextStyle(
-                        fontSize: kFontSizeLarge,
-                        fontWeight: FontWeight.bold,
-                        color: cs.onSurface,
+        // 🎨 RepaintBoundary — בידוד אנימציות שדות ממקלדת עולה
+        child: RepaintBoundary(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(kSpacingMedium),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // 🏷️ כותרת
+                  Row(
+                    children: [
+                      Icon(
+                        isEditMode ? Icons.edit : Icons.add_shopping_cart,
+                        color: cs.primary,
+                        size: kIconSizeLarge,
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: kSpacingMedium),
-                const Divider(),
-                const SizedBox(height: kSpacingSmall),
+                      const Gap(kSpacingSmall),
+                      Text(
+                        isEditMode
+                            ? AppStrings.listDetails.editProductTitle
+                            : AppStrings.listDetails.addProductTitle,
+                        style: TextStyle(
+                          fontSize: kFontSizeLarge,
+                          fontWeight: FontWeight.bold,
+                          color: cs.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Gap(kSpacingMedium),
+                  const Divider(),
+                  const Gap(kSpacingSmall),
 
-                // 📝 שם המוצר
-                TextField(
-                  controller: _nameController,
-                  autofocus: true,
-                  decoration: InputDecoration(
-                    labelText: AppStrings.listDetails.productNameLabel,
-                    prefixIcon: const Icon(Icons.shopping_bag_outlined),
-                    border: OutlineInputBorder(
+                  // 📝 שם המוצר
+                  _withFocusShadow(
+                    focusNode: _nameFocus,
+                    child: TextField(
+                      controller: _nameController,
+                      focusNode: _nameFocus,
+                      autofocus: true,
+                      decoration: fieldDecoration(
+                        label: AppStrings.listDetails.productNameLabel,
+                        icon: Icons.shopping_bag_outlined,
+                      ),
+                      textDirection: ui.TextDirection.rtl,
+                      textInputAction: TextInputAction.next,
+                    ),
+                  ).animate().fadeIn(duration: 300.ms).slideX(begin: 0.05, end: 0),
+
+                  const Gap(kSpacingSmall),
+
+                  // 🏢 חברה/מותג
+                  _withFocusShadow(
+                    focusNode: _brandFocus,
+                    child: TextField(
+                      controller: _brandController,
+                      focusNode: _brandFocus,
+                      decoration: fieldDecoration(
+                        label: AppStrings.listDetails.brandLabel,
+                        icon: Icons.business_outlined,
+                      ),
+                      textDirection: ui.TextDirection.rtl,
+                      textInputAction: TextInputAction.next,
+                    ),
+                  ).animate().fadeIn(duration: 300.ms, delay: 40.ms).slideX(begin: 0.05, end: 0, delay: 40.ms),
+
+                  const Gap(kSpacingSmall),
+
+                  // 🏷️ קטגוריה — Glassmorphic Dropdown
+                  if (widget.categories.isNotEmpty) ...[
+                    DropdownButtonFormField<String>(
+                      initialValue: _selectedCategory,
+                      decoration: fieldDecoration(
+                        label: AppStrings.listDetails.categoryLabel,
+                        icon: Icons.category_outlined,
+                      ),
+                      // 🎨 אייקון יוקרתי וקטן
+                      icon: Icon(
+                        Icons.expand_more,
+                        size: kIconSizeMedium,
+                        color: cs.onSurface.withValues(alpha: 0.6),
+                      ),
+                      hint: Text(AppStrings.listDetails.selectCategory),
+                      isExpanded: true,
+                      // עיגול תפריט הנפתח
                       borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                    ),
-                    filled: true,
-                    fillColor: inputFillColor,
-                  ),
-                  textDirection: ui.TextDirection.rtl,
-                  textInputAction: TextInputAction.next,
-                ),
-                const SizedBox(height: kSpacingSmall),
-
-                // 🏢 חברה/מותג
-                TextField(
-                  controller: _brandController,
-                  decoration: InputDecoration(
-                    labelText: AppStrings.listDetails.brandLabel,
-                    prefixIcon: const Icon(Icons.business_outlined),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                    ),
-                    filled: true,
-                    fillColor: inputFillColor,
-                  ),
-                  textDirection: ui.TextDirection.rtl,
-                  textInputAction: TextInputAction.next,
-                ),
-                const SizedBox(height: kSpacingSmall),
-
-                // 🏷️ קטגוריה
-                if (widget.categories.isNotEmpty) ...[
-                  DropdownButtonFormField<String>(
-                    initialValue: _selectedCategory,
-                    decoration: InputDecoration(
-                      labelText: AppStrings.listDetails.categoryLabel,
-                      prefixIcon: const Icon(Icons.category_outlined),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                      ),
-                      filled: true,
-                      fillColor: inputFillColor,
-                    ),
-                    hint: Text(AppStrings.listDetails.selectCategory),
-                    isExpanded: true,
-                    items: widget.categories.map((category) {
-                      return DropdownMenuItem<String>(
-                        value: category,
-                        child: Text(
-                          category,
-                          textDirection: ui.TextDirection.rtl,
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      unawaited(HapticFeedback.selectionClick());
-                      setState(() {
-                        _selectedCategory = value;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: kSpacingSmall),
-                ],
-
-                // 🔢 כמות ומחיר - בשורה אחת
-                Row(
-                  children: [
-                    // כמות
-                    Expanded(
-                      child: TextField(
-                        controller: _quantityController,
-                        decoration: InputDecoration(
-                          labelText: AppStrings.listDetails.quantityLabel,
-                          prefixIcon: const Icon(Icons.numbers),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                      dropdownColor: cs.surfaceContainer,
+                      items: widget.categories.map((category) {
+                        return DropdownMenuItem<String>(
+                          value: category,
+                          child: Text(
+                            category,
+                            textDirection: ui.TextDirection.rtl,
                           ),
-                          filled: true,
-                          fillColor: inputFillColor,
-                        ),
-                        keyboardType: TextInputType.number,
-                        // ✅ LTR for numbers - looks more natural
-                        textDirection: ui.TextDirection.ltr,
-                        textAlign: TextAlign.center,
-                        textInputAction: TextInputAction.next,
-                        // ✅ Only allow digits
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(4),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: kSpacingSmall),
-                    // מחיר
-                    Expanded(
-                      child: TextField(
-                        controller: _priceController,
-                        decoration: InputDecoration(
-                          labelText: AppStrings.listDetails.priceLabel,
-                          prefixIcon: const Icon(Icons.attach_money),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                          ),
-                          filled: true,
-                          fillColor: inputFillColor,
-                        ),
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        // ✅ LTR for numbers - looks more natural
-                        textDirection: ui.TextDirection.ltr,
-                        textAlign: TextAlign.center,
-                        textInputAction: TextInputAction.done,
-                        onSubmitted: (_) => _handleSave(),
-                        // ✅ Allow digits, dot, and comma (Israeli decimal separator)
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r'[\d.,]')),
-                          LengthLimitingTextInputFormatter(10),
-                        ],
-                      ),
-                    ),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        // 📳 Haptic: selectionClick לבחירת קטגוריה
+                        unawaited(HapticFeedback.selectionClick());
+                        setState(() {
+                          _selectedCategory = value;
+                          _hasChanges = true;
+                        });
+                      },
+                    ).animate().fadeIn(duration: 300.ms, delay: 80.ms).slideX(begin: 0.05, end: 0, delay: 80.ms),
+
+                    const Gap(kSpacingSmall),
                   ],
-                ),
 
-                const SizedBox(height: kSpacingMedium),
+                  // 🔢 כמות ומחיר — בשורה אחת
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _withFocusShadow(
+                          focusNode: _quantityFocus,
+                          child: TextField(
+                            controller: _quantityController,
+                            focusNode: _quantityFocus,
+                            decoration: fieldDecoration(
+                              label: AppStrings.listDetails.quantityLabel,
+                              icon: Icons.numbers,
+                            ),
+                            keyboardType: TextInputType.number,
+                            textDirection: ui.TextDirection.ltr,
+                            textAlign: TextAlign.center,
+                            textInputAction: TextInputAction.next,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(4),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const Gap(kSpacingSmall),
+                      Expanded(
+                        child: _withFocusShadow(
+                          focusNode: _priceFocus,
+                          child: TextField(
+                            controller: _priceController,
+                            focusNode: _priceFocus,
+                            decoration: fieldDecoration(
+                              label: AppStrings.listDetails.priceLabel,
+                              icon: Icons.attach_money,
+                            ),
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            textDirection: ui.TextDirection.ltr,
+                            textAlign: TextAlign.center,
+                            textInputAction: TextInputAction.done,
+                            onSubmitted: (_) => _handleSave(),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r'[\d.,]')),
+                              LengthLimitingTextInputFormatter(10),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ).animate().fadeIn(duration: 300.ms, delay: 120.ms).slideX(begin: 0.05, end: 0, delay: 120.ms),
 
-                // 🔘 כפתורי פעולה
-                Row(
-                  children: [
-                    // ביטול
-                    Expanded(
-                      child: Semantics(
-                        label: AppStrings.common.cancel,
-                        button: true,
-                        child: StickyButton(
+                  const Gap(kSpacingMedium),
+
+                  // 🔘 כפתורי פעולה
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Semantics(
                           label: AppStrings.common.cancel,
-                          icon: Icons.close,
-                          // ✅ Theme-aware button color
-                          color: cs.surfaceContainerHighest,
-                          // ✅ Let StickyButton auto-calculate textColor based on brightness
-                          // ✅ Use _handleCancel for exit confirmation
-                          onPressed: _handleCancel,
+                          button: true,
+                          child: StickyButton(
+                            label: AppStrings.common.cancel,
+                            icon: Icons.close,
+                            color: cs.surfaceContainerHighest,
+                            onPressed: _handleCancel,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: kSpacingSmall),
-                    // שמור
-                    Expanded(
-                      child: Semantics(
-                        label: AppStrings.common.save,
-                        button: true,
-                        child: StickyButton(
-                          label: _isSaving
-                              ? AppStrings.common.loading
-                              : AppStrings.common.save,
-                          icon: _isSaving ? Icons.hourglass_empty : Icons.check,
-                          // ✅ Use theme brand colors instead of hardcoded
-                          color: brand?.success ?? const Color(0xFF388E3C),
-                          // ✅ Let StickyButton auto-calculate textColor based on brightness
-                          // ✅ Disable button while saving
-                          onPressed: _isSaving ? null : _handleSave,
+                      const Gap(kSpacingSmall),
+                      Expanded(
+                        child: Semantics(
+                          label: AppStrings.common.save,
+                          button: true,
+                          child: StickyButton(
+                            label: _isSaving
+                                ? AppStrings.common.loading
+                                : AppStrings.common.save,
+                            icon: _isSaving ? Icons.hourglass_empty : Icons.check,
+                            color: brand?.success ?? const Color(0xFF388E3C),
+                            onPressed: _isSaving ? null : _handleSave,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ).animate().fadeIn(duration: 300.ms, delay: 160.ms).slideX(begin: 0.05, end: 0, delay: 160.ms),
 
-                // ✅ Keyboard padding - prevents fields from hiding behind keyboard
-                SizedBox(height: MediaQuery.of(context).viewInsets.bottom > 0 ? kSpacingMedium : 0),
-              ],
+                  // ✅ Keyboard padding
+                  SizedBox(
+                    height: MediaQuery.of(context).viewInsets.bottom > 0
+                        ? kSpacingMedium
+                        : 0,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -443,17 +549,12 @@ Future<void> showAddEditProductDialog(
   required void Function(UnifiedListItem item) onSave,
   List<String> categories = const [],
 }) {
-  // ✅ Theme-aware barrier color
   final barrierColor = Theme.of(context).colorScheme.scrim.withValues(alpha: 0.5);
 
   return showGeneralDialog(
     context: context,
-    // ✅ Disabled barrier dismiss to prevent accidental data loss
-    // Exit confirmation is handled inside the dialog
-    barrierDismissible: false,
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
     barrierColor: barrierColor,
-    transitionDuration: const Duration(milliseconds: 200),
     pageBuilder: (context, animation, secondaryAnimation) {
       return ScaleTransition(
         scale: CurvedAnimation(

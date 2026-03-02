@@ -38,9 +38,11 @@
 // 2. UserContext changes → _onUserChanged() → _loadReceipts()
 // 3. CRUD operations → Repository → Update local state → notifyListeners()
 //
-// Version: 3.0 (+ retry() + clearAll() + error handling משופר)
-// Last Updated: 07/10/2025
+// Version: 3.2 (isLoading bug fix + kDebugMode + retention policy: 1 year)
+// Last Updated: 18/02/2026
 //
+
+import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import '../models/receipt.dart';
@@ -52,6 +54,9 @@ class ReceiptProvider with ChangeNotifier {
   UserContext? _userContext;
   bool _listening = false;
   bool _hasInitialized = false; // מניעת אתחול כפול
+
+  /// מדיניות שמירה: קבלות ישנות מ-365 ימים נמחקות בטעינה
+  static const _retentionDays = 365;
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -73,127 +78,94 @@ class ReceiptProvider with ChangeNotifier {
   /// מעדכן את ה-UserContext ומאזין לשינויים
   /// נקרא אוטומטית מ-ProxyProvider
   void updateUserContext(UserContext newContext) {
-    debugPrint('🔄 ReceiptProvider.updateUserContext');
-    
+    if (kDebugMode) debugPrint('🔄 ReceiptProvider.updateUserContext');
+
     // מניעת update כפול של אותו context
     if (_userContext == newContext) {
-      debugPrint('   ⏭️ אותו UserContext, מדלג');
+      if (kDebugMode) debugPrint('   ⏭️ אותו UserContext, מדלג');
       return;
     }
-    
+
     if (_listening && _userContext != null) {
       _userContext!.removeListener(_onUserChanged);
       _listening = false;
-      debugPrint('   ✅ Listener הוסר מ-UserContext הקודם');
     }
     _userContext = newContext;
     _userContext!.addListener(_onUserChanged);
     _listening = true;
-    
+
     // אתחול רק בפעם הראשונה
     if (!_hasInitialized) {
-      debugPrint('   ✅ Listener הוסף, מתחיל initialization');
       _hasInitialized = true;
       _initialize();
-    } else {
-      debugPrint('   ⏭️ כבר אותחל, מדלג');
     }
   }
 
   void _onUserChanged() {
-    debugPrint('👤 ReceiptProvider._onUserChanged: משתמש השתנה');
+    if (kDebugMode) debugPrint('👤 ReceiptProvider._onUserChanged');
     _loadReceipts();
   }
 
   void _initialize() {
-    debugPrint('🔧 ReceiptProvider._initialize');
-    
     if (_userContext?.isLoggedIn == true) {
-      debugPrint('   ✅ משתמש מחובר, טוען קבלות');
       _loadReceipts();
     } else {
-      debugPrint('   ⚠️ משתמש לא מחובר, מנקה רשימה');
       _receipts = [];
       notifyListeners();
-      debugPrint('   🔔 ReceiptProvider: notifyListeners() (user not logged in)');
     }
   }
 
   Future<void> _loadReceipts() async {
-    debugPrint('📥 ReceiptProvider._loadReceipts: מתחיל טעינה');
-    
     final householdId = _userContext?.user?.householdId;
     if (_userContext?.isLoggedIn != true || householdId == null) {
-      debugPrint('   ⚠️ אין household_id, מנקה רשימה');
       _receipts = [];
       notifyListeners();
-      debugPrint('   🔔 ReceiptProvider: notifyListeners() (no household_id)');
       return;
     }
 
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
-    debugPrint('   🔔 ReceiptProvider: notifyListeners() (isLoading=true)');
 
     try {
       final allReceipts = await _repository.fetchReceipts(householdId);
-      debugPrint('✅ ReceiptProvider._loadReceipts: נטענו ${allReceipts.length} קבלות');
-      
-      // ⚡ Batch Processing לביצועים טובים יותר
-      if (allReceipts.length > 50) {
-        debugPrint('🔄 Using batch processing for ${allReceipts.length} receipts');
-        _receipts = await _processBatchedReceipts(allReceipts);
+
+      // 🗓️ מדיניות שמירה: מחיקת קבלות ישנות מעל שנה
+      final cutoff = DateTime.now().subtract(const Duration(days: _retentionDays));
+      final old = allReceipts.where((r) => r.date.isBefore(cutoff)).toList();
+
+      if (old.isNotEmpty) {
+        _receipts = allReceipts.where((r) => !r.date.isBefore(cutoff)).toList();
+        if (kDebugMode) debugPrint('🗑️ ReceiptProvider: מוחק ${old.length} קבלות ישנות (מעל שנה)');
+        // מחיקה מ-Firebase ברקע — לא חוסם את ה-UI
+        for (final r in old) {
+          unawaited(
+            _repository.deleteReceipt(id: r.id, householdId: householdId).catchError((e) {
+              if (kDebugMode) debugPrint('⚠️ ReceiptProvider: שגיאה במחיקת קבלה ישנה ${r.id}: $e');
+            }),
+          );
+        }
       } else {
         _receipts = allReceipts;
       }
-      
+
+      if (kDebugMode) debugPrint('📥 ReceiptProvider: ${_receipts.length} קבלות (${old.length} ישנות נמחקו)');
+
     } catch (e, st) {
       _errorMessage = "שגיאה בטעינת קבלות: $e";
-      debugPrint('❌ ReceiptProvider._loadReceipts: שגיאה - $e');
-      debugPrintStack(label: 'ReceiptProvider._loadReceipts', stackTrace: st);
+      _isLoading = false;
+      if (kDebugMode) {
+        debugPrint('❌ ReceiptProvider._loadReceipts: שגיאה - $e');
+        debugPrintStack(label: 'ReceiptProvider._loadReceipts', stackTrace: st);
+      }
       notifyListeners();
-      debugPrint('   🔔 ReceiptProvider: notifyListeners() (error in _loadReceipts)');
       return;
     }
 
     _isLoading = false;
     notifyListeners();
-    debugPrint('   🔔 ReceiptProvider: notifyListeners() (isLoading=false, receipts=${_receipts.length})');
   }
   
-  /// עיבוד קבלות ב-batches למניעת חסימת ה-UI
-  /// 
-  /// עובד על 25 קבלות בכל פעם עם delay קטן ביניהן
-  Future<List<Receipt>> _processBatchedReceipts(List<Receipt> receipts) async {
-    const batchSize = 25;
-    final processedReceipts = <Receipt>[];
-    
-    for (int i = 0; i < receipts.length; i += batchSize) {
-      final endIndex = (i + batchSize < receipts.length) 
-          ? i + batchSize 
-          : receipts.length;
-      final batch = receipts.sublist(i, endIndex);
-      
-      debugPrint('   📦 Processing batch ${i ~/ batchSize + 1} (${batch.length} receipts)');
-      
-      // עיבוד ה-batch
-      processedReceipts.addAll(batch);
-      
-      // עדכון UI אינטרמדיום (רק אם יש עוד batches)
-      if (endIndex < receipts.length) {
-        _receipts = List.unmodifiable(processedReceipts);
-        notifyListeners(); // עדכון ביניים של ה-UI
-        
-        // נותן ל-UI לנשום בין ה-batches
-        await Future.delayed(Duration(milliseconds: 10));
-      }
-    }
-    
-    debugPrint('   ✅ Batch processing completed: ${processedReceipts.length} receipts');
-    return processedReceipts;
-  }
-
   /// טוען את כל הקבלות מחדש מה-Repository
   /// 
   /// Example:
@@ -201,7 +173,7 @@ class ReceiptProvider with ChangeNotifier {
   /// await receiptProvider.loadReceipts();
   /// ```
   Future<void> loadReceipts() {
-    debugPrint('🔄 ReceiptProvider.loadReceipts: רענון ידני');
+    if (kDebugMode) debugPrint('🔄 ReceiptProvider.loadReceipts: רענון ידני');
     return _loadReceipts();
   }
 
@@ -218,7 +190,7 @@ class ReceiptProvider with ChangeNotifier {
   /// }
   /// ```
   Future<void> retry() async {
-    debugPrint('🔄 ReceiptProvider.retry: ניסיון נוסף אחרי שגיאה');
+    if (kDebugMode) debugPrint('🔄 ReceiptProvider.retry');
     _errorMessage = null;
     await _loadReceipts();
   }
@@ -231,12 +203,11 @@ class ReceiptProvider with ChangeNotifier {
   /// receiptProvider.clearAll();
   /// ```
   void clearAll() {
-    debugPrint('🧹 ReceiptProvider.clearAll');
+    if (kDebugMode) debugPrint('🧹 ReceiptProvider.clearAll');
     _receipts = [];
     _errorMessage = null;
     _isLoading = false;
     notifyListeners();
-    debugPrint('   🔔 ReceiptProvider: notifyListeners() (cleared all)');
   }
 
   /// בודק אם קבלה עם אותו קישור כבר קיימת
@@ -251,35 +222,19 @@ class ReceiptProvider with ChangeNotifier {
   /// }
   /// ```
   Future<bool> checkDuplicateByUrl(String originalUrl) async {
-    debugPrint('🔍 ReceiptProvider.checkDuplicateByUrl: $originalUrl');
-    
     final householdId = _userContext?.user?.householdId;
-    if (householdId == null) {
-      debugPrint('⚠️ householdId לא נמצא, מחזיר false');
-      return false;
-    }
+    if (householdId == null) return false;
 
     try {
       // בדיקה local קודם (מהיר)
       final localMatch = _receipts.any((r) => r.originalUrl == originalUrl);
-      if (localMatch) {
-        debugPrint('✅ נמצאה התאמה local');
-        return true;
-      }
+      if (localMatch) return true;
 
       // אם לא נמצא local - בודק ב-Repository (לבטח)
       final allReceipts = await _repository.fetchReceipts(householdId);
-      final remoteMatch = allReceipts.any((r) => r.originalUrl == originalUrl);
-      
-      if (remoteMatch) {
-        debugPrint('✅ נמצאה התאמה remote');
-      } else {
-        debugPrint('❌ לא נמצאה כפילות');
-      }
-      
-      return remoteMatch;
+      return allReceipts.any((r) => r.originalUrl == originalUrl);
     } catch (e) {
-      debugPrint('❌ ReceiptProvider.checkDuplicateByUrl: שגיאה - $e');
+      if (kDebugMode) debugPrint('❌ ReceiptProvider.checkDuplicateByUrl: $e');
       return false; // במקרה של שגיאה - ממשיכים
     }
   }
@@ -303,19 +258,14 @@ class ReceiptProvider with ChangeNotifier {
     String? originalUrl,
     String? fileUrl,
   }) async {
-    debugPrint('➕ ReceiptProvider.createReceipt');
-    debugPrint('   חנות: $storeName, תאריך: $date, פריטים: ${items.length}');
-    
     final householdId = _userContext?.user?.householdId;
     if (householdId == null) {
-      debugPrint('❌ householdId לא נמצא');
       throw Exception("❌ householdId לא נמצא");
     }
 
     try {
       final totalAmount = items.fold(0.0, (sum, it) => sum + it.totalPrice);
-      debugPrint('   💰 סכום כולל: ₪${totalAmount.toStringAsFixed(2)}');
-      
+
       final newReceipt = Receipt.newReceipt(
         storeName: storeName,
         date: date,
@@ -327,19 +277,17 @@ class ReceiptProvider with ChangeNotifier {
       );
 
       final saved = await _repository.saveReceipt(receipt: newReceipt, householdId: householdId);
-      debugPrint('✅ קבלה נשמרה ב-Repository: ${saved.id}');
-      
+      if (kDebugMode) debugPrint('✅ ReceiptProvider.createReceipt: ${saved.id}');
+
       // אופטימיזציה: הוספה local במקום ריענון מלא
       _receipts.add(saved);
       notifyListeners();
-      debugPrint('   🔔 ReceiptProvider: notifyListeners() (receipt created: ${saved.id})');
-      
+
       return saved;
     } catch (e) {
-      debugPrint('❌ ReceiptProvider.createReceipt: שגיאה - $e');
+      if (kDebugMode) debugPrint('❌ ReceiptProvider.createReceipt: $e');
       _errorMessage = 'שגיאה ביצירת קבלה';
       notifyListeners();
-      debugPrint('   🔔 ReceiptProvider: notifyListeners() (error)');
       rethrow;
     }
   }
@@ -352,34 +300,24 @@ class ReceiptProvider with ChangeNotifier {
   /// await receiptProvider.updateReceipt(updatedReceipt);
   /// ```
   Future<void> updateReceipt(Receipt receipt) async {
-    debugPrint('✏️ ReceiptProvider.updateReceipt: ${receipt.id}');
-    debugPrint('   חנות: ${receipt.storeName}, פריטים: ${receipt.items.length}');
-    
     final householdId = _userContext?.user?.householdId;
-    if (householdId == null) {
-      debugPrint('⚠️ householdId לא נמצא, מדלג');
-      return;
-    }
+    if (householdId == null) return;
 
     try {
       final updated = await _repository.saveReceipt(receipt: receipt, householdId: householdId);
-      debugPrint('✅ קבלה עודכנה ב-Repository');
-      
+
       // אופטימיזציה: עדכון local במקום ריענון מלא
       final index = _receipts.indexWhere((r) => r.id == updated.id);
       if (index != -1) {
         _receipts[index] = updated;
         notifyListeners();
-        debugPrint('   🔔 ReceiptProvider: notifyListeners() (receipt updated: ${updated.id})');
       } else {
-        debugPrint('⚠️ קבלה לא נמצאה ברשימה, מבצע ריענון מלא');
         await _loadReceipts();
       }
     } catch (e) {
-      debugPrint('❌ ReceiptProvider.updateReceipt: שגיאה - $e');
+      if (kDebugMode) debugPrint('❌ ReceiptProvider.updateReceipt: $e');
       _errorMessage = 'שגיאה בעדכון קבלה';
       notifyListeners();
-      debugPrint('   🔔 ReceiptProvider: notifyListeners() (error)');
       rethrow;
     }
   }
@@ -391,40 +329,28 @@ class ReceiptProvider with ChangeNotifier {
   /// await receiptProvider.deleteReceipt(receipt.id);
   /// ```
   Future<void> deleteReceipt(String receiptId) async {
-    debugPrint('🗑️ ReceiptProvider.deleteReceipt: $receiptId');
-    
     final householdId = _userContext?.user?.householdId;
-    if (householdId == null) {
-      debugPrint('⚠️ householdId לא נמצא, מדלג');
-      return;
-    }
+    if (householdId == null) return;
 
     try {
       await _repository.deleteReceipt(id: receiptId, householdId: householdId);
-      debugPrint('✅ קבלה נמחקה מ-Repository');
-      
+
       // אופטימיזציה: מחיקה local במקום ריענון מלא
       _receipts.removeWhere((r) => r.id == receiptId);
       notifyListeners();
-      debugPrint('   🔔 ReceiptProvider: notifyListeners() (receipt deleted: $receiptId)');
     } catch (e) {
-      debugPrint('❌ ReceiptProvider.deleteReceipt: שגיאה - $e');
+      if (kDebugMode) debugPrint('❌ ReceiptProvider.deleteReceipt: $e');
       _errorMessage = 'שגיאה במחיקת קבלה';
       notifyListeners();
-      debugPrint('   🔔 ReceiptProvider: notifyListeners() (error)');
       rethrow;
     }
   }
 
   @override
   void dispose() {
-    debugPrint('🧹 ReceiptProvider.dispose');
-    
     if (_listening && _userContext != null) {
       _userContext!.removeListener(_onUserChanged);
-      debugPrint('   ✅ Listener הוסר');
     }
-    
     super.dispose();
   }
 }

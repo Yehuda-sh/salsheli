@@ -2,11 +2,17 @@
 //
 // צבעי סטטוס סמנטיים - עטיפה ל-Theme (AppBrand + ColorScheme).
 // מספק API אחיד לצבעי success/error/warning/pending/info.
+// ✨ v4.0: מיפוי רטט סנסורי (Sensory Haptic Mapping), API אחיד ל-Status Containers,
+//          תאימות מלאה ל-Material 3 ו-AppBrand
 //
+// Version: 4.0 (22/02/2026)
 // 🔗 Related: app_theme.dart (AppBrand), ColorScheme
+
+import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../theme/app_theme.dart';
 
@@ -31,6 +37,9 @@ enum StatusType {
   warning,
   pending,
   info;
+
+  /// האם הסטטוס קריטי (דורש תשומת לב מיידית)
+  bool get isCritical => this == error || this == warning;
 
   /// המרה מ-String ל-StatusType (עם fallback)
   ///
@@ -78,19 +87,19 @@ class StatusColors {
   // צבעי Fallback (צבעי מותג - כשאין AppBrand זמין)
   // ========================================
 
-  /// ירוק מותג - Fallback ל-success (מתואם ל-app_theme.dart)
-  static const _successFallback = Color(0xFF388E3C); // Green 700
+  /// ירוק מותג - Fallback ל-success (desaturated 10% למראה יוקרתי)
+  static const _successFallback = Color(0xFF4A9050); // Green 700 desaturated
 
-  /// כתום מותג - Fallback ל-warning (מתואם ל-app_theme.dart)
-  static const _warningFallback = Color(0xFFF57C00); // Orange 700
+  /// כתום מותג - Fallback ל-warning (desaturated 10% למראה יוקרתי)
+  static const _warningFallback = Color(0xFFE8892A); // Orange 700 desaturated
 
-  /// Container fallbacks (גרסאות בהירות יותר)
-  static const _successContainerFallback = Color(0xFFC8E6C9); // Green 100
-  static const _warningContainerFallback = Color(0xFFFFE0B2); // Orange 100
+  /// Container fallbacks (גרסאות בהירות יותר, desaturated)
+  static const _successContainerFallback = Color(0xFFD0E8D2); // Green 100 desaturated
+  static const _warningContainerFallback = Color(0xFFFFE4BF); // Orange 100 desaturated
 
-  /// OnContainer fallbacks (גרסאות כהות לטקסט)
-  static const _onSuccessContainerFallback = Color(0xFF1B5E20); // Green 900
-  static const _onWarningContainerFallback = Color(0xFFE65100); // Orange 900
+  /// OnContainer fallbacks (גרסאות כהות לטקסט, desaturated)
+  static const _onSuccessContainerFallback = Color(0xFF2B6530); // Green 900 desaturated
+  static const _onWarningContainerFallback = Color(0xFFD4601A); // Orange 900 desaturated
 
   // ========================================
   // 🆕 Type-Safe API (מומלץ לשימוש!)
@@ -167,22 +176,85 @@ class StatusColors {
   }
 
   // ========================================
+  // 🆕 Icon API (v4.0)
+  // ========================================
+
+  /// מחזיר אייקון ברירת מחדל לסטטוס
+  ///
+  /// ```dart
+  /// Icon(StatusColors.getIcon(StatusType.success))
+  /// ```
+  static IconData getIcon(StatusType type) {
+    switch (type) {
+      case StatusType.success:
+        return Icons.check_circle;
+      case StatusType.error:
+        return Icons.error;
+      case StatusType.warning:
+        return Icons.warning_amber_rounded;
+      case StatusType.pending:
+        return Icons.schedule;
+      case StatusType.info:
+        return Icons.info_outline;
+    }
+  }
+
+  // ========================================
+  // 🆕 Sensory Haptic Mapping (v4.0)
+  // ========================================
+
+  /// מפעיל רטט סנסורי המותאם לסוג הסטטוס
+  ///
+  /// - **success**: lightImpact — רטט עדין של אישור
+  /// - **error**: heavyImpact כפול — רטט "שגיאה" מורגש
+  /// - **warning**: mediumImpact — רטט ביניים לתשומת לב
+  /// - **info/pending**: selectionClick — קליק עדין
+  ///
+  /// ```dart
+  /// StatusColors.triggerHaptic(StatusType.error);
+  /// ```
+  static void triggerHaptic(StatusType type) {
+    switch (type) {
+      case StatusType.success:
+        unawaited(HapticFeedback.lightImpact());
+      case StatusType.error:
+        unawaited(HapticFeedback.heavyImpact());
+        Future.delayed(
+          const Duration(milliseconds: 100),
+          () => unawaited(HapticFeedback.heavyImpact()),
+        );
+      case StatusType.warning:
+        unawaited(HapticFeedback.mediumImpact());
+      case StatusType.info:
+      case StatusType.pending:
+        unawaited(HapticFeedback.selectionClick());
+    }
+  }
+
+  // ========================================
   // Legacy String API (לתאימות אחורה)
   // ========================================
 
-  /// @deprecated השתמש ב-getColor(StatusType, context) במקום
+  /// מחזיר את צבע הסטטוס המתאים לפי Theme (Legacy — מקבל String).
   ///
-  /// מחזיר את צבע הסטטוס המתאים לפי Theme
+  /// **העדפה:** השתמש ב-[getColor] עם [StatusType] במקום.
+  @Deprecated('Use getColor(StatusType, context) instead — type-safe and faster')
   static Color getStatusColor(String status, BuildContext context) {
     return getColor(StatusType.fromString(status), context);
   }
 
-  /// @deprecated השתמש ב-getContainer(StatusType, context) במקום
+  /// מחזיר צבע container (Legacy — מקבל String).
+  ///
+  /// **העדפה:** השתמש ב-[getContainer] עם [StatusType] במקום.
+  @Deprecated('Use getContainer(StatusType, context) instead — type-safe and faster')
   static Color getStatusContainer(String status, BuildContext context) {
     return getContainer(StatusType.fromString(status), context);
   }
 
-  /// @deprecated השתמש ב-getOnContainer(StatusType, context) במקום
+  /// מחזיר צבע טקסט על container (Legacy — מקבל String).
+  ///
+  /// **העדפה:** השתמש ב-[getOnContainer] עם [StatusType] במקום.
+  @Deprecated('Use getOnContainer(StatusType, context) instead — type-safe and faster')
   static Color getOnStatusContainer(String status, BuildContext context) {
     return getOnContainer(StatusType.fromString(status), context);
   }
@@ -201,33 +273,33 @@ class StatusColors {
   /// ירוק הצלחה (fallback)
   static const Color success = _successFallback;
 
-  /// אדום שגיאה (fallback - Material error)
-  static const Color error = Color(0xFFD32F2F); // Red 700
+  /// אדום שגיאה (fallback - desaturated 10%)
+  static const Color error = Color(0xFFCC4444); // Red 700 desaturated
 
   /// כתום אזהרה (fallback)
   static const Color warning = _warningFallback;
 
   /// אפור ממתין (fallback - outline equivalent)
-  static const Color pending = Color(0xFF757575); // Grey 600
+  static const Color pending = Color(0xFF7A7A7A); // Grey 600 desaturated
 
-  /// כחול מידע (fallback - secondary equivalent)
-  static const Color info = Color(0xFF1976D2); // Blue 700
+  /// כחול מידע (fallback - desaturated 10%)
+  static const Color info = Color(0xFF3580C8); // Blue 700 desaturated
 
-  // Container variants (רקעים בהירים)
+  // Container variants (רקעים בהירים, desaturated)
 
   /// רקע הצלחה (fallback)
   static const Color successContainer = _successContainerFallback;
 
-  /// רקע שגיאה (fallback)
-  static const Color errorContainer = Color(0xFFFFCDD2); // Red 100
+  /// רקע שגיאה (fallback - desaturated)
+  static const Color errorContainer = Color(0xFFFFD4D4); // Red 100 desaturated
 
   /// רקע אזהרה (fallback)
   static const Color warningContainer = _warningContainerFallback;
 
   /// רקע ממתין (fallback)
-  static const Color pendingContainer = Color(0xFFEEEEEE); // Grey 200
+  static const Color pendingContainer = Color(0xFFF0F0F0); // Grey 200 desaturated
 
-  /// רקע מידע (fallback)
-  static const Color infoContainer = Color(0xFFBBDEFB); // Blue 100
+  /// רקע מידע (fallback - desaturated)
+  static const Color infoContainer = Color(0xFFC5E0F8); // Blue 100 desaturated
 
 }

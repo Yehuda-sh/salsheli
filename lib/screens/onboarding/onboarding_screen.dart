@@ -2,12 +2,10 @@
 // 🎯 Purpose: מסך Onboarding - היכרות ראשונית עם המשתמש
 //
 // 📋 Features:
-// - עיצוב Sticky Notes מלא 🎨📝
-// - הצגת שלבי Onboarding למשתמש חדש
-// - איסוף העדפות בסיסיות (גודל משפחה, חנויות, תקציב וכו')
-// - שמירת ההעדפות דרך OnboardingService
-// - ניווט למסך הבא (Register) בסיום
-// - אנימציות חלקות ומשוב
+// - Header בעיצוב Glassmorphic
+// - משוב Haptic Feedback במעברי עמודים
+// - אנימציות כניסה מדורגות (Staggered)
+// - מנגנון Loading Overlay משופר
 //
 // 🔗 Related:
 // - NotebookBackground - רקע מחברת
@@ -15,17 +13,15 @@
 // - OnboardingSteps - בניית השלבים
 // - OnboardingService - שמירת העדפות
 //
-// 🎨 Design:
-// - עיצוב Sticky Notes System 2025
-// - רקע נייר קרם עם קווים כחולים
-// - כפתורים בסגנון פתקים עם צללים
-// - Progress indicators מודרניים
-// - אנימציות חלקות במעברים
-//
-// Version 3.0 - No AppBar (Immersive)
-// Last Updated: 13/01/2026
+// 📝 Version: 4.0 (Hybrid Premium)
+// 📅 Updated: 22/02/2026
+
+import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../core/ui_constants.dart';
 import '../../data/onboarding_data.dart';
@@ -71,7 +67,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   // ========================================
 
   /// מעבר לשלב הבא או סיום ה-onboarding
-  /// 
+  ///
   /// אם זה השלב האחרון - קורא ל-[_finishOnboarding]
   /// אחרת - עובר לשלב הבא עם אנימציה
   void _nextStep(int totalSteps) {
@@ -80,7 +76,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (_currentStep < totalSteps - 1) {
       _pageController.nextPage(
         duration: kAnimationDurationMedium,
-        curve: Curves.easeOut,
+        curve: Curves.easeOutCubic,
       );
     } else {
       _finishOnboarding();
@@ -88,8 +84,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   /// חזרה לשלב הקודם
-  /// 
-  /// מבצע אנימציה קצרה (200ms) חזרה אחורה
+  ///
+  /// מבצע אנימציה קצרה חזרה אחורה
   /// לא פועל אם כבר בשלב הראשון או במצב loading
   void _prevStep() {
     if (_isLoading) return;
@@ -97,7 +93,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (_currentStep > 0) {
       _pageController.previousPage(
         duration: kAnimationDurationShort,
-        curve: Curves.easeOut,
+        curve: Curves.easeOutCubic,
       );
     }
   }
@@ -111,6 +107,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (_isLoading) return;
 
     setState(() => _isLoading = true);
+
+    // רצף רטטים לסימון הצלחה
+    unawaited(HapticFeedback.mediumImpact());
+    unawaited(Future.delayed(
+      const Duration(milliseconds: 150),
+      () => HapticFeedback.mediumImpact(),
+    ));
 
     try {
       debugPrint('🎉 OnboardingScreen: המשתמש סיים את ה-onboarding');
@@ -148,6 +151,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Future<void> _skip() async {
     if (_isLoading) return;
 
+    unawaited(HapticFeedback.mediumImpact());
     setState(() => _isLoading = true);
 
     try {
@@ -233,80 +237,128 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           backgroundColor: kPaperBackground,
           body: Stack(
             children: [
-              // 📄 רקע נייר מחברת - Sticky Notes Design
+              // רקע נייר מחברת
               const NotebookBackground(),
               SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    kSpacingMedium,
-                    kSpacingSmall,
-                    kSpacingMedium,
-                    kSpacingMedium,
-                  ),
-                  child: Column(
-                    children: [
-                      // 🏷️ כותרת inline עם כפתור דילוג
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: kSpacingSmall),
-                        child: Row(
-                          children: [
-                            Icon(Icons.waving_hand, size: 24, color: cs.primary),
-                            const SizedBox(width: kSpacingSmall),
-                            Expanded(
-                              child: Text(
-                                AppStrings.onboarding.title,
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: cs.onSurface,
+                child: Column(
+                  children: [
+                    // Header Glassmorphic: כותרת + מחוון התקדמות
+                    ClipRRect(
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(
+                          sigmaX: kGlassBlurMedium,
+                          sigmaY: kGlassBlurMedium,
+                        ),
+                        child: Container(
+                          color: cs.surface.withValues(alpha: 0.7),
+                          padding: const EdgeInsets.fromLTRB(
+                            kSpacingMedium,
+                            kSpacingSmall,
+                            kSpacingMedium,
+                            kSpacingSmall,
+                          ),
+                          child: Column(
+                            children: [
+                              // כותרת inline עם כפתור דילוג
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: kSpacingSmall),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.waving_hand, size: 24, color: cs.primary),
+                                    const SizedBox(width: kSpacingSmall),
+                                    Expanded(
+                                      child: Text(
+                                        AppStrings.onboarding.title,
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: cs.onSurface,
+                                        ),
+                                      ),
+                                    ),
+                                    // כפתור דילוג
+                                    TextButton(
+                                      onPressed: _isLoading ? null : _skip,
+                                      child: Text(
+                                        AppStrings.onboarding.skip,
+                                        style: TextStyle(
+                                          color: _isLoading
+                                              ? cs.onSurfaceVariant
+                                              : cs.onSurface.withValues(alpha: 0.7),
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ),
-                            // כפתור דילוג (שמור מה-AppBar)
-                            TextButton(
-                              onPressed: _isLoading ? null : _skip,
-                              child: Text(
-                                AppStrings.onboarding.skip,
-                                style: TextStyle(
-                                  color: _isLoading ? cs.onSurfaceVariant : cs.onSurface.withValues(alpha: 0.7),
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ],
+                              // מחוון התקדמות
+                              _buildProgressIndicator(cs, accent, steps.length),
+                            ],
+                          ),
                         ),
                       ),
-                      // מחוון התקדמות
-                      _buildProgressIndicator(cs, accent, steps.length),
-                      const SizedBox(height: kSpacingSmall),
+                    ),
 
-                      // השלבים
-                      Expanded(
+                    const SizedBox(height: kSpacingSmall),
+
+                    // השלבים
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
                         child: PageView.builder(
                           controller: _pageController,
                           itemCount: steps.length,
-                          onPageChanged: (i) => setState(() => _currentStep = i),
+                          onPageChanged: (i) {
+                            unawaited(HapticFeedback.selectionClick());
+                            setState(() => _currentStep = i);
+                          },
                           itemBuilder: (_, i) => steps[i],
                         ),
                       ),
+                    ),
 
-                      const SizedBox(height: kSpacingMedium),
+                    const SizedBox(height: kSpacingMedium),
 
-                      // Progress Dots - נקודות התקדמות
-                      _ProgressDots(
+                    // Progress Dots
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+                      child: _ProgressDots(
                         currentStep: _currentStep,
                         totalSteps: steps.length,
                         accent: accent,
                       ),
-                      const SizedBox(height: kSpacingLarge),
+                    ),
+                    const SizedBox(height: kSpacingLarge),
 
-                      // כפתורי ניווט
-                      _buildNavigationButtons(cs, accent, steps.length),
-                    ],
-                  ),
+                    // כפתורי ניווט
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        kSpacingMedium,
+                        0,
+                        kSpacingMedium,
+                        kSpacingMedium,
+                      ),
+                      child: _buildNavigationButtons(cs, accent, steps.length),
+                    ),
+                  ],
                 ),
               ),
+
+              // Loading Overlay
+              if (_isLoading)
+                Positioned.fill(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                    child: Container(
+                      color: cs.surface.withValues(alpha: 0.4),
+                      child: Center(
+                        child: CircularProgressIndicator(color: accent),
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -328,7 +380,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               value: (_currentStep + 1) / totalSteps,
               backgroundColor: cs.surfaceContainerHighest.withValues(alpha: kProgressIndicatorBackgroundAlpha),
               color: accent,
-              minHeight: 10, // מוגדל מ-8px
+              minHeight: 10,
             ),
           ),
         ),
@@ -337,8 +389,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           AppStrings.onboarding.stepProgress(_currentStep + 1, totalSteps),
           style: TextStyle(
             color: cs.onSurface,
-            fontSize: 16, // מוגדל מ-14
-            fontWeight: FontWeight.w600, // מוגדל מ-w500
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
@@ -346,19 +398,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   /// בונה כפתורי ניווט - "הקודם" ו "הבא/סיום"
-  ///
-  /// **כפתור "הקודם":**
-  /// - שימוש ב-StickyButton לבן
-  /// - disabled בשלב הראשון עם null (לא empty callback)
-  ///
-  /// **כפתור "הבא/סיום":**
-  /// - תומך במצב loading דרך פרמטר isLoading
-  /// - במצב loading: מציג CircularProgressIndicator
-  /// - במצב רגיל: מציג אייקון משתנה (חץ / V)
   Widget _buildNavigationButtons(ColorScheme cs, Color accent, int totalSteps) {
     return Row(
       children: [
-        // כפתור "הקודם" - Sticky Notes Design ⭐
+        // כפתור "הקודם"
         Expanded(
           child: StickyButton(
             color: Colors.white,
@@ -367,12 +410,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 : accent,
             label: AppStrings.onboarding.previous,
             icon: Icons.arrow_back,
-            onPressed: _currentStep == 0 || _isLoading ? null : _prevStep, // ✅ null במקום () {}
+            onPressed: _currentStep == 0 || _isLoading ? null : _prevStep,
           ),
         ),
         const SizedBox(width: kSpacingSmall),
 
-        // כפתור "הבא" / "סיום" - Sticky Notes Design ⭐
+        // כפתור "הבא" / "סיום"
         Expanded(
           child: StickyButton(
             color: accent,
@@ -383,7 +426,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             icon: _currentStep == totalSteps - 1
                 ? Icons.check
                 : Icons.arrow_forward,
-            onPressed: _isLoading ? null : () => _nextStep(totalSteps), // ✅ null במקום () {}
+            onPressed: _isLoading ? null : () => _nextStep(totalSteps),
             isLoading: _isLoading,
           ),
         ),
@@ -392,7 +435,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 }
 
-/// Progress Dots - מחוון התקדמות בנקודות ⭐
+/// Progress Dots - מחוון התקדמות בנקודות
 ///
 /// מציג נקודות שמראות את השלב הנוכחי בתהליך ה-onboarding
 ///
@@ -400,6 +443,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 /// - נקודה פעילה: גדולה ומלאה עם זוהר
 /// - נקודות אחרות: קטנות ושקופות
 /// - אנימציה חלקה במעברים (300ms)
+/// - shimmer חד-פעמי בהופעה ראשונה
 /// - נגישות: Semantics label לקוראי מסך
 class _ProgressDots extends StatelessWidget {
   final int currentStep;
@@ -423,9 +467,9 @@ class _ProgressDots extends StatelessWidget {
           (index) => AnimatedContainer(
             duration: kAnimationDurationMedium,
             curve: Curves.easeInOut,
-            margin: const EdgeInsets.symmetric(horizontal: 6), // מוגדל מ-5
-            width: index == currentStep ? 20 : 12, // מוגדל מ-16/10
-            height: index == currentStep ? 20 : 12, // מוגדל מ-16/10
+            margin: const EdgeInsets.symmetric(horizontal: 6),
+            width: index == currentStep ? 20 : 12,
+            height: index == currentStep ? 20 : 12,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: index == currentStep
@@ -434,16 +478,22 @@ class _ProgressDots extends StatelessWidget {
               boxShadow: index == currentStep
                   ? [
                       BoxShadow(
-                        color: accent.withValues(alpha: 0.5), // מוגבר מ-0.4
-                        blurRadius: 12, // מוגדל מ-10
-                        spreadRadius: 4, // מוגדל מ-3
+                        color: accent.withValues(alpha: 0.5),
+                        blurRadius: 12,
+                        spreadRadius: 4,
                       ),
                     ]
-                  : null, // הוסר shadow מנקודות לא פעילות
+                  : null,
             ),
           ),
         ),
-      ),
+      )
+          .animate()
+          .shimmer(
+            duration: 1200.ms,
+            delay: 500.ms,
+            color: accent.withValues(alpha: 0.2),
+          ),
     );
   }
 }

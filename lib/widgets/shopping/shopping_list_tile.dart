@@ -1,20 +1,53 @@
 // 📄 lib/widgets/shopping/shopping_list_tile.dart
+// Version 4.0 - Hybrid Premium | 22/02/2026
 //
-// ווידג'ט להצגת רשימת קניות - שם, פריטים, התקדמות ותאריך.
-// כולל כפתור "התחל קנייה" ותפריט פעולות (עריכה, מחיקה).
+// כרטיס רשימת קניות Premium - פתק ממו יוקרתי עם משוב תחושתי.
 //
-// 🔗 Related: ShoppingList, ShoppingListsScreen, TappableCard
+// Features:
+//   - Paper Gradient: גרדיאנט עדין שיוצר עומק של נייר
+//   - Perforation Line: קו פרפורציה לפני כפתור הפעולה
+//   - Glassmorphic Tags: תגים שקופים למחצה
+//   - Staggered Entrance: אנימציית "נחיתה" מדורגת (flutter_animate)
+//   - Haptic Signature: רטט מובחן לכל סוג אינטראקציה
+//   - Organic Progress: פס התקדמות מעוגל עם שינוי צבע
+//   - RepaintBoundary + Gap: אופטימיזציה וריווח סמנטי
+//
+// 🔗 Related: ShoppingList, ShoppingListTags, PerforationPainter
+
+import 'dart:async' show unawaited;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
-import 'package:memozap/l10n/app_strings.dart';
-import 'package:memozap/widgets/common/tappable_card.dart';
+
 import '../../core/status_colors.dart';
 import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
 import '../../models/shopping_list.dart';
+import '../common/painters/perforation_painter.dart';
+import '../common/tappable_card.dart';
+import 'shopping_list_tags.dart';
 
+/// כרטיס רשימת קניות Premium
+///
+/// מציג שם, פריטים, התקדמות, תגים וכפתור פעולה.
+/// עיצוב פתק ממו יוקרתי עם גרדיאנט, פרפורציה ואנימציות.
+///
+/// Parameters:
+/// - [list]: מודל רשימת הקניות
+/// - [index]: אינדקס ברשימה לאנימציית כניסה מדורגת (ברירת מחדל: 0)
+/// - [animate]: האם להפעיל אנימציית כניסה (ברירת מחדל: true)
+/// - [onTap]: לחיצה על הכרטיס (ניווט לרשימה)
+/// - [onDelete]: מחיקת הרשימה (async)
+/// - [onRestore]: שחזור רשימה שנמחקה (Undo)
+/// - [onStartShopping]: התחלת קנייה
+/// - [onEdit]: עריכת הרשימה
 class ShoppingListTile extends StatelessWidget {
   final ShoppingList list;
+  final int index;
+  final bool animate;
   final VoidCallback? onTap;
   final Future<void> Function()? onDelete;
   final Future<void> Function(ShoppingList list)? onRestore;
@@ -24,6 +57,8 @@ class ShoppingListTile extends StatelessWidget {
   const ShoppingListTile({
     super.key,
     required this.list,
+    this.index = 0,
+    this.animate = true,
     this.onTap,
     this.onDelete,
     this.onRestore,
@@ -31,258 +66,132 @@ class ShoppingListTile extends StatelessWidget {
     this.onEdit,
   });
 
-  /// 🇮🇱 חישוב דחיפות לפי תאריך יעד
-  /// 🇬🇧 Calculate urgency based on target date
-  ///
-  /// לוגיקה:
-  /// - null targetDate: מחזיר null (אין דחיפות)
-  /// - targetDate בעבר: אדום "עבר!"
-  /// - targetDate היום: אדום "היום!"
-  /// - targetDate מחר: כתום "מחר"
-  /// - targetDate 1-7 ימים: כתום "עוד X ימים"
-  /// - targetDate 7+ ימים: ירוק "עוד X ימים"
-  ///
-  /// Returns: Record עם status, text, icon או null
-  ({String status, String text, IconData icon})? _getUrgencyData() {
-    if (list.targetDate == null) return null;
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🔘 Bottom Action Button
+  // ═══════════════════════════════════════════════════════════════════════════
 
-    // נרמול לתאריכים בלבד (ללא שעות) למניעת באגים
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final target = list.targetDate!;
-    final targetDay = DateTime(target.year, target.month, target.day);
-
-    // אם התאריך עבר (לפני היום)
-    if (targetDay.isBefore(today)) {
-      return (status: 'error', text: AppStrings.shopping.urgencyPassed, icon: Icons.warning);
-    }
-
-    final daysLeft = targetDay.difference(today).inDays;
-
-    if (daysLeft == 0) {
-      // היום!
-      return (status: 'error', text: AppStrings.shopping.urgencyToday, icon: Icons.access_time);
-    } else if (daysLeft == 1) {
-      // מחר
-      return (status: 'warning', text: AppStrings.shopping.urgencyTomorrow, icon: Icons.access_time);
-    } else if (daysLeft <= 7) {
-      // בקרוב (2-7 ימים)
-      return (status: 'warning', text: AppStrings.shopping.urgencyDaysLeft(daysLeft), icon: Icons.access_time);
-    } else {
-      // יש זמן (7+ ימים)
-      return (status: 'success', text: AppStrings.shopping.urgencyDaysLeft(daysLeft), icon: Icons.check_circle_outline);
-    }
-  }
-
-  /// 🏷️ ווידג׳ט תג סוג רשימה
-  /// 🇬🇧 List type tag widget
-  ///
-  /// מציג תג עם סוג הרשימה - משתמש ב-getters מהמודל
-  Widget _buildListTypeTag(BuildContext context) {
-    final theme = Theme.of(context);
-    // שימוש ב-getters מהמודל
-    final typeEmoji = list.typeEmoji;
-    final typeColor = list.stickyColor;
-    final typeLabel = list.typeName;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 4),
-      decoration: BoxDecoration(
-        color: typeColor.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-        border: Border.all(
-          color: typeColor.withValues(alpha: 0.6),
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(typeEmoji, style: const TextStyle(fontSize: 14)),
-          const SizedBox(width: 4),
-          Text(
-            typeLabel,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: theme.colorScheme.onSurface,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 🔘 כפתור פעולה בתחתית הכרטיס
-  /// מציג טקסט דינמי לפי סוג הרשימה ומצב האירוע
+  /// כפתור פעולה בתחתית הכרטיס (מתחת לקו הפרפורציה)
   Widget _buildBottomActionButton(BuildContext context, ThemeData theme) {
     final hasItems = list.items.isNotEmpty;
     final (icon, label) = _getActionButtonConfig(hasItems);
     final onPressed = hasItems ? onStartShopping : onTap;
 
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.2))),
-      ),
-      child: Tooltip(
-        message: label, // ✅ Tooltip לנגישות
-        child: Semantics(
-          label: label,
-          button: true,
-          child: SimpleTappableCard(
-            onTap: onPressed,
-            child: Container(
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.vertical(bottom: Radius.circular(kBorderRadius)),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmallPlus),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(icon, color: theme.colorScheme.primary, size: kIconSizeMedium),
-                    const SizedBox(width: kSpacingSmall),
-                    Text(
-                      label,
-                      style: TextStyle(
-                        fontSize: kFontSizeBody,
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.primary,
+    return Column(
+      children: [
+        // ✂️ Perforation line - "קו תלישה"
+        SizedBox(
+          height: 1,
+          width: double.infinity,
+          child: CustomPaint(
+            painter: PerforationPainter(
+              color: theme.colorScheme.outline.withValues(alpha: 0.3),
+            ),
+          ),
+        ),
+        Tooltip(
+          message: label,
+          child: Semantics(
+            label: label,
+            button: true,
+            child: SimpleTappableCard(
+              onTap: onPressed != null
+                  ? () {
+                      // 📳 Haptic: mediumImpact לכפתור CTA
+                      unawaited(HapticFeedback.mediumImpact());
+                      onPressed();
+                    }
+                  : null,
+              haptic: ButtonHaptic.none, // Handled manually above
+              child: Container(
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(kBorderRadius),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: kSpacingMedium,
+                    vertical: kSpacingSmallPlus,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(icon, color: theme.colorScheme.primary, size: kIconSizeMedium),
+                      const Gap(kSpacingSmall),
+                      Text(
+                        label,
+                        style: TextStyle(
+                          fontSize: kFontSizeBody,
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.primary,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 
-  /// 🎯 מחזיר אייקון וטקסט לכפתור הפעולה לפי סוג הרשימה
+  /// מחזיר אייקון וטקסט לכפתור הפעולה לפי סוג הרשימה
   (IconData, String) _getActionButtonConfig(bool hasItems) {
-    // אם אין פריטים - תמיד "הוסף מוצרים"
     if (!hasItems) {
       return (Icons.add_circle_outline, AppStrings.shopping.addProductsToStart);
     }
 
-    // אירוע עם "מי מביא מה"
     if (list.type == ShoppingList.typeEvent &&
         list.eventMode == ShoppingList.eventModeWhoBrings) {
       return (Icons.people, 'מי מביא מה');
     }
 
-    // אירוע אישי (משימות / צ'קליסט)
     if (list.type == ShoppingList.typeEvent &&
         list.eventMode == ShoppingList.eventModeTasks) {
       return (Icons.checklist, 'צ\'קליסט');
     }
 
-    // כל השאר: חנויות + אירוע עם קנייה רגילה
     return (Icons.shopping_cart_checkout, AppStrings.shopping.startShoppingButton);
   }
 
-  /// 🏷️ תג "משותפת"
-  Widget _buildSharedTag(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingTiny),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.secondaryContainer,
-        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.group, size: kIconSizeSmall, color: theme.colorScheme.onSecondaryContainer),
-          const SizedBox(width: kSpacingTiny),
-          Text(
-            AppStrings.shopping.sharedLabel,
-            style: TextStyle(
-              color: theme.colorScheme.onSecondaryContainer,
-              fontSize: kFontSizeTiny,
-            ),
-          ),
-        ],
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 📊 Organic Progress Indicator
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// פס התקדמות אורגני - קצוות מעוגלים, 6px, ירוק ב-100%
+  Widget _buildOrganicProgress(BuildContext context, ThemeData theme) {
+    final progress = list.items.where((item) => item.isChecked).length / list.items.length;
+    final isComplete = progress >= 1.0;
+
+    // ירוק ב-100% (success), אחרת primary
+    final progressColor = isComplete
+        ? StatusColors.getColor(StatusType.success, context)
+        : theme.colorScheme.primary;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(3),
+      child: LinearProgressIndicator(
+        value: progress,
+        minHeight: 6,
+        backgroundColor: theme.colorScheme.surfaceContainerHighest,
+        color: progressColor,
       ),
     );
   }
 
-  /// 🔒 תג "אישית" - מוצג רק לרשימות פרטיות שלא משותפות
-  Widget _buildPrivacyTag(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingTiny),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.tertiaryContainer,
-        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.person, size: kIconSizeSmall, color: theme.colorScheme.onTertiaryContainer),
-          const SizedBox(width: kSpacingTiny),
-          Text(
-            'אישית',
-            style: TextStyle(
-              color: theme.colorScheme.onTertiaryContainer,
-              fontSize: kFontSizeTiny,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🗑️ Delete Confirmation Dialog
+  // ═══════════════════════════════════════════════════════════════════════════
 
-  /// 🇮🇱 ווידג׳ט תג דחיפות
-  /// 🇬🇧 Urgency tag widget
-  ///
-  /// תצוגה:
-  /// - Container עם border + background צבע
-  /// - Icon מהקוד (warning, access_time וכו')
-  /// - טקסט דחיפות ("היום!", "עוד 3 ימים" וכו')
-  /// - Typography: bodySmall, bold, kFontSizeTiny
-  ///
-  /// Returns: Widget או null אם אין targetDate
-  Widget? _buildUrgencyTag(BuildContext context) {
-    final urgencyData = _getUrgencyData();
-    if (urgencyData == null) return null;
-
-    final theme = Theme.of(context);
-    final statusColor = StatusColors.getStatusColor(urgencyData.status, context);
-    final overlayColor = StatusColors.getStatusContainer(urgencyData.status, context);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingTiny),
-      decoration: BoxDecoration(
-        color: overlayColor,
-        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-        border: Border.all(color: statusColor),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(urgencyData.icon, size: kIconSizeSmall, color: statusColor),
-          const SizedBox(width: kSpacingTiny),
-          Text(
-            urgencyData.text,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: statusColor,
-              fontWeight: FontWeight.bold,
-              fontSize: kFontSizeTiny,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 🗑️ הצגת דיאלוג אישור מחיקה
   void _showDeleteConfirmation(BuildContext context) {
+    // 📳 Haptic: heavyImpact למחיקה
+    unawaited(HapticFeedback.heavyImpact());
+
     final messenger = ScaffoldMessenger.of(context);
-    final successColor = StatusColors.getStatusColor('success', context);
-    final errorColor = StatusColors.getStatusColor('error', context);
+    final successColor = StatusColors.getColor(StatusType.success, context);
+    final errorColor = StatusColors.getColor(StatusType.error, context);
 
     showDialog(
       context: context,
@@ -298,7 +207,6 @@ class ShoppingListTile extends StatelessWidget {
             onPressed: () async {
               Navigator.pop(dialogContext);
 
-              // שומרים את הרשימה לפני המחיקה לצורך Undo
               final deletedList = list;
               debugPrint('🗑️ ShoppingListTile: מוחק רשימה "${deletedList.name}" (${deletedList.id})');
 
@@ -329,7 +237,7 @@ class ShoppingListTile extends StatelessWidget {
                 );
               }
             },
-            style: TextButton.styleFrom(foregroundColor: errorColor), // ✅ StatusColors
+            style: TextButton.styleFrom(foregroundColor: errorColor),
             child: Text(AppStrings.shopping.deleteButton),
           ),
         ],
@@ -337,71 +245,95 @@ class ShoppingListTile extends StatelessWidget {
     );
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🏗️ Build
+  // ═══════════════════════════════════════════════════════════════════════════
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final dateFormatted = DateFormat('dd/MM/yyyy – HH:mm').format(list.updatedDate);
     final checkedCount = list.items.where((item) => item.isChecked).length;
     final totalCount = list.items.length;
+    final stickyColor = list.stickyColor;
 
-    return Semantics(
-      label: '${list.name}, ${totalCount} פריטים, ${checkedCount} סומנו',
+    Widget card = Semantics(
+      label: '${list.name}, $totalCount פריטים, $checkedCount סומנו',
       button: true,
       child: Material(
-        elevation: 1, // צל עדין יותר
+        elevation: 1,
         borderRadius: BorderRadius.circular(kBorderRadius),
-        // 🎨 רקע צהבהב חם - כמו נייר ממו
-        color: kStickyYellow.withValues(alpha: 0.4),
+        // 🎨 Material color transparent — gradient handles the fill
+        color: Colors.transparent,
         child: Container(
           decoration: BoxDecoration(
+            // 🌈 Paper Gradient: עומק של נייר שתופס אור
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                stickyColor.withValues(alpha: 0.4),
+                stickyColor.withValues(alpha: 0.22),
+              ],
+            ),
             borderRadius: BorderRadius.circular(kBorderRadius),
-            // גבול עדין בצבע הסוג
             border: Border.all(
-              color: list.stickyColor.withValues(alpha: 0.5),
+              color: stickyColor.withValues(alpha: 0.5),
             ),
           ),
           child: Column(
             children: [
+              // 📋 Card content (tappable area)
               InkWell(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(kBorderRadius)),
-                onTap: onTap,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(kBorderRadius),
+                ),
+                onTap: onTap != null
+                    ? () {
+                        // 📳 Haptic: selectionClick לניווט
+                        unawaited(HapticFeedback.selectionClick());
+                        onTap!();
+                      }
+                    : null,
                 child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmallPlus),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: kSpacingMedium,
+                    vertical: kSpacingSmallPlus,
+                  ),
                   title: Text(
                     list.name,
-                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                   ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: kSpacingTiny),
-                      // תגים בשורה נפרדת עם Wrap למסכים קטנים
+                      const Gap(kSpacingTiny),
+                      // 🏷️ Glassmorphic tags
                       Wrap(
                         spacing: kSpacingSmall,
                         runSpacing: kSpacingTiny,
                         children: [
-                          _buildListTypeTag(context),
-                          if (_buildUrgencyTag(context) case final urgencyTag?)
-                            urgencyTag,
+                          ListTypeTag(list: list),
+                          UrgencyTag(list: list),
                           if (list.isShared)
-                            _buildSharedTag(context),
-                          // 🔒 תג אישית - רק אם פרטית ולא משותפת
+                            const SharedTag(),
                           if (!list.isShared && list.isPrivate)
-                            _buildPrivacyTag(context),
+                            const PrivacyTag(),
                         ],
                       ),
-                      const SizedBox(height: kSpacingSmall),
-                      Text(AppStrings.shopping.itemsAndDate(list.items.length, dateFormatted), style: theme.textTheme.bodySmall),
-                      const SizedBox(height: kSpacingTiny),
+                      const Gap(kSpacingSmall),
+                      Text(
+                        AppStrings.shopping.itemsAndDate(list.items.length, dateFormatted),
+                        style: theme.textTheme.bodySmall,
+                      ),
+                      const Gap(kSpacingTiny),
+                      // 📊 Organic progress indicator
                       if (list.items.isNotEmpty)
-                        LinearProgressIndicator(
-                          value: list.items.where((item) => item.isChecked).length / list.items.length,
-                          minHeight: kSpacingTiny,
-                          backgroundColor: theme.colorScheme.surfaceContainerHighest,
-                          color: theme.colorScheme.primary,
-                        ),
+                        _buildOrganicProgress(context, theme),
                     ],
                   ),
                   trailing: PopupMenuButton<String>(
@@ -418,7 +350,7 @@ class ShoppingListTile extends StatelessWidget {
                       }
                     },
                     itemBuilder: (context) {
-                      final deleteColor = StatusColors.getStatusColor('error', context);
+                      final deleteColor = StatusColors.getColor(StatusType.error, context);
                       return [
                         PopupMenuItem(
                           value: 'edit',
@@ -427,7 +359,7 @@ class ShoppingListTile extends StatelessWidget {
                             child: Row(
                               children: [
                                 const Icon(Icons.edit, size: 20),
-                                const SizedBox(width: 8),
+                                const Gap(kSpacingSmall),
                                 Text(AppStrings.shopping.editListButton),
                               ],
                             ),
@@ -439,9 +371,12 @@ class ShoppingListTile extends StatelessWidget {
                             label: AppStrings.shopping.deleteListButton,
                             child: Row(
                               children: [
-                                Icon(Icons.delete, size: 20, color: deleteColor), // ✅ StatusColors
-                                const SizedBox(width: 8),
-                                Text(AppStrings.shopping.deleteListButton, style: TextStyle(color: deleteColor)),
+                                Icon(Icons.delete, size: 20, color: deleteColor),
+                                const Gap(kSpacingSmall),
+                                Text(
+                                  AppStrings.shopping.deleteListButton,
+                                  style: TextStyle(color: deleteColor),
+                                ),
                               ],
                             ),
                           ),
@@ -452,7 +387,7 @@ class ShoppingListTile extends StatelessWidget {
                 ),
               ),
 
-              // ⭐ כפתור פעולה - רק לרשימות פעילות
+              // ✂️ Action button with perforation — active lists only
               if (list.status == ShoppingList.statusActive)
                 _buildBottomActionButton(context, theme),
             ],
@@ -460,5 +395,27 @@ class ShoppingListTile extends StatelessWidget {
         ),
       ),
     );
+
+    // 🎬 Staggered Entrance: "נחיתה" מדורגת
+    if (animate) {
+      final delay = (index * 50).ms;
+      card = card
+          .animate()
+          .fadeIn(duration: 400.ms, delay: delay)
+          .slideY(
+            begin: 0.08,
+            end: 0,
+            curve: Curves.easeOutBack,
+            delay: delay,
+          )
+          .scale(
+            begin: const Offset(0.96, 0.96),
+            end: const Offset(1.0, 1.0),
+            delay: delay,
+          );
+    }
+
+    // 🎨 RepaintBoundary isolates card animations from scroll repaints
+    return RepaintBoundary(child: card);
   }
 }

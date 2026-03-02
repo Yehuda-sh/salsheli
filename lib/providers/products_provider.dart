@@ -64,8 +64,10 @@ class ProductsProvider with ChangeNotifier {
   bool _isLoading = false;
   bool _isRefreshing = false;
   bool _hasInitialized = false;
+  bool _isDisposed = false;
   String? _errorMessage;
   List<Map<String, dynamic>> _products = [];
+  List<Map<String, dynamic>>? _cachedFilteredProducts;
   List<String> _categories = [];
   DateTime? _lastUpdated;
 
@@ -133,7 +135,17 @@ class ProductsProvider with ChangeNotifier {
     _hasInitialized = false;
     _lastUpdated = null;
     _errorMessage = null;
-    notifyListeners();
+    _notifySafe();
+  }
+
+  // === Safe Notify (cache invalidation + dispose guard) ===
+
+  /// מנקה cache סינון + מעדכן UI (רק אם לא disposed)
+  void _notifySafe() {
+    _cachedFilteredProducts = null;
+    if (!_isDisposed) {
+      notifyListeners();
+    }
   }
 
   // === Getters ===
@@ -149,9 +161,11 @@ class ProductsProvider with ChangeNotifier {
   bool get hasMore => !_hasLoadedAll && _hasInitialized;
   
   /// מוצרים מסוננים (לפי חיפוש/קטגוריה/סוג רשימה)
-  /// 
-  /// Flutter כבר עושה caching אוטומטי של getters, אין צורך ב-cache ידני
-  List<Map<String, dynamic>> get products => _getFilteredProducts();
+  /// ✅ Cached - מחושב פעם אחת, מתנקה אוטומטית ב-_notifySafe()
+  List<Map<String, dynamic>> get products {
+    _cachedFilteredProducts ??= _calculateFilteredProducts();
+    return _cachedFilteredProducts!;
+  }
   
   List<Map<String, dynamic>> get allProducts => List.unmodifiable(_products);
   List<String> get categories => List.unmodifiable(_categories);
@@ -166,7 +180,7 @@ class ProductsProvider with ChangeNotifier {
     }
     
     // חלץ קטגוריות ייחודיות מהמוצרים המסוננים
-    final filtered = _getFilteredProducts();
+    final filtered = products;
     final categoriesSet = <String>{};
     
     for (final product in filtered) {
@@ -218,7 +232,7 @@ class ProductsProvider with ChangeNotifier {
     _errorMessage = null;
     _products = []; // נקה מוצרים קודמים
     _hasLoadedAll = false;
-    notifyListeners();
+    _notifySafe();
 
     try {
       // ⚡ טוען מוצרים ראשונים
@@ -238,10 +252,10 @@ class ProductsProvider with ChangeNotifier {
       }
     } catch (e) {
       _errorMessage = 'שגיאה בטעינת מוצרים: $e';
-      notifyListeners();
+      _notifySafe();
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _notifySafe();
     }
   }
 
@@ -278,13 +292,17 @@ class ProductsProvider with ChangeNotifier {
         _categories = _extractCategories(_products);
 
         // עדכן UI כל 200 מוצרים
-        notifyListeners();
+        _notifySafe();
       }
-    } catch (e) {
+    } catch (e, st) {
       // לא משנים את _errorMessage כי זו טעינה ברקע
+      if (kDebugMode) {
+        debugPrint('⚠️ ProductsProvider._loadAllInBackground: $e');
+        debugPrintStack(label: '_loadAllInBackground', stackTrace: st);
+      }
     } finally {
       _isLoadingMore = false;
-      notifyListeners();
+      _notifySafe();
     }
   }
 
@@ -295,7 +313,7 @@ class ProductsProvider with ChangeNotifier {
     if (_isLoadingMore || _hasLoadedAll || _isLoading) return;
 
     _isLoadingMore = true;
-    notifyListeners();
+    _notifySafe();
 
     try {
       final currentCount = _products.length;
@@ -304,16 +322,15 @@ class ProductsProvider with ChangeNotifier {
         offset: currentCount,
       );
 
+      _products = [..._products, ...moreProducts];
       if (moreProducts.isEmpty || moreProducts.length < _batchSize) {
         _hasLoadedAll = true;
-      } else {
-        _products = [..._products, ...moreProducts];
       }
     } catch (e) {
       _errorMessage = 'שגיאה בטעינת מוצרים נוספים: $e';
     } finally {
       _isLoadingMore = false;
-      notifyListeners();
+      _notifySafe();
     }
   }
 
@@ -363,7 +380,7 @@ class ProductsProvider with ChangeNotifier {
 
     _isRefreshing = true;
     _errorMessage = null;
-    notifyListeners();
+    _notifySafe();
 
     try {
       await _repository.refreshProducts(force: force);
@@ -376,10 +393,10 @@ class ProductsProvider with ChangeNotifier {
       _errorMessage = null;
     } catch (e) {
       _errorMessage = 'שגיאה ברענון מוצרים: $e';
-      notifyListeners();
+      _notifySafe();
     } finally {
       _isRefreshing = false;
-      notifyListeners();
+      _notifySafe();
     }
   }
 
@@ -395,12 +412,12 @@ class ProductsProvider with ChangeNotifier {
     if (_searchQuery == query) return;
 
     _searchQuery = query;
-    notifyListeners();
+    _notifySafe();
   }
 
   void clearSearch() {
     _searchQuery = '';
-    notifyListeners();
+    _notifySafe();
   }
 
   // === Filter by List Type ===
@@ -417,7 +434,7 @@ class ProductsProvider with ChangeNotifier {
   void clearListType({bool notify = true}) {
     _selectedListType = null;
     if (notify) {
-      notifyListeners();
+      _notifySafe();
     }
   }
 
@@ -425,16 +442,16 @@ class ProductsProvider with ChangeNotifier {
     if (_selectedCategory == category) return;
 
     _selectedCategory = category;
-    notifyListeners();
+    _notifySafe();
   }
 
   void clearCategory() {
     _selectedCategory = null;
-    notifyListeners();
+    _notifySafe();
   }
 
   // === Get Filtered Products ===
-  List<Map<String, dynamic>> _getFilteredProducts() {
+  List<Map<String, dynamic>> _calculateFilteredProducts() {
     var filtered = List<Map<String, dynamic>>.from(_products);
 
     // ⚠️ אין צורך בסינון לפי list_type - המוצרים כבר נטענו מהקובץ הנכון!
@@ -470,7 +487,7 @@ class ProductsProvider with ChangeNotifier {
       return await _repository.getProductByBarcode(barcode);
     } catch (e) {
       _errorMessage = 'שגיאה בחיפוש ברקוד: $e';
-      notifyListeners();
+      _notifySafe();
       return null;
     }
   }
@@ -518,7 +535,7 @@ class ProductsProvider with ChangeNotifier {
       return await _repository.searchProducts(query);
     } catch (e) {
       _errorMessage = 'שגיאה בחיפוש מוצרים: $e';
-      notifyListeners();
+      _notifySafe();
       return [];
     }
   }
@@ -531,13 +548,13 @@ class ProductsProvider with ChangeNotifier {
       return await _repository.getProductsByCategory(category);
     } catch (e) {
       _errorMessage = 'שגיאה בטעינת קטגוריה: $e';
-      notifyListeners();
+      _notifySafe();
       return [];
     }
   }
 
   // === Statistics ===
-  int get filteredProductsCount => _getFilteredProducts().length;
+  int get filteredProductsCount => products.length;
 
   Map<String, int> get productsByCategory {
     final map = <String, int>{};
@@ -554,13 +571,14 @@ class ProductsProvider with ChangeNotifier {
     _selectedCategory = null;
     _selectedListType = null;
     _errorMessage = null;
-    notifyListeners();
+    _notifySafe();
   }
 
   // === Dispose ===
   @override
   void dispose() {
-    // ✅ נקה UserContext listener
+    _isDisposed = true;
+
     if (_listening && _userContext != null) {
       _userContext!.removeListener(_onUserChanged);
       _listening = false;
@@ -568,6 +586,7 @@ class ProductsProvider with ChangeNotifier {
 
     _products = [];
     _categories = [];
+    _cachedFilteredProducts = null;
     super.dispose();
   }
 }

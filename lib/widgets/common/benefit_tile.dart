@@ -3,32 +3,47 @@
 // פתק צבעוני שמציג יתרון של האפליקציה (אייקון + כותרת + תיאור).
 // משמש במסך הפתיחה להצגת 3 היתרונות המרכזיים.
 //
+// ✨ Features:
+// - אנימציית כניסה מבוססת flutter_animate
+// - Icon Container בעיצוב Glassmorphic עדין
+// - משוב Haptic חכם ב-onTap
+// - אופטימיזציית RepaintBoundary
+//
 // ✅ תיקונים:
 //    - הוספת Semantics לנגישות
 //    - הוספת onTap / onLongPress לאינטראקטיביות אופציונלית
 //    - הוספת tooltip / semanticLabel לנגישות
-//    - הוספת elevation / animate להעברה ל-StickyNote
+//    - הוספת elevation להעברה ל-StickyNote
 //    - הוספת maxLines + TextOverflow.ellipsis למניעת overflow
 //
 // 🔗 Related: StickyNote, SimpleTappableCard, welcome_screen.dart
+//
+// Version: 4.0 - Hybrid Premium (Sensory + Glassmorphic Polish)
+// Last Updated: 22/02/2026
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:gap/gap.dart';
+
 import '../../core/ui_constants.dart';
 import 'sticky_note.dart';
 import 'tappable_card.dart';
 
 /// כרטיס יתרון/פיצ'ר בסגנון פתק מודבק (Sticky Notes)
-/// 
+///
 /// מציג יתרון או פיצ'ר בעיצוב פתק צבעוני עם אייקון במעגל + טקסט בצד.
 /// משמש ב-welcome_screen לתצוגת שלושה יתרונות.
-/// 
+///
 /// Features:
 /// - עיצוב פתק צבעוני עם צללים
 /// - סיבוב קל לאפקט אותנטי
-/// - אייקון במעגל 56x56px
+/// - אייקון במעגל 56x56px (Glassmorphic)
 /// - RTL Support מלא
-/// - אנימציות כניסה
-/// 
+/// - אנימציות כניסה (flutter_animate)
+///
 /// Parameters:
 /// - [icon]: אייקון היתרון
 /// - [title]: כותרת היתרון (bold, titleMedium)
@@ -42,10 +57,9 @@ import 'tappable_card.dart';
 /// - [semanticLabel]: תווית לנגישות (ברירת מחדל: title - subtitle)
 /// - [tooltip]: טקסט tooltip לנגישות (אופציונלי)
 /// - [elevation]: רמת צל (0.0-1.0, ברירת מחדל: 1.0)
-/// - [animate]: האם להפעיל אנימציית כניסה (ברירת מחדל: true)
 /// - [titleMaxLines]: מספר שורות מקסימלי לכותרת (ברירת מחדל: 1)
 /// - [subtitleMaxLines]: מספר שורות מקסימלי לתיאור (ברירת מחדל: 2)
-/// 
+///
 /// דוגמה:
 /// ```dart
 /// BenefitTile(
@@ -93,9 +107,6 @@ class BenefitTile extends StatelessWidget {
   /// רמת צל (0.0-1.0, ברירת מחדל: 1.0)
   final double elevation;
 
-  /// האם להפעיל אנימציית כניסה (ברירת מחדל: true)
-  final bool animate;
-
   /// מספר שורות מקסימלי לכותרת (ברירת מחדל: 1)
   final int titleMaxLines;
 
@@ -116,7 +127,6 @@ class BenefitTile extends StatelessWidget {
     this.semanticLabel,
     this.tooltip,
     this.elevation = 1.0,
-    this.animate = true,
     this.titleMaxLines = 1,
     this.subtitleMaxLines = 2,
   });
@@ -146,21 +156,33 @@ class BenefitTile extends StatelessWidget {
     // ✅ תווית נגישות ברירת מחדל
     final effectiveSemanticLabel = semanticLabel ?? '$title - $subtitle';
 
+    // 📳 Haptic-aware onTap wrapper
+    final effectiveOnTap = onTap != null
+        ? () {
+            unawaited(HapticFeedback.lightImpact());
+            onTap!();
+          }
+        : null;
+
     final content = StickyNote(
       color: cardColor,
       rotation: cardRotation,
       elevation: elevation,
-      animate: animate,
+      animate: false, // ❌ StickyNote animation disabled - flutter_animate handles it
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // אייקון במעגל - גמיש
+          // אייקון במעגל - Glassmorphic עדין
           Container(
             width: circleSize,
             height: circleSize,
             decoration: BoxDecoration(
-              color: effectiveIconColor.withValues(alpha: 0.12),
+              color: effectiveIconColor.withValues(alpha: 0.15),
               shape: BoxShape.circle,
+              border: Border.all(
+                color: effectiveIconColor.withValues(alpha: 0.1),
+                width: 0.5,
+              ),
             ),
             child: Icon(icon, size: iconSizeValue, color: effectiveIconColor),
           ),
@@ -180,7 +202,7 @@ class BenefitTile extends StatelessWidget {
                   maxLines: titleMaxLines,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: kSpacingTiny),
+                const Gap(kSpacingTiny),
                 Text(
                   subtitle,
                   style: bodyStyle?.copyWith(
@@ -198,12 +220,15 @@ class BenefitTile extends StatelessWidget {
     );
 
     // ✅ עטוף ב-SimpleTappableCard אם יש אינטראקטיביות
+    // SimpleTappableCard כבר כולל haptic feedback מובנה (tap-down),
+    // אז ה-effectiveOnTap מוסיף haptic רק ברמת ה-callback
     Widget result = Padding(
       padding: const EdgeInsets.symmetric(vertical: kSpacingSmallPlus),
-      child: onTap != null || onLongPress != null
+      child: effectiveOnTap != null || onLongPress != null
           ? SimpleTappableCard(
-              onTap: onTap,
+              onTap: effectiveOnTap,
               onLongPress: onLongPress,
+              haptic: ButtonHaptic.none, // ❌ נמנע מכפילות - haptic מנוהל ב-effectiveOnTap
               tooltip: tooltip,
               semanticLabel: effectiveSemanticLabel,
               child: content,
@@ -220,6 +245,18 @@ class BenefitTile extends StatelessWidget {
       );
     }
 
-    return result;
+    // 🎬 אנימציית כניסה - "The Landed Feel"
+    return RepaintBoundary(
+      child: result
+          .animate()
+          .fadeIn(duration: 400.ms, curve: Curves.easeOutBack)
+          .slideY(begin: 0.1, duration: 400.ms, curve: Curves.easeOutBack)
+          .scale(
+            begin: const Offset(0.9, 0.9),
+            end: const Offset(1.0, 1.0),
+            duration: 400.ms,
+            curve: Curves.easeOutBack,
+          ),
+    );
   }
 }

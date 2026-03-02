@@ -1,24 +1,24 @@
 // 📄 File: lib/repositories/firebase_receipt_repository.dart
 //
-// 🇮🇱 Repository לקבלות עם Firestore:
-//     - שמירת קבלות ב-Firestore
-//     - טעינת קבלות לפי householdId
-//     - עדכון קבלות
-//     - מחיקת קבלות
-//     - Real-time updates
+// 🎯 Purpose: Repository לקבלות עם Firestore
 //
-// 🇬🇧 Receipt repository with Firestore:
-//     - Save receipts to Firestore
-//     - Load receipts by householdId
-//     - Update receipts
-//     - Delete receipts
-//     - Real-time updates
+// 📋 Features:
+//     - CRUD operations לקבלות (שמירה, טעינה, עדכון, מחיקה)
+//     - Real-time updates (watchReceipts)
+//     - Queries מתקדמים (לפי חנות, טווח תאריכים)
+//     - שימוש ב-FirestoreUtils להמרה בטוחה ורקורסיבית
+//     - ריכוז לוגיקת מיפוי (DRY) ב-_mapSnapshotToReceipts
 //
 // 🏗️ Database Structure:
 //     - /households/{householdId}/receipts/{receiptId}
 //
-// Version: 3.1 - Added id injection, timestamps, date range fix
-// Last Updated: 29/12/2025
+// 📦 Dependencies:
+//     - cloud_firestore
+//     - Receipt model
+//     - FirestoreUtils להמרת Timestamps רקורסיבית
+//
+// Version: 4.0
+// Last Updated: 22/02/2026
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -58,14 +58,7 @@ class FirebaseReceiptRepository implements ReceiptRepository {
           .orderBy(FirestoreFields.date, descending: true)
           .get();
 
-      final receipts = snapshot.docs.map((doc) {
-        final data = FirestoreUtils.convertTimestamps(
-          Map<String, dynamic>.from(doc.data()),
-        );
-        // 🔧 הזרקת id מהמסמך אם לא קיים
-        data['id'] ??= doc.id;
-        return Receipt.fromJson(data);
-      }).toList();
+      final receipts = _mapSnapshotToReceipts(snapshot);
 
       debugPrint('✅ FirebaseReceiptRepository.fetchReceipts: נטענו ${receipts.length} קבלות');
       return receipts;
@@ -109,9 +102,7 @@ class FirebaseReceiptRepository implements ReceiptRepository {
 
       // 🔧 קורא בחזרה כדי לקבל timestamps אמיתיים
       final savedDoc = await _receiptsCollection(householdId).doc(receiptId).get();
-      final savedData = FirestoreUtils.convertTimestamps(
-        Map<String, dynamic>.from(savedDoc.data()!),
-      );
+      final savedData = savedDoc.toDartMap()!;
       savedData['id'] = receiptId;
 
       debugPrint('✅ FirebaseReceiptRepository.saveReceipt: קבלה נשמרה');
@@ -141,7 +132,7 @@ class FirebaseReceiptRepository implements ReceiptRepository {
     }
   }
 
-  // === 🆕 פונקציות נוספות ===
+  // === Real-time & Queries ===
 
   /// מחזיר stream של קבלות (real-time updates)
   ///
@@ -151,21 +142,12 @@ class FirebaseReceiptRepository implements ReceiptRepository {
   ///   print('Receipts updated: ${receipts.length}');
   /// });
   /// ```
+  @override
   Stream<List<Receipt>> watchReceipts(String householdId) {
-    // 🆕 שימוש ב-subcollection - לא צריך where
     return _receiptsCollection(householdId)
         .orderBy(FirestoreFields.date, descending: true)
         .snapshots()
-        .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final data = FirestoreUtils.convertTimestamps(
-          Map<String, dynamic>.from(doc.data()),
-        );
-        // 🔧 הזרקת id מהמסמך אם לא קיים
-        data['id'] ??= doc.id;
-        return Receipt.fromJson(data);
-      }).toList();
-    });
+        .map(_mapSnapshotToReceipts);
   }
 
   /// מחזיר קבלה לפי ID
@@ -174,6 +156,7 @@ class FirebaseReceiptRepository implements ReceiptRepository {
   /// ```dart
   /// final receipt = await repository.getReceiptById('receipt_123', 'house_demo');
   /// ```
+  @override
   Future<Receipt?> getReceiptById(String receiptId, String householdId) async {
     try {
       debugPrint('🔍 FirebaseReceiptRepository.getReceiptById: מחפש קבלה $receiptId');
@@ -186,11 +169,9 @@ class FirebaseReceiptRepository implements ReceiptRepository {
         return null;
       }
 
-      final data = Map<String, dynamic>.from(doc.data()!);
-      final convertedData = FirestoreUtils.convertTimestamps(data);
-      // 🔧 הזרקת id מהמסמך אם לא קיים
-      convertedData['id'] ??= doc.id;
-      final receipt = Receipt.fromJson(convertedData);
+      final data = doc.toDartMap()!;
+      data['id'] ??= doc.id;
+      final receipt = Receipt.fromJson(data);
       debugPrint('✅ קבלה נמצאה');
 
       return receipt;
@@ -207,6 +188,7 @@ class FirebaseReceiptRepository implements ReceiptRepository {
   /// ```dart
   /// final receipts = await repository.getReceiptsByStore('שופרסל', 'house_demo');
   /// ```
+  @override
   Future<List<Receipt>> getReceiptsByStore(String storeName, String householdId) async {
     try {
       debugPrint('🏪 FirebaseReceiptRepository.getReceiptsByStore: מחפש קבלות מ-$storeName');
@@ -217,14 +199,7 @@ class FirebaseReceiptRepository implements ReceiptRepository {
           .orderBy(FirestoreFields.date, descending: true)
           .get();
 
-      final receipts = snapshot.docs.map((doc) {
-        final data = FirestoreUtils.convertTimestamps(
-          Map<String, dynamic>.from(doc.data()),
-        );
-        // 🔧 הזרקת id מהמסמך אם לא קיים
-        data['id'] ??= doc.id;
-        return Receipt.fromJson(data);
-      }).toList();
+      final receipts = _mapSnapshotToReceipts(snapshot);
 
       debugPrint('✅ נמצאו ${receipts.length} קבלות');
       return receipts;
@@ -245,6 +220,7 @@ class FirebaseReceiptRepository implements ReceiptRepository {
   ///   householdId: 'house_demo',
   /// );
   /// ```
+  @override
   Future<List<Receipt>> getReceiptsByDateRange({
     required DateTime startDate,
     required DateTime endDate,
@@ -264,14 +240,7 @@ class FirebaseReceiptRepository implements ReceiptRepository {
           .orderBy(FirestoreFields.date, descending: true)
           .get();
 
-      final receipts = snapshot.docs.map((doc) {
-        final data = FirestoreUtils.convertTimestamps(
-          Map<String, dynamic>.from(doc.data()),
-        );
-        // 🔧 הזרקת id מהמסמך אם לא קיים
-        data['id'] ??= doc.id;
-        return Receipt.fromJson(data);
-      }).toList();
+      final receipts = _mapSnapshotToReceipts(snapshot);
 
       debugPrint('✅ נמצאו ${receipts.length} קבלות');
       return receipts;
@@ -280,6 +249,30 @@ class FirebaseReceiptRepository implements ReceiptRepository {
       debugPrintStack(stackTrace: stackTrace);
       throw ReceiptRepositoryException('Failed to get receipts by date range', e);
     }
+  }
+
+  // ========================================
+  // Private Helpers
+  // ========================================
+
+  /// ממיר snapshot של Firestore לרשימת Receipt
+  ///
+  /// דולג על מסמכים פגומים (log + null filter) כדי לא לקרוס
+  /// משתמש ב-toDartMap() להמרת Timestamps רקורסיבית
+  /// מזריק id מהמסמך אם לא קיים בנתונים
+  List<Receipt> _mapSnapshotToReceipts(
+    QuerySnapshot<Map<String, dynamic>> snapshot,
+  ) {
+    return snapshot.docs.map((doc) {
+      try {
+        final data = doc.toDartMap()!;
+        data['id'] ??= doc.id;
+        return Receipt.fromJson(data);
+      } catch (e) {
+        debugPrint('⚠️ ReceiptRepository: דולג על קבלה פגומה ${doc.id} - $e');
+        return null;
+      }
+    }).whereType<Receipt>().toList();
   }
 }
 

@@ -1,23 +1,32 @@
-// 📄 lib/layout/app_layout.dart
+// 📄 File: lib/layout/app_layout.dart
 //
-// **פריסת היישום הראשית** - AppBar + BottomNavigation.
-// מרכז את הניווט הראשי של האפליקציה עם תמיכה מלאה ב-RTL, badges אנימטיביים,
-// ואנימציות מיקרו לחוויית משתמש חלקה.
+// 🎯 Purpose: פריסת היישום הראשית - AppBar + BottomNavigation
 //
-// ✅ Features:
-//    - AppBar עם כותרת, התראות ו-logout
-//    - NavigationBar (Material 3) עם animated badges
-//    - RTL support מלא (Directionality wrapper)
-//    - Theme-aware colors (Dark Mode support)
-//    - Accessibility: Semantics + Tooltips
-//    - Micro-animations: Scale effect, badge counter animation
-//    - Error handling with user feedback
+// 📋 Features:
+//     - AppBar עם כותרת, התראות ו-logout
+//     - NavigationBar (Material 3) עם animated badges
+//     - משוב Haptic מבוסס מגע (Selection Feedback)
+//     - עיצוב Glassmorphic ל-Bottom Navigation
+//     - RTL support מלא
+//     - Theme-aware colors (Dark Mode support)
+//     - Accessibility: Semantics + Tooltips
+//     - Micro-animations: Scale effect, badge counter
+//     - Error handling with user feedback
 //
-// 🔗 Related: AppStrings.layout, UserContext, PendingInvitesProvider
-// 🔗 Parent: MainNavigationScreen (manages state)
+// 🔗 Related:
+//     - lib/l10n/app_strings.dart - AppStrings.layout
+//     - lib/providers/user_context.dart - UserContext
+//     - Parent: MainNavigationScreen (manages state)
+//
+// Version: 4.0
+// Last Updated: 22/02/2026
+
+import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:provider/provider.dart';
 
 import '../core/ui_constants.dart';
@@ -146,7 +155,8 @@ class _AppLayoutState extends State<AppLayout> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: cs.surface,
+      backgroundColor: cs.surface.withValues(alpha: 0.9),
+      barrierColor: Colors.black.withValues(alpha: 0.3),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -260,50 +270,64 @@ class _AppLayoutState extends State<AppLayout> {
           ),
           onPressed: () => _showNotificationsMenu(context),
         ),
-        // 🚪 Logout Button with Animation
+        // 🚪 Logout Button with Animation + Haptic
         _AnimatedIconButton(
           tooltip: AppStrings.common.logout,
           icon: const Icon(Icons.logout),
           color: cs.error,
-          onPressed: () => _logout(context),
+          onPressed: () {
+            unawaited(HapticFeedback.mediumImpact());
+            _logout(context);
+          },
         ),
       ],
     );
   }
 
   /// 📱 Build Bottom Navigation Bar
-  /// ✅ עטוף ב-Semantics לנגישות
+  /// ✅ Glassmorphic: BackdropFilter + semi-transparent background
+  /// ✅ Haptic: selectionClick על מעבר טאב
+  /// ✅ RepaintBoundary: מבודד את אנימציות ה-badges מהעץ
   Widget _buildBottomNav(BuildContext context, ColorScheme cs, int safeIndex) {
     final currentTabLabel = _navItems[safeIndex].label;
 
-    return Semantics(
-      // ✅ Use AppStrings for i18n-ready accessibility labels
-      label: AppStrings.layout.navSemanticLabel(currentTabLabel),
-      hint: AppStrings.layout.navSemanticHint,
-      child: NavigationBar(
-        selectedIndex: safeIndex,
-        onDestinationSelected: widget.onTabSelected,
-        backgroundColor: cs.surfaceContainer,
-        indicatorColor: cs.primary.withValues(alpha: 0.12),
-        destinations: _navItems.asMap().entries.map((entry) {
-          final index = entry.key;
-          final item = entry.value;
-          final badgeCount = widget.badges?[index];
+    return RepaintBoundary(
+      child: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Semantics(
+            label: AppStrings.layout.navSemanticLabel(currentTabLabel),
+            hint: AppStrings.layout.navSemanticHint,
+            child: NavigationBar(
+              selectedIndex: safeIndex,
+              onDestinationSelected: (index) {
+                unawaited(HapticFeedback.selectionClick());
+                widget.onTabSelected(index);
+              },
+              backgroundColor: cs.surfaceContainer.withValues(alpha: 0.85),
+              indicatorColor: cs.primary.withValues(alpha: 0.12),
+              destinations: _navItems.asMap().entries.map((entry) {
+                final index = entry.key;
+                final item = entry.value;
+                final badgeCount = widget.badges?[index];
 
-          Widget icon = Icon(item.icon);
-          Widget selectedIcon = Icon(item.icon, color: cs.primary);
+                Widget icon = Icon(item.icon);
+                Widget selectedIcon = Icon(item.icon, color: cs.primary);
 
-          if (badgeCount != null && badgeCount > 0) {
-            icon = _buildAnimatedBadge(icon, badgeCount, cs);
-            selectedIcon = _buildAnimatedBadge(selectedIcon, badgeCount, cs);
-          }
+                if (badgeCount != null && badgeCount > 0) {
+                  icon = _buildAnimatedBadge(icon, badgeCount, cs);
+                  selectedIcon = _buildAnimatedBadge(selectedIcon, badgeCount, cs);
+                }
 
-          return NavigationDestination(
-            icon: icon,
-            selectedIcon: selectedIcon,
-            label: item.label,
-          );
-        }).toList(),
+                return NavigationDestination(
+                  icon: icon,
+                  selectedIcon: selectedIcon,
+                  label: item.label,
+                );
+              }).toList(),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -356,9 +380,12 @@ class _AnimatedIconButtonState extends State<_AnimatedIconButton> {
     return AnimatedScale(
       scale: _isPressed ? 0.92 : 1.0,
       duration: const Duration(milliseconds: 100),
-      curve: Curves.easeOut,
+      curve: Curves.easeOutCubic,
       child: Listener(
-        onPointerDown: (_) => setState(() => _isPressed = true),
+        onPointerDown: (_) {
+          unawaited(HapticFeedback.lightImpact());
+          setState(() => _isPressed = true);
+        },
         onPointerUp: (_) => setState(() => _isPressed = false),
         onPointerCancel: (_) => setState(() => _isPressed = false),
         child: IconButton(
@@ -422,7 +449,7 @@ class _AnimatedBadgeCountState extends State<_AnimatedBadgeCount> {
     return TweenAnimationBuilder<int>(
       tween: IntTween(begin: _previousCount, end: widget.count),
       duration: const Duration(milliseconds: 400),
-      curve: Curves.easeOut,
+      curve: Curves.easeOutCubic,
       builder: (context, value, child) {
         return Text(value.toString());
       },

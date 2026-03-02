@@ -2,150 +2,177 @@
 //
 // 🎯 Purpose: Interface למוצרים - מגדיר את החוזה לכל מימושי Products Repository
 //
+// 📋 Features:
+//     - תיעוד מקיף ל-Intellisense
+//     - תמיכה בחיפוש Reactive (Streams)
+//     - Pagination support (limit/offset)
+//     - Fallback אוטומטי לסופרמרקט עבור סוגי רשימות לא נתמכים
+//
 // 📋 Implementations:
-// - HybridProductsRepository (main.dart) - מימוש הייצור הרשמי
-// - LocalProductsRepository - גישה ישירה ל-Hive
-// - FirebaseProductsRepository - גישה ישירה ל-Firestore (fallback)
+//     - HybridProductsRepository - מימוש הייצור (Local + Firebase)
+//     - LocalProductsRepository - JSON assets
+//     - FirebaseProductsRepository - Firestore fallback
 //
 // 🔗 Related:
-// - lib/repositories/hybrid_products_repository.dart - המימוש המשולב
-// - lib/repositories/local_products_repository.dart - Hive storage
-// - lib/repositories/firebase_products_repository.dart - Firestore fallback
-// - lib/providers/products_provider.dart - Provider שמשתמש ב-repository
+//     - lib/repositories/hybrid_products_repository.dart - המימוש המשולב
+//     - lib/repositories/local_products_repository.dart - JSON storage
+//     - lib/repositories/firebase_products_repository.dart - Firestore fallback
+//     - lib/providers/products_provider.dart - Provider שמשתמש ב-repository
 //
-// 📱 Mobile Only: Yes
+// 📜 History:
+//     - v1.0 (09/10/2025): Interface ראשוני
+//     - v2.0 (09/10/2025): הוספת docstrings + getProductsByListType
+//     - v3.0 (22/02/2026): ארגון לפי קטגוריות, searchProductsStream, תיעוד מלא
 //
-// 📝 Version: 2.0 - Added docstrings + version info
-// 📅 Last Updated: 09/10/2025
-//
+// Version: 3.0
+// Last Updated: 22/02/2026
 
 /// Interface למוצרים - מגדיר methods חובה לכל Repository
+///
+/// כל מקור נתונים (Local JSON, Firebase, Hybrid) חייב לממש את הממשק הזה.
+///
+/// המתודות מחולקות לשלושה עולמות:
+/// - **Fetch** - טעינת מוצרים (לפי סוג, קטגוריה, ברקוד)
+/// - **Search** - חיפוש טקסט חופשי (Future + Stream)
+/// - **Management** - רענון וקטגוריות
 abstract class ProductsRepository {
+  // ========================================
+  // Fetch - טעינת מוצרים
+  // ========================================
+
   /// טוען את כל המוצרים מה-Repository
   ///
   /// Parameters:
   ///   - [limit]: מספר מקסימלי של מוצרים להחזיר (null = הכל)
   ///   - [offset]: כמה מוצרים לדלג (לדפדוף)
   ///
-  /// Returns: רשימת כל המוצרים הזמינים (עם/בלי מחירים)
+  /// Returns: רשימת כל המוצרים הזמינים
   ///
   /// Example:
   /// ```dart
-  /// // טען את כל המוצרים
   /// final all = await repository.getAllProducts();
-  /// 
-  /// // טען 100 ראשונים
-  /// final first100 = await repository.getAllProducts(limit: 100);
-  /// 
-  /// // טען 100-200 (דף שני)
-  /// final second100 = await repository.getAllProducts(limit: 100, offset: 100);
+  /// final page2 = await repository.getAllProducts(limit: 100, offset: 100);
   /// ```
   Future<List<Map<String, dynamic>>> getAllProducts({
     int? limit,
     int? offset,
   });
-  
-  /// טוען מוצרים לפי קטגוריה מסוימת
+
+  /// טוען מוצרים לפי סוג רשימה (list_type)
   ///
-  /// [category] - שם הקטגוריה (למשל: 'מוצרי חלב', 'ירקות')
+  /// Parameters:
+  ///   - [listType]: סוג הרשימה:
+  ///     - `supermarket` - כל המוצרים
+  ///     - `pharmacy` - היגיינה וניקיון
+  ///     - `greengrocer` - פירות וירקות
+  ///     - `butcher` - בשר ועוף
+  ///     - `bakery` - לחם ומאפים
+  ///     - `market` - מעורב
+  ///     - `household` / `other` - **Fallback אוטומטי ל-supermarket**
+  ///   - [limit]: מספר מקסימלי של מוצרים (null = הכל)
+  ///   - [offset]: כמה מוצרים לדלג (לדפדוף)
+  ///
+  /// Returns: רשימת מוצרים מסוננת לפי סוג הרשימה
+  ///
+  /// Note: אם הסוג לא נתמך (household/other), ייעשה **fallback אוטומטי**
+  /// ל-supermarket ללא שגיאה.
+  ///
+  /// Example:
+  /// ```dart
+  /// final bakery = await repository.getProductsByListType('bakery');
+  /// final first100 = await repository.getProductsByListType('supermarket', limit: 100);
+  /// ```
+  Future<List<Map<String, dynamic>>> getProductsByListType(
+    String listType, {
+    int? limit,
+    int? offset,
+  });
+
+  /// טוען מוצרים לפי קטגוריה
+  ///
+  /// Parameters:
+  ///   - [category]: שם הקטגוריה (למשל: 'מוצרי חלב', 'ירקות')
   ///
   /// Returns: רשימת מוצרים מהקטגוריה המבוקשת
   ///
   /// Example:
   /// ```dart
   /// final dairy = await repository.getProductsByCategory('מוצרי חלב');
-  /// print('${dairy.length} מוצרים בקטגוריה');
   /// ```
   Future<List<Map<String, dynamic>>> getProductsByCategory(String category);
-  
+
   /// חיפוש מוצר לפי ברקוד (חיפוש מדויק)
   ///
-  /// [barcode] - מספר הברקוד (למשל: '7290000000001')
+  /// Parameters:
+  ///   - [barcode]: מספר הברקוד (למשל: '7290000000001')
   ///
-  /// Returns: נתוני המוצר או null אם לא נמצא
+  /// Returns: נתוני המוצר או `null` אם לא נמצא
   ///
   /// Example:
   /// ```dart
   /// final product = await repository.getProductByBarcode('7290000000001');
-  /// if (product != null) {
-  ///   print('נמצא: ${product['name']}');
-  /// }
+  /// if (product != null) print('נמצא: ${product['name']}');
   /// ```
   Future<Map<String, dynamic>?> getProductByBarcode(String barcode);
-  
-  /// חיפוש מוצרים לפי טקסט חופשי
+
+  // ========================================
+  // Search - חיפוש
+  // ========================================
+
+  /// חיפוש מוצרים לפי טקסט חופשי (one-shot)
   ///
-  /// [query] - מחרוזת חיפוש (שם, מותג, קטגוריה)
+  /// Parameters:
+  ///   - [query]: מחרוזת חיפוש (שם או מותג)
   ///
   /// Returns: רשימת מוצרים שמתאימים לחיפוש
-  ///
-  /// Note: החיפוש מבוצע בשדות: name, brand, category
   ///
   /// Example:
   /// ```dart
   /// final results = await repository.searchProducts('חלב');
-  /// print('נמצאו ${results.length} תוצאות');
   /// ```
   Future<List<Map<String, dynamic>>> searchProducts(String query);
-  
+
+  /// חיפוש מוצרים Reactive - מחזיר Stream של תוצאות
+  ///
+  /// מאפשר ל-UI להציג תוצאות מתעדכנות בזמן אמת
+  /// בזמן שהמשתמש מקליד (type-ahead).
+  ///
+  /// Parameters:
+  ///   - [query]: מחרוזת חיפוש (שם או מותג)
+  ///
+  /// Returns: Stream חד-פעמי עם תוצאות החיפוש
+  ///
+  /// Example:
+  /// ```dart
+  /// repository.searchProductsStream('חלב').listen((results) {
+  ///   print('נמצאו ${results.length} תוצאות');
+  /// });
+  /// ```
+  Stream<List<Map<String, dynamic>>> searchProductsStream(String query);
+
+  // ========================================
+  // Management - ניהול וקטגוריות
+  // ========================================
+
   /// מחזיר את רשימת כל הקטגוריות הזמינות
   ///
-  /// Returns: רשימת שמות קטגוריות ייחודיות
+  /// Returns: רשימת שמות קטגוריות ייחודיות (ממוינת)
   ///
   /// Example:
   /// ```dart
   /// final categories = await repository.getCategories();
-  /// print('${categories.length} קטגוריות זמינות');
   /// ```
   Future<List<String>> getCategories();
-  
-  /// רענון נתוני המוצרים (עדכון מחירים מ-API)
+
+  /// רענון נתוני המוצרים
   ///
-  /// [force] - אם true, מאלץ עדכון גם אם המחירים עדכניים
-  ///
-  /// Note: Method זה מעדכן **רק מחירים**, לא את פרטי המוצרים עצמם.
-  ///       העדכון מתבצע מול API חיצוני (שופרסל).
+  /// Parameters:
+  ///   - [force]: אם `true`, מאלץ עדכון גם אם הנתונים עדכניים
   ///
   /// Example:
   /// ```dart
-  /// // עדכון רגיל (רק אם עבר זמן)
-  /// await repository.refreshProducts();
-  ///
-  /// // עדכון מאולץ
-  /// await repository.refreshProducts(force: true);
+  /// await repository.refreshProducts();         // רגיל
+  /// await repository.refreshProducts(force: true); // מאולץ
   /// ```
   Future<void> refreshProducts({bool force = false});
-
-  /// טוען מוצרים לפי סוג רשימה (list_type)
-  ///
-  /// [listType] - סוג הרשימה:
-  ///   - 'supermarket' - כל המוצרים
-  ///   - 'pharmacy' - היגיינה וניקיון
-  ///   - 'greengrocer' - פירות וירקות
-  ///   - 'butcher' - בשר ועוף
-  ///   - 'bakery' - לחם ומאפים
-  ///   - 'market' - מעורב
-  ///   - 'household' - כלי בית (fallback)
-  ///   - 'other' - אחר (fallback)
-  ///
-  /// [limit] - מספר מקסימלי של מוצרים להחזיר (null = הכל)
-  /// [offset] - כמה מוצרים לדלג (לדפדוף)
-  ///
-  /// Returns: רשימת מוצרים מסוננת לפי סוג הרשימה
-  ///
-  /// Example:
-  /// ```dart
-  /// // טען מוצרי מאפייה
-  /// final bakeryProducts = await repository.getProductsByListType('bakery');
-  /// 
-  /// // טען 100 ראשונים מסופרמרקט
-  /// final first100 = await repository.getProductsByListType('supermarket', limit: 100);
-  /// ```
-  ///
-  /// Note: אם הקובץ לא קיים (household/other), ייעשה fallback ל-supermarket
-  Future<List<Map<String, dynamic>>> getProductsByListType(
-    String listType, {
-    int? limit,
-    int? offset,
-  });
 }

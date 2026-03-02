@@ -2,7 +2,10 @@
 //
 // מחרוזות UI מקובצות לפי מסכים - עברית בלבד, מוכן ל-i18n.
 // מבנה: AppStrings.layout, .common, .auth, .inventory, .shoppingList, וכו'.
+// ✨ v4.0: appName ריכוזי, ברכות לפי שעה, Pantry Health, Collaborative micro-copy,
+//          Accessibility 2.0, Glassmorphic semantics
 //
+// Version: 4.0 (22/02/2026)
 // 🔗 Related: All screens and widgets, filters_config (for categories)
 
 
@@ -16,6 +19,9 @@
 class AppStrings {
   // מניעת instances
   const AppStrings._();
+
+  /// שם האפליקציה - מקום אחד לשינוי בכל ה-UI
+  static const String appName = 'MemoZap';
 
   // ========================================
   // Layout & Navigation
@@ -222,7 +228,7 @@ class _LayoutStrings {
   const _LayoutStrings();
 
   // AppBar
-  String get appTitle => 'MemoZap';
+  String get appTitle => AppStrings.appName;
 
   // Notifications
   String get notifications => 'התראות';
@@ -231,7 +237,7 @@ class _LayoutStrings {
 
   // User Menu
   String get hello => 'שלום 👋';
-  String get welcome => 'ברוך הבא ל-MemoZap';
+  String get welcome => 'ברוך הבא ל-${AppStrings.appName}';
   String welcomeWithUpdates(int count) => 'יש לך $count עדכונים חדשים';
 
   // Offline
@@ -313,6 +319,15 @@ class _CommonStrings {
   String get unsavedChangesMessage => 'יש שינויים שלא נשמרו. האם לצאת בלי לשמור?';
   String get stayHere => 'הישאר';
   String get exitWithoutSaving => 'צא בלי לשמור';
+
+  // ========================================
+  // Glassmorphic Accessibility (v4.0)
+  // ========================================
+
+  String get glassNavBarSemantics => 'סרגל ניווט שקוף מעל תוכן הרשימה';
+  String get glassHeaderSemantics => 'כותרת שקופה עם סיכום התקדמות';
+  String get glassStatsSemantics => 'סרגל סטטיסטיקות שקוף';
+  String get glassSavingOverlaySemantics => 'שכבת שמירה פעילה — אנא המתן';
 }
 
 // ========================================
@@ -337,7 +352,7 @@ class _OnboardingStrings {
   String get skipError => 'לא ניתן לדלג';
 
   // Welcome Step
-  String get welcomeTitle => 'ברוכים הבאים ל־MemoZap 🎉';
+  String get welcomeTitle => 'ברוכים הבאים ל־${AppStrings.appName} 🎉';
   String get welcomeSubtitle =>
       'ניהול רשימות מעולם לא היה קל כל כך! 🎉\n🛒 קניות • 📝 מטלות • 🎁 אירועים - עם בת הזוג, המשפחה, החברים או כל קבוצה';
 
@@ -402,7 +417,7 @@ class _OnboardingStrings {
 //
 // 1. **Import פשוט:**
 //    ```dart
-//    import 'package:memozap/l10n/app_strings.dart';
+//    import 'package:salsheli/l10n/app_strings.dart';
 //    ```
 //
 // 2. **שימוש ב-Widget:**
@@ -631,15 +646,21 @@ class _ShoppingStrings {
   // Active Shopping - Semantics Labels
   // ========================================
 
-  String get retryLoadSemantics => 'נסה לטעון שוב';
-  String get backToListSemantics => 'חזור לרשימה';
-  String get finishAndSaveSemantics => 'סיים קנייה ושמור';
+  String get retryLoadSemantics => 'לחץ פעמיים כדי לנסות לטעון את הרשימה מחדש';
+  String get backToListSemantics => 'לחץ פעמיים כדי לחזור לרשימת הקניות';
+  String get finishAndSaveSemantics => 'לחץ פעמיים כדי לסיים את הקנייה ולשמור את הנתונים';
   String purchasedToggleSemantics(String itemName, bool isPurchased) =>
-      isPurchased ? 'בטל סימון קניתי עבור $itemName' : 'סמן $itemName כנקנה';
+      isPurchased
+          ? 'לחץ פעמיים כדי להחזיר את $itemName לרשימת הקניות'
+          : 'לחץ פעמיים כדי להעביר את $itemName לסל הקניות המלא';
   String outOfStockToggleSemantics(String itemName, bool isOutOfStock) =>
-      isOutOfStock ? 'בטל סימון אין במלאי עבור $itemName' : 'סמן $itemName כאין במלאי';
+      isOutOfStock
+          ? 'לחץ פעמיים כדי לבטל סימון אין במלאי עבור $itemName'
+          : 'לחץ פעמיים כדי לסמן ש-$itemName אזל מהמדף';
   String notNeededToggleSemantics(String itemName, bool isNotNeeded) =>
-      isNotNeeded ? 'בטל סימון לא צריך עבור $itemName' : 'סמן $itemName כלא צריך';
+      isNotNeeded
+          ? 'לחץ פעמיים כדי להחזיר את $itemName לרשימה'
+          : 'לחץ פעמיים כדי לסמן ש-$itemName כבר לא צריך';
 }
 
 // ========================================
@@ -650,10 +671,10 @@ class _IndexStrings {
   const _IndexStrings();
 
   // Screen
-  String get appName => 'MemoZap';
+  String get appName => AppStrings.appName;
 
   // Accessibility
-  String get logoLabel => 'לוגו אפליקציית MemoZap';
+  String get logoLabel => 'לוגו אפליקציית ${AppStrings.appName}';
   String get loadingLabel => 'טוען את האפליקציה';
 
   // UI - Loading
@@ -682,7 +703,7 @@ class _WelcomeStrings {
   const _WelcomeStrings();
 
   // Screen
-  String get title => 'MemoZap';
+  String get title => AppStrings.appName;
   String get subtitle => 'רשימות משותפות. מקום אחד.';
 
   // Feature Cards - Updated Version (27/01/2026) - No Groups
@@ -755,7 +776,7 @@ class _WelcomeStrings {
   String get privacyPolicy => 'מדיניות פרטיות';
 
   // Accessibility
-  String get logoLabel => 'לוגו אפליקציית MemoZap';
+  String get logoLabel => 'לוגו אפליקציית ${AppStrings.appName}';
   String socialLoginButtonLabel(String provider) => 'התחבר עם $provider';
 
   // ⚠️ DEPRECATED: Guest mode removed - auth is required
@@ -982,6 +1003,21 @@ class _HomeStrings {
   // Welcome Header
   String welcomeUser(String userName) => 'שלום $userName! 👋';
 
+  /// ברכה לפי שעות היום - מחליפה את "שלום" הגנרי
+  String timeBasedGreeting(String userName, int hour) {
+    final String greeting;
+    if (hour >= 5 && hour < 12) {
+      greeting = 'בוקר טוב';
+    } else if (hour >= 12 && hour < 17) {
+      greeting = 'צהריים טובים';
+    } else if (hour >= 17 && hour < 21) {
+      greeting = 'ערב טוב';
+    } else {
+      greeting = 'לילה טוב';
+    }
+    return '$greeting, $userName! 👋';
+  }
+
   // ⚠️ DEPRECATED: Guest mode removed - auth is required
   @Deprecated('Guest mode removed - auth is required')
   String get guestUser => 'אורח';
@@ -1093,6 +1129,7 @@ class _SettingsStrings {
   String get manageMembersButton => 'ניהול חברים - בקרוב!';
   String get manageMembersComingSoon => 'ניהול חברים מלא - בקרוב! 🚧';
   String get roleOwner => 'בעלים';
+  String get roleAdmin => 'מנהל';
   String get roleEditor => 'עורך';
   String get roleViewer => 'צופה';
 
@@ -1808,6 +1845,24 @@ class _InventoryStrings {
   // Limit Warnings (80%)
   String itemsNearLimit(int current, int max) =>
       'יש לך $current מתוך $max פריטים במזווה';
+
+  // ========================================
+  // Pantry Health (v4.0)
+  // ========================================
+
+  /// מחזיר מחרוזת "בריאות מזווה" לפי אחוז מלאי תקין
+  String pantryHealthStatus(double healthPercent) {
+    if (healthPercent >= 80) return 'המזווה שלך נראה מצוין! 💚';
+    if (healthPercent >= 50) return 'המזווה במצב סביר, כדאי להשלים כמה דברים';
+    if (healthPercent >= 25) return 'צריך לבקר בסופר בקרוב 🛒';
+    return 'המזווה כמעט ריק — הגיע הזמן לקניות! 🚨';
+  }
+
+  String get pantryHealthLabel => 'בריאות המזווה';
+  String pantryHealthPercent(int percent) => '$percent% מלאי תקין';
+  String get pantryFullyStocked => 'הכל במלאי — אין מה לדאוג!';
+  String pantryLowItems(int count) =>
+      count == 1 ? 'מוצר אחד עומד להיגמר' : '$count מוצרים עומדים להיגמר';
 }
 
 // ========================================
@@ -2415,6 +2470,27 @@ class _ActiveShopperBannerStrings {
       '$count אנשים קונים מ"$listName"';
   String get joinButton => 'להצטרף';
   String get viewListTooltip => 'צפייה חיה';
+
+  // ========================================
+  // Collaborative Avatars (AppBar) - v4.0
+  // ========================================
+
+  String shopperJoined(String name) => '$name הצטרף/ה לקנייה';
+  String shopperLeft(String name) => '$name עזב/ה את הקנייה';
+  String shopperUpdatingPantry(String name) => '$name מעדכן/ת את המזווה כרגע';
+  String shopperCheckedItem(String name, String item) => '$name סימן/ה "$item" כנקנה';
+  String activeShoppersCount(int count) => '$count קונים פעילים כרגע';
+  String get youAreShoppingAlone => 'את/ה קונה לבד';
+
+  // Accessibility for avatars
+  String shopperAvatarLabel(String name, bool isStarter) =>
+      isStarter ? '$name (התחיל/ה את הקנייה)' : '$name קונה עכשיו';
+  String get moreShoppersLabel => 'עוד קונים פעילים';
+
+  // Real-time status changes
+  String get statusShopping => 'קונה עכשיו';
+  String get statusFinished => 'סיים/ה';
+  String get statusJoining => 'מצטרף/ת...';
 }
 
 // ========================================
@@ -2458,12 +2534,12 @@ class _LastChanceBannerStrings {
   // Banner Content
   // ========================================
 
-  String get title => 'רגע! שכחת משהו?';
+  String get title => 'רגע, הנה משהו שבדרך כלל חסר לך...';
 
   String semanticsLabel(String productName, int stock) =>
-      'המוצר $productName עומד להיגמר. נותרו $stock יחידות במלאי.';
+      'המלצה חכמה: $productName עומד להיגמר במזווה שלך. נותרו $stock יחידות. לחץ פעמיים להוספה לרשימה.';
 
-  String stockText(int stock) => 'נותרו: $stock יחידות במלאי';
+  String stockText(int stock) => 'נשארו רק $stock במזווה';
 
   // ========================================
   // Buttons & Tooltips
@@ -2473,11 +2549,11 @@ class _LastChanceBannerStrings {
       'הוסף "$productName" לרשימת הקניות';
   String get addButton => 'הוסף לרשימה';
 
-  String get nextTooltip => 'עבור להמלצה הבאה (יחזור בסוף הסבב)';
+  String get nextTooltip => 'עבור להמלצה הבאה';
   String get nextButton => 'הבא';
 
-  String get skipSessionTooltip => 'לא יופיע בקנייה הזו, כן בקנייה הבאה';
-  String get skipSessionButton => 'לא עכשיו';
+  String get skipSessionTooltip => 'דלג — נזכיר לך בפעם הבאה';
+  String get skipSessionButton => 'לא הפעם';
 
   // ========================================
   // Feedback Messages
@@ -2486,7 +2562,7 @@ class _LastChanceBannerStrings {
   String addedSuccess(String productName) => 'נוסף "$productName" לרשימה';
   String get addError => 'שגיאה בהוספת פריט';
   String get genericError => 'אירעה שגיאה, נסה שוב';
-  String get skippedForSession => 'לא יופיע בקנייה הזו';
+  String get skippedForSession => 'נדלג הפעם — נזכיר בקנייה הבאה';
 }
 
 // ========================================
@@ -2603,6 +2679,22 @@ class _HomeDashboardStrings {
   String greeting(String? userName) {
     final hasName = userName?.trim().isNotEmpty ?? false;
     return hasName ? 'שלום, $userName!' : 'שלום!';
+  }
+
+  /// ברכה לפי שעות היום - מחליפה את greeting הגנרי
+  String timeBasedGreeting(String? userName, int hour) {
+    final String greet;
+    if (hour >= 5 && hour < 12) {
+      greet = 'בוקר טוב';
+    } else if (hour >= 12 && hour < 17) {
+      greet = 'צהריים טובים';
+    } else if (hour >= 17 && hour < 21) {
+      greet = 'ערב טוב';
+    } else {
+      greet = 'לילה טוב';
+    }
+    final hasName = userName?.trim().isNotEmpty ?? false;
+    return hasName ? '$greet, $userName!' : '$greet!';
   }
 
   String get personalFamily => 'משפחה אישית';
@@ -2780,6 +2872,14 @@ class _ChecklistStrings {
   String percentComplete(int percent) => '$percent% הושלם';
   String get emptyTitle => 'הרשימה ריקה';
   String get emptySubtitle => 'הוסף פריטים לצ\'קליסט';
+
+  // Accessibility (v4.0)
+  String checkItemSemantics(String itemName, bool isChecked) =>
+      isChecked
+          ? 'לחץ פעמיים כדי לבטל סימון של $itemName'
+          : 'לחץ פעמיים כדי לסמן את $itemName כבוצע';
+  String get progressHeaderSemantics => 'כותרת שקופה עם סרגל התקדמות הצ\'קליסט';
+  String get allDoneSemantics => 'מצוין! כל הפריטים הושלמו';
 }
 
 // ========================================

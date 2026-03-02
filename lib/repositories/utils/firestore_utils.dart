@@ -7,28 +7,54 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreUtils {
-  /// Convert Firestore Timestamps to DateTime in a Map
+  /// Convert Firestore Timestamps to DateTime in a Map (fully recursive)
   static Map<String, dynamic> convertTimestamps(Map<String, dynamic> data) {
-    final converted = Map<String, dynamic>.from(data);
-    
-    converted.forEach((key, value) {
-      if (value is Timestamp) {
-        converted[key] = value.toDate();
-      } else if (value is Map) {
-        converted[key] = convertTimestamps(Map<String, dynamic>.from(value));
-      } else if (value is List) {
-        converted[key] = value.map((item) {
-          if (item is Timestamp) {
-            // 🔧 תמיכה ברשימת תאריכים: [Timestamp, Timestamp, ...]
-            return item.toDate();
-          } else if (item is Map) {
-            return convertTimestamps(Map<String, dynamic>.from(item));
-          }
-          return item;
-        }).toList();
-      }
-    });
-    
-    return converted;
+    return data.map((key, value) => MapEntry(key, _convertValue(value)));
   }
+
+  /// 🔄 המרת ערך בודד - רקורסיבית לכל עומק
+  static dynamic _convertValue(dynamic value) {
+    if (value == null) return null;
+    if (value is Timestamp) return value.toDate();
+    if (value is Map) {
+      return value.cast<String, dynamic>()
+          .map((key, v) => MapEntry(key, _convertValue(v)));
+    }
+    if (value is List) {
+      return value.map(_convertValue).toList();
+    }
+    return value;
+  }
+}
+
+/// Extension נוח להמרת Firestore data ישירות על Map
+extension FirestoreMapExtension on Map<String, dynamic> {
+  /// ממיר Timestamps ל-DateTime בכל עומק
+  ///
+  /// ```dart
+  /// final data = doc.data()!.toDartTypes();
+  /// ```
+  Map<String, dynamic> toDartTypes() => FirestoreUtils.convertTimestamps(this);
+}
+
+/// Extension על DocumentSnapshot - המרה ישירה ללא .data() ידני
+extension FirestoreDocExtension on DocumentSnapshot<Map<String, dynamic>> {
+  /// מחזיר data ממומר (Timestamps → DateTime) או null אם אין data
+  ///
+  /// ```dart
+  /// final map = doc.toDartMap()!;
+  /// final item = InventoryItem.fromJson(map);
+  /// ```
+  Map<String, dynamic>? toDartMap() => data()?.toDartTypes();
+}
+
+/// Extension על QuerySnapshot - המרת כל ה-documents בבת אחת
+extension FirestoreQueryExtension on QuerySnapshot<Map<String, dynamic>> {
+  /// ממיר את כל ה-documents לרשימת Map עם DateTime במקום Timestamp
+  ///
+  /// ```dart
+  /// final items = snapshot.toDartList().map(Item.fromJson).toList();
+  /// ```
+  List<Map<String, dynamic>> toDartList() =>
+      docs.map((doc) => doc.data().toDartTypes()).toList();
 }

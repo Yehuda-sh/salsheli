@@ -2,9 +2,13 @@
 //
 // כרטיס "הצעות מהמזווה" - קרוסלה אופקית בסגנון Sticky Notes.
 // כל כרטיס עם צללים, סיבוב קל, וכפתורי Add/Dismiss.
+// ✨ v4.0: עיצוב כותרת Highlighter, משוב Haptic דינמי (Add vs Dismiss),
+//          אפקט 'הרמה' (Lift) בלחיצה על פתקית, אופטימיזציה עם RepaintBoundary
 //
-// Version: 3.1 (04/02/2026) - Strings → AppStrings, theme-aware colors, haptic fix
+// Version: 4.0 (22/02/2026)
 // 🔗 Related: SmartSuggestion, SuggestionsProvider, StickyNote
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -103,50 +107,69 @@ class _SuggestionsCarousel extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // כותרת עם אייקון מזווה
+        // כותרת Highlighter style (v4.0)
         Padding(
           padding: const EdgeInsets.only(bottom: kSpacingSmall),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: kStickyOrange.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.inventory_2_outlined,
-                  size: 18,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: kStickyOrange.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(10),
+              border: const BorderDirectional(
+                start: BorderSide(
                   color: kStickyOrangeDark,
+                  width: 4,
                 ),
               ),
-              const SizedBox(width: 10),
-              Text(
-                AppStrings.suggestionsToday.title,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Spacer(),
-              // Badge עם מספר
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: kStickyOrange.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: kStickyOrange.withValues(alpha: 0.4),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: kStickyOrange.withValues(alpha: 0.25),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                ),
-                child: Text(
-                  AppStrings.suggestionsToday.itemCount(suggestions.length),
-                  style: theme.textTheme.labelSmall?.copyWith(
+                  child: const Icon(
+                    Icons.inventory_2_outlined,
+                    size: 18,
                     color: kStickyOrangeDark,
-                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(width: 10),
+                Text(
+                  AppStrings.suggestionsToday.title,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
+                // Badge עם shimmer
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: kStickyOrange.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: kStickyOrange.withValues(alpha: 0.4),
+                    ),
+                  ),
+                  child: Text(
+                    AppStrings.suggestionsToday.itemCount(suggestions.length),
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: kStickyOrangeDark,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                )
+                    .animate(onPlay: (c) => c.repeat(reverse: true))
+                    .shimmer(
+                      delay: 3000.ms,
+                      duration: 1000.ms,
+                      color: kStickyOrange.withValues(alpha: 0.3),
+                    ),
+              ],
+            ),
           ),
         ),
 
@@ -161,15 +184,17 @@ class _SuggestionsCarousel extends StatelessWidget {
             itemBuilder: (context, index) {
               // סיבוב אקראי קטן לכל כרטיס
               final rotation = (index.isEven ? 1 : -1) * 0.02;
-              return Padding(
-                padding: EdgeInsets.only(
-                  left: index == 0 ? 0 : kSpacingSmall,
-                  right: index == suggestions.length - 1 ? 0 : 0,
-                ),
-                child: _StickyNoteCard(
-                  suggestion: suggestions[index],
-                  rotation: rotation,
-                  index: index,
+              return RepaintBoundary(
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    left: index == 0 ? 0 : kSpacingSmall,
+                    right: index == suggestions.length - 1 ? 0 : 0,
+                  ),
+                  child: _StickyNoteCard(
+                    suggestion: suggestions[index],
+                    rotation: rotation,
+                    index: index,
+                  ),
                 ),
               );
             },
@@ -198,6 +223,7 @@ class _StickyNoteCard extends StatefulWidget {
 
 class _StickyNoteCardState extends State<_StickyNoteCard> {
   bool _isProcessing = false;
+  bool _isPressed = false;
 
   /// Check if suggestion has unknown status
   bool get _isUnknownStatus =>
@@ -281,7 +307,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
 
       if (!mounted) return;
 
-      await HapticFeedback.mediumImpact();
+      unawaited(HapticFeedback.mediumImpact());
       messenger.showSnackBar(
         SnackBar(
           content: Row(
@@ -326,6 +352,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
 
       if (!mounted) return;
 
+      unawaited(HapticFeedback.selectionClick());
       messenger.showSnackBar(
         SnackBar(
           content: Text(AppStrings.suggestionsToday.dismissedForWeek(widget.suggestion.productName)),
@@ -356,25 +383,49 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
     final cardColor = _getCardColor(suggestion.urgency);
     final shadowColor = theme.shadowColor;
 
-    return Transform.rotate(
+    final result = GestureDetector(
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) => setState(() => _isPressed = false),
+      onTapCancel: () => setState(() => _isPressed = false),
+      child: AnimatedScale(
+        scale: _isPressed ? 0.98 : 1.0,
+        duration: const Duration(milliseconds: 120),
+        curve: Curves.easeOut,
+        child: Transform.rotate(
       angle: widget.rotation,
       child: Container(
         width: 145,
         decoration: BoxDecoration(
-          color: cardColor,
+          // טקסטורת נייר: gradient עדין לתחושת קיפול
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              cardColor,
+              Color.alphaBlend(
+                Colors.white.withValues(alpha: 0.06),
+                cardColor,
+              ),
+              Color.alphaBlend(
+                Colors.black.withValues(alpha: 0.03),
+                cardColor,
+              ),
+            ],
+            stops: const [0.0, 0.5, 1.0],
+          ),
           borderRadius: BorderRadius.circular(4),
           boxShadow: [
-            // צל ראשי - אפקט הדבקה
+            // צל ראשי - משתנה בלחיצה
             BoxShadow(
-              color: shadowColor.withValues(alpha: 0.2),
-              blurRadius: 8,
-              offset: const Offset(2, 4),
+              color: shadowColor.withValues(alpha: _isPressed ? 0.1 : 0.2),
+              blurRadius: _isPressed ? 4 : 8,
+              offset: _isPressed ? const Offset(1, 2) : const Offset(2, 4),
             ),
             // צל משני - עומק
             BoxShadow(
-              color: shadowColor.withValues(alpha: 0.1),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
+              color: shadowColor.withValues(alpha: _isPressed ? 0.05 : 0.1),
+              blurRadius: _isPressed ? 2 : 4,
+              offset: _isPressed ? const Offset(0, 1) : const Offset(0, 2),
             ),
           ],
         ),
@@ -560,13 +611,34 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
           ],
         ),
       ),
-    )
+    ),
+    ),
+    );
+
+    // אנימציות כניסה מדורגות עם Curve יוקרתי
+    Widget animated = result
         .animate(delay: Duration(milliseconds: 100 * widget.index))
-        .fadeIn(duration: const Duration(milliseconds: 300))
+        .fadeIn(duration: 350.ms, curve: Curves.easeOutBack)
         .slideX(
           begin: 0.2,
-          curve: Curves.easeOut,
-          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutBack,
+          duration: 350.ms,
         );
+
+    // Shake עדין לפתקיות critical — פעם ב-5 שניות
+    if (suggestion.urgency == 'critical') {
+      animated = animated
+          .animate(
+            onPlay: (c) => c.repeat(),
+          )
+          .shake(
+            delay: 5000.ms,
+            duration: 500.ms,
+            hz: 3,
+            rotation: 0.008,
+          );
+    }
+
+    return animated;
   }
 }

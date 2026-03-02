@@ -1,17 +1,34 @@
 // 📄 lib/screens/auth/login_screen.dart
 //
-// מסך התחברות עם Firebase Auth.
-// - Form validation + shake animation לשגיאות
-// - Password reset בלחיצה על "שכחת סיסמה"
-// - PopScope חוסם Back (חובה להתחבר)
+// 🎯 Purpose: מסך התחברות עם Firebase Auth
+//
+// 📋 Features:
+//     - שילוב NotebookBackground (Paper & Ink design language)
+//     - אנימציות כניסה מדורגות (Staggered) עם flutter_animate
+//     - Loading Overlay משופר עם Glassmorphism וטקסט משתנה
+//     - Form validation + shake animation לשגיאות
+//     - Password reset בלחיצה על "שכחת סיסמה"
+//     - PopScope חוסם Back (חובה להתחבר)
+//     - Haptic Feedback משולב
+//     - ריכוז לוגיקת SnackBar
+//     - DEV Mode עם Glassmorphic UI
 //
 // 🔗 Related: UserContext, RegisterScreen, AppStrings.auth
+//
+// 📜 History:
+//     - v3.1: Form validation, shake, haptic, social login
+//     - v4.0 (22/02/2026): NotebookBackground, staggered animations, glassmorphic overlay
+//
+// Version: 4.0
+// Last Updated: 22/02/2026
 
 import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,6 +39,7 @@ import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../providers/user_context.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/common/notebook_background.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -38,7 +56,6 @@ class _LoginScreenState extends State<LoginScreen>
 
   bool _isLoading = false;
   bool _obscurePassword = true;
-  bool _showSocialButtons = false; // 🎬 לאנימציית כניסה
 
   // 🎬 Animation controller לשגיאות
   late AnimationController _shakeController;
@@ -69,13 +86,6 @@ class _LoginScreenState extends State<LoginScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.microtask(_emailFocusNode.requestFocus);
     });
-
-    // 🎬 אנימציית כניסה לכפתורי Social Login
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) {
-        setState(() => _showSocialButtons = true);
-      }
-    });
   }
 
   @override
@@ -87,11 +97,52 @@ class _LoginScreenState extends State<LoginScreen>
     super.dispose();
   }
 
+  // ═══════════════════════════════════════════════════════════════════
+  // 📢 UI Helper - SnackBar מרוכז
+  // ═══════════════════════════════════════════════════════════════════
+
+  /// הצגת הודעת סטטוס אחידה עם StatusColors
+  void _showStatus(String message, {required StatusType type}) {
+    final icon = switch (type) {
+      StatusType.success => Icons.check_circle,
+      StatusType.warning => Icons.info_outline,
+      _ => Icons.error_outline,
+    };
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(icon, color: StatusColors.getOnContainer(type, context), size: 24),
+            const SizedBox(width: kSpacingSmall),
+            Expanded(
+              child: Text(
+                message,
+                style: TextStyle(
+                  fontSize: kFontSizeSmall,
+                  color: StatusColors.getOnContainer(type, context),
+                ),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: StatusColors.getContainer(type, context),
+        duration: type == StatusType.success ? const Duration(seconds: 2) : kSnackBarDurationLong,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(kBorderRadius),
+        ),
+        margin: const EdgeInsets.all(kSpacingMedium),
+      ),
+    );
+  }
+
   /// ✅ פונקציית Login עם Firebase Authentication
   Future<void> _handleLogin() async {
     // 🛡️ מניעת לחיצות כפולות
     if (_isLoading) return;
 
+    unawaited(HapticFeedback.mediumImpact());
     if (kDebugMode) debugPrint('🔐 _handleLogin() | Starting login process...');
     if (!_formKey.currentState!.validate()) {
       if (kDebugMode) debugPrint('❌ _handleLogin() | Form validation failed');
@@ -129,29 +180,7 @@ class _LoginScreenState extends State<LoginScreen>
         setState(() => _isLoading = false);
 
         // 🎉 הצגת הודעת הצלחה קצרה
-        // ✅ שימוש ב-StatusColors API
-        final messenger = ScaffoldMessenger.of(context);
-        messenger.showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.check_circle, color: StatusColors.getOnStatusContainer('success', context), size: 24),
-                const SizedBox(width: kSpacingSmall),
-                Text(
-                  AppStrings.auth.loginSuccessRedirect,
-                  style: TextStyle(color: StatusColors.getOnStatusContainer('success', context)),
-                ),
-              ],
-            ),
-            backgroundColor: StatusColors.getStatusContainer('success', context),
-            duration: const Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(kBorderRadius),
-            ),
-            margin: const EdgeInsets.all(kSpacingMedium),
-          ),
-        );
+        _showStatus(AppStrings.auth.loginSuccessRedirect, type: StatusType.success);
 
         // ⏱️ המתנה קצרה לפני ניווט (feedback ויזואלי)
         await Future.delayed(const Duration(milliseconds: 1500));
@@ -172,31 +201,7 @@ class _LoginScreenState extends State<LoginScreen>
         unawaited(_shakeController.forward(from: 0)); // 🎬 Shake animation
 
         // 🎨 הודעת שגיאה משופרת
-        // ✅ שימוש ב-StatusColors API
-        final messenger = ScaffoldMessenger.of(context);
-        messenger.showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.error_outline, color: StatusColors.getOnStatusContainer('error', context), size: 24),
-                const SizedBox(width: kSpacingSmall),
-                Expanded(
-                  child: Text(
-                    errorMsg,
-                    style: TextStyle(fontSize: kFontSizeSmall, color: StatusColors.getOnStatusContainer('error', context)),
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: StatusColors.getStatusContainer('error', context),
-            duration: kSnackBarDurationLong,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(kBorderRadius),
-            ),
-            margin: const EdgeInsets.all(kSpacingMedium),
-          ),
-        );
+        _showStatus(errorMsg, type: StatusType.error);
       }
     }
     if (kDebugMode) debugPrint('🏁 _handleLogin() | Completed');
@@ -212,6 +217,7 @@ class _LoginScreenState extends State<LoginScreen>
   Future<void> _handleGoogleSignIn() async {
     if (_isLoading) return;
 
+    unawaited(HapticFeedback.lightImpact());
     if (kDebugMode) debugPrint('🔵 _handleGoogleSignIn() | Starting Google sign in...');
     setState(() => _isLoading = true);
 
@@ -236,16 +242,7 @@ class _LoginScreenState extends State<LoginScreen>
       if (mounted) {
         setState(() => _isLoading = false);
         final errorMsg = e.toString().replaceAll('Exception: ', '');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              errorMsg,
-              style: TextStyle(color: StatusColors.getOnStatusContainer('error', context)),
-            ),
-            backgroundColor: StatusColors.getStatusContainer('error', context),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        _showStatus(errorMsg, type: StatusType.error);
       }
     }
   }
@@ -254,6 +251,7 @@ class _LoginScreenState extends State<LoginScreen>
   Future<void> _handleAppleSignIn() async {
     if (_isLoading) return;
 
+    unawaited(HapticFeedback.lightImpact());
     if (kDebugMode) debugPrint('🍎 _handleAppleSignIn() | Starting Apple sign in...');
     setState(() => _isLoading = true);
 
@@ -278,16 +276,7 @@ class _LoginScreenState extends State<LoginScreen>
       if (mounted) {
         setState(() => _isLoading = false);
         final errorMsg = e.toString().replaceAll('Exception: ', '');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              errorMsg,
-              style: TextStyle(color: StatusColors.getOnStatusContainer('error', context)),
-            ),
-            backgroundColor: StatusColors.getStatusContainer('error', context),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        _showStatus(errorMsg, type: StatusType.error);
       }
     }
   }
@@ -303,46 +292,12 @@ class _LoginScreenState extends State<LoginScreen>
     final email = _emailController.text.trim();
 
     if (email.isEmpty) {
-      // ✅ שימוש ב-StatusColors API
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              Icon(Icons.info_outline, color: StatusColors.getOnStatusContainer('warning', context)),
-              const SizedBox(width: kSpacingSmall),
-              Expanded(
-                child: Text(
-                  AppStrings.auth.enterEmailFirst,
-                  style: TextStyle(
-                    fontSize: kFontSizeSmall,
-                    color: StatusColors.getOnStatusContainer('warning', context),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: StatusColors.getStatusContainer('warning', context),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(kBorderRadius),
-          ),
-          margin: const EdgeInsets.all(kSpacingMedium),
-        ),
-      );
+      _showStatus(AppStrings.auth.enterEmailFirst, type: StatusType.warning);
       return;
     }
 
     if (!email.contains('@')) {
-      // ✅ שימוש ב-StatusColors API
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppStrings.auth.emailInvalid,
-            style: TextStyle(color: StatusColors.getOnStatusContainer('error', context)),
-          ),
-          backgroundColor: StatusColors.getStatusContainer('error', context),
-        ),
-      );
+      _showStatus(AppStrings.auth.emailInvalid, type: StatusType.error);
       return;
     }
 
@@ -358,32 +313,7 @@ class _LoginScreenState extends State<LoginScreen>
         setState(() => _isLoading = false);
 
         // הצג הודעת הצלחה
-        // ✅ שימוש ב-StatusColors API
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.check_circle, color: StatusColors.getOnStatusContainer('success', context)),
-                const SizedBox(width: kSpacingSmall),
-                Expanded(
-                  child: Text(
-                    AppStrings.auth.resetEmailSentTo(email),
-                    style: TextStyle(
-                      fontSize: kFontSizeSmall,
-                      color: StatusColors.getOnStatusContainer('success', context),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: StatusColors.getStatusContainer('success', context),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(kBorderRadius),
-            ),
-            margin: const EdgeInsets.all(kSpacingMedium),
-          ),
-        );
+        _showStatus(AppStrings.auth.resetEmailSentTo(email), type: StatusType.success);
       }
     } catch (e) {
       if (kDebugMode) debugPrint('❌ _handleForgotPassword() | Failed: $e');
@@ -391,29 +321,7 @@ class _LoginScreenState extends State<LoginScreen>
       if (mounted) {
         setState(() => _isLoading = false);
 
-        // ✅ שימוש ב-StatusColors API
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.error_outline, color: StatusColors.getOnStatusContainer('error', context)),
-                const SizedBox(width: kSpacingSmall),
-                Expanded(
-                  child: Text(
-                    AppStrings.auth.resetEmailSendError,
-                    style: TextStyle(fontSize: kFontSizeSmall, color: StatusColors.getOnStatusContainer('error', context)),
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: StatusColors.getStatusContainer('error', context),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(kBorderRadius),
-            ),
-            margin: const EdgeInsets.all(kSpacingMedium),
-          ),
-        );
+        _showStatus(AppStrings.auth.resetEmailSendError, type: StatusType.error);
       }
     }
 
@@ -473,6 +381,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   /// התחברות מהירה עם משתמש דמו
   Future<void> _quickLogin(String email) async {
+    unawaited(HapticFeedback.lightImpact());
     if (kDebugMode) debugPrint('🧪 Quick login with: $email');
 
     // מילוי השדות
@@ -507,37 +416,56 @@ class _LoginScreenState extends State<LoginScreen>
           }
         },
         child: Scaffold(
-          backgroundColor: cs.surface,
+          backgroundColor: brand?.paperBackground ?? kPaperBackground,
           body: Stack(
             children: [
-              // 🧪 DEV MODE - Quick Login Button (only in development)
+              // 📓 רקע מחברת עדין - Paper & Ink design language
+              const NotebookBackground(
+                lineOpacity: 0.10,
+                lineColor: kNotebookBlueSoft,
+                showRedLine: false,
+                fadeEdges: true,
+              ),
+
+              // 🧪 DEV MODE - Quick Login Button (Glassmorphic)
               if (AppConfig.useEmulators)
                 Positioned(
                   top: MediaQuery.of(context).padding.top + 8,
                   left: 8,
-                  child: Material(
-                    color: Colors.orange.shade100,
+                  child: ClipRRect(
                     borderRadius: BorderRadius.circular(20),
-                    elevation: 2,
-                    child: InkWell(
-                      onTap: _showQuickLoginDialog,
-                      borderRadius: BorderRadius.circular(20),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.bug_report, size: 16, color: Colors.orange.shade800),
-                            const SizedBox(width: 4),
-                            Text(
-                              'DEV',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.orange.shade800,
-                              ),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: kGlassBlurLow, sigmaY: kGlassBlurLow),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.orange.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: Colors.orange.withValues(alpha: 0.3),
+                            width: 0.5,
+                          ),
+                        ),
+                        child: InkWell(
+                          onTap: _showQuickLoginDialog,
+                          borderRadius: BorderRadius.circular(20),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.bug_report, size: 16, color: Colors.orange.shade800),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'DEV',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.orange.shade800,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
@@ -571,30 +499,35 @@ class _LoginScreenState extends State<LoginScreen>
                           children: [
                             const SizedBox(height: kSpacingMedium),
 
-                            // 📝 כותרת פשוטה - בלי לוגו (כמו מסך הרשמה)
+                            // 📝 כותרת - staggered animation
                             Text(
                               AppStrings.auth.loginTitle,
                               style: theme.textTheme.headlineLarge?.copyWith(
                                 fontWeight: FontWeight.w800,
                                 fontSize: 36,
-                                // ✅ צבע מ-Theme (תומך Dark Mode)
                                 color: cs.onSurface,
                                 letterSpacing: 1,
                               ),
                               textAlign: TextAlign.center,
-                            ),
+                            )
+                                .animate()
+                                .fadeIn(duration: 400.ms)
+                                .slideX(begin: -0.1, curve: Curves.easeOutCubic),
                             const SizedBox(height: 4),
                             Text(
                               AppStrings.auth.loginSubtitle,
                               style: theme.textTheme.bodyMedium?.copyWith(
-                                // ✅ צבע מ-Theme (תומך Dark Mode)
                                 color: cs.onSurfaceVariant,
                                 fontSize: 15,
                               ),
                               textAlign: TextAlign.center,
-                            ),
+                            )
+                                .animate()
+                                .fadeIn(duration: 400.ms, delay: 50.ms)
+                                .slideX(begin: -0.1, curve: Curves.easeOutCubic),
                             const SizedBox(height: kSpacingLarge),
-                            // 📧 שדה אימייל
+
+                            // 📧 שדה אימייל - paper fillColor
                             TextFormField(
                               controller: _emailController,
                               focusNode: _emailFocusNode,
@@ -610,7 +543,7 @@ class _LoginScreenState extends State<LoginScreen>
                                   borderSide: BorderSide(color: cs.primary, width: 2),
                                 ),
                                 filled: true,
-                                fillColor: cs.surfaceContainerHighest,
+                                fillColor: cs.surface.withValues(alpha: 0.6),
                                 contentPadding: const EdgeInsets.symmetric(
                                   horizontal: kSpacingMedium,
                                   vertical: kSpacingSmall,
@@ -626,9 +559,13 @@ class _LoginScreenState extends State<LoginScreen>
                                 }
                                 return null;
                               },
-                            ),
+                            )
+                                .animate()
+                                .fadeIn(duration: 400.ms, delay: 100.ms)
+                                .slideX(begin: -0.1, curve: Curves.easeOutCubic),
                             const SizedBox(height: kSpacingSmall),
-                            // 🔒 שדה סיסמה
+
+                            // 🔒 שדה סיסמה - paper fillColor
                             TextFormField(
                               controller: _passwordController,
                               decoration: InputDecoration(
@@ -658,7 +595,7 @@ class _LoginScreenState extends State<LoginScreen>
                                   borderSide: BorderSide(color: cs.primary, width: 2),
                                 ),
                                 filled: true,
-                                fillColor: cs.surfaceContainerHighest,
+                                fillColor: cs.surface.withValues(alpha: 0.6),
                                 contentPadding: const EdgeInsets.symmetric(
                                   horizontal: kSpacingMedium,
                                   vertical: kSpacingSmall,
@@ -675,12 +612,13 @@ class _LoginScreenState extends State<LoginScreen>
                                 }
                                 return null;
                               },
-                            ),
-                            const SizedBox(
-                              height: kSpacingSmall,
-                            ), // 📐 רווח קטן
-                            // 🔑 קישור שכחתי סיסמה - מימין לשדה הסיסמה
-                            // ✅ נגישות משופרת עם Semantics
+                            )
+                                .animate()
+                                .fadeIn(duration: 400.ms, delay: 150.ms)
+                                .slideX(begin: -0.1, curve: Curves.easeOutCubic),
+                            const SizedBox(height: kSpacingSmall),
+
+                            // 🔑 קישור שכחתי סיסמה
                             Align(
                               alignment: AlignmentDirectional.centerEnd,
                               child: Semantics(
@@ -711,9 +649,12 @@ class _LoginScreenState extends State<LoginScreen>
                                   ),
                                 ),
                               ),
-                            ),
+                            )
+                                .animate()
+                                .fadeIn(duration: 400.ms, delay: 200.ms),
                             const SizedBox(height: kSpacingSmall),
-                            // 🔘 כפתור התחברות
+
+                            // 🔘 כפתור התחברות + shimmer CTA
                             FilledButton.icon(
                               onPressed: _isLoading ? null : _handleLogin,
                               icon: const Icon(Icons.login),
@@ -723,77 +664,77 @@ class _LoginScreenState extends State<LoginScreen>
                                 backgroundColor: brand?.success ?? cs.primary,
                                 foregroundColor: cs.onPrimary,
                               ),
-                            ),
+                            )
+                                .animate()
+                                .fadeIn(duration: 400.ms, delay: 250.ms)
+                                .slideX(begin: -0.1, curve: Curves.easeOutCubic)
+                                .then() // ✅ shimmer starts after entry animation
+                                .shimmer(
+                                  duration: kAnimationDurationSlow,
+                                  color: cs.onPrimary.withValues(alpha: kOpacityLow),
+                                  angle: kShimmerAngle,
+                                  delay: 1200.ms,
+                                ),
                             const SizedBox(height: kSpacingLarge),
 
-                            // ➖ Divider עם "או התחבר עם" - אנימציה יחד עם Social buttons
-                            AnimatedOpacity(
-                              opacity: _showSocialButtons ? 1.0 : 0.0,
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeOutCubic,
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: kSpacingMedium),
-                                child: Row(
-                                  children: [
-                                    Expanded(child: Divider(color: cs.outlineVariant)),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
-                                      child: Text(
-                                        AppStrings.auth.orLoginWith,
-                                        style: TextStyle(
-                                          color: cs.onSurfaceVariant,
-                                          fontSize: kFontSizeSmall,
-                                        ),
+                            // ➖ Divider עם "או התחבר עם"
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: kSpacingMedium),
+                              child: Row(
+                                children: [
+                                  Expanded(child: Divider(color: cs.outlineVariant)),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
+                                    child: Text(
+                                      AppStrings.auth.orLoginWith,
+                                      style: TextStyle(
+                                        color: cs.onSurfaceVariant,
+                                        fontSize: kFontSizeSmall,
                                       ),
                                     ),
-                                    Expanded(child: Divider(color: cs.outlineVariant)),
-                                  ],
-                                ),
+                                  ),
+                                  Expanded(child: Divider(color: cs.outlineVariant)),
+                                ],
                               ),
-                            ),
+                            )
+                                .animate()
+                                .fadeIn(duration: 400.ms, delay: 300.ms),
 
-                            // 🔵 כפתורי Social Login עם אנימציית כניסה
-                            AnimatedSlide(
-                              offset: _showSocialButtons ? Offset.zero : const Offset(0, 0.3),
-                              duration: const Duration(milliseconds: 400),
-                              curve: Curves.easeOutCubic,
-                              child: AnimatedOpacity(
-                                opacity: _showSocialButtons ? 1.0 : 0.0,
-                                duration: const Duration(milliseconds: 400),
-                                child: Row(
-                                  children: [
-                                    // Google
-                                    Expanded(
-                                      child: _SocialLoginButton(
-                                        icon: FontAwesomeIcons.google,
-                                        label: 'Google',
-                                        color: const Color(0xFFDB4437),
-                                        onPressed: _isLoading ? null : _handleGoogleSignIn,
-                                      ),
-                                    ),
-                                    const SizedBox(width: kSpacingSmall),
-                                    // Apple
-                                    Expanded(
-                                      child: _SocialLoginButton(
-                                        icon: FontAwesomeIcons.apple,
-                                        label: 'Apple',
-                                        color: cs.onSurface, // שחור/לבן לפי Theme
-                                        onPressed: _isLoading ? null : _handleAppleSignIn,
-                                      ),
-                                    ),
-                                  ],
+                            // 🔵 כפתורי Social Login
+                            Row(
+                              children: [
+                                // Google
+                                Expanded(
+                                  child: _SocialLoginButton(
+                                    icon: FontAwesomeIcons.google,
+                                    label: 'Google',
+                                    color: const Color(0xFFDB4437),
+                                    onPressed: _isLoading ? null : _handleGoogleSignIn,
+                                  ),
                                 ),
-                              ),
-                            ),
+                                const SizedBox(width: kSpacingSmall),
+                                // Apple
+                                Expanded(
+                                  child: _SocialLoginButton(
+                                    icon: FontAwesomeIcons.apple,
+                                    label: 'Apple',
+                                    color: cs.onSurface,
+                                    onPressed: _isLoading ? null : _handleAppleSignIn,
+                                  ),
+                                ),
+                              ],
+                            )
+                                .animate()
+                                .fadeIn(duration: 400.ms, delay: 350.ms)
+                                .slideY(begin: 0.15, curve: Curves.easeOutCubic),
                             const SizedBox(height: kSpacingMedium),
 
-                            // 🔗 קישור להרשמה - Row פשוט (כמו מסך הרשמה)
+                            // 🔗 קישור להרשמה
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
                                   AppStrings.auth.noAccount,
-                                  // ✅ צבע מ-Theme (תומך Dark Mode)
                                   style: TextStyle(
                                     color: cs.onSurfaceVariant,
                                     fontSize: 15,
@@ -805,7 +746,6 @@ class _LoginScreenState extends State<LoginScreen>
                                       : _navigateToRegister,
                                   child: Text(
                                     AppStrings.auth.registerNow,
-                                    // ✅ סגנון בולט יותר עם קו תחתון
                                     style: TextStyle(
                                       color: accent,
                                       fontWeight: FontWeight.bold,
@@ -817,7 +757,9 @@ class _LoginScreenState extends State<LoginScreen>
                                   ),
                                 ),
                               ],
-                            ),
+                            )
+                                .animate()
+                                .fadeIn(duration: 400.ms, delay: 400.ms),
                             const SizedBox(height: kSpacingMedium),
                           ],
                         ),
@@ -827,15 +769,18 @@ class _LoginScreenState extends State<LoginScreen>
                 ),
               ),
 
-              // 🌫️ Loading overlay עם blur עדין
+              // 🌫️ Loading overlay עם Glassmorphism + טקסט משתנה
               if (_isLoading)
                 Positioned.fill(
                   child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+                    filter: ImageFilter.blur(
+                      sigmaX: kGlassBlurMedium,
+                      sigmaY: kGlassBlurMedium,
+                    ),
                     child: Container(
                       color: Colors.black.withValues(alpha: 0.25),
                       child: Center(
-                        child: CircularProgressIndicator(color: cs.primary),
+                        child: _LoadingOverlay(color: cs.primary),
                       ),
                     ),
                   ),
@@ -873,9 +818,14 @@ class _QuickLoginBottomSheet extends StatelessWidget {
       groupedUsers.putIfAbsent(group, () => []).add(user);
     }
 
-    return Container(
+    // ✅ v4.0: Glassmorphic background
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: kGlassBlurMedium, sigmaY: kGlassBlurMedium),
+        child: Container(
       decoration: BoxDecoration(
-        color: cs.surface,
+        color: cs.surface.withValues(alpha: 0.92),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -967,6 +917,8 @@ class _QuickLoginBottomSheet extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    ),
       ),
     );
   }
@@ -1132,6 +1084,74 @@ class _SocialLoginButtonState extends State<_SocialLoginButton> {
           ),
         ),
       ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 🌫️ Loading Overlay with Cycling Text
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// ✅ v4.0: Loading overlay עם טקסט משתנה ליצירת תחושת מהירות
+class _LoadingOverlay extends StatefulWidget {
+  final Color color;
+
+  const _LoadingOverlay({required this.color});
+
+  @override
+  State<_LoadingOverlay> createState() => _LoadingOverlayState();
+}
+
+class _LoadingOverlayState extends State<_LoadingOverlay> {
+  static const _messages = [
+    'בודק פרטים...',
+    'מתחבר לשרת...',
+    'כמעט שם...',
+  ];
+
+  int _messageIndex = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(milliseconds: 1500), (_) {
+      if (mounted) {
+        setState(() {
+          _messageIndex = (_messageIndex + 1) % _messages.length;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        CircularProgressIndicator(color: widget.color),
+        const SizedBox(height: kSpacingMedium),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: Text(
+            _messages[_messageIndex],
+            key: ValueKey(_messageIndex),
+            style: TextStyle(
+              color: cs.onSurface,
+              fontSize: kFontSizeMedium,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

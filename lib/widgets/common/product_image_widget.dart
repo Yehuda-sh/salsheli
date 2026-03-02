@@ -3,17 +3,27 @@
 // Widget להצגת תמונת מוצר מ-Open Food Facts עם fallback לאייקון קטגוריה.
 // כולל loading state, error handling, ותמיכה בגדלים שונים עם CachedNetworkImage.
 //
+// ✨ Features:
+// - טעינת Skeleton מבוססת Skeletonizer
+// - אפקט Shimmer פרימיום
+// - אנימציית 'צמיחה' (Scale-in) לסיום טעינה
+// - אופטימיזציית RepaintBoundary
+//
 // ✅ תיקונים:
 //    - החלפת Colors.grey קשיחים בצבעי Theme (cs.surfaceContainerHighest)
 //    - החלפת borderRadius קשיח בקבוע kBorderRadius
 //    - הוספת Semantics לנגישות עם semanticLabel
-//    - הוספת fadeInDuration/fadeOutDuration לאנימציית טעינה חלקה
 //    - תמיכה ב-Dark Mode
 //
-// 🔗 Related: ProductImageService, CachedNetworkImage
+// 🔗 Related: ProductImageService, CachedNetworkImage, Skeletonizer
+//
+// Version: 4.0 - Hybrid Premium (Skeleton + Scale-in)
+// Last Updated: 22/02/2026
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../core/ui_constants.dart';
 import '../../services/product_image_service.dart';
@@ -102,39 +112,59 @@ class _ProductImageWidgetState extends State<ProductImageWidget> {
     final effectiveSemanticLabel = widget.semanticLabel ??
         (widget.category != null ? 'תמונת מוצר - ${widget.category}' : 'תמונת מוצר');
 
-    return Semantics(
-      image: true,
-      label: effectiveSemanticLabel,
-      child: Container(
-        width: widget.size,
-        height: widget.size,
-        decoration: BoxDecoration(
-          borderRadius: borderRadius,
-          color: cs.surfaceContainerHighest, // ✅ Theme-aware במקום Colors.grey[100]
-        ),
-        child: ClipRRect(
-          borderRadius: borderRadius,
-          child: _buildContent(cs),
+    return RepaintBoundary(
+      child: Semantics(
+        image: true,
+        label: effectiveSemanticLabel,
+        child: Container(
+          width: widget.size,
+          height: widget.size,
+          decoration: BoxDecoration(
+            borderRadius: borderRadius,
+            color: cs.surfaceContainerHighest,
+          ),
+          child: ClipRRect(
+            borderRadius: borderRadius,
+            child: _buildContent(cs),
+          ),
         ),
       ),
     );
   }
 
   Widget _buildContent(ColorScheme cs) {
-    // מצב טעינה
+    // מצב טעינה - Skeleton
     if (_isLoading) {
-      return _buildPlaceholder(cs);
+      return _buildSkeletonPlaceholder(cs);
     }
 
-    // יש תמונה - הצג אותה
+    // יש תמונה - הצג אותה עם אנימציית Scale-in
     if (_imageUrl != null && !_hasError) {
       return CachedNetworkImage(
         imageUrl: _imageUrl!,
         fit: widget.fit,
-        fadeInDuration: const Duration(milliseconds: 300), // ✅ אנימציית fade-in חלקה
+        fadeInDuration: Duration.zero, // ❌ נשלט ע"י flutter_animate
         fadeOutDuration: const Duration(milliseconds: 150),
-        placeholder: (context, url) => _buildPlaceholder(cs),
+        placeholder: (context, url) => _buildSkeletonPlaceholder(cs),
         errorWidget: (context, url, error) => _buildFallbackIcon(cs),
+        imageBuilder: (context, imageProvider) {
+          return Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: imageProvider,
+                fit: widget.fit,
+              ),
+            ),
+          )
+              .animate()
+              .fadeIn(duration: 400.ms, curve: Curves.easeOutBack)
+              .scale(
+                begin: const Offset(0.9, 0.9),
+                end: const Offset(1.0, 1.0),
+                duration: 400.ms,
+                curve: Curves.easeOutBack,
+              );
+        },
       );
     }
 
@@ -142,28 +172,32 @@ class _ProductImageWidgetState extends State<ProductImageWidget> {
     return _buildFallbackIcon(cs);
   }
 
-  /// Placeholder בזמן טעינה
-  Widget _buildPlaceholder(ColorScheme cs) {
-    return Center(
-      child: SizedBox(
-        width: widget.size * 0.3,
-        height: widget.size * 0.3,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          valueColor: AlwaysStoppedAnimation<Color>(
-            cs.onSurfaceVariant, // ✅ Theme-aware במקום Colors.grey[400]
-          ),
-        ),
+  /// 💀 Skeleton placeholder בזמן טעינה (Skeletonizer + Shimmer)
+  Widget _buildSkeletonPlaceholder(ColorScheme cs) {
+    return Skeletonizer(
+      child: Container(
+        width: widget.size,
+        height: widget.size,
+        color: cs.surfaceContainerHighest,
       ),
     );
   }
 
-  /// Fallback לאייקון קטגוריה
+  /// 🎨 Fallback לאייקון קטגוריה עם גרדיאנט עדין
   Widget _buildFallbackIcon(ColorScheme cs) {
     final icon = widget.icon ?? '📦';
 
     return Container(
-      color: cs.surfaceContainerLow, // ✅ Theme-aware במקום Colors.grey[50]
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            cs.surfaceContainerLow,
+            cs.surfaceContainer,
+          ],
+        ),
+      ),
       child: Center(
         child: Text(
           icon,

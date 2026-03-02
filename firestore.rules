@@ -2,8 +2,20 @@ rules_version = '2';
 
 // 🔒 MemoZap Firestore Security Rules
 //
-// ✅ עודכן: Phase 6 - Nested Subcollections Structure
-// 📅 Last Updated: 14/12/2025
+// Version: 4.0 (22/02/2026)
+//
+// ✅ Hybrid Premium — Strict Schema Validation & Audit Trail
+// 📅 Last Updated: 22/02/2026
+//
+// ✨ Features:
+//     - Strict Schema Validation (inventory, notifications)
+//     - Audit Trail enforcement (last_updated_by on inventory changes)
+//     - Anti-spam protection (notification type enum, message length)
+//     - isOwnerOrAdmin helper for cleaner permission checks
+//
+// 📅 History:
+//     v4.0 (22/02/2026) — Schema validation, Audit Trail, anti-spam, helper functions
+//     v3.0 (14/12/2025) — Nested Subcollections, Map-Based permissions
 //
 // 🏗️ Database Structure:
 //
@@ -61,6 +73,47 @@ service cloud.firestore {
     }
 
     // =========================================================
+    // 🆕 v4.0: Validation Helper Functions
+    // =========================================================
+
+    // בדיקה שערך הוא Timestamp תקין
+    function isValidTimestamp(value) {
+      return value is timestamp;
+    }
+
+    // בדיקה מקוצרת: האם המשתמש הוא Owner או Admin ברשימה
+    function isOwnerOrAdmin(listData) {
+      let role = getListRole(listData);
+      return role == 'owner' || role == 'admin';
+    }
+
+    // בדיקה שבעדכון קיימים שדות Audit Trail תקינים
+    // updated_at חייב להיות Timestamp, last_updated_by חייב להתאים ל-UID
+    function hasRequiredAuditFields() {
+      return isValidTimestamp(request.resource.data.updated_at) &&
+             request.resource.data.last_updated_by == request.auth.uid;
+    }
+
+    // ולידציית סכימה למזווה — שדות חובה עם ערכים תקינים
+    function isValidInventoryData(data) {
+      return data.product_name is string &&
+             data.product_name.size() >= 2 &&
+             data.quantity is number &&
+             data.quantity >= 0 &&
+             data.min_quantity is number &&
+             data.min_quantity >= 0;
+    }
+
+    // בדיקה שסוג ההתראה נמצא ברשימת ה-Enums המותרת
+    function isValidNotificationType(type) {
+      return type in [
+        'invite', 'request_approved', 'request_rejected',
+        'role_changed', 'user_removed', 'who_brings_volunteer',
+        'new_vote', 'vote_tie', 'member_left', 'low_stock'
+      ];
+    }
+
+    // =========================================================
     // 🔐 List Permissions Logic (Map Based 🗺️)
     // =========================================================
 
@@ -76,6 +129,21 @@ service cloud.firestore {
                );
     }
 
+    // פונקציה לבדיקה אם למשתמש יש גישה לקבוצה
+    function isGroupMember(groupId) {
+      let groupData = get(/databases/$(database)/documents/groups/$(groupId)).data;
+      return groupData.created_by == request.auth.uid ||
+             (groupData.members != null && request.auth.uid in groupData.members) ||
+             userHasGroupInList(groupId);
+    }
+
+    // פונקציה לבדיקה אם למשתמש יש גישה לקבוצה דרך group_ids שלו
+    function userHasGroupInList(groupId) {
+      let userData = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      // group_ids הוא array, לכן משתמשים ב-hasAny עם array של פריט אחד
+      return userData.group_ids != null && userData.group_ids.hasAny([groupId]);
+    }
+
     // =========================================================
     // 👤 Users Collection & Subcollections
     // =========================================================
@@ -89,7 +157,7 @@ service cloud.firestore {
                    getUserHouseholdId() == get(/databases/$(database)/documents/users/$(userId)).data.household_id);
       allow write: if isDocOwner(userId);
 
-      // === 🆕 Private Lists (Subcollection) ===
+      // === Private Lists (Subcollection) ===
       // Path: /users/{userId}/private_lists/{listId}
       match /private_lists/{listId} {
 
@@ -107,7 +175,7 @@ service cloud.firestore {
         allow delete: if isDocOwner(userId);
       }
 
-      // === 🆕 Notifications (Subcollection) ===
+      // === 🔒 Notifications (Subcollection) — v4.0 Hardened ===
       // Path: /users/{userId}/notifications/{notificationId}
       // ⚠️ NOTE: Rate limiting should be implemented via Cloud Functions
       //    to prevent spam/abuse. Firestore rules cannot enforce rate limits.
@@ -118,10 +186,19 @@ service cloud.firestore {
         // עדכון: רק הבעלים (mark as read)
         allow update: if isDocOwner(userId);
 
-        // יצירה: כל משתמש מחובר יכול לשלוח התראה למשתמש אחר
-        // חובה לציין את השולח כדי למנוע התחזות
+        // ➕ יצירה: v4.0 — ולידציה מלאה
+        // 1. sender_id חייב להתאים ל-UID (מניעת התחזות)
+        // 2. sender_id != userId (מניעת spam לעצמך)
+        // 3. user_id חייב להתאים לנתיב (data consistency)
+        // 4. type חייב להיות מתוך רשימת Enums מותרת
+        // 5. message מוגבל ל-500 תווים
         allow create: if isAuthenticated() &&
-                      request.resource.data.sender_id == request.auth.uid;
+                      request.resource.data.sender_id == request.auth.uid &&
+                      request.resource.data.sender_id != userId &&
+                      request.resource.data.user_id == userId &&
+                      isValidNotificationType(request.resource.data.type) &&
+                      request.resource.data.message is string &&
+                      request.resource.data.message.size() <= 500;
       }
 
       // === Pending Invites (Subcollection) ===
@@ -136,11 +213,25 @@ service cloud.firestore {
         allow read, write: if isDocOwner(userId);
       }
 
-      // === 🆕 User Inventory (Subcollection) ===
+      // === 🔒 User Inventory (Subcollection) — v4.0 Schema Validated ===
       // Path: /users/{userId}/inventory/{itemId}
       // מזווה אישי - למשתמשים ללא קבוצת משפחה
       match /inventory/{itemId} {
-        allow read, write: if isDocOwner(userId);
+        allow read: if isDocOwner(userId);
+
+        // ➕ יצירה: ולידציית סכימה + audit trail
+        allow create: if isDocOwner(userId) &&
+                      isValidInventoryData(request.resource.data) &&
+                      request.resource.data.last_updated_by == request.auth.uid;
+
+        // ✏️ עדכון: ולידציית סכימה + חובת audit trail בשינוי כמות
+        allow update: if isDocOwner(userId) &&
+                      isValidInventoryData(request.resource.data) &&
+                      (request.resource.data.quantity == resource.data.quantity ||
+                       request.resource.data.last_updated_by == request.auth.uid);
+
+        // 🗑️ מחיקה: רק הבעלים
+        allow delete: if isDocOwner(userId);
       }
     }
 
@@ -162,7 +253,7 @@ service cloud.firestore {
       // מחיקה: לא מאפשרים (למנוע אובדן נתונים)
       allow delete: if false;
 
-      // === 🆕 Shared Lists (Subcollection) ===
+      // === Shared Lists (Subcollection) ===
       // Path: /households/{householdId}/shared_lists/{listId}
       match /shared_lists/{listId} {
 
@@ -186,9 +277,12 @@ service cloud.firestore {
           (getListRole(resource.data) == 'admin' &&
            request.resource.data.created_by == resource.data.created_by) ||
 
-          // 3. Editor: יכול לערוך רק items ו-updated_date
+          // 3. Editor: יכול לערוך רק items, updated_date, ושדות audit
+          // 🔒 v4.0: affectedKeys().hasOnly() מבטיח ש-Editor לא יכול לשנות
+          //    את שם הרשימה, הבעלים, shared_users, או כל שדה אחר
           (getListRole(resource.data) == 'editor' &&
-           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['items', 'updated_date']))
+           request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['items', 'updated_date', 'updated_at', 'last_updated_by']))
 
           // 4. Viewer: צפייה בלבד - לא יכול לעדכן (אין צורך בכלל כאן)
         );
@@ -198,13 +292,27 @@ service cloud.firestore {
                       resource.data.created_by == request.auth.uid;
       }
 
-      // === 🆕 Inventory (Subcollection) ===
+      // === 🔒 Household Inventory (Subcollection) — v4.0 Schema Validated ===
       // Path: /households/{householdId}/inventory/{itemId}
       match /inventory/{itemId} {
-        allow read, write: if isHouseholdMember(householdId);
+        allow read: if isHouseholdMember(householdId);
+
+        // ➕ יצירה: ולידציית סכימה + audit trail
+        allow create: if isHouseholdMember(householdId) &&
+                      isValidInventoryData(request.resource.data) &&
+                      request.resource.data.last_updated_by == request.auth.uid;
+
+        // ✏️ עדכון: ולידציית סכימה + חובת audit trail בשינוי כמות
+        allow update: if isHouseholdMember(householdId) &&
+                      isValidInventoryData(request.resource.data) &&
+                      (request.resource.data.quantity == resource.data.quantity ||
+                       request.resource.data.last_updated_by == request.auth.uid);
+
+        // 🗑️ מחיקה: רק חברי משק הבית (מניעת מחיקה שרירותית — שקול soft-delete)
+        allow delete: if isHouseholdMember(householdId);
       }
 
-      // === 🆕 Receipts (Subcollection) ===
+      // === Receipts (Subcollection) ===
       // Path: /households/{householdId}/receipts/{receiptId}
       match /receipts/{receiptId} {
         allow read, write: if isHouseholdMember(householdId);
@@ -264,46 +372,40 @@ service cloud.firestore {
     // 👥 Groups Collection
     // =========================================================
 
-    // פונקציה לבדיקה אם למשתמש יש גישה לקבוצה דרך group_ids שלו
-    function userHasGroupInList(groupId) {
-      let userData = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
-      // group_ids הוא array, לכן משתמשים ב-hasAny עם array של פריט אחד
-      return userData.group_ids != null && userData.group_ids.hasAny([groupId]);
-    }
-
     match /groups/{groupId} {
-      // 👁️ קריאה: חברי הקבוצה או מי שיש לו את הקבוצה ב-group_ids (אחרי אישור הזמנה)
-      allow read: if isAuthenticated() && (
-        resource.data.created_by == request.auth.uid ||
-        (resource.data.members != null && request.auth.uid in resource.data.members) ||
-        userHasGroupInList(groupId)
-      );
+      // 👁️ קריאה: חברי הקבוצה או מי שיש לו את הקבוצה ב-group_ids
+      allow read: if isAuthenticated() && isGroupMember(groupId);
 
       // ➕ יצירה: כל משתמש מחובר יכול ליצור קבוצה
       allow create: if isAuthenticated() &&
                     request.resource.data.created_by == request.auth.uid;
 
-      // ✏️ עדכון: היוצר, חבר קבוצה, או מי שיש לו את הקבוצה ב-group_ids
-      allow update: if isAuthenticated() && (
-        resource.data.created_by == request.auth.uid ||
-        (resource.data.members != null && request.auth.uid in resource.data.members) ||
-        userHasGroupInList(groupId)
-      );
+      // ✏️ עדכון: חברי הקבוצה בלבד
+      allow update: if isAuthenticated() && isGroupMember(groupId);
 
       // 🗑️ מחיקה: רק היוצר
       allow delete: if isAuthenticated() &&
                     resource.data.created_by == request.auth.uid;
 
-      // === 🆕 Group Inventory (Subcollection) ===
+      // === 🔒 Group Inventory (Subcollection) — v4.0 Schema Validated ===
       // Path: /groups/{groupId}/inventory/{itemId}
       // מזווה קבוצתי - לקבוצות משפחה/שותפים
       match /inventory/{itemId} {
-        allow read, write: if isAuthenticated() && (
-          get(/databases/$(database)/documents/groups/$(groupId)).data.created_by == request.auth.uid ||
-          (get(/databases/$(database)/documents/groups/$(groupId)).data.members != null &&
-           request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.members) ||
-          userHasGroupInList(groupId)
-        );
+        allow read: if isAuthenticated() && isGroupMember(groupId);
+
+        // ➕ יצירה: ולידציית סכימה + audit trail
+        allow create: if isAuthenticated() && isGroupMember(groupId) &&
+                      isValidInventoryData(request.resource.data) &&
+                      request.resource.data.last_updated_by == request.auth.uid;
+
+        // ✏️ עדכון: ולידציית סכימה + חובת audit trail בשינוי כמות
+        allow update: if isAuthenticated() && isGroupMember(groupId) &&
+                      isValidInventoryData(request.resource.data) &&
+                      (request.resource.data.quantity == resource.data.quantity ||
+                       request.resource.data.last_updated_by == request.auth.uid);
+
+        // 🗑️ מחיקה: חברי הקבוצה בלבד
+        allow delete: if isAuthenticated() && isGroupMember(groupId);
       }
     }
 
@@ -362,46 +464,7 @@ service cloud.firestore {
     }
 
     // =========================================================
-    // 🚫 Legacy Collections (Deprecated)
-    // =========================================================
-    // These rules are kept for backward compatibility during migration
-    // Remove after migration is complete
-
-    // === Legacy: shopping_lists (Deprecated) ===
-    match /shopping_lists/{listId} {
-      allow read: if isAuthenticated() && (
-        resource.data.created_by == request.auth.uid ||
-        (resource.data.household_id != null && isHouseholdMember(resource.data.household_id)) ||
-        (resource.data.shared_users != null && request.auth.uid in resource.data.shared_users)
-      );
-      allow write: if false; // Read-only during migration
-    }
-
-    // === Legacy: receipts (Deprecated) ===
-    match /receipts/{receiptId} {
-      allow read: if isAuthenticated() &&
-                  resource.data.household_id != null &&
-                  isHouseholdMember(resource.data.household_id);
-      allow write: if false; // Read-only during migration
-    }
-
-    // === Legacy: inventory (Deprecated) ===
-    match /inventory/{itemId} {
-      allow read: if isAuthenticated() &&
-                  resource.data.household_id != null &&
-                  isHouseholdMember(resource.data.household_id);
-      allow write: if false; // Read-only during migration
-    }
-
-    // === Legacy: notifications (Deprecated) ===
-    match /notifications/{notificationId} {
-      allow read: if isAuthenticated() &&
-                  resource.data.user_id == request.auth.uid;
-      allow write: if false; // Read-only during migration
-    }
-
-    // =========================================================
-    // 📍 Custom Locations Collection
+    // 📍 Custom Locations Collection — v4.0 Enforced Ownership
     // =========================================================
     // מיקומי אחסון מותאמים אישית (מקרר, מזווה וכו')
     // מסוננים לפי household_id או group_id
@@ -415,11 +478,14 @@ service cloud.firestore {
         (resource.data.group_id != null && userHasGroupInList(resource.data.group_id))
       );
 
-      // ➕ יצירה: חברי משק הבית או קבוצה
-      allow create: if isAuthenticated() && (
-        (request.resource.data.household_id != null && isHouseholdMember(request.resource.data.household_id)) ||
-        (request.resource.data.group_id != null && userHasGroupInList(request.resource.data.group_id))
-      );
+      // ➕ יצירה: v4.0 — אכיפת השתייכות + created_by
+      // household_id/group_id חייבים להתאים להשתייכות המשתמש בפועל
+      allow create: if isAuthenticated() &&
+                    request.resource.data.created_by == request.auth.uid &&
+                    (
+                      (request.resource.data.household_id != null && isHouseholdMember(request.resource.data.household_id)) ||
+                      (request.resource.data.group_id != null && userHasGroupInList(request.resource.data.group_id))
+                    );
 
       // ✏️ עדכון: חברי משק הבית או קבוצה
       allow update: if isAuthenticated() && (
@@ -471,6 +537,46 @@ service cloud.firestore {
       // 🗑️ מחיקה: רק המזמין
       allow delete: if isAuthenticated() &&
                     resource.data.invited_by == request.auth.uid;
+    }
+
+    // =========================================================
+    // 🚫 Legacy Collections (Migration in progress)
+    // =========================================================
+    // ⚠️ קולקציות ישנות — קריאה בלבד עד סיום המיגרציה.
+    //    לאחר סיום המיגרציה המלאה, יש למחוק בלוק זה לגמרי.
+    //    כל הנתונים החדשים נכתבים ל-Subcollections (ראה מבנה למעלה).
+
+    // === Legacy: shopping_lists ===
+    match /shopping_lists/{listId} {
+      allow read: if isAuthenticated() && (
+        resource.data.created_by == request.auth.uid ||
+        (resource.data.household_id != null && isHouseholdMember(resource.data.household_id)) ||
+        (resource.data.shared_users != null && request.auth.uid in resource.data.shared_users)
+      );
+      allow write: if false;
+    }
+
+    // === Legacy: receipts ===
+    match /receipts/{receiptId} {
+      allow read: if isAuthenticated() &&
+                  resource.data.household_id != null &&
+                  isHouseholdMember(resource.data.household_id);
+      allow write: if false;
+    }
+
+    // === Legacy: inventory ===
+    match /inventory/{itemId} {
+      allow read: if isAuthenticated() &&
+                  resource.data.household_id != null &&
+                  isHouseholdMember(resource.data.household_id);
+      allow write: if false;
+    }
+
+    // === Legacy: notifications ===
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() &&
+                  resource.data.user_id == request.auth.uid;
+      allow write: if false;
     }
 
     // =========================================================

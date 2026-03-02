@@ -1,24 +1,39 @@
 // 📄 File: lib/widgets/common/offline_banner.dart
 // 🎯 Purpose: באנר הודעת מצב ללא אינטרנט
 //
-// 📋 Features:
+// ✨ Features:
+// - עיצוב Glassmorphic (Frosted Orange)
+// - משוב Haptic מובנה בשינוי סטטוס
+// - תמיכה ב-AppBrand colors
+// - אנימציית כניסה מלוטשת
+//
+// 📋 כולל:
 // - מוצג כש-isOffline = true
 // - אנימציית כניסה/יציאה חלקה
 // - עיצוב מותאם לאפליקציה
 // - אפשרות להתאמה אישית
 //
-// 📝 Version: 1.0
-// 📅 Created: 01/2026
+// 🔗 Related: ConnectivityMixin, AppLayout
+//
+// Version: 4.0 - Hybrid Premium (Glassmorphic + Sensory)
+// Last Updated: 22/02/2026
+
+import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:gap/gap.dart';
+
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
+import '../../theme/app_theme.dart';
 
 /// 📡 באנר הודעה על מצב ללא אינטרנט
 ///
 /// מוצג בראש המסך כאשר אין חיבור לאינטרנט.
-/// כולל אנימציית כניסה/יציאה חלקה.
+/// כולל אנימציית כניסה/יציאה חלקה ומשוב Haptic.
 ///
 /// Example:
 /// ```dart
@@ -29,17 +44,17 @@ import '../../l10n/app_strings.dart';
 ///   ],
 /// )
 /// ```
-class OfflineBanner extends StatelessWidget {
+class OfflineBanner extends StatefulWidget {
   /// האם לא מחובר לאינטרנט
   final bool isOffline;
 
   /// טקסט מותאם (אופציונלי)
   final String? message;
 
-  /// צבע רקע (ברירת מחדל: כתום)
+  /// צבע רקע (ברירת מחדל: errorContainer מה-Theme)
   final Color? backgroundColor;
 
-  /// צבע טקסט (ברירת מחדל: לבן)
+  /// צבע טקסט (ברירת מחדל: onErrorContainer מה-Theme)
   final Color? textColor;
 
   /// callback לניסיון חוזר (אופציונלי)
@@ -55,26 +70,41 @@ class OfflineBanner extends StatelessWidget {
   });
 
   @override
+  State<OfflineBanner> createState() => _OfflineBannerState();
+}
+
+class _OfflineBannerState extends State<OfflineBanner> {
+  @override
+  void didUpdateWidget(OfflineBanner oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // 📳 Haptic כבד כשנכנסים למצב Offline
+    if (widget.isOffline && !oldWidget.isOffline) {
+      unawaited(HapticFeedback.heavyImpact());
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AnimatedSize(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
-      child: isOffline
+      child: widget.isOffline
           ? _OfflineBannerContent(
-              message: message,
-              backgroundColor: backgroundColor,
-              textColor: textColor,
-              onRetry: onRetry,
+              message: widget.message,
+              backgroundColor: widget.backgroundColor,
+              textColor: widget.textColor,
+              onRetry: widget.onRetry,
             )
               .animate()
-              .fadeIn(duration: 200.ms)
-              .slideY(begin: -0.5, end: 0, curve: Curves.easeOut)
+              .fadeIn(duration: 300.ms)
+              .slideY(begin: -1.0, end: 0, curve: Curves.easeOutCubic)
           : const SizedBox.shrink(),
     );
   }
 }
 
-/// 🎨 תוכן הבאנר
+/// 🎨 תוכן הבאנר - Glassmorphic Frosted Orange
 class _OfflineBannerContent extends StatelessWidget {
   final String? message;
   final Color? backgroundColor;
@@ -90,58 +120,81 @@ class _OfflineBannerContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = backgroundColor ?? Colors.orange.shade700;
-    final fgColor = textColor ?? Colors.white;
+    final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
 
-    return Material(
-      color: bgColor,
-      elevation: 2,
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: kSpacingMedium,
-            vertical: kSpacingSmall,
+    final bgColor = (backgroundColor ?? brand?.warningContainer ?? cs.errorContainer)
+        .withValues(alpha: 0.85);
+    final fgColor = textColor ?? brand?.onWarningContainer ?? cs.onErrorContainer;
+
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: bgColor,
+            border: Border(
+              bottom: BorderSide(
+                color: cs.outlineVariant.withValues(alpha: 0.3),
+                width: 0.5,
+              ),
+            ),
           ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.wifi_off_rounded,
-                color: fgColor,
-                size: 20,
+          child: SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: kSpacingMedium,
+                vertical: kSpacingSmall,
               ),
-              const SizedBox(width: kSpacingSmall),
-              Expanded(
-                child: Text(
-                  message ?? AppStrings.layout.offline,
-                  style: TextStyle(
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.wifi_off_rounded,
                     color: fgColor,
-                    fontWeight: FontWeight.w500,
-                    fontSize: kFontSizeBody,
+                    size: 20,
                   ),
-                ),
-              ),
-              if (onRetry != null)
-                TextButton.icon(
-                  onPressed: onRetry,
-                  icon: Icon(
-                    Icons.refresh,
-                    color: fgColor,
-                    size: 18,
-                  ),
-                  label: Text(
-                    AppStrings.common.retry,
-                    style: TextStyle(
-                      color: fgColor,
-                      fontWeight: FontWeight.bold,
+                  const Gap(kSpacingSmall),
+                  Expanded(
+                    child: Text(
+                      message ?? AppStrings.layout.offline,
+                      style: TextStyle(
+                        color: fgColor,
+                        fontWeight: FontWeight.w500,
+                        fontSize: kFontSizeBody,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
-                    visualDensity: VisualDensity.compact,
-                  ),
-                ),
-            ],
+                  if (onRetry != null)
+                    TextButton.icon(
+                      onPressed: () {
+                        unawaited(HapticFeedback.lightImpact());
+                        onRetry!();
+                      },
+                      icon: Icon(
+                        Icons.refresh,
+                        color: fgColor,
+                        size: 18,
+                      ),
+                      label: Text(
+                        AppStrings.common.retry,
+                        style: TextStyle(
+                          color: fgColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -169,6 +222,7 @@ class OfflineAwareScaffold extends StatelessWidget {
   final Widget? bottomNavigationBar;
   final Color? backgroundColor;
   final VoidCallback? onRetry;
+  final bool extendBodyBehindAppBar;
 
   const OfflineAwareScaffold({
     super.key,
@@ -179,6 +233,7 @@ class OfflineAwareScaffold extends StatelessWidget {
     this.bottomNavigationBar,
     this.backgroundColor,
     this.onRetry,
+    this.extendBodyBehindAppBar = false,
   });
 
   @override
@@ -188,6 +243,7 @@ class OfflineAwareScaffold extends StatelessWidget {
       backgroundColor: backgroundColor,
       floatingActionButton: floatingActionButton,
       bottomNavigationBar: bottomNavigationBar,
+      extendBodyBehindAppBar: extendBodyBehindAppBar,
       body: Column(
         children: [
           OfflineBanner(

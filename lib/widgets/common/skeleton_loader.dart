@@ -1,33 +1,69 @@
 // 📄 lib/widgets/common/skeleton_loader.dart
 //
-// Skeleton widgets לטעינה חזותית - SkeletonBox, SkeletonCircle, SkeletonListCard, SkeletonListView.
-// אנימציית shimmer אמיתית עם TweenAnimationBuilder, עיצוב StickyNote, ושימוש משותף לכל האפליקציה.
+// Version: 4.0 (22/02/2026)
 //
-// ✅ תיקונים:
-//    - אנימציית shimmer אמיתית עם TweenAnimationBuilder (לא AnimatedContainer סטטי)
-//    - הוספת Semantics עם excludeFromSemantics לנגישות
-//    - הוספת פרמטר animate לשליטה באנימציה
-//    - הוספת SkeletonCircle helper לצורות עגולות
-//    - תמיכה ב-Dark Mode עם צבעי sticky מותאמים
-//    - הסרת DateTime.now() מ-build לביצועים טובים
+// 🇮🇱 **Skeleton Widgets לטעינה חזותית** — SkeletonBox, SkeletonCircle,
+//     SkeletonListCard, SkeletonListView.
 //
-// 🔗 Related: StickyNote, ui_constants
+// ✨ Features:
+//     - שילוב shimmer package לביצועים גבוהים (replaces manual AnimationController)
+//     - אפקט Shimmer מדורג בזווית 45° (Phased Shimmer)
+//     - אופטימיזציית RepaintBoundary גלובלית — בידוד GPU לכל רכיב
+//     - תמיכה מלאה ב-AppBrand Palette עם withValues(alpha:)
+//     - flutter_animate fadeIn on list appearance
+//     - Gap-based spacing
+//
+// 📅 History:
+//     v4.0 (22/02/2026) — shimmer package, RepaintBoundary, flutter_animate,
+//                          45° angle, Gap spacing, StatelessWidget simplification
+//     v3.0              — Manual shimmer with AnimationController, StickyNote cards,
+//                          Dark Mode support, ExcludeSemantics
+//
+// 🔗 Related: StickyNote, ui_constants, DashboardCard
 
 import 'package:flutter/material.dart';
-import 'package:memozap/core/ui_constants.dart';
-import 'package:memozap/widgets/common/sticky_note.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:gap/gap.dart';
+import 'package:shimmer/shimmer.dart';
+
+import '../../core/ui_constants.dart';
+import 'sticky_note.dart';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SHIMMER GRADIENT (45° Diagonal)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// 🎨 v4.0: Shimmer gradient factory — 45° diagonal, subtle alpha
+///
+/// Uses `withValues(alpha:)` for precise opacity control.
+/// baseColor (alpha: 0.7) → visible but subtle surface
+/// highlightColor (alpha: 0.3) → lighter shimmer band
+LinearGradient _shimmerGradient(ColorScheme cs) {
+  final base = cs.surfaceContainerHighest.withValues(alpha: 0.7);
+  final highlight = cs.surfaceContainerHighest.withValues(alpha: 0.3);
+  return LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [base, highlight, base],
+    stops: const [0.35, 0.5, 0.65],
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SKELETON BOX
+// ═══════════════════════════════════════════════════════════════════════════
 
 /// 💀 קופסה בסיסית מהבהבת (Skeleton Box)
 ///
-/// משמשת כבניין יסוד ל-skeleton screens.
-/// מציגה אנימציית shimmer אמיתית עם TweenAnimationBuilder.
+/// v4.0: StatelessWidget — האנימציה מנוהלת ע"י shimmer package.
+/// כל box עטוף ב-RepaintBoundary לבידוד GPU.
 ///
 /// Parameters:
 /// - [width]: רוחב הקופסה
 /// - [height]: גובה הקופסה
-/// - [borderRadius]: רדיוס פינות (ברירת מחדל: kBorderRadiusSmall)
+/// - [borderRadius]: רדיוס פינות (ברירת מחדל: kBorderRadiusUnified = 14px)
 /// - [animate]: האם להפעיל אנימציית shimmer (ברירת מחדל: true)
-class SkeletonBox extends StatefulWidget {
+class SkeletonBox extends StatelessWidget {
   final double width;
   final double height;
   final BorderRadius? borderRadius;
@@ -44,91 +80,42 @@ class SkeletonBox extends StatefulWidget {
   });
 
   @override
-  State<SkeletonBox> createState() => _SkeletonBoxState();
-}
-
-class _SkeletonBoxState extends State<SkeletonBox>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    );
-    _animation = Tween<double>(begin: -1.0, end: 2.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-
-    if (widget.animate) {
-      _controller.repeat();
-    }
-  }
-
-  @override
-  void didUpdateWidget(SkeletonBox oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.animate != oldWidget.animate) {
-      if (widget.animate) {
-        _controller.repeat();
-      } else {
-        _controller.stop();
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final baseColor = cs.surfaceContainerHighest;
-    final highlightColor = cs.surface;
 
-    // ✅ Semantics - הסתר מקוראי מסך
-    return ExcludeSemantics(
-      child: AnimatedBuilder(
-        animation: _animation,
-        builder: (context, child) {
-          return Container(
-            width: widget.width,
-            height: widget.height,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                // shimmer effect from left to right
-                colors: [
-                  baseColor,
-                  highlightColor,
-                  baseColor,
-                ],
-                stops: widget.animate
-                    ? [
-                        (_animation.value - 1).clamp(0.0, 1.0),
-                        _animation.value.clamp(0.0, 1.0),
-                        (_animation.value + 1).clamp(0.0, 1.0),
-                      ]
-                    : const [0.0, 0.5, 1.0],
-              ),
-              borderRadius:
-                  widget.borderRadius ?? BorderRadius.circular(kBorderRadiusSmall),
-            ),
-          );
-        },
+    Widget box = Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.6),
+        borderRadius:
+            borderRadius ?? BorderRadius.circular(kBorderRadiusUnified),
       ),
+    );
+
+    // v4.0: shimmer package — replaces manual AnimationController + AnimatedBuilder
+    if (animate) {
+      box = Shimmer(
+        gradient: _shimmerGradient(cs),
+        child: box,
+      );
+    }
+
+    // ✅ ExcludeSemantics — הסתר מקוראי מסך
+    // ✅ RepaintBoundary — בידוד GPU (קריטי: shimmer רץ 60/120fps)
+    return ExcludeSemantics(
+      child: RepaintBoundary(child: box),
     );
   }
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SKELETON CIRCLE
+// ═══════════════════════════════════════════════════════════════════════════
 
 /// 💀 עיגול מהבהב (Skeleton Circle)
 ///
-/// גרסה עגולה של SkeletonBox לאייקונים ותמונות פרופיל.
+/// v4.0: StatelessWidget + RepaintBoundary (via SkeletonBox).
 ///
 /// Parameters:
 /// - [size]: גודל העיגול (רוחב וגובה)
@@ -154,16 +141,23 @@ class SkeletonCircle extends StatelessWidget {
   }
 }
 
-/// 💀 Skeleton של כרטיס רשימת קניות
+// ═══════════════════════════════════════════════════════════════════════════
+// SKELETON LIST CARD (The Ghost Note)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// 💀 Skeleton של כרטיס רשימת קניות (The Ghost Note)
 ///
-/// מציג "שלד" של כרטיס רשימה בזמן טעינה.
-/// משתמש ב-StickyNote לעיצוב עקבי.
+/// v4.0: כרטיס "שקוף" של DashboardCard:
+///     - StickyNote בגרסה דוממת (rotation: 0, animate: false)
+///     - Gap-based spacing
+///     - kBorderRadiusUnified (14px)
+///     - RepaintBoundary per card
 ///
 /// Parameters:
-/// - [index]: אינדקס לבחירת צבע וסיבוב (ברירת מחדל: 0)
+/// - [index]: אינדקס לבחירת צבע (ברירת מחדל: 0)
 /// - [animate]: האם להפעיל אנימציית shimmer (ברירת מחדל: true)
 class SkeletonListCard extends StatelessWidget {
-  /// אינדקס לבחירת צבע וסיבוב הפתק (0-2)
+  /// אינדקס לבחירת צבע הפתק (0-2)
   final int index;
 
   /// האם להפעיל אנימציית shimmer
@@ -183,59 +177,65 @@ class SkeletonListCard extends StatelessWidget {
     final stickyColors = isDark
         ? [kStickyYellowDark, kStickyPinkDark, kStickyGreenDark]
         : [kStickyYellow, kStickyPink, kStickyGreen];
-    final stickyRotations = [0.01, -0.015, 0.01];
 
-    // ✅ שימוש ב-index במקום DateTime.now() לביצועים טובים
     final colorIndex = index % 3;
 
     return ExcludeSemantics(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-            horizontal: kSpacingMedium, vertical: kSpacingSmall),
-        child: StickyNote(
-          color: stickyColors[colorIndex],
-          rotation: stickyRotations[colorIndex],
-          animate: false, // ✅ ללא אנימציה כפולה - ה-shimmer מספיק
-          child: Padding(
-            padding: const EdgeInsets.all(kSpacingMedium),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    // אייקון - עיגול
-                    SkeletonCircle(size: 40, animate: animate),
-                    const SizedBox(width: kSpacingMedium),
-                    // כותרת
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SkeletonBox(
-                              width: double.infinity, height: 18, animate: animate),
-                          const SizedBox(height: kSpacingSmall),
-                          SkeletonBox(width: 100, height: 14, animate: animate),
-                        ],
+      // ✅ RepaintBoundary — בידוד כרטיס שלם מעץ הרינדור
+      child: RepaintBoundary(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+              horizontal: kSpacingMedium, vertical: kSpacingSmall),
+          child: StickyNote(
+            color: stickyColors[colorIndex],
+            // v4.0: דוממת (default rotation: 0) למניעת ריצוד בזמן טעינה
+            animate: false,
+            child: Padding(
+              padding: const EdgeInsets.all(kSpacingMedium),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      // אייקון - עיגול
+                      SkeletonCircle(size: 40, animate: animate),
+                      const Gap(kSpacingMedium),
+                      // כותרת
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SkeletonBox(
+                                width: double.infinity,
+                                height: 18,
+                                animate: animate),
+                            const Gap(kSpacingSmall),
+                            SkeletonBox(
+                                width: 100, height: 14, animate: animate),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: kSpacingMedium),
-                // סטטיסטיקות
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    for (int i = 0; i < 3; i++)
-                      Column(
-                        children: [
-                          SkeletonBox(width: 40, height: 12, animate: animate),
-                          const SizedBox(height: kSpacingTiny),
-                          SkeletonBox(width: 50, height: 10, animate: animate),
-                        ],
-                      ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                  const Gap(kSpacingMedium),
+                  // סטטיסטיקות
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      for (int i = 0; i < 3; i++)
+                        Column(
+                          children: [
+                            SkeletonBox(
+                                width: 40, height: 12, animate: animate),
+                            const Gap(kSpacingTiny),
+                            SkeletonBox(
+                                width: 50, height: 10, animate: animate),
+                          ],
+                        ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -244,10 +244,13 @@ class SkeletonListCard extends StatelessWidget {
   }
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// SKELETON LIST VIEW
+// ═══════════════════════════════════════════════════════════════════════════
+
 /// 💀 רשימת Skeleton Cards
 ///
-/// מציגה מספר כרטיסי skeleton ברצף.
-/// שימושי למסכי רשימות בזמן טעינה.
+/// v4.0: flutter_animate fadeIn on first appearance — מונע "קפיצה" ויזואלית.
 ///
 /// Parameters:
 /// - [itemCount]: מספר הכרטיסים להצגה (ברירת מחדל: 5)
@@ -273,16 +276,19 @@ class SkeletonListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ ExcludeSemantics - הסתר את כל הרשימה מקוראי מסך
+    // ✅ ExcludeSemantics — הסתר את כל הרשימה מקוראי מסך
     return ExcludeSemantics(
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(vertical: kSpacingSmall),
         itemCount: itemCount,
         itemBuilder: (context, index) => SkeletonListCard(
-          index: index, // ✅ מעביר index לגיוון צבעים
+          index: index,
           animate: animate,
         ),
       ),
-    );
+    )
+        // v4.0: fadeIn עדין למניעת "קפיצה" ויזואלית חדה
+        .animate()
+        .fadeIn(duration: 300.ms, curve: Curves.easeOut);
   }
 }

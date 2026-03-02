@@ -5,6 +5,9 @@
 // - האזנה לשינויי חיבור דרך ConnectivityProvider (מקור אמת יחיד!)
 // - callback לשינויים (onConnectivityChanged)
 // - אין subscription כפול - רק מאזין ל-Provider
+// - משוב Haptic בשינויי סטטוס
+// - מנגנון חסין שגיאות ב-didChangeDependencies
+// - תמיכה ב-unawaited לביצועים
 //
 // 📝 Usage:
 // ```dart
@@ -31,19 +34,23 @@
 // - ConnectivityProvider חייב להיות זמין ב-widget tree
 // - אין צורך לקרוא initConnectivity() - עובד אוטומטית!
 //
-// 📝 Version: 2.0 (refactored to use Provider)
-// 📅 Updated: 01/2026
+// 📝 Version: 3.0 (Hybrid Premium)
+// 📅 Updated: 22/02/2026
 
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 /// 🌐 Mixin לניטור מצב חיבור לאינטרנט
 ///
-/// ✅ גרסה 2.0: מאזין ל-ConnectivityProvider (מקור אמת יחיד!)
-/// אין subscription כפול - רק delegate ל-Provider.
+/// ✅ גרסה 3.0 (Hybrid Premium):
+/// - מאזין ל-ConnectivityProvider (מקור אמת יחיד!)
+/// - משוב Haptic בשינויי סטטוס (heavy לניתוק, medium לחזרה)
+/// - מנגנון חסין שגיאות ב-didChangeDependencies
+/// - unawaited לקריאות Haptic לביצועים אופטימליים
 ///
 /// מספק:
 /// - [isOffline] - האם אין חיבור (מ-Provider)
@@ -53,6 +60,7 @@ import 'package:provider/provider.dart';
 /// הערות:
 /// - עובד אוטומטית! אין צורך לקרוא initConnectivity()
 /// - דורש ConnectivityProvider ב-widget tree
+/// - ב-Overlay ויזואלי עתידי: להשתמש ב-withValues(alpha: ...) לשקיפות
 mixin ConnectivityMixin<T extends StatefulWidget> on State<T> {
   /// רפרנס ל-Provider (נשמר לניקוי listener)
   ConnectivityProvider? _provider;
@@ -87,8 +95,10 @@ mixin ConnectivityMixin<T extends StatefulWidget> on State<T> {
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-          '⚠️ ConnectivityMixin: ConnectivityProvider לא נמצא! '
-          'ודא שהוא זמין ב-widget tree.',
+          '❌ ConnectivityMixin ERROR: ConnectivityProvider לא נמצא!\n'
+          '   ודא שהוא זמין ב-widget tree.\n'
+          '   Widget: $T\n'
+          '   Error: $e',
         );
       }
     }
@@ -103,6 +113,13 @@ mixin ConnectivityMixin<T extends StatefulWidget> on State<T> {
     // בדוק אם השתנה המצב
     if (_previousIsOffline != currentIsOffline) {
       _previousIsOffline = currentIsOffline;
+
+      // 📳 משוב Haptic - heavy לניתוק (התראה), medium לחזרה
+      if (currentIsOffline) {
+        unawaited(HapticFeedback.heavyImpact());
+      } else {
+        unawaited(HapticFeedback.mediumImpact());
+      }
 
       // עדכן UI
       setState(() {});
@@ -169,6 +186,9 @@ class ConnectivityProvider extends ChangeNotifier {
 
   bool _isOffline = false;
 
+  /// סוג החיבור הנוכחי (לדיבאג)
+  List<ConnectivityResult> _lastResults = [];
+
   /// האם אין חיבור
   bool get isOffline => _isOffline;
 
@@ -178,14 +198,16 @@ class ConnectivityProvider extends ChangeNotifier {
   /// אתחול ניטור
   ///
   /// ✅ כולל guard למניעת אתחול כפול
+  /// ✅ מחזיר Result ראשוני מיד (await) לפני האזנה ל-Stream
+  ///    כדי למנוע "שטח מת" (Blank state) בשניות הראשונות
   Future<void> init() async {
     // 🛡️ Guard: אל תאתחל פעמיים
     if (_subscription != null) return;
 
-    // בדיקה ראשונית
+    // בדיקה ראשונית - await כדי לקבל תוצאה מיידית
     await _checkConnectivity();
 
-    // האזנה לשינויים
+    // האזנה לשינויים (רק אחרי שיש לנו מצב ראשוני)
     _subscription = _connectivity.onConnectivityChanged.listen(
       _handleChange,
     );
@@ -197,12 +219,14 @@ class ConnectivityProvider extends ChangeNotifier {
       _handleChange(results);
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ ConnectivityProvider: שגיאה - $e');
+        debugPrint('❌ ConnectivityProvider: שגיאה בבדיקת חיבור - $e');
       }
     }
   }
 
   void _handleChange(List<ConnectivityResult> results) {
+    _lastResults = results;
+
     // ✅ אין חיבור אם הרשימה ריקה או כל הערכים הם none
     final hasNoConnection = results.isEmpty ||
         results.every((r) => r == ConnectivityResult.none);
@@ -212,13 +236,31 @@ class ConnectivityProvider extends ChangeNotifier {
       notifyListeners();
 
       if (kDebugMode) {
+        final connectionTypes = _lastResults
+            .where((r) => r != ConnectivityResult.none)
+            .map(_connectionTypeLabel)
+            .join(', ');
+
         debugPrint(
           _isOffline
-            ? '📡 ConnectivityProvider: אין חיבור'
-            : '✅ ConnectivityProvider: יש חיבור'
+            ? '📡 ConnectivityProvider: אין חיבור (results: $results)'
+            : '✅ ConnectivityProvider: יש חיבור [$connectionTypes]',
         );
       }
     }
+  }
+
+  /// תיאור סוג חיבור בעברית (לדיבאג)
+  String _connectionTypeLabel(ConnectivityResult result) {
+    return switch (result) {
+      ConnectivityResult.wifi => 'WiFi',
+      ConnectivityResult.mobile => 'Mobile',
+      ConnectivityResult.ethernet => 'Ethernet',
+      ConnectivityResult.bluetooth => 'Bluetooth',
+      ConnectivityResult.vpn => 'VPN',
+      ConnectivityResult.other => 'Other',
+      ConnectivityResult.none => 'None',
+    };
   }
 
   /// בדיקת חיבור ידנית

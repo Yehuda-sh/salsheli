@@ -4,13 +4,18 @@
 // 1. המשתמש הנוכחי יש לו קנייה פעילה → "להמשיך קנייה?"
 // 2. מישהו אחר קונה מרשימה משותפת → "קניות מתבצעות!"
 //
-// Version: 3.0 (04/02/2026) - הצגת שם קונה, כפתור צפייה חיה read-only
+// ✅ Features:
+//    - אנימציית כניסה לבאנר (flutter_animate)
+//    - מעבר חלק בין מצבי באנר (AnimatedSwitcher)
+//
+// Version: 3.1 (22/02/2026)
 // 🔗 Related: ShoppingList, ActiveShopper
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/status_colors.dart';
@@ -27,62 +32,83 @@ import '../../../../theme/app_theme.dart';
 class ActiveShopperBanner extends StatelessWidget {
   const ActiveShopperBanner({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    final listsProvider = context.watch<ShoppingListsProvider>();
-    final userContext = context.watch<UserContext>();
-    final currentUserId = userContext.userId;
-
-    // 1. עדיפות גבוהה: בדוק אם המשתמש הנוכחי יש לו קנייה פעילה
-    ShoppingList? myActiveShoppingList;
+  /// מציאת רשימה עם קנייה פעילה של המשתמש הנוכחי
+  ShoppingList? _findMyActiveShopping(
+    ShoppingListsProvider listsProvider,
+    String? currentUserId,
+  ) {
     for (final list in listsProvider.lists) {
       if (list.isBeingShopped) {
         final activeShoppers = list.activeShoppers.where((s) => s.isActive).toList();
         final myActiveShopper = activeShoppers.where((s) => s.userId == currentUserId).firstOrNull;
-        if (myActiveShopper != null) {
-          myActiveShoppingList = list;
-          break;
-        }
+        if (myActiveShopper != null) return list;
       }
     }
+    return null;
+  }
 
-    // אם למשתמש יש קנייה פעילה - מציג באנר "להמשיך"
-    if (myActiveShoppingList != null) {
-      return _MyActiveShoppingBanner(list: myActiveShoppingList);
-    }
-
-    // 2. בדוק אם מישהו אחר קונה מרשימה משותפת
-    ShoppingList? othersShoppingList;
+  /// מציאת רשימה עם קנייה פעילה של מישהו אחר
+  ShoppingList? _findOthersActiveShopping(
+    ShoppingListsProvider listsProvider,
+    String? currentUserId,
+  ) {
     for (final list in listsProvider.lists) {
       if (list.isBeingShopped) {
         final activeShoppers = list.activeShoppers.where((s) => s.isActive).toList();
         final isCurrentUserShopping = activeShoppers.any((s) => s.userId == currentUserId);
-        if (!isCurrentUserShopping) {
-          othersShoppingList = list;
-          break;
-        }
+        if (!isCurrentUserShopping) return list;
       }
     }
+    return null;
+  }
 
-    // אם אין רשימה עם קנייה פעילה של אחרים - לא מציג
-    if (othersShoppingList == null) {
-      return const SizedBox.shrink();
+  @override
+  Widget build(BuildContext context) {
+    final listsProvider = context.watch<ShoppingListsProvider>();
+    final currentUserId = context.watch<UserContext>().userId;
+
+    // 1. עדיפות גבוהה: קנייה פעילה של המשתמש
+    final myList = _findMyActiveShopping(listsProvider, currentUserId);
+    if (myList != null) {
+      return AnimatedSwitcher(
+        duration: const Duration(milliseconds: 400),
+        child: _MyActiveShoppingBanner(key: const ValueKey('my_active'), list: myList)
+            .animate()
+            .fadeIn(duration: 300.ms)
+            .slideY(begin: -0.2, end: 0.0, curve: Curves.easeOut),
+      );
     }
 
-    final activeShoppers = othersShoppingList.activeShoppers.where((s) => s.isActive).toList();
+    // 2. קנייה פעילה של אחרים
+    final othersList = _findOthersActiveShopping(listsProvider, currentUserId);
+    if (othersList == null) {
+      return AnimatedSwitcher(
+        duration: const Duration(milliseconds: 400),
+        child: const SizedBox.shrink(key: ValueKey('none')),
+      );
+    }
+
+    final activeShoppers = othersList.activeShoppers.where((s) => s.isActive).toList();
     final shopperCount = activeShoppers.length;
 
     // Resolve first shopper name from sharedUsers
     String? firstShopperName;
     if (activeShoppers.isNotEmpty) {
       final firstShopper = activeShoppers.first;
-      firstShopperName = othersShoppingList.sharedUsers[firstShopper.userId]?.userName;
+      firstShopperName = othersList.sharedUsers[firstShopper.userId]?.userName;
     }
 
-    return _OthersShoppingBanner(
-      list: othersShoppingList,
-      shopperCount: shopperCount,
-      firstShopperName: firstShopperName,
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 400),
+      child: _OthersShoppingBanner(
+        key: const ValueKey('others_active'),
+        list: othersList,
+        shopperCount: shopperCount,
+        firstShopperName: firstShopperName,
+      )
+          .animate()
+          .fadeIn(duration: 300.ms)
+          .slideY(begin: -0.2, end: 0.0, curve: Curves.easeOut),
     );
   }
 }
@@ -91,7 +117,7 @@ class ActiveShopperBanner extends StatelessWidget {
 class _MyActiveShoppingBanner extends StatelessWidget {
   final ShoppingList list;
 
-  const _MyActiveShoppingBanner({required this.list});
+  const _MyActiveShoppingBanner({super.key, required this.list});
 
   @override
   Widget build(BuildContext context) {
@@ -210,6 +236,7 @@ class _OthersShoppingBanner extends StatelessWidget {
   final String? firstShopperName;
 
   const _OthersShoppingBanner({
+    super.key,
     required this.list,
     required this.shopperCount,
     this.firstShopperName,
@@ -425,7 +452,7 @@ class _PulsingIconState extends State<_PulsingIcon>
       vsync: this,
     )..repeat(reverse: true);
 
-    _animation = Tween<double>(begin: 0.8, end: 1.0).animate(
+    _animation = Tween<double>(begin: 0.95, end: 1.05).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
   }

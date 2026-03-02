@@ -1,54 +1,48 @@
 // 📄 File: lib/data/onboarding_data.dart
-// תיאור: מודל נתוני Onboarding + פונקציות שמירה/טעינה/ניהול
 //
-// Version: 2.2 - Added store category helpers
-// Last Updated: 03/11/2025
+// 🎯 Purpose: מודל נתוני Onboarding + שמירה/טעינה/ניהול העדפות
 //
-// כולל:
-// - מודל OnboardingData עם כל שדות ההעדפות
-// - פונקציות save/load/reset לעבודה עם SharedPreferences
-// - ניהול סטטוס "סיים Onboarding"
-// - וולידציה מלאה לכל השדות + סינון ערכים לא תקינים
-// - Logging מפורט לדיבוג (kDebugMode only)
-// - Namespacing למפתחות (onboarding.*)
-// - Schema versioning למיגרציות עתידיות
-// - TimeOfDay helpers
-// - Store category helpers (NEW in v2.2)
+// 📋 Features:
+//     - מודל OnboardingData עם וולידציה מלאה לכל שדה
+//     - כתיבה מקבילית (Parallel Persistence) עם Future.wait
+//     - Deep Cloning ב-copyWith (בטיחות רפרנסים)
+//     - שיפור בטיחות טיפוסים (Type Safety)
+//     - Schema versioning למיגרציות עתידיות
+//     - Store category helpers
+//     - TimeOfDay helpers
+//     - Namespacing למפתחות (onboarding.*)
 //
-// שימוש:
-// ```dart
-// // טעינת נתונים
-// final data = await OnboardingData.load();
+// 💡 Usage:
+//     ```dart
+//     final data = await OnboardingData.load();
+//     final updated = data.copyWith(familySize: 4);
+//     await updated.save();
+//     await OnboardingData.markAsCompleted();
+//     ```
 //
-// // עדכון
-// final updated = data.copyWith(familySize: 4);
-// await updated.save();
+// 🔗 Related:
+//     - lib/data/child.dart - מודל Child
+//     - lib/config/stores_config.dart - קונפיגורציית חנויות
+//     - lib/core/constants.dart - קבועים גלובליים
 //
-// // סימון סיום
-// await OnboardingData.markAsCompleted();
+// 📜 History:
+//     - v1.0: מודל ראשוני
+//     - v2.0: וולידציה, logging, schema versioning
+//     - v2.2 (03/11/2025): Store category helpers
+//     - v3.0 (22/02/2026): Parallel persistence, deep copy, isEmpty, RegExp validation
 //
-// // בדיקה אם עבר onboarding
-// final hasSeenIt = await OnboardingData.hasSeenOnboarding();
-//
-// // TimeOfDay helpers
-// final time = OnboardingData.parseTime('09:30'); // TimeOfDay(hour: 9, minute: 30)
-// final str = OnboardingData.formatTime(TimeOfDay(hour: 9, minute: 30)); // '09:30'
-//
-// // Store category helpers (NEW in v2.2)
-// final supermarkets = data.getStoresByCategory(StoreCategory.supermarket);
-// final hasPharmacy = data.hasStoresInCategory(StoreCategory.pharmacy);
-// final categories = data.getPreferredCategories();
-// final grouped = data.getStoresGroupedByCategory();
-// ```
+// Version: 3.0
+// Last Updated: 22/02/2026
 
 import 'dart:convert'; // ✅ להמרת JSON
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../core/constants.dart';
+
 import '../config/stores_config.dart';
-import 'child.dart'; // ✅ מודל Child
+import '../core/constants.dart';
+import 'child.dart';
 
 // ========================================
 // מפתחות SharedPreferences
@@ -231,34 +225,16 @@ class OnboardingData {
 
 
 
+  /// ✅ v3.0: RegExp for fast HH:MM format pre-check
+  static final _timeRegExp = RegExp(r'^\d{1,2}:\d{1,2}$');
+
   /// בדיקת תקינות פורמט זמן
-  /// 
+  ///
   /// מקבל: "HH:MM" (24h format)
   /// מחזיר: "HH:MM" תקין עם אפסים מובילים, או "09:00" אם לא תקין
   static String _validateTime(String time) {
-    try {
-      final parts = time.split(':');
-      if (parts.length != 2) throw const FormatException('פורמט לא תקין');
-
-      final hour = int.parse(parts[0]);
-      final minute = int.parse(parts[1]);
-
-      if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
-        throw RangeError('שעה או דקה לא חוקיות');
-      }
-
-      // מחזיר בפורמט תקין עם אפסים מובילים
-      final formatted = '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
-      
-      // אם הפורמט השתנה (למשל "9:5" → "09:05"), לוג אזהרה
-      if (kDebugMode && formatted != time) {
-        debugPrint(
-          '⚠️ OnboardingData: פורמט זמן תוקן מ-"$time" ל-"$formatted"',
-        );
-      }
-      
-      return formatted;
-    } catch (e) {
+    // ✅ v3.0: RegExp pre-check - fast fail for invalid format
+    if (!_timeRegExp.hasMatch(time)) {
       if (kDebugMode) {
         debugPrint(
           '⚠️ OnboardingData: פורמט זמן שגוי ($time), משתמש בברירת מחדל 09:00',
@@ -266,6 +242,31 @@ class OnboardingData {
       }
       return '09:00';
     }
+
+    final parts = time.split(':');
+    final hour = int.parse(parts[0]);
+    final minute = int.parse(parts[1]);
+
+    if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+      if (kDebugMode) {
+        debugPrint(
+          '⚠️ OnboardingData: שעה או דקה לא חוקיות ($time), משתמש בברירת מחדל 09:00',
+        );
+      }
+      return '09:00';
+    }
+
+    // מחזיר בפורמט תקין עם אפסים מובילים
+    final formatted = '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+
+    // אם הפורמט השתנה (למשל "9:5" → "09:05"), לוג אזהרה
+    if (kDebugMode && formatted != time) {
+      debugPrint(
+        '⚠️ OnboardingData: פורמט זמן תוקן מ-"$time" ל-"$formatted"',
+      );
+    }
+
+    return formatted;
   }
 
   // ========================================
@@ -309,11 +310,25 @@ class OnboardingData {
   /// קבלת TimeOfDay מהנתונים
   TimeOfDay? get reminderTimeOfDay => parseTime(reminderTime);
 
+  /// בדיקה אם כל השדות בערכי ברירת מחדל (המשתמש לא מילא העדפות)
+  ///
+  /// בודק אם כל הרשימות ריקות ואין ילדים.
+  /// שדות מספריים (familySize, shoppingFrequency) לא נבדקים
+  /// כי ערכי ברירת המחדל שלהם יכולים להיות גם בחירות מכוונות.
+  bool get isEmpty =>
+      preferredStores.isEmpty &&
+      shoppingDays.isEmpty &&
+      !hasChildren &&
+      children.isEmpty;
+
   // ========================================
   // פונקציות עזר
   // ========================================
 
   /// יצירת עותק מעודכן של המודל
+  ///
+  /// ✅ v3.0: Deep copy - יוצר עותקים חדשים של Sets ו-Lists
+  /// למניעת שיתוף רפרנסים בין instances
   OnboardingData copyWith({
     int? familySize,
     Set<String>? preferredStores,
@@ -326,11 +341,11 @@ class OnboardingData {
   }) {
     return OnboardingData(
       familySize: familySize ?? this.familySize,
-      preferredStores: preferredStores ?? this.preferredStores,
+      preferredStores: preferredStores ?? Set.of(this.preferredStores),
       shoppingFrequency: shoppingFrequency ?? this.shoppingFrequency,
-      shoppingDays: shoppingDays ?? this.shoppingDays,
+      shoppingDays: shoppingDays ?? Set.of(this.shoppingDays),
       hasChildren: hasChildren ?? this.hasChildren,
-      children: children ?? this.children,
+      children: children ?? List.of(this.children),
       shareLists: shareLists ?? this.shareLists,
       reminderTime: reminderTime ?? this.reminderTime,
     );
@@ -364,7 +379,7 @@ class OnboardingData {
   /// ```
   Set<StoreCategory> getPreferredCategories() {
     return preferredStores
-        .map((store) => StoresConfig.getCategory(store))
+        .map(StoresConfig.getCategory)
         .whereType<StoreCategory>()
         .toSet();
   }
@@ -467,70 +482,39 @@ class OnboardingData {
       // שמירת schema version
       await prefs.setInt(OnboardingPrefsKeys.schemaVersion, kCurrentSchemaVersion);
 
-      // רשימת שדות שנכשלו (לשיפור logging)
-      final failedFields = <String>[];
+      // ✅ v3.0: שמירה מקבילית עם Future.wait
+      const fieldNames = [
+        'familySize', 'preferredStores', 'shoppingFrequency', 'shoppingDays',
+        'hasChildren', 'children', 'shareLists', 'reminderTime',
+      ];
 
-      // שמירת כל השדות בזה אחר זה עם logging
-      if (!await _saveField(
-        prefs,
-        OnboardingPrefsKeys.familySize,
-        () => prefs.setInt(OnboardingPrefsKeys.familySize, familySize),
-      )) {failedFields.add('familySize');}
+      final results = await Future.wait([
+        _saveField(prefs, OnboardingPrefsKeys.familySize,
+            () => prefs.setInt(OnboardingPrefsKeys.familySize, familySize)),
+        _saveField(prefs, OnboardingPrefsKeys.preferredStores,
+            () => prefs.setStringList(OnboardingPrefsKeys.preferredStores,
+                validatedStores.toList()..sort())),
+        _saveField(prefs, OnboardingPrefsKeys.shoppingFrequency,
+            () => prefs.setInt(OnboardingPrefsKeys.shoppingFrequency,
+                shoppingFrequency)),
+        _saveField(prefs, OnboardingPrefsKeys.shoppingDays,
+            () => prefs.setString(OnboardingPrefsKeys.shoppingDays,
+                validatedDays.toList().join(','))),
+        _saveField(prefs, OnboardingPrefsKeys.hasChildren,
+            () => prefs.setBool(OnboardingPrefsKeys.hasChildren, hasChildren)),
+        _saveField(prefs, OnboardingPrefsKeys.children,
+            () => prefs.setString(OnboardingPrefsKeys.children,
+                jsonEncode(validatedChildren.map((c) => c.toJson()).toList()))),
+        _saveField(prefs, OnboardingPrefsKeys.shareLists,
+            () => prefs.setBool(OnboardingPrefsKeys.shareLists, shareLists)),
+        _saveField(prefs, OnboardingPrefsKeys.reminderTime,
+            () => prefs.setString(OnboardingPrefsKeys.reminderTime, validatedTime)),
+      ]);
 
-      if (!await _saveField(
-        prefs,
-        OnboardingPrefsKeys.preferredStores,
-        () => prefs.setStringList(
-          OnboardingPrefsKeys.preferredStores,
-          validatedStores.toList()..sort(), // ממוין לדטרמיניזם
-        ),
-      )) {failedFields.add('preferredStores');}
-
-      if (!await _saveField(
-        prefs,
-        OnboardingPrefsKeys.shoppingFrequency,
-        () => prefs.setInt(
-          OnboardingPrefsKeys.shoppingFrequency,
-          shoppingFrequency,
-        ),
-      )) {failedFields.add('shoppingFrequency');}
-
-      if (!await _saveField(
-        prefs,
-        OnboardingPrefsKeys.shoppingDays,
-        () => prefs.setString(
-          OnboardingPrefsKeys.shoppingDays,
-          validatedDays.toList().join(','), // שמירה כ-CSV
-        ),
-      )) {failedFields.add('shoppingDays');}
-
-      if (!await _saveField(
-        prefs,
-        OnboardingPrefsKeys.hasChildren,
-        () => prefs.setBool(OnboardingPrefsKeys.hasChildren, hasChildren),
-      )) {failedFields.add('hasChildren');}
-
-      // ✅ שמירת ילדים כ-JSON
-      if (!await _saveField(
-        prefs,
-        OnboardingPrefsKeys.children,
-        () => prefs.setString(
-          OnboardingPrefsKeys.children,
-          jsonEncode(validatedChildren.map((c) => c.toJson()).toList()),
-        ),
-      )) {failedFields.add('children');}
-
-      if (!await _saveField(
-        prefs,
-        OnboardingPrefsKeys.shareLists,
-        () => prefs.setBool(OnboardingPrefsKeys.shareLists, shareLists),
-      )) {failedFields.add('shareLists');}
-
-      if (!await _saveField(
-        prefs,
-        OnboardingPrefsKeys.reminderTime,
-        () => prefs.setString(OnboardingPrefsKeys.reminderTime, validatedTime),
-      )) {failedFields.add('reminderTime');}
+      final failedFields = <String>[
+        for (var i = 0; i < results.length; i++)
+          if (!results[i]) fieldNames[i],
+      ];
 
       final success = failedFields.isEmpty;
 
@@ -618,7 +602,7 @@ class OnboardingData {
 
       final daysValue = prefs.getString(OnboardingPrefsKeys.shoppingDays);
       final daysSet = daysValue != null && daysValue.isNotEmpty
-          ? daysValue.split(',').map((s) => int.tryParse(s)).whereType<int>().toSet()
+          ? daysValue.split(',').map(int.tryParse).whereType<int>().toSet()
           : <int>{};
       if (kDebugMode && (daysValue == null || daysValue.isEmpty)) {
         debugPrint('   ⚠️ shoppingDays ריק, משתמש בברירת מחדל: []');
@@ -772,12 +756,13 @@ class OnboardingData {
         OnboardingPrefsKeys.reminderTime,
       ];
 
-      for (final key in keys) {
+      // ✅ v3.0: מחיקה מקבילית עם Future.wait
+      await Future.wait(keys.map((key) async {
         await prefs.remove(key);
         if (kDebugMode) {
           debugPrint('   🗑️ מחק: $key');
         }
-      }
+      }));
 
       if (kDebugMode) {
         debugPrint('✅ OnboardingData: איפוס הושלם בהצלחה');

@@ -1,11 +1,16 @@
 // 📄 lib/screens/home/dashboard/widgets/pending_invites_banner.dart
 //
 // באנר הזמנות ממתינות - מוצג כשיש הזמנות שטרם טופלו
+// ✨ v2.0: AnimatedSwitcher, flutter_animate entrance, shimmer icon, haptic
 //
-// Version: 1.0 (04/02/2026)
+// Version: 2.0 (22/02/2026)
 // 🔗 Related: PendingInvitesService, UserContext
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/ui_constants.dart';
@@ -34,8 +39,14 @@ class PendingInvitesBanner extends StatelessWidget {
         final invites = snapshot.data ?? [];
         if (invites.isEmpty) return const SizedBox.shrink();
 
-        return _PendingInviteBannerContent(
-          invites: invites,
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          switchInCurve: Curves.easeOut,
+          switchOutCurve: Curves.easeIn,
+          child: _PendingInviteBannerContent(
+            key: ValueKey(invites.first.id),
+            invites: invites,
+          ),
         );
       },
     );
@@ -45,7 +56,7 @@ class PendingInvitesBanner extends StatelessWidget {
 class _PendingInviteBannerContent extends StatelessWidget {
   final List<PendingRequest> invites;
 
-  const _PendingInviteBannerContent({required this.invites});
+  const _PendingInviteBannerContent({super.key, required this.invites});
 
   @override
   Widget build(BuildContext context) {
@@ -62,16 +73,26 @@ class _PendingInviteBannerContent extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: kSpacingSmall),
       decoration: BoxDecoration(
-        color: cs.tertiaryContainer,
+        color: cs.tertiaryContainer.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: cs.tertiary.withValues(alpha: 0.3),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: cs.tertiary.withValues(alpha: 0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => Navigator.pushNamed(context, '/pending-invites'),
+          onTap: () {
+            unawaited(HapticFeedback.lightImpact());
+            Navigator.pushNamed(context, '/pending-invites');
+          },
           borderRadius: BorderRadius.circular(12),
           child: Padding(
             padding: const EdgeInsets.all(kSpacingMedium),
@@ -89,7 +110,15 @@ class _PendingInviteBannerContent extends StatelessWidget {
                     Icons.mail_outline,
                     color: cs.tertiary,
                     size: 22,
-                  ),
+                  )
+                      .animate(
+                        onPlay: (c) => c.repeat(reverse: true),
+                      )
+                      .shimmer(
+                        delay: 2000.ms,
+                        duration: 1200.ms,
+                        color: cs.tertiary.withValues(alpha: 0.3),
+                      ),
                 ),
                 const SizedBox(width: kSpacingMedium),
                 // טקסט
@@ -152,6 +181,9 @@ class _PendingInviteBannerContent extends StatelessWidget {
           ),
         ),
       ),
-    );
+    )
+        .animate()
+        .fadeIn(duration: 400.ms)
+        .slideY(begin: -0.2, end: 0, duration: 400.ms, curve: Curves.easeOut);
   }
 }

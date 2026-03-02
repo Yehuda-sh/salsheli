@@ -1,3 +1,50 @@
+// 📄 File: lib/providers/suggestions_provider.dart
+//
+// 🎯 Purpose: Provider לניהול המלצות חכמות מהמזווה - קרוסלת המלצות עם תור מעגלי
+//
+// 📦 Dependencies:
+// - InventoryProvider: מאזין לשינויים במלאי ומחולל המלצות בהתאם
+// - SuggestionsService: לוגיקת יצירת/סינון/עדכון המלצות (static methods)
+// - Hive: שמירת מוצרים מוחרגים (persistent)
+//
+// ✨ Features:
+// - 🔄 רענון אוטומטי: מאזין ל-InventoryProvider ומרענן כשמלאי משתנה
+// - 🎠 קרוסלה מעגלית: ניווט קדימה/אחורה בין המלצות עם wrap-around
+// - ➕ הוספה לרשימה: סימון המלצה כ-added ומעבר להבאה
+// - ⏭️ דחייה לשבוע: דחיית המלצה ומעבר להבאה
+// - ❌ מחיקה: מחיקה זמנית או קבועה (persistent ב-Hive)
+// - 🚫 דילוג בסשן: "לא עכשיו" - לא יופיע בקנייה הנוכחית בלבד
+// - 🔑 פעולות לפי ID: תמיכה בתצוגות multi-item
+//
+// 📝 Usage:
+// ```dart
+// // בקריאת נתונים:
+// final provider = context.watch<SuggestionsProvider>();
+// final current = provider.currentSuggestion;
+// final count = provider.carouselCount;
+//
+// // ניווט בקרוסלה:
+// await provider.moveToNext();
+// await provider.moveToPrevious();
+//
+// // הוספה/דחייה/מחיקה:
+// await provider.addCurrentSuggestion(listId);
+// await provider.dismissCurrentSuggestion();
+// await provider.deleteCurrentSuggestion(null); // מחיקה קבועה
+// await provider.skipForSession(); // לא עכשיו
+// ```
+//
+// 🔄 State Flow:
+// 1. Constructor → _init() → _loadExcludedProducts() + listener on InventoryProvider
+// 2. Inventory changes → _onInventoryChanged() → refreshSuggestions()
+// 3. Carousel actions → _loadNextSuggestion() → _notifySafe()
+//
+// 💾 Persistence: מוצרים מוחרגים נשמרים ב-Hive (excluded_products box)
+//
+// Version: 2.0 (_isDisposed + _notifySafe + kDebugMode)
+// Last Updated: 22/02/2026
+//
+
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/smart_suggestion.dart';
@@ -21,6 +68,7 @@ class SuggestionsProvider with ChangeNotifier {
   List<SmartSuggestion> _suggestions = [];
   SmartSuggestion? _currentSuggestion;
   bool _isLoading = false;
+  bool _isDisposed = false;
   String? _error;
   Set<String> _excludedProducts = {}; // מוצרים שנמחקו לצמיתות (persistent)
 
@@ -46,7 +94,7 @@ class SuggestionsProvider with ChangeNotifier {
       final box = Hive.box<String>(_excludedProductsBoxName);
       _excludedProducts = box.values.toSet();
     } catch (e) {
-      debugPrint('❌ [SuggestionsProvider] שגיאה בטעינת excluded products: $e');
+      if (kDebugMode) debugPrint('❌ [SuggestionsProvider] שגיאה בטעינת excluded products: $e');
       _excludedProducts = {};
     }
   }
@@ -62,7 +110,15 @@ class SuggestionsProvider with ChangeNotifier {
       await box.clear();
       await box.addAll(_excludedProducts);
     } catch (e) {
-      debugPrint('❌ [SuggestionsProvider] שגיאה בשמירת excluded products: $e');
+      if (kDebugMode) debugPrint('❌ [SuggestionsProvider] שגיאה בשמירת excluded products: $e');
+    }
+  }
+
+  // ========== Safe Notify ==========
+
+  void _notifySafe() {
+    if (!_isDisposed) {
+      notifyListeners();
     }
   }
 
@@ -120,6 +176,7 @@ class SuggestionsProvider with ChangeNotifier {
 
   @override
   void dispose() {
+    _isDisposed = true;
     _inventoryProvider.removeListener(_onInventoryChanged);
     super.dispose();
   }
@@ -140,7 +197,7 @@ class SuggestionsProvider with ChangeNotifier {
     try {
       _isLoading = true;
       _error = null;
-      notifyListeners();
+      _notifySafe();
 
       final inventoryItems = _inventoryProvider.items;
 
@@ -154,10 +211,10 @@ class SuggestionsProvider with ChangeNotifier {
       _currentSuggestion = SuggestionsService.getNextSuggestion(_suggestions);
     } catch (e) {
       _error = e.toString();
-      debugPrint('❌ [SuggestionsProvider] שגיאה ברענון: $e');
+      if (kDebugMode) debugPrint('❌ [SuggestionsProvider] שגיאה ברענון: $e');
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _notifySafe();
     }
   }
 
@@ -183,11 +240,11 @@ class SuggestionsProvider with ChangeNotifier {
       // טעינת המלצה חדשה
       await _loadNextSuggestion();
 
-      notifyListeners();
+      _notifySafe();
     } catch (e) {
       _error = e.toString();
-      debugPrint('❌ [SuggestionsProvider] שגיאה בהוספת המלצה: $e');
-      notifyListeners();
+      if (kDebugMode) debugPrint('❌ [SuggestionsProvider] שגיאה בהוספת המלצה: $e');
+      _notifySafe();
     }
   }
 
@@ -212,11 +269,11 @@ class SuggestionsProvider with ChangeNotifier {
       // טעינת המלצה חדשה
       await _loadNextSuggestion();
 
-      notifyListeners();
+      _notifySafe();
     } catch (e) {
       _error = e.toString();
-      debugPrint('❌ [SuggestionsProvider] שגיאה בדחיית המלצה: $e');
-      notifyListeners();
+      if (kDebugMode) debugPrint('❌ [SuggestionsProvider] שגיאה בדחיית המלצה: $e');
+      _notifySafe();
     }
   }
 
@@ -248,11 +305,11 @@ class SuggestionsProvider with ChangeNotifier {
       // טעינת המלצה חדשה
       await _loadNextSuggestion();
 
-      notifyListeners();
+      _notifySafe();
     } catch (e) {
       _error = e.toString();
-      debugPrint('❌ [SuggestionsProvider] שגיאה במחיקת המלצה: $e');
-      notifyListeners();
+      if (kDebugMode) debugPrint('❌ [SuggestionsProvider] שגיאה במחיקת המלצה: $e');
+      _notifySafe();
     }
   }
 
@@ -291,7 +348,7 @@ class SuggestionsProvider with ChangeNotifier {
     _currentIndex = (_currentIndex + 1) % active.length;
     _currentSuggestion = active[_currentIndex];
 
-    notifyListeners();
+    _notifySafe();
   }
 
   /// ⏮️ חזור להמלצה הקודמת (קרוסלה)
@@ -307,7 +364,7 @@ class SuggestionsProvider with ChangeNotifier {
     _currentIndex = (_currentIndex - 1 + active.length) % active.length;
     _currentSuggestion = active[_currentIndex];
 
-    notifyListeners();
+    _notifySafe();
   }
 
   /// 🚫 דלג על המלצה בסשן הזה בלבד (כפתור "לא עכשיו")
@@ -333,7 +390,7 @@ class SuggestionsProvider with ChangeNotifier {
       _currentSuggestion = active[_currentIndex];
     }
 
-    notifyListeners();
+    _notifySafe();
   }
 
   /// 🔄 נקה דילוגי סשן (קריאה כשמסיימים קנייה או יוצאים)
@@ -341,13 +398,13 @@ class SuggestionsProvider with ChangeNotifier {
     _sessionSkippedProducts.clear();
     _currentIndex = 0;
     _loadNextSuggestion();
-    notifyListeners();
+    _notifySafe();
   }
 
   /// 🔄 איפוס שגיאה
   void clearError() {
     _error = null;
-    notifyListeners();
+    _notifySafe();
   }
 
   // ========== 🆕 Methods by ID (for multi-item views) ==========
@@ -376,11 +433,11 @@ class SuggestionsProvider with ChangeNotifier {
         await _loadNextSuggestion();
       }
 
-      notifyListeners();
+      _notifySafe();
     } catch (e) {
       _error = e.toString();
-      debugPrint('❌ [SuggestionsProvider] שגיאה בהוספת המלצה לפי ID: $e');
-      notifyListeners();
+      if (kDebugMode) debugPrint('❌ [SuggestionsProvider] שגיאה בהוספת המלצה לפי ID: $e');
+      _notifySafe();
     }
   }
 
@@ -405,11 +462,11 @@ class SuggestionsProvider with ChangeNotifier {
         await _loadNextSuggestion();
       }
 
-      notifyListeners();
+      _notifySafe();
     } catch (e) {
       _error = e.toString();
-      debugPrint('❌ [SuggestionsProvider] שגיאה בדחיית המלצה לפי ID: $e');
-      notifyListeners();
+      if (kDebugMode) debugPrint('❌ [SuggestionsProvider] שגיאה בדחיית המלצה לפי ID: $e');
+      _notifySafe();
     }
   }
 }

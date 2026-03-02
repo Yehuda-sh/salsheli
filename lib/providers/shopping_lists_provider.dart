@@ -90,12 +90,22 @@ class ShoppingListsProvider with ChangeNotifier {
   StreamSubscription<List<ShoppingList>>? _listsSubscription;
   String? _watchedUserId; // מניעת restart מיותר של ה-Stream
   bool _useRealTimeUpdates = true; // ניתן לכבות אם יש בעיות
+  bool _isDisposed = false;
 
   ShoppingListsProvider({
     required ShoppingListsRepository repository,
     required ReceiptRepository receiptRepository,
   })  : _repository = repository,
         _receiptRepository = receiptRepository;
+
+  // === Safe Notify ===
+
+  /// קורא ל-notifyListeners רק אם לא disposed
+  void _notifySafe() {
+    if (!_isDisposed) {
+      notifyListeners();
+    }
+  }
 
   // === Getters ===
   List<ShoppingList> get lists => List.unmodifiable(_lists);
@@ -218,29 +228,31 @@ class ShoppingListsProvider with ChangeNotifier {
     _listsSubscription?.cancel();
     _watchedUserId = userId;
     _isLoading = true;
-    notifyListeners();
+    _notifySafe();
 
     // התחלת האזנה
     _listsSubscription = _repository.watchLists(userId, householdId).listen(
       (fetchedLists) {
+        if (_isDisposed) return;
         // 🔑 חישוב currentUserRole לכל רשימה
         _lists = _enrichListsWithUserRole(fetchedLists);
         _lastUpdated = DateTime.now();
         _isLoading = false;
         _errorMessage = null;
-        notifyListeners();
+        _notifySafe();
 
         if (kDebugMode) {
           debugPrint('📥 ShoppingListsProvider: קיבלנו ${_lists.length} רשימות בזמן אמת');
         }
       },
       onError: (error) {
+        if (_isDisposed) return;
         if (kDebugMode) {
           debugPrint('❌ _startWatchingLists: שגיאה - $error');
         }
         _errorMessage = error.toString();
         _isLoading = false;
-        notifyListeners();
+        _notifySafe();
       },
     );
   }
@@ -260,7 +272,7 @@ class ShoppingListsProvider with ChangeNotifier {
     } else {
       _lists = [];
       _currentHouseholdId = null;
-      notifyListeners();
+      _notifySafe();
     }
   }
 
@@ -285,7 +297,7 @@ class ShoppingListsProvider with ChangeNotifier {
 
     _isLoading = true;
     _errorMessage = null;
-    notifyListeners();
+    _notifySafe();
 
     try {
       final userId = _userContext?.user?.id;
@@ -300,10 +312,10 @@ class ShoppingListsProvider with ChangeNotifier {
       if (kDebugMode) {
         debugPrint('❌ loadLists: שגיאה - $e');
       }
-      notifyListeners(); // ← עדכון UI מיידי על שגיאה
+      _notifySafe(); // ← עדכון UI מיידי על שגיאה
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _notifySafe();
     }
   }
 
@@ -340,7 +352,7 @@ class ShoppingListsProvider with ChangeNotifier {
     _lastUpdated = null;
     _currentHouseholdId = null;
     _currentUserId = null; // 🆕 נקה גם user_id
-    notifyListeners();
+    _notifySafe();
   }
 
   /// יוצר רשימת קניות חדשה
@@ -467,7 +479,7 @@ class ShoppingListsProvider with ChangeNotifier {
         debugPrint('❌ createList: שגיאה - $e');
       }
       _errorMessage = 'שגיאה ביצירת רשימה "$name": ${e.toString()}';
-      notifyListeners();
+      _notifySafe();
       rethrow;
     }
   }
@@ -508,7 +520,7 @@ class ShoppingListsProvider with ChangeNotifier {
         debugPrint('❌ deleteList: שגיאה - $e');
       }
       _errorMessage = 'שגיאה במחיקת רשימה $id: ${e.toString()}';
-      notifyListeners();
+      _notifySafe();
       rethrow;
     }
   }
@@ -571,7 +583,7 @@ class ShoppingListsProvider with ChangeNotifier {
         debugPrint('❌ updateList: שגיאה - $e');
       }
       _errorMessage = 'שגיאה בעדכון רשימה ${updated.id}: ${e.toString()}';
-      notifyListeners();
+      _notifySafe();
       rethrow;
     }
   }
@@ -617,7 +629,7 @@ class ShoppingListsProvider with ChangeNotifier {
         debugPrint('❌ shareListToHousehold: שגיאה - $e');
       }
       _errorMessage = 'שגיאה בשיתוף רשימה $listId: ${e.toString()}';
-      notifyListeners();
+      _notifySafe();
       rethrow;
     }
   }
@@ -1029,7 +1041,7 @@ class ShoppingListsProvider with ChangeNotifier {
         debugPrint('❌ addToNextList: שגיאה - $e');
       }
       _errorMessage = 'שגיאה בהוספת פריטים לרשימה הבאה: ${e.toString()}';
-      notifyListeners();
+      _notifySafe();
       rethrow;
     }
   }
@@ -1085,7 +1097,7 @@ class ShoppingListsProvider with ChangeNotifier {
         debugPrint('❌ startCollaborativeShopping: שגיאה - $e');
       }
       _errorMessage = 'שגיאה בהתחלת קנייה: ${e.toString()}';
-      notifyListeners();
+      _notifySafe();
       rethrow;
     }
   }
@@ -1145,7 +1157,7 @@ class ShoppingListsProvider with ChangeNotifier {
         debugPrint('❌ joinCollaborativeShopping: שגיאה - $e');
       }
       _errorMessage = 'שגיאה בהצטרפות לקנייה: ${e.toString()}';
-      notifyListeners();
+      _notifySafe();
       rethrow;
     }
   }
@@ -1193,7 +1205,7 @@ class ShoppingListsProvider with ChangeNotifier {
         debugPrint('❌ leaveCollaborativeShopping: שגיאה - $e');
       }
       _errorMessage = 'שגיאה ביציאה מקנייה: ${e.toString()}';
-      notifyListeners();
+      _notifySafe();
       rethrow;
     }
   }
@@ -1254,7 +1266,7 @@ class ShoppingListsProvider with ChangeNotifier {
         debugPrint('❌ markItemAsChecked: שגיאה - $e');
       }
       _errorMessage = 'שגיאה בסימון פריט: ${e.toString()}';
-      notifyListeners();
+      _notifySafe();
       rethrow;
     }
   }
@@ -1335,7 +1347,7 @@ class ShoppingListsProvider with ChangeNotifier {
         debugPrint('❌ updateItemStatus: שגיאה - $e');
       }
       _errorMessage = 'שגיאה בעדכון סטטוס פריט: ${e.toString()}';
-      notifyListeners();
+      _notifySafe();
       rethrow;
     }
   }
@@ -1431,7 +1443,7 @@ class ShoppingListsProvider with ChangeNotifier {
         debugPrint('❌ finishCollaborativeShopping: שגיאה - $e');
       }
       _errorMessage = 'שגיאה בסיום קנייה: ${e.toString()}';
-      notifyListeners();
+      _notifySafe();
       rethrow;
     }
   }
@@ -1488,17 +1500,18 @@ class ShoppingListsProvider with ChangeNotifier {
         debugPrint('❌ cleanupAbandonedSessions: שגיאה - $e');
       }
       _errorMessage = 'שגיאה בניקוי sessions: ${e.toString()}';
-      notifyListeners();
+      _notifySafe();
       rethrow;
     }
   }
 
   @override
   void dispose() {
+    _isDisposed = true;
     if (kDebugMode) {
       debugPrint('🗑️ ShoppingListsProvider.dispose()');
     }
-    _stopWatchingLists(); // 🔄 ביטול subscription לרשימות
+    _stopWatchingLists();
     if (_listening && _userContext != null) {
       _userContext!.removeListener(_onUserChanged);
     }

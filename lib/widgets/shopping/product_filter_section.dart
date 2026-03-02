@@ -1,13 +1,24 @@
 // 📄 lib/widgets/shopping/product_filter_section.dart
+// Version 4.0 - Hybrid Premium | 22/02/2026
 //
 // רכיב פילטור מוצרים - חיפוש וסינון לפי קטגוריות.
 // כולל chips אנימטיביים, אינדיקטורי גלילה, ותמיכה בסוגי רשימות.
 //
+// Features:
+//   - שורת סטטיסטיקה Glassmorphic (BackdropFilter + Gradient)
+//   - אנימציית צ'יפים מדורגת (Staggered Chips)
+//   - משוב Haptic מבוסס בחירה
+//   - אופטימיזציית RepaintBoundary
+//
 // 🔗 Related: ProductsProvider, ProductSelectionBottomSheet, ShoppingList
 
 import 'dart:async';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:gap/gap.dart';
 
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
@@ -44,11 +55,14 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
   late Animation<double> _expandAnimation;
   late ScrollController _scrollController;
 
-  // ✅ ValueNotifier לאינדיקטורים - מונע rebuild של כל הווידג'ט
+  // FocusNode לצל ממוקד בשדה החיפוש
+  late final FocusNode _searchFocus;
+
+  // ✅ ValueNotifier לאינדיקטורים — מונע rebuild של כל הווידג'ט
   final ValueNotifier<bool> _showLeftFade = ValueNotifier<bool>(false);
   final ValueNotifier<bool> _showRightFade = ValueNotifier<bool>(true);
 
-  // ✅ Debounce לחיפוש - מונע קריאות מיותרות
+  // ✅ Debounce לחיפוש — מונע קריאות מיותרות
   Timer? _debounceTimer;
 
   @override
@@ -66,11 +80,12 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
     _scrollController = ScrollController();
     _scrollController.addListener(_updateFadeIndicators);
 
+    _searchFocus = FocusNode();
+
     if (widget.showFilters) {
       _animationController.forward();
     }
 
-    // עדכון אינדיקטורים אחרי הבנייה הראשונית
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _updateFadeIndicators();
     });
@@ -82,17 +97,12 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.offset;
 
-    // אם אין מה לגלול, לא מציגים אינדיקטורים
     if (maxScroll <= 0) {
       _showLeftFade.value = false;
       _showRightFade.value = false;
       return;
     }
 
-    // ✅ ValueNotifier - לא קורא setState, רק מעדכן את האינדיקטורים
-    // LTR layout:
-    // - Left arrow shows when can scroll left (offset > 0)
-    // - Right arrow shows when can scroll right (offset < max)
     _showLeftFade.value = currentScroll > 10;
     _showRightFade.value = currentScroll < maxScroll - 10;
   }
@@ -113,19 +123,53 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
   void dispose() {
     _animationController.dispose();
     _scrollController.dispose();
+    _searchFocus.dispose();
     _showLeftFade.dispose();
     _showRightFade.dispose();
     _debounceTimer?.cancel();
     super.dispose();
   }
 
-  /// ✅ Debounced search - מונע קריאות מיותרות בזמן הקלדה
+  /// ✅ Debounced search
   void _onSearchChangedDebounced(String value) {
     _debounceTimer?.cancel();
     _debounceTimer = Timer(const Duration(milliseconds: 300), () {
       widget.onSearchChanged(value);
     });
   }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🎨 Focus Shadow Wrapper (search field)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  Widget _withSearchFocusShadow(Widget child) {
+    return ListenableBuilder(
+      listenable: _searchFocus,
+      builder: (context, _) {
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOut,
+          decoration: _searchFocus.hasFocus
+              ? BoxDecoration(
+                  borderRadius: BorderRadius.circular(18),
+                  boxShadow: [
+                    BoxShadow(
+                      color: kStickyPurple.withValues(alpha: 0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                )
+              : const BoxDecoration(),
+          child: child,
+        );
+      },
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🏗️ Build
+  // ═══════════════════════════════════════════════════════════════════════════
 
   @override
   Widget build(BuildContext context) {
@@ -134,10 +178,10 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
 
     return Column(
       children: [
-        // 🎯 Compact Filter & Stats Bar (כולל חיפוש)
+        // 🎯 Glassmorphic Stats Bar (כולל חיפוש)
         _buildStatsBar(context, theme),
 
-        // 🎯 Animated Filters Section - רווח מינימלי
+        // 🎯 Animated Filters Section
         AnimatedSize(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
@@ -152,110 +196,144 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
     );
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🌟 Glassmorphic Stats Bar
+  // ═══════════════════════════════════════════════════════════════════════════
+
   Widget _buildStatsBar(BuildContext context, ThemeData theme) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
-      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 6),
+      // 🎨 BoxShadow עדין — תחושת ציפה מעל המחברת
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            kStickyPurple.withValues(alpha: 0.15),
-            kStickyCyan.withValues(alpha: 0.1),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
         borderRadius: BorderRadius.circular(kBorderRadius),
-        border: Border.all(
-          color: kStickyPurple.withValues(alpha: 0.3),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          // כפתור הצגת/הסתרת פילטרים
-          _buildFilterToggleButton(theme),
-
-          const SizedBox(width: 8),
-
-          // שדה חיפוש
-          Expanded(
-            child: _buildSearchField(theme),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
           ),
-
-          // קטגוריה נבחרת
-          if (widget.productsProvider.selectedCategory != null) ...[
-            const SizedBox(width: 8),
-            _buildSelectedCategoryChip(
-              category: widget.productsProvider.selectedCategory!,
-              onClear: () => widget.productsProvider.clearCategory(),
-              theme: theme,
-            ),
-          ],
         ],
       ),
-    );
-  }
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(kBorderRadius),
+        child: BackdropFilter(
+          // 🌫️ Glassmorphic blur — מטשטש את תוכן המחברת מתחת
+          filter: ui.ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: kSpacingSmall,
+              vertical: 6,
+            ),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  kStickyPurple.withValues(alpha: 0.18),
+                  kStickyCyan.withValues(alpha: 0.12),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(kBorderRadius),
+              border: Border.all(
+                color: kStickyPurple.withValues(alpha: 0.3),
+              ),
+            ),
+            child: Row(
+              children: [
+                // כפתור הצגת/הסתרת פילטרים
+                _buildFilterToggleButton(theme),
 
-  Widget _buildSearchField(ThemeData theme) {
-    return SizedBox(
-      height: 36,
-      child: TextField(
-        controller: widget.searchController,
-        onChanged: _onSearchChangedDebounced, // ✅ Debounce
-        style: const TextStyle(fontSize: 14),
-        decoration: InputDecoration(
-          hintText: AppStrings.common.searchProductHint,
-          hintStyle: TextStyle(
-            fontSize: 14,
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-          ),
-          prefixIcon: Icon(
-            Icons.search,
-            size: 20,
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-          ),
-          prefixIconConstraints: const BoxConstraints(minWidth: 36),
-          suffixIcon: widget.searchController.text.isNotEmpty
-              ? IconButton(
-                  icon: Icon(
-                    Icons.clear,
-                    size: 18,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                const Gap(kSpacingSmall),
+
+                // שדה חיפוש
+                Expanded(child: _buildSearchField(theme)),
+
+                // קטגוריה נבחרת
+                if (widget.productsProvider.selectedCategory != null) ...[
+                  const Gap(kSpacingSmall),
+                  _buildSelectedCategoryChip(
+                    category: widget.productsProvider.selectedCategory!,
+                    onClear: () => widget.productsProvider.clearCategory(),
+                    theme: theme,
                   ),
-                  onPressed: widget.onSearchClear,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 32),
-                )
-              : null,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: BorderSide(
-              color: theme.colorScheme.outline.withValues(alpha: 0.3),
-              width: 1,
+                ],
+              ],
             ),
           ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: BorderSide(
-              color: theme.colorScheme.outline.withValues(alpha: 0.3),
-              width: 1,
-            ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: BorderSide(
-              color: kStickyPurple,
-              width: 1.5,
-            ),
-          ),
-          filled: true,
-          fillColor: theme.colorScheme.surface,
         ),
       ),
     );
   }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🔍 Search Field
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  Widget _buildSearchField(ThemeData theme) {
+    return _withSearchFocusShadow(
+      SizedBox(
+        height: 36,
+        child: TextField(
+          controller: widget.searchController,
+          focusNode: _searchFocus,
+          onChanged: _onSearchChangedDebounced,
+          style: const TextStyle(fontSize: 14),
+          decoration: InputDecoration(
+            hintText: AppStrings.common.searchProductHint,
+            hintStyle: TextStyle(
+              fontSize: 14,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+            ),
+            prefixIcon: Icon(
+              Icons.search,
+              size: 20,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+            ),
+            prefixIconConstraints: const BoxConstraints(minWidth: 36),
+            suffixIcon: widget.searchController.text.isNotEmpty
+                ? IconButton(
+                    icon: Icon(
+                      Icons.clear,
+                      size: 18,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
+                    onPressed: () {
+                      // 📳 Haptic: selectionClick לניקוי חיפוש
+                      unawaited(HapticFeedback.selectionClick());
+                      widget.onSearchClear();
+                    },
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(minWidth: 32),
+                  )
+                : null,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(
+                color: theme.colorScheme.outline.withValues(alpha: 0.3),
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(
+                color: theme.colorScheme.outline.withValues(alpha: 0.3),
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: const BorderSide(color: kStickyPurple, width: 1.5),
+            ),
+            filled: true,
+            fillColor: theme.colorScheme.surface.withValues(alpha: 0.85),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🔵 Selected Category Chip
+  // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildSelectedCategoryChip({
     required String category,
@@ -273,12 +351,9 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
         children: [
           Text(
             category,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(width: 4),
+          const Gap(kSpacingXTiny),
           InkWell(
             onTap: onClear,
             child: Icon(
@@ -292,16 +367,24 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
     );
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🔘 Filter Toggle Button
+  // ═══════════════════════════════════════════════════════════════════════════
+
   Widget _buildFilterToggleButton(ThemeData theme) {
     return InkWell(
-      onTap: widget.onToggleFilters,
+      onTap: () {
+        // 📳 Haptic: lightImpact לפתיחת/סגירת הפילטרים
+        unawaited(HapticFeedback.lightImpact());
+        widget.onToggleFilters();
+      },
       borderRadius: BorderRadius.circular(20),
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: widget.showFilters
               ? kStickyPurple.withValues(alpha: 0.15)
-              : theme.colorScheme.surface,
+              : theme.colorScheme.surface.withValues(alpha: 0.85),
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -326,6 +409,10 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
     );
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🏷️ Filter Categories (Staggered Chips)
+  // ═══════════════════════════════════════════════════════════════════════════
+
   Widget _buildFilterCategories(
     BuildContext context,
     ThemeData theme,
@@ -340,7 +427,10 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
         ).animate(_expandAnimation),
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
-          padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 6),
+          padding: const EdgeInsets.symmetric(
+            horizontal: kSpacingSmall,
+            vertical: 6,
+          ),
           decoration: BoxDecoration(
             color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(kBorderRadius),
@@ -349,7 +439,7 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // כותרת קטגוריות - רק אם יש סינון
+              // כותרת קטגוריות — רק אם יש סינון פעיל
               if (widget.productsProvider.selectedCategory != null) ...[
                 Row(
                   children: [
@@ -360,7 +450,8 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
-                        color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                        color: theme.colorScheme.onSurfaceVariant
+                            .withValues(alpha: 0.7),
                       ),
                     ),
                     const Spacer(),
@@ -368,19 +459,22 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
                       onTap: widget.productsProvider.clearCategory,
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         child: Row(
                           children: [
                             Text(
                               AppStrings.common.clearAll,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 11,
                                 color: kStickyPurple,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
-                            const SizedBox(width: 2),
-                            Icon(
+                            const Gap(kSpacingXTiny),
+                            const Icon(
                               Icons.clear_all,
                               size: 14,
                               color: kStickyPurple,
@@ -393,42 +487,65 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
                 ),
                 const SizedBox(height: 4),
               ],
-              
-              // רשימת הקטגוריות - גלילה אופקית
+
+              // 🎠 רשימת קטגוריות — גלילה אופקית + RepaintBoundary
               SizedBox(
                 height: 40,
                 child: Stack(
                   children: [
-                    // רשימת הקטגוריות עם גלילה
-                    SingleChildScrollView(
-                      controller: _scrollController,
-                      scrollDirection: Axis.horizontal,
-                      physics: const BouncingScrollPhysics(),
-                      child: Row(
-                        children: [
-                          // כפתור "הכל" (ללא מספר מוצרים)
-                          _buildModernFilterChip(
-                            label: AppStrings.common.all,
-                            count: null,
-                            isSelected: widget.productsProvider.selectedCategory == null,
-                            onTap: () => widget.productsProvider.clearCategory(),
-                            emoji: widget.list.typeEmoji,
-                            color: kStickyPurple,
-                            theme: theme,
-                          ),
-                          const SizedBox(width: 6),
-                          // שאר הקטגוריות
-                          ...categories.map((category) => Padding(
-                            padding: const EdgeInsets.only(left: 6),
-                            child: _buildCategoryChip(category, theme),
-                          )),
-                          // רווח בסוף לאינדיקטור
-                          const SizedBox(width: 24),
-                        ],
+                    // 🎨 RepaintBoundary — מבודד גלילה אופקית מאנימציות fade
+                    RepaintBoundary(
+                      child: SingleChildScrollView(
+                        controller: _scrollController,
+                        scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
+                        child: Row(
+                          children: [
+                            // צ'יפ "הכל" — delay 0ms
+                            _buildModernFilterChip(
+                              label: AppStrings.common.all,
+                              isSelected:
+                                  widget.productsProvider.selectedCategory == null,
+                              onTap: () => widget.productsProvider.clearCategory(),
+                              emoji: widget.list.typeEmoji,
+                              color: kStickyPurple,
+                              theme: theme,
+                            ).animate().fadeIn(duration: 400.ms).slideX(
+                                  begin: 0.1,
+                                  end: 0,
+                                  curve: Curves.easeOutCubic,
+                                ),
+
+                            const Gap(6),
+
+                            // צ'יפי קטגוריות — delay מדורג 30ms
+                            ...categories.indexed.map((entry) {
+                              final (i, category) = entry;
+                              final delay = ((i + 1) * 30).ms;
+                              return Padding(
+                                padding: const EdgeInsets.only(left: 6),
+                                child: _buildCategoryChip(category, theme)
+                                    .animate()
+                                    .fadeIn(
+                                      duration: 400.ms,
+                                      delay: delay,
+                                    )
+                                    .slideX(
+                                      begin: 0.1,
+                                      end: 0,
+                                      delay: delay,
+                                      curve: Curves.easeOutCubic,
+                                    ),
+                              );
+                            }),
+
+                            const Gap(24), // רווח לאינדיקטור
+                          ],
+                        ),
                       ),
                     ),
 
-                    // ✅ אינדיקטור גלילה שמאלי - ValueListenableBuilder + AnimatedOpacity
+                    // ✅ אינדיקטור גלילה שמאלי
                     Positioned(
                       left: 0,
                       top: 0,
@@ -447,7 +564,7 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
                       ),
                     ),
 
-                    // ✅ אינדיקטור גלילה ימני - ValueListenableBuilder + AnimatedOpacity
+                    // ✅ אינדיקטור גלילה ימני
                     Positioned(
                       right: 0,
                       top: 0,
@@ -475,8 +592,14 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
     );
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ◀▶ Scroll Indicators
+  // ═══════════════════════════════════════════════════════════════════════════
 
-  Widget _buildScrollIndicator({required bool isLeft, required ThemeData theme}) {
+  Widget _buildScrollIndicator({
+    required bool isLeft,
+    required ThemeData theme,
+  }) {
     return Container(
       width: 28,
       decoration: BoxDecoration(
@@ -506,20 +629,21 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
     );
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🔵 Category Chip
+  // ═══════════════════════════════════════════════════════════════════════════
+
   Widget _buildCategoryChip(String category, ThemeData theme) {
     final count = widget.productsProvider.productsByCategory[category] ?? 0;
     final isSelected = widget.productsProvider.selectedCategory == category;
-
-    final emoji = _getCategoryEmoji(category);
-    final color = _getCategoryColor(category);
 
     return _buildModernFilterChip(
       label: category,
       count: count,
       isSelected: isSelected,
       onTap: () => widget.productsProvider.setCategory(category),
-      emoji: emoji,
-      color: color,
+      emoji: _getCategoryEmoji(category),
+      color: _getCategoryColor(category),
       theme: theme,
     );
   }
@@ -542,7 +666,11 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: onTap,
+          onTap: () {
+            // 📳 Haptic: selectionClick לבחירת קטגוריה
+            unawaited(HapticFeedback.selectionClick());
+            onTap();
+          },
           borderRadius: BorderRadius.circular(20),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -557,7 +685,9 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
                       end: Alignment.bottomRight,
                     )
                   : null,
-              color: isSelected ? null : colorScheme.surface,
+              color: isSelected
+                  ? null
+                  : colorScheme.surface.withValues(alpha: 0.85),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: isSelected
@@ -577,21 +707,27 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(emoji, style: TextStyle(fontSize: isSelected ? 16 : 14)),
-                const SizedBox(width: 6),
+                Text(
+                  emoji,
+                  style: TextStyle(fontSize: isSelected ? 16 : 14),
+                ),
+                const Gap(6),
                 Text(
                   label,
                   style: TextStyle(
                     fontSize: 13,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    fontWeight:
+                        isSelected ? FontWeight.bold : FontWeight.normal,
                     color: isSelected ? color : null,
                   ),
                 ),
-                // מציג מספר רק אם יש ערך
                 if (count != null) ...[
-                  const SizedBox(width: 4),
+                  const Gap(kSpacingXTiny),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: isSelected
                           ? color.withValues(alpha: 0.2)
@@ -603,7 +739,9 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
-                        color: isSelected ? color : colorScheme.onSurfaceVariant,
+                        color: isSelected
+                            ? color
+                            : colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -616,10 +754,11 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
     );
   }
 
-  // ✅ פונקציה _getListTypeEmoji הוסרה - השתמש ב-widget.list.typeEmoji במקום
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🎨 Category Helpers
+  // ═══════════════════════════════════════════════════════════════════════════
 
   String _getCategoryEmoji(String category) {
-    // אטליז
     if (widget.list.type == 'butcher') {
       switch (category) {
         case 'בקר':
@@ -637,71 +776,49 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
       }
     }
 
-    // סופרמרקט - כל הקטגוריות
     switch (category) {
-      // פירות וירקות
       case 'פירות':
         return '🍎';
       case 'ירקות':
         return '🥬';
       case 'פירות יבשים':
         return '🥜';
-
-      // מוצרי חלב וביצים
       case 'מוצרי חלב':
         return '🥛';
       case 'תחליפי חלב':
         return '🌱';
-
-      // בשר ודגים
       case 'בשר ודגים':
         return '🥩';
       case 'תחליפי בשר':
         return '🌿';
-
-      // לחם ומאפים
       case 'מאפים':
         return '🥖';
-
-      // דגנים ופסטה
       case 'אורז ופסטה':
         return '🍝';
       case 'דגנים':
         return '🥣';
       case 'קטניות ודגנים':
         return '🫘';
-
-      // ממתקים וחטיפים
       case 'ממתקים וחטיפים':
         return '🍫';
       case 'ממרחים מתוקים':
         return '🍯';
       case 'אגוזים וגרעינים':
         return '🥜';
-
-      // משקאות
       case 'משקאות':
         return '🥤';
       case 'קפה ותה':
         return '☕';
-
-      // שימורים ורטבים
       case 'שימורים':
         return '🥫';
       case 'שמנים ורטבים':
         return '🫒';
       case 'סלטים מוכנים':
         return '🥗';
-
-      // תבלינים ואפייה
       case 'תבלינים ואפייה':
         return '🧂';
-
-      // קפואים
       case 'קפואים':
         return '🧊';
-
-      // ניקיון ובית
       case 'מוצרי ניקיון':
         return '🧹';
       case 'מוצרי בית':
@@ -710,28 +827,20 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
         return '🍽️';
       case 'מוצרי גינה':
         return '🌻';
-
-      // היגיינה וטיפוח
       case 'היגיינה אישית':
         return '🧴';
-
-      // תינוקות וחיות
       case 'מוצרי תינוקות':
         return '👶';
       case 'מזון לחיות מחמד':
         return '🐕';
-
-      // אחר
       case 'אחר':
         return '📦';
-
       default:
         return '🛒';
     }
   }
 
   Color _getCategoryColor(String category) {
-    // צבעים מיוחדים לאטליז
     if (widget.list.type == 'butcher') {
       switch (category) {
         case 'בקר':
@@ -748,8 +857,7 @@ class _ProductFilterSectionState extends State<ProductFilterSection>
           return kStickyGreen;
       }
     }
-    
-    // צבעים רגילים
+
     final colors = [kStickyYellow, kStickyPink, kStickyGreen, kStickyCyan];
     return colors[category.hashCode.abs() % colors.length];
   }

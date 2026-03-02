@@ -1,56 +1,34 @@
 // 📄 File: lib/repositories/firebase_user_repository.dart
 //
-// 🇮🇱 Repository למשתמשים עם Firestore:
-//     - שמירת פרטי משתמש ב-Firestore
-//     - טעינת פרטי משתמש
-//     - עדכון פרופיל
-//     - מחיקת משתמש
-//     - חיפוש לפי אימייל
-//     - Real-time updates (Stream)
+// 🎯 Purpose: Repository למשתמשים עם Firestore
 //
-// 🇬🇧 User repository with Firestore:
-//     - Save user details to Firestore
-//     - Load user details
-//     - Update profile
-//     - Delete user
-//     - Search by email
-//     - Real-time updates (Stream)
+// 📋 Features:
+//     - CRUD operations למשתמשים (יצירה, טעינה, עדכון, מחיקה)
+//     - חיפוש לפי אימייל/טלפון
+//     - Real-time updates (watchUser stream)
+//     - יצירת משתמש עם נתוני Onboarding
+//     - שימוש ב-FirestoreUtils להמרת נתונים בטוחה
+//     - ניהול עקבי של Timestamps רקורסיביים
 //
 // 📦 Dependencies:
-//     - cloud_firestore - Firestore SDK
-//     - models/user_entity.dart - מודל המשתמש
-//     - user_repository.dart - ממשק Repository
+//     - cloud_firestore
+//     - UserEntity model
+//     - FirestoreUtils להמרת Timestamps רקורסיבית
 //
 // 🔗 Related:
 //     - user_repository.dart - הממשק שממומש כאן
 //     - user_context.dart - Provider שמשתמש בקלאס הזה
 //
-// 🎯 Usage:
-//     ```dart
-//     // יצירה
-//     final repository = FirebaseUserRepository();
-//     
-//     // טעינה
-//     final user = await repository.fetchUser('abc123');
-//     
-//     // שמירה
-//     await repository.saveUser(user);
-//     
-//     // Real-time listening
-//     repository.watchUser('abc123').listen((user) {
-//       print('User updated: ${user?.name}');
-//     });
-//     ```
-//
-// 📝 Version: 2.0 - Full Documentation
-// 📅 Updated: 09/10/2025
+// Version: 3.0
+// Last Updated: 22/02/2026
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 import '../models/user_entity.dart';
-import 'user_repository.dart';
 import 'constants/repository_constants.dart';
+import 'user_repository.dart';
+import 'utils/firestore_utils.dart';
 
 class FirebaseUserRepository implements UserRepository {
   final FirebaseFirestore _firestore;
@@ -72,8 +50,7 @@ class FirebaseUserRepository implements UserRepository {
         return null;
       }
 
-      final data = Map<String, dynamic>.from(doc.data()!);
-      final user = UserEntity.fromJson(data);
+      final user = UserEntity.fromJson(doc.toDartMap()!);
       debugPrint('✅ FirebaseUserRepository.fetchUser: משתמש נטען - ${user.email}');
       
       return user;
@@ -172,10 +149,7 @@ class FirebaseUserRepository implements UserRepository {
           .limit(householdId != null ? 50 : 100) // More restrictive for all-users query
           .get();
 
-      final users = snapshot.docs.map((doc) {
-        final data = Map<String, dynamic>.from(doc.data());
-        return UserEntity.fromJson(data);
-      }).toList();
+      final users = snapshot.toDartList().map(UserEntity.fromJson).toList();
 
       debugPrint('✅ FirebaseUserRepository.getAllUsers: Loaded ${users.length} users');
       return users;
@@ -216,9 +190,7 @@ class FirebaseUserRepository implements UserRepository {
         return null;
       }
 
-      final data = Map<String, dynamic>.from(snapshot.docs.first.data());
-
-      final user = UserEntity.fromJson(data);
+      final user = UserEntity.fromJson(snapshot.docs.first.toDartMap()!);
       debugPrint('✅ FirebaseUserRepository.findByEmail: משתמש נמצא - ${user.id}');
 
       return user;
@@ -253,9 +225,7 @@ class FirebaseUserRepository implements UserRepository {
         return null;
       }
 
-      final data = Map<String, dynamic>.from(snapshot.docs.first.data());
-
-      final user = UserEntity.fromJson(data);
+      final user = UserEntity.fromJson(snapshot.docs.first.toDartMap()!);
       debugPrint('✅ FirebaseUserRepository.findByPhone: משתמש נמצא - ${user.id}');
 
       return user;
@@ -602,10 +572,8 @@ class FirebaseUserRepository implements UserRepository {
         .doc(userId)
         .snapshots()
         .map((snapshot) {
-      if (!snapshot.exists) return null;
-      
-      final data = Map<String, dynamic>.from(snapshot.data()!);
-      return UserEntity.fromJson(data);
+      final data = snapshot.toDartMap();
+      return data != null ? UserEntity.fromJson(data) : null;
     });
   }
 }

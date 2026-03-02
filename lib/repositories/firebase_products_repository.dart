@@ -1,52 +1,44 @@
 // 📄 File: lib/repositories/firebase_products_repository.dart
 //
-// 🇮🇱 Repository למוצרים מ-Firebase Firestore:
-//     - טעינה מהירה מ-Firestore עם cache חכם (1 שעה).
-//     - חיפוש מוצרים לפי שם, ברקוד, קטגוריה.
-//     - אופציה לעדכונים בזמן אמת (עתידי).
-//     - ממירה ProductsRepository.
+// 🎯 Purpose: Repository למוצרים מ-Firebase Firestore
+//
+// 📋 Features:
+//     - טעינה מהירה מ-Firestore עם cache חכם (configurable, ברירת מחדל: 1 שעה)
+//     - חיפוש מוצרים לפי שם, ברקוד, קטגוריה
+//     - Pagination עם limit/offset
+//     - שימוש ב-FirestoreUtils להמרת נתונים בטוחה ורקורסיבית
 //
 // 💾 מצב נוכחי:
 //     ⚠️ לא בשימוש כרגע! הפרויקט משתמש ב-LocalProductsRepository.
 //     לשימוש ב-Firebase:
-//     1. העלה מוצרים ל-Firestore (upload script required).
-//     2. עדכן main.dart להשתמש ב-FirebaseProductsRepository.
-//     3. ודא ש-firebase_options.dart מוגדר נכון.
+//     1. העלה מוצרים ל-Firestore (upload script required)
+//     2. עדכן main.dart להשתמש ב-FirebaseProductsRepository
+//     3. ודא ש-firebase_options.dart מוגדר נכון
 //
 // 💡 רעיונות עתידיים:
-//     - עדכונים בזמן אמת (snapshots).
-//     - סנכרון מחירים אוטומטי מה-API.
-//     - Offline persistence (עבודה בלי אינטרנט).
-//     - סטטיסטיקות: מוצרים פופולריים, חיפושים נפוצים.
+//     - עדכונים בזמן אמת (snapshots)
+//     - סנכרון מחירים אוטומטי מה-API
+//     - Offline persistence
+//     - סטטיסטיקות: מוצרים פופולריים, חיפושים נפוצים
 //
-// 🇬🇧 Firebase Firestore products repository:
-//     - Fast loading from Firestore with smart cache (1 hour).
-//     - Search products by name, barcode, category.
-//     - Optional real-time updates (future).
-//     - Implements ProductsRepository interface.
-//
-// 💾 Current state:
-//     ⚠️ Not in use! Project uses LocalProductsRepository.
-//     To use Firebase:
-//     1. Upload products to Firestore (upload script required).
-//     2. Update main.dart to use FirebaseProductsRepository.
-//     3. Ensure firebase_options.dart is configured.
-//
-// 💡 Future ideas:
-//     - Real-time updates (snapshots).
-//     - Auto price sync from API.
-//     - Offline persistence.
-//     - Statistics: popular products, common searches.
+// 📦 Dependencies:
+//     - cloud_firestore
+//     - ProductsRepository (interface)
+//     - FirestoreUtils להמרה בטוחה ורקורסיבית של נתונים
 //
 // 🔗 Related:
 //     - ProductsRepository (interface)
 //     - LocalProductsRepository (current implementation)
+//
+// Version: 2.0
+// Last Updated: 22/02/2026
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 import 'constants/repository_constants.dart';
 import 'products_repository.dart';
+import 'utils/firestore_utils.dart';
 
 class FirebaseProductsRepository implements ProductsRepository {
   final FirebaseFirestore _firestore;
@@ -128,9 +120,7 @@ class FirebaseProductsRepository implements ProductsRepository {
       debugPrint('📥 טוען מוצרים מ-Firestore...');
       final snapshot = await _firestore.collection(FirestoreCollections.products).get();
 
-      _cachedProducts = snapshot.docs
-          .map((doc) => {...doc.data(), 'id': doc.id})
-          .toList();
+      _cachedProducts = _mapSnapshotToProducts(snapshot);
       _lastCacheUpdate = DateTime.now();
 
       debugPrint('✅ נטענו ${_cachedProducts!.length} מוצרים מ-Firestore');
@@ -164,42 +154,30 @@ class FirebaseProductsRepository implements ProductsRepository {
       }
 
       // 🔥 אין cache - טען מ-Firestore
-      Query query = _firestore.collection(FirestoreCollections.products);
-      
+      Query<Map<String, dynamic>> query = _firestore.collection(FirestoreCollections.products);
+
       // הוסף offset (skip) אם יש
       // ⚠️ Note: Firestore לא תומך ישירות ב-offset, אז נשתמש בטריק:
       // נטען offset+limit ואז ניקח רק את ה-limit האחרונים
       if (offset != null && offset > 0) {
-        // טען את כולם עד offset+limit
         final totalToLoad = limit != null ? offset + limit : offset + 100;
         query = query.limit(totalToLoad);
-        
+
         final snapshot = await query.get();
-        final allDocs = snapshot.docs
-            .map((doc) => <String, dynamic>{
-              ...doc.data() as Map<String, dynamic>,
-              'id': doc.id,
-            })
-            .toList();
-        
-        // החזר רק את החלק הרלוונטי
+        final allDocs = _mapSnapshotToProducts(snapshot);
+
         final result = allDocs.skip(offset).take(limit ?? allDocs.length).toList();
         debugPrint('✅ נטענו ${result.length} מוצרים (pagination)');
         return result;
       }
-      
+
       // אין offset - פשוט limit
       if (limit != null) {
         query = query.limit(limit);
       }
-      
+
       final snapshot = await query.get();
-      final products = snapshot.docs
-          .map((doc) => <String, dynamic>{
-            ...doc.data() as Map<String, dynamic>,
-            'id': doc.id,
-          })
-          .toList();
+      final products = _mapSnapshotToProducts(snapshot);
 
       debugPrint('✅ נטענו ${products.length} מוצרים מ-Firestore');
       return products;
@@ -236,9 +214,7 @@ class FirebaseProductsRepository implements ProductsRepository {
           .where(FirestoreFields.category, isEqualTo: category)
           .get();
 
-      final products = snapshot.docs
-          .map((doc) => {...doc.data(), 'id': doc.id})
-          .toList();
+      final products = _mapSnapshotToProducts(snapshot);
 
       debugPrint('✅ נמצאו ${products.length} מוצרים בקטגוריה $category');
       return products;
@@ -283,7 +259,8 @@ class FirebaseProductsRepository implements ProductsRepository {
         return null;
       }
 
-      final product = {...snapshot.docs.first.data(), 'id': snapshot.docs.first.id};
+      final doc = snapshot.docs.first;
+      final product = <String, dynamic>{...doc.toDartMap()!, 'id': doc.id};
       debugPrint('✅ מוצר נמצא: ${product['name']}');
       return product;
     } catch (e) {
@@ -328,6 +305,11 @@ class FirebaseProductsRepository implements ProductsRepository {
       debugPrint('❌ שגיאה בחיפוש: $e');
       return [];
     }
+  }
+
+  @override
+  Stream<List<Map<String, dynamic>>> searchProductsStream(String query) {
+    return Stream.fromFuture(searchProducts(query));
   }
 
   /// קבלת רשימת כל הקטגוריות הייחודיות
@@ -414,10 +396,10 @@ class FirebaseProductsRepository implements ProductsRepository {
   }
 
   /// ניקוי ה-cache המקומי
-  /// 
+  ///
   /// משמש כאשר רוצים לכפות טעינה מחדש מ-Firestore
   /// בפעם הבאה ש-getAllProducts() ייקרא
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// repo.clearCache();
@@ -427,5 +409,21 @@ class FirebaseProductsRepository implements ProductsRepository {
     _cachedProducts = null;
     _lastCacheUpdate = null;
     debugPrint('🧹 Cache נוקה');
+  }
+
+  // ========================================
+  // Private Helpers
+  // ========================================
+
+  /// ממיר snapshot של Firestore לרשימת מוצרים (Maps)
+  ///
+  /// משתמש ב-toDartMap() להמרת Timestamps רקורסיבית
+  /// ⚠️ לא משתמש ב-toDartList() כי צריך doc.id per document
+  List<Map<String, dynamic>> _mapSnapshotToProducts(
+    QuerySnapshot<Map<String, dynamic>> snapshot,
+  ) {
+    return snapshot.docs.map((doc) {
+      return {...doc.toDartMap()!, 'id': doc.id};
+    }).toList();
   }
 }

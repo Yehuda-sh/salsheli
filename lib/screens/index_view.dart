@@ -1,17 +1,36 @@
 // 📄 lib/screens/index_view.dart
 //
-// מרכיבים חזותיים למסך הפתיחה - IndexLoadingView, IndexErrorView.
-// כולל אנימציות logo, גלים, gradient, והודעות טעינה מתחלפות.
+// Version: 4.0 (22/02/2026)
 //
-// 🔗 Related: index_screen, ui_constants, AppStrings.index
+// 🇮🇱 **מרכיבים חזותיים למסך הפתיחה** — IndexLoadingView, IndexErrorView.
+//
+// ✨ Features:
+//     - NotebookBackground hint (opacity ~0.05) — רקע מחברת עדין
+//     - RepaintBoundary — בידוד אנימציות גלים ולוגו
+//     - flutter_animate — fadeIn → slideY → shimmer לשם האפליקציה
+//     - Blur transition — אפקט טשטוש בהחלפת הודעות
+//     - Haptic Feedback — vibrate on error, lightImpact on retry, selectionClick on logo
+//     - Glassmorphism — כרטיס שגיאה עם BackdropFilter
+//     - Gradient curve: easeInOutCubic (נשימה עדינה)
+//
+// 📅 History:
+//     v4.0 (22/02/2026) — NotebookBackground hint, RepaintBoundary, flutter_animate,
+//                          blur messages, haptic feedback, glassmorphism error card
+//     v3.0              — Splash gradient, wave animation, message rotation
+//
+// 🔗 Related: index_screen, ui_constants, AppStrings.index, notebook_background
 
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../core/ui_constants.dart';
 import '../l10n/app_strings.dart';
+import '../widgets/common/notebook_background.dart';
 
 /// 📋 מסך טעינה מונפש
 class IndexLoadingView extends StatefulWidget {
@@ -68,6 +87,13 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
       duration: _waveAnimationDuration,
     )..repeat();
 
+    // v4.0: Haptic selectionClick when logo elastic animation completes
+    _logoController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        unawaited(HapticFeedback.selectionClick());
+      }
+    });
+
     // 🚀 Start animations
     _logoController.forward();
 
@@ -108,12 +134,26 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
           // 🎨 Gradient Background
           _buildGradientBackground(context),
 
+          // v4.0: 📓 NotebookBackground hint — רקע מחברת עדין מאוד
+          const Opacity(
+            opacity: 0.05,
+            child: NotebookBackground(
+              lineOpacity: 0.10,
+              lineColor: kNotebookBlueSoft,
+              showRedLine: false,
+              fadeEdges: true,
+            ),
+          ),
+
           // 🌊 Wave Animation
           Positioned(
             left: 0,
             right: 0,
             bottom: 0,
-            child: _buildWaveAnimation(context),
+            // v4.0: RepaintBoundary — בידוד אנימציית גלים מעץ הרינדור
+            child: RepaintBoundary(
+              child: _buildWaveAnimation(context),
+            ),
           ),
 
           // 📋 תוכן ראשי
@@ -128,11 +168,12 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
   }
 
   /// 🎨 Gradient Background - Dark Mode Responsive
+  /// v4.0: Curves.easeInOutCubic for smoother "breathing" gradient
   Widget _buildGradientBackground(BuildContext context) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
       duration: _gradientAnimationDuration,
-      curve: Curves.easeOut,
+      curve: Curves.easeInOutCubic,
       builder: (context, value, child) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
         final startColor =
@@ -181,10 +222,14 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
       mainAxisSize: MainAxisSize.min,
       children: [
         // 💫 Logo עם Pulsing Circle
-        _buildAnimatedLogo(cs),
+        // v4.0: RepaintBoundary — בידוד אנימציות לוגו + shimmer
+        RepaintBoundary(
+          child: _buildAnimatedLogo(cs),
+        ),
         const SizedBox(height: kSpacingXLarge),
 
         // 📝 שם האפליקציה
+        // v4.0: flutter_animate — fadeIn → slideY → shimmer
         _buildAppName(cs),
         const SizedBox(height: kSpacingSmallPlus),
 
@@ -300,45 +345,44 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
   }
 
   /// 📝 שם האפליקציה מונפש
+  /// v4.0: flutter_animate — fadeIn → slideY → shimmer (replaces manual SlideTransition)
   Widget _buildAppName(ColorScheme cs) {
-    return SlideTransition(
-      position: Tween<Offset>(
-        begin: const Offset(0, 0.5),
-        end: Offset.zero,
-      ).animate(
-        CurvedAnimation(
-          parent: _logoController,
-          curve: const Interval(0.3, 1.0, curve: Curves.easeOut),
-        ),
-      ),
-      child: FadeTransition(
-        opacity: CurvedAnimation(
-          parent: _logoController,
-          curve: const Interval(0.3, 1.0, curve: Curves.easeIn),
-        ),
-        child: Semantics(
-          header: true,
-          child: Text(
-            AppStrings.index.appName,
-            style: TextStyle(
-              fontSize: kFontSizeXLarge,
-              fontWeight: FontWeight.bold,
-              color: cs.onPrimary,
-              shadows: [
-                Shadow(
-                  color: cs.shadow.withValues(alpha: 0.3),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
-                ),
-              ],
+    return Semantics(
+      header: true,
+      child: Text(
+        AppStrings.index.appName,
+        style: TextStyle(
+          fontSize: kFontSizeXLarge,
+          fontWeight: FontWeight.bold,
+          color: cs.onPrimary,
+          shadows: [
+            Shadow(
+              color: cs.shadow.withValues(alpha: 0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
             ),
-          ),
+          ],
         ),
       ),
-    );
+    )
+        .animate(delay: 400.ms)
+        .fadeIn(duration: 500.ms, curve: Curves.easeIn)
+        .slideY(
+          begin: 0.1,
+          end: 0,
+          duration: 500.ms,
+          curve: Curves.easeOutCubic,
+        )
+        .then(delay: 1.seconds)
+        .shimmer(
+          duration: kAnimationDurationSlow,
+          color: cs.onPrimary.withValues(alpha: kOpacityLow),
+          angle: kShimmerAngle,
+        );
   }
 
   /// 🔄 Loading Indicator עם הודעות מתחלפות
+  /// v4.0: Blur transition בהחלפת הודעות
   Widget _buildLoadingIndicator(ColorScheme cs) {
     return FadeTransition(
       opacity: CurvedAnimation(
@@ -362,18 +406,31 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
             ),
             const SizedBox(height: kSpacingMedium),
 
-            // הודעת טעינה מתחלפת
+            // v4.0: הודעת טעינה מתחלפת עם blur transition
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 500),
               transitionBuilder: (child, animation) {
-                return FadeTransition(
-                  opacity: animation,
-                  child: SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(0, 0.3),
-                      end: Offset.zero,
-                    ).animate(animation),
-                    child: child,
+                return AnimatedBuilder(
+                  animation: animation,
+                  builder: (context, animChild) {
+                    final blurValue = (1.0 - animation.value) * 4;
+                    return ImageFiltered(
+                      imageFilter: ImageFilter.blur(
+                        sigmaX: blurValue,
+                        sigmaY: blurValue,
+                      ),
+                      child: animChild,
+                    );
+                  },
+                  child: FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0, 0.3),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    ),
                   ),
                 );
               },
@@ -402,7 +459,8 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
 }
 
 /// ❌ מסך שגיאה מעוצב
-class IndexErrorView extends StatelessWidget {
+/// v4.0: Gradient background, glassmorphism card, haptic feedback
+class IndexErrorView extends StatefulWidget {
   final VoidCallback onRetry;
 
   const IndexErrorView({
@@ -411,107 +469,160 @@ class IndexErrorView extends StatelessWidget {
   });
 
   @override
+  State<IndexErrorView> createState() => _IndexErrorViewState();
+}
+
+class _IndexErrorViewState extends State<IndexErrorView> {
+  @override
+  void initState() {
+    super.initState();
+    // v4.0: Haptic vibrate when error appears
+    unawaited(HapticFeedback.vibrate());
+  }
+
+  @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0.0, end: 1.0),
-            duration: const Duration(milliseconds: 800),
-            curve: Curves.elasticOut,
-            builder: (context, value, child) {
-              return Transform.scale(
-                scale: value,
-                child: child,
-              );
-            },
-            child: Container(
-              margin: const EdgeInsets.all(kSpacingXLarge),
-              padding: const EdgeInsets.all(kSpacingXLarge),
-              decoration: BoxDecoration(
-                color: cs.surface,
-                borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                boxShadow: [
-                  BoxShadow(
-                    color: cs.shadow.withValues(alpha: 0.3),
-                    blurRadius: 30,
-                    offset: const Offset(0, 15),
-                  ),
+      body: Stack(
+        children: [
+          // v4.0: Gradient background (same as loading screen)
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  isDark ? kSplashGradientStartDark : kSplashGradientStart,
+                  isDark ? kSplashGradientMiddleDark : kSplashGradientMiddle,
+                  isDark ? kSplashGradientEndDark : kSplashGradientEnd,
                 ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // אייקון שגיאה
-                  Container(
-                    padding: const EdgeInsets.all(kSpacingLarge),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          cs.error.withValues(alpha: 0.7),
-                          cs.error,
-                        ],
-                      ),
-                    ),
-                    child: Icon(
-                      Icons.error_outline,
-                      size: kIconSizeXXLarge,
-                      color: cs.onError,
-                    ),
-                  ),
-                  const SizedBox(height: kSpacingLarge),
-
-                  // טקסט
-                  Text(
-                    AppStrings.index.errorTitle,
-                    style: TextStyle(
-                      fontSize: kFontSizeLarge,
-                      fontWeight: FontWeight.bold,
-                      color: cs.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: kSpacingSmall),
-                  Text(
-                    AppStrings.index.errorMessage,
-                    style: TextStyle(
-                      fontSize: kFontSizeBody,
-                      color: cs.onSurfaceVariant,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-
-                  const SizedBox(height: kSpacingXLarge),
-
-                  // כפתור retry
-                  // ✅ ElevatedButton כבר מספק button semantics
-                  ElevatedButton.icon(
-                    onPressed: onRetry,
-                    icon: const Icon(Icons.refresh),
-                    label: Text(AppStrings.index.retryButton),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: cs.primary,
-                      foregroundColor: cs.onPrimary,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: kSpacingXLarge,
-                        vertical: kSpacingMedium,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(kBorderRadiusLarge),
-                      ),
-                      elevation: 5,
-                    ),
-                  ),
-                ],
+                stops: const [0.0, 0.5, 1.0],
               ),
             ),
           ),
-        ),
+
+          // Content
+          SafeArea(
+            child: Center(
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.0, end: 1.0),
+                duration: const Duration(milliseconds: 800),
+                curve: Curves.elasticOut,
+                builder: (context, value, child) {
+                  return Transform.scale(
+                    scale: value,
+                    child: child,
+                  );
+                },
+                // v4.0: Glassmorphism error card
+                child: Padding(
+                  padding: const EdgeInsets.all(kSpacingXLarge),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(
+                        sigmaX: kGlassBlurLow,
+                        sigmaY: kGlassBlurLow,
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.all(kSpacingXLarge),
+                        decoration: BoxDecoration(
+                          color: cs.surface.withValues(alpha: 0.85),
+                          borderRadius:
+                              BorderRadius.circular(kBorderRadiusLarge),
+                          border: Border.all(
+                            color: cs.outlineVariant.withValues(alpha: 0.3),
+                            width: 0.5,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: cs.shadow.withValues(alpha: 0.3),
+                              blurRadius: 30,
+                              offset: const Offset(0, 15),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // אייקון שגיאה
+                            Container(
+                              padding: const EdgeInsets.all(kSpacingLarge),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    cs.error.withValues(alpha: 0.7),
+                                    cs.error,
+                                  ],
+                                ),
+                              ),
+                              child: Icon(
+                                Icons.error_outline,
+                                size: kIconSizeXXLarge,
+                                color: cs.onError,
+                              ),
+                            ),
+                            const SizedBox(height: kSpacingLarge),
+
+                            // טקסט
+                            Text(
+                              AppStrings.index.errorTitle,
+                              style: TextStyle(
+                                fontSize: kFontSizeLarge,
+                                fontWeight: FontWeight.bold,
+                                color: cs.onSurface,
+                              ),
+                            ),
+                            const SizedBox(height: kSpacingSmall),
+                            Text(
+                              AppStrings.index.errorMessage,
+                              style: TextStyle(
+                                fontSize: kFontSizeBody,
+                                color: cs.onSurfaceVariant,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+
+                            const SizedBox(height: kSpacingXLarge),
+
+                            // v4.0: כפתור retry עם haptic lightImpact
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                unawaited(HapticFeedback.lightImpact());
+                                widget.onRetry();
+                              },
+                              icon: const Icon(Icons.refresh),
+                              label: Text(AppStrings.index.retryButton),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: cs.primary,
+                                foregroundColor: cs.onPrimary,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: kSpacingXLarge,
+                                  vertical: kSpacingMedium,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.circular(kBorderRadiusLarge),
+                                ),
+                                elevation: 5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
