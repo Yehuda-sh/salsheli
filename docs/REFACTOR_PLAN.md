@@ -40,7 +40,7 @@
 
 ---
 
-## 📊 סטטוס נוכחי (16/02/2026)
+## 📊 סטטוס נוכחי (02/03/2026)
 
 ### עבודת הכנה (בוצעה 02-04/02/2026)
 ניקויים, תיקוני באגים, והמרות UI שבוצעו **לפני** תחילת 9 השלבים:
@@ -51,6 +51,16 @@
 - ✅ Cache context לפני async gaps
 - ✅ מחיקת קוד מת (`smart_suggestions_card`, `quick_add_field`, `upcoming_shop_card`)
 - ✅ באנר הזמנות ממתינות + צבעי רשימות ב-Config
+
+### עבודה לאחר תכנון (22/02–02/03/2026)
+ניקויים ושיפורים שבוצעו **לאחר** כתיבת התוכנית אבל **לפני** תחילת 9 השלבים:
+- ✅ `unified_list_item.dart` v2.2 - הוסרו: `isVoting`, `fromReceiptItem()` (קוד מת)
+- ✅ `shopping_lists_repository.dart` v4.0 - נוסף `getListById`, תיעוד מלא, ארגון לפי קטגוריות (22/02)
+- ✅ `firebase_shopping_lists_repository.dart` - מימוש `getListById`
+- ✅ `voting_screen.dart` - נמחק לחלוטין (968 שורות)
+- ✅ `shopping_list_tags.dart` - ווידג'ט תגיות חדש
+- ✅ `shopping_list_urgency.dart` - ווידג'ט דחיפות חדש
+- ✅ `firestore.rules` - עדכון כללי אבטחה מקיף
 
 ### סטטוס 9 השלבים
 
@@ -1643,9 +1653,9 @@ flutter run
 | 1 | `lib/config/list_types_config.dart` | ✏️ הוסף `defaultListName` | ❌ |
 | 2 | `lib/config/list_sections_config.dart` | 🆕 חדש | ❌ |
 | 2 | `lib/models/shopping_list.dart` | ✏️ `eventMode` → `enabledSections` | ❌ |
-| 2 | `lib/models/unified_list_item.dart` | ✏️ שדות cross-list sync | ❌ |
-| 3 | `lib/repositories/shopping_lists_repository.dart` | ✏️ interface לסקשנים | ❌ |
-| 3 | `lib/repositories/firebase_shopping_lists_repository.dart` | ✏️ cross-list sync | ❌ |
+| 2 | `lib/models/unified_list_item.dart` | ✏️ שדות cross-list sync | 🔄 ניקוי voting בוצע, cross-list עדיין לא |
+| 3 | `lib/repositories/shopping_lists_repository.dart` | ✏️ interface לסקשנים | 🔄 `getListById` נוסף (v4.0), interface לסקשנים עדיין לא |
+| 3 | `lib/repositories/firebase_shopping_lists_repository.dart` | ✏️ cross-list sync | 🔄 `getListById` ממומש, cross-list sync עדיין לא |
 | 4 | `lib/providers/shopping_lists_provider.dart` | ✏️ `markItemAsBoughtWithSync` | ❌ |
 | 4 | `lib/providers/inventory_provider.dart` | ✏️ `addInventoryItemsToLists` | ❌ |
 | 4 | `lib/services/template_service.dart` | ✏️ `getEventModeForTemplate` → `getSectionsForTemplate` | ❌ |
@@ -1689,6 +1699,18 @@ flutter run
 | `lib/screens/shopping/create/contact_selector_dialog.dart` | ✅ ~20 מחרוזות → AppStrings, cache async |
 | `lib/screens/shopping/create/create_list_screen.dart` | ✅ cache async (ריפקטור eventMode עדיין ❌) |
 | `lib/screens/shopping/active/active_shopping_screen.dart` | ✅ 3 Semantics → AppStrings, הסרת haptic, cache async |
+
+#### עבודה לאחר תכנון (22/02–02/03/2026)
+
+| קובץ | מה בוצע |
+|------|---------|
+| `lib/models/unified_list_item.dart` | ✅ הוסרו `isVoting` + `fromReceiptItem()` (v2.2, 22/02) |
+| `lib/repositories/shopping_lists_repository.dart` | ✅ נוסף `getListById`, תיעוד מלא, ארגון לפי קטגוריות (v4.0, 22/02) |
+| `lib/repositories/firebase_shopping_lists_repository.dart` | ✅ מימוש `getListById` |
+| `lib/screens/shopping/voting/voting_screen.dart` | ✅ נמחק לחלוטין (968 שורות) |
+| `lib/widgets/shopping/shopping_list_tags.dart` | ✅ ווידג'ט תגיות חדש |
+| `lib/widgets/shopping/shopping_list_urgency.dart` | ✅ ווידג'ט דחיפות חדש |
+| `firestore.rules` | ✅ עדכון כללי אבטחה מקיף |
 
 ### נספח ג: רמת מורכבות
 
