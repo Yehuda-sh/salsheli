@@ -144,6 +144,9 @@ class MockUserRepository implements UserRepository {
   Future<void> updateLastLogin(String userId) async {}
 
   @override
+  Future<void> updateHouseholdName(String userId, String? householdName) async {}
+
+  @override
   Stream<UserEntity?> watchUser(String userId) {
     return Stream.value(_mockUser);
   }

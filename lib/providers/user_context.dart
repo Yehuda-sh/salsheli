@@ -185,6 +185,9 @@ class UserContext with ChangeNotifier {
   /// מזהה משק הבית של המשתמש
   String? get householdId => _user?.householdId;
 
+  /// שם הקבוצה/משפחה (null אם לא הוגדר)
+  String? get householdName => _user?.householdName;
+
   /// 🔒 האם ה-Provider כבר disposed (לטסטים)
   @visibleForTesting
   bool get isDisposed => _isDisposed;
@@ -611,6 +614,25 @@ class UserContext with ChangeNotifier {
           avatar: avatar,
         );
         _user = await _repository.fetchUser(_user!.id);
+      },
+    );
+  }
+
+  /// מעדכן שם קבוצה
+  Future<void> updateHouseholdName(String? name) async {
+    if (_user == null) throw UserRepositoryException('אין משתמש מחובר');
+    final trimmed = name?.trim();
+    final isEmpty = trimmed == null || trimmed.isEmpty;
+    await _runAsync(
+      operation: 'updateHouseholdName',
+      setLoading: false,
+      errorMessagePrefix: 'שגיאה בעדכון שם קבוצה',
+      action: () async {
+        await _repository.updateHouseholdName(_user!.id, isEmpty ? null : trimmed);
+        _user = _user!.copyWith(
+          householdName: isEmpty ? null : trimmed,
+          clearHouseholdName: isEmpty,
+        );
       },
     );
   }

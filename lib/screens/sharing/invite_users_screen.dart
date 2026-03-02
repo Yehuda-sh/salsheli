@@ -156,6 +156,39 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
   }
 
   // ============================================================
+  // Household Name Dialog (מוצג לפני ההזמנה הראשונה אם אין שם קבוצה)
+  // ============================================================
+
+  Future<String?> _showHouseholdNameDialog() async {
+    final controller = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(AppStrings.sharing.householdNameDialogTitle),
+        content: TextField(
+          controller: controller,
+          maxLength: 40,
+          textDirection: TextDirection.rtl,
+          textAlign: TextAlign.right,
+          decoration: InputDecoration(
+            hintText: AppStrings.sharing.householdNameDialogHint,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, null),
+            child: Text(AppStrings.sharing.householdNameDialogSkip),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, controller.text),
+            child: Text(AppStrings.common.save),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
   // Invite User
   // ============================================================
 
@@ -224,6 +257,15 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
         }
       }
 
+      // בדוק אם יש שם קבוצה — אם לא, שאל לפני השליחה
+      if (userContext.householdName == null ||
+          userContext.householdName!.trim().isEmpty) {
+        final name = await _showHouseholdNameDialog();
+        if (name != null && name.trim().isNotEmpty) {
+          await userContext.updateHouseholdName(name.trim());
+        }
+      }
+
       // יצירת הזמנה ממתינה - המוזמן יצטרך לאשר
       // 🔧 אם אין UID, משתמשים באימייל כמזהה (המשתמש עדיין לא רשום)
       await _pendingInvitesService.createInvite(
@@ -236,6 +278,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
         invitedUserName: invitedUserName,
         role: _selectedRole,
         householdId: householdId,
+        householdName: userContext.householdName,
       );
 
       // שליחת התראה למוזמן - רק אם המשתמש רשום

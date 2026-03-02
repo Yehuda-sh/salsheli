@@ -232,39 +232,11 @@ class StatusColors {
   }
 
   // ========================================
-  // Legacy String API (לתאימות אחורה)
-  // ========================================
-
-  /// מחזיר את צבע הסטטוס המתאים לפי Theme (Legacy — מקבל String).
-  ///
-  /// **העדפה:** השתמש ב-[getColor] עם [StatusType] במקום.
-  @Deprecated('Use getColor(StatusType, context) instead — type-safe and faster')
-  static Color getStatusColor(String status, BuildContext context) {
-    return getColor(StatusType.fromString(status), context);
-  }
-
-  /// מחזיר צבע container (Legacy — מקבל String).
-  ///
-  /// **העדפה:** השתמש ב-[getContainer] עם [StatusType] במקום.
-  @Deprecated('Use getContainer(StatusType, context) instead — type-safe and faster')
-  static Color getStatusContainer(String status, BuildContext context) {
-    return getContainer(StatusType.fromString(status), context);
-  }
-
-  /// מחזיר צבע טקסט על container (Legacy — מקבל String).
-  ///
-  /// **העדפה:** השתמש ב-[getOnContainer] עם [StatusType] במקום.
-  @Deprecated('Use getOnContainer(StatusType, context) instead — type-safe and faster')
-  static Color getOnStatusContainer(String status, BuildContext context) {
-    return getOnContainer(StatusType.fromString(status), context);
-  }
-
-  // ========================================
   // Static Getters (Fallback colors - לשימוש ללא context)
   // ========================================
   //
   // ⚠️ שימו לב: צבעים אלה הם fallback בלבד!
-  // לצבעים Theme-aware השתמשו ב-getStatusColor/getStatusContainer.
+  // לצבעים Theme-aware השתמשו ב-getColor/getContainer.
   // צבעים אלה שימושיים ב:
   // - const widgets
   // - מקומות שאין גישה ל-context

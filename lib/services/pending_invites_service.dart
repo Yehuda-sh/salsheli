@@ -281,6 +281,7 @@ class PendingInvitesService {
     String? invitedUserName,
     required UserRole role,
     required String householdId,
+    String? householdName,
   }) async {
     if (kDebugMode) {
       debugPrint('📨 PendingInvitesService.createInviteResult():');
@@ -327,6 +328,7 @@ class PendingInvitesService {
           'list_name': listName,
           'role': role.name,
           'household_id': householdId,
+          'household_name': householdName,
         },
       );
 
@@ -828,6 +830,7 @@ class PendingInvitesService {
     String? invitedUserName,
     required UserRole role,
     required String householdId,
+    String? householdName,
   }) async {
     final result = await createInviteResult(
       listId: listId,
@@ -839,6 +842,7 @@ class PendingInvitesService {
       invitedUserName: invitedUserName,
       role: role,
       householdId: householdId,
+      householdName: householdName,
     );
     if (!result.isSuccess) {
       throw Exception(result.type.name);

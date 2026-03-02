@@ -134,9 +134,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     }
   }
 
-  /// מחזיר שם משפחה להצגה
-  /// אם householdId מתחיל ב-"house_" + userId → "משפחה אישית"
-  /// אחרת → "בית [שם]" (כרגע placeholder עד שנטמיע Family model)
+  /// מחזיר שם קבוצה להצגה:
+  /// 1. משפחה אישית → "משפחה אישית"
+  /// 2. householdName קיים → מחזיר אותו
+  /// 3. fallback → גוזר מהשם האחרון של המשתמש ("משפחת כהן")
   String _getFamilyDisplayName(UserContext userContext) {
     final strings = AppStrings.homeDashboard;
     final householdId = userContext.householdId;
@@ -152,8 +153,20 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       return strings.personalFamily;
     }
 
-    // משפחה משותפת - כרגע מציג placeholder
-    // TODO: Sprint 2 - טען שם משפחה מ-Family model
+    // שם קבוצה אמיתי
+    final householdName = userContext.householdName;
+    if (householdName != null && householdName.trim().isNotEmpty) {
+      return householdName;
+    }
+
+    // fallback: גזירה מהשם האחרון של המשתמש
+    final displayName = userContext.displayName;
+    if (displayName != null && displayName.trim().isNotEmpty) {
+      final parts = displayName.trim().split(' ');
+      final lastName = parts.length >= 2 ? parts.last : parts.first;
+      return '${strings.familyOf}$lastName';
+    }
+
     return strings.sharedFamily;
   }
 
@@ -697,7 +710,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                                       cs.surfaceContainerHighest,
                                   valueColor:
                                       AlwaysStoppedAnimation(accentColor),
-                                  minHeight: 6,
+                                  minHeight: kProgressIndicatorHeight,
                                 ),
                               ),
                               const SizedBox(height: 4),

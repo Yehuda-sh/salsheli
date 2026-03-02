@@ -438,6 +438,65 @@ class _SettingsScreenState extends State<SettingsScreen> {
     '🌟', '💜', '💚', '🧡', '💙', '❤️',
   ];
 
+  /// דיאלוג לעריכת שם קבוצה
+  Future<void> _showEditHouseholdNameDialog(UserContext userContext) async {
+    final controller =
+        TextEditingController(text: userContext.householdName ?? '');
+    bool isSaving = false;
+    String? errorText;
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (ctx, setDialogState) {
+          return AlertDialog(
+            title: Text(AppStrings.settings.householdName),
+            content: TextField(
+              controller: controller,
+              maxLength: 40,
+              textDirection: TextDirection.rtl,
+              textAlign: TextAlign.right,
+              decoration: InputDecoration(
+                hintText: AppStrings.settings.householdNameHint,
+                border: const OutlineInputBorder(),
+                errorText: errorText,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: Text(AppStrings.common.cancel),
+              ),
+              TextButton(
+                onPressed: isSaving
+                    ? null
+                    : () async {
+                        setDialogState(() => isSaving = true);
+                        try {
+                          await userContext
+                              .updateHouseholdName(controller.text.trim());
+                          if (ctx.mounted) Navigator.pop(dialogContext);
+                        } catch (e) {
+                          setDialogState(() {
+                            isSaving = false;
+                            errorText = e.toString();
+                          });
+                        }
+                      },
+                child: isSaving
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(AppStrings.settings.editHouseholdNameSave),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
   /// Bottom Sheet לעריכת פרופיל
   Future<void> _showEditProfileBottomSheet() async {
     final userContext = context.read<UserContext>();
@@ -954,6 +1013,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                             );
                           },
+                        ),
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const Icon(Icons.label_outline),
+                          title: Text(AppStrings.settings.householdName),
+                          subtitle: Text(
+                            userContext.householdName?.isNotEmpty == true
+                                ? userContext.householdName!
+                                : AppStrings.settings.householdNameHint,
+                          ),
+                          trailing: TextButton(
+                            onPressed: () =>
+                                _showEditHouseholdNameDialog(userContext),
+                            child: Text(AppStrings.settings.editHouseholdNameEdit),
+                          ),
                         ),
                       ],
                     ),

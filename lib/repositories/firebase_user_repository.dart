@@ -259,6 +259,36 @@ class FirebaseUserRepository implements UserRepository {
     }
   }
 
+  // === Update Household Name ===
+
+  @override
+  Future<void> updateHouseholdName(String userId, String? householdName) async {
+    try {
+      debugPrint('✏️ FirebaseUserRepository.updateHouseholdName: מעדכן שם קבוצה של $userId');
+
+      String? sanitized;
+      if (householdName != null && householdName.trim().isNotEmpty) {
+        sanitized = householdName.trim();
+        if (sanitized.length > 40) {
+          throw UserRepositoryException('שם קבוצה ארוך מדי (מקסימום 40 תווים)');
+        }
+        sanitized = sanitized.replaceAll(RegExp(r'[<>&"\\]'), '').replaceAll("'", '');
+      }
+
+      await _firestore
+          .collection(FirestoreCollections.users)
+          .doc(userId)
+          .update({'household_name': sanitized});
+
+      debugPrint('✅ FirebaseUserRepository.updateHouseholdName: שם קבוצה עודכן');
+    } catch (e, stackTrace) {
+      if (e is UserRepositoryException) rethrow;
+      debugPrint('❌ FirebaseUserRepository.updateHouseholdName: שגיאה - $e');
+      debugPrintStack(stackTrace: stackTrace);
+      throw UserRepositoryException('Failed to update household name', e);
+    }
+  }
+
   // === Clear All ===
   // 💡 Dynamic filtering: Pass householdId to delete specific household, or null for all
   // ⚠️ DANGEROUS: Calling without householdId deletes ALL users (testing only!)

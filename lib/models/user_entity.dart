@@ -81,6 +81,14 @@ Object? _readHouseholdId(Map<dynamic, dynamic> json, String key) =>
 Object? _readWeeklyBudget(Map<dynamic, dynamic> json, String key) =>
     json['weekly_budget'] ?? json['weeklyBudget'];
 
+/// 🔧 קורא householdName עם תמיכה ב-snake_case + מתייחס ל-"" כ-null
+Object? _readHouseholdName(Map<dynamic, dynamic> json, String key) {
+  final value = json['household_name'] ?? json['householdName'];
+  if (value == null) return null;
+  if (value is String && value.trim().isEmpty) return null;
+  return value;
+}
+
 /// 🇮🇱 מודל ישות משתמש
 /// 🇬🇧 User entity model
 @immutable
@@ -109,6 +117,12 @@ class UserEntity {
   /// 🔄 readValue: תמיכה ב-snake_case וגם camelCase
   @JsonKey(name: 'household_id', readValue: _readHouseholdId)
   final String householdId;
+
+  /// 🇮🇱 שם הקבוצה/משפחה (אופציונלי)
+  /// 🇬🇧 Household display name (optional)
+  /// 🔄 readValue: מתייחס ל-"" כ-null + snake_case
+  @JsonKey(name: 'household_name', readValue: _readHouseholdName)
+  final String? householdName;
 
   /// 🇮🇱 כתובת תמונת פרופיל (אופציונלי)
   /// 🇬🇧 Profile image URL (optional)
@@ -217,6 +231,7 @@ class UserEntity {
     this.reminderTime,
     this.seenOnboarding = false,
     this.seenTutorial = false,
+    this.householdName,
   });
 
   /// 🇮🇱 משתמש ריק (ברירת מחדל)
@@ -227,6 +242,7 @@ class UserEntity {
         email = '',
         phone = null,
         householdId = '',
+        householdName = null,
         joinedAt = DateTime(1970),
         lastLoginAt = null,
         profileImageUrl = null,
@@ -280,6 +296,7 @@ class UserEntity {
     String? reminderTime,
     bool? seenOnboarding,
     bool? seenTutorial,
+    String? householdName,
   }) {
     return UserEntity(
       id: id,
@@ -300,6 +317,7 @@ class UserEntity {
       reminderTime: reminderTime,
       seenOnboarding: seenOnboarding ?? false,
       seenTutorial: seenTutorial ?? false,
+      householdName: householdName,
     );
   }
 
@@ -360,6 +378,8 @@ class UserEntity {
     bool clearReminderTime = false,
     bool? seenOnboarding,
     bool? seenTutorial,
+    String? householdName,
+    bool clearHouseholdName = false,
   }) {
     return UserEntity(
       id: id ?? this.id,
@@ -367,6 +387,7 @@ class UserEntity {
       email: email ?? this.email,
       phone: clearPhone ? null : (phone ?? this.phone),
       householdId: householdId ?? this.householdId,
+      householdName: clearHouseholdName ? null : (householdName ?? this.householdName),
       profileImageUrl: clearProfileImageUrl ? null : (profileImageUrl ?? this.profileImageUrl),
       joinedAt: joinedAt ?? this.joinedAt,
       lastLoginAt: clearLastLoginAt ? null : (lastLoginAt ?? this.lastLoginAt),

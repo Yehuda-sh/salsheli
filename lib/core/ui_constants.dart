@@ -226,7 +226,7 @@ const double kOpacityMedium = 0.5;  // Medium opacity
 // PROGRESS INDICATOR
 // ═══════════════════════════════════════════════════════════════════════════
 
-const double kProgressIndicatorHeight = 4.0;  // Linear progress indicator height
+const double kProgressIndicatorHeight = 6.0;  // Linear progress indicator height
 
 /// שקיפות רקע — `color.withValues(alpha: kProgressIndicatorBackgroundAlpha)`
 const double kProgressIndicatorBackgroundAlpha = 0.2;

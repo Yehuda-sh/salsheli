@@ -174,7 +174,7 @@ class ShoppingListTile extends StatelessWidget {
       borderRadius: BorderRadius.circular(3),
       child: LinearProgressIndicator(
         value: progress,
-        minHeight: 6,
+        minHeight: kProgressIndicatorHeight,
         backgroundColor: theme.colorScheme.surfaceContainerHighest,
         color: progressColor,
       ),

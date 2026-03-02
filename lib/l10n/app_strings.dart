@@ -2081,6 +2081,11 @@ class _SharingStrings {
   String inviteSentPending(String name) => 'הזמנה נשלחה ל$name - ממתינה לאישור';
   String inviteSentUnregistered(String name) => 'הזמנה נשלחה ל$name - יראה אותה כשיירשם לאפליקציה';
 
+  // Household Name Dialog
+  String get householdNameDialogTitle => 'איך לקרוא לקבוצה שלכם?';
+  String get householdNameDialogHint => 'לדוגמה: משפחת כהן';
+  String get householdNameDialogSkip => 'דלג';
+
   // Restrictions
   String get cannotChangeOwnRole => 'לא ניתן לשנות את התפקיד שלך';
   String get cannotRemoveSelf => 'לא ניתן להסיר את עצמך';
@@ -2699,6 +2704,7 @@ class _HomeDashboardStrings {
 
   String get personalFamily => 'משפחה אישית';
   String get sharedFamily => 'משפחה משותפת';
+  String get familyOf => 'משפחת ';
 
   // ========================================
   // Active Lists Section

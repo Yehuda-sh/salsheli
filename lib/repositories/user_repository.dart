@@ -353,6 +353,13 @@ abstract class UserRepository {
   /// See also: [saveUser] מעדכן lastLoginAt אוטומטית
   Future<void> updateLastLogin(String userId);
 
+  /// מעדכן שם קבוצה של משתמש
+  ///
+  /// אם [householdName] הוא null או ריק → מנקה את השדה ב-Firestore.
+  ///
+  /// Throws: [UserRepositoryException] אם הוולידציה נכשלה או שגיאת רשת
+  Future<void> updateHouseholdName(String userId, String? householdName);
+
   /// מוחק את כל המשתמשים מהמערכת
   ///
   /// **פעולה בלתי הפיכה! מיועד לטסטים בלבד!**
