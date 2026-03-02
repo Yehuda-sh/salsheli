@@ -814,7 +814,12 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             if (hasMore)
               TextButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/history');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ShoppingHistoryScreen(),
+                    ),
+                  );
                 },
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
