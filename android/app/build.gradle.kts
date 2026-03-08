@@ -26,7 +26,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.memozap.app"
+        applicationId = "com.example.memozap" // TODO: Change to com.memozap.app after updating Firebase Console
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
