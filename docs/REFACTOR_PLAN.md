@@ -368,8 +368,9 @@ lib/services/
 | 3. ריפקטור מבני | 3-5 ימים | ~5,000 (העברה) |
 | 4. פיצ'רים | בהתאם | +2,000 (חדש) |
 | 5. ריפקטור מודולים | 2-3 ימים | ~2,400 (פיצול + מחיקה) |
+| 6. ליטוש מקצועי + UX | 5-7 ימים | ~3,000 (שיפור + חדש) |
 
-**סדר עבודה מומלץ:** 1 → 1.3 → 5.1 → 5.2 → 2.3 → 2.2 → 3.1 → 5.3 → 5.4 → 3.2 → 4
+**סדר עבודה מומלץ:** 1 → 5.1 → 5.2 → 1.3 → **6.1** → **6.2** → 2.3 → 2.2 → **6.7** → 3.1 → 5.3 → 5.4 → 3.2 → **6.3** → **6.4** → **6.6** → **6.5** → 4
 
 ### 📊 סיכום כולל — קוד מת
 
@@ -384,7 +385,238 @@ lib/services/
 
 ---
 
-## ✅ כללי עבודה
+---
+
+## ⭐ שלב 6 — ליטוש מקצועי + UX (מה שהמשתמש באמת מרגיש)
+
+> המטרה: שהאפליקציה **תרגיש** כמו אפליקציה של חברה גדולה, לא פרויקט צד.
+
+### 📊 UX Audit — מצב נוכחי
+
+| תחום | ציון | הערה |
+|------|------|------|
+| Loading states | ✅ 28 | מצוין |
+| Error handling | ✅ 57 | מצוין |
+| Empty states | ✅ 34 | מצוין |
+| Animations | ✅ 29 | טוב |
+| Haptic feedback | ✅ 86 | מצוין! |
+| Pull to refresh | ✅ 6 | טוב |
+| Shimmer/Skeleton | ✅ 17 | מצוין |
+| Undo actions | ✅ 12 | טוב |
+| Responsive layout | ✅ 248 | מצוין |
+| Text overflow | ✅ 103 | מצוין |
+| Keyboard handling | ✅ 83 | מצוין |
+| Swipe actions | ✅ 18 | טוב |
+| **Hero animations** | **❌ 0** | חסר לגמרי |
+| **Page transitions** | **❌ 0** | ברירת מחדל בלבד |
+| **Lottie/Rive** | **❌ 0** | אין אנימציות מורכבות |
+| **AnimatedList** | **❌ 0** | רשימות לא מונפשות |
+| **Slivers** | **❌ 0** | אין collapsing headers |
+| **Platform-specific** | **❌ 2** | iOS ו-Android נראים אותו דבר |
+
+### ⚠️ בעיות עקביות (מה שהורס תחושת מקצועיות)
+
+#### 🔴 1. צבעים ישירים — 316 שימושים ב-`Colors.xxx`!
+```
+במקום: Colors.green, Colors.red.shade100, Colors.grey[300]
+צריך:  cs.primary, cs.error, cs.surfaceVariant
+```
+**למה זה רע:** כל מסך נראה קצת אחרת. Dark mode נשבר.
+
+#### 🔴 2. Border radius — 11 ערכים שונים!
+```
+נמצא: 2, 3, 4, 6, 8, 10, 12, 14, 16, 20, 24
+צריך:  kRadiusS (8), kRadiusM (12), kRadiusL (16), kRadiusXL (24)
+```
+**למה זה רע:** כפתורים/כרטיסים מרגישים לא אחידים.
+
+#### 🔴 3. Font sizes — 18 גדלים שונים!
+```
+נמצא: 9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24, 26, 28, 32, 36, 40, 48
+צריך:  Theme.of(context).textTheme.bodySmall / bodyMedium / titleLarge / etc.
+```
+**למה זה רע:** היררכיה טיפוגרפית לא עקבית.
+
+### 🎯 6.1 Design Tokens — מערכת עיצוב אחידה
+
+צור `lib/theme/design_tokens.dart`:
+```dart
+/// 🎨 Design Tokens — מקום אחד לכל ערכי העיצוב
+class AppTokens {
+  AppTokens._();
+
+  // ═══ Spacing ═══
+  static const spacing4  = 4.0;
+  static const spacing8  = 8.0;
+  static const spacing12 = 12.0;
+  static const spacing16 = 16.0;
+  static const spacing24 = 24.0;
+  static const spacing32 = 32.0;
+
+  // ═══ Border Radius ═══
+  static const radiusS  = 8.0;   // כפתורים, chips
+  static const radiusM  = 12.0;  // כרטיסים, inputs
+  static const radiusL  = 16.0;  // bottom sheets, dialogs
+  static const radiusXL = 24.0;  // cards מיוחדים
+
+  // ═══ Font Sizes (fallback — prefer TextTheme) ═══
+  static const fontXS = 11.0;
+  static const fontS  = 13.0;
+  static const fontM  = 15.0;
+  static const fontL  = 18.0;
+  static const fontXL = 22.0;
+  static const fontXXL = 28.0;
+
+  // ═══ Durations ═══
+  static const durationFast   = Duration(milliseconds: 200);
+  static const durationMedium = Duration(milliseconds: 350);
+  static const durationSlow   = Duration(milliseconds: 500);
+
+  // ═══ Elevation ═══
+  static const elevationNone = 0.0;
+  static const elevationLow  = 2.0;
+  static const elevationMed  = 4.0;
+  static const elevationHigh = 8.0;
+}
+```
+
+### 🎯 6.2 החלפת 316 × `Colors.xxx` → Theme
+
+**עדיפות:** מסכים ראשיים קודם:
+1. `active_shopping_screen.dart`
+2. `shopping_lists_screen.dart`
+3. `home_dashboard_screen.dart`
+4. `my_pantry_screen.dart`
+5. `settings_screen.dart`
+
+**Pattern:**
+```dart
+// לפני:
+color: Colors.green
+
+// אחרי:
+final cs = Theme.of(context).colorScheme;
+color: cs.primary  // או cs.error, cs.surface, etc.
+
+// Sticky colors (מותג):
+final brand = Theme.of(context).extension<AppBrand>()!;
+color: brand.stickyYellow
+```
+
+### 🎯 6.3 אנימציות שעושות הבדל
+
+#### Page Transitions (כל הניווטים)
+```dart
+// lib/theme/app_page_transitions.dart
+class AppPageTransition extends PageRouteBuilder {
+  AppPageTransition({required Widget page})
+    : super(
+        transitionDuration: AppTokens.durationMedium,
+        pageBuilder: (_, __, ___) => page,
+        transitionsBuilder: (_, anim, __, child) =>
+          FadeTransition(opacity: anim, child: child),
+      );
+}
+```
+
+#### AnimatedList (רשימת קניות)
+```dart
+// כשמוסיפים מוצר — הוא נכנס עם אנימציה
+// כשמסירים — יוצא עם slide
+AnimatedList(
+  key: _listKey,
+  itemBuilder: (context, index, animation) =>
+    SizeTransition(sizeFactor: animation, child: ...),
+)
+```
+
+#### Hero Animation (מוצר → פרטים)
+```dart
+// ברשימה:
+Hero(tag: 'product-${item.id}', child: ProductTile(...))
+
+// בפרטים:
+Hero(tag: 'product-${item.id}', child: ProductHeader(...))
+```
+
+#### Collapsing AppBar עם Slivers
+```dart
+// מסכי רשימה עם header שמתכווץ בגלילה
+CustomScrollView(
+  slivers: [
+    SliverAppBar(
+      expandedHeight: 120,
+      pinned: true,
+      flexibleSpace: FlexibleSpaceBar(
+        title: Text('רשימת קניות'),
+        background: NotebookHeader(),
+      ),
+    ),
+    SliverList(delegate: ...),
+  ],
+)
+```
+
+### 🎯 6.4 Platform-Specific Polish
+
+```dart
+// iOS: Cupertino dialogs, swipe-back, bounce scroll
+// Android: Material dialogs, predictive back, glow scroll
+
+showAdaptiveDialog(
+  context: context,
+  builder: (_) => AlertDialog.adaptive(
+    title: Text('מחיקה'),
+    content: Text('בטוח?'),
+    actions: [
+      adaptiveAction(context, 'ביטול', () => Navigator.pop(context)),
+      adaptiveAction(context, 'מחק', () => delete(), isDestructive: true),
+    ],
+  ),
+);
+```
+
+### 🎯 6.5 Lottie Animations (ליטוש אחרון)
+
+**איפה Lottie עושה הבדל:**
+- ✅ סיום קניות — אנימציית "כל הכבוד!" (confetti)
+- ✅ רשימה ריקה — אנימציית עגלה ריקה
+- ✅ Onboarding — אנימציות בכל שלב
+- ✅ Loading — לוגו מונפש במקום spinner
+
+**מקורות חינמיים:** lottiefiles.com (אלפי אנימציות JSON קלות)
+
+### 🎯 6.6 Micro-interactions שעושות "wow"
+
+| פעולה | אפקט |
+|-------|-------|
+| מוסיף מוצר לרשימה | bounce-in + haptic |
+| מסמן "קניתי" | ✅ check animation + strikethrough |
+| מוחק מוצר | slide-out + undo snackbar |
+| pull-to-refresh | custom indicator עם לוגו |
+| גלילה לסוף | "הכל פה!" micro-animation |
+| רשימה חדשה | scale-up entrance |
+| שיתוף רשימה | confetti/celebration |
+
+### 🎯 6.7 Typography — מערכת אחידה
+
+```dart
+// במקום fontSize: 14 בכל מקום:
+Text('כותרת', style: context.textTheme.titleMedium)
+Text('תוכן', style: context.textTheme.bodyMedium)
+Text('הערה', style: context.textTheme.bodySmall)
+
+// Extension לנוחות:
+extension ContextX on BuildContext {
+  TextTheme get textTheme => Theme.of(this).textTheme;
+  ColorScheme get colorScheme => Theme.of(this).colorScheme;
+  AppBrand get brand => Theme.of(this).extension<AppBrand>()!;
+}
+```
+
+---
+
+## ⏱️ הערכת זמנים (כולל שלב 6)
 
 1. **commit אחרי כל שינוי** — קל ל-revert
 2. **בדוק אמולטור** אחרי כל שלב
