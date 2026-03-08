@@ -540,7 +540,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
 
                   // כפתורי פעולה
                   if (_isProcessing)
-                    const Center(
+                    Center(
                       child: SizedBox(
                         width: 20,
                         height: 20,
