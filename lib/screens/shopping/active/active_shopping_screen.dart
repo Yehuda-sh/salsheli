@@ -969,7 +969,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
               // 🗂️ רשימת מוצרים לפי קטגוריות
               Expanded(
                 child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+                  padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
                   itemCount: itemsByCategory.length,
                   itemBuilder: (context, index) {
                     final category = itemsByCategory.keys.elementAt(index);
@@ -991,7 +991,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                             });
                           },
                           child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: kSpacingLarge),
+                            margin: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
                             padding: const EdgeInsets.symmetric(
                               horizontal: kSpacingSmall,
                               vertical: kSpacingXTiny,
