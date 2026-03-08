@@ -159,7 +159,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           .animate()
                           .fadeIn(duration: 400.ms, delay: 200.ms),
                       // רווח ל-sticky bar
-                      const SizedBox(height: 120),
+                      const SizedBox(height: 130),
                     ],
                   ),
                 ),
@@ -532,7 +532,7 @@ class _FeatureCard extends StatelessWidget {
                         child: illustrationAsset != null
                             ? Image.asset(
                                 illustrationAsset!,
-                                height: 180,
+                                height: 200,
                                 fit: BoxFit.contain,
                               )
                             : Container(
@@ -582,11 +582,8 @@ class _FeatureCard extends StatelessWidget {
                       ),
                       const SizedBox(height: kSpacingMedium),
 
-                      // Mini preview — גדול יותר
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
-                        child: previewWidget,
-                      ),
+                      // Mini preview
+                      previewWidget,
                     ],
                   ),
                 ),
@@ -610,7 +607,7 @@ class _MiniShoppingList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _MiniListItemWithQty(text: AppStrings.welcome.demoItem1, qty: '2', checked: true),
         _MiniListItemWithQty(text: AppStrings.welcome.demoItem2, qty: '1', checked: true),
@@ -627,7 +624,7 @@ class _MiniPantry extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _MiniPantryItem(text: AppStrings.welcome.demoPantryItem1, qty: '2', isLow: false),
         _MiniPantryItem(text: AppStrings.welcome.demoPantryItem2, qty: '6', isLow: false),
@@ -644,7 +641,7 @@ class _MiniSharing extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _MiniShareUser(name: AppStrings.welcome.demoUser1, isOnline: true, avatarColor: kStickyCyan),
         _MiniShareUser(name: AppStrings.welcome.demoUser2, isOnline: true, avatarColor: kStickyPurple),
