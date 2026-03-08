@@ -232,6 +232,18 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
   }
 
   /// עדכון סטטוס פריט + שמירה אוטומטית עם debounce
+  /// 🔢 עדכון כמות פריט
+  void _updateItemQuantity(UnifiedListItem item, int newQuantity) {
+    debugPrint('📝 _updateItemQuantity: ${item.name} → $newQuantity');
+
+    final provider = context.read<ShoppingListsProvider>();
+    // quantity נמצא בתוך productData
+    final updatedProductData = Map<String, dynamic>.from(item.productData ?? {});
+    updatedProductData['quantity'] = newQuantity;
+    final updatedItem = item.copyWith(productData: updatedProductData);
+    provider.updateItemById(widget.list.id, updatedItem);
+  }
+
   void _updateItemStatus(UnifiedListItem item, ShoppingItemStatus newStatus) {
     debugPrint('📝 _updateItemStatus: ${item.name} → ${newStatus.name}');
 
@@ -1061,6 +1073,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                               // 🔧 Fallback ל-pending אם פריט לא קיים במפה (הגנה מקריסה)
                               status: _itemStatuses[item.id] ?? ShoppingItemStatus.pending,
                               onStatusChanged: (newStatus) => _updateItemStatus(item, newStatus),
+                              onQuantityChanged: (newQty) => _updateItemQuantity(item, newQty),
                             ),
                           ),
 
@@ -1319,12 +1332,14 @@ Widget _buildDivider(Color color) {
 class _ActiveShoppingItemTile extends StatelessWidget {
   final UnifiedListItem item;
   final ShoppingItemStatus status;
-  final void Function(ShoppingItemStatus) onStatusChanged; // 🔧 Changed from Future<void>
+  final void Function(ShoppingItemStatus) onStatusChanged;
+  final void Function(int newQuantity) onQuantityChanged;
 
   const _ActiveShoppingItemTile({
     required this.item,
     required this.status,
     required this.onStatusChanged,
+    required this.onQuantityChanged,
   });
 
   @override
@@ -1487,22 +1502,25 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      // 🔢 תג כמות
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: cs.primaryContainer,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: cs.primary.withValues(alpha: 0.3),
+                      // 🔢 תג כמות — לחיץ לעריכה מהירה
+                      GestureDetector(
+                        onTap: () => _showQuantityEditor(context, theme, cs),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: cs.primaryContainer,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: cs.primary.withValues(alpha: 0.3),
+                            ),
                           ),
-                        ),
-                        child: Text(
-                          '×${item.quantity ?? 1}',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: cs.onPrimaryContainer,
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
+                          child: Text(
+                            '×${item.quantity ?? 1}',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: cs.onPrimaryContainer,
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
@@ -1514,6 +1532,106 @@ class _ActiveShoppingItemTile extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  /// 🔢 עריכת כמות מהירה — bottom sheet עם +/−
+  void _showQuantityEditor(BuildContext context, ThemeData theme, ColorScheme cs) {
+    int qty = item.quantity ?? 1;
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setSheetState) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge, vertical: kSpacingMedium),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // ידית
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: cs.outline.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: kSpacingMedium),
+                  // שם המוצר
+                  Text(
+                    item.name,
+                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: kSpacingLarge),
+                  // +/- כמות
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // כפתור מינוס
+                      IconButton.filled(
+                        onPressed: qty > 1
+                            ? () {
+                                setSheetState(() => qty--);
+                              }
+                            : null,
+                        style: IconButton.styleFrom(
+                          backgroundColor: cs.errorContainer,
+                          foregroundColor: cs.onErrorContainer,
+                          minimumSize: const Size(48, 48),
+                        ),
+                        icon: const Icon(Icons.remove, size: 24),
+                      ),
+                      // כמות נוכחית
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge),
+                        child: Text(
+                          '$qty',
+                          style: theme.textTheme.headlineMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: cs.primary,
+                          ),
+                        ),
+                      ),
+                      // כפתור פלוס
+                      IconButton.filled(
+                        onPressed: qty < 99
+                            ? () {
+                                setSheetState(() => qty++);
+                              }
+                            : null,
+                        style: IconButton.styleFrom(
+                          backgroundColor: StatusColors.success.withValues(alpha: 0.2),
+                          foregroundColor: StatusColors.success,
+                          minimumSize: const Size(48, 48),
+                        ),
+                        icon: const Icon(Icons.add, size: 24),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: kSpacingLarge),
+                  // כפתור אישור
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: () {
+                        onQuantityChanged(qty);
+                        Navigator.pop(ctx);
+                      },
+                      child: const Text('אישור'),
+                    ),
+                  ),
+                  const SizedBox(height: kSpacingSmall),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
