@@ -791,16 +791,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         const NotebookBackground(),
         Scaffold(
           backgroundColor: Colors.transparent,
-          // 🏁 FAB - כפתור סיום קנייה
-          floatingActionButton: _isSaving
-              ? null
-              : FloatingActionButton.large(
-                  heroTag: 'active_shopping_fab',
-                  onPressed: _finishShopping,
-                  backgroundColor: StatusColors.success,
-                  child: const Icon(Icons.check, color: Colors.white, size: 36),
-                ),
-          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+          // 🏁 FAB הוסר — כפתור סיום עבר ל-AppBar leading
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
@@ -873,6 +864,27 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                       size: 22,
                     ),
                   ),
+                ),
+              // 🏁 כפתור סיום קנייה — קומפקטי ב-AppBar
+              if (!_isSaving)
+                Padding(
+                  padding: const EdgeInsets.only(left: 4),
+                  child: FilledButton.icon(
+                    onPressed: _finishShopping,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: StatusColors.success,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      minimumSize: const Size(0, 36),
+                    ),
+                    icon: const Icon(Icons.check, size: 18),
+                    label: const Text('סיימתי', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                  ),
+                )
+              else
+                const Padding(
+                  padding: EdgeInsets.all(12),
+                  child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)),
                 ),
             ],
           ),
