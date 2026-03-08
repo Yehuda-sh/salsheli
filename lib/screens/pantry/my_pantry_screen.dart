@@ -354,7 +354,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     final scheme = theme.colorScheme;
 
     final primaryColor = scheme.primaryContainer;
-    final backgroundColor = scheme.surface;
+    // final backgroundColor = scheme.surface;
 
     final strings = AppStrings.pantry;
 

@@ -66,7 +66,7 @@ class FirebaseUserRepository implements UserRepository {
       // עדכון lastLoginAt
       final updatedUser = user.copyWith(lastLoginAt: DateTime.now());
 
-      final jsonData = updatedUser.toJson();
+      // final jsonData = updatedUser.toJson();
 
       await _firestore
           .collection(FirestoreCollections.users)

@@ -11,7 +11,7 @@
 //
 // 🔗 Related: onboarding_data, OnboardingSteps
 
-import 'package:flutter/foundation.dart' show debugPrint, kDebugMode;
+import 'package:flutter/foundation.dart' show kDebugMode;
 
 /// Store category types
 enum StoreCategory {

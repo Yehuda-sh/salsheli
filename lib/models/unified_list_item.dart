@@ -21,7 +21,7 @@
 //
 
 import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
-import 'package:flutter/foundation.dart' show debugPrint, immutable, kDebugMode;
+import 'package:flutter/foundation.dart' show immutable, kDebugMode;
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 import 'enums/item_type.dart';

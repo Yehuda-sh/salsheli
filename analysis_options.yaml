@@ -6,6 +6,8 @@ analyzer:
     - "**/*.freezed.dart"
     - "**/*.gen.dart"
     - "lib/gen/**"
+    - "scripts/**"
+    - "test/**"
   errors:
     # Treat as errors (not just warnings)
     avoid_print: error

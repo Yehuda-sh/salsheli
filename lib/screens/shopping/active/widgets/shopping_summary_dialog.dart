@@ -6,7 +6,6 @@ import 'dart:async';
 import 'package:memozap/core/ui_constants.dart';
 import 'package:memozap/core/status_colors.dart';
 import 'package:memozap/l10n/app_strings.dart';
-import 'package:memozap/theme/app_theme.dart';
 
 enum ShoppingSummaryResult {
   cancel, // חזור לרשימה

@@ -161,7 +161,7 @@ class OnboardingData {
     final validDays = days.where((day) => day >= 0 && day <= 6).toSet();
     
     if (kDebugMode && days.length != validDays.length) {
-      final invalid = days.difference(validDays);
+      // final invalid = days.difference(validDays);
     }
     
     return validDays;

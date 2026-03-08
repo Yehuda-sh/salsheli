@@ -37,7 +37,6 @@
 // ```
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 
 import '../models/shopping_list.dart';
 import '../models/unified_list_item.dart';

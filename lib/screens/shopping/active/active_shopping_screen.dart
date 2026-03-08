@@ -42,7 +42,6 @@ import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../../config/filters_config.dart';
@@ -61,8 +60,6 @@ import '../../../providers/user_context.dart';
 import '../../../services/shopping_patterns_service.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/common/notebook_background.dart';
-import '../../../widgets/common/skeleton_loader.dart';
-import '../../../widgets/common/sticky_button.dart';
 import '../../home/dashboard/widgets/last_chance_banner.dart';
 import 'widgets/active_shopping_item_tile.dart';
 import 'widgets/active_shopping_states.dart';

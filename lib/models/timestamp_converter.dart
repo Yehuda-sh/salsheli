@@ -18,7 +18,7 @@
 // Last Updated: 13/01/2026
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart' show debugPrint, kDebugMode;
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:json_annotation/json_annotation.dart';
 
 /// 🎯 ממיר לשדות DateTime לא nullable

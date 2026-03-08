@@ -110,7 +110,7 @@ class TemplateService {
       }
 
       if (kDebugMode) {
-        final total = _productsCache!.values.fold(0, (sum, list) => sum + list.length);
+        // final total = _productsCache!.values.fold(0, (sum, list) => sum + list.length);
       }
 
       _loadingCompleter!.complete();

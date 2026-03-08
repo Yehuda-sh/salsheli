@@ -2,12 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:memozap/core/ui_constants.dart';
 import 'package:flutter/services.dart';
-import 'package:memozap/config/filters_config.dart';
 import 'package:memozap/core/status_colors.dart';
 import 'package:memozap/l10n/app_strings.dart';
 import 'package:memozap/models/enums/shopping_item_status.dart';
 import 'package:memozap/models/unified_list_item.dart';
-import 'package:memozap/theme/app_theme.dart';
 
 class ActiveShoppingItemTile extends StatelessWidget {
   final UnifiedListItem item;
