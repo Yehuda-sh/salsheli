@@ -20,8 +20,6 @@
 //
 // 🔗 Related: AnimatedButton, ui_constants.dart, AppBrand, sticky_note.dart
 //
-// Version: 4.0 - Hybrid Premium (Physical Depth + Sensory)
-// Last Updated: 22/02/2026
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';

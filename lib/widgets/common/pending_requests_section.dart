@@ -1,5 +1,4 @@
 // 📄 lib/widgets/common/pending_requests_section.dart
-// Version 4.0 - Hybrid Premium | 22/02/2026
 //
 // מציג בקשות ממתינות לאישור (הוספה/עריכה/מחיקה של פריטים).
 // מופיע בפתק כתום עם כפתורי אישור/דחייה למי שיש הרשאה.
@@ -29,7 +28,6 @@ import 'sticky_note.dart';
 
 /// Widget להצגת בקשות ממתינות
 ///
-/// Version 4.0: Hybrid Premium - staggered entrance, glassmorphic cards,
 /// dynamic haptic signatures, RepaintBoundary optimization.
 class PendingRequestsSection extends StatelessWidget {
   final String listId;

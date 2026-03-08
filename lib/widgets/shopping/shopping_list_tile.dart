@@ -1,5 +1,4 @@
 // 📄 lib/widgets/shopping/shopping_list_tile.dart
-// Version 4.0 - Hybrid Premium | 22/02/2026
 //
 // כרטיס רשימת קניות Premium - פתק ממו יוקרתי עם משוב תחושתי.
 //

@@ -1,5 +1,4 @@
 // 📄 lib/widgets/shopping/shopping_list_urgency.dart
-// Version 4.1 - Smart Sorting | 22/02/2026
 //
 // לוגיקת חישוב דחיפות + משקולת מיון (sortWeight) לפי תאריך יעד.
 // מופרד מ-ShoppingListTile לקריאות וטסטביליות.

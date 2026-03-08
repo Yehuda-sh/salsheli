@@ -1,5 +1,4 @@
 // 📄 lib/widgets/common/tappable_card.dart
-// Version 4.0 - Hybrid Premium | 22/02/2026
 //
 // כרטיס אינטראקטיבי עם אנימציות scale + elevation בלחיצה.
 // - TappableCard - גרסה מלאה עם כל האפשרויות

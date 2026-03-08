@@ -1,7 +1,6 @@
 // 📄 lib/widgets/common/notebook_background.dart
 //
 // רקע מחברת עם קווים - CustomPaint יעיל.
-// תומך Hybrid Premium: opacity/color/fade מותאמים לכל מסך.
 //
 // ✅ פרמטרים חדשים:
 //    - lineOpacity: עוצמת הקווים (ברירת מחדל: kNotebookLineOpacity)
@@ -18,9 +17,7 @@ import '../../theme/app_theme.dart';
 /// רקע בסגנון מחברת עם קווים אופקיים וקו אדום אנכי
 ///
 /// מציג רקע נייר עם קווים כמו במחברת בית ספר אמיתית.
-/// תומך ב-Hybrid Premium: כל מסך שולט על עוצמת הקווים.
 ///
-/// דוגמה (Hybrid Premium - עדין מאוד):
 /// ```dart
 /// NotebookBackground(
 ///   lineOpacity: kNotebookLineOpacitySubtle,

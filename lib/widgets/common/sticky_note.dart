@@ -1,5 +1,4 @@
 // 📄 lib/widgets/common/sticky_note.dart
-// Version 4.0 - Hybrid Premium | 22/02/2026
 //
 // פתק צבעוני בסגנון Post-it עם צללים וסיבוב.
 // - StickyNote - פתק כללי עם child

@@ -1,5 +1,4 @@
 // 📄 lib/widgets/shopping/product_selection_bottom_sheet.dart
-// Version 4.0 - Hybrid Premium | 22/02/2026
 //
 // Bottom Sheet לבחירת מוצרים מהקטלוג - חיפוש, פילטרים והוספה לרשימה.
 //

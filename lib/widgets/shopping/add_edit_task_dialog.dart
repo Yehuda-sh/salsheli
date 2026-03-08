@@ -1,5 +1,4 @@
 // 📄 lib/widgets/shopping/add_edit_task_dialog.dart
-// Version 4.0 - Hybrid Premium | 22/02/2026
 //
 // דיאלוג הוספה/עריכה של משימה - שם, הערות, תאריך יעד ועדיפות.
 // כולל validation, אנימציות, haptic feedback ותמיכה בנגישות.

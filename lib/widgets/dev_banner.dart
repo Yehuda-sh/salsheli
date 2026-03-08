@@ -1,5 +1,4 @@
 // 📄 lib/widgets/dev_banner.dart
-// Version 4.0 - Hybrid Premium | 22/02/2026
 //
 // באנר DEV - מוצג רק במצב פיתוח. CustomPainter ribbon עם glass gradient,
 // flutter_animate pulse + shimmer, ו-RepaintBoundary לאיזול אנימציה.

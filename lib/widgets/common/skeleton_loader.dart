@@ -1,6 +1,5 @@
 // 📄 lib/widgets/common/skeleton_loader.dart
 //
-// Version: 4.0 (22/02/2026)
 //
 // 🇮🇱 **Skeleton Widgets לטעינה חזותית** — SkeletonBox, SkeletonCircle,
 //     SkeletonListCard, SkeletonListView.
@@ -14,7 +13,6 @@
 //     - Gap-based spacing
 //
 // 📅 History:
-//     v4.0 (22/02/2026) — shimmer package, RepaintBoundary, flutter_animate,
 //                          45° angle, Gap spacing, StatelessWidget simplification
 //     v3.0              — Manual shimmer with AnimationController, StickyNote cards,
 //                          Dark Mode support, ExcludeSemantics

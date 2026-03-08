@@ -1,5 +1,4 @@
 // 📄 lib/widgets/common/painters/perforation_painter.dart
-// Version 4.0 - Hybrid Premium | 22/02/2026
 //
 // CustomPainter שמצייר קו פרפורציה (מקווקו) אופקי.
 // נותן תחושה של "חלק שניתן לתלישה" בכרטיסי פתקים.

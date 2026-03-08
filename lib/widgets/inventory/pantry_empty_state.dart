@@ -1,5 +1,4 @@
 // 📄 lib/widgets/inventory/pantry_empty_state.dart
-// Version 4.0 - Hybrid Premium | 22/02/2026
 //
 // Empty State למזווה — חוויה מזמינה, "חיה" ויוקרתית.
 //

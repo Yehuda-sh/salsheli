@@ -1,5 +1,4 @@
 // 📄 lib/widgets/shopping/add_edit_product_dialog.dart
-// Version 4.0 - Hybrid Premium | 22/02/2026
 //
 // דיאלוג הוספה/עריכה של מוצר - שם, מותג, קטגוריה, כמות ומחיר.
 // כולל validation, Sticky Notes design, אנימציות ותמיכה בנגישות.

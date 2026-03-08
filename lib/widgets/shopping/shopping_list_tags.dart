@@ -1,5 +1,4 @@
 // 📄 lib/widgets/shopping/shopping_list_tags.dart
-// Version 4.0 - Hybrid Premium | 22/02/2026
 //
 // תגי מידע לכרטיס רשימת קניות - סוג, שיתוף, פרטיות, דחיפות.
 // עיצוב Glassmorphic: שקיפות עדינה שמאפשרת לרקע הגרדיאנט להשתקף.
