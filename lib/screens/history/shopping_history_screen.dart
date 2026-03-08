@@ -27,7 +27,6 @@ import '../../models/receipt.dart';
 import '../../providers/receipt_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
-import '../../theme/context_extensions.dart';
 
 class ShoppingHistoryScreen extends StatefulWidget {
   /// אם מועבר, הקבלה הזו תוצג מורחבת אוטומטית

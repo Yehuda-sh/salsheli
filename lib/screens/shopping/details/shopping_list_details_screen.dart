@@ -50,7 +50,6 @@ import '../../../widgets/shopping/product_selection_bottom_sheet.dart';
 import '../../settings/manage_users_screen.dart';
 import '../../sharing/pending_requests_screen.dart';
 import '../../../config/filters_config.dart';
-import '../../../theme/context_extensions.dart';
 
 class ShoppingListDetailsScreen extends StatefulWidget {
   final ShoppingList list;
@@ -778,7 +777,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
               side: BorderSide(
-                color: isSelected ? cs.onSurface.withOpacity(0.12) : Colors.transparent,
+                color: isSelected ? cs.onSurface.withValues(alpha: 0.12) : Colors.transparent,
               ),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -846,9 +845,9 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     // צבעים עדינים למרקרים
     final highlightColors = [
       Colors.purple.withValues(alpha: 0.1),
-      cs.tertiary.withOpacity(0.1),
+      cs.tertiary.withValues(alpha: 0.1),
       Colors.blue.withValues(alpha: 0.1),
-      cs.primary.withOpacity(0.1),
+      cs.primary.withValues(alpha: 0.1),
     ];
 
     return ListView.builder(
@@ -883,7 +882,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                   color: highlightColor, // רקע שקוף "מרקר"
                   border: const Border(
                     // פס דק בצד ימין לחיזוק
-                    right: BorderSide(color: cs.onSurface.withOpacity(0.12), width: 4),
+                    right: BorderSide(color: cs.onSurface.withValues(alpha: 0.12), width: 4),
                   ),
                 ),
                 child: Row(

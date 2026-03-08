@@ -30,7 +30,6 @@ import '../../services/saved_contacts_service.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/sticky_note.dart';
-import '../../theme/context_extensions.dart';
 
 class InviteUsersScreen extends StatefulWidget {
   final ShoppingList list;
@@ -409,7 +408,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                         AppStrings.sharing.inviteSubtitle,
                         style: const TextStyle(
                           fontSize: 16,
-                          color: cs.onSurface.withOpacity(0.6),
+                          color: cs.onSurface.withValues(alpha: 0.6),
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -444,7 +443,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                   AppStrings.sharing.savedContactsSubtitle,
                                   style: const TextStyle(
                                     fontSize: 12,
-                                    color: cs.onSurface.withOpacity(0.6),
+                                    color: cs.onSurface.withValues(alpha: 0.6),
                                   ),
                                 ),
                                 const SizedBox(height: 12),
@@ -473,7 +472,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                           child: Text(
                             AppStrings.sharing.orEnterNewEmail,
                             style: const TextStyle(
-                              color: cs.onSurface.withOpacity(0.6),
+                              color: cs.onSurface.withValues(alpha: 0.6),
                               fontSize: 14,
                             ),
                           ),
@@ -719,7 +718,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                     ? cs.primary
                     : (isAlreadyShared || isOwner)
                         ? cs.outline
-                        : cs.onSurface.withOpacity(0.6),
+                        : cs.onSurface.withValues(alpha: 0.6),
               ),
               const SizedBox(width: 12),
               // Avatar
@@ -876,7 +875,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                     description,
                     style: const TextStyle(
                       fontSize: 12,
-                      color: cs.onSurface.withOpacity(0.6),
+                      color: cs.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
                 ],

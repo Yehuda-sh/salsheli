@@ -34,7 +34,6 @@ import '../../../widgets/common/sticky_button.dart';
 import '../../../widgets/common/sticky_note.dart';
 import 'contact_selector_dialog.dart';
 import 'template_picker_dialog.dart';
-import '../../../theme/context_extensions.dart';
 
 /// סוג נראות הרשימה
 enum ListVisibility {

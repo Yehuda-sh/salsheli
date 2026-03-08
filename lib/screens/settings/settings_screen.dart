@@ -48,7 +48,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/auth_service.dart';
 import '../../services/tutorial_service.dart';
 import '../../widgets/dialogs/legal_content_dialog.dart';
-import '../../theme/context_extensions.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -206,9 +205,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Container(
               padding: const EdgeInsets.all(kSpacingSmall),
               decoration: BoxDecoration(
-                color: cs.error.withOpacity(0.1),
+                color: cs.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(kBorderRadius),
-                border: Border.all(color: cs.error.withOpacity(0.3)),
+                border: Border.all(color: cs.error.withValues(alpha: 0.3)),
               ),
               child: const Row(
                 children: [
@@ -326,9 +325,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Container(
                     padding: const EdgeInsets.all(kSpacingMedium),
                     decoration: BoxDecoration(
-                      color: cs.error.withOpacity(0.1),
+                      color: cs.error.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(kBorderRadius),
-                      border: Border.all(color: cs.error.withOpacity(0.3)),
+                      border: Border.all(color: cs.error.withValues(alpha: 0.3)),
                     ),
                     child: Text(
                       AppStrings.settings.deleteAccountWarning,
@@ -1168,7 +1167,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     subtitle: Text(
                       AppStrings.settings.deleteAccountSubtitle,
-                      style: TextStyle(color: cs.error.withOpacity(0.6)),
+                      style: TextStyle(color: cs.error.withValues(alpha: 0.6)),
                     ),
                     trailing: Icon(Icons.chevron_left, color: cs.error),
                     onTap: _showDeleteAccountDialog,

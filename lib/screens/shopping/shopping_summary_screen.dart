@@ -33,7 +33,6 @@ import '../../providers/shopping_lists_provider.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/sticky_note.dart';
-import '../../theme/context_extensions.dart';
 
 // 🔧 Wrapper ללוגים - פועל רק ב-debug mode
 void _log(String message) {
@@ -329,7 +328,7 @@ class _SummaryCard extends StatelessWidget {
     // ב-dark mode המערכת רוצה טקסט בהיר, אז מתקנים ל-black87
     final textColor = Theme.of(context).brightness == Brightness.dark
         ? cs.onSurface
-        : cs.onSurface.withOpacity(0.6);
+        : cs.onSurface.withValues(alpha: 0.6);
 
     return Padding(
       padding: const EdgeInsets.all(kSpacingLarge),
@@ -402,7 +401,7 @@ class _StatBox extends StatelessWidget {
     // StickyNote תמיד בהיר - צריך טקסט כהה
     final textColor = Theme.of(context).brightness == Brightness.dark
         ? cs.onSurface
-        : cs.onSurface.withOpacity(0.6);
+        : cs.onSurface.withValues(alpha: 0.6);
 
     return Padding(
       padding: const EdgeInsets.all(kSpacingMedium),

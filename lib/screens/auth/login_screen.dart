@@ -40,7 +40,6 @@ import '../../l10n/app_strings.dart';
 import '../../providers/user_context.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
-import '../../theme/context_extensions.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -439,10 +438,10 @@ class _LoginScreenState extends State<LoginScreen>
                       filter: ImageFilter.blur(sigmaX: kGlassBlurLow, sigmaY: kGlassBlurLow),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: cs.tertiary.withOpacity(0.12),
+                          color: cs.tertiary.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: cs.tertiary.withOpacity(0.3),
+                            color: cs.tertiary.withValues(alpha: 0.3),
                             width: 0.5,
                           ),
                         ),
@@ -945,7 +944,7 @@ class _QuickLoginBottomSheet extends StatelessWidget {
         child: Text(
           firstChar,
           style: TextStyle(
-            color: roleColor.shade700,
+            color: roleColor,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -973,7 +972,7 @@ class _QuickLoginBottomSheet extends StatelessWidget {
           style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w600,
-            color: roleColor.shade700,
+            color: roleColor,
           ),
         ),
       ),

@@ -44,7 +44,6 @@ import '../../providers/user_context.dart';
 import '../../services/auth_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
-import '../../theme/context_extensions.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});

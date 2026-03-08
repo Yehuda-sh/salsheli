@@ -31,7 +31,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../core/ui_constants.dart';
 import '../l10n/app_strings.dart';
 import '../widgets/common/notebook_background.dart';
-import '../theme/context_extensions.dart';
 
 /// 📋 מסך טעינה מונפש
 class IndexLoadingView extends StatefulWidget {

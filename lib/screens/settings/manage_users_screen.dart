@@ -34,7 +34,6 @@ import '../../providers/user_context.dart';
 import '../../services/notifications_service.dart';
 import '../../services/share_list_service.dart';
 import '../sharing/invite_users_screen.dart';
-import '../../theme/context_extensions.dart';
 
 /// 🇮🇱 מסך ניהול משתמשים משותפים
 /// 🇬🇧 Manage shared users screen

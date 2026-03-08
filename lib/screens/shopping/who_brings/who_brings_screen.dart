@@ -32,7 +32,6 @@ import '../../../providers/user_context.dart';
 import '../../../services/notifications_service.dart';
 import '../../../widgets/common/notebook_background.dart';
 import '../../../widgets/common/sticky_note.dart';
-import '../../../theme/context_extensions.dart';
 
 class WhoBringsScreen extends StatefulWidget {
   final ShoppingList list;
@@ -453,8 +452,8 @@ class _WhoBringsItemTile extends StatelessWidget {
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: isFull
-                          ? cs.primary.withOpacity(0.2)
-                          : cs.tertiary.withOpacity(0.2),
+                          ? cs.primary.withValues(alpha: 0.2)
+                          : cs.tertiary.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
@@ -561,9 +560,9 @@ class _WhoBringsItemTile extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: kSpacingSmall),
                   decoration: BoxDecoration(
-                    color: cs.primary.withOpacity(0.1),
+                    color: cs.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                    border: Border.all(color: cs.primary.withOpacity(0.3)),
+                    border: Border.all(color: cs.primary.withValues(alpha: 0.3)),
                   ),
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,

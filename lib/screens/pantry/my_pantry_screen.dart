@@ -55,7 +55,6 @@ import '../../theme/app_theme.dart';
 import '../../widgets/inventory/pantry_empty_state.dart';
 import '../../widgets/inventory/pantry_item_dialog.dart';
 import '../../widgets/inventory/pantry_product_selection_sheet.dart';
-import '../../theme/context_extensions.dart';
 
 class MyPantryScreen extends StatefulWidget {
   const MyPantryScreen({super.key});

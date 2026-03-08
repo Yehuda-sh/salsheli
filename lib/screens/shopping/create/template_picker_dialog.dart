@@ -12,7 +12,6 @@ import 'package:flutter/services.dart';
 
 import '../../../l10n/app_strings.dart';
 import '../../../services/template_service.dart';
-import '../../../theme/context_extensions.dart';
 
 /// דיאלוג לבחירת תבנית רשימה מוכנה
 class TemplatePickerDialog extends StatelessWidget {

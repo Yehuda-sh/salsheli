@@ -31,7 +31,6 @@ import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_button.dart';
 import 'widgets/onboarding_steps.dart';
-import '../../theme/context_extensions.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});

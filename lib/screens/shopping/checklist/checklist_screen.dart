@@ -34,7 +34,6 @@ import '../../../models/shopping_list.dart';
 import '../../../models/unified_list_item.dart';
 import '../../../providers/shopping_lists_provider.dart';
 import '../../../widgets/common/notebook_background.dart';
-import '../../../theme/context_extensions.dart';
 
 class ChecklistScreen extends StatefulWidget {
   final ShoppingList list;

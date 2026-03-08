@@ -32,7 +32,6 @@ import '../../services/share_list_service.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/sticky_note.dart';
-import '../../theme/context_extensions.dart';
 
 class PendingRequestsScreen extends StatefulWidget {
   final ShoppingList list;
@@ -390,7 +389,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: isUnknownType
-                        ? cs.tertiary.withOpacity(0.3)
+                        ? cs.tertiary.withValues(alpha: 0.3)
                         : Colors.black.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
@@ -452,7 +451,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
               Container(
                 padding: const EdgeInsets.all(kSpacingSmall),
                 decoration: BoxDecoration(
-                  color: cs.tertiary.withOpacity(0.2),
+                  color: cs.tertiary.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.orange.shade300),
                 ),

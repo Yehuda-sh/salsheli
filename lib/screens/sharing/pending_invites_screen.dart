@@ -30,7 +30,6 @@ import '../../services/pending_invites_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_note.dart';
-import '../../theme/context_extensions.dart';
 
 class PendingInvitesScreen extends StatefulWidget {
   const PendingInvitesScreen({super.key});

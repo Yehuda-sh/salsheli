@@ -64,7 +64,6 @@ import '../../../widgets/common/notebook_background.dart';
 import '../../../widgets/common/skeleton_loader.dart';
 import '../../../widgets/common/sticky_button.dart';
 import '../../home/dashboard/widgets/last_chance_banner.dart';
-import '../../../theme/context_extensions.dart';
 
 class ActiveShoppingScreen extends StatefulWidget {
   final ShoppingList list;
