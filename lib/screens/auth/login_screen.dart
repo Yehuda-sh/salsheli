@@ -24,6 +24,9 @@
 
 import 'dart:async';
 import 'dart:ui';
+import 'widgets/quick_login_bottom_sheet.dart';
+import 'widgets/social_login_button.dart';
+import 'widgets/loading_overlay.dart';
 
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
@@ -369,7 +372,7 @@ class _LoginScreenState extends State<LoginScreen>
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => _QuickLoginBottomSheet(
+      builder: (context) => QuickLoginBottomSheet(
         users: _demoUsers,
         onUserSelected: (email) {
           Navigator.pop(context);
@@ -705,7 +708,7 @@ class _LoginScreenState extends State<LoginScreen>
                               children: [
                                 // Google
                                 Expanded(
-                                  child: _SocialLoginButton(
+                                  child: SocialLoginButton(
                                     icon: FontAwesomeIcons.google,
                                     label: 'Google',
                                     color: Color(0xFFDB4437),
@@ -715,7 +718,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 SizedBox(width: kSpacingSmall),
                                 // Apple
                                 Expanded(
-                                  child: _SocialLoginButton(
+                                  child: SocialLoginButton(
                                     icon: FontAwesomeIcons.apple,
                                     label: 'Apple',
                                     color: cs.onSurface,
@@ -780,7 +783,7 @@ class _LoginScreenState extends State<LoginScreen>
                     child: Container(
                       color: cs.scrim.withValues(alpha: 0.25),
                       child: Center(
-                        child: _LoadingOverlay(color: cs.primary),
+                        child: LoadingOverlay(color: cs.primary),
                       ),
                     ),
                   ),
@@ -797,361 +800,3 @@ class _LoginScreenState extends State<LoginScreen>
 // ═══════════════════════════════════════════════════════════════════════════
 
 /// Bottom sheet לבחירת משתמש דמו להתחברות מהירה (רק ב-development)
-class _QuickLoginBottomSheet extends StatelessWidget {
-  final List<Map<String, String>> users;
-  final void Function(String email) onUserSelected;
-
-  const _QuickLoginBottomSheet({
-    required this.users,
-    required this.onUserSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-
-    // קיבוץ משתמשים לפי קבוצה
-    final groupedUsers = <String, List<Map<String, String>>>{};
-    for (final user in users) {
-      final group = user['group'] ?? 'אחר';
-      groupedUsers.putIfAbsent(group, () => []).add(user);
-    }
-
-    // ✅ v4.0: Glassmorphic background
-    return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: kGlassBlurMedium, sigmaY: kGlassBlurMedium),
-        child: Container(
-      decoration: BoxDecoration(
-        color: cs.surface.withValues(alpha: 0.92),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Handle bar
-          Container(
-            margin: const EdgeInsets.only(top: 12),
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: cs.outlineVariant,
-              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-            ),
-          ),
-
-          // Header
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: cs.tertiaryContainer,
-                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                  ),
-                  child: Icon(Icons.bug_report, color: cs.tertiary, size: 20),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'התחברות מהירה - DEV',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        'בחר משתמש דמו להתחברות',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: cs.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close),
-                ),
-              ],
-            ),
-          ),
-
-          const Divider(height: 1),
-
-          // User list
-          Flexible(
-            child: ListView.builder(
-              shrinkWrap: true,
-              padding: const EdgeInsets.only(bottom: 24),
-              itemCount: groupedUsers.length,
-              itemBuilder: (context, index) {
-                final group = groupedUsers.keys.elementAt(index);
-                final groupUsers = groupedUsers[group]!;
-
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Group header
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                      child: Text(
-                        group,
-                        style: theme.textTheme.labelLarge?.copyWith(
-                          color: cs.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    // Users in group
-                    ...groupUsers.map((user) => _buildUserTile(context, user)),
-                  ],
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    ),
-      ),
-    );
-  }
-
-  Widget _buildUserTile(BuildContext context, Map<String, String> user) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-
-    final roleColor = switch (user['role']) {
-      'Owner' => cs.tertiary,
-      'Admin' => cs.primary,
-      'Editor' => cs.primary,
-      _ => cs.outline,
-    };
-
-    // 🔧 FIX: שימוש ב-characters.first במקום substring לתמיכה באמוג'י ותווים מיוחדים
-    final firstChar = user['name']!.characters.firstOrNull ?? '?';
-
-    return ListTile(
-      onTap: () => onUserSelected(user['email']!),
-      leading: CircleAvatar(
-        backgroundColor: roleColor.withValues(alpha: 0.2),
-        child: Text(
-          firstChar,
-          style: TextStyle(
-            color: roleColor,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-      title: Text(
-        user['name']!,
-        style: theme.textTheme.bodyLarge?.copyWith(
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      subtitle: Text(
-        user['email']!,
-        style: theme.textTheme.bodySmall?.copyWith(
-          color: cs.onSurfaceVariant,
-        ),
-      ),
-      trailing: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: roleColor.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(kBorderRadius),
-        ),
-        child: Text(
-          user['role']!,
-          style: TextStyle(
-            fontSize: kFontSizeSmall,
-            fontWeight: FontWeight.w600,
-            color: roleColor,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// 🔵 Social Login Button Widget
-// ═══════════════════════════════════════════════════════════════════════════
-
-/// כפתור Social Login (Google/Apple) בעיצוב Theme-aware
-/// ✅ כולל AnimatedScale feedback בלחיצה + צללים מותאמים ל-Dark Mode
-class _SocialLoginButton extends StatefulWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback? onPressed;
-
-  const _SocialLoginButton({
-    required this.icon,
-    required this.label,
-    required this.color,
-    this.onPressed,
-  });
-
-  @override
-  State<_SocialLoginButton> createState() => _SocialLoginButtonState();
-}
-
-class _SocialLoginButtonState extends State<_SocialLoginButton> {
-  bool _isPressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final isDisabled = widget.onPressed == null;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    // ✅ צל מותאם ל-Dark Mode
-    final shadowColor = isDark
-        ? cs.surfaceContainerLowest.withValues(alpha: 0.1)
-        : cs.shadow.withValues(alpha: 0.15);
-
-    return Semantics(
-      button: true,
-      label: AppStrings.auth.socialLoginSemanticLabel(widget.label),
-      enabled: !isDisabled,
-      child: GestureDetector(
-        onTapDown: isDisabled ? null : (_) => setState(() => _isPressed = true),
-        onTapUp: isDisabled ? null : (_) => setState(() => _isPressed = false),
-        onTapCancel: isDisabled ? null : () => setState(() => _isPressed = false),
-        child: AnimatedScale(
-          scale: _isPressed ? 0.97 : 1.0,
-          duration: Duration(milliseconds: 100),
-          curve: Curves.easeOut,
-          child: Container(
-            decoration: BoxDecoration(
-              color: isDisabled
-                  ? cs.surfaceContainerHighest.withValues(alpha: 0.5)
-                  : cs.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(kBorderRadius),
-              boxShadow: isDisabled
-                  ? null
-                  : [
-                      BoxShadow(
-                        color: shadowColor,
-                        blurRadius: 6,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: widget.onPressed,
-                borderRadius: BorderRadius.circular(kBorderRadius),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: kSpacingSmall + 4,
-                    horizontal: kSpacingMedium,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      FaIcon(
-                        widget.icon,
-                        size: 18,
-                        color: isDisabled
-                            ? widget.color.withValues(alpha: 0.5)
-                            : widget.color,
-                      ),
-                      SizedBox(width: kSpacingSmall),
-                      Text(
-                        widget.label,
-                        style: TextStyle(
-                          color: isDisabled
-                              ? cs.onSurface.withValues(alpha: 0.5)
-                              : cs.onSurface,
-                          fontWeight: FontWeight.w600,
-                          fontSize: kFontSizeMedium,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// 🌫️ Loading Overlay with Cycling Text
-// ═══════════════════════════════════════════════════════════════════════════
-
-/// ✅ v4.0: Loading overlay עם טקסט משתנה ליצירת תחושת מהירות
-class _LoadingOverlay extends StatefulWidget {
-  final Color color;
-
-  const _LoadingOverlay({required this.color});
-
-  @override
-  State<_LoadingOverlay> createState() => _LoadingOverlayState();
-}
-
-class _LoadingOverlayState extends State<_LoadingOverlay> {
-  static const _messages = [
-    'בודק פרטים...',
-    'מתחבר לשרת...',
-    'כמעט שם...',
-  ];
-
-  int _messageIndex = 0;
-  Timer? _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    _timer = Timer.periodic(const Duration(milliseconds: 1500), (_) {
-      if (mounted) {
-        setState(() {
-          _messageIndex = (_messageIndex + 1) % _messages.length;
-        });
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        CircularProgressIndicator(color: widget.color),
-        SizedBox(height: kSpacingMedium),
-        AnimatedSwitcher(
-          duration: Duration(milliseconds: 300),
-          child: Text(
-            _messages[_messageIndex],
-            key: ValueKey(_messageIndex),
-            style: TextStyle(
-              color: cs.onSurface,
-              fontSize: kFontSizeMedium,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
