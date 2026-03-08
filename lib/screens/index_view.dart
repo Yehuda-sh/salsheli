@@ -170,6 +170,7 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
   /// 🎨 Gradient Background - Dark Mode Responsive
   /// v4.0: Curves.easeInOutCubic for smoother "breathing" gradient
   Widget _buildGradientBackground(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
       duration: _gradientAnimationDuration,
@@ -241,6 +242,7 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
 
   /// 💫 Logo מונפש עם Pulsing Circle
   Widget _buildAnimatedLogo(ColorScheme cs) {
+    final cs = Theme.of(context).colorScheme;
     final scaleAnimation = CurvedAnimation(
       parent: _logoController,
       curve: Curves.elasticOut,
@@ -347,6 +349,7 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
   /// 📝 שם האפליקציה מונפש
   /// v4.0: flutter_animate — fadeIn → slideY → shimmer (replaces manual SlideTransition)
   Widget _buildAppName(ColorScheme cs) {
+    final cs = Theme.of(context).colorScheme;
     return Semantics(
       header: true,
       child: Text(
@@ -384,6 +387,7 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
   /// 🔄 Loading Indicator עם הודעות מתחלפות
   /// v4.0: Blur transition בהחלפת הודעות
   Widget _buildLoadingIndicator(ColorScheme cs) {
+    final cs = Theme.of(context).colorScheme;
     return FadeTransition(
       opacity: CurvedAnimation(
         parent: _logoController,
@@ -579,7 +583,7 @@ class _IndexErrorViewState extends State<IndexErrorView> {
                                 color: cs.onSurface,
                               ),
                             ),
-                            const SizedBox(height: kSpacingSmall),
+                            SizedBox(height: kSpacingSmall),
                             Text(
                               AppStrings.index.errorMessage,
                               style: TextStyle(
@@ -597,7 +601,7 @@ class _IndexErrorViewState extends State<IndexErrorView> {
                                 unawaited(HapticFeedback.lightImpact());
                                 widget.onRetry();
                               },
-                              icon: const Icon(Icons.refresh),
+                              icon: Icon(Icons.refresh),
                               label: Text(AppStrings.index.retryButton),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: cs.primary,

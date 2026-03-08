@@ -21,6 +21,7 @@ class TemplatePickerDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final strings = AppStrings.createListDialog;
 
     // 🔧 RTL wrapper להבטחת כיווניות נכונה
@@ -38,7 +39,7 @@ class TemplatePickerDialog extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(strings.noTemplatesAvailable, style: TextStyle(fontSize: 16, color: cs.outline)),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8),
                         Text(
                           strings.noTemplatesMessage,
                           style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),

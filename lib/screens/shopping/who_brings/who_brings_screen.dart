@@ -221,6 +221,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
   }
 
   void _showSnackBar(String message, {bool isSuccess = false}) {
+    final cs = Theme.of(context).colorScheme;
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -534,8 +535,8 @@ class _WhoBringsItemTile extends StatelessWidget {
                 // כפתור ביטול
                 OutlinedButton.icon(
                   onPressed: isLoading ? null : onCancelVolunteer,
-                  icon: const Icon(Icons.close, size: 18),
-                  label: const Text('בטל התנדבות'),
+                  icon: Icon(Icons.close, size: 18),
+                  label: Text('בטל התנדבות'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: cs.error,
                     side: BorderSide(color: cs.error),
@@ -546,8 +547,8 @@ class _WhoBringsItemTile extends StatelessWidget {
                 // כפתור התנדבות
                 ElevatedButton.icon(
                   onPressed: isLoading ? null : onVolunteer,
-                  icon: const Icon(Icons.volunteer_activism, size: 18),
-                  label: const Text('אני מביא! ✋'),
+                  icon: Icon(Icons.volunteer_activism, size: 18),
+                  label: Text('אני מביא! ✋'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: cs.primary,
                     foregroundColor: cs.onPrimary,
@@ -606,6 +607,7 @@ class _StatItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Column(
       children: [
         Row(
@@ -653,7 +655,7 @@ class _EmptyState extends StatelessWidget {
             size: 64,
             color: cs.onSurfaceVariant.withValues(alpha: 0.5),
           ),
-          const SizedBox(height: kSpacingMedium),
+          SizedBox(height: kSpacingMedium),
           Text(
             'אין פריטים ברשימה',
             style: TextStyle(
@@ -661,7 +663,7 @@ class _EmptyState extends StatelessWidget {
               color: cs.onSurfaceVariant,
             ),
           ),
-          const SizedBox(height: kSpacingSmall),
+          SizedBox(height: kSpacingSmall),
           Text(
             'הוסף פריטים כדי שחברי הקבוצה יוכלו להתנדב',
             style: TextStyle(

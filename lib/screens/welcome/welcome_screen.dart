@@ -200,7 +200,7 @@ class WelcomeScreen extends StatelessWidget {
                                 icon: const Icon(Icons.person_add),
                                 label: Text(
                                   AppStrings.welcome.startButton,
-                                  style: const TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.w600),
+                                  style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.w600),
                                 ),
                                 style: FilledButton.styleFrom(
                                   backgroundColor: (brand?.accent ?? cs.primary).withValues(alpha: 0.18),
@@ -608,7 +608,7 @@ class _MiniListItemWithQty extends StatelessWidget {
             size: 14,
             color: checked ? successColor : cs.onSurfaceVariant,
           ),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
             decoration: BoxDecoration(
@@ -663,7 +663,7 @@ class _MiniPantryItem extends StatelessWidget {
             size: 14,
             color: isLow ? warningColor : successColor,
           ),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
           Expanded(
             child: Text(text, style: TextStyle(fontSize: 11, height: 1.2, color: cs.onSurface.withValues(alpha: 0.87))),
           ),
@@ -730,7 +730,7 @@ class _MiniShareUser extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
           Expanded(
             child: Text(name, style: TextStyle(fontSize: 11, height: 1.2, color: cs.onSurface.withValues(alpha: 0.87))),
           ),
@@ -743,7 +743,7 @@ class _MiniShareUser extends StatelessWidget {
               color: isOnline ? successColor : cs.onSurfaceVariant.withValues(alpha: 0.3),
             ),
           ),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
           Text(
             isOnline ? AppStrings.welcome.statusOnline : AppStrings.welcome.statusOffline,
             style: TextStyle(fontSize: 9, height: 1.2, color: cs.onSurfaceVariant),

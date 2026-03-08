@@ -212,6 +212,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
   }
 
   Widget _buildBody(ColorScheme cs, ThemeData theme) {
+    final cs = Theme.of(context).colorScheme;
     final strings = AppStrings.notificationsCenter;
     final brand = theme.extension<AppBrand>();
 
@@ -257,14 +258,14 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
                   duration: 2000.ms,
                   curve: Curves.easeInOut,
                 ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
               strings.emptyTitle,
               style: theme.textTheme.titleMedium?.copyWith(
                 color: cs.onSurfaceVariant,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               strings.emptySubtitle,
               style: theme.textTheme.bodyMedium?.copyWith(
@@ -435,7 +436,7 @@ class _NotificationTile extends StatelessWidget {
               color: cs.onSurfaceVariant,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Text(
             timeAgo,
             style: theme.textTheme.bodySmall?.copyWith(
@@ -473,6 +474,7 @@ class _NotificationTile extends StatelessWidget {
 
   /// ✅ FIX: Theme-aware colors from AppBrand
   Color _getTypeColor(NotificationType type, ColorScheme cs, AppBrand? brand) {
+    final cs = Theme.of(context).colorScheme;
     switch (type) {
       case NotificationType.invite:
         return cs.primary;

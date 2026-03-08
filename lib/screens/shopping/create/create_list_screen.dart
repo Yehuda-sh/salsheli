@@ -105,6 +105,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
 
   /// הגשת הטופס
   Future<void> _handleSubmit() async {
+    final cs = Theme.of(context).colorScheme;
     debugPrint('🔵 CreateListScreen._handleSubmit()');
 
     // 🔧 סגירת מקלדת לפני פעולות אסינכרוניות
@@ -210,6 +211,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
   }
 
   void _showErrorSnackBar(String message) {
+    final cs = Theme.of(context).colorScheme;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -791,7 +793,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
                   ? Icon(Icons.check, size: 16, color: cs.onPrimary)
                   : null,
             ),
-            const SizedBox(width: kSpacingMedium),
+            SizedBox(width: kSpacingMedium),
 
             // Icon
             Icon(
@@ -910,7 +912,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
           ),
           // הודעה אם יש pending
           if (_selectedContacts.any((c) => c.isPending)) ...[
-            const SizedBox(height: kSpacingSmall),
+            SizedBox(height: kSpacingSmall),
             Row(
               children: [
                 Icon(Icons.info_outline, size: 14, color: cs.tertiary),

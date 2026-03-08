@@ -513,7 +513,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 .animate()
                                 .fadeIn(duration: 400.ms)
                                 .slideX(begin: -0.1, curve: Curves.easeOutCubic),
-                            const SizedBox(height: 4),
+                            SizedBox(height: 4),
                             Text(
                               AppStrings.auth.loginSubtitle,
                               style: theme.textTheme.bodyMedium?.copyWith(
@@ -657,7 +657,7 @@ class _LoginScreenState extends State<LoginScreen>
                             // 🔘 כפתור התחברות + shimmer CTA
                             FilledButton.icon(
                               onPressed: _isLoading ? null : _handleLogin,
-                              icon: const Icon(Icons.login),
+                              icon: Icon(Icons.login),
                               label: Text(AppStrings.auth.loginButton),
                               style: FilledButton.styleFrom(
                                 minimumSize: const Size.fromHeight(48),
@@ -1065,7 +1065,7 @@ class _SocialLoginButtonState extends State<_SocialLoginButton> {
                             ? widget.color.withValues(alpha: 0.5)
                             : widget.color,
                       ),
-                      const SizedBox(width: kSpacingSmall),
+                      SizedBox(width: kSpacingSmall),
                       Text(
                         widget.label,
                         style: TextStyle(

@@ -108,6 +108,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   }
 
   Future<void> _removeUser(SharedUser user) async {
+    final cs = Theme.of(context).colorScheme;
     final strings = AppStrings.manageUsers;
     final userContext = context.read<UserContext>();
     final currentUserId = userContext.userId;
@@ -288,6 +289,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   }
 
   void _showError(String message) {
+    final cs = Theme.of(context).colorScheme;
     // SnackBar בלבד - לשגיאות פעולה (remove/editRole).
     // _errorMessage משמש רק לשגיאות טעינה ראשוניות.
     ScaffoldMessenger.of(context).showSnackBar(
@@ -425,6 +427,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   }
 
   Widget _buildBody(bool isOwner) {
+    final cs = Theme.of(context).colorScheme;
     final strings = AppStrings.manageUsers;
 
     if (_isLoading) {
@@ -482,7 +485,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
               strings.noSharedUsers,
               style: const TextStyle(fontSize: 18),
             ),
-            const SizedBox(height: kSpacingSmall),
+            SizedBox(height: kSpacingSmall),
             // 🔧 טקסט שונה לפי הרשאות
             Text(
               isOwner ? strings.inviteUsersHint : strings.onlyOwnerCanInvite,
@@ -505,6 +508,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   }
 
   Widget _buildUserCard(SharedUser user, bool isOwner) {
+    final cs = Theme.of(context).colorScheme;
     final strings = AppStrings.manageUsers;
     final userContext = context.read<UserContext>();
     final isUserOwner = user.role == UserRole.owner;
@@ -589,7 +593,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                     child: Row(
                       children: [
                         Icon(Icons.delete, size: 20, color: cs.error),
-                        const SizedBox(width: kSpacingSmall),
+                        SizedBox(width: kSpacingSmall),
                         Text(strings.removeUser, style: TextStyle(color: cs.error)),
                       ],
                     ),

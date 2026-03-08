@@ -179,7 +179,7 @@ class _MyActiveShoppingBanner extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Text(
                         strings.myActiveSubtitle(list.name, uncheckedCount),
                         style: theme.textTheme.bodySmall?.copyWith(
@@ -197,7 +197,7 @@ class _MyActiveShoppingBanner extends StatelessWidget {
                 // כפתור המשך
                 ElevatedButton.icon(
                   onPressed: () => _onContinue(context),
-                  icon: const Icon(Icons.play_arrow, size: 18),
+                  icon: Icon(Icons.play_arrow, size: 18),
                   label: Text(strings.continueButton),
                   style: ElevatedButton.styleFrom(
                     // ✅ FIX: Theme-aware colors
@@ -337,7 +337,7 @@ class _OthersShoppingBanner extends StatelessWidget {
                     // כפתור צפה
                     IconButton(
                       onPressed: () => _onViewList(context),
-                      icon: const Icon(Icons.visibility_outlined),
+                      icon: Icon(Icons.visibility_outlined),
                       // ✅ FIX: Theme-aware color
                       color: cs.onPrimary.withValues(alpha: 0.8),
                       tooltip: strings.viewListTooltip,

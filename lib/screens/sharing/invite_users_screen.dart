@@ -406,7 +406,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                       // Subtitle
                       Text(
                         AppStrings.sharing.inviteSubtitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           color: cs.onSurface.withValues(alpha: 0.6),
                         ),
@@ -438,10 +438,10 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 4),
+                                SizedBox(height: 4),
                                 Text(
                                   AppStrings.sharing.savedContactsSubtitle,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 12,
                                     color: cs.onSurface.withValues(alpha: 0.6),
                                   ),
@@ -467,11 +467,11 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
                         Center(
                           child: Text(
                             AppStrings.sharing.orEnterNewEmail,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: cs.onSurface.withValues(alpha: 0.6),
                               fontSize: 14,
                             ),
@@ -622,7 +622,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                               Expanded(
                                 child: Text(
                                   _getConfirmationText(),
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 12,
                                     color: cs.onSurface,
                                   ),
@@ -720,7 +720,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                         ? cs.outline
                         : cs.onSurface.withValues(alpha: 0.6),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               // Avatar
               CircleAvatar(
                 radius: 18,
@@ -873,7 +873,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                   ),
                   Text(
                     description,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       color: cs.onSurface.withValues(alpha: 0.6),
                     ),

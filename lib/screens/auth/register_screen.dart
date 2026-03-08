@@ -471,7 +471,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                 .animate()
                                 .fadeIn(duration: 400.ms)
                                 .slideY(begin: 0.2, curve: Curves.easeOutCubic),
-                            const SizedBox(height: 4),
+                            SizedBox(height: 4),
 
                             Text(
                               AppStrings.auth.registerSubtitle,
@@ -631,7 +631,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                 .animate()
                                 .fadeIn(duration: 400.ms, delay: 300.ms)
                                 .slideY(begin: 0.2, curve: Curves.easeOutCubic),
-                            const SizedBox(height: kSpacingLarge),
+                            SizedBox(height: kSpacingLarge),
 
                             // 🔘 כפתור הרשמה - auto-contrast foreground + shimmer CTA
                             Builder(builder: (context) {
@@ -955,7 +955,7 @@ class _SocialLoginButtonState extends State<_SocialLoginButton> {
                         size: 18,
                         color: isDisabled ? widget.color.withValues(alpha: 0.5) : widget.color,
                       ),
-                      const SizedBox(width: kSpacingSmall),
+                      SizedBox(width: kSpacingSmall),
                       Text(
                         widget.label,
                         style: TextStyle(

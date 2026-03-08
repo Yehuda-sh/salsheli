@@ -259,6 +259,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
   /// === מחיקת פריט עם אנימציה ===
   void _deleteItem(BuildContext context, UnifiedListItem removed) {
+    final cs = Theme.of(context).colorScheme;
     final provider = context.read<ShoppingListsProvider>();
 
     // מצא את האינדקס המקורי ברשימה (לא אחרי סינון)
@@ -318,6 +319,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
   /// 📋 הוספת משימה חדשה
   Future<void> _handleAddTask() async {
+    final cs = Theme.of(context).colorScheme;
     final provider = context.read<ShoppingListsProvider>();
     final userContext = context.read<UserContext>();
     final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id);
@@ -556,7 +558,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                           top: 8,
                           child: Container(
                             padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(color: kStickyPink, shape: BoxShape.circle),
+                            decoration: BoxDecoration(color: kStickyPink, shape: BoxShape.circle),
                             constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
                             child: Text(
                               '${currentList.pendingRequestsForReview.length}',
@@ -738,6 +740,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   /// 🏷️ יצירת צ'יפים של קטגוריות (לגלילה אופקית) - דינמי!
   /// 🔧 FIX: קבלת currentList כפרמטר
   List<Widget> _buildCategoryChipsCompact(ShoppingList currentList) {
+    final cs = Theme.of(context).colorScheme;
     final categories = _getAvailableCategories(currentList);
 
     // אם אין קטגוריות, לא מציגים כלום
@@ -839,6 +842,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   /// 🏷️ רשימה מקובצת - עיצוב "מרקר" (Highlighter) רחב
   /// 🔧 FIX: קבלת currentList כפרמטר
   Widget _buildGroupedList(List<UnifiedListItem> items, ThemeData theme, ShoppingList currentList) {
+    final cs = Theme.of(context).colorScheme;
     final grouped = _groupItemsByCategory(items);
     final categories = grouped.keys.toList()..sort();
 
@@ -935,6 +939,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   /// 🎴 כרטיס פריט נקי - ללא כפתורי רעש (Swipe למחיקה, Tap לעריכה)
   /// 🔧 FIX: קבלת currentList כפרמטר + הסרת פרמטרים שלא בשימוש (stickyColor, rotation)
   Widget _buildItemCard(UnifiedListItem item, int index, ThemeData theme, ShoppingList currentList) {
+    final cs = Theme.of(context).colorScheme;
     final isProduct = item.type == ItemType.product;
     final canManage = currentList.canCurrentUserManage; // Owner/Admin
     final canEdit = currentList.canCurrentUserEdit; // Owner/Admin/Editor
@@ -949,7 +954,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
         child: Row(
           children: [
             Icon(Icons.delete_outline, color: cs.onPrimary),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             Text(AppStrings.common.delete, style: TextStyle(color: cs.onPrimary, fontWeight: FontWeight.bold)),
           ],
         ),

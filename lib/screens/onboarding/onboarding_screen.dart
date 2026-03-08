@@ -371,6 +371,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   /// מציג LinearProgressIndicator עם טקסט דינמי "שלב X/Y"
   /// הצבע מתאים ל-accent מה-theme
   Widget _buildProgressIndicator(ColorScheme cs, Color accent, int totalSteps) {
+    final cs = Theme.of(context).colorScheme;
     return Row(
       children: [
         Expanded(
@@ -384,7 +385,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ),
         ),
-        const SizedBox(width: kSpacingSmall),
+        SizedBox(width: kSpacingSmall),
         Text(
           AppStrings.onboarding.stepProgress(_currentStep + 1, totalSteps),
           style: TextStyle(
@@ -399,6 +400,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   /// בונה כפתורי ניווט - "הקודם" ו "הבא/סיום"
   Widget _buildNavigationButtons(ColorScheme cs, Color accent, int totalSteps) {
+    final cs = Theme.of(context).colorScheme;
     return Row(
       children: [
         // כפתור "הקודם"

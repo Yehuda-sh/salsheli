@@ -157,7 +157,7 @@ class _PendingInviteBannerContent extends StatelessWidget {
                           ],
                         ],
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Text(
                         strings.inviteMessage(inviterName, groupName),
                         style: theme.textTheme.bodySmall?.copyWith(

@@ -471,7 +471,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                                   ),
                                 )
                               : IconButton(
-                                  icon: const Icon(Icons.check),
+                                  icon: Icon(Icons.check),
                                   onPressed: _addNewContact,
                                   color: cs.primary,
                                 ),
@@ -507,7 +507,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                                 children: [
                                   Icon(Icons.people_outline,
                                       size: 48, color: cs.onSurfaceVariant),
-                                  const SizedBox(height: kSpacingSmall),
+                                  SizedBox(height: kSpacingSmall),
                                   Text(
                                     _searchQuery.isEmpty
                                         ? AppStrings.contactSelector.noSavedContacts
@@ -611,7 +611,7 @@ class _ContactTile extends StatelessWidget {
               onChanged: onRoleChanged,
             )
           : IconButton(
-              icon: const Icon(Icons.add_circle_outline),
+              icon: Icon(Icons.add_circle_outline),
               onPressed: () => _showRolePicker(context),
             ),
       selected: isSelected,

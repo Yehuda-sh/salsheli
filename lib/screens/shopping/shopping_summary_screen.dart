@@ -70,7 +70,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         CircularProgressIndicator(color: cs.primary),
-                        const SizedBox(height: kSpacingMedium),
+                        SizedBox(height: kSpacingMedium),
                         Text(
                           'טוען סיכום...',
                           style: TextStyle(
@@ -91,12 +91,12 @@ class ShoppingSummaryScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.error_outline, size: 64, color: cs.error),
-                        const SizedBox(height: kSpacingMedium),
+                        SizedBox(height: kSpacingMedium),
                         Text(
                           'שגיאה בטעינת הסיכום',
                           style: TextStyle(fontSize: 18, color: cs.onSurface),
                         ),
-                        const SizedBox(height: kSpacingSmall),
+                        SizedBox(height: kSpacingSmall),
                         Text(
                           provider.errorMessage ?? 'שגיאה לא ידועה',
                           style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
@@ -131,7 +131,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                             color: cs.onSurface,
                           ),
                         ),
-                        const SizedBox(height: kSpacingSmall),
+                        SizedBox(height: kSpacingSmall),
                         Text(
                           'ייתכן שהרשימה נמחקה',
                           style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
@@ -197,7 +197,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                               color: cs.onSurface,
                             ),
                           ),
-                          const SizedBox(height: kSpacingSmall),
+                          SizedBox(height: kSpacingSmall),
                           Text(
                             list.name,
                             style: TextStyle(
@@ -324,6 +324,7 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     // StickyNote תמיד בהיר - צריך טקסט כהה
     // ב-dark mode המערכת רוצה טקסט בהיר, אז מתקנים ל-black87
     final textColor = Theme.of(context).brightness == Brightness.dark
@@ -398,6 +399,7 @@ class _StatBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     // StickyNote תמיד בהיר - צריך טקסט כהה
     final textColor = Theme.of(context).brightness == Brightness.dark
         ? cs.onSurface

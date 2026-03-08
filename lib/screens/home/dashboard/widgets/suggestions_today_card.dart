@@ -81,7 +81,7 @@ class _LoadingState extends StatelessWidget {
                 color: cs.primary,
               ),
             ),
-            const SizedBox(width: kSpacingSmall),
+            SizedBox(width: kSpacingSmall),
             Text(
               AppStrings.suggestionsToday.loading,
               style: theme.textTheme.bodyMedium?.copyWith(
@@ -380,6 +380,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final suggestion = widget.suggestion;
     final cardColor = _getCardColor(suggestion.urgency);
@@ -464,7 +465,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                         size: 14,
                         color: cs.onSurface.withValues(alpha: 0.6),
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: 4),
                       Text(
                         _getUrgencyText(suggestion.urgency),
                         style: theme.textTheme.labelSmall?.copyWith(
@@ -568,12 +569,12 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Icon(
+                                    Icon(
                                       Icons.add,
                                       size: 16,
                                       color: cs.onSurface,
                                     ),
-                                    const SizedBox(width: 4),
+                                    SizedBox(width: 4),
                                     Text(
                                       AppStrings.suggestionsToday.addButton,
                                       style: theme.textTheme.labelMedium?.copyWith(

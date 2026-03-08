@@ -329,6 +329,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
 
   /// 🔄 ניסיון חוזר לסנכרון כל הפריטים שנכשלו
   Future<void> _retrySyncAll() async {
+    final cs = Theme.of(context).colorScheme;
     debugPrint('🔄 _retrySyncAll: מנסה לסנכרן הכל...');
 
     // ✅ Cache before async
@@ -419,6 +420,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
   /// - finishAndDeletePending: מחק (סמן כ-notNeeded)
   /// - finishNoPending: אין פריטים ב-pending
   Future<void> _saveAndFinish({
+    final cs = Theme.of(context).colorScheme;
     ShoppingSummaryResult pendingAction = ShoppingSummaryResult.finishNoPending,
   }) async {
     // ✅ תפוס context לפני await
@@ -950,23 +952,23 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.check_circle, color: StatusColors.success, size: 14),
-                          const SizedBox(width: 2),
+                          SizedBox(width: 2),
                           Text('$purchased/$total', style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant, fontWeight: FontWeight.bold)),
                           if (outOfStock > 0) ...[
-                            const SizedBox(width: 10),
+                            SizedBox(width: 10),
                             Icon(Icons.remove_shopping_cart, color: StatusColors.error, size: 14),
-                            const SizedBox(width: 2),
+                            SizedBox(width: 2),
                             Text('$outOfStock', style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
                           ],
                           if (notNeeded > 0) ...[
-                            const SizedBox(width: 10),
+                            SizedBox(width: 10),
                             Icon(Icons.block, color: cs.onSurfaceVariant, size: 14),
-                            const SizedBox(width: 2),
+                            SizedBox(width: 2),
                             Text('$notNeeded', style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
                           ],
-                          const SizedBox(width: 10),
+                          SizedBox(width: 10),
                           Icon(Icons.shopping_cart, color: cs.primary, size: 14),
-                          const SizedBox(width: 2),
+                          SizedBox(width: 2),
                           Text('${total - completed}', style: TextStyle(fontSize: 11, color: cs.primary, fontWeight: FontWeight.bold)),
                         ],
                       ),
@@ -1218,13 +1220,13 @@ class _ErrorStateScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: kIconSizeXLarge * 2, color: StatusColors.error),
-            const SizedBox(height: kSpacingMedium),
+            Icon(Icons.error_outline, size: kIconSizeXLarge * 2, color: StatusColors.error),
+            SizedBox(height: kSpacingMedium),
             Text(
               AppStrings.shopping.oopsError,
               style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold, color: cs.onSurface),
             ),
-            const SizedBox(height: kSpacingSmall),
+            SizedBox(height: kSpacingSmall),
             Text(
               errorMessage,
               style: TextStyle(fontSize: kFontSizeBody, color: cs.onSurfaceVariant),
@@ -1261,12 +1263,12 @@ class _EmptyStateScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.shopping_cart_outlined, size: kIconSizeXLarge * 2, color: cs.onSurfaceVariant),
-          const SizedBox(height: kSpacingMedium),
+          SizedBox(height: kSpacingMedium),
           Text(
             AppStrings.shopping.listEmpty,
             style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold, color: cs.onSurface),
           ),
-          const SizedBox(height: kSpacingSmall),
+          SizedBox(height: kSpacingSmall),
           Text(
             AppStrings.shopping.noItemsToBuy,
             style: TextStyle(fontSize: kFontSizeBody, color: cs.onSurfaceVariant),
@@ -1422,7 +1424,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
               AppStrings.shopping.legendNotNeeded,
               style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(width: 4),
+            SizedBox(width: 4),
             Icon(Icons.block, color: cs.onSurfaceVariant, size: 20),
           ],
         ),
@@ -1537,6 +1539,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
 
   /// 🔢 עריכת כמות מהירה — bottom sheet עם +/−
   void _showQuantityEditor(BuildContext context, ThemeData theme, ColorScheme cs) {
+    final cs = Theme.of(context).colorScheme;
     int qty = item.quantity ?? 1;
 
     showModalBottomSheet(
@@ -1690,8 +1693,8 @@ class _ShoppingSummaryDialogState extends State<_ShoppingSummaryDialog> {
     return AlertDialog(
       title: Row(
         children: [
-          const Icon(Icons.check_circle, color: StatusColors.success, size: kIconSizeLarge),
-          const SizedBox(width: kSpacingSmallPlus),
+          Icon(Icons.check_circle, color: StatusColors.success, size: kIconSizeLarge),
+          SizedBox(width: kSpacingSmallPlus),
           Expanded(
             child: Text(
               AppStrings.shopping.summaryTitle,
@@ -1786,11 +1789,12 @@ class _ShoppingSummaryDialogState extends State<_ShoppingSummaryDialog> {
 
   /// דיאלוג בחירת אפשרות עבור פריטים ב-pending
   Widget _buildPendingOptionsDialog(ColorScheme cs) {
+    final cs = Theme.of(context).colorScheme;
     return AlertDialog(
       title: Row(
         children: [
-          const Icon(Icons.help_outline, color: StatusColors.pending, size: kIconSizeLarge),
-          const SizedBox(width: kSpacingSmallPlus),
+          Icon(Icons.help_outline, color: StatusColors.pending, size: kIconSizeLarge),
+          SizedBox(width: kSpacingSmallPlus),
           Expanded(
             child: Text(
               AppStrings.shopping.summaryPendingQuestion(widget.pending),

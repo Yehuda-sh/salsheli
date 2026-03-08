@@ -312,6 +312,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   // 0. ERROR BANNER - באנר שגיאה
   // ============================================
   Widget _buildErrorBanner(BuildContext context, String errorMessage, ColorScheme cs) {
+    final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final strings = AppStrings.homeDashboard;
 
@@ -342,7 +343,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(
                   errorMessage,
                   style: theme.textTheme.bodySmall?.copyWith(
@@ -457,7 +458,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                             size: 14,
                             color: cs.onSurfaceVariant,
                           ),
-                          const SizedBox(width: 4),
+                          SizedBox(width: 4),
                           Text(
                             familyName,
                             style: theme.textTheme.bodySmall?.copyWith(
@@ -513,6 +514,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     List<ShoppingList> activeLists,
     ColorScheme cs,
   ) {
+    final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final strings = AppStrings.homeDashboard;
 
@@ -574,7 +576,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                         color: cs.secondary,
                       ),
                     ),
-                    const SizedBox(height: kSpacingMedium),
+                    SizedBox(height: kSpacingMedium),
                     Text(
                       strings.noActiveLists,
                       style: theme.textTheme.titleSmall?.copyWith(
@@ -582,7 +584,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       strings.createListHint,
                       style: theme.textTheme.bodySmall?.copyWith(
@@ -601,6 +603,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   }
 
   Widget _buildListCard(BuildContext context, ShoppingList list, ColorScheme cs) {
+    final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final brand = theme.extension<AppBrand>();
     final strings = AppStrings.homeDashboard;
@@ -692,7 +695,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(height: 6),
+                            SizedBox(height: 6),
                             if (totalCount == 0)
                               Text(
                                 strings.emptyList,
@@ -757,7 +760,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                           ],
                         ),
                       ),
-                      const SizedBox(width: kSpacingSmall),
+                      SizedBox(width: kSpacingSmall),
                       // חץ - RTL aware
                       Icon(
                         isRtl ? Icons.chevron_left : Icons.chevron_right,
@@ -783,6 +786,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     List<Receipt> receipts,
     ColorScheme cs,
   ) {
+    final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final strings = AppStrings.homeDashboard;
     // ✅ FIX: RTL-aware chevron icon
@@ -836,7 +840,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(width: 2),
+                    SizedBox(width: 2),
                     Icon(
                       isRtl ? Icons.chevron_left : Icons.chevron_right,
                       size: 16,
@@ -872,6 +876,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   }
 
   Widget _buildReceiptTile(BuildContext context, Receipt receipt, ColorScheme cs) {
+    final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final strings = AppStrings.homeDashboard;
 

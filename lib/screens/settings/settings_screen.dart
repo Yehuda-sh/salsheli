@@ -119,6 +119,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   /// התנתקות רגילה (שומר seenOnboarding)
   Future<void> _logout() async {
+    final cs = Theme.of(context).colorScheme;
     debugPrint('🚪 _logout: מתחיל התנתקות רגילה');
 
     final confirmed = await showDialog<bool>(
@@ -190,6 +191,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   /// 🔧 DEBUG ONLY: מחיקת כל הנתונים (כולל seenOnboarding)
   Future<void> _debugClearAllData() async {
+    final cs = Theme.of(context).colorScheme;
     debugPrint('🔥 _debugClearAllData: DEBUG - מחיקת נתונים מלאה');
 
     final confirmed = await showDialog<bool>(
@@ -200,8 +202,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('פעולה זו תמחק הכל כולל seenOnboarding.\nתחזור למסך Welcome.'),
-            const SizedBox(height: kSpacingMedium),
+            Text('פעולה זו תמחק הכל כולל seenOnboarding.\nתחזור למסך Welcome.'),
+            SizedBox(height: kSpacingMedium),
             Container(
               padding: const EdgeInsets.all(kSpacingSmall),
               decoration: BoxDecoration(
@@ -225,7 +227,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('ביטול')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text('ביטול')),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             child: Text('מחק הכל', style: TextStyle(color: cs.error, fontWeight: FontWeight.bold)),
@@ -292,6 +294,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   /// 🗑️ דיאלוג מחיקת חשבון (GDPR)
   Future<void> _showDeleteAccountDialog() async {
+    final cs = Theme.of(context).colorScheme;
     final confirmController = TextEditingController();
     bool isDeleting = false;
 
@@ -310,7 +313,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: Row(
               children: [
                 Icon(Icons.warning_amber_rounded, color: cs.error, size: 28),
-                const SizedBox(width: kSpacingSmall),
+                SizedBox(width: kSpacingSmall),
                 Text(
                   AppStrings.settings.deleteAccountTitle,
                   style: TextStyle(color: cs.error),
@@ -403,7 +406,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       },
                 style: FilledButton.styleFrom(backgroundColor: cs.error),
                 child: isDeleting
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(strokeWidth: 2, color: cs.onPrimary),
@@ -681,7 +684,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             }
                           },
                           child: isSaving
-                              ? const SizedBox(
+                              ? SizedBox(
                                   width: 20,
                                   height: 20,
                                   child: CircularProgressIndicator(
@@ -823,7 +826,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           child: _avatarOptions.contains(userContext.user?.profileImageUrl)
                               ? Text(
                                   userContext.user!.profileImageUrl!,
-                                  style: const TextStyle(fontSize: 28),
+                                  style: TextStyle(fontSize: 28),
                                 )
                               : Icon(Icons.person, color: cs.primary, size: kIconSizeProfile),
                         ),
@@ -839,7 +842,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                               ),
-                              const SizedBox(height: kSpacingTiny),
+                              SizedBox(height: kSpacingTiny),
                               Text(
                                 userEmail,
                                 style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
@@ -874,7 +877,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Row(
                           children: [
                             Icon(Icons.notifications_outlined, color: cs.primary),
-                            const SizedBox(width: kSpacingSmall),
+                            SizedBox(width: kSpacingSmall),
                             Text(
                               AppStrings.settings.notificationsSectionTitle,
                               style: TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold, color: cs.primary),
@@ -927,7 +930,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Row(
                           children: [
                             Icon(Icons.settings_outlined, color: cs.primary),
-                            const SizedBox(width: kSpacingSmall),
+                            SizedBox(width: kSpacingSmall),
                             Text(
                               AppStrings.settings.generalSettingsSectionTitle,
                               style: TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold, color: cs.primary),
@@ -976,7 +979,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Row(
                           children: [
                             Icon(Icons.family_restroom, color: cs.primary),
-                            const SizedBox(width: kSpacingSmall),
+                            SizedBox(width: kSpacingSmall),
                             Text(
                               AppStrings.settings.householdManagementTitle,
                               style: TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold, color: cs.primary),
@@ -989,7 +992,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           leading: const Icon(Icons.people_outline),
                           title: Text(AppStrings.settings.householdMembersTitle),
                           subtitle: Text(AppStrings.settings.householdMembersSubtitle),
-                          trailing: const Icon(Icons.chevron_left),
+                          trailing: Icon(Icons.chevron_left),
                           onTap: () {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -1004,7 +1007,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           leading: const Icon(Icons.person_add_outlined),
                           title: Text(AppStrings.settings.householdInviteTitle),
                           subtitle: Text(AppStrings.settings.householdInviteSubtitle),
-                          trailing: const Icon(Icons.chevron_left),
+                          trailing: Icon(Icons.chevron_left),
                           onTap: () {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -1110,7 +1113,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ListTile(
                         leading: Icon(Icons.description_outlined, color: cs.primary),
                         title: const Text('תנאי שימוש'),
-                        trailing: const Icon(Icons.chevron_left),
+                        trailing: Icon(Icons.chevron_left),
                         onTap: () => showTermsOfServiceDialog(context),
                       ),
                       const Divider(height: 1),
@@ -1140,7 +1143,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 // 🔧 DEBUG ONLY: מחיקת כל הנתונים
                 if (kDebugMode) ...[
-                  const SizedBox(height: kSpacingSmall),
+                  SizedBox(height: kSpacingSmall),
                   Card(
                     elevation: 1,
                     color: cs.tertiaryContainer,
@@ -1153,7 +1156,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ],
 
-                const SizedBox(height: kSpacingMedium),
+                SizedBox(height: kSpacingMedium),
 
                 // 🔹 מחיקת חשבון (GDPR)
                 Card(

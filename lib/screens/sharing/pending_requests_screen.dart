@@ -252,6 +252,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final strings = AppStrings.sharing;
 
     return Directionality(
@@ -336,7 +337,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: kSpacingSmall),
+            SizedBox(height: kSpacingSmall),
             Text(
               strings.noPendingRequestsSubtitle,
               style: TextStyle(color: cs.onSurfaceVariant),
@@ -356,6 +357,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
   }
 
   Widget _buildRequestCard(PendingRequest request, int index) {
+    final cs = Theme.of(context).colorScheme;
     // Alternate colors for visual variety
     final colors = [kStickyCyan, kStickyYellow, kStickyPink, kStickyGreen, kStickyPurple];
     final color = colors[index % colors.length];
@@ -430,24 +432,24 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                 ],
               ],
             ),
-            const SizedBox(height: kSpacingSmall),
+            SizedBox(height: kSpacingSmall),
 
             // Requester info
             Row(
               children: [
                 Icon(Icons.person, size: 16, color: cs.outline),
-                const SizedBox(width: 4),
+                SizedBox(width: 4),
                 Text(requesterName, style: TextStyle(fontSize: 12, color: cs.outline)),
-                const SizedBox(width: kSpacingSmall),
+                SizedBox(width: kSpacingSmall),
                 Icon(Icons.access_time, size: 16, color: cs.outline),
-                const SizedBox(width: 4),
+                SizedBox(width: 4),
                 Text(timeAgo, style: TextStyle(fontSize: 12, color: cs.outline)),
               ],
             ),
 
             // 🆕 אזהרה עבור unknown
             if (isUnknownType) ...[
-              const SizedBox(height: kSpacingSmall),
+              SizedBox(height: kSpacingSmall),
               Container(
                 padding: const EdgeInsets.all(kSpacingSmall),
                 decoration: BoxDecoration(

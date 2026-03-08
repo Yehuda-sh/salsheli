@@ -82,6 +82,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final provider = context.watch<ShoppingListsProvider>();
 
     return Scaffold(
@@ -193,7 +194,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                     size: 18,
                     color: _hasActiveFilters ? cs.primary : cs.onSurface.withValues(alpha: 0.6),
                   ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: 6),
                   Text(
                     _hasActiveFilters ? AppStrings.shopping.filterActive : AppStrings.shopping.searchMenuLabel,
                     style: TextStyle(
@@ -204,7 +205,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                   ),
                   // Badge נקודה כשיש סינון
                   if (_hasActiveFilters) ...[
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Container(
                       width: 8,
                       height: 8,
@@ -444,6 +445,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
 
   /// צ'יפ סינון
   Widget _buildFilterChip(String key, String emoji, String name) {
+    final cs = Theme.of(context).colorScheme;
     final isSelected = _selectedType == key;
 
     return FilterChip(
@@ -603,6 +605,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
 
   /// תגית סינון בודדת (לחיצה פותחת את ה-Sheet המתאים)
   Widget _buildFilterTag(String label, {VoidCallback? onTap}) {
+    final cs = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -616,10 +619,10 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
           children: [
             Text(
               label,
-              style: const TextStyle(fontSize: 12),
+              style: TextStyle(fontSize: 12),
             ),
             if (onTap != null) ...[
-              const SizedBox(width: 2),
+              SizedBox(width: 2),
               Icon(Icons.edit, size: 10, color: cs.onSurface.withValues(alpha: 0.45)),
             ],
           ],
@@ -840,7 +843,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
           ),
           // הערה קטנה (למשל: "לפי עדכון אחרון")
           if (subtitle != null) ...[
-            const SizedBox(width: kSpacingTiny),
+            SizedBox(width: kSpacingTiny),
             Text(
               subtitle,
               style: TextStyle(
@@ -990,7 +993,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
               AppStrings.shopping.loadingListsError,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: kSpacingSmall),
+            SizedBox(height: kSpacingSmall),
             Text(
               provider.errorMessage ?? AppStrings.shopping.somethingWentWrong,
               style: TextStyle(color: cs.error),
@@ -1061,9 +1064,9 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
             const SizedBox(height: kSpacingLarge),
             Text(
               AppStrings.shopping.noListsFoundTitle,
-              style: const TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: kSpacingSmall),
+            SizedBox(height: kSpacingSmall),
             Text(AppStrings.shopping.noListsFoundSubtitle, style: TextStyle(color: cs.onSurfaceVariant)),
             const SizedBox(height: kSpacingLarge),
             StickyButtonSmall(

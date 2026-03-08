@@ -396,14 +396,14 @@ class _ReceiptTile extends StatelessWidget {
           subtitle: Row(
             children: [
               Icon(Icons.calendar_today, size: 12, color: cs.onSurfaceVariant),
-              const SizedBox(width: 4),
+              SizedBox(width: 4),
               Text(
                 DateFormat('dd/MM/yyyy', locale).format(receipt.date),
                 style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
               ),
-              const SizedBox(width: kSpacingSmall),
+              SizedBox(width: kSpacingSmall),
               Icon(Icons.shopping_bag, size: 12, color: cs.onSurfaceVariant),
-              const SizedBox(width: 4),
+              SizedBox(width: 4),
               Text(
                 strings.itemsCount(receipt.items.length),
                 style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
@@ -446,6 +446,7 @@ class _ReceiptTile extends StatelessWidget {
   }
 
   Widget _buildItemRow(BuildContext context, ReceiptItem item, ColorScheme cs, Color successColor) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: kSpacingSmall),
       child: Row(
@@ -464,7 +465,7 @@ class _ReceiptTile extends StatelessWidget {
                 ? Icon(Icons.check, color: cs.onPrimary, size: 14)
                 : null,
           ),
-          const SizedBox(width: kSpacingSmall),
+          SizedBox(width: kSpacingSmall),
           // כמות - מיד אחרי ה-checkbox
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -591,7 +592,7 @@ class _EmptyState extends StatelessWidget {
                 color: cs.onSurfaceVariant,
               ),
             ),
-            const SizedBox(height: kSpacingSmall),
+            SizedBox(height: kSpacingSmall),
             Text(
               strings.emptySubtitle,
               style: TextStyle(
@@ -637,7 +638,7 @@ class _ErrorState extends StatelessWidget {
               // ✅ FIX: Theme-aware error color
               color: cs.error.withValues(alpha: 0.7),
             ),
-            const SizedBox(height: kSpacingMedium),
+            SizedBox(height: kSpacingMedium),
             Text(
               message,
               style: TextStyle(color: cs.onSurfaceVariant),

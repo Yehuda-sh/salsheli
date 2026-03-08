@@ -261,7 +261,7 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
                         builder: (context) {
                           final button = ElevatedButton.icon(
                             onPressed: () => _onAddPressed(context),
-                            icon: const Icon(Icons.add_shopping_cart, size: 20),
+                            icon: Icon(Icons.add_shopping_cart, size: 20),
                             label: Text(strings.addButton),
                             style: ElevatedButton.styleFrom(
                               // ✅ FIX: Theme-aware colors

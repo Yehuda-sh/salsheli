@@ -799,7 +799,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                     child: Text(AppStrings.common.cancel),
                   ),
                   ElevatedButton.icon(
-                    icon: const Icon(Icons.add_location_alt, size: kIconSizeSmall),
+                    icon: Icon(Icons.add_location_alt, size: kIconSizeSmall),
                     label: Text(AppStrings.inventory.addLocationButton),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: cs.primaryContainer,
@@ -1022,7 +1022,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         child: Row(
           children: [
             Icon(Icons.delete_outline, color: cs.onErrorContainer),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             Text(strings.swipeDelete, style: TextStyle(color: cs.onErrorContainer, fontWeight: FontWeight.bold)),
           ],
         ),
@@ -1142,6 +1142,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
   /// 🔢 Badge כמות עם חיווי סטטוס
   Widget _buildQuantityBadge(InventoryItem item, ColorScheme cs) {
+    final cs = Theme.of(context).colorScheme;
     final strings = AppStrings.pantry;
     return Semantics(
       button: true,
@@ -1168,7 +1169,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                   fontSize: 14,
                 ),
               ),
-              const SizedBox(width: kSpacingXTiny),
+              SizedBox(width: kSpacingXTiny),
               Text(
                 strings.unitAbbreviation,
                 style: TextStyle(
@@ -1177,7 +1178,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                 ),
               ),
               if (item.isLowStock) ...[
-                const SizedBox(width: kSpacingTiny),
+                SizedBox(width: kSpacingTiny),
                 Icon(Icons.warning, color: cs.error, size: 14),
               ],
             ],
@@ -1189,6 +1190,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
   /// 📅 Badge תאריך תפוגה
   Widget _buildExpiryBadge(InventoryItem item, ColorScheme cs) {
+    final cs = Theme.of(context).colorScheme;
     final isExpired = item.isExpired;
     final isExpiringSoon = item.isExpiringSoon;
     final brand = Theme.of(context).extension<AppBrand>();
@@ -1295,7 +1297,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.warning, color: cs.error, size: kIconSizeSmall),
-                        const SizedBox(width: kSpacingTiny),
+                        SizedBox(width: kSpacingTiny),
                         Text(
                           strings.lowStockWarning(item.minQuantity),
                           style: TextStyle(color: cs.error, fontSize: kFontSizeTiny),

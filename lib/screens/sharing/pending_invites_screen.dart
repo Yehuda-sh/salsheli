@@ -300,7 +300,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                       ),
                       child: Icon(Icons.error_outline, size: 64, color: cs.error),
                     ),
-                    const SizedBox(height: kSpacingLarge),
+                    SizedBox(height: kSpacingLarge),
                     Text(_error!, style: TextStyle(color: cs.error, fontWeight: FontWeight.bold)),
                     const SizedBox(height: kSpacingMedium),
                     ElevatedButton.icon(
@@ -361,13 +361,13 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                         color: cs.onSurface,
                       ),
                     ),
-                    const SizedBox(height: kSpacingSmall),
+                    SizedBox(height: kSpacingSmall),
                     Text(
                       AppStrings.pendingInvitesScreen.emptySubtitle,
                       textAlign: TextAlign.center,
                       style: TextStyle(color: cs.onSurfaceVariant),
                     ),
-                    const SizedBox(height: kSpacingLarge),
+                    SizedBox(height: kSpacingLarge),
                     Text(
                       AppStrings.pendingInvitesScreen.pullToRefresh,
                       style: TextStyle(fontSize: kFontSizeTiny, color: cs.outline),
@@ -513,7 +513,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                       child: OutlinedButton.icon(
                         // נעול אם מעבדים הזמנה אחרת
                         onPressed: _processingInviteId != null ? null : () => _declineInvite(invite),
-                        icon: const Icon(Icons.close, size: 18),
+                        icon: Icon(Icons.close, size: 18),
                         label: Text(strings.declineButton),
                         style: OutlinedButton.styleFrom(
                           // ✅ Theme-aware: צבע שגיאה
@@ -531,7 +531,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                       child: ElevatedButton.icon(
                         // נעול אם מעבדים הזמנה אחרת
                         onPressed: _processingInviteId != null ? null : () => _acceptInvite(invite),
-                        icon: const Icon(Icons.check, size: 18),
+                        icon: Icon(Icons.check, size: 18),
                         label: Text(strings.acceptButton),
                         style: ElevatedButton.styleFrom(
                           // ✅ Theme-aware: צבע הצלחה מ-AppBrand

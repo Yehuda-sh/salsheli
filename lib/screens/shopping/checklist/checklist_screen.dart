@@ -140,6 +140,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
 
   /// הצגת Snackbar עם שגיאת סנכרון
   void _showSyncErrorSnackbar() {
+    final cs = Theme.of(context).colorScheme;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(AppStrings.common.syncError),
@@ -246,7 +247,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                         ),
                         visualDensity: VisualDensity.compact,
                       ),
-                      const SizedBox(width: kSpacingSmall),
+                      SizedBox(width: kSpacingSmall),
                       Icon(Icons.checklist, size: 24, color: cs.primary),
                       const SizedBox(width: kSpacingSmall),
                       Expanded(
@@ -562,7 +563,7 @@ class _EmptyState extends StatelessWidget {
             size: 64,
             color: cs.onSurfaceVariant.withValues(alpha: 0.5),
           ),
-          const SizedBox(height: kSpacingMedium),
+          SizedBox(height: kSpacingMedium),
           Text(
             AppStrings.checklist.emptyTitle,
             style: TextStyle(
@@ -570,7 +571,7 @@ class _EmptyState extends StatelessWidget {
               color: cs.onSurfaceVariant,
             ),
           ),
-          const SizedBox(height: kSpacingSmall),
+          SizedBox(height: kSpacingSmall),
           Text(
             AppStrings.checklist.emptySubtitle,
             style: TextStyle(

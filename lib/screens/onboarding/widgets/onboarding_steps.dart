@@ -126,7 +126,7 @@ class _StepWrapper extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, size: 72, color: accent),
-            const SizedBox(height: kSpacingLarge),
+            SizedBox(height: kSpacingLarge),
             Text(
               title,
               textAlign: TextAlign.center,
@@ -184,7 +184,7 @@ class _WelcomeStep extends StatelessWidget {
         children: [
           // אייקון מונפש עם זוהר
           _AnimatedWelcomeIcon(accent: accent),
-          const SizedBox(height: kSpacingXLarge),
+          SizedBox(height: kSpacingXLarge),
           Text(
             AppStrings.onboarding.welcomeTitle,
             style: t.titleLarge?.copyWith(
@@ -192,7 +192,7 @@ class _WelcomeStep extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: kSpacingMedium),
+          SizedBox(height: kSpacingMedium),
           Text(
             AppStrings.onboarding.welcomeSubtitle,
             textAlign: TextAlign.center,
@@ -598,7 +598,7 @@ class _ShoppingFrequencyStep extends StatelessWidget {
             style: t.titleSmall?.copyWith(color: cs.onSurface),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: kSpacingSmall),
+          SizedBox(height: kSpacingSmall),
           Text(
             AppStrings.onboarding.frequencyPerWeek(frequency),
             style: t.displaySmall?.copyWith(
@@ -619,7 +619,7 @@ class _ShoppingFrequencyStep extends StatelessWidget {
               onFrequencyChanged(newFreq);
             },
           ),
-          const SizedBox(height: kSpacingLarge),
+          SizedBox(height: kSpacingLarge),
 
           // שאלה 2: ימים קבועים
           Text(
@@ -627,7 +627,7 @@ class _ShoppingFrequencyStep extends StatelessWidget {
             style: t.titleSmall?.copyWith(color: cs.onSurface),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: kSpacingSmall),
+          SizedBox(height: kSpacingSmall),
           Text(
             AppStrings.onboarding.multiSelectHint,
             style: t.bodySmall?.copyWith(color: cs.onSurfaceVariant),
@@ -882,7 +882,7 @@ class _SummaryStep extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.check_circle, size: kIconSizeXLarge, color: accent),
-          const SizedBox(height: kSpacingMedium),
+          SizedBox(height: kSpacingMedium),
           Text(
             AppStrings.onboarding.summaryTitle,
             textAlign: TextAlign.center,
@@ -930,7 +930,7 @@ class _SummaryStep extends StatelessWidget {
                           ),
                     );
                   }),
-                  const SizedBox(height: kSpacingMedium),
+                  SizedBox(height: kSpacingMedium),
                   Text(
                     AppStrings.onboarding.summaryFinishHint,
                     textAlign: TextAlign.right,
@@ -971,7 +971,7 @@ class _RtlSummaryRow extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(leadingEmojiOrIconText, style: const TextStyle(fontSize: kFontSizeMedium)),
-        const SizedBox(width: kSpacingSmall),
+        SizedBox(width: kSpacingSmall),
         Flexible(
           child: Text(
             text,
